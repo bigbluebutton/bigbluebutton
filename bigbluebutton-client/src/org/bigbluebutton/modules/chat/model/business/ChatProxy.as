@@ -52,7 +52,7 @@ package org.bigbluebutton.modules.chat.model.business
 		private var log : LogModuleFacade = LogModuleFacade.getInstance("LogModule");
 		private var conf : Conference = ViewersFacade.getInstance().retrieveMediator(Conference.NAME) as Conference;
 		private var me:String = conf.me.name;
-		private var room:String = Constants.currentRoom;
+		private var room:String;
 		
 		
 		/**
@@ -71,7 +71,8 @@ package org.bigbluebutton.modules.chat.model.business
 			conn.setURI(this.uri);
 			conn.connect();
 			
-			
+			var conf:Conference = ViewersFacade.getInstance().retrieveMediator(Conference.NAME) as Conference;
+			room = conf.room;
 			
 		}
 	

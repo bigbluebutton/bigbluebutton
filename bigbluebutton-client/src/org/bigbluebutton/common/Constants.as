@@ -37,14 +37,10 @@ package org.bigbluebutton.common
 		//at present.carleton.ca. The reference to this string can be found in the 
 		//PresentationApplication class, in the presentation module under model
 		public static const OLD_RELATIVE_FILE_UPLOAD:String = "/blindside/file";
-		
-		public static const ROOM_85115:String = "85115";
-		public static const ROOM_85901:String = "85901";
 				
 		public static var red5Host:String = KIRUS_COMP;
 		public static var presentationHost:String = KIRUS_COMP;
 		public static var relativeFileUpload:String = NEW_RELATIVE_FILE_UPLOAD;
-		public static var currentRoom:String = ROOM_85115;
 
 	}
 }
