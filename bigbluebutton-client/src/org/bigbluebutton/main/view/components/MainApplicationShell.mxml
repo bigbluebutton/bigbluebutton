@@ -21,7 +21,7 @@
 				debugLog.text = "before startup in initShell";
 				facade.startup(this);
 				debugLog.text = "After startup in initShell";
-				toolbar.LogBtn.addEventListener(MouseEvent.CLICK , openLogModule);
+				//toolbar.LogBtn.addEventListener(MouseEvent.CLICK , openLogModule);
 				toolbar.btnLogout.addEventListener(MouseEvent.CLICK, logout);
 			}
 			

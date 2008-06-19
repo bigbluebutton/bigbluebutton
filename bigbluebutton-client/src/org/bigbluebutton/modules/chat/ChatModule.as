@@ -77,7 +77,12 @@ package org.bigbluebutton.modules.chat
 		}
 		
 		override public function logout():void{
-			//Shayan - add chat logout stuff here
+		//	var presentation:PresentationApplication = 
+		//		facade.retrieveMediator(PresentationApplication.NAME) as PresentationApplication;
+				
+		//	presentation.leave();
+			
+			facade.removeCore(ChatFacade.NAME);
 		}
 	}
 }

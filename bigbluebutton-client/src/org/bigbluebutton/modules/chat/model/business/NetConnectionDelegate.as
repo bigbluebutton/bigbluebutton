@@ -22,13 +22,14 @@ package org.bigbluebutton.modules.chat.model.business
 	import mx.rpc.IResponder;
 	import flash.net.NetConnection;
 	import flash.events.*;
+	import org.bigbluebutton.modules.log.LogModuleFacade;
 		
 	public class NetConnectionDelegate
 	{
 		public static const ID : String = "Chat.NetConnectionDelegate";
 		
 		
-		private var log : ILogger = LoggerFacade.getInstance().log;
+		private var log : LogModuleFacade = LogModuleFacade.getInstance("LogModule");
 		
 		private var _proxy : ChatProxy;
 				
@@ -60,7 +61,7 @@ package org.bigbluebutton.modules.chat.model.business
 //					_connUri = uri + "/" + room;
 //				}	
 				
-				_connUri = host + "/fitcDemo/" + room;
+				_connUri = host + "/chatServer/" + room;
 				
 				log.info( "Connecting to <b>" + _connUri + "</b>");
 								

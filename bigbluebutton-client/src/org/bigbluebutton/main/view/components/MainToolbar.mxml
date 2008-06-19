@@ -5,7 +5,7 @@
 			import org.bigbluebutton.main.view.MainApplicationShellMediator;
 		]]>
 	</mx:Script>
-	<mx:Button id="LogBtn" label="Log" visible="true" toolTip="Log Window"/> 						
+	<!--<mx:Button id="LogBtn" label="Log" visible="true" toolTip="Log Window"/> -->						
 	<mx:Spacer width="100%"/>
 	<mx:Button label="Logout" id="btnLogout" right="10" enabled="true"/>		
 </mx:ApplicationControlBar>

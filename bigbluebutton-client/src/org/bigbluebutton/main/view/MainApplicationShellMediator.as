@@ -187,7 +187,7 @@ package org.bigbluebutton.main.view
 				case MainApplicationConstants.REMOVE_WINDOW_MSG:
 					module = message.getBody() as BigBlueButtonModule;
 					if(module.name == LogModule.NAME) {
-						shell.toolbar.LogBtn.enabled = true;
+						//shell.toolbar.LogBtn.enabled = true;
 						module.getMDIComponent().visible = false;
 					} else removeWindow(module);
 					break;					
