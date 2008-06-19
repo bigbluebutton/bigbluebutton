@@ -21,6 +21,7 @@ package org.bigbluebutton.modules.log.view
 {
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	
 	import org.bigbluebutton.common.InputPipe;
 	import org.bigbluebutton.common.OutputPipe;
 	import org.bigbluebutton.common.Router;
@@ -54,7 +55,7 @@ package org.bigbluebutton.modules.log.view
 		private var inpipe : InputPipe;
 		private var router : Router;
 		private var inpipeListener : PipeListener;
-		public var logWindow : LogWindow = new LogWindow();
+		public var logWindow : LogWindow;
 		
 		/**
 		 * Constructor, initializing the router, pipes, and listeners 
@@ -65,14 +66,14 @@ package org.bigbluebutton.modules.log.view
 		{
 			super( NAME, viewComponent );	
 			viewComponent.mediator = this;
-			viewComponent.mshell.debugLog.text = "in logmodule mediator";
+			//viewComponent.mshell.debugLog.text = "in logmodule mediator";
 			router = viewComponent.router;
 			inpipe = new InputPipe(LogModuleConstants.TO_LOG_MODULE);
 			outpipe = new OutputPipe(LogModuleConstants.FROM_LOG_MODULE);
 			inpipeListener = new PipeListener(this, messageReceiver);
 			router.registerOutputPipe(outpipe.name, outpipe);
 			router.registerInputPipe(inpipe.name, inpipe);
-			viewComponent.mshell.debugLog.text = "in logmodule mediator 2";
+			//viewComponent.mshell.debugLog.text = "in logmodule mediator 2";
 			addWindow();
 			
 			
@@ -150,7 +151,7 @@ package org.bigbluebutton.modules.log.view
 		 * prepare Log window and send it through pipes to Shell 
 		 * 
 		 */		
-		private function addWindow() : void
+		public function addWindow() : void
 		{
 			// create a message
    			var msg:IPipeMessage = new Message(Message.NORMAL);
@@ -158,6 +159,7 @@ package org.bigbluebutton.modules.log.view
    						TO: MainApplicationConstants.TO_MAIN });
    			msg.setPriority(Message.PRIORITY_HIGH );
    			
+   			logWindow = new LogWindow();
 			logWindow.width = 500;
 			logWindow.height = 220;
 			logWindow.title = LogWindow.TITLE;
@@ -165,7 +167,7 @@ package org.bigbluebutton.modules.log.view
 			//logWindow.visible = false;
 			
 			msg.setBody(viewComponent as LogModule);
-			viewComponent.mshell.debugLog.text = "in logmodule mediator: addWindow()";
+			//viewComponent.mshell.debugLog.text = "in logmodule mediator: addWindow()";
 			outpipe.write(msg);
 			
 			// Adding listeners

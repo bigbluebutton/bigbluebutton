@@ -49,8 +49,8 @@ package org.bigbluebutton.modules.log
 		{
 			super(NAME);
 			facade = LogModuleFacade.getInstance(NAME);		
-			this.preferedX = Capabilities.screenResolutionX - 600;
-			this.preferedY = Capabilities.screenResolutionY - 300;	
+			this.preferedX = Capabilities.screenResolutionX - 500;
+			this.preferedY = Capabilities.screenResolutionY - 500;	
 		}
 		/**
 		 * setting up the router for the shell 
@@ -61,15 +61,19 @@ package org.bigbluebutton.modules.log
 		override public function acceptRouter(router : Router, shell : MainApplicationShell) : void
 		{
 			super.acceptRouter(router, shell);
-			shell.debugLog.text = 'In LogModule';
-			shell.debugLog.text = 'In LogModule 2';
+			//shell.debugLog.text = 'In LogModule';
+			//shell.debugLog.text = 'In LogModule 2';
 			facade.startup(this);			
-			shell.debugLog.text = 'In LogModule 3';
+			//shell.debugLog.text = 'In LogModule 3';
 		}
 		
 		override public function getMDIComponent():MDIWindow{
 			//var mediator:LogModuleMediator = facade.retrieveMediator(LogModuleMediator.NAME) as LogModuleMediator;
 			return mediator.logWindow;
+		}
+		
+		public function openLogWindow():void{
+			mediator.addWindow();
 		}
 	}
 }

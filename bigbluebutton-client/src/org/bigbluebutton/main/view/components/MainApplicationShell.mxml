@@ -18,11 +18,12 @@
 						
 			protected function initializeShell():void
 			{
-				debugLog.text = "before startup in initShell";
+				//debugLog.text = "before startup in initShell";
 				facade.startup(this);
-				debugLog.text = "After startup in initShell";
+				//debugLog.text = "After startup in initShell";
 				//toolbar.LogBtn.addEventListener(MouseEvent.CLICK , openLogModule);
 				toolbar.btnLogout.addEventListener(MouseEvent.CLICK, logout);
+				toolbar.webcamBtn.addEventListener(MouseEvent.CLICK, openWebcam);
 			}
 			
 			public function openLogModule(event:MouseEvent) : void
@@ -32,6 +33,26 @@
 			
 			private function logout(e:MouseEvent):void{
 				dispatchEvent(new Event(MainApplicationShellMediator.LOGOUT));
+			}
+			
+			private function openWebcam(e:MouseEvent) : void
+			{
+				dispatchEvent(new Event(MainApplicationShellMediator.START_WEBCAM));
+				//var myCameraWindow : MyCameraWindow = new MyCameraWindow();
+				//myCameraWindow.title = "My Camera";
+				//myCameraWindow.showCloseButton = true;
+	
+				//var streamName : String = "stream" + String( Math.floor( new Date().getTime() ) );
+			
+				//mainApp.publisherApp.createBroadcastMedia(streamName);		
+				//mainApp.publisherApp.setupStream(streamName);
+			
+				//var media : BroadcastMedia = mainApp.publisherApp.getBroadcastMedia(streamName) as BroadcastMedia;
+				//myCameraWindow.media = media;
+				
+				//var evt : OpenWindowEvent = new OpenWindowEvent(myCameraWindow);			
+				//evt.dispatch();
+				
 			}
 			
 		]]>
@@ -47,6 +68,6 @@
 	 	<mx:ControlBar width="100%" height="20" paddingTop="0">		
 		  <mx:Label text="(c) 2007, BigBlueButton Project" id="copyrightLabel2"/>
 		  <mx:Spacer width="20"/>
-		  <mx:Label id="debugLog" text="Log" />  
+		  <mx:Label id="lblVersion" text="0.32b" />  
 		</mx:ControlBar>
 </mx:VBox>

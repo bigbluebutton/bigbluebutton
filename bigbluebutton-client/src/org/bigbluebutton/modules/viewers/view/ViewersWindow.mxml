@@ -10,7 +10,7 @@
         	import org.bigbluebutton.modules.viewers.view.mediators.ViewersWindowMediator;
         	import mx.collections.ArrayCollection;
 		
-			public static const TITLE:String = "VIEWERS";
+			public static const TITLE:String = "Viewers";
 			
 			[Bindable]
 			public var conference : Conference = 

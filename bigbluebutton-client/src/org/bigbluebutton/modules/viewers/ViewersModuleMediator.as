@@ -19,6 +19,8 @@
 */
 package org.bigbluebutton.modules.viewers
 {
+	import flash.system.Capabilities;
+	
 	import org.bigbluebutton.common.InputPipe;
 	import org.bigbluebutton.common.OutputPipe;
 	import org.bigbluebutton.common.Router;
@@ -89,7 +91,11 @@ package org.bigbluebutton.modules.viewers
    			joinWindow = new JoinWindow();
    			joinWindow.showCloseButton = false;
    			joinWindow.title = JoinWindow.TITLE;
+   			
+   			module.preferedX = Capabilities.screenResolutionX/2 - 328/2;
+			module.preferedY = Capabilities.screenResolutionY/2 - 265;
    			module.activeWindow = joinWindow;
+   			
    			msg.setBody(viewComponent as ViewersModule);
    			outpipe.write(msg);
 		}
@@ -105,7 +111,11 @@ package org.bigbluebutton.modules.viewers
    			msg.setPriority(Message.PRIORITY_HIGH);
    			
    			viewersWindow = new ViewersWindow();
+   			
+   			module.preferedX = 20;
+   			module.preferedY = 20;
    			module.activeWindow = viewersWindow;
+   			
    			viewersWindow.width = 210;
    			viewersWindow.height = 220;
    			viewersWindow.title = ViewersWindow.TITLE;

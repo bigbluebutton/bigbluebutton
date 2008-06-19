@@ -46,6 +46,7 @@ package org.bigbluebutton.main.view
 		public static const OPEN_CHAT_MODULE:String = 'openChatModule';
 		public static const OPEN_LOG_MODULE:String = 'openLogModule';
 		public static const LOGOUT:String = "Logout";
+		public static const START_WEBCAM:String = "Start Webcam";
 
 		public var log:LogModuleFacade = LogModuleFacade.getInstance(LogModule.NAME);
 		private var mshell:MainApplicationShell;
@@ -60,7 +61,7 @@ package org.bigbluebutton.main.view
 		
 		private var modules:Array;
 		
-		private var viewersModule:ViewersModule;
+		private var logModule:LogModule;
 		
 
 		/**
@@ -76,7 +77,7 @@ package org.bigbluebutton.main.view
 			mshell = viewComponent;
 			router = new Router(viewComponent);
 			///viewComponent.debugLog.text = "Log Module inited 1";
-			viewComponent.addEventListener(OPEN_LOG_MODULE , runLogModule);
+			viewComponent.addEventListener(OPEN_LOG_MODULE , showLogWindow);
 			viewComponent.addEventListener(LOGOUT, logout);
 			inpipe = new InputPipe(MainApplicationConstants.TO_MAIN);
 			outpipe = new OutputPipe(MainApplicationConstants.FROM_MAIN);
@@ -85,7 +86,8 @@ package org.bigbluebutton.main.view
 			router.registerOutputPipe(outpipe.name, outpipe);
 			router.registerInputPipe(inpipe.name, inpipe);
 			
-			addModule(new LogModule());
+			logModule = new LogModule();
+			addModule(logModule);
 			
 			addModule(new ViewersModule());
 		
@@ -113,10 +115,9 @@ package org.bigbluebutton.main.view
 		 * @param event
 		 * 
 		 */		
-		public function runLogModule(event:Event) : void
-		{			
-			//logModule = new LogModule();
-			//logModule.acceptRouter(router, shell);
+		public function showLogWindow(event:Event) : void
+		{
+			logModule.openLogWindow();
 		}
 		
 		/**
@@ -144,14 +145,10 @@ package org.bigbluebutton.main.view
 			}
 			
 			modules = new Array();
+			logModule = new LogModule();
+			addModule(logModule);
 			addModule(new ViewersModule());
-			addModule(new LogModule());
-			//log.debug("Attempting Logout...");
-			//var delegate:SharedObjectConferenceDelegate = 
-			//	ViewersFacade.getInstance().retrieveProxy(SharedObjectConferenceDelegate.NAME) 
-			//		as SharedObjectConferenceDelegate;
-			//
-			//delegate.leave();			
+			shell.toolbar.enabled = false;	
 		}
 		
 		private function setLayout(module:BigBlueButtonModule):void{
@@ -175,7 +172,7 @@ package org.bigbluebutton.main.view
 			var msg : String = message.getHeader().MSG as String;
 			var module :BigBlueButtonModule;
 			
-			shell.debugLog.text = "Got message: " + msg;
+			//shell.debugLog.text = "Got message: " + msg;
 			
 			switch (msg)
 			{
@@ -192,6 +189,7 @@ package org.bigbluebutton.main.view
 					} else removeWindow(module);
 					break;					
 				case MainApplicationConstants.LOGIN_COMPLETE:
+					shell.toolbar.enabled = true;
 					runPresentationModule();
 					runVoiceModule();
 					runChatModule();

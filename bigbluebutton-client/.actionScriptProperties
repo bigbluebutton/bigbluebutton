@@ -28,15 +28,14 @@
 <applications>
 <application path="src/main.mxml"/>
 <application path="BigBlueButtonUnitTests.mxml"/>
+<application path="ChatUnitTest.mxml"/>
+<application path="LogUnitTest.mxml"/>
 <application path="VoiceUnitTests.mxml"/>
 <application path="src/TestRunners.mxml"/>
 <application path="meetme.mxml"/>
 <application path="blindside.mxml"/>
 <application path="PresentationUnitTests.mxml"/>
-<application path="LogApplication.mxml"/>
 <application path="BigBlueButton.mxml"/>
-<application path="ChatUnitTest.mxml"/>
-<application path="LogUnitTest.mxml"/>
 </applications>
 <modules/>
 <buildCSSFiles/>

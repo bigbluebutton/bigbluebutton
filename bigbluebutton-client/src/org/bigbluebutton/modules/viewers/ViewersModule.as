@@ -19,6 +19,8 @@
 */
 package org.bigbluebutton.modules.viewers
 {
+	import flash.system.Capabilities;
+	
 	import flexlib.mdi.containers.MDIWindow;
 	
 	import org.bigbluebutton.common.BigBlueButtonModule;
@@ -43,8 +45,8 @@ package org.bigbluebutton.modules.viewers
 		{
 			super(NAME);
 			facade = ViewersFacade.getInstance();
-			this.preferedX = 20;
-			this.preferedY = 20;
+			this.preferedX = Capabilities.screenResolutionX/2 - 328/2;
+			this.preferedY = Capabilities.screenResolutionY/2 - 265;
 		}
 		
 		/**

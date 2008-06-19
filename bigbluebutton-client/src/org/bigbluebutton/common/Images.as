@@ -115,6 +115,9 @@ package org.bigbluebutton.common
         [Embed(source="assets/images/page_white_powerpoint.png")]
         public var powerpoint:Class;        
         
+        [Embed(source="assets/images/pdf_icon.png")]
+        public var pdf:Class;
+        
         [Embed(source="assets/images/comment.gif")]
         public var chat_request:Class; 
         

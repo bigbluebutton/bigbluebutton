@@ -85,13 +85,13 @@ package org.bigbluebutton.common
 		 */
 		private function routeMessage(message:IPipeMessage):void
 		{
-			rshell.debugLog.text = 'routing message to ' + message.getHeader().TO;
+			//rshell.debugLog.text = 'routing message to ' + message.getHeader().TO;
 			
 			var TO : String = message.getHeader().TO;
 			var haspipe : Boolean = junction.hasOutputPipe(TO);
-			rshell.debugLog.text = 'There is a pipe with name ' + message.getHeader().TO + haspipe;
+			//rshell.debugLog.text = 'There is a pipe with name ' + message.getHeader().TO + haspipe;
 			var success: Boolean = junction.sendMessage(TO, message);
-			rshell.debugLog.text = 'routing message to ' + message.getHeader().TO + success;
+			//rshell.debugLog.text = 'routing message to ' + message.getHeader().TO + success;
 		}
 	}
 }

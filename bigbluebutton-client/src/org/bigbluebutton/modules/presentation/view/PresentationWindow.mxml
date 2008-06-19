@@ -27,7 +27,7 @@
             public static const TITLE:String = "Presentation";
 			private var images:Images = new Images();
 
-			[Bindable] private var uploadIcon : Class = images.powerpoint;
+			[Bindable] private var uploadIcon : Class = images.pdf;
 			[Bindable] private var connectIcon : Class = images.disconnect;
 			[Bindable] private var connectTooltip : String = "Disconnected";
 			[Bindable] private var sharingIcon : Class = images.link_break;	
