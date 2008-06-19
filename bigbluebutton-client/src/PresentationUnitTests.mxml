@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
+	 creationComplete="onCreationComplete()" layout="absolute" xmlns:flexui="flexunit.flexui.*">
+	
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.modules.presentation.FileUploadWindowMediatorTest;
+			import org.bigbluebutton.modules.presentation.PresentationPanelMediatorTest;
+			import org.bigbluebutton.modules.presentation.PresentationWindowMediatorTest;
+			import org.bigbluebutton.modules.presentation.PresentationApplicationTest;
+			import org.bigbluebutton.modules.presentation.TestSlidesDeck;
+			import org.bigbluebutton.modules.presentation.TestSlide;
+			import org.bigbluebutton.modules.presentation.TestDefaultSlide;
+			import org.bigbluebutton.modules.presentation.PresentationServiceTest;
+			import org.bigbluebutton.modules.presentation.FileUploadServiceTest;
+			import org.bigbluebutton.modules.presentation.TestPresentationDelegate;
+			import org.bigbluebutton.modules.presentation.TestNetConnectionDelegate;
+			import org.bigbluebutton.modules.presentation.TestUserNotifier;
+			import org.bigbluebutton.modules.presentation.TestProgressNotifier;
+			import org.bigbluebutton.modules.presentation.JoinNotifierTest;
+			import org.bigbluebutton.modules.presentation.FileUploadNotifierTest;
+			import flexunit.framework.TestSuite;
+			private function onCreationComplete():void{
+				presentationTestRunner.test = createSuite();
+				presentationTestRunner.startTest();
+			}
+			
+			private function createSuite():TestSuite{
+				var ts:TestSuite = new TestSuite();
+				
+				ts.addTest(FileUploadNotifierTest.suite());
+				ts.addTest(JoinNotifierTest.suite());
+				ts.addTest(TestProgressNotifier.suite());
+				ts.addTest(TestUserNotifier.suite());
+				ts.addTest(TestNetConnectionDelegate.suite());
+				ts.addTest(TestPresentationDelegate.suite());
+				ts.addTest(FileUploadServiceTest.suite());
+				ts.addTest(PresentationServiceTest.suite());
+				ts.addTest(TestDefaultSlide.suite());
+				ts.addTest(TestSlide.suite());
+				ts.addTest(TestSlidesDeck.suite());
+				ts.addTest(PresentationApplicationTest.suite());
+				ts.addTest(PresentationWindowMediatorTest.suite());
+				ts.addTest(PresentationPanelMediatorTest.suite());
+				ts.addTest(FileUploadWindowMediatorTest.suite());
+				
+				return ts;
+			}
+		]]>
+	</mx:Script>
+	
+	<flexui:TestRunnerBase id="presentationTestRunner" width="100%" height="100%" />
+</mx:Application>

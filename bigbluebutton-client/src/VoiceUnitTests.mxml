@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" 
+	xmlns:flexui="flexunit.flexui.*" creationComplete="onCreationComplete()">
+	
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.modules.voiceconference.TestMeetMeUserItemMediator;
+			import org.bigbluebutton.modules.voiceconference.TestWindowMediator;
+			import org.bigbluebutton.modules.voiceconference.TestVoiceFacade;
+			import org.bigbluebutton.modules.voiceconference.TestVoiceConferenceRoom;
+			import org.bigbluebutton.modules.voiceconference.VoiceConferenceUserTest;
+			import org.bigbluebutton.modules.voiceconference.VoiceResponderTest;
+			import flexunit.framework.Test;
+			import org.bigbluebutton.modules.voiceconference.NetConnectionDelegateTest;
+			import org.bigbluebutton.modules.voiceconference.MuteNotifierTest;
+			import flexunit.framework.TestSuite;
+			
+			private function onCreationComplete():void{
+				voiceTestRunner.test = createSuite();
+				voiceTestRunner.startTest();    
+			} 
+			
+			private function createSuite():TestSuite{
+				var ts:TestSuite = new TestSuite();
+				
+				ts.addTest(MuteNotifierTest.suite());
+				ts.addTest(NetConnectionDelegateTest.suite());
+				ts.addTest(VoiceConferenceUserTest.suite());
+				ts.addTest(TestVoiceConferenceRoom.suite());
+				ts.addTest(TestWindowMediator.suite());
+				ts.addTest(TestMeetMeUserItemMediator.suite());
+				ts.addTest(VoiceResponderTest.suite());
+				//The Facade Test must always be last because otherwise the singleton breaks everything!
+				ts.addTest(TestVoiceFacade.suite());
+				
+				return ts;
+			}
+		]]>
+	</mx:Script>
+	
+	<flexui:TestRunnerBase id="voiceTestRunner" width="100%" height="100%" />
+</mx:Application>

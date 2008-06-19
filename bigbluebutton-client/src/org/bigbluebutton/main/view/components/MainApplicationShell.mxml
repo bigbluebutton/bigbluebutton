@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 
+		xmlns:flexmdi="flexlib.mdi.containers.*"
+		xmlns:logModule="org.bigbluebutton.modules.log.view.components.*"
+		xmlns:main="org.bigbluebutton.main.view.components.*"
+		width="100%" height="100%"
+		creationComplete="initializeShell()">
+		
+	<mx:Script>
+		<![CDATA[
+			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
+			import org.bigbluebutton.main.MainApplicationFacade;
+			import org.bigbluebutton.main.view.MainApplicationShellMediator;
+			import flash.events.MouseEvent;
+			
+			public static const NAME:String = 'MainApplicationShell';
+			protected var facade:MainApplicationFacade = MainApplicationFacade.getInstance( NAME );	
+						
+			protected function initializeShell():void
+			{
+				debugLog.text = "before startup in initShell";
+				facade.startup(this);
+				debugLog.text = "After startup in initShell";
+				toolbar.LogBtn.addEventListener(MouseEvent.CLICK , openLogModule);
+				toolbar.btnLogout.addEventListener(MouseEvent.CLICK, logout);
+			}
+			
+			public function openLogModule(event:MouseEvent) : void
+			{
+				dispatchEvent(new Event(MainApplicationShellMediator.OPEN_LOG_MODULE));
+			}
+			
+			private function logout(e:MouseEvent):void{
+				dispatchEvent(new Event(MainApplicationShellMediator.LOGOUT));
+			}
+			
+		]]>
+	</mx:Script>
+	
+		
+		<main:MainToolbar id="toolbar" dock="true" width="100%" height="30" visible="true" verticalAlign="middle"/>
+		<flexmdi:MDICanvas id="mdiCanvas" horizontalScrollPolicy="off" verticalScrollPolicy="off"
+			effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}"
+			width="100%" height="100%">			
+		</flexmdi:MDICanvas>	
+		
+	 	<mx:ControlBar width="100%" height="20" paddingTop="0">		
+		  <mx:Label text="(c) 2007, BigBlueButton Project" id="copyrightLabel2"/>
+		  <mx:Spacer width="20"/>
+		  <mx:Label id="debugLog" text="Log" />  
+		</mx:ControlBar>
+</mx:VBox>

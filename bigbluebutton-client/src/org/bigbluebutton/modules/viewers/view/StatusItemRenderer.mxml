@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+	verticalScrollPolicy="off" horizontalScrollPolicy="off">
+	
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.common.Images;
+		
+		private var images:Images = new Images();
+		
+   		[Bindable] private var webcamIcon : Object = images.webcam;
+   		[Bindable] private var handIcon : Object = images.raisehand;	
+		]]>
+	</mx:Script>
+
+	<mx:Image id="handImage" source="{handIcon}"  visible="{data.status == 'raisehand'}"/>
+</mx:HBox>

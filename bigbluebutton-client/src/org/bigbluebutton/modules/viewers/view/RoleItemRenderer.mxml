@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+	verticalScrollPolicy="off" horizontalScrollPolicy="off">
+	
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.Role;
+			
+			private var images:Images = new Images();
+			
+			[Bindable] private var adminIcon : Object = images.admin;
+   			[Bindable] private var viewerIcon : Object = images.participant;
+   		
+		]]>
+	</mx:Script>	
+	<mx:Image id="roleImage" source="{data.role == Role.MODERATOR ? adminIcon : viewerIcon}"/>
+</mx:HBox>

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml"  
+	xmlns:thumb="org.bigbluebutton.modules.presentation.view*"
+	xmlns:pres="flexmdi.containers.*"
+	paddingBottom="0" paddingTop="0" 
+	paddingLeft="0" paddingRight="0" 
+    layout="vertical" 
+	creationComplete="init()" xmlns:view="org.bigbluebutton.modules.presentation.view.*">
+
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.modules.presentation.model.vo.SlidesDeck;
+			import org.bigbluebutton.modules.presentation.PresentationFacade;
+			import mx.binding.utils.BindingUtils;
+
+			import mx.collections.ArrayCollection;
+			import mx.rpc.events.*;
+			import mx.controls.Alert;
+			import mx.events.DragEvent;
+			import mx.managers.DragManager;
+            import mx.managers.PopUpManager;
+            import mx.containers.TitleWindow;
+            import flash.geom.Point;
+             			
+			private var images:Images = new Images();
+
+			[Bindable] private var uploadIcon : Class = images.powerpoint;
+			[Bindable] private var connectIcon : Class = images.disconnect;
+			[Bindable] private var connectTooltip : String = "Disconnected";
+			[Bindable] private var sharingIcon : Class = images.link_break;	
+			[Bindable] private var sharingTooltip : String = "Share presentation";		
+			[Bindable] public var presenterIcon : Class = images.user_gray;
+			
+			[Bindable] public var model:PresentationFacade = PresentationFacade.getInstance(); 
+						
+			[Bindable] private var deck:SlidesDeck = model.presentation.decks;
+			
+			public var uploadWindow : FileUploadWindow;
+
+			public function handleConnected(connected : Boolean) : void
+			{
+				if (connected) {
+					connectIcon = images.connect;
+					connectTooltip = "Connected";
+				} else {
+					connectIcon = images.disconnect;
+					connectTooltip = "Disconnected";
+				}
+			}
+
+			public function handleSharing(sharing : Boolean) : void
+			{	
+				if (sharing) {
+					sharingIcon = images.link;
+					sharingTooltip = "Unshare presentation";
+				} else {
+					sharingIcon = images.link_break;
+					sharingTooltip = "Share presentation";
+				}
+				
+				if (! model.presentation.isPresenter) sharePres.visible = false;
+			}
+						
+			private function init():void 
+			{					
+				BindingUtils.bindSetter(handleConnected, model.presentation, "isConnected");
+				BindingUtils.bindSetter(handleSharing, model.presentation, "isSharing");
+				BindingUtils.bindSetter(handlePresenterControl, model.presentation, "isPresenter");
+				BindingUtils.bindSetter(handlePresenterName, model.presentation, "presenterName");
+				BindingUtils.bindSetter(handlePresentationLoaded, model.presentation, "presentationLoaded");	
+			}
+
+			public function handlePresenterName(name : String) : void
+			{
+				presenterName.label = name;
+			}
+
+			public function handlePresentationLoaded(loaded : Boolean) : void
+			{				
+				if (loaded) {
+					if (model.presentation.isPresenter) {
+						sharePres.visible = true;
+					}
+					thumbnailView.visible = true;
+				} else {
+					thumbnailView.visible = false;
+					if (model.presentation.isPresenter) {
+						sharePres.visible = false;
+						uploadPres.enabled = true;
+					}
+				}
+			}
+
+			public function handlePresenterControl(isPresenter : Boolean) : void
+			{
+				if (isPresenter) {
+					uploadPres.visible = true;
+				} else {
+					uploadPres.visible = true;
+				}
+			}
+
+			public function dragEnterHandler(event:DragEvent):void
+	   		{
+	   			var dropTarget : Button = event.currentTarget as Button;
+	   			if (event.dragSource.hasFormat('presenterUserid'))
+	   		
+	   			DragManager.acceptDragDrop(dropTarget);
+	   		}
+	   	
+	   		public function dragDropHandler(event:DragEvent):void
+	   		{	
+	   			var presenterid : Number = Number(event.dragSource.dataForFormat('presenterUserid'));
+	   			var presentername : String = event.dragSource.dataForFormat('presenterUsername').toString();
+
+	   			PresentationFacade.getInstance().presentationApp.assignPresenter(presenterid, presentername);		  		
+	   		}
+				
+		]]>
+	</mx:Script>
+	
+	<mx:Style source="presentation.css" />
+     			
+	<view:ThumbnailView id="thumbnailView" width="100%" height="100%" visible="false"/>
+
+    <mx:ControlBar width="100%">
+    	  <mx:Button id="uploadPres" icon="{uploadIcon}" visible="true"
+    	   			width="20" height="20"
+    	   			toolTip="Upload Powerpoint" click="dispatchEvent(new Event(PresentationPanelMediator.OPEN_UPLOAD))"/>    
+    	  <mx:Button id="sharePres" icon="{sharingIcon}" visible="false"
+    	   			width="20" height="20"
+    	   			toolTip="{sharingTooltip}" click="dispatchEvent(new Event(PresentationPanelMediator.SHARE))"/> 
+    	  <mx:Spacer width="100"/>
+    	  <mx:Label id="presenterLbl" text="Presenter:" />
+    	  <mx:Button id="presenterName" icon="{presenterIcon}" label="Presenter's Name"
+                 labelPlacement="right" color="#993300" 
+                 dragEnter="dragEnterHandler(event)" dragDrop="dragDropHandler(event)"/>
+    	   <mx:Spacer width="100%"/>						
+    	  <mx:Button id="connect" icon="{connectIcon}" 
+    	   			width="20" height="20" enabled="false"
+    	   			toolTip="{connectTooltip}" click="dispatchEvent(new Event(PresentationPanelMediator.CONNECT))"/>
+    </mx:ControlBar>
+			
+</mx:Panel>
