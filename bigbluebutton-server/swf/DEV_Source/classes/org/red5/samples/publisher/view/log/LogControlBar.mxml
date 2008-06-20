@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<view:LogControlBarClass xmlns:mx="http://www.adobe.com/2006/mxml"
+				   		xmlns:view="org.red5.samples.publisher.view.log.*">
+				   
+	<!-- log monitor -->
+	<mx:Box direction="horizontal" width="100%" height="100%" paddingLeft="5"
+			horizontalGap="4" horizontalAlign="left" paddingBottom="0" paddingTop="5"
+			verticalAlign="middle">
+	
+		<mx:VBox verticalGap="3">
+			<mx:CheckBox id="audio_cb" label="{ logger.audioMessage }" focusEnabled="false"
+						 fontWeight="bold" selected="{ logger.audio_check }"
+						 change="logger.audio_check = audio_cb.selected"/>
+						 
+			<mx:CheckBox id="video_cb" label="{ logger.videoMessage }" focusEnabled="false"
+						 fontWeight="bold" selected="{ logger.video_check }"
+						 change="logger.video_check = video_cb.selected"/>
+		</mx:VBox>
+		
+		<mx:VBox verticalGap="3">
+			<mx:CheckBox id="meta_cb" label="{ logger.metadataMessage }" focusEnabled="false"
+						 fontWeight="bold" selected="{ logger.meta_check }"
+						 change="logger.meta_check = meta_cb.selected"/>
+						 
+			<mx:CheckBox id="cue_cb" label="{ logger.cuepointMessage }" focusEnabled="false"
+						 fontWeight="bold" selected="{ logger.cue_check }"
+						 change="logger.cue_check = cue_cb.selected"/>
+		</mx:VBox>
+		
+		<mx:VBox verticalGap="3">
+			<mx:CheckBox id="stream_cb" label="{ logger.streamMessage }" focusEnabled="false"
+						 fontWeight="bold" selected="{ logger.stream_check }"
+						 change="logger.stream_check = stream_cb.selected"/>
+						 
+			<mx:CheckBox id="server_cb" label="{ logger.serverMessage }" focusEnabled="false"
+						 fontWeight="bold" selected="{ logger.server_check }"
+						 change="logger.server_check = server_cb.selected"/>
+		</mx:VBox>
+	</mx:Box>
+	
+	<mx:Box direction="horizontal" height="100%" 
+			paddingLeft="5" paddingRight="10" paddingTop="5"
+			horizontalAlign="right" verticalAlign="middle">
+
+		<mx:Button label="Clear" click="clearLog()"/>
+	</mx:Box>
+	
+</view:LogControlBarClass>

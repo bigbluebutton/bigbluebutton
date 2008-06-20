@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<view:SettingsAppBarClass xmlns:mx="http://www.adobe.com/2006/mxml" 
+						  xmlns:view="org.red5.samples.publisher.view.settings.*">
+
+	<mx:Image source="{ main.images.settingsIcon }"/>
+	
+	<mx:VBox paddingTop="3" paddingLeft="4" paddingRight="17">
+		<mx:Label text="Settings" fontWeight="bold" fontSize="12"/>
+	</mx:VBox>
+	
+	<mx:TabBar itemClick="changeSettingsView( event );"  
+			   selectedIndex="{ navigation.settingsViewing }"
+			   dataProvider="{ navigation.settingsArray }"
+			   paddingBottom="-7"/>
+
+</view:SettingsAppBarClass>

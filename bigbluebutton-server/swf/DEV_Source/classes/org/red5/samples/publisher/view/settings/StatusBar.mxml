@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<view:StatusBarClass width="100%" height="100%"
+		   			 xmlns:mx="http://www.adobe.com/2006/mxml"
+		      		 xmlns:view="org.red5.samples.publisher.view.settings.*">
+		   
+	<mx:Box direction="horizontal" width="100%" height="100%" horizontalGap="4"
+			horizontalAlign="left" verticalAlign="middle">
+			
+		<mx:Image source="{ labelImage }"/>
+		<mx:VBox paddingTop="5">
+			<mx:Label text="{ labelText }"/>
+		</mx:VBox>
+		
+	</mx:Box>
+</view:StatusBarClass>

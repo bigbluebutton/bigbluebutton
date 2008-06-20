@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<view:MonitorControlBarClass xmlns:mx="http://www.adobe.com/2006/mxml"
+							 xmlns:view="org.red5.samples.publisher.view.monitor.*">
+	
+	<mx:StringValidator source="{ playback_txt }" property="text" 
+	        tooShortError="{ tooShortError }" 
+	        minLength="1" trigger="{ playButton }" triggerEvent="click" 
+	        enabled="{ main.netConnected }"
+	        valid="viewStream()"/>
+	
+	<mx:StringValidator source="{ playback_txt }" property="text" 
+	        tooShortError="{ tooShortError }" 
+	        minLength="1" trigger="{ playback_txt }" triggerEvent="enter" 
+	        enabled="{ main.netConnected }"
+	        valid="viewStream()"/>
+	
+	<mx:StringValidator source="{ publish_txt }" property="text" 
+	        tooShortError="{ tooShortError }" 
+	        minLength="1" trigger="{ publishButton }" triggerEvent="click" 
+	        enabled="{ main.netConnected }"
+	        valid="recordStream()"/>
+	
+	<mx:StringValidator source="{ publish_txt }" property="text" 
+	        tooShortError="{ tooShortError }" 
+	        minLength="1" trigger="{ publish_txt }" triggerEvent="enter" 
+	        enabled="{ main.netConnected }"
+	        valid="recordStream()"/>
+	           
+	<mx:ApplicationControlBar horizontalAlign="center" verticalAlign="middle" 
+							  paddingBottom="4" horizontalGap="6" dock="true"
+							  width="100%" height="100%" shadowDistance="1">
+		
+		<mx:ViewStack selectedIndex="{ navigation.monitorDisplayViewing }" width="100%" height="100%">
+			
+			<!-- server -->
+			<mx:Canvas width="100%" height="100%"/>
+			
+			<!-- view -->
+			<mx:Canvas width="100%" height="100%" horizontalScrollPolicy="off">
+				<mx:VBox width="100%" height="100%" verticalAlign="middle" verticalGap="5"
+						 horizontalScrollPolicy="off" verticalScrollPolicy="off">
+					<mx:HBox width="100%">
+						<mx:Label text="Name:" paddingTop="2"/>
+						<mx:TextInput id="playback_txt" textIndent="2" focusThickness="0.5" width="100%"
+								  	  fontWeight="bold" text="{ main.streamName }" 
+								  	  borderStyle="solid" cornerRadius="4"/>
+					</mx:HBox>
+					
+					<mx:HBox width="100%">	  
+						<!--- TODO: add seek controls
+						<mx:Label text="00:00:00" paddingTop="2" fontWeight="bold" fontSize="10"/>
+						<mx:HSlider maximum="100" minimum="0" width="110"
+									enabled="{ main.netConnected }"/> 
+						-->
+						<mx:Spacer width="100%"/>
+						<mx:Button id="stopButton" label="{ main.stopButtonLabel }"
+								   enabled="{ main.netConnected }" tabEnabled="false"
+								   click="stopStream()"/>
+						<mx:Button id="playButton" label="{ main.playButtonLabel }" width="60"
+							   	   enabled="{ main.netConnected }" tabEnabled="false"/>
+					</mx:HBox>
+					
+					<mx:HBox width="100%" paddingTop="3" horizontalGap="2">
+						<mx:Label text="Enable:"/>
+						<mx:Spacer width="2"/>
+						<mx:CheckBox label="Audio" id="enableAudio" enabled="{ main.netConnected }" 
+									 click="this.toggleAudio()" selected="true" width="60"/>
+						<mx:CheckBox id="enableVideo" label="Video" enabled="{ main.netConnected }" 
+									 click="this.toggleVideo()" width="60" selected="true"/>
+						<mx:CheckBox label="Fullscreen" enabled="{ main.netConnected }"
+									 click="this.toggleFullScreen(event)" selected="{ main.fullScreen }"/>
+					</mx:HBox>
+				</mx:VBox>
+			</mx:Canvas>
+			
+			<!-- record -->
+			<mx:Canvas width="100%" height="100%">		
+				<mx:VBox width="100%" height="100%" verticalAlign="middle">
+					<mx:HBox width="100%">
+						<mx:Label text="Name:"/>
+						<mx:TextInput id="publish_txt" textIndent="2" focusThickness="0.5" width="100%"
+									  fontWeight="bold" text="{ main.streamName }" borderStyle="solid" 
+									  cornerRadius="4"/>
+					</mx:HBox>
+					<mx:HBox width="100%" horizontalGap="12">	
+						<mx:Label text="Type:"/>	
+						<mx:ComboBox id="publish_cb" width="85" dataProvider="{ main.publishTypes }"
+									 fontWeight="bold" enabled="{ main.netConnected }"
+									 selectedIndex="{ main.publishMode }"/>
+						<mx:Spacer width="100%"/>	 
+						<mx:Button id="publishButton" label="{ main.publishButtonLabel }"
+								   enabled="{ main.netConnected }" tabEnabled="false" width="70"/>
+					</mx:HBox>
+					<mx:HBox width="100%" paddingTop="3" horizontalGap="2">
+						<mx:Label text="Enable:"/>
+						<mx:Spacer width="2"/>
+						<mx:CheckBox label="Fullscreen" enabled="{ main.netConnected }"
+									 click="this.toggleFullScreen(event)" selected="{ main.fullScreen }"/>
+					</mx:HBox>
+				</mx:VBox>
+			</mx:Canvas>
+			
+		</mx:ViewStack>
+	</mx:ApplicationControlBar>
+</view:MonitorControlBarClass>

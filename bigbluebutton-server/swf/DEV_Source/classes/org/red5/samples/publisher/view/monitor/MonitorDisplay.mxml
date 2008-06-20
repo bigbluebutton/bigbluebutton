@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<view:MonitorDisplayClass xmlns:mx="http://www.adobe.com/2006/mxml"
+			 			  xmlns:util="org.red5.ui.*"
+			  			  xmlns:view="org.red5.samples.publisher.view.monitor.*">
+			  
+	<!-- server (empty) -->
+	<mx:Canvas width="100%" height="100%"/>
+	
+	<!-- view -->
+	<mx:Canvas width="100%" height="100%">
+		<util:VideoContainer visible="{ main.playbackState != main.stopState }" 
+						 	 video="{ main.media.videoRemote }" height="100%" width="100%"/>
+	</mx:Canvas>
+	
+	<!-- publish -->
+	<mx:Canvas width="100%" height="100%">
+		<util:VideoContainer visible="{ ( main.publishState || main.previewState ) == true }" 
+							 video="{ main.media.videoLocal }" height="100%" width="100%"/>
+	</mx:Canvas>
+	
+</view:MonitorDisplayClass>

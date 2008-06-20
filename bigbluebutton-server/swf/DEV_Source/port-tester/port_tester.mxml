@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Main xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="org.red5.samples.porttester.*" 
+	  width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">
+	<mx:Panel width="300" height="400" title="Port Tests" horizontalScrollPolicy="off" 
+			  status="{ flashVersion }">
+		<mx:VBox width="100%" height="100%" paddingLeft="5" paddingRight="5" paddingBottom="5" 
+				 horizontalScrollPolicy="off">
+			<mx:Form>
+				<mx:FormItem label="Host">
+					<mx:TextInput id="host_txt" text="localhost"/>
+				</mx:FormItem>
+				<mx:FormItem label="Application">
+					<mx:TextInput id="app_txt" text="oflaDemo"/>
+				</mx:FormItem>
+				<mx:FormItem horizontalAlign="right" width="239">
+					<mx:Button label="Run" width="53" click="runTests()"/>
+				</mx:FormItem>
+			</mx:Form>
+			<mx:DataGrid width="100%" height="100%" dataProvider="{ testResults }">
+				<mx:columns>
+					<mx:DataGridColumn dataField="protocolName" headerText="Protocol" width="70"/>
+					<mx:DataGridColumn dataField="portName" headerText="Port" width="60"/>
+					<mx:DataGridColumn dataField="status" headerText="Status"/>
+				</mx:columns>
+			</mx:DataGrid>
+		</mx:VBox>
+	</mx:Panel>
+</Main>

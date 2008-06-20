@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<view:SettingsDisplayClass xmlns:mx="http://www.adobe.com/2006/mxml"
+						   xmlns:view="org.red5.samples.publisher.view.settings.*">
+	
+	<mx:StringValidator source="{ host_txt }" property="text" 
+	        tooShortError="This URI is shorter than the minimum allowed length." 
+	        minLength="8" trigger="{ connect_btn }" triggerEvent="click"
+	        valid="setupConnection()"/>
+	
+	<mx:StringValidator source="{ host_txt }" property="text" 
+	        tooShortError="This URI is shorter than the minimum allowed length." 
+	        minLength="8" trigger="{ host_txt }" triggerEvent="enter"
+	        valid="setupConnection()"/>
+	        
+	<!-- server settings -->
+	<mx:Canvas id="server" width="100%" height="100%" creationComplete="initializeServerSettings()">
+	    <mx:Box x="12" direction="horizontal" width="100%" height="100%" horizontalGap="4">
+	    
+			<mx:Label text="Servers" fontWeight="normal" focusEnabled="false"/>
+			<mx:Spacer width="-2"/>
+			
+			<mx:ComboBox id="presets_cb" width="160" textAlign="left" fontWeight="bold"
+						 dataProvider="{ main.serverPresets }"
+						 selectedIndex="{ navigation.selectedPreset }"
+						 close="{ navigation.selectedPreset = presets_cb.selectedIndex }"
+						 change="presetsHandler( event )" toolTip="Available servers" 
+						 focusEnabled="false" textIndent="3" rowCount="8"/>	
+										
+			<mx:Button id="connect_btn" label="{ main.connectButtonLabel }" width="72"
+					   toolTip="{ connect_btn.label }" focusEnabled="false"/>  
+		</mx:Box>
+		
+		<mx:Box y="35" direction="horizontal" width="100%" height="100%" horizontalGap="0">
+			<mx:LinkButton label="Location" click="openLink( 'net/NetConnection.html#uri' )"
+						   fontWeight="normal" toolTip="Application URI" focusEnabled="false"
+						   />
+			<mx:TextInput id="host_txt" focusThickness="0.5" width="236" fontWeight="bold"
+						  text="{ main.generalSettings.host }" textIndent="3"
+						  borderStyle="solid" cornerRadius="4"/>
+		</mx:Box>
+		
+		<mx:Box x="-2" y="70" direction="horizontal" width="100%" height="100%" horizontalGap="0">
+			<mx:LinkButton label="Encoding" click="openLink( 'net/NetConnection.html#objectEncoding' )"
+						   fontWeight="normal" toolTip="Object Encoding" focusEnabled="false"/>
+			<mx:ComboBox id="encoding_cb" width="100" fontWeight="bold"
+						 dataProvider="{ main.objectEncodeTypes }"
+						 selectedIndex="{ main.generalSettings.encode }"
+						 />
+			<mx:Spacer width="5"/>
+			<mx:LinkButton label="Proxy" fontWeight="normal" toolTip="Proxy Type"
+				           click="openLink( 'net/NetConnection.html#proxyType' )"
+				           focusEnabled="false"/>
+			<mx:ComboBox id="proxy_cb" width="81" dataProvider="{ main.proxyTypes }"
+						 fontWeight="bold" selectedIndex="{ main.generalSettings.proxy }"/>
+		</mx:Box>
+		
+		<mx:Box x="16" y="105" direction="horizontal" width="100%" height="100%" horizontalGap="4">
+			<mx:LinkButton label="Type" fontWeight="normal" tabEnabled="false" toolTip="Server Type"/>
+			<mx:ComboBox id="type_cb" width="100" dataProvider="{ main.serverTypes }" 
+						 selectedIndex="{ main.generalSettings.server }" fontWeight="bold"
+						 change="{ main.images.serverLogo = type_cb.selectedItem.img }"/>
+			<mx:Spacer width="-2"/>
+			<mx:LinkButton label="Buffer" fontWeight="normal" click="openLink( 'net/NetStream.html#bufferTime' )"
+						   toolTip="Buffer Time" focusEnabled="false"/>				   
+			<mx:Spacer width="-10"/>	
+			<mx:NumericStepper id="buffer_ns" width="81" focusThickness="0.5" fontWeight="bold" textIndent="3"
+							   value="{ main.generalSettings.bufferTime }"
+							   change="{ main.generalSettings.bufferTime = buffer_ns.value }"/>
+		</mx:Box>
+		
+	</mx:Canvas>
+	
+	<!-- video settings -->
+	<mx:Canvas id="video" width="100%" height="100%" creationComplete="initializeVideoSettings()" textIndent="3">
+	
+	    <mx:Box direction="horizontal" width="100%" height="100%" horizontalGap="-1">
+			<mx:LinkButton id="video_txt" click="openLink( 'media/Camera.html' )" fontWeight="normal" 
+						   toolTip="Video device" focusEnabled="false"/>
+			<mx:ComboBox id="camera_cb" width="175" rowCount="7" focusEnabled="false"
+						 prompt="Select video device" toolTip="Available video devices"
+						 dataProvider="{ main.cameraNames }"
+						 selectedIndex="{ main.videoSettings.cameraIndex }"/>			 
+			<mx:Spacer width="7"/>
+			<mx:Button id="video_btn" click="setupCamera()" label="Start" width="62"
+					   toolTip="Start video device" focusEnabled="false"/>
+		</mx:Box>
+		
+		<mx:Box y="35" direction="horizontal" width="100%" height="100%" horizontalGap="-1">
+			<mx:LinkButton id="bw_txt" click="openLink( 'media/Camera.html#bandwidth' )" 
+						   fontWeight="normal" toolTip="Max amount of bandwidth (bytes)"
+						   focusEnabled="false"/>
+			<mx:NumericStepper id="bw_ns" width="75" fontWeight="bold" focusThickness="0.5"
+							   value="{ main.videoSettings.bandwidth }"/>
+			<mx:Spacer width="17"/>
+			<mx:LinkButton id="quality_txt" click="openLink( 'media/Camera.html#quality' )" 
+						   fontWeight="normal" toolTip="Video frame compression" focusEnabled="false" />	   
+			<mx:NumericStepper id="quality_ns" width="75" fontWeight="bold" focusThickness="0.5"
+							   value="{ main.videoSettings.quality }"/>
+		</mx:Box>
+		
+		<mx:Box y="70" x="24" direction="horizontal" width="100%" height="100%" horizontalGap="-1">
+		
+			<mx:LinkButton id="width_txt" click="openLink( 'media/Camera.html#width' )" fontWeight="normal"
+						   toolTip="Capture width in pixels" focusEnabled="false"/>
+			<mx:NumericStepper id="width_ns" width="75" fontWeight="bold" focusThickness="0.5"
+							   value="{ main.videoSettings.width }"/>
+			<mx:Spacer width="20"/>
+			<mx:LinkButton id="height_txt" click="openLink( 'media/Camera.html#height' )" fontWeight="normal"
+						   toolTip="Capture height in pixels" focusEnabled="false" />		   
+			<mx:NumericStepper id="height_ns" width="75" fontWeight="bold" focusThickness="0.5"
+							   value="{ main.videoSettings.height }"/>
+		</mx:Box>
+		
+		<mx:Box y="105" x="3" direction="horizontal" width="100%" height="100%" horizontalGap="-1">
+		
+			<mx:LinkButton id="keyframe_txt" click="openLink( 'media/Camera.html#keyFrameInterval' )"
+						   fontWeight="normal" toolTip="Keyframe interval" focusEnabled="false"/> 
+			<mx:NumericStepper id="keyframe_ns" width="75" fontWeight="bold" focusThickness="0.5"
+							   value="{ main.videoSettings.keyframe }"/>
+			<mx:Spacer width="36"/>
+			<mx:LinkButton id="fps_txt" click="openLink( 'media/Camera.html#fps' )" fontWeight="normal"
+						   toolTip="Frames per second" focusEnabled="false"/>
+			<mx:NumericStepper id="fps_ns" width="75" fontWeight="bold" focusThickness="0.5"
+							   value="{ main.videoSettings.fps }"/>
+		</mx:Box>
+	</mx:Canvas>
+	
+	<!-- audio settings -->
+	<mx:Canvas id="audio" width="100%" height="100%" creationComplete="initializeAudioSettings()" textIndent="3">
+	
+	    <mx:Box direction="horizontal" width="100%" height="100%" horizontalGap="-1">
+			<mx:LinkButton id="audio_txt" click="openLink( 'media/Microphone.html' )" fontWeight="normal"
+						   toolTip="Audio device" focusEnabled="false"/>
+			<mx:ComboBox id="microphone_cb" width="175" focusEnabled="false" rowCount="7"
+						 toolTip="Available audio devices" prompt="Select audio device"
+						 dataProvider="{ main.microphoneNames }"
+						 selectedIndex="{ main.audioSettings.micIndex }"/>	 
+			<mx:Spacer width="7"/>
+			<mx:Button id="audio_btn" label="Start" width="60" click="setupMicrophone()"
+					   toolTip="Start audio device" focusEnabled="false"/>
+		</mx:Box>
+		
+		<mx:Box y="35" x="20" direction="horizontal" width="100%" height="100%" horizontalGap="-1">
+			<mx:LinkButton id="rate_txt" click="openLink( 'media/Microphone.html#rate' )" fontWeight="normal"
+						   toolTip="Audio bitrate (kHz)" focusEnabled="false"/>		   
+			<mx:NumericStepper id="rate_ns" width="75" fontWeight="bold" focusThickness="0.5"
+							   value="{ main.audioSettings.rate }"/>
+			<mx:Spacer width="47"/>
+			<mx:LinkButton id="gain_txt" click="openLink( 'media/Microphone.html#gain' )" fontWeight="normal"
+						   toolTip="Microphone volume" focusEnabled="false"/>
+			<mx:NumericStepper id="gain_ns" width="75" fontWeight="bold" focusThickness="0.5"
+							   value="{ main.audioSettings.gain }"/>		
+		</mx:Box>
+		
+		<mx:Box y="70" x="1" direction="horizontal" width="100%" height="100%" horizontalGap="-1">
+			<mx:LinkButton id="level_txt" click="openLink( 'media/Microphone.html#silenceLevel' )"
+						   fontWeight="normal" toolTip="Amount of sound required to activate the microphone"
+						   focusEnabled="false" />
+			<mx:NumericStepper id="level_ns" width="75" fontWeight="bold" focusThickness="0.5" 
+							   value="{ main.audioSettings.level }"/>
+			<mx:Spacer width="26"/>
+			<mx:LinkButton id="timeout_txt" click="openLink( 'media/Microphone.html#silenceTimeout' )"
+						   fontWeight="normal" toolTip="Timeout sound detection (ms)" focusEnabled="false" />   
+			<mx:NumericStepper id="timeout_ns" width="75" fontWeight="bold" focusThickness="0.5"
+							   value="{ main.audioSettings.timeout }"/>
+		</mx:Box>
+	</mx:Canvas>
+
+</view:SettingsDisplayClass>

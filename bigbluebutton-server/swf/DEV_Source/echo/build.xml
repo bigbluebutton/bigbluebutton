@@ -1,0 +1,304 @@
+<?xml version="1.0"?>
+<!-- ======================================================================                                               
+     Echo Test application   
+                   
+     Joachim Bauch 
+     Thijs Triemstra                                                             
+     ====================================================================== -->
+<project 
+	name="Echo Test application" 
+	default="build"
+	basedir=".">
+	
+	<!-- Flex SDK settings -->
+	<property file="../flex.properties" />
+
+	<!-- Project settings -->
+	<property file="./build.properties" />
+  	
+	<!-- dirs -->
+	<property 
+		name="release.build.dir" 
+		location="${build.dir}/release/"/>
+	<property 
+		name="debug.build.dir" 
+		location="${build.dir}/debug/"/>
+	<property 
+		name="lib.swc" 
+		location="${lib.cairngorm.swc}"/>
+	<!-- files -->
+	<property 
+		name="mxmlc.jar" 
+		location="${FLEX_HOME}/lib/mxmlc.jar"/>
+	<property 
+		name="main.application.release.out" 
+		location="${release.build.dir}/${output.swf.name}.swf"/>
+	<property 
+		name="main.application.debug.out" 
+		location="${debug.build.dir}/${output.swf.name}-debug.swf"/>
+	<!-- wrapper -->
+	<property 
+		name="wrapper.dir" 
+		location="${FLEX_HOME}/resources/html-templates/express-installation-with-history"/>
+	<property 
+		name="output.debug.html" 
+		location="${debug.build.dir}/${output.swf.name}-debug.html"/>
+	<property 
+		name="output.release.html" 
+		location="${release.build.dir}/${output.swf.name}.html"/>
+	<property 
+		name="swf.width" 
+		value="100%"/>
+	<property 
+		name="swf.height" 
+		value="100%"/>
+	<property 
+		name="swf.version.major" 
+		value="9"/>
+	<property 
+		name="swf.version.minor" 
+		value="0"/>
+	<property 
+		name="swf.version.revision" 
+		value="0"/>
+	<property 
+		name="swf.application" 
+		value="${output.swf.name}"/>
+	<property 
+		name="swf.swf" 
+		value="${output.swf.name}"/>
+	<property 
+		name="swf.bgcolor" 
+		value="#FFFFFF"/>
+
+    <description>
+    	Red5 Publisher
+    </description>
+
+    <!-- ================================= 
+          target: build              
+         ================================= -->
+    <target 
+    	name="build" 
+    	depends="clean,
+    			 init,
+    			 compile.release,
+    			 compile.debug,
+    			 make.release.wrapper,
+    			 make.debug.wrapper,
+    			 docs" 
+    	description="--> ${swf.release.title} application">
+    </target>
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: make.release.wrapper
+         - - - - - - - - - - - - - - - - - -->
+    <target 
+    	name="make.release.wrapper">
+    	<make.wrapper
+    		width="${swf.width}"
+    		height="${swf.height}"
+    		title="${swf.release.title}"
+    		version.major="${swf.version.major}"
+    		version.minor="${swf.version.minor}"
+    		version.revision="${swf.version.revision}"
+    		application="${swf.application}}"
+    		swf="${swf.swf}"
+    		bgcolor="${swf.bgcolor}"
+    		wrapper.dir="${wrapper.dir}"
+    		output.dir="${release.build.dir}"
+    		output.html="${output.release.html}" />
+    </target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: make.debug.wrapper
+         - - - - - - - - - - - - - - - - - -->
+    <target 
+    	name="make.debug.wrapper">
+    	<make.wrapper
+    		width="${swf.width}"
+    		height="${swf.height}"
+    		title="${swf.debug.title}"
+    		version.major="${swf.version.major}"
+    		version.minor="${swf.version.minor}"
+    		version.revision="${swf.version.revision}"
+    		application="${swf.application}}"
+    		swf="${swf.swf}-debug"
+    		bgcolor="${swf.bgcolor}"
+    		wrapper.dir="${wrapper.dir}"
+    		output.dir="${debug.build.dir}"
+    		output.html="${output.debug.html}" />
+    </target>
+
+    <!-- - - - - - - - - - - - - - - - - - 
+          target: compile.release
+         - - - - - - - - - - - - - - - - - -->
+    <target 
+    	name="compile.release">
+    	<mxmlc.compile
+    		in="${main.application}"
+    		out="${main.application.release.out}"
+    	    additional='-benchmark -optimize=true -title "${swf.release.title}" -description "${swf.release.title}"' />
+    </target>
+	
+    <!-- - - - - - - - - - - - - - - - - - 
+          target: compile.debug
+         - - - - - - - - - - - - - - - - - -->
+    <target 
+    	name="compile.debug">
+    	<mxmlc.compile
+    		in="${main.application}"
+    		out="${main.application.debug.out}"
+    		additional="-debug=true -benchmark" />
+    </target>
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: clean                      
+         - - - - - - - - - - - - - - - - - -->
+    <target 
+    	name="clean">
+    	<delete 
+    		dir="${asdoc.output.dir}" 
+    		failOnError="false" 
+    		includeEmptyDirs="true" />
+    	<delete 
+    		dir="${build.dir}" 
+    		failOnError="false" 
+    		includeEmptyDirs="true" />
+    </target>
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: init                      
+         - - - - - - - - - - - - - - - - - -->
+    <target 
+    	name="init">
+    	<mkdir 
+    		dir="${build.dir}"/>
+    	<mkdir 
+    		dir="${release.build.dir}"/>
+    	<mkdir 
+    		dir="${debug.build.dir}"/>
+    </target>
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: docs
+         - - - - - - - - - - - - - - - - - -->
+    <target 
+    	name="docs">
+    	<mkdir 
+    	    dir="${asdoc.output.dir}"/>
+    	<exec executable="${asdoc.exe}" 
+    		failonerror="false">
+			<arg line='-source-path ${src.dir}'/>
+			<arg line='-doc-sources ${asdoc.domainextensions}'/>
+    		<arg value='-load-config=${flex.config.xml}'/>
+			<arg line='-output ${asdoc.output.dir}'/>
+			<arg line='-templates-path ${asdoc.templates.dir}'/>
+			<arg line='-left-frameset-width ${asdoc.framewidth}'/>
+			<arg line='-benchmark'/>
+		</exec>
+    </target>
+
+	<!-- = = = = = = = = = = = = = = = = =
+          macrodef: mxmlc.compile          
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="mxmlc.compile">
+        <attribute name="in" />
+        <attribute name="out" />
+    	<attribute 
+    		name="additional"
+    		default="" />
+    	<attribute 
+    	    name="config" 
+    	    default="${flex.config.xml}" />
+        <sequential>
+        	<java
+        		jar="${mxmlc.jar}"
+        		fork="true"
+        		maxmemory="512m"
+        		failonerror="true">
+        		<arg line="-source-path ${src.dir}"/>
+        		<arg value="-library-path+=${lib.swc}"/>
+        		<arg value="+flexlib=${FLEX_HOME}/frameworks"/>
+        		<arg value="-load-config=@{config}"/>
+        		<arg value="-output=@{out}"/>
+        		<arg line="@{additional}"/>
+        		<arg value="@{in}" />
+        	</java>
+        </sequential>
+    </macrodef>
+	
+	<!-- = = = = = = = = = = = = = = = = =
+          macrodef: make.wrapper          
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="make.wrapper">
+        <attribute name="width" default="100%" />
+        <attribute name="height" default="100%" />
+        <attribute name="title" default="" />
+        <attribute name="version.major" default="9" />
+        <attribute name="version.minor" default="0" />
+        <attribute name="version.revision" default="0" />
+        <attribute name="application" default="" />
+        <attribute name="swf" default="" />
+        <attribute name="bgcolor" default="#869ca7" />
+        <attribute name="wrapper.dir" />
+        <attribute name="output.dir" />
+        <attribute name="output.html" />
+        <sequential>
+        	<copy todir="@{output.dir}">
+        		<fileset dir="@{wrapper.dir}">
+    	    		<exclude name="**/index.template.html" />
+        		</fileset>
+        	</copy>
+	    	<copy 
+	    		file="@{wrapper.dir}/index.template.html"
+	    		tofile="@{output.html}" />
+        	<replaceregexp 
+        		file="@{output.html}"
+        		flags="gs"
+        		match="\$\{width\}"
+        		replace="@{width}"/>
+        	<replaceregexp 
+        		file="@{output.html}"
+        		flags="gs"
+        		match="\$\{height\}"
+        		replace="@{height}"/>
+        	<replaceregexp 
+        		file="@{output.html}"
+        		flags="gs"
+        		match="\$\{title\}"
+        		replace="@{title}"
+        		encoding="utf-8"/>
+        	<replaceregexp 
+        		file="@{output.html}"
+        		flags="gs"
+        		match="\$\{version_major\}"
+        		replace="@{version.major}"/>
+        	<replaceregexp 
+        		file="@{output.html}"
+        		flags="gs"
+        		match="\$\{version_minor\}"
+        		replace="@{version.minor}"/>
+        	<replaceregexp 
+        		file="@{output.html}"
+        		flags="gs"
+        		match="\$\{version_revision\}"
+        		replace="@{version.revision}"/>
+        	<replaceregexp 
+        		file="@{output.html}"
+        		flags="gs"
+        		match="\$\{application\}"
+        		replace="@{application}"/>
+        	<replaceregexp 
+        		file="@{output.html}"
+        		flags="gs"
+        		match="\$\{bgcolor\}"
+        		replace="@{bgcolor}"/>
+        	<replaceregexp 
+        		file="@{output.html}"
+        		flags="gs"
+        		match="\$\{swf\}"
+        		replace="@{swf}"/>
+        </sequential>
+    </macrodef>
+</project>

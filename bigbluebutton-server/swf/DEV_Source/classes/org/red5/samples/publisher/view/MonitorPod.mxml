@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<view:MonitorPodClass xmlns:mx="http://www.adobe.com/2006/mxml"
+					  xmlns:view="org.red5.samples.publisher.view.*"
+					  xmlns:monitor="org.red5.samples.publisher.view.monitor.*"
+					  xmlns:settings="org.red5.samples.publisher.view.settings.*">
+
+	<monitor:MonitorAppBar dock="true" width="100%" shadowDistance="0.5"
+						   paddingTop="5" paddingBottom="0"/>
+
+	<monitor:MonitorDisplay width="{ main.media.videoWidth }" height="{ main.media.videoHeight }" 
+						 	selectedIndex="{ navigation.monitorDisplayViewing }"
+						 	main="{ main }" backgroundColor="0xFFFFFF" 
+							borderStyle="solid" borderColor="0xD0D0D0"
+						 	backgroundImage="{ main.images.serverLogo }"
+						 	paddingBottom="0" cornerRadius="2"/>
+	
+	<monitor:MonitorControlBar horizontalScrollPolicy="off" verticalScrollPolicy="off"
+							   direction="horizontal" width="100%" height="100"
+							   horizontalAlign="center" paddingTop="0"
+							   main="{ main }" navigation="{ navigation }"/>
+							   
+	<mx:Spacer height="10"/>
+
+	<settings:SettingsAppBar dock="true" width="100%" height="35"
+	 					  	 paddingTop="0" paddingBottom="-7"
+	 					  	 shadowDistance="0.5" horizontalGap="2"/>
+	
+	<settings:SettingsDisplay id="settings" width="100%" height="150" 
+						  	  cornerRadius="4" borderStyle="solid"
+							  paddingRight="8" paddingLeft="5" 
+							  paddingTop="10" paddingBottom="0"
+							  selectedIndex="{ navigation.settingsViewing }"
+							  borderColor="0xD0D0D0" backgroundColor="0xFFFFFF"/>
+	
+	<settings:SettingsStatusBar dock="true" width="100%" height="40"
+								paddingTop="-2" paddingBottom="0"
+								shadowDistance="1"
+								main="{ main }" navigation="{ navigation }"/>
+</view:MonitorPodClass>

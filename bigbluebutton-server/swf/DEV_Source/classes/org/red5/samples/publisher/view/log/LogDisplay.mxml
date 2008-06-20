@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<view:LogDisplayClass xmlns:mx="http://www.adobe.com/2006/mxml"
+					  xmlns:view="org.red5.samples.publisher.view.log.*">
+	<mx:Box>
+		<mx:TextArea id="status_txt" updateComplete="updateScroll()"
+					 cornerRadius="4" borderColor="0xD0D0D0"
+					 width="100%" height="100%" borderStyle="solid"  
+					 textIndent="6" fontSize="10" focusEnabled="false"
+					 editable="false" htmlText="{ logger.statusText }"/>
+	</mx:Box>
+	<mx:Box>
+		<!-- DATAGRID -->
+	</mx:Box>
+	
+</view:LogDisplayClass>
