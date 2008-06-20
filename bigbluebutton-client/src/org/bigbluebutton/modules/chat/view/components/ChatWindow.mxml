@@ -45,7 +45,7 @@
 			public function setFocusOff():void
 			{
 				//this.txtMsg.setFocus();
-				this.txtMsg.cursorManager.hideCursor();
+				//this.txtMsg.cursorManager.hideCursor();
 				this.txtMsg.drawFocus(false);
 				
 				//this.txtMsg.cursorManager.removeAllCursors();
