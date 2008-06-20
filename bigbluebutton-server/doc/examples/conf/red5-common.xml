@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:lang="http://www.springframework.org/schema/lang"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                           http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
+
+	<!-- This context is shared between all child contexts. -->
+
+	<bean id="red5.server" class="org.red5.server.Server"  />
+
+	<bean id="serializer" class="org.red5.io.object.Serializer" />
+	
+	<bean id="deserializer" class="org.red5.io.object.Deserializer" />
+	
+	<bean id="statusObjectService" class="org.red5.server.net.rtmp.status.StatusObjectService" 
+		autowire="byType" init-method="initialize" />
+	
+	<bean id="rtmpCodecFactory" class="org.red5.server.net.rtmp.codec.RTMPMinaCodecFactory" 
+		autowire="byType" init-method="init" />
+		
+	<bean id="remotingCodecFactory" class="org.red5.server.net.remoting.codec.RemotingCodecFactory" 
+		autowire="byType" init-method="init" />
+	
+	<bean id="videoCodecFactory" class="org.red5.server.stream.VideoCodecFactory">
+		<property name="codecs">
+			<list>
+				<bean id="screenVideoCodec" class="org.red5.server.stream.codec.ScreenVideo"/>
+				<!--
+				<bean id="sorensonVideoCodec" class="org.red5.server.stream.codec.SorensonVideo"/>
+				-->
+			</list>
+		</property>
+	</bean>
+    
+	<bean id="streamableFileFactory" class="org.red5.io.StreamableFileFactory">
+		<property name="services">
+			<list>
+				<bean id="flvFileService" class="org.red5.io.flv.impl.FLVService">
+					<property name="generateMetadata" value="true" />
+				</bean>
+				<bean id="mp3FileService" class="org.red5.io.mp3.impl.MP3Service"/>
+			</list>
+		</property>
+	</bean>
+    
+    <!-- handles creation / lookup of shared objects -->
+    <bean id="sharedObjectService" class="org.red5.server.so.SharedObjectService">
+        <property name="persistenceClassName">
+            <value>org.red5.server.persistence.FilePersistence</value>
+        </property>
+    </bean>
+    
+    <!-- high level access to streams -->
+    <bean id="streamService" class="org.red5.server.stream.StreamService" />
+    
+    <bean id="providerService" class="org.red5.server.stream.ProviderService" />
+    
+    <bean id="consumerService" class="org.red5.server.stream.ConsumerService" />
+    
+    <bean id="FlowControlService" class="org.red5.server.stream.BalancedFlowControlService"
+    	init-method="init" >
+    	<property name="interval" value="10"/>
+    	<property name="defaultCapacity" value="102400"/>
+    </bean>
+    
+    <bean id="schedulingService" class="org.red5.server.scheduling.QuartzSchedulingService" />
+    
+    <bean id="threadFactory" class="org.red5.server.pooling.ThreadObjectFactory" />
+
+    <!-- threadpool settings for the remoting clients -->
+    <bean id="remotingPool" class="org.red5.server.pooling.ThreadPool">
+    	<constructor-arg><ref bean="threadFactory" /></constructor-arg> 
+        <!-- maxIdle: The maximum number of sleeping instances in the pool, 
+        	without extra objects being released. -->
+        <property name="maxIdle" value="8" />
+        <!-- minIdle: The minimum number of sleeping instances in the pool, 
+        	without extra objects being created. -->
+        <property name="minIdle" value="2" />
+        <!-- maxActive: The maximum number of active instances in the pool. -->
+        <property name="maxActive" value="8" />
+        <!-- timeBetweenEvictionRunsMillis: The number of milliseconds to 
+        	sleep between runs of the idle-object evictor thread. When negative, 
+        	no idle-object evictor thread will run. Use this parameter only when 
+        	you want the evictor thread to run. -->
+        <property name="timeBetweenEvictionRunsMillis" value="120000" />
+        <!-- minEvictableIdleTimeMillis: The minimum amount of time an object, 
+        	if active, may sit idle in the pool before it is eligible for eviction 
+        	by the idle-object evictor. If a negative value is supplied, no objects 
+        	are evicted due to idle time alone. -->
+        <property name="minEvictableIdleTimeMillis" value="-1" />
+        <!-- testOnBorrow: When "true," objects are validated. If the object fails
+        	validation, it will be dropped from the pool, and the pool will attempt 
+        	to borrow another. -->
+        <property name="testOnBorrow" value="true" />
+        <property name="whenExhaustedAction" value="2"/>    	
+    </bean>
+    
+	<!-- Now we can load the cache engine -->
+	<!-- bean id="object.cache" class="org.red5.server.cache.CacheImpl" init-method="init" autowire="byType"> 
+		<property name="maxEntries"><value>5</value></property>
+	</bean -->
+	
+	<bean id="object.cache" class="org.red5.server.cache.WhirlyCacheImpl" init-method="init" autowire="byType">
+		<property name="maxEntries" value="5" />
+		<property name="cacheConfig">
+			<bean class="com.whirlycott.cache.CacheConfiguration">
+				<property name="name" value="flv.cache" />
+				<property name="maxSize" value="5" />
+				<!-- This policy removes cached items, biased towards least frequently used (LFU) Items -->
+				<property name="policy"><value>com.whirlycott.cache.policy.LFUMaintenancePolicy</value></property>
+				<!-- This policy removes cached items, biased towards least recently used (LRU) Items -->
+				<!-- property name="policy"><value>com.whirlycott.cache.policy.LRUMaintenancePolicy</value></property -->
+				<!-- This policy removes cache items in the order in which they were added -->
+				<!-- property name="policy"><value>com.whirlycott.cache.policy.FIFOMaintenancePolicy</value></property -->
+				<!-- A predicate for filtering Collections of Items based on their expiration time -->
+				<!-- property name="policy"><value>com.whirlycott.cache.policy.ExpirationTimePredicate</value></property -->		
+				<!-- property name="backend"><value>com.whirlycott.cache.impl.ConcurrentHashMapImpl</value></property -->
+				<property name="backend"><value>com.whirlycott.cache.impl.FastHashMapImpl</value></property>
+			</bean>
+		</property>
+	</bean>    
+	
+	<!-- Then we load the scripting context, with the common as parent --> 
+	<bean id="script.context" class="org.red5.server.script.ScriptObjectContext" init-method="init">
+		<property name="scriptBeanFactory">
+			<bean class="org.red5.server.script.ScriptBeanFactory" />
+		</property>
+		<property name="scriptManager">
+			<bean class="javax.script.ScriptEngineManager" />
+		</property>
+	</bean>
+    
+</beans>

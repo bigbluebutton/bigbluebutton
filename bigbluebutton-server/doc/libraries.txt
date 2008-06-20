@@ -1,0 +1,40 @@
+
+$Date: $
+$Revision: $
+
+Spring scripting support:
+http://static.springframework.org/spring/docs/2.0.2/reference/dynamic-language.html#dynamic-language-resources
+spring-support.jar
+
+Groovy:
+http://groovy.codehaus.org/
+asm-2.2.2.jar
+antlr-2.7.6.jar
+groovy-1.0.jar
+
+Beanshell:
+http://www.beanshell.org/
+bsh-2.0b5.jar
+cglib-nodep-2.1_3.jar
+
+Ruby:
+http://jruby.codehaus.org/
+jruby.jar
+cglib-nodep-2.1_3.jar
+
+Jython / Python:
+http://www.jython.org/Project/index.html
+jython.jar
+
+--------------------------------------------------------
+The following are need for Java 5 only:
+
+Script related JSR's:
+jsr-223-1.0-pr.jar
+jsr173_1.0_api.jar
+
+Javascript / Rhino:
+http://www.mozilla.org/rhino/
+js.jar
+xbean.jar - needed for E4X
+

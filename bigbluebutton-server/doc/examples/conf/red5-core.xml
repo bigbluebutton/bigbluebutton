@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:lang="http://www.springframework.org/schema/lang"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                           http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
+
+	<!-- This context holds all the networking: mina -->
+
+	<bean id="customEditorConfigurer" 
+	    class="org.springframework.beans.factory.config.CustomEditorConfigurer">
+	  <property name="customEditors">
+	    <map>
+	      <entry key="java.net.SocketAddress">
+	        <bean class="org.apache.mina.integration.spring.InetSocketAddressEditor" />
+	      </entry>
+	    </map>
+	  </property>
+	</bean>
+	
+	<bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	    <property name="location" value="classpath:/red5.properties" />
+	</bean>
+	
+	<bean id="filterChainBuilder" 
+        class="org.apache.mina.integration.spring.DefaultIoFilterChainBuilderFactoryBean">
+		<property name="filters">
+	    	<list>
+	    		<!-- mina 0.9.4 -->
+				<!--  bean class="org.apache.mina.filter.ThreadPoolFilter" -->
+					<!-- Threads will be named IoWorker-1, IoWorker-2, etc - - >
+					<constructor-arg value="IoWorker" />
+					<property name="maximumPoolSize" value="128"/>
+ 					-->
+				<!-- mina 0.9.x snapshot with java5 executor class -->
+				<bean class="org.red5.io.filter.ExecutorFilter">
+					<!-- int corePoolSize, int maximumPoolSize, long keepAliveTime (seconds) -->
+					<constructor-arg index="0" value="16" />
+					<constructor-arg index="1" value="128" />
+					<constructor-arg index="2" value="60" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="socketAcceptor" class="org.apache.mina.integration.spring.IoAcceptorFactoryBean">
+     <property name="target">
+       <bean class="org.apache.mina.transport.socket.nio.SocketAcceptor"/>
+     </property>
+     <property name="bindings">
+       <list>
+         
+         <!-- RTMP -->
+         <bean class="org.apache.mina.integration.spring.Binding">
+           <property name="address" value="${rtmp.host_port}"/>
+           <property name="handler" ref="rtmpMinaIoHandler"/>
+           <property name="serviceConfig">
+             <bean class="org.apache.mina.transport.socket.nio.SocketAcceptorConfig">
+               <property name="filterChainBuilder" ref="filterChainBuilder"/>
+               <property name="reuseAddress" value="true"/>
+               <property name="sessionConfig.reuseAddress" value="true"/>
+             </bean>
+           </property>
+         </bean>
+         
+         <!-- DEBUG PROXY -->
+         <bean class="org.apache.mina.integration.spring.Binding">
+           <property name="address" value="${debug_proxy.host_port}"/>
+           <property name="handler" ref="debugProxyIoHandler"/>
+           <property name="serviceConfig">
+             <bean class="org.apache.mina.transport.socket.nio.SocketAcceptorConfig">
+               <property name="filterChainBuilder" ref="filterChainBuilder"/>
+               <property name="reuseAddress" value="true"/>
+               <property name="sessionConfig.reuseAddress" value="true"/>
+             </bean>
+           </property>
+         </bean>
+       
+       </list>
+     </property>
+   </bean> 	
+      
+	<bean id="rtmpHandler" class="org.red5.server.net.rtmp.RTMPHandler"
+		autowire="byType" />
+		
+	<bean id="rtmpMinaIoHandler" class="org.red5.server.net.rtmp.RTMPMinaIoHandler">
+        <property name="handler" ref="rtmpHandler"/>
+        <property name="codecFactory" ref="rtmpCodecFactory"/>
+    </bean>
+    
+	<bean id="rtmptHandler" class="org.red5.server.net.rtmpt.RTMPTHandler"
+		autowire="byType">
+		<property name="codecFactory" ref="rtmpCodecFactory" />
+	</bean>
+
+    <!-- Tomcat Container -->
+	<bean id="rtmpt.server" class="org.red5.server.net.rtmpt.TomcatRTMPTLoader" init-method="init" autowire="byType">
+	    <property name="embedded">
+	    	<bean class="org.apache.catalina.startup.Embedded" />
+	    </property>
+
+	    <property name="engine">
+			<bean class="org.apache.catalina.core.StandardEngine">
+		        <property name="name" value="rtmptServletHandler" />
+		        <property name="defaultHost" value="localhost" />
+			</bean>	  
+	    </property>
+	    
+	    <property name="connector">
+			<bean class="org.apache.catalina.connector.Connector">
+		        <property name="port"><value>8088</value></property>
+		        <property name="enableLookups"><value>false</value></property>
+			</bean>
+	    </property>
+	    
+        <property name="host">
+	       <bean class="org.apache.catalina.core.StandardHost">
+	           <property name="name" value="localhost" />
+	           <property name="unpackWARs" value="false" />
+	           <property name="autoDeploy" value="false" />
+	           <property name="xmlValidation" value="false" />
+	           <property name="xmlNamespaceAware" value="false" />
+	       </bean>	   
+	    </property>		
+
+        <property name="context">
+		    <map>
+		      <entry>
+		        <key><value>name</value></key>
+		        <value>rtmptContext</value>
+		      </entry>
+		      <entry>
+		        <key><value>path</value></key>
+		        <value></value>
+		      </entry>
+		      <entry>
+		        <key><value>docBase</value></key>
+		        <value>/</value>
+		      </entry>		
+		    </map>			
+  		</property>	    
+
+		<property name="wrapper">
+			<bean class="org.apache.catalina.core.StandardWrapper">
+				<property name="servletName" value="RTMPTServlet" />
+				<property name="servletClass" value="org.red5.server.net.servlet.RTMPTServlet" />
+			</bean>	    
+  		</property>	    
+
+        <property name="mappings">
+		    <map>
+		      <entry>
+		        <key><value>RTMPTServlet</value></key>
+		        <value>/open/*</value>
+		      </entry>
+		      <entry>
+		        <key><value>RTMPTServlet</value></key>
+		        <value>/close/*</value>
+		      </entry>
+		      <entry>
+		        <key><value>RTMPTServlet</value></key>
+		        <value>/send/*</value>
+		      </entry>
+		      <entry>
+		        <key><value>RTMPTServlet</value></key>
+		        <value>/idle/*</value>
+		      </entry>		      
+		    </map>
+  		</property>
+    </bean>
+
+	<bean id="debugProxyIoHandler" class="org.red5.server.net.proxy.DebugProxyHandler">
+        <property name="codecFactory" ref="rtmpCodecFactory" />
+        <property name="forward" value="${proxy_forward.host_port}" />
+        <property name="dumpTo" value="./webapps/dump/" />
+    </bean>
+	
+</beans>

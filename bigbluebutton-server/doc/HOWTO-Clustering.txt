@@ -1,0 +1,52 @@
+=============================
+ How to setup Red5 clustering
+=============================
+
+This document describes the steps to configure and deploy your application on Red5 
+clustering. 
+
+As of now, the current trunk only supports the clustering configuration for multiple
+Edges with one Origin. The Edge server only accepts RTMP connection.
+
+Server Configuration
+====================
+There are several configuration files added to support Edge/Origin configuration, 
+they are under conf/:
+
+ - red5-edge.xml, red5-edge-core.xml -- used for Edge Spring bean configuration. 
+ - red5-origin.xml, red5-origin-core.xml -- used for Origin Spring bean configuration
+
+Configure Edge Server
+=====================
+You don't need to deploy your application on Edges. We strongly recommend you to deploy
+Edge on a different server from Origin. But it should be OK to deploy the Edge on the
+same server as Origin.
+
+Edge on a different Server from Origin
+======================================
+Update the configuration of bean "mrtmpClient" in red5-edge-core.xml to point to the 
+Origin server:
+
+    <bean id="mrtmpClient" class="org.red5.server.net.mrtmp.MRTMPClient"
+	  init-method="start">
+    	<property name="ioHandler" ref="mrtmpHandler" />
+    	<property name="server" value="origin.example.com" />
+    	<property name="port" value="${mrtmp.port}" />
+    </bean>
+    
+Now you can start the server with red5.sh or 'java -jar red5.jar'.
+
+Edge on the same Server as Origin
+=================================
+You don't need to change red5.xml. Copy $(RED5_EDGE_ROOT)/conf/red5.xml to 
+$(RED5_ORIGIN_ROOT)/red5-edge.xml and start the server with 
+'java -jar red5.jar red5-edge.xml' or update red5.sh and add the 'red5-edge.xml'
+parameter.
+
+Configure Origin Server
+=======================
+Deploy your application to webapps/. Make sure your 9035 port is not blocked by a
+firewall. The port will be used by Edge servers to create a connection with the Origin
+server. Start the server with red5.sh or 'java -jar red5.jar'.
+
+Your RTMP can go through Edges now. Your RTMPT and HTTP can go through Origin as normal.

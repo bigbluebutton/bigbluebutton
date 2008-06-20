@@ -1,0 +1,446 @@
+
+How to script for Red5
+By: Paul Gregoire
+Date: 2 Feb 2007
+Revision: 3
+
+I. Select a scripting implementation
+Level: Beginner
+
+Red5 includes interpreters for the following scripting languages:
+	- Javascript - version 1.6 (Mozilla Rhino version 1.6 R7)
+	- JRuby - version 1.0.1 (Ruby version 1.8.5)
+	- Jython - version 2.2 (Python version 2.1)
+	- Groovy - version 1.0
+	- Beanshell - version 2.0b4
+
+Future versions may include:
+	- JudoScript
+	- Scala
+	- PHP (This one is non-trivial, I may just provide a bridge)
+	- Actionscript (Maybe SSAS)
+
+The scripting implementation classes are pre-specified in the following locations depending upon your Java version:
+
+    Java5 - js-engine.jar, jython-engine.jar, groovy-engine.jar
+    Java6 - resources.jar 
+
+	File location: /META-INF/services/javax.script.ScriptEngineFactory
+
+It is most likely that the classes read from the jdk or jre will be prefered over any specified elsewhere.
+
+
+II. Configuring Spring
+Level: Intermediate
+
+Step one is to locate your web applications red5-web.xml file. Within the xml config file the web.scope bean definition must supply a web.handler, this handler is your Red5 application (An application must extend the org.red5.server.adapter.ApplicationAdapter class).
+The application provides access to the Red5 server and any service instances that are created. The service instances and the application itself may be scripted.
+Bean definitions in Spring config files may not have the same id, here are some web handler definition examples:
+
+Java class implementation - 
+<bean id="web.handler" class="org.red5.server.webapp.oflaDemo.Application" />
+
+Javascript implementation -
+<bean id="web.handler" class="org.red5.server.script.rhino.RhinoScriptFactory">
+	<constructor-arg index="0" value="classpath:applications/main.js"/>
+	<constructor-arg index="1">
+		<list>
+			<value>org.red5.server.api.IScopeHandler</value>
+     		<value>org.red5.server.adapter.IApplication</value>
+		</list>
+	</constructor-arg>
+	<constructor-arg index="2">
+		<value>org.red5.server.adapter.ApplicationAdapter</value>
+	</constructor-arg>
+</bean>
+
+Ruby implementation - 
+<bean id="web.handler" class="org.springframework.scripting.jruby.JRubyScriptFactory">
+	<constructor-arg index="0" value="classpath:applications/main.rb"/>
+	<constructor-arg index="1">
+		<list>
+			<value>org.red5.server.api.IScopeHandler</value>
+			<value>org.red5.server.adapter.IApplication</value>
+		</list>
+	</constructor-arg>
+</bean>
+
+Groovy implementation - 
+<bean id="web.handler" class="org.red5.server.script.groovy.GroovyScriptFactory">
+	<constructor-arg index="0" value="classpath:applications/main.groovy"/>
+	<constructor-arg index="1">
+		<list>
+			<value>org.red5.server.api.IScopeHandler</value>
+			<value>org.red5.server.adapter.IApplication</value>
+		</list>
+	</constructor-arg>
+</bean>
+
+Python implementation - 
+<bean id="web.handler" class="org.red5.server.script.jython.JythonScriptFactory">
+	<constructor-arg index="0" value="classpath:applications/main.py"/>
+	<constructor-arg index="1">
+		<list>
+    		<value>org.red5.server.api.IScopeHandler</value>
+    		<value>org.red5.server.adapter.IApplication</value>
+		</list>
+	</constructor-arg>
+        <constructor-arg index="2">
+		<list>
+            <value>One</value>
+            <value>2</value>
+            <value>III</value>
+        </list>
+    </constructor-arg>
+</bean>
+
+In general the configuration using scripted classes is defined using the constructor arguments (see interpreter section) in the following order:
+	Argument 1 - Location of the script source file
+
+	Argument 2 - Java interfaces implemented by the script
+					The interfaces for the code which extends an Application are basically boilerplate as seen in the examples above; You do not
+					have to use those interfaces in all your script definitions.
+
+	Argument 3 - Java classes extended by the script
+					The extended class is not always necessary, it depends upon the scripting engine implementation.
+
+The example location starts with classpath:applications which in physical disk terms for the "oflaDemo" application equates to webapps/oflaDemo/WEB-INF/applications 
+
+
+
+
+III. Creating an application script
+Level: Intermediate
+
+1. Application adapter
+Scripting an application adapter is more difficult in some languages than it is in others, because of this I present the Ruby example which works really well and is easy to write and integrate. The application services are easily written in any of the supported languages, but they require a Java interface at a minimum.
+
+i. JRuby application adapter implementation -
+
+# JRuby
+require 'java'
+module RedFive
+    include_package "org.red5.server.api"
+    include_package "org.red5.server.api.stream"
+    include_package "org.red5.server.api.stream.support"
+    include_package "org.red5.server.adapter"
+    include_package "org.red5.server.stream"
+end
+
+#
+# application.rb - a translation into Ruby of the ofla demo application, a red5 example.
+#
+# @author Paul Gregoire
+#
+class Application < RedFive::ApplicationAdapter
+
+    attr_reader :appScope, :serverStream
+	attr_writer :appScope, :serverStream
+	 
+	def initialize
+	   #call super to init the superclass, in this case a Java class
+	   super
+	   puts "Initializing ruby application"
+	end
+
+	def appStart(app)
+        puts "Ruby appStart"
+		@appScope = app
+		return true
+	end
+
+	def appConnect(conn, params) 
+		puts "Ruby appConnect"
+		measureBandwidth(conn)
+		puts "Ruby appConnect 2"
+		if conn.instance_of?(RedFive::IStreamCapableConnection)
+		    puts "Got stream capable connection"
+			sbc = RedFive::SimpleBandwidthConfigure.new
+			sbc.setMaxBurst(8388608)
+			sbc.setBurst(8388608)
+			sbc.setOverallBandwidth(8388608)
+			conn.setBandwidthConfigure(sbc)
+		end
+		return super
+	end
+
+	def appDisconnect(conn) 
+		puts "Ruby appDisconnect"
+		if appScope == conn.getScope && @serverStream != nil 
+			@serverStream.close
+		end
+		super
+	end
+
+	def toString
+		return "Ruby toString"
+	end
+
+    def setScriptContext(scriptContext)
+	   puts "Ruby application setScriptContext"
+    end
+
+    def method_missing(m, *args)
+      super unless @value.respond_to?(m) 
+      return @value.send(m, *args)
+    end
+
+end
+
+2. Application services
+Here is an example of a Java interface (Yes, the methods are supposed to be empty) which is used in the examples to provide a template for applications which will gather a list of files and return them as a "Map" (key-value pairs) to the caller.
+
+i. Simple Java interface for implementation by scripts -
+
+package org.red5.server.webapp.oflaDemo;
+
+import java.util.Map;
+
+public interface IDemoService {
+
+	/**
+     * Getter for property 'listOfAvailableFLVs'.
+     *
+     * @return Value for property 'listOfAvailableFLVs'.
+     */
+    public Map getListOfAvailableFLVs();
+
+    public Map getListOfAvailableFLVs(String string);
+
+}
+
+ii. Spring bean definition for a script implementation of the interface -
+
+	<bean id="demoService.service" class="org.springframework.scripting.jruby.JRubyScriptFactory">
+		<constructor-arg index="0" value="classpath:applications/demoservice.rb"/>
+		<constructor-arg index="1">
+			<list>
+     			<value>org.red5.server.webapp.oflaDemo.IDemoService</value>
+  			</list>
+		</constructor-arg>
+	</bean>
+
+iii. JRuby script implementing the interface -
+
+# JRuby - style
+require 'java'
+module RedFive
+    include_package "org.springframework.core.io"
+    include_package "org.red5.server.webapp.oflaDemo"
+end
+include_class "org.red5.server.api.Red5"
+include_class "java.util.HashMap"
+
+#
+# demoservice.rb - a translation into Ruby of the ofla demo application, a red5 example.
+#
+# @author Paul Gregoire
+#
+class DemoService < RedFive::DemoServiceImpl
+
+    attr_reader :filesMap
+    attr_writer :filesMap
+
+	def initialize
+	   puts "Initializing ruby demoservice"
+	   super
+	   @filesMap = HashMap.new
+	end
+
+	def getListOfAvailableFLVs
+		puts "Getting the FLV files"
+		begin
+            dirname = File.expand_path('webapps/oflaDemo/streams').to_s
+			Dir.open(dirname).entries.grep(/\.flv$/) do |dir|
+			    dir.each do |flvName|
+      			    fileInfo = HashMap.new
+      			    stats = File.stat(dirname+'/'+flvName)
+      			    fileInfo["name"] = flvName
+      			    fileInfo["lastModified"] = stats.mtime
+      			    fileInfo["size"] = stats.size || 0
+                    @filesMap[flvName] = fileInfo
+                    print 'FLV Name:', flvName
+                    print 'Last modified date:', stats.mtime
+                    print 'Size:', stats.size || 0
+                    print '-------'
+                end
+            end
+		rescue Exception => ex
+			puts "Error in getListOfAvailableFLVs #{errorType} \n"
+			puts "Exception: #{ex} \n"
+			puts caller.join("\n");
+		end
+		return filesMap
+	end
+
+	def formatDate(date)
+		return date.strftime("%d/%m/%Y %I:%M:%S")
+	end
+
+    def method_missing(m, *args)
+      super unless @value.respond_to?(m)
+      return @value.send(m, *args)
+    end
+
+end
+
+iv. Java application implementing the interface, upon which the Ruby code was based (This code is NOT needed when using the script) -
+
+package org.red5.server.webapp.oflaDemo;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.red5.server.api.IScope;
+import org.red5.server.api.Red5;
+import org.springframework.core.io.Resource;
+
+public class DemoService {
+
+	protected static Log log = LogFactory.getLog(DemoService.class.getName());
+
+	/**
+     * Getter for property 'listOfAvailableFLVs'.
+     *
+     * @return Value for property 'listOfAvailableFLVs'.
+     */
+    public Map getListOfAvailableFLVs() {
+		IScope scope = Red5.getConnectionLocal().getScope();
+		Map<String, Map> filesMap = new HashMap<String, Map>();
+		Map<String, Object> fileInfo;
+		try {
+			log.debug("getting the FLV files");
+			Resource[] flvs = scope.getResources("streams/*.flv");
+			if (flvs != null) {
+				for (Resource flv : flvs) {
+					File file = flv.getFile();
+					Date lastModifiedDate = new Date(file.lastModified());
+					String lastModified = formatDate(lastModifiedDate);
+					String flvName = flv.getFile().getName();
+					String flvBytes = Long.toString(file.length());
+					if (log.isDebugEnabled()) {
+						log.debug("flvName: " + flvName);
+						log.debug("lastModified date: " + lastModified);
+						log.debug("flvBytes: " + flvBytes);
+						log.debug("-------");
+					}
+					fileInfo = new HashMap<String, Object>();
+					fileInfo.put("name", flvName);
+					fileInfo.put("lastModified", lastModified);
+					fileInfo.put("size", flvBytes);
+					filesMap.put(flvName, fileInfo);
+				}
+			}
+
+			Resource[] mp3s = scope.getResources("streams/*.mp3");
+			if (mp3s != null) {
+				for (Resource mp3 : mp3s) {
+					File file = mp3.getFile();
+					Date lastModifiedDate = new Date(file.lastModified());
+					String lastModified = formatDate(lastModifiedDate);
+					String flvName = mp3.getFile().getName();
+					String flvBytes = Long.toString(file.length());
+					if (log.isDebugEnabled()) {
+						log.debug("flvName: " + flvName);
+						log.debug("lastModified date: " + lastModified);
+						log.debug("flvBytes: " + flvBytes);
+						log.debug("-------");
+					}
+					fileInfo = new HashMap<String, Object>();
+					fileInfo.put("name", flvName);
+					fileInfo.put("lastModified", lastModified);
+					fileInfo.put("size", flvBytes);
+					filesMap.put(flvName, fileInfo);
+				}
+			}
+		} catch (IOException e) {
+			log.error(e);
+		}
+		return filesMap;
+	}
+
+	private String formatDate(Date date) {
+		SimpleDateFormat formatter;
+		String pattern = "dd/MM/yy H:mm:ss";
+		Locale locale = new Locale("en", "US");
+		formatter = new SimpleDateFormat(pattern, locale);
+		return formatter.format(date);
+	}
+
+}
+
+v. Flex AS3 method calling the service -
+
+	[Bindable]
+    public var videoList:ArrayCollection;
+
+    public function catchVideos():void{
+		// call server-side method
+		// create a responder and set it to getMediaList
+		var nc_responder:Responder = new Responder(getMediaList, null);
+		// call the server side method to get list of FLV's
+		nc.call("demoService.getListOfAvailableFLVs", nc_responder);
+	}
+
+    public function getMediaList(list:Object):void{
+		// this is the result of the server side getListOfAvailableFLVs
+		var mediaList:Array = new Array();
+		for(var items:String in list){
+			mediaList.push({label:items, size:list[items].size, dateModified:list[items].lastModified});
+		}
+		// videoList is bindable and the datagrid is set to use this for it's dataprovider
+		// wrap it in an ArrayCollection first
+		videoList = new ArrayCollection(mediaList);
+	}
+
+
+
+
+IV. Creating your own interpreter
+Level: Advanced
+
+Lets just open this up by saying that I attempted to build an interpreter for PHP this last weekend 02/2007 and it was a real pain; after four hours I had to give up. So what I learned from this is that you must first identify scripting languages which operate as applications, not as http request processors. Heres a test: Can X language be compiled into an executable or be run on the command-line? If yes then it should be trivial to integrate. 
+
+
+
+V. Links with scripting information
+Spring scripting - 
+http://static.springframework.org/spring/docs/2.0.x/reference/dynamic-language.html
+http://rhinoinspring.sourceforge.net/
+
+Java scripting - 
+http://java.sun.com/developer/technicalArticles/J2SE/Desktop/scripting/
+http://blogs.sun.com/sundararajan/
+https://scripting.dev.java.net/
+http://today.java.net/pub/a/today/2006/04/11/scripting-for-java-platform.html
+http://www.javaworld.com/javaworld/jw-03-2005/jw-0314-scripting_p.html
+http://www.oreillynet.com/onjava/blog/2004/01/java_scripting_half_the_size_h.html
+http://www.robert-tolksdorf.de/vmlanguages.html
+
+Javascript - 
+http://www.mozilla.org/rhino/
+http://www.mozilla.org/rhino/ScriptingJava.html
+
+Ruby -
+http://jruby.codehaus.org/
+
+BeanShell - 
+http://www.beanshell.org/
+
+Python - 
+http://www.jython.org/Project/
+http://www.onjava.com/pub/a/onjava/2002/03/27/jython.html
+http://jepp.sourceforge.net/
+http://jpe.sourceforge.net/
+http://jpype.sourceforge.net/
+
+Groovy -
+http://groovy.codehaus.org/
+
