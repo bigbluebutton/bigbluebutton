@@ -1,0 +1,6 @@
+#list of ScriptEngineFactory's in this package
+#org.red5.server.script.rhino.RhinoScriptEngineFactory #javascript
+com.sun.script.jruby.JRubyScriptEngineFactory
+com.sun.script.jython.JythonScriptEngineFactory  
+com.sun.script.groovy.GroovyScriptEngineFactory
+
