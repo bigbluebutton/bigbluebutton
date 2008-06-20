@@ -105,7 +105,7 @@ package org.bigbluebutton.modules.chat.model.business
 				case "NetConnection.Connect.Success":
 					e = new ConnectionEvent(Connection.SUCCESS, false, false, event.info.code);
 					dispatchEvent(e);
-					log.info("Connected to server Susccesfully " + event.info.code);
+					log.info("Connected to server Successfully " + event.info.code);
 				break;
 				
 				case "NetConnection.Connect.Rejected":
