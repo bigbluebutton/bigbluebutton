@@ -33,6 +33,7 @@
 			[Bindable] private var sharingIcon : Class = images.link_break;	
 			[Bindable] private var sharingTooltip : String = "Share presentation";		
 			[Bindable] public var presenterIcon : Class = images.user_gray;
+			private var shareLabel : String;
 			
 			[Bindable] public var model:PresentationFacade = PresentationFacade.getInstance(); 
 						
@@ -54,10 +55,12 @@
 			public function handleSharing(sharing : Boolean) : void
 			{	
 				if (sharing) {
-					sharingIcon = images.link;
+					//sharingIcon = images.link;
+					sharePres.label = "Unshare Presentation";
 					sharingTooltip = "Unshare presentation";
 				} else {
-					sharingIcon = images.link_break;
+					//sharingIcon = images.link_break;
+					sharePres.label = "Share Presentation";
 					sharingTooltip = "Share presentation";
 				}
 				
@@ -131,9 +134,9 @@
     	  <mx:Button id="uploadPres" icon="{uploadIcon}" visible="false"
     	   			width="20" height="20"
     	   			toolTip="Upload PDF Document" click="dispatchEvent(new Event(PresentationPanelMediator.OPEN_UPLOAD))"/>    
-    	  <mx:Button id="sharePres" icon="{sharingIcon}" visible="false"
-    	   			width="20" height="20"
-    	   			toolTip="{sharingTooltip}" click="dispatchEvent(new Event(PresentationPanelMediator.SHARE))"/> 
+    	  <mx:Button id="sharePres"  visible="false" label=""
+    	   			width="130" height="20" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0"
+    	   			toolTip="{sharingTooltip}" click="dispatchEvent(new Event(PresentationPanelMediator.SHARE))"/> <!--icon="{sharingIcon}"-->
     	  <mx:Spacer width="100"/>
     	  <mx:Label id="presenterLbl" text="Presenter:" />
     	  <mx:Button id="presenterName" icon="{presenterIcon}" label="Presenter's Name"

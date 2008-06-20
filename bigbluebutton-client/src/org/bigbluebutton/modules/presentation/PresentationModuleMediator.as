@@ -93,7 +93,7 @@ package org.bigbluebutton.modules.presentation
    			msg.setPriority(Message.PRIORITY_HIGH);
    			   			
    			presentationWindow.height = 378;
-   			presentationWindow.width = 464;
+   			presentationWindow.width = 480;
    			presentationWindow.title = PresentationWindow.TITLE;
    			presentationWindow.showCloseButton = false;
    			module.activeWindow = presentationWindow;
