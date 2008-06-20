@@ -1,0 +1,59 @@
+<?xml version='1.0'?>
+<!DOCTYPE service_bundle SYSTEM '/usr/share/lib/xml/dtd/service_bundle.dtd.1'>
+<!-- 
+Solaris Service Management Facility for Red5
+
+The idea for this file came from a post by Paul Oswald
+URL: http://pauloswald.com/article/29/hudson-solaris-smf-manifest
+Modified for use with Red5 by Paul Gregoire (mondain@gmail.com)
+
+More info: 
+http://www.sun.com/bigadmin/content/selfheal/smf-quickstart.jsp
+http://www.sun.com/bigadmin/content/selfheal/sdev_intro.html
+
+-->
+<service_bundle type="manifest" name="Red5">
+	<service name="application/red5" type="service" version="1">
+		
+		<!-- Initial state of the service is disabled -->
+		<create_default_instance enabled="false" />
+		
+		<!-- Only one instance of Red5 should ever run per server -->
+		<single_instance />
+		
+		<dependency name="multi-user-server" type="service" grouping="require_all" restart_on="none">
+			<service_fmri value="svc:/milestone/multi-user" />
+		</dependency>
+
+		<method_context>
+			<method_credential user='dev' group='teamsdev' />
+			<method_environment>
+				<envvar name='PATH' value='/usr/bin:/usr/sbin:/usr/ccs/bin:/usr/local/bin:/usr/local/sbin:/usr/sfw/bin' />
+			</method_environment>
+		</method_context>
+
+		<!-- Set the RED5_HOME env variable, and run the war file in /apps/red5 -->
+		<exec_method type="method" name="start"	
+		    exec="java -Xmx512m -DRED5_HOME=/apps/red5/ -jar /apps/red5/red5.jar --prefix=/red5" 
+		    timeout_seconds="0"/>
+		<exec_method type="method" name="stop" 
+		    exec=":kill -TERM" 
+		    timeout_seconds="30"/>
+
+		<!-- We are going to be kicking off a single child process so we want Wait mode-->
+		<property_group name='startd' type='framework'>
+			<propval name='duration' type='astring' value='child' />
+		</property_group>
+
+		<stability value="Unstable" />
+
+		<template>
+			<common_name>
+				<loctext xml:lang='C'>Red5 - RIA Server</loctext>
+			</common_name>
+			<documentation>
+				<doc_link name='red5.org' uri='http://osflash.org/red5' />
+			</documentation>
+		</template>
+	</service>
+</service_bundle>

@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<cross-domain-policy>
+	<site-control permitted-cross-domain-policies="all"/>
+	<allow-access-from domain="localhost" to-ports="20-65535"/>
+	<allow-access-from domain="*.local" to-ports="20-65535"/>
+</cross-domain-policy>

@@ -1,0 +1,11 @@
+<!--
+  NOTE:  By default, no user is included in the "manager" role required
+  to operate the "/manager" web application.  If you wish to use this app,
+  you must define such a user - the username and password are arbitrary.
+-->
+<tomcat-users>
+  <user name="admin" password="admin" roles="admin" />
+  <user name="tomcat" password="tomcat" roles="tomcat" />
+  <user name="role1"  password="tomcat" roles="role1"  />
+  <user name="both"   password="tomcat" roles="tomcat,role1" />
+</tomcat-users>
