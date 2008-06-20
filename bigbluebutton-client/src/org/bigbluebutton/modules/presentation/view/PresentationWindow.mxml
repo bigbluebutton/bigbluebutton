@@ -139,10 +139,10 @@
     	  <mx:Button id="presenterName" icon="{presenterIcon}" label="Presenter's Name"
                  labelPlacement="right" color="#993300" 
                  dragEnter="dragEnterHandler(event)" dragDrop="dragDropHandler(event)"/>
-    	   <mx:Spacer width="100%"/>						
-    	  <mx:Button id="connect" icon="{connectIcon}" 
+    	   <!--<mx:Spacer width="100%"/>-->						
+    	 <!-- <mx:Button id="connect"  icon="{connectIcon}"
     	   			width="20" height="20" enabled="false"
-    	   			toolTip="{connectTooltip}" click="dispatchEvent(new Event(PresentationPanelMediator.CONNECT))"/>
+    	   			toolTip="{connectTooltip}" click="dispatchEvent(new Event(PresentationPanelMediator.CONNECT))"/>-->
     </mx:ControlBar>
 			
 </pres:MDIWindow>
