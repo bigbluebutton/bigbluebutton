@@ -17,7 +17,7 @@
 * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 * 
 */
-package org.bigbluebutton.main.view.components
+package org.bigbluebutton.main.view
 {
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
@@ -28,45 +28,6 @@ package org.bigbluebutton.main.view.components
 		public function LoginWindowMediator(mediatorName:String=null, viewComponent:Object=null)
 		{
 			super(mediatorName, viewComponent);
-		}
-		
-		public function sendNotification(notificationName:String, body:Object=null, type:String=null):void
-		{
-		}
-		
-		public function initializeNotifier(key:String):void
-		{
-		}
-		
-		public function getMediatorName():String
-		{
-			return null;
-		}
-		
-		public function getViewComponent():Object
-		{
-			return null;
-		}
-		
-		public function setViewComponent(viewComponent:Object):void
-		{
-		}
-		
-		public function listNotificationInterests():Array
-		{
-			return null;
-		}
-		
-		public function handleNotification(notification:INotification):void
-		{
-		}
-		
-		public function onRegister():void
-		{
-		}
-		
-		public function onRemove():void
-		{
 		}
 		
 	}

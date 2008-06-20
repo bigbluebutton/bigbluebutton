@@ -19,22 +19,19 @@ package org.bigbluebutton.modules.video.view.settings
 	 * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	 */
 	 
-	import com.adobe.cairngorm.control.CairngormEventDispatcher;
-	
 	import flash.events.*;
 	
 	import mx.containers.ApplicationControlBar;
 	import mx.controls.*;
 	import mx.events.*;
 	
-	import org.red5.samples.publisher.events.ChangeSettingsViewEvent;
 	import org.red5.samples.publisher.model.*;
 
 	/**
 	 * 
 	 * @author Thijs Triemstra 
 	 */	
-	public class SettingsAppBarClass extends ApplicationControlBar
+	public class SettingsAppBarClass
 	{
 		/**
 		* 

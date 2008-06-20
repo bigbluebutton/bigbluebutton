@@ -27,7 +27,7 @@ package org.bigbluebutton.modules.video.view.settings
 	 * 
 	 * @author Thijs Triemstra
 	 */	
-	public class SettingsStatusBarClass extends ApplicationControlBar
+	public class SettingsStatusBarClass
 	{
 
 	}

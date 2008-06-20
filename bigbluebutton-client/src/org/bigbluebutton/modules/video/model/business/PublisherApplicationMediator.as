@@ -17,12 +17,13 @@
 * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 * 
 */
-package org.red5.samples.publisher
+package org.bigbluebutton.modules.video.model.business
 {
 	import flash.net.ObjectEncoding;
 	
 	import org.bigbluebutton.modules.video.VideoFacade;
 	import org.bigbluebutton.modules.video.control.notifiers.PlayStreamNotifier;
+	import org.bigbluebutton.modules.video.model.vo.IMedia;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
@@ -120,7 +121,7 @@ package org.red5.samples.publisher
 		 * @return 
 		 * 
 		 */		
-		public function getBroadcastMedia(streamName : String) : IMedia
+		public function getBroadcastMedia(streamName : String):IMedia
 		{
 			return model.getBroadcastMedia(streamName);
 		}

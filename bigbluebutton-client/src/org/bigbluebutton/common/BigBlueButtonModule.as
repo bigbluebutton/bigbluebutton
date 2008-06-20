@@ -19,10 +19,8 @@
 */
 package org.bigbluebutton.common
 {
-	import flexlib.mdi.containers.MDIWindow;
-	
 	import mx.modules.ModuleBase;
-	
+	import flexlib.mdi.containers.MDIWindow;
 	import org.bigbluebutton.main.view.components.MainApplicationShell;
 	
 	/**

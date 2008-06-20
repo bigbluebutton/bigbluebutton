@@ -34,16 +34,13 @@ package org.bigbluebutton.modules.video
 	 * @author Denis Zgonjanin
 	 * 
 	 */	
-	public class VideoModule extends BigBlueButtonModule implements IRouterAware, BigBlueButtonModule
+	public class VideoModule extends BigBlueButtonModule implements IRouterAware
 	{
 		public static const NAME:String = "VideoModule";
 		
 		private var facade:VideoFacade;
 		private var _router:Router;
-		private var mshell:MainApplicationShell;
-		
-		public var preferedX:Number = 20;
-		public var preferedY:Number = 20;
+		private var shell:MainApplicationShell;
 		
 		/**
 		 * Creates a new instance of the Video Module 
@@ -61,14 +58,10 @@ package org.bigbluebutton.modules.video
 		 * @param shell
 		 * 
 		 */		
-		public function acceptRouter(router:Router, shell:MainApplicationShell):void{
-			mshell = shell;
+		override public function acceptRouter(router:Router, shell:MainApplicationShell):void{
+			shell = shell;
 			this._router = router;
 			facade.startup(this);
-		}
-		
-		public function get router():Router{
-			return this.router
 		}
 		
 		override public function getMDIComponent():MDIWindow{
