@@ -8,6 +8,7 @@
 		
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.common.Constants;
 			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
 			import org.bigbluebutton.main.MainApplicationFacade;
 			import org.bigbluebutton.main.view.MainApplicationShellMediator;
@@ -18,6 +19,7 @@
 						
 			protected function initializeShell():void
 			{
+				Constants.setHost();
 				//debugLog.text = "before startup in initShell";
 				facade.startup(this);
 				//debugLog.text = "After startup in initShell";

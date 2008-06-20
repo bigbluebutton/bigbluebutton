@@ -19,6 +19,8 @@
 */
 package org.bigbluebutton.common
 {
+	import mx.core.Application;
+	
 	/**
 	 * Holds various constants
 	 * NOTE: PLEASE DON'T CHANGE THE CONSTANTS, JUST CHANGE THE STATIC VARIABLES. ADD YOUR OWN CONSTANTS IF
@@ -28,9 +30,12 @@ package org.bigbluebutton.common
 	 */	
 	public class Constants
 	{
-		public static const RED5_HOST:String = "present.carleton.ca";
-		public static const PRESENTATION_HOST:String = "present.carleton.ca";		
+		public static const DEMO_RED5_HOST:String = "present.carleton.ca";
+		public static const DEMO_PRESENTATION_HOST:String = "present.carleton.ca";		
 		public static const KIRUS_COMP:String = "134.117.58.103";
+		
+		public static const HTML_RED5_HOST:String = mx.core.Application.application.parameters.red5host;
+		public static const HTML_PRES_HOST:String = mx.core.Application.application.parameters.presentationHost;
 		
 		public static const NEW_RELATIVE_FILE_UPLOAD:String = "/bigbluebutton/file";
 		//The old relative file upload is used for testing the new client on the old server 
@@ -38,9 +43,20 @@ package org.bigbluebutton.common
 		//PresentationApplication class, in the presentation module under model
 		public static const OLD_RELATIVE_FILE_UPLOAD:String = "/blindside/file";
 				
-		public static var red5Host:String = KIRUS_COMP;
-		public static var presentationHost:String = KIRUS_COMP;
+		public static var red5Host:String = HTML_RED5_HOST;
+		public static var presentationHost:String = HTML_PRES_HOST;
 		public static var relativeFileUpload:String = NEW_RELATIVE_FILE_UPLOAD;
+		
+		/**
+		 * If the client is being run from a server, the URLs will be retrieved from the index.template.html
+		 * file. If we're running the client from an IDE, it will connect to the Carleton demo server.
+		 * This is basicaly meant to ease development. Call this method when the application starts up. 
+		 * 
+		 */		
+		public static function setHost():void{
+			if (HTML_RED5_HOST == null) red5Host = DEMO_RED5_HOST;
+			if (HTML_PRES_HOST == null) presentationHost = DEMO_PRESENTATION_HOST;
+		}
 
 	}
 }

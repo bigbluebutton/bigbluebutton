@@ -9,42 +9,7 @@
 <style>
 body { margin: 0px; overflow:hidden }
 </style>
-<script language="JavaScript" type="text/javascript">
-function call(number)
-{
-	document.getElementById("jiaxc").callNumber(number);
-}
 
-function callChar(chr)
-{
-	document.getElementById("jiaxc").sendCommand(chr);
-}
-
-function hangUp()
-{
-	document.getElementById("jiaxc").hangUpCall();
-}
-
-function status()
-{
-	return "" + document.getElementById("jiaxc").getStatus();
-}
-
-function startPhone(callerid, host)
-{ var phoneText = " <applet id=\"jiaxc\" NAME=\"jiaxc\" MAYSCRIPT height=\"0\" width=\"0\"> "
-		+ " <param name=\"CODE\" value=\"net.sourceforge.jiaxclient.IAXTest.class\"></param> "
-		+ " <param name=\"ARCHIVE\" value=\"jiaxclient-0.0.6.jar\"></param> "
-		+ " <param name=\"INPUT\" value=\"0\"></param> "
-		+ " <param name=\"OUTPUT\" value=\"0\"></param> "
-		+ " <param name=\"USER\" value=\"guest\"></param> "
-		+ " <param name=\"PASS\" value=\"\"></param> "
-		+ " <param name=\"CALLERID\" value=\"" + callerid + "\"></param> "
-		+ " <param name=\"HOST\" value=\"" + host + "\"></param></applet> ";
-
-		var n = document.getElementById("phone");
-			n.innerHTML = phoneText;
-}
-</script>
 </head>
 
 <body scroll="no">
