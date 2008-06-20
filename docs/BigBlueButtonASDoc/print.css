@@ -1,0 +1,110 @@
+/*
+////////////////////////////////////////////////////////////////////////////////
+//
+//  ADOBE SYSTEMS INCORPORATED
+//  Copyright 2005-2007 Adobe Systems Incorporated
+//  All Rights Reserved.
+//
+//  NOTICE: Adobe permits you to use, modify, and distribute this file
+//  in accordance with the terms of the license agreement accompanying it.
+//
+////////////////////////////////////////////////////////////////////////////////
+*/
+
+body {
+  color: #000000;
+  background: #ffffff;
+  font-family: "Times New Roman", Times, serif;
+  font-size: 12pt;
+}
+a {
+  text-decoration: none;
+  color: #000000;
+}
+pre {
+  white-space: -moz-pre-wrap; /* Mozilla */
+  white-space: -pre-wrap;     /* Opera 4-6 */
+  white-space: -o-pre-wrap;   /* Opera 7 */
+  word-wrap: break-word;      /* IE */
+}
+.titleTableTopNav, .titleTableSubNav, .logoImage {
+  display: none;
+}
+.packageFrame {
+  display: none;
+}
+.titleTableSubTitle {
+  font-weight: bold;
+}
+.classHeaderTableLabel {
+	padding-right: 10px;
+	vertical-align: top;
+}
+.showHideLinks {
+  display: none;
+}
+html>body code {
+  font-size: 10pt;
+}
+.summaryTableTitle, .detailSectionHeader {
+  font-size: 14pt;
+  font-weight: bold;
+  padding-top: 15px;
+  padding-bottom: 5px;
+}
+.summaryTable {
+  border: 1px solid #000000;
+  border-collapse: collapse;
+  width: 100%;
+}
+.summaryTableDescription {
+  padding-bottom: 20px;
+}
+.summaryTableSignatureCol, .summaryTableOwnerCol, .summaryTableLastCol, .summaryTableCol {
+  border: 1px solid #000000;
+}
+.summaryTablePaddingCol {
+  border: 1px solid #000000;
+  border-right: 0px;
+}
+.summaryTableInheritanceCol, .summaryTableOperatorCol, .summaryTableStatementCol, .summaryTableSecondCol {
+  border: 1px solid #000000;
+  border-left: 0px;
+}
+.summaryTableLastCol {
+  vertical-align: top;
+}
+.detailHeader {
+  font-size: 13pt;
+  padding-top: 100px;
+}
+.detailHeaderName {
+  font-weight: bold;
+}
+.detailHeaderType {
+  padding-left: 5px;
+}
+.detailHeaderRule {
+  background: #FF0000;
+}
+.seeAlso {
+  padding-bottom: 20px;
+  margin-top: -20px;
+}
+.innertable {
+  border-collapse: collapse;
+}
+.innertable td,.innertable th {
+  border: 1px solid #000000;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+.listing {
+  font-size: 10pt;
+}
+.feedbackLink {
+  display: none;
+}
+.copyright {
+  font-size: 10pt;
+}
