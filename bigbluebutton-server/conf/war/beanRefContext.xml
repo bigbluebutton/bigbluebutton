@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+ 	<bean name="default.context" class="org.springframework.context.support.ClassPathXmlApplicationContext">
+ 		<constructor-arg>
+			<list>
+				<value>defaultContext.xml</value>
+				<value>red5-common.xml</value>
+				<value>red5-core.xml</value>				
+			</list>
+		</constructor-arg>
+	</bean>
+ 
+</beans>

@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!-- =============================================================== -->
+<!-- Configure the Jetty Server with Spring                          -->
+<!-- This file is the equivalent of jetty.xml, but written in spring -->
+<!-- XmlBeanFactory format.                                          -->
+<!-- The modules/spring/src/org/mortbay/spring/Main.java may be used -->
+<!-- to run this file - or any other spring infrastructure that      -->
+<!-- accepts uses an XmlBeanFactory                                  -->
+<!-- =============================================================== -->
+<beans>
+
+	<bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" />
+
+	<bean id="sysProps"
+		class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetClass">
+			<value>java.lang.System</value>
+		</property>
+		<property name="targetMethod">
+			<value>getProperties</value>
+		</property>
+	</bean>
+
+	<bean id="webappRoot"
+		class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetObject">
+			<ref bean="sysProps" />
+		</property>
+		<property name="targetMethod">
+			<value>getProperty</value>
+		</property>
+		<property name="arguments">
+			<list>
+				<value>red5.webapp.root</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="httpHost"
+		class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetObject">
+			<ref bean="sysProps" />
+		</property>
+		<property name="targetMethod">
+			<value>getProperty</value>
+		</property>
+		<property name="arguments">
+			<list>
+				<value>http.host</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="httpPort"
+		class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetObject">
+			<ref bean="sysProps" />
+		</property>
+		<property name="targetMethod">
+			<value>getProperty</value>
+		</property>
+		<property name="arguments">
+			<list>
+				<value>http.port</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="httpsPort"
+		class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetObject">
+			<ref bean="sysProps" />
+		</property>
+		<property name="targetMethod">
+			<value>getProperty</value>
+		</property>
+		<property name="arguments">
+			<list>
+				<value>https.port</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="Server" class="org.mortbay.jetty.Server" destroy-method="stop"> <!-- init-method="start" -->
+
+		<property name="threadPool">
+			<bean id="ThreadPool"
+				class="org.mortbay.thread.BoundedThreadPool">
+				<property name="minThreads" value="10" />
+				<property name="lowThreads" value="25" />
+				<property name="maxThreads" value="100" />
+			</bean>
+		</property>
+
+		<property name="connectors">
+			<list>
+				<bean id="Connector"
+					class="org.mortbay.jetty.nio.SelectChannelConnector">
+					<property name="host">
+						<ref local="httpHost" />
+					</property>
+					<property name="port">
+						<ref local="httpPort" />
+					</property>
+					<property name="maxIdleTime" value="30000" />
+					<property name="acceptors" value="2" />
+					<property name="confidentialPort">
+						<ref local="httpsPort" />
+					</property>
+				</bean>
+				<bean id="SSLConnector"
+					class="org.mortbay.jetty.security.SslSocketConnector">
+			        <property name="port">
+						<ref local="httpsPort" />
+					</property>
+			        <property name="maxIdleTime" value="30000" />
+			        <property name="keystore"><value>${red5.config_root}/keystore</value></property>
+			        <property name="password" value="changeme" />
+			        <property name="keyPassword" value="changeme" />
+			        <property name="truststore"><value>${red5.config_root}/keystore</value></property>
+			        <property name="trustPassword" value="changeme" />
+				</bean>
+			</list>
+		</property>
+
+		<property name="userRealms">
+			<list>
+				<bean
+					class="org.mortbay.jetty.security.HashUserRealm" depends-on="placeholderConfig">
+					<property name="name" value="Test Realm" />
+					<property name="config"><value>${red5.config_root}/realm.properties</value></property>
+				</bean>
+			</list>
+		</property>
+
+		<property name="handler">
+			<bean id="handlers"
+				class="org.mortbay.jetty.handler.HandlerCollection">
+				<property name="handlers">
+					<list>
+						<bean id="defaultHandler" class="org.mortbay.jetty.handler.DefaultHandler" />
+						<bean id="requestLog" class="org.mortbay.jetty.handler.RequestLogHandler" />					
+					</list>
+				</property>
+			</bean>
+		</property>
+
+	</bean>
+
+</beans>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:lang="http://www.springframework.org/schema/lang"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                           http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
+
+	<!-- oflaDemo web context -->
+	<bean id="web.context.oflaDemo" class="org.red5.server.Context">
+		<property name="scopeResolver" ref="red5.scopeResolver" />
+		<property name="clientRegistry" ref="global.clientRegistry" />
+		<property name="serviceInvoker" ref="global.serviceInvoker" />
+		<property name="mappingStrategy" ref="global.mappingStrategy" />
+	</bean>
+
+	<bean id="web.scope.oflaDemo" class="org.red5.server.WebScope" init-method="register">
+		<property name="server" ref="red5.server" />
+		<property name="parent" ref="global.scope" />
+		<property name="context" ref="web.context.oflaDemo" />
+		<property name="handler" ref="web.handler.oflaDemo" />
+		<property name="contextPath" value="/oflaDemo" />
+		<property name="virtualHosts" value="@virtual.hosts@" />
+	</bean>
+
+	<bean id="web.handler.oflaDemo" class="org.red5.server.webapp.oflaDemo.Application"/>
+
+    <bean id="demoService.service" class="org.red5.server.webapp.oflaDemo.DemoService" lazy-init="true" />
+
+</beans>

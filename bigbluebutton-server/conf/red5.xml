@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:lang="http://www.springframework.org/schema/lang"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                           http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
+
+	<!-- This file just wires together the context tree. Its accessed by ContextSingletonBeanFactoryLocator -->
+	
+	<bean id="placeholderConfig"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="classpath:/red5.properties" />
+	</bean>
+
+	<!-- First we load the common context, its shared between all the other contexts -->
+	<!-- Global context serves are the parent to all child contexts. -->
+	<bean id="red5.common"
+  	    class="org.springframework.context.support.FileSystemXmlApplicationContext">
+    	<constructor-arg><list><value>classpath:/red5-common.xml</value></list></constructor-arg>
+	</bean>
+	
+	<!-- Then we load the core context, with the common as parent --> 
+	<!-- Context holding all the networking, users should need to edit. -->
+	<bean id="red5.core"
+  	    class="org.springframework.context.support.FileSystemXmlApplicationContext">
+    	<constructor-arg><list><value>classpath:/red5-core.xml</value></list></constructor-arg>
+    	<constructor-arg><ref bean="red5.common" /></constructor-arg>
+	</bean>
+
+	<!-- Then we load the global contexts, note its important this happens before app container loads -->
+	<bean id="context.loader" 
+		class="org.red5.server.ContextLoader"
+		init-method="init">
+		<property name="parentContext" ref="red5.common" />
+		<property name="contextsConfig" value="red5.globals" />
+	</bean>	
+	
+	<!-- Now we can load the servlet engine, this has to happen after the context are loaded -->
+
+ 	<bean id="jetty6.server" class="org.red5.server.jetty.JettyLoader" init-method="init" autowire="byType" depends-on="context.loader">
+		<property name="webappFolder" value="${red5.root}/webapps" />
+	</bean>
+
+<!--
+	<bean id="tomcat.server" class="org.red5.server.tomcat.TomcatLoader" init-method="init" destroy-method="shutdown" autowire="byType" depends-on="context.loader">
+		<!- - Note: the webapp root folder must be specified before the "contexts" property - ->
+		<property name="webappFolder" value="${red5.root}/webapps" />
+	
+	    <property name="embedded">
+	    	<bean class="org.apache.catalina.startup.Embedded" />
+	    </property>
+	  
+	    <property name="engine">
+			<bean class="org.apache.catalina.core.StandardEngine">
+		        <property name="name" value="red5Engine" />
+		        <property name="defaultHost" value="localhost" />
+			</bean>	  
+	    </property>
+	    
+	    <property name="realm">
+	    	<bean class="org.apache.catalina.realm.MemoryRealm" />
+		</property>
+			      
+	    <property name="connector">
+			<bean class="org.apache.catalina.connector.Connector">
+		        <property name="port"><value>5080</value></property>
+		        <property name="redirectPort"><value>8443</value></property>
+		        <property name="enableLookups"><value>false</value></property>
+			</bean>
+	    </property>
+	    	
+        <property name="baseHost">
+	       <bean class="org.apache.catalina.core.StandardHost">
+	           <property name="name" value="localhost" />
+	           <property name="unpackWARs" value="true" />
+	           <property name="autoDeploy" value="true" />
+	           <property name="xmlValidation" value="false" />
+	           <property name="xmlNamespaceAware" value="false" />
+	       </bean>	   
+	    </property>		
+
+		<property name="valves">
+      		<list>
+	    		<bean id="valve.access" class="org.apache.catalina.valves.AccessLogValve">
+	                <property name="directory" value="." />
+	                <property name="prefix" value="localhost_access." />
+	                <property name="suffix" value=".log" />
+	                <property name="pattern" value="common" />
+	                <property name="resolveHosts" value="false" />
+	                <property name="rotatable" value="true" />
+	        	</bean>
+        	</list>
+        </property>
+	    
+        <property name="contexts">
+		    <map>
+		      <entry>
+		        <key><value>/</value></key>
+		        <value>/root</value>
+		      </entry>
+		    </map>
+  		</property>
+	</bean>     	
+-->
+	<!-- Default context. This can be shared between web app contexts -->
+	<!--
+	<bean id="default.context"
+  	    class="org.springframework.context.support.FileSystemXmlApplicationContext">
+    	<constructor-arg><value>/webapps/red5-default.xml</value></constructor-arg>
+    	<constructor-arg><ref bean="red5.common" /></constructor-arg>
+	</bean>
+	-->
+	<!-- You can add further contexts here. This allows for multiple separate global scopes --> 	
+	
+</beans>

@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:lang="http://www.springframework.org/schema/lang"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd                            
+	http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
+	<!-- This context holds all the networking: mina -->
+
+	<bean id="customEditorConfigurer"
+		class="org.springframework.beans.factory.config.CustomEditorConfigurer">
+		<property name="customEditors">
+			<map>
+				<entry key="java.net.SocketAddress">
+					<bean
+						class="org.apache.mina.integration.spring.InetSocketAddressEditor" />
+				</entry>
+			</map>
+		</property>
+	</bean>
+	
+	<bean id="placeholderConfig"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="classpath:/red5.properties" />
+	</bean>
+
+	<!-- RTMP Handler -->
+	<bean id="rtmpHandler"
+		class="org.red5.server.net.rtmp.RTMPHandler">
+		<property name="server" ref="red5.server" />
+		<property name="statusObjectService" ref="statusObjectService" />
+	</bean>
+	
+		<bean id="mrtmpManager"
+		class="org.red5.server.net.mrtmp.SimpleMRTMPOriginManager" >
+		<property name="originMRTMPHandler" ref="mrtmpMinaIoHandler" />
+	</bean>
+	
+	<bean id="mrtmpCodecFactory"
+		class="org.red5.server.net.mrtmp.codec.MRTMPCodecFactory" />
+	
+	<!-- MRTMP Mina IO Handler -->
+	<bean id="mrtmpMinaIoHandler"
+		class="org.red5.server.net.mrtmp.OriginMRTMPHandler">
+		<property name="handler" ref="rtmpHandler" />
+		<property name="mrtmpManager" ref="mrtmpManager" />
+		<property name="codecFactory" ref="mrtmpCodecFactory" />
+	</bean> 
+	
+	<!-- MRTMP Mina Transport -->
+	<bean id="mrtmpTransport" class="org.red5.server.net.mrtmp.MRTMPMinaTransport" init-method="start" destroy-method="stop">
+		<property name="ioHandler" ref="mrtmpMinaIoHandler" />
+		<property name="address" value="${mrtmp.host}" />
+		<property name="port" value="${mrtmp.port}" />
+		<property name="receiveBufferSize" value="${mrtmp.receive_buffer_size}" />
+		<property name="sendBufferSize" value="${mrtmp.send_buffer_size}" />
+		<property name="eventThreadsCore" value="${mrtmp.event_threads_core}" />
+		<property name="eventThreadsMax" value="${mrtmp.event_threads_max}" />
+		<property name="eventThreadsQueue" value="${mrtmp.event_threads_queue}" />
+		<property name="eventThreadsKeepalive" value="${mrtmp.event_threads_keepalive}" />
+		<property name="tcpNoDelay" value="${mrtmp.tcp_nodelay}" />
+	</bean> 
+	
+	<!-- Uncomment this if you run Origin on a different server from Edge
+	     and still want to use RTMP 
+	<bean id="rtmpConnManager"
+		class="org.red5.server.net.rtmp.RTMPConnManager">
+	</bean>
+	
+	<bean id="rtmpMinaIoHandler"
+		class="org.red5.server.net.rtmp.RTMPMinaIoHandler">
+		<property name="handler" ref="rtmpHandler" />
+		<property name="codecFactory" ref="rtmpCodecFactory" />
+		<property name="rtmpConnManager" ref="rtmpConnManager" />
+	</bean>
+	
+	<bean id="rtmpTransport" class="org.red5.server.net.rtmp.RTMPMinaTransport" init-method="start" destroy-method="stop">
+		<property name="ioHandler" ref="rtmpMinaIoHandler" />
+		<property name="address" value="${rtmp.host}" />
+		<property name="port" value="${rtmp.port}" />
+		<property name="receiveBufferSize" value="${rtmp.receive_buffer_size}" />
+		<property name="sendBufferSize" value="${rtmp.send_buffer_size}" />
+		<property name="eventThreadsCore" value="${rtmp.event_threads_core}" />
+		<property name="eventThreadsMax" value="${rtmp.event_threads_max}" />
+		<property name="eventThreadsQueue" value="${rtmp.event_threads_queue}" />
+		<property name="eventThreadsKeepalive" value="${rtmp.event_threads_keepalive}" />
+		<property name="jmxPollInterval" value="1000" />
+		<property name="tcpNoDelay" value="${rtmp.tcp_nodelay}" />
+	</bean>
+	
+	<bean id="rtmpMinaConnection" scope="prototype"
+		class="org.red5.server.net.rtmp.RTMPMinaConnection">
+		<property name="pingInterval" value="${rtmp.ping_interval}" />
+		<property name="maxInactivity" value="${rtmp.max_inactivity}" />
+		<property name="maxHandshakeTimeout" value="5000" />
+	</bean>
+	-->
+	
+	<!--
+	 + The following configuration is for RTMPT.
+	 -->
+	<bean id="rtmptConnManager"
+		class="org.red5.server.net.rtmp.RTMPConnManager">
+	</bean>
+	
+	<!-- RTMPT Handler -->
+	<bean id="rtmptHandler"
+		class="org.red5.server.net.rtmpt.RTMPTHandler" autowire="byType">
+		<property name="codecFactory" ref="rtmpCodecFactory" />
+	</bean>
+	
+	<!-- Use injection to store RTMPT handler in servlet -->
+	<bean id="rtmptServlet"
+		class="org.red5.server.net.rtmpt.RTMPTServlet">
+		<property name="handler" ref="rtmptHandler" />
+		<property name="rtmpConnManager" ref="rtmptConnManager" />
+	</bean>
+	
+	<!-- RTMPT Connection -->
+	<bean id="rtmptConnection" scope="prototype"
+		class="org.red5.server.net.rtmpt.RTMPTConnection">
+		<!-- Ping clients every X ms. Set to 0 to disable ghost detection code. -->
+		<property name="pingInterval" value="${rtmp.ping_interval}" />
+		<!-- Disconnect client after X ms of not responding. -->
+		<property name="maxInactivity" value="${rtmp.max_inactivity}" />
+		<!-- Max. time in milliseconds to wait for a valid handshake. -->
+		<property name="maxHandshakeTimeout" value="5000" />
+	</bean>
+	
+	<!-- Jetty RTMPT Container -->
+	<bean id="rtmpt.server"
+		class="org.red5.server.net.rtmpt.RTMPTLoader" init-method="init"
+		autowire="byType" />
+		
+	<!-- Tomcat Container -->
+	<!--  
+		<bean id="rtmpt.server" class="org.red5.server.net.rtmpt.TomcatRTMPTLoader" init-method="init" autowire="byType">
+		<property name="embedded">
+		<bean class="org.apache.catalina.startup.Embedded" />
+		</property>
+		
+		<property name="engine">
+		<bean class="org.apache.catalina.core.StandardEngine">
+		<property name="name" value="rtmptServletHandler" />
+		<property name="defaultHost" value="localhost" />
+		</bean>	  
+		</property>
+		
+		<property name="connector">
+		<bean class="org.apache.catalina.connector.Connector">
+		<property name="port"><value>8088</value></property>
+		<property name="enableLookups"><value>false</value></property>
+		</bean>
+		</property>
+		
+		<property name="host">
+		<bean class="org.apache.catalina.core.StandardHost">
+		<property name="name" value="localhost" />
+		<property name="unpackWARs" value="false" />
+		<property name="autoDeploy" value="false" />
+		<property name="xmlValidation" value="false" />
+		<property name="xmlNamespaceAware" value="false" />
+		</bean>	   
+		</property>		
+		
+		<property name="context">
+		<map>
+		<entry>
+		<key><value>name</value></key>
+		<value>rtmptContext</value>
+		</entry>
+		<entry>
+		<key><value>path</value></key>
+		<value></value>
+		</entry>
+		<entry>
+		<key><value>docBase</value></key>
+		<value>/</value>
+		</entry>		
+		</map>			
+		</property>	    
+		
+		<property name="wrapper">
+		<bean class="org.apache.catalina.core.StandardWrapper">
+		<property name="servletName" value="RTMPTServlet" />
+		<property name="servletClass" value="org.red5.server.net.servlet.RTMPTServlet" />
+		</bean>	    
+		</property>	    
+		
+		<property name="mappings">
+		<map>
+		<entry>
+		<key><value>RTMPTServlet</value></key>
+		<value>/open/*</value>
+		</entry>
+		<entry>
+		<key><value>RTMPTServlet</value></key>
+		<value>/close/*</value>
+		</entry>
+		<entry>
+		<key><value>RTMPTServlet</value></key>
+		<value>/send/*</value>
+		</entry>
+		<entry>
+		<key><value>RTMPTServlet</value></key>
+		<value>/idle/*</value>
+		</entry>		      
+		</map>
+		</property>
+		</bean>
+	-->
+
+</beans>
+

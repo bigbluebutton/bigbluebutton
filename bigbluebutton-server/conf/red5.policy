@@ -1,0 +1,18 @@
+// ============================================================================
+//                      Red5 JVM Security Policy
+//
+// This file contains the default security policy enforced by the JVM
+// when Red5 starts up.
+//
+// Currently, AllPermission is enabled (essentially allowing anything to
+// happen) which should be changed to be more restricted, depending on common
+// deployment scenarios.  AllPermission is only specified so there is
+// _at least_ a starting point for a policy file that folks can edit.
+//
+// - Les Hazlewood, 5 July 2006.
+//
+// ============================================================================
+
+grant {
+    permission java.security.AllPermission;
+};

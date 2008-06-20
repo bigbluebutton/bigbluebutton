@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	
+	<bean id="web.context.echo" class="org.red5.server.Context">
+		<property name="scopeResolver" ref="red5.scopeResolver" />
+		<property name="clientRegistry" ref="global.clientRegistry" />
+		<property name="serviceInvoker" ref="global.serviceInvoker" />
+		<property name="mappingStrategy" ref="global.mappingStrategy" />
+	</bean>
+	
+	<bean id="web.scope.echo" class="org.red5.server.WebScope" init-method="register">
+		<property name="server" ref="red5.server" />
+		<property name="parent" ref="global.scope" />
+		<property name="context" ref="web.context.echo" />
+		<property name="handler" ref="web.handler.echo" />
+		<property name="contextPath" value="/echo" />
+		<property name="virtualHosts" value="@virtual.hosts@" />
+	</bean>
+
+	<bean id="web.handler.echo" class="org.red5.server.webapp.echo.Application"/>
+
+	<!-- enable support for mx:RemoteObject requests -->
+	<bean id="flexMessaging.service" class="org.red5.server.net.remoting.FlexMessagingService">
+		<property name="serviceInvoker" ref="global.serviceInvoker" />
+		<!-- add an entry for all possible "destination" attributes of your
+			 mx:RemoteObject sources -->
+		<property name="endpoints">
+			<map>
+				<entry key="Red5Echo">
+					<!-- object that handles requests sent to this endpoint -->
+					<ref bean="web.handler.echo" />
+				</entry>
+			</map>
+		</property>
+	</bean>
+
+</beans>
