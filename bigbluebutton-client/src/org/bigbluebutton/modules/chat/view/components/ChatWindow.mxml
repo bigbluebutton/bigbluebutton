@@ -72,7 +72,7 @@
 		
 				<mx:TextInput id="txtMsg" width="100%" enter="sendMessages()"/>
 				<mx:ColorPicker id="cmpColorPicker" showTextField="false" selectedColor="0x000000"/>
-				<mx:Button label="Send" id="send" click="sendMessages()"/>
+				<mx:Button label="Send" id="send" toolTip="Send Message" click="sendMessages()"/>
 		
 	    
 	</mx:ApplicationControlBar>
