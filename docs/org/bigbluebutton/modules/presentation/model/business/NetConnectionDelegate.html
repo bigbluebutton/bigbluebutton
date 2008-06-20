@@ -1,0 +1,427 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" href="../../../../../../style.css" type="text/css" media="screen">
+<link rel="stylesheet" href="../../../../../../print.css" type="text/css" media="print">
+<meta content="NetConnectionDelegate,org.bigbluebutton.modules.presentation.model.business.NetConnectionDelegate,ID,connUri,connect,disconnect,getConnection,handleFault,handleResult,netASyncError,netIOError,netSecurityError,netStatus,setNetConnection" name="keywords">
+<title>org.bigbluebutton.modules.presentation.model.business.NetConnectionDelegate</title>
+</head>
+<body>
+<script type="text/javascript" language="javascript" src="../../../../../../asdoc.js"></script><script type="text/javascript" language="javascript" src="../../../../../../cookies.js"></script><script type="text/javascript" language="javascript">
+<!--
+				asdocTitle = 'NetConnectionDelegate - Welcome to BigBlueButton ASDoc';
+				var baseRef = '../../../../../../';
+				window.onload = configPage;
+			--></script>
+<table style="display:none" id="titleTable" cellspacing="0" cellpadding="0" class="titleTable">
+<tr>
+<td align="left" class="titleTableTitle">BigBlueButtonASDoc</td><td align="right" class="titleTableTopNav"><a onclick="loadClassListFrame('../../../../../../all-classes.html')" href="../../../../../../package-summary.html">All&nbsp;Packages</a>&nbsp;|&nbsp;<a onclick="loadClassListFrame('../../../../../../all-classes.html')" href="../../../../../../class-summary.html">All&nbsp;Classes</a>&nbsp;|&nbsp;<a onclick="loadClassListFrame('../../../../../../index-list.html')" href="../../../../../../all-index-A.html">Index</a>&nbsp;|&nbsp;<a href="../../../../../../index.html?org/bigbluebutton/modules/presentation/model/business/NetConnectionDelegate.html&amp;org/bigbluebutton/modules/presentation/model/business/class-list.html" id="framesLink1">Frames</a><a onclick="parent.location=document.location" href="" style="display:none" id="noFramesLink1">No&nbsp;Frames</a></td><td rowspan="3" align="right" class="titleTableLogo"><img alt="Adobe Logo" title="Adobe Logo" class="logoImage" src="../../../../../../images/logo.jpg"></td>
+</tr>
+<tr class="titleTableRow2">
+<td align="left" id="subTitle" class="titleTableSubTitle">Class&nbsp;NetConnectionDelegate</td><td align="right" id="subNav" class="titleTableSubNav"><a href="#propertySummary">Properties</a>&nbsp;| <a href="#methodSummary">Methods</a>&nbsp;| <a href="#constantSummary">Constants</a></td>
+</tr>
+<tr class="titleTableRow3">
+<td colspan="2">&nbsp;</td>
+</tr>
+</table>
+<script type="text/javascript" language="javascript">
+<!--
+if (!isEclipse() || window.name != ECLIPSE_FRAME_NAME) {titleBar_setSubTitle("Class NetConnectionDelegate"); titleBar_setSubNav(true,true,false,false,false,false,true,false,false,false,false,false,false,false);}
+--></script>
+<div class="MainContent">
+<table cellspacing="0" cellpadding="0" class="classHeaderTable">
+<tr>
+<td class="classHeaderTableLabel">Package</td><td><a onclick="javascript:loadClassListFrame('class-list.html')" href="package-detail.html">org.bigbluebutton.modules.presentation.model.business</a></td>
+</tr>
+<tr>
+<td class="classHeaderTableLabel">Class</td><td class="classSignature">public class NetConnectionDelegate</td>
+</tr>
+</table>
+<p></p>
+  The NetConnectionDelegate is a class that connects and listens to the server on behalf of
+  the presentation module
+  <p></p>
+<br>
+<hr>
+</div>
+<a name="propertySummary"></a>
+<div class="summarySection">
+<div class="summaryTableTitle">Public Properties</div>
+<table id="summaryTableProperty" class="summaryTable " cellpadding="3" cellspacing="0">
+<tr>
+<th>&nbsp;</th><th colspan="2">Property</th><th class="summaryTableOwnerCol">Defined&nbsp;by</th>
+</tr>
+<tr class="">
+<td class="summaryTablePaddingCol">&nbsp;</td><td class="summaryTableInheritanceCol">&nbsp;</td><td class="summaryTableSignatureCol"><a class="signatureLink" href="#connUri">connUri</a> : String<div class="summaryTableDescription">[read-only]
+    
+   </div>
+</td><td class="summaryTableOwnerCol">NetConnectionDelegate</td>
+</tr>
+</table>
+</div>
+<a name="methodSummary"></a>
+<div class="summarySection">
+<div class="summaryTableTitle">Public Methods</div>
+<table id="summaryTableMethod" class="summaryTable " cellpadding="3" cellspacing="0">
+<tr>
+<th>&nbsp;</th><th colspan="2">Method</th><th class="summaryTableOwnerCol">Defined&nbsp;by</th>
+</tr>
+<tr class="">
+<td class="summaryTablePaddingCol">&nbsp;</td><td class="summaryTableInheritanceCol">&nbsp;</td><td class="summaryTableSignatureCol">
+<div class="summarySignature">
+<a class="signatureLink" href="#NetConnectionDelegate()">NetConnectionDelegate</a>(delegate:<a href="PresentationDelegate.html">PresentationDelegate</a>)</div>
+<div class="summaryTableDescription">
+   The default constructor 
+   </div>
+</td><td class="summaryTableOwnerCol">NetConnectionDelegate</td>
+</tr>
+<tr class="">
+<td class="summaryTablePaddingCol">&nbsp;</td><td class="summaryTableInheritanceCol">&nbsp;</td><td class="summaryTableSignatureCol">
+<div class="summarySignature">
+<a class="signatureLink" href="#connect()">connect</a>(host:String, room:String):void</div>
+<div class="summaryTableDescription">
+   Connects to a server 
+   </div>
+</td><td class="summaryTableOwnerCol">NetConnectionDelegate</td>
+</tr>
+<tr class="">
+<td class="summaryTablePaddingCol">&nbsp;</td><td class="summaryTableInheritanceCol">&nbsp;</td><td class="summaryTableSignatureCol">
+<div class="summarySignature">
+<a class="signatureLink" href="#disconnect()">disconnect</a>():void</div>
+<div class="summaryTableDescription">
+   Disconnects from the server 
+   
+   </div>
+</td><td class="summaryTableOwnerCol">NetConnectionDelegate</td>
+</tr>
+<tr class="">
+<td class="summaryTablePaddingCol">&nbsp;</td><td class="summaryTableInheritanceCol">&nbsp;</td><td class="summaryTableSignatureCol">
+<div class="summarySignature">
+<a class="signatureLink" href="#getConnection()">getConnection</a>():NetConnection</div>
+<div class="summaryTableDescription">
+    
+   </div>
+</td><td class="summaryTableOwnerCol">NetConnectionDelegate</td>
+</tr>
+<tr class="">
+<td class="summaryTablePaddingCol">&nbsp;</td><td class="summaryTableInheritanceCol">&nbsp;</td><td class="summaryTableSignatureCol">
+<div class="summarySignature">
+<a class="signatureLink" href="#handleFault()">handleFault</a>(event:Object):void</div>
+<div class="summaryTableDescription">
+   Handles a Fault (server could not respond properly)  
+   </div>
+</td><td class="summaryTableOwnerCol">NetConnectionDelegate</td>
+</tr>
+<tr class="">
+<td class="summaryTablePaddingCol">&nbsp;</td><td class="summaryTableInheritanceCol">&nbsp;</td><td class="summaryTableSignatureCol">
+<div class="summarySignature">
+<a class="signatureLink" href="#handleResult()">handleResult</a>(event:Object):void</div>
+<div class="summaryTableDescription">
+   Handles a result received from the server 
+   </div>
+</td><td class="summaryTableOwnerCol">NetConnectionDelegate</td>
+</tr>
+<tr class="">
+<td class="summaryTablePaddingCol">&nbsp;</td><td class="summaryTableInheritanceCol">&nbsp;</td><td class="summaryTableSignatureCol">
+<div class="summarySignature">
+<a class="signatureLink" href="#setNetConnection()">setNetConnection</a>(nc:NetConnection):void</div>
+<div class="summaryTableDescription"></div>
+</td><td class="summaryTableOwnerCol">NetConnectionDelegate</td>
+</tr>
+</table>
+</div>
+<a name="protectedMethodSummary"></a>
+<div class="summarySection">
+<div class="summaryTableTitle">Protected Methods</div>
+<table id="summaryTableProtectedMethod" class="summaryTable " cellpadding="3" cellspacing="0">
+<tr>
+<th>&nbsp;</th><th colspan="2">Method</th><th class="summaryTableOwnerCol">Defined&nbsp;by</th>
+</tr>
+<tr class="">
+<td class="summaryTablePaddingCol">&nbsp;</td><td class="summaryTableInheritanceCol">&nbsp;</td><td class="summaryTableSignatureCol">
+<div class="summarySignature">
+<a class="signatureLink" href="#netASyncError()">netASyncError</a>(event:AsyncErrorEvent):void</div>
+<div class="summaryTableDescription">
+   Method is called whe a NetAsyncError is received 
+   </div>
+</td><td class="summaryTableOwnerCol">NetConnectionDelegate</td>
+</tr>
+<tr class="">
+<td class="summaryTablePaddingCol">&nbsp;</td><td class="summaryTableInheritanceCol">&nbsp;</td><td class="summaryTableSignatureCol">
+<div class="summarySignature">
+<a class="signatureLink" href="#netIOError()">netIOError</a>(event:IOErrorEvent):void</div>
+<div class="summaryTableDescription">
+   Method is called when a NetIOError is received 
+   </div>
+</td><td class="summaryTableOwnerCol">NetConnectionDelegate</td>
+</tr>
+<tr class="">
+<td class="summaryTablePaddingCol">&nbsp;</td><td class="summaryTableInheritanceCol">&nbsp;</td><td class="summaryTableSignatureCol">
+<div class="summarySignature">
+<a class="signatureLink" href="#netSecurityError()">netSecurityError</a>(event:SecurityErrorEvent):void</div>
+<div class="summaryTableDescription">
+   Method is called when a NetSecurityError is received 
+   </div>
+</td><td class="summaryTableOwnerCol">NetConnectionDelegate</td>
+</tr>
+<tr class="">
+<td class="summaryTablePaddingCol">&nbsp;</td><td class="summaryTableInheritanceCol">&nbsp;</td><td class="summaryTableSignatureCol">
+<div class="summarySignature">
+<a class="signatureLink" href="#netStatus()">netStatus</a>(event:NetStatusEvent):void</div>
+<div class="summaryTableDescription">
+   Method called when a NetStatusEvent is generated by the connection 
+   </div>
+</td><td class="summaryTableOwnerCol">NetConnectionDelegate</td>
+</tr>
+</table>
+</div>
+<a name="constantSummary"></a>
+<div class="summarySection">
+<div class="summaryTableTitle">Public Constants</div>
+<table id="summaryTableConstant" class="summaryTable " cellpadding="3" cellspacing="0">
+<tr>
+<th>&nbsp;</th><th colspan="2">Constant</th><th class="summaryTableOwnerCol">Defined&nbsp;by</th>
+</tr>
+<tr class="">
+<td class="summaryTablePaddingCol">&nbsp;</td><td class="summaryTableInheritanceCol">&nbsp;</td><td class="summaryTableSignatureCol"><a class="signatureLink" href="#ID">ID</a> : String = "Presentation.NetConnectionDelegate"<div class="summaryTableDescription">[static]</div>
+</td><td class="summaryTableOwnerCol">NetConnectionDelegate</td>
+</tr>
+</table>
+</div>
+<script type="text/javascript" language="javascript">
+<!--
+showHideInherited();
+--></script>
+<div class="MainContent">
+<a name="propertyDetail"></a>
+<div class="detailSectionHeader">Property detail</div>
+<a name="connUri"></a>
+<table cellspacing="0" cellpadding="0" class="detailHeader">
+<tr>
+<td class="detailHeaderName">connUri</td><td class="detailHeaderType">property</td>
+</tr>
+</table>
+<div class="detailBody">
+<code>connUri:String</code>&nbsp;&nbsp;[read-only]<p>
+    
+   </p><span class="label">Implementation</span>
+<br>
+<code>&nbsp;&nbsp;&nbsp;&nbsp;public function get connUri():String</code>
+<br>
+</div>
+<a name="constructorDetail"></a>
+<div class="detailSectionHeader">Constructor detail</div>
+<a name="NetConnectionDelegate()"></a>
+<table cellspacing="0" cellpadding="0" class="detailHeader">
+<tr>
+<td class="detailHeaderName">NetConnectionDelegate</td><td class="detailHeaderParens">()</td><td class="detailHeaderType">constructor</td>
+</tr>
+</table>
+<div class="detailBody">
+<code>public function NetConnectionDelegate(delegate:<a href="PresentationDelegate.html">PresentationDelegate</a>)</code><p>
+   The default constructor 
+   </p><span class="label">Parameters</span>
+<table border="0" cellspacing="0" cellpadding="0">
+<tr>
+<td width="20px"></td><td><code><span class="label">delegate</span>:<a href="PresentationDelegate.html">PresentationDelegate</a></code> &mdash; - a PresentationDelegate class
+   
+   </td>
+</tr>
+</table>
+</div>
+<a name="methodDetail"></a>
+<div class="detailSectionHeader">Method detail</div>
+<a name="connect()"></a>
+<table cellspacing="0" cellpadding="0" class="detailHeader">
+<tr>
+<td class="detailHeaderName">connect</td><td class="detailHeaderParens">()</td><td class="detailHeaderType">method</td>
+</tr>
+</table>
+<div class="detailBody">
+<code>public function connect(host:String, room:String):void</code><p>
+   Connects to a server 
+   </p><span class="label">Parameters</span>
+<table border="0" cellspacing="0" cellpadding="0">
+<tr>
+<td width="20px"></td><td><code><span class="label">host</span>:String</code> &mdash; - the URL of the server
+   </td>
+</tr>
+<tr>
+<td class="paramSpacer">&nbsp;</td>
+</tr>
+<tr>
+<td width="20px"></td><td><code><span class="label">room</span>:String</code> &mdash; - the specific room we want to connect to
+   
+   </td>
+</tr>
+</table>
+</div>
+<a name="disconnect()"></a>
+<table cellspacing="0" cellpadding="0" class="detailHeader">
+<tr>
+<td class="detailHeaderName">disconnect</td><td class="detailHeaderParens">()</td><td class="detailHeaderType">method</td><td class="detailHeaderRule">&nbsp;</td>
+</tr>
+</table>
+<div class="detailBody">
+<code>public function disconnect():void</code><p>
+   Disconnects from the server 
+   
+   </p></div>
+<a name="getConnection()"></a>
+<table cellspacing="0" cellpadding="0" class="detailHeader">
+<tr>
+<td class="detailHeaderName">getConnection</td><td class="detailHeaderParens">()</td><td class="detailHeaderType">method</td><td class="detailHeaderRule">&nbsp;</td>
+</tr>
+</table>
+<div class="detailBody">
+<code>public function getConnection():NetConnection</code><p>
+    
+   </p><p></p>
+<span class="label">Returns</span>
+<table border="0" cellspacing="0" cellpadding="0">
+<tr>
+<td width="20"></td><td><code>NetConnection</code> &mdash; - The server connection object
+   
+   </td>
+</tr>
+</table>
+</div>
+<a name="handleFault()"></a>
+<table cellspacing="0" cellpadding="0" class="detailHeader">
+<tr>
+<td class="detailHeaderName">handleFault</td><td class="detailHeaderParens">()</td><td class="detailHeaderType">method</td><td class="detailHeaderRule">&nbsp;</td>
+</tr>
+</table>
+<div class="detailBody">
+<code>public function handleFault(event:Object):void</code><p>
+   Handles a Fault (server could not respond properly)  
+   </p><span class="label">Parameters</span>
+<table border="0" cellspacing="0" cellpadding="0">
+<tr>
+<td width="20px"></td><td><code><span class="label">event</span>:Object</code></td>
+</tr>
+</table>
+</div>
+<a name="handleResult()"></a>
+<table cellspacing="0" cellpadding="0" class="detailHeader">
+<tr>
+<td class="detailHeaderName">handleResult</td><td class="detailHeaderParens">()</td><td class="detailHeaderType">method</td><td class="detailHeaderRule">&nbsp;</td>
+</tr>
+</table>
+<div class="detailBody">
+<code>public function handleResult(event:Object):void</code><p>
+   Handles a result received from the server 
+   </p><span class="label">Parameters</span>
+<table border="0" cellspacing="0" cellpadding="0">
+<tr>
+<td width="20px"></td><td><code><span class="label">event</span>:Object</code></td>
+</tr>
+</table>
+</div>
+<a name="netASyncError()"></a>
+<table cellspacing="0" cellpadding="0" class="detailHeader">
+<tr>
+<td class="detailHeaderName">netASyncError</td><td class="detailHeaderParens">()</td><td class="detailHeaderType">method</td><td class="detailHeaderRule">&nbsp;</td>
+</tr>
+</table>
+<div class="detailBody">
+<code>protected function netASyncError(event:AsyncErrorEvent):void</code><p>
+   Method is called whe a NetAsyncError is received 
+   </p><span class="label">Parameters</span>
+<table border="0" cellspacing="0" cellpadding="0">
+<tr>
+<td width="20px"></td><td><code><span class="label">event</span>:AsyncErrorEvent</code> &mdash; - a NetAsyncEvent
+   
+   </td>
+</tr>
+</table>
+</div>
+<a name="netIOError()"></a>
+<table cellspacing="0" cellpadding="0" class="detailHeader">
+<tr>
+<td class="detailHeaderName">netIOError</td><td class="detailHeaderParens">()</td><td class="detailHeaderType">method</td><td class="detailHeaderRule">&nbsp;</td>
+</tr>
+</table>
+<div class="detailBody">
+<code>protected function netIOError(event:IOErrorEvent):void</code><p>
+   Method is called when a NetIOError is received 
+   </p><span class="label">Parameters</span>
+<table border="0" cellspacing="0" cellpadding="0">
+<tr>
+<td width="20px"></td><td><code><span class="label">event</span>:IOErrorEvent</code> &mdash; - a NetIOError event
+   
+   </td>
+</tr>
+</table>
+</div>
+<a name="netSecurityError()"></a>
+<table cellspacing="0" cellpadding="0" class="detailHeader">
+<tr>
+<td class="detailHeaderName">netSecurityError</td><td class="detailHeaderParens">()</td><td class="detailHeaderType">method</td><td class="detailHeaderRule">&nbsp;</td>
+</tr>
+</table>
+<div class="detailBody">
+<code>protected function netSecurityError(event:SecurityErrorEvent):void</code><p>
+   Method is called when a NetSecurityError is received 
+   </p><span class="label">Parameters</span>
+<table border="0" cellspacing="0" cellpadding="0">
+<tr>
+<td width="20px"></td><td><code><span class="label">event</span>:SecurityErrorEvent</code> &mdash; - a NetSecurityError event
+   
+   </td>
+</tr>
+</table>
+</div>
+<a name="netStatus()"></a>
+<table cellspacing="0" cellpadding="0" class="detailHeader">
+<tr>
+<td class="detailHeaderName">netStatus</td><td class="detailHeaderParens">()</td><td class="detailHeaderType">method</td><td class="detailHeaderRule">&nbsp;</td>
+</tr>
+</table>
+<div class="detailBody">
+<code>protected function netStatus(event:NetStatusEvent):void</code><p>
+   Method called when a NetStatusEvent is generated by the connection 
+   </p><span class="label">Parameters</span>
+<table border="0" cellspacing="0" cellpadding="0">
+<tr>
+<td width="20px"></td><td><code><span class="label">event</span>:NetStatusEvent</code></td>
+</tr>
+</table>
+</div>
+<a name="setNetConnection()"></a>
+<table cellspacing="0" cellpadding="0" class="detailHeader">
+<tr>
+<td class="detailHeaderName">setNetConnection</td><td class="detailHeaderParens">()</td><td class="detailHeaderType">method</td><td class="detailHeaderRule">&nbsp;</td>
+</tr>
+</table>
+<div class="detailBody">
+<code>public function setNetConnection(nc:NetConnection):void</code><span class="label">Parameters</span>
+<table border="0" cellspacing="0" cellpadding="0">
+<tr>
+<td width="20px"></td><td><code><span class="label">nc</span>:NetConnection</code></td>
+</tr>
+</table>
+</div>
+<a name="constantDetail"></a>
+<div class="detailSectionHeader">Constant detail</div>
+<a name="ID"></a>
+<table cellspacing="0" cellpadding="0" class="detailHeader">
+<tr>
+<td class="detailHeaderName">ID</td><td class="detailHeaderType">constant</td>
+</tr>
+</table>
+<div class="detailBody">
+<code>public static const ID:String = "Presentation.NetConnectionDelegate"</code>
+</div>
+<br>
+<br>
+<hr>
+<br>
+<p></p>
+<center class="copyright">
+</center>
+</div>
+</body>
+</html>
+<!---->
