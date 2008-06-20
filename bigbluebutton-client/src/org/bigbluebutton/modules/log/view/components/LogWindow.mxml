@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <MDIWindow xmlns="flexlib.mdi.containers.*" 
 		xmlns:mx="http://www.adobe.com/2006/mxml" 
-	    width="400" height="300" showCloseButton="false">
+	    width="400" height="300" showCloseButton="false" >
 	    <mx:Script>
 	    	<![CDATA[
 	    		public static const TITLE:String = "Log";
@@ -30,7 +30,7 @@
 		<mx:CheckBox label="Warning" id="warn_box"/>
 		<mx:CheckBox label="Info" id="info_box"/>
 		<mx:Spacer width="40" id="spacer"/>-->
-		<mx:Button id="clear_Btn" label="Clear" click="clearDisplay()"/>
+		<mx:Button id="clear_Btn" label="Clear" toolTip="Clears the dispaly" click="clearDisplay()"/>
 		
 	</mx:Box>	       	
 </MDIWindow>
