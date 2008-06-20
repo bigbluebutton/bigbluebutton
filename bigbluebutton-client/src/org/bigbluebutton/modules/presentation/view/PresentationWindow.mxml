@@ -139,7 +139,7 @@
     	   			toolTip="{sharingTooltip}" click="dispatchEvent(new Event(PresentationPanelMediator.SHARE))"/> <!--icon="{sharingIcon}"-->
     	  <mx:Spacer width="100"/>
     	  <mx:Label id="presenterLbl" text="Presenter:" />
-    	  <mx:Button id="presenterName" icon="{presenterIcon}" label="Presenter's Name"
+    	  <mx:Button id="presenterName" icon="{presenterIcon}" toolTip="Presenter" label="Presenter's Name"
                  labelPlacement="right" color="#993300" 
                  dragEnter="dragEnterHandler(event)" dragDrop="dragDropHandler(event)"/>
     	   <!--<mx:Spacer width="100%"/>-->						
