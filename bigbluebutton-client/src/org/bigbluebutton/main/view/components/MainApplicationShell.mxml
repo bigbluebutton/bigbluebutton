@@ -70,6 +70,6 @@
 	 	<mx:ControlBar width="100%" height="20" paddingTop="0">		
 		  <mx:Label text="(c) 2008, BigBlueButton Project" id="copyrightLabel2"/>
 		  <mx:Spacer width="20"/>
-		  <mx:Label id="lblVersion" text="0.32d" />  
+		  <mx:Label id="lblVersion" text="0.32e" />  
 		</mx:ControlBar>
 </mx:VBox>

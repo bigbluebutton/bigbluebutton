@@ -65,7 +65,7 @@ package org.bigbluebutton.modules.chat.model.business
 			
 			super(NAME, messageVO);
 			conn = new Connection;
-			this.uri = "rtmp://" + Constants.red5Host + "/chatServer/";
+			this.uri = "rtmp://" + Constants.red5Host + "/oflaDemo/";
 			conn.addEventListener(Connection.SUCCESS, handleSucessfulConnection);
 			conn.addEventListener(Connection.DISCONNECTED, handleDisconnection);
 			conn.setURI(this.uri);
