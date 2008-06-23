@@ -27,7 +27,12 @@ import org.red5.server.api.service.IPendingServiceCall;
 import org.red5.server.api.service.IPendingServiceCallback;
 import org.red5.server.api.service.IServiceCapableConnection;
 import org.red5.server.api.so.ISharedObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.bigbluebuttonproject.chat.listener.ChatSharedObjectListener;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -41,6 +46,9 @@ public class Application extends ApplicationAdapter
 				implements IPendingServiceCallback
 {
 
+	/** Logger log is used for logging chat server messages in log file. */
+	protected static Logger log = LoggerFactory.getLogger( Application.class );
+	
 	/** listener object for chatSO SharedObject. Used by chat clients for communication. */
 	ChatSharedObjectListener chatListener = null;
 		
@@ -92,12 +100,12 @@ public class Application extends ApplicationAdapter
 		  
 		  if(!hasSharedObject(room, "chatSO")){
 			  if(!createSharedObject(room, "chatSO", false))
-				  System.out.println("Sharedobject::chatSO could not be created");
+				  log.error("Sharedobject::chatSO could not be created");
 		  }
 	      ISharedObject so = getSharedObject(room, "chatSO", false);
 	      
 	      if(so == null){
-	    	  System.out.println("SharedObject was not created");
+	    	  log.error("SharedObject was not created");
 	    	  return false;
 	      }
 	      
@@ -131,7 +139,7 @@ public class Application extends ApplicationAdapter
   	 */ 
 	  public boolean roomJoin(IClient client, IScope room) {
 	     	
-		  System.out.println("\n\n CLIENT ID IS: " + client.getId());
+		  log.info("NEW CLIENT JOINED. CLIENT ID IS: " + client.getId() +"\n");
 		 
 		  return true;
 	  } 
@@ -150,21 +158,21 @@ public class Application extends ApplicationAdapter
 		  
 		  if(!hasSharedObject(conn.getScope(), "chatSO")){
 			  if(!createSharedObject(conn.getScope(), "chatSO", false))
-				  System.out.println("Sharedobject::chatSO could not be created");
+				  log.error("Sharedobject::chatSO could not be created");
 		  }
 	      ISharedObject so = getSharedObject(conn.getScope(), "chatSO", false);
 	      
 	      if(so == null){
-	    	  System.out.println("SharedObject was not created");
+	    	  log.error("Sharedobject::chatSO was not created");
 	    	  return false;
 	      }
-		  
+		 
 		  if (conn instanceof IServiceCapableConnection) {
 			  IServiceCapableConnection sc = (IServiceCapableConnection) conn;
 			  String chatLog = chatListener.getChatLog();
 			  // call client method remotely to send chat Log
 			  sc.invoke("setChatLog", new Object[]{chatLog});
-		  }
+		  } 
 		  
 
 	  	  return true;

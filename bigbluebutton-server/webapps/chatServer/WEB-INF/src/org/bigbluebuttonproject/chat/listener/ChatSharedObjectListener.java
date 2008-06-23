@@ -103,12 +103,12 @@ public class ChatSharedObjectListener implements ISharedObjectListener {
 		
 	 	// newMessage method is called by client when sending new chat message
 		// store chat message only when newMessage is called
-		if(method.equals("newMessage")){
+		if(method.equals("receiveNewMessage")){
 	
 			if(buffer.size() == chatlogSize){
 				buffer.removeFirst();
 			} 
-			buffer.addLast("[" + new Time(System.currentTimeMillis())+ "] "+(String)params.get(0) + "\n");
+			buffer.addLast("<b>[" + new Time(System.currentTimeMillis())+  "]</b> "+ "<b>[" +(String)params.get(0)+ "]</b> " + (String)params.get(1)+ "\n");
 
 		}
 
@@ -159,6 +159,7 @@ public class ChatSharedObjectListener implements ISharedObjectListener {
 				log.append(obj[i] + "");
 			}
 		} 
+//		return "fake chatLog";
 		return log.toString();
 		
 	}
