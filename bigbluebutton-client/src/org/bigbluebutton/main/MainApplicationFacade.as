@@ -34,6 +34,7 @@ package org.bigbluebutton.main
 		public static const STARTUP:String = 'startup';
 		public static const ADD_WINDOW1:String = 'addWindow';
 		public static const REMOVE_WINDOW1:String = 'removeWindow';
+		public static const OPEN_CAMERA:String = "open_camera_window";
 				
 		public function MainApplicationFacade(key:String)
 		{
@@ -66,6 +67,10 @@ package org.bigbluebutton.main
         public function startup( app:MainApplicationShell ):void
         {
         	sendNotification( STARTUP, app );
-        }		
+        }	
+        
+        public function openViewCamera(streamName:String):void{
+        	sendNotification(OPEN_CAMERA, streamName);
+        }	
 	}
 }

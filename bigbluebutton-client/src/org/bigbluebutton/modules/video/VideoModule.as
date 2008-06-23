@@ -25,7 +25,6 @@ package org.bigbluebutton.modules.video
 	import org.bigbluebutton.common.IRouterAware;
 	import org.bigbluebutton.common.Router;
 	import org.bigbluebutton.main.view.components.MainApplicationShell;
-	import org.bigbluebutton.modules.video.view.mediators.ViewCameraWindowMediator;
 	
 	/**
 	 * The VideoModule is the main class of the Video Application
@@ -39,8 +38,10 @@ package org.bigbluebutton.modules.video
 		public static const NAME:String = "VideoModule";
 		
 		private var facade:VideoFacade;
-		private var _router:Router;
 		private var shell:MainApplicationShell;
+		public var mediator:VideoModuleMediator;
+		public var viewComponent:MDIWindow;
+		public var streamName:String;
 		
 		/**
 		 * Creates a new instance of the Video Module 
@@ -50,6 +51,7 @@ package org.bigbluebutton.modules.video
 		{
 			super(NAME);
 			facade = VideoFacade.getInstance();
+			streamName = "stream" + String( Math.floor( new Date().getTime() ) );
 		}
 		
 		/**
@@ -59,20 +61,20 @@ package org.bigbluebutton.modules.video
 		 * 
 		 */		
 		override public function acceptRouter(router:Router, shell:MainApplicationShell):void{
-			shell = shell;
-			this._router = router;
+			super.acceptRouter(router, shell);
 			facade.startup(this);
 		}
 		
 		override public function getMDIComponent():MDIWindow{
-			var mediator:ViewCameraWindowMediator = 
-				facade.retrieveMediator(ViewCameraWindowMediator.NAME) as ViewCameraWindowMediator;
-				
-			return mediator.videoWindow;
+			return viewComponent;
 		}
 		
 		override public function logout():void{
 			facade.removeCore(VideoFacade.NAME);
+		}
+		
+		public function openViewCamera(streamName:String):void{
+			mediator.addViewWindow(streamName);
 		}
 
 	}

@@ -1,31 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <cam:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml"
-					  xmlns:cam="flexmdi.containers.*"
-					  xmlns:util="org.red5.ui.*"
+					  xmlns:cam="flexlib.mdi.containers.*"
+					  xmlns:util="org.bigbluebutton.modules.video.model.ui.*"
 					  xmlns:monitor="org.bigbluebutton.modules.video.view.monitor.*">
 	<mx:Script>
 		<![CDATA[
-			import org.red5.samples.publisher.view.SettingsWindow;
+			import org.bigbluebutton.modules.viewers.model.services.SharedObjectConferenceDelegate;
+			import org.bigbluebutton.modules.viewers.model.business.Conference;
+			import org.bigbluebutton.modules.viewers.ViewersFacade;
+			import org.bigbluebutton.modules.video.view.mediators.MyCameraWindowMediator;
+			import org.bigbluebutton.modules.video.model.business.PublisherApplicationMediator;
+			import org.bigbluebutton.modules.video.VideoFacade;
+			import org.bigbluebutton.modules.video.view.general.Images;
+			import org.bigbluebutton.modules.video.model.business.PublisherModel;
+			import org.bigbluebutton.modules.video.model.vo.BroadcastMedia;
 			import com.adobe.cairngorm.control.CairngormEventDispatcher;
 		
 			import flash.events.*;
 			import mx.managers.PopUpManager;
 			import mx.controls.*;
-			import mx.binding.utils.BindingUtils;
-			import org.red5.samples.publisher.model.*;
-			import org.red5.samples.publisher.vo.BroadcastMedia;			
+			import mx.binding.utils.BindingUtils;		
 			import mx.events.CloseEvent;            
             import mx.containers.TitleWindow;
             import flash.geom.Point;			
-			import org.red5.samples.publisher.view.general.Images;
 			
-			private var model : PublisherModel = PublisherModelLocator.getInstance().model;
-			private var log : ILogger = LoggerModelLocator.getInstance().log;
+			private var publisherApp:PublisherApplicationMediator 
+				= VideoFacade.getInstance().retrieveMediator(PublisherApplicationMediator.NAME) 
+										as PublisherApplicationMediator
 			
-			private var images : Images = new Images();
+			private var images:Images = new Images();
 			private var settingsWindow : SettingsWindow;
 			
-			[Bindable]public var media : BroadcastMedia;
+			[Bindable]public var media:BroadcastMedia;
 		    [Bindable] private var serverLogo : Class = images.red5_img;
 		    [Bindable] private var settingsIcon : Class = images.settings_img;
 		    [Bindable] private var startIcon : Class = images.start_dev_img;
@@ -40,51 +46,14 @@
                          			
 			private function onCloseClicked() : void
 			{
-				BlindsideAppLocator.getInstance().publisherApp.stopMicrophone(media.streamName);
-				BlindsideAppLocator.getInstance().publisherApp.stopCamera(media.streamName);
+				publisherApp.stopMicrophone(media.streamName);
+				publisherApp.stopCamera(media.streamName);
 				
 				if (media.broadcasting) {
-					BlindsideAppLocator.getInstance().publisherApp.stopBroadcasting(media.streamName);
+					publisherApp.stopBroadcasting(media.streamName);
 				}									
 			}
-			
-			public function recordStream() : void
-			{
-				log.debug("broadcast stream[" + media.streamName + "] is connected? " + media.connected);
-			
-				if ( ! media.broadcasting ) 
-				{
-					BlindsideAppLocator.getInstance().publisherApp.startBroadcasting("live", media.streamName);
-				} 
-				else
-				{
-					BlindsideAppLocator.getInstance().publisherApp.stopBroadcasting(media.streamName);
-				}
-			}   
 		
-			private function startDevices() : void
-			{
-				if (media.video.settings.cameraIndex > 0)
-					BlindsideAppLocator.getInstance().publisherApp.startCamera(media.streamName);
-				if (media.audio.settings.micIndex > 0)	
-					BlindsideAppLocator.getInstance().publisherApp.startMicrophone(media.streamName);
-			}   
-			
-			private function stopDevices() : void
-			{
-				BlindsideAppLocator.getInstance().publisherApp.stopMicrophone(media.streamName);
-				BlindsideAppLocator.getInstance().publisherApp.stopCamera(media.streamName);
-			}  		
-			
-			private function startOrStopDevices() : void	
-			{
-				if (media.deviceStarted) {
-					stopDevices();
-				} else {
-					startDevices();
-				}
-			}
-			
 			private function openSettingsWindow() : void
 			{
                 settingsWindow = SettingsWindow(PopUpManager.createPopUp( this, SettingsWindow, false));				
@@ -111,7 +80,9 @@
             
 			public function handleBroadcasting(broadcasting : Boolean) : void
 			{
-				BlindsideAppLocator.getInstance().conferenceApp.sendBroadcastStream(broadcasting, media.streamName);
+				var delegate:SharedObjectConferenceDelegate = 
+				 	ViewersFacade.getInstance().retrieveProxy(SharedObjectConferenceDelegate.NAME) as SharedObjectConferenceDelegate;
+				delegate.sendBroadcastStream(broadcasting, media.streamName);
 				if (broadcasting) {
 					transmitBtn.toolTip = "Stop broadcasting";
 				} else {
@@ -121,7 +92,7 @@
 			
 			public function callThis() : void
 			{
-				log.warn("Settings window closing");
+				//log.warn("Settings window closing");
 			}    
 		]]>
 	</mx:Script>
@@ -138,11 +109,11 @@
     	  <mx:Button id="startDevBtn" icon="{media.deviceStarted ? stopIcon : startIcon}" 
     	  			visible = "{(media.video.settings.cameraIndex > 0) || (media.audio.settings.micIndex > 0)}"
 					enabled = "{! media.broadcasting}"
-					click="startOrStopDevices()"
+					click="dispatchEvent(new Event(MyCameraWindowMediator.START_STOP_DEVICES))"
     	   			width="20" height="20"
     	   			toolTip="{media.deviceStarted ? 'Stop devices' : 'Start devices'}"/>     	   						
     	  <mx:Button id="transmitBtn" icon="{transmitIcon}" 
-    	  			click="recordStream()"
+    	  			click="dispatchEvent(new Event(MyCameraWindowMediator.RECORD_STREAM))"
 					visible="{ media.deviceStarted }"
     	   			width="20" height="20" 
     	   			toolTip="Start broadcasting"/>		

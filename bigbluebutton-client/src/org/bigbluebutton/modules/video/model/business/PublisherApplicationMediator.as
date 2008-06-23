@@ -19,17 +19,29 @@
 */
 package org.bigbluebutton.modules.video.model.business
 {
+	import flash.events.ActivityEvent;
+	import flash.events.StatusEvent;
+	import flash.media.Camera;
+	import flash.media.Microphone;
+	import flash.media.SoundTransform;
+	import flash.media.Video;
 	import flash.net.ObjectEncoding;
+	
+	import mx.controls.Alert;
 	
 	import org.bigbluebutton.modules.video.VideoFacade;
 	import org.bigbluebutton.modules.video.control.notifiers.PlayStreamNotifier;
+	import org.bigbluebutton.modules.video.control.notifiers.PublishNotifier;
+	import org.bigbluebutton.modules.video.model.services.BroadcastStreamDelegate;
+	import org.bigbluebutton.modules.video.model.services.NetworkConnectionDelegate;
+	import org.bigbluebutton.modules.video.model.services.PlayStreamDelegate;
+	import org.bigbluebutton.modules.video.model.vo.BroadcastMedia;
 	import org.bigbluebutton.modules.video.model.vo.IMedia;
+	import org.bigbluebutton.modules.video.model.vo.PlayMedia;
+	import org.bigbluebutton.modules.video.model.vo.settings.GeneralSettings;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
-	import org.red5.samples.publisher.control.commands.*;
-	import org.red5.samples.publisher.model.*;
-	import org.red5.samples.publisher.vo.settings.*;
 	
 	/**
 	 * This is one of the mediator classes of the video module. It holds much of the business logic 
@@ -39,11 +51,6 @@ package org.bigbluebutton.modules.video.model.business
 	public class PublisherApplicationMediator extends Mediator implements IMediator
 	{
 		public static const NAME:String = "PublisherApplicationMediator";
-		
-		private var modelLoc : PublisherModelLocator = PublisherModelLocator.getInstance();
-		private var log : ILogger = LoggerModelLocator.getInstance().log;
-
-		private var model : PublisherModel = PublisherModelLocator.getInstance().model;
 					
 		/**
 		 * Creates a new PublisherApplicationMediator 
@@ -51,6 +58,14 @@ package org.bigbluebutton.modules.video.model.business
 		 */			
 		public function PublisherApplicationMediator() {
 			super(NAME);
+		}
+		
+		public function get model():PublisherModel{
+			return facade.retrieveProxy(PublisherModel.NAME) as PublisherModel;
+		}
+		
+		public function get delegate():NetworkConnectionDelegate{
+			return facade.retrieveProxy(NetworkConnectionDelegate.NAME) as NetworkConnectionDelegate;
 		}
 		
 		/**
@@ -67,7 +82,14 @@ package org.bigbluebutton.modules.video.model.business
 					VideoFacade.PAUSE_STREAM_COMMAND,
 					VideoFacade.PLAY_STREAM_COMMAND,
 					VideoFacade.RESUME_STREAM_COMMAND,
-					VideoFacade.STOP_STREAM_COMMAND
+					VideoFacade.STOP_STREAM_COMMAND,
+					VideoFacade.PUBLISH_STREAM_COMMAND,
+					VideoFacade.UNPUBLISH_STREAM_COMMAND,
+					VideoFacade.STOP_MICROPHONE_COMMAND,
+					VideoFacade.STOP_CAMERA_COMMAND,
+					VideoFacade.START_CAMERA_COMMAND,
+					VideoFacade.START_MICROPHONE_COMMAND,
+					VideoFacade.SETUP_DEVICES_COMMAND
 					];
 		}
 		
@@ -91,7 +113,28 @@ package org.bigbluebutton.modules.video.model.business
 				case VideoFacade.STOP_STREAM_COMMAND:
 					stopStream(notification.getBody() as String);
 					break;
-					
+				case VideoFacade.PUBLISH_STREAM_COMMAND:
+					var publishNote:PublishNotifier = notification.getBody() as PublishNotifier;
+					startBroadcasting(publishNote.publishMode, publishNote.streamName);
+					break;
+				case VideoFacade.UNPUBLISH_STREAM_COMMAND:
+					stopBroadcasting(notification.getBody() as String);
+					break;
+				case VideoFacade.STOP_MICROPHONE_COMMAND:
+					stopMicrophone(notification.getBody() as String);
+					break;
+				case VideoFacade.STOP_CAMERA_COMMAND:
+					stopCamera(notification.getBody() as String);
+					break;
+				case VideoFacade.START_CAMERA_COMMAND:
+					startCamera(notification.getBody() as String);
+					break;
+				case VideoFacade.START_MICROPHONE_COMMAND:
+					startMicrophone(notification.getBody() as String);
+					break;
+				case VideoFacade.SETUP_DEVICES_COMMAND:
+					setupDevices();
+					break;
 			}
 		}
 		
@@ -147,20 +190,15 @@ package org.bigbluebutton.modules.video.model.business
 			var encodingType : uint = ObjectEncoding.AMF0;
 			var proxyType : String = "none";
 			var serverType : int = 0; // Red5
-
+			
 			model.generalSettings = new GeneralSettings( host,
 														serverType,
 														encodingType,
 														0 /*"none"*/ );
 			
-			log.debug("Publisher connecting to <b>" + host + "</b>");
+			//log.debug("Publisher connecting to <b>" + host + "</b>");
 			
-			var startConnectionCommand : StartConnectionCommand 
-					= new StartConnectionCommand( host,
-											proxyType,
-											encodingType);
-																							
-			startConnectionCommand.dispatch();
+			delegate.connect(host,proxyType,encodingType);
 		}
 		
 		/**
@@ -169,18 +207,23 @@ package org.bigbluebutton.modules.video.model.business
 		 */		
 		public function disconnect() : void
 		{
-			var closeCmd : CloseConnectionCommand = new CloseConnectionCommand();
-			closeCmd.dispatch();			
+			delegate.close();	
 		}
 		
 		/**
 		 * Sends out a setup devices notification 
 		 * 
 		 */		
-		public function setupDevices() : void
-		{
-			var devicesCmd : SetupDevicesCommand = new SetupDevicesCommand();
-			devicesCmd.dispatch();			
+		public function setupDevices() : void{
+			if ( Camera.names.length != 0 ) {
+					// Merge options with devices array.
+					model.cameraNames = model.cameraNames.concat( Camera.names );
+			}
+
+			if ( Microphone.names.length != 0 ) {
+				// Merge options with devices array.
+				model.microphoneNames = model.microphoneNames.concat( Microphone.names );
+			}		
 		}
 		
 		/**
@@ -189,8 +232,7 @@ package org.bigbluebutton.modules.video.model.business
 		 */		
 		public function setupConnection() : void
 		{
-			var connectionCmd : SetupConnectionCommand = new SetupConnectionCommand();
-			connectionCmd.dispatch();			
+			facade.registerProxy(new NetworkConnectionDelegate());			
 		}
 		
 		/**
@@ -200,8 +242,23 @@ package org.bigbluebutton.modules.video.model.business
 		 */		
 		public function setupStream(streamName : String) : void
 		{
-			var streamsCmd : SetupStreamsCommand = new SetupStreamsCommand(streamName);
-			streamsCmd.dispatch();			
+			var media:IMedia  = model.getPlayMedia(streamName);
+			
+			if (media == null) {
+				media = model.getBroadcastMedia(streamName);
+			}
+			media.streamName = streamName;
+			
+			if (media.type == MediaType.BROADCAST) {
+				var m : BroadcastMedia = media as BroadcastMedia;
+				var d:BroadcastStreamDelegate = new BroadcastStreamDelegate(m);
+				m.broadcastStreamDelegate = d;
+				facade.registerProxy(d);
+			} else if (media.type == MediaType.PLAY)
+			{
+				var p : PlayMedia = media as PlayMedia;
+				p.playStreamDelegate = new PlayStreamDelegate(p);
+			}	
 		}
 
 		/**
@@ -211,8 +268,19 @@ package org.bigbluebutton.modules.video.model.business
 		 */		
 		public function stopCamera(streamName : String) : void
 		{
-			var stopCameraCmd : StopCameraCommand = new StopCameraCommand(streamName);
-			stopCameraCmd.dispatch();			
+			var media : BroadcastMedia = model.getBroadcastMedia(streamName) as BroadcastMedia;
+
+			if (media == null) {
+				//log.debug("Stopping camera[" + cmd.stream + "] with media NULL");
+			}
+			
+			if (media.video.localVideo != null) {
+				// Disconnect video device.
+				media.video.localVideo.attachCamera( null );
+				media.video.localVideo = null;
+				media.broadcastStreamDelegate.stopCamera();
+				media.deviceStarted = false;
+			}		
 		}
 		
 		/**
@@ -221,11 +289,51 @@ package org.bigbluebutton.modules.video.model.business
 		 * 
 		 */		
 		public function startCamera(streamName : String) : void
-		{						
-			var startCameraCmd : StartCameraCommand 
-						= new StartCameraCommand( streamName);
-				startCameraCmd.dispatch();			
+		{		
+			var camera : Camera; 			
+			var media : BroadcastMedia = model.getBroadcastMedia(streamName) as BroadcastMedia;
+			
+			var selectedCamIndex : int = 	media.video.settings.cameraIndex;
+			var keyFrameInterval : int = 	media.video.settings.keyframe;
+			var cameraWidth : int = 		media.video.settings.width;
+			var cameraHeight : int = 		media.video.settings.height;
+			var cameraFPS : int = 			media.video.settings.fps;
+			var cameraBandwidth : int = 	media.video.settings.bandwidth;
+			var cameraQuality : int = 		media.video.settings.quality;
+			var cameraIndex : String =		String( selectedCamIndex - 1 );
+			
+			media.video.cam = Camera.getCamera( cameraIndex );
+			
+			camera = media.video.cam;
+			camera.setKeyFrameInterval( keyFrameInterval );
+			camera.setMode( cameraWidth, cameraHeight, cameraFPS );
+			camera.setQuality( cameraBandwidth, cameraQuality );
+			
+			camera.addEventListener( ActivityEvent.ACTIVITY, activityEventHandler );
+			camera.addEventListener( StatusEvent.STATUS, statusEventHandler );
+			
+			// update video stream when publishing
+			if ( media.broadcastStreamDelegate.nsPublish != null ) 
+			{
+				media.broadcastStreamDelegate.nsPublish.attachCamera( camera );
+			}
+			
+			//log.debug( "StartCameraCommand::Started video device <b>" + camera.name + "</b>");
+			
+			media.video.localVideo = new Video( 320, 240 );
+			media.video.localVideo.attachCamera( camera );
 
+			media.deviceStarted = true;		
+		}
+		
+		private function activityEventHandler( event : ActivityEvent ) : void 
+		{
+		//	log.debug( "StartCameraCommand::activityEventHandler: " + event );
+		}
+				
+		private function statusEventHandler( event : StatusEvent ) : void 
+		{
+		//	log.debug( "StartCameraCommand::statusEventHandler: " + event );
 		}
 		
 		/**
@@ -235,9 +343,39 @@ package org.bigbluebutton.modules.video.model.business
 		 */		
 		public function startMicrophone(streamName : String) : void
 		{
-			var startMicrophoneCmd : StartMicrophoneCommand 
-						= new StartMicrophoneCommand( streamName );
-			startMicrophoneCmd.dispatch();						
+			var microphone:Microphone;
+			var media : BroadcastMedia = model.getBroadcastMedia(streamName) as BroadcastMedia;			
+			
+			var selectedMicIndex : int = 	media.audio.settings.micIndex;
+			var gain : int = 				media.audio.settings.gain;
+			var rate : int = 				media.audio.settings.rate;
+			var level : int = 				media.audio.settings.level;
+			var timeout : int = 			media.audio.settings.timeout;
+			var micIndex : int = 			selectedMicIndex - 1;
+			
+			media.audio.mic = Microphone.getMicrophone( micIndex );
+			microphone = media.audio.mic;
+			
+			microphone.setLoopBack( true );
+			
+			var transform : SoundTransform = microphone.soundTransform;
+			transform.volume = 0;
+			
+			microphone.setUseEchoSuppression( true );
+			microphone.soundTransform = transform;
+			microphone.gain = gain;
+			microphone.rate = rate;
+			microphone.setSilenceLevel( level, timeout );
+			
+			microphone.addEventListener( ActivityEvent.ACTIVITY, activityEventHandler );
+			microphone.addEventListener( StatusEvent.STATUS, statusEventHandler );
+			
+			// update audio stream when we're already publishing.
+			if ( media.broadcastStreamDelegate.nsPublish != null ) 
+			{
+				media.broadcastStreamDelegate.nsPublish.attachAudio( microphone );
+				media.deviceStarted = true;
+			}					
 
 		}
 		
@@ -248,8 +386,20 @@ package org.bigbluebutton.modules.video.model.business
 		 */		
 		public function stopMicrophone(streamName : String) : void
 		{
-			var stopMicrophoneCmd : StopMicrophoneCommand = new StopMicrophoneCommand(streamName);
-			stopMicrophoneCmd.dispatch();			
+			var media : BroadcastMedia = model.getBroadcastMedia(streamName) as BroadcastMedia;
+			
+			if (media == null) {
+				//log.debug("Stopping microphone[" + cmd.stream + "] with media NULL");
+			}
+				    	
+			// disconnect mic
+			if ( media.audio.mic != null ) 
+			{
+				media.audio.mic.setLoopBack( false );
+				
+				media.broadcastStreamDelegate.stopMicrophone();
+				media.deviceStarted = false;
+			}		
 		}
 		
 		/**
@@ -260,10 +410,11 @@ package org.bigbluebutton.modules.video.model.business
 		 */		
 		public function startBroadcasting(publishMode : String, streamName : String) : void
 		{
-			log.debug("Start broadcasting[" + publishMode + "," + streamName + "]");
-			
-			var publishStreamCmd : PublishStreamCommand = new PublishStreamCommand( publishMode, streamName );
-			publishStreamCmd.dispatch();			
+			//Alert.show("AAAAR");
+			var media : BroadcastMedia = model.getBroadcastMedia(streamName) as BroadcastMedia;
+	    				
+			// Use Delegate to publish the NetStream.
+	      	media.broadcastStreamDelegate.startPublish( publishMode, streamName );		
 		}
 		
 		/**
@@ -273,8 +424,10 @@ package org.bigbluebutton.modules.video.model.business
 		 */		
 		public function stopBroadcasting(streamName : String) : void
 		{
-			var unpublishStreamCmd : UnpublishStreamCommand = new UnpublishStreamCommand(streamName);
-			unpublishStreamCmd.dispatch();			
+			var media : BroadcastMedia = model.getBroadcastMedia(streamName) as BroadcastMedia;
+	    				
+			// Use Delegate to publish the NetStream.
+	      	media.broadcastStreamDelegate.stopPublish();		
 		}
 		
 		/**
@@ -284,9 +437,10 @@ package org.bigbluebutton.modules.video.model.business
 		 */		
 		public function pauseStream(streamName : String) : void
 		{
-			// Pause playback.
-			var pauseStreamCmd : PauseStreamCommand = new PauseStreamCommand(streamName);
-			pauseStreamCmd.dispatch();			
+			var media : PlayMedia = model.getPlayMedia(streamName) as PlayMedia;
+	    	
+	    	// Use Delegate to pause NetStream.
+	      	media.playStreamDelegate.pausePlayback();		
 		}
 		
 		/**
@@ -298,12 +452,12 @@ package org.bigbluebutton.modules.video.model.business
 		 */		
 		public function playStream(streamName : String, enableVideo : Boolean, enableAudio : Boolean) : void
 		{
-			// Start playback from beginning.
-			var playStreamCmd : PlayStreamCommand
-					= new PlayStreamCommand( streamName,
-										 enableVideo,
-										 enableAudio );	
-			playStreamCmd.dispatch();		
+			var media : PlayMedia = model.getPlayMedia(streamName) as PlayMedia;
+	    	
+	    	var bufferTime : int = model.generalSettings.bufferTime;
+	    	
+			// Use Delegate to playback the NetStream.
+	      	media.playStreamDelegate.startPlayback( bufferTime, streamName, enableVideo, enableAudio );	
 		}	
 		
 		/**
@@ -313,9 +467,10 @@ package org.bigbluebutton.modules.video.model.business
 		 */		
 		public function resumeStream(streamName : String) : void
 		{
-			// Resume playback.
-			var resumeStreamCmd : ResumeStreamCommand = new ResumeStreamCommand(streamName);
-			resumeStreamCmd.dispatch(); 			
+			var media : PlayMedia = model.getPlayMedia(streamName) as PlayMedia;
+	    	
+	    	// Use Delegate to resume playback for the NetStream.
+	      	media.playStreamDelegate.resumePlayback();			
 		}		
 		
 		/**
@@ -326,8 +481,10 @@ package org.bigbluebutton.modules.video.model.business
 		public function stopStream(streamName : String) : void
 		{	
 			// Stop playback and close stream.
-			var stopStreamCmd : StopStreamCommand = new StopStreamCommand(streamName);
-			stopStreamCmd.dispatch();			
+			var media : PlayMedia = model.getPlayMedia(streamName) as PlayMedia;
+	    	
+	    	// Use Delegate to close NetStream.
+	      	media.playStreamDelegate.stopPlayback();		
 		}	
 		
 		/**
@@ -338,8 +495,10 @@ package org.bigbluebutton.modules.video.model.business
 		 */		
 		public function enableAudio(streamName : String, enableAudio : Boolean) : void
 		{
-			var toggleAudioCmd : EnableAudioCommand = new EnableAudioCommand(streamName, enableAudio );
-			toggleAudioCmd.dispatch();			
+			var media : PlayMedia = model.getPlayMedia(streamName) as PlayMedia;
+	    	
+			// Use Delegate to control the audio of the NetStream.
+	      	media.playStreamDelegate.enableAudio( enableAudio );	
 		}	
 		
 		/**
@@ -350,8 +509,10 @@ package org.bigbluebutton.modules.video.model.business
 		 */		
 		public function enableVideo(streamName : String, enableVideo : Boolean) : void
 		{
-			var toggleVideoCmd : EnableVideoCommand = new EnableVideoCommand(streamName, enableVideo );
-			toggleVideoCmd.dispatch();			
+			var media : PlayMedia = model.getPlayMedia(streamName) as PlayMedia;
+	    	
+			// Use Delegate to playback the NetStream.
+	      	media.playStreamDelegate.enableVideo( enableVideo );		
 		}
 	}
 }

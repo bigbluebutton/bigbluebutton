@@ -23,6 +23,8 @@ package org.bigbluebutton.modules.video.model.services
 	import flash.media.*;
 	import flash.net.*;
 	
+	import mx.controls.Alert;
+	
 	import org.bigbluebutton.modules.video.model.business.PublisherModel;
 	import org.bigbluebutton.modules.video.model.vo.BroadcastMedia;
 	import org.puremvc.as3.multicore.interfaces.IProxy;
@@ -69,20 +71,20 @@ package org.bigbluebutton.modules.video.model.services
 		 */		
 		public function startPublish( publishMode : String, streamName : String ) : void
 		{
-			if (! model.connected) return;
 			
+			if (! model.connected) return;
+			//Alert.show("HELLO@!@@");
 			try 
 			{
 				var camera : Camera = media.video.cam;
 				var microphone : Microphone = media.audio.mic;
-				
+				media.broadcasting = false;
 				if ( microphone != null || camera != null ) 
 				{
 					// close previous stream
 					if ( nsPublish != null ) 
 					{
 						// Stop and unpublish current NetStream.
-						var media:BroadcastMedia = model.getBroadcastMedia(streamName) as BroadcastMedia;
 						media.broadcastStreamDelegate.stopPublish();
 					}
 					// Setup NetStream for publishing.
@@ -103,7 +105,6 @@ package org.bigbluebutton.modules.video.model.services
 					{
 						nsPublish.attachAudio( microphone );
 					}
-					
 					media.broadcasting = true;
 					// Start publishing.
 					nsPublish.publish( streamName, publishMode );

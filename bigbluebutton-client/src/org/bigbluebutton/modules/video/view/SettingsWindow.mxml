@@ -2,31 +2,38 @@
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" title="Settings"
 				  xmlns:view="org.bigbluebutton.modules.video.view.*"
 				  xmlns:settings="org.bigbluebutton.modules.video.view.settings.*"
-				  width="300" height="200">
+				  width="300" height="200" creationComplete="getDevices()">
 				  
 	<mx:Script>
 		<![CDATA[
-			import org.red5.samples.publisher.vo.BroadcastMedia;
-		import org.red5.samples.publisher.model.*;
-		import mx.managers.PopUpManager;
-	
-		private var log : ILogger = LoggerModelLocator.getInstance().log;
-		
-		[Bindable] private var model : PublisherModel = PublisherModelLocator.getInstance().model;
-		[Bindable] public var media : BroadcastMedia;
-
-		private function closeSettingsWindow() : void
-		{
-			media.video.settings.cameraIndex = camera_cb.selectedIndex;
-//			media.audio.settings.micIndex = microphone_cb.selectedIndex;
+			import org.bigbluebutton.modules.video.model.business.PublisherApplicationMediator;
+			import org.bigbluebutton.modules.video.view.mediators.SettingsWindowMediator;
+			import org.bigbluebutton.modules.video.model.business.PublisherModel;
+			import org.bigbluebutton.modules.video.VideoFacade;
+			import org.bigbluebutton.modules.video.model.vo.BroadcastMedia;
+			import mx.managers.PopUpManager;
 			
-			PopUpManager.removePopUp(this);
-		}
-
-		private function cancelSettingsWindow() : void
-		{
-			PopUpManager.removePopUp(this);
-		}
+			[Bindable] private var model : PublisherModel 
+				= VideoFacade.getInstance().retrieveProxy(PublisherModel.NAME) as PublisherModel;
+			[Bindable] public var media:BroadcastMedia;
+			
+			private function getDevices():void{
+				var mediator:PublisherApplicationMediator = VideoFacade.getInstance().retrieveMediator(PublisherApplicationMediator.NAME) as PublisherApplicationMediator;
+				mediator.setupDevices();
+			}
+			
+			private function closeSettingsWindow() : void
+			{
+				media.video.settings.cameraIndex = camera_cb.selectedIndex;
+	//			media.audio.settings.micIndex = microphone_cb.selectedIndex;
+				
+				PopUpManager.removePopUp(this);
+			}
+	
+			private function cancelSettingsWindow() : void
+			{
+				PopUpManager.removePopUp(this);
+			}
 		]]>
 	</mx:Script>
 	

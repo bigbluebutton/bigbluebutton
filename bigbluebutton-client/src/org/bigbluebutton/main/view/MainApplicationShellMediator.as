@@ -27,13 +27,16 @@ package org.bigbluebutton.main.view
 	import org.bigbluebutton.common.OutputPipe;
 	import org.bigbluebutton.common.Router;
 	import org.bigbluebutton.main.MainApplicationConstants;
+	import org.bigbluebutton.main.MainApplicationFacade;
 	import org.bigbluebutton.main.view.components.MainApplicationShell;
 	import org.bigbluebutton.modules.chat.ChatModule;
 	import org.bigbluebutton.modules.log.LogModule;
 	import org.bigbluebutton.modules.log.LogModuleFacade;
 	import org.bigbluebutton.modules.presentation.PresentationModule;
+	import org.bigbluebutton.modules.video.VideoModule;
 	import org.bigbluebutton.modules.viewers.ViewersModule;
 	import org.bigbluebutton.modules.voiceconference.VoiceModule;
+	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
 	import org.puremvc.as3.multicore.utilities.pipes.interfaces.IPipeMessage;
 	import org.puremvc.as3.multicore.utilities.pipes.plumbing.PipeListener;
@@ -63,6 +66,7 @@ package org.bigbluebutton.main.view
 		private var modules:Array;
 		
 		private var logModule:LogModule;
+		private var videoModule:VideoModule;
 		
 
 		/**
@@ -80,6 +84,7 @@ package org.bigbluebutton.main.view
 			///viewComponent.debugLog.text = "Log Module inited 1";
 			viewComponent.addEventListener(OPEN_LOG_MODULE , showLogWindow);
 			viewComponent.addEventListener(LOGOUT, logout);
+			viewComponent.addEventListener(START_WEBCAM, startWebcam);
 			inpipe = new InputPipe(MainApplicationConstants.TO_MAIN);
 			outpipe = new OutputPipe(MainApplicationConstants.FROM_MAIN);
 			inpipeListener = new PipeListener(this, messageReceiver);
@@ -103,6 +108,16 @@ package org.bigbluebutton.main.view
 		
 		public function runVoiceModule():void{
 			addModule(new VoiceModule());
+		}
+		
+		public function runVideoModule():void{
+			videoModule = new VideoModule();
+			addModule(videoModule);
+			videoModule.mediator.videoWindow.visible = false;
+		}
+		
+		private function startWebcam(e:Event):void{
+			videoModule.mediator.videoWindow.visible = true;
 		}
 		
 		/**
@@ -197,6 +212,7 @@ package org.bigbluebutton.main.view
 					runPresentationModule();
 					runVoiceModule();
 					runChatModule();
+					runVideoModule();
 					break;				
 			}
 		}
@@ -210,5 +226,18 @@ package org.bigbluebutton.main.view
 			return viewComponent as MainApplicationShell;
 		}
 		
+		override public function listNotificationInterests():Array{
+			return [
+					MainApplicationFacade.OPEN_CAMERA
+					];
+		}
+		
+		override public function handleNotification(notification:INotification):void{
+			switch(notification.getName()){
+				case MainApplicationFacade.OPEN_CAMERA:
+					videoModule.openViewCamera(notification.getBody() as String);
+					break;
+			}
+		}
 	}
 }

@@ -40,21 +40,6 @@
 			private function openWebcam(e:MouseEvent) : void
 			{
 				dispatchEvent(new Event(MainApplicationShellMediator.START_WEBCAM));
-				//var myCameraWindow : MyCameraWindow = new MyCameraWindow();
-				//myCameraWindow.title = "My Camera";
-				//myCameraWindow.showCloseButton = true;
-	
-				//var streamName : String = "stream" + String( Math.floor( new Date().getTime() ) );
-			
-				//mainApp.publisherApp.createBroadcastMedia(streamName);		
-				//mainApp.publisherApp.setupStream(streamName);
-			
-				//var media : BroadcastMedia = mainApp.publisherApp.getBroadcastMedia(streamName) as BroadcastMedia;
-				//myCameraWindow.media = media;
-				
-				//var evt : OpenWindowEvent = new OpenWindowEvent(myCameraWindow);			
-				//evt.dispatch();
-				
 			}
 			
 		]]>

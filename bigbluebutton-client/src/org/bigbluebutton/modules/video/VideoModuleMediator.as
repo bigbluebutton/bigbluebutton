@@ -23,7 +23,12 @@ package org.bigbluebutton.modules.video
 	import org.bigbluebutton.common.OutputPipe;
 	import org.bigbluebutton.common.Router;
 	import org.bigbluebutton.main.MainApplicationConstants;
+	import org.bigbluebutton.modules.video.model.business.PublisherApplicationMediator;
+	import org.bigbluebutton.modules.video.model.vo.BroadcastMedia;
+	import org.bigbluebutton.modules.video.model.vo.PlayMedia;
+	import org.bigbluebutton.modules.video.view.MyCameraWindow;
 	import org.bigbluebutton.modules.video.view.ViewCameraWindow;
+	import org.bigbluebutton.modules.video.view.mediators.MyCameraWindowMediator;
 	import org.bigbluebutton.modules.video.view.mediators.ViewCameraWindowMediator;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
@@ -42,13 +47,16 @@ package org.bigbluebutton.modules.video
 	public class VideoModuleMediator extends Mediator implements IMediator
 	{
 		public static const NAME:String = "VideoModuleMediator";
+		public static const START_WINDOW:String = "Start Camera Window";
 		
 		private var outpipe : OutputPipe;
 		private var inpipe : InputPipe;
 		private var router : Router;
 		private var inpipeListener : PipeListener;
+		private var module:VideoModule;
 		
-		private var videoWindow:ViewCameraWindow;
+		public var videoWindow:MyCameraWindow;
+		public var viewWindow:ViewCameraWindow;
 		
 		/**
 		 * The constructor. Registers the VideoModule with this mediator class 
@@ -58,13 +66,14 @@ package org.bigbluebutton.modules.video
 		public function VideoModuleMediator(module:VideoModule)
 		{
 			super(NAME, module);
+			module.mediator = this;
+			this.module = module;
 			router = module.router;
 			inpipe = new InputPipe(VideoConstants.TO_VIDEO_MODULE);
 			outpipe = new OutputPipe(VideoConstants.FROM_VIDEO_MODULE);
 			inpipeListener = new PipeListener(this, messageReceiver);
 			router.registerOutputPipe(outpipe.name, outpipe);
 			router.registerInputPipe(inpipe.name, inpipe);
-			addVideoWindow();
 		}
 		
 		private function messageReceiver(message:IPipeMessage):void{
@@ -82,12 +91,45 @@ package org.bigbluebutton.modules.video
    						TO: MainApplicationConstants.TO_MAIN });
    			msg.setPriority(Message.PRIORITY_HIGH);
    			
-   			videoWindow.width = 200;
-   			videoWindow.height = 200;
+   			videoWindow = new MyCameraWindow();
+   			videoWindow.title = "My Camera";
+   			videoWindow.showCloseButton = true;
+   			var publisher:PublisherApplicationMediator 
+   				= facade.retrieveMediator(PublisherApplicationMediator.NAME) as PublisherApplicationMediator;
+   			var media:BroadcastMedia = publisher.getBroadcastMedia(module.streamName) as BroadcastMedia;
+   			videoWindow.media = media;
+   			
    			videoWindow.title = ViewCameraWindow.TITLE;
+   			module.viewComponent = videoWindow;
+   			facade.registerMediator(new MyCameraWindowMediator(videoWindow));
    			msg.setBody(viewComponent as VideoModule);
    			outpipe.write(msg);
    			
+		}
+		
+		public function addViewWindow(streamName:String):void{
+			var msg:IPipeMessage = new Message(Message.NORMAL);
+			msg.setHeader({MSG:MainApplicationConstants.ADD_WINDOW_MSG, SRC: VideoConstants.FROM_VIDEO_MODULE,
+   						TO: MainApplicationConstants.TO_MAIN });
+   			msg.setPriority(Message.PRIORITY_HIGH);
+   			
+   			viewWindow = new ViewCameraWindow();
+   			var publisher:PublisherApplicationMediator 
+   				= facade.retrieveMediator(PublisherApplicationMediator.NAME) as PublisherApplicationMediator;
+   			
+			viewWindow.showCloseButton = true;
+			viewWindow.title = "Viewing...";
+			publisher.createPlayMedia(streamName);
+			module.viewComponent = viewWindow;
+			facade.registerMediator(new ViewCameraWindowMediator(viewWindow));
+			
+			var media : PlayMedia = publisher.getPlayMedia(streamName) as PlayMedia;
+			viewWindow.media = media;
+			
+			publisher.setupStream(streamName);
+			
+			msg.setBody(viewComponent as VideoModule);
+   			outpipe.write(msg);
 		}
 		
 		/**
@@ -99,7 +141,7 @@ package org.bigbluebutton.modules.video
 		 */		
 		override public function initializeNotifier(key:String):void{
 			super.initializeNotifier(key);
-			facade.registerMediator(new ViewCameraWindowMediator(videoWindow));
+			addVideoWindow();
 		}
 		
 		/**
@@ -108,7 +150,9 @@ package org.bigbluebutton.modules.video
 		 * 
 		 */		
 		override public function listNotificationInterests():Array{
-			return [];
+			return [
+					START_WINDOW
+					];
 		}
 		
 		/**
@@ -117,7 +161,11 @@ package org.bigbluebutton.modules.video
 		 * 
 		 */		
 		override public function handleNotification(notification:INotification):void{
-			
+			switch(notification.getName()){
+				case START_WINDOW:
+					addVideoWindow();
+					break;
+			}
 		}		
 
 	}

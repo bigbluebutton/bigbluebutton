@@ -2,6 +2,8 @@ package org.bigbluebutton.modules.video.view.mediators
 {
 	import flash.events.Event;
 	
+	import mx.controls.Alert;
+	
 	import org.bigbluebutton.modules.video.VideoFacade;
 	import org.bigbluebutton.modules.video.control.notifiers.PlayStreamNotifier;
 	import org.bigbluebutton.modules.video.model.vo.PlaybackState;
@@ -36,19 +38,23 @@ package org.bigbluebutton.modules.video.view.mediators
 		}
 		
 		private function viewStream(e:Event):void{
+		
 		if ( videoWindow.media.playState == PlaybackState.PLAYING ) 
 			{
+				Alert.show("1");
 				//mainApp.publisherApp.pauseStream(media.streamName);		
 				sendNotification(VideoFacade.PAUSE_STREAM_COMMAND, videoWindow.media.streamName);	
 			} 
 			else if ( videoWindow.media.playState == PlaybackState.STOPPED )
 			{
+				Alert.show("2");
 				// Start playback from beginning.
 				//mainApp.publisherApp.playStream(media.streamName, true /*enableVideoCb.selected*/, false /*enableAudioCb.selected*/ );
 				sendNotification(VideoFacade.PLAY_STREAM_COMMAND, new PlayStreamNotifier(videoWindow.media.streamName,true, false));
 			} 
 			else if ( videoWindow.media.playState == PlaybackState.PAUSED )
 			{
+				Alert.show("3");
 				// Resume playback.
 				//mainApp.publisherApp.resumeStream(media.streamName); 
 				sendNotification(VideoFacade.RESUME_STREAM_COMMAND, videoWindow.media.streamName);
