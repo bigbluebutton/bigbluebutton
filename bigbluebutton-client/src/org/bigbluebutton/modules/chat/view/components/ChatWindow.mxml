@@ -53,7 +53,14 @@
 
 		    public function sendMessages():void
 		    {
-		   	if (txtMsg.text != ""){
+		   	if (txtMsg.text.length > 4000)
+		   	{
+		   		txtChatBox.htmlText += "Your message is too long!" + 
+		   			" There is a limit of maximum 4000 character per message." + "\n";
+		   		return;
+		   	} 
+		   			
+		   	else if (txtMsg.text != ""){
 		   	this.m = new MessageObject(txtMsg.text, cmpColorPicker.selectedColor);
 		   	dispatchEvent(new Event(ChatWindowMediator.NEW_MESSAGE));}
 		   	txtMsg.text = "";
