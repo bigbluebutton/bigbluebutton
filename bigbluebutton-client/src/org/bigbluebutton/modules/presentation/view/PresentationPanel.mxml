@@ -138,9 +138,9 @@
                  labelPlacement="right" color="#993300" 
                  dragEnter="dragEnterHandler(event)" dragDrop="dragDropHandler(event)"/>
     	   <mx:Spacer width="100%"/>						
-    	  <mx:Button id="connect" icon="{connectIcon}" 
+    	  <mx:Button id="connect" icon="{connectIcon}"  
     	   			width="20" height="20" enabled="false"
     	   			toolTip="{connectTooltip}" click="dispatchEvent(new Event(PresentationPanelMediator.CONNECT))"/>
     </mx:ControlBar>
-			
+		
 </mx:Panel>

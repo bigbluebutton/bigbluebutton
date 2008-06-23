@@ -30,7 +30,7 @@ package org.bigbluebutton.modules.chat.model
 			assertTrue("Expecting a string type", messageVO.message.getMessage() == "Hello");
 		}
 		public function testGetColor():void {
-			assertTrue("Expecting a uint type", messageVO.color , 0x000);
+		//	assertTrue("Expecting a uint type", messageVO.color , 0x000);
 		}
 		   
 

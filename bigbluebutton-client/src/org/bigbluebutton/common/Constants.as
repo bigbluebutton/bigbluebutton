@@ -54,7 +54,7 @@ package org.bigbluebutton.common
 		 * 
 		 */		
 		public static function setHost():void{
-			if (HTML_RED5_HOST == null) red5Host = DEMO_RED5_HOST;
+			if (HTML_RED5_HOST == null) red5Host = KIRUS_COMP;
 			if (HTML_PRES_HOST == null) presentationHost = DEMO_PRESENTATION_HOST;
 		}
 

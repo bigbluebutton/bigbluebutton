@@ -19,12 +19,13 @@
 */
 package org.bigbluebutton.modules.chat.controller
 {
+	import flash.net.NetConnection;
+	
 	import org.bigbluebutton.modules.chat.ChatModule;
 	import org.bigbluebutton.modules.chat.model.business.ChatProxy;
 	import org.bigbluebutton.modules.chat.view.ChatModuleMediator;
 	import org.bigbluebutton.modules.chat.view.ChatWindowMediator;
 	import org.puremvc.as3.multicore.interfaces.ICommand;
-	
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.command.SimpleCommand;
 
@@ -41,7 +42,7 @@ package org.bigbluebutton.modules.chat.controller
 			
 			facade.registerMediator(new ChatModuleMediator(app));
 			facade.registerMediator( new ChatWindowMediator(app.chatWindow) );
-			facade.registerProxy(new ChatProxy(app.chatWindow.messageVO));
+			facade.registerProxy(new ChatProxy(app.chatWindow.messageVO, new NetConnection()));
 		}
 	}
 }

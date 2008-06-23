@@ -21,7 +21,7 @@ package org.bigbluebutton.modules.presentation.model.business
 {
 	import flash.events.*;
 	import flash.net.NetConnection;
-	
+	import org.bigbluebutton.modules.log.LogModuleFacade;
 	import org.bigbluebutton.modules.presentation.PresentationFacade;
 
 	/**
@@ -42,6 +42,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		private var _connUri : String;
 		private var connectionId : Number;
 		private var connected : Boolean = false;
+		private var log : LogModuleFacade = LogModuleFacade.getInstance("LogModule");
 					
 		/**
 		 * The default constructor 
@@ -74,7 +75,7 @@ package org.bigbluebutton.modules.presentation.model.business
 			
 			try {
 				_connUri = host + "/presentation/" + room;
-				
+				log.info( "Connecting to <b>" + _connUri + "</b>");
 				netConnection.connect(_connUri );
 				
 			} catch( e : ArgumentError ) {

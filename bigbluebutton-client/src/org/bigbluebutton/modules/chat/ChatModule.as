@@ -24,13 +24,16 @@ package org.bigbluebutton.modules.chat
 	import flexlib.mdi.containers.MDIWindow;
 	
 	import org.bigbluebutton.common.BigBlueButtonModule;
+	import org.bigbluebutton.common.Constants;
 	import org.bigbluebutton.common.IRouterAware;
 	import org.bigbluebutton.common.Router;
 	import org.bigbluebutton.main.view.components.MainApplicationShell;
-	import org.bigbluebutton.modules.chat.view.ChatModuleMediator;
+	import org.bigbluebutton.modules.chat.model.business.ChatProxy;
 	import org.bigbluebutton.modules.chat.view.components.ChatWindow;
 	import org.bigbluebutton.modules.log.LogModuleFacade;
-
+	import org.bigbluebutton.modules.viewers.ViewersFacade;
+	import org.bigbluebutton.modules.viewers.model.business.Conference;
+	import org.bigbluebutton.common.Constants;
 	/**
 	 * 
 	 * Class ChatModule acts as view component for Chat Application
@@ -69,7 +72,11 @@ package org.bigbluebutton.modules.chat
 		{
 			super.acceptRouter(router, shell);
 			log.debug("Setting Router for Chat Module...");
-			ChatFacade(facade).startup(this);						
+			ChatFacade(facade).startup(this);
+			var conf:Conference = ViewersFacade.getInstance().retrieveMediator(Conference.NAME) as Conference;
+			var proxy:ChatProxy = facade.retrieveProxy(ChatProxy.NAME) as ChatProxy;
+			proxy.join((conf.me.userid) as String,Constants.red5Host, conf.room);
+			//facade.presApp.join();						
 		}
 		
 		override public function getMDIComponent():MDIWindow{

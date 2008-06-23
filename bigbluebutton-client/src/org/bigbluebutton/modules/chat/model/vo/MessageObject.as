@@ -24,6 +24,8 @@ package org.bigbluebutton.modules.chat.model.vo
 		public var color:uint;
 		public var message:String;
 		private var userid:String;
+		public var room:String;
+		public var host:String;
 		/**
 		 * 
 		 * @param message
