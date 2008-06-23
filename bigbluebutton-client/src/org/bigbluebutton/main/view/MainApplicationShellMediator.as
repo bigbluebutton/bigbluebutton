@@ -22,6 +22,7 @@ package org.bigbluebutton.main.view
 	import flash.events.Event;
 	
 	import org.bigbluebutton.common.BigBlueButtonModule;
+	import org.bigbluebutton.common.Constants;
 	import org.bigbluebutton.common.InputPipe;
 	import org.bigbluebutton.common.OutputPipe;
 	import org.bigbluebutton.common.Router;
@@ -88,6 +89,9 @@ package org.bigbluebutton.main.view
 			
 			logModule = new LogModule();
 			addModule(logModule);
+			
+			log.debug("red5:" + Constants.HTML_RED5_HOST);
+			log.debug("present:" + Constants.HTML_PRES_HOST);
 			
 			addModule(new ViewersModule());
 		
