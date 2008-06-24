@@ -91,8 +91,6 @@ package org.bigbluebutton.modules.video
    			
    			videoWindow = new MyCameraWindow();
    			videoWindow.title = "My Camera";
-   			videoWindow.width = 326;
-   			videoWindow.height = 312;
    			videoWindow.showCloseButton = true;
    			var publisher:PublisherApplicationMediator 
    				= facade.retrieveMediator(PublisherApplicationMediator.NAME) as PublisherApplicationMediator;

@@ -3,7 +3,7 @@
 					  xmlns:cam="flexlib.mdi.containers.*"
 					  xmlns:util="org.bigbluebutton.modules.video.model.ui.*"
 					  xmlns:monitor="org.bigbluebutton.modules.video.view.monitor.*"
-					  creationComplete="init()">
+					  creationComplete="init()" height="330" width="330" resizable="false">
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.modules.video.model.vo.PlayMedia;
