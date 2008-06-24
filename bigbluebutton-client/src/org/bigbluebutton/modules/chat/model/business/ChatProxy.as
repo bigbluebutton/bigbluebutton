@@ -54,10 +54,7 @@ package org.bigbluebutton.modules.chat.model.business
 		private var log : LogModuleFacade = LogModuleFacade.getInstance("LogModule");
 		private var conf : Conference = ViewersFacade.getInstance().retrieveMediator(Conference.NAME) as Conference;
 		private var me:String = conf.me.name;
-
 		private var messageObject = MessageObject
-		//private var room:String = Constants.currentRoom;
-
 		private var room:String;
 
 		
@@ -71,27 +68,14 @@ package org.bigbluebutton.modules.chat.model.business
 		{
 			
 			super(NAME, messageVO);
-
-			//conn = new Connection;
-			//this.uri = "rtmp://" + Constants.red5Host + "/chatServer/";
-			//conn.addEventListener(Connection.SUCCESS, handleSucessfulConnection);
-			//conn.addEventListener(Connection.DISCONNECTED, handleDisconnection);
-			//conn.setURI(this.uri);
-			//conn.connect();
-			//super(ID);
 			netConnectionDelegate = new NetConnectionDelegate(this);
 			netConnectionDelegate.setNetConnection(nc);
 
 		}
 	    public function connectionSuccess() : void
 		{
-			//presentation.isConnected = true;
-
 			var conf:Conference = ViewersFacade.getInstance().retrieveMediator(Conference.NAME) as Conference;
 			room = conf.room;
-
-			
-
 			joinConference();
 		}
 		/**
@@ -102,32 +86,24 @@ package org.bigbluebutton.modules.chat.model.business
 		public function connectionFailed(message : String) : void 
 		{
 			if (chatSO != null) chatSO.close();
-			
-
-			//presentation.isConnected = false;
 		}	
 	    public function join(userid: String, host : String, room : String):void
 	    {
 	    	this.messageVO.message.setUserid(userid);
 			this.messageVO.message.host = host;
 			this.messageVO.message.room = room;
-						
 			netConnectionDelegate.connect(host, room);
-			
-	    }
+		}
 	    private function joinConference() : void
 		{
 			chatSO = SharedObject.getRemote("chatSO", netConnectionDelegate.connUri, false);
-			trace("In joinconference");
 			chatSO.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
 			chatSO.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
 			chatSO.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);
-			
 			chatSO.client = this;
-			
 			chatSO.connect(netConnectionDelegate.getConnection());
-			log.debug("Chat is connected to Shared object");
-			//log.debug( "PresentationDelegate::joinConference");
+			log.chat("Chat is connected to Shared object");
+			
 		}
 	    public function leave():void
 	    {
@@ -147,7 +123,7 @@ package org.bigbluebutton.modules.chat.model.business
 		 * @param e:ConnectionEvent
 		 * 
 		 */		
-		public function handleSucessfulConnection(e:ConnectionEvent):void{
+		/*public function handleSucessfulConnection(e:ConnectionEvent):void{
 			nc = conn.getConnection();
 			chatSO = SharedObject.getRemote("chatSO", uri, false);
             chatSO.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);
@@ -155,18 +131,18 @@ package org.bigbluebutton.modules.chat.model.business
             chatSO.connect(nc);
             log.debug("Chat is connected to Shared object");
             
-		}
+		}*/
 		public function handleDisconnection(e:ConnectionEvent):void {
 			
 		}
 		
-		public function closeConnection():void {
+		/*public function closeConnection():void {
 			
 			conn.removeEventListener(Connection.SUCCESS, handleSucessfulConnection);
 			conn.removeEventListener(Connection.DISCONNECTED, handleDisconnection);
 			conn.close();
 			log.debug("Chat module disconnected");
-		}		
+		}*/		
 		/**
 		 * SyncHandler for Shared Object
 		 * @param e:SyncEvent
@@ -183,9 +159,8 @@ package org.bigbluebutton.modules.chat.model.business
 		 * @param message of type MessageVO
 		 * 
 		 */
-		public function sendMessageToSharedObject(message:MessageObject):void{
-			//sendNotification(ChatFacade.NEW_MESSAGE, message);
-			
+		public function sendMessageToSharedObject(message:MessageObject):void
+		{
 			chatSO.send("receiveNewMessage", me, message.getMessage(), message.getColor());
 		}
 		
@@ -213,7 +188,7 @@ package org.bigbluebutton.modules.chat.model.business
 		}
 		
 		public function setChatLog (messages:String) : void {
-			log.info("This is inside setChatLog(): " + messages);
+			//log.chat("This is inside setChatLog(): " + messages);
 			var face: ChatWindow = ChatFacade.getInstance().retrieveMediator("ChatMediator").getViewComponent() as ChatWindow;
 			face.txtChatBox.htmlText = messages;
 		}
@@ -224,7 +199,7 @@ package org.bigbluebutton.modules.chat.model.business
 		 */		
 		private function netStatusHandler ( event : NetStatusEvent ) : void
 		{
-			//log.debug( "netStatusHandler " + event.info.code );
+			log.chat( "netStatusHandler " + event.info.code );
 		}
 		
 		/**
@@ -234,7 +209,7 @@ package org.bigbluebutton.modules.chat.model.business
 		 */		
 		private function asyncErrorHandler ( event : AsyncErrorEvent ) : void
 		{
-			//log.debug( "asyncErrorHandler " + event.error);
+			log.chat( "asyncErrorHandler " + event.error);
 		}
 	}
 }

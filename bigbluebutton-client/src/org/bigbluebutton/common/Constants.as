@@ -54,8 +54,10 @@ package org.bigbluebutton.common
 		 * 
 		 */		
 		public static function setHost():void{
+
 			if (HTML_RED5_HOST == "localhost") red5Host = DEMO_RED5_HOST;
 			if (HTML_PRES_HOST == "localhost") presentationHost = DEMO_PRESENTATION_HOST;
+
 		}
 
 	}

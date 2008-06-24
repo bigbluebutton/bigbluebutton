@@ -31,38 +31,29 @@ package org.bigbluebutton.modules.chat.model.business
 	public class NetConnectionDelegate
 	{
 		public static const ID : String = "Chat.NetConnectionDelegate";
-		
-		
 		private var log : LogModuleFacade = LogModuleFacade.getInstance("LogModule");
-		
 		private var _proxy : ChatProxy;
-				
 		private var netConnection : NetConnection;	
 		private var _connUri : String;
 		private var connectionId : Number;
 		private var connected : Boolean = false;
 		
-		public function setChatLog (messages:String) : void {
-			log.info("This is inside setChatLog(): " + messages);
-			var face: ChatWindow = ChatFacade.getInstance().retrieveMediator("ChatMediator").getViewComponent() as ChatWindow;
-			face.txtChatBox.htmlText = messages;
-			log.info("Here is the chat history: " + messages + " end of chat history");
-		}			
-		
+				
 		public function NetConnectionDelegate(proxy : ChatProxy) : void
 		{
 			_proxy = proxy;
 		}
 		
+		
 		public function setNetConnection(nc:NetConnection):void{
 			this.netConnection = nc;
 		}
 
+		
 		public function connect(host : String , room : String) : void
 		{		
 			netConnection = new NetConnection();			
 			netConnection.client = this;
-			
 			netConnection.addEventListener( NetStatusEvent.NET_STATUS, netStatus );
 			netConnection.addEventListener( AsyncErrorEvent.ASYNC_ERROR, netASyncError );
 			netConnection.addEventListener( SecurityErrorEvent.SECURITY_ERROR, netSecurityError );
@@ -76,9 +67,9 @@ package org.bigbluebutton.modules.chat.model.business
 //					_connUri = uri + "/" + room;
 //				}	
 				
-				_connUri = "rtmp://" + host + "/chatServer/" + room;
+				_connUri = "rtmp://" + host + "/oflaDemo/" + room;
 				
-				log.info( "Connecting to <b>" + _connUri + "</b>");
+				log.chat( "Connecting to <b>" + _connUri + "</b>");
 								
 				netConnection.connect(_connUri );
 				
@@ -87,7 +78,7 @@ package org.bigbluebutton.modules.chat.model.business
 				switch ( e.errorID ) 
 				{
 					case 2004 :						
-						log.error( "Invalid server location: <b>" + _connUri + "</b>");											   
+						log.chat("Error! Invalid server location: <b>" + _connUri + "</b>");											   
 						break;						
 					default :
 					   break;
@@ -121,9 +112,9 @@ package org.bigbluebutton.modules.chat.model.business
 					
 					// find out if it's a secure (HTTPS/TLS) connection
 					if ( event.target.connectedProxyType == "HTTPS" || event.target.usingTLS ) {
-						log.info( 	"Connected to secure server");
+						log.chat("Connected to secure chat server");
 					} else {
-						log.info(	"Connected to server");
+						log.chat("Connected to chat server");
 					}
 					break;
 			
@@ -133,28 +124,28 @@ package org.bigbluebutton.modules.chat.model.business
 					
 					_proxy.connectionFailed("Connection to server failed.");
 					
-					log.info("Connection to server failed");
+					log.chat("Connection to chat server failed");
 					break;
 					
 				case "NetConnection.Connect.Closed" :					
-					_proxy.connectionFailed("Connection to server closed.");					
-					log.info("Connection to server closed");
+					_proxy.connectionFailed("Connection to chat server closed.");					
+					log.chat("Connection to chat server closed");
 					break;
 					
 				case "NetConnection.Connect.InvalidApp" :				
-					_proxy.connectionFailed("Application not found on server")
-					log.info("Application not found on server");
+					_proxy.connectionFailed("Chat application not found on server")
+					log.chat("Chat application not found on server");
 					break;
 					
 				case "NetConnection.Connect.AppShutDown" :
 				
-					_proxy.connectionFailed("Application has been shutdown");
-					log.info("Application has been shutdown");
+					_proxy.connectionFailed("Chat application has been shutdown");
+					log.chat("Chat application has been shutdown");
 					break;
 					
 				case "NetConnection.Connect.Rejected" :
 					_proxy.connectionFailed(event.info.application);
-					log.info("No permissions to connect to the application" );
+					log.chat("No permissions to connect to the chat application" );
 					break;
 					
 				default :
@@ -199,5 +190,11 @@ package org.bigbluebutton.modules.chat.model.business
 			
 			return "OK";			
 		}
+		public function setChatLog (messages:String) : void {
+			//log.info("This is inside setChatLog(): " + messages);
+			var face: ChatWindow = ChatFacade.getInstance().retrieveMediator("ChatMediator").getViewComponent() as ChatWindow;
+			face.txtChatBox.htmlText = messages;
+			//log.info("Here is the chat history: " + messages + " end of chat history");
+		}			
 	}
 }

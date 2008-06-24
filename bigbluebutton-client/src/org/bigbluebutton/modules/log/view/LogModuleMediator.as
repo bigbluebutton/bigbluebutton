@@ -101,7 +101,12 @@ package org.bigbluebutton.modules.log.view
 					LogModuleFacade.WARNING,
 					LogModuleFacade.ERROR,
 					LogModuleFacade.INFO,
-					LogModuleFacade.CLEAR
+					LogModuleFacade.CLEAR,
+					LogModuleFacade.CHAT,
+					LogModuleFacade.VOICE,
+					LogModuleFacade.VIDEO,
+					LogModuleFacade.PRESENTATION,
+					LogModuleFacade.VIEWER
 				   ];
 		}
 		/**
@@ -115,35 +120,34 @@ package org.bigbluebutton.modules.log.view
 			switch ( note.getName() )
 			{
 				case LogModuleFacade.DEBUG:
-				{
-			    //if (debug)
-				this.logWindow.status_txt.text += 
-				"[DEBUG @ " + time() + "] " + (note.getBody() as String) + "\n";
-				}
+				this.logWindow.logMessages.addItem({Module:"To be redirected" , logs:"[" + time() + "] " + (note.getBody() as String)}); 
 				break;
 				case LogModuleFacade.ERROR:
-				{
-				//if(error)
-				this.logWindow.status_txt.text +=
-				"[ERROR @ " + time() + "] " + (note.getBody() as String) + "\n";	
-				}
+				this.logWindow.logMessages.addItem({Module:"To be redirected" , logs:"[" + time() + "] " + (note.getBody() as String)}); 
 				break;
 				case LogModuleFacade.WARNING:
-				{
-				//if(warn)
-				this.logWindow.status_txt.text +=
-				"[WARNING @ " + time() + "] " + (note.getBody() as String) + "\n";	
-				}
+				this.logWindow.logMessages.addItem({Module:"To be redirected" , logs:"[" + time() + "] " + (note.getBody() as String)}); 
 				break;
 				case LogModuleFacade.INFO:
-				{
-				//if(info)
-				this.logWindow.status_txt.text +=
-				"[INFO @ " + time() + "] " + (note.getBody() as String) + "\n";	
-				}
+				this.logWindow.logMessages.addItem({Module:"To be redirected" , logs:"[" + time() + "] " + (note.getBody() as String)}); 
 				break;
 				case LogModuleFacade.CLEAR:
-				this.logWindow.status_txt.text = "";
+				break;
+				
+				case LogModuleFacade.CHAT:
+				this.logWindow.logMessages.addItem({Module:"Chat" , logs:"[" + time() + "] " + (note.getBody() as String)}); 
+				break;
+				case LogModuleFacade.VIDEO:
+				this.logWindow.logMessages.addItem({Module:"Video" , logs:"[" + time() + "] " + (note.getBody() as String)}); 
+				break;
+				case LogModuleFacade.PRESENTATION:
+				this.logWindow.logMessages.addItem({Module:"Presentation" , logs:"[" + time() + "] " + (note.getBody() as String)}); 
+				break;
+				case LogModuleFacade.VOICE:
+				this.logWindow.logMessages.addItem({Module:"Voice" , logs:"[" + time() + "] " + (note.getBody() as String)}); 
+				break;
+				case LogModuleFacade.VIEWER:
+				this.logWindow.logMessages.addItem({Module:"Viewer" , logs:"[" + time() + "] " + (note.getBody() as String)}); 
 				break;
 			}
 		}
@@ -246,7 +250,7 @@ package org.bigbluebutton.modules.log.view
 		 */		
 		private function clear(e:MouseEvent)  : void
 		{
-			this.logWindow.status_txt.text = "";
+			//this.logWindow.status_txt.text = "";
 		}
 		/**
 		 * Handler for logWindow checkboxes

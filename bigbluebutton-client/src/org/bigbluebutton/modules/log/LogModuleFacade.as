@@ -34,6 +34,11 @@ package org.bigbluebutton.modules.log
 		public static const WARNING:String        = 'WARNING';
 		public static const ERROR:String          = 'ERROR';
 		public static const INFO:String           = 'INFO';
+		public static const CHAT:String           = 'CHAT';
+		public static const PRESENTATION:String   = 'PRESENTATION';
+		public static const VOICE:String          = 'VOICE';
+		public static const VIDEO:String          = 'VIDEO';
+		public static const VIEWER:String         = 'VIEWER';
 				
 		public function LogModuleFacade( key:String )
 		{
@@ -107,6 +112,12 @@ package org.bigbluebutton.modules.log
         {
         	sendNotification(ERROR , message);
         }
+        
+        public function chat(message:String):void {sendNotification (CHAT , message);}
+        public function presentation(message:String):void {sendNotification (PRESENTATION , message);}
+        public function voice(message:String):void {sendNotification (VOICE , message);}
+        public function viewer(message:String):void {sendNotification (VIEWER , message);}
+        public function video(message:String):void {sendNotification (VIDEO , message);}
         
         
 		

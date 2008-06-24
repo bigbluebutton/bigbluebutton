@@ -130,7 +130,7 @@ package org.bigbluebutton.modules.chat.view
 			outpipe.write(msg);
 			log.debug("A message has been sent to remove the chat window.");
 			log.debug("Disconnecting chat module...");
-			proxy.closeConnection();
+			//proxy.closeConnection();
 		}
 		/**
 		 * 
