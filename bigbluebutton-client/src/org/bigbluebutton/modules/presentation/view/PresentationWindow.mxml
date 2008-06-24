@@ -6,7 +6,7 @@
 	paddingBottom="0" paddingTop="0" 
 	paddingLeft="0" paddingRight="0" 
     layout="vertical" 
-	creationComplete="init()">
+	creationComplete="init()" close="onClose()">
 
 	<mx:Script>
 		<![CDATA[
@@ -75,6 +75,10 @@
 				BindingUtils.bindSetter(handlePresenterControl, model.presentation, "isPresenter");
 				BindingUtils.bindSetter(handlePresenterName, model.presentation, "presenterName");
 				BindingUtils.bindSetter(handlePresentationLoaded, model.presentation, "presentationLoaded");
+			}
+			
+			private function onClose():void{
+				PopUpManager.removePopUp(uploadWindow);
 			}
 
 			public function handlePresenterName(name : String) : void

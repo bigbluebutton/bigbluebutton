@@ -19,6 +19,8 @@
 */
 package org.bigbluebutton.modules.video
 {
+	import flash.system.Capabilities;
+	
 	import flexlib.mdi.containers.MDIWindow;
 	
 	import org.bigbluebutton.common.BigBlueButtonModule;
@@ -64,6 +66,8 @@ package org.bigbluebutton.modules.video
 				this.streamName = user.streamName;
 				this.type = VIEWER;
 			}
+			this.preferedX = Capabilities.screenResolutionX - 400;
+			this.preferedY = 400;
 			
 		}
 		

@@ -106,6 +106,10 @@ package org.bigbluebutton.modules.presentation.view
 				sendNotification(PresentationFacade.READY_EVENT);
 			}
 			enableControls();
+			removeWindow();
+		}
+		
+		public function removeWindow():void{
 			PopUpManager.removePopUp(fileUploadWindow);
 		}
 		

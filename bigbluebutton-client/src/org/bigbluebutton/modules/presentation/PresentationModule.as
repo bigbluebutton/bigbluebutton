@@ -29,6 +29,7 @@ package org.bigbluebutton.modules.presentation
 	import org.bigbluebutton.common.Router;
 	import org.bigbluebutton.main.view.components.MainApplicationShell;
 	import org.bigbluebutton.modules.presentation.model.PresentationApplication;
+	import org.bigbluebutton.modules.presentation.view.FileUploadWindowMediator;
 	import org.bigbluebutton.modules.viewers.ViewersFacade;
 	import org.bigbluebutton.modules.viewers.model.business.Conference;
 	
@@ -82,8 +83,13 @@ package org.bigbluebutton.modules.presentation
 		override public function logout():void{
 			var presentation:PresentationApplication = 
 				facade.retrieveMediator(PresentationApplication.NAME) as PresentationApplication;
-				
 			presentation.leave();
+			
+			var uploadMediator:FileUploadWindowMediator = 
+				facade.retrieveMediator(FileUploadWindowMediator.NAME) as FileUploadWindowMediator;
+			if (uploadMediator != null){
+				uploadMediator.removeWindow();
+			}
 			
 			facade.removeCore(PresentationFacade.ID);
 		}

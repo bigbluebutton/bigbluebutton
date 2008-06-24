@@ -56,7 +56,7 @@
    	
     	<mx:SWFLoader id="myLoader" width="100%" height="100%"
     		scaleContent="true" maintainAspectRatio="true" showBusyCursor="true"
-    		verticalAlign="bottom" horizontalAlign="center" completeEffect="Fade"
+    		verticalAlign="top" horizontalAlign="left" completeEffect="Fade"
         	source="{selectedSlide.source}"/>
 
 

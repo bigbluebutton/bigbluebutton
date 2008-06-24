@@ -6,6 +6,8 @@
 
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.viewers.ViewersFacade;
+			import org.bigbluebutton.modules.viewers.model.business.Conference;
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.common.Images;
 			import mx.events.DragEvent;
@@ -23,12 +25,13 @@
 			
 			[Bindable] private var muteAllIcon : Class = images.sound_mute;
 			[Bindable] private var unmuteAllIcon : Class = images.sound_none;
-			[Bindable] private var role : String = "MODERATOR";
+			[Bindable] private var role:String;
 			
 			public var userid:Number;
 			
 			public function init():void{
-				role = "MODERATOR";
+				var conf:Conference = ViewersFacade.getInstance().retrieveMediator(Conference.NAME) as Conference;
+				role = conf.me.role;
 			}
 			
 			public function dragEnterHandler(event:DragEvent):void
@@ -66,7 +69,7 @@
     	   			visible="{role == Role.MODERATOR}"/> 
      	   <mx:Spacer width="100%"/>
     		<mx:Image id="ejectUserDropTarget" source="{dropTargetIcon}" 
-    	   			toolTip="Drop user here to eject."
+    	   			toolTip="Drop user here to eject." visible="{role == Role.MODERATOR}"
     	   			dragEnter="dragEnterHandler(event)" dragDrop="dragDropHandler(event)"/>  			
     	</mx:ControlBar>
 
