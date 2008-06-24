@@ -6,7 +6,8 @@
     verticalScrollPolicy="off" horizontalScrollPolicy="off"
 	verticalGap="0" horizontalAlign="center" 
 	rollOver="updatePosition(event)"
-	rollOut="updatePosition(event)">
+	rollOut="updatePosition(event)"
+	scroll="updatePosition(event)">
 	<mx:Style source="presentation.css"/>
 	<mx:Script>
 		<![CDATA[

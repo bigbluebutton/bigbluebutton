@@ -138,7 +138,7 @@ package org.bigbluebutton.modules.presentation.view
 				presentationWindow.uploadPres.enabled = true;	
 			} else {
 				sendNotification(PresentationApplication.SHARE, true);
-				presentationWindow.uploadPres.enabled = false;				
+				presentationWindow.uploadPres.enabled = false;		
 			}
 		}
 		

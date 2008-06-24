@@ -6,7 +6,7 @@
 	paddingBottom="0" paddingTop="0" 
 	paddingLeft="0" paddingRight="0" 
     layout="vertical" 
-	creationComplete="init()" close="onClose()">
+	creationComplete="init()" focusStart="focusThumbnail()">
 
 	<mx:Script>
 		<![CDATA[
@@ -77,8 +77,8 @@
 				BindingUtils.bindSetter(handlePresentationLoaded, model.presentation, "presentationLoaded");
 			}
 			
-			private function onClose():void{
-				PopUpManager.removePopUp(uploadWindow);
+			private function focusThumbnail():void{
+				this.thumbnailView.slideList.setFocus();
 			}
 
 			public function handlePresenterName(name : String) : void
