@@ -13,12 +13,14 @@ package org.bigbluebutton.modules.video.view.mediators
 		public static const NAME:String = "MyCameraWindowMediator";
 		public static const RECORD_STREAM:String = "Record Stream";
 		public static const START_STOP_DEVICES:String = "Start or Stop devices";
+		public static const CLOSE:String = "Close MyCamera Window";
 		
 		public function MyCameraWindowMediator(view:MyCameraWindow)
 		{
 			super(NAME, view);
 			view.addEventListener(RECORD_STREAM, recordStream);
 			view.addEventListener(START_STOP_DEVICES, startOrStopDevices);
+			view.addEventListener(CLOSE, closeCameraWindow);
 		}
 		
 		override public function listNotificationInterests():Array{
@@ -69,6 +71,10 @@ package org.bigbluebutton.modules.video.view.mediators
 				sendNotification(VideoFacade.START_CAMERA_COMMAND, cameraWindow.media.streamName);
 			if (cameraWindow.media.audio.settings.micIndex > 0)	
 				sendNotification(VideoFacade.START_MICROPHONE_COMMAND, cameraWindow.media.streamName);
+		}
+		
+		private function closeCameraWindow(e:Event):void{
+			sendNotification(VideoFacade.CLOSE_RECORDING);
 		}
 
 	}

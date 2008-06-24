@@ -83,7 +83,7 @@ package org.bigbluebutton.modules.video.model.services
 				if ( nsPlay != null ) 
 				{
 					// Stop and close previous NetStream.
-					var media:PlayMedia = model.getPlayMedia(streamName) as PlayMedia;
+					//var media:PlayMedia = model.getPlayMedia(streamName) as PlayMedia;
 					media.playStreamDelegate.stopPlayback();
 				}
 				// Setup NetStream for playback.

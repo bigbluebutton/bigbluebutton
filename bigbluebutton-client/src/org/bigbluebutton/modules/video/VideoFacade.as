@@ -31,6 +31,7 @@ package org.bigbluebutton.modules.video
 	public class VideoFacade extends Facade implements IFacade
 	{
 		public static const NAME:String = "VideoFacade";
+		public static const CLOSE_RECORDING:String = "Close MyCameraWindow";
 		
 		public static const STARTUP:String = "StartupVideo";
 		public static const SETUP_DEVICES_COMMAND : String = 			"PUBLISHER_SETUP_DEVICES_COMMAND";		

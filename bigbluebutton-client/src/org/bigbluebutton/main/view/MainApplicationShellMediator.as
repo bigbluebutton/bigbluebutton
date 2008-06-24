@@ -35,6 +35,7 @@ package org.bigbluebutton.main.view
 	import org.bigbluebutton.modules.presentation.PresentationModule;
 	import org.bigbluebutton.modules.video.VideoModule;
 	import org.bigbluebutton.modules.viewers.ViewersModule;
+	import org.bigbluebutton.modules.viewers.model.vo.User;
 	import org.bigbluebutton.modules.voiceconference.VoiceModule;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
@@ -66,7 +67,6 @@ package org.bigbluebutton.main.view
 		private var modules:Array;
 		
 		private var logModule:LogModule;
-		private var videoModule:VideoModule;
 		
 
 		/**
@@ -111,14 +111,12 @@ package org.bigbluebutton.main.view
 			addModule(new VoiceModule());
 		}
 		
-		public function runVideoModule():void{
-			videoModule = new VideoModule();
-			addModule(videoModule);
-			videoModule.mediator.videoWindow.visible = false;
+		private function startWebcam(e:Event):void{
+			addModule(new VideoModule());
 		}
 		
-		private function startWebcam(e:Event):void{
-			videoModule.mediator.videoWindow.visible = true;
+		private function viewCamera(user:User):void{
+			addModule(new VideoModule(user));
 		}
 		
 		/**
@@ -217,7 +215,6 @@ package org.bigbluebutton.main.view
 					runPresentationModule();
 					runVoiceModule();
 					runChatModule();
-					runVideoModule();
 					break;				
 			}
 		}
@@ -240,7 +237,7 @@ package org.bigbluebutton.main.view
 		override public function handleNotification(notification:INotification):void{
 			switch(notification.getName()){
 				case MainApplicationFacade.OPEN_CAMERA:
-					videoModule.openViewCamera(notification.getBody() as String);
+					viewCamera(notification.getBody() as User);
 					break;
 			}
 		}

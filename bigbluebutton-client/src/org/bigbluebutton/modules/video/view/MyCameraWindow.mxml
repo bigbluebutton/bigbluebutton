@@ -2,7 +2,9 @@
 <cam:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml"
 					  xmlns:cam="flexlib.mdi.containers.*"
 					  xmlns:util="org.bigbluebutton.modules.video.model.ui.*"
-					  xmlns:monitor="org.bigbluebutton.modules.video.view.monitor.*">
+					  xmlns:monitor="org.bigbluebutton.modules.video.view.monitor.*"
+					  close="dispatchEvent(new Event(MyCameraWindowMediator.CLOSE))"
+					  resizable="false" >
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.modules.viewers.model.services.SharedObjectConferenceDelegate;

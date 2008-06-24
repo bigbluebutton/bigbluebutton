@@ -47,7 +47,6 @@ package org.bigbluebutton.modules.video
 	public class VideoModuleMediator extends Mediator implements IMediator
 	{
 		public static const NAME:String = "VideoModuleMediator";
-		public static const START_WINDOW:String = "Start Camera Window";
 		
 		private var outpipe : OutputPipe;
 		private var inpipe : InputPipe;
@@ -66,7 +65,6 @@ package org.bigbluebutton.modules.video
 		public function VideoModuleMediator(module:VideoModule)
 		{
 			super(NAME, module);
-			module.mediator = this;
 			this.module = module;
 			router = module.router;
 			inpipe = new InputPipe(VideoConstants.TO_VIDEO_MODULE);
@@ -93,6 +91,8 @@ package org.bigbluebutton.modules.video
    			
    			videoWindow = new MyCameraWindow();
    			videoWindow.title = "My Camera";
+   			videoWindow.width = 326;
+   			videoWindow.height = 312;
    			videoWindow.showCloseButton = true;
    			var publisher:PublisherApplicationMediator 
    				= facade.retrieveMediator(PublisherApplicationMediator.NAME) as PublisherApplicationMediator;
@@ -107,7 +107,7 @@ package org.bigbluebutton.modules.video
    			
 		}
 		
-		public function addViewWindow(streamName:String):void{
+		public function addViewWindow():void{
 			var msg:IPipeMessage = new Message(Message.NORMAL);
 			msg.setHeader({MSG:MainApplicationConstants.ADD_WINDOW_MSG, SRC: VideoConstants.FROM_VIDEO_MODULE,
    						TO: MainApplicationConstants.TO_MAIN });
@@ -119,14 +119,14 @@ package org.bigbluebutton.modules.video
    			
 			viewWindow.showCloseButton = true;
 			viewWindow.title = "Viewing...";
-			publisher.createPlayMedia(streamName);
+			publisher.createPlayMedia(module.streamName);
 			module.viewComponent = viewWindow;
 			facade.registerMediator(new ViewCameraWindowMediator(viewWindow));
 			
-			var media : PlayMedia = publisher.getPlayMedia(streamName) as PlayMedia;
+			var media : PlayMedia = publisher.getPlayMedia(module.streamName) as PlayMedia;
 			viewWindow.media = media;
 			
-			publisher.setupStream(streamName);
+			publisher.setupStream(module.streamName);
 			
 			msg.setBody(viewComponent as VideoModule);
    			outpipe.write(msg);
@@ -141,7 +141,11 @@ package org.bigbluebutton.modules.video
 		 */		
 		override public function initializeNotifier(key:String):void{
 			super.initializeNotifier(key);
-			addVideoWindow();
+			if (module.type == VideoModule.RECORDER){
+				addVideoWindow();
+			} else if (module.type == VideoModule.VIEWER){
+				addViewWindow();
+			}
 		}
 		
 		/**
@@ -151,7 +155,7 @@ package org.bigbluebutton.modules.video
 		 */		
 		override public function listNotificationInterests():Array{
 			return [
-					START_WINDOW
+					VideoFacade.CLOSE_RECORDING
 					];
 		}
 		
@@ -162,8 +166,8 @@ package org.bigbluebutton.modules.video
 		 */		
 		override public function handleNotification(notification:INotification):void{
 			switch(notification.getName()){
-				case START_WINDOW:
-					addVideoWindow();
+				case VideoFacade.CLOSE_RECORDING:
+					facade.removeCore(VideoFacade.NAME);
 					break;
 			}
 		}		

@@ -27,8 +27,6 @@ package org.bigbluebutton.modules.video.model.business
 	import flash.media.Video;
 	import flash.net.ObjectEncoding;
 	
-	import mx.controls.Alert;
-	
 	import org.bigbluebutton.modules.video.VideoFacade;
 	import org.bigbluebutton.modules.video.control.notifiers.PlayStreamNotifier;
 	import org.bigbluebutton.modules.video.control.notifiers.PublishNotifier;
@@ -257,7 +255,9 @@ package org.bigbluebutton.modules.video.model.business
 			} else if (media.type == MediaType.PLAY)
 			{
 				var p : PlayMedia = media as PlayMedia;
-				p.playStreamDelegate = new PlayStreamDelegate(p);
+				var playStream:PlayStreamDelegate = new PlayStreamDelegate(p);
+				p.playStreamDelegate = playStream;
+				facade.registerProxy(playStream);
 			}	
 		}
 

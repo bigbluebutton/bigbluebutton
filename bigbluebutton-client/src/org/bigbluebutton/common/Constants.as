@@ -34,7 +34,7 @@ package org.bigbluebutton.common
 		public static const DEMO_PRESENTATION_HOST:String = "present.carleton.ca";		
 		public static const KIRUS_COMP:String = "134.117.58.103";
 		
-		public static const HTML_RED5_HOST:String = mx.core.Application.application.parameters.red5host;
+		public static const HTML_RED5_HOST:String = mx.core.Application.application.parameters.red5Host;
 		public static const HTML_PRES_HOST:String = mx.core.Application.application.parameters.presentationHost;
 		
 		public static const NEW_RELATIVE_FILE_UPLOAD:String = "/bigbluebutton/file";
@@ -54,8 +54,8 @@ package org.bigbluebutton.common
 		 * 
 		 */		
 		public static function setHost():void{
-			if (HTML_RED5_HOST == null) red5Host = KIRUS_COMP;
-			if (HTML_PRES_HOST == null) presentationHost = DEMO_PRESENTATION_HOST;
+			if (HTML_RED5_HOST == "localhost") red5Host = DEMO_RED5_HOST;
+			if (HTML_PRES_HOST == "localhost") presentationHost = DEMO_PRESENTATION_HOST;
 		}
 
 	}

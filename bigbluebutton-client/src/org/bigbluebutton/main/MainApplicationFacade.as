@@ -21,6 +21,7 @@ package org.bigbluebutton.main
 {
 	import org.bigbluebutton.main.controller.StartupCommand;
 	import org.bigbluebutton.main.view.components.MainApplicationShell;
+	import org.bigbluebutton.modules.viewers.model.vo.User;
 	import org.puremvc.as3.multicore.interfaces.IFacade;
 	import org.puremvc.as3.multicore.patterns.facade.Facade;
 	/**
@@ -69,8 +70,8 @@ package org.bigbluebutton.main
         	sendNotification( STARTUP, app );
         }	
         
-        public function openViewCamera(streamName:String):void{
-        	sendNotification(OPEN_CAMERA, streamName);
+        public function openViewCamera(user:User):void{
+        	sendNotification(OPEN_CAMERA, user);
         }	
 	}
 }

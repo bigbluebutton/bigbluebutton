@@ -4,6 +4,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.viewers.model.vo.User;
 			import org.bigbluebutton.main.view.components.MainApplicationShell;
 			import org.bigbluebutton.main.MainApplicationFacade;
 			import org.bigbluebutton.modules.video.model.vo.PlayMedia;
@@ -16,7 +17,7 @@
 		
 		private function viewCamera() : void
    		{
-   			MainApplicationFacade.getInstance(MainApplicationShell.NAME).openViewCamera(data.streamName);
+   			MainApplicationFacade.getInstance(MainApplicationShell.NAME).openViewCamera(data as User);
    		}			
 		
    		[Bindable] private var webcamIcon : Object = images.webcam;
