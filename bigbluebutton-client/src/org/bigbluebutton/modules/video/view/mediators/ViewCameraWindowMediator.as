@@ -41,20 +41,17 @@ package org.bigbluebutton.modules.video.view.mediators
 		
 		if ( videoWindow.media.playState == PlaybackState.PLAYING ) 
 			{
-				Alert.show("1");
 				//mainApp.publisherApp.pauseStream(media.streamName);		
 				sendNotification(VideoFacade.PAUSE_STREAM_COMMAND, videoWindow.media.streamName);	
 			} 
 			else if ( videoWindow.media.playState == PlaybackState.STOPPED )
 			{
-				Alert.show("2");
 				// Start playback from beginning.
 				//mainApp.publisherApp.playStream(media.streamName, true /*enableVideoCb.selected*/, false /*enableAudioCb.selected*/ );
 				sendNotification(VideoFacade.PLAY_STREAM_COMMAND, new PlayStreamNotifier(videoWindow.media.streamName,true, false));
 			} 
 			else if ( videoWindow.media.playState == PlaybackState.PAUSED )
 			{
-				Alert.show("3");
 				// Resume playback.
 				//mainApp.publisherApp.resumeStream(media.streamName); 
 				sendNotification(VideoFacade.RESUME_STREAM_COMMAND, videoWindow.media.streamName);
