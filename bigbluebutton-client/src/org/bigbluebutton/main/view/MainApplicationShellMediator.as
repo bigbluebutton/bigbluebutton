@@ -94,6 +94,7 @@ package org.bigbluebutton.main.view
 			
 			logModule = new LogModule();
 			addModule(logModule);
+			logModule.mediator.logWindow.visible = false;
 			
 			log.debug("red5:" + Constants.HTML_RED5_HOST);
 			log.debug("present:" + Constants.HTML_PRES_HOST);
@@ -130,13 +131,17 @@ package org.bigbluebutton.main.view
 			addModule(new ChatModule());
 		}
 		/**
-		 * Runs the Log Module 
+		 * Shows/Hides the Log Module 
 		 * @param event
 		 * 
 		 */		
 		public function showLogWindow(event:Event) : void
 		{
-			logModule.openLogWindow();
+			//logModule.openLogWindow();
+			if (logModule.mediator.logWindow.visible == true)
+			logModule.mediator.logWindow.visible = false;
+			else
+			logModule.mediator.logWindow.visible = true;
 		}
 		
 		/**

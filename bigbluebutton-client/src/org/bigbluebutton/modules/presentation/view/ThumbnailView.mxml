@@ -14,8 +14,7 @@
 		import mx.events.ListEvent;
 		import mx.events.FlexEvent;
 
-		import com.adobe.cairngorm.control.CairngormEventDispatcher;    
-		import com.adobe.cairngorm.control.CairngormEvent;
+
 		
 		[Bindable]	
 		public var model:PresentationFacade = PresentationFacade.getInstance();

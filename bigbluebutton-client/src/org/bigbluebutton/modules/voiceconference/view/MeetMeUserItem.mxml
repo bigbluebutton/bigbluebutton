@@ -6,7 +6,7 @@
    		import org.bigbluebutton.common.Images;
    		import org.bigbluebutton.modules.voiceconference.VoiceConferenceFacade;
    		import mx.controls.Image;
-   		import com.adobe.cairngorm.control.CairngormEventDispatcher;
+ 
 
 
 		import mx.events.DragEvent;

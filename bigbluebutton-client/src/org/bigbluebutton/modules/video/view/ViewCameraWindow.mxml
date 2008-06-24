@@ -11,7 +11,7 @@
 			import org.bigbluebutton.modules.video.view.mediators.ViewCameraWindowMediator;
 			import org.bigbluebutton.modules.video.model.vo.PlaybackState;
 			import mx.binding.utils.BindingUtils;
-			import com.adobe.cairngorm.control.CairngormEventDispatcher;
+		
 	
 			import flash.events.*;	
 			import mx.containers.Box;

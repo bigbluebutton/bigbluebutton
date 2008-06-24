@@ -14,7 +14,7 @@
 			import org.bigbluebutton.modules.video.view.general.Images;
 			import org.bigbluebutton.modules.video.model.business.PublisherModel;
 			import org.bigbluebutton.modules.video.model.vo.BroadcastMedia;
-			import com.adobe.cairngorm.control.CairngormEventDispatcher;
+			
 		
 			import flash.events.*;
 			import mx.managers.PopUpManager;
