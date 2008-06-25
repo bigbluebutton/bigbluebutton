@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MDIWindow xmlns="flexlib.mdi.containers.*" 
+		xmlns:mx="http://www.adobe.com/2006/mxml" 
+	    width="400" height="300" showCloseButton="false" >
+	    <mx:Script>
+	    	<![CDATA[
+	    		import mx.collections.ArrayCollection;
+	    		public static const TITLE:String = "Log";
+	    		public var i:Number=0;
+	    	//	public var logMessage: Array = new Array({Module:"Chat", logs:""},
+	    	//													   {Module:"Presentation", logs:""},
+	    	//													   {Module:"Viewers", logs:""},
+	    	//													   {Module:"Voice Conference", logs:""},
+	    	//													   {Module:"Video", logs:""});
+	    		[Bindable]public var logMessages: ArrayCollection = new ArrayCollection();//logMessage);
+	    		private function updateScroll():void
+	    		{
+	    			//status_txt.verticalScrollPosition = status_txt.maxVerticalScrollPosition;
+	    		}
+	    		private function report():void
+	    		{   
+	    			
+	    		}
+	    	]]>
+	    </mx:Script>
+	<!--<mx:Box width="100%" height="100%">
+		<mx:TextArea id="status_txt" updateComplete="updateScroll()"
+					 borderColor="0xD0D0D0"
+					 width="100%" height="100%" borderStyle="solid"  
+					 textIndent="6" fontSize="10" focusEnabled="false"
+					 editable="false" htmlText=""/>
+	</mx:Box>-->
+	<mx:AdvancedDataGrid id="status_txt" initialize="gc.refresh();"  editable="false"  
+    	dragEnabled="false" width="100%" height="100%">
+    	
+    	<mx:dataProvider>
+                <mx:GroupingCollection id="gc" source="{logMessages}">
+                    <mx:grouping>
+                    <mx:Grouping>
+                    	<mx:GroupingField name="Module"/>
+                    
+                    </mx:Grouping>
+                    </mx:grouping>
+                                    
+                </mx:GroupingCollection>
+          </mx:dataProvider>      
+                       
+       <mx:columns>
+    	   		<!--<mx:AdvancedDataGridColumn dataField="Module"/>-->
+                <mx:AdvancedDataGridColumn dataField="logs"/>
+    	</mx:columns>
+    </mx:AdvancedDataGrid>
+	<mx:Box direction="horizontal" height="35" 
+			paddingLeft="5" paddingRight="5" paddingTop="5"
+			horizontalAlign="right" verticalAlign="top">
+		<!--<mx:CheckBox label="Debug" id="debug_box"/>
+		<mx:CheckBox label="Error" id="error_box"/>
+		<mx:CheckBox label="Warning" id="warn_box"/>
+		<mx:CheckBox label="Info" id="info_box"/>
+		<mx:Spacer width="40" id="spacer"/>-->
+		<mx:Button id="clear_Btn" label="Send Errors" enabled="false" toolTip="Sends the errors to support team" click="report()"/>
+		
+	</mx:Box>	       	
+</MDIWindow>
