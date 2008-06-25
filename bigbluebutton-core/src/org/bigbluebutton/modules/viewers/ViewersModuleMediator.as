@@ -96,7 +96,7 @@ package org.bigbluebutton.modules.viewers
 			module.preferedY = Capabilities.screenResolutionY/2 - 265;
    			module.activeWindow = joinWindow;
    			
-   			msg.setBody(viewComponent as ViewersModule);
+   			msg.setBody(module);
    			outpipe.write(msg);
 		}
 		
@@ -121,7 +121,7 @@ package org.bigbluebutton.modules.viewers
    			viewersWindow.title = ViewersWindow.TITLE;
    			viewersWindow.showCloseButton = false;
    			sendNotification(ViewersFacade.START_VIEWER_WINDOW, viewersWindow);
-   			msg.setBody(viewComponent as ViewersModule);
+   			msg.setBody(module);
    			outpipe.write(msg);
 		}
 		
@@ -136,7 +136,7 @@ package org.bigbluebutton.modules.viewers
    						TO: MainApplicationConstants.TO_MAIN });
    			msg.setPriority(Message.PRIORITY_HIGH);
    			
-   			msg.setBody(viewComponent as ViewersModule);
+   			msg.setBody(module);
    			outpipe.write(msg);
 		}
 		

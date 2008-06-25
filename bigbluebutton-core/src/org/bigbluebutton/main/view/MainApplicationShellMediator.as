@@ -151,7 +151,8 @@ package org.bigbluebutton.main.view
 		}
 		
 		private function removeWindow(module:BigBlueButtonModule):void{
-			shell.mdiCanvas.windowManager.remove(module.getMDIComponent());
+			//shell.mdiCanvas.windowManager.remove(module.getMDIComponent());
+			module.getMDIComponent().visible = false;
 		}
 		
 		/**
