@@ -3,7 +3,7 @@
 	       xmlns:mx="http://www.adobe.com/2006/mxml" 
 	       width="400" height="300" showCloseButton="false"
 	       click="setFocusOn(this.txtMsg || this.txtChatBox)"
-	       focusEnd="setFocusOff()" >
+	       focusEnd="setFocusOff()">
 
 	<mx:Script>
 		<![CDATA[
@@ -21,12 +21,12 @@
 			public var m:MessageObject;
 			[Bindable]
 			public var messageVO:MessageVO = new MessageVO();
-		
+			
 			public function showNewMessage(rm : MessageObject):void
 			{
 			var newMessage:String;
 			newMessage = "<font color=\"#" + rm.color.toString(16) + "\"><b>[" + 
-						rm.getUserid() + "]</b> " + rm.message + "</font>";
+						rm.getUserid() +" @ "+ time()+ "]</b> " + rm.message + "</font>";
 			txtChatBox.htmlText += newMessage + "\n";
 			}
 			public function setFocusOn(component:UIComponent):void
@@ -70,6 +70,13 @@
             {
             	txtChatBox.verticalScrollPosition = txtChatBox.maxVerticalScrollPosition;
             }
+            private function time() : String
+			{
+			var date:Date = new Date();
+			var t:String = date.toLocaleTimeString();
+			//var d:String = date.toLocaleDateString();
+			return t;
+			}
 		]]>
 	</mx:Script>
 	
