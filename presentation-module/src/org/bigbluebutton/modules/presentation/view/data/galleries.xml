@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<presentations>
+  <presentation id="flextravel">
+    <description>Trip photos from various Flex team members</description>
+    <slide>
+      <name>Acropolis: Matt Chotin</name>
+      <source>assets/slides/slide-0.swf</source>
+    </slide>
+    <slide>
+      <name>Acropolis: Matt Chotin</name>
+      <source>assets/slides/slide-1.swf</source>
+    </slide>
+    <slide>
+      <name>Edinburgh Castle: Matt Chotin</name>
+      <source>assets/slides/slide-2.swf</source>
+    </slide>
+    <slide>
+      <name>Almafi: Anton de Young</name>
+      <source>assets/slides/slide-3.swf</source>
+    </slide>
+    <slide>
+      <name>Almafi: Anton de Young</name>
+      <source>assets/slides/slide-4.swf</source>
+    </slide>
+    <slide>
+      <name>Ravello: Anton de Young</name>
+      <source>assets/slides/slide-5.swf</source>
+    </slide>
+    <slide>
+      <name>Hoover Dam: Ashish Goyal</name>
+      <source>assets/slides/slide-6.swf</source>
+    </slide>
+  </presentation>
+</presentations>
