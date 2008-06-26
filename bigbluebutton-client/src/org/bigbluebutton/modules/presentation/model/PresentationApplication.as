@@ -141,7 +141,7 @@ package org.bigbluebutton.modules.presentation.model
 		 */		
 		public function uploadPresentation(fileToUpload : FileReference) : void
 		{
-			var fullUri : String = _docServiceAddress + Constants.OLD_RELATIVE_FILE_UPLOAD + "/upload";
+			var fullUri : String = _docServiceAddress + Constants.relativeFileUpload + "/upload";
 						
 			var service:FileUploadService = new FileUploadService(fullUri, _room);
 			facade.registerProxy(service);
@@ -154,7 +154,7 @@ package org.bigbluebutton.modules.presentation.model
 		 */		
 		public function loadPresentation() : void
 		{
-			var fullUri : String = _docServiceAddress + Constants.OLD_RELATIVE_FILE_UPLOAD + "/xmlslides?room=" + _room;	
+			var fullUri : String = _docServiceAddress + Constants.relativeFileUpload + "/xmlslides?room=" + _room;	
 			model.presentationLoaded = false;
 			
 			var service:PresentationService = new PresentationService(fullUri, this);
