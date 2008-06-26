@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cam:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+					  xmlns:cam="flexlib.mdi.containers.*"
+					  xmlns:util="org.bigbluebutton.modules.video.model.ui.*"
+					  xmlns:monitor="org.bigbluebutton.modules.video.view.monitor.*"
+					  close="dispatchEvent(new Event(MyCameraWindowMediator.CLOSE))"
+					  resizable="false" width="326" height="312" >
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.modules.viewers.model.services.SharedObjectConferenceDelegate;
+			import org.bigbluebutton.modules.viewers.model.business.Conference;
+			import org.bigbluebutton.modules.viewers.ViewersFacade;
+			import org.bigbluebutton.modules.video.view.mediators.MyCameraWindowMediator;
+			import org.bigbluebutton.modules.video.model.business.PublisherApplicationMediator;
+			import org.bigbluebutton.modules.video.VideoFacade;
+			import org.bigbluebutton.modules.video.view.general.Images;
+			import org.bigbluebutton.modules.video.model.business.PublisherModel;
+			import org.bigbluebutton.modules.video.model.vo.BroadcastMedia;
+			
+		
+			import flash.events.*;
+			import mx.managers.PopUpManager;
+			import mx.controls.*;
+			import mx.binding.utils.BindingUtils;		
+			import mx.events.CloseEvent;            
+            import mx.containers.TitleWindow;
+            import flash.geom.Point;			
+			
+			private var publisherApp:PublisherApplicationMediator 
+				= VideoFacade.getInstance().retrieveMediator(PublisherApplicationMediator.NAME) 
+										as PublisherApplicationMediator
+			
+			private var images:Images = new Images();
+			private var settingsWindow : SettingsWindow;
+			
+			[Bindable]public var media:BroadcastMedia;
+		    [Bindable] private var serverLogo : Class = images.red5_img;
+		    [Bindable] private var settingsIcon : Class = images.settings_img;
+		    [Bindable] private var startIcon : Class = images.start_dev_img;
+		    [Bindable] private var transmitIcon : Class = images.start_transmit_img;      
+			[Bindable] private var stopIcon : Class = images.stop_dev_img;
+			
+            public override function close(event:MouseEvent = null):void 
+            { 
+                 onCloseClicked(); 
+                 super.close(event); 
+            } 
+                         			
+			private function onCloseClicked() : void
+			{
+				publisherApp.stopMicrophone(media.streamName);
+				publisherApp.stopCamera(media.streamName);
+				
+				if (media.broadcasting) {
+					publisherApp.stopBroadcasting(media.streamName);
+				}									
+			}
+		
+			private function openSettingsWindow() : void
+			{
+                settingsWindow = SettingsWindow(PopUpManager.createPopUp( this, SettingsWindow, false));				
+				settingsWindow.media = media;
+				
+				var point1:Point = new Point();
+                // Calculate position of TitleWindow in Application's coordinates. 
+                point1.x = monDisplay.x;
+                point1.y = monDisplay.y;                
+                point1 = monDisplay.localToGlobal(point1);
+                settingsWindow.x = point1.x + 25;
+                settingsWindow.y = point1.y + 25;
+                
+                BindingUtils.bindSetter(handleBroadcasting, media, "broadcasting");
+                BindingUtils.bindSetter(handleDeviceStarted, media, "deviceStarted");
+            }	
+            
+            private function handleDeviceStarted(deviceStarted : Boolean) : void
+            {
+            	if (deviceStarted) {
+            		settingsBtn.visible = false;            		
+            	}
+            }
+            
+			public function handleBroadcasting(broadcasting : Boolean) : void
+			{
+				var delegate:SharedObjectConferenceDelegate = 
+				 	ViewersFacade.getInstance().retrieveProxy(SharedObjectConferenceDelegate.NAME) as SharedObjectConferenceDelegate;
+				delegate.sendBroadcastStream(broadcasting, media.streamName);
+				if (broadcasting) {
+					transmitBtn.toolTip = "Stop broadcasting";
+				} else {
+					transmitBtn.toolTip = "Start broadcasting";					
+				}
+			}       
+			
+			public function callThis() : void
+			{
+				//log.warn("Settings window closing");
+			}    
+		]]>
+	</mx:Script>
+		<mx:Canvas id="monDisplay" width="{ media.video.settings.width }" height="{ media.video.settings.height }"
+				backgroundColor="0xFFFFFF" borderStyle="solid" borderColor="0xD0D0D0"
+				backgroundImage="{ serverLogo }" paddingBottom="0" cornerRadius="2">
+			<util:VideoContainer  video="{ media.video.localVideo }" height="100%" width="100%"/>
+		</mx:Canvas>
+	<mx:ControlBar width="100%">
+    	  <mx:Button id="settingsBtn" icon="{settingsIcon}" visible="{ ! media.deviceStarted}"
+    	   			width="20" height="20" click="openSettingsWindow()"
+    	   			toolTip="Settings"/>    
+    	   <mx:Spacer width="100%"/>
+    	  <mx:Button id="startDevBtn" icon="{media.deviceStarted ? stopIcon : startIcon}" 
+    	  			visible = "{(media.video.settings.cameraIndex > 0) || (media.audio.settings.micIndex > 0)}"
+					enabled = "{! media.broadcasting}"
+					click="dispatchEvent(new Event(MyCameraWindowMediator.START_STOP_DEVICES))"
+    	   			width="20" height="20"
+    	   			toolTip="{media.deviceStarted ? 'Stop devices' : 'Start devices'}"/>     	   						
+    	  <mx:Button id="transmitBtn" icon="{transmitIcon}" 
+    	  			click="dispatchEvent(new Event(MyCameraWindowMediator.RECORD_STREAM))"
+					visible="{ media.deviceStarted }"
+    	   			width="20" height="20" 
+    	   			toolTip="Start broadcasting"/>		
+	</mx:ControlBar>
+</cam:MDIWindow>

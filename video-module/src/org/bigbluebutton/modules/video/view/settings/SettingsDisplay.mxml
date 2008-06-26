@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<view:SettingsDisplayClass xmlns:mx="http://www.adobe.com/2006/mxml"
+						   xmlns:view="org.bigbluebutton.modules.video.view.settings.*">
+	
+	<mx:VBox id="video" width="100%" height="100%" textIndent="3">	
+	    <mx:Box direction="horizontal" width="100%" height="100%" horizontalGap="-1">
+			<mx:ComboBox id="camera_cb" width="175" rowCount="7" focusEnabled="false"
+						 prompt="Select video device" toolTip="Available video devices"
+						 dataProvider="{ main.cameraNames }"
+						 selectedIndex="{ main.videoSettings.cameraIndex }"/>			 
+			<mx:Spacer width="7"/>
+			<mx:Button id="video_btn" click="setupCamera()" label="Start" width="62"
+					   toolTip="Start video device" focusEnabled="false"/>
+		</mx:Box>
+	    <mx:Box direction="horizontal" width="100%" height="100%" horizontalGap="-1">
+			<mx:ComboBox id="microphone_cb" width="175" focusEnabled="false" rowCount="7"
+						 toolTip="Available audio devices" prompt="Select audio device"
+						 dataProvider="{ main.microphoneNames }"
+						 selectedIndex="{ main.audioSettings.micIndex }"/>	 
+			<mx:Spacer width="7"/>
+			<mx:Button id="audio_btn" label="Start" width="60" click="setupMicrophone()"
+					   toolTip="Start audio device" focusEnabled="false"/>
+		</mx:Box>		
+
+	</mx:VBox>
+	
+</view:SettingsDisplayClass>

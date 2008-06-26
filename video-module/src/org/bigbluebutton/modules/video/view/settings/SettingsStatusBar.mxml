@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<view:SettingsStatusBarClass xmlns:mx="http://www.adobe.com/2006/mxml"
+							 xmlns:view="org.bigbluebutton.modules.video.view.settings.*">							 
+		<view:StatusBar labelText="Choose your devices."/>	
+</view:SettingsStatusBarClass>

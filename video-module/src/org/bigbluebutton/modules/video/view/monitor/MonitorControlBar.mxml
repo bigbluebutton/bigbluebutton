@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Box xmlns:mx="http://www.adobe.com/2006/mxml"
+		xmlns:view="org.bigbluebutton.modules.video.view.monitor.*">
+	<mx:Script>
+		<![CDATA[
+			import org.red5.samples.publisher.view.SettingsWindow;
+			import com.adobe.cairngorm.control.CairngormEventDispatcher;
+		
+			import flash.events.*;
+			import mx.managers.PopUpManager;
+			import mx.containers.Box;
+			import mx.controls.*;
+			import mx.events.*;
+			import mx.binding.utils.BindingUtils;
+			import org.red5.samples.publisher.model.*;
+			import org.red5.samples.publisher.vo.BroadcastMedia;
+			
+			private var log : ILogger = LoggerModelLocator.getInstance().log;
+			
+			[Bindable]public var media : BroadcastMedia;
+			private var settingsWindow : SettingsWindow;
+			
+			public function recordStream() : void
+			{
+				log.debug("broadcast stream[" + media.streamName + "] is connected? " + media.connected);
+			
+				if ( ! media.broadcasting ) 
+				{
+					BlindsideAppLocator.getInstance().publisherApp.startBroadcasting("live", media.streamName);
+				} 
+				else
+				{
+					BlindsideAppLocator.getInstance().publisherApp.stopBroadcasting(media.streamName);
+				}
+			}   
+		
+			public function startDevices() : void
+			{
+				if (media.video.settings.cameraIndex > 0)
+					BlindsideAppLocator.getInstance().publisherApp.startCamera(media.streamName);
+				if (media.audio.settings.micIndex > 0)	
+					BlindsideAppLocator.getInstance().publisherApp.startMicrophone(media.streamName);
+			}   
+			
+			public function stopDevices() : void
+			{
+				BlindsideAppLocator.getInstance().publisherApp.stopMicrophone(media.streamName);
+				BlindsideAppLocator.getInstance().publisherApp.stopCamera(media.streamName);
+			}  			
+
+			private function openSettingsWindow() : void
+			{
+                settingsWindow = SettingsWindow(PopUpManager.createPopUp( this, SettingsWindow, false));				
+				settingsWindow.media = media;
+				
+				var point1:Point = new Point();
+                // Calculate position of TitleWindow in Application's coordinates. 
+                point1.x = monCanvas.x;
+                point1.y = monCanvas.y;                
+                point1 = monCanvas.localToGlobal(point1);
+                settingsWindow.x = point1.x + 25;
+                settingsWindow.y = point1.y + 25;
+                
+                BindingUtils.bindSetter(handleBroadcasting, media, "broadcasting");
+            }	
+            
+			public function handleBroadcasting(broadcasting : Boolean) : void
+			{
+				BlindsideAppLocator.getInstance().conferenceApp.sendBroadcastStream(broadcasting, media.streamName);
+			}   
+		]]>
+	</mx:Script>
+	<mx:ApplicationControlBar horizontalAlign="center" verticalAlign="middle" 
+							  paddingBottom="4" horizontalGap="6" dock="true"
+							  width="100%" height="100%" shadowDistance="1">
+			<mx:Canvas id="monCanvas" width="100%" height="100%">		
+				<mx:VBox width="100%" height="100%" verticalAlign="middle">
+					<mx:HBox width="100%" horizontalGap="12">	
+						<mx:Button label="Settings" click="openSettingsWindow()"/>
+						<mx:Button id="startButton" label="Start"
+								visible = "{(media.video.settings.cameraIndex > 0) || (media.audio.settings.micIndex > 0)}"
+								enabled = "{! media.broadcasting}"
+								click="startDevices()"
+								tabEnabled="false" width="70"/>
+						<mx:Button id="stopButton" label="Stop"
+								visible = "{(media.video.settings.cameraIndex > 0) || (media.audio.settings.micIndex > 0)}"
+								enabled = "{! media.broadcasting}"
+								click="stopDevices()"
+								tabEnabled="false" width="70"/>
+						<mx:Spacer width="100%"/>	 
+						<mx:Button id="publishButton" label="Broadcast"
+									click="recordStream()"
+								   enabled="{ media.deviceStarted }" tabEnabled="false" width="70"/>
+					</mx:HBox>
+				</mx:VBox>
+			</mx:Canvas>			
+	</mx:ApplicationControlBar>
+</mx:Box>
