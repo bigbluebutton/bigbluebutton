@@ -26,6 +26,8 @@ package org.bigbluebutton.modules.voiceconference
 	import org.bigbluebutton.common.IRouterAware;
 	import org.bigbluebutton.common.Router;
 	import org.bigbluebutton.main.view.components.MainApplicationShell;
+	import org.bigbluebutton.modules.viewers.ViewersFacade;
+	import org.bigbluebutton.modules.viewers.model.business.Conference;
 	
 	/**
 	 * This is the main class of the Voice Module application. It extends the ModuleBase class of the
@@ -36,7 +38,7 @@ package org.bigbluebutton.modules.voiceconference
 	public class VoiceModule extends BigBlueButtonModule implements IRouterAware
 	{
 		public static const NAME:String = "VoiceModule";
-		public static const DEFAULT_URI:String = "rtmp://" + Constants.red5Host + "/astmeetme/85115"; 
+		public static const URI:String = "rtmp://" + Constants.red5Host + "/astmeetme/"; 
 		
 		private var facade:VoiceConferenceFacade;
 		public var activeWindow:MDIWindow;
@@ -60,8 +62,9 @@ package org.bigbluebutton.modules.voiceconference
 		 * 
 		 */		
 		override public function acceptRouter(router:Router, shell:MainApplicationShell):void{
+			var conf:Conference = ViewersFacade.getInstance().retrieveMediator(Conference.NAME) as Conference;
 			super.acceptRouter(router, shell);
-			facade.startup(this, DEFAULT_URI);
+			facade.startup(this, URI + conf.room);
 			facade.connectToMeetMe();
 		}
 		
