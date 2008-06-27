@@ -41,6 +41,8 @@ package org.bigbluebutton.modules.voiceconference.model.business
 		private var netConnection : NetConnection;	
 		private var meetmeRoomURI:String;
 		private var roomNumber : String;
+		
+		private var log:TempLogBridge;
 					
 		/**
 		 * The Default constructor 
@@ -51,6 +53,7 @@ package org.bigbluebutton.modules.voiceconference.model.business
 		{
 			super(NAME);
 			this.meetmeRoomURI = meetmeRoomURI;
+			log = new TempLogBridge();
 		}
 
 		/**
@@ -71,14 +74,14 @@ package org.bigbluebutton.modules.voiceconference.model.business
 			
 			// connect to server
 			try {
-				//log.info( "Connecting to <b>" + meetmeRoomURI + "</b>");
+				log.info( "Connecting to <b>" + meetmeRoomURI + "</b>");
 				netConnection.connect( meetmeRoomURI, true );
 			} catch( e : ArgumentError ) {
 				// Invalid parameters.
 				switch ( e.errorID ) 
 				{
 					case 2004 :						
-						//log.error( "Invalid server location: <b>" + meetmeRoomURI + "</b>");											   
+						log.error( "Invalid server location: <b>" + meetmeRoomURI + "</b>");											   
 						break;
 						
 					default :
@@ -146,7 +149,7 @@ package org.bigbluebutton.modules.voiceconference.model.business
 	 	*/
 		public function setRoomNumber( room : String ):*
 		{
-			//log.debug( "NetconnectionDelegate::setRoomNumber:room = " + room );
+			log.debug( "NetconnectionDelegate::setRoomNumber:room = " + room );
 			roomNumber = room;
 			
 			return "Okay";
@@ -189,7 +192,7 @@ package org.bigbluebutton.modules.voiceconference.model.business
 		 */		
 		public function muteUnmuteUser(userId : Number, muteUser : Boolean) : void
 		{
-			//log.debug("NetConnectionDelegate::muteUnmuteUser : [" + userId + "," + muteUser + "]");
+			log.debug("NetConnectionDelegate::muteUnmuteUser : [" + userId + "," + muteUser + "]");
 			sendNotification(VoiceConferenceFacade.MUTE_UNMUTE_USER_COMMAND, new MuteNotifier(userId, muteUser));
 		}
 
@@ -200,7 +203,7 @@ package org.bigbluebutton.modules.voiceconference.model.business
 		 */
 		public function ejectUser(userId : Number) : void
 		{
-			//log.debug("NetConnectionDelegate::ejectUser : [" + userId + "]");
+			log.debug("NetConnectionDelegate::ejectUser : [" + userId + "]");
 			sendNotification(VoiceConferenceFacade.EJECT_USER_COMMAND, userId);
 		}
 	}

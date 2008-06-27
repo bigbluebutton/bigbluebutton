@@ -57,6 +57,8 @@ package org.bigbluebutton.modules.voiceconference.model.business
 		private var meetMeRoom : VoiceConferenceRoom;
 		private var participantsSO : SharedObject;
 		private var participants : Array;
+		
+		private var log:TempLogBridge;
 				
 		/**
 		 * The default constructor. 
@@ -67,6 +69,7 @@ package org.bigbluebutton.modules.voiceconference.model.business
 		{
 			super(NAME);
 			this.meetMeRoom = meetMeRoom;
+			log = new TempLogBridge();
 		}
 		
 		/**
@@ -149,9 +152,9 @@ package org.bigbluebutton.modules.voiceconference.model.business
 									
 					// find out if it's a secure (HTTPS/TLS) connection
 					if ( event.target.connectedProxyType == "HTTPS" || event.target.usingTLS ) {
-						//log.info("MeetMe:: Connected to secure server");
+						log.info("MeetMe:: Connected to secure server");
 					} else {
-						//log.info("MeetMe: Connected to server");
+						log.info("MeetMe: Connected to server");
 					}
 					
 					joinMeetMeRoom();
@@ -169,29 +172,29 @@ package org.bigbluebutton.modules.voiceconference.model.business
 					
 //					serverDisconnect(DisconnectedEvent.FAILED, "Connection to server failed");
 					
-					//log.info("MeetMe::Connection to server failed");
+					log.info("MeetMe::Connection to server failed");
 					break;
 					
 				case "NetConnection.Connect.Closed" :
 					
 //					serverDisconnect(DisconnectedEvent.CLOSED, "Connection to server closed");
 					
-					//log.info("MeetMe::Connection to server closed");
+					log.info("MeetMe::Connection to server closed");
 					break;
 					
 				case "NetConnection.Connect.InvalidApp" :
 //					serverDisconnect(DisconnectedEvent.INVALID_APP, "Application not found on server")
-					//log.info("MeetMe::Application not found on server");
+					log.info("MeetMe::Application not found on server");
 					break;
 					
 				case "NetConnection.Connect.AppShutDown" :
 //					serverDisconnect(DisconnectedEvent.APP_SHUTDOWN, "Application has been shutdown");
-					//log.info("MeetMe::Application has been shutdown");
+					log.info("MeetMe::Application has been shutdown");
 					break;
 					
 				case "NetConnection.Connect.Rejected" :
 //					serverDisconnect(DisconnectedEvent.REJECTED, "No permissions to connect to the application");
-					//log.info("MeetMe::No permissions to connect to the application" );
+					log.info("MeetMe::No permissions to connect to the application" );
 					break;
 					
 				default :
@@ -207,7 +210,7 @@ package org.bigbluebutton.modules.voiceconference.model.business
 		 */		
 		public function fault(  event : Object  ) : void {
 			
-			//log.error( event.text);
+			log.error( event.text);
 		}
 		
 		
@@ -306,7 +309,7 @@ package org.bigbluebutton.modules.voiceconference.model.business
 		 */
 		public function userTalk(userId : Number, talk : Boolean) : void
 		{
-			//log.debug("User Talking");
+			log.debug("User Talking");
 			if (participants == null) return;
 			
 			for (var i:int = 0; i < participants.length; i++)
@@ -352,7 +355,7 @@ package org.bigbluebutton.modules.voiceconference.model.business
 			var nc_responder : Responder;
 			nc_responder = new Responder(getMeetMeUsers, null);
 					
-			//log.info("MeetMe: calling meetmeService.muteUnmuteUser");
+			log.info("MeetMe: calling meetmeService.muteUnmuteUser");
 			proxy.getConnection().call("meetmeService.muteUnmuteUser", nc_responder, note.userid, note.muteUser);			
 		}
 
@@ -363,7 +366,7 @@ package org.bigbluebutton.modules.voiceconference.model.business
 		 */		
 		public function muteAllUsers(mute : Boolean) : void
 		{	
-			//log.info("MeetMe: calling meetmeService.muteAllUsers");
+			log.info("MeetMe: calling meetmeService.muteAllUsers");
 			proxy.getConnection().call("meetmeService.muteAllUsers", null, mute);			
 		}
 		
@@ -374,7 +377,7 @@ package org.bigbluebutton.modules.voiceconference.model.business
 		 */
 		public function ejectUser(userId : Number) : void
 		{
-			//log.info("MeetMe: calling meetmeService.ejectUser");
+			log.info("MeetMe: calling meetmeService.ejectUser");
 			proxy.getConnection().call("meetmeService.ejectUser", null, userId);			
 		}
 		
@@ -407,7 +410,7 @@ package org.bigbluebutton.modules.voiceconference.model.business
 
 			participants.sortOn("callerName", Array.CASEINSENSITIVE);
 			
-			//log.debug("Getting users for refresh");
+			log.debug("Getting users for refresh");
 			meetMeRoom.dpParticipants = new ArrayCollection(participants);
 			meetMeRoom.dpParticipants.refresh();
 		}
@@ -419,7 +422,7 @@ package org.bigbluebutton.modules.voiceconference.model.business
 		 */			
 		private function sharedObjectSyncHandler( event : SyncEvent) : void
 		{
-			//log.debug( "MeetMe::sharedObjectSyncHandler " + event.changeList);
+			log.debug( "MeetMe::sharedObjectSyncHandler " + event.changeList);
 		}
 		
 		/**
@@ -429,7 +432,7 @@ package org.bigbluebutton.modules.voiceconference.model.business
 		 */		
 		private function netStatusHandler ( event : NetStatusEvent ) : void
 		{
-			//log.debug( "MeetMe::netStatusHandler " + event.info.code );
+			log.debug( "MeetMe::netStatusHandler " + event.info.code );
 		}
 		
 		/**
@@ -439,7 +442,7 @@ package org.bigbluebutton.modules.voiceconference.model.business
 		 */		
 		private function asyncErrorHandler ( event : AsyncErrorEvent ) : void
 		{
-			//log.debug( "MeetMe::asyncErrorHandler " + event.error);
+			log.debug( "MeetMe::asyncErrorHandler " + event.error);
 		}
 		
 		/**
@@ -450,7 +453,7 @@ package org.bigbluebutton.modules.voiceconference.model.business
 		 */		
 		public function sendNewMeetMeEvent():void
 		{
-			//log.debug("Got to sendMeetMeEvent");
+			log.debug("Got to sendMeetMeEvent");
 			sendNotification(VoiceConferenceFacade.USER_JOIN_EVENT);
 		}		
 	}
