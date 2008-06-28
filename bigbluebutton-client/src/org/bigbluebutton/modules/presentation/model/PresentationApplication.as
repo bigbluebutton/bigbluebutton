@@ -36,6 +36,7 @@ package org.bigbluebutton.modules.presentation.model
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
+	import org.bigbluebutton.modules.log.LogModuleFacade;
 			
 	/**
 	 * The PresentationApplication class is the ApplicationMediator class of the Presentation Module
@@ -58,6 +59,7 @@ package org.bigbluebutton.modules.presentation.model
 		private var _userid : Number;
 		private var _room : String;
 		private var _docServiceAddress : String = "http://localhost:8080";
+		private var log : LogModuleFacade = LogModuleFacade.getInstance("LogModule");
 		
 		/**
 		 * The default constructor 
@@ -141,10 +143,12 @@ package org.bigbluebutton.modules.presentation.model
 		 */		
 		public function uploadPresentation(fileToUpload : FileReference) : void
 		{
+			log.presentation("In uploadPresentation()... " + Constants.relativeFileUpload + "/upload");
 			var fullUri : String = _docServiceAddress + Constants.relativeFileUpload + "/upload";
 						
 			var service:FileUploadService = new FileUploadService(fullUri, _room);
 			facade.registerProxy(service);
+			log.presentation("using flash FileUploadService...");
 			service.upload(fileToUpload);
 		}
 		

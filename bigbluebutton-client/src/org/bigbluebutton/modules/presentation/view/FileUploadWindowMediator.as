@@ -31,7 +31,8 @@ package org.bigbluebutton.modules.presentation.view
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
-	
+	import org.bigbluebutton.modules.log.LogModuleFacade;
+
 	/**
 	 * This is the Mediator class for the FileUploadWindow component
 	 * <p>
@@ -46,6 +47,7 @@ package org.bigbluebutton.modules.presentation.view
 		public static const START_UPLOAD:String = "Start Upload";
 		public static const CLOSE_UPLOAD_WINDOW:String = "Close File Upload Window";
 		public static const SELECT_FILE:String = "Select File";
+		private var log : LogModuleFacade = LogModuleFacade.getInstance("LogModule");
 		
 		private var fileToUpload:FileReference = new FileReference();
 		// Var to determine how to handle okCancelBtn click
@@ -81,6 +83,7 @@ package org.bigbluebutton.modules.presentation.view
 		 * 
 		 */		
 		private function startUpload(e:Event):void{
+			log.presentation("In startUpload()...")
 			PresentationFacade.getInstance().presentationApp.uploadPresentation(fileToUpload);
 			fileUploadWindow.progBarLbl.visible = true;
 			fileUploadWindow.progressBar.visible = true;
