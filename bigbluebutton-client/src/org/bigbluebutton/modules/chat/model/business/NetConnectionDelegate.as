@@ -67,7 +67,7 @@ package org.bigbluebutton.modules.chat.model.business
 //					_connUri = uri + "/" + room;
 //				}	
 				
-				_connUri = "rtmp://" + host + "/oflaDemo/" + room;
+				_connUri = "rtmp://" + host + "/chatServer/" + room;
 				
 				log.chat( "Connecting to <b>" + _connUri + "</b>");
 								
