@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/Users/mrw/Projects/blindside/source/server/blindside-server/lib/mina-core-1.1.0.jar"/>
+	<classpathentry kind="lib" path="/Users/mrw/Projects/blindside/source/server/blindside-server/lib/mina-filter-ssl-1.1.0.jar"/>
+	<classpathentry kind="lib" path="/Users/mrw/Projects/blindside/source/server/blindside-server/lib/mina-integration-spring-1.1.0.jar"/>
+	<classpathentry kind="lib" path="/Users/mrw/Projects/blindside/source/server/blindside-server/lib/spring-core.jar"/>
+	<classpathentry kind="lib" path="/Users/mrw/Projects/blindside/source/server/blindside-server/lib/spring-context.jar"/>
+	<classpathentry kind="lib" path="/Users/mrw/Projects/blindside/source/server/blindside-server/red5.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
