@@ -45,7 +45,7 @@ package org.bigbluebutton.common
 				
 		public static var red5Host:String = HTML_RED5_HOST;
 		public static var presentationHost:String = HTML_PRES_HOST;
-		public static var relativeFileUpload:String = OLD_RELATIVE_FILE_UPLOAD;
+		public static var relativeFileUpload:String = NEW_RELATIVE_FILE_UPLOAD;
 		
 		/**
 		 * If the client is being run from a server, the URLs will be retrieved from the index.template.html

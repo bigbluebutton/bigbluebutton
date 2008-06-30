@@ -143,7 +143,7 @@ package org.bigbluebutton.modules.presentation.model
 		 */		
 		public function uploadPresentation(fileToUpload : FileReference) : void
 		{
-			log.presentation("In uploadPresentation()... " + Constants.relativeFileUpload + "/upload");
+			log.presentation("PresentationApplication::uploadPresentation()... " + _docServiceAddress + Constants.relativeFileUpload + "/upload");
 			var fullUri : String = _docServiceAddress + Constants.relativeFileUpload + "/upload";
 						
 			var service:FileUploadService = new FileUploadService(fullUri, _room);
@@ -159,6 +159,7 @@ package org.bigbluebutton.modules.presentation.model
 		public function loadPresentation() : void
 		{
 			var fullUri : String = _docServiceAddress + Constants.relativeFileUpload + "/xmlslides?room=" + _room;	
+			log.presentation("PresentationApplication::loadPresentation()... " + fullUri);
 			model.presentationLoaded = false;
 			
 			var service:PresentationService = new PresentationService(fullUri, this);
