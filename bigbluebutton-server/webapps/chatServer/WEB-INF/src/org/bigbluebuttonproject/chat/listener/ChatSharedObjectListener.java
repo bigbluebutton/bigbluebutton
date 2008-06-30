@@ -108,8 +108,17 @@ public class ChatSharedObjectListener implements ISharedObjectListener {
 			if(buffer.size() == chatlogSize){
 				buffer.removeFirst();
 			} 
-			buffer.addLast("<b>[" + new Time(System.currentTimeMillis())+  "]</b> "+ "<b>[" +(String)params.get(0)+ "]</b> " + (String)params.get(1)+ "\n");
-
+			
+			int color = Integer.valueOf( params.get(2).toString() ).intValue();
+			String hexColor = Integer.toHexString(color);
+			
+			//System.out.println("======================================================");
+			//System.out.println("======================================================");
+			//System.out.println("======================================================");
+			//System.out.println("======================================================");
+			//System.out.println(color+ " , " + hexColor);
+			//buffer.addLast("<b>[" + (String)params.get(0) + " @ " + new Time(System.currentTimeMillis())+  "]</b> " + (String)params.get(1)+ "\n");
+            buffer.addLast("<font color=\"#" + hexColor + "\"><b>[" + (String)params.get(0) +" @ "+ new Time(System.currentTimeMillis())+ "]</b> " + (String)params.get(1) + "</font>" + "\n");
 		}
 
 	}
