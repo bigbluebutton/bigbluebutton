@@ -56,7 +56,7 @@
 		  <mx:Label text="(c) 2008, BigBlueButton Project" id="copyrightLabel2"/>
 		  <mx:Spacer width="20"/>
 
-		  <mx:Label id="lblVersion" text="0.32h" /> 
+		  <mx:Label id="lblVersion" text="0.32i" /> 
 		  <mx:Spacer width="100%"/> 
 		  <mx:LinkButton id="LogBtn" label="Log" width="25" height="16"
 		  	             paddingBottom="0" paddingLeft="0" paddingRight="0"
