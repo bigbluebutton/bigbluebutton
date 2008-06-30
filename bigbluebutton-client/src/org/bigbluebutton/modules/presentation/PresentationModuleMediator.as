@@ -112,6 +112,7 @@ package org.bigbluebutton.modules.presentation
 			super.initializeNotifier(key);
 			facade.registerMediator(new PresentationWindowMediator(presentationWindow));
    			facade.registerMediator(new ThumbnailViewMediator(presentationWindow.thumbnailView));
+   			//facade.registerMediator(new ImageZoomMediator(presentationWindow));
 		}
 		
 		/**

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" 
     width="100%" height="100%" 
-    horizontalAlign="center" paddingBottom="5" creationComplete="init()">
+    horizontalAlign="center" paddingBottom="5" 
+    creationComplete="init()" verticalScrollPolicy="off" horizontalScrollPolicy="off" xmlns:panzoom="com.adobe.wheelerstreet.fig.panzoom.*" xmlns:local="*">
+    
 <mx:Style source="presentation.css"/>
 	<mx:Script>
 		<![CDATA[
@@ -14,7 +16,10 @@
 		import mx.events.ListEvent;
 		import mx.events.FlexEvent;
 
-
+		private var startDragMouseX:Number;
+		private var startDragMouseY:Number;
+		private var startDragX:Number;
+		private var startDragY:Number;
 		
 		[Bindable]	
 		public var model:PresentationFacade = PresentationFacade.getInstance();
@@ -31,6 +36,10 @@
 		private function init() : void
 		{
 			BindingUtils.bindSetter(handleChangedSlides, deck, "slides");
+			addEventListener(MouseEvent.MOUSE_WHEEL, zoom);
+			myLoader.addEventListener(MouseEvent.MOUSE_DOWN, mouseDown);
+			myLoader.addEventListener(MouseEvent.MOUSE_UP, mouseUp);
+			myLoader.addEventListener(MouseEvent.MOUSE_OUT, mouseOut);
 		}	
 		
 		private function handleChangedSlides(slides : ArrayCollection) : void
@@ -45,6 +54,44 @@
 		{
 			thumbsBox.verticalScrollPosition = thumbsBox.maxVerticalScrollPosition;
 		}
+		
+		private function zoom(e:MouseEvent):void{
+			var wid:Number = myLoader.width + e.delta * 10;
+			var hei:Number = myLoader.height + e.delta *10;
+			
+			if (hei >= this.height){
+				myLoader.width += e.delta * 10;
+				myLoader.height += e.delta * 10;
+			} 
+			//else{
+			//	myLoader.percentHeight = 100;
+			//	myLoader.percentWidth = 100;
+			//}
+			
+			dispatchEvent(new Event(ThumbnailViewMediator.ZOOM));
+		}
+		
+		private function mouseDown(e:MouseEvent):void{
+			startDragX = myLoader.x;
+			startDragY = myLoader.y;
+			startDragMouseX = imageCanvas.mouseX;
+			startDragMouseY = imageCanvas.mouseY;
+			addEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
+		}
+		
+		private function mouseMove(e:MouseEvent):void{
+			myLoader.x = startDragX + (imageCanvas.mouseX - startDragMouseX);
+			myLoader.y = startDragY + (imageCanvas.mouseY - startDragMouseY);
+			dispatchEvent(new Event(ThumbnailViewMediator.MOVE));
+		}
+		
+		private function mouseUp(e:MouseEvent):void{
+			removeEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
+		}
+		
+		private function mouseOut(e:MouseEvent):void{
+			removeEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
+		}
 		]]>
 	</mx:Script>
 
@@ -52,12 +99,15 @@
 	<mx:Binding source="deck.selected" destination="slideList.selectedIndex" />	
 	<mx:Binding source="slideList.selectedIndex" destination="deck.selected" />
 	<mx:Binding source="deck.slides.getItemAt(deck.selected) as Slide" destination="selectedSlide" />
-
-   	
-    	<mx:SWFLoader id="myLoader" width="100%" height="100%"
+	
+	<mx:Canvas id="imageCanvas" width="100%" height="100%" verticalScrollPolicy="off" horizontalScrollPolicy="off">
+		<mx:Image id="myLoader" width="100%" height="100%"
     		scaleContent="true" maintainAspectRatio="true" showBusyCursor="true"
-    		verticalAlign="top" horizontalAlign="left" completeEffect="Fade"
-        	source="{selectedSlide.source}"/>
+    		completeEffect="Fade"
+        	source="{selectedSlide.source}" />
+	</mx:Canvas>    	
+        
+        <!--<local:ZoomViewer id="myLoader" width="100%" height="100%" content="{selectedSlide.source}" /> -->
 
 
 		

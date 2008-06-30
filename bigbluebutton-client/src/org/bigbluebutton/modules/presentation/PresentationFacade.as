@@ -45,6 +45,9 @@ package org.bigbluebutton.modules.presentation
 		public static const START_PRESENTATION_APPLICATION:String = "start presentation app";
 		
 		public static const START_UPLOAD:String = "start upload";
+		public static const UPDATE_PAGE:String = "update page";
+		public static const ZOOM_SLIDE:String = "Zoom Slide";
+		public static const MOVE_SLIDE:String = "Move Slide";
 		
 		// List of Commands
 		public static const GOTO_PAGE_COMMAND : String = "PRESENTATION_GOTO_PAGE_COMMAND";	

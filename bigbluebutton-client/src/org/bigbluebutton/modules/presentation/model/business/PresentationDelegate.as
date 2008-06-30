@@ -26,7 +26,9 @@ package org.bigbluebutton.modules.presentation.model.business
 	import flash.net.SharedObject;
 	
 	import org.bigbluebutton.modules.presentation.PresentationFacade;
+	import org.bigbluebutton.modules.presentation.controller.notifiers.MoveNotifier;
 	import org.bigbluebutton.modules.presentation.controller.notifiers.ProgressNotifier;
+	import org.bigbluebutton.modules.presentation.controller.notifiers.ZoomNotifier;
 	import org.bigbluebutton.modules.presentation.model.PresentationModel;
 	import org.bigbluebutton.modules.presentation.model.vo.SlidesDeck;
 	import org.puremvc.as3.multicore.interfaces.IProxy;
@@ -142,6 +144,47 @@ package org.bigbluebutton.modules.presentation.model.business
 		public function newPageNumber(page : Number) : void
 		{
 			presentation.decks.selected = page;
+			sendNotification(PresentationFacade.UPDATE_PAGE, page);
+		}
+		
+		/**
+		 * Send an event to the server to update the clients with a new slide zoom ratio
+		 * @param slideHeight
+		 * @param slideWidth
+		 * 
+		 */		
+		public function zoom(slideHeight:Number, slideWidth:Number):void{
+			presentationSO.send("zoomSlide", slideHeight, slideWidth);
+		}
+		
+		/**
+		 * A callback method for zooming in a slide. Called once zoom gets executed 
+		 * @param slideHeight
+		 * @param slideWidth
+		 * 
+		 */		
+		public function zoomSlide(slideHeight:Number, slideWidth:Number):void{
+			sendNotification(PresentationFacade.ZOOM_SLIDE, new ZoomNotifier(slideHeight, slideWidth));
+		}
+		
+		/**
+		 * Sends an event to the server to update the clients with the new slide position 
+		 * @param slideXPosition
+		 * @param slideYPosition
+		 * 
+		 */		
+		public function move(slideXPosition:Number, slideYPosition:Number):void{
+			presentationSO.send("moveSlide", slideXPosition, slideYPosition);
+		}
+		
+		/**
+		 * A callback method from the server to update the slide position 
+		 * @param slideXPosition
+		 * @param slideYPosition
+		 * 
+		 */		
+		public function moveSlide(slideXPosition:Number, slideYPosition:Number):void{
+		   sendNotification(PresentationFacade.MOVE_SLIDE, new MoveNotifier(slideXPosition, slideYPosition));
 		}
 		
 		/**
@@ -281,8 +324,9 @@ package org.bigbluebutton.modules.presentation.model.business
 										
 				case PRESENTER :
 					//log.debug("Giving presenter control to [" + presentationSO.data.presenter.name + "]");
-					presentation.isSharing = false;
-					presentation.presentationLoaded = false;
+					if (presentation.isSharing) presentation.isSharing = false;
+					
+					if (presentation.presentationLoaded) presentation.presentationLoaded = false;
 //					presentation.decks = null;
 												
 					if (presentation.userid == presentationSO.data.presenter.userid) {

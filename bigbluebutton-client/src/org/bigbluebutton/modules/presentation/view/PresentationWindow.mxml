@@ -5,11 +5,12 @@
 	xmlns:pres="flexlib.mdi.containers.*"
 	paddingBottom="0" paddingTop="0" 
 	paddingLeft="0" paddingRight="0" 
-    layout="vertical" 
+    layout="vertical" verticalScrollPolicy="off" horizontalScrollPolicy="off"
 	creationComplete="init()" focusStart="focusThumbnail()">
 
 	<mx:Script>
 		<![CDATA[
+			import mx.core.Application;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.modules.presentation.model.vo.SlidesDeck;
 			import org.bigbluebutton.modules.presentation.PresentationFacade;
@@ -40,6 +41,7 @@
 			[Bindable] private var deck:SlidesDeck = model.presentation.decks;
 			
 			public var uploadWindow : FileUploadWindow;
+			private var dispState:String;
 
 			public function handleConnected(connected : Boolean) : void
 			{
@@ -56,15 +58,15 @@
 			{	
 				if (sharing) {
 					//sharingIcon = images.link;
-					sharePres.label = "Unshare Presentation";
+					//sharePres.label = "Unshare Presentation";
 					sharingTooltip = "Unshare presentation";
 				} else {
 					//sharingIcon = images.link_break;
-					sharePres.label = "Share Presentation";
+					//sharePres.label = "Share Presentation";
 					sharingTooltip = "Share presentation";
 				}
 				
-				if (! model.presentation.isPresenter) sharePres.visible = false;
+				//if (! model.presentation.isPresenter) sharePres.visible = false;
 			}
 						
 			private function init():void 
@@ -75,6 +77,10 @@
 				BindingUtils.bindSetter(handlePresenterControl, model.presentation, "isPresenter");
 				BindingUtils.bindSetter(handlePresenterName, model.presentation, "presenterName");
 				BindingUtils.bindSetter(handlePresentationLoaded, model.presentation, "presentationLoaded");
+				
+				/* Set up full screen handler. */
+				Application.application.stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
+				dispState = Application.application.stage.displayState;
 			}
 			
 			private function focusThumbnail():void{
@@ -90,13 +96,15 @@
 			{				
 				if (loaded) {
 					if (model.presentation.isPresenter) {
-						sharePres.visible = true;
+						//sharePres.visible = true;
+						dispatchEvent(new Event(PresentationPanelMediator.SHARE));
 					}
 					thumbnailView.visible = true;
 				} else {
+					//Alert.show("AAA");
 					thumbnailView.visible = false;
 					if (model.presentation.isPresenter) {
-						sharePres.visible = false;
+						//sharePres.visible = false;
 						uploadPres.enabled = true;
 					}
 				}
@@ -107,6 +115,7 @@
 				if (isPresenter) {
 					uploadPres.visible = true;
 				} else {
+					dispatchEvent(new Event(PresentationWindowMediator.UNSHARE));
 					uploadPres.visible = false;
 				}
 			}
@@ -125,7 +134,48 @@
 	   			var presentername : String = event.dragSource.dataForFormat('presenterUsername').toString();
 
 	   			PresentationFacade.getInstance().presentationApp.assignPresenter(presenterid, presentername);		  		
-	   		}				
+	   		}	
+	   		
+	   		private function toggleFullScreen():void{
+	   			try {
+					switch (Application.application.stage.displayState) {
+						case StageDisplayState.FULL_SCREEN:
+							/* If already in full screen mode, switch to normal mode. */
+							Application.application.stage.displayState = StageDisplayState.NORMAL;
+							break;
+						default:
+							/* If not in full screen mode, switch to full screen mode. */
+							Application.application.stage.displayState = StageDisplayState.FULL_SCREEN;
+							break;
+					}
+				} catch (err:SecurityError) {
+					// ignore
+				}
+	   		}
+	   		
+	   		private function fullScreenHandler(evt:FullScreenEvent):void {
+				dispState = Application.application.stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
+				if (evt.fullScreen) {
+					/* Do something specific here if we switched to full screen mode. */
+					this.maximizeRestoreBtn.visible = false;
+					this.width = Capabilities.screenResolutionX ;
+					this.height = Capabilities.screenResolutionY ;
+					this.x = 1;
+					this.y = 1;
+					this.resizable = false;
+					this.thumbnailView.myLoader.height = Capabilities.screenResolutionX - 100;
+					this.thumbnailView.myLoader.width = Capabilities.screenResolutionY - 200;
+				} else {
+					/* Do something specific here if we switched to normal mode. */
+					this.width = 480;
+					this.height = 378;
+					this.x = Capabilities.screenResolutionX/2 - 300;
+					this.y = 20;
+					this.resizable = true;
+					this.thumbnailView.myLoader.height = 300;
+					this.thumbnailView.myLoader.width = 300;
+				}
+			}			
 				
 		]]>
 	</mx:Script>
@@ -138,10 +188,11 @@
     	  <mx:Button id="uploadPres" icon="{uploadIcon}" visible="false"
     	   			width="20" height="20"
     	   			toolTip="Upload PDF Document" click="dispatchEvent(new Event(PresentationPanelMediator.OPEN_UPLOAD))"/>    
-    	  <mx:Button id="sharePres"  visible="false" label=""
+    	  <!--<mx:Button id="sharePres"  visible="false" label=""
     	   			width="130" height="20" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0"
-    	   			toolTip="{sharingTooltip}" click="dispatchEvent(new Event(PresentationPanelMediator.SHARE))"/> <!--icon="{sharingIcon}"-->
-    	  <mx:Spacer width="100"/>
+    	   			toolTip="{sharingTooltip}" click="dispatchEvent(new Event(PresentationPanelMediator.SHARE))"/> -->
+    	  <mx:Button id="fullScreen" label="Full Screen" click="toggleFullScreen()" />
+    	  <!--<mx:Spacer width="100"/> -->
     	  <mx:Label id="presenterLbl" text="Presenter:" />
     	  <mx:Button id="presenterName" icon="{presenterIcon}" toolTip="Presenter" label="Presenter's Name"
                  labelPlacement="right" color="#993300" 

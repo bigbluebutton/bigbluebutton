@@ -22,11 +22,11 @@ package org.bigbluebutton.modules.presentation.view
 	import flash.events.Event;
 	import flash.geom.Point;
 	
+	import mx.controls.Alert;
 	import mx.managers.PopUpManager;
 	
 	import org.bigbluebutton.modules.presentation.PresentationFacade;
 	import org.bigbluebutton.modules.presentation.model.PresentationApplication;
-
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
@@ -43,6 +43,7 @@ package org.bigbluebutton.modules.presentation.view
 		public static const CONNECT:String = "Connect to Presentation";
 		public static const SHARE:String = "Share Presentation";
 		public static const OPEN_UPLOAD:String = "Open File Upload Window"
+		public static const UNSHARE:String = "Unshare Presentation";
 		
 		/**
 		 * The constructor. Registers the view component with this mediator 
@@ -55,6 +56,7 @@ package org.bigbluebutton.modules.presentation.view
 			view.addEventListener(CONNECT, connectToPresentation);
 			view.addEventListener(SHARE, sharePresentation);
 			view.addEventListener(OPEN_UPLOAD, openFileUploadWindow);
+			view.addEventListener(UNSHARE, unsharePresentation);
 		}
 		
 		/**
@@ -77,7 +79,7 @@ package org.bigbluebutton.modules.presentation.view
 		override public function listNotificationInterests():Array{
 			return [
 					PresentationFacade.READY_EVENT,
-					PresentationFacade.VIEW_EVENT
+					PresentationFacade.VIEW_EVENT,
 					];
 		}
 		
@@ -104,6 +106,7 @@ package org.bigbluebutton.modules.presentation.view
 		private function handleReadyEvent():void{
 			
 			presentationWindow.thumbnailView.visible = false;
+			//sharePresentation(new Event("share"));
 		}
 		
 		/**
@@ -133,12 +136,21 @@ package org.bigbluebutton.modules.presentation.view
 		 * 
 		 */		
 		private function sharePresentation(e:Event) : void{
+			if (!presentationWindow.model.presentation.isSharing){
+				sendNotification(PresentationApplication.SHARE, true);
+				presentationWindow.uploadPres.enabled = false;	
+			}		
+		}
+		
+		/**
+		 * Unshare a shared presentation 
+		 * @param e
+		 * 
+		 */		
+		private function unsharePresentation(e:Event):void{
 			if (presentationWindow.model.presentation.isSharing) {
 				sendNotification(PresentationApplication.SHARE, false);
-				presentationWindow.uploadPres.enabled = true;	
-			} else {
-				sendNotification(PresentationApplication.SHARE, true);
-				presentationWindow.uploadPres.enabled = false;		
+				presentationWindow.uploadPres.enabled = true;
 			}
 		}
 		
