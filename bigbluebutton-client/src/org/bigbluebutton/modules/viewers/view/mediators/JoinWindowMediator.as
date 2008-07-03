@@ -42,6 +42,7 @@ package org.bigbluebutton.modules.viewers.view.mediators
 		public static const NAME:String = "JoinWindowMediator";
 		private var v:JoinWindow;
 		public static const LOGIN:String = "Attempt Login";
+		//public static const
 
 		/**
 		 * the constructor. registers this mediator with the JoinWindow gui component 
@@ -62,9 +63,13 @@ package org.bigbluebutton.modules.viewers.view.mediators
 		 * 
 		 */		
 		override public function listNotificationInterests():Array{
+
 			return [
-					ViewersFacade.CONNECT_UNSUCCESSFUL
-					];
+			        ViewersFacade.LOGIN_FAILED,
+			        ViewersFacade.CONNECT_UNSUCCESSFUL
+			];
+
+		
 		}
 		
 		/**
@@ -73,11 +78,20 @@ package org.bigbluebutton.modules.viewers.view.mediators
 		 * 
 		 */		
 		override public function handleNotification(notification:INotification):void{
+
+			switch(notification.getName())
+			{
+				case ViewersFacade.LOGIN_FAILED:
+					this.v.showError();
+					break;	
+			}
+
 			switch(notification.getName()){
 				case ViewersFacade.CONNECT_UNSUCCESSFUL:
 					v.lblNote.text = "Login Failed";
 					break;
 			}
+
 		}
 		
 		protected function keyPressed(event:KeyboardEvent):void{
