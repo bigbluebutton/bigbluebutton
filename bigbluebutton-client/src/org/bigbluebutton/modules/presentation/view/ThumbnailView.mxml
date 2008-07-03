@@ -56,6 +56,8 @@
 		}
 		
 		private function zoom(e:MouseEvent):void{
+			if (!model.presentation.isPresenter) return;
+			
 			var wid:Number = myLoader.width + e.delta * 10;
 			var hei:Number = myLoader.height + e.delta *10;
 			
@@ -72,6 +74,8 @@
 		}
 		
 		private function mouseDown(e:MouseEvent):void{
+			if (!model.presentation.isPresenter) return;
+			
 			startDragX = myLoader.x;
 			startDragY = myLoader.y;
 			startDragMouseX = imageCanvas.mouseX;
@@ -80,16 +84,22 @@
 		}
 		
 		private function mouseMove(e:MouseEvent):void{
+			if (!model.presentation.isPresenter) return;
+			
 			myLoader.x = startDragX + (imageCanvas.mouseX - startDragMouseX);
 			myLoader.y = startDragY + (imageCanvas.mouseY - startDragMouseY);
 			dispatchEvent(new Event(ThumbnailViewMediator.MOVE));
 		}
 		
 		private function mouseUp(e:MouseEvent):void{
+			if (!model.presentation.isPresenter) return;
+			
 			removeEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
 		}
 		
 		private function mouseOut(e:MouseEvent):void{
+			if (!model.presentation.isPresenter) return;
+			
 			removeEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
 		}
 		]]>

@@ -21,8 +21,12 @@ package org.bigbluebutton.modules.presentation.view
 {
 	import flash.events.Event;
 	
+	import org.bigbluebutton.modules.presentation.PresentationFacade;
+	import org.bigbluebutton.modules.presentation.controller.notifiers.MoveNotifier;
+	import org.bigbluebutton.modules.presentation.controller.notifiers.ZoomNotifier;
 	import org.bigbluebutton.modules.presentation.model.business.PresentationDelegate;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
+	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
 	
 	/**
@@ -68,6 +72,11 @@ package org.bigbluebutton.modules.presentation.view
 		 * 
 		 */		
 		private function sendPageNumber(e:Event) : void {
+			thumbnailView.myLoader.percentHeight = 100;
+			thumbnailView.myLoader.percentWidth = 100;
+			thumbnailView.myLoader.x = 1;
+			thumbnailView.myLoader.y = 1;
+			
 			if ((thumbnailView.model.presentation.isPresenter) && (thumbnailView.model.presentation.isSharing)) {
 				var pageNum : uint = thumbnailView.slideList.selectedIndex;
 			
@@ -85,11 +94,43 @@ package org.bigbluebutton.modules.presentation.view
 		}
 		
 		private function zoom(e:Event):void{
+			var xPercent:Number = thumbnailView.myLoader.width / thumbnailView.imageCanvas.width;
+			var yPercent:Number = thumbnailView.myLoader.height / thumbnailView.imageCanvas.height;
 			
+			proxy.zoom(xPercent, yPercent);
 		}
 		
 		private function move(e:Event):void{
+			var xOfset:Number = thumbnailView.myLoader.x / thumbnailView.imageCanvas.width;
+			var yOfset:Number = thumbnailView.myLoader.y / thumbnailView.imageCanvas.height;
 			
+			proxy.move(xOfset, yOfset);
+		}
+		
+		override public function listNotificationInterests():Array{
+			return [
+					PresentationFacade.ZOOM_SLIDE,
+					PresentationFacade.MOVE_SLIDE
+					];
+		}
+		
+		override public function handleNotification(notification:INotification):void{
+			switch(notification.getName()){
+				case PresentationFacade.ZOOM_SLIDE:
+					var zoomNote:ZoomNotifier = notification.getBody() as ZoomNotifier;
+					if (!thumbnailView.model.presentation.isPresenter){
+						thumbnailView.myLoader.width = zoomNote.newWidth * thumbnailView.imageCanvas.width;
+						thumbnailView.myLoader.height = zoomNote.newHeight * thumbnailView.imageCanvas.height;
+					}
+					break;
+				case PresentationFacade.MOVE_SLIDE:
+					var moveNote:MoveNotifier = notification.getBody() as MoveNotifier;
+					if (!thumbnailView.model.presentation.isPresenter){
+						thumbnailView.myLoader.x = moveNote.newXPosition * thumbnailView.imageCanvas.width;
+						thumbnailView.myLoader.y = moveNote.newYPosition * thumbnailView.imageCanvas.height;
+					}
+					break;
+			}
 		}
 
 	}

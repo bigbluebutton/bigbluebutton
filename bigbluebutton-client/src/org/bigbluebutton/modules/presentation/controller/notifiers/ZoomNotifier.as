@@ -7,8 +7,8 @@ package org.bigbluebutton.modules.presentation.controller.notifiers
 	 */	
 	public class ZoomNotifier
 	{
-		private var newHeight:Number;
-		private var newWidth:Number;
+		public var newHeight:Number;
+		public var newWidth:Number;
 		
 		public function ZoomNotifier(newHeight:Number, newWidth:Number)
 		{

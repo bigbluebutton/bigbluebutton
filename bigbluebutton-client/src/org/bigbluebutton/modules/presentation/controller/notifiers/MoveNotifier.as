@@ -7,8 +7,8 @@ package org.bigbluebutton.modules.presentation.controller.notifiers
 	 */	
 	public class MoveNotifier
 	{
-		private var newXPosition:Number;
-		private var newYPosition:Number;
+		public var newXPosition:Number;
+		public var newYPosition:Number;
 		
 		public function MoveNotifier(newXPosition:Number, newYPosition:Number)
 		{
