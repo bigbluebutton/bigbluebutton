@@ -44,6 +44,7 @@ package org.bigbluebutton.modules.presentation.view
 		public static const SHARE:String = "Share Presentation";
 		public static const OPEN_UPLOAD:String = "Open File Upload Window"
 		public static const UNSHARE:String = "Unshare Presentation";
+		public static const MAXIMIZE:String = "Maximize Presentation";
 		
 		/**
 		 * The constructor. Registers the view component with this mediator 
@@ -57,6 +58,7 @@ package org.bigbluebutton.modules.presentation.view
 			view.addEventListener(SHARE, sharePresentation);
 			view.addEventListener(OPEN_UPLOAD, openFileUploadWindow);
 			view.addEventListener(UNSHARE, unsharePresentation);
+			view.addEventListener(MAXIMIZE, maximize);
 		}
 		
 		/**
@@ -80,6 +82,7 @@ package org.bigbluebutton.modules.presentation.view
 			return [
 					PresentationFacade.READY_EVENT,
 					PresentationFacade.VIEW_EVENT,
+					PresentationFacade.MAXIMIZE_PRESENTATION
 					];
 		}
 		
@@ -95,6 +98,9 @@ package org.bigbluebutton.modules.presentation.view
 					break;
 				case PresentationFacade.VIEW_EVENT:
 					handleViewEvent();
+					break;
+				case PresentationFacade.MAXIMIZE_PRESENTATION:
+					handleMaximizeEvent();
 					break;
 			}
 		}
@@ -115,6 +121,16 @@ package org.bigbluebutton.modules.presentation.view
 		 */		
 		private function handleViewEvent():void{			
 			presentationWindow.thumbnailView.visible = true;
+		}
+		
+		/**
+		 * Handles a received Maximize notification 
+		 * 
+		 */		
+		private function handleMaximizeEvent():void{
+			if (!presentationWindow.model.presentation.isPresenter){
+				presentationWindow.maximize();	
+			}
 		}
 		
 		/**
@@ -177,6 +193,10 @@ package org.bigbluebutton.modules.presentation.view
         public function get proxy():PresentationDelegate{
         	return facade.retrieveProxy(PresentationDelegate.ID) as PresentationDelegate;
         }	
+        
+        private function maximize(e:Event):void{
+        	proxy.maximize();
+        }
 
 	}
 }

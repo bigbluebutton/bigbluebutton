@@ -188,6 +188,22 @@ package org.bigbluebutton.modules.presentation.model.business
 		}
 		
 		/**
+		 * Sends an event out for the clients to maximize the presentation module 
+		 * 
+		 */		
+		public function maximize():void{
+			presentationSO.send("maximizePresentation");
+		}
+		
+		/**
+		 * A callback method from the server to maximize the presentation 
+		 * 
+		 */		
+		public function maximizePresentation():void{
+			sendNotification(PresentationFacade.MAXIMIZE_PRESENTATION);
+		}
+		
+		/**
 		 * Send an event to the server to clear the presentation 
 		 * 
 		 */		

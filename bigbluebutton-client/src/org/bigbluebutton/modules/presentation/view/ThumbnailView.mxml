@@ -65,10 +65,6 @@
 				myLoader.width += e.delta * 10;
 				myLoader.height += e.delta * 10;
 			} 
-			//else{
-			//	myLoader.percentHeight = 100;
-			//	myLoader.percentWidth = 100;
-			//}
 			
 			dispatchEvent(new Event(ThumbnailViewMediator.ZOOM));
 		}

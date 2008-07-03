@@ -6,7 +6,7 @@
 	paddingBottom="0" paddingTop="0" 
 	paddingLeft="0" paddingRight="0" 
     layout="vertical" verticalScrollPolicy="off" horizontalScrollPolicy="off"
-	creationComplete="init()" focusStart="focusThumbnail()">
+	creationComplete="init()" focusStart="focusThumbnail()" maximize="sendMaximize()">
 
 	<mx:Script>
 		<![CDATA[
@@ -68,6 +68,12 @@
 				
 				//if (! model.presentation.isPresenter) sharePres.visible = false;
 			}
+			
+			private function sendMaximize():void{
+				if (this.maximized){
+					dispatchEvent(new Event(PresentationWindowMediator.MAXIMIZE));
+				}
+			}
 						
 			private function init():void 
 			{		
@@ -97,7 +103,7 @@
 				if (loaded) {
 					if (model.presentation.isPresenter) {
 						//sharePres.visible = true;
-						dispatchEvent(new Event(PresentationPanelMediator.SHARE));
+						dispatchEvent(new Event(PresentationWindowMediator.SHARE));
 					}
 					thumbnailView.visible = true;
 				} else {
@@ -165,6 +171,7 @@
 					this.resizable = false;
 					this.thumbnailView.myLoader.height = Capabilities.screenResolutionX - 100;
 					this.thumbnailView.myLoader.width = Capabilities.screenResolutionY - 200;
+					if (model.presentation.isPresenter) dispatchEvent(new Event(PresentationWindowMediator.MAXIMIZE));
 				} else {
 					/* Do something specific here if we switched to normal mode. */
 					this.maximizeRestoreBtn.visible = true;
@@ -188,19 +195,12 @@
     <mx:ControlBar width="100%">
     	  <mx:Button id="uploadPres" icon="{uploadIcon}" visible="false"
     	   			width="20" height="20"
-    	   			toolTip="Upload PDF Document" click="dispatchEvent(new Event(PresentationPanelMediator.OPEN_UPLOAD))"/>    
-    	  <!--<mx:Button id="sharePres"  visible="false" label=""
-    	   			width="130" height="20" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0"
-    	   			toolTip="{sharingTooltip}" click="dispatchEvent(new Event(PresentationPanelMediator.SHARE))"/> -->
-    	  <!--<mx:Spacer width="100"/> -->
+    	   			toolTip="Upload PDF Document" click="dispatchEvent(new Event(PresentationWindowMediator.OPEN_UPLOAD))"/>    
     	  <mx:Label id="presenterLbl" text="Presenter:" />
     	  <mx:Button id="presenterName" icon="{presenterIcon}" toolTip="Presenter" label="Presenter's Name"
                  labelPlacement="right" color="#993300" 
                  dragEnter="dragEnterHandler(event)" dragDrop="dragDropHandler(event)"/>
     	  <mx:Spacer width="100%"/>					
-    	 <!-- <mx:Button id="connect"  icon="{connectIcon}"
-    	   			width="20" height="20" enabled="false"
-    	   			toolTip="{connectTooltip}" click="dispatchEvent(new Event(PresentationPanelMediator.CONNECT))"/>-->
     	  <mx:Button id="fullScreen" label="Full Screen" click="toggleFullScreen()" />
     </mx:ControlBar>
 			

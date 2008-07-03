@@ -110,7 +110,8 @@ package org.bigbluebutton.modules.presentation.view
 		override public function listNotificationInterests():Array{
 			return [
 					PresentationFacade.ZOOM_SLIDE,
-					PresentationFacade.MOVE_SLIDE
+					PresentationFacade.MOVE_SLIDE,
+					PresentationFacade.MAXIMIZE_PRESENTATION
 					];
 		}
 		
@@ -129,6 +130,10 @@ package org.bigbluebutton.modules.presentation.view
 						thumbnailView.myLoader.x = moveNote.newXPosition * thumbnailView.imageCanvas.width;
 						thumbnailView.myLoader.y = moveNote.newYPosition * thumbnailView.imageCanvas.height;
 					}
+					break;
+				case PresentationFacade.MAXIMIZE_PRESENTATION:
+					thumbnailView.myLoader.percentHeight = 100;
+					thumbnailView.myLoader.percentWidth = 100;
 					break;
 			}
 		}

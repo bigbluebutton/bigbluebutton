@@ -5,7 +5,6 @@
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.modules.presentation.FileUploadWindowMediatorTest;
-			import org.bigbluebutton.modules.presentation.PresentationPanelMediatorTest;
 			import org.bigbluebutton.modules.presentation.PresentationWindowMediatorTest;
 			import org.bigbluebutton.modules.presentation.PresentationApplicationTest;
 			import org.bigbluebutton.modules.presentation.TestSlidesDeck;
@@ -41,7 +40,6 @@
 				ts.addTest(TestSlidesDeck.suite());
 				ts.addTest(PresentationApplicationTest.suite());
 				ts.addTest(PresentationWindowMediatorTest.suite());
-				ts.addTest(PresentationPanelMediatorTest.suite());
 				ts.addTest(FileUploadWindowMediatorTest.suite());
 				
 				return ts;
