@@ -25,6 +25,7 @@ package org.bigbluebutton.modules.viewers.model.services
 	import flash.net.NetConnection;
 	import flash.net.SharedObject;
 	
+	import org.bigbluebutton.modules.log.LogModuleFacade;
 	import org.bigbluebutton.modules.viewers.ViewersFacade;
 	import org.bigbluebutton.modules.viewers.controller.notifiers.StatusNotifier;
 	import org.bigbluebutton.modules.viewers.model.business.Conference;
@@ -45,7 +46,7 @@ package org.bigbluebutton.modules.viewers.model.services
 		private var _connection : NetConnection;
 		private var _participantsSO : SharedObject;
 		private var _ncDelegate : NetConnectionDelegate;
-		
+		private var log:LogModuleFacade = LogModuleFacade.getInstance("LogModule");
 		private static const SO_NAME : String = "participantsSO";
 		
 		/**
@@ -94,8 +95,8 @@ package org.bigbluebutton.modules.viewers.model.services
 				_participantsSO.setProperty(id.toString(), aUser);
 				_participantsSO.setDirty(id.toString());
 				
-				//log.debug( "Conference::sendBroadcastStream::found =[" + id + "," 
-				//		+ aUser.hasStream + "," + aUser.streamName + "]");				
+				log.viewer( "Conference::sendBroadcastStream::found =[" + id + "," 
+						+ aUser.hasStream + "," + aUser.streamName + "]");				
 			}
 		}
 	
@@ -208,11 +209,11 @@ package org.bigbluebutton.modules.viewers.model.services
 		 */		
 		private function sharedObjectSyncHandler( event : SyncEvent) : void
 		{
-			//log.debug( "Conference::sharedObjectSyncHandler " + event.changeList.length);
+			log.viewer( "Conference::sharedObjectSyncHandler " + event.changeList.length);
 			
 			for (var i : uint = 0; i < event.changeList.length; i++) 
 			{
-				//log.debug( "Conference::handlingChanges[" + event.changeList[i].name + "][" + i + "]");
+				log.viewer( "Conference::handlingChanges[" + event.changeList[i].name + "][" + i + "]");
 				handleChangesToSharedObject(event.changeList[i].code, 
 						event.changeList[i].name, event.changeList[i].oldValue);
 			}
@@ -247,10 +248,10 @@ package org.bigbluebutton.modules.viewers.model.services
 					 */
 					
 					// do nothing... just log it 
-					//log.debug( "Conference::success =[" + name + "," 
-					//		+ _participantsSO.data[name].status + ","
-					//		+ _participantsSO.data[name].hasStream
-					//		+ "]");	
+					log.viewer( "Conference::success =[" + name + "," 
+							+ _participantsSO.data[name].status + ","
+							+ _participantsSO.data[name].hasStream
+							+ "]");	
 					break;
 
 				case "reject":
@@ -262,7 +263,7 @@ package org.bigbluebutton.modules.viewers.model.services
 					// do nothing... just log it 
 					// Or...maybe we should check if the value is the same as what we wanted it
 					// to be..if not...change it?
-					//log.debug( "Conference::reject =[" + code + "," + name + "," + oldValue + "]");	
+					log.viewer( "Conference::reject =[" + code + "," + name + "," + oldValue + "]");	
 					break;
 
 				case "change":
@@ -278,8 +279,8 @@ package org.bigbluebutton.modules.viewers.model.services
 							changedUser.hasStream = _participantsSO.data[name].hasStream;
 							changedUser.streamName = _participantsSO.data[name].streamName;	
 
-							//log.debug( "Conference::change =[" + 
-							//	name + "," + changedUser.name + "," + changedUser.hasStream + "]");
+							log.viewer( "Conference::change =[" + 
+								name + "," + changedUser.name + "," + changedUser.hasStream + "]");
 																					
 						} else {
 							// The server sent us a new user.
@@ -291,8 +292,8 @@ package org.bigbluebutton.modules.viewers.model.services
 							user.streamName = _participantsSO.data[name].streamName;							
 							user.role = _participantsSO.data[name].role;						
 							
-							//log.debug( "Conference::change::newuser =[" + 
-							//	name + "," + user.name + "," + user.hasStream + "]");
+							log.viewer( "Conference::change::newuser =[" + 
+								name + "," + user.name + "," + user.hasStream + "]");
 							
 							_conference.addUser(user);
 						}
@@ -308,15 +309,15 @@ package org.bigbluebutton.modules.viewers.model.services
 					 * 	A value of "delete" means the attribute was deleted.  		
 					 */
 					
-					//log.debug( "Conference::delete =[" + code + "," + name + "," + oldValue + "]");	
+					log.viewer( "Conference::delete =[" + code + "," + name + "," + oldValue + "]");	
 					
 					// The participant has left. Cast name (string) into a Number.
 					_conference.removeParticipant(Number(name));
 					break;
 										
 				default:	
-					//log.debug( "Conference::default[" + _participantsSO.data[name].userid
-					//				+ "," + _participantsSO.data[name].name + "]");		 
+					log.viewer( "Conference::default[" + _participantsSO.data[name].userid
+								+ "," + _participantsSO.data[name].name + "]");		 
 					break;
 			}
 		}
@@ -328,7 +329,7 @@ package org.bigbluebutton.modules.viewers.model.services
 		 */		
 		private function netStatusHandler ( event : NetStatusEvent ) : void
 		{
-			//log.debug( "Conference::netStatusHandler " + event.info.code );
+			log.viewer( "Conference::netStatusHandler " + event.info.code );
 		}
 		
 		/**
@@ -338,7 +339,7 @@ package org.bigbluebutton.modules.viewers.model.services
 		 */		
 		private function asyncErrorHandler ( event : AsyncErrorEvent ) : void
 		{
-			//log.debug( "Conference::asyncErrorHandler " + event.error);
+			log.viewer( "Conference::asyncErrorHandler " + event.error);
 		}
 
 		/**
@@ -360,7 +361,7 @@ package org.bigbluebutton.modules.viewers.model.services
 	 	*/
 		public function setUserIdAndRole(id : Number, role : String ) : String
 		{
-			//log.debug( "SOConferenceDelegate::setConnectionId: id=[" + id + "]");
+			log.viewer( "SOConferenceDelegate::setConnectionId: id=[" + id + "]");
 			if( isNaN( id ) ) return "FAILED";
 			
 			_conference.me.userid = id;
