@@ -22,6 +22,7 @@ package org.bigbluebutton.modules.voiceconference.view
 	import flash.events.Event;
 	
 	import org.bigbluebutton.modules.voiceconference.VoiceConferenceFacade;
+	import org.bigbluebutton.modules.voiceconference.control.notifiers.MuteNotifier;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
@@ -39,6 +40,7 @@ package org.bigbluebutton.modules.voiceconference.view
 		public static const UNMUTE_ALL:String = "Unmute All Users";
 		public static const MUTE_ALL:String = "Mute All Users";
 		public static const EJECT_USER:String = "Eject User";
+		public static const MUTE_USER:String = "Mute User";
 		
 		/**
 		 * The default constructor. Assigns this class to a certain GUI component 
@@ -51,6 +53,8 @@ package org.bigbluebutton.modules.voiceconference.view
 			view.addEventListener(UNMUTE_ALL, unmuteAllUsers);
 			view.addEventListener(MUTE_ALL, muteAllUsers);
 			view.addEventListener(EJECT_USER, ejectUser);
+			view.addEventListener(MUTE_USER, muteUser);
+			
 		}
 		
 		/**
@@ -117,6 +121,10 @@ package org.bigbluebutton.modules.voiceconference.view
    		 */   		
    		private function ejectUser(e:Event):void{
    			sendNotification(VoiceConferenceFacade.EJECT_USER_COMMAND, listenersWindow.userid);
+   		}
+   		
+   		private function muteUser(e:Event):void{
+   			sendNotification(VoiceConferenceFacade.MUTE_UNMUTE_USER_COMMAND,new MuteNotifier(listenersWindow.userid, listenersWindow.isMuted));
    		}
 
 	}

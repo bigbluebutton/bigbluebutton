@@ -26,6 +26,7 @@ package org.bigbluebutton.modules.voiceconference.view
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
+	import org.bigbluebutton.modules.log.LogModuleFacade;
 	
 	/**
 	 * This is the mediator class for the MeerMeUserItem GUI component
@@ -38,7 +39,7 @@ package org.bigbluebutton.modules.voiceconference.view
 	{
 		public static const NAME:String = "MeetMeUserItemMediator";
 		public static const MUTE_UNMUTE_USER:String = "Mute-Unmute User";
-		
+		private var log : LogModuleFacade = LogModuleFacade.getInstance("LogModule");
 		/**
 		 * The defualt constructor 
 		 * @param view - The gui component which this class mediates
@@ -48,6 +49,7 @@ package org.bigbluebutton.modules.voiceconference.view
 		{
 			super(NAME, view);
 			view.addEventListener(MUTE_UNMUTE_USER, muteUnmuteUser);
+			log.voice("this is in MeetMeUserItemMediator's constructor: adding MUTE_UNMUTE_USER event listener");
 		}
 		
 		/**
@@ -92,11 +94,12 @@ package org.bigbluebutton.modules.voiceconference.view
 		 */		
 		private function muteUnmuteUser(e:Event) : void
    		{
-   			if (! meetMeUserItem.isModerator) return;
-   			
+   			//if (meetMeUserItem. == true) 
+   			//{
    			sendNotification(VoiceConferenceFacade.MUTE_EVENT, new MuteNotifier(meetMeUserItem.data.userid, !meetMeUserItem.data.isMuted));
-   			
-   			//log.debug("MeetMeUserItem::muteUnmuteUser : [" + meetMeUserItem.data.userid + "," + !meetMeUserItem.data.isMuted + "]");
+   			log.voice("MeetMeUserItemMediator::muteUnmuteUser() : [" + meetMeUserItem.data.userid + "," + !meetMeUserItem.data.isMuted + "]");
+   			//}
+   			//else return;
    		}
    		
    		/**

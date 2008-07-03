@@ -6,6 +6,7 @@
    		import org.bigbluebutton.common.Images;
    		import org.bigbluebutton.modules.voiceconference.VoiceConferenceFacade;
    		import mx.controls.Image;
+   		import org.bigbluebutton.modules.voiceconference.view.ListenersWindowMediator;
  
 
 
@@ -16,12 +17,14 @@
 	    import mx.controls.Label;
 	    import mx.collections.ArrayCollection;
 	    import mx.controls.TileList;
+	    import org.bigbluebutton.modules.log.LogModuleFacade;
 			
 		//private var confModel:ConferenceFacade = ConferenceFacade.getInstance();
 			
 		private var userRole : String = Role.MODERATOR;
-					
+		private var log : LogModuleFacade = LogModuleFacade.getInstance("LogModule");			
 		private var model:VoiceConferenceFacade = VoiceConferenceFacade.getInstance();
+		
    		
    		private var images:Images = new Images();
    		
@@ -30,22 +33,28 @@
    		[Bindable] private var ejectIcon : Object = images.eject_user;  		  		
    		[Bindable] private var statusTooltip : String = "";
    		[Bindable] private var ejectTooltip : String = "Click to eject user.";   		   		
-   		[Bindable] public var isModerator : Boolean = false;
+   		[Bindable] public var isModerator : Boolean = true;
    		
    		private function initParticipantItem() : void
    		{
    			displayStatusIcon();
    			VoiceConferenceFacade.getInstance().registerMediator(new MeetMeUserItemMediator(this));
+   			log.voice("VoiceConferenceFacade.getInstance().registerMediator(new MeetMeUserItemMediator(this));");
+   			//trace(this.parent.toString());
+   			//trace(this.parentApplication.toString());
+   			//trace(this.parentDocument.userid);
+   			//trace(this.document.toString());
+   			
    		}
    		   		
    		public function displayStatusIcon() : void
    		{
    			if (data.isMuted) {
    				muteIcon = images.sound_mute;
-   				muteImg.toolTip = "Click to unmute user.";
+   				muteImg.toolTip = "Double click to unmute user.";
    			} else {
    				muteIcon = images.sound_none;
-   				muteImg.toolTip = "Click to mute user.";   				
+   				muteImg.toolTip = "Double click to mute user.";   				
     		} 
     		
    			if (data.isTalking) {
@@ -81,12 +90,18 @@
 
 	   	}
 	   	
-
+       public function muteUser():void
+       {
+       		//this.parentDocument.userid = this.data.userid;
+       		//this.parentDocument.isMuted != this.data.isMuted;
+       		dispatchEvent(new Event(MeetMeUserItemMediator.MUTE_UNMUTE_USER));
+       		log.voice("MeetMeUserItem:: doubleClick to mute/unmute");
+       }
 	   
 	
    	]]>
    </mx:Script>
-   		<mx:Image id="muteImg" source="{muteIcon}" click="dispatchEvent(new Event(MeetMeUserItemMediator.MUTE_UNMUTE_USER))"/>
+   		<mx:Image id="muteImg" source="{muteIcon}" doubleClick="muteUser()"/>
 	    <mx:Label id="nameLabel" mouseDown="dragIt(event,data.userid)" useHandCursor="true"
 	    	toolTip="Drag to eject." text="{data.callerName}"/>
 		<mx:Image id="talkImg" source="{talkIcon}" visible="{data.isTalking}" toolTip="Talking"/>

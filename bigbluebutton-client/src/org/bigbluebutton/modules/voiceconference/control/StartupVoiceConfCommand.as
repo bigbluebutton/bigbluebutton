@@ -24,6 +24,8 @@ package org.bigbluebutton.modules.voiceconference.control
 	import org.bigbluebutton.modules.voiceconference.VoiceModuleMediator;
 	import org.bigbluebutton.modules.voiceconference.model.business.NetConnectionDelegate;
 	import org.bigbluebutton.modules.voiceconference.model.business.VoiceConfConnectResponder;
+	import org.bigbluebutton.modules.voiceconference.view.MeetMeUserItem;
+	import org.bigbluebutton.modules.voiceconference.view.MeetMeUserItemMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.command.SimpleCommand;
 	
@@ -47,6 +49,7 @@ package org.bigbluebutton.modules.voiceconference.control
 			
 			facade.registerProxy(new NetConnectionDelegate(VoiceConferenceFacade.getInstance().meetMeRoom.getUri()));
 			facade.registerMediator(new VoiceConfConnectResponder(VoiceConferenceFacade.getInstance().meetMeRoom));
+			//facade.registerMediator(new MeetMeUserItemMediator(new MeetMeUserItem()));
 		}
 	}
 }

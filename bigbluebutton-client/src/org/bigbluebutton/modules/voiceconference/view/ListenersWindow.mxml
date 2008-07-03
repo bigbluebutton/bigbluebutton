@@ -20,6 +20,7 @@
 			
 			public static const TITLE:String = "Listeners";	
 			private var images:Images = new Images();
+			//private var meetme:MeetMeUserItem = new MeetMeUserItem();
 			
 			[Bindable] public var dropTargetIcon : Object = images.door_in;
 			
@@ -28,6 +29,7 @@
 			[Bindable] private var role:String;
 			
 			public var userid:Number;
+			public var isMuted:Boolean;
 			
 			public function init():void{
 				var conf:Conference = ViewersFacade.getInstance().retrieveMediator(Conference.NAME) as Conference;
@@ -50,6 +52,11 @@
 				dispatchEvent(new Event(ListenersWindowMediator.EJECT_USER));
 	   		
 	   		}
+	   		//public function muteUser(event:MouseEvent):void
+	   		//{
+	   		//	userid = Number(event.currentTarget.userid);
+	   		//	dispatchEvent(new Event(ListenersWindowMediator.MUTE_USER));
+	   		//}
 	   		
 		]]>
 	</mx:Script>
