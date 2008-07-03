@@ -22,11 +22,11 @@ package org.bigbluebutton.modules.presentation.view
 	import flash.events.Event;
 	import flash.geom.Point;
 	
-	import mx.controls.Alert;
 	import mx.managers.PopUpManager;
 	
 	import org.bigbluebutton.modules.presentation.PresentationFacade;
 	import org.bigbluebutton.modules.presentation.model.PresentationApplication;
+	import org.bigbluebutton.modules.presentation.model.business.PresentationDelegate;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
@@ -139,6 +139,7 @@ package org.bigbluebutton.modules.presentation.view
 			if (!presentationWindow.model.presentation.isSharing){
 				sendNotification(PresentationApplication.SHARE, true);
 				presentationWindow.uploadPres.enabled = false;	
+				//proxy.gotoPage(1);
 			}		
 		}
 		
@@ -171,6 +172,10 @@ package org.bigbluebutton.modules.presentation.view
             presentationWindow.uploadWindow.y = point1.y + 25;
             
             sendNotification(PresentationFacade.STARTUPLOADWINDOW, presentationWindow.uploadWindow);
+        }
+        
+        public function get proxy():PresentationDelegate{
+        	return facade.retrieveProxy(PresentationDelegate.ID) as PresentationDelegate;
         }	
 
 	}

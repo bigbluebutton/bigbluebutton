@@ -57,7 +57,7 @@ package org.bigbluebutton.modules.video
 		public function VideoModule(user:User = null)
 		{
 			super(NAME);
-			facade = VideoFacade.getInstance();
+			
 			if (user == null){
 				this.streamName = "stream" + String( Math.floor( new Date().getTime() ) );
 				this.type = RECORDER;
@@ -66,6 +66,8 @@ package org.bigbluebutton.modules.video
 				this.streamName = user.streamName;
 				this.type = VIEWER;
 			}
+			
+			facade = VideoFacade.getInstance(this.streamName);
 			this.preferedX = Capabilities.screenResolutionX - 400;
 			this.preferedY = 400;
 			
@@ -87,6 +89,7 @@ package org.bigbluebutton.modules.video
 		}
 		
 		override public function logout():void{
+			facade.sendNotification(VideoFacade.CLOSE_ALL);
 			facade.removeCore(VideoFacade.NAME);
 		}
 

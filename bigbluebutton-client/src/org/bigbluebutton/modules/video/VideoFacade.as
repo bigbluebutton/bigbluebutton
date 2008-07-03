@@ -32,6 +32,7 @@ package org.bigbluebutton.modules.video
 	{
 		public static const NAME:String = "VideoFacade";
 		public static const CLOSE_RECORDING:String = "Close MyCameraWindow";
+		public static const CLOSE_ALL:String = "Close Video Module";
 		
 		public static const STARTUP:String = "StartupVideo";
 		public static const SETUP_DEVICES_COMMAND : String = 			"PUBLISHER_SETUP_DEVICES_COMMAND";		
@@ -62,9 +63,9 @@ package org.bigbluebutton.modules.video
 		 * constructors. Use the getInstance() method instead. 
 		 * 
 		 */		
-		public function VideoFacade()
+		public function VideoFacade(name:String)
 		{
-			super(NAME);
+			super(name);
 		}
 		
 		/**
@@ -72,9 +73,9 @@ package org.bigbluebutton.modules.video
 		 * @return 
 		 * 
 		 */		
-		public static function getInstance():VideoFacade{
-			if (instanceMap[NAME] == null) instanceMap[NAME] = new VideoFacade();
-			return instanceMap[NAME] as VideoFacade;
+		public static function getInstance(name:String):VideoFacade{
+			if (instanceMap[name] == null) instanceMap[name] = new VideoFacade(name);
+			return instanceMap[name] as VideoFacade;
 		}
 		
 		/**

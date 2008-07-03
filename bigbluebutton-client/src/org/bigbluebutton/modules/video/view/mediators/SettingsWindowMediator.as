@@ -3,6 +3,7 @@ package org.bigbluebutton.modules.video.view.mediators
 	import flash.events.Event;
 	
 	import org.bigbluebutton.modules.video.VideoFacade;
+	import org.bigbluebutton.modules.video.model.business.PublisherModel;
 	import org.bigbluebutton.modules.video.view.SettingsWindow;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
@@ -33,6 +34,8 @@ package org.bigbluebutton.modules.video.view.mediators
 		
 		private function setupDevices(e:Event):void{
 			sendNotification(VideoFacade.SETUP_DEVICES_COMMAND);
+			var model:PublisherModel = facade.retrieveProxy(PublisherModel.NAME) as PublisherModel;
+			window.camera_cb.dataProvider = model.cameraNames;
 		}
 
 	}

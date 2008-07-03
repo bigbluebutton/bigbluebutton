@@ -6,6 +6,7 @@
 				  
 	<mx:Script>
 		<![CDATA[
+			import org.puremvc.as3.multicore.patterns.mediator.Mediator;
 			import org.bigbluebutton.modules.video.model.business.PublisherApplicationMediator;
 			import org.bigbluebutton.modules.video.view.mediators.SettingsWindowMediator;
 			import org.bigbluebutton.modules.video.model.business.PublisherModel;
@@ -13,13 +14,12 @@
 			import org.bigbluebutton.modules.video.model.vo.BroadcastMedia;
 			import mx.managers.PopUpManager;
 			
-			[Bindable] private var model : PublisherModel 
-				= VideoFacade.getInstance().retrieveProxy(PublisherModel.NAME) as PublisherModel;
+			[Bindable] public var model : PublisherModel 
+
 			[Bindable] public var media:BroadcastMedia;
 			
 			private function getDevices():void{
-				var mediator:PublisherApplicationMediator = VideoFacade.getInstance().retrieveMediator(PublisherApplicationMediator.NAME) as PublisherApplicationMediator;
-				mediator.setupDevices();
+				dispatchEvent(new Event(SettingsWindowMediator.SETUP));
 			}
 			
 			private function closeSettingsWindow() : void

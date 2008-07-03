@@ -2,8 +2,6 @@ package org.bigbluebutton.modules.video.view.mediators
 {
 	import flash.events.Event;
 	
-	import mx.controls.Alert;
-	
 	import org.bigbluebutton.modules.video.VideoFacade;
 	import org.bigbluebutton.modules.video.control.notifiers.PlayStreamNotifier;
 	import org.bigbluebutton.modules.video.model.vo.PlaybackState;
@@ -26,11 +24,17 @@ package org.bigbluebutton.modules.video.view.mediators
 		}
 		
 		override public function listNotificationInterests():Array{ 
-			return [];
+			return [
+					VideoFacade.CLOSE_ALL
+					];
 		}
 		
 		override public function handleNotification(notification:INotification):void{
-			
+			switch(notification.getName()){
+				case VideoFacade.CLOSE_ALL:
+					videoWindow.close();
+					break;
+			}
 		}
 		
 		public function get videoWindow():ViewCameraWindow{

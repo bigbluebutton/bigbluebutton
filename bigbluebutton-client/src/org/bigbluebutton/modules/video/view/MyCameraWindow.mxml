@@ -26,12 +26,8 @@
             import mx.containers.TitleWindow;
             import flash.geom.Point;			
 			
-			private var publisherApp:PublisherApplicationMediator 
-				= VideoFacade.getInstance().retrieveMediator(PublisherApplicationMediator.NAME) 
-										as PublisherApplicationMediator
-			
 			private var images:Images = new Images();
-			private var settingsWindow : SettingsWindow;
+			public var settingsWindow : SettingsWindow;
 			
 			[Bindable]public var media:BroadcastMedia;
 		    [Bindable] private var serverLogo : Class = images.red5_img;
@@ -42,24 +38,15 @@
 			
             public override function close(event:MouseEvent = null):void 
             { 
-                 onCloseClicked(); 
+                 dispatchEvent(new Event(MyCameraWindowMediator.CLOSE_CLICKED));
                  super.close(event); 
             } 
-                         			
-			private function onCloseClicked() : void
-			{
-				publisherApp.stopMicrophone(media.streamName);
-				publisherApp.stopCamera(media.streamName);
-				
-				if (media.broadcasting) {
-					publisherApp.stopBroadcasting(media.streamName);
-				}									
-			}
 		
 			private function openSettingsWindow() : void
 			{
                 settingsWindow = SettingsWindow(PopUpManager.createPopUp( this, SettingsWindow, false));				
 				settingsWindow.media = media;
+				dispatchEvent(new Event(MyCameraWindowMediator.OPEN_SETTINGS));
 				
 				var point1:Point = new Point();
                 // Calculate position of TitleWindow in Application's coordinates. 

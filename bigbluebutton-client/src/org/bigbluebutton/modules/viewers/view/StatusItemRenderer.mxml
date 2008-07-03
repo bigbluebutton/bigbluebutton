@@ -4,6 +4,8 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.viewers.ViewersFacade;
+			import org.bigbluebutton.modules.viewers.model.business.Conference;
 			import org.bigbluebutton.modules.viewers.model.vo.User;
 			import org.bigbluebutton.main.view.components.MainApplicationShell;
 			import org.bigbluebutton.main.MainApplicationFacade;
@@ -17,7 +19,11 @@
 		
 		private function viewCamera() : void
    		{
-   			MainApplicationFacade.getInstance(MainApplicationShell.NAME).openViewCamera(data as User);
+   			var conf:Conference = ViewersFacade.getInstance().retrieveMediator(Conference.NAME) as Conference;
+   			var usr:User = data as User;
+   			if (usr.name != conf.me.name){
+   				MainApplicationFacade.getInstance(MainApplicationShell.NAME).openViewCamera(data as User);
+   			}
    		}			
 		
    		[Bindable] private var webcamIcon : Object = images.webcam;
