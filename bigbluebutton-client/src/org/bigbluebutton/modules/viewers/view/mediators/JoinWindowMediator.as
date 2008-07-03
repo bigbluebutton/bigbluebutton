@@ -62,7 +62,9 @@ package org.bigbluebutton.modules.viewers.view.mediators
 		 * 
 		 */		
 		override public function listNotificationInterests():Array{
-			return [];
+			return [
+					ViewersFacade.CONNECT_UNSUCCESSFUL
+					];
 		}
 		
 		/**
@@ -71,7 +73,11 @@ package org.bigbluebutton.modules.viewers.view.mediators
 		 * 
 		 */		
 		override public function handleNotification(notification:INotification):void{
-			
+			switch(notification.getName()){
+				case ViewersFacade.CONNECT_UNSUCCESSFUL:
+					v.lblNote.text = "Login Failed";
+					break;
+			}
 		}
 		
 		protected function keyPressed(event:KeyboardEvent):void{
@@ -98,8 +104,10 @@ package org.bigbluebutton.modules.viewers.view.mediators
 		    var password : String = v.passwdField.text
 		    
 		    if ((name.length < 1) || (room.length < 1) || (password.length < 1)) {
+		    	v.lblNote.text = "Please enter all the information";
 		    	return;
 		    } 
+			v.lblNote.text = "Attempting to Login";
 			
 			var completeHost:String = "rtmp://" + Constants.red5Host + "/conference/" + room;
 			sendNotification(ViewersFacade.DEBUG, "connecting: " + completeHost);

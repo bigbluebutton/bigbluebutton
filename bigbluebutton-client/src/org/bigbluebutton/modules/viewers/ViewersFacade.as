@@ -39,6 +39,7 @@ package org.bigbluebutton.modules.viewers
 		public static const CHANGE_STATUS:String = "Change Status Event";
 		public static const START_LOGIN_WINDOW:String = "Start Login Window";
 		public static const CONNECT_SUCCESS:String = "Connection Successful";
+		public static const CONNECT_UNSUCCESSFUL:String = "Connection Unsuccessful";
 		
 		public static const DEBUG:String = "Viewer Debug";
 		
