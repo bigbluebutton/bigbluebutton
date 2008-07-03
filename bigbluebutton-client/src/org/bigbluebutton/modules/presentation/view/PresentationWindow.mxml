@@ -167,6 +167,7 @@
 					this.thumbnailView.myLoader.width = Capabilities.screenResolutionY - 200;
 				} else {
 					/* Do something specific here if we switched to normal mode. */
+					this.maximizeRestoreBtn.visible = true;
 					this.width = 480;
 					this.height = 378;
 					this.x = Capabilities.screenResolutionX/2 - 300;
@@ -191,16 +192,16 @@
     	  <!--<mx:Button id="sharePres"  visible="false" label=""
     	   			width="130" height="20" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0"
     	   			toolTip="{sharingTooltip}" click="dispatchEvent(new Event(PresentationPanelMediator.SHARE))"/> -->
-    	  <!--<mx:Button id="fullScreen" label="Full Screen" click="toggleFullScreen()" />-->
     	  <!--<mx:Spacer width="100"/> -->
     	  <mx:Label id="presenterLbl" text="Presenter:" />
     	  <mx:Button id="presenterName" icon="{presenterIcon}" toolTip="Presenter" label="Presenter's Name"
                  labelPlacement="right" color="#993300" 
                  dragEnter="dragEnterHandler(event)" dragDrop="dragDropHandler(event)"/>
-    	   <!--<mx:Spacer width="100%"/>-->						
+    	  <mx:Spacer width="100%"/>					
     	 <!-- <mx:Button id="connect"  icon="{connectIcon}"
     	   			width="20" height="20" enabled="false"
     	   			toolTip="{connectTooltip}" click="dispatchEvent(new Event(PresentationPanelMediator.CONNECT))"/>-->
+    	  <mx:Button id="fullScreen" label="Full Screen" click="toggleFullScreen()" />
     </mx:ControlBar>
 			
 </pres:MDIWindow>

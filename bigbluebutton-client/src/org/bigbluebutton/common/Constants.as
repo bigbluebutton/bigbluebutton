@@ -19,7 +19,7 @@
 */
 package org.bigbluebutton.common
 {
-	import mx.core.Application;
+	import flash.external.ExternalInterface;
 	
 	/**
 	 * Holds various constants
@@ -34,8 +34,11 @@ package org.bigbluebutton.common
 		public static const DEMO_PRESENTATION_HOST:String = "present.carleton.ca";		
 		public static const KIRUS_COMP:String = "134.117.58.103";
 		
-		public static const HTML_RED5_HOST:String = mx.core.Application.application.parameters.red5Host;
-		public static const HTML_PRES_HOST:String = mx.core.Application.application.parameters.presentationHost;
+		//public static const HTML_RED5_HOST:String = mx.core.Application.application.parameters.red5Host;
+		//public static const HTML_PRES_HOST:String = mx.core.Application.application.parameters.presentationHost;
+		
+		public static const HTML_RED5_HOST:String = ExternalInterface.call("getRed5");
+		public static const HTML_PRES_HOST:String = ExternalInterface.call("getPresentationHost");
 		
 		public static const NEW_RELATIVE_FILE_UPLOAD:String = "/bigbluebutton/file";
 		//The old relative file upload is used for testing the new client on the old server 
