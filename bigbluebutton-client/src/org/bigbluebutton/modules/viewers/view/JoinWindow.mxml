@@ -9,7 +9,13 @@
 			import mx.managers.PopUpManager;
 			
 			public static const TITLE:String = "Join Conference";
-			public var host : String = "localhost";		
+			public var host : String = "localhost";
+			public var message:Boolean;
+			public function showError():void
+			{
+				this.loginMessage.visible = true;
+			}
+					
 		]]>
 	</mx:Script>
 		<mx:Label x="41" y="52" text="Name" id="nameLabel"/>
@@ -21,5 +27,8 @@
 		<mx:Button label="Join" x="243" y="169" click="dispatchEvent(new Event(JoinWindowMediator.LOGIN))" tabIndex="4"/>
 		<mx:Label x="21" y="10" text="Complete form to join conference." width="256" id="messageLbl"/>
 		<mx:Label x="22" y="208" width="270" id="lblNote"/>
+		<mx:Label id="loginMessage" x="22" y="200" 
+			      text="Either the password or room number is incorrect" 
+			      visible="false" color="red"/>
 
 </viewer:MDIWindow>
