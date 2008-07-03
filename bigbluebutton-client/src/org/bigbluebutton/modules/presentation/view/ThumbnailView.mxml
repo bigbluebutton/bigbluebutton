@@ -61,7 +61,7 @@
 			var wid:Number = myLoader.width + e.delta * 10;
 			var hei:Number = myLoader.height + e.delta *10;
 			
-			if (hei >= this.height){
+			if (hei >= this.height || hei >= myLoader.height){
 				myLoader.width += e.delta * 10;
 				myLoader.height += e.delta * 10;
 			} 
