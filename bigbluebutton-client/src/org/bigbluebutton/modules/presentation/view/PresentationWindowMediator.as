@@ -199,6 +199,7 @@ package org.bigbluebutton.modules.presentation.view
             presentationWindow.uploadWindow.x = point1.x + 25;
             presentationWindow.uploadWindow.y = point1.y + 25;
             
+            unsharePresentation(new Event("unshare"));
             sendNotification(PresentationFacade.STARTUPLOADWINDOW, presentationWindow.uploadWindow);
         }
         
