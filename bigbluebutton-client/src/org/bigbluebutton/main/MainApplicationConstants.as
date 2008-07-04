@@ -33,5 +33,6 @@ package org.bigbluebutton.main
 		public static const REMOVE_WINDOW_MSG:String = 'REMOVE_WINDOW_MSG';
 		
 		public static const LOGIN_COMPLETE:String = "LOGIN_COMPLETE";
+		public static const CONNECTION_LOST:String = "CONNECTION_LOST"
 	}
 }

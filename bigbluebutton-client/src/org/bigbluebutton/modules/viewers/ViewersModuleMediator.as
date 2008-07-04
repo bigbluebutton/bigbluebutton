@@ -153,6 +153,16 @@ package org.bigbluebutton.modules.viewers
    			outpipe.write(msg);
 		}
 		
+		private function sendLogoutCommand(reason:String):void{
+			var msg:IPipeMessage = new Message(Message.NORMAL);
+			msg.setHeader({MSG:MainApplicationConstants.CONNECTION_LOST, SRC: ViewersConstants.FROM_VIEWERS_MODULE,
+   						TO: MainApplicationConstants.TO_MAIN });
+   			msg.setPriority(Message.PRIORITY_HIGH);
+   			
+   			msg.setBody(reason);
+   			outpipe.write(msg);
+		}
+		
 		override public function initializeNotifier(key:String):void{
 			super.initializeNotifier(key);
 			sendNotification(ViewersFacade.START_LOGIN_WINDOW, joinWindow);
@@ -166,7 +176,8 @@ package org.bigbluebutton.modules.viewers
 		override public function listNotificationInterests():Array{
 			return [
 					ViewersFacade.CONNECT_SUCCESS,
-					ViewersFacade.DEBUG
+					ViewersFacade.DEBUG,
+					ViewersFacade.SERVER_DISCONNECTED
 					];
 		}
 		
@@ -184,6 +195,9 @@ package org.bigbluebutton.modules.viewers
 					break;
 				case ViewersFacade.DEBUG:
 					log.debug(notification.getBody() as String);
+					break;
+				case ViewersFacade.SERVER_DISCONNECTED:
+					sendLogoutCommand(notification.getBody() as String);
 					break;
 			}
 		}

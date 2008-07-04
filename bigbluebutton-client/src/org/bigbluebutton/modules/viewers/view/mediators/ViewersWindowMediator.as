@@ -55,7 +55,9 @@ package org.bigbluebutton.modules.viewers.view.mediators
 		 * 
 		 */		
 		override public function listNotificationInterests():Array{
-			return [];
+			return [
+					ViewersFacade.CONNECT_UNSUCCESSFUL
+					];
 		}
 		
 		/**
@@ -64,7 +66,11 @@ package org.bigbluebutton.modules.viewers.view.mediators
 		 * 
 		 */		
 		override public function handleNotification(notification:INotification):void{
-			
+			switch(notification.getName()){
+				case ViewersFacade.CONNECT_UNSUCCESSFUL:
+					sendNotification(ViewersFacade.SERVER_DISCONNECTED, notification.getBody() as String)
+					break;
+			}
 		}
 		
 		/**

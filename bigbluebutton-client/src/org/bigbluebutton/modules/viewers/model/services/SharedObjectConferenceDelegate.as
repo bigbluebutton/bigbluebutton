@@ -144,7 +144,7 @@ package org.bigbluebutton.modules.viewers.model.services
 		{
 			_conference.connected = false;
 			_conference.connectFailReason = reason;
-			sendNotification(ViewersFacade.CONNECT_UNSUCCESSFUL);
+			sendNotification(ViewersFacade.CONNECT_UNSUCCESSFUL, reason);
 		}
 		
 		public function connected() : void

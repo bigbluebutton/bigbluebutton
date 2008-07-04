@@ -34,7 +34,9 @@ package org.bigbluebutton.main.view
 	import org.bigbluebutton.modules.log.LogModuleFacade;
 	import org.bigbluebutton.modules.presentation.PresentationModule;
 	import org.bigbluebutton.modules.video.VideoModule;
+	import org.bigbluebutton.modules.viewers.ViewersFacade;
 	import org.bigbluebutton.modules.viewers.ViewersModule;
+	import org.bigbluebutton.modules.viewers.model.services.SharedObjectConferenceDelegate;
 	import org.bigbluebutton.modules.viewers.model.vo.User;
 	import org.bigbluebutton.modules.voiceconference.VoiceModule;
 	import org.puremvc.as3.multicore.interfaces.INotification;
@@ -83,7 +85,7 @@ package org.bigbluebutton.main.view
 			router = new Router(viewComponent);
 			///viewComponent.debugLog.text = "Log Module inited 1";
 			viewComponent.addEventListener(OPEN_LOG_MODULE , showLogWindow);
-			viewComponent.addEventListener(LOGOUT, logout);
+			viewComponent.addEventListener(LOGOUT, sendLogout);
 			viewComponent.addEventListener(START_WEBCAM, startWebcam);
 			inpipe = new InputPipe(MainApplicationConstants.TO_MAIN);
 			outpipe = new OutputPipe(MainApplicationConstants.FROM_MAIN);
@@ -156,7 +158,14 @@ package org.bigbluebutton.main.view
 			module.acceptRouter(router, mshell);
 		}
 		
-		private function logout(e:Event):void{
+		private function sendLogout(e:Event):void{
+			var delegate:SharedObjectConferenceDelegate =
+				ViewersFacade.getInstance().retrieveProxy(SharedObjectConferenceDelegate.NAME) 
+					as SharedObjectConferenceDelegate;
+			delegate.leave();
+		}
+		
+		private function logout():void{
 			shell.mdiCanvas.windowManager.removeAll();
 			
 			var c:Number;
@@ -215,7 +224,11 @@ package org.bigbluebutton.main.view
 					runPresentationModule();
 					runVoiceModule();
 					runChatModule();
-					break;				
+					break;	
+				case MainApplicationConstants.CONNECTION_LOST:
+					logout();
+					//Alert.show(message.getBody() as String);
+					break;			
 			}
 		}
 		/**

@@ -90,7 +90,7 @@ package org.bigbluebutton.modules.video
 		
 		override public function logout():void{
 			facade.sendNotification(VideoFacade.CLOSE_ALL);
-			facade.removeCore(VideoFacade.NAME);
+			facade.removeCore(this.streamName);
 		}
 
 	}
