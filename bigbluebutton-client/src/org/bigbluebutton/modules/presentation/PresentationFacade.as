@@ -49,6 +49,7 @@ package org.bigbluebutton.modules.presentation
 		public static const ZOOM_SLIDE:String = "Zoom Slide";
 		public static const MOVE_SLIDE:String = "Move Slide";
 		public static const MAXIMIZE_PRESENTATION:String = "Maximize Presentation";
+		public static const RESTORE_PRESENTATION:String = "Restore Presentation";
 		
 		// List of Commands
 		public static const GOTO_PAGE_COMMAND : String = "PRESENTATION_GOTO_PAGE_COMMAND";	

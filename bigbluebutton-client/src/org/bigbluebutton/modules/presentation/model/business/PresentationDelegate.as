@@ -203,6 +203,14 @@ package org.bigbluebutton.modules.presentation.model.business
 			sendNotification(PresentationFacade.MAXIMIZE_PRESENTATION);
 		}
 		
+		public function restore():void{
+			presentationSO.send("restorePresentation");
+		}
+		
+		public function restorePresentation():void{
+			sendNotification(PresentationFacade.RESTORE_PRESENTATION);
+		}
+		
 		/**
 		 * Send an event to the server to clear the presentation 
 		 * 

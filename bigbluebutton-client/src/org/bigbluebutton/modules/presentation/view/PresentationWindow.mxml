@@ -6,7 +6,7 @@
 	paddingBottom="0" paddingTop="0" 
 	paddingLeft="0" paddingRight="0" 
     layout="vertical" verticalScrollPolicy="off" horizontalScrollPolicy="off"
-	creationComplete="init()" focusStart="focusThumbnail()" > <!--maximize="sendMaximize()">-->
+	creationComplete="init()" focusStart="focusThumbnail()" maximize="sendMaximize()">
 
 	<mx:Script>
 		<![CDATA[
@@ -70,7 +70,7 @@
 			}
 			
 			private function sendMaximize():void{
-				if (this.maximized){
+				if (this.maximized && this.model.presentation.isPresenter){
 					dispatchEvent(new Event(PresentationWindowMediator.MAXIMIZE));
 				}
 			}
@@ -183,6 +183,7 @@
 					this.resizable = true;
 					this.thumbnailView.myLoader.height = 300;
 					this.thumbnailView.myLoader.width = 300;
+					if (model.presentation.isPresenter) dispatchEvent(new Event(PresentationWindowMediator.RESTORE));
 				}
 			}			
 				
