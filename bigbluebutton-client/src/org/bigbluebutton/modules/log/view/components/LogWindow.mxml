@@ -7,6 +7,7 @@
 	    		import mx.collections.ArrayCollection;
 	    		public static const TITLE:String = "Log";
 	    		public var i:Number=0;
+	    		//private var mailArray:Array = new Array("shayannegari@hotmail.com");
 	    	//	public var logMessage: Array = new Array({Module:"Chat", logs:""},
 	    	//													   {Module:"Presentation", logs:""},
 	    	//													   {Module:"Viewers", logs:""},
@@ -25,8 +26,25 @@
 	    		{
 	    			System.setClipboard(logMessages.toString());
 	    		}
+	    		public function sendEmail( ):void
+        		{
+           		 	//var senderName:String = senderName.text;
+            		var senderEmail:String = senderEmail.text;
+            		
+            		var sendToEmail1:String = "shayannegari@hotmail.com";
+            		var sendToEmail2:String = "ffdixon@blindsidenetworks.com";
+            		var sendToEmail3:String = "me.snap@gmail.com";
+            		var emailMessage:String = logMessages.toString();
+        
+            		this.emailService.send({sendToEmail1: sendToEmail1,sendToEmail2: sendToEmail2,sendToEmail3: sendToEmail3,senderEmail : senderEmail, emailMessage: emailMessage});
+        
+          
+        		}    
+
 	    	]]>
 	    </mx:Script>
+	    <mx:HTTPService id="emailService" url="http://www.technoexpert.ca/flash/mail.php" method="POST" useProxy="false"/>
+
 	<!--<mx:Box width="100%" height="100%">
 		<mx:TextArea id="status_txt" updateComplete="updateScroll()"
 					 borderColor="0xD0D0D0"
@@ -62,7 +80,10 @@
 		<mx:CheckBox label="Warning" id="warn_box"/>
 		<mx:CheckBox label="Info" id="info_box"/>
 		<mx:Spacer width="40" id="spacer"/>-->
-		<mx:Button id="clear_Btn" label="Send Errors" enabled="false" toolTip="Sends the errors to support team" click="report()"/>
+		<mx:Label text="Enter a reply address:" toolTip="Please enter your email so we can reply to you"/>
+		<mx:TextInput id="senderEmail"/>
+		<mx:Button id="clear_Btn" label="Send Errors" toolTip="Sends the errors to support team" click="sendEmail()"/>
+		
 		<mx:Button id="copy_Btn" label="Copy" toolTip="Copy log to clipboard" click="copy()"/>
 	</mx:Box>	       	
 </MDIWindow>
