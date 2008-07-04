@@ -88,7 +88,7 @@ package org.bigbluebutton.modules.presentation.view
 			fileUploadWindow.progBarLbl.visible = true;
 			fileUploadWindow.progressBar.visible = true;
 			
-			fileUploadWindow.okCancelBtn.visible = false;
+			//fileUploadWindow.okCancelBtn.visible = false;
 			fileUploadWindow.selectBtn.enabled = false;
 			fileUploadWindow.uploadBtn.enabled = false;
 			fileUploadWindow.fileTxtInput.enabled = false;

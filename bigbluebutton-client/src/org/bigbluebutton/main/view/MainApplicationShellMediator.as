@@ -178,6 +178,7 @@ package org.bigbluebutton.main.view
 			modules = new Array();
 			logModule = new LogModule();
 			addModule(logModule);
+			logModule.mediator.logWindow.visible = false;
 			addModule(new ViewersModule());
 			shell.toolbar.enabled = false;	
 		}
