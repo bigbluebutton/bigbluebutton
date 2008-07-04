@@ -121,6 +121,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		 */		
 		public function leave() : void
 		{
+			givePresenterControl(0, PresentationModel.DEFAULT_PRESENTER);
 			presentationSO.close();
 			connDelegate.disconnect();
 		}

@@ -33,6 +33,7 @@ package org.bigbluebutton.modules.presentation.model
 	public class PresentationModel extends Mediator implements IMediator
 	{
 		public static const NAME:String = "PresentationModel";
+		public static const DEFAULT_PRESENTER:String = "No Presenter";
 		
 		/**
 		 * The userid of this participant.
@@ -60,7 +61,7 @@ package org.bigbluebutton.modules.presentation.model
 			return _isPresenter;
 		}
 		
-		[Bindable] public var presenterName : String = "No presenter";
+		[Bindable] public var presenterName : String = DEFAULT_PRESENTER;
 		
 		// Has this presenter loaded a presentation
 		[Bindable] public var presentationLoaded : Boolean = false;
