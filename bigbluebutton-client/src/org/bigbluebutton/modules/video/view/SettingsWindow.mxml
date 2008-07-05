@@ -21,19 +21,7 @@
 			private function getDevices():void{
 				dispatchEvent(new Event(SettingsWindowMediator.SETUP));
 			}
-			
-			private function closeSettingsWindow() : void
-			{
-				media.video.settings.cameraIndex = camera_cb.selectedIndex;
-	//			media.audio.settings.micIndex = microphone_cb.selectedIndex;
-				
-				PopUpManager.removePopUp(this);
-			}
-	
-			private function cancelSettingsWindow() : void
-			{
-				PopUpManager.removePopUp(this);
-			}
+
 		]]>
 	</mx:Script>
 	
@@ -51,7 +39,7 @@
 	<mx:ControlBar horizontalAlign="center" verticalAlign="middle" x="0" y="106">
 		<mx:Label id="progressLbl" text="" width="100%"/>
 		<mx:Spacer width="100%"/>
-		<mx:Button id="cancelBtn" label="Cancel" click="cancelSettingsWindow()"/>
-		<mx:Button id="oklBtn" label="OK" click="closeSettingsWindow()"/>
+		<mx:Button id="cancelBtn" label="Cancel" click="dispatchEvent(new Event(SettingsWindowMediator.CANCEL_SETTINGS))"/>
+		<mx:Button id="oklBtn" label="OK" click="dispatchEvent(new Event(SettingsWindowMediator.CLOSE_SETTINGS))"/>
 	</mx:ControlBar>	
 </mx:TitleWindow>

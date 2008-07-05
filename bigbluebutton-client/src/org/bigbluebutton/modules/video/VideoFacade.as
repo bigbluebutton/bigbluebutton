@@ -34,6 +34,8 @@ package org.bigbluebutton.modules.video
 		public static const CLOSE_RECORDING:String = "Close MyCameraWindow";
 		public static const CLOSE_ALL:String = "Close Video Module";
 		
+		public static const ENABLE_CAMERA:String = "Enable Camera";
+		
 		public static const STARTUP:String = "StartupVideo";
 		public static const SETUP_DEVICES_COMMAND : String = 			"PUBLISHER_SETUP_DEVICES_COMMAND";		
 		

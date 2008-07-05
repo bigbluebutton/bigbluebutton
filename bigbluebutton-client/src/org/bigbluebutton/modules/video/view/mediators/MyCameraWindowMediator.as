@@ -29,7 +29,8 @@ package org.bigbluebutton.modules.video.view.mediators
 		
 		override public function listNotificationInterests():Array{
 			return [
-					VideoFacade.CLOSE_ALL
+					VideoFacade.CLOSE_ALL,
+					VideoFacade.ENABLE_CAMERA
 					];
 		}
 		
@@ -37,6 +38,9 @@ package org.bigbluebutton.modules.video.view.mediators
 			switch(notification.getName()){
 				case VideoFacade.CLOSE_ALL:
 					cameraWindow.close();
+					break;
+				case VideoFacade.ENABLE_CAMERA:
+					startOrStopDevices(new Event(VideoFacade.ENABLE_CAMERA));
 					break;
 			}
 		}
@@ -48,12 +52,10 @@ package org.bigbluebutton.modules.video.view.mediators
 		private function recordStream(e:Event):void{
 			if ( ! cameraWindow.media.broadcasting ) 
 			{
-				//BlindsideAppLocator.getInstance().publisherApp.startBroadcasting("live", media.streamName);
 				sendNotification(VideoFacade.PUBLISH_STREAM_COMMAND, new PublishNotifier("live", cameraWindow.media.streamName));
 			} 
 			else
 			{
-				//BlindsideAppLocator.getInstance().publisherApp.stopBroadcasting(media.streamName);
 				sendNotification(VideoFacade.UNPUBLISH_STREAM_COMMAND, cameraWindow.media.streamName);
 			}
 		}
