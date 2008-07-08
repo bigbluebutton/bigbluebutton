@@ -43,7 +43,7 @@ public class ChatEventStream extends EventStream {
 	}
 
 	public String getApplication() {
-		return "fitcDemo";
+		return "chatServer";
 	}
 	
 	public void connectionOpened(RTMPConnection conn, RTMP state) {
