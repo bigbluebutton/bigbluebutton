@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<viewer:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:viewer="flexlib.mdi.containers.*">
+
+    <mx:Script>
+        <![CDATA[
+        	import org.bigbluebutton.common.Images;
+        	import org.bigbluebutton.modules.viewers.model.business.Conference;
+        	import org.bigbluebutton.modules.viewers.ViewersFacade;
+        	import org.bigbluebutton.modules.viewers.view.mediators.ViewersWindowMediator;
+        	import mx.collections.ArrayCollection;
+		
+			public static const TITLE:String = "Viewers";
+			
+			[Bindable]
+			public var conference : Conference = 
+					ViewersFacade.getInstance().retrieveMediator(Conference.NAME) as Conference;
+  			
+          	public var images:Images = new Images();
+                      
+   			[Bindable]
+   			public var toggleIcon : Class = images.raisehand;
+   			
+   			[Bindable]
+   			public var toggleTooltip : String = "Click to raise hand.";
+           
+        ]]>
+    </mx:Script>
+
+    <!--mx:TileList id="participantsList" height="100%" width="100%" 
+        	itemRenderer="org.blindsideproject.views.conference.UserItem"
+            maxColumns="1" rowHeight="25" columnWidth="200" dataProvider="{conference.users}">
+    </mx:TileList-->
+    
+    <mx:DataGrid id="viewersGrid" dataProvider="{conference.users}" editable="false" 
+    	dragEnabled="false" width="100%" height="100%">
+    	<mx:columns>
+    		<mx:DataGridColumn dataField="role" headerText="" dataTipField="Role" editable="false" width="20"
+    			itemRenderer="org.bigbluebutton.modules.viewers.view.RoleItemRenderer"/>
+    		<mx:DataGridColumn dataField="name" headerText="Name" editable="true" width="100"
+    			itemRenderer="org.bigbluebutton.modules.viewers.view.NameItemRenderer"/>
+    		<mx:DataGridColumn dataField="status" headerText="Status"
+    			itemRenderer="org.bigbluebutton.modules.viewers.view.StatusItemRenderer"/>
+    	</mx:columns>
+    </mx:DataGrid>
+    
+   <!-- <mx:ControlBar width="100%">
+     	 <mx:Spacer width="100%"/>
+    	 <mx:Button id="raiseHandImage" icon="{toggleIcon}" toggle="true" 
+    	   			width="20" height="20"
+    	   			toolTip="{toggleTooltip}" click="dispatchEvent(new Event(ViewersWindowMediator.CHANGE_STATUS))"/>   			
+    </mx:ControlBar>  -->  
+</viewer:MDIWindow>
