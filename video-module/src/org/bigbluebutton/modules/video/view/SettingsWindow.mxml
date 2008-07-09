@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" title="Settings"
+				  xmlns:view="org.bigbluebutton.modules.video.view.*"
+				  xmlns:settings="org.bigbluebutton.modules.video.view.settings.*"
+				  width="300" height="200" creationComplete="getDevices()">
+				  
+	<mx:Script>
+		<![CDATA[
+			import org.puremvc.as3.multicore.patterns.mediator.Mediator;
+			import org.bigbluebutton.modules.video.model.business.PublisherApplicationMediator;
+			import org.bigbluebutton.modules.video.view.mediators.SettingsWindowMediator;
+			import org.bigbluebutton.modules.video.model.business.PublisherModel;
+			import org.bigbluebutton.modules.video.VideoFacade;
+			import org.bigbluebutton.modules.video.model.vo.BroadcastMedia;
+			import mx.managers.PopUpManager;
+			
+			[Bindable] public var model : PublisherModel 
+
+			[Bindable] public var media:BroadcastMedia;
+			
+			private function getDevices():void{
+				dispatchEvent(new Event(SettingsWindowMediator.SETUP));
+			}
+
+		]]>
+	</mx:Script>
+	
+	<mx:VBox id="video" width="100%" height="100%" textIndent="3">	
+		<mx:ComboBox id="camera_cb" width="175" rowCount="7" focusEnabled="false"
+						 prompt="Select video device" toolTip="Available video devices"
+						 dataProvider="{ model.cameraNames }"
+						 selectedIndex="{ media.video.settings.cameraIndex }"/>			 
+		<!--mx:ComboBox id="microphone_cb" width="175" focusEnabled="false" rowCount="7"
+						 toolTip="Available audio devices" prompt="Select audio device"
+						 dataProvider="{ model.microphoneNames }"
+						 selectedIndex="{ media.audio.settings.micIndex }"/-->	 
+		<mx:Label text="Choose your camera."/>
+	</mx:VBox>
+	<mx:ControlBar horizontalAlign="center" verticalAlign="middle" x="0" y="106">
+		<mx:Label id="progressLbl" text="" width="100%"/>
+		<mx:Spacer width="100%"/>
+		<mx:Button id="cancelBtn" label="Cancel" click="dispatchEvent(new Event(SettingsWindowMediator.CANCEL_SETTINGS))"/>
+		<mx:Button id="oklBtn" label="OK" click="dispatchEvent(new Event(SettingsWindowMediator.CLOSE_SETTINGS))"/>
+	</mx:ControlBar>	
+</mx:TitleWindow>
