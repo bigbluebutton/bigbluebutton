@@ -100,6 +100,7 @@ package org.bigbluebutton.main.view
 			
 			log.debug("red5:" + Constants.HTML_RED5_HOST);
 			log.debug("present:" + Constants.HTML_PRES_HOST);
+			log.debug("url:" + Constants.TEST_URL);
 			
 			addModule(new ViewersModule());
 		

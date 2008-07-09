@@ -50,6 +50,8 @@ package org.bigbluebutton.common
 		public static var presentationHost:String = HTML_PRES_HOST;
 		public static var relativeFileUpload:String = NEW_RELATIVE_FILE_UPLOAD;
 		
+		public static const TEST_URL:String = testURL();
+		
 		/**
 		 * If the client is being run from a server, the URLs will be retrieved from the index.template.html
 		 * file. If we're running the client from an IDE, it will connect to the Carleton demo server.
@@ -57,12 +59,15 @@ package org.bigbluebutton.common
 		 * 
 		 */		
 		public static function setHost():void{
-			
-			//red5Host = DEMO_RED5_HOST;
-			//presentationHost = DEMO_PRESENTATION_HOST;
 			if (HTML_RED5_HOST == null) red5Host = DEMO_RED5_HOST;
 			if (HTML_PRES_HOST == null) presentationHost = DEMO_PRESENTATION_HOST;
 
+		}
+		
+		public static function testURL():String{
+			var url:String = ExternalInterface.call("testURL");
+			
+			return url;
 		}
 
 	}
