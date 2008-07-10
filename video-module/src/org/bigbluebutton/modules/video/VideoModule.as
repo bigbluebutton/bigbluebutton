@@ -71,6 +71,7 @@ package org.bigbluebutton.modules.video
 			this.preferedX = Capabilities.screenResolutionX - 400;
 			this.preferedY = 400;
 			this.startTime = NAME;
+			this.addButton = true;
 			
 		}
 		

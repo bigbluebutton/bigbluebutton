@@ -9,7 +9,7 @@
 			public function addPresentation():void{
 				var facade:MainApplicationFacade = 
 						MainApplicationFacade.getInstance(MainApplicationShell.NAME);
-				facade.addModule(new  VideoModule(), true);
+				facade.addModule(new VideoModule());
 			}
 			
 		]]>
