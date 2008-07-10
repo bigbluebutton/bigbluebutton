@@ -23,7 +23,6 @@ package org.bigbluebutton.main
 	
 	import org.bigbluebutton.common.BigBlueButtonModule;
 	import org.bigbluebutton.main.controller.StartupCommand;
-	import org.bigbluebutton.main.controller.notifiers.NewModuleNotifier;
 	import org.bigbluebutton.main.view.components.MainApplicationShell;
 	import org.bigbluebutton.modules.viewers.ViewersFacade;
 	import org.bigbluebutton.modules.viewers.model.business.Conference;
@@ -44,7 +43,7 @@ package org.bigbluebutton.main
 		public static const OPEN_CAMERA:String = "open_camera_window";
 		
 		public static const ADD_MODULE:String = "Add New Module";
-				
+		
 		public function MainApplicationFacade(key:String)
 		{
 			super(key);
@@ -117,8 +116,14 @@ package org.bigbluebutton.main
         	return conf;
         }
         
-        public function addModule(module:BigBlueButtonModule, addButton:Boolean = false):void{
-        	sendNotification(ADD_MODULE, new NewModuleNotifier(module, addButton));
+        /**
+         * Adds a module to BigBlueButton 
+         * @param module
+         * @param addButton
+         * 
+         */        
+        public function addModule(module:BigBlueButtonModule):void{
+        	sendNotification(ADD_MODULE, module);
         }
 	}
 }

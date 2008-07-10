@@ -31,7 +31,6 @@ package org.bigbluebutton.main.view
 	import org.bigbluebutton.common.Router;
 	import org.bigbluebutton.main.MainApplicationConstants;
 	import org.bigbluebutton.main.MainApplicationFacade;
-	import org.bigbluebutton.main.controller.notifiers.NewModuleNotifier;
 	import org.bigbluebutton.main.view.components.MainApplicationShell;
 	import org.bigbluebutton.modules.log.LogModule;
 	import org.bigbluebutton.modules.log.LogModuleFacade;
@@ -263,9 +262,9 @@ package org.bigbluebutton.main.view
 		override public function handleNotification(notification:INotification):void{
 			switch(notification.getName()){
 				case MainApplicationFacade.ADD_MODULE:
-					var moduleNote:NewModuleNotifier = notification.getBody() as NewModuleNotifier;
-					addModule(moduleNote.module);
-					if (moduleNote.addButton) addButton(moduleNote.module);
+					var moduleNote:BigBlueButtonModule = notification.getBody() as BigBlueButtonModule;
+					addModule(moduleNote);
+					if (moduleNote.addButton) addButton(moduleNote);
 					break;
 				case MainApplicationFacade.OPEN_CAMERA:
 					//viewCamera(notification.getBody() as User);

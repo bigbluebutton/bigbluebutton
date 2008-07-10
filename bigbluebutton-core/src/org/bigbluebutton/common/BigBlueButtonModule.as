@@ -19,8 +19,10 @@
 */
 package org.bigbluebutton.common
 {
-	import mx.modules.ModuleBase;
 	import flexlib.mdi.containers.MDIWindow;
+	
+	import mx.modules.ModuleBase;
+	
 	import org.bigbluebutton.main.view.components.MainApplicationShell;
 	
 	/**
@@ -38,7 +40,9 @@ package org.bigbluebutton.common
 		public var name:String;
 		private var _router:Router;
 		public var mshell:MainApplicationShell;
+		
 		public var startTime:String;
+		public var addButton:Boolean = false;
 		
 		public static const START_ON_LOGIN:String = "Start on Login";
 		public static const START_ON_CREATION_COMPLETE:String = "Start on Creation Complete";
