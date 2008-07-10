@@ -57,10 +57,6 @@ package org.bigbluebutton.modules.presentation.model.business
 		private static const EXTRACT_RC : String = "EXTRACT";
 		private static const CONVERT_RC : String = "CONVERT";
 		
-		private var model:PresentationFacade = PresentationFacade.getInstance();
-		
-		public var presentation:PresentationModel = model.presentation;
-		
 		private var presentationSO : SharedObject;
 		private var connDelegate : NetConnectionDelegate;
 				
@@ -74,6 +70,10 @@ package org.bigbluebutton.modules.presentation.model.business
 			connDelegate = new NetConnectionDelegate(this);
 			connDelegate.setNetConnection(nc);
 		}	
+		
+		private function get presentation():PresentationModel{
+			return facade.retrieveMediator(PresentationModel.NAME) as PresentationModel;
+		}
 				
 		/**
 		 * The event is called when a successful connection is established
