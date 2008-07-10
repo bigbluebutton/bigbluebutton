@@ -29,26 +29,12 @@ package org.bigbluebutton.common
 	 * 
 	 */	
 	public class Constants
-	{
-		public static const DEMO_RED5_HOST:String = "present.carleton.ca";
-		public static const DEMO_PRESENTATION_HOST:String = "present.carleton.ca";		
-		public static const KIRUS_COMP:String = "134.117.58.103";
-		
-		//public static const HTML_RED5_HOST:String = mx.core.Application.application.parameters.red5Host;
-		//public static const HTML_PRES_HOST:String = mx.core.Application.application.parameters.presentationHost;
-		
-		public static const HTML_RED5_HOST:String = ExternalInterface.call("getRed5");
-		public static const HTML_PRES_HOST:String = ExternalInterface.call("getPresentationHost");
-		
-		public static const NEW_RELATIVE_FILE_UPLOAD:String = "/bigbluebutton/file";
-		//The old relative file upload is used for testing the new client on the old server 
-		//at present.carleton.ca. The reference to this string can be found in the 
-		//PresentationApplication class, in the presentation module under model
-		public static const OLD_RELATIVE_FILE_UPLOAD:String = "/blindside/file";
+	{	
+		public static const RELATIVE_FILE_UPLOAD:String = "/bigbluebutton/file";
 				
-		public static var red5Host:String = HTML_RED5_HOST;
-		public static var presentationHost:String = HTML_PRES_HOST;
-		public static var relativeFileUpload:String = NEW_RELATIVE_FILE_UPLOAD;
+		public static var red5Host:String;
+		public static var presentationHost:String;
+		public static var relativeFileUpload:String = RELATIVE_FILE_UPLOAD;
 		
 		public static const TEST_URL:String = testURL();
 		
@@ -58,14 +44,30 @@ package org.bigbluebutton.common
 		 * This is basicaly meant to ease development. Call this method when the application starts up. 
 		 * 
 		 */		
-		public static function setHost():void{
-			if (HTML_RED5_HOST == null) red5Host = DEMO_RED5_HOST;
-			if (HTML_PRES_HOST == null) presentationHost = DEMO_PRESENTATION_HOST;
-
+		public static function setHost():void{ 
+			if (testURL() != null){
+				red5Host = testURL();
+				presentationHost = testURL();
+			} else if (ExternalInterface.available){
+				red5Host = ExternalInterface.call("getRed5");
+				presentationHost = ExternalInterface.call("getPresentationHost");
+			}
 		}
 		
 		public static function testURL():String{
+			if (!ExternalInterface.available) return null;
+			
 			var url:String = ExternalInterface.call("testURL");
+			if (url == null) return null;
+			
+			var index:Number = url.indexOf("http://");
+			
+			if (index == -1) return null;
+			
+			url = url.substr(index + 7);
+			index = url.indexOf("/");
+			
+			url = url.substr(0, index);
 			
 			return url;
 		}

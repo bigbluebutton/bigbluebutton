@@ -97,8 +97,8 @@ package org.bigbluebutton.main.view
 			runModule(logModule);
 			logModule.mediator.logWindow.visible = false;
 			
-			log.debug("red5:" + Constants.HTML_RED5_HOST);
-			log.debug("present:" + Constants.HTML_PRES_HOST);
+			log.debug("red5:" + Constants.red5Host);
+			log.debug("present:" + Constants.presentationHost);
 			log.debug("url:" + Constants.TEST_URL);
 			
 			runModule(new ViewersModule());
