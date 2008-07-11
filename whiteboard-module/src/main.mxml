@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" 
+	xmlns:view="org.bigbluebutton.modules.whiteboard.view.*" 
+	xmlns:components="org.bigbluebutton.main.view.components.*"
+	creationComplete="addWhiteboard()">
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.main.MainApplicationFacade;
+			import org.bigbluebutton.modules.whiteboard.WhiteboardModule;
+			public function addWhiteboard():void{
+				var facade:MainApplicationFacade = 
+						MainApplicationFacade.getInstance();
+				facade.addModule(new WhiteboardModule());
+			}
+		]]>
+	</mx:Script>
+	<components:MainApplicationShell id="shell" />
+</mx:Application>
