@@ -8,7 +8,7 @@
 			
 			public function addPresentation():void{
 				var facade:MainApplicationFacade = 
-						MainApplicationFacade.getInstance(MainApplicationShell.NAME);
+						MainApplicationFacade.getInstance();
 				facade.addModule(new VoiceModule());
 			}
 			
