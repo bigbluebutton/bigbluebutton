@@ -51,7 +51,9 @@ package org.bigbluebutton.common
 			} else if (ExternalInterface.available){
 				red5Host = ExternalInterface.call("getRed5");
 				presentationHost = ExternalInterface.call("getPresentationHost");
-			} else{
+			}
+			//If all else fails, do the default
+			if (red5Host == null){
 				red5Host = "present.carleton.ca";
 				presentationHost = "present.carleton.ca";
 			}
