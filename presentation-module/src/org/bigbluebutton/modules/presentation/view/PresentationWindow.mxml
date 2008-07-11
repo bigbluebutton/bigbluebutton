@@ -34,6 +34,7 @@
 			[Bindable] private var sharingIcon : Class = images.link_break;	
 			[Bindable] private var sharingTooltip : String = "Share presentation";		
 			[Bindable] public var presenterIcon : Class = images.user_gray;
+			[Bindable] private var fullscreen_icon:Class = images.full_screen;
 			private var shareLabel : String;
 			
 			[Bindable] public var model:PresentationFacade = PresentationFacade.getInstance(); 
@@ -203,7 +204,7 @@
                  labelPlacement="right" color="#993300" 
                  dragEnter="dragEnterHandler(event)" dragDrop="dragDropHandler(event)"/>
     	  <mx:Spacer width="100%"/>					
-    	  <mx:Button id="fullScreen" label="Full Screen" click="toggleFullScreen()" />
+    	  <mx:Button width="20" height="20" toolTip="Toggle Full-Screen" id="fullScreen" icon="{fullscreen_icon}" click="toggleFullScreen()" />
     </mx:ControlBar>
 			
 </pres:MDIWindow>
