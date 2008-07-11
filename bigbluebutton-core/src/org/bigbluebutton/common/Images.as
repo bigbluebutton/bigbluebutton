@@ -126,5 +126,23 @@ package org.bigbluebutton.common
 
         [Embed(source="assets/images/telephone.png")]
         public var phone:Class;   
+        
+        [Embed(source="assets/images/pencil.png")]
+        public var pencil_icon:Class;  
+        
+        [Embed(source="assets/images/shape_square.png")]
+        public var square_icon:Class;  
+        
+        [Embed(source="assets/images/arrow_undo.png")]
+        public var undo_icon:Class;  
+        
+        [Embed(source="assets/images/circle.png")]
+        public var circle_icon:Class;  
+        
+        [Embed(source="assets/images/delete.png")]
+        public var delete_icon:Class;  
+        
+        [Embed(source="assets/images/arrow_out.png")]
+        public var full_screen:Class; 
 	}
 }

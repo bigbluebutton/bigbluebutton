@@ -16,7 +16,7 @@
 			import flash.events.MouseEvent;
 			
 			public static const NAME:String = 'MainApplicationShell';
-			protected var facade:MainApplicationFacade = MainApplicationFacade.getInstance( NAME );	
+			protected var facade:MainApplicationFacade = MainApplicationFacade.getInstance();	
 						
 			protected function initializeShell():void
 			{

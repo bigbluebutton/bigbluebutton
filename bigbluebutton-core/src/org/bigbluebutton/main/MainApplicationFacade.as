@@ -36,6 +36,8 @@ package org.bigbluebutton.main
 	 */	
 	public class MainApplicationFacade extends Facade implements IFacade
 	{
+		public static const NAME:String = "MainApplicationFacade";
+		
 		// Notification constants 
 		public static const STARTUP:String = 'startup';
 		public static const ADD_WINDOW1:String = 'addWindow';
@@ -52,10 +54,10 @@ package org.bigbluebutton.main
         /**
          * Singleton ApplicationFacade Factory Method
          */
-        public static function getInstance( key:String ) : MainApplicationFacade 
+        public static function getInstance() : MainApplicationFacade 
         {
-            if ( instanceMap[ key ] == null ) instanceMap[ key ] = new MainApplicationFacade( key );
-            return instanceMap[ key ] as MainApplicationFacade;
+            if ( instanceMap[ NAME ] == null ) instanceMap[ NAME ] = new MainApplicationFacade( NAME );
+            return instanceMap[ NAME ] as MainApplicationFacade;
         }
         
 	    /**

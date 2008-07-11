@@ -18,7 +18,7 @@
    			var conf:Conference = ViewersFacade.getInstance().retrieveMediator(Conference.NAME) as Conference;
    			var usr:User = data as User;
    			if (usr.name != conf.me.name){
-   				MainApplicationFacade.getInstance(MainApplicationShell.NAME).openViewCamera(data as User);
+   				MainApplicationFacade.getInstance().openViewCamera(data as User);
    			}
    		}			
 		
