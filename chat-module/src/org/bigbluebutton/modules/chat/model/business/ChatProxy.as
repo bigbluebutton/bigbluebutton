@@ -33,7 +33,6 @@ package org.bigbluebutton.modules.chat.model.business
 	import org.bigbluebutton.modules.viewers.model.business.Conference;
 	import org.puremvc.as3.multicore.interfaces.IProxy;
 	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
-	import org.bigbluebutton.common.Constants;
 	
 	
 	
@@ -54,7 +53,6 @@ package org.bigbluebutton.modules.chat.model.business
 		private var log : LogModuleFacade = LogModuleFacade.getInstance("LogModule");
 		private var conf : Conference = ViewersFacade.getInstance().retrieveMediator(Conference.NAME) as Conference;
 		private var me:String = conf.me.name;
-		private var messageObject = MessageObject
 		private var room:String;
 
 		
@@ -87,6 +85,7 @@ package org.bigbluebutton.modules.chat.model.business
 		{
 			if (chatSO != null) chatSO.close();
 		}	
+		
 	    public function join(userid: String, host : String, room : String):void
 	    {
 	    	this.messageVO.message.setUserid(userid);
