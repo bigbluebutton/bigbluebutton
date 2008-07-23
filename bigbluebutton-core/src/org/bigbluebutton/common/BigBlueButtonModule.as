@@ -23,6 +23,8 @@ package org.bigbluebutton.common
 	
 	import mx.modules.ModuleBase;
 	
+	import org.bigbluebutton.common.red5.Connection;
+	import org.bigbluebutton.common.red5.ConnectionEvent;
 	import org.bigbluebutton.main.view.components.MainApplicationShell;
 	
 	/**
@@ -40,6 +42,9 @@ package org.bigbluebutton.common
 		public var name:String;
 		private var _router:Router;
 		public var mshell:MainApplicationShell;
+		
+		private var conn:Connection;
+		private var connE:ConnectionEvent;
 		
 		public var startTime:String;
 		public var addButton:Boolean = false;
