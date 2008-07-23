@@ -133,7 +133,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		 */		
 		public function gotoPage(page : Number) : void
 		{
-			presentationSO.send("newPageNumber", page);
+			presentationSO.send("gotoPageCallback", page);
 		}
 		
 		/**
@@ -142,7 +142,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		 * @param page
 		 * 
 		 */		
-		public function newPageNumber(page : Number) : void
+		public function gotoPageCallback(page : Number) : void
 		{
 			presentation.decks.selected = page;
 			sendNotification(PresentationFacade.UPDATE_PAGE, page);
@@ -155,7 +155,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		 * 
 		 */		
 		public function zoom(slideHeight:Number, slideWidth:Number):void{
-			presentationSO.send("zoomSlide", slideHeight, slideWidth);
+			presentationSO.send("zoomCallback", slideHeight, slideWidth);
 		}
 		
 		/**
@@ -164,7 +164,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		 * @param slideWidth
 		 * 
 		 */		
-		public function zoomSlide(slideHeight:Number, slideWidth:Number):void{
+		public function zoomCallback(slideHeight:Number, slideWidth:Number):void{
 			sendNotification(PresentationFacade.ZOOM_SLIDE, new ZoomNotifier(slideHeight, slideWidth));
 		}
 		
@@ -175,7 +175,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		 * 
 		 */		
 		public function move(slideXPosition:Number, slideYPosition:Number):void{
-			presentationSO.send("moveSlide", slideXPosition, slideYPosition);
+			presentationSO.send("moveCallback", slideXPosition, slideYPosition);
 		}
 		
 		/**
@@ -184,7 +184,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		 * @param slideYPosition
 		 * 
 		 */		
-		public function moveSlide(slideXPosition:Number, slideYPosition:Number):void{
+		public function moveCallback(slideXPosition:Number, slideYPosition:Number):void{
 		   sendNotification(PresentationFacade.MOVE_SLIDE, new MoveNotifier(slideXPosition, slideYPosition));
 		}
 		
@@ -193,22 +193,22 @@ package org.bigbluebutton.modules.presentation.model.business
 		 * 
 		 */		
 		public function maximize():void{
-			presentationSO.send("maximizePresentation");
+			presentationSO.send("maximizeCallback");
 		}
 		
 		/**
 		 * A callback method from the server to maximize the presentation 
 		 * 
 		 */		
-		public function maximizePresentation():void{
+		public function maximizeCallback():void{
 			sendNotification(PresentationFacade.MAXIMIZE_PRESENTATION);
 		}
 		
 		public function restore():void{
-			presentationSO.send("restorePresentation");
+			presentationSO.send("restoreCallback");
 		}
 		
-		public function restorePresentation():void{
+		public function restoreCallback():void{
 			sendNotification(PresentationFacade.RESTORE_PRESENTATION);
 		}
 		
@@ -218,7 +218,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		 */		
 		public function clear() : void
 		{
-			presentationSO.send("clearPresentation");			
+			presentationSO.send("clearCallback");			
 		}
 		
 		/**
@@ -226,7 +226,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		 * successfuly called the server.
 		 * 
 		 */		
-		public function clearPresentation() : void
+		public function clearCallback() : void
 		{
 			presentationSO.setProperty(SHARING, false);
 			sendNotification(PresentationFacade.CLEAR_EVENT);
