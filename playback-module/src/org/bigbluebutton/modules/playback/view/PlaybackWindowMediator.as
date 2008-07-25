@@ -36,7 +36,7 @@ package org.bigbluebutton.modules.playback.view
 			switch(notification.getName()){
 				case PlaybackFacade.TEST:
 					var element:XML = notification.getBody() as XML;
-					window.txtOutput.text += "\n" + element;
+					window.txtOutput.text += "\n" + element.toXMLString();
 					break;
 			}
 		}

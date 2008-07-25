@@ -34,7 +34,7 @@ package org.bigbluebutton.modules.playback.model
 			
 			var item:XML;
 			events = new Array();
-			for each (item in mainSequence.text()){
+			for each (item in mainSequence.children()){
 				events.push(item);
 			}
 
