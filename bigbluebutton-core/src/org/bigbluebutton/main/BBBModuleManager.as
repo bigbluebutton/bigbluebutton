@@ -9,6 +9,8 @@ package org.bigbluebutton.main
 	import mx.events.ModuleEvent;
 	import mx.modules.ModuleLoader;
 	
+	import org.bigbluebutton.common.BigBlueButtonModule;
+	import org.bigbluebutton.common.ModuleInterface;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
 	
@@ -52,6 +54,8 @@ package org.bigbluebutton.main
 		
 		private function moduleReady(e:ModuleEvent):void{
 			var ml:ModuleLoader = e.target as ModuleLoader;
+			var iModule:ModuleInterface = ml.child as ModuleInterface;
+			var module:BigBlueButtonModule = iModule.getBBBModule();
 		}
 
 	}
