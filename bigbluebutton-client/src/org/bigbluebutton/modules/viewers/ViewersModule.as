@@ -65,6 +65,7 @@ package org.bigbluebutton.modules.viewers
 		}
 		
 		override public function logout():void{
+			
 			var delegate:SharedObjectConferenceDelegate = 
 				facade.retrieveProxy(SharedObjectConferenceDelegate.NAME) as SharedObjectConferenceDelegate;
 			

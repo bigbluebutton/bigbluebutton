@@ -34,6 +34,7 @@ package org.bigbluebutton.modules.chat
 	import org.bigbluebutton.modules.viewers.ViewersFacade;
 	import org.bigbluebutton.modules.viewers.model.business.Conference;
 	import org.bigbluebutton.common.Constants;
+	import org.bigbluebutton.modules.viewers.model.services.SharedObjectConferenceDelegate;
 	/**
 	 * 
 	 * Class ChatModule acts as view component for Chat Application
@@ -84,12 +85,14 @@ package org.bigbluebutton.modules.chat
 		}
 		
 		override public function logout():void{
-		//	var presentation:PresentationApplication = 
-		//		facade.retrieveMediator(PresentationApplication.NAME) as PresentationApplication;
-				
-		//	presentation.leave();
+		
+			var delegate:SharedObjectConferenceDelegate = 
+				facade.retrieveProxy(SharedObjectConferenceDelegate.NAME) as SharedObjectConferenceDelegate;
+			
+			delegate.leave();
 			
 			facade.removeCore(ChatFacade.NAME);
+		
 		}
 	}
 }
