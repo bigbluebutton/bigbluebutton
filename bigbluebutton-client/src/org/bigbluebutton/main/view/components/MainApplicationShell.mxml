@@ -26,6 +26,7 @@
 				this.LogBtn.addEventListener(MouseEvent.CLICK , openLogModule);
 				toolbar.btnLogout.addEventListener(MouseEvent.CLICK, logout);
 				toolbar.webcamBtn.addEventListener(MouseEvent.CLICK, openWebcam);
+				toolbar.btnRecord.addEventListener(MouseEvent.CLICK, record);
 			}
 			
 			public function openLogModule(event:MouseEvent) : void
@@ -40,6 +41,10 @@
 			private function openWebcam(e:MouseEvent) : void
 			{
 				dispatchEvent(new Event(MainApplicationShellMediator.START_WEBCAM));
+			}
+			
+			private function record(event:MouseEvent):void{
+				dispatchEvent(new Event(MainApplicationShellMediator.RECORD));
 			}
 			
 		]]>

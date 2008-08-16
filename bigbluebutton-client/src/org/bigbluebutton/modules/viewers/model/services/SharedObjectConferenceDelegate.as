@@ -108,6 +108,10 @@ package org.bigbluebutton.modules.viewers.model.services
 				aUser.streamName = streamName;
 			}		
 		}
+		
+		public function record():void{
+			
+		}
 				
 		/**
 		 * Join the server, connect 

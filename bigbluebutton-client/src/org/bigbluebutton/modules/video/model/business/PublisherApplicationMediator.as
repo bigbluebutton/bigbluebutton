@@ -225,15 +225,6 @@ package org.bigbluebutton.modules.video.model.business
 		}
 		
 		/**
-		 * Sends out a setup connection notification 
-		 * 
-		 */		
-		public function setupConnection() : void
-		{
-			facade.registerProxy(new NetworkConnectionDelegate());			
-		}
-		
-		/**
 		 * Sends out a setup_stream notification 
 		 * @param streamName
 		 * 

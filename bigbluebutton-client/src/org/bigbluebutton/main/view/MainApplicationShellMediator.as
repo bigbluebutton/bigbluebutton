@@ -54,6 +54,7 @@ package org.bigbluebutton.main.view
 		public static const OPEN_LOG_MODULE:String = 'openLogModule';
 		public static const LOGOUT:String = "Logout";
 		public static const START_WEBCAM:String = "Start Webcam";
+		public static const RECORD:String = "Record";
 
 		public var log:LogModuleFacade = LogModuleFacade.getInstance(LogModule.NAME);
 		private var mshell:MainApplicationShell;
@@ -87,6 +88,7 @@ package org.bigbluebutton.main.view
 			viewComponent.addEventListener(OPEN_LOG_MODULE , showLogWindow);
 			viewComponent.addEventListener(LOGOUT, sendLogout);
 			viewComponent.addEventListener(START_WEBCAM, startWebcam);
+			viewComponent.addEventListener(RECORD, record);
 			inpipe = new InputPipe(MainApplicationConstants.TO_MAIN);
 			outpipe = new OutputPipe(MainApplicationConstants.FROM_MAIN);
 			inpipeListener = new PipeListener(this, messageReceiver);
@@ -120,6 +122,12 @@ package org.bigbluebutton.main.view
 		
 		private function viewCamera(user:User):void{
 			addModule(new VideoModule(user));
+		}
+		
+		private function record(e:Event):void{
+			//var delegate:SharedObjectConferenceDelegate = 
+			//	ViewersFacade.getInstance().retrieveProxy(SharedObjectConferenceDelegate.NAME);
+			//delegate.record();
 		}
 		
 		/**

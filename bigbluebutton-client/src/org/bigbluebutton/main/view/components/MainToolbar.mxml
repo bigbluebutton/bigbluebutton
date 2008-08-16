@@ -10,5 +10,6 @@
 	<mx:Button id="webcamBtn" label="Open Webcam" visible="true" height="20" toolTip="Click to open webcam"/>    
 	<!--<mx:Button id="LogBtn" label="Log" visible="true" toolTip="Log Window"/>-->						
 	<mx:Spacer width="100%"/>
+	<mx:Button label="Record" id="btnRecord" />
 	<mx:Button label="Logout" id="btnLogout" toolTip="Log out" right="10"/>		
 </mx:ApplicationControlBar>
