@@ -21,6 +21,7 @@ package org.bigbluebutton.modules.log.view
 {
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	import flash.net.NetConnection;
 	
 	import org.bigbluebutton.common.InputPipe;
 	import org.bigbluebutton.common.OutputPipe;
@@ -55,6 +56,7 @@ package org.bigbluebutton.modules.log.view
 		private var inpipe : InputPipe;
 		private var router : Router;
 		private var inpipeListener : PipeListener;
+		
 		public var logWindow : LogWindow;
 		
 		/**
@@ -264,5 +266,6 @@ package org.bigbluebutton.modules.log.view
 			if( logWindow.info_box.selected) info = true else info = false;
 			if( logWindow.error_box.selected) error = true else error = false;
 		}*/
+		
 	}
 }

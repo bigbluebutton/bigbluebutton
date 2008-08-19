@@ -30,8 +30,8 @@ package org.bigbluebutton.common
 	 */	
 	public class Constants
 	{
-		public static const DEMO_RED5_HOST:String = "present.carleton.ca";
-		public static const DEMO_PRESENTATION_HOST:String = "present.carleton.ca";		
+		public static const DEMO_RED5_HOST:String = "134.117.58.96";//"present.carleton.ca";
+		public static const DEMO_PRESENTATION_HOST:String = "134.117.58.96:8080";//"present.carleton.ca";		
 		public static const KIRUS_COMP:String = "134.117.58.103";
 		
 		//public static const HTML_RED5_HOST:String = mx.core.Application.application.parameters.red5Host;

@@ -54,7 +54,6 @@ package org.bigbluebutton.modules.chat.model.business
 		private var log : LogModuleFacade = LogModuleFacade.getInstance("LogModule");
 		private var conf : Conference = ViewersFacade.getInstance().retrieveMediator(Conference.NAME) as Conference;
 		private var me:String = conf.me.name;
-		private var messageObject = MessageObject
 		private var room:String;
 
 		
@@ -93,6 +92,7 @@ package org.bigbluebutton.modules.chat.model.business
 			this.messageVO.message.host = host;
 			this.messageVO.message.room = room;
 			netConnectionDelegate.connect(host, room);
+			
 		}
 	    private function joinConference() : void
 		{
@@ -162,6 +162,7 @@ package org.bigbluebutton.modules.chat.model.business
 		public function sendMessageToSharedObject(message:MessageObject):void
 		{
 			chatSO.send("receiveNewMessage", me, message.getMessage(), message.getColor());
+			
 		}
 		
 		/**

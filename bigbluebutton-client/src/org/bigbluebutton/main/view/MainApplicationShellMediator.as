@@ -30,6 +30,7 @@ package org.bigbluebutton.main.view
 	import org.bigbluebutton.main.MainApplicationFacade;
 	import org.bigbluebutton.main.view.components.MainApplicationShell;
 	import org.bigbluebutton.modules.chat.ChatModule;
+	import org.bigbluebutton.modules.desktopshare.DesktopShareModule;
 	import org.bigbluebutton.modules.log.LogModule;
 	import org.bigbluebutton.modules.log.LogModuleFacade;
 	import org.bigbluebutton.modules.presentation.PresentationModule;
@@ -124,12 +125,20 @@ package org.bigbluebutton.main.view
 			addModule(new VideoModule(user));
 		}
 		
+
+		public function runDesktopShareModule() : void
+		{
+			addModule(new DesktopShareModule());
+		}
+		
+
 		private function record(e:Event):void{
 			//var delegate:SharedObjectConferenceDelegate = 
 			//	ViewersFacade.getInstance().retrieveProxy(SharedObjectConferenceDelegate.NAME);
 			//delegate.record();
 		}
 		
+
 		/**
 		 * Runs the Chat Module 
 		 * @param event
@@ -234,6 +243,7 @@ package org.bigbluebutton.main.view
 					runPresentationModule();
 					runVoiceModule();
 					runChatModule();
+					runDesktopShareModule();
 					break;	
 				case MainApplicationConstants.CONNECTION_LOST:
 					logout();

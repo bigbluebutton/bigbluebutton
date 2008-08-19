@@ -44,7 +44,7 @@ package org.bigbluebutton.modules.chat.view
 	 */	
 	public class ChatModuleMediator extends Mediator implements IMediator
 	{
-		public static const NAME:String = 'LogModuleMediator';
+		public static const NAME:String = 'ChatModuleMediator';
 			
 
 		private var outpipe : OutputPipe;

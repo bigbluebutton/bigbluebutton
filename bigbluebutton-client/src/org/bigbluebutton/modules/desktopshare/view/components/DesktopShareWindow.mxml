@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MDIWindow xmlns="flexlib.mdi.containers.*" 
+	       xmlns:mx="http://www.adobe.com/2006/mxml" 
+	       showCloseButton="false" height="520" width="550">
+
+	<mx:Script>
+		<![CDATA[
+			
+			import org.bigbluebutton.modules.desktopshare.model.vo.ImageVO;
+			import org.bigbluebutton.modules.desktopshare.model.vo.*;
+			import org.bigbluebutton.modules.desktopshare.view.DesktopShareWindowMediator;
+			import mx.core.UIComponent;
+			import flash.external.ExternalInterface;
+		    import mx.controls.SWFLoader;
+        	import mx.utils.Base64Decoder;
+        	import flash.net.FileReference;
+        	import org.bigbluebutton.modules.log.LogModuleFacade;
+
+			public static const TITLE:String = "Desktop Share";
+			public var timer:Timer;
+			public var im:ImageVO = new ImageVO("");
+			public var base64Decoder:Base64Decoder = new Base64Decoder();
+			private var ratio:Number;
+			public var canvas:Canvas;
+			private var tileH:Number;
+			private var tileW:Number;
+			private var log : LogModuleFacade = LogModuleFacade.getInstance("LogModule");
+		
+			public function startShare():void
+		    {
+		    	//this.timer = new Timer(1500,0);
+		    	//this.timer.addEventListener(TimerEvent.TIMER , sendImage);
+		    	//this.timer.start();
+		    	//ExternalInterface.call("addFrame");
+		    	this.share_Btn.enabled = false;
+		    	this.unshare_Btn.enabled = true;
+		    	//ratio = ExternalInterface.call("getResJS1");
+		    	//trace(ratio);
+		    	
+		    }
+			
+			public function stopShare():void
+			{
+				//this.timer.removeEventListener(TimerEvent.TIMER , sendImage);
+				//this.timer.stop();
+				this.share_Btn.enabled = true;
+				this.unshare_Btn.enabled = false;
+			}
+			
+			public function sendImage(e:TimerEvent):void
+			{
+				var s:String = ExternalInterface.call("getStringJS");
+				//trace(s);
+				im.imageString = s;
+				dispatchEvent(new Event(DesktopShareWindowMediator.NEW_IMAGE));
+			}
+			
+			public function showNewImage(imagevo:ImageVO):void
+			{
+				//if(preview_box.getChildByName("preview"))
+				//preview_box.removeChild(preview_box.getChildByName("preview"));
+				
+                tileH = imagevo.tileheight;
+                tileW = imagevo.tilewidth;
+            	var imageArray:Array = imagevo.stringArray;
+            	
+            	for(var i:int =0 ; i<6 ; i++)
+            	{
+            		for(var j:int=0; j<6 ; j++)
+            		{
+            			
+            			//if(imagevo.stringArray[i][j].length > 20){
+            			trace(imagevo.tileheight+"  "+imagevo.tilewidth);
+            			//trace("stringArray["+i+"]["+j+"].length: "+imageArray[i][j]+"\n");
+            			if(preview_box.getChildByName("preview"+i+""+j))
+                		preview_box.removeChild(preview_box.getChildByName("preview"+i+""+j));
+                		base64Decoder.reset();
+                		base64Decoder.decode(imagevo.stringArray[i][j]);
+                		trace("Decoded.");
+						var ba:ByteArray = base64Decoder.drain();
+						trace("Drained.");
+						trace("ba.length: " + ba.length+"\n");
+						var ui_loader: UIComponent = new UIComponent();
+						var ldr:Loader = new Loader();
+                        ldr.loadBytes(ba);
+                        trace("Loaded.");
+                        ui_loader.addChild(ldr);
+                        canvas = new Canvas();
+						canvas.name = "preview"+i+""+j;
+						canvas.addChildAt(ui_loader,0);
+						canvas.scaleX = hSlider.value/100;
+						canvas.scaleY = hSlider.value/100;
+						canvas.x = i * tileW * hSlider.value/100;
+						canvas.y = j * tileH * hSlider.value/100;
+						//canvas.x = i*imagevo.tilewidth;//canvas.width;//(hSlider.value/100);
+                      	//canvas.y = j*imagevo.tileheight;//canvas.height;//(hSlider.value/100);
+                   		preview_box.addChildAt(canvas, 0);
+             //  }
+              // else{return;}
+                   		
+                		
+            		}
+            	}
+            	
+            //	return;
+ /*         	
+            	
+            	var i:Number = imagevo.row;
+            	var j:Number = imagevo.column;
+            	var image:String = imagevo.imageString;
+            	//trace("i: "+i+","+"j: "+j+"\n");
+            	if( ((i!=0) && (i!=1) && (i!=2) && (i!=3) && (i!=4) && (i!=5)) ||
+            	((j!=0) && (j!=1) && (j!=2) && (j!=3) && (j!=4) && (j!=5)))
+            	{
+            		return;	
+            	}    
+            	if(preview_box.getChildByName("preview"+i+""+j))
+                preview_box.removeChild(preview_box.getChildByName("preview"+i+""+j));
+                
+                base64Decoder.reset();
+                base64Decoder.decode(image);
+				var ba:ByteArray = base64Decoder.drain();
+				var ui_loader: UIComponent = new UIComponent();
+				
+				canvas.name = "preview"+i+""+j;
+				var ldr:Loader = new Loader();
+                ldr.loadBytes(ba);
+                ui_loader.addChild(ldr);
+                canvas.addChildAt(ui_loader, 0);
+*/				/*var ui_loader00:UIComponent = new UIComponent();
+				var ui_loader01:UIComponent = new UIComponent();
+				var ui_loader02:UIComponent = new UIComponent();
+				var ui_loader03:UIComponent = new UIComponent();
+				var ui_loader04:UIComponent = new UIComponent();
+				var ui_loader05:UIComponent = new UIComponent();
+				var ui_loader10:UIComponent = new UIComponent();
+				var ui_loader11:UIComponent = new UIComponent();
+				var ui_loader12:UIComponent = new UIComponent();
+				var ui_loader13:UIComponent = new UIComponent();
+				var ui_loader14:UIComponent = new UIComponent();
+				var ui_loader15:UIComponent = new UIComponent();
+				var ui_loader20:UIComponent = new UIComponent();
+				var ui_loader21:UIComponent = new UIComponent();
+				var ui_loader22:UIComponent = new UIComponent();
+				var ui_loader23:UIComponent = new UIComponent();
+				var ui_loader24:UIComponent = new UIComponent();
+				var ui_loader25:UIComponent = new UIComponent();
+				var ui_loader30:UIComponent = new UIComponent();
+				var ui_loader31:UIComponent = new UIComponent();
+				var ui_loader32:UIComponent = new UIComponent();
+				var ui_loader33:UIComponent = new UIComponent();
+				var ui_loader34:UIComponent = new UIComponent();
+				var ui_loader35:UIComponent = new UIComponent();
+				var ui_loader40:UIComponent = new UIComponent();
+				var ui_loader41:UIComponent = new UIComponent();
+				var ui_loader42:UIComponent = new UIComponent();
+				var ui_loader43:UIComponent = new UIComponent();
+				var ui_loader44:UIComponent = new UIComponent();
+				var ui_loader45:UIComponent = new UIComponent();
+				var ui_loader50:UIComponent = new UIComponent();
+				var ui_loader51:UIComponent = new UIComponent();
+				var ui_loader52:UIComponent = new UIComponent();
+				var ui_loader53:UIComponent = new UIComponent();
+				var ui_loader54:UIComponent = new UIComponent();
+				var ui_loader55:UIComponent = new UIComponent();
+                
+				ui_loader00.name = "preview"+i+""+j;
+				ui_loader01.name = "preview"+i+""+j;
+				ui_loader02.name = "preview"+i+""+j;
+				ui_loader03.name = "preview"+i+""+j;
+				ui_loader04.name = "preview"+i+""+j;
+				ui_loader05.name = "preview"+i+""+j;
+				ui_loader10.name = "preview"+i+""+j;
+				ui_loader11.name = "preview"+i+""+j;
+				ui_loader12.name = "preview"+i+""+j;
+				ui_loader13.name = "preview"+i+""+j;
+				ui_loader14.name = "preview"+i+""+j;
+				ui_loader15.name = "preview"+i+""+j;
+				ui_loader20.name = "preview"+i+""+j;
+				ui_loader21.name = "preview"+i+""+j;
+				ui_loader22.name = "preview"+i+""+j;
+				ui_loader23.name = "preview"+i+""+j;
+				ui_loader24.name = "preview"+i+""+j;
+				ui_loader25.name = "preview"+i+""+j;
+				ui_loader30.name = "preview"+i+""+j;
+				ui_loader31.name = "preview"+i+""+j;
+				ui_loader32.name = "preview"+i+""+j;
+				ui_loader33.name = "preview"+i+""+j;
+				ui_loader34.name = "preview"+i+""+j;
+				ui_loader35.name = "preview"+i+""+j;
+				ui_loader40.name = "preview"+i+""+j;
+				ui_loader41.name = "preview"+i+""+j;
+				ui_loader42.name = "preview"+i+""+j;
+				ui_loader43.name = "preview"+i+""+j;
+				ui_loader44.name = "preview"+i+""+j;
+				ui_loader45.name = "preview"+i+""+j;
+				ui_loader50.name = "preview"+i+""+j;
+				ui_loader51.name = "preview"+i+""+j;
+				ui_loader52.name = "preview"+i+""+j;
+				ui_loader53.name = "preview"+i+""+j;
+				ui_loader54.name = "preview"+i+""+j;
+				ui_loader55.name = "preview"+i+""+j;
+				*/
+				
+//				var ldr:Loader = new Loader();
+//                ldr.loadBytes(ba);
+//                ui_loader.addChild(ldr);
+//                canvas.addChildAt(ui_loader, 0);
+                //ui_loader.scaleX = 0.6;
+                //ui_loader.scaleY = 0.6;
+                //canvas.scaleX = preview_box.height * 0.0008;
+                //canvas.scaleY = preview_box.height * 0.0008;// * 0.8;
+                
+                
+                //ui_loader.scaleX = preview_box.width * 0.001;
+                //ui_loader.scaleY = preview_box.width * 0.001 * 0.8;
+                //ldr.x = preview_box.width/6 * i;
+                //ldr.y = preview_box.height/6 * j;
+               /* if(canvas.name == "preview00"){
+                canvas.x = 0;
+                canvas.y = preview_box.height/6;}
+                if(canvas.name == "preview10"){
+                canvas.x = preview_box.width/6;
+                canvas.y = preview_box.height/6;}
+                if(canvas.name == "preview20"){
+                canvas.x = 2 * preview_box.width/6;
+                canvas.y = preview_box.height/6;}
+                if(canvas.name == "preview30"){
+                canvas.x = 3 * preview_box.width/6;
+                canvas.y = preview_box.height/6;}
+                if(canvas.name == "preview40"){
+                canvas.x = 4 * preview_box.width/6;
+                canvas.y = preview_box.height/6;}
+                if(canvas.name == "preview50"){
+                canvas.x = 5 * preview_box.width/6;
+                canvas.y = preview_box.height/6;}
+                
+                if(canvas.name == "preview01"){
+                canvas.x = 0;
+                canvas.y = 2*preview_box.height/6;}
+                if(canvas.name == "preview11"){
+                canvas.x = preview_box.width/6;
+                canvas.y = 2*preview_box.height/6;}
+                if(canvas.name == "preview21"){
+                canvas.x = 2 * preview_box.width/6;
+                canvas.y = 2*preview_box.height/6;}
+                if(canvas.name == "preview31"){
+                canvas.x = 3 * preview_box.width/6;
+                canvas.y = 2*preview_box.height/6;}
+                if(canvas.name == "preview41"){
+                canvas.x = 4 * preview_box.width/6;
+                canvas.y = 2*preview_box.height/6;}
+                if(canvas.name == "preview51"){
+                canvas.x = 5 * preview_box.width/6;
+                canvas.y = 2*preview_box.height/6;}
+                
+                if(canvas.name == "preview02"){
+                canvas.x = 0;
+                canvas.y = 3 * preview_box.height/6;}
+                if(canvas.name == "preview12"){
+                canvas.x = preview_box.width/6;
+                canvas.y = 3 * preview_box.height/6;}
+                if(canvas.name == "preview22"){
+                canvas.x = 2 * preview_box.width/6;
+                canvas.y = 3 * preview_box.height/6;}
+                if(canvas.name == "preview32"){
+                canvas.x = 3 * preview_box.width/6;
+                canvas.y = 3 * preview_box.height/6;}
+                if(canvas.name == "preview42"){
+                canvas.x = 4 * preview_box.width/6;
+                canvas.y = 3 * preview_box.height/6;}
+                if(canvas.name == "preview52"){
+                canvas.x = 5 * preview_box.width/6;
+                canvas.y = 3 * preview_box.height/6;}
+                
+                if(canvas.name == "preview03"){
+                canvas.x = 0;
+                canvas.y = 4 * preview_box.height/6;}
+                if(canvas.name == "preview13"){
+                canvas.x = preview_box.width/6;
+                canvas.y = 4 * preview_box.height/6;}
+                if(canvas.name == "preview23"){
+                canvas.x = 2 * preview_box.width/6;
+                canvas.y = 4 * preview_box.height/6;}
+                if(canvas.name == "preview33"){
+                canvas.x = 3 * preview_box.width/6;
+                canvas.y = 4 * preview_box.height/6;}
+                if(canvas.name == "preview43"){
+                canvas.x = 4 * preview_box.width/6;
+                canvas.y = 4 * preview_box.height/6;}
+                if(canvas.name == "preview53"){
+                canvas.x = 5 * preview_box.width/6;
+                canvas.y = 4 * preview_box.height/6;}
+                
+                if(canvas.name == "preview04"){
+                canvas.x = 0;
+                canvas.y = 5 * preview_box.height/6;}
+                if(canvas.name == "preview14"){
+                canvas.x = preview_box.width/6;
+                canvas.y = 5 * preview_box.height/6;}
+                if(canvas.name == "preview24"){
+                canvas.x = 2 * preview_box.width/6;
+                canvas.y = 5 * preview_box.height/6;}
+                if(canvas.name == "preview34"){
+                canvas.x = 3 * preview_box.width/6;
+                canvas.y = 5 * preview_box.height/6;}
+                if(canvas.name == "preview44"){
+                canvas.x = 4 * preview_box.width/6;
+                canvas.y = 5 * preview_box.height/6;}
+                if(canvas.name == "preview54"){
+                canvas.x = 5 * preview_box.width/6;
+                canvas.y = 5 * preview_box.height/6;}
+                
+                if(canvas.name == "preview05"){
+                canvas.x = 0;
+                canvas.y = 0;}//5 * preview_box.height/6;}
+                if(canvas.name == "preview15"){
+                canvas.x = preview_box.width/6;
+                canvas.y = 0;}//5 * preview_box.height/6;}
+                if(canvas.name == "preview25"){
+                canvas.x = 2 * preview_box.width/6;
+                canvas.y = 0;}//5 * preview_box.height/6;}
+                if(canvas.name == "preview35"){
+                canvas.x = 3 * preview_box.width/6;
+                canvas.y = 0;}//5 * preview_box.height/6;}
+                if(canvas.name == "preview45"){
+                canvas.x = 4 * preview_box.width/6;
+                canvas.y = 0;}//5 * preview_box.height/6;}
+                if(canvas.name == "preview55"){
+                canvas.x = 5 * preview_box.width/6;
+                canvas.y = 0;}//5 * preview_box.height/6;}
+                */
+//                canvas.x = i* (preview_box.width/6);
+//                if (j == 5)
+//                canvas.y = 0;
+//                else canvas.y = (j+1) * preview_box.height/6;
+//                trace(canvas.width + "," + canvas.height);
+                
+                
+                //trace("x: "+ldr.x+" y: "+ldr.y+"\n");
+//                preview_box.addChildAt(canvas, 0);
+                //canvas.addChildAt(ui_loader, 0);
+                //trace("ui_loader.screen.height : " + ui_loader.screen.height);
+                //trace("preview_box.height: "+preview_box.height+"\n"+"preview_box.parent.height: "+preview_box.parent.height+"\n");
+//                return;
+             
+			}
+			public function changeSize():void
+			{
+				for(var i:int =0 ; i<6 ; i++)
+            	{
+            		for(var j:int=0; j<6 ; j++)
+            		{
+						preview_box.getChildByName("preview"+i+""+j).scaleX = hSlider.value/100;
+						preview_box.getChildByName("preview"+i+""+j).scaleY = hSlider.value/100;
+						preview_box.getChildByName("preview"+i+""+j).x = i * tileW * hSlider.value/100;
+						preview_box.getChildByName("preview"+i+""+j).y = j * tileH * hSlider.value/100;
+            		}
+            	}
+				//canvas.scaleX = hSlider.value/100;
+				//trace("canvas.width = " + canvas.width);
+                //canvas.scaleY = hSlider.value/100;
+                //trace("canvas.height = " + canvas.height);
+			}
+			
+			public function download():void
+			{		
+            	ExternalInterface.call("addFrame");
+            	//var request:URLRequest = new URLRequest("http://www.technoexpert.ca/flash/ScreenShot.jar");
+				//navigateToURL(request,"_blank");
+			}
+			      
+
+		]]>
+	</mx:Script>
+	
+	<mx:Canvas id="preview_box" left="1" top="1" right="1" bottom="1" horizontalScrollPolicy="on" 
+    	verticalScrollPolicy="on" width="100%" height="100%">
+    	<!--
+    	<mx:Canvas id="00" x="" y="" width="" height=""/>
+    	<mx:Canvas id="01" x="" y="" width="" height=""/>
+    	<mx:Canvas id="02" x="" y="" width="" height=""/>
+    	<mx:Canvas id="03" x="" y="" width="" height=""/>
+    	<mx:Canvas id="04" x="" y="" width="" height=""/>
+    	<mx:Canvas id="05" x="" y="" width="" height=""/>
+    	<mx:Canvas id="10" x="" y="" width="" height=""/>
+    	<mx:Canvas id="11" x="" y="" width="" height=""/>
+    	<mx:Canvas id="12" x="" y="" width="" height=""/>
+    	<mx:Canvas id="13" x="" y="" width="" height=""/>
+    	<mx:Canvas id="14" x="" y="" width="" height=""/>
+    	<mx:Canvas id="15" x="" y="" width="" height=""/>
+    	<mx:Canvas id="20" x="" y="" width="" height=""/>
+    	<mx:Canvas id="21" x="" y="" width="" height=""/>
+    	<mx:Canvas id="22" x="" y="" width="" height=""/>
+    	<mx:Canvas id="23" x="" y="" width="" height=""/>
+    	<mx:Canvas id="24" x="" y="" width="" height=""/>
+    	<mx:Canvas id="25" x="" y="" width="" height=""/>
+    	<mx:Canvas id="30" x="" y="" width="" height=""/>
+    	<mx:Canvas id="31" x="" y="" width="" height=""/>
+    	<mx:Canvas id="32" x="" y="" width="" height=""/>
+    	<mx:Canvas id="33" x="" y="" width="" height=""/>
+    	<mx:Canvas id="34" x="" y="" width="" height=""/>
+    	<mx:Canvas id="35" x="" y="" width="" height=""/>
+    	<mx:Canvas id="40" x="" y="" width="" height=""/>
+    	<mx:Canvas id="41" x="" y="" width="" height=""/>
+    	<mx:Canvas id="42" x="" y="" width="" height=""/>
+    	<mx:Canvas id="43" x="" y="" width="" height=""/>
+    	<mx:Canvas id="44" x="" y="" width="" height=""/>
+    	<mx:Canvas id="45" x="" y="" width="" height=""/>
+    	<mx:Canvas id="50" x="" y="" width="" height=""/>
+    	<mx:Canvas id="51" x="" y="" width="" height=""/>
+    	<mx:Canvas id="52" x="" y="" width="" height=""/>
+    	<mx:Canvas id="53" x="" y="" width="" height=""/>
+    	<mx:Canvas id="54" x="" y="" width="" height=""/>
+    	<mx:Canvas id="55" x="" y="" width="" height=""/>-->
+    </mx:Canvas>
+   <!-- <mx:TextArea id="strJS" width="570" height="100"/>
+    <mx:TextArea id="strRed5" width="570" height="100"/>-->
+    <mx:ApplicationControlBar>
+    	<mx:Button id="share_Btn" label="Start Sharing" click="startShare()"/>
+    	<mx:Button id="unshare_Btn" label="Stop Sharing" click="stopShare()"/>
+    	<mx:Button id="dwn" label="Download" click="download()" enabled="false"/>
+    	<mx:HSlider id="hSlider" minimum="0" maximum="100" value="100" 
+            dataTipPlacement="bottom" 
+            tickColor="black" 
+            snapInterval="1" tickInterval="10" 
+            labels="['0%','100%']" 
+            allowTrackClick="true" 
+            liveDragging="true"
+            change="changeSize();"/>
+    	<mx:Label id="wait" text="" fontWeight="bold"/>
+   	</mx:ApplicationControlBar>
+    
+</MDIWindow>

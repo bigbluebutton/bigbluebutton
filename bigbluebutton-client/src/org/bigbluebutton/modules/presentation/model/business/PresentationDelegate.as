@@ -33,6 +33,7 @@ package org.bigbluebutton.modules.presentation.model.business
 	import org.bigbluebutton.modules.presentation.model.vo.SlidesDeck;
 	import org.puremvc.as3.multicore.interfaces.IProxy;
 	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
+	import org.bigbluebutton.modules.log.LogModuleFacade;
 					
 	/**
 	 * The PresentationDelegate class handles calls to and from the server 
@@ -58,7 +59,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		private static const CONVERT_RC : String = "CONVERT";
 		
 		private var model:PresentationFacade = PresentationFacade.getInstance();
-		
+		private var log : LogModuleFacade = LogModuleFacade.getInstance("LogModule");
 		public var presentation:PresentationModel = model.presentation;
 		
 		private var presentationSO : SharedObject;
@@ -134,6 +135,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		public function gotoPage(page : Number) : void
 		{
 			presentationSO.send("newPageNumber", page);
+			//log.presentation("go to page: " + page.toString());
 		}
 		
 		/**
@@ -146,6 +148,8 @@ package org.bigbluebutton.modules.presentation.model.business
 		{
 			presentation.decks.selected = page;
 			sendNotification(PresentationFacade.UPDATE_PAGE, page);
+			//log.presentation("show page: " + page.toString());
+			
 		}
 		
 		/**
@@ -322,11 +326,11 @@ package org.bigbluebutton.modules.presentation.model.business
 		 */								
 		private function sharedObjectSyncHandler( event : SyncEvent) : void
 		{
-			//log.debug( "Presentation::sharedObjectSyncHandler " + event.changeList.length);
+			//log.presentation( "Presentation::sharedObjectSyncHandler " + event.changeList.length);
 						
 			for (var i : uint = 0; i < event.changeList.length; i++) 
 			{
-				//log.debug( "Presentation::handlingChanges[" + event.changeList[i].name + "][" + i + "]");
+				//log.presentation( "Presentation::handlingChanges[" + event.changeList[i].name + "][" + i + "]");
 				handleChangesToSharedObject(event.changeList[i].code, 
 						event.changeList[i].name, event.changeList[i].oldValue);
 			}
@@ -341,14 +345,14 @@ package org.bigbluebutton.modules.presentation.model.business
 			{
 				case UPDATE_MESSAGE:
 					if (presentation.isPresenter) {
-						//log.debug( UPDATE_MESSAGE + " =[" + presentationSO.data.updateMessage.returnCode + "]");
+						log.presentation( UPDATE_MESSAGE + " =[" + presentationSO.data.updateMessage.returnCode + "]");
 						processUpdateMessage(presentationSO.data.updateMessage.returnCode);
 					}
 					
 					break;
 										
 				case PRESENTER :
-					//log.debug("Giving presenter control to [" + presentationSO.data.presenter.name + "]");
+					log.presentation("Giving presenter control to [" + presentationSO.data.presenter.name + "]");
 					if (presentation.isSharing) presentation.isSharing = false;
 					
 					if (presentation.presentationLoaded) presentation.presentationLoaded = false;
@@ -370,8 +374,8 @@ package org.bigbluebutton.modules.presentation.model.business
 					presentation.isSharing = presentationSO.data.sharing.share;
 				
 					if (presentationSO.data.sharing.share) {
-						//log.debug( "SHARING =[" + presentationSO.data.sharing.share + "]");
-//						log.debug( "SHARING true =[" + presentationSO.data.sharing.presentation.slide.length  + "]");
+						//log.presentation( "SHARING =[" + presentationSO.data.sharing.share + "]");
+						//log.presentation( "SHARING true =[" + presentationSO.data.sharing.presentation.slide.length  + "]");
 										
 //						processSharedPresentation(presentationSO.data.sharing.presentation);
 						
@@ -380,7 +384,7 @@ package org.bigbluebutton.modules.presentation.model.business
 					sendNotification(PresentationFacade.READY_EVENT);
 					
 					} else {
-						//log.debug( "SHARING =[" + presentationSO.data.sharing.share + "]");
+						log.presentation( "SHARING =[" + presentationSO.data.sharing.share + "]");
 						// Should send a stop sharing event. This will allow UIs to do what they want 
 						// (e.g. clear the screen).
 						if (! presentation.isPresenter) {
@@ -425,7 +429,7 @@ package org.bigbluebutton.modules.presentation.model.business
 				case SUCCESS_RC:
 					message = presentationSO.data.updateMessage.message;
 					sendNotification(PresentationFacade.CONVERT_SUCCESS_EVENT, message);
-					//log.debug("PresentationDelegate - Success Note sent");
+					log.presentation("PresentationDelegate - Success Note sent");
 					break;
 					
 				case UPDATE_RC:
@@ -440,7 +444,7 @@ package org.bigbluebutton.modules.presentation.model.business
 				case EXTRACT_RC:
 					totalSlides = presentationSO.data.updateMessage.totalSlides;
 					completedSlides = presentationSO.data.updateMessage.completedSlides;
-					//log.debug( "EXTRACTING = [" + completedSlides + " of " + totalSlides + "]");
+					log.presentation( "EXTRACTING = [" + completedSlides + " of " + totalSlides + "]");
 					
 					sendNotification(PresentationFacade.EXTRACT_PROGRESS_EVENT,
 										new ProgressNotifier(totalSlides,completedSlides));
@@ -449,7 +453,7 @@ package org.bigbluebutton.modules.presentation.model.business
 				case CONVERT_RC:
 					totalSlides = presentationSO.data.updateMessage.totalSlides;
 					completedSlides = presentationSO.data.updateMessage.completedSlides;
-					//log.debug( "CONVERTING = [" + completedSlides + " of " + totalSlides + "]");
+					log.presentation( "CONVERTING = [" + completedSlides + " of " + totalSlides + "]");
 					
 					sendNotification(PresentationFacade.CONVERT_PROGRESS_EVENT,
 										new ProgressNotifier(totalSlides, completedSlides));							
@@ -467,7 +471,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		 */		
 		private function netStatusHandler ( event : NetStatusEvent ) : void
 		{
-			//log.debug( "netStatusHandler " + event.info.code );
+			log.presentation( "netStatusHandler " + event.info.code );
 		}
 		
 		/**
@@ -477,7 +481,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		 */		
 		private function asyncErrorHandler ( event : AsyncErrorEvent ) : void
 		{
-			//log.debug( "asyncErrorHandler " + event.error);
+			log.presentation( "asyncErrorHandler " + event.error);
 		}
 	}
 }
