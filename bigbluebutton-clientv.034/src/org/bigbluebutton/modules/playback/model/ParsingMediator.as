@@ -15,7 +15,7 @@ package org.bigbluebutton.modules.playback.model
 	 * @author dzgonjan
 	 * 
 	 */	
-	public class ParsingMediator extends Mediator implements IMediator
+	public class ParsingMediator extends Mediator implements IMediator 
 	{
 		public static const NAME:String = "ParsingMediator";
 		
