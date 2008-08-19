@@ -21,7 +21,7 @@
 			public var im:ImageVO = new ImageVO("");
 			public var base64Decoder:Base64Decoder = new Base64Decoder();
 			private var ratio:Number;
-			public var canvas:Canvas;
+			public var canvas:UIComponent;// = new UIComponent();//Canvas;
 			private var tileH:Number;
 			private var tileW:Number;
 			private var log : LogModuleFacade = LogModuleFacade.getInstance("LogModule");
@@ -31,7 +31,7 @@
 		    	//this.timer = new Timer(1500,0);
 		    	//this.timer.addEventListener(TimerEvent.TIMER , sendImage);
 		    	//this.timer.start();
-		    	//ExternalInterface.call("addFrame");
+		    	ExternalInterface.call("addFrame");
 		    	this.share_Btn.enabled = false;
 		    	this.unshare_Btn.enabled = true;
 		    	//ratio = ExternalInterface.call("getResJS1");
@@ -43,6 +43,7 @@
 			{
 				//this.timer.removeEventListener(TimerEvent.TIMER , sendImage);
 				//this.timer.stop();
+				ExternalInterface.call("removeFrame");
 				this.share_Btn.enabled = true;
 				this.unshare_Btn.enabled = false;
 			}
@@ -80,14 +81,17 @@
 						var ba:ByteArray = base64Decoder.drain();
 						trace("Drained.");
 						trace("ba.length: " + ba.length+"\n");
-						var ui_loader: UIComponent = new UIComponent();
+						//var ui_loader
+						//var canvas: UIComponent = new UIComponent();
+						canvas = new UIComponent();
 						var ldr:Loader = new Loader();
                         ldr.loadBytes(ba);
                         trace("Loaded.");
-                        ui_loader.addChild(ldr);
-                        canvas = new Canvas();
+                        //ui_loader
+                        canvas.addChild(ldr);
+                        //canvas = new Canvas();
 						canvas.name = "preview"+i+""+j;
-						canvas.addChildAt(ui_loader,0);
+						//canvas.addChildAt(ui_loader,0);
 						canvas.scaleX = hSlider.value/100;
 						canvas.scaleY = hSlider.value/100;
 						canvas.x = i * tileW * hSlider.value/100;
