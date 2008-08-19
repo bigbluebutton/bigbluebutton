@@ -1,0 +1,7 @@
+<modules>
+	<module id="Chat" swfpath="org/bigbluebutton/modules/chat/chat_module.swf" />
+	<module id="Presentation" swfpath="org/bigbluebutton/modules/presentation/presentation_module.swf" />
+	<module id="Video" swfpath="org/bigbluebutton/modules/video/video_module.swf" />
+	<module id="Voice" swfpath="org/bigbluebutton/modules/voiceconference/voice_module.swf" />
+	<module id="Playback" swfpath="org/bigbluebutton/modules/playback/playback_module.swf" />
+</modules>

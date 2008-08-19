@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:mainView="org.bigbluebutton.main.view.components.*"
+	pageTitle="Big Blue Button"
+	layout="absolute" creationComplete="checkFlashVersion()">
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.events.CloseEvent;
+			import mx.controls.Alert;
+		
+			private function checkFlashVersion():void {
+				if (Number(Capabilities.version.substr(4,1)) < 9){
+					Alert.show("You are using FlashPlayer v." + Capabilities.version.substr(4,7) +
+					 ". Please upgrade to the newest version. You will be redirected when you click OK","Warning",Alert.OK,this,downloadFlash);
+				}
+			}
+			
+			private function downloadFlash(eventObject:CloseEvent):void{
+				var urlRequest:URLRequest = 
+					new URLRequest("http://www.adobe.com/shockwave/download/download.cgi?P1_Prod_Version=ShockwaveFlash");
+				navigateToURL(urlRequest, "_top");
+			}
+		]]>
+	</mx:Script>
+	
+		<mainView:MainApplicationShell id="mainShell"/>	
+	
+</mx:Application>
