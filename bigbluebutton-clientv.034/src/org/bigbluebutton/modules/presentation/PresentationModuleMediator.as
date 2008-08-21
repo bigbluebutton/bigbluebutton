@@ -23,6 +23,9 @@ package org.bigbluebutton.modules.presentation
 	import org.bigbluebutton.common.OutputPipe;
 	import org.bigbluebutton.common.Router;
 	import org.bigbluebutton.main.MainApplicationConstants;
+	import org.bigbluebutton.modules.playback.PlaybackModuleConstants;
+	import org.bigbluebutton.modules.presentation.model.business.PresentationDelegate;
+	import org.bigbluebutton.modules.presentation.model.business.PresentationPlaybackProxy;
 	import org.bigbluebutton.modules.presentation.view.PresentationWindow;
 	import org.bigbluebutton.modules.presentation.view.PresentationWindowMediator;
 	import org.bigbluebutton.modules.presentation.view.ThumbnailViewMediator;
@@ -66,6 +69,7 @@ package org.bigbluebutton.modules.presentation
 			inpipe = new InputPipe(PresentationConstants.TO_PRESENTATION_MODULE);
 			outpipe = new OutputPipe(PresentationConstants.FROM_PRESENTATION_MODULE);
 			inpipeListener = new PipeListener(this, messageReceiver);
+			inpipe.connect(inpipeListener);
 			router.registerOutputPipe(outpipe.name, outpipe);
 			router.registerInputPipe(inpipe.name, inpipe);
 			addWindow();
@@ -78,7 +82,38 @@ package org.bigbluebutton.modules.presentation
 		 */		
 		private function messageReceiver(message : IPipeMessage) : void
 		{
-			var msg : String = message.getHeader().MSG;
+			var msg : String = message.getHeader().MSG as String;
+			switch(msg){
+				case PlaybackModuleConstants.PLAYBACK_MODE:
+					facade.removeProxy(PresentationDelegate.ID);
+					facade.registerProxy(new PresentationPlaybackProxy(null));
+					break;
+				case PlaybackModuleConstants.PLAYBACK_MESSAGE:
+					playMessage(message.getBody() as XML);
+					break;
+			}
+		}
+		
+		private function playMessage(message:XML):void{
+			var playbackProxy:PresentationPlaybackProxy = 
+					facade.retrieveProxy(PresentationDelegate.ID) as PresentationPlaybackProxy;
+			switch(message.@event){
+				case PresentationPlaybackProxy.CHANGE_SLIDE:
+					playbackProxy.changeSlide(message);
+					break;
+				case PresentationPlaybackProxy.CONVERSION:
+					playbackProxy.conversionComplete(message);
+					break;
+				case PresentationPlaybackProxy.PRESENTER:
+					playbackProxy.presenterAssigned(message);
+					break;
+				case PresentationPlaybackProxy.SHARING:
+					playbackProxy.startSharing(message);
+					break;
+				case PresentationPlaybackProxy.SLIDE:
+					playbackProxy.slideCreated(message);
+					break;
+			}
 		}
 		
 		/**

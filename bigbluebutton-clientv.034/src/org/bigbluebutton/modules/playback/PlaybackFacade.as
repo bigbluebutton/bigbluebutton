@@ -18,6 +18,7 @@ package org.bigbluebutton.modules.playback
 		
 		public static const PLAY:String = "Play";
 		public static const STOP:String = "Stop";
+		public static const SEND_OUT_MESSAGE:String = "Send Outbound Message";
 		
 		public static const TEST:String = "Test";
 		

@@ -1,13 +1,17 @@
 package org.bigbluebutton.modules.chat.model.business
 {
 	import flash.events.SyncEvent;
+	import flash.net.NetConnection;
 	import flash.net.SharedObject;
 	
+	import org.bigbluebutton.modules.chat.ChatFacade;
 	import org.bigbluebutton.modules.chat.model.vo.MessageObject;
 	import org.bigbluebutton.modules.chat.model.vo.MessageVO;
 	
 	public class PlaybackProxy extends ChatProxy
 	{
+		//public static const NAME:String = "Chat Playback Proxy";
+	
 		public function PlaybackProxy(messageVO:MessageVO, nc:NetConnection = null)
 		{
 			super(messageVO, nc);
@@ -22,7 +26,7 @@ package org.bigbluebutton.modules.chat.model.business
 		override public function leave():void{}
 		
 		override public function get messageVO():MessageVO{
-			return null;
+			return this.data as MessageVO;
 		}
 		
 		override public function handleDisconnection(e:ConnectionEvent):void{}

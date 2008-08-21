@@ -22,6 +22,8 @@ package org.bigbluebutton.modules.chat.view
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	
+	import mx.controls.Alert;
+	
 	import org.bigbluebutton.common.InputPipe;
 	import org.bigbluebutton.common.OutputPipe;
 	import org.bigbluebutton.common.Router;
@@ -29,8 +31,11 @@ package org.bigbluebutton.modules.chat.view
 	import org.bigbluebutton.modules.chat.ChatModule;
 	import org.bigbluebutton.modules.chat.ChatModuleConstants;
 	import org.bigbluebutton.modules.chat.model.business.ChatProxy;
+	import org.bigbluebutton.modules.chat.model.business.PlaybackProxy;
+	import org.bigbluebutton.modules.chat.model.vo.MessageVO;
 	import org.bigbluebutton.modules.chat.view.components.ChatWindow;
 	import org.bigbluebutton.modules.log.LogModuleFacade;
+	import org.bigbluebutton.modules.playback.PlaybackModuleConstants;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
 	import org.puremvc.as3.multicore.utilities.pipes.interfaces.IPipeMessage;
@@ -72,6 +77,7 @@ package org.bigbluebutton.modules.chat.view
 			outpipe = new OutputPipe(ChatModuleConstants.FROM_CHAT_MODULE);
 			log.debug("initializing pipe listener for chat module...");
 			inpipeListener = new PipeListener(this, messageReceiver);
+			inpipe.connect(inpipeListener);
 			router.registerOutputPipe(outpipe.name, outpipe);
 			router.registerInputPipe(inpipe.name, inpipe);
 			chatWindow = viewComponent.chatWindow;
@@ -149,7 +155,28 @@ package org.bigbluebutton.modules.chat.view
 		 */		
 		private function messageReceiver(message : IPipeMessage) : void
 		{
-			var msg : String = message.getHeader().MSG;
+			//Alert.show("Message received by Chat");
+			var msg : String = message.getHeader().MSG as String;
+			switch(msg){
+				case PlaybackModuleConstants.PLAYBACK_MODE:
+					//var proxy:ChatProxy = facade.retrieveProxy(ChatProxy.NAME) as ChatProxy;
+					//proxy = new PlaybackProxy(new MessageVO());
+					//Alert.show("playbackproxy registered");
+					facade.removeProxy(ChatProxy.NAME);
+					facade.registerProxy(new PlaybackProxy(new MessageVO()));
+					break;
+				case PlaybackModuleConstants.PLAYBACK_MESSAGE:
+					playMessage(message.getBody() as XML);					
+					break;
+			}
+		}
+		
+		private function playMessage(message:XML):void{
+			var  playbackProxy:PlaybackProxy = facade.retrieveProxy(ChatProxy.NAME) as PlaybackProxy;
+			var user:String = message.@user;
+			var chatMessage:String = message as String;
+			//Alert.show(message);
+			playbackProxy.receiveNewMessage(user,message, 0x0000);
 		}
 		
 		/**

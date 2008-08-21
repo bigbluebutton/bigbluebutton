@@ -1,7 +1,7 @@
 package org.bigbluebutton.modules.playback.controller
 {
 	import org.bigbluebutton.modules.playback.controller.notifiers.ParseNotifier;
-	import org.bigbluebutton.modules.playback.model.MessagingProxy;
+	import org.bigbluebutton.modules.playback.model.MessagingMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.command.SimpleCommand;
 	
@@ -11,8 +11,9 @@ package org.bigbluebutton.modules.playback.controller
 			var note:ParseNotifier = notification.getBody() as ParseNotifier;
 			var moduleName:String = note.moduleName;
 			var list:XMLList = note.list;
+			var startTime:Number = note.startTime;
 			
-			facade.registerProxy(new MessagingProxy(list, name));
+			facade.registerMediator(new MessagingMediator(list, moduleName, startTime));
 		}
 
 	}

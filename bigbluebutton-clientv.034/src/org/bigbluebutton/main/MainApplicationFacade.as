@@ -21,8 +21,9 @@ package org.bigbluebutton.main
 {
 	import mx.collections.ArrayCollection;
 	
-	import org.bigbluebutton.common.BigBlueButtonModule;
+	import org.bigbluebutton.common.Router;
 	import org.bigbluebutton.main.controller.StartupCommand;
+	import org.bigbluebutton.main.view.MainApplicationShellMediator;
 	import org.bigbluebutton.main.view.components.MainApplicationShell;
 	import org.bigbluebutton.modules.viewers.ViewersFacade;
 	import org.bigbluebutton.modules.viewers.model.business.Conference;

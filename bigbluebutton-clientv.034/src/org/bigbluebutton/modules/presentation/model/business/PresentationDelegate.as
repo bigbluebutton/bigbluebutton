@@ -401,13 +401,13 @@ package org.bigbluebutton.modules.presentation.model.business
 		 * @param pres - an Object representing a SlideDeck
 		 * 
 		 */		
-		private function processSharedPresentation(pres : Object) : void
-		{
-			var deck:SlidesDeck = new SlidesDeck(pres);
-			
-			presentation.newDeckOfSlides(deck);		
-			presentation.decks.selected = pres.page;	
-		}
+		//private function processSharedPresentation(pres : Object) : void
+		//{
+		//	var deck:SlidesDeck = new SlidesDeck(pres);
+		//	
+		//	presentation.newDeckOfSlides(deck);		
+		//	presentation.decks.selected = pres.page;	
+		//}
 		
 		/**
 		 *  Called when there is an update from the server

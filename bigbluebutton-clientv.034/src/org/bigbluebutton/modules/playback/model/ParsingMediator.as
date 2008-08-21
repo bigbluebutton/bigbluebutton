@@ -1,10 +1,9 @@
 package org.bigbluebutton.modules.playback.model
 {
-	import flash.events.TimerEvent;
-	import flash.utils.Timer;
-	
+	import org.bigbluebutton.modules.chat.ChatModuleConstants;
 	import org.bigbluebutton.modules.playback.PlaybackFacade;
 	import org.bigbluebutton.modules.playback.controller.notifiers.ParseNotifier;
+	import org.bigbluebutton.modules.presentation.PresentationConstants;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
@@ -15,32 +14,36 @@ package org.bigbluebutton.modules.playback.model
 	 * @author dzgonjan
 	 * 
 	 */	
-	public class ParsingMediator extends Mediator implements IMediator 
+	public class ParsingMediator extends Mediator implements IMediator  
 	{
 		public static const NAME:String = "ParsingMediator";
 		
 		private var startTime:Number;
-		private var timer:Timer;
 		private var mainSequence:XMLList;
-		private var events:Array;
-		
-		private var count:int = 0;
 		
 		public function ParsingMediator(xml:XML)
 		{
 			super(NAME, xml);
 			startTime = xml.@start;
-			timer = new Timer(1000);
+		}
+		
+		override public function initializeNotifier(key:String):void{
+			super.initializeNotifier(key);
+			parse();
+		}
+		
+		public function get xml():XML{
+			return viewComponent as XML;
+		}
+		
+		private function parse():void{
 			mainSequence = xml.par.seq;
 			
-			var item:XML;
-			events = new Array();
-			for each (item in mainSequence.chat){
-				events.push(item);
-			}
-			sendNotification(PlaybackFacade.PARSE_COMPLETE, new ParseNotifier(mainSequence.chat, "Chat"));
-
-			timer.addEventListener(TimerEvent.TIMER, onTimer);
+			sendNotification(PlaybackFacade.PARSE_COMPLETE, 
+				new ParseNotifier(mainSequence.chat, ChatModuleConstants.TO_CHAT_MODULE, startTime));
+				
+			sendNotification(PlaybackFacade.PARSE_COMPLETE,
+				new ParseNotifier(mainSequence.presentation, PresentationConstants.TO_PRESENTATION_MODULE, startTime));
 		}
 		
 		override public function listNotificationInterests():Array{
@@ -62,16 +65,11 @@ package org.bigbluebutton.modules.playback.model
 		}
 		
 		private function startPlayback():void{
-			timer.start();
+			//timer.start();
 		}
 		
 		private function stopPlayback():void{
-			timer.stop();
-		}
-		
-		private function onTimer(e:TimerEvent):void{
-			sendNotification(PlaybackFacade.TEST, events[count]);
-			count++;
+			//timer.stop();
 		}
 
 	}

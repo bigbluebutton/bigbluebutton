@@ -1,9 +1,22 @@
 package org.bigbluebutton.modules.presentation.model.business
 {
 	import flash.net.NetConnection;
+	
+	import org.bigbluebutton.modules.presentation.PresentationFacade;
+	import org.bigbluebutton.modules.presentation.controller.notifiers.MoveNotifier;
+	import org.bigbluebutton.modules.presentation.controller.notifiers.ZoomNotifier;
 
 	public class PresentationPlaybackProxy extends PresentationDelegate
 	{
+		//These are XML constants for event types
+		public static const SHARING:String = "sharing";
+		public static const PRESENTER:String = "presenter";
+		public static const CONVERSION:String = "conversion";
+		public static const SLIDE:String = "slide";
+		public static const CHANGE_SLIDE:String = "change_slide";
+		
+		public static const SLIDES_FOLDER:String = "C:/tests/playback/MWtest/session-1/slides";
+		
 		public function PresentationPlaybackProxy(nc:NetConnection)
 		{
 			super(nc);
@@ -87,6 +100,31 @@ package org.bigbluebutton.modules.presentation.model.business
 		override public function stopSharing():void{}
 		
 		override public function share(sharing:Boolean):void{}
+		
+		
+		//Playback Methods
+		public function changeSlide(message:XML):void{
+			var slideNum:Number = message.@value;
+		}
+		
+		public function conversionComplete(message:XML):void{
+			// Don't really need to do anything concerning conversion events at the moment
+		}
+		
+		public function presenterAssigned(message:XML):void{
+			var presenter:String = message.@name;
+			var presenterID:Number = message.@userid;
+		}
+		
+		public function startSharing(message:XML):void{
+			if (message.@sharing == "true"){
+				//TODO Share
+			}
+		}
+		
+		public function slideCreated(message:XML):void{
+			var slideName:String = message.@name;
+		}
 		
 	}
 }

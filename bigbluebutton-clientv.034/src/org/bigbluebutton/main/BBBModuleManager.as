@@ -20,14 +20,20 @@ package org.bigbluebutton.main
 		public static const FILE_PATH:String = "org/bigbluebutton/common/modules.xml";
 		
 		public var modules:ArrayList;
+		private var urlLoader:URLLoader;
 		
 		public function BBBModuleManager()
 		{
 			super(NAME);
 			modules = new ArrayList();
-			var loader:URLLoader = new URLLoader();
-			loader.addEventListener(Event.COMPLETE, handleComplete);
-			loader.load(new URLRequest(FILE_PATH));
+			urlLoader = new URLLoader();
+			urlLoader.addEventListener(Event.COMPLETE, handleComplete);
+			//Alert.show("constructor");
+		}
+		
+		override public function initializeNotifier(key:String):void{
+			super.initializeNotifier(key);
+			urlLoader.load(new URLRequest(FILE_PATH));
 		}
 		
 		private function handleComplete(e:Event):void{
@@ -42,6 +48,7 @@ package org.bigbluebutton.main
 			var list:XMLList = xml.module;
 			var item:XML;
 			for each(item in list){
+				//Alert.show(item.@swfpath);
 				loadModule(item.@swfpath);
 			}
 		}
@@ -49,8 +56,10 @@ package org.bigbluebutton.main
 		private function loadModule(path:String):void{
 			
 			var loader:ModuleLoader = new ModuleLoader();
+			modules.addItem(loader);
 			loader.addEventListener(ModuleEvent.READY, moduleReady);
 			loader.url = path;
+			//Alert.show(loader.url);
 			loader.loadModule();
 		}
 		
@@ -61,6 +70,8 @@ package org.bigbluebutton.main
 			if (iModule != null){
 				var bbbModule:BigBlueButtonModule = iModule.getBBBModule();	
 				sendNotification(MainApplicationFacade.ADD_MODULE, bbbModule);
+			} else{
+				Alert.show("Module could not be initialized");
 			}
 		}
 

@@ -9,6 +9,7 @@ package org.bigbluebutton.modules.playback
 		public static const CLOSE_WINDOW_MSG:String = "Close Window";
 		
 		public static const PLAYBACK_MESSAGE:String = "Playback Message";
+		public static const PLAYBACK_MODE:String = "Switch to Playback Mode";
 		
 		public static const ERROR:int = 1;
 		public static const WARN:int  = 2;

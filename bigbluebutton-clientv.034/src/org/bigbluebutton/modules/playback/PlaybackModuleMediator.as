@@ -7,6 +7,7 @@ package org.bigbluebutton.modules.playback
 	import org.bigbluebutton.modules.playback.view.PlaybackWindow;
 	import org.bigbluebutton.modules.playback.view.PlaybackWindowMediator;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
+	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
 	import org.puremvc.as3.multicore.utilities.pipes.interfaces.IPipeMessage;
 	import org.puremvc.as3.multicore.utilities.pipes.messages.Message;
@@ -18,7 +19,7 @@ package org.bigbluebutton.modules.playback
 		
 		private var outpipe : OutputPipe;
 		private var inpipe : InputPipe;
-		private var router : Router;
+		private var _router : Router;
 		private var inpipeListener : PipeListener;
 		
 		private var playbackWindow:PlaybackWindow
@@ -26,12 +27,12 @@ package org.bigbluebutton.modules.playback
 		public function PlaybackModuleMediator(module:PlaybackModule)
 		{
 			super(NAME, module);
-			router = module.router;
+			_router = module.router;
 			inpipe = new InputPipe(PlaybackModuleConstants.TO_PLAYBACK_MODULE);
 			outpipe = new OutputPipe(PlaybackModuleConstants.FROM_PLAYBACK_MODULE);
 			inpipeListener = new PipeListener(this, messageReceiver);
-			router.registerOutputPipe(outpipe.name, outpipe);
-			router.registerInputPipe(inpipe.name, inpipe);
+			_router.registerOutputPipe(outpipe.name, outpipe);
+			_router.registerInputPipe(inpipe.name, inpipe);
 			addWindow();
 		}
 		
@@ -41,6 +42,10 @@ package org.bigbluebutton.modules.playback
 		
 		private function get module():PlaybackModule{
 			return viewComponent as PlaybackModule;
+		}
+		
+		public function get router():Router{
+			return _router;
 		}
 		
 		private function addWindow():void{
@@ -58,6 +63,20 @@ package org.bigbluebutton.modules.playback
 		override public function initializeNotifier(key:String):void{
 			super.initializeNotifier(key);
 			facade.registerMediator(new PlaybackWindowMediator(playbackWindow));
+		}
+		
+		override public function listNotificationInterests():Array{
+			return [
+					PlaybackFacade.SEND_OUT_MESSAGE
+					];
+		}
+		
+		override public function handleNotification(notification:INotification):void{
+			switch(notification.getName()){
+				case PlaybackFacade.SEND_OUT_MESSAGE:
+					outpipe.write(notification.getBody() as IPipeMessage);
+					break;
+			}
 		}
 
 	}
