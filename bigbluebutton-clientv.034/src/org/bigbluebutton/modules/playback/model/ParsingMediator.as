@@ -4,6 +4,7 @@ package org.bigbluebutton.modules.playback.model
 	import org.bigbluebutton.modules.playback.PlaybackFacade;
 	import org.bigbluebutton.modules.playback.controller.notifiers.ParseNotifier;
 	import org.bigbluebutton.modules.presentation.PresentationConstants;
+	import org.bigbluebutton.modules.voiceconference.VoiceModuleConstants;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
@@ -44,6 +45,9 @@ package org.bigbluebutton.modules.playback.model
 				
 			sendNotification(PlaybackFacade.PARSE_COMPLETE,
 				new ParseNotifier(mainSequence.presentation, PresentationConstants.TO_PRESENTATION_MODULE, startTime));
+		
+			sendNotification(PlaybackFacade.PARSE_COMPLETE,
+				new ParseNotifier(mainSequence.voice, VoiceModuleConstants.TO_VOICE_MODULE, startTime));
 		}
 		
 		override public function listNotificationInterests():Array{

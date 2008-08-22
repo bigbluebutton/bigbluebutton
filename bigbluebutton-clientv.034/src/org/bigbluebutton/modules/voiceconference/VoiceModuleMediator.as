@@ -19,10 +19,13 @@
 */
 package org.bigbluebutton.modules.voiceconference
 {
+	import mx.controls.Alert;
+	
 	import org.bigbluebutton.common.InputPipe;
 	import org.bigbluebutton.common.OutputPipe;
 	import org.bigbluebutton.common.Router;
 	import org.bigbluebutton.main.MainApplicationConstants;
+	import org.bigbluebutton.modules.playback.PlaybackModuleConstants;
 	import org.bigbluebutton.modules.voiceconference.view.ListenersWindow;
 	import org.bigbluebutton.modules.voiceconference.view.ListenersWindowMediator;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
@@ -62,13 +65,30 @@ package org.bigbluebutton.modules.voiceconference
 			inpipe = new InputPipe(VoiceModuleConstants.TO_VOICE_MODULE);
 			outpipe = new OutputPipe(VoiceModuleConstants.FROM_VOICE_MODULE);
 			inpipeListener = new PipeListener(this, messageReceiver);
+			inpipe.connect(inpipeListener);
 			router.registerOutputPipe(outpipe.name, outpipe);
 			router.registerInputPipe(inpipe.name, inpipe);
 			addWindow();
 		}
 		
 		private function messageReceiver(message:IPipeMessage):void{
-			var msg:String = message.getHeader().MSG;
+			var msg:String = message.getHeader().MSG as String;
+			switch(msg){
+				case PlaybackModuleConstants.PLAYBACK_MODE:
+					switchToPlaybackMode();
+					break;
+				case PlaybackModuleConstants.PLAYBACK_MESSAGE:
+					playMessage(message.getBody() as XML);
+					break;
+			}
+		}
+		
+		private function switchToPlaybackMode():void{
+			
+		}
+		
+		private function playMessage(message:XML):void{
+			//Alert.show(message.toXMLString());
 		}
 		
 		/**

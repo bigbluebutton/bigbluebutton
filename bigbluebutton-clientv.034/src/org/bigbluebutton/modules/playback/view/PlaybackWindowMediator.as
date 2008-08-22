@@ -3,6 +3,7 @@ package org.bigbluebutton.modules.playback.view
 	import flash.events.Event;
 	
 	import org.bigbluebutton.modules.playback.PlaybackFacade;
+	import org.bigbluebutton.modules.playback.model.RecordingProxy;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
@@ -41,6 +42,10 @@ package org.bigbluebutton.modules.playback.view
 			}
 		}
 		
+		public function get proxy():RecordingProxy{
+			return facade.retrieveProxy(RecordingProxy.NAME) as RecordingProxy;
+		}
+		
 		private function loadFromServer(e:Event):void{
 			sendNotification(PlaybackFacade.LOAD_XML);
 		}
@@ -62,7 +67,8 @@ package org.bigbluebutton.modules.playback.view
 		}
 		
 		private function stopRecording(e:Event):void{
-			sendNotification(PlaybackWindow.STOP_RECORDING);
+			//sendNotification(PlaybackWindow.STOP_RECORDING);
+			proxy.stopRecording();
 		}
 
 	}
