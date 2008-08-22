@@ -2,9 +2,12 @@ package org.bigbluebutton.modules.presentation.model.business
 {
 	import flash.net.NetConnection;
 	
+	import mx.collections.ArrayCollection;
+	
 	import org.bigbluebutton.modules.presentation.PresentationFacade;
 	import org.bigbluebutton.modules.presentation.controller.notifiers.MoveNotifier;
 	import org.bigbluebutton.modules.presentation.controller.notifiers.ZoomNotifier;
+	import org.bigbluebutton.modules.presentation.model.vo.Slide;
 
 	public class PresentationPlaybackProxy extends PresentationDelegate
 	{
@@ -12,14 +15,16 @@ package org.bigbluebutton.modules.presentation.model.business
 		public static const SHARING:String = "sharing";
 		public static const PRESENTER:String = "presenter";
 		public static const CONVERSION:String = "conversion";
-		public static const SLIDE:String = "slide";
+		public static const SLIDES_CREATED:String = "slides_created";
 		public static const CHANGE_SLIDE:String = "change_slide";
 		
-		public static const SLIDES_FOLDER:String = "C:/tests/playback/MWtest/session-1/slides";
+		public static const SLIDES_FOLDER:String = "C:/tests/playback/MWtest/session-1/slides/";
+		public var slides:ArrayCollection;
 		
 		public function PresentationPlaybackProxy(nc:NetConnection)
 		{
 			super(nc);
+			slides = new ArrayCollection();
 		}
 		
 		override public function connectionSuccess():void{}
@@ -105,6 +110,11 @@ package org.bigbluebutton.modules.presentation.model.business
 		//Playback Methods
 		public function changeSlide(message:XML):void{
 			var slideNum:Number = message.@value;
+			var slide:Slide = slides[slideNum-1] as Slide;
+			slide.name = message.@value;
+			
+			//Alert.show(slides[slideNum]);
+			sendNotification(CHANGE_SLIDE, slide);
 		}
 		
 		public function conversionComplete(message:XML):void{
@@ -114,6 +124,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		public function presenterAssigned(message:XML):void{
 			var presenter:String = message.@name;
 			var presenterID:Number = message.@userid;
+			sendNotification(PRESENTER, presenter);
 		}
 		
 		public function startSharing(message:XML):void{
@@ -122,8 +133,17 @@ package org.bigbluebutton.modules.presentation.model.business
 			}
 		}
 		
-		public function slideCreated(message:XML):void{
-			var slideName:String = message.@name;
+		public function slidesCreated(message:XML):void{
+			var list:XMLList = message.presentation;
+			var item:XML;
+			
+			for each(item in list){
+				var slide:Slide = new Slide();
+				slide.source = SLIDES_FOLDER + item.@name;
+				slides.addItem(slide);
+			}
+			
+			sendNotification(SLIDES_CREATED, slides);
 		}
 		
 	}

@@ -3,7 +3,9 @@ package org.bigbluebutton.modules.playback
 	import org.bigbluebutton.modules.playback.controller.LoadXMLCommand;
 	import org.bigbluebutton.modules.playback.controller.ParseCompleteCommand;
 	import org.bigbluebutton.modules.playback.controller.StartPlaybackCommand;
+	import org.bigbluebutton.modules.playback.controller.StartRecordingCommand;
 	import org.bigbluebutton.modules.playback.controller.StartupPlaybackCommand;
+	import org.bigbluebutton.modules.playback.view.PlaybackWindow;
 	import org.puremvc.as3.multicore.patterns.facade.Facade;
 	
 	public class PlaybackFacade extends Facade
@@ -38,6 +40,7 @@ package org.bigbluebutton.modules.playback
 			registerCommand(LOAD_XML, LoadXMLCommand);
 			registerCommand(XML_READY, StartPlaybackCommand);  
 			registerCommand(PARSE_COMPLETE, ParseCompleteCommand);
+			registerCommand(PlaybackWindow.START_RECORDING, StartRecordingCommand);
 		}
 		
 		public function startup(app:PlaybackModule):void{

@@ -188,7 +188,7 @@ package org.bigbluebutton.modules.presentation.view
 		 * @param e
 		 * 
 		 */		
-		private function openFileUploadWindow(e:Event) : void{
+		protected function openFileUploadWindow(e:Event) : void{
             presentationWindow.uploadWindow = FileUploadWindow(PopUpManager.createPopUp( presentationWindow, FileUploadWindow, false));
 			
 			var point1:Point = new Point();
@@ -207,11 +207,11 @@ package org.bigbluebutton.modules.presentation.view
         	return facade.retrieveProxy(PresentationDelegate.ID) as PresentationDelegate;
         }	
         
-        private function maximize(e:Event):void{
+        protected function maximize(e:Event):void{
         	proxy.maximize();
         }
         
-        private function restore(e:Event):void{
+        protected function restore(e:Event):void{
         	proxy.restore();
         }
 

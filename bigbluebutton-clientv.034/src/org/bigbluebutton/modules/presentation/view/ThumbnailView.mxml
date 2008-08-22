@@ -31,7 +31,7 @@
         public var deck:SlidesDeck;
         		
 		[Bindable]
-		public var selectedSlide:Slide;
+		public var selectedSlide:Slide = new Slide();
 				
 		private function init() : void
 		{

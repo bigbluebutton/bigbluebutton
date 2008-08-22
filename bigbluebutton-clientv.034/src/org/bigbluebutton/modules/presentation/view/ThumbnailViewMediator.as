@@ -71,7 +71,7 @@ package org.bigbluebutton.modules.presentation.view
 		 * @param e
 		 * 
 		 */		
-		private function sendPageNumber(e:Event) : void {
+		protected function sendPageNumber(e:Event) : void {
 			thumbnailView.myLoader.percentHeight = 100;
 			thumbnailView.myLoader.percentWidth = 100;
 			thumbnailView.myLoader.x = 1;
@@ -89,18 +89,18 @@ package org.bigbluebutton.modules.presentation.view
 		 * @return - the PresentationDelegate proxy of the Presentation Module
 		 * 
 		 */		
-		private function get proxy():PresentationDelegate{
+		protected function get proxy():PresentationDelegate{
 			return facade.retrieveProxy(PresentationDelegate.ID) as PresentationDelegate;
 		}
 		
-		private function zoom(e:Event):void{
+		protected function zoom(e:Event):void{
 			var xPercent:Number = thumbnailView.myLoader.width / thumbnailView.imageCanvas.width;
 			var yPercent:Number = thumbnailView.myLoader.height / thumbnailView.imageCanvas.height;
 			
 			proxy.zoom(xPercent, yPercent);
 		}
 		
-		private function move(e:Event):void{
+		protected function move(e:Event):void{
 			var xOfset:Number = thumbnailView.myLoader.x / thumbnailView.imageCanvas.width;
 			var yOfset:Number = thumbnailView.myLoader.y / thumbnailView.imageCanvas.height;
 			

@@ -2,8 +2,6 @@ package org.bigbluebutton.modules.playback.view
 {
 	import flash.events.Event;
 	
-	import mx.controls.Alert;
-	
 	import org.bigbluebutton.modules.playback.PlaybackFacade;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
@@ -20,6 +18,8 @@ package org.bigbluebutton.modules.playback.view
 			view.addEventListener(PlaybackWindow.LOAD_LOCAL, loadLocal);
 			view.addEventListener(PlaybackFacade.PLAY, onPlay);
 			view.addEventListener(PlaybackFacade.STOP, onStop);
+			view.addEventListener(PlaybackWindow.START_RECORDING, startRecording);
+			view.addEventListener(PlaybackWindow.STOP_RECORDING, stopRecording);
 		}
 		
 		public function get window():PlaybackWindow{
@@ -55,6 +55,14 @@ package org.bigbluebutton.modules.playback.view
 		
 		private function onStop(e:Event):void{
 			sendNotification(PlaybackFacade.STOP);
+		}
+		
+		private function startRecording(e:Event):void{
+			sendNotification(PlaybackWindow.START_RECORDING);
+		}
+		
+		private function stopRecording(e:Event):void{
+			sendNotification(PlaybackWindow.STOP_RECORDING);
 		}
 
 	}

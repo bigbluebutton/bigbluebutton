@@ -28,7 +28,10 @@ package org.bigbluebutton.modules.presentation
 	import org.bigbluebutton.modules.presentation.model.business.PresentationPlaybackProxy;
 	import org.bigbluebutton.modules.presentation.view.PresentationWindow;
 	import org.bigbluebutton.modules.presentation.view.PresentationWindowMediator;
+	import org.bigbluebutton.modules.presentation.view.ThumbnailView;
 	import org.bigbluebutton.modules.presentation.view.ThumbnailViewMediator;
+	import org.bigbluebutton.modules.presentation.view.playback.PresentationPlaybackMediator;
+	import org.bigbluebutton.modules.presentation.view.playback.ThumbnailPlaybackMediator;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
 	import org.puremvc.as3.multicore.utilities.pipes.interfaces.IPipeMessage;
@@ -85,8 +88,7 @@ package org.bigbluebutton.modules.presentation
 			var msg : String = message.getHeader().MSG as String;
 			switch(msg){
 				case PlaybackModuleConstants.PLAYBACK_MODE:
-					facade.removeProxy(PresentationDelegate.ID);
-					facade.registerProxy(new PresentationPlaybackProxy(null));
+					switchToPlayback();
 					break;
 				case PlaybackModuleConstants.PLAYBACK_MESSAGE:
 					playMessage(message.getBody() as XML);
@@ -94,10 +96,27 @@ package org.bigbluebutton.modules.presentation
 			}
 		}
 		
+		private function switchToPlayback():void{
+			var presWindow:PresentationWindow = 
+				(facade.retrieveMediator(PresentationWindowMediator.NAME) as PresentationWindowMediator).presentationWindow;
+			
+			var thumbnail:ThumbnailView = 
+				(facade.retrieveMediator(ThumbnailViewMediator.NAME) as ThumbnailViewMediator).thumbnailView;
+			
+			facade.removeProxy(PresentationDelegate.ID);
+			facade.registerProxy(new PresentationPlaybackProxy(null));
+			
+			facade.registerMediator(new ThumbnailPlaybackMediator(thumbnail));
+			
+			var mediator:PresentationPlaybackMediator = new PresentationPlaybackMediator(presWindow);
+			facade.registerMediator(mediator);
+			mediator.presentationWindow.thumbnailView.visible = true;
+		}
+		
 		private function playMessage(message:XML):void{
 			var playbackProxy:PresentationPlaybackProxy = 
 					facade.retrieveProxy(PresentationDelegate.ID) as PresentationPlaybackProxy;
-			switch(message.@event){
+			switch(String(message.@event)){
 				case PresentationPlaybackProxy.CHANGE_SLIDE:
 					playbackProxy.changeSlide(message);
 					break;
@@ -110,8 +129,8 @@ package org.bigbluebutton.modules.presentation
 				case PresentationPlaybackProxy.SHARING:
 					playbackProxy.startSharing(message);
 					break;
-				case PresentationPlaybackProxy.SLIDE:
-					playbackProxy.slideCreated(message);
+				case PresentationPlaybackProxy.SLIDES_CREATED:
+					playbackProxy.slidesCreated(message);
 					break;
 			}
 		}

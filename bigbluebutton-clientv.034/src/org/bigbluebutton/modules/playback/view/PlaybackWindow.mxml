@@ -16,7 +16,10 @@
 			public static const LOAD_RECORDING:String = "Load Recording";
 			public static const LOAD_FROM_SERVER:String = "Load from server";
 			public static const LOAD_LOCAL:String = "Load Local";
+			public static const PLAYBACK:String = "Playback";
 			public static const RECORDING:String = "Recording";
+			public static const START_RECORDING:String = "Start Recording";
+			public static const STOP_RECORDING:String = "Stop Recording";
 			
 			private var menubarXML:XMLList =
                 <>
@@ -24,9 +27,13 @@
                         <menuitem label={LOAD_FROM_SERVER}/>
                         <menuitem label={LOAD_LOCAL} /> 
                     </menuitem>
-                    <menuitem label= {RECORDING}>
+                    <menuitem label= {PLAYBACK}>
                     	<menuitem label= {PlaybackFacade.PLAY} />
                     	<menuitem label= {PlaybackFacade.STOP} />
+                    </menuitem>
+                    <menuitem label= {RECORDING}>
+                    	<menuitem label= {START_RECORDING} />
+                    	<menuitem label= {STOP_RECORDING} />
                     </menuitem>
                 </>;
 			
@@ -49,6 +56,12 @@
 						break;
 					case PlaybackFacade.STOP:
 						dispatchEvent(new Event(PlaybackFacade.STOP));
+						break;
+					case START_RECORDING:
+						dispatchEvent(new Event(START_RECORDING));
+						break;
+					case STOP_RECORDING:
+						dispatchEvent(new Event(STOP_RECORDING));
 						break;
 				}
 			}
