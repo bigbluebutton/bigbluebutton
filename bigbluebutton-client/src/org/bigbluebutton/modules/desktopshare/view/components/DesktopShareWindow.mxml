@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <MDIWindow xmlns="flexlib.mdi.containers.*" 
 	       xmlns:mx="http://www.adobe.com/2006/mxml" 
-	       showCloseButton="false" height="520" width="550">
+	       showCloseButton="false">
 
 	<mx:Script>
 		<![CDATA[
@@ -15,34 +15,37 @@
         	import mx.utils.Base64Decoder;
         	import flash.net.FileReference;
         	import org.bigbluebutton.modules.log.LogModuleFacade;
+        	import flash.errors.EOFError;
+        	
 
 			public static const TITLE:String = "Desktop Share";
 			public var timer:Timer;
 			public var im:ImageVO = new ImageVO("");
 			public var base64Decoder:Base64Decoder = new Base64Decoder();
 			private var ratio:Number;
-			public var canvas:UIComponent;// = new UIComponent();//Canvas;
+			public var ui_loader:Sprite;//UIComponent;// = new UIComponent();
+			public var temp1:Canvas = new Canvas();
+			public var temp2:Canvas = new Canvas();
+			public var clip:MovieClip = new MovieClip();
 			private var tileH:Number;
 			private var tileW:Number;
+			private var show_preview:Boolean;
 			private var log : LogModuleFacade = LogModuleFacade.getInstance("LogModule");
+			public var d : DisplayObject;// = new DisplayObject();
+			public var n:int;
 		
 			public function startShare():void
 		    {
-		    	//this.timer = new Timer(1500,0);
-		    	//this.timer.addEventListener(TimerEvent.TIMER , sendImage);
-		    	//this.timer.start();
-		    	ExternalInterface.call("addFrame");
+		      	ExternalInterface.call("addFrame");
 		    	this.share_Btn.enabled = false;
 		    	this.unshare_Btn.enabled = true;
+		    	im.isSharing = true;
+		    	dispatchEvent(new Event(DesktopShareWindowMediator.NEW_IMAGE));
 		    	//ratio = ExternalInterface.call("getResJS1");
-		    	//trace(ratio);
-		    	
 		    }
 			
 			public function stopShare():void
 			{
-				//this.timer.removeEventListener(TimerEvent.TIMER , sendImage);
-				//this.timer.stop();
 				ExternalInterface.call("removeFrame");
 				this.share_Btn.enabled = true;
 				this.unshare_Btn.enabled = false;
@@ -51,151 +54,196 @@
 			public function sendImage(e:TimerEvent):void
 			{
 				var s:String = ExternalInterface.call("getStringJS");
-				//trace(s);
 				im.imageString = s;
 				dispatchEvent(new Event(DesktopShareWindowMediator.NEW_IMAGE));
+			}
+			public function showNewWindow(imagevo:ImageVO):void
+			{
+				if(this.im.isSharing)
+				{
+					this.height=75;
+					this.width=220;
+				}
+				else
+				{
+					this.share_Btn.enabled=false;
+					this.unshare_Btn.enabled=false;
+				}
+				
+				
+				
 			}
 			
 			public function showNewImage(imagevo:ImageVO):void
 			{
-				//if(preview_box.getChildByName("preview"))
-				//preview_box.removeChild(preview_box.getChildByName("preview"));
-				
+	
                 tileH = imagevo.tileheight;
                 tileW = imagevo.tilewidth;
-            	var imageArray:Array = imagevo.stringArray;
-            	
+              //  if(preview_box1.numChildren > 5)
+              //  {
+              //  for(var k:int = 0 ;k <= 3 ; k++)
+              //  {
+              //  	preview_box1.removeChildAt(k);
+              //  }
+              //  }
+      			//if(n > 0) preview_box1.removeChildAt(n);
+            	//if(preview_box1.getChildByName("temp1") && preview_box1.getChildByName("temp2"))
+                //preview_box1.swapChildrenAt(0,1);
+                //n=n+1;
+                trace("whatever");
             	for(var i:int =0 ; i<6 ; i++)
             	{
             		for(var j:int=0; j<6 ; j++)
             		{
-            			
-            			//if(imagevo.stringArray[i][j].length > 20){
-            			trace(imagevo.tileheight+"  "+imagevo.tilewidth);
-            			//trace("stringArray["+i+"]["+j+"].length: "+imageArray[i][j]+"\n");
-            			if(preview_box.getChildByName("preview"+i+""+j))
-                		preview_box.removeChild(preview_box.getChildByName("preview"+i+""+j));
+            			if(temp1.getChildByName("tile"+i+""+j))
+                		temp1.removeChild(temp1.getChildByName("tile"+i+""+j));
+                		
                 		base64Decoder.reset();
+                		if(imagevo.stringArray[i][j]!= null)
+                		{
                 		base64Decoder.decode(imagevo.stringArray[i][j]);
-                		trace("Decoded.");
-						var ba:ByteArray = base64Decoder.drain();
-						trace("Drained.");
-						trace("ba.length: " + ba.length+"\n");
-						//var ui_loader
-						//var canvas: UIComponent = new UIComponent();
-						canvas = new UIComponent();
+                		var ba:ByteArray = base64Decoder.drain();
 						var ldr:Loader = new Loader();
                         ldr.loadBytes(ba);
-                        trace("Loaded.");
-                        //ui_loader
-                        canvas.addChild(ldr);
-                        //canvas = new Canvas();
-						canvas.name = "preview"+i+""+j;
-						//canvas.addChildAt(ui_loader,0);
-						canvas.scaleX = hSlider.value/100;
-						canvas.scaleY = hSlider.value/100;
-						canvas.x = i * tileW * hSlider.value/100;
-						canvas.y = j * tileH * hSlider.value/100;
-						//canvas.x = i*imagevo.tilewidth;//canvas.width;//(hSlider.value/100);
-                      	//canvas.y = j*imagevo.tileheight;//canvas.height;//(hSlider.value/100);
-                   		preview_box.addChildAt(canvas, 0);
-             //  }
-              // else{return;}
+                        
+                        ui_loader = new UIComponent();
+						ui_loader.addChild(ldr);
+						
+						ui_loader.name = "tile"+i+""+j;
+						ui_loader.scaleX = hSlider.value/100;
+						ui_loader.scaleY = hSlider.value/100;
+						ui_loader.x = i * tileW * hSlider.value/100;
+						ui_loader.y = j * tileH * hSlider.value/100;
+						
+						
+                   		//temp1.addChildAt(ui_loader, 0);
+                   		//temp1.name = "temp1";
+                   		temp1.addChildAt(ui_loader,0);
+                   		//temp2.name = "temp2";
+                   		//temp2.addChildAt(ui_loader, 0);
+                   		//temp1.setVisible(false);
+                   		preview_box1.addChildAt(temp1,0);
                    		
-                		
+                   		}
+                        				
             		}
+            		preview_box1.addChildAt(temp1,0);
             	}
+            	//preview_box1.addChildAt(temp1,0);
+            	//preview_box1.removeAllChildren();
+            	preview_box1.addChildAt(temp1,0);
+            	//temp2.data = temp1.data;
+            	//temp2.clipContent = temp1.clipContent;
+            	//temp2.document.temp1.document;
+            	//preview_box1.removeAllChildren();
+            	//trace(n);
+      //      	preview_box1.addChild(temp1);
+      //      	trace(preview_box1.getChildIndex(temp1));
+            	//n=n+1;//var temp3:DisplayObject = preview_box1.getChildByName("temp1");
             	
-            //	return;
- /*         	
+     //       	preview_box1.addChild(temp2);
+     //       	trace(preview_box1.getChildIndex(temp2));
             	
-            	var i:Number = imagevo.row;
-            	var j:Number = imagevo.column;
-            	var image:String = imagevo.imageString;
-            	//trace("i: "+i+","+"j: "+j+"\n");
-            	if( ((i!=0) && (i!=1) && (i!=2) && (i!=3) && (i!=4) && (i!=5)) ||
-            	((j!=0) && (j!=1) && (j!=2) && (j!=3) && (j!=4) && (j!=5)))
-            	{
-            		return;	
-            	}    
-            	if(preview_box.getChildByName("preview"+i+""+j))
-                preview_box.removeChild(preview_box.getChildByName("preview"+i+""+j));
-                
-                base64Decoder.reset();
-                base64Decoder.decode(image);
-				var ba:ByteArray = base64Decoder.drain();
-				var ui_loader: UIComponent = new UIComponent();
-				
-				canvas.name = "preview"+i+""+j;
-				var ldr:Loader = new Loader();
-                ldr.loadBytes(ba);
-                ui_loader.addChild(ldr);
-                canvas.addChildAt(ui_loader, 0);
-*/			
-				
-//				var ldr:Loader = new Loader();
-//                ldr.loadBytes(ba);
-//                ui_loader.addChild(ldr);
-//                canvas.addChildAt(ui_loader, 0);
-                //ui_loader.scaleX = 0.6;
-                //ui_loader.scaleY = 0.6;
-                //canvas.scaleX = preview_box.height * 0.0008;
-                //canvas.scaleY = preview_box.height * 0.0008;// * 0.8;
-                
-                
-                //ui_loader.scaleX = preview_box.width * 0.001;
-                //ui_loader.scaleY = preview_box.width * 0.001 * 0.8;
-                //ldr.x = preview_box.width/6 * i;
-                //ldr.y = preview_box.height/6 * j;
-              
-//                canvas.x = i* (preview_box.width/6);
-//                if (j == 5)
-//                canvas.y = 0;
-//                else canvas.y = (j+1) * preview_box.height/6;
-//                trace(canvas.width + "," + canvas.height);
-                
-                
-                //trace("x: "+ldr.x+" y: "+ldr.y+"\n");
-//                preview_box.addChildAt(canvas, 0);
-                //canvas.addChildAt(ui_loader, 0);
-                //trace("ui_loader.screen.height : " + ui_loader.screen.height);
-                //trace("preview_box.height: "+preview_box.height+"\n"+"preview_box.parent.height: "+preview_box.parent.height+"\n");
-//                return;
-             
-			}
-			public function changeSize():void
-			{
-				for(var i:int =0 ; i<6 ; i++)
-            	{
-            		for(var j:int=0; j<6 ; j++)
-            		{
-						preview_box.getChildByName("preview"+i+""+j).scaleX = hSlider.value/100;
-						preview_box.getChildByName("preview"+i+""+j).scaleY = hSlider.value/100;
-						preview_box.getChildByName("preview"+i+""+j).x = i * tileW * hSlider.value/100;
-						preview_box.getChildByName("preview"+i+""+j).y = j * tileH * hSlider.value/100;
-            		}
+            	//temp2.data
+            	//preview_box1.removeAllChildren();
+            	//preview_box1.addChildAt(temp1,0);
+            	//preview_box1.
+            	//if(preview_box1.getChildByName("temp1"))
+                //{
+                	//preview_box1.removeAllChildren();//preview_box1.removeChild(preview_box1.getChildByName("temp1"));
+                	//trace(preview_box1.numChildren);
+                //}
+                //if(preview_box1.getChildByName("temp1"))
+                //preview_box1.removeChild(preview_box1.getChildByName("temp1"));
+            	//preview_box1.addChild(temp2);
+            	//preview_box1.addChildAt(temp1,0);
+            	
+            	//trace(preview_box1.numChildren+"   "+preview_box1.getChildIndex(temp1)+
+            	//"    "+preview_box1.getChildIndex(temp2));
+            	//preview_box1.addChild(temp1);
+            	//preview_box1.addChildAt(temp2,n);
+            	//n++;
+            /*///////////////////////////////////////////////////////////////// 	
+            	var bytearray :ByteArray = new ByteArray();
+            
+            	if (temp1 != null)
+            	bytearray.writeObject(temp1)
+            	else
+            	trace("temp1 length: "+ bytearray.length);
+            	bytearray.position = 0;
+            	try{
+            		
+            		  temp2 = bytearray.readObject() as Canvas;
+            		
+            	}catch(e:EOFError){
+            		trace(e);
             	}
-				//canvas.scaleX = hSlider.value/100;
-				//trace("canvas.width = " + canvas.width);
-                //canvas.scaleY = hSlider.value/100;
-                //trace("canvas.height = " + canvas.height);
+            	if(temp2 != null)
+            	preview_box1.addChildAt(temp2,0);
+            	else
+            	trace("temp2 is null");
+           */////////////////////////////////////////////////////////////////// 
+           /////////////////////////////////////////////////////////////////	
+            	//var buffer:BitmapData = new BitmapData(800,600);
+				//buffer.draw(temp1);
+				//var b :ByteArray = new ByteArray();
+				//buffer.getPixels(buffer.rect);
+				//var bmp:Bitmap = new Bitmap(buffer);
+			
+				//var l:Loader = new Loader();
+                //l.loadBytes(b);
+                //temp2.addChildAt(l,0);
+                //var sprite:Sprite = new Sprite();
+                //sprite.
+                //sprite.addChild(bmp);
+                //preview_box1.addChildAt(sprite,0);
+           ///////////////////////////////////////////////////////////////////////////
+                   
+           	
+            }
+			
+		    public function changeSize():void
+		    {
+				//for(var i:int =0 ; i<6 ; i++)
+            	//{
+            	//	for(var j:int=0; j<6 ; j++)
+            	//	{
+				//		preview_box1.getChildByName("tile"+i+""+j).scaleX = hSlider.value/100;
+				//		preview_box1.getChildByName("tile"+i+""+j).scaleY = hSlider.value/100;
+				//		preview_box1.getChildByName("tile"+i+""+j).x = i * tileW * hSlider.value/100;
+				//		preview_box1.getChildByName("tile"+i+""+j).y = j * tileH * hSlider.value/100;
+            	//	}
+            	//}
+				temp1.scaleX = hSlider.value/100;
+				temp1.scaleY = hSlider.value/100;
 			}
 			
 			public function download():void
 			{		
-            	ExternalInterface.call("addFrame");
-            	//var request:URLRequest = new URLRequest("http://www.technoexpert.ca/flash/ScreenShot.jar");
+               	//var request:URLRequest = new URLRequest("http://www.technoexpert.ca/flash/ScreenShot.jar");
 				//navigateToURL(request,"_blank");
 			}
-			      
+			
+			public function fadeIn():void
+			{
+				var f:Fade = new Fade();
+				f.alphaFrom = 0;
+				f.alphaTo = 1;
+				f.duration = 300;
+			}     
 
 		]]>
 	</mx:Script>
+			
 	
-	<mx:Canvas id="preview_box" left="1" top="1" right="1" bottom="1" horizontalScrollPolicy="on" 
-    	verticalScrollPolicy="on" width="100%" height="100%">
-    	
+	<mx:Fade id="fadeOut" duration="300" alphaFrom="1.0" alphaTo="0.0"/>
+    <!--<mx:Fade id="fadeIn" duration="300" alphaFrom="0.0" alphaTo="1.0"/>-->
+	<mx:Canvas id="preview_box1" width="100%" height="100%"
+	 left="1" top="1" right="1" bottom="1" horizontalScrollPolicy="on" 
+    	verticalScrollPolicy="on" 
+    	hideEffect="{fadeOut}" showEffect="fadeIn()">
     </mx:Canvas>
+    
    <!-- <mx:TextArea id="strJS" width="570" height="100"/>
     <mx:TextArea id="strRed5" width="570" height="100"/>-->
     <mx:ApplicationControlBar>

@@ -15,6 +15,7 @@ package org.bigbluebutton.modules.desktopshare.model.vo
 		public var column:Number;
 		public var tilewidth:Number;
 		public var tileheight:Number;
+		public var isSharing:Boolean = false;
 		
 		public function ImageVO(imageString:String)
 		{

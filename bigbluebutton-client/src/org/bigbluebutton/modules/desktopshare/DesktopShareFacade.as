@@ -12,6 +12,7 @@ package org.bigbluebutton.modules.desktopshare
 		public static const NAME:String = "DesktopShareFacade";
 		public static const STARTUP:String          = "startup";
 		public static const NEW_IMAGE:String      = "newImage";
+		public static const IS_SHARING:String      = "isSharing";
 		
 		public function DesktopShareFacade()
 		{

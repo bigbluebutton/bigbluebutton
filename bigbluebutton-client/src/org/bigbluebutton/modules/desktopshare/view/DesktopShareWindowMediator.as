@@ -33,7 +33,8 @@ package org.bigbluebutton.modules.desktopshare.view
 		override public function listNotificationInterests():Array
 		{
 			return [
-					DesktopShareFacade.NEW_IMAGE
+					DesktopShareFacade.NEW_IMAGE,
+					DesktopShareFacade.IS_SHARING
 				   ];
 		}
 		override public function handleNotification(notification:INotification):void
@@ -42,7 +43,10 @@ package org.bigbluebutton.modules.desktopshare.view
 			{
 				case DesktopShareFacade.NEW_IMAGE:
 					this.desktopShareWindow.showNewImage(notification.getBody() as ImageVO);
-					break;	
+					break;
+				case DesktopShareFacade.IS_SHARING:
+					this.desktopShareWindow.showNewWindow(notification.getBody() as ImageVO);
+					break;		
 			}
 		}
 		public function get proxy():DesktopShareProxy

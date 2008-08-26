@@ -69,20 +69,22 @@ package org.bigbluebutton.modules.desktopshare.model.business
 		public function sendImageToSharedObject(im:ImageVO):void
 		{
 			//log.debug("imageString: "+im.imageString);
-			appSO.send("receiveNewImage", im.imageString);
+			appSO.send("receiveNewImage", im.isSharing);
 			
 		}
 		
-		public function receiveNewImage(imageString:String):void
+		public function receiveNewImage(isSharing:Boolean):void
 		{
-			this.imageVO.imageString = imageString;
-			sendNotification(DesktopShareFacade.NEW_IMAGE, imageString);
+			//this.imageVO.imageString = imageString;
+			sendNotification(DesktopShareFacade.IS_SHARING, isSharing);
+			trace("proxy:receiveNewImage");
 		}
 		
 		public function leave():void{}
 		
 		public function sharedObjectSyncHandler(event:SyncEvent):void
 		{
+			
 			for (var i : uint = 0; i < event.changeList.length; i++) 
 			{
 				//log.debug("Desktop Share::handlingChanges[" + event.changeList[i].code + "][" + i + "]\n");
@@ -96,12 +98,12 @@ package org.bigbluebutton.modules.desktopshare.model.business
 								case "endOfUpdate":
 								//if (appSO.data.endOfUpdate == "true")
 								this.imageVO.tilewidth = appSO.data.tilewidth;
-								trace("appSO.data.tilewidth: " + appSO.data.tilewidth + "imageVO.tilewidth: " +imageVO.tilewidth);
+								//trace("appSO.data.tilewidth: " + appSO.data.tilewidth + "imageVO.tilewidth: " +imageVO.tilewidth);
 								this.imageVO.tileheight = appSO.data.tileheight;
 								
 								//case "imageString00":
 								this.imageVO.stringArray[0][0]=appSO.data.imageString00;
-								trace("imageVO.stringArray[0][0]: " + imageVO.stringArray[0][0]);
+								//trace("imageVO.stringArray[0][0]: " + imageVO.stringArray[0][0]);
 								//this.imageVO.row = 0;
 								//this.imageVO.column = 0;
 						        //sendNotification(DesktopShareFacade.NEW_IMAGE, this.imageVO);
@@ -324,6 +326,7 @@ package org.bigbluebutton.modules.desktopshare.model.business
 								//this.imageVO.tilewidth = appSO.data.tilewidth;
 								//this.imageVO.tileheight = appSO.data.tileheight;
 								sendNotification(DesktopShareFacade.NEW_IMAGE, this.imageVO);
+								trace("proxy:syncHandler");
 								break;
 							}
 						
