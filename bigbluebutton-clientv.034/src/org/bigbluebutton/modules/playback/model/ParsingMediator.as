@@ -49,32 +49,6 @@ package org.bigbluebutton.modules.playback.model
 			sendNotification(PlaybackFacade.PARSE_COMPLETE,
 				new ParseNotifier(mainSequence.voice, VoiceModuleConstants.TO_VOICE_MODULE, startTime));
 		}
-		
-		override public function listNotificationInterests():Array{
-			return [
-					PlaybackFacade.PLAY,
-					PlaybackFacade.STOP
-					];
-		}
-		
-		override public function handleNotification(notification:INotification):void{
-			switch(notification.getName()){
-				case PlaybackFacade.PLAY:
-					startPlayback();
-					break;
-				case PlaybackFacade.STOP:
-					stopPlayback();
-					break;
-			}
-		}
-		
-		private function startPlayback():void{
-			//timer.start();
-		}
-		
-		private function stopPlayback():void{
-			//timer.stop();
-		}
 
 	}
 }

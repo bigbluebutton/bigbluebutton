@@ -19,15 +19,15 @@
 */
 package org.bigbluebutton.modules.voiceconference
 {
-	import mx.controls.Alert;
-	
 	import org.bigbluebutton.common.InputPipe;
 	import org.bigbluebutton.common.OutputPipe;
 	import org.bigbluebutton.common.Router;
 	import org.bigbluebutton.main.MainApplicationConstants;
 	import org.bigbluebutton.modules.playback.PlaybackModuleConstants;
+	import org.bigbluebutton.modules.voiceconference.model.business.VoiceConfConnectResponder;
 	import org.bigbluebutton.modules.voiceconference.view.ListenersWindow;
 	import org.bigbluebutton.modules.voiceconference.view.ListenersWindowMediator;
+	import org.bigbluebutton.modules.voiceconference.view.recording.ListenersPlaybackMediator;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
 	import org.puremvc.as3.multicore.utilities.pipes.interfaces.IPipeMessage;
@@ -84,11 +84,28 @@ package org.bigbluebutton.modules.voiceconference
 		}
 		
 		private function switchToPlaybackMode():void{
+			facade.removeMediator(VoiceConfConnectResponder.NAME);
+			var window:ListenersWindow = 
+			(facade.retrieveMediator(ListenersWindowMediator.NAME) as ListenersWindowMediator).listenersWindow;
 			
+			facade.removeMediator(ListenersWindowMediator.NAME);
+			
+			facade.registerMediator(new ListenersPlaybackMediator(window));
 		}
 		
 		private function playMessage(message:XML):void{
 			//Alert.show(message.toXMLString());
+			switch(String(message.@event)){
+				case ListenersPlaybackMediator.JOIN:
+					sendNotification(ListenersPlaybackMediator.JOIN, message);
+					break;
+				case ListenersPlaybackMediator.LEFT:
+					sendNotification(ListenersPlaybackMediator.LEFT, message);
+					break;
+				case ListenersPlaybackMediator.TALK:
+					sendNotification(ListenersPlaybackMediator.TALK, message);
+					break;
+			}
 		}
 		
 		/**
