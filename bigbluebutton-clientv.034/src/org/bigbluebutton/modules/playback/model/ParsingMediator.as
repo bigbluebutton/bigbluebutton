@@ -46,8 +46,8 @@ package org.bigbluebutton.modules.playback.model
 			sendNotification(PlaybackFacade.PARSE_COMPLETE,
 				new ParseNotifier(mainSequence.presentation, PresentationConstants.TO_PRESENTATION_MODULE, startTime));
 		
-			sendNotification(PlaybackFacade.PARSE_COMPLETE,
-				new ParseNotifier(mainSequence.voice, VoiceModuleConstants.TO_VOICE_MODULE, startTime));
+			//sendNotification(PlaybackFacade.PARSE_COMPLETE,
+			//	new ParseNotifier(mainSequence.voice, VoiceModuleConstants.TO_VOICE_MODULE, startTime));
 		}
 
 	}
