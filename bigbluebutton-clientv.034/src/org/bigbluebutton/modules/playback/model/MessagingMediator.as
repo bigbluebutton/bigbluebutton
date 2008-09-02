@@ -106,7 +106,11 @@ package org.bigbluebutton.modules.playback.model
 				
 				count++;
 				if (events[count] != null){
-					this.timer.delay = (events[count].@time - events[count-1].@time)*10;
+					if (events[count].@time - events[count-1].@time == 0){
+						this.timer.delay = 1;
+					} else{
+						this.timer.delay = (events[count].@time - events[count-1].@time);	
+					}
 				}
 			} else{
 				timer.stop();

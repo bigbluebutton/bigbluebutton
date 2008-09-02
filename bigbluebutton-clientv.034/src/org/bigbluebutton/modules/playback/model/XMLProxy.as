@@ -18,11 +18,15 @@ package org.bigbluebutton.modules.playback.model
 	public class XMLProxy extends Proxy implements IProxy
 	{
 		public static const NAME:String = "XMLProxy";
-		public static const MAIN:String = "C:/tests/playback/MWtest/session-1/";
-		public static const PATH:String = "C:/tests/playback/MWtest/session-1/lecture2.xml";
-		public static const SLIDE_FOLDER:String = "C:/tests/playback/MWtest/session-1/slides";
+		public static const MAIN:String = "C:/tests/playback/Session_Test/";
+		public static const PATH:String = MAIN + "lecture.xml";
+		public static const SLIDE_FOLDER:String = MAIN + "Slides";
 		
-		public function XMLProxy(file:String = PATH)
+		public static var main:String = MAIN;
+		public static var path:String = PATH;
+		public static var slides:String = SLIDE_FOLDER;
+		
+		public function XMLProxy(file:String)
 		{
 			super(NAME);
 			var loader:URLLoader = new URLLoader();

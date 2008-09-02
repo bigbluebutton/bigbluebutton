@@ -6,8 +6,11 @@ package org.bigbluebutton.modules.playback.model
 	
 	import mx.controls.Alert;
 	
+	import org.bigbluebutton.common.Constants;
 	import org.bigbluebutton.common.red5.Connection;
 	import org.bigbluebutton.common.red5.ConnectionEvent;
+	import org.bigbluebutton.modules.viewers.ViewersFacade;
+	import org.bigbluebutton.modules.viewers.model.business.Conference;
 	import org.puremvc.as3.multicore.interfaces.IProxy;
 	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
 	
@@ -47,7 +50,8 @@ package org.bigbluebutton.modules.playback.model
 		}
 		
 		public function startRecording():void{
-			nc.call("VCRStart", new Responder(gotStart, gotFault), "85115");
+			var room:Conference = ViewersFacade.getInstance().retrieveMediator(Conference.NAME) as Conference;
+			nc.call("VCRStart", new Responder(gotStart, gotFault), Constants.red5Host, room.room );
 		}
 		
 		public function stopRecording():void{

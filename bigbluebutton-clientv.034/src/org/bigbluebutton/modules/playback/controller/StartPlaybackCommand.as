@@ -10,7 +10,7 @@ package org.bigbluebutton.modules.playback.controller
 		override public function execute(notification:INotification):void{
 			var xml:XML = notification.getBody() as XML;
 			facade.registerMediator(new ParsingMediator(xml));
-			facade.registerMediator(new SoundPlaybackMediator(xml.par.audio.@src));
+			//facade.registerMediator(new SoundPlaybackMediator(xml.par.audio.@src));
 		}
 
 	}

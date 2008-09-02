@@ -12,6 +12,8 @@ package org.bigbluebutton.modules.playback.view
 	{
 		public static const NAME:String = "PlaybackWindowMediator";
 		
+		private var isPlaying:Boolean = false;
+		
 		public function PlaybackWindowMediator(view:PlaybackWindow)
 		{
 			super(NAME, view);
@@ -55,11 +57,15 @@ package org.bigbluebutton.modules.playback.view
 		}
 		
 		private function onPlay(e:Event):void{
-			sendNotification(PlaybackFacade.PLAY);
+			if (!isPlaying){
+				sendNotification(PlaybackFacade.PLAY);	
+			}
 		}
 		
 		private function onStop(e:Event):void{
-			sendNotification(PlaybackFacade.STOP);
+			if (isPlaying){
+				sendNotification(PlaybackFacade.STOP);
+			}
 		}
 		
 		private function startRecording(e:Event):void{

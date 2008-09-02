@@ -7,7 +7,7 @@ package org.bigbluebutton.modules.playback.controller
 	public class LoadXMLCommand extends SimpleCommand
 	{
 		override public function execute(notification:INotification):void{
-			facade.registerProxy(new XMLProxy());
+			facade.registerProxy(new XMLProxy(XMLProxy.path));
 		}
 
 	}
