@@ -22,8 +22,6 @@ package org.bigbluebutton.modules.chat.view
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	
-	import mx.controls.Alert;
-	
 	import org.bigbluebutton.common.InputPipe;
 	import org.bigbluebutton.common.OutputPipe;
 	import org.bigbluebutton.common.Router;
@@ -176,7 +174,8 @@ package org.bigbluebutton.modules.chat.view
 			var user:String = message.@user;
 			var chatMessage:String = message as String;
 			//Alert.show(message);
-			playbackProxy.receiveNewMessage(user,message, 0x0000);
+			var color:Number = message.@color;
+			playbackProxy.receiveNewMessage(user,message,color);
 		}
 		
 		/**

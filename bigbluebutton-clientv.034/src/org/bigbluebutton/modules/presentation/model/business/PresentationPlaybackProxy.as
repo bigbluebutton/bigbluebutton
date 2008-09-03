@@ -4,6 +4,7 @@ package org.bigbluebutton.modules.presentation.model.business
 	
 	import mx.collections.ArrayCollection;
 	
+	import org.bigbluebutton.modules.playback.model.XMLProxy;
 	import org.bigbluebutton.modules.presentation.PresentationFacade;
 	import org.bigbluebutton.modules.presentation.controller.notifiers.MoveNotifier;
 	import org.bigbluebutton.modules.presentation.controller.notifiers.ZoomNotifier;
@@ -16,9 +17,13 @@ package org.bigbluebutton.modules.presentation.model.business
 		public static const PRESENTER:String = "presenter";
 		public static const CONVERSION:String = "conversion";
 		public static const SLIDES_CREATED:String = "slides_created";
-		public static const CHANGE_SLIDE:String = "change_slide";
+		public static const CHANGE_SLIDE:String = "gotoPage";
+		public static const ZOOM:String = "zoom";
+		public static const MOVE:String = "move";
+		public static const MAXIMIZE:String = "maximize";
+		public static const RESTORE:String = "restore";
 		
-		public static const SLIDES_FOLDER:String = "C:/tests/playback/MWtest/session-1/slides/";
+		public static const SLIDES_FOLDER:String = XMLProxy.SLIDE_FOLDER;
 		public var slides:ArrayCollection;
 		
 		public function PresentationPlaybackProxy(nc:NetConnection)
@@ -109,8 +114,8 @@ package org.bigbluebutton.modules.presentation.model.business
 		
 		//Playback Methods
 		public function changeSlide(message:XML):void{
-			var slideNum:Number = message.@value;
-			var slide:Slide = slides[slideNum-1] as Slide;
+			var slideNum:Number = message.@Slide;
+			var slide:Slide = slides[slideNum] as Slide;
 			slide.name = message.@value;
 			
 			//Alert.show(slides[slideNum]);
@@ -146,5 +151,30 @@ package org.bigbluebutton.modules.presentation.model.business
 			sendNotification(SLIDES_CREATED, slides);
 		}
 		
+		public function zoomPlayback(message:XML):void{
+			var value:String = message.@values;
+			var values:Array = value.split(",");
+			
+			var height:String = String(values[0]).substr(1);
+			var width:String = String(values[1]);
+			width = width.substr(0, width.length-1);
+			
+			//Alert.show(height)
+			//Alert.show(width);
+			zoomCallback(Number(height), Number(width));
+		}
+		
+		public function movePlayback(message:XML):void{
+			var value:String = message.@values;
+			var values:Array = value.split(",");
+			
+			//Alert.show(values[0]);
+			//Alert.show(values[1]);
+			var slideXPos:String = String(values[0]).substr(2);
+			var slideYPos:String = String(values[1]);
+			slideYPos = slideYPos.substr(0, slideYPos.length-1)
+			
+			moveCallback(Number(slideXPos), Number(slideYPos));
+		}	
 	}
 }

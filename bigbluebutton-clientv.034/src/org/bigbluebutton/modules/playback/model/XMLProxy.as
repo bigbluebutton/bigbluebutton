@@ -20,7 +20,7 @@ package org.bigbluebutton.modules.playback.model
 		public static const NAME:String = "XMLProxy";
 		public static const MAIN:String = "C:/tests/playback/Session_Test/";
 		public static const PATH:String = MAIN + "lecture.xml";
-		public static const SLIDE_FOLDER:String = MAIN + "Slides";
+		public static const SLIDE_FOLDER:String = MAIN + "Slides/";
 		
 		public static var main:String = MAIN;
 		public static var path:String = PATH;

@@ -132,6 +132,18 @@ package org.bigbluebutton.modules.presentation
 				case PresentationPlaybackProxy.SLIDES_CREATED:
 					playbackProxy.slidesCreated(message);
 					break;
+				case PresentationPlaybackProxy.ZOOM:
+					playbackProxy.zoomPlayback(message);
+					break;
+				case PresentationPlaybackProxy.MOVE:
+					playbackProxy.movePlayback(message);
+					break;
+				case PresentationPlaybackProxy.MAXIMIZE:
+					playbackProxy.maximizeCallback();
+					break;
+				case PresentationPlaybackProxy.RESTORE:
+					playbackProxy.restoreCallback();
+					break;
 			}
 		}
 		
