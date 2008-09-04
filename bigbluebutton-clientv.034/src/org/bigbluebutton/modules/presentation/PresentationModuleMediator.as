@@ -158,8 +158,8 @@ package org.bigbluebutton.modules.presentation
    						TO: MainApplicationConstants.TO_MAIN });
    			msg.setPriority(Message.PRIORITY_HIGH);
    			   			
-   			presentationWindow.height = 378;
-   			presentationWindow.width = 480;
+   			presentationWindow.height = 440;
+   			presentationWindow.width = 430;
    			presentationWindow.title = PresentationWindow.TITLE;
    			presentationWindow.showCloseButton = false;
    			module.activeWindow = presentationWindow;

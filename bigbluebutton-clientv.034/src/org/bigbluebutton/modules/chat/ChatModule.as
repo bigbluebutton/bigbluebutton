@@ -58,7 +58,7 @@ package org.bigbluebutton.modules.chat
 			chatWindow = new ChatWindow;
 			log.debug("Getting an instance of Chat Facade...");
 			facade = ChatFacade.getInstance();			
-			this.preferedX = Capabilities.screenResolutionX - 410;
+			this.preferedX = 700;
 			this.preferedY = 20;
 			this.startTime = BigBlueButtonModule.START_ON_LOGIN;
 		}

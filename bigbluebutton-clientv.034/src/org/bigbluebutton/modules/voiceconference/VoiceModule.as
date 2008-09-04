@@ -52,7 +52,7 @@ package org.bigbluebutton.modules.voiceconference
 			super(NAME);
 			facade = VoiceConferenceFacade.getInstance();
 			this.preferedX = 20;
-			this.preferedY = 400;
+			this.preferedY = 260;
 			this.startTime = BigBlueButtonModule.START_ON_LOGIN;
 		}
 		

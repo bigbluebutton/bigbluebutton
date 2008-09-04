@@ -68,8 +68,8 @@ package org.bigbluebutton.modules.video
 			}
 			
 			facade = VideoFacade.getInstance(this.streamName);
-			this.preferedX = Capabilities.screenResolutionX - 400;
-			this.preferedY = 400;
+			this.preferedX = 700;
+			this.preferedY = 240;
 			this.startTime = NAME;
 			this.addButton = true;
 			
