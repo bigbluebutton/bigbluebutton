@@ -255,7 +255,6 @@ package org.bigbluebutton.main.view
 		override public function listNotificationInterests():Array{
 			return [
 					MainApplicationFacade.ADD_MODULE,
-					MainApplicationFacade.OPEN_CAMERA
 					];
 		}
 		
@@ -265,9 +264,6 @@ package org.bigbluebutton.main.view
 					var moduleNote:BigBlueButtonModule = notification.getBody() as BigBlueButtonModule;
 					addModule(moduleNote);
 					if (moduleNote.addButton) addButton(moduleNote);
-					break;
-				case MainApplicationFacade.OPEN_CAMERA:
-					//viewCamera(notification.getBody() as User);
 					break;
 			}
 		}

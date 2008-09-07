@@ -43,7 +43,6 @@ package org.bigbluebutton.main
 		public static const STARTUP:String = 'startup';
 		public static const ADD_WINDOW1:String = 'addWindow';
 		public static const REMOVE_WINDOW1:String = 'removeWindow';
-		public static const OPEN_CAMERA:String = "open_camera_window";
 		
 		public static const ADD_MODULE:String = "Add New Module";
 		
@@ -80,16 +79,7 @@ package org.bigbluebutton.main
         	sendNotification( STARTUP, app );
         }	
         
-        /**
-         * Send a notification to open the camera module 
-         * @param user
-         * 
-         */        
-        public function openViewCamera(user:User):void{
-        	sendNotification(OPEN_CAMERA, user);
-        }	
-        
-                /**
+         /**
          *  
          * @return - The local client User object
          * 
