@@ -19,6 +19,8 @@
 */
 package org.bigbluebutton.modules.video
 {
+	import mx.controls.Alert;
+	
 	import org.bigbluebutton.common.InputPipe;
 	import org.bigbluebutton.common.OutputPipe;
 	import org.bigbluebutton.common.Router;
@@ -30,6 +32,8 @@ package org.bigbluebutton.modules.video
 	import org.bigbluebutton.modules.video.view.ViewCameraWindow;
 	import org.bigbluebutton.modules.video.view.mediators.MyCameraWindowMediator;
 	import org.bigbluebutton.modules.video.view.mediators.ViewCameraWindowMediator;
+	import org.bigbluebutton.modules.viewers.ViewersConstants;
+	import org.bigbluebutton.modules.viewers.model.vo.User;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
@@ -70,12 +74,22 @@ package org.bigbluebutton.modules.video
 			inpipe = new InputPipe(VideoConstants.TO_VIDEO_MODULE);
 			outpipe = new OutputPipe(VideoConstants.FROM_VIDEO_MODULE);
 			inpipeListener = new PipeListener(this, messageReceiver);
+			inpipe.connect(inpipeListener);
 			router.registerOutputPipe(outpipe.name, outpipe);
 			router.registerInputPipe(inpipe.name, inpipe);
 		}
 		
 		private function messageReceiver(message:IPipeMessage):void{
-			var msg:String = message.getHeader().MSG;
+			var msg:String = message.getHeader().MSG as String;
+			
+			switch(msg){
+				//case ViewersConstants.OPEN_VIEW_CAMERA:
+				//	var usr:User = message.getBody() as User;
+				//	Alert.show(usr.name);
+				//	//sendNotification(VideoFacade.OPEN_VIEW_CAMERA, usr);
+				//	this.module = new VideoModule(usr);
+				//	break;
+			}
 		}
 		
 		/**

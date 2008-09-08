@@ -22,6 +22,7 @@ package org.bigbluebutton.modules.viewers
 	import org.bigbluebutton.modules.viewers.controller.StartLoginCommand;
 	import org.bigbluebutton.modules.viewers.controller.StartViewersCommand;
 	import org.bigbluebutton.modules.viewers.controller.StartWindowCommand;
+	import org.bigbluebutton.modules.viewers.model.vo.User;
 	import org.puremvc.as3.multicore.interfaces.IFacade;
 	import org.puremvc.as3.multicore.patterns.facade.Facade;
 	
@@ -40,11 +41,9 @@ package org.bigbluebutton.modules.viewers
 		public static const START_LOGIN_WINDOW:String = "Start Login Window";
 		public static const CONNECT_SUCCESS:String = "Connection Successful";
 		public static const SERVER_DISCONNECTED:String = "Connection to Server Lost";
-
 		public static const LOGIN_FAILED:String = "Login Failed";
-
 		public static const CONNECT_UNSUCCESSFUL:String = "Connection Unsuccessful";
-		
+		public static const VIEW_CAMERA:String = "View Camera";
 
 		public static const DEBUG:String = "Viewer Debug";
 		
@@ -85,6 +84,10 @@ package org.bigbluebutton.modules.viewers
 		 */		
 		public function startup(app:ViewersModule):void{
 			sendNotification(STARTUP, app);
+		}
+		
+		public function sendViewCamera(usr:User):void{
+			sendNotification(VIEW_CAMERA, usr);
 		}
 
 	}

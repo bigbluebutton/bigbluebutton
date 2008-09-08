@@ -19,6 +19,7 @@
    			var usr:User = data as User;
    			if (usr.name != conf.me.name){
    				//MainApplicationFacade.getInstance().openViewCamera(data as User);
+   				ViewersFacade.getInstance().sendViewCamera(usr);
    			}
    		}			
 		

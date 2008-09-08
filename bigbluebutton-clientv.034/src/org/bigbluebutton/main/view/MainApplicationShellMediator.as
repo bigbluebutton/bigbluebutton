@@ -34,9 +34,12 @@ package org.bigbluebutton.main.view
 	import org.bigbluebutton.main.view.components.MainApplicationShell;
 	import org.bigbluebutton.modules.log.LogModule;
 	import org.bigbluebutton.modules.log.LogModuleFacade;
+	import org.bigbluebutton.modules.video.VideoModule;
+	import org.bigbluebutton.modules.viewers.ViewersConstants;
 	import org.bigbluebutton.modules.viewers.ViewersFacade;
 	import org.bigbluebutton.modules.viewers.ViewersModule;
 	import org.bigbluebutton.modules.viewers.model.services.SharedObjectConferenceDelegate;
+	import org.bigbluebutton.modules.viewers.model.vo.User;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
 	import org.puremvc.as3.multicore.utilities.pipes.interfaces.IPipeMessage;
@@ -240,8 +243,16 @@ package org.bigbluebutton.main.view
 					logout();
 					//Alert.show(message.getBody() as String);
 					break;			
+				case ViewersConstants.OPEN_VIEW_CAMERA:
+					openViewCamera(message.getBody() as User);
+					break;
 			}
 		}
+		
+		private function openViewCamera(usr:User):void{
+			this.runModule(new VideoModule(usr));
+		}
+		
 		/**
 		 * 
 		 * @return : MainApplicationShell

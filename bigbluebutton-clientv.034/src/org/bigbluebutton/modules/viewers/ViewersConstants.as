@@ -36,5 +36,7 @@ package org.bigbluebutton.modules.viewers
 		public static const WARN:int  = 2;
 		public static const INFO:int  = 3;
 		public static const DEBUG:int = 4;
+		
+		public static const OPEN_VIEW_CAMERA:String = "Open View Camera";
 	}
 }

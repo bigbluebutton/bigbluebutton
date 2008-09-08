@@ -21,14 +21,13 @@ package org.bigbluebutton.modules.viewers
 {
 	import flash.system.Capabilities;
 	
-	import mx.controls.Alert;
-	
 	import org.bigbluebutton.common.InputPipe;
 	import org.bigbluebutton.common.OutputPipe;
 	import org.bigbluebutton.common.Router;
 	import org.bigbluebutton.main.MainApplicationConstants;
 	import org.bigbluebutton.modules.log.LogModule;
 	import org.bigbluebutton.modules.log.LogModuleFacade;
+	import org.bigbluebutton.modules.viewers.model.vo.User;
 	import org.bigbluebutton.modules.viewers.view.JoinWindow;
 	import org.bigbluebutton.modules.viewers.view.ViewersWindow;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
@@ -179,8 +178,19 @@ package org.bigbluebutton.modules.viewers
 			return [
 					ViewersFacade.CONNECT_SUCCESS,
 					ViewersFacade.DEBUG,
-					ViewersFacade.SERVER_DISCONNECTED
+					ViewersFacade.SERVER_DISCONNECTED,
+					ViewersFacade.VIEW_CAMERA
 					];
+		}
+		
+		private function openViewCamera(usr:User):void{
+			var msg:IPipeMessage = new Message(Message.NORMAL);
+			msg.setHeader({MSG:ViewersConstants.OPEN_VIEW_CAMERA, SRC:ViewersConstants.FROM_VIEWERS_MODULE,
+					TO: MainApplicationConstants.TO_MAIN});
+			msg.setPriority(Message.PRIORITY_HIGH);
+			
+			msg.setBody(usr);
+			outpipe.write(msg);
 		}
 		
 		/**
@@ -200,6 +210,9 @@ package org.bigbluebutton.modules.viewers
 					break;
 				case ViewersFacade.SERVER_DISCONNECTED:
 					sendLogoutCommand(notification.getBody() as String);
+					break;
+				case ViewersFacade.VIEW_CAMERA:
+					openViewCamera(notification.getBody() as User);
 					break;
 			}
 		}

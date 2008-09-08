@@ -60,6 +60,8 @@ package org.bigbluebutton.modules.video
 		public static const PUBLISH_STREAM_COMMAND : String = 			"PUBLISHER_PUBLISH_STREAM_COMMAND";
 		public static const UNPUBLISH_STREAM_COMMAND : String = 		"PUBLISHER_UNPUBLISH_STREAM_COMMAND";
 		
+		public static const OPEN_VIEW_CAMERA:String = "Open View Camera"
+		
 		/**
 		 * The constructor. Should never be called, however ActionScript does not support private
 		 * constructors. Use the getInstance() method instead. 

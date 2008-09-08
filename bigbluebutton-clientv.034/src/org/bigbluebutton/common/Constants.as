@@ -38,6 +38,8 @@ package org.bigbluebutton.common
 		
 		public static const TEST_URL:String = testURL();
 		
+		public static const VERSION:String = "0.34a";
+		
 		/**
 		 * If the client is being run from a server, the URLs will be retrieved from the index.template.html
 		 * file. If we're running the client from an IDE, it will connect to the Carleton demo server.

@@ -29,13 +29,12 @@
 <application path="BigBlueButton.mxml"/>
 </applications>
 <modules>
-<module application="src/BigBlueButton.mxml" destPath="org/bigbluebutton/main/test_module.swf" optimize="true" sourcePath="src/org/bigbluebutton/main/test_module.mxml"/>
-<module application="src/BigBlueButton.mxml" destPath="org/bigbluebutton/modules/chat/chat_module.swf" optimize="true" sourcePath="src/org/bigbluebutton/modules/chat/chat_module.mxml"/>
 <module application="src/BigBlueButton.mxml" destPath="org/bigbluebutton/modules/presentation/presentation_module.swf" optimize="true" sourcePath="src/org/bigbluebutton/modules/presentation/presentation_module.mxml"/>
-<module application="src/BigBlueButton.mxml" destPath="org/bigbluebutton/modules/video/video_module.swf" optimize="true" sourcePath="src/org/bigbluebutton/modules/video/video_module.mxml"/>
-<module application="src/BigBlueButton.mxml" destPath="org/bigbluebutton/modules/voiceconference/voice_module.swf" optimize="true" sourcePath="src/org/bigbluebutton/modules/voiceconference/voice_module.mxml"/>
-<module application="src/BigBlueButton.mxml" destPath="org/bigbluebutton/modules/playback/playback_module.swf" optimize="true" sourcePath="src/org/bigbluebutton/modules/playback/playback_module.mxml"/>
 <module application="src/BigBlueButton.mxml" destPath="org/bigbluebutton/modules/whiteboard/whiteboard_module.swf" optimize="true" sourcePath="src/org/bigbluebutton/modules/whiteboard/whiteboard_module.mxml"/>
+<module application="src/BigBlueButton.mxml" destPath="org/bigbluebutton/modules/voiceconference/voice_module.swf" optimize="true" sourcePath="src/org/bigbluebutton/modules/voiceconference/voice_module.mxml"/>
+<module application="src/BigBlueButton.mxml" destPath="org/bigbluebutton/modules/chat/chat_module.swf" optimize="true" sourcePath="src/org/bigbluebutton/modules/chat/chat_module.mxml"/>
+<module application="src/BigBlueButton.mxml" destPath="org/bigbluebutton/modules/video/video_module.swf" optimize="true" sourcePath="src/org/bigbluebutton/modules/video/video_module.mxml"/>
+<module application="src/BigBlueButton.mxml" destPath="org/bigbluebutton/modules/playback/playback_module.swf" optimize="true" sourcePath="src/org/bigbluebutton/modules/playback/playback_module.mxml"/>
 </modules>
 <buildCSSFiles/>
 </actionScriptProperties>
