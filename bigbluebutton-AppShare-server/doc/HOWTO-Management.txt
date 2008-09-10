@@ -1,0 +1,77 @@
+
+Java Management Extensions (JMX) and Red5
+By: Paul Gregoire
+Date: 3 May 2007
+Revision: 2
+
+I. JMX classes
+Red5's implementation consists of the following classes and various other MBeans:
+
+org.red5.server.jmx.JMXFactory - Provides access to the platform MBeanServer as well as registration, unregistration, and creation of new MBean instances. Creation and registration is performed using StandardMBean wrappers.
+
+org.red5.server.jmx.JMXAgent - Provides the HTML adapter and registration of MBeans.
+
+org.red5.server.jmx.JMXUtil - Helper methods for working with ObjectName or MBean instances.
+
+
+II. Spring configuration
+The Spring configuration for the JMX implementation allows you to configure the "domain" for MBean registration and listener port for the HTML adaptor. The default entries are shown below.
+
+	<!-- JMX server -->
+	<bean id="jmxFactory" class="org.red5.server.jmx.JMXFactory">
+		<property name="domain" value="org.red5.server"/>
+	</bean>
+	<bean id="jmxAgent" class="org.red5.server.jmx.JMXAgent" init-method="init">
+		<!-- The RMI adapter allows remote connections to the MBeanServer -->
+		<property name="enableRmiAdapter" value="true" />
+		<property name="rmiAdapterPort" value="9999"/>
+		<!-- SSL
+			To use jmx with ssl you must also supply the location of the keystore and its password
+			when starting the server with the following JVM options:
+				-Djavax.net.ssl.keyStore=keystore
+     			-Djavax.net.ssl.keyStorePassword=password
+		-->
+		<property name="enableSsl" value="false"/>
+		<!-- Starts a registry if it doesnt exist -->
+		<property name="startRegistry" value="true" />
+		<!-- Authentication -->
+		<property name="remoteAccessProperties" value="${red5.config_root}/access.properties"/>
+		<property name="remotePasswordProperties" value="${red5.config_root}/password.properties"/>
+		<!-- The HTML adapter allows connections to the MBeanServer via a web browser -->
+		<property name="enableHtmlAdapter" value="false" />
+		<property name="htmlAdapterPort" value="8082"/>
+	</bean>
+
+The HTML adapter is disabled by default, but it allows easy management of MBeans from a web browser.
+The RMI adapter may only be used if an RMI registry is running. To start a registry simply execute this at the command prompt:
+
+- windows
+rmiregistry 9999
+
+- unix
+rmiregistry 9999 &
+
+The "9999" is the port and should match your RMI configuration.
+
+
+III. jConsole
+
+JConsole is a utility that ships with the JRE (since 1.5), it allows you to manage local and remote JMX implementations. To enable introspection you must add the following VM parameter to your startup:
+
+	-Dcom.sun.management.jmxremote
+
+After the parameter is set and the application initialized you can start jConsole at the command line by typing:
+
+	jconsole
+
+A Swing application will appear and you must select the implementation (agent) you wish to manage, for local simply select "org.red5.server.Standalone".
+
+
+IV. Links 
+	http://www.onjava.com/pub/a/onjava/2004/09/29/tigerjmx.html?page=1
+	http://java.sun.com/developer/JDCTechTips/2005/tt0315.html#2
+
+
+
+
+

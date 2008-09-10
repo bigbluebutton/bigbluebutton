@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<consolePlugin/>
+	<!-- Appenders http://logback.qos.ch/manual/appenders.html -->
+	<appender name="CONSOLE"
+		class="ch.qos.logback.core.ConsoleAppender">
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+      		<level>INFO</level>
+      		<onMatch>ACCEPT</onMatch>
+      		<onMismatch>DENY</onMismatch>
+    	</filter>		
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<Pattern>		
+			%date [%thread] %-5level %logger - %msg%n
+			</Pattern>
+		</layout>
+	</appender>
+	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
+		<File>C:/dev/tomcat-6.0.14/logs/red5.log</File>
+		<Append>false</Append>
+		<Encoding>UTF-8</Encoding>
+		<BufferedIO>false</BufferedIO>
+		<ImmediateFlush>true</ImmediateFlush>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<Pattern>
+				%date [%thread] %-5level %logger{35} - %msg%n
+			</Pattern>
+		</layout>
+	</appender>
+	<appender name="ERRORFILE" class="ch.qos.logback.core.FileAppender">
+		<File>C:/dev/tomcat-6.0.14/logs/error.log</File>
+		<Append>false</Append>
+		<Encoding>UTF-8</Encoding>
+		<BufferedIO>false</BufferedIO>
+		<ImmediateFlush>true</ImmediateFlush>
+    	<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      		<level>WARN</level>
+    	</filter>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<Pattern>
+				%date [%thread] %-5level %logger{35} - %msg%n
+			</Pattern>
+		</layout>
+	</appender>
+	<root>
+		<level value="DEBUG" />
+		<appender-ref ref="CONSOLE" />
+		<appender-ref ref="FILE" />
+		<appender-ref ref="ERRORFILE" />
+	</root>
+	<!-- Red5 -->
+	<logger name="org.red5.io">
+		<level value="INFO" />
+	</logger>
+	<logger name="org.red5.server">
+		<level value="WARN" />
+	</logger>
+	<logger name="org.red5.server.Client">
+		<level value="INFO" />
+	</logger>
+	<logger name="org.red5.server.jetty">
+		<level value="INFO" />
+	</logger>
+	<logger name="org.red5.server.Standalone">
+		<level value="INFO" />
+	</logger>
+	<logger name="org.red5.server.tomcat">
+		<level value="INFO" />
+	</logger>
+	<logger name="org.red5.server.api.stream.support">
+		<level value="INFO" />
+	</logger>
+	<logger name="org.red5.server.cache">
+		<level value="WARN" />
+	</logger>
+	<logger
+		name="org.red5.server.jetty.Red5WebPropertiesConfiguration">
+		<level value="WARN" />
+	</logger>
+	<logger name="org.red5.server.jmx">
+		<level value="INFO" />
+	</logger>
+	<logger name="org.red5.server.messaging.InMemoryPushPushPipe">
+		<level value="INFO" />
+	</logger>
+	<logger name="org.red5.server.net">
+		<level value="INFO" />
+	</logger>
+	<logger name="org.red5.server.net.servlet.RTMPTServlet">
+		<level value="WARN" />
+	</logger>	
+	<logger name="org.red5.server.net.servlet">
+		<level value="WARN" />
+	</logger>
+	<logger name="org.red5.server.net.proxy">
+		<level value="INFO" />
+	</logger>
+	<logger name="org.red5.server.net.remoting">
+		<level value="WARN" />
+	</logger>
+	<logger name="org.red5.server.net.rtmp">
+		<level value="WARN" />
+	</logger>	
+	<logger name="org.red5.server.net.rtmp.RTMPHandler">
+		<level value="OFF" />
+	</logger>
+	<logger name="org.red5.server.net.rtmp.BaseRTMPHandler">
+		<level value="OFF" />
+	</logger>
+	<logger name="org.red5.server.net.rtmp.codec">
+		<level value="INFO" />
+	</logger>
+	<logger name="org.red5.server.net.rtmp.RTMPMinaIoHandler">
+		<level value="OFF" />
+	</logger>
+	<logger name="org.red5.server.net.rtmp.RTMPMinaTransport">
+		<level value="INFO" />
+	</logger>
+	<logger name="org.red5.server.net.rtmp.status">
+		<level value="INFO" />
+	</logger>
+	<logger name="org.red5.server.net.rtmpt">
+		<level value="WARN" />
+	</logger>
+	<logger name="org.red5.server.persistence">
+		<level value="WARN" />
+	</logger>
+	<logger name="org.red5.server.pooling.ThreadObjectFactory">
+		<level value="WARN" />
+	</logger>
+	<logger name="org.red5.server.script">
+		<level value="WARN" />
+	</logger>	
+	<logger name="org.red5.server.service">
+		<level value="INFO" />
+	</logger>
+	<logger name="org.red5.server.so">
+		<level value="WARN" />
+	</logger>
+	<logger name="org.red5.server.stream">
+		<level value="INFO" />
+	</logger>
+	<logger name="org.red5.server.stream.consumer">
+		<level value="WARN" />
+	</logger>
+	<!-- Red5 demos -->
+	<logger name="org.red5.server.webapp.oflaDemo">
+		<level value="WARN" />
+	</logger>	
+	<!-- Mina -->			
+	<logger name="org.apache.mina">
+		<level value="WARN" />
+	</logger>	
+	<logger name="org.apache.mina.filter">
+		<level value="WARN" />
+	</logger>
+	<logger name="org.apache.mina.filter.thread.ThreadPoolFilter">
+		<level value="WARN" />
+	</logger>
+	<!-- Apache commons -->
+	<logger name="org.apache.commons.modeler">
+		<level value="WARN" />
+	</logger>
+	<logger name="org.apache.commons.beanutils">
+		<level value="WARN" />
+	</logger>
+	<logger name="org.apache.commons.digester">
+		<level value="WARN" />
+	</logger>
+	<logger name="httpclient">
+		<level value="WARN" />
+	</logger>
+	<!-- Apache catalina / tomcat -->
+	<logger name="org.apache.catalina">
+		<level value="INFO" />
+	</logger>
+	<logger name="org.apache.catalina.authenticator">
+		<level value="INFO" />
+	</logger>
+	<logger name="org.apache.catalina.realm">
+		<level value="WARN" />
+	</logger>
+	<logger name="org.apache.catalina.session">
+		<level value="WARN" />
+	</logger>
+	<logger name="org.apache.jasper">
+		<level value="INFO" />
+	</logger>
+	<!-- Jetty -->
+	<logger name="org.mortbay">
+		<level value="INFO" />
+	</logger>
+	<logger name="org.mortbay.log">
+		<level value="INFO" />
+	</logger>
+	<!-- Spring -->
+	<logger name="org.springframework">
+		<level value="INFO" />
+	</logger>
+	<logger name="org.springframework.beans.factory">
+		<level value="INFO" />
+	</logger>	
+	<logger name="org.springframework.beans.factory.xml">
+		<level value="WARN" />
+	</logger>
+	<logger name="org.springframework.ui.context.support">
+		<level value="WARN" />
+	</logger>
+	<logger name="org.springframework.web.context">
+		<level value="INFO" />
+	</logger>
+	<logger name="org.springframework.web.context.support">
+		<level value="WARN" />
+	</logger>
+	<logger name="org.quartz">
+		<level value="WARN" />
+	</logger>
+	<!-- Caching -->
+	<logger name="net.sf.ehcache">
+		<level value="INFO" />
+	</logger>
+	<logger name="com.whirlycott.cache">
+		<level value="WARN" />
+	</logger>
+	<logger name="com.whirlycott.cache.policy">
+		<level value="WARN" />
+	</logger>
+</configuration>

@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Using Red5 with Eclipse</title>
+<style type="text/css" title="currentStyle" media="screen">
+		@import "red5.css";
+	</style>
+</head>
+
+<body>
+
+<div id="Header"><img src="red5logo.png" height="43" width="118"></img></div>
+
+<div id="Content">
+	<h1>How to build with Eclipse</h1>
+	<p>This guide assumes <a href='http://eclipse.org'>Eclipse</a> 3.1.0 and you have downloaded the entire Red5 build from the Subversion repository at <a href="http://svn1.cvsdude.com/osflash/red5">http://svn1.cvsdude.com/osflash/red5</a></p><br>
+
+	<p>
+	<ol>
+	<li>Start Eclipse</li>
+	<li>From the File menu select "import"</li>
+	<li>In the Import dialog box select the item "Existing Projects into Workspace" and hit next</li>
+	<li>hit the "browse" button next to the "Select root directory" text box</li>
+	<li>select the root folder where you downloaded the Red5 repository,(e.g. c:\projects\osflash\red5) and hit ok</li>
+	<li>Make sure Red5 is selected in the projects area and hit "Finish"</li>
+	<li>Eclipse should automtically build the project, you can force a build from the "project" menu and selecting "build project"</li>
+	<li>To run the server, in the package explorer panel, select the "Server' file under src/org.red5.server/Standalone.java , right click on the file and select "Run As" and select "Java Application" </li>
+	<br>	
+	If you get an error in the console like :
+	<div id="error">
+	java.net.BindException: Address already in use: bind
+	at sun.nio.ch.Net.bind(Native Method)
+	at sun.nio.ch.ServerSocketChannelImpl.bind(Unknown Source)
+	at sun.nio.ch.ServerSocketAdaptor.bind(Unknown Source)
+	at org.apache.mina.io.socket.SocketAcceptor.registerNew(SocketAcceptor.java:362)
+	at org.apache.mina.io.socket.SocketAcceptor.access$800(SocketAcceptor.java:46)
+	at org.apache.mina.io.socket.SocketAcceptor$Worker.run(SocketAcceptor.java:238)
+Exception in thread "main" 
+	</div><br>
+
+Then the socket Red5 wants to run is in use (by FMS for example). To change the default port Red5 listens on edit the conf/red5.properties and change the property rtmp.host_port value to your desired host and port i.e. :
+<pre>rtmp.host_port = 0.0.0.0:2935</pre> 	
+		
+	</ol>
+	</p>
+</div>
+
+
+</div>
+
+</body>
+</html>

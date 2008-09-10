@@ -1,0 +1,249 @@
+---------------------------------------
+ HOWTO create new applications in Red5
+---------------------------------------
+
+:Author: Joachim Bauch
+:Contact: jojo@struktur.de
+:Date: $Date: 2006-04-26 23:45:42 +0200 (Wed, 26 Apr 2006) $
+:Revision: $Revision: 815 $
+:Id: $Id: HOWTO-NewApplications.txt 815 2006-04-26 21:45:42Z jbauch $
+
+.. contents::
+
+Preface
+==========================
+This document describes how new applications can be created in Red5.
+It applies to the new API introduced by Red5 0.4.
+
+
+The application directory
+==========================
+Red5 stores all application definitions as folders inside the "webapps"
+directory beneath the root of Red5.  So the first thing you will have to
+do in order to create a new application, is to create a new subfolder
+in "webapps".  By convention this folder should get the same name the
+application will be reached later.
+
+Inside your new application, you will need a folder "WEB-INF" containing
+configuration files about the classes to use.  You can use the templates
+provided by Red5 in the folder "doc/templates/myapp".
+
+During the start of Red5, all folders inside "webapps" are searched for
+a directory "WEB-INF" containing the configuration files.
+
+
+Configuration
+==========================
+The main configuration file that is loaded is "web.xml".  It contains the
+following parameters:
+
+globalScope
+--------------------------
+The name of the global scope, this should be left at the default::
+
+    <context-param>
+        <param-name>globalScope</param-name>
+        <param-value>default</param-value>
+    </context-param>
+
+
+contextConfigLocation
+--------------------------
+Specifies the name(s) of handler configuration files for this application.
+The handler configuration files reference the classes that are used to notify
+the application about joining / leaving clients and that provide the methods
+a client can call.
+
+Additionally, the handler configuration files specify the scope hierarchy for
+these classes.
+
+The path name given here can contain wildcards to load multiple files::
+
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>/WEB-INF/red5-*.xml</param-value>
+    </context-param>
+
+
+locatorFactorySelector
+--------------------------
+References the configuration file of the root application context which
+usually is "red5.xml"::
+
+    <context-param>
+        <param-name>locatorFactorySelector</param-name>
+        <param-value>red5.xml</param-value>
+    </context-param>
+
+
+parentContextKey
+--------------------------
+Name of the parent context, this usually is "default.context"::
+
+    <context-param>
+        <param-name>parentContextKey</param-name>
+        <param-value>default.context</param-value>
+    </context-param>
+
+log4jConfigLocation
+--------------------------
+Path to the configuration file for the logging subsystem::
+
+    <context-param>
+        <param-name>log4jConfigLocation</param-name>
+        <param-value>/WEB-INF/log4j.properties</param-value>
+    </context-param>
+
+
+webAppRootKey
+--------------------------
+Unique name for this application, should be the public name::
+
+    <context-param>
+        <param-name>webAppRootKey</param-name>
+        <param-value>/myapp</param-value>
+    </context-param>
+
+
+Handler configuration
+==========================
+Every handler configuration file must contain at least three beans:
+
+Context
+--------------------------
+The context bean has the reserved name `web.context` and is used to map paths
+to scopes, lookup services and handlers.  The default class for this is
+`org.red5.server.Context`.
+
+By default this bean is specified as::
+
+    <bean id="web.context" class="org.red5.server.Context" 
+          autowire="byType" />
+
+Every application can only have one context.  However this context can be
+shared across multiple scopes.
+
+
+Scopes
+--------------------------
+Every application needs at least one scope that links the handler to the
+context and the server.  The scopes can be used to build a tree where clients
+can connect to every node and share objects inside this scope (like shared
+objects or live streams).  You can see the scopes as rooms or instances.
+
+The default scope usually has the name `web.scope`, but the name can be chosen
+arbitrarily.
+
+The bean has the following properties:
+
+  `server`
+    This references the global server `red5.server`.
+  `parent`
+    References the parent for this scope and usually is `global.scope`.
+  `context`
+    The server context for this scope, use the `web.context` from above.
+  `handler`
+    The handler for this scope (see below).
+  `contextPath`
+    The path to use when connecting to this scope.
+  `virtualHosts`
+    A comma separated list of hostnames or ip addresses this scope runs at.
+
+
+A sample definition looks like this::
+
+    <bean id="web.scope" class="org.red5.server.WebScope"
+          init-method="register">
+        <property name="server" ref="red5.server" />
+        <property name="parent" ref="global.scope" />
+        <property name="context" ref="web.context" />
+        <property name="handler" ref="web.handler" />
+        <property name="contextPath" value="/myapp" />
+        <property name="virtualHosts" value="localhost, 127.0.0.1" />
+    </bean>
+
+
+You can move the values for `contextPath` and `virtualHosts` to a separate
+properties file and use parameters.  In that case you need another bean::
+
+    <bean id="placeholderConfig"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location" value="/WEB-INF/red5-web.properties" />
+    </bean>
+
+Assuming a `red5-web.properties` containing the following data::
+
+    webapp.contextPath=/myapp
+    webapp.virtualHosts=localhost, 127.0.0.1
+
+the properties of the scope can now be changed to::
+
+    <property name="contextPath" value="${webapp.contextPath}" />
+    <property name="virtualHosts" value="${webapp.virtualHosts}" />
+
+The `contextPath` specified in the configuration can be seen as "root" path
+of the scope.  You can add additional elements after the configured path when
+connecting to dynamically create extra scopes.
+
+These extra scopes all use the same handler but have their own properties,
+shared objects and live streams.
+
+
+Handlers
+--------------------------
+Every context needs a handler that implements the methods called when a client
+connects to the scope, leaves it and that contains additional methods that can
+be called by the client.  The interface these handlers need to implement is
+specified by `org.red5.server.api.IScopeHandler`, however you can implement
+other interfaces if you want to control access to shared objects or streams.
+
+A sample implementation that can be used as base class can be found at
+`org.red5.server.adapter.ApplicationAdapter`.  Please refer to the javadoc
+documentation for further details.
+
+The bean for a scope handler is configured by::
+
+    <bean id="web.handler" 
+          class="the.path.to.my.Application" 
+          singleton="true" />
+
+The `id` attribute is referenced by the scope definition above.
+
+If you don't need any special server-side logic, you can use the default
+application handler provided by Red5::
+
+    <bean id="web.handler" 
+          class="org.red5.server.adapter.ApplicationAdapter" 
+          singleton="true" />
+
+
+Sample handler
+==========================
+
+A sample handler can be implemented in a few lines of code::
+
+    package the.path.to.my;
+    
+    import org.red5.server.adapter.ApplicationAdapter;
+    
+    public class Application extends ApplicationAdapter {
+        
+        public Double add(Double a, Double b){
+            return a + b;
+        }
+    
+    }
+
+Assuming the sample configuration above, you can call this method using the
+following ActionScript snippet::
+
+    nc = new NetConnection();
+    nc.connect("rtmp://localhost/myapp");
+    nc.onResult = function(obj) {
+        trace("The result is " + obj);
+    }
+    nc.call("add", nc, 1, 2);
+
+This should give you the output::
+
+    The result is 3

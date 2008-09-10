@@ -1,0 +1,17 @@
+<!--
+Context file for red5 
+
+    http://tomcat.apache.org/tomcat-5.5-doc/config/context.html
+
+    path=""
+    docBase="${catalina.home}/webapps/" 
+    override="true"
+    privileged="true" 
+    reloadable="false"
+    crossContext="false"
+    cookies="false"
+    antiResourceLocking="false" 
+    antiJARLocking="false"
+-->
+<Context path="" crossContext="true" override="true">
+</Context>

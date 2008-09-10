@@ -1,0 +1,176 @@
+---------------------------------------
+ HOWTO setup applications in Red5
+ WAR addendum
+---------------------------------------
+
+:Author: Paul Gregoire
+:Contact: mondain@gmail.com
+:Date: 2007-05-03
+
+.. contents::
+
+Preface
+==========================
+This document describes how applications can be configured in Red5 when using the WAR
+implementation. In this version of Red5 the J2EE container is not contained within Red5
+and therefore is configured differently. This document assumes that the application WAR has
+already been expanded.
+
+
+The application directory
+==========================
+An application war is normally expanded into a directory based upon the name of the war file, eg. red5.war
+expands into tomcat/webapps/red5 on a Tomcat server. In a standard Red5 installation, all the applications 
+are stored within their own directory under the webapps directory; the difference here is that they are all
+located in the same directory.
+
+
+Configuration
+==========================
+The WAR version stores all application definitions as Spring configuration files suffixed with the
+string "-context.xml"; If your application was called ofla then its configuration file would be
+named "ofla-context.xml". The context files are loaded automatically upon server startup.
+
+The main configuration file that is loaded is "web.xml".  It contains the following parameters:
+
+globalScope
+--------------------------
+The name of the global scope, this should be left at the default::
+
+    <context-param>
+        <param-name>globalScope</param-name>
+        <param-value>default</param-value>
+    </context-param>
+
+
+contextConfigLocation
+--------------------------
+Specifies the name(s) of handler configuration files for this application.
+The handler configuration files reference the classes that are used to notify
+the application about joining / leaving clients and that provide the methods
+a client can call.
+
+Additionally, the handler configuration files specify the scope hierarchy for
+these classes.
+
+The path name given here can contain wildcards to load multiple files::
+
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>/WEB-INF/applicationContext.xml, /WEB-INF/red5-common.xml, /WEB-INF/red5-core.xml, /WEB-INF/*-context.xml</param-value>
+	</context-param>
+
+
+listener (start-up / shutdown)
+--------------------------
+References the context listener servlet of the application, this technically takes the place of
+the Standalone.class in a standard Red5 server
+
+	<listener>
+		<!-- Impersonates a org.springframework.web.context.ContextLoaderListener -->
+		<listener-class>org.red5.server.MainServlet</listener-class>
+	</listener>
+
+
+parentContextKey
+--------------------------
+Name of the parent context, this usually is "default.context"::
+
+    <context-param>
+        <param-name>parentContextKey</param-name>
+        <param-value>default.context</param-value>
+    </context-param>
+
+log4jConfigLocation
+--------------------------
+Path to the configuration file for the logging subsystem::
+
+    <context-param>
+        <param-name>log4jConfigLocation</param-name>
+        <param-value>/WEB-INF/log4j.properties</param-value>
+    </context-param>
+
+
+Handler configuration
+==========================
+Every handler configuration file must contain at least three beans:
+
+Context
+--------------------------
+The default context bean has the reserved name 'web.context' and is used to map paths to scopes,
+lookup services and handlers.  The default class for this is 'org.red5.server.Context'.
+
+By default this bean is specified as::
+
+    <bean id="web.context" class="org.red5.server.Context" autowire="byType" />
+
+Every application can only have one context and they should follow this naming convention 
+'<application name>.context' so that they will not conflict with one another.  Application contexts
+can be shared across multiple scopes.
+
+
+Scopes
+--------------------------
+Every application needs at least one scope that links the handler to the context and the server. The
+scopes can be used to build a tree where clients can connect to every node and share objects inside this
+scope (like shared objects or live streams).  You can see the scopes as rooms or instances.
+
+The default scope usually has the name 'web.scope' and they should follow this naming convention 
+'<application name>.scope' so that they will not conflict with one another.
+
+The bean has the following properties:
+
+  'server'
+    This references the global server `red5.server`.
+  'parent'
+    References the parent for this scope and usually is `global.scope`.
+  'context'
+    The server context for this scope, use the `web.context` from above.
+  'handler'
+    The handler for this scope (see below).
+  'contextPath'
+    The path to use when connecting to this scope.
+  'virtualHosts'
+    A comma separated list of hostnames or ip addresses this scope runs at. In this version we do not control
+	the host names, this is accomplished by the server.
+
+
+A sample definition looks like this::
+
+    <bean id="ofla.scope" class="org.red5.server.WebScope" init-method="register">
+        <property name="server" ref="red5.server" />
+        <property name="parent" ref="global.scope" />
+        <property name="context" ref="ofla.context" />
+        <property name="handler" ref="ofla.handler" />
+        <property name="contextPath" value="/oflaDemo" />
+        <property name="virtualHosts" value="localhost, 127.0.0.1" />
+    </bean>
+
+The 'contextPath' specified in the configuration can be seen as "root" path of the scope.  You can add additional
+elements after the configured path when connecting to dynamically create extra scopes.
+
+These extra scopes all use the same handler but have their own properties, shared objects and live streams.
+
+
+Handlers
+--------------------------
+Every context needs a handler that implements the methods called when a client connects to the scope, leaves it
+and that contains additional methods that can be called by the client. The interface these handlers need to
+implement is specified by 'org.red5.server.api.IScopeHandler', however you can implement other interfaces if you
+want to control access to shared objects or streams.
+
+A sample implementation that can be used as base class can be found at 'org.red5.server.adapter.ApplicationAdapter'.
+Please refer to the javadoc documentation for further details.
+
+The bean for a scope handler is configured by::
+
+    <bean id="ofla.handler" class="the.path.to.my.Application" singleton="true" />
+
+The `id` attribute is referenced by the scope definition above.
+
+If you don't need any special server-side logic, you can use the default
+application handler provided by Red5::
+
+    <bean id="web.handler" class="org.red5.server.adapter.ApplicationAdapter" singleton="true" />
+
+

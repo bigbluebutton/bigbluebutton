@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<view:LogAppBarClass xmlns:mx="http://www.adobe.com/2006/mxml"
+					 xmlns:view="org.red5.samples.publisher.view.log.*">
+					
+	<mx:Image source="{ main.images.log_img }"/>
+		
+	<mx:VBox paddingTop="3">
+		<mx:Label text="Log" fontWeight="bold" fontSize="12"/>
+	</mx:VBox>
+	
+</view:LogAppBarClass>

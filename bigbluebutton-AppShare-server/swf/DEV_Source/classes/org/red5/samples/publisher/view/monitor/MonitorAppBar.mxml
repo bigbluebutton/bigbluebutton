@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<view:MonitorAppBarClass xmlns:mx="http://www.adobe.com/2006/mxml"
+						 xmlns:view="org.red5.samples.publisher.view.monitor.*">
+						 
+	<mx:Image source="{ main.images.monitor_img }"/>
+			
+	<mx:VBox paddingTop="3" paddingLeft="-1">
+		<mx:Label text="Monitor" fontWeight="bold" fontSize="12"/>
+	</mx:VBox>
+	
+	<mx:Spacer width="75"/>
+	
+	<mx:TabBar paddingBottom="-7" itemClick="changeMonitorView( event )"
+			   dataProvider="{ navigation.monitorMenu }"
+			   selectedIndex="{ navigation.monitorBarIndex }"/>
+		
+</view:MonitorAppBarClass>

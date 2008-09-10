@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+				xmlns:view="org.red5.admin.panels.*"
+				layout="absolute" width="100%" height="100%">
+ 	
+	<mx:Style source="../assets/css/main.css"/>
+	
+	<view:AdminPanel width="100%" height="100%"  x="0" y="5"/>
+	
+</mx:Application>

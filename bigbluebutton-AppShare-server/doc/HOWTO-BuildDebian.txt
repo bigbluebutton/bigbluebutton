@@ -1,0 +1,16 @@
+===================================
+ HOWTO build a Red5 debian package
+===================================
+
+1. Install the debian packages "dpkg-dev", "debhelper", "dh-make",
+   "devscripts" and "fakeroot".
+2. Checkout the debian build scripts to a folder "debian" inside the Red5
+   root from http://svn1.cvsdude.com/osflash/red5/debian/trunk
+3. Update "debian/changelog" and add an entry for the new version you are
+   building. Note that the syntax must match the previous entries!
+4. Update the filename in "debian/files" to match the version you are
+   building.
+5. Make sure you run from a clean Red5 checkout of the tag to build!!!
+6. From the red5 root run "dpkg-buildpackage -uc -b -rfakeroot"
+7. If all goes well, you should have a debian package one folder below the
+   Red5 root.

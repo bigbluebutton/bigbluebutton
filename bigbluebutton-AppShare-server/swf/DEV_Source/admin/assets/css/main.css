@@ -1,0 +1,23 @@
+/* adminPanel CSS file */
+
+.adminPanel {
+	Logo					: 	Embed(source="../images/FinalLogo.png");
+	Application				:	Embed(source="../images/application.png");		
+	ApplicationGo			:	Embed(source="../images/application_go.png");	
+	User					:	Embed(source="../images/user.png");
+	UserDelete				:	Embed(source="../images/user_delete.png");
+}
+
+Application {
+	background-color		: 	#eeeeee;
+	background-alpha		: 	1;
+}
+
+.flowStack {
+	border-style			:	solid;
+	border-color			:	#cccccc;
+	border-alpha			: 	1;
+	border-thickness		: 	1;
+	corner-radius			:	5;
+	background-color		:	#eeeeee;
+}

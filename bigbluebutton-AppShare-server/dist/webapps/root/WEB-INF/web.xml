@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" version="2.5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+
+	<display-name>Default WebApp</display-name>
+	
+    <listener>
+        <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+    </listener>
+
+	<servlet>
+		<servlet-name>gateway</servlet-name>
+		<servlet-class>
+			org.red5.server.net.servlet.AMFGatewayServlet
+		</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet>
+		<servlet-name>rtmpt</servlet-name>
+		<servlet-class>
+			org.red5.server.net.rtmpt.RTMPTServlet
+		</servlet-class>
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>gateway</servlet-name>
+		<url-pattern>/gateway</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>rtmpt</servlet-name>
+		<url-pattern>/open/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>rtmpt</servlet-name>
+		<url-pattern>/idle/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>rtmpt</servlet-name>
+		<url-pattern>/send/*</url-pattern>
+	</servlet-mapping>
+ 
+	<servlet-mapping>
+		<servlet-name>rtmpt</servlet-name>
+		<url-pattern>/close/*</url-pattern>
+	</servlet-mapping>
+
+	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+		<welcome-file>index.html</welcome-file>
+		<welcome-file>index.htm</welcome-file>
+	</welcome-file-list>
+
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>Forbidden</web-resource-name>
+			<url-pattern>/WEB-INF/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint />
+	</security-constraint>
+
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>Forbidden</web-resource-name>
+			<url-pattern>/persistence/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint />
+	</security-constraint>
+
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>Forbidden</web-resource-name>
+			<url-pattern>/streams/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint />
+	</security-constraint>
+	
+</web-app>

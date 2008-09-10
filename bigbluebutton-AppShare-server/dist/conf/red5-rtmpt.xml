@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!-- =============================================================== -->
+<!-- Configure the Jetty Server with Spring                          -->
+<!-- This file is the equivalent of jetty.xml, but written in spring -->
+<!-- XmlBeanFactory format.                                          -->
+<!-- The modules/spring/src/org/mortbay/spring/Main.java may be used -->
+<!-- to run this file - or any other spring infrastructure that      -->
+<!-- accepts uses an XmlBeanFactory                                  -->
+<!-- =============================================================== -->
+<beans>
+
+	<bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" />
+
+	<bean id="sysProps" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetClass"><value>java.lang.System</value></property>
+		<property name="targetMethod"><value>getProperties</value></property>
+	</bean>
+
+	<bean id="webappRoot"
+		class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetObject">
+			<ref bean="sysProps" />
+		</property>
+		<property name="targetMethod">
+			<value>getProperty</value>
+		</property>
+		<property name="arguments">
+			<list>
+				<value>red5.webapp.root</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="rtmptHost"
+		class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetObject">
+			<ref bean="sysProps" />
+		</property>
+		<property name="targetMethod">
+			<value>getProperty</value>
+		</property>
+		<property name="arguments">
+			<list>
+				<value>rtmpt.host</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="rtmptPort"
+		class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetObject">
+			<ref bean="sysProps" />
+		</property>
+		<property name="targetMethod">
+			<value>getProperty</value>
+		</property>
+		<property name="arguments">
+			<list>
+				<value>rtmpt.port</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="Server" class="org.mortbay.jetty.Server" init-method="start" destroy-method="stop">
+
+		<property name="threadPool">
+			<bean id="ThreadPool"
+				class="org.mortbay.thread.BoundedThreadPool">
+				<property name="minThreads" value="3" />
+				<property name="lowThreads" value="5" />
+				<property name="maxThreads" value="10" />
+			</bean>
+		</property>
+
+		<property name="connectors">
+			<list>
+				<bean id="Connector"
+					class="org.mortbay.jetty.nio.SelectChannelConnector">
+					<property name="host">
+						<ref local="rtmptHost" />
+					</property>
+					<property name="port">
+						<ref local="rtmptPort" />
+					</property>
+					<property name="maxIdleTime" value="3000" />
+					<property name="acceptors" value="2" />
+					<property name="confidentialPort" value="8443" />
+				</bean>
+				<!-- Uncomment to enable SSL, you should setup your own keystore and truststore --> 
+				<!-- see: http://docs.codehaus.org/display/JETTY/How+to+configure+SSL --> 
+				<!--
+				<bean id="sslConnector" 
+				    class="org.mortbay.jetty.security.SslSocketConnector">
+				    <property name="host" value="127.0.0.1" />
+					<property name="port" value="1936" />
+					<property name="maxIdleTime" value="30000" />
+					<property name="keystore" value="${red5.config_root}/keystore.jmx" />
+					<property name="password" value="password" />
+					<property name="keyPassword" value="password" />
+					<property name="truststore" value="${red5.config_root}/truststore.jmx" />
+					<property name="trustPassword" value="trustword" />
+				</bean>	
+				-->
+			</list>
+		</property>
+
+		<property name="handler">
+			<bean id="handlers"	class="org.mortbay.jetty.handler.HandlerCollection">
+				<property name="handlers">
+					<list>
+						<bean id="contexts" class="org.mortbay.jetty.handler.ContextHandlerCollection">
+							<property name="handlers">
+								<list>
+									<bean id="rtmptContext" class="org.mortbay.jetty.handler.ContextHandler">
+										<property name="contextPath" value="/" />
+										<property name="handler">
+              								<bean id="rtmptServletHandler" class="org.mortbay.jetty.servlet.ServletHandler">
+                								<property name="servlets">
+                									<list>
+							                           <bean class="org.mortbay.jetty.servlet.ServletHolder">
+							                               <property name="name" value="RTMPTServlet" />
+							                               <property name="className" value="org.red5.server.net.rtmpt.RTMPTServlet" />
+							                           </bean>
+							                           <bean class="org.mortbay.jetty.servlet.ServletHolder">
+							                               <property name="name" value="RedirectHTTPServlet" />
+							                               <property name="className" value="org.red5.server.net.servlet.RedirectHTTPServlet" />
+							                           </bean>
+													</list>
+												</property>
+												<property name="servletMappings">
+                    								<list>
+                    									<bean class="org.mortbay.jetty.servlet.ServletMapping">
+                    										<property name="pathSpec" value="/open/*" />
+                    										<property name="servletName" value="RTMPTServlet" />
+                    									</bean>
+                    									<bean class="org.mortbay.jetty.servlet.ServletMapping">
+                    										<property name="pathSpec" value="/close/*" />
+                    										<property name="servletName" value="RTMPTServlet" />
+                    									</bean>
+                    									<bean class="org.mortbay.jetty.servlet.ServletMapping">
+                    										<property name="pathSpec" value="/send/*" />
+                    										<property name="servletName" value="RTMPTServlet" />
+                    									</bean>
+                    									<bean class="org.mortbay.jetty.servlet.ServletMapping">
+                    										<property name="pathSpec" value="/idle/*" />
+                    										<property name="servletName" value="RTMPTServlet" />
+                    									</bean>
+                    									<bean class="org.mortbay.jetty.servlet.ServletMapping">
+                    										<property name="pathSpec" value="/*" />
+                    										<property name="servletName" value="RedirectHTTPServlet" />
+                    									</bean>
+                    								</list>
+                    							</property>
+                    						</bean>
+                    					</property>
+									</bean>
+								</list>
+							</property>
+						</bean>
+					</list>
+				</property>
+			</bean>
+		</property>
+
+		<property name="userRealms">
+			<list>
+				<bean
+					class="org.mortbay.jetty.security.HashUserRealm" depends-on="placeholderConfig">
+					<property name="name" value="Test Realm" />
+					<property name="config"><value>${red5.config_root}/realm.properties</value></property>
+				</bean>
+			</list>
+		</property>
+
+	</bean>
+
+</beans>
+
+
+
+
+
+
+
+

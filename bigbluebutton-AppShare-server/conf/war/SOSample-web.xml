@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	
+	<bean id="web.context.SOSample" class="org.red5.server.Context">
+		<property name="scopeResolver" ref="red5.scopeResolver" />
+		<property name="clientRegistry" ref="global.clientRegistry" />
+		<property name="serviceInvoker" ref="global.serviceInvoker" />
+		<property name="mappingStrategy" ref="global.mappingStrategy" />
+	</bean>
+
+	<bean id="web.scope.SOSample" class="org.red5.server.WebScope" init-method="register">
+		<property name="server" ref="red5.server" />
+		<property name="parent" ref="global.scope" />
+		<property name="context" ref="web.context.SOSample" />
+		<property name="handler" ref="web.handler.SOSample" />
+		<property name="contextPath" value="/SOSample" />
+		<property name="virtualHosts" value="@virtual.hosts@" />
+	</bean>
+
+	<bean id="web.handler.SOSample" class="org.red5.server.adapter.ApplicationAdapter"/>
+
+</beans>

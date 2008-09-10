@@ -1,0 +1,244 @@
+----------------------------------
+ Configuration files used by Red5
+----------------------------------
+
+:author: Joachim Bauch, Paul Gregoire
+:contact: jojo@struktur.de, mondain@gmail.com
+:updated: 26 September 2006
+:version: 0.6-dev
+
+.. contents::
+
+Preface
+==========================
+This document describes the configuration files used by Red5.
+
+Please note that this document is still *work in progress*, so some things
+may (and surely will) change until the final release of Red5!
+
+
+Directory "conf"
+==========================
+
+jetty.xml
+--------------------------
+The settings of the HTTP server and servlet container are specified using
+this file.  It runs on all available interfaces on port 5080 by default.
+
+See the `Jetty homepage`__ for further information about the syntax of this
+file.
+
+__ http://jetty.mortbay.org/jetty6/
+
+
+keystore
+--------------------------
+Contains a sample private key and certificate to be used for secure
+connections.
+
+
+log4j.properties
+--------------------------
+Controls the log levels and output handlers for the logging subsystem.
+
+Further information about log4j can be found on `the official homepage`__.
+
+__ http://logging.apache.org/log4j/docs/
+
+
+realm.properties (Jetty)
+--------------------------
+This file defines users passwords and roles that can be used for protected
+areas.
+
+The format is::
+
+  <username>: <password>[,<rolename> ...]
+
+Passwords may be clear text, obfuscated or checksummed.  The class 
+"org.mortbay.util.Password" should be used to generate obfuscated passwords
+or password checksums
+
+
+tomcat-users.xml (Tomcat)
+--------------------------
+This file defines users passwords and roles that can be used for protected
+areas.
+
+The format is::
+
+  <user name="<username>" password="<password>" roles="[,<rolename> ...]" />
+
+Passwords may be clear text, obfuscated or checksummed. For information on different
+digest support or available realm implementations use the how-to:
+http://tomcat.apache.org/tomcat-5.5-doc/realm-howto.html
+
+Further information about tomcat realms can be found on `the official homepage` 
+http://tomcat.apache.org/tomcat-5.5-doc/catalina/docs/api/org/apache/catalina/realm/package-summary.html
+
+
+red5.globals
+--------------------------
+Specifies the path to the configuration file for the default global context
+to be used for Red5.
+
+By default this file is located in "/webapps/red5-default.xml".
+
+
+red5.properties
+--------------------------
+File containing key / value pairs to configure the host and port of basic
+services like RTMP or remoting.
+
+
+red5.xml
+--------------------------
+The main configuration file that wires together the context tree.  It takes
+care of loading "red5-common.xml" and "red5-core.xml" and sets up the rest of
+the server.  This is the first file to be loaded by Red5. 
+The J2EE container is selected in this configuration file by configuring one of the
+following bean elements.
+- Jetty
+<bean id="jetty6.server" class="org.red5.server.JettyLoader" init-method="init" autowire="byType" />
+
+- Tomcat
+<bean id="tomcat.server" class="org.red5.server.TomcatLoader" init-method="init" destroy-method="shutdown" autowire="byType">
+    ... cut for brevity ...
+</bean>
+
+red5-common.xml
+--------------------------
+Classes that are shared between all child contexts are declared in this file.
+It contains information about the object serializers / deserializers, the
+codecs to be used for the network protocols as well as the available video
+codecs.
+
+The object (FLV) cache is configured / spring-wired in this file. Four implementations
+are currently available; The first one is our own creation (simple byte-buffers) and the others use
+WhirlyCache, or Ehcache. If no caching is desired then the NoCache implementation should be specified like so:
+	<bean id="object.cache" class="org.red5.server.cache.NoCacheImpl"/>
+
+The other bean configurations are as follows (Only one may be used at a time):
+- Red5 homegrown simple example
+     <bean id="object.cache" class="org.red5.server.cache.CacheImpl" init-method="init" autowire="byType"> 
+         <property name="maxEntries"><value>5</value></property>
+     </bean>
+	
+- EhCache http://ehcache.sourceforge.net/
+	<bean id="object.cache" class="org.red5.server.cache.EhCacheImpl" init-method="init">
+		<property name="diskStore" value="java.io.tmpdir" />
+		<property name="memoryStoreEvictionPolicy" value="LFU" />
+		<property name="cacheManagerEventListener"><null/></property>		
+		<property name="cacheConfigs">
+			<list>
+				<bean class="net.sf.ehcache.config.CacheConfiguration">
+					<property name="name" value="flv.cache" />
+					<property name="maxElementsInMemory" value="5" />
+					<property name="eternal" value="false" />
+					<property name="timeToIdleSeconds" value="0" />
+					<property name="timeToLiveSeconds" value="0" />
+					<property name="overflowToDisk" value="false" />
+					<property name="diskPersistent" value="false" />
+				</bean>			
+			</list>
+		</property>
+	</bean> 	
+
+- Whirlycache https://whirlycache.dev.java.net/
+    <bean id="object.cache" class="org.red5.server.cache.WhirlyCacheImpl" init-method="init" autowire="byType">
+        <property name="maxEntries" value="5" />
+	<property name="cacheConfig">
+	     <bean class="com.whirlycott.cache.CacheConfiguration">
+		  <property name="name" value="flv.cache" />
+		  <property name="maxSize" value="5" />
+		  <!-- This policy removes cached items, biased towards least frequently used (LFU) Items -->
+		  <property name="policy"><value>com.whirlycott.cache.policy.LFUMaintenancePolicy</value></property>
+		  <!-- This policy removes cached items, biased towards least recently used (LRU) Items -->
+		  <!-- property name="policy"><value>com.whirlycott.cache.policy.LRUMaintenancePolicy</value></property -->
+		  <!-- This policy removes cache items in the order in which they were added -->
+		  <!-- property name="policy"><value>com.whirlycott.cache.policy.FIFOMaintenancePolicy</value></property -->
+		  <!-- A predicate for filtering Collections of Items based on their expiration time -->
+		  <!-- property name="policy"><value>com.whirlycott.cache.policy.ExpirationTimePredicate</value></property -->		
+		  <!-- property name="backend"><value>com.whirlycott.cache.impl.ConcurrentHashMapImpl</value></property -->
+	          <property name="backend"><value>com.whirlycott.cache.impl.FastHashMapImpl</value></property>
+	      </bean>
+	  </property>
+      </bean>   
+
+
+red5-core.xml
+--------------------------
+All available network services are specified here. By default these are
+RTMP and RTMPT.  The actual settings for the RTMPT server can be found in
+"red5-rtmpt.xml" when using Jetty as the J2EE container.
+The RTMPT handler is selected by configuring one of the following bean elements.
+- Jetty
+     <bean id="rtmpt.server" class="org.red5.server.net.rtmpt.RTMPTLoader" init-method="init" autowire="byType" />
+- Tomcat	
+     <bean id="rtmpt.server" class="org.red5.server.net.rtmpt.TomcatRTMPTLoader" init-method="init" autowire="byType">
+         ... cut for brevity ...
+     </bean>
+
+red5-rtmpt.xml
+--------------------------
+Sets up the mapping between the RTMPT URLs and the servlets to use as well
+as specify the host and port to run on.  By default the RTMPT server runs on
+all available interfaces on port 8088.
+
+See the `Jetty homepage`__ for further information about the syntax of this
+file.
+
+__ http://jetty.mortbay.org/jetty6/
+
+
+web.xml (Tomcat)
+--------------------------
+Default web.xml file used by Tomcat.  The settings from this file are applied to a web
+application before it's own WEB_INF/web.xml file.
+Further info about the configuration of this file may be found here: 
+http://tomcat.apache.org/tomcat-5.5-doc/jasper-howto.html#Configuration
+
+
+web-default.xml (Jetty)
+--------------------------
+Default web.xml file used by Jetty.  The settings from this file are applied to a web
+application before it's own WEB_INF/web.xml file.
+
+
+Webapp config directory
+==========================
+
+red5-web.xml
+--------------------------
+Red5 applications are configured within this file. The scripting implementations or Java
+applications are configured via Spring bean elements.
+
+- Java application
+    <bean id="web.handler" class="org.red5.server.webapp.oflaDemo.Application" singleton="true" />
+
+- Javascript / Rhino application
+    <bean id="web.handler" class="org.red5.server.script.rhino.RhinoScriptFactory">
+	<constructor-arg index="0" value="classpath:applications/main.js"/>
+	<!-- Implemented interfaces -->
+	<constructor-arg index="1">
+	    <list>
+		<value>org.red5.server.api.IScopeHandler</value>
+		<value>org.red5.server.adapter.IApplication</value>
+	    </list>
+	</constructor-arg>
+	<!-- Extended class -->
+	<constructor-arg index="2">
+	    <value>org.red5.server.adapter.ApplicationAdapter</value>
+	</constructor-arg>
+    </bean>
+
+- Ruby application 
+    <bean id="web.handler" class="org.red5.server.script.jruby.JRubyScriptFactory">
+        <constructor-arg index="0" value="classpath:applications/main.rb"/>
+	<constructor-arg index="1">
+	    <list>
+		<value>org.red5.server.api.IScopeHandler</value>
+		<value>org.red5.server.adapter.IApplication</value>
+	    </list>
+	</constructor-arg>
+    </bean>	

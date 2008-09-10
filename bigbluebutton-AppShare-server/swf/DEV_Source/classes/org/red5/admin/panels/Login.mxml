@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox creationComplete="init()" xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" 
+	verticalAlign="middle" horizontalAlign="center" verticalGap="0"	xmlns:flash="flash.filters.*">
+
+	<mx:Script>
+		<![CDATA[
+			/**
+			 * RED5 Open Source Flash Server - http://www.osflash.org/red5
+			 *
+			 * Copyright (c) 2006-2008 by respective authors (see below). All rights reserved.
+			 *
+			 * This library is free software; you can redistribute it and/or modify it under the
+			 * terms of the GNU Lesser General Public License as published by the Free Software
+			 * Foundation; either version 2.1 of the License, or (at your option) any later
+			 * version.
+			 *
+			 * This library is distributed in the hope that it will be useful, but WITHOUT ANY
+			 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+			 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+			 *
+			 * You should have received a copy of the GNU Lesser General Public License along
+			 * with this library; if not, write to the Free Software Foundation, Inc.,
+			 * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+			*/
+
+			import mx.events.ListEvent;
+			
+			import org.red5.admin.connector.event.Red5Event;
+			import org.red5.admin.connector.Red5Connector;
+			import org.red5.admin.utils.SharedObjectHandler;
+			
+			[Bindable]
+			private var _hosts				: Array;
+			
+			[Bindable]
+			private var _username			: String;
+			
+			[Bindable]
+			private var _passwd				: String;
+			
+			[Bindable]
+			private var _error				: String;
+			
+			private var _connector			: Red5Connector;
+			private var _sharedObject		: SharedObjectHandler;
+			
+			public static const CONNECTED	: String = "CONNECTED";
+			public static const FAILED		: String = "FAILED";
+			public static const CONNECTING	: String = "CONNECTING";
+			
+			public function init():void
+			{
+				_connector = Red5Connector.getInstance();
+				_connector.addEventListener( Red5Connector.CONNECT , startApp )
+				_connector.addEventListener( Red5Connector.FAILED , failedConnection )
+				_sharedObject = SharedObjectHandler.getInstance();
+				_hosts = _sharedObject.getHosts();
+				if ( _sharedObject.lasthost >= 0 ) {
+					address.selectedIndex = _sharedObject.lasthost
+					remember.selected = true;
+					getExtraData ( new ListEvent("CLICK") );
+				}
+			}
+			
+			private function addActions():void
+			{
+				address.addEventListener(ListEvent.CHANGE,getExtraData);
+			}
+			
+			private function getExtraData(event:ListEvent):void
+			{
+				var un:String = _sharedObject.getUsername(address.text);
+				if ( un != '' ) {
+					username.text = un
+					passwd.text = _sharedObject.getPasswd (address.text);
+				}
+			}
+			
+			public function connect( event:MouseEvent ):void
+			{
+				var uri:String = "rtmp://" + address.text + "/admin";
+				var params:Array = [username.text, passwd.text];
+				
+				_connector.connect(uri, params);
+				
+				dispatchEvent(new Red5Event(CONNECTING,{}));
+			}
+			
+			private function startApp(event:Red5Event):void
+			{
+				if ( remember.selected ) {
+					_sharedObject.addHost(address.text,username.text,passwd.text);
+				}
+				dispatchEvent(new Red5Event(CONNECTED,{}));
+				error.visible = false;
+			}
+			
+			private function failedConnection(event:Red5Event):void{
+				dispatchEvent(new Red5Event(FAILED,{}));
+				_error = event.code;
+				error.visible = true;
+			}
+			
+			private function fillForm():void{
+				if ( edit_server.text != '' ) {
+					edit_username.text = _sharedObject.getUsername(edit_server.text)
+					edit_passwd.text = _sharedObject.getPasswd(edit_server.text)
+					btn_delete.enabled = true;
+					btn_save.enabled = true;
+				}
+			}
+			
+			private function saveServer():void{
+				_sharedObject.saveHost(edit_server.selectedIndex,edit_server.text,edit_username.text,edit_passwd.text);
+				_hosts = _sharedObject.getHosts();
+			}
+			
+			private function deleteServer():void{
+				_sharedObject.removeHost(edit_server.text);
+				edit_username.text = ""
+				edit_passwd.text = ""
+				_hosts = _sharedObject.getHosts();
+				fillForm()
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:TabBar dataProvider="viewstack1" />
+	<mx:Canvas borderStyle="solid" borderThickness="1" cornerRadius="5" themeColor="#000000" alpha="1">
+		<mx:ViewStack id="viewstack1" >
+			<mx:Canvas label="Login" creationComplete="addActions()">
+				<mx:Form>
+					<mx:FormItem label="Server Address">
+						<mx:ComboBox id="address"  width="300" dataProvider="{_hosts}" editable="true"/>
+					</mx:FormItem>
+					<mx:FormItem label="Username">
+						<mx:TextInput id="username" width="300" text="{_username}"/>
+					</mx:FormItem>
+					<mx:FormItem label="Password">
+						<mx:TextInput id="passwd"  width="300" displayAsPassword="true" text="{_passwd}"/>
+					</mx:FormItem>
+					<mx:FormItem>
+						<mx:CheckBox id="remember" label="Save server"/>
+					</mx:FormItem>
+					<mx:FormItem id="error" visible="false">
+						<mx:Label text="{_error}" color="#ff0000" fontWeight="bold"/>
+					</mx:FormItem>
+					<mx:Button id="btnConnect" label="Connect" click="connect(event)"/>
+				</mx:Form>
+	
+			</mx:Canvas>
+			<mx:Canvas label="Manage servers" verticalScrollPolicy="off" horizontalScrollPolicy="off" creationComplete="fillForm()">
+
+				<mx:Form>
+					<mx:FormItem label="Server Address">
+						<mx:ComboBox id="edit_server"  width="300" dataProvider="{_hosts}" editable="true" click="fillForm()" />
+					</mx:FormItem>
+					<mx:FormItem label="Username">
+						<mx:TextInput id="edit_username" width="300"  />
+					</mx:FormItem>
+					<mx:FormItem label="Password">
+						<mx:TextInput id="edit_passwd" width="300" displayAsPassword="true" />
+					</mx:FormItem>
+					<mx:HBox width="100%" height="75" verticalAlign="bottom">
+						<mx:Button label="Save" enabled="false" id="btn_save" click="saveServer()"/>
+						<mx:Button label="Delete" enabled="false" id="btn_delete" click="deleteServer()"/>
+					</mx:HBox>
+				</mx:Form>
+
+			</mx:Canvas>
+		</mx:ViewStack>
+	</mx:Canvas>
+</mx:VBox>

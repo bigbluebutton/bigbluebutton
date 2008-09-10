@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<view:SettingsStatusBarClass xmlns:mx="http://www.adobe.com/2006/mxml"
+							 xmlns:view="org.red5.samples.publisher.view.settings.*">
+							 
+	<mx:ViewStack width="100%" height="100%" selectedIndex="{ navigation.settingsViewing }">
+	
+		<!-- server monitor -->
+		<view:StatusBar labelText="{ main.serverStatusMessage }"
+						labelImage="{ main.images.serverStatusImage }"/>
+		
+		<!-- video monitor -->
+		<view:StatusBar labelText="{ main.videoStatusMessage }"
+						labelImage="{ main.images.videoStatusImage }"/>
+
+		<!-- audio monitor -->
+		<view:StatusBar labelText="{ main.audioStatusMessage }"
+						labelImage="{ main.images.audioStatusImage }"/>
+		
+	</mx:ViewStack>
+	
+</view:SettingsStatusBarClass>

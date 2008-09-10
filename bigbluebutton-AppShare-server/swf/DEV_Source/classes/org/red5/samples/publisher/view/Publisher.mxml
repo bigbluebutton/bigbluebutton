@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<view:PublisherClass width="100%" direction="vertical" 
+					 paddingBottom="0" horizontalGap="6"
+					 xmlns:mx="http://www.adobe.com/2006/mxml"
+					 xmlns:view="org.red5.samples.publisher.view.*">
+	
+	 <mx:Box direction="horizontal" width="100%" height="100%">
+		 <view:MonitorPod id="monitorPod"
+						  width="{ main.media.videoWidth }" height="100%"
+						  direction="vertical" verticalGap="-1"
+						  paddingRight="0" paddingBottom="0"
+						  main="{ main }" navigation="{ navigation }"/>
+			
+		 <view:LogPod id="logPod" 
+					  width="100%" height="100%"
+				 	  verticalGap="0" direction="vertical"
+					  main="{ main }"/>
+	 </mx:Box>
+</view:PublisherClass>

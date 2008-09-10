@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Main xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="org.red5.samples.pausetester.*" 
+	  xmlns:ui="org.red5.ui.*" width="100%" height="100%" verticalAlign="middle" 
+	  horizontalAlign="center">
+	  
+	<mx:Panel title="Pause Test" horizontalScrollPolicy="off" 
+			  status="{ flashVersion }" horizontalAlign="center" verticalAlign="middle">
+			  
+		<mx:VBox width="100%" height="100%" paddingLeft="5" paddingRight="5" paddingBottom="5" 
+				 horizontalScrollPolicy="off" horizontalAlign="center">
+			<mx:Form width="100%">
+				<mx:FormItem label="Host" width="100%">
+					<mx:TextInput id="host_txt" text="localhost" width="100%"/>
+				</mx:FormItem>
+				<mx:FormItem label="Application" width="100%">
+					<mx:TextInput id="app_txt" text="oflaDemo" width="100%"/>
+				</mx:FormItem>
+				<mx:FormItem label="Stream" width="100%">
+					<mx:TextInput id="stream_txt" text="Transformers" width="100%"/>
+				</mx:FormItem>
+				<mx:FormItem label="Buffertime" horizontalAlign="right" width="100%">
+					<mx:HBox width="100%">
+						<mx:NumericStepper value="10" id="bufferTime" />
+						<mx:Spacer width="100%"/>
+						<mx:Button label="Connect" click="startTest()"/>
+					</mx:HBox>
+				</mx:FormItem>
+			</mx:Form>
+			
+			<mx:HBox borderStyle="solid" horizontalAlign="center">
+				<ui:VideoContainer video="{ video }" width="{ videoWidth }" height="{ videoHeight }"/>
+			</mx:HBox>
+			
+			<mx:TextArea editable="false" id="status_txt" width="{ videoWidth }" height="{ videoHeight }"
+						 updateComplete="{ status_txt.verticalScrollPosition = status_txt.maxVerticalScrollPosition }"/>
+		</mx:VBox>
+		
+		<mx:ControlBar horizontalAlign="center">
+			<mx:Button label="Play" enabled="{ controlsEnabled }" click="playStream()"/>
+			<mx:Button label="Pause" enabled="{ controlsEnabled }" click="pauseStream()"/>
+			<mx:Button label="Resume" enabled="{ controlsEnabled }" click="resumeStream()"/>
+			<mx:Button label="Stop" enabled="{ controlsEnabled }" click="stopStream()"/>
+			<mx:Button label="Clear Log" enabled="{ controlsEnabled }" click="clearText()"/>
+		</mx:ControlBar>
+	</mx:Panel>
+	
+</Main>

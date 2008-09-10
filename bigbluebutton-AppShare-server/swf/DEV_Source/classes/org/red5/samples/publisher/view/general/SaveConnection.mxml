@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<view:SaveConnectionClass xmlns:mx="http://www.adobe.com/2006/mxml" 
+						  xmlns:view="org.red5.samples.publisher.view.general.*"
+    					  title="Save Preset" backgroundColor="0xEEEEEE">
+    					  
+	<mx:StringValidator source="{ presetName }" property="text" 
+        tooShortError="Please give a name for the preset " 
+        minLength="1" trigger="{ go_btn }" triggerEvent="click" 
+        valid="createPreset()"/>
+	
+	<mx:StringValidator source="{ presetName }" property="text" 
+        tooShortError="Please give a name for the preset " 
+        minLength="1" trigger="{ presetName }" triggerEvent="enter" 
+        valid="createPreset()"/>
+        
+    <mx:HBox>
+        <mx:Label text="Preset name: "/>
+        <mx:TextInput id="presetName" width="100%" maxChars="100"/>
+    </mx:HBox>
+
+    <mx:Box direction="horizontal" horizontalAlign="right" width="100%">
+        <mx:Button label="Cancel" click="cancelRequest()"/>
+		<mx:Button id="go_btn" label="OK"/>
+    </mx:Box>
+
+</view:SaveConnectionClass>

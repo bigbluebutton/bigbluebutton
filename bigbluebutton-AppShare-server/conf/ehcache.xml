@@ -1,0 +1,288 @@
+<ehcache>
+    <!--
+    Sets the path to the directory where cache files are created.
+
+    If the path is a Java System Property it is replaced by its value in the
+    running VM.
+
+    The following properties are translated:
+    * user.home - User's home directory
+    * user.dir - User's current working directory
+    * java.io.tmpdir - Default temp file path
+
+    Subdirectories can be specified below the property e.g. java.io.tmpdir/one
+    -->
+    <diskStore path="java.io.tmpdir"/>
+
+    <!--
+    Specifies a CacheManagerEventListenerFactory, be used to create a CacheManagerPeerProvider,
+    which is notified when Caches are added or removed from the CacheManager.
+
+    The attributes of CacheManagerEventListenerFactory are:
+    * class - a fully qualified factory class name
+    * properties - comma separated properties having meaning only to the factory.
+
+    Sets the fully qualified class name to be registered as the CacheManager event listener.
+
+    The events include:
+    * adding a Cache
+    * removing a Cache
+
+    Callbacks to listener methods are synchronous and unsynchronized. It is the responsibility
+    of the implementer to safely handle the potential performance and thread safety issues
+    depending on what their listener is doing.
+
+    If no class is specified, no listener is created. There is no default.
+
+    <cacheManagerEventListenerFactory class="" properties=""/>
+    -->
+
+    <!--
+    (Enable for distributed operation)
+
+    Specifies a CacheManagerPeerProviderFactory which will be used to create a
+    CacheManagerPeerProvider, which discovers other CacheManagers in the cluster.
+
+    The attributes of cacheManagerPeerProviderFactory are:
+    * class - a fully qualified factory class name
+    * properties - comma separated properties having meaning only to the factory.
+
+    Ehcache comes with a built-in RMI-based distribution system with two means of discovery of
+    CacheManager peers participating in the cluster:
+    * automatic, using a multicast group. This one automatically discovers peers and detects
+      changes such as peers entering and leaving the group
+    * manual, using manual rmiURL configuration. A hardcoded list of peers is provided at
+      configuration time.
+
+    Configuring Automatic Discovery:
+    Automatic discovery is configured as per the following example:
+    <cacheManagerPeerProviderFactory
+                        class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
+                        properties="peerDiscovery=automatic, multicastGroupAddress=230.0.0.1,
+                                    multicastGroupPort=4446"/>
+
+    Valid properties are:
+    * peerDiscovery (mandatory) - specify "automatic"
+    * multicastGroupAddress (mandatory) - specify a valid multicast group address
+    * multicastGroupPort (mandatory) - specify a dedicated port for the multicast heartbeat
+      traffic
+
+    Configuring Manual Discovery:
+    Manual discovery is configured as per the following example:
+    <cacheManagerPeerProviderFactory class=
+                          "net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
+                          properties="peerDiscovery=manual,
+                          rmiUrls=//server1:40000/sampleCache1|//server2:40000/sampleCache1
+                          | //server1:40000/sampleCache2|//server2:40000/sampleCache2"/>
+
+    Valid properties are:
+    * peerDiscovery (mandatory) - specify "manual"
+    * rmiUrls (mandatory) - specify a pipe separated list of rmiUrls, in the form
+                            //hostname:port
+
+    The hostname is the hostname of the remote CacheManager peer. The port is the listening
+    port of the RMICacheManagerPeerListener of the remote CacheManager peer.
+
+    An alternate CacheManagerPeerProviderFactory can be used for JNDI discovery of other
+    CacheManagers in the cluster. Only manual discovery is supported.
+
+    For cacheManagerPeerProviderFactory specify class
+    net.sf.ehcache.distribution.JNDIManualRMICacheManagerPeerProviderFactoryerFactory.
+
+    Correspondingly for cacheManagerPeerListenerFactory specify class
+    net.sf.ehcache.distribution.JNDIRMICacheManagerPeerListenerFactoryory.
+
+    Configuring JNDI Manual Discovery:
+    Manual JNDI discovery is configured as per the following example:
+    <cacheManagerPeerProviderFactory class=
+        "net.sf.ehcache.distribution.JNDIManualRMICacheManagerPeerProviderFactoryerFactory"
+        properties="peerDiscovery=manual, stashContexts=true, stashRemoteCachePeers=true,
+              jndiUrls=t3//server1:40000/sampleCache1|t3//server2:40000/sampleCache1
+              |t3//server1:40000/sampleCache2|t3//server2:40000/sampleCache2"/>
+
+    Valid properties are:
+    * peerDiscovery (mandatory) - specify "manual"
+    * stashContexts (optional) - specify "true" or "false".  Defaults to true.
+      java.naming.Context objects are stashed for performance.
+    * stashRemoteCachePeers (optional) - specify "true" or "false".  Defaults to true.
+      CachePeer objects are stashed for performance.
+    * jndiUrls (mandatory) - specify a pipe separated list of jndiUrls,
+      in the form protocol//hostname:port
+
+    <cacheManagerPeerProviderFactory
+            class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
+            properties="peerDiscovery=automatic,
+                        multicastGroupAddress=230.0.0.1,
+                        multicastGroupPort=4446"/>
+    -->
+
+    <!--
+    (Enable for distributed operation)
+
+    Specifies a CacheManagerPeerListenerFactory which will be used to create a
+    CacheManagerPeerListener, which
+    listens for messages from cache replicators participating in the cluster.
+
+    The attributes of cacheManagerPeerListenerFactory are:
+    class - a fully qualified factory class name
+    properties - comma separated properties having meaning only to the factory.
+
+    Ehcache comes with a built-in RMI-based distribution system. The listener component is
+    RMICacheManagerPeerListener which is configured using
+    RMICacheManagerPeerListenerFactory. It is configured as per the following example:
+
+    <cacheManagerPeerListenerFactory
+        class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
+        properties="hostName=fully_qualified_hostname_or_ip,
+                    port=40001,
+                    socketTimeoutMillis=120000"/>
+
+    All properties are optional. They are:
+    * hostName - the hostName of the host the listener is running on. Specify
+      where the host is multihomed and you want to control the interface over which cluster
+      messages are received. Defaults to the host name of the default interface if not
+      specified.
+    * port - the port the listener listens on. This defaults to a free port if not specified.
+    * socketTimeoutMillis - the number of ms client sockets will stay open when sending
+      messages to the listener. This should be long enough for the slowest message.
+      If not specified it defaults 120000ms.
+
+
+    An alternate CacheManagerPeerListenerFactory can be also be used for JNDI binding of
+    listeners for messages from cache replicators participating in the cluster. For
+    cacheManagerPeerListenerFactory specify
+    class net.sf.ehcache.distribution.JNDIRMICacheManagerPeerListenerFactory.
+    Correspondingly for cacheManagerPeerProviderFactory specify class
+    net.sf.ehcache.distribution.JNDIManualRMICacheManagerPeerProviderFactoryerFactory.
+    Properties for JNDIRMICacheManagerPeerListenerFactory are the same as
+    RMICacheManagerPeerListenerFactory.
+
+
+    <cacheManagerPeerListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/>
+    -->
+    <!-- Cache configuration.
+
+    The following attributes are required.
+
+    name:
+    Sets the name of the cache. This is used to identify the cache. It must be unique.
+
+    maxElementsInMemory:
+    Sets the maximum number of objects that will be created in memory
+
+    eternal:
+    Sets whether elements are eternal. If eternal,  timeouts are ignored and the
+    element is never expired.
+
+    overflowToDisk:
+    Sets whether elements can overflow to disk when the in-memory cache
+    has reached the maxInMemory limit.
+
+    The following attributes are optional.
+
+    timeToIdleSeconds:
+    Sets the time to idle for an element before it expires.
+    i.e. The maximum amount of time between accesses before an element expires
+    Is only used if the element is not eternal.
+    Optional attribute. A value of 0 means that an Element can idle for infinity.
+    The default value is 0.
+
+    timeToLiveSeconds:
+    Sets the time to live for an element before it expires.
+    i.e. The maximum time between creation time and when an element expires.
+    Is only used if the element is not eternal.
+    Optional attribute. A value of 0 means that and Element can live for infinity.
+    The default value is 0.
+
+    diskPersistent:
+    Whether the disk store persists between restarts of the Virtual Machine.
+    The default value is false.
+
+    diskExpiryThreadIntervalSeconds:
+    The number of seconds between runs of the disk expiry thread. The default value
+    is 120 seconds.
+
+    memoryStoreEvictionPolicy:
+    Policy would be enforced upon reaching the maxElementsInMemory limit. Default
+    policy is Least Recently Used (specified as LRU). Other policies available -
+    First In First Out (specified as FIFO) and Less Frequently Used
+    (specified as LFU)
+
+    Cache elements can also contain sub elements which take the same format of a factory class
+    and properties. Defined sub-elements are:
+
+    * cacheEventListenerFactory - Enables registration of listeners for cache events, such as
+      put, remove, update, and expire.
+
+    * bootstrapCacheLoaderFactory - Specifies a BootstrapCacheLoader, which is called by a
+      cache on initialisation to prepopulate itself.
+
+    Each cache that will be distributed needs to set a cache event listener which replicates
+    messages to the other CacheManager peers. For the built-in RMI implementation this is done
+    by adding a cacheEventListenerFactory element of type RMICacheReplicatorFactory to each
+    distributed cache's configuration as per the following example:
+
+    <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+         properties="replicateAsynchronously=true,
+         replicatePuts=true,
+         replicateUpdates=true,
+         replicateUpdatesViaCopy=true,
+         replicateRemovals=true "/>
+
+    The RMICacheReplicatorFactory recognises the following properties:
+
+    * replicatePuts=true|false - whether new elements placed in a cache are
+      replicated to others. Defaults to true.
+
+    * replicateUpdates=true|false - whether new elements which override an
+      element already existing with the same key are replicated. Defaults to true.
+
+    * replicateRemovals=true - whether element removals are replicated. Defaults to true.
+
+    * replicateAsynchronously=true | false - whether replications are
+      asynchronous (true) or synchronous (false). Defaults to true.
+
+    * replicateUpdatesViaCopy=true | false - whether the new elements are
+      copied to other caches (true), or whether a remove message is sent. Defaults to true.
+
+
+    * asynchronousReplicationIntervalMillis=<number of milliseconds> - The asynchronous
+      replicator runs at a set interval of milliseconds. The default is 1000. The minimum
+      is 10. This property is only applicable if replicateAsynchronously=true
+
+
+    The RMIBootstrapCacheLoader bootstraps caches in clusters where RMICacheReplicators are
+    used. It is configured as per the following example:
+
+    <bootstrapCacheLoaderFactory
+        class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory"
+        properties="bootstrapAsynchronously=true, maximumChunkSizeBytes=5000000"/>
+
+    The RMIBootstrapCacheLoaderFactory recognises the following optional properties:
+
+    * bootstrapAsynchronously=true|false - whether the bootstrap happens in the background
+      after the cache has started. If false, bootstrapping must complete before the cache is
+      made available. The default value is true.
+
+    * maximumChunkSizeBytes=<integer> - Caches can potentially be very large, larger than the
+      memory limits of the VM. This property allows the bootstraper to fetched elements in
+      chunks. The default chunk size is 5000000 (5MB).
+
+    -->
+
+    <!--
+    Mandatory Default Cache configuration. These settings will be applied to caches
+    created programmtically using CacheManager.add(String cacheName)
+    -->
+    <defaultCache
+            maxElementsInMemory="4"
+            eternal="false"
+            timeToIdleSeconds="120"
+            timeToLiveSeconds="120"
+            overflowToDisk="false"
+            diskPersistent="false"
+            diskExpiryThreadIntervalSeconds="120"
+            memoryStoreEvictionPolicy="LFU"
+            />
+</ehcache>

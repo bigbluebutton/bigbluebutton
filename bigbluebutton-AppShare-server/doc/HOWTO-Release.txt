@@ -1,0 +1,26 @@
+Red5 release manual
+===================
+
+This document describes the steps necessary to create a new release of Red5:
+
+1. Make sure everything has been committed to the trunk or correct branch.
+
+2. Update the file doc/changelog.txt with informations about the new release.
+
+3. Create tags of the modules that are linked into the main code tree:
+
+   - documentation at http://svn1.cvsdude.com/osflash/red5/doc/tags
+   
+   Tags for versions should always be the version string with dots replaced
+   by underscores, e.g. version "1.2.3" becomes tag "1_2_3".
+   
+   If you would tag the documentation folder for version "1.2.3", you would
+   use the url http://svn1.cvsdude.com/osflash/red5/doc/tags/1_2_3
+
+4. Tag the server code according to the naming scheme from above at
+   http://svn1.cvsdude.com/osflash/red5/java/server/tags
+
+5. Update the svn:externals in the newly created server code tag to point
+   to the tagged modules from step 3.
+
+6. You're done.

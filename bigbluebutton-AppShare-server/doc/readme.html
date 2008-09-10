@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Red 5 - Discovery Build</title>
+<LINK href="red5.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+
+Welcome to the RED5 build, to build and run the RED5 server you need the following software:
+
+<ol>
+	<li>Apache ANT version 1.7.0 or newer (<a href="http://ant.apache.org/bindownload.cgi" target="_blank">download here</a>)</li>
+	<li>Java JDK 1.5 or newer (<a href="http://java.sun.com/javase/downloads/index.jsp" target="_blank">download here</a>). You don't need netbeans unless you need an IDE for Java.</li>
+	<li>The RED5 distribution (<a href="http://svn1.cvsdude.com/osflash/red5/java/server/trunk" target="_blank">download here</a>)</li>
+	<li>Ant must be on your system path (test by typing ant -version at a system prompt)</li>
+	<li>You must have the environment variables for JAVA_HOME and JAVA_VERSION defined, typically: 
+		<pre>
+		JAVA_HOME=C:\development\j2sdk1.5.0_07
+		JAVA_VERSION=1.5
+                </pre>
+		You can check this on windows by typing <pre>set JAVA_HOME</pre> or on unix by typing <pre>echo $JAVA_HOME</pre>
+		
+		<br><strong>FAILURE TO SETUP YOUR ENVIRONMENT VARIABLES WILL PREVENT YOUR FROM BEING ABLE TO BUILD PROPERLY</strong><br><br>
+	</li>
+	
+	<li>Now to just build the red5 server and start it running type <strong>ant server</strong> - This will compile the code and start the red5 server listening on port 1935.</li>
+    <li>To test the server use either the samples in the "swf" directory or write your own fla to call red5 using rtmp://localhost:1935/oflaDemo as the URI.</li>
+    <li>To change the default port Red5 listens on edit the conf/red5.properties and change the property rtmp.host_port value to your desired host and port i.e. :
+	
+	<pre>rtmp.host_port = 0.0.0.0:2935</pre>
+	
+	and then restart the server by typing <pre>ant server<pre></li>
+	
+	<li>Please direct any questions to the red5 mailing list : red5@osflash.org</li>
+</ol>
+ 
+</body>
+</html>

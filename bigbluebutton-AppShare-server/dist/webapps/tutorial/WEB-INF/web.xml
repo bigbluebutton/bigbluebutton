@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app 
+   xmlns="http://java.sun.com/xml/ns/j2ee" 
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd" 
+   version="2.4"> 
+
+	<display-name>Red5 tutorial</display-name>
+
+	<context-param>
+	    <param-name>globalScope</param-name>
+	    <param-value>default</param-value>
+	</context-param>
+
+	<context-param>
+	    <param-name>contextConfigLocation</param-name>
+	    <param-value>/WEB-INF/red5-*.xml</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>locatorFactorySelector</param-name>
+		<param-value>red5.xml</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>parentContextKey</param-name>
+		<param-value>default.context</param-value>
+	</context-param>
+		
+	<context-param>
+		<param-name>webAppRootKey</param-name>
+		<param-value>/tutorial</param-value>
+	</context-param>
+	
+	<listener>
+	    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+
+    <!-- remove the following servlet tags if you want to disable remoting for this application -->
+	<servlet>
+		<servlet-name>gateway</servlet-name>
+		<servlet-class>
+			org.red5.server.net.servlet.AMFGatewayServlet
+		</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+    
+	<servlet-mapping>
+		<servlet-name>gateway</servlet-name>
+		<url-pattern>/gateway</url-pattern>
+	</servlet-mapping>
+
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Forbidden</web-resource-name>
+            <url-pattern>/streams/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint/>
+    </security-constraint>
+
+</web-app>

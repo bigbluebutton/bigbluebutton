@@ -1,0 +1,643 @@
+--------------------------------------
+ Migration guide from FCS/FMS to Red5
+--------------------------------------
+
+:author: Joachim Bauch
+:contact: jojo@struktur.de
+:Date: $Date: 2008-02-07 19:23:29 +0100 (Thu, 07 Feb 2008) $
+:Revision: $Revision: 2616 $
+:Id: $Id: MigrationGuide.txt 2616 2008-02-07 18:23:29Z TTriemstra $
+
+.. contents::
+
+Preface
+==========================
+This document describes API differences between the Macromedia Flash
+Communication Server / Adobe Flash Media Server and Red5.  It aims at helping
+migrate existing applications to Red5.
+
+If you don't have an application in Red5 yet, please read the tutorial about
+`howto create new applications`__ first.
+
+
+Application callbacks
+==========================
+When implementing serverside applications, one of the most important
+functionalities is to get notified about clients that connect or disconnect
+and to be informed about the creation of new instances of the application.
+
+
+Interface IScopeHandler
+--------------------------
+Red5 specifies these actions in the interface IScopeHandler_.  See the API
+documentation for further details.
+
+
+Class ApplicationAdapter
+--------------------------
+As some methods may be called multiple times for one request (e.g. `connect`
+will be called once for every scope in the tree the client connects to),
+the class ApplicationAdapter_ defines additional methods.
+
+This class usually is used as base class for new applications.
+
+Here is a short overview of methods of the FCS / FMS `application` class and
+their corresponding methods of ApplicationAdapter_ in Red5:
+
+=============== ===============
+FCS / FMS       Red5
+=============== ===============
+onAppStart      appStart
+                roomStart
+onAppStop       appStop
+                roomStop
+onConnect       appConnect
+                roomConnect
+                appJoin
+                roomJoin
+onDisconnect    appDisconnect
+                roomDisconnect
+                appLeave
+                roomLeave
+=============== ===============
+
+The `app*` methods are called for the main application, the `room*` methods
+are called for rooms (i.e. instances) of the application.
+
+You can also also use the ApplicationAdapter_ to check for streams, shared
+objects, or subscribe them.  See the API documentation for further details.
+
+
+Execution order of connection methods
+`````````````````````````````````````
+Assuming you connect to `rtmp://server/app/room1/room2`
+
+At first, the connection is established, so the user "connects" to all scopes
+that are traversed up to `room2`:
+
+1. `app`     (-> appConnect)
+2. `room1`   (-> roomConnect)
+3. `room2`   (-> roomConnect)
+
+After the connection is established, the client object is retrieved and if
+it's the first connection by this client to the scope, he "joins" the scopes:
+
+1. `app`     (-> appJoin)
+2. `room1`   (-> roomJoin)
+3. `room2`   (-> roomJoin)
+
+If the same client establishes a second connection to the same scope, only
+the `connect` methods will be called.  If you conect to partially the same
+scopes, only a few `join` methods might be called, e.g.
+`rtmp://server/app/room1/room3` will trigger
+
+1. `appConnect("app")`
+2. `joinConnect("room1")`
+3. `joinConnect("room3")`
+4. `roomJoin("room3")`
+
+The `appStart` method currently is only called once during startup of Red5
+as it currently can't unload/load applications like FCS/FMS does.
+The `roomStart` methods are called when the first client connects to a room. 
+
+
+Accepting / rejecting clients
+-----------------------------
+FCS / FMS provide the methods `acceptConnection` and `rejectConnection` to
+accept and reject new clients.  To allow clients to connect, no special
+action is required by Red5 applications, the `*Connect` methods just need
+to return `true` in this case.
+
+If a client should not be allowed to connect, the method `rejectClient`
+can be called which is implemented by the ApplicationAdapter_ class. Any
+parameter passed to `rejectClient` is available as the `application`
+property of the status object that is returned to the caller.
+
+
+Current connection and client
+=============================
+Red5 supports two different ways to access the current connection from an
+invoked method.  The connection can  be used to get the active client and
+the scope he is connected to.  The first possibility uses the "magic" Red5_
+object::
+
+  import org.red5.server.api.IClient;
+  import org.red5.server.api.IConnection;
+  import org.red5.server.api.IScope;
+  import org.red5.server.api.Red5;
+
+  public void whoami() {
+      IConnection conn = Red5.getConnectionLocal();
+      IClient client = conn.getClient();
+      IScope scope = conn.getScope();
+      // ...
+  }
+
+The second possiblity requires the method to be defined with an argument of
+type IConnection_ as implicit first parameter which is automatically added
+by Red5 when a client calls the method::
+
+  import org.red5.server.api.IClient;
+  import org.red5.server.api.IConnection;
+  import org.red5.server.api.IScope;
+
+  public void whoami(IConnection conn) {
+      IClient client = conn.getClient();
+      IScope scope = conn.getScope();
+      // ...
+  }
+
+
+Additional handlers
+==========================
+For many applications, existing classes containing application logic that
+is not related to Red5 are required to be reused.  In order to make them
+available for clients connecting through RTMP, these classes need to be
+registered as handlers in Red5.
+
+There are currently two ways to register these handlers:
+ 1. By adding them to the configuration files.
+ 2. By registering them manually from the application code.
+
+The handlers can be executed by clients with code similar to this::
+
+    nc = new NetConnection();
+    nc.connect("rtmp://localhost/myapp");
+    nc.call("handler.method", nc, "Hello world!");
+
+If a handler is requested, Red5 always looks it up in the custom scope
+handlers before checking the handlers that have been set up in the context
+through the configuration file.
+
+
+Handlers in configuration files
+-------------------------------
+This method is best suited for handlers that are common to all scopes the
+application runs in and that don't need to change during the lifetime of
+an application.
+
+To register the class `com.fancycode.red5.HandlerSample` as handler `sample`,
+the following bean needs to be added to `WEB-INF/red5-web.xml`::
+
+    <bean id="sample.service" 
+          class="com.fancycode.red5.HandlerSample" 
+          singleton="true" />
+
+Note that the id of the bean is constructed as the name of the handler
+(here `sample`) and the keyword `service`.
+
+
+Handlers from application code
+------------------------------
+All applications that use handlers which are different for the various
+scopes or want to change handlers, need a way to register them from the
+serverside code.  These handlers always override the handlers configured in
+`red5-web.xml`.  The methods required for registration are described in the
+interface IServiceHandlerProvider_ which is implemented by
+ApplicationAdapter_.
+
+The same class as above can be registered using this code::
+
+    public boolean appStart(IScope app) {
+        if (!super.appStart(scope))
+            return false;
+        
+        Object handler = new com.fancycode.red5.HandlerSample();
+        app.registerServiceHandler("sample", handler);
+        return true;
+    }
+
+Note that in this example, only the application scope has the `sample`
+handler but not the subscopes!  If the handler should be available in the
+rooms as well, it must be registered in `roomStart` for the room scopes.
+
+
+Calls to client methods
+==========================
+To call methods from your Red5 application on the client, you will first need
+a reference to the current connection object::
+
+    import org.red5.server.api.IConnection;
+    import org.red5.server.api.Red5;
+    import org.red5.server.api.service.IServiceCapableConnection;
+    ...
+    IConnection conn = Red5.getConnectionLocal();
+
+If the connection implements the IServiceCapableConnection_ interface, it
+supports calling methods on the other end::
+
+    if (conn instanceof IServiceCapableConnection) {
+        IServiceCapableConnection sc = (IServiceCapableConnection) conn;
+        sc.invoke("the_method", new Object[]{"One", 1});
+    }
+
+
+If you need the result of the method call, you must provide a class that
+implements the IPendingServiceCallback_ interface::
+
+    import org.red5.server.api.service.IPendingService;
+    import org.red5.server.api.service.IPendingServiceCallback;
+    
+    class MyCallback implements IPendingServiceCallback {
+    
+        public void resultReceived(IPendingServiceCall call) { 
+            // Do something with "call.getResult()"
+        }
+    }
+
+The method call looks now like this::
+
+    if (conn instanceof IServiceCapableConnection) {
+        IServiceCapableConnection sc = (IServiceCapableConnection) conn;
+        sc.invoke("the_method", new Object[]{"One", 1}, new MyCallback());
+    }
+
+Of course you can implement this interface in your application and pass a
+reference to the application instance.
+
+
+SharedObjects
+==========================
+The methods to access shared objects from an application are specified in the
+interface ISharedObjectService_.
+
+When dealing with shared objects in serverside scripts, special care must be
+taken about the scope they are created in.
+
+To create a new shared object when a room is created, you can override the
+method `roomStart` in your application::
+
+  import org.red5.server.adapter.ApplicationAdapter;
+  import org.red5.server.api.IScope;
+  import org.red5.server.api.so.ISharedObject;
+  
+  public class SampleApplication extends ApplicationAdapter {
+  
+    public boolean roomStart(IScope room) {
+        if (!super.roomStart(room))
+            return false;
+        
+        createSharedObject(room, "sampleSO", true);
+        ISharedObject so = getSharedObject(room, "sampleSO");
+      
+        // Now you could do something with the shared object...
+      
+        return true;		
+    }
+    
+  }
+
+Now everytime a first user connects to a room of a application, e.g. through
+`rtmp://server/application/room1`, a shared object `sampleSO` is created by
+the server.
+
+If a shared object should be created for connections to the main application,
+e.g. `rtmp://server/application`, the same must be done in the method
+`appStart`.
+
+For further informations about the possible methods a shared object provides
+please refer to the api documentation of the interface ISharedObject_.
+
+
+Serverside change listeners
+---------------------------
+To get notified about changes of the shared object similar to `onSync` in
+FCS / FMS, a listener must implement the interface ISharedObjectListener_::
+
+  import org.red5.server.api.so.ISharedObject;
+  import org.red5.server.api.so.ISharedObjectListener;
+
+  public class SampleSharedObjectListener
+         implements ISharedObjectListener {
+
+    public void onSharedObjectUpdate(ISharedObject so,
+                                     String key, Object value) {
+        // The attribute <key> of the shared object <so>
+        // was changed to <value>.
+    }
+
+    public void onSharedObjectDelete(ISharedObject so, String key) {
+        // The attribute <key> of the shared object <so> was deleted.
+    }
+
+    public void onSharedObjectSend(ISharedObject so,
+                                   String method, List params) {
+        // The handler <method> of the shared object <so> was called
+        // with the parameters <params>.
+    }
+    
+    // Other methods as described in the interface...
+  }
+
+
+Additionally, the listener must get registered at the shared object::
+
+  ISharedObject so = getSharedObject(scope, "sampleSO");
+  so.addSharedObjectListener(new SampleSharedObjectListener())
+
+
+Changing from application code
+------------------------------
+A shared object can be changed by the server as well::
+
+  ISharedObject so = getSharedObject(scope, "sampleSO");
+  so.setAttribute("fullname", "Sample user");
+
+Here all subscribed clients as well as the registered handlers are notified
+about the new / changed attribute.
+
+
+If multiple actions on a shared object should be combined in one update
+event to the subscribed clients, the methods `beginUpdate` and `endUpdate`
+must be used::
+
+  ISharedObject so = getSharedObject(scope, "sampleSO");
+  so.beginUpdate();
+  so.setAttribute("One", "1");
+  so.setAttribute("Two", "2");
+  so.removeAttribute("Three");
+  so.endUpdate();
+
+The serverside listeners will receive their update notifications through
+separate method calls as without the `beginUpdate` and `endUpdate`.
+
+
+SharedObject event handlers
+----------------------------
+Calls to shared object handlers through `remote_so.send(<handler>, <args>)`
+from a Flash client or the corresponding serverside call can be mapped to
+methods in Red5.  Therefore a handler must get registered through a method
+of the ISharedObjectHandlerProvider_ interface similar to the application
+handlers::
+
+  package com.fancycode.red5;
+
+  class MySharedObjectHandler {
+  
+      public void myMethod(String arg1) {
+          // Now do something
+      }
+      
+  }
+
+  ...
+  ISharedObject so = getSharedObject(scope, "sampleSO");
+  so.registerServiceHandler(new MySharedObjectHandler());
+
+Handlers with a given name can be registered as well::
+
+  ISharedObject so = getSharedObject(scope, "sampleSO");
+  so.registerServiceHandler("one.two", new MySharedObjectHandler());
+
+Here, the method could be called through `one.two.myMethod`.
+
+Another way to define event handlers for SharedObjects is to add them to the
+`red5-web.xml` similar to the file-based application handlers.  The beans
+must have a name of `<SharedObjectName>.<DottedServiceName>.soservice`, so
+the above example could also be defined with::
+
+    <bean id="sampleSO.one.two.soservice" 
+          class="com.fancycode.red5.MySharedObjectHandler" 
+          singleton="true" />
+
+
+Persistence
+==========================
+Persistence is used so properties of objects can be used even after the server
+has been restarted.  In FCS / FMS usually local shared objects on the
+serverside are used for this.
+
+Red5 allows arbitrary objects to be persistent, all they need to do is
+implement the interface IPersistable_.  Basically these objects have a `type`,
+a `path`, a `name` (all strings) and know how to serialize and deserialize
+themselves.
+
+Here is a sample of serialization and deserialization::
+
+  import java.io.IOException;
+  import org.red5.io.object.Input;
+  import org.red5.io.object.Output;
+  import org.red5.server.api.persistence.IPersistable;
+  
+  class MyPersistentObject implements IPersistable {
+
+    // Attribute that will be made persistent
+    private String data = "My persistent value";
+
+    void serialize(Output output) throws IOException {
+        // Save the objects's data.
+        output.writeString(data);
+    }
+	
+    void deserialize(Input input) throws IOException {
+        // Load the object's data.
+        data = input.readString();
+    }
+    
+    // Other methods as described in the interface...
+  }
+
+
+To save or load this object, the following code can be used::
+
+  import org.red5.server.adapter.ApplicationAdapter;
+  import org.red5.server.api.IScope;
+  import org.red5.server.api.Red5;
+  import org.red5.server.api.persistence.IPersistenceStore;
+  
+  class MyApplication extends ApplicationAdapter {
+  
+    private void saveObject(MyPersistentObject object) {
+        // Get current scope.
+        IScope scope = Red5.getConnectionLocal().getScope();
+        // Save object in current scope.
+        scope.getStore().save(object);
+    }
+  
+    private void loadObject(MyPersistentObject object) {
+        // Get current scope.
+        IScope scope = Red5.getConnectionLocal().getScope();
+        // Load object from current scope.
+        scope.getStore().load(object);
+    }
+    
+  }
+
+
+If no custom objects are required for an application, but data must be stored
+for future reuse, it can be added to the IScope_ through the interface
+IAttributeStore_.  In scopes, all attributes that don't start with
+`IPersistable.TRANSIENT_PREFIX` are persistent.
+
+The backend that is used to store objects is configurable.  By default
+persistence in memory and in the filesystem is available.
+
+When using filesystem persistence for every object a file is created in
+"webapps/<app>/persistence/<type>/<path>/<name>.red5", e.g. for a shared
+object "theSO" in the connection to "rtmp://server/myApp/room1" a file at
+"webapps/myApp/persistence/SharedObject/room1/theSO.red5" would be created.
+
+
+Periodic events
+==========================
+Applications that need to perform tasks regularly can use the `setInterval`
+in FCS / FMS to schedule methods for periodic execution.
+
+Red5 provides a scheduling service (ISchedulingService_) that is implemented
+by ApplicationAdapter_ like most other services.  The service can register
+an object (which needs to implement the IScheduledJob_ interface) whose
+`execute` method is called in a given interval.
+
+To register an object, code like this can be used::
+
+  import org.red5.server.api.IScope;
+  import org.red5.server.api.IScheduledJob;
+  import org.red5.server.api.ISchedulingService;
+  import org.red5.server.adapter.ApplicationAdapter;
+  
+  class MyJob implements IScheduledJob {
+  
+    public void execute(ISchedulingService service) {
+        // Do something
+    }
+  }
+
+  public class SampleApplication extends ApplicationAdapter {
+  
+    public boolean roomStart(IScope room) {
+        if (!super.roomStart(room))
+            return false;
+        
+        // Schedule invokation of job every 10 seconds.
+        String id = addScheduledJob(10000, new MyJob());
+        room.setAttribute("MyJobId", id);
+        return true;		
+    }
+  }
+  
+The id that is returned by `addScheduledJob` can be used later to stop
+execution of the registered job::
+
+    public void roomStop(IScope room) {
+        String id = (String) room.getAttribute("MyJobId");
+        removeScheduledJob(id);
+        super.roomStop(room);
+    }
+
+
+Remoting
+==========================
+Remoting can be used by non-rtmp clients to invoke methods in Red5.  Another
+possibility is to call methods from Red5 to other servers that provide a
+remoting service.
+
+
+Remoting server
+--------------------------
+Services that should be available for clients need to be registered the same
+way as additional application handlers are registered.  See above for details.
+
+To enable remoting support for an application, the following section must be
+added to the `WEB-INF/web.xml` file::
+
+  <servlet>
+    <servlet-name>gateway</servlet-name>
+    <servlet-class>
+        org.red5.server.net.servlet.AMFGatewayServlet
+    </servlet-class>
+  </servlet>
+    
+  <servlet-mapping>
+    <servlet-name>gateway</servlet-name>
+    <url-pattern>/gateway/*</url-pattern>
+  </servlet-mapping>
+
+The path specified in the `<url-pattern>` tag (here `gateway`) can be used
+by the remoting client as connection url.  If this example would have been
+specified for an application `myApp`, the URL would be::
+
+  http://localhost:5080/myApp/gateway
+
+Methods invoked through this connection will be executed in the context of
+the application scope.  If the methods should be executed in subscopes, the
+path to the subscopes must be added to the URL like::
+
+  http://localhost:5080/myApp/gateway/room1/room2
+
+
+Remoting client
+--------------------------
+The class RemotingClient_ defines all methods that are required to call
+methods through the remoting protocol.
+
+The following code serves as example about how to use the remoting client::
+
+  import org.red5.server.net.remoting.RemotingClient;
+  
+  String url = "http://server/path/to/service";
+  RemotingClient client = new RemotingClient(url);
+  Object[] args = new Object[]{"Hello world!"};
+  Object result = client.invokeMethod("service.remotingMethod", args);
+  // Now do something with the result
+
+By default, a timeout of 30 seconds will be used per call, this can be
+changed by passing a second parameter to the constructor defining the maximum
+timeout in milliseconds.
+
+The remoting headers `AppendToGatewayUrl`, `ReplaceGatewayUrl` and
+`RequestPersistentHeader` are handled automatically by the Red5 remoting
+client.
+
+Some methods may take a rather long time on the called server to complete, so
+it's better to perform the call asynchronously to avoid blocking a thread in
+Red5.  Therefore an object that implements the interface IRemotingCallback_
+must be passed as additional parameter::
+
+  import org.red5.server.net.remoting.RemotingClient;
+  import org.red5.server.net.remoting.IRemotingCallback;
+  
+  public class CallbackHandler implements IRemotingCallback {
+  
+    void errorReceived(RemotingClient client, String method,
+                       Object[] params, Throwable error) {
+        // An error occurred while performing the remoting call.
+    }
+    
+    void resultReceived(RemotingClient client, String method,
+                        Object[] params, Object result) {
+        // The result was received from the server.
+    }
+  }
+  
+  String url = "http://server/path/to/service";
+  RemotingClient client = new RemotingClient(url);
+  Object[] args = new Object[]{"Hello world!"};
+  IRemotingCallback callback = new CallbackHandler();
+  client.invokeMethod("service.remotingMethod", args, callback);
+
+
+Streams
+==========================
+TODO: How can streams be accessed from an application?
+
+
+
+__ HOWTO-NewApplications.txt
+.. _IScopeHandler: http://dl.fancycode.com/red5/api/org/red5/server/api/IScopeHandler.html
+.. _ApplicationAdapter: http://dl.fancycode.com/red5/api/org/red5/server/adapter/ApplicationAdapter.html
+.. _IServiceCapableConnection: http://dl.fancycode.com/red5/api/org/red5/server/api/service/IServiceCapableConnection.html
+.. _IPendingServiceCallback: http://dl.fancycode.com/red5/api/org/red5/server/api/service/IPendingServiceCallback.html
+.. _ISharedObjectService: http://dl.fancycode.com/red5/api/org/red5/server/api/so/ISharedObjectService.html
+.. _ISharedObject: http://dl.fancycode.com/red5/api/org/red5/server/api/so/ISharedObject.html
+.. _ISharedObjectListener: http://dl.fancycode.com/red5/api/org/red5/server/api/so/ISharedObjectListener.html
+.. _IPersistable: http://dl.fancycode.com/red5/api/org/red5/server/api/persistence/IPersistable.html
+.. _IScope: http://dl.fancycode.com/red5/api/org/red5/server/api/IScope.html
+.. _IAttributeStore: http://dl.fancycode.com/red5/api/org/red5/server/api/IAttributeStore.html
+.. _IServiceHandlerProvider: http://dl.fancycode.com/red5/api/org/red5/server/api/service/IServiceHandlerProvider.html
+.. _ISchedulingService: http://dl.fancycode.com/red5/api/org/red5/server/api/scheduling/ISchedulingService.html
+.. _IScheduledJob: http://dl.fancycode.com/red5/api/org/red5/server/api/scheduling/IScheduledJob.html
+.. _ISharedObjectHandlerProvider: http://dl.fancycode.com/red5/api/org/red5/server/api/so/ISharedObjectHandlerProvider.html
+.. _RemotingClient: http://dl.fancycode.com/red5/api/org/red5/server/net/remoting/RemotingClient.html
+.. _Red5: http://dl.fancycode.com/red5/api/org/red5/server/api/Red5.html
+.. _IConnection: http://dl.fancycode.com/red5/api/org/red5/server/api/IConnection.html
+.. _IRemotingCallback: http://dl.fancycode.com/red5/api/org/red5/server/net/remoting/IRemotingCallback.html

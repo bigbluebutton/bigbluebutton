@@ -1,0 +1,15 @@
+/* echo CSS file */
+
+Application {
+	background-color		: #FFFFFF;
+	theme-color				: haloBlue;
+}
+
+.mainGrid {
+	TestActive				: Embed(source="../images/test_active.png");
+	TestComplete			: Embed(source="../images/test_complete.png");		
+	TestError				: Embed(source="../images/test_error.png");	
+	TestFailed				: Embed(source="../images/test_failed.png");
+	TestInit				: Embed(source="../images/test_init.png");
+	TestTimeout				: Embed(source="../images/test_timeout.png");
+}
