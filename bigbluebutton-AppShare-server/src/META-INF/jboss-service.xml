@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<server>
+
+    <mbean code="org.red5.server.jboss.JbossLoader" name="org.red5.server:service=JbossLoader">
+    </mbean>
+
+    <mbean code="org.jboss.varia.property.SystemPropertiesService" name="org.red5.server:type=Service,name=Red5SystemProperties"> 
+        <attribute name="URLList">deploy/red5.sar/conf/red5.properties</attribute>                        
+        <attribute name="Properties">
+            red5.root=${jboss.server.home.url}deploy/red5.sar
+            red5.config_root=${jboss.server.home.url}deploy/red5.sar/conf/
+            default.context=${jboss.server.home.url}deploy/red5.sar/ROOT.war
+        </attribute>    
+    </mbean> 
+
+</server>
