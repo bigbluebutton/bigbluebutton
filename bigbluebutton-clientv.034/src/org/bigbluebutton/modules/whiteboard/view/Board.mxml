@@ -59,6 +59,9 @@
 				if (evt.fullScreen) {
 					//Notify user that the keyboard is not working
 					this.maximizeRestoreBtn.visible = false;
+					if (this.maximized){
+						this.restore();
+					}
 				} else{
 					this.maximizeRestoreBtn.visible = true;
 				}

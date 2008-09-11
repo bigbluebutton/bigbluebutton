@@ -40,6 +40,9 @@
 					this.txtMsg.text = "Keyboard unavailable in full screen";
 					this.txtMsg.enabled = false;
 					this.maximizeRestoreBtn.visible = false;
+					if (this.maximized){
+						this.restore();
+					}
 				} else{
 					this.txtMsg.text = '';
 					this.txtMsg.enabled = true;

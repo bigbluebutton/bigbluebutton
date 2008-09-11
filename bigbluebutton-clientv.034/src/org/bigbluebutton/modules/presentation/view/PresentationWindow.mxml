@@ -166,6 +166,10 @@
 				if (evt.fullScreen) {
 					/* Do something specific here if we switched to full screen mode. */
 					this.maximizeRestoreBtn.visible = false;
+					if (this.maximized){
+						this.restore();
+					}
+					
 					//this.width = Capabilities.screenResolutionX ;
 					//this.height = Capabilities.screenResolutionY ;
 					//this.x = 1;
