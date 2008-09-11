@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <MDIWindow xmlns="flexlib.mdi.containers.*" 
 		xmlns:mx="http://www.adobe.com/2006/mxml" 
-	    width="400" height="300" showCloseButton="false" >
+	    width="400" height="300" showCloseButton="false" creationComplete="init()" >
 	    <mx:Script>
 	    	<![CDATA[
+	    		import mx.core.Application;
 	    		import mx.collections.ArrayCollection;
 	    		public static const TITLE:String = "Log";
 	    		public var i:Number=0;
@@ -14,6 +15,11 @@
 	    	//													   {Module:"Voice Conference", logs:""},
 	    	//													   {Module:"Video", logs:""});
 	    		[Bindable]public var logMessages: ArrayCollection = new ArrayCollection();//logMessage);
+	    		
+	    		private function init():void{
+	    			this.maximizeRestoreBtn.visible = false;
+	    		}
+	    		
 	    		private function updateScroll():void
 	    		{
 	    			//status_txt.verticalScrollPosition = status_txt.maxVerticalScrollPosition;

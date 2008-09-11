@@ -3,10 +3,12 @@
 	       xmlns:mx="http://www.adobe.com/2006/mxml" 
 	       width="300" height="300" showCloseButton="false"
 	       click="setFocusOn(this.txtMsg || this.txtChatBox)"
-	       focusEnd="setFocusOff()">
+	       focusEnd="setFocusOff()"
+	       creationComplete="init()">
 
 	<mx:Script>
 		<![CDATA[
+			import mx.core.Application;
 			import mx.events.MenuEvent;
 			import mx.controls.Menu;
 			import mx.utils.ColorUtil;
@@ -21,6 +23,29 @@
 			public var m:MessageObject;
 			[Bindable]
 			public var messageVO:MessageVO = new MessageVO();
+			
+			//Full screen?
+			private var dispState:String;
+			
+			private function init():void{
+				//Initialize full screen handler
+				Application.application.stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
+				dispState = Application.application.stage.displayState;
+			}
+			
+			private function fullScreenHandler(evt:FullScreenEvent):void {
+				dispState = Application.application.stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
+				if (evt.fullScreen) {
+					//Notify user that the keyboard is not working
+					this.txtMsg.text = "Keyboard unavailable in full screen";
+					this.txtMsg.enabled = false;
+					this.maximizeRestoreBtn.visible = false;
+				} else{
+					this.txtMsg.text = '';
+					this.txtMsg.enabled = true;
+					this.maximizeRestoreBtn.visible = true;
+				}
+			}
 			
 			public function showNewMessage(rm : MessageObject):void
 			{

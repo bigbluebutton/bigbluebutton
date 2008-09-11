@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <viewer:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-	xmlns:viewer="flexlib.mdi.containers.*">
+	xmlns:viewer="flexlib.mdi.containers.*" creationComplete="init()">
 
     <mx:Script>
         <![CDATA[
+        	import mx.core.Application;
         	import org.bigbluebutton.common.Images;
         	import org.bigbluebutton.modules.viewers.model.business.Conference;
         	import org.bigbluebutton.modules.viewers.ViewersFacade;
@@ -23,6 +24,25 @@
    			
    			[Bindable]
    			public var toggleTooltip : String = "Click to raise hand.";
+   			
+   			//Full screen?
+			private var dispState:String;
+			
+			private function init():void{
+				//Initialize full screen handler
+				Application.application.stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
+				dispState = Application.application.stage.displayState;
+			}
+			
+			private function fullScreenHandler(evt:FullScreenEvent):void {
+				dispState = Application.application.stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
+				if (evt.fullScreen) {
+					//Notify user that the keyboard is not working
+					this.maximizeRestoreBtn.visible = false;
+				} else{
+					this.maximizeRestoreBtn.visible = true;
+				}
+			}
            
         ]]>
     </mx:Script>

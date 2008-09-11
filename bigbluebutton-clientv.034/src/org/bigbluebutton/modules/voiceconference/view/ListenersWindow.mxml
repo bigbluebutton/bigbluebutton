@@ -6,6 +6,7 @@
 
 	<mx:Script>
 		<![CDATA[
+			import mx.core.Application;
 			import org.bigbluebutton.modules.viewers.ViewersFacade;
 			import org.bigbluebutton.modules.viewers.model.business.Conference;
 			import org.bigbluebutton.common.Role;
@@ -31,9 +32,26 @@
 			public var userid:Number;
 			public var isMuted:Boolean;
 			
-			public function init():void{
+			//Full screen?
+			private var dispState:String;
+			
+			private function init():void{
 				var conf:Conference = ViewersFacade.getInstance().retrieveMediator(Conference.NAME) as Conference;
 				role = conf.me.role;
+				
+				//Initialize full screen handler
+				Application.application.stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
+				dispState = Application.application.stage.displayState;
+			}
+			
+			private function fullScreenHandler(evt:FullScreenEvent):void {
+				dispState = Application.application.stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
+				if (evt.fullScreen) {
+					//Notify user that the keyboard is not working
+					this.maximizeRestoreBtn.visible = false;
+				} else{
+					this.maximizeRestoreBtn.visible = true;
+				}
 			}
 			
 			public function dragEnterHandler(event:DragEvent):void

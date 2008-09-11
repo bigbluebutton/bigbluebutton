@@ -6,7 +6,7 @@
 	paddingBottom="0" paddingTop="0" 
 	paddingLeft="0" paddingRight="0" 
     layout="vertical" verticalScrollPolicy="off" horizontalScrollPolicy="off"
-	creationComplete="init()" focusStart="focusThumbnail()" maximize="sendMaximize()">
+	creationComplete="init()" focusStart="focusThumbnail()">
 
 	<mx:Script>
 		<![CDATA[
@@ -166,25 +166,25 @@
 				if (evt.fullScreen) {
 					/* Do something specific here if we switched to full screen mode. */
 					this.maximizeRestoreBtn.visible = false;
-					this.width = Capabilities.screenResolutionX ;
-					this.height = Capabilities.screenResolutionY ;
-					this.x = 1;
-					this.y = 1;
-					this.resizable = false;
-					this.thumbnailView.myLoader.height = Capabilities.screenResolutionX - 100;
-					this.thumbnailView.myLoader.width = Capabilities.screenResolutionY - 200;
-					if (model.presentation.isPresenter) dispatchEvent(new Event(PresentationWindowMediator.MAXIMIZE));
+					//this.width = Capabilities.screenResolutionX ;
+					//this.height = Capabilities.screenResolutionY ;
+					//this.x = 1;
+					//this.y = 1;
+					//this.resizable = false;
+					//this.thumbnailView.myLoader.height = Capabilities.screenResolutionX - 100;
+					//this.thumbnailView.myLoader.width = Capabilities.screenResolutionY - 200;
+					//if (model.presentation.isPresenter) dispatchEvent(new Event(PresentationWindowMediator.MAXIMIZE));
 				} else {
 					/* Do something specific here if we switched to normal mode. */
 					this.maximizeRestoreBtn.visible = true;
-					this.width = 480;
-					this.height = 378;
-					this.x = Capabilities.screenResolutionX/2 - 300;
-					this.y = 20;
-					this.resizable = true;
-					this.thumbnailView.myLoader.height = 300;
-					this.thumbnailView.myLoader.width = 300;
-					if (model.presentation.isPresenter) dispatchEvent(new Event(PresentationWindowMediator.RESTORE));
+					//this.width = 480;
+					//this.height = 378;
+					//this.x = Capabilities.screenResolutionX/2 - 300;
+					//this.y = 20;
+					//this.resizable = true;
+					//this.thumbnailView.myLoader.height = 300;
+					//this.thumbnailView.myLoader.width = 300;
+					//if (model.presentation.isPresenter) dispatchEvent(new Event(PresentationWindowMediator.RESTORE));
 				}
 			}			
 				

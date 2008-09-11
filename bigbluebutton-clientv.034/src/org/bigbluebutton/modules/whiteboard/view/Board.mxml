@@ -5,6 +5,7 @@
 	 
 	<mx:Script>
 		<![CDATA[
+			import mx.core.Application;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.modules.whiteboard.BoardFacade;
 			import org.bigbluebutton.modules.whiteboard.model.component.ShapeFactory;
@@ -41,9 +42,26 @@
 			protected var drawColor:uint;
 			protected var thickness:uint;
 			
+			//Full screen?
+			private var dispState:String;
+			
 			private function init():void{
 				drawFactory = new DrawObjectFactory();
 				shapeFactory = new ShapeFactory();
+				
+				//Initialize full screen handler
+				Application.application.stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
+				dispState = Application.application.stage.displayState;
+			}
+			
+			private function fullScreenHandler(evt:FullScreenEvent):void {
+				dispState = Application.application.stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
+				if (evt.fullScreen) {
+					//Notify user that the keyboard is not working
+					this.maximizeRestoreBtn.visible = false;
+				} else{
+					this.maximizeRestoreBtn.visible = true;
+				}
 			}
 			
 			/**
