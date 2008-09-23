@@ -1,0 +1,8 @@
+<modules>
+
+<module id="Chat" swfpath="org/bigbluebutton/modules/chat/chat_module.swf" >
+	<from>FROM_CHAT_MODULE</>
+	<to>TO_CHAT_MODULE</>
+</module>
+
+</modules>

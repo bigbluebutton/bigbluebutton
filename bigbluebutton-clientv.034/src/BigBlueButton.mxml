@@ -19,7 +19,7 @@
 			private function downloadFlash(eventObject:CloseEvent):void{
 				var urlRequest:URLRequest = 
 					new URLRequest("http://www.adobe.com/shockwave/download/download.cgi?P1_Prod_Version=ShockwaveFlash");
-				navigateToURL(urlRequest, "_top");
+				navigateToURL(urlRequest, "_top");   
 			}
 		]]>
 	</mx:Script>
