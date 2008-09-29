@@ -38,7 +38,7 @@ package org.bigbluebutton.common
 		
 		public static const TEST_URL:String = testURL();
 		
-		public static const VERSION:String = "0.34d";
+		public static const VERSION:String = "0.34e";
 		
 		/**
 		 * If the client is being run from a server, the URLs will be retrieved from the index.template.html
