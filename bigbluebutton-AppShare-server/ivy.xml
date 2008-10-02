@@ -47,7 +47,7 @@
         <dependency org="commons" name="commons-httpclient" rev="3.1" />
         <dependency org="commons" name="commons-lang" rev="2.3" />
         <dependency org="commons" name="commons-pool" rev="1.3" />
-        <dependency org="javax" name="jpda" rev="" />
+        <!--dependency org="javax" name="jpda" rev="" /-->
         <dependency name="quartz" rev="1.5.2" />
         <dependency org="javax" name="jta" rev="1.0.1B" />
         <dependency name="whirlycache" rev="1.0.1_lite" />
@@ -58,9 +58,9 @@
         <dependency org="javax" name="activation" rev="1.1" />
 		<dependency name="acegi-security" rev="1.0.4" />        
         <!-- JMX -->
-        <dependency org="jmx" name="jmxremote" rev="" />
-        <dependency org="jmx" name="jmxtools" rev="" />
-        <dependency org="jmx" name="rmissl" rev="" />            
+        <dependency org="jmx" name="jmxremote" rev="1.0.1" />
+        <dependency org="jmx" name="jmxtools" rev="1.2.1" />
+        <dependency org="jmx" name="rmissl" rev="1.0.1" />            
         <!-- Mina --> 
         <dependency org="mina" name="mina-core" rev="1.1.6" />
         <dependency org="mina" name="mina-filter-ssl" rev="1.1.6" />
