@@ -1,0 +1,92 @@
+<!-- Hibernate generic XML databinding format.
+
+<!DOCTYPE hibernate-generic PUBLIC 
+	"-//Hibernate/Hibernate generic XML databinding format//EN"
+	"http://hibernate.sourceforge.net/hibernate-generic.dtd">
+
+An instance of this XML document contains an XML representation of an
+arbitrary number of related persistent or transient entity instances.
+
+-->
+
+<!-- The document root. -->
+
+<!ELEMENT hibernate-generic (object*)>
+	<!ATTLIST hibernate-generic datetime CDATA #IMPLIED>
+
+<!-- An instance of an entity class. -->
+
+<!ELEMENT object ( id?, (property|component|collection|array)* )>
+	<!ATTLIST object class CDATA #REQUIRED>
+	<!ATTLIST object package CDATA #REQUIRED>
+	<!ATTLIST object proxy (initialized|uninitialized|now-initialized) #IMPLIED>
+	
+<!-- The id property of the entity. -->
+
+<!ELEMENT id ANY>
+	<!ATTLIST id type CDATA #IMPLIED>
+	<!ATTLIST id name CDATA #IMPLIED>
+
+<!-- The composite id property of the entity. -->
+
+<!ELEMENT composite-id (property*)>
+	<!ATTLIST id type CDATA #IMPLIED>
+	<!ATTLIST id name CDATA #IMPLIED>
+
+<!-- A property of an entity or component. -->
+
+<!ELEMENT property ANY>
+	<!ATTLIST property name CDATA #REQUIRED>
+	<!ATTLIST property type CDATA #IMPLIED>
+	<!ATTLIST property class CDATA #IMPLIED>
+	<!ATTLIST property package CDATA #IMPLIED>
+	<!ATTLIST property proxy (initialized|uninitialized|now-initialized) #IMPLIED>
+
+<!-- A component. -->
+
+<!ELEMENT component ( (property|component|collection|array)* )>
+	<!ATTLIST component class CDATA #IMPLIED>
+	<!ATTLIST component name CDATA #REQUIRED>
+	
+<!-- An array. -->
+	
+<!ELEMENT array ( (element|subcollection|composite-element|array)* )>
+	<!ATTLIST array element-type CDATA #IMPLIED>
+	<!ATTLIST array index-type CDATA #IMPLIED>
+	<!ATTLIST array role CDATA #IMPLIED>
+	<!ATTLIST array name CDATA #REQUIRED>
+	
+<!-- A collection. -->
+	
+<!ELEMENT collection ( (element|subcollection|composite-element|array)* )>
+	<!ATTLIST collection class CDATA #IMPLIED>
+	<!ATTLIST collection element-type CDATA #IMPLIED>
+	<!ATTLIST collection index-type CDATA #IMPLIED>
+	<!ATTLIST collection role CDATA #IMPLIED>
+	<!ATTLIST collection name CDATA #REQUIRED>
+	<!ATTLIST collection lazy (initialized|uninitialized|now-initialized) #IMPLIED>
+
+<!-- A collection element. -->
+
+<!ELEMENT element (#PCDATA)>
+	<!ATTLIST element index CDATA #IMPLIED>
+	<!ATTLIST element class CDATA #IMPLIED>
+	<!ATTLIST element package CDATA #IMPLIED>
+	<!ATTLIST element proxy (initialized|uninitialized|now-initialized) #IMPLIED>
+	<!ATTLIST element uid CDATA #IMPLIED>
+
+<!-- A collection inside another collection. -->
+
+<!ELEMENT subcollection ( (element|subcollection|composite-element|array)* )>
+	<!ATTLIST subcollection class CDATA #IMPLIED>
+	<!ATTLIST subcollection element-type CDATA #IMPLIED>
+	<!ATTLIST subcollection index-type CDATA #IMPLIED>
+	<!ATTLIST subcollection role CDATA #IMPLIED>
+	<!ATTLIST subcollection index CDATA #IMPLIED>
+	<!ATTLIST subcollection lazy (initialized|uninitialized|now-initialized) #IMPLIED>
+	
+<!-- A component inside a collection. -->
+
+<!ELEMENT composite-element ( (property|component|collection|array)* )>
+	<!ATTLIST composite-element class CDATA #IMPLIED>
+	<!ATTLIST composite-element index CDATA #IMPLIED>	
