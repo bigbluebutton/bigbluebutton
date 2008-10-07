@@ -27,6 +27,7 @@ import java.io.InputStreamReader;
 import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Date;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
@@ -103,7 +104,7 @@ public class PdfToSwfDocumentHandler {
         extractPages(fileSource, destDir);
         
 		ArrayList<File> files = getConvertedSlides(destDir.toString());
-		
+				
 		int curSlide = 1;
 		for (Iterator<File> it = files.iterator(); it.hasNext();) {
 			File aFile = (File) it.next();
@@ -133,7 +134,9 @@ public class PdfToSwfDocumentHandler {
 	private void extractPages(File input, File output) {
 		String SPACE = " ";
 		String BURST = "burst";
-		String filenameFormat = room + "-slide-%1d.pdf";
+		long uniqueId = new Date().getTime();
+		
+		String filenameFormat = room + "-" + uniqueId + "-slide-%1d.pdf";
 		
         String s = null;
         String command = pdfExtractor + SPACE + input.getAbsolutePath() + SPACE + BURST
