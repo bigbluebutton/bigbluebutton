@@ -11,7 +11,7 @@
 		</property>	
 	</bean>
 
-	<bean id="slidePresentationDocument" class="org.bigbluebuttonproject.fileupload.web.SlidePresentationDocument" scope="prototype">
+	<bean id="slidePresentationDocument" class="org.bigbluebutton.fileupload.web.SlidePresentationDocument" scope="prototype">
 			<property name="slideManager" ref="slideManager"/>
 			<property name="pptDocumentHandler" ref="pptHandler"/>
 			<property name="zipDocumentHandler" ref="zipHandler"/>
@@ -20,32 +20,32 @@
 			<property name="updatesMsgSender" ref="updatesMsgSender"/>
 	</bean>
 	
-	<bean id="zipHandler" class="org.bigbluebuttonproject.fileupload.document.ZipDocumentHandler"/>
+	<bean id="zipHandler" class="org.bigbluebutton.fileupload.document.ZipDocumentHandler"/>
 	
-	<bean id="pptHandler" class="org.bigbluebuttonproject.fileupload.document.impl.PptDocumentHandler">
+	<bean id="pptHandler" class="org.bigbluebutton.fileupload.document.impl.PptDocumentHandler">
 			<property name="openOfficeHost" value="${openoffice.host}" />
 			<property name="openOfficePort" value="${openoffice.port}" />
 	</bean>
 
-	<bean id="pptToSwfHandler" class="org.bigbluebuttonproject.fileupload.document.impl.PptToSwfDocumentHandler">
+	<bean id="pptToSwfHandler" class="org.bigbluebutton.fileupload.document.impl.PptToSwfDocumentHandler">
 			<property name="openOfficeHost" value="${openoffice.host}" />
 			<property name="openOfficePort" value="${openoffice.port}" />
 			<property name="updatesMsgSender" ref="updatesMsgSender"/>
 			<property name="swftoolConverter" value="${swftoolLocation}" />
 	</bean>
 
-	<bean id="pdfToSwfHandler" class="org.bigbluebuttonproject.fileupload.document.impl.PdfToSwfDocumentHandler">
+	<bean id="pdfToSwfHandler" class="org.bigbluebutton.fileupload.document.impl.PdfToSwfDocumentHandler">
 			<property name="updatesMsgSender" ref="updatesMsgSender"/>
 			<property name="swftoolConverter" value="${swftoolLocation}" />
 			<property name="pdfExtractor" value="${pdfExtractor}" />
 	</bean>
 	
-	<bean id="slideManager" class="org.bigbluebuttonproject.fileupload.document.impl.FileSystemSlideManager">
+	<bean id="slideManager" class="org.bigbluebutton.fileupload.document.impl.FileSystemSlideManager">
 			<property name="baseDirectory" value="${presBaseDirectory}" />
 			<property name="extractedFolder" value="${extractedFolder}" />
 	</bean>	
 	
-	<bean id="updatesMsgSender" class="org.bigbluebuttonproject.fileupload.document.impl.UpdatesMessageSender">
+	<bean id="updatesMsgSender" class="org.bigbluebutton.fileupload.document.impl.UpdatesMessageSender">
 			<property name="jmsTemplate" ref="jmsTemplate"/>
 			<property name="destination" ref="destination"/>
 	</bean>

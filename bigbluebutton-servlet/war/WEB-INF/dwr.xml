@@ -5,19 +5,19 @@
 <dwr>
   <allow>
     <create creator="new" javascript="Demo">
-      <param name="class" value="org.bigbluebuttonproject.fileupload.test.Demo"/>
+      <param name="class" value="org.bigbluebutton.fileupload.test.Demo"/>
     </create>
     <create creator="new" javascript="JDate">
       <param name="class" value="java.util.Date"/>
     </create>
     <create creator="new" javascript="Test">
-      <param name="class" value="org.bigbluebuttonproject.fileupload.test.Test"/>
+      <param name="class" value="org.bigbluebutton.fileupload.test.Test"/>
     </create>
    <!-- <create creator="new" javascript="FileUpload">
-      <param name="class" value="org.bigbluebuttonproject.fileupload.manager.UploadMonitor"/>
+      <param name="class" value="org.bigbluebutton.fileupload.manager.UploadMonitor"/>
     </create>-->
     <create creator="spring" javascript="UploadMonitor">
-    <param name="class" value="org.bigbluebuttonproject.fileupload.manager.UploadMonitor"/>
+    <param name="class" value="org.bigbluebutton.fileupload.manager.UploadMonitor"/>
     <param name="beanName" value="uploadMonitor"/>
     <!--<param name="location1" value="/WEB-INF/applicationContext.xml"/>-->
     <!--<param name="location2" value="/WEB-INF/classes/bean.xml"/>-->
