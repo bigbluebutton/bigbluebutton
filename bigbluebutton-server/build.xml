@@ -349,6 +349,11 @@
 				<logback webapp="chatServer"/>
 			</copy-assets>
 		</build-demo>
+		<build-demo name="appshare">
+					<copy-assets>
+						<logback webapp="appshare"/>
+					</copy-assets>
+				</build-demo>
 		<build-demo name="midiDemo">
 			<copy-assets>
 				<logback webapp="midiDemo"/>
@@ -444,6 +449,7 @@
 			<fileset dir="${webapps.build.dir}/echo/WEB-INF/classes"/>
 			<fileset dir="${webapps.build.dir}/fitcDemo/WEB-INF/classes"/>
 			<fileset dir="${webapps.build.dir}/chatServer/WEB-INF/classes"/>
+			<fileset dir="${webapps.build.dir}/appshare/WEB-INF/classes"/>
 			<fileset dir="${webapps.build.dir}/oflaDemo/WEB-INF/classes"/>
 			<fileset dir="${webapps.build.dir}/tutorial/WEB-INF/classes"/>
 		</copy>
@@ -483,6 +489,7 @@
 		<compile-wardemo name="bwcheck"/>
 		<compile-wardemo name="fitcDemo"/>
 		<compile-wardemo name="chatServer"/>
+		<compile-wardemo name="appshare"/>
 		<compile-wardemo name="echo"/>		
 		<compile-wardemo name="oflaDemo"/>
 		<compile-wardemo name="SOSample"/>
@@ -588,6 +595,7 @@
 		<compile-jardemo name="echo"/>
 		<compile-jardemo name="fitcDemo"/>
 		<compile-jardemo name="chatServer"/>
+		<compile-jardemo name="appshare"/>
 		<compile-jardemo name="midiDemo"/>
 		<compile-jardemo name="oflaDemo">
 			<copy-assets>

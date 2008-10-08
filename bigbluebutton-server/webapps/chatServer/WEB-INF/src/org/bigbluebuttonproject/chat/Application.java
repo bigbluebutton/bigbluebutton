@@ -30,12 +30,14 @@ import org.red5.server.api.so.ISharedObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.bigbluebuttonproject.chat.listener.ChatSharedObjectListener;
-import java.util.Set; 
+//import javax.mail.*;
+//import javax.mail.internet.*;
+//import java.util.*; 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/** 
+/**
  * This is the base class of chat server application. It overwrites the methods of ApplicationAdapter class.
  * [See ApplicationAdapter description in Conference Application section.]
  * 
@@ -49,15 +51,13 @@ public class Application extends ApplicationAdapter
 	/** Logger log is used for logging chat server messages in log file. */
 	protected static Logger log = LoggerFactory.getLogger( Application.class );
 	
- 
-	
 	/** listener object for chatSO SharedObject. Used by chat clients for communication. */
 	ChatSharedObjectListener chatListener = null;
 		
 	/** The debug mode. */
 	boolean debugMode = true;
 	 
-	  /** 
+	  /**
   	 * This method is called once on scope start. overrides MultiThreadedApplicationAdapter.appStart(IScope).
   	 * Since this is the Application start handler method, all the initialization tasks that the server application needs, have to go here.
   	 * 
@@ -71,11 +71,7 @@ public class Application extends ApplicationAdapter
 	  {
 		  if (!super.appStart(app))
 	    		return false;
-		/*System.out.println("======================================================");
-		System.out.println("======================================================");
-		System.out.println("chat:application Start"+ app);
-		System.out.println("======================================================");
-		System.out.println("======================================================");*/
+		  
 	      return true;
 	  }
 	  
@@ -85,11 +81,7 @@ public class Application extends ApplicationAdapter
   	 */
 	  public void appStop ()
 	  {
-		/*System.out.println("======================================================");
-		System.out.println("======================================================");
-		System.out.println("chat:application Stop");
-		System.out.println("======================================================");
-		System.out.println("======================================================");*/
+		 
 	  }
 	  
   	/**
@@ -105,14 +97,9 @@ public class Application extends ApplicationAdapter
 	  public boolean roomStart(IScope room) {
 		  // create a sharedobject with the name chatSO
 		  
-		if (!super.roomStart(room))
+		  if (!super.roomStart(room))
 	    		return false;
-		
-		/*System.out.println("======================================================");
-		System.out.println("======================================================");
-		System.out.println("chat:Room Start"+ room);
-		System.out.println("======================================================");
-		System.out.println("======================================================");*/
+		  
 		  if(!hasSharedObject(room, "chatSO")){
 			  if(!createSharedObject(room, "chatSO", false))
 				  log.error("Sharedobject::chatSO could not be created");
@@ -127,7 +114,8 @@ public class Application extends ApplicationAdapter
 	      // create a SharedObject listener and register it to listen on chatSO
 	      chatListener = new ChatSharedObjectListener();
 	      so.addSharedObjectListener(chatListener);
-	
+	      
+
 	      return true;            
 	  }
 	  
@@ -140,51 +128,9 @@ public class Application extends ApplicationAdapter
   	 * @see org.red5.server.adapter.MultiThreadedApplicationAdapter#roomLeave(org.red5.server.api.IClient, org.red5.server.api.IScope)
   	 */
 	  public void roomLeave(IClient client, IScope room) {
-		/**
-		 * When a client leaves the room the system will check if the Client List is empty
-		 * if the client list is empty then we will call the the buffer clear function
-		 *    
-		 */
-		 	
-		  this.getSharedObject(room, "chatSO");
-		  if(!hasSharedObject(room, "chatSO")){
-			  if(!createSharedObject(room, "chatSO", false))
-				  log.error("Sharedobject::chatSO could not be created");
-		  }
-		/*System.out.println("======================================================");
-		System.out.println("======================================================");
-		System.out.println("chat:Room Leave"+ client + room);
-		System.out.println("======================================================");
-		System.out.println("======================================================");*/
-	    ISharedObject so = getSharedObject(room, "chatSO", false);
-	      
-	      if(so == null){
-	    	  log.error("Sharedobject::chatSO was not created");
-	    	  }
-	      
-		  Set<IClient> clientList;  
-		  clientList = room.getClients();
-		  if (clientList.isEmpty()) { 
-			  //System.out.print("client list is empty");
-			  log.debug("Client List is Empty");
-			  chatListener = new ChatSharedObjectListener();
-			  chatListener.clearChatLog();				  
-			  }		 
-		  Set<IConnection> conn = client.getConnections(room);	      
-		if (conn instanceof IServiceCapableConnection) {
-			  IServiceCapableConnection sc = (IServiceCapableConnection) conn;
-			  String chatLog = chatListener.getChatLog();
-			  // call client method remotely to send chat Log
-			  sc.invoke("setChatLog", new Object[]{chatLog});
-		  }
-		  
-		  
-		  
 
-		  
 	  }
-
-	  	  
+	  
   	/**
   	 * Called every time client joins room scope.
   	 * 
@@ -196,11 +142,7 @@ public class Application extends ApplicationAdapter
 	  public boolean roomJoin(IClient client, IScope room) {
 	     	
 		  log.info("NEW CLIENT JOINED. CLIENT ID IS: " + client.getId() +"\n");
-		/*System.out.println("======================================================");
-		System.out.println("======================================================");
-		System.out.println("chat:room join"+ client + room);
-		System.out.println("======================================================");
-		System.out.println("======================================================"); */
+		 
 		  return true;
 	  } 
 	  
@@ -220,13 +162,7 @@ public class Application extends ApplicationAdapter
 			  if(!createSharedObject(conn.getScope(), "chatSO", false))
 				  log.error("Sharedobject::chatSO could not be created");
 		  }
-		/*System.out.println("======================================================");
-		System.out.println("======================================================");
-		System.out.println("chat:room connect"+ conn);
-		System.out.println("======================================================");
-		System.out.println("======================================================");*/
-		  
-		  ISharedObject so = getSharedObject(conn.getScope(), "chatSO", false);
+	      ISharedObject so = getSharedObject(conn.getScope(), "chatSO", false);
 	      
 	      if(so == null){
 	    	  log.error("Sharedobject::chatSO was not created");
@@ -240,7 +176,7 @@ public class Application extends ApplicationAdapter
 			  sc.invoke("setChatLog", new Object[]{chatLog});
 		  } 
 		  
-		  //System.out.print("134.117.58.103 server is runing");
+
 	  	  return true;
 	  }
 	    
@@ -253,5 +189,55 @@ public class Application extends ApplicationAdapter
 //			log.info("Received result " + call.getResult() + " for "
 //					+ call.getServiceMethodName());		
 		}
+	  
+	 /* public void postMail()throws MessagingException// String recipients[ ], String subject, String message , String from) throws MessagingException
+	  {
+		    //System.out.println("========================================"+recipients.toString());
+			//System.out.println("========================================"+subject);
+			//System.out.println("========================================"+message);
+			System.out.println("========================================");
+		  
+		  //boolean debug = false;
+
+	       //Set the host smtp address
+	       Properties props = new Properties();
+	       props.setProperty("mail.transport.protocol", "smtp");
+	       props.put("mail.smtp.host", "");
+	       props.setProperty("mail.user", "");
+	       props.setProperty("mail.password", "");
+
+
+	      // create some properties and get the default Session
+	      Session session = Session.getDefaultInstance(props, null);
+	      Transport transport = session.getTransport();
+	     // session.setDebug(debug);
+
+	      // create a message
+	      Message msg = new MimeMessage(session);
+
+	      // set the from and to address
+	      //InternetAddress addressFrom = new InternetAddress("shayannegari@hotmail.com");//from
+	      //msg.setFrom(addressFrom);
+
+	     // InternetAddress[] addressTo = new InternetAddress[1];//recipients.length]; 
+	     // addressTo[0]= new InternetAddress("shayannegari@hotmail.com");
+	      //for (int i = 0; i < recipients.length; i++)
+	      //{
+	       //   addressTo[i] = new InternetAddress(recipients[i]);
+	      //}
+	      msg.addRecipient(Message.RecipientType.TO,new InternetAddress(""));// addressTo);
+	     
+
+	      // Optional : You can also set your custom headers in the Email if you Want
+	      //msg.addHeader("MyHeaderName", "myHeaderValue");
+
+	      // Setting the Subject and Content Type
+	      msg.setSubject("subject");
+	      msg.setContent("message", "text/plain");
+	      transport.sendMessage(msg,
+	              msg.getRecipients(Message.RecipientType.TO));
+
+	      transport.close();
+	  }*/
 	  
 }

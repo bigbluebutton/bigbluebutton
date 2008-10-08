@@ -38,8 +38,8 @@ import org.red5.io.object.Serializer;
 import org.red5.server.net.servlet.ServletUtils;
 import org.red5.server.pooling.ThreadPool;
 import org.red5.server.pooling.Worker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
 public class RemotingClient {
 	
 	/** Logger. */
-	protected static Logger log = LoggerFactory.getLogger(RemotingClient.class);
+//	protected static Logger log = LoggerFactory.getLogger(RemotingClient.class);
 
 	/** Default timeout to use. */
 	public static final int DEFAULT_TIMEOUT = 30000;
@@ -222,11 +222,11 @@ public class RemotingClient {
 									.get("data"));
 					headers.put(header.name, header);
 				} else {
-					log.error("Expected Map but received " + value);
+//					log.error("Expected Map but received " + value);
 				}
 			} else {
-				log.warn("Unsupported remoting header \"" + name
-						+ "\" received with value " + value);
+//				log.warn("Unsupported remoting header \"" + name
+//						+ "\" received with value " + value);
 			}
 		}
 	}
@@ -335,7 +335,7 @@ public class RemotingClient {
 			}
 			return result;
 		} catch (Exception ex) {
-			log.error("Error while invoking remoting method.", ex);
+//			log.error("Error while invoking remoting method.", ex);
 		} finally {
 			post.releaseConnection();
 			if (resultBuffer != null) {
@@ -375,7 +375,7 @@ public class RemotingClient {
 			worker.setParamTypes(paramTypes);
 			threadPool.execute(worker);
 		} catch (Exception err) {
-			log.warn("Exception invoking method: " + method);
+//			log.warn("Exception invoking method: " + method);
 		}
 	}
 

@@ -33,7 +33,7 @@ import java.sql.Time;
  * Whenever there is an event occurs on SharedObject, methods of this class are automatically called.
  * 
  * @author kajan85
- */ 
+ */
 
 public class ChatSharedObjectListener implements ISharedObjectListener {
 	
@@ -43,7 +43,7 @@ public class ChatSharedObjectListener implements ISharedObjectListener {
 	/** The chatlog size. */
 	private int chatlogSize = 100;
 	
-	/**  
+	/**
 	 * Instantiates a new chat shared object listener.
 	 */
 	public ChatSharedObjectListener(){
@@ -159,36 +159,18 @@ public class ChatSharedObjectListener implements ISharedObjectListener {
 	 * @return chat History
 	 */
 	public String getChatLog(){
-	
 		StringBuffer log = new StringBuffer();
 		Object[] obj = buffer.toArray();
-		
+		 
 		if(!buffer.isEmpty()) {
 		
 			for(int i = 0;i<buffer.size();i++){
 				log.append(obj[i] + "");
 			}
 		} 
-		return log.toString();		
-	}
-	
-	/**
-	 * To clear the chat history stored in buffer linkedlist.
-	 * 
-	 * @return chat History
-	 */
-	public String clearChatLog(){
-		
-		if (!buffer.isEmpty()){
-			//test which one is better? either use the buffer method or StringBuffer (log)
-			//log.delete(0, buffer.size());
-			buffer.clear();
-		}	
-		StringBuffer log = new StringBuffer();
-		Object[] obj = buffer.toArray();
+//		return "fake chatLog";
 		return log.toString();
-		//changes on July 09, 2008-NN
+		
 	}
 
-	
 }

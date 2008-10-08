@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<presentations>
+  <presentation id="flextravel">
+    <description>Trip photos from various Flex team members</description>
+    <slide>
+      <name>Acropolis: Matt Chotin</name>
+      <source>http://localhost:8080/fileupload/file/display?name=85115-slide-1.swf</source>
+    </slide>
+    <slide>
+      <name>Acropolis: Matt Chotin</name>
+      <source>http://localhost:8080/fileupload/file/display?name=85115-slide-2.swf</source>
+    </slide>
+    <slide>
+      <name>Acropolis: Matt Chotin</name>
+      <source>http://localhost:8080/fileupload/file/display?name=85115-slide-3.swf</source>
+    </slide>
+    <slide>
+      <name>Acropolis: Matt Chotin</name>
+      <source>http://localhost:8080/fileupload/file/display?name=85115-slide-4.swf</source>
+    </slide>
+    <slide>
+      <name>Acropolis: Matt Chotin</name>
+      <source>http://localhost:8080/fileupload/file/display?name=85115-slide-5.swf</source>
+    </slide>
+    <slide>
+      <name>Acropolis: Matt Chotin</name>
+      <source>http://localhost:8080/fileupload/file/display?name=85115-slide-6.swf</source>
+    </slide>            
+  </presentation>
+</presentations>

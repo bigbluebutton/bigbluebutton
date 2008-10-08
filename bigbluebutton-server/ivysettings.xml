@@ -10,8 +10,8 @@
 		</chain>    
         <chain name="remote" returnFirst="true">     
             <url name="googlecode">
-                <artifact pattern="http://red5.googlecode.com/svn/trunk/repository/[artifact](-[revision]).[ext]" />
-                <artifact pattern="http://red5.googlecode.com/svn/trunk/repository/[organisation]/[artifact](-[revision]).[ext]" />
+                <artifact pattern="http://red5.googlecode.com/svn/repository/[artifact](-[revision]).[ext]" />
+                <artifact pattern="http://red5.googlecode.com/svn/repository/[organisation]/[artifact](-[revision]).[ext]" />
             </url>   
             <url name="cvsdude">
                 <artifact pattern="https://svn1.cvsdude.com/osflash/red5/repository/[artifact](-[revision]).[ext]" />

@@ -52,7 +52,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-   
+
 /**
  * This is the base class of conference server application. It overwrites the methods of ApplicationAdapter class.
  * This class plays main role in the conference room, handling and controlling conference participants list and assigning roles to the users of the conference rooms.
