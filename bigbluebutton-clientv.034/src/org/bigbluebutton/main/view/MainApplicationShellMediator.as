@@ -83,7 +83,7 @@ package org.bigbluebutton.main.view
 			super( NAME, viewComponent );
 			modules = new Array();
 			mshell = viewComponent;
-			router = new Router(viewComponent);
+			router = new Router();
 			///viewComponent.debugLog.text = "Log Module inited 1";
 			viewComponent.addEventListener(OPEN_LOG_MODULE , showLogWindow);
 			viewComponent.addEventListener(LOGOUT, sendLogout);
@@ -102,6 +102,10 @@ package org.bigbluebutton.main.view
 			log.debug("red5:" + Constants.red5Host);
 			log.debug("present:" + Constants.presentationHost);
 			log.debug("url:" + Constants.TEST_URL);
+
+			trace("red5:" + Constants.red5Host);
+			trace("present:" + Constants.presentationHost);
+			trace("url:" + Constants.TEST_URL);
 			
 			runModule(new ViewersModule());
 		

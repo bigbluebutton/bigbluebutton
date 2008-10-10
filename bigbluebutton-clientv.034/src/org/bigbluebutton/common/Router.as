@@ -49,11 +49,8 @@ package org.bigbluebutton.common
 		// Stores all our INPUT and OUTPUT Pipes
 		private var junction : Junction = new Junction();
 		
-		private var rshell : MainApplicationShell;
-		
-		public function Router(shell : MainApplicationShell = null)
+		public function Router()
 		{
-			rshell = shell;
 			inputMessageRouter = new PipeListener(this, routeMessage);
 			teeMerge.connect(inputMessageRouter);
 		}
@@ -63,6 +60,7 @@ package org.bigbluebutton.common
 		 */
 		public function registerInputPipe(name : String, pipe: IPipeFitting) : void
 		{
+			trace("Registering input pipe: " + name);
 			// Register the pipe as an OUTPUT because the Router will use this
 			// pipe to send OUT to the module.
 			junction.registerPipe(name, Junction.OUTPUT, pipe);
@@ -73,6 +71,7 @@ package org.bigbluebutton.common
 		 */
 		public function registerOutputPipe(name : String, pipe: IPipeFitting) : void
 		{
+			trace("Registering output pipe: " + name);
 			// Register the pipe as an INPUT because the Router will use this
 			// pipe to receive messages from the module.
 			junction.registerPipe(name, Junction.INPUT, pipe);
@@ -85,13 +84,13 @@ package org.bigbluebutton.common
 		 */
 		private function routeMessage(message:IPipeMessage):void
 		{
-			//rshell.debugLog.text = 'routing message to ' + message.getHeader().TO;
+			trace('routing message to ' + message.getHeader().TO);
 			
 			var TO : String = message.getHeader().TO;
 			var haspipe : Boolean = junction.hasOutputPipe(TO);
-			//rshell.debugLog.text = 'There is a pipe with name ' + message.getHeader().TO + haspipe;
+			trace('There is a pipe with name ' + message.getHeader().TO + " = " + haspipe);
 			var success: Boolean = junction.sendMessage(TO, message);
-			//rshell.debugLog.text = 'routing message to ' + message.getHeader().TO + success;
+			trace('Successfully routing message to ' + message.getHeader().TO + " = " + success);
 		}
 	}
 }
