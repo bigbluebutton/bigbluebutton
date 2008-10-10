@@ -173,27 +173,11 @@
 					if (this.maximized){
 						this.restore();
 					}
-					
-					//this.width = Capabilities.screenResolutionX ;
-					//this.height = Capabilities.screenResolutionY ;
-					//this.x = 1;
-					//this.y = 1;
-					//this.resizable = false;
-					//this.thumbnailView.myLoader.height = Capabilities.screenResolutionX - 100;
-					//this.thumbnailView.myLoader.width = Capabilities.screenResolutionY - 200;
-					//if (model.presentation.isPresenter) dispatchEvent(new Event(PresentationWindowMediator.MAXIMIZE));
+				
 				} else {
 					trace("Switching to normal screen");
 					/* Do something specific here if we switched to normal mode. */
 					this.maximizeRestoreBtn.visible = true;
-					//this.width = 480;
-					//this.height = 378;
-					//this.x = Capabilities.screenResolutionX/2 - 300;
-					//this.y = 20;
-					//this.resizable = true;
-					//this.thumbnailView.myLoader.height = 300;
-					//this.thumbnailView.myLoader.width = 300;
-					//if (model.presentation.isPresenter) dispatchEvent(new Event(PresentationWindowMediator.RESTORE));
 				}
 			}			
 				

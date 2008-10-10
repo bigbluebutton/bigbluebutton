@@ -36,11 +36,11 @@
 			
 			private function handlePlaybackState(playState:PlaybackState) : void
 			{
-				if (playState == PlaybackState.PLAYING) {
-					playButton.toolTip = "Pause";
-				} else {
-					playButton.toolTip = "Play";
-				}
+				//if (playState == PlaybackState.PLAYING) {
+				//	playButton.toolTip = "Pause";
+				//} else {
+				//	playButton.toolTip = "Play";
+				//}
 			}
 			
 		]]>
@@ -52,18 +52,18 @@
 			<util:VideoContainer video="{ media.remoteVideo }" height="100%" width="100%"/>
 		</mx:Canvas>	
 
-		<mx:ControlBar width="100%">
-			<!--mx:Label text="Enable:"/>  
+<!--	<mx:ControlBar width="100%">
+			<mx:Label text="Enable:"/>  
  			<mx:Spacer width="2"/>  
 			<mx:CheckBox label="Audio" id="enableAudioCb"   
  					click="this.toggleAudio()" selected="true"/>  
 			<mx:CheckBox id="enableVideoCb" label="Video"   
-					click="this.toggleVideo()" width="60" selected="true"/-->	
+					click="this.toggleVideo()" width="60" selected="true"/	
 			<mx:Spacer width="100%"/>
 			<mx:Button id="stopButton" icon="{stopIcon}" 
 				click="dispatchEvent(new Event(ViewCameraWindowMediator.STOP_STREAM))" toolTip="Stop"/>
 			<mx:Button id="playButton" click="dispatchEvent(new Event(ViewCameraWindowMediator.VIEW_STREAM))" 
 					icon="{media.playState == PlaybackState.PLAYING ? pauseIcon : playIcon}"/>
-		</mx:ControlBar>		
+		</mx:ControlBar>	-->	
 	</mx:VBox>
 </cam:MDIWindow>

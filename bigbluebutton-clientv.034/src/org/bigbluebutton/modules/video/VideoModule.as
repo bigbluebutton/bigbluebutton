@@ -19,7 +19,10 @@
 */
 package org.bigbluebutton.modules.video
 {
-	import flash.system.Capabilities;
+	import flash.events.MouseEvent;
+	import flash.events.TimerEvent;
+	import flash.media.Camera;
+	import flash.utils.Timer;
 	
 	import flexlib.mdi.containers.MDIWindow;
 	
@@ -50,6 +53,8 @@ package org.bigbluebutton.modules.video
 		public var type:String;
 		public var user:User;
 		
+		private var cameraLocatorTimer:Timer;
+		
 		/**
 		 * Creates a new instance of the Video Module 
 		 * 
@@ -72,7 +77,6 @@ package org.bigbluebutton.modules.video
 			this.preferedY = 240;
 			this.startTime = NAME;
 			this.addButton = true;
-			
 		}
 		
 		/**
@@ -93,6 +97,29 @@ package org.bigbluebutton.modules.video
 		override public function logout():void{
 			facade.sendNotification(VideoFacade.CLOSE_ALL);
 			facade.removeCore(this.streamName);
+		}
+		
+		override public function moduleAdded():void{
+			this.button.addEventListener(MouseEvent.CLICK, buttonClicked);
+			listenToCameras();
+		}
+		
+		private function buttonClicked(e:MouseEvent):void{
+			this.acceptRouter(this.router, this.mshell);
+		}
+		
+		private function listenToCameras():void{
+			this.cameraLocatorTimer = new Timer(5000);
+			this.cameraLocatorTimer.addEventListener(TimerEvent.TIMER, onTimer);
+			this.cameraLocatorTimer.start();
+		}
+		
+		private function onTimer(e:TimerEvent):void{
+			if (Camera.getCamera() == null){
+				this.button.enabled = false;
+			} else if (Camera.getCamera() != null){
+				this.button.enabled = true;
+			}
 		}
 
 	}

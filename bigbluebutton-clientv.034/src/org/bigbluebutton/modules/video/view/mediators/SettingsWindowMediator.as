@@ -32,11 +32,12 @@ package org.bigbluebutton.modules.video.view.mediators
 		}
 		
 		override public function listNotificationInterests():Array{
-			return [];
+			return [
+					];
 		}
 		
 		override public function handleNotification(notification:INotification):void{
-			
+
 		}
 		
 		private function setupDevices(e:Event):void{

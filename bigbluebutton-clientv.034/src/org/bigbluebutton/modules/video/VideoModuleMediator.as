@@ -19,8 +19,6 @@
 */
 package org.bigbluebutton.modules.video
 {
-	import mx.controls.Alert;
-	
 	import org.bigbluebutton.common.InputPipe;
 	import org.bigbluebutton.common.OutputPipe;
 	import org.bigbluebutton.common.Router;
@@ -32,8 +30,6 @@ package org.bigbluebutton.modules.video
 	import org.bigbluebutton.modules.video.view.ViewCameraWindow;
 	import org.bigbluebutton.modules.video.view.mediators.MyCameraWindowMediator;
 	import org.bigbluebutton.modules.video.view.mediators.ViewCameraWindowMediator;
-	import org.bigbluebutton.modules.viewers.ViewersConstants;
-	import org.bigbluebutton.modules.viewers.model.vo.User;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
@@ -117,6 +113,7 @@ package org.bigbluebutton.modules.video
    			msg.setBody(viewComponent as VideoModule);
    			outpipe.write(msg);
    			
+   			sendNotification(VideoFacade.PLUG_AND_PLAY);
 		}
 		
 		public function addViewWindow():void{
@@ -142,6 +139,8 @@ package org.bigbluebutton.modules.video
 			
 			msg.setBody(viewComponent as VideoModule);
    			outpipe.write(msg);
+   			
+   			sendNotification(VideoFacade.PLAY_VIDEO);
 		}
 		
 		/**

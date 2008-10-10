@@ -1,6 +1,10 @@
 package org.bigbluebutton.modules.video.view.mediators
 {
 	import flash.events.Event;
+	import flash.events.TimerEvent;
+	import flash.utils.Timer;
+	
+	import mx.controls.Alert;
 	
 	import org.bigbluebutton.modules.video.VideoFacade;
 	import org.bigbluebutton.modules.video.control.notifiers.PlayStreamNotifier;
@@ -25,7 +29,8 @@ package org.bigbluebutton.modules.video.view.mediators
 		
 		override public function listNotificationInterests():Array{ 
 			return [
-					VideoFacade.CLOSE_ALL
+					VideoFacade.CLOSE_ALL,
+					VideoFacade.PLAY_VIDEO
 					];
 		}
 		
@@ -33,6 +38,10 @@ package org.bigbluebutton.modules.video.view.mediators
 			switch(notification.getName()){
 				case VideoFacade.CLOSE_ALL:
 					videoWindow.close();
+					break;
+				case VideoFacade.PLAY_VIDEO:
+					//Alert.show("playing...");
+					playStream();
 					break;
 			}
 		}
@@ -65,6 +74,16 @@ package org.bigbluebutton.modules.video.view.mediators
 		private function stopStream(e:Event):void{
 			//mainApp.publisherApp.stopStream(media.streamName);
 			sendNotification(VideoFacade.STOP_STREAM_COMMAND, videoWindow.media.streamName);
+		}
+	
+		private function playStream():void{
+			var timer:Timer = new Timer(100, 1);
+			timer.addEventListener(TimerEvent.TIMER, onTimer);
+			timer.start();
+		}
+		
+		private function onTimer(e:TimerEvent):void{
+			viewStream(new Event(VideoFacade.PLAY_VIDEO));
 		}
 
 	}

@@ -21,6 +21,7 @@ package org.bigbluebutton.common
 {
 	import flexlib.mdi.containers.MDIWindow;
 	
+	import mx.controls.Button;
 	import mx.modules.ModuleBase;
 	
 	import org.bigbluebutton.common.red5.Connection;
@@ -40,7 +41,7 @@ package org.bigbluebutton.common
 		public var preferedY:Number;
 		private var MDIComponent:MDIWindow;
 		public var name:String;
-		private var _router:Router;
+		public var _router:Router;
 		public var mshell:MainApplicationShell;
 		
 		private var conn:Connection;
@@ -48,6 +49,7 @@ package org.bigbluebutton.common
 		
 		public var startTime:String;
 		public var addButton:Boolean = false;
+		public var button:Button;
 		
 		public static const START_ON_LOGIN:String = "Start on Login";
 		public static const START_ON_CREATION_COMPLETE:String = "Start on Creation Complete";
@@ -112,6 +114,14 @@ package org.bigbluebutton.common
 		
 		public function get router():Router{
 			return _router;
+		}
+		
+		public function set router(router:Router):void{
+			this._router = router;
+		}
+		
+		public function moduleAdded():void{
+			
 		}
 
 	}
