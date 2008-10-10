@@ -244,7 +244,7 @@ package org.bigbluebutton.modules.presentation.model.business
 			share(false);
 			
 			presentationSO.setProperty(PRESENTER, {userid : userid, name : name});
-			//log.debug("Assign presenter control to [" + name + "]");
+			trace("Assign presenter control to [" + name + "]");
 		}
 		
 		/**
@@ -301,7 +301,7 @@ package org.bigbluebutton.modules.presentation.model.business
 			presentationSO.client = this;
 
 			presentationSO.connect(connDelegate.getConnection());
-			//log.debug( "PresentationDelegate::joinConference");
+			trace( "PresentationDelegate::joinConference");
 		}
 
 		/**
@@ -322,11 +322,11 @@ package org.bigbluebutton.modules.presentation.model.business
 		 */								
 		private function sharedObjectSyncHandler( event : SyncEvent) : void
 		{
-			//log.debug( "Presentation::sharedObjectSyncHandler " + event.changeList.length);
+			trace( "Presentation::sharedObjectSyncHandler " + event.changeList.length);
 						
 			for (var i : uint = 0; i < event.changeList.length; i++) 
 			{
-				//log.debug( "Presentation::handlingChanges[" + event.changeList[i].name + "][" + i + "]");
+				trace( "Presentation::handlingChanges[" + event.changeList[i].name + "][" + i + "]");
 				handleChangesToSharedObject(event.changeList[i].code, 
 						event.changeList[i].name, event.changeList[i].oldValue);
 			}
@@ -341,18 +341,20 @@ package org.bigbluebutton.modules.presentation.model.business
 			{
 				case UPDATE_MESSAGE:
 					if (presentation.isPresenter) {
-						//log.debug( UPDATE_MESSAGE + " =[" + presentationSO.data.updateMessage.returnCode + "]");
+						trace( UPDATE_MESSAGE + " =[" + presentationSO.data.updateMessage.returnCode + "]");
 						processUpdateMessage(presentationSO.data.updateMessage.returnCode);
 					}
 					
 					break;
 										
 				case PRESENTER :
-					//log.debug("Giving presenter control to [" + presentationSO.data.presenter.name + "]");
+					trace("Giving presenter control to [" + presentationSO.data.presenter.name + "]");
 					if (presentation.isSharing) presentation.isSharing = false;
 					
-					if (presentation.presentationLoaded) presentation.presentationLoaded = false;
-//					presentation.decks = null;
+					if (presentation.presentationLoaded) {
+						presentation.presentationLoaded = false;
+						sendNotification(PresentationFacade.CLEAR_EVENT);					
+					}
 												
 					if (presentation.userid == presentationSO.data.presenter.userid) {
 						// The user has been given presenter role
@@ -370,7 +372,7 @@ package org.bigbluebutton.modules.presentation.model.business
 					presentation.isSharing = presentationSO.data.sharing.share;
 				
 					if (presentationSO.data.sharing.share) {
-						//log.debug( "SHARING =[" + presentationSO.data.sharing.share + "]");
+						trace( "SHARING =[" + presentationSO.data.sharing.share + "]");
 //						log.debug( "SHARING true =[" + presentationSO.data.sharing.presentation.slide.length  + "]");
 										
 //						processSharedPresentation(presentationSO.data.sharing.presentation);
@@ -391,7 +393,7 @@ package org.bigbluebutton.modules.presentation.model.business
 					break
 					
 				default:
-					//log.debug( "default =[" + code + "," + name + "," + oldValue + "]");				 
+					trace( "default =[" + code + "," + name + "," + oldValue + "]");				 
 					break;
 			}
 		}
@@ -425,7 +427,7 @@ package org.bigbluebutton.modules.presentation.model.business
 				case SUCCESS_RC:
 					message = presentationSO.data.updateMessage.message;
 					sendNotification(PresentationFacade.CONVERT_SUCCESS_EVENT, message);
-					//log.debug("PresentationDelegate - Success Note sent");
+					trace("PresentationDelegate - Success Note sent");
 					break;
 					
 				case UPDATE_RC:
@@ -440,7 +442,7 @@ package org.bigbluebutton.modules.presentation.model.business
 				case EXTRACT_RC:
 					totalSlides = presentationSO.data.updateMessage.totalSlides;
 					completedSlides = presentationSO.data.updateMessage.completedSlides;
-					//log.debug( "EXTRACTING = [" + completedSlides + " of " + totalSlides + "]");
+					trace( "EXTRACTING = [" + completedSlides + " of " + totalSlides + "]");
 					
 					sendNotification(PresentationFacade.EXTRACT_PROGRESS_EVENT,
 										new ProgressNotifier(totalSlides,completedSlides));
@@ -449,7 +451,7 @@ package org.bigbluebutton.modules.presentation.model.business
 				case CONVERT_RC:
 					totalSlides = presentationSO.data.updateMessage.totalSlides;
 					completedSlides = presentationSO.data.updateMessage.completedSlides;
-					//log.debug( "CONVERTING = [" + completedSlides + " of " + totalSlides + "]");
+					trace( "CONVERTING = [" + completedSlides + " of " + totalSlides + "]");
 					
 					sendNotification(PresentationFacade.CONVERT_PROGRESS_EVENT,
 										new ProgressNotifier(totalSlides, completedSlides));							
