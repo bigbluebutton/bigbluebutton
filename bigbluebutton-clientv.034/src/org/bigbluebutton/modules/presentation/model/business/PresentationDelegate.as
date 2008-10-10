@@ -30,7 +30,6 @@ package org.bigbluebutton.modules.presentation.model.business
 	import org.bigbluebutton.modules.presentation.controller.notifiers.ProgressNotifier;
 	import org.bigbluebutton.modules.presentation.controller.notifiers.ZoomNotifier;
 	import org.bigbluebutton.modules.presentation.model.PresentationModel;
-	import org.bigbluebutton.modules.presentation.model.vo.SlidesDeck;
 	import org.puremvc.as3.multicore.interfaces.IProxy;
 	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
 					
@@ -50,6 +49,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		private static const PRESENTER : String = "presenter";
 		private static const SHARING : String = "sharing";
 		private static const UPDATE_MESSAGE : String = "updateMessage";
+		private static const CURRENT_PAGE : String = "currentPage";
 		
 		private static const UPDATE_RC : String = "UPDATE";
 		private static const SUCCESS_RC : String = "SUCCESS";
@@ -125,29 +125,7 @@ package org.bigbluebutton.modules.presentation.model.business
 			presentationSO.close();
 			connDelegate.disconnect();
 		}
-		
-		/**
-		 * Send an event out to the server to go to a new page in the SlidesDeck 
-		 * @param page
-		 * 
-		 */		
-		public function gotoPage(page : Number) : void
-		{
-			presentationSO.send("gotoPageCallback", page);
-		}
-		
-		/**
-		 * A callback method. It is called after the gotoPage method has successfully executed on the server
-		 * The method sets the clients view to the page number received 
-		 * @param page
-		 * 
-		 */		
-		public function gotoPageCallback(page : Number) : void
-		{
-			presentation.decks.selected = page;
-			sendNotification(PresentationFacade.UPDATE_PAGE, page);
-		}
-		
+				
 		/**
 		 * Send an event to the server to update the clients with a new slide zoom ratio
 		 * @param slideHeight
@@ -246,7 +224,31 @@ package org.bigbluebutton.modules.presentation.model.business
 			presentationSO.setProperty(PRESENTER, {userid : userid, name : name});
 			trace("Assign presenter control to [" + name + "]");
 		}
+
+		/**
+		 * Send an event out to the server to go to a new page in the SlidesDeck 
+		 * @param page
+		 * 
+		 */		
+		public function gotoPage(page : Number) : void
+		{
+//			presentationSO.send("gotoPageCallback", page);
+			trace("Going to page " + page);
+			presentationSO.setProperty(CURRENT_PAGE, {number : page});
+		}
 		
+		/**
+		 * A callback method. It is called after the gotoPage method has successfully executed on the server
+		 * The method sets the clients view to the page number received 
+		 * @param page
+		 * 
+		 */		
+		public function gotoPageCallback(page : Number) : void
+		{
+			presentation.decks.selected = page;
+			sendNotification(PresentationFacade.UPDATE_PAGE, page);
+		}
+				
 		/**
 		 * Stop sharing the presentation 
 		 * 
@@ -390,8 +392,16 @@ package org.bigbluebutton.modules.presentation.model.business
 						}
 						sendNotification(PresentationFacade.CLEAR_EVENT);
 					}
-					break
-					
+					break;
+
+				case CURRENT_PAGE :
+//					if (oldValue != null) {
+						presentation.decks.selected = presentationSO.data.currentPage.number;
+						trace("Current page is " + presentationSO.data.currentPage.number);
+						sendNotification(PresentationFacade.UPDATE_PAGE, presentationSO.data.currentPage.number);
+//					}
+				break;
+							
 				default:
 					trace( "default =[" + code + "," + name + "," + oldValue + "]");				 
 					break;

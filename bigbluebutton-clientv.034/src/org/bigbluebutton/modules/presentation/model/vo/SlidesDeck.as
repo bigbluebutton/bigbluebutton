@@ -61,25 +61,25 @@ package org.bigbluebutton.modules.presentation.model.vo
 			this.title = presentation.description;
 			this.selected = 0;
 			
-			//log.debug("Presentation: name=[" + name + "] title=[" + title + "]");
+			trace("Presentation: name=[" + name + "] title=[" + title + "]");
 			
 			if (presentation.slide == null) {
-				//log.debug("Presentation: slide = null");
+				trace("Presentation: slide = null");
 				return;
 			}
 
 			if (presentation.slide.length == null) {
- 				//log.debug("Presentation: slidesName = [" + presentation.slide.name + "]");
-				//log.debug("Presentation: slidesName = [" + presentation.slide.source + "]");				
+ 				trace("Presentation: slidesName = [" + presentation.slide.name + "]");
+				trace("Presentation: slidesName = [" + presentation.slide.source + "]");				
 				
 				slide = new Slide(presentation.slide);
 				slides.addItem(slide);
 			} else {
-				//log.debug("Presentation: slides = [" + presentation.slide.length + "]");
+				trace("Presentation: slides = [" + presentation.slide.length + "]");
 			
 				for (var i:int=0; i < presentation.slide.length; i++)
 				{
-					//log.debug("Creating slide[" + i + "]");
+					trace("Creating slide[" + i + "]");
 			
 					slide = new Slide(presentation.slide[i]);
 					slides.addItem(slide);

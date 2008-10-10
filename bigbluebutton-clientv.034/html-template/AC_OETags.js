@@ -1,4 +1,4 @@
-// Flash Player Version Detection - Rev 1.5
+// Flash Player Version Detection - Rev 1.6
 // Detect Client Browser type
 // Copyright(c) 2005-2006 Adobe Macromedia Software, LLC. All rights reserved.
 var isIE  = (navigator.appVersion.indexOf("MSIE") != -1) ? true : false;
@@ -85,17 +85,25 @@ function GetSwfVer(){
 	if (navigator.plugins != null && navigator.plugins.length > 0) {
 		if (navigator.plugins["Shockwave Flash 2.0"] || navigator.plugins["Shockwave Flash"]) {
 			var swVer2 = navigator.plugins["Shockwave Flash 2.0"] ? " 2.0" : "";
-			var flashDescription = navigator.plugins["Shockwave Flash" + swVer2].description;			
+			var flashDescription = navigator.plugins["Shockwave Flash" + swVer2].description;
 			var descArray = flashDescription.split(" ");
-			var tempArrayMajor = descArray[2].split(".");
+			var tempArrayMajor = descArray[2].split(".");			
 			var versionMajor = tempArrayMajor[0];
 			var versionMinor = tempArrayMajor[1];
-			if ( descArray[3] != "" ) {
-				tempArrayMinor = descArray[3].split("r");
-			} else {
-				tempArrayMinor = descArray[4].split("r");
+			var versionRevision = descArray[3];
+			if (versionRevision == "") {
+				versionRevision = descArray[4];
 			}
-			var versionRevision = tempArrayMinor[1] > 0 ? tempArrayMinor[1] : 0;
+			if (versionRevision[0] == "d") {
+				versionRevision = versionRevision.substring(1);
+			} else if (versionRevision[0] == "r") {
+				versionRevision = versionRevision.substring(1);
+				if (versionRevision.indexOf("d") > 0) {
+					versionRevision = versionRevision.substring(0, versionRevision.indexOf("d"));
+				}
+			} else if (versionRevision[0] == "b") {
+				versionRevision = versionRevision.substring(1);
+			}
 			var flashVer = versionMajor + "." + versionMinor + "." + versionRevision;
 		}
 	}
@@ -107,7 +115,7 @@ function GetSwfVer(){
 	else if (navigator.userAgent.toLowerCase().indexOf("webtv") != -1) flashVer = 2;
 	else if ( isIE && isWin && !isOpera ) {
 		flashVer = ControlVersion();
-	}	
+	}
 	return flashVer;
 }
 
@@ -161,9 +169,10 @@ function AC_Generateobj(objAttrs, params, embedAttrs)
   		str += '<object ';
   		for (var i in objAttrs)
   			str += i + '="' + objAttrs[i] + '" ';
+  		str += '>';
   		for (var i in params)
-  			str += '><param name="' + i + '" value="' + params[i] + '" /> ';
-  		str += '></object>';
+  			str += '<param name="' + i + '" value="' + params[i] + '" /> ';
+  		str += '</object>';
     } else {
   		str += '<embed ';
   		for (var i in embedAttrs)
@@ -242,9 +251,9 @@ function AC_GetArgs(args, ext, srcParamName, classid, mimeType){
       case "ondeactivate":
       case "type":
       case "codebase":
-      case "id":
         ret.objAttrs[args[i]] = args[i+1];
         break;
+      case "id":
       case "width":
       case "height":
       case "align":

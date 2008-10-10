@@ -59,7 +59,6 @@ package org.bigbluebutton.modules.presentation.model
 		private var _userid : Number;
 		private var _room : String;
 		private var _docServiceAddress : String = "http://localhost:8080";
-		private var log : LogModuleFacade = LogModuleFacade.getInstance("LogModule");
 		
 		/**
 		 * The default constructor 
@@ -143,12 +142,12 @@ package org.bigbluebutton.modules.presentation.model
 		 */		
 		public function uploadPresentation(fileToUpload : FileReference) : void
 		{
-			log.presentation("PresentationApplication::uploadPresentation()... " + _docServiceAddress + Constants.relativeFileUpload + "/upload");
+			trace("PresentationApplication::uploadPresentation()... " + _docServiceAddress + Constants.relativeFileUpload + "/upload");
 			var fullUri : String = _docServiceAddress + Constants.relativeFileUpload + "/upload";
 						
 			var service:FileUploadService = new FileUploadService(fullUri, _room);
 			facade.registerProxy(service);
-			log.presentation("using flash FileUploadService...");
+			trace("using flash FileUploadService...");
 			service.upload(fileToUpload);
 		}
 		
@@ -159,7 +158,7 @@ package org.bigbluebutton.modules.presentation.model
 		public function loadPresentation() : void
 		{
 			var fullUri : String = _docServiceAddress + Constants.relativeFileUpload + "/xmlslides?room=" + _room;	
-			log.presentation("PresentationApplication::loadPresentation()... " + fullUri);
+			trace("PresentationApplication::loadPresentation()... " + fullUri);
 			model.presentationLoaded = false;
 			
 			var service:PresentationService = new PresentationService(fullUri, this);
