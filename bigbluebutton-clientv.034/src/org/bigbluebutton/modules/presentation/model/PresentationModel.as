@@ -103,6 +103,7 @@ package org.bigbluebutton.modules.presentation.model
 		    }		
 		    
 			presentationLoaded = true;	
+			decks.selected = 0;
 		}
 		
 		public function open(userid:Number):void
