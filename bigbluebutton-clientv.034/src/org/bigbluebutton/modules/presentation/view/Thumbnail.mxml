@@ -8,7 +8,7 @@
 	rollOver="updatePosition(event)"
 	rollOut="updatePosition(event)"
 	scroll="updatePosition(event)">
-	<mx:Style source="presentation.css"/>
+
 	<mx:Script>
 		<![CDATA[
 		    import mx.events.FlexEvent;

@@ -4,7 +4,6 @@
     horizontalAlign="center" paddingBottom="5" 
     creationComplete="init()" verticalScrollPolicy="off" horizontalScrollPolicy="off" xmlns:panzoom="com.adobe.wheelerstreet.fig.panzoom.*" xmlns:local="*">
     
-<mx:Style source="presentation.css"/>
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.modules.presentation.model.vo.SlidesDeck;

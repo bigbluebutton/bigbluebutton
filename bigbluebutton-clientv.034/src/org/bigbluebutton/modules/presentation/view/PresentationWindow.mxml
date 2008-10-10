@@ -145,13 +145,16 @@
 	   		}	
 	   		
 	   		private function toggleFullScreen():void{
+	   			trace("Toggling fullscreen");
 	   			try {
 					switch (Application.application.stage.displayState) {
 						case StageDisplayState.FULL_SCREEN:
+							trace("full screen mode");
 							/* If already in full screen mode, switch to normal mode. */
 							Application.application.stage.displayState = StageDisplayState.NORMAL;
 							break;
 						default:
+							trace("Normal screen mode");
 							/* If not in full screen mode, switch to full screen mode. */
 							Application.application.stage.displayState = StageDisplayState.FULL_SCREEN;
 							break;
@@ -164,6 +167,7 @@
 	   		private function fullScreenHandler(evt:FullScreenEvent):void {
 				dispState = Application.application.stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
 				if (evt.fullScreen) {
+					trace("Switching to full screen");
 					/* Do something specific here if we switched to full screen mode. */
 					this.maximizeRestoreBtn.visible = false;
 					if (this.maximized){
@@ -179,6 +183,7 @@
 					//this.thumbnailView.myLoader.width = Capabilities.screenResolutionY - 200;
 					//if (model.presentation.isPresenter) dispatchEvent(new Event(PresentationWindowMediator.MAXIMIZE));
 				} else {
+					trace("Switching to normal screen");
 					/* Do something specific here if we switched to normal mode. */
 					this.maximizeRestoreBtn.visible = true;
 					//this.width = 480;
@@ -195,8 +200,6 @@
 		]]>
 	</mx:Script>
 	
-	<mx:Style source="presentation.css" />
-     			
 	<thumb:ThumbnailView id="thumbnailView" width="100%" height="100%" visible="false"/>
 
     <mx:ControlBar width="100%">
