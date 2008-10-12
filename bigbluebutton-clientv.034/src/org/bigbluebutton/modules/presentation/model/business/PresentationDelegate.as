@@ -219,8 +219,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		public function givePresenterControl(userid : Number, name : String) : void
 		{
 			// Force unshare of presentation
-			share(false);
-			
+			share(false);			
 			presentationSO.setProperty(PRESENTER, {userid : userid, name : name});
 			trace("Assign presenter control to [" + name + "]");
 		}
@@ -232,9 +231,9 @@ package org.bigbluebutton.modules.presentation.model.business
 		 */		
 		public function gotoPage(page : Number) : void
 		{
-//			presentationSO.send("gotoPageCallback", page);
+			presentationSO.send("gotoPageCallback", page);
 			trace("Going to page " + page);
-			presentationSO.setProperty(CURRENT_PAGE, {number : page});
+//			presentationSO.setProperty(CURRENT_PAGE, {pagenumber : page});
 		}
 		
 		/**
@@ -265,27 +264,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		 */		
 		public function share(sharing : Boolean) : void
 		{
-			if (sharing) {
-				/**
-				 * We have to explicitly copy the data into a new Object, otherwise, the
-			 	 * ShareObject won't sync.
-			 	 */			
-				var name : String = presentation.decks.name;
-				var title : String = presentation.decks.title;
-				var curPage : Number = presentation.decks.selected;
-				
-				var slides : Array = new Array();			
-				for (var i : uint = 0; i < presentation.decks.slides.source.length; i++)
-				{
-					slides.push(presentation.decks.slides.source[i]);
-				}
-
-//				presentationSO.setProperty(SHARING, {share : sharing, 
-//						presentation : {id : name, description : title, page : curPage, slide : slides}});	
 				presentationSO.setProperty(SHARING, {share : sharing});		
-			} else {
-				presentationSO.setProperty(SHARING, {share : sharing});
-			}
 		}
 				
 		/**
@@ -325,7 +304,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		private function sharedObjectSyncHandler( event : SyncEvent) : void
 		{
 			trace( "Presentation::sharedObjectSyncHandler " + event.changeList.length);
-						
+		
 			for (var i : uint = 0; i < event.changeList.length; i++) 
 			{
 				trace( "Presentation::handlingChanges[" + event.changeList[i].name + "][" + i + "]");
@@ -343,7 +322,7 @@ package org.bigbluebutton.modules.presentation.model.business
 			{
 				case UPDATE_MESSAGE:
 					if (presentation.isPresenter) {
-						trace( UPDATE_MESSAGE + " =[" + presentationSO.data.updateMessage.returnCode + "]");
+						trace( UPDATE_MESSAGE + " = [" + presentationSO.data.updateMessage.returnCode + "]");
 						processUpdateMessage(presentationSO.data.updateMessage.returnCode);
 					}
 					
@@ -375,35 +354,21 @@ package org.bigbluebutton.modules.presentation.model.business
 				
 					if (presentationSO.data.sharing.share) {
 						trace( "SHARING =[" + presentationSO.data.sharing.share + "]");
-//						log.debug( "SHARING true =[" + presentationSO.data.sharing.presentation.slide.length  + "]");
-										
-//						processSharedPresentation(presentationSO.data.sharing.presentation);
-						
-//						var viewEvent : ViewEvent = new ViewEvent();
-//						viewEvent.dispatch();
-					sendNotification(PresentationFacade.READY_EVENT);
-					
+						sendNotification(PresentationFacade.READY_EVENT);					
 					} else {
-						//log.debug( "SHARING =[" + presentationSO.data.sharing.share + "]");
-						// Should send a stop sharing event. This will allow UIs to do what they want 
-						// (e.g. clear the screen).
-						if (! presentation.isPresenter) {
-						//	presentation.decks = null;
-						}
+						trace( "SHARING =[" + presentationSO.data.sharing.share + "]");
 						sendNotification(PresentationFacade.CLEAR_EVENT);
 					}
 					break;
 
 				case CURRENT_PAGE :
-//					if (oldValue != null) {
-						presentation.decks.selected = presentationSO.data.currentPage.number;
-						trace("Current page is " + presentationSO.data.currentPage.number);
-						sendNotification(PresentationFacade.UPDATE_PAGE, presentationSO.data.currentPage.number);
-//					}
-				break;
+						presentation.decks.selected = presentationSO.data.currentPage.pagenumber;
+						trace("Current page is " + presentationSO.data.currentPage.pagenumber);
+						sendNotification(PresentationFacade.UPDATE_PAGE, presentationSO.data.currentPage.pagenumber);
+					break;
 							
 				default:
-					trace( "default =[" + code + "," + name + "," + oldValue + "]");				 
+					trace( "default = [" + code + "," + name + "," + oldValue + "]");				 
 					break;
 			}
 		}
