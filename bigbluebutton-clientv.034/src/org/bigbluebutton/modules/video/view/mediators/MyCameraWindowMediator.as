@@ -1,8 +1,6 @@
 package org.bigbluebutton.modules.video.view.mediators
 {
 	import flash.events.Event;
-	import flash.events.TimerEvent;
-	import flash.utils.Timer;
 	
 	import org.bigbluebutton.modules.video.VideoFacade;
 	import org.bigbluebutton.modules.video.control.notifiers.PublishNotifier;
@@ -32,8 +30,7 @@ package org.bigbluebutton.modules.video.view.mediators
 		override public function listNotificationInterests():Array{
 			return [
 					VideoFacade.CLOSE_ALL,
-					VideoFacade.ENABLE_CAMERA,
-					VideoFacade.PLUG_AND_PLAY
+					VideoFacade.ENABLE_CAMERA
 					];
 		}
 		
@@ -45,9 +42,6 @@ package org.bigbluebutton.modules.video.view.mediators
 				case VideoFacade.ENABLE_CAMERA:
 					startOrStopDevices(new Event(VideoFacade.ENABLE_CAMERA));
 					break;
-				case VideoFacade.PLUG_AND_PLAY:
-					broadcastVideo();
-					break;
 			}
 		}
 		
@@ -58,7 +52,6 @@ package org.bigbluebutton.modules.video.view.mediators
 		private function recordStream(e:Event):void{
 			if ( ! cameraWindow.media.broadcasting ) 
 			{
-				//Alert.show(cameraWindow.media.streamName);
 				sendNotification(VideoFacade.PUBLISH_STREAM_COMMAND, new PublishNotifier("live", cameraWindow.media.streamName));
 			} 
 			else
@@ -105,23 +98,6 @@ package org.bigbluebutton.modules.video.view.mediators
 		
 		private function openSettings(e:Event):void{
 			facade.registerMediator(new SettingsWindowMediator(cameraWindow.settingsWindow));
-		}
-		
-		private function broadcastVideo():void{
-			cameraWindow.media.video.settings.cameraIndex = 1;
-			sendNotification(VideoFacade.ENABLE_CAMERA);
-			
-			var timer:Timer = new Timer(100, 1);
-			timer.addEventListener(TimerEvent.TIMER, onTimer);
-			timer.start();
-		}
-		
-		private function onTimer(e:TimerEvent):void{
-			recordStream(new Event("broadcast"));
-			cameraWindow.handleBroadcasting(true);
-			//cameraWindow.dispatchEvent(new Event(RECORD_STREAM));
-			
-			
 		}
 
 	}

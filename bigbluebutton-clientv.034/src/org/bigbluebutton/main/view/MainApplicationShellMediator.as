@@ -97,7 +97,7 @@ package org.bigbluebutton.main.view
 			
 			logModule = new LogModule();
 			runModule(logModule);
-			logModule.mediator.logWindow.visible = false;
+//			logModule.mediator.logWindow.visible = false;
 			
 			log.debug("red5:" + Constants.red5Host);
 			log.debug("present:" + Constants.presentationHost);
@@ -119,10 +119,10 @@ package org.bigbluebutton.main.view
 		public function showLogWindow(event:Event) : void
 		{
 			//logModule.openLogWindow();
-			if (logModule.mediator.logWindow.visible == true)
-			logModule.mediator.logWindow.visible = false;
-			else
-			logModule.mediator.logWindow.visible = true;
+//			if (logModule.mediator.logWindow.visible == true)
+//			logModule.mediator.logWindow.visible = false;
+//			else
+//			logModule.mediator.logWindow.visible = true;
 		}
 		
 		/**
@@ -204,10 +204,9 @@ package org.bigbluebutton.main.view
 		 * @param module
 		 * 
 		 */		
-		private function addButton(module:BigBlueButtonModule):Button{
+		private function addButton(module:BigBlueButtonModule):void{
 			var button:Button = mshell.toolbar.addButton(module.name);
-			//button.addEventListener(MouseEvent.CLICK, openModule);
-			return button;
+			button.addEventListener(MouseEvent.CLICK, openModule);
 		}
 		
 		private function openModule(e:MouseEvent):void{
@@ -279,12 +278,7 @@ package org.bigbluebutton.main.view
 				case MainApplicationFacade.ADD_MODULE:
 					var moduleNote:BigBlueButtonModule = notification.getBody() as BigBlueButtonModule;
 					addModule(moduleNote);
-					if (moduleNote.addButton){
-						moduleNote.button = addButton(moduleNote);
-						moduleNote.router = this.router;
-						moduleNote.mshell = this.mshell;
-						moduleNote.moduleAdded();
-					} 
+					if (moduleNote.addButton) addButton(moduleNote);
 					break;
 			}
 		}

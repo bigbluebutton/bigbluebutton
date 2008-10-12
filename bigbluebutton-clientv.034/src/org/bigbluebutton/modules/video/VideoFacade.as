@@ -60,11 +60,7 @@ package org.bigbluebutton.modules.video
 		public static const PUBLISH_STREAM_COMMAND : String = 			"PUBLISHER_PUBLISH_STREAM_COMMAND";
 		public static const UNPUBLISH_STREAM_COMMAND : String = 		"PUBLISHER_UNPUBLISH_STREAM_COMMAND";
 		
-		public static const OPEN_VIEW_CAMERA:String = "Open View Camera";
-		//The camera will start, video will be published immediately
-		public static const PLUG_AND_PLAY:String = "Plug_and_Play";
-		//Play video as soon as user clicks on an available stream icon
-		public static const PLAY_VIDEO:String = "Play_Immediately";
+		public static const OPEN_VIEW_CAMERA:String = "Open View Camera"
 		
 		/**
 		 * The constructor. Should never be called, however ActionScript does not support private

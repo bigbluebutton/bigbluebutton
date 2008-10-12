@@ -72,11 +72,11 @@
 				var delegate:SharedObjectConferenceDelegate = 
 				 	ViewersFacade.getInstance().retrieveProxy(SharedObjectConferenceDelegate.NAME) as SharedObjectConferenceDelegate;
 				delegate.sendBroadcastStream(broadcasting, media.streamName);
-				//if (broadcasting) {
-				//	transmitBtn.toolTip = "Stop broadcasting";
-				//} else {
-				//	transmitBtn.toolTip = "Start broadcasting";					
-				//}
+				if (broadcasting) {
+					transmitBtn.toolTip = "Stop broadcasting";
+				} else {
+					transmitBtn.toolTip = "Start broadcasting";					
+				}
 			}       
 			
 			public function callThis() : void
@@ -95,16 +95,16 @@
     	   			width="20" height="20" click="openSettingsWindow()"
     	   			toolTip="Settings"/>    
     	   <mx:Spacer width="100%"/>
-    	  <!--<mx:Button id="startDevBtn" icon="{media.deviceStarted ? stopIcon : startIcon}" 
+    	  <mx:Button id="startDevBtn" icon="{media.deviceStarted ? stopIcon : startIcon}" 
     	  			visible = "{(media.video.settings.cameraIndex > 0) || (media.audio.settings.micIndex > 0)}"
 					enabled = "{! media.broadcasting}"
 					click="dispatchEvent(new Event(MyCameraWindowMediator.START_STOP_DEVICES))"
-    	   			width="20" height="20" 
+    	   			width="20" height="20"
     	   			toolTip="{media.deviceStarted ? 'Stop devices' : 'Start devices'}"/>     	   						
     	  <mx:Button id="transmitBtn" icon="{transmitIcon}" 
     	  			click="dispatchEvent(new Event(MyCameraWindowMediator.RECORD_STREAM))"
 					visible="{ media.deviceStarted }"
     	   			width="20" height="20" 
-    	   			toolTip="Start broadcasting"/>		-->
+    	   			toolTip="Start broadcasting"/>		
 	</mx:ControlBar>
 </cam:MDIWindow>
