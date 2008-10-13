@@ -7,7 +7,7 @@ package org.bigbluebutton.modules.playback.model
 	import org.bigbluebutton.common.OutputPipe;
 	import org.bigbluebutton.common.Router;
 	import org.bigbluebutton.modules.playback.PlaybackFacade;
-	import org.bigbluebutton.modules.playback.PlaybackModuleConstants;
+	import org.bigbluebutton.modules.playback.PlaybackModuleMediator;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
@@ -64,7 +64,7 @@ package org.bigbluebutton.modules.playback.model
 		
 		private function sendMessage(message:XML):void{
 			var msg:IPipeMessage = new Message(Message.NORMAL);
-			msg.setHeader({MSG: PlaybackModuleConstants.PLAYBACK_MESSAGE, SRC: PlaybackModuleConstants.FROM_PLAYBACK_MODULE,
+			msg.setHeader({MSG: PlaybackModuleMediator.PLAYBACK_MESSAGE, SRC: PlaybackModuleMediator.FROM_PLAYBACK_MODULE,
 								TO: destinationModule});
 			msg.setPriority(Message.PRIORITY_HIGH);
 			
@@ -75,7 +75,7 @@ package org.bigbluebutton.modules.playback.model
 		
 		private function playbackModeRequest():void{
 			var msg:IPipeMessage = new Message(Message.NORMAL);
-			msg.setHeader({MSG: PlaybackModuleConstants.PLAYBACK_MODE, SRC: PlaybackModuleConstants.FROM_PLAYBACK_MODULE,
+			msg.setHeader({MSG: PlaybackModuleMediator.PLAYBACK_MODE, SRC: PlaybackModuleMediator.FROM_PLAYBACK_MODULE,
 								TO: destinationModule});
 			//msg.setBody(null):
 			sendNotification(PlaybackFacade.SEND_OUT_MESSAGE, msg);

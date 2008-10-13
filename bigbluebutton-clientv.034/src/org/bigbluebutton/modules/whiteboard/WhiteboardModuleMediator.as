@@ -23,12 +23,15 @@ package org.bigbluebutton.modules.whiteboard
 		
 		private var board:Board;
 		
+		private static const TO_WHITEBOARD_MODULE:String = "TO_WHITEBOARD_MODULE";
+		private static const FROM_WHITEBOARD_MODULE:String = "FROM_WHITEBOARD_MODULE";
+		
 		public function WhiteboardModuleMediator(module:WhiteboardModule)
 		{
 			super(NAME, module);
 			router = module.router;
-			inpipe = new InputPipe(BoardModuleConstants.TO_WHITEBOARD_MODULE);
-			outpipe = new OutputPipe(BoardModuleConstants.FROM_WHITEBOARD_MODULE);
+			inpipe = new InputPipe(TO_WHITEBOARD_MODULE);
+			outpipe = new OutputPipe(FROM_WHITEBOARD_MODULE);
 			inpipeListener = new PipeListener(this, messageReceiver);
 			router.registerOutputPipe(outpipe.name, outpipe);
 			router.registerInputPipe(inpipe.name, inpipe);
@@ -45,7 +48,7 @@ package org.bigbluebutton.modules.whiteboard
 		
 		private function addWindow():void{
 			var msg:IPipeMessage = new Message(Message.NORMAL);
-			msg.setHeader({MSG:MainApplicationConstants.ADD_WINDOW_MSG, SRC: BoardModuleConstants.FROM_WHITEBOARD_MODULE,
+			msg.setHeader({MSG:MainApplicationConstants.ADD_WINDOW_MSG, SRC: FROM_WHITEBOARD_MODULE,
    						TO: MainApplicationConstants.TO_MAIN });
    			msg.setPriority(Message.PRIORITY_HIGH);
    			

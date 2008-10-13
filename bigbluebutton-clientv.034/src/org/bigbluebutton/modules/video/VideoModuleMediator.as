@@ -19,8 +19,6 @@
 */
 package org.bigbluebutton.modules.video
 {
-	import mx.controls.Alert;
-	
 	import org.bigbluebutton.common.InputPipe;
 	import org.bigbluebutton.common.OutputPipe;
 	import org.bigbluebutton.common.Router;
@@ -32,8 +30,6 @@ package org.bigbluebutton.modules.video
 	import org.bigbluebutton.modules.video.view.ViewCameraWindow;
 	import org.bigbluebutton.modules.video.view.mediators.MyCameraWindowMediator;
 	import org.bigbluebutton.modules.video.view.mediators.ViewCameraWindowMediator;
-	import org.bigbluebutton.modules.viewers.ViewersConstants;
-	import org.bigbluebutton.modules.viewers.model.vo.User;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
@@ -61,6 +57,9 @@ package org.bigbluebutton.modules.video
 		public var videoWindow:MyCameraWindow;
 		public var viewWindow:ViewCameraWindow;
 		
+		private static const TO_VIDEO_MODULE:String = "TO_VIDEO_MODULE";
+		private static const FROM_VIDEO_MODULE:String = "FROM_VIDEO_MODULE";
+		
 		/**
 		 * The constructor. Registers the VideoModule with this mediator class 
 		 * @param module
@@ -71,8 +70,8 @@ package org.bigbluebutton.modules.video
 			super(NAME, module);
 			this.module = module;
 			router = module.router;
-			inpipe = new InputPipe(VideoConstants.TO_VIDEO_MODULE);
-			outpipe = new OutputPipe(VideoConstants.FROM_VIDEO_MODULE);
+			inpipe = new InputPipe(TO_VIDEO_MODULE);
+			outpipe = new OutputPipe(FROM_VIDEO_MODULE);
 			inpipeListener = new PipeListener(this, messageReceiver);
 			inpipe.connect(inpipeListener);
 			router.registerOutputPipe(outpipe.name, outpipe);
@@ -90,7 +89,7 @@ package org.bigbluebutton.modules.video
 		 */		
 		private function addVideoWindow():void{
 			var msg:IPipeMessage = new Message(Message.NORMAL);
-			msg.setHeader({MSG:MainApplicationConstants.ADD_WINDOW_MSG, SRC: VideoConstants.FROM_VIDEO_MODULE,
+			msg.setHeader({MSG:MainApplicationConstants.ADD_WINDOW_MSG, SRC: FROM_VIDEO_MODULE,
    						TO: MainApplicationConstants.TO_MAIN });
    			msg.setPriority(Message.PRIORITY_HIGH);
    			
@@ -112,7 +111,7 @@ package org.bigbluebutton.modules.video
 		
 		public function addViewWindow():void{
 			var msg:IPipeMessage = new Message(Message.NORMAL);
-			msg.setHeader({MSG:MainApplicationConstants.ADD_WINDOW_MSG, SRC: VideoConstants.FROM_VIDEO_MODULE,
+			msg.setHeader({MSG:MainApplicationConstants.ADD_WINDOW_MSG, SRC: FROM_VIDEO_MODULE,
    						TO: MainApplicationConstants.TO_MAIN });
    			msg.setPriority(Message.PRIORITY_HIGH);
    			

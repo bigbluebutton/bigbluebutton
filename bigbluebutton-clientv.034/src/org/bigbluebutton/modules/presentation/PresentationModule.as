@@ -59,7 +59,7 @@ package org.bigbluebutton.modules.presentation
 			super(NAME);
 			facade = PresentationFacade.getInstance();
 			this.preferedX = 250;
-			this.preferedY = 20;
+			this.preferedY = 20;  
 			this.startTime = BigBlueButtonModule.START_ON_LOGIN;
 		}
 		

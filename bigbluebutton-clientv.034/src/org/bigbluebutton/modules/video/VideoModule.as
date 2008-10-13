@@ -72,6 +72,7 @@ package org.bigbluebutton.modules.video
 			this.preferedY = 240;
 			this.startTime = NAME;
 			this.addButton = true;
+			this.displayName = "Share Webcam";
 			
 		}
 		

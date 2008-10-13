@@ -23,7 +23,6 @@ package org.bigbluebutton.modules.presentation
 	import org.bigbluebutton.common.OutputPipe;
 	import org.bigbluebutton.common.Router;
 	import org.bigbluebutton.main.MainApplicationConstants;
-	import org.bigbluebutton.modules.playback.PlaybackModuleConstants;
 	import org.bigbluebutton.modules.presentation.model.business.PresentationDelegate;
 	import org.bigbluebutton.modules.presentation.model.business.PresentationPlaybackProxy;
 	import org.bigbluebutton.modules.presentation.view.PresentationWindow;
@@ -57,6 +56,12 @@ package org.bigbluebutton.modules.presentation
 		private var presentationWindow:PresentationWindow = new PresentationWindow();
 		private var module:PresentationModule;
 		
+		private static const TO_PRESENTATION_MODULE:String = "TO_PRESENTATION_MODULE";
+		private static const FROM_PRESENTATION_MODULE:String = "FROM_PRESENTATION_MODULE";
+		
+		private static const PLAYBACK_MODE:String = "PLAYBACK_MODE";
+		private static const PLAYBACK_MESSAGE:String = "PLAYBACK_MESSAGE";
+		
 		/**
 		 * The constructor. Associates this mediator with the PresentationModule class
 		 * The constructor does the work of registering the PresentationModule with input/output pipes
@@ -69,8 +74,8 @@ package org.bigbluebutton.modules.presentation
 			super(NAME, view);
 			module = view;
 			router = view.router;
-			inpipe = new InputPipe(PresentationConstants.TO_PRESENTATION_MODULE);
-			outpipe = new OutputPipe(PresentationConstants.FROM_PRESENTATION_MODULE);
+			inpipe = new InputPipe(TO_PRESENTATION_MODULE);
+			outpipe = new OutputPipe(FROM_PRESENTATION_MODULE);
 			inpipeListener = new PipeListener(this, messageReceiver);
 			inpipe.connect(inpipeListener);
 			router.registerOutputPipe(outpipe.name, outpipe);
@@ -87,10 +92,10 @@ package org.bigbluebutton.modules.presentation
 		{
 			var msg : String = message.getHeader().MSG as String;
 			switch(msg){
-				case PlaybackModuleConstants.PLAYBACK_MODE:
+				case PLAYBACK_MODE:
 					switchToPlayback();
 					break;
-				case PlaybackModuleConstants.PLAYBACK_MESSAGE:
+				case PLAYBACK_MESSAGE:
 					playMessage(message.getBody() as XML);
 					break;
 			}
@@ -154,7 +159,7 @@ package org.bigbluebutton.modules.presentation
 		 */		
 		private function addWindow():void{
 			var msg:IPipeMessage = new Message(Message.NORMAL);
-			msg.setHeader({MSG:MainApplicationConstants.ADD_WINDOW_MSG, SRC: PresentationConstants.FROM_PRESENTATION_MODULE,
+			msg.setHeader({MSG:MainApplicationConstants.ADD_WINDOW_MSG, SRC: FROM_PRESENTATION_MODULE,
    						TO: MainApplicationConstants.TO_MAIN });
    			msg.setPriority(Message.PRIORITY_HIGH);
    			   			

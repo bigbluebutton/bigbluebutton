@@ -55,7 +55,7 @@ package org.bigbluebutton.modules.chat
 		{
 			super(NAME);
 			log.debug("Creating new ChatWindow...");
-			chatWindow = new ChatWindow;
+			chatWindow = new ChatWindow();
 			log.debug("Getting an instance of Chat Facade...");
 			facade = ChatFacade.getInstance();			
 			this.preferedX = 700;

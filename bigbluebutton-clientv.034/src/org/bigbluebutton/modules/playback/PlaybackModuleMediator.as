@@ -24,12 +24,17 @@ package org.bigbluebutton.modules.playback
 		
 		private var playbackWindow:PlaybackWindow
 		
+		public static const TO_PLAYBACK_MODULE:String = "TO_PLAYBACK_MODULE";
+		public static const FROM_PLAYBACK_MODULE:String = "FROM_PLAYBACK_MODULE";
+		public static const PLAYBACK_MESSAGE:String = "PLAYBACK_MESSAGE";
+		public static const PLAYBACK_MODE:String = "PLAYBACK_MODE";
+		
 		public function PlaybackModuleMediator(module:PlaybackModule)
 		{
 			super(NAME, module);
 			_router = module.router;
-			inpipe = new InputPipe(PlaybackModuleConstants.TO_PLAYBACK_MODULE);
-			outpipe = new OutputPipe(PlaybackModuleConstants.FROM_PLAYBACK_MODULE);
+			inpipe = new InputPipe(TO_PLAYBACK_MODULE);
+			outpipe = new OutputPipe(FROM_PLAYBACK_MODULE);
 			inpipeListener = new PipeListener(this, messageReceiver);
 			_router.registerOutputPipe(outpipe.name, outpipe);
 			_router.registerInputPipe(inpipe.name, inpipe);
@@ -50,7 +55,7 @@ package org.bigbluebutton.modules.playback
 		
 		private function addWindow():void{
 			var msg:IPipeMessage = new Message(Message.NORMAL);
-			msg.setHeader({MSG:MainApplicationConstants.ADD_WINDOW_MSG, SRC: PlaybackModuleConstants.FROM_PLAYBACK_MODULE,
+			msg.setHeader({MSG:MainApplicationConstants.ADD_WINDOW_MSG, SRC: FROM_PLAYBACK_MODULE,
    						TO: MainApplicationConstants.TO_MAIN });
    			msg.setPriority(Message.PRIORITY_HIGH);
    			

@@ -5,4 +5,5 @@
 	<module id="Voice" swfpath="org/bigbluebutton/modules/voiceconference/voice_module.swf" />
 	<module id="Whiteboard" swfpath="org/bigbluebutton/modules/whiteboard/whiteboard_module.swf" />
 	<module id="Playback" swfpath="org/bigbluebutton/modules/playback/playback_module.swf" />
+	<module id="Sample" swfpath="org/bigbluebutton/modules/sample_module/sample_module.swf" />
 </modules>

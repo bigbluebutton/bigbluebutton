@@ -77,7 +77,6 @@ package org.bigbluebutton.main
 			modules.addItem(loader);
 			loader.addEventListener(ModuleEvent.READY, moduleReady);
 			loader.url = path;
-			//Alert.show(loader.url);
 			loader.loadModule();
 		}
 		

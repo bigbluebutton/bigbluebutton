@@ -168,7 +168,7 @@ package org.bigbluebutton.main.view
 			modules = new Array();
 			logModule = new LogModule();
 			runModule(logModule);
-			logModule.mediator.logWindow.visible = false;
+			//logModule.mediator.logWindow.visible = false;
 			runModule(new ViewersModule());
 			shell.toolbar.enabled = false;	
 		}
@@ -206,7 +206,7 @@ package org.bigbluebutton.main.view
 		 * 
 		 */		
 		private function addButton(module:BigBlueButtonModule):void{
-			var button:Button = mshell.toolbar.addButton(module.name);
+			var button:Button = mshell.toolbar.addButton(module.getDisplayName());
 			button.addEventListener(MouseEvent.CLICK, openModule);
 		}
 		
@@ -235,7 +235,7 @@ package org.bigbluebutton.main.view
 					break;
 				case MainApplicationConstants.REMOVE_WINDOW_MSG:
 					module = message.getBody() as BigBlueButtonModule;
-					if(module.name == LogModule.NAME) {
+					if(module.getID() == LogModule.NAME) {
 						//shell.toolbar.LogBtn.enabled = true;
 						module.getMDIComponent().visible = false;
 					} else removeWindow(module);
@@ -280,7 +280,7 @@ package org.bigbluebutton.main.view
 				case MainApplicationFacade.ADD_MODULE:
 					var moduleNote:BigBlueButtonModule = notification.getBody() as BigBlueButtonModule;
 					addModule(moduleNote);
-					if (moduleNote.addButton) addButton(moduleNote);
+					if (moduleNote.hasButton()) addButton(moduleNote);
 					break;
 				case MainApplicationFacade.MODULES_STARTED:
 					runAddedModules(BigBlueButtonModule.START_ON_LOGIN);

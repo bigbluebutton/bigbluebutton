@@ -27,13 +27,11 @@ package org.bigbluebutton.modules.chat.view
 	import org.bigbluebutton.common.Router;
 	import org.bigbluebutton.main.MainApplicationConstants;
 	import org.bigbluebutton.modules.chat.ChatModule;
-	import org.bigbluebutton.modules.chat.ChatModuleConstants;
 	import org.bigbluebutton.modules.chat.model.business.ChatProxy;
 	import org.bigbluebutton.modules.chat.model.business.PlaybackProxy;
 	import org.bigbluebutton.modules.chat.model.vo.MessageVO;
 	import org.bigbluebutton.modules.chat.view.components.ChatWindow;
 	import org.bigbluebutton.modules.log.LogModuleFacade;
-	import org.bigbluebutton.modules.playback.PlaybackModuleConstants;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
 	import org.puremvc.as3.multicore.utilities.pipes.interfaces.IPipeMessage;
@@ -48,7 +46,6 @@ package org.bigbluebutton.modules.chat.view
 	public class ChatModuleMediator extends Mediator implements IMediator
 	{
 		public static const NAME:String = 'LogModuleMediator';
-			
 
 		private var outpipe : OutputPipe;
 		private var inpipe : InputPipe;
@@ -57,6 +54,12 @@ package org.bigbluebutton.modules.chat.view
 		public var chatWindow : ChatWindow;
 		private var log : LogModuleFacade = LogModuleFacade.getInstance("LogModule");
 		private var module:ChatModule;
+		
+		private static const TO_CHAT_MODULE:String = "TO_CHAT_MODULE";
+		private static const FROM_CHAT_MODULE:String = "FROM_CHAT_MODULE";
+		
+		private static const PLAYBACK_MESSAGE:String = "PLAYBACK_MESSAGE";
+		private static const PLAYBACK_MODE:String = "PLAYBACK_MODE";
 		
 		/**
 		 * Constructor
@@ -70,9 +73,9 @@ package org.bigbluebutton.modules.chat.view
 			module = viewComponent;
 			router = viewComponent.router;
 			log.debug("initializing input pipes for chat module...");
-			inpipe = new InputPipe(ChatModuleConstants.TO_CHAT_MODULE);
+			inpipe = new InputPipe(TO_CHAT_MODULE);
 			log.debug("initializing output pipes for chat module...");
-			outpipe = new OutputPipe(ChatModuleConstants.FROM_CHAT_MODULE);
+			outpipe = new OutputPipe(FROM_CHAT_MODULE);
 			log.debug("initializing pipe listener for chat module...");
 			inpipeListener = new PipeListener(this, messageReceiver);
 			inpipe.connect(inpipeListener);
@@ -88,15 +91,6 @@ package org.bigbluebutton.modules.chat.view
 			super.initializeNotifier(key);
 		} 
 		
-		//override public function handleNotification(note:INotification):void
-		//{
-		//	switch(note.getName())
-		//	{
-				//case ChatFacade.DEBUG:
-				//break;	
-		//	}
-		//}
-		
 		/**
 		 * prepares the chat window to be sent as a message through pipes to Shell 
 		 * 
@@ -105,7 +99,7 @@ package org.bigbluebutton.modules.chat.view
 		{
 			// create a message
    			var msg:IPipeMessage = new Message(Message.NORMAL);
-   			msg.setHeader( {MSG:MainApplicationConstants.ADD_WINDOW_MSG, SRC: ChatModuleConstants.FROM_CHAT_MODULE,
+   			msg.setHeader( {MSG:MainApplicationConstants.ADD_WINDOW_MSG, SRC: FROM_CHAT_MODULE,
    						TO: MainApplicationConstants.TO_MAIN });
    			msg.setPriority(Message.PRIORITY_HIGH );
    			
@@ -126,7 +120,7 @@ package org.bigbluebutton.modules.chat.view
 		private function removeWindow(event:Event) : void
 		{
 			var msg:IPipeMessage = new Message(Message.NORMAL);
-   			msg.setHeader( {MSG:MainApplicationConstants.REMOVE_WINDOW_MSG, SRC: ChatModuleConstants.FROM_CHAT_MODULE,
+   			msg.setHeader( {MSG:MainApplicationConstants.REMOVE_WINDOW_MSG, SRC: FROM_CHAT_MODULE,
    						TO: MainApplicationConstants.TO_MAIN });
    			msg.setPriority(Message.PRIORITY_HIGH );
    			chatWindow.closeBtn.removeEventListener(MouseEvent.CLICK, removeWindow);
@@ -156,14 +150,14 @@ package org.bigbluebutton.modules.chat.view
 			//Alert.show("Message received by Chat");
 			var msg : String = message.getHeader().MSG as String;
 			switch(msg){
-				case PlaybackModuleConstants.PLAYBACK_MODE:
+				case PLAYBACK_MODE:
 					//var proxy:ChatProxy = facade.retrieveProxy(ChatProxy.NAME) as ChatProxy;
 					//proxy = new PlaybackProxy(new MessageVO());
 					//Alert.show("playbackproxy registered");
 					facade.removeProxy(ChatProxy.NAME);
 					facade.registerProxy(new PlaybackProxy(new MessageVO()));
 					break;
-				case PlaybackModuleConstants.PLAYBACK_MESSAGE:
+				case PLAYBACK_MESSAGE:
 					playMessage(message.getBody() as XML);					
 					break;
 			}

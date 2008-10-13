@@ -22,7 +22,6 @@ package org.bigbluebutton.common
 	import flexlib.mdi.containers.MDIWindow;
 	
 	import mx.controls.Button;
-	import mx.modules.ModuleBase;
 	
 	import org.bigbluebutton.common.red5.Connection;
 	import org.bigbluebutton.common.red5.ConnectionEvent;
@@ -37,19 +36,30 @@ package org.bigbluebutton.common
 	 */	
 	public class BigBlueButtonModule
 	{
+		//This is the X position on the screen where you would like your module to appear
 		public var preferedX:Number;
+		//This is the Y position on the screen where you would like your module to appear
 		public var preferedY:Number;
+		
+		//This is the MDIWindow that should be used as the main display component of your application
 		private var MDIComponent:MDIWindow;
-		public var name:String;
+		
+		//This is the name of your module
+		protected var name:String;
 		public var _router:Router;
 		public var mshell:MainApplicationShell;
 		
 		private var conn:Connection;
 		private var connE:ConnectionEvent;
 		
+		//This is the time at which your module will start. Please enter one of the START Constants from below...
 		public var startTime:String;
-		public var addButton:Boolean = false;
+		//This tells BBB whether you'd like a button for your module added in the main toolbar
+		protected var addButton:Boolean;
+		//If you placed 'true' in addButton, the button will be placed in this button variable, so that you may control it
 		public var button:Button;
+		//This is the display name of your module, as the end user will see it. (on buttons, etc...)
+		protected var displayName:String;
 		
 		public static const START_ON_LOGIN:String = "Start on Login";
 		public static const START_ON_CREATION_COMPLETE:String = "Start on Creation Complete";
@@ -120,8 +130,41 @@ package org.bigbluebutton.common
 			this._router = router;
 		}
 		
-		public function moduleAdded():void{
-			
+		
+		/**
+		 * Called from the main program. Tells the program whether you'd like a button added to the main toolbar 
+		 * @return 
+		 * 
+		 */		
+		public function hasButton():Boolean{
+			return this.addButton;
+		}
+		
+		/**
+		 * Returns the name of the module 
+		 * @return 
+		 * 
+		 */		
+		public function getID():String{
+			return this.name;
+		}
+		
+		/**
+		 * Returns the user-friendly display name of the module 
+		 * @return 
+		 * 
+		 */		
+		public function getDisplayName():String{
+			return this.displayName;
+		}
+		
+		/**
+		 * Returns the time at which this module should start 
+		 * @return 
+		 * 
+		 */		
+		public function getStartTime():String{
+			return this.startTime;
 		}
 
 	}

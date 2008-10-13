@@ -23,7 +23,6 @@ package org.bigbluebutton.modules.voiceconference
 	import org.bigbluebutton.common.OutputPipe;
 	import org.bigbluebutton.common.Router;
 	import org.bigbluebutton.main.MainApplicationConstants;
-	import org.bigbluebutton.modules.playback.PlaybackModuleConstants;
 	import org.bigbluebutton.modules.voiceconference.model.business.VoiceConfConnectResponder;
 	import org.bigbluebutton.modules.voiceconference.view.ListenersWindow;
 	import org.bigbluebutton.modules.voiceconference.view.ListenersWindowMediator;
@@ -52,6 +51,12 @@ package org.bigbluebutton.modules.voiceconference
 		private var voiceWindow:ListenersWindow = new ListenersWindow();
 		private var module:VoiceModule;
 		
+		private static const TO_VOICE_MODULE:String = "TO_VOICE_MODULE";
+		private static const FROM_VOICE_MODULE:String = "FROM_VOICE_MODULE";
+		
+		private static const PLAYBACK_MESSAGE:String = "PLAYBACK_MESSAGE";
+		private static const PLAYBACK_MODE:String = "PLAYBACK_MODE";
+		
 		/**
 		 * The constructor. Registers this class with the VoiceModule 
 		 * @param view
@@ -62,8 +67,8 @@ package org.bigbluebutton.modules.voiceconference
 			super(NAME,view);
 			module = view;
 			router = view.router;
-			inpipe = new InputPipe(VoiceModuleConstants.TO_VOICE_MODULE);
-			outpipe = new OutputPipe(VoiceModuleConstants.FROM_VOICE_MODULE);
+			inpipe = new InputPipe(TO_VOICE_MODULE);
+			outpipe = new OutputPipe(FROM_VOICE_MODULE);
 			inpipeListener = new PipeListener(this, messageReceiver);
 			inpipe.connect(inpipeListener);
 			router.registerOutputPipe(outpipe.name, outpipe);
@@ -74,10 +79,10 @@ package org.bigbluebutton.modules.voiceconference
 		private function messageReceiver(message:IPipeMessage):void{
 			var msg:String = message.getHeader().MSG as String;
 			switch(msg){
-				case PlaybackModuleConstants.PLAYBACK_MODE:
+				case PLAYBACK_MODE:
 					switchToPlaybackMode();
 					break;
-				case PlaybackModuleConstants.PLAYBACK_MESSAGE:
+				case PLAYBACK_MESSAGE:
 					playMessage(message.getBody() as XML);
 					break;
 			}
@@ -114,7 +119,7 @@ package org.bigbluebutton.modules.voiceconference
 		 */		
 		private function addWindow():void{
 			var msg:IPipeMessage = new Message(Message.NORMAL);
-			msg.setHeader({MSG:MainApplicationConstants.ADD_WINDOW_MSG, SRC: VoiceModuleConstants.FROM_VOICE_MODULE,
+			msg.setHeader({MSG:MainApplicationConstants.ADD_WINDOW_MSG, SRC: FROM_VOICE_MODULE,
    						TO: MainApplicationConstants.TO_MAIN });
    			msg.setPriority(Message.PRIORITY_HIGH);
    			
