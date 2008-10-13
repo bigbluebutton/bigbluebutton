@@ -8,7 +8,7 @@ package org.bigbluebutton.modules.playback
 	import org.bigbluebutton.modules.playback.view.PlaybackWindow;
 	import org.puremvc.as3.multicore.patterns.facade.Facade;
 	
-	public class PlaybackFacade extends Facade
+	public class PlaybackFacade extends Facade  
 	{
 		public static const NAME:String = "PlaybackFacade";
 		

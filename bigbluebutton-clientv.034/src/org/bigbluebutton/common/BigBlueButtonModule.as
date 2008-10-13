@@ -35,7 +35,7 @@ package org.bigbluebutton.common
 	 * @author Denis Zgonjanin
 	 * 
 	 */	
-	public class BigBlueButtonModule extends ModuleBase
+	public class BigBlueButtonModule
 	{
 		public var preferedX:Number;
 		public var preferedY:Number;

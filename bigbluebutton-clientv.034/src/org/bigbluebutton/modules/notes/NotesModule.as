@@ -15,7 +15,7 @@ package org.bigbluebutton.modules.notes
 		public var activeWindow:MDIWindow;
 		
 		public function NotesModule()
-		{
+		{  
 			super(NAME);
 			facade = NotesFacade.getInstance();
 			this.preferedX = 400;

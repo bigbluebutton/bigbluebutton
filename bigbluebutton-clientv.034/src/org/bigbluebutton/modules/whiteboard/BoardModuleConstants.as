@@ -10,7 +10,7 @@ package org.bigbluebutton.modules.whiteboard
 		
 		public static const ERROR:int = 1;
 		public static const WARN:int  = 2;
-		public static const INFO:int  = 3;
+		public static const INFO:int  = 3;  
 		public static const DEBUG:int = 4;
 
 	}

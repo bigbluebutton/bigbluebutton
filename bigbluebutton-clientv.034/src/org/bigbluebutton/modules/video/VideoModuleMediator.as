@@ -81,7 +81,7 @@ package org.bigbluebutton.modules.video
 		
 		private function messageReceiver(message:IPipeMessage):void{
 			var msg:String = message.getHeader().MSG as String;
-		}
+		}  
 		
 		/**
 		 * Adds the gui window of this module to the main application shell. The component is sent

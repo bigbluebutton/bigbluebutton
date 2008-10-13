@@ -13,7 +13,7 @@ package org.bigbluebutton.modules.sip
 	import org.puremvc.as3.multicore.utilities.pipes.plumbing.PipeListener;
 	
 	public class SipModuleMediator extends Mediator implements IMediator
-	{
+	{  
 		public static const NAME:String = "SipModuleMediator";
 		
 		private var outpipe : OutputPipe;

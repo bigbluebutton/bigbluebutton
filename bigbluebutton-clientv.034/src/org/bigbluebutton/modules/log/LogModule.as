@@ -18,7 +18,7 @@
 * 
 */
 package org.bigbluebutton.modules.log
-{
+{  
 	import flash.system.Capabilities;
 	
 	import flexlib.mdi.containers.MDIWindow;

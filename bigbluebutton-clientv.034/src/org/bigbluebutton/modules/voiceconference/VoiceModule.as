@@ -19,7 +19,7 @@
 */
 package org.bigbluebutton.modules.voiceconference
 {
-	import flexlib.mdi.containers.MDIWindow;
+	import flexlib.mdi.containers.MDIWindow;  
 	
 	import org.bigbluebutton.common.BigBlueButtonModule;
 	import org.bigbluebutton.common.Constants;

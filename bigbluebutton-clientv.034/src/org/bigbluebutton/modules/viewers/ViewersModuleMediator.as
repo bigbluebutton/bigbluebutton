@@ -18,7 +18,7 @@
 * 
 */
 package org.bigbluebutton.modules.viewers
-{
+{  
 	import flash.system.Capabilities;
 	
 	import org.bigbluebutton.common.InputPipe;
