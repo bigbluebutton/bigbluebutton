@@ -585,7 +585,8 @@ public class FileSystemSlideManager implements ISlideDatabase {
             try {
                 String toReturn = "";
                 char current;
-                for (int i = 0; i < name.length(); i++) {
+                int lastDash = name.lastIndexOf('-');
+                for (int i = lastDash; i < name.length(); i++) {
                     current = name.charAt(i);
                     if (Character.isDigit(current)) {
                         toReturn += current;
