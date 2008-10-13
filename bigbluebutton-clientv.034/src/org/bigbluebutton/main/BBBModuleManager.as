@@ -23,6 +23,7 @@ package org.bigbluebutton.main
 		public var modules:ArrayList;
 		private var urlLoader:URLLoader;
 		private var modulesList:Array;
+		private var modulesLeft:Number;
 		
 		public function BBBModuleManager()
 		{
@@ -46,6 +47,7 @@ package org.bigbluebutton.main
 		override public function handleNotification(notification:INotification):void{
 			switch(notification.getName()){
 				case MainApplicationFacade.START_ALL_MODULES:
+					this.modulesLeft = this.modulesList.length;
 					for (var i:Number = 0; i<this.modulesList.length ; i++){
 						//Alert.show(modulesList[i]);
 						loadModule(this.modulesList[i]);
@@ -91,9 +93,9 @@ package org.bigbluebutton.main
 				Alert.show("Module could not be initialized");
 			}
 			
-			this.modulesList.pop();
+			this.modulesLeft--;
 			//All modules have started, send notification.
-			if (this.modulesList.length == 0){
+			if (this.modulesLeft == 0){
 				sendNotification(MainApplicationFacade.MODULES_STARTED);
 			}
 		}

@@ -22,6 +22,7 @@ package org.bigbluebutton.main.view
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	
+	import mx.controls.Alert;
 	import mx.controls.Button;
 	
 	import org.bigbluebutton.common.BigBlueButtonModule;
@@ -153,6 +154,9 @@ package org.bigbluebutton.main.view
 				ViewersFacade.getInstance().retrieveProxy(SharedObjectConferenceDelegate.NAME) 
 					as SharedObjectConferenceDelegate;
 			delegate.leave();
+			
+			//Alert.show("removing buttons");
+			mshell.toolbar.removeButtons();
 		}
 		
 		private function logout():void{

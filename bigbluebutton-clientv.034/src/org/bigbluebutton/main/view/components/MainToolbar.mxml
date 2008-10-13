@@ -3,6 +3,7 @@
 						  enabled="false">   
 	<mx:Script>
 		<![CDATA[
+			import mx.controls.Spacer;
 			import mx.controls.Alert;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.main.view.MainApplicationShellMediator;
@@ -13,13 +14,19 @@
 				btn.label = name;
 				btn.height = 20;
 				btn.visible = true;
-				this.addChild(btn);
+				this.btnBar.addChild(btn);
 				
 				return btn;
 			}
 			
+			public function removeButtons():void{
+				this.btnBar.removeAllChildren();
+				
+			}
+			
 		]]>
 	</mx:Script>
+	<mx:ButtonBar id="btnBar" />
 	<!--<mx:Button id="webcamBtn" label="Open Webcam" visible="true" height="20" toolTip="Click to open webcam"/> -->				
 	<mx:Spacer width="100%"/>
 	<mx:Button label="Logout" id="btnLogout" toolTip="Log out" right="10"/>		
