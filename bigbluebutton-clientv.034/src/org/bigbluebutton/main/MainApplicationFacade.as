@@ -21,9 +21,7 @@ package org.bigbluebutton.main
 {
 	import mx.collections.ArrayCollection;
 	
-	import org.bigbluebutton.common.Router;
 	import org.bigbluebutton.main.controller.StartupCommand;
-	import org.bigbluebutton.main.view.MainApplicationShellMediator;
 	import org.bigbluebutton.main.view.components.MainApplicationShell;
 	import org.bigbluebutton.modules.viewers.ViewersFacade;
 	import org.bigbluebutton.modules.viewers.model.business.Conference;
@@ -45,6 +43,8 @@ package org.bigbluebutton.main
 		public static const REMOVE_WINDOW1:String = 'removeWindow';
 		
 		public static const ADD_MODULE:String = "Add New Module";
+		public static const START_ALL_MODULES:String = "Start all Modules";
+		public static const MODULES_STARTED:String = "Modules Started";
 		
 		public function MainApplicationFacade(key:String)
 		{

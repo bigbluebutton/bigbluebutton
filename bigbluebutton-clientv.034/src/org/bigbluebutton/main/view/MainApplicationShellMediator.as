@@ -22,6 +22,7 @@ package org.bigbluebutton.main.view
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	
+	import mx.controls.Alert;
 	import mx.controls.Button;
 	
 	import org.bigbluebutton.common.BigBlueButtonModule;
@@ -240,7 +241,7 @@ package org.bigbluebutton.main.view
 					} else removeWindow(module);
 					break;					
 				case MainApplicationConstants.LOGIN_COMPLETE:
-					runAddedModules(BigBlueButtonModule.START_ON_LOGIN);
+					sendNotification(MainApplicationFacade.START_ALL_MODULES);
 					shell.toolbar.enabled = true;
 					break;	
 				case MainApplicationConstants.CONNECTION_LOST:
@@ -270,6 +271,7 @@ package org.bigbluebutton.main.view
 		override public function listNotificationInterests():Array{
 			return [
 					MainApplicationFacade.ADD_MODULE,
+					MainApplicationFacade.MODULES_STARTED
 					];
 		}
 		
@@ -279,6 +281,9 @@ package org.bigbluebutton.main.view
 					var moduleNote:BigBlueButtonModule = notification.getBody() as BigBlueButtonModule;
 					addModule(moduleNote);
 					if (moduleNote.addButton) addButton(moduleNote);
+					break;
+				case MainApplicationFacade.MODULES_STARTED:
+					runAddedModules(BigBlueButtonModule.START_ON_LOGIN);
 					break;
 			}
 		}

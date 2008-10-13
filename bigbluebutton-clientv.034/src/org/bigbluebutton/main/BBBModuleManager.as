@@ -12,6 +12,7 @@ package org.bigbluebutton.main
 	import org.bigbluebutton.common.BigBlueButtonModule;
 	import org.bigbluebutton.common.ModuleInterface;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
+	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
 	
 	public class BBBModuleManager extends Mediator implements IMediator
@@ -21,6 +22,7 @@ package org.bigbluebutton.main
 		
 		public var modules:ArrayList;
 		private var urlLoader:URLLoader;
+		private var modulesList:Array;
 		
 		public function BBBModuleManager()
 		{
@@ -28,12 +30,28 @@ package org.bigbluebutton.main
 			modules = new ArrayList();
 			urlLoader = new URLLoader();
 			urlLoader.addEventListener(Event.COMPLETE, handleComplete);
-			//Alert.show("constructor");
 		}
 		
 		override public function initializeNotifier(key:String):void{
 			super.initializeNotifier(key);
 			urlLoader.load(new URLRequest(FILE_PATH));
+		}
+		
+		override public function listNotificationInterests():Array{
+			return [
+					MainApplicationFacade.START_ALL_MODULES
+					];
+		}
+		
+		override public function handleNotification(notification:INotification):void{
+			switch(notification.getName()){
+				case MainApplicationFacade.START_ALL_MODULES:
+					for (var i:Number = 0; i<this.modulesList.length ; i++){
+						//Alert.show(modulesList[i]);
+						loadModule(this.modulesList[i]);
+					}
+					break;
+			}
 		}
 		
 		private function handleComplete(e:Event):void{
@@ -47,9 +65,9 @@ package org.bigbluebutton.main
 		private function parse(xml:XML):void{
 			var list:XMLList = xml.module;
 			var item:XML;
+			this.modulesList = new Array();
 			for each(item in list){
-				//Alert.show(item.@swfpath);
-				loadModule(item.@swfpath);
+				this.modulesList.push(item.@swfpath);
 			}
 		}
 		
@@ -72,6 +90,12 @@ package org.bigbluebutton.main
 				sendNotification(MainApplicationFacade.ADD_MODULE, bbbModule);
 			} else{
 				Alert.show("Module could not be initialized");
+			}
+			
+			this.modulesList.pop();
+			//All modules have started, send notification.
+			if (this.modulesList.length == 0){
+				sendNotification(MainApplicationFacade.MODULES_STARTED);
 			}
 		}
 
