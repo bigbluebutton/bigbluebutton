@@ -61,15 +61,17 @@ package org.bigbluebutton.modules.video
 			if (user == null){
 				this.streamName = "stream" + String( Math.floor( new Date().getTime() ) );
 				this.type = RECORDER;
+				this.preferedX = 600;
+				this.preferedY = 240;
 			} else if (user != null){
 				this.user = user;
 				this.streamName = user.streamName;
 				this.type = VIEWER;
+				this.preferedX = 10;
+				this.preferedY = 10;
 			}
 			
 			facade = VideoFacade.getInstance(this.streamName);
-			this.preferedX = 700;
-			this.preferedY = 240;
 			this.startTime = NAME;
 			this.addButton = true;
 			this.displayName = "Share Webcam";
