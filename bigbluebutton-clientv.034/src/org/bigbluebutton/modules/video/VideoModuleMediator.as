@@ -81,15 +81,6 @@ package org.bigbluebutton.modules.video
 		
 		private function messageReceiver(message:IPipeMessage):void{
 			var msg:String = message.getHeader().MSG as String;
-			
-			switch(msg){
-				//case ViewersConstants.OPEN_VIEW_CAMERA:
-				//	var usr:User = message.getBody() as User;
-				//	Alert.show(usr.name);
-				//	//sendNotification(VideoFacade.OPEN_VIEW_CAMERA, usr);
-				//	this.module = new VideoModule(usr);
-				//	break;
-			}
 		}
 		
 		/**
