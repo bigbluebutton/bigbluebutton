@@ -19,9 +19,14 @@
 */
 package org.bigbluebutton.modules.video
 {
-	import flash.system.Capabilities;
+	import flash.events.MouseEvent;
+	import flash.events.TimerEvent;
+	import flash.media.Camera;
+	import flash.utils.Timer;
 	
 	import flexlib.mdi.containers.MDIWindow;
+	
+	import mx.controls.Button;
 	
 	import org.bigbluebutton.common.BigBlueButtonModule;
 	import org.bigbluebutton.common.IRouterAware;
@@ -96,6 +101,31 @@ package org.bigbluebutton.modules.video
 		override public function logout():void{
 			facade.sendNotification(VideoFacade.CLOSE_ALL);
 			facade.removeCore(this.streamName);
+		}
+		
+		override public function setButton(button:Button):void{
+			super.setButton(button);
+			listenToCameras();
+			this.button.addEventListener(MouseEvent.CLICK, buttonClicked);
+		}
+		
+		private function buttonClicked(e:MouseEvent):void{
+			this.acceptRouter(this.router, this.mshell);
+		}
+		
+		private function listenToCameras():void{
+			onTimer(new TimerEvent("test"));
+			var timer:Timer = new Timer(5000);
+			timer.addEventListener(TimerEvent.TIMER, onTimer);
+			timer.start();
+		}
+		
+		private function onTimer(e:TimerEvent):void{
+			if (Camera.getCamera() == null){
+				this.button.enabled = false;
+			} else if (Camera.getCamera() != null){
+				this.button.enabled = true;
+			}
 		}
 
 	}

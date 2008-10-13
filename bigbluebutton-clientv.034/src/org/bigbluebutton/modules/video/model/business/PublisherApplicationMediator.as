@@ -49,6 +49,8 @@ package org.bigbluebutton.modules.video.model.business
 	public class PublisherApplicationMediator extends Mediator implements IMediator
 	{
 		public static const NAME:String = "PublisherApplicationMediator";
+		
+		private var streamName:String;
 					
 		/**
 		 * Creates a new PublisherApplicationMediator 
@@ -291,6 +293,7 @@ package org.bigbluebutton.modules.video.model.business
 		public function startCamera(streamName : String) : void
 		{		
 			var camera : Camera; 			
+			this.streamName = streamName;
 			var media : BroadcastMedia = model.getBroadcastMedia(streamName) as BroadcastMedia;
 			
 			var selectedCamIndex : int = 	media.video.settings.cameraIndex;
@@ -330,9 +333,17 @@ package org.bigbluebutton.modules.video.model.business
 		{
 		//	log.debug( "StartCameraCommand::activityEventHandler: " + event );
 		}
-				
+		
+		/**
+		 * Once the camera is ready, start broadcasting over the red5 server 
+		 * @param event
+		 * 
+		 */				
 		private function statusEventHandler( event : StatusEvent ) : void 
 		{
+			var media : BroadcastMedia = model.getBroadcastMedia(streamName) as BroadcastMedia;
+			sendNotification(VideoFacade.PUBLISH_STREAM_COMMAND, new PublishNotifier("live", media.streamName));
+			//Alert.show(event.code);
 		//	log.debug( "StartCameraCommand::statusEventHandler: " + event );
 		}
 		

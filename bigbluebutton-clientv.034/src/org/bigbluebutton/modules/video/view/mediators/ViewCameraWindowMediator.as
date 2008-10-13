@@ -2,6 +2,8 @@ package org.bigbluebutton.modules.video.view.mediators
 {
 	import flash.events.Event;
 	
+	import mx.controls.Alert;
+	
 	import org.bigbluebutton.modules.video.VideoFacade;
 	import org.bigbluebutton.modules.video.control.notifiers.PlayStreamNotifier;
 	import org.bigbluebutton.modules.video.model.vo.PlaybackState;
@@ -42,7 +44,7 @@ package org.bigbluebutton.modules.video.view.mediators
 		}
 		
 		private function viewStream(e:Event):void{
-		
+		//Alert.show(videoWindow.media.playState.name);
 		if ( videoWindow.media.playState == PlaybackState.PLAYING ) 
 			{
 				//mainApp.publisherApp.pauseStream(media.streamName);		

@@ -22,7 +22,6 @@ package org.bigbluebutton.main.view
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	
-	import mx.controls.Alert;
 	import mx.controls.Button;
 	
 	import org.bigbluebutton.common.BigBlueButtonModule;
@@ -205,9 +204,10 @@ package org.bigbluebutton.main.view
 		 * @param module
 		 * 
 		 */		
-		private function addButton(module:BigBlueButtonModule):void{
+		private function addButton(module:BigBlueButtonModule):Button{
 			var button:Button = mshell.toolbar.addButton(module.getDisplayName());
-			button.addEventListener(MouseEvent.CLICK, openModule);
+			//button.addEventListener(MouseEvent.CLICK, openModule);
+			return button;
 		}
 		
 		private function openModule(e:MouseEvent):void{
@@ -280,7 +280,12 @@ package org.bigbluebutton.main.view
 				case MainApplicationFacade.ADD_MODULE:
 					var moduleNote:BigBlueButtonModule = notification.getBody() as BigBlueButtonModule;
 					addModule(moduleNote);
-					if (moduleNote.hasButton()) addButton(moduleNote);
+					if (moduleNote.hasButton()) {
+						//If the module has a button, pass it all it needs to start itself whenever it wants
+						moduleNote.setButton(addButton(moduleNote));
+						moduleNote._router = this.router;
+						moduleNote.mshell = this.mshell;
+					}
 					break;
 				case MainApplicationFacade.MODULES_STARTED:
 					runAddedModules(BigBlueButtonModule.START_ON_LOGIN);

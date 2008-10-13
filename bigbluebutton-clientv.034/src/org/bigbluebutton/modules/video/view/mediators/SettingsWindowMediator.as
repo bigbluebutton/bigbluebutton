@@ -2,6 +2,7 @@ package org.bigbluebutton.modules.video.view.mediators
 {
 	import flash.events.Event;
 	
+	import mx.controls.Alert;
 	import mx.managers.PopUpManager;
 	
 	import org.bigbluebutton.modules.video.VideoFacade;
@@ -51,6 +52,7 @@ package org.bigbluebutton.modules.video.view.mediators
 		
 		private function closeSettings(e:Event):void{
 			window.media.video.settings.cameraIndex = window.camera_cb.selectedIndex;
+			//Alert.show(String(window.camera_cb.selectedIndex));
 				
 			PopUpManager.removePopUp(window);
 			sendNotification(VideoFacade.ENABLE_CAMERA);

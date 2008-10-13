@@ -166,6 +166,15 @@ package org.bigbluebutton.common
 		public function getStartTime():String{
 			return this.startTime;
 		}
+		
+		/**
+		 * If a button was requested, a reference to one will be sent back here 
+		 * @param button
+		 * 
+		 */		
+		public function setButton(button:Button):void{
+			this.button = button;
+		}
 
 	}
 }

@@ -25,6 +25,7 @@ package org.bigbluebutton.modules.video.view.mediators
 			view.addEventListener(CLOSE, closeCameraWindow);
 			view.addEventListener(CLOSE_CLICKED, closeClicked);
 			view.addEventListener(OPEN_SETTINGS, openSettings);
+			//view.media.video.settings.cameraIndex = 1;
 		}
 		
 		override public function listNotificationInterests():Array{
@@ -40,6 +41,7 @@ package org.bigbluebutton.modules.video.view.mediators
 					cameraWindow.close();
 					break;
 				case VideoFacade.ENABLE_CAMERA:
+					cameraWindow.media.video.settings.cameraIndex = 1;
 					startOrStopDevices(new Event(VideoFacade.ENABLE_CAMERA));
 					break;
 			}

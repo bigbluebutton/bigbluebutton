@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.video
 	import org.bigbluebutton.common.OutputPipe;
 	import org.bigbluebutton.common.Router;
 	import org.bigbluebutton.main.MainApplicationConstants;
+	import org.bigbluebutton.modules.video.control.notifiers.PlayStreamNotifier;
 	import org.bigbluebutton.modules.video.model.business.PublisherApplicationMediator;
 	import org.bigbluebutton.modules.video.model.vo.BroadcastMedia;
 	import org.bigbluebutton.modules.video.model.vo.PlayMedia;
@@ -107,6 +108,7 @@ package org.bigbluebutton.modules.video
    			msg.setBody(viewComponent as VideoModule);
    			outpipe.write(msg);
    			
+   			startDevice();	
 		}
 		
 		public function addViewWindow():void{
@@ -173,6 +175,15 @@ package org.bigbluebutton.modules.video
 					break;
 			}
 		}		
+		
+		/**
+		 * Starts the camera on startup if one is available 
+		 * 
+		 */		
+		private function startDevice():void{
+			sendNotification(VideoFacade.SETUP_DEVICES_COMMAND);
+			sendNotification(VideoFacade.ENABLE_CAMERA);
+		}
 
 	}
 }
