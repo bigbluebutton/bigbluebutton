@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<MDIWindow xmlns="flexlib.mdi.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" width="400" height="300">
-	<mx:TextArea id="txtOutput" width="100%" height="232"/>
-	<mx:TextInput id="txtInput" width="100%" enter="dispatchEvent(new Event(Red5Delegate.SEND_MESSAGE_EVENT))"/>
-	
-</MDIWindow>
