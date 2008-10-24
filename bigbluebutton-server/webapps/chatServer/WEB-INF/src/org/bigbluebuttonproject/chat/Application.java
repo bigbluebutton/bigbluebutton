@@ -173,7 +173,7 @@ public class Application extends ApplicationAdapter
 			  IServiceCapableConnection sc = (IServiceCapableConnection) conn;
 			  String chatLog = chatListener.getChatLog();
 			  // call client method remotely to send chat Log
-			  sc.invoke("setChatLog", new Object[]{chatLog});
+			  //sc.invoke("setChatLog", new Object[]{chatLog});
 		  } 
 		  
 
