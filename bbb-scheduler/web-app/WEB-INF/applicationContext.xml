@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+	<bean id="grailsApplication" class="org.codehaus.groovy.grails.commons.GrailsApplicationFactoryBean">
+		<description>Grails application factory bean</description>
+        <property name="grailsDescriptor" value="/WEB-INF/grails.xml" />
+        <property name="grailsResourceLoader" ref="grailsResourceLoader" />
+	</bean>
+
+	<bean id="pluginManager" class="org.codehaus.groovy.grails.plugins.GrailsPluginManagerFactoryBean">
+		<description>A bean that manages Grails plugins</description>
+        <property name="grailsDescriptor" value="/WEB-INF/grails.xml" />
+        <property name="application" ref="grailsApplication" />
+	</bean>
+
+    <bean id="pluginMetaManager" class="org.codehaus.groovy.grails.plugins.DefaultPluginMetaManager">
+        <constructor-arg value="classpath*:**/plugins/*/plugin.xml" />
+    </bean>
+
+    <bean id="grailsConfigurator" class="org.codehaus.groovy.grails.commons.spring.GrailsRuntimeConfigurator">
+        <constructor-arg>
+            <ref bean="grailsApplication" />
+        </constructor-arg>
+        <property name="pluginManager" ref="pluginManager" />
+    </bean>
+
+    <bean id="grailsResourceLoader" class="org.codehaus.groovy.grails.commons.GrailsResourceLoaderFactoryBean">
+        <property name="grailsResourceHolder" ref="grailsResourceHolder" />
+    </bean>
+
+    <bean id="grailsResourceHolder" scope="prototype" class="org.codehaus.groovy.grails.commons.spring.GrailsResourceHolder">
+        <property name="resources">
+              <value>classpath*:**/grails-app/**/*.groovy</value>
+        </property>
+    </bean>    
+    
+   <bean id="characterEncodingFilter"
+      class="org.springframework.web.filter.CharacterEncodingFilter">
+        <property name="encoding">
+          <value>utf-8</value>
+        </property>
+   </bean>    	
+</beans>

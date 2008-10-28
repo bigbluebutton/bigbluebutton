@@ -1,0 +1,58 @@
+/* Copyright (c) 2006 Yahoo! Inc. All rights reserved. */
+
+/* first or middle sibling, no children */
+.ygtvtn {background: url(../../img/default/tn.gif) 0 0 no-repeat; width:16px; height:22px; }
+
+/* first or middle sibling, collapsable */
+.ygtvtm {background: url(../../img/default/tm.gif) 0 0 no-repeat; width:16px; height:22px; cursor:pointer }
+
+/* first or middle sibling, collapsable, hover */
+.ygtvtmh {background: url(../../img/default/tmh.gif) 0 0 no-repeat; width:16px; height:22px; cursor:pointer }
+
+/* first or middle sibling, expandable */
+.ygtvtp {background: url(../../img/default/tp.gif) 0 0 no-repeat; width:16px; height:22px; cursor:pointer }
+
+/* first or middle sibling, expandable, hover */
+.ygtvtph {background: url(../../img/default/tph.gif) 0 0 no-repeat; width:16px; height:22px; cursor:pointer }
+
+/* last sibling, no children */
+.ygtvln {background: url(../../img/default/ln.gif) 0 0 no-repeat; width:16px; height:22px; }
+
+/* Last sibling, collapsable */
+.ygtvlm {background: url(../../img/default/lm.gif) 0 0 no-repeat; width:16px; height:22px; cursor:pointer }
+
+/* Last sibling, collapsable, hover */
+.ygtvlmh {background: url(../../img/default/lmh.gif) 0 0 no-repeat; width:16px; height:22px; cursor:pointer }
+
+/* Last sibling, expandable */
+.ygtvlp { background: url(../../img/default/lp.gif) 0 0 no-repeat; width:16px; height:22px; cursor:pointer }
+
+/* Last sibling, expandable, hover */
+.ygtvlph { background: url(../../img/default/lph.gif) 0 0 no-repeat; width:16px; height:22px; cursor:pointer }
+
+/* Loading icon */
+.ygtvloading { background: url(../../img/default/loading.gif) 0 0 no-repeat; width:16px; height:22px; }
+
+/* the style for the empty cells that are used for rendering the depth 
+ * of the node */
+.ygtvdepthcell { background: url(../../img/default/vline.gif) 0 0 no-repeat; width:16px; height:22px; }
+
+.ygtvblankdepthcell { width:16px; height:22px; }
+
+/* the style of the div around each node */
+.ygtvitem { }  
+
+/* the style of the div around each node's collection of children */
+.ygtvchildren { }  
+* html .ygtvchildren { height:1%; }  
+
+/* the style of the text label in ygTextNode */
+.ygtvlabel, .ygtvlabel:link, .ygtvlabel:visited, .ygtvlabel:hover { 
+	margin-left:2px;
+	text-decoration: none;
+}
+
+.ygtvcheck0 { background: url(../../img/check/check0.gif) 0 0 no-repeat; width:16px; height:22px; cursor:pointer }
+.ygtvcheck1 { background: url(../../img/check/check1.gif) 0 0 no-repeat; width:16px; height:22px; cursor:pointer }
+.ygtvcheck2 { background: url(../../img/check/check2.gif) 0 0 no-repeat; width:16px; height:22px; cursor:pointer }
+

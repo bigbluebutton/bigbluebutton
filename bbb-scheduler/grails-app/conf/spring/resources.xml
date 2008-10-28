@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+   <bean class="org.asteriskjava.fastagi.AgiServerThread"
+      init-method="startup" destroy-method="shutdown">
+      <property name="agiServer" ref="agiServer"/>
+   </bean>   
+   
+   <bean id="agiServer" class="org.asteriskjava.fastagi.DefaultAgiServer">
+      <property name="bindPort" value="4573"/>
+      <property name="mappingStrategy" ref="mappingStrategy" />
+   </bean>
+
+   <bean class="org.bigbluebutton.pbx.asterisk.ConferenceAttendanceRecorder"
+      init-method="startup" destroy-method="shutdown">
+      <property name="asteriskServer" ref="asteriskServer"/>
+      <property name="dataSource" ref="dataSource"/>
+   </bean> 
+
+   <!--bean class="org.bigbluebutton.pbx.PbxLive"
+      init-method="startup" destroy-method="shutdown">
+      <property name="asteriskServer" ref="asteriskServer"/>
+   </bean--> 
+      
+   <bean id="asteriskServer" class="org.asteriskjava.live.DefaultAsteriskServer">
+		<constructor-arg index="0" value="${asterisk.host}"/>
+		<constructor-arg index="1" value="${ami.user}"/>
+		<constructor-arg index="2" value="${ami.password}"/>  		
+   </bean>
+   
+	<bean id="mappingStrategy" class="org.asteriskjava.fastagi.SimpleMappingStrategy">
+		<property name="mappings">
+			<map>
+				<entry key="meetme.groovy" value-ref="asteriskAgi" />
+			</map>
+		</property>
+	</bean>
+			
+	<bean id="asteriskAgi" class="org.bigbluebutton.pbx.asterisk.AsteriskAgi" >
+      <!--property name="dataSource" ref="dataSource"/-->
+	</bean>	
+</beans>

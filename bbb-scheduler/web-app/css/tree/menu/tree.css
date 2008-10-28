@@ -1,0 +1,58 @@
+/* Copyright (c) 2006 Yahoo! Inc. All rights reserved. */
+
+/* first or middle sibling, no children */
+.ygtvtn { width:1em; height:20px; }
+
+/* first or middle sibling, collapsable */
+.ygtvtm { background: url(../../img/menu/collapse.gif) 0 6px no-repeat; width:1em; height:22px; cursor:pointer }
+
+/* first or middle sibling, collapsable, hover */
+.ygtvtmh { background: url(../../img/menu/collapseh.gif) 0 6px no-repeat; width:1em; height:22px; cursor:pointer }
+
+/* first or middle sibling, expandable */
+.ygtvtp { background: url(../../img/menu/expand.gif) 0 6px no-repeat; width:1em; height:22px; cursor:pointer }
+
+/* first or middle sibling, expandable, hover */
+.ygtvtph { background: url(../../img/menu/expandh.gif) 0 6px no-repeat; width:1em; height:22px; cursor:pointer }
+
+/* last sibling, no children */
+.ygtvln { width:1em; height:20px; }
+
+/* Last sibling, collapsable */
+.ygtvlm { background: url(../../img/menu/collapse.gif) 0 6px no-repeat; width:1em; height:22px; cursor:pointer }
+
+/* Last sibling, collapsable, hover */
+.ygtvlmh { background: url(../../img/menu/collapseh.gif) 0 6px no-repeat; width:1em; height:22px; cursor:pointer }
+
+/* Last sibling, expandable */
+.ygtvlp { background: url(../../img/menu/expand.gif) 0 6px no-repeat; width:1em; height:22px; cursor:pointer }
+
+/* Last sibling, expandable, hover */
+.ygtvlph { background: url(../../img/menu/expandh.gif) 0 6px no-repeat; width:1em; height:22px; cursor:pointer }
+
+/* Loading icon */
+.ygtvloading { background: url(../../img/menu/loading.gif) 0 6px no-repeat; width:1em; height:22px; }
+
+/* the style for the empty cells that are used for rendering the depth 
+ * of the node */
+.ygtvdepthcell { width:1em; height:20px; }
+
+.ygtvblankdepthcell { width:1em; height:20px; }
+
+/* the style of the div around each node */
+.ygtvitem { border: 0px solid grey; }  
+
+/* the style of the div around each node's collection of children */
+.ygtvchildren { }  
+* html .ygtvchildren { height:1%; }  
+
+/* the style of the text label in ygTextNode */
+.ygtvlabel, .ygtvlabel:link, .ygtvlabel:visited, .ygtvlabel:hover { 
+	/*
+	margin-left:2px;
+	text-decoration: none;
+	*/
+	font-size: 12px;
+}
+
+
