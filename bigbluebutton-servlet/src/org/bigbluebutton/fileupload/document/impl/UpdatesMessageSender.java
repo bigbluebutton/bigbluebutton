@@ -90,6 +90,7 @@ public class UpdatesMessageSender {
 	public void sendMessage(final Integer room, final ReturnCode code, final int totalNumSlides, final int curNumSlide) {
         template.send(destination, new MessageCreator() {
             public Message createMessage(Session session) throws JMSException {
+            	System.out.println("Sending message [" + room + " " + code.value() + " " + totalNumSlides + " " + curNumSlide + "]");
             	Message msgToSend = session.createTextMessage("Progress update");
             	msgToSend.setIntProperty("room", room);
             	msgToSend.setIntProperty("returnCode", code.value());

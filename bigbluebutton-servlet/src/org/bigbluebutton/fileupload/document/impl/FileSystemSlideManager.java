@@ -261,7 +261,7 @@ public class FileSystemSlideManager implements ISlideDatabase {
 				String filename = (String)files[i].getName();
 				// get only the files that end with ".jpg" and not start with "thumb-" in the directory
 				if ((filename.endsWith(".swf")) && (! filename.startsWith("thumb-"))){
-					logger.info("getting slide = [" + filename + "]");
+					//logger.info("getting slide = [" + filename + "]");
 					SlideDescriptor slide = new SlideDescriptor(filename, room);
 					listOfFiles.add(slide);
 				}					
@@ -465,7 +465,7 @@ public class FileSystemSlideManager implements ISlideDatabase {
 		slidesXml += HOST + host + HOST_END_TAG + "\n";
 		slidesXml += ROOM + room + ROOM_END_TAG + "\n";
 		
-		logger.info("slidesXml = " + slidesXml);
+//		logger.info("slidesXml = " + slidesXml);
 		
 		for (Iterator it = slides.iterator(); it.hasNext();) {
 			slidesXml += SLIDE + NAME;
