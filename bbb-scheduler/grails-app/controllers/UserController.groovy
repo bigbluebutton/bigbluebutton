@@ -4,7 +4,7 @@ class UserController extends BaseController {
 	VolunteerOttawaService volunteerOttawaService
 	
     def beforeInterceptor = [action:this.&auth,
-    							except:['login', 'logout', 'vologin']]
+    							except:['login', 'logout']]
     
     def index = { redirect(action:list,params:params) }
 
@@ -108,19 +108,6 @@ class UserController extends BaseController {
     	session.fullname = null
     	session.invalidate()
     	flash['message'] = 'Successfully logged out'
-    	redirect(url:"http://www.volunteerottawa.ca/vo-clean/index.php?/eng/user/login")
+    	redirect("/")
     }    
-    
-    def vologin = {    	
-    	def res = volunteerOttawaService.loginToVo(params.sessionId)
-    	if (res) {
-    			session.email = res.email
-    			session.fullname = res.fullname ? res.fullname : "Unknown"
-    			println "${session.fullname} ${session.email}"
-    			redirect(controller:'conference')    		
-    	} else {
-    		flash['message'] = "Unable to log you in from Volunteer Ottawa. Please enter a username or password."
-    		redirect(url:"http://www.volunteerottawa.ca/vo-clean/index.php?/eng/user/login")
-		}
-    }
 }
