@@ -139,8 +139,11 @@ public class PdfToSwfDocumentHandler {
 		String filenameFormat = room + "-" + uniqueId + "-slide-%1d.pdf";
 		
         String s = null;
-        String command = pdfExtractor + SPACE + "\"" + input.getAbsolutePath() + "\"" + SPACE + BURST
-        		+ SPACE + "output " + "\"" + output.getAbsolutePath() + File.separator + filenameFormat + "\"";
+        String command = pdfExtractor + SPACE + input.getAbsolutePath() + SPACE + BURST
+        		+ SPACE + "output " + output.getAbsolutePath() + File.separator + filenameFormat;
+        
+        //String command = pdfExtractor + SPACE + "\"" + input.getAbsolutePath() + "\"" + SPACE + BURST
+		//+ SPACE + "output " + "\"" + output.getAbsolutePath() + File.separator + filenameFormat + "\"";
         
         logger.info("extracting command[" + command + "]");
         
