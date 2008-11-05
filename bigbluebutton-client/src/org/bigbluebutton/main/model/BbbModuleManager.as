@@ -12,7 +12,7 @@ package org.bigbluebutton.main.model
 	
 	public class BbbModuleManager
 	{
-		public static const FILE_PATH:String = "org/bigbluebutton/common/modules.xml";
+		public static const FILE_PATH:String = "conf/modules.xml";
 		private var _urlLoader:URLLoader;
 		private var _initializedListeners:ArrayCollection = new ArrayCollection();
 		private var _moduleLoadedListeners:ArrayCollection = new ArrayCollection();
