@@ -163,7 +163,7 @@ package org.bigbluebutton.modules.presentation.view
 				case PresentModuleConstants.DISPLAY_SLIDE:
 					var slidenum:int = notification.getBody() as int;
 					trace('DISPLAY_SLIDE in PresentationWindowMediator ' + slidenum);
-					if ((slidenum >= 0) && (slidenum < _presWin.slideView.slides.length)) {
+					if ((_presWin.slideView.slides != null) && (slidenum >= 0) && (slidenum < _presWin.slideView.slides.length)) {
 						_presWin.slideView.selectedSlide = slidenum;
 						_presWin.slideNumLbl.text = (slidenum + 1) + " of " + _presWin.slideView.slides.length;
 					}
