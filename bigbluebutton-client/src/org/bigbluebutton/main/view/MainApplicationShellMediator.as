@@ -45,10 +45,7 @@ package org.bigbluebutton.main.view
 			
 		public function MainApplicationShellMediator( viewComponent:MainApplicationShell )
 		{
-			super( NAME, viewComponent );
-			trace("red5:" + Constants.red5Host);
-			trace("present:" + Constants.presentationHost);
-			trace("url:" + Constants.TEST_URL);		
+			super( NAME, viewComponent );	
 			viewComponent.toolbar.addEventListener(MainApplicationConstants.LOGOUT_EVENT, onLogoutEventHandler);
 		}
 							

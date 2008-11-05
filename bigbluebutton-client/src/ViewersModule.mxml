@@ -12,8 +12,7 @@
 			private var _moduleId:String = "ViewersModule";
 			private var _moduleName:String = "Viewers Module";
 			
-			private var _uri:String = "rtmp://localhost/conference/85115";
-			private var _username:String = "ralam";
+			private var _attributes:Object;
 			
 			private function onCreationComplete():void {
 				trace("ViewersModule Initialized");			
@@ -35,23 +34,17 @@
 				return _moduleName;
 			}
 		
-			public function set uri(uri:String):void {
-				_uri = uri;
-			}
-			
 			public function get uri():String {
-				return _uri;
+				return _attributes.uri + "/";
 			}
 			
-			public function set username(name:String):void {
-				_username = name;
-			}
-			
+
 			public function get username():String {
-				return _username;
+				return _attributes.username;
 			}
 			
 			public function start(attributes:Object):void {		
+				_attributes = attributes;	
 				ViewersFacade.getInstance().startup(this);	
 			}
 		

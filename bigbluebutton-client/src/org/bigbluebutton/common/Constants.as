@@ -32,11 +32,11 @@ package org.bigbluebutton.common
 	{	
 		public static const RELATIVE_FILE_UPLOAD:String = "/bigbluebutton/file";
 				
-		public static var red5Host:String;
-		public static var presentationHost:String;
-		public static var relativeFileUpload:String = RELATIVE_FILE_UPLOAD;
+//		public static var red5Host:String;
+//		public static var presentationHost:String;
+//		public static var relativeFileUpload:String = RELATIVE_FILE_UPLOAD;
 		
-		public static const TEST_URL:String = testURL();
+//		public static const TEST_URL:String = testURL();
 		
 		public static const VERSION:String = "0.35a";
 		
@@ -46,6 +46,7 @@ package org.bigbluebutton.common
 		 * This is basicaly meant to ease development. Call this method when the application starts up. 
 		 * 
 		 */		
+/*
 		public static function setHost():void{ 
 			if (testURL() != null){
 				red5Host = testURL();
@@ -78,6 +79,6 @@ package org.bigbluebutton.common
 			
 			return url;
 		}
-
+*/
 	}
 }

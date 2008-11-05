@@ -65,8 +65,7 @@ package org.bigbluebutton.modules.viewers.model.services
 			_netConnection.addEventListener( SecurityErrorEvent.SECURITY_ERROR, netSecurityError );
 			_netConnection.addEventListener( IOErrorEvent.IO_ERROR, netIOError );
 			
-			try {
-				trace( "Connecting to " + _uri + " " + room + " " + username + " " + password);								
+			try {							
 				_netConnection.connect(_uri, room, username, password );				
 				
 			} catch( e : ArgumentError ) {

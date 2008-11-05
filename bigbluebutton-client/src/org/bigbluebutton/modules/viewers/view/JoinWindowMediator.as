@@ -21,9 +21,9 @@ package org.bigbluebutton.modules.viewers.view
 {
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
-	import flash.system.Capabilities;
 	
 	import org.bigbluebutton.common.Constants;
+	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.modules.viewers.ViewersFacade;
 	import org.bigbluebutton.modules.viewers.ViewersModuleConstants;
 	import org.bigbluebutton.modules.viewers.model.ViewersProxy;
@@ -41,6 +41,7 @@ package org.bigbluebutton.modules.viewers.view
 	{
 		public static const NAME:String = "JoinWindowMediator";
 		
+		private var _module:IBigBlueButtonModule;
 		private var _joinWindow:JoinWindow = new JoinWindow();
 		public static const LOGIN:String = "Attempt Login";
 
@@ -49,9 +50,10 @@ package org.bigbluebutton.modules.viewers.view
 		 * @param view
 		 * 
 		 */		
-		public function JoinWindowMediator()
+		public function JoinWindowMediator(module:IBigBlueButtonModule)
 		{
-			super(NAME);
+			super(NAME, module);
+			_module = module;
 			_joinWindow.addEventListener(LOGIN, login);
 			_joinWindow.addEventListener(KeyboardEvent.KEY_DOWN, keyPressed);
 		}
@@ -142,8 +144,7 @@ package org.bigbluebutton.modules.viewers.view
 		    } 
 			_joinWindow.lblNote.text = "Attempting to Login";
 			
-			var completeHost:String = "rtmp://" + Constants.red5Host + "/conference/" + room;
-			trace("loggin in: " + completeHost + " " + name + " " + password + " " + room);
+			var completeHost:String = _module.uri + room;
 			proxy.connect(completeHost, room, name, password);
 		}
 		

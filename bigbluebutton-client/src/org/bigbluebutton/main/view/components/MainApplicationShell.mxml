@@ -20,7 +20,6 @@
 						
 			protected function initializeShell():void
 			{
-				Constants.setHost();
 				trace("before startup in initShell");
 				facade.startup(this);
 				trace("After startup in initShell");

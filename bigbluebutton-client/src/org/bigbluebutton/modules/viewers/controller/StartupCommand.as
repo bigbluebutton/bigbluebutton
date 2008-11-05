@@ -41,7 +41,7 @@ package org.bigbluebutton.modules.viewers.controller
 			
 			facade.registerMediator(new ViewersModuleMediator(m));
 			facade.registerMediator(new ViewersEndpointMediator(m));
-			facade.registerMediator(new JoinWindowMediator());
+			facade.registerMediator(new JoinWindowMediator(m));
 			facade.registerMediator(new ViewersWindowMediator());
 			facade.registerProxy(new ViewersProxy(m.uri));
 			trace('Sending MODULE_STARTED for ViewersModule');
