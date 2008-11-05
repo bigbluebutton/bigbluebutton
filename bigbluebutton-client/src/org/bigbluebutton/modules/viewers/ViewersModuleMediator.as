@@ -20,6 +20,7 @@
 package org.bigbluebutton.modules.viewers
 {  
 	import org.bigbluebutton.modules.viewers.model.vo.User;
+	import org.bigbluebutton.modules.viewers.view.ViewersWindowMediator;
 	import org.bigbluebutton.modules.viewers.view.components.ViewersWindow;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
@@ -92,10 +93,16 @@ package org.bigbluebutton.modules.viewers
 			switch(notification.getName()){
 				case ViewersModuleConstants.LOGGED_OUT:
 					sendNotification(ViewersModuleConstants.CLOSE_VIEWERS_WINDOW);
+					if (facade.hasMediator(ViewersWindowMediator.NAME)) {
+						facade.removeMediator(ViewersWindowMediator.NAME); 
+					}
 					sendNotification(ViewersModuleConstants.OPEN_JOIN_WINDOW);
 					break;
 				case ViewersModuleConstants.LOGGED_IN:
 					sendNotification(ViewersModuleConstants.CLOSE_JOIN_WINDOW);
+					if (! facade.hasMediator(ViewersWindowMediator.NAME)) {
+						facade.registerMediator(new ViewersWindowMediator()); 
+					}
 					sendNotification(ViewersModuleConstants.OPEN_VIEWERS_WINDOW);
 					break;
 			}

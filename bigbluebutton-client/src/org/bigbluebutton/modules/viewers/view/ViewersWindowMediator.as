@@ -59,7 +59,8 @@ package org.bigbluebutton.modules.viewers.view
 		
 		private function onViewerSelectedEvent(e:Event):void {
 			if (proxy.isModerator())
-				_viewersWindow.presentBtn.visible = true;
+				_viewersWindow.presentBtn.enabled = true;
+				_viewersWindow.presentBtn.toolTip = "Click to make " + _viewersWindow.viewersGrid.selectedItem.name + " as presenter.";
 		}
 		
 		private function onAssignPresenter(e:AssignPresenterEvent):void {
@@ -90,15 +91,7 @@ package org.bigbluebutton.modules.viewers.view
 			switch(notification.getName()){
 				case ViewersModuleConstants.OPEN_VIEWERS_WINDOW:
 					trace('Received request to OPEN_VIEWERS_WINDOW');
-					var p:ViewersProxy = facade.retrieveProxy(ViewersProxy.NAME) as ViewersProxy;
-					_viewersWindow.participants = p.participants;
-					_viewersWindow.width = 210;
-		   			_viewersWindow.height = 220;
-		   			_viewersWindow.title = "Viewers";
-		   			_viewersWindow.showCloseButton = false;
-		   			_viewersWindow.xPosition = 30;
-		   			_viewersWindow.yPosition = 30;
-		   			facade.sendNotification(ViewersModuleConstants.ADD_WINDOW, _viewersWindow); 				
+					handleOpenViewersWindow();
 					break;
 				case ViewersModuleConstants.CLOSE_VIEWERS_WINDOW:
 					facade.sendNotification(ViewersModuleConstants.REMOVE_WINDOW, _viewersWindow);
@@ -113,6 +106,18 @@ package org.bigbluebutton.modules.viewers.view
 					break;
 			}
 		}
+			
+		private function handleOpenViewersWindow():void {
+				_viewersWindow.participants = proxy.participants;
+				_viewersWindow.isModerator = proxy.isModerator();
+				_viewersWindow.width = 210;
+		   		_viewersWindow.height = 220;
+		   		_viewersWindow.title = "Viewers";
+		   		_viewersWindow.showCloseButton = false;
+		   		_viewersWindow.xPosition = 30;
+		   		_viewersWindow.yPosition = 30;
+		   		facade.sendNotification(ViewersModuleConstants.ADD_WINDOW, _viewersWindow); 			
+		}	
 				
 		/**
 		 * Change the raisehand/lowerhand status 

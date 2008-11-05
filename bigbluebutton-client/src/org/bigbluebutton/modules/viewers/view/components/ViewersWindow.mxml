@@ -19,6 +19,9 @@
 			[Bindable]
 			public var participants:ArrayCollection = new ArrayCollection();
   			
+  			[Bindable]
+  			public var isModerator:Boolean = false;
+  			
           	public var images:Images = new Images();
                       
    			[Bindable]
@@ -95,9 +98,9 @@
     </mx:DataGrid>
     
    <mx:ControlBar width="100%">
-   		 <mx:Button id="presentBtn" icon="{presenterIcon}" visible="false"
+   		 <mx:Button id="presentBtn" icon="{presenterIcon}" visible="{isModerator}" enabled="{viewersGrid.selectedItem != null}"
     	   			width="20" height="20"
-    	   			toolTip="Click to make {viewersGrid.selectedItem.name} as presenter." click="dispatchEvent(new AssignPresenterEvent(viewersGrid.selectedItem.userid))"/>
+    	   			toolTip="Select viewer and click here to make viewer the presenter." click="dispatchEvent(new AssignPresenterEvent(viewersGrid.selectedItem.userid))"/>
      	 <mx:Spacer width="100%"/>
     	 <!--mx:Button id="raiseHandImage" icon="{toggleIcon}" toggle="true" 
     	   			width="20" height="20"
