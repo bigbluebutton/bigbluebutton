@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+	verticalScrollPolicy="off" horizontalScrollPolicy="off">
+	
+	<mx:Script>
+		<![CDATA[
+
+			
+		]]>
+	</mx:Script>
+	<mx:Label id="nameLabel" text="{data.name}"/>
+	
+</mx:HBox>

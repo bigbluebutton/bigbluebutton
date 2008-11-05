@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 
+		xmlns:flexmdi="flexlib.mdi.containers.*"
+		xmlns:logModule="org.bigbluebutton.modules.log.view.components.*"
+		xmlns:main="org.bigbluebutton.main.view.components.*"
+		width="100%" height="100%"
+		creationComplete="initializeShell()">
+		
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import org.bigbluebutton.common.Constants;
+			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
+			import org.bigbluebutton.main.MainApplicationFacade;
+			import org.bigbluebutton.main.view.MainApplicationShellMediator;
+			import flash.events.MouseEvent;
+			
+			public static const NAME:String = 'MainApplicationShell';
+			protected var facade:MainApplicationFacade = MainApplicationFacade.getInstance();	
+						
+			protected function initializeShell():void
+			{
+				Constants.setHost();
+				trace("before startup in initShell");
+				facade.startup(this);
+				trace("After startup in initShell");
+			}			
+		]]>
+	</mx:Script>
+			
+		<main:MainToolbar id="toolbar" dock="true" width="100%" height="30" visible="false" verticalAlign="middle"/>
+		<flexmdi:MDICanvas id="mdiCanvas" horizontalScrollPolicy="off" verticalScrollPolicy="off"
+			effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}"
+			width="100%" height="100%">			
+		</flexmdi:MDICanvas>	
+		
+	 	<mx:ControlBar width="100%" height="20" paddingTop="0">		
+		  <mx:Label text="(c) 2008, BigBlueButton version {Constants.VERSION} - For more information see http://www.bigbluebutton.org/." id="copyrightLabel2"/>
+		  <mx:Spacer width="20"/>
+		  <mx:Spacer width="100%"/> 
+		</mx:ControlBar>
+</mx:VBox>

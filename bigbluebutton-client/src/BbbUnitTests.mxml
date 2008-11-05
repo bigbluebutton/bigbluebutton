@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
+	 creationComplete="onCreationComplete()" layout="absolute" xmlns:flexui="flexunit.flexui.*">
+	
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.main.ModulesProxyTests;
+			import org.bigbluebutton.main.BbbModuleManagerTests;
+
+			import flexunit.framework.TestSuite;
+			private function onCreationComplete():void{
+				bbbTestRunner.test = createSuite();
+				bbbTestRunner.startTest();
+			}
+			
+			private function createSuite():TestSuite{
+				trace("test");
+				var ts:TestSuite = new TestSuite();
+		
+ 				// TODO: Add more tests here to test more classes
+ 				// by calling addTest as often as necessary
+ 				ts.addTest( BbbModuleManagerTests.suite() );
+				ts.addTest( ModulesProxyTests.suite() );
+				return ts;
+			}
+		]]>
+	</mx:Script>
+	
+	<flexui:TestRunnerBase id="bbbTestRunner" width="100%" height="100%" />
+</mx:Application>

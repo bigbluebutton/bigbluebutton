@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actionScriptProperties mainApplicationPath="BigBlueButton.mxml" version="3">
+<compiler additionalCompilerArguments="-locale en_US" copyDependentFiles="true" enableModuleDebug="false" generateAccessible="false" htmlExpressInstall="true" htmlGenerate="true" htmlHistoryManagement="true" htmlPlayerVersion="9.0.115" htmlPlayerVersionCheck="true" outputFolderPath="bin" sourceFolderPath="src" strict="true" useApolloConfig="false" verifyDigests="true" warn="true">
+<compilerSourcePath>
+<compilerSourcePathEntry kind="1" linkType="1" path="tests/integration"/>
+<compilerSourcePathEntry kind="1" linkType="1" path="tests/unit"/>
+</compilerSourcePath>
+<libraryPath defaultLinkType="1">
+<libraryPathEntry kind="4" path="">
+<modifiedEntries>
+<libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/framework.swc" sourcepath="${PROJECT_FRAMEWORKS}/source" useDefaultLinkType="true"/>
+</modifiedEntries>
+<excludedEntries>
+<libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/automation.swc" useDefaultLinkType="false"/>
+<libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/automation_agent.swc" useDefaultLinkType="false"/>
+<libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/qtp.swc" useDefaultLinkType="false"/>
+<libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/automation_dmv.swc" useDefaultLinkType="false"/>
+</excludedEntries>
+</libraryPathEntry>
+<libraryPathEntry kind="1" linkType="1" path="libs"/>
+</libraryPath>
+<sourceAttachmentPath>
+<sourceAttachmentPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/datavisualization.swc" sourcepath="${PROJECT_FRAMEWORKS}/source" useDefaultLinkType="false"/>
+<sourceAttachmentPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/framework.swc" sourcepath="${PROJECT_FRAMEWORKS}/source" useDefaultLinkType="true"/>
+</sourceAttachmentPath>
+</compiler>
+<applications>
+<application path="src/main.mxml"/>
+<application path="MessagingUnitTests.mxml"/>
+<application path="PresentationUnitTest.mxml"/>
+<application path="BbbUnitTests.mxml"/>
+<application path="src/TestRunners.mxml"/>
+<application path="BigBlueButton.mxml"/>
+</applications>
+<modules>
+<module application="src/BigBlueButton.mxml" destPath="ChatModule.swf" optimize="true" sourcePath="src/ChatModule.mxml"/>
+<module application="src/BigBlueButton.mxml" destPath="VoiceModule.swf" optimize="true" sourcePath="src/org/bigbluebutton/modules/voiceconference/VoiceModule.as"/>
+<module application="src/BigBlueButton.mxml" destPath="ViewersModule.swf" optimize="true" sourcePath="src/ViewersModule.mxml"/>
+<module application="src/BigBlueButton.mxml" destPath="VideoModule.swf" optimize="true" sourcePath="src/org/bigbluebutton/modules/video/VideoModule.as"/>
+<module application="src/BigBlueButton.mxml" destPath="LogModule.swf" optimize="true" sourcePath="src/org/bigbluebutton/modules/log/LogModule.as"/>
+<module application="src/BigBlueButton.mxml" destPath="PresentationModule.swf" optimize="true" sourcePath="src/PresentationModule.mxml"/>
+</modules>
+<buildCSSFiles/>
+</actionScriptProperties>

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" 
+    width="100%" height="100%" 
+    horizontalAlign="center" paddingBottom="5" 
+    creationComplete="init()" verticalScrollPolicy="off" horizontalScrollPolicy="off" 
+    xmlns:panzoom="com.adobe.wheelerstreet.fig.panzoom.*" xmlns:local="*">
+    
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.modules.presentation.model.business.IPresentationSlides;
+			import org.bigbluebutton.modules.presentation.view.ThumbnailViewMediator;
+			import org.bigbluebutton.modules.presentation.PresentationFacade;
+		import mx.collections.ArrayCollection;
+		import mx.binding.utils.BindingUtils;
+		import flash.events.Event;
+		import mx.events.ListEvent;
+		import mx.events.FlexEvent;
+
+		private var startDragMouseX:Number;
+		private var startDragMouseY:Number;
+		private var startDragX:Number;
+		private var startDragY:Number;
+		
+		[Bindable]
+		private var slideWord:String = "Slides";
+				
+        [Bindable] 
+        public var slides:ArrayCollection;
+        		
+		[Bindable]
+		public var selectedSlide:int=0;
+				
+		private function init() : void
+		{
+			addEventListener(MouseEvent.MOUSE_WHEEL, zoom);
+			myLoader.addEventListener(MouseEvent.MOUSE_DOWN, mouseDown);
+			myLoader.addEventListener(MouseEvent.MOUSE_UP, mouseUp);
+			myLoader.addEventListener(MouseEvent.MOUSE_OUT, mouseOut);
+		}	
+		
+		private function handleChangedSlides(slides : ArrayCollection) : void
+		{
+//			thumbsBox.invalidateDisplayList();
+//			slideList.invalidateDisplayList();
+//			thumbsBox.validateNow();
+//			slideList.validateNow();
+		}
+
+		public function updateScroll () : void 
+		{
+//			thumbsBox.verticalScrollPosition = slideList.verticalScrollPosition;
+		}
+		
+		private function zoom(e:MouseEvent):void{
+//			if (!model.presentation.isPresenter) return;
+			
+			var wid:Number = myLoader.width + e.delta * 10;
+			var hei:Number = myLoader.height + e.delta *10;
+			
+			if (hei >= this.height || hei >= myLoader.height){
+				myLoader.width += e.delta * 10;
+				myLoader.height += e.delta * 10;
+			} 
+			
+			dispatchEvent(new Event(ThumbnailViewMediator.ZOOM));
+		}
+		
+		private function mouseDown(e:MouseEvent):void{
+//			if (!model.presentation.isPresenter) return;
+			
+			startDragX = myLoader.x;
+			startDragY = myLoader.y;
+			startDragMouseX = imageCanvas.mouseX;
+			startDragMouseY = imageCanvas.mouseY;
+			addEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
+		}
+		
+		private function mouseMove(e:MouseEvent):void{
+//			if (!model.presentation.isPresenter) return;
+			
+			myLoader.x = startDragX + (imageCanvas.mouseX - startDragMouseX);
+			myLoader.y = startDragY + (imageCanvas.mouseY - startDragMouseY);
+			dispatchEvent(new Event(ThumbnailViewMediator.MOVE));
+		}
+		
+		private function mouseUp(e:MouseEvent):void{
+//			if (!model.presentation.isPresenter) return;
+			
+			removeEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
+		}
+		
+		private function mouseOut(e:MouseEvent):void{
+//			if (!model.presentation.isPresenter) return;
+			
+			removeEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
+		}
+		]]>
+	</mx:Script>
+	
+	<mx:Canvas id="imageCanvas" width="100%" height="100%" verticalScrollPolicy="off" horizontalScrollPolicy="off">
+		<mx:Image id="myLoader" width="100%" height="100%"
+    		scaleContent="true" maintainAspectRatio="true" showBusyCursor="true"
+    		completeEffect="Fade"
+        	source="{slides.getItemAt(selectedSlide)}" />
+	</mx:Canvas>    	
+        
+	<mx:Spacer height="15" />
+	
+	<!--mx:VBox id="thumbsBox" width="100" height="100%" styleName="thumbnailListBorderBox"
+	    verticalGap="2" horizontalAlign="center" paddingBottom="5" updateComplete="updateScroll()"
+	    borderStyle="solid" cornerRadius="10">			
+		<mx:List id="slideList" dataProvider="{slides}" paddingBottom="0"
+		    width="100%" height="100%" selectedIndex="0" change="dispatchEvent(new Event(ThumbnailViewMediator.SEND_PAGE_NUM))"
+		    itemRenderer="org.bigbluebutton.modules.presentation.view.components.Thumbnail"
+		    styleName="thumbnailList" editorUsesEnterKey="true"/>   
+	</mx:VBox-->
+
+</mx:HBox>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" 
+	implements="org.bigbluebutton.common.IBigBlueButtonModule"
+	creationComplete="onCreationComplete()">
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.modules.viewers.ViewersFacade;
+			import org.bigbluebutton.common.messaging.Router;
+			
+			private var _router:Router;
+			
+			private var _moduleId:String = "ViewersModule";
+			private var _moduleName:String = "Viewers Module";
+			
+			private var _uri:String = "rtmp://localhost/conference/85115";
+			private var _username:String = "ralam";
+			
+			private function onCreationComplete():void {
+				trace("ViewersModule Initialized");			
+			}
+			
+			public function acceptRouter(router:Router):void{
+				_router = router;
+			}
+		
+			public function get router():Router{
+				return _router;
+			}
+				
+			public function get moduleId():String {
+				return _moduleId;
+			}
+			
+			public function get moduleName():String {
+				return _moduleName;
+			}
+		
+			public function set uri(uri:String):void {
+				_uri = uri;
+			}
+			
+			public function get uri():String {
+				return _uri;
+			}
+			
+			public function set username(name:String):void {
+				_username = name;
+			}
+			
+			public function get username():String {
+				return _username;
+			}
+			
+			public function start(attributes:Object):void {		
+				ViewersFacade.getInstance().startup(this);	
+			}
+		
+			public function stop():void {
+				ViewersFacade.getInstance().stop(this);
+			}
+		]]>
+	</mx:Script>
+</mx:Module>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<pres:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml"  
+	xmlns:thumb="org.bigbluebutton.modules.presentation.view.components.*"
+	xmlns:pres="flexlib.mdi.containers.*"
+	paddingBottom="0" paddingTop="0" 
+	paddingLeft="0" paddingRight="0" 
+    layout="vertical" verticalScrollPolicy="off" horizontalScrollPolicy="off"
+	focusStart="focusThumbnail()"
+	implements="org.bigbluebutton.common.IBbbModuleWindow">
+
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.modules.presentation.view.PresentationWindowMediator;
+			import mx.core.Application;
+			import org.bigbluebutton.modules.presentation.view.components.Images;
+			import org.bigbluebutton.modules.presentation.PresentationFacade;
+			import mx.binding.utils.BindingUtils;
+
+			import mx.collections.ArrayCollection;
+			import mx.rpc.events.*;
+			import mx.controls.Alert;
+            import mx.managers.PopUpManager;
+            import mx.containers.TitleWindow;
+            import flash.geom.Point;
+             			
+            public static const TITLE:String = "Presentation";
+			private var images:Images = new Images();
+
+			[Bindable] private var uploadIcon : Class = images.pdf;
+			[Bindable] private var forwardIcon : Class = images.forward;
+			[Bindable] private var backwardIcon : Class = images.backward;
+											
+			public var uploadWindow : FileUploadWindow;
+			private var _xPosition:int;
+			private var _yPosition:int;
+			
+			public function get xPosition():int {
+				return _xPosition;
+			}
+			
+			public function get yPosition():int {
+				return _yPosition;
+			}
+			
+			public function set xPosition(x:int):void {
+				_xPosition = x;
+			}
+			
+			public function set yPosition(y:int):void {
+				_yPosition = y;
+			}
+
+			private function focusThumbnail():void{
+				
+//				this.slideView.slideList.setFocus();
+			}										
+		]]>
+	</mx:Script>
+	
+	<thumb:SlideView id="slideView" width="100%" height="100%" visible="false"/>
+
+    <mx:ControlBar width="100%">
+    	  <mx:Button id="uploadPres" icon="{uploadIcon}" visible="false" width="20" height="20"
+    	   		toolTip="Upload PDF Document" click="dispatchEvent(new Event(PresentationWindowMediator.OPEN_UPLOAD))"/>    
+    	  <mx:Spacer width="50%"/>	
+    	  <mx:Button id="backButton" icon="{backwardIcon}" visible="false" width="20" height="20"
+    	   		toolTip="Previous slide." click="dispatchEvent(new Event(PresentationWindowMediator.PREVIOUS_SLIDE))"/>
+    	  <!--mx:TextInput id="curSlideNum" width="40" text=""/-->
+    	  <mx:Label id="slideNumLbl" text=""/>    
+    	  <mx:Button id="forwardButton" icon="{forwardIcon}" visible="false" width="20" height="20"
+    	   		toolTip="Next slide" click="dispatchEvent(new Event(PresentationWindowMediator.NEXT_SLIDE))"/>    				
+    	<mx:Spacer width="50%"/>
+    </mx:ControlBar>
+			
+</pres:MDIWindow>

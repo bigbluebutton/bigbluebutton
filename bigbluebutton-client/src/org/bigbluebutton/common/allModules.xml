@@ -1,0 +1,15 @@
+<modules>
+	<module id="Chat" swfpath="org/bigbluebutton/modules/chat/chat_module.swf" />
+	<module id="Presentation" swfpath="org/bigbluebutton/modules/presentation/presentation_module.swf" />
+	<module id="Video" swfpath="org/bigbluebutton/modules/video/video_module.swf" />
+	<module id="Voice" swfpath="org/bigbluebutton/modules/voiceconference/voice_module.swf" />
+	<module id="Whiteboard" swfpath="org/bigbluebutton/modules/whiteboard/whiteboard_module.swf" />
+	<module id="Playback" swfpath="org/bigbluebutton/modules/playback/playback_module.swf" />
+	<module id="Sample" swfpath="org/bigbluebutton/modules/sample_module/sample_module.swf" />
+	<module name="ViewersModule" swfpath="org/bigbluebutton/modules/viewers/ViewersModule.swf" />
+	<module name="ChatModule" swfpath="ChatModule.swf" />
+	<module name="PresentationModule" swfpath="org/bigbluebutton/modules/presentation/PresentationModule.swf" />
+	<module name="VideoModule" swfpath="org/bigbluebutton/modules/video/VideoModule.swf" />
+	<module name="VoiceModule" swfpath="org/bigbluebutton/modules/voiceconference/VoiceModule.swf" />
+
+</modules>

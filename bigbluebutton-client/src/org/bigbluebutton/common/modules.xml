@@ -1,0 +1,6 @@
+<modules>
+	<module name="ChatModule" url="ChatModule.swf" uri="rtmp://localhost/chatServer" />
+	<module name="ViewersModule" url="ViewersModule.swf" />
+	<module name="PresentationModule" url="PresentationModule.swf" 
+		uri="rtmp://localhost/presentation" host="http://localhost" />
+</modules>
