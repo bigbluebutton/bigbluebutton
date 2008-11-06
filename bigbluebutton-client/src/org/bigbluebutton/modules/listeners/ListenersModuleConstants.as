@@ -39,6 +39,17 @@ package org.bigbluebutton.modules.listeners
 		public static const REMOVE_WINDOW:String = 'REMOVE_WINDOW';
 				
 		public static const MODULE_STARTED:String = 'MODULE_STARTED';
+
+		public static const UNMUTE_ALL:String = "Unmute All Users";
+		public static const MUTE_ALL:String = "Mute All Users";
+		public static const EJECT_USER:String = "Eject User";
+		public static const MUTE_USER:String = "Mute User";
 		
+		public static const USER_JOIN_EVENT:String = "USER_JOIN_EVENT";
+		//EVENTS
+		public static const MUTE_UNMUTE_USER_COMMAND:String = "MUTE_UNMUTE_USER_COMMAND";
+		public static const EJECT_USER_COMMAND:String = "EJECT_USER_COMMAND";
+		public static const MUTE_ALL_USERS_COMMAND:String = "MUTE_ALL_USERS_COMMAND";
+		public static const MUTE_EVENT:String = "MUTE_EVENT";
 	}
 }

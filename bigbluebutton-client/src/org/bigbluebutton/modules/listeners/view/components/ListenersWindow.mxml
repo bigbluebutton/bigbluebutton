@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<view:ListenersClass xmlns:mx="http://www.adobe.com/2006/mxml" 
-			xmlns:view="org.bigbluebutton.modules.voiceconference.view.*" 
-			xmlns:controller="org.bigbluebutton.modules.voiceconference.control.*"
+<MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+			xmlns="flexlib.mdi.containers.*"
+			implements="org.bigbluebutton.common.IBbbModuleWindow"
 			creationComplete="init()">
 
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.listeners.ListenersModuleConstants;
 			import mx.core.Application;
 			import org.bigbluebutton.modules.viewers.ViewersFacade;
 			import org.bigbluebutton.modules.viewers.model.business.Conference;
@@ -21,7 +22,9 @@
 			
 			public static const TITLE:String = "Listeners";	
 			private var images:Images = new Images();
-			//private var meetme:MeetMeUserItem = new MeetMeUserItem();
+			
+			private var _xPosition:int;
+			private var _yPosition:int;
 			
 			[Bindable] public var dropTargetIcon : Object = images.door_in;
 			
@@ -70,30 +73,41 @@
 	   			dropTargetIcon = images.door_open;
 	   			
    				userid = Number(event.dragSource.dataForFormat('userid'));
-				dispatchEvent(new Event(ListenersWindowMediator.EJECT_USER));
+				dispatchEvent(new Event(ListenersModuleConstants.EJECT_USER));
 	   		
 	   		}
-	   		//public function muteUser(event:MouseEvent):void
-	   		//{
-	   		//	userid = Number(event.currentTarget.userid);
-	   		//	dispatchEvent(new Event(ListenersWindowMediator.MUTE_USER));
-	   		//}
+
+			public function get xPosition():int {
+				return _xPosition;
+			}
+			
+			public function get yPosition():int {
+				return _yPosition;
+			}
+			
+			public function set xPosition(x:int):void {
+				_xPosition = x;
+			}
+			
+			public function set yPosition(y:int):void {
+				_yPosition = y;
+			}
 	   		
 		]]>
 	</mx:Script>
 	
-    	<mx:TileList id="participantsList" height="100%" width="100%" 
-        	itemRenderer="org.bigbluebutton.modules.voiceconference.view.MeetMeUserItem"
+    	<!--mx:TileList id="participantsList" height="100%" width="100%" 
+        	itemRenderer="org.bigbluebutton.modules.listeners.view.components.ListenerItem"
             maxColumns="1" rowHeight="25" columnWidth="200" 
             dataProvider="{meetMeRoom.dpParticipants}">
-    	</mx:TileList>				
+    	</mx:TileList-->				
     	
     	<mx:ControlBar width="100%">
     	   <mx:Button id="muteAllIconImg" icon="{muteAllIcon}" 
-    	   			toolTip="Mute All" click="dispatchEvent(new Event(ListenersWindowMediator.MUTE_ALL))"
+    	   			toolTip="Mute All" click="dispatchEvent(new Event(ListenersModuleConstants.MUTE_ALL))"
     	   			visible="{role == Role.MODERATOR}"/> 
     	   <mx:Button id="unmuteAllIconImg" icon="{unmuteAllIcon}" 
-    	   			toolTip="Unmute All" click="dispatchEvent(new Event(ListenersWindowMediator.UNMUTE_ALL))"
+    	   			toolTip="Unmute All" click="dispatchEvent(new Event(ListenersModuleConstants.UNMUTE_ALL))"
     	   			visible="{role == Role.MODERATOR}"/> 
      	   <mx:Spacer width="100%"/>
     		<mx:Image id="ejectUserDropTarget" source="{dropTargetIcon}" 
@@ -101,4 +115,4 @@
     	   			dragEnter="dragEnterHandler(event)" dragDrop="dragDropHandler(event)"/>  			
     	</mx:ControlBar>
 
-</view:ListenersClass>
+</MDIWindow>

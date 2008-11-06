@@ -17,7 +17,7 @@
 * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 * 
 */
-package org.bigbluebutton.modules.listeners.control.notifiers
+package org.bigbluebutton.modules.listeners.controller.notifiers
 {
 	/**
 	 * A wrapper class so that multiple pieces of information can be sent inside a PureMVC notification 

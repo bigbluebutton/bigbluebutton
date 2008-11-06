@@ -2,14 +2,10 @@
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" creationComplete="initParticipantItem()">
    <mx:Script>
    	<![CDATA[
+   		import org.bigbluebutton.modules.listeners.ListenersModuleConstants;
    		import org.bigbluebutton.common.Role;
    		import org.bigbluebutton.common.Images;
-   		import org.bigbluebutton.modules.voiceconference.VoiceFacade;
    		import mx.controls.Image;
-   		import org.bigbluebutton.modules.voiceconference.view.ListenersWindowMediator;
- 
-
-
 		import mx.events.DragEvent;
 	    import flash.events.MouseEvent;
 	    import mx.core.DragSource;
@@ -17,15 +13,9 @@
 	    import mx.controls.Label;
 	    import mx.collections.ArrayCollection;
 	    import mx.controls.TileList;
-	    import org.bigbluebutton.modules.log.LogModuleFacade;
 			
-		//private var confModel:ConferenceFacade = ConferenceFacade.getInstance();
-			
-		private var userRole : String = Role.MODERATOR;
-		private var log : LogModuleFacade = LogModuleFacade.getInstance("LogModule");			
-		private var model:VoiceFacade = VoiceFacade.getInstance();
-		
-   		
+		private var userRole : String = Role.MODERATOR;			
+
    		private var images:Images = new Images();
    		
    		[Bindable] private var muteIcon : Object = images.sound_mute;
@@ -38,8 +28,7 @@
    		private function initParticipantItem() : void
    		{
    			displayStatusIcon();
-   			VoiceFacade.getInstance().registerMediator(new MeetMeUserItemMediator(this));
-   			log.voice("VoiceConferenceFacade.getInstance().registerMediator(new MeetMeUserItemMediator(this));");
+   			//VoiceFacade.getInstance().registerMediator(new MeetMeUserItemMediator(this));
    			//trace(this.parent.toString());
    			//trace(this.parentApplication.toString());
    			//trace(this.parentDocument.userid);
@@ -49,7 +38,7 @@
    		   		
    		public function displayStatusIcon() : void
    		{
-   			if (data.isMuted) {
+/*   			if (data.isMuted) {
    				muteIcon = images.sound_mute;
    				muteImg.toolTip = "Double click to unmute user.";
    			} else {
@@ -72,7 +61,7 @@
    				statusTooltip = "";
    				ejectTooltip = "";
    			}
-   		}
+*/   		}
    		
    		public function dragIt(event:MouseEvent, userid:Number):void
 	   	{
@@ -94,8 +83,7 @@
        {
        		//this.parentDocument.userid = this.data.userid;
        		//this.parentDocument.isMuted != this.data.isMuted;
-       		dispatchEvent(new Event(MeetMeUserItemMediator.MUTE_UNMUTE_USER));
-       		log.voice("MeetMeUserItem:: doubleClick to mute/unmute");
+       		//dispatchEvent(new Event(ListenersModuleConstants.MUTE_UNMUTE_USER));
        }
 	   
 	

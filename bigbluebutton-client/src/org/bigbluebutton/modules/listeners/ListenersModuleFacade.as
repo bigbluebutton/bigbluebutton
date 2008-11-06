@@ -35,14 +35,7 @@ package org.bigbluebutton.modules.listeners
 		public static const NAME : String = "ListenersModuleFacade";
 		public static const STARTUP:String = "STARTUP";
 		public static const STOP:String = "STOP";
-		
-		//EVENTS
-		public static const MUTE_UNMUTE_USER_COMMAND : String = "MEETME_MUTE_UNMUTE_USER";
-		public static const EJECT_USER_COMMAND : String = "MEETME_EJECT_USER";
-		public static const MUTE_ALL_USERS_COMMAND : String = "MEETME_MUTE_ALL_USER";
-		public static const USER_JOIN_EVENT:String = "User Join Event";
-		public static const MUTE_EVENT:String = "mute event";
-		
+				
 		public function ListenersModuleFacade()
 		{
 			super(NAME);		

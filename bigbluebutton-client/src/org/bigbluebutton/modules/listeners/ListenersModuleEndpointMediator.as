@@ -52,9 +52,11 @@ package org.bigbluebutton.modules.listeners
 					trace(NAME + ":Sending MODULE_STARTED message to main");
 					_endpoint.sendMessage(EndpointMessageConstants.MODULE_STARTED, 
 							EndpointMessageConstants.TO_MAIN_APP, _module.moduleId);
+					facade.sendNotification(ListenersModuleConstants.OPEN_WINDOW);
 					break;
 				case ListenersModuleConstants.DISCONNECTED:
 					trace(NAME + ':Sending MODULE_STOPPED message to main');
+					facade.sendNotification(ListenersModuleConstants.CLOSE_WINDOW);
 					_endpoint.sendMessage(EndpointMessageConstants.MODULE_STOPPED, 
 							EndpointMessageConstants.TO_MAIN_APP, _module.moduleId);
 					break;

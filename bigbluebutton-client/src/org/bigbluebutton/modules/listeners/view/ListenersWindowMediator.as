@@ -17,12 +17,13 @@
 * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 * 
 */
-package org.bigbluebutton.modules.voiceconference.view
+package org.bigbluebutton.modules.listeners.view
 {
 	import flash.events.Event;
 	
-	import org.bigbluebutton.modules.voiceconference.VoiceFacade;
-	import org.bigbluebutton.modules.voiceconference.control.notifiers.MuteNotifier;
+	import org.bigbluebutton.modules.listeners.ListenersModuleConstants;
+	import org.bigbluebutton.modules.listeners.controller.notifiers.MuteNotifier;
+	import org.bigbluebutton.modules.listeners.view.components.ListenersWindow;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
@@ -37,23 +38,18 @@ package org.bigbluebutton.modules.voiceconference.view
 	public class ListenersWindowMediator extends Mediator implements IMediator
 	{
 		public static const NAME:String = "ListenersWindowMediator";
-		public static const UNMUTE_ALL:String = "Unmute All Users";
-		public static const MUTE_ALL:String = "Mute All Users";
-		public static const EJECT_USER:String = "Eject User";
-		public static const MUTE_USER:String = "Mute User";
 		
-		/**
-		 * The default constructor. Assigns this class to a certain GUI component 
-		 * @param view - the gui component which this class Mediates
-		 * 
-		 */		
-		public function ListenersWindowMediator(view:ListenersWindow)
+		private var _module:ListenersModule;
+		private var _listenersWindow:ListenersWindow;
+		
+		public function ListenersWindowMediator(module:ListenersModule)
 		{
-			super(NAME, view);
-			view.addEventListener(UNMUTE_ALL, unmuteAllUsers);
-			view.addEventListener(MUTE_ALL, muteAllUsers);
-			view.addEventListener(EJECT_USER, ejectUser);
-			view.addEventListener(MUTE_USER, muteUser);
+			super(NAME);
+			_module = module;
+			_listenersWindow.addEventListener(ListenersModuleConstants.UNMUTE_ALL, unmuteAllUsers);
+			_listenersWindow.addEventListener(ListenersModuleConstants.MUTE_ALL, muteAllUsers);
+			_listenersWindow.addEventListener(ListenersModuleConstants.EJECT_USER, ejectUser);
+			_listenersWindow.addEventListener(ListenersModuleConstants.MUTE_USER, muteUser);
 			
 		}
 		
@@ -76,7 +72,7 @@ package org.bigbluebutton.modules.voiceconference.view
 		 */		
 		override public function listNotificationInterests():Array{
 			return [
-					VoiceFacade.USER_JOIN_EVENT
+					ListenersModuleConstants.USER_JOIN_EVENT
 					];
 		}
 		
@@ -87,9 +83,8 @@ package org.bigbluebutton.modules.voiceconference.view
 		 */		
 		override public function handleNotification(notification:INotification):void{
 			switch(notification.getName()){
-				case VoiceFacade.USER_JOIN_EVENT:
-					listenersWindow.participantsList.dataProvider = VoiceFacade.getInstance().meetMeRoom.dpParticipants;
-					//log.debug("Participants: " + VoiceConferenceFacade.getInstance().meetMeRoom.dpParticipants.length);
+				case ListenersModuleConstants.USER_JOIN_EVENT:
+
 					break;
 			}
 		}
@@ -101,7 +96,7 @@ package org.bigbluebutton.modules.voiceconference.view
 		 */		
 		private function unmuteAllUsers(e:Event) : void
    		{
-   			sendNotification(VoiceFacade.MUTE_ALL_USERS_COMMAND, false);
+   			sendNotification(ListenersModuleConstants.MUTE_ALL_USERS_COMMAND, false);
    		}
    		
    		/**
@@ -111,7 +106,7 @@ package org.bigbluebutton.modules.voiceconference.view
    		 */   		
    		private function muteAllUsers(e:Event) : void
    		{
-   			sendNotification(VoiceFacade.MUTE_ALL_USERS_COMMAND, true);
+   			sendNotification(ListenersModuleConstants.MUTE_ALL_USERS_COMMAND, true);
    		}
    		
    		/**
@@ -120,11 +115,11 @@ package org.bigbluebutton.modules.voiceconference.view
    		 * 
    		 */   		
    		private function ejectUser(e:Event):void{
-   			sendNotification(VoiceFacade.EJECT_USER_COMMAND, listenersWindow.userid);
+   			sendNotification(ListenersModuleConstants.EJECT_USER_COMMAND, listenersWindow.userid);
    		}
    		
    		private function muteUser(e:Event):void{
-   			sendNotification(VoiceFacade.MUTE_UNMUTE_USER_COMMAND,new MuteNotifier(listenersWindow.userid, listenersWindow.isMuted));
+   			sendNotification(ListenersModuleConstants.MUTE_UNMUTE_USER_COMMAND,new MuteNotifier(listenersWindow.userid, listenersWindow.isMuted));
    		}
 
 	}
