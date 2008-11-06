@@ -4,7 +4,7 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.voice.ListenersTests;
+			import org.bigbluebutton.modules.listeners.ListenersTests;
 			import org.bigbluebutton.main.ModulesProxyTests;
 			import org.bigbluebutton.main.BbbModuleManagerTests;
 
