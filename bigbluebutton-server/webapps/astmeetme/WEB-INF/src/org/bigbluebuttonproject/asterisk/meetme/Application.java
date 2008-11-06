@@ -171,15 +171,6 @@ public class Application extends ApplicationAdapter implements
     public boolean roomJoin(IClient client, IScope room) {
     	super.roomJoin(client, room);    	
     	log.info("MeetMe::roomJoin - " + client.getId());
-	
-    	// get the current scope that the current connection is associated with...
-    	IScope scope = Red5.getConnectionLocal().getScope();
-    	String roomNumber = scope.getName();
-    	
-		IServiceCapableConnection service = (IServiceCapableConnection) Red5.getConnectionLocal();
-		service.invoke("setRoomNumber", new Object[] { roomNumber },
-						this);     	
- 	
     	return true;
     }
     

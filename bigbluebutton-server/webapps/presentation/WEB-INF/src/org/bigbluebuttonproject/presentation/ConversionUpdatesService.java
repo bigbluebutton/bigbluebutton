@@ -124,7 +124,7 @@ public class ConversionUpdatesService implements IConversionUpdatesService {
 					} else {
 						logger.error("Cannot handle recieved message.");
 					}
-//		        	System.out.println("Room = [" + room + "," + code + "]");
+		        	System.out.println("Room = [" + room + "," + code + "]");
 //		        	System.out.println("Message=[" + message + "]");
 		        	
 				} catch (JMSException e) {

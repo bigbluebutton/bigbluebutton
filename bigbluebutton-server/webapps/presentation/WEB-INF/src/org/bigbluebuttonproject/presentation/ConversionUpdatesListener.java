@@ -102,15 +102,19 @@ public class ConversionUpdatesListener {
     		return;
     	}
     	
+    	log.info("Getting updates message for room [" + room + "]");
+    	
     	ISharedObject so = presentationSOs.get(room);
     	Map <String, Object> update = new HashMap<String, Object>();
     	// update the atribute space of the sharedobject and clients sync with it.
     	so.beginUpdate();
     	if (code == ReturnCode.EXTRACT.value()) {
+    		System.out.println(room + " EXTRACT " + totalSlides + " " + completedSlides);
     		update.put("returnCode", "EXTRACT");
     		update.put("totalSlides", totalSlides);
     		update.put("completedSlides", completedSlides);
-    	} else if (code == ReturnCode.CONVERT.value()) {   		
+    	} else if (code == ReturnCode.CONVERT.value()) {  
+    		System.out.println(room + " CONVERT " + totalSlides + " " + completedSlides);
     		update.put("returnCode", "CONVERT");
     		update.put("totalSlides", totalSlides);
     		update.put("completedSlides", completedSlides);
