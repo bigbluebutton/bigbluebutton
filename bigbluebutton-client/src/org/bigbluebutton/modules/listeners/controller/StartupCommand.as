@@ -19,6 +19,10 @@
 */
 package org.bigbluebutton.modules.listeners.controller
 {
+	import org.bigbluebutton.modules.listeners.ListenersModuleConstants;
+	import org.bigbluebutton.modules.listeners.ListenersModuleMediator;
+	import org.bigbluebutton.modules.listeners.model.ListenersProxy;
+	import org.bigbluebutton.modules.listeners.ListenersModuleEndpointMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.command.SimpleCommand;
 	
@@ -30,7 +34,13 @@ package org.bigbluebutton.modules.listeners.controller
 	public class StartupCommand extends SimpleCommand
 	{
 		override public function execute(notification:INotification):void{
-
+			var m:ListenersModule = notification.getBody() as ListenersModule;
+			
+//			facade.registerMediator(new ListenersModuleMediator(m));
+			facade.registerMediator(new ListenersModuleEndpointMediator(m));
+//			facade.registerMediator(new JoinWindowMediator(m));
+			facade.registerProxy(new ListenersProxy(m));
+			sendNotification(ListenersModuleConstants.STARTED);			
 		}
 	}
 }

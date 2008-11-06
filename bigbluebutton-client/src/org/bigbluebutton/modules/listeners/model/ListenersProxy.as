@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.listeners.model
 		{
 			super(NAME);
 			_module = module;
+			connect();
 		}
 		
 		override public function getProxyName():String

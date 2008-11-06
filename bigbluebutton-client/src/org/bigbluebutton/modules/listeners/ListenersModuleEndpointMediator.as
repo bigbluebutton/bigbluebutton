@@ -1,10 +1,10 @@
-package org.bigbluebutton.modules.viewers
+package org.bigbluebutton.modules.listeners
 {
 	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.common.messaging.Endpoint;
 	import org.bigbluebutton.common.messaging.EndpointMessageConstants;
 	import org.bigbluebutton.common.messaging.Router;
-	import org.bigbluebutton.modules.viewers.model.ViewersProxy;
+	import org.bigbluebutton.modules.listeners.model.ListenersProxy;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
@@ -37,34 +37,33 @@ package org.bigbluebutton.modules.viewers
 		override public function listNotificationInterests():Array
 		{
 			return [
-				VoiceModuleConstants.STARTED,
-				VoiceModuleConstants.CONNECTED,
-				VoiceModuleConstants.DISCONNECTED,
-				VoiceModuleConstants.ADD_WINDOW,
-				VoiceModuleConstants.REMOVE_WINDOW
+				ListenersModuleConstants.STARTED,
+				ListenersModuleConstants.CONNECTED,
+				ListenersModuleConstants.DISCONNECTED,
+				ListenersModuleConstants.ADD_WINDOW,
+				ListenersModuleConstants.REMOVE_WINDOW
 			];
 		}
 		
 		override public function handleNotification(notification:INotification):void
 		{
 			switch(notification.getName()){
-				case VoiceModuleConstants.STARTED:
+				case ListenersModuleConstants.STARTED:
 					trace(NAME + ":Sending MODULE_STARTED message to main");
 					_endpoint.sendMessage(EndpointMessageConstants.MODULE_STARTED, 
 							EndpointMessageConstants.TO_MAIN_APP, _module.moduleId);
-					facade.sendNotification(VoiceModuleConstants.OPEN_JOIN_WINDOW);
 					break;
-				case VoiceModuleConstants.DISCONNECTED:
+				case ListenersModuleConstants.DISCONNECTED:
 					trace(NAME + ':Sending MODULE_STOPPED message to main');
 					_endpoint.sendMessage(EndpointMessageConstants.MODULE_STOPPED, 
 							EndpointMessageConstants.TO_MAIN_APP, _module.moduleId);
 					break;
-				case VoiceModuleConstants.ADD_WINDOW:
+				case ListenersModuleConstants.ADD_WINDOW:
 					trace(NAME + ':Sending ADD_WINDOW message to main');
 					_endpoint.sendMessage(EndpointMessageConstants.ADD_WINDOW, 
 							EndpointMessageConstants.TO_MAIN_APP, notification.getBody());
 					break;
-				case VoiceModuleConstants.REMOVE_WINDOW:
+				case ListenersModuleConstants.REMOVE_WINDOW:
 					trace(NAME + ':Sending REMOVE_WINDOW message to main');
 					_endpoint.sendMessage(EndpointMessageConstants.REMOVE_WINDOW, 
 							EndpointMessageConstants.TO_MAIN_APP, notification.getBody());
@@ -77,7 +76,7 @@ package org.bigbluebutton.modules.viewers
 			var msg : String = message.getHeader().MSG as String;
 			switch(msg){
 				case EndpointMessageConstants.CLOSE_WINDOW:
-					facade.sendNotification(VoiceModuleConstants.CLOSE_WINDOW);
+					facade.sendNotification(ListenersModuleConstants.CLOSE_WINDOW);
 					break;
 				case EndpointMessageConstants.OPEN_WINDOW:
 					//trace('Received OPEN_WINDOW message from ' + message.getHeader().SRC);
@@ -86,8 +85,8 @@ package org.bigbluebutton.modules.viewers
 			}
 		}
 		
-		private function get proxy():ViewersProxy {
-			return facade.retrieveProxy(ViewersProxy.NAME) as ViewersProxy;
+		private function get proxy():ListenersProxy {
+			return facade.retrieveProxy(ListenersProxy.NAME) as ListenersProxy;
 		}				
 	}
 }
