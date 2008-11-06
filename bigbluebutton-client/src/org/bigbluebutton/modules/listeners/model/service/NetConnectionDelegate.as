@@ -21,6 +21,7 @@ package org.bigbluebutton.modules.listeners.model.service
 {
 	import flash.events.*;
 	import flash.net.NetConnection;
+	import flash.net.Responder;
 		
 	public class NetConnectionDelegate
 	{

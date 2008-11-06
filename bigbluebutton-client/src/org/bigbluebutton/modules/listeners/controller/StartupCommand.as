@@ -17,15 +17,8 @@
 * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 * 
 */
-package org.bigbluebutton.modules.listeners.control
+package org.bigbluebutton.modules.listeners.controller
 {
-	import org.bigbluebutton.modules.listeners.VoiceFacade;
-	import org.bigbluebutton.modules.listeners.VoiceModule;
-	import org.bigbluebutton.modules.listeners.VoiceModuleMediator;
-	import org.bigbluebutton.modules.listeners.model.business.NetConnectionDelegate;
-	import org.bigbluebutton.modules.listeners.model.business.VoiceConfConnectResponder;
-	import org.bigbluebutton.modules.listeners.view.MeetMeUserItem;
-	import org.bigbluebutton.modules.listeners.view.MeetMeUserItemMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.command.SimpleCommand;
 	
@@ -36,20 +29,8 @@ package org.bigbluebutton.modules.listeners.control
 	 */	
 	public class StartupCommand extends SimpleCommand
 	{
-		/**
-		 * This method gets automatically called, there is no need to call it
-		 * <p>
-		 * This method initiates the mediators and the proxies that the application needs 
-		 * @param notification
-		 * 
-		 */		
 		override public function execute(notification:INotification):void{
-			var app:VoiceModule = notification.getBody() as VoiceModule;
-			facade.registerMediator(new VoiceModuleMediator(app));
-			
-			facade.registerProxy(new NetConnectionDelegate(VoiceFacade.getInstance().meetMeRoom.getUri()));
-			facade.registerMediator(new VoiceConfConnectResponder(VoiceFacade.getInstance().meetMeRoom));
-			//facade.registerMediator(new MeetMeUserItemMediator(new MeetMeUserItem()));
+
 		}
 	}
 }

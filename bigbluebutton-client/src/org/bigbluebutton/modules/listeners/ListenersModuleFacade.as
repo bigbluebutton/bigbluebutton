@@ -19,11 +19,8 @@
 */
 package org.bigbluebutton.modules.listeners
 {	
-	import flash.net.NetConnection;
-	
-	import org.bigbluebutton.modules.listeners.control.StartupVoiceConfCommand;
-	import org.bigbluebutton.modules.listeners.model.VoiceConferenceRoom;
-	import org.bigbluebutton.modules.listeners.model.business.NetConnectionDelegate;
+	import org.bigbluebutton.modules.listeners.controller.StartupCommand;
+	import org.bigbluebutton.modules.listeners.controller.StopCommand;
 	import org.puremvc.as3.multicore.interfaces.IFacade;
 	import org.puremvc.as3.multicore.patterns.facade.Facade;
 		
@@ -35,8 +32,9 @@ package org.bigbluebutton.modules.listeners
 	 */	
 	public class ListenersModuleFacade extends Facade implements IFacade
 	{
-		public static const ID : String = "VoiceConferenceFacade";
-		public static const STARTUP:String = "StartupVoiceConference";
+		public static const NAME : String = "ListenersModuleFacade";
+		public static const STARTUP:String = "STARTUP";
+		public static const STOP:String = "STOP";
 		
 		//EVENTS
 		public static const MUTE_UNMUTE_USER_COMMAND : String = "MEETME_MUTE_UNMUTE_USER";
@@ -45,16 +43,9 @@ package org.bigbluebutton.modules.listeners
 		public static const USER_JOIN_EVENT:String = "User Join Event";
 		public static const MUTE_EVENT:String = "mute event";
 		
-		public var meetMeRoom:VoiceConferenceRoom;
-				
-		/**
-		 * The default constructor. Should NEVER be called directly, as this class is a singleton.
-		 * Instead, use the getInstance() method 
-		 * 
-		 */		
 		public function ListenersModuleFacade()
 		{
-			super(ID);		
+			super(NAME);		
 		}
 		
 		/**
@@ -62,10 +53,10 @@ package org.bigbluebutton.modules.listeners
 		 * @return The instance of MeetMeFacade singleton class
 		 * 
 		 */		
-		public static function getInstance() : VoiceFacade
+		public static function getInstance():ListenersModuleFacade
 		{
-			if (instanceMap[ID] == null) instanceMap[ID] = new VoiceFacade();
-			return instanceMap[ID] as VoiceFacade;
+			if (instanceMap[NAME] == null) instanceMap[NAME] = new ListenersModuleFacade();
+			return instanceMap[NAME] as ListenersModuleFacade;
 	   	}		
 	   	
 	   	/**
@@ -74,7 +65,8 @@ package org.bigbluebutton.modules.listeners
 	   	 */	   	
 	   	override protected function initializeController():void{
 	   		super.initializeController();
-	   		registerCommand(STARTUP, StartupVoiceConfCommand);
+	   		registerCommand(STARTUP, StartupCommand);
+	   		registerCommand(STOP, StopCommand);
 	   	}
 	   	
 	   	/**
@@ -82,40 +74,12 @@ package org.bigbluebutton.modules.listeners
 	   	 * @param app
 	   	 * 
 	   	 */	   	
-	   	public function startup(app:VoiceModule, uri:String):void{
-	   		meetMeRoom = new VoiceConferenceRoom(uri);
-	   		sendNotification(STARTUP, app);
-	   		//meetMeRoom.getConnection().connect();
+	   	public function startup(m:ListenersModule):void{
+	   		sendNotification(STARTUP, m);
 	   	}
 	   	
-	   	/**
-	   	 *  Richard: Had to create this to prevent stack overflow when done during initialize	 
-	   	 * @param userRole
-	   	 * 
-	   	 */	   	
-	   	public function setupMeetMeRoom(userRole : String) : void
-	   	{
-			meetMeRoom.userRole = userRole;
-	   	}  	
-
-		/**
-		 * Initializes the connection to the server 
-		 * 
-		 */
-		public function connectToMeetMe() : void
-	   	{
-	   		var netProxy:NetConnectionDelegate = retrieveProxy(NetConnectionDelegate.NAME) as NetConnectionDelegate;
-			netProxy.connect(new NetConnection());		
-	   	}
-	   		   	
-	   	/**
-	   	 * 
-	   	 * @return The MeetMeRoom of the MeetMe module
-	   	 * 
-	   	 */	   		   	
-	   	public function getMeetMeRoom():VoiceConferenceRoom
-	   	{
-	   		return meetMeRoom;
-	   	}
+	   	public function stop(m:ListenersModule):void{
+			sendNotification(STOP, m);
+		}
 	}
 }

@@ -5,7 +5,6 @@
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.modules.listeners.ListenersModuleFacade;
-			import org.bigbluebutton.modules.voiceconference.VoiceFacade;
 			import org.bigbluebutton.common.messaging.Router;
 			
 			private var _router:Router;

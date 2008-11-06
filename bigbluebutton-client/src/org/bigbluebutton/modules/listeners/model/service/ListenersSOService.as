@@ -21,6 +21,7 @@ package org.bigbluebutton.modules.listeners.model.service
 {
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
+	import flash.net.Responder;
 	import flash.net.SharedObject;
 	
 	import org.bigbluebutton.modules.listeners.model.vo.IListeners;
@@ -79,7 +80,7 @@ package org.bigbluebutton.modules.listeners.model.service
 		
 	    private function leave():void
 	    {
-	    	if (_listenersSO != null) voiceSO.close();
+	    	if (_listenersSO != null) _listenersSO.close();
 	    }
 
 		public function addConnectionStatusListener(connectionListener:Function):void {
@@ -130,7 +131,7 @@ package org.bigbluebutton.modules.listeners.model.service
 		
 		public function muteUnmuteUser(userid:Number, mute:Boolean):void
 		{
-			netConnectionDelegate.muteUnmuteUser(userId, mute);		
+			netConnectionDelegate.muteUnmuteUser(userid, mute);		
 		}
 
 		public function muteAllUsers(mute:Boolean):void
@@ -147,11 +148,11 @@ package org.bigbluebutton.modules.listeners.model.service
 		{			
 			for(var items:String in meetmeUser) 
 			{
-				var userId : String = meetmeUser[items][0];
-				var cidName : String = meetmeUser[items][1];	
-				var cidNum : String  = meetmeUser[items][2];
-				var muted : Boolean = meetmeUser[items][3];
-				var talking : Boolean = meetmeUser[items][4];
+				var userId:Number = meetmeUser[items][0];
+				var cidName:String = meetmeUser[items][1];	
+				var cidNum:String  = meetmeUser[items][2];
+				var muted:Boolean = meetmeUser[items][3];
+				var talking:Boolean = meetmeUser[items][4];
 				
 				userJoin(userId, cidName, cidNum, muted, talking);
 			}

@@ -17,17 +17,22 @@
 * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 * 
 */
-package org.bigbluebutton.modules.listeners.model.vo
+package org.bigbluebutton.modules.listeners.controller
 {
-	import mx.collections.ArrayCollection;
+	import org.bigbluebutton.modules.listeners.model.ListenersProxy;
+	import org.puremvc.as3.multicore.interfaces.INotification;
+	import org.puremvc.as3.multicore.patterns.command.SimpleCommand;
 	
-	public interface IListeners {
-		function get listeners():ArrayCollection;
-		function addListener(listener:Listener):void;
-		function hasListener(id:Number):Boolean;
-		function getListener(id:Number):Listener;	
-		function removeListener(id:Number):void;
-		function removeAllListeners():void;
-		function newUserStatus(id:Number, newStatus:String):void;	
+	public class StopCommand extends SimpleCommand
+	{
+		override public function execute(notification:INotification):void{
+			if (facade.hasProxy(ListenersProxy.NAME)) {
+				var p:ListenersProxy = facade.retrieveProxy(ListenersProxy.NAME) as ListenersProxy;
+				p.stop();
+			} else {
+				trace('ListenersProxy Proxy not found.');
+			}
+		}
+
 	}
 }

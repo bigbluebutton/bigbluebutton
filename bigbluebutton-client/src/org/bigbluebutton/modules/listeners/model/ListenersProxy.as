@@ -4,7 +4,9 @@ package org.bigbluebutton.modules.listeners.model
 	
 	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.modules.listeners.ListenersModuleConstants;
+	import org.bigbluebutton.modules.listeners.model.service.IListenersService;
 	import org.bigbluebutton.modules.listeners.model.service.ListenersSOService;
+	import org.bigbluebutton.modules.listeners.model.vo.IListeners;
 	import org.bigbluebutton.modules.listeners.model.vo.Listeners;
 	import org.puremvc.as3.multicore.interfaces.IProxy;
 	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
@@ -40,21 +42,21 @@ package org.bigbluebutton.modules.listeners.model
 		}
 		
 		public function get listeners():ArrayCollection {
-			return listeners.listeners;
+			return _listeners.listeners;
 		}
 		
 		private function connectionStatusListener(connected:Boolean):void {
 			if (connected) {
 				sendNotification(ListenersModuleConstants.CONNECTED);
 			} else {
-				_participants = null;
+				_listeners = null;
 				sendNotification(ListenersModuleConstants.DISCONNECTED);
 			}
 		}
 
 		public function muteUnmuteUser(userid:Number, mute:Boolean):void
 		{
-			_listenersService.muteUnmuteUser(userId, mute);		
+			_listenersService.muteUnmuteUser(userid, mute);		
 		}
 
 		public function muteAllUsers(mute:Boolean):void
