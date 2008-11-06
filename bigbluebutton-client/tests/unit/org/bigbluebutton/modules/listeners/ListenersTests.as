@@ -1,4 +1,4 @@
-package org.bigbluebutton.modules.voice
+package org.bigbluebutton.modules.listeners
 {
 	import flexunit.framework.TestCase;
 	import flexunit.framework.TestSuite;
