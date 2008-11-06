@@ -3,8 +3,8 @@ package org.bigbluebutton.modules.voice
 	import flexunit.framework.TestCase;
 	import flexunit.framework.TestSuite;
 	
-	import org.bigbluebutton.modules.voiceconference.model.vo.IListeners;
-	import org.bigbluebutton.modules.voiceconference.model.vo.Listeners;
+	import org.bigbluebutton.modules.listeners.model.vo.IListeners;
+	import org.bigbluebutton.modules.listeners.model.vo.Listeners;
 	
 	public class ListenersTests extends TestCase
 	{
