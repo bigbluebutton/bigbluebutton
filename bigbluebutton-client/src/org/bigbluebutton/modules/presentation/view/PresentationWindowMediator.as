@@ -162,15 +162,32 @@ package org.bigbluebutton.modules.presentation.view
 					break;
 				case PresentModuleConstants.DISPLAY_SLIDE:
 					var slidenum:int = notification.getBody() as int;
-					trace('DISPLAY_SLIDE in PresentationWindowMediator ' + slidenum);
-					if ((_presWin.slideView.slides != null) && (slidenum >= 0) && (slidenum < _presWin.slideView.slides.length)) {
-						_presWin.slideView.selectedSlide = slidenum;
-						_presWin.slideNumLbl.text = (slidenum + 1) + " of " + _presWin.slideView.slides.length;
-					}
+					handleDisplaySlide(slidenum);
 					break;
 			}
 		}
 	
+		private function handleDisplaySlide(slidenum:int):void {
+			trace('DISPLAY_SLIDE in PresentationWindowMediator ' + slidenum);
+			if ((_presWin.slideView.slides != null) && (slidenum >= 0) && (slidenum < _presWin.slideView.slides.length)) {
+				_presWin.slideView.selectedSlide = slidenum;
+				_presWin.slideNumLbl.text = (slidenum + 1) + " of " + _presWin.slideView.slides.length;
+				_presWin.slideView.myLoader.load(_presWin.slideView.slides.getItemAt(slidenum));
+				
+				if (slidenum == 0) {
+					_presWin.backButton.enabled = false;
+				} else {
+					_presWin.backButton.enabled = true;
+				}
+				
+				if (slidenum < _presWin.slideView.slides.length - 1) {
+					_presWin.forwardButton.enabled = true;
+				} else {
+					_presWin.forwardButton.enabled = false;
+				}
+			}			
+		}
+		
 		private function handlePresenterMode():void
 		{			
 			_presWin.uploadPres.visible = true;
