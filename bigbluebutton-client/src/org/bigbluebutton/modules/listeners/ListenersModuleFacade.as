@@ -17,15 +17,15 @@
 * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 * 
 */
-package org.bigbluebutton.modules.voiceconference
+package org.bigbluebutton.modules.listeners
 {
 
 	
 	import flash.net.NetConnection;
 	
-	import org.bigbluebutton.modules.voiceconference.control.StartupVoiceConfCommand;
-	import org.bigbluebutton.modules.voiceconference.model.VoiceConferenceRoom;
-	import org.bigbluebutton.modules.voiceconference.model.business.NetConnectionDelegate;
+	import org.bigbluebutton.modules.listeners.control.StartupVoiceConfCommand;
+	import org.bigbluebutton.modules.listeners.model.VoiceConferenceRoom;
+	import org.bigbluebutton.modules.listeners.model.business.NetConnectionDelegate;
 	import org.puremvc.as3.multicore.interfaces.IFacade;
 	import org.puremvc.as3.multicore.patterns.facade.Facade;
 		

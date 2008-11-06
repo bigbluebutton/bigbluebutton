@@ -7,5 +7,8 @@ package org.bigbluebutton.modules.listeners.model.service
 		function sendMessage(message:String):void;
 		function addMessageListener(msgListener:Function):void;
 		function addConnectionStatusListener(connectionListener:Function):void;		
+		function muteUnmuteUser(userid:Number, mute:Boolean):void;
+		function muteAllUsers(mute:Boolean):void;
+		function ejectUser(userId:Number):void;
 	}
 }

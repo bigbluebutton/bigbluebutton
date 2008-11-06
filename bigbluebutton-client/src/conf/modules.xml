@@ -1,7 +1,7 @@
 <modules>
-	<module name="ChatModule" url="ChatModule.swf" uri="rtmp://localhost/chatServer" />
-	<module name="ViewersModule" url="ViewersModule.swf" uri="rtmp://localhost/conference" />
+	<!--module name="ChatModule" url="ChatModule.swf" uri="rtmp://localhost/chatServer" /-->
+	<!--module name="ViewersModule" url="ViewersModule.swf" uri="rtmp://localhost/conference" /-->
 	<module name="ListenersModule" url="ListenersModule.swf" uri="rtmp://localhost/astmeetme" />
-	<module name="PresentationModule" url="PresentationModule.swf" 
-		uri="rtmp://localhost/presentation" host="http://localhost" />
+	<!--module name="PresentationModule" url="PresentationModule.swf" 
+		uri="rtmp://localhost/presentation" host="http://localhost" /-->
 </modules>

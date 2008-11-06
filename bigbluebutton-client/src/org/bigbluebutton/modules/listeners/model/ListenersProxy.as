@@ -36,7 +36,7 @@ package org.bigbluebutton.modules.listeners.model
 		}
 		
 		public function stop():void {
-			_viewersService.disconnect();
+			_listenersService.disconnect();
 		}
 		
 		public function get listeners():ArrayCollection {
@@ -51,25 +51,24 @@ package org.bigbluebutton.modules.listeners.model
 				sendNotification(ListenersModuleConstants.DISCONNECTED);
 			}
 		}
+
+		public function muteUnmuteUser(userid:Number, mute:Boolean):void
+		{
+			_listenersService.muteUnmuteUser(userId, mute);		
+		}
+
+		public function muteAllUsers(mute:Boolean):void
+		{	
+			_listenersService.muteAllUsers(mute);			
+		}
 		
+		public function ejectUser(userId:Number):void
+		{
+			_listenersService.ejectUser(userId);			
+		}
+				
 		private function messageSender(msg:String, body:Object=null):void {
-			if (msg == ViewersModuleConstants.ASSIGN_PRESENTER) {
-				if (me.userid == body.assignedTo) {
-					// I've been assigned as presenter.
-					trace('I have become presenter');
-					isPresenter = true;
-					sendNotification(msg, body);
-				} else {
-					// Somebody else has become presenter.
-					if (isPresenter) {
-						trace('Somebody else has become presenter.');
-						isPresenter = false;
-						sendNotification(ViewersModuleConstants.BECOME_VIEWER);
-					}
-				}
-			} else {
-				sendNotification(msg, body);
-			}
+
 		}		
 	}
 }

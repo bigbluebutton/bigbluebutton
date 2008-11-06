@@ -4,18 +4,19 @@
 	creationComplete="onCreationComplete()">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.listeners.ListenersModuleFacade;
 			import org.bigbluebutton.modules.voiceconference.VoiceFacade;
 			import org.bigbluebutton.common.messaging.Router;
 			
 			private var _router:Router;
 			
-			private var _moduleId:String = "VoiceModule";
-			private var _moduleName:String = "Voice Module";
+			private var _moduleId:String = "ListenersModule";
+			private var _moduleName:String = "Listeners Module";
 			
 			private var _attributes:Object;
 			
 			private function onCreationComplete():void {
-				trace("VoiceModule Initialized");			
+				trace("ListenersModule Initialized");			
 			}
 			
 			public function acceptRouter(router:Router):void{
@@ -45,11 +46,11 @@
 			
 			public function start(attributes:Object):void {		
 				_attributes = attributes;	
-				VoiceFacade.getInstance().startup(this);	
+				ListenersModuleFacade.getInstance().startup(this);	
 			}
 		
 			public function stop():void {
-				VoiceFacade.getInstance().stop(this);
+				ListenersModuleFacade.getInstance().stop(this);
 			}
 		]]>
 	</mx:Script>

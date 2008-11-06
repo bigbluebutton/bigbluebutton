@@ -36,8 +36,8 @@ package org.bigbluebutton.main
 					break;
 				case MainApplicationConstants.APP_MODEL_INITIALIZED:
 					trace(NAME + "::Received APP_MODEL_INITIALIZED");
-					//facade.sendNotification(MainApplicationConstants.MODULES_LOAD);
-					proxy.loadModule("ViewersModule");
+					//proxy.loadModule("ViewersModule");
+					proxy.loadModule("ListenersModule");
 					break;
 				case MainApplicationConstants.MODULE_LOADED:
 					trace(NAME + "::Received MODULE_LOADED");

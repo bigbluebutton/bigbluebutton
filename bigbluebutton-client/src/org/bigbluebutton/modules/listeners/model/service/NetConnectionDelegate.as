@@ -72,6 +72,26 @@ package org.bigbluebutton.modules.listeners.model.service
 		{
 			_netConnection.close();
 		}
+
+		public function muteAllUsers(mute:Boolean):void 
+		{
+			_netConnection.call("meetmeService.muteAllUsers", null, mute);
+		}
+		
+		public function muteUnmuteUser(userid:Number, mute:Boolean):void
+		{
+			_netConnection.call("meetmeService.muteUnmuteUser", null, userid, mute);
+		}
+
+
+		public function ejectUser(userid:Number) : void
+		{
+			_netConnection.call("meetmeService.ejectUser", null, userid);
+		}		
+		
+		public function getCurrentListeners(resp:Responder):void {
+			_netConnection.call("meetmeService.getMeetMeUsers", resp);
+		}
 					
 		protected function netStatus( event : NetStatusEvent ) : void 
 		{
