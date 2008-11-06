@@ -18,9 +18,7 @@
 * 
 */
 package org.bigbluebutton.modules.listeners
-{
-
-	
+{	
 	import flash.net.NetConnection;
 	
 	import org.bigbluebutton.modules.listeners.control.StartupVoiceConfCommand;
