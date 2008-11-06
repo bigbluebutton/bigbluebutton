@@ -31,6 +31,8 @@
 			[Bindable] private var muteAllIcon : Class = images.sound_mute;
 			[Bindable] private var unmuteAllIcon : Class = images.sound_none;
 			[Bindable] private var role:String;
+			[Bindable]
+			public var listeners:ArrayCollection = new ArrayCollection();
 			
 			public var userid:Number;
 			public var isMuted:Boolean;
@@ -96,11 +98,11 @@
 		]]>
 	</mx:Script>
 	
-    	<!--mx:TileList id="participantsList" height="100%" width="100%" 
+    	<mx:TileList id="participantsList" height="100%" width="100%" 
         	itemRenderer="org.bigbluebutton.modules.listeners.view.components.ListenerItem"
             maxColumns="1" rowHeight="25" columnWidth="200" 
-            dataProvider="{meetMeRoom.dpParticipants}">
-    	</mx:TileList-->				
+            dataProvider="{listeners}">
+    	</mx:TileList>				
     	
     	<mx:ControlBar width="100%">
     	   <mx:Button id="muteAllIconImg" icon="{muteAllIcon}" 

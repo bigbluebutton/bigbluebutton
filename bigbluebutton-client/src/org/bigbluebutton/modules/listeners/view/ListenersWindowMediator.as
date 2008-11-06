@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.listeners.view
 	
 	import org.bigbluebutton.modules.listeners.ListenersModuleConstants;
 	import org.bigbluebutton.modules.listeners.controller.notifiers.MuteNotifier;
+	import org.bigbluebutton.modules.listeners.model.ListenersProxy;
 	import org.bigbluebutton.modules.listeners.view.components.ListenersWindow;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
@@ -46,6 +47,7 @@ package org.bigbluebutton.modules.listeners.view
 		{
 			super(NAME);
 			_module = module;
+			_listenersWindow = new ListenersWindow();
 			_listenersWindow.addEventListener(ListenersModuleConstants.UNMUTE_ALL, unmuteAllUsers);
 			_listenersWindow.addEventListener(ListenersModuleConstants.MUTE_ALL, muteAllUsers);
 			_listenersWindow.addEventListener(ListenersModuleConstants.EJECT_USER, ejectUser);
@@ -53,14 +55,6 @@ package org.bigbluebutton.modules.listeners.view
 			
 		}
 		
-		/**
-		 *  
-		 * @return The GUI component of this mediator
-		 * 
-		 */		
-		public function get listenersWindow():ListenersWindow{
-			return viewComponent as ListenersWindow;
-		}
 		
 		/**
 		 *  
@@ -72,7 +66,7 @@ package org.bigbluebutton.modules.listeners.view
 		 */		
 		override public function listNotificationInterests():Array{
 			return [
-					ListenersModuleConstants.USER_JOIN_EVENT
+					ListenersModuleConstants.OPEN_WINDOW
 					];
 		}
 		
@@ -83,11 +77,22 @@ package org.bigbluebutton.modules.listeners.view
 		 */		
 		override public function handleNotification(notification:INotification):void{
 			switch(notification.getName()){
-				case ListenersModuleConstants.USER_JOIN_EVENT:
-
+				case ListenersModuleConstants.OPEN_WINDOW:
+					handleOpenListenersWindow();
 					break;
 			}
 		}
+
+		private function handleOpenListenersWindow():void {
+				_listenersWindow.listeners = proxy.listeners;
+				_listenersWindow.width = 210;
+		   		_listenersWindow.height = 220;
+		   		_listenersWindow.title = "Viewers";
+		   		_listenersWindow.showCloseButton = false;
+		   		_listenersWindow.xPosition = 30;
+		   		_listenersWindow.yPosition = 30;
+		   		facade.sendNotification(ListenersModuleConstants.ADD_WINDOW, _listenersWindow); 			
+		}	
 		
 		/**
 		 * Sends a MUTE_ALL_USERS_COMMAND notification (false - unmutes all users)
@@ -115,12 +120,16 @@ package org.bigbluebutton.modules.listeners.view
    		 * 
    		 */   		
    		private function ejectUser(e:Event):void{
-   			sendNotification(ListenersModuleConstants.EJECT_USER_COMMAND, listenersWindow.userid);
+ //  			sendNotification(ListenersModuleConstants.EJECT_USER_COMMAND, listenersWindow.userid);
    		}
    		
    		private function muteUser(e:Event):void{
-   			sendNotification(ListenersModuleConstants.MUTE_UNMUTE_USER_COMMAND,new MuteNotifier(listenersWindow.userid, listenersWindow.isMuted));
+//   			sendNotification(ListenersModuleConstants.MUTE_UNMUTE_USER_COMMAND,new MuteNotifier(listenersWindow.userid, listenersWindow.isMuted));
    		}
+
+		private function get proxy():ListenersProxy {
+			return facade.retrieveProxy(ListenersProxy.NAME) as ListenersProxy;
+		}
 
 	}
 }

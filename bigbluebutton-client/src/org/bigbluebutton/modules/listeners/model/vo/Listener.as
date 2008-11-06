@@ -22,8 +22,8 @@ package org.bigbluebutton.modules.listeners.model.vo
 	public class Listener
 	{
 		public var room:String;
-		public var callerIdName:String;
-		public var callerIdNumber:String;
+		public var callerName:String;
+		public var callerNumber:String;
 		public var dateJoined:Date;
 		public var dateLeft:Date;
 		public var userid:Number;

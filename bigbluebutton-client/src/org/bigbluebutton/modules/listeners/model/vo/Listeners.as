@@ -101,7 +101,7 @@ package org.bigbluebutton.modules.listeners.model.vo
 		
 		private function sort() : void
 		{
-			listeners.source.sortOn("callerIdName", Array.CASEINSENSITIVE);	
+			listeners.source.sortOn("callerName", Array.CASEINSENSITIVE);	
 			listeners.refresh();				
 		}				
 	}

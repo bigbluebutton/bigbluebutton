@@ -92,15 +92,15 @@ package org.bigbluebutton.modules.listeners.model.service
 		{
 			if (! _listeners.hasListener(userId)) {
 				var n:Listener = new Listener();
-				n.callerIdName = (cidName != null) ? cidName : "<Unknown Caller>";
-				n.callerIdNumber = cidNum;
+				n.callerName = (cidName != null) ? cidName : "<Unknown Caller>";
+				n.callerNumber = cidNum;
 				n.muted = muted;
 				n.userid = userId;
 				n.talking = talking;
-				
+				trace("Add listener with userid " + userId + " to the conference.");
 				_listeners.addListener(n);
 			} else {
-				trace("There is a listener with userid " + userId + " in the conference.");
+				trace("There is a listener with userid " + userId + " " + cidName + " in the conference.");
 			}
 		}
 
@@ -153,7 +153,7 @@ package org.bigbluebutton.modules.listeners.model.service
 				var cidNum:String  = meetmeUser[items][2];
 				var muted:Boolean = meetmeUser[items][3];
 				var talking:Boolean = meetmeUser[items][4];
-				
+				trace("in getMeetMeUsers for user " + userId);
 				userJoin(userId, cidName, cidNum, muted, talking);
 			}
 		}
