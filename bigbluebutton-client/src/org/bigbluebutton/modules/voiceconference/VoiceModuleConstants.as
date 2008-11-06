@@ -17,28 +17,28 @@
 * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 * 
 */
-package org.bigbluebutton.modules.voiceconference.model.vo
+package org.bigbluebutton.modules.voiceconference
 {
-	
-	
 	/**
-	 * Represents a user in the MeetMeRoom
-	 * @author dev_team@bigbluebutton.org
+	 * This class holds some of the constants relevant to this module 
+	 * @author Denis Zgonjanin
 	 * 
 	 */	
-	public class VoiceConferenceUser
+	public class VoiceModuleConstants
 	{
-	[RemoteClass(alias="org.blindsideproject.asterisk.meetme.vo.MeetMeUserVo")]		
-
-		public var roomNumber : String;
-		public var callerIdName : String;
-		public var callerIdNumber : String;
-		public var dateJoined : Date;
-		public var dateLeft : Date;
-		public var userNumber : Number;
-		public var muted : Boolean;
-		public var talking : Boolean;	
+		public static const START:String       = "start module";
+		public static const STOP:String       = "stop module";
+		public static const STARTED:String       = "start module";
+		public static const STOPPED:String       = "stop module";
+		public static const CONNECTED:String = "CONNECTED";
+		public static const DISCONNECTED:String = "DISCONNECTED";
+				
+		public static const OPEN_WINDOW:String = 'OPEN_WINDOW';
+		public static const CLOSE_WINDOW:String = 'CLOSE_WINDOW';	
+		public static const ADD_WINDOW:String = 'ADD_WINDOW';
+		public static const REMOVE_WINDOW:String = 'REMOVE_WINDOW';
+				
+		public static const MODULE_STARTED:String = 'MODULE_STARTED';
 		
-			
 	}
 }

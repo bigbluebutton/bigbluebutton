@@ -29,7 +29,7 @@ package org.bigbluebutton.modules.voiceconference.model.business
 	import mx.collections.ArrayCollection;
 	import mx.rpc.IResponder;
 	
-	import org.bigbluebutton.modules.voiceconference.VoiceConferenceFacade;
+	import org.bigbluebutton.modules.voiceconference.VoiceFacade;
 	import org.bigbluebutton.modules.voiceconference.control.notifiers.MuteNotifier;
 	import org.bigbluebutton.modules.voiceconference.model.VoiceConferenceRoom;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
@@ -54,7 +54,7 @@ package org.bigbluebutton.modules.voiceconference.model.business
 		public static const RESULT:String = "Got result";
 		public static const FAULT:String = "Got fault";
 		
-		private var model:VoiceConferenceFacade = VoiceConferenceFacade.getInstance();
+		private var model:VoiceFacade = VoiceFacade.getInstance();
 		
 		private var meetMeRoom : VoiceConferenceRoom;
 		private var participantsSO : SharedObject;
@@ -90,10 +90,10 @@ package org.bigbluebutton.modules.voiceconference.model.business
 					CLOSE,
 					RESULT,
 					FAULT,
-					VoiceConferenceFacade.MUTE_UNMUTE_USER_COMMAND,
-					VoiceConferenceFacade.MUTE_ALL_USERS_COMMAND,
-					VoiceConferenceFacade.EJECT_USER_COMMAND,
-					VoiceConferenceFacade.MUTE_EVENT
+					VoiceFacade.MUTE_UNMUTE_USER_COMMAND,
+					VoiceFacade.MUTE_ALL_USERS_COMMAND,
+					VoiceFacade.EJECT_USER_COMMAND,
+					VoiceFacade.MUTE_EVENT
 					];
 		}
 		
@@ -113,13 +113,13 @@ package org.bigbluebutton.modules.voiceconference.model.business
 				case FAULT:
 					fault(notification.getBody() as Event);
 					break;
-				case VoiceConferenceFacade.MUTE_ALL_USERS_COMMAND:
+				case VoiceFacade.MUTE_ALL_USERS_COMMAND:
 					muteAllUsers(notification.getBody() as Boolean);
 					break;
-				case VoiceConferenceFacade.MUTE_EVENT:
+				case VoiceFacade.MUTE_EVENT:
 					muteUnmuteUser(notification.getBody() as MuteNotifier);
 					break;
-				case VoiceConferenceFacade.EJECT_USER_COMMAND:
+				case VoiceFacade.EJECT_USER_COMMAND:
 					ejectUser(notification.getBody() as Number);
 					break;
 			}
@@ -457,7 +457,7 @@ package org.bigbluebutton.modules.voiceconference.model.business
 		public function sendNewMeetMeEvent():void
 		{
 			//log.voice("Got to sendMeetMeEvent");
-			sendNotification(VoiceConferenceFacade.USER_JOIN_EVENT);
+			sendNotification(VoiceFacade.USER_JOIN_EVENT);
 		}		
 	}
 }

@@ -21,7 +21,7 @@ package org.bigbluebutton.modules.voiceconference.view
 {
 	import flash.events.Event;
 	
-	import org.bigbluebutton.modules.voiceconference.VoiceConferenceFacade;
+	import org.bigbluebutton.modules.voiceconference.VoiceFacade;
 	import org.bigbluebutton.modules.voiceconference.control.notifiers.MuteNotifier;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
@@ -76,7 +76,7 @@ package org.bigbluebutton.modules.voiceconference.view
 		 */		
 		override public function listNotificationInterests():Array{
 			return [
-					VoiceConferenceFacade.USER_JOIN_EVENT
+					VoiceFacade.USER_JOIN_EVENT
 					];
 		}
 		
@@ -87,8 +87,8 @@ package org.bigbluebutton.modules.voiceconference.view
 		 */		
 		override public function handleNotification(notification:INotification):void{
 			switch(notification.getName()){
-				case VoiceConferenceFacade.USER_JOIN_EVENT:
-					listenersWindow.participantsList.dataProvider = VoiceConferenceFacade.getInstance().meetMeRoom.dpParticipants;
+				case VoiceFacade.USER_JOIN_EVENT:
+					listenersWindow.participantsList.dataProvider = VoiceFacade.getInstance().meetMeRoom.dpParticipants;
 					//log.debug("Participants: " + VoiceConferenceFacade.getInstance().meetMeRoom.dpParticipants.length);
 					break;
 			}
@@ -101,7 +101,7 @@ package org.bigbluebutton.modules.voiceconference.view
 		 */		
 		private function unmuteAllUsers(e:Event) : void
    		{
-   			sendNotification(VoiceConferenceFacade.MUTE_ALL_USERS_COMMAND, false);
+   			sendNotification(VoiceFacade.MUTE_ALL_USERS_COMMAND, false);
    		}
    		
    		/**
@@ -111,7 +111,7 @@ package org.bigbluebutton.modules.voiceconference.view
    		 */   		
    		private function muteAllUsers(e:Event) : void
    		{
-   			sendNotification(VoiceConferenceFacade.MUTE_ALL_USERS_COMMAND, true);
+   			sendNotification(VoiceFacade.MUTE_ALL_USERS_COMMAND, true);
    		}
    		
    		/**
@@ -120,11 +120,11 @@ package org.bigbluebutton.modules.voiceconference.view
    		 * 
    		 */   		
    		private function ejectUser(e:Event):void{
-   			sendNotification(VoiceConferenceFacade.EJECT_USER_COMMAND, listenersWindow.userid);
+   			sendNotification(VoiceFacade.EJECT_USER_COMMAND, listenersWindow.userid);
    		}
    		
    		private function muteUser(e:Event):void{
-   			sendNotification(VoiceConferenceFacade.MUTE_UNMUTE_USER_COMMAND,new MuteNotifier(listenersWindow.userid, listenersWindow.isMuted));
+   			sendNotification(VoiceFacade.MUTE_UNMUTE_USER_COMMAND,new MuteNotifier(listenersWindow.userid, listenersWindow.isMuted));
    		}
 
 	}

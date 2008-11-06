@@ -17,32 +17,17 @@
 * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 * 
 */
-package org.bigbluebutton.modules.voiceconference.view
+package org.bigbluebutton.modules.voiceconference.model.vo
 {
-	import flexlib.mdi.containers.MDIWindow;
-	
-	import mx.controls.TileList;
-	
-	import org.bigbluebutton.modules.voiceconference.VoiceFacade;
-	import org.bigbluebutton.modules.voiceconference.model.VoiceConferenceRoom;
-
-	/**
-	 * This is a convinience class extended by the Listeners Window. It holds some variables
-	 * @author dev_team@bigbluebutton.org
-	 * 
-	 */	
-	public class ListenersClass extends MDIWindow
+	public class Listener
 	{
-		private var model:VoiceFacade = VoiceFacade.getInstance();
-		
-		[Bindable]
-		public var meetMeRoom:VoiceConferenceRoom = model.meetMeRoom;;
-		
-		[Bindable] 
-		public var participantsList:TileList; 
-		
-		[Bindable]
-		public var userRole : uint;
-
-	}  	
+		public var room:String;
+		public var callerIdName:String;
+		public var callerIdNumber:String;
+		public var dateJoined:Date;
+		public var dateLeft:Date;
+		public var userid:Number;
+		public var muted:Boolean;
+		public var talking:Boolean;				
+	}
 }

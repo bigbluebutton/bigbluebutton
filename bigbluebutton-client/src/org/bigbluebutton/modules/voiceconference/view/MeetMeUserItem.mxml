@@ -4,7 +4,7 @@
    	<![CDATA[
    		import org.bigbluebutton.common.Role;
    		import org.bigbluebutton.common.Images;
-   		import org.bigbluebutton.modules.voiceconference.VoiceConferenceFacade;
+   		import org.bigbluebutton.modules.voiceconference.VoiceFacade;
    		import mx.controls.Image;
    		import org.bigbluebutton.modules.voiceconference.view.ListenersWindowMediator;
  
@@ -23,7 +23,7 @@
 			
 		private var userRole : String = Role.MODERATOR;
 		private var log : LogModuleFacade = LogModuleFacade.getInstance("LogModule");			
-		private var model:VoiceConferenceFacade = VoiceConferenceFacade.getInstance();
+		private var model:VoiceFacade = VoiceFacade.getInstance();
 		
    		
    		private var images:Images = new Images();
@@ -38,7 +38,7 @@
    		private function initParticipantItem() : void
    		{
    			displayStatusIcon();
-   			VoiceConferenceFacade.getInstance().registerMediator(new MeetMeUserItemMediator(this));
+   			VoiceFacade.getInstance().registerMediator(new MeetMeUserItemMediator(this));
    			log.voice("VoiceConferenceFacade.getInstance().registerMediator(new MeetMeUserItemMediator(this));");
    			//trace(this.parent.toString());
    			//trace(this.parentApplication.toString());

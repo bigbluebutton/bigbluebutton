@@ -11,8 +11,8 @@
 <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/framework.swc" sourcepath="${PROJECT_FRAMEWORKS}/source" useDefaultLinkType="true"/>
 </modifiedEntries>
 <excludedEntries>
-<libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/automation.swc" useDefaultLinkType="false"/>
 <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/automation_agent.swc" useDefaultLinkType="false"/>
+<libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/automation.swc" useDefaultLinkType="false"/>
 <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/qtp.swc" useDefaultLinkType="false"/>
 <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/automation_dmv.swc" useDefaultLinkType="false"/>
 </excludedEntries>
@@ -33,12 +33,11 @@
 <application path="BigBlueButton.mxml"/>
 </applications>
 <modules>
-<module application="src/BigBlueButton.mxml" destPath="ChatModule.swf" optimize="true" sourcePath="src/ChatModule.mxml"/>
-<module application="src/BigBlueButton.mxml" destPath="VoiceModule.swf" optimize="true" sourcePath="src/org/bigbluebutton/modules/voiceconference/VoiceModule.as"/>
 <module application="src/BigBlueButton.mxml" destPath="ViewersModule.swf" optimize="true" sourcePath="src/ViewersModule.mxml"/>
-<module application="src/BigBlueButton.mxml" destPath="VideoModule.swf" optimize="true" sourcePath="src/org/bigbluebutton/modules/video/VideoModule.as"/>
-<module application="src/BigBlueButton.mxml" destPath="LogModule.swf" optimize="true" sourcePath="src/org/bigbluebutton/modules/log/LogModule.as"/>
 <module application="src/BigBlueButton.mxml" destPath="PresentationModule.swf" optimize="true" sourcePath="src/PresentationModule.mxml"/>
+<module application="src/BigBlueButton.mxml" destPath="VideoModule.swf" optimize="true" sourcePath="src/org/bigbluebutton/modules/video/VideoModule.as"/>
+<module application="src/BigBlueButton.mxml" destPath="ChatModule.swf" optimize="true" sourcePath="src/ChatModule.mxml"/>
+<module application="src/BigBlueButton.mxml" destPath="LogModule.swf" optimize="true" sourcePath="src/org/bigbluebutton/modules/log/LogModule.as"/>
 </modules>
 <buildCSSFiles/>
 </actionScriptProperties>

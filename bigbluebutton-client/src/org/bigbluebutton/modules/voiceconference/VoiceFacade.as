@@ -35,7 +35,7 @@ package org.bigbluebutton.modules.voiceconference
 	 * @author dev_team@bigbluebutton.org
 	 * 
 	 */	
-	public class VoiceConferenceFacade extends Facade implements IFacade
+	public class VoiceFacade extends Facade implements IFacade
 	{
 		public static const ID : String = "VoiceConferenceFacade";
 		public static const STARTUP:String = "StartupVoiceConference";
@@ -54,7 +54,7 @@ package org.bigbluebutton.modules.voiceconference
 		 * Instead, use the getInstance() method 
 		 * 
 		 */		
-		public function VoiceConferenceFacade()
+		public function VoiceFacade()
 		{
 			super(ID);		
 		}
@@ -64,10 +64,10 @@ package org.bigbluebutton.modules.voiceconference
 		 * @return The instance of MeetMeFacade singleton class
 		 * 
 		 */		
-		public static function getInstance() : VoiceConferenceFacade
+		public static function getInstance() : VoiceFacade
 		{
-			if (instanceMap[ID] == null) instanceMap[ID] = new VoiceConferenceFacade();
-			return instanceMap[ID] as VoiceConferenceFacade;
+			if (instanceMap[ID] == null) instanceMap[ID] = new VoiceFacade();
+			return instanceMap[ID] as VoiceFacade;
 	   	}		
 	   	
 	   	/**

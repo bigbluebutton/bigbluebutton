@@ -21,7 +21,7 @@ package org.bigbluebutton.modules.voiceconference.view
 {
 	import flash.events.Event;
 	
-	import org.bigbluebutton.modules.voiceconference.VoiceConferenceFacade;
+	import org.bigbluebutton.modules.voiceconference.VoiceFacade;
 	import org.bigbluebutton.modules.voiceconference.control.notifiers.MuteNotifier;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
@@ -71,7 +71,7 @@ package org.bigbluebutton.modules.voiceconference.view
 		 */		
 		override public function listNotificationInterests():Array{
 			return [
-					VoiceConferenceFacade.USER_JOIN_EVENT
+					VoiceFacade.USER_JOIN_EVENT
 					];
 		}
 		
@@ -82,7 +82,7 @@ package org.bigbluebutton.modules.voiceconference.view
 		 */		
 		override public function handleNotification(notification:INotification):void{
 			switch(notification.getName()){
-				case VoiceConferenceFacade.USER_JOIN_EVENT:
+				case VoiceFacade.USER_JOIN_EVENT:
 					onNewMeetMeEvent(notification);
 					break;
 			}
@@ -96,7 +96,7 @@ package org.bigbluebutton.modules.voiceconference.view
    		{
    			//if (meetMeUserItem. == true) 
    			//{
-   			sendNotification(VoiceConferenceFacade.MUTE_EVENT, new MuteNotifier(meetMeUserItem.data.userid, !meetMeUserItem.data.isMuted));
+   			sendNotification(VoiceFacade.MUTE_EVENT, new MuteNotifier(meetMeUserItem.data.userid, !meetMeUserItem.data.isMuted));
    			log.voice("MeetMeUserItemMediator::muteUnmuteUser() : [" + meetMeUserItem.data.userid + "," + !meetMeUserItem.data.isMuted + "]");
    			//}
    			//else return;

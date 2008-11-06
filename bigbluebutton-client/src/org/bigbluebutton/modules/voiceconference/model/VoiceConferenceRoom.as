@@ -21,7 +21,7 @@ package org.bigbluebutton.modules.voiceconference.model
 {
 	import mx.collections.ArrayCollection;
 	
-	import org.bigbluebutton.modules.voiceconference.VoiceConferenceFacade;
+	import org.bigbluebutton.modules.voiceconference.VoiceFacade;
 	import org.bigbluebutton.modules.voiceconference.model.business.NetConnectionDelegate;
  	
 	/**

@@ -4,6 +4,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.voice.ListenersTests;
 			import org.bigbluebutton.main.ModulesProxyTests;
 			import org.bigbluebutton.main.BbbModuleManagerTests;
 
@@ -21,6 +22,7 @@
  				// by calling addTest as often as necessary
  				ts.addTest( BbbModuleManagerTests.suite() );
 				ts.addTest( ModulesProxyTests.suite() );
+				ts.addTest( ListenersTests.suite() );
 				return ts;
 			}
 		]]>

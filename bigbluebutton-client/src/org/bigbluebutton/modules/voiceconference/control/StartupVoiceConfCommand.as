@@ -19,7 +19,7 @@
 */
 package org.bigbluebutton.modules.voiceconference.control
 {
-	import org.bigbluebutton.modules.voiceconference.VoiceConferenceFacade;
+	import org.bigbluebutton.modules.voiceconference.VoiceFacade;
 	import org.bigbluebutton.modules.voiceconference.VoiceModule;
 	import org.bigbluebutton.modules.voiceconference.VoiceModuleMediator;
 	import org.bigbluebutton.modules.voiceconference.model.business.NetConnectionDelegate;
@@ -47,8 +47,8 @@ package org.bigbluebutton.modules.voiceconference.control
 			var app:VoiceModule = notification.getBody() as VoiceModule;
 			facade.registerMediator(new VoiceModuleMediator(app));
 			
-			facade.registerProxy(new NetConnectionDelegate(VoiceConferenceFacade.getInstance().meetMeRoom.getUri()));
-			facade.registerMediator(new VoiceConfConnectResponder(VoiceConferenceFacade.getInstance().meetMeRoom));
+			facade.registerProxy(new NetConnectionDelegate(VoiceFacade.getInstance().meetMeRoom.getUri()));
+			facade.registerMediator(new VoiceConfConnectResponder(VoiceFacade.getInstance().meetMeRoom));
 			//facade.registerMediator(new MeetMeUserItemMediator(new MeetMeUserItem()));
 		}
 	}

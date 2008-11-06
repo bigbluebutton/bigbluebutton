@@ -22,7 +22,7 @@ package org.bigbluebutton.modules.voiceconference.model.business
 	import flash.events.*;
 	import flash.net.NetConnection;
 	
-	import org.bigbluebutton.modules.voiceconference.VoiceConferenceFacade;
+	import org.bigbluebutton.modules.voiceconference.VoiceFacade;
 	import org.bigbluebutton.modules.voiceconference.control.notifiers.MuteNotifier;
 	import org.puremvc.as3.multicore.interfaces.IProxy;
 	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
@@ -183,7 +183,7 @@ package org.bigbluebutton.modules.voiceconference.model.business
 		 */		
 		public function muteAllUsers(muteUsers : Boolean) : void 
 		{
-			sendNotification(VoiceConferenceFacade.MUTE_ALL_USERS_COMMAND, muteUsers);
+			sendNotification(VoiceFacade.MUTE_ALL_USERS_COMMAND, muteUsers);
 		}
 		
 		/**
@@ -195,7 +195,7 @@ package org.bigbluebutton.modules.voiceconference.model.business
 		public function muteUnmuteUser(userId : Number, muteUser : Boolean) : void
 		{
 			log.voice("NetConnectionDelegate::muteUnmuteUser : [" + userId + "," + muteUser + "]");
-			sendNotification(VoiceConferenceFacade.MUTE_UNMUTE_USER_COMMAND, new MuteNotifier(userId, muteUser));
+			sendNotification(VoiceFacade.MUTE_UNMUTE_USER_COMMAND, new MuteNotifier(userId, muteUser));
 		}
 
 		/**
@@ -206,7 +206,7 @@ package org.bigbluebutton.modules.voiceconference.model.business
 		public function ejectUser(userId : Number) : void
 		{
 			log.voice("NetConnectionDelegate::ejectUser : [" + userId + "]");
-			sendNotification(VoiceConferenceFacade.EJECT_USER_COMMAND, userId);
+			sendNotification(VoiceFacade.EJECT_USER_COMMAND, userId);
 		}
 	}
 }
