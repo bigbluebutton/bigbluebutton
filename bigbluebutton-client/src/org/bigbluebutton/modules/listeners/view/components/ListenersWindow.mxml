@@ -8,10 +8,8 @@
 		<![CDATA[
 			import org.bigbluebutton.modules.listeners.ListenersModuleConstants;
 			import mx.core.Application;
-			import org.bigbluebutton.modules.viewers.ViewersFacade;
-			import org.bigbluebutton.modules.viewers.model.business.Conference;
 			import org.bigbluebutton.common.Role;
-			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.modules.listeners.view.components.Images;
 			import mx.events.DragEvent;
 			import flash.events.MouseEvent;
 			import mx.core.DragSource;

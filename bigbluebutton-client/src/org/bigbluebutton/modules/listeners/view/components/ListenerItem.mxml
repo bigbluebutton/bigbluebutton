@@ -4,7 +4,7 @@
    	<![CDATA[
    		import org.bigbluebutton.modules.listeners.ListenersModuleConstants;
    		import org.bigbluebutton.common.Role;
-   		import org.bigbluebutton.common.Images;
+   		import org.bigbluebutton.modules.listeners.view.components.Images;
    		import mx.controls.Image;
 		import mx.events.DragEvent;
 	    import flash.events.MouseEvent;
