@@ -19,14 +19,18 @@ package org.bigbluebutton.modules.viewers.model.services
 		
 		private var _participants:IViewers;
 		private var _uri:String;
-		private var _connectionListener:Function;
+		private var _connectionSuccessListener:Function;
+		private var _connectionFailedListener:Function;
+		private var _connectionStatusListener:Function;
 		private var _messageSender:Function;
 				
 		public function ViewersSOService(uri:String, participants:IViewers)
 		{			
 			_uri = uri;
 			_participants = participants;
-			netConnectionDelegate = new NetConnectionDelegate(uri, connectionListener);			
+			netConnectionDelegate = new NetConnectionDelegate(uri);			
+			netConnectionDelegate.addConnectionSuccessListener(connectionSuccessListener);
+			netConnectionDelegate.addConnectionFailedListener(connectionFailedListener);
 		}
 		
 		public function connect(uri:String, room:String, username:String, password:String ):void {
@@ -46,7 +50,7 @@ package org.bigbluebutton.modules.viewers.model.services
 			if (_messageSender != null) _messageSender(msg, body);
 		}
 		
-		private function connectionListener(connected:Boolean, userid:Number=0, role:String="", room:String="", authToken:String=""):void {
+		private function connectionSuccessListener(connected:Boolean, userid:Number=0, role:String="", room:String="", authToken:String=""):void {
 			if (connected) {
 				trace(NAME + ":Connected to the Viewers application " + userid + " " + role);
 				_participants.me.role = role;
@@ -59,6 +63,10 @@ package org.bigbluebutton.modules.viewers.model.services
 				trace(NAME + ":Disconnected from the Viewers application");
 				notifyConnectionStatusListener(false);
 			}
+		}
+		
+		private function connectionFailedListener(reason:String):void {
+			notifyConnectionStatusListener(false, reason);
 		}
 		
 	    private function join() : void
@@ -79,7 +87,7 @@ package org.bigbluebutton.modules.viewers.model.services
 	    }
 
 		public function addConnectionStatusListener(connectionListener:Function):void {
-			_connectionListener = connectionListener;
+			_connectionStatusListener = connectionListener;
 		}
 		
 		/**
@@ -262,9 +270,9 @@ package org.bigbluebutton.modules.viewers.model.services
 			}
 		}
 
-		private function notifyConnectionStatusListener(connected:Boolean):void {
-			if (_connectionListener != null) {
-				_connectionListener(connected);
+		private function notifyConnectionStatusListener(connected:Boolean, reason:String = null):void {
+			if (_connectionStatusListener != null) {
+				_connectionStatusListener(connected, reason);
 			}
 		}
 

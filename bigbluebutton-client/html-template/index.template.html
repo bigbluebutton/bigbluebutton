@@ -18,30 +18,7 @@ var requiredMinorVersion = ${version_minor};
 // Minor version of Flash required
 var requiredRevision = ${version_revision};
 // -----------------------------------------------------------------------------
-// 134.117.58.103:8080
 // -->
-
-//Change the return value of this function to your red5 server
-function getRed5()
-{
-	return "localhost"
-}
-
-//Change the return value of this function to your tomcat server
-function getPresentationHost()
-{
-	return "localhost"
-}
-
-//This function extracts the top level domain and uses it as the server for both the red5 and the
-//presentation. For example, http://www.example.com/index.html gets converted into www.example.com
-//If you don't wish to use the top level domain as the server, just make this function return an empty
-//string, and the above two functions - getRed5() and getPresentationHost() will be used by default.
-function testURL(){
-	return ""
-	//return window.location.href
-}
-
 </script>
 </head>
 

@@ -1,12 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:ApplicationControlBar xmlns:mx="http://www.adobe.com/2006/mxml" 
-						  enabled="true">   
+						  enabled="true" >   
 	<mx:Script>
 		<![CDATA[
+			import mx.core.Application;
 			import org.bigbluebutton.main.MainApplicationConstants;
 			import mx.controls.Alert;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.main.view.MainApplicationShellMediator;
+			
+			private var images:Images = new Images();
+			private var dispState:String; //full-screen?
+			[Bindable] private var fullscreen_icon:Class = images.full_screen;
+			
+			public function loggedIn(name:String):void{
+				loggedInUserLbl.text = "You are logged in as " + name + ".";
+				this.visible = true;
+				/* Set up full screen handler. */
+				this.stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
+				dispState = this.stage.displayState;
+			}
 			
 			public function addButton(name:String):Button{
 				var btn:Button = new Button();
@@ -23,11 +36,44 @@
 				trace('logout button clicked.');
 				dispatchEvent(new Event(MainApplicationConstants.LOGOUT_EVENT));
 			}
+			
+			private function fullScreenHandler(evt:FullScreenEvent):void {
+				dispState = this.stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
+				if (evt.fullScreen) {
+					trace("Switching to full screen");
+					/* Do something specific here if we switched to full screen mode. */
+				
+				} else {
+					trace("Switching to normal screen");
+					/* Do something specific here if we switched to normal mode. */
+				}
+			}			
+			
+			private function toggleFullScreen():void{
+	   			trace("Toggling fullscreen");
+	   			try {
+					switch (this.stage.displayState) {
+						case StageDisplayState.FULL_SCREEN:
+							trace("full screen mode");
+							// If already in full screen mode, switch to normal mode.
+							this.stage.displayState = StageDisplayState.NORMAL;
+							break;
+						default:
+							trace("Normal screen mode");
+							// If not in full screen mode, switch to full screen mode.
+							this.stage.displayState = StageDisplayState.FULL_SCREEN;
+							break;
+					}
+				} catch (err:SecurityError) {
+					// ignore
+				}
+	   		}
 		]]>
 	</mx:Script>
 	<!--<mx:Button id="webcamBtn" label="Open Webcam" visible="true" height="20" toolTip="Click to open webcam"/> -->	
 	<mx:Label id="loggedInUserLbl" text="" visible="true"/>			
 	<mx:Spacer width="100%"/>
+	<mx:Button width="20" height="20" toolTip="Toggle Full-Screen" id="fullScreen" icon="{fullscreen_icon}" click="toggleFullScreen()" />
 	<mx:Button label="Logout" id="btnLogout" toolTip="Log out" right="10" click="doLogout()"/>		
 	
 </mx:ApplicationControlBar>

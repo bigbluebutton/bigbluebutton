@@ -58,5 +58,12 @@ package org.bigbluebutton.modules.viewers
 		public static const VIEWER_SELECTED_EVENT:String = "VIEWER_SELECTED_EVENT";
 		public static const BECOME_VIEWER_EVENT:String = "BECOME_VIEWER_EVENT";
 		public static const BECOME_PRESENTER_EVENT:String = "BECOME_PRESENTER_EVENT";
+		
+		public static const CONNECT_SUCCESS:String = "NetConnection.Connect.Success";
+		public static const CONNECT_FAILED:String = "NetConnection.Connect.Failed";
+		public static const CONNECT_CLOSED:String = "NetConnection.Connect.Closed";
+		public static const INVALID_APP:String = "NetConnection.Connect.InvalidApp";
+		public static const APP_SHUTDOWN:String = "NetConnection.Connect.AppShutDown";
+		public static const CONNECT_REJECTED:String = "NetConnection.Connect.Rejected";
 	}
 }

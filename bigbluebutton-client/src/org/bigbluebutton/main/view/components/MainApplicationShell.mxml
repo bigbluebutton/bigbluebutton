@@ -8,6 +8,7 @@
 		
 	<mx:Script>
 		<![CDATA[
+			import mx.core.Application;
 			import mx.controls.Alert;
 			import org.bigbluebutton.common.Constants;
 			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
@@ -20,10 +21,14 @@
 						
 			protected function initializeShell():void
 			{
+				//var dispState:String = this.stage.displayState;
+				
+				//Startup the main facade
 				trace("before startup in initShell");
 				facade.startup(this);
 				trace("After startup in initShell");
-			}			
+			}		
+						
 		]]>
 	</mx:Script>
 			

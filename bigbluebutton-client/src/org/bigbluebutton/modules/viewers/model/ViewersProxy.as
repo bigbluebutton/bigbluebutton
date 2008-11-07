@@ -65,9 +65,12 @@ package org.bigbluebutton.modules.viewers.model
 			_viewersService.assignPresenter(assignTo, me.userid);
 		}
 		
-		private function connectionStatusListener(connected:Boolean):void {
+		private function connectionStatusListener(connected:Boolean, reason:String = null):void {
+			trace(reason);
 			if (connected) {
 				sendNotification(ViewersModuleConstants.LOGGED_IN);
+			} else if (reason != null){
+				sendNotification(ViewersModuleConstants.LOGIN_FAILED, reason);
 			} else {
 				_participants = null;
 				sendNotification(ViewersModuleConstants.LOGGED_OUT);

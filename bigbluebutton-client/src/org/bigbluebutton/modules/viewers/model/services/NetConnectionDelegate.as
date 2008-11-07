@@ -41,7 +41,8 @@ package org.bigbluebutton.modules.viewers.model.services
 		private var _uri : String;
 		private var connectionId : Number;
 		private var connected : Boolean = false;
-		private var _connectionListener:Function;
+		private var _connectionSuccessListener:Function;
+		private var _connectionFailedListener:Function;
 		
 		private var _userid:Number = -1;
 		private var _role:String = "unknown";
@@ -51,15 +52,22 @@ package org.bigbluebutton.modules.viewers.model.services
 		private var _authToken:String = "AUTHORIZED";
 		private var _room:String;
 				
-		public function NetConnectionDelegate(uri:String, connectionListener:Function) : void
+		public function NetConnectionDelegate(uri:String) : void
 		{
 			_netConnection = new NetConnection();
 			_uri = uri;
-			_connectionListener = connectionListener;
 		}
 		
 		public function get connection():NetConnection {
 			return _netConnection;
+		}
+		
+		public function addConnectionSuccessListener(connectionListener:Function):void{
+			_connectionSuccessListener = connectionListener;
+		}
+		
+		public function addConnectionFailedListener(connectionListener:Function):void{
+			_connectionFailedListener = connectionListener;
 		}
 		
 		public function connect(uri:String, room:String, 
@@ -109,43 +117,38 @@ package org.bigbluebutton.modules.viewers.model.services
 				case CONNECT_SUCCESS :
 					trace("Connection to viewers application succeeded.");
 					if ((_userid > 0) && (_role != "unknown")) {
-						_connectionListener(true, _userid, _role, _room, _authToken);	
+						_connectionSuccessListener(true, _userid, _role, _room, _authToken);	
 					}				
 					break;
 			
 				case CONNECT_FAILED :
 					trace("Connection to viewers application failed");
-					_connectionListener(false);			
-					sendFailReason(statusCode);								
+					_connectionFailedListener(statusCode);									
 					break;
 					
 				case CONNECT_CLOSED :	
 					trace("Connection to viewers application closed");				
-					_connectionListener(false);		
-					//sendFailReason(statusCode);									
+					//_connectionFailedListener(statusCode);									
 					break;
 					
 				case INVALID_APP :	
 					trace("viewers application not found on server");			
-					_connectionListener(false);		
-					sendFailReason(statusCode);				
+					_connectionFailedListener(statusCode);				
 					break;
 					
 				case APP_SHUTDOWN :
 					trace("viewers application has been shutdown");
-					_connectionListener(false);				
-					sendFailReason(statusCode);	
+					_connectionFailedListener(statusCode);	
 					break;
 					
 				case CONNECT_REJECTED :
 					trace("No permissions to connect to the viewers application" );
-					_connectionListener(false);			
-					sendFailReason(statusCode);		
+					_connectionFailedListener(statusCode);		
 					break;
 					
 				default :
 				   trace("Default status to the viewers application" );
-					_connectionListener(false);
+					_connectionFailedListener("unknown reason");
 				   break;
 			}
 		}
@@ -158,19 +161,19 @@ package org.bigbluebutton.modules.viewers.model.services
 		protected function netSecurityError( event : SecurityErrorEvent ) : void 
 		{
 			trace("Security error - " + event.text);
-			_connectionListener(false);
+			_connectionFailedListener(false);
 		}
 		
 		protected function netIOError( event : IOErrorEvent ) : void 
 		{
 			trace("Input/output error - " + event.text);
-			_connectionListener(false);
+			_connectionFailedListener(false);
 		}
 			
 		protected function netASyncError( event : AsyncErrorEvent ) : void 
 		{
 			trace("Asynchronous code error - " + event.error );
-			_connectionListener(false);
+			_connectionFailedListener(false);
 		}	
 
 		/**

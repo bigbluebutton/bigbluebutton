@@ -82,8 +82,7 @@ package org.bigbluebutton.main.view
 					shell.mdiCanvas.windowManager.remove(rwin as MDIWindow);						
 					break;
 				case MainApplicationConstants.USER_LOGGED_IN:
-					shell.toolbar.loggedInUserLbl.text = "You are logged in as " + notification.getBody().username + ".";
-					shell.toolbar.visible = true;
+					shell.toolbar.loggedIn(notification.getBody().username);
 					break;
 				case MainApplicationConstants.USER_LOGGED_OUT:
 					shell.toolbar.visible = false;
