@@ -24,7 +24,6 @@ package org.bigbluebutton.modules.presentation.view
 	import flash.net.FileReference;
 	
 	import mx.controls.Alert;
-	import mx.managers.PopUpManager;
 	
 	import org.bigbluebutton.modules.presentation.PresentModuleConstants;
 	import org.bigbluebutton.modules.presentation.controller.notifiers.ProgressNotifier;
@@ -103,6 +102,8 @@ package org.bigbluebutton.modules.presentation.view
 		private function closeWindow():void{
 			if (okState) {
 				sendNotification(PresentModuleConstants.READY_EVENT);
+			} else{
+				sendNotification(PresentModuleConstants.REMOVE_UPLOAD_WINDOW);
 			}
 			enableControls();
 		}

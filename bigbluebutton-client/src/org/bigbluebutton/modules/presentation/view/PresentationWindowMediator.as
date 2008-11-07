@@ -113,7 +113,8 @@ package org.bigbluebutton.modules.presentation.view
 					PresentModuleConstants.START_SHARE,
 					PresentModuleConstants.DISPLAY_SLIDE,
 					PresentModuleConstants.PRESENTER_MODE,
-					PresentModuleConstants.VIEWER_MODE
+					PresentModuleConstants.VIEWER_MODE,
+					PresentModuleConstants.REMOVE_UPLOAD_WINDOW
 					];
 		}
 		
@@ -163,6 +164,9 @@ package org.bigbluebutton.modules.presentation.view
 				case PresentModuleConstants.DISPLAY_SLIDE:
 					var slidenum:int = notification.getBody() as int;
 					handleDisplaySlide(slidenum);
+					break;
+				case PresentModuleConstants.REMOVE_UPLOAD_WINDOW:
+					removeFileUploadPopup();
 					break;
 			}
 		}
@@ -244,6 +248,13 @@ package org.bigbluebutton.modules.presentation.view
 			} else {
 				proxy.getCurrentSlideNumber();
 			}
+		}
+		
+		private function removeFileUploadPopup():void{
+			//Remove the upload window
+			PopUpManager.removePopUp(_presWin.uploadWindow);
+			//Remove the mediator
+			facade.removeMediator(FileUploadWindowMediator.NAME);
 		}
 				
 		/**
