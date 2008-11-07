@@ -22,8 +22,6 @@ package org.bigbluebutton.modules.viewers.model.services
 	import flash.events.*;
 	import flash.net.NetConnection;
 	
-	import mx.controls.Alert;
-	
 	import org.bigbluebutton.modules.viewers.ViewersFacade;
 	import org.bigbluebutton.modules.viewers.ViewersModuleConstants;
 
@@ -32,12 +30,12 @@ package org.bigbluebutton.modules.viewers.model.services
 	{
 		public static const NAME : String = "NetConnectionDelegate";
 		
-		public static const CONNECT_SUCCESS = "NetConnection.Connect.Success";
-		public static const CONNECT_FAILED = "NetConnection.Connect.Failed";
-		public static const CONNECT_CLOSED = "NetConnection.Connect.Closed";
-		public static const INVALID_APP = "NetConnection.Connect.InvalidApp";
-		public static const APP_SHUTDOWN = "NetConnection.Connect.AppShutDown";
-		public static const CONNECT_REJECTED = "NetConnection.Connect.Rejected";
+		public static const CONNECT_SUCCESS:String = "NetConnection.Connect.Success";
+		public static const CONNECT_FAILED:String = "NetConnection.Connect.Failed";
+		public static const CONNECT_CLOSED:String = "NetConnection.Connect.Closed";
+		public static const INVALID_APP:String = "NetConnection.Connect.InvalidApp";
+		public static const APP_SHUTDOWN:String = "NetConnection.Connect.AppShutDown";
+		public static const CONNECT_REJECTED:String = "NetConnection.Connect.Rejected";
 
 		private var _netConnection : NetConnection;	
 		private var _uri : String;
