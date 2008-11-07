@@ -19,6 +19,7 @@
 */
 package org.bigbluebutton.modules.listeners.model.vo
 {
+	[Bindable]
 	public class Listener
 	{
 		public var room:String;

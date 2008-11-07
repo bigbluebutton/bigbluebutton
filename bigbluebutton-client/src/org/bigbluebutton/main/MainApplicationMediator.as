@@ -36,8 +36,8 @@ package org.bigbluebutton.main
 					break;
 				case MainApplicationConstants.APP_MODEL_INITIALIZED:
 					trace(NAME + "::Received APP_MODEL_INITIALIZED");
-					//proxy.loadModule("ViewersModule");
-					proxy.loadModule("ListenersModule");
+					proxy.loadModule("ViewersModule");
+					//proxy.loadModule("ListenersModule");
 					break;
 				case MainApplicationConstants.MODULE_LOADED:
 					trace(NAME + "::Received MODULE_LOADED");
@@ -58,6 +58,7 @@ package org.bigbluebutton.main
 					trace(NAME + '::Received USER_LOGGED_IN');
 					proxy.loadModule("ChatModule");
 					proxy.loadModule("PresentationModule");
+					//proxy.loadModule("ListenersModule");
 					break;
 			}
 		}		

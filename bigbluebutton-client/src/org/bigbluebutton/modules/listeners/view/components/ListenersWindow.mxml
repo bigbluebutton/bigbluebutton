@@ -8,23 +8,16 @@
 		<![CDATA[
 			import org.bigbluebutton.modules.listeners.ListenersModuleConstants;
 			import mx.core.Application;
-			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.modules.listeners.view.components.Images;
-			import mx.events.DragEvent;
 			import flash.events.MouseEvent;
-			import mx.core.DragSource;
-			import mx.managers.DragManager;
 			import mx.controls.Label;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Image;	
 			
-			public static const TITLE:String = "Listeners";	
 			private var images:Images = new Images();
 			
 			private var _xPosition:int;
 			private var _yPosition:int;
-			
-			[Bindable] public var dropTargetIcon : Object = images.door_in;
 			
 			[Bindable] private var muteAllIcon : Class = images.sound_mute;
 			[Bindable] private var unmuteAllIcon : Class = images.sound_none;
@@ -32,51 +25,10 @@
 			[Bindable]
 			public var listeners:ArrayCollection = new ArrayCollection();
 			
-			public var userid:Number;
-			public var isMuted:Boolean;
-			
-			//Full screen?
-			private var dispState:String;
-			
 			private function init():void{
-//				var conf:Conference = ViewersFacade.getInstance().retrieveMediator(Conference.NAME) as Conference;
-//				role = conf.me.role;
-				
-				//Initialize full screen handler
-				Application.application.stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
-				dispState = Application.application.stage.displayState;
-			}
-			
-			private function fullScreenHandler(evt:FullScreenEvent):void {
-				dispState = Application.application.stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
-				if (evt.fullScreen) {
-					//Notify user that the keyboard is not working
-					this.maximizeRestoreBtn.visible = false;
-					if (this.maximized){
-						this.restore();
-					}
-				} else{
-					this.maximizeRestoreBtn.visible = true;
-				}
-			}
-			
-			public function dragEnterHandler(event:DragEvent):void
-	   		{
-	   			var dropTarget : Image = event.currentTarget as Image;
-	   			if (event.dragSource.hasFormat('userid'))
-	   		
-	   			DragManager.acceptDragDrop(dropTarget);
-	   		}
-	   	
-	   		public function dragDropHandler(event:DragEvent):void
-	   		{
-	   			dropTargetIcon = images.door_open;
-	   			
-   				userid = Number(event.dragSource.dataForFormat('userid'));
-				dispatchEvent(new Event(ListenersModuleConstants.EJECT_USER));
-	   		
-	   		}
 
+			}
+			
 			public function get xPosition():int {
 				return _xPosition;
 			}
@@ -105,14 +57,11 @@
     	<mx:ControlBar width="100%">
     	   <mx:Button id="muteAllIconImg" icon="{muteAllIcon}" 
     	   			toolTip="Mute All" click="dispatchEvent(new Event(ListenersModuleConstants.MUTE_ALL))"
-    	   			visible="{role == Role.MODERATOR}"/> 
+    	   			visible="true" width="18" height="18"/> 
     	   <mx:Button id="unmuteAllIconImg" icon="{unmuteAllIcon}" 
     	   			toolTip="Unmute All" click="dispatchEvent(new Event(ListenersModuleConstants.UNMUTE_ALL))"
-    	   			visible="{role == Role.MODERATOR}"/> 
-     	   <mx:Spacer width="100%"/>
-    		<mx:Image id="ejectUserDropTarget" source="{dropTargetIcon}" 
-    	   			toolTip="Drop user here to eject." visible="{role == Role.MODERATOR}"
-    	   			dragEnter="dragEnterHandler(event)" dragDrop="dragDropHandler(event)"/>  			
+    	   			visible="true" width="18" height="18"/> 
+     	   <mx:Spacer width="100%"/>			
     	</mx:ControlBar>
 
 </MDIWindow>

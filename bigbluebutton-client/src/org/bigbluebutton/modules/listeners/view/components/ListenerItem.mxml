@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" creationComplete="initParticipantItem()">
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" creationComplete="init()">
    <mx:Script>
    	<![CDATA[
    		import org.bigbluebutton.modules.listeners.ListenersModuleConstants;
@@ -18,67 +18,36 @@
 
    		private var images:Images = new Images();
    		
-   		[Bindable] private var muteIcon : Object = images.sound_mute;
+   		[Bindable] private var muteIcon:Class = images.sound_mute;
    		[Bindable] private var talkIcon : Object = images.sound;   		
    		[Bindable] private var ejectIcon : Object = images.eject_user;  		  		
    		[Bindable] private var statusTooltip : String = "";
    		[Bindable] private var ejectTooltip : String = "Click to eject user.";   		   		
-   		[Bindable] public var isModerator : Boolean = true;
-   		
-   		private function initParticipantItem() : void
+	
+   		private function init() : void
    		{
-   			displayStatusIcon();
-   			//VoiceFacade.getInstance().registerMediator(new MeetMeUserItemMediator(this));
-   			//trace(this.parent.toString());
-   			//trace(this.parentApplication.toString());
-   			//trace(this.parentDocument.userid);
-   			//trace(this.document.toString());
-   			
+   			displayStatusIcon();   			
    		}
    		   		
    		public function displayStatusIcon() : void
    		{
-/*   			if (data.isMuted) {
+   			if (data.muted) {
    				muteIcon = images.sound_mute;
-   				muteImg.toolTip = "Double click to unmute user.";
+   				muteBtn.toolTip = "Click to unmute user.";
    			} else {
    				muteIcon = images.sound_none;
-   				muteImg.toolTip = "Double click to mute user.";   				
+   				muteBtn.toolTip = "Click to mute user.";   				
     		} 
     		
-   			if (data.isTalking) {
+   			if (data.talking) {
    				talkIcon = images.sound;
    				talkImg.toolTip = "Talking";
    				talkImg.visible = true;
    			} else {
    				talkImg.visible = false;
    			}    	
-   			
-   			if (model.meetMeRoom.userRole == Role.MODERATOR) {
-   				isModerator = true;
-   			} else {
-   				isModerator = false;
-   				statusTooltip = "";
-   				ejectTooltip = "";
-   			}
-*/   		}
-   		
-   		public function dragIt(event:MouseEvent, userid:Number):void
-	   	{
-	   		if (userRole != Role.MODERATOR) return;
-	   		
-	   		var dragInitiator:Label = event.currentTarget as Label;
-	   		var dragSource:DragSource = new DragSource();
-	   		dragSource.addData(data.userid , 'userid');
-	   		
-	   		var dragProxy:Image = new Image();
-
-	   		dragProxy.source = images.eject_user;
-	   		dragProxy.alpha = 1;
-	   		DragManager.doDrag(dragInitiator, dragSource , event, dragProxy, 0, 0, 1, true);
-
-	   	}
-	   	
+   		}
+   			   	
        public function muteUser():void
        {
        		//this.parentDocument.userid = this.data.userid;
@@ -89,8 +58,7 @@
 	
    	]]>
    </mx:Script>
-   		<mx:Image id="muteImg" source="{muteIcon}" doubleClick="muteUser()"/>
-	    <mx:Label id="nameLabel" mouseDown="dragIt(event,data.userid)" useHandCursor="true"
-	    	toolTip="Drag to eject." text="{data.callerName}"/>
-		<mx:Image id="talkImg" source="{talkIcon}" visible="{data.isTalking}" toolTip="Talking"/>
+   		<mx:Button id="muteBtn" icon="{muteIcon}" click="muteUser()" width="18" height="16"/>
+	    <mx:Label id="nameLabel" text="{data.callerName}"/>
+		<mx:Image id="talkImg" source="{talkIcon}" visible="{data.talking}" toolTip="Talking"/>
 </mx:HBox>

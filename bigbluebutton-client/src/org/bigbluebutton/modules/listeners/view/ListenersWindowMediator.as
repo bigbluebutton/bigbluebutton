@@ -87,7 +87,7 @@ package org.bigbluebutton.modules.listeners.view
 				_listenersWindow.listeners = proxy.listeners;
 				_listenersWindow.width = 210;
 		   		_listenersWindow.height = 220;
-		   		_listenersWindow.title = "Viewers";
+		   		_listenersWindow.title = "Listeners";
 		   		_listenersWindow.showCloseButton = false;
 		   		_listenersWindow.xPosition = 30;
 		   		_listenersWindow.yPosition = 30;
