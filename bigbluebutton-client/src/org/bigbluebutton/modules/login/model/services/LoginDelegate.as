@@ -27,6 +27,7 @@ package org.bigbluebutton.modules.login.model.services
 	
 	import org.bigbluebutton.modules.log.LogModuleFacade;
 	import org.bigbluebutton.modules.viewers.ViewersFacade;
+	import org.bigbluebutton.modules.viewers.ViewersModuleConstants;
 	import org.bigbluebutton.modules.viewers.controller.notifiers.StatusNotifier;
 	import org.bigbluebutton.modules.viewers.model.business.Conference;
 	import org.bigbluebutton.modules.viewers.model.vo.User;
@@ -144,7 +145,7 @@ package org.bigbluebutton.modules.login.model.services
 		{
 			_conference.connected = false;
 			_conference.connectFailReason = reason;
-			sendNotification(ViewersFacade.CONNECT_UNSUCCESSFUL, reason);
+			sendNotification(ViewersModuleConstants.LOGIN_FAILED, reason);
 		}
 		
 		public function connected() : void

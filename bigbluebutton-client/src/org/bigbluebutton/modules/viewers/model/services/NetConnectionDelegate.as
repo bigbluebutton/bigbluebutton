@@ -21,11 +21,23 @@ package org.bigbluebutton.modules.viewers.model.services
 {
 	import flash.events.*;
 	import flash.net.NetConnection;
+	
+	import mx.controls.Alert;
+	
+	import org.bigbluebutton.modules.viewers.ViewersFacade;
+	import org.bigbluebutton.modules.viewers.ViewersModuleConstants;
 
 		
 	public class NetConnectionDelegate
 	{
 		public static const NAME : String = "NetConnectionDelegate";
+		
+		public static const CONNECT_SUCCESS = "NetConnection.Connect.Success";
+		public static const CONNECT_FAILED = "NetConnection.Connect.Failed";
+		public static const CONNECT_CLOSED = "NetConnection.Connect.Closed";
+		public static const INVALID_APP = "NetConnection.Connect.InvalidApp";
+		public static const APP_SHUTDOWN = "NetConnection.Connect.AppShutDown";
+		public static const CONNECT_REJECTED = "NetConnection.Connect.Rejected";
 
 		private var _netConnection : NetConnection;	
 		private var _uri : String;
@@ -94,39 +106,43 @@ package org.bigbluebutton.modules.viewers.model.services
 		public function handleResult(  event : Object  ) : void {
 			var info : Object = event.info;
 			var statusCode : String = info.code;
-			
 			switch ( statusCode ) 
 			{
-				case "NetConnection.Connect.Success" :
+				case CONNECT_SUCCESS :
 					trace("Connection to viewers application succeeded.");
 					if ((_userid > 0) && (_role != "unknown")) {
 						_connectionListener(true, _userid, _role, _room, _authToken);	
 					}				
 					break;
 			
-				case "NetConnection.Connect.Failed" :
+				case CONNECT_FAILED :
 					trace("Connection to viewers application failed");
-					_connectionListener(false);										
+					_connectionListener(false);			
+					sendFailReason(statusCode);								
 					break;
 					
-				case "NetConnection.Connect.Closed" :	
+				case CONNECT_CLOSED :	
 					trace("Connection to viewers application closed");				
-					_connectionListener(false);										
+					_connectionListener(false);		
+					//sendFailReason(statusCode);									
 					break;
 					
-				case "NetConnection.Connect.InvalidApp" :	
+				case INVALID_APP :	
 					trace("viewers application not found on server");			
-					_connectionListener(false);					
+					_connectionListener(false);		
+					sendFailReason(statusCode);				
 					break;
 					
-				case "NetConnection.Connect.AppShutDown" :
+				case APP_SHUTDOWN :
 					trace("viewers application has been shutdown");
-					_connectionListener(false);					
+					_connectionListener(false);				
+					sendFailReason(statusCode);	
 					break;
 					
-				case "NetConnection.Connect.Rejected" :
+				case CONNECT_REJECTED :
 					trace("No permissions to connect to the viewers application" );
-					_connectionListener(false);					
+					_connectionListener(false);			
+					sendFailReason(statusCode);		
 					break;
 					
 				default :
@@ -134,6 +150,10 @@ package org.bigbluebutton.modules.viewers.model.services
 					_connectionListener(false);
 				   break;
 			}
+		}
+		
+		private function sendFailReason(reason:String):void{
+			ViewersFacade.getInstance().sendNotification(ViewersModuleConstants.LOGIN_FAILED, reason);
 		}
 		
 			

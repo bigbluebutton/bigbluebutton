@@ -22,7 +22,8 @@ package org.bigbluebutton.modules.viewers.view
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
 	
-	import org.bigbluebutton.common.Constants;
+	import mx.controls.Alert;
+	
 	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.modules.viewers.ViewersFacade;
 	import org.bigbluebutton.modules.viewers.ViewersModuleConstants;
@@ -67,9 +68,8 @@ package org.bigbluebutton.modules.viewers.view
 
 			return [
 					ViewersModuleConstants.OPEN_JOIN_WINDOW,
-					ViewersModuleConstants.CLOSE_JOIN_WINDOW
-//			        ViewersFacade.LOGIN_FAILED,
-//			        ViewersFacade.CONNECT_UNSUCCESSFUL
+					ViewersModuleConstants.CLOSE_JOIN_WINDOW,
+					ViewersModuleConstants.LOGIN_FAILED
 			];
 
 		
@@ -102,16 +102,11 @@ package org.bigbluebutton.modules.viewers.view
 					facade.sendNotification(ViewersModuleConstants.REMOVE_WINDOW, _joinWindow);
 					break;
 					
-				case ViewersFacade.LOGIN_FAILED:
-					_joinWindow.showError();
-					break;	
+				case ViewersModuleConstants.LOGIN_FAILED:
+					_joinWindow.showError(notification.getBody() as String);
+					break;
+					
 			}
-
-//			switch(notification.getName()){
-//				case ViewersFacade.CONNECT_UNSUCCESSFUL:
-//					_joinWindow.lblNote.text = "Login Failed";
-//					break;
-//			}
 
 		}
 		

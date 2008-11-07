@@ -6,6 +6,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.viewers.model.services.NetConnectionDelegate;
 			import org.bigbluebutton.modules.viewers.view.JoinWindowMediator;
 			import mx.managers.PopUpManager;
 			
@@ -32,16 +33,37 @@
 				_yPosition = y;
 			}
 						
-			public function showError():void
+			public function showError(error:String):void
 			{
-				this.loginMessage.visible = true;
+				this.lblNote.visible = true;
+				this.lblNote.text = error;
+				switch(error){
+					case NetConnectionDelegate.CONNECT_FAILED:
+						this.lblNote.text = "Connection Failed. Please try again";
+						break;
+					case NetConnectionDelegate.CONNECT_REJECTED:
+						this.lblNote.text = "Please check your login information";
+						break;
+					case NetConnectionDelegate.CONNECT_CLOSED:
+						this.lblNote.text = "Connection Closed";
+						break;
+					case NetConnectionDelegate.CONNECT_SUCCESS:
+						this.lblNote.text = "Connection Successful";
+						break;
+					case NetConnectionDelegate.APP_SHUTDOWN:
+						this.lblNote.text = "Application has shut down";
+						break;
+					case NetConnectionDelegate.INVALID_APP:
+						this.lblNote.text = "Application not found on server";
+						break;
+				}
 			}
 			
 			public function clear():void {
 				nameField.text = "";
 				confField.text = "";
 				passwdField.text = "";
-				loginMessage.text = "";
+				lblNote.text = "";
 			}
 					
 		]]>
@@ -56,8 +78,5 @@
 		<mx:Button label="Join" x="243" y="169" click="dispatchEvent(new Event(JoinWindowMediator.LOGIN))" tabIndex="4"/>
 		<mx:Label x="21" y="10" text="Complete form to join conference." width="256" id="messageLbl"/>
 		<mx:Label x="22" y="208" width="270" id="lblNote"/>
-		<mx:Label id="loginMessage" x="22" y="200" 
-			      text="Either the password or room number is incorrect" 
-			      visible="false" color="red"/>
 
 </viewer:MDIWindow>
