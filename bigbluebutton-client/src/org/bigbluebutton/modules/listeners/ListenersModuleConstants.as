@@ -45,11 +45,19 @@ package org.bigbluebutton.modules.listeners
 		public static const EJECT_USER:String = "Eject User";
 		public static const MUTE_USER:String = "Mute User";
 		
-		public static const USER_JOIN_EVENT:String = "USER_JOIN_EVENT";
+		public static const USER_MUTE_NOTIFICATION:String = "USER_MUTE_NOTIFICATION";
+		public static const USER_TALKING_NOTIFICATION:String = "USER_TALKING_NOTIFICATION";
+		
+		public static const USER_MUTE_EVENT:String = "USER_MUTE_EVENT";
+		public static const USER_TALK_EVENT:String = "USER_TALK_EVENT";
+		
 		//EVENTS
-		public static const MUTE_UNMUTE_USER_COMMAND:String = "MUTE_UNMUTE_USER_COMMAND";
+		public static const MUTE_USER_EVENT:String = "MUTE_USER_EVENT";
 		public static const EJECT_USER_COMMAND:String = "EJECT_USER_COMMAND";
 		public static const MUTE_ALL_USERS_COMMAND:String = "MUTE_ALL_USERS_COMMAND";
 		public static const MUTE_EVENT:String = "MUTE_EVENT";
+	
+		public static const LISTENER_SELECTED_EVENT:String = "LISTENER_SELECTED_EVENT";
+		public static const EJECT_LISTENER_EVENT:String = "EJECT_LISTENER_EVENT";
 	}
 }

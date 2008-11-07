@@ -35,10 +35,9 @@
 			}
 		
 			public function get uri():String {
-				return _attributes.uri + "/85115"; //aredcode for now + _attributes.room;
+				return _attributes.uri + "/" + "85115"; //aredcode for now + _attributes.room;
 			}
 			
-
 			public function get username():String {
 				return _attributes.username;
 			}

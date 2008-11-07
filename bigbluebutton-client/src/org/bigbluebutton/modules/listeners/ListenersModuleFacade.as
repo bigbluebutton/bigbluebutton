@@ -73,6 +73,7 @@ package org.bigbluebutton.modules.listeners
 	   	
 	   	public function stop(m:ListenersModule):void{
 			sendNotification(STOP, m);
+			removeCore(NAME);
 		}
 	}
 }

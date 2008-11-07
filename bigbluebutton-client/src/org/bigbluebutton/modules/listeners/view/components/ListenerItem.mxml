@@ -2,20 +2,16 @@
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" creationComplete="init()">
    <mx:Script>
    	<![CDATA[
+   		import org.bigbluebutton.modules.listeners.view.events.UserTalkEvent;
+   		import org.bigbluebutton.modules.listeners.view.events.UserMuteEvent;
    		import org.bigbluebutton.modules.listeners.ListenersModuleConstants;
-   		import org.bigbluebutton.common.Role;
    		import org.bigbluebutton.modules.listeners.view.components.Images;
    		import mx.controls.Image;
-		import mx.events.DragEvent;
 	    import flash.events.MouseEvent;
-	    import mx.core.DragSource;
-	    import mx.managers.DragManager;
 	    import mx.controls.Label;
 	    import mx.collections.ArrayCollection;
 	    import mx.controls.TileList;
 			
-		private var userRole : String = Role.MODERATOR;			
-
    		private var images:Images = new Images();
    		
    		[Bindable] private var muteIcon:Class = images.sound_mute;
@@ -26,9 +22,24 @@
 	
    		private function init() : void
    		{
+   			// Use parent document to hook into the event flow.
+   			this.parentDocument.addEventListener(ListenersModuleConstants.USER_MUTE_EVENT, onUserMuteEvent);
+   			this.parentDocument.addEventListener(ListenersModuleConstants.USER_TALK_EVENT, onUserTalkEvent);
    			displayStatusIcon();   			
    		}
-   		   		
+   		
+   		private function onUserMuteEvent(event:UserMuteEvent):void {
+   			if (event.userid == data.userid) {
+   				displayStatusIcon(); 				
+   			}
+   		}
+
+   		private function onUserTalkEvent(event:UserTalkEvent):void {
+   			if (event.userid == data.userid) {
+   				displayStatusIcon(); 				
+   			}
+   		}
+   		   		   		
    		public function displayStatusIcon() : void
    		{
    			if (data.muted) {
@@ -50,12 +61,11 @@
    			   	
        public function muteUser():void
        {
-       		//this.parentDocument.userid = this.data.userid;
-       		//this.parentDocument.isMuted != this.data.isMuted;
-       		//dispatchEvent(new Event(ListenersModuleConstants.MUTE_UNMUTE_USER));
-       }
-	   
-	
+       		var e:UserMuteEvent = new UserMuteEvent(ListenersModuleConstants.MUTE_USER_EVENT);
+       		e.userid = data.userid;
+       		e.mute = !data.muted; // toggle muted
+       		dispatchEvent(e);
+       }	
    	]]>
    </mx:Script>
    		<mx:Button id="muteBtn" icon="{muteIcon}" click="muteUser()" width="18" height="16"/>

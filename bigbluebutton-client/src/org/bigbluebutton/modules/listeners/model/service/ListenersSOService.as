@@ -24,6 +24,7 @@ package org.bigbluebutton.modules.listeners.model.service
 	import flash.net.Responder;
 	import flash.net.SharedObject;
 	
+	import org.bigbluebutton.modules.listeners.ListenersModuleConstants;
 	import org.bigbluebutton.modules.listeners.model.vo.IListeners;
 	import org.bigbluebutton.modules.listeners.model.vo.Listener;
 
@@ -39,7 +40,9 @@ package org.bigbluebutton.modules.listeners.model.service
 		private var _msgListener:Function;
 		private var _connectionListener:Function;
 		private var _uri:String;
-		
+		private var _messageSender:Function;
+		private var nc_responder : Responder;
+							
 		public function ListenersSOService(listeners:IListeners)
 		{			
 			_listeners = listeners;						
@@ -75,7 +78,11 @@ package org.bigbluebutton.modules.listeners.model.service
 			_listenersSO.client = this;
 			_listenersSO.connect(netConnectionDelegate.connection);
 			trace(NAME + ":Voice is connected to Shared object");
-			notifyConnectionStatusListener(true);			
+			notifyConnectionStatusListener(true);		
+				
+			// Query the server if there are already listeners in the conference.
+			nc_responder = new Responder(getMeetMeUsers, null);	
+			netConnectionDelegate.getCurrentListeners(nc_responder);
 		}
 		
 	    private function leave():void
@@ -86,7 +93,11 @@ package org.bigbluebutton.modules.listeners.model.service
 		public function addConnectionStatusListener(connectionListener:Function):void {
 			_connectionListener = connectionListener;
 		}
-		
+
+		public function addMessageSender(msgSender:Function):void {
+			_messageSender = msgSender;
+		}
+				
 		public function userJoin(userId:Number, cidName:String, cidNum:String, 
 									muted:Boolean, talking:Boolean):void
 		{
@@ -109,9 +120,9 @@ package org.bigbluebutton.modules.listeners.model.service
 			var l:Listener = _listeners.getListener(userId);			
 			if (l != null) {
 				l.muted = mute;
-			}
-			
-			// sendNewMeetMeEvent();?????		
+				trace('Un/Muting user ' + userId + " mute=" + mute);
+				sendMessage(ListenersModuleConstants.USER_MUTE_NOTIFICATION, {userid:userId, mute:mute});
+			}					
 		}
 
 		public function userTalk(userId:Number, talk:Boolean) : void
@@ -119,9 +130,8 @@ package org.bigbluebutton.modules.listeners.model.service
 			var l:Listener = _listeners.getListener(userId);			
 			if (l != null) {
 				l.talking = talk;
-			}
-			
-			// sendNewMeetMeEvent();?????		
+				sendMessage(ListenersModuleConstants.USER_TALKING_NOTIFICATION, {userid:userId, talking:talk});
+			}	
 		}
 
 		public function userLeft(userId:Number):void
@@ -167,6 +177,10 @@ package org.bigbluebutton.modules.listeners.model.service
 			}
 		}
 
+		private function sendMessage(msg:String, body:Object=null):void {
+			if (_messageSender != null) _messageSender(msg, body);
+		}
+		
 		private function netStatusHandler ( event : NetStatusEvent ) : void
 		{
 			var statusCode : String = event.info.code;
@@ -174,11 +188,7 @@ package org.bigbluebutton.modules.listeners.model.service
 			switch ( statusCode ) 
 			{
 				case "NetConnection.Connect.Success" :
-					trace(NAME + ":Connection Success");
-					// Query the server for the current listners.
-					var nc_responder : Responder;
-					nc_responder = new Responder(getMeetMeUsers, null);	
-					netConnectionDelegate.getCurrentListeners(nc_responder);	
+					trace(NAME + ":Connection Success");	
 					notifyConnectionStatusListener(true);			
 					break;
 			

@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 			xmlns="flexlib.mdi.containers.*"
-			implements="org.bigbluebutton.common.IBbbModuleWindow"
-			creationComplete="init()">
+			implements="org.bigbluebutton.common.IBbbModuleWindow">
 
 	<mx:Script>
 		<![CDATA[
+			import mx.events.ListEvent;
 			import org.bigbluebutton.modules.listeners.ListenersModuleConstants;
-			import mx.core.Application;
 			import org.bigbluebutton.modules.listeners.view.components.Images;
 			import flash.events.MouseEvent;
 			import mx.controls.Label;
@@ -18,16 +17,12 @@
 			
 			private var _xPosition:int;
 			private var _yPosition:int;
-			
+ 			  			
 			[Bindable] private var muteAllIcon : Class = images.sound_mute;
 			[Bindable] private var unmuteAllIcon : Class = images.sound_none;
-			[Bindable] private var role:String;
-			[Bindable]
-			public var listeners:ArrayCollection = new ArrayCollection();
-			
-			private function init():void{
+			[Bindable] private var ejectIcon : Class = images.eject_user;
 
-			}
+			[Bindable] public var listeners:ArrayCollection = new ArrayCollection();
 			
 			public function get xPosition():int {
 				return _xPosition;
@@ -43,25 +38,33 @@
 			
 			public function set yPosition(y:int):void {
 				_yPosition = y;
-			}
-	   		
+			}		
+
+			private function listenerSelectEvent(event:ListEvent):void {
+	            dispatchEvent(new Event(ListenersModuleConstants.LISTENER_SELECTED_EVENT));
+        	}   
+        	
+        				
 		]]>
 	</mx:Script>
 	
-    	<mx:TileList id="participantsList" height="100%" width="100%" 
-        	itemRenderer="org.bigbluebutton.modules.listeners.view.components.ListenerItem"
-            maxColumns="1" rowHeight="25" columnWidth="200" 
-            dataProvider="{listeners}">
+    	<mx:TileList id="listenersList" height="100%" width="100%" itemClick="listenerSelectEvent(event);"
+ 			itemRenderer="org.bigbluebutton.modules.listeners.view.components.ListenerItem"
+            maxColumns="1" rowHeight="25" columnWidth="200" dragEnabled="false"
+            dataProvider="{listeners}">          
     	</mx:TileList>				
-    	
+    	    	
     	<mx:ControlBar width="100%">
-    	   <mx:Button id="muteAllIconImg" icon="{muteAllIcon}" 
-    	   			toolTip="Mute All" click="dispatchEvent(new Event(ListenersModuleConstants.MUTE_ALL))"
+    	   <mx:Button id="muteAllBtn" icon="{muteAllIcon}" 
+    	   			toolTip="Mute all listeners." click="dispatchEvent(new Event(ListenersModuleConstants.MUTE_ALL))"
     	   			visible="true" width="18" height="18"/> 
-    	   <mx:Button id="unmuteAllIconImg" icon="{unmuteAllIcon}" 
-    	   			toolTip="Unmute All" click="dispatchEvent(new Event(ListenersModuleConstants.UNMUTE_ALL))"
+    	   <mx:Button id="unmuteAllBtn" icon="{unmuteAllIcon}" 
+    	   			toolTip="Unmute all listeners." click="dispatchEvent(new Event(ListenersModuleConstants.UNMUTE_ALL))"
     	   			visible="true" width="18" height="18"/> 
      	   <mx:Spacer width="100%"/>			
+			<mx:Button id="ejectBtn" icon="{ejectIcon}" 
+    	   			toolTip="Select listener and click to eject." click="dispatchEvent(new Event(ListenersModuleConstants.EJECT_LISTENER_EVENT))"
+    	   			visible="true" enabled="false" width="18" height="18"/> 
     	</mx:ControlBar>
 
 </MDIWindow>

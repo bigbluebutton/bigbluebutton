@@ -22,9 +22,10 @@ package org.bigbluebutton.modules.listeners.view
 	import flash.events.Event;
 	
 	import org.bigbluebutton.modules.listeners.ListenersModuleConstants;
-	import org.bigbluebutton.modules.listeners.controller.notifiers.MuteNotifier;
 	import org.bigbluebutton.modules.listeners.model.ListenersProxy;
 	import org.bigbluebutton.modules.listeners.view.components.ListenersWindow;
+	import org.bigbluebutton.modules.listeners.view.events.UserMuteEvent;
+	import org.bigbluebutton.modules.listeners.view.events.UserTalkEvent;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
@@ -48,85 +49,88 @@ package org.bigbluebutton.modules.listeners.view
 			super(NAME);
 			_module = module;
 			_listenersWindow = new ListenersWindow();
-			_listenersWindow.addEventListener(ListenersModuleConstants.UNMUTE_ALL, unmuteAllUsers);
-			_listenersWindow.addEventListener(ListenersModuleConstants.MUTE_ALL, muteAllUsers);
-			_listenersWindow.addEventListener(ListenersModuleConstants.EJECT_USER, ejectUser);
-			_listenersWindow.addEventListener(ListenersModuleConstants.MUTE_USER, muteUser);
+			_listenersWindow.addEventListener(ListenersModuleConstants.UNMUTE_ALL, onUnmuteAllUsers);
+			_listenersWindow.addEventListener(ListenersModuleConstants.MUTE_ALL, onMuteAllUsers);
+			_listenersWindow.addEventListener(ListenersModuleConstants.EJECT_LISTENER_EVENT, onEjectListenerEvent);
+			_listenersWindow.addEventListener(ListenersModuleConstants.MUTE_USER_EVENT, onMuteUserEvent);
+			_listenersWindow.addEventListener(ListenersModuleConstants.LISTENER_SELECTED_EVENT, onListenerSelectedEvent);
 			
 		}
-		
-		
-		/**
-		 *  
-		 * @return The array of strings representing which notifications this class listens to
-		 * <p>
-		 * This class listens to the following notifications:
-		 * 	MeetMeFacade.USER_JOIN_EVENT
-		 * 
-		 */		
-		override public function listNotificationInterests():Array{
-			return [
-					ListenersModuleConstants.OPEN_WINDOW
-					];
+
+		private function onUnmuteAllUsers(e:Event) : void
+   		{
+   			proxy.muteAllUsers(false);
+   		}
+   		
+ 		
+   		private function onMuteAllUsers(e:Event) : void
+   		{
+   			proxy.muteAllUsers(true);
+   		}
+   		
+   		private function onMuteUserEvent(e:UserMuteEvent):void{
+   			proxy.muteUnmuteUser(e.userid, e.mute);
+   		}
+   				
+		private function onEjectListenerEvent(e:Event):void {
+			proxy.ejectUser(_listenersWindow.listenersList.selectedItem.userid);
 		}
 		
-		/**
-		 * Decides how to handle a notification received by this class 
-		 * @param notification
-		 * 
-		 */		
+		private function onListenerSelectedEvent(e:Event):void {
+			_listenersWindow.ejectBtn.enabled = true;
+		}
+			
+		override public function listNotificationInterests():Array{
+			return [
+					ListenersModuleConstants.OPEN_WINDOW,
+					ListenersModuleConstants.USER_MUTE_NOTIFICATION,
+					ListenersModuleConstants.USER_TALKING_NOTIFICATION
+					];
+		}
+			
 		override public function handleNotification(notification:INotification):void{
 			switch(notification.getName()){
 				case ListenersModuleConstants.OPEN_WINDOW:
 					handleOpenListenersWindow();
 					break;
+				case ListenersModuleConstants.USER_MUTE_NOTIFICATION:
+					var userid:Number = notification.getBody().userid as Number;
+					var mute:Boolean = notification.getBody().mute as Boolean;
+					handleUserMuteNotification(userid, mute);
+					break;
+				case ListenersModuleConstants.USER_TALKING_NOTIFICATION:
+					var uid:Number = notification.getBody().userid as Number;
+					var talk:Boolean = notification.getBody().talk as Boolean;
+					handleUserTalkingNotification(uid, talk);
+					break;
 			}
 		}
 
-		private function handleOpenListenersWindow():void {
-				_listenersWindow.listeners = proxy.listeners;
-				_listenersWindow.width = 210;
-		   		_listenersWindow.height = 220;
-		   		_listenersWindow.title = "Listeners";
-		   		_listenersWindow.showCloseButton = false;
-		   		_listenersWindow.xPosition = 30;
-		   		_listenersWindow.yPosition = 30;
-		   		facade.sendNotification(ListenersModuleConstants.ADD_WINDOW, _listenersWindow); 			
-		}	
-		
-		/**
-		 * Sends a MUTE_ALL_USERS_COMMAND notification (false - unmutes all users)
-		 * @param e - the event which generated the call to this method
-		 * 
-		 */		
-		private function unmuteAllUsers(e:Event) : void
-   		{
-   			sendNotification(ListenersModuleConstants.MUTE_ALL_USERS_COMMAND, false);
-   		}
-   		
-   		/**
-   		 * Sends a MUTE_ALL_USERS_COMMAND notification (true - mutes all users)
-   		 * @param e - the event which generated the call to this method
-   		 * 
-   		 */   		
-   		private function muteAllUsers(e:Event) : void
-   		{
-   			sendNotification(ListenersModuleConstants.MUTE_ALL_USERS_COMMAND, true);
-   		}
-   		
-   		/**
-   		 * Sends an EJECT_USER_COMMAND notification 
-   		 * @param e - the event which generated the call to this method
-   		 * 
-   		 */   		
-   		private function ejectUser(e:Event):void{
- //  			sendNotification(ListenersModuleConstants.EJECT_USER_COMMAND, listenersWindow.userid);
-   		}
-   		
-   		private function muteUser(e:Event):void{
-//   			sendNotification(ListenersModuleConstants.MUTE_UNMUTE_USER_COMMAND,new MuteNotifier(listenersWindow.userid, listenersWindow.isMuted));
-   		}
+		private function handleUserMuteNotification(userid:Number, mute:Boolean):void {
+			var e:UserMuteEvent = new UserMuteEvent(ListenersModuleConstants.USER_MUTE_EVENT);
+			e.userid = userid;
+			e.mute = mute;
+			_listenersWindow.listenersList.dispatchEvent(e);
+		}
 
+		private function handleUserTalkingNotification(userid:Number, talk:Boolean):void {
+			var e:UserTalkEvent = new UserTalkEvent(ListenersModuleConstants.USER_TALK_EVENT);
+			e.userid = userid;
+			e.talk = talk;
+			_listenersWindow.listenersList.dispatchEvent(e);
+		}
+		
+		private function handleOpenListenersWindow():void {
+			_listenersWindow.listeners = proxy.listeners;
+			_listenersWindow.width = 210;
+		   	_listenersWindow.height = 220;
+		   	_listenersWindow.title = "Listeners";
+		   	_listenersWindow.showCloseButton = false;
+		   	_listenersWindow.xPosition = 20;
+		   	_listenersWindow.yPosition = 260;
+		   	facade.sendNotification(ListenersModuleConstants.ADD_WINDOW, _listenersWindow); 			
+		}	
+			   				
 		private function get proxy():ListenersProxy {
 			return facade.retrieveProxy(ListenersProxy.NAME) as ListenersProxy;
 		}

@@ -29,14 +29,8 @@ package org.bigbluebutton.modules.listeners.view.components
         [Embed(source="../assets/images/sound.png")]
         public var sound:Class;                
 
-        [Embed(source="../assets/images/user_red.png")]
+        [Embed(source="../assets/images/user_go.png")]
         public var eject_user:Class;  
-
-        [Embed(source="../assets/images/door_in.png")]
-        public var door_in:Class; 
-
-        [Embed(source="../assets/images/door_open.png")]
-        public var door_open:Class; 
 
         [Embed(source="../assets/images/sound_none.png")]
         public var sound_none:Class;

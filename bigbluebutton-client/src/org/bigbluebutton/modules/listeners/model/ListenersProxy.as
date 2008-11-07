@@ -34,7 +34,8 @@ package org.bigbluebutton.modules.listeners.model
 		public function connect():void {
 			_listeners = new Listeners();
 			_listenersService = new ListenersSOService(_listeners);
-			_listenersService.addConnectionStatusListener(connectionStatusListener);	
+			_listenersService.addConnectionStatusListener(connectionStatusListener);
+			_listenersService.addMessageSender(messageSender);	
 			_listenersService.connect(_module.uri);		
 		}
 		
@@ -71,7 +72,7 @@ package org.bigbluebutton.modules.listeners.model
 		}
 				
 		private function messageSender(msg:String, body:Object=null):void {
-
+			sendNotification(msg, body);
 		}		
 	}
 }
