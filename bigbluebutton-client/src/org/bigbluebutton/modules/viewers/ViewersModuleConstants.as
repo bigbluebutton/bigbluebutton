@@ -26,44 +26,45 @@ package org.bigbluebutton.modules.viewers
 	 */	
 	public class ViewersModuleConstants
 	{
-		public static const START:String       = "start module";
-		public static const STOP:String       = "stop module";
-		public static const STARTED:String       = "start module";
-		public static const STOPPED:String       = "stop module";
-		public static const CONNECTED:String = "connected to server";
-		public static const DISCONNECTED:String = "disconnected from server";
+		public static const START:String       					= "start module";
+		public static const STOP:String       					= "stop module";
+		public static const STARTED:String       				= "start module";
+		public static const STOPPED:String       				= "stop module";
+		public static const CONNECTED:String 					= "connected to server";
+		public static const DISCONNECTED:String 				= "disconnected from server";
 		
-		public static const LOGIN_FAILED:String = 'LOGIN_FAILED';
-		public static const LOGGED_IN:String = 'LOGGED_IN';
-		public static const LOGGED_OUT:String = 'LOGGED_OUT';
+		public static const LOGIN_FAILED:String 				= 'LOGIN_FAILED';
+		public static const LOGGED_IN:String 					= 'LOGGED_IN';
+		public static const LOGGED_OUT:String 					= 'LOGGED_OUT';
 		
-		public static const OPEN_WINDOW:String = 'OPEN_WINDOW';
-		public static const CLOSE_WINDOW:String = 'CLOSE_WINDOW';	
-		public static const ADD_WINDOW:String = 'ADD_WINDOW';
-		public static const REMOVE_WINDOW:String = 'REMOVE_WINDOW';
+		public static const OPEN_WINDOW:String 					= 'OPEN_WINDOW';
+		public static const CLOSE_WINDOW:String 				= 'CLOSE_WINDOW';	
+		public static const ADD_WINDOW:String 					= 'ADD_WINDOW';
+		public static const REMOVE_WINDOW:String 				= 'REMOVE_WINDOW';
 		
-		public static const OPEN_JOIN_WINDOW:String = 'OPEN_JOIN_WINDOW';
-		public static const CLOSE_JOIN_WINDOW:String = 'CLOSE_JOIN_WINDOW';
+		public static const OPEN_JOIN_WINDOW:String 			= 'OPEN_JOIN_WINDOW';
+		public static const CLOSE_JOIN_WINDOW:String 			= 'CLOSE_JOIN_WINDOW';
 		
-		public static const OPEN_VIEWERS_WINDOW:String = 'OPEN_VIEWERS_WINDOW';
-		public static const CLOSE_VIEWERS_WINDOW:String = 'CLOSE_VIEWERS_WINDOW';
+		public static const OPEN_VIEWERS_WINDOW:String 			= 'OPEN_VIEWERS_WINDOW';
+		public static const CLOSE_VIEWERS_WINDOW:String 		= 'CLOSE_VIEWERS_WINDOW';
 		
-		public static const MODULE_STARTED:String = 'MODULE_STARTED';
+		public static const MODULE_STARTED:String 				= 'MODULE_STARTED';
 		
-		public static const OPEN_VIEW_CAMERA:String = "Open View Camera";
+		public static const OPEN_VIEW_CAMERA:String 			= "Open View Camera";
 		
-		public static const ASSIGN_PRESENTER:String = "ASSIGN_PRESENTER";
-		public static const BECOME_VIEWER:String = "BECOME_VIEWER";
+		public static const ASSIGN_PRESENTER:String 			= "ASSIGN_PRESENTER";
+		public static const BECOME_VIEWER:String 				= "BECOME_VIEWER";
 		
-		public static const VIEWER_SELECTED_EVENT:String = "VIEWER_SELECTED_EVENT";
-		public static const BECOME_VIEWER_EVENT:String = "BECOME_VIEWER_EVENT";
-		public static const BECOME_PRESENTER_EVENT:String = "BECOME_PRESENTER_EVENT";
+		public static const VIEWER_SELECTED_EVENT:String 		= "VIEWER_SELECTED_EVENT";
+		public static const BECOME_VIEWER_EVENT:String 			= "BECOME_VIEWER_EVENT";
+		public static const BECOME_PRESENTER_EVENT:String 		= "BECOME_PRESENTER_EVENT";
 		
-		public static const CONNECT_SUCCESS:String = "NetConnection.Connect.Success";
-		public static const CONNECT_FAILED:String = "NetConnection.Connect.Failed";
-		public static const CONNECT_CLOSED:String = "NetConnection.Connect.Closed";
-		public static const INVALID_APP:String = "NetConnection.Connect.InvalidApp";
-		public static const APP_SHUTDOWN:String = "NetConnection.Connect.AppShutDown";
-		public static const CONNECT_REJECTED:String = "NetConnection.Connect.Rejected";
+		public static const CONNECT_SUCCESS:String 				= "CONNECT_SUCCESS";
+		public static const CONNECT_FAILED:String 				= "CONNECT_FAILED";
+		public static const CONNECT_CLOSED:String 				= "CONNECT_CLOSED";
+		public static const INVALID_APP:String 					= "INVALID_APP";
+		public static const APP_SHUTDOWN:String 				= "APP_SHUTDOWN";
+		public static const CONNECT_REJECTED:String 			= "CONNECT_REJECTED";
+		public static const UNKNOWN_REASON:String 				= "UNKNOWN_REASON";
 	}
 }

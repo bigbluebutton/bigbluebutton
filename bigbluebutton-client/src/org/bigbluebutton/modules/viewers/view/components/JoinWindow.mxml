@@ -36,25 +36,24 @@
 			public function showError(error:String):void
 			{
 				this.lblNote.visible = true;
-				this.lblNote.text = error;
 				switch(error){
 					case ViewersModuleConstants.CONNECT_FAILED:
-						this.lblNote.text = "Connection Failed. Please try again";
+						this.lblNote.text = "Connection Failed. Please try again.\n";
 						break;
 					case ViewersModuleConstants.CONNECT_REJECTED:
-						this.lblNote.text = "Please check your login information";
+						this.lblNote.text = "Please check your login information.\n";
 						break;
 					case ViewersModuleConstants.CONNECT_CLOSED:
-						this.lblNote.text = "Connection Closed";
+						//this.lblNote.text = "Connection Closed.\n";
 						break;
 					case ViewersModuleConstants.CONNECT_SUCCESS:
-						this.lblNote.text = "Connection Successful";
+						this.lblNote.text = "Connection Successful.\n";
 						break;
 					case ViewersModuleConstants.APP_SHUTDOWN:
-						this.lblNote.text = "Application has shut down";
+						this.lblNote.text = "Application has shut down.\n";
 						break;
 					case ViewersModuleConstants.INVALID_APP:
-						this.lblNote.text = "Application not found on server";
+						this.lblNote.text = "Application not found on server.\n";
 						break;
 				}
 			}

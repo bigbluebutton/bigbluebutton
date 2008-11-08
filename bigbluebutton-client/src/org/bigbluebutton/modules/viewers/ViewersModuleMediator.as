@@ -93,10 +93,10 @@ package org.bigbluebutton.modules.viewers
 			switch(notification.getName()){
 				case ViewersModuleConstants.LOGGED_OUT:
 					sendNotification(ViewersModuleConstants.CLOSE_VIEWERS_WINDOW);
+					sendNotification(ViewersModuleConstants.OPEN_JOIN_WINDOW);
 					if (facade.hasMediator(ViewersWindowMediator.NAME)) {
 						facade.removeMediator(ViewersWindowMediator.NAME); 
-					}
-					sendNotification(ViewersModuleConstants.OPEN_JOIN_WINDOW);
+					}					
 					break;
 				case ViewersModuleConstants.LOGGED_IN:
 					sendNotification(ViewersModuleConstants.CLOSE_JOIN_WINDOW);

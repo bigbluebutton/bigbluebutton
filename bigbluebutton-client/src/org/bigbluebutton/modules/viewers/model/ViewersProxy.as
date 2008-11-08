@@ -69,11 +69,12 @@ package org.bigbluebutton.modules.viewers.model
 			trace(reason);
 			if (connected) {
 				sendNotification(ViewersModuleConstants.LOGGED_IN);
-			} else if (reason != null){
-				sendNotification(ViewersModuleConstants.LOGIN_FAILED, reason);
+			//} else if (reason != null){
+				//sendNotification(ViewersModuleConstants.LOGIN_FAILED, reason);
 			} else {
 				_participants = null;
-				sendNotification(ViewersModuleConstants.LOGGED_OUT);
+				if (reason == null) reason = ViewersModuleConstants.UNKNOWN_REASON;
+				sendNotification(ViewersModuleConstants.LOGGED_OUT, reason);
 			}
 		}
 		

@@ -56,8 +56,8 @@ package org.bigbluebutton.main
 					break;	
 				case MainApplicationConstants.USER_LOGGED_IN:
 					trace(NAME + '::Received USER_LOGGED_IN');
-					//proxy.loadModule("ChatModule");
-					//proxy.loadModule("PresentationModule");
+					proxy.loadModule("ChatModule");
+					proxy.loadModule("PresentationModule");
 					proxy.loadModule("ListenersModule");
 					break;
 			}

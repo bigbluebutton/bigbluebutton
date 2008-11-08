@@ -50,18 +50,18 @@ package org.bigbluebutton.modules.viewers.model.services
 			if (_messageSender != null) _messageSender(msg, body);
 		}
 		
-		private function connectionSuccessListener(connected:Boolean, userid:Number=0, role:String="", room:String="", authToken:String=""):void {
+		private function connectionSuccessListener(connected:Boolean, user:Object=null, failReason:String=""):void {
 			if (connected) {
-				trace(NAME + ":Connected to the Viewers application " + userid + " " + role);
-				_participants.me.role = role;
-				_participants.me.userid = userid;
-				_participants.me.room = room;
-				_participants.me.authToken = authToken;
+				trace(NAME + ":Connected to the Viewers application " + user.userid + " " + user.role);
+				_participants.me.role = user.role;
+				_participants.me.userid = user.userid;
+				_participants.me.room = user.room;
+				_participants.me.authToken = user.authToken;
 				join();
 			} else {
 				leave();
 				trace(NAME + ":Disconnected from the Viewers application");
-				notifyConnectionStatusListener(false);
+				notifyConnectionStatusListener(false, failReason);
 			}
 		}
 		

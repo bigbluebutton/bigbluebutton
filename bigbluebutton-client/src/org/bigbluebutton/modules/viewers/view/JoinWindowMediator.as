@@ -69,7 +69,7 @@ package org.bigbluebutton.modules.viewers.view
 			return [
 					ViewersModuleConstants.OPEN_JOIN_WINDOW,
 					ViewersModuleConstants.CLOSE_JOIN_WINDOW,
-					ViewersModuleConstants.LOGIN_FAILED
+					ViewersModuleConstants.LOGGED_OUT
 			];
 
 		
@@ -102,7 +102,7 @@ package org.bigbluebutton.modules.viewers.view
 					facade.sendNotification(ViewersModuleConstants.REMOVE_WINDOW, _joinWindow);
 					break;
 					
-				case ViewersModuleConstants.LOGIN_FAILED:
+				case ViewersModuleConstants.LOGGED_OUT:
 					_joinWindow.showError(notification.getBody() as String);
 					break;
 					
@@ -134,10 +134,10 @@ package org.bigbluebutton.modules.viewers.view
 		    var password : String = _joinWindow.passwdField.text
 		    
 		    if ((name.length < 1) || (room.length < 1) || (password.length < 1)) {
-		    	_joinWindow.lblNote.text = "Please enter all the information";
+		    	_joinWindow.lblNote.text = "Please enter all the information.";
 		    	return;
 		    } 
-			_joinWindow.lblNote.text = "Attempting to Login";
+			_joinWindow.lblNote.text = "Attempting to Login.";
 			
 			var completeHost:String = _module.uri + room;
 			proxy.connect(completeHost, room, name, password);
@@ -147,18 +147,5 @@ package org.bigbluebutton.modules.viewers.view
 		private function get proxy():ViewersProxy {
 			return facade.retrieveProxy(ViewersProxy.NAME) as ViewersProxy;
 		}
-		
-		/**
-		 * Initialize the notifier key of this mediator. This method need never be called directly. It is 
-		 * necessary because in puremvc multicore version we cannot communicate with the facade directly
-		 * through the constructor. 
-		 * @param key
-		 * 
-		 */		
-		override public function initializeNotifier(key:String):void{
-			super.initializeNotifier(key);
-			sendNotification(ViewersFacade.DEBUG, "Started JoinWindowMediator");
-		}
-
 	}
 }
