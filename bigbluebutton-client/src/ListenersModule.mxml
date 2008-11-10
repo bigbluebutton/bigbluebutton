@@ -42,6 +42,9 @@
 				return _attributes.username;
 			}
 			
+			public function isModerator():Boolean {
+				return _attributes.userrole == "MODERATOR";
+			}
 			public function start(attributes:Object):void {		
 				_attributes = attributes;	
 				ListenersModuleFacade.getInstance().startup(this);	

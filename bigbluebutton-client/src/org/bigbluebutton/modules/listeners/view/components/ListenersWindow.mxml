@@ -23,6 +23,7 @@
 			[Bindable] private var ejectIcon : Class = images.eject_user;
 
 			[Bindable] public var listeners:ArrayCollection = new ArrayCollection();
+			[Bindable] public var moderator:Boolean;
 			
 			public function get xPosition():int {
 				return _xPosition;
@@ -57,14 +58,14 @@
     	<mx:ControlBar width="100%">
     	   <mx:Button id="muteAllBtn" icon="{muteAllIcon}" 
     	   			toolTip="Mute all listeners." click="dispatchEvent(new Event(ListenersModuleConstants.MUTE_ALL))"
-    	   			visible="true" width="18" height="18"/> 
+    	   			visible="{moderator}" width="18" height="18"/> 
     	   <mx:Button id="unmuteAllBtn" icon="{unmuteAllIcon}" 
     	   			toolTip="Unmute all listeners." click="dispatchEvent(new Event(ListenersModuleConstants.UNMUTE_ALL))"
-    	   			visible="true" width="18" height="18"/> 
+    	   			visible="{moderator}" width="18" height="18"/> 
      	   <mx:Spacer width="100%"/>			
 			<mx:Button id="ejectBtn" icon="{ejectIcon}" 
     	   			toolTip="Select listener and click to eject." click="dispatchEvent(new Event(ListenersModuleConstants.EJECT_LISTENER_EVENT))"
-    	   			visible="true" enabled="false" width="18" height="18"/> 
+    	   			visible="{moderator}" enabled="false" width="18" height="18"/> 
     	</mx:ControlBar>
 
 </MDIWindow>

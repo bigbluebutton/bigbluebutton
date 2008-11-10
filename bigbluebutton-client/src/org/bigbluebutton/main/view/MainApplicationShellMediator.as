@@ -29,6 +29,7 @@ package org.bigbluebutton.main.view
 	import org.bigbluebutton.main.view.components.MainApplicationShell;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
+
 	
 /**
 *   This is the Mediator class for MainApplicationShell view compom\nent
@@ -42,7 +43,7 @@ package org.bigbluebutton.main.view
 		public static const START_WEBCAM:String = "Start Webcam";
 
 		private var mshell:MainApplicationShell;
-			
+		      
 		public function MainApplicationShellMediator( viewComponent:MainApplicationShell )
 		{
 			super( NAME, viewComponent );	

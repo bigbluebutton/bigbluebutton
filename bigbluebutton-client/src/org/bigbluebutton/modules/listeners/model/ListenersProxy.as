@@ -43,6 +43,10 @@ package org.bigbluebutton.modules.listeners.model
 			_listenersService.disconnect();
 		}
 		
+		public function isModerator():Boolean {
+			return (_module as ListenersModule).isModerator();
+		}
+		
 		public function get listeners():ArrayCollection {
 			return _listeners.listeners;
 		}

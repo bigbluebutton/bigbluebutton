@@ -7,7 +7,7 @@ package org.bigbluebutton.modules.listeners.view.events
 		public var userid:Number;
 		public var talk:Boolean;
 		
-		public function UserTalkEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
+		public function UserTalkEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false)
 		{
 			super(type, bubbles, cancelable);
 		}
