@@ -52,6 +52,12 @@ public class AsteriskVoiceService implements IVoiceService {
 	private AsteriskServer asteriskServer = new DefaultAsteriskServer();
 	
 	/**
+	 * This sends pings to our Asterisk server so Asterisk won't close the connection if there
+	 * is no traffic.
+	 */
+	private PingThread pingThread;
+	
+	/**
 	 * Sets the manager connection.
 	 * 
 	 * @param connection the new manager connection
@@ -72,6 +78,9 @@ public class AsteriskVoiceService implements IVoiceService {
 			((DefaultAsteriskServer)asteriskServer).setManagerConnection(managerConnection);		
 			((DefaultAsteriskServer)asteriskServer).initialize();
 			
+			pingThread = new PingThread(managerConnection);
+			pingThread.setTimeout(40000);
+			pingThread.start();
 		} catch (IOException e) {
 			logger.error("IOException while connecting to Asterisk server.");
 		} catch (TimeoutException e) {
@@ -89,6 +98,7 @@ public class AsteriskVoiceService implements IVoiceService {
 	 */
 	public void stop() {
 		try {
+			pingThread.die();
 			managerConnection.logoff();
 		} catch (IllegalStateException e) {
 			logger.error("Logging off when Asterisk Server is not connected.");
