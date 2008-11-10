@@ -63,13 +63,8 @@ package org.bigbluebutton.modules.presentation.view
 		public function PresentationWindowMediator(module:IBigBlueButtonModule)
 		{
 			super(NAME);
-			_module = module;
-			
-			_presWin.addEventListener(SHARE, sharePresentation);
+			_module = module;			
 			_presWin.addEventListener(OPEN_UPLOAD, openFileUploadWindow);
-			_presWin.addEventListener(UNSHARE, unsharePresentation);
-			_presWin.addEventListener(MAXIMIZE, maximize);
-			_presWin.addEventListener(RESTORE, restore);
 			_presWin.addEventListener(PREVIOUS_SLIDE, onPreviousSlide);
 			_presWin.addEventListener(NEXT_SLIDE, onNextSlide);
 		}
@@ -104,9 +99,6 @@ package org.bigbluebutton.modules.presentation.view
 		override public function listNotificationInterests():Array{
 			return [
 					PresentModuleConstants.READY_EVENT,
-					PresentModuleConstants.VIEW_EVENT,
-					PresentModuleConstants.MAXIMIZE_PRESENTATION,
-					PresentModuleConstants.RESTORE_PRESENTATION,
 					PresentModuleConstants.OPEN_PRESENT_WINDOW,
 					PresentModuleConstants.CLOSE_PRESENT_WINDOW,
 					PresentModuleConstants.PRESENTATION_LOADED,
@@ -133,15 +125,6 @@ package org.bigbluebutton.modules.presentation.view
 					break;
 				case PresentModuleConstants.PRESENTATION_LOADED:
 					handlePresentationLoadedEvent();
-					break;
-				case PresentModuleConstants.VIEW_EVENT:
-					handleViewEvent();
-					break;
-				case PresentModuleConstants.MAXIMIZE_PRESENTATION:
-					handleMaximizeEvent();
-					break;
-				case PresentModuleConstants.RESTORE_PRESENTATION:
-					handleRestorePresentation();
 					break;
 				case PresentModuleConstants.PRESENTER_MODE:
 					handlePresenterMode();
@@ -223,7 +206,6 @@ package org.bigbluebutton.modules.presentation.view
 			}
 		}
 				
-
 		private function handleReadyEvent():void
 		{			
 			proxy.loadPresentation();
@@ -234,7 +216,11 @@ package org.bigbluebutton.modules.presentation.view
 			_presWin.slideView.slides = proxy.slides;         	
             _presWin.slideNumLbl.text = (_presWin.slideView.selectedSlide + 1) + " of " + _presWin.slideView.slides.length;		
 			_presWin.slideView.visible = true;		
-			
+
+			if ( ! facade.hasMediator( SlideViewMediator.NAME ) ) {
+				facade.registerMediator(new SlideViewMediator(_presWin.slideView ));
+			}		
+				
 			if (proxy.isPresenter()) {
 				// Remove the uploadWindow
 				PopUpManager.removePopUp(_presWin.uploadWindow);
@@ -257,61 +243,6 @@ package org.bigbluebutton.modules.presentation.view
 			facade.removeMediator(FileUploadWindowMediator.NAME);
 		}
 				
-		/**
-		 * Handles a received View notification 
-		 * 
-		 */		
-		private function handleViewEvent():void{			
-//			_presWin.thumbnailView.visible = true;
-		}
-		
-		/**
-		 * Handles a received Maximize notification 
-		 * 
-		 */		
-		private function handleMaximizeEvent():void{
-//			if (!presentationWindow.model.presentation.isPresenter){
-//				presentationWindow.maximize();	
-//			}
-		}
-		
-		private function handleRestorePresentation():void{
-//			if (!presentationWindow.model.presentation.isPresenter){
-//				presentationWindow.restore();
-//			}
-		}
-		
-
-		/**
-		 * Share a presentation with the rest of the room on the server 
-		 * @param e
-		 * 
-		 */		
-		private function sharePresentation(e:Event) : void{
-//			if (!presentationWindow.model.presentation.isSharing){
-///				sendNotification(PresentationApplication.SHARE, true);
-//				presentationWindow.uploadPres.enabled = false;	
-				//proxy.gotoPage(1);
-//			}		
-		}
-		
-		/**
-		 * Unshare a shared presentation 
-		 * @param e
-		 * 
-		 */		
-		private function unsharePresentation(e:Event):void{
-//			if (presentationWindow.model.presentation.isSharing) {
-//				sendNotification(PresentationApplication.SHARE, false);
-//				presentationWindow.uploadPres.enabled = true;
-//			}
-		}
-		
-		/**
-		 * Opens the file upload window in order to upload slides 
-		 * @param e
-		 * 
-		 */		
 		protected function openFileUploadWindow(e:Event) : void{
             _presWin.uploadWindow = FileUploadWindow(PopUpManager.createPopUp( _presWin, FileUploadWindow, false));
 			
@@ -332,14 +263,5 @@ package org.bigbluebutton.modules.presentation.view
 			var p:PresentProxy = facade.retrieveProxy(PresentProxy.NAME) as PresentProxy;
 			return p;
 		}
-               
-        protected function maximize(e:Event):void{
-//        	proxy.maximize();
-        }
-        
-        protected function restore(e:Event):void{
- //       	proxy.restore();
-        }
-
 	}
 }

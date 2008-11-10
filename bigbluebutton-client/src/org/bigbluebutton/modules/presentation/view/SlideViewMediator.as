@@ -37,7 +37,7 @@ package org.bigbluebutton.modules.presentation.view
 	 * @author Denis Zgonjanin
 	 * 
 	 */	
-	public class ThumbnailViewMediator extends Mediator implements IMediator
+	public class SlideViewMediator extends Mediator implements IMediator
 	{
 		public static const NAME:String = "ThumbnailViewMediator";
 		public static const SEND_PAGE_NUM:String = "send page number";
@@ -52,28 +52,12 @@ package org.bigbluebutton.modules.presentation.view
 		 * @param view
 		 * 
 		 */		
-		public function ThumbnailViewMediator(viewComponent:SlideView)
+		public function SlideViewMediator(viewComponent:SlideView)
 		{
 			super(NAME);
 			_slideView = viewComponent;
-			_slideView.addEventListener(SEND_PAGE_NUM, sendPageNumber);
 			_slideView.addEventListener(ZOOM, zoom);
 			_slideView.addEventListener(MOVE, move);
-		}
-		
-		
-		/**
-		 * Sends out a sendPageNumber notification 
-		 * @param e
-		 * 
-		 */		
-		protected function sendPageNumber(e:Event) : void {
-			_slideView.myLoader.percentHeight = 100;
-			_slideView.myLoader.percentWidth = 100;
-			_slideView.myLoader.x = 1;
-			_slideView.myLoader.y = 1;
-			
-//			facade.sendNotification(PresentModuleConstants.GOTO_SLIDE, _slideView.slideList.selectedIndex + 1);
 		}
 		
 		protected function zoom(e:Event):void{
@@ -93,8 +77,7 @@ package org.bigbluebutton.modules.presentation.view
 		override public function listNotificationInterests():Array{
 			return [
 					PresentModuleConstants.ZOOM_SLIDE,
-					PresentModuleConstants.MOVE_SLIDE,
-					PresentModuleConstants.MAXIMIZE_PRESENTATION
+					PresentModuleConstants.MOVE_SLIDE
 					];
 		}
 		
@@ -113,22 +96,6 @@ package org.bigbluebutton.modules.presentation.view
 						_slideView.myLoader.x = moveNote.newXPosition * _slideView.imageCanvas.width;
 						_slideView.myLoader.y = moveNote.newYPosition * _slideView.imageCanvas.height;
 					}
-					break;
-				case PresentModuleConstants.DISPLAY_SLIDE:
-					
-					var slidenum:int = notification.getBody() as int;
-					trace('DISPLAY_SLIDE in ThumbnailMediator ' + slidenum);
-					if ((slidenum > 0) && (slidenum <= _slideView.slides.length)) {
-//						if (_slideView.slideList.selectedIndex != slidenum) {
-//							_slideView.slideList.selectedIndex = slidenum - 1;
-//						}	
-					} else {
-						trace('Cannot DISPLAY_SLIDE in ThumbnailMediator ' + slidenum + " " + _slideView.slides.length);
-					}
-					break;
-				case PresentModuleConstants.MAXIMIZE_PRESENTATION:
-					viewComponent.myLoader.percentHeight = 100;
-					viewComponent.myLoader.percentWidth = 100;
 					break;
 			}
 		}
