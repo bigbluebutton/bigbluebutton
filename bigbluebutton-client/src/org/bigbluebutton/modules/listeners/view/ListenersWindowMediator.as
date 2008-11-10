@@ -83,6 +83,7 @@ package org.bigbluebutton.modules.listeners.view
 		override public function listNotificationInterests():Array{
 			return [
 					ListenersModuleConstants.OPEN_WINDOW,
+					ListenersModuleConstants.CLOSE_WINDOW,
 					ListenersModuleConstants.USER_MUTE_NOTIFICATION,
 					ListenersModuleConstants.USER_TALKING_NOTIFICATION
 					];
@@ -93,6 +94,9 @@ package org.bigbluebutton.modules.listeners.view
 				case ListenersModuleConstants.OPEN_WINDOW:
 					handleOpenListenersWindow();
 					break;
+				case ListenersModuleConstants.CLOSE_WINDOW:
+					facade.sendNotification(ListenersModuleConstants.REMOVE_WINDOW, _listenersWindow);
+					break;	
 				case ListenersModuleConstants.USER_MUTE_NOTIFICATION:
 					var userid:Number = notification.getBody().userid as Number;
 					var mute:Boolean = notification.getBody().mute as Boolean;

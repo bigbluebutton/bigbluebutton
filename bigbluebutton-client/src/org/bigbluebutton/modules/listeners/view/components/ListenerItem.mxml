@@ -19,12 +19,14 @@
    		[Bindable] private var ejectIcon : Object = images.eject_user;  		  		
    		[Bindable] private var statusTooltip : String = "";
    		[Bindable] private var ejectTooltip : String = "Click to eject user.";   		   		
-	
+		[Bindable] private var isModerator:Boolean = false;
+		
    		private function init() : void
    		{
    			// Use parent document to hook into the event flow.
    			this.parentDocument.addEventListener(ListenersModuleConstants.USER_MUTE_EVENT, onUserMuteEvent);
    			this.parentDocument.addEventListener(ListenersModuleConstants.USER_TALK_EVENT, onUserTalkEvent);
+   			isModerator = this.parentDocument.moderator;
    			displayStatusIcon();   			
    		}
    		
@@ -68,7 +70,7 @@
        }	
    	]]>
    </mx:Script>
-   		<mx:Button id="muteBtn" icon="{muteIcon}" click="muteUser()" width="18" height="16"/>
+   		<mx:Button id="muteBtn" icon="{muteIcon}" click="muteUser()" width="18" height="16" enabled="{isModerator}"/>
 	    <mx:Label id="nameLabel" text="{data.callerName}"/>
 		<mx:Image id="talkImg" source="{talkIcon}" visible="{data.talking}" toolTip="Talking"/>
 </mx:HBox>
