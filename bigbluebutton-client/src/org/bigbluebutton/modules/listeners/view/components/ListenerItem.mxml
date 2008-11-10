@@ -46,10 +46,16 @@
    		{
    			if (data.muted) {
    				muteIcon = images.sound_mute;
-   				muteBtn.toolTip = "Click to unmute user.";
+   				muteBtn.toolTip = "";
+   				if (isModerator) {
+   					muteBtn.toolTip = "Click to unmute user.";
+   				}
    			} else {
    				muteIcon = images.sound_none;
-   				muteBtn.toolTip = "Click to mute user.";   				
+   				muteBtn.toolTip = "";
+   				if (isModerator) {
+   					muteBtn.toolTip = "Click to mute user.";   
+   				}				
     		} 
     		
    			if (data.talking) {
