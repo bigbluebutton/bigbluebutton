@@ -116,7 +116,7 @@ package org.bigbluebutton.modules.viewers.model.services
 			{
 				case CONNECT_SUCCESS :
 					trace(NAME + ":Connection to viewers application succeeded.");
-					if ((_userid > 0) && (_role != "unknown")) {
+					if ((_userid >= 0) && (_role != "unknown")) {
 						_connectionSuccessListener(true, {userid:_userid, role:_role, room:_room, authToken:_authToken});	
 					}				
 					break;
