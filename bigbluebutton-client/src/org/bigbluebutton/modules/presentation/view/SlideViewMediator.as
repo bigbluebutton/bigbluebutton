@@ -76,7 +76,8 @@ package org.bigbluebutton.modules.presentation.view
 		override public function listNotificationInterests():Array{
 			return [
 					PresentModuleConstants.ZOOM_SLIDE,
-					PresentModuleConstants.MOVE_SLIDE
+					PresentModuleConstants.MOVE_SLIDE,
+					PresentModuleConstants.SLIDE_LOADED
 					];
 		}
 		
@@ -91,6 +92,9 @@ package org.bigbluebutton.modules.presentation.view
 					var moveNote:MoveNotifier = notification.getBody() as MoveNotifier;
 					_slideView.myLoader.x = moveNote.newXPosition * _slideView.imageCanvas.width;
 					_slideView.myLoader.y = moveNote.newYPosition * _slideView.imageCanvas.height;
+				break;
+				case PresentModuleConstants.SLIDE_LOADED:
+					_slideView.myLoader.source = notification.getBody().slide;
 				break;
 			}
 		}

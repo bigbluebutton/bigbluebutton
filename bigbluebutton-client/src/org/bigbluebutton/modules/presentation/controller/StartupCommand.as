@@ -22,6 +22,7 @@ package org.bigbluebutton.modules.presentation.controller
 	import org.bigbluebutton.modules.presentation.PresentModuleConstants;
 	import org.bigbluebutton.modules.presentation.PresentationEndpointMediator;
 	import org.bigbluebutton.modules.presentation.PresentationModuleMediator;
+	import org.bigbluebutton.modules.presentation.model.SlideProxy;
 	import org.bigbluebutton.modules.presentation.model.business.PresentProxy;
 	import org.bigbluebutton.modules.presentation.view.PresentationWindowMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
@@ -38,6 +39,7 @@ package org.bigbluebutton.modules.presentation.controller
 		override public function execute(notification:INotification):void{
 			var m:PresentationModule = notification.getBody() as PresentationModule;
 			facade.registerProxy(new PresentProxy(m));
+			facade.registerProxy(new SlideProxy());
 			facade.registerMediator(new PresentationEndpointMediator(m));
 			facade.registerMediator(new PresentationModuleMediator(m));
 			facade.registerMediator(new PresentationWindowMediator(m));

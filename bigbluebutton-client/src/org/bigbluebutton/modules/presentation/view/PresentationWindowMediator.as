@@ -26,6 +26,7 @@ package org.bigbluebutton.modules.presentation.view
 	
 	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.modules.presentation.PresentModuleConstants;
+	import org.bigbluebutton.modules.presentation.model.SlideProxy;
 	import org.bigbluebutton.modules.presentation.model.business.PresentProxy;
 	import org.bigbluebutton.modules.presentation.view.components.FileUploadWindow;
 	import org.bigbluebutton.modules.presentation.view.components.PresentationWindow;
@@ -159,7 +160,10 @@ package org.bigbluebutton.modules.presentation.view
 			if ((_presWin.slideView.slides != null) && (slidenum >= 0) && (slidenum < _presWin.slideView.slides.length)) {
 				_presWin.slideView.selectedSlide = slidenum;
 				_presWin.slideNumLbl.text = (slidenum + 1) + " of " + _presWin.slideView.slides.length;
-				_presWin.slideView.myLoader.load(_presWin.slideView.slides.getItemAt(slidenum));
+				//_presWin.slideView.myLoader.load(_presWin.slideView.slides.getItemAt(slidenum));
+				
+				var slideProxy:SlideProxy = facade.retrieveProxy(SlideProxy.NAME) as SlideProxy;
+				slideProxy.load(slidenum, _presWin.slideView.slides.getItemAt(slidenum) as String);
 				
 				if (slidenum == 0) {
 					_presWin.backButton.enabled = false;
@@ -217,6 +221,11 @@ package org.bigbluebutton.modules.presentation.view
             _presWin.slideNumLbl.text = (_presWin.slideView.selectedSlide + 1) + " of " + _presWin.slideView.slides.length;		
 			_presWin.slideView.visible = true;		
 
+			if (facade.hasProxy(SlideProxy.NAME)) {
+				var sp:SlideProxy = facade.retrieveProxy(SlideProxy.NAME) as SlideProxy;
+				sp.clear();
+			}
+			
 			if ( ! facade.hasMediator( SlideViewMediator.NAME ) ) {
 				facade.registerMediator(new SlideViewMediator(_presWin.slideView ));
 			}		
