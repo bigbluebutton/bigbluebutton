@@ -65,7 +65,7 @@ package org.bigbluebutton.modules.presentation.model.services
 				_slides.add(item.source);
 			}		
 			
-			trace("number of slide=" + _slides.size());
+			//trace("number of slide=" + _slides.size());
 			if (_slides.size() > 0) {
 				if (_loadListener != null) {
 					_loadListener(true);

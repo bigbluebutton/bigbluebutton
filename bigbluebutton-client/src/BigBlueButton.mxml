@@ -5,6 +5,7 @@
 	layout="absolute">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.common.Constants;
 		/**
 		 * Thse two lines are workaround for this. (ralam - Nov 8, 2008)
 		 * http://gregjessup.com/flex-3-advanceddatagrid-cannot-convert-mxmanagersdragmanagerimpl-to-mxmanagersidragmanager/
@@ -14,6 +15,7 @@
 				private var iDragManager:IDragManager;  
 		]]>
 	</mx:Script>	
-		<mainView:MainApplicationShell id="mainShell"/>	
-	
+
+	<mainView:MainApplicationShell id="mainShell"/>	
+			
 </mx:Application>

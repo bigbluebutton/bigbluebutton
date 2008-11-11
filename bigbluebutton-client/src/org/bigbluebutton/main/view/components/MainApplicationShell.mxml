@@ -15,19 +15,58 @@
 			import org.bigbluebutton.main.MainApplicationFacade;
 			import org.bigbluebutton.main.view.MainApplicationShellMediator;
 			import flash.events.MouseEvent;
+			import org.bigbluebutton.common.Images;
 			
 			public static const NAME:String = 'MainApplicationShell';
 			protected var facade:MainApplicationFacade = MainApplicationFacade.getInstance();	
+			
+			private var dispState:String; //full-screen?
+			private var images:Images = new Images();
+			[Bindable] private var fullscreen_icon:Class = images.full_screen;
 						
 			protected function initializeShell():void
-			{
-				//var dispState:String = this.stage.displayState;
-				
-				//Startup the main facade
-				trace("before startup in initShell");
+			{				
 				facade.startup(this);
-				trace("After startup in initShell");
 			}		
+
+			protected function initFullScreen():void
+			{				
+				/* Set up full screen handler. */
+				stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
+				dispState = stage.displayState;
+			}					
+			
+			private function fullScreenHandler(evt:FullScreenEvent):void {
+				dispState = stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
+				if (evt.fullScreen) {
+					trace("Switching to full screen");
+					/* Do something specific here if we switched to full screen mode. */
+				
+				} else {
+					trace("Switching to normal screen");
+					/* Do something specific here if we switched to normal mode. */
+				}
+			}			
+			
+			private function toggleFullScreen():void{
+	   			trace("Toggling fullscreen");
+	   			try {
+					switch (stage.displayState) {
+						case StageDisplayState.FULL_SCREEN:
+							trace("full screen mode");
+							// If already in full screen mode, switch to normal mode.
+							stage.displayState = StageDisplayState.NORMAL;
+							break;
+						default:
+							trace("Normal screen mode");
+							// If not in full screen mode, switch to full screen mode.
+							stage.displayState = StageDisplayState.FULL_SCREEN;
+							break;
+					}
+				} catch (err:SecurityError) {
+					// ignore
+				}
+	   		}
 						
 		]]>
 	</mx:Script>
@@ -37,10 +76,10 @@
 			effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}"
 			width="100%" height="100%">			
 		</flexmdi:MDICanvas>	
-		
 	 	<mx:ControlBar width="100%" height="20" paddingTop="0">		
 		  <mx:Label text="(c) 2008, BigBlueButton version {Constants.VERSION} - For more information see http://www.bigbluebutton.org/." id="copyrightLabel2"/>
 		  <mx:Spacer width="20"/>
 		  <mx:Spacer width="100%"/> 
+		  <mx:Button width="20" height="20" toolTip="Toggle Full-Screen" id="fullScreen" icon="{fullscreen_icon}" click="toggleFullScreen()" />
 		</mx:ControlBar>
 </mx:VBox>

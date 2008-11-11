@@ -66,11 +66,8 @@ package org.bigbluebutton.modules.viewers.model
 		}
 		
 		private function connectionStatusListener(connected:Boolean, reason:String = null):void {
-			trace(reason);
 			if (connected) {
 				sendNotification(ViewersModuleConstants.LOGGED_IN);
-			//} else if (reason != null){
-				//sendNotification(ViewersModuleConstants.LOGIN_FAILED, reason);
 			} else {
 				_participants = null;
 				if (reason == null) reason = ViewersModuleConstants.UNKNOWN_REASON;

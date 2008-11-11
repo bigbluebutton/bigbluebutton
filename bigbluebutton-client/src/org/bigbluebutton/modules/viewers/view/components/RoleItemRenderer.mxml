@@ -17,8 +17,8 @@
    			
    			private function registerForEvents():void {
    				trace('registering for becoming events');
-   				owner.addEventListener(ViewersModuleConstants.BECOME_VIEWER_EVENT, onBecomeViewerEvent);
-   				owner.addEventListener(ViewersModuleConstants.BECOME_PRESENTER_EVENT, onAssignPresenterEvent)
+   				//parentDocument.addEventListener(ViewersModuleConstants.BECOME_VIEWER_EVENT, onBecomeViewerEvent);
+   				//parentDocument.addEventListener(ViewersModuleConstants.BECOME_PRESENTER_EVENT, onAssignPresenterEvent)
    			}
    			
    			private function onBecomeViewerEvent(e:Event):void {
