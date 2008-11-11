@@ -105,6 +105,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		 * 
 		 */		
 		public function zoomCallback(slideHeight:Number, slideWidth:Number):void{
+			trace('sending zoomcallback');
 			sendMessage(PresentModuleConstants.ZOOM_SLIDE, new ZoomNotifier(slideHeight, slideWidth));
 		}
 		
@@ -125,6 +126,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		 * 
 		 */		
 		public function moveCallback(slideXPosition:Number, slideYPosition:Number):void{
+			trace('sending movecallback');
 		   sendMessage(PresentModuleConstants.MOVE_SLIDE, new MoveNotifier(slideXPosition, slideYPosition));
 		}
 		

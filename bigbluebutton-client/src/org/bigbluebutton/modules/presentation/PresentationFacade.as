@@ -20,8 +20,10 @@
 package org.bigbluebutton.modules.presentation
 {	
 	import org.bigbluebutton.modules.presentation.controller.GotoSlideCommand;
+	import org.bigbluebutton.modules.presentation.controller.MoveSlideCommand;
 	import org.bigbluebutton.modules.presentation.controller.StartupCommand;
 	import org.bigbluebutton.modules.presentation.controller.StopCommand;
+	import org.bigbluebutton.modules.presentation.controller.ZoomSlideCommand;
 	import org.puremvc.as3.multicore.interfaces.IFacade;
 	import org.puremvc.as3.multicore.patterns.facade.Facade;
 
@@ -71,6 +73,8 @@ package org.bigbluebutton.modules.presentation
 	   		super.initializeController();
 	   		registerCommand(STARTUP, StartupCommand);
 	   		registerCommand(STOP, StopCommand);
+	   		registerCommand(ZoomSlideCommand.ZOOM_SLIDE_COMMAND, ZoomSlideCommand);
+	   		registerCommand(MoveSlideCommand.MOVE_SLIDE_COMMAND, MoveSlideCommand);
 	   		registerCommand(PresentModuleConstants.GOTO_SLIDE, GotoSlideCommand);
 	   	}	   	
 	   	

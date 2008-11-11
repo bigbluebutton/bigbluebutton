@@ -22,6 +22,8 @@ package org.bigbluebutton.modules.presentation.view
 	import flash.events.Event;
 	
 	import org.bigbluebutton.modules.presentation.PresentModuleConstants;
+	import org.bigbluebutton.modules.presentation.controller.MoveSlideCommand;
+	import org.bigbluebutton.modules.presentation.controller.ZoomSlideCommand;
 	import org.bigbluebutton.modules.presentation.controller.notifiers.MoveNotifier;
 	import org.bigbluebutton.modules.presentation.controller.notifiers.ZoomNotifier;
 	import org.bigbluebutton.modules.presentation.model.business.PresentProxy;
@@ -39,7 +41,7 @@ package org.bigbluebutton.modules.presentation.view
 	 */	
 	public class SlideViewMediator extends Mediator implements IMediator
 	{
-		public static const NAME:String = "ThumbnailViewMediator";
+		public static const NAME:String = "SlideViewMediator";
 		public static const SEND_PAGE_NUM:String = "send page number";
 		
 		public static const ZOOM:String = "zooming in/out";
@@ -47,11 +49,6 @@ package org.bigbluebutton.modules.presentation.view
 		
 		private var _slideView:SlideView;
 		
-		/**
-		 * The defauklt constructor. registers the gui component with this mediator 
-		 * @param view
-		 * 
-		 */		
 		public function SlideViewMediator(viewComponent:SlideView)
 		{
 			super(NAME);
@@ -60,18 +57,20 @@ package org.bigbluebutton.modules.presentation.view
 			_slideView.addEventListener(MOVE, move);
 		}
 		
-		protected function zoom(e:Event):void{
+		protected function zoom(e:Event):void {
 			var xPercent:Number = _slideView.myLoader.width / _slideView.imageCanvas.width;
 			var yPercent:Number = _slideView.myLoader.height / _slideView.imageCanvas.height;
-			
-			proxy.zoom(xPercent, yPercent);
+						
+			var z:ZoomNotifier = new ZoomNotifier(yPercent, xPercent);			
+			facade.sendNotification(ZoomSlideCommand.ZOOM_SLIDE_COMMAND, z);			
 		}
 		
-		protected function move(e:Event):void{
+		protected function move(e:Event):void {
 			var xOffset:Number = _slideView.myLoader.x / _slideView.imageCanvas.width;
 			var yOffset:Number = _slideView.myLoader.y / _slideView.imageCanvas.height;
 			
-			proxy.move(xOffset, yOffset);
+			var m:MoveNotifier = new MoveNotifier(xOffset, yOffset);			
+			facade.sendNotification(MoveSlideCommand.MOVE_SLIDE_COMMAND, m);
 		}
 		
 		override public function listNotificationInterests():Array{
@@ -81,22 +80,18 @@ package org.bigbluebutton.modules.presentation.view
 					];
 		}
 		
-		override public function handleNotification(notification:INotification):void{
+		override public function handleNotification(notification:INotification):void {
 			switch(notification.getName()){
 				case PresentModuleConstants.ZOOM_SLIDE:
 					var zoomNote:ZoomNotifier = notification.getBody() as ZoomNotifier;
-					if (! proxy.isPresenter()){
-						_slideView.myLoader.width = zoomNote.newWidth * _slideView.imageCanvas.width;
-						_slideView.myLoader.height = zoomNote.newHeight * _slideView.imageCanvas.height;
-					}
-					break;
+					_slideView.myLoader.width = zoomNote.newWidth * _slideView.imageCanvas.width;
+					_slideView.myLoader.height = zoomNote.newHeight * _slideView.imageCanvas.height;
+				break;
 				case PresentModuleConstants.MOVE_SLIDE:
 					var moveNote:MoveNotifier = notification.getBody() as MoveNotifier;
-					if (! proxy.isPresenter()){
-						_slideView.myLoader.x = moveNote.newXPosition * _slideView.imageCanvas.width;
-						_slideView.myLoader.y = moveNote.newYPosition * _slideView.imageCanvas.height;
-					}
-					break;
+					_slideView.myLoader.x = moveNote.newXPosition * _slideView.imageCanvas.width;
+					_slideView.myLoader.y = moveNote.newYPosition * _slideView.imageCanvas.height;
+				break;
 			}
 		}
 

@@ -10,67 +10,67 @@
 			import org.bigbluebutton.modules.presentation.model.business.IPresentationSlides;
 			import org.bigbluebutton.modules.presentation.view.SlideViewMediator;
 			import org.bigbluebutton.modules.presentation.PresentationFacade;
-		import mx.collections.ArrayCollection;
-		import mx.binding.utils.BindingUtils;
-		import flash.events.Event;
-		import mx.events.ListEvent;
-		import mx.events.FlexEvent;
+			import mx.collections.ArrayCollection;
+			import mx.binding.utils.BindingUtils;
+			import flash.events.Event;
+			import mx.events.ListEvent;
+			import mx.events.FlexEvent;
 
-		private var startDragMouseX:Number;
-		private var startDragMouseY:Number;
-		private var startDragX:Number;
-		private var startDragY:Number;
+			private var startDragMouseX:Number;
+			private var startDragMouseY:Number;
+			private var startDragX:Number;
+			private var startDragY:Number;
 		
-		[Bindable]
-		private var slideWord:String = "Slides";
+			[Bindable]
+			private var slideWord:String = "Slides";
 				
-        [Bindable] 
-        public var slides:ArrayCollection;
+        	[Bindable] 
+        	public var slides:ArrayCollection;
         		
-		[Bindable]
-		public var selectedSlide:int=0;
+			[Bindable]
+			public var selectedSlide:int=0;
 				
-		private function init() : void
-		{
-			addEventListener(MouseEvent.MOUSE_WHEEL, zoom);
-			myLoader.addEventListener(MouseEvent.MOUSE_DOWN, mouseDown);
-			myLoader.addEventListener(MouseEvent.MOUSE_UP, mouseUp);
-			myLoader.addEventListener(MouseEvent.MOUSE_OUT, mouseOut);
-		}	
+			private function init() : void
+			{
+				addEventListener(MouseEvent.MOUSE_WHEEL, zoom);
+				myLoader.addEventListener(MouseEvent.MOUSE_DOWN, mouseDown);
+				myLoader.addEventListener(MouseEvent.MOUSE_UP, mouseUp);
+				myLoader.addEventListener(MouseEvent.MOUSE_OUT, mouseOut);
+			}	
 				
-		private function zoom(e:MouseEvent):void{		
-			var wid:Number = myLoader.width + e.delta * 10;
-			var hei:Number = myLoader.height + e.delta *10;
+			private function zoom(e:MouseEvent):void{		
+				var wid:Number = myLoader.width + e.delta * 10;
+				var hei:Number = myLoader.height + e.delta *10;
+				
+				if (hei >= this.height || hei >= myLoader.height){
+					myLoader.width += e.delta * 10;
+					myLoader.height += e.delta * 10;
+				} 
+				
+				dispatchEvent(new Event(SlideViewMediator.ZOOM));
+			}
+		
+			private function mouseDown(e:MouseEvent):void{		
+				startDragX = myLoader.x;
+				startDragY = myLoader.y;
+				startDragMouseX = imageCanvas.mouseX;
+				startDragMouseY = imageCanvas.mouseY;
+				addEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
+			}
 			
-			if (hei >= this.height || hei >= myLoader.height){
-				myLoader.width += e.delta * 10;
-				myLoader.height += e.delta * 10;
-			} 
+			private function mouseMove(e:MouseEvent):void{	
+				myLoader.x = startDragX + (imageCanvas.mouseX - startDragMouseX);
+				myLoader.y = startDragY + (imageCanvas.mouseY - startDragMouseY);
+				dispatchEvent(new Event(SlideViewMediator.MOVE));
+			}
+		
+			private function mouseUp(e:MouseEvent):void{		
+				removeEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
+			}
 			
-			dispatchEvent(new Event(SlideViewMediator.ZOOM));
-		}
-		
-		private function mouseDown(e:MouseEvent):void{		
-			startDragX = myLoader.x;
-			startDragY = myLoader.y;
-			startDragMouseX = imageCanvas.mouseX;
-			startDragMouseY = imageCanvas.mouseY;
-			addEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
-		}
-		
-		private function mouseMove(e:MouseEvent):void{	
-			myLoader.x = startDragX + (imageCanvas.mouseX - startDragMouseX);
-			myLoader.y = startDragY + (imageCanvas.mouseY - startDragMouseY);
-			dispatchEvent(new Event(SlideViewMediator.MOVE));
-		}
-		
-		private function mouseUp(e:MouseEvent):void{		
-			removeEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
-		}
-		
-		private function mouseOut(e:MouseEvent):void{
-			removeEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
-		}
+			private function mouseOut(e:MouseEvent):void{
+				removeEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
+			}
 		]]>
 	</mx:Script>
 	

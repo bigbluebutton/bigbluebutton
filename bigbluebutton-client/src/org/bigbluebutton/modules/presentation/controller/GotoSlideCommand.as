@@ -12,9 +12,7 @@ package org.bigbluebutton.modules.presentation.controller
 				p.gotoSlide(notification.getBody() as int);
 			} else {
 				trace('Present Proxy not found.');
-			}
-			
-			
+			}			
 		}
 	}
 }
