@@ -6,8 +6,8 @@
 			import org.bigbluebutton.main.MainApplicationConstants;
 			import org.bigbluebutton.main.view.MainApplicationShellMediator;
 
-			public function loggedIn(name:String):void{
-				loggedInUserLbl.text = "You are logged in as " + name + ".";
+			public function loggedIn(name:String, room:String, role:String):void{
+				loggedInUserLbl.text = "You are logged in as " + name + " to " + room + " as " + role + ".";
 				this.visible = true;
 			}
 			
@@ -31,6 +31,7 @@
 	<!--<mx:Button id="webcamBtn" label="Open Webcam" visible="true" height="20" toolTip="Click to open webcam"/> -->	
 	<mx:Label id="loggedInUserLbl" text="" visible="true"/>			
 	<mx:Spacer width="100%"/>
+	<mx:LinkButton label="Help" click="navigateToURL(new URLRequest('http://present.carleton.ca/help/index.html'))"/>
 	<mx:Button label="Logout" id="btnLogout" toolTip="Log out" right="10" click="doLogout()"/>		
 	
 </mx:ApplicationControlBar>

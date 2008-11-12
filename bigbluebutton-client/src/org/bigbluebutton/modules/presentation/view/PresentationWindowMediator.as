@@ -135,10 +135,10 @@ package org.bigbluebutton.modules.presentation.view
 					break;
 				case PresentModuleConstants.OPEN_PRESENT_WINDOW:
 		   			_presWin.height = 440;
-		   			_presWin.width = 430;
+		   			_presWin.width = 450;
 		   			_presWin.title = PresentationWindow.TITLE;
 		   			_presWin.showCloseButton = false;	
-		   			_presWin.xPosition = 200;
+		   			_presWin.xPosition = 240;
 		   			_presWin.yPosition = 20;
 		   			facade.sendNotification(PresentModuleConstants.ADD_WINDOW, _presWin);		   							
 					break;
