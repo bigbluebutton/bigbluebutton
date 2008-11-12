@@ -73,10 +73,6 @@ package org.bigbluebutton.modules.chat.view
 					ChatModuleConstants.OPEN_WINDOW
 				   ];
 		}
-
-		private function addWindow():void{
-
-		}
 						
 		/**
 		 * Handlers for notification(s) this class is listening to 
@@ -101,6 +97,7 @@ package org.bigbluebutton.modules.chat.view
 		   			_chatWindow.xPosition = 700;
 		   			_chatWindow.yPosition = 20;
 		   			facade.sendNotification(ChatModuleConstants.ADD_WINDOW, _chatWindow); 
+		   			proxy.getChatTranscript();
 					break;
 			}
 		}

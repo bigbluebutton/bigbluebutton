@@ -62,5 +62,9 @@ package org.bigbluebutton.modules.chat.model.business
 		{
 			chatService.sendMessage(message);
 		}
+		
+		public function getChatTranscript():void {
+			chatService.getChatTranscript();
+		}
 	}
 }
