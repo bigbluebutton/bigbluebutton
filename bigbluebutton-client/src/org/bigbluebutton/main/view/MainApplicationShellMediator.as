@@ -23,7 +23,6 @@ package org.bigbluebutton.main.view
 	
 	import flexlib.mdi.containers.MDIWindow;
 	
-	import org.bigbluebutton.common.Constants;
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.main.MainApplicationConstants;
 	import org.bigbluebutton.main.view.components.MainApplicationShell;
@@ -65,7 +64,8 @@ package org.bigbluebutton.main.view
 					MainApplicationConstants.ADD_WINDOW_MSG,
 					MainApplicationConstants.REMOVE_WINDOW_MSG,
 					MainApplicationConstants.USER_LOGGED_IN,
-					MainApplicationConstants.USER_LOGGED_OUT
+					MainApplicationConstants.USER_LOGGED_OUT,
+					MainApplicationConstants.LOADED_MODULE
 					];
 		}
 		
@@ -84,9 +84,13 @@ package org.bigbluebutton.main.view
 					break;
 				case MainApplicationConstants.USER_LOGGED_IN:
 					shell.toolbar.loggedIn(notification.getBody().username, notification.getBody().room, notification.getBody().userrole);
+					shell.loadedModules.text = "";
 					break;
 				case MainApplicationConstants.USER_LOGGED_OUT:
 					shell.toolbar.visible = false;
+					break;
+				case MainApplicationConstants.LOADED_MODULE:
+					shell.loadedModules.text += notification.getBody() + "(loaded) ";
 					break;
 			}
 		}

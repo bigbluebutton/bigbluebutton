@@ -195,6 +195,7 @@ package org.bigbluebutton.main.model
 		private function loadModuleResultHandler(name:String):void {
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
+				m.loaded = true;
 				trace('Loaded module ' + m.attributes.name);		
 				notifyModuleLoadedListeners(name);
 			} else {

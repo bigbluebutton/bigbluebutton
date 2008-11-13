@@ -9,6 +9,11 @@ package org.bigbluebutton.main
 	{
 		public static const NAME:String = 'MainApplicationMediator';
 		
+		private var chatLoaded:Boolean = false;
+		private var presentLoaded:Boolean = false;
+		private var listenerLoaded:Boolean = false;
+		private var viewerLoaded:Boolean = false;
+		
 		public function MainApplicationMediator(mediatorName:String=null, viewComponent:Object=null)
 		{
 			super(NAME, viewComponent);
@@ -36,12 +41,43 @@ package org.bigbluebutton.main
 					break;
 				case MainApplicationConstants.APP_MODEL_INITIALIZED:
 					trace(NAME + "::Received APP_MODEL_INITIALIZED");
-					proxy.loadModule("ViewersModule");
+					//proxy.loadModule("ViewersModule");
+					proxy.loadModule("ChatModule");
+					//proxy.loadModule("PresentationModule");
+					//proxy.loadModule("ListenersModule");
 					//proxy.loadModule("ListenersModule");
 					break;
 				case MainApplicationConstants.MODULE_LOADED:
 					trace(NAME + "::Received MODULE_LOADED");
-					facade.sendNotification(MainApplicationConstants.MODULE_START, notification.getBody() as String);
+					var ml:String = notification.getBody() as String;
+					
+					if (ml == "ViewersModule") {
+						viewerLoaded = true;
+					}
+					
+					if (ml == "ChatModule") {
+						chatLoaded = true;
+						proxy.loadModule("PresentationModule");
+					}
+					if (ml == "PresentationModule") {
+						presentLoaded = true;
+						proxy.loadModule("ListenersModule");
+					}
+					if (ml == "ListenersModule") {
+						listenerLoaded = true;
+						proxy.loadModule("ViewersModule");
+					}
+					
+					facade.sendNotification(MainApplicationConstants.LOADED_MODULE, ml);
+					
+					//if (chatLoaded && presentLoaded && listenerLoaded && !viewerLoaded) {
+					//	proxy.loadModule("ViewersModule");
+					//}
+					
+					if (viewerLoaded && chatLoaded && presentLoaded && listenerLoaded) {
+						facade.sendNotification(MainApplicationConstants.MODULE_START, "ViewersModule");
+					}
+					
 					//proxy.startModule(notification.getBody() as String);
 					break;
 				case MainApplicationConstants.LOGOUT:
@@ -57,9 +93,12 @@ package org.bigbluebutton.main
 					break;	
 				case MainApplicationConstants.USER_LOGGED_IN:
 					trace(NAME + '::Received USER_LOGGED_IN');
-					proxy.loadModule("ChatModule");
-					proxy.loadModule("PresentationModule");
-					proxy.loadModule("ListenersModule");
+					facade.sendNotification(MainApplicationConstants.MODULE_START, "ChatModule");
+					facade.sendNotification(MainApplicationConstants.MODULE_START, "PresentationModule");
+					facade.sendNotification(MainApplicationConstants.MODULE_START, "ListenersModule");
+					//proxy.loadModule("ChatModule");
+					//proxy.loadModule("PresentationModule");
+					//proxy.loadModule("ListenersModule");
 					break;
 			}
 		}		

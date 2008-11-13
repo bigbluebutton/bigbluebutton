@@ -37,7 +37,7 @@ package org.bigbluebutton.main
 		public static const LOGIN_COMPLETE:String = "LOGIN_COMPLETE";
 		public static const CONNECTION_LOST:String = "CONNECTION_LOST"
 		
-		// Try to maintain naming convention (NOUN_VERB)
+		public static const LOADED_MODULE:String = 'LOADED_MODULE';
 		public static const MODULES_LOAD:String = 'load all modules';
 		public static const MODULES_LOADED:String = 'all modules loaded';
 		public static const MODULES_START:String = 'start all modules';
