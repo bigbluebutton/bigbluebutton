@@ -65,6 +65,10 @@ package org.bigbluebutton.modules.viewers.model
 			_viewersService.assignPresenter(assignTo, me.userid);
 		}
 		
+		public function queryPresenter():void {
+			_viewersService.queryPresenter();
+		}
+		
 		private function connectionStatusListener(connected:Boolean, reason:String = null):void {
 			if (connected) {
 				sendNotification(ViewersModuleConstants.LOGGED_IN);
@@ -84,11 +88,11 @@ package org.bigbluebutton.modules.viewers.model
 					sendNotification(msg, body);
 				} else {
 					// Somebody else has become presenter.
-					if (isPresenter) {
+					//if (isPresenter) {
 						trace('Somebody else has become presenter.');
 						isPresenter = false;
-						sendNotification(ViewersModuleConstants.BECOME_VIEWER);
-					}
+						sendNotification(ViewersModuleConstants.BECOME_VIEWER, body);
+					//}
 				}
 			} else {
 				sendNotification(msg, body);

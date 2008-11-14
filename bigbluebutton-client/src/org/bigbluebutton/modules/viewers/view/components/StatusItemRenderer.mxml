@@ -1,23 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
-	verticalScrollPolicy="off" horizontalScrollPolicy="off">
+	verticalScrollPolicy="off" horizontalScrollPolicy="off" creationComplete="registerForEvents()">
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.viewers.ViewersModuleConstants;
+			import org.bigbluebutton.modules.viewers.view.events.ChangeRoleEvent;
 			import org.bigbluebutton.modules.viewers.view.components.Images;
-		
-		private var images:Images = new Images();
-		
-		private function viewCamera() : void
-   		{
 
-   		}			
+			private var images:Images = new Images();		
+			private function viewCamera() : void
+   			{
+
+   			}			
 		
-   		[Bindable] private var webcamIcon : Object = images.webcam;
-   		[Bindable] private var handIcon : Object = images.raisehand;	
+   			[Bindable] private var webcamIcon : Object = images.webcam;
+   			[Bindable] private var handIcon : Object = images.raisehand;	
+   			[Bindable] private var presenterIcon:Object = images.presenter;
+   			
+   			private function registerForEvents():void {
+   				trace('registering for becoming events');
+   				parentDocument.addEventListener(ChangeRoleEvent.CHANGE_PRESENTER_EVENT, onChangeRoleEvent);
+   				queryPresenter();
+  			}
+
+			private function queryPresenter():void {
+				trace('query presenter');
+				parentDocument.dispatchEvent(new Event(ViewersModuleConstants.QUERY_PRESENTER_EVENT));
+			}	
+			
+
+   			private function onChangeRoleEvent(e:ChangeRoleEvent):void {
+   				trace('changing to viewer icon');
+   				if (data.userid == e.assignTo) {
+   					presIcon.source = presenterIcon;
+   					presIcon.toolTip = "Presenter";
+   					presIcon.visible = true;
+   				} else {
+   					presIcon.visible = false;
+   				}
+   			}
 		]]>
 	</mx:Script>
 
 	<mx:Image id="streamImage" source="{webcamIcon}"  visible="{data.hasStream}"
 		toolTip="Double-click to view" doubleClick="viewCamera()"/>	
+	<mx:Image id="presIcon" visible="false"/>
 </mx:HBox>

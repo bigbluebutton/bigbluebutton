@@ -15,6 +15,8 @@ package org.bigbluebutton.modules.viewers.model.services
 		
 		private var _participantsSO : SharedObject;
 		private static const SO_NAME : String = "participantsSO";
+		private static const PRESENTER:String = "PRESENTER";
+		
 		private var netConnectionDelegate: NetConnectionDelegate;
 		
 		private var _participants:IViewers;
@@ -109,11 +111,22 @@ package org.bigbluebutton.modules.viewers.model.services
 		}
 
 		public function assignPresenter(userid:Number, assignedBy:Number):void {
+			_participantsSO.setProperty(PRESENTER, {assignedTo:userid, assignedBy:assignedBy});
+			_participantsSO.setDirty(PRESENTER);
 			_participantsSO.send("assignPresenterCallback", userid, assignedBy);
 		}
 		
 		public function assignPresenterCallback(userid:Number, assignedBy:Number):void {
 			sendMessage(ViewersModuleConstants.ASSIGN_PRESENTER, {assignedTo:userid, assignedBy:assignedBy});
+		}
+		
+		public function queryPresenter():void {
+			var p:Object = _participantsSO.data[PRESENTER];
+			trace('Got query presenter');
+			if (p != null) {
+				trace('responding to query presenter');
+				sendMessage(ViewersModuleConstants.QUERY_PRESENTER_REPLY, {assignedTo:p.assignedTo, assignedBy:p.assignedBy});
+			}			
 		}
 
 		/**
@@ -220,7 +233,7 @@ package org.bigbluebutton.modules.viewers.model.services
 					 *  resynchronized the object.  		
 					 */
 					 
-					if (name != null) {						
+					if ((name != null) && (name != PRESENTER)) {						
 						if (_participants.hasParticipant(_participantsSO.data[name].userid)) {
 							var changedUser : User = _participants.getParticipant(Number(name));
 							changedUser.status = _participantsSO.data[name].status;
@@ -247,7 +260,9 @@ package org.bigbluebutton.modules.viewers.model.services
 						}
 						
 					} else {
-						//log.warn( "Conference::SO::change is null");
+						var p:Object = _participantsSO.data[PRESENTER];
+						if (p != null)
+							assignPresenterCallback(p.assignedTo, p.assignedBy);
 					}
 																	
 					break;

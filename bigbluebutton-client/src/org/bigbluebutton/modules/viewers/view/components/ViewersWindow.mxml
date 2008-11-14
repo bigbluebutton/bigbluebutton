@@ -5,6 +5,7 @@
 
     <mx:Script>
         <![CDATA[
+        	import org.bigbluebutton.modules.viewers.view.events.ChangeRoleEvent;
         	import org.bigbluebutton.modules.viewers.ViewersModuleConstants;
         	import mx.events.ListEvent;
         	import org.bigbluebutton.modules.viewers.view.events.AssignPresenterEvent;
@@ -46,13 +47,15 @@
 			public function set yPosition(y:int):void {
 				_yPosition = y;
 			}
-						
-			public function becomeViewer():void {
-				dispatchEvent(new Event(ViewersModuleConstants.BECOME_VIEWER_EVENT));
+								
+			public function becomeViewer(user:Object):void {
+				trace('becoming viewer');
+				dispatchEvent(new ChangeRoleEvent(user.assignedTo));
 			}
 			
-			public function becomePresenter():void {
-				dispatchEvent(new Event(ViewersModuleConstants.BECOME_PRESENTER_EVENT));
+			public function becomePresenter(user:Object):void {
+				trace('becoming presenter');
+				dispatchEvent(new ChangeRoleEvent(user.assignedTo));
 			}
 			
 			private function viewerSelectEvent(event:ListEvent):void {

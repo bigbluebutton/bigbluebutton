@@ -55,12 +55,18 @@ package org.bigbluebutton.modules.viewers.view
 			_viewersWindow.addEventListener(CHANGE_STATUS, changeStatus);
 			_viewersWindow.addEventListener(ASSIGN_PRESENTER_EVENT, onAssignPresenter);
 			_viewersWindow.addEventListener(ViewersModuleConstants.VIEWER_SELECTED_EVENT, onViewerSelectedEvent);
+			_viewersWindow.addEventListener(ViewersModuleConstants.QUERY_PRESENTER_EVENT, onQueryPresenterEvent);
+		}
+		
+		private function onQueryPresenterEvent(e:Event):void {
+			proxy.queryPresenter();
 		}
 		
 		private function onViewerSelectedEvent(e:Event):void {
-			if (proxy.isModerator())
+			if (proxy.isModerator()) {
 				_viewersWindow.presentBtn.enabled = true;
 				_viewersWindow.presentBtn.toolTip = "Click to make " + _viewersWindow.viewersGrid.selectedItem.name + " as presenter.";
+			}
 		}
 		
 		private function onAssignPresenter(e:AssignPresenterEvent):void {
@@ -78,7 +84,8 @@ package org.bigbluebutton.modules.viewers.view
 					ViewersModuleConstants.OPEN_VIEWERS_WINDOW,
 					ViewersModuleConstants.CLOSE_VIEWERS_WINDOW,
 					ViewersModuleConstants.BECOME_VIEWER,
-					ViewersModuleConstants.ASSIGN_PRESENTER
+					ViewersModuleConstants.ASSIGN_PRESENTER,
+					ViewersModuleConstants.QUERY_PRESENTER_REPLY
 					];
 		}
 		
@@ -98,11 +105,15 @@ package org.bigbluebutton.modules.viewers.view
 					break;
 				case ViewersModuleConstants.BECOME_VIEWER:
 					trace('Sending BECOME_VIEWER_EVENT');
-					_viewersWindow.becomeViewer();
+					_viewersWindow.becomeViewer(notification.getBody());
+					break;
+				case ViewersModuleConstants.QUERY_PRESENTER_REPLY:
+					trace('Sending QUERY_PRESENTER_REPLY');
+					_viewersWindow.becomeViewer(notification.getBody());
 					break;
 				case ViewersModuleConstants.ASSIGN_PRESENTER:
 					trace('Sending ASSIGN_PRESENTER_EVENT');
-					_viewersWindow.becomePresenter();
+					_viewersWindow.becomePresenter(notification.getBody());
 					break;
 			}
 		}

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
-	verticalScrollPolicy="off" horizontalScrollPolicy="off" creationComplete="registerForEvents()">
+	verticalScrollPolicy="off" horizontalScrollPolicy="off">
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.viewers.view.events.ChangeRoleEvent;
 			import org.bigbluebutton.modules.viewers.ViewersModuleConstants;
-			import org.bigbluebutton.modules.viewers.view.events.AssignPresenterEvent;
 			import org.bigbluebutton.modules.viewers.view.components.Images;
 			import org.bigbluebutton.common.Role;
 			
@@ -13,29 +13,23 @@
 			
 			[Bindable] private var adminIcon : Object = images.admin;
    			[Bindable] private var viewerIcon : Object = images.participant;
-   			[Bindable] private var presenterIcon:Object = images.presenter;
-   			
-   			private function registerForEvents():void {
-   				trace('registering for becoming events');
-   				//parentDocument.addEventListener(ViewersModuleConstants.BECOME_VIEWER_EVENT, onBecomeViewerEvent);
-   				//parentDocument.addEventListener(ViewersModuleConstants.BECOME_PRESENTER_EVENT, onAssignPresenterEvent)
-   			}
-   			
-   			private function onBecomeViewerEvent(e:Event):void {
-   				trace('changing to viewer icon');
-   				if (data.role == Role.MODERATOR) {
+
+			private function setRole():void {
+				if (data.role == Role.MODERATOR) {
    					roleImage.source = adminIcon;
+   					roleImage.toolTip = "Moderator";
+   					roleImage.visible = true;
    				} else {
    					roleImage.source = viewerIcon;
+   					roleImage.toolTip = "Viewer";
+   					roleImage.visible = false;
    				}
-   			}
-   			
-   			private function onAssignPresenterEvent(e:Event):void {
-   				trace('changing to presenter icon');
-   				roleImage.source = presenterIcon;
-   			}   			
-   			
+			}   			
+			
+
+   			   			   			
 		]]>
 	</mx:Script>	
-	<mx:Image id="roleImage" source="{data.role == Role.MODERATOR ? adminIcon : viewerIcon}"/>
+	<mx:Image id="roleImage" creationComplete="setRole()"/>
+	<!--mx:Image id="roleImage" source="{data.role == Role.MODERATOR ? adminIcon : viewerIcon}"/-->
 </mx:HBox>

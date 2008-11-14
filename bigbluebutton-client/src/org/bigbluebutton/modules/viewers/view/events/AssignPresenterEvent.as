@@ -6,14 +6,14 @@ package org.bigbluebutton.modules.viewers.view.events
 
 	public class AssignPresenterEvent extends Event
 	{
-		public var assignTo:Number;
-		//public static const ASSIGN_PRESENTER_EVENT:String = "ASSIGN_PRESENTER_EVENT";
+		public static const ASSIGN_PRESENTER_EVENT:String = "ASSIGN_PRESENTER_EVENT";
 		
+		public var assignTo:Number;
+				
 		public function AssignPresenterEvent(assignTo:Number)
 		{
-			super(ViewersWindowMediator.ASSIGN_PRESENTER_EVENT, true);
+			super(ASSIGN_PRESENTER_EVENT, false);
 			this.assignTo = assignTo;
-		}
-		
+		}		
 	}
 }

@@ -58,6 +58,8 @@ package org.bigbluebutton.modules.viewers
 		public static const VIEWER_SELECTED_EVENT:String 		= "VIEWER_SELECTED_EVENT";
 		public static const BECOME_VIEWER_EVENT:String 			= "BECOME_VIEWER_EVENT";
 		public static const BECOME_PRESENTER_EVENT:String 		= "BECOME_PRESENTER_EVENT";
+		public static const QUERY_PRESENTER_EVENT:String 		= "QUERY_PRESENTER_EVENT";
+		public static const QUERY_PRESENTER_REPLY:String 		= "QUERY_PRESENTER_REPLY";
 		
 		public static const CONNECT_SUCCESS:String 				= "CONNECT_SUCCESS";
 		public static const CONNECT_FAILED:String 				= "CONNECT_FAILED";
