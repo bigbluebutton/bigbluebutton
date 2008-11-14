@@ -9,6 +9,7 @@ package org.bigbluebutton.main.model
 	
 	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.common.messaging.Router;
+	import org.bigbluebutton.main.MainApplicationConstants;
 	
 	public class BbbModuleManager
 	{
@@ -59,10 +60,10 @@ package org.bigbluebutton.main.model
 			}
 		}
 
-		private function notifyModuleLoadedListeners(name:String):void {
+		private function notifyModuleLoadedListeners(event:String, name:String, progress:Number=0):void {
 			for (var i:int=0; i<_moduleLoadedListeners.length; i++) {
 				var listener:Function = _moduleLoadedListeners.getItemAt(i) as Function;
-				listener(name);
+				listener(event, name, progress);
 			}
 		}
 				
@@ -182,7 +183,7 @@ package org.bigbluebutton.main.model
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
 				if (m.loaded) {
-					loadModuleResultHandler(name);
+					loadModuleResultHandler(MainApplicationConstants.MODULE_LOAD_READY, name);
 				} else {
 					trace('Found module ' + m.attributes.name);
 					m.load(loadModuleResultHandler);
@@ -192,12 +193,19 @@ package org.bigbluebutton.main.model
 			}
 		}
 				
-		private function loadModuleResultHandler(name:String):void {
+		private function loadModuleResultHandler(event:String, name:String, progress:Number=0):void {
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
-				m.loaded = true;
-				trace('Loaded module ' + m.attributes.name);		
-				notifyModuleLoadedListeners(name);
+				switch(event) {
+					case MainApplicationConstants.MODULE_LOAD_PROGRESS:
+						notifyModuleLoadedListeners(MainApplicationConstants.MODULE_LOAD_PROGRESS, name, progress);
+					break;	
+					case MainApplicationConstants.MODULE_LOAD_READY:
+						m.loaded = true;
+						trace('Loaded module ' + m.attributes.name);		
+						notifyModuleLoadedListeners(MainApplicationConstants.MODULE_LOAD_READY, name);					
+					break;				
+				}
 			} else {
 				trace(name + " not found.");
 			}

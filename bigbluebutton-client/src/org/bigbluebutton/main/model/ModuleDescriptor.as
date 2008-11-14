@@ -1,10 +1,12 @@
 package org.bigbluebutton.main.model
 {
 	import flash.events.Event;
+	import flash.events.ProgressEvent;
 	
 	import mx.modules.ModuleLoader;
 	
 	import org.bigbluebutton.common.IBigBlueButtonModule;
+	import org.bigbluebutton.main.MainApplicationConstants;
 	
 	public class ModuleDescriptor
 	{
@@ -28,7 +30,7 @@ package org.bigbluebutton.main.model
 			callbackHandler = resultHandler;
 //			loader.addEventListener("urlChanged", resultHandler);
 //			loader.addEventListener("loading", resultHandler);
-//			loader.addEventListener("progress", resultHandler);
+			loader.addEventListener("progress", onLoadProgress);
 //			loader.addEventListener("setup", resultHandler);
 			loader.addEventListener("ready", onReady);
 //			loader.addEventListener("error", resultHandler);
@@ -49,9 +51,18 @@ package org.bigbluebutton.main.model
 				trace("Module " + attributes.name + " has been loaded");
 				loaded = true;
 			}
-			callbackHandler(attributes.name);
+			callbackHandler(MainApplicationConstants.MODULE_LOAD_READY, attributes.name);
 		}	
 
+		private function onLoadProgress(e:ProgressEvent):void {
+			//var loader:ModuleLoader = e.target as ModuleLoader;
+			//module = loader.child as IBigBlueButtonModule;
+			//if (module != null) {
+				callbackHandler(MainApplicationConstants.MODULE_LOAD_PROGRESS, attributes.name, Math.round((e.bytesLoaded/e.bytesTotal) * 100));
+			//}
+			
+		}	
+		
 /*
 		private function onUrlChanged(event:Event):void {
 			trace("Module onUrlChanged Event");

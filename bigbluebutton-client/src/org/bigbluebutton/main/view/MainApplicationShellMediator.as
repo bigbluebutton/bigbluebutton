@@ -65,7 +65,8 @@ package org.bigbluebutton.main.view
 					MainApplicationConstants.REMOVE_WINDOW_MSG,
 					MainApplicationConstants.USER_LOGGED_IN,
 					MainApplicationConstants.USER_LOGGED_OUT,
-					MainApplicationConstants.LOADED_MODULE
+					MainApplicationConstants.LOADED_MODULE,
+					MainApplicationConstants.MODULE_LOAD_PROGRESS
 					];
 		}
 		
@@ -85,12 +86,19 @@ package org.bigbluebutton.main.view
 				case MainApplicationConstants.USER_LOGGED_IN:
 					shell.toolbar.loggedIn(notification.getBody().username, notification.getBody().room, notification.getBody().userrole);
 					shell.loadedModules.text = "";
+					shell.loadProgress.text = "";
 					break;
 				case MainApplicationConstants.USER_LOGGED_OUT:
 					shell.toolbar.visible = false;
 					break;
 				case MainApplicationConstants.LOADED_MODULE:
 					shell.loadedModules.text += notification.getBody() + "(loaded) ";
+					break;
+				case MainApplicationConstants.MODULE_LOAD_PROGRESS:
+					var mod:String = notification.getBody().name as String;
+					var prog:Number = notification.getBody().progress as Number;
+					
+					shell.loadProgress.text = "Loading: " + mod + " " + prog + "% loaded.";
 					break;
 			}
 		}

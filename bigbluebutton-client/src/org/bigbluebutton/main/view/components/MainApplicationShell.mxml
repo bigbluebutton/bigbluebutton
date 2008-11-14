@@ -76,11 +76,11 @@
 			effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}"
 			width="100%" height="100%">		
 			<mx:Label x="200" y="400" id="loadedModules" text="Please wait while we load 4 modules: "/>	
+			<mx:Label x="200" y="420" id="loadProgress" text="Loading: "/>
 		</flexmdi:MDICanvas>	
 	 	<mx:ControlBar width="100%" height="20" paddingTop="0">		
 		  <mx:Label text="(c) 2008, BigBlueButton version {Constants.VERSION} - For more information see http://www.bigbluebutton.org/." id="copyrightLabel2"/>
 		  <mx:Spacer width="20"/>
-		  <!--mx:Label id="loadedModules" text=""/-->
 		  <mx:Spacer width="100%"/> 
 		  <mx:Button width="20" height="20" toolTip="Toggle Full-Screen" id="fullScreen" icon="{fullscreen_icon}" click="toggleFullScreen()" />
 		</mx:ControlBar>

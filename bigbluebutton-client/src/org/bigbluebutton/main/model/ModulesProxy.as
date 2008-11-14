@@ -76,9 +76,16 @@ package org.bigbluebutton.main.model
 			modulesManager.loadModule(name);
 		}
 				
-		private function onModuleLoadedListener(name:String):void {
-			trace('Sending module loaded for ' + name);
-			facade.sendNotification(MainApplicationConstants.MODULE_LOADED, name);
+		private function onModuleLoadedListener(event:String, name:String, progress:Number=0):void {
+			switch(event) {
+					case MainApplicationConstants.MODULE_LOAD_PROGRESS:
+						facade.sendNotification(MainApplicationConstants.MODULE_LOAD_PROGRESS, {name:name, progress:progress});
+					break;	
+					case MainApplicationConstants.MODULE_LOAD_READY:
+						facade.sendNotification(MainApplicationConstants.MODULE_LOADED, name);					
+					break;				
+				}
+			
 		}
 		
 		public function moduleStarted(name:String, started:Boolean):void {
