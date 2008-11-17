@@ -35,16 +35,10 @@ package org.bigbluebutton.modules.video.model.vo
 	[Bindable]	
 	public class PlayMedia implements IMedia
 	{
-		//private var model:PublisherModel =
-		// 	VideoFacade.getInstance().retrieveProxy(PublisherModel.NAME) as PublisherModel;
-		
-		private static const _type : MediaType = MediaType.PLAY;
-		
+		private static const _type : MediaType = MediaType.PLAY;		
 		public var streamName : String;
 		public var uri : String;
 		
-		//public var connected : Boolean = model.connected;
-
 		public var remoteVideo : Video;
 		public var defaultVideoSettings:VideoSettings = new VideoSettings();
 		

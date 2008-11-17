@@ -62,7 +62,7 @@ package org.bigbluebutton.modules.video.model.services
 		 * @param encoding
 		 * 
 		 */		
-		public function connect( uri : String, proxy : String, encoding : uint ) : void
+		public function connect( uri:String, proxy:String, encoding:uint ) : void
 		{			
 			netConnection = new NetConnection();			
 			netConnection.client = this;			

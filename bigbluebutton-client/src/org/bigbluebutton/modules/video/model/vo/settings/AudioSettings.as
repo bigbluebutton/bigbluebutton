@@ -20,46 +20,13 @@ package org.bigbluebutton.modules.video.model.vo.settings
 	 */
 	 
 	[Bindable]
-	/**
-	 * 
-	 * @author Thijs Triemstra
-	 */	
 	public class AudioSettings 
-	{
-		/**
-		* 
-		*/		
-		public var micIndex : int;
-		
-		/**
-		* 
-		*/		
-		public var rate : int;
-		
-		/**
-		* 
-		*/		
-		public var gain : int;
-		
-		/**
-		* 
-		*/		
-		public var level : int;
-		
-		/**
-		* 
-		*/		
-		public var timeout : int;
-
-		/**
-		 * 
-		 * @param micIndex
-		 * @param rate
-		 * @param gain
-		 * @param level
-		 * @param timeout
-		 * @return
-		 */		
+	{	
+		public var micIndex : int;		
+		public var rate : int;	
+		public var gain : int;	
+		public var level : int;	
+		public var timeout : int;	
 		public function AudioSettings(	micIndex : int = -1,
 										rate : int = 22,
 										gain : int = 50,

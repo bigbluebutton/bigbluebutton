@@ -33,12 +33,11 @@
 <application path="BigBlueButton.mxml"/>
 </applications>
 <modules>
+<module application="src/BigBlueButton.mxml" destPath="ViewersModule.swf" optimize="true" sourcePath="src/ViewersModule.mxml"/>
 <module application="src/BigBlueButton.mxml" destPath="ListenersModule.swf" optimize="true" sourcePath="src/ListenersModule.mxml"/>
-<module application="src/BigBlueButton.mxml" destPath="VideoModule_old.swf" optimize="true" sourcePath="src/org/bigbluebutton/modules/video/VideoModule_old.as"/>
+<module application="src/BigBlueButton.mxml" destPath="PresentationModule.swf" optimize="true" sourcePath="src/PresentationModule.mxml"/>
 <module application="src/BigBlueButton.mxml" destPath="ChatModule.swf" optimize="true" sourcePath="src/ChatModule.mxml"/>
 <module application="src/BigBlueButton.mxml" destPath="LogModule.swf" optimize="true" sourcePath="src/org/bigbluebutton/modules/log/LogModule.as"/>
-<module application="src/BigBlueButton.mxml" destPath="ViewersModule.swf" optimize="true" sourcePath="src/ViewersModule.mxml"/>
-<module application="src/BigBlueButton.mxml" destPath="PresentationModule.swf" optimize="true" sourcePath="src/PresentationModule.mxml"/>
 </modules>
 <buildCSSFiles/>
 </actionScriptProperties>

@@ -26,8 +26,7 @@ package org.bigbluebutton.modules.video.model.vo
 	[Bindable]
 	public class AudioStream
 	{
-		public var mic : Microphone;
-		
+		public var mic : Microphone;		
 		public var settings:AudioSettings = new AudioSettings();
 	}
 }

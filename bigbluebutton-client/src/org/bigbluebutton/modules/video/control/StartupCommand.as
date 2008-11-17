@@ -35,7 +35,7 @@ package org.bigbluebutton.modules.video.control
 	 * @author Denis Zgonjanin
 	 * 
 	 */	
-	public class StartupVideoCommand extends SimpleCommand
+	public class StartupCommand extends SimpleCommand
 	{
 		override public function execute(notification:INotification):void{
 			var app:VideoModule = notification.getBody() as VideoModule;

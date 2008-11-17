@@ -21,23 +21,14 @@ package org.bigbluebutton.modules.video.model.vo.settings
 	 
 	[Bindable]
 	public class GeneralSettings 
-	{
-	
-		public var host : String;
-				
-		public var server : int;
-			
-		public var encode : int;
-			
-		public var proxy : int;
-			
-		public var bufferTime : Number;
-			
-		public function GeneralSettings(	host : String = "",
-											server : int = 0,
-											encode : int = 0,
-											proxy : int = 0,
-											bufferTime : Number = 2 )
+	{	
+		public var host:String;				
+		public var server:int;			
+		public var encode:int;			
+		public var proxy:int;			
+		public var bufferTime : Number;			
+		public function GeneralSettings(host : String = "", server : int = 0,
+							encode : int = 0, proxy : int = 0, bufferTime : Number = 2 )
 		{
 			this.host = host;
 			this.server = server;

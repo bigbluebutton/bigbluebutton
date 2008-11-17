@@ -25,60 +25,21 @@ package org.bigbluebutton.modules.video.model.vo.settings
 	 * @author Thijs Triemstra
 	 */	
 	public class VideoSettings 
-	{
-		/**
-		* 
-		*/		
-		public var cameraIndex : int;
-		
-		/**
-		* 
-		*/		
-		public var bandwidth : int;
-		
-		/**
-		* 
-		*/		
-		public var quality : int;
-		
-		/**
-		* 
-		*/		
-		public var width : int;
-		
-		/**
-		* 
-		*/		
-		public var height : int;
-		
-		/**
-		* 
-		*/		
-		public var keyframe : int;
-		
-		/**
-		* 
-		*/		
-		public var fps : int;
-
-		/**
-		 * 
-		 * @param cameraIndex
-		 * @param bandwidth
-		 * @param quality
-		 * @param width
-		 * @param height
-		 * @param keyframe
-		 * @param fps
-		 * @return 
-		 */		
-		public function VideoSettings(	cameraIndex : int = -1,
-										bandwidth : int = 0,
-										quality : int = 0,
-										width : int = 320,
-										height : int = 240,
-										keyframe : int = 5,
-										fps : int = 15 ) 
+	{		
+		public var cameraIndex : int;	
+		public var bandwidth : int;	
+		public var quality : int;	
+		public var width : int;		
+		public var height : int;	
+		public var keyframe : int;	
+		public var fps : int;	
+		public function VideoSettings(	cameraIndex:int = -1,
+										bandwidth:int = 0,
+										quality:int = 0,
+										width:int = 320,
+										height:int = 240,
+										keyframe:int = 5,
+										fps:int = 15 ) 
 		{
 			this.cameraIndex = cameraIndex;
 			this.bandwidth = bandwidth;

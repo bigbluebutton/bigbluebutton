@@ -27,16 +27,10 @@ package org.bigbluebutton.modules.video.view.settings
 	 */	
 	public class StatusBarClass extends Canvas
 	{	
-		[Bindable]
-		/**
-		* 
-		*/		
+		[Bindable]	
 		public var labelText : String;
 			
-		[Bindable]
-		/**
-		* 
-		*/		
+		[Bindable]	
 		public var labelImage : Class;
 	}
 }

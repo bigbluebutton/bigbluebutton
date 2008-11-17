@@ -39,9 +39,9 @@ package org.bigbluebutton.modules.video.model.business
 	 * @author Denis Zgonjanin
 	 * 
 	 */	
-	public class PublisherModel extends Proxy implements IProxy
+	public class Media
 	{		
-		public static const NAME:String = "PublisherModel";
+		public static const NAME:String = "Media";
 		[Bindable] public var connected : Boolean = false;
 		
 		public var playMedia : Object;
@@ -51,14 +51,13 @@ package org.bigbluebutton.modules.video.model.business
 		public var defaultVideoSettings:VideoSettings;
 				 
 		[Bindable]		
-		public var cameraNames : Array = 	[ "No video" ];
+		public var cameraNames:Array = 	[ "No video" ];
 		
 		[Bindable]	
-		public var microphoneNames : Array = [ "No audio" ];		
+		public var microphoneNames:Array = [ "No audio" ];		
 				 	
-		public function PublisherModel()
+		public function Media()
 		{
-			super(NAME);
 			// Create blank general settings VO.
 			generalSettings = new GeneralSettings();
 			defaultVideoSettings = new VideoSettings();
