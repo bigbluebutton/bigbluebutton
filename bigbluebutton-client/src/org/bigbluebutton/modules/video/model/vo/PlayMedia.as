@@ -21,9 +21,7 @@ package org.bigbluebutton.modules.video.model.vo
 {
 	import flash.media.Video;
 	
-	import org.bigbluebutton.modules.video.VideoFacade;
 	import org.bigbluebutton.modules.video.model.business.MediaType;
-	import org.bigbluebutton.modules.video.model.business.PublisherModel;
 	import org.bigbluebutton.modules.video.model.services.PlayStreamDelegate;
 	import org.bigbluebutton.modules.video.model.vo.settings.VideoSettings;
 	

@@ -20,7 +20,7 @@
 package org.bigbluebutton.modules.video
 {
 	import org.bigbluebutton.common.IBigBlueButtonModule;
-	import org.bigbluebutton.modules.video.control.StartupVideoCommand;
+	import org.bigbluebutton.modules.video.control.StartupCommand;
 	import org.puremvc.as3.multicore.interfaces.IFacade;
 	import org.puremvc.as3.multicore.patterns.facade.Facade;
 	
@@ -29,20 +29,21 @@ package org.bigbluebutton.modules.video
 	 * @author Denis Zgonjanin
 	 * 
 	 */	
-	public class VideoFacade extends Facade implements IFacade
+	public class VideoModuleFacade extends Facade implements IFacade
 	{
-		public static const NAME:String = "VideoFacade";
+		public static const NAME:String = "VideoModuleFacade";
 		
-		public static const STARTUP:String = "StartupVideo";
+		public static const STARTUP:String = "STARTUP";
+		public static const STOP:String     = "STOP";
 		
 		/**
 		 * The constructor. Should never be called, however ActionScript does not support private
 		 * constructors. Use the getInstance() method instead. 
 		 * 
 		 */		
-		public function VideoFacade(name:String)
+		public function VideoModuleFacade()
 		{
-			super(name);
+			super(NAME);
 		}
 		
 		/**
@@ -50,9 +51,9 @@ package org.bigbluebutton.modules.video
 		 * @return 
 		 * 
 		 */		
-		public static function getInstance(name:String):VideoFacade{
-			if (instanceMap[name] == null) instanceMap[name] = new VideoFacade(name);
-			return instanceMap[name] as VideoFacade;
+		public static function getInstance():VideoModuleFacade{
+			if (instanceMap[NAME] == null) instanceMap[NAME] = new VideoModuleFacade();
+			return instanceMap[NAME] as VideoModuleFacade;
 		}
 		
 		/**
@@ -61,7 +62,7 @@ package org.bigbluebutton.modules.video
 		 */		
 		override protected function initializeController():void{
 			super.initializeController();
-			registerCommand(STARTUP, StartupVideoCommand);
+			registerCommand(STARTUP, StartupCommand);
 		}
 		
 		/**
@@ -73,5 +74,10 @@ package org.bigbluebutton.modules.video
 			sendNotification(STARTUP, app);
 		}
 
+		public function stop(app:IBigBlueButtonModule):void {
+			sendNotification(STOP, app);
+			removeCore(NAME);
+		}	
+		
 	}
 }

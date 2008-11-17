@@ -1,17 +1,40 @@
 package org.bigbluebutton.modules.video.model
 {
-	import flash.utils.Proxy;
+	import flash.events.ActivityEvent;
+	import flash.events.StatusEvent;
+	import flash.media.Camera;
+	import flash.media.Microphone;
 	
 	import org.bigbluebutton.modules.video.model.business.Media;
+	import org.bigbluebutton.modules.video.model.business.MediaType;
+	import org.bigbluebutton.modules.video.model.services.BroadcastStreamDelegate;
+	import org.bigbluebutton.modules.video.model.services.PlayStreamDelegate;
+	import org.bigbluebutton.modules.video.model.services.StreamFactory;
+	import org.bigbluebutton.modules.video.model.vo.BroadcastMedia;
+	import org.bigbluebutton.modules.video.model.vo.IMedia;
+	import org.bigbluebutton.modules.video.model.vo.PlayMedia;
 	import org.puremvc.as3.multicore.interfaces.IProxy;
+	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
 
 	public class MediaProxy extends Proxy implements IProxy
 	{
-		private var _media = new Media();
+		public static const NAME:String = "MediaProxy";
+		
+		private var _media:Media = new Media();
+		private var _sf:StreamFactory;
+		
 		
 		public function MediaProxy()
 		{
-			super();
+			super(NAME);
+		}
+
+		public function setupStreamFactory():void {
+			if (facade.hasProxy(ConnectionProxy.NAME)) {
+				var p:ConnectionProxy = facade.retrieveProxy(ConnectionProxy.NAME) as ConnectionProxy;
+				_sf = new StreamFactory(p.connection);
+			}
+			
 		}
 		
 		/**
@@ -56,33 +79,7 @@ package org.bigbluebutton.modules.video.model
 			return _media.getPlayMedia(streamName);
 		}
 		
-		/**
-		 * Connects this class to a specific host
-		 * @param host
-		 * 
-		 */				
-		public function connect(host : String) : void
-		{
-			var encodingType : uint = ObjectEncoding.AMF0;
-			var proxyType : String = "none";
-			var serverType : int = 0; // Red5
-			
-			_media.generalSettings = new GeneralSettings( host,
-														serverType,
-														encodingType,
-														0 /*"none"*/ );
-			
-			delegate.connect(host,proxyType,encodingType);
-		}
-		
-		/**
-		 * Sends out a disconnect notification 
-		 * 
-		 */		
-		public function disconnect() : void
-		{
-			delegate.close();	
-		}
+
 		
 		/**
 		 * Sends out a setup devices notification 
@@ -91,40 +88,26 @@ package org.bigbluebutton.modules.video.model
 		public function setupDevices() : void{
 			if ( Camera.names.length != 0 ) {
 					// Merge options with devices array.
-					_media.cameraNames = model.cameraNames.concat( Camera.names );
+					_media.cameraNames = _media.cameraNames.concat( Camera.names );
 			}
 
 			if ( Microphone.names.length != 0 ) {
 				// Merge options with devices array.
-				_media.microphoneNames = model.microphoneNames.concat( Microphone.names );
+				_media.microphoneNames = _media.microphoneNames.concat( Microphone.names );
 			}		
 		}
-		
-		/**
-		 * Sends out a setup connection notification 
-		 * 
-		 */		
-		public function setupConnection() : void
-		{
-			facade.registerProxy(new NetworkConnectionDelegate());			
-		}
-		
-		/**
-		 * Sends out a setup_stream notification 
-		 * @param streamName
-		 * 
-		 */		
+			
 		public function setupStream(streamName : String) : void
 		{
-			var media:IMedia  = model.getPlayMedia(streamName);
+			var media:IMedia  = _media.getPlayMedia(streamName);
 			
 			if (media == null) {
-				media = model.getBroadcastMedia(streamName);
+				media = _media.getBroadcastMedia(streamName);
 			}
 			media.streamName = streamName;
 			
 			if (media.type == MediaType.BROADCAST) {
-				var m : BroadcastMedia = media as BroadcastMedia;
+				var m:BroadcastMedia = media as BroadcastMedia;
 				var d:BroadcastStreamDelegate = new BroadcastStreamDelegate(m);
 				m.broadcastStreamDelegate = d;
 				facade.registerProxy(d);
@@ -390,7 +373,5 @@ package org.bigbluebutton.modules.video.model
 			// Use Delegate to playback the NetStream.
 	      	media.playStreamDelegate.enableVideo( enableVideo );		
 		}
-	}
-		
 	}
 }

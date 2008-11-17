@@ -14,7 +14,7 @@
 			import org.bigbluebutton.modules.video.model.vo.BroadcastMedia;
 			import mx.managers.PopUpManager;
 			
-			[Bindable] public var model : PublisherModel 
+			[Bindable] public var model : Object 
 
 			[Bindable] public var media:BroadcastMedia;
 			

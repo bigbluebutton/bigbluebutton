@@ -40,9 +40,9 @@ package org.bigbluebutton.modules.video.view.mediators
 		}
 		
 		private function setupDevices(e:Event):void{
-			sendNotification(VideoModuleConstants.SETUP_DEVICES_COMMAND);
-			var model:PublisherModel = facade.retrieveProxy(PublisherModel.NAME) as PublisherModel;
-			window.camera_cb.dataProvider = model.cameraNames;
+//			sendNotification(VideoModuleConstants.SETUP_DEVICES_COMMAND);
+//			var model:PublisherModel = facade.retrieveProxy(PublisherModel.NAME) as PublisherModel;
+//			window.camera_cb.dataProvider = model.cameraNames;
 		}
 		
 		private function cancelSettings(e:Event):void{

@@ -37,6 +37,10 @@ package org.bigbluebutton.modules.video.model.services
 			_netConnection = new NetConnection();
 		}
 		
+		public function addConnectionListener(connectionListener:Function):void {
+			_connectionListener = connectionListener;
+		}
+		
 		public function get connection():NetConnection {
 			return _netConnection;
 		}
@@ -121,20 +125,26 @@ package org.bigbluebutton.modules.video.model.services
 			}
 		}
 		
+		/**
+		 * The Red5 oflaDemo returns bandwidth stats.
+		 */		
+		public function onBWDone():void {
 			
-		protected function netSecurityError( event : SecurityErrorEvent ) : void 
+		}
+			
+		protected function netSecurityError( event:SecurityErrorEvent ):void 
 		{
 			trace("Security error - " + event.text);
 			_connectionListener(false);
 		}
 		
-		protected function netIOError( event : IOErrorEvent ) : void 
+		protected function netIOError( event:IOErrorEvent ):void 
 		{
 			trace("Input/output error - " + event.text);
 			_connectionListener(false);
 		}
 			
-		protected function netASyncError( event : AsyncErrorEvent ) : void 
+		protected function netASyncError( event:AsyncErrorEvent ):void 
 		{
 			trace("Asynchronous code error - " + event.error );
 			_connectionListener(false);

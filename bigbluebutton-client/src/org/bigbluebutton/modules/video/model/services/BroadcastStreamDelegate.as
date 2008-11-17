@@ -23,9 +23,6 @@ package org.bigbluebutton.modules.video.model.services
 	import flash.media.*;
 	import flash.net.*;
 	
-	import mx.controls.Alert;
-	
-	import org.bigbluebutton.modules.video.model.business.PublisherModel;
 	import org.bigbluebutton.modules.video.model.vo.BroadcastMedia;
 	import org.puremvc.as3.multicore.interfaces.IProxy;
 	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
@@ -42,53 +39,31 @@ package org.bigbluebutton.modules.video.model.services
 		public static const NAME:String = "BroadcastStreamDelegate";	
 		
 		private var media : BroadcastMedia;
-		public var nsPublish : NetStream;
+		private var _ns : NetStream;
 			
-		/**
-		 * Creates a new BroadcastStreamDelegate 
-		 * @param broadcastMedia
-		 * 
-		 */		
 		public function BroadcastStreamDelegate( broadcastMedia:BroadcastMedia )
 		{
-			super(NAME);
 			media = broadcastMedia;
 		}
 		
-		private function get model():PublisherModel{
-			return facade.retrieveProxy(PublisherModel.NAME) as PublisherModel;
-		}
-		
-		private function get delegate():NetworkConnectionDelegate{
-			return facade.retrieveProxy(NetworkConnectionDelegate.NAME) as NetworkConnectionDelegate;
-		}
-						
-		/**
-		 * Start publishing the real time video to the server 
-		 * @param publishMode
-		 * @param streamName
-		 * 
-		 */		
-		public function startPublish( publishMode : String, streamName : String ) : void
+		public function start( publishMode : String, streamName : String ) : void
 		{
-			
-			if (! model.connected) return;
-			//Alert.show("HELLO@!@@");
 			try 
 			{
 				var camera : Camera = media.video.cam;
 				var microphone : Microphone = media.audio.mic;
 				media.broadcasting = false;
+				
 				if ( microphone != null || camera != null ) 
 				{
 					// close previous stream
-					if ( nsPublish != null ) 
+					if ( _ns != null ) 
 					{
 						// Stop and unpublish current NetStream.
-						media.broadcastStreamDelegate.stopPublish();
+						stop();
 					}
 					// Setup NetStream for publishing.
-					nsPublish = new NetStream( delegate.connection );
+//					nsPublish = new NetStream( delegate.connection );
 					//
 					nsPublish.addEventListener( NetStatusEvent.NET_STATUS, netStatusEvent );
 					nsPublish.addEventListener( IOErrorEvent.IO_ERROR, netIOError );
@@ -137,11 +112,7 @@ package org.bigbluebutton.modules.video.model.services
 			}
 		}
 			
-		/**
-		 * Stop publishing the rel time video 
-		 * 
-		 */		
-		public function stopPublish() : void
+		public function stop() : void
 		{	
 			nsPublish.close();	
 			media.broadcasting = false;

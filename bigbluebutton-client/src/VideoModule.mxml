@@ -4,7 +4,7 @@
 	creationComplete="onCreationComplete()">
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.chat.ChatFacade;
+			import org.bigbluebutton.modules.video.VideoModuleFacade;
 			import org.bigbluebutton.common.messaging.Router;
 			
 			private var _router:Router;			
@@ -42,11 +42,11 @@
 			
 			public function start(attributes:Object):void {	
 				_attributes = attributes;	
-				ChatFacade.getInstance().startup(this);	
+				VideoModuleFacade.getInstance().startup(this);	
 			}
 		
 			public function stop():void {
-				ChatFacade.getInstance().stop(this);
+				VideoModuleFacade.getInstance().stop(this);
 			}
 		]]>
 	</mx:Script>

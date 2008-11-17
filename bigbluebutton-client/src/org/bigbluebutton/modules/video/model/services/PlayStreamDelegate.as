@@ -24,7 +24,7 @@ package org.bigbluebutton.modules.video.model.services
 	import flash.media.*;
 	import flash.net.*;
 	
-	import org.bigbluebutton.modules.video.model.business.PublisherModel;
+//	import org.bigbluebutton.modules.video.model.business.PublisherModel;
 	import org.bigbluebutton.modules.video.model.vo.PlayMedia;
 	import org.bigbluebutton.modules.video.model.vo.PlaybackState;
 	import org.puremvc.as3.multicore.interfaces.IProxy;
@@ -56,13 +56,13 @@ package org.bigbluebutton.modules.video.model.services
 			media = playMedia;
 		}
 		
-		private function get model():PublisherModel{
-			return facade.retrieveProxy(PublisherModel.NAME) as PublisherModel;
-		}
-		
-		private function get delegate():NetworkConnectionDelegate{
-			return facade.retrieveProxy(NetworkConnectionDelegate.NAME) as NetworkConnectionDelegate;
-		}
+//		private function get model():PublisherModel{
+//			return facade.retrieveProxy(PublisherModel.NAME) as PublisherModel;
+//		}
+//		
+//		private function get delegate():NetworkConnectionDelegate{
+//			return facade.retrieveProxy(NetworkConnectionDelegate.NAME) as NetworkConnectionDelegate;
+//		}
 					
 		/**
 		 * Starts playing back the media on the server 
@@ -87,7 +87,7 @@ package org.bigbluebutton.modules.video.model.services
 					media.playStreamDelegate.stopPlayback();
 				}
 				// Setup NetStream for playback.
-				nsPlay = new NetStream( delegate.connection );
+//				nsPlay = new NetStream( delegate.connection );
 				
 				nsPlay.addEventListener( NetStatusEvent.NET_STATUS, netStatusEvent );
 				nsPlay.addEventListener( IOErrorEvent.IO_ERROR, netIOError );
@@ -101,8 +101,8 @@ package org.bigbluebutton.modules.video.model.services
 				
 				media.playState = PlaybackState.PLAYING;
 				
-				media.remoteVideo = new Video( model.defaultVideoSettings.width, 
-						model.defaultVideoSettings.height );
+//				media.remoteVideo = new Video( model.defaultVideoSettings.width, 
+//						model.defaultVideoSettings.height );
 				media.remoteVideo.attachNetStream( nsPlay );
 				
 				nsPlay.play( streamName );
