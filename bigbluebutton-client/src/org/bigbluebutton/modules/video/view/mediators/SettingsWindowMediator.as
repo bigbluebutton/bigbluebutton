@@ -4,7 +4,7 @@ package org.bigbluebutton.modules.video.view.mediators
 	
 	import mx.managers.PopUpManager;
 	
-	import org.bigbluebutton.modules.video.VideoFacade;
+	import org.bigbluebutton.modules.video.VideoModuleConstants;
 	import org.bigbluebutton.modules.video.model.business.PublisherModel;
 	import org.bigbluebutton.modules.video.view.SettingsWindow;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
@@ -40,7 +40,7 @@ package org.bigbluebutton.modules.video.view.mediators
 		}
 		
 		private function setupDevices(e:Event):void{
-			sendNotification(VideoFacade.SETUP_DEVICES_COMMAND);
+			sendNotification(VideoModuleConstants.SETUP_DEVICES_COMMAND);
 			var model:PublisherModel = facade.retrieveProxy(PublisherModel.NAME) as PublisherModel;
 			window.camera_cb.dataProvider = model.cameraNames;
 		}
@@ -53,7 +53,7 @@ package org.bigbluebutton.modules.video.view.mediators
 			window.media.video.settings.cameraIndex = window.camera_cb.selectedIndex;
 				
 			PopUpManager.removePopUp(window);
-			sendNotification(VideoFacade.ENABLE_CAMERA);
+			sendNotification(VideoModuleConstants.ENABLE_CAMERA);
 		}
 
 	}

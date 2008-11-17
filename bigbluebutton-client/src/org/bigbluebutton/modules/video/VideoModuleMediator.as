@@ -98,11 +98,11 @@ package org.bigbluebutton.modules.video
    			videoWindow.showCloseButton = true;
    			var publisher:PublisherApplicationMediator 
    				= facade.retrieveMediator(PublisherApplicationMediator.NAME) as PublisherApplicationMediator;
-   			var media:BroadcastMedia = publisher.getBroadcastMedia(module.streamName) as BroadcastMedia;
-   			videoWindow.media = media;
+//   			var media:BroadcastMedia = publisher.getBroadcastMedia(module.streamName) as BroadcastMedia;
+//   			videoWindow.media = media;
    			
    			videoWindow.title = ViewCameraWindow.TITLE;
-   			module.viewComponent = videoWindow;
+ //  			module.viewComponent = videoWindow;
    			facade.registerMediator(new MyCameraWindowMediator(videoWindow));
    			msg.setBody(viewComponent as VideoModule);
    			outpipe.write(msg);
@@ -121,14 +121,14 @@ package org.bigbluebutton.modules.video
    			
 			viewWindow.showCloseButton = true;
 			viewWindow.title = "Viewing...";
-			publisher.createPlayMedia(module.streamName);
-			module.viewComponent = viewWindow;
+//			publisher.createPlayMedia(module.streamName);
+//			module.viewComponent = viewWindow;
 			facade.registerMediator(new ViewCameraWindowMediator(viewWindow));
 			
-			var media : PlayMedia = publisher.getPlayMedia(module.streamName) as PlayMedia;
-			viewWindow.media = media;
+//			var media : PlayMedia = publisher.getPlayMedia(module.streamName) as PlayMedia;
+//			viewWindow.media = media;
 			
-			publisher.setupStream(module.streamName);
+//			publisher.setupStream(module.streamName);
 			
 			msg.setBody(viewComponent as VideoModule);
    			outpipe.write(msg);
@@ -143,11 +143,11 @@ package org.bigbluebutton.modules.video
 		 */		
 		override public function initializeNotifier(key:String):void{
 			super.initializeNotifier(key);
-			if (module.type == VideoModule.RECORDER){
-				addVideoWindow();
-			} else if (module.type == VideoModule.VIEWER){
-				addViewWindow();
-			}
+//			if (module.type == VideoModuleConstants.RECORDER){
+//				addVideoWindow();
+//			} else if (module.type == VideoModule.VIEWER){
+//				addViewWindow();
+//			}
 		}
 		
 		/**
@@ -157,7 +157,7 @@ package org.bigbluebutton.modules.video
 		 */		
 		override public function listNotificationInterests():Array{
 			return [
-					VideoFacade.CLOSE_RECORDING
+					VideoModuleConstants.CLOSE_RECORDING
 					];
 		}
 		
@@ -168,7 +168,7 @@ package org.bigbluebutton.modules.video
 		 */		
 		override public function handleNotification(notification:INotification):void{
 			switch(notification.getName()){
-				case VideoFacade.CLOSE_RECORDING:
+				case VideoModuleConstants.CLOSE_RECORDING:
 					facade.removeCore(VideoFacade.NAME);
 					break;
 			}

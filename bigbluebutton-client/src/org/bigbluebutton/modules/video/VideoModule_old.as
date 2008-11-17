@@ -19,12 +19,9 @@
 */
 package org.bigbluebutton.modules.video
 {
-	import flash.system.Capabilities;
-	
 	import flexlib.mdi.containers.MDIWindow;
 	
 	import org.bigbluebutton.common.BigBlueButtonModule;
-	import org.bigbluebutton.common.messaging.IRouterAware;
 	import org.bigbluebutton.common.messaging.Router;
 	import org.bigbluebutton.main.view.components.MainApplicationShell;
 	import org.bigbluebutton.modules.viewers.model.vo.User;
@@ -36,7 +33,7 @@ package org.bigbluebutton.modules.video
 	 * @author Denis Zgonjanin
 	 * 
 	 */	
-	public class VideoModule extends BigBlueButtonModule
+	public class VideoModule_old extends BigBlueButtonModule
 	{
 		public static const NAME:String = "Share Webcam";
 		public static const RECORDER:String = "Recording Module";
@@ -54,7 +51,7 @@ package org.bigbluebutton.modules.video
 		 * Creates a new instance of the Video Module 
 		 * 
 		 */		
-		public function VideoModule(user:User = null)
+		public function VideoModule_old(user:User = null)
 		{
 			super(NAME);
 			
@@ -94,7 +91,7 @@ package org.bigbluebutton.modules.video
 		}
 		
 		override public function logout():void{
-			facade.sendNotification(VideoFacade.CLOSE_ALL);
+			facade.sendNotification(VideoModuleConstants.CLOSE_ALL);
 			facade.removeCore(this.streamName);
 		}
 

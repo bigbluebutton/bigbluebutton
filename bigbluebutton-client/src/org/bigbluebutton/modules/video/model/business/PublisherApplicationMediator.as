@@ -27,7 +27,7 @@ package org.bigbluebutton.modules.video.model.business
 	import flash.media.Video;
 	import flash.net.ObjectEncoding;
 	
-	import org.bigbluebutton.modules.video.VideoFacade;
+	import org.bigbluebutton.modules.video.VideoModuleConstants;
 	import org.bigbluebutton.modules.video.control.notifiers.PlayStreamNotifier;
 	import org.bigbluebutton.modules.video.control.notifiers.PublishNotifier;
 	import org.bigbluebutton.modules.video.model.services.BroadcastStreamDelegate;
@@ -77,17 +77,17 @@ package org.bigbluebutton.modules.video.model.business
 		 */		
 		override public function listNotificationInterests():Array{
 			return [
-					VideoFacade.PAUSE_STREAM_COMMAND,
-					VideoFacade.PLAY_STREAM_COMMAND,
-					VideoFacade.RESUME_STREAM_COMMAND,
-					VideoFacade.STOP_STREAM_COMMAND,
-					VideoFacade.PUBLISH_STREAM_COMMAND,
-					VideoFacade.UNPUBLISH_STREAM_COMMAND,
-					VideoFacade.STOP_MICROPHONE_COMMAND,
-					VideoFacade.STOP_CAMERA_COMMAND,
-					VideoFacade.START_CAMERA_COMMAND,
-					VideoFacade.START_MICROPHONE_COMMAND,
-					VideoFacade.SETUP_DEVICES_COMMAND
+					VideoModuleConstants.PAUSE_STREAM_COMMAND,
+					VideoModuleConstants.PLAY_STREAM_COMMAND,
+					VideoModuleConstants.RESUME_STREAM_COMMAND,
+					VideoModuleConstants.STOP_STREAM_COMMAND,
+					VideoModuleConstants.PUBLISH_STREAM_COMMAND,
+					VideoModuleConstants.UNPUBLISH_STREAM_COMMAND,
+					VideoModuleConstants.STOP_MICROPHONE_COMMAND,
+					VideoModuleConstants.STOP_CAMERA_COMMAND,
+					VideoModuleConstants.START_CAMERA_COMMAND,
+					VideoModuleConstants.START_MICROPHONE_COMMAND,
+					VideoModuleConstants.SETUP_DEVICES_COMMAND
 					];
 		}
 		
@@ -98,39 +98,39 @@ package org.bigbluebutton.modules.video.model.business
 		 */		
 		override public function handleNotification(notification:INotification):void{
 			switch(notification.getName()){
-				case VideoFacade.PAUSE_STREAM_COMMAND:
+				case VideoModuleConstants.PAUSE_STREAM_COMMAND:
 					pauseStream(notification.getBody() as String);
 					break;
-				case VideoFacade.PLAY_STREAM_COMMAND:
+				case VideoModuleConstants.PLAY_STREAM_COMMAND:
 					var note:PlayStreamNotifier = notification.getBody() as PlayStreamNotifier;
 					playStream(note.streamName, note.enableVideo, note.enableAudio);
 					break;
-				case VideoFacade.RESUME_STREAM_COMMAND:
+				case VideoModuleConstants.RESUME_STREAM_COMMAND:
 					resumeStream(notification.getBody() as String);
 					break;
-				case VideoFacade.STOP_STREAM_COMMAND:
+				case VideoModuleConstants.STOP_STREAM_COMMAND:
 					stopStream(notification.getBody() as String);
 					break;
-				case VideoFacade.PUBLISH_STREAM_COMMAND:
+				case VideoModuleConstants.PUBLISH_STREAM_COMMAND:
 					var publishNote:PublishNotifier = notification.getBody() as PublishNotifier;
 					startBroadcasting(publishNote.publishMode, publishNote.streamName);
 					break;
-				case VideoFacade.UNPUBLISH_STREAM_COMMAND:
+				case VideoModuleConstants.UNPUBLISH_STREAM_COMMAND:
 					stopBroadcasting(notification.getBody() as String);
 					break;
-				case VideoFacade.STOP_MICROPHONE_COMMAND:
+				case VideoModuleConstants.STOP_MICROPHONE_COMMAND:
 					stopMicrophone(notification.getBody() as String);
 					break;
-				case VideoFacade.STOP_CAMERA_COMMAND:
+				case VideoModuleConstants.STOP_CAMERA_COMMAND:
 					stopCamera(notification.getBody() as String);
 					break;
-				case VideoFacade.START_CAMERA_COMMAND:
+				case VideoModuleConstants.START_CAMERA_COMMAND:
 					startCamera(notification.getBody() as String);
 					break;
-				case VideoFacade.START_MICROPHONE_COMMAND:
+				case VideoModuleConstants.START_MICROPHONE_COMMAND:
 					startMicrophone(notification.getBody() as String);
 					break;
-				case VideoFacade.SETUP_DEVICES_COMMAND:
+				case VideoModuleConstants.SETUP_DEVICES_COMMAND:
 					setupDevices();
 					break;
 			}

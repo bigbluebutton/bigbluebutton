@@ -20,7 +20,7 @@
 package org.bigbluebutton.modules.video.control
 {
 	import org.bigbluebutton.common.Constants;
-	import org.bigbluebutton.modules.video.VideoModule;
+//	import org.bigbluebutton.modules.video.VideoModule;
 	import org.bigbluebutton.modules.video.VideoModuleMediator;
 	import org.bigbluebutton.modules.video.model.business.PublisherApplicationMediator;
 	import org.bigbluebutton.modules.video.model.business.PublisherModel;
@@ -44,8 +44,8 @@ package org.bigbluebutton.modules.video.control
 			facade.registerProxy(new NetworkConnectionDelegate());
 			var publisher:PublisherApplicationMediator = new PublisherApplicationMediator();
 			facade.registerMediator(publisher);
-			publisher.createBroadcastMedia(app.streamName);
-			publisher.setupStream(app.streamName);
+//			publisher.createBroadcastMedia(app.streamName);
+//			publisher.setupStream(app.streamName);
 			publisher.setupConnection();
 //			var conf:Conference = ViewersFacade.getInstance().retrieveMediator(Conference.NAME) as Conference;
 //			publisher.connect("rtmp://" + Constants.red5Host + "/oflaDemo/" + conf.room);

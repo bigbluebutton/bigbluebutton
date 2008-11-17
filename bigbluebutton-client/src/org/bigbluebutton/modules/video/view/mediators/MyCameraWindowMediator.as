@@ -3,6 +3,7 @@ package org.bigbluebutton.modules.video.view.mediators
 	import flash.events.Event;
 	
 	import org.bigbluebutton.modules.video.VideoFacade;
+	import org.bigbluebutton.modules.video.VideoModuleConstants;
 	import org.bigbluebutton.modules.video.control.notifiers.PublishNotifier;
 	import org.bigbluebutton.modules.video.view.MyCameraWindow;
 	import org.puremvc.as3.multicore.interfaces.INotification;
@@ -29,18 +30,18 @@ package org.bigbluebutton.modules.video.view.mediators
 		
 		override public function listNotificationInterests():Array{
 			return [
-					VideoFacade.CLOSE_ALL,
-					VideoFacade.ENABLE_CAMERA
+					VideoModuleConstants.CLOSE_ALL,
+					VideoModuleConstants.ENABLE_CAMERA
 					];
 		}
 		
 		override public function handleNotification(notification:INotification):void{
 			switch(notification.getName()){
-				case VideoFacade.CLOSE_ALL:
+				case VideoModuleConstants.CLOSE_ALL:
 					cameraWindow.close();
 					break;
-				case VideoFacade.ENABLE_CAMERA:
-					startOrStopDevices(new Event(VideoFacade.ENABLE_CAMERA));
+				case VideoModuleConstants.ENABLE_CAMERA:
+					startOrStopDevices(new Event(VideoModuleConstants.ENABLE_CAMERA));
 					break;
 			}
 		}
@@ -52,11 +53,11 @@ package org.bigbluebutton.modules.video.view.mediators
 		private function recordStream(e:Event):void{
 			if ( ! cameraWindow.media.broadcasting ) 
 			{
-				sendNotification(VideoFacade.PUBLISH_STREAM_COMMAND, new PublishNotifier("live", cameraWindow.media.streamName));
+				sendNotification(VideoModuleConstants.PUBLISH_STREAM_COMMAND, new PublishNotifier("live", cameraWindow.media.streamName));
 			} 
 			else
 			{
-				sendNotification(VideoFacade.UNPUBLISH_STREAM_COMMAND, cameraWindow.media.streamName);
+				sendNotification(VideoModuleConstants.UNPUBLISH_STREAM_COMMAND, cameraWindow.media.streamName);
 			}
 		}
 		
@@ -71,28 +72,28 @@ package org.bigbluebutton.modules.video.view.mediators
 		
 		private function stopDevices() : void
 		{
-			sendNotification(VideoFacade.STOP_MICROPHONE_COMMAND, cameraWindow.media.streamName);
-			sendNotification(VideoFacade.STOP_CAMERA_COMMAND, cameraWindow.media.streamName);
+			sendNotification(VideoModuleConstants.STOP_MICROPHONE_COMMAND, cameraWindow.media.streamName);
+			sendNotification(VideoModuleConstants.STOP_CAMERA_COMMAND, cameraWindow.media.streamName);
 		}  	
 		
 		private function startDevices() : void
 		{
 			if (cameraWindow.media.video.settings.cameraIndex > 0)
-				sendNotification(VideoFacade.START_CAMERA_COMMAND, cameraWindow.media.streamName);
+				sendNotification(VideoModuleConstants.START_CAMERA_COMMAND, cameraWindow.media.streamName);
 			if (cameraWindow.media.audio.settings.micIndex > 0)	
-				sendNotification(VideoFacade.START_MICROPHONE_COMMAND, cameraWindow.media.streamName);
+				sendNotification(VideoModuleConstants.START_MICROPHONE_COMMAND, cameraWindow.media.streamName);
 		}
 		
 		private function closeCameraWindow(e:Event):void{
-			sendNotification(VideoFacade.CLOSE_RECORDING);
+			sendNotification(VideoModuleConstants.CLOSE_RECORDING);
 		}
 		
 		private function closeClicked(e:Event):void{
-			sendNotification(VideoFacade.STOP_MICROPHONE_COMMAND, cameraWindow.media.streamName);
-			sendNotification(VideoFacade.STOP_CAMERA_COMMAND, cameraWindow.media.streamName);
+			sendNotification(VideoModuleConstants.STOP_MICROPHONE_COMMAND, cameraWindow.media.streamName);
+			sendNotification(VideoModuleConstants.STOP_CAMERA_COMMAND, cameraWindow.media.streamName);
 			
 			if (cameraWindow.media.broadcasting) {
-				sendNotification(VideoFacade.UNPUBLISH_STREAM_COMMAND, cameraWindow.media.streamName);
+				sendNotification(VideoModuleConstants.UNPUBLISH_STREAM_COMMAND, cameraWindow.media.streamName);
 			}				
 		}
 		
