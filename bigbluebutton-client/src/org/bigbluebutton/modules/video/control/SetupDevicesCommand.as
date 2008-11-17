@@ -11,17 +11,8 @@ package org.bigbluebutton.modules.video.control
 			super();
 		}
 		
-		public function execute(notification:INotification):void
+		override public function execute(notification:INotification):void
 		{
 		}
-		
-		public function sendNotification(notificationName:String, body:Object=null, type:String=null):void
-		{
-		}
-		
-		public function initializeNotifier(key:String):void
-		{
-		}
-		
 	}
 }
