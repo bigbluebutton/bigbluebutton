@@ -22,7 +22,7 @@ package org.bigbluebutton.modules.video.model.vo
 	import flash.media.Video;
 	
 	import org.bigbluebutton.modules.video.model.business.MediaType;
-	import org.bigbluebutton.modules.video.model.services.PlayStreamDelegate;
+	import org.bigbluebutton.modules.video.model.services.PlayStream;
 	import org.bigbluebutton.modules.video.model.vo.settings.VideoSettings;
 	
 	/**
@@ -42,9 +42,9 @@ package org.bigbluebutton.modules.video.model.vo
 		
 		public var playState : PlaybackState = PlaybackState.STOPPED;
 		
-		public var playStreamDelegate:PlayStreamDelegate;
+		private var _playStream:PlayStream;
 		
-		public function PlayMedia(streamName : String)
+		public function PlayMedia(streamName:String)
 		{
 			this.streamName = streamName;
 		}
@@ -52,6 +52,35 @@ package org.bigbluebutton.modules.video.model.vo
 		public function get type():MediaType
 		{
 			return _type;
+		}
+
+		public function set playStream(pStream:PlayStream):void {
+			_playStream = pStream;
+			_playStream.media = this;
+		}
+		
+		public function start(bufferTime:int, streamName:String, enableVideo:Boolean, enableAudio:Boolean):void {
+			_playStream.start(bufferTime, streamName, enableVideo, enableAudio);
+		}
+		
+		public function resume():void {
+			_playStream.resume();
+		}
+		
+		public function stop():void {
+			_playStream.stop();
+		}
+		
+		public function pause():void {
+			_playStream.pause();
+		}
+		
+		public function enableAudio(enableAudio:Boolean):void {
+			_playStream.enableAudio(enableAudio);
+		}
+		
+		public function enableVideo(enableVideo:Boolean):void {
+			_playStream.enableVideo(enableVideo);
 		}
 	}
 }

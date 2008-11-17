@@ -31,8 +31,6 @@ package org.bigbluebutton.modules.video.model.business
 	import org.bigbluebutton.modules.video.model.vo.PlayMedia;
 	import org.bigbluebutton.modules.video.model.vo.settings.GeneralSettings;
 	import org.bigbluebutton.modules.video.model.vo.settings.VideoSettings;
-	import org.puremvc.as3.multicore.interfaces.IProxy;
-	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
 	
 	/**
 	 * The PublisherModel class holds the settings and streams for the Video Module
@@ -83,7 +81,7 @@ package org.bigbluebutton.modules.video.model.business
 		 */		
 		public function createPlayMedia(streamName : String) : void
 		{
-			playMedia[streamName] = new PlayMedia(streamName);
+			playMedia[streamName] = new PlayMedia(streamName); 							
 		}
 		
 		/**

@@ -24,55 +24,36 @@ package org.bigbluebutton.modules.video.model.services
 	import flash.media.*;
 	import flash.net.*;
 	
-//	import org.bigbluebutton.modules.video.model.business.PublisherModel;
 	import org.bigbluebutton.modules.video.model.vo.PlayMedia;
 	import org.bigbluebutton.modules.video.model.vo.PlaybackState;
 	import org.puremvc.as3.multicore.interfaces.IProxy;
 	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
 	
 	/**
-	 * The PlayStreamDelegate manages a recorded stream
+	 * The PlayStream
 	 * <p>
-	 * This class extends the proxy class of the puremvc framework
 	 * @author Denis Zgonjanin
 	 * 
 	 */	
-	public class PlayStream extends Proxy implements IProxy
+	public class PlayStream
 	{	
-		public static const NAME:String = "PlayeStreamDelegate";
+		public static const NAME:String = "PlayStream";
 			
-		private var nsPlay : NetStream;
-		private var media : PlayMedia;
-		private var playbackFinished : Boolean = false;
-		
-		/**
-		 * Creates a new PlayStreamDelegate object 
-		 * @param playMedia
-		 * 
-		 */		
-		public function PlayStream( playMedia:PlayMedia)
+		private var _ns:NetStream;
+		private var _media:PlayMedia;
+		private var _playbackFinished:Boolean = false;
+		private var _nc:NetConnection;
+			
+		public function PlayStream(connection:NetConnection)
 		{
-			super(NAME);
-			media = playMedia;
+			_nc = connection;
 		}
-		
-//		private function get model():PublisherModel{
-//			return facade.retrieveProxy(PublisherModel.NAME) as PublisherModel;
-//		}
-//		
-//		private function get delegate():NetworkConnectionDelegate{
-//			return facade.retrieveProxy(NetworkConnectionDelegate.NAME) as NetworkConnectionDelegate;
-//		}
-					
-		/**
-		 * Starts playing back the media on the server 
-		 * @param bufferTime
-		 * @param streamName
-		 * @param audio
-		 * @param video
-		 * 
-		 */		
-		public function startPlayback( bufferTime : int, 
+
+		public function set media(playMedia:PlayMedia):void {
+			_media = playMedia;
+		}
+									
+		public function start( bufferTime : int, 
 									   streamName : String, 
 									   audio : Boolean,
 									   video : Boolean ) : void
@@ -80,44 +61,41 @@ package org.bigbluebutton.modules.video.model.services
 			try 
 			{
 				// Check for reconnect.
-				if ( nsPlay != null ) 
+				if ( _ns != null ) 
 				{
-					// Stop and close previous NetStream.
-					//var media:PlayMedia = model.getPlayMedia(streamName) as PlayMedia;
-					media.playStreamDelegate.stopPlayback();
+					stop();
 				}
 				// Setup NetStream for playback.
-//				nsPlay = new NetStream( delegate.connection );
+				_ns = new NetStream(_nc);
 				
-				nsPlay.addEventListener( NetStatusEvent.NET_STATUS, netStatusEvent );
-				nsPlay.addEventListener( IOErrorEvent.IO_ERROR, netIOError );
-				nsPlay.addEventListener( AsyncErrorEvent.ASYNC_ERROR, netASyncError );
+				_ns.addEventListener( NetStatusEvent.NET_STATUS, netStatusEvent );
+				_ns.addEventListener( IOErrorEvent.IO_ERROR, netIOError );
+				_ns.addEventListener( AsyncErrorEvent.ASYNC_ERROR, netASyncError );
 				
-				nsPlay.bufferTime = bufferTime;
-				nsPlay.receiveAudio( audio );
-				nsPlay.receiveVideo( video );
+				_ns.bufferTime = bufferTime;
+				_ns.receiveAudio( audio );
+				_ns.receiveVideo( video );
 				
-				nsPlay.client = this;
+				_ns.client = this;
 				
-				media.playState = PlaybackState.PLAYING;
+				_media.playState = PlaybackState.PLAYING;
+				_media.remoteVideo = new Video( _media.defaultVideoSettings.width, 
+						_media.defaultVideoSettings.height );
+				_media.remoteVideo.attachNetStream(_ns);
 				
-//				media.remoteVideo = new Video( model.defaultVideoSettings.width, 
-//						model.defaultVideoSettings.height );
-				media.remoteVideo.attachNetStream( nsPlay );
-				
-				nsPlay.play( streamName );
+				_ns.play( streamName );
 				
 			}
 			catch( e : ArgumentError ) 
 			{
-				media.playState = PlaybackState.STOPPED;
+				_media.playState = PlaybackState.STOPPED;
 				
 				// Invalid parameters
 				switch ( e.errorID ) 
 				{
 					// NetStream object must be connected.
 					case 2126 :						
-						//log.error( "StreamDelegate::Can't play stream, not connected to server");
+						trace( "StreamDelegate::Can't play stream, not connected to server");
 						break;
 					default :
 					   break;
@@ -125,63 +103,43 @@ package org.bigbluebutton.modules.video.model.services
 			}
 		}
 		
-		/**
-		 * Stops playback of the recorded media
-		 */		
-		public function stopPlayback() : void
+		public function stop() : void
 		{
-			if ( nsPlay != null ) 
+			if (_ns != null) 
 			{
-				media.playState = PlaybackState.STOPPED;
-				//log.warn("PlayMedia[" + media.streamName + "] stopped.");
+				_media.playState = PlaybackState.STOPPED;
 				// Close the NetStream.
-				nsPlay.close();
-				if (media.remoteVideo != null) 
-						media.remoteVideo = null;				
+				_ns.close();
+				if (_media.remoteVideo != null) 
+						_media.remoteVideo = null;				
 			}
 		}
-		
-		/**
-		 * Pause playback.
-		 */		
-		public function pausePlayback() : void
+			
+		public function pause() : void
 		{
-			media.playState = PlaybackState.PAUSED;
+			_media.playState = PlaybackState.PAUSED;
 			
 			// Pause the NetStream.
-			nsPlay.pause();
+			_ns.pause();
 		}
-		
-		/**
-		 * Resume playback.
-		 */		
-		public function resumePlayback() : void
+			
+		public function resume() : void
 		{
-			media.playState = PlaybackState.PLAYING;
+			_media.playState = PlaybackState.PLAYING;
 			
 			// Resume playback for the NetStream.
-			nsPlay.resume();
+			_ns.resume();
 		}
-		
-		/**
-		 * Enables audio 
-		 * @param enable
-		 * 
-		 */		
+			
 		public function enableAudio( enable : Boolean ) : void
 		{
-			nsPlay.receiveAudio( enable );
+			_ns.receiveAudio( enable );
 		}
-		
-		/**
-		 * Enables video 
-		 * @param enable
-		 * 
-		 */			
+			
 		public function enableVideo( enable : Boolean ) : void
 		{
 			
-			nsPlay.receiveVideo( enable );
+			_ns.receiveVideo( enable );
 		}
 					
 		/**
@@ -244,11 +202,11 @@ package org.bigbluebutton.modules.video.model.services
 					break;
 					
 				case "NetStream.Play.Stop":	
-					playbackFinished = true;		
+					_playbackFinished = true;		
 					break;
 				
 				case "NetStream.Buffer.Empty":	
-					if ( playbackFinished ) 
+					if ( _playbackFinished ) 
 					{
 						// Playback stopped.
 						playbackStopped();
@@ -265,42 +223,42 @@ package org.bigbluebutton.modules.video.model.services
 					break;
 				
 				case "NetStream.Pause.Notify":
-					//log.info("NetStream.Pause.Notify for broadcast stream [" + media.streamName + "]");				
+					trace("NetStream.Pause.Notify for broadcast stream [" + _media.streamName + "]");				
 					break;
 					
 				case "NetStream.Unpause.Notify":
-					//log.info("NetStream.Unpause.Notify for broadcast stream [" + media.streamName + "]");
+					trace("NetStream.Unpause.Notify for broadcast stream [" + _media.streamName + "]");
 					break;
 					
 				case "NetStream.Publish.Start":
 					// Shouldn't be getting this since we are playing and NOT broadcasting
-					//log.warn("NetStream.Publish.Start for broadcast stream [" + media.streamName + "]");
+					trace("NetStream.Publish.Start for broadcast stream [" + _media.streamName + "]");
 					break;
 					
 				case "NetStream.Publish.Idle":
 				// Shouldn't be getting this since we are playing and NOT broadcasting
-					//log.warn("NetStream.Publish.Idle for broadcast stream [" + media.streamName + "]");
+					trace("NetStream.Publish.Idle for broadcast stream [" + _media.streamName + "]");
 					break;
 					
 				case "NetStream.Record.Failed":
 				// Shouldn't be getting this since we are playing and NOT broadcasting
-					//log.warn("NetStream.Record.Failed for broadcast stream [" + media.streamName + "]");
+					trace("NetStream.Record.Failed for broadcast stream [" + _media.streamName + "]");
 					break;
 					
 				case "NetStream.Record.Stop":
-					//log.warn("NetStream.Record.Stop for broadcast stream [" + media.streamName + "]");
+					trace("NetStream.Record.Stop for broadcast stream [" + _media.streamName + "]");
 					break;
 					
 				case "NetStream.Record.Start":
-					//log.warn("NetStream.Record.Start for broadcast stream [" + media.streamName + "]");
+					trace("NetStream.Record.Start for broadcast stream [" + _media.streamName + "]");
 					break;
 					
 				case "NetStream.Unpublish.Success":
-					//log.warn("NetStream.Unpublish.Success for broadcast stream [" + media.streamName + "]");;
+					trace("NetStream.Unpublish.Success for broadcast stream [" + _media.streamName + "]");;
 					break;
 					
 				case "NetStream.Publish.BadName":
-					//log.warn("NetStream.Publish.BadName for broadcast stream [" + media.streamName + "]");
+					trace("NetStream.Publish.BadName for broadcast stream [" + _media.streamName + "]");
 					break;
 			}
 		}
@@ -311,8 +269,8 @@ package org.bigbluebutton.modules.video.model.services
 		 */		
 		private function playbackStarted() : void
 		{
-			playbackFinished = false;
-			media.playState = PlaybackState.PLAYING;
+			_playbackFinished = false;
+			_media.playState = PlaybackState.PLAYING;
 		}
 						
 		/**
@@ -321,10 +279,10 @@ package org.bigbluebutton.modules.video.model.services
 		 */			
 		private function playbackStopped() : void
 		{
-			playbackFinished = false;
-			media.playState = PlaybackState.STOPPED;
-			if (media.remoteVideo != null) 
-				media.remoteVideo = null;
+			_playbackFinished = false;
+			_media.playState = PlaybackState.STOPPED;
+			if (_media.remoteVideo != null) 
+				_media.remoteVideo = null;
 		}
 				
 		/**

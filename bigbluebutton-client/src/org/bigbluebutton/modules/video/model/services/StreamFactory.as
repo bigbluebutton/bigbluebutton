@@ -11,6 +11,12 @@ package org.bigbluebutton.modules.video.model.services
 			_conn = connection;
 		}
 
-		public function createBroadcastStream():BroadcastStream
+		public function createBroadcastStream():BroadcastStream {
+			return new BroadcastStream(_conn);
+		}
+		
+		public function createPlayStream():PlayStream {
+			return new PlayStream(_conn);
+		}
 	}
 }

@@ -24,35 +24,38 @@ package org.bigbluebutton.modules.video.model.services
 	import flash.net.*;
 	
 	import org.bigbluebutton.modules.video.model.vo.BroadcastMedia;
-	import org.puremvc.as3.multicore.interfaces.IProxy;
-	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
-	
+
 	/**
-	 * The BroadcastStreamDelegate manages a live video stream
+	 * The BroadcastStream
 	 * <p>
-	 * This class extends the Proxy class of the puremvc framework
 	 * @author Denis Zgonjanin
 	 * 
 	 */	
-	public class BroadcastStream extends Proxy implements IProxy
+	 	
+	public class BroadcastStream
 	{	
-		public static const NAME:String = "BroadcastStreamDelegate";	
+		public static const NAME:String = "BroadcastStream";	
 		
-		private var media : BroadcastMedia;
-		private var _ns : NetStream;
+		private var _media:BroadcastMedia;
+		private var _ns:NetStream;
+		private var _nc:NetConnection;
 			
-		public function BroadcastStream( broadcastMedia:BroadcastMedia )
+		public function BroadcastStream( connection:NetConnection )
 		{
-			media = broadcastMedia;
+			_nc = connection;
 		}
 		
-		public function start( publishMode : String, streamName : String ) : void
+		public function set media(broadcastMedia:BroadcastMedia):void {
+			_media = broadcastMedia;
+		}
+		
+		public function start(publishMode:String, streamName:String) : void
 		{
 			try 
 			{
-				var camera : Camera = media.video.cam;
-				var microphone : Microphone = media.audio.mic;
-				media.broadcasting = false;
+				var camera : Camera = _media.video.cam;
+				var microphone : Microphone = _media.audio.mic;
+				_media.broadcasting = false;
 				
 				if ( microphone != null || camera != null ) 
 				{
@@ -63,37 +66,36 @@ package org.bigbluebutton.modules.video.model.services
 						stop();
 					}
 					// Setup NetStream for publishing.
-//					nsPublish = new NetStream( delegate.connection );
+					_ns = new NetStream( _nc );
 					//
-					nsPublish.addEventListener( NetStatusEvent.NET_STATUS, netStatusEvent );
-					nsPublish.addEventListener( IOErrorEvent.IO_ERROR, netIOError );
-					nsPublish.addEventListener( AsyncErrorEvent.ASYNC_ERROR, netASyncError );
+					_ns.addEventListener( NetStatusEvent.NET_STATUS, netStatusEvent );
+					_ns.addEventListener( IOErrorEvent.IO_ERROR, netIOError );
+					_ns.addEventListener( AsyncErrorEvent.ASYNC_ERROR, netASyncError );
 					
-					nsPublish.client = this;	
+					_ns.client = this;	
 					
 					// attach devices to NetStream.
 					if ( camera != null ) 
 					{
-						nsPublish.attachCamera( camera );
+						_ns.attachCamera( camera );
 					}
 					if ( microphone != null) 
 					{
-						nsPublish.attachAudio( microphone );
+						_ns.attachAudio( microphone );
 					}
-					media.broadcasting = true;
+					_media.broadcasting = true;
 					// Start publishing.
-					nsPublish.publish( streamName, publishMode );
+					_ns.publish( streamName, publishMode );
 				} 
 				else 
 				{
-					//log.warn( "StreamDelegate::Can't publish stream, no input device(s) selected" );
-					
-					media.broadcasting = false;
+					trace( "StreamDelegate::Can't publish stream, no input device(s) selected" );					
+					_media.broadcasting = false;
 				}
 			}
 			catch( e : ArgumentError ) 
 			{				
-				media.broadcasting = false;
+				_media.broadcasting = false;
 			
 				// Invalid parameters
 				switch ( e.errorID ) 
@@ -101,12 +103,12 @@ package org.bigbluebutton.modules.video.model.services
 					// NetStream object must be connected.
 					case 2126 :
 						//
-						//log.error( "StreamDelegate::Can't publish stream, not connected to server" );
+						trace( "StreamDelegate::Can't publish stream, not connected to server" );
 						break;
 					//
 					default :
 					   //
-					   //log.error( "StreamDelegate::" + e.toString());
+					   trace( "StreamDelegate::" + e.toString());
 					   break;
 				}
 			}
@@ -114,8 +116,10 @@ package org.bigbluebutton.modules.video.model.services
 			
 		public function stop() : void
 		{	
-			nsPublish.close();	
-			media.broadcasting = false;
+			stopMicrophone();
+			stopCamera();
+			_ns.close();	
+			_media.broadcasting = false;
 		}
 		
 		/**
@@ -125,11 +129,25 @@ package org.bigbluebutton.modules.video.model.services
 		public function stopMicrophone() : void
 		{
 			// update audio stream when publishing
-			if ( nsPublish != null ) 
+			if ( _ns != null ) 
 			{
-				nsPublish.attachAudio( null );
+				_ns.attachAudio( null );
 			}				
 		}	
+		
+		public function attachCamera(camera:Camera):void {						
+			if ( _ns != null ) 
+			{
+				_ns.attachCamera( camera );
+			}
+		}
+		
+		public function attachMicrophone(mic:Microphone):void {
+			if ( _ns != null ) 
+			{
+				_ns.attachAudio(mic);
+			}
+		}
 		
 		/**
 		 * Stop the camera only 
@@ -138,9 +156,9 @@ package org.bigbluebutton.modules.video.model.services
 		public function stopCamera() : void
 		{
 			// Update video stream when publishing.
-			if ( nsPublish != null ) 
+			if ( _ns != null ) 
 			{
-				nsPublish.attachCamera( null );
+				_ns.attachCamera( null );
 			}			
 		}
 							
@@ -203,83 +221,79 @@ package org.bigbluebutton.modules.video.model.services
 			switch ( statusCode ) {
 				case "NetStream.Play.Start" :
 					// Shouldn't be getting this playback since we are broadcasting
-					//log.warn("NetStream.Play.Start for broadcast stream [" + media.streamName + "]");
+					trace("NetStream.Play.Start for broadcast stream [" + _media.streamName + "]");
 					break;
 					
 				case "NetStream.Play.Stop":	
 					// Shouldn't be getting this playback since we are broadcasting
-					//log.warn("NetStream.Play.Stop for broadcast stream [" + media.streamName + "]");		
+					trace("NetStream.Play.Stop for broadcast stream [" + _media.streamName + "]");		
 					break;
 				
 				case "NetStream.Buffer.Empty":	
 					// Shouldn't be getting this playback since we are broadcasting
-					//log.warn("NetStream.Buffer.Empty for broadcast stream [" + media.streamName + "]");	
+					trace("NetStream.Buffer.Empty for broadcast stream [" + _media.streamName + "]");	
 					break;
 				
 				case "NetStream.Play.UnpublishNotify":
 					// Shouldn't be getting this playback since we are broadcasting
-					//log.warn("NetStream.Play.UnpublishNotify for broadcast stream [" + media.streamName + "]");
+					trace("NetStream.Play.UnpublishNotify for broadcast stream [" + _media.streamName + "]");
 					break;
 					
 				case "NetStream.Play.StreamNotFound":
 					// Shouldn't be getting this playback since we are broadcasting
-					//log.warn("NetStream.Play.StreamNotFound for broadcast stream [" + media.streamName + "]");
+					trace("NetStream.Play.StreamNotFound for broadcast stream [" + _media.streamName + "]");
 					break;
 				
 				case "NetStream.Pause.Notify":
 					// Shouldn't be getting this playback since we are broadcasting
-					//log.warn("NetStream.Pause.Notify for broadcast stream [" + media.streamName + "]");				
+					trace("NetStream.Pause.Notify for broadcast stream [" + _media.streamName + "]");				
 					break;
 					
 				case "NetStream.Unpause.Notify":
 					// Shouldn't be getting this playback since we are broadcasting
-					//log.warn("NetStream.Unpause.Notify for broadcast stream [" + media.streamName + "]");
+					trace("NetStream.Unpause.Notify for broadcast stream [" + _media.streamName + "]");
 					break;
 					
 				case "NetStream.Publish.Start":
-					media.broadcasting = true;
-					//log.info("NetStream.Publish.Start for broadcast stream [" + media.streamName + "]");
+					_media.broadcasting = true;
+					trace("NetStream.Publish.Start for broadcast stream [" + _media.streamName + "]");
 					break;
 					
 				case "NetStream.Publish.Idle":
-					//log.info("NetStream.Publish.Idle for broadcast stream [" + media.streamName + "]");
+					trace("NetStream.Publish.Idle for broadcast stream [" + _media.streamName + "]");
 					break;
 					
 				case "NetStream.Record.Failed":
-					//log.info("NetStream.Record.Failed for broadcast stream [" + media.streamName + "]");
+					trace("NetStream.Record.Failed for broadcast stream [" + _media.streamName + "]");
 					publishStopped();
 					break;
 					
 				case "NetStream.Record.Stop":
-					//log.info("NetStream.Record.Stop for broadcast stream [" + media.streamName + "]");
+					trace("NetStream.Record.Stop for broadcast stream [" + _media.streamName + "]");
 					publishStopped();
 					break;
 					
 				case "NetStream.Record.Start":
-					//log.info("NetStream.Record.Start for broadcast stream [" + media.streamName + "]");
-					media.broadcasting = true;
+					trace("NetStream.Record.Start for broadcast stream [" + _media.streamName + "]");
+					_media.broadcasting = true;
 					break;
 					
 				case "NetStream.Unpublish.Success":
-					//log.info("NetStream.Unpublish.Success for broadcast stream [" + media.streamName + "]");
+					trace("NetStream.Unpublish.Success for broadcast stream [" + _media.streamName + "]");
 					publishStopped();
 					break;
 					
 				case "NetStream.Publish.BadName":
-					//log.info("NetStream.Publish.BadName for broadcast stream [" + media.streamName + "]");
+					trace("NetStream.Publish.BadName for broadcast stream [" + _media.streamName + "]");
 					publishStopped();
 					break;
 			}
 		}
 				
-			
-		/**
-		 * Called when publishing has ceased 
-		 * 
-		 */		
+	
 		private function publishStopped() : void 
 		{
-			media.broadcasting = false;
+			_media.broadcasting = false;
 		}
 				
 		/**
@@ -289,13 +303,13 @@ package org.bigbluebutton.modules.video.model.services
 		 */		
 		public function handleFault(  event : Object  ) : void
 		{			
-			//log.error("BroadcastStreamDelegate::" + event.text );
-			stopPublish();
+			trace("BroadcastStreamDelegate::" + event.text );
+			stop();
 		}
 		
 		public function onPlayStatus( info : Object ) : void 
 		{	
-			//log.debug("BroadcastStreamDelegate::Playback - " + info.code  );
+			trace("BroadcastStreamDelegate::Playback - " + info.code  );
 		}
 			
 		public function onMetaData ( info : Object ) : void 
