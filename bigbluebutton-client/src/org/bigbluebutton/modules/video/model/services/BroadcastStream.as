@@ -34,14 +34,14 @@ package org.bigbluebutton.modules.video.model.services
 	 * @author Denis Zgonjanin
 	 * 
 	 */	
-	public class BroadcastStreamDelegate extends Proxy implements IProxy
+	public class BroadcastStream extends Proxy implements IProxy
 	{	
 		public static const NAME:String = "BroadcastStreamDelegate";	
 		
 		private var media : BroadcastMedia;
 		private var _ns : NetStream;
 			
-		public function BroadcastStreamDelegate( broadcastMedia:BroadcastMedia )
+		public function BroadcastStream( broadcastMedia:BroadcastMedia )
 		{
 			media = broadcastMedia;
 		}

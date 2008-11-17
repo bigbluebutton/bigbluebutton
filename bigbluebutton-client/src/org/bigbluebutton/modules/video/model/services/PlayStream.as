@@ -37,7 +37,7 @@ package org.bigbluebutton.modules.video.model.services
 	 * @author Denis Zgonjanin
 	 * 
 	 */	
-	public class PlayStreamDelegate extends Proxy implements IProxy
+	public class PlayStream extends Proxy implements IProxy
 	{	
 		public static const NAME:String = "PlayeStreamDelegate";
 			
@@ -50,7 +50,7 @@ package org.bigbluebutton.modules.video.model.services
 		 * @param playMedia
 		 * 
 		 */		
-		public function PlayStreamDelegate( playMedia:PlayMedia)
+		public function PlayStream( playMedia:PlayMedia)
 		{
 			super(NAME);
 			media = playMedia;
