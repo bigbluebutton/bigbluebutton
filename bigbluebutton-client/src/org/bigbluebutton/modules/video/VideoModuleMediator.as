@@ -20,6 +20,7 @@
 package org.bigbluebutton.modules.video
 {
 
+	import org.bigbluebutton.modules.video.model.MediaProxy;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
@@ -50,14 +51,24 @@ package org.bigbluebutton.modules.video
 			
 		override public function listNotificationInterests():Array{
 			return [
-					VideoModuleConstants.CLOSE_RECORDING
+					VideoModuleConstants.CONNECTED,
+					VideoModuleConstants.DISCONNECTED
 					];
 		}
 			
 		override public function handleNotification(notification:INotification):void{
 			switch(notification.getName()){
-				case VideoModuleConstants.CLOSE_RECORDING:
-					facade.removeCore(VideoFacade.NAME);
+				case VideoModuleConstants.CONNECTED:
+					if (facade.hasProxy(MediaProxy.NAME)) {
+						var p:MediaProxy = facade.retrieveProxy(MediaProxy.NAME) as MediaProxy;
+						p.setup();
+					}
+					break;
+				case VideoModuleConstants.DISCONNECTED:
+					if (facade.hasProxy(MediaProxy.NAME)) {
+						var mp:MediaProxy = facade.retrieveProxy(MediaProxy.NAME) as MediaProxy;
+						mp.setup();
+					}
 					break;
 			}
 		}		

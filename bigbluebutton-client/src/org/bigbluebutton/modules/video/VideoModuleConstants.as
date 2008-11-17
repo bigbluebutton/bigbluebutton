@@ -2,6 +2,9 @@ package org.bigbluebutton.modules.video
 {
 	public class VideoModuleConstants
 	{
+		public static const CONNECTED:String = "CONNECTED";
+		public static const DISCONNECTED:String = "DISCONNECTED";
+		
 		public static const CLOSE_RECORDING:String = "Close MyCameraWindow";
 		public static const CLOSE_ALL:String = "Close Video Module";
 		

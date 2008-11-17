@@ -19,6 +19,7 @@
 */
 package org.bigbluebutton.modules.video.control
 {
+	import org.bigbluebutton.modules.video.VideoModuleMediator;
 	import org.bigbluebutton.modules.video.model.ConnectionProxy;
 	import org.bigbluebutton.modules.video.model.MediaProxy;
 	import org.puremvc.as3.multicore.interfaces.INotification;
@@ -34,19 +35,14 @@ package org.bigbluebutton.modules.video.control
 		override public function execute(notification:INotification):void{
 			var app:VideoModule = notification.getBody() as VideoModule;
 			
-			facade.registerProxy(new ConnectionProxy());
+			var np:ConnectionProxy = new ConnectionProxy();
+			facade.registerProxy(np);
+			
+			np.connect(app.uri);
+			
 			facade.registerProxy(new MediaProxy());
 			
-//			facade.registerProxy(new NetworkConnectionDelegate());
-//			var publisher:PublisherApplicationMediator = new PublisherApplicationMediator();
-//			facade.registerMediator(publisher);
-//			publisher.createBroadcastMedia(app.streamName);
-//			publisher.setupStream(app.streamName);
-//			publisher.setupConnection();
-//			var conf:Conference = ViewersFacade.getInstance().retrieveMediator(Conference.NAME) as Conference;
-//			publisher.connect("rtmp://" + Constants.red5Host + "/oflaDemo/" + conf.room);
-			
-//			facade.registerMediator(new VideoModuleMediator(app));
+			facade.registerMediator(new VideoModuleMediator(app));
 			
 		}
 

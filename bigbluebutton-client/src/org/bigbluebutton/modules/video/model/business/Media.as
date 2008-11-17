@@ -33,7 +33,7 @@ package org.bigbluebutton.modules.video.model.business
 	import org.bigbluebutton.modules.video.model.vo.settings.VideoSettings;
 	
 	/**
-	 * The PublisherModel class holds the settings and streams for the Video Module
+	 * The class holds the settings and streams for the Video Module
 	 * @author Denis Zgonjanin
 	 * 
 	 */	
@@ -44,8 +44,7 @@ package org.bigbluebutton.modules.video.model.business
 		
 		public var playMedia : Object;
 		public var broadcastMedia : Object;
-				
-		public var generalSettings:GeneralSettings;
+						
 		public var defaultVideoSettings:VideoSettings;
 				 
 		[Bindable]		
@@ -56,8 +55,6 @@ package org.bigbluebutton.modules.video.model.business
 				 	
 		public function Media()
 		{
-			// Create blank general settings VO.
-			generalSettings = new GeneralSettings();
 			defaultVideoSettings = new VideoSettings();
 
 			playMedia  = new Object();

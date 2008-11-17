@@ -1,10 +1,7 @@
 package org.bigbluebutton.modules.video.model
 {
-	import flash.events.ActivityEvent;
-	import flash.events.StatusEvent;
 	import flash.media.Camera;
 	import flash.media.Microphone;
-	import flash.media.SoundTransform;
 	
 	import org.bigbluebutton.modules.video.model.business.Media;
 	import org.bigbluebutton.modules.video.model.business.MediaType;
@@ -28,6 +25,11 @@ package org.bigbluebutton.modules.video.model
 			super(NAME);
 		}
 
+		public function setup():void {
+			setupStreamFactory();
+			setupDevices();
+		}
+		
 		public function setupStreamFactory():void {
 			if (facade.hasProxy(ConnectionProxy.NAME)) {
 				var p:ConnectionProxy = facade.retrieveProxy(ConnectionProxy.NAME) as ConnectionProxy;
@@ -211,8 +213,10 @@ package org.bigbluebutton.modules.video.model
 		
 		public function playStream(streamName:String, enableVideo:Boolean, enableAudio:Boolean):void
 		{
-			var m:PlayMedia = _media.getPlayMedia(streamName) as PlayMedia;	    	
-	    	var bufferTime : int = _media.generalSettings.bufferTime;
+			var m:PlayMedia = _media.getPlayMedia(streamName) as PlayMedia;	  
+			var p:ConnectionProxy = facade.retrieveProxy(ConnectionProxy.NAME) as ConnectionProxy;
+			  	
+	    	var bufferTime : int = p.generalSettings.bufferTime;
 	    	
 			if (m != null) m.start(bufferTime, streamName, enableVideo, enableAudio);	
 		}	

@@ -41,11 +41,8 @@ package org.bigbluebutton.main
 					break;
 				case MainApplicationConstants.APP_MODEL_INITIALIZED:
 					trace(NAME + "::Received APP_MODEL_INITIALIZED");
-					//proxy.loadModule("ViewersModule");
-					proxy.loadModule("ChatModule");
-					//proxy.loadModule("PresentationModule");
-					//proxy.loadModule("ListenersModule");
-					//proxy.loadModule("ListenersModule");
+					proxy.loadModule("VideoModule");
+					//proxy.loadModule("ChatModule");
 					break;
 				case MainApplicationConstants.MODULE_LOADED:
 					trace(NAME + "::Received MODULE_LOADED");
@@ -70,9 +67,8 @@ package org.bigbluebutton.main
 					
 					facade.sendNotification(MainApplicationConstants.LOADED_MODULE, ml);
 					
-					//if (chatLoaded && presentLoaded && listenerLoaded && !viewerLoaded) {
-					//	proxy.loadModule("ViewersModule");
-					//}
+					// SHortcircuit videomodule start. This is only for refactoring of videoModule.
+					facade.sendNotification(MainApplicationConstants.MODULE_START, "VideoModule");
 					
 					if (viewerLoaded && chatLoaded && presentLoaded && listenerLoaded) {
 						facade.sendNotification(MainApplicationConstants.MODULE_START, "ViewersModule");
