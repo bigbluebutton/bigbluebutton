@@ -67,7 +67,7 @@ package org.bigbluebutton.modules.video
 				case VideoModuleConstants.DISCONNECTED:
 					if (facade.hasProxy(MediaProxy.NAME)) {
 						var mp:MediaProxy = facade.retrieveProxy(MediaProxy.NAME) as MediaProxy;
-						mp.setup();
+						mp.stopAllStreams();
 					}
 					break;
 			}

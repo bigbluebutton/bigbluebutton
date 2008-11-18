@@ -1,4 +1,4 @@
-package org.bigbluebutton.modules.video.model.ui
+package org.bigbluebutton.modules.video.view.components
 {
 	/**
 	 * RED5 Open Source Flash Server - http://www.osflash.org/red5

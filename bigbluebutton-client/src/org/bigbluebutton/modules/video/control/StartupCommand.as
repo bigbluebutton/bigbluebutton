@@ -19,6 +19,7 @@
 */
 package org.bigbluebutton.modules.video.control
 {
+	import org.bigbluebutton.modules.video.VideoModuleEndpointMediator;
 	import org.bigbluebutton.modules.video.VideoModuleMediator;
 	import org.bigbluebutton.modules.video.model.ConnectionProxy;
 	import org.bigbluebutton.modules.video.model.MediaProxy;
@@ -39,11 +40,8 @@ package org.bigbluebutton.modules.video.control
 			facade.registerProxy(np);
 			
 			np.connect(app.uri);
-			
-			facade.registerProxy(new MediaProxy());
-			
 			facade.registerMediator(new VideoModuleMediator(app));
-			
+			facade.registerMediator(new VideoModuleEndpointMediator(app));
 		}
 
 	}

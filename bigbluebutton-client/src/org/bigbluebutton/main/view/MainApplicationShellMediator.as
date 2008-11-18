@@ -84,12 +84,12 @@ package org.bigbluebutton.main.view
 					shell.mdiCanvas.windowManager.remove(rwin as MDIWindow);						
 					break;
 				case MainApplicationConstants.USER_LOGGED_IN:
-					shell.toolbar.loggedIn(notification.getBody().username, notification.getBody().room, notification.getBody().userrole);
+					//shell.toolbar.loggedIn(notification.getBody().username, notification.getBody().room, notification.getBody().userrole);
 					shell.loadedModules.text = "";
 					shell.loadProgress.text = "";
 					break;
 				case MainApplicationConstants.USER_LOGGED_OUT:
-					shell.toolbar.visible = false;
+					//shell.toolbar.visible = false;
 					break;
 				case MainApplicationConstants.LOADED_MODULE:
 					shell.loadedModules.text += notification.getBody() + "(loaded) ";

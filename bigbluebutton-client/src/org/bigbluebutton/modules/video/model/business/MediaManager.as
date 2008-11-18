@@ -24,6 +24,7 @@ package org.bigbluebutton.modules.video.model.business
 	import flash.media.*;
 	import flash.net.*;
 	
+	import mx.collections.ArrayCollection;
 	import mx.events.*;
 	
 	import org.bigbluebutton.modules.video.model.vo.BroadcastMedia;
@@ -41,8 +42,8 @@ package org.bigbluebutton.modules.video.model.business
 		public static const NAME:String = "Media";
 		[Bindable] public var connected : Boolean = false;
 		
-		public var playMedia:MediaCollection;
-		public var broadcastMedia:MediaCollection;
+		private var playMedia:MediaCollection;
+		private var broadcastMedia:MediaCollection;
 						
 		public var defaultVideoSettings:VideoSettings;
 				 
@@ -100,6 +101,29 @@ package org.bigbluebutton.modules.video.model.business
 		public function getPlayMedia(streamName:String):IMedia
 		{
 			return playMedia.getMedia(streamName);
+		}
+		
+		public function stopAllMedia():void {
+			stopAllPlayMedia();
+			stopAllBroadcastMedia();
+		}
+		
+		public function stopAllPlayMedia():void {
+			var c:ArrayCollection = playMedia.getAll();						
+			for (var i:int=0; i<c.length;i++)
+			{
+				var m:PlayMedia =  playMedia.getMedia(m.streamName) as PlayMedia;			
+				m.stop();
+			}	
+		}
+		
+		public function stopAllBroadcastMedia():void {
+			var c:ArrayCollection = broadcastMedia.getAll();						
+			for (var i:int=0; i<c.length;i++)
+			{
+				var m:BroadcastMedia =  broadcastMedia.getMedia(m.streamName) as BroadcastMedia;			
+				m.stop();
+			}	
 		}
 	}
 }

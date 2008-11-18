@@ -88,9 +88,14 @@ package org.bigbluebutton.modules.video.model.business
 			return -1;
 		}
 	
-		public function removeAllMedia() : void
+		public function removeAllMedia():void
 		{
 			_media.removeAll();
-		}					
+		}		
+		
+		public function getAll():ArrayCollection
+		{
+			return _media;
+		}			
 	}
 }

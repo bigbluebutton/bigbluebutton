@@ -35,5 +35,15 @@ package org.bigbluebutton.modules.video
 		public static const UNPUBLISH_STREAM_COMMAND : String = 		"PUBLISHER_UNPUBLISH_STREAM_COMMAND";
 		
 		public static const OPEN_VIEW_CAMERA:String = "Open View Camera"
+		
+		public static const START_BROADCAST:String = 'START_BROADCAST';
+		public static const STOP_BROADCAST:String = 'STOP_BROADCAST';
+		
+		public static const OPEN_WINDOW:String = 'OPEN_WINDOW';
+		public static const CLOSE_WINDOW:String = 'CLOSE_WINDOW';
+		public static const ADD_WINDOW:String = 'ADD_WINDOW';
+		public static const REMOVE_WINDOW:String = 'REMOVE_WINDOW';
+		public static const ADD_BUTTON:String = 'ADD_BUTTON';
+		public static const REMOVE_BUTTON:String = 'REMOVE_BUTTON';
 	}
 }

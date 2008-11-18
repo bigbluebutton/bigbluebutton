@@ -11,7 +11,13 @@ package org.bigbluebutton.common.messaging
 
 		public static const FROM_MAIN_APP:String = 'FROM_MAIN_APP';
 		public static const TO_MAIN_APP:String = 'TO_MAIN_APP';
+
+		public static const FROM_LISTENERS_MODULE:String = 'FROM_LISTENERS_MODULE';
+		public static const TO_LISTENERS_MODULE:String = 'TO_LISTENERS_MODULE';
 		
+		public static const FROM_VIDEO_MODULE:String = 'FROM_VIDEO_MODULE';
+		public static const TO_VIDEO_MODULE:String = 'TO_VIDEO_MODULE';
+						
 		public static const FROM_CHAT_MODULE:String = 'FROM_CHAT_MODULE';
 		public static const TO_CHAT_MODULE:String = 'TO_CHAT_MODULE';
 		
@@ -25,7 +31,9 @@ package org.bigbluebutton.common.messaging
 		public static const CLOSE_WINDOW:String = 'CLOSE_WINDOW';
 		public static const ADD_WINDOW:String = 'ADD_WINDOW';
 		public static const REMOVE_WINDOW:String = 'REMOVE_WINDOW';
-
+		public static const ADD_BUTTON:String = 'ADD_BUTTON';
+		public static const REMOVE_BUTTON:String = 'REMOVE_BUTTON';
+		
 		public static const USER_LOGIN:String = 'USER_LOGIN';
 		public static const USER_LOGGED_IN:String = 'USER_LOGGED_IN'
 		public static const USER_LOGOUT:String = 'USER_LOGOUT';

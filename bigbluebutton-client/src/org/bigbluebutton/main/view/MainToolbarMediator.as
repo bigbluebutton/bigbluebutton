@@ -19,6 +19,7 @@
 */
 package org.bigbluebutton.main.view
 {
+	import org.bigbluebutton.main.MainApplicationConstants;
 	import org.bigbluebutton.main.view.components.MainToolbar;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
@@ -28,17 +29,31 @@ package org.bigbluebutton.main.view
 	{
 		public static const NAME:String = "MainToolbarMediator";
 		
+		private var toolbar:MainToolbar;
+		
 		public function MainToolbarMediator(viewComponent:MainToolbar)
 		{
-			super(NAME, viewComponent);
+			super(NAME);
+			toolbar = viewComponent;
 		}
 		
 		override public function listNotificationInterests():Array{
-			return [];
+			return [
+					MainApplicationConstants.USER_LOGGED_IN,
+					MainApplicationConstants.USER_LOGGED_OUT			
+			];
 		}
 		
 		override public function handleNotification(notification:INotification):void{
-
+			switch(notification.getName()){	
+				case MainApplicationConstants.USER_LOGGED_IN:
+					toolbar.loggedIn(notification.getBody().username, notification.getBody().room, notification.getBody().userrole);
+					toolbar.visible = true;
+					break;
+				case MainApplicationConstants.USER_LOGGED_OUT:
+					toolbar.visible = false;
+					break;
+			}
 		}
 		
 	}

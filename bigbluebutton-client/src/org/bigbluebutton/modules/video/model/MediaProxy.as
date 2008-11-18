@@ -3,6 +3,8 @@ package org.bigbluebutton.modules.video.model
 	import flash.media.Camera;
 	import flash.media.Microphone;
 	
+	import mx.collections.ArrayCollection;
+	
 	import org.bigbluebutton.modules.video.model.business.MediaManager;
 	import org.bigbluebutton.modules.video.model.business.MediaType;
 	import org.bigbluebutton.modules.video.model.services.StreamFactory;
@@ -36,6 +38,10 @@ package org.bigbluebutton.modules.video.model
 				_sf = new StreamFactory(p.connection);
 			}
 			
+		}
+		
+		public function stopAllStreams():void {
+			_mediaManager.stopAllMedia();			
 		}
 		
 		/**

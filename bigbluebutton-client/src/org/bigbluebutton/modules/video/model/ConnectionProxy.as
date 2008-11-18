@@ -3,6 +3,7 @@ package org.bigbluebutton.modules.video.model
 	import flash.net.NetConnection;
 	import flash.net.ObjectEncoding;
 	
+	import org.bigbluebutton.modules.video.VideoModuleConstants;
 	import org.bigbluebutton.modules.video.model.services.NetConnectionDelegate;
 	import org.bigbluebutton.modules.video.model.vo.settings.GeneralSettings;
 	import org.puremvc.as3.multicore.interfaces.IProxy;
@@ -42,7 +43,7 @@ package org.bigbluebutton.modules.video.model
 			
 		public function disconnect() : void
 		{
-//			delegate.close();	
+			_netDelegate.disconnect();
 		}
 		
 		public function get connection():NetConnection {
@@ -52,11 +53,10 @@ package org.bigbluebutton.modules.video.model
 		private function connectionListener(connected:Boolean):void {
 			if (connected) {
 				trace(NAME + ":Connected to the Video application");
-//				join();
+				sendNotification(VideoModuleConstants.CONNECTED);
 			} else {
-//				leave();
 				trace(NAME + ":Disconnected from the Video application");
-//				notifyConnectionStatusListener(false);
+				sendNotification(VideoModuleConstants.DISCONNECTED);
 			}
 		}
 	}
