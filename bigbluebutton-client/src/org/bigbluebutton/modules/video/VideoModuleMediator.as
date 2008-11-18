@@ -21,6 +21,7 @@ package org.bigbluebutton.modules.video
 {
 
 	import org.bigbluebutton.modules.video.model.MediaProxy;
+	import org.bigbluebutton.modules.video.view.ToolbarButtonMediator;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
@@ -62,12 +63,16 @@ package org.bigbluebutton.modules.video
 					if (facade.hasProxy(MediaProxy.NAME)) {
 						var p:MediaProxy = facade.retrieveProxy(MediaProxy.NAME) as MediaProxy;
 						p.setup();
+						facade.registerMediator(new ToolbarButtonMediator());
 					}
 					break;
 				case VideoModuleConstants.DISCONNECTED:
 					if (facade.hasProxy(MediaProxy.NAME)) {
 						var mp:MediaProxy = facade.retrieveProxy(MediaProxy.NAME) as MediaProxy;
 						mp.stopAllStreams();
+						if (facade.hasMediator(ToolbarButtonMediator.NAME)) {
+							facade.removeMediator(ToolbarButtonMediator.NAME);
+						}
 					}
 					break;
 			}

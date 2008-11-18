@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
-	id="videoBtn" icon="{camIcon}" creationComplete="init()">
+	icon="{camIcon}">
 	<mx:Script>
 		<![CDATA[
-			private function init():void {
-				
-			}
+			import org.bigbluebutton.modules.video.view.components.Images;
+			
+			private var images:Images = new Images();
+			
+			[Bindable] public var camIcon:Class = images.webcam_img;
 		]]>
 	</mx:Script>
 </mx:Button>

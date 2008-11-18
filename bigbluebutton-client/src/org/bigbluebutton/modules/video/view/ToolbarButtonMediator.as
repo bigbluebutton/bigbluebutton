@@ -17,14 +17,14 @@ package org.bigbluebutton.modules.video.view
 			button = new ToolbarButton();
 		}
 		
-		public function listNotificationInterests():Array
+		override public function listNotificationInterests():Array
 		{
 			return [
 				
 			];
 		}
 		
-		public function handleNotification(notification:INotification):void
+		override public function handleNotification(notification:INotification):void
 		{
 		}
 		
