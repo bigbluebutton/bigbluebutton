@@ -29,7 +29,6 @@ package org.bigbluebutton.modules.video.model.business
 	import org.bigbluebutton.modules.video.model.vo.BroadcastMedia;
 	import org.bigbluebutton.modules.video.model.vo.IMedia;
 	import org.bigbluebutton.modules.video.model.vo.PlayMedia;
-	import org.bigbluebutton.modules.video.model.vo.settings.GeneralSettings;
 	import org.bigbluebutton.modules.video.model.vo.settings.VideoSettings;
 	
 	/**
@@ -37,13 +36,13 @@ package org.bigbluebutton.modules.video.model.business
 	 * @author Denis Zgonjanin
 	 * 
 	 */	
-	public class Media
+	public class MediaManager
 	{		
 		public static const NAME:String = "Media";
 		[Bindable] public var connected : Boolean = false;
 		
-		public var playMedia : Object;
-		public var broadcastMedia : Object;
+		public var playMedia:MediaCollection;
+		public var broadcastMedia:MediaCollection;
 						
 		public var defaultVideoSettings:VideoSettings;
 				 
@@ -53,12 +52,12 @@ package org.bigbluebutton.modules.video.model.business
 		[Bindable]	
 		public var microphoneNames:Array = [ "No audio" ];		
 				 	
-		public function Media()
+		public function MediaManager()
 		{
 			defaultVideoSettings = new VideoSettings();
 
-			playMedia  = new Object();
-			broadcastMedia = new Object();
+			playMedia  = new MediaCollection();
+			broadcastMedia = new MediaCollection();
 		}
 
 		/**
@@ -66,9 +65,9 @@ package org.bigbluebutton.modules.video.model.business
 		 * @param streamName
 		 * 
 		 */		
-		public function createBroadcastMedia(streamName : String) : void
+		public function createBroadcastMedia(streamName:String):void
 		{
-			broadcastMedia[streamName] = new BroadcastMedia(streamName);
+			broadcastMedia.addMedia(new BroadcastMedia(streamName));
 		}
 
 		/**
@@ -76,9 +75,9 @@ package org.bigbluebutton.modules.video.model.business
 		 * @param streamName
 		 * 
 		 */		
-		public function createPlayMedia(streamName : String) : void
+		public function createPlayMedia(streamName:String):void
 		{
-			playMedia[streamName] = new PlayMedia(streamName); 							
+			playMedia.addMedia(new PlayMedia(streamName)); 							
 		}
 		
 		/**
@@ -87,9 +86,9 @@ package org.bigbluebutton.modules.video.model.business
 		 * @return 
 		 * 
 		 */		
-		public function getBroadcastMedia(streamName : String):IMedia
+		public function getBroadcastMedia(streamName:String):IMedia
 		{
-			return broadcastMedia[streamName];
+			return broadcastMedia.getMedia(streamName);
 		}
 
 		/**
@@ -98,9 +97,9 @@ package org.bigbluebutton.modules.video.model.business
 		 * @return 
 		 * 
 		 */		
-		public function getPlayMedia(streamName : String) : IMedia
+		public function getPlayMedia(streamName:String):IMedia
 		{
-			return playMedia[streamName];
+			return playMedia.getMedia(streamName);
 		}
 	}
 }

@@ -46,7 +46,8 @@ package org.bigbluebutton.modules.video.model.services
 		}
 		
 		public function connect(uri:String, proxy:String, encoding:uint) : void
-		{					
+		{			
+			_uri = uri;		
 			_netConnection.client = this;			
 			_netConnection.objectEncoding = encoding;
 			_netConnection.proxyType = proxy;

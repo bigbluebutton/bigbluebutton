@@ -3,7 +3,7 @@ package org.bigbluebutton.modules.video.model
 	import flash.media.Camera;
 	import flash.media.Microphone;
 	
-	import org.bigbluebutton.modules.video.model.business.Media;
+	import org.bigbluebutton.modules.video.model.business.MediaManager;
 	import org.bigbluebutton.modules.video.model.business.MediaType;
 	import org.bigbluebutton.modules.video.model.services.StreamFactory;
 	import org.bigbluebutton.modules.video.model.vo.BroadcastMedia;
@@ -16,7 +16,7 @@ package org.bigbluebutton.modules.video.model
 	{
 		public static const NAME:String = "MediaProxy";
 		
-		private var _media:Media = new Media();
+		private var _mediaManager:MediaManager = new MediaManager();
 		private var _sf:StreamFactory;
 		
 		
@@ -45,7 +45,7 @@ package org.bigbluebutton.modules.video.model
 		 */		
 		public function createBroadcastMedia(streamName:String):void
 		{
-			_media.createBroadcastMedia(streamName);
+			_mediaManager.createBroadcastMedia(streamName);
 		}
 		
 		/**
@@ -55,7 +55,7 @@ package org.bigbluebutton.modules.video.model
 		 */		
 		public function createPlayMedia(streamName : String) : void
 		{
-			_media.createPlayMedia(streamName);
+			_mediaManager.createPlayMedia(streamName);
 		}
 				
 		/**
@@ -66,7 +66,7 @@ package org.bigbluebutton.modules.video.model
 		 */		
 		public function getBroadcastMedia(streamName : String):IMedia
 		{
-			return _media.getBroadcastMedia(streamName);
+			return _mediaManager.getBroadcastMedia(streamName);
 		}
 
 		/**
@@ -77,7 +77,7 @@ package org.bigbluebutton.modules.video.model
 		 */		
 		public function getPlayMedia(streamName : String) : IMedia
 		{
-			return _media.getPlayMedia(streamName);
+			return _mediaManager.getPlayMedia(streamName);
 		}
 		
 
@@ -89,21 +89,21 @@ package org.bigbluebutton.modules.video.model
 		public function setupDevices() : void{
 			if ( Camera.names.length != 0 ) {
 					// Merge options with devices array.
-					_media.cameraNames = _media.cameraNames.concat( Camera.names );
+					_mediaManager.cameraNames = _mediaManager.cameraNames.concat( Camera.names );
 			}
 
 			if ( Microphone.names.length != 0 ) {
 				// Merge options with devices array.
-				_media.microphoneNames = _media.microphoneNames.concat( Microphone.names );
+				_mediaManager.microphoneNames = _mediaManager.microphoneNames.concat( Microphone.names );
 			}		
 		}
 			
 		public function setupStream(streamName : String) : void
 		{
-			var m:IMedia  = _media.getPlayMedia(streamName);
+			var m:IMedia  = _mediaManager.getPlayMedia(streamName);
 			
 			if (m == null) {
-				m = _media.getBroadcastMedia(streamName);
+				m = _mediaManager.getBroadcastMedia(streamName);
 			}
 			m.streamName = streamName;
 			
@@ -124,7 +124,7 @@ package org.bigbluebutton.modules.video.model
 		 */		
 		public function stopCamera(streamName : String) : void
 		{
-			var m:BroadcastMedia = _media.getBroadcastMedia(streamName) as BroadcastMedia;
+			var m:BroadcastMedia = _mediaManager.getBroadcastMedia(streamName) as BroadcastMedia;
 
 			if (m != null) {
 				if (m.video.localVideo != null) {
@@ -146,7 +146,7 @@ package org.bigbluebutton.modules.video.model
 		 */		
 		public function startCamera(streamName : String) : void
 		{					
-			var m:BroadcastMedia = _media.getBroadcastMedia(streamName) as BroadcastMedia;
+			var m:BroadcastMedia = _mediaManager.getBroadcastMedia(streamName) as BroadcastMedia;
 			
 			if (m != null) m.startCamera();
 		}
@@ -158,7 +158,7 @@ package org.bigbluebutton.modules.video.model
 		 */		
 		public function startMicrophone(streamName : String) : void
 		{
-			var m:BroadcastMedia = _media.getBroadcastMedia(streamName) as BroadcastMedia;			
+			var m:BroadcastMedia = _mediaManager.getBroadcastMedia(streamName) as BroadcastMedia;			
 			if (m != null) m.startMicrophone();	
 		}
 		
@@ -169,7 +169,7 @@ package org.bigbluebutton.modules.video.model
 		 */		
 		public function stopMicrophone(streamName : String) : void
 		{
-			var m:BroadcastMedia = _media.getBroadcastMedia(streamName) as BroadcastMedia;
+			var m:BroadcastMedia = _mediaManager.getBroadcastMedia(streamName) as BroadcastMedia;
 			
 			if (m == null) {
 				m.stopMicrophone();
@@ -184,7 +184,7 @@ package org.bigbluebutton.modules.video.model
 		 */		
 		public function startBroadcasting(publishMode:String, streamName:String):void
 		{
-			var m:BroadcastMedia = _media.getBroadcastMedia(streamName) as BroadcastMedia;
+			var m:BroadcastMedia = _mediaManager.getBroadcastMedia(streamName) as BroadcastMedia;
 			if (m != null) 	m.start(publishMode, streamName);		
 		}
 		
@@ -195,7 +195,7 @@ package org.bigbluebutton.modules.video.model
 		 */		
 		public function stopBroadcasting(streamName:String) : void
 		{
-			var m:BroadcastMedia = _media.getBroadcastMedia(streamName) as BroadcastMedia;
+			var m:BroadcastMedia = _mediaManager.getBroadcastMedia(streamName) as BroadcastMedia;
 	    	if (m != null) m.stop();		
 		}
 		
@@ -206,14 +206,14 @@ package org.bigbluebutton.modules.video.model
 		 */		
 		public function pauseStream(streamName:String) : void
 		{
-			var m:PlayMedia = _media.getPlayMedia(streamName) as PlayMedia;
+			var m:PlayMedia = _mediaManager.getPlayMedia(streamName) as PlayMedia;
 	    	
 	    	if (m != null) m.pause();		
 		}
 		
 		public function playStream(streamName:String, enableVideo:Boolean, enableAudio:Boolean):void
 		{
-			var m:PlayMedia = _media.getPlayMedia(streamName) as PlayMedia;	  
+			var m:PlayMedia = _mediaManager.getPlayMedia(streamName) as PlayMedia;	  
 			var p:ConnectionProxy = facade.retrieveProxy(ConnectionProxy.NAME) as ConnectionProxy;
 			  	
 	    	var bufferTime : int = p.generalSettings.bufferTime;
@@ -228,7 +228,7 @@ package org.bigbluebutton.modules.video.model
 		 */		
 		public function resumeStream(streamName : String) : void
 		{
-			var m:PlayMedia = _media.getPlayMedia(streamName) as PlayMedia;
+			var m:PlayMedia = _mediaManager.getPlayMedia(streamName) as PlayMedia;
 	    	
 	    	if (m != null) m.resume();			
 		}		
@@ -241,7 +241,7 @@ package org.bigbluebutton.modules.video.model
 		public function stopStream(streamName : String) : void
 		{	
 			// Stop playback and close stream.
-			var m:PlayMedia = _media.getPlayMedia(streamName) as PlayMedia;
+			var m:PlayMedia = _mediaManager.getPlayMedia(streamName) as PlayMedia;
 	    	
 	    	if (m != null) m.stop();
 	    			
@@ -255,7 +255,7 @@ package org.bigbluebutton.modules.video.model
 		 */		
 		public function enableAudio(streamName:String, enableAudio:Boolean) : void
 		{
-			var m:PlayMedia = _media.getPlayMedia(streamName) as PlayMedia;
+			var m:PlayMedia = _mediaManager.getPlayMedia(streamName) as PlayMedia;
 	    	
 	    	if (m != null) m.enableAudio(enableAudio);	
 		}	
@@ -268,7 +268,7 @@ package org.bigbluebutton.modules.video.model
 		 */		
 		public function enableVideo(streamName : String, enableVideo : Boolean) : void
 		{
-			var m:PlayMedia = _media.getPlayMedia(streamName) as PlayMedia;
+			var m:PlayMedia = _mediaManager.getPlayMedia(streamName) as PlayMedia;
 	    	if (m != null) m.enableVideo(enableVideo);	
 		}
 	}
