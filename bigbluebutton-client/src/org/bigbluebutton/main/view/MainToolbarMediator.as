@@ -58,7 +58,7 @@ package org.bigbluebutton.main.view
 					toolbar.visible = false;
 					break;
 				case MainApplicationConstants.ADD_BUTTON:
-					toolbar.addChild(notification.getBody() as Button);
+					toolbar.addedBtns.addChild(notification.getBody() as Button);
 					break;
 				case MainApplicationConstants.REMOVE_BUTTON:
 					toolbar.removeChild(notification.getBody() as Button);

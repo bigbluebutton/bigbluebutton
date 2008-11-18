@@ -39,7 +39,8 @@ package org.bigbluebutton.modules.video
 				VideoModuleConstants.CONNECTED,
 				VideoModuleConstants.DISCONNECTED,
 				VideoModuleConstants.START_BROADCAST,
-				VideoModuleConstants.STOP_BROADCAST
+				VideoModuleConstants.STOP_BROADCAST,
+				VideoModuleConstants.ADD_BUTTON
 			];
 		}
 		
@@ -50,11 +51,9 @@ package org.bigbluebutton.modules.video
 					trace("Sending Video MODULE_STARTED message to main");
 					_endpoint.sendMessage(EndpointMessageConstants.MODULE_STARTED, 
 							EndpointMessageConstants.TO_MAIN_APP, _module.moduleId);
-					facade.sendNotification(VideoModuleConstants.OPEN_WINDOW);
 					break;
 				case VideoModuleConstants.DISCONNECTED:
 					trace('Sending Video MODULE_STOPPED message to main');
-					facade.sendNotification(VideoModuleConstants.CLOSE_WINDOW);
 					_endpoint.sendMessage(EndpointMessageConstants.MODULE_STOPPED, 
 							EndpointMessageConstants.TO_MAIN_APP, _module.moduleId);
 					break;
@@ -68,9 +67,9 @@ package org.bigbluebutton.modules.video
 					_endpoint.sendMessage(EndpointMessageConstants.REMOVE_WINDOW, 
 							EndpointMessageConstants.TO_MAIN_APP, notification.getBody());
 					break;
-				case VideoModuleConstants.REMOVE_WINDOW:
-					trace('Sending Video REMOVE_WINDOW message to main');
-					_endpoint.sendMessage(EndpointMessageConstants.REMOVE_WINDOW, 
+				case VideoModuleConstants.ADD_BUTTON:
+					trace('Sending Video ADD_BUTTON message to main');
+					_endpoint.sendMessage(EndpointMessageConstants.ADD_BUTTON, 
 							EndpointMessageConstants.TO_MAIN_APP, notification.getBody());
 					break;
 			}

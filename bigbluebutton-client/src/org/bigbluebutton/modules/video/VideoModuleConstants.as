@@ -36,6 +36,8 @@ package org.bigbluebutton.modules.video
 		
 		public static const OPEN_VIEW_CAMERA:String = "Open View Camera"
 		
+		public static const SETUP_COMPLETE:String = 'SETUP_COMPLETE';
+		
 		public static const START_BROADCAST:String = 'START_BROADCAST';
 		public static const STOP_BROADCAST:String = 'STOP_BROADCAST';
 		

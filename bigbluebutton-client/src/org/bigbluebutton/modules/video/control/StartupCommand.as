@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.video.control
 	import org.bigbluebutton.modules.video.VideoModuleMediator;
 	import org.bigbluebutton.modules.video.model.ConnectionProxy;
 	import org.bigbluebutton.modules.video.model.MediaProxy;
+	import org.bigbluebutton.modules.video.view.ToolbarButtonMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.command.SimpleCommand;
 	
@@ -46,6 +47,7 @@ package org.bigbluebutton.modules.video.control
 			
 			facade.registerMediator(new VideoModuleMediator(app));
 			facade.registerMediator(new VideoModuleEndpointMediator(app));
+			facade.registerMediator(new ToolbarButtonMediator());
 		}
 
 	}
