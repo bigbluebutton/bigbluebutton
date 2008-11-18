@@ -18,13 +18,14 @@ package org.bigbluebutton.modules.video.model
 	{
 		public static const NAME:String = "MediaProxy";
 		
-		private var _mediaManager:MediaManager = new MediaManager();
+		private var _mediaManager:MediaManager;
 		private var _sf:StreamFactory;
 		
 		
 		public function MediaProxy()
 		{
 			super(NAME);
+			_mediaManager = new MediaManager();
 		}
 
 		public function setup():void {
@@ -70,7 +71,7 @@ package org.bigbluebutton.modules.video.model
 		 * @return 
 		 * 
 		 */		
-		public function getBroadcastMedia(streamName : String):IMedia
+		public function getBroadcastMedia(streamName:String):IMedia
 		{
 			return _mediaManager.getBroadcastMedia(streamName);
 		}
@@ -104,7 +105,7 @@ package org.bigbluebutton.modules.video.model
 			}		
 		}
 			
-		public function setupStream(streamName : String) : void
+		public function setupStream(streamName:String):void
 		{
 			var m:IMedia  = _mediaManager.getPlayMedia(streamName);
 			
@@ -150,7 +151,7 @@ package org.bigbluebutton.modules.video.model
 		 * @param streamName
 		 * 
 		 */		
-		public function startCamera(streamName : String) : void
+		public function startCamera(streamName:String):void
 		{					
 			var m:BroadcastMedia = _mediaManager.getBroadcastMedia(streamName) as BroadcastMedia;
 			

@@ -20,11 +20,13 @@
 package org.bigbluebutton.modules.video
 {
 	import org.bigbluebutton.common.IBigBlueButtonModule;
+	import org.bigbluebutton.modules.video.control.CreateBroadcastStreamCommand;
 	import org.bigbluebutton.modules.video.control.PauseStreamCommand;
 	import org.bigbluebutton.modules.video.control.PlayStreamCommand;
 	import org.bigbluebutton.modules.video.control.PublishStreamCommand;
 	import org.bigbluebutton.modules.video.control.ResumeStreamCommand;
 	import org.bigbluebutton.modules.video.control.SetupDevicesCommand;
+	import org.bigbluebutton.modules.video.control.SetupStreamCommand;
 	import org.bigbluebutton.modules.video.control.StartCameraCommand;
 	import org.bigbluebutton.modules.video.control.StartMicrophoneCommand;
 	import org.bigbluebutton.modules.video.control.StartupCommand;
@@ -83,6 +85,8 @@ package org.bigbluebutton.modules.video
 			registerCommand(VideoModuleConstants.STOP_MICROPHONE_COMMAND, StopMicrophoneCommand);
 			registerCommand(VideoModuleConstants.STOP_CAMERA_COMMAND, StopCameraCommand);
 			registerCommand(VideoModuleConstants.START_CAMERA_COMMAND, StartCameraCommand);
+			registerCommand(VideoModuleConstants.CREATE_BROADCAST_STREAM, CreateBroadcastStreamCommand);
+			registerCommand(VideoModuleConstants.SETUP_STREAM, SetupStreamCommand);
 			registerCommand(VideoModuleConstants.START_MICROPHONE_COMMAND, StartMicrophoneCommand);
 			registerCommand(VideoModuleConstants.SETUP_DEVICES_COMMAND, SetupDevicesCommand);
 		}

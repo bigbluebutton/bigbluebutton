@@ -33,7 +33,7 @@ package org.bigbluebutton.modules.video.model.vo.settings
 		public var height : int;	
 		public var keyframe : int;	
 		public var fps : int;	
-		public function VideoSettings(	cameraIndex:int = -1,
+		public function VideoSettings(	cameraIndex:int = 1,
 										bandwidth:int = 0,
 										quality:int = 0,
 										width:int = 320,

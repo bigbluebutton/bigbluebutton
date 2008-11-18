@@ -5,15 +5,18 @@ package org.bigbluebutton.modules.video.control
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.command.SimpleCommand;
 
-	public class StartCameraCommand extends SimpleCommand implements ICommand
-	{	
+	public class CreateBroadcastStreamCommand extends SimpleCommand implements ICommand
+	{
 		override public function execute(notification:INotification):void
 		{
 			if (facade.hasProxy(MediaProxy.NAME)) {
 				var p:MediaProxy = facade.retrieveProxy(MediaProxy.NAME) as MediaProxy;
-				trace('Starting camera ' + notification.getBody() as String);
-				p.startCamera(notification.getBody() as String);
+				trace('creating broadcastmedia ' + notification.getBody() as String);
+				p.createBroadcastMedia(notification.getBody() as String);
+			} else {
+				trace('MediaProxy not found.');
 			}
-		}		
+		}
+		
 	}
 }

@@ -19,7 +19,7 @@
 			[Bindable] public var media:BroadcastMedia;
 			
 			private function getDevices():void{
-				dispatchEvent(new Event(SettingsWindowMediator.SETUP));
+				//dispatchEvent(new Event(SettingsWindowMediator.SETUP));
 			}
 
 		]]>

@@ -40,6 +40,7 @@ package org.bigbluebutton.modules.video
 				VideoModuleConstants.DISCONNECTED,
 				VideoModuleConstants.START_BROADCAST,
 				VideoModuleConstants.STOP_BROADCAST,
+				VideoModuleConstants.ADD_WINDOW,
 				VideoModuleConstants.ADD_BUTTON
 			];
 		}

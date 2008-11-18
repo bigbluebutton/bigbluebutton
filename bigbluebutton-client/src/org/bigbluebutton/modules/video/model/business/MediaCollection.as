@@ -28,7 +28,7 @@ package org.bigbluebutton.modules.video.model.business
 	
 		private var _media:ArrayCollection = null;	
 					
-		public function MediaManager() : void
+		public function MediaCollection()
 		{
 			_media = new ArrayCollection();
 		}
@@ -53,7 +53,7 @@ package org.bigbluebutton.modules.video.model.business
 		
 		public function getMedia(stream:String):IMedia
 		{
-			var index : int = getMediaIndex(stream);
+			var index:int = getMediaIndex(stream);
 			
 			if (index > -1) {
 				return _media.getItemAt(index) as IMedia;
@@ -72,12 +72,10 @@ package org.bigbluebutton.modules.video.model.business
 		}
 			
 		private function getMediaIndex(stream:String):int
-		{
-			var m:IMedia;
-			
-			for (var i:int = 0; i < _media.length; i++)
+		{			
+			for (var i:int=0;i<_media.length;i++)
 			{
-				m = _media.getItemAt(i) as IMedia;
+				var m:IMedia = _media.getItemAt(i) as IMedia;
 				
 				if (m.streamName == stream) {
 					return i;

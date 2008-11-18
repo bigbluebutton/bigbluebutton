@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
-	icon="{camIcon}">
+	icon="{camIcon}" click="startCamera()">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.video.VideoModuleConstants;
 			import org.bigbluebutton.modules.video.view.components.Images;
 			
 			private var images:Images = new Images();
 			
 			[Bindable] public var camIcon:Class = images.webcam_img;
+			
+			private function startCamera():void {
+				dispatchEvent(new Event(VideoModuleConstants.START_CAMERA_EVENT));
+			}
 		]]>
 	</mx:Script>
 </mx:Button>

@@ -1,6 +1,9 @@
 package org.bigbluebutton.modules.video.view
 {
+	import flash.events.Event;
+	
 	import org.bigbluebutton.modules.video.VideoModuleConstants;
+	import org.bigbluebutton.modules.video.view.components.MyCameraWindow;
 	import org.bigbluebutton.modules.video.view.components.ToolbarButton;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
@@ -11,11 +14,26 @@ package org.bigbluebutton.modules.video.view
 		public static const NAME:String = "ToolbarButtonMediator";
 		
 		private var button:ToolbarButton;
+		private var myCamWindow:MyCameraWindow;
 		
 		public function ToolbarButtonMediator()
 		{
 			super(NAME);
 			button = new ToolbarButton();
+			button.addEventListener(VideoModuleConstants.START_CAMERA_EVENT, onStartCameraEvent);
+		}
+		
+		private function onStartCameraEvent(e:Event):void {
+			button.enabled = false;
+			myCamWindow = new MyCameraWindow();
+			myCamWindow.width = 330;
+		   	myCamWindow.height = 270;
+		   	myCamWindow.title = "My Camera";
+		   	myCamWindow.showCloseButton = true;
+		   	myCamWindow.xPosition = 700;
+		   	myCamWindow.yPosition = 240;
+		   	facade.registerMediator(new MyCameraWindowMediator(myCamWindow));
+		   	facade.sendNotification(VideoModuleConstants.ADD_WINDOW, myCamWindow); 
 		}
 		
 		override public function listNotificationInterests():Array

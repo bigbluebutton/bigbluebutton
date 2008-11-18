@@ -1,12 +1,11 @@
-package org.bigbluebutton.modules.video.view.mediators
+package org.bigbluebutton.modules.video.view
 {
 	import flash.events.Event;
 	
 	import mx.managers.PopUpManager;
 	
 	import org.bigbluebutton.modules.video.VideoModuleConstants;
-	import org.bigbluebutton.modules.video.model.business.PublisherModel;
-	import org.bigbluebutton.modules.video.view.SettingsWindow;
+	import org.bigbluebutton.modules.video.view.components.SettingsWindow;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
