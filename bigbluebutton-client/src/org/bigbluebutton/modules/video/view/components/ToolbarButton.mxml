@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
+	id="videoBtn" icon="{camIcon}" creationComplete="init()">
+	<mx:Script>
+		<![CDATA[
+			private function init():void {
+				
+			}
+		]]>
+	</mx:Script>
+</mx:Button>

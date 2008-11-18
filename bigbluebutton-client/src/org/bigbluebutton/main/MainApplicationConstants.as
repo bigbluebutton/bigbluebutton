@@ -29,6 +29,8 @@ package org.bigbluebutton.main
 		public static const FROM_MAIN:String = 'FROM_MAIN_APP';
 		public static const TO_MAIN:String = 'TO_MAIN_APP';
 
+		public static const ADD_BUTTON:String = 'ADD_BUTTON';
+		public static const REMOVE_BUTTON:String = 'REMOVE_BUTTON';
 		public static const ADD_WINDOW_MSG:String = 'ADD_WINDOW_MSG';
 		public static const REMOVE_WINDOW_MSG:String = 'REMOVE_WINDOW_MSG';
 		public static const OPEN_WINDOW:String = 'OPEN_WINDOW';

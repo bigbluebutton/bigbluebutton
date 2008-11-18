@@ -40,6 +40,10 @@ package org.bigbluebutton.modules.video.control
 			facade.registerProxy(np);
 			
 			np.connect(app.uri);
+			
+			var mp:MediaProxy = new MediaProxy();
+			facade.registerProxy(mp);
+			
 			facade.registerMediator(new VideoModuleMediator(app));
 			facade.registerMediator(new VideoModuleEndpointMediator(app));
 		}

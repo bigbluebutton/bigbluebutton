@@ -13,6 +13,7 @@ package org.bigbluebutton.main
 		private var presentLoaded:Boolean = false;
 		private var listenerLoaded:Boolean = false;
 		private var viewerLoaded:Boolean = false;
+		private var videoLoaded:Boolean = false;
 		
 		public function MainApplicationMediator(mediatorName:String=null, viewComponent:Object=null)
 		{
@@ -41,8 +42,8 @@ package org.bigbluebutton.main
 					break;
 				case MainApplicationConstants.APP_MODEL_INITIALIZED:
 					trace(NAME + "::Received APP_MODEL_INITIALIZED");
-					proxy.loadModule("VideoModule");
-					//proxy.loadModule("ChatModule");
+					//proxy.loadModule("VideoModule");
+					proxy.loadModule("ChatModule");
 					break;
 				case MainApplicationConstants.MODULE_LOADED:
 					trace(NAME + "::Received MODULE_LOADED");
@@ -62,13 +63,17 @@ package org.bigbluebutton.main
 					}
 					if (ml == "ListenersModule") {
 						listenerLoaded = true;
+						proxy.loadModule("VideoModule");
+					}
+					if (ml == "VideoModule") {
+						videoLoaded = true;
 						proxy.loadModule("ViewersModule");
 					}
 					
 					facade.sendNotification(MainApplicationConstants.LOADED_MODULE, ml);
 					
 					// SHortcircuit videomodule start. This is only for refactoring of videoModule.
-					facade.sendNotification(MainApplicationConstants.MODULE_START, "VideoModule");
+					//facade.sendNotification(MainApplicationConstants.MODULE_START, "VideoModule");
 					
 					if (viewerLoaded && chatLoaded && presentLoaded && listenerLoaded) {
 						facade.sendNotification(MainApplicationConstants.MODULE_START, "ViewersModule");
@@ -92,6 +97,7 @@ package org.bigbluebutton.main
 					facade.sendNotification(MainApplicationConstants.MODULE_START, "ChatModule");
 					facade.sendNotification(MainApplicationConstants.MODULE_START, "PresentationModule");
 					facade.sendNotification(MainApplicationConstants.MODULE_START, "ListenersModule");
+					facade.sendNotification(MainApplicationConstants.MODULE_START, "VideoModule");
 					//proxy.loadModule("ChatModule");
 					//proxy.loadModule("PresentationModule");
 					//proxy.loadModule("ListenersModule");

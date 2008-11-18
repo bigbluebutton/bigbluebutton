@@ -19,6 +19,8 @@
 */
 package org.bigbluebutton.main.view
 {
+	import mx.controls.Button;
+	
 	import org.bigbluebutton.main.MainApplicationConstants;
 	import org.bigbluebutton.main.view.components.MainToolbar;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
@@ -40,7 +42,9 @@ package org.bigbluebutton.main.view
 		override public function listNotificationInterests():Array{
 			return [
 					MainApplicationConstants.USER_LOGGED_IN,
-					MainApplicationConstants.USER_LOGGED_OUT			
+					MainApplicationConstants.USER_LOGGED_OUT,
+					MainApplicationConstants.ADD_BUTTON,
+					MainApplicationConstants.REMOVE_BUTTON			
 			];
 		}
 		
@@ -52,6 +56,12 @@ package org.bigbluebutton.main.view
 					break;
 				case MainApplicationConstants.USER_LOGGED_OUT:
 					toolbar.visible = false;
+					break;
+				case MainApplicationConstants.ADD_BUTTON:
+					toolbar.addChild(notification.getBody() as Button);
+					break;
+				case MainApplicationConstants.REMOVE_BUTTON:
+					toolbar.removeChild(notification.getBody() as Button);
 					break;
 			}
 		}
