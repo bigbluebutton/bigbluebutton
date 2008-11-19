@@ -27,6 +27,7 @@ package org.bigbluebutton.modules.viewers.view
 	import org.bigbluebutton.modules.viewers.model.ViewersProxy;
 	import org.bigbluebutton.modules.viewers.view.components.ViewersWindow;
 	import org.bigbluebutton.modules.viewers.view.events.AssignPresenterEvent;
+	import org.bigbluebutton.modules.viewers.view.events.ViewCameraEvent;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
@@ -57,11 +58,12 @@ package org.bigbluebutton.modules.viewers.view
 			_viewersWindow.addEventListener(CHANGE_STATUS, changeStatus);
 			_viewersWindow.addEventListener(ASSIGN_PRESENTER_EVENT, onAssignPresenter);
 			_viewersWindow.addEventListener(ViewersModuleConstants.VIEWER_SELECTED_EVENT, onViewerSelectedEvent);
-			_viewersWindow.addEventListener(ViewersModuleConstants.QUERY_PRESENTER_EVENT, onQueryPresenterEvent);
+			_viewersWindow.addEventListener(ViewCameraEvent.VIEW_CAMERA_EVENT, onViewCameraEvent);
 		}
 		
-		private function onQueryPresenterEvent(e:Event):void {
-			proxy.queryPresenter();
+		private function onViewCameraEvent(e:ViewCameraEvent):void {
+			trace('Got VIEW_CAMERA_EVENT------------------------------');
+			sendNotification(ViewersModuleConstants.VIEW_CAMERA, e.stream);
 		}
 		
 		private function onViewerSelectedEvent(e:Event):void {

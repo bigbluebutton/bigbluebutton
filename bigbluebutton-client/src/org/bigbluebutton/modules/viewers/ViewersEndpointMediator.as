@@ -48,7 +48,8 @@ package org.bigbluebutton.modules.viewers
 				ViewersModuleConstants.ADD_WINDOW,
 				ViewersModuleConstants.REMOVE_WINDOW,
 				ViewersModuleConstants.ASSIGN_PRESENTER,
-				ViewersModuleConstants.BECOME_VIEWER
+				ViewersModuleConstants.BECOME_VIEWER,
+				ViewersModuleConstants.VIEW_CAMERA
 			];
 		}
 		
@@ -95,6 +96,12 @@ package org.bigbluebutton.modules.viewers
 					trace('Sending BECOME_VIEWER to main');
 					_endpoint.sendMessage(EndpointMessageConstants.BECOME_VIEWER, 
 							EndpointMessageConstants.TO_MAIN_APP, notification.getBody());
+					break;
+				case ViewersModuleConstants.VIEW_CAMERA:
+					trace('Sending VIEW_CAMERA to VIDEO MODULE');
+					_endpoint.sendMessage(EndpointMessageConstants.VIEW_CAMERA, 
+							EndpointMessageConstants.TO_VIDEO_MODULE, 
+							{userid:_module.userid, streamName:notification.getBody()});
 					break;
 			}
 		}

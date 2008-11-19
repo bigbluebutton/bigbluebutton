@@ -100,6 +100,10 @@ package org.bigbluebutton.modules.video
 					//trace('Received OPEN_WINDOW message from ' + message.getHeader().SRC);
 					//facade.sendNotification(ChatModuleConstants.OPEN_WINDOW);
 					break;
+				case EndpointMessageConstants.VIEW_CAMERA:
+					trace('Received VIEW_CAMERA message from ' + message.getHeader().SRC);
+					//facade.sendNotification(ChatModuleConstants.OPEN_WINDOW);
+					break;
 			}
 		}
 		

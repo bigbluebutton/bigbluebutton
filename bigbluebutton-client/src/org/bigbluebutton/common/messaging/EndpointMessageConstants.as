@@ -46,5 +46,6 @@ package org.bigbluebutton.common.messaging
 
 		public static const STARTED_BROADCAST:String = 'STARTED_BROADCAST';
 		public static const STOPPED_BROADCAST:String = 'STOPPED_BROADCAST';
+		public static const VIEW_CAMERA:String = 'VIEW_CAMERA';
 	}
 }

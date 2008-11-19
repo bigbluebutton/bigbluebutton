@@ -50,7 +50,7 @@ package org.bigbluebutton.modules.viewers
 		
 		public static const MODULE_STARTED:String 				= 'MODULE_STARTED';
 		
-		public static const OPEN_VIEW_CAMERA:String 			= "Open View Camera";
+		public static const VIEW_CAMERA:String = 'VIEW_CAMERA';
 		
 		public static const ASSIGN_PRESENTER:String 			= "ASSIGN_PRESENTER";
 		public static const BECOME_VIEWER:String 				= "BECOME_VIEWER";
