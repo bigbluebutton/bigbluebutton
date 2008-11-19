@@ -86,6 +86,7 @@ package org.bigbluebutton.main
 					proxy.stopModule("ChatModule");
 					proxy.stopModule("PresentationModule");
 					proxy.stopModule("ListenersModule");
+					proxy.stopModule("VideoModule");
 					proxy.stopModule("ViewersModule");					
 					break;
 				case MainApplicationConstants.MODULE_STARTED:

@@ -33,7 +33,7 @@
 			}
 		
 			public function get uri():String {
-				return _attributes.uri + "/" + "85115"; // hardcode for now _attributes.room;
+				return _attributes.uri + "/" + _attributes.room;
 			}
 			
 			public function get username():String {

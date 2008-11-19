@@ -4,6 +4,7 @@ package org.bigbluebutton.modules.video.view
 	
 	import org.bigbluebutton.modules.video.VideoModuleConstants;
 	import org.bigbluebutton.modules.video.model.MediaProxy;
+	import org.bigbluebutton.modules.video.model.business.MediaType;
 	import org.bigbluebutton.modules.video.model.vo.BroadcastMedia;
 	import org.bigbluebutton.modules.video.view.components.MyCameraWindow;
 	import org.puremvc.as3.multicore.interfaces.INotification;
@@ -20,11 +21,6 @@ package org.bigbluebutton.modules.video.view
 			super(NAME, view);
 			view.addEventListener(MyCameraWindow.BROADCAST_STREAM, broadcastStream);
 			view.addEventListener(MyCameraWindow.STOP_BROADCAST_STREAM, stopBroadcastStream);
-			view.addEventListener(MyCameraWindow.START_DEVICES, startDevices);
-			view.addEventListener(MyCameraWindow.STOP_DEVICES, stopDevices);
-			view.addEventListener(MyCameraWindow.CLOSE, closeCameraWindow);
-			view.addEventListener(MyCameraWindow.CLOSE_CLICKED, closeClicked);
-			view.addEventListener(MyCameraWindow.OPEN_SETTINGS, openSettings);
 			streamName = "stream" + String( Math.floor( new Date().getTime() ) );
 		}
 		
@@ -63,7 +59,10 @@ package org.bigbluebutton.modules.video.view
 		}
 		
 		private function stopBroadcastStream(e:Event):void {
-			sendNotification(VideoModuleConstants.UNPUBLISH_STREAM_COMMAND, streamName);			
+			trace('StopBroadcastStreamEvent');
+			sendNotification(VideoModuleConstants.UNPUBLISH_STREAM_COMMAND, streamName);
+			sendNotification(VideoModuleConstants.STOP_CAMERA_COMMAND, streamName);	
+			sendNotification(VideoModuleConstants.REMOVE_STREAM_COMMAND, {media: MediaType.BROADCAST, stream:streamName});		
 		}
 		
 		private function stopDevices(e:Event):void

@@ -103,6 +103,14 @@ package org.bigbluebutton.modules.video.model.business
 			return playMedia.getMedia(streamName);
 		}
 		
+		public function removeMedia(type:MediaType, streamName:String):void {
+			if (type.name == MediaType.BROADCAST.name) {
+				broadcastMedia.removeMedia(streamName);
+			} else {
+				playMedia.removeMedia(streamName);
+			}
+		}
+		
 		public function stopAllMedia():void {
 			stopAllPlayMedia();
 			stopAllBroadcastMedia();

@@ -29,7 +29,7 @@ package org.bigbluebutton.modules.video
 		public static const CLOSE_CONNECTION_COMMAND : String = 		"PUBLISHER_CLOSE_CONNECTION_COMMAND";
 		public static const SETUP_CONNECTION_COMMAND : String = 		"PUBLISHER_SETUP_CONNECTION_COMMAND";	
 			
-		
+		public static const REMOVE_STREAM_COMMAND : String = 				"REMOVE_STREAM_COMMAND";
 		public static const STOP_STREAM_COMMAND : String = 				"PUBLISHER_STOP_STREAM_COMMAND";
 		public static const PLAY_STREAM_COMMAND : String = 				"PUBLISHER_PLAY_STREAM_COMMAND";
 		public static const PAUSE_STREAM_COMMAND : String = 			"PUBLISHER_PAUSE_STREAM_COMMAND";

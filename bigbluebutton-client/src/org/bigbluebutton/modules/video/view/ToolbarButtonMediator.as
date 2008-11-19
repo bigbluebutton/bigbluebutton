@@ -19,12 +19,12 @@ package org.bigbluebutton.modules.video.view
 		public function ToolbarButtonMediator()
 		{
 			super(NAME);
-			button = new ToolbarButton();
-			button.addEventListener(VideoModuleConstants.START_CAMERA_EVENT, onStartCameraEvent);
+			button = new ToolbarButton();			
+			button.addEventListener(VideoModuleConstants.START_CAMERA_EVENT, onStartCameraEvent);			
 		}
 		
 		private function onStartCameraEvent(e:Event):void {
-			button.enabled = false;
+			button.enabled = false;			
 			myCamWindow = new MyCameraWindow();
 			myCamWindow.width = 330;
 		   	myCamWindow.height = 270;
@@ -32,8 +32,14 @@ package org.bigbluebutton.modules.video.view
 		   	myCamWindow.showCloseButton = true;
 		   	myCamWindow.xPosition = 700;
 		   	myCamWindow.yPosition = 240;
+		   	myCamWindow.addEventListener(MyCameraWindow.WINDOW_CLOSE_EVENT, onMyCameraWindowClose);
 		   	facade.registerMediator(new MyCameraWindowMediator(myCamWindow));
 		   	facade.sendNotification(VideoModuleConstants.ADD_WINDOW, myCamWindow); 
+		}
+		
+		private function onMyCameraWindowClose(e:Event):void {
+			button.enabled = true;
+			facade.removeMediator(MyCameraWindowMediator.NAME);
 		}
 		
 		override public function listNotificationInterests():Array

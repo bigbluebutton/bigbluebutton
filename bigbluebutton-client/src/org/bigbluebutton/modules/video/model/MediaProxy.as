@@ -3,8 +3,6 @@ package org.bigbluebutton.modules.video.model
 	import flash.media.Camera;
 	import flash.media.Microphone;
 	
-	import mx.collections.ArrayCollection;
-	
 	import org.bigbluebutton.modules.video.model.business.MediaManager;
 	import org.bigbluebutton.modules.video.model.business.MediaType;
 	import org.bigbluebutton.modules.video.model.services.StreamFactory;
@@ -87,7 +85,9 @@ package org.bigbluebutton.modules.video.model
 			return _mediaManager.getPlayMedia(streamName);
 		}
 		
-
+		public function removeStream(type:MediaType, streamName:String):void {
+			_mediaManager.removeMedia(type, streamName);
+		}
 		
 		/**
 		 * Sends out a setup devices notification 
