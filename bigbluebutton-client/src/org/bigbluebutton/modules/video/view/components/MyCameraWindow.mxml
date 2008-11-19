@@ -40,7 +40,7 @@
             	trace('closing camera window');
                  dispatchEvent(new Event(STOP_BROADCAST_STREAM));
                  dispatchEvent(new Event(WINDOW_CLOSE_EVENT));
-                 super.close(event); 
+                 //super.close(event); 
             } 
             
 			public function startBroadcasting():void

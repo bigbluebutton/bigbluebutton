@@ -31,6 +31,7 @@ package org.bigbluebutton.modules.video
 	import org.bigbluebutton.modules.video.control.StartMicrophoneCommand;
 	import org.bigbluebutton.modules.video.control.StartupCommand;
 	import org.bigbluebutton.modules.video.control.StopCameraCommand;
+	import org.bigbluebutton.modules.video.control.StopCommand;
 	import org.bigbluebutton.modules.video.control.StopMicrophoneCommand;
 	import org.bigbluebutton.modules.video.control.StopStreamCommand;
 	import org.bigbluebutton.modules.video.control.UnpublishStreamCommand;
@@ -76,6 +77,7 @@ package org.bigbluebutton.modules.video
 		override protected function initializeController():void{
 			super.initializeController();
 			registerCommand(STARTUP, StartupCommand);
+			registerCommand(STOP, StopCommand);
 			registerCommand(VideoModuleConstants.PAUSE_STREAM_COMMAND, PauseStreamCommand);
 			registerCommand(VideoModuleConstants.PLAY_STREAM_COMMAND, PlayStreamCommand);
 			registerCommand(VideoModuleConstants.RESUME_STREAM_COMMAND, ResumeStreamCommand);

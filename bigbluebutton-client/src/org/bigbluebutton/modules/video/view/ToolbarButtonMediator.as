@@ -40,6 +40,7 @@ package org.bigbluebutton.modules.video.view
 		private function onMyCameraWindowClose(e:Event):void {
 			button.enabled = true;
 			facade.removeMediator(MyCameraWindowMediator.NAME);
+			facade.sendNotification(VideoModuleConstants.REMOVE_WINDOW, myCamWindow);
 		}
 		
 		override public function listNotificationInterests():Array

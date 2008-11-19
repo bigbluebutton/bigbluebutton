@@ -60,19 +60,14 @@ package org.bigbluebutton.modules.video
 		override public function handleNotification(notification:INotification):void{
 			switch(notification.getName()){
 				case VideoModuleConstants.CONNECTED:
-					trace(NAME + ":Got CONNECTED");
 					if (facade.hasProxy(MediaProxy.NAME)) {
 						var p:MediaProxy = facade.retrieveProxy(MediaProxy.NAME) as MediaProxy;
 						p.setup();					
-						trace(NAME + "Sending 	VideoModuleConstants.SETUP_COMPLETE");
 						facade.sendNotification(VideoModuleConstants.SETUP_COMPLETE);
 					}
 					break;
 				case VideoModuleConstants.DISCONNECTED:
-					if (facade.hasProxy(MediaProxy.NAME)) {
-						var mp:MediaProxy = facade.retrieveProxy(MediaProxy.NAME) as MediaProxy;
-						mp.stopAllStreams();
-					}
+					facade.sendNotification(VideoModuleConstants.STOP_ALL_STREAM);
 					break;
 			}
 		}		

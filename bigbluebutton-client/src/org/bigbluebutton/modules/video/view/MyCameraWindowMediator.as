@@ -26,18 +26,15 @@ package org.bigbluebutton.modules.video.view
 		
 		override public function listNotificationInterests():Array{
 			return [
-					VideoModuleConstants.CLOSE_ALL,
-					VideoModuleConstants.ENABLE_CAMERA
+					VideoModuleConstants.STOP_ALL_STREAM
 					];
 		}
 		
 		override public function handleNotification(notification:INotification):void{
 			switch(notification.getName()){
-				case VideoModuleConstants.CLOSE_ALL:
+				case VideoModuleConstants.STOP_ALL_STREAM:
+					stopStream();
 					cameraWindow.close();
-					break;
-				case VideoModuleConstants.ENABLE_CAMERA:
-					//startOrStopDevices(new Event(VideoModuleConstants.ENABLE_CAMERA));
 					break;
 			}
 		}
@@ -60,39 +57,13 @@ package org.bigbluebutton.modules.video.view
 		
 		private function stopBroadcastStream(e:Event):void {
 			trace('StopBroadcastStreamEvent');
+			stopStream();
+		}
+		
+		private function stopStream():void {
 			sendNotification(VideoModuleConstants.UNPUBLISH_STREAM_COMMAND, streamName);
 			sendNotification(VideoModuleConstants.STOP_CAMERA_COMMAND, streamName);	
-			sendNotification(VideoModuleConstants.REMOVE_STREAM_COMMAND, {media: MediaType.BROADCAST, stream:streamName});		
+			sendNotification(VideoModuleConstants.REMOVE_STREAM_COMMAND, {media: MediaType.BROADCAST, stream:streamName});			
 		}
-		
-		private function stopDevices(e:Event):void
-		{
-			//sendNotification(VideoModuleConstants.STOP_MICROPHONE_COMMAND, streamName);
-			sendNotification(VideoModuleConstants.STOP_CAMERA_COMMAND, streamName);
-		}  	
-		
-		private function startDevices(e:Event):void
-		{
-			sendNotification(VideoModuleConstants.START_CAMERA_COMMAND, streamName);
-			//sendNotification(VideoModuleConstants.START_MICROPHONE_COMMAND, streamName);
-		}
-		
-		private function closeCameraWindow(e:Event):void{
-			sendNotification(VideoModuleConstants.CLOSE_RECORDING);
-		}
-		
-		private function closeClicked(e:Event):void{
-			//sendNotification(VideoModuleConstants.STOP_MICROPHONE_COMMAND, streamName);
-			sendNotification(VideoModuleConstants.STOP_CAMERA_COMMAND, streamName);
-			
-			if (cameraWindow.media.broadcasting) {
-				sendNotification(VideoModuleConstants.UNPUBLISH_STREAM_COMMAND, streamName);
-			}				
-		}
-		
-		private function openSettings(e:Event):void{
-//			facade.registerMediator(new SettingsWindowMediator(cameraWindow.settingsWindow));
-		}
-
 	}
 }
