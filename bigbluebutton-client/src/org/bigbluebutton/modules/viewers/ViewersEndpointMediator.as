@@ -114,6 +114,17 @@ package org.bigbluebutton.modules.viewers
 					trace('Received OPEN_WINDOW message from ' + message.getHeader().SRC);
 					//facade.sendNotification(ChatModuleConstants.OPEN_WINDOW);
 					break;
+				case EndpointMessageConstants.STARTED_BROADCAST:
+					trace('Received STARTED_BROADCAST message from ' + message.getHeader().SRC);
+					trace('Sending add stream ' + message.getBody().streamName);
+					proxy.addStream(message.getBody().userid, message.getBody().streamName);
+					break;
+				case EndpointMessageConstants.STOPPED_BROADCAST:
+					trace('Received STOPPED_BROADCAST message from ' + message.getHeader().SRC);
+					trace('Sending remove stream ' + message.getBody().streamName);
+					proxy.removeStream(message.getBody().userid, message.getBody().streamName);
+					break;
+				
 			}
 		}
 		

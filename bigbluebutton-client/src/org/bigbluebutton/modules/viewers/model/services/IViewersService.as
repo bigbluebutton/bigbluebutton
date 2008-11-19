@@ -11,7 +11,8 @@ package org.bigbluebutton.modules.viewers.model.services
 		function newStatus(userid:Number, newStatus:Status):void;
 		function changeStatus(userid:Number, newStatus:Status):void;
 		function removeStatus(userid:Number, statusName:String):void;
-//		function sendBroadcastStream(userid:Number, hasStream:Boolean, streamName:String):void;
+		function addStream(userid:Number, streamName:String):void;
+		function removeStream(userid:Number, streamName:String):void;
 		function addMessageSender(msgSender:Function):void;
 		function assignPresenter(userid:Number, assignedBy:Number):void; 
 		function queryPresenter():void;	

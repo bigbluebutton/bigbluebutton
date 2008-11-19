@@ -27,27 +27,7 @@
   			}
 
    			private function onChangeStatusEvent(e:ChangeStatusEvent):void {
-   				trace('changing status icon');
-/*   				var status:ArrayCollection = e.status as ArrayCollection;
-   				trace("Number of statuses= " + status.length);
-   				
-   				for (var i:int=0; i<status.length; i++) {
-   					var s:Status = status.getItemAt(i) as Status;
-   					if (s != null) {
-   						trace('s not NULL in index ' + i);
-	   					switch (s.name) {
-	   						case "presenter":
-	   							presIcon.source = presenterIcon;
-	   							presIcon.toolTip = "Presenter";
-	   							presIcon.visible = true;
-	   						break;
-	   					}   						
-   					} else {
-   						trace('s is NULL in index ' + i);
-   					}
-
-   				}
-*/   				
+   				trace('changing status icon');  				
    				updateStatus();
    			}
    			
@@ -59,11 +39,18 @@
   				} else {
  					presIcon.visible = false;
   				}
+  				
+  				if (data.hasStream) {
+  					streamIcon.source = webcamIcon;
+  					streamIcon.toolTip = "Stream " + data.streamName;
+  					streamIcon.visible = true;
+  				} else {
+ 					streamIcon.visible = false;
+  				}
    			}
 		]]>
 	</mx:Script>
 
-	<mx:Image id="streamImage" source="{webcamIcon}"  visible="false"
-		toolTip="Double-click to view" doubleClick="viewCamera()"/>	
+	<mx:Image id="streamIcon" visible="false" doubleClick="viewCamera()"/>	
 	<mx:Image id="presIcon" visible="false"/>
 </mx:HBox>

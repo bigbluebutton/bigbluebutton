@@ -42,6 +42,10 @@
 				return _attributes.username;
 			}
 			
+			public function get userid():Number {
+				return _attributes.userid as Number;
+			}
+			
 			public function isModerator():Boolean {
 				return _attributes.userrole == "MODERATOR";
 			}

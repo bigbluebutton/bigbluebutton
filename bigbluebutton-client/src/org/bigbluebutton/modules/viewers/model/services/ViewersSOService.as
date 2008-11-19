@@ -178,35 +178,36 @@ package org.bigbluebutton.modules.viewers.model.services
 //			}			
 		}
 
-/*
-		public function sendBroadcastStream(userid:Number, hasStream:Boolean, streamName:String):void {
-//			var id : Number = _participants.me.userid;
 
-			var aUser : User = _participants.getParticipant(userid);			
-			
+
+		public function addStream(userid:Number, streamName:String):void {
+			var aUser : User = _participants.getParticipant(userid);						
 			if (aUser != null) {
 				// This sets the users stream
-				aUser.hasStream = hasStream;
+				aUser.hasStream = true;
 				aUser.streamName = streamName;
 				_participantsSO.setProperty(userid.toString(), aUser);
 				_participantsSO.setDirty(userid.toString());
 				
-				trace( "Conference::sendBroadcastStream::found =[" + userid + "," 
+				trace( "Conference::addStream::found =[" + userid + "," 
 						+ aUser.hasStream + "," + aUser.streamName + "]");				
 			}
 		}
-	
-		public function broadcastStream(userid:Number, hasStream:Boolean, streamName:String) : void
-		{
-			var aUser : User = _participants.getParticipant(userid);			
+		
+		public function removeStream(userid:Number, streamName:String):void {
+			var aUser : User = _participants.getParticipant(userid);						
 			if (aUser != null) {
-				aUser.hasStream = hasStream;
-				aUser.streamName = streamName;
-			}		
+				// This sets the users stream
+				aUser.hasStream = false;
+				aUser.streamName = "";
+				_participantsSO.setProperty(userid.toString(), aUser);
+				_participantsSO.setDirty(userid.toString());
+				
+				trace( "Conference::removeStream::found =[" + userid + "," 
+						+ aUser.hasStream + "," + aUser.streamName + "]");				
+			}
 		}
-*/
-
-
+		
 		/**
 		 * Called when a sync_event is received for the SharedObject 
 		 * @param event

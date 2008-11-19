@@ -53,6 +53,7 @@ package org.bigbluebutton.modules.video.view
 			var p:MediaProxy = facade.retrieveProxy(MediaProxy.NAME) as MediaProxy;
 			var m:BroadcastMedia = p.getBroadcastMedia(streamName) as BroadcastMedia;
 			cameraWindow.localVideo.video = m.video.localVideo; 
+			sendNotification(VideoModuleConstants.STARTED_BROADCAST, streamName);
 		}
 		
 		private function stopBroadcastStream(e:Event):void {
@@ -64,6 +65,7 @@ package org.bigbluebutton.modules.video.view
 			sendNotification(VideoModuleConstants.UNPUBLISH_STREAM_COMMAND, streamName);
 			sendNotification(VideoModuleConstants.STOP_CAMERA_COMMAND, streamName);	
 			sendNotification(VideoModuleConstants.REMOVE_STREAM_COMMAND, {media: MediaType.BROADCAST, stream:streamName});			
+			sendNotification(VideoModuleConstants.STOPPED_BROADCAST, streamName);
 		}
 	}
 }

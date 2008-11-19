@@ -66,6 +66,14 @@ package org.bigbluebutton.modules.viewers.model
 			_viewersService.assignPresenter(assignTo, me.userid);
 		}
 		
+		public function addStream(userid:Number, streamName:String):void {
+			_viewersService.addStream(userid, streamName);
+		}
+		
+		public function removeStream(userid:Number, streamName:String):void {
+			_viewersService.removeStream(userid, streamName);
+		}
+		
 		public function queryPresenter():void {
 			_viewersService.queryPresenter();
 		}

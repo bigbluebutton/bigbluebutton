@@ -40,6 +40,10 @@
 				return _attributes.username;
 			}
 			
+			public function get userid():Number {
+				return _attributes.userid as Number;
+			}
+			
 			public function get host():String {
 				return _attributes.host;
 			}

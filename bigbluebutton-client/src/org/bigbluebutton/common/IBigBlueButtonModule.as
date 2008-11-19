@@ -28,6 +28,7 @@ package org.bigbluebutton.common
 		function get moduleId():String;			
 		function get moduleName():String;	
 		function get username():String;
+		function get userid():Number;
 		function get uri():String;	
 		function start(attributes:Object):void;
 		function stop():void;

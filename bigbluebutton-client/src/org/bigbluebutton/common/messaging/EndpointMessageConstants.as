@@ -43,5 +43,8 @@ package org.bigbluebutton.common.messaging
 		public static const MODE_SET:String = "MODE_SET";
 		public static const ASSIGN_PRESENTER:String = "ASSIGN_PRESENTER";
 		public static const BECOME_VIEWER:String = "BECOME_VIEWER";
+
+		public static const STARTED_BROADCAST:String = 'STARTED_BROADCAST';
+		public static const STOPPED_BROADCAST:String = 'STOPPED_BROADCAST';
 	}
 }

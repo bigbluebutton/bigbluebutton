@@ -4,7 +4,6 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.viewers.view.events.ChangeRoleEvent;
 			import org.bigbluebutton.modules.viewers.ViewersModuleConstants;
 			import org.bigbluebutton.modules.viewers.view.components.Images;
 			import org.bigbluebutton.common.Role;
