@@ -4,8 +4,10 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.viewers.model.vo.Status;
+			import mx.collections.ArrayCollection;
+			import org.bigbluebutton.modules.viewers.view.events.ChangeStatusEvent;
 			import org.bigbluebutton.modules.viewers.ViewersModuleConstants;
-			import org.bigbluebutton.modules.viewers.view.events.ChangeRoleEvent;
 			import org.bigbluebutton.modules.viewers.view.components.Images;
 
 			private var images:Images = new Images();		
@@ -19,31 +21,49 @@
    			[Bindable] private var presenterIcon:Object = images.presenter;
    			
    			private function registerForEvents():void {
-   				trace('registering for becoming events');
-   				parentDocument.addEventListener(ChangeRoleEvent.CHANGE_PRESENTER_EVENT, onChangeRoleEvent);
-   				queryPresenter();
+   				trace('registering for change status events');
+   				parentDocument.addEventListener(ChangeStatusEvent.CHANGE_STATUS_EVENT, onChangeStatusEvent);
+   				updateStatus();
   			}
 
-			private function queryPresenter():void {
-				trace('query presenter');
-				parentDocument.dispatchEvent(new Event(ViewersModuleConstants.QUERY_PRESENTER_EVENT));
-			}	
-			
+   			private function onChangeStatusEvent(e:ChangeStatusEvent):void {
+   				trace('changing status icon');
+/*   				var status:ArrayCollection = e.status as ArrayCollection;
+   				trace("Number of statuses= " + status.length);
+   				
+   				for (var i:int=0; i<status.length; i++) {
+   					var s:Status = status.getItemAt(i) as Status;
+   					if (s != null) {
+   						trace('s not NULL in index ' + i);
+	   					switch (s.name) {
+	   						case "presenter":
+	   							presIcon.source = presenterIcon;
+	   							presIcon.toolTip = "Presenter";
+	   							presIcon.visible = true;
+	   						break;
+	   					}   						
+   					} else {
+   						trace('s is NULL in index ' + i);
+   					}
 
-   			private function onChangeRoleEvent(e:ChangeRoleEvent):void {
-   				trace('changing to viewer icon');
-   				if (data.userid == e.assignTo) {
-   					presIcon.source = presenterIcon;
-   					presIcon.toolTip = "Presenter";
-   					presIcon.visible = true;
-   				} else {
-   					presIcon.visible = false;
    				}
+*/   				
+   				updateStatus();
+   			}
+   			
+   			private function updateStatus():void {
+   				if (data.presenter) {
+   					presIcon.source = presenterIcon;
+  					presIcon.toolTip = "Presenter";
+  					presIcon.visible = true;
+  				} else {
+ 					presIcon.visible = false;
+  				}
    			}
 		]]>
 	</mx:Script>
 
-	<mx:Image id="streamImage" source="{webcamIcon}"  visible="{data.hasStream}"
+	<mx:Image id="streamImage" source="{webcamIcon}"  visible="false"
 		toolTip="Double-click to view" doubleClick="viewCamera()"/>	
 	<mx:Image id="presIcon" visible="false"/>
 </mx:HBox>

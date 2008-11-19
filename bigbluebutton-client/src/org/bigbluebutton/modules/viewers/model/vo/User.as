@@ -19,31 +19,45 @@
 */
 package org.bigbluebutton.modules.viewers.model.vo
 {
-	import org.bigbluebutton.common.Role;
+	import mx.collections.ArrayCollection;
 	
-	/**
-	 * The User class holds the properties of the client user
-	 * @author
-	 * 
-	 */	
-	[Bindable]
+	import org.bigbluebutton.common.Role;
+		
 	public class User
 	{
-		public var userid : Number;
-		public var name : String;
-		public var status : String = "lowerhand";
-		public var role : String = Role.VIEWER;	
-		public var room:String = "";
-		public var authToken:String = "";
+		[Bindable] public var userid:Number;
+		[Bindable] public var name:String;
+		[Bindable] public var hasStream:Boolean = false;
+		[Bindable] public var streamName:String = "";
+		[Bindable] public var presenter:Boolean = false;
+		[Bindable] public var role:String = Role.VIEWER;	
+		[Bindable] public var room:String = "";
+		[Bindable] public var authToken:String = "";
 		
-		/**
-		 * If the user is broadcasting a stream (video and/or audio)
-		 */ 	
-		public var hasStream : Boolean = false;
+		private var _status:StatusCollection = new StatusCollection();
+				
+		public function get status():ArrayCollection {
+			return _status.getAll();
+		}
 		
-		/**
-		 * The name of the stream the user id broadcasting
-		 */
-		public var streamName : String = null;
+		public function set status(s:ArrayCollection):void {
+			_status.status = s;
+		}	
+			
+		public function addStatus(status:Status):void {
+			_status.addStatus(status);
+		}
+		
+		public function changeStatus(status:Status):void {
+			_status.changeStatus(status);
+		}
+		
+		public function removeStatus(name:String):void {
+			_status.removeStatus(name);
+		}
+		
+		public function getStatus(name:String):Status {
+			return _status.getStatus(name);
+		}
 	}
 }

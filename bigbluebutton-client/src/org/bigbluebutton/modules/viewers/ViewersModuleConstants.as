@@ -61,6 +61,7 @@ package org.bigbluebutton.modules.viewers
 		public static const QUERY_PRESENTER_EVENT:String 		= "QUERY_PRESENTER_EVENT";
 		public static const QUERY_PRESENTER_REPLY:String 		= "QUERY_PRESENTER_REPLY";
 		
+		public static const CHANGE_STATUS:String 				= "CHANGE_STATUS";
 		public static const CONNECT_SUCCESS:String 				= "CONNECT_SUCCESS";
 		public static const CONNECT_FAILED:String 				= "CONNECT_FAILED";
 		public static const CONNECT_CLOSED:String 				= "CONNECT_CLOSED";

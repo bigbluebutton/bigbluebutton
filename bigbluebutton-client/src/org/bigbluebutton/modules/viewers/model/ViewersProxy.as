@@ -7,6 +7,7 @@ package org.bigbluebutton.modules.viewers.model
 	import org.bigbluebutton.modules.viewers.model.business.IViewers;
 	import org.bigbluebutton.modules.viewers.model.services.IViewersService;
 	import org.bigbluebutton.modules.viewers.model.services.ViewersSOService;
+	import org.bigbluebutton.modules.viewers.model.vo.Status;
 	import org.bigbluebutton.modules.viewers.model.vo.User;
 	import org.puremvc.as3.multicore.interfaces.IProxy;
 	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
@@ -85,14 +86,17 @@ package org.bigbluebutton.modules.viewers.model
 					// I've been assigned as presenter.
 					trace('I have become presenter');
 					isPresenter = true;
+					var newStatus:Status = new Status("presenter", body.assignedBy);
+					_viewersService.iAmPresenter(me.userid, true);
 					sendNotification(msg, body);
 				} else {
 					// Somebody else has become presenter.
-					//if (isPresenter) {
+					if (isPresenter) {
 						trace('Somebody else has become presenter.');
-						isPresenter = false;
-						sendNotification(ViewersModuleConstants.BECOME_VIEWER, body);
-					//}
+						_viewersService.iAmPresenter(me.userid, false);
+					}
+					isPresenter = false;
+					sendNotification(ViewersModuleConstants.BECOME_VIEWER, body);					
 				}
 			} else {
 				sendNotification(msg, body);

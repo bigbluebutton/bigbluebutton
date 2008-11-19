@@ -21,6 +21,8 @@ package org.bigbluebutton.modules.viewers.view
 {
 	import flash.events.Event;
 	
+	import mx.collections.ArrayCollection;
+	
 	import org.bigbluebutton.modules.viewers.ViewersModuleConstants;
 	import org.bigbluebutton.modules.viewers.model.ViewersProxy;
 	import org.bigbluebutton.modules.viewers.view.components.ViewersWindow;
@@ -85,7 +87,7 @@ package org.bigbluebutton.modules.viewers.view
 					ViewersModuleConstants.CLOSE_VIEWERS_WINDOW,
 					ViewersModuleConstants.BECOME_VIEWER,
 					ViewersModuleConstants.ASSIGN_PRESENTER,
-					ViewersModuleConstants.QUERY_PRESENTER_REPLY
+					ViewersModuleConstants.CHANGE_STATUS
 					];
 		}
 		
@@ -105,15 +107,15 @@ package org.bigbluebutton.modules.viewers.view
 					break;
 				case ViewersModuleConstants.BECOME_VIEWER:
 					trace('Sending BECOME_VIEWER_EVENT');
-					_viewersWindow.becomeViewer(notification.getBody());
+//					_viewersWindow.becomeViewer(notification.getBody());
 					break;
-				case ViewersModuleConstants.QUERY_PRESENTER_REPLY:
-					trace('Sending QUERY_PRESENTER_REPLY');
-					_viewersWindow.becomeViewer(notification.getBody());
+				case ViewersModuleConstants.CHANGE_STATUS:
+					trace('Handling CHANGE_STATUS');
+					_viewersWindow.changeStatus(notification.getBody() as ArrayCollection);
 					break;
 				case ViewersModuleConstants.ASSIGN_PRESENTER:
 					trace('Sending ASSIGN_PRESENTER_EVENT');
-					_viewersWindow.becomePresenter(notification.getBody());
+//					_viewersWindow.becomePresenter(notification.getBody());
 					break;
 			}
 		}

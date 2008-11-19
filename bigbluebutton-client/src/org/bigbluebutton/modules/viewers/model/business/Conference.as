@@ -21,6 +21,7 @@ package org.bigbluebutton.modules.viewers.model.business
 {
 	import mx.collections.ArrayCollection;
 	
+	import org.bigbluebutton.modules.viewers.model.vo.Status;
 	import org.bigbluebutton.modules.viewers.model.vo.User;
 	
 
@@ -142,12 +143,17 @@ package org.bigbluebutton.modules.viewers.model.business
 		 * @param newStatus
 		 * 
 		 */		
-		public function newUserStatus(id : Number, newStatus : String) : void
+		public function newUserStatus(id:Number, newStatus:Status):void
 		{
-			var aUser : User = getParticipant(id);
+			var aUser:User = getParticipant(id);
 			
 			if (aUser != null) {
-				aUser.status = newStatus;
+				var s:Status = aUser.getStatus(newStatus.name);
+				if (s != null) {
+					aUser.changeStatus(newStatus);
+				} else {
+					aUser.addStatus(newStatus);
+				}
 			}	
 			
 			sort();		

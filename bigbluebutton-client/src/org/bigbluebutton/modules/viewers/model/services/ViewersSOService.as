@@ -5,8 +5,11 @@ package org.bigbluebutton.modules.viewers.model.services
 	import flash.events.SyncEvent;
 	import flash.net.SharedObject;
 	
+	import mx.collections.ArrayCollection;
+	
 	import org.bigbluebutton.modules.viewers.ViewersModuleConstants;
 	import org.bigbluebutton.modules.viewers.model.business.IViewers;
+	import org.bigbluebutton.modules.viewers.model.vo.Status;
 	import org.bigbluebutton.modules.viewers.model.vo.User;
 
 	public class ViewersSOService implements IViewersService
@@ -15,7 +18,7 @@ package org.bigbluebutton.modules.viewers.model.services
 		
 		private var _participantsSO : SharedObject;
 		private static const SO_NAME : String = "participantsSO";
-		private static const PRESENTER:String = "PRESENTER";
+		private static const STATUS:String = "_STATUS";
 		
 		private var netConnectionDelegate: NetConnectionDelegate;
 		
@@ -92,27 +95,73 @@ package org.bigbluebutton.modules.viewers.model.services
 			_connectionStatusListener = connectionListener;
 		}
 		
-		/**
-		 * Updates the user status in the conference object, and sends the update to the server shared object 
-		 * @param newStatus
-		 * 
-		 */		
-		public function sendNewStatus(userid:Number, newStatus:String):void {
-//			_participants.me.status = newStatus;
-//			var id : Number = _participants.me.userid;			
-	
+
+		public function newStatus(userid:Number, status:Status):void {
 			var aUser:User = _participants.getParticipant(userid);			
 			if (aUser != null) {
-				// This sets this user's status
-				aUser.status = newStatus;
+				aUser.addStatus(status);
+				trace('setting newStatus ' + status.name);
+				_participantsSO.setProperty(userid.toString() + STATUS, aUser.status.source);
+				_participantsSO.setDirty(userid.toString() + STATUS);
+				//_participantsSO.send("addStatusCallback", userid, status);
+			}
+		}
+
+		private function addStatusCallback(userid:Number, status:Status):void {
+			var aUser:User = _participants.getParticipant(userid);			
+			if (aUser != null) {
+				aUser.addStatus(status);				
+			}
+		}
+		
+		public function changeStatus(userid:Number, status:Status):void {
+			var aUser:User = _participants.getParticipant(userid);			
+			if (aUser != null) {
+				trace('setting changeStatus ' + status.name);
+				aUser.changeStatus(status);
+				_participantsSO.setProperty(userid.toString() + STATUS, aUser.status.source);
+				_participantsSO.setDirty(userid.toString() + STATUS);
+				//_participantsSO.send("changeStatusCallback", userid, status);
+			}
+		}
+		
+		public function changeStatusCallback(userid:Number, status:Status):void {
+			var aUser:User = _participants.getParticipant(userid);			
+			if (aUser != null) {
+				aUser.changeStatus(status);
+			}
+		}
+
+		public function removeStatus(userid:Number, statusName:String):void {
+			var aUser:User = _participants.getParticipant(userid);			
+			if (aUser != null) {
+				trace('setting removeStatus ' + statusName);
+				aUser.removeStatus(statusName);
+				_participantsSO.setProperty(userid.toString() + STATUS, aUser.status.source);
+				_participantsSO.setDirty(userid.toString() + STATUS);
+				//_participantsSO.send("removeStatusCallback", userid, statusName);
+			}
+		}
+
+		public function removeStatusCallback(userid:Number, statusName:String):void {
+			var aUser:User = _participants.getParticipant(userid);			
+			if (aUser != null) {
+				aUser.removeStatus(statusName);
+			}
+		}
+		
+		public function iAmPresenter(userid:Number, presenter:Boolean):void {
+			var aUser:User = _participants.getParticipant(userid);			
+			if (aUser != null) {
+				trace('assigning presenter to ' + userid);
+				aUser.presenter = presenter;
 				_participantsSO.setProperty(userid.toString(), aUser);
 				_participantsSO.setDirty(userid.toString());
 			}
 		}
-
+						
 		public function assignPresenter(userid:Number, assignedBy:Number):void {
-			_participantsSO.setProperty(PRESENTER, {assignedTo:userid, assignedBy:assignedBy});
-			_participantsSO.setDirty(PRESENTER);
+			
 			_participantsSO.send("assignPresenterCallback", userid, assignedBy);
 		}
 		
@@ -121,20 +170,15 @@ package org.bigbluebutton.modules.viewers.model.services
 		}
 		
 		public function queryPresenter():void {
-			var p:Object = _participantsSO.data[PRESENTER];
-			trace('Got query presenter');
-			if (p != null) {
-				trace('responding to query presenter');
-				sendMessage(ViewersModuleConstants.QUERY_PRESENTER_REPLY, {assignedTo:p.assignedTo, assignedBy:p.assignedBy});
-			}			
+//			var p:Object = _participantsSO.data[PRESENTER];
+//			trace('Got query presenter');
+//			if (p != null) {
+//				trace('responding to query presenter');
+//				sendMessage(ViewersModuleConstants.QUERY_PRESENTER_REPLY, {assignedTo:p.assignedTo, assignedBy:p.assignedBy});
+//			}			
 		}
 
-		/**
-		 * Sends the broadcast stream to the server 
-		 * @param hasStream
-		 * @param streamName
-		 * 
-		 */		
+/*
 		public function sendBroadcastStream(userid:Number, hasStream:Boolean, streamName:String):void {
 //			var id : Number = _participants.me.userid;
 
@@ -160,7 +204,7 @@ package org.bigbluebutton.modules.viewers.model.services
 				aUser.streamName = streamName;
 			}		
 		}
-
+*/
 
 
 		/**
@@ -174,7 +218,7 @@ package org.bigbluebutton.modules.viewers.model.services
 			
 			for (var i : uint = 0; i < event.changeList.length; i++) 
 			{
-				trace( "Conference::handlingChanges[" + event.changeList[i].name + "][" + i + "]");
+				trace( "Conference::handlingChanges[" + event.changeList[i].name + "][" + i + "][" + event.changeList[i].code + "]");
 				handleChangesToSharedObject(event.changeList[i].code, 
 						event.changeList[i].name, event.changeList[i].oldValue);
 			}
@@ -183,7 +227,7 @@ package org.bigbluebutton.modules.viewers.model.services
 		/**
 		 * See flash.events.SyncEvent
 		 */
-		private function handleChangesToSharedObject(code : String, name : String, oldValue : Object) : void
+		private function handleChangesToSharedObject(code:String, name:String, oldValue:Object) : void
 		{
 			switch (code)
 			{
@@ -208,11 +252,9 @@ package org.bigbluebutton.modules.viewers.model.services
 					 * 	 A value of "success" means the client changed the shared object. 		
 					 */
 					
-					// do nothing... just log it 
-					trace( "Conference::success =[" + name + "," 
-							+ _participantsSO.data[name].status + ","
-							+ _participantsSO.data[name].hasStream
-							+ "]");	
+					// do nothing... just log it ;	
+					trace( "Conference::success =[" + code + "," + name + "," + oldValue + "]");
+					sendMessage(ViewersModuleConstants.CHANGE_STATUS);
 					break;
 
 				case "reject":
@@ -233,37 +275,37 @@ package org.bigbluebutton.modules.viewers.model.services
 					 *  resynchronized the object.  		
 					 */
 					 
-					if ((name != null) && (name != PRESENTER)) {						
-						if (_participants.hasParticipant(_participantsSO.data[name].userid)) {
-							var changedUser : User = _participants.getParticipant(Number(name));
-							changedUser.status = _participantsSO.data[name].status;
-							changedUser.hasStream = _participantsSO.data[name].hasStream;
-							changedUser.streamName = _participantsSO.data[name].streamName;	
-
-							trace( "Conference::change =[" + 
-								name + "," + changedUser.name + "," + changedUser.hasStream + "]");
-																					
+					if (name != null) {					
+						trace('seraching status ' + name.search(STATUS));	
+						var statusIndex:int = name.search(STATUS);
+						if (statusIndex > -1) {
+							var uid:String = name.slice(0,statusIndex);
+							if (_participants.hasParticipant(Number(uid))) {
+								var changedUser:User = _participants.getParticipant(Number(uid));
+								changedUser.status = new ArrayCollection(_participantsSO.data[name] as Array);
+								trace( "Conference::change =[" + name + "][" + changedUser.status.length + "]");
+								//sendMessage(ViewersModuleConstants.CHANGE_STATUS, changedUser.status);
+							} else {
+								trace('User id NULL');
+							}														
 						} else {
-							// The server sent us a new user.
-							var user : User = new User();
-							user.userid = _participantsSO.data[name].userid;
-							user.name = _participantsSO.data[name].name;
-							user.status = _participantsSO.data[name].status;
-							user.hasStream = _participantsSO.data[name].hasStream;
-							user.streamName = _participantsSO.data[name].streamName;							
-							user.role = _participantsSO.data[name].role;						
-							
-							trace( "Conference::change::newuser =[" + 
-								name + "," + user.name + "," + user.hasStream + "]");
-							
-							_participants.addUser(user);
-						}
-						
-					} else {
-						var p:Object = _participantsSO.data[PRESENTER];
-						if (p != null)
-							assignPresenterCallback(p.assignedTo, p.assignedBy);
-					}
+							if (_participants.hasParticipant(_participantsSO.data[name].userid)) {
+									trace('Changed user[' + _participantsSO.data[name].userid + "]");	
+								var cUser:User = _participants.getParticipant(Number(name));
+								cUser.presenter = _participantsSO.data[name].presenter;
+								cUser.hasStream = _participantsSO.data[name].hasStream;
+								cUser.streamName = _participantsSO.data[name].streamName;	
+								sendMessage(ViewersModuleConstants.CHANGE_STATUS);												
+							} else {
+								// The server sent us a new user.
+								var user:User = new User();
+								user.userid = _participantsSO.data[name].userid;
+								user.name = _participantsSO.data[name].name;							
+								user.role = _participantsSO.data[name].role;						
+								_participants.addUser(user);
+							}	
+						}					
+					} 
 																	
 					break;
 
