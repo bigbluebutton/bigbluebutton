@@ -73,8 +73,8 @@ package org.bigbluebutton.modules.video
 					facade.sendNotification(VideoModuleConstants.PLAY_STREAM, notification.getBody());
 					break;
 				case VideoModuleConstants.STOP_VIEW_CAMERA:
-					var stream:String = notification.getBody().streamName;
-					facade.sendNotification(VideoModuleConstants.STOP_STREAM, notification.getBody());
+					var stream:String = notification.getBody() as String;
+					//facade.sendNotification(VideoModuleConstants.STOP_STREAM, notification.getBody());
 					facade.removeMediator(ViewCameraWindowMediator.NAME + stream);
 					break;
 			}

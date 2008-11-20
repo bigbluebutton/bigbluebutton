@@ -4,6 +4,7 @@ package org.bigbluebutton.modules.video.view
 	
 	import org.bigbluebutton.modules.video.VideoModuleConstants;
 	import org.bigbluebutton.modules.video.model.MediaProxy;
+	import org.bigbluebutton.modules.video.model.business.MediaType;
 	import org.bigbluebutton.modules.video.model.vo.PlayMedia;
 	import org.bigbluebutton.modules.video.view.components.ViewCameraWindow;
 	import org.bigbluebutton.modules.video.view.events.CloseViewCameraWindowEvent;
@@ -36,7 +37,10 @@ package org.bigbluebutton.modules.video.view
 		}
 		
 		private function onStopPlayStreamEvent(e:StopPlayStreamEvent):void {
+			if (e.streamName != _stream) return;
 			
+			proxy.stopStream(e.streamName);
+			proxy.removeStream(MediaType.PLAY, e.streamName);
 		}
 		
 		override public function listNotificationInterests():Array{ 
@@ -74,21 +78,8 @@ package org.bigbluebutton.modules.video.view
 		}
 		
 		private function onCloseViewCameraWindowEvent(e:CloseViewCameraWindowEvent):void{
-/*		
-		if ( videoWindow.media.playState == PlaybackState.PLAYING ) 
-			{
-				//mainApp.publisherApp.pauseStream(media.streamName);		
-				sendNotification(VideoModuleConstants.PAUSE_STREAM_COMMAND, videoWindow.media.streamName);	
-			} 
-			else if ( videoWindow.media.playState == PlaybackState.STOPPED )
-			{
-				sendNotification(VideoModuleConstants.PLAY_STREAM_COMMAND, new PlayStreamNotifier(videoWindow.media.streamName,true, false));
-			} 
-			else if ( videoWindow.media.playState == PlaybackState.PAUSED )
-			{
-				sendNotification(VideoModuleConstants.RESUME_STREAM_COMMAND, videoWindow.media.streamName);
-			}
-*/
+			facade.sendNotification(VideoModuleConstants.REMOVE_WINDOW, _viewCamWindow);
+			facade.sendNotification(VideoModuleConstants.STOP_VIEW_CAMERA, _stream);
 		}
 		
 		private function stopStream(e:Event):void{
