@@ -3,7 +3,7 @@
 					  xmlns:cam="flexlib.mdi.containers.*"
 					  xmlns:util="org.bigbluebutton.modules.video.view.components.*"
 					  implements="org.bigbluebutton.common.IBbbModuleWindow"
-					  creationComplete="startPlaying()" height="330" width="330" resizable="false">
+					  height="330" width="330" resizable="false">
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.modules.video.view.events.StartPlayStreamEvent;
@@ -65,19 +65,9 @@
 			}			
 		]]>
 	</mx:Script>
-	<mx:VBox label="Video" id="videoPart" width="100%">
-		<mx:Canvas width="{ media.defaultVideoSettings.width }" height="{ media.defaultVideoSettings.height }"
+		<mx:Canvas width="320" height="240"
 				backgroundColor="0xFFFFFF" borderStyle="solid" borderColor="0xD0D0D0"
 				backgroundImage="{ red5Icon }" paddingBottom="0" cornerRadius="2">
 			<util:VideoContainer video="{ media.remoteVideo }" height="100%" width="100%"/>
 		</mx:Canvas>	
-
-		<!--mx:ControlBar width="100%">	
-			<mx:Spacer width="100%"/>
-			<mx:Button id="stopButton" icon="{stopIcon}" 
-				click="dispatchEvent(new Event(ViewCameraWindowMediator.STOP_STREAM))" toolTip="Stop"/>
-			<mx:Button id="playButton" click="dispatchEvent(new Event(ViewCameraWindowMediator.VIEW_STREAM))" 
-					icon="{media.playState == PlaybackState.PLAYING ? pauseIcon : playIcon}"/>
-		</mx:ControlBar-->		
-	</mx:VBox>
 </cam:MDIWindow>

@@ -47,10 +47,29 @@ package org.bigbluebutton.modules.video.view
 		}
 		
 		override public function handleNotification(notification:INotification):void{
+			var streamName:String = notification.getBody().streamName;
+			
+			if (streamName != _stream) return;
+			
 			switch(notification.getName()){
-				case VideoModuleConstants.CLOSE_ALL:
-//					videoWindow.close();
+				case VideoModuleConstants.PLAY_STREAM:
+					proxy.createPlayMedia(streamName);
+					proxy.setupStream(streamName);
+
+					_viewCamWindow.media = proxy.getPlayMedia(streamName) as PlayMedia;
+					proxy.playStream(streamName,true,false);
+
+					_viewCamWindow.width = 330;
+				   	_viewCamWindow.height = 270;
+				   	_viewCamWindow.title = "Viewing Camera";
+				   	_viewCamWindow.showCloseButton = true;
+				   	_viewCamWindow.xPosition = 700;
+				   	_viewCamWindow.yPosition = 240;
+					facade.sendNotification(VideoModuleConstants.ADD_WINDOW, _viewCamWindow);		
 					break;
+				case VideoModuleConstants.STOP_STREAM:
+
+					break;	
 			}
 		}
 		

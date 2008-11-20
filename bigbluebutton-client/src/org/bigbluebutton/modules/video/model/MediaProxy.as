@@ -58,7 +58,7 @@ package org.bigbluebutton.modules.video.model
 		 * @param streamName - the name of the stream to be created
 		 * 
 		 */		
-		public function createPlayMedia(streamName : String) : void
+		public function createPlayMedia(streamName:String):void
 		{
 			_mediaManager.createPlayMedia(streamName);
 		}
@@ -80,7 +80,7 @@ package org.bigbluebutton.modules.video.model
 		 * @return 
 		 * 
 		 */		
-		public function getPlayMedia(streamName : String) : IMedia
+		public function getPlayMedia(streamName:String):IMedia
 		{
 			return _mediaManager.getPlayMedia(streamName);
 		}

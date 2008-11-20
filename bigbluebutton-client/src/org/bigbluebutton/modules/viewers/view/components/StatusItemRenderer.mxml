@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
-	verticalScrollPolicy="off" horizontalScrollPolicy="off" creationComplete="registerForEvents()">
+	verticalScrollPolicy="off" horizontalScrollPolicy="off" creationComplete="init()">
 	
 	<mx:Script>
 		<![CDATA[
@@ -13,27 +13,29 @@
 
 			private var images:Images = new Images();	
 				
-			private function viewCamera() : void
+			private function viewCamera():void
    			{
 				dispatchEvent(new ViewCameraEvent(data.streamName));
    			}			
 		
-   			[Bindable] private var webcamIcon : Object = images.webcam;
-   			[Bindable] private var handIcon : Object = images.raisehand;	
+   			[Bindable] private var webcamIcon:Object = images.webcam;
+   			[Bindable] private var handIcon:Object = images.raisehand;	
    			[Bindable] private var presenterIcon:Object = images.presenter;
    			
-   			private function registerForEvents():void {
+   			private function init():void {
    				trace('registering for change status events');
    				parentDocument.addEventListener(ChangeStatusEvent.CHANGE_STATUS_EVENT, onChangeStatusEvent);
-   				updateStatus();
+   				updateStatus('init');
   			}
 
    			private function onChangeStatusEvent(e:ChangeStatusEvent):void {
    				trace('changing status icon');  				
-   				updateStatus();
+   				updateStatus('onChangeStatusEvent');
    			}
    			
-   			private function updateStatus():void {
+   			private function updateStatus(from:String):void {
+   				trace('updating status from ' + from + " user=" + data.name + " presenter=" + data.presenter + " stream=" + data.hasStream);
+   				
    				if (data.presenter) {
    					presIcon.source = presenterIcon;
   					presIcon.toolTip = "Presenter";
@@ -53,6 +55,6 @@
 		]]>
 	</mx:Script>
 
-	<mx:Image id="streamIcon" visible="false" doubleClick="viewCamera()"/>	
-	<mx:Image id="presIcon" visible="false"/>
+	<mx:Image id="streamIcon" visible="false" doubleClick="viewCamera()" creationComplete="updateStatus('streamIcon')"/>	
+	<mx:Image id="presIcon" visible="false" creationComplete="updateStatus('presIcon')"/>
 </mx:HBox>

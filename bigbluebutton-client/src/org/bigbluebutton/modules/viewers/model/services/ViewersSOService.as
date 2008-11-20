@@ -153,7 +153,7 @@ package org.bigbluebutton.modules.viewers.model.services
 		public function iAmPresenter(userid:Number, presenter:Boolean):void {
 			var aUser:User = _participants.getParticipant(userid);			
 			if (aUser != null) {
-				trace('assigning presenter to ' + userid);
+				trace('iampresenter ' + userid);
 				aUser.presenter = presenter;
 				_participantsSO.setProperty(userid.toString(), aUser);
 				_participantsSO.setDirty(userid.toString());
@@ -161,7 +161,13 @@ package org.bigbluebutton.modules.viewers.model.services
 		}
 						
 		public function assignPresenter(userid:Number, assignedBy:Number):void {
-			
+			var aUser:User = _participants.getParticipant(userid);			
+			if (aUser != null) {
+				trace('assigning presenter to ' + userid);
+				aUser.presenter = true;
+				_participantsSO.setProperty(userid.toString(), aUser);
+				_participantsSO.setDirty(userid.toString());
+			}			
 			_participantsSO.send("assignPresenterCallback", userid, assignedBy);
 		}
 		
@@ -303,7 +309,11 @@ package org.bigbluebutton.modules.viewers.model.services
 								user.userid = _participantsSO.data[name].userid;
 								user.name = _participantsSO.data[name].name;							
 								user.role = _participantsSO.data[name].role;						
+								user.presenter = _participantsSO.data[name].presenter;
+								user.hasStream = _participantsSO.data[name].hasStream;
+								user.streamName = _participantsSO.data[name].streamName;	
 								_participants.addUser(user);
+								sendMessage(ViewersModuleConstants.CHANGE_STATUS);
 							}	
 						}					
 					} 

@@ -38,12 +38,7 @@ package org.bigbluebutton.modules.video
 		public static const NAME:String = "VideoModuleMediator";
 		
 		private var module:VideoModule;
-		
-		/**
-		 * The constructor. Registers the VideoModule with this mediator class 
-		 * @param module
-		 * 
-		 */		
+			
 		public function VideoModuleMediator(module:VideoModule)
 		{
 			super(NAME, module);
@@ -75,10 +70,12 @@ package org.bigbluebutton.modules.video
 					var streamName:String = notification.getBody().streamName;
 					// Append the streamName to the mediator name so we can know which mediator is for which stream.
 					facade.registerMediator(new ViewCameraWindowMediator(ViewCameraWindowMediator.NAME + streamName, streamName));
-					facade.sendNotification(VideoModuleConstants.STOP_ALL_STREAM);
+					facade.sendNotification(VideoModuleConstants.PLAY_STREAM, notification.getBody());
 					break;
 				case VideoModuleConstants.STOP_VIEW_CAMERA:
-					facade.sendNotification(VideoModuleConstants.STOP_ALL_STREAM);
+					var stream:String = notification.getBody().streamName;
+					facade.sendNotification(VideoModuleConstants.STOP_STREAM, notification.getBody());
+					facade.removeMediator(ViewCameraWindowMediator.NAME + stream);
 					break;
 			}
 		}		
