@@ -21,7 +21,8 @@
 package org.bigbluebuttonproject.conference;
 
 import org.bigbluebuttonproject.conference.Role;
-
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * Participant class is an entity class used to create instances that can keep details about each participant of conference rooms.
@@ -44,6 +45,8 @@ public class Participant {
 	
 	/** The has stream. */
 	public Boolean hasStream = new Boolean(false);
+	
+	public Boolean presenter = new Boolean(false);
 	
 	/** The stream name. */
 	public String streamName = "";
