@@ -21,7 +21,7 @@ package org.bigbluebutton.modules.video
 {
 
 	import org.bigbluebutton.modules.video.model.MediaProxy;
-	import org.bigbluebutton.modules.video.view.ToolbarButtonMediator;
+	import org.bigbluebutton.modules.video.view.ViewCameraWindowMediator;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
@@ -53,7 +53,9 @@ package org.bigbluebutton.modules.video
 		override public function listNotificationInterests():Array{
 			return [
 					VideoModuleConstants.CONNECTED,
-					VideoModuleConstants.DISCONNECTED
+					VideoModuleConstants.DISCONNECTED,
+					VideoModuleConstants.START_VIEW_CAMERA,
+					VideoModuleConstants.STOP_VIEW_CAMERA
 					];
 		}
 			
@@ -69,8 +71,16 @@ package org.bigbluebutton.modules.video
 				case VideoModuleConstants.DISCONNECTED:
 					facade.sendNotification(VideoModuleConstants.STOP_ALL_STREAM);
 					break;
+				case VideoModuleConstants.START_VIEW_CAMERA:
+					var streamName:String = notification.getBody().streamName;
+					// Append the streamName to the mediator name so we can know which mediator is for which stream.
+					facade.registerMediator(new ViewCameraWindowMediator(ViewCameraWindowMediator.NAME + streamName, streamName));
+					facade.sendNotification(VideoModuleConstants.STOP_ALL_STREAM);
+					break;
+				case VideoModuleConstants.STOP_VIEW_CAMERA:
+					facade.sendNotification(VideoModuleConstants.STOP_ALL_STREAM);
+					break;
 			}
 		}		
-
 	}
 }

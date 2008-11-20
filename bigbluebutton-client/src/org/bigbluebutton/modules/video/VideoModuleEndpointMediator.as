@@ -102,7 +102,7 @@ package org.bigbluebutton.modules.video
 					break;
 				case EndpointMessageConstants.VIEW_CAMERA:
 					trace('Received VIEW_CAMERA message from ' + message.getHeader().SRC);
-					//facade.sendNotification(ChatModuleConstants.OPEN_WINDOW);
+					facade.sendNotification(VideoModuleConstants.START_VIEW_CAMERA, message.getBody());
 					break;
 			}
 		}

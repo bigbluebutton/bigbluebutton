@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <cam:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml"
 					  xmlns:cam="flexlib.mdi.containers.*"
-					  xmlns:util="org.bigbluebutton.modules.video.model.ui.*"
-					  xmlns:monitor="org.bigbluebutton.modules.video.view.monitor.*"
-					  creationComplete="init()" height="330" width="330" resizable="false">
+					  xmlns:util="org.bigbluebutton.modules.video.view.components.*"
+					  implements="org.bigbluebutton.common.IBbbModuleWindow"
+					  creationComplete="startPlaying()" height="330" width="330" resizable="false">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.video.view.events.StartPlayStreamEvent;
+			import org.bigbluebutton.modules.video.view.events.CloseViewCameraWindowEvent;
+			import org.bigbluebutton.modules.video.view.events.StopPlayStreamEvent;
 			import org.bigbluebutton.modules.video.model.vo.PlayMedia;
-			import org.bigbluebutton.modules.video.view.general.Images;
-			import org.bigbluebutton.modules.video.view.mediators.ViewCameraWindowMediator;
 			import org.bigbluebutton.modules.video.model.vo.PlaybackState;
 			import mx.binding.utils.BindingUtils;
 		
@@ -22,27 +23,46 @@
             import flash.geom.Point;
 			
 			public static const TITLE:String = "Video Presentation";
+			
+			public var streamName:String;
+
+			private var _xPosition:int;
+			private var _yPosition:int;
+						
 			private var images:Images = new Images();	
-			[Bindable] private var red5Icon : Class = images.red5_img;	
-			[Bindable] private var stopIcon : Class = images.stop_blue_img;
-			[Bindable] private var playIcon : Class = images.play_blue_img;
-			[Bindable] private var pauseIcon : Class = images.pause_blue_img;
+			[Bindable] private var red5Icon:Class = images.red5_img;	
+			[Bindable] private var stopIcon:Class = images.stop_blue_img;
+			[Bindable] private var playIcon:Class = images.play_blue_img;
+			[Bindable] private var pauseIcon:Class = images.pause_blue_img;
 			[Bindable] public var media:PlayMedia;
 			
-			private function init() : void
+			private function startPlaying():void
 			{
-				BindingUtils.bindSetter(handlePlaybackState, media, "playState");
+				dispatchEvent(new StartPlayStreamEvent(streamName));
 			}
 			
-			private function handlePlaybackState(playState:PlaybackState) : void
-			{
-				if (playState == PlaybackState.PLAYING) {
-					playButton.toolTip = "Pause";
-				} else {
-					playButton.toolTip = "Play";
-				}
+            public override function close(event:MouseEvent = null):void 
+            { 	
+            	trace('closing view camera window');
+                 dispatchEvent(new StopPlayStreamEvent(streamName));
+                 dispatchEvent(new CloseViewCameraWindowEvent(streamName));
+            } 
+
+			public function get xPosition():int {
+				return _xPosition;
 			}
 			
+			public function get yPosition():int {
+				return _yPosition;
+			}
+			
+			public function set xPosition(x:int):void {
+				_xPosition = x;
+			}
+			
+			public function set yPosition(y:int):void {
+				_yPosition = y;
+			}			
 		]]>
 	</mx:Script>
 	<mx:VBox label="Video" id="videoPart" width="100%">
@@ -52,18 +72,12 @@
 			<util:VideoContainer video="{ media.remoteVideo }" height="100%" width="100%"/>
 		</mx:Canvas>	
 
-		<mx:ControlBar width="100%">
-			<!--mx:Label text="Enable:"/>  
- 			<mx:Spacer width="2"/>  
-			<mx:CheckBox label="Audio" id="enableAudioCb"   
- 					click="this.toggleAudio()" selected="true"/>  
-			<mx:CheckBox id="enableVideoCb" label="Video"   
-					click="this.toggleVideo()" width="60" selected="true"/-->	
+		<!--mx:ControlBar width="100%">	
 			<mx:Spacer width="100%"/>
 			<mx:Button id="stopButton" icon="{stopIcon}" 
 				click="dispatchEvent(new Event(ViewCameraWindowMediator.STOP_STREAM))" toolTip="Stop"/>
 			<mx:Button id="playButton" click="dispatchEvent(new Event(ViewCameraWindowMediator.VIEW_STREAM))" 
 					icon="{media.playState == PlaybackState.PLAYING ? pauseIcon : playIcon}"/>
-		</mx:ControlBar>		
+		</mx:ControlBar-->		
 	</mx:VBox>
 </cam:MDIWindow>
