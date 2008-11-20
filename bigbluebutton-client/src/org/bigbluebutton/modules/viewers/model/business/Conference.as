@@ -44,9 +44,14 @@ package org.bigbluebutton.modules.viewers.model.business
 		 * @param newuser
 		 * 
 		 */		
-		public function addUser(newuser : User) : void
+		public function addUser(newuser:User) : void
 		{				
-			if (! hasParticipant(newuser.userid)) {						
+			if (! hasParticipant(newuser.userid)) {
+				
+				if (newuser.userid == me.userid) {
+					newuser.me = true;
+				}						
+				
 				users.addItem(newuser);
 				sort();
 			}					

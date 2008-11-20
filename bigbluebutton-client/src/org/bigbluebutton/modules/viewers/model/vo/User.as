@@ -25,6 +25,7 @@ package org.bigbluebutton.modules.viewers.model.vo
 		
 	public class User
 	{
+		[Bindable] public var me:Boolean = false;
 		[Bindable] public var userid:Number;
 		[Bindable] public var name:String;
 		[Bindable] public var hasStream:Boolean = false;

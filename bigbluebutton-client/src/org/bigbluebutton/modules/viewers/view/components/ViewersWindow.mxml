@@ -57,7 +57,13 @@
         	}           
         ]]>
     </mx:Script>
-   
+
+    	<!--mx:TileList id="viewersGrid" height="100%" width="100%" itemClick="viewerSelectEvent(event);"
+ 			itemRenderer="org.bigbluebutton.modules.viewers.view.components.NameItemRenderer"
+            maxColumns="1" rowHeight="25" columnWidth="200" dragEnabled="false"
+            dataProvider="{participants}">          
+    	</mx:TileList-->	
+    	   
     <mx:DataGrid id="viewersGrid" dataProvider="{participants}" editable="false" 
     	dragEnabled="false" itemClick="viewerSelectEvent(event);" width="100%" height="100%">
     	<mx:columns>

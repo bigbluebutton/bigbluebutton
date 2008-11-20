@@ -1,13 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
-	verticalScrollPolicy="off" horizontalScrollPolicy="off">
+	verticalScrollPolicy="off" horizontalScrollPolicy="off" creationComplete="checkIfUserIsMe()">
 	
 	<mx:Script>
 		<![CDATA[
-
-			
+			private function checkIfUserIsMe():void {
+				if (data.me) {
+					myNameLabel.visible = true;
+					myNameLabel.text = data.name;
+					myNameLabel.toolTip = "You are logged in as this user.";
+					otherNameLabel.visible = false;
+					this.removeChild(otherNameLabel);
+				} else {
+					myNameLabel.visible = false;
+					otherNameLabel.text = data.name;
+					otherNameLabel.visible = true;
+					this.removeChild(myNameLabel);				
+				}
+			}			
 		]]>
 	</mx:Script>
-	<mx:Label id="nameLabel" text="{data.name}"/>
-	
+	<mx:Label id="myNameLabel" visible="false" textAlign="left" fontWeight="bold" color="blue"/>
+	<mx:Label id="otherNameLabel" visible="false" textAlign="left" fontWeight="normal"/>
 </mx:HBox>
