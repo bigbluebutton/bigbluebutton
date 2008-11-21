@@ -33,11 +33,11 @@
 			private var images:Images = new Images();
 			
 			[Bindable] public var media:BroadcastMedia;
-		    [Bindable] private var serverLogo : Class = images.red5_img;
+		    [Bindable] private var serverLogo:Class = images.red5_img;
 			
             public override function close(event:MouseEvent = null):void 
             { 	
-            	trace('closing camera window');
+            	trace('closing my camera window');
                  dispatchEvent(new Event(STOP_BROADCAST_STREAM));
                  dispatchEvent(new Event(WINDOW_CLOSE_EVENT));
                  //super.close(event); 

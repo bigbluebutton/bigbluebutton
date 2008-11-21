@@ -11,7 +11,7 @@ package org.bigbluebutton.modules.video
 
 	public class VideoModuleEndpointMediator extends Mediator implements IMediator
 	{
-		public static const NAME:String = "ChatEndPointMediator";
+		public static const NAME:String = "VideoModuleEndpointMediator";
 		
 		private var _module:IBigBlueButtonModule;
 		private var _router:Router;
@@ -24,7 +24,6 @@ package org.bigbluebutton.modules.video
 			super(NAME,module);
 			_module = module;
 			_router = module.router
-			trace("Creating endpoint for VideoModule");
 			_endpoint = new Endpoint(_router, FROM_VIDEO_MODULE, TO_VIDEO_MODULE, messageReceiver);	
 		}
 		

@@ -63,7 +63,7 @@ package org.bigbluebutton.modules.viewers.view
 		
 		private function onViewCameraEvent(e:ViewCameraEvent):void {
 			trace('Got VIEW_CAMERA_EVENT------------------------------');
-			sendNotification(ViewersModuleConstants.VIEW_CAMERA, e.stream);
+			sendNotification(ViewersModuleConstants.VIEW_CAMERA, {stream:e.stream, viewedName:e.viewedName});
 		}
 		
 		private function onViewerSelectedEvent(e:Event):void {

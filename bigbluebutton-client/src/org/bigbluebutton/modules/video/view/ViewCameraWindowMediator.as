@@ -38,25 +38,25 @@ package org.bigbluebutton.modules.video.view
 		
 		private function onStopPlayStreamEvent(e:StopPlayStreamEvent):void {
 			if (e.streamName != _stream) return;
-			
-			proxy.stopStream(e.streamName);
-			proxy.removeStream(MediaType.PLAY, e.streamName);
+			stopStream();		
+//			proxy.stopStream(e.streamName);
+//			proxy.removeStream(MediaType.PLAY, e.streamName);
 		}
 		
 		override public function listNotificationInterests():Array{ 
 			return [
-					VideoModuleConstants.PLAY_STREAM,
-					VideoModuleConstants.STOP_STREAM
+					VideoModuleConstants.STOP_ALL_VIEW_STREAM,
+					VideoModuleConstants.PLAY_STREAM					
 					];
 		}
 		
 		override public function handleNotification(notification:INotification):void{
-			var streamName:String = notification.getBody().streamName;
-			
-			if (streamName != _stream) return;
-			
+			trace('Got notification ' + notification.getName() + " for VIEWCAMMEDIATOR");
 			switch(notification.getName()){
 				case VideoModuleConstants.PLAY_STREAM:
+					var streamName:String = notification.getBody().streamName;			
+					if (streamName != _stream) return;
+								
 					proxy.createPlayMedia(streamName);
 					proxy.setupStream(streamName);
 
@@ -65,30 +65,42 @@ package org.bigbluebutton.modules.video.view
 
 					_viewCamWindow.width = 330;
 				   	_viewCamWindow.height = 270;
-				   	_viewCamWindow.title = "Viewing Camera";
+				   	_viewCamWindow.title = "Viewing " + notification.getBody().viewedName;
 				   	_viewCamWindow.showCloseButton = true;
 				   	_viewCamWindow.xPosition = 700;
 				   	_viewCamWindow.yPosition = 240;
 					facade.sendNotification(VideoModuleConstants.ADD_WINDOW, _viewCamWindow);		
 					break;
-				case VideoModuleConstants.STOP_STREAM:
-
+				case VideoModuleConstants.STOP_ALL_VIEW_STREAM:
+					//stopStream();
+					trace('GOT STOP_VIEW_STREAM FOR VIEWCAMMEDIATOR');
+					_viewCamWindow.close();
 					break;	
 			}
 		}
 		
 		private function onCloseViewCameraWindowEvent(e:CloseViewCameraWindowEvent):void{
-			facade.sendNotification(VideoModuleConstants.REMOVE_WINDOW, _viewCamWindow);
-			facade.sendNotification(VideoModuleConstants.STOP_VIEW_CAMERA, _stream);
+			trace('closing view camera window');
+			if (e.streamName != _stream) return;
+			stopStream();
 		}
 		
-		private function stopStream(e:Event):void{
-			//mainApp.publisherApp.stopStream(media.streamName);
-//			sendNotification(VideoModuleConstants.STOP_STREAM_COMMAND, videoWindow.media.streamName);
+		private function stopStream():void{
+			facade.sendNotification(VideoModuleConstants.REMOVE_WINDOW, _viewCamWindow);
+			facade.sendNotification(VideoModuleConstants.REMOVE_STREAM_COMMAND, {media: MediaType.PLAY, stream:_stream});
+			facade.sendNotification(VideoModuleConstants.STOP_VIEW_CAMERA, _stream);			
 		}
 
 		private function get proxy():MediaProxy {
 			return facade.retrieveProxy(MediaProxy.NAME) as MediaProxy;
 		}
+
+		override public function onRegister():void {
+			trace('REGISTERING MEDIATOR: ' + super.getMediatorName());
+		}
+		
+		override public function onRemove():void {
+			trace('REMOVING MEDIATOR: ' + super.getMediatorName());
+		}	
 	}
 }

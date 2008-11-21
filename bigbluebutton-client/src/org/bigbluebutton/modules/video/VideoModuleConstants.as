@@ -37,7 +37,8 @@ package org.bigbluebutton.modules.video
 		public static const PUBLISH_STREAM_COMMAND : String = 			"PUBLISHER_PUBLISH_STREAM_COMMAND";
 		public static const UNPUBLISH_STREAM_COMMAND : String = 		"PUBLISHER_UNPUBLISH_STREAM_COMMAND";
 		
-		public static const STOP_ALL_STREAM:String = "STOP_ALL_STREAM";
+		public static const STOP_ALL_BROADCAST_STREAM:String = "STOP_ALL_BROADCAST_STREAM";
+		public static const STOP_ALL_VIEW_STREAM:String = "STOP_ALL_VIEW_STREAM";
 		
 		public static const OPEN_VIEW_CAMERA:String = "Open View Camera"
 		

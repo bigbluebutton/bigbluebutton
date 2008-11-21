@@ -86,9 +86,9 @@ package org.bigbluebutton.common.messaging
 			trace('routing message to ' + message.getHeader().TO);			
 			var TO : String = message.getHeader().TO;
 			var haspipe : Boolean = junction.hasOutputPipe(TO);
-			trace('There is a pipe with name ' + message.getHeader().TO + " = " + haspipe);
+			//trace('There is a pipe with name ' + message.getHeader().TO + " = " + haspipe);
 			var success: Boolean = junction.sendMessage(TO, message);
-			trace('Successfully routed message ' + message.getHeader().MSG + ' to ' + message.getHeader().TO + " = " + success);				
+			//trace('Successfully routed message ' + message.getHeader().MSG + ' to ' + message.getHeader().TO + " = " + success);				
 		}
 	}
 }

@@ -26,13 +26,14 @@ package org.bigbluebutton.modules.video.view
 		
 		override public function listNotificationInterests():Array{
 			return [
-					VideoModuleConstants.STOP_ALL_STREAM
+					VideoModuleConstants.STOP_ALL_BROADCAST_STREAM
 					];
 		}
 		
 		override public function handleNotification(notification:INotification):void{
 			switch(notification.getName()){
-				case VideoModuleConstants.STOP_ALL_STREAM:
+				case VideoModuleConstants.STOP_ALL_BROADCAST_STREAM:
+					trace('GOT STOP_ALL_BROADCAST_STREAM FOR MYCAMMEDIATOR');
 					stopStream();
 					cameraWindow.close();
 					break;
@@ -67,5 +68,9 @@ package org.bigbluebutton.modules.video.view
 			sendNotification(VideoModuleConstants.REMOVE_STREAM_COMMAND, {media: MediaType.BROADCAST, stream:streamName});			
 			sendNotification(VideoModuleConstants.STOPPED_BROADCAST, streamName);
 		}
+
+		override public function onRemove():void {
+			trace('REMOVING MEDIATOR: ' + NAME);
+		}	
 	}
 }

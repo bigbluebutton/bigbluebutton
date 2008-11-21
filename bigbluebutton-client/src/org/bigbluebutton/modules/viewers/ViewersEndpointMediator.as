@@ -101,7 +101,7 @@ package org.bigbluebutton.modules.viewers
 					trace('Sending VIEW_CAMERA to VIDEO MODULE');
 					_endpoint.sendMessage(EndpointMessageConstants.VIEW_CAMERA, 
 							EndpointMessageConstants.TO_VIDEO_MODULE, 
-							{userid:_module.userid, streamName:notification.getBody()});
+							{viewerName:_module.username, streamName:notification.getBody().stream, viewedName:notification.getBody().viewedName});
 					break;
 			}
 		}

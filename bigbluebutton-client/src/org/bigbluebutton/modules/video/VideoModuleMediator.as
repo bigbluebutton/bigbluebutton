@@ -64,7 +64,10 @@ package org.bigbluebutton.modules.video
 					}
 					break;
 				case VideoModuleConstants.DISCONNECTED:
-					facade.sendNotification(VideoModuleConstants.STOP_ALL_STREAM);
+					trace('GOT DISCONNECTED FOR VIDEOMEDIATOR');
+					facade.sendNotification(VideoModuleConstants.STOP_ALL_VIEW_STREAM);
+					facade.sendNotification(VideoModuleConstants.STOP_ALL_BROADCAST_STREAM);
+					trace('SENT STOP_ALL_STREAM Complete');
 					break;
 				case VideoModuleConstants.START_VIEW_CAMERA:
 					var streamName:String = notification.getBody().streamName;
@@ -78,6 +81,10 @@ package org.bigbluebutton.modules.video
 					facade.removeMediator(ViewCameraWindowMediator.NAME + stream);
 					break;
 			}
-		}		
+		}	
+		
+		override public function onRemove():void {
+			trace('removing ' + NAME);
+		}	
 	}
 }
