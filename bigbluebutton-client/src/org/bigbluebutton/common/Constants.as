@@ -30,6 +30,7 @@ package org.bigbluebutton.common
 	 */	
 	public class Constants
 	{			
-		public static const VERSION:String = "0.35e";
+		public static const VERSION:String = "0.35g";
+		public static const NUM_MODULES:String = "5";
 	}
 }
