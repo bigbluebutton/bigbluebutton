@@ -59,6 +59,6 @@ package org.bigbluebutton.modules.presentation
 		
 		public static const PRESENTATION_LOADED:String = 'PRESENTATION_LOADED';
 		public static const SLIDE_LOADED:String = "SLIDE_LOADED";
-		
+		public static const THUMBNAIL_WINDOW_CLOSE:String = "THUMBNAIL_WINDOW_CLOSE";
 	}
 }

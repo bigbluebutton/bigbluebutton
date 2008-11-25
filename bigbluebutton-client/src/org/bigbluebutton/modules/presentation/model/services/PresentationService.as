@@ -50,7 +50,7 @@ package org.bigbluebutton.modules.presentation.model.services
 		
 		private function handleComplete(e:Event):void{
 			trace("Loading complete");
-				parse(new XML(e.target.data));				
+			parse(new XML(e.target.data));				
 		}
 		
 		public function parse(xml:XML):void{

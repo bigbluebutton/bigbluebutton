@@ -30,6 +30,7 @@ package org.bigbluebutton.modules.presentation.view
 	import org.bigbluebutton.modules.presentation.model.business.PresentProxy;
 	import org.bigbluebutton.modules.presentation.view.components.FileUploadWindow;
 	import org.bigbluebutton.modules.presentation.view.components.PresentationWindow;
+	import org.bigbluebutton.modules.presentation.view.components.ThumbnailWindow;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
@@ -45,6 +46,7 @@ package org.bigbluebutton.modules.presentation.view
 		
 		public static const PREVIOUS_SLIDE:String = "PREVIOUS_SLIDE";
 		public static const NEXT_SLIDE:String = "NEXT_SLIDE";
+		public static const OPEN_THUMBNAIL:String = "OPEN_THUMBNAIL";
 		
 		public static const CONNECT:String = "Connect to Presentation";
 		public static const SHARE:String = "Share Presentation";
@@ -68,6 +70,7 @@ package org.bigbluebutton.modules.presentation.view
 			_presWin.addEventListener(OPEN_UPLOAD, openFileUploadWindow);
 			_presWin.addEventListener(PREVIOUS_SLIDE, onPreviousSlide);
 			_presWin.addEventListener(NEXT_SLIDE, onNextSlide);
+			_presWin.addEventListener(OPEN_THUMBNAIL, onOpenThumbnail);
 		}
 		
 		private function resetSlidePosition():void {
@@ -107,7 +110,8 @@ package org.bigbluebutton.modules.presentation.view
 					PresentModuleConstants.DISPLAY_SLIDE,
 					PresentModuleConstants.PRESENTER_MODE,
 					PresentModuleConstants.VIEWER_MODE,
-					PresentModuleConstants.REMOVE_UPLOAD_WINDOW
+					PresentModuleConstants.REMOVE_UPLOAD_WINDOW,
+					PresentModuleConstants.THUMBNAIL_WINDOW_CLOSE
 					];
 		}
 		
@@ -152,6 +156,9 @@ package org.bigbluebutton.modules.presentation.view
 				case PresentModuleConstants.REMOVE_UPLOAD_WINDOW:
 					removeFileUploadPopup();
 					break;
+				case PresentModuleConstants.THUMBNAIL_WINDOW_CLOSE:
+					removeThumbnailPopup();
+					break;
 			}
 		}
 	
@@ -182,25 +189,28 @@ package org.bigbluebutton.modules.presentation.view
 		private function handlePresenterMode():void
 		{			
 			_presWin.uploadPres.visible = true;
-
+			
 			proxy.presenterMode(true);
 			if (proxy.presentationLoaded) {
             	_presWin.slideNumLbl.text = (_presWin.slideView.selectedSlide + 1) + " of " + _presWin.slideView.slides.length;	
 				_presWin.backButton.visible = true;
-				_presWin.forwardButton.visible = true;		
+				_presWin.forwardButton.visible = true;	
+				_presWin.thumbnailBtn.visible = true;	
 			}
 		}
 
 		private function handleViewerMode():void
 		{			
 			_presWin.uploadPres.visible = false;
-
+			_presWin.thumbnailBtn.visible = false;
 			proxy.presenterMode(false);
 			if (proxy.presentationLoaded) {
             	_presWin.slideNumLbl.text = (_presWin.slideView.selectedSlide + 1) + " of " + _presWin.slideView.slides.length;	
 				_presWin.backButton.visible = false;
 				_presWin.forwardButton.visible = false;		
 			}
+			removeFileUploadPopup();
+			removeThumbnailPopup();
 		}
 				
 		private function handleStartShareEvent():void
@@ -238,6 +248,7 @@ package org.bigbluebutton.modules.presentation.view
 				
 				_presWin.backButton.visible = true;
 				_presWin.forwardButton.visible = true;
+				_presWin.thumbnailBtn.visible = true;
 				proxy.sharePresentation(true);
 				proxy.gotoSlide(0);
 			} else {
@@ -246,10 +257,14 @@ package org.bigbluebutton.modules.presentation.view
 		}
 		
 		private function removeFileUploadPopup():void{
-			//Remove the upload window
-			PopUpManager.removePopUp(_presWin.uploadWindow);
-			//Remove the mediator
-			facade.removeMediator(FileUploadWindowMediator.NAME);
+			if (_presWin.uploadWindow != null) {
+				//Remove the upload window
+				PopUpManager.removePopUp(_presWin.uploadWindow);
+				//Remove the mediator
+				facade.removeMediator(FileUploadWindowMediator.NAME);	
+				_presWin.uploadWindow = null;			
+			}
+
 		}
 				
 		protected function openFileUploadWindow(e:Event) : void{
@@ -265,6 +280,35 @@ package org.bigbluebutton.modules.presentation.view
             
             if ( ! facade.hasMediator( FileUploadWindowMediator.NAME ) ) {
             	facade.registerMediator(new FileUploadWindowMediator( _presWin.uploadWindow ));
+            } 
+        }
+
+		private function removeThumbnailPopup():void{
+			if (_presWin.thumbnailWindow != null) {
+				//Remove the upload window
+				PopUpManager.removePopUp(_presWin.thumbnailWindow);
+				//Remove the mediator
+				facade.removeMediator(ThumbnailWindowMediator.NAME);
+				_presWin.thumbnailBtn.enabled = true;	
+				_presWin.thumbnailWindow = null;			
+			}
+		}
+
+		protected function onOpenThumbnail(e:Event) : void{
+            _presWin.thumbnailWindow = ThumbnailWindow(PopUpManager.createPopUp( _presWin, ThumbnailWindow, false));
+			_presWin.thumbnailWindow.slides = _presWin.slideView.slides;
+			
+			var point1:Point = new Point();
+            // Calculate position of TitleWindow in Application's coordinates. 
+            point1.x = _presWin.slideView.x;
+            point1.y = _presWin.slideView.y;                
+            point1 = _presWin.slideView.localToGlobal(point1);
+            _presWin.thumbnailWindow.x = point1.x + 25;
+            _presWin.thumbnailWindow.y = point1.y + 25;
+            _presWin.thumbnailBtn.enabled = false;
+            
+            if ( ! facade.hasMediator( FileUploadWindowMediator.NAME ) ) {
+            	facade.registerMediator(new ThumbnailWindowMediator( _presWin.thumbnailWindow ));
             } 
         }
 

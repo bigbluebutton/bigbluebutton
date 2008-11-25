@@ -58,6 +58,8 @@ package org.bigbluebutton.modules.presentation
 					break;
 				case PresentModuleConstants.DISCONNECTED:
 					trace('Sending Present MODULE_STOPPED message to main');
+					facade.sendNotification(PresentModuleConstants.REMOVE_UPLOAD_WINDOW);
+					facade.sendNotification(PresentModuleConstants.THUMBNAIL_WINDOW_CLOSE);
 					facade.sendNotification(PresentModuleConstants.CLOSE_PRESENT_WINDOW);
 					_endpoint.sendMessage(EndpointMessageConstants.MODULE_STOPPED, 
 							EndpointMessageConstants.TO_MAIN_APP, _module.moduleId);

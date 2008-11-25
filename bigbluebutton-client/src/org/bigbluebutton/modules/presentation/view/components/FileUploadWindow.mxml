@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-    title="Upload Presentation" x="168" y="86" layout="absolute" width="500" height="200">
+    title="Upload Presentation" creationComplete="dispatchEvent(new Event(FileUploadWindowMediator.SELECT_FILE))" 
+    x="168" y="86" layout="absolute" width="500" height="200">
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.modules.presentation.view.FileUploadWindowMediator;

@@ -22,6 +22,9 @@ package org.bigbluebutton.modules.presentation.view.components
 	[Bindable]
 	public class Images
 	{
+		[Embed(source="../assets/images/thumbnails.png")]
+        public var thumbnails:Class;
+        
         [Embed(source="../assets/images/pdf_icon.png")]
         public var pdf:Class;
 

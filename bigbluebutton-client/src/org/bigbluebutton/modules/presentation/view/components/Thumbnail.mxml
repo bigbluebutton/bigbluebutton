@@ -67,9 +67,8 @@
 		    }
 		]]>
 	</mx:Script>
-	
-    
-    <mx:Label id="position" width="95%" height="20"/>
+	    
+    <mx:Label id="position" width="95%" height="15"/>
     <mx:Canvas id="imageBox" width="95%" height="100%" borderStyle="solid">     	
     	<mx:SWFLoader id="thumbLoader" width="95%" height="95%" scaleContent="true"
         	horizontalCenter="0" verticalCenter="0"
