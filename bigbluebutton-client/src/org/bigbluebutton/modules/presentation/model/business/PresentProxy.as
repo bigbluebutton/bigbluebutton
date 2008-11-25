@@ -107,6 +107,10 @@ package org.bigbluebutton.modules.presentation.model.business
 			_presentService.sharePresentation(share);
 		}
 		
+		public function clearPresentation():void {
+			_presentService.clearPresentation();
+		}
+		
 		public function gotoSlide(num:int):void {
 			sendNotification(PresentModuleConstants.DISPLAY_SLIDE,num);
 			if (isPresenter()) {

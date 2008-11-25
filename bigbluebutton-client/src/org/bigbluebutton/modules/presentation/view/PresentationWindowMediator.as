@@ -139,7 +139,8 @@ package org.bigbluebutton.modules.presentation.view
 					PresentModuleConstants.PRESENTER_MODE,
 					PresentModuleConstants.VIEWER_MODE,
 					PresentModuleConstants.REMOVE_UPLOAD_WINDOW,
-					PresentModuleConstants.THUMBNAIL_WINDOW_CLOSE
+					PresentModuleConstants.THUMBNAIL_WINDOW_CLOSE,
+					PresentModuleConstants.CLEAR_EVENT
 					];
 		}
 		
@@ -181,6 +182,9 @@ package org.bigbluebutton.modules.presentation.view
 					var slidenum:int = notification.getBody() as int;
 					handleDisplaySlide(slidenum);
 					break;
+				case PresentModuleConstants.CLEAR_EVENT:
+					handleClearPresentation();
+				break;
 				case PresentModuleConstants.REMOVE_UPLOAD_WINDOW:
 					removeFileUploadPopup();
 					break;
@@ -251,6 +255,22 @@ package org.bigbluebutton.modules.presentation.view
 		private function handleReadyEvent():void
 		{			
 			proxy.loadPresentation();
+		}
+
+		private function handleClearPresentation():void
+		{			
+			_presWin.slideView.visible = false;		
+			_presWin.slideView.selectedSlide = 0;
+			_presWin.slideNumLbl.text = "";
+			if (facade.hasProxy(SlideProxy.NAME)) {
+				var sp:SlideProxy = facade.retrieveProxy(SlideProxy.NAME) as SlideProxy;
+				sp.clear();
+			}
+			
+			if ( ! facade.hasMediator( SlideViewMediator.NAME ) ) {
+				facade.registerMediator(new SlideViewMediator(_presWin.slideView ));
+			}		
+
 		}
 
 		private function handlePresentationLoadedEvent():void

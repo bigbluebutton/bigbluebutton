@@ -89,26 +89,28 @@ package org.bigbluebutton.modules.viewers.model
 		}
 		
 		private function messageSender(msg:String, body:Object=null):void {
-			if (msg == ViewersModuleConstants.ASSIGN_PRESENTER) {
-				if (me.userid == body.assignedTo) {
-					// I've been assigned as presenter.
-					trace('I have become presenter');
-					isPresenter = true;
-					var newStatus:Status = new Status("presenter", body.assignedBy);
-					_viewersService.iAmPresenter(me.userid, true);
-					sendNotification(msg, body);
-				} else {
-					// Somebody else has become presenter.
-					if (isPresenter) {
-						trace('Somebody else has become presenter.');
-						_viewersService.iAmPresenter(me.userid, false);
+			switch (msg) {
+				case ViewersModuleConstants.ASSIGN_PRESENTER:
+					if (me.userid == body.assignedTo) {
+						// I've been assigned as presenter.
+						trace('I have become presenter');
+						isPresenter = true;
+						var newStatus:Status = new Status("presenter", body.assignedBy);
+						_viewersService.iAmPresenter(me.userid, true);
+						sendNotification(msg, body);
+					} else {
+						// Somebody else has become presenter.
+						if (isPresenter) {
+							trace('Somebody else has become presenter.');
+							_viewersService.iAmPresenter(me.userid, false);
+						}
+						isPresenter = false;
+						sendNotification(ViewersModuleConstants.BECOME_VIEWER, body);					
 					}
-					isPresenter = false;
-					sendNotification(ViewersModuleConstants.BECOME_VIEWER, body);					
-				}
-			} else {
-				sendNotification(msg, body);
-			}
+					break;
+				default:
+					sendNotification(msg, body);
+			} 
 		}		
 	}
 }

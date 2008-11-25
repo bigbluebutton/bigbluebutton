@@ -9,6 +9,7 @@ package org.bigbluebutton.modules.presentation.controller
 		override public function execute(notification:INotification):void{
 			if (facade.hasProxy(PresentProxy.NAME)) {
 				var p:PresentProxy = facade.retrieveProxy(PresentProxy.NAME) as PresentProxy;
+				if (p.isPresenter()) p.clearPresentation();
 				p.stop();
 			} else {
 				trace('Present Proxy not found.');
