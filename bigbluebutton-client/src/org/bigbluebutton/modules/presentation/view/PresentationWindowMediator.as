@@ -20,7 +20,9 @@
 package org.bigbluebutton.modules.presentation.view
 {
 	import flash.events.Event;
+	import flash.events.KeyboardEvent;
 	import flash.geom.Point;
+	import flash.ui.Keyboard;
 	
 	import mx.managers.PopUpManager;
 	
@@ -66,7 +68,8 @@ package org.bigbluebutton.modules.presentation.view
 		public function PresentationWindowMediator(module:IBigBlueButtonModule)
 		{
 			super(NAME);
-			_module = module;			
+			_module = module;	
+			_presWin.addEventListener(KeyboardEvent.KEY_UP, onKeyPressed);		
 			_presWin.addEventListener(OPEN_UPLOAD, openFileUploadWindow);
 			_presWin.addEventListener(PREVIOUS_SLIDE, onPreviousSlide);
 			_presWin.addEventListener(NEXT_SLIDE, onNextSlide);
@@ -80,18 +83,43 @@ package org.bigbluebutton.modules.presentation.view
 			_presWin.slideView.myLoader.y = 1;
 			
 		}
+		
+		private function onKeyPressed(event:KeyboardEvent):void {
+			switch (event.keyCode) {
+				case Keyboard.LEFT:				
+					gotoPreviousSlide();		
+				break;
+				case Keyboard.RIGHT: 
+				case Keyboard.SPACE:
+					gotoNextSlide();
+				break; 
+			}
+		}
+		
 		private function onPreviousSlide(e:Event) : void{
-			// resetSlidePosition();
-			facade.sendNotification(PresentModuleConstants.GOTO_SLIDE, 
-					_presWin.slideView.selectedSlide - 1);
+			gotoPreviousSlide();
 		}
 		
 		private function onNextSlide(e:Event) : void{
-			// resetSlidePosition();
-			facade.sendNotification(PresentModuleConstants.GOTO_SLIDE, 
-					_presWin.slideView.selectedSlide + 1);			
+			gotoNextSlide();						
 		}
-				
+			
+		private function gotoPreviousSlide():void {
+			// resetSlidePosition();
+			if (_presWin.slideView.selectedSlide > 0) {
+				facade.sendNotification(PresentModuleConstants.GOTO_SLIDE, 
+					_presWin.slideView.selectedSlide - 1);
+			}
+		}	
+			
+		private function gotoNextSlide():void {
+			// resetSlidePosition();
+			if (_presWin.slideView.selectedSlide < _presWin.slideView.slides.length - 1) {
+				facade.sendNotification(PresentModuleConstants.GOTO_SLIDE, 
+					_presWin.slideView.selectedSlide + 1);
+			}
+		}	
+			
 		/**
 		 *  
 		 * @return A list of the notifications this class listens to
@@ -297,6 +325,7 @@ package org.bigbluebutton.modules.presentation.view
 		protected function onOpenThumbnail(e:Event) : void{
             _presWin.thumbnailWindow = ThumbnailWindow(PopUpManager.createPopUp( _presWin, ThumbnailWindow, false));
 			_presWin.thumbnailWindow.slides = _presWin.slideView.slides;
+			_presWin.thumbnailWindow.slideList.selectedIndex = _presWin.slideView.selectedSlide;
 			
 			var point1:Point = new Point();
             // Calculate position of TitleWindow in Application's coordinates. 
