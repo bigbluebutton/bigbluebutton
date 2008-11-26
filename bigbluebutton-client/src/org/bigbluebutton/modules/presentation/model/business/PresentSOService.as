@@ -33,6 +33,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		private var _uri:String;
 		private var _connectionListener:Function;
 		private var _messageSender:Function;
+		private var _soErrors:Array;
 		
 		public function PresentSOService(uri:String, slides:IPresentationSlides)
 		{			
@@ -50,12 +51,13 @@ package org.bigbluebutton.modules.presentation.model.business
 			netConnectionDelegate.disconnect();
 		}
 		
-		private function connectionListener(connected:Boolean):void {
+		private function connectionListener(connected:Boolean, errors:Array=null):void {
 			if (connected) {
 				join();
+				notifyConnectionStatusListener(true);
 			} else {
 				leave();
-				notifyConnectionStatusListener(false);
+				notifyConnectionStatusListener(false, errors);
 			}
 		}
 		
@@ -318,59 +320,61 @@ package org.bigbluebutton.modules.presentation.model.business
 			}															
 		}		
 
-		private function notifyConnectionStatusListener(connected:Boolean):void {
+		private function notifyConnectionStatusListener(connected:Boolean, errors:Array=null):void {
 			if (_connectionListener != null) {
-				_connectionListener(connected);
+				_connectionListener(connected, errors);
 			}
 		}
 
-		private function netStatusHandler ( event : NetStatusEvent ) : void
+		private function netStatusHandler (event:NetStatusEvent):void
 		{
-			var statusCode : String = event.info.code;
+			var statusCode:String = event.info.code;
 			
 			switch ( statusCode ) 
 			{
-				case "NetConnection.Connect.Success" :
+				case "NetConnection.Connect.Success":
 					trace(NAME + ":Connection Success");		
-					notifyConnectionStatusListener(true);			
+					//notifyConnectionStatusListener(true);			
 					break;
 			
-				case "NetConnection.Connect.Failed" :			
-					trace(NAME + ":Connection to viewers application failed");
-					notifyConnectionStatusListener(false);
+				case "NetConnection.Connect.Failed":
+					addError("PresentSO connection failed");			
 					break;
 					
-				case "NetConnection.Connect.Closed" :									
-					trace(NAME + ":Connection to viewers application closed");
-					notifyConnectionStatusListener(false);
+				case "NetConnection.Connect.Closed":
+					addError("Connection to PresentSO was closed.");									
+					notifyConnectionStatusListener(false, _soErrors);
 					break;
 					
-				case "NetConnection.Connect.InvalidApp" :				
-					trace(NAME + ":Viewers application not found on server");
-					notifyConnectionStatusListener(false);
+				case "NetConnection.Connect.InvalidApp":
+					addError("PresentSO not found in server");				
 					break;
 					
-				case "NetConnection.Connect.AppShutDown" :
-					trace(NAME + ":Viewers application has been shutdown");
-					notifyConnectionStatusListener(false);
+				case "NetConnection.Connect.AppShutDown":
+					addError("PresentSO is shutting down");
 					break;
 					
-				case "NetConnection.Connect.Rejected" :
-					trace(NAME + ":No permissions to connect to the viewers application" );
-					notifyConnectionStatusListener(false);
+				case "NetConnection.Connect.Rejected":
+					addError("No permissions to connect to the PresentSO");
 					break;
 					
 				default :
+					//addError("ChatSO " + event.info.code);
 				   trace(NAME + ":default - " + event.info.code );
-				   notifyConnectionStatusListener(false);
 				   break;
 			}
 		}
 			
-		private function asyncErrorHandler ( event : AsyncErrorEvent ) : void
+		private function asyncErrorHandler (event:AsyncErrorEvent):void
 		{
-			trace( "participantsSO asyncErrorHandler " + event.error);
-			notifyConnectionStatusListener(false);
+			addError("PresentSO asynchronous error.");
+		}
+		
+		private function addError(error:String):void {
+			if (_soErrors == null) {
+				_soErrors = new Array();
+			}
+			_soErrors.push(error);
 		}
 	}
 }

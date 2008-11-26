@@ -21,6 +21,9 @@ package org.bigbluebutton.modules.presentation.model.business
 		
 		private var _slides:IPresentationSlides = new PresentationSlides();
 		private var _presentService:IPresentService;
+		// Is teh disconnection due to user issuing the disconnect or is it the server
+		// disconnecting due to t fault?
+		private var manualDisconnect:Boolean = false;
 		 
 		public function PresentProxy(module:IBigBlueButtonModule)
 		{
@@ -33,10 +36,13 @@ package org.bigbluebutton.modules.presentation.model.business
 			_presentService = new PresentSOService(_module.uri, _slides);
 			_presentService.addConnectionStatusListener(connectionStatusListener);
 			_presentService.addMessageSender(messageSender);
+			manualDisconnect = false;
 			_presentService.connect();
 		}
 		
 		public function stop():void {
+			// USer is issuing a disconnect.
+			manualDisconnect = true;
 			_presentService.disconnect();
 		}
 		
@@ -60,11 +66,11 @@ package org.bigbluebutton.modules.presentation.model.business
 			return _mode == PresentModuleConstants.PRESENTER_MODE;
 		}
 		
-		private function connectionStatusListener(connected:Boolean):void {
+		private function connectionStatusListener(connected:Boolean, errors:Array=null):void {
 			if (connected) {
 				sendNotification(PresentModuleConstants.CONNECTED);
 			} else {
-				sendNotification(PresentModuleConstants.DISCONNECTED);
+				sendNotification(PresentModuleConstants.DISCONNECTED, {manual:manualDisconnect, errors:errors});
 			}
 		}
 		
