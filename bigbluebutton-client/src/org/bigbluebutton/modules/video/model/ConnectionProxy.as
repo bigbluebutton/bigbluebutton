@@ -16,6 +16,9 @@ package org.bigbluebutton.modules.video.model
 		private var _netDelegate:NetConnectionDelegate;
 		
 		public var generalSettings:GeneralSettings;
+		// Is teh disconnection due to user issuing the disconnect or is it the server
+		// disconnecting due to t fault?
+		private var manualDisconnect:Boolean = false;
 				
 		public function ConnectionProxy()
 		{
@@ -37,12 +40,13 @@ package org.bigbluebutton.modules.video.model
 														serverType,
 														encodingType,
 														0 /*"none"*/ );
-			
+			manualDisconnect = false;
 			_netDelegate.connect(uri,proxyType,encodingType);
 		}
 			
 		public function disconnect() : void
 		{
+			manualDisconnect = true;
 			_netDelegate.disconnect();
 		}
 		
@@ -50,13 +54,13 @@ package org.bigbluebutton.modules.video.model
 			return _netDelegate.connection;
 		}
 
-		private function connectionListener(connected:Boolean):void {
+		private function connectionListener(connected:Boolean, errors:Array=null):void {
 			if (connected) {
 				trace(NAME + ":Connected to the Video application");
 				sendNotification(VideoModuleConstants.CONNECTED);
 			} else {
 				trace(NAME + ":Disconnected from the Video application");
-				sendNotification(VideoModuleConstants.DISCONNECTED);
+				sendNotification(VideoModuleConstants.DISCONNECTED, {manual:manualDisconnect, errors:errors});
 			}
 		}
 	}

@@ -32,6 +32,7 @@ package org.bigbluebutton.modules.listeners.model.service
 		private var connectionId : Number;
 		private var connected : Boolean = false;
 		private var _connectionListener:Function;
+		private var _connectionError:Array;
 				
 		public function NetConnectionDelegate(uri:String, connectionListener:Function) : void
 		{
@@ -53,7 +54,8 @@ package org.bigbluebutton.modules.listeners.model.service
 			_netConnection.addEventListener( IOErrorEvent.IO_ERROR, netIOError );
 			
 			try {
-				trace( "Connecting to " + _uri);								
+				trace( "Connecting to " + _uri);	
+				_connectionError = null;							
 				_netConnection.connect(_uri );
 				
 			} catch( e : ArgumentError ) {
@@ -111,28 +113,24 @@ package org.bigbluebutton.modules.listeners.model.service
 					break;
 			
 				case "NetConnection.Connect.Failed" :
-					_connectionListener(false);					
-					trace("Connection to voice application failed");
+					addError("Failed to connect to the application.");
 					break;
 					
 				case "NetConnection.Connect.Closed" :					
-					_connectionListener(false);					
-					trace("Connection to voice application closed");
+					addError("Connection to application closed.");			
+					_connectionListener(false, _connectionError);
 					break;
 					
 				case "NetConnection.Connect.InvalidApp" :				
-					_connectionListener(false);
-					trace("voice application not found on server");
+					addError("Could not find the application.");
 					break;
 					
-				case "NetConnection.Connect.AppShutDown" :
-					_connectionListener(false);
-					trace("voice application has been shutdown");
+				case "NetConnection.Connect.AppShutDown":
+					addError("Application has shutdown.");
 					break;
 					
-				case "NetConnection.Connect.Rejected" :
-					_connectionListener(false);
-					trace("No permissions to connect to the voice application" );
+				case "NetConnection.Connect.Rejected":
+					addError("Connection to the application was rejected.");
 					break;
 					
 				default :
@@ -144,20 +142,24 @@ package org.bigbluebutton.modules.listeners.model.service
 			
 		protected function netSecurityError( event : SecurityErrorEvent ) : void 
 		{
-			trace("Security error - " + event.text);
-			_connectionListener(false);
+			addError("Encountered security error on connection to the application.");
 		}
 		
 		protected function netIOError( event : IOErrorEvent ) : void 
 		{
-			trace("Input/output error - " + event.text);
-			_connectionListener(false);
+			addError("Encountered Input/Output error on connection to the application.");
 		}
 			
 		protected function netASyncError( event : AsyncErrorEvent ) : void 
 		{
-			trace("Asynchronous code error - " + event.error );
-			_connectionListener(false);
+			addError("Encountered Asynchronous error on connection to the application.");
 		}	
+
+		private function addError(error:String):void {
+			if (_connectionError == null) {
+				_connectionError = new Array();				
+			} 			
+			_connectionError.push(error);
+		}
 	}
 }

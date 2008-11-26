@@ -18,6 +18,9 @@ package org.bigbluebutton.modules.listeners.model
 		private var _module:IBigBlueButtonModule;		
 		private var _listenersService:IListenersService;
 		private var _listeners:IListeners = null;
+		// Is teh disconnection due to user issuing the disconnect or is it the server
+		// disconnecting due to t fault?
+		private var manualDisconnect:Boolean = false;
 		
 		public function ListenersProxy(module:IBigBlueButtonModule)
 		{
@@ -36,10 +39,13 @@ package org.bigbluebutton.modules.listeners.model
 			_listenersService = new ListenersSOService(_listeners);
 			_listenersService.addConnectionStatusListener(connectionStatusListener);
 			_listenersService.addMessageSender(messageSender);	
+			manualDisconnect = false;
 			_listenersService.connect(_module.uri);		
 		}
 		
 		public function stop():void {
+			// USer is issuing a disconnect.
+			manualDisconnect = true;
 			_listenersService.disconnect();
 		}
 		
@@ -51,12 +57,12 @@ package org.bigbluebutton.modules.listeners.model
 			return _listeners.listeners;
 		}
 		
-		private function connectionStatusListener(connected:Boolean):void {
+		private function connectionStatusListener(connected:Boolean, errors:Array=null):void {
 			if (connected) {
 				sendNotification(ListenersModuleConstants.CONNECTED);
 			} else {
 				_listeners = null;
-				sendNotification(ListenersModuleConstants.DISCONNECTED);
+				sendNotification(ListenersModuleConstants.DISCONNECTED, {manual:manualDisconnect, errors:errors});
 			}
 		}
 

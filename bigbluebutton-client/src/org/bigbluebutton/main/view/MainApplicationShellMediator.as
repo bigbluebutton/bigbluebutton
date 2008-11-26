@@ -85,17 +85,16 @@ package org.bigbluebutton.main.view
 			switch(notification.getName()){	
 				case MainApplicationConstants.ADD_WINDOW_MSG:
 					var win:IBbbModuleWindow = notification.getBody() as IBbbModuleWindow;
-					trace(NAME + "::putting window in " + win.xPosition + " " + win.yPosition);
+					//trace(NAME + "::putting window in " + win.xPosition + " " + win.yPosition);
 					shell.mdiCanvas.windowManager.add(win as MDIWindow);
 					shell.mdiCanvas.windowManager.absPos(win as MDIWindow, win.xPosition, win.yPosition);						
 					break;			
 				case MainApplicationConstants.REMOVE_WINDOW_MSG:
 					var rwin:IBbbModuleWindow = notification.getBody() as IBbbModuleWindow;
-					trace(NAME + "::removing window " + (rwin as MDIWindow).name);
+					//trace(NAME + "::removing window " + (rwin as MDIWindow).name);
 					shell.mdiCanvas.windowManager.remove(rwin as MDIWindow);						
 					break;
 				case MainApplicationConstants.USER_LOGGED_IN:
-					//shell.toolbar.loggedIn(notification.getBody().username, notification.getBody().room, notification.getBody().userrole);
 					shell.loadedModules.text = "";
 					shell.loadProgress.text = "";
 					break;

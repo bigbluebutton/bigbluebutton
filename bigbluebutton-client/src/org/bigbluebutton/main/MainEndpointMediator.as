@@ -85,7 +85,8 @@ package org.bigbluebutton.main
 					trace(NAME + "::Got MODULE_STOPPED from " + message.getBody() as String);					
 					var info:Object = message.getBody();
 					modulesProxy.moduleStarted(info.moduleId, false);
-					if (info.moduleId == "ChatModule") {
+					if ( (info.moduleId == "ChatModule") || (info.moduleId == "VideoModule") ||
+							(info.moduleId == "ListenersModule") ){
 						trace(info.moduleId + " has stopped [" + info.manual + "]");
 						if (! info.manual)
 						sendNotification(MainApplicationConstants.MODULE_STOPPED, message.getBody());

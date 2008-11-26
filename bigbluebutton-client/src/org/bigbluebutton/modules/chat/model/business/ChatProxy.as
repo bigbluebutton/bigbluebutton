@@ -33,7 +33,7 @@ package org.bigbluebutton.modules.chat.model.business
 		
 		// Is teh disconnection due to user issuing the disconnect or is it the server
 		// disconnecting due to t fault?
-		private var serverDisconnect:Boolean = true;
+		private var manualDisconnect:Boolean = false;
 		
 		public function ChatProxy(uri:String)
 		{
@@ -44,7 +44,7 @@ package org.bigbluebutton.modules.chat.model.business
 		
 		public function start():void {
 			chatService = new ChatSOService(uri);
-			serverDisconnect = true;
+			manualDisconnect = false;
 			chatService.connect(uri);
 			chatService.addMessageListener(newMessageHandler);
 			chatService.addConnectionStatusListener(connectionStatusListener);
@@ -52,7 +52,7 @@ package org.bigbluebutton.modules.chat.model.business
 		
 		public function stop():void {
 			// USer is issuing a disconnect.
-			serverDisconnect = false;
+			manualDisconnect = true;
 			chatService.disconnect();
 		}
 		
@@ -62,7 +62,7 @@ package org.bigbluebutton.modules.chat.model.business
 				sendNotification(ChatModuleConstants.CONNECTED);
 			} else {
 				trace('Sending ChatModuleConstants.DISCONNECTED');
-				sendNotification(ChatModuleConstants.DISCONNECTED, {manual:! serverDisconnect, errors:errors});
+				sendNotification(ChatModuleConstants.DISCONNECTED, {manual:manualDisconnect, errors:errors});
 			}
 		}
 		

@@ -31,6 +31,7 @@ package org.bigbluebutton.modules.video.model.services
 		private var connectionId : Number;
 		private var connected : Boolean = false;
 		private var _connectionListener:Function;
+		private var _connectionError:Array;
 				
 		public function NetConnectionDelegate() : void
 		{
@@ -58,7 +59,8 @@ package org.bigbluebutton.modules.video.model.services
 			_netConnection.addEventListener( IOErrorEvent.IO_ERROR, netIOError );
 			
 			try {
-				trace( "Connecting to " + _uri);								
+				trace( "Connecting to " + _uri);
+				_connectionError = null;								
 				_netConnection.connect(_uri );
 				
 			} catch( e : ArgumentError ) {
@@ -96,27 +98,28 @@ package org.bigbluebutton.modules.video.model.services
 					break;
 			
 				case "NetConnection.Connect.Failed" :
-					_connectionListener(false);					
+					addError("Failed to connect to the application.");				
 					trace("Connection to video application failed");
 					break;
 					
 				case "NetConnection.Connect.Closed" :					
-					_connectionListener(false);					
+					addError("Connection to application closed.");				
 					trace("Connection to video application closed");
+					_connectionListener(false, _connectionError);
 					break;
 					
 				case "NetConnection.Connect.InvalidApp" :				
-					_connectionListener(false);
+					addError("Could not find the application.");
 					trace("video application not found on server");
 					break;
 					
 				case "NetConnection.Connect.AppShutDown" :
-					_connectionListener(false);
+					addError("Application has shutdown.");
 					trace("video application has been shutdown");
 					break;
 					
 				case "NetConnection.Connect.Rejected" :
-					_connectionListener(false);
+					addError("Connection to the application was rejected.");
 					trace("No permissions to connect to the video application" );
 					break;
 					
@@ -135,20 +138,24 @@ package org.bigbluebutton.modules.video.model.services
 			
 		protected function netSecurityError( event:SecurityErrorEvent ):void 
 		{
-			trace("Security error - " + event.text);
-			_connectionListener(false);
+			addError("Encountered security error on connection to the video application.");
 		}
 		
 		protected function netIOError( event:IOErrorEvent ):void 
 		{
-			trace("Input/output error - " + event.text);
-			_connectionListener(false);
+			addError("Encountered Input/Output error on connection to the video application.");
 		}
 			
 		protected function netASyncError( event:AsyncErrorEvent ):void 
 		{
-			trace("Asynchronous code error - " + event.error );
-			_connectionListener(false);
+			addError("Encountered ssynchronous error on connection to the video application.");
 		}	
+		
+		private function addError(error:String):void {
+			if (_connectionError == null) {
+				_connectionError = new Array();				
+			} 			
+			_connectionError.push(error);
+		}
 	}
 }

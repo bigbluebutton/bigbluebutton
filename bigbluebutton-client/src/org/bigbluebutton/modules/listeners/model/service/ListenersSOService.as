@@ -42,6 +42,7 @@ package org.bigbluebutton.modules.listeners.model.service
 		private var _uri:String;
 		private var _messageSender:Function;
 		private var nc_responder : Responder;
+		private var _soErrors:Array;
 							
 		public function ListenersSOService(listeners:IListeners)
 		{			
@@ -59,14 +60,14 @@ package org.bigbluebutton.modules.listeners.model.service
 			netConnectionDelegate.disconnect();
 		}
 		
-		private function connectionListener(connected:Boolean):void {
+		private function connectionListener(connected:Boolean, errors:Array=null):void {
 			if (connected) {
 				trace(NAME + ":Connected to the VOice application");
 				join();
 			} else {
 				leave();
 				trace(NAME + ":Disconnected from the Voice application");
-				notifyConnectionStatusListener(false);
+				notifyConnectionStatusListener(false, errors);
 			}
 		}
 		
@@ -168,10 +169,10 @@ package org.bigbluebutton.modules.listeners.model.service
 			}
 		}
 		
-		private function notifyConnectionStatusListener(connected:Boolean):void {
+		private function notifyConnectionStatusListener(connected:Boolean, errors:Array=null):void {
 			if (_connectionListener != null) {
 				trace('notifying connectionListener for Voice');
-				_connectionListener(connected);
+				_connectionListener(connected, errors);
 			} else {
 				trace("_connectionListener is null");
 			}
@@ -189,45 +190,46 @@ package org.bigbluebutton.modules.listeners.model.service
 			{
 				case "NetConnection.Connect.Success" :
 					trace(NAME + ":Connection Success");	
-					notifyConnectionStatusListener(true);			
+					//notifyConnectionStatusListener(true);			
 					break;
 			
 				case "NetConnection.Connect.Failed" :			
-					trace(NAME + ":Connection to voice SO failed");
-					notifyConnectionStatusListener(false);
+					addError("ChatSO connection failed");
 					break;
 					
 				case "NetConnection.Connect.Closed" :									
-					trace(NAME + ":Connection to voice SO closed");
-					notifyConnectionStatusListener(false);
+					addError("Connection to VoiceSO was closed.");									
+					notifyConnectionStatusListener(false, _soErrors);
 					break;
 					
 				case "NetConnection.Connect.InvalidApp" :				
-					trace(NAME + ":Voice application not found on server");
-					notifyConnectionStatusListener(false);
+					addError("VoiceSO not found in server");	
 					break;
 					
 				case "NetConnection.Connect.AppShutDown" :
-					trace(NAME + ":Voice application has been shutdown");
-					notifyConnectionStatusListener(false);
+					addError("VoiceSO is shutting down");
 					break;
 					
 				case "NetConnection.Connect.Rejected" :
-					trace(NAME + ":No permissions to connect to the voice application" );
-					notifyConnectionStatusListener(false);
+					addError("No permissions to connect to the voiceSO");
 					break;
 					
 				default :
 				   trace(NAME + ":default - " + event.info.code );
-				   notifyConnectionStatusListener(false);
 				   break;
 			}
 		}
 			
 		private function asyncErrorHandler ( event : AsyncErrorEvent ) : void
 		{
-			trace( "VoiceSO asyncErrorHandler " + event.error);
-			notifyConnectionStatusListener(false);
+			addError("ListenersSO asynchronous error.");
+		}
+
+		private function addError(error:String):void {
+			if (_soErrors == null) {
+				_soErrors = new Array();
+			}
+			_soErrors.push(error);
 		}
 	}
 }

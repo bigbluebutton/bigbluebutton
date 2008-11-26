@@ -92,31 +92,31 @@ package org.bigbluebutton.modules.chat.model.business
 					break;
 			
 				case "NetConnection.Connect.Failed" :
-					addError("Failed to connect to the chat application.");
+					addError("Failed to connect to the application.");
 					//_connectionListener(false);					
 					trace("Connection to chat server failed");
 					break;
 					
 				case "NetConnection.Connect.Closed" :	
-					addError("Connection to chat application closed.");		
+					addError("Connection to application closed.");		
 					trace("Connection to chat application closed");		
 					_connectionListener(false, _connectionError);										
 					break;
 					
 				case "NetConnection.Connect.InvalidApp" :	
-					addError("Could not find the chat application.");			
+					addError("Could not find the application.");			
 					//_connectionListener(false);
 					trace("Chat application not found on server");
 					break;
 					
 				case "NetConnection.Connect.AppShutDown" :
-					addError("Chat application has stopped.");
+					addError("Application has shutdown.");
 					//_connectionListener(false);
-					trace("Chat application has been shutdown");
+					trace("Chat Application has shutdown");
 					break;
 					
 				case "NetConnection.Connect.Rejected" :
-					addError("Connection to the chat application was rejected.");
+					addError("Connection to the application was rejected.");
 					//_connectionListener(false);
 					trace("No permissions to connect to the chat application" );
 					break;
@@ -130,21 +130,21 @@ package org.bigbluebutton.modules.chat.model.business
 			
 		protected function netSecurityError(event:SecurityErrorEvent):void 
 		{
-			addError("Encountered security error on connection to the chat application.");
+			addError("Encountered security error on connection to the application.");
 			trace("Security error - " + event.text);
 			//_connectionListener(false);
 		}
 		
 		protected function netIOError(event:IOErrorEvent):void 
 		{
-			addError("Encountered Input/Output error on connection to the chat application.");
+			addError("Encountered Input/Output error on connection to the application.");
 			trace("Input/output error - " + event.text);
 			//_connectionListener(false);
 		}
 			
 		protected function netASyncError( event : AsyncErrorEvent ) : void 
 		{
-			addError("Encountered Asynchronous error on connection to the chat application.");
+			addError("Encountered Asynchronous error on connection to the application.");
 			trace("Asynchronous code error - " + event.error );
 			//_connectionListener(false);
 		}	
@@ -154,7 +154,6 @@ package org.bigbluebutton.modules.chat.model.business
 				_connectionError = new Array();				
 			} 			
 			_connectionError.push(error);
-			trace("Chat ERRRORS:" + _connectionError);
 		}
 	}
 }

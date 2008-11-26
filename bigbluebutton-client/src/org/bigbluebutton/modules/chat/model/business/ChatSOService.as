@@ -176,7 +176,7 @@ package org.bigbluebutton.modules.chat.model.business
 					break;
 					
 				default :
-					addError("ChatSO " + event.info.code);
+					//addError("ChatSO " + event.info.code);
 				   trace(NAME + ":default - " + event.info.code );
 				   break;
 			}
