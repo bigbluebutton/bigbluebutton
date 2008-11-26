@@ -358,11 +358,11 @@ package org.bigbluebutton.modules.presentation.view
 			
 			var point1:Point = new Point();
             // Calculate position of TitleWindow in Application's coordinates. 
-            point1.x = _presWin.slideView.x;
-            point1.y = _presWin.slideView.y;                
+            point1.x = _presWin.presCtrlBar.x;
+            point1.y = _presWin.presCtrlBar.y;                
             point1 = _presWin.slideView.localToGlobal(point1);
-            _presWin.thumbnailWindow.x = point1.x + 25;
-            _presWin.thumbnailWindow.y = point1.y + 25;
+            _presWin.thumbnailWindow.x = point1.x;
+            _presWin.thumbnailWindow.y = point1.y + 15;
             _presWin.thumbnailBtn.enabled = false;
             
             if ( ! facade.hasMediator( FileUploadWindowMediator.NAME ) ) {
