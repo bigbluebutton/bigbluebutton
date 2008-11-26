@@ -78,6 +78,7 @@ package org.bigbluebutton.modules.listeners.view
 		
 		private function onListenerSelectedEvent(e:Event):void {
 			_listenersWindow.ejectBtn.enabled = true;
+			_listenersWindow.ejectBtn.toolTip = "Click to eject selected voice participant.";
 		}
 			
 		override public function listNotificationInterests():Array{
@@ -129,10 +130,10 @@ package org.bigbluebutton.modules.listeners.view
 			_listenersWindow.moderator = proxy.isModerator();
 			_listenersWindow.width = 210;
 		   	_listenersWindow.height = 220;
-		   	_listenersWindow.title = "Listeners";
+		   	_listenersWindow.title = "Voice Participants";
 		   	_listenersWindow.showCloseButton = false;
 		   	_listenersWindow.xPosition = 20;
-		   	_listenersWindow.yPosition = 260;
+		   	_listenersWindow.yPosition = 250;
 		   	facade.sendNotification(ListenersModuleConstants.ADD_WINDOW, _listenersWindow); 			
 		}	
 			   				

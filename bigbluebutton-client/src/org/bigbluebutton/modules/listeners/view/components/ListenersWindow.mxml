@@ -64,7 +64,7 @@
     	   			visible="{moderator}" width="18" height="18"/> 
      	   <mx:Spacer width="100%"/>			
 			<mx:Button id="ejectBtn" icon="{ejectIcon}" 
-    	   			toolTip="Select listener and click to eject." click="dispatchEvent(new Event(ListenersModuleConstants.EJECT_LISTENER_EVENT))"
+    	   			toolTip="Select voice participant to eject." click="dispatchEvent(new Event(ListenersModuleConstants.EJECT_LISTENER_EVENT))"
     	   			visible="{moderator}" enabled="false" width="18" height="18"/> 
     	</mx:ControlBar>
 

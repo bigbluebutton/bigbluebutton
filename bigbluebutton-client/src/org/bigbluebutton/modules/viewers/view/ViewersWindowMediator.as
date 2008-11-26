@@ -62,14 +62,13 @@ package org.bigbluebutton.modules.viewers.view
 		}
 		
 		private function onViewCameraEvent(e:ViewCameraEvent):void {
-			trace('Got VIEW_CAMERA_EVENT------------------------------');
 			sendNotification(ViewersModuleConstants.VIEW_CAMERA, {stream:e.stream, viewedName:e.viewedName});
 		}
 		
 		private function onViewerSelectedEvent(e:Event):void {
 			if (proxy.isModerator()) {
 				_viewersWindow.presentBtn.enabled = true;
-				_viewersWindow.presentBtn.toolTip = "Click to make " + _viewersWindow.viewersGrid.selectedItem.name + " as presenter.";
+				_viewersWindow.presentBtn.toolTip = "Make selected web participant the presenter.";
 			}
 		}
 		
@@ -127,7 +126,7 @@ package org.bigbluebutton.modules.viewers.view
 				_viewersWindow.isModerator = proxy.isModerator();
 				_viewersWindow.width = 210;
 		   		_viewersWindow.height = 220;
-		   		_viewersWindow.title = "Viewers";
+		   		_viewersWindow.title = "Web Participants";
 		   		_viewersWindow.showCloseButton = false;
 		   		_viewersWindow.xPosition = 20;
 		   		_viewersWindow.yPosition = 20;

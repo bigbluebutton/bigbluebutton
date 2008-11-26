@@ -58,12 +58,6 @@
         ]]>
     </mx:Script>
 
-    	<!--mx:TileList id="viewersGrid" height="100%" width="100%" itemClick="viewerSelectEvent(event);"
- 			itemRenderer="org.bigbluebutton.modules.viewers.view.components.NameItemRenderer"
-            maxColumns="1" rowHeight="25" columnWidth="200" dragEnabled="false"
-            dataProvider="{participants}">          
-    	</mx:TileList-->	
-    	   
     <mx:DataGrid id="viewersGrid" dataProvider="{participants}" editable="false" 
     	dragEnabled="false" itemClick="viewerSelectEvent(event);" width="100%" height="100%">
     	<mx:columns>
@@ -79,7 +73,7 @@
    <mx:ControlBar width="100%">
    		 <mx:Button id="presentBtn" icon="{presenterIcon}" visible="{isModerator}" enabled="{viewersGrid.selectedItem != null}"
     	   			width="20" height="20"
-    	   			toolTip="Select viewer and click here to make viewer the presenter." click="dispatchEvent(new AssignPresenterEvent(viewersGrid.selectedItem.userid))"/>
+    	   			toolTip="Select web participant to be presenter." click="dispatchEvent(new AssignPresenterEvent(viewersGrid.selectedItem.userid))"/>
      	 <mx:Spacer width="100%"/>
     	 <!--mx:Button id="raiseHandImage" icon="{toggleIcon}" toggle="true" 
     	   			width="20" height="20"

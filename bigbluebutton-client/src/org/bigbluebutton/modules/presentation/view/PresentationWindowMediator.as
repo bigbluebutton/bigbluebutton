@@ -167,7 +167,7 @@ package org.bigbluebutton.modules.presentation.view
 					handleViewerMode();
 					break;
 				case PresentModuleConstants.OPEN_PRESENT_WINDOW:
-		   			_presWin.height = 440;
+		   			_presWin.height = 450;
 		   			_presWin.width = 450;
 		   			_presWin.title = PresentationWindow.TITLE;
 		   			_presWin.showCloseButton = false;	
@@ -195,11 +195,10 @@ package org.bigbluebutton.modules.presentation.view
 		}
 	
 		private function handleDisplaySlide(slidenum:int):void {
-			trace('DISPLAY_SLIDE in PresentationWindowMediator ' + slidenum);
+			//trace('DISPLAY_SLIDE in PresentationWindowMediator ' + slidenum);
 			if ((_presWin.slideView.slides != null) && (slidenum >= 0) && (slidenum < _presWin.slideView.slides.length)) {
 				_presWin.slideView.selectedSlide = slidenum;
 				_presWin.slideNumLbl.text = (slidenum + 1) + " of " + _presWin.slideView.slides.length;
-				//_presWin.slideView.myLoader.load(_presWin.slideView.slides.getItemAt(slidenum));
 				
 				var slideProxy:SlideProxy = facade.retrieveProxy(SlideProxy.NAME) as SlideProxy;
 				slideProxy.load(slidenum, _presWin.slideView.slides.getItemAt(slidenum) as String);
