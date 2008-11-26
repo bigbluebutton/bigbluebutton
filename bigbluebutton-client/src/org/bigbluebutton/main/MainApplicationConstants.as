@@ -50,6 +50,8 @@ package org.bigbluebutton.main
 		public static const MODULE_START:String = 'MODULE_START';		
 		public static const MODULE_STOPPED:String = 'MODULE_STOPPED';
 		public static const MODULE_STARTED:String = 'MODULE_STARTED'
+		public static const RESTART_MODULE:String = "RESTART_MODULE";
+		
 		public static const MODULE_LOAD:String = 'load the module';
 		public static const MODULE_LOADED:String = 'module has loaded';
 		public static const MODULE_UNLOAD:String = 'unload the module';

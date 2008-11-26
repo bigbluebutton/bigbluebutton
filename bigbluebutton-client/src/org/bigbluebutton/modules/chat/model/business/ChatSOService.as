@@ -34,6 +34,7 @@ package org.bigbluebutton.modules.chat.model.business
 		private var _uri:String;
 		private var _msgListener:Function;
 		private var _connectionListener:Function;
+		private var _soErrors:Array;
 		
 		private var needsTranscript:Boolean = false;
 		
@@ -53,14 +54,15 @@ package org.bigbluebutton.modules.chat.model.business
 			netConnectionDelegate.disconnect();
 		}
 		
-		private function connectionListener(connected:Boolean):void {
+		private function connectionListener(connected:Boolean, errors:Array=null):void {
 			if (connected) {
 				trace(NAME + ":Connected to the Chat application");
 				join();
+				notifyConnectionStatusListener(true);
 			} else {
 				leave();
 				trace(NAME + ":Disconnected from the Chat application");
-				notifyConnectionStatusListener(false);
+				notifyConnectionStatusListener(false, errors);
 			}
 		}
 		
@@ -73,7 +75,7 @@ package org.bigbluebutton.modules.chat.model.business
 			chatSO.client = this;
 			chatSO.connect(netConnectionDelegate.connection);
 			trace(NAME + ":Chat is connected to Shared object");
-			notifyConnectionStatusListener(true);			
+						
 		}
 		
 	    private function leave():void
@@ -92,7 +94,6 @@ package org.bigbluebutton.modules.chat.model.business
 		public function sendMessage(message:String):void
 		{
 			var trans:String = chatSO.data[TRANSCRIPT];
-			//trace('chat trasncript:' + trans);
 			if (trans != null) {
 				trans += '<br/>' + message;
 			} else {
@@ -114,19 +115,17 @@ package org.bigbluebutton.modules.chat.model.business
 			needsTranscript = true;				
 		}
 		
-		private function notifyConnectionStatusListener(connected:Boolean):void {
+		private function notifyConnectionStatusListener(connected:Boolean, errors:Array=null):void {
 			if (_connectionListener != null) {
 				trace('notifying connectionListener for CHat');
-				_connectionListener(connected);
+				_connectionListener(connected, errors);
 			} else {
 				trace("_connectionListener is null");
 			}
 		}
 
-		private function sharedObjectSyncHandler( event : SyncEvent) : void
+		private function sharedObjectSyncHandler(event:SyncEvent):void
 		{
-			//trace( "Chat::sharedObjectSyncHandler " + event.changeList.length);
-		
 			if (event.changeList.length == 1) {
 				if (needsTranscript) {
 						needsTranscript = false;
@@ -134,67 +133,65 @@ package org.bigbluebutton.modules.chat.model.business
 			} else {
 				for (var i : uint = 0; i < event.changeList.length; i++) 
 				{
-					//trace( "Chat::handlingChanges[" + event.changeList[i].name + "][" + i + "]");
 					if (event.changeList[i].name == TRANSCRIPT) {
 						if (needsTranscript) {
 							needsTranscript = false;
-							//if (event.changeList[i].oldValue != null) {
-								//trace('sending transcript:' + chatSO.data[TRANSCRIPT]);
-								receiveNewMessage( chatSO.data[TRANSCRIPT] );	
-							//}					
+							receiveNewMessage( chatSO.data[TRANSCRIPT] );				
 						}
 					} 	
 				}
 			}
 		}
 		
-		private function netStatusHandler ( event : NetStatusEvent ) : void
+		private function netStatusHandler (event:NetStatusEvent):void
 		{
-			var statusCode : String = event.info.code;
+			var statusCode:String = event.info.code;
 			
 			switch ( statusCode ) 
 			{
-				case "NetConnection.Connect.Success" :
+				case "NetConnection.Connect.Success":
 					trace(NAME + ":Connection Success");		
-					notifyConnectionStatusListener(true);			
+					//notifyConnectionStatusListener(true);			
 					break;
 			
-				case "NetConnection.Connect.Failed" :			
-					trace(NAME + ":Connection to chat server failed");
-					notifyConnectionStatusListener(false);
+				case "NetConnection.Connect.Failed":
+					addError("ChatSO connection failed");			
 					break;
 					
-				case "NetConnection.Connect.Closed" :									
-					trace(NAME + ":Connection to chat server closed");
-					notifyConnectionStatusListener(false);
+				case "NetConnection.Connect.Closed":
+					addError("Connection to ChatSO was closed.");									
+					notifyConnectionStatusListener(false, _soErrors);
 					break;
 					
-				case "NetConnection.Connect.InvalidApp" :				
-					trace(NAME + ":Chat application not found on server");
-					notifyConnectionStatusListener(false);
+				case "NetConnection.Connect.InvalidApp":
+					addError("ChatSO not found in server");				
 					break;
 					
-				case "NetConnection.Connect.AppShutDown" :
-					trace(NAME + ":Chat application has been shutdown");
-					notifyConnectionStatusListener(false);
+				case "NetConnection.Connect.AppShutDown":
+					addError("ChatSO is shutting down");
 					break;
 					
-				case "NetConnection.Connect.Rejected" :
-					trace(NAME + ":No permissions to connect to the chat application" );
-					notifyConnectionStatusListener(false);
+				case "NetConnection.Connect.Rejected":
+					addError("No permissions to connect to the chat SO");
 					break;
 					
 				default :
+					addError("ChatSO " + event.info.code);
 				   trace(NAME + ":default - " + event.info.code );
-				   notifyConnectionStatusListener(false);
 				   break;
 			}
 		}
 			
-		private function asyncErrorHandler ( event : AsyncErrorEvent ) : void
+		private function asyncErrorHandler (event:AsyncErrorEvent):void
 		{
-			trace( "ChatSO asyncErrorHandler " + event.error);
-			notifyConnectionStatusListener(false);
+			addError("ChatSO asynchronous error.");
+		}
+		
+		private function addError(error:String):void {
+			if (_soErrors == null) {
+				_soErrors = new Array();
+			}
+			_soErrors.push(error);
 		}
 	}
 }

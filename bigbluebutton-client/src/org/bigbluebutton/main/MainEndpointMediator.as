@@ -82,8 +82,14 @@ package org.bigbluebutton.main
 					modulesProxy.moduleStarted(message.getBody() as String, true);
 					break;
 				case EndpointMessageConstants.MODULE_STOPPED:
-					trace(NAME + "::Got MODULE_STOPPED from " + message.getBody() as String);
-					modulesProxy.moduleStarted(message.getBody() as String, false);
+					trace(NAME + "::Got MODULE_STOPPED from " + message.getBody() as String);					
+					var info:Object = message.getBody();
+					modulesProxy.moduleStarted(info.moduleId, false);
+					if (info.moduleId == "ChatModule") {
+						trace(info.moduleId + " has stopped [" + info.manual + "]");
+						if (! info.manual)
+						sendNotification(MainApplicationConstants.MODULE_STOPPED, message.getBody());
+					}
 					break;
 				case EndpointMessageConstants.ADD_WINDOW:
 					trace(NAME + "::Got ADD_WINDOW from " + message.getHeader().SRC as String);

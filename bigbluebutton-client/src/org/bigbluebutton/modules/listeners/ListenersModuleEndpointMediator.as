@@ -57,8 +57,10 @@ package org.bigbluebutton.modules.listeners
 				case ListenersModuleConstants.DISCONNECTED:
 					trace(NAME + ':Sending MODULE_STOPPED message to main');
 					facade.sendNotification(ListenersModuleConstants.CLOSE_WINDOW);
+					var info:Object = new Object(); //notification.getBody();
+					info["moduleId"] = _module.moduleId;
 					_endpoint.sendMessage(EndpointMessageConstants.MODULE_STOPPED, 
-							EndpointMessageConstants.TO_MAIN_APP, _module.moduleId);
+							EndpointMessageConstants.TO_MAIN_APP, info);
 					break;
 				case ListenersModuleConstants.ADD_WINDOW:
 					trace(NAME + ':Sending ADD_WINDOW message to main');

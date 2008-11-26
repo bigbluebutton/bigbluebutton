@@ -61,8 +61,10 @@ package org.bigbluebutton.modules.presentation
 					facade.sendNotification(PresentModuleConstants.REMOVE_UPLOAD_WINDOW);
 					facade.sendNotification(PresentModuleConstants.THUMBNAIL_WINDOW_CLOSE);
 					facade.sendNotification(PresentModuleConstants.CLOSE_PRESENT_WINDOW);
+					var info:Object = new Object(); // notification.getBody();
+					info["moduleId"] = _module.moduleId;
 					_endpoint.sendMessage(EndpointMessageConstants.MODULE_STOPPED, 
-							EndpointMessageConstants.TO_MAIN_APP, _module.moduleId);
+							EndpointMessageConstants.TO_MAIN_APP, info);
 					break;
 				case PresentModuleConstants.ADD_WINDOW:
 					trace('Sending Present ADD_WINDOW message to main');

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+    title="Module Stopped" showCloseButton="true" creationComplete="init()"
+    x="168" y="86" layout="absolute" width="500" height="200">
+	<mx:Script>
+		<![CDATA[
+			import mx.managers.PopUpManager;
+			import org.bigbluebutton.main.view.events.StartModuleEvent;
+			
+			private var moduleName:String;
+			
+			private function init():void {
+				addEventListener(Event.CLOSE, onModuleStoppedWindowClose);
+			}
+			
+			 public function displayErrors(moduleName:String, errors:Array):void {
+            	this.moduleName = moduleName;
+            	if (errors != null) {
+            		title = moduleName + " has stopped.";
+            		errorsTextArea.htmlText = moduleName + " has stopped with the following error(s):<br/>";
+            		for (var i:int=0; i<errors.length; i++) {
+            			errorsTextArea.htmlText += "(" + (i+1) + ") " + errors[i] + "<br/>";
+            		}
+            	}
+            }
+            
+            private function restartModule():void {
+            	dispatchEvent(new StartModuleEvent(moduleName));
+            	PopUpManager.removePopUp(this);
+            }
+            
+            private function onModuleStoppedWindowClose(e:Event):void {
+            	PopUpManager.removePopUp(this);
+            }
+		]]>
+	</mx:Script>
+	
+	<mx:TextArea id="errorsTextArea" visible="true" editable="false" width="100%" height="100%" focusEnabled="false" color="blue"/>
+	<mx:ControlBar horizontalAlign="center" verticalAlign="middle" x="0" y="106">
+		<mx:Spacer width="100%"/>
+		<mx:Button id="retryBtn" label="Start Module" click="restartModule()"/>
+	</mx:ControlBar>	
+</mx:TitleWindow> 

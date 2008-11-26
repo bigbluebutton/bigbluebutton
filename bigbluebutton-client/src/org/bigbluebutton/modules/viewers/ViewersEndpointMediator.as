@@ -74,8 +74,10 @@ package org.bigbluebutton.modules.viewers
 					break;
 				case ViewersModuleConstants.DISCONNECTED:
 					trace('Sending Viewers MODULE_STOPPED message to main');
+					var info:Object = new Object(); //notification.getBody();
+					info["moduleId"] = _module.moduleId;
 					_endpoint.sendMessage(EndpointMessageConstants.MODULE_STOPPED, 
-							EndpointMessageConstants.TO_MAIN_APP, _module.moduleId);
+							EndpointMessageConstants.TO_MAIN_APP, info);
 					break;
 				case ViewersModuleConstants.ADD_WINDOW:
 					trace('Sending Viewers ADD_WINDOW message to main');

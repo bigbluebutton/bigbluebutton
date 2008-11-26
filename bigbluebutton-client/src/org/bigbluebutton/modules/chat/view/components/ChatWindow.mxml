@@ -19,35 +19,13 @@
 			private var sizeM:Menu;					
 			public static const SEND_MESSAGE:String = 'sendMessageEvent';
 			
-			//Full screen?
-			private var dispState:String;
-			
 			private var _xPosition:int;
 			private var _yPosition:int;
 						
 			private function init():void{
-				//Initialize full screen handler
-				Application.application.stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
-				dispState = Application.application.stage.displayState;
+
 			}
-			
-			private function fullScreenHandler(evt:FullScreenEvent):void {
-				dispState = Application.application.stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
-				if (evt.fullScreen) {
-					//Notify user that the keyboard is not working
-					this.txtMsg.text = "Keyboard unavailable in full screen";
-					this.txtMsg.enabled = false;
-					this.maximizeRestoreBtn.visible = false;
-					if (this.maximized){
-						this.restore();
-					}
-				} else{
-					this.txtMsg.text = '';
-					this.txtMsg.enabled = true;
-					this.maximizeRestoreBtn.visible = true;
-				}
-			}
-						
+									
 			public function showNewMessage(message:String):void
 			{
 				txtChatBox.htmlText += message + "\n";
@@ -112,15 +90,10 @@
             
 		]]>
 	</mx:Script>
-	
-	<mx:TextArea id="txtChatBox" editable="false" width="100%" height="100%" focusEnabled="false" updateComplete="updateScroll()"/>
-		
-	<mx:ApplicationControlBar width="100%" height="10%">
-		
-				<mx:TextInput id="txtMsg" width="100%" enter="sendMessages()"/>
-				<mx:ColorPicker id="cmpColorPicker" showTextField="false" toolTip="Text Color" selectedColor="0x000000"/>
-				<mx:Button label="Send" id="send" toolTip="Send Message" click="sendMessages()"/>
-		
-	    
+	<mx:TextArea id="txtChatBox" editable="false" width="100%" height="100%" focusEnabled="false" updateComplete="updateScroll()"/>		
+	<mx:ApplicationControlBar id="chatCtrlBar" width="100%" height="10%">		
+		<mx:TextInput id="txtMsg" width="100%" enter="sendMessages()"/>
+		<mx:ColorPicker id="cmpColorPicker" showTextField="false" toolTip="Text Color" selectedColor="0x000000"/>
+		<mx:Button label="Send" id="sendBtn" toolTip="Send Message" click="sendMessages()"/>			    
 	</mx:ApplicationControlBar>
 </MDIWindow>

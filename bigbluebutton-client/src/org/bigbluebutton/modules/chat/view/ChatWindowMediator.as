@@ -21,7 +21,6 @@ package org.bigbluebutton.modules.chat.view
 {
 	import flash.events.Event;
 	
-	import org.bigbluebutton.modules.chat.ChatEndpointMediator;
 	import org.bigbluebutton.modules.chat.ChatModuleConstants;
 	import org.bigbluebutton.modules.chat.model.business.ChatProxy;
 	import org.bigbluebutton.modules.chat.model.vo.*;
@@ -38,6 +37,7 @@ package org.bigbluebutton.modules.chat.view
 		
 		private var _module:ChatModule;
 		private var _chatWindow:ChatWindow;
+		private var _chatWindowOpen:Boolean = false;
 		
 		public function ChatWindowMediator(module:ChatModule)
 		{
@@ -57,8 +57,7 @@ package org.bigbluebutton.modules.chat.view
 
 		public function onSendChatMessage(e:Event):void
 		{
-			var newMessage:String;
-			
+			var newMessage:String;			
 			newMessage = "<font color=\"#" + _chatWindow.cmpColorPicker.selectedColor.toString(16) + "\"><b>[" + 
 					_module.username +" - "+ time()+ "]</b> " + _chatWindow.txtMsg.text + "</font>";
 			proxy.sendMessage(newMessage);
@@ -87,7 +86,10 @@ package org.bigbluebutton.modules.chat.view
 					_chatWindow.showNewMessage(notification.getBody() as String);
 					break;	
 				case ChatModuleConstants.CLOSE_WINDOW:
-					facade.sendNotification(ChatModuleConstants.REMOVE_WINDOW, _chatWindow);
+					if (_chatWindowOpen) {
+						facade.sendNotification(ChatModuleConstants.REMOVE_WINDOW, _chatWindow);
+						_chatWindowOpen = false;
+					}
 					break;					
 				case ChatModuleConstants.OPEN_WINDOW:
 		   			_chatWindow.width = 250;
@@ -97,6 +99,7 @@ package org.bigbluebutton.modules.chat.view
 		   			_chatWindow.xPosition = 700;
 		   			_chatWindow.yPosition = 20;
 		   			facade.sendNotification(ChatModuleConstants.ADD_WINDOW, _chatWindow); 
+		   			_chatWindowOpen = true;
 		   			proxy.getChatTranscript();
 					break;
 			}

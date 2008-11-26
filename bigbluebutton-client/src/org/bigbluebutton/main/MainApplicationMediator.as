@@ -28,6 +28,7 @@ package org.bigbluebutton.main
 					MainApplicationConstants.MODULE_LOADED,
 					MainApplicationConstants.MODULES_START,
 					MainApplicationConstants.MODULE_STARTED,
+					MainApplicationConstants.RESTART_MODULE,
 					MainApplicationConstants.USER_LOGGED_IN,
 					MainApplicationConstants.LOGOUT
 					];
@@ -89,9 +90,10 @@ package org.bigbluebutton.main
 					proxy.stopModule("VideoModule");
 					proxy.stopModule("ViewersModule");					
 					break;
-				case MainApplicationConstants.MODULE_STARTED:
-					trace(NAME + '::Received MODULE_STARTED for ' + notification.getBody() as String);
-					//sendNotification(MainApplicationConstants.OPEN_WINDOW, "ChatModule");
+				case MainApplicationConstants.RESTART_MODULE:
+					trace(NAME + '::Received RESTART_MODULE for ' + notification.getBody() as String);
+					proxy.stopModule(notification.getBody() as String);
+					facade.sendNotification(MainApplicationConstants.MODULE_START, notification.getBody());
 					break;	
 				case MainApplicationConstants.USER_LOGGED_IN:
 					trace(NAME + '::Received USER_LOGGED_IN');
@@ -99,9 +101,6 @@ package org.bigbluebutton.main
 					facade.sendNotification(MainApplicationConstants.MODULE_START, "PresentationModule");
 					facade.sendNotification(MainApplicationConstants.MODULE_START, "ListenersModule");
 					facade.sendNotification(MainApplicationConstants.MODULE_START, "VideoModule");
-					//proxy.loadModule("ChatModule");
-					//proxy.loadModule("PresentationModule");
-					//proxy.loadModule("ListenersModule");
 					break;
 			}
 		}		

@@ -55,8 +55,10 @@ package org.bigbluebutton.modules.video
 					break;
 				case VideoModuleConstants.DISCONNECTED:
 					trace('Sending Video MODULE_STOPPED message to main');
+					var info:Object = new Object(); //notification.getBody();
+					info["moduleId"] = _module.moduleId;
 					_endpoint.sendMessage(EndpointMessageConstants.MODULE_STOPPED, 
-							EndpointMessageConstants.TO_MAIN_APP, _module.moduleId);
+							EndpointMessageConstants.TO_MAIN_APP, info);
 					break;
 				case VideoModuleConstants.ADD_WINDOW:
 					trace('Sending Video ADD_WINDOW message to main');

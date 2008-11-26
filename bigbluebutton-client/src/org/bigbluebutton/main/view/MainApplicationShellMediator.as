@@ -20,12 +20,17 @@
 package org.bigbluebutton.main.view 
 {
 	import flash.events.Event;
+	import flash.geom.Point;
 	
 	import flexlib.mdi.containers.MDIWindow;
+	
+	import mx.managers.PopUpManager;
 	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.main.MainApplicationConstants;
 	import org.bigbluebutton.main.view.components.MainApplicationShell;
+	import org.bigbluebutton.main.view.components.ModuleStoppedWindow;
+	import org.bigbluebutton.main.view.events.StartModuleEvent;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
 
@@ -47,6 +52,7 @@ package org.bigbluebutton.main.view
 		{
 			super( NAME, viewComponent );	
 			viewComponent.toolbar.addEventListener(MainApplicationConstants.LOGOUT_EVENT, onLogoutEventHandler);
+			viewComponent.addEventListener(StartModuleEvent.START_MODULE_RETRY_EVENT, onRestartModuleEvent);
 		}
 							
 		protected function get shell():MainApplicationShell
@@ -59,6 +65,10 @@ package org.bigbluebutton.main.view
 			sendNotification(MainApplicationConstants.LOGOUT);			
 		}
 		
+		private function onRestartModuleEvent(e:StartModuleEvent):void {
+			sendNotification(MainApplicationConstants.RESTART_MODULE, e.moduleName);
+		}
+		
 		override public function listNotificationInterests():Array{
 			return [
 					MainApplicationConstants.ADD_WINDOW_MSG,
@@ -66,6 +76,7 @@ package org.bigbluebutton.main.view
 					MainApplicationConstants.USER_LOGGED_IN,
 					MainApplicationConstants.USER_LOGGED_OUT,
 					MainApplicationConstants.LOADED_MODULE,
+					MainApplicationConstants.MODULE_STOPPED,
 					MainApplicationConstants.MODULE_LOAD_PROGRESS
 					];
 		}
@@ -88,8 +99,9 @@ package org.bigbluebutton.main.view
 					shell.loadedModules.text = "";
 					shell.loadProgress.text = "";
 					break;
-				case MainApplicationConstants.USER_LOGGED_OUT:
-					//shell.toolbar.visible = false;
+				case MainApplicationConstants.MODULE_STOPPED:
+					var info:Object = notification.getBody();
+					handleModuleStopped(info.moduleId, info.errors);
 					break;
 				case MainApplicationConstants.LOADED_MODULE:
 					shell.loadedModules.text += notification.getBody() + "(loaded) ";
@@ -107,6 +119,20 @@ package org.bigbluebutton.main.view
 					shell.loadProgress.text = "Loading: " + mod + " " + prog + "% loaded.";
 					break;
 			}
+		}
+		
+		private function handleModuleStopped(moduleName:String, errors:Array):void {
+				var t:ModuleStoppedWindow = ModuleStoppedWindow(PopUpManager.createPopUp( shell.mdiCanvas, ModuleStoppedWindow, false));
+				t.addEventListener(StartModuleEvent.START_MODULE_RETRY_EVENT, onRestartModuleEvent);								
+				t.displayErrors(moduleName, errors);
+				
+				var point1:Point = new Point();
+            	// Calculate position of TitleWindow in Application's coordinates. 
+            	point1.x = 200;
+            	point1.y = 400;                
+            	point1 = shell.localToGlobal(point1);
+           	 	t.x = point1.x + 25;
+            	t.y = point1.y + 25;				
 		}
 	}
 }

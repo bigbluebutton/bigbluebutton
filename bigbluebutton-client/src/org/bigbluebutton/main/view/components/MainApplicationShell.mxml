@@ -8,6 +8,10 @@
 		
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.main.view.events.StartModuleEvent;
+			import mx.collections.ArrayCollection;
+			import mx.managers.PopUpManager;
+			import mx.containers.TitleWindow;
 			import mx.core.Application;
 			import mx.controls.Alert;
 			import org.bigbluebutton.common.Constants;
@@ -22,6 +26,8 @@
 			
 			private var dispState:String; //full-screen?
 			private var images:Images = new Images();
+			private var stoppedModules:ArrayCollection;
+			
 			[Bindable] private var fullscreen_icon:Class = images.full_screen;
 						
 			protected function initializeShell():void
@@ -66,8 +72,7 @@
 				} catch (err:SecurityError) {
 					// ignore
 				}
-	   		}
-						
+	   		}			
 		]]>
 	</mx:Script>
 			
