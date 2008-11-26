@@ -57,6 +57,7 @@ package org.bigbluebutton.modules.presentation
 		public static const REMOVE_WINDOW:String = 'REMOVE_WINDOW';
 		public static const REMOVE_UPLOAD_WINDOW:String = "REMOVE_UPLOAD_WINDOW";
 		
+		public static const PRESENTER_NAME:String = 'PRESENTER_NAME';
 		public static const PRESENTATION_LOADED:String = 'PRESENTATION_LOADED';
 		public static const SLIDE_LOADED:String = "SLIDE_LOADED";
 		public static const THUMBNAIL_WINDOW_CLOSE:String = "THUMBNAIL_WINDOW_CLOSE";

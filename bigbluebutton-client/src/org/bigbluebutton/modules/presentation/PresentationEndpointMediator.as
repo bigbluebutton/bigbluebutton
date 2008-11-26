@@ -90,7 +90,7 @@ package org.bigbluebutton.modules.presentation
 					break;
 				case EndpointMessageConstants.ASSIGN_PRESENTER:
 					trace('Received ASSIGN_PRESENTER message from ' + message.getHeader().SRC);
-					facade.sendNotification(PresentModuleConstants.PRESENTER_MODE);
+					facade.sendNotification(PresentModuleConstants.PRESENTER_MODE, message.getBody());
 					break;
 				case EndpointMessageConstants.BECOME_VIEWER:
 					trace('Received BECOME_VIEWER message from ' + message.getHeader().SRC);

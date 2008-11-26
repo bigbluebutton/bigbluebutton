@@ -111,6 +111,10 @@ package org.bigbluebutton.modules.presentation.model.business
 			_presentService.clearPresentation();
 		}
 		
+		public function setPresenterName(presenterName:String):void {
+			_presentService.setPresenterName(presenterName);
+		}
+		
 		public function gotoSlide(num:int):void {
 			sendNotification(PresentModuleConstants.DISPLAY_SLIDE,num);
 			if (isPresenter()) {

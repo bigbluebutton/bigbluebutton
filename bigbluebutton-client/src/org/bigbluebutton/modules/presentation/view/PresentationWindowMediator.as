@@ -140,7 +140,8 @@ package org.bigbluebutton.modules.presentation.view
 					PresentModuleConstants.VIEWER_MODE,
 					PresentModuleConstants.REMOVE_UPLOAD_WINDOW,
 					PresentModuleConstants.THUMBNAIL_WINDOW_CLOSE,
-					PresentModuleConstants.CLEAR_EVENT
+					PresentModuleConstants.CLEAR_EVENT,
+					PresentModuleConstants.PRESENTER_NAME
 					];
 		}
 		
@@ -161,7 +162,7 @@ package org.bigbluebutton.modules.presentation.view
 					handlePresentationLoadedEvent();
 					break;
 				case PresentModuleConstants.PRESENTER_MODE:
-					handlePresenterMode();
+					handlePresenterMode(notification.getBody().presenterName);
 					break;
 				case PresentModuleConstants.VIEWER_MODE:
 					handleViewerMode();
@@ -191,9 +192,19 @@ package org.bigbluebutton.modules.presentation.view
 				case PresentModuleConstants.THUMBNAIL_WINDOW_CLOSE:
 					removeThumbnailPopup();
 					break;
+				case PresentModuleConstants.PRESENTER_NAME:
+					displayPresenterName(notification.getBody() as String);
+					break;
 			}
 		}
 	
+		private function  displayPresenterName(presenterName:String):void {
+			if (! proxy.isPresenter()) {
+				_presWin.presenterNameLabel.text = presenterName + " is currently presenting.";
+				_presWin.presenterNameLabel.visible = true;
+			}
+		}
+		
 		private function resetPositionAndSize():void {
 			_presWin.slideView.myLoader.width = _presWin.slideView.imageCanvas.width;
 			_presWin.slideView.myLoader.height = _presWin.slideView.imageCanvas.height;
@@ -227,11 +238,12 @@ package org.bigbluebutton.modules.presentation.view
 			}			
 		}
 		
-		private function handlePresenterMode():void
+		private function handlePresenterMode(presenterName:String):void
 		{			
 			_presWin.uploadPres.visible = true;
 			
 			proxy.presenterMode(true);
+			proxy.setPresenterName(presenterName);
 			if (proxy.presentationLoaded) {
             	_presWin.slideNumLbl.text = (_presWin.slideView.selectedSlide + 1) + " of " + _presWin.slideView.slides.length;	
 				_presWin.backButton.visible = true;

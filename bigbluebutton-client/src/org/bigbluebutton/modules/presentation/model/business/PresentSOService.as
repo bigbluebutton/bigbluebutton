@@ -14,20 +14,20 @@ package org.bigbluebutton.modules.presentation.model.business
 	{
 		public static const NAME:String = "PresentSOService";
 
-		private static const SHAREDOBJECT : String = "presentationSO";
-		private static const PRESENTER : String = "presenter";
-		private static const SHARING : String = "sharing";
-		private static const UPDATE_MESSAGE : String = "updateMessage";
-		private static const CURRENT_PAGE : String = "currentPage";
+		private static const SHAREDOBJECT:String = "presentationSO";
+		private static const PRESENTER:String = "presenter";
+		private static const SHARING:String = "sharing";
+		private static const UPDATE_MESSAGE:String = "updateMessage";
+		private static const CURRENT_PAGE:String = "currentPage";
 		
-		private static const UPDATE_RC : String = "UPDATE";
-		private static const SUCCESS_RC : String = "SUCCESS";
-		private static const FAILED_RC : String = "FAILED";
-		private static const EXTRACT_RC : String = "EXTRACT";
-		private static const CONVERT_RC : String = "CONVERT";
+		private static const UPDATE_RC:String = "UPDATE";
+		private static const SUCCESS_RC:String = "SUCCESS";
+		private static const FAILED_RC:String = "FAILED";
+		private static const EXTRACT_RC:String = "EXTRACT";
+		private static const CONVERT_RC:String = "CONVERT";
 		
-		private var _presentationSO : SharedObject;
-		private var netConnectionDelegate: NetConnectionDelegate;
+		private var _presentationSO:SharedObject;
+		private var netConnectionDelegate:NetConnectionDelegate;
 		
 		private var _slides:IPresentationSlides;
 		private var _uri:String;
@@ -174,6 +174,9 @@ package org.bigbluebutton.modules.presentation.model.business
 			sendMessage(PresentModuleConstants.CLEAR_EVENT);
 		}
 
+		public function setPresenterName(presenterName:String):void {
+			_presentationSO.setProperty(PRESENTER, presenterName);
+		}
 		/**
 		 * Send an event out to the server to go to a new page in the SlidesDeck 
 		 * @param page
@@ -253,10 +256,9 @@ package org.bigbluebutton.modules.presentation.model.business
 					}
 					break;
 
-				case CURRENT_PAGE :
-//						presentation.decks.selected = presentationSO.data.currentPage.pagenumber;
-//						trace("Current page is " + presentationSO.data.currentPage.pagenumber);
-//						sendNotification(PresentationFacade.UPDATE_PAGE, presentationSO.data.currentPage.pagenumber);
+				case PRESENTER:
+					if (_presentationSO.data[PRESENTER] != null)
+						sendMessage(PresentModuleConstants.PRESENTER_NAME, _presentationSO.data[PRESENTER]);
 					break;
 							
 				default:

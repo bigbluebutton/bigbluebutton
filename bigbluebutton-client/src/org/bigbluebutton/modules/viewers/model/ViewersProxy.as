@@ -97,7 +97,8 @@ package org.bigbluebutton.modules.viewers.model
 						isPresenter = true;
 						var newStatus:Status = new Status("presenter", body.assignedBy);
 						_viewersService.iAmPresenter(me.userid, true);
-						sendNotification(msg, body);
+						var presenterInfo:Object = {presenterId:body.assignedTo, presenterName:me.name, assignedBy:body.assignedBy}
+						sendNotification(msg, presenterInfo);
 					} else {
 						// Somebody else has become presenter.
 						if (isPresenter) {

@@ -60,6 +60,7 @@
     <mx:ApplicationControlBar id="presCtrlBar" width="100%">
     	  <mx:Button id="uploadPres" icon="{uploadIcon}" visible="false" width="20" height="20"
     	   		toolTip="Upload PDF document for presentation." click="dispatchEvent(new Event(PresentationWindowMediator.OPEN_UPLOAD))"/>    
+    	  <mx:Label id="presenterNameLabel" visible="false" text=""/>
     	  <mx:Spacer width="50%"/>	
     	  <mx:Button id="backButton" icon="{backwardIcon}" visible="false" width="20" height="20"
     	   		toolTip="Previous slide." click="dispatchEvent(new Event(PresentationWindowMediator.PREVIOUS_SLIDE))"/>
