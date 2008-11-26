@@ -194,9 +194,19 @@ package org.bigbluebutton.modules.presentation.view
 			}
 		}
 	
+		private function resetPositionAndSize():void {
+			_presWin.slideView.myLoader.width = _presWin.slideView.imageCanvas.width;
+			_presWin.slideView.myLoader.height = _presWin.slideView.imageCanvas.height;
+			_presWin.slideView.myLoader.x = 0;
+			_presWin.slideView.myLoader.y = 0;			
+		}
+		
 		private function handleDisplaySlide(slidenum:int):void {
-			//trace('DISPLAY_SLIDE in PresentationWindowMediator ' + slidenum);
 			if ((_presWin.slideView.slides != null) && (slidenum >= 0) && (slidenum < _presWin.slideView.slides.length)) {
+				
+				//Disable for now.
+				//resetPositionAndSize();
+				
 				_presWin.slideView.selectedSlide = slidenum;
 				_presWin.slideNumLbl.text = (slidenum + 1) + " of " + _presWin.slideView.slides.length;
 				
