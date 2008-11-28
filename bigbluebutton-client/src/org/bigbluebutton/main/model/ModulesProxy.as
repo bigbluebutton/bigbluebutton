@@ -42,17 +42,17 @@ package org.bigbluebutton.main.model
 
 /*		
 		public function loadModules():void {
-			trace('Loading all modules');
+			LogUtil.debug('Loading all modules');
 			for (var key:Object in _modules) {
-				trace(key, _modules[key].attributes.url);
+				LogUtil.debug(key, _modules[key].attributes.url);
 				loadModule(key, loadModuleResultHandler);
 			}
 		}
 		
 		public function startModules(router:Router):void {
-			trace('Starting all modules');
+			LogUtil.debug('Starting all modules');
 			for (var key:Object in _modules) {
-				trace('Starting ' + _modules[key].name);
+				LogUtil.debug('Starting ' + _modules[key].name);
 				var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
 				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
 				if (m.attributes.name == 'ViewersModule') {
@@ -63,7 +63,7 @@ package org.bigbluebutton.main.model
 */
 
 		public function startModule(name:String, router:Router):void {
-			trace('Request to start module ' + name);
+			LogUtil.debug('Request to start module ' + name);
 			modulesManager.startModule(name, router);
 		}
 
@@ -72,7 +72,7 @@ package org.bigbluebutton.main.model
 		}
 						
 		public function loadModule(name:String):void {
-			trace('Loading ' + name);
+			LogUtil.debug('Loading ' + name);
 			modulesManager.loadModule(name);
 		}
 				
@@ -92,7 +92,7 @@ package org.bigbluebutton.main.model
 /*			for (var key:Object in _modules) {				
 				var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
 				if (m != null) {
-					trace('Setting ' + _modules[key].name + ' started to ' + started);
+					LogUtil.debug('Setting ' + _modules[key].name + ' started to ' + started);
 					m.started = started;
 				}
 			}		

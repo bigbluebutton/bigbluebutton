@@ -12,7 +12,7 @@
 			}
 			
 			private function createSuite():TestSuite{
-				trace("test");
+				LogUtil.debug("test");
 				var ts:TestSuite = new TestSuite();
 		
 				

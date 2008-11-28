@@ -23,18 +23,18 @@
    			[Bindable] private var presenterIcon:Object = images.presenter;
    			
    			private function init():void {
-   				trace('registering for change status events');
+   				LogUtil.debug('registering for change status events');
    				parentDocument.addEventListener(ChangeStatusEvent.CHANGE_STATUS_EVENT, onChangeStatusEvent);
    				updateStatus('init');
   			}
 
    			private function onChangeStatusEvent(e:ChangeStatusEvent):void {
-   				trace('changing status icon');  				
+   				LogUtil.debug('changing status icon');  				
    				updateStatus('onChangeStatusEvent');
    			}
    			
    			private function updateStatus(from:String):void {
-   				trace('updating status from ' + from + " user=" + data.name + " presenter=" + data.presenter + " stream=" + data.hasStream);
+   				LogUtil.debug('updating status from ' + from + " user=" + data.name + " presenter=" + data.presenter + " stream=" + data.hasStream);
    				
    				if (data.presenter) {
    					presIcon.source = presenterIcon;

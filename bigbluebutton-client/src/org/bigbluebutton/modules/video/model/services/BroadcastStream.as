@@ -89,7 +89,7 @@ package org.bigbluebutton.modules.video.model.services
 				} 
 				else 
 				{
-					trace( "StreamDelegate::Can't publish stream, no input device(s) selected" );					
+					LogUtil.debug( "StreamDelegate::Can't publish stream, no input device(s) selected" );					
 					_media.broadcasting = false;
 				}
 			}
@@ -103,12 +103,12 @@ package org.bigbluebutton.modules.video.model.services
 					// NetStream object must be connected.
 					case 2126 :
 						//
-						trace( "StreamDelegate::Can't publish stream, not connected to server" );
+						LogUtil.debug( "StreamDelegate::Can't publish stream, not connected to server" );
 						break;
 					//
 					default :
 					   //
-					   trace( "StreamDelegate::" + e.toString());
+					   LogUtil.debug( "StreamDelegate::" + e.toString());
 					   break;
 				}
 			}
@@ -221,70 +221,70 @@ package org.bigbluebutton.modules.video.model.services
 			switch ( statusCode ) {
 				case "NetStream.Play.Start" :
 					// Shouldn't be getting this playback since we are broadcasting
-					trace("NetStream.Play.Start for broadcast stream [" + _media.streamName + "]");
+					LogUtil.debug("NetStream.Play.Start for broadcast stream [" + _media.streamName + "]");
 					break;
 					
 				case "NetStream.Play.Stop":	
 					// Shouldn't be getting this playback since we are broadcasting
-					trace("NetStream.Play.Stop for broadcast stream [" + _media.streamName + "]");		
+					LogUtil.debug("NetStream.Play.Stop for broadcast stream [" + _media.streamName + "]");		
 					break;
 				
 				case "NetStream.Buffer.Empty":	
 					// Shouldn't be getting this playback since we are broadcasting
-					trace("NetStream.Buffer.Empty for broadcast stream [" + _media.streamName + "]");	
+					LogUtil.debug("NetStream.Buffer.Empty for broadcast stream [" + _media.streamName + "]");	
 					break;
 				
 				case "NetStream.Play.UnpublishNotify":
 					// Shouldn't be getting this playback since we are broadcasting
-					trace("NetStream.Play.UnpublishNotify for broadcast stream [" + _media.streamName + "]");
+					LogUtil.debug("NetStream.Play.UnpublishNotify for broadcast stream [" + _media.streamName + "]");
 					break;
 					
 				case "NetStream.Play.StreamNotFound":
 					// Shouldn't be getting this playback since we are broadcasting
-					trace("NetStream.Play.StreamNotFound for broadcast stream [" + _media.streamName + "]");
+					LogUtil.debug("NetStream.Play.StreamNotFound for broadcast stream [" + _media.streamName + "]");
 					break;
 				
 				case "NetStream.Pause.Notify":
 					// Shouldn't be getting this playback since we are broadcasting
-					trace("NetStream.Pause.Notify for broadcast stream [" + _media.streamName + "]");				
+					LogUtil.debug("NetStream.Pause.Notify for broadcast stream [" + _media.streamName + "]");				
 					break;
 					
 				case "NetStream.Unpause.Notify":
 					// Shouldn't be getting this playback since we are broadcasting
-					trace("NetStream.Unpause.Notify for broadcast stream [" + _media.streamName + "]");
+					LogUtil.debug("NetStream.Unpause.Notify for broadcast stream [" + _media.streamName + "]");
 					break;
 					
 				case "NetStream.Publish.Start":
 					_media.broadcasting = true;
-					trace("NetStream.Publish.Start for broadcast stream [" + _media.streamName + "]");
+					LogUtil.debug("NetStream.Publish.Start for broadcast stream [" + _media.streamName + "]");
 					break;
 					
 				case "NetStream.Publish.Idle":
-					trace("NetStream.Publish.Idle for broadcast stream [" + _media.streamName + "]");
+					LogUtil.debug("NetStream.Publish.Idle for broadcast stream [" + _media.streamName + "]");
 					break;
 					
 				case "NetStream.Record.Failed":
-					trace("NetStream.Record.Failed for broadcast stream [" + _media.streamName + "]");
+					LogUtil.debug("NetStream.Record.Failed for broadcast stream [" + _media.streamName + "]");
 					publishStopped();
 					break;
 					
 				case "NetStream.Record.Stop":
-					trace("NetStream.Record.Stop for broadcast stream [" + _media.streamName + "]");
+					LogUtil.debug("NetStream.Record.Stop for broadcast stream [" + _media.streamName + "]");
 					publishStopped();
 					break;
 					
 				case "NetStream.Record.Start":
-					trace("NetStream.Record.Start for broadcast stream [" + _media.streamName + "]");
+					LogUtil.debug("NetStream.Record.Start for broadcast stream [" + _media.streamName + "]");
 					_media.broadcasting = true;
 					break;
 					
 				case "NetStream.Unpublish.Success":
-					trace("NetStream.Unpublish.Success for broadcast stream [" + _media.streamName + "]");
+					LogUtil.debug("NetStream.Unpublish.Success for broadcast stream [" + _media.streamName + "]");
 					publishStopped();
 					break;
 					
 				case "NetStream.Publish.BadName":
-					trace("NetStream.Publish.BadName for broadcast stream [" + _media.streamName + "]");
+					LogUtil.debug("NetStream.Publish.BadName for broadcast stream [" + _media.streamName + "]");
 					publishStopped();
 					break;
 			}
@@ -303,13 +303,13 @@ package org.bigbluebutton.modules.video.model.services
 		 */		
 		public function handleFault(  event : Object  ) : void
 		{			
-			trace("BroadcastStreamDelegate::" + event.text );
+			LogUtil.debug("BroadcastStreamDelegate::" + event.text );
 			stop();
 		}
 		
 		public function onPlayStatus( info : Object ) : void 
 		{	
-			trace("BroadcastStreamDelegate::Playback - " + info.code  );
+			LogUtil.debug("BroadcastStreamDelegate::Playback - " + info.code  );
 		}
 			
 		public function onMetaData ( info : Object ) : void 

@@ -59,7 +59,7 @@ package org.bigbluebutton.modules.video.model.services
 			_netConnection.addEventListener( IOErrorEvent.IO_ERROR, netIOError );
 			
 			try {
-				trace( "Connecting to " + _uri);
+				LogUtil.debug( "Connecting to " + _uri);
 				_connectionError = null;								
 				_netConnection.connect(_uri );
 				
@@ -68,7 +68,7 @@ package org.bigbluebutton.modules.video.model.services
 				switch ( e.errorID ) 
 				{
 					case 2004 :						
-						trace("Error! Invalid server location: " + _uri);											   
+						LogUtil.debug("Error! Invalid server location: " + _uri);											   
 						break;						
 					default :
 					   break;
@@ -93,34 +93,34 @@ package org.bigbluebutton.modules.video.model.services
 			switch ( statusCode ) 
 			{
 				case "NetConnection.Connect.Success" :
-					trace("Connection to video application succeeded.");
+					LogUtil.debug("Connection to video application succeeded.");
 					_connectionListener(true);					
 					break;
 			
 				case "NetConnection.Connect.Failed" :
 					addError("Failed to connect to the application.");				
-					trace("Connection to video application failed");
+					LogUtil.debug("Connection to video application failed");
 					break;
 					
 				case "NetConnection.Connect.Closed" :					
 					addError("Connection to application closed.");				
-					trace("Connection to video application closed");
+					LogUtil.debug("Connection to video application closed");
 					_connectionListener(false, _connectionError);
 					break;
 					
 				case "NetConnection.Connect.InvalidApp" :				
 					addError("Could not find the application.");
-					trace("video application not found on server");
+					LogUtil.debug("video application not found on server");
 					break;
 					
 				case "NetConnection.Connect.AppShutDown" :
 					addError("Application has shutdown.");
-					trace("video application has been shutdown");
+					LogUtil.debug("video application has been shutdown");
 					break;
 					
 				case "NetConnection.Connect.Rejected" :
 					addError("Connection to the application was rejected.");
-					trace("No permissions to connect to the video application" );
+					LogUtil.debug("No permissions to connect to the video application" );
 					break;
 					
 				default :

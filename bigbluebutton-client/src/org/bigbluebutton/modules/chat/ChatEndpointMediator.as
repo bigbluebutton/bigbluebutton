@@ -8,7 +8,7 @@ package org.bigbluebutton.modules.chat
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
 	import org.puremvc.as3.multicore.utilities.pipes.interfaces.IPipeMessage;
-
+	
 	public class ChatEndpointMediator extends Mediator implements IMediator
 	{
 		public static const NAME:String = "ChatEndPointMediator";
@@ -27,7 +27,7 @@ package org.bigbluebutton.modules.chat
 			super(NAME,module);
 			_module = module;
 			_router = module.router
-			trace("Creating endpoint for ChatModule");
+			LogUtil.debug("Creating endpoint for ChatModule");
 			_endpoint = new Endpoint(_router, FROM_CHAT_MODULE, TO_CHAT_MODULE, messageReceiver);	
 		}
 		
@@ -48,15 +48,16 @@ package org.bigbluebutton.modules.chat
 		
 		override public function handleNotification(notification:INotification):void
 		{
+			LogUtil.debug("ChatEndPoint MSG. " + notification.getName());	
 			switch(notification.getName()){
 				case ChatModuleConstants.CONNECTED:
-					trace("Sending Chat MODULE_STARTED message to main");
+					LogUtil.debug("Sending Chat MODULE_STARTED message to main");
 					_endpoint.sendMessage(EndpointMessageConstants.MODULE_STARTED, 
 							EndpointMessageConstants.TO_MAIN_APP, _module.moduleId);
 					facade.sendNotification(ChatModuleConstants.OPEN_WINDOW);
 					break;
 				case ChatModuleConstants.DISCONNECTED:
-					trace('Sending Chat MODULE_STOPPED message to main');
+					LogUtil.debug('Sending Chat MODULE_STOPPED message to main');
 					facade.sendNotification(ChatModuleConstants.CLOSE_WINDOW);
 					var info:Object = notification.getBody();
 					info["moduleId"] = _module.moduleId
@@ -64,12 +65,12 @@ package org.bigbluebutton.modules.chat
 							EndpointMessageConstants.TO_MAIN_APP, info);
 					break;
 				case ChatModuleConstants.ADD_WINDOW:
-					trace('Sending Chat ADD_WINDOW message to main');
+					LogUtil.debug('Sending Chat ADD_WINDOW message to main');
 					_endpoint.sendMessage(EndpointMessageConstants.ADD_WINDOW, 
 							EndpointMessageConstants.TO_MAIN_APP, notification.getBody());
 					break;
 				case ChatModuleConstants.REMOVE_WINDOW:
-					trace('Sending Chat REMOVE_WINDOW message to main');
+					LogUtil.debug('Sending Chat REMOVE_WINDOW message to main');
 					_endpoint.sendMessage(EndpointMessageConstants.REMOVE_WINDOW, 
 							EndpointMessageConstants.TO_MAIN_APP, notification.getBody());
 					break;
@@ -84,7 +85,7 @@ package org.bigbluebutton.modules.chat
 					facade.sendNotification(ChatModuleConstants.CLOSE_WINDOW);
 					break;
 				case EndpointMessageConstants.OPEN_WINDOW:
-					//trace('Received OPEN_WINDOW message from ' + message.getHeader().SRC);
+					//LogUtil.debug('Received OPEN_WINDOW message from ' + message.getHeader().SRC);
 					//facade.sendNotification(ChatModuleConstants.OPEN_WINDOW);
 					break;
 			}

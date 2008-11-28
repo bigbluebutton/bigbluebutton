@@ -12,7 +12,7 @@ package org.bigbluebutton.modules.presentation.controller
 				if (p.isPresenter()) p.clearPresentation();
 				p.stop();
 			} else {
-				trace('Present Proxy not found.');
+				LogUtil.debug('Present Proxy not found.');
 			}
 			
 			

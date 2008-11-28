@@ -54,7 +54,7 @@ package org.bigbluebutton.modules.video.view
 		{
 			switch(notification.getName()){
 				case VideoModuleConstants.SETUP_COMPLETE:
-					trace(NAME + ":Got VideoModuleConstants.SETUP_COMPLETE");
+					LogUtil.debug(NAME + ":Got VideoModuleConstants.SETUP_COMPLETE");
 					facade.sendNotification(VideoModuleConstants.ADD_BUTTON, button);
 				break;
 			}

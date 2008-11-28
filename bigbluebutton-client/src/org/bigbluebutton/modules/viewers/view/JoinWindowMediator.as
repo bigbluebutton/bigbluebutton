@@ -85,7 +85,7 @@ package org.bigbluebutton.modules.viewers.view
 			switch(notification.getName())
 			{
 				case ViewersModuleConstants.OPEN_JOIN_WINDOW:
-					trace('Received request to OPEN_JOIN_WINDOW');
+					LogUtil.debug('Received request to OPEN_JOIN_WINDOW');
 					
 					_joinWindow.width = 350;
 		   			_joinWindow.height = 270;
@@ -97,7 +97,7 @@ package org.bigbluebutton.modules.viewers.view
 					break;
 					
 				case ViewersModuleConstants.CLOSE_JOIN_WINDOW:
-					trace('Received request to CLOSE_JOIN_WINDOW');
+					LogUtil.debug('Received request to CLOSE_JOIN_WINDOW');
 					_joinWindow.clear();
 					facade.sendNotification(ViewersModuleConstants.REMOVE_WINDOW, _joinWindow);
 					break;

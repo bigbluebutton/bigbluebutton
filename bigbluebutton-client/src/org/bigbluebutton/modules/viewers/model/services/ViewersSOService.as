@@ -57,7 +57,7 @@ package org.bigbluebutton.modules.viewers.model.services
 		
 		private function connectionSuccessListener(connected:Boolean, user:Object=null, failReason:String=""):void {
 			if (connected) {
-				trace(NAME + ":Connected to the Viewers application " + user.userid + " " + user.role);
+				LogUtil.debug(NAME + ":Connected to the Viewers application " + user.userid + " " + user.role);
 				_participants.me.role = user.role;
 				_participants.me.userid = user.userid;
 				_participants.me.room = user.room;
@@ -65,7 +65,7 @@ package org.bigbluebutton.modules.viewers.model.services
 				join();
 			} else {
 				leave();
-				trace(NAME + ":Disconnected from the Viewers application");
+				LogUtil.debug(NAME + ":Disconnected from the Viewers application");
 				notifyConnectionStatusListener(false, failReason);
 			}
 		}
@@ -82,7 +82,7 @@ package org.bigbluebutton.modules.viewers.model.services
 			_participantsSO.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);
 			_participantsSO.client = this;
 			_participantsSO.connect(netConnectionDelegate.connection);
-			trace(NAME + ":ViewersModules is connected to Shared object");
+			LogUtil.debug(NAME + ":ViewersModules is connected to Shared object");
 			notifyConnectionStatusListener(true);			
 		}
 		
@@ -100,7 +100,7 @@ package org.bigbluebutton.modules.viewers.model.services
 			var aUser:User = _participants.getParticipant(userid);			
 			if (aUser != null) {
 				aUser.addStatus(status);
-				trace('setting newStatus ' + status.name);
+				LogUtil.debug('setting newStatus ' + status.name);
 				_participantsSO.setProperty(userid.toString() + STATUS, aUser.status.source);
 				_participantsSO.setDirty(userid.toString() + STATUS);
 				//_participantsSO.send("addStatusCallback", userid, status);
@@ -117,7 +117,7 @@ package org.bigbluebutton.modules.viewers.model.services
 		public function changeStatus(userid:Number, status:Status):void {
 			var aUser:User = _participants.getParticipant(userid);			
 			if (aUser != null) {
-				trace('setting changeStatus ' + status.name);
+				LogUtil.debug('setting changeStatus ' + status.name);
 				aUser.changeStatus(status);
 				_participantsSO.setProperty(userid.toString() + STATUS, aUser.status.source);
 				_participantsSO.setDirty(userid.toString() + STATUS);
@@ -135,7 +135,7 @@ package org.bigbluebutton.modules.viewers.model.services
 		public function removeStatus(userid:Number, statusName:String):void {
 			var aUser:User = _participants.getParticipant(userid);			
 			if (aUser != null) {
-				trace('setting removeStatus ' + statusName);
+				LogUtil.debug('setting removeStatus ' + statusName);
 				aUser.removeStatus(statusName);
 				_participantsSO.setProperty(userid.toString() + STATUS, aUser.status.source);
 				_participantsSO.setDirty(userid.toString() + STATUS);
@@ -153,7 +153,7 @@ package org.bigbluebutton.modules.viewers.model.services
 		public function iAmPresenter(userid:Number, presenter:Boolean):void {
 			var aUser:User = _participants.getParticipant(userid);			
 			if (aUser != null) {
-				trace('iampresenter ' + userid);
+				LogUtil.debug('iampresenter ' + userid);
 				aUser.presenter = presenter;
 				_participantsSO.setProperty(userid.toString(), aUser);
 				_participantsSO.setDirty(userid.toString());
@@ -163,7 +163,7 @@ package org.bigbluebutton.modules.viewers.model.services
 		public function assignPresenter(userid:Number, assignedBy:Number):void {
 			var aUser:User = _participants.getParticipant(userid);			
 			if (aUser != null) {
-				trace('assigning presenter to ' + userid);
+				LogUtil.debug('assigning presenter to ' + userid);
 				aUser.presenter = true;
 				_participantsSO.setProperty(userid.toString(), aUser);
 				_participantsSO.setDirty(userid.toString());
@@ -177,9 +177,9 @@ package org.bigbluebutton.modules.viewers.model.services
 		
 		public function queryPresenter():void {
 //			var p:Object = _participantsSO.data[PRESENTER];
-//			trace('Got query presenter');
+//			LogUtil.debug('Got query presenter');
 //			if (p != null) {
-//				trace('responding to query presenter');
+//				LogUtil.debug('responding to query presenter');
 //				sendMessage(ViewersModuleConstants.QUERY_PRESENTER_REPLY, {assignedTo:p.assignedTo, assignedBy:p.assignedBy});
 //			}			
 		}
@@ -195,7 +195,7 @@ package org.bigbluebutton.modules.viewers.model.services
 				_participantsSO.setProperty(userid.toString(), aUser);
 				_participantsSO.setDirty(userid.toString());
 				
-				trace( "Conference::addStream::found =[" + userid + "," 
+				LogUtil.debug( "Conference::addStream::found =[" + userid + "," 
 						+ aUser.hasStream + "," + aUser.streamName + "]");				
 			}
 		}
@@ -209,7 +209,7 @@ package org.bigbluebutton.modules.viewers.model.services
 				_participantsSO.setProperty(userid.toString(), aUser);
 				_participantsSO.setDirty(userid.toString());
 				
-				trace( "Conference::removeStream::found =[" + userid + "," 
+				LogUtil.debug( "Conference::removeStream::found =[" + userid + "," 
 						+ aUser.hasStream + "," + aUser.streamName + "]");				
 			}
 		}
@@ -221,11 +221,11 @@ package org.bigbluebutton.modules.viewers.model.services
 		 */		
 		private function sharedObjectSyncHandler( event : SyncEvent) : void
 		{
-			trace( "Conference::sharedObjectSyncHandler " + event.changeList.length);
+			LogUtil.debug( "Conference::sharedObjectSyncHandler " + event.changeList.length);
 			
 			for (var i : uint = 0; i < event.changeList.length; i++) 
 			{
-				trace( "Conference::handlingChanges[" + event.changeList[i].name + "][" + i + "][" + event.changeList[i].code + "]");
+				LogUtil.debug( "Conference::handlingChanges[" + event.changeList[i].name + "][" + i + "][" + event.changeList[i].code + "]");
 				handleChangesToSharedObject(event.changeList[i].code, 
 						event.changeList[i].name, event.changeList[i].oldValue);
 			}
@@ -249,7 +249,7 @@ package org.bigbluebutton.modules.viewers.model.services
 					 * with the server object. In the latter case, SyncEvent.SYNC is dispatched 
 					 * and the "code" value is set to "change". 
 					 */
-					 trace("Got clear sync event for participants");
+					 LogUtil.debug("Got clear sync event for participants");
 					_participants.removeAllParticipants();
 													
 					break;	
@@ -260,7 +260,7 @@ package org.bigbluebutton.modules.viewers.model.services
 					 */
 					
 					// do nothing... just log it ;	
-					trace( "Conference::success =[" + code + "," + name + "," + oldValue + "]");
+					LogUtil.debug( "Conference::success =[" + code + "," + name + "," + oldValue + "]");
 					sendMessage(ViewersModuleConstants.CHANGE_STATUS);
 					break;
 
@@ -273,7 +273,7 @@ package org.bigbluebutton.modules.viewers.model.services
 					// do nothing... just log it 
 					// Or...maybe we should check if the value is the same as what we wanted it
 					// to be..if not...change it?
-					trace( "Conference::reject =[" + code + "," + name + "," + oldValue + "]");	
+					LogUtil.debug( "Conference::reject =[" + code + "," + name + "," + oldValue + "]");	
 					break;
 
 				case "change":
@@ -283,21 +283,21 @@ package org.bigbluebutton.modules.viewers.model.services
 					 */
 					 
 					if (name != null) {					
-						trace('seraching status ' + name.search(STATUS));	
+						LogUtil.debug('seraching status ' + name.search(STATUS));	
 						var statusIndex:int = name.search(STATUS);
 						if (statusIndex > -1) {
 							var uid:String = name.slice(0,statusIndex);
 							if (_participants.hasParticipant(Number(uid))) {
 								var changedUser:User = _participants.getParticipant(Number(uid));
 								changedUser.status = new ArrayCollection(_participantsSO.data[name] as Array);
-								trace( "Conference::change =[" + name + "][" + changedUser.status.length + "]");
+								LogUtil.debug( "Conference::change =[" + name + "][" + changedUser.status.length + "]");
 								//sendMessage(ViewersModuleConstants.CHANGE_STATUS, changedUser.status);
 							} else {
-								trace('User id NULL');
+								LogUtil.debug('User id NULL');
 							}														
 						} else {
 							if (_participants.hasParticipant(_participantsSO.data[name].userid)) {
-									trace('Changed user[' + _participantsSO.data[name].userid + "]");	
+									LogUtil.debug('Changed user[' + _participantsSO.data[name].userid + "]");	
 								var cUser:User = _participants.getParticipant(Number(name));
 								cUser.presenter = _participantsSO.data[name].presenter;
 								cUser.hasStream = _participantsSO.data[name].hasStream;
@@ -325,14 +325,14 @@ package org.bigbluebutton.modules.viewers.model.services
 					 * 	A value of "delete" means the attribute was deleted.  		
 					 */
 					
-					trace( "Conference::delete =[" + code + "," + name + "," + oldValue + "]");	
+					LogUtil.debug( "Conference::delete =[" + code + "," + name + "," + oldValue + "]");	
 					
 					// The participant has left. Cast name (string) into a Number.
 					_participants.removeParticipant(Number(name));
 					break;
 										
 				default:	
-					trace( "Conference::default[" + _participantsSO.data[name].userid
+					LogUtil.debug( "Conference::default[" + _participantsSO.data[name].userid
 								+ "," + _participantsSO.data[name].name + "]");		 
 					break;
 			}
@@ -351,37 +351,37 @@ package org.bigbluebutton.modules.viewers.model.services
 			switch ( statusCode ) 
 			{
 				case "NetConnection.Connect.Success" :
-					trace(NAME + ":Connection Success");		
+					LogUtil.debug(NAME + ":Connection Success");		
 					notifyConnectionStatusListener(true);			
 					break;
 			
 				case "NetConnection.Connect.Failed" :			
-					trace(NAME + ":Connection to viewers application failed");
+					LogUtil.debug(NAME + ":Connection to viewers application failed");
 					notifyConnectionStatusListener(false);
 					break;
 					
 				case "NetConnection.Connect.Closed" :									
-					trace(NAME + ":Connection to viewers application closed");
+					LogUtil.debug(NAME + ":Connection to viewers application closed");
 					notifyConnectionStatusListener(false);
 					break;
 					
 				case "NetConnection.Connect.InvalidApp" :				
-					trace(NAME + ":Viewers application not found on server");
+					LogUtil.debug(NAME + ":Viewers application not found on server");
 					notifyConnectionStatusListener(false);
 					break;
 					
 				case "NetConnection.Connect.AppShutDown" :
-					trace(NAME + ":Viewers application has been shutdown");
+					LogUtil.debug(NAME + ":Viewers application has been shutdown");
 					notifyConnectionStatusListener(false);
 					break;
 					
 				case "NetConnection.Connect.Rejected" :
-					trace(NAME + ":No permissions to connect to the viewers application" );
+					LogUtil.debug(NAME + ":No permissions to connect to the viewers application" );
 					notifyConnectionStatusListener(false);
 					break;
 					
 				default :
-				   trace(NAME + ":default - " + event.info.code );
+				   LogUtil.debug(NAME + ":default - " + event.info.code );
 				   notifyConnectionStatusListener(false);
 				   break;
 			}
@@ -389,7 +389,7 @@ package org.bigbluebutton.modules.viewers.model.services
 			
 		private function asyncErrorHandler ( event : AsyncErrorEvent ) : void
 		{
-			trace( "participantsSO asyncErrorHandler " + event.error);
+			LogUtil.debug( "participantsSO asyncErrorHandler " + event.error);
 			notifyConnectionStatusListener(false);
 		}
 	}

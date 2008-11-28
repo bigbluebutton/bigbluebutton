@@ -60,9 +60,9 @@ package org.bigbluebutton.modules.listeners.model.vo
 		public function removeListener(id:Number):void
 		{
 			var index:int = getListenerIndex(id);		
-			trace( "removing listener[" + id + " at index=" + index + "]")			
+			LogUtil.debug( "removing listener[" + id + " at index=" + index + "]")			
 			if (index > -1) {
-				trace( "remove listener[" + id + " at index=" + index + "]");				
+				LogUtil.debug( "remove listener[" + id + " at index=" + index + "]");				
 				listeners.removeItemAt(index);
 				sort();
 			}							

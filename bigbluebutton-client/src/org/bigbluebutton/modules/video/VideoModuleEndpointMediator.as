@@ -49,40 +49,40 @@ package org.bigbluebutton.modules.video
 		{
 			switch(notification.getName()){
 				case VideoModuleConstants.CONNECTED:
-					trace("Sending Video MODULE_STARTED message to main");
+					LogUtil.debug("Sending Video MODULE_STARTED message to main");
 					_endpoint.sendMessage(EndpointMessageConstants.MODULE_STARTED, 
 							EndpointMessageConstants.TO_MAIN_APP, _module.moduleId);
 					break;
 				case VideoModuleConstants.DISCONNECTED:
-					trace('Sending Video MODULE_STOPPED message to main');
+					LogUtil.debug('Sending Video MODULE_STOPPED message to main');
 					var info:Object = notification.getBody();
 					info["moduleId"] = _module.moduleId;
 					_endpoint.sendMessage(EndpointMessageConstants.MODULE_STOPPED, 
 							EndpointMessageConstants.TO_MAIN_APP, info);
 					break;
 				case VideoModuleConstants.ADD_WINDOW:
-					trace('Sending Video ADD_WINDOW message to main');
+					LogUtil.debug('Sending Video ADD_WINDOW message to main');
 					_endpoint.sendMessage(EndpointMessageConstants.ADD_WINDOW, 
 							EndpointMessageConstants.TO_MAIN_APP, notification.getBody());
 					break;
 				case VideoModuleConstants.REMOVE_WINDOW:
-					trace('Sending Video REMOVE_WINDOW message to main');
+					LogUtil.debug('Sending Video REMOVE_WINDOW message to main');
 					_endpoint.sendMessage(EndpointMessageConstants.REMOVE_WINDOW, 
 							EndpointMessageConstants.TO_MAIN_APP, notification.getBody());
 					break;
 				case VideoModuleConstants.ADD_BUTTON:
-					trace('Sending Video ADD_BUTTON message to main');
+					LogUtil.debug('Sending Video ADD_BUTTON message to main');
 					_endpoint.sendMessage(EndpointMessageConstants.ADD_BUTTON, 
 							EndpointMessageConstants.TO_MAIN_APP, notification.getBody());
 					break;
 				case VideoModuleConstants.STARTED_BROADCAST:
-					trace('Sending Video STARTED_BROADCAST message to ViewersModule' + notification.getBody() as String);
+					LogUtil.debug('Sending Video STARTED_BROADCAST message to ViewersModule' + notification.getBody() as String);
 					_endpoint.sendMessage(EndpointMessageConstants.STARTED_BROADCAST, 
 							EndpointMessageConstants.TO_VIEWERS_MODULE, 
 							{userid:_module.userid, streamName:notification.getBody() as String});
 					break;
 				case VideoModuleConstants.STOPPED_BROADCAST:
-					trace('Sending Video STOPPED_BROADCAST message to ViewersModule ' + notification.getBody() as String);
+					LogUtil.debug('Sending Video STOPPED_BROADCAST message to ViewersModule ' + notification.getBody() as String);
 					_endpoint.sendMessage(EndpointMessageConstants.STOPPED_BROADCAST, 
 							EndpointMessageConstants.TO_VIEWERS_MODULE, 
 							{userid:_module.userid, streamName:notification.getBody() as String});
@@ -98,11 +98,11 @@ package org.bigbluebutton.modules.video
 					facade.sendNotification(VideoModuleConstants.CLOSE_WINDOW);
 					break;
 				case EndpointMessageConstants.OPEN_WINDOW:
-					//trace('Received OPEN_WINDOW message from ' + message.getHeader().SRC);
+					//LogUtil.debug('Received OPEN_WINDOW message from ' + message.getHeader().SRC);
 					//facade.sendNotification(ChatModuleConstants.OPEN_WINDOW);
 					break;
 				case EndpointMessageConstants.VIEW_CAMERA:
-					trace('Received VIEW_CAMERA message from ' + message.getHeader().SRC);
+					LogUtil.debug('Received VIEW_CAMERA message from ' + message.getHeader().SRC);
 					facade.sendNotification(VideoModuleConstants.START_VIEW_CAMERA, message.getBody());
 					break;
 			}

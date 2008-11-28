@@ -100,10 +100,10 @@ package org.bigbluebutton.modules.viewers.model.business
 		{
 			var index : int = getParticipantIndex(userid);
 			
-			trace( "removing user[" + userid + " at index=" + index + "]")
+			LogUtil.debug( "removing user[" + userid + " at index=" + index + "]")
 			
 			if (index > -1) {
-				trace( "remove user[" + userid + " at index=" + index + "]");
+				LogUtil.debug( "remove user[" + userid + " at index=" + index + "]");
 				
 				users.removeItemAt(index);
 				sort();

@@ -93,7 +93,7 @@ package org.bigbluebutton.modules.viewers.model
 				case ViewersModuleConstants.ASSIGN_PRESENTER:
 					if (me.userid == body.assignedTo) {
 						// I've been assigned as presenter.
-						trace('I have become presenter');
+						LogUtil.debug('I have become presenter');
 						isPresenter = true;
 						var newStatus:Status = new Status("presenter", body.assignedBy);
 						_viewersService.iAmPresenter(me.userid, true);
@@ -102,7 +102,7 @@ package org.bigbluebutton.modules.viewers.model
 					} else {
 						// Somebody else has become presenter.
 						if (isPresenter) {
-							trace('Somebody else has become presenter.');
+							LogUtil.debug('Somebody else has become presenter.');
 							_viewersService.iAmPresenter(me.userid, false);
 						}
 						isPresenter = false;

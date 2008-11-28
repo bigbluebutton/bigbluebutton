@@ -38,16 +38,16 @@ package org.bigbluebutton.main
 		{
 			switch(notification.getName()){
 				case MainApplicationConstants.APP_STARTED:
-					trace(NAME + "::Received APP_STARTED");
+					LogUtil.debug(NAME + "::Received APP_STARTED");
 					facade.sendNotification(MainApplicationConstants.APP_MODEL_INITIALIZE);
 					break;
 				case MainApplicationConstants.APP_MODEL_INITIALIZED:
-					trace(NAME + "::Received APP_MODEL_INITIALIZED");
+					LogUtil.debug(NAME + "::Received APP_MODEL_INITIALIZED");
 					//proxy.loadModule("VideoModule");
 					proxy.loadModule("ChatModule");
 					break;
 				case MainApplicationConstants.MODULE_LOADED:
-					trace(NAME + "::Received MODULE_LOADED");
+					LogUtil.debug(NAME + "::Received MODULE_LOADED");
 					var ml:String = notification.getBody() as String;
 					
 					if (ml == "ViewersModule") {
@@ -83,7 +83,7 @@ package org.bigbluebutton.main
 					//proxy.startModule(notification.getBody() as String);
 					break;
 				case MainApplicationConstants.LOGOUT:
-					trace(NAME + '::Received LOGOUT');
+					LogUtil.debug(NAME + '::Received LOGOUT');
 					proxy.stopModule("ChatModule");
 					proxy.stopModule("PresentationModule");
 					proxy.stopModule("ListenersModule");
@@ -91,12 +91,12 @@ package org.bigbluebutton.main
 					proxy.stopModule("ViewersModule");					
 					break;
 				case MainApplicationConstants.RESTART_MODULE:
-					trace(NAME + '::Received RESTART_MODULE for ' + notification.getBody() as String);
+					LogUtil.debug(NAME + '::Received RESTART_MODULE for ' + notification.getBody() as String);
 					proxy.stopModule(notification.getBody() as String);
 					facade.sendNotification(MainApplicationConstants.MODULE_START, notification.getBody());
 					break;	
 				case MainApplicationConstants.USER_LOGGED_IN:
-					trace(NAME + '::Received USER_LOGGED_IN');
+					LogUtil.debug(NAME + '::Received USER_LOGGED_IN');
 					facade.sendNotification(MainApplicationConstants.MODULE_START, "ChatModule");
 					facade.sendNotification(MainApplicationConstants.MODULE_START, "PresentationModule");
 					facade.sendNotification(MainApplicationConstants.MODULE_START, "ListenersModule");

@@ -30,7 +30,7 @@ package org.bigbluebutton.modules.viewers.controller
 				var p:ViewersProxy = facade.retrieveProxy(ViewersProxy.NAME) as ViewersProxy;
 				p.stop();
 			} else {
-				trace('ViewersProxy Proxy not found.');
+				LogUtil.debug('ViewersProxy Proxy not found.');
 			}
 		}
 

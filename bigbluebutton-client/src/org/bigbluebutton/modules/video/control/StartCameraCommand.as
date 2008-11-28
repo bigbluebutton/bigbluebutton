@@ -11,7 +11,7 @@ package org.bigbluebutton.modules.video.control
 		{
 			if (facade.hasProxy(MediaProxy.NAME)) {
 				var p:MediaProxy = facade.retrieveProxy(MediaProxy.NAME) as MediaProxy;
-				trace('Starting camera ' + notification.getBody() as String);
+				LogUtil.debug('Starting camera ' + notification.getBody() as String);
 				p.startCamera(notification.getBody() as String);
 			}
 		}		

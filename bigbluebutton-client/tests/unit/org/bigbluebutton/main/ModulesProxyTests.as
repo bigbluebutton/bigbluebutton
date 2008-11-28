@@ -35,7 +35,7 @@ package org.bigbluebutton.main
 		}
 		
 		private function resultHandler(e:Event):void {
-			trace(e.type);
+			LogUtil.debug(e.type);
 		}
 	}
 }

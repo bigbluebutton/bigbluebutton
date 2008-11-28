@@ -53,7 +53,7 @@ package org.bigbluebutton.modules.chat.model.business
 			_netConnection.addEventListener( IOErrorEvent.IO_ERROR, netIOError );
 			
 			try {
-				trace( "Connecting to " + _uri);
+				LogUtil.debug( "Connecting to " + _uri);
 				_connectionError = null;								
 				_netConnection.connect(_uri );
 				
@@ -62,7 +62,7 @@ package org.bigbluebutton.modules.chat.model.business
 				switch ( e.errorID ) 
 				{
 					case 2004 :						
-						trace("Error! Invalid server location: " + _uri);											   
+						LogUtil.debug("Error! Invalid server location: " + _uri);											   
 						break;						
 					default :
 					   break;
@@ -87,38 +87,38 @@ package org.bigbluebutton.modules.chat.model.business
 			switch ( statusCode ) 
 			{
 				case "NetConnection.Connect.Success" :
-					trace("Connection to chat server succeeded.");
+					LogUtil.debug("Connection to chat server succeeded.");
 					_connectionListener(true);					
 					break;
 			
 				case "NetConnection.Connect.Failed" :
 					addError("Failed to connect to the application.");
 					//_connectionListener(false);					
-					trace("Connection to chat server failed");
+					LogUtil.debug("Connection to chat server failed");
 					break;
 					
 				case "NetConnection.Connect.Closed" :	
 					addError("Connection to application closed.");		
-					trace("Connection to chat application closed");		
+					LogUtil.debug("Connection to chat application closed");		
 					_connectionListener(false, _connectionError);										
 					break;
 					
 				case "NetConnection.Connect.InvalidApp" :	
 					addError("Could not find the application.");			
 					//_connectionListener(false);
-					trace("Chat application not found on server");
+					LogUtil.debug("Chat application not found on server");
 					break;
 					
 				case "NetConnection.Connect.AppShutDown" :
 					addError("Application has shutdown.");
 					//_connectionListener(false);
-					trace("Chat Application has shutdown");
+					LogUtil.debug("Chat Application has shutdown");
 					break;
 					
 				case "NetConnection.Connect.Rejected" :
 					addError("Connection to the application was rejected.");
 					//_connectionListener(false);
-					trace("No permissions to connect to the chat application" );
+					LogUtil.debug("No permissions to connect to the chat application" );
 					break;
 					
 				default :
@@ -131,21 +131,21 @@ package org.bigbluebutton.modules.chat.model.business
 		protected function netSecurityError(event:SecurityErrorEvent):void 
 		{
 			addError("Encountered security error on connection to the application.");
-			trace("Security error - " + event.text);
+			LogUtil.debug("Security error - " + event.text);
 			//_connectionListener(false);
 		}
 		
 		protected function netIOError(event:IOErrorEvent):void 
 		{
 			addError("Encountered Input/Output error on connection to the application.");
-			trace("Input/output error - " + event.text);
+			LogUtil.debug("Input/output error - " + event.text);
 			//_connectionListener(false);
 		}
 			
 		protected function netASyncError( event : AsyncErrorEvent ) : void 
 		{
 			addError("Encountered Asynchronous error on connection to the application.");
-			trace("Asynchronous code error - " + event.error );
+			LogUtil.debug("Asynchronous code error - " + event.error );
 			//_connectionListener(false);
 		}	
 		

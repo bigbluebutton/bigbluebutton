@@ -58,10 +58,10 @@ package org.bigbluebutton.modules.chat.model.business
 		
 		private function connectionStatusListener(connected:Boolean, errors:Array):void {
 			if (connected) {
-				trace('Sending ChatModuleConstants.CONNECTED');
+				LogUtil.debug('Sending ChatModuleConstants.CONNECTED');
 				sendNotification(ChatModuleConstants.CONNECTED);
 			} else {
-				trace('Sending ChatModuleConstants.DISCONNECTED');
+				LogUtil.debug('Sending ChatModuleConstants.DISCONNECTED');
 				sendNotification(ChatModuleConstants.DISCONNECTED, {manual:manualDisconnect, errors:errors});
 			}
 		}

@@ -44,11 +44,11 @@ package org.bigbluebutton.main.model
 		}
 
 		private function onReady(event:Event):void {
-			trace("Module onReady Event");
+			LogUtil.debug("Module onReady Event");
 			var loader:ModuleLoader = event.target as ModuleLoader;
 			module = loader.child as IBigBlueButtonModule;
 			if (module != null) {
-				trace("Module " + attributes.name + " has been loaded");
+				LogUtil.debug("Module " + attributes.name + " has been loaded");
 				loaded = true;
 			}
 			callbackHandler(MainApplicationConstants.MODULE_LOAD_READY, attributes.name);
@@ -65,34 +65,34 @@ package org.bigbluebutton.main.model
 		
 /*
 		private function onUrlChanged(event:Event):void {
-			trace("Module onUrlChanged Event");
+			LogUtil.debug("Module onUrlChanged Event");
 			callbackHandler(event);
 		}
 			
 		private function onLoading(event:Event):void {
-			trace("Module onLoading Event");
+			LogUtil.debug("Module onLoading Event");
 			callbackHandler(event);
 		}
 			
 		private function onProgress(event:Event):void {
-			trace("Module onProgress Event");
+			LogUtil.debug("Module onProgress Event");
 			callbackHandler(event);
 		}			
 
 		private function onSetup(event:Event):void {
-			trace("Module onSetup Event");
+			LogUtil.debug("Module onSetup Event");
 			callbackHandler(event);
 		}	
 
 
 
 		private function onError(event:Event):void {
-			trace("Module onError Event");
+			LogUtil.debug("Module onError Event");
 			callbackHandler(event);
 		}
 
 		private function onUnload(event:Event):void {
-			trace("Module onUnload Event");
+			LogUtil.debug("Module onUnload Event");
 			callbackHandler(event);
 		}		
 */

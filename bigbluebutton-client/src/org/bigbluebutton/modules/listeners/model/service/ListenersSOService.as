@@ -62,11 +62,11 @@ package org.bigbluebutton.modules.listeners.model.service
 		
 		private function connectionListener(connected:Boolean, errors:Array=null):void {
 			if (connected) {
-				trace(NAME + ":Connected to the VOice application");
+				LogUtil.debug(NAME + ":Connected to the VOice application");
 				join();
 			} else {
 				leave();
-				trace(NAME + ":Disconnected from the Voice application");
+				LogUtil.debug(NAME + ":Disconnected from the Voice application");
 				notifyConnectionStatusListener(false, errors);
 			}
 		}
@@ -78,7 +78,7 @@ package org.bigbluebutton.modules.listeners.model.service
 			_listenersSO.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
 			_listenersSO.client = this;
 			_listenersSO.connect(netConnectionDelegate.connection);
-			trace(NAME + ":Voice is connected to Shared object");
+			LogUtil.debug(NAME + ":Voice is connected to Shared object");
 			notifyConnectionStatusListener(true);		
 				
 			// Query the server if there are already listeners in the conference.
@@ -109,10 +109,10 @@ package org.bigbluebutton.modules.listeners.model.service
 				n.muted = muted;
 				n.userid = userId;
 				n.talking = talking;
-				trace("Add listener with userid " + userId + " to the conference.");
+				LogUtil.debug("Add listener with userid " + userId + " to the conference.");
 				_listeners.addListener(n);
 			} else {
-				trace("There is a listener with userid " + userId + " " + cidName + " in the conference.");
+				LogUtil.debug("There is a listener with userid " + userId + " " + cidName + " in the conference.");
 			}
 		}
 
@@ -121,7 +121,7 @@ package org.bigbluebutton.modules.listeners.model.service
 			var l:Listener = _listeners.getListener(userId);			
 			if (l != null) {
 				l.muted = mute;
-				trace('Un/Muting user ' + userId + " mute=" + mute);
+				LogUtil.debug('Un/Muting user ' + userId + " mute=" + mute);
 				sendMessage(ListenersModuleConstants.USER_MUTE_NOTIFICATION, {userid:userId, mute:mute});
 			}					
 		}
@@ -164,17 +164,17 @@ package org.bigbluebutton.modules.listeners.model.service
 				var cidNum:String  = meetmeUser[items][2];
 				var muted:Boolean = meetmeUser[items][3];
 				var talking:Boolean = meetmeUser[items][4];
-				trace("in getMeetMeUsers for user " + userId);
+				LogUtil.debug("in getMeetMeUsers for user " + userId);
 				userJoin(userId, cidName, cidNum, muted, talking);
 			}
 		}
 		
 		private function notifyConnectionStatusListener(connected:Boolean, errors:Array=null):void {
 			if (_connectionListener != null) {
-				trace('notifying connectionListener for Voice');
+				LogUtil.debug('notifying connectionListener for Voice');
 				_connectionListener(connected, errors);
 			} else {
-				trace("_connectionListener is null");
+				LogUtil.debug("_connectionListener is null");
 			}
 		}
 
@@ -189,7 +189,7 @@ package org.bigbluebutton.modules.listeners.model.service
 			switch ( statusCode ) 
 			{
 				case "NetConnection.Connect.Success" :
-					trace(NAME + ":Connection Success");	
+					LogUtil.debug(NAME + ":Connection Success");	
 					//notifyConnectionStatusListener(true);			
 					break;
 			
@@ -215,7 +215,7 @@ package org.bigbluebutton.modules.listeners.model.service
 					break;
 					
 				default :
-				   trace(NAME + ":default - " + event.info.code );
+				   LogUtil.debug(NAME + ":default - " + event.info.code );
 				   break;
 			}
 		}

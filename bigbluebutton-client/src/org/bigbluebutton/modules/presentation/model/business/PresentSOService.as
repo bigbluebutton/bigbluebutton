@@ -69,7 +69,7 @@ package org.bigbluebutton.modules.presentation.model.business
 			_presentationSO.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);			
 			_presentationSO.client = this;
 			_presentationSO.connect(netConnectionDelegate.connection);
-			trace(NAME + ": PresentationModule is connected to Shared object");
+			LogUtil.debug(NAME + ": PresentationModule is connected to Shared object");
 			notifyConnectionStatusListener(true);			
 		}
 		
@@ -107,7 +107,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		 * 
 		 */		
 		public function zoomCallback(slideHeight:Number, slideWidth:Number):void{
-			//trace('sending zoomcallback');
+			//LogUtil.debug('sending zoomcallback');
 			sendMessage(PresentModuleConstants.ZOOM_SLIDE, new ZoomNotifier(slideHeight, slideWidth));
 		}
 		
@@ -128,7 +128,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		 * 
 		 */		
 		public function moveCallback(slideXPosition:Number, slideYPosition:Number):void{
-			//trace('sending movecallback');
+			//LogUtil.debug('sending movecallback');
 		   sendMessage(PresentModuleConstants.MOVE_SLIDE, new MoveNotifier(slideXPosition, slideYPosition));
 		}
 		
@@ -187,7 +187,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		public function gotoSlide(num:int) : void
 		{
 			_presentationSO.send("gotoPageCallback", num);
-			//trace("Going to slide " + num);
+			//LogUtil.debug("Going to slide " + num);
 			_presentationSO.setProperty(CURRENT_PAGE, num);
 		}
 		
@@ -209,7 +209,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		}
 		
 		public function sharePresentation(share:Boolean):void {
-			trace('SO Sharing presentation = ' + share);
+			LogUtil.debug('SO Sharing presentation = ' + share);
 			_presentationSO.data[SHARING] = share;
 			_presentationSO.setDirty(SHARING);
 		}
@@ -223,11 +223,11 @@ package org.bigbluebutton.modules.presentation.model.business
 		 */								
 		private function sharedObjectSyncHandler( event : SyncEvent) : void
 		{
-			//trace( "Presentation::sharedObjectSyncHandler " + event.changeList.length);
+			//LogUtil.debug( "Presentation::sharedObjectSyncHandler " + event.changeList.length);
 		
 			for (var i : uint = 0; i < event.changeList.length; i++) 
 			{
-				//trace( "Presentation::handlingChanges[" + event.changeList[i].name + "][" + i + "]");
+				//LogUtil.debug( "Presentation::handlingChanges[" + event.changeList[i].name + "][" + i + "]");
 				handleChangesToSharedObject(event.changeList[i].code, 
 						event.changeList[i].name, event.changeList[i].oldValue);
 			}
@@ -242,7 +242,7 @@ package org.bigbluebutton.modules.presentation.model.business
 			{
 				case UPDATE_MESSAGE:
 //					if (presentation.isPresenter) {
-						//trace( UPDATE_MESSAGE + " = [" + _presentationSO.data.updateMessage.returnCode + "]");
+						//LogUtil.debug( UPDATE_MESSAGE + " = [" + _presentationSO.data.updateMessage.returnCode + "]");
 						processUpdateMessage(_presentationSO.data.updateMessage.returnCode);
 //					}
 					
@@ -250,11 +250,11 @@ package org.bigbluebutton.modules.presentation.model.business
 															
 				case SHARING :			
 					if (_presentationSO.data[SHARING]) {
-						//trace( "SHARING =[" + _presentationSO.data[SHARING] + "]");
+						//LogUtil.debug( "SHARING =[" + _presentationSO.data[SHARING] + "]");
 						sendMessage(PresentModuleConstants.START_SHARE);	
 			
 					} else {
-						//trace( "SHARING =[" + _presentationSO.data[SHARING] + "]");
+						//LogUtil.debug( "SHARING =[" + _presentationSO.data[SHARING] + "]");
 					}
 					break;
 
@@ -264,7 +264,7 @@ package org.bigbluebutton.modules.presentation.model.business
 					break;
 							
 				default:
-					trace( "default = [" + code + "," + name + "," + oldValue + "]");				 
+					LogUtil.debug( "default = [" + code + "," + name + "," + oldValue + "]");				 
 					break;
 			}
 		}
@@ -285,22 +285,22 @@ package org.bigbluebutton.modules.presentation.model.business
 				case SUCCESS_RC:
 					message = _presentationSO.data.updateMessage.message;
 					sendMessage(PresentModuleConstants.CONVERT_SUCCESS_EVENT, message);
-					//trace("PresentationDelegate - SUCCESS_RC");
+					//LogUtil.debug("PresentationDelegate - SUCCESS_RC");
 					break;
 					
 				case UPDATE_RC:
 					message = _presentationSO.data.updateMessage.message;
 					sendMessage(PresentModuleConstants.UPDATE_PROGRESS_EVENT, message);
-					//trace("PresentationDelegate - UPDATE_RC");
+					//LogUtil.debug("PresentationDelegate - UPDATE_RC");
 					break;
 										
 				case FAILED_RC:
-					//trace("PresentationDelegate - FAILED_RC");
+					//LogUtil.debug("PresentationDelegate - FAILED_RC");
 					break;
 				case EXTRACT_RC:
 					totalSlides = _presentationSO.data.updateMessage.totalSlides;
 					completedSlides = _presentationSO.data.updateMessage.completedSlides;
-					//trace( "EXTRACTING = [" + completedSlides + " of " + totalSlides + "]");
+					//LogUtil.debug( "EXTRACTING = [" + completedSlides + " of " + totalSlides + "]");
 					
 					sendMessage(PresentModuleConstants.EXTRACT_PROGRESS_EVENT,
 										new ProgressNotifier(totalSlides,completedSlides));
@@ -309,7 +309,7 @@ package org.bigbluebutton.modules.presentation.model.business
 				case CONVERT_RC:
 					totalSlides = _presentationSO.data.updateMessage.totalSlides;
 					completedSlides = _presentationSO.data.updateMessage.completedSlides;
-					//trace( "CONVERTING = [" + completedSlides + " of " + totalSlides + "]");
+					//LogUtil.debug( "CONVERTING = [" + completedSlides + " of " + totalSlides + "]");
 					
 					sendMessage(PresentModuleConstants.CONVERT_PROGRESS_EVENT,
 										new ProgressNotifier(totalSlides, completedSlides));							
@@ -333,7 +333,7 @@ package org.bigbluebutton.modules.presentation.model.business
 			switch ( statusCode ) 
 			{
 				case "NetConnection.Connect.Success":
-					trace(NAME + ":Connection Success");		
+					LogUtil.debug(NAME + ":Connection Success");		
 					//notifyConnectionStatusListener(true);			
 					break;
 			
@@ -360,7 +360,7 @@ package org.bigbluebutton.modules.presentation.model.business
 					
 				default :
 					//addError("ChatSO " + event.info.code);
-				   trace(NAME + ":default - " + event.info.code );
+				   LogUtil.debug(NAME + ":default - " + event.info.code );
 				   break;
 			}
 		}

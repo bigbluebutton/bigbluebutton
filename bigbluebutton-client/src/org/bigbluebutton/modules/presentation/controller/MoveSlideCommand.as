@@ -20,11 +20,11 @@ package org.bigbluebutton.modules.presentation.controller
 				
 				if (p.isPresenter()) {
 					// Send the move command to the viewers.
-					trace('Calling move on proxy');
+					LogUtil.debug('Calling move on proxy');
 					p.move(m.newXPosition, m.newYPosition);
 				} else {
 					// just move this current user's slide.
-					trace('Sending self move');
+					LogUtil.debug('Sending self move');
 					sendNotification(PresentModuleConstants.MOVE_SLIDE, m);
 				}
 			} 

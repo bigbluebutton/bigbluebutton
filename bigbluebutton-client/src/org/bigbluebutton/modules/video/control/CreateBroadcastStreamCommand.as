@@ -11,10 +11,10 @@ package org.bigbluebutton.modules.video.control
 		{
 			if (facade.hasProxy(MediaProxy.NAME)) {
 				var p:MediaProxy = facade.retrieveProxy(MediaProxy.NAME) as MediaProxy;
-				trace('creating broadcastmedia ' + notification.getBody() as String);
+				LogUtil.debug('creating broadcastmedia ' + notification.getBody() as String);
 				p.createBroadcastMedia(notification.getBody() as String);
 			} else {
-				trace('MediaProxy not found.');
+				LogUtil.debug('MediaProxy not found.');
 			}
 		}
 		

@@ -56,7 +56,7 @@ package org.bigbluebutton.modules.viewers
 		 * 
 		 */		
 		private function sendLoginCompleteNotice():void{
-			trace("Sending LOGIN_COMPLETE");
+			LogUtil.debug("Sending LOGIN_COMPLETE");
 
 		}
 		

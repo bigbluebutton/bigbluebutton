@@ -85,12 +85,12 @@ package org.bigbluebutton.modules.presentation.model.business
 		 */		
 		public function uploadPresentation(fileToUpload:FileReference) : void
 		{
-			trace("PresentationApplication::uploadPresentation()... ");
+			LogUtil.debug("PresentationApplication::uploadPresentation()... ");
 			var fullUri : String = _module.host + "/bigbluebutton/file/upload";
 						
 			var service:FileUploadService = new FileUploadService(fullUri, _module.room);
 			service.addProgressListener(uploadProgressListener);
-			trace("using  FileUploadService..." + fullUri);
+			LogUtil.debug("using  FileUploadService..." + fullUri);
 			service.upload(fileToUpload);
 		}
 
@@ -101,12 +101,12 @@ package org.bigbluebutton.modules.presentation.model.business
 		public function loadPresentation() : void
 		{
 			var fullUri : String = _module.host + "/bigbluebutton/file/xmlslides?room=" + _module.room;	
-			trace("PresentationApplication::loadPresentation()... " + fullUri);
+			LogUtil.debug("PresentationApplication::loadPresentation()... " + fullUri);
 
 			var service:PresentationService = new PresentationService();
 			service.addLoadPresentationListener(loadPresentationListener);
 			service.load(fullUri, _slides);
-			trace('number of slides=' + _slides.size());
+			LogUtil.debug('number of slides=' + _slides.size());
 		}	
 		
 		public function sharePresentation(share:Boolean):void {
@@ -146,17 +146,17 @@ package org.bigbluebutton.modules.presentation.model.business
 		
 		private function loadPresentationListener(loaded:Boolean):void {
 			if (loaded) {
-				trace('presentation has been loaded');
+				LogUtil.debug('presentation has been loaded');
 				_presentationLoaded = true;
 				sendNotification(PresentModuleConstants.PRESENTATION_LOADED);
 			} else {
-				trace('failed to load presentation');
+				LogUtil.debug('failed to load presentation');
 				_presentationLoaded = false;
 			}
 		}
 		
 		private function uploadProgressListener(code:String, message:String=""):void {
-			trace('Fileupload progress ' + code + ":" + message);
+			LogUtil.debug('Fileupload progress ' + code + ":" + message);
 			sendNotification(code, message);
 		}			
 	}

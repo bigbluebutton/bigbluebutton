@@ -26,6 +26,8 @@ package org.bigbluebutton.modules.viewers
 	import org.puremvc.as3.multicore.interfaces.IFacade;
 	import org.puremvc.as3.multicore.patterns.facade.Facade;
 	
+	import mx.logging.Log;
+	
 	/**
 	 * The ViewersFacade represents a singleton which holds the Viewers Module together in one instance
 	 * @author Denis Zgonjanin
@@ -85,6 +87,7 @@ package org.bigbluebutton.modules.viewers
 		 * 
 		 */		
 		public function startup(app:ViewersModule):void{
+			Log.getLogger("LogController").debug("Viewers Facade is starting up.");
 			sendNotification(STARTUP, app);
 		}
 		

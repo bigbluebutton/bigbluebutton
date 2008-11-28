@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:UIComponent xmlns:mx="http://www.adobe.com/2006/mxml">
+	<mx:Script>
+		<![CDATA[
+			import mx.logging.Log;
+			import mx.managers.PopUpManager;
+						
+			public function openLogWindow():void {
+				Log.getLogger("LogController").info("CTRL-SHIFT-L has been pushed!");
+				if (!LogUtil.debugPanel) {
+					LogUtil.debugPanel = new LogUtil.debugPanel();
+				}
+				viewLogUtil.debugPanel();
+			}
+				
+			[Bindable]
+			public var LogUtil.debugPanel:LogUtil.debugPanel;
+			
+			private function viewLogUtil.debugPanel():void {
+				Log.getLogger("LogController").debug("LogUtil.debug panel is added to popup manager.");
+				LogUtil.debugPanel.isOpen = true;
+				PopUpManager.addPopUp(LogUtil.debugPanel, DisplayObject(this.parentApplication));
+				PopUpManager.centerPopUp(LogUtil.debugPanel);
+			}
+		]]>
+	</mx:Script>
+</mx:UIComponent>

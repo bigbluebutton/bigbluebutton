@@ -19,16 +19,12 @@
 */
 package org.bigbluebutton.main
 {
-	import mx.collections.ArrayCollection;
-	
 	import org.bigbluebutton.main.controller.InitializeModelCommand;
 	import org.bigbluebutton.main.controller.StartupCommand;
 	import org.bigbluebutton.main.view.components.MainApplicationShell;
-	import org.bigbluebutton.modules.viewers.ViewersFacade;
-	import org.bigbluebutton.modules.viewers.model.business.Conference;
-	import org.bigbluebutton.modules.viewers.model.vo.User;
 	import org.puremvc.as3.multicore.interfaces.IFacade;
 	import org.puremvc.as3.multicore.patterns.facade.Facade;
+	
 	/**
 	 * 
 	 * Facade for the Shell
@@ -78,6 +74,7 @@ package org.bigbluebutton.main
          */  
         public function startup( app:MainApplicationShell ):void
         {
+        	LogUtil.debug("Main Facade is starting up.");
         	sendNotification( STARTUP, app );
         }	
 	}

@@ -23,31 +23,31 @@ package org.bigbluebutton.main.model
 		}
 
 			public function onUrlChanged(event:Event):void {
-				trace("Module onUrlChanged Event");
+				LogUtil.debug("Module onUrlChanged Event");
 			}
 			
 			public function onLoading(event:Event):void {
-				trace("Module onLoading Event");
+				LogUtil.debug("Module onLoading Event");
 			}
 			
 			public function onProgress(event:Event):void {
-				trace("Module onProgress Event");
+				LogUtil.debug("Module onProgress Event");
 			}			
 
 			public function onSetup(event:Event):void {
-				trace("Module onSetup Event");
+				LogUtil.debug("Module onSetup Event");
 			}	
 
 			public function onReady(event:Event):void {
-				trace("Module onReady Event");
+				LogUtil.debug("Module onReady Event");
 			}	
 
 			public function onError(event:Event):void {
-				trace("Module onError Event");
+				LogUtil.debug("Module onError Event");
 			}
 
 			public function onUnload(event:Event):void {
-				trace("Module onUnload Event");
+				LogUtil.debug("Module onUnload Event");
 			}		
 	}
 }

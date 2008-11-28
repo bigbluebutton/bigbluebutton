@@ -56,10 +56,10 @@ package org.bigbluebutton.modules.video.model
 
 		private function connectionListener(connected:Boolean, errors:Array=null):void {
 			if (connected) {
-				trace(NAME + ":Connected to the Video application");
+				LogUtil.debug(NAME + ":Connected to the Video application");
 				sendNotification(VideoModuleConstants.CONNECTED);
 			} else {
-				trace(NAME + ":Disconnected from the Video application");
+				LogUtil.debug(NAME + ":Disconnected from the Video application");
 				sendNotification(VideoModuleConstants.DISCONNECTED, {manual:manualDisconnect, errors:errors});
 			}
 		}

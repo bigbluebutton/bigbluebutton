@@ -51,7 +51,7 @@ package org.bigbluebutton.modules.video.view
 		}
 		
 		override public function handleNotification(notification:INotification):void{
-			trace('Got notification ' + notification.getName() + " for VIEWCAMMEDIATOR");
+			LogUtil.debug('Got notification ' + notification.getName() + " for VIEWCAMMEDIATOR");
 			switch(notification.getName()){
 				case VideoModuleConstants.PLAY_STREAM:
 					var streamName:String = notification.getBody().streamName;			
@@ -73,14 +73,14 @@ package org.bigbluebutton.modules.video.view
 					break;
 				case VideoModuleConstants.STOP_ALL_VIEW_STREAM:
 					//stopStream();
-					trace('GOT STOP_VIEW_STREAM FOR VIEWCAMMEDIATOR');
+					LogUtil.debug('GOT STOP_VIEW_STREAM FOR VIEWCAMMEDIATOR');
 					_viewCamWindow.close();
 					break;	
 			}
 		}
 		
 		private function onCloseViewCameraWindowEvent(e:CloseViewCameraWindowEvent):void{
-			trace('closing view camera window');
+			LogUtil.debug('closing view camera window');
 			if (e.streamName != _stream) return;
 			stopStream();
 		}
@@ -96,11 +96,11 @@ package org.bigbluebutton.modules.video.view
 		}
 
 		override public function onRegister():void {
-			trace('REGISTERING MEDIATOR: ' + super.getMediatorName());
+			LogUtil.debug('REGISTERING MEDIATOR: ' + super.getMediatorName());
 		}
 		
 		override public function onRemove():void {
-			trace('REMOVING MEDIATOR: ' + super.getMediatorName());
+			LogUtil.debug('REMOVING MEDIATOR: ' + super.getMediatorName());
 		}	
 	}
 }

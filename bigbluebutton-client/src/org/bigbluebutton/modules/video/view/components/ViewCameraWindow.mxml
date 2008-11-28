@@ -43,7 +43,7 @@
 			
             public override function close(event:MouseEvent = null):void 
             { 	
-            	trace('sending CloseViewCameraWindowEvent');
+            	LogUtil.debug('sending CloseViewCameraWindowEvent');
                 // dispatchEvent(new StopPlayStreamEvent(streamName));
                  dispatchEvent(new CloseViewCameraWindowEvent(streamName));
             } 

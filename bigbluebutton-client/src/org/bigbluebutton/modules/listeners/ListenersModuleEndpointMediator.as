@@ -25,7 +25,7 @@ package org.bigbluebutton.modules.listeners
 			super(NAME,module);
 			_module = module;
 			_router = module.router
-			trace(NAME + ":Creating endpoint for ListenersModule");
+			LogUtil.debug(NAME + ":Creating endpoint for ListenersModule");
 			_endpoint = new Endpoint(_router, FROM_LISTENERS_MODULE, TO_LISTENERS_MODULE, messageReceiver);	
 		}
 		
@@ -49,13 +49,13 @@ package org.bigbluebutton.modules.listeners
 		{
 			switch(notification.getName()){
 				case ListenersModuleConstants.STARTED:
-					trace(NAME + ":Sending MODULE_STARTED message to main");
+					LogUtil.debug(NAME + ":Sending MODULE_STARTED message to main");
 					_endpoint.sendMessage(EndpointMessageConstants.MODULE_STARTED, 
 							EndpointMessageConstants.TO_MAIN_APP, _module.moduleId);
 					facade.sendNotification(ListenersModuleConstants.OPEN_WINDOW);
 					break;
 				case ListenersModuleConstants.DISCONNECTED:
-					trace(NAME + ':Sending MODULE_STOPPED message to main');
+					LogUtil.debug(NAME + ':Sending MODULE_STOPPED message to main');
 					facade.sendNotification(ListenersModuleConstants.CLOSE_WINDOW);
 					var info:Object = notification.getBody();
 					info["moduleId"] = _module.moduleId;
@@ -63,12 +63,12 @@ package org.bigbluebutton.modules.listeners
 							EndpointMessageConstants.TO_MAIN_APP, info);
 					break;
 				case ListenersModuleConstants.ADD_WINDOW:
-					trace(NAME + ':Sending ADD_WINDOW message to main');
+					LogUtil.debug(NAME + ':Sending ADD_WINDOW message to main');
 					_endpoint.sendMessage(EndpointMessageConstants.ADD_WINDOW, 
 							EndpointMessageConstants.TO_MAIN_APP, notification.getBody());
 					break;
 				case ListenersModuleConstants.REMOVE_WINDOW:
-					trace(NAME + ':Sending REMOVE_WINDOW message to main');
+					LogUtil.debug(NAME + ':Sending REMOVE_WINDOW message to main');
 					_endpoint.sendMessage(EndpointMessageConstants.REMOVE_WINDOW, 
 							EndpointMessageConstants.TO_MAIN_APP, notification.getBody());
 					break;
@@ -83,7 +83,7 @@ package org.bigbluebutton.modules.listeners
 					facade.sendNotification(ListenersModuleConstants.CLOSE_WINDOW);
 					break;
 				case EndpointMessageConstants.OPEN_WINDOW:
-					//trace('Received OPEN_WINDOW message from ' + message.getHeader().SRC);
+					//LogUtil.debug('Received OPEN_WINDOW message from ' + message.getHeader().SRC);
 					//facade.sendNotification(ChatModuleConstants.OPEN_WINDOW);
 					break;
 			}

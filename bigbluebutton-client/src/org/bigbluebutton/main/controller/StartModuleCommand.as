@@ -11,10 +11,10 @@ package org.bigbluebutton.main.controller
 		{
 			var proxy:ModulesProxy = facade.retrieveProxy(ModulesProxy.NAME) as ModulesProxy;
 			if (proxy != null) {
-				trace('Found ModulesProxy');
+				LogUtil.debug('Found ModulesProxy');
 				proxy.loadModules();
 			} else {
-				trace('ModulesProxy does not exist.');
+				LogUtil.debug('ModulesProxy does not exist.');
 			}		
 		}	
 	}

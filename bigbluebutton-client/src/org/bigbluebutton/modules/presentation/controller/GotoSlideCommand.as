@@ -11,7 +11,7 @@ package org.bigbluebutton.modules.presentation.controller
 				var p:PresentProxy = facade.retrieveProxy(PresentProxy.NAME) as PresentProxy;
 				p.gotoSlide(notification.getBody() as int);
 			} else {
-				trace('Present Proxy not found.');
+				LogUtil.debug('Present Proxy not found.');
 			}			
 		}
 	}

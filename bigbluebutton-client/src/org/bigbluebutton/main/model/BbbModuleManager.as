@@ -93,7 +93,7 @@ package org.bigbluebutton.main.model
 		}
 		
 		public function loggedInUser(user:Object):void {
-			trace('loggedin user ' + user.username);
+			LogUtil.debug('loggedin user ' + user.username);
 			_user = new Object();
 			_user.userid = user.userid;
 			_user.username = user.username;
@@ -129,17 +129,17 @@ package org.bigbluebutton.main.model
 		}
 
 		public function loadModules():void {
-			trace('Loading all modules');
+			LogUtil.debug('Loading all modules');
 			for (var key:Object in _modules) {
-				trace(key, _modules[key].attributes.url);
+				LogUtil.debug("["+ key + "," + _modules[key].attributes.url + "]");
 				loadModule(key as String);
 			}
 		}
 		
 		public function startModules(router:Router):void {
-			trace('Starting all modules');
+			LogUtil.debug('Starting all modules');
 			for (var key:Object in _modules) {
-				trace('Starting ' + _modules[key].name);
+				LogUtil.debug('Starting ' + _modules[key].name);
 				var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
 				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
 				if (m.attributes.name == 'ViewersModule') {
@@ -149,10 +149,10 @@ package org.bigbluebutton.main.model
 		}
 
 		public function startModule(name:String, router:Router):void {
-			trace('Request to start module ' + name);
+			LogUtil.debug('Request to start module ' + name);
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
-				trace('Starting ' + name);
+				LogUtil.debug('Starting ' + name);
 				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
 				bbb.acceptRouter(router);
 				if (_user != null) {
@@ -161,7 +161,7 @@ package org.bigbluebutton.main.model
 					m.attributes.userrole = _user.userrole;
 					m.attributes.room = _user.room;
 					m.attributes.authToken = _user.authToken;
-					trace(m.attributes.username + " _user.username=" + _user.username);
+					LogUtil.debug(m.attributes.username + " _user.username=" + _user.username);
 				}		
 				
 				bbb.start(m.attributes);		
@@ -169,27 +169,27 @@ package org.bigbluebutton.main.model
 		}
 
 		public function stopModule(name:String):void {
-			trace('Request to stop module ' + name);
+			LogUtil.debug('Request to stop module ' + name);
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
-				trace('Stopping ' + name);
+				LogUtil.debug('Stopping ' + name);
 				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
 				bbb.stop();		
 			}	
 		}
 						
 		public function loadModule(name:String):void {
-			trace('BBBManager Loading ' + name);
+			LogUtil.debug('BBBManager Loading ' + name);
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
 				if (m.loaded) {
 					loadModuleResultHandler(MainApplicationConstants.MODULE_LOAD_READY, name);
 				} else {
-					trace('Found module ' + m.attributes.name);
+					LogUtil.debug('Found module ' + m.attributes.name);
 					m.load(loadModuleResultHandler);
 				}
 			} else {
-				trace(name + " not found.");
+				LogUtil.debug(name + " not found.");
 			}
 		}
 				
@@ -202,19 +202,19 @@ package org.bigbluebutton.main.model
 					break;	
 					case MainApplicationConstants.MODULE_LOAD_READY:
 						m.loaded = true;
-						trace('Loaded module ' + m.attributes.name);		
+						LogUtil.debug('Loaded module ' + m.attributes.name);		
 						notifyModuleLoadedListeners(MainApplicationConstants.MODULE_LOAD_READY, name);					
 					break;				
 				}
 			} else {
-				trace(name + " not found.");
+				LogUtil.debug(name + " not found.");
 			}
 		}
 		
 		public function moduleStarted(name:String, started:Boolean):void {			
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
-				trace('Setting ' + name + ' started to ' + started);
+				LogUtil.debug('Setting ' + name + ' started to ' + started);
 				m.started = started;
 			}	
 		}

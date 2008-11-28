@@ -53,7 +53,7 @@ package org.bigbluebutton.modules.presentation.model.business
 			_netConnection.addEventListener( IOErrorEvent.IO_ERROR, netIOError );
 			
 			try {
-				trace( "Connecting to " + _uri);	
+				LogUtil.debug( "Connecting to " + _uri);	
 				_connectionError = null;							
 				_netConnection.connect(_uri );
 				
@@ -62,7 +62,7 @@ package org.bigbluebutton.modules.presentation.model.business
 				switch ( e.errorID ) 
 				{
 					case 2004 :						
-						trace("Error! Invalid server location: " + _uri);											   
+						LogUtil.debug("Error! Invalid server location: " + _uri);											   
 						break;						
 					default :
 					   break;
@@ -87,7 +87,7 @@ package org.bigbluebutton.modules.presentation.model.business
 			switch ( statusCode ) 
 			{
 				case "NetConnection.Connect.Success" :
-					trace("Connection to voice application succeeded.");
+					LogUtil.debug("Connection to voice application succeeded.");
 					_connectionListener(true);					
 					break;
 			

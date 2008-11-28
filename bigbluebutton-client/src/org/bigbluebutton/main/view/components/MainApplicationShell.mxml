@@ -8,6 +8,8 @@
 		
 	<mx:Script>
 		<![CDATA[
+			import flexlib.mdi.containers.MDIWindow;
+			import org.bigbluebutton.util.logging.Logger;
 			import org.bigbluebutton.main.view.events.StartModuleEvent;
 			import mx.collections.ArrayCollection;
 			import mx.managers.PopUpManager;
@@ -19,7 +21,7 @@
 			import org.bigbluebutton.main.MainApplicationFacade;
 			import org.bigbluebutton.main.view.MainApplicationShellMediator;
 			import flash.events.MouseEvent;
-			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.main.view.assets.Images;
 			
 			public static const NAME:String = 'MainApplicationShell';
 			protected var facade:MainApplicationFacade = MainApplicationFacade.getInstance();	
@@ -28,10 +30,17 @@
 			private var images:Images = new Images();
 			private var stoppedModules:ArrayCollection;
 			
+			private var logs:Logger = new Logger();
+			private var logWindow:LogWindow;
+			
 			[Bindable] private var fullscreen_icon:Class = images.full_screen;
+			[Bindable] private var logs_icon:Class = images.logs;
 						
 			protected function initializeShell():void
 			{				
+				logWindow = new LogWindow();
+				logWindow.logs = logs;
+				
 				facade.startup(this);
 			}		
 
@@ -45,26 +54,31 @@
 			private function fullScreenHandler(evt:FullScreenEvent):void {
 				dispState = stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
 				if (evt.fullScreen) {
-					trace("Switching to full screen");
+					LogUtil.debug("Switching to full screen");
 					/* Do something specific here if we switched to full screen mode. */
 				
 				} else {
-					trace("Switching to normal screen");
+					LogUtil.debug("Switching to normal screen");
 					/* Do something specific here if we switched to normal mode. */
 				}
 			}			
 			
+			private function openLogWindow():void {
+				mdiCanvas.windowManager.add(logWindow);
+				mdiCanvas.windowManager.absPos(logWindow, 200, 700);
+			}
+			
 			private function toggleFullScreen():void{
-	   			trace("Toggling fullscreen");
+	   			LogUtil.debug("Toggling fullscreen");
 	   			try {
 					switch (stage.displayState) {
 						case StageDisplayState.FULL_SCREEN:
-							trace("full screen mode");
+							LogUtil.debug("full screen mode");
 							// If already in full screen mode, switch to normal mode.
 							stage.displayState = StageDisplayState.NORMAL;
 							break;
 						default:
-							trace("Normal screen mode");
+							LogUtil.debug("Normal screen mode");
 							// If not in full screen mode, switch to full screen mode.
 							stage.displayState = StageDisplayState.FULL_SCREEN;
 							break;
@@ -87,6 +101,7 @@
 		  <mx:Label text="(c) 2008, BigBlueButton version {Constants.VERSION} - For more information see http://www.bigbluebutton.org/." id="copyrightLabel2"/>
 		  <mx:Spacer width="20"/>
 		  <mx:Spacer width="100%"/> 
+		  <mx:Button width="20" height="20" toolTip="Open Log Window" id="logBtn" icon="{logs_icon}" click="openLogWindow()" />
 		  <mx:Button width="20" height="20" toolTip="Toggle Full-Screen" id="fullScreen" icon="{fullscreen_icon}" click="toggleFullScreen()" />
 		</mx:ControlBar>
 </mx:VBox>

@@ -27,7 +27,7 @@ package org.bigbluebutton.modules.presentation
 			super(NAME,module);
 			_module = module;
 			_router = module.router
-			trace("Creating endpoint for PresentationModule");
+			LogUtil.debug("Creating endpoint for PresentationModule");
 			_endpoint = new Endpoint(_router, FROM_PRESENTATION_MODULE, TO_PRESENTATION_MODULE, messageReceiver);	
 		}
 		
@@ -51,13 +51,13 @@ package org.bigbluebutton.modules.presentation
 		{
 			switch(notification.getName()){
 				case PresentModuleConstants.STARTED:
-					trace("Sending Present MODULE_STARTED message to main");
+					LogUtil.debug("Sending Present MODULE_STARTED message to main");
 					_endpoint.sendMessage(EndpointMessageConstants.MODULE_STARTED, 
 							EndpointMessageConstants.TO_MAIN_APP, _module.moduleId);
 					facade.sendNotification(PresentModuleConstants.OPEN_PRESENT_WINDOW);
 					break;
 				case PresentModuleConstants.DISCONNECTED:
-					trace('Sending Present MODULE_STOPPED message to main');
+					LogUtil.debug('Sending Present MODULE_STOPPED message to main');
 					facade.sendNotification(PresentModuleConstants.REMOVE_UPLOAD_WINDOW);
 					facade.sendNotification(PresentModuleConstants.THUMBNAIL_WINDOW_CLOSE);
 					facade.sendNotification(PresentModuleConstants.CLOSE_PRESENT_WINDOW);
@@ -67,12 +67,12 @@ package org.bigbluebutton.modules.presentation
 							EndpointMessageConstants.TO_MAIN_APP, info);
 					break;
 				case PresentModuleConstants.ADD_WINDOW:
-					trace('Sending Present ADD_WINDOW message to main');
+					LogUtil.debug('Sending Present ADD_WINDOW message to main');
 					_endpoint.sendMessage(EndpointMessageConstants.ADD_WINDOW, 
 							EndpointMessageConstants.TO_MAIN_APP, notification.getBody());
 					break;
 				case PresentModuleConstants.REMOVE_WINDOW:
-					trace('Sending Present REMOVE_WINDOW message to main');
+					LogUtil.debug('Sending Present REMOVE_WINDOW message to main');
 					_endpoint.sendMessage(EndpointMessageConstants.REMOVE_WINDOW, 
 							EndpointMessageConstants.TO_MAIN_APP, notification.getBody());
 					break;
@@ -87,15 +87,15 @@ package org.bigbluebutton.modules.presentation
 					facade.sendNotification(PresentModuleConstants.CLOSE_WINDOW);
 					break;
 				case EndpointMessageConstants.OPEN_WINDOW:
-					//trace('Received OPEN_WINDOW message from ' + message.getHeader().SRC);
+					//LogUtil.debug('Received OPEN_WINDOW message from ' + message.getHeader().SRC);
 					//facade.sendNotification(ChatModuleConstants.OPEN_WINDOW);
 					break;
 				case EndpointMessageConstants.ASSIGN_PRESENTER:
-					trace('Received ASSIGN_PRESENTER message from ' + message.getHeader().SRC);
+					LogUtil.debug('Received ASSIGN_PRESENTER message from ' + message.getHeader().SRC);
 					facade.sendNotification(PresentModuleConstants.PRESENTER_MODE, message.getBody());
 					break;
 				case EndpointMessageConstants.BECOME_VIEWER:
-					trace('Received BECOME_VIEWER message from ' + message.getHeader().SRC);
+					LogUtil.debug('Received BECOME_VIEWER message from ' + message.getHeader().SRC);
 					facade.sendNotification(PresentModuleConstants.VIEWER_MODE);
 					break;
 			}

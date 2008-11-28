@@ -15,7 +15,7 @@
 			private var _attributes:Object;
 			
 			private function onCreationComplete():void {
-				trace("ViewersModule Initialized");			
+				LogUtil.debug("ViewersModule Initialized");			
 			}
 			
 			public function acceptRouter(router:Router):void{

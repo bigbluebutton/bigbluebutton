@@ -13,7 +13,7 @@
 			private var _attributes:Object;
 			
 			private function onCreationComplete():void {
-				trace("PresentationModule Initialized");			
+				LogUtil.debug("PresentationModule Initialized");			
 			}
 			
 			public function acceptRouter(router:Router):void{

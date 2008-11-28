@@ -28,7 +28,7 @@ package org.bigbluebutton.modules.viewers
 			super(NAME,module);
 			_module = module;
 			_router = module.router
-			trace("Creating endpoint for ViewersModule");
+			LogUtil.debug("Creating endpoint for ViewersModule");
 			_endpoint = new Endpoint(_router, FROM_VIEWERS_MODULE, TO_VIEWERS_MODULE, messageReceiver);	
 		}
 		
@@ -67,40 +67,40 @@ package org.bigbluebutton.modules.viewers
 							EndpointMessageConstants.TO_MAIN_APP, user);
 					break;
 				case ViewersModuleConstants.STARTED:
-					trace("Sending Viewers MODULE_STARTED message to main");
+					LogUtil.debug("Sending Viewers MODULE_STARTED message to main");
 					_endpoint.sendMessage(EndpointMessageConstants.MODULE_STARTED, 
 							EndpointMessageConstants.TO_MAIN_APP, _module.moduleId);
 					facade.sendNotification(ViewersModuleConstants.OPEN_JOIN_WINDOW);
 					break;
 				case ViewersModuleConstants.DISCONNECTED:
-					trace('Sending Viewers MODULE_STOPPED message to main');
+					LogUtil.debug('Sending Viewers MODULE_STOPPED message to main');
 					var info:Object = new Object(); //notification.getBody();
 					info["moduleId"] = _module.moduleId;
 					_endpoint.sendMessage(EndpointMessageConstants.MODULE_STOPPED, 
 							EndpointMessageConstants.TO_MAIN_APP, info);
 					break;
 				case ViewersModuleConstants.ADD_WINDOW:
-					trace('Sending Viewers ADD_WINDOW message to main');
+					LogUtil.debug('Sending Viewers ADD_WINDOW message to main');
 					_endpoint.sendMessage(EndpointMessageConstants.ADD_WINDOW, 
 							EndpointMessageConstants.TO_MAIN_APP, notification.getBody());
 					break;
 				case ViewersModuleConstants.REMOVE_WINDOW:
-					trace('Sending Viewers REMOVE_WINDOW message to main');
+					LogUtil.debug('Sending Viewers REMOVE_WINDOW message to main');
 					_endpoint.sendMessage(EndpointMessageConstants.REMOVE_WINDOW, 
 							EndpointMessageConstants.TO_MAIN_APP, notification.getBody());
 					break;
 				case ViewersModuleConstants.ASSIGN_PRESENTER:
-					trace('Sending ASSIGN_PRESENTER to main');
+					LogUtil.debug('Sending ASSIGN_PRESENTER to main');
 					_endpoint.sendMessage(EndpointMessageConstants.ASSIGN_PRESENTER, 
 							EndpointMessageConstants.TO_MAIN_APP, notification.getBody());
 					break;
 				case ViewersModuleConstants.BECOME_VIEWER:
-					trace('Sending BECOME_VIEWER to main');
+					LogUtil.debug('Sending BECOME_VIEWER to main');
 					_endpoint.sendMessage(EndpointMessageConstants.BECOME_VIEWER, 
 							EndpointMessageConstants.TO_MAIN_APP, notification.getBody());
 					break;
 				case ViewersModuleConstants.VIEW_CAMERA:
-					trace('Sending VIEW_CAMERA to VIDEO MODULE');
+					LogUtil.debug('Sending VIEW_CAMERA to VIDEO MODULE');
 					_endpoint.sendMessage(EndpointMessageConstants.VIEW_CAMERA, 
 							EndpointMessageConstants.TO_VIDEO_MODULE, 
 							{viewerName:_module.username, streamName:notification.getBody().stream, viewedName:notification.getBody().viewedName});
@@ -116,21 +116,21 @@ package org.bigbluebutton.modules.viewers
 					facade.sendNotification(ViewersModuleConstants.CLOSE_WINDOW);
 					break;
 				case EndpointMessageConstants.OPEN_WINDOW:
-					//trace('Received OPEN_WINDOW message from ' + message.getHeader().SRC);
+					//LogUtil.debug('Received OPEN_WINDOW message from ' + message.getHeader().SRC);
 					//facade.sendNotification(ChatModuleConstants.OPEN_WINDOW);
 					break;
 				case EndpointMessageConstants.ASSIGN_PRESENTER:
-					trace('Received OPEN_WINDOW message from ' + message.getHeader().SRC);
+					LogUtil.debug('Received OPEN_WINDOW message from ' + message.getHeader().SRC);
 					//facade.sendNotification(ChatModuleConstants.OPEN_WINDOW);
 					break;
 				case EndpointMessageConstants.STARTED_BROADCAST:
-					trace('Received STARTED_BROADCAST message from ' + message.getHeader().SRC);
-					trace('Sending add stream ' + message.getBody().streamName);
+					LogUtil.debug('Received STARTED_BROADCAST message from ' + message.getHeader().SRC);
+					LogUtil.debug('Sending add stream ' + message.getBody().streamName);
 					proxy.addStream(message.getBody().userid, message.getBody().streamName);
 					break;
 				case EndpointMessageConstants.STOPPED_BROADCAST:
-					trace('Received STOPPED_BROADCAST message from ' + message.getHeader().SRC);
-					trace('Sending remove stream ' + message.getBody().streamName);
+					LogUtil.debug('Received STOPPED_BROADCAST message from ' + message.getHeader().SRC);
+					LogUtil.debug('Sending remove stream ' + message.getBody().streamName);
 					proxy.removeStream(message.getBody().userid, message.getBody().streamName);
 					break;
 				

@@ -73,7 +73,7 @@ package org.bigbluebutton.modules.viewers.view
 		}
 		
 		private function onAssignPresenter(e:AssignPresenterEvent):void {
-			trace('Assigning presenter to ' + e.assignTo);
+			LogUtil.debug('Assigning presenter to ' + e.assignTo);
 			proxy.assignPresenter(e.assignTo);
 		}
 		
@@ -100,22 +100,22 @@ package org.bigbluebutton.modules.viewers.view
 		override public function handleNotification(notification:INotification):void{
 			switch(notification.getName()){
 				case ViewersModuleConstants.OPEN_VIEWERS_WINDOW:
-					trace('Received request to OPEN_VIEWERS_WINDOW');
+					LogUtil.debug('Received request to OPEN_VIEWERS_WINDOW');
 					handleOpenViewersWindow();
 					break;
 				case ViewersModuleConstants.CLOSE_VIEWERS_WINDOW:
 					facade.sendNotification(ViewersModuleConstants.REMOVE_WINDOW, _viewersWindow);
 					break;
 				case ViewersModuleConstants.BECOME_VIEWER:
-					trace('Sending BECOME_VIEWER_EVENT');
+					LogUtil.debug('Sending BECOME_VIEWER_EVENT');
 //					_viewersWindow.becomeViewer(notification.getBody());
 					break;
 				case ViewersModuleConstants.CHANGE_STATUS:
-					trace('Handling CHANGE_STATUS');
+					LogUtil.debug('Handling CHANGE_STATUS');
 					_viewersWindow.changeStatus(notification.getBody() as ArrayCollection);
 					break;
 				case ViewersModuleConstants.ASSIGN_PRESENTER:
-					trace('Sending ASSIGN_PRESENTER_EVENT');
+					LogUtil.debug('Sending ASSIGN_PRESENTER_EVENT');
 //					_viewersWindow.becomePresenter(notification.getBody());
 					break;
 			}

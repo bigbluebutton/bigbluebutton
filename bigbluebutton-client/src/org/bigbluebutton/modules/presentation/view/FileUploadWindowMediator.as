@@ -77,7 +77,7 @@ package org.bigbluebutton.modules.presentation.view
 		 * 
 		 */		
 		private function startUpload(e:Event):void{
-			trace("In startUpload()...")
+			LogUtil.debug("In startUpload()...")
 			var proxy:PresentProxy = facade.retrieveProxy(PresentProxy.NAME) as PresentProxy;
 			proxy.uploadPresentation(fileToUpload);
 			_fileWin.progBarLbl.visible = true;

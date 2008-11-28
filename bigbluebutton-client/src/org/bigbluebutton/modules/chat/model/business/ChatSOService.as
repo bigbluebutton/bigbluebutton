@@ -56,12 +56,12 @@ package org.bigbluebutton.modules.chat.model.business
 		
 		private function connectionListener(connected:Boolean, errors:Array=null):void {
 			if (connected) {
-				trace(NAME + ":Connected to the Chat application");
+				LogUtil.debug(NAME + ":Connected to the Chat application");
 				join();
 				notifyConnectionStatusListener(true);
 			} else {
 				leave();
-				trace(NAME + ":Disconnected from the Chat application");
+				LogUtil.debug(NAME + ":Disconnected from the Chat application");
 				notifyConnectionStatusListener(false, errors);
 			}
 		}
@@ -74,7 +74,7 @@ package org.bigbluebutton.modules.chat.model.business
 			chatSO.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);
 			chatSO.client = this;
 			chatSO.connect(netConnectionDelegate.connection);
-			trace(NAME + ":Chat is connected to Shared object");
+			LogUtil.debug(NAME + ":Chat is connected to Shared object");
 						
 		}
 		
@@ -111,16 +111,16 @@ package org.bigbluebutton.modules.chat.model.business
 		}
 
 		public function getChatTranscript():void {
-			trace('getting chat transcript');
+			LogUtil.debug('getting chat transcript');
 			needsTranscript = true;				
 		}
 		
 		private function notifyConnectionStatusListener(connected:Boolean, errors:Array=null):void {
 			if (_connectionListener != null) {
-				trace('notifying connectionListener for CHat');
+				LogUtil.debug('notifying connectionListener for CHat');
 				_connectionListener(connected, errors);
 			} else {
-				trace("_connectionListener is null");
+				LogUtil.debug("_connectionListener is null");
 			}
 		}
 
@@ -150,7 +150,7 @@ package org.bigbluebutton.modules.chat.model.business
 			switch ( statusCode ) 
 			{
 				case "NetConnection.Connect.Success":
-					trace(NAME + ":Connection Success");		
+					LogUtil.debug(NAME + ":Connection Success");		
 					//notifyConnectionStatusListener(true);			
 					break;
 			
@@ -177,7 +177,7 @@ package org.bigbluebutton.modules.chat.model.business
 					
 				default :
 					//addError("ChatSO " + event.info.code);
-				   trace(NAME + ":default - " + event.info.code );
+				   LogUtil.debug(NAME + ":default - " + event.info.code );
 				   break;
 			}
 		}

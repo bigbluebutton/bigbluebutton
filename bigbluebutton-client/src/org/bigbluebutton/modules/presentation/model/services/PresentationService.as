@@ -49,7 +49,7 @@ package org.bigbluebutton.modules.presentation.model.services
 		}
 		
 		private function handleComplete(e:Event):void{
-			trace("Loading complete");
+			LogUtil.debug("Loading complete");
 			parse(new XML(e.target.data));				
 		}
 		
@@ -61,11 +61,11 @@ package org.bigbluebutton.modules.presentation.model.services
 			_slides.clear();			
 			
 			for each(item in list){
-				//trace("Available Modules: " + item.name + " at ");
+				//LogUtil.debug("Available Modules: " + item.name + " at ");
 				_slides.add(item.source);
 			}		
 			
-			//trace("number of slide=" + _slides.size());
+			//LogUtil.debug("number of slide=" + _slides.size());
 			if (_slides.size() > 0) {
 				if (_loadListener != null) {
 					_loadListener(true);
@@ -89,7 +89,7 @@ package org.bigbluebutton.modules.presentation.model.services
 			var item:XML;
 						
 			for each(item in list){
-				trace("Available Modules: " + item.toXMLString() + " at " + item.text());
+				LogUtil.debug("Available Modules: " + item.toXMLString() + " at " + item.text());
 				
 			}	
 		}
@@ -102,7 +102,7 @@ package org.bigbluebutton.modules.presentation.model.services
 		 */
 		public function fault(event : Object):void
 		{
-			trace("Got fault [" + event.fault.toString() + "]");		
+			LogUtil.debug("Got fault [" + event.fault.toString() + "]");		
 		}		
 	}
 }

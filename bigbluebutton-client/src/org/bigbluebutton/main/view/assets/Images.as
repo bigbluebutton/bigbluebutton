@@ -17,22 +17,15 @@
 * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 * 
 */
-package org.bigbluebutton.modules.listeners.controller
+package org.bigbluebutton.main.view.assets
 {
-	import org.bigbluebutton.modules.listeners.model.ListenersProxy;
-	import org.puremvc.as3.multicore.interfaces.INotification;
-	import org.puremvc.as3.multicore.patterns.command.SimpleCommand;
-	
-	public class StopCommand extends SimpleCommand
+	[Bindable]
+	public class Images
 	{
-		override public function execute(notification:INotification):void{
-			if (facade.hasProxy(ListenersProxy.NAME)) {
-				var p:ListenersProxy = facade.retrieveProxy(ListenersProxy.NAME) as ListenersProxy;
-				p.stop();
-			} else {
-				LogUtil.debug('ListenersProxy Proxy not found.');
-			}
-		}
-
+		[Embed(source="images/table.png")]
+		public var logs:Class;
+		
+		[Embed(source="images/arrow_out.png")]
+        public var full_screen:Class; 
 	}
 }

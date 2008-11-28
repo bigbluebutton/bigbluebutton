@@ -15,7 +15,7 @@
 			}
 			
 			private function createSuite():TestSuite{
-				trace("test");
+				LogUtil.debug("test");
 				var ts:TestSuite = new TestSuite();
 		
  				// TODO: Add more tests here to test more classes

@@ -33,7 +33,7 @@ package org.bigbluebutton.modules.video.view
 		override public function handleNotification(notification:INotification):void{
 			switch(notification.getName()){
 				case VideoModuleConstants.STOP_ALL_BROADCAST_STREAM:
-					trace('GOT STOP_ALL_BROADCAST_STREAM FOR MYCAMMEDIATOR');
+					LogUtil.debug('GOT STOP_ALL_BROADCAST_STREAM FOR MYCAMMEDIATOR');
 					stopStream();
 					cameraWindow.close();
 					break;
@@ -45,7 +45,7 @@ package org.bigbluebutton.modules.video.view
 		}
 		
 		private function broadcastStream(e:Event):void {
-			trace('BroadcastStreamEvent');
+			LogUtil.debug('BroadcastStreamEvent');
 			sendNotification(VideoModuleConstants.CREATE_BROADCAST_STREAM, streamName);
 			sendNotification(VideoModuleConstants.SETUP_STREAM, streamName);
 			sendNotification(VideoModuleConstants.START_CAMERA_COMMAND, streamName);
@@ -58,7 +58,7 @@ package org.bigbluebutton.modules.video.view
 		}
 		
 		private function stopBroadcastStream(e:Event):void {
-			trace('StopBroadcastStreamEvent');
+			LogUtil.debug('StopBroadcastStreamEvent');
 			stopStream();
 		}
 		
@@ -70,7 +70,7 @@ package org.bigbluebutton.modules.video.view
 		}
 
 		override public function onRemove():void {
-			trace('REMOVING MEDIATOR: ' + NAME);
+			LogUtil.debug('REMOVING MEDIATOR: ' + NAME);
 		}	
 	}
 }

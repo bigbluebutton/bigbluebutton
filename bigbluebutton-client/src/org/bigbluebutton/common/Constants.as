@@ -32,5 +32,7 @@ package org.bigbluebutton.common
 	{			
 		public static const VERSION:String = "0.35h";
 		public static const NUM_MODULES:String = "5";
+		
+		public static const LOG_TARGET_NAME:String = "BBBLOGGER";
 	}
 }
