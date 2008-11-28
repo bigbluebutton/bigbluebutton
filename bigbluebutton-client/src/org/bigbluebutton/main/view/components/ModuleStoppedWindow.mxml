@@ -38,6 +38,6 @@
 	<mx:TextArea id="errorsTextArea" visible="true" editable="false" width="100%" height="100%" focusEnabled="false" color="blue"/>
 	<mx:ControlBar horizontalAlign="center" verticalAlign="middle" x="0" y="106">
 		<mx:Spacer width="100%"/>
-		<mx:Button id="retryBtn" label="Start Module" click="restartModule()"/>
+		<mx:Button id="retryBtn" label="Restart" click="restartModule()"/>
 	</mx:ControlBar>	
 </mx:TitleWindow> 
