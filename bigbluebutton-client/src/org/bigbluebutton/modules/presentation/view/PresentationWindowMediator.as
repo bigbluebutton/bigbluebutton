@@ -202,6 +202,9 @@ package org.bigbluebutton.modules.presentation.view
 			if (! proxy.isPresenter()) {
 				_presWin.presenterNameLabel.text = presenterName + " is currently presenting.";
 				_presWin.presenterNameLabel.visible = true;
+			} else {
+				_presWin.presenterNameLabel.text = "";
+				_presWin.presenterNameLabel.visible = false;
 			}
 		}
 		
@@ -283,6 +286,8 @@ package org.bigbluebutton.modules.presentation.view
 			_presWin.slideView.visible = false;		
 			_presWin.slideView.selectedSlide = 0;
 			_presWin.slideNumLbl.text = "";
+			_presWin.presenterNameLabel.text = "";
+			_presWin.presenterNameLabel.visible = false;
 			if (facade.hasProxy(SlideProxy.NAME)) {
 				var sp:SlideProxy = facade.retrieveProxy(SlideProxy.NAME) as SlideProxy;
 				sp.clear();

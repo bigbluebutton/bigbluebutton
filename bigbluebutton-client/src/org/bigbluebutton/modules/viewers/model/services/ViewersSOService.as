@@ -161,13 +161,13 @@ package org.bigbluebutton.modules.viewers.model.services
 		}
 						
 		public function assignPresenter(userid:Number, assignedBy:Number):void {
-			var aUser:User = _participants.getParticipant(userid);			
-			if (aUser != null) {
-				LogUtil.debug('assigning presenter to ' + userid);
-				aUser.presenter = true;
-				_participantsSO.setProperty(userid.toString(), aUser);
-				_participantsSO.setDirty(userid.toString());
-			}			
+			//var aUser:User = _participants.getParticipant(userid);			
+			//if (aUser != null) {
+			//	LogUtil.debug('assigning presenter to ' + userid);
+			//	aUser.presenter = true;
+			//	_participantsSO.setProperty(userid.toString(), aUser);
+			//	_participantsSO.setDirty(userid.toString());
+			//}			
 			_participantsSO.send("assignPresenterCallback", userid, assignedBy);
 		}
 		
