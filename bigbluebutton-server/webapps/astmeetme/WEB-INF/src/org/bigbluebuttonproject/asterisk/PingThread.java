@@ -156,12 +156,12 @@ public class PingThread extends Thread
 //            	System.out.println("Sending ping response:");
                 response = connection.sendAction(new PingAction(), timeout);
 //                System.out.println("Got ping response:" + response);
-                logger.debug("Ping response: " + response);
+//                logger.debug("Ping response: " + response);
             }
         }
         catch (Exception e)
         {
-        	System.out.println("Exception on sending Ping:");
+//        	System.out.println("Exception on sending Ping:");
             logger.warn("Exception on sending Ping", e);
         }
     }
