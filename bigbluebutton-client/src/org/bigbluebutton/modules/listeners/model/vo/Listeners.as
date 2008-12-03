@@ -59,8 +59,7 @@ package org.bigbluebutton.modules.listeners.model.vo
 				
 		public function removeListener(id:Number):void
 		{
-			var l:Object = getListenerIndex(id);		
-			LogUtil.debug( "removing listener[" + l.listener.callerName + "," + l.listener.userid + "]")			
+			var l:Object = getListenerIndex(id);					
 			if (l != null) {
 				LogUtil.info( "removing listener[" + l.listener.callerName + "," + l.listener.userid + "]")				
 				listeners.removeItemAt(l.index);

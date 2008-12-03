@@ -123,7 +123,7 @@ package org.bigbluebutton.modules.listeners.model.service
 			if (l != null) {
 				l.muted = mute;
 				LogUtil.debug(LOGNAME + 'Un/Muting user ' + userId + " mute=" + mute);
-				sendMessage(ListenersModuleConstants.USER_MUTE_NOTIFICATION, {userid:userId, mute:mute});
+				//sendMessage(ListenersModuleConstants.USER_MUTE_NOTIFICATION, {userid:userId, mute:mute});
 			}					
 		}
 
@@ -132,7 +132,7 @@ package org.bigbluebutton.modules.listeners.model.service
 			var l:Listener = _listeners.getListener(userId);			
 			if (l != null) {
 				l.talking = talk;
-				sendMessage(ListenersModuleConstants.USER_TALKING_NOTIFICATION, {userid:userId, talking:talk});
+				//sendMessage(ListenersModuleConstants.USER_TALKING_NOTIFICATION, {userid:userId, talking:talk});
 			}	
 		}
 

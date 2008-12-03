@@ -56,8 +56,7 @@ package org.bigbluebutton.modules.listeners
 		public static const EJECT_USER_COMMAND:String = "EJECT_USER_COMMAND";
 		public static const MUTE_ALL_USERS_COMMAND:String = "MUTE_ALL_USERS_COMMAND";
 		public static const MUTE_EVENT:String = "MUTE_EVENT";
-	
-		public static const LISTENER_SELECTED_EVENT:String = "LISTENER_SELECTED_EVENT";
+			
 		public static const EJECT_LISTENER_EVENT:String = "EJECT_LISTENER_EVENT";
 	}
 }

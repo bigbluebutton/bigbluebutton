@@ -97,8 +97,7 @@ package org.bigbluebutton.modules.viewers.model.business
 		{
 			var p:Object = getParticipantIndex(userid);
 			if (p != null) {
-				LogUtil.debug("removing user[" + p.participant.name + "," + p.participant.userid + "]");
-				
+				LogUtil.debug("removing user[" + p.participant.name + "," + p.participant.userid + "]");				
 				users.removeItemAt(p.index);
 				sort();
 			}							

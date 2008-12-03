@@ -24,6 +24,7 @@ package org.bigbluebutton.modules.listeners.view
 	import org.bigbluebutton.modules.listeners.ListenersModuleConstants;
 	import org.bigbluebutton.modules.listeners.model.ListenersProxy;
 	import org.bigbluebutton.modules.listeners.view.components.ListenersWindow;
+	import org.bigbluebutton.modules.listeners.view.events.ListenerSelectedEvent;
 	import org.bigbluebutton.modules.listeners.view.events.UserMuteEvent;
 	import org.bigbluebutton.modules.listeners.view.events.UserTalkEvent;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
@@ -53,7 +54,7 @@ package org.bigbluebutton.modules.listeners.view
 			_listenersWindow.addEventListener(ListenersModuleConstants.MUTE_ALL, onMuteAllUsers);
 			_listenersWindow.addEventListener(ListenersModuleConstants.EJECT_LISTENER_EVENT, onEjectListenerEvent);
 			_listenersWindow.addEventListener(ListenersModuleConstants.MUTE_USER_EVENT, onMuteUserEvent);
-			_listenersWindow.addEventListener(ListenersModuleConstants.LISTENER_SELECTED_EVENT, onListenerSelectedEvent);
+			_listenersWindow.addEventListener(ListenerSelectedEvent.LISTENER_SELECTED_EVENT, onListenerSelectedEvent);
 			
 		}
 

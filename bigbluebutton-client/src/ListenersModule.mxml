@@ -47,6 +47,7 @@
 			}
 			
 			public function isModerator():Boolean {
+				LogUtil.debug("LISTENER-ROLE:" + _attributes.userrole);
 				return _attributes.userrole == "MODERATOR";
 			}
 			public function start(attributes:Object):void {		
