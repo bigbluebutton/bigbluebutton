@@ -16,7 +16,7 @@
 			public static const TITLE:String = "Viewers";
 			
 			[Bindable]
-			public var participants:ArrayCollection = new ArrayCollection();
+			public var participants:ArrayCollection;
   			
   			[Bindable]
   			public var isModerator:Boolean = false;

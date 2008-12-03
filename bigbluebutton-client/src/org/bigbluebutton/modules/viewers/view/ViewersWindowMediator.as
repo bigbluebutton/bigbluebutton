@@ -87,8 +87,7 @@ package org.bigbluebutton.modules.viewers.view
 					ViewersModuleConstants.OPEN_VIEWERS_WINDOW,
 					ViewersModuleConstants.CLOSE_VIEWERS_WINDOW,
 					ViewersModuleConstants.BECOME_VIEWER,
-					ViewersModuleConstants.ASSIGN_PRESENTER,
-					ViewersModuleConstants.CHANGE_STATUS
+					ViewersModuleConstants.ASSIGN_PRESENTER
 					];
 		}
 		
@@ -109,10 +108,6 @@ package org.bigbluebutton.modules.viewers.view
 				case ViewersModuleConstants.BECOME_VIEWER:
 					LogUtil.debug('Sending BECOME_VIEWER_EVENT');
 //					_viewersWindow.becomeViewer(notification.getBody());
-					break;
-				case ViewersModuleConstants.CHANGE_STATUS:
-					LogUtil.debug('Handling CHANGE_STATUS');
-					_viewersWindow.changeStatus(notification.getBody() as ArrayCollection);
 					break;
 				case ViewersModuleConstants.ASSIGN_PRESENTER:
 					LogUtil.debug('Sending ASSIGN_PRESENTER_EVENT');

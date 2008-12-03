@@ -40,8 +40,8 @@ package org.bigbluebutton.modules.listeners.model.vo
 
 		public function hasListener(id:Number):Boolean
 		{
-			var index:int = getListenerIndex(id);			
-			if (index > -1) {
+			var l:Object = getListenerIndex(id);			
+			if (l != null) {
 				return true;
 			}						
 			return false;		
@@ -49,9 +49,9 @@ package org.bigbluebutton.modules.listeners.model.vo
 			
 		public function getListener(id:Number):Listener
 		{
-			var index:int = getListenerIndex(id);			
-			if (index > -1) {
-				return listeners.getItemAt(index) as Listener;
+			var l:Object = getListenerIndex(id);			
+			if (l != null) {
+				return l.listener as Listener;
 			}
 						
 			return null;				
@@ -59,28 +59,28 @@ package org.bigbluebutton.modules.listeners.model.vo
 				
 		public function removeListener(id:Number):void
 		{
-			var index:int = getListenerIndex(id);		
-			LogUtil.debug( "removing listener[" + id + " at index=" + index + "]")			
-			if (index > -1) {
-				LogUtil.debug( "remove listener[" + id + " at index=" + index + "]");				
-				listeners.removeItemAt(index);
+			var l:Object = getListenerIndex(id);		
+			LogUtil.debug( "removing listener[" + l.listener.callerName + "," + l.listener.userid + "]")			
+			if (l != null) {
+				LogUtil.info( "removing listener[" + l.listener.callerName + "," + l.listener.userid + "]")				
+				listeners.removeItemAt(l.index);
 				sort();
 			}							
 		}
 			
-		private function getListenerIndex(id:Number):int
+		private function getListenerIndex(id:Number):Object
 		{
 			var l:Listener;			
 			for (var i:int = 0; i < listeners.length; i++)
 			{
 				l = listeners.getItemAt(i) as Listener;				
 				if (l.userid == id) {
-					return i;
+					return {index:i, listener:l};
 				}
 			}				
 			
 			// Listener not found.
-			return -1;
+			return null;
 		}
 	
 		public function removeAllListeners():void

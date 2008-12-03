@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
-	verticalScrollPolicy="off" horizontalScrollPolicy="off" creationComplete="init()">
+	verticalScrollPolicy="off" horizontalScrollPolicy="off">
 	
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.modules.viewers.view.events.ViewCameraEvent;
 			import org.bigbluebutton.modules.viewers.model.vo.Status;
-			import mx.collections.ArrayCollection;
-			import org.bigbluebutton.modules.viewers.view.events.ChangeStatusEvent;
-			import org.bigbluebutton.modules.viewers.ViewersModuleConstants;
 			import org.bigbluebutton.modules.viewers.view.components.Images;
 
 			private var images:Images = new Images();	
@@ -21,40 +18,9 @@
    			[Bindable] private var webcamIcon:Object = images.webcam;
    			[Bindable] private var handIcon:Object = images.raisehand;	
    			[Bindable] private var presenterIcon:Object = images.presenter;
-   			
-   			private function init():void {
-   				LogUtil.debug('registering for change status events');
-   				parentDocument.addEventListener(ChangeStatusEvent.CHANGE_STATUS_EVENT, onChangeStatusEvent);
-   				updateStatus('init');
-  			}
-
-   			private function onChangeStatusEvent(e:ChangeStatusEvent):void {
-   				LogUtil.debug('changing status icon');  				
-   				updateStatus('onChangeStatusEvent');
-   			}
-   			
-   			private function updateStatus(from:String):void {
-   				LogUtil.debug('updating status from ' + from + " user=" + data.name + " presenter=" + data.presenter + " stream=" + data.hasStream);
-   				
-   				if (data.presenter) {
-   					presIcon.source = presenterIcon;
-  					presIcon.toolTip = "Presenter";
-  					presIcon.visible = true;
-  				} else {
- 					presIcon.visible = false;
-  				}
-  				
-  				if (data.hasStream) {
-  					streamIcon.source = webcamIcon;
-  					streamIcon.toolTip = "Double-Click to view";
-  					streamIcon.visible = true;
-  				} else {
- 					streamIcon.visible = false;
-  				}
-   			}
 		]]>
 	</mx:Script>
 
-	<mx:Image id="streamIcon" visible="false" doubleClick="viewCamera()" creationComplete="updateStatus('streamIcon')"/>	
-	<mx:Image id="presIcon" visible="false" creationComplete="updateStatus('presIcon')"/>
+	<mx:Image id="streamIcon" visible="{data.hasStream}" doubleClick="viewCamera()" source="{webcamIcon}" toolTip="Double-Click to view."/>	
+	<mx:Image id="presIcon" visible="{data.presenter}" source="{presenterIcon}" toolTip="Presenter"/>
 </mx:HBox>

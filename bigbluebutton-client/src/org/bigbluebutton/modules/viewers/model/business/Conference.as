@@ -30,9 +30,8 @@ package org.bigbluebutton.modules.viewers.model.business
 		private var _myUserid : Number;
 		
 		[Bindable] public var me:User = null;		
-		[Bindable] public var users : ArrayCollection = null;				
-		[Bindable] public var connected : Boolean = false;
-						
+		[Bindable] public var users:ArrayCollection = null;				
+				
 		public function Conference() : void
 		{
 			me = new User();
@@ -63,11 +62,10 @@ package org.bigbluebutton.modules.viewers.model.business
 		 * @return 
 		 * 
 		 */		
-		public function hasParticipant(id : Number) : Boolean
+		public function hasParticipant(userid:Number) : Boolean
 		{
-			var index : int = getParticipantIndex(id);
-			
-			if (index > -1) {
+			var p:Object = getParticipantIndex(userid);
+			if (p != null) {
 				return true;
 			}
 						
@@ -80,12 +78,11 @@ package org.bigbluebutton.modules.viewers.model.business
 		 * @return 
 		 * 
 		 */		
-		public function getParticipant(id : Number) : User
+		public function getParticipant(userid:Number) : User
 		{
-			var index : int = getParticipantIndex(id);
-			
-			if (index > -1) {
-				return users.getItemAt(index) as User;
+			var p:Object = getParticipantIndex(userid);
+			if (p != null) {
+				return p.participant as User;
 			}
 						
 			return null;				
@@ -96,16 +93,13 @@ package org.bigbluebutton.modules.viewers.model.business
 		 * @param userid
 		 * 
 		 */		
-		public function removeParticipant(userid : Number) : void
+		public function removeParticipant(userid:Number) : void
 		{
-			var index : int = getParticipantIndex(userid);
-			
-			LogUtil.debug( "removing user[" + userid + " at index=" + index + "]")
-			
-			if (index > -1) {
-				LogUtil.debug( "remove user[" + userid + " at index=" + index + "]");
+			var p:Object = getParticipantIndex(userid);
+			if (p != null) {
+				LogUtil.debug("removing user[" + p.participant.name + "," + p.participant.userid + "]");
 				
-				users.removeItemAt(index);
+				users.removeItemAt(p.index);
 				sort();
 			}							
 		}
@@ -116,7 +110,7 @@ package org.bigbluebutton.modules.viewers.model.business
 		 * @return -1 if participant not found
 		 * 
 		 */		
-		private function getParticipantIndex(userid : Number) : int
+		private function getParticipantIndex(userid:Number):Object
 		{
 			var aUser : User;
 			
@@ -125,12 +119,12 @@ package org.bigbluebutton.modules.viewers.model.business
 				aUser = users.getItemAt(i) as User;
 				
 				if (aUser.userid == userid) {
-					return i;
+					return {index:i, participant:aUser};
 				}
 			}				
 			
 			// Participant not found.
-			return -1;
+			return null;
 		}
 
 		/**

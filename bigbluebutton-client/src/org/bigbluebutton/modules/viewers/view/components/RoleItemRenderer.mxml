@@ -4,7 +4,6 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.viewers.ViewersModuleConstants;
 			import org.bigbluebutton.modules.viewers.view.components.Images;
 			import org.bigbluebutton.common.Role;
 			
@@ -12,23 +11,8 @@
 			
 			[Bindable] private var adminIcon : Object = images.admin;
    			[Bindable] private var viewerIcon : Object = images.participant;
-
-			private function setRole():void {
-				if (data.role == Role.MODERATOR) {
-   					roleImage.source = adminIcon;
-   					roleImage.toolTip = "Moderator";
-   					roleImage.visible = true;
-   				} else {
-   					roleImage.source = viewerIcon;
-   					roleImage.toolTip = "Viewer";
-   					roleImage.visible = false;
-   				}
-			}   			
-			
-
-   			   			   			
+  			   			   			
 		]]>
 	</mx:Script>	
-	<mx:Image id="roleImage" creationComplete="setRole()"/>
-	<!--mx:Image id="roleImage" source="{data.role == Role.MODERATOR ? adminIcon : viewerIcon}"/-->
+	<mx:Image id="roleImage" source="{data.role == Role.MODERATOR ? adminIcon : ''}"/>
 </mx:HBox>
