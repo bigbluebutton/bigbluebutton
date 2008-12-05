@@ -123,7 +123,6 @@ package org.bigbluebutton.modules.listeners.model.service
 			if (l != null) {
 				l.muted = mute;
 				LogUtil.debug(LOGNAME + 'Un/Muting user ' + userId + " mute=" + mute);
-				//sendMessage(ListenersModuleConstants.USER_MUTE_NOTIFICATION, {userid:userId, mute:mute});
 			}					
 		}
 
@@ -132,7 +131,6 @@ package org.bigbluebutton.modules.listeners.model.service
 			var l:Listener = _listeners.getListener(userId);			
 			if (l != null) {
 				l.talking = talk;
-				//sendMessage(ListenersModuleConstants.USER_TALKING_NOTIFICATION, {userid:userId, talking:talk});
 			}	
 		}
 
@@ -189,28 +187,32 @@ package org.bigbluebutton.modules.listeners.model.service
 			switch ( statusCode ) 
 			{
 				case "NetConnection.Connect.Success" :
-					LogUtil.debug(LOGNAME + ":Connection Success");	
-					//notifyConnectionStatusListener(true);			
+					LogUtil.debug(LOGNAME + ":Connection Success");			
 					break;
 			
-				case "NetConnection.Connect.Failed" :			
+				case "NetConnection.Connect.Failed" :	
+					LogUtil.error(LOGNAME + "ChatSO connection failed.");		
 					addError("ChatSO connection failed");
 					break;
 					
-				case "NetConnection.Connect.Closed" :									
+				case "NetConnection.Connect.Closed" :			
+					LogUtil.error(LOGNAME + "Connection to VoiceSO was closed.");						
 					addError("Connection to VoiceSO was closed.");									
 					notifyConnectionStatusListener(false, _soErrors);
 					break;
 					
-				case "NetConnection.Connect.InvalidApp" :				
+				case "NetConnection.Connect.InvalidApp" :	
+					LogUtil.error(LOGNAME + "VoiceSO not found in server");			
 					addError("VoiceSO not found in server");	
 					break;
 					
 				case "NetConnection.Connect.AppShutDown" :
+					LogUtil.error(LOGNAME + "VoiceSO is shutting down");	
 					addError("VoiceSO is shutting down");
 					break;
 					
 				case "NetConnection.Connect.Rejected" :
+					LogUtil.error(LOGNAME + "No permissions to connect to the voiceSO");
 					addError("No permissions to connect to the voiceSO");
 					break;
 					
@@ -220,8 +222,9 @@ package org.bigbluebutton.modules.listeners.model.service
 			}
 		}
 			
-		private function asyncErrorHandler ( event : AsyncErrorEvent ) : void
+		private function asyncErrorHandler (event:AsyncErrorEvent):void
 		{
+			LogUtil.error(LOGNAME + "ListenersSO asynchronous error.");
 			addError("ListenersSO asynchronous error.");
 		}
 

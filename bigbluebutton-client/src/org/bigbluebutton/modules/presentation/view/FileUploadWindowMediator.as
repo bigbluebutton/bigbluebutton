@@ -194,6 +194,7 @@ package org.bigbluebutton.modules.presentation.view
 		 */		
 		private function handleUploadProgressEvent(note:INotification):void{
 			var progress:Number = note.getBody() as Number;
+			LogUtil.debug("FileUpload " + progress + "% uploaded.");
 			_fileWin.progressLbl.text = progress + "% uploaded.";
 			_fileWin.progressBar.label = progress + "% uploaded.";
 			_fileWin.progressBar.setProgress(progress, 100);

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" 
 	implements="org.bigbluebutton.common.IBigBlueButtonModule"
-	creationComplete="onCreationComplete()">
+	creationComplete="onModuleCreationComplete()">
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.modules.listeners.ListenersModuleFacade;
@@ -14,7 +14,7 @@
 			
 			private var _attributes:Object;
 			
-			private function onCreationComplete():void {
+			private function onModuleCreationComplete():void {
 				LogUtil.debug("ListenersModule Initialized");			
 			}
 			

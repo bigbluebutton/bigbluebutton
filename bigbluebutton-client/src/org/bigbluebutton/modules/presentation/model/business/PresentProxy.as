@@ -155,7 +155,7 @@ package org.bigbluebutton.modules.presentation.model.business
 			}
 		}
 		
-		private function uploadProgressListener(code:String, message:String=""):void {
+		private function uploadProgressListener(code:String, message:Object=null):void {
 			LogUtil.debug('Fileupload progress ' + code + ":" + message);
 			sendNotification(code, message);
 		}			

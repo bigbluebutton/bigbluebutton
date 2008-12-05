@@ -25,12 +25,13 @@ package org.bigbluebutton.modules.listeners.model.service
 		
 	public class NetConnectionDelegate
 	{
-		public static const NAME : String = "NetConnectionDelegate";
-
-		private var _netConnection : NetConnection;	
-		private var _uri : String;
-		private var connectionId : Number;
-		private var connected : Boolean = false;
+		public static const NAME:String = "ListenerNC";
+		private static const LOGNAME:String = "[ListenerNC]";
+		
+		private var _netConnection:NetConnection;	
+		private var _uri:String;
+		private var connectionId:Number;
+		private var connected:Boolean = false;
 		private var _connectionListener:Function;
 		private var _connectionError:Array;
 				
@@ -54,7 +55,7 @@ package org.bigbluebutton.modules.listeners.model.service
 			_netConnection.addEventListener( IOErrorEvent.IO_ERROR, netIOError );
 			
 			try {
-				LogUtil.debug( "Connecting to " + _uri);	
+				LogUtil.debug(LOGNAME + "Connecting to " + _uri);	
 				_connectionError = null;							
 				_netConnection.connect(_uri );
 				
@@ -63,7 +64,7 @@ package org.bigbluebutton.modules.listeners.model.service
 				switch ( e.errorID ) 
 				{
 					case 2004 :						
-						LogUtil.debug("Error! Invalid server location: " + _uri);											   
+						LogUtil.error(LOGNAME + "Error! Invalid server location: " + _uri);											   
 						break;						
 					default :
 					   break;
@@ -78,63 +79,72 @@ package org.bigbluebutton.modules.listeners.model.service
 
 		public function muteAllUsers(mute:Boolean):void 
 		{
+			LogUtil.info(LOGNAME + "Muting all listeners [" + mute + "]");
 			_netConnection.call("meetmeService.muteAllUsers", null, mute);
 		}
 		
 		public function muteUnmuteUser(userid:Number, mute:Boolean):void
 		{
+			LogUtil.info(LOGNAME + "Muting listener [" + userid + "," + mute + "]");
 			_netConnection.call("meetmeService.muteUnmuteUser", null, userid, mute);
 		}
 
 
 		public function ejectUser(userid:Number) : void
 		{
+			LogUtil.info(LOGNAME + "Ejecting listener [" + userid + "]");
 			_netConnection.call("meetmeService.ejectUser", null, userid);
 		}		
 		
 		public function getCurrentListeners(resp:Responder):void {
+			LogUtil.info(LOGNAME + "Getting current listeners.");
 			_netConnection.call("meetmeService.getMeetMeUsers", resp);
 		}
 					
 		protected function netStatus( event : NetStatusEvent ) : void 
 		{
-			handleResult( event );
+			handleResult(event);
 		}
 		
 		public function handleResult(  event : Object  ) : void {
-			var info : Object = event.info;
-			var statusCode : String = info.code;
+			var info:Object = event.info;
+			var statusCode:String = info.code;
 			
 			switch ( statusCode ) 
 			{
 				case "NetConnection.Connect.Success" :
-					LogUtil.debug("Connection to voice application succeeded.");
+					LogUtil.info(LOGNAME + "Connection to voice application succeeded.");
 					_connectionListener(true);					
 					break;
 			
 				case "NetConnection.Connect.Failed" :
+					LogUtil.error(LOGNAME + "Failed to connect to the application.");
 					addError("Failed to connect to the application.");
 					break;
 					
-				case "NetConnection.Connect.Closed" :					
+				case "NetConnection.Connect.Closed" :
+					LogUtil.error(LOGNAME + "Connection to application closed.");					
 					addError("Connection to application closed.");			
 					_connectionListener(false, _connectionError);
 					break;
 					
-				case "NetConnection.Connect.InvalidApp" :				
+				case "NetConnection.Connect.InvalidApp" :
+					LogUtil.error(LOGNAME + "Could not find the application.");				
 					addError("Could not find the application.");
 					break;
 					
 				case "NetConnection.Connect.AppShutDown":
+					LogUtil.error(LOGNAME + "Application has shutdown.");
 					addError("Application has shutdown.");
 					break;
 					
 				case "NetConnection.Connect.Rejected":
+					LogUtil.error(LOGNAME + "Connection to the application was rejected.");
 					addError("Connection to the application was rejected.");
 					break;
 					
 				default :
-				   // statements
+				   LogUtil.info("Voice NC: Default statuscode[" + statusCode + "]");
 				   break;
 			}
 		}
@@ -142,16 +152,19 @@ package org.bigbluebutton.modules.listeners.model.service
 			
 		protected function netSecurityError( event : SecurityErrorEvent ) : void 
 		{
+			LogUtil.error(LOGNAME + "Encountered security error on connection to the application.");
 			addError("Encountered security error on connection to the application.");
 		}
 		
 		protected function netIOError( event : IOErrorEvent ) : void 
 		{
+			LogUtil.error(LOGNAME + "Encountered Input/Output error on connection to the application.");
 			addError("Encountered Input/Output error on connection to the application.");
 		}
 			
 		protected function netASyncError( event : AsyncErrorEvent ) : void 
 		{
+			LogUtil.error(LOGNAME + "Encountered Asynchronous error on connection to the application.");
 			addError("Encountered Asynchronous error on connection to the application.");
 		}	
 

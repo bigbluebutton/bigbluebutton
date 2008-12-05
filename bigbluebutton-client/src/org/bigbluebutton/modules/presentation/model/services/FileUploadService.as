@@ -65,7 +65,7 @@ package org.bigbluebutton.modules.presentation.model.services
 		 * @param file - The FileReference class of the file we wish to send
 		 * 
 		 */		
-		public function upload(file:FileReference) : void
+		public function upload(file:FileReference):void
 		{
 			var fileToUpload : FileReference = new FileReference();
 			fileToUpload = file;
@@ -84,10 +84,10 @@ package org.bigbluebutton.modules.presentation.model.services
 		 * @param event - a ProgressEvent
 		 * 
 		 */		
-		private function onUploadProgress(event : ProgressEvent) : void
+		private function onUploadProgress(event:ProgressEvent) : void
 		{
-			var percentage : Number = Math.round((event.bytesLoaded / event.bytesTotal) * 100);
-			_progressListener(PresentModuleConstants.UPDATE_PROGRESS_EVENT, percentage);
+			var percentage:Number = Math.round((event.bytesLoaded / event.bytesTotal) * 100);
+			_progressListener(PresentModuleConstants.UPLOAD_PROGRESS_EVENT, percentage);
 		}
 		
 		/**
@@ -95,7 +95,7 @@ package org.bigbluebutton.modules.presentation.model.services
 		 * @param event
 		 * 
 		 */		
-		private function onUploadComplete(event : Event) : void
+		private function onUploadComplete(event:Event):void
 		{
 			_progressListener(PresentModuleConstants.UPLOAD_COMPLETED_EVENT);
 		}
@@ -105,7 +105,7 @@ package org.bigbluebutton.modules.presentation.model.services
 		 * @param event
 		 * 
 		 */
-		private function onUploadIoError(event : IOErrorEvent) : void
+		private function onUploadIoError(event:IOErrorEvent):void
 		{
 			_progressListener(PresentModuleConstants.UPLOAD_IO_ERROR_EVENT, "IOError while uploading file.");
 		}
@@ -115,7 +115,7 @@ package org.bigbluebutton.modules.presentation.model.services
 		 * @param event
 		 * 
 		 */		
-		private function onUploadSecurityError(event : SecurityErrorEvent) : void
+		private function onUploadSecurityError(event:SecurityErrorEvent) : void
 		{
 			_progressListener(PresentModuleConstants.UPLOAD_SECURITY_ERROR_EVENT, "Security Error while uploading file.");
 		}		
