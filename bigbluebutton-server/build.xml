@@ -324,6 +324,11 @@
 				<logback webapp="astmeetme"/>
 			</copy-assets>
 		</build-demo>
+		<build-demo name="bigbluebutton">
+			<copy-assets>
+				<logback webapp="bigbluebutton"/>
+			</copy-assets>
+		</build-demo>
 		<build-demo name="bwcheck">
 			<copy-assets>
 				<logback webapp="bwcheck"/>
@@ -590,6 +595,7 @@
 
 		<!-- create jar files for demos -->
 		<compile-jardemo name="astmeetme"/>
+		<compile-jardemo name="bigbluebutton"/>
 		<compile-jardemo name="bwcheck"/>
 		<compile-jardemo name="conference"/>
 		<compile-jardemo name="echo"/>
