@@ -61,18 +61,19 @@ public class Application extends ApplicationAdapter implements
 	
 	/** The room listener. */
 	private ConferenceRoomListener roomListener;
+	private boolean listenerStarted = false;
 	
     /**
      * @see org.red5.server.adapter.MultiThreadedApplicationAdapter#appStart(org.red5.server.api.IScope)
      */
     @Override
-    public boolean appStart (IScope app )
+    public boolean appStart(IScope app )
     {
     	super.appStart(app);
     	
         log.info( "MeetMe::appStart - " );
         appScope = app;
-    
+    	//initialize();
         return true;
     }
     
@@ -81,9 +82,11 @@ public class Application extends ApplicationAdapter implements
      */
     private void initialize() 
     {	
- //   	roomListener = new ConferenceRoomListener();
     	try {
-			voiceService.addAsteriskServerListener(roomListener);
+    		if (! listenerStarted) {
+    			voiceService.addAsteriskServerListener(roomListener);
+    			listenerStarted = true;
+    		}
 		} catch (ManagerCommunicationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -106,13 +109,6 @@ public class Application extends ApplicationAdapter implements
     	super.appConnect(conn, params);
     	
         log.info( "MeetMe::appConnect - " + conn.getClient().getId() );
-
-//        initialize();       
-        
-//        boolean accept = ((Boolean)params[0]).booleanValue();
-
-//        if ( !accept ) rejectClient( "you passed false..." );
-
         return true;
     }
 
@@ -129,10 +125,21 @@ public class Application extends ApplicationAdapter implements
      */
     public boolean roomStart(IScope room) {
     	log.info( "MeetMe::roomStart - " + room.getName() );
+
     	if (!super.roomStart(room))
     		return false;
-
+    	
     	initialize();
+    	
+    	if (!hasSharedObject(room, "meetMeUsersSO")) {
+    		createSharedObject(room, "meetMeUsersSO", false);
+    		ISharedObject so = getSharedObject(room, "meetMeUsersSO", false);
+    		roomListener.addRoom(room.getName(), so);
+    	} else {        	
+        	ISharedObject so = getSharedObject(room, "meetMeUsersSO", false);        	   		
+    	}
+    	
+    	roomListener.initializeConferenceUsers(room.getName());
     	return true;
     }
     

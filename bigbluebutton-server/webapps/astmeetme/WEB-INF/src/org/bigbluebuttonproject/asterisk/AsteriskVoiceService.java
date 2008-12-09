@@ -142,6 +142,7 @@ public class AsteriskVoiceService implements IVoiceService {
 	 * @see org.bigbluebuttonproject.asterisk.IVoiceService#addAsteriskServerListener(org.asteriskjava.live.AsteriskServerListener)
 	 */
 	public void addAsteriskServerListener(AsteriskServerListener listener) throws ManagerCommunicationException {
+		logger.info("Adding ConferenceRoomListener");
 		asteriskServer.addAsteriskServerListener(listener);
 	}
 
