@@ -626,6 +626,7 @@
 	</target>
 
 	<target name="dist" description="Make Binary distribution" depends="clean, jar">
+		<mkdir dir="${dist.dir}/${log.dir}"/>
 		<copy todir="${dist.dir}/lib">
 			<fileset dir="lib"/>
 		</copy>
