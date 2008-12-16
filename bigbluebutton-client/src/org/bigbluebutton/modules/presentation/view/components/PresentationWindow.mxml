@@ -30,6 +30,7 @@
 			[Bindable] private var forwardIcon : Class = images.forward;
 			[Bindable] private var backwardIcon : Class = images.backward;
 			[Bindable] private var thumbnailIcon : Class = images.thumbnails;
+			[Bindable] private var magnifierIcon : Class = images.magnifier;
 											
 			public var uploadWindow:FileUploadWindow = null;
 			public var thumbnailWindow:ThumbnailWindow = null;
@@ -51,7 +52,7 @@
 			
 			public function set yPosition(y:int):void {
 				_yPosition = y;
-			}									
+			}						
 		]]>
 	</mx:Script>
 	
@@ -68,6 +69,8 @@
     	  <mx:Button id="forwardButton" icon="{forwardIcon}" visible="false" width="20" height="20"
     	   		toolTip="Next slide" click="dispatchEvent(new Event(PresentationWindowMediator.NEXT_SLIDE))"/>    				
     	<mx:Spacer width="50%"/>
+    	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="true" width="20" height="20" 
+    		toolTip="Reset Zoom" click="dispatchEvent(new Event(PresentationWindowMediator.RESET_ZOOM))"/>
     	<mx:Button id="thumbnailBtn" icon="{thumbnailIcon}" visible="false" width="20" height="20"
     	   		toolTip="Open thumbnails." click="dispatchEvent(new Event(PresentationWindowMediator.OPEN_THUMBNAIL))"/> 
     </mx:ApplicationControlBar>			

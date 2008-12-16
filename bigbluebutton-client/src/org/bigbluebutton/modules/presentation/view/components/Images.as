@@ -33,5 +33,8 @@ package org.bigbluebutton.modules.presentation.view.components
 
         [Embed(source="../assets/images/backward_blue.png")]
         public var backward:Class;
+        
+        [Embed(source="../assets/images/magnifier.png")]
+        public var magnifier:Class;
 	}
 }

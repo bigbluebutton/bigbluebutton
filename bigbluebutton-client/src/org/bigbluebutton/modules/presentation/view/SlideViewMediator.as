@@ -46,8 +46,12 @@ package org.bigbluebutton.modules.presentation.view
 		
 		public static const ZOOM:String = "zooming in/out";
 		public static const MOVE:String = "moving slide";
+		public static const RESIZE_EVENT:String = "RESIZE_EVENT";
 		
 		private var _slideView:SlideView;
+		
+		private var xPercent:Number;
+		private var yPercent:Number;
 		
 		public function SlideViewMediator(viewComponent:SlideView)
 		{
@@ -55,11 +59,12 @@ package org.bigbluebutton.modules.presentation.view
 			_slideView = viewComponent;
 			_slideView.addEventListener(ZOOM, zoom);
 			_slideView.addEventListener(MOVE, move);
+			_slideView.addEventListener(RESIZE_EVENT, resize);
 		}
 		
 		protected function zoom(e:Event):void {
-			var xPercent:Number = _slideView.myLoader.width / _slideView.imageCanvas.width;
-			var yPercent:Number = _slideView.myLoader.height / _slideView.imageCanvas.height;
+			xPercent = _slideView.myLoader.width / _slideView.imageCanvas.width;
+			yPercent = _slideView.myLoader.height / _slideView.imageCanvas.height;
 						
 			var z:ZoomNotifier = new ZoomNotifier(yPercent, xPercent);			
 			facade.sendNotification(ZoomSlideCommand.ZOOM_SLIDE_COMMAND, z);			
@@ -73,11 +78,17 @@ package org.bigbluebutton.modules.presentation.view
 			facade.sendNotification(MoveSlideCommand.MOVE_SLIDE_COMMAND, m);
 		}
 		
+		private function resize(e:Event):void{
+			var z:ZoomNotifier = new ZoomNotifier(yPercent, xPercent);			
+			facade.sendNotification(ZoomSlideCommand.ZOOM_SLIDE_COMMAND, z);
+		}
+		
 		override public function listNotificationInterests():Array{
 			return [
 					PresentModuleConstants.ZOOM_SLIDE,
 					PresentModuleConstants.MOVE_SLIDE,
-					PresentModuleConstants.SLIDE_LOADED
+					PresentModuleConstants.SLIDE_LOADED,
+					PresentModuleConstants.SYNC_ZOOM
 					];
 		}
 		
@@ -85,6 +96,8 @@ package org.bigbluebutton.modules.presentation.view
 			switch(notification.getName()){
 				case PresentModuleConstants.ZOOM_SLIDE:
 					var zoomNote:ZoomNotifier = notification.getBody() as ZoomNotifier;
+					xPercent = zoomNote.newWidth;
+					yPercent = zoomNote.newHeight;
 					_slideView.myLoader.width = zoomNote.newWidth * _slideView.imageCanvas.width;
 					_slideView.myLoader.height = zoomNote.newHeight * _slideView.imageCanvas.height;
 				break;
@@ -95,6 +108,9 @@ package org.bigbluebutton.modules.presentation.view
 				break;
 				case PresentModuleConstants.SLIDE_LOADED:
 					_slideView.myLoader.source = notification.getBody().slide;
+				break;
+				case PresentModuleConstants.SYNC_ZOOM:
+					zoom(new Event("event"));
 				break;
 			}
 		}

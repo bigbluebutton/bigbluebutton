@@ -28,6 +28,8 @@ package org.bigbluebutton.modules.presentation.view
 	
 	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.modules.presentation.PresentModuleConstants;
+	import org.bigbluebutton.modules.presentation.controller.ZoomSlideCommand;
+	import org.bigbluebutton.modules.presentation.controller.notifiers.ZoomNotifier;
 	import org.bigbluebutton.modules.presentation.model.SlideProxy;
 	import org.bigbluebutton.modules.presentation.model.business.PresentProxy;
 	import org.bigbluebutton.modules.presentation.view.components.FileUploadWindow;
@@ -49,6 +51,7 @@ package org.bigbluebutton.modules.presentation.view
 		public static const PREVIOUS_SLIDE:String = "PREVIOUS_SLIDE";
 		public static const NEXT_SLIDE:String = "NEXT_SLIDE";
 		public static const OPEN_THUMBNAIL:String = "OPEN_THUMBNAIL";
+		public static const RESET_ZOOM:String = "RESET_ZOOM";
 		
 		public static const CONNECT:String = "Connect to Presentation";
 		public static const SHARE:String = "Share Presentation";
@@ -74,6 +77,7 @@ package org.bigbluebutton.modules.presentation.view
 			_presWin.addEventListener(PREVIOUS_SLIDE, onPreviousSlide);
 			_presWin.addEventListener(NEXT_SLIDE, onNextSlide);
 			_presWin.addEventListener(OPEN_THUMBNAIL, onOpenThumbnail);
+			_presWin.addEventListener(RESET_ZOOM, onResetZoom);
 		}
 		
 		private function resetSlidePosition():void {
@@ -385,6 +389,10 @@ package org.bigbluebutton.modules.presentation.view
             if ( ! facade.hasMediator( FileUploadWindowMediator.NAME ) ) {
             	facade.registerMediator(new ThumbnailWindowMediator( _presWin.thumbnailWindow ));
             } 
+        }
+        
+        protected function onResetZoom(e:Event):void{
+        	sendNotification(ZoomSlideCommand.ZOOM_SLIDE_COMMAND, new ZoomNotifier(1,1));
         }
 
 		private function get proxy():PresentProxy {

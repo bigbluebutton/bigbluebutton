@@ -3,7 +3,8 @@
     width="100%" height="100%" 
     horizontalAlign="center" paddingBottom="5" 
     creationComplete="init()" verticalScrollPolicy="off" horizontalScrollPolicy="off" 
-    xmlns:panzoom="com.adobe.wheelerstreet.fig.panzoom.*" xmlns:local="*">
+    xmlns:panzoom="com.adobe.wheelerstreet.fig.panzoom.*" xmlns:local="*"
+    resize="onResize()">
     
 	<mx:Script>
 		<![CDATA[
@@ -71,6 +72,10 @@
 			
 			private function mouseOut(e:MouseEvent):void{
 				removeEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
+			}
+			
+			public function onResize():void{
+				dispatchEvent(new Event(SlideViewMediator.RESIZE_EVENT));
 			}
 		]]>
 	</mx:Script>

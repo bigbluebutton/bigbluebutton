@@ -34,6 +34,7 @@ package org.bigbluebutton.modules.presentation
 		public static const START_SHARE : String = "START_SHARE";
 		public static const STOP_SHARE_COMMAND : String = "PRESENTATION_STOP_SHARE_COMMAND";
 		public static const UPLOAD_COMMAND : String = "PRESENTATION_UPLOAD_COMMAND";
+		public static const SYNC_ZOOM : String = "SYNC_ZOOM";
 		
 		// List of Events
 		public static const READY_EVENT : String = "PRESENTATION_READY_EVENT";

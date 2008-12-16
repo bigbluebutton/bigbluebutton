@@ -123,6 +123,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		
 		public function gotoSlide(num:int):void {
 			sendNotification(PresentModuleConstants.DISPLAY_SLIDE,num);
+			sendNotification(PresentModuleConstants.SYNC_ZOOM);
 			if (isPresenter()) {
 				_presentService.gotoSlide(num);
 			}
