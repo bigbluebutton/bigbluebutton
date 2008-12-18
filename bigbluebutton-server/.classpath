@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="output" path="bin"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.jayasoft.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/ivy.xml/test,"/>
 	<classpathentry excluding=".svn/*" kind="src" path="test"/>
@@ -14,4 +13,11 @@
 	<classpathentry excluding=".svn/*" kind="src" path="webapps/test/WEB-INF/src"/>
 	<classpathentry excluding=".svn/*" kind="src" path="webapps/midiDemo/WEB-INF/src"/>
 	<classpathentry excluding=".svn/*" kind="src" path="webapps/adminPanel/WEB-INF/src"/>
+	<classpathentry kind="src" path="webapps/appshare/WEB-INF/src"/>
+	<classpathentry kind="src" path="webapps/bigbluebutton/WEB-INF/src"/>
+	<classpathentry kind="src" path="webapps/bwcheck/WEB-INF/src"/>
+	<classpathentry kind="src" path="webapps/chatServer/WEB-INF/src"/>
+	<classpathentry kind="src" path="webapps/conference/WEB-INF/src"/>
+	<classpathentry kind="src" path="webapps/presentation/WEB-INF/src"/>
+	<classpathentry kind="output" path="bin"/>
 </classpath>
