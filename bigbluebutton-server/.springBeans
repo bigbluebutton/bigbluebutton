@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beansProjectDescription>
+	<configExtensions>
+		<configExtension>xml</configExtension>
+	</configExtensions>
+	<configs>
+		<config>conf/red5-common.xml</config>
+		<config>conf/red5-core.xml</config>
+		<config>conf/global.xml</config>
+		<config>conf/red5.xml</config>
+	</configs>
+	<configSets>
+	</configSets>
+</beansProjectDescription>

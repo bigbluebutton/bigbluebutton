@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.jayasoft.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/ivy.xml/test,"/>
+	<classpathentry excluding=".svn/*" kind="src" path="test"/>
+	<classpathentry excluding=".svn/*" kind="src" path="conf"/>
+	<classpathentry excluding=".svn/*|org/red5/server/script/rhino/" kind="src" path="src"/>
+	<classpathentry excluding=".svn/*" kind="src" path="webapps/admin/WEB-INF/src"/>
+	<classpathentry excluding=".svn/*" kind="src" path="webapps/echo/WEB-INF/src"/>
+	<classpathentry excluding=".svn/*" kind="src" path="webapps/tutorial/WEB-INF/src"/>
+	<classpathentry excluding=".svn/*" kind="src" path="webapps/fitcDemo/WEB-INF/src"/>
+	<classpathentry excluding=".svn/*" kind="src" path="webapps/oflaDemo/WEB-INF/src"/>
+	<classpathentry excluding=".svn/*" kind="src" path="webapps/test/WEB-INF/src"/>
+	<classpathentry excluding=".svn/*" kind="src" path="webapps/midiDemo/WEB-INF/src"/>
+	<classpathentry excluding=".svn/*" kind="src" path="webapps/adminPanel/WEB-INF/src"/>
+</classpath>
