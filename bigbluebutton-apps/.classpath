@@ -6,5 +6,7 @@
 	<classpathentry kind="src" path="conference/src"/>
 	<classpathentry kind="src" path="presentation/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/red5"/>
+	<classpathentry kind="lib" path="/bigbluebutton-server/red5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
