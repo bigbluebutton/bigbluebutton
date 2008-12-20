@@ -1,0 +1,262 @@
+<?xml version="1.0" ?>
+<project name="bigbluebutton" basedir="." default="echoall" xmlns:ivy="antlib:org.apache.ivy.ant">
+	
+	<!-- This build file requires Apache Ant >= 1.7 -->
+	<condition property="ant-at-least-7">
+  		<antversion atleast="1.7.0"/>
+	</condition>
+
+	<!-- project properties -->
+
+	<!-- user overides for project properties -->
+	<!-- Should be first as properties are immutable.--> 
+	<!-- This allows user to override default properties-->
+	<property file="${user.home}/build.properties"/>
+	
+	<!-- base project properties -->
+	<property file="build.properties"/>
+	
+	<property name="project.name" value="${ant.project.name}" />
+	<property name="target.version" value="1.0"/>
+	<property name="project.name-ver" value="${project.name}-${target.version}" />
+	<property name="target.extension" value="jar"/>
+	<property name="target.name" value="${project.name-ver}.${target.extension}" />
+	<property name="target.jar" location="${dist.dir}/${target.name}" />
+	  
+	<property name="target.zip" location="${dist.dir}/${project.name-ver}.zip" />
+   
+	<property name="target.tar" location="${dist.dir}/${project.name-ver}.tar" />
+	<property name="target.tar.gz" location="${target.tar}.gz"/>  
+	
+	<property name="build.dir" location="build" />
+	<property name="classes.dir" value="${build.dir}/classes"/>
+	<property name="dist.dir" location="dist" />
+
+	<property environment="env"/>
+	<property name="java.home" value="${env.JDK_HOME}"/>
+	<property name="red5.home" value="${env.RED5_HOME}"/>
+	<property name="src.dir" value="src"/>
+	<property name="lib.dir" value="${red5.home}/lib"/>
+	<property name="red5.jar" value="${red5.home}/red5.jar"/>
+
+	<property name="webapps.dir" value="webapps"/>
+	<property name="webapps.build.dir" value="${dist.dir}/webapps"/>
+	<property name="debug.state" value="true"/>
+
+	<tstamp prefix="build">
+		<format property="TODAY" pattern="d-MMMM-yyyy" locale="en"/>
+	</tstamp>
+
+	<path id="project.classpath">
+		<fileset dir="${lib.dir}"/>
+	</path>
+	<path id="full.classpath">
+		<fileset dir="${lib.dir}"/>
+		<fileset dir="${red5.home}">
+			<filename name="red5.jar"/>
+		</fileset> 
+	</path>
+
+	<!-- Build Targets -->
+	<target name="prepare" description="Setup directories for build">
+		<mkdir dir="${classes.dir}"/>
+		<mkdir dir="${dist.dir}"/>
+	</target>
+
+	<target name="clean" description="Clean directories for build">
+		<delete dir="${build.dir}"/>
+		<delete dir="${dist.dir}"/>
+	</target>
+
+	<target name="compile" depends="prepare" description="Compiles bigbluebutton">
+		<antcall target="compile_apps" inheritAll="true" inheritRefs="true"/>
+	</target>
+
+	<macrodef name="build-app">
+   		<attribute name="name"/>
+		<element name="copy-assets" optional="yes"/>
+   		<sequential>
+			<mkdir dir="${classes.dir}/@{name}/classes"/>
+			<mkdir dir="${classes.dir}/@{name}/lib"/>
+
+			<javac sourcepath="" srcdir="@{name}/src" destdir="${classes.dir}/@{name}/classes"
+			       classpathref="full.classpath" optimize="${build.optimize}" verbose="${build.verbose}"
+			       fork="${build.fork}" nowarn="${build.nowarn}" deprecation="${build.deprecation}"
+			       debug="${debug.state}" compiler="${build.compiler}" source="${java.target_version}" target="${java.target_version}"/>
+
+			<!--copy todir="${webapps.build.dir}/@{name}" filtering="true">
+				<fileset dir="webapps/@{name}">
+					<exclude name="**/src/**"/>
+					<exclude name="**/*.flv"/>
+					<exclude name="**/*.meta"/>
+				</fileset>
+			</copy-->
+
+			<!-- copy other demo files (optional) -->
+			<copy-assets/>
+      	</sequential>
+	</macrodef>
+	
+	<macrodef name="logback">
+   		<attribute name="webapp"/>
+   		<sequential>
+			<!-- copy the logback config per webapp and associated jars -->
+			<copy todir="${classes.dir}/@{webapp}/classes" file="@{webapp}/webapp/WEB-INF/logback.xml" overwrite="true"/>
+			<copy todir="${classes.dir}/@{webapp}/lib">
+				<fileset dir="${lib.dir}">
+					<include name="slf4j-api-1.4.3.jar"/>
+					<include name="logback-core-0.9.8.jar"/>
+					<include name="logback-classic-0.9.8.jar"/>
+				</fileset>
+			</copy>		
+      		</sequential>
+	</macrodef>
+	
+	<!-- Demos -->
+	<target name="compile_apps" description="Build bigbluebutton apps">
+		<echo message="Webapps dir: ${webapps.dir}"/>
+		<echo message="Webapps build dir: ${webapps.build.dir}"/>
+		<echo message="Webapps build dir: ${full.classpath}"/>
+		
+		<!-- build apps -->
+		<build-app name="astmeetme">
+			<copy-assets>
+				<logback webapp="astmeetme"/>
+			</copy-assets>
+		</build-app>
+		<build-app name="bigbluebutton">
+			<copy-assets>
+				<logback webapp="bigbluebutton"/>
+			</copy-assets>
+		</build-app>
+		<build-app name="conference">
+			<copy-assets>
+				<logback webapp="conference"/>
+			</copy-assets>
+		</build-app>
+		<build-app name="chatServer">
+			<copy-assets>
+				<logback webapp="chatServer"/>
+			</copy-assets>
+		</build-app>
+		<build-app name="presentation">
+			<copy-assets>
+				<logback webapp="presentation"/>
+			</copy-assets>
+		</build-app>
+	</target>
+
+	<macrodef name="compile-jardemo">
+   		<attribute name="name"/>
+		<element name="copy-assets" optional="yes"/>
+   		<sequential>
+			<jar destfile="${webapps.build.dir}/@{name}/WEB-INF/lib/@{name}.jar">
+				<fileset dir="${webapps.build.dir}/@{name}/WEB-INF/classes">
+					<include name="**"/>
+				</fileset>
+			</jar>
+			<!-- copy files (optional) -->
+			<copy-assets/>
+      		</sequential>
+	</macrodef>
+
+	<target name="jar" description="Make Archive" depends="compile">
+		<mkdir dir="${classes.dir}/conf"/>
+		<copy todir="${classes.dir}/conf">
+			<fileset dir="${config.dir}">
+				<exclude name="**/war/**"/>
+				<exclude name="**/jboss/**"/>
+			</fileset>
+		</copy>
+
+		<manifestclasspath property="jar.classpath" jarfile="${red5.filename}.jar">
+			<classpath refid="runtime.classpath"/>
+		</manifestclasspath>
+
+		<jar destfile="${red5.filename}.jar">
+			<fileset dir="${classes.dir}">
+				<include name="**"/>
+				<exclude name="testcases/**"/>
+			</fileset>
+			<manifest>
+				<attribute name="Built-By" value="${red5.fullname}"/>
+				<attribute name="Built-On" value="${build.TODAY}"/>
+				<attribute name="Main-Class" value="org.red5.server.Standalone"/>
+				<attribute name="Class-Path" value="conf/ ${jar.classpath}"/>
+			</manifest>
+			<metainf dir="${src.dir}/META-INF">
+				<include name="**"/>
+			</metainf>
+		</jar>
+
+		<!-- create jar files for demos -->
+		<compile-jardemo name="astmeetme"/>
+		<compile-jardemo name="bigbluebutton"/>
+		<compile-jardemo name="conference"/>
+		<compile-jardemo name="chatServer"/>
+		<compile-jardemo name="appshare"/>
+		<compile-jardemo name="presentation"/>
+	</target>
+
+	<target name="dist-archive" depends="dist" description="Create archive file for distribution">
+			<touch>
+				<fileset dir="${dist.dir}"/>
+			</touch>
+			<tar destfile="${red5.archive}" basedir="${dist.dir}" compression="gzip"
+			     longfile="gnu">
+				<tarfileset dir="${dist.dir}" mode="755">
+					<include name="${dist.dir}/red5.sh"/>
+					<include name="${dist.dir}/red5-shutdown.sh"/>
+					<include name="${dist.dir}/red5-debug.sh"/>
+				</tarfileset>
+				<tarfileset dir="${dist.dir}">
+					<include name="${dist.dir}/**"/>
+					<exclude name="${dist.dir}/*.sh"/>
+				</tarfileset>
+			</tar>
+	</target>	
+	
+	<target name="dist" description="Make Binary distribution" depends="clean, jar">
+		<mkdir dir="${dist.dir}/${log.dir}"/>
+		<copy todir="${dist.dir}/lib">
+			<fileset dir="lib"/>
+		</copy>
+		<copy todir="${dist.dir}/conf">
+			<fileset dir="${config.dir}">
+				<!-- exclude war config files -->
+				<exclude name="**/war/**"/>
+				<exclude name="**/jboss/**"/>
+			</fileset>
+		</copy>
+		<copy todir="${dist.dir}/webapps" file="webapps\red5-default.xml"/>
+		<copy todir="${dist.dir}">
+			<fileset dir="./">
+				<include name="ivy.xml"/>
+				<include name="ivyconfig.xml"/>
+				<include name="${red5.filename}.jar"/>
+				<include name="red5.bat"/>
+				<include name="red5-shutdown.bat"/>
+				<include name="red5.sh"/>
+				<include name="red5-shutdown.sh"/>
+				<include name="license.txt"/>
+			</fileset>
+		</copy>
+		<chmod file="${dist.dir}/red5.sh" perm="755"/>
+		<chmod file="${dist.dir}/red5-shutdown.sh" perm="755"/>
+	</target>
+
+	<target name="all" depends="clean, prepare, compile, jar" description="Run all server tasks"/>
+
+	<target name="usage">
+		<echo message="Type ant -p for available targets"/>
+	</target>
+	
+	<target name="diagnostics"  
+	    description="diagnostics">
+		<diagnostics/>
+	</target>
+	
+	<target name="echoall">
+		<echoproperties/>
+	</target>
+</project>
