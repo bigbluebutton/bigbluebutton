@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	
+	<bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	    <property name="locations">
+	    	<list>
+	    	 	<value>/WEB-INF/red5-web.properties</value>
+	    	 	<value>/WEB-INF/astmeetme.properties</value>
+	    	</list>
+	    </property>
+	</bean>
+	
+	<bean id="web.context" class="org.red5.server.Context" autowire="byType" />
+	
+	<bean id="web.scope" class="org.red5.server.WebScope"
+		 init-method="register">
+		<property name="server" ref="red5.server" />
+		<property name="parent" ref="global.scope" />
+		<property name="context" ref="web.context" />
+		<property name="handler" ref="web.handler" />
+		<property name="contextPath" value="${webapp.contextPath}" />
+		<property name="virtualHosts" value="${webapp.virtualHosts}" />
+	</bean>
+
+	<bean id="web.handler" class="org.bigbluebuttonproject.asterisk.meetme.Application" 
+			singleton="true">
+		<property name="voiceService"> <ref local="voiceService"/></property>
+		<property name="roomListener"> <ref local="roomListener"/></property>
+	</bean>
+
+    <!-- this will support calling methods through "myhandler.<methodName>" -->
+	<bean id="meetmeService.service" 
+	    class="org.bigbluebuttonproject.asterisk.meetme.MeetMeService" singleton="true" >
+		<property name="roomListener"> <ref local="roomListener"/></property>
+	</bean>
+			
+	<bean id="voiceService" class="org.bigbluebuttonproject.asterisk.AsteriskVoiceService" singleton="true">
+		<property name="managerConnection"> <ref local="amiConnection"/> </property> 
+	</bean>
+
+	<bean id="roomListener" class="org.bigbluebuttonproject.asterisk.meetme.ConferenceRoomListener" singleton="true">
+		<property name="voiceService"> <ref local="voiceService"/></property>
+	</bean>
+			
+	<bean id="amiConnection" class="org.asteriskjava.manager.DefaultManagerConnection">
+		<property name="hostname" value="${ami.host}"/>
+		<property name="port" value="${ami.port}"/>
+		<property name="username" value="${ami.username}"/>
+		<property name="password" value="${ami.password}"/>
+	</bean>
+
+</beans>
