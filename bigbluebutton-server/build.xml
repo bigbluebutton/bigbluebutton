@@ -9,6 +9,7 @@
 	<!-- project properties -->
 	<property environment="env"/>
 	<property name="java.home" value="${env.JDK_HOME}"/>
+	<property name="red5.home" value="${env.RED5_HOME}"/>
 	<property name="src.dir" value="src"/>
 	<property name="dist.dir" value="dist"/>
 	<property name="cluster.dir" value="cluster"/>
@@ -319,24 +320,9 @@
 				</copy>
 			</copy-assets>
 		</build-demo>
-		<build-demo name="astmeetme">
-			<copy-assets>
-				<logback webapp="astmeetme"/>
-			</copy-assets>
-		</build-demo>
-		<build-demo name="bigbluebutton">
-			<copy-assets>
-				<logback webapp="bigbluebutton"/>
-			</copy-assets>
-		</build-demo>
 		<build-demo name="bwcheck">
 			<copy-assets>
 				<logback webapp="bwcheck"/>
-			</copy-assets>
-		</build-demo>
-		<build-demo name="conference">
-			<copy-assets>
-				<logback webapp="conference"/>
 			</copy-assets>
 		</build-demo>
 		<build-demo name="echo">
@@ -349,24 +335,9 @@
 				<logback webapp="fitcDemo"/>
 			</copy-assets>
 		</build-demo>
-		<build-demo name="chatServer">
-			<copy-assets>
-				<logback webapp="chatServer"/>
-			</copy-assets>
-		</build-demo>
-		<build-demo name="appshare">
-					<copy-assets>
-						<logback webapp="appshare"/>
-					</copy-assets>
-				</build-demo>
 		<build-demo name="midiDemo">
 			<copy-assets>
 				<logback webapp="midiDemo"/>
-			</copy-assets>
-		</build-demo>
-		<build-demo name="presentation">
-			<copy-assets>
-				<logback webapp="presentation"/>
 			</copy-assets>
 		</build-demo>
 		<build-demo name="oflaDemo">
@@ -594,14 +565,9 @@
 		</jar>
 
 		<!-- create jar files for demos -->
-		<compile-jardemo name="astmeetme"/>
-		<compile-jardemo name="bigbluebutton"/>
 		<compile-jardemo name="bwcheck"/>
-		<compile-jardemo name="conference"/>
 		<compile-jardemo name="echo"/>
 		<compile-jardemo name="fitcDemo"/>
-		<compile-jardemo name="chatServer"/>
-		<compile-jardemo name="appshare"/>
 		<compile-jardemo name="midiDemo"/>
 		<compile-jardemo name="oflaDemo">
 			<copy-assets>
@@ -612,7 +578,6 @@
 				</copy>
 			</copy-assets>
 		</compile-jardemo>
-		<compile-jardemo name="presentation"/>
 		<compile-jardemo name="test"/>
 		<compile-jardemo name="tutorial"/>
 		
@@ -654,6 +619,16 @@
 		<chmod file="${dist.dir}/red5-shutdown.sh" perm="755"/>
 	</target>
 
+	<target name="deploy" description="Deploy to Red5 Home" depends="dist">
+			<delete includeemptydirs="true">
+					<fileset dir="${red5.home}" includes="**/*"/>
+			</delete>
+
+			<copy todir="${red5.home}">
+				<fileset dir="${dist.dir}"/>
+			</copy>
+		</target>
+	
 	<target name="dist-installer" description="Make Installer distribution" depends="ivyclear, dist, javadoc">
 		<copy todir="${dist.dir}/doc">
 			<fileset dir="doc"/>
