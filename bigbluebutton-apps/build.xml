@@ -29,14 +29,14 @@
 	<property name="target.tar.gz" location="${target.tar}.gz"/>  
 	
 	<property name="build.dir" location="build" />
-	<property name="classes.dir" value="${build.dir}/classes"/>
+	<property name="build.classes.dir" value="${build.dir}/classes"/>
 	<property name="webapps.build.dir" value="${build.dir}/classes"/>
 	<property name="dist.dir" location="dist" />
 
 	<property environment="env"/>
 	<property name="java.home" value="${env.JDK_HOME}"/>
 	<property name="red5.home" value="${env.RED5_HOME}"/>
-	<property name="src.dir" value="src"/>
+	<property name="webapp.src.dir" value="webapps"/>
 	<property name="lib.dir" value="${red5.home}/lib"/>
 	<property name="red5.jar" value="${red5.home}/red5.jar"/>
 
@@ -59,7 +59,7 @@
 
 	<!-- Build Targets -->
 	<target name="prepare" description="Setup directories for build">
-		<mkdir dir="${classes.dir}"/>
+		<mkdir dir="${webapps.build.dir}"/>
 		<mkdir dir="${dist.dir}"/>
 	</target>
 
@@ -76,8 +76,8 @@
    		<attribute name="name"/>
 		<element name="copy-assets" optional="yes"/>
    		<sequential>
-			<mkdir dir="${classes.dir}/@{name}/classes"/>
-			<javac sourcepath="" srcdir="@{name}/src" destdir="${classes.dir}/@{name}/classes"
+			<mkdir dir="${webapps.build.dir}/@{name}"/>
+			<javac sourcepath="" srcdir="${webapp.src.dir}/@{name}/src" destdir="${webapps.build.dir}/@{name}"
 			       classpathref="full.classpath" optimize="${build.optimize}" verbose="${build.verbose}"
 			       fork="${build.fork}" nowarn="${build.nowarn}" deprecation="${build.deprecation}"
 			       debug="${debug.state}" compiler="${build.compiler}" source="${java.target_version}" target="${java.target_version}"/>
@@ -104,19 +104,19 @@
    		<attribute name="name"/>
 		<element name="copy-assets" optional="yes"/>
    		<sequential>
-   			<copy todir="${classes.dir}/@{name}/classes" file="@{name}/webapp/WEB-INF/logback.xml" overwrite="true"/>
+   			<copy todir="${webapps.build.dir}/@{name}" file="${webapp.src.dir}/@{name}/WEB-INF/logback.xml" overwrite="true"/>
    			<mkdir dir="${dist.webapps.dir}/@{name}/WEB-INF/lib/"/>
 			<jar destfile="${dist.webapps.dir}/@{name}/WEB-INF/lib/@{name}.jar">
-				<fileset dir="${webapps.build.dir}/@{name}/classes">
+				<fileset dir="${webapps.build.dir}/@{name}">
 					<include name="**"/>
 				</fileset>
 			</jar>
    			
-   			<copy todir="${dist.webapps.dir}/@{name}/WEB-INF" filtering="true">
-   				<fileset dir="@{name}/webapp/WEB-INF">
+   			<copy todir="${dist.webapps.dir}/@{name}" filtering="true">
+   				<fileset dir="${webapp.src.dir}/@{name}">
    					<exclude name="**/src/**"/>
-   					<exclude name="**/*.flv"/>
-   					<exclude name="**/*.meta"/>
+   					<exclude name="**/test/**"/>
+   					<exclude name="**/lib/**"/>
    				</fileset>
    			</copy>
 			<!-- copy files (optional) -->
@@ -167,6 +167,27 @@
 		</compile-jarapp>
 	</target>
 
+	<macrodef name="deploy-app">
+	   		<attribute name="webapp"/>			
+	   		<sequential>
+	   			<copy todir="${red5.home}/webapps">
+	   				<fileset dir="${dist.webapps.dir}"/>
+	   			</copy>			
+	      	</sequential>
+	</macrodef>
+	
+	<target name="deploy" description="Deploy apps into red5" depends="jar">
+		<!-- need to do this one-by-one as it seems like macrodef does not support delete -->
+		<delete dir="${red5.home}/webapps/astmeetme"/>
+		<delete dir="${red5.home}/webapps/bigbluebutton"/>
+		<delete dir="${red5.home}/webapps/conference"/>
+		<delete dir="${red5.home}/webapps/chatServer"/>
+		<delete dir="${red5.home}/webapps/presentation"/>
+		<copy todir="${red5.home}/webapps">
+			   	<fileset dir="${dist.webapps.dir}"/>
+		</copy>		
+	</target>
+		
 	<target name="dist-archive" depends="dist" description="Create archive file for distribution">
 			<touch>
 				<fileset dir="${dist.dir}"/>

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="astmeetme/src"/>
-	<classpathentry kind="src" path="bigbluebutton/src"/>
-	<classpathentry kind="src" path="chatServer/src"/>
-	<classpathentry kind="src" path="conference/src"/>
-	<classpathentry kind="src" path="presentation/src"/>
+	<classpathentry kind="src" path="webapps/astmeetme/src"/>
+	<classpathentry kind="src" path="webapps/bigbluebutton/src"/>
+	<classpathentry kind="src" path="webapps/chatServer/src"/>
+	<classpathentry kind="src" path="webapps/conference/src"/>
+	<classpathentry kind="src" path="webapps/presentation/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/red5"/>
 	<classpathentry kind="lib" path="/bigbluebutton-server/red5.jar"/>
