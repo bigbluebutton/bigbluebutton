@@ -68,7 +68,7 @@
 		<delete dir="${dist.dir}"/>
 	</target>
 
-	<target name="compile" depends="prepare" description="Compiles bigbluebutton">
+	<target name="compile" depends="prepare, clean" description="Compiles bigbluebutton">
 		<antcall target="compile_apps" inheritAll="true" inheritRefs="true"/>
 	</target>
 
@@ -86,7 +86,7 @@
       	</sequential>
 	</macrodef>
 		
-	<!-- Demos -->
+	<!-- Apps -->
 	<target name="compile_apps" description="Build bigbluebutton apps">
 		<echo message="Webapps dir: ${webapps.dir}"/>
 		<echo message="Webapps build dir: ${webapps.build.dir}"/>
@@ -105,66 +105,22 @@
 		<element name="copy-assets" optional="yes"/>
    		<sequential>
    			<copy todir="${webapps.build.dir}/@{name}" file="${webapp.src.dir}/@{name}/WEB-INF/logback.xml" overwrite="true"/>
-   			<mkdir dir="${dist.webapps.dir}/@{name}/WEB-INF/lib/"/>
-			<jar destfile="${dist.webapps.dir}/@{name}/WEB-INF/lib/@{name}.jar">
+  
+			<jar destfile="${build.dir}/@{name}.jar">
 				<fileset dir="${webapps.build.dir}/@{name}">
 					<include name="**"/>
 				</fileset>
 			</jar>
-   			
-   			<copy todir="${dist.webapps.dir}/@{name}" filtering="true">
-   				<fileset dir="${webapp.src.dir}/@{name}">
-   					<exclude name="**/src/**"/>
-   					<exclude name="**/test/**"/>
-   					<exclude name="**/lib/**"/>
-   				</fileset>
-   			</copy>
-			<!-- copy files (optional) -->
-			<copy-assets/>
-      		</sequential>
+      	</sequential>
 	</macrodef>
-
-	<macrodef name="logback">
-   		<attribute name="webapp"/>
-   		<sequential>
-			<!-- copy the logback config per webapp and associated jars -->			
-			<copy todir="${dist.webapps.dir}/@{webapp}/WEB-INF/lib/">
-				<fileset dir="${lib.dir}">
-					<include name="slf4j-api-1.4.3.jar"/>
-					<include name="logback-core-0.9.8.jar"/>
-					<include name="logback-classic-0.9.8.jar"/>
-				</fileset>
-			</copy>		
-      		</sequential>
-	</macrodef>	
 	
 	<target name="jar" description="Make Archive" depends="compile">
 		<!-- create jar files for apps -->
-		<compile-jarapp name="astmeetme">
-			<copy-assets>
-				<logback webapp="astmeetme"/>
-			</copy-assets>
-		</compile-jarapp>
-		<compile-jarapp name="bigbluebutton">
-			<copy-assets>
-				<logback webapp="bigbluebutton"/>
-			</copy-assets>
-		</compile-jarapp>
-		<compile-jarapp name="conference">
-			<copy-assets>
-				<logback webapp="conference"/>
-			</copy-assets>
-		</compile-jarapp>
-		<compile-jarapp name="chatServer">
-			<copy-assets>
-				<logback webapp="chatServer"/>
-			</copy-assets>
-		</compile-jarapp>
-		<compile-jarapp name="presentation">
-			<copy-assets>
-				<logback webapp="presentation"/>
-			</copy-assets>
-		</compile-jarapp>
+		<compile-jarapp name="astmeetme"/>
+		<compile-jarapp name="bigbluebutton"/>
+		<compile-jarapp name="conference"/>
+		<compile-jarapp name="chatServer"/>
+		<compile-jarapp name="presentation"/>
 	</target>
 
 	<macrodef name="deploy-app">
@@ -205,34 +161,66 @@
 				</tarfileset>
 			</tar>
 	</target>	
+
+	<macrodef name="copy-app">
+   		<attribute name="name"/>
+		<element name="copy-assets" optional="yes"/>
+   		<sequential>
+   			<mkdir dir="${dist.webapps.dir}/@{name}/WEB-INF/lib/"/>
+   			<copy todir="${dist.webapps.dir}/@{name}/WEB-INF/lib/" file="${build.dir}/@{name}.jar" overwrite="true"/>
+   			
+   			<copy todir="${dist.webapps.dir}/@{name}" filtering="true">
+   				<fileset dir="${webapp.src.dir}/@{name}">
+   					<exclude name="**/src/**"/>
+   					<exclude name="**/test/**"/>
+   					<exclude name="**/lib/**"/>
+   				</fileset>
+   			</copy>
+			<!-- copy files (optional) -->
+			<copy-assets/>
+      	</sequential>
+	</macrodef>
+
+	<macrodef name="logback">
+   		<attribute name="webapp"/>
+   		<sequential>
+			<!-- copy the logback config per webapp and associated jars -->			
+			<copy todir="${dist.webapps.dir}/@{webapp}/WEB-INF/lib/">
+				<fileset dir="${lib.dir}">
+					<include name="slf4j-api-1.4.3.jar"/>
+					<include name="logback-core-0.9.8.jar"/>
+					<include name="logback-classic-0.9.8.jar"/>
+				</fileset>
+			</copy>		
+      	</sequential>
+	</macrodef>	
 	
-	<target name="dist" description="Make Binary distribution" depends="clean, jar">
-		<mkdir dir="${dist.dir}/${log.dir}"/>
-		<copy todir="${dist.dir}/lib">
-			<fileset dir="lib"/>
-		</copy>
-		<copy todir="${dist.dir}/conf">
-			<fileset dir="${config.dir}">
-				<!-- exclude war config files -->
-				<exclude name="**/war/**"/>
-				<exclude name="**/jboss/**"/>
-			</fileset>
-		</copy>
-		<copy todir="${dist.dir}/webapps" file="webapps\red5-default.xml"/>
-		<copy todir="${dist.dir}">
-			<fileset dir="./">
-				<include name="ivy.xml"/>
-				<include name="ivyconfig.xml"/>
-				<include name="${red5.filename}.jar"/>
-				<include name="red5.bat"/>
-				<include name="red5-shutdown.bat"/>
-				<include name="red5.sh"/>
-				<include name="red5-shutdown.sh"/>
-				<include name="license.txt"/>
-			</fileset>
-		</copy>
-		<chmod file="${dist.dir}/red5.sh" perm="755"/>
-		<chmod file="${dist.dir}/red5-shutdown.sh" perm="755"/>
+	<target name="dist" description="Make Binary distribution" depends="jar">
+		<copy-app name="astmeetme">
+			<copy-assets>
+				<logback webapp="astmeetme"/>
+			</copy-assets>
+		</copy-app>
+		<copy-app name="bigbluebutton">
+			<copy-assets>
+				<logback webapp="bigbluebutton"/>
+			</copy-assets>
+		</copy-app>
+		<copy-app name="conference">
+			<copy-assets>
+				<logback webapp="conference"/>
+			</copy-assets>
+		</copy-app>
+		<copy-app name="chatServer">
+			<copy-assets>
+				<logback webapp="chatServer"/>
+			</copy-assets>
+		</copy-app>
+		<copy-app name="presentation">
+			<copy-assets>
+				<logback webapp="presentation"/>
+			</copy-assets>
+		</copy-app>
 	</target>
 
 	<target name="all" depends="clean, prepare, compile, jar" description="Run all server tasks"/>
