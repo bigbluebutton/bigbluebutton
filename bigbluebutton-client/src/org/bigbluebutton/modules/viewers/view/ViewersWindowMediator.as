@@ -123,8 +123,8 @@ package org.bigbluebutton.modules.viewers.view
 		   		_viewersWindow.height = 220;
 		   		_viewersWindow.title = "Web Participants";
 		   		_viewersWindow.showCloseButton = false;
-		   		_viewersWindow.xPosition = 20;
-		   		_viewersWindow.yPosition = 20;
+		   		_viewersWindow.xPosition = 0;
+		   		_viewersWindow.yPosition = 0;
 		   		facade.sendNotification(ViewersModuleConstants.ADD_WINDOW, _viewersWindow); 			
 		}	
 				

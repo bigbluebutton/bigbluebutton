@@ -133,8 +133,8 @@ package org.bigbluebutton.modules.listeners.view
 		   	_listenersWindow.height = 220;
 		   	_listenersWindow.title = "Voice Participants";
 		   	_listenersWindow.showCloseButton = false;
-		   	_listenersWindow.xPosition = 20;
-		   	_listenersWindow.yPosition = 250;
+		   	_listenersWindow.xPosition = 0;
+		   	_listenersWindow.yPosition = 225;
 		   	facade.sendNotification(ListenersModuleConstants.ADD_WINDOW, _listenersWindow); 			
 		}	
 			   				

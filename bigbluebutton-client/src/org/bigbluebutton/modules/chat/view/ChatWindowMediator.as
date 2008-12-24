@@ -96,8 +96,8 @@ package org.bigbluebutton.modules.chat.view
 		   			_chatWindow.height = 220;
 		   			_chatWindow.title = "Group Chat";
 		   			_chatWindow.showCloseButton = false;
-		   			_chatWindow.xPosition = 700;
-		   			_chatWindow.yPosition = 20;
+		   			_chatWindow.xPosition = 675;
+		   			_chatWindow.yPosition = 0;
 		   			facade.sendNotification(ChatModuleConstants.ADD_WINDOW, _chatWindow); 
 		   			_chatWindowOpen = true;
 		   			proxy.getChatTranscript();

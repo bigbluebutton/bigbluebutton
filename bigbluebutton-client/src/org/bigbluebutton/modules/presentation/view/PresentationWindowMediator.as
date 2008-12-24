@@ -173,8 +173,8 @@ package org.bigbluebutton.modules.presentation.view
 		   			_presWin.width = 450;
 		   			_presWin.title = PresentationWindow.TITLE;
 		   			_presWin.showCloseButton = false;	
-		   			_presWin.xPosition = 240;
-		   			_presWin.yPosition = 20;
+		   			_presWin.xPosition = 220;
+		   			_presWin.yPosition = 0;
 		   			facade.sendNotification(PresentModuleConstants.ADD_WINDOW, _presWin);		   							
 					break;
 				case PresentModuleConstants.CLOSE_PRESENT_WINDOW:
