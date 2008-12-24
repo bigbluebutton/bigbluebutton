@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+	creationComplete="init()" xmlns:controls="org.bigbluebutton.modules.presentation.view.fisheye.controls.*">
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			[Bindable] public var images:Array;
+			
+			public static const SLIDE_SELECTED:String = "SLIDE_SELECTED";
+			
+			private var imgHeight:Number = 100;
+			private var imgWidth:Number = 100;
+			
+			private function init():void{
+				fisheye.setStyle("hilightScaleRadius",2);	
+				fisheye.setStyle("animationSpeed",0.3);
+				fisheye.setStyle("defaultScale",0.4);
+				fisheye.setStyle("hilightMaxScale",1.0);
+			}
+			
+			public function setDataProvider(dp:ArrayCollection):void{
+				this.images = dp.toArray();
+				fisheye.dataProvider = this.images;
+				fisheye.itemRenderer = imageRenderer;
+			}
+			
+			public function setThumbRatio(ratio:Number):void{
+				if (ratio > 0 && ratio < 1){
+					fisheye.setStyle("defaultScale",ratio);
+					fisheye.setStyle("hilightMaxScale",ratio*2);					
+				}
+			}
+			
+			public function selectSlide():void{
+				dispatchEvent(new Event(SLIDE_SELECTED));
+			}
+		]]>
+	</mx:Script>
+	
+	<mx:HBox width="100%" horizontalGap="0" height="100%" styleName="insetBox" clipContent="true" >
+			
+			
+			<controls:Fisheye id="fisheye" width="100%" height="100%" dataProvider="{images}" click="selectSlide()" 
+				stateProperty="currentState" rolloverValue="hilighted" defaultValue="" selectedValue="selected"
+				verticalAlign="top"
+				horizontalAlign="center" >			
+				<controls:itemRenderer>
+					<mx:Component id="imageRenderer">
+						<controls:BitmapTile>
+							<controls:states>
+								<mx:State name="selected">
+									<mx:SetStyle name="borderColor" value="#E27C0E" />
+									<mx:SetStyle name="borderAlpha" value="1" />
+									<mx:SetStyle name="borderWidth" value="3" />
+									<mx:SetProperty name="filters" />
+								</mx:State>
+								<mx:State name="hilighted">
+									<mx:SetProperty name="filters" />
+								</mx:State>
+							</controls:states>						
+						</controls:BitmapTile>
+					</mx:Component>
+				</controls:itemRenderer>
+				
+			</controls:Fisheye>
+		</mx:HBox>
+</mx:Canvas>

@@ -5,8 +5,10 @@
 	xmlns:pres="flexlib.mdi.containers.*"
 	paddingBottom="0" paddingTop="0" 
 	paddingLeft="0" paddingRight="0" 
-    layout="vertical" verticalScrollPolicy="off" horizontalScrollPolicy="off"
-	implements="org.bigbluebutton.common.IBbbModuleWindow">
+    verticalScrollPolicy="off" horizontalScrollPolicy="off"
+	implements="org.bigbluebutton.common.IBbbModuleWindow"
+	mouseMove="thumbnailDisplay()"
+	creationComplete="positionThumbnails()">
 
 	<mx:Script>
 		<![CDATA[
@@ -33,10 +35,15 @@
 			[Bindable] private var magnifierIcon : Class = images.magnifier;
 											
 			public var uploadWindow:FileUploadWindow = null;
-			public var thumbnailWindow:ThumbnailWindow = null;
 			
 			private var _xPosition:int;
 			private var _yPosition:int;
+			
+			private var mouseDown:Boolean = false;
+			
+			private function positionThumbnails():void{
+				this.thumbnailWindow.y = this.mainCanvas.height*0.9;
+			}
 			
 			public function get xPosition():int {
 				return _xPosition;
@@ -52,12 +59,29 @@
 			
 			public function set yPosition(y:int):void {
 				_yPosition = y;
-			}						
+			}	
+			
+			private function thumbnailDisplay():void{
+				if (!mouseDown && mouseY > this.height*0.8){
+					thumbnailWindow.visible = true;
+				} else{
+					thumbnailWindow.visible = false;
+				}
+			}
+			
 		]]>
 	</mx:Script>
 	
-	<thumb:SlideView id="slideView" width="100%" height="100%" visible="false"/>
+	<mx:Fade id="thumbFadeIn" alphaFrom="1" alphaTo="0" duration="100" />
+	<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />
 	
+	<mx:Canvas id="mainCanvas" width="100%" height="100%" resize="positionThumbnails()" mouseDown="mouseDown = true" mouseUp="mouseDown = false">
+		<thumb:SlideView id="slideView" width="100%" height="100%" visible="false"/>
+		<thumb:FisheyeThumbnail id="thumbnailWindow" width="100%" height="10%" visible="true" backgroundAlpha="1" 
+			verticalScrollPolicy="off" horizontalScrollPolicy="off"/>
+	</mx:Canvas>
+			
+    
     <mx:ApplicationControlBar id="presCtrlBar" width="100%">
     	  <mx:Button id="uploadPres" icon="{uploadIcon}" visible="false" width="20" height="20"
     	   		toolTip="Upload PDF document for presentation." click="dispatchEvent(new Event(PresentationWindowMediator.OPEN_UPLOAD))"/>    
@@ -71,7 +95,5 @@
     	<mx:Spacer width="50%"/>
     	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="true" width="20" height="20" 
     		toolTip="Reset Zoom" click="dispatchEvent(new Event(PresentationWindowMediator.RESET_ZOOM))"/>
-    	<mx:Button id="thumbnailBtn" icon="{thumbnailIcon}" visible="false" width="20" height="20"
-    	   		toolTip="Open thumbnails." click="dispatchEvent(new Event(PresentationWindowMediator.OPEN_THUMBNAIL))"/> 
     </mx:ApplicationControlBar>			
 </pres:MDIWindow>

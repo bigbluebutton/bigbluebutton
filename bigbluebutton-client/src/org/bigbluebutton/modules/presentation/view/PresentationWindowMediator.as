@@ -34,7 +34,6 @@ package org.bigbluebutton.modules.presentation.view
 	import org.bigbluebutton.modules.presentation.model.business.PresentProxy;
 	import org.bigbluebutton.modules.presentation.view.components.FileUploadWindow;
 	import org.bigbluebutton.modules.presentation.view.components.PresentationWindow;
-	import org.bigbluebutton.modules.presentation.view.components.ThumbnailWindow;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
@@ -76,7 +75,6 @@ package org.bigbluebutton.modules.presentation.view
 			_presWin.addEventListener(OPEN_UPLOAD, openFileUploadWindow);
 			_presWin.addEventListener(PREVIOUS_SLIDE, onPreviousSlide);
 			_presWin.addEventListener(NEXT_SLIDE, onNextSlide);
-			_presWin.addEventListener(OPEN_THUMBNAIL, onOpenThumbnail);
 			_presWin.addEventListener(RESET_ZOOM, onResetZoom);
 		}
 		
@@ -143,7 +141,6 @@ package org.bigbluebutton.modules.presentation.view
 					PresentModuleConstants.PRESENTER_MODE,
 					PresentModuleConstants.VIEWER_MODE,
 					PresentModuleConstants.REMOVE_UPLOAD_WINDOW,
-					PresentModuleConstants.THUMBNAIL_WINDOW_CLOSE,
 					PresentModuleConstants.CLEAR_EVENT,
 					PresentModuleConstants.PRESENTER_NAME
 					];
@@ -192,9 +189,6 @@ package org.bigbluebutton.modules.presentation.view
 				break;
 				case PresentModuleConstants.REMOVE_UPLOAD_WINDOW:
 					removeFileUploadPopup();
-					break;
-				case PresentModuleConstants.THUMBNAIL_WINDOW_CLOSE:
-					removeThumbnailPopup();
 					break;
 				case PresentModuleConstants.PRESENTER_NAME:
 					displayPresenterName(notification.getBody() as String);
@@ -255,14 +249,12 @@ package org.bigbluebutton.modules.presentation.view
             	_presWin.slideNumLbl.text = (_presWin.slideView.selectedSlide + 1) + " of " + _presWin.slideView.slides.length;	
 				_presWin.backButton.visible = true;
 				_presWin.forwardButton.visible = true;	
-				_presWin.thumbnailBtn.visible = true;	
 			}
 		}
 
 		private function handleViewerMode():void
 		{			
 			_presWin.uploadPres.visible = false;
-			_presWin.thumbnailBtn.visible = false;
 			proxy.presenterMode(false);
 			if (proxy.presentationLoaded) {
             	_presWin.slideNumLbl.text = (_presWin.slideView.selectedSlide + 1) + " of " + _presWin.slideView.slides.length;	
@@ -270,7 +262,6 @@ package org.bigbluebutton.modules.presentation.view
 				_presWin.forwardButton.visible = false;		
 			}
 			removeFileUploadPopup();
-			removeThumbnailPopup();
 		}
 				
 		private function handleStartShareEvent():void
@@ -283,6 +274,10 @@ package org.bigbluebutton.modules.presentation.view
 		private function handleReadyEvent():void
 		{			
 			proxy.loadPresentation();
+			//Initialize the thumbnails mediator
+			if ( ! facade.hasMediator( ThumbnailViewMediator.NAME ) ) {
+            	facade.registerMediator(new ThumbnailViewMediator( _presWin.thumbnailWindow ));
+            } 
 		}
 
 		private function handleClearPresentation():void
@@ -326,9 +321,11 @@ package org.bigbluebutton.modules.presentation.view
 				
 				_presWin.backButton.visible = true;
 				_presWin.forwardButton.visible = true;
-				_presWin.thumbnailBtn.visible = true;
 				proxy.sharePresentation(true);
 				proxy.gotoSlide(0);
+				
+				//Initialize the thumbnails
+				_presWin.thumbnailWindow.setDataProvider(_presWin.slideView.slides);
 			} else {
 				proxy.getCurrentSlideNumber();
 			}
@@ -358,36 +355,6 @@ package org.bigbluebutton.modules.presentation.view
             
             if ( ! facade.hasMediator( FileUploadWindowMediator.NAME ) ) {
             	facade.registerMediator(new FileUploadWindowMediator( _presWin.uploadWindow ));
-            } 
-        }
-
-		private function removeThumbnailPopup():void{
-			if (_presWin.thumbnailWindow != null) {
-				//Remove the upload window
-				PopUpManager.removePopUp(_presWin.thumbnailWindow);
-				//Remove the mediator
-				facade.removeMediator(ThumbnailWindowMediator.NAME);
-				_presWin.thumbnailBtn.enabled = true;	
-				_presWin.thumbnailWindow = null;			
-			}
-		}
-
-		protected function onOpenThumbnail(e:Event) : void{
-            _presWin.thumbnailWindow = ThumbnailWindow(PopUpManager.createPopUp( _presWin, ThumbnailWindow, false));
-			_presWin.thumbnailWindow.slides = _presWin.slideView.slides;
-			_presWin.thumbnailWindow.slideList.selectedIndex = _presWin.slideView.selectedSlide;
-			
-			var point1:Point = new Point();
-            // Calculate position of TitleWindow in Application's coordinates. 
-            point1.x = _presWin.presCtrlBar.x;
-            point1.y = _presWin.presCtrlBar.y;                
-            point1 = _presWin.slideView.localToGlobal(point1);
-            _presWin.thumbnailWindow.x = point1.x;
-            _presWin.thumbnailWindow.y = point1.y + 15;
-            _presWin.thumbnailBtn.enabled = false;
-            
-            if ( ! facade.hasMediator( FileUploadWindowMediator.NAME ) ) {
-            	facade.registerMediator(new ThumbnailWindowMediator( _presWin.thumbnailWindow ));
             } 
         }
         
