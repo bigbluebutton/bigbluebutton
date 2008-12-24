@@ -48,7 +48,6 @@ package org.bigbluebutton.modules.chat
 		
 		}
 		
-
 		override protected function initializeController():void{
 			super.initializeController();
 			registerCommand(STARTUP, StartupCommand);
