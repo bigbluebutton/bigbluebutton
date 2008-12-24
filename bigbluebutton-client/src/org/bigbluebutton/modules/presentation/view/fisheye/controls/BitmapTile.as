@@ -3,24 +3,24 @@ package org.bigbluebutton.modules.presentation.view.fisheye.controls
 
 
 
-	import mx.core.UIComponent;
-	import flash.display.DisplayObject;
-	import flash.filters.DropShadowFilter;
-	import flash.net.URLRequest;
-	import flash.utils.*;
-
-	import mx.core.IDataRenderer;
 	import flash.display.*;
-	import mx.effects.*;
 	import flash.events.Event;
-	import mx.core.IDataRenderer;
 	import flash.events.ProgressEvent;
 	import flash.geom.Rectangle;
+	import flash.net.URLRequest;
+	import flash.text.TextField;
+	import flash.text.TextFormat;
+	import flash.utils.*;
+	
+	import mx.core.IDataRenderer;
+	import mx.core.UIComponent;
+	import mx.effects.*;
 	
 
 	[Style(name="borderColor", type="Number", inherit="no")]
 	[Style(name="borderAlpha", type="Number", inherit="no")]
 	[Style(name="borderWidth", type="Number", inherit="no")]
+	[Style(name="slideNumber", type="Number", inherit="no")]
 	[Event("loaded")]
 	public class BitmapTile extends UIComponent implements IDataRenderer
 	{
@@ -32,6 +32,7 @@ package org.bigbluebutton.modules.presentation.view.fisheye.controls
 		private var _imageHeight:Number = 80;
 		private const BORDER_WIDTH:Number = 1;
 		private var _border:Shape;
+		private var t:TextField = new TextField();
 		
 		[Bindable] public var progress:Number = 0;
 		public function get loaded():Boolean
@@ -159,6 +160,14 @@ package org.bigbluebutton.modules.presentation.view.fisheye.controls
 			g.lineTo(tX+_loader.width-borderWidth/2,tY+_loader.height-borderWidth/2);
 			g.lineTo(tX+borderWidth/2,tY+_loader.height-borderWidth/2);
 			g.lineTo(tX+borderWidth/2,tY+borderWidth/2);
+			
+			/**t.text = "";
+			t = new TextField();
+			t.text = "10";
+			var f:TextFormat = new TextFormat(
+			this.addChild(t);
+			t.x = this.width/2;
+			t.y = this.height/2; */
 
 		}
 	}

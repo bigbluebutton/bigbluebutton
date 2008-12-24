@@ -1,16 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
-	creationComplete="init()" xmlns:controls="org.bigbluebutton.modules.presentation.view.fisheye.controls.*">
+	creationComplete="init()" xmlns:controls="org.bigbluebutton.modules.presentation.view.fisheye.controls.*"
+	mouseMove="displayIndex()">
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.controls.TextArea;
 			import mx.collections.ArrayCollection;
 			[Bindable] public var images:Array;
 			
 			public static const SLIDE_SELECTED:String = "SLIDE_SELECTED";
+			public static const SLIDE_HIGHLIGHTED:String = "SLIDE_HIGHLIGHTED";
 			
 			private var imgHeight:Number = 100;
 			private var imgWidth:Number = 100;
+			
+			[Bindable]
+			public var selected:Number;
+			public var highlighted:Number;
 			
 			private function init():void{
 				fisheye.setStyle("hilightScaleRadius",2);	
@@ -35,6 +42,14 @@
 			public function selectSlide():void{
 				dispatchEvent(new Event(SLIDE_SELECTED));
 			}
+			
+			public function displayIndex():void{
+				if (this.visible){
+					highlighted = fisheye.getHighlightedIndex(fisheye.mouseX, fisheye.mouseY);
+					dispatchEvent(new Event(SLIDE_HIGHLIGHTED));	
+				}
+			}
+			
 		]]>
 	</mx:Script>
 	

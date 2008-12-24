@@ -200,6 +200,10 @@ package org.bigbluebutton.modules.presentation.view.fisheye.controls
 			}
 			return result;
 		}
+		
+		public function getHighlightedIndex(x:Number, y:Number):Number{
+			return findItemForPosition(x,y);
+		}
 
 	}
 }
