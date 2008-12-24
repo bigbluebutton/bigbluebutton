@@ -28,10 +28,10 @@ package org.bigbluebutton.modules.presentation.view.components
         [Embed(source="../assets/images/pdf_icon.png")]
         public var pdf:Class;
 
-        [Embed(source="../assets/images/forward_blue.png")]
+        [Embed(source="../assets/images/arrow_right.png")]
         public var forward:Class;
 
-        [Embed(source="../assets/images/backward_blue.png")]
+        [Embed(source="../assets/images/arrow_left.png")]
         public var backward:Class;
         
         [Embed(source="../assets/images/magnifier.png")]

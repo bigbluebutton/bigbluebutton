@@ -303,6 +303,7 @@ package org.bigbluebutton.modules.presentation.view
 			_presWin.slideView.slides = proxy.slides;         	
             _presWin.slideNumLbl.text = (_presWin.slideView.selectedSlide + 1) + " of " + _presWin.slideView.slides.length;		
 			_presWin.slideView.visible = true;		
+			_presWin.btnResetZoom.visible = true;
 
 			if (facade.hasProxy(SlideProxy.NAME)) {
 				var sp:SlideProxy = facade.retrieveProxy(SlideProxy.NAME) as SlideProxy;

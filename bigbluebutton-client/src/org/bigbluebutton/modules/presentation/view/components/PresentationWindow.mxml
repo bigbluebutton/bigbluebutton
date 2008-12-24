@@ -87,13 +87,13 @@
     	   		toolTip="Upload PDF document for presentation." click="dispatchEvent(new Event(PresentationWindowMediator.OPEN_UPLOAD))"/>    
     	  <mx:Label id="presenterNameLabel" visible="false" text=""/>
     	  <mx:Spacer width="50%"/>	
-    	  <mx:Button id="backButton" icon="{backwardIcon}" visible="false" width="20" height="20"
+    	  <mx:Button id="backButton" icon="{backwardIcon}" visible="false" width="40" height="20"
     	   		toolTip="Previous slide." click="dispatchEvent(new Event(PresentationWindowMediator.PREVIOUS_SLIDE))"/>
     	  <mx:Label id="slideNumLbl" text=""/>    
-    	  <mx:Button id="forwardButton" icon="{forwardIcon}" visible="false" width="20" height="20"
+    	  <mx:Button id="forwardButton" icon="{forwardIcon}" visible="false" width="40" height="20"
     	   		toolTip="Next slide" click="dispatchEvent(new Event(PresentationWindowMediator.NEXT_SLIDE))"/>    				
     	<mx:Spacer width="50%"/>
-    	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="true" width="20" height="20" 
+    	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="false" width="20" height="20" 
     		toolTip="Reset Zoom" click="dispatchEvent(new Event(PresentationWindowMediator.RESET_ZOOM))"/>
     </mx:ApplicationControlBar>			
 </pres:MDIWindow>
