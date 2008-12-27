@@ -132,7 +132,7 @@
 	      	</sequential>
 	</macrodef>
 	
-	<target name="deploy" description="Deploy apps into red5" depends="jar">
+	<target name="deploy" description="Deploy apps into red5" depends="dist">
 		<!-- need to do this one-by-one as it seems like macrodef does not support delete -->
 		<delete dir="${red5.home}/webapps/astmeetme"/>
 		<delete dir="${red5.home}/webapps/bigbluebutton"/>
