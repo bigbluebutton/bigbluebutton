@@ -993,6 +993,7 @@ public class MultiThreadedApplicationAdapter extends StatefulScopeWrappingAdapte
      * Schedules new ghost connections cleanup using current cleanup period.
      */
     public void scheduleGhostConnectionsCleanup() {
+    	log.info("Scheduling ghost connections cleanup.");
         IScheduledJob job = new IScheduledJob(){
             public void execute(ISchedulingService service) throws CloneNotSupportedException {
                 killGhostConnections();
@@ -1028,6 +1029,7 @@ public class MultiThreadedApplicationAdapter extends StatefulScopeWrappingAdapte
 
             // Time to live exceeded, disconnect
             if( conn.getLastPingTime() > clientTTL * 1000 ){
+            	log.warn("Killing ghost connection {}", conn);
                 disconnect( conn, scope );    
             }
         }

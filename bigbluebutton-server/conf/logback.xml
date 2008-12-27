@@ -55,6 +55,9 @@
 	<logger name="org.red5.server">
 		<level value="WARN" />
 	</logger>
+	<logger name="org.red5.server.adapter">
+		<level value="INFO" />
+	</logger>
 	<logger name="org.red5.server.Client">
 		<level value="INFO" />
 	</logger>

@@ -859,6 +859,7 @@ public abstract class RTMPConnection extends BaseConnection implements
 
 	/** {@inheritDoc} */
 	public void ping() {
+		log.info("Pinging client");
 		long newPingTime = System.currentTimeMillis();
 		if (lastPingSent == 0) {
 			lastPongReceived = newPingTime;
