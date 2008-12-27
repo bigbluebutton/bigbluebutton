@@ -15,7 +15,7 @@
 	
 	<!-- base project properties -->
 	<property file="build.properties"/>
-	
+	<property name="dist.dir" location="dist" />
 	<property name="project.name" value="${ant.project.name}" />
 	<property name="target.version" value="1.0"/>
 	<property name="project.name-ver" value="${project.name}-${target.version}" />
@@ -31,7 +31,7 @@
 	<property name="build.dir" location="build" />
 	<property name="build.classes.dir" value="${build.dir}/classes"/>
 	<property name="webapps.build.dir" value="${build.dir}/classes"/>
-	<property name="dist.dir" location="dist" />
+	
 
 	<property environment="env"/>
 	<property name="java.home" value="${env.JDK_HOME}"/>
@@ -223,6 +223,14 @@
 		</copy-app>
 	</target>
 
+	<target name="create-bin-zipfile" depends="dist" description="create distributable file for windows">
+		<zip destFile="${target.zip}" duplicate="preserve">
+			<zipfileset dir="${dist.webapps.dir}"
+				includes="**/*"
+				prefix="${project.name-ver}"/>
+		</zip>
+	</target>
+		
 	<target name="all" depends="clean, prepare, compile, jar" description="Run all server tasks"/>
 
 	<target name="usage">
