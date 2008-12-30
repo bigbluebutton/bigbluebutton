@@ -15,6 +15,13 @@
 	
 	<!-- base project properties -->
 	<property file="build.properties"/>
+	
+	<property name="build.debug" value="true"/>
+	  
+	<!-- what is our fork policy for junit -->
+	<property name="junit.fork" value="false"/>
+	<property name="junit.forkmode" value="once"/>
+
 	<property name="dist.dir" location="dist" />
 	<property name="project.name" value="${ant.project.name}" />
 	<property name="target.version" value="1.0"/>
@@ -31,7 +38,11 @@
 	<property name="build.dir" location="build" />
 	<property name="build.classes.dir" value="${build.dir}/classes"/>
 	<property name="webapps.build.dir" value="${build.dir}/classes"/>
-	
+
+	<property name="test.dir" location="${build.dir}/test"/>
+	<property name="test.classes.dir" location="${test.dir}/classes"/>
+	<property name="test.data.dir" location="${test.dir}/data"/>
+	<property name="test.reports.dir" location="${test.dir}/reports"/>
 
 	<property environment="env"/>
 	<property name="java.home" value="${env.JDK_HOME}"/>
@@ -57,10 +68,41 @@
 		</fileset> 
 	</path>
 
+	<path id="compile.classpath">
+	  <fileset dir="${lib.dir}">
+	    <include name="*.jar"/>
+	  </fileset>
+	</path>
+
+	<path id="compiled.classes.dir">
+		<fileset dir="${build.dir}">
+			 <include name="*.jar"/>
+		</fileset>
+	</path>
+	
+	<path id="test.compile.classpath">
+	   <path refid="compile.classpath"/>
+		<path refid="compiled.classes.dir"/>
+	   <!--pathelement location="${build.classes.dir}/bigbluebutton/**/*.class"/-->
+	</path>
+	  
+	<path id="test.classpath">
+	  <path refid="test.compile.classpath"/>
+	  <pathelement location="${test.classes.dir}"/>
+	</path>
+
+	<path id="test.forking.classpath">
+	  <path refid="test.classpath"/>
+	  <pathelement path="${java.class.path}"/>
+	</path>
+	
 	<!-- Build Targets -->
-	<target name="prepare" description="Setup directories for build">
+	<target name="prepare" depends="clean" description="Setup directories for build">
 		<mkdir dir="${webapps.build.dir}"/>
 		<mkdir dir="${dist.dir}"/>
+	    <mkdir dir="${test.classes.dir}"/>
+	    <mkdir dir="${test.reports.dir}"/>
+	    <mkdir dir="${test.data.dir}"/>
 	</target>
 
 	<target name="clean" description="Clean directories for build">
@@ -68,7 +110,7 @@
 		<delete dir="${dist.dir}"/>
 	</target>
 
-	<target name="compile" depends="prepare, clean" description="Compiles bigbluebutton">
+	<target name="compile" depends="prepare" description="Compiles bigbluebutton">
 		<antcall target="compile_apps" inheritAll="true" inheritRefs="true"/>
 	</target>
 
@@ -230,7 +272,47 @@
 				prefix="${project.name-ver}"/>
 		</zip>
 	</target>
-		
+
+	
+	<target name="test-compile" depends="jar">
+	    <javac destdir="${test.classes.dir}"
+	           debug="true"
+	           includeAntRuntime="yes"
+	           srcdir="test">
+	      <classpath refid="test.compile.classpath"/>
+	    </javac>
+	</target>
+	
+	  <target name="test" depends="test-compile">
+	    <junit printsummary="false"
+	           errorProperty="test.failed"
+	           failureProperty="test.failed"
+	           fork="${junit.fork}"
+	           forkmode="${junit.forkmode}">
+	      <classpath refid="test.forking.classpath" />    
+	      <formatter type="brief" usefile="false"/>
+	      <formatter type="xml"/>
+	      <test name="${testcase}" todir="${test.data.dir}" if="testcase"/>
+	      <batchtest todir="${test.data.dir}" unless="testcase">
+	        <fileset dir="${test.classes.dir}" >
+	           <include name="**/*Test.class"/>
+	        </fileset>
+	      </batchtest>
+	    </junit>
+
+	    <junitreport todir="${test.data.dir}">
+	      <fileset dir="${test.data.dir}">
+	        <include name="TEST-*.xml"/>
+	      </fileset>
+	      <report format="frames" todir="${test.reports.dir}"/>
+	    </junitreport>
+
+	    <!--conditional failure -->
+	    <fail if="test.failed">
+	    Tests failed. Check ${test.reports.dir}
+	    </fail>
+	  </target>
+	
 	<target name="all" depends="clean, prepare, compile, jar" description="Run all server tasks"/>
 
 	<target name="usage">
