@@ -20,7 +20,7 @@
 	</bean>
 
 	<bean id="web.handler" 
-	    class="org.bigbluebuttonproject.chat.Application"
+	    class="org.bigbluebutton.chat.Application"
 		singleton="true" />
 
 </beans>

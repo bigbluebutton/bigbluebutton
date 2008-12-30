@@ -16,7 +16,7 @@
 		<level value="DEBUG" />
 		<appender-ref ref="PRESENTATION" />
 	</root>	
-	<logger name="org.bigbluebuttonproject.presentation">
+	<logger name="org.bigbluebutton.presentation">
 		<level value="DEBUG" />
 	</logger>			
 </configuration>

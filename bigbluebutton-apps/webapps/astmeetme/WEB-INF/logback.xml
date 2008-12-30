@@ -16,7 +16,7 @@
 		<level value="DEBUG" />
 		<appender-ref ref="ASTMEETME" />
 	</root>	
-	<logger name="org.bigbluebuttonproject.asterisk.meetme">
+	<logger name="org.bigbluebutton.asterisk.meetme">
 		<level value="DEBUG" />
 	</logger>			
 </configuration>

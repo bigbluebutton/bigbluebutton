@@ -16,7 +16,7 @@
 		<level value="DEBUG" />
 		<appender-ref ref="CHAT" />
 	</root>	
-	<logger name="org.blindsideproject.chat">
+	<logger name="org.blindside.chat">
 		<level value="DEBUG" />
 	</logger>			
 </configuration>

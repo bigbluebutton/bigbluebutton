@@ -20,7 +20,7 @@
 	</bean>
 
 	<bean id="web.handler" 
-	    class="org.bigbluebuttonproject.conference.Application" 
+	    class="org.bigbluebutton.conference.Application" 
 		singleton="true" />
 
     <!-- this will support calling methods through "myhandler.<methodName>" -->

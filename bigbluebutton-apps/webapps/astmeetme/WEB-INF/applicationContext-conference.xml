@@ -9,7 +9,7 @@
 		</property>	
 	</bean>
 		
-	<bean id="voiceService" class="org.bigbluebuttonproject.asterisk.AsteriskVoiceService">
+	<bean id="voiceService" class="org.bigbluebutton.asterisk.AsteriskVoiceService">
 		<property name="managerConnection"> <ref local="amiConnection"/> </property> 
 	</bean>
 	

@@ -23,7 +23,7 @@
 		<property name="virtualHosts" value="${webapp.virtualHosts}" />
 	</bean>
 
-	<bean id="web.handler" class="org.bigbluebuttonproject.asterisk.meetme.Application" 
+	<bean id="web.handler" class="org.bigbluebutton.asterisk.meetme.Application" 
 			singleton="true">
 		<property name="voiceService"> <ref local="voiceService"/></property>
 		<property name="roomListener"> <ref local="roomListener"/></property>
@@ -31,15 +31,15 @@
 
     <!-- this will support calling methods through "myhandler.<methodName>" -->
 	<bean id="meetmeService.service" 
-	    class="org.bigbluebuttonproject.asterisk.meetme.MeetMeService" singleton="true" >
+	    class="org.bigbluebutton.asterisk.meetme.MeetMeService" singleton="true" >
 		<property name="roomListener"> <ref local="roomListener"/></property>
 	</bean>
 			
-	<bean id="voiceService" class="org.bigbluebuttonproject.asterisk.AsteriskVoiceService" singleton="true">
+	<bean id="voiceService" class="org.bigbluebutton.asterisk.AsteriskVoiceService" singleton="true">
 		<property name="managerConnection"> <ref local="amiConnection"/> </property> 
 	</bean>
 
-	<bean id="roomListener" class="org.bigbluebuttonproject.asterisk.meetme.ConferenceRoomListener" singleton="true">
+	<bean id="roomListener" class="org.bigbluebutton.asterisk.meetme.ConferenceRoomListener" singleton="true">
 		<property name="voiceService"> <ref local="voiceService"/></property>
 	</bean>
 			

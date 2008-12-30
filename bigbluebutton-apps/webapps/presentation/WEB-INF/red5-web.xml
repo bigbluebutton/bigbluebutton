@@ -22,11 +22,11 @@
 		<property name="virtualHosts" value="${webapp.virtualHosts}" />
 	</bean>
 
-	<bean id="web.handler" class="org.bigbluebuttonproject.presentation.Application" singleton="true">
+	<bean id="web.handler" class="org.bigbluebutton.presentation.Application" singleton="true">
 		<property name="updatesListener"> <ref local="updatesListener"/> </property>
 	</bean>
 
-	<bean id="updatesListener" class="org.bigbluebuttonproject.presentation.ConversionUpdatesListener" singleton="true"/>
+	<bean id="updatesListener" class="org.bigbluebutton.presentation.ConversionUpdatesListener" singleton="true"/>
 
     <!-- configure connection factory -->
     <bean id="connectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
@@ -48,7 +48,7 @@
         </constructor-arg>
     </bean>
     
-	<bean id="presentationService" class="org.bigbluebuttonproject.presentation.ConversionUpdatesService" singleton="true">
+	<bean id="presentationService" class="org.bigbluebutton.presentation.ConversionUpdatesService" singleton="true">
 		<property name="jmsTemplate"> <ref local="jmsTemplate"/> </property>
 		<property name="destination"> <ref local="destination"/> </property> 
 		<property name="updatesListener"> <ref local="updatesListener"/> </property> 

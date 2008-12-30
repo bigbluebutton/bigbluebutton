@@ -16,7 +16,7 @@
 		<level value="DEBUG" />
 		<appender-ref ref="CONFERENCE" />
 	</root>	
-	<logger name="org.bigbluebuttonproject.conference">
+	<logger name="org.bigbluebutton.conference">
 		<level value="DEBUG" />
 	</logger>			
 </configuration>

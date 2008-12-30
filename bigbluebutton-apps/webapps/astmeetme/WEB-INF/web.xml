@@ -39,7 +39,7 @@
 	</listener>
 	
 	<listener>
-		<listener-class>org.bigbluebuttonproject.asterisk.bootstrap.AsteriskConnectionContextListener</listener-class>
+		<listener-class>org.bigbluebutton.asterisk.bootstrap.AsteriskConnectionContextListener</listener-class>
 	</listener>
 	
     <!-- remove the following servlet tags if you want to disable remoting for this application -->

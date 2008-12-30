@@ -48,7 +48,7 @@
 	</listener>
 
 	<listener>
-		<listener-class>org.bigbluebuttonproject.presentation.bootstrap.JmsConnectionContextListener</listener-class>
+		<listener-class>org.bigbluebutton.presentation.bootstrap.JmsConnectionContextListener</listener-class>
 	</listener>
 		
     <!-- remove the following servlet tags if you want to disable remoting for this application -->
