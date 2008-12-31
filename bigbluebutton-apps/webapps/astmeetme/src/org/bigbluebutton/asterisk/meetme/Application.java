@@ -38,6 +38,8 @@ import org.red5.server.api.IConnection;
 import org.red5.server.api.Red5;
 import org.red5.server.adapter.ApplicationAdapter;
 import org.red5.server.api.IScope;
+import org.red5.server.api.scheduling.IScheduledJob;
+import org.red5.server.api.scheduling.ISchedulingService;
 import org.red5.server.api.service.IPendingServiceCall;
 import org.red5.server.api.service.IPendingServiceCallback;
 import org.red5.server.api.service.IServiceCapableConnection;
@@ -139,8 +141,18 @@ public class Application extends ApplicationAdapter implements
         	ISharedObject so = getSharedObject(room, "meetMeUsersSO", false);        	   		
     	}
     	
+    	String jobId = addScheduledJob(10000, new SOPingJob(room));
+    	log.info("Scheduling ping job id {}", jobId);
+    	room.setAttribute("pingJobId", jobId);
     	roomListener.initializeConferenceUsers(room.getName());
     	return true;
+    }
+    
+    public void roomStop(IScope room) {
+    	String jobId = (String) room.getAttribute("pingJobId");
+    	log.info("Removing ping job id {}", jobId);
+    	removeScheduledJob(jobId);
+    	super.roomStop(room);
     }
     
     /**
@@ -220,4 +232,19 @@ public class Application extends ApplicationAdapter implements
 				+ call.getServiceMethodName());
 	}
    
+	class SOPingJob implements IScheduledJob {
+		private IScope room;
+		
+		public SOPingJob(IScope room) {
+			this.room = room;
+		}
+		
+		public void execute(ISchedulingService service) {
+			ISharedObject so = getSharedObject(room, "meetMeUsersSO", false);
+			List <Object>args = new ArrayList<Object>();
+			args.add(room.getName());
+			log.info("Pinging {}", room.getName());
+			so.sendMessage("ping", args);
+		}
+	}
 }
