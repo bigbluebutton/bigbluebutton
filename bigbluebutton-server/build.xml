@@ -666,6 +666,24 @@
 		</copy>
 	</target>
 
+	<target name="create-tar-dist" description="Create tar file for distribution">
+			<touch>
+				<fileset dir="${red5.home}"/>
+			</touch>
+			<tar destfile="${red5.archive}" basedir="${red5.home}" compression="gzip"
+			     longfile="gnu">
+				<tarfileset dir="${red5.home}" mode="755">
+					<include name="${red5.home}/red5.sh"/>
+					<include name="${red5.home}/red5-shutdown.sh"/>
+					<include name="${red5.home}/red5-debug.sh"/>
+				</tarfileset>
+				<tarfileset dir="${red5.home}">
+					<include name="${red5.home}/**"/>
+					<exclude name="${red5.home}/*.sh"/>
+				</tarfileset>
+			</tar>
+	</target>
+	
 	<target name="dist-archive" depends="dist-installer" description="Create archive file for distribution">
 		<touch>
 			<fileset dir="${dist.dir}"/>
