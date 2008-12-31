@@ -858,8 +858,7 @@ public abstract class RTMPConnection extends BaseConnection implements
 	}
 
 	/** {@inheritDoc} */
-	public void ping() {
-		log.info("Pinging client");
+	public void ping() {		
 		long newPingTime = System.currentTimeMillis();
 		if (lastPingSent == 0) {
 			lastPongReceived = newPingTime;
@@ -870,6 +869,7 @@ public abstract class RTMPConnection extends BaseConnection implements
 		int now = (int) (lastPingSent & 0xffffffff);
 		pingRequest.setValue2(now);
 		pingRequest.setValue3(Ping.UNDEFINED);
+		log.info("Ping client - clientId {} : {}", getId(), pingRequest);
 		ping(pingRequest);
 	}
 
@@ -882,6 +882,7 @@ public abstract class RTMPConnection extends BaseConnection implements
 		lastPongReceived = System.currentTimeMillis();
 		int now = (int) (lastPongReceived & 0xffffffff);
 		lastPingTime = now - pong.getValue2();
+		log.info("Pong received - {}", pong);
 	}
 
 	/** {@inheritDoc} */
@@ -1016,7 +1017,6 @@ public abstract class RTMPConnection extends BaseConnection implements
 					&& lastPingSent - lastPongReceived > maxInactivity) {
 				// Client didn't send response to ping command for too long,
 				// disconnect
-				log.debug("Keep alive job name {}", keepAliveJobName);
 				if (log.isDebugEnabled()) {
     				log.debug("Scheduled job list");
     				for (String jobName : service.getScheduledJobNames()) {
@@ -1025,6 +1025,7 @@ public abstract class RTMPConnection extends BaseConnection implements
 				}
 				service.removeScheduledJob(keepAliveJobName);
 				keepAliveJobName = null;
+				log.warn("Closing clientId {}: no response to ping in {} ", getId(), maxInactivity);
 				log.warn("Closing {} due to too much inactivity ({}).", RTMPConnection.this, (lastPingSent - lastPongReceived));
 				onInactive();
 				return;

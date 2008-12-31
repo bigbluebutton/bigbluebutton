@@ -102,7 +102,7 @@
 		<level value="WARN" />
 	</logger>
 	<logger name="org.red5.server.net.rtmp">
-		<level value="WARN" />
+		<level value="INFO" />
 	</logger>	
 	<logger name="org.red5.server.net.rtmp.RTMPHandler">
 		<level value="OFF" />
