@@ -24,7 +24,6 @@ package org.bigbluebutton.modules.listeners.model.service
 	import flash.net.Responder;
 	import flash.net.SharedObject;
 	
-	import org.bigbluebutton.modules.listeners.ListenersModuleConstants;
 	import org.bigbluebutton.modules.listeners.model.vo.IListeners;
 	import org.bigbluebutton.modules.listeners.model.vo.Listener;
 
@@ -137,6 +136,10 @@ package org.bigbluebutton.modules.listeners.model.service
 		public function userLeft(userId:Number):void
 		{
 			_listeners.removeListener(userId);	
+		}
+		
+		public function ping(message:String):void {
+			LogUtil.debug(LOGNAME + 'Received ping from server: ' + message);
 		}
 		
 		public function muteUnmuteUser(userid:Number, mute:Boolean):void
