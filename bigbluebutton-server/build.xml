@@ -152,6 +152,8 @@
 		<delete includeemptydirs="true">
 			<fileset dir="${webapps.dir}/" includes="**/*.jar"/>
 		</delete>
+		<delete file="red5.jar"/>
+		<delete file="red5.tar.gz"/>
 	</target>
 
 	<target name="retrieve" unless="library.installed" description="Retrieves the libraries if needed">
