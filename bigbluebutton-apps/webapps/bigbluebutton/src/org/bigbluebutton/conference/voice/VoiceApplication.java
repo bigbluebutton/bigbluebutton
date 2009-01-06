@@ -16,6 +16,7 @@ public class VoiceApplication implements IApplication,
 	
 	private ApplicationAdapter application;
 	private RoomManager roomManager;
+	private IVoiceConferenceService voiceService;
 	
 	@Override
 	public boolean appConnect(IConnection arg0, Object[] arg1) {
@@ -43,14 +44,13 @@ public class VoiceApplication implements IApplication,
 
 	@Override
 	public boolean appStart(IScope arg0) {
-		// TODO Auto-generated method stub
-		return false;
+		voiceService.start();
+		return true;
 	}
 
 	@Override
 	public void appStop(IScope arg0) {
-		// TODO Auto-generated method stub
-
+		voiceService.stop();
 	}
 
 	@Override
@@ -115,5 +115,13 @@ public class VoiceApplication implements IApplication,
 
 	public void setRoomManager(RoomManager roomManager) {
 		this.roomManager = roomManager;
+	}
+
+	public IVoiceConferenceService getVoiceService() {
+		return voiceService;
+	}
+
+	public void setVoiceService(IVoiceConferenceService voiceService) {
+		this.voiceService = voiceService;
 	}
 }

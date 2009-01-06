@@ -1,13 +1,15 @@
-package org.bigbluebutton.conference.voice;
+package org.bigbluebutton.conference.voice.asterisk;
+
+import org.bigbluebutton.conference.voice.IParticipant;
 
 import junit.framework.TestCase;
 
-public class RoomTest extends TestCase {
+public class MeetMeRoomAdapterTest extends TestCase {
 
 	public void testAddingAndGettingAndRemovingParticipant() {
-		Room r = new Room();
+		MeetMeRoomAdapter r = new MeetMeRoomAdapter();
 		String id = "testParticipant";
-		Participant p = new Participant();
+		IParticipant p = new MeetMeUserAdapter();
 		p.setId(id);
 		r.addParticipant(p);
 		assertEquals("Room should have participant", true, r.hasParticipant(id));

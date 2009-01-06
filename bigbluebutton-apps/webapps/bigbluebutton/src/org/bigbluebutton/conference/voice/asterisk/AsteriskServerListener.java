@@ -17,7 +17,7 @@
 * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 * 
 */
-package org.bigbluebutton.asterisk.meetme;
+package org.bigbluebutton.conference.voice.asterisk;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -39,22 +39,14 @@ import org.bigbluebutton.asterisk.AsteriskVoiceService;
 import org.red5.server.api.so.ISharedObject;
 
 
-public class ConferenceRoomListener extends AbstractAsteriskServerListener {
+public class AsteriskServerListener extends AbstractAsteriskServerListener {
 	
-	/** The log. */
-	protected static Logger log = LoggerFactory.getLogger(ConferenceRoomListener.class);
+	protected static Logger log = LoggerFactory.getLogger(AsteriskServerListener.class);
 	
-	/** The voice service. */
 	private AsteriskVoiceService voiceService;
-
-	
-	/** The meet me s os. */
 	private static Map<String, ISharedObject> meetMeSOs = new HashMap<String, ISharedObject>();
 	
-	/**
-	 * Instantiates a new conference room listener.
-	 */
-	public ConferenceRoomListener() {
+	public AsteriskServerListener() {
 		log.debug("RoomListener started...");
 	}
 
@@ -68,9 +60,6 @@ public class ConferenceRoomListener extends AbstractAsteriskServerListener {
 		} 
     }
     
-    /**
-     * @see org.asteriskjava.live.AbstractAsteriskServerListener#onNewMeetMeUser(org.asteriskjava.live.MeetMeUser)
-     */
     public void onNewMeetMeUser(MeetMeUser user)
     {
 		log.info("New user joined meetme room: " + user.getRoom() + 
@@ -93,26 +82,12 @@ public class ConferenceRoomListener extends AbstractAsteriskServerListener {
 		}
     }
     
-    /**
-     * Adds the room.
-     * 
-     * @param room the room
-     * @param so the so
-     */
     public void addRoom(String room, ISharedObject so) {
     	meetMeSOs.put(room, so);
     	
     	getCurrentUsers(room);
     }
     
-    /**
-     * Gets the user.
-     * 
-     * @param userId the user id
-     * @param room the room
-     * 
-     * @return the user
-     */
     public MeetMeUser getUser(Integer userId, String room) {
     	if (meetMeSOs.containsKey(room)) {
     		// Get the users in the room
@@ -154,13 +129,6 @@ public class ConferenceRoomListener extends AbstractAsteriskServerListener {
     	}
     }    
     
-    /**
-     * Gets the current users.
-     * 
-     * @param room the room
-     * 
-     * @return the current users
-     */
     public Collection<MeetMeUser> getCurrentUsers(String room) {
     	if (meetMeSOs.containsKey(room)) {
     		ISharedObject so = (ISharedObject) meetMeSOs.get(room);
@@ -182,13 +150,6 @@ public class ConferenceRoomListener extends AbstractAsteriskServerListener {
     	return null;
     }
     
-    /**
-     * Gets the shared object.
-     * 
-     * @param room the room
-     * 
-     * @return the shared object
-     */
     public static ISharedObject getSharedObject(String room) {
     	if (meetMeSOs.containsKey(room)) {
     		return (ISharedObject) meetMeSOs.get(room);
@@ -197,37 +158,17 @@ public class ConferenceRoomListener extends AbstractAsteriskServerListener {
     	return null;
     }
     
-	/**
-	 * The listener interface for receiving participantPropertyChange events.
-	 * The class that is interested in processing a participantPropertyChange
-	 * event implements this interface, and the object created
-	 * with that class is registered with a component using the
-	 * component's <code>addParticipantPropertyChangeListener<code> method. When
-	 * the participantPropertyChange event occurs, that object's appropriate
-	 * method is invoked.
-	 * 
-	 * @see ParticipantPropertyChangeEvent
-	 */
 	private class ParticipantPropertyChangeListener implements PropertyChangeListener {
 		
 		private Boolean talking = null;
 		private Boolean muted = null;
-		
-		/** The so. */
+
 		private ISharedObject so;
 		
-		/**
-		 * Instantiates a new participant property change listener.
-		 * 
-		 * @param so the so
-		 */
 		public ParticipantPropertyChangeListener(ISharedObject so) {
 			this.so = so;
 		}
 		
-		/* (non-Javadoc)
-		 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
-		 */
 		public void propertyChange(PropertyChangeEvent evt) {
 			MeetMeUser changedUser = (MeetMeUser) evt.getSource();
 		
@@ -273,11 +214,6 @@ public class ConferenceRoomListener extends AbstractAsteriskServerListener {
 		}    
 	}
 
-	/**
-	 * Sets the voice service.
-	 * 
-	 * @param voiceService the new voice service
-	 */
 	public void setVoiceService(AsteriskVoiceService voiceService) {
 		this.voiceService = voiceService;
 	}
