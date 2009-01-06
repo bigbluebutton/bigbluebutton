@@ -1,0 +1,50 @@
+<ivysettings>
+    <settings defaultResolver="local"/>
+    <resolvers>
+        <chain name="local" returnFirst="true">     
+			<filesystem name="lib_dir">
+        		<artifact pattern="${ivy.lib.dir}/[artifact](-[revision]).[type]" />
+        		<artifact pattern="${ivy.lib.dir}/[artifact](-[revision]).[ext]" />
+     	 	</filesystem>        
+    		<!--ivyrep name="local_cache"/--> 
+		</chain>    
+        <chain name="remote" returnFirst="true">     
+            <url name="googlecode">
+                <artifact pattern="http://red5.googlecode.com/svn/repository/[artifact](-[revision]).[ext]" />
+                <artifact pattern="http://red5.googlecode.com/svn/repository/[organisation]/[artifact](-[revision]).[ext]" />
+            </url>   
+            <url name="cvsdude">
+                <artifact pattern="https://svn1.cvsdude.com/osflash/red5/repository/[artifact](-[revision]).[ext]" />
+                <artifact pattern="https://svn1.cvsdude.com/osflash/red5/repository/[organisation]/[artifact](-[revision]).[ext]" />
+            </url>  
+            <url name="blindside-repos">
+                <artifact pattern="http://blindside.googlecode.com/svn/trunk/repository/[artifact](-[revision]).[ext]" />
+                <artifact pattern="http://blindside.googlecode.com/svn/trunk/repository/[organisation]/[artifact](-[revision]).[ext]" />
+            </url>   
+            <url name="ibiblio_maven2" m2compatible="true">
+  				<artifact pattern="http://www.ibiblio.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision]).[ext]" /> 
+  				<artifact pattern="http://www.ibiblio.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision]).[ext]" /> 
+  			</url>
+  			<ibiblio name="ibiblio" />     
+        </chain>
+        <chain name="blindside" returnFirst="true">     
+            <url name="blindside-repos">
+                <artifact pattern="http://blindside.googlecode.com/svn/trunk/repository/[artifact](-[revision]).[ext]" />
+                <artifact pattern="http://blindside.googlecode.com/svn/trunk/repository/[organisation]/[artifact](-[revision]).[ext]" />
+            </url>       
+        </chain>
+    </resolvers>
+    <modules>
+    	<module organisation="spring" name="*" resolver="googlecode"/>
+        <module organisation="tomcat" name="*" resolver="googlecode"/>
+        <module organisation="jetty" name="*" resolver="googlecode"/>
+        <module organisation="mina" name="*" resolver="googlecode"/>
+        <module organisation="jmx" name="*" resolver="googlecode"/> 
+        <!--module organisation="asterisk" name="asterisk-java" resolver="bigbluebutton"/>
+        <module organisation="activemq" name="activemq-core" resolver="bigbluebutton"/>
+        <module organisation="geronimo" name="geronimo-*" resolver="bigbluebutton"/-->
+        <module organisation=".*" name="*" resolver="remote"/>
+        
+		
+    </modules>    
+</ivysettings>

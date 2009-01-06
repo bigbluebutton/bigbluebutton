@@ -1,0 +1,17 @@
+<ivy-module version="1.0">
+    <info organisation="bigbluebutton" module="apps" />
+	<configurations>
+	    <conf name="default"/>
+		<conf name="java5" extends="default" description="Java 5 dependencies"/>
+		<conf name="test" extends="default" description="Unit testing dependencies"/>
+	</configurations>
+    <dependencies>
+        <!-- Logging --> 
+        <dependency name="log4j-over-slf4j" rev="1.4.3" />
+        <dependency name="logback-core" rev="0.9.8" />
+        <dependency name="logback-classic" rev="0.9.8" />
+		<!-- BigblueButton -->
+		<dependency org="asterisk" name="asterisk-java" rev="0.3.1"/>
+		<dependency org="activemq" name="activemq-core" rev="4.1.1"/>
+    </dependencies>
+</ivy-module>
