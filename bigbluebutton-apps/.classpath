@@ -9,7 +9,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/red5"/>
-	<classpathentry kind="lib" path="/bigbluebutton-server/red5.jar"/>
 	<classpathentry kind="lib" path="C:/ant-1.7.0/lib/junit.jar"/>
+	<classpathentry kind="lib" path="C:/red5/red5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
