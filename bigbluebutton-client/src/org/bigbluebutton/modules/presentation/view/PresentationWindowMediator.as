@@ -327,6 +327,7 @@ package org.bigbluebutton.modules.presentation.view
 				
 				//Initialize the thumbnails
 				_presWin.thumbnailWindow.setDataProvider(_presWin.slideView.slides);
+				_presWin.isPresenter = true;
 			} else {
 				proxy.getCurrentSlideNumber();
 			}

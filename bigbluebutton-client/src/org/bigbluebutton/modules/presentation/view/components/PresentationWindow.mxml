@@ -40,6 +40,7 @@
 			private var _yPosition:int;
 			
 			private var mouseDown:Boolean = false;
+			public var isPresenter:Boolean = false;
 			
 			private function init():void{
 				positionThumbnails();
@@ -67,7 +68,7 @@
 			}	
 			
 			private function thumbnailDisplay():void{
-				if (!mouseDown && mouseY > this.height*0.8){
+				if (!mouseDown && mouseY > this.height*0.8 && isPresenter){
 					thumbnailWindow.visible = true;
 				} else{
 					thumbnailWindow.visible = false;
