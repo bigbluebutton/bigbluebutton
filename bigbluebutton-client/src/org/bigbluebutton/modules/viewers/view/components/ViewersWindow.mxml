@@ -25,8 +25,9 @@
                       
    			[Bindable]
    			public var presenterIcon : Class = images.presenter;
+   			//public var handIcon:Class = images;
    			
-   			[Bindable]
+   			//[Bindable] 
    			public var toggleTooltip : String = "Click to raise hand.";
    			
 			private var _xPosition:int;
@@ -75,8 +76,8 @@
     	   			width="20" height="20"
     	   			toolTip="Select web participant to be presenter." click="dispatchEvent(new AssignPresenterEvent(viewersGrid.selectedItem.userid))"/>
      	 <mx:Spacer width="100%"/>
-    	 <!--mx:Button id="raiseHandImage" icon="{toggleIcon}" toggle="true" 
+    	 <!--<mx:Button id="raiseHandImage" icon="{toggleIcon}" toggle="true" 
     	   			width="20" height="20"
-    	   			toolTip="{toggleTooltip}" click="dispatchEvent(new Event(ViewersWindowMediator.CHANGE_STATUS))"/-->   			
+    	   			toolTip="{toggleTooltip}" click="dispatchEvent(new Event(ViewersWindowMediator.CHANGE_STATUS))"/>  --> 			
     </mx:ControlBar>  
 </viewer:MDIWindow>
