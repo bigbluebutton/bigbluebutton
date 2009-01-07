@@ -28,22 +28,25 @@ package org.bigbluebutton.modules.presentation.view
 		
 		override public function listNotificationInterests():Array{
 			return [
-					PresentModuleConstants.DISPLAY_SLIDE
+					PresentModuleConstants.GOTO_SLIDE
 					];
 		}
 		
 		override public function handleNotification(notification:INotification):void {
 			switch(notification.getName()){ 
-				case PresentModuleConstants.DISPLAY_SLIDE:
-					var slidenum:int = notification.getBody() as int;
-					//_thumbWin.slideList.scrollToIndex(slidenum);
-					//_thumbWin.slideList.selectedIndex = slidenum;
+				case PresentModuleConstants.GOTO_SLIDE:
+					highlightThumbnail(notification.getBody() as Number);
+					break;
 			}
 		}
 
 		private function get proxy():PresentProxy {
 			var p:PresentProxy = facade.retrieveProxy(PresentProxy.NAME) as PresentProxy;
 			return p;
+		}
+		
+		private function highlightThumbnail(index:Number):void{
+			_thumbView.fisheye.selectedIndex = index;
 		}
 
 	}

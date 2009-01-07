@@ -251,7 +251,7 @@ package org.bigbluebutton.modules.presentation.view.fisheye.controls.fisheyeClas
 				renderers = [];
 
 				// allocate new renderers, assign the data.
-				for(var i:int = 0;i<_items.length;i++)
+				for(i = 0;i<_items.length;i++)
 				{
 					var renderer:UIComponent = _itemRendererFactory.newInstance();
 					IDataRenderer(renderer).data = _items[i];
@@ -371,9 +371,9 @@ package org.bigbluebutton.modules.presentation.view.fisheye.controls.fisheyeClas
 			}
 			
 			vp = 0;
-			for(var i:int=0;i<itemCount;i++)
+			for(var p:int=0;p<itemCount;p++)
 			{
-				pdataInst = pdata[i];
+				pdataInst = pdata[p];
 				pdataInst.scale = params.minScale;
 				pdataInst[axis.pos] = vp;
 				vp += pdataInst[axis.EOM] * params.minScale + params.spacing;

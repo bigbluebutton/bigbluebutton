@@ -71,7 +71,7 @@
     	</mx:columns>
     </mx:DataGrid>
     
-   <mx:ControlBar width="100%">
+   <mx:ControlBar width="100%"> 
    		 <mx:Button id="presentBtn" icon="{presenterIcon}" visible="{isModerator}" enabled="{viewersGrid.selectedItem != null}"
     	   			width="20" height="20"
     	   			toolTip="Select web participant to be presenter." click="dispatchEvent(new AssignPresenterEvent(viewersGrid.selectedItem.userid))"/>

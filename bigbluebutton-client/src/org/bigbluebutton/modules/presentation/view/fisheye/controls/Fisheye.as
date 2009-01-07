@@ -130,11 +130,11 @@ package org.bigbluebutton.modules.presentation.view.fisheye.controls
 					populateMajorAxisFor(_pdata.slice(0,targetIndex),targetIndex,targetPosition - defaultSpacingWithDefault,major);
 					pdata = _pdata[targetIndex - 1];
 					var offset:Number = targetPosition - (pdata[major.pos] + pdata[major.EOM] * pdata.scale + defaultSpacingWithDefault);
-					for(var i:int = 0;i<targetIndex;i++)
+					for(i = 0;i<targetIndex;i++)
 						_pdata[i][major.pos] += offset;
 				}				
 			}
-			for(var i:int=0;i<itemCount;i++)
+			for(i=0;i<itemCount;i++)
 			{
 				pdata = _pdata[i];
 				var target:LayoutTarget = animator.targetFor(renderers[i]);
