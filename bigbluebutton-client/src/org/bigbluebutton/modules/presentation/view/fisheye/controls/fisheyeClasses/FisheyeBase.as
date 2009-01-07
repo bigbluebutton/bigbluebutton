@@ -251,11 +251,11 @@ package org.bigbluebutton.modules.presentation.view.fisheye.controls.fisheyeClas
 				renderers = [];
 
 				// allocate new renderers, assign the data.
-				for(i = 0;i<_items.length;i++)
+				for(var r:int = 0;r<_items.length;r++)
 				{
 					var renderer:UIComponent = _itemRendererFactory.newInstance();
-					IDataRenderer(renderer).data = _items[i];
-					renderers[i] = renderer;
+					IDataRenderer(renderer).data = _items[r];
+					renderers[r] = renderer;
 					addChild(renderer);
 				}
 				animator.items = renderers;
@@ -502,6 +502,7 @@ package org.bigbluebutton.modules.presentation.view.fisheye.controls.fisheyeClas
 			var majorAlignValue:String = getStyle(axis.align);
 			var itemCount:int = pdata.length;
 			var pdataInst:FisheyeItem;
+			var offset:Number;
 			
 			if(itemCount == 0)
 				return;
@@ -511,7 +512,7 @@ package org.bigbluebutton.modules.presentation.view.fisheye.controls.fisheyeClas
 				case "right":
 				case "bottom":
 					pdataInst = pdata[itemCount-1];
-					var offset:Number = this[axis.unscaled] - (pdataInst[axis.pos] + pdata[itemCount-1][axis.EOM] * pdataInst.scale);
+					offset = this[axis.unscaled] - (pdataInst[axis.pos] + pdata[itemCount-1][axis.EOM] * pdataInst.scale);
 					for(var i:int = 0;i<itemCount;i++)
 					{
 						pdata[i][axis.pos] += offset;
@@ -522,15 +523,14 @@ package org.bigbluebutton.modules.presentation.view.fisheye.controls.fisheyeClas
 					break;
 				case "center":					
 				default:			
-					var offset:Number;
 					var midIndex:int = Math.floor(itemCount/2);
 	
 					pdataInst = pdata[itemCount-1];
 					var rightPos:Number = pdataInst[axis.pos] + pdataInst[axis.EOM]*pdataInst.scale;
 					offset = (this[axis.unscaled]/2 - (rightPos)/2);
-					for(var i:int = 0;i<itemCount;i++)
+					for(var g:int = 0;g<itemCount;g++)
 					{
-						pdata[i][axis.pos] += offset;
+						pdata[g][axis.pos] += offset;
 					}
 					break;
 			}
