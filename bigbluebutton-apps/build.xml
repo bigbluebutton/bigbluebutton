@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<project name="bigbluebutton" basedir="." default="echoall" xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="bigbluebutton-apps" basedir="." default="echoall" xmlns:ivy="antlib:org.apache.ivy.ant">
 	
 	<!-- This build file requires Apache Ant >= 1.7 -->
 	<condition property="ant-at-least-7">
@@ -105,6 +105,30 @@
 	    <mkdir dir="${test.data.dir}"/>
 	</target>
 
+	<target name="resolve" description="--> retrieve dependencies with ivy">
+		<!-- Ivy configuration -->
+		<ivy:settings file="ivysettings.xml"/>
+		<condition property="ivy.conf.name" value="default">
+			<not>
+				<isset property="ivy.conf.name"/>
+			</not>
+		</condition>
+		<echo message="Ivy conf name: ${ivy.conf.name}"/>
+		<ivy:resolve conf="${ivy.conf.name}"/>
+		<ivy:retrieve conf="${ivy.conf.name}"/>
+	</target>
+
+	<target name="publish-local" depends="resolve, jar" description="--> publish this project in the local ivy repository">
+	    <ivy:publish artifactspattern="${build.dir}/[artifact].[ext]" 
+	                    resolver="local"
+	                    pubrevision="${target.version}"
+	                    status="integration"
+	                    forcedeliver="true"
+	    />
+	    <echo message="project ${ant.project.name} published locally with version ${version}" />
+	</target>
+	
+	
 	<target name="clean" description="Clean directories for build">
 		<delete dir="${build.dir}"/>
 		<delete dir="${dist.dir}"/>

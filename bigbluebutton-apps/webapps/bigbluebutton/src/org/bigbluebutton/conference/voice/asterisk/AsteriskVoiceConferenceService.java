@@ -50,6 +50,7 @@ public class AsteriskVoiceConferenceService implements IVoiceConferenceService {
 	 * is no traffic.
 	 */
 	private PingThread pingThread;
+	
 	public void setManagerConnection(ManagerConnection connection) {
 		this.managerConnection = connection;
 	}

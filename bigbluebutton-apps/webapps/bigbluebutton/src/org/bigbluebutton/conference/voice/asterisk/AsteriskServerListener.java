@@ -35,7 +35,6 @@ import org.asteriskjava.live.ManagerCommunicationException;
 import org.asteriskjava.live.AbstractAsteriskServerListener;
 import org.asteriskjava.live.MeetMeUser;
 import org.asteriskjava.live.MeetMeUserState;
-import org.bigbluebutton.asterisk.AsteriskVoiceService;
 import org.red5.server.api.so.ISharedObject;
 
 
@@ -43,7 +42,7 @@ public class AsteriskServerListener extends AbstractAsteriskServerListener {
 	
 	protected static Logger log = LoggerFactory.getLogger(AsteriskServerListener.class);
 	
-	private AsteriskVoiceService voiceService;
+	private AsteriskVoiceConferenceService voiceService;
 	private static Map<String, ISharedObject> meetMeSOs = new HashMap<String, ISharedObject>();
 	
 	public AsteriskServerListener() {
@@ -214,7 +213,7 @@ public class AsteriskServerListener extends AbstractAsteriskServerListener {
 		}    
 	}
 
-	public void setVoiceService(AsteriskVoiceService voiceService) {
+	public void setVoiceService(AsteriskVoiceConferenceService voiceService) {
 		this.voiceService = voiceService;
 	}
 }
