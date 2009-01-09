@@ -6,7 +6,6 @@
         		<artifact pattern="${ivy.lib.dir}/[artifact](-[revision]).[type]" />
         		<artifact pattern="${ivy.lib.dir}/[artifact](-[revision]).[ext]" />
      	 	</filesystem>        
-    		<!--ivyrep name="local_cache"/--> 
 		</chain>    
         <chain name="remote" returnFirst="true">     
             <url name="googlecode">
@@ -43,8 +42,6 @@
         <!--module organisation="asterisk" name="asterisk-java" resolver="bigbluebutton"/>
         <module organisation="activemq" name="activemq-core" resolver="bigbluebutton"/>
         <module organisation="geronimo" name="geronimo-*" resolver="bigbluebutton"/-->
-        <module organisation=".*" name="*" resolver="remote"/>
-        
-		
+        <module organisation=".*" name="*" resolver="remote"/>		
     </modules>    
 </ivysettings>

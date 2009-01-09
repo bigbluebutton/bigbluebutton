@@ -6,12 +6,28 @@
 		<conf name="test" extends="default" description="Unit testing dependencies"/>
 	</configurations>
     <dependencies>
+    	<!-- Testing support -->
+        <dependency name="junit" rev="4.0"/>
         <!-- Logging --> 
         <dependency name="log4j-over-slf4j" rev="1.4.3" />
         <dependency name="logback-core" rev="0.9.8" />
         <dependency name="logback-classic" rev="0.9.8" />
+        <dependency name="slf4j-api" rev="1.4.3" />
+        <dependency name="jcl104-over-slf4j" rev="1.4.3" />
+        <dependency name="log4j-over-slf4j" rev="1.4.3" />
 		<!-- BigblueButton -->
 		<dependency org="asterisk" name="asterisk-java" rev="0.3.1"/>
 		<dependency org="activemq" name="activemq-core" rev="4.1.1"/>
+		<dependency org="geronimo" name="geronimo-j2ee-management_1.0_spec" rev="1.0"/>
+		<dependency org="geronimo" name="geronimo-jms_1.1_spec" rev="1.0"/>
+		<dependency org="javax" name="servlet-api" rev="2.5" />
+        <!-- Spring --> 
+        <dependency org="spring" name="spring-dao" rev="2.0.8" />
+        <dependency org="spring" name="spring-aop" rev="2.0.8" />
+        <dependency org="spring" name="spring-beans" rev="2.0.8" />
+        <dependency org="spring" name="spring-context" rev="2.0.8" />
+        <dependency org="spring" name="spring-core" rev="2.0.8" />
+        <dependency org="spring" name="spring-web" rev="2.0.8" />
+        <dependency org="spring" name="aopalliance" rev="" />
     </dependencies>
 </ivy-module>

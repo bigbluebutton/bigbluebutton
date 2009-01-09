@@ -8,8 +8,26 @@
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/red5"/>
-	<classpathentry kind="lib" path="C:/ant-1.7.0/lib/junit.jar"/>
 	<classpathentry kind="lib" path="C:/red5/red5.jar"/>
+	<classpathentry kind="lib" path="lib/activemq-core-4.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/asterisk-java-0.3.1.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-over-slf4j-1.4.3.jar"/>
+	<classpathentry kind="lib" path="lib/logback-classic-0.9.8.jar"/>
+	<classpathentry kind="lib" path="lib/logback-core-0.9.8.jar"/>
+	<classpathentry kind="lib" path="lib/jcl104-over-slf4j-1.4.3.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.4.3.jar"/>
+	<classpathentry kind="lib" path="lib/spring-core-2.0.8.jar"/>
+	<classpathentry kind="lib" path="lib/spring-jms-2.0.8.jar"/>
+	<classpathentry kind="lib" path="lib/activation-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/geronimo-jms_1.1_spec-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/geronimo-j2ee-management_1.0_spec-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/servlet-api-2.5.jar"/>
+	<classpathentry kind="lib" path="lib/spring-web-2.0.8.jar"/>
+	<classpathentry kind="lib" path="lib/spring-context-2.0.8.jar"/>
+	<classpathentry kind="lib" path="lib/aopalliance-.jar"/>
+	<classpathentry kind="lib" path="lib/spring-aop-2.0.8.jar"/>
+	<classpathentry kind="lib" path="lib/spring-beans-2.0.8.jar"/>
+	<classpathentry kind="lib" path="lib/spring-dao-2.0.8.jar"/>
+	<classpathentry kind="lib" path="lib/junit-4.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
