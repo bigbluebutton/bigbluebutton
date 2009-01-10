@@ -111,7 +111,7 @@
 	<!-- here is the version of ivy we will use. change this property to try a newer 
          version if you want -->
 	<property name="ivy.install.version" value="2.0.0-beta1" />
-	<property name="ivy.jar.dir" value="${basedir}/ivy" />
+	<property name="ivy.jar.dir" value="${user.home}/.ivy2/jars" />
 	<property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
 
     <target name="download-ivy" unless="skip.download">
