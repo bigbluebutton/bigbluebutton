@@ -183,7 +183,7 @@
         <property name="revision" value="0.70"/>
         <delete file="${dist.dir}/ivy.xml"/>
 		<ivy:publish artifactspattern="${dist.dir}/[artifact].[ext]" 
-			resolver="local"
+			resolver="local_lib"
 			pubrevision="${revision}" 
 			status="release"
 			forcedeliver="true"

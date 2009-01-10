@@ -80,7 +80,7 @@
         <dependency org="commons" name="standard" rev="1.1.2" />
         <!-- Testing support -->
         <dependency name="junit" rev="4.0" conf="test->default"/>
-        <dependency name="groboutils" rev="" conf="test->default"/>
+        <!--dependency name="groboutils" rev="" conf="test->default"/-->
         <dependency org="spring" name="spring-mock" rev="2.0.8" conf="test->default"/>        
         <dependency name="jython-engine" rev="" conf="test->default"/> 
         <dependency name="groovy-engine" rev="" conf="test->default"/>
