@@ -1,7 +1,13 @@
 <ivysettings>
-    <settings defaultResolver="local"/>
+    <settings defaultResolver="project_lib"/>
+  	<!--include url="${ivy.default.settings.dir}/ivysettings-shared.xml"/-->
+  	<!--include url="${ivy.default.settings.dir}/ivysettings-local.xml"/-->
     <resolvers>
-        <chain name="local" returnFirst="true">     
+    	<filesystem name="local_lib">
+        		<artifact pattern="${user.home}/.ivy2/local/[organisation]/[artifact](-[revision]).[ext]" />
+        		<artifact pattern="${user.home}/.ivy2/local/[artifact](-[revision]).[ext]" />
+     	</filesystem>
+        <chain name="project_lib" returnFirst="true">     
 			<filesystem name="lib_dir">
         		<artifact pattern="${ivy.lib.dir}/[artifact](-[revision]).[type]" />
         		<artifact pattern="${ivy.lib.dir}/[artifact](-[revision]).[ext]" />
@@ -34,6 +40,7 @@
         </chain>
     </resolvers>
     <modules>
+    	<module organisation="org.red5" name="red5" resolver="local_lib"/>
     	<module organisation="spring" name="*" resolver="googlecode"/>
         <module organisation="tomcat" name="*" resolver="googlecode"/>
         <module organisation="jetty" name="*" resolver="googlecode"/>
