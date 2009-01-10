@@ -1,5 +1,5 @@
 <ivy-module version="1.0">
-    <info organisation="red5" module="server" />
+    <info organisation="org.red5" module="red5" />
 	<configurations>
 	    <conf name="default"/>
 		<conf name="java5" extends="default" description="Java 5 dependencies"/>

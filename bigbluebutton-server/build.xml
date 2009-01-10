@@ -176,6 +176,25 @@
 		</delete>
 	</target>
 
+    <!-- ================================= 
+          target: publish              
+         ================================= -->
+    <target name="publish" depends="retrieve, dist" description="--> publish this project in the ivy repository">
+        <property name="revision" value="0.70"/>
+        <delete file="${dist.dir}/ivy.xml"/>
+		<ivy:publish artifactspattern="${dist.dir}/[artifact].[ext]" 
+			resolver="local"
+			pubrevision="${revision}" 
+			status="release"
+			forcedeliver="true"
+		/>
+        <echo message="project ${ant.project.name} released with version ${revision}" />
+    </target>	
+
+	<target name="clean-local" description="--> cleans the local repository for the current module">
+	   <delete dir="${ivy.local.default.root}/${ant.project.name}"/>
+	</target>
+		
 	<target name="compile" depends="-library.check, -java6.check, prepare" description="Compiles the server">
 		<!-- token replacement filers -->
 		<property name="filter.file" value="conf/build_standalone.properties"/>

@@ -1,7 +1,13 @@
 <ivysettings>
-    <settings defaultResolver="local"/>
+    <settings defaultResolver="red5_lib"/>
+  	<include url="${ivy.default.settings.dir}/ivysettings-shared.xml"/>
+  	<include url="${ivy.default.settings.dir}/ivysettings-local.xml"/>
     <resolvers>
-        <chain name="local" returnFirst="true">     
+    	<filesystem name="projects">
+			<artifact pattern="${ivy.lib.dir}/[artifact]-[revision].[ext]" />
+			<ivy pattern="${ivy.lib.dir}/[module]-[revision].xml" />
+		</filesystem>
+        <chain name="red5_lib" returnFirst="true">     
 			<filesystem name="lib_dir">
         		<artifact pattern="${ivy.lib.dir}/[artifact](-[revision]).[type]" />
         		<artifact pattern="${ivy.lib.dir}/[artifact](-[revision]).[ext]" />
