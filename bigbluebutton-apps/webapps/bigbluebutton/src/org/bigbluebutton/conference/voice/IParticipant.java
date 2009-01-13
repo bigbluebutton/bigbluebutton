@@ -25,7 +25,6 @@ import java.util.Date;
 public interface IParticipant {
     
 	public String getId();
-	public String setId(String id);
 	public boolean isTalking();
 	public  boolean isMuted();
 	public Date getDateJoined();

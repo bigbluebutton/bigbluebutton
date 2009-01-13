@@ -19,7 +19,6 @@
 */
 package org.bigbluebutton.conference.voice.asterisk;
 import java.io.IOException;
-import java.util.Collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +28,6 @@ import org.asteriskjava.live.AsteriskServerListener;
 import org.asteriskjava.live.DefaultAsteriskServer;
 import org.asteriskjava.live.ManagerCommunicationException;
 import org.asteriskjava.live.MeetMeRoom;
-import org.asteriskjava.live.MeetMeUser;
 import org.asteriskjava.manager.AuthenticationFailedException;
 import org.asteriskjava.manager.ManagerConnection;
 import org.asteriskjava.manager.TimeoutException;
@@ -44,17 +42,18 @@ public class AsteriskVoiceConferenceService implements IVoiceConferenceService {
 	
 	private ManagerConnection managerConnection;
 	private AsteriskServer asteriskServer = new DefaultAsteriskServer();
-	
+		
 	/**
 	 * This sends pings to our Asterisk server so Asterisk won't close the connection if there
 	 * is no traffic.
 	 */
 	private PingThread pingThread;
 	
+
 	public void setManagerConnection(ManagerConnection connection) {
 		this.managerConnection = connection;
 	}
-	
+
 	public void start() {
 		try {
 			logger.info("Logging at " + managerConnection.getHostname() + ":" + 
@@ -74,8 +73,7 @@ public class AsteriskVoiceConferenceService implements IVoiceConferenceService {
 		} catch (AuthenticationFailedException e) {
 			logger.error("AuthenticationFailedException while connecting to Asterisk server.");
 		} catch (ManagerCommunicationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("ManagerCommunicationException while connecting to Asterisk server.");
 		}
 	}
 
@@ -88,33 +86,20 @@ public class AsteriskVoiceConferenceService implements IVoiceConferenceService {
 		}		
 	}
 	
-//	public IRoom getRoom(String id) {
-//		IRoom bridge = null;
-//
-//		try {
-//			MeetMeRoom room = asteriskServer.getMeetMeRoom(id);
-//			bridge = new MeetMeRoomAdapter(room);
-//			bridge.getParticipants();
-//		} catch (ManagerCommunicationException e) {
-			// TODO Auto-generated catch block
-//				e.printStackTrace();
-//		}
-//		
-//		return bridge;
-//	}
-	
-	public Collection<MeetMeUser> getUsers(String roomId) {
-		MeetMeRoom room;
-		try {
-			room = asteriskServer.getMeetMeRoom(roomId);
-			return room.getUsers();
-		} catch (ManagerCommunicationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-	}
+	public IRoom getRoom(String id) {
+		IRoom room = null;
 
+		try {
+			MeetMeRoom r = asteriskServer.getMeetMeRoom(id);
+			room = new MeetMeRoomAdapter(r);
+			room.getParticipants();
+		} catch (ManagerCommunicationException e) {
+			logger.error("ManagerCommunicationException while getting room.");
+		}
+		
+		return room;
+	}
+	
 	public void addAsteriskServerListener(AsteriskServerListener listener) throws ManagerCommunicationException {
 		asteriskServer.addAsteriskServerListener(listener);
 	}

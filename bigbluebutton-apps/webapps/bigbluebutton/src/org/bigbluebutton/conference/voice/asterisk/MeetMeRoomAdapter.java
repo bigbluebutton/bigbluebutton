@@ -21,34 +21,37 @@ package org.bigbluebutton.conference.voice.asterisk;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.asteriskjava.live.ManagerCommunicationException;
 import org.asteriskjava.live.MeetMeRoom;
 import org.asteriskjava.live.MeetMeUser;
 import org.bigbluebutton.conference.voice.AbstractRoom;
 import org.bigbluebutton.conference.voice.IParticipant;
+import org.bigbluebutton.conference.voice.IRoomEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class MeetMeRoomAdapter extends AbstractRoom {
+public class MeetMeRoomAdapter extends AbstractRoom{
 	protected static Logger logger = LoggerFactory.getLogger(MeetMeRoomAdapter.class);
 	
-	MeetMeRoom room;
+	private Set<IRoomEventListener> roomEventListeners = new HashSet<IRoomEventListener>();
+	
+	private MeetMeRoom room;
 	 
 	// Temporary for now until we sort out how to get these
 	// values from MeetMe.
 	private boolean muted = false;
 	private boolean locked = false;
 	
-	public MeetMeRoomAdapter() {}
+	public MeetMeRoomAdapter(MeetMeRoom room) {
+		this.room = room;
+	}
 	
 	public String getName() {
 		return room.getRoomNumber();
-	}
-	
-	public void setRoom(MeetMeRoom room) {
-		this.room = room;
 	}
 	
 	public void lock() {
@@ -82,8 +85,7 @@ public class MeetMeRoomAdapter extends AbstractRoom {
 		
     	for (MeetMeUser user : room.getUsers())
     	{
-    		MeetMeUserAdapter participant = new MeetMeUserAdapter();
-    		participant.setUser(user);
+    		MeetMeUserAdapter participant = new MeetMeUserAdapter(user);
     		participants.add(participant);
     	}
 
@@ -96,5 +98,13 @@ public class MeetMeRoomAdapter extends AbstractRoom {
 
 	public boolean isMuted() {
 		return muted;
+	}
+	
+	public void addRoomEventListener(IRoomEventListener listener) {
+		roomEventListeners.add(listener);
+	}
+	
+	public void removeRoomEventListener(IRoomEventListener listener) {
+		roomEventListeners.remove(listener);
 	}
 }

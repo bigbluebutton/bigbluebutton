@@ -36,7 +36,7 @@ public class MeetMeUserAdapter implements IParticipant {
 
 	private MeetMeUser user;
 	
-	public void setUser(MeetMeUser user) {
+	public MeetMeUserAdapter(MeetMeUser user) {
 		this.user = user;
 	}
 	
@@ -49,10 +49,8 @@ public class MeetMeUserAdapter implements IParticipant {
 	}
 
 	public IRoom getRoom() {
-		MeetMeRoomAdapter room = new MeetMeRoomAdapter();
-		room.setRoom(user.getRoom());
-		return room;
-		
+		MeetMeRoomAdapter room = new MeetMeRoomAdapter(user.getRoom());
+		return room;		
 	}
 
 	public Date getDateJoined() {
@@ -103,15 +101,7 @@ public class MeetMeUserAdapter implements IParticipant {
 		user.addPropertyChangeListener(listener);
 	}
 
-	@Override
 	public String getId() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String setId(String id) {
-		// TODO Auto-generated method stub
-		return null;
+		return user.getUserNumber().toString();
 	}
 }

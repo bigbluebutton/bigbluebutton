@@ -9,7 +9,6 @@ import org.red5.server.so.SharedObject;
 public abstract class AbstractRoom implements IRoom {
 	private Map<String, IParticipant> participants = new HashMap<String, IParticipant>();
 	private IVoiceConferenceService voiceService;
-	private SharedObject so;
 	private String roomName;
 	
 	public void setName(String name) {
@@ -18,10 +17,6 @@ public abstract class AbstractRoom implements IRoom {
 	
 	public String getName() {
 		return roomName;
-	}
-	
-	public void setSharedObject(SharedObject so) {
-		this.so = so;
 	}
 	
 	public void addParticipant(IParticipant p) {

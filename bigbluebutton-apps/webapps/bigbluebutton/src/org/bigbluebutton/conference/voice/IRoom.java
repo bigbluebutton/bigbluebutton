@@ -25,7 +25,8 @@ import org.red5.server.so.SharedObject;
 
 public interface IRoom {	
 	public String getName();
-	public void setSharedObject(SharedObject so);
+	public void addRoomEventListener(IRoomEventListener listener);
+	public void removeRoomEventListener(IRoomEventListener listener);
 	public void lock();
 	public void unlock();
 	public void mute();
