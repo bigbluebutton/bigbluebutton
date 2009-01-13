@@ -1,0 +1,8 @@
+<!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
+<suite name="My test suite">
+  <test name="First test">
+    <classes>
+       <class name="org.bigbluebutton.StringUtilsTest" />
+    </classes>
+  </test>
+</suite>

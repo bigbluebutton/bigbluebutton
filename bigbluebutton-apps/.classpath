@@ -29,5 +29,8 @@
 	<classpathentry kind="lib" path="lib/spring-dao-2.0.8.jar"/>
 	<classpathentry kind="lib" path="lib/junit-4.0.jar"/>
 	<classpathentry kind="lib" path="lib/red5-0.70.jar"/>
+	<classpathentry kind="lib" path="lib/easymock-2.4.jar"/>
+	<classpathentry kind="lib" path="lib/testng-5.8.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang-2.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

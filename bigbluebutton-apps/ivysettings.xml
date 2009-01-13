@@ -32,11 +32,11 @@
   			</url>
   			<ibiblio name="ibiblio" />     
         </chain>
-        <chain name="blindside" returnFirst="true">     
-            <url name="blindside-repos">
-                <artifact pattern="http://blindside.googlecode.com/svn/trunk/repository/[artifact](-[revision]).[ext]" />
-                <artifact pattern="http://blindside.googlecode.com/svn/trunk/repository/[organisation]/[artifact](-[revision]).[ext]" />
-            </url>       
+        <chain name="testng" returnFirst="true">     
+            <url name="testng_ibiblio_maven2" m2compatible="true">
+  				<artifact pattern="http://www.ibiblio.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision])-jdk15.[ext]" /> 
+  				<artifact pattern="http://www.ibiblio.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision])-jdk15.[ext]" /> 
+  			</url>      
         </chain>
     </resolvers>
     <modules>
@@ -46,6 +46,7 @@
         <module organisation="jetty" name="*" resolver="googlecode"/>
         <module organisation="mina" name="*" resolver="googlecode"/>
         <module organisation="jmx" name="*" resolver="googlecode"/> 
+        <module organisation="org.testng" name="testng" resolver="testng_ibiblio_maven2"/> 
         <!--module organisation="asterisk" name="asterisk-java" resolver="bigbluebutton"/>
         <module organisation="activemq" name="activemq-core" resolver="bigbluebutton"/>
         <module organisation="geronimo" name="geronimo-*" resolver="bigbluebutton"/-->

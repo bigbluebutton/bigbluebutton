@@ -45,14 +45,13 @@
 	<property name="test.classes.dir" location="${test.dir}/classes"/>
 	<property name="test.data.dir" location="${test.dir}/data"/>
 	<property name="test.reports.dir" location="${test.dir}/reports"/>
-
+	<property name="junit.test.reports.dir" location="${test.dir}/junit-reports"/>
+	
 	<property environment="env"/>
 	<property name="java.home" value="${env.JDK_HOME}"/>
 	<property name="red5.home" value="${env.RED5_HOME}"/>
 	<property name="webapp.src.dir" value="webapps"/>
-	<property name="lib.dir" value="${red5.home}/lib"/>
-	<property name="ivy.lib.dir" value="lib"/>
-	<property name="red5.jar" value="${red5.home}/red5.jar"/>
+	<property name="lib.dir" value="lib"/>
 
 	<property name="dist.webapps.dir" value="${dist.dir}/webapps"/>
 	<property name="debug.state" value="true"/>
@@ -64,11 +63,9 @@
 	<path id="project.classpath">
 		<fileset dir="${lib.dir}"/>
 	</path>
+	
 	<path id="full.classpath">
 		<fileset dir="${lib.dir}"/>
-		<fileset dir="${red5.home}">
-			<filename name="red5.jar"/>
-		</fileset> 
 	</path>
 
 	<path id="compile.classpath">
@@ -97,7 +94,10 @@
 	  <path refid="test.classpath"/>
 	  <pathelement path="${java.class.path}"/>
 	</path>
-	
+
+	<taskdef name="testng" classpathref="compile.classpath"
+	          classname="org.testng.TestNGAntTask" />
+
 	<!-- Build Targets -->
 	<target name="prepare" depends="clean" description="Setup directories for build">
 		<mkdir dir="${webapps.build.dir}"/>
@@ -105,7 +105,6 @@
 	    <mkdir dir="${test.classes.dir}"/>
 	    <mkdir dir="${test.reports.dir}"/>
 	    <mkdir dir="${test.data.dir}"/>
-		<mkdir dir="${ivy.lib.dir}"/>
 	</target>
 	
 	<!-- here is the version of ivy we will use. change this property to try a newer 
@@ -349,8 +348,26 @@
 	      <classpath refid="test.compile.classpath"/>
 	    </javac>
 	</target>
+
+	<target name="test-ng" depends="test-compile">
+	      <echo message="running tests"/>
+	      <testng classpathref="test.classpath" outputDir="${test.data.dir}">
+	         <xmlfileset dir="." includes="testng.xml"/>
+	         <jvmarg value="-ea" />
+	      </testng>
+	</target>
+
+	<target name="testng-reports" depends="test-ng">
+	  <junitreport todir="${test.data.dir}">
+	    <fileset dir="${test.data.dir}">
+	      <include name="*/*.xml"/>
+	    </fileset>
+	 
+	    <report format="frames" todir="${test.reports.dir}"/>
+	  </junitreport>
+	</target>
 	
-	  <target name="test" depends="test-compile">
+	<target name="test" depends="test-compile">
 	    <junit printsummary="false"
 	           errorProperty="test.failed"
 	           failureProperty="test.failed"
@@ -378,7 +395,7 @@
 	    <fail if="test.failed">
 	    Tests failed. Check ${test.reports.dir}
 	    </fail>
-	  </target>
+	</target>
 	
 	<target name="all" depends="clean, prepare, compile, jar" description="Run all server tasks"/>
 
