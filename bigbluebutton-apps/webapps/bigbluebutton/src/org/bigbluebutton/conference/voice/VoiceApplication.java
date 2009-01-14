@@ -43,60 +43,60 @@ public class VoiceApplication implements IApplication,
 	}
 
 	@Override
-	public boolean appStart(IScope arg0) {
+	public boolean appStart(IScope scope) {
 		voiceService.start();
 		return true;
 	}
 
 	@Override
-	public void appStop(IScope arg0) {
+	public void appStop(IScope scope) {
 		voiceService.stop();
 	}
 
 	@Override
-	public boolean roomConnect(IConnection arg0, Object[] arg1) {
+	public boolean roomConnect(IConnection connection, Object[] params) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public void roomDisconnect(IConnection arg0) {
+	public void roomDisconnect(IConnection connection) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public boolean roomJoin(IClient arg0, IScope arg1) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void roomLeave(IClient arg0, IScope arg1) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public boolean roomStart(IScope arg0) {
+	public boolean roomJoin(IClient client, IScope scope) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public void roomStop(IScope arg0) {
+	public void roomLeave(IClient client, IScope scope) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void notifyConnected(IConnection arg0) {
+	public boolean roomStart(IScope scope) {
+//		voiceService.getRoom(scope.getName());
+		application.hasSharedObject(scope, "meetmeusersSO");
+		return false;
+	}
+
+	@Override
+	public void roomStop(IScope scope) {
+//		voiceService.removeRoom(scope.getName());
+	}
+
+	@Override
+	public void notifyConnected(IConnection connection) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void notifyDisconnected(IConnection arg0) {
+	public void notifyDisconnected(IConnection connection) {
 		// TODO Auto-generated method stub
 
 	}

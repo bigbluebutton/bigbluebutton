@@ -21,25 +21,15 @@ package org.bigbluebutton.conference.voice.asterisk;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.lang.Boolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.asteriskjava.live.ManagerCommunicationException;
 import org.asteriskjava.live.AbstractAsteriskServerListener;
 import org.asteriskjava.live.MeetMeUser;
-import org.asteriskjava.live.MeetMeUserState;
 import org.bigbluebutton.conference.voice.IParticipant;
 import org.bigbluebutton.conference.voice.IRoomEventListener;
-import org.red5.server.api.so.ISharedObject;
 
 public class AsteriskServerListener extends AbstractAsteriskServerListener {
 	

@@ -21,8 +21,6 @@ package org.bigbluebutton.conference.voice;
 
 import java.util.Collection;
 
-import org.red5.server.so.SharedObject;
-
 public interface IRoom {	
 	public String getName();
 	public void addRoomEventListener(IRoomEventListener listener);

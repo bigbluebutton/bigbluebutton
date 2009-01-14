@@ -4,8 +4,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.red5.server.so.SharedObject;
-
 public abstract class AbstractRoom implements IRoom {
 	private Map<String, IParticipant> participants = new HashMap<String, IParticipant>();
 	private IVoiceConferenceService voiceService;
