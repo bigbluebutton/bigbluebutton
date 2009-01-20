@@ -21,11 +21,9 @@ public class AsteriskVoiceConferenceServiceTest {
 	private AsteriskServer serverMock;
 	private RoomManager roomManager;
 	private MeetMeRoom roomMock;
-	private IRoom iRoomMock;
-	
-	@BeforeClass
+
+	@BeforeMethod
 	public void setUp() {
-		iRoomMock = createMock(IRoom.class);
 		roomMock = createMock(MeetMeRoom.class);
 		serverMock = createMock(AsteriskServer.class);
 		service = new AsteriskVoiceConferenceService();
@@ -49,5 +47,14 @@ public class AsteriskVoiceConferenceServiceTest {
 		roomManager.addRoom(t);			
 		IRoom r = service.getRoom("TestRoom");
 		assertTrue(r.getName().equals("TestRoom"));
+	}
+	
+	@Test
+	public void testMeetMeRoomAdapter() {			
+		expect(roomMock.getRoomNumber()).andReturn("TestRoom");
+		replay(roomMock);
+		MeetMeRoomAdapter ma = new MeetMeRoomAdapter(roomMock);	
+		assertTrue(ma.getName().equals("TestRoom"));
+		verify(roomMock);
 	}
 }

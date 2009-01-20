@@ -91,16 +91,11 @@ public class AsteriskVoiceConferenceService extends AbstractAsteriskServerListen
 	 * @return
 	 */
 	public IRoom getRoom(String id) {
-		System.out.println("in getRoom");
-		
 		if (roomManager.hasRoom(id)) {
-			System.out.println("Found room in room manager.");
 			return roomManager.getRoom(id);
 		} else {
 			IRoom room = null;
-
 			try {
-				System.out.println("Getting room from server.");
 				MeetMeRoom r = asteriskServer.getMeetMeRoom(id);
 				room = new MeetMeRoomAdapter(r);
 				roomManager.addRoom(room);
