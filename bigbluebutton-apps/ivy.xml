@@ -32,6 +32,7 @@
         <dependency org="spring" name="spring-context" rev="2.0.8" />
         <dependency org="spring" name="spring-core" rev="2.0.8" />
         <dependency org="spring" name="spring-web" rev="2.0.8" />
+        <dependency org="org.springframework" name="spring-jms" rev="2.0.8" />
         <dependency org="spring" name="aopalliance" rev="" />
     </dependencies>
 </ivy-module>
