@@ -8,10 +8,12 @@
     verticalScrollPolicy="off" horizontalScrollPolicy="off"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	mouseMove="thumbnailDisplay()"
-	creationComplete="init()">
+	creationComplete="init()"
+	rollOut="hideThumbs()">
 
 	<mx:Script>
 		<![CDATA[
+			import mx.controls.Text;
 			import org.bigbluebutton.modules.presentation.view.PresentationWindowMediator;
 			import mx.core.Application;
 			import org.bigbluebutton.modules.presentation.view.components.Images;
@@ -69,8 +71,10 @@
 			
 			private function thumbnailDisplay():void{
 				if (!mouseDown && mouseY > this.height*0.8 && isPresenter){
+					thumbnailWindow.y = this.height - 270;
 					thumbnailWindow.visible = true;
-				} else{
+				} else if (slideView.slides != null){
+					slideNumLbl.text = "" + (slideView.selectedSlide + 1) + " of " + slideView.slides.length;
 					thumbnailWindow.visible = false;
 				}
 			}
@@ -80,15 +84,26 @@
 				slideNumLbl.text = "" + (thumbnailWindow.highlighted+1) + " of " + slideView.slides.length;
 			}
 			
+			/**
+			 * Hide the thumbnails in case the user moves the mouse outside this window
+			 */
+			private function hideThumbs():void{
+				if (slideView.slides != null)
+					slideNumLbl.text = "" + (slideView.selectedSlide + 1) + " of " + slideView.slides.length;
+				
+				thumbnailWindow.visible = false;
+			}
+			
 		]]>
 	</mx:Script>
 	
 	<mx:Fade id="thumbFadeIn" alphaFrom="1" alphaTo="0" duration="100" />
 	<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />
 	
-	<mx:Canvas id="mainCanvas" width="100%" height="100%" resize="positionThumbnails()" mouseDown="mouseDown = true" mouseUp="mouseDown = false">
+	<mx:Canvas id="mainCanvas" width="100%" height="100%" resize="positionThumbnails()" mouseDown="mouseDown = true" 
+		mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off">
 		<thumb:SlideView id="slideView" width="100%" height="100%" visible="false"/>
-		<thumb:FisheyeThumbnail id="thumbnailWindow" width="100%" height="10%" visible="false" backgroundAlpha="1" 
+		<thumb:FisheyeThumbnail id="thumbnailWindow" width="100%" visible="false" backgroundAlpha="1" 
 			verticalScrollPolicy="off" horizontalScrollPolicy="off"/>
 	</mx:Canvas>
 			

@@ -9,9 +9,9 @@ package org.bigbluebutton.modules.presentation.view.fisheye.controls
 		/** the ideal positional data for the renderers.  When the inputs to the layout system change,
 		 * this array is regenerated to represent the goal positions for each renderer.  Over time, the layout system
 		 * will animate the children towards these positions */
-		private var _pdata:Array = [];
+		public var _pdata:Array = [];
 
-		private var _mouseData:Array = [];
+		public var _mouseData:Array = [];
 
 		/** the direction this component lays out
 		 */

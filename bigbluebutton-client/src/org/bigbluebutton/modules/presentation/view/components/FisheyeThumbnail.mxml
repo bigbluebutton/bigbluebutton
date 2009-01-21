@@ -5,6 +5,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.controls.Text;
 			import mx.controls.TextArea;
 			import mx.collections.ArrayCollection;
 			[Bindable] public var images:Array;
@@ -21,13 +22,17 @@
 			
 			private function init():void{
 				fisheye.setStyle("hilightScaleRadius",2);	
-				fisheye.setStyle("animationSpeed",0.3);
+				fisheye.setStyle("animationSpeed",0.8);
 				fisheye.setStyle("defaultScale",0.4);
 				fisheye.setStyle("hilightMaxScale",1.0);
 			}
 			
 			public function setDataProvider(dp:ArrayCollection):void{
 				this.images = dp.toArray();
+				//must reinitialize arrays to properly display new slides.
+				fisheye._pdata = new Array();
+				fisheye._mouseData = new Array(); 
+				//set the itemRenderer of the thumbnails
 				fisheye.dataProvider = this.images;
 				fisheye.itemRenderer = imageRenderer;
 			}
@@ -58,7 +63,7 @@
 			
 			<controls:Fisheye id="fisheye" width="100%" height="100%" dataProvider="{images}" click="selectSlide()" 
 				stateProperty="currentState" rolloverValue="hilighted" defaultValue="" selectedValue="selected"
-				verticalAlign="top"
+				verticalAlign="bottom"
 				horizontalAlign="center" >			
 				<controls:itemRenderer>
 					<mx:Component id="imageRenderer">
