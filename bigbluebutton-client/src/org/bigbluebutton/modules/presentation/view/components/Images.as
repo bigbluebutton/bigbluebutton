@@ -36,5 +36,11 @@ package org.bigbluebutton.modules.presentation.view.components
         
         [Embed(source="../assets/images/magnifier.png")]
         public var magnifier:Class;
+        
+        [Embed(source="../assets/images/forward.png")]
+        public var fastForward:Class;
+        
+        [Embed(source="../assets/images/back.png")]
+        public var fastBack:Class;
 	}
 }

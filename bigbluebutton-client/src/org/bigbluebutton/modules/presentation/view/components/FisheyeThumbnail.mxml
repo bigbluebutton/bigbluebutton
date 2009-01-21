@@ -30,6 +30,11 @@
 				this.images = dp.toArray();
 				fisheye.dataProvider = this.images;
 				fisheye.itemRenderer = imageRenderer;
+				var itemCount:Number = images.length;
+				this.width = itemCount * 100;
+				var t:Timer = new Timer(500, 1);
+				t.addEventListener(TimerEvent.TIMER, alignToParent);
+				t.start();
 			}
 			
 			public function setThumbRatio(ratio:Number):void{
@@ -50,6 +55,10 @@
 				}
 			}
 			
+			private function alignToParent(e:Event):void{
+				this.x = - (fisheye.midPointFor(1));
+			}
+			
 		]]>
 	</mx:Script>
 	
@@ -58,7 +67,7 @@
 			
 			<controls:Fisheye id="fisheye" width="100%" height="100%" dataProvider="{images}" click="selectSlide()" 
 				stateProperty="currentState" rolloverValue="hilighted" defaultValue="" selectedValue="selected"
-				verticalAlign="top"
+				verticalAlign="center"
 				horizontalAlign="center" >			
 				<controls:itemRenderer>
 					<mx:Component id="imageRenderer">

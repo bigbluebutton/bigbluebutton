@@ -28,8 +28,8 @@ package org.bigbluebutton.modules.presentation.view.fisheye.controls
 		private var _id:int;
 		private var _loader:Loader;
 		private var _loaded:Boolean = false;
-		private var _imageWidth:Number = 80;
-		private var _imageHeight:Number = 80;
+		private var _imageWidth:Number = 150;
+		private var _imageHeight:Number = 150;
 		private const BORDER_WIDTH:Number = 1;
 		private var _border:Shape;
 		private var t:TextField = new TextField();

@@ -33,6 +33,10 @@
 			[Bindable] private var backwardIcon : Class = images.backward;
 			[Bindable] private var thumbnailIcon : Class = images.thumbnails;
 			[Bindable] private var magnifierIcon : Class = images.magnifier;
+			[Bindable] private var fastForwardIcon : Class = images.fastForward;
+			[Bindable] private var fastBackIcon : Class = images.fastBack;
+			
+			[Bindable] private var thumbY:Number;
 											
 			public var uploadWindow:FileUploadWindow = null;
 			
@@ -41,10 +45,15 @@
 			
 			private var mouseDown:Boolean = false;
 			public var isPresenter:Boolean = false;
+			private var scrollTimer:Timer;
 			
 			private function init():void{
 				positionThumbnails();
 				thumbnailWindow.addEventListener(FisheyeThumbnail.SLIDE_HIGHLIGHTED, onSlideHighlighted);
+				thumbY = this.height- 150;
+				//Create the timer used to control the thumbnail scrolling
+				scrollTimer = new Timer(1);
+				scrollTimer.addEventListener(TimerEvent.TIMER, scrollThumbnails);
 			}
 			
 			private function positionThumbnails():void{
@@ -69,9 +78,27 @@
 			
 			private function thumbnailDisplay():void{
 				if (!mouseDown && mouseY > this.height*0.8 && isPresenter){
+					//readjust the position of the thumbnails in case the window was resized
+					//Note: this is necessary because the MDIWindow does not let you listen to the resize() event!
+					thumbY = this.height - 160;
 					thumbnailWindow.visible = true;
-				} else{
+					//readjust the fast forward/back buttons as well
+					btnFastBack.y = this.height - 100;
+					btnFastForward.y = this.height - 100;
+					btnFastForward.x = this.width - 45;
+					btnFastBack.visible = true;
+					btnFastForward.visible = true;
+					//Start the scroll timer
+					scrollTimer.start();
+				} else if (slideView.slides != null){
+					//make the thumbnails dissapear
 					thumbnailWindow.visible = false;
+					slideNumLbl.text = "" + (slideView.selectedSlide + 1) + " of " + slideView.slides.length;
+					//Make the fast forward/back buttons dissapear as well
+					btnFastBack.visible = false;
+					btnFastForward.visible = false;
+					//Stop the scroll times
+					scrollTimer.stop();
 				}
 			}
 			
@@ -80,16 +107,26 @@
 				slideNumLbl.text = "" + (thumbnailWindow.highlighted+1) + " of " + slideView.slides.length;
 			}
 			
+			private function scrollThumbnails(e:TimerEvent):void{
+				if (!thumbnailWindow.visible) return;
+				
+				if (mouseX < 80) this.thumbnailWindow.x += 20;
+				else if (mouseX > this.width - 80) this.thumbnailWindow.x -= 20;
+			}
+			
 		]]>
 	</mx:Script>
 	
 	<mx:Fade id="thumbFadeIn" alphaFrom="1" alphaTo="0" duration="100" />
 	<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />
 	
-	<mx:Canvas id="mainCanvas" width="100%" height="100%" resize="positionThumbnails()" mouseDown="mouseDown = true" mouseUp="mouseDown = false">
+	<mx:Canvas id="mainCanvas" width="100%" height="100%" resize="positionThumbnails()" mouseDown="mouseDown = true" 
+		mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off">
 		<thumb:SlideView id="slideView" width="100%" height="100%" visible="false"/>
-		<thumb:FisheyeThumbnail id="thumbnailWindow" width="100%" height="10%" visible="false" backgroundAlpha="1" 
-			verticalScrollPolicy="off" horizontalScrollPolicy="off"/>
+		<thumb:FisheyeThumbnail y="{thumbY}" id="thumbnailWindow" width="100%" height="100%" visible="false" backgroundAlpha="1" 
+			verticalScrollPolicy="off" horizontalScrollPolicy="off" verticalCenter="top"/>
+		<mx:Button id="btnFastForward" icon="{fastForwardIcon}" visible="false" />
+		<mx:Button id="btnFastBack" icon="{fastBackIcon}" visible="false" />
 	</mx:Canvas>
 			
     
