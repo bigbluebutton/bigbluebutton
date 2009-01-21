@@ -95,9 +95,6 @@
 	  <pathelement path="${java.class.path}"/>
 	</path>
 
-	<taskdef name="testng" classpathref="compile.classpath"
-	          classname="org.testng.TestNGAntTask" />
-
 	<!-- Build Targets -->
 	<target name="prepare" depends="clean" description="Setup directories for build">
 		<mkdir dir="${webapps.build.dir}"/>
@@ -347,6 +344,8 @@
 	           srcdir="test">
 	      <classpath refid="test.compile.classpath"/>
 	    </javac>
+		<taskdef name="testng" classpathref="compile.classpath"
+				          classname="org.testng.TestNGAntTask" />
 	</target>
 
 	<target name="test-ng" depends="test-compile">
