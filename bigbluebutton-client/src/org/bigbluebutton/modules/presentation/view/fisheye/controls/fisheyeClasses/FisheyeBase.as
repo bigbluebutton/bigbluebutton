@@ -474,7 +474,7 @@ package org.bigbluebutton.modules.presentation.view.fisheye.controls.fisheyeClas
 		
 			var params:FisheyeParameters = new FisheyeParameters();
 			populateParameters(params,true);			
-			adjustParameters(pdata,targetIndex,params,itemCount*100/*axisSize*/,axis);	
+			adjustParameters(pdata,targetIndex,params,axisSize,axis);	
 
 			vp = 0;
 

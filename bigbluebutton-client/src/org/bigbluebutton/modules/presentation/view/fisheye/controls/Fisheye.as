@@ -67,7 +67,7 @@ package org.bigbluebutton.modules.presentation.view.fisheye.controls
 				pd.eomHeight = md.eomHeight = renderers[i].getExplicitOrMeasuredHeight();
 				pd.eomWidth = md.eomWidth = renderers[i].getExplicitOrMeasuredWidth();			
 			}
-			this[minor.measuredMin] = this[minor.measured] = 150;//minorMeasuredSize;
+			this[minor.measuredMin] = this[minor.measured] = minorMeasuredSize;
 
 			// now that we have newly measured sizes, we'll need to recaculate sizing, and mouse positoins.
 			animator.invalidateLayout();
@@ -92,7 +92,7 @@ package org.bigbluebutton.modules.presentation.view.fisheye.controls
 		 *  to an anchor point...either the left, middle, or right (or top,middle,bottom) of the component based on the alignment style.
 		 *  This function converts it to an absolute pixel value.
 		 */
-		public function midPointFor(i:int):Number
+		private function midPointFor(i:int):Number
 		{
 			var pdata:FisheyeItem = _mouseData[i];
 			return pdata[major.pos] + pdata[major.EOM] * pdata.scale/2;
@@ -110,7 +110,7 @@ package org.bigbluebutton.modules.presentation.view.fisheye.controls
 				
 			if(isNaN(targetIndex))
 			{
-				populateMajorAxisForDefault(_pdata,major,itemCount * 100);
+				populateMajorAxisForDefault(_pdata,major,this[major.unscaled]);
 				align(_pdata,major);			
 			}
 			else
@@ -150,8 +150,8 @@ package org.bigbluebutton.modules.presentation.view.fisheye.controls
 
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
 		{
-			var itemCount:int = dataProvider.length;
-			populateMajorAxisForDefault(_mouseData,major,itemCount*100);
+
+			populateMajorAxisForDefault(_mouseData,major,this[major.unscaled]);
 			align(_mouseData,major);
 
 			super.updateDisplayList(unscaledWidth,unscaledHeight);
