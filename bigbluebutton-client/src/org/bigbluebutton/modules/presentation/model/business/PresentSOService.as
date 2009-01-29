@@ -179,6 +179,14 @@ package org.bigbluebutton.modules.presentation.model.business
 		public function setPresenterName(presenterName:String):void {
 			_presentationSO.setProperty(PRESENTER, presenterName);
 		}
+
+        private function time():String
+		{
+			var date:Date = new Date();
+			var t:String = date.toLocaleTimeString();
+			return t;
+		}
+		
 		/**
 		 * Send an event out to the server to go to a new page in the SlidesDeck 
 		 * @param page
@@ -186,8 +194,9 @@ package org.bigbluebutton.modules.presentation.model.business
 		 */		
 		public function gotoSlide(num:int) : void
 		{
+			LogUtil.info("[" + time() + " - Showing slide (" + num + ")]");
 			_presentationSO.send("gotoPageCallback", num);
-			//LogUtil.debug("Going to slide " + num);
+			
 			_presentationSO.setProperty(CURRENT_PAGE, num);
 		}
 		

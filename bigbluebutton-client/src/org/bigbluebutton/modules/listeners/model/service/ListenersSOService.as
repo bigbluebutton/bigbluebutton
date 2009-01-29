@@ -43,6 +43,8 @@ package org.bigbluebutton.modules.listeners.model.service
 		private var _messageSender:Function;
 		private var nc_responder : Responder;
 		private var _soErrors:Array;
+		
+		private var pingCount:int = 0;
 							
 		public function ListenersSOService(listeners:IListeners)
 		{			
@@ -139,7 +141,14 @@ package org.bigbluebutton.modules.listeners.model.service
 		}
 		
 		public function ping(message:String):void {
-			LogUtil.debug(LOGNAME + 'Received ping from server: ' + message);
+			if (pingCount < 100) {
+				pingCount++;
+			} else {
+				var date:Date = new Date();
+				var t:String = date.toLocaleTimeString();
+				LogUtil.debug(LOGNAME + "[" + t + '] - Received ping from server: ' + message);
+				pingCount = 0;
+			}
 		}
 		
 		public function muteUnmuteUser(userid:Number, mute:Boolean):void
