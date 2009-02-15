@@ -37,10 +37,64 @@
 	    Ivy tasks and lib directory 
 	        http://ant.apache.org/ivy
 	        http://testearly.com/2007/06/24/ivy-in-42-steps
-	-->
 	<taskdef uri="antlib:org.apache.ivy.ant" resource="org/apache/ivy/ant/antlib.xml" classpath="${lib.dir}/${ivy.version}.jar"/>
-	<property name="ivy.lib.dir" value="${lib.dir}"/>
+	<property name="ivy.lib.dir" value="${lib.dir}"/-->
 
+	<!-- here is the version of ivy we will use. change this property to try a newer 
+         version if you want -->
+	<property name="ivy.install.version" value="2.0.0-beta1" />
+	<property name="ivy.jar.dir" value="${user.home}/.ivy2/jars" />
+	<property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
+
+    <target name="download-ivy" unless="skip.download">
+    	<mkdir dir="${ivy.jar.dir}"/>
+		<!-- download Ivy from web site so that it can be used even without any special installation -->
+		<echo message="installing ivy..."/>
+    	<get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar"
+    		 dest="${ivy.jar.file}" usetimestamp="true"/>
+    </target>
+    
+    <!-- ================================= 
+          target: install-ivy         
+            this target is not necessary if you put ivy.jar in your ant lib directory
+            if you already have ivy in your ant lib, you can simply remove this
+            target and the dependency the 'go' target has on it
+         ================================= -->
+    <target name="install-ivy" depends="download-ivy" description="--> install ivy">
+    	<!-- try to load ivy here from local ivy dir, in case the user has not already dropped
+    	      it into ant's lib dir (note that the latter copy will always take precedence).
+    	      We will not fail as long as local lib dir exists (it may be empty) and
+    	      ivy is in at least one of ant's lib dir or the local lib dir. -->
+    	<path id="ivy.lib.path">
+    	    <fileset dir="${ivy.jar.dir}" includes="*.jar"/>
+    	</path>
+    	<taskdef resource="org/apache/ivy/ant/antlib.xml" 
+    		uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
+    </target>   
+
+    <!-- ================================= 
+          target: clean-ivy              
+         ================================= -->
+	<target name="ivyclear" description="--> clean the ivy installation">
+		<delete includeemptydirs="true">
+			<fileset dir="${ivy.jar.dir}" excludes="**/ivy*.jar"/>
+		</delete>
+	</target>	
+	
+	<target name="retrieve" depends="install-ivy" description="--> retrieve dependencies with ivy">
+		<!-- Ivy configuration -->
+		<ivy:settings file="ivysettings.xml" id="ivy.instance"/>
+		<condition property="ivy.conf.name" value="default">
+			<not>
+				<isset property="ivy.conf.name"/>
+			</not>
+		</condition>
+		<echo message="Ivy conf name: ${ivy.conf.name}"/>
+		<echo message="ivy.local.default.root: ${ivy.local.default.root}"/>
+		<ivy:resolve conf="${ivy.conf.name}"/>
+		<ivy:retrieve conf="${ivy.conf.name}"/>
+	</target>	
+	
 	<tstamp prefix="build">
 		<format property="TODAY" pattern="d-MMMM-yyyy" locale="en"/>
 	</tstamp>
@@ -156,8 +210,7 @@
 		<delete file="red5.tar.gz"/>
 	</target>
 
-	<target name="retrieve" unless="library.installed" description="Retrieves the libraries if needed">
-		<!-- Ivy configuration -->
+	<!--target name="retrieve" unless="library.installed" description="Retrieves the libraries if needed">
 		<ivy:settings file="ivysettings.xml"/>
 		<condition property="ivy.conf.name" value="default">
 			<not>
@@ -174,7 +227,7 @@
 		<delete includeemptydirs="true">
 			<fileset dir="${lib.dir}" excludes="**/ivy*.jar"/>
 		</delete>
-	</target>
+	</target-->
 
     <!-- ================================= 
           target: publish              
