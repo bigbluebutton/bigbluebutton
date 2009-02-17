@@ -869,7 +869,7 @@ public abstract class RTMPConnection extends BaseConnection implements
 		int now = (int) (lastPingSent & 0xffffffff);
 		pingRequest.setValue2(now);
 		pingRequest.setValue3(Ping.UNDEFINED);
-		log.info("Ping client - clientId {} : {}", getId(), pingRequest);
+		//log.info("Ping client - clientId {} : {}", getId(), pingRequest);
 		ping(pingRequest);
 	}
 
@@ -882,7 +882,7 @@ public abstract class RTMPConnection extends BaseConnection implements
 		lastPongReceived = System.currentTimeMillis();
 		int now = (int) (lastPongReceived & 0xffffffff);
 		lastPingTime = now - pong.getValue2();
-		log.info("Pong received - {}", pong);
+		//log.info("Pong received - {}", pong);
 	}
 
 	/** {@inheritDoc} */

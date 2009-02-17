@@ -14,9 +14,9 @@
 	<classpathentry excluding=".svn/*" kind="src" path="webapps/midiDemo/WEB-INF/src"/>
 	<classpathentry excluding=".svn/*" kind="src" path="webapps/adminPanel/WEB-INF/src"/>
 	<classpathentry kind="src" path="webapps/bwcheck/WEB-INF/src"/>
+	<classpathentry exported="true" kind="con" path="GROOVY_SUPPORT"/>
 	<classpathentry kind="lib" path="lib/acegi-security-1.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/activation-1.1.jar"/>
-	<classpathentry kind="lib" path="lib/activemq-core-4.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/annotations-api-.jar"/>
 	<classpathentry kind="lib" path="lib/antlr-2.7.6.jar"/>
 	<classpathentry kind="lib" path="lib/aopalliance-.jar"/>
@@ -34,14 +34,10 @@
 	<classpathentry kind="lib" path="lib/commons-lang-2.3.jar"/>
 	<classpathentry kind="lib" path="lib/commons-modeler-2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-pool-1.3.jar"/>
-	<classpathentry kind="lib" path="lib/dsn.jar"/>
 	<classpathentry kind="lib" path="lib/ehcache-1.2.3.jar"/>
 	<classpathentry kind="lib" path="lib/el-api-.jar"/>
 	<classpathentry kind="lib" path="lib/geronimo-j2ee-management_1.0_spec-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/geronimo-jms_1.1_spec-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/groovy-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/groovy-engine-.jar"/>
-	<classpathentry kind="lib" path="lib/imap.jar"/>
 	<classpathentry kind="lib" path="lib/ivy-2.0.0-beta1.jar"/>
 	<classpathentry kind="lib" path="lib/jasper-6.0.14.jar"/>
 	<classpathentry kind="lib" path="lib/jasper-el-6.0.14.jar"/>
@@ -50,40 +46,25 @@
 	<classpathentry kind="lib" path="lib/jetty-6.1.7.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-util-6.1.7.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-xbean-6.1.7.jar"/>
-	<classpathentry kind="lib" path="lib/jmxremote-.jar"/>
 	<classpathentry kind="lib" path="lib/jmxremote-1.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/jmxtools-.jar"/>
 	<classpathentry kind="lib" path="lib/jmxtools-1.2.1.jar"/>
-	<classpathentry kind="lib" path="lib/jpda-.jar"/>
 	<classpathentry kind="lib" path="lib/jruby-1.0.3.jar"/>
-	<classpathentry kind="lib" path="lib/jruby-engine-.jar"/>
-	<classpathentry kind="lib" path="lib/js-1.6R7.jar"/>
-	<classpathentry kind="lib" path="lib/js-engine-.jar"/>
 	<classpathentry kind="lib" path="lib/jsp-api-2.1.jar"/>
-	<classpathentry kind="lib" path="lib/jsr173_1.0_api-.jar"/>
-	<classpathentry kind="lib" path="lib/jsr-223-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/jta-1.0.1B.jar"/>
 	<classpathentry kind="lib" path="lib/jython-2.2.jar"/>
-	<classpathentry kind="lib" path="lib/jython-engine-.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-over-slf4j-1.4.3.jar"/>
 	<classpathentry kind="lib" path="lib/logback-classic-0.9.8.jar"/>
 	<classpathentry kind="lib" path="lib/logback-core-0.9.8.jar"/>
-	<classpathentry kind="lib" path="lib/mail.jar"/>
-	<classpathentry kind="lib" path="lib/mailapi.jar"/>
 	<classpathentry kind="lib" path="lib/mina-core-1.1.6.jar"/>
 	<classpathentry kind="lib" path="lib/mina-filter-ssl-1.1.6.jar"/>
 	<classpathentry kind="lib" path="lib/mina-integration-jmx-1.1.6.jar"/>
 	<classpathentry kind="lib" path="lib/mina-integration-spring-1.1.6.jar"/>
 	<classpathentry kind="lib" path="lib/naming-factory-.jar"/>
 	<classpathentry kind="lib" path="lib/naming-resources-.jar"/>
-	<classpathentry kind="lib" path="lib/pop3.jar"/>
 	<classpathentry kind="lib" path="lib/quartz-1.5.2.jar"/>
-	<classpathentry kind="lib" path="lib/red5-0.73.jar"/>
-	<classpathentry kind="lib" path="lib/rmissl-.jar"/>
 	<classpathentry kind="lib" path="lib/rmissl-1.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/servlet-api-2.5.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.4.3.jar"/>
-	<classpathentry kind="lib" path="lib/smtp.jar"/>
 	<classpathentry kind="lib" path="lib/spring-aop-2.0.8.jar"/>
 	<classpathentry kind="lib" path="lib/spring-beans-2.0.8.jar"/>
 	<classpathentry kind="lib" path="lib/spring-context-2.0.8.jar"/>
@@ -100,5 +81,7 @@
 	<classpathentry kind="lib" path="lib/xercesImpl-2.9.0.jar"/>
 	<classpathentry kind="lib" path="lib/xml-apis-2.9.0.jar"/>
 	<classpathentry kind="lib" path="lib/xmlrpc-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/activemq-core-5.1.0.jar"/>
+	<classpathentry kind="lib" path="lib/groovy-all-1.5.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -71,7 +71,7 @@
         <dependency org="asm" name="asm-commons" rev="2.2.3" />
         <dependency org="antlr" name="antlr" rev="2.7.6" />
         <dependency name="bsh" rev="2.0b4" />
-        <dependency name="groovy" rev="1.0" />  
+        <!--dependency name="groovy" rev="1.0" /-->  
         <dependency name="jruby" rev="1.0.3" />  
         <dependency name="jython" rev="2.2" />  
         <dependency org="spring" name="spring-support" rev="2.0.8" />
@@ -83,7 +83,7 @@
         <!--dependency name="groboutils" rev="" conf="test->default"/-->
         <dependency org="spring" name="spring-mock" rev="2.0.8" conf="test->default"/>        
         <dependency name="jython-engine" rev="" conf="test->default"/> 
-        <dependency name="groovy-engine" rev="" conf="test->default"/>
+        <!--dependency name="groovy-engine" rev="" conf="test->default"/-->
         <dependency name="jruby-engine" rev="" conf="test->default"/> 
         <!-- Java5 support -->
 		<dependency org="rhino" name="js" rev="1.6R7" conf="java5->default"/>
@@ -91,12 +91,13 @@
         <dependency name="jsr-223" rev="1.0" conf="java5->default"/> 
         <dependency name="js-engine" rev="" conf="java5->default"/> 
         <dependency name="jython-engine" rev="" conf="java5->default"/> 
-        <dependency name="groovy-engine" rev="" conf="java5->default"/>
+        <!--dependency name="groovy-engine" rev="" conf="java5->default"/-->
         <dependency name="jruby" rev="1.0.1" conf="java5->default"/>
         <dependency name="jruby-engine" rev="" conf="java5->default"/> 
 		<!-- BigblueButton -->
-		<dependency org="asterisk" name="asterisk-java" rev="0.3.1"/>
-		<dependency org="activemq" name="activemq-core" rev="4.1.1"/>
+		<dependency org="org.asteriskjava" name="asterisk-java" rev="0.3.1"/>
+		<dependency org="org.apache.activemq" name="activemq-core" rev="5.1.0"/>
+		<dependency org="org.codehaus.groovy" name="groovy-all" rev="1.5.6"/>
 		<dependency name="backport-util-concurrent" rev="2.1"/>
 		<dependency org="geronimo" name="geronimo-j2ee-management_1.0_spec" rev="1.0"/>
 		<dependency org="geronimo" name="geronimo-jms_1.1_spec" rev="1.0"/>

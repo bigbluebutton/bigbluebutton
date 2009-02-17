@@ -46,9 +46,6 @@
         <module organisation="jetty" name="*" resolver="googlecode"/>
         <module organisation="mina" name="*" resolver="googlecode"/>
         <module organisation="jmx" name="*" resolver="googlecode"/> 
-        <!--module organisation="asterisk" name="asterisk-java" resolver="bigbluebutton"/>
-        <module organisation="activemq" name="activemq-core" resolver="bigbluebutton"/>
-        <module organisation="geronimo" name="geronimo-*" resolver="bigbluebutton"/-->
         <module organisation=".*" name="*" resolver="remote"/>
         
 		
