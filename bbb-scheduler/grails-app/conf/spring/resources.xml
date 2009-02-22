@@ -14,11 +14,11 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
       <property name="mappingStrategy" ref="mappingStrategy" />
    </bean>
 
-   <bean class="org.bigbluebutton.pbx.asterisk.ConferenceAttendanceRecorder"
+   <!--bean class="org.bigbluebutton.pbx.asterisk.ConferenceAttendanceRecorder"
       init-method="startup" destroy-method="shutdown">
       <property name="asteriskServer" ref="asteriskServer"/>
       <property name="dataSource" ref="dataSource"/>
-   </bean> 
+   </bean--> 
 
    <!--bean class="org.bigbluebutton.pbx.PbxLive"
       init-method="startup" destroy-method="shutdown">
