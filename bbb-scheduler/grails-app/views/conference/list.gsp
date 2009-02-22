@@ -52,9 +52,6 @@
                     </tbody>
                 </table>
             </div>
-            <!--div class="paginateButtons">
-                <g:paginate total="${Conference.count()}" />
-            </div-->
         </div>
 		<div class="body">
 			<g:render template="instructions" />

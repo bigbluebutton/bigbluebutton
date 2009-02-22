@@ -1,4 +1,4 @@
-<project name="bigbluebutton" default="test">
+<project name="bbb-scheduler" default="test">
 
     <condition property="grails" value="grails.bat">
         <os family="windows"/>

@@ -1,3 +1,4 @@
+import org.bigbluebutton.domain.Conference
           
 class ConferenceController extends BaseController {
     def beforeInterceptor = [action:this.&auth]

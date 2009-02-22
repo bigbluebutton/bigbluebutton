@@ -19,53 +19,23 @@ import org.asteriskjava.fastagi.AgiScript;
 public class PbxAgi implements AgiScript {
     private GroovyScriptEngine gse;
     private Sql db;
+
     private DataSource dataSource;
-
-    private String scriptsLocation = null;
-    
-    public PbxAgi() throws IOException
-    {
     	
-    }
-    
-    public PbxAgi(String url, String username, String password, 
-    	   String driver, String scriptsLocation) throws IOException
-    {
-    	System.out.println("INITIALIZING PBX-AGI");
-    	try {
-			db = Sql.newInstance(url, username, password, driver);
-
-			
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        
-		System.out.println("blank");
-    	String[] roots = new String[] { scriptsLocation };
-        this.gse = new GroovyScriptEngine(roots);
-    }
-
-    public void setDataSource(DataSource source)
-    {
+    public void setDataSource(DataSource source) {
     	dataSource = source;
     	db = new Sql(dataSource);
     }
     
-    public void setScriptsLocation(String location)
-    {
-    	scriptsLocation = location;
-    	try {
-			this.gse = new GroovyScriptEngine(scriptsLocation);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    public PbxAgi() throws IOException
+    {               
+    	String[] roots = new String[] { "agi/scripts/" };
+    	
+    	// Pass in the classloader so the scripts will be able to find the classes
+    	// it imports.
+        this.gse = new GroovyScriptEngine(roots, this.getClass().getClassLoader());
     }
-    
+
     public void service(AgiRequest request, AgiChannel channel)
             throws AgiException
     {
@@ -79,7 +49,7 @@ public class PbxAgi implements AgiScript {
         binding.setVariable("db", db);
         try
         {
-        	System.out.println(script.toString());
+        	System.out.println("Executing " + script.toString());
             gse.run(script, binding);
         }
         catch (ResourceException e)
@@ -92,8 +62,4 @@ public class PbxAgi implements AgiScript {
                     script + "'", e);
         }
     }
-    
-//    public void setScriptsLocation(String location) {
-//    	scriptsLocation = location;
-//    }
 }

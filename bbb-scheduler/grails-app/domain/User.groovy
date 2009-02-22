@@ -1,3 +1,5 @@
+import org.bigbluebutton.domain.Conference
+
 class User {
 	String email
 	String password

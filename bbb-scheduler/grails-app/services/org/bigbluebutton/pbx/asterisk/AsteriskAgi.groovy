@@ -7,7 +7,7 @@ import org.asteriskjava.fastagi.AgiScript;
 
 import java.util.Calendar
 
-/*
+
 import groovy.lang.Binding;
 import groovy.sql.Sql;
 import groovy.util.GroovyScriptEngine;
@@ -17,22 +17,22 @@ import groovy.util.ScriptException;
 import java.io.IOException;
 import java.sql.SQLException;
 import javax.sql.DataSource;
-*/
 
-import Conference;
+
+import org.bigbluebutton.domain.Conference
 
 class AsteriskAgi implements AgiScript {
 
 //    private GroovyScriptEngine gse
-//    private Sql db
+    private Sql db
     
-//    private DataSource dataSource
+    private DataSource dataSource
     
     	
-//    def void setDataSource(DataSource source) {
-//    	dataSource = source;
-//    	db = new Sql(dataSource);
-//    }
+    def void setDataSource(DataSource source) {
+    	dataSource = source;
+    	db = new Sql(dataSource);
+    }
     
     private int tries = 0
     private long _10_minutes = 10*60*1000

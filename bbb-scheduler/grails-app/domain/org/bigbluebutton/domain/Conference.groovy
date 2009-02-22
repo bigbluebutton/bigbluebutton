@@ -1,3 +1,5 @@
+package org.bigbluebutton.domain
+
 class Conference implements Comparable {
 	Date dateCreated
 	Date lastUpdated

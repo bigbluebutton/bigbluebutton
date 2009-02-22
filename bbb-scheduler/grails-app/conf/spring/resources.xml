@@ -38,8 +38,12 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 			</map>
 		</property>
 	</bean>
-			
-	<bean id="asteriskAgi" class="org.bigbluebutton.pbx.asterisk.AsteriskAgi" >
-      <!--property name="dataSource" ref="dataSource"/-->
+	
+	<bean id="asteriskAgi" class="org.bigbluebutton.pbx.PbxAgi" >
+      	<property name="dataSource" ref="dataSource"/>
 	</bean>	
+			
+	<!--bean id="asteriskAgi" class="org.bigbluebutton.pbx.asterisk.AsteriskAgi" >
+      	<property name="dataSource" ref="dataSource"/>
+	</bean-->	
 </beans>

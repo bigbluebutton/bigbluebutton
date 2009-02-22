@@ -6,7 +6,7 @@
 //                             "file:${userHome}/.grails/${appName}-config.properties",
 //                             "file:${userHome}/.grails/${appName}-config.groovy"]
 
-grails.config.locations = [ "classpath:bigbluebutton.properties"]
+grails.config.locations = [ "classpath:vo.properties", "file:${userHome}/vo.properties"]
 
 // if(System.properties["${appName}.config.location"]) {
 //    grails.config.locations << "file:" + System.properties["${appName}.config.location"]
