@@ -1,0 +1,11 @@
+1. Create database
+> mysql -u root -p
+  Enter password: ********
+
+  mysql> create database vo_dev;
+
+  mysql> create database vo_test;
+
+  mysql> create database vo_prod;
+
+  mysql> grant all on vo_dev.* to 'vo'@'localhost' identified by 'secret';
