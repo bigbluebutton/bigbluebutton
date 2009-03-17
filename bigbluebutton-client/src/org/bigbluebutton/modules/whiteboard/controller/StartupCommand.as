@@ -1,11 +1,9 @@
 package org.bigbluebutton.modules.whiteboard.controller
 {
-	import org.bigbluebutton.common.Constants;
-	import org.bigbluebutton.main.MainApplicationFacade;
-	import org.bigbluebutton.modules.viewers.model.business.Conference;
-	import org.bigbluebutton.modules.whiteboard.WhiteboardModule;
+	import org.bigbluebutton.modules.whiteboard.WhiteboardEndpointMediator;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardModuleMediator;
 	import org.bigbluebutton.modules.whiteboard.model.DrawProxy;
+	import org.bigbluebutton.modules.whiteboard.view.BoardMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.command.SimpleCommand;
 	
@@ -26,13 +24,12 @@ package org.bigbluebutton.modules.whiteboard.controller
 		 * 
 		 */		
 		override public function execute(notification:INotification):void{
+			var m:WhiteboardModule = notification.getBody() as WhiteboardModule;
 			
-			var app:WhiteboardModule = notification.getBody() as WhiteboardModule;
-			facade.registerMediator(new WhiteboardModuleMediator(app));
-			
-			var conf:Conference = MainApplicationFacade.getInstance().getConference();
-			var uri:String ='rtmp://' + Constants.red5Host + '/oflaDemo/' + conf.room;
-			facade.registerProxy(new DrawProxy(uri));
+			facade.registerMediator(new WhiteboardModuleMediator(m));
+			facade.registerMediator(new WhiteboardEndpointMediator(m));
+			facade.registerMediator(new BoardMediator(m));
+			facade.registerProxy(new DrawProxy(m.uri));
 		}
 
 	}

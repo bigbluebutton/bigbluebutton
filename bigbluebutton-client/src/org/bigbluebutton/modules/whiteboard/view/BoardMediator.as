@@ -3,6 +3,7 @@ package org.bigbluebutton.modules.whiteboard.view
 	import flash.events.Event;
 	
 	import org.bigbluebutton.modules.whiteboard.BoardFacade;
+	import org.bigbluebutton.modules.whiteboard.WhiteboardModuleConstants;
 	import org.bigbluebutton.modules.whiteboard.model.DrawProxy;
 	import org.bigbluebutton.modules.whiteboard.model.component.DrawObject;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
@@ -24,16 +25,21 @@ package org.bigbluebutton.modules.whiteboard.view
 		public static const CLEAR_BOARD:String = "clearBoard";
 		public static const UNDO_SHAPE:String = "undoShape"
 		
-		
+		private var _module:WhiteboardModule;
+		private var _window:Board;
+		private var _whiteboardWindowOpen:Boolean = false;
 		/**
 		 * The constructor. Calls the super constructor and registers the event listener to listen for updates
 		 * coming from the Board GUI component. 
 		 * @param view The Board component
 		 * 
 		 */		
-		public function BoardMediator(view:Board):void
+		public function BoardMediator(module:WhiteboardModule):void
 		{
-			super(NAME, view);
+			super(NAME, module);
+			_module = module;
+			_window = new Board();
+			_window.name = _module.username;
 			board.addEventListener(BoardMediator.SEND_SHAPE, sendUpdate);
 			board.addEventListener(BoardMediator.CLEAR_BOARD, sendClear);
 			board.addEventListener(BoardMediator.UNDO_SHAPE, undoShape);
@@ -45,7 +51,7 @@ package org.bigbluebutton.modules.whiteboard.view
 		 * 
 		 */		
 		protected function get board():Board{
-			return viewComponent as Board;
+			return _window as Board;
 		}
 		
 		/**
@@ -100,7 +106,9 @@ package org.bigbluebutton.modules.whiteboard.view
 					BoardFacade.UPDATE,
 					BoardFacade.FAILED_CONNECTION,
 					BoardFacade.CLEAR_BOARD,
-					BoardFacade.UNDO_SHAPE
+					BoardFacade.UNDO_SHAPE,
+					WhiteboardModuleConstants.CLOSE_WINDOW,
+					WhiteboardModuleConstants.OPEN_WINDOW
 				   ];
 		}
 		
@@ -128,6 +136,23 @@ package org.bigbluebutton.modules.whiteboard.view
 					break;
 				case BoardFacade.UNDO_SHAPE:
 					this.board.undoShape();
+					break;
+				case WhiteboardModuleConstants.CLOSE_WINDOW:
+					if (_whiteboardWindowOpen) {
+						facade.sendNotification(WhiteboardModuleConstants.REMOVE_WINDOW, _window);
+						_whiteboardWindowOpen = false;
+					}
+					break;
+				case WhiteboardModuleConstants.OPEN_WINDOW:
+					_window.width = 250;
+		   			_window.height = 220;
+		   			_window.title = "Whiteboard";
+		   			_window.showCloseButton = false;
+		   			_window.xPosition = 675;
+		   			_window.yPosition = 0;
+		   			facade.sendNotification(WhiteboardModuleConstants.ADD_WINDOW, _window); 
+		   			_whiteboardWindowOpen = true;
+		   			//proxy.getChatTranscript();
 					break;
 			}
 		}

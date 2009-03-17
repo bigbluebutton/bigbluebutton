@@ -14,6 +14,7 @@ package org.bigbluebutton.main
 		private var listenerLoaded:Boolean = false;
 		private var viewerLoaded:Boolean = false;
 		private var videoLoaded:Boolean = false;
+		private var whiteboardLoaded:Boolean = false;
 		
 		public function MainApplicationMediator(mediatorName:String=null, viewComponent:Object=null)
 		{
@@ -53,7 +54,6 @@ package org.bigbluebutton.main
 					if (ml == "ViewersModule") {
 						viewerLoaded = true;
 					}
-					
 					if (ml == "ChatModule") {
 						chatLoaded = true;
 						proxy.loadModule("PresentationModule");
@@ -69,6 +69,11 @@ package org.bigbluebutton.main
 					if (ml == "VideoModule") {
 						videoLoaded = true;
 						proxy.loadModule("ViewersModule");
+					}
+					if (ml == "WhiteboardModule") {
+						LogUtil.debug("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZz");
+						whiteboardLoaded = true;
+						proxy.loadModule("WhiteboardModule");
 					}
 					
 					facade.sendNotification(MainApplicationConstants.LOADED_MODULE, ml);
@@ -88,7 +93,8 @@ package org.bigbluebutton.main
 					proxy.stopModule("PresentationModule");
 					proxy.stopModule("ListenersModule");
 					proxy.stopModule("VideoModule");
-					proxy.stopModule("ViewersModule");					
+					proxy.stopModule("ViewersModule");	
+					proxy.stopModule("WhiteboardModule");				
 					break;
 				case MainApplicationConstants.RESTART_MODULE:
 					LogUtil.debug(NAME + '::Received RESTART_MODULE for ' + notification.getBody() as String);
@@ -101,6 +107,7 @@ package org.bigbluebutton.main
 					facade.sendNotification(MainApplicationConstants.MODULE_START, "PresentationModule");
 					facade.sendNotification(MainApplicationConstants.MODULE_START, "ListenersModule");
 					facade.sendNotification(MainApplicationConstants.MODULE_START, "VideoModule");
+					facade.sendNotification(MainApplicationConstants.MODULE_START, "WhiteboardModule");
 					break;
 			}
 		}		

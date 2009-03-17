@@ -3,6 +3,7 @@
 	<module name="ChatModule" url="ChatModule.swf" uri="rtmp://localhost/chatServer" />
 	<module name="ViewersModule" url="ViewersModule.swf" uri="rtmp://localhost/conference" />
 	<module name="ListenersModule" url="ListenersModule.swf" uri="rtmp://localhost/astmeetme" />
+	<module name="WhiteboardModule" url="WhiteboardModule.swf" uri="rtmp://localhost/test" />
 	<module name="PresentationModule" url="PresentationModule.swf" 
 		uri="rtmp://localhost/presentation" host="http://localhost:8080" />
 </modules>

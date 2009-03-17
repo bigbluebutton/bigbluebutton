@@ -1,7 +1,9 @@
 package org.bigbluebutton.modules.whiteboard
 {
 	
+	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.modules.whiteboard.controller.StartupCommand;
+	import org.bigbluebutton.modules.whiteboard.controller.StopCommand;
 	import org.puremvc.as3.multicore.interfaces.IFacade;
 	import org.puremvc.as3.multicore.patterns.facade.Facade;
 	
@@ -24,6 +26,7 @@ package org.bigbluebutton.modules.whiteboard
 		public static const FAILED_CONNECTION:String = "conn_failed";
 		public static const CLEAR_BOARD:String = "clear";
 		public static const UNDO_SHAPE:String = "undoShape";
+		public static const STOP:String = "STOP";
 		
 		public function BoardFacade(){
 			super(NAME);
@@ -50,6 +53,7 @@ package org.bigbluebutton.modules.whiteboard
 		override protected function initializeController():void{
 			super.initializeController();
 			registerCommand(STARTUP, StartupCommand);
+			registerCommand(STOP,StopCommand);
 		}
 		
 		/**
@@ -61,6 +65,16 @@ package org.bigbluebutton.modules.whiteboard
 		public function startup(app:WhiteboardModule):void{
 			sendNotification(BoardFacade.STARTUP, app);
 		}
+		
+		/**
+		 * Stops this module 
+		 * @param app
+		 * 
+		 */		
+		public function stop(app:IBigBlueButtonModule):void {
+			sendNotification(STOP, app);
+			removeCore(NAME);
+		}	
 
 	}
 }

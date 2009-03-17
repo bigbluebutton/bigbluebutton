@@ -27,6 +27,7 @@ package org.bigbluebutton.modules.whiteboard.model
 		private var nc:NetConnection;
 		private var drawSO:SharedObject;
 		private var uri:String;
+		private var manualDisconnect:Boolean = false;
 		
 		private var drawFactory:DrawObjectFactory = new DrawObjectFactory();
 		
@@ -151,6 +152,11 @@ package org.bigbluebutton.modules.whiteboard.model
 		 */		
 		public function undo():void{
 			sendNotification(BoardFacade.UNDO_SHAPE);
+		}
+		
+		public function stop():void{
+			manualDisconnect = true;
+			nc.close();
 		}
 
 	}

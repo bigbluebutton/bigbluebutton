@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" 
+	implements="org.bigbluebutton.common.IBigBlueButtonModule"
+	creationComplete="onCreationComplete()">
+	
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.modules.whiteboard.BoardFacade;
+			import org.bigbluebutton.common.messaging.Router;
+			
+			private var _router:Router;
+			private var _moduleID:String = "WhiteboardModule";
+			private var _moduleName:String = "Whiteboard Module";
+			private var _attributes:Object;
+			
+			private function onCreationComplete():void{
+				LogUtil.debug("WhiteboardModule initialized");
+			}
+			
+			public function acceptRouter(router:Router):void{
+				_router = router;
+			}
+			
+			public function get router():Router{
+				return _router;
+			}
+			
+			public function get moduleId():String{
+				return _moduleID;
+			}
+			
+			public function get moduleName():String{
+				return _moduleName;
+			}
+			
+			public function get uri():String{
+				return _attributes.uri + "/" + _attributes.room;
+			}
+			
+			public function get username():String {
+				return _attributes.username;
+			}
+			
+			public function get userid():Number {
+				return _attributes.userid as Number;
+			}
+			
+			public function start(attributes:Object):void{
+				LogUtil.debug("whiteboard attr: " + attributes.username);
+				_attributes = attributes;
+				BoardFacade.getInstance().startup(this);
+			}
+			
+			public function stop():void{
+				BoardFacade.getInstance().stop(this);
+			}
+		]]>
+	</mx:Script>
+	
+</mx:Module>

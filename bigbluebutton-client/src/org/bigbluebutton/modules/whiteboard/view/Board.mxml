@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<MDIWindow xmlns="flexlib.mdi.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" width="400" height="300"
+<MDIWindow xmlns="flexlib.mdi.containers.*" 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="400" height="300"
 	xmlns:flexlib = "http://code.google.com/p/flexlib/"
-	 creationComplete="init()">
+	implements="org.bigbluebutton.common.IBbbModuleWindow"
+	creationComplete="init()">
 	 
 	<mx:Script>
 		<![CDATA[
@@ -41,6 +44,9 @@
 			protected var shapeStyle:String = DrawObject.PENCIL;
 			protected var drawColor:uint;
 			protected var thickness:uint;
+			
+			private var _xPosition:int;
+			private var _yPosition:int;
 			
 			//Full screen?
 			private var dispState:String;
@@ -183,6 +189,22 @@
 					this.canvas.rawChildren.removeChild(this.shapeList[this.shapeList.length-1]);
 					shapeList.pop();
 				}
+			}
+			
+			public function get xPosition():int {
+				return _xPosition;
+			}
+			
+			public function get yPosition():int {
+				return _yPosition;
+			}
+			
+			public function set xPosition(x:int):void {
+				_xPosition = x;
+			}
+			
+			public function set yPosition(y:int):void {
+				_yPosition = y;
 			}
 			
 			]]>

@@ -76,6 +76,7 @@ package org.bigbluebutton.main.model
 				var mod:ModuleDescriptor = new ModuleDescriptor(attributes);
 				_modules[item.@name] = mod;
 				_numModules++;
+				//LogUtil.debug("NAME!!!!!!!!!!!!!!!! " + item.@name);
 			}					
 		}
 		
@@ -109,7 +110,7 @@ package org.bigbluebutton.main.model
 				m.attributes.username = user.name;
 				m.attributes.userrole = user.role;
 				m.attributes.room = user.room;
-				m.attributes.authToken = user.authToken;		
+				m.attributes.authToken = user.authToken;	
 			}				
 		}
 		
@@ -128,13 +129,13 @@ package org.bigbluebutton.main.model
 			return null;	
 		}
 
-		public function loadModules():void {
+		/*public function loadModules():void {
 			LogUtil.debug('Loading all modules');
 			for (var key:Object in _modules) {
 				LogUtil.debug("["+ key + "," + _modules[key].attributes.url + "]");
 				loadModule(key as String);
 			}
-		}
+		}*/
 		
 		public function startModules(router:Router):void {
 			LogUtil.debug('Starting all modules');
