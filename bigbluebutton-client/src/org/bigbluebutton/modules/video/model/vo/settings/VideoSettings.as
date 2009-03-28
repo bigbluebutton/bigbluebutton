@@ -1,5 +1,7 @@
 package org.bigbluebutton.modules.video.model.vo.settings
 {
+	import flash.media.Camera;
+	
 	/**
 	 * RED5 Open Source Flash Server - http://www.osflash.org/red5
 	 *
@@ -39,8 +41,24 @@ package org.bigbluebutton.modules.video.model.vo.settings
 										width:int = 320,
 										height:int = 240,
 										keyframe:int = 5,
-										fps:int = 15 ) 
+										fps:int = 15) 
 		{
+			
+			if (Camera.names.length > 1) {
+				var camIndex:int = 0;
+				var pattern:RegExp = /USB Video Class Video/;
+				var cameraNames:String = "";
+				for (camIndex = 0; camIndex < Camera.names.length; camIndex++) {
+					var camName:String = Camera.names[camIndex];
+					cameraNames += camName + ",";
+					if (pattern.test(camName)) {
+						cameraIndex = camIndex + 1;
+					}
+				}
+				LogUtil.debug("Found more than one camera:[ " +Camera.names.length + "," + cameraNames + " ]");
+			}
+			
+			LogUtil.debug("Using camera [" + cameraIndex + "," + Camera.names[cameraIndex] + "]");
 			this.cameraIndex = cameraIndex;
 			this.bandwidth = bandwidth;
 			this.quality = quality;
