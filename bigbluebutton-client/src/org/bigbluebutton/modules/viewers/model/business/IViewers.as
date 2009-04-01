@@ -32,6 +32,6 @@ package org.bigbluebutton.modules.viewers.model.business
 		function getParticipant(id:Number):User;
 		function removeParticipant(userid:Number):void;
 		function removeAllParticipants():void;
-		function newUserStatus(id:Number, newStatus:Status):void;
+		function newUserStatus(id:Number, status:String, value:Object):void;
 	}
 }

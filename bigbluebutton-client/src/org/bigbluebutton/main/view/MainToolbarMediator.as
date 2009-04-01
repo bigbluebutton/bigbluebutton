@@ -41,8 +41,8 @@ package org.bigbluebutton.main.view
 		
 		override public function listNotificationInterests():Array{
 			return [
-					MainApplicationConstants.USER_LOGGED_IN,
-					MainApplicationConstants.USER_LOGGED_OUT,
+					MainApplicationConstants.USER_JOINED,
+					MainApplicationConstants.USER_LEFT,
 					MainApplicationConstants.ADD_BUTTON,
 					MainApplicationConstants.REMOVE_BUTTON			
 			];
@@ -50,11 +50,11 @@ package org.bigbluebutton.main.view
 		
 		override public function handleNotification(notification:INotification):void{
 			switch(notification.getName()){	
-				case MainApplicationConstants.USER_LOGGED_IN:
-					toolbar.loggedIn(notification.getBody().username, notification.getBody().room, notification.getBody().userrole);
+				case MainApplicationConstants.USER_JOINED:
+					toolbar.loggedIn(notification.getBody().username, notification.getBody().conference, notification.getBody().userrole);
 					toolbar.visible = true;
 					break;
-				case MainApplicationConstants.USER_LOGGED_OUT:
+				case MainApplicationConstants.USER_LEFT:
 					toolbar.visible = false;
 					break;
 				case MainApplicationConstants.ADD_BUTTON:

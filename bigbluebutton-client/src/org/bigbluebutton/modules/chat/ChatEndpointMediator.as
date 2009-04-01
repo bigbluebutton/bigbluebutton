@@ -78,7 +78,8 @@ package org.bigbluebutton.modules.chat
 				case ChatModuleConstants.DISCONNECTED:
 					LogUtil.debug('Sending Chat MODULE_STOPPED message to main');
 					facade.sendNotification(ChatModuleConstants.CLOSE_WINDOW);
-					var info:Object = notification.getBody();
+					//var info:Object = notification.getBody();
+					var info:Object = new Object()
 					info["moduleId"] = _module.moduleId
 					_endpoint.sendMessage(EndpointMessageConstants.MODULE_STOPPED, 
 							EndpointMessageConstants.TO_MAIN_APP, info);

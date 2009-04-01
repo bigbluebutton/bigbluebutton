@@ -30,6 +30,7 @@ package org.bigbluebutton.modules.presentation.view
 	import org.bigbluebutton.modules.presentation.PresentModuleConstants;
 	import org.bigbluebutton.modules.presentation.controller.ZoomSlideCommand;
 	import org.bigbluebutton.modules.presentation.controller.notifiers.ZoomNotifier;
+	import org.bigbluebutton.modules.presentation.model.Slide;
 	import org.bigbluebutton.modules.presentation.model.SlideProxy;
 	import org.bigbluebutton.modules.presentation.model.business.PresentProxy;
 	import org.bigbluebutton.modules.presentation.view.components.FileUploadWindow;
@@ -223,7 +224,7 @@ package org.bigbluebutton.modules.presentation.view
 				_presWin.slideNumLbl.text = (slidenum + 1) + " of " + _presWin.slideView.slides.length;
 				
 				var slideProxy:SlideProxy = facade.retrieveProxy(SlideProxy.NAME) as SlideProxy;
-				slideProxy.load(slidenum, _presWin.slideView.slides.getItemAt(slidenum) as String);
+				slideProxy.load(_presWin.slideView.slides.getItemAt(slidenum) as Slide);
 				
 				if (slidenum == 0) {
 					_presWin.backButton.enabled = false;

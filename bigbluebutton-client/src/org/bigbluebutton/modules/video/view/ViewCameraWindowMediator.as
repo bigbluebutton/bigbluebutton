@@ -54,7 +54,8 @@ package org.bigbluebutton.modules.video.view
 			LogUtil.debug('Got notification ' + notification.getName() + " for VIEWCAMMEDIATOR");
 			switch(notification.getName()){
 				case VideoModuleConstants.PLAY_STREAM:
-					var streamName:String = notification.getBody().streamName;			
+					var streamName:String = notification.getBody().streamName;		
+					LogUtil.debug("streamName=" + streamName + " our stream=" + _stream);	
 					if (streamName != _stream) return;
 								
 					proxy.createPlayMedia(streamName);

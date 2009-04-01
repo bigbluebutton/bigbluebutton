@@ -18,16 +18,9 @@ package org.bigbluebutton.modules.presentation.model
 			_slides = new Object();
 		}
 		
-		public function load(slideNum:Number, uri:String):void {
-			var s:Slide = _slides[slideNum] as Slide;
-			
-			if (s == null) {
-				var n:Slide = new Slide(slideNum, uri);
-				_slides[slideNum] = n;
-				n.load(slideLoadListener);
-			} else {
-				s.load(slideLoadListener);
-			}
+		public function load(slide:Slide):void {
+			_slides[slide.slideNumber] = slide;
+			slide.load(slideLoadListener);
 		}
 		
 		public function clear():void {

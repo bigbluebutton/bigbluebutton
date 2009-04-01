@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MDIWindow xmlns="flexlib.mdi.containers.*" 
+	       xmlns:mx="http://www.adobe.com/2006/mxml" 
+	       width="300" height="300" showCloseButton="false"
+	       creationComplete="init()"
+	       implements="org.bigbluebutton.common.IBbbModuleWindow">
+
+	<mx:Script>
+<![CDATA[
+	import org.bigbluebutton.modules.phone.view.components.Images;
+	import flash.net.NetConnection;
+	import flash.external.*;
+
+	[Bindable]
+	private var netConnection:NetConnection = null;
+	private var incomingNetStream:NetStream = null;
+	private var outgoingNetStream:NetStream = null;
+				
+	private var _xPosition:int;
+	private var _yPosition:int;
+
+	private var isConnected:Boolean = false;
+	private var mic:Microphone = null;
+	public var red5URL:String = "rtmp:localhost/sip";
+	public var username:String = "201";
+	public var password:String = "";
+	public var realm:String = "192.168.0.101";
+	public var server:String = "192.168.0.101";
+
+//	public var username:String = "1002";
+//	public var password:String = "ff3j";
+//	public var realm:String = "134.117.254.226";
+//	public var server:String = "134.117.254.226";
+
+	public var confRoom:String = "85115";
+	
+	private var images:Images = new Images();
+	[Bindable] private var call_icon:Class = images.phone_sound_icon;
+	[Bindable] private var stop_icon:Class = images.stop;
+	
+				
+	private function init():void {
+		simpleLabel.text="Waiting....."
+		
+		initMicrophone();			
+
+		NetConnection.defaultObjectEncoding = flash.net.ObjectEncoding.AMF0;	
+		netConnection = new NetConnection();
+		netConnection.objectEncoding = ObjectEncoding.AMF0;
+		netConnection.client = this;
+		netConnection.addEventListener( NetStatusEvent.NET_STATUS , netStatus );
+		netConnection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);		
+	
+		connect();
+		register();
+		register();
+	}
+
+	private function connect():void {
+		//netConnection.connect(txtRed5URL.text);
+		netConnection.connect(red5URL);
+	}
+
+	private function register():void {
+		netConnection.call("register", null,username);
+	}
+
+	private function initMicrophone():void {
+		mic = Microphone.getMicrophone();
+
+		if(mic == null){
+			trace("No available microphone");
+		} else {
+			mic.setUseEchoSuppression(true);
+			mic.setLoopBack(false);
+			mic.setSilenceLevel(10);
+			mic.gain = 60;
+			mic.rate = 8;
+			mic.addEventListener(ActivityEvent.ACTIVITY, micActivityHandler);
+			mic.addEventListener(StatusEvent.STATUS, micStatusHandler);
+		}
+	}							
+
+	public function setUsername(user:String):void {
+		username=user;
+	}
+	public function setPassword(pass:String):void {
+		password=pass;
+	}
+	public function setConfRoom(conf:String):void {
+		confRoom=conf;
+	}
+
+	private function micActivityHandler(event:ActivityEvent):void {
+		//simpleLabel.text= "activityHandler: " + event;
+	}
+
+
+	private function micStatusHandler(event:StatusEvent):void {		
+		switch(event.code) {
+
+		case "Microphone.Muted":
+			break;
+		case "Microphone.Unmuted":
+			break;
+		default:
+			trace("unknown micStatusHandler event: " + event);
+		}
+	}
+
+
+	private function netStatus (evt:NetStatusEvent ):void {		    	
+		switch(evt.info.code) {
+		
+		case "NetConnection.Connect.Success":
+			simpleLabel.text="Connection success!"; 
+			netConnection.call("login", null, username, password, realm, server);										
+			break;
+
+		case "NetConnection.Connect.Failed":
+			simpleLabel.text="Failed to connect";
+			break;
+
+		case "NetConnection.Connect.Rejected":
+			simpleLabel.text="Rejected";
+			break;
+
+		case "NetStream.Play.StreamNotFound":
+			simpleLabel.text="No Stream";
+			break;
+
+		case "NetStream.Play.Failed":
+			simpleLabel.text="Play error";
+			netConnection.call("streamStatus", null, username, "failed");			
+			break;
+			
+		case "NetStream.Play.Start":		
+			simpleLabel.text="Play start";
+			netConnection.call("streamStatus", null, username, "start");
+			
+			break;
+		case "NetStream.Play.Stop":			
+			simpleLabel.text="Play stop";
+			netConnection.call("streamStatus", null, username, "stop");						
+			break;
+			
+		case "NetStream.Buffer.Full":
+			break;
+
+		default:
+			simpleLabel.text= evt.info.code;
+		}		    	
+
+	}
+
+        private function asyncErrorHandler(event:AsyncErrorEvent):void {
+            // ignore AsyncErrorEvent events.
+        }
+        
+
+        private function securityErrorHandler(event:SecurityErrorEvent):void {
+            	simpleLabel.text= "securityErrorHandler: " + event;
+        }
+        
+        
+	public function callState(msg:String):* {
+		simpleLabel.text="Call State = " + msg;
+
+		if (msg == "onUaCallClosed" || msg == "onUaCallCancelled" || msg == "onUaCallFailed") {
+			incomingNetStream.play(false); 
+			outgoingNetStream.attachAudio(null);
+//			outgoingNetStream.publish(false);
+			
+			isConnected = false;
+		}
+	}
+	
+
+	public function incoming(source:String, sourceName:String, destination:String, destinationName:String):*  {
+		simpleLabel.text= "Incoming Call : " + (sourceName == "" ? source : sourceName);
+	}
+	
+
+	public function connected(publishName:String, playName:String):* {
+		simpleLabel.text= "Connected Call: " + publishName;
+		
+		incomingNetStream = new NetStream(netConnection);
+		var client1:Object = new Object(); 
+		client1.onMetaData = onMetaData; 
+		client1.onBWDone = onBWDone; 		
+		incomingNetStream.client = client1;		
+		incomingNetStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
+		incomingNetStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
+
+		outgoingNetStream = new NetStream(netConnection);
+		var client2:Object = new Object(); 
+		client2.onMetaData = onMetaData; 
+		client2.onBWDone = onBWDone; 		
+		outgoingNetStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
+		outgoingNetStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);			
+		outgoingNetStream.attachAudio(mic);
+
+		incomingNetStream.play(playName); 
+		outgoingNetStream.publish(publishName, "live"); 	
+		
+		isConnected = true;
+		
+	}
+
+
+	public function registrationSucess(msg:String):* {
+		simpleLabel.text="Reg. Sucess = " + msg;
+	}
+
+
+	public function registrationFailure(msg:String):* {
+		simpleLabel.text="Reg. Failure = " + msg;
+	}
+
+
+	public function doCall():void {
+		register();
+		netConnection.call("call", null, username, confRoom);
+
+	}
+
+	//This is used to dial an external phone number
+	public function doPhoneCall():void { 
+		if (txtInput.text != "") {
+			netConnection.call("call", null, username, txtInput.text);
+			txtInput.text = "";
+		} else {
+		simpleLabel.text = "Please enter a phone number"; 
+		}
+	}
+
+	public function doHangUp():void {
+		netConnection.call("hangup", null, username);		
+	}		
+
+
+	public function doAccept():void {
+		netConnection.call("accept", null, username);			
+	}
+	
+	private function onMetaData(obj:Object):void {
+
+	}
+
+	private function onBWDone(obj:Object):void {
+
+	}					
+			
+			public function get xPosition():int {
+				return _xPosition;
+			}
+			
+			public function get yPosition():int {
+				return _yPosition;
+			}
+			
+			public function set xPosition(x:int):void {
+				_xPosition = x;
+			}
+			
+			public function set yPosition(y:int):void {
+				_yPosition = y;
+			}
+            
+
+		]]>
+	</mx:Script>
+	<mx:Canvas width="100%" height="100%">
+	<mx:Button icon="{call_icon}" id="cmdCall" click="doCall();" x="15" width="65" y="23" toolTip="Make Call"/>
+	<mx:Button icon="{stop_icon}" id="cmdHangUp" click="doHangUp();" x="99" width="65" y="23" toolTip="End Call"/>
+	<mx:Label x="10" y="54" id="simpleLabel" fontSize="8" text=""/>
+	
+	<mx:TextInput x="10" y="100" width="100" text="9" id="txtInput" fontSize="10" height="22"/>
+	<mx:Button x="10" y="125" label="Call" id="cmdPhoneCall" click="doPhoneCall();" width="90" fontSize="9" height="20"/>
+	</mx:Canvas>
+</MDIWindow>

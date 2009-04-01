@@ -20,6 +20,8 @@
 package org.bigbluebutton.modules.listeners.view
 {
 	import flash.events.Event;
+	import flash.media.Sound;
+	import flash.net.URLRequest;
 	
 	import org.bigbluebutton.modules.listeners.ListenersModuleConstants;
 	import org.bigbluebutton.modules.listeners.model.ListenersProxy;
@@ -44,6 +46,7 @@ package org.bigbluebutton.modules.listeners.view
 		
 		private var _module:ListenersModule;
 		private var _listenersWindow:ListenersWindow;
+		private var _recordedAudio:Sound;
 		
 		public function ListenersWindowMediator(module:ListenersModule)
 		{
@@ -87,7 +90,9 @@ package org.bigbluebutton.modules.listeners.view
 					ListenersModuleConstants.OPEN_WINDOW,
 					ListenersModuleConstants.CLOSE_WINDOW,
 					ListenersModuleConstants.USER_MUTE_NOTIFICATION,
-					ListenersModuleConstants.USER_TALKING_NOTIFICATION
+					ListenersModuleConstants.USER_TALKING_NOTIFICATION,
+					ListenersModuleConstants.FIRST_LISTENER_JOINED_EVENT,
+					ListenersModuleConstants.CONVERTED_RECORDED_MP3_EVENT
 					];
 		}
 			
@@ -95,6 +100,13 @@ package org.bigbluebutton.modules.listeners.view
 			switch(notification.getName()){
 				case ListenersModuleConstants.OPEN_WINDOW:
 					handleOpenListenersWindow();
+					break;
+				case ListenersModuleConstants.CONVERTED_RECORDED_MP3_EVENT:
+					/** If PLAYBACK, pre-load the recorded audio */
+					if (_module.mode == 'PLAYBACK') {
+						LogUtil.debug("Loading recorded audio " + _module.recordedMP3Url);
+						_recordedAudio = new Sound(	new URLRequest(_module.recordedMP3Url));
+					}					
 					break;
 				case ListenersModuleConstants.CLOSE_WINDOW:
 					facade.sendNotification(ListenersModuleConstants.REMOVE_WINDOW, _listenersWindow);
@@ -108,6 +120,9 @@ package org.bigbluebutton.modules.listeners.view
 					var uid:Number = notification.getBody().userid as Number;
 					var talk:Boolean = notification.getBody().talk as Boolean;
 					handleUserTalkingNotification(uid, talk);
+					break;
+				case ListenersModuleConstants.FIRST_LISTENER_JOINED_EVENT:
+					_recordedAudio.play();
 					break;
 			}
 		}

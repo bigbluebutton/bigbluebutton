@@ -10,57 +10,93 @@ package org.bigbluebutton.main.model
 	
 	public class ModuleDescriptor
 	{
-		public var attributes:Object;
-		public var loader:ModuleLoader;
-		public var module:IBigBlueButtonModule;
-		public var loaded:Boolean = false;
-		public var started:Boolean = false;
-		public var connected:Boolean = false;
-		
+		private var _attributes:Object;
+		private var _loader:ModuleLoader;
+		private var _module:IBigBlueButtonModule;
+		private var _loaded:Boolean = false;
+		private var _started:Boolean = false;
+		private var _connected:Boolean = false;
+				
 		private var callbackHandler:Function;
 		
-		public function ModuleDescriptor(attributes:Object)
+		public function ModuleDescriptor(attributes:XML)
 		{
-			this.attributes = attributes;
+			_attributes = new Object();
+			_loader = new ModuleLoader();
 			
-			loader = new ModuleLoader();
+			parseAttributes(attributes);			
 		}
 
+		public function addAttribute(attribute:String, value:Object):void {
+			_attributes[attribute] = value;
+		}
+		
+		public function getAttribute(name:String):Object {
+			return _attributes[name];
+		}
+		
+		public function get attributes():Object {
+			return _attributes;
+		}
+		
+		public function get module():IBigBlueButtonModule {
+			return _module;
+		}
+		
+		public function get loaded():Boolean {
+			return _loaded;
+		}
+		
+		public function set started(value:Boolean):void {
+			_started = value;
+		}
+		
+		private function parseAttributes(item:XML):void {
+			var attNamesList:XMLList = item.@*;
+
+			for (var i:int = 0; i < attNamesList.length(); i++)
+			{ 
+			    var attName:String = attNamesList[i].name();
+			    var attValue:String = item.attribute(attName);
+			    _attributes[attName] = attValue;
+			} 
+		}
+		
+		
 		public function load(resultHandler:Function):void {
 			callbackHandler = resultHandler;
 //			loader.addEventListener("urlChanged", resultHandler);
 //			loader.addEventListener("loading", resultHandler);
-			loader.addEventListener("progress", onLoadProgress);
+			_loader.addEventListener("progress", onLoadProgress);
 //			loader.addEventListener("setup", resultHandler);
-			loader.addEventListener("ready", onReady);
+			_loader.addEventListener("ready", onReady);
 //			loader.addEventListener("error", resultHandler);
 //			loader.addEventListener("unload", resultHandler);
-			loader.url = attributes.url;
-			loader.loadModule();
+			_loader.url = _attributes.url;
+			_loader.loadModule();
 		}
 		
 		public function unload():void {
-			loader.url = "";
+			_loader.url = "";
 		}
 
 		private function onReady(event:Event):void {
 			LogUtil.debug("Module onReady Event");
-			var loader:ModuleLoader = event.target as ModuleLoader;
-			module = loader.child as IBigBlueButtonModule;
-			if (module != null) {
-				LogUtil.debug("Module " + attributes.name + " has been loaded");
-				loaded = true;
+			var modLoader:ModuleLoader = event.target as ModuleLoader;
+			_module = modLoader.child as IBigBlueButtonModule;
+			if (_module != null) {
+				LogUtil.debug("Module " + _attributes.name + " has been loaded");
+				_loaded = true;
+				callbackHandler(MainApplicationConstants.MODULE_LOAD_READY, _attributes.name);
+			} else {
+				LogUtil.error("Module loaded is null.");
 			}
-			callbackHandler(MainApplicationConstants.MODULE_LOAD_READY, attributes.name);
+			
 		}	
 
 		private function onLoadProgress(e:ProgressEvent):void {
-			//var loader:ModuleLoader = e.target as ModuleLoader;
-			//module = loader.child as IBigBlueButtonModule;
-			//if (module != null) {
-				callbackHandler(MainApplicationConstants.MODULE_LOAD_PROGRESS, attributes.name, Math.round((e.bytesLoaded/e.bytesTotal) * 100));
-			//}
-			
+			callbackHandler(MainApplicationConstants.MODULE_LOAD_PROGRESS, 
+					_attributes.name, Math.round((e.bytesLoaded/e.bytesTotal) * 100));
 		}	
 		
 /*

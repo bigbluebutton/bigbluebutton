@@ -13,5 +13,6 @@ package org.bigbluebutton.modules.presentation.model.business
 		function zoom(slideHeight:Number, slideWidth:Number):void;
 		function move(slideXPosition:Number, slideYPosition:Number):void;
 		function getCurrentSlideNumber():void;
+		function assignPresenter(userid:Number, name:String, assignedBy:Number):void;
 	}
 }

@@ -25,7 +25,7 @@ package org.bigbluebutton.main
 		}
 
 		override public function setUp():void { 
-			manager = new BbbModuleManager(); 
+			manager = new BbbModuleManager(null, null); 
 		}  
 		
 		override public function tearDown():void {  } 
@@ -41,8 +41,7 @@ package org.bigbluebutton.main
    		public function testParseModuleXml():void {   			
    				manager.parse(new XML(xmlString));
    				assertTrue( "Number of modules is 4", manager.numberOfModules == 4);
-   				var m:ModuleDescriptor = manager.getModule('ChatModule');
-				assertTrue( "There should be a ChatModule", m != null);
+				assertTrue( "There should be a ChatModule", manager.hasModule('ChatModule'));
    		}
 
 	}

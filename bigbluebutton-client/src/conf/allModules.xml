@@ -11,5 +11,5 @@
 	<module name="PresentationModule" swfpath="org/bigbluebutton/modules/presentation/PresentationModule.swf" />
 	<module name="VideoModule" swfpath="org/bigbluebutton/modules/video/VideoModule.swf" />
 	<module name="VoiceModule" swfpath="org/bigbluebutton/modules/voiceconference/VoiceModule.swf" />
-
+	<!--module name="JoinModule" url="JoinModule.swf" uri="http://localhost:8080/bigbluebutton/join/enter" /-->
 </modules>

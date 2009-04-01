@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+    title="Presentations"
+    x="168" y="86" layout="absolute" width="500" height="292">
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.modules.presentation.view.FileUploadWindowMediator;
+		]]>
+	</mx:Script>
+	
+	<mx:Button id="uploadBtn" label="Upload" toolTip="Upload another presentation."  
+		click="dispatchEvent(new Event(FileUploadWindowMediator.START_UPLOAD))" enabled="false"
+		icon="@Embed('../assets/bullet_go.png')" x="320" y="28"/>
+		
+	<mx:DataGrid x="10" y="10" height="196">
+		<mx:columns>
+			<mx:DataGridColumn headerText="Column 1" dataField="col1"/>
+			<mx:DataGridColumn headerText="Column 2" dataField="col2"/>
+			<mx:DataGridColumn headerText="Column 3" dataField="col3"/>
+		</mx:columns>
+	</mx:DataGrid>
+	
+	<mx:ControlBar horizontalAlign="center" verticalAlign="middle" x="0" y="130">
+		<mx:Spacer width="100%"/>
+		<mx:Button id="okCancelBtn" label="Cancel" click="dispatchEvent(new Event(FileUploadWindowMediator.CLOSE_UPLOAD_WINDOW))"/>
+	</mx:ControlBar>	
+</mx:TitleWindow> 

@@ -25,7 +25,6 @@ package org.bigbluebutton.main.controller
 	import org.bigbluebutton.main.view.MainApplicationShellMediator;
 	import org.bigbluebutton.main.view.MainToolbarMediator;
 	import org.bigbluebutton.main.view.components.MainApplicationShell;
-	import org.bigbluebutton.modules.video.VideoModuleConstants;
 	import org.puremvc.as3.multicore.interfaces.ICommand;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.command.SimpleCommand;
@@ -42,9 +41,10 @@ package org.bigbluebutton.main.controller
 			facade.registerMediator( new MainApplicationShellMediator( app ) );		
 			facade.registerMediator( new MainToolbarMediator(app.toolbar));	
 			facade.registerMediator(new MainApplicationMediator());
-			facade.registerMediator(new MainEndpointMediator());
-			facade.registerProxy(new ModulesProxy());
-			sendNotification(VideoModuleConstants.CONNECTED);
+			var med:MainEndpointMediator = new MainEndpointMediator();
+			facade.registerMediator(med);
+			LogUtil.debug("StartupCommand mode=" + app.mode);
+			facade.registerProxy(new ModulesProxy(med.router, app.mode));
 		}		
 	}
 }

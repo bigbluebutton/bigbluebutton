@@ -79,7 +79,10 @@ package org.bigbluebutton.modules.presentation.view
 		private function startUpload(e:Event):void{
 			LogUtil.debug("In startUpload()...")
 			var proxy:PresentProxy = facade.retrieveProxy(PresentProxy.NAME) as PresentProxy;
-			proxy.uploadPresentation(fileToUpload);
+			/* Hardocde presentationName to "default" for now since we only support one presentation at a time.
+			* We need to remove it later when we implement ability to pre-upload several presentations.
+			*/
+			proxy.uploadPresentation("default", fileToUpload);
 			_fileWin.progBarLbl.visible = true;
 			_fileWin.progressBar.visible = true;
 			

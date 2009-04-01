@@ -19,7 +19,6 @@
 */
 package org.bigbluebutton.main
 {
-	import org.bigbluebutton.main.controller.InitializeModelCommand;
 	import org.bigbluebutton.main.controller.StartupCommand;
 	import org.bigbluebutton.main.view.components.MainApplicationShell;
 	import org.puremvc.as3.multicore.interfaces.IFacade;
@@ -34,14 +33,7 @@ package org.bigbluebutton.main
 	{
 		public static const NAME:String = "MainApplicationFacade";
 		
-		// Notification constants 
 		public static const STARTUP:String = 'startup';
-		public static const ADD_WINDOW1:String = 'addWindow';
-		public static const REMOVE_WINDOW1:String = 'removeWindow';
-		
-		public static const ADD_MODULE:String = "Add New Module";
-		public static const START_ALL_MODULES:String = "Start all Modules";
-		public static const MODULES_STARTED:String = "Modules Started";
 		
 		public function MainApplicationFacade(key:String)
 		{
@@ -64,7 +56,6 @@ package org.bigbluebutton.main
         {
             super.initializeController();            
             registerCommand( STARTUP, StartupCommand );
-            registerCommand(MainApplicationConstants.APP_MODEL_INITIALIZE, InitializeModelCommand);
         }
         
         /**

@@ -58,5 +58,11 @@ package org.bigbluebutton.modules.listeners
 		public static const MUTE_EVENT:String = "MUTE_EVENT";
 			
 		public static const EJECT_LISTENER_EVENT:String = "EJECT_LISTENER_EVENT";
+		
+		// THis is an event we send when the first listener joins the conference during playback.
+		// We use this as a trigger to start playing the recorded audio. This is just a prototype.
+		// Need to figure out how to play audio properly with synch. (ralam - march 26, 2009)
+		public static const FIRST_LISTENER_JOINED_EVENT:String = "FIRST_LISTENER_JOINED_EVENT";
+		public static const CONVERTED_RECORDED_MP3_EVENT:String = "CONVERTED_RECORDED_MP3_EVENT";
 	}
 }

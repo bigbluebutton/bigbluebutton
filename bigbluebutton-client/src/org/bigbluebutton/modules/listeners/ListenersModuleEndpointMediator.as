@@ -1,6 +1,5 @@
 package org.bigbluebutton.modules.listeners
 {
-	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.common.messaging.Endpoint;
 	import org.bigbluebutton.common.messaging.EndpointMessageConstants;
 	import org.bigbluebutton.common.messaging.Router;
@@ -14,13 +13,13 @@ package org.bigbluebutton.modules.listeners
 	{
 		public static const NAME:String = "ListenersModuleEndpointMediator";
 		
-		private var _module:IBigBlueButtonModule;
+		private var _module:ListenersModule;
 		private var _router:Router;
 		private var _endpoint:Endpoint;		
 		private static const TO_LISTENERS_MODULE:String = "TO_LISTENERS_MODULE";
 		private static const FROM_LISTENERS_MODULE:String = "FROM_LISTENERS_MODULE";
 			
-		public function ListenersModuleEndpointMediator(module:IBigBlueButtonModule)
+		public function ListenersModuleEndpointMediator(module:ListenersModule)
 		{
 			super(NAME,module);
 			_module = module;
@@ -52,6 +51,15 @@ package org.bigbluebutton.modules.listeners
 					LogUtil.debug(NAME + ":Sending MODULE_STARTED message to main");
 					_endpoint.sendMessage(EndpointMessageConstants.MODULE_STARTED, 
 							EndpointMessageConstants.TO_MAIN_APP, _module.moduleId);
+					
+					/**
+					 * Call the server to convert the recorded audio to MP3.
+					 * NOTE: THis is just a hack...need to do this properly. (ralam - march 26, 2009)
+					 */
+					if (_module.mode == 'PLAYBACK') {
+						proxy.convertRecodingToMp3();
+					}
+					
 					facade.sendNotification(ListenersModuleConstants.OPEN_WINDOW);
 					break;
 				case ListenersModuleConstants.DISCONNECTED:

@@ -34,7 +34,10 @@ package org.bigbluebutton.common.messaging
 		public static const ADD_BUTTON:String = 'ADD_BUTTON';
 		public static const REMOVE_BUTTON:String = 'REMOVE_BUTTON';
 		
-		public static const USER_LOGIN:String = 'USER_LOGIN';
+		public static const LOGIN_SUCCESS:String = 'LOGIN_SUCCESS';
+		public static const LOGIN_FAILED:String = 'LOGIN_FAILED';
+		public static const USER_JOINED:String = 'USER_JOINED';
+		public static const JOIN_FAILED:String = 'JOIN_FAILED';
 		public static const USER_LOGGED_IN:String = 'USER_LOGGED_IN'
 		public static const USER_LOGOUT:String = 'USER_LOGOUT';
 		public static const USER_LOGGED_OUT:String = 'USER_LOGGED_OUT';

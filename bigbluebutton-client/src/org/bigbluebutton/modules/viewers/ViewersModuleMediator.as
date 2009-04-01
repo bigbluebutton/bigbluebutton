@@ -90,16 +90,14 @@ package org.bigbluebutton.modules.viewers
 		 * 
 		 */		
 		override public function handleNotification(notification:INotification):void{
-			switch(notification.getName()){
+			switch(notification.getName()) {
 				case ViewersModuleConstants.LOGGED_OUT:
 					sendNotification(ViewersModuleConstants.CLOSE_VIEWERS_WINDOW);
-					sendNotification(ViewersModuleConstants.OPEN_JOIN_WINDOW);
 					if (facade.hasMediator(ViewersWindowMediator.NAME)) {
 						facade.removeMediator(ViewersWindowMediator.NAME); 
 					}					
 					break;
 				case ViewersModuleConstants.LOGGED_IN:
-					sendNotification(ViewersModuleConstants.CLOSE_JOIN_WINDOW);
 					if (! facade.hasMediator(ViewersWindowMediator.NAME)) {
 						facade.registerMediator(new ViewersWindowMediator()); 
 					}

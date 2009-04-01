@@ -29,6 +29,14 @@ package org.bigbluebutton.main
    		}		
 
 		public function testLoadModule():void {
+			var obj:Object = new Object();
+			obj["test"] = true;
+			assertTrue("There should be a test property", obj.hasOwnProperty("test"));
+			var x:* = obj.test2;
+			assertTrue("There should be no test2 property", x == undefined);
+			assertTrue("There should be no test2 property", x == null);
+			
+			
 //			manager.parse(new XML(xmlString));
 //			assertTrue( "There should be a ChatModule", manager.modules['ChatModule'].name == "ChatModule");
 //			manager.loadModule('ChatModule', resultHandler);

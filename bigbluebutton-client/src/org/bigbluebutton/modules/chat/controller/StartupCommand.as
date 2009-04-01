@@ -19,12 +19,11 @@
 */
 package org.bigbluebutton.modules.chat.controller
 {
-	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.modules.chat.ChatEndpointMediator;
+	import org.bigbluebutton.modules.chat.ChatModuleConstants;
 	import org.bigbluebutton.modules.chat.ChatModuleMediator;
 	import org.bigbluebutton.modules.chat.model.business.ChatProxy;
 	import org.bigbluebutton.modules.chat.view.ChatWindowMediator;
-	import org.bigbluebutton.modules.chat.view.components.ChatWindow;
 	import org.puremvc.as3.multicore.interfaces.ICommand;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.command.SimpleCommand;
@@ -37,7 +36,8 @@ package org.bigbluebutton.modules.chat.controller
 			facade.registerMediator(new ChatModuleMediator(m));
 			facade.registerMediator(new ChatEndpointMediator(m));
 			facade.registerMediator( new ChatWindowMediator(m) );
-			facade.registerProxy(new ChatProxy(m.uri));
+			facade.registerProxy(new ChatProxy(m));
+			sendNotification(ChatModuleConstants.CONNECTED);
 		}
 	}
 }

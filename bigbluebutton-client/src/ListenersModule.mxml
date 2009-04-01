@@ -14,6 +14,8 @@
 			
 			private var _attributes:Object;
 			
+			public var recordedMP3Url:String;
+			
 			private function onModuleCreationComplete():void {
 				LogUtil.debug("ListenersModule Initialized");			
 			}
@@ -44,6 +46,36 @@
 			
 			public function get userid():Number {
 				return _attributes.userid as Number;
+			}
+			
+			public function get role():String {
+				return _attributes.userrole as String;
+			}
+			
+			public function get room():String {
+				return _attributes.room;
+			}
+			
+			public function get conference():String {
+				return _attributes.conference;
+			}
+			
+			public function get connection():NetConnection {
+				return _attributes.connection;
+			}
+			
+			public function get mode():String {
+				if (_attributes.mode == null) {					
+					//_attributes.mode = "PLAYBACK"
+					_attributes.mode = "LIVE"
+					LogUtil.debug('Setting ListenersModule mode: ' + _attributes.mode);
+				}
+				LogUtil.debug('ListenersModule mode: ' + _attributes.mode);
+				return _attributes.mode;
+			}
+			
+			public function get recordingHost():String {
+				return _attributes.recordingHost;
 			}
 			
 			public function isModerator():Boolean {

@@ -33,13 +33,56 @@
 			private var logs:Logger = new Logger();
 			private var logWindow:LogWindow;
 			
+			// LIVE or PLAYBACK
+			private var _mode:String = 'LIVE';
+			
 			[Bindable] private var fullscreen_icon:Class = images.full_screen;
 			[Bindable] private var logs_icon:Class = images.logs;
-						
+			
+			public function get mode():String {
+				return _mode;
+			}
+			
+			private function parseString():void {
+				try {
+					// Remove everything before the question mark, including the question mark
+					var myPattern:RegExp = /.*\?/;
+					var s:String = ExternalInterface.call("window.location.search.substring", 1);
+					s = s.replace(myPattern, "");
+					
+					// Create an array of name=value Strings.
+					var params:Array = s.split("&");
+					
+					// Print the params that are in the array.
+					var keyStr:String;
+					var valueStr:String;
+					var paramObj:Object = params;
+					for (keyStr in paramObj) {
+						valueStr = String(paramObj[keyStr]);
+						LogUtil.debug("PARAMS: " + keyStr + ":" + valueStr + "\n");
+												
+						for (var i:int = 0; i < params.length; i++) {
+							var tempA:Array = params[i].split("=");
+							if (String(tempA[0]).toUpperCase() == 'MODE') {
+								if (String(tempA[1]).toUpperCase() == 'PLAYBACK') {
+									LogUtil.debug('Setting to PLAYBACK mode.');
+									_mode = 'PLAYBACK';
+								} else {
+									LogUtil.debug('Setting to LIVE mode.');
+									_mode = 'LIVE';
+								}
+							}
+						}
+					}
+				}catch(e:Error) {
+					trace(e);
+				}
+			}	
 			protected function initializeShell():void
 			{				
 				logWindow = new LogWindow();
 				logWindow.logs = logs;
+				parseString();
 				
 				facade.startup(this);
 			}		

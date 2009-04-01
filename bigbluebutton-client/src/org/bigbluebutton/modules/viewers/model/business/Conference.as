@@ -134,24 +134,14 @@ package org.bigbluebutton.modules.viewers.model.business
 		{
 			users.removeAll();
 		}		
-
-		/**
-		 * Change the status of the user 
-		 * @param id
-		 * @param newStatus
-		 * 
-		 */		
-		public function newUserStatus(id:Number, newStatus:Status):void
+	
+		public function newUserStatus(id:Number, status:String, value:Object):void
 		{
 			var aUser:User = getParticipant(id);
 			
 			if (aUser != null) {
-				var s:Status = aUser.getStatus(newStatus.name);
-				if (s != null) {
-					aUser.changeStatus(newStatus);
-				} else {
-					aUser.addStatus(newStatus);
-				}
+				var s:Status = new Status(status, value);
+				aUser.changeStatus(s);
 			}	
 			
 			sort();		
@@ -161,7 +151,7 @@ package org.bigbluebutton.modules.viewers.model.business
 		 * Sorts the users by name 
 		 * 
 		 */		
-		private function sort() : void
+		private function sort():void
 		{
 			users.source.sortOn("name", Array.CASEINSENSITIVE);	
 			users.refresh();				

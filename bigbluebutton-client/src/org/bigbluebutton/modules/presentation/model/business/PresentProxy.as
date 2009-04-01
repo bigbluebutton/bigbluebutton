@@ -29,11 +29,10 @@ package org.bigbluebutton.modules.presentation.model.business
 		{
 			super(NAME);
 			_module = module as PresentationModule;
-			connect();
 		}
 
 		public function connect():void {
-			_presentService = new PresentSOService(_module.uri, _slides);
+			_presentService = new PresentSOService(_module, _slides);
 			_presentService.addConnectionStatusListener(connectionStatusListener);
 			_presentService.addMessageSender(messageSender);
 			manualDisconnect = false;
@@ -83,29 +82,36 @@ package org.bigbluebutton.modules.presentation.model.business
 		 * @param fileToUpload - A FileReference class of the file we wish to upload
 		 * 
 		 */		
-		public function uploadPresentation(fileToUpload:FileReference) : void
+		public function uploadPresentation(presentationName:String, fileToUpload:FileReference) : void
 		{
 			LogUtil.debug("PresentationApplication::uploadPresentation()... ");
-			var fullUri : String = _module.host + "/bigbluebutton/file/upload";
+			var fullUri:String = _module.host + "/bigbluebutton/presentation/upload";
 						
-			var service:FileUploadService = new FileUploadService(fullUri, _module.room);
+			var service:FileUploadService = new FileUploadService(fullUri, presentationName, _module.conference, _module.room);
 			service.addProgressListener(uploadProgressListener);
 			LogUtil.debug("using  FileUploadService..." + fullUri);
-			service.upload(fileToUpload);
+			service.upload(presentationName, fileToUpload);
 		}
 
+		public function assignPresenter(assignTo:Number, name:String):void {
+			_presentService.assignPresenter(assignTo, name, _module.userid);
+		}
+		
 		/**
 		 * Loads a presentation from the server. creates a new PresentationService class 
 		 * 
 		 */		
 		public function loadPresentation() : void
 		{
-			var fullUri : String = _module.host + "/bigbluebutton/file/xmlslides?room=" + _module.room;	
+			/* HArdcode from now the presentation name to "default".*/
+			var fullUri : String = _module.host + "/bigbluebutton/presentation/default/slides";	
+			var slideUri:String = _module.host + "/bigbluebutton/presentation/default";
+			
 			LogUtil.debug("PresentationApplication::loadPresentation()... " + fullUri);
 
 			var service:PresentationService = new PresentationService();
 			service.addLoadPresentationListener(loadPresentationListener);
-			service.load(fullUri, _slides);
+			service.load(fullUri, _slides, slideUri);
 			LogUtil.debug('number of slides=' + _slides.size());
 		}	
 		

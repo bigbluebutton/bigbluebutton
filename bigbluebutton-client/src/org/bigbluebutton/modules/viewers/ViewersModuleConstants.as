@@ -33,6 +33,9 @@ package org.bigbluebutton.modules.viewers
 		public static const CONNECTED:String 					= "connected to server";
 		public static const DISCONNECTED:String 				= "disconnected from server";
 		
+		public static const JOIN_FAILED:String 					= 'JOIN_FAILED';
+		public static const JOIN_SUCCESS:String 				= 'JOIN_SUCCESS';
+		
 		public static const LOGIN_FAILED:String 				= 'LOGIN_FAILED';
 		public static const LOGGED_IN:String 					= 'LOGGED_IN';
 		public static const LOGGED_OUT:String 					= 'LOGGED_OUT';

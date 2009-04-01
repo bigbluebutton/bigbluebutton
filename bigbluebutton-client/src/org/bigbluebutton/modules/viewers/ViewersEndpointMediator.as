@@ -14,7 +14,7 @@ package org.bigbluebutton.modules.viewers
 	{
 		public static const NAME:String = "ViewersEndpointMediator";
 		
-		private var _module:IBigBlueButtonModule;
+		private var _module:ViewersModule;
 		private var _router:Router;
 		private var _endpoint:Endpoint;		
 		private static const TO_VIEWERS_MODULE:String = "TO_VIEWERS_MODULE";
@@ -23,7 +23,7 @@ package org.bigbluebutton.modules.viewers
 		private static const PLAYBACK_MESSAGE:String = "PLAYBACK_MESSAGE";
 		private static const PLAYBACK_MODE:String = "PLAYBACK_MODE";
 				
-		public function ViewersEndpointMediator(module:IBigBlueButtonModule)
+		public function ViewersEndpointMediator(module:ViewersModule)
 		{
 			super(NAME,module);
 			_module = module;
@@ -40,8 +40,8 @@ package org.bigbluebutton.modules.viewers
 		override public function listNotificationInterests():Array
 		{
 			return [
-				ViewersModuleConstants.LOGGED_OUT,
 				ViewersModuleConstants.LOGGED_IN,
+				ViewersModuleConstants.LOGGED_OUT,
 				ViewersModuleConstants.STARTED,
 				ViewersModuleConstants.CONNECTED,
 				ViewersModuleConstants.DISCONNECTED,
@@ -56,21 +56,21 @@ package org.bigbluebutton.modules.viewers
 		override public function handleNotification(notification:INotification):void
 		{
 			switch(notification.getName()){
+				case ViewersModuleConstants.LOGGED_IN:
+					var user:Object = {username:_module.username, conference:_module.conference, 
+										userrole:_module.role, room:_module.room, authToken:_module.authToken,
+										userid:_module.userid, connection:proxy.connection};
+					_endpoint.sendMessage(EndpointMessageConstants.USER_JOINED,
+							EndpointMessageConstants.TO_MAIN_APP, user);
+					break;
 				case ViewersModuleConstants.LOGGED_OUT:
 					_endpoint.sendMessage(EndpointMessageConstants.USER_LOGGED_OUT,
 							EndpointMessageConstants.TO_MAIN_APP, "LOGGED_OUT"); // just send a string
-					break;
-				case ViewersModuleConstants.LOGGED_IN:
-					var user:Object = {userid:proxy.me.userid, username:proxy.me.name, 
-										userrole:proxy.me.role, room:proxy.me.room, authToken:proxy.me.authToken};					
-					_endpoint.sendMessage(EndpointMessageConstants.USER_LOGGED_IN,
-							EndpointMessageConstants.TO_MAIN_APP, user);
 					break;
 				case ViewersModuleConstants.STARTED:
 					LogUtil.debug("Sending Viewers MODULE_STARTED message to main");
 					_endpoint.sendMessage(EndpointMessageConstants.MODULE_STARTED, 
 							EndpointMessageConstants.TO_MAIN_APP, _module.moduleId);
-					facade.sendNotification(ViewersModuleConstants.OPEN_JOIN_WINDOW);
 					break;
 				case ViewersModuleConstants.DISCONNECTED:
 					LogUtil.debug('Sending Viewers MODULE_STOPPED message to main');

@@ -23,7 +23,6 @@ package org.bigbluebutton.modules.chat.view
 	
 	import org.bigbluebutton.modules.chat.ChatModuleConstants;
 	import org.bigbluebutton.modules.chat.model.business.ChatProxy;
-	import org.bigbluebutton.modules.chat.model.vo.*;
 	import org.bigbluebutton.modules.chat.view.components.ChatWindow;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
@@ -59,7 +58,7 @@ package org.bigbluebutton.modules.chat.view
 		{
 			var newMessage:String;			
 			newMessage = "<font color=\"#" + _chatWindow.cmpColorPicker.selectedColor.toString(16) + "\"><b>[" + 
-					_module.username +" - "+ time()+ "]</b> " + _chatWindow.txtMsg.text + "</font>";
+					_module.username +" - "+ time()+ "]</b> " + _chatWindow.txtMsg.text + "</font><br/>";
 			proxy.sendMessage(newMessage);
 			_chatWindow.txtMsg.text = "";
 		}
@@ -100,7 +99,6 @@ package org.bigbluebutton.modules.chat.view
 		   			_chatWindow.yPosition = 0;
 		   			facade.sendNotification(ChatModuleConstants.ADD_WINDOW, _chatWindow); 
 		   			_chatWindowOpen = true;
-		   			proxy.getChatTranscript();
 					break;
 			}
 		}

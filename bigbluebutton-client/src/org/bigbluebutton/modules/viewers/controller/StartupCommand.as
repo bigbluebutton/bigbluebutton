@@ -23,8 +23,6 @@ package org.bigbluebutton.modules.viewers.controller
 	import org.bigbluebutton.modules.viewers.ViewersModuleConstants;
 	import org.bigbluebutton.modules.viewers.ViewersModuleMediator;
 	import org.bigbluebutton.modules.viewers.model.ViewersProxy;
-	import org.bigbluebutton.modules.viewers.view.JoinWindowMediator;
-	import org.bigbluebutton.modules.viewers.view.ViewersWindowMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.command.SimpleCommand;
 	
@@ -41,10 +39,14 @@ package org.bigbluebutton.modules.viewers.controller
 			
 			facade.registerMediator(new ViewersModuleMediator(m));
 			facade.registerMediator(new ViewersEndpointMediator(m));
-			facade.registerMediator(new JoinWindowMediator(m));
-			facade.registerProxy(new ViewersProxy(m.uri));
+			facade.registerProxy(new ViewersProxy(m));
 			sendNotification(ViewersModuleConstants.STARTED);
+			LogUtil.debug("StartupCommand::" + m.username + "," + m.role);
+			proxy.join();
 		}
-
+		
+		private function get proxy():ViewersProxy {
+			return facade.retrieveProxy(ViewersProxy.NAME) as ViewersProxy;
+		}
 	}
 }

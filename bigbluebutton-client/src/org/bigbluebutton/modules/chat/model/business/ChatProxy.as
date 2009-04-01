@@ -20,7 +20,6 @@
 package org.bigbluebutton.modules.chat.model.business
 {
 	import org.bigbluebutton.modules.chat.ChatModuleConstants;
-	import org.bigbluebutton.modules.chat.model.vo.*;
 	import org.puremvc.as3.multicore.interfaces.IProxy;
 	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
 		
@@ -28,32 +27,32 @@ package org.bigbluebutton.modules.chat.model.business
 	{
 		public static const NAME:String = "ChatProxy";
 		
-		private var uri:String;		
+		private var module:ChatModule;		
 		private var chatService:IChatService;
 		
 		// Is teh disconnection due to user issuing the disconnect or is it the server
 		// disconnecting due to t fault?
 		private var manualDisconnect:Boolean = false;
 		
-		public function ChatProxy(uri:String)
+		public function ChatProxy(module:ChatModule)
 		{
 			super(NAME);
-			this.uri = uri;
+			this.module = module;
 			start();
 		}
 		
 		public function start():void {
-			chatService = new ChatSOService(uri);
+			chatService = new ChatSOService(module);
 			manualDisconnect = false;
-			chatService.connect(uri);
 			chatService.addMessageListener(newMessageHandler);
-			chatService.addConnectionStatusListener(connectionStatusListener);
+//			chatService.addConnectionStatusListener(connectionStatusListener);
+			chatService.join();
 		}
 		
 		public function stop():void {
 			// USer is issuing a disconnect.
 			manualDisconnect = true;
-			chatService.disconnect();
+			chatService.leave();
 		}
 		
 		private function connectionStatusListener(connected:Boolean, errors:Array):void {

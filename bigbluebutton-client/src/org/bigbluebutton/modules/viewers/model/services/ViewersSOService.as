@@ -2,10 +2,10 @@ package org.bigbluebutton.modules.viewers.model.services
 {
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
-	import flash.events.SyncEvent;
+	import flash.net.NetConnection;
+	import flash.net.Responder;
 	import flash.net.SharedObject;
 	
-	import org.bigbluebutton.modules.viewers.ViewersModuleConstants;
 	import org.bigbluebutton.modules.viewers.model.business.IViewers;
 	import org.bigbluebutton.modules.viewers.model.vo.Status;
 	import org.bigbluebutton.modules.viewers.model.vo.User;
@@ -27,6 +27,8 @@ package org.bigbluebutton.modules.viewers.model.services
 		private var _connectionFailedListener:Function;
 		private var _connectionStatusListener:Function;
 		private var _messageSender:Function;
+		private var _mode:String;
+		private var _room:String;
 				
 		public function ViewersSOService(uri:String, participants:IViewers)
 		{			
@@ -37,8 +39,10 @@ package org.bigbluebutton.modules.viewers.model.services
 			netConnectionDelegate.addConnectionFailedListener(connectionFailedListener);
 		}
 		
-		public function connect(uri:String, room:String, username:String, password:String ):void {
-			netConnectionDelegate.connect(_uri, room, username, password);
+		public function connect(uri:String, username:String, role:String, conference:String, mode:String, room:String):void {
+			_mode = mode;
+			_room = room;
+			netConnectionDelegate.connect(_uri, username, role, conference, mode, room);
 		}
 			
 		public function disconnect():void {
@@ -56,11 +60,8 @@ package org.bigbluebutton.modules.viewers.model.services
 		
 		private function connectionSuccessListener(connected:Boolean, user:Object=null, failReason:String=""):void {
 			if (connected) {
-				LogUtil.debug(LOGNAME + ":Connected to the Viewers application " + user.userid + " " + user.role);
-				_participants.me.role = user.role;
+				LogUtil.debug(LOGNAME + ":Connected to the Viewers application " + user.userid);
 				_participants.me.userid = user.userid;
-				_participants.me.room = user.room;
-				_participants.me.authToken = user.authToken;
 				join();
 			} else {
 				leave();
@@ -78,11 +79,65 @@ package org.bigbluebutton.modules.viewers.model.services
 			_participantsSO = SharedObject.getRemote(SO_NAME, _uri, false);
 			_participantsSO.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
 			_participantsSO.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
-			_participantsSO.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);
 			_participantsSO.client = this;
 			_participantsSO.connect(netConnectionDelegate.connection);
 			LogUtil.debug(LOGNAME + ":ViewersModules is connected to Shared object");
-			notifyConnectionStatusListener(true);			
+			if (_mode == 'PLAYBACK') {
+				startPlayback()
+			} else {
+				queryForParticipants();
+			}			
+		}
+		
+		private function startPlayback():void {
+			var nc:NetConnection = netConnectionDelegate.connection;
+			nc.call(
+				"archive.startPlayback",// Remote function name
+				new Responder(
+	        		// participants - On successful result
+					function(result:Object):void { 
+						LogUtil.debug("Successfully started playback: "); 
+						notifyConnectionStatusListener(true);
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+							} 
+						notifyConnectionStatusListener(false, "Failed to join the conference.");
+					}
+				),//new Responder
+				_room
+			); //_netConnection.call
+		}
+		
+		private function queryForParticipants():void {
+			var nc:NetConnection = netConnectionDelegate.connection;
+			nc.call(
+				"participants.getParticipants",// Remote function name
+				new Responder(
+	        		// participants - On successful result
+					function(result:Object):void { 
+						LogUtil.debug("Successfully queried participants: " + result.count); 
+						if (result.count > 0) {
+							for(var p:Object in result.participants) 
+							{
+								participantJoined(result.participants[p]);
+							}							
+						}	
+						notifyConnectionStatusListener(true);
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+							} 
+						notifyConnectionStatusListener(false, "Failed to join the conference.");
+					}
+				)//new Responder
+			); //_netConnection.call
 		}
 		
 	    private function leave():void
@@ -94,7 +149,27 @@ package org.bigbluebutton.modules.viewers.model.services
 			_connectionStatusListener = connectionListener;
 		}
 		
-
+		public function participantLeft(user:Object):void { 
+			_participants.removeParticipant(Number(user));
+		}
+		
+		public function participantJoined(joinedUser:Object):void { 
+			var user:User = new User();
+			user.userid = Number(joinedUser.userid);
+			user.name = joinedUser.name;	
+			user.role = joinedUser.role;						
+//			user.addStatus( = joinedUser.status;	
+								
+			LogUtil.info("Joined as [" + user.userid + "," + user.name + "," + user.role + "]");
+			_participants.addUser(user);
+		}
+		
+		public function participantStatusChange(userid:Number, status:String, value:Object):void {
+			LogUtil.debug("Received status change [" + userid + "," + status + "," + value + "]")
+			
+			_participants.newUserStatus(userid, status, value);
+		}
+/*
 		public function newStatus(userid:Number, status:Status):void {
 			var aUser:User = _participants.getParticipant(userid);			
 			if (aUser != null) {
@@ -148,7 +223,8 @@ package org.bigbluebutton.modules.viewers.model.services
 				aUser.removeStatus(statusName);
 			}
 		}
-		
+*/
+/*		
 		public function iAmPresenter(userid:Number, presenter:Boolean):void {
 			var aUser:User = _participants.getParticipant(userid);			
 			if (aUser != null) {
@@ -158,182 +234,165 @@ package org.bigbluebutton.modules.viewers.model.services
 				_participantsSO.setDirty(userid.toString());
 			}
 		}
-						
+*/						
 		public function assignPresenter(userid:Number, assignedBy:Number):void {
-			//var aUser:User = _participants.getParticipant(userid);			
-			//if (aUser != null) {
-			//	LogUtil.debug('assigning presenter to ' + userid);
-			//	aUser.presenter = true;
-			//	_participantsSO.setProperty(userid.toString(), aUser);
-			//	_participantsSO.setDirty(userid.toString());
-			//}			
-			_participantsSO.send("assignPresenterCallback", userid, assignedBy);
+	
+			var nc:NetConnection = netConnectionDelegate.connection;
+			nc.call(
+				"participants.assignPresenter",// Remote function name
+				new Responder(
+	        		// participants - On successful result
+					function(result:Boolean):void { 						 
+						if (result) {
+							LogUtil.debug("Successfully assigned presenter to: " + userid);							
+						}	
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+							} 
+					}
+				), //new Responder
+				userid,
+				assignedBy
+			); //_netConnection.call
 		}
-		
+/*		
 		public function assignPresenterCallback(userid:Number, assignedBy:Number):void {
 			sendMessage(ViewersModuleConstants.ASSIGN_PRESENTER, {assignedTo:userid, assignedBy:assignedBy});
 		}
 		
 		public function queryPresenter():void {
-//			var p:Object = _participantsSO.data[PRESENTER];
-//			LogUtil.debug('Got query presenter');
-//			if (p != null) {
-//				LogUtil.debug('responding to query presenter');
-//				sendMessage(ViewersModuleConstants.QUERY_PRESENTER_REPLY, {assignedTo:p.assignedTo, assignedBy:p.assignedBy});
-//			}			
+		
 		}
+*/
 
-
-
+		public function raiseHand(userid:Number, raise:Boolean):void {
+			var nc:NetConnection = netConnectionDelegate.connection;			
+			nc.call(
+				"participants.setParticipantStatus",// Remote function name
+				new Responder(
+	        		// participants - On successful result
+					function(result:Boolean):void { 
+						 
+						if (result) {
+							LogUtil.debug("Successfully assigned raise hand to: " + userid);							
+						}	
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+							} 
+					}
+				), //new Responder
+				userid,
+				"raiseHand",
+				raise
+			); //_netConnection.call
+		}
+		
 		public function addStream(userid:Number, streamName:String):void {
-			var aUser : User = _participants.getParticipant(userid);						
-			if (aUser != null) {
-				// This sets the users stream
-				aUser.hasStream = true;
-				aUser.streamName = streamName;
-				_participantsSO.setProperty(userid.toString(), aUser);
-				_participantsSO.setDirty(userid.toString());
-				
-				LogUtil.debug(LOGNAME + "Conference::addStream::found =[" + userid + "," 
-						+ aUser.hasStream + "," + aUser.streamName + "]");				
-			}
+			var nc:NetConnection = netConnectionDelegate.connection;
+			nc.call(
+				"participants.setParticipantStatus",// Remote function name
+				new Responder(
+	        		// participants - On successful result
+					function(result:Boolean):void { 
+						 
+						if (result) {
+							LogUtil.debug("Successfully assigned stream to: " + userid);							
+						}	
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+							} 
+					}
+				), //new Responder
+				userid,
+				"streamName",
+				streamName
+			); //_netConnection.call
+			
+			nc.call(
+				"participants.setParticipantStatus",// Remote function name
+				new Responder(
+	        		// participants - On successful result
+					function(result:Boolean):void { 
+						 
+						if (result) {
+							LogUtil.debug("Successfully assigned stream to: " + userid);							
+						}	
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+							} 
+					}
+				), //new Responder
+				userid,
+				"hasStream",
+				true
+			); //_netConnection.call
 		}
 		
 		public function removeStream(userid:Number, streamName:String):void {
-			var aUser : User = _participants.getParticipant(userid);						
-			if (aUser != null) {
-				// This sets the users stream
-				aUser.hasStream = false;
-				aUser.streamName = "";
-				_participantsSO.setProperty(userid.toString(), aUser);
-				_participantsSO.setDirty(userid.toString());
-				
-				LogUtil.debug(LOGNAME + "Conference::removeStream::found =[" + userid + "," 
-						+ aUser.hasStream + "," + aUser.streamName + "]");				
-			}
+			var nc:NetConnection = netConnectionDelegate.connection;
+			nc.call(
+				"participants.setParticipantStatus",// Remote function name
+				new Responder(
+	        		// participants - On successful result
+					function(result:Boolean):void { 
+						 
+						if (result) {
+							LogUtil.debug("Successfully assigned stream to: " + userid);							
+						}	
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+							} 
+					}
+				), //new Responder
+				userid,
+				"streamName",
+				""
+			); //_netConnection.call
+			
+			nc.call(
+				"participants.setParticipantStatus",// Remote function name
+				new Responder(
+	        		// participants - On successful result
+					function(result:Boolean):void { 
+						 
+						if (result) {
+							LogUtil.debug("Successfully removed stream to: " + userid);							
+						}	
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+							} 
+					}
+				), //new Responder
+				userid,
+				"hasStream",
+				false
+			); //_netConnection.call
 		}
 		
-		/**
-		 * Called when a sync_event is received for the SharedObject 
-		 * @param event
-		 * 
-		 */		
-		private function sharedObjectSyncHandler( event : SyncEvent) : void
-		{
-			LogUtil.debug(LOGNAME + "Conference::sharedObjectSyncHandler " + event.changeList.length);
-			
-			for (var i : uint = 0; i < event.changeList.length; i++) 
-			{
-				LogUtil.debug(LOGNAME + "Conference::handlingChanges[" + event.changeList[i].name + "][" + i + "][" + event.changeList[i].code + "]");
-				handleChangesToSharedObject(event.changeList[i].code, 
-						event.changeList[i].name, event.changeList[i].oldValue);
-			}
-		}
-
-		/**
-		 * See flash.events.SyncEvent
-		 */
-		private function handleChangesToSharedObject(code:String, name:String, oldValue:Object) : void
-		{
-			switch (code)
-			{
-				case "clear":
-					/** From flash.events.SyncEvent doc
-					 * 
-					 * A value of "clear" means either that you have successfully connected 
-					 * to a remote shared object that is not persistent on the server or the 
-					 * client, or that all the properties of the object have been deleted -- 
-					 * for example, when the client and server copies of the object are so 
-					 * far out of sync that Flash Player resynchronizes the client object 
-					 * with the server object. In the latter case, SyncEvent.SYNC is dispatched 
-					 * and the "code" value is set to "change". 
-					 */
-					 LogUtil.debug(LOGNAME + "Got clear sync event for participants");
-					_participants.removeAllParticipants();
-													
-					break;	
-																			
-				case "success":
-					/** From flash.events.SyncEvent doc
-					 * 	 A value of "success" means the client changed the shared object. 		
-					 */
-					
-					// do nothing... just log it ;	
-					LogUtil.info(LOGNAME + "Conference::success =[" + code + "," + name + "," + oldValue + "]");
-					break;
-
-				case "reject":
-					/** From flash.events.SyncEvent doc
-					 * 	A value of "reject" means the client tried unsuccessfully to change the 
-					 *  object; instead, another client changed the object.		
-					 */
-					
-					// do nothing... just log it 
-					// Or...maybe we should check if the value is the same as what we wanted it
-					// to be..if not...change it?
-					LogUtil.warn(LOGNAME + "Conference::reject =[" + code + "," + name + "," + oldValue + "]");	
-					break;
-
-				case "change":
-					/** From flash.events.SyncEvent doc
-					 * 	A value of "change" means another client changed the object or the server 
-					 *  resynchronized the object.  		
-					 */
-					 
-					if (name != null) {					
-					/*	LogUtil.debug('seraching status ' + name.search(STATUS));	
-						var statusIndex:int = name.search(STATUS);
-						if (statusIndex > -1) {
-							var uid:String = name.slice(0,statusIndex);
-							if (_participants.hasParticipant(Number(uid))) {
-								var changedUser:User = _participants.getParticipant(Number(uid));
-								changedUser.status = new ArrayCollection(_participantsSO.data[name] as Array);
-								LogUtil.debug( "Conference::change =[" + name + "][" + changedUser.status.length + "]");
-								//sendMessage(ViewersModuleConstants.CHANGE_STATUS, changedUser.status);
-							} else {
-								LogUtil.debug('User id NULL');
-							}														
-						} else {
-					*/		if (_participants.hasParticipant(_participantsSO.data[name].userid)) {									
-								var cUser:User = _participants.getParticipant(Number(name));
-								cUser.presenter = _participantsSO.data[name].presenter;
-								cUser.hasStream = _participantsSO.data[name].hasStream;
-								cUser.streamName = _participantsSO.data[name].streamName;	
-								LogUtil.debug(LOGNAME + 'Changed user[' + cUser.name + "," + _participantsSO.data[name].userid + "]");												
-							} else {
-								// The server sent us a new user.
-								var user:User = new User();
-								user.userid = _participantsSO.data[name].userid;
-								user.name = _participantsSO.data[name].name;							
-								user.role = _participantsSO.data[name].role;						
-								user.presenter = _participantsSO.data[name].presenter;
-								user.hasStream = _participantsSO.data[name].hasStream;
-								user.streamName = _participantsSO.data[name].streamName;
-								LogUtil.info(LOGNAME + "New user[" + 	user.name + "," + user.userid + "]");
-								_participants.addUser(user);
-							}	
-					//	}					
-					} 
-																	
-					break;
-
-				case "delete":
-					/** From flash.events.SyncEvent doc
-					 * 	A value of "delete" means the attribute was deleted.  		
-					 */
-					
-					LogUtil.info(LOGNAME + "Removing user[" + code + "," + name + "," + oldValue + "]");	
-					
-					// The participant has left. Cast name (string) into a Number.
-					_participants.removeParticipant(Number(name));
-					break;
-										
-				default:	
-					LogUtil.debug(LOGNAME + "Conference::default[" + _participantsSO.data[name].userid
-								+ "," + _participantsSO.data[name].name + "]");		 
-					break;
-			}
-		}
 
 		private function notifyConnectionStatusListener(connected:Boolean, reason:String = null):void {
 			if (_connectionStatusListener != null) {
@@ -388,6 +447,11 @@ package org.bigbluebutton.modules.viewers.model.services
 		{
 			LogUtil.debug(LOGNAME + "participantsSO asyncErrorHandler " + event.error);
 			notifyConnectionStatusListener(false);
+		}
+		
+		public function get connection():NetConnection
+		{
+			return netConnectionDelegate.connection;
 		}
 	}
 }

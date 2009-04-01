@@ -22,6 +22,8 @@ package org.bigbluebutton.modules.chat.model.business
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
 	import flash.events.SyncEvent;
+	import flash.net.NetConnection;
+	import flash.net.Responder;
 	import flash.net.SharedObject;
 
 	public class ChatSOService implements IChatService
@@ -31,29 +33,18 @@ package org.bigbluebutton.modules.chat.model.business
 		private static const TRANSCRIPT:String = "TRANSCRIPT";
 		private var chatSO : SharedObject;
 		private var netConnectionDelegate: NetConnectionDelegate;
-		private var _uri:String;
+		private var module:ChatModule;
 		private var _msgListener:Function;
 		private var _connectionListener:Function;
 		private var _soErrors:Array;
 		
 		private var needsTranscript:Boolean = false;
 		
-		public function ChatSOService(uri:String)
+		public function ChatSOService(module:ChatModule)
 		{			
-			_uri = uri;
-			netConnectionDelegate = new NetConnectionDelegate(uri, connectionListener);			
+			this.module = module;		
 		}
-		
-		public function connect(uri:String):void {
-			_uri = uri
-			netConnectionDelegate.connect();
-		}
-		
-		public function disconnect():void {
-			leave();
-			netConnectionDelegate.disconnect();
-		}
-		
+				
 		private function connectionListener(connected:Boolean, errors:Array=null):void {
 			if (connected) {
 				LogUtil.debug(NAME + ":Connected to the Chat application");
@@ -66,21 +57,22 @@ package org.bigbluebutton.modules.chat.model.business
 			}
 		}
 		
-	    private function join() : void
+	    public function join() : void
 		{
-			chatSO = SharedObject.getRemote("chatSO", _uri, false);
-			chatSO.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
-			chatSO.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
-			chatSO.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);
+			chatSO = SharedObject.getRemote("chatSO", module.uri, false);
 			chatSO.client = this;
-			chatSO.connect(netConnectionDelegate.connection);
+			chatSO.connect(module.connection);
 			LogUtil.debug(NAME + ":Chat is connected to Shared object");
-						
+			notifyConnectionStatusListener(true);
+			if (module.mode == 'LIVE') {
+				getChatTranscript();
+			}						
 		}
 		
-	    private function leave():void
+	    public function leave():void
 	    {
 	    	if (chatSO != null) chatSO.close();
+	    	notifyConnectionStatusListener(false);
 	    }
 
 		public function addMessageListener(messageListener:Function):void {
@@ -93,26 +85,56 @@ package org.bigbluebutton.modules.chat.model.business
 		
 		public function sendMessage(message:String):void
 		{
-			var trans:String = chatSO.data[TRANSCRIPT];
-			if (trans != null) {
-				trans += '<br/>' + message;
-			} else {
-				trans = message;
-			}
-			chatSO.setProperty(TRANSCRIPT, trans);
-			chatSO.setDirty(TRANSCRIPT);
-			chatSO.send("receiveNewMessage", message);
+			var nc:NetConnection = module.connection;
+			nc.call(
+				"chat.sendMessage",// Remote function name
+				new Responder(
+	        		// On successful result
+					function(result:Object):void { 
+						LogUtil.debug("Successfully sent message: "); 
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				),//new Responder
+				message
+			); //_netConnection.call
 		}
-			
-		public function receiveNewMessage(message:String):void{
+		
+		/**
+		 * Called by the server to deliver a new chat message.
+		 */	
+		public function newChatMessage(message:String):void{
 			if (_msgListener != null) {
 				_msgListener( message);
 			}		   
 		}
 
 		public function getChatTranscript():void {
-			LogUtil.debug('getting chat transcript');
-			needsTranscript = true;				
+			var nc:NetConnection = module.connection;
+			nc.call(
+				"chat.getChatMessages",// Remote function name
+				new Responder(
+	        		// On successful result
+					function(result:Object):void { 
+						LogUtil.debug("Successfully sent message: "); 
+						if (result != null) {
+							newChatMessage(result as String);
+						}	
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				)//new Responder
+			); //_netConnection.call				
 		}
 		
 		private function notifyConnectionStatusListener(connected:Boolean, errors:Array=null):void {
@@ -122,69 +144,6 @@ package org.bigbluebutton.modules.chat.model.business
 			} else {
 				LogUtil.debug("_connectionListener is null");
 			}
-		}
-
-		private function sharedObjectSyncHandler(event:SyncEvent):void
-		{
-			if (event.changeList.length == 1) {
-				if (needsTranscript) {
-						needsTranscript = false;
-				}
-			} else {
-				for (var i : uint = 0; i < event.changeList.length; i++) 
-				{
-					if (event.changeList[i].name == TRANSCRIPT) {
-						if (needsTranscript) {
-							needsTranscript = false;
-							receiveNewMessage( chatSO.data[TRANSCRIPT] );				
-						}
-					} 	
-				}
-			}
-		}
-		
-		private function netStatusHandler (event:NetStatusEvent):void
-		{
-			var statusCode:String = event.info.code;
-			
-			switch ( statusCode ) 
-			{
-				case "NetConnection.Connect.Success":
-					LogUtil.debug(NAME + ":Connection Success");		
-					//notifyConnectionStatusListener(true);			
-					break;
-			
-				case "NetConnection.Connect.Failed":
-					addError("ChatSO connection failed");			
-					break;
-					
-				case "NetConnection.Connect.Closed":
-					addError("Connection to ChatSO was closed.");									
-					notifyConnectionStatusListener(false, _soErrors);
-					break;
-					
-				case "NetConnection.Connect.InvalidApp":
-					addError("ChatSO not found in server");				
-					break;
-					
-				case "NetConnection.Connect.AppShutDown":
-					addError("ChatSO is shutting down");
-					break;
-					
-				case "NetConnection.Connect.Rejected":
-					addError("No permissions to connect to the chat SO");
-					break;
-					
-				default :
-					//addError("ChatSO " + event.info.code);
-				   LogUtil.debug(NAME + ":default - " + event.info.code );
-				   break;
-			}
-		}
-			
-		private function asyncErrorHandler (event:AsyncErrorEvent):void
-		{
-			addError("ChatSO asynchronous error.");
 		}
 		
 		private function addError(error:String):void {

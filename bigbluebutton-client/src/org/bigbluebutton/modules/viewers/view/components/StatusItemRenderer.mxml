@@ -4,6 +4,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.viewers.view.events.LowerHandEvent;
 			import org.bigbluebutton.modules.viewers.view.events.ViewCameraEvent;
 			import org.bigbluebutton.modules.viewers.model.vo.Status;
 			import org.bigbluebutton.modules.viewers.view.components.Images;
@@ -13,14 +14,19 @@
 			private function viewCamera():void
    			{
 				dispatchEvent(new ViewCameraEvent(data.streamName, data.name));
-   			}			
+   			}
+   			
+   			private function lowerHand():void
+   			{
+				dispatchEvent(new LowerHandEvent(data.userid));
+   			}				
 		
    			[Bindable] private var webcamIcon:Object = images.webcam;
    			[Bindable] private var handIcon:Object = images.raisehand;	
    			[Bindable] private var presenterIcon:Object = images.presenter;
 		]]>
 	</mx:Script>
-
+	<mx:Image id="raiseHand" visible="{data.raiseHand}" click="lowerHand()" source="{handIcon}" toolTip="Hand Raised on {new Date()}"/>
 	<mx:Image id="streamIcon" visible="{data.hasStream}" doubleClick="viewCamera()" source="{webcamIcon}" toolTip="Double-Click to view."/>	
 	<mx:Image id="presIcon" visible="{data.presenter}" source="{presenterIcon}" toolTip="Presenter"/>
 </mx:HBox>

@@ -21,9 +21,11 @@ package org.bigbluebutton.modules.listeners.model.service
 {
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
+	import flash.net.NetConnection;
 	import flash.net.Responder;
 	import flash.net.SharedObject;
 	
+	import org.bigbluebutton.modules.listeners.ListenersModuleConstants;
 	import org.bigbluebutton.modules.listeners.model.vo.IListeners;
 	import org.bigbluebutton.modules.listeners.model.vo.Listener;
 
@@ -43,23 +45,21 @@ package org.bigbluebutton.modules.listeners.model.service
 		private var _messageSender:Function;
 		private var nc_responder : Responder;
 		private var _soErrors:Array;
-		
-		private var pingCount:int = 0;
+		private var _module:ListenersModule;
 							
-		public function ListenersSOService(listeners:IListeners)
+		public function ListenersSOService(listeners:IListeners, module:ListenersModule)
 		{			
-			_listeners = listeners;						
+			_listeners = listeners;		
+			_module = module;				
 		}
 		
 		public function connect(uri:String):void {
 			_uri = uri;
-			netConnectionDelegate = new NetConnectionDelegate(uri, connectionListener);
-			netConnectionDelegate.connect();
+			join();
 		}
 		
 		public function disconnect():void {
 			leave();
-			netConnectionDelegate.disconnect();
 		}
 		
 		private function connectionListener(connected:Boolean, errors:Array=null):void {
@@ -75,17 +75,17 @@ package org.bigbluebutton.modules.listeners.model.service
 		
 	    private function join() : void
 		{
-			_listenersSO = SharedObject.getRemote(SHARED_OBJECT, _uri, false);
+			trace(_module.uri);
+			_listenersSO = SharedObject.getRemote(SHARED_OBJECT, _module.uri, false);
 			_listenersSO.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
 			_listenersSO.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
 			_listenersSO.client = this;
-			_listenersSO.connect(netConnectionDelegate.connection);
+			_listenersSO.connect(_module.connection);
 			LogUtil.debug(LOGNAME + ":Voice is connected to Shared object");
 			notifyConnectionStatusListener(true);		
 				
 			// Query the server if there are already listeners in the conference.
-			nc_responder = new Responder(getMeetMeUsers, null);	
-			netConnectionDelegate.getCurrentListeners(nc_responder);
+			getCurrentUsers();
 		}
 		
 	    private function leave():void
@@ -113,6 +113,16 @@ package org.bigbluebutton.modules.listeners.model.service
 				n.talking = talking;
 				LogUtil.info(LOGNAME + "Adding listener [" + n.callerName + "," + userId + "]");
 				_listeners.addListener(n);
+				/**
+				 * Let's send an event that the first user has joined the voice conference.
+				 * We use this as a trigger to playback the recorded audio.
+				 * NOTE: THis is just a hack...need to do this properly. (ralam - march 26, 2009)
+				 */
+				if (_module.mode == 'PLAYBACK') {
+					if (_listeners.listeners.length == 1) {
+						sendMessage(ListenersModuleConstants.FIRST_LISTENER_JOINED_EVENT);
+					}
+				}				
 			} else {
 				LogUtil.debug(LOGNAME + "There is a listener with userid " + userId + " " + cidName + " in the conference.");
 			}
@@ -153,19 +163,98 @@ package org.bigbluebutton.modules.listeners.model.service
 		
 		public function muteUnmuteUser(userid:Number, mute:Boolean):void
 		{
-			netConnectionDelegate.muteUnmuteUser(userid, mute);		
+			var nc:NetConnection = _module.connection;
+			nc.call(
+				"voice.muteUnmuteUser",// Remote function name
+				new Responder(
+	        		// participants - On successful result
+					function(result:Object):void { 
+						LogUtil.debug("Successfully mute/unmute: " + userid); 	
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+							} 
+					}
+				),//new Responder
+				userid,
+				mute
+			); //_netConnection.call		
 		}
 
 		public function muteAllUsers(mute:Boolean):void
 		{	
-			netConnectionDelegate.muteAllUsers(mute);			
+			var nc:NetConnection = _module.connection;
+			nc.call(
+				"voice.muteAllUsers",// Remote function name
+				new Responder(
+	        		// participants - On successful result
+					function(result:Object):void { 
+						LogUtil.debug("Successfully mute/unmute all users: "); 	
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+							} 
+					}
+				),//new Responder
+				mute
+			); //_netConnection.call		
 		}
 		
 		public function ejectUser(userId:Number):void
 		{
-			netConnectionDelegate.ejectUser(userId);			
+			var nc:NetConnection = _module.connection;
+			nc.call(
+				"voice.kickUSer",// Remote function name
+				new Responder(
+	        		// participants - On successful result
+					function(result:Object):void { 
+						LogUtil.debug("Successfully kick user: userId"); 	
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+							} 
+					}
+				),//new Responder
+				userId
+			); //_netConnection.call		
 		}
 		
+		private function getCurrentUsers():void {
+			var nc:NetConnection = _module.connection;
+			nc.call(
+				"voice.getMeetMeUsers",// Remote function name
+				new Responder(
+	        		// participants - On successful result
+					function(result:Object):void { 
+						LogUtil.debug("Successfully queried participants: " + result.count); 
+						if (result.count > 0) {
+							for(var p:Object in result.participants) 
+							{
+								var u:Object = result.participants[p]
+								userJoin(u.participant, u.name, u.name, u.muted, u.talking);
+							}							
+						}	
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+							} 
+					}
+				)//new Responder
+			); //_netConnection.call
+		}
+/*		
 		public function getMeetMeUsers(meetmeUser:Object):void
 		{			
 			for(var items:String in meetmeUser) 
@@ -178,7 +267,7 @@ package org.bigbluebutton.modules.listeners.model.service
 				userJoin(userId, cidName, cidNum, muted, talking);
 			}
 		}
-		
+*/		
 		private function notifyConnectionStatusListener(connected:Boolean, errors:Array=null):void {
 			if (_connectionListener != null) {
 				LogUtil.debug(LOGNAME + 'notifying connectionListener for Voice');

@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config>
+	<red5Url>rtmp://localhost/sip</red5Url>
+	<sipRealm>134.117.254.226</sipRealm>
+	<sipServer>134.117.254.226</sipServer>
+	<sipUsername>1002</sipUsername>
+	<sipPassword>ff3j</sipPassword>
+	<sipMailbox></sipMailbox>
+</config>

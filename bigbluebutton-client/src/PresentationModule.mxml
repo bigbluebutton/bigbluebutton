@@ -44,12 +44,34 @@
 				return _attributes.userid as Number;
 			}
 			
+			public function get role():String {
+				return _attributes.userrole as String;
+			}
+			
 			public function get host():String {
 				return _attributes.host;
 			}
 			
 			public function get room():String {
 				return _attributes.room;
+			}
+			
+			public function get conference():String {
+				return _attributes.conference;
+			}
+			
+			public function get connection():NetConnection {
+				return _attributes.connection;
+			}
+			
+			public function get mode():String {
+				if (_attributes.mode == null) {					
+					//_attributes.mode = "PLAYBACK"
+					_attributes.mode = "LIVE"
+					LogUtil.debug('Setting PresentationModule mode: ' + _attributes.mode);
+				}
+				LogUtil.debug('PresentationModule mode: ' + _attributes.mode);
+				return _attributes.mode;
 			}
 			
 			public function start(attributes:Object):void {		

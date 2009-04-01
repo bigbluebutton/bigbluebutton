@@ -35,9 +35,13 @@
 			}
 		
 			public function get uri():String {
-				return _attributes.uri + "/";
+				return _attributes.uri + "/" + _attributes.room;
 			}
 			
+			public function get role():String {
+				LogUtil.debug("ViewersModule userrole " + _attributes.userrole);
+				return _attributes.userrole;
+			}
 
 			public function get username():String {
 				return _attributes.username;
@@ -47,8 +51,59 @@
 				return _attributes.userid as Number;
 			}
 			
+			public function get host():String {
+				return _attributes.host;
+			}
+			
+			public function set role(r:String):void {
+				_attributes.userrole = r;
+			}
+
+			public function set username(u:String):void {
+				_attributes.username = u;
+			}
+			
+			public function set userid(u:Number):void {
+				_attributes.userid = u;
+			}
+			
+			public function set authToken(a:String):void {
+				_attributes.authToken = a;
+			}
+			
+			public function get authToken():String {
+				return _attributes.authToken;
+			}
+			
+			public function set room(r:String):void {
+				_attributes.room = r;
+			}
+			
+			public function get room():String {
+				return _attributes.room;
+			}
+			
+			public function set conference(c:String):void {
+				_attributes.conference = c;
+			}
+			
+			public function get conference():String {
+				return _attributes.conference;
+			}
+			
+			public function get mode():String {
+				if (_attributes.mode == null) {					
+					//_attributes.mode = "PLAYBACK"
+					_attributes.mode = "LIVE"
+					LogUtil.debug('Setting ViewersModule mode: ' + _attributes.mode);
+				}
+				LogUtil.debug('ViewersModule mode: ' + _attributes.mode);
+				return _attributes.mode;
+			}
+			
 			public function start(attributes:Object):void {		
 				_attributes = attributes;	
+				LogUtil.debug('Passed ViewersModule mode: ' + _attributes.mode);
 				ViewersFacade.getInstance().startup(this);	
 			}
 		

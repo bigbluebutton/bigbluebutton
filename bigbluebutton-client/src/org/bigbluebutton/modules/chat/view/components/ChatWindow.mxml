@@ -28,7 +28,7 @@
 									
 			public function showNewMessage(message:String):void
 			{
-				txtChatBox.htmlText += message + "\n";
+				txtChatBox.htmlText += message;
 			}
 			
 			public function setFocusOn(component:UIComponent):void

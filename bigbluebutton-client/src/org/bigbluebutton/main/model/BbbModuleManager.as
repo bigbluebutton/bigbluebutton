@@ -21,9 +21,13 @@ package org.bigbluebutton.main.model
 		private var _numModules:int = 0;		
 		public var  _modules:Dictionary = new Dictionary();
 		private var _user:Object;
+		private var _router:Router;
+		private var _mode:String;
 		
-		public function BbbModuleManager()
+		public function BbbModuleManager(router:Router, mode:String)
 		{
+			_router = router;
+			_mode = mode;
 			_urlLoader = new URLLoader();
 			_urlLoader.addEventListener(Event.COMPLETE, handleComplete);			
 		}
@@ -72,104 +76,71 @@ package org.bigbluebutton.main.model
 			var item:XML;
 						
 			for each(item in list){
-				var attributes:Object = parseAttributes(item);
-				var mod:ModuleDescriptor = new ModuleDescriptor(attributes);
+				var mod:ModuleDescriptor = new ModuleDescriptor(item);
 				_modules[item.@name] = mod;
 				_numModules++;
 				//LogUtil.debug("NAME!!!!!!!!!!!!!!!! " + item.@name);
 			}					
 		}
 		
-		public function parseAttributes(item:XML):Object {
-			var atts:Object = new Object();
-			var attNamesList:XMLList = item.@*;
-
-			for (var i:int = 0; i < attNamesList.length(); i++)
-			{ 
-			    var attName:String = attNamesList[i].name();
-			    var attValue:String = item.attribute(attName);
-			    atts[attName] = attValue;
-			} 
-			return atts;
-		}
-		
 		public function loggedInUser(user:Object):void {
 			LogUtil.debug('loggedin user ' + user.username);
 			_user = new Object();
-			_user.userid = user.userid;
+			_user.conference = user.conference;
 			_user.username = user.username;
 			_user.userrole = user.userrole;
 			_user.room = user.room;
 			_user.authToken = user.authToken;
+			_user.userid = user.userid;
+			_user.mode = _mode; // Assign if this is PLAYBACK or LIVE
+			_user.connection = user.connection;
 		}
-		
-		public function addUserIntoAttributes(user:Object):void {
-			for (var key:Object in _modules) {				
-				var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
-				m.attributes.userid = user.userid;
-				m.attributes.username = user.name;
-				m.attributes.userrole = user.role;
-				m.attributes.room = user.room;
-				m.attributes.authToken = user.authToken;	
-			}				
-		}
-		
-		
+				
 		public function get numberOfModules():int {
 			return _numModules;
 		}
 		
-		public function getModule(name:String):ModuleDescriptor {
+		public function hasModule(name:String):Boolean {
+			var m:ModuleDescriptor = getModule(name);
+			if (m != null) return true;
+			return false;
+		}
+		
+		private function getModule(name:String):ModuleDescriptor {
 			for (var key:Object in _modules) {				
 				var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
-				if (m.attributes.name == name) {
+				if (m.getAttribute("name") == name) {
 					return m;
 				}
 			}		
 			return null;	
 		}
 
-		/*public function loadModules():void {
-			LogUtil.debug('Loading all modules');
-			for (var key:Object in _modules) {
-				LogUtil.debug("["+ key + "," + _modules[key].attributes.url + "]");
-				loadModule(key as String);
-			}
-		}*/
-		
-		public function startModules(router:Router):void {
-			LogUtil.debug('Starting all modules');
-			for (var key:Object in _modules) {
-				LogUtil.debug('Starting ' + _modules[key].name);
-				var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
-				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
-				if (m.attributes.name == 'ViewersModule') {
-					bbb.acceptRouter(router);	
-				}
-			}		
-		}
-
-		public function startModule(name:String, router:Router):void {
+		private function startModule(name:String):void {
 			LogUtil.debug('Request to start module ' + name);
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
 				LogUtil.debug('Starting ' + name);
 				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
-				bbb.acceptRouter(router);
+				bbb.acceptRouter(_router);
 				if (_user != null) {
-					m.attributes.userid = _user.userid;
-					m.attributes.username = _user.username;
-					m.attributes.userrole = _user.userrole;
-					m.attributes.room = _user.room;
-					m.attributes.authToken = _user.authToken;
-					LogUtil.debug(m.attributes.username + " _user.username=" + _user.username);
-				}		
-				
+					m.addAttribute("conference", _user.conference);
+					m.addAttribute("username", _user.username);
+					m.addAttribute("userrole", _user.userrole);
+					m.addAttribute("room", _user.room);
+					m.addAttribute("authToken", _user.authToken);
+					m.addAttribute("userid", _user.userid);
+					m.addAttribute("mode", _user.mode);
+					m.addAttribute("connection", _user.connection);
+				} else {
+					// Pass the mode that we got from the URL query string.
+					m.addAttribute("mode", _mode);
+				}					
 				bbb.start(m.attributes);		
 			}	
 		}
 
-		public function stopModule(name:String):void {
+		private function stopModule(name:String):void {
 			LogUtil.debug('Request to stop module ' + name);
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
@@ -202,13 +173,27 @@ package org.bigbluebutton.main.model
 						notifyModuleLoadedListeners(MainApplicationConstants.MODULE_LOAD_PROGRESS, name, progress);
 					break;	
 					case MainApplicationConstants.MODULE_LOAD_READY:
-						m.loaded = true;
-						LogUtil.debug('Loaded module ' + m.attributes.name);		
-						notifyModuleLoadedListeners(MainApplicationConstants.MODULE_LOAD_READY, name);					
+						LogUtil.debug('Module ' + m.attributes.name + " has been loaded.");		
+						notifyModuleLoadedListeners(MainApplicationConstants.MODULE_LOAD_READY, name);
+						loadNextModule(name);					
 					break;				
 				}
 			} else {
 				LogUtil.debug(name + " not found.");
+			}
+		}
+		
+		private function loadNextModule(curModule:String):void {
+			var m:ModuleDescriptor = getModule(curModule);
+			if (m != null) {
+				var nextModule:String = m.getAttribute("loadNextModule") as String;
+				if (nextModule != null) {
+					LogUtil.debug("Loading " + nextModule + " next.");
+					loadModule(nextModule);
+				} else {
+					LogUtil.debug("All modules have been loaded - " + m.getAttribute("name") as String);
+					notifyModuleLoadedListeners(MainApplicationConstants.ALL_MODULES_LOADED, null);
+				}
 			}
 		}
 		
@@ -222,6 +207,51 @@ package org.bigbluebutton.main.model
 				
 		public function get modules():Dictionary {
 			return _modules;
+		}
+		
+		public function handleAppModelInitialized():void {
+			for (var key:Object in _modules) {				
+				var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
+				if (m.getAttribute("onAppInitEvent") != null) {
+					loadModule(m.getAttribute("name") as String);
+				}
+			}
+		}
+		
+		public function handleAppStart():void {
+			for (var key:Object in _modules) {				
+				var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
+				if (m.getAttribute("onAppStartEvent") != null) {
+					startModule(m.getAttribute("name") as String);
+				}
+			}
+		}
+		
+		public function handleUserLoggedIn():void {
+			for (var key:Object in _modules) {				
+				var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
+				if (m.getAttribute("onUserLoggedInEvent") != null) {
+					startModule(m.getAttribute("name") as String);
+				}
+			}
+		}
+		
+		public function handleUserJoined():void {
+			for (var key:Object in _modules) {				
+				var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
+				if (m.getAttribute("onUserJoinedEvent") != null) {
+					startModule(m.getAttribute("name") as String);
+				}
+			}
+		}
+		
+		public function handleLogout():void {
+			for (var key:Object in _modules) {				
+				var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
+				if (m.getAttribute("onUserLogoutEvent") != null) {
+					stopModule(m.getAttribute("name") as String);
+				}
+			}
 		}
 	}
 }

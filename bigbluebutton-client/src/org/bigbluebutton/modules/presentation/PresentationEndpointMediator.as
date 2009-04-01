@@ -4,6 +4,7 @@ package org.bigbluebutton.modules.presentation
 	import org.bigbluebutton.common.messaging.Endpoint;
 	import org.bigbluebutton.common.messaging.EndpointMessageConstants;
 	import org.bigbluebutton.common.messaging.Router;
+	import org.bigbluebutton.modules.presentation.model.business.PresentProxy;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
@@ -51,6 +52,7 @@ package org.bigbluebutton.modules.presentation
 		{
 			switch(notification.getName()){
 				case PresentModuleConstants.STARTED:
+					presentProxy.connect();
 					LogUtil.debug("Sending Present MODULE_STARTED message to main");
 					_endpoint.sendMessage(EndpointMessageConstants.MODULE_STARTED, 
 							EndpointMessageConstants.TO_MAIN_APP, _module.moduleId);
@@ -92,13 +94,18 @@ package org.bigbluebutton.modules.presentation
 					break;
 				case EndpointMessageConstants.ASSIGN_PRESENTER:
 					LogUtil.debug('Received ASSIGN_PRESENTER message from ' + message.getHeader().SRC);
-					facade.sendNotification(PresentModuleConstants.PRESENTER_MODE, message.getBody());
+					var p:Object = message.getBody();
+					presentProxy.assignPresenter(p["assignTo"], p["name"]);
 					break;
 				case EndpointMessageConstants.BECOME_VIEWER:
 					LogUtil.debug('Received BECOME_VIEWER message from ' + message.getHeader().SRC);
-					facade.sendNotification(PresentModuleConstants.VIEWER_MODE);
+					//facade.sendNotification(PresentModuleConstants.VIEWER_MODE);
 					break;
 			}
 		}
+		
+		private function get presentProxy():PresentProxy {
+			return facade.retrieveProxy(PresentProxy.NAME) as PresentProxy;
+		}	
 	}
 }

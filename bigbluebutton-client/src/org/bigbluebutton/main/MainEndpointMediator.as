@@ -55,12 +55,12 @@ package org.bigbluebutton.main
 				case MainApplicationConstants.MODULE_START:
 					var startModule:String = notification.getBody() as String;
 					LogUtil.debug(NAME + "::Request to start module " + startModule);
-					modulesProxy.startModule(startModule, _router);						
+//					modulesProxy.startModule(startModule, _router);						
 					break;
 				case MainApplicationConstants.MODULE_STOP:
 					var stopModule:String = notification.getBody() as String;
 					LogUtil.debug(NAME + "::Request to stop module " + stopModule);
-					modulesProxy.stopModule(stopModule);						
+//					modulesProxy.stopModule(stopModule);						
 					break;				
 			}
 		}
@@ -71,10 +71,15 @@ package org.bigbluebutton.main
 							
 			switch (msg)
 			{
+				case EndpointMessageConstants.USER_JOINED:
+					LogUtil.debug(NAME + "::Got USER_JOINED from " + message.getHeader().SRC as String);
+					modulesProxy.user = message.getBody();
+					sendNotification(MainApplicationConstants.USER_JOINED, message.getBody());
+					break;
+					
 				case EndpointMessageConstants.USER_LOGGED_IN:
 					LogUtil.debug(NAME + "::Got USER_LOGGED_IN from " + message.getHeader().SRC as String);
-					modulesProxy.user = message.getBody();
-					sendNotification(MainApplicationConstants.USER_LOGGED_IN, message.getBody());
+					sendNotification(MainApplicationConstants.USER_LOGGED_IN);
 					break;
 				case EndpointMessageConstants.USER_LOGGED_OUT:
 					LogUtil.debug(NAME + "::Got USER_LOGGED_OUT from " + message.getHeader().SRC as String);
@@ -82,12 +87,12 @@ package org.bigbluebutton.main
 					break;
 				case EndpointMessageConstants.MODULE_STARTED:
 					LogUtil.debug(NAME + "::Got MODULE_STARTED from " + message.getBody() as String);
-					modulesProxy.moduleStarted(message.getBody() as String, true);
+//					modulesProxy.moduleStarted(message.getBody() as String, true);
 					break;
 				case EndpointMessageConstants.MODULE_STOPPED:
 					LogUtil.debug(NAME + "::Got MODULE_STOPPED from " + message.getBody() as String);					
 					var info:Object = message.getBody();
-					modulesProxy.moduleStarted(info.moduleId, false);
+//					modulesProxy.moduleStarted(info.moduleId, false);
 					if ( (info.moduleId == "ChatModule") || (info.moduleId == "VideoModule") ||
 							(info.moduleId == "ListenersModule") || (info.moduleId == "PresentationModule")){
 						LogUtil.debug(info.moduleId + " has stopped [" + info.manual + "]");

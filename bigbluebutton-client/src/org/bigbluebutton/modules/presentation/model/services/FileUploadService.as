@@ -25,6 +25,7 @@ package org.bigbluebutton.modules.presentation.model.services
 	import flash.events.SecurityErrorEvent;
 	import flash.net.FileReference;
 	import flash.net.URLRequest;
+	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
 	
 	import org.bigbluebutton.modules.presentation.PresentModuleConstants;
@@ -38,8 +39,8 @@ package org.bigbluebutton.modules.presentation.model.services
 		public static const UPLOAD_IO_ERROR:String = "UPLOAD_IO_ERROR";
 		public static const UPLOAD_SECURITY_ERROR:String = "UPLOAD_SECURITY_ERROR";
 		
-		private var request : URLRequest = new URLRequest();
-		private var sendVars : URLVariables = new URLVariables();
+		private var request:URLRequest = new URLRequest();
+		private var sendVars:URLVariables = new URLVariables();
 		
 		private var _progressListener:Function;
 		
@@ -49,9 +50,11 @@ package org.bigbluebutton.modules.presentation.model.services
 		 * @param room - a room in the server we're connecting to
 		 * 
 		 */		
-		public function FileUploadService(url:String, room:String) : void
+		public function FileUploadService(url:String, presentationName:String, conference:String, room:String) : void
 		{
-			sendVars.room = room;	
+			sendVars.presentation_name = presentationName;	
+			sendVars.conference = conference;
+			sendVars.room = room;
 			request.url = url;
 			request.data = sendVars;
 		}
@@ -65,7 +68,7 @@ package org.bigbluebutton.modules.presentation.model.services
 		 * @param file - The FileReference class of the file we wish to send
 		 * 
 		 */		
-		public function upload(file:FileReference):void
+		public function upload(presName:String, file:FileReference):void
 		{
 			var fileToUpload : FileReference = new FileReference();
 			fileToUpload = file;
@@ -75,8 +78,10 @@ package org.bigbluebutton.modules.presentation.model.services
 			fileToUpload.addEventListener(IOErrorEvent.IO_ERROR, onUploadIoError);
 			fileToUpload.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onUploadSecurityError);
 			
-			// "pres" is the variable name of the uploaded file in the server
-			fileToUpload.upload(request, "pres", false);	
+			request.method = URLRequestMethod.POST;
+			
+			// "fileUpload" is the variable name of the uploaded file in the server
+			fileToUpload.upload(request, "fileUpload", false);	
 		}
 		
 		/**

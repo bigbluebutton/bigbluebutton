@@ -2,6 +2,8 @@ package org.bigbluebutton.modules.presentation.model.business
 {
 	import mx.collections.ArrayCollection;
 	
+	import org.bigbluebutton.modules.presentation.model.Slide;
+	
 	public class PresentationSlides implements IPresentationSlides
 	{
 		private var _slides:ArrayCollection = new ArrayCollection();
@@ -23,15 +25,15 @@ package org.bigbluebutton.modules.presentation.model.business
 			_selected = num;
 		}
 		
-		public function getSlideAt(num:int):String {
-			return _slides.getItemAt(num) as String;
+		public function getSlideAt(num:int):Slide {
+			return _slides.getItemAt(num) as Slide;
 		}
 		
 		public function clear():void {
 			_slides.removeAll();
 		}
 		
-		public function add(slide:String):void {
+		public function add(slide:Slide):void {
 			//LogUtil.debug('Adding slide ' + slide);
 			_slides.addItem(slide);
 		}

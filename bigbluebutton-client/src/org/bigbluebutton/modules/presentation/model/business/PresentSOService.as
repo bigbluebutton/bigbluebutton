@@ -3,6 +3,8 @@ package org.bigbluebutton.modules.presentation.model.business
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
 	import flash.events.SyncEvent;
+	import flash.net.NetConnection;
+	import flash.net.Responder;
 	import flash.net.SharedObject;
 	
 	import org.bigbluebutton.modules.presentation.PresentModuleConstants;
@@ -27,28 +29,31 @@ package org.bigbluebutton.modules.presentation.model.business
 		private static const CONVERT_RC:String = "CONVERT";
 		
 		private var _presentationSO:SharedObject;
-		private var netConnectionDelegate:NetConnectionDelegate;
 		
 		private var _slides:IPresentationSlides;
-		private var _uri:String;
+		private var _module:PresentationModule;
 		private var _connectionListener:Function;
 		private var _messageSender:Function;
 		private var _soErrors:Array;
 		
-		public function PresentSOService(uri:String, slides:IPresentationSlides)
+		private var currentSlide:Number = -1;
+		
+		public function PresentSOService(module:PresentationModule, slides:IPresentationSlides)
 		{			
-			_uri = uri;
-			_slides = slides;
-			netConnectionDelegate = new NetConnectionDelegate(uri, connectionListener);			
+			_module = module;
+			_slides = slides;			
 		}
 		
 		public function connect():void {
-			netConnectionDelegate.connect();
+//			netConnectionDelegate.connect();
+			join();
+			notifyConnectionStatusListener(true);
 		}
 			
 		public function disconnect():void {
 			leave();
-			netConnectionDelegate.disconnect();
+			notifyConnectionStatusListener(false, ["Disconnected to presetation application"]);
+//			netConnectionDelegate.disconnect();
 		}
 		
 		private function connectionListener(connected:Boolean, errors:Array=null):void {
@@ -63,14 +68,15 @@ package org.bigbluebutton.modules.presentation.model.business
 		
 	    private function join() : void
 		{
-			_presentationSO = SharedObject.getRemote(SHAREDOBJECT, _uri, false);			
+			_presentationSO = SharedObject.getRemote(SHAREDOBJECT, _module.uri, false);			
 			_presentationSO.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
 			_presentationSO.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
 			_presentationSO.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);			
 			_presentationSO.client = this;
-			_presentationSO.connect(netConnectionDelegate.connection);
+			_presentationSO.connect(_module.connection);
 			LogUtil.debug(NAME + ": PresentationModule is connected to Shared object");
-			notifyConnectionStatusListener(true);			
+			notifyConnectionStatusListener(true);	
+			if (_module.mode == 'LIVE')	getPresentationInfo();		
 		}
 		
 	    private function leave():void
@@ -179,12 +185,73 @@ package org.bigbluebutton.modules.presentation.model.business
 		public function setPresenterName(presenterName:String):void {
 			_presentationSO.setProperty(PRESENTER, presenterName);
 		}
-
-        private function time():String
-		{
-			var date:Date = new Date();
-			var t:String = date.toLocaleTimeString();
-			return t;
+		
+		public function getPresentationInfo():void {
+			var nc:NetConnection = _module.connection;
+			nc.call(
+				"presentation.getPresentationInfo",// Remote function name
+				new Responder(
+	        		// participants - On successful result
+					function(result:Object):void { 	
+						LogUtil.debug("Successfully querried for presentation information.");					 
+						if (result.presenter.hasPresenter) {
+							sendMessage(PresentModuleConstants.VIEWER_MODE);							
+						}	
+						
+						if (result.presentation.sharing) {
+							currentSlide = Number(result.presentation.slide);
+							sendMessage(PresentModuleConstants.START_SHARE);
+						}
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+							} 
+					}
+				) //new Responder
+			); //_netConnection.call
+		}
+		
+		public function assignPresenter(userid:Number, name:String, assignedBy:Number):void {
+			var nc:NetConnection = _module.connection;
+			nc.call(
+				"presentation.assignPresenter",// Remote function name
+				new Responder(
+	        		// participants - On successful result
+					function(result:Boolean):void { 
+						 
+						if (result) {
+							LogUtil.debug("Successfully assigned presenter to: " + userid);							
+						}	
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+							} 
+					}
+				), //new Responder
+				userid,
+				name,
+				assignedBy
+			); //_netConnection.call
+		}
+		
+		/**
+		 * Called by the server to assign a presenter
+		 */
+		public function assignPresenterCallback(userid:Number, name:String, assignedBy:Number):void {
+			LogUtil.debug("assignPresenterCallback " + userid + "," + name + "," + assignedBy);
+			if (userid == _module.userid) {
+				LogUtil.debug("assignPresenterCallback - sending presenter mode");
+				sendMessage(PresentModuleConstants.PRESENTER_MODE, {userid:userid, presenterName:name, assignedBy:assignedBy});
+			} else {
+				LogUtil.debug("assignPresenterCallback - sending viewer mode");
+				sendMessage(PresentModuleConstants.VIEWER_MODE);
+			}
 		}
 		
 		/**
@@ -194,10 +261,27 @@ package org.bigbluebutton.modules.presentation.model.business
 		 */		
 		public function gotoSlide(num:int) : void
 		{
-			LogUtil.info("[" + time() + " - Showing slide (" + num + ")]");
-			_presentationSO.send("gotoPageCallback", num);
-			
-			_presentationSO.setProperty(CURRENT_PAGE, num);
+			var nc:NetConnection = _module.connection;
+			nc.call(
+				"presentation.gotoSlide",// Remote function name
+				new Responder(
+	        		// participants - On successful result
+					function(result:Boolean):void { 
+						 
+						if (result) {
+							LogUtil.debug("Successfully moved page to: " + num);							
+						}	
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+							} 
+					}
+				), //new Responder
+				num
+			); //_netConnection.call
 		}
 		
 		/**
@@ -206,24 +290,48 @@ package org.bigbluebutton.modules.presentation.model.business
 		 * @param page
 		 * 
 		 */		
-		public function gotoPageCallback(page : Number) : void
+		public function gotoSlideCallback(page : Number) : void
 		{
 			sendMessage(PresentModuleConstants.DISPLAY_SLIDE, page);
 		}
 
 		public function getCurrentSlideNumber():void {
-			if (_presentationSO.data[CURRENT_PAGE] != null) {
-				sendMessage(PresentModuleConstants.DISPLAY_SLIDE, _presentationSO.data[CURRENT_PAGE]);
+			if (currentSlide >= 0) {
+				sendMessage(PresentModuleConstants.DISPLAY_SLIDE, currentSlide);
 			}				
 		}
 		
 		public function sharePresentation(share:Boolean):void {
-			LogUtil.debug('SO Sharing presentation = ' + share);
-			_presentationSO.data[SHARING] = share;
-			_presentationSO.setDirty(SHARING);
+			var nc:NetConnection = _module.connection;
+			nc.call(
+				"presentation.sharePresentation",// Remote function name
+				new Responder(
+	        		// participants - On successful result
+					function(result:Boolean):void { 
+						 
+						if (result) {
+							LogUtil.debug("Successfully shared presentation");							
+						}	
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+							} 
+					}
+				), //new Responder
+				"default", // hardocde this for now...this will be used later to pre-upload multiple presentation
+				share
+			); //_netConnection.call
 		}
 
-	
+		public function sharePresentationCallback(presentationName:String, share:Boolean):void {
+			LogUtil.debug("sharePresentationCallback " + presentationName + "," + share);
+			if (share) {
+				sendMessage(PresentModuleConstants.START_SHARE);
+			}
+		}
 		
 		/**
 		 * Event called automatically once a SharedObject Sync method is received 
@@ -292,9 +400,9 @@ package org.bigbluebutton.modules.presentation.model.business
 			switch (returnCode)
 			{
 				case SUCCESS_RC:
+					LogUtil.debug("PresentationDelegate - SUCCESS_RC");
 					message = _presentationSO.data.updateMessage.message;
 					sendMessage(PresentModuleConstants.CONVERT_SUCCESS_EVENT, message);
-					//LogUtil.debug("PresentationDelegate - SUCCESS_RC");
 					break;
 					
 				case UPDATE_RC:
@@ -309,8 +417,7 @@ package org.bigbluebutton.modules.presentation.model.business
 				case EXTRACT_RC:
 					totalSlides = _presentationSO.data.updateMessage.totalSlides;
 					completedSlides = _presentationSO.data.updateMessage.completedSlides;
-					//LogUtil.debug( "EXTRACTING = [" + completedSlides + " of " + totalSlides + "]");
-					
+					LogUtil.debug( "EXTRACTING = [" + completedSlides + " of " + totalSlides + "]");					
 					sendMessage(PresentModuleConstants.EXTRACT_PROGRESS_EVENT,
 										new ProgressNotifier(totalSlides,completedSlides));
 					
@@ -318,8 +425,7 @@ package org.bigbluebutton.modules.presentation.model.business
 				case CONVERT_RC:
 					totalSlides = _presentationSO.data.updateMessage.totalSlides;
 					completedSlides = _presentationSO.data.updateMessage.completedSlides;
-					//LogUtil.debug( "CONVERTING = [" + completedSlides + " of " + totalSlides + "]");
-					
+					LogUtil.debug( "CONVERTING = [" + completedSlides + " of " + totalSlides + "]");					
 					sendMessage(PresentModuleConstants.CONVERT_PROGRESS_EVENT,
 										new ProgressNotifier(totalSlides, completedSlides));							
 					break;			

@@ -87,7 +87,7 @@ package org.bigbluebutton.modules.presentation.model.business
 			switch ( statusCode ) 
 			{
 				case "NetConnection.Connect.Success" :
-					LogUtil.debug("Connection to voice application succeeded.");
+					LogUtil.debug("Connection to presentation application succeeded.");
 					_connectionListener(true);					
 					break;
 			

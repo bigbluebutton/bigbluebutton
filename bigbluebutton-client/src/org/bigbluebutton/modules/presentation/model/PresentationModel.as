@@ -38,7 +38,7 @@ package org.bigbluebutton.modules.presentation.model
 		/**
 		 * The userid of this participant.
 		 */
-		public var userid : Number;
+//		public var userid : Number;
 		
 		// If connected to the presentation server or not
 		[Bindable] public var isConnected : Boolean = false;				
@@ -106,10 +106,10 @@ package org.bigbluebutton.modules.presentation.model
 			decks.selected = 0;
 		}
 		
-		public function open(userid:Number):void
-		{
-			this.userid = userid;
-		}
+//		public function open1(userid:Number):void
+//		{
+//			this.userid = userid;
+//		}
 		
 		public function close():void
 		{

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="170" height="210" borderStyle="solid" 
+	title="Call History" showCloseButton="true" close="close()" backgroundColor="#4C4C4C" color="#E8E8E8" verticalAlign="middle" fontSize="10" cornerRadius="16" horizontalScrollPolicy="off">
+	<mx:Script>
+		<![CDATA[
+			import mx.managers.PopUpManager;
+			
+			private function close():void {
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function dial(event:Event):void {
+				parentApplication.phoneCanvas.doCall2(event.currentTarget.selectedItem.label);
+				PopUpManager.removePopUp(this);
+			}
+			
+			public function tipDisplay(item:Object):String {
+				return "Account : " + item.data + "\nTime: " + item.time
+			}
+			
+		]]>
+	</mx:Script>
+	<mx:Accordion x="0" y="10" width="150" height="160" color="#141414" fontWeight="bold">
+		<mx:Canvas label="Missed Call" width="100%" height="100%"  color="#2C2B2B" borderColor="#010101" fontWeight="normal">
+			<mx:List id="missCallList" dataProvider="{parentApplication.phoneCanvas.missedCalls}"  showDataTips="true" dataTipFunction="tipDisplay"  itemClick="dial(event)" x="0" y="0" width="148" height="96" ></mx:List>
+		</mx:Canvas> 
+		<mx:Canvas label="Received Call" width="100%" height="100%" fontWeight="normal">
+			<mx:List id="receivedCallList" dataProvider="{parentApplication.phoneCanvas.receivedCalls}" showDataTips="true" dataTipFunction="tipDisplay"  itemClick="dial(event)" x="0" y="0" width="148" height="96"></mx:List>
+		</mx:Canvas>
+		<mx:Canvas label="Dialed Call" width="100%" height="100%" fontWeight="normal">
+			<mx:List id="dialCallList"   dataProvider="{parentApplication.phoneCanvas.dialedCalls}" showDataTips="true"  dataTipFunction="tipDisplay" itemClick="dial(event)" x="0" y="0" width="148" height="96" fontWeight="normal"></mx:List>
+		</mx:Canvas>
+	</mx:Accordion>
+	
+</mx:TitleWindow>
