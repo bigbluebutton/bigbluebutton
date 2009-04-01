@@ -49,7 +49,6 @@
 	
 	<property environment="env"/>
 	<property name="java.home" value="${env.JDK_HOME}"/>
-	<!--property name="red5.home" value="${env.RED5_HOME}"/-->
 	<property name="red5.home" value="${red5_home}"/>
 	<property name="webapp.src.dir" value="webapps"/>
 	<property name="lib.dir" value="lib"/>
@@ -102,10 +101,6 @@
 	
 	<taskdef name="groovyc" classname="org.codehaus.groovy.ant.Groovyc"
 		classpathref="groovy.classpath"/>
-
-
-	<!--taskdef name="testng" classpathref="compile.classpath"
-	          classname="org.testng.TestNGAntTask" /-->
 
 	<!-- Build Targets -->
 	<target name="prepare" depends="clean" description="Setup directories for build">
@@ -256,7 +251,6 @@
 	
 	<target name="deploy" description="Deploy apps into red5" depends="dist">
 		<!-- need to do this one-by-one as it seems like macrodef does not support delete -->
-		<delete dir="${red5.home}/webapps/astmeetme"/>
 		<delete dir="${red5.home}/webapps/bigbluebutton"/>
 		<copy todir="${red5.home}/webapps">
 			   	<fileset dir="${dist.webapps.dir}"/>
@@ -308,7 +302,7 @@
       	</sequential>
 	</macrodef>	
 	
-	<macrodef name="astmeetme-lib">
+	<macrodef name="voice-lib">
 	   		<attribute name="webapp"/>
 	   		<sequential>	
 				<copy todir="${dist.webapps.dir}/@{webapp}/WEB-INF/lib/">
@@ -352,7 +346,7 @@
 				<logback webapp="bigbluebutton"/>
 				<bigbluebutton-lib webapp="bigbluebutton"/>
 				<presentation-lib webapp="bigbluebutton"/>
-				<astmeetme-lib webapp="bigbluebutton"/>
+				<voice-lib webapp="bigbluebutton"/>
 			</copy-assets>
 		</copy-app>
 	</target>
