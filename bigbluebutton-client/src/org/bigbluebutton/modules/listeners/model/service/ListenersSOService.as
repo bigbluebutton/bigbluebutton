@@ -45,6 +45,7 @@ package org.bigbluebutton.modules.listeners.model.service
 		private var _messageSender:Function;
 		private var nc_responder : Responder;
 		private var _soErrors:Array;
+		private var pingCount:int = 0;
 		private var _module:ListenersModule;
 							
 		public function ListenersSOService(listeners:IListeners, module:ListenersModule)
@@ -281,43 +282,43 @@ package org.bigbluebutton.modules.listeners.model.service
 			if (_messageSender != null) _messageSender(msg, body);
 		}
 		
-		private function netStatusHandler ( event : NetStatusEvent ) : void
+		private function netStatusHandler (event:NetStatusEvent):void
 		{
-			var statusCode : String = event.info.code;
+			var statusCode:String = event.info.code;
 			
-			switch ( statusCode ) 
+			switch (statusCode) 
 			{
-				case "NetConnection.Connect.Success" :
+				case "NetConnection.Connect.Success":
 					LogUtil.debug(LOGNAME + ":Connection Success");			
 					break;
 			
-				case "NetConnection.Connect.Failed" :	
+				case "NetConnection.Connect.Failed":	
 					LogUtil.error(LOGNAME + "ChatSO connection failed.");		
 					addError("ChatSO connection failed");
 					break;
 					
-				case "NetConnection.Connect.Closed" :			
+				case "NetConnection.Connect.Closed":			
 					LogUtil.error(LOGNAME + "Connection to VoiceSO was closed.");						
 					addError("Connection to VoiceSO was closed.");									
 					notifyConnectionStatusListener(false, _soErrors);
 					break;
 					
-				case "NetConnection.Connect.InvalidApp" :	
+				case "NetConnection.Connect.InvalidApp":	
 					LogUtil.error(LOGNAME + "VoiceSO not found in server");			
 					addError("VoiceSO not found in server");	
 					break;
 					
-				case "NetConnection.Connect.AppShutDown" :
+				case "NetConnection.Connect.AppShutDown":
 					LogUtil.error(LOGNAME + "VoiceSO is shutting down");	
 					addError("VoiceSO is shutting down");
 					break;
 					
-				case "NetConnection.Connect.Rejected" :
+				case "NetConnection.Connect.Rejected":
 					LogUtil.error(LOGNAME + "No permissions to connect to the voiceSO");
 					addError("No permissions to connect to the voiceSO");
 					break;
 					
-				default :
+				default:
 				   LogUtil.debug(NAME + ":default - " + event.info.code );
 				   break;
 			}

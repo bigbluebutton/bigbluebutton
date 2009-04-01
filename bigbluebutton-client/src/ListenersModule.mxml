@@ -77,7 +77,7 @@
 			public function get recordingHost():String {
 				return _attributes.recordingHost;
 			}
-			
+			   
 			public function isModerator():Boolean {
 				LogUtil.debug("LISTENER-ROLE:" + _attributes.userrole);
 				return _attributes.userrole == "MODERATOR";

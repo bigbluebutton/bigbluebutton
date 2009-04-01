@@ -35,7 +35,9 @@
 			[Bindable] private var backwardIcon : Class = images.backward;
 			[Bindable] private var thumbnailIcon : Class = images.thumbnails;
 			[Bindable] private var magnifierIcon : Class = images.magnifier;
-											
+						
+			[Bindable] private var thumbY:Number;
+								
 			public var uploadWindow:FileUploadWindow = null;
 			
 			private var _xPosition:int;

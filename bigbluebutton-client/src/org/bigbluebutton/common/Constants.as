@@ -30,7 +30,7 @@ package org.bigbluebutton.common
 	 */	
 	public class Constants
 	{			
-		public static const VERSION:String = "0.35r";
+		public static const VERSION:String = "0.4a";
 		public static const NUM_MODULES:String = "5";
 		
 		public static const LOG_TARGET_NAME:String = "BBBLOGGER";

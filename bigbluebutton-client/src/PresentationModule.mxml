@@ -15,7 +15,7 @@
 			private function onCreationComplete():void {
 				LogUtil.debug("PresentationModule Initialized");			
 			}
-			
+			 
 			public function acceptRouter(router:Router):void{
 				_router = router;
 			}
