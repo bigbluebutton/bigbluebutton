@@ -6,9 +6,12 @@
 		<conf name="test" extends="default" description="Unit testing dependencies"/>
 	</configurations>
     <dependencies>
+    	<!-- Documentation -->
+    	<dependency org="net.jcip" name="jcip-annotations" rev="1.0" />
     	<!-- Testing support -->
         <dependency name="junit" rev="4.0"/>
         <dependency org="org.testng" name="testng" rev="5.8"/>
+        <dependency org="org/fitnesse" name="fitnesse" rev="20090214"/>
         <dependency org="org.easymock" name="easymock" rev="2.4"/>
         <dependency org="commons" name="commons-lang" rev="2.3" />
         <!-- Logging --> 
@@ -19,12 +22,15 @@
         <dependency name="jcl104-over-slf4j" rev="1.4.3" />
         <dependency name="log4j-over-slf4j" rev="1.4.3" />
 		<!-- BigblueButton -->
-		<dependency org="org.red5" name="red5" rev="0.70"/>
-		<dependency org="asterisk" name="asterisk-java" rev="0.3.1"/>
-		<dependency org="activemq" name="activemq-core" rev="4.1.1"/>
+		<dependency org="org/red5" name="red5-sip" rev="0.7"/>
+		<dependency org="org.asteriskjava" name="asterisk-java" rev="0.3.1"/>
+		<dependency org="org.apache.activemq" name="activemq-core" rev="5.1.0"/>
+		<dependency org="org.codehaus.groovy" name="groovy-all" rev="1.5.6"/>
 		<dependency org="geronimo" name="geronimo-j2ee-management_1.0_spec" rev="1.0"/>
 		<dependency org="geronimo" name="geronimo-jms_1.1_spec" rev="1.0"/>
 		<dependency org="javax" name="servlet-api" rev="2.5"/>
+		<dependency org="spring" name="spring-jms" rev="2.0.8" />
+		<dependency org="org/ho" name="jyaml" rev="1.3" />
         <!-- Spring --> 
         <dependency org="spring" name="spring-dao" rev="2.0.8" />
         <dependency org="spring" name="spring-aop" rev="2.0.8" />
@@ -34,5 +40,7 @@
         <dependency org="spring" name="spring-web" rev="2.0.8" />
         <dependency org="org.springframework" name="spring-jms" rev="2.0.8" />
         <dependency org="spring" name="aopalliance" rev="" />
+        
+        <dependency org="mina" name="mina-core" rev="1.1.6" />
     </dependencies>
 </ivy-module>

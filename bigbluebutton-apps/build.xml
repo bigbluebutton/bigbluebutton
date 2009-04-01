@@ -26,7 +26,7 @@
 
 	<property name="dist.dir" location="dist" />
 	<property name="project.name" value="${ant.project.name}" />
-	<property name="target.version" value="1.0"/>
+	<property name="target.version" value="0.5"/>
 	<property name="project.name-ver" value="${project.name}-${target.version}" />
 	<property name="target.extension" value="jar"/>
 	<property name="target.name" value="${project.name-ver}.${target.extension}" />
@@ -49,7 +49,8 @@
 	
 	<property environment="env"/>
 	<property name="java.home" value="${env.JDK_HOME}"/>
-	<property name="red5.home" value="${env.RED5_HOME}"/>
+	<!--property name="red5.home" value="${env.RED5_HOME}"/-->
+	<property name="red5.home" value="${red5_home}"/>
 	<property name="webapp.src.dir" value="webapps"/>
 	<property name="lib.dir" value="lib"/>
 
@@ -94,6 +95,17 @@
 	  <path refid="test.classpath"/>
 	  <pathelement path="${java.class.path}"/>
 	</path>
+	
+	<path id="groovy.classpath">
+		<fileset dir="${env.GROOVY_HOME}/embeddable/"/>
+	</path>
+	
+	<taskdef name="groovyc" classname="org.codehaus.groovy.ant.Groovyc"
+		classpathref="groovy.classpath"/>
+
+
+	<!--taskdef name="testng" classpathref="compile.classpath"
+	          classname="org.testng.TestNGAntTask" /-->
 
 	<!-- Build Targets -->
 	<target name="prepare" depends="clean" description="Setup directories for build">
@@ -190,6 +202,18 @@
 			<copy-assets/>
       	</sequential>
 	</macrodef>
+	
+	<macrodef name="build-groovy">
+		<attribute name="name"/>
+		<element name="copy-assets" optional="yes"/>
+		<sequential>
+			<mkdir dir="${webapps.build.dir}/@{name}"/>
+			<groovyc srcdir="${webapp.src.dir}/@{name}/src" destdir="${webapps.build.dir}/@{name}"
+					 classpathref="full.classpath"/>
+
+			<copy-assets/>
+		</sequential>
+	</macrodef>
 		
 	<!-- Apps -->
 	<target name="compile_apps" description="Build bigbluebutton apps">
@@ -197,12 +221,9 @@
 		<echo message="Webapps build dir: ${webapps.build.dir}"/>
 		<echo message="Webapps build dir: ${full.classpath}"/>
 		
+		<build-groovy name="bigbluebutton"/>
 		<!-- build apps -->
-		<build-app name="astmeetme"/>
 		<build-app name="bigbluebutton"/>
-		<build-app name="conference"/>
-		<build-app name="chatServer"/>
-		<build-app name="presentation"/>
 	</target>
 
 	<macrodef name="compile-jarapp">
@@ -221,11 +242,7 @@
 	
 	<target name="jar" description="Make Archive" depends="compile">
 		<!-- create jar files for apps -->
-		<compile-jarapp name="astmeetme"/>
 		<compile-jarapp name="bigbluebutton"/>
-		<compile-jarapp name="conference"/>
-		<compile-jarapp name="chatServer"/>
-		<compile-jarapp name="presentation"/>
 	</target>
 
 	<macrodef name="deploy-app">
@@ -241,9 +258,6 @@
 		<!-- need to do this one-by-one as it seems like macrodef does not support delete -->
 		<delete dir="${red5.home}/webapps/astmeetme"/>
 		<delete dir="${red5.home}/webapps/bigbluebutton"/>
-		<delete dir="${red5.home}/webapps/conference"/>
-		<delete dir="${red5.home}/webapps/chatServer"/>
-		<delete dir="${red5.home}/webapps/presentation"/>
 		<copy todir="${red5.home}/webapps">
 			   	<fileset dir="${dist.webapps.dir}"/>
 		</copy>		
@@ -253,16 +267,10 @@
 			<touch>
 				<fileset dir="${dist.dir}"/>
 			</touch>
-			<tar destfile="${red5.archive}" basedir="${dist.dir}" compression="gzip"
+			<tar destfile="${target.tar.gz}" basedir="${dist.dir}" compression="gzip"
 			     longfile="gnu">
 				<tarfileset dir="${dist.dir}" mode="755">
-					<include name="${dist.dir}/red5.sh"/>
-					<include name="${dist.dir}/red5-shutdown.sh"/>
-					<include name="${dist.dir}/red5-debug.sh"/>
-				</tarfileset>
-				<tarfileset dir="${dist.dir}">
-					<include name="${dist.dir}/**"/>
-					<exclude name="${dist.dir}/*.sh"/>
+					<include name="${dist.dir}/webapps/bigbluebutton/**"/>
 				</tarfileset>
 			</tar>
 	</target>	
@@ -281,7 +289,7 @@
    					<exclude name="**/lib/**"/>
    				</fileset>
    			</copy>
-			<!-- copy files (optional) -->
+			<!-- copy files (optional) --> 
 			<copy-assets/>
       	</sequential>
 	</macrodef>
@@ -300,30 +308,51 @@
       	</sequential>
 	</macrodef>	
 	
-	<target name="dist" description="Make Binary distribution" depends="jar">
-		<copy-app name="astmeetme">
-			<copy-assets>
-				<logback webapp="astmeetme"/>
-			</copy-assets>
-		</copy-app>
+	<macrodef name="astmeetme-lib">
+	   		<attribute name="webapp"/>
+	   		<sequential>	
+				<copy todir="${dist.webapps.dir}/@{webapp}/WEB-INF/lib/">
+					<fileset dir="${lib.dir}">
+						<include name="asterisk-java-0.3.1.jar"/>
+					</fileset>
+				</copy>		
+	      	</sequential>
+	</macrodef>
+		
+	<macrodef name="presentation-lib">
+	   		<attribute name="webapp"/>
+	   		<sequential>		
+				<copy todir="${dist.webapps.dir}/@{webapp}/WEB-INF/lib/">
+					<fileset dir="${lib.dir}">
+						<include name="spring-jms-2.0.8.jar"/>
+						<include name="activemq-core-5.1.0.jar"/>
+						<include name="geronimo-j2ee-management_1.0_spec-1.0.jar"/>
+						<include name="geronimo-jms_1.1_spec-1.0.jar"/>
+						
+					</fileset>
+				</copy>		
+	      	</sequential>
+	</macrodef>
+	
+	<macrodef name="bigbluebutton-lib">
+		   		<attribute name="webapp"/>
+		   		<sequential>		
+					<copy todir="${dist.webapps.dir}/@{webapp}/WEB-INF/lib/">
+						<fileset dir="${lib.dir}">
+							<include name="groovy-all-1.5.6.jar"/>
+							<include name="jyaml-1.3.jar"/>
+						</fileset>
+					</copy>		
+		      	</sequential>
+		</macrodef>
+	
+	<target name="dist" description="Make Binary distribution" depends="testng-reports, jar">
 		<copy-app name="bigbluebutton">
 			<copy-assets>
 				<logback webapp="bigbluebutton"/>
-			</copy-assets>
-		</copy-app>
-		<copy-app name="conference">
-			<copy-assets>
-				<logback webapp="conference"/>
-			</copy-assets>
-		</copy-app>
-		<copy-app name="chatServer">
-			<copy-assets>
-				<logback webapp="chatServer"/>
-			</copy-assets>
-		</copy-app>
-		<copy-app name="presentation">
-			<copy-assets>
-				<logback webapp="presentation"/>
+				<bigbluebutton-lib webapp="bigbluebutton"/>
+				<presentation-lib webapp="bigbluebutton"/>
+				<astmeetme-lib webapp="bigbluebutton"/>
 			</copy-assets>
 		</copy-app>
 	</target>
@@ -335,19 +364,27 @@
 				prefix="${project.name-ver}"/>
 		</zip>
 	</target>
-
 	
 	<target name="test-compile" depends="jar">
+		<compile-groovy-tests/>
 	    <javac destdir="${test.classes.dir}"
 	           debug="true"
 	           includeAntRuntime="yes"
-	           srcdir="test">
+	           srcdir="test/src">
 	      <classpath refid="test.compile.classpath"/>
 	    </javac>
 		<taskdef name="testng" classpathref="compile.classpath"
 				          classname="org.testng.TestNGAntTask" />
 	</target>
 
+	<macrodef name="compile-groovy-tests">
+		<sequential>
+		<mkdir dir="${test.classes.dir}"/>
+		<groovyc srcdir="test/src" destdir="${test.classes.dir}"
+				 classpathref="test.compile.classpath"/>
+		</sequential>
+	</macrodef>
+	
 	<target name="test-ng" depends="test-compile">
 	      <echo message="running tests"/>
 	      <testng classpathref="test.classpath" outputDir="${test.data.dir}">

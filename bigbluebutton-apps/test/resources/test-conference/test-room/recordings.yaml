@@ -1,0 +1,41 @@
+--- 
+application: PARTICIPANT
+event: participantJoined
+date: !java.lang.Long 1237212144317
+user: !java.util.HashMap
+  status: !java.util.Collections$UnmodifiableMap
+    raiseHand: &4 false
+    hasStream: *4
+    presenter: *4
+  name: RE
+  userid: !java.lang.Long 0
+  role: MODERATOR
+--- 
+application: PARTICIPANT
+event: participantLeft
+date: !java.lang.Long 1237212189988
+user: !java.lang.Long 0
+--- 
+application: PARTICIPANT
+event: participantJoined
+date: !java.lang.Long 1237212197806
+user: !java.util.HashMap
+  status: !java.util.Collections$UnmodifiableMap
+    raiseHand: &4 false
+    hasStream: *4
+    presenter: *4
+  name: RE
+  userid: !java.lang.Long 1
+  role: MODERATOR
+--- 
+application: PARTICIPANT
+status: presenter
+event: participantStatusChange
+value: true
+userid: !java.lang.Long 1
+date: !java.lang.Long 1237212203231
+--- 
+application: PARTICIPANT
+event: participantLeft
+date: !java.lang.Long 1237212277129
+user: !java.lang.Long 1

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-	<appender name="CONFERENCE" class="ch.qos.logback.core.FileAppender">
+	<appender name="BIGBLUEBUTTON" class="ch.qos.logback.core.FileAppender">
 		<File>log/bigbluebutton.log</File>
 		<Append>false</Append>
 		<Encoding>UTF-8</Encoding>
@@ -12,10 +12,26 @@
 			</Pattern>
 		</layout>
 	</appender>
+	<appender name="RECORDER" class="ch.qos.logback.core.FileAppender">
+		<File>log/recorded.log</File>
+		<Append>true</Append>
+		<Encoding>UTF-8</Encoding>
+		<BufferedIO>false</BufferedIO>
+		<ImmediateFlush>true</ImmediateFlush>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<Pattern>
+				[%date] - %msg%n
+			</Pattern>
+		</layout>
+	</appender>
 	<root>
 		<level value="DEBUG" />
 		<appender-ref ref="BIGBLUEBUTTON" />
 	</root>	
+	<logger name="RECORD-BIGBLUEBUTTON">
+		<appender-ref ref="RECORDER" />
+		<level value="DEBUG" />
+	</logger>
 	<!--logger name="org.blindsideproject.chat">
 		<level value="DEBUG" />
 	</logger-->			

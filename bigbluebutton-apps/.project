@@ -5,6 +5,12 @@
 	<projects>
 	</projects>
 	<buildSpec>
+
+		<buildCommand>
+			<name>org.codehaus.groovy.eclipse.groovyBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
 		<buildCommand>
 			<name>org.eclipse.jdt.core.javabuilder</name>
 			<arguments>
@@ -12,6 +18,8 @@
 		</buildCommand>
 	</buildSpec>
 	<natures>
+
 		<nature>org.eclipse.jdt.core.javanature</nature>
+		<nature>org.codehaus.groovy.eclipse.groovyNature</nature>
 	</natures>
 </projectDescription>

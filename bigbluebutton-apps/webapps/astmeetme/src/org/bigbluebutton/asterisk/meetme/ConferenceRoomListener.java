@@ -90,6 +90,8 @@ public class ConferenceRoomListener extends AbstractAsteriskServerListener {
 			args.add(new Boolean(user.isTalking()));
 			
 			so.sendMessage("userJoin", args);
+		} else {
+			log.warn("No Shared object for room " + roomNumber);
 		}
     }
     
