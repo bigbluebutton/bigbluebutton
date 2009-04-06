@@ -26,16 +26,20 @@
                 <artifact pattern="http://blindside.googlecode.com/svn/repository/[artifact](-[revision]).[ext]" />
                 <artifact pattern="http://blindside.googlecode.com/svn/repository/[organisation]/[artifact](-[revision]).[ext]" />
             </url>   
-            <url name="ibiblio_maven2" m2compatible="true">
+            <url name="maven2-central" m2compatible="true">
+  				<artifact pattern="http://repo1.maven.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision]).[ext]" /> 
+  				<artifact pattern="http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision]).[ext]" /> 
+  			</url>
+            <!--url name="ibiblio_maven2" m2compatible="true">
   				<artifact pattern="http://www.ibiblio.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision]).[ext]" /> 
   				<artifact pattern="http://www.ibiblio.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision]).[ext]" /> 
   			</url>
-  			<ibiblio name="ibiblio" />     
+  			<ibiblio name="ibiblio" /-->     
         </chain>
         <chain name="testng" returnFirst="true">     
             <url name="testng_ibiblio_maven2" m2compatible="true">
-  				<artifact pattern="http://www.ibiblio.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision])-jdk15.[ext]" /> 
-  				<artifact pattern="http://www.ibiblio.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision])-jdk15.[ext]" /> 
+  				<artifact pattern="http://repo1.maven.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision])-jdk15.[ext]" /> 
+  				<artifact pattern="http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision])-jdk15.[ext]" /> 
   			</url>      
         </chain>
     </resolvers>
