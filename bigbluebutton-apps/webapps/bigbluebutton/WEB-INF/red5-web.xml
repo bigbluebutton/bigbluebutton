@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
-	
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:lang="http://www.springframework.org/schema/lang"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                           http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
+
 	<bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 	    <property name="locations">
 	    	<list>
@@ -23,7 +26,7 @@
 		<property name="virtualHosts" value="${webapp.virtualHosts}" />
 	</bean>
 
-	<bean id="web.handler" class="org.bigbluebutton.conference.BigBlueButtonApplication" singleton="true">
+	<bean id="web.handler" class="org.bigbluebutton.conference.BigBlueButtonApplication">
 		<property name="participantsApplication"> <ref local="participantsApplication"/></property>		
 		<property name="applicationListeners">
     		<set>
@@ -36,39 +39,39 @@
   		<property name="archiveApplication"> <ref local="archiveApplication"/></property>			
 	</bean>
 	
-	<bean id="roomsManager" class="org.bigbluebutton.conference.RoomsManager" singleton="true" />
+	<bean id="roomsManager" class="org.bigbluebutton.conference.RoomsManager"/>
 			
-	<bean id="participantsHandler" class="org.bigbluebutton.conference.service.participants.ParticipantsHandler" singleton="true" >
+	<bean id="participantsHandler" class="org.bigbluebutton.conference.service.participants.ParticipantsHandler">
 		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
 		<property name="archiveApplication"> <ref local="archiveApplication"/></property>
 	</bean>
 	
 	<bean id="participantsApplication" 
-	    class="org.bigbluebutton.conference.service.participants.ParticipantsApplication" singleton="true" >
+	    class="org.bigbluebutton.conference.service.participants.ParticipantsApplication">
 		<property name="roomsManager"> <ref local="roomsManager"/></property>
 	</bean>
 	
-	<bean id="participants.service" class="org.bigbluebutton.conference.service.participants.ParticipantsService" singleton="true" >
+	<bean id="participants.service" class="org.bigbluebutton.conference.service.participants.ParticipantsService">
 		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
 	</bean>
 	
 	<!-- BEGIN ARCHIVE -->
-	<bean id="archiveApplication" class="org.bigbluebutton.conference.service.archive.ArchiveApplication" singleton="true">
+	<bean id="archiveApplication" class="org.bigbluebutton.conference.service.archive.ArchiveApplication">
 		<property name="recordingsDirectory" value="${recordingsDirectory}"/>
 		<property name="playbackJobScheduler"> <ref local="playbackJobScheduler"/></property>
 	</bean>
 	
-	<bean id="archive.service" class="org.bigbluebutton.conference.service.archive.ArchiveService" singleton="true" >
+	<bean id="archive.service" class="org.bigbluebutton.conference.service.archive.ArchiveService">
 		<property name="archiveApplication"> <ref local="archiveApplication"/></property>
 	</bean>
 	
-	<bean id="playbackJobScheduler" class="org.bigbluebutton.conference.service.archive.playback.PlaybackJobScheduler" singleton="true" />
+	<bean id="playbackJobScheduler" class="org.bigbluebutton.conference.service.archive.playback.PlaybackJobScheduler"/>
 	<!-- END ARCHIVE -->
 	
 	<!-- BEGIN PRESENTATION -->	
-	<bean id="presentationRoomsManager" class="org.bigbluebutton.conference.service.presentation.PresentationRoomsManager" singleton="true" />
+	<bean id="presentationRoomsManager" class="org.bigbluebutton.conference.service.presentation.PresentationRoomsManager"/>
 			
-	<bean id="presentationHandler" class="org.bigbluebutton.conference.service.presentation.PresentationHandler" singleton="true" >
+	<bean id="presentationHandler" class="org.bigbluebutton.conference.service.presentation.PresentationHandler">
 		<property name="presentationApplication"> 
 			<ref local="presentationApplication"/>
 		</property>
@@ -80,13 +83,13 @@
 		</property>
 	</bean>
 	
-	<bean id="presentationApplication" class="org.bigbluebutton.conference.service.presentation.PresentationApplication" singleton="true" >
+	<bean id="presentationApplication" class="org.bigbluebutton.conference.service.presentation.PresentationApplication">
 		<property name="roomsManager"> 
 			<ref local="presentationRoomsManager"/>
 		</property>
 	</bean>
 	
-	<bean id="presentation.service" class="org.bigbluebutton.conference.service.presentation.PresentationService" singleton="true" >
+	<bean id="presentation.service" class="org.bigbluebutton.conference.service.presentation.PresentationService">
 		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
 		<property name="presentationApplication"> <ref local="presentationApplication"/></property>
 	</bean>
@@ -109,7 +112,7 @@
         </constructor-arg>
     </bean>
     
-	<bean id="conversionUpdatesService" class="org.bigbluebutton.conference.service.presentation.ConversionUpdatesService" singleton="true">
+	<bean id="conversionUpdatesService" class="org.bigbluebutton.conference.service.presentation.ConversionUpdatesService">
 		<property name="jmsTemplate"> <ref local="jmsTemplate"/> </property>
 		<property name="destination"> <ref local="destination"/> </property> 
 		<property name="presentationApplication"> <ref local="presentationApplication"/></property>
@@ -117,46 +120,46 @@
   	<!-- END PRESENTATION -->
   	
   	<!-- BEGIN CHAT -->
-  	<bean id="chatHandler" class="org.bigbluebutton.conference.service.chat.ChatHandler" singleton="true" >
+  	<bean id="chatHandler" class="org.bigbluebutton.conference.service.chat.ChatHandler">
 		<property name="chatApplication"> <ref local="chatApplication"/></property>
 		<property name="archiveApplication"> <ref local="archiveApplication"/></property>
 	</bean>
 	
 	<bean id="chatApplication" 
-	    class="org.bigbluebutton.conference.service.chat.ChatApplication" singleton="true" >
+	    class="org.bigbluebutton.conference.service.chat.ChatApplication">
 		<property name="roomsManager"> <ref local="chatRoomsManager"/></property>
 	</bean>
 	
-	<bean id="chat.service" class="org.bigbluebutton.conference.service.chat.ChatService" singleton="true" >
+	<bean id="chat.service" class="org.bigbluebutton.conference.service.chat.ChatService">
 		<property name="chatApplication"> <ref local="chatApplication"/></property>
 	</bean>
 	
-	<bean id="chatRoomsManager" class="org.bigbluebutton.conference.service.chat.ChatRoomsManager" singleton="true" />
+	<bean id="chatRoomsManager" class="org.bigbluebutton.conference.service.chat.ChatRoomsManager"/>
 	<!-- END CHAT -->
 	
 	<!-- BEGIN VOICE -->
-	<bean id="voiceHandler" class="org.bigbluebutton.conference.service.voice.VoiceHandler" singleton="true" >
+	<bean id="voiceHandler" class="org.bigbluebutton.conference.service.voice.VoiceHandler">
 		<property name="voiceApplication"> <ref local="voiceApplication"/></property>
 		<property name="archiveApplication"> <ref local="archiveApplication"/></property>
 		<property name="IVoiceServer"> <ref local="asteriskVoiceServer"/></property>
 	</bean>
 	
-	<bean id="voiceApplication" class="org.bigbluebutton.conference.service.voice.VoiceApplication" singleton="true" >
+	<bean id="voiceApplication" class="org.bigbluebutton.conference.service.voice.VoiceApplication">
 		<property name="roomsManager"> <ref local="voiceRoomsManager"/></property>
 	</bean>
 	
-	<bean id="voice.service" class="org.bigbluebutton.conference.service.voice.VoiceService" singleton="true" >
+	<bean id="voice.service" class="org.bigbluebutton.conference.service.voice.VoiceService">
 		<property name="voiceApplication"> <ref local="voiceApplication"/></property>
 		<property name="IVoiceServer"> <ref local="asteriskVoiceServer"/></property>
 	</bean>
 	
-	<bean id="voiceRoomsManager" class="org.bigbluebutton.conference.service.voice.VoiceRoomsManager" singleton="true" />
+	<bean id="voiceRoomsManager" class="org.bigbluebutton.conference.service.voice.VoiceRoomsManager"/>
 	
-	<bean id="conferenceServerListener" class="org.bigbluebutton.conference.service.voice.ConferenceServerListener" singleton="true" >
+	<bean id="conferenceServerListener" class="org.bigbluebutton.conference.service.voice.ConferenceServerListener">
 		<property name="voiceApplication"> <ref local="voiceApplication"/></property>
 	</bean>
 	
-	<bean id="asteriskVoiceServer" class="org.bigbluebutton.conference.service.voice.asterisk.AsteriskVoiceServer" singleton="true" >
+	<bean id="asteriskVoiceServer" class="org.bigbluebutton.conference.service.voice.asterisk.AsteriskVoiceServer">
 		<property name="managerConnection"> <ref local="amiConnection"/> </property>
 		<property name="conferenceServerListener"> <ref local="conferenceServerListener"/></property>
 	</bean>

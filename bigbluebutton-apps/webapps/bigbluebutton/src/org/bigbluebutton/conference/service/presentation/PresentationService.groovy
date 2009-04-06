@@ -1,10 +1,12 @@
 package org.bigbluebutton.conference.service.presentation
-import org.slf4j.Loggerimport org.slf4j.LoggerFactoryimport org.red5.server.api.Red5
+import org.slf4j.Loggerimport org.slf4j.LoggerFactory
+import org.red5.logging.Red5LoggerFactory
+import org.red5.server.api.Red5
 import org.red5.server.api.IScopeimport org.bigbluebutton.conference.service.participants.ParticipantsApplication
 
 public class PresentationService {
 	
-	protected static Logger log = LoggerFactory.getLogger( PresentationService.class );
+	private static Logger log = Red5LoggerFactory.getLogger( PresentationService.class, "bigbluebutton" );
 	
 	private ParticipantsApplication participantsApplication
 	private PresentationApplication presentationApplication

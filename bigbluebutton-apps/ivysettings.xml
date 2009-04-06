@@ -44,8 +44,9 @@
         </chain>
     </resolvers>
     <modules>
-    	<module organisation="org.red5" name="red5" resolver="local_lib"/>
+    	<!--module organisation="org.red5" name="red5" resolver="local_lib"/-->
     	<module organisation="org/red5" name="red5-sip" resolver="remote"/>
+    	<module organisation="org.springframework" name="*" resolver="googlecode"/>
     	<module organisation="spring" name="*" resolver="googlecode"/>
         <module organisation="tomcat" name="*" resolver="googlecode"/>
         <module organisation="jetty" name="*" resolver="googlecode"/>

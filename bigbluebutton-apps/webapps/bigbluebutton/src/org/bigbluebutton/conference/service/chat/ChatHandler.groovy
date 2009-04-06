@@ -7,12 +7,14 @@ import org.red5.server.api.IConnection
 import org.red5.server.api.IScope
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.red5.logging.Red5LoggerFactory
+
 import org.red5.server.api.so.ISharedObject
 import org.red5.server.adapter.ApplicationAdapter
 import org.red5.server.api.Red5import java.util.Mapimport org.bigbluebutton.conference.service.chat.ChatRoomsManager
 import org.bigbluebutton.conference.service.chat.ChatRoomimport org.bigbluebutton.conference.BigBlueButtonSessionimport org.bigbluebutton.conference.Constantsimport org.bigbluebutton.conference.service.archive.ArchiveApplication
 public class ChatHandler extends ApplicationAdapter implements IApplication{
-	protected static Logger log = LoggerFactory.getLogger( ChatHandler.class )
+	private static Logger log = Red5LoggerFactory.getLogger( ChatHandler.class, "bigbluebutton" )
 
 	private static final String CHAT = "CHAT"
 	private static final String CHAT_SO = "chatSO"   

@@ -1,9 +1,10 @@
 package org.bigbluebutton.conference.service.archive.playback
 import java.util.concurrent.ConcurrentHashMapimport org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.red5.logging.Red5LoggerFactory
 
 public class PlaybackSession {
-	protected static Logger log = LoggerFactory.getLogger( PlaybackSession.class )
+	private static Logger log = Red5LoggerFactory.getLogger( PlaybackSession.class, "bigbluebutton" )
 	
 	private final String conference
 	private final String room

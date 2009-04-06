@@ -8,51 +8,25 @@
 	<display-name>BigBlueButton</display-name>
 
 	<context-param>
-	    <param-name>globalScope</param-name>
-	    <param-value>default</param-value>
-	</context-param>
-
-	<context-param>
-	    <param-name>contextConfigLocation</param-name>
-	    <param-value>
-			/WEB-INF/red5-*.xml
-		</param-value>
-	</context-param>
-
-	<context-param>
-		<param-name>locatorFactorySelector</param-name>
-		<param-value>red5.xml</param-value>
-	</context-param>
-
-	<context-param>
-		<param-name>parentContextKey</param-name>
-		<param-value>default.context</param-value>
-	</context-param>
-		
-	<context-param>
 		<param-name>webAppRootKey</param-name>
 		<param-value>/bigbluebutton</param-value>
 	</context-param>
 		
-	<listener>
-	    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-	</listener>
-	
-	<!--listener>
-		<listener-class>org.bigbluebutton.conference.service.presentation.JmsConnectionContextListener</listener-class>
-	</listener-->
-	
-    <!-- remove the following servlet tags if you want to disable remoting for this application -->
-    <servlet>
-        <servlet-name>gateway</servlet-name>
-        <servlet-class>org.red5.server.net.servlet.AMFGatewayServlet</servlet-class>
-    </servlet>
-    
-    <servlet-mapping>
-        <servlet-name>gateway</servlet-name>
-        <url-pattern>/gateway</url-pattern>
-    </servlet-mapping>
 
+    <listener>
+        <listener-class>org.red5.logging.ContextLoggingListener</listener-class>
+    </listener>
+    
+    <filter>
+        <filter-name>LoggerContextFilter</filter-name>
+        <filter-class>org.red5.logging.LoggerContextFilter</filter-class>
+    </filter>
+    
+    <filter-mapping>
+        <filter-name>LoggerContextFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>Forbidden</web-resource-name>
@@ -60,9 +34,5 @@
         </web-resource-collection>
         <auth-constraint/>
     </security-constraint>
-
-	<welcome-file-list>
-		<welcome-file>index.jsp</welcome-file>
-	</welcome-file-list>
 
 </web-app>

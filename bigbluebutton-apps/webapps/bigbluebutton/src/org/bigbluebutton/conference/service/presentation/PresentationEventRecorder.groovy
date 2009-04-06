@@ -7,9 +7,10 @@ import org.bigbluebutton.conference.service.archive.record.IRecorderimport org.
 import org.bigbluebutton.conference.Participant
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.red5.logging.Red5LoggerFactory
 
 public class PresentationEventRecorder implements IEventRecorder, IPresentationRoomListener {
-	protected static Logger log = LoggerFactory.getLogger( PresentationEventRecorder.class )
+	private static Logger log = Red5LoggerFactory.getLogger( PresentationEventRecorder.class, "bigbluebutton" )
 	
 	IRecorder recorder
 	private ISharedObject so

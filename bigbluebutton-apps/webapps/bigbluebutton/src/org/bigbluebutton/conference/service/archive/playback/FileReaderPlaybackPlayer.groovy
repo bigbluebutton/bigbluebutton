@@ -4,8 +4,9 @@ package org.bigbluebutton.conference.service.archive.playback
 import org.ho.yaml.Yaml
 import java.util.concurrent.atomic.AtomicIntegerimport org.ho.yaml.YamlDecoderimport org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.red5.logging.Red5LoggerFactory
 public class FileReaderPlaybackPlayer implements IPlaybackPlayer{
-	protected static Logger log = LoggerFactory.getLogger( FileReaderPlaybackPlayer.class )
+	private static Logger log = Red5LoggerFactory.getLogger( FileReaderPlaybackPlayer.class, "bigbluebutton" )
 	
 	private final String conference
 	private final String room

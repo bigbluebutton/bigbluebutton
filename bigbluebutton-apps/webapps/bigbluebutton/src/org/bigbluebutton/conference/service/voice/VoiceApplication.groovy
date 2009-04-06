@@ -1,12 +1,12 @@
 
 package org.bigbluebutton.conference.service.voice
 
-
+import org.red5.logging.Red5LoggerFactory
 import org.slf4j.Logger
 import org.slf4j.LoggerFactoryimport java.util.Mapimport org.bigbluebutton.conference.Participant
 public class VoiceApplication {
 
-	protected static Logger log = LoggerFactory.getLogger( VoiceApplication.class );	
+	private static Logger log = Red5LoggerFactory.getLogger( VoiceApplication.class, "bigbluebutton" );	
 		
 	private static final String APP = "VOICE";
 	private VoiceRoomsManager roomsManager

@@ -7,13 +7,16 @@ import org.red5.server.api.IConnection
 import org.red5.server.api.IScope
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.red5.logging.Red5LoggerFactory
+
 import org.red5.server.api.so.ISharedObject
 import org.red5.server.adapter.ApplicationAdapter
 import org.red5.server.api.Red5import java.util.Mapimport org.bigbluebutton.conference.RoomsManager
 import org.bigbluebutton.conference.Roomimport org.bigbluebutton.conference.Participant
 public class ArchiveService {
 
-	protected static Logger log = LoggerFactory.getLogger( ArchiveService.class );	
+	private static Logger log = Red5LoggerFactory.getLogger(ArchiveService.class, "bigbluebutton")
+	
 	private ArchiveApplication application
 
 	public void startPlayback(String name) {

@@ -1,8 +1,8 @@
 package org.bigbluebutton.conference.service.voice
-import org.slf4j.Loggerimport org.slf4j.LoggerFactoryimport org.red5.server.api.Red5import org.red5.server.api.IScopeimport org.bigbluebutton.conference.BigBlueButtonSessionimport org.bigbluebutton.conference.Constants
+import org.slf4j.Loggerimport org.slf4j.LoggerFactoryimport org.red5.server.api.Red5import org.red5.server.api.IScopeimport org.bigbluebutton.conference.BigBlueButtonSessionimport org.bigbluebutton.conference.Constantsimport org.red5.logging.Red5LoggerFactory
 public class VoiceService {
 	
-	protected static Logger log = LoggerFactory.getLogger( VoiceService.class );
+	private static Logger log = Red5LoggerFactory.getLogger( VoiceService.class, "bigbluebutton" );
 	
 	private VoiceApplication application
 	private IVoiceServer voiceServer

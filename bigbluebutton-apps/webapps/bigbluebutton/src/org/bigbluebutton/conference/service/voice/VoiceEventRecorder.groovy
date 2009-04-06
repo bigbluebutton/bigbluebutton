@@ -7,9 +7,9 @@ import org.bigbluebutton.conference.service.archive.record.IRecorderimport org.
 import org.bigbluebutton.conference.Participant
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
+import org.red5.logging.Red5LoggerFactory
 public class VoiceEventRecorder implements IEventRecorder, IVoiceRoomListener {
-	protected static Logger log = LoggerFactory.getLogger( VoiceEventRecorder.class )
+	private static Logger log = Red5LoggerFactory.getLogger( VoiceEventRecorder.class, "bigbluebutton" )
 	
 	IRecorder recorder
 	private ISharedObject so

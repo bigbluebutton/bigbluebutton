@@ -3,6 +3,8 @@ package org.bigbluebutton.conference
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.red5.logging.Red5LoggerFactory
+
 import net.jcip.annotations.ThreadSafeimport java.util.concurrent.ConcurrentHashMapimport java.util.concurrent.CopyOnWriteArrayListimport java.util.Collectionsimport java.util.Iterator
 /**
  * Contains information about a Room and it's Participants. 
@@ -10,7 +12,7 @@ import net.jcip.annotations.ThreadSafeimport java.util.concurrent.ConcurrentHas
  */
 @ThreadSafe
 public class Room {
-	protected static Logger log = LoggerFactory.getLogger( Room.class )
+	private static Logger log = Red5LoggerFactory.getLogger(Room.class, "bigbluebutton")
 	
 	private final String name
 	private final Map <Long, Participant> participants	

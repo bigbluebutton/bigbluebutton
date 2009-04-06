@@ -5,9 +5,10 @@ import java.util.Map
 import org.bigbluebutton.conference.service.archive.playback.IPlaybackNotifier
 import org.red5.server.api.so.ISharedObjectimport org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.red5.logging.Red5LoggerFactory
 
 public class PresentationPlaybackNotifier implements IPlaybackNotifier{
-	protected static Logger log = LoggerFactory.getLogger( PresentationPlaybackNotifier.class )
+	private static Logger log = Red5LoggerFactory.getLogger( PresentationPlaybackNotifier.class, "bigbluebutton" )
 	
 	private ISharedObject so
 	def name = 'PRESENTATION'

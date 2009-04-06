@@ -7,11 +7,13 @@ import org.red5.server.api.IConnection
 import org.red5.server.api.IScope
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.red5.logging.Red5LoggerFactory
+
 import org.red5.server.api.so.ISharedObject
 import org.red5.server.adapter.ApplicationAdapter
 import org.red5.server.api.Red5import org.bigbluebutton.conference.BigBlueButtonSessionimport org.bigbluebutton.conference.Constantsimport org.bigbluebutton.conference.service.archive.ArchiveApplication
 public class PresentationHandler extends ApplicationAdapter implements IApplication{
-	protected static Logger log = LoggerFactory.getLogger( PresentationHandler.class )
+	private static Logger log = Red5LoggerFactory.getLogger( PresentationHandler.class, "bigbluebutton" )
 
 	private static final String PRESENTATION = "PRESENTATION"
 	private static final String PRESENTATION_SO = "presentationSO"   

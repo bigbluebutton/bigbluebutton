@@ -3,10 +3,12 @@ package org.bigbluebutton.conference.service.archive
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.red5.logging.Red5LoggerFactory
+
 import java.util.concurrent.ConcurrentHashMapimport org.bigbluebutton.conference.service.archive.playback.*import org.bigbluebutton.conference.service.archive.record.*
 import org.bigbluebutton.conference.service.archive.record.IRecorderimport org.bigbluebutton.conference.service.archive.record.FileRecorderimport org.bigbluebutton.conference.service.archive.playback.IPlaybackNotifierimport org.bigbluebutton.conference.service.archive.playback.PlaybackSessionimport org.bigbluebutton.conference.service.archive.playback.IPlaybackPlayerimport org.bigbluebutton.conference.service.archive.playback.FileReaderPlaybackPlayer
 public class ArchiveApplication {
-	protected static Logger log = LoggerFactory.getLogger( ArchiveApplication.class )
+	private static Logger log = Red5LoggerFactory.getLogger(ArchiveApplication.class, "bigbluebutton")
 	
 	private final Map<String, PlaybackSession> playbackSessions
 	private final Map<String, RecordSession> recordSessions

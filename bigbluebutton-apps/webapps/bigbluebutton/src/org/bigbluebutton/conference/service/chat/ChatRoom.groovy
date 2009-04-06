@@ -3,13 +3,15 @@ package org.bigbluebutton.conference.service.chat
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.red5.logging.Red5LoggerFactory
+
 import net.jcip.annotations.ThreadSafeimport java.util.concurrent.ConcurrentHashMapimport java.util.concurrent.CopyOnWriteArrayListimport java.util.Collectionsimport java.util.Iterator
 /**
  * Contains information about a ChatRoom. 
  */
 @ThreadSafe
 public class ChatRoom {
-	protected static Logger log = LoggerFactory.getLogger( ChatRoom.class )
+	private static Logger log = Red5LoggerFactory.getLogger( ChatRoom.class, "bigbluebutton" )
 	
 	private final String name
 	private final Map<String, IChatRoomListener> listeners

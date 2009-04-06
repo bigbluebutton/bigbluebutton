@@ -3,10 +3,12 @@ package org.bigbluebutton.conference.service.participants
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.red5.logging.Red5LoggerFactory
+
 import org.red5.server.api.Red5import java.util.Mapimport org.bigbluebutton.conference.Participant
 public class ParticipantsService {
 
-	protected static Logger log = LoggerFactory.getLogger( ParticipantsService.class );	
+	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsService.class, "bigbluebutton" );	
 	private ParticipantsApplication application
 
 	public Map getParticipants() {

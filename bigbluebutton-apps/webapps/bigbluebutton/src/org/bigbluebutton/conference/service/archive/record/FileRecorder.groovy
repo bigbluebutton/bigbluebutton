@@ -3,9 +3,10 @@ package org.bigbluebutton.conference.service.archive.record
 
 import org.ho.yaml.YamlEncoderimport org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.red5.logging.Red5LoggerFactory
 
 public class FileRecorder implements IRecorder{
-	protected static Logger log = LoggerFactory.getLogger( FileRecorder.class )
+	private static Logger log = Red5LoggerFactory.getLogger( FileRecorder.class, "bigbluebutton" )
 	
 	private final String conference
 	private final String room

@@ -8,9 +8,10 @@ import org.bigbluebutton.conference.service.chat.IChatRoomListenerimport org.re
 import org.bigbluebutton.conference.Participant
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.red5.logging.Red5LoggerFactory
 
 public class ChatEventRecorder implements IEventRecorder, IChatRoomListener {
-	protected static Logger log = LoggerFactory.getLogger( ChatEventRecorder.class )
+	private static Logger log = Red5LoggerFactory.getLogger( ChatEventRecorder.class, "bigbluebutton" )
 	
 	IRecorder recorder
 	private ISharedObject so

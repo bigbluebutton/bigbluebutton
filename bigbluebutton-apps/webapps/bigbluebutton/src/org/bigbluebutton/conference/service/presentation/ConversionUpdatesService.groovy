@@ -7,10 +7,12 @@ import javax.jms.MapMessage;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.red5.logging.Red5LoggerFactory
+
 import org.springframework.jms.core.JmsTemplate;
 import java.lang.RuntimeException
-public class ConversionUpdatesService { //implements IConversionUpdatesService {
-	protected static Logger log = LoggerFactory.getLogger(ConversionUpdatesService.class);
+public class ConversionUpdatesService { 
+	private static Logger log = Red5LoggerFactory.getLogger(ConversionUpdatesService.class, "bigbluebutton");
 
     private JmsTemplate template = null;    
     private Destination destination = null;  

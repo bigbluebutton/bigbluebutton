@@ -2,7 +2,7 @@
 package org.bigbluebutton.conference.service.voice.asterisk
 
 import java.util.concurrent.atomic.AtomicLong;
-
+import org.red5.logging.Red5LoggerFactory
 import org.asteriskjava.manager.action.PingAction;
 import org.asteriskjava.manager.response.ManagerResponse;
 import org.asteriskjava.manager.ManagerConnection;
@@ -29,7 +29,7 @@ public class PingThread extends Thread {
     /**
      * Instance logger.
      */
-    protected static Logger log = LoggerFactory.getLogger(PingThread.class);
+     private static Logger log = Red5LoggerFactory.getLogger(PingThread.class, "bigbluebutton");
 
     private final long id;
     private long interval = DEFAULT_INTERVAL;

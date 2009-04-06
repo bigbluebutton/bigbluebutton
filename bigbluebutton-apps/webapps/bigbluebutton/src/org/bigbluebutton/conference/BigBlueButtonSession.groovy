@@ -3,9 +3,10 @@ package org.bigbluebutton.conference
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.red5.logging.Red5LoggerFactory
 
 public class BigBlueButtonSession {
-	protected static Logger log = LoggerFactory.getLogger( BigBlueButtonSession.class )
+	private static Logger log = Red5LoggerFactory.getLogger(BigBlueButtonSession.class, "bigbluebutton")
 	
 	private final def username
 	private final def role

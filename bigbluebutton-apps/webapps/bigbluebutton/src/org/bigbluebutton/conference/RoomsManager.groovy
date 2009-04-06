@@ -2,6 +2,8 @@ package org.bigbluebutton.conference
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.red5.logging.Red5LoggerFactory
+
 import net.jcip.annotations.ThreadSafe
 import java.util.concurrent.ConcurrentHashMap
 /**
@@ -9,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap
  */
 @ThreadSafe
 public class RoomsManager {
-	protected static Logger log = LoggerFactory.getLogger( RoomsManager.class );
+	private static Logger log = Red5LoggerFactory.getLogger(RoomsManager.class, "bigbluebutton")
 	
 	private final Map <String, Room> rooms
 	

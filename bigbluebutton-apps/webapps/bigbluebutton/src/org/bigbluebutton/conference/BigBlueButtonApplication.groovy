@@ -1,6 +1,6 @@
 package org.bigbluebutton.conference
 
-import org.red5.server.api.Red5import org.bigbluebutton.conference.service.participants.ParticipantsApplicationimport org.bigbluebutton.conference.service.archive.ArchiveApplication
+import org.red5.server.api.Red5import org.bigbluebutton.conference.service.participants.ParticipantsApplicationimport org.bigbluebutton.conference.service.archive.ArchiveApplicationimport org.red5.logging.Red5LoggerFactory
 import org.red5.server.adapter.ApplicationAdapter
 import org.red5.server.adapter.IApplication
 import org.red5.server.api.IClient
@@ -12,8 +12,8 @@ import org.red5.server.api.so.ISharedObject
 
 public class BigBlueButtonApplication extends ApplicationAdapter{
 
-	protected static Logger log = LoggerFactory.getLogger( BigBlueButtonApplication.class );
-
+	private static Logger log = Red5LoggerFactory.getLogger(BigBlueButtonApplication.class, "bigbluebutton")
+	
 	private static final String APP = "BigBlueButtonApplication"
 	private ParticipantsApplication participantsApplication
 	private ArchiveApplication archiveApplication

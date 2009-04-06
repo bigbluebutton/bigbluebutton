@@ -3,9 +3,9 @@ package org.bigbluebutton.conference.service.voice
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
+import org.red5.logging.Red5LoggerFactory
 public class ConferenceServerListener implements IConferenceServerListener{
-	protected static Logger log = LoggerFactory.getLogger( ConferenceServerListener.class )
+	private static Logger log = Red5LoggerFactory.getLogger( ConferenceServerListener.class, "bigbluebutton" )
 	
 	private VoiceApplication voiceApplication
 	

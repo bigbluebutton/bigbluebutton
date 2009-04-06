@@ -4,11 +4,12 @@ package org.bigbluebutton.conference.service.chat
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.red5.logging.Red5LoggerFactory
 import java.util.Mapimport org.bigbluebutton.conference.service.chat.ChatRoomsManager
 import org.bigbluebutton.conference.service.chat.ChatRoomimport org.bigbluebutton.conference.Participantimport org.bigbluebutton.conference.service.chat.IChatRoomListener
 public class ChatApplication {
 
-	protected static Logger log = LoggerFactory.getLogger( ChatApplication.class );	
+	private static Logger log = Red5LoggerFactory.getLogger( ChatApplication.class, "bigbluebutton" );	
 		
 	private static final String APP = "CHAT";
 	private ChatRoomsManager roomsManager

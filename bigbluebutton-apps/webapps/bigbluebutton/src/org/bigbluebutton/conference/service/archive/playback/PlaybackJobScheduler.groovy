@@ -6,12 +6,13 @@ import java.util.concurrent.Executors
 import java.util.concurrent.Delayedimport org.bigbluebutton.conference.service.archive.playback.RecordedEvent
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.red5.logging.Red5LoggerFactory
 
 /**
  * This class handles the playing back of all playback sessions.
  */
 public class PlaybackJobScheduler {
-	protected static Logger log = LoggerFactory.getLogger( PlaybackJobScheduler.class )
+	private static Logger log = Red5LoggerFactory.getLogger( PlaybackJobScheduler.class, "bigbluebutton" )
 	
 	private DelayQueue<RecordedEvent> queue =  new DelayQueue<RecordedEvent>()
 	private final static int NTHREADS = 5

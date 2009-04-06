@@ -3,13 +3,13 @@ package org.bigbluebutton.conference.service.voice
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import net.jcip.annotations.ThreadSafe
-import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentHashMapimport org.red5.logging.Red5LoggerFactory
 /**
  * This encapsulates access to Room and messages. This class must be threadsafe.
  */
 @ThreadSafe
 public class VoiceRoomsManager {
-	protected static Logger log = LoggerFactory.getLogger( VoiceRoomsManager.class );
+	private static Logger log = Red5LoggerFactory.getLogger( VoiceRoomsManager.class, "bigbluebutton" );
 	
 	private final Map <String, VoiceRoom> rooms
 	

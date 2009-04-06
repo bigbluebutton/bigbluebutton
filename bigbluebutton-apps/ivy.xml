@@ -15,14 +15,13 @@
         <dependency org="org.easymock" name="easymock" rev="2.4"/>
         <dependency org="commons" name="commons-lang" rev="2.3" />
         <!-- Logging --> 
-        <dependency name="log4j-over-slf4j" rev="1.4.3" />
-        <dependency name="logback-core" rev="0.9.8" />
-        <dependency name="logback-classic" rev="0.9.8" />
-        <dependency name="slf4j-api" rev="1.4.3" />
-        <dependency name="jcl104-over-slf4j" rev="1.4.3" />
-        <dependency name="log4j-over-slf4j" rev="1.4.3" />
+        <dependency name="log4j-over-slf4j" rev="1.5.6" />
+        <dependency name="logback-core" rev="0.9.14" />
+        <dependency name="logback-classic" rev="0.9.14" />
+        <dependency name="slf4j-api" rev="1.5.6" />
+        <dependency name="jcl-over-slf4j" rev="1.5.6" />
 		<!-- BigblueButton -->
-		<dependency org="org/red5" name="red5-sip" rev="0.7"/>
+		<dependency org="org/red5" name="red5" rev="0.8rc2"/>
 		<dependency org="org.asteriskjava" name="asterisk-java" rev="0.3.1"/>
 		<dependency org="org.apache.activemq" name="activemq-core" rev="5.1.0"/>
 		<dependency org="org.codehaus.groovy" name="groovy-all" rev="1.5.6"/>
@@ -32,13 +31,14 @@
 		<dependency org="spring" name="spring-jms" rev="2.0.8" />
 		<dependency org="org/ho" name="jyaml" rev="1.3" />
         <!-- Spring --> 
-        <dependency org="spring" name="spring-dao" rev="2.0.8" />
-        <dependency org="spring" name="spring-aop" rev="2.0.8" />
-        <dependency org="spring" name="spring-beans" rev="2.0.8" />
-        <dependency org="spring" name="spring-context" rev="2.0.8" />
-        <dependency org="spring" name="spring-core" rev="2.0.8" />
-        <dependency org="spring" name="spring-web" rev="2.0.8" />
-        <dependency org="org.springframework" name="spring-jms" rev="2.0.8" />
+        <!--dependency org="spring" name="spring-dao" rev="2.0.8" /-->
+        <dependency org="spring" name="spring-aop" rev="2.5.6" />
+        <dependency org="spring" name="spring-beans" rev="2.5.6" />
+        <dependency org="spring" name="spring-context" rev="2.5.6" />
+        <dependency org="spring" name="spring-core" rev="2.5.6" />
+        <dependency org="spring" name="spring-web" rev="2.5.6" />
+        <dependency org="spring" name="spring-jms" rev="2.5.6" />
+        <dependency org="spring" name="spring-tx" rev="2.5.6" />
         <dependency org="spring" name="aopalliance" rev="" />
         
         <dependency org="mina" name="mina-core" rev="1.1.6" />

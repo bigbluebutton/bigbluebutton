@@ -4,11 +4,12 @@ package org.bigbluebutton.conference.service.participants
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.red5.logging.Red5LoggerFactory
 import java.util.Mapimport org.bigbluebutton.conference.RoomsManager
 import org.bigbluebutton.conference.Roomimport org.bigbluebutton.conference.Participantimport org.bigbluebutton.conference.IRoomListener
 public class ParticipantsApplication {
 
-	protected static Logger log = LoggerFactory.getLogger( ParticipantsApplication.class );	
+	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsApplication.class, "bigbluebutton" );	
 	
 	
 	private static final String APP = "PARTICIPANTS";
