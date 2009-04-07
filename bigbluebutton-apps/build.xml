@@ -15,47 +15,8 @@
 	
 	<!-- base project properties -->
 	<property file="build.properties"/>
-	<!--pull in our library definitions. Do this early-->
-	<!--property file="libraries.properties"/-->
-	
-	<property name="build.debug" value="true"/>
-	  
-	<!-- what is our fork policy for junit -->
-	<property name="junit.fork" value="false"/>
-	<property name="junit.forkmode" value="once"/>
-
-	<property name="dist.dir" location="dist" />
-	<property name="project.name" value="${ant.project.name}" />
-	<property name="target.version" value="0.5"/>
-	<property name="project.name-ver" value="${project.name}-${target.version}" />
-	<property name="target.extension" value="jar"/>
-	<property name="target.name" value="${project.name-ver}.${target.extension}" />
-	<property name="target.jar" location="${dist.dir}/${target.name}" />
-	  
-	<property name="target.zip" location="${dist.dir}/${project.name-ver}.zip" />
-   
-	<property name="target.tar" location="${dist.dir}/${project.name-ver}.tar" />
-	<property name="target.tar.gz" location="${target.tar}.gz"/>  
-	
-	<property name="build.dir" location="build" />
-	<property name="build.classes.dir" value="${build.dir}/classes"/>
-	<property name="webapps.build.dir" value="${build.dir}/classes"/>
-
-	<property name="test.dir" location="${build.dir}/test"/>
-	<property name="test.classes.dir" location="${test.dir}/classes"/>
-	<property name="test.data.dir" location="${test.dir}/data"/>
-	<property name="test.reports.dir" location="${test.dir}/reports"/>
-	<property name="junit.test.reports.dir" location="${test.dir}/junit-reports"/>
-	
 	<property environment="env"/>
-	<property name="java.home" value="${env.JDK_HOME}"/>
-	<property name="red5.home" value="${red5_home}"/>
-	<property name="webapp.src.dir" value="webapps"/>
-	<property name="lib.dir" value="lib"/>
-
-	<property name="dist.webapps.dir" value="${dist.dir}/webapps"/>
-	<property name="debug.state" value="true"/>
-
+	
 	<tstamp prefix="build">
 		<format property="TODAY" pattern="d-MMMM-yyyy" locale="en"/>
 	</tstamp>
