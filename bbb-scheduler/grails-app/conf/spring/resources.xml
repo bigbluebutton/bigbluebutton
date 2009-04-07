@@ -39,11 +39,10 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 		</property>
 	</bean>
 	
-	<bean id="asteriskAgi" class="org.bigbluebutton.pbx.PbxAgi" >
-      	<property name="dataSource" ref="dataSource"/>
-	</bean>	
-			
-	<!--bean id="asteriskAgi" class="org.bigbluebutton.pbx.asterisk.AsteriskAgi" >
+	<!--bean id="asteriskAgi" class="org.bigbluebutton.pbx.PbxAgi" >
       	<property name="dataSource" ref="dataSource"/>
 	</bean-->	
+			
+	<bean id="asteriskAgi" class="org.bigbluebutton.pbx.asterisk.AsteriskAgi" >
+	</bean>	
 </beans>

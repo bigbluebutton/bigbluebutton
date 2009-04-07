@@ -102,7 +102,7 @@
                             	<p>
                             	<p class="doublespace">
                             	<ul class="none">
-                            	  <li>Phone Number: 613-731-1141 </li>
+                            	  <li>Phone Number: 613-366-1985 </li>
                             	  <li>Conference Number: ${conference.conferenceNumber}# (ensure the digits are followed by the # sign)</li>
                             	</ul>
                             	</p>
