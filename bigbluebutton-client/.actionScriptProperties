@@ -4,6 +4,7 @@
 <compilerSourcePath>
 <compilerSourcePathEntry kind="1" linkType="1" path="tests/integration"/>
 <compilerSourcePathEntry kind="1" linkType="1" path="tests/unit"/>
+<compilerSourcePathEntry kind="1" linkType="1" path="tests/suite"/>
 </compilerSourcePath>
 <libraryPath defaultLinkType="1">
 <libraryPathEntry kind="4" path="">
@@ -11,8 +12,8 @@
 <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/framework.swc" sourcepath="${PROJECT_FRAMEWORKS}/source" useDefaultLinkType="true"/>
 </modifiedEntries>
 <excludedEntries>
-<libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/automation_agent.swc" useDefaultLinkType="false"/>
 <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/automation.swc" useDefaultLinkType="false"/>
+<libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/automation_agent.swc" useDefaultLinkType="false"/>
 <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/qtp.swc" useDefaultLinkType="false"/>
 <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/automation_dmv.swc" useDefaultLinkType="false"/>
 </excludedEntries>
@@ -25,6 +26,7 @@
 </sourceAttachmentPath>
 </compiler>
 <applications>
+<application path="FlexTestRunner.mxml"/>
 <application path="src/main.mxml"/>
 <application path="MessagingUnitTests.mxml"/>
 <application path="PresentationUnitTest.mxml"/>

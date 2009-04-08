@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:fluint="http://www.digitalprimates.net/2008/fluint"
+	layout="absolute"
+	creationComplete="startTestProcess(event)"
+	width="100%" height="100%">
+	
+	<mx:Script>
+		<![CDATA[
+			import net.digitalprimates.fluint.unitTests.frameworkSuite.FrameworkSuite;
+			import org.bigbluebutton.suites.SampleSuite;
+			
+			protected function startTestProcess( event:Event ) : void
+			{
+				var suiteArray:Array = new Array();
+					suiteArray.push( new FrameworkSuite() );
+					suiteArray.push(new SampleSuite());
+					
+				testRunner.startTests( suiteArray );
+			}
+			
+		]]>
+	</mx:Script>	
+	
+	<fluint:TestResultDisplay width="100%" height="100%" />
+	<fluint:TestRunner id="testRunner"/>
+</mx:Application>
