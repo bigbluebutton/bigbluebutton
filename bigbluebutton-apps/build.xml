@@ -67,9 +67,10 @@
 	<target name="prepare" depends="clean" description="Setup directories for build">
 		<mkdir dir="${webapps.build.dir}"/>
 		<mkdir dir="${dist.dir}"/>
-	    <mkdir dir="${test.classes.dir}"/>
+	    <mkdir dir="${test.classes.dir}"/>		
 	    <mkdir dir="${test.reports.dir}"/>
 	    <mkdir dir="${test.data.dir}"/>
+		<mkdir dir="${fitnesse.test.classes.dir}"/>
 	</target>
 	
 	<!-- here is the version of ivy we will use. change this property to try a newer 
@@ -321,6 +322,24 @@
 		</zip>
 	</target>
 	
+	<target name="fitnesse-test-compile" depends="jar">
+			<compile-groovy-fitnesse-tests/>
+		    <javac destdir="${fitnesse.test.classes.dir}"
+		           debug="true"
+		           includeAntRuntime="yes"
+		           srcdir="test/fitnesse/src">
+		      <classpath refid="test.compile.classpath"/>
+		    </javac>
+	</target>
+
+	<macrodef name="compile-groovy-fitnesse-tests">
+		<sequential>
+		<mkdir dir="${fitnesse.test.classes.dir}"/>
+		<groovyc srcdir="test/fitnesse/src" destdir="${fitnesse.test.classes.dir}"
+				 classpathref="test.compile.classpath"/>
+		</sequential>
+	</macrodef>
+	
 	<target name="test-compile" depends="jar">
 		<compile-groovy-tests/>
 	    <javac destdir="${test.classes.dir}"
@@ -385,7 +404,7 @@
 
 	    <!--conditional failure -->
 	    <fail if="test.failed">
-	    Tests failed. Check ${test.reports.dir}
+	    	Tests failed. Check ${test.reports.dir}
 	    </fail>
 	</target>
 	

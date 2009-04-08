@@ -2,7 +2,7 @@
 <suite name="BigBlueButton Test Suite">
   <test name="Conference tests">
 	  <groups>
-	    <run>
+	    <run> 
 	      <exclude name="broken"/>
 	    </run>
 	  </groups>
