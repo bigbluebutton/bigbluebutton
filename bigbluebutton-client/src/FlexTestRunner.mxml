@@ -14,7 +14,7 @@
 			protected function startTestProcess( event:Event ) : void
 			{
 				var suiteArray:Array = new Array();
-					suiteArray.push( new FrameworkSuite() );
+					//suiteArray.push( new FrameworkSuite() );
 					suiteArray.push(new SampleSuite());
 					
 				testRunner.startTests( suiteArray );
