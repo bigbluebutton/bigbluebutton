@@ -7,13 +7,14 @@ import org.bigbluebutton.conference.service.archive.record.IRecorderimport org.
 import org.bigbluebutton.conference.Participant
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.red5.logging.Red5LoggerFactory
+import org.red5.logging.Red5LoggerFactoryimport groovy.xml.MarkupBuilder
+
 public class VoiceEventRecorder implements IEventRecorder, IVoiceRoomListener {
 	private static Logger log = Red5LoggerFactory.getLogger( VoiceEventRecorder.class, "bigbluebutton" )
 	
 	IRecorder recorder
 	private ISharedObject so
-	def recorderName = 'VOICE'
+	def APP_NAME = 'VOICE'
 	
 	def acceptRecorder(IRecorder recorder){
 		log.debug("Accepting IRecorder")
@@ -21,7 +22,7 @@ public class VoiceEventRecorder implements IEventRecorder, IVoiceRoomListener {
 	}
 	
 	def getName() {
-		return recorderName
+		return APP_NAME
 	}
 	
 	def recordEvent(Map event){
@@ -32,58 +33,52 @@ public class VoiceEventRecorder implements IEventRecorder, IVoiceRoomListener {
 		this.so = so 
 	}
 	
-	def joined(participant, name, muted, talking){
+	def joined(user, name, muted, talking){
 		log.debug("Participant $name joining")
 		// Just send the name to represent callerId number for now
-		so.sendMessage("userJoin", [participant, name, name, muted, talking])
+		so.sendMessage("userJoin", [user, name, name, muted, talking])
 					
-		Map event = new HashMap()
-		event.put("date", new Date().time)
-		event.put("application", recorderName)
-		event.put("event", "joined")
-		event.put('participant', participant)
-		event.put('name', name)
-		event.put('muted', muted)
-		event.put('talking', talking)
-		recordEvent(event)		
+		def writer = new StringWriter()
+		def xml = new MarkupBuilder(writer)
+		xml.event(name:'joined', date:new Date().time, application:APP_NAME) {
+			participant(id:user, name:name, muted:muted, talking:talking)
+		}
+		recorder.recordXmlEvent(writer.toString())
 	}
 	
-	def left(participant){
-		log.debug("Participant $participant leaving")
-		so.sendMessage("userLeft", [participant])
+	def left(user){
+		log.debug("Participant $user leaving")
+		so.sendMessage("userLeft", [user])
 
-		Map event = new HashMap()
-		event.put("date", new Date().time)
-		event.put("application", recorderName)
-		event.put("event", "left")
-		event.put('participant', participant)
-		recordEvent(event)	
+		def writer = new StringWriter()
+		def xml = new MarkupBuilder(writer)
+		xml.event(name:'left', date:new Date().time, application:APP_NAME) {
+			participant(id:user)
+		}
+		recorder.recordXmlEvent(writer.toString())
 	}
 	
-	def mute(participant, mute){
-		log.debug("Participant $participant mute $mute")
-		so.sendMessage("userMute", [participant, mute])
+	def mute(user, muted){
+		log.debug("Participant $user mute $muted")
+		so.sendMessage("userMute", [user, muted])
 
-		Map event = new HashMap()
-		event.put("date", new Date().time)
-		event.put("application", recorderName)
-		event.put("event", "mute")
-		event.put('participant', participant)
-		event.put('mute', mute)
-		recordEvent(event)	
+		def writer = new StringWriter()
+		def xml = new MarkupBuilder(writer)
+		xml.event(name:'mute', date:new Date().time, application:APP_NAME) {
+			participant(id:user, mute:muted)
+		}
+		recorder.recordXmlEvent(writer.toString())
 	}
 	
+	def talk(user, talking){
+		log.debug("Participant $user talk $talking")
+		so.sendMessage("userTalk", [user, talking])
 
-	def talk(participant, talk){
-		log.debug("Participant $participant talk $talk")
-		so.sendMessage("userTalk", [participant, talk])
-
-		Map event = new HashMap()
-		event.put("date", new Date().time)
-		event.put("application", recorderName)
-		event.put("event", "talk")
-		event.put('participant', participant)
-		event.put('talk', talk)
-		recordEvent(event)
+		def writer = new StringWriter()
+		def xml = new MarkupBuilder(writer)
+		xml.event(name:'talk', date:new Date().time, application:APP_NAME) {
+			'participant'(id:user, talk:talking)
+		}
+		recorder.recordXmlEvent(writer.toString())
 	}
 }

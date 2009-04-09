@@ -5,5 +5,5 @@ public interface IRecorder{
 
 	public void recordEvent(Map event);
 	public void initialize();
-	
+	def recordXmlEvent(event)
 }

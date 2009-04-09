@@ -1,7 +1,9 @@
 
 package org.bigbluebutton.conference.service.archive.recorder
 
-import org.testng.annotations.BeforeMethodimport org.testng.annotations.Testimport org.bigbluebutton.conference.service.archive.record.FileRecorderimport org.ho.yaml.YamlDecoderimport groovy.util.AntBuilder
+import org.testng.annotations.BeforeMethodimport org.testng.annotations.Testimport org.bigbluebutton.conference.service.archive.record.FileRecorderimport org.ho.yaml.YamlDecoderimport groovy.util.AntBuilderimport groovy.xml.MarkupBuilder
+import org.bigbluebutton.conference.Participant
+
 public class FileRecorderTest{
 	FileRecorder recorder
 	String conference = "test-conference"
@@ -121,4 +123,30 @@ public class FileRecorderTest{
 		assert eventList[0]['event'] == 'ParticipantJoinedEvent'
 	}
 	
+	@Test
+	public void writeXmlEventToFileTest() {		 
+		Map pstatus = new HashMap()
+		pstatus.put("raiseHand", false)
+		pstatus.put("presenter", false)
+		pstatus.put("hasStream", false)
+		
+		Participant p = new Participant(1L, 'AS', 'MODERATOR', pstatus)
+		
+		def writer = new StringWriter()
+
+		def xml = new MarkupBuilder(writer)
+		xml.event(name:'participantJoined', date:new Date().time, application:'PARTICIPANT') {
+			user(name:'RE', userid: 0L, role:'MODERATOR') {
+				statuses() {
+					for (key in p.status.keySet()) {
+						status(name:key, value:p.status.get(key))
+					}
+				}
+				slide(new Integer(1))
+			}
+		}
+
+		recorder.recordXmlEvent(writer.toString())
+		
+	}
 }

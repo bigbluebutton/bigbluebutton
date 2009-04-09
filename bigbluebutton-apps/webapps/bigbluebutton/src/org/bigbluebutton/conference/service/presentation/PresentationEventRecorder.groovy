@@ -8,13 +8,14 @@ import org.bigbluebutton.conference.Participant
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.red5.logging.Red5LoggerFactory
+import groovy.xml.MarkupBuilder
 
 public class PresentationEventRecorder implements IEventRecorder, IPresentationRoomListener {
 	private static Logger log = Red5LoggerFactory.getLogger( PresentationEventRecorder.class, "bigbluebutton" )
 	
 	IRecorder recorder
 	private ISharedObject so
-	def name = 'PRESENTATION'
+	def APP_NAME = 'PRESENTATION'
 	
 	def acceptRecorder(IRecorder recorder){
 		log.debug("Accepting IRecorder")
@@ -22,7 +23,7 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 	}
 	
 	def getName() {
-		return name
+		return APP_NAME
 	}
 	
 	def recordEvent(Map event){
@@ -58,27 +59,22 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 		log.debug("calling assignPresenterCallback $userid, $name $assignedBy")
 		so.sendMessage("assignPresenterCallback", [userid, name, assignedBy])	
 			
-		Map event = new HashMap()
-		event.put("date", new Date().time)
-		event.put("application", name)
-		event.put("event", "assignPresenter")
-		event.put("userid", userid)
-		event.put("name", name)
-		event.put("assignedBy", assignedBy)
-		recordEvent(event)	
+		def writer = new StringWriter()
+		def xml = new MarkupBuilder(writer)
+		xml.event(name:'assignPresenter', date:new Date().time, application:APP_NAME) {
+			presenter(userid:userid, name:name, assignedBy:assignedBy)
+		}
+		recorder.recordXmlEvent(writer.toString())
 	}
 	
 	def gotoSlide = {slide ->
 		log.debug("calling gotoSlideCallback $slide")
-	
 		so.sendMessage("gotoSlideCallback", [slide])	
 		
-		Map event = new HashMap()
-		event.put("date", new Date().time)
-		event.put("application", name)
-		event.put("event", "gotoSlide")
-		event.put("slide", slide)
-		recordEvent(event)
+		def writer = new StringWriter()
+		def xml = new MarkupBuilder(writer)
+		xml.event(name:'gotoSlide', date:new Date().time, application:APP_NAME, slide:slide)
+		recorder.recordXmlEvent(writer.toString())
 	}
 	
 	def sharePresentation = {presentationName, share ->
@@ -86,12 +82,11 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 	
 		so.sendMessage("sharePresentationCallback", [presentationName, share])	
 		
-		Map event = new HashMap()
-		event.put("date", new Date().time)
-		event.put("application", name)
-		event.put("event", "sharePresentation")
-		event.put("presentationName", presentationName)
-		event.put("share", share)
-		recordEvent(event)
+		def writer = new StringWriter()
+		def xml = new MarkupBuilder(writer)
+		xml.event(name:'sharePresentation', date:new Date().time, application:APP_NAME) {
+			presentation(name:presentationName, share:share)
+		}
+		recorder.recordXmlEvent(writer.toString())
 	}
 }

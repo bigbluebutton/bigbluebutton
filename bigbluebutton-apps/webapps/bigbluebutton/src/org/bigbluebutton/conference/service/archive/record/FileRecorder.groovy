@@ -23,7 +23,7 @@ public class FileRecorder implements IRecorder{
 		roomDir = new File("$recordingsDirectory/$conference/$room")
 		if (! roomDir.exists())
 			roomDir.mkdirs()
-		recordingFile = new File(roomDir.canonicalPath + File.separator + "recordings.yaml" )
+		recordingFile = new File(roomDir.canonicalPath + File.separator + "recordings.xml" )
 		/**
 		 * We do not actually want to delete the file. We just want to append to it.
 		 */
@@ -56,6 +56,12 @@ public class FileRecorder implements IRecorder{
 	        enc.close()  
 	        log.debug("Recorded event to file - closed encoder.")
 		}        
+	}
+	
+	def recordXmlEvent(event) {		
+		Thread.start {
+			recordingFile.append(event)
+		}  
 	}
 	
 	public void setRecordingsDirectory(String directory) {
