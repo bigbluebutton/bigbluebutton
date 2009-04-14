@@ -52,8 +52,8 @@
 		click="dispatchEvent(new Event(FileUploadWindowMediator.START_UPLOAD))" enabled="false"
 		icon="@Embed('../assets/bullet_go.png')" x="366" y="48"/>
 
-	<mx:Label id="presentationNamesLb" text="Exsited Presentation Names:" x="50" y="80"/>
-    <mx:ComboBox id="presentationNamesCombobox" width="90" x="225" y="80" dataProvider="{presentationNamesAC}"> 
+	<mx:Label id="presentationNamesLb" text="Exsited Presentations:" x="50" y="80"/>
+    <mx:ComboBox id="presentationNamesCombobox" width="125" x="190" y="80" dataProvider="{presentationNamesAC}"> 
     </mx:ComboBox>	
 	<mx:Button id="deleteBtn" label="" toolTip="Delete Presentation"  
 		click="deletePresentation()" enabled="true"
