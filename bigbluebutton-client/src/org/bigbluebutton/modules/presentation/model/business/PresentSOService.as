@@ -404,7 +404,7 @@ package org.bigbluebutton.modules.presentation.model.business
 			switch (returnCode)
 			{
 				case SUCCESS_RC:
-					LogUtil.debug("PresentSOService::processUpdateMessage()... SUCCESS:presentationName=" + _presentationSO.data.updateMessage.presentationName + "  presentationNames.length=" + presentationNames.length);
+					LogUtil.debug("PresentSOService::processUpdateMessage() .... SUCCESS:presentationName=" + _presentationSO.data.updateMessage.presentationName + "  presentationNames.length=" + presentationNames.length);
 					presentationNames.push({label:String(_presentationSO.data.updateMessage.presentationName)});
 					var info:Object = new Object();
 					info["message"] = _presentationSO.data.updateMessage.message;
