@@ -101,11 +101,11 @@ package org.bigbluebutton.modules.presentation.model.business
 		 * Loads a presentation from the server. creates a new PresentationService class 
 		 * 
 		 */		
-		public function loadPresentation() : void
+		public function loadPresentation(presentationName:String) : void
 		{
-			/* HArdcode from now the presentation name to "default".*/
-			var fullUri : String = _module.host + "/bigbluebutton/presentation/default/slides";	
-			var slideUri:String = _module.host + "/bigbluebutton/presentation/default";
+			LogUtil.debug("PresentProxy::loadPresentation: presentationName=" + presentationName);
+			var fullUri : String = _module.host + "/bigbluebutton/presentation/"+presentationName+"/slides";	
+			var slideUri:String = _module.host + "/bigbluebutton/presentation/"+presentationName;
 			
 			LogUtil.debug("PresentationApplication::loadPresentation()... " + fullUri);
 
@@ -114,11 +114,12 @@ package org.bigbluebutton.modules.presentation.model.business
 			service.load(fullUri, _slides, slideUri);
 			LogUtil.debug('number of slides=' + _slides.size());
 		}	
-		
-		public function sharePresentation(share:Boolean):void {
-			_presentService.sharePresentation(share);
+
+		public function sharePresentation(share:Boolean, presentationName:String):void {
+			LogUtil.debug("PresentationProxy::sharePresentation()... presentationName=" + presentationName);
+			_presentService.sharePresentation(share, presentationName);
 		}
-		
+
 		public function clearPresentation():void {
 			_presentService.clearPresentation();
 		}
@@ -151,11 +152,11 @@ package org.bigbluebutton.modules.presentation.model.business
 			_presentService.move(xOffset, yOffset);
 		}
 		
-		private function loadPresentationListener(loaded:Boolean):void {
+		public function loadPresentationListener(loaded:Boolean, presentationName:String):void {
 			if (loaded) {
-				LogUtil.debug('presentation has been loaded');
+				LogUtil.debug('presentation has been loaded  presentationName=' + presentationName);
 				_presentationLoaded = true;
-				sendNotification(PresentModuleConstants.PRESENTATION_LOADED);
+				sendNotification(PresentModuleConstants.PRESENTATION_LOADED, presentationName);
 			} else {
 				LogUtil.debug('failed to load presentation');
 				_presentationLoaded = false;
@@ -166,5 +167,10 @@ package org.bigbluebutton.modules.presentation.model.business
 			LogUtil.debug('Fileupload progress ' + code + ":" + message);
 			sendNotification(code, message);
 		}			
+		
+		public function getPresentationNames():Array{
+			return PresentSOService(_presentService).getPresentationNames();
+		}
+		
 	}
 }
