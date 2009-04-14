@@ -37,6 +37,10 @@ package org.bigbluebutton.modules.presentation.model.business
 		private var _soErrors:Array;
 		
 		private var currentSlide:Number = -1;
+
+		
+		private var presentationNames:Array = new Array();
+		
 		
 		public function PresentSOService(module:PresentationModule, slides:IPresentationSlides)
 		{			
@@ -301,7 +305,8 @@ package org.bigbluebutton.modules.presentation.model.business
 			}				
 		}
 		
-		public function sharePresentation(share:Boolean):void {
+		public function sharePresentation(share:Boolean, presentationName:String):void {
+			LogUtil.debug("PresentationSOService::sharePresentation()... presentationName=" + presentationName);
 			var nc:NetConnection = _module.connection;
 			nc.call(
 				"presentation.sharePresentation",// Remote function name
@@ -321,7 +326,7 @@ package org.bigbluebutton.modules.presentation.model.business
 							} 
 					}
 				), //new Responder
-				"default", // hardocde this for now...this will be used later to pre-upload multiple presentation
+				presentationName, // hardocde this for now...this will be used later to pre-upload multiple presentation
 				share
 			); //_netConnection.call
 		}
@@ -329,7 +334,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		public function sharePresentationCallback(presentationName:String, share:Boolean):void {
 			LogUtil.debug("sharePresentationCallback " + presentationName + "," + share);
 			if (share) {
-				sendMessage(PresentModuleConstants.START_SHARE);
+				sendMessage(PresentModuleConstants.START_SHARE, {presentationName:presentationName});
 			}
 		}
 		
@@ -369,7 +374,6 @@ package org.bigbluebutton.modules.presentation.model.business
 					if (_presentationSO.data[SHARING]) {
 						//LogUtil.debug( "SHARING =[" + _presentationSO.data[SHARING] + "]");
 						sendMessage(PresentModuleConstants.START_SHARE);	
-			
 					} else {
 						//LogUtil.debug( "SHARING =[" + _presentationSO.data[SHARING] + "]");
 					}
@@ -400,9 +404,12 @@ package org.bigbluebutton.modules.presentation.model.business
 			switch (returnCode)
 			{
 				case SUCCESS_RC:
-					LogUtil.debug("PresentationDelegate - SUCCESS_RC");
-					message = _presentationSO.data.updateMessage.message;
-					sendMessage(PresentModuleConstants.CONVERT_SUCCESS_EVENT, message);
+					LogUtil.debug("PresentSOService::processUpdateMessage()... SUCCESS:presentationName=" + _presentationSO.data.updateMessage.presentationName + "  presentationNames.length=" + presentationNames.length);
+					presentationNames.push({label:String(_presentationSO.data.updateMessage.presentationName)});
+					var info:Object = new Object();
+					info["message"] = _presentationSO.data.updateMessage.message;
+					info["presentationName"] = _presentationSO.data.updateMessage.presentationName;
+					sendMessage(PresentModuleConstants.CONVERT_SUCCESS_EVENT, info);
 					break;
 					
 				case UPDATE_RC:
@@ -434,6 +441,12 @@ package org.bigbluebutton.modules.presentation.model.business
 					break;	
 			}															
 		}		
+
+		public function getPresentationNames():Array
+		{
+         	//presentationNames = [{label:"00"}, {label:"11"}, {label:"22"} ];
+			return presentationNames;
+		}
 
 		private function notifyConnectionStatusListener(connected:Boolean, errors:Array=null):void {
 			if (_connectionListener != null) {
