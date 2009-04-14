@@ -104,6 +104,7 @@
 					thumbnailWindow.visible = true;
 				}				
 			}
+
 		]]>
 	</mx:Script>
 	
