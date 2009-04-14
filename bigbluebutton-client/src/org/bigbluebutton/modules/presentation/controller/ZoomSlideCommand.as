@@ -19,7 +19,7 @@ package org.bigbluebutton.modules.presentation.controller
 				
 				if (p.isPresenter()) {
 					// Send the zoom command to the viewers.
-					LogUtil.debug('calling zoom on proxy');
+					LogUtil.debug('ZoomSlideCommand::execute()...calling zoom on proxy: ' + z.newHeight+"  " + z.newWidth);
 					p.zoom(z.newHeight, z.newWidth);
 				} else {
 					// just zoom this current user's slide.
