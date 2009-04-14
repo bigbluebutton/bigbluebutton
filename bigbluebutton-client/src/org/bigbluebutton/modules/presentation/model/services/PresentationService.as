@@ -59,29 +59,34 @@ package org.bigbluebutton.modules.presentation.model.services
 		public function parse(xml:XML):void{
 			var list:XMLList = xml.presentation.slides.slide;
 			var item:XML;
-			LogUtil.debug("Slides: " + xml);
+			//LogUtil.debug("Slides: " + xml);
+		
+			var presentationName:String = xml.presentation[0].@name;
+			LogUtil.debug("PresentationService::parse()...  presentationName=" + presentationName);
 			
 			// Make sure we start with a clean set.
 			_slides.clear();			
 			
-			LogUtil.debug("Slides list: " + list);
+			//LogUtil.debug("Slides list: " + list);
 			
 			for each(item in list){		
 				var sUri:String = slideUri + "/" + item.@name;
 				var thumbUri:String =  slideUri + "/" + item.@thumb;
 				var slide:Slide = new Slide(item.@number, sUri, thumbUri);						
 				_slides.add(slide);
-				LogUtil.debug("Available slide: " + sUri + " number = " + item.@number);
-				LogUtil.debug("Available thumb: " + thumbUri);
+				//LogUtil.debug("Available slide: " + sUri + " number = " + item.@number);
+				//LogUtil.debug("Available thumb: " + thumbUri);
 			}		
 			
 			//LogUtil.debug("number of slide=" + _slides.size());
-			if (_slides.size() > 0) {
+			if (_slides.size() > 0) 
+			{
 				if (_loadListener != null) {
-					_loadListener(true);
+					_loadListener(true, presentationName);
 				}
-			} else {
-				_loadListener(false);
+			} else 
+			{
+				_loadListener(false, presentationName);
 			}
 				
 		}
