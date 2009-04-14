@@ -52,8 +52,8 @@ class PresentationService {
 		return presentationsList
 	}
 	
-	def processUploadedPresentation = {conf, room, name, presentation ->
-		def dir = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + name)
+	def processUploadedPresentation = {conf, room, presentation_name, presentation ->
+		def dir = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentation_name)
 		println "upload to directory ${dir.absolutePath}"
 		
 		/* If the presentation name already exist, delete it. We should provide a check later on to notify user
@@ -61,16 +61,16 @@ class PresentationService {
 		if (dir.exists()) deleteDirectory(dir)
 		
 		dir.mkdirs()
-		def newFilename = presentation.getOriginalFilename().replace(' ', '-')
-		def pres = new File( dir.absolutePath + File.separatorChar + newFilename )
+		def pres = new File( dir.absolutePath + File.separatorChar + presentation.getOriginalFilename() )
 		presentation.transferTo( pres )
 		new Timer().runAfter(1000) {
-			convertUploadedPresentation(conf, room, pres)	
+			convertUploadedPresentation(conf, room, presentation_name, pres)	
 			createThumbnails(pres)		
 	
 			/* We just assume that everything is OK. Send a SUCCESS message to the client */
 			def msg = new HashMap()
 			msg.put("room", room)
+			msg.put("presentationName", presentation_name)
 			msg.put("returnCode", "SUCCESS")
 			msg.put("message", "The presentation is now ready.")
 			System.out.println("Sending presentation conversion success.")
@@ -78,6 +78,35 @@ class PresentationService {
 		}
 	}
 	
+	//handle external presentation server 
+	def processDelegatedPresentation = {conf, room, presentation_name, returnCode, totalSlides, slidesCompleted ->
+		println "\nprocessDelegatedPresentation"
+
+		if(returnCode.equals("CONVERT"))
+		{
+			def msg = new HashMap()
+			msg.put("room", room)
+			msg.put("presentationName", presentation_name)
+			msg.put("returnCode", "CONVERT")
+			msg.put("totalSlides", totalSlides)
+	       	msg.put("slidesCompleted", slidesCompleted)
+		    jmsTemplate.convertAndSend(JMS_UPDATES_Q, msg)		
+		}
+		
+		else if(returnCode.equals("SUCCESS"))
+		{
+			def msg = new HashMap()
+			msg.put("room", room)
+			msg.put("presentationName", presentation_name)
+			msg.put("returnCode", "SUCCESS")
+		    msg.put("message", "The presentation is now ready.")
+		    jmsTemplate.convertAndSend(JMS_UPDATES_Q, msg)		
+			System.out.println("Sending presentation conversion success.")
+		}
+		
+	}
+
+
 	def showSlide(String conf, String room, String presentationName, String id) {
 		new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar + "slide-${id}.swf")
 	}
@@ -97,7 +126,7 @@ class PresentationService {
 		thumbDir.listFiles().length
 	}
 	
-	def convertUploadedPresentation = {conf, room, presentation ->
+	def convertUploadedPresentation = {conf, room, presentation_name, presentation ->
         try {
         	
         	/** Let's get how many pages this presentation has */
@@ -128,7 +157,7 @@ class PresentationService {
             
             while ((info = stdError.readLine()) != null) {
             	System.out.println("Got error getting info from file):\n");
-            	System.out.println(info);
+            	System.out.println(s);
             }
             
             def page
@@ -149,6 +178,7 @@ class PresentationService {
 	            while ((convertInfo = stdInput.readLine()) != null) {
 					def msg = new HashMap()
 					msg.put("room", room)
+					msg.put("presentationName", presentation_name)
 					msg.put("returnCode", "CONVERT")
 					msg.put("totalSlides", numPages)
 					
@@ -171,7 +201,7 @@ class PresentationService {
 	            
 	            while ((convertInfo = stdError.readLine()) != null) {
 	            	System.out.println("Got error converting file):\n");
-	            	System.out.println(convertInfo);
+	            	System.out.println(s);
 	            }
 	        }
             stdInput.close();
@@ -187,7 +217,7 @@ class PresentationService {
 	 * we dont' use this for now since it involves more changes on the client.
 	 * Will tackle this later on.
 	 */
-	def convertUploadedPresentation_New = {conf, room, presentation ->
+	def convertUploadedPresentation_New = {conf, room, presentation_name, presentation ->
         try {
         	
         	/** Let's get how many pages this presentation has */
@@ -233,6 +263,7 @@ class PresentationService {
             while ((convertInfo = stdInput.readLine()) != null) {
 				def msg = new HashMap()
 				msg.put("room", room)
+				msg.put("presentationName", presentation_name)
 				msg.put("returnCode", "CONVERT")
 				msg.put("totalSlides", numPages)
 				
@@ -271,6 +302,7 @@ class PresentationService {
 		 	def thumbsDir = new File(presentation.getParent() + File.separatorChar + "thumbnails")
 		 	thumbsDir.mkdir()
             def command = imageMagick + "/convert -thumbnail 150x150 " + presentation.getAbsolutePath() + " " + thumbsDir.getAbsolutePath() + "/thumb.png"         
+            
             Process p = Runtime.getRuntime().exec(command);            
             BufferedReader stdInput = new BufferedReader(new 
                  InputStreamReader(p.getInputStream()));
