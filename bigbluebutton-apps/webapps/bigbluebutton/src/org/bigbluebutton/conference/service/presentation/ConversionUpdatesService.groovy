@@ -46,11 +46,16 @@ public class ConversionUpdatesService {
 						
 						switch (code) {
 							case 'SUCCESS':
+								log.debug("SUCCESS:presentationName=" + mapMessage.getString("presentationName"))
+								message.put('presentationName', mapMessage.getString("presentationName"))
+														
+								
 								message.put('message', mapMessage.getStringProperty("message"))
 								presentationApplication.sendUpdateMessage(message)
 								break
 							case 'EXTRACT':
 							case 'CONVERT':
+								message.put('presentationName', mapMessage.getString("presentationName"))
 								message.put('totalSlides', mapMessage.getInt("totalSlides"))
 								message.put('completedSlides', mapMessage.getInt("slidesCompleted"))
 								presentationApplication.sendUpdateMessage(message)
