@@ -61,6 +61,21 @@ class PresentationController {
 	    }
 		redirect( action:list)
 	}
+
+	//handle external presentation server 
+	def delegate = {		
+		println '\nPresentationController:delegate'
+		
+		def presentation_name = request.getParameter('presentation_name')
+		def conference = request.getParameter('conference')
+		def room = request.getParameter('room')
+		def returnCode = request.getParameter('returnCode')
+		def totalSlides = request.getParameter('totalSlides')
+		def slidesCompleted = request.getParameter('slidesCompleted')
+		
+	    presentationService.processDelegatedPresentation(conference, room, presentation_name, returnCode, totalSlides, slidesCompleted)
+		redirect( action:list)
+	}
 	
 	def showSlide = {
 		def presentationName = params.presentation_name
@@ -149,7 +164,12 @@ class PresentationController {
 		def filename = params.presentation_name
 		def f = confInfo()
 		/* Let's just use the thumbnail count */
+		
 		def numThumbs = presentationService.numberOfThumbnails(f.conference, f.room, filename)
+		//def numThumbs = 5
+		
+		
+		
 			response.addHeader("Cache-Control", "no-cache")
 			withFormat {						
 				xml {
