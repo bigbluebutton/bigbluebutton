@@ -1,21 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
     title="Upload Presentation"
-    x="168" y="86" layout="absolute" width="500" height="200">
+    x="168" y="86" layout="absolute" width="500" height="200"
+    initialize="initData();">
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.modules.presentation.view.FileUploadWindowMediator;
+			import mx.collections.*
+			import org.bigbluebutton.modules.presentation.view.event.*;
+	
+			public var presentationNames:Array;
+	        
+	        [Bindable]
+    	    public var presentationNamesAC:ArrayCollection;
+
+	        private function initData():void {
+    	        presentationNamesAC = new ArrayCollection(presentationNames);
+    	        if(presentationNames.length<=0) {
+					deleteBtn.enabled = false;
+					showBtn.enabled = false;
+    	        }
+            }			
+            
+	        private function showPresentation():void {
+				LogUtil.debug("FileUploadWindow::showPresentation() " + this.presentationNamesCombobox.selectedLabel);
+				dispatchEvent(new ShowPresentationEvent(this.presentationNamesCombobox.selectedLabel));       
+			}			
+            
+	        private function deletePresentation():void {
+				LogUtil.debug("FileUploadWindow.mxml::deletePresentation() " + this.presentationNamesCombobox.selectedIndex);
+				presentationNamesAC.removeItemAt(presentationNamesCombobox.selectedIndex);
+			}			
+
+	        private function terminatePresentation():void {
+				LogUtil.debug("FileUploadWindow::cancelPresentation()");
+				dispatchEvent(new Event(FileUploadWindowMediator.TERMINATE_UPLOAD_WINDOW));       
+			}			
 		]]>
+		
 	</mx:Script>
 	
 	<mx:Spacer height="100%" x="0" y="0"/>
-	<mx:Label id="fileLbl" text="File:" x="50" y="28"/>
-	<mx:TextInput id="fileTxtInput" width="228" x="87" y="26"/>
-	<mx:Button id="selectBtn" toolTip="Browse file" click="dispatchEvent(new Event(FileUploadWindowMediator.SELECT_FILE))" icon="@Embed('../assets/add.png')" width="26" x="332" y="26"/>
 	
+	<mx:Label id="presentationNameLb" text="New Presentation Name:" x="50" y="18"/>
+	<mx:TextInput id="presentationNameInput" width="115" x="200" y="18"/>
+	
+	<mx:Label id="fileLbl" text="File:" x="50" y="50"/>
+	<mx:TextInput id="fileTxtInput" width="228" x="87" y="48"/>
+	<mx:Button id="selectBtn" toolTip="Browse file" click="dispatchEvent(new Event(FileUploadWindowMediator.SELECT_FILE))" icon="@Embed('../assets/add.png')" width="26" x="332" y="48"/>
 	<mx:Button id="uploadBtn" label="Upload" toolTip="Upload file"  
 		click="dispatchEvent(new Event(FileUploadWindowMediator.START_UPLOAD))" enabled="false"
-		icon="@Embed('../assets/bullet_go.png')" x="366" y="26"/>
+		icon="@Embed('../assets/bullet_go.png')" x="366" y="48"/>
+
+	<mx:Label id="presentationNamesLb" text="Exsited Presentation Names:" x="50" y="80"/>
+    <mx:ComboBox id="presentationNamesCombobox" width="90" x="225" y="80" dataProvider="{presentationNamesAC}"> 
+    </mx:ComboBox>	
+	<mx:Button id="deleteBtn" label="" toolTip="Delete Presentation"  
+		click="deletePresentation()" enabled="true"
+		icon="@Embed('../assets/delete.png')" width="26" x="332" y="80"/>
+	<mx:Button id="showBtn" label="Show" toolTip="Show Presentation"  
+		click="showPresentation()" enabled="true"
+		icon="@Embed('../assets/bullet_go.png')" x="366" y="80"/>
 	
 	<mx:Label id="progBarLbl" text="Progress:" x="21" y="67" visible="false"/>
 	<mx:ProgressBar id="progressBar" mode="manual" label="" labelPlacement="center" width="360" y="67" x="87" visible="false"/>
@@ -23,6 +68,6 @@
 	<mx:ControlBar horizontalAlign="center" verticalAlign="middle" x="0" y="106">
 		<mx:Label id="progressLbl" text="" width="100%"/>
 		<mx:Spacer width="100%"/>
-		<mx:Button id="okCancelBtn" label="Cancel" click="dispatchEvent(new Event(FileUploadWindowMediator.CLOSE_UPLOAD_WINDOW))"/>
+		<mx:Button id="okCancelBtn" label="OK" click="terminatePresentation()"/>
 	</mx:ControlBar>	
 </mx:TitleWindow> 
