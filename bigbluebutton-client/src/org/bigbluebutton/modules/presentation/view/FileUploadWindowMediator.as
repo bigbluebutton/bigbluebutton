@@ -32,6 +32,9 @@ package org.bigbluebutton.modules.presentation.view
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
+	
+	import org.bigbluebutton.modules.presentation.view.event.*;
+	
 
 	/**
 	 * This is the Mediator class for the FileUploadWindow component
@@ -45,7 +48,9 @@ package org.bigbluebutton.modules.presentation.view
 		public static const NAME:String = "FileUploadWindowMediator";
 		
 		public static const START_UPLOAD:String = "Start Upload";
+		//public static const SHOW_PRESENTATION:String = "Show Presentation";
 		public static const CLOSE_UPLOAD_WINDOW:String = "Close File Upload Window";
+		public static const TERMINATE_UPLOAD_WINDOW:String = "Terminate File Upload Window";
 		public static const SELECT_FILE:String = "Select File";
 		
 		private var fileToUpload:FileReference = new FileReference();
@@ -54,6 +59,9 @@ package org.bigbluebutton.modules.presentation.view
 		
 		// Var to determine how to handle okCancelBtn click
 		private var okState : Boolean = false;
+
+		// Var who holds infomation(message, presentationName from red5-server)
+		private var info : Object;
 		
 		public var isListening:Boolean = true;
 		
@@ -67,7 +75,9 @@ package org.bigbluebutton.modules.presentation.view
 			super(NAME, fileWin);
 			_fileWin = fileWin;
 			_fileWin.addEventListener(START_UPLOAD, startUpload);
+			_fileWin.addEventListener("SHOW_PRESENTATION_EVENT", showPresentation);
 			_fileWin.addEventListener(CLOSE_UPLOAD_WINDOW, closeFileUploadWindow);
+			_fileWin.addEventListener(TERMINATE_UPLOAD_WINDOW, terminateFileUploadWindow);
 			_fileWin.addEventListener(SELECT_FILE, selectFile);
 		}
 		
@@ -79,10 +89,16 @@ package org.bigbluebutton.modules.presentation.view
 		private function startUpload(e:Event):void{
 			LogUtil.debug("In startUpload()...")
 			var proxy:PresentProxy = facade.retrieveProxy(PresentProxy.NAME) as PresentProxy;
-			/* Hardocde presentationName to "default" for now since we only support one presentation at a time.
-			* We need to remove it later when we implement ability to pre-upload several presentations.
-			*/
-			proxy.uploadPresentation("default", fileToUpload);
+
+			var presentationName:String = _fileWin.presentationNameInput.text;
+			if(presentationName==null || ""==presentationName){
+				presentationName = "default";
+			}else{
+				var trimStr:Array=presentationName.split(" ");
+				presentationName = trimStr.join("");				
+			}
+			proxy.uploadPresentation(presentationName, fileToUpload);
+			
 			_fileWin.progBarLbl.visible = true;
 			_fileWin.progressBar.visible = true;
 			
@@ -90,6 +106,24 @@ package org.bigbluebutton.modules.presentation.view
 			_fileWin.selectBtn.enabled = false;
 			_fileWin.uploadBtn.enabled = false;
 			_fileWin.fileTxtInput.enabled = false;
+			
+			_fileWin.presentationNamesLb.visible = false;
+			_fileWin.presentationNamesCombobox.visible = false;
+			_fileWin.deleteBtn.visible = false;
+			_fileWin.showBtn.visible = false;
+		}
+
+		/**
+		 * show a Presentation 
+		 * @param e
+		 * 
+		 */		
+		private function showPresentation(e:ShowPresentationEvent):void
+		{
+			LogUtil.debug("FileUploadWindowMediator::showPresentation()...:" + e.presentationName)
+
+			var proxy:PresentProxy = facade.retrieveProxy(PresentProxy.NAME) as PresentProxy;
+			proxy.loadPresentation(e.presentationName);
 		}
 		
 		/**
@@ -101,10 +135,15 @@ package org.bigbluebutton.modules.presentation.view
 		{
 			closeWindow();
 		}
+
+		private function terminateFileUploadWindow(e:Event) : void
+		{
+			sendNotification(PresentModuleConstants.REMOVE_UPLOAD_WINDOW);
+		}
 		
 		private function closeWindow():void{
 			if (okState) {
-				sendNotification(PresentModuleConstants.READY_EVENT);
+				sendNotification(PresentModuleConstants.READY_EVENT, info);
 			} else{
 				sendNotification(PresentModuleConstants.REMOVE_UPLOAD_WINDOW);
 			}
@@ -270,10 +309,12 @@ package org.bigbluebutton.modules.presentation.view
 		 * @param note
 		 * 
 		 */		
-		private function handleConvertSuccessEvent(note:INotification):void{
+		private function handleConvertSuccessEvent(note:INotification):void
+		{
 			_fileWin.okCancelBtn.label = "Ok";
 			_fileWin.okCancelBtn.visible = true;
 			okState = true;
+			info = note.getBody();
 			closeWindow();
 		}
 		
