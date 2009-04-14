@@ -39,6 +39,10 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 
 		switch (message['code']) {
 			case 'SUCCESS':
+				update.put('returnCode', message['code'])
+				update.put("presentationName", message['presentationName'])
+				update.put("message", message['message'])
+				break
 			case 'UPDATE':
 			case 'FAILED':
 				update.put('returnCode', message['code'])
