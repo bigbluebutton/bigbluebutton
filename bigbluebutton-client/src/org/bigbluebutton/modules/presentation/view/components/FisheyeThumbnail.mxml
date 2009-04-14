@@ -54,6 +54,11 @@
 					//dispatchEvent(new Event(SLIDE_HIGHLIGHTED));	
 				}
 			}
+
+			public function setFisheyeVisibility(visible:Boolean):void{
+				fisheye.visible = visible;
+				LogUtil.debug('FisheyeThumbnail::setVisibility()...this.visible=' + this.visible + "  " + fisheye.visible);
+			}
 			
 			private function getSlideNumber():Number {
 				return slideNumber;
