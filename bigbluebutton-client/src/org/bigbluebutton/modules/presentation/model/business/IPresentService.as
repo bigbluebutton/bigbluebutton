@@ -7,7 +7,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		function addMessageSender(msgSender:Function):void;
 		function addConnectionStatusListener(connectionListener:Function):void;	
 		function gotoSlide(num:int):void;
-		function sharePresentation(share:Boolean):void;	
+		function sharePresentation(share:Boolean, presentationName:String):void;	
 		function clearPresentation():void;
 		function setPresenterName(presenterName:String):void;
 		function zoom(slideHeight:Number, slideWidth:Number):void;
