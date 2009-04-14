@@ -63,6 +63,7 @@ package org.bigbluebutton.modules.presentation.view
 		private var _module:IBigBlueButtonModule;
 		private var _presWin:PresentationWindow = new PresentationWindow();
 		
+	
 		/**
 		 * The constructor. Registers the view component with this mediator 
 		 * @param view
@@ -155,13 +156,13 @@ package org.bigbluebutton.modules.presentation.view
 		override public function handleNotification(notification:INotification):void{
 			switch(notification.getName()){
 				case PresentModuleConstants.START_SHARE:
-					handleStartShareEvent();
+					if(notification.getBody()!=null) handleStartShareEvent(notification.getBody().presentationName);
 					break;
 				case PresentModuleConstants.READY_EVENT:
-					handleReadyEvent();
+					handleReadyEvent(notification.getBody());
 					break;
 				case PresentModuleConstants.PRESENTATION_LOADED:
-					handlePresentationLoadedEvent();
+					handlePresentationLoadedEvent(notification.getBody() as String);
 					break;
 				case PresentModuleConstants.PRESENTER_MODE:
 					handlePresenterMode(notification.getBody().presenterName);
@@ -265,19 +266,23 @@ package org.bigbluebutton.modules.presentation.view
 			removeFileUploadPopup();
 		}
 				
-		private function handleStartShareEvent():void
+		private function handleStartShareEvent(presentationName:String):void
 		{	
-			if (! proxy.isPresenter()) {
-				proxy.loadPresentation();
+			if (! proxy.isPresenter())
+			{
+				LogUtil.debug("\n\nPresentationWindowMediator::handleStartShareEvent()... presentationName=" + presentationName + "  proxy.isPresenter()=" + proxy.isPresenter() + "\n"); 
+				proxy.loadPresentation(presentationName);
 			}
 		}
 				
-		private function handleReadyEvent():void
+		private function handleReadyEvent(info:Object):void
 		{			
-			proxy.loadPresentation();
+			proxy.loadPresentation(String(info["presentationName"]));
+			
 			//Initialize the thumbnails mediator
 			if ( ! facade.hasMediator( ThumbnailViewMediator.NAME ) ) {
             	facade.registerMediator(new ThumbnailViewMediator( _presWin.thumbnailWindow ));
+    	       	_presWin.thumbnailWindow.setFisheyeVisibility(true);
             } 
 		}
 
@@ -299,8 +304,10 @@ package org.bigbluebutton.modules.presentation.view
 
 		}
 
-		private function handlePresentationLoadedEvent():void
+		private function handlePresentationLoadedEvent(presentationName:String):void
 		{	
+			LogUtil.debug('PresentationWindowMediator::handlePresentationLoadedEvent()...presentationName=' + presentationName);
+
 			_presWin.slideView.slides = proxy.slides;         	
             _presWin.slideNumLbl.text = (_presWin.slideView.selectedSlide + 1) + " of " + _presWin.slideView.slides.length;		
 			_presWin.slideView.visible = true;		
@@ -315,7 +322,8 @@ package org.bigbluebutton.modules.presentation.view
 				facade.registerMediator(new SlideViewMediator(_presWin.slideView ));
 			}		
 				
-			if (proxy.isPresenter()) {
+			if (proxy.isPresenter()) 
+			{
 				// Remove the uploadWindow
 				PopUpManager.removePopUp(_presWin.uploadWindow);
 				// Remove the mediator	
@@ -323,13 +331,24 @@ package org.bigbluebutton.modules.presentation.view
 				
 				_presWin.backButton.visible = true;
 				_presWin.forwardButton.visible = true;
-				proxy.sharePresentation(true);
+			
+				LogUtil.debug('PresentationWindowMediator::handlePresentationLoadedEvent()..._presWin.thumbnailWindow.fisheye.selectedIndex has been set to 0');
+				_presWin.thumbnailWindow.fisheye.selectedIndex = 0; // Initialize to prevent ArrayIndexException
+
+				proxy.sharePresentation(true, presentationName);
 				proxy.gotoSlide(0);
 				
 				//Initialize the thumbnails
+				//_presWin.thumbnailWindow.fisheye.selectedIndex = 0; // Initialize to prevent ArrayIndexException
 				_presWin.thumbnailWindow.setDataProvider(_presWin.slideView.slides);
 				_presWin.isPresenter = true;
-			} else {
+				
+				if (facade.hasMediator( ThumbnailViewMediator.NAME ) ) {
+	    	       	_presWin.thumbnailWindow.setFisheyeVisibility(true);
+            	} 
+
+			} else 
+			{
 				proxy.getCurrentSlideNumber();
 			}
 		}
@@ -343,10 +362,17 @@ package org.bigbluebutton.modules.presentation.view
 				_presWin.uploadWindow = null;			
 			}
 
+			if (facade.hasMediator( ThumbnailViewMediator.NAME ) ) {
+	           	_presWin.thumbnailWindow.setFisheyeVisibility(true);
+            } 
 		}
 				
-		protected function openFileUploadWindow(e:Event) : void{
-            _presWin.uploadWindow = FileUploadWindow(PopUpManager.createPopUp( _presWin, FileUploadWindow, false));
+		protected function openFileUploadWindow(e:Event) : void
+		{
+            //_presWin.uploadWindow = FileUploadWindow(PopUpManager.createPopUp( _presWin, FileUploadWindow, false));
+			_presWin.uploadWindow = new FileUploadWindow();
+			_presWin.uploadWindow.presentationNames = proxy.getPresentationNames();
+			mx.managers.PopUpManager.addPopUp(_presWin.uploadWindow, _presWin, false);
 			
 			var point1:Point = new Point();
             // Calculate position of TitleWindow in Application's coordinates. 
@@ -355,9 +381,15 @@ package org.bigbluebutton.modules.presentation.view
             point1 = _presWin.slideView.localToGlobal(point1);
             _presWin.uploadWindow.x = point1.x + 25;
             _presWin.uploadWindow.y = point1.y + 25;
-            
+            //_presWin.uploadWindow.presentationNames = proxy.getPresentationNames();
             if ( ! facade.hasMediator( FileUploadWindowMediator.NAME ) ) {
             	facade.registerMediator(new FileUploadWindowMediator( _presWin.uploadWindow ));
+            } 
+
+            //Initialize the thumbnails mediator
+			if (facade.hasMediator( ThumbnailViewMediator.NAME ) ) {
+            	//facade.removeMediator(ThumbnailViewMediator.NAME);
+	           	_presWin.thumbnailWindow.setFisheyeVisibility(false);
             } 
         }
         
