@@ -390,6 +390,8 @@ package org.bigbluebutton.modules.presentation.view
 			if (facade.hasMediator( ThumbnailViewMediator.NAME ) ) {
             	//facade.removeMediator(ThumbnailViewMediator.NAME);
 	           	_presWin.thumbnailWindow.setFisheyeVisibility(false);
+				_presWin.thumbnailWindow.fisheye.selectedIndex = 0; //just for testing
+	           	
             } 
         }
         
