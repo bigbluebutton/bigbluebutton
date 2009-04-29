@@ -2,8 +2,10 @@ package org.bigbluebutton.web.controllers
 
 import org.bigbluebutton.web.domain.ScheduledSession
 import grails.converters.*
+import org.codehaus.groovy.grails.commons.*
 
 class PublicScheduledSessionController {
+		
 	def index = {
 	    redirect(action:show)
 	}
@@ -23,7 +25,8 @@ class PublicScheduledSessionController {
 	        redirect(action:joinIn)
 	    }
 	    else { 
-	      	def hostUrl = grailsApplication.config.grails.serverURL
+	    	def config = ConfigurationHolder.config
+        	def hostUrl = config.bigbluebutton.web.serverURL
 	       	def now = new Date().time
 	       	
 	       	def inSession = ((now > scheduledSessionInstance.startDateTime.time) && (now < scheduledSessionInstance.endDateTime.time))
@@ -90,8 +93,8 @@ class PublicScheduledSessionController {
 			}
 		    	
 		    println 'rendering signIn'
-		    //render(view:"signIn")
-		    def hostUrl = grailsApplication.config.grails.serverURL
+		    def config = ConfigurationHolder.config
+        	def hostUrl = config.bigbluebutton.web.serverURL
 		    redirect(url:"$hostUrl/client/BigBlueButton.html")			
 		}
 		

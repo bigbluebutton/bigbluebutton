@@ -4,6 +4,7 @@ import org.bigbluebutton.web.domain.ScheduledSession
 import java.util.UUID
 import org.bigbluebutton.web.domain.User
 import org.bigbluebutton.web.domain.Conference
+import org.codehaus.groovy.grails.commons.*
 
 class ScheduledSessionController {
     
@@ -25,7 +26,8 @@ class ScheduledSessionController {
             redirect(action:list)
         }
         else { 
-        	def hostUrl = grailsApplication.config.grails.serverURL
+        	def config = ConfigurationHolder.config
+        	def hostUrl = config.bigbluebutton.web.serverURL
         	
         	return [ scheduledSessionInstance : scheduledSessionInstance, hostUrl:hostUrl ] 
         }

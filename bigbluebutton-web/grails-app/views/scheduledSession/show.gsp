@@ -38,7 +38,7 @@
                         <tr class="prop">
                             <td valign="top" class="name">Link:</td>                            
                             <td valign="top" class="value">
-                            	${hostUrl}/${scheduledSessionInstance.tokenId}
+                            	${hostUrl}/conference-session/joinIn/${scheduledSessionInstance.tokenId}
 							</td>                            
                         </tr>
                     
