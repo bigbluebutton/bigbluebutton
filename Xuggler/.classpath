@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="Z:/xuggle_jars/commons-cli.jar"/>
+	<classpathentry kind="lib" path="Z:/xuggle_jars/logback-classic.jar"/>
+	<classpathentry kind="lib" path="Z:/xuggle_jars/logback-core.jar"/>
+	<classpathentry kind="lib" path="Z:/xuggle_jars/slf4j-api.jar"/>
+	<classpathentry kind="lib" path="Z:/xuggle_jars/xuggle-xuggler.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
