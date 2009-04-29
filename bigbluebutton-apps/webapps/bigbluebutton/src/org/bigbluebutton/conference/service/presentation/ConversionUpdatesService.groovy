@@ -40,24 +40,29 @@ public class ConversionUpdatesService {
 	                	MapMessage mapMessage = ((MapMessage) jmsMessage);
 
 	                	def code = mapMessage.getString("returnCode")
+	                	def room = mapMessage.getString("room")
+	                	def presentationName = mapMessage.getString("presentationName")
+	                	
 						Map message = new HashMap()
-						message.put('room', mapMessage.getString("room"))
+						message.put('room', room)
 						message.put('code', code)
+						message.put('presentationName', presentationName)
 						
 						switch (code) {
 							case 'SUCCESS':
-								log.debug("SUCCESS:presentationName=" + mapMessage.getString("presentationName"))
-								message.put('presentationName', mapMessage.getString("presentationName"))
-														
-								
+								log.debug "JMS: SUCCESS[$presentationName]"
+																
 								message.put('message', mapMessage.getStringProperty("message"))
 								presentationApplication.sendUpdateMessage(message)
 								break
 							case 'EXTRACT':
 							case 'CONVERT':
-								message.put('presentationName', mapMessage.getString("presentationName"))
-								message.put('totalSlides', mapMessage.getInt("totalSlides"))
-								message.put('completedSlides', mapMessage.getInt("slidesCompleted"))
+								def totalSlides = mapMessage.getInt("totalSlides")
+								def completedSlides = mapMessage.getInt("slidesCompleted")
+								message.put('totalSlides', totalSlides)
+								message.put('completedSlides', completedSlides)
+								
+								log.debug "JMS: CONVERT[$presentationName, $completedSlides, $totalSlides]"
 								presentationApplication.sendUpdateMessage(message)
 								break
 							default:

@@ -4,8 +4,9 @@ package org.bigbluebutton.conference
 import org.testng.annotations.BeforeMethodimport org.testng.annotations.Testimport org.testng.Assertpublic class BigBlueButtonSessionTest{
 	def session
 	
-	@BeforeMethod
+	@BeforeMethod 
 	public void setUp() {
+		
 		session = new BigBlueButtonSession('test-session', 1L, 'test-user', 'MODERATOR', 'test-conference', 'LIVE', 'test-room')
 	}
 

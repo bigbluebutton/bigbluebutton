@@ -62,23 +62,43 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 	def assignPresenter = {userid, name, assignedBy ->	
 		log.debug("calling assignPresenterCallback $userid, $name $assignedBy")
 		so.sendMessage("assignPresenterCallback", [userid, name, assignedBy])	
-			
+		
+		/* Comment out for now (ralam 4/17/2009)
 		def writer = new StringWriter()
 		def xml = new MarkupBuilder(writer)
 		xml.event(name:'assignPresenter', date:new Date().time, application:APP_NAME) {
 			presenter(userid:userid, name:name, assignedBy:assignedBy)
 		}
 		recorder.recordXmlEvent(writer.toString())
+		*/
+		
+		Map event = new HashMap()
+		event.put("date", new Date().time)
+		event.put("application", APP_NAME)
+		event.put("event", "assignPresenter")
+		event.put("userid", userid)
+		event.put("name", name)
+		event.put("assignedBy", assignedBy)
+		recordEvent(event)	
 	}
 	
 	def gotoSlide = {slide ->
 		log.debug("calling gotoSlideCallback $slide")
 		so.sendMessage("gotoSlideCallback", [slide])	
 		
+		/* Comment out for now (ralam 4/17/2009)
 		def writer = new StringWriter()
 		def xml = new MarkupBuilder(writer)
 		xml.event(name:'gotoSlide', date:new Date().time, application:APP_NAME, slide:slide)
 		recorder.recordXmlEvent(writer.toString())
+		*/
+		
+		Map event = new HashMap()
+		event.put("date", new Date().time)
+		event.put("application", APP_NAME)
+		event.put("event", "gotoSlide")
+		event.put("slide", slide)
+		recordEvent(event)
 	}
 	
 	def sharePresentation = {presentationName, share ->
@@ -86,11 +106,21 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 	
 		so.sendMessage("sharePresentationCallback", [presentationName, share])	
 		
+		/* Comment out for now (ralam 4/17/2009)
 		def writer = new StringWriter()
 		def xml = new MarkupBuilder(writer)
 		xml.event(name:'sharePresentation', date:new Date().time, application:APP_NAME) {
 			presentation(name:presentationName, share:share)
 		}
 		recorder.recordXmlEvent(writer.toString())
+		*/
+		
+		Map event = new HashMap()
+		event.put("date", new Date().time)
+		event.put("application", APP_NAME)
+		event.put("event", "sharePresentation")
+		event.put("presentationName", presentationName)
+		event.put("share", share)
+		recordEvent(event)
 	}
 }

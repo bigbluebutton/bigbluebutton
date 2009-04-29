@@ -38,7 +38,8 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 	public void participantStatusChange(Long userid, String status, Object value){
 		log.debug("A participant's status has changed ${userid} $status $value.")
 		so.sendMessage("participantStatusChange", [userid, status, value])
-		
+
+		/* Comment out for now (ralam 4/17/2009)
 		def writer = new StringWriter()
 		def xml = new MarkupBuilder(writer)
 		xml.event(name:'participantStatusChange', date:new Date().time, application:name) {
@@ -46,6 +47,16 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 		}
 
 		recorder.recordXmlEvent(writer.toString())
+		*/
+		
+		Map event = new HashMap()
+		event.put("date", new Date().time)
+		event.put("application", name)
+		event.put("event", "participantStatusChange")
+		event.put("userid", userid)
+		event.put("status", status)
+		event.put("value", value)
+		recordEvent(event)
 	}
 	
 	public void participantJoined(Participant p) {
@@ -55,6 +66,7 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 		log.debug("Sending participantJoined ${p.userid} to client.")
 		so.sendMessage("participantJoined", args)
 		
+		/* Comment out for now (ralam 4/17/2009)
 		def writer = new StringWriter()
 		def xml = new MarkupBuilder(writer)
 		xml.event(name:'participantJoined', date:new Date().time, application:name) {
@@ -67,6 +79,15 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 			}
 		}
 		recorder.recordXmlEvent(writer.toString())
+		*/
+		
+		Map event = new HashMap()
+		event.put("date", new Date().time)
+		event.put("application", name)
+		event.put("event", "participantJoined")
+		event.put("user", p.toMap())
+		log.debug("Recording participantJoined ${p.userid}.")
+		recordEvent(event)
 	}
 	
 	public void participantLeft(Long userid) {		
@@ -74,11 +95,20 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 		args.add(userid)
 		so.sendMessage("participantLeft", args)
 		
+		/* Comment out for now (ralam 4/17/2009)
 		def writer = new StringWriter()
 		def xml = new MarkupBuilder(writer)
 		xml.event(name:'participantLeft', date:new Date().time, application:name) {
 			participant(id:userid)
 		}
 		recorder.recordXmlEvent(writer.toString())
+		*/
+		
+		Map event = new HashMap()
+		event.put("date", new Date().time)
+		event.put("application", name)
+		event.put("event", "participantLeft")
+		event.put("userid", userid)
+		recordEvent(event)
 	}
 }

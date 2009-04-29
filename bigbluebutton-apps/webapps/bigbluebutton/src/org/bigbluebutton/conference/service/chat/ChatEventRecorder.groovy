@@ -39,12 +39,25 @@ public class ChatEventRecorder implements IEventRecorder, IChatRoomListener {
 		log.debug("New chat message...")
 		so.sendMessage("newChatMessage", [msg])
 		
+		recordYamlEvent(msg)
+	}
+	
+	private def recordXmlEvent(msg) {
 		def writer = new StringWriter()
 		def xml = new MarkupBuilder(writer)
 		xml.event(name:'newChatMessage', date:new Date().time, application:name) {
 			message(msg)
 		}
 		recorder.recordXmlEvent(writer.toString())
+	}
+	
+	private def recordYamlEvent(msg) {
+		Map event = new HashMap()
+		event.put("date", new Date().time)
+		event.put("application", name)
+		event.put("event", "newChatMessage")
+		event.put("message", msg)
+		recordEvent(event)		
 	}
 
 }
