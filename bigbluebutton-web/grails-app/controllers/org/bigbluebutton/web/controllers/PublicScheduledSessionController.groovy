@@ -26,11 +26,12 @@ class PublicScheduledSessionController {
 	    }
 	    else { 
 	    	def config = ConfigurationHolder.config
-        	def hostUrl = config.bigbluebutton.web.serverURL
+        	def hostURL = config.bigbluebutton.web.serverURL
+        	println "serverURL $hostURL"
 	       	def now = new Date().time
 	       	
 	       	def inSession = ((now > scheduledSessionInstance.startDateTime.time) && (now < scheduledSessionInstance.endDateTime.time))
-	       	return [ scheduledSessionInstance : scheduledSessionInstance, hostUrl:hostUrl, inSession:inSession ] 
+	       	return [ scheduledSessionInstance : scheduledSessionInstance, hostUrl:hostURL, inSession:inSession ] 
 	    }
 	}
 	
@@ -94,8 +95,9 @@ class PublicScheduledSessionController {
 		    	
 		    println 'rendering signIn'
 		    def config = ConfigurationHolder.config
-        	def hostUrl = config.bigbluebutton.web.serverURL
-		    redirect(url:"$hostUrl/client/BigBlueButton.html")			
+        	def hostURL = config.bigbluebutton.web.serverURL
+        	println "serverURL $hostURL"
+		    redirect(url:"$hostURL/client/BigBlueButton.html")			
 		}
 		
 		if (!signedIn) {

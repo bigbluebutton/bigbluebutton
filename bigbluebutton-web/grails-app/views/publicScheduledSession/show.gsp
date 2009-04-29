@@ -46,10 +46,10 @@
                             
                             <td valign="top" class="value">
                             <g:if test="${inSession}">
-     							<g:link controller="conference-session" action="joinIn" id="${scheduledSessionInstance.tokenId}">Join</g:link>
+                            	<a href="${hostUrl}/bigbluebutton/conference-session/joinIn/${scheduledSessionInstance.tokenId}">Join</a>
 							</g:if>
                             <g:else>
-     							<g:link controller="conference-session"  action="joinIn" id="${scheduledSessionInstance.tokenId}">Play</g:link>    							
+     							<a href="${hostUrl}/bigbluebutton/conference-session/joinIn/${scheduledSessionInstance.tokenId}">Play</a>   							
 							</g:else>
                             	
 							</td>

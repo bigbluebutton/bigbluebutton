@@ -27,9 +27,9 @@ class ScheduledSessionController {
         }
         else { 
         	def config = ConfigurationHolder.config
-        	def hostUrl = config.bigbluebutton.web.serverURL
-        	
-        	return [ scheduledSessionInstance : scheduledSessionInstance, hostUrl:hostUrl ] 
+        	def hostURL = config.bigbluebutton.web.serverURL
+        	println "serverURL $hostURL"
+        	return [ scheduledSessionInstance : scheduledSessionInstance, hostUrl:hostURL ] 
         }
     }
 
