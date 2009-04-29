@@ -1,13 +1,22 @@
 <modules>
-	<module name="LoginModule" url="LoginModule.swf" 
+	<!--module name="LoginModule" url="LoginModule.swf" 
 			uri="http://localhost:8080/bigbluebutton/join/signIn" 
 			onAppInitEvent="LOAD" loadNextModule="ChatModule"
 			onAppStartEvent="START"
 			onUserLogoutEvent="STOP"
+			uri="http://localhost:8080/bigbluebutton/conference-session/enter"
+	/-->
+<!--
+	<module name="JoinModule" url="JoinModule.swf" 
+			uri="conf/join-mock.xml" 
+			onAppInitEvent="LOAD"
+			onAppStartEvent="START"
+			onUserLogoutEvent="STOP"
 	/>
+-->
+
 	<module name="VideoModule" url="VideoModule.swf" 
 			uri="rtmp://localhost/oflaDemo"
-			loadNextModule="ViewersModule"
 			onUserJoinedEvent="START"
 			onUserLogoutEvent="STOP"
 	/>
@@ -17,12 +26,16 @@
 			onUserJoinedEvent="START"
 			onUserLogoutEvent="STOP"		 
 	/>
+
 	<module name="ViewersModule" url="ViewersModule.swf" 
 			uri="rtmp://localhost/bigbluebutton" 
-			host="http://localhost:8080/bigbluebutton/join/enter"
-			onUserLoggedInEvent="START"
+			host="http://localhost:8080/bigbluebutton/conference-session/enter"
+			onAppInitEvent="LOAD" loadNextModule="ChatModule"
+			onAppStartEvent="START"
 			onUserLogoutEvent="STOP"
 	/>
+	
+
 	<module name="ListenersModule" url="ListenersModule.swf" 
 			uri="rtmp://localhost/bigbluebutton" 
 			recordingHost="http://134.117.254.226"
@@ -30,7 +43,6 @@
 			onUserJoinedEvent="START"
 			onUserLogoutEvent="STOP"
 	/>
-	<module name="WhiteboardModule" url="WhiteboardModule.swf" uri="rtmp://localhost/test" />
 	<module name="PresentationModule" url="PresentationModule.swf" 
 			uri="rtmp://localhost/bigbluebutton" 
 			host="http://localhost:8080" 
@@ -38,4 +50,5 @@
 			onUserJoinedEvent="START" 
 			onUserLogoutEvent="STOP"
 	/>
+
 </modules>

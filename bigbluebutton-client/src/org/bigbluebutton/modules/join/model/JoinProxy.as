@@ -55,7 +55,7 @@ package org.bigbluebutton.modules.join.model
 		private function joinListener(success:Boolean, result:Object):void {
 			if (success) {
 				LogUtil.debug(NAME + '::Sending JoinModuleConstants.JOIN_SUCCESS');
-				sendNotification(JoinModuleConstants.JOIN_SUCCESS, result);
+//				sendNotification(JoinModuleConstants.JOIN_SUCCESS, result);
 			} else {
 				LogUtil.debug(NAME + '::Sending JoinModuleConstants.JOIN_FAILED');
 				sendNotification(JoinModuleConstants.JOIN_FAILED, result);

@@ -6,7 +6,7 @@ package org.bigbluebutton.modules.viewers.model.services
 	
 	public interface IViewersService
 	{
-		function connect(uri:String, username:String, role:String, conference:String, mode:String, room:String):void;
+		function connect(username:String, role:String, conference:String, mode:String, room:String):void;
 		function disconnect():void;
 		function addConnectionStatusListener(connectionListener:Function):void;	
 //		function iAmPresenter(userid:Number, presenter:Boolean):void;

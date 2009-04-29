@@ -76,7 +76,7 @@ package org.bigbluebutton.modules.listeners.model.service
 		
 	    private function join() : void
 		{
-			trace(_module.uri);
+			trace("ListenertsSOService " + _module.uri);
 			_listenersSO = SharedObject.getRemote(SHARED_OBJECT, _module.uri, false);
 			_listenersSO.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
 			_listenersSO.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);

@@ -13,9 +13,10 @@
 			private var _moduleName:String = "Viewers Module";
 			
 			private var _attributes:Object;
+			private var _playbackRoom:String;
 			
 			private function onCreationComplete():void {
-				LogUtil.debug("ViewersModule Initialized");			
+				LogUtil.debug("ViewersModule Initialized");		
 			}
 			
 			public function acceptRouter(router:Router):void{
@@ -34,8 +35,21 @@
 				return _moduleName;
 			}
 		
-			public function get uri():String {
+			public function get baseUri():String {
+				return _attributes.uri;
+			}
+			
+			public function get playbackRoom():String {
+				return _playbackRoom as String;
+			}
+			
+			public function get uri():String {				
+				if (_attributes.mode == "PLAYBACK") {										
+					return _attributes.uri + "/" + _playbackRoom;
+				} 
+				
 				return _attributes.uri + "/" + _attributes.room;
+
 			}
 			
 			public function get role():String {
@@ -83,6 +97,22 @@
 				return _attributes.room;
 			}
 			
+			public function set mode(m:String):void {
+				_attributes.mode = m;
+			}
+
+			public function get mode():String {
+				return _attributes.mode;
+			}
+									
+			public function set voicebridge(v:String):void {
+				_attributes.voicebridge = v;
+			}
+
+			public function get voicebridge():String {
+				return _attributes.voicebridge;
+			}
+						
 			public function set conference(c:String):void {
 				_attributes.conference = c;
 			}
@@ -90,19 +120,13 @@
 			public function get conference():String {
 				return _attributes.conference;
 			}
-			
-			public function get mode():String {
-				if (_attributes.mode == null) {					
-					//_attributes.mode = "PLAYBACK"
-					_attributes.mode = "LIVE"
-					LogUtil.debug('Setting ViewersModule mode: ' + _attributes.mode);
-				}
-				LogUtil.debug('ViewersModule mode: ' + _attributes.mode);
-				return _attributes.mode;
-			}
-			
+						
 			public function start(attributes:Object):void {		
 				_attributes = attributes;	
+				
+				var now:Date = new Date();	
+				_playbackRoom = now.getTime().toString();
+				
 				LogUtil.debug('Passed ViewersModule mode: ' + _attributes.mode);
 				ViewersFacade.getInstance().startup(this);	
 			}

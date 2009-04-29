@@ -104,8 +104,8 @@ package org.bigbluebutton.modules.presentation.model.business
 		public function loadPresentation(presentationName:String) : void
 		{
 			LogUtil.debug("PresentProxy::loadPresentation: presentationName=" + presentationName);
-			var fullUri : String = _module.host + "/bigbluebutton/presentation/"+presentationName+"/slides";	
-			var slideUri:String = _module.host + "/bigbluebutton/presentation/"+presentationName;
+			var fullUri : String = _module.host + "/bigbluebutton/presentation/" + _module.conference + "/" + _module.room + "/" + presentationName+"/slides";	
+			var slideUri:String = _module.host + "/bigbluebutton/presentation/" + _module.conference + "/" + _module.room + "/" + presentationName;
 			
 			LogUtil.debug("PresentationApplication::loadPresentation()... " + fullUri);
 

@@ -37,6 +37,10 @@
 			}
 		
 			public function get uri():String {
+				if (_attributes.mode == "PLAYBACK") {										
+					return _attributes.uri + "/" + _attributes.playbackRoom;
+				} 
+				
 				return _attributes.uri + "/" + _attributes.room;
 			}
 			

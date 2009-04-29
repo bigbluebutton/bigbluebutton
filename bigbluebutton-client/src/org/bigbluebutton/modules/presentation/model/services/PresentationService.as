@@ -59,7 +59,7 @@ package org.bigbluebutton.modules.presentation.model.services
 		public function parse(xml:XML):void{
 			var list:XMLList = xml.presentation.slides.slide;
 			var item:XML;
-			//LogUtil.debug("Slides: " + xml);
+			LogUtil.debug("Slides: " + xml);
 		
 			var presentationName:String = xml.presentation[0].@name;
 			LogUtil.debug("PresentationService::parse()...  presentationName=" + presentationName);

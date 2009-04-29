@@ -107,10 +107,12 @@ package org.bigbluebutton.main.view
 					//}
 					break;
 				case MainApplicationConstants.USER_JOINED:
-					 /**
-			 			 * Workaround to pass in username for sip registration.
-			 			*/
-						red5PhoneWindow.sipusername = modulesProxy.username;
+					/**
+			 		 * Workaround to pass in username for sip registration.
+			 		*/
+					//red5PhoneWindow.sipusername = modulesProxy.username;
+					shell.loadedModules.text = "";
+					shell.loadProgress.text = "";
 					break;
 				case MainApplicationConstants.USER_LOGGED_IN:
 					shell.loadedModules.text = "";

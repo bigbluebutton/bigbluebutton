@@ -39,7 +39,6 @@ package org.bigbluebutton.modules.viewers.model.services
 		public static const CONNECT_REJECTED:String = "NetConnection.Connect.Rejected";
 
 		private var _netConnection:NetConnection;	
-		private var _uri:String;
 		private var connectionId:Number;
 		private var connected:Boolean = false;
 		private var _connectionSuccessListener:Function;
@@ -47,16 +46,17 @@ package org.bigbluebutton.modules.viewers.model.services
 		
 		private var _userid:Number = -1;
 		private var _role:String = "unknown";
+		private var _module:ViewersModule;
 		
 		// These two are just placeholders. We'll get this from the server later and
 		// then pass to other modules.
 		private var _authToken:String = "AUTHORIZED";
 		private var _room:String;
 				
-		public function NetConnectionDelegate(uri:String) : void
+		public function NetConnectionDelegate(m:ViewersModule) : void
 		{
 			_netConnection = new NetConnection();
-			_uri = uri;
+			_module = m;
 		}
 		
 		public function get connection():NetConnection {
@@ -80,7 +80,7 @@ package org.bigbluebutton.modules.viewers.model.services
 		 * mode: LIVE/PLAYBACK - Live:when used to collaborate, Playback:when being used to playback a recorded conference.
 		 * room: Need the room number when playing back a recorded conference. When LIVE, the room is taken from the URI.
 		 */
-		public function connect(uri:String, username:String, role:String, conference:String, mode:String, room:String):void
+		public function connect(username:String, role:String, conference:String, mode:String, room:String):void
 		{						
 			_netConnection.client = this;
 			_netConnection.addEventListener( NetStatusEvent.NET_STATUS, netStatus );
@@ -88,20 +88,19 @@ package org.bigbluebutton.modules.viewers.model.services
 			_netConnection.addEventListener( SecurityErrorEvent.SECURITY_ERROR, netSecurityError );
 			_netConnection.addEventListener( IOErrorEvent.IO_ERROR, netIOError );
 			
-			try {					
-				LogUtil.debug(NAME + "::Connecting to " + _uri + " [" + username + "," + role + "," + conference + 
+			try {	
+				var uri:String = _module.uri;
+								
+				LogUtil.debug(NAME + "::Connecting to " + uri + " [" + username + "," + role + "," + conference + 
 						"," + mode + "," + room + "]");		
-				//if (mode == 'PLAYBACK') {
-				//	
-				//}
-				_netConnection.connect(_uri, username, role, conference, mode, room);			
+				_netConnection.connect(uri, username, role, conference, mode, room);			
 				
 			} catch( e : ArgumentError ) {
 				// Invalid parameters.
 				switch ( e.errorID ) 
 				{
 					case 2004 :						
-						LogUtil.debug("Error! Invalid server location: " + _uri);											   
+						LogUtil.debug("Error! Invalid server location: " + uri);											   
 						break;						
 					default :
 					   break;

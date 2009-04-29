@@ -92,8 +92,10 @@ package org.bigbluebutton.main.model
 			_user.room = user.room;
 			_user.authToken = user.authToken;
 			_user.userid = user.userid;
-			_user.mode = _mode; // Assign if this is PLAYBACK or LIVE
+			_user.mode = user.mode;
+			_user.voicebridge = user.voicebridge;
 			_user.connection = user.connection;
+			_user.playbackRoom = user.playbackRoom;
 		}
 				
 		public function get numberOfModules():int {
@@ -132,6 +134,8 @@ package org.bigbluebutton.main.model
 					m.addAttribute("userid", _user.userid);
 					m.addAttribute("mode", _user.mode);
 					m.addAttribute("connection", _user.connection);
+					m.addAttribute("voicebridge", _user.voicebridge);
+					m.addAttribute("playbackRoom", _user.playbackRoom);
 				} else {
 					// Pass the mode that we got from the URL query string.
 					m.addAttribute("mode", _mode);

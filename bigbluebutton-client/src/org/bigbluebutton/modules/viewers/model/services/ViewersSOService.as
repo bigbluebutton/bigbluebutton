@@ -7,7 +7,6 @@ package org.bigbluebutton.modules.viewers.model.services
 	import flash.net.SharedObject;
 	
 	import org.bigbluebutton.modules.viewers.model.business.IViewers;
-	import org.bigbluebutton.modules.viewers.model.vo.Status;
 	import org.bigbluebutton.modules.viewers.model.vo.User;
 
 	public class ViewersSOService implements IViewersService
@@ -22,27 +21,28 @@ package org.bigbluebutton.modules.viewers.model.services
 		private var netConnectionDelegate: NetConnectionDelegate;
 		
 		private var _participants:IViewers;
-		private var _uri:String;
 		private var _connectionSuccessListener:Function;
 		private var _connectionFailedListener:Function;
 		private var _connectionStatusListener:Function;
 		private var _messageSender:Function;
 		private var _mode:String;
 		private var _room:String;
+		
+		private var _module:ViewersModule;
 				
-		public function ViewersSOService(uri:String, participants:IViewers)
+		public function ViewersSOService(m:ViewersModule, participants:IViewers)
 		{			
-			_uri = uri;
+			_module = m;
 			_participants = participants;
-			netConnectionDelegate = new NetConnectionDelegate(uri);			
+			netConnectionDelegate = new NetConnectionDelegate(_module);			
 			netConnectionDelegate.addConnectionSuccessListener(connectionSuccessListener);
 			netConnectionDelegate.addConnectionFailedListener(connectionFailedListener);
 		}
 		
-		public function connect(uri:String, username:String, role:String, conference:String, mode:String, room:String):void {
+		public function connect(username:String, role:String, conference:String, mode:String, room:String):void {
 			_mode = mode;
 			_room = room;
-			netConnectionDelegate.connect(_uri, username, role, conference, mode, room);
+			netConnectionDelegate.connect(username, role, conference, mode, room);
 		}
 			
 		public function disconnect():void {
@@ -76,7 +76,7 @@ package org.bigbluebutton.modules.viewers.model.services
 		
 	    private function join() : void
 		{
-			_participantsSO = SharedObject.getRemote(SO_NAME, _uri, false);
+			_participantsSO = SharedObject.getRemote(SO_NAME, _module.uri, false);
 			_participantsSO.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
 			_participantsSO.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
 			_participantsSO.client = this;

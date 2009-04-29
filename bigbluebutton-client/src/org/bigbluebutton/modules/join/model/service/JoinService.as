@@ -44,9 +44,9 @@ package org.bigbluebutton.modules.join.model.service
 				_resultListener(false, {message:xml.message});
 			} else if (returncode == 'SUCCESS') {
 				LogUtil.debug(xml.returncode + " " + xml.fullname + " " + xml.conference + " " + xml.role
-					+ " " + xml.room);
+					+ " " + xml.room + " " + xml.mode);
 				var user:Object = {username:xml.fullname, conference:xml.conference, 
-										userrole:xml.role, room:xml.room, authToken:xml.room};
+										userrole:xml.role, room:xml.room, authToken:xml.room, mode:xml.mode};
 				_resultListener(true, user);
 			}
 				

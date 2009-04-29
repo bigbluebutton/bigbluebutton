@@ -167,7 +167,7 @@ package org.bigbluebutton.modules.presentation.view.fisheye.controls
 				slideNumber.text = "";
 			} else {
 				slideNumber.text = "";
-				slideNumber.text = String((_data.slideNumber as Number) + 1);
+				slideNumber.text = String(_data.slideNumber as Number);
 			}
 			slideNumber.x = this.width / 2;
 			slideNumber.y = this.height / 2; 
