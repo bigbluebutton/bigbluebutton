@@ -27,21 +27,11 @@
                         <tbody>
                             <tr class="prop">
                                 <td valign="top" class="name">
-                                    <label for="conferenceName">Conference Name:</label>
+                                    <label for="name">Conference Name:</label>
                                 </td>
-                                <td valign="top" class="value ${hasErrors(bean:conferenceInstance,field:'conferenceName','errors')}">
-                                    <input type="text" id="conferenceName" name="conferenceName" value="${fieldValue(bean:conferenceInstance,field:'conferenceName')}"/>
+                                <td valign="top" class="value ${hasErrors(bean:conferenceInstance,field:'name','errors')}">
+                                    <input type="text" id="name" name="name" value="${fieldValue(bean:conferenceInstance,field:'name')}"/>
                                 </td>
-                            </tr> 
-
-                            <tr class="prop">
-                                <td valign="top" class="name">
-                                    <label for="conferenceNumber">Conference Number:</label>
-                                </td>
-                                <td valign="top" class="value ${hasErrors(bean:conferenceInstance,field:'conferenceNumber','errors')}">
-                                    <input type="text" id="conferenceNumber" name="conferenceNumber" value="${fieldValue(bean:conferenceInstance,field:'conferenceNumber')}"/>
-                                </td>
-                            </tr> 
                         </tbody>
                     </table>
                 </div>

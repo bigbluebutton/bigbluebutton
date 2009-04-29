@@ -2,6 +2,12 @@ import org.jsecurity.authc.AccountException
 import org.jsecurity.authc.IncorrectCredentialsException
 import org.jsecurity.authc.UnknownAccountException
 import org.jsecurity.authc.SimpleAccount
+import org.bigbluebutton.web.domain.User
+import org.bigbluebutton.web.domain.UserRoleRel
+import org.bigbluebutton.web.domain.UserPermissionRel
+import org.bigbluebutton.web.domain.Role
+import org.bigbluebutton.web.domain.RolePermissionRel
+import org.bigbluebutton.web.domain.Permission
 
 class DbRealm {
     static authTokenClass = org.jsecurity.authc.UsernamePasswordToken

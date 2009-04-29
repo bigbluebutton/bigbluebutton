@@ -34,17 +34,8 @@
                                 <td valign="top" class="name">
                                     <label for="conferenceName">Conference Name:</label>
                                 </td>
-                                <td valign="top" class="value ${hasErrors(bean:conference,field:'conferenceName','errors')}">
-                                    <input type="text" id="conferenceName" name="conferenceName" value="${fieldValue(bean:conference,field:'conferenceName')}"/>
-                                </td>
-                            </tr> 
-                        
-                            <tr class="prop">
-                                <td valign="top" class="name">
-                                    <label for="conferenceNumber">Conference Number:</label>
-                                </td>
-                                <td valign="top" class="value ${hasErrors(bean:conference,field:'conferenceNumber','errors')}">
-                                    ${conference.conferenceNumber}
+                                <td valign="top" class="value ${hasErrors(bean:conference,field:'name','errors')}">
+                                    <input type="text" id="name" name="name" value="${fieldValue(bean:conference,field:'name')}"/>
                                 </td>
                             </tr> 
                         
@@ -68,10 +59,10 @@
 
                             <tr class="prop">
                                 <td valign="top" class="name">
-                                    <label for="username">Created By:</label>
+                                    <label for="createdBy">Created By:</label>
                                 </td>
-                                <td valign="top" class="value ${hasErrors(bean:conference,field:'username','errors')}">
-                                    ${conference.username}
+                                <td valign="top" class="value ${hasErrors(bean:conference,field:'createdBy','errors')}">
+                                    ${conference.createdBy}
                                 </td>
                             </tr>                         
                         </tbody>

@@ -5,28 +5,32 @@ class UrlMappings {
  //       	action = [GET:'show', POST:'upload', DELETE:'delete']
  //       }
       "/presentation/upload"(controller:"presentation") {
-    	  println 'executing /presentation/default mapping'
-      	action = [GET:'show', POST:'upload', DELETE:'delete']
+      		action = [GET:'show', POST:'upload', DELETE:'delete']
       }
       
-      "/presentation/$presentation_name/slides"(controller:"presentation") {
+      "/presentation/$conference/$room/$presentation_name/slides"(controller:"presentation") {
       		action = [GET:'numberOfSlides']
       }
       
-      "/presentation/$presentation_name/slide/$id"(controller:"presentation") {
+      "/presentation/$conference/$room/$presentation_name/slide/$id"(controller:"presentation") {
       		action = [GET:'showSlide']
       }
       
-      "/presentation/$presentation_name/thumbnails"(controller:"presentation") {
+      "/presentation/$conference/$room/$presentation_name/thumbnails"(controller:"presentation") {
       		action = [GET:'numberOfThumbnails']
       }
       
-      "/presentation/$presentation_name/thumbnail/$id"(controller:"presentation") {
+      "/presentation/$conference/$room/$presentation_name/thumbnail/$id"(controller:"presentation") {
       		action = [GET:'showThumbnail']
       }
       
+      "/conference-session/$action?/$id?"(controller:"publicScheduledSession") 
+      
+      "/schedule/$action?/$id?"(controller:"scheduledSession") {
+//    	  action = [GET:'show', POST:'create', DELETE:'delete']
+      }
+      
       "/$controller/$action?/$id?"{
-    	  println "${controller} ${action} mapping"
 	      constraints {
 			 // apply constraints here
 		  }

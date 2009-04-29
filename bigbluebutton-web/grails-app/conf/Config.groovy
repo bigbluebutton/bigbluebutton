@@ -34,11 +34,11 @@ grails.converters.encoding="UTF-8"
 grails.enable.native2ascii = true
 
 // set per-environment serverURL stem for creating absolute links
-environments {
-    production {
-        grails.serverURL = "http://www.changeme.com"
-    }
-}
+//environments {
+//    production {
+//        grails.serverURL = "http://www.changeme.com"
+//    }
+//}
 
 // log4j configuration
 log4j {
@@ -49,6 +49,10 @@ log4j {
     appender.'errors.layout'="org.apache.log4j.PatternLayout"
     appender.'errors.layout.ConversionPattern'='[%r] %c{2} %m%n'
     appender.'errors.File'="stacktrace.log"
+    appender.logfile = "org.apache.log4j.DailyRollingFileAppender "
+    appender.'logfile.File' = "bbb-web.log"
+    appender.'logfile.layout' = "org.apache.log4j.PatternLayout"
+    appender.'logfile.layout.ConversionPattern' = '%d{[dd.MM.yy HH:mm:ss.SSS]} %-5p %c %x - %m%n'
     rootLogger="error,stdout"
     logger {
         grails="error"
@@ -64,9 +68,46 @@ log4j {
             codehaus.groovy.grails.orm.hibernate="error" // hibernate integration
             springframework="off"
             hibernate="off"
-        }
+        }        
     }
     additivity.StackTrace=false
 }
 
+environments {
+    development {
+    	grails.serverURL = "http://localhost:8080"
+        log4j {
+        	appender.'logfile.File' = "bbb-web-dev.log"
+        	/* GRAILS 1.04 doesn't seem to like this format (ralam 04/19/2009)
+        	 * logger {
+        	 * 	 grails.app.controller="debug, stdout, logfile"
+        	 * }
+        	 */
+        	logger.grails.app="debug, stdout, logfile"
+       }
+   }
+   production {
+	   grails.serverURL = "http://www.changeme.com"
+       log4j {
+	       	appender.'logfile.File' = "bbb-web-prod.log"
+	       	/* GRAILS 1.04 doesn't seem to like this format (ralam 04/19/2009)
+	         * logger {
+	         * 	 grails.app.controller="debug, stdout, logfile"
+	         * }
+	         */
+	        logger.grails.app="debug, stdout, logfile"
+       }
+   }
+   test {
+       log4j {
+    	   appender.'logfile.File' = "bbb-web-test.log"
+   	       	/* GRAILS 1.04 doesn't seem to like this format (ralam 04/19/2009)
+   	         * logger {
+   	         * 	 grails.app.controller="debug, stdout, logfile"
+   	         * }
+   	         */
+   	        logger.grails.app="debug, stdout, logfile"
+       }
+   }
+}
 

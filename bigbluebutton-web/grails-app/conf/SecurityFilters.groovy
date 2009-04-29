@@ -5,14 +5,22 @@ class SecurityFilters {
         auth(controller: "*", action: "*") {
             before = {
                 // Exclude the "join" controller.
-                if ((controllerName == "join") || (controllerName == "presentation")) return true
+                //if ((controllerName == "join") || (controllerName == "presentation")) return true
 
+                switch (controllerName) {
+                	case 'join':
+                	case 'presentation':
+                		return true
+                		break
+                	case 'publicScheduledSession':
+                		return true
+                }
                 // This just means that the user must be authenticated. He does
                 // not need any particular role or permission.
                 accessControl { true }
             }
         }
-
+        
         // Creating, modifying, or deleting a user requires the "Administrator"
         // role.
         userEditing(controller: "user", action: "(create|edit|save|update|delete|list)") {

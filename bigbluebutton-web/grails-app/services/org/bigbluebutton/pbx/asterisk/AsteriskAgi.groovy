@@ -19,7 +19,7 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 */
 
-import Conference;
+import org.bigbluebutton.web.domain.Conference;
 
 class AsteriskAgi implements AgiScript {
 
