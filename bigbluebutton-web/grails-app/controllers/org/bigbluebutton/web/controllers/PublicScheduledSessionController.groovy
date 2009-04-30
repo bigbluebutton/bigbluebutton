@@ -28,8 +28,7 @@ class PublicScheduledSessionController {
 	    	def config = ConfigurationHolder.config
         	def hostURL = config.bigbluebutton.web.serverURL
         	println "serverURL $hostURL"
-	       	def now = new Date().time
-	       	
+	       	def now = new Date().time	       	
 	       	def inSession = ((now > scheduledSessionInstance.startDateTime.time) && (now < scheduledSessionInstance.endDateTime.time))
 	       	return [ scheduledSessionInstance : scheduledSessionInstance, hostUrl:hostURL, inSession:inSession ] 
 	    }
@@ -75,8 +74,7 @@ class PublicScheduledSessionController {
 				session["room"] = confSession.sessionId
 				session["voicebridge"] = confSession.voiceConferenceBridge
 			}
-			
-			
+						
 			def long _10_MINUTES = 10*60*1000
 			def now = new Date().time
 							
@@ -94,10 +92,8 @@ class PublicScheduledSessionController {
 			}
 		    	
 		    println 'rendering signIn'
-		    def config = ConfigurationHolder.config
-        	def hostURL = config.bigbluebutton.web.serverURL
-        	println "serverURL $hostURL"
-		    redirect(url:"$hostURL/client/BigBlueButton.html")			
+
+		    redirect(action:show)			
 		}
 		
 		if (!signedIn) {
@@ -105,7 +101,6 @@ class PublicScheduledSessionController {
 			flash.message = "Failed to join the conference session."
 			redirect(action:joinIn,id:params.id, params:[fullname:params.fullname])		
 		}
-
 	}
 		
 	def enter = {
