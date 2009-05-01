@@ -12,9 +12,9 @@ class PresentationService {
 
     boolean transactional = false
 	def jmsTemplate	
-	def imageMagick
-	def ghostScript
-	def swfTools
+	def imageMagickDir
+	def ghostScriptExec
+	def swfToolsDir
 	def presentationDir
 	    
 	private static String JMS_UPDATES_Q = 'UpdatesQueue'
@@ -87,7 +87,7 @@ class PresentationService {
 
 		try 
 		{
-			def command = swfTools + "/pdf2swf -I " + presentationFile.getAbsolutePath()        
+			def command = swfToolsDir + "/pdf2swf -I " + presentationFile.getAbsolutePath()        
 			def p = Runtime.getRuntime().exec(command);            
 
 			def stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -204,7 +204,7 @@ class PresentationService {
 		String dest = tempDir.absolutePath + File.separator + "temp-${page}.pdf"
 		
     	//extract that specific page and create a temp-pdf(only one page) with GhostScript
-		def command = ghostScript + " " + OPTIONS + " " + PAGE + " " + "-sOutputFile=${dest}" + " " + presentationFile          
+		def command = ghostScriptExec + " " + OPTIONS + " " + PAGE + " " + "-sOutputFile=${dest}" + " " + presentationFile          
         println command
         
         def process
@@ -254,7 +254,7 @@ class PresentationService {
 		def now = new Date()
 		println "JPEG2SWF starting $now"
 		
-        def command = swfTools + "/jpeg2swf -o " + dest + " " + source
+        def command = swfToolsDir + "/jpeg2swf -o " + dest + " " + source
 	    def process = Runtime.getRuntime().exec(command);            
 
 		// Wait for the process to finish.
@@ -292,7 +292,7 @@ class PresentationService {
 		def now = new Date()
 		println "IMAGEMAGICK starting $now"
 		
-        def command = imageMagick + "/convert " + source + " " + dest          
+        def command = imageMagickDir + "/convert " + source + " " + dest          
 		
 		def process = Runtime.getRuntime().exec(command);            
 		// Wait for the process to finish.
@@ -310,7 +310,7 @@ class PresentationService {
 	    def source = presentationFile.getAbsolutePath()
 	    def dest = presentationFile.parent + File.separatorChar + "slide-" + page + ".swf"
 	       
-	    def command = swfTools + "/pdf2swf -p " + page + " " + source + " -o " + dest          
+	    def command = swfToolsDir + "/pdf2swf -p " + page + " " + source + " -o " + dest          
 		def process = Runtime.getRuntime().exec(command)
 		
 		// Wait for the process to finish
@@ -330,7 +330,7 @@ class PresentationService {
 		 	def source = presentationFile.getAbsolutePath()
 		 	def dest = thumbsDir.getAbsolutePath() + "/temp-thumb.png"
 		 	
-	        def command = imageMagick + "/convert -thumbnail 150x150 " + source + " " + dest
+	        def command = imageMagickDir + "/convert -thumbnail 150x150 " + source + " " + dest
 	        Process p = Runtime.getRuntime().exec(command);            
 			int exitValue = p.waitFor()
 			

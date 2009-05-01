@@ -19,15 +19,15 @@ class PresentationServiceTests extends GroovyTestCase {
 		 * values for us.
 		 */
 		def config = ConfigurationHolder.config
-		SWFTOOLS = config.swfTools
-		IMAGEMAGICK = config.imageMagick
+		SWFTOOLS = config.swfToolsDir
+		IMAGEMAGICK = config.imageMagickDir
 		PRESENTATIONDIR = config.presentationDir
-		GHOSTSCRIPT = config.ghostScript
+		GHOSTSCRIPT = config.ghostScriptExec
 		
 		presService = new PresentationService()		
-		presService.swfTools = SWFTOOLS
-		presService.imageMagick = IMAGEMAGICK
-		presService.ghostScript = GHOSTSCRIPT
+		presService.swfToolsDir = SWFTOOLS
+		presService.imageMagickDir = IMAGEMAGICK
+		presService.ghostScriptExec = GHOSTSCRIPT
 		presService.presentationDir = PRESENTATIONDIR
 		
 		
