@@ -16,6 +16,12 @@ class PresentationService {
 	def ghostScriptExec
 	def swfToolsDir
 	def presentationDir
+	
+	/*
+	 * This is a workaround for this problem.
+	 * http://groups.google.com/group/comp.lang.postscript/browse_thread/thread/c2e264ca76534ce0?pli=1
+	 */
+	def noPdfMarkWorkaround
 	    
 	private static String JMS_UPDATES_Q = 'UpdatesQueue'
 	    
@@ -205,10 +211,8 @@ class PresentationService {
 		String PAGE = "-dFirstPage=${page} -dLastPage=${page}"
 		String dest = tempDir.absolutePath + File.separator + "temp-${page}.pdf"
 		
-		String workaround = "nopdfmark.ps"
-    	
 		//extract that specific page and create a temp-pdf(only one page) with GhostScript
-		def command = ghostScriptExec + " " + OPTIONS + " " + PAGE + " " + "-sOutputFile=${dest}" + " " + workaround + " " + presentationFile          
+		def command = ghostScriptExec + " " + OPTIONS + " " + PAGE + " " + "-sOutputFile=${dest}" + " " + noPdfMarkWorkaround + " " + presentationFile          
         log.debug "Executing $command"
         
         def process

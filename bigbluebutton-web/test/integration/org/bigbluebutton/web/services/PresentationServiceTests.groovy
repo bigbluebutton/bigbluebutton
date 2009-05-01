@@ -29,7 +29,7 @@ class PresentationServiceTests extends GroovyTestCase {
 		presService.imageMagickDir = IMAGEMAGICK
 		presService.ghostScriptExec = GHOSTSCRIPT
 		presService.presentationDir = PRESENTATIONDIR
-		
+		presService.noPdfMarkWorkaround = config.noPdfMarkWorkaround
 		
 	}
 	
