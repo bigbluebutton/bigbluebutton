@@ -99,7 +99,7 @@ class PresentationService {
 			def p = Runtime.getRuntime().exec(command);            
 
 			// Wait for the process to finish.
-        	int exitVal = process.waitFor()
+        	int exitVal = p.waitFor()
         	
 			def stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			def stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
