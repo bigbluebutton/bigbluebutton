@@ -56,10 +56,12 @@ class PresentationController {
 		def file = request.getFile('fileUpload')
 	    if(!file.empty) {
 	    	flash.message = 'Your file has been uploaded'
-	    	def presentationName = params.presentation_name.replace(' ', '-')
+	    	// Replace any character other than a (A-Z, a-z, 0-9, _ or .) with a - (dash).
+	    	def notValiedCharsRegExp = /[^0-9a-zA-Z_\.]/
+	    	def presentationName = params.presentation_name.replaceAll(notValiedCharsRegExp, '-')
 	    	File uploadDir = presentationService.uploadedPresentationDirectory(params.conference, params.room, presentationName)
 	    	
-	    	def newFilename = file.getOriginalFilename().replace(' ', '-')
+	    	def newFilename = file.getOriginalFilename().replaceAll(notValiedCharsRegExp, '-')
 	    	def pres = new File( uploadDir.absolutePath + File.separatorChar + newFilename )
 	    	file.transferTo( pres )	
 	  		presentationService.processUploadedPresentation(params.conference, params.room, presentationName, pres)							             			     	
