@@ -98,6 +98,9 @@ class PresentationService {
 			log.debug "Executing $command"
 			def p = Runtime.getRuntime().exec(command);            
 
+			// Wait for the process to finish.
+        	int exitVal = process.waitFor()
+        	
 			def stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			def stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 			def info
@@ -120,7 +123,6 @@ class PresentationService {
 			stdInput.close();
 			stdError.close();
 
-			//assert(p.exitValue() == 0)
 			if(p.exitValue() != 0) return -1;
 		}
 		catch (IOException e) {
