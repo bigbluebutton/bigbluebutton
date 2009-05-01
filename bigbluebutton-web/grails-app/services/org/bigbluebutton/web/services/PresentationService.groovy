@@ -76,6 +76,7 @@ class PresentationService {
 		new Timer().runAfter(1000) 
 		{
 			//first we need to know how many pages in this pdf
+			log.debug "Determining number of pages"
 			int numPages = determineNumberOfPages(presentationFile)
 			log.info "There are $numPages pages in $presentationFile.absolutePath"
 			convertUploadedPresentation(room, presentationName, presentationFile, numPages)		
@@ -88,6 +89,7 @@ class PresentationService {
 		try 
 		{
 			def command = swfToolsDir + "/pdf2swf -I " + presentationFile.getAbsolutePath()        
+			log.debug "Executing $command"
 			def p = Runtime.getRuntime().exec(command);            
 
 			def stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -203,9 +205,11 @@ class PresentationService {
 		String PAGE = "-dFirstPage=${page} -dLastPage=${page}"
 		String dest = tempDir.absolutePath + File.separator + "temp-${page}.pdf"
 		
-    	//extract that specific page and create a temp-pdf(only one page) with GhostScript
-		def command = ghostScriptExec + " " + OPTIONS + " " + PAGE + " " + "-sOutputFile=${dest}" + " " + presentationFile          
-        println command
+		String workaround = "nopdfmark.ps"
+    	
+		//extract that specific page and create a temp-pdf(only one page) with GhostScript
+		def command = ghostScriptExec + " " + OPTIONS + " " + PAGE + " " + "-sOutputFile=${dest}" + " " + workaround + " " + presentationFile          
+        log.debug "Executing $command"
         
         def process
         try {
@@ -255,6 +259,7 @@ class PresentationService {
 		println "JPEG2SWF starting $now"
 		
         def command = swfToolsDir + "/jpeg2swf -o " + dest + " " + source
+        log.debug "Executing $command"
 	    def process = Runtime.getRuntime().exec(command);            
 
 		// Wait for the process to finish.
@@ -293,7 +298,7 @@ class PresentationService {
 		println "IMAGEMAGICK starting $now"
 		
         def command = imageMagickDir + "/convert " + source + " " + dest          
-		
+		log.debug "Executing $command"
 		def process = Runtime.getRuntime().exec(command);            
 		// Wait for the process to finish.
 		int exitValue = process.waitFor()
@@ -310,7 +315,8 @@ class PresentationService {
 	    def source = presentationFile.getAbsolutePath()
 	    def dest = presentationFile.parent + File.separatorChar + "slide-" + page + ".swf"
 	       
-	    def command = swfToolsDir + "/pdf2swf -p " + page + " " + source + " -o " + dest          
+	    def command = swfToolsDir + "/pdf2swf -p " + page + " " + source + " -o " + dest     
+	    log.debug "Executing $command"
 		def process = Runtime.getRuntime().exec(command)
 		
 		// Wait for the process to finish
@@ -331,6 +337,7 @@ class PresentationService {
 		 	def dest = thumbsDir.getAbsolutePath() + "/temp-thumb.png"
 		 	
 	        def command = imageMagickDir + "/convert -thumbnail 150x150 " + source + " " + dest
+	        log.debug "Executing $command"
 	        Process p = Runtime.getRuntime().exec(command);            
 			int exitValue = p.waitFor()
 			
