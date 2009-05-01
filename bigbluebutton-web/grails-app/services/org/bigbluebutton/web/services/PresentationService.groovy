@@ -95,7 +95,7 @@ class PresentationService {
 		try 
 		{
 			def command = swfToolsDir + "/pdf2swf -I " + presentationFile.getAbsolutePath()        
-			log.debug "Executing $command"
+			log.debug "Executing with waitFor $command"
 			def p = Runtime.getRuntime().exec(command);            
 
 			// Wait for the process to finish.
