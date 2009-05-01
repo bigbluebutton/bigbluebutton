@@ -89,14 +89,10 @@ package org.bigbluebutton.modules.presentation.view
 		private function startUpload(e:Event):void{
 			LogUtil.debug("In startUpload()...")
 			var proxy:PresentProxy = facade.retrieveProxy(PresentProxy.NAME) as PresentProxy;
-
-			var presentationName:String = _fileWin.presentationNameInput.text;
-			if(presentationName==null || ""==presentationName){
-				presentationName = "default";
-			}else{
-				var trimStr:Array=presentationName.split(" ");
-				presentationName = trimStr.join("");				
-			}
+	
+			// Replace any character other than a word character (A-Z, a-z, 0-9, or _).
+			var presentationName:String = fileToUpload.name.replace(/[^0-9a-zA-Z_\.]/, "-");
+			
 			proxy.uploadPresentation(presentationName, fileToUpload);
 			
 			_fileWin.progBarLbl.visible = true;
