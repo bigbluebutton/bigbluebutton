@@ -54,11 +54,9 @@
 	<mx:Label id="presentationNamesLb" text="Uploaded Presentations:" x="50" y="80"/>
     <mx:ComboBox id="presentationNamesCombobox" width="125" x="190" y="80" dataProvider="{presentationNamesAC}"/> 
 	<mx:Button id="deleteBtn" label="" toolTip="Delete Presentation"  
-		click="deletePresentation()" enabled="true"
-		icon="@Embed('../assets/delete.png')" width="26" x="332" y="80"/>
+		click="deletePresentation()" enabled="true"	icon="@Embed('../assets/delete.png')" width="26" x="332" y="80"/>
 	<mx:Button id="showBtn" label="Show" toolTip="Show Presentation"  
-		click="showPresentation()" enabled="true"
-		icon="@Embed('../assets/bullet_go.png')" x="366" y="80"/>
+		click="showPresentation()" enabled="true" icon="@Embed('../assets/bullet_go.png')" x="366" y="80"/>
 	
 	<mx:Label id="progBarLbl" text="Progress:" x="21" y="67" visible="false"/>
 	<mx:ProgressBar id="progressBar" mode="manual" label="" labelPlacement="center" width="360" y="67" x="87" visible="false"/>
