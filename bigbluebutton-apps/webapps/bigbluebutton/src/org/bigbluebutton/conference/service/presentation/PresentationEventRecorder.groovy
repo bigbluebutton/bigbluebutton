@@ -56,6 +56,7 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 				break		
 		}
 
+		log.debug "Send SO message $update"
 		so.setAttribute("updateMessage", update)
 	}
 	

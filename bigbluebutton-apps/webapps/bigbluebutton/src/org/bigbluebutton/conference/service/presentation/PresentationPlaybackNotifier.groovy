@@ -29,7 +29,7 @@ public class PresentationPlaybackNotifier implements IPlaybackNotifier{
 				break
 			case 'gotoSlide':
 				def slide = event['slide']
-				so.sendMessage("gotoSlideCallback", [slide] )
+				so.sendMessage("gotoSlideCallback", [new Integer(slide)] )
 				break	
 			case 'sharePresentation':
 				def presentationName = event["presentationName"]

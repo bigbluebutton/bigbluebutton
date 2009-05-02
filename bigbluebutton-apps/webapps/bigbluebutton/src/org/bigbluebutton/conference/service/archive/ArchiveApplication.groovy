@@ -126,9 +126,14 @@ public class ArchiveApplication {
 	}
 	
 	public void addPlaybackNotifier(String sessionName, IPlaybackNotifier notifier) {
+		def notifierName = notifier.notifierName()
+		log.debug("Adding playback notifier $notifierName  for session $sessionName.")
 		if (playbackSessions.containsKey(sessionName)) {
+			log.debug("Added playback notifier $notifierName for session $sessionName.")
 			PlaybackSession session = playbackSessions.get(sessionName)
 			session.addPlaybackNotifier(notifier.notifierName(), notifier)
+		} else {
+			log.debug("Not adding playback notifier $notifierName for session $sessionName.")
 		}
 	}
 	
