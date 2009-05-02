@@ -97,9 +97,6 @@ class PresentationService {
 			def command = swfToolsDir + "/pdf2swf -I " + presentationFile.getAbsolutePath()        
 			log.debug "Executing with waitFor $command"
 			def p = Runtime.getRuntime().exec(command);            
-
-			// Wait for the process to finish.
-        	int exitVal = p.waitFor()
         	
 			def stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			def stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
@@ -123,7 +120,9 @@ class PresentationService {
 			stdInput.close();
 			stdError.close();
 
-			if(p.exitValue() != 0) return -1;
+			//if(p.exitValue() != 0) return -1;
+			// Wait for the process to finish.
+        	int exitVal = p.waitFor()
 		}
 		catch (IOException e) {
 			System.out.println("exception happened - here's what I know: ");
@@ -183,8 +182,10 @@ class PresentationService {
 		msg.put("returnCode", "SUCCESS")
 		msg.put("presentationName", presentationName)
 		msg.put("message", "The presentation is now ready.")
-		log.info "Sending presentation conversion success for $presentationFile.absolutePath."
-		sendJmsMessage(msg)			
+		log.debug "Sending presentation conversion success for $presentationFile.absolutePath."
+		sendJmsMessage(msg)		
+		log.debug "Send another success message...looks like bbb-apps at Red5 sometimes miss the message...need to investigate"
+		sendJmsMessage(msg)
 	}
 
 	public boolean convertPage(File presentationFile, int page) {
@@ -382,6 +383,8 @@ class PresentationService {
 	}
 	
 	private sendJmsMessage(HashMap message) {
+		def msg = message.toString()
+		log.debug "Send Jms message $msg"
 		jmsTemplate.convertAndSend(JMS_UPDATES_Q, message)
 	}
 }	
