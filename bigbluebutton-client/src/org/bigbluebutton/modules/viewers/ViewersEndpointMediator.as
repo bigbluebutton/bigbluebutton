@@ -61,6 +61,7 @@ package org.bigbluebutton.modules.viewers
 										userrole:_module.role, room:_module.room, authToken:_module.authToken,
 										userid:_module.userid, connection:proxy.connection,
 										mode:_module.mode, voicebridge:_module.voicebridge,
+										record:_module.record,
 										playbackRoom:_module.playbackRoom};
 					_endpoint.sendMessage(EndpointMessageConstants.USER_JOINED,
 							EndpointMessageConstants.TO_MAIN_APP, user);

@@ -120,6 +120,14 @@
 			public function get conference():String {
 				return _attributes.conference;
 			}
+			
+			public function set record(r:Boolean):void {
+				_attributes.record = r;
+			}
+			
+			public function get record():Boolean {
+				return _attributes.record;
+			}
 						
 			public function start(attributes:Object):void {		
 				_attributes = attributes;	

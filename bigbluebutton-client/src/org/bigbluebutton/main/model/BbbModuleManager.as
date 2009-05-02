@@ -96,6 +96,7 @@ package org.bigbluebutton.main.model
 			_user.voicebridge = user.voicebridge;
 			_user.connection = user.connection;
 			_user.playbackRoom = user.playbackRoom;
+			_user.record = user.record;
 		}
 				
 		public function get numberOfModules():int {
@@ -136,6 +137,7 @@ package org.bigbluebutton.main.model
 					m.addAttribute("connection", _user.connection);
 					m.addAttribute("voicebridge", _user.voicebridge);
 					m.addAttribute("playbackRoom", _user.playbackRoom);
+					m.addAttribute("record", _user.record);
 				} else {
 					// Pass the mode that we got from the URL query string.
 					m.addAttribute("mode", _mode);

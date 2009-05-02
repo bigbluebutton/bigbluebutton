@@ -69,6 +69,12 @@ package org.bigbluebutton.modules.viewers.model
 				module.mode = result.mode;
 				module.voicebridge = result.voicebridge;
 				
+				if (result.record == 'true') {
+					module.record = true;
+				} else {
+					module.record = false;
+				}
+				
 				connect();
 			} else {
 				LogUtil.debug(NAME + '::Sending ViewersModuleConstants.JOIN_FAILED');

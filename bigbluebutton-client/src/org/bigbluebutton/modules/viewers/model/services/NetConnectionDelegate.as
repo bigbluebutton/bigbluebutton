@@ -93,7 +93,7 @@ package org.bigbluebutton.modules.viewers.model.services
 								
 				LogUtil.debug(NAME + "::Connecting to " + uri + " [" + username + "," + role + "," + conference + 
 						"," + mode + "," + room + "]");		
-				_netConnection.connect(uri, username, role, conference, mode, room);			
+				_netConnection.connect(uri, username, role, conference, mode, room, _module.voicebridge, _module.record);			
 				
 			} catch( e : ArgumentError ) {
 				// Invalid parameters.
