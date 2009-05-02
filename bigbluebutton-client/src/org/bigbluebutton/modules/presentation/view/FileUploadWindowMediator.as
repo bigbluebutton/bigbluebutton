@@ -92,12 +92,11 @@ package org.bigbluebutton.modules.presentation.view
 	
 			var presentationName:String = fileToUpload.name
 			var filenamePattern:RegExp = /(.+)(\.pdf)/i;
+			// Get the first match which should be the filename without the extension.
 			presentationName = presentationName.replace(filenamePattern, "$1")
-			trace(presentationName); 
 			// Replace any character other than a word character (A-Z, a-z, 0-9, or _).
 			presentationName = presentationName.replace(/[^0-9a-zA-Z_\.]/g, "-");
-			trace(presentationName);
-//			proxy.uploadPresentation(presentationName, fileToUpload);
+			proxy.uploadPresentation(presentationName, fileToUpload);
 			
 			_fileWin.progBarLbl.visible = true;
 			_fileWin.progressBar.visible = true;
