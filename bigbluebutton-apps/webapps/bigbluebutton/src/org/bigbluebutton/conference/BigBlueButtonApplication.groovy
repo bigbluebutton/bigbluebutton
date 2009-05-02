@@ -76,7 +76,7 @@ public class BigBlueButtonApplication extends ApplicationAdapter{
         log.debug( "${APP} - roomConnect - $username")
         String role = ((String) params[1]).toString()
         log.debug( "${APP} - roomConnect - $role")
-        String conference = ((String) params[2]).toString()
+        String conference = ((String)).toString()
         log.debug( "${APP} - roomConnect - $conference")
         String mode = ((String) params[3]).toString()
         log.debug( "${APP} - roomConnect - $mode")
@@ -89,7 +89,10 @@ public class BigBlueButtonApplication extends ApplicationAdapter{
         def sessionName = connection.scope.name
         log.debug( "${APP} - roomConnect - $sessionName")
         
-        def room                
+        def room   
+        String voiceBridge = ((String) params[5]).toString()
+		Boolean record
+		
         if (Constants.PLAYBACK_MODE.equals(mode)) {
         	room = ((String) params[4]).toString()   
         	assert archiveApplication != null
@@ -97,12 +100,19 @@ public class BigBlueButtonApplication extends ApplicationAdapter{
         	archiveApplication.createPlaybackSession(conference, room, sessionName)
         } else {
         	room = sessionName
-        	assert archiveApplication != null
-			log.debug( "${APP} - roomConnect - creating RecordSession $sessionName")
-        	archiveApplication.createRecordSession(conference, room, sessionName)
+        	assert archiveApplication != null			
+			voiceBridge = ((String) params[5]).toString()
+			record = ((String) params[6]).toBoolean()
+        	log.debug ("Got params $voiceBridge and $record")
+			if (record == true) {
+				log.debug( "${APP} - roomConnect - creating RecordSession $sessionName")
+				archiveApplication.createRecordSession(conference, room, sessionName)
+			}
+			
         }
     	log.debug( "${APP} - roomConnect - creating BigBlueButtonSession")
-    	BigBlueButtonSession bbbSession = new BigBlueButtonSession(sessionName, userid,  username, role, conference, mode, room)
+    	BigBlueButtonSession bbbSession = new BigBlueButtonSession(sessionName, userid,  username, role, 
+    			conference, mode, room, voiceBridge, record)
     	log.debug( "${APP} - roomConnect - setting attribute BigBlueButtonSession")
         connection.setAttribute(Constants.SESSION, bbbSession)        
 		log.debug("${APP} - roomConnect - [${username},${role},${conference},${room}]") 

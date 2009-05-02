@@ -15,8 +15,11 @@ public class BigBlueButtonSession {
 	private final def room
 	private final def userid
 	private final def sessionName
+	private final String voiceBridge
+	private final Boolean record
 	
-	public BigBlueButtonSession(def sessionName, def userid, def username, def role, def conference, def mode, def room){
+	public BigBlueButtonSession(def sessionName, def userid, def username, 
+				def role, def conference, def mode, def room, String voiceBridge, Boolean record){
 		this.userid = userid
 		this.sessionName = sessionName
 		this.username = username
@@ -24,10 +27,17 @@ public class BigBlueButtonSession {
 		this.conference = conference
 		this.mode = mode
 		this.room = room
+		
+		this.voiceBridge = voiceBridge
+		this.record = true
 	}
 	
 	def playbackMode() {
 		mode == Constants.PLAYBACK_MODE
+	}
+	
+	def voiceBridge() {
+		return voiceBridge
 	}
 	
 	

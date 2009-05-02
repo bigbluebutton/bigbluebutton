@@ -74,9 +74,11 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 			archiveApplication.addEventRecorder(connection.scope.name, recorder)
 			log.debug("Adding room listener")
     		voiceApplication.addRoomListener(connection.scope.name, recorder)
-    		voiceApplication.setConference(connection.scope.name, getBbbSession().conference)
-    		log.debug("Done setting up recorder and listener")
-    		voiceServer.initializeRoom(getBbbSession().conference)
+    		
+    		def voiceBridge = getBbbSession().voiceBridge    		
+    		log.debug("Setting up voiceBridge $voiceBridge")
+    		voiceApplication.setConference(connection.scope.name, voiceBridge)
+    		voiceServer.initializeRoom(voiceBridge)
 		}
     	return true;
 	}
