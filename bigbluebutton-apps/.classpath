@@ -31,7 +31,7 @@
 	<classpathentry kind="lib" path="lib/spring-jms-2.5.6.jar"/>
 	<classpathentry kind="lib" path="lib/spring-tx-2.5.6.jar"/>
 	<classpathentry kind="lib" path="lib/spring-web-2.5.6.jar"/>
-	<classpathentry kind="lib" path="lib/red5-0.8rc2.jar"/>
 	<classpathentry kind="lib" path="lib/testng-5.8.jar"/>
+	<classpathentry kind="lib" path="lib/red5-0.8rc3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

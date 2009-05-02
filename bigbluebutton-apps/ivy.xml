@@ -21,7 +21,7 @@
         <dependency name="slf4j-api" rev="1.5.6" />
         <dependency name="jcl-over-slf4j" rev="1.5.6" />
 		<!-- BigblueButton -->
-		<dependency org="org/red5" name="red5" rev="0.8rc2"/>
+		<dependency org="org/red5" name="red5" rev="0.8rc3"/>
 		<dependency org="org.asteriskjava" name="asterisk-java" rev="0.3.1"/>
 		<dependency org="org.apache.activemq" name="activemq-core" rev="5.1.0"/>
 		<dependency org="org.codehaus.groovy" name="groovy-all" rev="1.5.6"/>
