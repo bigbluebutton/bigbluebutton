@@ -108,7 +108,7 @@ package org.bigbluebutton.modules.viewers.model.services
 						notifyConnectionStatusListener(false, "Failed to join the conference.");
 					}
 				),//new Responder
-				_room
+				_module.playbackRoom
 			); //_netConnection.call
 		}
 		

@@ -296,6 +296,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		 */		
 		public function gotoSlideCallback(page : Number) : void
 		{
+			LogUtil.debug("gotoSlideCallback " + page);
 			sendMessage(PresentModuleConstants.DISPLAY_SLIDE, page);
 		}
 
