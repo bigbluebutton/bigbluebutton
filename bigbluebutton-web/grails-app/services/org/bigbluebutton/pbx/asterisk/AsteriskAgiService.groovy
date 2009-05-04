@@ -10,7 +10,7 @@ import java.util.Calendar
 
 import org.bigbluebutton.web.domain.ScheduledSession;
 
-class AsteriskAgi implements AgiScript {
+class AsteriskAgiService implements AgiScript {
 
     private int tries = 0
     private long _10_minutes = 10*60*1000
@@ -23,8 +23,7 @@ class AsteriskAgi implements AgiScript {
 	        while ((tries < 3).and(!found)) {
 	            
 				def number = channel.getData("conf-getconfno", 10000, 10)
-				println "you entered "
-				println "$number new"
+				log.debug "The user pressed $number "
 			
 				def conf = ScheduledSession.findByVoiceConferenceBridge(number)
 	
@@ -35,7 +34,8 @@ class AsteriskAgi implements AgiScript {
 					
 					if ((startTime < now) && (endTime > now)) {				
 						channel.streamFile("conf-placeintoconf")
-						channel.exec("Meetme", "$number|dMq")
+						channel.setVariable("MEETME_RECORDINGFILE", "/var/spool/asterisk/meetme/$now-$number-conf-record")
+						channel.exec("Meetme", "$number|cdMqsrT")
 						found = true
 					} else {
 						channel.streamFile("conference")

@@ -43,6 +43,6 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 	</bean>
 
 			
-	<bean id="asteriskAgi" class="org.bigbluebutton.pbx.asterisk.AsteriskAgi" />
+	<bean id="asteriskAgi" class="org.bigbluebutton.pbx.asterisk.AsteriskAgiService" />
 
 </beans>
