@@ -33,6 +33,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 		<constructor-arg index="1" value="${ami.user}"/>
 		<constructor-arg index="2" value="${ami.password}"/>  		
    </bean>
+
    
 	<bean id="mappingStrategy" class="org.asteriskjava.fastagi.SimpleMappingStrategy">
 		<property name="mappings">

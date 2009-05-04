@@ -14,7 +14,9 @@ class AsteriskAgiService implements AgiScript {
 
     private int tries = 0
     private long _10_minutes = 10*60*1000
-        
+    
+    def conferenceRecordingDir
+    
     def void service(AgiRequest request, AgiChannel channel)
             throws AgiException {
         try {
@@ -47,7 +49,7 @@ class AsteriskAgiService implements AgiScript {
 						 def RECORD_OPTION = ""
 						 if (conf.record) {
 							 RECORD_OPTION = "r"
-							 channel.setVariable("MEETME_RECORDINGFILE", "/var/spool/asterisk/meetme/$now-$number-conf-record")
+							 channel.setVariable("MEETME_RECORDINGFILE", "$conferenceRecordingDir/$now-$number-conf-record")
 						 }
 						
 						def OPTIONS = "cdMqs${RECORD_OPTION}T"
