@@ -15,7 +15,7 @@ class ScheduledSession implements Comparable {
 	Integer numberOfAttendees = new Integer(3)
 	/* Is there a time limit for this session? */
 	Boolean timeLimited = true
-	Date startDateTime = new Date()
+	Date startDateTime
 	/* If there is a time limit, until when? */
 	Date endDateTime
 	/* Is this session going to be recorded? */
@@ -26,6 +26,12 @@ class ScheduledSession implements Comparable {
 	String moderatorPassword = 'change-me-please'
 	String attendeePassword = 'change-me-please'
 	String voiceConferenceBridge
+	
+	public ScheduledSession() {
+		startDateTime = new Date()
+		// Set the end to 1 hour after start
+		endDateTime = new Date(startDateTime.time + 60*60*1000)
+	}
 	
 	Conference conference
 			
