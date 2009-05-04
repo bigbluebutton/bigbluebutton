@@ -34,8 +34,25 @@ class AsteriskAgiService implements AgiScript {
 					
 					if ((startTime < now) && (endTime > now)) {				
 						channel.streamFile("conf-placeintoconf")
-						channel.setVariable("MEETME_RECORDINGFILE", "/var/spool/asterisk/meetme/$now-$number-conf-record")
-						channel.exec("Meetme", "$number|cdMqsrT")
+						
+						/**
+						 * # 'c' — announce user(s) count on joining a conference
+						 * # 'd' — dynamically add conference
+						 * # 'M' — enable music on hold when the conference has a single caller
+						 * # 'q' — quiet mode (don't play enter/leave sounds)
+						 * # 'r' — Record conference
+						 * # 's' — Present menu (user or admin) when '*' is received ('send' to menu)
+						 * # 'T' — set talker detection (sent to manager interface and meetme list)
+						 */
+						 def RECORD_OPTION = ""
+						 if (conf.record) {
+							 RECORD_OPTION = "r"
+							 channel.setVariable("MEETME_RECORDINGFILE", "/var/spool/asterisk/meetme/$now-$number-conf-record")
+						 }
+						
+						def OPTIONS = "cdMqs${RECORD_OPTION}T"
+						
+						channel.exec("Meetme", "$number|$OPTIONS")
 						found = true
 					} else {
 						channel.streamFile("conference")
