@@ -76,7 +76,7 @@ public class BigBlueButtonApplication extends ApplicationAdapter{
         log.debug( "${APP} - roomConnect - $username")
         String role = ((String) params[1]).toString()
         log.debug( "${APP} - roomConnect - $role")
-        String conference = ((String)).toString()
+        String conference = ((String)params[2]).toString()
         log.debug( "${APP} - roomConnect - $conference")
         String mode = ((String) params[3]).toString()
         log.debug( "${APP} - roomConnect - $mode")
