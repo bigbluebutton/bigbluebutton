@@ -18,9 +18,11 @@ public class BigBlueButtonApplication extends ApplicationAdapter{
 	private ParticipantsApplication participantsApplication
 	private ArchiveApplication archiveApplication
 	
+	private final String version
+	
     public boolean appStart (IScope app )
     {
-        log.debug( "${APP} - appStart" )
+        log.debug "Starting BigBlueButton version $version" 
         return super.appStart(app)
     }
         
@@ -148,6 +150,10 @@ public class BigBlueButtonApplication extends ApplicationAdapter{
 			count++
 		}
 		log.debug("Finished Setting application listeners")
+	}
+	
+	public void setVersion(String v) {
+		version = v
 	}
 	
 	private BigBlueButtonSession getBbbSession() {

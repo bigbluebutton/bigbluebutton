@@ -36,7 +36,8 @@
 				<ref bean="voiceHandler" />
     		</set>
   		</property>	  
-  		<property name="archiveApplication"> <ref bean="archiveApplication"/></property>			
+  		<property name="archiveApplication"> <ref bean="archiveApplication"/></property>	
+  		<property name="version" value="${version}"/>		
 	</bean>
 	
 	<import resource="bbb-apps.xml" />
