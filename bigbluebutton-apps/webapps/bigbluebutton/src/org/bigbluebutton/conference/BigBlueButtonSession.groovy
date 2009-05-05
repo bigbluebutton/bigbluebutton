@@ -29,7 +29,7 @@ public class BigBlueButtonSession {
 		this.room = room
 		
 		this.voiceBridge = voiceBridge
-		this.record = true
+		this.record = record
 	}
 	
 	def playbackMode() {

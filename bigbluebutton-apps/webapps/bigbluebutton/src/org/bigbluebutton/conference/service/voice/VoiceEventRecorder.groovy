@@ -14,6 +14,8 @@ public class VoiceEventRecorder implements IEventRecorder, IVoiceRoomListener {
 	
 	IRecorder recorder
 	private ISharedObject so
+	private final Boolean record
+	
 	def APP_NAME = 'VOICE'
 	
 	def acceptRecorder(IRecorder recorder){
@@ -26,11 +28,14 @@ public class VoiceEventRecorder implements IEventRecorder, IVoiceRoomListener {
 	}
 	
 	def recordEvent(Map event){
-		recorder.recordEvent(event)
+		if (record) {
+			recorder.recordEvent(event)
+		}
 	}
 	
-	public VoiceEventRecorder(ISharedObject so) {
+	public VoiceEventRecorder(ISharedObject so, Boolean record) {
 		this.so = so 
+		this.record = record
 	}
 	
 	def joined(user, name, muted, talking){

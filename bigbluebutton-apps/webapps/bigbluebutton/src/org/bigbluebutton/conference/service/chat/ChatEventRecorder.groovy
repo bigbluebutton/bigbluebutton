@@ -16,6 +16,8 @@ public class ChatEventRecorder implements IEventRecorder, IChatRoomListener {
 	
 	IRecorder recorder
 	private ISharedObject so
+	private final Boolean record
+	
 	def name = 'CHAT'
 	
 	def acceptRecorder(IRecorder recorder){
@@ -28,11 +30,14 @@ public class ChatEventRecorder implements IEventRecorder, IChatRoomListener {
 	}
 	
 	def recordEvent(Map event){
-		recorder.recordEvent(event)
+		if (record) {
+			recorder.recordEvent(event)
+		}		
 	}
 	
-	public ChatEventRecorder(ISharedObject so) {
+	public ChatEventRecorder(ISharedObject so, Boolean record) {
 		this.so = so 
+		this.record = record
 	}
 	
 	def newChatMessage(msg) {

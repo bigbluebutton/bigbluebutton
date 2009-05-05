@@ -15,6 +15,8 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 	
 	IRecorder recorder
 	private ISharedObject so
+	private final Boolean record
+	
 	def APP_NAME = 'PRESENTATION'
 	
 	def acceptRecorder(IRecorder recorder){
@@ -27,11 +29,14 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 	}
 	
 	def recordEvent(Map event){
-		recorder.recordEvent(event)
+		if (record) {
+			recorder.recordEvent(event)
+		}
 	}
 	
-	public PresentationEventRecorder(ISharedObject so) {
+	public PresentationEventRecorder(ISharedObject so, Boolean record) {
 		this.so = so 
+		this.record = record
 	}
 	
 	def sendUpdateMessage = {message ->

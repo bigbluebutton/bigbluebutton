@@ -70,10 +70,12 @@ public class PresentationHandler extends ApplicationAdapter implements IApplicat
 		} else {
 			log.debug("In live mode")
 			ISharedObject so = getSharedObject(connection.scope, PRESENTATION_SO)
+			
 			log.debug("Setting up recorder")
-			PresentationEventRecorder recorder = new PresentationEventRecorder(so)
+			PresentationEventRecorder recorder = new PresentationEventRecorder(so, getBbbSession().record)
 			log.debug("adding event recorder to ${connection.scope.name}")
-			archiveApplication.addEventRecorder(connection.scope.name, recorder)
+			archiveApplication.addEventRecorder(connection.scope.name, recorder)				
+			
 			log.debug("Adding room listener")
     		presentationApplication.addRoomListener(connection.scope.name, recorder)
     		log.debug("Done setting up recorder and listener")

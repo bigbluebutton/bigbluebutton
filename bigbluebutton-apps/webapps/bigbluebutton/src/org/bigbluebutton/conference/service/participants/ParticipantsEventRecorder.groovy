@@ -16,6 +16,8 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 	
 	IRecorder recorder
 	private ISharedObject so
+	private final Boolean record
+	
 	def name = 'PARTICIPANT'
 	
 	def acceptRecorder(IRecorder recorder){
@@ -28,11 +30,15 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 	}
 	
 	def recordEvent(Map event){
-		recorder.recordEvent(event)
+		if (record) {
+			recorder.recordEvent(event)
+		}
+		
 	}
 	
-	public ParticipantsEventRecorder(ISharedObject so) {
+	public ParticipantsEventRecorder(ISharedObject so, Boolean record) {
 		this.so = so 
+		this.record = record
 	}
 	
 	public void participantStatusChange(Long userid, String status, Object value){

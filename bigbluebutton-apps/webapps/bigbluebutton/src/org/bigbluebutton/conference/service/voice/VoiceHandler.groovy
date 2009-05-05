@@ -68,10 +68,12 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 		} else {
 			log.debug("In live mode")
 			ISharedObject so = getSharedObject(connection.scope, VOICE_SO)
+			
 			log.debug("Setting up recorder")
-			VoiceEventRecorder recorder = new VoiceEventRecorder(so)
+			VoiceEventRecorder recorder = new VoiceEventRecorder(so, getBbbSession().record)
 			log.debug("adding event recorder to ${connection.scope.name}")
 			archiveApplication.addEventRecorder(connection.scope.name, recorder)
+			
 			log.debug("Adding room listener")
     		voiceApplication.addRoomListener(connection.scope.name, recorder)
     		

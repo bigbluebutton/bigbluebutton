@@ -69,7 +69,7 @@ public class ChatHandler extends ApplicationAdapter implements IApplication{
 			log.debug("In live mode")
 			ISharedObject so = getSharedObject(connection.scope, CHAT_SO)
 			log.debug("Setting up recorder")
-			ChatEventRecorder recorder = new ChatEventRecorder(so)
+			ChatEventRecorder recorder = new ChatEventRecorder(so, getBbbSession().record)
 			log.debug("adding event recorder to ${connection.scope.name}")
 			archiveApplication.addEventRecorder(connection.scope.name, recorder)
 			log.debug("Adding room listener")
