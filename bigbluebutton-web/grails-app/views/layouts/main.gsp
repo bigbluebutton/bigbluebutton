@@ -15,6 +15,7 @@
         	<div class="nav">
         		<g:render template="/adminmenubar" />
         	</div>
-        <g:layoutBody />		
+        <g:layoutBody />	
+        bbb-web v. <g:meta name="app.version"/>	
     </body>	
 </html>
