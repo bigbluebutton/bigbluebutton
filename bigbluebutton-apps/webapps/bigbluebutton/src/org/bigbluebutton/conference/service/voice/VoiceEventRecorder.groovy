@@ -97,7 +97,7 @@ public class VoiceEventRecorder implements IEventRecorder, IVoiceRoomListener {
 		event.put("application", APP_NAME)
 		event.put("event", "mute")
 		event.put('participant', user)
-		event.put('mute', mute)
+		event.put('mute', muted)
 		recordEvent(event)
 	}
 	
@@ -119,7 +119,7 @@ public class VoiceEventRecorder implements IEventRecorder, IVoiceRoomListener {
 		event.put("application", APP_NAME)
 		event.put("event", "talk")
 		event.put('participant', user)
-		event.put('talk', talk)
+		event.put('talk', talking)
 		recordEvent(event)
 	}
 }

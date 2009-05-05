@@ -27,19 +27,19 @@ public class VoiceService {
 	}
 	
 	def muteAllUsers(mute) {
-		def conference = getBbbSession().conference    	
+		def conference = getBbbSession().voiceBridge    	
     	log.debug("Mute all users in room[$conference]")
     	voiceServer.mute(conference, mute)	   	
 	}	
 	
 	def muteUnmuteUser(userid, mute) {
-		def conference = getBbbSession().conference    	
+		def conference = getBbbSession().voiceBridge    	
     	log.debug("MuteUnmute request for user [$userid] in room[$conference]")
     	voiceServer.mute(userid, conference, mute)
 	}
 	
 	def kickUSer(userid) {
-		def conference = getBbbSession().conference		
+		def conference = getBbbSession().voiceBridge		
     	log.debug("KickUser $userid from $conference")		
 		voiceServer.kick(userid, conference)
 	}

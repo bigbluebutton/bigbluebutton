@@ -36,9 +36,9 @@ public class BigBlueButtonSession {
 		mode == Constants.PLAYBACK_MODE
 	}
 	
-	def voiceBridge() {
-		return voiceBridge
-	}
+//	def voiceBridge() {
+//		return voiceBridge
+//	}
 	
 	
 //	public Long getUserid() {
