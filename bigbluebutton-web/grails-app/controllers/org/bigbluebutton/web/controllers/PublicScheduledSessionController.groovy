@@ -52,7 +52,8 @@ class PublicScheduledSessionController {
 			switch (params.password) {
 				case confSession.hostPassword:
 					println 'as host'
-					role = "HOST"
+					// Let us set role to MODERATOR for now as we don't support HOST yet
+					role = "MODERATOR"
 					signedIn = true
 					break
 				case confSession.moderatorPassword:
