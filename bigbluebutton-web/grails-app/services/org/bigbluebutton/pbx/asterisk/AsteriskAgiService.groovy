@@ -1,23 +1,23 @@
-package org.bigbluebutton.pbx.asterisk;
+package org.bigbluebutton.pbx.asterisk
 
-import org.asteriskjava.fastagi.AgiChannel;
-import org.asteriskjava.fastagi.AgiException;
-import org.asteriskjava.fastagi.AgiHangupException;
-import org.asteriskjava.fastagi.AgiRequest;
-import org.asteriskjava.fastagi.AgiScript;
+import org.asteriskjava.fastagi.AgiChannel
+import org.asteriskjava.fastagi.AgiException
+import org.asteriskjava.fastagi.AgiHangupException
+import org.asteriskjava.fastagi.AgiRequest
+import org.asteriskjava.fastagi.AgiScript
 
 import java.util.Calendar
 
-import org.bigbluebutton.web.domain.ScheduledSession;
+import org.bigbluebutton.web.domain.ScheduledSession
 
 class AsteriskAgiService implements AgiScript {
 
     private int tries = 0
     private long _10_minutes = 10*60*1000
     
-    def conferenceRecordingDir
+    def conferenceRecordingDir = "/var/spool/asterisk/meetme"
     
-    def void service(AgiRequest request, AgiChannel channel)
+    public void service(AgiRequest request, AgiChannel channel)
             throws AgiException {
         try {
 	        tries = 0
@@ -71,8 +71,4 @@ class AsteriskAgiService implements AgiScript {
         	log.debug "User has hangup"
         }
     } 
-
-    public void setConferenceRecordingDir(String c) {
-    	conferenceRecordingDir = c
-    }
 }
