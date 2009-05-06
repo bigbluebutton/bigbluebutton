@@ -60,6 +60,10 @@
 				return _attributes.room;
 			}
 			
+			public function get voicebridge():String {
+				return _attributes.voicebridge;
+			}
+			
 			public function get conference():String {
 				return _attributes.conference;
 			}

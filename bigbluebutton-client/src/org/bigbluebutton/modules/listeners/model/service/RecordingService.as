@@ -35,7 +35,7 @@ package org.bigbluebutton.modules.listeners.model.service
 		{
 			var confid:String = _module.conference.slice(1, _module.conference.length);
 			
-			var url:String = _module.recordingHost + "/cgi-bin/convert.pl?id=" + confid;
+			var url:String = _module.recordingHost + "/cgi-bin/convert.pl?id=" + _module.voicebridge;
 			LogUtil.debug("Converting recorded audio " + url);
 			service.url = url;			
 			urlLoader = new URLLoader();
