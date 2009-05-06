@@ -30,7 +30,7 @@
 
 	<module name="ViewersModule" url="ViewersModule.swf" 
 			uri="rtmp://localhost/bigbluebutton" 
-			host="conf/join-mock.xml"
+			host="http://localhost:8080/bigbluebutton/conference-session/enter"
 			onAppInitEvent="LOAD" loadNextModule="ChatModule"
 			onAppStartEvent="START"
 			onUserLogoutEvent="STOP"
