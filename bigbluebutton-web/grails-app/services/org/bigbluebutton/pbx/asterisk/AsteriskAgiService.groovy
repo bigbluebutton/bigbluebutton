@@ -72,4 +72,7 @@ class AsteriskAgiService implements AgiScript {
         }
     } 
 
+    public void setConferenceRecordingDir(String c) {
+    	conferenceRecordingDir = c
+    }
 }
