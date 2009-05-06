@@ -92,5 +92,13 @@ package org.bigbluebutton.main.model
 					break;
 			}
 		}
+		
+		public function getVersion():String {
+			return modulesManager.getAppVersion();
+		}
+		
+		public function getNumberOfModules():int {
+			return modulesManager.getNumberOfModules();
+		}
 	}
 }

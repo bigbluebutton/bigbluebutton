@@ -23,6 +23,7 @@ package org.bigbluebutton.main.model
 		private var _user:Object;
 		private var _router:Router;
 		private var _mode:String;
+		private var _version:String;
 		
 		public function BbbModuleManager(router:Router, mode:String)
 		{
@@ -73,6 +74,10 @@ package org.bigbluebutton.main.model
 				
 		public function parse(xml:XML):void{
 			var list:XMLList = xml.module;
+			_version = xml.@version;
+			
+			trace("version " + _version);
+			
 			var item:XML;
 						
 			for each(item in list){
@@ -213,6 +218,14 @@ package org.bigbluebutton.main.model
 				
 		public function get modules():Dictionary {
 			return _modules;
+		}
+		
+		public function getAppVersion():String {
+			return _version;
+		}
+		
+		public function getNumberOfModules():int {
+			return _numModules;
 		}
 		
 		public function handleAppModelInitialized():void {

@@ -73,6 +73,7 @@ package org.bigbluebutton.main.view
 		
 		override public function listNotificationInterests():Array{
 			return [
+					MainApplicationConstants.APP_MODEL_INITIALIZED,
 					MainApplicationConstants.ADD_WINDOW_MSG,
 					MainApplicationConstants.REMOVE_WINDOW_MSG,
 					MainApplicationConstants.USER_JOINED,
@@ -89,6 +90,10 @@ package org.bigbluebutton.main.view
 		
 		override public function handleNotification(notification:INotification):void{
 			switch(notification.getName()){	
+				case MainApplicationConstants.APP_MODEL_INITIALIZED:
+					shell.appVersion = modulesProxy.getVersion();
+					shell.numberOfModules = modulesProxy.getNumberOfModules();
+					break;
 				case MainApplicationConstants.ADD_WINDOW_MSG:
 					var win:IBbbModuleWindow = notification.getBody() as IBbbModuleWindow;
 					//LogUtil.debug(NAME + "::putting window in " + win.xPosition + " " + win.yPosition);

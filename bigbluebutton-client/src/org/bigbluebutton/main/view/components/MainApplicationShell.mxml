@@ -35,6 +35,10 @@
 			
 			// LIVE or PLAYBACK
 			private var _mode:String = 'LIVE';
+			[Bindable]
+			public var appVersion:String = '0.1';
+			[Bindable]
+			public var numberOfModules:int = 0;
 			
 			[Bindable] private var fullscreen_icon:Class = images.full_screen;
 			[Bindable] private var logs_icon:Class = images.logs;
@@ -82,7 +86,6 @@
 			{				
 				logWindow = new LogWindow();
 				logWindow.logs = logs;
-				parseString();
 				
 				facade.startup(this);
 			}		
@@ -137,11 +140,11 @@
 		<flexmdi:MDICanvas id="mdiCanvas" horizontalScrollPolicy="off" verticalScrollPolicy="off"
 			effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}"
 			width="100%" height="100%">		
-			<mx:Label x="200" y="400" id="loadedModules" text="Please wait while we load {Constants.NUM_MODULES} modules: "/>	
+			<mx:Label x="200" y="400" id="loadedModules" text="Please wait while we load {numberOfModules} modules: "/>	
 			<mx:Label x="200" y="420" id="loadProgress" text="Loading: "/>
 		</flexmdi:MDICanvas>	
 	 	<mx:ControlBar width="100%" height="20" paddingTop="0">		
-		  <mx:Label text="(c) 2008, BigBlueButton version {Constants.VERSION} - For more information see http://www.bigbluebutton.org/." id="copyrightLabel2"/>
+		  <mx:Label text="(c) 2008, BigBlueButton version {appVersion} - For more information see http://www.bigbluebutton.org/." id="copyrightLabel2"/>
 		  <mx:Spacer width="20"/>
 		  <mx:Spacer width="100%"/> 
 		  <mx:Button width="20" height="20" toolTip="Open Log Window" id="logBtn" icon="{logs_icon}" click="openLogWindow()" />

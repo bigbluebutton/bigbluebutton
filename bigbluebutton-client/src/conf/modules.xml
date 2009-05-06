@@ -1,4 +1,4 @@
-<modules>
+<modules version="0.4a">
 	<!--module name="LoginModule" url="LoginModule.swf" 
 			uri="http://localhost:8080/bigbluebutton/join/signIn" 
 			onAppInitEvent="LOAD" loadNextModule="ChatModule"
@@ -13,6 +13,7 @@
 			onAppStartEvent="START"
 			onUserLogoutEvent="STOP"
 	/>
+	host="http://localhost:8080/bigbluebutton/conference-session/enter"
 -->
 
 	<module name="VideoModule" url="VideoModule.swf" 
@@ -29,7 +30,7 @@
 
 	<module name="ViewersModule" url="ViewersModule.swf" 
 			uri="rtmp://localhost/bigbluebutton" 
-			host="http://localhost:8080/bigbluebutton/conference-session/enter"
+			host="conf/join-mock.xml"
 			onAppInitEvent="LOAD" loadNextModule="ChatModule"
 			onAppStartEvent="START"
 			onUserLogoutEvent="STOP"
@@ -38,7 +39,7 @@
 
 	<module name="ListenersModule" url="ListenersModule.swf" 
 			uri="rtmp://localhost/bigbluebutton" 
-			recordingHost="http://134.117.254.226"
+			recordingHost="http://localhost"
 			loadNextModule="VideoModule"
 			onUserJoinedEvent="START"
 			onUserLogoutEvent="STOP"
