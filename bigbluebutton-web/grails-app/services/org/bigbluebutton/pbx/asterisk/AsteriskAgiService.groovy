@@ -48,10 +48,13 @@ class AsteriskAgiService implements AgiScript {
 						 */
 						 def RECORD_OPTION = ""
 						 if (conf.record) {
+							 log.debug "Recording voice conference"
 							 RECORD_OPTION = "r"
 							 def recordDir = "/var/spool/asterisk/meetme/${now}-$number-conf-record"
 							 log.debug "Recording voice conference $recordDir"
 							 channel.setVariable("MEETME_RECORDINGFILE", recordDir)
+						 } else {
+							 log.debug "Not recording voice conference"
 						 }
 						
 						def OPTIONS = "cdMqs${RECORD_OPTION}T"
