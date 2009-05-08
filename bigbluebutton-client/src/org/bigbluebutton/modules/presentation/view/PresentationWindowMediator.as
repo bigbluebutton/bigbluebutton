@@ -156,7 +156,7 @@ package org.bigbluebutton.modules.presentation.view
 		override public function handleNotification(notification:INotification):void{
 			switch(notification.getName()){
 				case PresentModuleConstants.START_SHARE:
-					if(notification.getBody()!=null) handleStartShareEvent(notification.getBody().presentationName);
+					handleStartShareEvent(notification.getBody() as String);
 					break;
 				case PresentModuleConstants.READY_EVENT:
 					handleReadyEvent(notification.getBody());

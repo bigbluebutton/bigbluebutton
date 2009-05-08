@@ -199,12 +199,15 @@ package org.bigbluebutton.modules.presentation.model.business
 					function(result:Object):void { 	
 						LogUtil.debug("Successfully querried for presentation information.");					 
 						if (result.presenter.hasPresenter) {
+							LogUtil.debug("Someone is already presenter");
 							sendMessage(PresentModuleConstants.VIEWER_MODE);							
 						}	
 						
-						if (result.presentation.sharing) {
+						if (result.presentation.sharing) {							
 							currentSlide = Number(result.presentation.slide);
-							sendMessage(PresentModuleConstants.START_SHARE);
+							var presentationName:String = String(result.presentation.currentPresentation)
+							LogUtil.debug("The presenter has shared slides and showing slide " + currentSlide);
+							sendMessage(PresentModuleConstants.START_SHARE, presentationName);
 						}
 					},	
 					// status - On error occurred
