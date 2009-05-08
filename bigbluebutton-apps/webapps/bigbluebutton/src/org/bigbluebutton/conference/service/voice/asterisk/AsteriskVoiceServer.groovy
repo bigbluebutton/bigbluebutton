@@ -177,7 +177,7 @@ public class AsteriskVoiceServer extends AbstractAsteriskServerListener implemen
 			conferenceServerListener.talk(changedUser.userNumber.toString(), changedUser.room.roomNumber, changedUser.talking)
 		} else if ("state".equals(evt.getPropertyName())) {
 			if (MeetMeUserState.LEFT == (MeetMeUserState) evt.getNewValue()) {
-				conferenceServerListener.left(changedUser.room.roomNumber, changedUser.userNumber)
+				conferenceServerListener.left(changedUser.room.roomNumber, changedUser.userNumber.toString())
 			}
 		}			
 	}    

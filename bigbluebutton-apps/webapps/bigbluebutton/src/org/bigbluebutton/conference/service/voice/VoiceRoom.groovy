@@ -64,7 +64,9 @@ public class VoiceRoom {
 	}
 	
 	def left(participant){
-		participants.remove(participant)
+		Map p = (HashMap) participants.remove(participant)
+		log.debug "User left $p"
+		
 		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
 			log.debug("calling on listener")
 			IVoiceRoomListener listener = (IVoiceRoomListener) iter.next()
@@ -77,6 +79,7 @@ public class VoiceRoom {
 		log.debug("mute: $participant $mute")
 		Map p = (HashMap) participants.get(participant)
 		p.put('muted', mute)
+		log.debug "Muted participant $p"
 		
 		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
 			log.debug("calling on listener")
