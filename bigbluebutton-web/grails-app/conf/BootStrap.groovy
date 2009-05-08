@@ -7,7 +7,7 @@ class BootStrap {
 	def jmsContainer
 	
      def init = { servletContext ->
-     	log.debug "Bootstrapping"
+     	log.debug "Bootstrapping bbb-web"
      	// Administrator user and role.
 		def adminRole = new Role(name: "Administrator").save()
 		def adminUser = new User(username: "admin@test.com", passwordHash: new Sha1Hash("admin").toHex(),
