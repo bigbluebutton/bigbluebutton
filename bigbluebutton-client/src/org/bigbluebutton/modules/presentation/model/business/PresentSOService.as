@@ -338,7 +338,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		public function sharePresentationCallback(presentationName:String, share:Boolean):void {
 			LogUtil.debug("sharePresentationCallback " + presentationName + "," + share);
 			if (share) {
-				sendMessage(PresentModuleConstants.START_SHARE, {presentationName:presentationName});
+				sendMessage(PresentModuleConstants.START_SHARE, presentationName);
 			}
 		}
 		
