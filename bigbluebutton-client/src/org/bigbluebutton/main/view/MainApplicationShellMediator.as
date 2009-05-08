@@ -29,6 +29,7 @@ package org.bigbluebutton.main.view
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.main.MainApplicationConstants;
 	import org.bigbluebutton.main.model.ModulesProxy;
+	import org.bigbluebutton.main.view.components.LoggedOutWindow;
 	import org.bigbluebutton.main.view.components.MainApplicationShell;
 	import org.bigbluebutton.main.view.components.ModuleStoppedWindow;
 	import org.bigbluebutton.main.view.events.StartModuleEvent;
@@ -106,6 +107,7 @@ package org.bigbluebutton.main.view
 					shell.mdiCanvas.windowManager.remove(rwin as MDIWindow);						
 					break;
 				case MainApplicationConstants.USER_LOGGED_OUT:
+					handleUserLoggedOut();
 					//if (red5phoneAdded) {
 					//	red5phoneAdded = false;
 					//	shell.mdiCanvas.windowManager.remove(red5PhoneWindow as MDIWindow);
@@ -148,6 +150,18 @@ package org.bigbluebutton.main.view
 					shell.loadProgress.text = "Loading: " + mod + " " + prog + "% loaded.";
 					break;
 			}
+		}
+		
+		private function handleUserLoggedOut():void {
+				var t:LoggedOutWindow = LoggedOutWindow(PopUpManager.createPopUp( shell.mdiCanvas, LoggedOutWindow, false));
+
+				var point1:Point = new Point();
+            	// Calculate position of TitleWindow in Application's coordinates. 
+            	point1.x = 200;
+            	point1.y = 400;                
+            	point1 = shell.localToGlobal(point1);
+           	 	t.x = point1.x + 25;
+            	t.y = point1.y + 25;				
 		}
 		
 		private function handleModuleStopped(moduleName:String, errors:Array):void {

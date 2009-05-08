@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+    title="Logged Out" showCloseButton="true" creationComplete="init()"
+    x="168" y="86" layout="absolute" width="500" height="200">
+	<mx:Script>
+		<![CDATA[
+			import mx.managers.PopUpManager;
+
+			private function init():void {
+				addEventListener(Event.CLOSE, onUserLoggedOutWindowClose);
+			}
+			
+            private function closeWindow():void {
+            	PopUpManager.removePopUp(this);
+            }
+            
+            private function onUserLoggedOutWindowClose(e:Event):void {
+            	PopUpManager.removePopUp(this);
+            }
+		]]>
+	</mx:Script>
+	
+	<mx:ControlBar horizontalAlign="center" verticalAlign="middle" x="0" y="106">
+		<mx:Spacer width="100%"/>
+		<mx:Button id="okBtn" label="OK" click="closeWindow()"/>
+	</mx:ControlBar>	
+</mx:TitleWindow> 
