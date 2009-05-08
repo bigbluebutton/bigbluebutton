@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="WebApp_ID" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+
+  <description>Screen Capture to Flash transcoder</description>
+  <display-name>deskShare</display-name>
+
+  <context-param>
+    <param-name>webAppRootKey</param-name>
+    <param-value>/deskShare</param-value>
+  </context-param>
+
+  <listener>
+    <listener-class>org.red5.logging.ContextLoggingListener</listener-class>
+  </listener>
+
+  <filter>
+    <filter-name>LoggerContextFilter</filter-name>
+    <filter-class>org.red5.logging.LoggerContextFilter</filter-class>
+  </filter>
+
+  <filter-mapping>
+    <filter-name>LoggerContextFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>Forbidden</web-resource-name>
+      <url-pattern>/WEB-INF/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint/>
+  </security-constraint>	
+
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>Forbidden</web-resource-name>
+      <url-pattern>/streams/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint/>
+  </security-constraint>	
+
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>
+</web-app>
