@@ -251,6 +251,12 @@ package org.bigbluebutton.modules.presentation.view
             	_presWin.slideNumLbl.text = (_presWin.slideView.selectedSlide + 1) + " of " + _presWin.slideView.slides.length;	
 				_presWin.backButton.visible = true;
 				_presWin.forwardButton.visible = true;	
+
+				//Initialize the thumbnails mediator
+				if ( ! facade.hasMediator( ThumbnailViewMediator.NAME ) ) {
+	            	facade.registerMediator(new ThumbnailViewMediator( _presWin.thumbnailWindow ));
+	            } 
+	           	_presWin.thumbnailWindow.setFisheyeVisibility(true);
 			}
 		}
 
@@ -262,6 +268,12 @@ package org.bigbluebutton.modules.presentation.view
             	_presWin.slideNumLbl.text = (_presWin.slideView.selectedSlide + 1) + " of " + _presWin.slideView.slides.length;	
 				_presWin.backButton.visible = false;
 				_presWin.forwardButton.visible = false;		
+
+				//Initialize the thumbnails mediator
+				if ( facade.hasMediator( ThumbnailViewMediator.NAME ) ) {
+					facade.removeMediator(ThumbnailViewMediator.NAME)
+	            }
+	           	_presWin.thumbnailWindow.setFisheyeVisibility(false);
 			}
 			removeFileUploadPopup();
 		}
@@ -282,8 +294,8 @@ package org.bigbluebutton.modules.presentation.view
 			//Initialize the thumbnails mediator
 			if ( ! facade.hasMediator( ThumbnailViewMediator.NAME ) ) {
             	facade.registerMediator(new ThumbnailViewMediator( _presWin.thumbnailWindow ));
-    	       	_presWin.thumbnailWindow.setFisheyeVisibility(true);
             } 
+            _presWin.thumbnailWindow.setFisheyeVisibility(true);
 		}
 
 		private function handleClearPresentation():void
