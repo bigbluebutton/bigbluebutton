@@ -103,17 +103,19 @@ class ScheduledSessionController {
 
     	def conflict = false
     	
-    	def sched = results[0]    	
-   		if ((scheduledSessionInstance.startDateTime > sched.startDateTime) && (scheduledSessionInstance.startDateTime < sched.endDateTime)) {
-   			log.debug "Start time is between start and date time of session ${sched.name}"
-   			conflict = true
-   		} else {
-   			if ((scheduledSessionInstance.endDateTime > sched.startDateTime) && (scheduledSessionInstance.endDateTime < sched.endDateTime )) {
-   				log.debug "End time is between start and date time of session ${sched.name}"
-   				conflict = true
-   			}
-   		}    	
-    	
+    	if (results.size() > 0) {
+        	def sched = results[0]    	
+       		if ((scheduledSessionInstance.startDateTime > sched.startDateTime) && (scheduledSessionInstance.startDateTime < sched.endDateTime)) {
+       			log.debug "Start time is between start and date time of session ${sched.name}"
+       			conflict = true
+       		} else {
+       			if ((scheduledSessionInstance.endDateTime > sched.startDateTime) && (scheduledSessionInstance.endDateTime < sched.endDateTime )) {
+       				log.debug "End time is between start and date time of session ${sched.name}"
+       				conflict = true
+       			}
+       		}     		
+    	}
+  	   	
     	if(conflict) {
     		log.debug "There is a conflict with ${sched.name}"
             flash.message = "There is a conflict with ${sched.name}."
