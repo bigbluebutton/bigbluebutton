@@ -91,7 +91,10 @@ package org.bigbluebutton.modules.listeners.model.service
 		
 	    private function leave():void
 	    {
-	    	if (_listenersSO != null) _listenersSO.close();
+	    	if (_listenersSO != null) {
+	    		_listenersSO.close();
+	    	}
+	    	notifyConnectionStatusListener(false);
 	    }
 
 		public function addConnectionStatusListener(connectionListener:Function):void {

@@ -65,10 +65,10 @@ package org.bigbluebutton.modules.listeners
 				case ListenersModuleConstants.DISCONNECTED:
 					LogUtil.debug(NAME + ':Sending MODULE_STOPPED message to main');
 					facade.sendNotification(ListenersModuleConstants.CLOSE_WINDOW);
-					var info:Object = notification.getBody();
-					info["moduleId"] = _module.moduleId;
-					_endpoint.sendMessage(EndpointMessageConstants.MODULE_STOPPED, 
-							EndpointMessageConstants.TO_MAIN_APP, info);
+//					var info:Object = notification.getBody();
+//					info["moduleId"] = _module.moduleId;
+//					_endpoint.sendMessage(EndpointMessageConstants.MODULE_STOPPED, 
+//							EndpointMessageConstants.TO_MAIN_APP, info);
 					break;
 				case ListenersModuleConstants.ADD_WINDOW:
 					LogUtil.debug(NAME + ':Sending ADD_WINDOW message to main');

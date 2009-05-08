@@ -130,7 +130,7 @@ package org.bigbluebutton.main.view
 					break;
 				case MainApplicationConstants.MODULE_STOPPED:
 					var info:Object = notification.getBody();
-					handleModuleStopped(info.moduleId, info.errors);
+				//	handleModuleStopped(info.moduleId, info.errors);
 					break;
 				case MainApplicationConstants.LOADED_MODULE:
 					shell.loadedModules.text += notification.getBody() + "(loaded) ";

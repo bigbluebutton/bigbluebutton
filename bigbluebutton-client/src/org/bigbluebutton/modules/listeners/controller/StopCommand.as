@@ -26,6 +26,7 @@ package org.bigbluebutton.modules.listeners.controller
 	public class StopCommand extends SimpleCommand
 	{
 		override public function execute(notification:INotification):void{
+			LogUtil.debug("ListenersModule StopCommand");
 			if (facade.hasProxy(ListenersProxy.NAME)) {
 				var p:ListenersProxy = facade.retrieveProxy(ListenersProxy.NAME) as ListenersProxy;
 				p.stop();
