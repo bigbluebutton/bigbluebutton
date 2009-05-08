@@ -46,10 +46,10 @@
                             
                             <td valign="top" class="value">
                             <g:if test="${inSession}">
-                            	<a href="${hostUrl}/client/BigBlueButton.html">Join</a>
+                            	<a href="${hostUrl}/client/BigBlueButton.html">CLICK HERE TO JOIN</a>
 							</g:if>
                             <g:else>
-     							<a href="${hostUrl}/client/BigBlueButton.html">Play</a>   							
+     							<a href="${hostUrl}/client/BigBlueButton.html">CLICK HERE TO PLAY</a>   							
 							</g:else>
                             	
 							</td>
@@ -80,7 +80,14 @@
                             	${scheduledSessionInstance?.conference?.name.encodeAsHTML()}</td>
                             
                         </tr>
-        
+
+                        <tr class="prop">
+                            <td valign="top" class="name"><b>NOTE:</b></td>
+                            
+                            <td valign="top" class="value">
+                            	If the loading looks like it hang, just refresh your browser.</td>
+                            
+                        </tr>        
                     </tbody>
                 </table>
             </div>
