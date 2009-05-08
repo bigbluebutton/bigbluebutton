@@ -29,8 +29,6 @@
                         
                    	        <g:sortableColumn property="sessionId" title="Session Id" />
                         
-                   	        <g:sortableColumn property="duration" title="Duration" />
-                        
                    	        <g:sortableColumn property="numberOfAttendees" title="Number Of Attendees" />
                         
                         </tr>
@@ -46,8 +44,6 @@
                             <td>${fieldValue(bean:scheduledSessionInstance, field:'tokenId')}</td>
                         
                             <td>${fieldValue(bean:scheduledSessionInstance, field:'sessionId')}</td>
-                        
-                            <td>${fieldValue(bean:scheduledSessionInstance, field:'duration')}</td>
                         
                             <td>${fieldValue(bean:scheduledSessionInstance, field:'numberOfAttendees')}</td>
                         
