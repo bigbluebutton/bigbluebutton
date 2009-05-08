@@ -18,6 +18,7 @@ public class PresentationRoom {
 	def currentPresenter
 	def currentSlide
 	def sharing
+	def currentPresentation
 	
 	public PresentationRoom(String name) {
 		this.name = name
@@ -73,6 +74,7 @@ public class PresentationRoom {
 	def sharePresentation = {presentationName, share ->
 		log.debug("Request share presentation $presentationName $share for room $name")
 		sharing = share
+		currentPresentation = presentationName
 		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
 			log.debug("calling on listener")
 			IPresentationRoomListener listener = (IPresentationRoomListener) iter.next()

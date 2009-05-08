@@ -30,6 +30,7 @@ public class PresentationService {
 		def curPresenter = presentationApplication.getCurrentPresenter(scope.name)
 		def curSlide = presentationApplication.getCurrentSlide(scope.name)
 		def isSharing = presentationApplication.getSharingPresentation(scope.name)
+		def currentPresentation = presentationApplication.getCurrentPresentation(scope.name)
 		
 		Map presenter = new HashMap()		
 		if (curPresenter != null) {
@@ -46,7 +47,8 @@ public class PresentationService {
 		if (isSharing) {
 			presentation.put('sharing', true)
 			presentation.put('slide', curSlide)
-			log.debug("Presentation: slide= $curSlide")
+			presentation.put('currentPresentation', currentPresentation)
+			log.debug("Presentation: presentation= $currentPresentation slide= $curSlide")
 		} else {
 			presentation.put('sharing', false)
 		}
