@@ -20,7 +20,7 @@
         </tr>
         <g:if test="${!id}">
 	        <tr>
-	          <td>Session Id:</td>
+	          <td>Conference Number:</td>
 	          <td><input type="text" name="id" value="${id}" /></td>
 	        </tr>
         </g:if>

@@ -1,13 +1,14 @@
 package org.bigbluebutton.web.controllers
 
 import org.bigbluebutton.web.domain.ScheduledSession
+import org.bigbluebutton.web.domain.Conference
 import grails.converters.*
 import org.codehaus.groovy.grails.commons.*
 
 class PublicScheduledSessionController {
 		
 	def index = {
-	    redirect(action:show)
+	    redirect(action:joinIn)
 	}
 	
 	def show = {
@@ -36,10 +37,93 @@ class PublicScheduledSessionController {
 	
 	def joinIn = {
 	    println "join $params.id"
+	    session.invalidate()
 	    return [ fullname: params.fullname, id:(params.id), password: params.password ]
 	}
 	
     def signIn = {    
+		log.debug "Attempting to sign in to ${params.id}"	
+		def conference = Conference.findByConferenceNumber(params.id)
+		def signedIn = false
+		if (conference) {
+			def c = ScheduledSession.createCriteria()
+			def now = new Date()
+			def results = c {
+				eq('voiceConferenceBridge', conference.conferenceNumber.toString())
+				and {
+					le('startDateTime', now)
+					and {
+						gt('endDateTime', now)
+					}
+				}
+				maxResults(1)
+			}
+
+			if (results) {
+
+				def confSession = results[0];
+				def role = ''
+											
+				if (confSession) {
+					log.debug "Found conference session ${confSession.name}"
+					switch (params.password) {
+						case confSession.hostPassword:
+							log.debug "Logged in as host"
+							// Let us set role to MODERATOR for now as we don't support HOST yet
+							role = "MODERATOR"
+							signedIn = true
+							break
+						case confSession.moderatorPassword:
+							log.debug "Logged in as as moderator"
+							role = "MODERATOR"
+							signedIn = true
+							break
+						case confSession.attendeePassword:
+							log.debug "Logged in as viewer"
+							role = "VIEWER"
+							signedIn = true
+							break
+					}
+					if (signedIn) {						
+						log.debug "Login successful...setting in session information"
+			   			session["fullname"] = params.fullname 
+						session["role"] = role
+						session["conference"] = confSession.tokenId
+						session["room"] = confSession.sessionId
+						session["voicebridge"] = confSession.voiceConferenceBridge
+					}
+									
+					def long _10_MINUTES = 10*60*1000
+				
+					def startTime = confSession.startDateTime.time - _10_MINUTES
+					def endTime = confSession.endDateTime.time + _10_MINUTES
+						
+					if ((startTime <= now.time) && (now.time <= endTime)) {
+						session["mode"] = "LIVE"
+						session["record"] = false
+						if (confSession.record) {
+							session["record"] = true
+						}
+						log.debug "Joining LIVE and recording is ${confSession.record}"
+					} else {
+						session["mode"] = "PLAYBACK"
+						log.debug "Joining PLAYBACK"
+					}
+					    	
+				    log.debug "Displaying session information"
+				    redirect(action:show)			
+				}					
+			}	
+		}
+		
+		if (!signedIn) {
+			log.debug "Failed joining the session"
+			flash.message = "Failed to join the conference session."
+			redirect(action:joinIn,id:params.id, params:[fullname:params.fullname])		
+		}	
+	}
+	
+    def signIn2 = {    
 		println 'signIn start'		
 		def confSession = ScheduledSession.findByTokenId(params.id)
 		def role = ''
@@ -114,6 +198,7 @@ class PublicScheduledSessionController {
 	    def md = session["mode"]
 	    
 	    if (!rm) {
+	    	response.addHeader("Cache-Control", "no-cache")
 	    	withFormat {				
 				xml {
 					render(contentType:"text/xml") {
@@ -125,6 +210,7 @@ class PublicScheduledSessionController {
 				}
 			}
 	    } else {	
+	    	response.addHeader("Cache-Control", "no-cache")
 	    	withFormat {				
 				xml {
 					render(contentType:"text/xml") {

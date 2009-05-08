@@ -27,6 +27,9 @@ class ScheduledSession implements Comparable {
 	String attendeePassword = 'change-me-please'
 	String voiceConferenceBridge
 	
+	Date getCurrentTime() { new Date() }
+	static transients = ['currentTime']
+	
 	public ScheduledSession() {
 		startDateTime = new Date()
 		// Set the end to 1 hour after start

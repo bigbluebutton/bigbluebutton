@@ -41,22 +41,12 @@
                             	${hostUrl}/bigbluebutton/conference-session/joinIn/${scheduledSessionInstance.tokenId}
 							</td>                            
                         </tr>
-                    
-                        <tr class="prop">
-                            <td valign="top" class="name">End Date Time:</td>                           
-                            <td valign="top" class="value">${fieldValue(bean:scheduledSessionInstance, field:'endDateTime')}</td>                            
-                        </tr>
-                    
+
                         <tr class="prop">
                             <td valign="top" class="name">Number Of Attendees:</td>                            
                             <td valign="top" class="value">${fieldValue(bean:scheduledSessionInstance, field:'numberOfAttendees')}</td>                            
                         </tr>
-                    
-                        <tr class="prop">
-                            <td valign="top" class="name">Attendee Password:</td>                            
-                            <td valign="top" class="value">${fieldValue(bean:scheduledSessionInstance, field:'attendeePassword')}</td>                            
-                        </tr>
-                    
+
                         <tr class="prop">
                             <td valign="top" class="name">Conference:</td>                            
                             <td valign="top" class="value">
@@ -67,40 +57,25 @@
                         </tr>
                     
                         <tr class="prop">
-                            <td valign="top" class="name">Created By:</td>                            
-                            <td valign="top" class="value">${fieldValue(bean:scheduledSessionInstance, field:'createdBy')}</td>                            
-                        </tr>
-                    
-                        <tr class="prop">
-                            <td valign="top" class="name">Date Created:</td>                            
-                            <td valign="top" class="value">${fieldValue(bean:scheduledSessionInstance, field:'dateCreated')}</td>                            
+                            <td valign="top" class="name">Password Protect:</td>                            
+                            <td valign="top" class="value">${fieldValue(bean:scheduledSessionInstance, field:'passwordProtect')}</td>                            
                         </tr>
                     
                         <tr class="prop">
                             <td valign="top" class="name">Host Password:</td>                            
                             <td valign="top" class="value">${fieldValue(bean:scheduledSessionInstance, field:'hostPassword')}</td>                            
                         </tr>
-                    
-                        <tr class="prop">
-                            <td valign="top" class="name">Last Updated:</td>        
-                            <td valign="top" class="value">${fieldValue(bean:scheduledSessionInstance, field:'lastUpdated')}</td>                            
-                        </tr>
-                    
+
                         <tr class="prop">
                             <td valign="top" class="name">Moderator Password:</td>                            
                             <td valign="top" class="value">${fieldValue(bean:scheduledSessionInstance, field:'moderatorPassword')}</td>                            
                         </tr>
                     
                         <tr class="prop">
-                            <td valign="top" class="name">Modified By:</td>                            
-                            <td valign="top" class="value">${fieldValue(bean:scheduledSessionInstance, field:'modifiedBy')}</td>                            
+                            <td valign="top" class="name">Attendee Password:</td>                            
+                            <td valign="top" class="value">${fieldValue(bean:scheduledSessionInstance, field:'attendeePassword')}</td>                            
                         </tr>
-                    
-                        <tr class="prop">
-                            <td valign="top" class="name">Password Protect:</td>                            
-                            <td valign="top" class="value">${fieldValue(bean:scheduledSessionInstance, field:'passwordProtect')}</td>                            
-                        </tr>
-                    
+
                         <tr class="prop">
                             <td valign="top" class="name">Record:</td>                            
                             <td valign="top" class="value">${fieldValue(bean:scheduledSessionInstance, field:'record')}</td>                            
@@ -115,6 +90,32 @@
                             <td valign="top" class="name">Start Date Time:</td>                            
                             <td valign="top" class="value">${fieldValue(bean:scheduledSessionInstance, field:'startDateTime')}</td>                            
                         </tr>                    
+                    
+                        <tr class="prop">
+                            <td valign="top" class="name">End Date Time:</td>                           
+                            <td valign="top" class="value">${fieldValue(bean:scheduledSessionInstance, field:'endDateTime')}</td>                            
+                        </tr>
+                                        
+                        <tr class="prop">
+                            <td valign="top" class="name">Created By:</td>                            
+                            <td valign="top" class="value">${fieldValue(bean:scheduledSessionInstance, field:'createdBy')}</td>                            
+                        </tr>
+                    
+                        <tr class="prop">
+                            <td valign="top" class="name">Date Created:</td>                            
+                            <td valign="top" class="value">${fieldValue(bean:scheduledSessionInstance, field:'dateCreated')}</td>                            
+                        </tr>
+                                        
+                        <tr class="prop">
+                            <td valign="top" class="name">Last Updated:</td>        
+                            <td valign="top" class="value">${fieldValue(bean:scheduledSessionInstance, field:'lastUpdated')}</td>                            
+                        </tr>                    
+                    
+                        <tr class="prop">
+                            <td valign="top" class="name">Modified By:</td>                            
+                            <td valign="top" class="value">${fieldValue(bean:scheduledSessionInstance, field:'modifiedBy')}</td>                            
+                        </tr>
+                    
                     </tbody>
                 </table>
             </div>

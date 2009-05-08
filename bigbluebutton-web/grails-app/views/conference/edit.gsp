@@ -38,7 +38,14 @@
                                     <input type="text" id="name" name="name" value="${fieldValue(bean:conference,field:'name')}"/>
                                 </td>
                             </tr> 
-                        
+                            <tr class="prop">
+                                <td valign="top" class="name">
+                                    <label for="conferenceName">Conference Number:</label>
+                                </td>
+                                <td valign="top" class="value ${hasErrors(bean:conference,field:'conferenceNumber','errors')}">
+                                    <input type="text" id="conferenceNumber" name="conferenceNumber" value="${fieldValue(bean:conference,field:'conferenceNumber')}"/>
+                                </td>
+                            </tr>                        
                             <tr class="prop">
                                 <td valign="top" class="name">
                                     <label for="dateCreated">Date Created:</label>

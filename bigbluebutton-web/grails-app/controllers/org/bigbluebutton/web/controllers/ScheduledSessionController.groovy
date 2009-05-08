@@ -5,6 +5,7 @@ import java.util.UUID
 import org.bigbluebutton.web.domain.User
 import org.bigbluebutton.web.domain.Conference
 import org.codehaus.groovy.grails.commons.*
+import java.text.DateFormat
 
 class ScheduledSessionController {
     
@@ -92,20 +93,49 @@ class ScheduledSessionController {
     	   	
     	def conf = Conference.get(params.conferenceId)
     	
-        def scheduledSessionInstance = new ScheduledSession(params)
-    	scheduledSessionInstance.sessionId = UUID.randomUUID()
-    	scheduledSessionInstance.tokenId = UUID.randomUUID()
-    	scheduledSessionInstance.conference = conf
+    	def scheduledSessionInstance = new ScheduledSession(params)
     	
-    	scheduledSessionInstance.voiceConferenceBridge = generateUniqueVoiceConferenceBridgeNumber()
-    	    	
-        if(!scheduledSessionInstance.hasErrors() && scheduledSessionInstance.save()) {
-            flash.message = "ScheduledSession ${scheduledSessionInstance.id} created"
-            redirect(action:show,id:scheduledSessionInstance.id)
-        }
-        else {
-        	println "Returning conference id ${params.conferenceId}"
+		def c = ScheduledSession.createCriteria()
+		def results = c {
+			eq('voiceConferenceBridge', conf.conferenceNumber.toString())
+			maxResults(1)
+		}    	
+
+    	def conflict = false
+    	
+    	def sched = results[0]    	
+   		if ((scheduledSessionInstance.startDateTime > sched.startDateTime) && (scheduledSessionInstance.startDateTime < sched.endDateTime)) {
+   			log.debug "Start time is between start and date time of session ${sched.name}"
+   			conflict = true
+   		} else {
+   			if ((scheduledSessionInstance.endDateTime > sched.startDateTime) && (scheduledSessionInstance.endDateTime < sched.endDateTime )) {
+   				log.debug "End time is between start and date time of session ${sched.name}"
+   				conflict = true
+   			}
+   		}    	
+    	
+    	if(conflict) {
+    		log.debug "There is a conflict with ${sched.name}"
+            flash.message = "There is a conflict with ${sched.name}."
             render(view:'create',model:[scheduledSessionInstance:scheduledSessionInstance, conferenceId:params.conferenceId])
+        } else {	        
+	    	scheduledSessionInstance.sessionId = UUID.randomUUID()
+	    	scheduledSessionInstance.tokenId = UUID.randomUUID()
+	    	scheduledSessionInstance.conference = conf
+	    	
+	    	//scheduledSessionInstance.voiceConferenceBridge = generateUniqueVoiceConferenceBridgeNumber()
+	    	
+	    	// Let's use the manually created conference number
+	    	scheduledSessionInstance.voiceConferenceBridge = conf.conferenceNumber.toString()
+	    	    	
+	        if(!scheduledSessionInstance.hasErrors() && scheduledSessionInstance.save()) {
+	            flash.message = "ScheduledSession ${scheduledSessionInstance.id} created"
+	            redirect(action:show,id:scheduledSessionInstance.id)
+	        }
+	        else {
+	        	println "Returning conference id ${params.conferenceId}"
+	            render(view:'create',model:[scheduledSessionInstance:scheduledSessionInstance, conferenceId:params.conferenceId])
+	        }
         }
     }
     

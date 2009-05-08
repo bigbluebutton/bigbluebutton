@@ -35,6 +35,13 @@
                             <td valign="top" class="value">${fieldValue(bean:conference, field:'name')}</td>
                             
                         </tr>
+                        
+                        <tr class="prop">
+                            <td valign="top" class="name">Conference Number:</td>
+                            
+                            <td valign="top" class="value">${fieldValue(bean:conference, field:'conferenceNumber')}</td>
+                            
+                        </tr>
                                         
                         <tr class="prop">
                             <td valign="top" class="name">Date Created:</td>
