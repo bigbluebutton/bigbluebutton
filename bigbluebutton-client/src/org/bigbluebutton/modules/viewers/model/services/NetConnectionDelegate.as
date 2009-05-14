@@ -22,7 +22,8 @@ package org.bigbluebutton.modules.viewers.model.services
 	import flash.events.*;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
-	
+    import flash.utils.Timer;
+    import flash.events.TimerEvent;	
 	import org.bigbluebutton.modules.viewers.ViewersFacade;
 	import org.bigbluebutton.modules.viewers.ViewersModuleConstants;
 
@@ -52,6 +53,7 @@ package org.bigbluebutton.modules.viewers.model.services
 		// then pass to other modules.
 		private var _authToken:String = "AUTHORIZED";
 		private var _room:String;
+		private var tried_tunneling = false;
 				
 		public function NetConnectionDelegate(m:ViewersModule) : void
 		{
@@ -80,8 +82,9 @@ package org.bigbluebutton.modules.viewers.model.services
 		 * mode: LIVE/PLAYBACK - Live:when used to collaborate, Playback:when being used to playback a recorded conference.
 		 * room: Need the room number when playing back a recorded conference. When LIVE, the room is taken from the URI.
 		 */
-		public function connect(username:String, role:String, conference:String, mode:String, room:String):void
-		{						
+		public function connect(username:String, role:String, conference:String, mode:String, room:String, tunnel:Boolean=false):void
+		{	
+			tried_tunneling = tunnel;					
 			_netConnection.client = this;
 			_netConnection.addEventListener( NetStatusEvent.NET_STATUS, netStatus );
 			_netConnection.addEventListener( AsyncErrorEvent.ASYNC_ERROR, netASyncError );
@@ -90,6 +93,9 @@ package org.bigbluebutton.modules.viewers.model.services
 			
 			try {	
 				var uri:String = _module.uri;
+				if (tunnel) {
+					uri = uri.replace(/rtmp:/g, "rtmpt:");
+				}
 								
 				LogUtil.debug(NAME + "::Connecting to " + uri + " [" + username + "," + role + "," + conference + 
 						"," + mode + "," + room + "]");		
@@ -148,9 +154,16 @@ package org.bigbluebutton.modules.viewers.model.services
 			
 					break;
 			
-				case CONNECT_FAILED :
-					LogUtil.debug(NAME + ":Connection to viewers application failed");
-					_connectionSuccessListener(false, null, ViewersModuleConstants.CONNECT_FAILED);									
+				case CONNECT_FAILED :					
+					if (tried_tunneling) {
+						LogUtil.debug(NAME + ":Connection to viewers application failed...even when tunneling");
+						_connectionSuccessListener(false, null, ViewersModuleConstants.CONNECT_FAILED);
+					} else {
+						LogUtil.debug(NAME + ":Connection to viewers application failed...try tunneling");
+						var rtmptRetryTimer:Timer = new Timer(1000, 1);
+            			rtmptRetryTimer.addEventListener("timer", rtmptRetryTimerHandler);
+            			rtmptRetryTimer.start();						
+					}									
 					break;
 					
 				case CONNECT_CLOSED :	
@@ -180,6 +193,11 @@ package org.bigbluebutton.modules.viewers.model.services
 			}
 		}
 		
+		private function rtmptRetryTimerHandler(event:TimerEvent):void {
+            LogUtil.debug(NAME + "rtmptRetryTimerHandler: " + event);
+            connect(_module.username, _module.role, _module.conference, _module.mode, _module.room, true);
+        }
+        
 		private function sendFailReason(reason:String):void{
 			ViewersFacade.getInstance().sendNotification(ViewersModuleConstants.LOGIN_FAILED, reason);
 		}
