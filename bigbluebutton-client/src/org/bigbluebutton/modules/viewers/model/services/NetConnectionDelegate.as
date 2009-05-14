@@ -22,8 +22,8 @@ package org.bigbluebutton.modules.viewers.model.services
 	import flash.events.*;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
-    import flash.utils.Timer;
-    import flash.events.TimerEvent;	
+	import flash.utils.Timer;
+	
 	import org.bigbluebutton.modules.viewers.ViewersFacade;
 	import org.bigbluebutton.modules.viewers.ViewersModuleConstants;
 
@@ -53,7 +53,7 @@ package org.bigbluebutton.modules.viewers.model.services
 		// then pass to other modules.
 		private var _authToken:String = "AUTHORIZED";
 		private var _room:String;
-		private var tried_tunneling = false;
+		private var tried_tunneling:Boolean = false;
 				
 		public function NetConnectionDelegate(m:ViewersModule) : void
 		{
