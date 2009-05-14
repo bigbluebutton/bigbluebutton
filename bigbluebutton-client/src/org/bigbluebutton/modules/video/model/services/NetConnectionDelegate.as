@@ -21,7 +21,8 @@ package org.bigbluebutton.modules.video.model.services
 {
 	import flash.events.*;
 	import flash.net.NetConnection;
-		
+	import flash.utils.Timer;
+			
 	public class NetConnectionDelegate
 	{
 		public static const NAME : String = "NetConnectionDelegate";
@@ -32,6 +33,9 @@ package org.bigbluebutton.modules.video.model.services
 		private var connected : Boolean = false;
 		private var _connectionListener:Function;
 		private var _connectionError:Array;
+		private var tried_tunneling:Boolean = false;
+		private var _proxyType:String;
+		private var _encodingType:uint;
 				
 		public function NetConnectionDelegate() : void
 		{
@@ -48,7 +52,9 @@ package org.bigbluebutton.modules.video.model.services
 		
 		public function connect(uri:String, proxy:String, encoding:uint) : void
 		{			
-			_uri = uri;		
+			_uri = uri;	
+			_proxyType = proxy;
+			_encodingType = encoding;	
 			_netConnection.client = this;			
 			_netConnection.objectEncoding = encoding;
 			_netConnection.proxyType = proxy;
@@ -85,7 +91,14 @@ package org.bigbluebutton.modules.video.model.services
 		{
 			handleResult( event );
 		}
-		
+
+		private function rtmptRetryTimerHandler(event:TimerEvent):void {
+            LogUtil.debug(NAME + "rtmptRetryTimerHandler: " + event);
+            var uri:String = _uri;
+				uri = uri.replace(/rtmp:/g, "rtmpt:");
+            connect(uri, _proxyType, _encodingType);
+        }
+        		
 		public function handleResult(  event : Object  ) : void {
 			var info : Object = event.info;
 			var statusCode : String = info.code;
@@ -98,8 +111,15 @@ package org.bigbluebutton.modules.video.model.services
 					break;
 			
 				case "NetConnection.Connect.Failed" :
-					addError("Failed to connect to the application.");				
-					LogUtil.debug("Connection to video application failed");
+					if (tried_tunneling) {
+						addError("Failed to connect to the application.");				
+						LogUtil.debug("Connection to video application failed");
+					} else {
+						LogUtil.debug(NAME + ":Connection to video application failed...try tunneling");
+						var rtmptRetryTimer:Timer = new Timer(1000, 1);
+            			rtmptRetryTimer.addEventListener("timer", rtmptRetryTimerHandler);
+            			rtmptRetryTimer.start();						
+					}	
 					break;
 					
 				case "NetConnection.Connect.Closed" :					
