@@ -57,7 +57,6 @@ package org.bigbluebutton.modules.viewers.model.services
 				
 		public function NetConnectionDelegate(m:ViewersModule) : void
 		{
-			_netConnection = new NetConnection();
 			_module = m;
 		}
 		
@@ -84,7 +83,8 @@ package org.bigbluebutton.modules.viewers.model.services
 		 */
 		public function connect(username:String, role:String, conference:String, mode:String, room:String, tunnel:Boolean=false):void
 		{	
-			tried_tunneling = tunnel;					
+			tried_tunneling = tunnel;	
+			_netConnection = new NetConnection();				
 			_netConnection.client = this;
 			_netConnection.addEventListener( NetStatusEvent.NET_STATUS, netStatus );
 			_netConnection.addEventListener( AsyncErrorEvent.ASYNC_ERROR, netASyncError );
@@ -93,9 +93,9 @@ package org.bigbluebutton.modules.viewers.model.services
 			
 			try {	
 				var uri:String = _module.uri;
-				if (tunnel) {
-					uri = uri.replace(/rtmp:/g, "rtmpt:");
-				}
+//				if (tunnel) {
+//					uri = uri.replace(/rtmp:/g, "rtmpt:");
+//				}
 								
 				LogUtil.debug(NAME + "::Connecting to " + uri + " [" + username + "," + role + "," + conference + 
 						"," + mode + "," + room + "]");		
@@ -159,6 +159,8 @@ package org.bigbluebutton.modules.viewers.model.services
 						LogUtil.debug(NAME + ":Connection to viewers application failed...even when tunneling");
 						_connectionSuccessListener(false, null, ViewersModuleConstants.CONNECT_FAILED);
 					} else {
+						disconnect();
+						_netConnection = null;
 						LogUtil.debug(NAME + ":Connection to viewers application failed...try tunneling");
 						var rtmptRetryTimer:Timer = new Timer(1000, 1);
             			rtmptRetryTimer.addEventListener("timer", rtmptRetryTimerHandler);

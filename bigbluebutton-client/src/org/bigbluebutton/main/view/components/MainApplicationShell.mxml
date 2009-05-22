@@ -83,7 +83,8 @@
 				}
 			}	
 			protected function initializeShell():void
-			{				
+			{			
+				trace('Initializing');	
 				logWindow = new LogWindow();
 				logWindow.logs = logs;
 				
@@ -140,8 +141,8 @@
 		<flexmdi:MDICanvas id="mdiCanvas" horizontalScrollPolicy="off" verticalScrollPolicy="off"
 			effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}"
 			width="100%" height="100%">		
-			<mx:Label x="200" y="400" id="loadedModules" text="Please wait while we load {numberOfModules} modules: "/>	
-			<mx:Label x="200" y="420" id="loadProgress" text="Loading: "/>
+			<mx:Label x="200" y="400" id="statusInfo" text="Please wait while we load {numberOfModules} modules: "/>	
+			<mx:Label x="200" y="420" id="statusProgress" text="Loading: "/>
 		</flexmdi:MDICanvas>	
 	 	<mx:ControlBar width="100%" height="20" paddingTop="0">		
 		  <mx:Label text="(c) 2008, BigBlueButton version {appVersion} - For more information see http://www.bigbluebutton.org/." id="copyrightLabel2"/>

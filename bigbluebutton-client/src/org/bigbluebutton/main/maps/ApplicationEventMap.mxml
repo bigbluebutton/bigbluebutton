@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns="http://mate.asfusion.com/" xmlns:mx="http://www.adobe.com/2006/mxml">
+
+	<EventHandlers type="{FlexEvent.CREATION_COMPLETE}">        
+        <HTTPServiceInvoker instance="{configService}">
+			<resultHandlers>
+				<MethodInvoker generator="{ConfigManager}" method="parseModules" arguments="{resultObject}" /> 
+				<EventAnnouncer generator="{ConfigEvent}" type="{ConfigEvent.CONFIG_LOADED_EVENT}">
+            		<Properties numberOfModules="{lastReturn.numberOfModules}" moduleDescriptors="{lastReturn.moduleDescriptors}"/>
+        		</EventAnnouncer>
+			</resultHandlers>
+		</HTTPServiceInvoker>  
+    </EventHandlers>
+
+	<mx:Script>
+	<![CDATA[
+			
+	import mx.events.FlexEvent;
+	import org.bigbluebutton.main.events.ConfigEvent;
+	import org.bigbluebutton.core.config.ConfigManager;
+	
+	]]>
+	</mx:Script>
+	
+	<Debugger level="{Debugger.ALL}"/>
+
+    <!-- ======================================================================================== -->
+    <!-- Services   Note: you can have an external file if you have more services -->
+    <!-- _________________________________________________________________________________________ -->
+    
+    <mx:HTTPService id="configService" url="conf/config.xml" resultFormat="e4x" />
+	<mx:HTTPService id="joinService" url="conf/joinResultMock.xml" resultFormat="e4x" />	
+</EventMap>

@@ -30,7 +30,7 @@ package org.bigbluebutton.main.model
 			if (initialized)
 			facade.sendNotification(MainApplicationConstants.APP_MODEL_INITIALIZED);
 		}
-		
+			
 		public function initialize():void {
 			modulesManager.initialize();			
 		}
@@ -42,6 +42,10 @@ package org.bigbluebutton.main.model
 		
 		public function get username():String {
 			return _user.username;
+		}
+
+		public function useProtocol(protocol:String):void {
+			modulesManager.useProtocol(protocol);
 		}
 
 //		public function startModule(name:String, router:Router):void {
@@ -99,6 +103,14 @@ package org.bigbluebutton.main.model
 		
 		public function getNumberOfModules():int {
 			return modulesManager.getNumberOfModules();
+		}
+		
+		public function getPortTestHost():String {
+			return modulesManager.portTestHost;
+		}
+		
+		public function getPortTestApplication():String {
+			return modulesManager.portTestApplication;
 		}
 	}
 }

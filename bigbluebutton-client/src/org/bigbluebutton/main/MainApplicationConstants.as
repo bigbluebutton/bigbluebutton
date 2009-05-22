@@ -65,6 +65,9 @@ package org.bigbluebutton.main
 		public static const USER_LEFT:String = 'USER_LEFT';
 		
 		public static const LOGOUT_EVENT:String = "LOGOUT_EVENT"; 
-		public static const LOGOUT:String = "LOGOUT";		
+		public static const LOGOUT:String = "LOGOUT";	
+		
+		public static const PORT_TEST_SUCCESS:String = "PORT TEST SUCCEEDED";
+		public static const PORT_TEST_FAILED:String = "PORT TEST FAILED";	
 	}
 }

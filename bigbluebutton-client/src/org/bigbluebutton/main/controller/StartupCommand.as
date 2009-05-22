@@ -22,6 +22,7 @@ package org.bigbluebutton.main.controller
 	import org.bigbluebutton.main.MainApplicationMediator;
 	import org.bigbluebutton.main.MainEndpointMediator;
 	import org.bigbluebutton.main.model.ModulesProxy;
+	import org.bigbluebutton.main.model.PortTestProxy;
 	import org.bigbluebutton.main.view.MainApplicationShellMediator;
 	import org.bigbluebutton.main.view.MainToolbarMediator;
 	import org.bigbluebutton.main.view.components.MainApplicationShell;
@@ -45,6 +46,7 @@ package org.bigbluebutton.main.controller
 			facade.registerMediator(med);
 			LogUtil.debug("StartupCommand mode=" + app.mode);
 			facade.registerProxy(new ModulesProxy(med.router, app.mode));
+			facade.registerProxy(new PortTestProxy());
 		}		
 	}
 }

@@ -61,6 +61,7 @@
 			}
 			
 			public function get voicebridge():String {
+				trace("listeners module voicebridge " + _attributes.voicebridge);
 				return _attributes.voicebridge;
 			}
 			
@@ -96,6 +97,7 @@
 			}
 		
 			public function stop():void {
+				LogUtil.debug("ListenersModule is stopping");
 				ListenersModuleFacade.getInstance().stop(this);
 			}
 		]]>

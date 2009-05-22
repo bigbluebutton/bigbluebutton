@@ -29,6 +29,7 @@ package org.bigbluebutton.main.view
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.main.MainApplicationConstants;
 	import org.bigbluebutton.main.model.ModulesProxy;
+	import org.bigbluebutton.main.model.PortTestProxy;
 	import org.bigbluebutton.main.view.components.LoggedOutWindow;
 	import org.bigbluebutton.main.view.components.MainApplicationShell;
 	import org.bigbluebutton.main.view.components.ModuleStoppedWindow;
@@ -75,6 +76,7 @@ package org.bigbluebutton.main.view
 		override public function listNotificationInterests():Array{
 			return [
 					MainApplicationConstants.APP_MODEL_INITIALIZED,
+					MainApplicationConstants.PORT_TEST_FAILED,
 					MainApplicationConstants.ADD_WINDOW_MSG,
 					MainApplicationConstants.REMOVE_WINDOW_MSG,
 					MainApplicationConstants.USER_JOINED,
@@ -93,7 +95,16 @@ package org.bigbluebutton.main.view
 			switch(notification.getName()){	
 				case MainApplicationConstants.APP_MODEL_INITIALIZED:
 					shell.appVersion = modulesProxy.getVersion();
-					shell.numberOfModules = modulesProxy.getNumberOfModules();
+					shell.numberOfModules = modulesProxy.getNumberOfModules();					
+					testRTMPConnection();
+					break;
+				case MainApplicationConstants.PORT_TEST_FAILED:
+					var portTestResult:Object = notification.getBody();
+					if (portTestResult["protocol"] == "RTMP") {
+						testRTMPTConnection()
+					} else {
+						shell.statusProgress.text = "Sorry, we cannot connect to the server.";
+					}
 					break;
 				case MainApplicationConstants.ADD_WINDOW_MSG:
 					var win:IBbbModuleWindow = notification.getBody() as IBbbModuleWindow;
@@ -118,12 +129,12 @@ package org.bigbluebutton.main.view
 			 		 * Workaround to pass in username for sip registration.
 			 		*/
 					//red5PhoneWindow.sipusername = modulesProxy.username;
-					shell.loadedModules.text = "";
-					shell.loadProgress.text = "";
+					shell.statusInfo.text = "";
+					shell.statusProgress.text = "";
 					break;
 				case MainApplicationConstants.USER_LOGGED_IN:
-					shell.loadedModules.text = "";
-					shell.loadProgress.text = "";
+					shell.statusInfo.text = "";
+					shell.statusProgress.text = "";
 					//if (!red5phoneAdded) {
 					//	red5phoneAdded = true;
 					//	shell.mdiCanvas.windowManager.add(red5PhoneWindow as MDIWindow);
@@ -135,7 +146,7 @@ package org.bigbluebutton.main.view
 				//	handleModuleStopped(info.moduleId, info.errors);
 					break;
 				case MainApplicationConstants.LOADED_MODULE:
-					shell.loadedModules.text += notification.getBody() + "(loaded) ";
+					shell.statusInfo.text += notification.getBody() + "(loaded) ";
 					
 					// Should do this properly.
 					//if (notification.getBody() == "ViewersModule") {
@@ -147,9 +158,24 @@ package org.bigbluebutton.main.view
 					var mod:String = notification.getBody().name as String;
 					var prog:Number = notification.getBody().progress as Number;
 					
-					shell.loadProgress.text = "Loading: " + mod + " " + prog + "% loaded.";
+					shell.statusProgress.text = "Loading: " + mod + " " + prog + "% loaded.";
 					break;
 			}
+		}
+		
+		private function testRTMPConnection():void {
+			var host:String = modulesProxy.getPortTestHost();
+			var app:String = modulesProxy.getPortTestApplication();
+			shell.statusInfo.text = "Please wait while we test your connection to the server.";
+			shell.statusProgress.text = "Connecting to RTMP://" + host + ":1935/" + app + ".";
+			portTestProxy.connect("RTMP", host, "1935", app);
+		}
+		
+		private function testRTMPTConnection():void {
+			var host:String = modulesProxy.getPortTestHost();
+			var app:String = modulesProxy.getPortTestApplication();
+			shell.statusProgress.text = "Connecting to RTMPT://" + host + ":80/" + app + ".";
+			portTestProxy.connect("RTMPT", host, "80", "bigbluebutton");
 		}
 		
 		private function handleUserLoggedOut():void {
@@ -180,6 +206,10 @@ package org.bigbluebutton.main.view
 		
 		private function get modulesProxy():ModulesProxy {
 			return facade.retrieveProxy(ModulesProxy.NAME) as ModulesProxy;
+		}
+		
+		private function get portTestProxy():PortTestProxy {
+			return facade.retrieveProxy(PortTestProxy.NAME) as PortTestProxy;
 		}
 	}
 }

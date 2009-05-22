@@ -26,7 +26,7 @@ package org.bigbluebutton.main
 		override public function listNotificationInterests():Array
 		{
 			return [
-					MainApplicationConstants.APP_MODEL_INITIALIZED,
+					MainApplicationConstants.PORT_TEST_SUCCESS,
 					MainApplicationConstants.ALL_MODULES_LOADED,
 					MainApplicationConstants.RESTART_MODULE,
 					MainApplicationConstants.USER_LOGGED_IN,
@@ -38,8 +38,13 @@ package org.bigbluebutton.main
 		override public function handleNotification(notification:INotification):void
 		{
 			switch(notification.getName()){
-				case MainApplicationConstants.APP_MODEL_INITIALIZED:
-					LogUtil.debug(NAME + "::Received APP_MODEL_INITIALIZED");
+				case MainApplicationConstants.PORT_TEST_SUCCESS:
+					var portTestResult:Object = notification.getBody();
+					if (portTestResult["protocol"] == "RTMP") {
+						proxy.useProtocol("RTMP");
+					} else {
+						proxy.useProtocol("RTMPT");
+					}
 					proxy.moduleEventHandler(MainApplicationConstants.APP_MODEL_INITIALIZED);
 					break;
 				case MainApplicationConstants.ALL_MODULES_LOADED:

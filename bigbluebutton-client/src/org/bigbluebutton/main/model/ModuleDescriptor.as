@@ -99,6 +99,11 @@ package org.bigbluebutton.main.model
 					_attributes.name, Math.round((e.bytesLoaded/e.bytesTotal) * 100));
 		}	
 		
+		public function useProtocol(protocol:String):void {
+			_attributes.uri = _attributes.uri.replace(/rtmp:/gi, protocol + ":");
+			LogUtil.debug(_attributes.name + " uri = " + _attributes.uri);
+		}
+		
 /*
 		private function onUrlChanged(event:Event):void {
 			LogUtil.debug("Module onUrlChanged Event");

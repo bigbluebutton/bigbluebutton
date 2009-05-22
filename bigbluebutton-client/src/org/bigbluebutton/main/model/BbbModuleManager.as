@@ -13,7 +13,7 @@ package org.bigbluebutton.main.model
 	
 	public class BbbModuleManager
 	{
-		public static const FILE_PATH:String = "conf/modules.xml";
+		public static const FILE_PATH:String = "conf/config.xml";
 		private var _urlLoader:URLLoader;
 		private var _initializedListeners:ArrayCollection = new ArrayCollection();
 		private var _moduleLoadedListeners:ArrayCollection = new ArrayCollection();
@@ -24,6 +24,9 @@ package org.bigbluebutton.main.model
 		private var _router:Router;
 		private var _mode:String;
 		private var _version:String;
+		private var _protocol:String;
+		private var _portTestHost:String;
+		private var _portTestApplication:String;
 		
 		public function BbbModuleManager(router:Router, mode:String)
 		{
@@ -73,7 +76,10 @@ package org.bigbluebutton.main.model
 		}
 				
 		public function parse(xml:XML):void{
-			var list:XMLList = xml.module;
+			_portTestHost = xml.porttest.@host;
+			_portTestApplication = xml.porttest.@application;
+			
+			var list:XMLList = xml.modules.module;
 			_version = xml.@version;
 			
 			trace("version " + _version);
@@ -86,6 +92,10 @@ package org.bigbluebutton.main.model
 				_numModules++;
 				//LogUtil.debug("NAME!!!!!!!!!!!!!!!! " + item.@name);
 			}					
+		}
+		
+		public function useProtocol(protocol:String):void {
+			_protocol = protocol;
 		}
 		
 		public function loggedInUser(user:Object):void {
@@ -102,6 +112,14 @@ package org.bigbluebutton.main.model
 			_user.connection = user.connection;
 			_user.playbackRoom = user.playbackRoom;
 			_user.record = user.record;
+		}
+		
+		public function get portTestHost():String {
+			return _portTestHost;
+		}
+		
+		public function get portTestApplication():String {
+			return _portTestApplication;
 		}
 				
 		public function get numberOfModules():int {
@@ -143,10 +161,13 @@ package org.bigbluebutton.main.model
 					m.addAttribute("voicebridge", _user.voicebridge);
 					m.addAttribute("playbackRoom", _user.playbackRoom);
 					m.addAttribute("record", _user.record);
+					
 				} else {
 					// Pass the mode that we got from the URL query string.
 					m.addAttribute("mode", _mode);
-				}					
+				}	
+				m.addAttribute("protocol", _protocol);
+				m.useProtocol(_protocol);				
 				bbb.start(m.attributes);		
 			}	
 		}

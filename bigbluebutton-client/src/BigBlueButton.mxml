@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mainView="org.bigbluebutton.main.view.components.*"
+	xmlns:maps="org.bigbluebutton.main.maps.*"
+	xmlns:mate="http://mate.asfusion.com/"
 	pageTitle="Big Blue Button"
 	layout="absolute">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.main.view.components.MainApplicationShell;
+		
+		import org.bigbluebutton.main.events.ConfigEvent;
+		
 		/**
 		 * Thse two lines are workaround for this. (ralam - Nov 8, 2008)
 		 * http://gregjessup.com/flex-3-advanceddatagrid-cannot-convert-mxmanagersdragmanagerimpl-to-mxmanagersidragmanager/
@@ -12,7 +18,16 @@
 		 */
 			import mx.managers.IDragManager; 
 			private var iDragManager:IDragManager;  
+				
+		private function handleConfigLoadedEvent(e:Event):void {
+			trace('Got CONFIG_LOADED_EVENT');
+			mainShell.visible = true;
+		}	
 		]]>
-	</mx:Script>			
+	</mx:Script>		
+	<!--maps:ApplicationEventMap />	
+	
+	<mate:Listener type="{ConfigEvent.CONFIG_LOADED_EVENT}" method="handleConfigLoadedEvent" /-->
+	
 	<mainView:MainApplicationShell id="mainShell"/>	
 </mx:Application>
