@@ -35,6 +35,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 		<property name="mappings">
 			<map>
 				<entry key="meetme.groovy" value-ref="asteriskAgi" />
+				<entry key="findConference" value-ref="findConferenceAgi" />
 			</map>
 		</property>
 	</bean>
@@ -45,4 +46,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 			
 	<bean id="asteriskAgi" class="org.bigbluebutton.pbx.asterisk.AsteriskAgi" >
 	</bean>	
+	
+	<bean id="findConferenceAgi" class="org.bigbluebutton.pbx.asterisk.FindConferenceAgi" >
+	</bean>
 </beans>
