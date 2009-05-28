@@ -2,6 +2,9 @@ import org.jsecurity.crypto.hash.Sha1Hash
 import org.bigbluebutton.web.domain.Role
 import org.bigbluebutton.web.domain.User
 import org.bigbluebutton.web.domain.UserRoleRel
+import org.bigbluebutton.web.domain.ScheduledSession
+import org.bigbluebutton.web.domain.Conference
+import java.util.UUID
 
 class BootStrap {
 	def jmsContainer
@@ -9,21 +12,66 @@ class BootStrap {
      def init = { servletContext ->
      	log.debug "Bootstrapping bbb-web"
      	// Administrator user and role.
+     	log.debug "Creating administrator"
 		def adminRole = new Role(name: "Administrator").save()
 		def adminUser = new User(username: "admin@test.com", passwordHash: new Sha1Hash("admin").toHex(),
 									fullName: "Admin").save()
 		new UserRoleRel(user: adminUser, role: adminRole).save()
 		
-		// A normal user.
+		log.debug "Creating user phil"
 		def userRole = new Role(name: "User").save()
-		def normalUser = new User(username: "phil@test.com", passwordHash: new Sha1Hash("password").toHex(),
+		def philUser = new User(username: "phil@test.com", passwordHash: new Sha1Hash("password").toHex(),
 									fullName: "Phil").save()
-		new UserRoleRel(user: normalUser, role: userRole).save()
+		new UserRoleRel(user: philUser, role: userRole).save()
 		
-		// Give another user the "User" role.
-		normalUser = new User(username: "alice@test.com", passwordHash: new Sha1Hash("changeit").toHex(),
-									fullName: "Alice").save()
-		new UserRoleRel(user: normalUser, role: userRole).save()
+		log.debug "Creating user alice"
+		def aliceUser = new User(username: "alice@test.com", passwordHash: new Sha1Hash("changeit").toHex(),
+									fullName: "Alice")
+     	aliceUser.save()
+		new UserRoleRel(user: aliceUser, role: userRole).save()
+
+		String createdBy = aliceUser.fullName
+		String modifiedBy = aliceUser.fullName
+		
+		log.debug "Creating default conference"
+		def defaultConference = new Conference(
+				name:"Default Conference", conferenceNumber:new Integer(85115), 
+				user:aliceUser, createdBy:createdBy, updatedBy:modifiedBy)
+     	defaultConference.save()
+		
+		log.debug "Creating a Default session for the Default Conference"
+		
+		String name = "Default Conference Session"
+		String description = "A default conference session a user can try right away"
+		String sessionId = UUID.randomUUID()
+		String tokenId = UUID.randomUUID()
+		Integer numberOfAttendees = new Integer(3)
+		Boolean timeLimited = true
+		Date startDateTime = new Date()
+     	
+     	// Set the endDate for this session to Dec. 31, 2010
+     	java.util.Calendar calendar = java.util.Calendar.getInstance();
+     	calendar.set(java.util.Calendar.MONTH, java.util.Calendar.DECEMBER);
+     	calendar.set(java.util.Calendar.DAY_OF_MONTH, 31);
+     	calendar.set(java.util.Calendar.YEAR, 2010)
+     	
+		Date endDateTime = calendar.getTime()
+		
+		Boolean record = false
+		Boolean passwordProtect = true
+		String hostPassword = 'hp'
+		String moderatorPassword = 'mp'
+		String attendeePassword = 'ap'
+		String voiceConferenceBridge = '85115'
+		
+		new ScheduledSession(
+				name:name, description:description,
+				createdBy:createdBy, modifiedBy:modifiedBy, sessionId:sessionId, tokenId:tokenId,
+				numberOfAttendees:numberOfAttendees, timeLimited:timeLimited, startDateTime:startDateTime,
+				endDateTime:endDateTime, record:record, passwordProtect:passwordProtect, hostPassword:hostPassword,
+				moderatorPassword:moderatorPassword, attendeePassword:attendeePassword, 
+				voiceConferenceBridge:voiceConferenceBridge, conference:defaultConference
+			).save()		
      }
      
      def destroy = {

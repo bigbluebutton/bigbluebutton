@@ -15,7 +15,7 @@ class Conference implements Comparable {
 			
 	static constraints = {
 		name(maxLength:50, blank:false)
-		conferenceNumber(unique:true, size:6..10)
+		conferenceNumber(unique:true, size:5..10)
 	}
 
 	String toString() {"${this.id}:${this.name} ${this.user}"}
