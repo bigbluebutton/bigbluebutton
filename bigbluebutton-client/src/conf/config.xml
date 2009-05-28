@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <config>
-	<version>0.4</version>
+    <version>0.4</version>
     <porttest host="192.168.0.103" application="oflaDemo"/>    
 	<modules>
 		<module name="VideoModule" url="VideoModule.swf" 
@@ -30,7 +30,7 @@
 		/>
 		<module name="PresentationModule" url="PresentationModule.swf" 
 			uri="rtmp://192.168.0.103/bigbluebutton" 
-			host="http://192.168.0.103:8080" 
+			host="http://192.168.0.103" 
 			loadNextModule="ListenersModule"
 			onUserJoinedEvent="START" 
 			onUserLogoutEvent="STOP"
