@@ -13,23 +13,13 @@ class BootStrap {
      	log.debug "Bootstrapping bbb-web"
      	// Administrator user and role.
      	log.debug "Creating administrator"
-		def adminRole = new Role(name: "Administrator").save()
+		def adminRole = new Role(name: "Administrator")
+		adminRole.save()
 		def adminUser = new User(username: "admin@test.com", passwordHash: new Sha1Hash("admin").toHex(),
-									fullName: "Admin").save()
+									fullName: "Admin")
+		adminUser.save()
 		new UserRoleRel(user: adminUser, role: adminRole).save()
 		
-		log.debug "Creating user phil"
-		def userRole = new Role(name: "User").save()
-		def philUser = new User(username: "phil@test.com", passwordHash: new Sha1Hash("password").toHex(),
-									fullName: "Phil").save()
-		new UserRoleRel(user: philUser, role: userRole).save()
-		
-		log.debug "Creating user alice"
-		def aliceUser = new User(username: "alice@test.com", passwordHash: new Sha1Hash("changeit").toHex(),
-									fullName: "Alice")
-     	aliceUser.save()
-		new UserRoleRel(user: aliceUser, role: userRole).save()
-
 		String createdBy = adminUser.fullName
 		String modifiedBy = adminUser.fullName
 		
