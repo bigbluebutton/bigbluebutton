@@ -30,13 +30,13 @@ class BootStrap {
      	aliceUser.save()
 		new UserRoleRel(user: aliceUser, role: userRole).save()
 
-		String createdBy = aliceUser.fullName
-		String modifiedBy = aliceUser.fullName
+		String createdBy = adminUser.fullName
+		String modifiedBy = adminUser.fullName
 		
 		log.debug "Creating default conference"
 		def defaultConference = new Conference(
 				name:"Default Conference", conferenceNumber:new Integer(85115), 
-				user:aliceUser, createdBy:createdBy, updatedBy:modifiedBy)
+				user:adminUser, createdBy:createdBy, updatedBy:modifiedBy)
      	defaultConference.save()
 		
 		log.debug "Creating a Default session for the Default Conference"
