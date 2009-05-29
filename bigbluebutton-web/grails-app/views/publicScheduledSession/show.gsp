@@ -85,7 +85,7 @@
                             <td valign="top" class="name"><b>NOTE:</b></td>
                             
                             <td valign="top" class="value">
-                            	If the loading looks like it hang, just refresh your browser.</td>
+                            	If the client does not load after clicking JOIN, refresh button your browser.</td>
                             
                         </tr>        
                     </tbody>
