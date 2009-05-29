@@ -38,7 +38,7 @@
                         <tr class="prop">
                             <td valign="top" class="name">Link:</td>                            
                             <td valign="top" class="value">
-                            	${hostUrl}/bigbluebutton/conference-session (<a href="join">${hostUrl}/bigbluebutton/conference-session</a>)
+                            	${hostUrl}/bigbluebutton/conference-session (<a href="${hostUrl}/bigbluebutton/conference-session">JOIN</a>)
 							</td>                            
                         </tr>
 
