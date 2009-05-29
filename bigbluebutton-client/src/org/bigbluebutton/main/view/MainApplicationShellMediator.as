@@ -168,14 +168,14 @@ package org.bigbluebutton.main.view
 			var app:String = modulesProxy.getPortTestApplication();
 			shell.statusInfo.text = "Please wait while we test your connection to the server.";
 			shell.statusProgress.text = "Connecting to RTMP://" + host + ":1935/" + app + ".";
-			portTestProxy.connect("RTMP", host, "1935", app);
+			portTestProxy.connect("RTMP", host, "", app);
 		}
 		
 		private function testRTMPTConnection():void {
 			var host:String = modulesProxy.getPortTestHost();
 			var app:String = modulesProxy.getPortTestApplication();
 			shell.statusProgress.text = "Connecting to RTMPT://" + host + ":80/" + app + ".";
-			portTestProxy.connect("RTMPT", host, "80", "bigbluebutton");
+			portTestProxy.connect("RTMPT", host, "", "bigbluebutton");
 		}
 		
 		private function handleUserLoggedOut():void {

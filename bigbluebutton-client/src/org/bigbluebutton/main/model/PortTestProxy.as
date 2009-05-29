@@ -35,8 +35,8 @@ package org.bigbluebutton.main.model
 		}
 		
 		private function connectionListener(status:String, protocol:String, hostname:String, port:String, application:String):void {
-			if (status == "SUCCESS") {
-				uri = protocol + "://" + hostname + "/" + application;
+			uri = protocol + "://" + hostname + "/" + application;
+			if (status == "SUCCESS") {				
 				LogUtil.debug("Successfully connected to " + uri);
 				facade.sendNotification(MainApplicationConstants.PORT_TEST_SUCCESS, 
 				 		{protocol:protocol, hostname:hostname, port:port, application:application});				
