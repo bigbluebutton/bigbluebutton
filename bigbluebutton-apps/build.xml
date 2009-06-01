@@ -34,8 +34,7 @@
 	<property name="target.zip" value="${dist.dir}/${project.name-ver}.zip"/>
 	<property name="target.tar" value="${dist.dir}/${project.name-ver}.tar"/>
 	<property name="target.tar.gz" value="${target.tar}.gz"/>
-	
-
+	<property name="src.dir" value="webapps"/>
 	
 	<tstamp prefix="build">
 		<format property="TODAY" pattern="d-MMMM-yyyy" locale="en"/>
@@ -146,17 +145,6 @@
 		<ivy:retrieve conf="${ivy.conf.name}"/>
 	</target>
 
-	<target name="publish-local" depends="resolve, jar" description="--> publish this project in the local ivy repository">
-	    <ivy:publish artifactspattern="${build.dir}/[artifact].[ext]" 
-	                    resolver="local"
-	                    pubrevision="${target.version}"
-	                    status="integration"
-	                    forcedeliver="true"
-	    />
-	    <echo message="project ${ant.project.name} published locally with version ${version}" />
-	</target>
-	
-	
 	<target name="clean" description="Clean directories for build">
 		<delete dir="${build.dir}"/>
 		<delete dir="${dist.dir}"/>
@@ -171,7 +159,7 @@
 		<element name="copy-assets" optional="yes"/>
    		<sequential>
 			<mkdir dir="${build.dir}/@{name}"/>
-			<javac sourcepath="" srcdir="${webapp.src.dir}/@{name}/src" destdir="${build.dir}/@{name}"
+			<javac sourcepath="" srcdir="${src.dir}/@{name}/src" destdir="${build.dir}/@{name}"
 			       classpathref="full.classpath" optimize="${build.optimize}" verbose="${build.verbose}"
 			       fork="${build.fork}" nowarn="${build.nowarn}" deprecation="${build.deprecation}"
 			       debug="${debug.state}" compiler="${build.compiler}" source="${java.target_version}" target="${java.target_version}"/>
@@ -185,7 +173,7 @@
 		<element name="copy-assets" optional="yes"/>
 		<sequential>
 			<mkdir dir="${build.dir}/@{name}"/>
-			<groovyc srcdir="${webapp.src.dir}/@{name}/src" destdir="${build.dir}/@{name}"
+			<groovyc srcdir="${src.dir}/@{name}/src" destdir="${build.dir}/@{name}"
 					 classpathref="full.classpath"/>
 
 			<copy-assets/>
@@ -201,7 +189,7 @@
    		<attribute name="name"/>
 		<element name="copy-assets" optional="yes"/>
    		<sequential>
-   			<copy todir="${build.dir}/@{name}" file="${webapp.src.dir}/@{name}/WEB-INF/logback-@{name}.xml" overwrite="true"/>
+   			<copy todir="${build.dir}/@{name}" file="${src.dir}/@{name}/WEB-INF/logback-@{name}.xml" overwrite="true"/>
   
 			<jar destfile="${build.dir}/@{name}.jar">
 				<fileset dir="${build.dir}/@{name}">
@@ -253,7 +241,7 @@
    			<copy todir="${dist.webapps.dir}/@{name}/WEB-INF/lib/" file="${build.dir}/@{name}.jar" overwrite="true"/>
    			
    			<copy todir="${dist.webapps.dir}/@{name}" filtering="true">
-   				<fileset dir="${webapp.src.dir}/@{name}">
+   				<fileset dir="${src.dir}/@{name}">
    					<exclude name="**/src/**"/>
    					<exclude name="**/test/**"/>
    					<exclude name="**/lib/**"/>
