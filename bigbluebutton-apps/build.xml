@@ -16,6 +16,26 @@
 	<!-- base project properties -->
 	<property file="build.properties"/>
 	<property environment="env"/>
+	<property name="dist.dir" value="dist"/>
+	<property name="build.dir" value="build"/>
+	<property name="lib.dir" value="lib"/>
+	<property name="build.classes.dir" value="${build.dir}/classes"/>
+	<property name="test.dir" value="${build.dir}/test"/>
+	<property name="test.classes.dir" value="${test.dir}/classes"/>
+	<property name="test.data.dir" value="${test.dir}/data"/>
+	<property name="test.reports.dir" value="${test.dir}/reports"/>
+	<property name="fitnesse.test.classes.dir" value="${test.dir}/fitnesse/classes"/>
+	<property name="dist.webapps.dir" value="${dist.dir}/webapps"/>
+	
+	<property name="target.extension" value="jar"/>
+	<property name="project.name-ver" value="${project.name}-${target.version}"/>
+	<property name="target.name" value="${project.name-ver}.${target.extension}"/>
+	<property name="target.jar" value="${dist.dir}/${target.name}"/>
+	<property name="target.zip" value="${dist.dir}/${project.name-ver}.zip"/>
+	<property name="target.tar" value="${dist.dir}/${project.name-ver}.tar"/>
+	<property name="target.tar.gz" value="${target.tar}.gz"/>
+	
+
 	
 	<tstamp prefix="build">
 		<format property="TODAY" pattern="d-MMMM-yyyy" locale="en"/>
@@ -65,7 +85,7 @@
 
 	<!-- Build Targets -->
 	<target name="prepare" depends="clean" description="Setup directories for build">
-		<mkdir dir="${webapps.build.dir}"/>
+		<mkdir dir="${build.dir}"/>
 		<mkdir dir="${dist.dir}"/>
 	    <mkdir dir="${test.classes.dir}"/>		
 	    <mkdir dir="${test.reports.dir}"/>
@@ -150,8 +170,8 @@
    		<attribute name="name"/>
 		<element name="copy-assets" optional="yes"/>
    		<sequential>
-			<mkdir dir="${webapps.build.dir}/@{name}"/>
-			<javac sourcepath="" srcdir="${webapp.src.dir}/@{name}/src" destdir="${webapps.build.dir}/@{name}"
+			<mkdir dir="${build.dir}/@{name}"/>
+			<javac sourcepath="" srcdir="${webapp.src.dir}/@{name}/src" destdir="${build.dir}/@{name}"
 			       classpathref="full.classpath" optimize="${build.optimize}" verbose="${build.verbose}"
 			       fork="${build.fork}" nowarn="${build.nowarn}" deprecation="${build.deprecation}"
 			       debug="${debug.state}" compiler="${build.compiler}" source="${java.target_version}" target="${java.target_version}"/>
@@ -164,22 +184,16 @@
 		<attribute name="name"/>
 		<element name="copy-assets" optional="yes"/>
 		<sequential>
-			<mkdir dir="${webapps.build.dir}/@{name}"/>
-			<groovyc srcdir="${webapp.src.dir}/@{name}/src" destdir="${webapps.build.dir}/@{name}"
+			<mkdir dir="${build.dir}/@{name}"/>
+			<groovyc srcdir="${webapp.src.dir}/@{name}/src" destdir="${build.dir}/@{name}"
 					 classpathref="full.classpath"/>
 
 			<copy-assets/>
 		</sequential>
 	</macrodef>
 		
-	<!-- Apps -->
 	<target name="compile_apps" description="Build bigbluebutton apps">
-		<echo message="Webapps dir: ${webapps.dir}"/>
-		<echo message="Webapps build dir: ${webapps.build.dir}"/>
-		<echo message="Webapps build dir: ${full.classpath}"/>
-		
 		<build-groovy name="bigbluebutton"/>
-		<!-- build apps -->
 		<build-app name="bigbluebutton"/>
 	</target>
 
@@ -187,10 +201,10 @@
    		<attribute name="name"/>
 		<element name="copy-assets" optional="yes"/>
    		<sequential>
-   			<copy todir="${webapps.build.dir}/@{name}" file="${webapp.src.dir}/@{name}/WEB-INF/logback-@{name}.xml" overwrite="true"/>
+   			<copy todir="${build.dir}/@{name}" file="${webapp.src.dir}/@{name}/WEB-INF/logback-@{name}.xml" overwrite="true"/>
   
 			<jar destfile="${build.dir}/@{name}.jar">
-				<fileset dir="${webapps.build.dir}/@{name}">
+				<fileset dir="${build.dir}/@{name}">
 					<include name="**"/>
 				</fileset>
 			</jar>
