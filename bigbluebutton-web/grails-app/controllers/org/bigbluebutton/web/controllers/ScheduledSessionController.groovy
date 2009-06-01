@@ -103,8 +103,10 @@ class ScheduledSessionController {
 
     	def conflict = false
     	
+    	def sched
+    	
     	if (results.size() > 0) {
-        	def sched = results[0]    	
+        	sched = results[0]    	
        		if ((scheduledSessionInstance.startDateTime > sched.startDateTime) && (scheduledSessionInstance.startDateTime < sched.endDateTime)) {
        			log.debug "Start time is between start and date time of session ${sched.name}"
        			conflict = true
