@@ -13,12 +13,11 @@ class BootStrap {
      	log.debug "Bootstrapping bbb-web"
      	// Administrator user and role.
      	log.debug "Creating administrator"
-		def adminRole = new Role(name: "Administrator")
-		adminRole.save()
+		def adminRole = new Role(name: "Administrator").save()
 		def adminUser = new User(username: "admin@test.com", passwordHash: new Sha1Hash("admin").toHex(),
 									fullName: "Admin")
-		adminUser.save()
-		new UserRoleRel(user: adminUser, role: adminRole).save()
+		adminUser.save(flush:true)
+		new UserRoleRel(user: adminUser, role: adminRole).save(flush:true)
 		
 		String createdBy = adminUser.fullName
 		String modifiedBy = adminUser.fullName
@@ -27,7 +26,7 @@ class BootStrap {
 		def defaultConference = new Conference(
 				name:"Default Conference", conferenceNumber:new Integer(85115), 
 				user:adminUser, createdBy:createdBy, updatedBy:modifiedBy)
-     	defaultConference.save()
+     	defaultConference.save(flush:true)
 		
 		log.debug "Creating a Default session for the Default Conference"
 		
@@ -61,7 +60,7 @@ class BootStrap {
 				endDateTime:endDateTime, record:record, passwordProtect:passwordProtect, hostPassword:hostPassword,
 				moderatorPassword:moderatorPassword, attendeePassword:attendeePassword, 
 				voiceConferenceBridge:voiceConferenceBridge, conference:defaultConference
-			).save()		
+			).save(flush:true)		
      }
      
      def destroy = {
