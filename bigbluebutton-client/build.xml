@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- BigBlueButton Client build.xml for use by Hudson builds. -->
+<project name="BigBlueButton Client" basedir="." >
+    <property environment="env" />
+    <property name="FLEX_HOME" value="${env.FLEX_HOME}" />
+	<property name="APP_ROOT" value="./src" />
+	<property name="ROOT_DIR" value="." />
+	<property name="OUTPUT_DIR" value="./client" />
+	<taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar" />
+	
+	<target name="mxmlc-component" description="Compiling the BBB mxml files">
+		<mxmlc-compile target="${APP_ROOT}/BigBlueButton" />
+		<mxmlc-compile target="${APP_ROOT}/ChatModule" />
+		<mxmlc-compile target="${APP_ROOT}/ViewersModule" />
+		<mxmlc-compile target="${APP_ROOT}/ListenersModule" />
+		<mxmlc-compile target="${APP_ROOT}/PresentationModule" />
+		<mxmlc-compile target="${APP_ROOT}/VideoModule" />
+		<mxmlc-compile target="${APP_ROOT}/LoginModule" />		
+		
+		<copy todir="${OUTPUT_DIR}/conf" >
+			<fileset dir="./src/conf" />
+		</copy>
+
+		<copy todir="${OUTPUT_DIR}/swfobject/" >
+			<fileset dir="./src/swfobject/" />
+		</copy>
+		
+		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/common/assets/images" >
+			<fileset dir="./src/org/bigbluebutton/common/assets/images/" />
+		</copy>
+
+		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/main/view/assets/images" >
+			<fileset dir="./src/org/bigbluebutton/main/view/assets/images" />
+		</copy>
+
+		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/listeners/view/assets/images/" >
+			<fileset dir="./src/org/bigbluebutton/modules/listeners/view/assets/images/" />
+		</copy>
+
+		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/presentation/view/assets/" >
+			<fileset dir="./src/org/bigbluebutton/modules/presentation/view/assets/" />
+		</copy>
+
+		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/video/view/assets/" >
+			<fileset dir="./src/org/bigbluebutton/modules/video/view/assets/" />
+		</copy>
+
+		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/video/view/assets/images/" >
+			<fileset dir="./src/org/bigbluebutton/modules/video/view/assets/images/" />
+		</copy>
+
+		<move todir="${OUTPUT_DIR}" >
+			<fileset dir="${OUTPUT_DIR}/src" />
+		</move>
+	</target>
+	
+	<target name="generate-wrapper" depends="mxmlc-component">
+		<html-wrapper
+			title="BigBlueButton"
+			file="BigBlueButton.html"
+			height="100%"
+			width="100%"
+			bgcolor="grey"
+			application="BBB"
+			swf="BigBlueButton"
+			version-major="9"
+			version-minor="0"
+			version-revision="0"
+			history="true"
+			template="express-installation"
+			output="${OUTPUT_DIR}"
+		/>
+	</target>
+
+	<target name="clean">
+		<delete dir="${OUTPUT_DIR}" />
+	</target>
+
+	<target name="cleanandmake" depends="clean, generate-wrapper"></target>
+	
+	<macrodef name="mxmlc-compile">
+		<attribute name="target" description="Path to the file being compiled." />
+		<attribute name="flex" default="${env.FLEX_HOME}" description="Location of the Flex install." />
+		<attribute name="app" default="."/>
+		<attribute name="output" default="./output" description="" />
+		<sequential>
+			<mxmlc 
+				file="@{target}.mxml" 
+				output="${OUTPUT_DIR}/@{target}.swf" 
+				debug="false"
+			>
+				<load-config filename="@{flex}/frameworks/flex-config.xml" />
+				<source-path path-element="@{flex}/frameworks" />
+				<compiler.library-path dir="@{flex}/frameworks" append="true">
+					<include name="libs" />
+					<include name="../bundles/{locale}" />
+				</compiler.library-path>
+
+				<compiler.library-path dir="@{app}" append="true">
+					<include name="libs" />
+					<include name="libs/generated" />
+				</compiler.library-path>
+
+				<default-size width="500" height="600" />
+			</mxmlc>
+		</sequential>
+	</macrodef>
+</project>
