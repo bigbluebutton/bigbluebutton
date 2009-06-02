@@ -25,8 +25,8 @@ class BootStrap {
 		log.debug "Creating default conference"
 		def defaultConference = new Conference(
 				name:"Default Conference", conferenceNumber:new Integer(85115), 
-				user:adminUser, createdBy:createdBy, updatedBy:modifiedBy)
-     	defaultConference.save(flush:true)
+				user:adminUser, createdBy:createdBy, updatedBy:modifiedBy).save()
+//     	defaultConference.save()
 		
 		log.debug "Creating a Default session for the Default Conference"
 		
@@ -53,14 +53,15 @@ class BootStrap {
 		String attendeePassword = 'ap'
 		String voiceConferenceBridge = '85115'
 		
-		new ScheduledSession(
+		def defaultConfSession = new ScheduledSession(
 				name:name, description:description,
 				createdBy:createdBy, modifiedBy:modifiedBy, sessionId:sessionId, tokenId:tokenId,
 				numberOfAttendees:numberOfAttendees, timeLimited:timeLimited, startDateTime:startDateTime,
 				endDateTime:endDateTime, record:record, passwordProtect:passwordProtect, hostPassword:hostPassword,
 				moderatorPassword:moderatorPassword, attendeePassword:attendeePassword, 
 				voiceConferenceBridge:voiceConferenceBridge, conference:defaultConference
-			).save(flush:true)		
+			).save()
+//     	defaultConfSession.save()		
      }
      
      def destroy = {
