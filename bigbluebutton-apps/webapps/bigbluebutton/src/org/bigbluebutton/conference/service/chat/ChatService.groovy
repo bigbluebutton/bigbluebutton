@@ -1,7 +1,7 @@
 package org.bigbluebutton.conference.service.chat
 import org.slf4j.Loggerimport org.slf4j.LoggerFactory
 import org.red5.logging.Red5LoggerFactory
-import org.red5.server.api.Red5
+import org.red5.server.api.Red5
 public class ChatService {
 	
 	private static Logger log = Red5LoggerFactory.getLogger( ChatService.class, "bigbluebutton" );

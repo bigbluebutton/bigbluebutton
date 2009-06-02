@@ -12,7 +12,7 @@ import org.red5.logging.Red5LoggerFactory
 import org.red5.server.api.so.ISharedObject
 import org.red5.server.adapter.ApplicationAdapter
 import org.red5.server.api.Red5import java.util.Mapimport org.bigbluebutton.conference.service.chat.ChatRoomsManager
-import org.bigbluebutton.conference.service.chat.ChatRoomimport org.bigbluebutton.conference.BigBlueButtonSessionimport org.bigbluebutton.conference.Constantsimport org.bigbluebutton.conference.service.archive.ArchiveApplication
+import org.bigbluebutton.conference.service.chat.ChatRoomimport org.bigbluebutton.conference.BigBlueButtonSessionimport org.bigbluebutton.conference.Constantsimport org.bigbluebutton.conference.service.archive.ArchiveApplication
 public class ChatHandler extends ApplicationAdapter implements IApplication{
 	private static Logger log = Red5LoggerFactory.getLogger( ChatHandler.class, "bigbluebutton" )
 

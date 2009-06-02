@@ -1,7 +1,7 @@
 
 package org.bigbluebutton.conference
 
-import org.red5.server.api.so.ISharedObject
+import org.red5.server.api.so.ISharedObject
 public class RoomListener implements IRoomListener{
 
 	private ISharedObject so;

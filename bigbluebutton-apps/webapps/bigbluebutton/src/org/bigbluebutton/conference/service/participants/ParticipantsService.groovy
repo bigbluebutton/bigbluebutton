@@ -5,7 +5,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.red5.logging.Red5LoggerFactory
 
-import org.red5.server.api.Red5import java.util.Mapimport org.bigbluebutton.conference.Participant
+import org.red5.server.api.Red5import java.util.Mapimport org.bigbluebutton.conference.Participant
 public class ParticipantsService {
 
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsService.class, "bigbluebutton" );	

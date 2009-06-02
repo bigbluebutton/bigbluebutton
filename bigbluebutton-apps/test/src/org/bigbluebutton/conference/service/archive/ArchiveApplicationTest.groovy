@@ -1,7 +1,7 @@
 
 package org.bigbluebutton.conference.service.archive
 
-import org.testng.annotations.BeforeMethodimport org.testng.annotations.Testimport org.bigbluebutton.conference.service.archive.playback.PlaybackJobSchedulerimport org.bigbluebutton.conference.service.archive.playback.IPlaybackNotifierimport org.testng.Assert
+import org.testng.annotations.BeforeMethodimport org.testng.annotations.Testimport org.bigbluebutton.conference.service.archive.playback.PlaybackJobSchedulerimport org.bigbluebutton.conference.service.archive.playback.IPlaybackNotifierimport org.testng.Assert
 public class ArchiveApplicationTest{
 	ArchiveApplication application
 	PlaybackJobScheduler scheduler

@@ -17,7 +17,7 @@ import java.beans.PropertyChangeEvent
 import java.beans.PropertyChangeListener
 import org.asteriskjava.live.MeetMeUser
 import org.asteriskjava.live.MeetMeUserState
-import org.asteriskjava.live.MeetMeRoomimport org.bigbluebutton.conference.service.voice.IConferenceServerListenerimport org.red5.logging.Red5LoggerFactory
+import org.asteriskjava.live.MeetMeRoomimport org.bigbluebutton.conference.service.voice.IConferenceServerListenerimport org.red5.logging.Red5LoggerFactory
 public class AsteriskVoiceServer extends AbstractAsteriskServerListener implements IVoiceServer, PropertyChangeListener{
 	private static Logger log = Red5LoggerFactory.getLogger( AsteriskVoiceServer.class, "bigbluebutton" )
 

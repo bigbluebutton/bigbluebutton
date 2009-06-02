@@ -7,7 +7,7 @@ import org.red5.server.api.so.ISharedObjectimport org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.red5.logging.Red5LoggerFactory
 
-import org.bigbluebutton.conference.Participant
+import org.bigbluebutton.conference.Participant
 public class ParticipantPlaybackNotifier implements IPlaybackNotifier{
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantPlaybackNotifier.class, "bigbluebutton" )
 	

@@ -1,7 +1,7 @@
 
 package org.bigbluebutton.conference.service.archive.recorder
 
-import org.testng.annotations.BeforeMethodimport org.testng.annotations.Testimport org.bigbluebutton.conference.service.archive.record.RecordSessionimport org.bigbluebutton.conference.service.archive.record.IRecorderimport org.bigbluebutton.conference.service.archive.record.IEventRecorderimport org.testng.Assert
+import org.testng.annotations.BeforeMethodimport org.testng.annotations.Testimport org.bigbluebutton.conference.service.archive.record.RecordSessionimport org.bigbluebutton.conference.service.archive.record.IRecorderimport org.bigbluebutton.conference.service.archive.record.IEventRecorderimport org.testng.Assert
 public class RecordSessionTest{
 	RecordSession session
 	

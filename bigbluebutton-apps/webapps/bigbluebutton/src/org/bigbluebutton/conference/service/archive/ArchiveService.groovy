@@ -12,7 +12,7 @@ import org.red5.logging.Red5LoggerFactory
 import org.red5.server.api.so.ISharedObject
 import org.red5.server.adapter.ApplicationAdapter
 import org.red5.server.api.Red5import java.util.Mapimport org.bigbluebutton.conference.RoomsManager
-import org.bigbluebutton.conference.Roomimport org.bigbluebutton.conference.Participant
+import org.bigbluebutton.conference.Roomimport org.bigbluebutton.conference.Participant
 public class ArchiveService {
 
 	private static Logger log = Red5LoggerFactory.getLogger(ArchiveService.class, "bigbluebutton")

@@ -2,7 +2,7 @@
 package org.bigbluebutton.conference.service.archive
 
 import org.testng.annotations.BeforeMethodimport org.testng.annotations.Testimport org.ho.yaml.Yaml
-import org.ho.yaml.YamlEncoderimport org.ho.yaml.YamlDecoder
+import org.ho.yaml.YamlEncoderimport org.ho.yaml.YamlDecoder
 public class YamlTest{
 	File f 
 	File yamlOutFile

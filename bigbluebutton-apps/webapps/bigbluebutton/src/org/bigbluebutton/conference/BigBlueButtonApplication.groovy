@@ -1,6 +1,6 @@
 package org.bigbluebutton.conference
 
-import org.red5.server.api.Red5import org.bigbluebutton.conference.service.participants.ParticipantsApplicationimport org.bigbluebutton.conference.service.archive.ArchiveApplicationimport org.red5.logging.Red5LoggerFactory
+import org.red5.server.api.Red5import org.bigbluebutton.conference.service.participants.ParticipantsApplicationimport org.bigbluebutton.conference.service.archive.ArchiveApplicationimport org.red5.logging.Red5LoggerFactory
 import org.red5.server.adapter.ApplicationAdapter
 import org.red5.server.adapter.IApplication
 import org.red5.server.api.IClient

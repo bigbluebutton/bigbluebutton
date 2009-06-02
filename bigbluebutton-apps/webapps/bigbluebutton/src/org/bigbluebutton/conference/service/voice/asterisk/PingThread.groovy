@@ -2,7 +2,7 @@
 package org.bigbluebutton.conference.service.voice.asterisk
 
 import java.util.concurrent.atomic.AtomicLong;
-import org.red5.logging.Red5LoggerFactory
+import org.red5.logging.Red5LoggerFactory
 import org.asteriskjava.manager.action.PingAction;
 import org.asteriskjava.manager.response.ManagerResponse;
 import org.asteriskjava.manager.ManagerConnection;

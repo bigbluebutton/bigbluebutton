@@ -1,7 +1,7 @@
 
 package org.bigbluebutton.conference.service.archive.playback
 
-import org.testng.annotations.BeforeMethodimport org.testng.annotations.Testimport org.testng.Assert
+import org.testng.annotations.BeforeMethodimport org.testng.annotations.Testimport org.testng.Assert
 public class FileReaderPlaybackPlayerTest{
 
 	def FileReaderPlaybackPlayer fPlayer

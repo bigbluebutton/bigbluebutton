@@ -1,6 +1,6 @@
 package org.bigbluebutton.conference
 
-import net.jcip.annotations.ThreadSafeimport java.util.concurrent.ConcurrentHashMapimport java.util.Collectionsimport java.lang.Long
+import net.jcip.annotations.ThreadSafeimport java.util.concurrent.ConcurrentHashMapimport java.util.Collectionsimport java.lang.Long
 /**
  * Contains information for a Participant. Encapsulates status and the
  * only way to change/add status is through setStatus;

@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.red5.logging.Red5LoggerFactory
 
 import org.springframework.jms.core.JmsTemplate;
-import java.lang.RuntimeException
+import java.lang.RuntimeException
 public class ConversionUpdatesService { 
 	private static Logger log = Red5LoggerFactory.getLogger(ConversionUpdatesService.class, "bigbluebutton");
 
