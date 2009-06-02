@@ -4,7 +4,7 @@
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-<!--
+
    <bean class="org.asteriskjava.fastagi.AgiServerThread"
       init-method="startup" destroy-method="shutdown">
       <property name="agiServer" ref="agiServer"/>
@@ -14,27 +14,6 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
       <property name="bindPort" value="4573"/>
       <property name="mappingStrategy" ref="mappingStrategy" />
    </bean>
--->
-<!--
-   <bean class="org.bigbluebutton.pbx.asterisk.ConferenceAttendanceRecorder"
-      init-method="startup" destroy-method="shutdown">
-      <property name="asteriskServer" ref="asteriskServer"/>
-      <property name="dataSource" ref="dataSource"/>
-   </bean> 
-
-
-   <bean class="org.bigbluebutton.pbx.PbxLive"
-      init-method="startup" destroy-method="shutdown">
-      <property name="asteriskServer" ref="asteriskServer"/>
-   </bean> 
--->
-<!--     
-   <bean id="asteriskServer" class="org.asteriskjava.live.DefaultAsteriskServer">
-		<constructor-arg index="0" value="${asterisk.host}"/>
-		<constructor-arg index="1" value="${ami.user}"/>
-		<constructor-arg index="2" value="${ami.password}"/>  		
-   </bean>
-
    
 	<bean id="mappingStrategy" class="org.asteriskjava.fastagi.SimpleMappingStrategy">
 		<property name="mappings">
@@ -43,8 +22,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 			</map>
 		</property>
 	</bean>
-
 			
 	<bean id="asteriskAgi" class="org.bigbluebutton.pbx.asterisk.AsteriskAgiService" />
--->
+
 </beans>
