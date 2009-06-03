@@ -7,7 +7,6 @@
 while [ $# -gt 0 ]; do    # Until you run out of parameters . . .
   case "$1" in
     -h|--help)
-              # drop the database
                 echo "
 Helper script to build and deploy the BigBlueButton web apps.
 
@@ -32,19 +31,30 @@ root.
   shift       # Check next set of parameters.
 done
 
-# Remove the bbb-apps package if its already installed
+#
+# Remove the bbb-web package if its already installed
 if dpkg-query -s bbb-web | grep "install ok installed" > /dev/null 2>&1; then
         sudo apt-get purge --yes bbb-web
 fi
 
+IP="$(ifconfig eth0 | sed -n '/inet /{s/.*addr://;s/ .*//;p}')"
 
+#
+# Modify bigbluebutton.properties so it has proper IP address
+cp ./grails-app/conf/bigbluebutton.properties .
+sed -i "s/bigbluebutton.web.serverURL=http:\/\/.*/bigbluebutton.web.serverURL=http:\/\/$IP/g" ./grails-app/conf/bigbluebutton.properties
 
 ant war
 
 if [ $? -ne 0 ]; then
+	mv -f bigbluebutton.properties ./grails-app/conf/bigbluebutton.properties
 	exit 1
 fi
 
+mv -f bigbluebutton.properties ./grails-app/conf/bigbluebutton.properties
+
+#
+# Deploy to the tomcat6 server
 
 sudo /etc/init.d/tomcat6 stop
 
