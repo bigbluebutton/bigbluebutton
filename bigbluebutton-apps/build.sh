@@ -8,7 +8,7 @@ while [ $# -gt 0 ]; do    # Until you run out of parameters . . .
     -h|--help)
               # drop the database
                 echo "
-build.sh: helper script to build and deploy the BigBlueButton web apps.
+Helper script to build and deploy the BigBlueButton web apps.
 
 Hint: To avoid entering your password with sudo, just type 
 
@@ -29,8 +29,6 @@ done
 if dpkg-query -s bbb-apps | grep "install ok installed" > /dev/null 2>&1; then
         sudo apt-get purge --yes bbb-apps
 fi
-
-exit 0
 
 #
 # Quick check if ant resolve has been run.
