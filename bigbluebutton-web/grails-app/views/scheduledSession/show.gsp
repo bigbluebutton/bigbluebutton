@@ -55,7 +55,7 @@
                             	</g:link>
                             </td>                            
                         </tr>
-                    
+<!-- Comment for now (ralam jun 3, 2009)                     
                         <tr class="prop">
                             <td valign="top" class="name">Password Protect:</td>                            
                             <td valign="top" class="value">${fieldValue(bean:scheduledSessionInstance, field:'passwordProtect')}</td>                            
@@ -65,7 +65,7 @@
                             <td valign="top" class="name">Host Password:</td>                            
                             <td valign="top" class="value">${fieldValue(bean:scheduledSessionInstance, field:'hostPassword')}</td>                            
                         </tr>
-
+-->
                         <tr class="prop">
                             <td valign="top" class="name">Moderator Password:</td>                            
                             <td valign="top" class="value">${fieldValue(bean:scheduledSessionInstance, field:'moderatorPassword')}</td>                            
@@ -75,7 +75,7 @@
                             <td valign="top" class="name">Attendee Password:</td>                            
                             <td valign="top" class="value">${fieldValue(bean:scheduledSessionInstance, field:'attendeePassword')}</td>                            
                         </tr>
-
+<!-- Comment for now (ralam jun 3, 2009) 
                         <tr class="prop">
                             <td valign="top" class="name">Record:</td>                            
                             <td valign="top" class="value">${fieldValue(bean:scheduledSessionInstance, field:'record')}</td>                            
@@ -85,7 +85,7 @@
                             <td valign="top" class="name">Time Limited:</td>                            
                             <td valign="top" class="value">${fieldValue(bean:scheduledSessionInstance, field:'timeLimited')}</td>                            
                         </tr>
-
+-->
                         <tr class="prop">
                             <td valign="top" class="name">Start Date Time:</td>                            
                             <td valign="top" class="value">${fieldValue(bean:scheduledSessionInstance, field:'startDateTime')}</td>                            
