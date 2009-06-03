@@ -6,7 +6,6 @@
 while [ $# -gt 0 ]; do    # Until you run out of parameters . . .
   case "$1" in
     -h|--help)
-              # drop the database
                 echo "
 Helper script to build and deploy the BigBlueButton web apps.
 
