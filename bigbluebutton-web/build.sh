@@ -4,14 +4,26 @@
 # BigBlueButton: Script to build/deploy the BigBlueButton web application
 
 
-if dpkg-query -s bbb-web | grep installed > /dev/null 2>&1; then
-        sudo apt-get remove --force-yes bbb-web
-fi
-
-BUILD=1
-
 while [ $# -gt 0 ]; do    # Until you run out of parameters . . .
   case "$1" in
+    -h|--help)
+              # drop the database
+                echo "
+Helper script to build and deploy the BigBlueButton web apps.
+
+options:
+	-h  Print out help text
+	-d  Drop database before deploying
+
+Hint: To avoid entering your password with sudo, just type 
+
+	sudo ls
+	
+at the start of your development session to have sudo remember that you can become
+root.
+"
+		exit 0
+              ;;
     -d|--drop)
               # drop the database
 		DROP=1
@@ -19,6 +31,11 @@ while [ $# -gt 0 ]; do    # Until you run out of parameters . . .
   esac
   shift       # Check next set of parameters.
 done
+
+# Remove the bbb-apps package if its already installed
+if dpkg-query -s bbb-web | grep "install ok installed" > /dev/null 2>&1; then
+        sudo apt-get purge --yes bbb-web
+fi
 
 
 
