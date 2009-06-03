@@ -7,7 +7,7 @@
 			import org.bigbluebutton.main.view.MainApplicationShellMediator;
 
 			public function loggedIn(name:String, room:String, role:String):void{
-				loggedInUserLbl.text = "You are logged in as " + name + " to " + room + " as " + role + ".";
+				loggedInUserLbl.text = "You are logged in as " + name + " to " + room + " as role " + role + ".";
 				this.visible = true;
 			}
 			
