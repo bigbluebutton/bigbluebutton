@@ -9,7 +9,6 @@
     <body>
         <div class="nav">
             <span class="menuButton"><a class="home" href="${createLinkTo(dir:'')}">Home</a></span>
-            <span class="menuButton"><g:link class="create" action="create">New ScheduledSession</g:link></span>
         </div>
         <div class="body">
             <h1>ScheduledSession List</h1>
@@ -20,14 +19,11 @@
                 <table>
                     <thead>
                         <tr>
-                        
-                   	        <g:sortableColumn property="id" title="Id" />
-                        
                    	        <g:sortableColumn property="name" title="Name" />
                         
-                   	        <g:sortableColumn property="tokenId" title="Token Id" />
+                   	        <g:sortableColumn property="startDateId" title="Start" />
                         
-                   	        <g:sortableColumn property="sessionId" title="Session Id" />
+                   	        <g:sortableColumn property="endDateId" title="End" />
                         
                    	        <g:sortableColumn property="numberOfAttendees" title="Number Of Attendees" />
                         
@@ -36,14 +32,11 @@
                     <tbody>
                     <g:each in="${scheduledSessionInstanceList}" status="i" var="scheduledSessionInstance">
                         <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
+                            <td><g:link action="show" id="${scheduledSessionInstance.id}">${fieldValue(bean:scheduledSessionInstance, field:'name')}</g:link></td>
                         
-                            <td><g:link action="show" id="${scheduledSessionInstance.id}">${fieldValue(bean:scheduledSessionInstance, field:'id')}</g:link></td>
+                            <td>${fieldValue(bean:scheduledSessionInstance, field:'startDateTime')}</td>
                         
-                            <td>${fieldValue(bean:scheduledSessionInstance, field:'name')}</td>
-                        
-                            <td>${fieldValue(bean:scheduledSessionInstance, field:'tokenId')}</td>
-                        
-                            <td>${fieldValue(bean:scheduledSessionInstance, field:'sessionId')}</td>
+                            <td>${fieldValue(bean:scheduledSessionInstance, field:'endDateTime')}</td>
                         
                             <td>${fieldValue(bean:scheduledSessionInstance, field:'numberOfAttendees')}</td>
                         
