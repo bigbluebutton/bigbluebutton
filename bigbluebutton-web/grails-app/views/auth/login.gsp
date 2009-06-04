@@ -12,6 +12,10 @@
     <input type="hidden" name="targetUri" value="${targetUri}" />
     <table>
       <tbody>
+      	<tr>
+          <td>&nbsp;</td>
+          <td>To login, username: admin@test.com password: admin</td>
+        </tr>
         <tr>
           <td>Username:</td>
           <td><input type="text" name="username" value="${username}" /></td>
