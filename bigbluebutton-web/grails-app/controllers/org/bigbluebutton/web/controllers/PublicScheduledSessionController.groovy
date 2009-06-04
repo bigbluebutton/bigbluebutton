@@ -111,7 +111,10 @@ class PublicScheduledSessionController {
 					}
 					    	
 				    log.debug "Displaying session information"
-				    redirect(action:show)			
+				    //redirect(action:show)		
+			    	def config = ConfigurationHolder.config
+		        	def hostUrl = config.bigbluebutton.web.serverURL
+		        	redirect(url:"${hostUrl}/client/BigBlueButton.html")
 				}					
 			}	
 		}
