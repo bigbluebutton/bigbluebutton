@@ -36,9 +36,33 @@ class PublicScheduledSessionController {
 	}
 	
 	def joinIn = {
-	    println "join $params.id"
 	    session.invalidate()
-	    return [ fullname: params.fullname, id:(params.id), password: params.password ]
+	    def sessionInfo
+	    
+	    if (params.id) {
+	    	def conference = Conference.findByConferenceNumber(params.id)
+	    	if (conference) {
+	    		def c = ScheduledSession.createCriteria()
+				def now = new Date()
+				def results = c {
+					eq('voiceConferenceBridge', conference.conferenceNumber.toString())
+					and {
+						le('startDateTime', now)
+						and {
+							gt('endDateTime', now)
+						}
+					}
+					maxResults(1)
+				}	    		
+				if (results) {
+					def confSession = results[0];
+					sessionInfo = [name: confSession.name, description: confSession.description]
+				}
+	    	}
+	    }
+       
+       	return [ fullname: params.fullname, id:(params.id), password: params.password, info:sessionInfo ]
+
 	}
 	
     def signIn = {    
@@ -60,7 +84,6 @@ class PublicScheduledSessionController {
 			}
 
 			if (results) {
-
 				def confSession = results[0];
 				def role = ''
 											
@@ -120,9 +143,8 @@ class PublicScheduledSessionController {
 		}
 		
 		if (!signedIn) {
-			log.debug "Failed joining the session"
-			flash.message = "Failed to join the conference session."
-			redirect(action:joinIn,id:params.id, params:[fullname:params.fullname])		
+			flash.message = "Could not log you into the conference. Please check if your conference number or schedule is correct."
+			render(view:"joinIn",model: [id:params.id, fullname:params.fullname])
 		}	
 	}
 	

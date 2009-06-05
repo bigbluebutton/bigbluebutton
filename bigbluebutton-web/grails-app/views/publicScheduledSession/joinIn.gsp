@@ -6,7 +6,25 @@
 </head>
 <body>
   <g:if test="${flash.message}">
-    <div class="message">${flash.message}</div>
+      <div class="message">${flash.message}</div>
+  </g:if>
+  <g:if test="${info}">
+    <table>
+      <tbody>
+        <tr>
+          <td>Conference Name:</td>
+          <td>${info.name}</td>
+        </tr>
+	    <tr>
+	       <td>Conference Number:</td>
+	    <td>${id}</td>
+	    </tr>
+		<tr>
+          <td>Description:</td>
+          <td>${info.description}</td>
+        </tr>
+      </tbody>
+    </table>
   </g:if>
   <g:form controller="conference-session" action="signIn">
   	<g:if test="${id}">
