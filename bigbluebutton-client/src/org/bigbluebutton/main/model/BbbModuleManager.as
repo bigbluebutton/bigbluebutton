@@ -80,7 +80,7 @@ package org.bigbluebutton.main.model
 			_portTestApplication = xml.porttest.@application;
 			
 			var list:XMLList = xml.modules.module;
-			_version = xml.@version;
+			_version = xml.version;
 			
 			trace("version " + _version);
 			
