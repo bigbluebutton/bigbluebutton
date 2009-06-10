@@ -114,30 +114,30 @@ class PublicScheduledSessionController {
 						session["conference"] = confSession.tokenId
 						session["room"] = confSession.sessionId
 						session["voicebridge"] = confSession.voiceConferenceBridge
-					}
-									
-					def long _10_MINUTES = 10*60*1000
 				
-					def startTime = confSession.startDateTime.time - _10_MINUTES
-					def endTime = confSession.endDateTime.time + _10_MINUTES
-						
-					if ((startTime <= now.time) && (now.time <= endTime)) {
-						session["mode"] = "LIVE"
-						session["record"] = false
-						if (confSession.record) {
-							session["record"] = true
+						def long _10_MINUTES = 10*60*1000
+					
+						def startTime = confSession.startDateTime.time - _10_MINUTES
+						def endTime = confSession.endDateTime.time + _10_MINUTES
+							
+						if ((startTime <= now.time) && (now.time <= endTime)) {
+							session["mode"] = "LIVE"
+							session["record"] = false
+							if (confSession.record) {
+								session["record"] = true
+							}
+							log.debug "Joining LIVE and recording is ${confSession.record}"
+						} else {
+							session["mode"] = "PLAYBACK"
+							log.debug "Joining PLAYBACK"
 						}
-						log.debug "Joining LIVE and recording is ${confSession.record}"
-					} else {
-						session["mode"] = "PLAYBACK"
-						log.debug "Joining PLAYBACK"
+						    	
+					    log.debug "Displaying session information"
+					    //redirect(action:show)		
+				    	def config = ConfigurationHolder.config
+			        	def hostUrl = config.bigbluebutton.web.serverURL
+			        	redirect(url:"${hostUrl}/client/BigBlueButton.html")
 					}
-					    	
-				    log.debug "Displaying session information"
-				    //redirect(action:show)		
-			    	def config = ConfigurationHolder.config
-		        	def hostUrl = config.bigbluebutton.web.serverURL
-		        	redirect(url:"${hostUrl}/client/BigBlueButton.html")
 				}					
 			}	
 		}
