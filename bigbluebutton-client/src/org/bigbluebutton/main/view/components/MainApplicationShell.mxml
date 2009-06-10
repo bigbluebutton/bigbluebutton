@@ -112,7 +112,7 @@
 			
 			private function openLogWindow():void {
 				mdiCanvas.windowManager.add(logWindow);
-				mdiCanvas.windowManager.absPos(logWindow, 200, 700);
+				mdiCanvas.windowManager.absPos(logWindow, 100, 500);
 			}
 			
 			private function toggleFullScreen():void{
