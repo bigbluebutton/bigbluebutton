@@ -18,6 +18,7 @@ import java.beans.PropertyChangeListener
 import org.asteriskjava.live.MeetMeUser
 import org.asteriskjava.live.MeetMeUserState
 import org.asteriskjava.live.MeetMeRoomimport org.bigbluebutton.conference.service.voice.IConferenceServerListenerimport org.red5.logging.Red5LoggerFactory
+import org.asteriskjava.manager.ManagerConnectionState
 public class AsteriskVoiceServer extends AbstractAsteriskServerListener implements IVoiceServer, PropertyChangeListener{
 	private static Logger log = Red5LoggerFactory.getLogger( AsteriskVoiceServer.class, "bigbluebutton" )
 
@@ -76,7 +77,10 @@ public class AsteriskVoiceServer extends AbstractAsteriskServerListener implemen
 	
 	def mute(user, conference, mute) {
 		log.debug("mute: $user $conference $mute")
-		MeetMeRoom room = asteriskServer.getMeetMeRoom(conference)
+		MeetMeRoom room = getMeetMeRoom(conference)
+		
+		if (room == null) return
+		
 		Collection<MeetMeUser> users = room.getUsers()
 		
 		for (Iterator it = users.iterator(); it.hasNext();) {
@@ -93,7 +97,10 @@ public class AsteriskVoiceServer extends AbstractAsteriskServerListener implemen
 	
 	def kick(user, conference) {
 		log.debug("Kick: $user $conference")
-		MeetMeRoom room = asteriskServer.getMeetMeRoom(conference)
+		MeetMeRoom room = getMeetMeRoom(conference)
+		
+		if (room == null) return
+		
 		Collection<MeetMeUser> users = room.getUsers()
 		
 		for (Iterator it = users.iterator(); it.hasNext();) {
@@ -106,7 +113,10 @@ public class AsteriskVoiceServer extends AbstractAsteriskServerListener implemen
 	
 	def mute(conference, mute) {
 		log.debug("Mute: $conference $mute")
-		MeetMeRoom room = asteriskServer.getMeetMeRoom(conference)
+		MeetMeRoom room = getMeetMeRoom(conference)
+		
+		if (room == null) return
+		
 		Collection<MeetMeUser> users = room.getUsers()
 		
 		for (Iterator it = users.iterator(); it.hasNext();) {
@@ -121,7 +131,10 @@ public class AsteriskVoiceServer extends AbstractAsteriskServerListener implemen
 	
 	def kick(conference){
 		log.debug("Kick: $conference")
-		MeetMeRoom room = asteriskServer.getMeetMeRoom(conference)
+		MeetMeRoom room = getMeetMeRoom(conference)
+		
+		if (room == null) return
+		
 		Collection<MeetMeUser> users = room.getUsers()
 		
 		for (Iterator it = users.iterator(); it.hasNext();) {
@@ -132,7 +145,10 @@ public class AsteriskVoiceServer extends AbstractAsteriskServerListener implemen
 	
 	def initializeRoom(conference){
 		log.debug("initialize $conference")
-		MeetMeRoom room = asteriskServer.getMeetMeRoom(conference)
+		MeetMeRoom room = getMeetMeRoom(conference)
+		
+		if (room == null) return
+		
 		if (room.empty) {
 			log.debug("$conference is empty.")
 			return
@@ -181,6 +197,20 @@ public class AsteriskVoiceServer extends AbstractAsteriskServerListener implemen
 			}
 		}			
 	}    
+	
+	private MeetMeRoom getMeetMeRoom(String room) {
+		if (managerConnection.getState() != ManagerConnectionState.CONNECTED) {
+			log.error("No connection to the Asterisk server. Connection state is {}", managerConnection.getState().toString())
+			return null
+		}
+		try {
+			MeetMeRoom mr = asteriskServer.getMeetMeRoom(room)
+			return mr
+		} catch (ManagerCommunicationException e) {
+			log.error("Exception error when trying to get conference ${room}")
+		}
+		return null
+	}
 	
 	public void setManagerConnection(ManagerConnection connection) {
 		log.debug('setting manager connection')
