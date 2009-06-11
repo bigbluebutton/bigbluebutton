@@ -158,10 +158,16 @@ package org.bigbluebutton.modules.viewers.model.services
 			user.userid = Number(joinedUser.userid);
 			user.name = joinedUser.name;	
 			user.role = joinedUser.role;						
-//			user.addStatus( = joinedUser.status;	
+	
+			LogUtil.debug("User status: " + joinedUser.status.hasStream);
 								
 			LogUtil.info("Joined as [" + user.userid + "," + user.name + "," + user.role + "]");
 			_participants.addUser(user);
+			
+			participantStatusChange(user.userid, "hasStream", joinedUser.status.hasStream);
+			participantStatusChange(user.userid, "streamName", joinedUser.status.streamName);
+			participantStatusChange(user.userid, "presenter", joinedUser.status.presenter);
+			participantStatusChange(user.userid, "raiseHand", joinedUser.status.raiseHand);
 		}
 		
 		public function participantStatusChange(userid:Number, status:String, value:Object):void {
@@ -169,72 +175,7 @@ package org.bigbluebutton.modules.viewers.model.services
 			
 			_participants.newUserStatus(userid, status, value);
 		}
-/*
-		public function newStatus(userid:Number, status:Status):void {
-			var aUser:User = _participants.getParticipant(userid);			
-			if (aUser != null) {
-				aUser.addStatus(status);
-				LogUtil.debug(LOGNAME + 'setting newStatus ' + status.name);
-				_participantsSO.setProperty(userid.toString() + STATUS, aUser.status.source);
-				_participantsSO.setDirty(userid.toString() + STATUS);
-				//_participantsSO.send("addStatusCallback", userid, status);
-			}
-		}
-
-		private function addStatusCallback(userid:Number, status:Status):void {
-			var aUser:User = _participants.getParticipant(userid);			
-			if (aUser != null) {
-				aUser.addStatus(status);				
-			}
-		}
-		
-		public function changeStatus(userid:Number, status:Status):void {
-			var aUser:User = _participants.getParticipant(userid);			
-			if (aUser != null) {
-				LogUtil.debug(LOGNAME + 'setting changeStatus ' + status.name);
-				aUser.changeStatus(status);
-				_participantsSO.setProperty(userid.toString() + STATUS, aUser.status.source);
-				_participantsSO.setDirty(userid.toString() + STATUS);
-				//_participantsSO.send("changeStatusCallback", userid, status);
-			}
-		}
-		
-		public function changeStatusCallback(userid:Number, status:Status):void {
-			var aUser:User = _participants.getParticipant(userid);			
-			if (aUser != null) {
-				aUser.changeStatus(status);
-			}
-		}
-
-		public function removeStatus(userid:Number, statusName:String):void {
-			var aUser:User = _participants.getParticipant(userid);			
-			if (aUser != null) {
-				LogUtil.debug(LOGNAME + 'setting removeStatus ' + statusName);
-				aUser.removeStatus(statusName);
-				_participantsSO.setProperty(userid.toString() + STATUS, aUser.status.source);
-				_participantsSO.setDirty(userid.toString() + STATUS);
-				//_participantsSO.send("removeStatusCallback", userid, statusName);
-			}
-		}
-
-		public function removeStatusCallback(userid:Number, statusName:String):void {
-			var aUser:User = _participants.getParticipant(userid);			
-			if (aUser != null) {
-				aUser.removeStatus(statusName);
-			}
-		}
-*/
-/*		
-		public function iAmPresenter(userid:Number, presenter:Boolean):void {
-			var aUser:User = _participants.getParticipant(userid);			
-			if (aUser != null) {
-				LogUtil.debug(LOGNAME + 'iampresenter ' + userid);
-				aUser.presenter = presenter;
-				_participantsSO.setProperty(userid.toString(), aUser);
-				_participantsSO.setDirty(userid.toString());
-			}
-		}
-*/						
+					
 		public function assignPresenter(userid:Number, assignedBy:Number):void {
 	
 			var nc:NetConnection = netConnectionDelegate.connection;
