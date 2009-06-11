@@ -3,6 +3,7 @@ package org.bigbluebutton.web.controllers
 import org.jsecurity.crypto.hash.Sha1Hash
 import org.bigbluebutton.web.domain.User
 import org.bigbluebutton.web.domain.UserRoleRel
+import org.bigbluebutton.web.domain.Role
 
 class UserController {
     

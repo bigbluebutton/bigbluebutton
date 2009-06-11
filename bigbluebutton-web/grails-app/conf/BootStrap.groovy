@@ -19,6 +19,8 @@ class BootStrap {
 		adminUser.save(flush:true)
 		new UserRoleRel(user: adminUser, role: adminRole).save(flush:true)
 		
+		def userRole = new Role(name: "User").save()
+		
 		String createdBy = adminUser.fullName
 		String modifiedBy = adminUser.fullName
 		
