@@ -1,5 +1,5 @@
 #!/bin/sh
-
+#
 #
 # BigBlueButton: Script to build/deploy the BigBlueButton web application
 
