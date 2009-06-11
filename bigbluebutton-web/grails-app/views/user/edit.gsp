@@ -39,15 +39,6 @@
                         
                             <tr class="prop">
                                 <td valign="top" class="name">
-                                    <label for="email">Email:</label>
-                                </td>
-                                <td valign="top" class="value ${hasErrors(bean:userInstance,field:'email','errors')}">
-                                    <input type="text" id="email" name="email" value="${fieldValue(bean:userInstance,field:'email')}"/>
-                                </td>
-                            </tr> 
-                        
-                            <tr class="prop">
-                                <td valign="top" class="name">
                                     <label for="fullName">Full Name:</label>
                                 </td>
                                 <td valign="top" class="value ${hasErrors(bean:userInstance,field:'fullName','errors')}">

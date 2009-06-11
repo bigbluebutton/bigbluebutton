@@ -29,13 +29,6 @@
                         </tr>
                     
                         <tr class="prop">
-                            <td valign="top" class="name">Email:</td>
-                            
-                            <td valign="top" class="value">${fieldValue(bean:userInstance, field:'email')}</td>
-                            
-                        </tr>
-                    
-                        <tr class="prop">
                             <td valign="top" class="name">Full Name:</td>
                             
                             <td valign="top" class="value">${fieldValue(bean:userInstance, field:'fullName')}</td>

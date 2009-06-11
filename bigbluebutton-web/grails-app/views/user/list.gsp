@@ -39,25 +39,15 @@
                     <g:each in="${userInstanceList}" status="i" var="userInstance">
                         <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
                         
-                            <td><g:link action="show" id="${userInstance.id}">${fieldValue(bean:userInstance, field:'id')}</g:link></td>
-                        
-                            <td>${fieldValue(bean:userInstance, field:'username')}</td>
-                        
-                            <td>${fieldValue(bean:userInstance, field:'email')}</td>
-                        
-                            <td>${fieldValue(bean:userInstance, field:'fullName')}</td>
-                        
-                            <td>${fieldValue(bean:userInstance, field:'conferences')}</td>
-                        
+                            <td><g:link action="show" id="${userInstance.id}">${fieldValue(bean:userInstance, field:'id')}</g:link></td>                        
+                            <td>${fieldValue(bean:userInstance, field:'username')}</td>                        
+                            <td>${fieldValue(bean:userInstance, field:'fullName')}</td>                                              
                             <td>${fieldValue(bean:userInstance, field:'dateCreated')}</td>
                         
                         </tr>
                     </g:each>
                     </tbody>
                 </table>
-            </div>
-            <div class="paginateButtons">
-                <g:paginate total="${User.count()}" />
             </div>
         </div>
     </body>
