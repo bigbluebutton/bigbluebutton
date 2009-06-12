@@ -32,7 +32,7 @@
 	<mx:Label id="loggedInUserLbl" text="" visible="true"/>	
 	<mx:Canvas id="addedBtns"/>		
 	<mx:Spacer width="100%"/>
-	<mx:LinkButton label="Help" click="navigateToURL(new URLRequest('http://present.carleton.ca/help/index.html'))"/>
+	<mx:LinkButton label="Help" click="navigateToURL(new URLRequest('http://www.bigbluebutton.org/content/videos'))"/>
 	<mx:Button label="Logout" id="btnLogout" toolTip="Log out" right="10" click="doLogout()"/>		
 	
 </mx:ApplicationControlBar>
