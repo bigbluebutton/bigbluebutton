@@ -33,7 +33,7 @@ class BootStrap {
 		log.debug "Creating a Default session for the Default Conference"
 		
 		String name = "Default Conference Session"
-		String description = "A default conference session a user can try right away"
+		String description = "Default session -- use password (no quotes): 'mp' for Moderator, 'ap' for Attendee."
 		String sessionId = UUID.randomUUID()
 		String tokenId = UUID.randomUUID()
 		Integer numberOfAttendees = new Integer(3)
