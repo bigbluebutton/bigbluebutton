@@ -3,6 +3,7 @@
 <head>
 <title>Welcome to BigBlueButton </title>
 <link rel="stylesheet" href="css/style.css" type="text/css"/>
+<link rel="icon" type="image/png" href="images/favicon.ico" />
 </head>
 <body>
 	<div id="wrapper">
@@ -11,38 +12,72 @@
         </div>
     	<div id="content"><br/>
 		  <h1>Welcome to BigBlueButton Developer Virtual Machine</h1><br/>
-   		  <p>
-This virtual machine (VM) is a fully working copy of BigBlueButton that you can try out BigBlueButton, the open source web conferencing system for distance learning.</p><br>
+          <h1>For a User</h1>
+          <div id="forUser">
+          	<div id="userOne">
+            	<a title="Join a Session" href="http://www.bigbluebutton.org/content/videos"><center><img src="images/join.png" width="140" height="137" /></center></a>
+                <p style="float:left;"><strong style="font-size:30px;">1.</strong></p><p style="margin-top:13px; margin-left:35px;"> Watch a video on how to join a session</p>
+            </div>
+            <div id="userTwo">
+            	<p style="float:left;"><strong style="font-size:30px;">2.</strong></p><p style="margin-top:13px; margin-left:35px;"> Join using your name and <strong>mp</strong> for moderator or <strong>ap</strong> for an attendee</p>
+            </div>
+            <div id="userThree">
+            	<a title="Join Sample Conference" href="/bigbluebutton/conference-session/joinIn/85115"><div id="content_left"><p style="float:left; margin-top:10px; margin-left:20px;"><strong style="font-size:30px;">3.</strong></p><h2 style="margin-top:22px; margin-left:52px;">Join </h2></div></a> 
+            </div> 
+          </div>
+                
+           <div id="forAdmin">
+            <h1>For an Administrator</h1>
+          	<div id="adminOne">
+            	<a title="Join a Session" href="http://www.bigbluebutton.org/content/videos"><center><img src="images/session.png" width="140" height="137" /></center></a>
+                <p style="float:left;"><strong style="font-size:30px;">1.</strong></p><p style="margin-top:13px; margin-left:35px;"> Watch a video on how to  scheduele a session</p>
+            </div>
+            <div id="adminTwo">
+            	<p style="float:left;"><strong style="font-size:30px;">2.</strong></p><p style="margin-top:13px; margin-left:35px;">Login using <strong>admin@test.com</strong> with password <strong>admin</strong></p>
+            </div>
+            <div id="adminThree">
+            	<a title="Join Sample Conference" href="/bigbluebutton"><div id="content_left"><p style="float:left; margin-top:10px; margin-left:20px;"><strong style="font-size:30px;">3.</strong></p><h2 style="margin-top:22px; margin-left:52px;">Schedule </h2></div></a> 
+            </div> 
+          </div>
+          <br/><br/>
 
-<p>To join a sample session, click the <a href="/bigbluebutton/conference-session/joinIn/85115">Join a Default Session</a> button.  You'll be asked to enter your Name and provide a password (enter <strong>mp</strong> for moderator password, <strong>vp</strong> for viewer password).  </p><br>
 
-<p>To schedule your own session, click the <a href="/bigbluebutton">Schedule a Session</a> button. Enter <strong>admin@test.com</strong> for username and <strong>admin</strong> for password.</p><br/>
-<p>
-This virtual machine is also a full BigBlueButton development enviornment that you use to checkout, modify the source, and build you own version of BigBlueButton.
-</p>
-          
-        <br> 
-          <a title="Join Sample Conference" href="/bigbluebutton/conference-session/joinIn/85115"><div id="content_left"><h2 style="margin-top:20px; margin-left:15px;">Join a Sample Conference</h2></div></a>
-          <a title="Schedule a Session" href="/bigbluebutton"><div id="content_right"><h2 style="margin-top:20px; margin-left:50px;">Schedule a Session</h2></div><br/></a>
-          
-   		<div id="tutorials">
+
+<div id="tutorials">
         	<div style="width:100%; height:30px; background-image:url(images/heading_bg.png); border-bottom:#afafaf solid 1px;">    
-        		<h1 style="margin-top:8px; margin-left:15px;"> Video Tutorials </h1>
+        		<h1 style="margin-top:8px; margin-left:15px;">Tutorials</h1>
         	</div><br/>
-        <table> 
-        	<tr>
-            	<td valign="top" style="padding-left:20px;"><a title="Join a Session" href="http://www.youtube.com/watch?v=ul6m3N6v6os"><img src="images/join.png" width="92" height="90" /></a></td>
-                <td valign="top" style="padding-left:20px;"><a title="Create a Session" href="http://www.youtube.com/watch?v=Kte07KcBXIE"><img src="images/session.png" width="92" height="90" /></a></td>
-                <td valign="top" style="padding-left:20px;"><a title="Share Webcom" href="http://www.youtube.com/watch?v=HePvnDZYCUQ"><img src="images/share_webcam.png" width="92" height="90" /></a></td>
-                <td valign="top" style="padding-left:20px;"><a title="Upload Slides" href="http://www.youtube.com/watch?v=8Fvk45H4A7E"><img src="images/upload_slides.png" width="93" height="90" /></a></td>
-           </tr>
-           <tr>
-           		<td valign="top" style="padding-left:20px;"><p class="small"> Join a Session </p></td>
-           		<td valign="top" style="padding-left:20px;"><p class="small"> Create a Session </p></td>
-           		<td valign="top" style="padding-left:20px;"><p class="small"> Share Wecam </p></td>
-          		<td valign="top" style="padding-left:20px;"><p class="small"> Upload Slides </p></td>
-           </tr>
-        </table>
+            <div id="usingBBB">
+                <table> 
+                <tr>
+                <p style="margin-left:20px;""> Using BigBlueButton </p>
+                </tr>
+                    <tr>
+                        <td valign="top" style="padding-left:20px;"><a title="Share Webcom" href="http://www.bigbluebutton.org/content/videos"><img src="images/share_webcam.png" width="92" height="90" /></a></td>
+                        <td valign="top" style="padding-left:20px;"><a title="Upload Slides" href="http://www.bigbluebutton.org/content/videos"><img src="images/upload_slides.png" width="93" height="90" /></a></td>
+                   </tr>
+                   <tr>
+                        <td valign="top" style="padding-left:20px;"><p class="small"> Share Wecam </p></td>
+                        <td valign="top" style="padding-left:20px;"><p class="small"> Upload Slides </p></td>
+                   </tr>
+                </table>
+             </div>
+             <div id="devBBB">
+                <table> 
+                <tr>
+                <p style="margin-left:20px;""> Development In BigBlueButton </p>
+                </tr>
+                    <tr>
+                        <td valign="top" style="padding-left:20px;"><a title="Overview of Architecture" href="http://www.bigbluebutton.org/content/videos"><img src="images/arch_diagrams.png" width="92" height="90" /></a></td>
+                   </tr>
+                   <tr>
+                        <td valign="top" style="padding-left:20px;"><p class="small"> Overview of Architecture </p></td>
+                   </tr>
+                </table>
+             </div>
+             
+ </div><br/>
+ <p> For more information visit <a href="http://bigbluebutton.org">www.bigbluebutton.org</a></p>
         <br/>
         </div>   
         </div> 

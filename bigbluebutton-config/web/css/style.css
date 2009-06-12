@@ -14,11 +14,11 @@ img{
 #wrapper{
 	margin-left:auto; 
 	margin-right:auto;	
-	width:815px;
+	width:800px;
 	background-color:#fff;	
 	border:5px solid #e3ecf1;
 	padding:15px;
-	height:725px;
+	height:1055px;
 
 }
 
@@ -30,6 +30,76 @@ img{
 	margin-top:15px;
 /*	border:#C66 solid 1px; */
 }
+#forUser{
+	width:870px;
+	height:250px;
+	/* border:#C66 solid 1px;*/
+}
+
+/* margin-top, margin-right, margin-bottom, margin-left */
+
+#userOne{
+/*	border:#C66 solid 1px; */
+	margin: 10px 5px 5px 0px;
+ 	padding: 10px;
+ 	height: 225px;
+ 	width: 225px;
+ 	float: left;
+}
+
+#userTwo{
+ /*	border:#C66 solid 1px;*/
+ 	margin: 75px 5px 5px 25px;
+ 	padding: 10px;
+ 	height: 100px;
+ 	width: 250px;
+ 	float: left;
+}
+
+#userThree{
+ /*	border:#C66 solid 1px; */
+ 	margin: 65px 5px 5px 55px;
+ 	padding: 10px;
+ 	height: 75px;
+ 	width: 125px;
+ 	float: left;
+}
+
+#forAdmin{
+	/*	border:#C66 solid 1px; */
+	margin-top:10px;
+	width:870px;
+	height:250px;
+}
+
+#adminOne{
+	/*border:#C66 solid 1px; */
+	margin: 10px 5px 5px 0px;
+ 	padding: 10px;
+ 	height: 225px;
+ 	width: 225px;
+ 	float: left;
+}
+
+#adminTwo{
+	/*	border:#C66 solid 1px;*/
+ 	margin: 75px 5px 5px 25px;
+ 	padding: 10px;
+ 	height: 100px;
+ 	width: 250px;
+ 	float: left;
+	
+}
+
+#adminThree{
+	/*	border:#C66 solid 1px; */
+ 	margin: 65px 5px 5px 55px;
+ 	padding: 10px;
+ 	height: 75px;
+ 	width: 125px;
+ 	float: left;
+}
+
 
 #content{
 	width:775px;
@@ -39,15 +109,15 @@ img{
 	/* border:#C66 solid 1px; */
 }
 
+
 #content_left{
 	width:250px;
 	height:59px;
 	display:block;
 	float:left;
 	background-image:url(../images/button.png);
-	background-repeat:no-repeat;
-	
-}
+	background-repeat:no-repeat;	
+	}
 
 #content_right{
 	display:block;
@@ -57,18 +127,30 @@ img{
 	margin-left:30px;
 	background-image:url(../images/button.png);
 	background-repeat:no-repeat;
-	
+	}
 
-
-}
 
 #tutorials{
-	margin-top:55px;
 	width:100%;
-	height:100%;
+	height:225px;
 	border:#afafaf solid 1px;
 }
 
+#usingBBB{
+	margin:0px 5px 5px 10px;
+	width:350px;
+	height:150px;
+	float:left;
+	
+}
+
+#devBBB{
+	margin:0px 5px 5px 10px;
+	width:350px;
+	height:150px;
+	float:left;
+	
+}
 
 h1 {
 	font-size: 18px;
