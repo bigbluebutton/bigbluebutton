@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Updates
+#
+# Date       Update
+# ========== ==========================================================
+# 2009-06-17 Output proper LOGNAME and IP address when setting up samba
+#
+
 if [ "$#" -eq 0 ]; then
 	echo "
 bbb-setupdev: Setup a BigBlueButton Development environment
@@ -45,6 +52,7 @@ if [ $SAMBA ]; then
         #
         if ! grep -q $LOGNAME /etc/samba/smb.conf; then
 
+		IP="$(ifconfig eth0 | sed -n '/inet /{s/.*addr://;s/ .*//;p}')"
                 echo ";
 ; BigBlueButton: Share the development directory
 [$LOGNAME]
@@ -61,9 +69,13 @@ if [ $SAMBA ]; then
                 sudo /etc/init.d/samba restart
                 
         echo "
-You can now access your development folder through:
+You can now access your development folder either through
 
-	\\$(hostname)\$LOGNAME
+	\\\\$(hostname)\\$LOGNAME
+
+or
+
+	\\\\$IP\\$LOGNAME
 	
 If you are running on Windows, you can map the above path to a drive letter.
 "
