@@ -35,12 +35,11 @@ class FindConferenceAgi implements AgiScript {
 				channel.setVariable("CONFERENCE_FOUND", number)
 			} else {
 				println ("CONFERENCE_FOUND=")
-				channel.setVariable("CONFERENCE_FOUND", '')
+				channel.setVariable("CONFERENCE_FOUND", "0")
 			}
 		} else {
 			println ("CONFERENCE_INVALID=TRUE")
-			channel.setVariable("CONFERENCE_FOUND", '')
+			channel.setVariable("CONFERENCE_FOUND", "0")
 		}
     } 
-
 }

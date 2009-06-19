@@ -6,7 +6,7 @@
 //                             "file:${userHome}/.grails/${appName}-config.properties",
 //                             "file:${userHome}/.grails/${appName}-config.groovy"]
 
-grails.config.locations = [ "classpath:vo.properties", "file:${userHome}/.volunteerottawa/vo.properties"]
+grails.config.locations = [ "classpath:vo.properties", "file:${userHome}/.volunteerottawa/vo2.properties"]
 
 // if(System.properties["${appName}.config.location"]) {
 //    grails.config.locations << "file:" + System.properties["${appName}.config.location"]

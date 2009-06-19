@@ -9,3 +9,34 @@
   mysql> create database vo_prod;
 
   mysql> grant all on vo_dev.* to 'vo'@'localhost' identified by 'secret';
+  
+  
+  ====
+  Dialplan
+  
+[default]
+exten => s,1,Set(TRIES=1)
+exten => s,n,Goto(prompt,s,1)
+
+[prompt]
+exten => s,1,Read(CONF_NUM,conf-getconfno,6,,3,10)
+exten => s,n,Set(CONF_LEN=${LEN(${CONF_NUM})})
+exten => s,n,GotoIf($[${CONF_LEN} = 4]?vo,${CONF_NUM},1:others,${CONF_NUM},1)
+
+[vo]
+exten => _XXXX,1,Agi(agi://192.168.0.199/findConference?conference=${EXTEN})
+exten => _XXXX,n,GotoIf($[${EXTEN} = ${CONFERENCE_FOUND}]?valid:invalid)
+exten => _XXXX,n(valid),Playback(conf-placeintoconf)
+exten => _XXXX,n,MeetMe(${CONFERENCE_FOUND},dMq)
+exten => _XXXX,n(invalid),Goto(handle-invalid-conference,s,1)
+
+[others]
+exten => _XXXX.,1,MeetMe(${EXTEN},cMqsT)
+
+[handle-invalid-conference]
+exten => s,1,Playback(conf-invalid)
+exten => s,n,GotoIf($[${TRIES} < 3]?try-again:do-not-try-again)
+exten => s,n(try-again),Set(TRIES=$[${TRIES} + 1])
+exten => s,n,Goto(prompt,s,1)
+exten => s,n(do-not-try-again),Hangup
+  

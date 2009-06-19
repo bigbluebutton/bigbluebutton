@@ -9,7 +9,7 @@ class ConferenceController extends BaseController {
     def allowedMethods = [delete:'POST', save:'POST', update:'POST']
 
     def list = {
-        if(!params.max) params.max = 10
+        if(!params.max) params.max = 50
         def email = session.email.toString()
         if (params.past)
         	return [ conferenceList: Conference.findAllByEmailAndStartDateTimeLessThan(email, new Date())]
@@ -93,7 +93,7 @@ class ConferenceController extends BaseController {
         if (highestConfId) {
             nextConfId = highestConfId[0].conferenceNumber + 1
         } else {
-            nextConfId = 8000 + 1
+            nextConfId = 6000 + 1
         }
         conference.conferenceNumber = nextConfId
         conference.email = session.email
