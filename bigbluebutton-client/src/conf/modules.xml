@@ -17,19 +17,19 @@
 -->
 
 	<module name="VideoModule" url="VideoModule.swf" 
-			uri="rtmp://192.168.0.103/oflaDemo"
+			uri="rtmp://localhost/oflaDemo"
 			onUserJoinedEvent="START"
 			onUserLogoutEvent="STOP"
 	/>
 	<module name="ChatModule" url="ChatModule.swf" 
-			uri="rtmp://192.168.0.103/bigbluebutton" 
+			uri="rtmp://localhost/bigbluebutton" 
 			loadNextModule="PresentationModule"	
 			onUserJoinedEvent="START"
 			onUserLogoutEvent="STOP"		 
 	/>
 
 	<module name="ViewersModule" url="ViewersModule.swf" 
-			uri="rtmp://192.168.0.103/bigbluebutton" 
+			uri="rtmp://localhost/bigbluebutton" 
 			host="conf/join-mock.xml"
 			onAppInitEvent="LOAD" loadNextModule="ChatModule"
 			onAppStartEvent="START"
@@ -38,15 +38,15 @@
 	
 
 	<module name="ListenersModule" url="ListenersModule.swf" 
-			uri="rtmp://192.168.0.103/bigbluebutton" 
+			uri="rtmp://localhost/bigbluebutton" 
 			recordingHost="http://localhost"
 			loadNextModule="VideoModule"
 			onUserJoinedEvent="START"
 			onUserLogoutEvent="STOP"
 	/>
 	<module name="PresentationModule" url="PresentationModule.swf" 
-			uri="rtmp://192.168.0.103/bigbluebutton" 
-			host="http://192.168.0.103" 
+			uri="rtmp://localhost/bigbluebutton" 
+			host="http://localhost:8080" 
 			loadNextModule="ListenersModule"
 			onUserJoinedEvent="START" 
 			onUserLogoutEvent="STOP"

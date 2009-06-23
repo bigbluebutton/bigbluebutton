@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" 
+	implements="org.bigbluebutton.common.IBigBlueButtonModule"
+	creationComplete="onCreationComplete()">
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import org.bigbluebutton.modules.deskShare.DeskShareFacade;
+			import org.bigbluebutton.modules.chat.ChatFacade;
+			import org.bigbluebutton.common.messaging.Router;
+			
+			private var _router:Router;
+			private var _moduleId:String = "DeskShareModule";
+			private var _moduleName:String = "Desk Share";
+			private var _attributes:Object;
+			
+			private function onCreationComplete():void{
+				LogUtil.debug("DeskShareModule initialized");
+			}
+			
+			public function acceptRouter(router:Router):void{
+				_router = router;
+			}
+			
+			public function get router():Router{
+				return _router;
+			}
+			
+			public function get moduleId():String{
+				return _moduleId;
+			}
+			
+			public function get moduleName():String{
+				return _moduleName;
+			}
+			
+			public function get uri():String{
+				if (_attributes.mode == "PLAYBACK")
+					return _attributes.uri + "/" + _attributes.playbackRoom;
+				return _attributes.uri + "/" + _attributes.room;
+			}
+			
+			public function get username():String{
+				return _attributes.username;
+			}
+			
+			public function get connection():NetConnection{
+				return _attributes.connection;
+			}
+			
+			public function get mode():String{
+				if (_attributes.mode == null){
+					_attributes.mode = "LIVE";
+					LogUtil.debug("Setting DeskShare mode: " + _attributes.mode);
+				}
+				LogUtil.debug("DeskShare mode: " + _attributes.mode);
+				return _attributes.mode;
+			}
+			
+			public function get userid():Number{
+				return _attributes.userid as Number;
+			}
+			
+			public function get role():String{
+				return _attributes.userrole as String;
+			}
+			
+			public function start(attributes:Object):void{
+				LogUtil.debug("chat attr: " + attributes.username);
+				_attributes = attributes;
+				DeskShareFacade.getInstance().startup(this);
+			}
+			
+			public function stop():void{
+				DeskShareFacade.getInstance().stop(this);
+			}
+			
+			public function getRoom():String{
+				return _attributes.room;
+			}
+			
+			public function getRed5ServerUri():String{
+				return _attributes.uri;
+			}
+			
+			public function getCaptureServerUri():String{
+				var uri:String = _attributes.uri;
+				uri = uri.split("/")[2];
+				//Alert.show(uri);
+				return uri;
+			}
+		]]>
+	</mx:Script>
+	
+</mx:Module>

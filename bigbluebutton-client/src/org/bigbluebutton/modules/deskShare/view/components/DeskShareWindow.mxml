@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MDIWindow xmlns="flexlib.mdi.containers.*" 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	showCloseButton="false"
+	creationComplete="onCreationComplete()"
+	implements="org.bigbluebutton.common.IBbbModuleWindow" xmlns:components="org.bigbluebutton.modules.deskShare.view.components.*" 
+	layout="absolute" resizable="false" verticalScrollPolicy="off" horizontalScrollPolicy="off">
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.HSlider;
+			import mx.controls.VSlider;
+			import mx.events.SliderEvent;
+			import mx.events.ResizeEvent;
+			import org.bigbluebutton.modules.deskShare.view.DeskShareWindowMediator;
+			import mx.controls.Alert;
+			import mx.core.UIComponent;
+			import org.bigbluebutton.modules.deskShare.model.business.DeskShareProxy;
+			private var _xPosition:int;
+			private var _yPosition:int;
+			
+			public var proxy:DeskShareProxy;
+			public var videoHolder:UIComponent;
+			public var videoPlayer:Video;
+			public var ns:NetStream;
+			public var capturing:Boolean = false;
+			
+			public var videoWidth:Number = 400;
+			public var videoHeight:Number = 300;
+			private var zoomSlider:HSlider;
+			
+			private var startDragX:Number;
+			private var startDragY:Number;
+			private var startDragMouseX:Number;
+			private var startDragMouseY:Number;
+			
+			public function get xPosition():int{
+				return _xPosition;
+			}
+			
+			public function get yPosition():int{
+				return _yPosition;
+			}
+			
+			public function set xPosition(x:int):void{
+				_xPosition = x;
+			}
+			
+			public function set yPosition(y:int):void{
+				_yPosition = y;
+			}
+			
+			private function onCreationComplete():void{
+				if (ExternalInterface.call("checkForJava") != 1){
+					//Alert.show("Java is not enabled in your browser. Desktop Sharing will not work");
+					this.enabled = false;
+					this.lblStatus.text = "Java not enabled";
+				}
+				height = bar.height + dimensionsBox.height + 33;
+				width = dimensionsBox.width + 7;
+				dimensionsBox.y = bar.height + 5;
+			}
+			
+			public function addZoomSlider():void{
+				zoomSlider = new HSlider();
+				zoomSlider.minimum = 10;
+				zoomSlider.maximum = 100;
+				zoomSlider.value = 100;
+				zoomSlider.labels = ['10%','100%'];
+				zoomSlider.addEventListener(SliderEvent.CHANGE, onZoomChange);
+				bar.addChildAt(zoomSlider, bar.numChildren - 1);
+			}
+			
+			public function removeZoomSlider():void{
+				bar.removeChild(zoomSlider);
+			}
+			
+			public function addDragSupport():void{
+				canvas.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+				canvas.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+			}
+			
+			public function removeDragSupport():void{
+				canvas.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+				canvas.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+			}
+			
+			private function onZoomChange(e:SliderEvent):void{
+				videoPlayer.width = zoomSlider.value/100 * videoWidth;
+				videoPlayer.height = zoomSlider.value/100 * videoHeight;
+				videoHolder.width = zoomSlider.value/100 * videoWidth;
+				videoHolder.height = zoomSlider.value/100 * videoHeight;
+			}
+			
+			private function onMouseDown(e:MouseEvent):void{
+				startDragX = this.mouseX;
+				startDragY = this.mouseY;
+				canvas.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);	
+				canvas.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+			}
+			
+			private function onMouseMove(e:MouseEvent):void{
+				var movedX:Number = this.mouseX - startDragX;
+				var movedY:Number = this.mouseY - startDragY;
+				
+				canvas.verticalScrollPosition -= movedY;
+				canvas.horizontalScrollPosition -= movedX;
+			}
+			
+			private function onMouseUp(e:MouseEvent):void{
+				canvas.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+				canvas.removeEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+			}
+			
+			private function onMouseOut(e:MouseEvent):void{
+				canvas.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+				canvas.removeEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+			}
+			
+		]]>
+	</mx:Script>
+	<mx:Canvas id="canvas" x="0" y="50" visible="false" width="100%" height="100%"/>
+	<mx:ApplicationControlBar id="bar" width="100%">
+		<mx:RadioButton id="btnStartApplet" label="Start Sharing" click="dispatchEvent(new Event(DeskShareWindowMediator.START_SHARING))" x="10" y="10"/>
+		<mx:Label id="lblStatus" />
+	</mx:ApplicationControlBar>
+	<components:DimensionsBox id="dimensionsBox"/>
+	
+</MDIWindow>

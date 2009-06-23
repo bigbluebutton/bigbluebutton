@@ -43,6 +43,7 @@
 <module application="src/BigBlueButton.mxml" destPath="JoinModule.swf" optimize="true" sourcePath="src/JoinModule.mxml"/>
 <module application="src/BigBlueButton.mxml" destPath="PhoneModule.swf" optimize="true" sourcePath="src/PhoneModule.mxml"/>
 <module application="src/BigBlueButton.mxml" destPath="Red5PhoneModule.swf" optimize="true" sourcePath="src/Red5PhoneModule.mxml"/>
+<module application="src/BigBlueButton.mxml" destPath="DeskShareModule.swf" optimize="true" sourcePath="src/DeskShareModule.mxml"/>
 </modules>
 <buildCSSFiles/>
 </actionScriptProperties>

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="onCreationComplete()" 
+	backgroundColor="gray" toolTip="Drag the black box to the area of the screen you wish to share" 
+	xmlns:components="org.bigbluebutton.modules.deskShare.view.components.*">
+    
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.modules.deskShare.DeskShareModuleConstants;
+			import mx.core.UIComponent;
+
+			private var screenWidth:Number;
+			private var screenHeight:Number;
+			
+			private var startDragX:Number;
+			private var startDragY:Number;
+			private var startDragMouseX:Number;
+			private var startDragMouseY:Number;
+			
+			public var videoHolder:UIComponent;
+			private var videoPlayer:Video;
+			private var ns:NetStream;
+			
+			[Bindable]
+			private var suggestedFrameRate:Number;
+			[Bindable]
+			private var suggestedQuality:String;
+			
+			private function onCreationComplete():void{
+				screenWidth = Capabilities.screenResolutionX;
+				screenHeight = Capabilities.screenResolutionY;
+				this.width = Math.round(screenWidth / DeskShareModuleConstants.SCALE);
+				this.height = Math.round(screenHeight / DeskShareModuleConstants.SCALE);
+				updateBoxInfo();
+			}
+			
+			public function startThumbnail(nc:NetConnection, streamName:String):void{
+				this.visible = true;
+				box.visible = false;
+				
+				videoHolder = new UIComponent();
+				videoPlayer = new Video(box.width, box.height);
+				videoPlayer.width = box.width;
+				videoPlayer.height = box.height;
+				videoHolder.width = box.width;
+				videoHolder.height = box.height;
+				videoHolder.setActualSize(box.width, box.height);
+				videoHolder.addChild(videoPlayer);
+				this.addChild(videoHolder);
+				videoHolder.x = box.x;
+				videoHolder.y = box.y;
+				
+				videoHolder.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+				videoHolder.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+				this.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+				
+				ns = new NetStream(nc);
+				ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
+				ns.client = this;
+				ns.bufferTime = 0;
+				ns.receiveVideo(true);
+				ns.receiveAudio(false);
+				videoPlayer.attachNetStream(ns);
+				ns.play(streamName);
+			}
+			
+			public function stopThumbnail():void{
+				this.removeChild(videoHolder);
+				videoPlayer.clear();
+				videoPlayer = null;
+				videoHolder = null;
+				this.removeEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+				box.visible = true;
+			}
+			
+			private function onMouseDown(e:MouseEvent):void{
+				startDragX = videoHolder.x;
+				startDragY = videoHolder.y;
+				startDragMouseX = this.mouseX;
+				startDragMouseY = this.mouseY;
+				videoHolder.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+			}
+			
+			private function onMouseMove(e:MouseEvent):void{
+				var newX:Number = startDragX + (this.mouseX - startDragMouseX);
+				var newY:Number = startDragY + (this.mouseY - startDragMouseY);
+				
+				if (newX < 0) videoHolder.x = 0;
+				else if (newX > this.width - (box.width+5)) videoHolder.x = this.width - box.width;
+				else videoHolder.x = newX;
+				
+				if (newY < 0) videoHolder.y = 0;
+				else if (newY > this.height - (box.height+5)) videoHolder.y = this.height - box.height;
+				else videoHolder.y = newY;
+				
+				ExternalInterface.call("setScreenCoordinates", getXPosition(), getYPosition());
+			}
+			
+			private function onMouseUp(e:MouseEvent):void{
+				videoHolder.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+			}
+			
+			private function onMouseOut(e:MouseEvent):void{
+				videoHolder.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+			}
+			
+			private function getXPosition():Number{
+				return videoHolder.x * DeskShareModuleConstants.SCALE;
+			}
+			
+			private function getYPosition():Number{
+				return videoHolder.y * DeskShareModuleConstants.SCALE;
+			}
+			
+			private function onAsyncError(e:AsyncErrorEvent):void{
+				
+			}
+			
+			private function updateBoxInfo():void{
+				if (box.width *DeskShareModuleConstants.SCALE >= Capabilities.screenResolutionX) lblWidth.text 
+						= Capabilities.screenResolutionX.toString();
+				if (box.height*DeskShareModuleConstants.SCALE >= Capabilities.screenResolutionY) lblHeight.text
+						= Capabilities.screenResolutionY.toString();
+				var area:Number = (box.width*DeskShareModuleConstants.SCALE) * (box.height*DeskShareModuleConstants.SCALE);
+				if (area > 1000000){
+					 suggestedFrameRate = 1;
+					 suggestedQuality = "Poor";
+				} else if (area > 600000){
+					 suggestedFrameRate = 2;
+					 suggestedQuality = "Fair"
+				} else if (area > 300000){
+					 suggestedFrameRate = 4;
+					 suggestedQuality = "Good"
+				} else if (area > 150000){
+					 suggestedFrameRate = 8;
+					 suggestedQuality = "Excellent";
+				} else{
+		 			 suggestedFrameRate = 10;
+		 			 suggestedQuality = "Excellent";
+		 		}
+			}
+
+		]]>
+	</mx:Script>
+
+	<components:ResizableBox id="box" x="10" y="10" resize="updateBoxInfo()" useHandCursor="true"
+		width="{(Math.round((Capabilities.screenResolutionX/2)/DeskShareModuleConstants.SCALE))}" 
+		height="{(Math.round((Capabilities.screenResolutionY - 100)/DeskShareModuleConstants.SCALE))}" 
+		minWidth="{Math.round(300/DeskShareModuleConstants.SCALE)}" 
+		minHeight="{Math.round(300/DeskShareModuleConstants.SCALE)}" 
+		maxWidth="{Math.round((Capabilities.screenResolutionX)/DeskShareModuleConstants.SCALE)}" 
+		maxHeight="{Math.round((Capabilities.screenResolutionY)/DeskShareModuleConstants.SCALE)}" 
+		verticalScrollPolicy="off" horizontalScrollPolicy="off">
+        <mx:HBox horizontalGap="0">
+        	<mx:Label id="lblWidth" text="{(box.width * DeskShareModuleConstants.SCALE).toString()}"/>
+        	<mx:Label text="x"/>
+        	<mx:Label id="lblHeight" text="{(box.height * DeskShareModuleConstants.SCALE).toString()}"/>
+        </mx:HBox>
+        <mx:HBox>
+        	<mx:Label text="FrameRate: " />
+        	<mx:Label text="{suggestedFrameRate}" />
+        </mx:HBox>
+        <mx:HBox>
+        	<mx:Label text="Quality: " />
+        	<mx:Label text="{suggestedQuality}" />
+        </mx:HBox>
+	</components:ResizableBox>
+</mx:Canvas>

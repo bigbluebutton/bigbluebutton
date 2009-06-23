@@ -85,6 +85,42 @@ if ( hasProductInstall && !hasRequestedVersion ) {
     document.write(alternateContent);  // insert non-flash content
   }
 // -->
+
+function startApplet(IP, roomNumber, captureX, captureY, captureWidth, captureHeight)
+{
+	var iframe = document.createElement("iframe");
+  	iframe.id = "iframe";
+   	document.body.appendChild(iframe);
+   	frames[frames.length - 1].document.write("<applet id="+ "\"DeskShareApplet\" " + "NAME=" + "\"DeskShareApplet\" " +
+           	 "height=" + "\"0\" " +"width="+ "\"0\" " +"scriptable="+ "\"true\" " + 
+           	 "mayscript=" + "\"true\">" +
+             "<param name=" +"\"CODE\" "+ "value=" + "\"test.RunnerApplet.class\"" + "></param>"+
+             "<param name=" +"\"ROOM\" "+ "value=" + "\"" + roomNumber + "\"" + "></param>"+  
+             "<param name=" +"\"IP\" " + "value=" + "\"" + IP + "\"" + "></param>"+
+             "<param name=" +"\"CAPTURE_WIDTH\" " + "value=" + "\"" + captureWidth + "\"" + "></param>"+
+             "<param name=" +"\"CAPTURE_HEIGHT\" " + "value=" + "\"" + captureHeight + "\"" + "></param>"+
+             "<param name=" +"\"X\" " + "value=" + "\"" + captureX + "\"" + "></param>"+
+             "<param name=" +"\"Y\" " + "value=" + "\"" + captureY + "\"" + "></param>"+
+             "<param name=" +"\"ARCHIVE\" " + "value="+ "\"deskShare.jar\"" + "></param> </applet>");   
+}
+
+function removeFrame () {
+    var iframe = document.getElementById("iframe");
+    iframe.parentNode.removeChild(iframe);
+}
+
+function setScreenCoordinates(x, y) {
+   return frames[frames.length - 1].document.DeskShareApplet.setScreenCoordinates(x,y);
+}
+
+function stopApplet(){
+	frames[frames.length - 1].document.DeskShareApplet.destroy();
+}
+
+function checkForJava(){
+	if (navigator.javaEnabled()) return 1; 
+}
+
 </script>
 <noscript>
   	<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
