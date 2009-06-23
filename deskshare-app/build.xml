@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- WARNING: Eclipse auto-generated file.
+              Any modifications will be overwritten.
+              To include a user specific buildfile here, simply create one in the same
+              directory with the processing instruction <?eclipse.ant.import?>
+              as the first entry and export the buildfile again. -->
+<project basedir="." default="build" name="deskShare">
+    <property environment="env"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
+    <path id="deskShare.classpath">
+        <pathelement location="WEB-INF/classes"/>
+        <pathelement location="WEB-INF/xuggle-xuggler-red5-2.0.366.jar"/>
+        <pathelement location="lib/red5.jar"/>
+        <pathelement location="lib/slf4j-api-1.5.6.jar"/>
+        <pathelement location="lib/logback-classic.jar"/>
+        <pathelement location="lib/logback-core.jar"/>
+        <pathelement location="lib/slf4j-api.jar"/>
+        <pathelement location="lib/activation-1.1.jar"/>
+        <pathelement location="lib/aopalliance-.jar"/>
+        <pathelement location="lib/log4j-over-slf4j-1.5.6.jar"/>
+        <pathelement location="lib/logback-classic-0.9.14.jar"/>
+        <pathelement location="lib/logback-core-0.9.14.jar"/>
+        <pathelement location="lib/servlet-api-2.5.jar"/>
+        <pathelement location="lib/spring-aop-2.5.6.jar"/>
+        <pathelement location="lib/spring-beans-2.5.6.jar"/>
+        <pathelement location="lib/spring-context-2.5.6.jar"/>
+        <pathelement location="lib/spring-context-support-2.5.6.jar"/>
+        <pathelement location="lib/spring-core-2.5.6.jar"/>
+        <pathelement location="lib/spring-web-2.5.6.jar"/>
+        <pathelement location="lib/xuggle-xuggler.jar"/>
+        <pathelement location="lib/xuggle-xuggler-2.0.322.jar"/>
+    </path>
+    <target name="init">
+        <mkdir dir="WEB-INF/classes"/>
+        <copy includeemptydirs="false" todir="WEB-INF/classes">
+            <fileset dir="WEB-INF/src" excludes="**/*.launch, **/*.java"/>
+        </copy>
+    </target>
+    <target name="clean">
+        <delete dir="WEB-INF/classes"/>
+    </target>
+    <target depends="clean" name="cleanall"/>
+    <target depends="build-subprojects,build-project" name="build"/>
+    <target name="build-subprojects"/>
+    <target depends="init" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="WEB-INF/classes" source="${source}" target="${target}">
+            <src path="WEB-INF/src"/>
+            <exclude name="deskShare/StreamConverter.java"/>
+            <classpath refid="deskShare.classpath"/>
+        </javac>
+    </target>
+    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
+	<target name="dist" depends="build">
+		<mkdir dir="../red5/webapps/deskShare/WEB-INF/lib"/>
+		<mkdir dir="../red5/webapps/deskShare/streams"/>
+		<copy includeemptydirs="false" todir="../red5/webapps/deskShare/WEB-INF/lib">
+			<fileset dir="WEB-INF/lib"></fileset>
+	    </copy>
+	    <copy file="WEB-INF/logback-deskShare.xml" todir="../red5/webapps/deskShare/WEB-INF/"/>
+	    <copy file="WEB-INF/red5-web.properties" todir="../red5/webapps/deskShare/WEB-INF/"/>
+	    <copy file="WEB-INF/red5-web.xml" todir="../red5/webapps/deskShare/WEB-INF/"/>
+	    <copy file="WEB-INF/web.xml" todir="../red5/webapps/deskShare/WEB-INF/"/>
+	    <jar destfile="../red5/webapps/deskShare/WEB-INF/lib/deskShare.jar" basedir="WEB-INF/classes"></jar>
+    </target>
+
+</project>
