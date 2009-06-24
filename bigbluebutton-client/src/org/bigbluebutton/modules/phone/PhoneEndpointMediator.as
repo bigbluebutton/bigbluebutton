@@ -62,7 +62,8 @@ package org.bigbluebutton.modules.phone
 				PhoneModuleConstants.CONNECTED,
 				PhoneModuleConstants.DISCONNECTED,
 				PhoneModuleConstants.ADD_WINDOW,
-				PhoneModuleConstants.REMOVE_WINDOW
+				PhoneModuleConstants.REMOVE_WINDOW,
+				PhoneModuleConstants.ADD_BUTTON
 			];
 		}
 		
@@ -74,7 +75,6 @@ package org.bigbluebutton.modules.phone
 					LogUtil.debug("Sending Phone MODULE_STARTED message to main");
 					_endpoint.sendMessage(EndpointMessageConstants.MODULE_STARTED, 
 							EndpointMessageConstants.TO_MAIN_APP, _module.moduleId);
-					openPhoneWindow();
 					break;
 				case PhoneModuleConstants.DISCONNECTED:
 					LogUtil.debug('Sending Phone MODULE_STOPPED message to main');
@@ -92,6 +92,11 @@ package org.bigbluebutton.modules.phone
 				case PhoneModuleConstants.REMOVE_WINDOW:
 					LogUtil.debug('Sending Phone REMOVE_WINDOW message to main');
 					_endpoint.sendMessage(EndpointMessageConstants.REMOVE_WINDOW, 
+							EndpointMessageConstants.TO_MAIN_APP, notification.getBody());
+					break;
+				case PhoneModuleConstants.ADD_BUTTON:
+					LogUtil.debug('Sending Phone ADD_BUTTON message to main');
+					_endpoint.sendMessage(EndpointMessageConstants.ADD_BUTTON, 
 							EndpointMessageConstants.TO_MAIN_APP, notification.getBody());
 					break;
 			}

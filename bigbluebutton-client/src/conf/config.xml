@@ -1,44 +1,50 @@
 <?xml version="1.0" ?>
 <config>
     <version>0.4</version>
-    <porttest host="192.168.0.172" application="oflaDemo"/>    
+    <porttest host="localhost" application="oflaDemo"/>    
 	<modules>
 		<module name="VideoModule" url="VideoModule.swf" 
-			uri="rtmp://192.168.0.172/oflaDemo"
+			uri="rtmp://localhost/oflaDemo"
 			onUserJoinedEvent="START"
-			onUserLogoutEvent="STOP"
-			loadNextModule="DeskShareModule"	
+			onUserLogoutEvent="STOP"	
+			loadNextModule="PhoneModule"	
 		/>
 		<module name="ChatModule" url="ChatModule.swf" 
-			uri="rtmp://192.168.0.172/bigbluebutton" 
+			uri="rtmp://localhost/bigbluebutton" 
 			loadNextModule="PresentationModule"	
 			onUserJoinedEvent="START"
 			onUserLogoutEvent="STOP"		 
 		/>
 		<module name="ViewersModule" url="ViewersModule.swf" 
-			uri="rtmp://192.168.0.172/bigbluebutton" 
+			uri="rtmp://localhost/bigbluebutton" 
 			host="conf/join-mock.xml"
 			onAppInitEvent="LOAD" loadNextModule="ChatModule"
 			onAppStartEvent="START"
 			onUserLogoutEvent="STOP"
 		/>
 		<module name="ListenersModule" url="ListenersModule.swf" 
-			uri="rtmp://192.168.0.172/bigbluebutton" 
-			recordingHost="http://192.168.0.172"
+			uri="rtmp://localhost/bigbluebutton" 
+			recordingHost="http://localhost"
 			loadNextModule="VideoModule"
 			onUserJoinedEvent="START"
 			onUserLogoutEvent="STOP"
 		/>
 		<module name="PresentationModule" url="PresentationModule.swf" 
-			uri="rtmp://192.168.0.172/bigbluebutton" 
-			host="http://192.168.0.172" 
+			uri="rtmp://localhost/bigbluebutton" 
+			host="http://localhost" 
 			loadNextModule="ListenersModule"
 			onUserJoinedEvent="START" 
 			onUserLogoutEvent="STOP"
 		/>
 		
-		<module name="DeskShareModule" url="DeskShareModule.swf" 
-			uri="rtmp://192.168.0.172/deskShare" 
+		<!--module name="DeskShareModule" url="DeskShareModule.swf" 
+			uri="rtmp://localhost/deskShare" 
+			onUserJoinedEvent="START" 
+			onUserLogoutEvent="STOP"
+		/-->
+		
+		<module name="PhoneModule" url="PhoneModule.swf" 
+			uri="rtmp://localhost/sip" 
 			onUserJoinedEvent="START" 
 			onUserLogoutEvent="STOP"
 		/>

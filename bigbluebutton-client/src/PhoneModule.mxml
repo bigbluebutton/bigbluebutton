@@ -9,7 +9,7 @@
 			
 			private var _router:Router;			
 			private var _moduleId:String = "PhoneModule";
-			private var _moduleName:String = "Phone Module";			
+			private var _moduleName:String = "Phone";			
 			private var _attributes:Object;
 			
 			private function onCreationComplete():void {
@@ -33,7 +33,7 @@
 			}
 		
 			public function get uri():String {
-				return _attributes.uri + "/" + _attributes.room;
+				return _attributes.uri;
 			}
 			
 			public function get username():String {

@@ -275,7 +275,7 @@
 	<mx:Button icon="{stop_icon}" id="cmdHangUp" click="doHangUp();" x="99" width="65" y="23" toolTip="End Call"/>
 	<mx:Label x="10" y="54" id="simpleLabel" fontSize="8" text=""/>
 	
-	<mx:TextInput x="10" y="100" width="100" text="9" id="txtInput" fontSize="10" height="22"/>
+	<mx:TextInput x="10" y="100" width="100" text="91" id="txtInput" fontSize="10" height="22"/>
 	<mx:Button x="10" y="125" label="Call" id="cmdPhoneCall" click="doPhoneCall();" width="90" fontSize="9" height="20"/>
 	</mx:Canvas>
 </MDIWindow>

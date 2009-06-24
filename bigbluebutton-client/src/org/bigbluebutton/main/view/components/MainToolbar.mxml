@@ -30,7 +30,8 @@
 	</mx:Script>
 	<!--<mx:Button id="webcamBtn" label="Open Webcam" visible="true" height="20" toolTip="Click to open webcam"/> -->	
 	<mx:Label id="loggedInUserLbl" text="" visible="true"/>	
-	<mx:Canvas id="addedBtns"/>		
+	<mx:HBox id="addedBtns">
+	</mx:HBox>		
 	<mx:Spacer width="100%"/>
 	<mx:LinkButton label="Help" click="navigateToURL(new URLRequest('http://www.bigbluebutton.org/content/videos'))"/>
 	<mx:Button label="Logout" id="btnLogout" toolTip="Log out" right="10" click="doLogout()"/>		

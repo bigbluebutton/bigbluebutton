@@ -31,8 +31,7 @@ package org.bigbluebutton.modules.phone.view
 	public class PhoneWindowMediator extends Mediator implements IMediator
 	{
 		public static const NAME:String = "PhoneMediator";
-		public static const NEW_MESSAGE:String = "newMessage";
-		
+
 		private var _module:PhoneModule;
 		private var _phoneWindow:PhoneWindow;
 		private var _phoneWindowOpen:Boolean = false;

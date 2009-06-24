@@ -21,6 +21,7 @@ package org.bigbluebutton.modules.phone.controller
 {
 	import org.bigbluebutton.modules.phone.PhoneEndpointMediator;
 	import org.bigbluebutton.modules.phone.PhoneModuleConstants;
+	import org.bigbluebutton.modules.phone.view.ToolbarButtonMediator;
 	import org.puremvc.as3.multicore.interfaces.ICommand;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.command.SimpleCommand;
@@ -31,6 +32,7 @@ package org.bigbluebutton.modules.phone.controller
 			var m:PhoneModule = notification.getBody() as PhoneModule;
 			
 			facade.registerMediator(new PhoneEndpointMediator(m));
+			facade.registerMediator(new ToolbarButtonMediator(m));
 			facade.sendNotification(PhoneModuleConstants.CONNECTED);
 		}
 	}
