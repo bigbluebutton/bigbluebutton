@@ -16,7 +16,7 @@
 		<mxmlc-compile target="${APP_ROOT}/PresentationModule" />
 		<mxmlc-compile target="${APP_ROOT}/VideoModule" />
 		<mxmlc-compile target="${APP_ROOT}/LoginModule" />
-		<mxmlc-compile target="${APP_ROOT}/DeskShareModule />		
+		<mxmlc-compile target="${APP_ROOT}/DeskShareModule" />		
 		
 		<copy todir="${OUTPUT_DIR}/conf" >
 			<fileset dir="./src/conf" />
