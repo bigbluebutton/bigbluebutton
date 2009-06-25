@@ -63,6 +63,10 @@
 			public function get role():String {
 				return _attributes.userrole as String;
 			}
+			
+			public function get voicebridge():String {
+				return _attributes.voicebridge;
+			}
 									
 			public function start(attributes:Object):void {	
 				LogUtil.debug("phone attr: " + attributes.username);

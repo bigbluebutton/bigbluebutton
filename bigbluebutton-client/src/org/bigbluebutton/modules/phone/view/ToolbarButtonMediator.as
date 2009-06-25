@@ -28,7 +28,7 @@ package org.bigbluebutton.modules.phone.view
 		private function onStartPhoneEvent(e:Event):void {
 			button.enabled = false;	
 			var uid:String = String( Math.floor( new Date().getTime() ) );		
-			red5Manager = new Red5Manager(uid, module.username, module.uri);
+			red5Manager = new Red5Manager(uid, module.username, module.voicebridge, module.uri);
 			red5Manager.connectRed5();
 		}
 		

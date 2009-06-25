@@ -16,12 +16,14 @@ package org.bigbluebutton.modules.phone {
 		private var username:String;
 		private var red5Url:String;
 		private var uid:String;
+		private var room:String;
 		
 		private var isConnected:Boolean = false;
 		
-		public function Red5Manager(uid:String, username:String, red5Url:String) {
+		public function Red5Manager(uid:String, username:String, room:String, red5Url:String) {
 			this.uid = uid;	
 			this.username  = username;
+			this.room = room;
 			this.red5Url   = red5Url;
 			this.init();
 		}
@@ -48,20 +50,20 @@ package org.bigbluebutton.modules.phone {
 			switch(evt.info.code) {
 				
 				case "NetConnection.Connect.Success":
-//					dispatchEvent (new Red5MessageEvent(Red5MessageEvent.MESSAGE, Red5MessageEvent.NETSTAUS,  'Connection success'));
+					LogUtil.debug("Successfully connected to SIP application.");
 					this.doOpen();									
 					break;
 		
 				case "NetConnection.Connect.Failed":
-//					dispatchEvent (new Red5MessageEvent(Red5MessageEvent.MESSAGE, Red5MessageEvent.NETSTAUS,  'Failed to connect to Red5'));
+					LogUtil.error("Failed to connect to SIP application.");
 					break;
 					
 				case "NetConnection.Connect.Closed":
-//					dispatchEvent (new Red5MessageEvent(Red5MessageEvent.MESSAGE, Red5MessageEvent.NETSTAUS,  'Failed to connect to Red5'));
-					break;
+					LogUtil.error("Connection to SIP application has closed.");
+				break;
 		
 				case "NetConnection.Connect.Rejected":
-//					dispatchEvent (new Red5MessageEvent(Red5MessageEvent.MESSAGE, Red5MessageEvent.NETSTAUS,  'Connection Rejected'));
+					LogUtil.error("Connection to SIP application was rejected.");
 					break;
 		
 				case "NetStream.Play.StreamNotFound":
@@ -104,19 +106,20 @@ package org.bigbluebutton.modules.phone {
 		//********************************************************************************************
 
 		public function registrationSucess(msg:String):* {
-//			dispatchEvent (new Red5MessageEvent(Red5MessageEvent.MESSAGE, Red5MessageEvent.SIP_REGISTER,  "SUCCESS"));
-			doCall("85115");
+			LogUtil.debug("REGISTRATION to the SIP server Succeeded.");
+			LogUtil.debug("Calling " + room);
+			doCall(room);
 		}
 	
 		public function registrationFailure(msg:String):* {
-//			dispatchEvent (new Red5MessageEvent(Red5MessageEvent.MESSAGE, Red5MessageEvent.SIP_REGISTER,  msg));
+			LogUtil.error("REGISTRATION to the SIP server failed.");		
 		}
 
 		public function callState(msg:String):* {
-			trace("RED5Manager callState " + msg);
-//			dispatchEvent (new Red5MessageEvent(Red5MessageEvent.MESSAGE, Red5MessageEvent.CALLSTATE,  msg));
-			
+			LogUtil.debug("RED5Manager callState " + msg);
+	
 			if (msg == "onUaCallClosed" ||  msg == "onUaCallFailed") {
+				LogUtil.debug("Call has been disconnected.");
 //				dispatchEvent (new CallDisconnectedEvent(CallDisconnectedEvent.DISCONNECTED,  msg));
 				isConnected = false;
 			}
@@ -132,6 +135,7 @@ package org.bigbluebutton.modules.phone {
 		}
 				
         public function connected(publishName:String, playName:String):* {
+        	LogUtil.debug("Call has been connected");
 		//	dispatchEvent (new CallConnectedEvent(CallConnectedEvent.CONNECTED, publishName,  playName));
 			isConnected = true;
 		}
