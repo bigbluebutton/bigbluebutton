@@ -41,14 +41,13 @@
 			uri="rtmp://localhost/deskShare" 
 			onUserJoinedEvent="START" 
 			onUserLogoutEvent="STOP"
-			loadNextModule="PhoneModule"
 		/>
 		
-		<module name="PhoneModule" url="PhoneModule.swf" 
+		<!--module name="PhoneModule" url="PhoneModule.swf" 
 			uri="rtmp://localhost/sip" 
 			onUserJoinedEvent="START" 
 			onUserLogoutEvent="STOP"
-		/>
+		/-->
 	</modules>
 </config>
 
