@@ -17,6 +17,7 @@
 		<mxmlc-compile target="${APP_ROOT}/VideoModule" />
 		<mxmlc-compile target="${APP_ROOT}/LoginModule" />
 		<mxmlc-compile target="${APP_ROOT}/DeskShareModule" />		
+		<mxmlc-compile target="${APP_ROOT}/PhoneModule />
 		
 		<copy todir="${OUTPUT_DIR}/conf" >
 			<fileset dir="./src/conf" />
@@ -50,6 +51,10 @@
 			<fileset dir="./src/org/bigbluebutton/modules/video/view/assets/images/" />
 		</copy>
 
+		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/phone/view/assets/images/" >
+			<fileset dir="./src/org/bigbluebutton/modules/phone/view/assets/images/" />
+		</copy>
+		
 		<move todir="${OUTPUT_DIR}" >
 			<fileset dir="${OUTPUT_DIR}/src" />
 		</move>
