@@ -7,7 +7,7 @@
 			uri="rtmp://localhost/oflaDemo"
 			onUserJoinedEvent="START"
 			onUserLogoutEvent="STOP"	
-			loadNextModule="PhoneModule"	
+			loadNextModule="DeskShareModule"	
 		/>
 		<module name="ChatModule" url="ChatModule.swf" 
 			uri="rtmp://localhost/bigbluebutton" 
@@ -17,7 +17,7 @@
 		/>
 		<module name="ViewersModule" url="ViewersModule.swf" 
 			uri="rtmp://localhost/bigbluebutton" 
-			host="conf/join-mock.xml"
+			host="http://localhost/bigbluebutton/conference-session/enter"
 			onAppInitEvent="LOAD" loadNextModule="ChatModule"
 			onAppStartEvent="START"
 			onUserLogoutEvent="STOP"
@@ -37,11 +37,12 @@
 			onUserLogoutEvent="STOP"
 		/>
 		
-		<!--module name="DeskShareModule" url="DeskShareModule.swf" 
+		<module name="DeskShareModule" url="DeskShareModule.swf" 
 			uri="rtmp://localhost/deskShare" 
 			onUserJoinedEvent="START" 
 			onUserLogoutEvent="STOP"
-		/-->
+			loadNextModule="PhoneModule"
+		/>
 		
 		<module name="PhoneModule" url="PhoneModule.swf" 
 			uri="rtmp://localhost/sip" 
