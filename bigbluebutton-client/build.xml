@@ -56,6 +56,7 @@
 		</copy>
 		
 		<copy file="./html-template/deskShare.jar" todir="${OUTPUT_DIR}"/>
+		<copy file="./html-template/BigBlueButton.html" todir="${OUTPUT_DIR}"/>
 		
 		<move todir="${OUTPUT_DIR}" >
 			<fileset dir="${OUTPUT_DIR}/src" />
