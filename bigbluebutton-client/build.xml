@@ -56,7 +56,6 @@
 		</copy>
 		
 		<copy file="./html-template/deskShare.jar" todir="${OUTPUT_DIR}"/>
-		<copy file="./html-template/BigBlueButton.html" todir="${OUTPUT_DIR}" overwrite="true"/>
 		
 		<move todir="${OUTPUT_DIR}" >
 			<fileset dir="${OUTPUT_DIR}/src" />
@@ -79,6 +78,7 @@
 			template="express-installation"
 			output="${OUTPUT_DIR}"
 		/>
+		<copy file="./html-template/BigBlueButton.html" todir="${OUTPUT_DIR}" overwrite="true"/>
 	</target>
 
 	<target name="clean">
