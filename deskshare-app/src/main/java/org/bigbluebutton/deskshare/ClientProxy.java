@@ -8,8 +8,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
+import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IScope;
 import org.red5.server.api.so.ISharedObject;
+import org.slf4j.Logger;
 
 /**
  * The ClientProxy receives images from the client which captures the screen
@@ -17,6 +19,7 @@ import org.red5.server.api.so.ISharedObject;
  *
  */
 public class ClientProxy implements Runnable, IImageListener {
+	final private Logger log = Red5LoggerFactory.getLogger(ClientProxy.class, "deskshare");
 	
 	private ServerSocket serverSocket;
 	private boolean keepCapturing = true;
@@ -36,7 +39,7 @@ public class ClientProxy implements Runnable, IImageListener {
 		try{
 			serverSocket = new ServerSocket(DeskShareConstants.PORT);
 		} catch(IOException e){
-			System.out.println(e.getMessage());
+			log.error(e.getMessage());
 			e.printStackTrace(System.out);
 		}
 	}
@@ -49,7 +52,7 @@ public class ClientProxy implements Runnable, IImageListener {
 			try{
 				acceptRoomConnection(serverSocket.accept());
 			} catch(IOException e){
-				System.out.println(e.getMessage());
+				log.error(e.getMessage());
 				e.printStackTrace(System.out);
 			}
 		}
@@ -111,7 +114,7 @@ public class ClientProxy implements Runnable, IImageListener {
 	public void streamEnded(String streamName) {
 		for (int i = 0; i<roomList.size(); i++){
 			if (roomList.get(i).getStreamName().equalsIgnoreCase(streamName)){
-				System.out.println("Removing stream " + streamName);
+				log.info("Removing stream " + streamName);
 				roomList.remove(i);
 			}
 		}

@@ -65,7 +65,7 @@ public class Red5Streamer implements IImageListener {
 			}
 			
 			public void write(Red5Message message) throws InterruptedException{
-				System.out.println("Handler writing message to stream " + outStreamName);
+				log.debug("Handler writing message to stream " + outStreamName);
 				try{
 					IRTMPEvent event = message.getData();
 					if (event != null){
@@ -89,7 +89,7 @@ public class Red5Streamer implements IImageListener {
 		try{
 			converter = ConverterFactory.createConverter(image, IPixelFormat.Type.YUV420P);
 		} catch(UnsupportedOperationException e){
-			System.out.println("could not create converter");
+			log.error("could not create converter");
 		}
 		IVideoPicture outFrame = converter.toPicture(image, timestamp);
 		timestamp += timestampBase;
@@ -115,7 +115,7 @@ public class Red5Streamer implements IImageListener {
 		int retval = outContainer.writeTrailer();
 	    if (retval < 0)
 	      throw new RuntimeException("Could not write trailer to output file");
-	    System.out.println("stopping and closing stream" + outStreamName);
+	    log.info("stopping and closing stream" + outStreamName);
 	}
 	
 	/**
@@ -124,8 +124,7 @@ public class Red5Streamer implements IImageListener {
 	 */
 	synchronized private void startPublishing(IScope aScope){
 		log.debug("started publishing stream in " + aScope.getName());
-		System.out.println("started publishing stream in " + aScope.getName());
-		
+
 		broadcastStream = new BroadcastStream(outStreamName);
 		broadcastStream.setPublishedName(outStreamName);
 		broadcastStream.setScope(aScope);
@@ -149,7 +148,7 @@ public class Red5Streamer implements IImageListener {
 	 * Sets up Xuggler containers & streams
 	 */
 	private void setupStreams(){
-		System.out.println("In setupStreams");
+		log.debug("Setting up streams: {}", broadcastStream.getName());
 		String outputURL = Red5HandlerFactory.DEFAULT_PROTOCOL +":"+ broadcastStream.getName();
 		
 		ICodec videoCodec = ICodec.findEncodingCodec(ICodec.ID.CODEC_ID_FLV1);
@@ -173,10 +172,10 @@ public class Red5Streamer implements IImageListener {
 		outFormat.setOutputFormat("flv", outputURL, null);
 		int retval = outContainer.open(outputURL, IContainer.Type.WRITE, outFormat);
 		if (retval <0){
-			System.out.println("could not open output container");
+			log.error("could not open output container");
 			throw new RuntimeException("could not open output file");
 		}
-		System.out.println("Output container is open.");
+		log.debug("Output container is open.");
 		outStream = outContainer.addNewStream(0);
 		outStreamCoder = outStream.getStreamCoder();
 
@@ -201,9 +200,10 @@ public class Red5Streamer implements IImageListener {
 		if (retval <0)
 			throw new RuntimeException("could not open input decoder");
 		retval = outContainer.writeHeader();
-		if (retval <0)
+		if (retval <0) {
+			log.error("could not write file header");
 			throw new RuntimeException("could not write file header");
-		else System.out.println("Header written");
+		}
 		
 	}
 	
