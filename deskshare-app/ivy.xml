@@ -24,6 +24,9 @@
         
         <!-- Xuggler -->
         <dependency org="com/xuggle" name="xuggle-xuggler" rev="2.0.322" />
-        <dependency org="com/xuggle" name="xuggle-xuggler-red5" rev="2.0.366" />       
+        <dependency org="com/xuggle" name="xuggle-xuggler" rev="" />
+        <dependency org="com/xuggle" name="xuggle-xuggler-red5" rev="2.0.366" />  
+        <dependency org="fm/void/jetm" name="jetm" rev="1.2.3" />
+        <dependency org="fm/void/jetm" name="jetm-optional" rev="1.2.3" />     
     </dependencies>
 </ivy-module>

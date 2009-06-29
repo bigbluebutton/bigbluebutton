@@ -20,7 +20,7 @@ import org.slf4j.Logger;
  *
  */
 public class Application extends MultiThreadedApplicationAdapter {
-	private static Logger log = Red5LoggerFactory.getLogger(Application.class, "deskShare");
+	private static Logger log = Red5LoggerFactory.getLogger(Application.class, "deskshare");
 	
 	private IScope appScope;
 	private IServerStream serverStream;

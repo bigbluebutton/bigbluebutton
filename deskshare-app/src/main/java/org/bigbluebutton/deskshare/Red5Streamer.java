@@ -43,7 +43,7 @@ public class Red5Streamer implements IImageListener {
 	
 	private static final Red5HandlerFactory factory = Red5HandlerFactory.getFactory();
 	private final IRTMPEventIOHandler outputHandler;
-	final private Logger log = Red5LoggerFactory.getLogger(this.getClass());
+	final private Logger log = Red5LoggerFactory.getLogger(Red5Streamer.class, "deskshare");
 	
 	private long timestamp = 0, frameNumber = 0;
 	private int width, height, frameRate, timestampBase;

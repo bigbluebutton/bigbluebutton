@@ -252,6 +252,8 @@
 				<fileset dir="${lib.dir}">
 					<include name="xuggle-xuggler-2.0.322.jar"/>
 					<include name="xuggle-xuggler-red5-2.0.366.jar"/>
+					<include name="jetm-1.2.3.jar"/>
+					<include name="jetm-optional-1.2.3.jar"/>
 				</fileset>
 			</copy>		
 	   	</sequential>
