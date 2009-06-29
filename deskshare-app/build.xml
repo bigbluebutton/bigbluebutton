@@ -1,69 +1,341 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- WARNING: Eclipse auto-generated file.
-              Any modifications will be overwritten.
-              To include a user specific buildfile here, simply create one in the same
-              directory with the processing instruction <?eclipse.ant.import?>
-              as the first entry and export the buildfile again. -->
-<project basedir="." default="build" name="deskShare">
-    <property environment="env"/>
-    <property name="debuglevel" value="source,lines,vars"/>
-    <property name="target" value="1.6"/>
-    <property name="source" value="1.6"/>
-    <path id="deskShare.classpath">
-        <pathelement location="WEB-INF/classes"/>
-        <pathelement location="WEB-INF/xuggle-xuggler-red5-2.0.366.jar"/>
-        <pathelement location="lib/red5.jar"/>
-        <pathelement location="lib/slf4j-api-1.5.6.jar"/>
-        <pathelement location="lib/logback-classic.jar"/>
-        <pathelement location="lib/logback-core.jar"/>
-        <pathelement location="lib/slf4j-api.jar"/>
-        <pathelement location="lib/activation-1.1.jar"/>
-        <pathelement location="lib/aopalliance-.jar"/>
-        <pathelement location="lib/log4j-over-slf4j-1.5.6.jar"/>
-        <pathelement location="lib/logback-classic-0.9.14.jar"/>
-        <pathelement location="lib/logback-core-0.9.14.jar"/>
-        <pathelement location="lib/servlet-api-2.5.jar"/>
-        <pathelement location="lib/spring-aop-2.5.6.jar"/>
-        <pathelement location="lib/spring-beans-2.5.6.jar"/>
-        <pathelement location="lib/spring-context-2.5.6.jar"/>
-        <pathelement location="lib/spring-context-support-2.5.6.jar"/>
-        <pathelement location="lib/spring-core-2.5.6.jar"/>
-        <pathelement location="lib/spring-web-2.5.6.jar"/>
-        <pathelement location="lib/xuggle-xuggler.jar"/>
-        <pathelement location="lib/xuggle-xuggler-2.0.322.jar"/>
-    </path>
-    <target name="init">
-        <mkdir dir="WEB-INF/classes"/>
-        <copy includeemptydirs="false" todir="WEB-INF/classes">
-            <fileset dir="WEB-INF/src" excludes="**/*.launch, **/*.java"/>
-        </copy>
-    </target>
-    <target name="clean">
-        <delete dir="WEB-INF/classes"/>
-    </target>
-    <target depends="clean" name="cleanall"/>
-    <target depends="build-subprojects,build-project" name="build"/>
-    <target name="build-subprojects"/>
-    <target depends="init" name="build-project">
-        <echo message="${ant.project.name}: ${ant.file}"/>
-        <javac debug="true" debuglevel="${debuglevel}" destdir="WEB-INF/classes" source="${source}" target="${target}">
-            <src path="WEB-INF/src"/>
-            <exclude name="deskShare/StreamConverter.java"/>
-            <classpath refid="deskShare.classpath"/>
-        </javac>
-    </target>
-    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
-	<target name="dist" depends="build">
-		<mkdir dir="../red5/webapps/deskShare/WEB-INF/lib"/>
-		<mkdir dir="../red5/webapps/deskShare/streams"/>
-		<copy includeemptydirs="false" todir="../red5/webapps/deskShare/WEB-INF/lib">
-			<fileset dir="WEB-INF/lib"></fileset>
-	    </copy>
-	    <copy file="WEB-INF/logback-deskShare.xml" todir="../red5/webapps/deskShare/WEB-INF/"/>
-	    <copy file="WEB-INF/red5-web.properties" todir="../red5/webapps/deskShare/WEB-INF/"/>
-	    <copy file="WEB-INF/red5-web.xml" todir="../red5/webapps/deskShare/WEB-INF/"/>
-	    <copy file="WEB-INF/web.xml" todir="../red5/webapps/deskShare/WEB-INF/"/>
-	    <jar destfile="../red5/webapps/deskShare/WEB-INF/lib/deskShare.jar" basedir="WEB-INF/classes"></jar>
-    </target>
+<?xml version="1.0" ?>
+<project name="bbb-app-deskshare" basedir="." default="echoall" xmlns:ivy="antlib:org.apache.ivy.ant">
+	
+	<!-- This build file requires Apache Ant >= 1.7 -->
+	<condition property="ant-at-least-7">
+  		<antversion atleast="1.7.0"/>
+	</condition>
 
+	<!-- project properties -->
+
+	<!-- user overides for project properties -->
+	<!-- Should be first as properties are immutable.--> 
+	<!-- This allows user to override default properties-->
+	<property file="${user.home}/.deskshare-build.properties"/>
+	
+	<!-- base project properties -->
+	<property file="build.properties"/>
+	<property environment="env"/>
+	<property name="dist.dir" value="dist"/>
+	<property name="build.dir" value="build"/>
+	<property name="lib.dir" value="lib"/>
+	<property name="build.classes.dir" value="${build.dir}/classes"/>
+	<property name="test.dir" value="${build.dir}/test"/>
+	<property name="test.classes.dir" value="${test.dir}/classes"/>
+	<property name="test.data.dir" value="${test.dir}/data"/>
+	<property name="test.reports.dir" value="${test.dir}/reports"/>
+	<property name="fitnesse.test.classes.dir" value="${test.dir}/fitnesse/classes"/>
+	<property name="dist.webapps.dir" value="${dist.dir}/webapps"/>
+	
+	<property name="target.extension" value="jar"/>
+	<property name="project.name-ver" value="${project.name}-${target.version}"/>
+	<property name="target.name" value="${project.name-ver}.${target.extension}"/>
+	<property name="target.jar" value="${dist.dir}/${target.name}"/>
+	<property name="target.zip" value="${dist.dir}/${project.name-ver}.zip"/>
+	<property name="target.tar" value="${dist.dir}/${project.name-ver}.tar"/>
+	<property name="target.tar.gz" value="${target.tar}.gz"/>
+	<property name="src.dir" value="src/main/java"/>
+	<property name="test.src.dir" value="src/test/java"/>
+	<property name="webapp.dir" value="src/main/webapp"/>
+	
+	<tstamp prefix="build">
+		<format property="TODAY" pattern="d-MMMM-yyyy" locale="en"/>
+	</tstamp>
+
+	<path id="project.classpath">
+		<fileset dir="${lib.dir}"/>
+	</path>
+	
+	<path id="full.classpath">
+		<fileset dir="${lib.dir}"/>
+	</path>
+
+	<path id="compile.classpath">
+	  <fileset dir="${lib.dir}">
+	    <include name="*.jar"/>
+	  </fileset>
+	</path>
+
+	<path id="compiled.classes.dir">
+		<fileset dir="${build.dir}">
+			 <include name="*.jar"/>
+		</fileset>
+	</path>
+	
+	<path id="test.compile.classpath">
+	   <path refid="compile.classpath"/>
+		<path refid="compiled.classes.dir"/>
+	</path>
+	  
+	<path id="test.classpath">
+	  <path refid="test.compile.classpath"/>
+	  <pathelement location="${test.classes.dir}"/>
+	</path>
+
+	<path id="test.forking.classpath">
+	  <path refid="test.classpath"/>
+	  <pathelement path="${java.class.path}"/>
+	</path>
+	
+	<!-- Build Targets -->
+	<target name="prepare" depends="clean" description="Setup directories for build">
+		<mkdir dir="${build.dir}"/>
+		<mkdir dir="${dist.dir}"/>
+	    <mkdir dir="${test.classes.dir}"/>		
+	    <mkdir dir="${test.reports.dir}"/>
+	    <mkdir dir="${test.data.dir}"/>
+	</target>
+	
+	<!-- here is the version of ivy we will use. change this property to try a newer 
+         version if you want -->
+	<property name="ivy.install.version" value="2.0.0-beta1" />
+	<property name="ivy.jar.dir" value="${user.home}/.ivy2/jars" />
+	<property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
+
+    <target name="download-ivy" unless="skip.download">
+    	<mkdir dir="${ivy.jar.dir}"/>
+		<!-- download Ivy from web site so that it can be used even without any special installation -->
+		<echo message="installing ivy..."/>
+    	<get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar"
+    		 dest="${ivy.jar.file}" usetimestamp="true"/>
+    </target>
+    
+    <!-- ================================= 
+          target: install-ivy         
+            this target is not necessary if you put ivy.jar in your ant lib directory
+            if you already have ivy in your ant lib, you can simply remove this
+            target and the dependency the 'go' target has on it
+         ================================= -->
+    <target name="install-ivy" depends="download-ivy" description="--> install ivy">
+    	<!-- try to load ivy here from local ivy dir, in case the user has not already dropped
+    	      it into ant's lib dir (note that the latter copy will always take precedence).
+    	      We will not fail as long as local lib dir exists (it may be empty) and
+    	      ivy is in at least one of ant's lib dir or the local lib dir. -->
+    	<path id="ivy.lib.path">
+    	    <fileset dir="${ivy.jar.dir}" includes="*.jar"/>
+    	</path>
+    	<taskdef resource="org/apache/ivy/ant/antlib.xml" 
+    		uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
+    </target>   
+
+    <!-- ================================= 
+          target: clean-ivy              
+         ================================= -->
+	<target name="clean-ivy" description="--> clean the ivy installation">
+		<delete dir="${ivy.jar.dir}"/>
+	</target>	
+	
+	<target name="resolve" depends="install-ivy" description="--> retrieve dependencies with ivy">
+		<!-- Ivy configuration -->
+		<ivy:settings file="ivysettings.xml" id="ivy.instance"/>
+		<condition property="ivy.conf.name" value="default">
+			<not>
+				<isset property="ivy.conf.name"/>
+			</not>
+		</condition>
+		<echo message="Ivy conf name: ${ivy.conf.name}"/>
+		<echo message="ivy.local.default.root: ${ivy.local.default.root}"/>
+		<ivy:resolve conf="${ivy.conf.name}"/>
+		<ivy:retrieve conf="${ivy.conf.name}"/>
+	</target>
+
+	<target name="clean" description="Clean directories for build">
+		<delete dir="${build.dir}"/>
+		<delete dir="${dist.dir}"/>
+	</target>
+
+	<target name="compile" depends="prepare" description="Compiles Desk Share">
+		<antcall target="compile_apps" inheritAll="true" inheritRefs="true"/>
+	</target>
+
+	<macrodef name="build-app">
+   		<attribute name="name"/>
+		<element name="copy-assets" optional="yes"/>
+   		<sequential>
+			<mkdir dir="${build.dir}/@{name}"/>
+			<javac sourcepath="" srcdir="${src.dir}" destdir="${build.dir}/@{name}"
+			       classpathref="full.classpath" optimize="${build.optimize}" verbose="${build.verbose}"
+			       fork="${build.fork}" nowarn="${build.nowarn}" deprecation="${build.deprecation}"
+			       debug="${debug.state}" compiler="${build.compiler}" source="${java.target_version}" target="${java.target_version}"/>
+
+			<copy-assets/>
+      	</sequential>
+	</macrodef>
+			
+	<target name="compile_apps" description="Build bigbluebutton apps">
+		<build-app name="deskshare"/>
+	</target>
+
+	<macrodef name="compile-jarapp">
+   		<attribute name="name"/>
+		<element name="copy-assets" optional="yes"/>
+   		<sequential>
+   			<copy todir="${build.dir}/@{name}" file="${webapp.dir}/WEB-INF/logback-deskshare.xml" overwrite="true"/>
+  
+			<jar destfile="${build.dir}/@{name}.jar">
+				<fileset dir="${build.dir}/@{name}">
+					<include name="**"/>
+				</fileset>
+			</jar>
+      	</sequential>
+	</macrodef>
+	
+	<target name="jar" description="Make Archive" depends="compile">
+		<compile-jarapp name="deskshare"/>
+	</target>
+
+	<macrodef name="deploy-app">
+	   		<attribute name="webapp"/>			
+	   		<sequential>
+	   			<copy todir="${red5.home}/webapps">
+	   				<fileset dir="${dist.webapps.dir}"/>
+	   			</copy>			
+	      	</sequential>
+	</macrodef>
+	
+	<target name="deploy" description="Deploy deskshare into red5" depends="dist">
+		<delete dir="${red5.home}/webapps/sip"/>
+		<copy todir="${red5.home}/webapps">
+			   	<fileset dir="${dist.webapps.dir}"/>
+		</copy>		
+	</target>
+		
+	<target name="dist-archive" depends="dist" description="Create archive file for distribution">
+			<touch>
+				<fileset dir="${dist.dir}"/>
+			</touch>
+			<tar destfile="${target.tar.gz}" basedir="${dist.dir}" compression="gzip"
+			     longfile="gnu">
+				<tarfileset dir="${dist.dir}" mode="755">
+					<include name="${dist.dir}/webapps/deskshare/**"/>
+				</tarfileset>
+			</tar>
+	</target>	
+
+	<macrodef name="copy-app">
+   		<attribute name="name"/>
+		<element name="copy-assets" optional="yes"/>
+   		<sequential>
+   			<mkdir dir="${dist.webapps.dir}/@{name}/WEB-INF/lib/"/>
+   			<copy todir="${dist.webapps.dir}/@{name}/WEB-INF/lib/" file="${build.dir}/@{name}.jar" overwrite="true"/>
+   			
+   			<copy todir="${dist.webapps.dir}/@{name}" filtering="true">
+   				<fileset dir="${webapp.dir}">
+   					<exclude name="**/src/**"/>
+   					<exclude name="**/test/**"/>
+   					<exclude name="**/lib/**"/>
+   				</fileset>
+   			</copy>
+			<!-- copy files (optional) --> 
+			<copy-assets/>
+      	</sequential>
+	</macrodef>
+
+	<macrodef name="logback">
+   		<attribute name="webapp"/>
+   		<sequential>
+			<!-- copy the logback config per webapp and associated jars -->			
+			<copy todir="${dist.webapps.dir}/@{webapp}/WEB-INF/lib/">
+				<fileset dir="${lib.dir}">
+					<include name="slf4j-api-1.5.6.jar"/>
+					<include name="logback-core-0.9.14.jar"/>
+					<include name="logback-classic-0.9.14.jar"/>
+				</fileset>
+			</copy>		
+      	</sequential>
+	</macrodef>	
+
+	<macrodef name="deskshare-lib">
+		<attribute name="webapp"/>
+		<sequential>		
+			<copy todir="${dist.webapps.dir}/@{webapp}/WEB-INF/lib/">
+				<fileset dir="${lib.dir}">
+					<include name="jmf-2.1.1e.jar"/>
+				</fileset>
+			</copy>		
+	   	</sequential>
+	</macrodef>
+	
+	<target name="dist" description="Make Binary distribution" depends="jar">
+		<copy-app name="sip">
+			<copy-assets>
+				<logback webapp="deskshare"/>
+				<deskshare-lib webapp="deskshare"/>
+			</copy-assets>
+		</copy-app>
+	</target>
+		
+	<target name="test-compile" depends="jar">
+	    <javac destdir="${test.classes.dir}"
+	           debug="true"
+	           includeAntRuntime="yes"
+	           srcdir="${test.src.dir}">
+	      <classpath refid="test.compile.classpath"/>
+	    </javac>
+		<taskdef name="testng" classpathref="compile.classpath"
+				          classname="org.testng.TestNGAntTask" />
+	</target>
+	
+	<target name="test-ng" depends="test-compile">
+	      <echo message="running tests"/>
+	      <testng classpathref="test.classpath" outputDir="${test.data.dir}">
+	         <xmlfileset dir="." includes="testng.xml"/>
+	         <jvmarg value="-ea" />
+	      </testng>
+	</target>
+
+	<target name="testng-reports" depends="test-ng">
+	  <junitreport todir="${test.data.dir}">
+	    <fileset dir="${test.data.dir}">
+	      <include name="*/*.xml"/>
+	    </fileset>
+	 
+	    <report format="frames" todir="${test.reports.dir}"/>
+	  </junitreport>
+	</target>
+	
+	<target name="test" depends="test-compile">
+	    <junit printsummary="false"
+	           errorProperty="test.failed"
+	           failureProperty="test.failed"
+	           fork="${junit.fork}"
+	           forkmode="${junit.forkmode}">
+	      <classpath refid="test.forking.classpath" />    
+	      <formatter type="brief" usefile="false"/>
+	      <formatter type="xml"/>
+	      <test name="${testcase}" todir="${test.data.dir}" if="testcase"/>
+	      <batchtest todir="${test.data.dir}" unless="testcase">
+	        <fileset dir="${test.classes.dir}" >
+	           <include name="**/*Test.class"/>
+	        </fileset>
+	      </batchtest>
+	    </junit>
+
+	    <junitreport todir="${test.data.dir}">
+	      <fileset dir="${test.data.dir}">
+	        <include name="TEST-*.xml"/>
+	      </fileset>
+	      <report format="frames" todir="${test.reports.dir}"/>
+	    </junitreport>
+
+	    <!--conditional failure -->
+	    <fail if="test.failed">
+	    	Tests failed. Check ${test.reports.dir}
+	    </fail>
+	</target>
+	
+	<target name="all" depends="clean, prepare, compile, jar" description="Run all server tasks"/>
+
+	<target name="usage">
+		<echo message="Type ant -p for available targets"/>
+	</target>
+	
+	<target name="diagnostics"  
+	    description="diagnostics">
+		<diagnostics/>
+	</target>
+	
+	<target name="echoall">
+		<echoproperties/>
+	</target>
 </project>
