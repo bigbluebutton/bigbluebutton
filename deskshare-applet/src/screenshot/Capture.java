@@ -1,7 +1,9 @@
 package screenshot;
 
 import java.awt.AWTException;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
@@ -21,7 +23,8 @@ public class Capture {
 	private Toolkit toolkit;
 	private Rectangle screenBounds;
 	
-	private int width, height, x,y;
+	private int width, height, x,y, videoWidth, videoHeight;
+	private boolean needScale = true;
 	
 	/**
 	 * The default constructor. Performs initialisation work
@@ -36,10 +39,12 @@ public class Capture {
 		}
 		this.toolkit = Toolkit.getDefaultToolkit();
 		this.screenBounds = new Rectangle(x, y, this.width, this.height);
+		this.needScale = areDimensionsScaled(this.width, this.height);
 	}
 	
 	public BufferedImage takeSingleSnapshot(){
-		return robot.createScreenCapture(this.screenBounds);
+		if (needScale) return getScaledImage(robot.createScreenCapture(this.screenBounds));
+		else return robot.createScreenCapture(this.screenBounds);
 	}
 	
 	public int getScreenshotWidth(){
@@ -145,6 +150,50 @@ public class Capture {
 		 else if (area > 300000) return 4;
 		 else if (area > 150000) return 8;
 		 else return 10;
+	 }
+	 
+	 private boolean areDimensionsScaled(int width, int height){
+		int bigger = Math.max(width, height);
+		if (bigger < 800){
+			videoWidth = width;
+			videoHeight = height;
+			return false;
+		}
+		else{
+			if (width >= height){
+				 videoWidth = 800;
+				 videoHeight = Math.round(height/(width/800));
+			 } else if (height > width){
+				 videoHeight = 800;
+				 videoWidth = Math.round(width/(height/800));
+			 }
+			return true;
+		}
+	 }
+
+	 private BufferedImage getScaledImage(BufferedImage image){
+		 BufferedImage scaledImage = new BufferedImage(
+				 videoWidth, videoHeight, BufferedImage.TYPE_3BYTE_BGR);
+
+		 // Paint scaled version of image to new image
+		 Graphics2D graphics2D = scaledImage.createGraphics();
+		 graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+				 RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		 graphics2D.drawImage(image, 0, 0, videoWidth, videoHeight, null);
+
+		 // clean up
+
+		 graphics2D.dispose();
+
+		 return scaledImage;
+	 }
+	 
+	 public int getVideoWidth(){
+		 return videoWidth;
+	 }
+	 
+	 public int getVideoHeight(){
+		 return videoHeight;
 	 }
 
 }

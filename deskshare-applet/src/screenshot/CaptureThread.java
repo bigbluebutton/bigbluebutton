@@ -33,8 +33,8 @@ public class CaptureThread implements Runnable {
 			socket = new Socket(IP, PORT);
 			PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 			out.println(roomNumber);
-			out.println(Integer.toString(capture.getWidth())
-					+ "x" + Integer.toString(capture.getHeight())
+			out.println(Integer.toString(capture.getVideoWidth())
+					+ "x" + Integer.toString(capture.getVideoHeight())
 					+ "x" + Integer.toString(capture.getProperFrameRate()));
 			outStream = new DataOutputStream(socket.getOutputStream());
 		} catch(Exception e){
@@ -52,6 +52,7 @@ public class CaptureThread implements Runnable {
 				outStream.writeLong(imageData.length);
 				outStream.write(imageData);
 				System.out.println("Sent: "+ imageData.length);
+				outStream.flush();
 			} catch(Exception e){
 				e.printStackTrace(System.out);
 				System.exit(0);

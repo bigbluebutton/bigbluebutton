@@ -34,6 +34,8 @@ public class RunnerApplet extends JApplet {
 	
 	/**
 	 * This method is called when the user closes the browser window containing the applet
+	 * It is very important that the connection to the server is closed at this point. That way the server knows to
+	 * close the stream.
 	 */
 	public void destroy(){
 		capThread.closeConnection();
