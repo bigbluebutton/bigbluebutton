@@ -45,7 +45,6 @@ public class VideoSaver implements IImageListener {
 		setupStreams2();
 	}
 
-	@Override
 	public void imageReceived(BufferedImage image) {
 		IPacket packet = IPacket.make();
 		
@@ -165,7 +164,6 @@ public class VideoSaver implements IImageListener {
 		
 	}
 
-	@Override
 	public void streamEnded(String streamName) {
 		int retval = outContainer.writeTrailer();
 	    if (retval < 0)

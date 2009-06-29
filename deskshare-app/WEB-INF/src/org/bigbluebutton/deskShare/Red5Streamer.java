@@ -81,7 +81,6 @@ public class Red5Streamer implements IImageListener {
 		setupStreams();
 	}
 
-	@Override
 	public void imageReceived(BufferedImage image) {
 		IPacket packet = IPacket.make();
 
@@ -110,7 +109,6 @@ public class Red5Streamer implements IImageListener {
 		converter = null;
 	}
 
-	@Override
 	public void streamEnded(String streamName) {
 		broadcastStream.stop();
 	    broadcastStream.close();

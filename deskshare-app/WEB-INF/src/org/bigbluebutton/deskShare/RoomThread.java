@@ -89,7 +89,7 @@ public class RoomThread implements Runnable {
 		try{
 			inStream = new DataInputStream(socket.getInputStream());
 			int totalBytes = inStream.readInt();
-			System.out.println("Receiving " + totalBytes + " bytes");
+			//System.out.println("Receiving " + totalBytes + " bytes");
 			if (totalBytes > 1000000 || totalBytes <= 0) return;
 			
 			//This is the array to which we will append the partial buffers

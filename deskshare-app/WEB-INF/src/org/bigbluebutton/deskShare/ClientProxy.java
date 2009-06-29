@@ -103,13 +103,11 @@ public class ClientProxy implements Runnable, IImageListener {
 		return false;
 	}
 
-	@Override
 	public void imageReceived(BufferedImage image) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void streamEnded(String streamName) {
 		for (int i = 0; i<roomList.size(); i++){
 			if (roomList.get(i).getStreamName().equalsIgnoreCase(streamName)){
@@ -133,6 +131,17 @@ public class ClientProxy implements Runnable, IImageListener {
 			if (rm.getStreamName().equalsIgnoreCase(room)) return rm.getScreenHeight();
 		}
 		return 0;
+	}
+	
+	/**
+	 * Closes the server socket which listens to new connections
+	 */
+	public void closeSockets(){
+		try{
+			this.serverSocket.close();
+		} catch(IOException e){
+			e.printStackTrace(System.out);
+		}
 	}
 	
 }

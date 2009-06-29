@@ -105,4 +105,11 @@ public class Application extends MultiThreadedApplicationAdapter {
 		return appScope;
 	}
 	
+	/**
+	 * Called when the application is stopped
+	 */
+	public void appStop(){
+		clientProxy.closeSockets();
+	}
+	
 }
