@@ -22,6 +22,6 @@
 		<property name="virtualHosts" value="${webapp.virtualHosts}" />
 	</bean>
 
-  	<bean id="web.handler"  class="org.bigbluebutton.deskShare.Application" init-method="init">
+  	<bean id="web.handler"  class="org.bigbluebutton.deskshare.Application" init-method="init">
   	</bean>	
 </beans>

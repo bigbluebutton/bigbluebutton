@@ -250,14 +250,15 @@
 		<sequential>		
 			<copy todir="${dist.webapps.dir}/@{webapp}/WEB-INF/lib/">
 				<fileset dir="${lib.dir}">
-					<include name="jmf-2.1.1e.jar"/>
+					<include name="xuggle-xuggler-2.0.322.jar"/>
+					<include name="xuggle-xuggler-red5-2.0.366.jar"/>
 				</fileset>
 			</copy>		
 	   	</sequential>
 	</macrodef>
 	
 	<target name="dist" description="Make Binary distribution" depends="jar">
-		<copy-app name="sip">
+		<copy-app name="deskshare">
 			<copy-assets>
 				<logback webapp="deskshare"/>
 				<deskshare-lib webapp="deskshare"/>
