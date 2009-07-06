@@ -95,7 +95,8 @@ package org.bigbluebutton.modules.deskShare.model.business
 		 * 
 		 */		
 		public function stop():void{
-			
+			sendStopViewingNotification();
+			nc.close();
 		}
 		
 		/**
@@ -128,7 +129,7 @@ package org.bigbluebutton.modules.deskShare.model.business
 		 * 
 		 */		
 		public function connectionFailedHandler(e:ConnectionEvent):void{
-			Alert.show("connection failed " + e.toString());
+			Alert.show("connection failed to " + module.uri + " with message " + e.toString());
 		}
 		
 		/**
@@ -137,7 +138,7 @@ package org.bigbluebutton.modules.deskShare.model.business
 		 * 
 		 */		
 		public function connectionRejectedHandler(e:ConnectionEvent):void{
-			Alert.show("connection rejected " + e.toString());
+			Alert.show("connection rejected " + module.uri + " with message " + e.toString());
 		}
 		
 		/**

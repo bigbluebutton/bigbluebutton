@@ -64,6 +64,7 @@ package org.bigbluebutton.modules.deskShare.view
 		 */		
 		public function DeskShareWindowMediator(module:DeskShareModule)
 		{
+			super(NAME, module);
 			_module = module;
 			_window = new DeskShareWindow();
 			_window.name = _module.username;
@@ -276,6 +277,11 @@ package org.bigbluebutton.modules.deskShare.view
 		private function onStartViewingEvent(e:Event):void{
 			if (!viewing) startViewing();
 			else stopViewing();
+		}
+		
+		public function stop():void{
+			_window.close();
+			_window = null;
 		}
 
 	}

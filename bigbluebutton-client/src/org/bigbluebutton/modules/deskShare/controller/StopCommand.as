@@ -20,6 +20,7 @@
 package org.bigbluebutton.modules.deskShare.controller
 {
 	import org.bigbluebutton.modules.deskShare.model.business.DeskShareProxy;
+	import org.bigbluebutton.modules.deskShare.view.DeskShareWindowMediator;
 	import org.puremvc.as3.multicore.interfaces.ICommand;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.command.SimpleCommand;
@@ -35,6 +36,10 @@ package org.bigbluebutton.modules.deskShare.controller
 			if (facade.hasProxy(DeskShareProxy.NAME)){
 				var proxy:DeskShareProxy = facade.retrieveProxy(DeskShareProxy.NAME) as DeskShareProxy;
 				proxy.stop();
+			}
+			if (facade.hasMediator(DeskShareWindowMediator.NAME)){
+				var window:DeskShareWindowMediator = facade.retrieveMediator(DeskShareWindowMediator.NAME) as DeskShareWindowMediator;
+				window.stop();
 			}
 		}
 

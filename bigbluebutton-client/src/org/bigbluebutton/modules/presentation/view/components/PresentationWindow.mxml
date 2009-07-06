@@ -34,6 +34,7 @@
 
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.presentation.view.SlideViewMediator;
 		
 			import org.bigbluebutton.modules.presentation.view.PresentationWindowMediator;
 			import mx.core.Application;
@@ -71,6 +72,7 @@
 				positionThumbnails();
 				thumbnailWindow.addEventListener(FisheyeThumbnail.SLIDE_HIGHLIGHTED, onSlideHighlighted);
 				thumbY = this.height - 160;
+				slideView.addEventListener(SlideViewMediator.ZOOM, scrollZoom);
 			}
 			
 			private function positionThumbnails():void{
@@ -125,6 +127,15 @@
 					thumbnailWindow.visible = true;
 				}				
 			}
+			
+			private function sliderZoom():void{
+				slideView.myLoader.width = slideView.imageCanvas.width * (zoomSlider.value/100);
+				slideView.myLoader.height = slideView.imageCanvas.height * (zoomSlider.value/100);
+			}
+			
+			private function scrollZoom(e:Event):void{
+				zoomSlider.value = (slideView.myLoader.width / slideView.imageCanvas.width) * 100;
+			}
 
 		]]>
 	</mx:Script>
@@ -151,6 +162,10 @@
     	  <mx:Button id="forwardButton" icon="{forwardIcon}" visible="false" width="40" height="20"
     	   		toolTip="Next slide" click="dispatchEvent(new Event(PresentationWindowMediator.NEXT_SLIDE))"/>    				
     	<mx:Spacer width="50%"/>
+    	<mx:HSlider id="zoomSlider" visible="false"
+    		minimum="100" maximum="300" value="100" 
+    		dataTipPlacement="right" labels="['100%','300%']"
+    		allowTrackClick="true" liveDragging="true" change="sliderZoom()" />
     	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="false" width="20" height="20" 
     		toolTip="Reset Zoom" click="dispatchEvent(new Event(PresentationWindowMediator.RESET_ZOOM))"/>
     </mx:ApplicationControlBar>			

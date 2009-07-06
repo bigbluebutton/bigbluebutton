@@ -72,11 +72,11 @@
 			}
 			
 			private function onCreationComplete():void{
-				/*if (ExternalInterface.call("checkForJava") != 1){
+				if (ExternalInterface.call("checkForJava") != 1){
 					//Alert.show("Java is not enabled in your browser. Desktop Sharing will not work");
 					this.enabled = false;
 					this.lblStatus.text = "Java not enabled";
-				}*/
+				}
 				height = bar.height + dimensionsBox.height + 33;
 				width = dimensionsBox.width + 7;
 				dimensionsBox.y = bar.height + 5;

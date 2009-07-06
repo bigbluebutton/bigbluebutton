@@ -28,7 +28,9 @@ package org.bigbluebutton.modules.presentation.view
 	
 	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.modules.presentation.PresentModuleConstants;
+	import org.bigbluebutton.modules.presentation.controller.MoveSlideCommand;
 	import org.bigbluebutton.modules.presentation.controller.ZoomSlideCommand;
+	import org.bigbluebutton.modules.presentation.controller.notifiers.MoveNotifier;
 	import org.bigbluebutton.modules.presentation.controller.notifiers.ZoomNotifier;
 	import org.bigbluebutton.modules.presentation.model.Slide;
 	import org.bigbluebutton.modules.presentation.model.SlideProxy;
@@ -251,6 +253,7 @@ package org.bigbluebutton.modules.presentation.view
             	_presWin.slideNumLbl.text = (_presWin.slideView.selectedSlide + 1) + " of " + _presWin.slideView.slides.length;	
 				_presWin.backButton.visible = true;
 				_presWin.forwardButton.visible = true;	
+				_presWin.zoomSlider.visible = true;
 
 				//Initialize the thumbnails mediator
 				if ( ! facade.hasMediator( ThumbnailViewMediator.NAME ) ) {
@@ -267,7 +270,8 @@ package org.bigbluebutton.modules.presentation.view
 			if (proxy.presentationLoaded) {
             	_presWin.slideNumLbl.text = (_presWin.slideView.selectedSlide + 1) + " of " + _presWin.slideView.slides.length;	
 				_presWin.backButton.visible = false;
-				_presWin.forwardButton.visible = false;		
+				_presWin.forwardButton.visible = false;	
+				_presWin.zoomSlider.visible = true;	
 
 				//Initialize the thumbnails mediator
 				if ( facade.hasMediator( ThumbnailViewMediator.NAME ) ) {
@@ -324,6 +328,7 @@ package org.bigbluebutton.modules.presentation.view
             _presWin.slideNumLbl.text = (_presWin.slideView.selectedSlide + 1) + " of " + _presWin.slideView.slides.length;		
 			_presWin.slideView.visible = true;		
 			_presWin.btnResetZoom.visible = true;
+			_presWin.zoomSlider.visible = true;
 
 			if (facade.hasProxy(SlideProxy.NAME)) {
 				var sp:SlideProxy = facade.retrieveProxy(SlideProxy.NAME) as SlideProxy;
@@ -343,6 +348,7 @@ package org.bigbluebutton.modules.presentation.view
 				
 				_presWin.backButton.visible = true;
 				_presWin.forwardButton.visible = true;
+				_presWin.zoomSlider.visible = true;
 			
 				LogUtil.debug('PresentationWindowMediator::handlePresentationLoadedEvent()..._presWin.thumbnailWindow.fisheye.selectedIndex has been set to 0');
 				_presWin.thumbnailWindow.fisheye.selectedIndex = 0; // Initialize to prevent ArrayIndexException
@@ -407,6 +413,7 @@ package org.bigbluebutton.modules.presentation.view
         
         protected function onResetZoom(e:Event):void{
         	sendNotification(ZoomSlideCommand.ZOOM_SLIDE_COMMAND, new ZoomNotifier(1,1));
+        	sendNotification(MoveSlideCommand.MOVE_SLIDE_COMMAND, new MoveNotifier(0,0));
         }
 
 		private function get proxy():PresentProxy {

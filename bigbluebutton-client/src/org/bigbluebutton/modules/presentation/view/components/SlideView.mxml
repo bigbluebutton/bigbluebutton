@@ -65,6 +65,8 @@
 				var wid:Number = myLoader.width + e.delta * 10;
 				var hei:Number = myLoader.height + e.delta *10;
 				
+				if (wid > imageCanvas.width * 3 || hei > imageCanvas.height * 3) return;
+				
 				if (hei >= this.height || hei >= myLoader.height){
 					myLoader.width += e.delta * 10;
 					myLoader.height += e.delta * 10;

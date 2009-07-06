@@ -22,6 +22,7 @@ package org.bigbluebutton.modules.deskShare
 	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.modules.deskShare.controller.StartupCommand;
 	import org.bigbluebutton.modules.deskShare.controller.StopCommand;
+	import org.bigbluebutton.modules.deskShare.view.DeskShareWindowMediator;
 	import org.puremvc.as3.multicore.interfaces.IFacade;
 	import org.puremvc.as3.multicore.patterns.facade.Facade;
 	
