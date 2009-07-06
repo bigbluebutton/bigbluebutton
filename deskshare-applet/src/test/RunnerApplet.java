@@ -5,22 +5,24 @@ import screenshot.Capture;
 import screenshot.CaptureThread;
 
 public class RunnerApplet extends JApplet {
-	
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1L;
 	CaptureThread capThread;
 	
+	private int screenWidth = 800;
+	private int screenHeight = 600;
+	private int x = 0;
+	private int y = 0;
+	private String roomNumber = "test-room";
+	private String IP = "192.168.0.136";
+	
 	public void init(){
-		int screenWidth = Integer.parseInt(getParameter("CAPTURE_WIDTH"));
-		int screenHeight = Integer.parseInt(getParameter("CAPTURE_HEIGHT"));
-		int x = Integer.parseInt(getParameter("X"));
-		int y = Integer.parseInt(getParameter("Y"));
-		Capture capture = new Capture(x, y, screenWidth, screenHeight);
-		String roomNumber = getParameter("ROOM");
-		String IP = getParameter("IP");
-		capThread = new CaptureThread(capture, IP, roomNumber);
+		screenWidth = Integer.parseInt(getParameter("CAPTURE_WIDTH"));
+		screenHeight = Integer.parseInt(getParameter("CAPTURE_HEIGHT"));
+		x = Integer.parseInt(getParameter("X"));
+		y = Integer.parseInt(getParameter("Y"));
+		roomNumber = getParameter("ROOM");
+		IP = getParameter("IP");
 	}
 	
 	public void stop(){
@@ -28,6 +30,10 @@ public class RunnerApplet extends JApplet {
 	}
 	
 	public void start(){
+		System.out.println("RunnerApplet start()");
+		Capture capture = new Capture(x, y, screenWidth, screenHeight);
+		capThread = new CaptureThread(capture, IP, roomNumber);
+		
 		Thread thread = new Thread(capThread);
 		thread.start();
 	}
@@ -45,4 +51,11 @@ public class RunnerApplet extends JApplet {
 		capThread.capture.setX(x);
 		capThread.capture.setY(y);
 	}
+	
+	static public void main (String argv[]) {
+	    final JApplet applet = new RunnerApplet();
+
+	    applet.start();
+	}
+
 }

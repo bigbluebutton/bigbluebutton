@@ -21,6 +21,7 @@ public class CaptureThread implements Runnable {
 	private int timeBase;
 	
 	public CaptureThread(Capture capture, String IP, String room){
+		System.out.println("Capture thread constructor.");
 		this.capture = capture;
 		this.roomNumber = room;
 		this.IP = IP;
@@ -28,6 +29,7 @@ public class CaptureThread implements Runnable {
 	}
 	
 	public void run(){
+		System.out.println("Capture thread run()");
 		DataOutputStream outStream = null;
 		try{
 			socket = new Socket(IP, PORT);
@@ -59,14 +61,17 @@ public class CaptureThread implements Runnable {
 			}
 			
 			try{
+				System.out.println("Sleeping for " + timeBase);
 				Thread.sleep(timeBase);
 			} catch (Exception e){
+				System.out.println("Exception sleeping.");
 				System.exit(0);
 			}
 		}
 	}
 	
 	public void closeConnection(){
+		System.out.println("Closing connection.");
 		try{
 			socket.close();
 		} catch(IOException e){
