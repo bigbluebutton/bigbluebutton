@@ -57,4 +57,12 @@ public class SocketScreenCaptureSender implements IScreenCaptureSender {
 		}
 	}
 
+	public void disconnect(){
+		System.out.println("Closing connection.");
+		try{
+			socket.close();
+		} catch(IOException e){
+			e.printStackTrace(System.out);
+		}
+	}
 }

@@ -45,7 +45,7 @@ public class DeskShareApplet extends JApplet implements IScreenCaptureListener {
 		} else {
 			captureSender = new SocketScreenCaptureSender();
 
-			((SocketScreenCaptureSender) captureSender).connect(host, room, capture.getVideoWidth(),
+			captureSender.connect(host, room, capture.getVideoWidth(),
 					capture.getVideoHeight(), capture.getProperFrameRate());
 		}
 
@@ -63,6 +63,9 @@ public class DeskShareApplet extends JApplet implements IScreenCaptureListener {
 	 */
 	public void destroy(){
 		captureTaker.setCapture(false);
+		if (!httpTunnel) {
+			captureSender.disconnect();
+		}
 	}
 	
 	public void setScreenCoordinates(int x, int y){
