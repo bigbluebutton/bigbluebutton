@@ -32,6 +32,14 @@ public class FileUploadSender implements IScreenCaptureSender {
 	  String twoHyphens = "--";
 	  String boundary =  "*****";
 
+		private String host = "localhost";
+		private String room;
+		private int videoWidth;
+		private int videoHeight;
+		private int frameRate;
+		private String servletName = "deskshare/sample/showslides";
+		private URL url;
+		private String videoInfo;
 
 	  int bytesRead, bytesAvailable, bufferSize;
 
@@ -47,8 +55,15 @@ public class FileUploadSender implements IScreenCaptureSender {
 	@Override
 	public void connect(String host, String room, int videoWidth,
 			int videoHeight, int frameRate) {
-		// TODO Auto-generated method stub
-
+		this.host = host;
+		this.room = room;
+		this.videoWidth = videoWidth;
+		this.videoHeight = videoHeight;
+		this.frameRate = frameRate;
+		
+		videoInfo = Integer.toString(videoWidth)
+				+ "x" + Integer.toString(videoHeight)
+				+ "x" + Integer.toString(frameRate);
 	}
 
 	@Override
@@ -67,7 +82,8 @@ public class FileUploadSender implements IScreenCaptureSender {
 		   conn.setDoOutput(true);
 		   conn.setUseCaches(false);
 		   conn.setRequestMethod("POST");
-		   conn.setRequestProperty("Connection", "Keep-Alive");		  
+		   conn.setRequestProperty("Connection", "Keep-Alive");		
+		   		   
 		   conn.setRequestProperty("Content-Type", "multipart/form-data;boundary="+boundary);
 
 		   dos = new DataOutputStream( conn.getOutputStream() );
@@ -89,14 +105,14 @@ public class FileUploadSender implements IScreenCaptureSender {
 		   dos.write(buffer, 0, buffer.length);
 		   
 		   // send multipart form data necesssary after file data...
-
 		   dos.writeBytes(lineEnd);
 		   dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
 
-		   dos.flush();
+		   writeField("room", room);
+		   writeField("video", videoInfo);
+		   
+		   dos.flush();		   
 		   dos.close();
-
-
 		  }
 		  catch (MalformedURLException ex)
 		  {
@@ -132,5 +148,37 @@ public class FileUploadSender implements IScreenCaptureSender {
 
 	  }
 
-
+	/**
+	 * Writes an string field value.  If the value is null, an empty string 
+	 * is sent ("").  
+	 * 
+	 * @param  name   the field name (required)
+	 * @param  value  the field value
+	 * @throws  java.io.IOException  on input/output errors
+	 */
+	public void writeField(String name, String value) 
+			throws java.io.IOException {
+		if(name == null) {
+			throw new IllegalArgumentException("Name cannot be null or empty.");
+		}
+		if(value == null) {
+			value = "";
+		}
+		/*
+		--boundary\r\n
+		Content-Disposition: form-data; name="<fieldName>"\r\n
+		\r\n
+		<value>\r\n
+		*/
+		// write boundary
+		dos.writeBytes(twoHyphens + boundary + lineEnd);
+		// write content header
+		dos.writeBytes("Content-Disposition: form-data; name=\"" + name + "\"");
+		dos.writeBytes(lineEnd);
+		dos.writeBytes(lineEnd);
+		// write content
+		dos.writeBytes(value);
+		dos.writeBytes(lineEnd);
+//		dos.flush();
+	}
 }

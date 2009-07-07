@@ -42,8 +42,8 @@ public class DeskShareApplet extends JApplet implements IScreenCaptureListener {
 		
 		if (httpTunnel) {
 			//captureSender = new FileUploadSender();
-			//captureSender = new TestHttpSender();
-			captureSender = new HttpScreenCaptureSender();
+			captureSender = new TestHttpSender();
+			//captureSender = new HttpScreenCaptureSender();
 			captureSender.connect(host, room, capture.getVideoWidth(),
 					capture.getVideoHeight(), capture.getProperFrameRate());
 		} else {
