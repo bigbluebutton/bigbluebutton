@@ -32,6 +32,10 @@ public class FileUploadController2 extends MultiActionController {
 		//re-Create a BufferedImage we received over the network 
 		BufferedImage image = ImageIO.read(imageData);
 		log.warn("Received image size {}", file.length);
+		String room = request.getParameterValues("room")[0];
+		log.warn("Received image from room {}", room);
+		String videoInfo = request.getParameterValues("videoInfo")[0];
+		log.warn("Received image from videoInfo {}", videoInfo);
 		return null;
 
 	}	
