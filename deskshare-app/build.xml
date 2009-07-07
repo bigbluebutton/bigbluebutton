@@ -254,6 +254,9 @@
 					<include name="xuggle-xuggler-red5-*.jar"/>
 					<include name="jetm-1.2.3.jar"/>
 					<include name="jetm-optional-1.2.3.jar"/>
+					<include name="spring-webmvc-2.5.6.jar"/>
+					<include name="commons-fileupload-1.2.1.jar"/>
+					<include name="commons-io-1.4.jar"/>
 				</fileset>
 			</copy>		
 	   	</sequential>

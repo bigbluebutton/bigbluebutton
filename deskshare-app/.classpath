@@ -15,5 +15,7 @@
 	<classpathentry kind="lib" path="lib/spring-web-2.5.6.jar"/>
 	<classpathentry kind="lib" path="lib/xuggle-xuggler-3.0.660.jar"/>
 	<classpathentry kind="lib" path="lib/xuggle-xuggler-red5-3.0.662.jar"/>
+	<classpathentry kind="lib" path="lib/spring-webmvc-2.5.6.jar"/>
+	<classpathentry kind="lib" path="lib/servlet-api-2.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

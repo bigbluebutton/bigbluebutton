@@ -5,33 +5,12 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
                            http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
 
-	<bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-	    <property name="location" value="/WEB-INF/red5-web.properties" />
-	</bean>
-
-	<bean id="web.context" class="org.red5.server.Context"
-		autowire="byType" />
-
-	<bean id="web.scope" class="org.red5.server.WebScope"
-		 init-method="register">
-		<property name="server" ref="red5.server" />
-		<property name="parent" ref="global.scope" />
-		<property name="context" ref="web.context" />
-		<property name="handler" ref="web.handler" />
-		<property name="contextPath" value="${webapp.contextPath}" />
-		<property name="virtualHosts" value="${webapp.virtualHosts}" />
-	</bean>
-
-  	<bean id="web.handler"  class="org.bigbluebutton.deskshare.Application" init-method="init">
-  	</bean>	
-  	
-  	<bean id="multipartResolver"
-        class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
+  	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
 
     <bean id="urlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
         <property name="mappings">
             <value>
-                /upload.form=fileUploadController
+                upload.form=fileUploadController
             </value>
         </property>
     </bean>
@@ -42,4 +21,21 @@
         <property name="successView" value="confirmation"/>
     </bean>
 
+<!-- HandlerMapping that dispatches all request to the MultiActionController below -->
+	<bean id="handlerMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="defaultHandler" ref="imageController"/>
+	</bean>
+
+	<!-- MultiActionController that defines user interface actions as separate methods -->
+	<bean id="imageController" class="org.bigbluebutton.deskshare.servlet.FileUploadController2">
+		<property name="methodNameResolver">
+			<bean class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
+				<property name="mappings">
+					<props>
+						<prop key="/showslides">displaySlides</prop>
+					</props>
+				</property>
+			</bean>
+		</property>
+	</bean>
 </beans>
