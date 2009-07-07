@@ -1,0 +1,113 @@
+<?xml version="1.0" ?>
+<project name="bbb-deskshare-applet" basedir="." default="echoall" xmlns:ivy="antlib:org.apache.ivy.ant">
+	
+	<!-- This build file requires Apache Ant >= 1.7 -->
+	<condition property="ant-at-least-7">
+  		<antversion atleast="1.7.0"/>
+	</condition>
+
+	<!-- base project properties -->
+	<property file="build.properties"/>
+	<property environment="env"/>
+	<property name="dist.dir" value="dist"/>
+	<property name="build.dir" value="build"/>
+	<property name="build.classes.dir" value="${build.dir}/classes"/>
+	
+	<property name="target.extension" value="jar"/>
+	<property name="project.name-ver" value="${project.name}-${target.version}"/>
+	<property name="target.name" value="deskshareapplet-${target.version}.${target.extension}"/>
+	<property name="target.jar" value="${dist.dir}/${target.name}"/>
+	<property name="src.dir" value="src/main/java"/>
+	
+
+	<tstamp prefix="build">
+		<format property="TODAY" pattern="d-MMMM-yyyy" locale="en"/>
+	</tstamp>
+
+	<path id="compiled.classes.dir">
+		<fileset dir="${build.dir}">
+			 <include name="*.jar"/>
+		</fileset>
+	</path>
+	
+	<path id="test.compile.classpath">
+	   <path refid="compile.classpath"/>
+		<path refid="compiled.classes.dir"/>
+	</path>
+	 	
+	<!-- Build Targets -->
+	<target name="prepare" depends="clean" description="Setup directories for build">
+		<mkdir dir="${build.dir}"/>
+		<mkdir dir="${dist.dir}"/>
+	</target>
+	
+	<target name="clean" description="Clean directories for build">
+		<delete dir="${build.dir}"/>
+		<delete dir="${dist.dir}"/>
+	</target>
+
+	<target name="compile" depends="prepare" description="Compiles Desk Share Applet">
+		<mkdir dir="${build.dir}/deskshare"/>
+		<javac sourcepath="" srcdir="${src.dir}" destdir="${build.dir}/deskshare"
+		       optimize="${build.optimize}" verbose="${build.verbose}"
+		       fork="${build.fork}" nowarn="${build.nowarn}" deprecation="${build.deprecation}"
+		       debug="${debug.state}" compiler="${build.compiler}" source="${java.target_version}" target="${java.target_version}"/>
+
+	</target>
+				
+	<target name="jar" description="Make Archive" depends="compile">
+		<jar destfile="${target.jar}" duplicate="preserve" compress="true">
+			<fileset dir="${build.dir}/deskshare">
+					<include name="**"/>
+			</fileset>
+		</jar>
+	</target>
+	
+	<target name="get-password" depends="init-security" description="Prompts for password for keystore">
+		<input addproperty="keystore.password" >password for keystore:</input>
+		<echo level="verbose">password = ${keystore.password}</echo>
+	</target>
+	
+	<target name="init-security">
+		<property name="keystore.dir" location="${user.home}/.secret" />
+		<mkdir dir="${keystore.dir}" />
+		<chmod file="${keystore.dir}" perm="700"/>
+		<property name="keystore"
+			location="${keystore.dir}/local.keystore" />
+		<property file="${keystore.dir}/keystore.properties" />
+		<property name="keystore.alias" value="code.signer"/>
+	</target>
+	
+	<target name="create-signing-key" depends="get-password">
+		<genkey	alias="${keystore.alias}" keystore="${keystore}" storepass="${keystore.password}" validity="366" >
+			<dname>
+				<param name="CN" value="autosigner"/>
+				<param name="OU" value="Denis Zgonjanin"/>
+				<param name="O" value="BigBlueButton Project"/>
+				<param name="C" value="CA"/>
+			</dname>
+		</genkey>
+	</target>
+	
+	<target name="sign-jar" depends="jar,get-password">
+		<signjar jar="${target.jar}"
+			alias="${keystore.alias}"
+			keystore="${keystore}"
+			storepass="${keystore.password}" />
+	</target>
+		
+	<target name="all" depends="clean, prepare, compile, jar" description="Run all server tasks"/>
+
+	<target name="usage">
+		<echo message="Type ant -p for available targets"/>
+	</target>
+	
+	<target name="diagnostics"  
+	    description="diagnostics">
+		<diagnostics/>
+	</target>
+	
+	<target name="echoall">
+		<echoproperties/>
+	</target>
+</project>
