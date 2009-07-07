@@ -63,6 +63,7 @@
 		</jar>
 	</target>
 	
+	<!-- How to sign the applet. From Ant in Action book -->
 	<target name="get-password" depends="init-security" description="Prompts for password for keystore">
 		<input addproperty="keystore.password" >password for keystore:</input>
 		<echo level="verbose">password = ${keystore.password}</echo>

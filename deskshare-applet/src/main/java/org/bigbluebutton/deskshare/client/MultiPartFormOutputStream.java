@@ -27,7 +27,7 @@ public class MultiPartFormOutputStream {
 	 * The output stream to write to.  
 	 */
 	private DataOutputStream out = null;
- 
+	
 	/**
 	 * The multipart boundary string.  
 	 */

@@ -16,7 +16,7 @@ public class DeskShareApplet extends JApplet implements IScreenCaptureListener {
 	private int screenHeight = 600;
 	private int x = 0;
 	private int y = 0;
-	private boolean httpTunnel = false;
+	private boolean httpTunnel = true;
 	
 	private String room = "test-room";
 	private String host = "192.168.0.136";
@@ -41,7 +41,11 @@ public class DeskShareApplet extends JApplet implements IScreenCaptureListener {
 		captureTaker = new ScreenCaptureTaker(capture);
 		
 		if (httpTunnel) {
+			//captureSender = new FileUploadSender();
+			//captureSender = new TestHttpSender();
 			captureSender = new HttpScreenCaptureSender();
+			captureSender.connect(host, room, capture.getVideoWidth(),
+					capture.getVideoHeight(), capture.getProperFrameRate());
 		} else {
 			captureSender = new SocketScreenCaptureSender();
 
