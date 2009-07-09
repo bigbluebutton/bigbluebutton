@@ -77,6 +77,6 @@ public class ChatApplication {
 		ISharedObject sharedObject = getSharedObject(this.scope, recepient);
 		ArrayList<String> arguments = new ArrayList<String>();
 		arguments.add(sender, message);
-		sharedObject.sendMessage("messageReceived", )
+		sharedObject.sendMessage("messageReceived", arguments);
 	}
 }
