@@ -20,7 +20,7 @@
 
 package org.bigbluebutton.conference.service.chat
 
-import org.red5.server.api.so.ISharedObject
+import org.red5.server.api.so.ISharedObjectimport org.red5.server.api.IScope
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.red5.logging.Red5LoggerFactory
@@ -32,6 +32,7 @@ public class ChatApplication {
 		
 	private static final String APP = "CHAT";
 	private ChatRoomsManager roomsManager
+	public IScope scope;
 	
 	public boolean createRoom(String name) {
 		roomsManager.addRoom(new ChatRoom(name))
@@ -69,5 +70,13 @@ public class ChatApplication {
 	public void setRoomsManager(ChatRoomsManager r) {
 		log.debug("Setting room manager")
 		roomsManager = r
+	}
+	
+	public void privateMessage(String message, String sender, String recepient){
+		log.debug("Received private message: " + message + " from " + sender + " to " + recepient);
+		ISharedObject sharedObject = getSharedObject(this.scope, recepient);
+		ArrayList<String> arguments = new ArrayList<String>();
+		arguments.add(sender, message);
+		sharedObject.sendMessage("messageReceived", )
 	}
 }

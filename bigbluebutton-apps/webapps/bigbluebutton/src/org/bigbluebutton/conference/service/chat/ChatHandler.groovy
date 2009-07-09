@@ -142,6 +142,7 @@ public class ChatHandler extends ApplicationAdapter implements IApplication{
 	public void setChatApplication(ChatApplication a) {
 		log.debug("Setting chat application")
 		chatApplication = a
+		chatApplication.scope = this.scope;
 	}
 	
 	public void setArchiveApplication(ArchiveApplication a) {
@@ -153,11 +154,4 @@ public class ChatHandler extends ApplicationAdapter implements IApplication{
 		return Red5.connectionLocal.getAttribute(Constants.SESSION)
 	}
 	
-	public void privateMessage(String message, String sender, String recepient){
-		log.debug("Received private message: " + message + " from " + sender + " to " + recepient);
-		ISharedObject sharedObject = getSharedObject(this.scope, recepient);
-		ArrayList<String> arguments = new ArrayList<String>();
-		arguments.add(sender, message);
-		sharedObject.sendMessage("messageReceived", )
-	}
 }
