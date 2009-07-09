@@ -24,7 +24,9 @@
         <dependency org="spring" name="spring-webmvc" rev="2.5.6" />
         
         <dependency org="javax.servlet" name="servlet-api" rev="2.5" />
-       
+        <dependency org="org.apache.mina" name="mina-core" rev="2.0.0-M6" />
+        <dependency org="org.apache.mina" name="mina-integration-spring" rev="1.1.7" />
+        
        	<!-- File upload --> 
         <dependency org="commons-fileupload" name="commons-fileupload" rev="1.2.1" />
         <dependency org="commons-io" name="commons-io" rev="1.4" />

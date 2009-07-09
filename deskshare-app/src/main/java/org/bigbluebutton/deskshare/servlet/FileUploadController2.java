@@ -7,11 +7,14 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import javax.imageio.ImageIO;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
@@ -36,7 +39,26 @@ public class FileUploadController2 extends MultiActionController {
 		log.warn("Received image from room {}", room);
 		String videoInfo = request.getParameterValues("videoInfo")[0];
 		log.warn("Received image from videoInfo {}", videoInfo);
+		
+		getParameter("paramName");
 		return null;
-
 	}	
+	
+	private String getParameter(String paramName) {
+		//Get the servlet context
+		ServletContext ctx = getServletContext();
+		log.info("Got the servlet context: {}", ctx);
+		
+		//Grab a reference to the application context
+		ApplicationContext appCtx = (ApplicationContext) ctx.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+		log.info("Got the application context: {}", appCtx);
+		
+		//Get the bean holding the parameter
+		MyBean bean = (MyBean) appCtx.getBean("mybean");
+		String param = bean.getParameter();
+		log.info("Got the parameter - {} = {}", paramName, param);
+		
+		bean.sendMessage("Pass this....");
+		return param;
+	}
 }

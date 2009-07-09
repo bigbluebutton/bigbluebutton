@@ -22,24 +22,30 @@
 		<property name="virtualHosts" value="${webapp.virtualHosts}" />
 	</bean>
 
-  	<bean id="web.handler"  class="org.bigbluebutton.deskshare.Application" init-method="init">
+  	<bean id="web.handler"  class="org.bigbluebutton.deskshare.DeskShareApplication">
+  		<property name="deskShareServer" ref="deskShareServer"/>
   	</bean>	
   	
-  	<bean id="multipartResolver"
-        class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
+	<bean id="mybean" class="org.bigbluebutton.deskshare.servlet.MyBean">
+		<property name="parameter" value="Hello World"/>
+	</bean>
 
-    <bean id="urlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
-        <property name="mappings">
-            <value>
-                /upload.form=fileUploadController
-            </value>
-        </property>
+
+	<bean id="deskShareServer" class="org.bigbluebutton.deskshare.socket.DeskShareServer" >
+		<property name="screenCaptureHandler" ref="screenCaptureHandler"/>
+	</bean>
+	
+    <!-- The IoHandler implementation -->
+    <bean id="screenCaptureHandler" class="org.bigbluebutton.deskshare.socket.ScreenCaptureMessageHandler">
+    	<property name="streamerGateway" ref="streamerGateway"/>
     </bean>
-
-    <bean id="fileUploadController" class="org.bigbluebutton.deskshare.servlet.FileUploadController">
-        <property name="commandClass" value="org.bigbluebutton.deskshare.servlet.FileUploadBean"/>
-        <property name="formView" value="fileuploadform"/>
-        <property name="successView" value="confirmation"/>
-    </bean>
-
+  	
+  	<bean id="streamerGateway" class="org.bigbluebutton.deskshare.StreamerGateway">
+  		<property name="streamFactory" ref="streamFactory"/>
+  	</bean>
+  	
+  	<bean id="streamFactory" class="org.bigbluebutton.deskshare.StreamFactory">
+  		<property name="deskShareApplication" ref="web.handler"/>
+  	</bean>
+  	
 </beans>

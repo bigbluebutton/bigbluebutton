@@ -17,5 +17,6 @@
 	<classpathentry kind="lib" path="lib/xuggle-xuggler-red5-3.0.662.jar"/>
 	<classpathentry kind="lib" path="lib/spring-webmvc-2.5.6.jar"/>
 	<classpathentry kind="lib" path="lib/servlet-api-2.5.jar"/>
+	<classpathentry kind="lib" path="lib/mina-core-2.0.0-M6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
