@@ -27,7 +27,7 @@ import org.red5.server.api.IScope
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.red5.logging.Red5LoggerFactory
-
+import java.util.ArrayList
 import org.red5.server.api.so.ISharedObject
 import org.red5.server.adapter.ApplicationAdapter
 import org.red5.server.api.Red5import java.util.Mapimport org.bigbluebutton.conference.service.chat.ChatRoomsManager
@@ -41,6 +41,7 @@ public class ChatHandler extends ApplicationAdapter implements IApplication{
 
 	private ArchiveApplication archiveApplication
 	private ChatApplication chatApplication
+	private IScope scope;
 	
 	@Override
 	public boolean appConnect(IConnection conn, Object[] params) {
@@ -67,6 +68,7 @@ public class ChatHandler extends ApplicationAdapter implements IApplication{
 
 	@Override
 	public boolean appStart(IScope scope) {
+		this.scope = scope;
 		log.debug("${APP}:appStart ${scope.name}")
 		return true;
 	}
@@ -149,5 +151,12 @@ public class ChatHandler extends ApplicationAdapter implements IApplication{
 	
 	private BigBlueButtonSession getBbbSession() {
 		return Red5.connectionLocal.getAttribute(Constants.SESSION)
+	}
+	
+	public void privateMessage(String message, String sender, String recepient){
+		ISharedObject sharedObject = getSharedObject(this.scope, recepient);
+		ArrayList<String> arguments = new ArrayList<String>();
+		arguments.add(sender, message);
+		sharedObject.sendMessage("messageReceived", )
 	}
 }

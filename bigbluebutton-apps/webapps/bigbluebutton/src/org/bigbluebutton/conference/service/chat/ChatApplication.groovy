@@ -20,7 +20,7 @@
 
 package org.bigbluebutton.conference.service.chat
 
-
+import org.red5.server.api.so.ISharedObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.red5.logging.Red5LoggerFactory
