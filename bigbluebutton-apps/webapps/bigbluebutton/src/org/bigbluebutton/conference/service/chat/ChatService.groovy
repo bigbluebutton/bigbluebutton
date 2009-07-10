@@ -44,6 +44,7 @@ public class ChatService {
 	public void privateMessage(String message, String sender, String recepient){
 		log.debug("Received private message: " + message + " from " + sender + " to " + recepient);
 		ISharedObject sharedObject = getSharedObject(Red5.connectionLocal.scope, recepient);
+		log.debug(Red5.connectionLocal.scope.name);
 		ArrayList<String> arguments = new ArrayList<String>();
 		arguments.add(sender, message);
 		sharedObject.sendMessage("messageReceived", arguments);
