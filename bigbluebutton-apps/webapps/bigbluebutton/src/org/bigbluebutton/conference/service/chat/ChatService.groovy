@@ -20,7 +20,7 @@
 package org.bigbluebutton.conference.service.chat
 import org.slf4j.Loggerimport org.slf4j.LoggerFactory
 import org.red5.logging.Red5LoggerFactory
-import org.red5.server.api.Red5
+import org.red5.server.api.so.ISharedObjectimport org.red5.server.api.Red5
 public class ChatService {
 	
 	private static Logger log = Red5LoggerFactory.getLogger( ChatService.class, "bigbluebutton" );
@@ -39,5 +39,13 @@ public class ChatService {
 	public void setChatApplication(ChatApplication a) {
 		log.debug("Setting Chat Applications")
 		application = a
+	}
+	
+	public void privateMessage(String message, String sender, String recepient){
+		log.debug("Received private message: " + message + " from " + sender + " to " + recepient);
+		ISharedObject sharedObject = getSharedObject(Red5.connectionLocal.scope, recepient);
+		ArrayList<String> arguments = new ArrayList<String>();
+		arguments.add(sender, message);
+		sharedObject.sendMessage("messageReceived", arguments);
 	}
 }

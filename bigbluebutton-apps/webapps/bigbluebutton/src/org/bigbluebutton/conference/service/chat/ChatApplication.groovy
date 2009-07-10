@@ -71,12 +71,4 @@ public class ChatApplication {
 		log.debug("Setting room manager")
 		roomsManager = r
 	}
-	
-	public void privateMessage(String message, String sender, String recepient){
-		log.debug("Received private message: " + message + " from " + sender + " to " + recepient);
-		ISharedObject sharedObject = getSharedObject(this.scope, recepient);
-		ArrayList<String> arguments = new ArrayList<String>();
-		arguments.add(sender, message);
-		sharedObject.sendMessage("messageReceived", arguments);
-	}
 }
