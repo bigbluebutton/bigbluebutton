@@ -235,7 +235,8 @@ package org.bigbluebutton.modules.deskShare.view
 				captureHeight = Math.round(_window.dimensionsBox.box.height * DeskShareModuleConstants.SCALE - 5);
 				sharing = true;
 				ExternalInterface.call("startApplet", _module.getCaptureServerUri(), _module.getRoom(), 
-														captureX, captureY, captureWidth, captureHeight);
+														captureX, captureY, captureWidth, captureHeight,
+														_module.tunnel().toString());
 														
 				//ExternalInterface.addCallback("appletStartNotification", onAppletStart);
 				

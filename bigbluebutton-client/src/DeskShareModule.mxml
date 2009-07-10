@@ -111,6 +111,14 @@
 				//Alert.show(uri);
 				return uri;
 			}
+			
+			public function tunnel():Boolean {
+				if (_attributes.protocol == "RTMPT") {
+					LogUtil.debug("Use tunneling for desktop sharing");
+					return true;
+				}
+				return false;
+			}
 		]]>
 	</mx:Script>
 	

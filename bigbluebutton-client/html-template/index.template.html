@@ -86,7 +86,7 @@ if ( hasProductInstall && !hasRequestedVersion ) {
   }
 // -->
 
-function startApplet(IP, roomNumber, captureX, captureY, captureWidth, captureHeight)
+function startApplet(IP, roomNumber, captureX, captureY, captureWidth, captureHeight, tunnel)
 {
 	var iframe = document.createElement("iframe");
   	iframe.id = "iframe";
@@ -94,14 +94,15 @@ function startApplet(IP, roomNumber, captureX, captureY, captureWidth, captureHe
    	frames[frames.length - 1].document.write("<applet id="+ "\"DeskShareApplet\" " + "NAME=" + "\"DeskShareApplet\" " +
            	 "height=" + "\"0\" " +"width="+ "\"0\" " +"scriptable="+ "\"true\" " + 
            	 "mayscript=" + "\"true\">" +
-             "<param name=" +"\"CODE\" "+ "value=" + "\"test.RunnerApplet.class\"" + "></param>"+
+             "<param name=" +"\"CODE\" "+ "value=" + "\"org.bigbluebutton.deskshare.client.DeskShareApplet.class\"" + "></param>"+
+             "<param name=" +"\"TUNNEL\" "+ "value=" + "\"" + tunnel + "\"" + "></param>"+
              "<param name=" +"\"ROOM\" "+ "value=" + "\"" + roomNumber + "\"" + "></param>"+  
              "<param name=" +"\"IP\" " + "value=" + "\"" + IP + "\"" + "></param>"+
              "<param name=" +"\"CAPTURE_WIDTH\" " + "value=" + "\"" + captureWidth + "\"" + "></param>"+
              "<param name=" +"\"CAPTURE_HEIGHT\" " + "value=" + "\"" + captureHeight + "\"" + "></param>"+
              "<param name=" +"\"X\" " + "value=" + "\"" + captureX + "\"" + "></param>"+
              "<param name=" +"\"Y\" " + "value=" + "\"" + captureY + "\"" + "></param>"+
-             "<param name=" +"\"ARCHIVE\" " + "value="+ "\"deskShare.jar\"" + "></param> </applet>");   
+             "<param name=" +"\"ARCHIVE\" " + "value="+ "\"deskshareapplet-0.1.jar\"" + "></param> </applet>");   
 }
 
 function removeFrame () {

@@ -155,6 +155,7 @@ package org.bigbluebutton.modules.deskShare.model.business
 		 * 
 		 */		
 		public function appletStarted():void{
+			LogUtil.debug("Got applet started");
 			sendNotification(DeskShareModuleConstants.APPLET_STARTED);
 		}
 		
@@ -206,7 +207,7 @@ package org.bigbluebutton.modules.deskShare.model.business
 		 * 
 		 */		
 		private function checkIfStreamIsPublishing():void{
-			nc.call("checkIfStreamIsPublishing", responder);
+			nc.call("deskshare.checkIfStreamIsPublishing", responder);
 		}
 		
 		/**
@@ -224,7 +225,7 @@ package org.bigbluebutton.modules.deskShare.model.business
 							}
 								);
 							
-			nc.call("getVideoWidth", widthResponder);
+			nc.call("deskshare.getVideoWidth", widthResponder);
 		}
 		
 		/**
@@ -244,7 +245,7 @@ package org.bigbluebutton.modules.deskShare.model.business
 							}
 									);
 									
-			nc.call("getVideoHeight", heightResponder);
+			nc.call("deskshare.getVideoHeight", heightResponder);
 		}
 
 	}
