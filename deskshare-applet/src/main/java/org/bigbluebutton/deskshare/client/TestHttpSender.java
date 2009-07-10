@@ -1,23 +1,21 @@
 package org.bigbluebutton.deskshare.client;
 
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.URLEncoder;
+
 
 import javax.imageio.ImageIO;
 
-import com.sun.org.apache.xerces.internal.util.HTTPInputSource;
+import com.myjavatools.web.ClientHttpRequest;
 
 public class TestHttpSender implements IScreenCaptureSender {
 	private String host = "localhost";
@@ -28,6 +26,7 @@ public class TestHttpSender implements IScreenCaptureSender {
 	private String servletName = "deskshare/sample/showslides";
 	private URL url;
 	private String videoInfo;
+	private boolean startCapture = true;
 	
 	@Override
 	public void connect(String host, String room, int videoWidth,
@@ -51,7 +50,6 @@ public class TestHttpSender implements IScreenCaptureSender {
 
 	@Override
 	public void send(BufferedImage screenCapture) {
-		String data;
 		try {
 
 	    URL url = new URL("http://192.168.0.136/deskshare/sample/showslides");
@@ -59,12 +57,21 @@ public class TestHttpSender implements IScreenCaptureSender {
 	    ClientHttpRequest chr = new ClientHttpRequest(conn);
 	    chr.setParameter("room", room);
 	    chr.setParameter("videoInfo", videoInfo);
+	    chr.setParameter("startCapture", startCapture);
+		System.out.println("Start capture = " + startCapture);
+		
+	    if (startCapture) {
+	    	startCapture = false;
+	    }
+	    
 	    ByteArrayOutputStream byteConvert = new ByteArrayOutputStream();
-			ImageIO.write(screenCapture, "jpeg", byteConvert);
-			byte[] imageData = byteConvert.toByteArray();
-			ByteArrayInputStream cap = new ByteArrayInputStream(imageData);
+		ImageIO.write(screenCapture, "jpeg", byteConvert);
+		byte[] imageData = byteConvert.toByteArray();
+		ByteArrayInputStream cap = new ByteArrayInputStream(imageData);
 			
 		chr.setParameter("upload", "screen", cap);
+		System.out.println("Image length = " + imageData.length);
+		
 		chr.post();
 		
 		} catch (UnsupportedEncodingException e) {

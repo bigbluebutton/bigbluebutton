@@ -18,7 +18,7 @@ public class DeskShareApplet extends JApplet implements IScreenCaptureListener {
 	private int y = 0;
 	private boolean httpTunnel = true;
 	
-	private String room = "test-room";
+	private String room = "f7e8821f-8528-4c28-994e-2db7659f9538";
 	private String host = "192.168.0.136";
 	
 	public void init(){
@@ -28,7 +28,11 @@ public class DeskShareApplet extends JApplet implements IScreenCaptureListener {
 		y = Integer.parseInt(getParameter("Y"));
 		room = getParameter("ROOM");
 		host = getParameter("IP");
-		httpTunnel = Boolean.getBoolean(getParameter("TUNNEL"));
+		
+		httpTunnel = Boolean.parseBoolean(getParameter("TUNNEL"));
+		System.out.println("Tunnel " + httpTunnel);
+		String t = getParameter("TUNNEL");
+		System.out.println("Tunnel param " + t);
 	}
 	
 	public void stop(){
@@ -44,15 +48,14 @@ public class DeskShareApplet extends JApplet implements IScreenCaptureListener {
 			//captureSender = new FileUploadSender();
 			captureSender = new TestHttpSender();
 			//captureSender = new HttpScreenCaptureSender();
-			captureSender.connect(host, room, capture.getVideoWidth(),
-					capture.getVideoHeight(), capture.getProperFrameRate());
 		} else {
 			captureSender = new SocketScreenCaptureSender();
 
-			captureSender.connect(host, room, capture.getVideoWidth(),
-					capture.getVideoHeight(), capture.getProperFrameRate());
 		}
 
+		captureSender.connect(host, room, capture.getVideoWidth(),
+				capture.getVideoHeight(), capture.getProperFrameRate());
+		
 		captureTaker.addListener(this);
 		captureTaker.setCapture(true);
 		
@@ -77,14 +80,14 @@ public class DeskShareApplet extends JApplet implements IScreenCaptureListener {
 		capture.setY(y);
 	}
 	
-	static public void main (String argv[]) {
-	    final JApplet applet = new DeskShareApplet();
 
-	    applet.start();
-	}
 
 	public void onScreenCaptured(BufferedImage screen) {
 		captureSender.send(screen);
 	}
 
+	static public void main (String argv[]) {
+	    final JApplet applet = new DeskShareApplet();
+	    applet.start();
+	}
 }

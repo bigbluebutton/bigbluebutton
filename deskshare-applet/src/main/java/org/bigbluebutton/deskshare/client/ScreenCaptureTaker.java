@@ -24,7 +24,6 @@ public class ScreenCaptureTaker implements Runnable {
 			notifyListeners(image);
 			
 			try{
-				System.out.println("Sleeping for " + timeBase);
 				Thread.sleep(timeBase);
 			} catch (Exception e){
 				System.out.println("Exception sleeping.");

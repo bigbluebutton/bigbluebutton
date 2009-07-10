@@ -1,4 +1,4 @@
-package org.bigbluebutton.deskshare.client;
+package com.myjavatools.web;
 
 import java.net.URLConnection;
 import java.net.URL;

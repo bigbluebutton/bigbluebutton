@@ -12,20 +12,31 @@ import javax.imageio.ImageIO;
 
 public class SocketScreenCaptureSender implements IScreenCaptureSender {
 	
-	private static final int PORT = 1026;
+	private static final int PORT = 9123;
+	
+	//private static final int PORT = 1026;
 	
 	private Socket socket = null;
 	
 	private DataOutputStream outStream = null;
 	private PrintWriter out;
+	private String room;
+	private int videoWidth;
+	private int videoHeight;
+	private int frameRate;
 	
 	public void connect(String host, String room, int videoWidth, int videoHeight, int frameRate) {
+		this.room = room;
+		this.videoWidth = videoWidth;
+		this.videoHeight = videoHeight;
+		this.frameRate = frameRate;
 		try{
 			socket = new Socket(host, PORT);
 			out = new PrintWriter(socket.getOutputStream(), true);
+			outStream = new DataOutputStream(socket.getOutputStream());
 			sendRoom(room);
 			sendScreenCaptureInfo(videoWidth, videoHeight, frameRate);
-			outStream = new DataOutputStream(socket.getOutputStream());
+			
 		} catch(UnknownHostException e){
 			System.out.println("Unknow host: " + host);
 		} catch(IOException e) {
@@ -38,18 +49,22 @@ public class SocketScreenCaptureSender implements IScreenCaptureSender {
 	}
 	
 	private void sendScreenCaptureInfo(int videoWidth, int videoHeight, int frameRate) {
-		out.println(Integer.toString(videoWidth)
-				+ "x" + Integer.toString(videoHeight)
-				+ "x" + Integer.toString(frameRate));
+			out.println(Integer.toString(videoWidth)
+					+ "x" + Integer.toString(videoHeight)
+					+ "x" + Integer.toString(frameRate));
 	}
 	
 	public void send(BufferedImage screenCapture) {
+		sendRoom(room);
+		sendScreenCaptureInfo(videoWidth, videoHeight, frameRate);
 		try{
 			ByteArrayOutputStream byteConvert = new ByteArrayOutputStream();
 			ImageIO.write(screenCapture, "jpeg", byteConvert);
 			byte[] imageData = byteConvert.toByteArray();
-			outStream.writeLong(imageData.length);
+			outStream.writeInt(imageData.length);
+			//out.println("xxx");
 			outStream.write(imageData);
+			//out.println("vvv");
 			System.out.println("Sent: "+ imageData.length);
 			outStream.flush();
 		} catch(IOException e){
