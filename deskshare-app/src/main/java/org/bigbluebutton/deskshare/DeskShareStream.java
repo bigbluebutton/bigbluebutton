@@ -274,5 +274,15 @@ public class DeskShareStream {
 		}		
 	}
 	
+	public int getWidth() {
+		return width;
+	}
 	
+	public int getHeight() {
+		return height;
+	}
+	
+	public IScope getScope() {
+		return scope;
+	}
 }

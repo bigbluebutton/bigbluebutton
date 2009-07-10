@@ -2,8 +2,6 @@ package org.bigbluebutton.deskshare.servlet;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 
 import javax.imageio.ImageIO;
@@ -11,6 +9,11 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.bigbluebutton.deskshare.CaptureEndEvent;
+import org.bigbluebutton.deskshare.CaptureEvent;
+import org.bigbluebutton.deskshare.CaptureStartEvent;
+import org.bigbluebutton.deskshare.CapturedScreen;
+import org.bigbluebutton.deskshare.StreamerGateway;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.context.ApplicationContext;
@@ -22,6 +25,10 @@ import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 
 public class FileUploadController2 extends MultiActionController {
 	private static Logger log = Red5LoggerFactory.getLogger(FileUploadController2.class, "deskshare");
+	
+	private StreamerGateway streamerGateway;
+	private boolean hasGateway = false;
+	
 	
 	public ModelAndView displaySlides(HttpServletRequest request, HttpServletResponse response) throws Exception {		
 		log.warn("Got here");
@@ -40,11 +47,49 @@ public class FileUploadController2 extends MultiActionController {
 		String videoInfo = request.getParameterValues("videoInfo")[0];
 		log.warn("Received image from videoInfo {}", videoInfo);
 		
-		getParameter("paramName");
+		String[] screenDimensions = videoInfo.split("x");
+		int width = Integer.parseInt(screenDimensions[0]);
+		int height = Integer.parseInt(screenDimensions[1]);
+		int frameRate = Integer.parseInt(screenDimensions[2]);
+		
+		Boolean startCapture = Boolean.valueOf(request.getParameter("startCapture"));
+		log.warn("Received startCapture {}", startCapture);
+		
+		if (! hasGateway) {
+			streamerGateway = getStreamerGateway();
+			hasGateway = true;
+		}
+		
+		CapturedScreen cs = new CapturedScreen();
+		cs.setRoom(room);
+		cs.setWidth(width);
+		cs.setHeight(height);
+		cs.setFrameRate(frameRate);
+		cs.setScreen(image);
+		
+		if (startCapture) {
+			sendCaptureStartEvent(cs);
+		} else {
+			sendCaptureEvent(cs);
+		}
 		return null;
 	}	
 	
-	private String getParameter(String paramName) {
+	
+	private void sendCaptureEndEvent(String room) {
+    	streamerGateway.onCaptureEndEvent(new CaptureEndEvent(room));
+    }
+    
+    private void sendCaptureEvent(CapturedScreen cs) {
+    	streamerGateway.onCaptureEvent(new CaptureEvent(cs));
+    }
+    
+    private void sendCaptureStartEvent(CapturedScreen cs) {
+    	
+    	streamerGateway.onCaptureStartEvent(new CaptureStartEvent(cs));
+    }
+    
+	private StreamerGateway getStreamerGateway() {
 		//Get the servlet context
 		ServletContext ctx = getServletContext();
 		log.info("Got the servlet context: {}", ctx);
@@ -54,11 +99,10 @@ public class FileUploadController2 extends MultiActionController {
 		log.info("Got the application context: {}", appCtx);
 		
 		//Get the bean holding the parameter
-		MyBean bean = (MyBean) appCtx.getBean("mybean");
-		String param = bean.getParameter();
-		log.info("Got the parameter - {} = {}", paramName, param);
-		
-		bean.sendMessage("Pass this....");
-		return param;
+		StreamerGateway streamerGateway = (StreamerGateway) appCtx.getBean("streamerGateway");
+		if (streamerGateway != null) {
+			log.info("Got the streamerGateway context: {}", appCtx);
+		}
+		return streamerGateway;
 	}
 }

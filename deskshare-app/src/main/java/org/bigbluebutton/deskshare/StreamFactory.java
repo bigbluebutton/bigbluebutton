@@ -14,16 +14,11 @@ public class StreamFactory {
 		int width = event.getWidth();
 		int height = event.getHeight();
 		int frameRate = event.getFrameRate();
-		 ;
 		
-		if (app.getAppScope().createChildScope(room)) {
-			IScope scope = app.getAppScope().getScope(room);
-			log.debug("Created stream {}", room);
-			return new DeskShareStream(scope, room, width, height, frameRate);
-		} else {
-			log.error("Failed to create stream {}", room);
-		}
-		return null;
+		IScope scope = app.getAppScope().getScope(room);
+
+		log.debug("Created stream {}", scope.getName());
+		return new DeskShareStream(scope, room, width, height, frameRate);
 	}
 	
 	public void setDeskShareApplication(DeskShareApplication app) {

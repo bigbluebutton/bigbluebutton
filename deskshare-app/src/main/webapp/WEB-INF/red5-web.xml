@@ -26,6 +26,10 @@
   		<property name="deskShareServer" ref="deskShareServer"/>
   	</bean>	
   	
+  	<bean id="deskshare.service" class="org.bigbluebutton.deskshare.DeskShareService">
+  		<property name="streamerGateway" ref="streamerGateway"/>
+  	</bean>
+  	
 	<bean id="mybean" class="org.bigbluebutton.deskshare.servlet.MyBean">
 		<property name="parameter" value="Hello World"/>
 	</bean>
@@ -42,6 +46,7 @@
   	
   	<bean id="streamerGateway" class="org.bigbluebutton.deskshare.StreamerGateway">
   		<property name="streamFactory" ref="streamFactory"/>
+  		<property name="deskShareApplication" ref="web.handler"/>
   	</bean>
   	
   	<bean id="streamFactory" class="org.bigbluebutton.deskshare.StreamFactory">

@@ -7,21 +7,7 @@
 
   	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
 
-    <bean id="urlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
-        <property name="mappings">
-            <value>
-                upload.form=fileUploadController
-            </value>
-        </property>
-    </bean>
-
-    <bean id="fileUploadController" class="org.bigbluebutton.deskshare.servlet.FileUploadController">
-        <property name="commandClass" value="org.bigbluebutton.deskshare.servlet.FileUploadBean"/>
-        <property name="formView" value="fileuploadform"/>
-        <property name="successView" value="confirmation"/>
-    </bean>
-
-<!-- HandlerMapping that dispatches all request to the MultiActionController below -->
+	<!-- HandlerMapping that dispatches all request to the MultiActionController below -->
 	<bean id="handlerMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
 		<property name="defaultHandler" ref="imageController"/>
 	</bean>
