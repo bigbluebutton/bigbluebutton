@@ -60,12 +60,7 @@ public class TunnelController extends MultiActionController {
 			hasGateway = true;
 		}
 		
-		CapturedScreen cs = new CapturedScreen();
-		cs.setRoom(room);
-		cs.setWidth(width);
-		cs.setHeight(height);
-		cs.setFrameRate(frameRate);
-		cs.setScreen(image);
+		CapturedScreen cs = new CapturedScreen(image, room, width, height, frameRate);
 		
 		if (startCapture) {
 			sendCaptureStartEvent(cs);

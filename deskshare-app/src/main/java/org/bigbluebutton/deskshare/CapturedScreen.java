@@ -9,28 +9,19 @@ public class CapturedScreen {
 	
 	private int width;
 	private int height;
-	private int frameRate;	
+	private int frameRate;
 	
-	public void setScreen(BufferedImage screen) {
+	public CapturedScreen(BufferedImage screen, String room, int width,
+			int height, int frameRate) {
+		super();
 		this.screen = screen;
-	}
-
-	public void setRoom(String room) {
 		this.room = room;
-	}
-
-	public void setWidth(int width) {
 		this.width = width;
-	}
-
-	public void setHeight(int height) {
 		this.height = height;
-	}
-
-	public void setFrameRate(int frameRate) {
 		this.frameRate = frameRate;
 	}
-	
+
+
 	public BufferedImage getScreen() {
 		return screen;
 	}

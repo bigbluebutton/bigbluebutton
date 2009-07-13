@@ -29,11 +29,7 @@ import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
-/**
- * The ClientProxy receives images from the client which captures the screen
- * @author Snap
- *
- */
+
 public class DeskShareServer {
 	final private Logger log = Red5LoggerFactory.getLogger(DeskShareServer.class, "deskshare");
 	
@@ -45,8 +41,6 @@ public class DeskShareServer {
     public void start()
     {
         acceptor = new NioSocketAcceptor();
-
-    //    acceptor.getFilterChain().addLast( "logger", new LoggingFilter() );
         acceptor.getFilterChain().addLast( "codec",  new ProtocolCodecFilter(new ScreenCaptureProtocolCodecFactory()));
 
         acceptor.setHandler( screenCaptureHandler);
@@ -64,5 +58,6 @@ public class DeskShareServer {
 	
 	public void stop() {
 		acceptor.unbind();
+		acceptor.dispose();
 	}
 }
