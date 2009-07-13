@@ -1,16 +1,19 @@
 package org.bigbluebutton.deskshare.client;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
 import javax.imageio.ImageIO;
 
-public class HttpScreenCaptureSender implements IScreenCaptureSender {
+import com.myjavatools.web.ClientHttpRequest;
 
+public class HttpScreenCaptureSender implements IScreenCaptureSender {
 	private String host = "localhost";
 	private String room;
 	private int videoWidth;
@@ -19,25 +22,9 @@ public class HttpScreenCaptureSender implements IScreenCaptureSender {
 	private String servletName = "deskshare/sample/showslides";
 	private URL url;
 	private String videoInfo;
+	private boolean startCapture = true;
 	
-	private MultiPartFormOutputStream mpfOutStream;
-	private URLConnection conn;
-	
-	public void send(BufferedImage screenCapture) {
-		connect();
-		ByteArrayOutputStream byteConvert = new ByteArrayOutputStream();
-		try {
-			ImageIO.write(screenCapture, "jpeg", byteConvert);
-			byte[] imageData = byteConvert.toByteArray();
-			mpfOutStream.writeField("room", room);
-			mpfOutStream.writeField("video", videoInfo);
-			mpfOutStream.writeFile("screen", "image/jpeg", "screen.jpg", imageData);
-			System.out.println("Http-Sent: "+ imageData.length);
-		} catch (IOException e) {
-			System.out.println("IOException while converting screen capture.");
-		}		
-	}
-
+	@Override
 	public void connect(String host, String room, int videoWidth,
 			int videoHeight, int frameRate) {
 		this.host = host;
@@ -49,33 +36,51 @@ public class HttpScreenCaptureSender implements IScreenCaptureSender {
 		videoInfo = Integer.toString(videoWidth)
 				+ "x" + Integer.toString(videoHeight)
 				+ "x" + Integer.toString(frameRate);
-		
-		
 	}
-	
-	private void connect() {
-		String urlString = "";
+
+	@Override
+	public void disconnect() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void send(BufferedImage screenCapture) {
 		try {
-			urlString = "http://" + host + "/" + servletName;
-			System.out.println("Connecting to " + urlString);
-			url = new URL(urlString);
-			conn = MultiPartFormOutputStream.createConnection(url);
-			conn.setRequestProperty("Connection", "Keep-Alive");
+
+	    URL url = new URL("http://" + host + "/deskshare/tunnel/screen");
+	    URLConnection conn = url.openConnection();
+	    ClientHttpRequest chr = new ClientHttpRequest(conn);
+	    chr.setParameter("room", room);
+	    chr.setParameter("videoInfo", videoInfo);
+	    chr.setParameter("startCapture", startCapture);
+		System.out.println("Start capture = " + startCapture);
+		
+	    if (startCapture) {
+	    	startCapture = false;
+	    }
+	    
+	    ByteArrayOutputStream byteConvert = new ByteArrayOutputStream();
+		ImageIO.write(screenCapture, "jpeg", byteConvert);
+		byte[] imageData = byteConvert.toByteArray();
+		ByteArrayInputStream cap = new ByteArrayInputStream(imageData);
 			
-			mpfOutStream = new MultiPartFormOutputStream(conn.getOutputStream(), MultiPartFormOutputStream.createBoundary());			
+		chr.setParameter("upload", "screen", cap);
+		System.out.println("Image length = " + imageData.length);
+		
+		chr.post();
+		
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		} catch (MalformedURLException e) {
-			System.out.println("MalformedURLException for " + urlString);
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		} catch (IOException e) {
-			System.out.println("IOException while creating URL connection.");
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
-	public void disconnect() {
-		try {
-			mpfOutStream.close();
-		} catch (IOException e) {
-			System.out.println("IOException while closing output stream");
-		}
-	}
 
 }
