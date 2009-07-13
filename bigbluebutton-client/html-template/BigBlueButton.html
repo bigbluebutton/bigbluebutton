@@ -93,13 +93,13 @@ function startApplet(IP, roomNumber, captureX, captureY, captureWidth, captureHe
    	frames[frames.length - 1].document.write(
    		"<applet code=\"org.bigbluebutton.deskshare.client.DeskShareApplet.class\"" +
    			"width=\"0\" height=\"400\" archive=\"deskshareapplet-0.1.jar\">" +
-        	"<param name=\"TUNNEL\" value=\"false\"/>" +
-        	"<param name=\"ROOM\" value=\"f7e8821f-8528-4c28-994e-2db7659f9538\"/>" +  
-        	"<param name=\"IP\" value=\"192.168.0.136\"/>" +
-        	"<param name=\"CAPTURE_WIDTH\" value=\"840\"/>" +
-        	"<param name=\"CAPTURE_HEIGHT\" value=\"950\"/>" +
-        	"<param name=\"X\" value=\"0\"/>" +
-        	"<param name=\"Y\" value=\"0\"/>" +
+        	"<param name=\"TUNNEL\" value=\"" + tunnel  + "\"/>" +
+        	"<param name=\"ROOM\" value=\"" + roomNumber  + "\"/>" +  
+        	"<param name=\"IP\" value=\"" + IP + "\"/>" +
+        	"<param name=\"CAPTURE_WIDTH\" value=\"" + captureWidth + "\"/>" +
+        	"<param name=\"CAPTURE_HEIGHT\" value=\"" + captureHeight + "\"/>" +
+        	"<param name=\"X\" value=\"" + captureX + "\"/>" +
+        	"<param name=\"Y\" value=\"" + captureY + "\"/>" +
       	"</applet>"
      ); 
 }
