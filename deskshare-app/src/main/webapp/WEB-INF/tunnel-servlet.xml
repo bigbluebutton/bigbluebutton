@@ -7,18 +7,16 @@
 
   	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
 
-	<!-- HandlerMapping that dispatches all request to the MultiActionController below -->
 	<bean id="handlerMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
-		<property name="defaultHandler" ref="imageController"/>
+		<property name="defaultHandler" ref="tunnelController"/>
 	</bean>
 
-	<!-- MultiActionController that defines user interface actions as separate methods -->
-	<bean id="imageController" class="org.bigbluebutton.deskshare.servlet.FileUploadController2">
+	<bean id="tunnelController" class="org.bigbluebutton.deskshare.servlet.TunnelController">
 		<property name="methodNameResolver">
 			<bean class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
 				<property name="mappings">
 					<props>
-						<prop key="/showslides">displaySlides</prop>
+						<prop key="/screen">screenCaptureHandler</prop>
 					</props>
 				</property>
 			</bean>

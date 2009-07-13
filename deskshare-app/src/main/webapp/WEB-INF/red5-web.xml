@@ -30,11 +30,6 @@
   		<property name="streamerGateway" ref="streamerGateway"/>
   	</bean>
   	
-	<bean id="mybean" class="org.bigbluebutton.deskshare.servlet.MyBean">
-		<property name="parameter" value="Hello World"/>
-	</bean>
-
-
 	<bean id="deskShareServer" class="org.bigbluebutton.deskshare.socket.DeskShareServer" >
 		<property name="screenCaptureHandler" ref="screenCaptureHandler"/>
 	</bean>

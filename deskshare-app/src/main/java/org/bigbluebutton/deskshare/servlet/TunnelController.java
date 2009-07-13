@@ -23,14 +23,14 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 
-public class FileUploadController2 extends MultiActionController {
-	private static Logger log = Red5LoggerFactory.getLogger(FileUploadController2.class, "deskshare");
+public class TunnelController extends MultiActionController {
+	private static Logger log = Red5LoggerFactory.getLogger(TunnelController.class, "deskshare");
 	
 	private StreamerGateway streamerGateway;
 	private boolean hasGateway = false;
 	
 	
-	public ModelAndView displaySlides(HttpServletRequest request, HttpServletResponse response) throws Exception {		
+	public ModelAndView screenCaptureHandler(HttpServletRequest request, HttpServletResponse response) throws Exception {		
 		log.warn("Got here");
 		MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
 		// MultipartFile is a copy of file in memory, not in file system

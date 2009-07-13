@@ -53,7 +53,7 @@ import com.xuggle.xuggler.video.ConverterFactory;
 import com.xuggle.xuggler.video.IConverter;
 
 /**
- * The Red5Streamer class publishes captured video to a red5 stream.
+ * The DeskShareStream class publishes captured video to a red5 stream.
  * @author Snap
  *
  */
