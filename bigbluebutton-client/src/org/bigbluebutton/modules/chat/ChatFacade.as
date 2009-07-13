@@ -20,6 +20,7 @@
 package org.bigbluebutton.modules.chat
 {
 	import org.bigbluebutton.common.IBigBlueButtonModule;
+	import org.bigbluebutton.modules.chat.controller.OpenChatBoxCommand;
 	import org.bigbluebutton.modules.chat.controller.StartupCommand;
 	import org.bigbluebutton.modules.chat.controller.StopCommand;
 	import org.puremvc.as3.multicore.interfaces.IFacade;
@@ -52,6 +53,7 @@ package org.bigbluebutton.modules.chat
 			super.initializeController();
 			registerCommand(STARTUP, StartupCommand);
 			registerCommand(STOP, StopCommand);
+			registerCommand(ChatModuleConstants.OPEN_CHAT_BOX, OpenChatBoxCommand);
 			
 		}
 	

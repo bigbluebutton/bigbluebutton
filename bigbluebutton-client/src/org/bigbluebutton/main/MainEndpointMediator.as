@@ -28,8 +28,6 @@ package org.bigbluebutton.main
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
 	import org.puremvc.as3.multicore.utilities.pipes.interfaces.IPipeMessage;
 	
-	import mx.logging.Log;
-	
 	public class MainEndpointMediator extends Mediator implements IMediator
 	{
 		public static const NAME:String = "MainEndpointMediator";

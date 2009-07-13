@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" click="setMessageRead()">
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.controls.Button;
+			public var read:Boolean = true;
+			[Bindable]
+			private var backgroundColor:uint = 0x000000;
+			
+			private var _boxButton:Button;
+			
+			private function updateScroll():void{
+				txtChatBox.verticalScrollPosition = txtChatBox.maxVerticalScrollPosition;
+			}
+			
+			public function showNewMessage(message:String):void
+			{
+				txtChatBox.htmlText += message;
+			}
+			
+			public function setMessageUnread():void{
+				this.read = false;
+				backgroundColor = 0xFFFF00;
+			}
+			
+			public function setMessageRead():void{
+				this.read = true;
+				backgroundColor = 0x000000;
+			}
+			
+			public function set boxButton(button:Button):void{
+				this._boxButton = button;
+			}
+			
+		]]>
+	</mx:Script>
+	<mx:TextArea id="txtChatBox" editable="false" width="100%" height="100%" focusEnabled="false" updateComplete="updateScroll()" />
+</mx:VBox>

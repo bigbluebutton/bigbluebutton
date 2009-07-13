@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.chat.controller
 	import org.bigbluebutton.modules.chat.ChatModuleConstants;
 	import org.bigbluebutton.modules.chat.ChatModuleMediator;
 	import org.bigbluebutton.modules.chat.model.business.ChatProxy;
+	import org.bigbluebutton.modules.chat.model.business.PrivateProxy;
 	import org.bigbluebutton.modules.chat.view.ChatWindowMediator;
 	import org.puremvc.as3.multicore.interfaces.ICommand;
 	import org.puremvc.as3.multicore.interfaces.INotification;
@@ -37,6 +38,7 @@ package org.bigbluebutton.modules.chat.controller
 			facade.registerMediator(new ChatEndpointMediator(m));
 			facade.registerMediator( new ChatWindowMediator(m) );
 			facade.registerProxy(new ChatProxy(m));
+			facade.registerProxy(new PrivateProxy(m));
 			sendNotification(ChatModuleConstants.CONNECTED);
 		}
 	}

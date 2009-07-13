@@ -19,7 +19,6 @@
  */
 package org.bigbluebutton.modules.viewers
 {
-	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.common.messaging.Endpoint;
 	import org.bigbluebutton.common.messaging.EndpointMessageConstants;
 	import org.bigbluebutton.common.messaging.Router;
@@ -68,7 +67,9 @@ package org.bigbluebutton.modules.viewers
 				ViewersModuleConstants.REMOVE_WINDOW,
 				ViewersModuleConstants.ASSIGN_PRESENTER,
 				ViewersModuleConstants.BECOME_VIEWER,
-				ViewersModuleConstants.VIEW_CAMERA
+				ViewersModuleConstants.VIEW_CAMERA,
+				ViewersModuleConstants.USER_JOINED,
+				ViewersModuleConstants.USER_LEFT
 			];
 		}
 		
@@ -126,6 +127,12 @@ package org.bigbluebutton.modules.viewers
 					_endpoint.sendMessage(EndpointMessageConstants.VIEW_CAMERA, 
 							EndpointMessageConstants.TO_VIDEO_MODULE, 
 							{viewerName:_module.username, streamName:notification.getBody().stream, viewedName:notification.getBody().viewedName});
+					break;
+				case ViewersModuleConstants.USER_JOINED:
+					_endpoint.sendMessage(EndpointMessageConstants.NEW_PARTICIPANT, EndpointMessageConstants.TO_CHAT_MODULE, notification.getBody());
+					break;
+				case ViewersModuleConstants.USER_LEFT:
+					_endpoint.sendMessage(EndpointMessageConstants.PARTICIPANT_LEFT, EndpointMessageConstants.TO_CHAT_MODULE, notification.getBody());
 					break;
 			}
 		}

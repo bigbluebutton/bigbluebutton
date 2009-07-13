@@ -15,21 +15,23 @@
   PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
   
   You should have received a copy of the GNU Lesser General Public License along 
-  with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
+  with BigBlueButton; If not, see <http://www.gnu.org/licenses/>.
  
   $Id: $
 --> 
 
 <MDIWindow xmlns="flexlib.mdi.containers.*" 
 	       xmlns:mx="http://www.adobe.com/2006/mxml" 
-	       width="300" height="300" showCloseButton="false"
-	       click="setFocusOn(this.txtMsg || this.txtChatBox)"
+	       width="600" height="300" showCloseButton="false"
 	       focusEnd="setFocusOff()"
 	       creationComplete="init()"
-	       implements="org.bigbluebutton.common.IBbbModuleWindow">
+	       implements="org.bigbluebutton.common.IBbbModuleWindow" xmlns:components="org.bigbluebutton.modules.chat.view.components.*">
 
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.chat.ChatModuleConstants;
+			import org.bigbluebutton.modules.chat.view.ChatWindowMediator;
+			import mx.collections.ArrayCollection;
 			import org.bigbluebutton.modules.chat.view.SendMessageEvent;
 			import mx.core.Application;
 			import mx.events.MenuEvent;
@@ -42,14 +44,13 @@
 			
 			private var _xPosition:int;
 			private var _yPosition:int;
+			
+			[Bindable]
+			private var participants:ArrayCollection = new ArrayCollection();
 						
 			private function init():void{
-
-			}
-									
-			public function showNewMessage(message:String):void
-			{
-				txtChatBox.htmlText += message;
+				addParticipant("Public");
+				dispatchEvent(new Event(ChatModuleConstants.OPEN_CHAT_BOX));
 			}
 			
 			public function setFocusOn(component:UIComponent):void
@@ -77,20 +78,10 @@
 			
 		    public function sendMessages():void
 		    {
-			   	if (txtMsg.text.length > 1000)
-			   	{
-			   		txtChatBox.htmlText += "Your message is too long!" + 
-			   			" There is a limit of maximum 1000 character per message." + "\n";
-			   		return;
-			   	}  	else if (txtMsg.text != ""){
+		    	if (txtMsg.text != ""){
 			   		dispatchEvent(new SendMessageEvent(SEND_MESSAGE));
 			   	}
 			}
-		   
-            private function updateScroll():void
-            {
-            	txtChatBox.verticalScrollPosition = txtChatBox.maxVerticalScrollPosition;
-            }
 
 
 			public function get xPosition():int {
@@ -108,13 +99,39 @@
 			public function set yPosition(y:int):void {
 				_yPosition = y;
 			}
+			
+			public function addParticipant(name:String):void{
+				var item:Object = new Object();
+				item.label = name;
+				participants.addItem(item);
+			}
+			
+			public function removeParticipant(name:String):void{
+				tabNav.removeChild(tabNav.getChildByName(name));
+				var item:Object = new Object();
+				item.label = name;
+				participants.removeItemAt(participants.getItemIndex(item));
+			}
+			
+			public function setMessageUnread(name:String):void{
+				var tab:Button = tabNav.getTabAt(tabNav.getChildIndex(tabNav.getChildByName(name)));
+				tab.setStyle("fillColors", new Array(0xFFFF00, 0xcccc66));
+			}
+			
+			private function setMessageRead():void{
+				var tab:Button = tabNav.getTabAt(tabNav.selectedIndex);
+				tab.setStyle("fillColors", new Array(0xFFFFFF, 0xCCCCCC));
+			}
             
 		]]>
 	</mx:Script>
-	<mx:TextArea id="txtChatBox" editable="false" width="100%" height="100%" focusEnabled="false" updateComplete="updateScroll()"/>		
+	<mx:TabNavigator id="tabNav" width="100%" height="100%" change="setMessageRead()"/>
+	
 	<mx:ApplicationControlBar id="chatCtrlBar" width="100%" height="10%">		
 		<mx:TextInput id="txtMsg" width="100%" enter="sendMessages()"/>
 		<mx:ColorPicker id="cmpColorPicker" showTextField="false" toolTip="Text Color" selectedColor="0x000000"/>
-		<mx:Button label="Send" id="sendBtn" toolTip="Send Message" click="sendMessages()"/>			    
+		<mx:Button label="Send" id="sendBtn" toolTip="Send Message" click="sendMessages()"/>	
+		<mx:ComboBox id="participantList" dataProvider="{participants}" close="dispatchEvent(new Event(ChatModuleConstants.OPEN_CHAT_BOX))" />		    
 	</mx:ApplicationControlBar>
+
 </MDIWindow>

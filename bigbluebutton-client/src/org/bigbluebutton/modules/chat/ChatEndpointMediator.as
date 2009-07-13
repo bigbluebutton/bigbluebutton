@@ -108,6 +108,14 @@ package org.bigbluebutton.modules.chat
 					//LogUtil.debug('Received OPEN_WINDOW message from ' + message.getHeader().SRC);
 					//facade.sendNotification(ChatModuleConstants.OPEN_WINDOW);
 					break;
+				case EndpointMessageConstants.NEW_PARTICIPANT:
+					var userToAdd:Object = message.getBody(); //Has username, userid, userrole parameters
+					facade.sendNotification(ChatModuleConstants.ADD_PARTICIPANT, userToAdd.username as String);
+					break;
+				case EndpointMessageConstants.PARTICIPANT_LEFT:
+					var userToRemove:Object = message.getBody();
+					facade.sendNotification(ChatModuleConstants.REMOVE_PARTICIPANT, userToRemove.username as String);
+					break;
 			}
 		}
 		

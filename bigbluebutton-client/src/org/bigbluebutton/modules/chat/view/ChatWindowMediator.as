@@ -21,8 +21,13 @@ package org.bigbluebutton.modules.chat.view
 {
 	import flash.events.Event;
 	
+	import mx.core.Container;
+	
 	import org.bigbluebutton.modules.chat.ChatModuleConstants;
+	import org.bigbluebutton.modules.chat.model.MessageVO;
 	import org.bigbluebutton.modules.chat.model.business.ChatProxy;
+	import org.bigbluebutton.modules.chat.model.business.PrivateProxy;
+	import org.bigbluebutton.modules.chat.view.components.ChatBox;
 	import org.bigbluebutton.modules.chat.view.components.ChatWindow;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
@@ -45,6 +50,7 @@ package org.bigbluebutton.modules.chat.view
 			_chatWindow = new ChatWindow();
 			_chatWindow.name = _module.username;
 			_chatWindow.addEventListener(ChatWindow.SEND_MESSAGE, onSendChatMessage);
+			_chatWindow.addEventListener(ChatModuleConstants.OPEN_CHAT_BOX, onOpenChatBox);
 		}
 
         private function time() : String
@@ -59,8 +65,31 @@ package org.bigbluebutton.modules.chat.view
 			var newMessage:String;			
 			newMessage = "<font color=\"#" + _chatWindow.cmpColorPicker.selectedColor.toString(16) + "\"><b>[" + 
 					_module.username +" - "+ time()+ "]</b> " + _chatWindow.txtMsg.text + "</font><br/>";
-			proxy.sendMessage(newMessage);
+			
+			if (_chatWindow.tabNav.selectedChild.id == "Public") proxy.sendMessage(newMessage);
+			else{
+				var privateMessage:MessageVO = new MessageVO(newMessage, _module.username as String, _chatWindow.tabNav.selectedChild.id);
+				privateProxy.sendMessage(privateMessage);
+				(_chatWindow.tabNav.selectedChild as ChatBox).showNewMessage(newMessage);
+			}
 			_chatWindow.txtMsg.text = "";
+		}
+		
+		public function onOpenChatBox(e:Event):void{
+			var name:String = _chatWindow.participantList.selectedItem.label;
+			
+			if (_chatWindow.tabNav.getChildByName(name) != null){
+				_chatWindow.tabNav.selectedChild = _chatWindow.tabNav.getChildByName(name) as Container;
+				return;
+			}
+			
+			var chatBox:ChatBox = new ChatBox();
+			chatBox.id = name;
+			chatBox.name = name;
+			sendNotification(ChatModuleConstants.OPEN_CHAT_BOX, chatBox);
+			
+			_chatWindow.tabNav.selectedChild = chatBox;
+			//chatBox.boxButton = _chatWindow.tabNav.getTabAt(_chatWindow.tabNav.getChildIndex(_chatWindow.tabNav.getChildByName(name)));
 		}
 			
 		override public function listNotificationInterests():Array
@@ -68,7 +97,11 @@ package org.bigbluebutton.modules.chat.view
 			return [
 					ChatModuleConstants.NEW_MESSAGE,
 					ChatModuleConstants.CLOSE_WINDOW,
-					ChatModuleConstants.OPEN_WINDOW
+					ChatModuleConstants.OPEN_WINDOW,
+					ChatModuleConstants.ADD_PARTICIPANT,
+					ChatModuleConstants.OPEN_CHAT_BOX,
+					ChatModuleConstants.REMOVE_PARTICIPANT,
+					ChatModuleConstants.NEW_PRIVATE_MESSAGE
 				   ];
 		}
 						
@@ -82,7 +115,8 @@ package org.bigbluebutton.modules.chat.view
 			switch(notification.getName())
 			{
 				case ChatModuleConstants.NEW_MESSAGE:
-					_chatWindow.showNewMessage(notification.getBody() as String);
+					var publicChat:ChatBox = _chatWindow.tabNav.getChildByName("Public") as ChatBox;
+					publicChat.showNewMessage(notification.getBody() as String);
 					break;	
 				case ChatModuleConstants.CLOSE_WINDOW:
 					if (_chatWindowOpen) {
@@ -91,8 +125,6 @@ package org.bigbluebutton.modules.chat.view
 					}
 					break;					
 				case ChatModuleConstants.OPEN_WINDOW:
-		   			_chatWindow.width = 250;
-		   			_chatWindow.height = 220;
 		   			_chatWindow.title = "Group Chat";
 		   			_chatWindow.showCloseButton = false;
 		   			_chatWindow.xPosition = 675;
@@ -100,12 +132,42 @@ package org.bigbluebutton.modules.chat.view
 		   			facade.sendNotification(ChatModuleConstants.ADD_WINDOW, _chatWindow); 
 		   			_chatWindowOpen = true;
 					break;
+				case ChatModuleConstants.ADD_PARTICIPANT:
+					_chatWindow.addParticipant(notification.getBody() as String);
+					break;
+				case ChatModuleConstants.OPEN_CHAT_BOX:
+					_chatWindow.tabNav.addChild(notification.getBody() as ChatBox);
+					break;
+				case ChatModuleConstants.REMOVE_PARTICIPANT:
+					_chatWindow.removeParticipant(notification.getName() as String);
+					break;
+				case ChatModuleConstants.NEW_PRIVATE_MESSAGE:
+					showPrivateMessage(notification.getBody() as MessageVO);
+					break;
 			}
 		}
 			
 		public function get proxy():ChatProxy
 		{
 			return facade.retrieveProxy(ChatProxy.NAME) as ChatProxy;
-		} 
+		}
+		
+		public function get privateProxy():PrivateProxy{
+			return facade.retrieveProxy(PrivateProxy.NAME) as PrivateProxy;
+		}
+		
+		public function showPrivateMessage(message:MessageVO):void{
+			var privateBox:ChatBoxMediator = facade.retrieveMediator(message.sender) as ChatBoxMediator;
+			if (privateBox == null) {
+				var chatBox:ChatBox = new ChatBox();
+				chatBox.id = message.sender;
+				chatBox.name = message.sender;
+				sendNotification(ChatModuleConstants.OPEN_CHAT_BOX, chatBox);
+				chatBox.boxButton = _chatWindow.tabNav.getTabAt(_chatWindow.tabNav.numChildren-1);
+				privateBox = facade.retrieveMediator(message.sender) as ChatBoxMediator;
+			}
+			if (_chatWindow.tabNav.selectedChild.name != message.sender) _chatWindow.setMessageUnread(message.sender);
+			privateBox.showMessage(message.message);
+		}
 	}
 }

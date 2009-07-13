@@ -25,6 +25,8 @@ package org.bigbluebutton.modules.viewers.model.services
 	import flash.net.Responder;
 	import flash.net.SharedObject;
 	
+	import org.bigbluebutton.modules.viewers.ViewersFacade;
+	import org.bigbluebutton.modules.viewers.ViewersModuleConstants;
 	import org.bigbluebutton.modules.viewers.model.business.IViewers;
 	import org.bigbluebutton.modules.viewers.model.vo.User;
 
@@ -170,6 +172,10 @@ package org.bigbluebutton.modules.viewers.model.services
 		
 		public function participantLeft(user:Object):void { 
 			_participants.removeParticipant(Number(user));
+			
+			//This sends a notification that a user has left. Another dirty hack, brought to you by Denis Inc. - Code when YOU need it.
+			var userObj:Object = {username:user.name, userid:user.userid, userrole:user.role};
+			ViewersFacade.getInstance().sendNotification(ViewersModuleConstants.USER_LEFT, userObj);
 		}
 		
 		public function participantJoined(joinedUser:Object):void { 
@@ -187,6 +193,10 @@ package org.bigbluebutton.modules.viewers.model.services
 			participantStatusChange(user.userid, "streamName", joinedUser.status.streamName);
 			participantStatusChange(user.userid, "presenter", joinedUser.status.presenter);
 			participantStatusChange(user.userid, "raiseHand", joinedUser.status.raiseHand);
+			
+			//This sends a notification that a new user has joined to other modules. Right now a dirty, dirty hack - Denis
+			var userObj:Object = {username:user.name, userid:user.userid, userrole:user.role};
+			ViewersFacade.getInstance().sendNotification(ViewersModuleConstants.USER_JOINED, userObj);
 		}
 		
 		public function participantStatusChange(userid:Number, status:String, value:Object):void {
