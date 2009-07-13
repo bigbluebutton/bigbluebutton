@@ -42,11 +42,11 @@ public class ChatService {
 	}
 	
 	public void privateMessage(String message, String sender, String recepient){
-		log.debug("Received private message: " + message + " from " + sender + " to " + recepient);
-		ISharedObject sharedObject = getSharedObject(Red5.connectionLocal.scope, recepient);
-		log.debug(Red5.connectionLocal.scope.name);
+		log.debug("Received private message: " + message + " from " + sender + " to " + recepient + " The client scope is: " + Red5.connectionLocal.scope.name);
+		ISharedObject sharedObject = application.handler.getSharedObject(Red5.connectionLocal.scope, recepient);
 		ArrayList<String> arguments = new ArrayList<String>();
-		arguments.add(sender, message);
+		arguments.add(sender);
+		arguments.add(message);
 		sharedObject.sendMessage("messageReceived", arguments);
 	}
 }

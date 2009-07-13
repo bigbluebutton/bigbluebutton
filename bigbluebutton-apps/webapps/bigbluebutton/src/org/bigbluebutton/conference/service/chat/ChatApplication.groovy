@@ -32,7 +32,7 @@ public class ChatApplication {
 		
 	private static final String APP = "CHAT";
 	private ChatRoomsManager roomsManager
-	public IScope scope;
+	public ChatHandler handler;
 	
 	public boolean createRoom(String name) {
 		roomsManager.addRoom(new ChatRoom(name))

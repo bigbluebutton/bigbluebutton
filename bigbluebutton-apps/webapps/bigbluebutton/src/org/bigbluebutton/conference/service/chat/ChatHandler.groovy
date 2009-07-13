@@ -142,7 +142,7 @@ public class ChatHandler extends ApplicationAdapter implements IApplication{
 	public void setChatApplication(ChatApplication a) {
 		log.debug("Setting chat application")
 		chatApplication = a
-		chatApplication.scope = this.scope;
+		chatApplication.handler = this;
 	}
 	
 	public void setArchiveApplication(ArchiveApplication a) {
