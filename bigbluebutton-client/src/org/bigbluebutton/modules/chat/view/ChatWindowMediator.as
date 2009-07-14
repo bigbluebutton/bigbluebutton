@@ -21,7 +21,6 @@ package org.bigbluebutton.modules.chat.view
 {
 	import flash.events.Event;
 	
-	import mx.controls.Alert;
 	import mx.core.Container;
 	
 	import org.bigbluebutton.modules.chat.ChatModuleConstants;
@@ -68,7 +67,7 @@ package org.bigbluebutton.modules.chat.view
 			newMessage = "<font color=\"#" + _chatWindow.cmpColorPicker.selectedColor.toString(16) + "\"><b>[" + 
 					_module.username +" - "+ time()+ "]</b> " + _chatWindow.txtMsg.text + "</font><br/>";
 			
-			if (_chatWindow.tabNav.selectedChild.id == "Public") proxy.sendMessage(newMessage);
+			if (_chatWindow.tabNav.selectedChild.id == "All") proxy.sendMessage(newMessage);
 			else{
 				var privateMessage:MessageVO = new MessageVO(newMessage, String(_module.userid), _chatWindow.tabNav.selectedChild.name);
 				privateProxy.sendMessage(privateMessage);
@@ -117,8 +116,10 @@ package org.bigbluebutton.modules.chat.view
 			switch(notification.getName())
 			{
 				case ChatModuleConstants.NEW_MESSAGE:
-					var publicChat:ChatBox = _chatWindow.tabNav.getChildByName("0") as ChatBox;
+					var publicChat:ChatBox = _chatWindow.tabNav.getChildByName(ChatModuleConstants.PUBLIC_CHAT_USERID) as ChatBox;
 					publicChat.showNewMessage(notification.getBody() as String);
+					if (_chatWindow.tabNav.selectedChild.name != ChatModuleConstants.PUBLIC_CHAT_USERID) 
+									_chatWindow.setMessageUnread(ChatModuleConstants.PUBLIC_CHAT_USERID);
 					break;	
 				case ChatModuleConstants.CLOSE_WINDOW:
 					if (_chatWindowOpen) {
@@ -127,7 +128,7 @@ package org.bigbluebutton.modules.chat.view
 					}
 					break;					
 				case ChatModuleConstants.OPEN_WINDOW:
-		   			_chatWindow.title = "Group Chat";
+		   			_chatWindow.title = "Chat";
 		   			_chatWindow.showCloseButton = false;
 		   			_chatWindow.xPosition = 675;
 		   			_chatWindow.yPosition = 0;

@@ -37,5 +37,7 @@ package org.bigbluebutton.modules.chat
 		public static const ADD_PARTICIPANT:String = "ADD_PARTICIPANT";
 		public static const REMOVE_PARTICIPANT:String = "REMOVE_PARTICIPANT";
 		public static const NEW_PRIVATE_MESSAGE:String = "NEW_PRIVATE_MESSAGE";
+		
+		public static const PUBLIC_CHAT_USERID:String = "0";
 	}
 }
