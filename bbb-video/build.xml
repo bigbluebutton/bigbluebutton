@@ -11,7 +11,7 @@
 	<!-- user overides for project properties -->
 	<!-- Should be first as properties are immutable.--> 
 	<!-- This allows user to override default properties-->
-	<property file="${user.home}/.video-build.properties"/>
+	<property file="${user.home}/.bbb-app-video-build.properties"/>
 	
 	<!-- base project properties -->
 	<property file="build.properties"/>
