@@ -24,7 +24,7 @@ package org.bigbluebutton.modules.viewers.model.services
 	import flash.net.NetConnection;
 	import flash.net.Responder;
 	import flash.net.SharedObject;
-	
+
 	import org.bigbluebutton.modules.viewers.ViewersFacade;
 	import org.bigbluebutton.modules.viewers.ViewersModuleConstants;
 	import org.bigbluebutton.modules.viewers.model.business.IViewers;
@@ -171,11 +171,13 @@ package org.bigbluebutton.modules.viewers.model.services
 		}
 		
 		public function participantLeft(user:Object):void { 
-			_participants.removeParticipant(Number(user));
-			
-			//This sends a notification that a user has left. Another dirty hack, brought to you by Denis Inc. - Code when YOU need it.
-			var userObj:Object = {username:user.name, userid:user.userid, userrole:user.role};
+
+			//This sends a notification that a user has left. Another dirty hack, by Denis
+			var participant:User = _participants.getParticipant(Number(user));
+			var userObj:Object = {username:participant.name, userid:participant.userid, userrole:participant.role};
 			ViewersFacade.getInstance().sendNotification(ViewersModuleConstants.USER_LEFT, userObj);
+		
+			_participants.removeParticipant(Number(user));	
 		}
 		
 		public function participantJoined(joinedUser:Object):void { 

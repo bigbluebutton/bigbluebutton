@@ -23,7 +23,6 @@ package org.bigbluebutton.modules.chat.model.business
 		
 		private var nc:NetConnection;
 		private var chatSO:SharedObject;
-		private var participantsSO:SharedObject;
 		private var privateResponder:Responder;
 		private var participantsResponder:Responder;
 		
@@ -38,10 +37,6 @@ package org.bigbluebutton.modules.chat.model.business
 			chatSO.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);
 			chatSO.client = this;
 			chatSO.connect(nc);
-			
-			//participantsSO = SharedObject.getRemote("participantsSO", _module.uri, false);
-			//participantsSO.client = this;
-			//participantsSO.connect(nc);
 			
 			privateResponder = new Responder(
 							function(result:Object):void{

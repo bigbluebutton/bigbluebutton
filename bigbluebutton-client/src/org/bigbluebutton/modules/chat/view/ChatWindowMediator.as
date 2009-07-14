@@ -139,7 +139,7 @@ package org.bigbluebutton.modules.chat.view
 					_chatWindow.tabNav.addChild(notification.getBody() as ChatBox);
 					break;
 				case ChatModuleConstants.REMOVE_PARTICIPANT:
-					_chatWindow.removeParticipant(notification.getName() as String);
+					_chatWindow.removeParticipant(notification.getBody() as String);
 					break;
 				case ChatModuleConstants.NEW_PRIVATE_MESSAGE:
 					showPrivateMessage(notification.getBody() as MessageVO);
