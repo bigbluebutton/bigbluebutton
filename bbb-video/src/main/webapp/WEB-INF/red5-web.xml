@@ -22,6 +22,6 @@
 		<property name="virtualHosts" value="${webapp.virtualHosts}" />
 	</bean>
 
-	<bean id="web.handler" class="org.red5.demos.oflaDemo.Application" />
-    <bean id="demoService.service" class="org.red5.demos.oflaDemo.DemoService" />
+	<bean id="web.handler" class="org.bigbluebutton.app.video.VideoApplication" />
+    <bean id="demoService.service" class="org.bigbluebutton.app.video.DemoService" />
 </beans>
