@@ -29,6 +29,7 @@
 
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.chat.model.business.UserVO;
 			import mx.controls.Alert;
 			import org.bigbluebutton.modules.chat.ChatModuleConstants;
 			import org.bigbluebutton.modules.chat.view.ChatWindowMediator;
@@ -50,7 +51,7 @@
 			private var participants:ArrayCollection = new ArrayCollection();
 						
 			private function init():void{
-				addParticipant("Public");
+				addParticipant(new UserVO("Public", "0"));
 				dispatchEvent(new Event(ChatModuleConstants.OPEN_CHAT_BOX));
 			}
 			
@@ -101,9 +102,10 @@
 				_yPosition = y;
 			}
 			
-			public function addParticipant(name:String):void{
+			public function addParticipant(userVO:UserVO):void{
 				var item:Object = new Object();
-				item.label = name;
+				item.label = userVO.username;
+				item.userid = userVO.userid;
 				participants.addItem(item);
 			}
 			
@@ -121,7 +123,8 @@
 			
 			public function setMessageUnread(name:String):void{
 				var tab:Button = tabNav.getTabAt(tabNav.getChildIndex(tabNav.getChildByName(name)));
-				tab.setStyle("fillColors", new Array(0xFFFF00, 0xcccc66));
+				tab.setStyle("fillColors", new Array(0xFFAE00, 0xD3800A));
+				tab.setStyle("fillAlphas", new Array(1.0, 0.8));
 			}
 			
 			private function setMessageRead():void{
@@ -130,6 +133,13 @@
 				for (var i:Number = 0; i<participants.length; i++){
 					if (participants.getItemAt(i).label == tab.label) participantList.selectedItem = participants.getItemAt(i); 
 				}
+			}
+			
+			public function getParticipantName(userid:String):String{
+				for (var i:Number = 0; i<participants.length; i++){
+					if (participants.getItemAt(i).userid == userid) return participants.getItemAt(i).label;
+				}
+				return "unknown user";
 			}
             
 		]]>

@@ -10,8 +10,6 @@ package org.bigbluebutton.modules.chat.model.business
 	import org.bigbluebutton.common.red5.ConnectionEvent;
 	import org.bigbluebutton.modules.chat.ChatModuleConstants;
 	import org.bigbluebutton.modules.chat.model.MessageVO;
-	import org.bigbluebutton.modules.chat.view.ChatBoxMediator;
-	import org.bigbluebutton.modules.chat.view.components.ChatBox;
 	import org.puremvc.as3.multicore.interfaces.IProxy;
 	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
 	
@@ -32,8 +30,8 @@ package org.bigbluebutton.modules.chat.model.business
 			this._module = module;
 			
 			nc = _module.connection;
-			
-			chatSO = SharedObject.getRemote(_module.username, _module.uri, false);
+
+			chatSO = SharedObject.getRemote(String(_module.userid), _module.uri, false);
 			chatSO.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);
 			chatSO.client = this;
 			chatSO.connect(nc);
@@ -88,11 +86,13 @@ package org.bigbluebutton.modules.chat.model.business
 		}
 		
 		public function sendMessage(message:MessageVO):void{
+			//Alert.show(message.recepient);
 			nc.call("chat.privateMessage", privateResponder, message.message, message.sender , message.recepient);
 		}
 		
 		public function messageReceived(from:String, message:String):void{
-			sendNotification(ChatModuleConstants.NEW_PRIVATE_MESSAGE, new MessageVO(message, from, _module.username));
+			//Alert.show(String(from));
+			sendNotification(ChatModuleConstants.NEW_PRIVATE_MESSAGE, new MessageVO(message, from, String(_module.userid)));
 		}
 		
 		public function participantJoined(joinedUser:Object):void { 
@@ -102,7 +102,7 @@ package org.bigbluebutton.modules.chat.model.business
 			var userRole:String = joinedUser.userRole;						
 			
 			LogUtil.info("Joined as [" + userid + "," + userName + "," + userRole + "]");
-			sendNotification(ChatModuleConstants.ADD_PARTICIPANT, userName);
+			sendNotification(ChatModuleConstants.ADD_PARTICIPANT, new UserVO(userName, userid));
 		}
 		
 		private function queryForParticipants():void {

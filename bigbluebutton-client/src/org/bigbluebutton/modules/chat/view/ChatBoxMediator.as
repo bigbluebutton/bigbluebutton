@@ -10,7 +10,7 @@ package org.bigbluebutton.modules.chat.view
 
 		public function ChatBoxMediator(chatBox:ChatBox)
 		{
-			super(chatBox.id, chatBox);
+			super(chatBox.name, chatBox);
 			chatBox.label = chatBox.id;
 		}
 		

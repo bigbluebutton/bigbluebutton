@@ -21,12 +21,14 @@ package org.bigbluebutton.modules.chat.view
 {
 	import flash.events.Event;
 	
+	import mx.controls.Alert;
 	import mx.core.Container;
 	
 	import org.bigbluebutton.modules.chat.ChatModuleConstants;
 	import org.bigbluebutton.modules.chat.model.MessageVO;
 	import org.bigbluebutton.modules.chat.model.business.ChatProxy;
 	import org.bigbluebutton.modules.chat.model.business.PrivateProxy;
+	import org.bigbluebutton.modules.chat.model.business.UserVO;
 	import org.bigbluebutton.modules.chat.view.components.ChatBox;
 	import org.bigbluebutton.modules.chat.view.components.ChatWindow;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
@@ -68,7 +70,7 @@ package org.bigbluebutton.modules.chat.view
 			
 			if (_chatWindow.tabNav.selectedChild.id == "Public") proxy.sendMessage(newMessage);
 			else{
-				var privateMessage:MessageVO = new MessageVO(newMessage, _module.username as String, _chatWindow.tabNav.selectedChild.id);
+				var privateMessage:MessageVO = new MessageVO(newMessage, String(_module.userid), _chatWindow.tabNav.selectedChild.name);
 				privateProxy.sendMessage(privateMessage);
 				(_chatWindow.tabNav.selectedChild as ChatBox).showNewMessage(newMessage);
 			}
@@ -76,7 +78,7 @@ package org.bigbluebutton.modules.chat.view
 		}
 		
 		public function onOpenChatBox(e:Event):void{
-			var name:String = _chatWindow.participantList.selectedItem.label;
+			var name:String = _chatWindow.participantList.selectedItem.userid;
 			
 			if (_chatWindow.tabNav.getChildByName(name) != null){
 				_chatWindow.tabNav.selectedChild = _chatWindow.tabNav.getChildByName(name) as Container;
@@ -84,7 +86,7 @@ package org.bigbluebutton.modules.chat.view
 			}
 			
 			var chatBox:ChatBox = new ChatBox();
-			chatBox.id = name;
+			chatBox.id = _chatWindow.participantList.selectedItem.label;
 			chatBox.name = name;
 			sendNotification(ChatModuleConstants.OPEN_CHAT_BOX, chatBox);
 			
@@ -115,7 +117,7 @@ package org.bigbluebutton.modules.chat.view
 			switch(notification.getName())
 			{
 				case ChatModuleConstants.NEW_MESSAGE:
-					var publicChat:ChatBox = _chatWindow.tabNav.getChildByName("Public") as ChatBox;
+					var publicChat:ChatBox = _chatWindow.tabNav.getChildByName("0") as ChatBox;
 					publicChat.showNewMessage(notification.getBody() as String);
 					break;	
 				case ChatModuleConstants.CLOSE_WINDOW:
@@ -133,8 +135,8 @@ package org.bigbluebutton.modules.chat.view
 		   			_chatWindowOpen = true;
 					break;
 				case ChatModuleConstants.ADD_PARTICIPANT:
-					var participantName:String = notification.getBody() as String;
-					if (participantName != _module.username) _chatWindow.addParticipant(notification.getBody() as String);
+					var newUser:UserVO = notification.getBody() as UserVO
+					if (newUser.userid != String(_module.userid)) _chatWindow.addParticipant(newUser);
 					break;
 				case ChatModuleConstants.OPEN_CHAT_BOX:
 					_chatWindow.tabNav.addChild(notification.getBody() as ChatBox);
@@ -158,10 +160,12 @@ package org.bigbluebutton.modules.chat.view
 		}
 		
 		public function showPrivateMessage(message:MessageVO):void{
+			var participantName:String = _chatWindow.getParticipantName(message.sender);
+			
 			var privateBox:ChatBoxMediator = facade.retrieveMediator(message.sender) as ChatBoxMediator;
 			if (privateBox == null) {
 				var chatBox:ChatBox = new ChatBox();
-				chatBox.id = message.sender;
+				chatBox.id = participantName;
 				chatBox.name = message.sender;
 				sendNotification(ChatModuleConstants.OPEN_CHAT_BOX, chatBox);
 				chatBox.boxButton = _chatWindow.tabNav.getTabAt(_chatWindow.tabNav.numChildren-1);

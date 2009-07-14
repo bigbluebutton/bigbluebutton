@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.chat
 	import org.bigbluebutton.common.messaging.Endpoint;
 	import org.bigbluebutton.common.messaging.EndpointMessageConstants;
 	import org.bigbluebutton.common.messaging.Router;
+	import org.bigbluebutton.modules.chat.model.business.UserVO;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
@@ -110,7 +111,8 @@ package org.bigbluebutton.modules.chat
 					break;
 				case EndpointMessageConstants.NEW_PARTICIPANT:
 					var userToAdd:Object = message.getBody(); //Has username, userid, userrole parameters
-					facade.sendNotification(ChatModuleConstants.ADD_PARTICIPANT, userToAdd.username as String);
+					var newUser:UserVO = new UserVO(userToAdd.username, userToAdd.userid);
+					facade.sendNotification(ChatModuleConstants.ADD_PARTICIPANT, newUser);
 					break;
 				case EndpointMessageConstants.PARTICIPANT_LEFT:
 					var userToRemove:Object = message.getBody();
