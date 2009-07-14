@@ -28,7 +28,7 @@ package org.bigbluebutton.modules.video.model.vo.settings
 		public var proxy:int;			
 		public var bufferTime : Number;			
 		public function GeneralSettings(host:String="", server:int=0,
-							encode:int=0, proxy:int=0, bufferTime:Number=2)
+							encode:int=0, proxy:int=0, bufferTime:Number=0)
 		{
 			this.host = host;
 			this.server = server;
