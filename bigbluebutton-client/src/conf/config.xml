@@ -38,7 +38,7 @@
 		/>
 		
 		<module name="DeskShareModule" url="DeskShareModule.swf" 
-			uri="rtmp://192.168.0.136/deskShare" 
+			uri="rtmp://192.168.0.124/deskShare" 
 			onUserJoinedEvent="START" 
 			onUserLogoutEvent="STOP"
 		/>

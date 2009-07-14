@@ -133,7 +133,8 @@ package org.bigbluebutton.modules.chat.view
 		   			_chatWindowOpen = true;
 					break;
 				case ChatModuleConstants.ADD_PARTICIPANT:
-					_chatWindow.addParticipant(notification.getBody() as String);
+					var participantName:String = notification.getBody() as String;
+					if (participantName != _module.username) _chatWindow.addParticipant(notification.getBody() as String);
 					break;
 				case ChatModuleConstants.OPEN_CHAT_BOX:
 					_chatWindow.tabNav.addChild(notification.getBody() as ChatBox);

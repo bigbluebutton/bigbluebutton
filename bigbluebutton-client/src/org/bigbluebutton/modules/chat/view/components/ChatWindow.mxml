@@ -127,6 +127,9 @@
 			private function setMessageRead():void{
 				var tab:Button = tabNav.getTabAt(tabNav.selectedIndex);
 				tab.setStyle("fillColors", new Array(0xFFFFFF, 0xCCCCCC));
+				for (var i:Number = 0; i<participants.length; i++){
+					if (participants.getItemAt(i).label == tab.label) participantList.selectedItem = participants.getItemAt(i); 
+				}
 			}
             
 		]]>
