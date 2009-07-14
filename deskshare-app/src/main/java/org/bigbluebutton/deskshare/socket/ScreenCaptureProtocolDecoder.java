@@ -31,20 +31,20 @@ public class ScreenCaptureProtocolDecoder extends CumulativeProtocolDecoder {
     	} else if (!session.containsAttribute(VIDEO_INFO)) {
     		return decodeRoom(session, in);
     	} else {
-    		if (decodeCapturedScreen(session, in)) {
-    			BufferedImage screen = (BufferedImage) session.getAttribute(CAPTURED_SCREEN);
-    			String room = (String) session.getAttribute(ROOM);
-    			String videoInfo = (String) session.getAttribute(VIDEO_INFO);
-    			
-    			//Get the screen dimensions from the client, i.e. the resolution of the video we need to create
-    			String[] screenDimensions = videoInfo.split("x");
-    			int width = Integer.parseInt(screenDimensions[0]);
-    			int height = Integer.parseInt(screenDimensions[1]);
-    			int frameRate = Integer.parseInt(screenDimensions[2]);
-
-    			CapturedScreen cs = new CapturedScreen(screen, room, width, height, frameRate);
-    			out.write(cs);
-    			
+    		if (canDecodeCapturedScreen(session, in)) {
+    	        byte[] bytes = new byte[getLength(in)];
+    	        log.debug("Reading image with length {}", bytes.length);
+    	        in.get(bytes);
+    	        ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+      	        
+    	        try {
+    	        	BufferedImage image = ImageIO.read(bais);;
+    	        	session.setAttribute(CAPTURED_SCREEN, image);   	
+    	        	sendDecodedMessage(session, out);
+    	        } catch (IOException e) {
+    	        	log.error("Failed to get captured screen for room {}", (String) session.getAttribute(ROOM));
+    	        }
+    	        
     			reset(session);
     			return true;
     		}
@@ -52,32 +52,32 @@ public class ScreenCaptureProtocolDecoder extends CumulativeProtocolDecoder {
     	return false;
     }
     
-    private boolean decodeCapturedScreen(IoSession session, IoBuffer in) {
+    private void sendDecodedMessage(IoSession session, ProtocolDecoderOutput out) {
+		BufferedImage screen = (BufferedImage) session.getAttribute(CAPTURED_SCREEN);
+		String room = (String) session.getAttribute(ROOM);
+		String videoInfo = (String) session.getAttribute(VIDEO_INFO);
+		
+		//Get the screen dimensions, i.e. the resolution of the video we need to create
+		String[] screenDimensions = videoInfo.split("x");
+		int width = Integer.parseInt(screenDimensions[0]);
+		int height = Integer.parseInt(screenDimensions[1]);
+		int frameRate = Integer.parseInt(screenDimensions[2]);
+
+		CapturedScreen cs = new CapturedScreen(screen, room, width, height, frameRate);
+		out.write(cs);   	
+    }
+    
+    private boolean canDecodeCapturedScreen(IoSession session, IoBuffer in) {
         if (in.prefixedDataAvailable(4, MAX_IMAGE_SIZE)) {
-        	BufferedImage image;
-			try {
-				image = readImage(in);
-				session.setAttribute(CAPTURED_SCREEN, image);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-        	
             return true;
         }
-
         return false;
     }
 
-    private BufferedImage readImage(IoBuffer in) throws IOException {
-        int length = in.getInt();
-        byte[] bytes = new byte[length];
-        log.debug("Reading image with length {}", length);
-        in.get(bytes);
-        ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-        return ImageIO.read(bais);
+    private int getLength(IoBuffer in) {
+    	return in.getInt();
     }
-
+    
     private boolean decodeRoom(IoSession session, IoBuffer in) {
     	return getCrLfTerminatedString(session, in);
     }
