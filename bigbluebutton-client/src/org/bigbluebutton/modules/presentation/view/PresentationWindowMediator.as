@@ -412,6 +412,7 @@ package org.bigbluebutton.modules.presentation.view
         }
         
         protected function onResetZoom(e:Event):void{
+        	_presWin.zoomSlider.value = 100;
         	sendNotification(ZoomSlideCommand.ZOOM_SLIDE_COMMAND, new ZoomNotifier(1,1));
         	sendNotification(MoveSlideCommand.MOVE_SLIDE_COMMAND, new MoveNotifier(0,0));
         }

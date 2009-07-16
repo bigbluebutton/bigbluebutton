@@ -22,7 +22,7 @@
 
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
 	creationComplete="init()" xmlns:controls="org.bigbluebutton.modules.presentation.view.fisheye.controls.*"
-	width="100%" mouseMove="displayIndex()">
+	width="100%" mouseMove="displayIndex()" rollOut="onRollOut()" rollOver="onRollOver()">
 	
 	<mx:Script>
 		<![CDATA[
@@ -83,6 +83,14 @@
 			
 			private function getSlideNumber():Number {
 				return slideNumber;
+			}
+			
+			private function onRollOut():void{
+				this.visible = false;
+			}
+			
+			private function onRollOver():void{
+				this.visible = true;
 			}
 			
 //			private function alignToParent(e:Event):void{

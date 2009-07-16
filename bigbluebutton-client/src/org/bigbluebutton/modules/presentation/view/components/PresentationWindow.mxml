@@ -136,6 +136,10 @@
 			private function scrollZoom(e:Event):void{
 				zoomSlider.value = (slideView.myLoader.width / slideView.imageCanvas.width) * 100;
 			}
+			
+			private function onCanvasClick():void{
+				thumbnailWindow.visible = false;
+			}
 
 		]]>
 	</mx:Script>
@@ -144,7 +148,7 @@
 	<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />
 	
 	<mx:Canvas id="mainCanvas" width="100%" height="100%" resize="positionThumbnails()" mouseDown="mouseDown = true" 
-		mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off">
+		mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off" click="onCanvasClick()">
 		<thumb:SlideView id="slideView" width="100%" height="100%" visible="false"/>
 		<thumb:FisheyeThumbnail y="{thumbY}" id="thumbnailWindow" width="100%" height="100%" visible="false" backgroundAlpha="1" 
 			verticalScrollPolicy="off" horizontalScrollPolicy="off" verticalCenter="top"/>
