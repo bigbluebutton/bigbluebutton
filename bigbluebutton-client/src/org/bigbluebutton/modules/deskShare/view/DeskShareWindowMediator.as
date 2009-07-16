@@ -105,8 +105,8 @@ package org.bigbluebutton.modules.deskShare.view
 				case DeskShareModuleConstants.OPEN_WINDOW:
 					_window.title = "Desk Share";
 					_window.showCloseButton = false;
-					_window.xPosition = 0;
-					_window.yPosition = 500;
+					_window.xPosition = 675;
+					_window.yPosition = 310;
 					facade.sendNotification(DeskShareModuleConstants.ADD_WINDOW, _window);
 					_deskShareWindowOpen = true;
 					break;
