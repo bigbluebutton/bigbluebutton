@@ -116,7 +116,8 @@ package org.bigbluebutton.modules.chat
 					break;
 				case EndpointMessageConstants.PARTICIPANT_LEFT:
 					var userToRemove:Object = message.getBody();
-					facade.sendNotification(ChatModuleConstants.REMOVE_PARTICIPANT, userToRemove.username as String);
+					var leftUser:UserVO = new UserVO(userToRemove.username, userToRemove.userid);
+					facade.sendNotification(ChatModuleConstants.REMOVE_PARTICIPANT, leftUser);
 					break;
 			}
 		}

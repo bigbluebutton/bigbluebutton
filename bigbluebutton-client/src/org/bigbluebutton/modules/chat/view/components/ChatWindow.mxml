@@ -110,11 +110,14 @@
 			}
 			
 			public function removeParticipant(name:String):void{
-				if (tabNav.getChildByName(name) != null){
-					tabNav.removeChild(tabNav.getChildByName(name));
+				//if (tabNav.getChildByName(name) != null){
+				//	tabNav.removeChild(tabNav.getChildByName(name));
+				//}
+				if (tabNav.getChildByName(name) == tabNav.selectedChild){
+					txtMsg.enabled = false;
 				}
 				for (var i:Number = 0; i<participants.length; i++){
-					if (participants.getItemAt(i).label == name) participants.removeItemAt(i);
+					if (participants.getItemAt(i).userid == name) participants.removeItemAt(i);
 				}
 			}
 			
@@ -124,12 +127,17 @@
 				tab.setStyle("fillAlphas", new Array(1.0, 0.8));
 			}
 			
-			private function setMessageRead():void{
+			private function updateTabNav():void{
 				var tab:Button = tabNav.getTabAt(tabNav.selectedIndex);
 				tab.setStyle("fillColors", new Array(0xFFFFFF, 0xCCCCCC));
+				var found:Boolean = false;
 				for (var i:Number = 0; i<participants.length; i++){
-					if (participants.getItemAt(i).label == tab.label) participantList.selectedItem = participants.getItemAt(i); 
+					if (participants.getItemAt(i).label == tab.label){
+						participantList.selectedItem = participants.getItemAt(i); 
+						found = true;
+					}
 				}
+				txtMsg.enabled = found;
 			}
 			
 			public function getParticipantName(userid:String):String{
@@ -141,7 +149,7 @@
             
 		]]>
 	</mx:Script>
-	<mx:TabNavigator id="tabNav" width="100%" height="100%" change="setMessageRead()"/>
+	<mx:TabNavigator id="tabNav" width="100%" height="100%" change="updateTabNav()"/>
 	
 	<mx:ApplicationControlBar id="chatCtrlBar" width="100%" height="10%">		
 		<mx:TextInput id="txtMsg" width="100%" enter="sendMessages()"/>

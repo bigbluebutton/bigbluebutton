@@ -84,13 +84,8 @@ package org.bigbluebutton.modules.chat.view
 				return;
 			}
 			
-			var chatBox:ChatBox = new ChatBox();
-			chatBox.id = _chatWindow.participantList.selectedItem.label;
-			chatBox.name = name;
-			sendNotification(ChatModuleConstants.OPEN_CHAT_BOX, chatBox);
-			
+			var chatBox:ChatBox = createChatBox(name).chatBox;
 			_chatWindow.tabNav.selectedChild = chatBox;
-			//chatBox.boxButton = _chatWindow.tabNav.getTabAt(_chatWindow.tabNav.getChildIndex(_chatWindow.tabNav.getChildByName(name)));
 		}
 			
 		override public function listNotificationInterests():Array
@@ -136,14 +131,16 @@ package org.bigbluebutton.modules.chat.view
 		   			_chatWindowOpen = true;
 					break;
 				case ChatModuleConstants.ADD_PARTICIPANT:
-					var newUser:UserVO = notification.getBody() as UserVO
+					var newUser:UserVO = notification.getBody() as UserVO;
 					if (newUser.userid != String(_module.userid)) _chatWindow.addParticipant(newUser);
 					break;
 				case ChatModuleConstants.OPEN_CHAT_BOX:
 					_chatWindow.tabNav.addChild(notification.getBody() as ChatBox);
 					break;
 				case ChatModuleConstants.REMOVE_PARTICIPANT:
-					_chatWindow.removeParticipant(notification.getBody() as String);
+					var leftUser:UserVO = notification.getBody() as UserVO;
+					_chatWindow.removeParticipant(leftUser.userid);
+					(facade.retrieveMediator(leftUser.userid) as ChatBoxMediator).chatBox.showNewMessage("User has left the room");
 					break;
 				case ChatModuleConstants.NEW_PRIVATE_MESSAGE:
 					showPrivateMessage(notification.getBody() as MessageVO);
@@ -162,18 +159,22 @@ package org.bigbluebutton.modules.chat.view
 		
 		public function showPrivateMessage(message:MessageVO):void{
 			var participantName:String = _chatWindow.getParticipantName(message.sender);
-			
 			var privateBox:ChatBoxMediator = facade.retrieveMediator(message.sender) as ChatBoxMediator;
+			
 			if (privateBox == null) {
-				var chatBox:ChatBox = new ChatBox();
-				chatBox.id = participantName;
-				chatBox.name = message.sender;
-				sendNotification(ChatModuleConstants.OPEN_CHAT_BOX, chatBox);
-				chatBox.boxButton = _chatWindow.tabNav.getTabAt(_chatWindow.tabNav.numChildren-1);
-				privateBox = facade.retrieveMediator(message.sender) as ChatBoxMediator;
+				privateBox = createChatBox(message.sender);
 			}
+			
 			if (_chatWindow.tabNav.selectedChild.name != message.sender) _chatWindow.setMessageUnread(message.sender);
 			privateBox.showMessage(message.message);
+		}
+		
+		private function createChatBox(owner:String):ChatBoxMediator{
+			var chatBox:ChatBox = new ChatBox();
+			chatBox.id = _chatWindow.getParticipantName(owner);
+			chatBox.name = owner;
+			sendNotification(ChatModuleConstants.OPEN_CHAT_BOX, chatBox);
+			return facade.retrieveMediator(owner) as ChatBoxMediator;
 		}
 	}
 }

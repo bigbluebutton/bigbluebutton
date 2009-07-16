@@ -8,8 +8,6 @@
 			[Bindable]
 			private var backgroundColor:uint = 0x000000;
 			
-			private var _boxButton:Button;
-			
 			private function updateScroll():void{
 				txtChatBox.verticalScrollPosition = txtChatBox.maxVerticalScrollPosition;
 			}
@@ -27,10 +25,6 @@
 			public function setMessageRead():void{
 				this.read = true;
 				backgroundColor = 0x000000;
-			}
-			
-			public function set boxButton(button:Button):void{
-				this._boxButton = button;
 			}
 			
 		]]>
