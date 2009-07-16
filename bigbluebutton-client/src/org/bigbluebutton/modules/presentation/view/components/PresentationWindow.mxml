@@ -155,21 +155,21 @@
 	</mx:Canvas>
 			
     
-    <mx:ApplicationControlBar id="presCtrlBar" width="100%">
+    <mx:ApplicationControlBar id="presCtrlBar" width="100%" >
     	  <mx:Button id="uploadPres" icon="{uploadIcon}" visible="false" width="20" height="20"
     	   		toolTip="Upload PDF document for presentation." click="dispatchEvent(new Event(PresentationWindowMediator.OPEN_UPLOAD))"/>    
     	  <mx:Label id="presenterNameLabel" visible="false" text=""/>
-    	  <mx:Spacer width="50%"/>	
+    	  <mx:Spacer width="10%" id="spacer1"/>
     	  <mx:Button id="backButton" icon="{backwardIcon}" visible="false" width="40" height="20"
     	   		toolTip="Previous slide." click="dispatchEvent(new Event(PresentationWindowMediator.PREVIOUS_SLIDE))"/>
     	  <mx:Label id="slideNumLbl" text=""/>    
     	  <mx:Button id="forwardButton" icon="{forwardIcon}" visible="false" width="40" height="20"
     	   		toolTip="Next slide" click="dispatchEvent(new Event(PresentationWindowMediator.NEXT_SLIDE))"/>    				
-    	<mx:Spacer width="50%"/>
+    	<mx:Spacer width="10%" id="spacer2"/>
     	<mx:HSlider id="zoomSlider" visible="false"
     		minimum="100" maximum="300" value="100" 
     		dataTipPlacement="right" labels="['100%','300%']"
-    		allowTrackClick="true" liveDragging="true" change="sliderZoom()" />
+    		allowTrackClick="true" liveDragging="true" change="sliderZoom()" width="100" />
     	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="false" width="20" height="20" 
     		toolTip="Reset Zoom" click="dispatchEvent(new Event(PresentationWindowMediator.RESET_ZOOM))"/>
     </mx:ApplicationControlBar>			
