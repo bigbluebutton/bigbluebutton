@@ -140,7 +140,7 @@ package org.bigbluebutton.modules.chat.view
 				case ChatModuleConstants.REMOVE_PARTICIPANT:
 					var leftUser:UserVO = notification.getBody() as UserVO;
 					_chatWindow.removeParticipant(leftUser.userid);
-					(facade.retrieveMediator(leftUser.userid) as ChatBoxMediator).chatBox.showNewMessage("User has left the room");
+					//(facade.retrieveMediator(leftUser.userid) as ChatBoxMediator).chatBox.showNewMessage("User has left the room");
 					break;
 				case ChatModuleConstants.NEW_PRIVATE_MESSAGE:
 					showPrivateMessage(notification.getBody() as MessageVO);

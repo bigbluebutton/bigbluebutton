@@ -336,7 +336,7 @@ package org.bigbluebutton.modules.presentation.model.business
 				new Responder(
 	        		// participants - On successful result
 					function(result:Boolean):void { 
-						 
+						
 						if (result) {
 							LogUtil.debug("Successfully shared presentation");							
 						}	
@@ -359,6 +359,7 @@ package org.bigbluebutton.modules.presentation.model.business
 			if (share) {
 				sendMessage(PresentModuleConstants.START_SHARE, presentationName);
 			}
+			//gotoSlide(0);
 		}
 		
 		/**

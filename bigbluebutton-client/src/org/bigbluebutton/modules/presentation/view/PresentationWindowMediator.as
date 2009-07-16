@@ -24,6 +24,7 @@ package org.bigbluebutton.modules.presentation.view
 	import flash.geom.Point;
 	import flash.ui.Keyboard;
 	
+	import mx.controls.Alert;
 	import mx.managers.PopUpManager;
 	
 	import org.bigbluebutton.common.IBigBlueButtonModule;
@@ -91,6 +92,7 @@ package org.bigbluebutton.modules.presentation.view
 		}
 		
 		private function onKeyPressed(event:KeyboardEvent):void {
+			//Alert.show("Key Pressed");
 			switch (event.keyCode) {
 				case Keyboard.LEFT:				
 					gotoPreviousSlide();		
