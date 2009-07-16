@@ -389,6 +389,7 @@ package org.bigbluebutton.modules.presentation.view
 				
 		protected function openFileUploadWindow(e:Event) : void
 		{
+			if (_presWin.uploadWindow != null) return;
             //_presWin.uploadWindow = FileUploadWindow(PopUpManager.createPopUp( _presWin, FileUploadWindow, false));
 			_presWin.uploadWindow = new FileUploadWindow();
 			_presWin.uploadWindow.presentationNames = proxy.getPresentationNames();
