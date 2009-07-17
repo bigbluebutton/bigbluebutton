@@ -22,9 +22,10 @@
 
 <MDIWindow xmlns="flexlib.mdi.containers.*" 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
-	showCloseButton="false"
+	xmlns:components="org.bigbluebutton.modules.deskShare.view.components.*" 
 	creationComplete="onCreationComplete()"
-	implements="org.bigbluebutton.common.IBbbModuleWindow" xmlns:components="org.bigbluebutton.modules.deskShare.view.components.*" 
+	implements="org.bigbluebutton.common.IBbbModuleWindow" 
+	showCloseButton="true"	
 	layout="absolute" resizable="false" verticalScrollPolicy="off" horizontalScrollPolicy="off">
 	
 	<mx:Script>
@@ -73,7 +74,6 @@
 			
 			private function onCreationComplete():void{
 				if (ExternalInterface.call("checkForJava") != 1){
-					//Alert.show("Java is not enabled in your browser. Desktop Sharing will not work");
 					this.enabled = false;
 					this.lblStatus.text = "Java not enabled";
 				}
@@ -136,6 +136,12 @@
 			private function onMouseOut(e:MouseEvent):void{
 				canvas.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 				canvas.removeEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+			}
+			
+					
+			override public function close(event:MouseEvent = null):void {
+				LogUtil.debug("DeskShare window closing");
+				dispatchEvent(new Event(DeskShareWindowMediator.CLOSE_WINDOW))
 			}
 			
 		]]>

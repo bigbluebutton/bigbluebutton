@@ -53,7 +53,8 @@ package org.bigbluebutton.modules.deskShare.view
 		override public function listNotificationInterests():Array
 		{
 			return [
-				DeskShareModuleConstants.PARTICIPANT_IS_PRESENTER
+				DeskShareModuleConstants.PARTICIPANT_IS_PRESENTER,
+				DeskShareModuleConstants.CLOSE_WINDOW
 			];
 		}
 		
@@ -74,6 +75,11 @@ package org.bigbluebutton.modules.deskShare.view
 							deskshareButtonDisplayed = false;
 							button.enabled = false;
 						}
+					}
+				break;
+				case DeskShareModuleConstants.CLOSE_WINDOW:
+					if (deskshareButtonDisplayed) {
+						button.enabled = true;
 					}
 				break;
 			}

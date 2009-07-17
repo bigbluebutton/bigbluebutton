@@ -25,7 +25,6 @@ package org.bigbluebutton.modules.deskShare.view
 	import flash.media.Video;
 	import flash.net.NetStream;
 	
-	import mx.controls.Alert;
 	import mx.core.UIComponent;
 	
 	import org.bigbluebutton.modules.deskShare.DeskShareModuleConstants;
@@ -46,6 +45,7 @@ package org.bigbluebutton.modules.deskShare.view
 		public static const NAME:String = "DeskShareWindowMediator";
 		public static const START_SHARING:String = "START_SHARING";
 		public static const START_VIEWING:String = "START_VIEWING";
+		public static const CLOSE_WINDOW:String = "CLOSE_WINDOW";
 		
 		private var _module:DeskShareModule;
 		private var _window:DeskShareWindow;
@@ -70,6 +70,7 @@ package org.bigbluebutton.modules.deskShare.view
 			_window.name = _module.username;
 			
 			_window.addEventListener(START_SHARING, onStartSharingEvent);
+			_window.addEventListener(CLOSE_WINDOW, onCloseWindowEvent);
 		}
 		
 		/**
@@ -105,7 +106,6 @@ package org.bigbluebutton.modules.deskShare.view
 					break;
 				case DeskShareModuleConstants.OPEN_WINDOW:
 					_window.title = "Desk Share";
-					_window.showCloseButton = false;
 					_window.xPosition = 675;
 					_window.yPosition = 310;
 					facade.sendNotification(DeskShareModuleConstants.ADD_WINDOW, _window);
@@ -137,18 +137,8 @@ package org.bigbluebutton.modules.deskShare.view
 					}
 					break;
 				case DeskShareModuleConstants.PARTICIPANT_IS_PRESENTER:
-					if (viewing) {
-						stopViewing();						
-						viewing = false;
-					}
-					
-					if (_deskShareWindowOpen) {
-						if (sharing) {
-							stopSharing();
-						}
 						closeWindow();
-					}
-				break;
+					break;
 			}
 		}
 		
@@ -217,6 +207,8 @@ package org.bigbluebutton.modules.deskShare.view
 		 * 
 		 */		
 		private function stopViewing():void{
+			if (! viewing) return;
+			
 			_window.ns.close();
 			viewing = false;
 			_window.btnStartApplet.visible = true;
@@ -237,11 +229,11 @@ package org.bigbluebutton.modules.deskShare.view
 			
 			_window.removeZoomSlider();
 			_window.removeDragSupport();
-			
-			closeWindow();
 		}
 		
 		private function closeWindow():void {
+			stopViewing();						
+			stopSharing();
 			facade.sendNotification(DeskShareModuleConstants.CLOSE_WINDOW);
 		}
 		
@@ -258,6 +250,10 @@ package org.bigbluebutton.modules.deskShare.view
 			}	
 		}
 		
+		private function onCloseWindowEvent(e:Event):void {
+			closeWindow();
+		}
+		
 		private function startSharing():void {
 			var captureX:Number = _window.dimensionsBox.box.x * DeskShareModuleConstants.SCALE;
 			var captureY:Number = _window.dimensionsBox.box.y * DeskShareModuleConstants.SCALE;
@@ -270,6 +266,8 @@ package org.bigbluebutton.modules.deskShare.view
 		}
 		
 		private function stopSharing():void {
+			if (!sharing) return;
+			
 			sharing = false;
 			_window.btnStartApplet.label = "Start Sharing";
 			_window.btnStartApplet.selected = false;
