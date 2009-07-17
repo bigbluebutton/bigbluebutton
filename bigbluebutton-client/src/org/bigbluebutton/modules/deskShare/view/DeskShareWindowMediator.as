@@ -140,11 +140,13 @@ package org.bigbluebutton.modules.deskShare.view
 					if (viewing) {
 						stopViewing();
 						facade.sendNotification(DeskShareModuleConstants.CLOSE_WINDOW);
+						viewing = false;
 					}
 					
 					if (sharing) {
 						stopApplet();
 						facade.sendNotification(DeskShareModuleConstants.CLOSE_WINDOW);
+						sharing = false;
 					}
 				break;
 			}
@@ -287,8 +289,12 @@ package org.bigbluebutton.modules.deskShare.view
 		 * 
 		 */		
 		private function onStartViewingEvent(e:Event):void{
-			if (!viewing) startViewing();
-			else stopViewing();
+			if (!viewing) {
+				startViewing();
+			} 
+			else {
+				stopViewing();
+			}
 		}
 		
 		public function stop():void{
