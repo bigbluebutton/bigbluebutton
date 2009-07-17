@@ -144,9 +144,8 @@ package org.bigbluebutton.modules.deskShare.view
 					}
 					
 					if (sharing) {
-						stopApplet();
+						stopSharing();
 						facade.sendNotification(DeskShareModuleConstants.CLOSE_WINDOW);
-						sharing = false;
 					}
 				break;
 			}
@@ -246,24 +245,32 @@ package org.bigbluebutton.modules.deskShare.view
 		 */		
 		private function onStartSharingEvent(e:Event):void{
 			if (!sharing){
-				var captureX:Number = _window.dimensionsBox.box.x * DeskShareModuleConstants.SCALE;
-				var captureY:Number = _window.dimensionsBox.box.y * DeskShareModuleConstants.SCALE;
-				captureWidth = Math.round(_window.dimensionsBox.box.width * DeskShareModuleConstants.SCALE - 5);
-				captureHeight = Math.round(_window.dimensionsBox.box.height * DeskShareModuleConstants.SCALE - 5);
-				sharing = true;
-				ExternalInterface.call("startApplet", _module.getCaptureServerUri(), _module.getRoom(), 
-														captureX, captureY, captureWidth, captureHeight,
-														_module.tunnel().toString());
+				startSharing();
 			} else{
-				sharing = false;
-				_window.btnStartApplet.label = "Start Sharing";
-				_window.btnStartApplet.selected = false;
-				_window.width = _window.dimensionsBox.width + 7;
-				_window.height = _window.bar.height + _window.dimensionsBox.height + 33;
-				_window.dimensionsBox.stopThumbnail();
-				
-				stopApplet();
+				stopSharing();
 			}	
+		}
+		
+		private function startSharing():void {
+			var captureX:Number = _window.dimensionsBox.box.x * DeskShareModuleConstants.SCALE;
+			var captureY:Number = _window.dimensionsBox.box.y * DeskShareModuleConstants.SCALE;
+			captureWidth = Math.round(_window.dimensionsBox.box.width * DeskShareModuleConstants.SCALE - 5);
+			captureHeight = Math.round(_window.dimensionsBox.box.height * DeskShareModuleConstants.SCALE - 5);
+			sharing = true;
+			ExternalInterface.call("startApplet", _module.getCaptureServerUri(), _module.getRoom(), 
+														captureX, captureY, captureWidth, captureHeight,
+														_module.tunnel().toString());			
+		}
+		
+		private function stopSharing():void {
+			sharing = false;
+			_window.btnStartApplet.label = "Start Sharing";
+			_window.btnStartApplet.selected = false;
+			_window.width = _window.dimensionsBox.width + 7;
+			_window.height = _window.bar.height + _window.dimensionsBox.height + 33;
+			_window.dimensionsBox.stopThumbnail();
+				
+			stopApplet();			
 		}
 		
 		/**
