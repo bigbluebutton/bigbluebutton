@@ -93,7 +93,7 @@ function startApplet(IP, roomNumber, captureX, captureY, captureWidth, captureHe
    	document.body.appendChild(iframe);
    	frames[frames.length - 1].document.write(
    		"<applet code=\"org.bigbluebutton.deskshare.client.DeskShareApplet.class\"" +
-   			"width=\"0\" height=\"400\" archive=\"deskshareapplet-0.1.jar\">" +
+   			"id=\"DeskShareApplet\" width=\"0\" height=\"400\" archive=\"deskshareapplet-0.1.jar\">" +
         	"<param name=\"TUNNEL\" value=\"" + tunnel  + "\"/>" +
         	"<param name=\"ROOM\" value=\"" + roomNumber  + "\"/>" +  
         	"<param name=\"IP\" value=\"" + IP + "\"/>" +
@@ -116,6 +116,7 @@ function setScreenCoordinates(x, y) {
 
 function stopApplet(){
 	frames[frames.length - 1].document.DeskShareApplet.destroy();
+	removeFrame();
 }
 
 function checkForJava(){
