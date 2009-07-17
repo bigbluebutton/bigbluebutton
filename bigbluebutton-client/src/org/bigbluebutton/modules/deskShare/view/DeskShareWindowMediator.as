@@ -138,14 +138,15 @@ package org.bigbluebutton.modules.deskShare.view
 					break;
 				case DeskShareModuleConstants.PARTICIPANT_IS_PRESENTER:
 					if (viewing) {
-						stopViewing();
-						facade.sendNotification(DeskShareModuleConstants.CLOSE_WINDOW);
+						stopViewing();						
 						viewing = false;
 					}
 					
-					if (sharing) {
-						stopSharing();
-						facade.sendNotification(DeskShareModuleConstants.CLOSE_WINDOW);
+					if (_deskShareWindowOpen) {
+						if (sharing) {
+							stopSharing();
+						}
+						closeWindow();
 					}
 				break;
 			}
@@ -236,6 +237,12 @@ package org.bigbluebutton.modules.deskShare.view
 			
 			_window.removeZoomSlider();
 			_window.removeDragSupport();
+			
+			closeWindow();
+		}
+		
+		private function closeWindow():void {
+			facade.sendNotification(DeskShareModuleConstants.CLOSE_WINDOW);
 		}
 		
 		/**
