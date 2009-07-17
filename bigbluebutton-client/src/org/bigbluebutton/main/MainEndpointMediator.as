@@ -125,6 +125,10 @@ package org.bigbluebutton.main
 					LogUtil.debug(NAME + "::Got ADD_BUTTON from " + message.getHeader().SRC as String);
 					sendNotification(MainApplicationConstants.ADD_BUTTON, message.getBody());
 					break;
+				case EndpointMessageConstants.REMOVE_BUTTON:
+					LogUtil.debug(NAME + "::Got REMOVE_BUTTON from " + message.getHeader().SRC as String);
+					sendNotification(MainApplicationConstants.REMOVE_BUTTON, message.getBody());
+					break;
 				case EndpointMessageConstants.REMOVE_WINDOW:
 					LogUtil.debug(NAME + "::Got REMOVE_WINDOW from " + message.getHeader().SRC as String);
 					sendNotification(MainApplicationConstants.REMOVE_WINDOW_MSG, message.getBody());
@@ -138,6 +142,11 @@ package org.bigbluebutton.main
 					LogUtil.debug(NAME + "::Got BECOME_VIEWER from " + message.getHeader().SRC as String);
 					_endpoint.sendMessage(EndpointMessageConstants.BECOME_VIEWER, 
 							EndpointMessageConstants.TO_PRESENTATION_MODULE, message.getBody());
+					break;
+				case EndpointMessageConstants.PARTICIPANT_IS_PRESENTER:
+					LogUtil.debug(NAME + "::Got PARTICIPANT_IS_PRESENTER from " + message.getHeader().SRC as String);
+					_endpoint.sendMessage(EndpointMessageConstants.PARTICIPANT_IS_PRESENTER, 
+							EndpointMessageConstants.TO_DESK_SHARE_MODULE, message.getBody());
 					break;
 			}
 		}	

@@ -63,6 +63,8 @@ package org.bigbluebutton.modules.presentation
 				PresentModuleConstants.CONNECTED,
 				PresentModuleConstants.DISCONNECTED,
 				PresentModuleConstants.ADD_WINDOW,
+				PresentModuleConstants.PRESENTER_MODE,
+				PresentModuleConstants.VIEWER_MODE,
 				PresentModuleConstants.REMOVE_WINDOW
 			];
 		}
@@ -97,6 +99,16 @@ package org.bigbluebutton.modules.presentation
 					_endpoint.sendMessage(EndpointMessageConstants.REMOVE_WINDOW, 
 							EndpointMessageConstants.TO_MAIN_APP, notification.getBody());
 					break;
+				case PresentModuleConstants.PRESENTER_MODE:
+					LogUtil.debug('Sending Present PARTICIPANT_IS_PRESENTER TRUE message to main');
+					_endpoint.sendMessage(EndpointMessageConstants.PARTICIPANT_IS_PRESENTER, 
+						EndpointMessageConstants.TO_MAIN_APP, new Boolean(true));
+					break;
+				case PresentModuleConstants.VIEWER_MODE:
+					LogUtil.debug('Sending Present PARTICIPANT_IS_PRESENTER FALSE message to main');
+					_endpoint.sendMessage(EndpointMessageConstants.PARTICIPANT_IS_PRESENTER, 
+							EndpointMessageConstants.TO_MAIN_APP, new Boolean(false));
+					break;
 			}
 		}
 	
@@ -122,6 +134,8 @@ package org.bigbluebutton.modules.presentation
 					break;
 			}
 		}
+		
+		
 		
 		private function get presentProxy():PresentProxy {
 			return facade.retrieveProxy(PresentProxy.NAME) as PresentProxy;

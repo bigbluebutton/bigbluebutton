@@ -75,7 +75,9 @@ package org.bigbluebutton.modules.deskShare
 					DeskShareModuleConstants.ADD_WINDOW,
 					DeskShareModuleConstants.REMOVE_WINDOW,
 					DeskShareModuleConstants.CONNECTED,
-					DeskShareModuleConstants.DISCONNECTED
+					DeskShareModuleConstants.DISCONNECTED,
+					DeskShareModuleConstants.ADD_BUTTON,
+					DeskShareModuleConstants.REMOVE_BUTTON
 					];
 		}
 		
@@ -107,6 +109,16 @@ package org.bigbluebutton.modules.deskShare
 					info["moduleId"] = _module.moduleId;
 					_endpoint.sendMessage(EndpointMessageConstants.MODULE_STOPPED, EndpointMessageConstants.TO_MAIN_APP, info);
 					break;
+				case DeskShareModuleConstants.ADD_BUTTON:
+					LogUtil.debug('Sending DeskShare ADD_BUTTON message to main');
+					_endpoint.sendMessage(EndpointMessageConstants.ADD_BUTTON, 
+							EndpointMessageConstants.TO_MAIN_APP, notification.getBody());
+					break;
+				case DeskShareModuleConstants.REMOVE_BUTTON:
+					LogUtil.debug('Sending DeskShare REMOVE_BUTTON message to main');
+					_endpoint.sendMessage(EndpointMessageConstants.REMOVE_BUTTON, 
+							EndpointMessageConstants.TO_MAIN_APP, notification.getBody());
+					break;
 			}
 		}
 		
@@ -115,13 +127,17 @@ package org.bigbluebutton.modules.deskShare
 		 * @param message
 		 * 
 		 */		
-		private function messageReceiver(message:IPipeMessage):void{
+		public function messageReceiver(message:IPipeMessage):void{
 			var msg:String = message.getHeader().MSG as String;
 			switch(msg){
 				case EndpointMessageConstants.OPEN_WINDOW:
 					break;
 				case EndpointMessageConstants.CLOSE_WINDOW:
 					facade.sendNotification(DeskShareModuleConstants.CLOSE_WINDOW);
+					break;
+				case EndpointMessageConstants.PARTICIPANT_IS_PRESENTER:
+					LogUtil.debug('Received EndpointMessageConstants.PARTICIPANT_IS_PRESENTER message from main');
+					facade.sendNotification(DeskShareModuleConstants.PARTICIPANT_IS_PRESENTER, message.getBody());
 					break;
 			}
 		}

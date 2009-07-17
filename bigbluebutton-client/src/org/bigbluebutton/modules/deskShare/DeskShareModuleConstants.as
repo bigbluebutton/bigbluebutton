@@ -45,6 +45,9 @@ package org.bigbluebutton.modules.deskShare
 		public static const GOT_HEIGHT:String = "GOT_HEIGHT";
 		
 		public static const APPLET_STARTED:String = "APPLET_STARTED";
-
+		public static const START_DESKSHARE_EVENT:String = 'START_DESKSHARE_EVENT';
+		public static const ADD_BUTTON:String = 'ADD_BUTTON';
+		public static const REMOVE_BUTTON:String = 'REMOVE_BUTTON';
+		public static const PARTICIPANT_IS_PRESENTER:String = 'PARTICIPANT_IS_PRESENTER';
 	}
 }

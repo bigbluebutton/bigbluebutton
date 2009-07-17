@@ -45,6 +45,9 @@ package org.bigbluebutton.common.messaging
 
 		public static const TO_PRESENTATION_MODULE:String = "TO_PRESENTATION_MODULE";
 		public static const FROM_PRESENTATION_MODULE:String = "FROM_PRESENTATION_MODULE";
+		
+		public static const TO_DESK_SHARE_MODULE:String = "TO_DESK_SHARE_MODULE";
+		public static const FROM_DESK_SHARE_MODULE:String = "FROM_DESK_SHARE_MODULE";
 				
 		public static const OPEN_WINDOW:String = 'OPEN_WINDOW';
 		public static const CLOSE_WINDOW:String = 'CLOSE_WINDOW';
@@ -72,5 +75,7 @@ package org.bigbluebutton.common.messaging
 		
 		public static const NEW_PARTICIPANT:String = 'NEW_PARTICIPANT';
 		public static const PARTICIPANT_LEFT:String = 'PARTICIPANT_LEFT';
+		
+		public static const PARTICIPANT_IS_PRESENTER:String = 'PARTICIPANT_IS_PRESENTER';
 	}
 }

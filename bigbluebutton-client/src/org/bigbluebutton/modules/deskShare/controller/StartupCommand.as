@@ -24,6 +24,7 @@ package org.bigbluebutton.modules.deskShare.controller
 	import org.bigbluebutton.modules.deskShare.DeskShareModuleMediator;
 	import org.bigbluebutton.modules.deskShare.model.business.DeskShareProxy;
 	import org.bigbluebutton.modules.deskShare.view.DeskShareWindowMediator;
+	import org.bigbluebutton.modules.deskShare.view.ToolbarButtonMediator;
 	import org.puremvc.as3.multicore.interfaces.ICommand;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.command.SimpleCommand;
@@ -47,6 +48,7 @@ package org.bigbluebutton.modules.deskShare.controller
 			facade.registerMediator(new DeskShareModuleMediator(module));
 			facade.registerMediator(new DeskShareEndpointMediator(module));
 			facade.registerMediator(new DeskShareWindowMediator(module));
+			facade.registerMediator(new ToolbarButtonMediator(module));
 			facade.registerProxy(new DeskShareProxy(module));
 			sendNotification(DeskShareModuleConstants.CONNECTED);
 		}

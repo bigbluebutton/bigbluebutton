@@ -61,7 +61,7 @@ package org.bigbluebutton.main.view
 					toolbar.addedBtns.addChild(notification.getBody() as Button);
 					break;
 				case MainApplicationConstants.REMOVE_BUTTON:
-					toolbar.removeChild(notification.getBody() as Button);
+					toolbar.addedBtns.removeChild(notification.getBody() as Button);
 					break;
 			}
 		}

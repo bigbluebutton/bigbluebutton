@@ -17,13 +17,12 @@
  *
  * $Id: $
  */
-package org.bigbluebutton.modules.phone.view
+package org.bigbluebutton.modules.deskShare.view
 {
 	import flash.events.Event;
 	
-	import org.bigbluebutton.modules.phone.PhoneModuleConstants;
-	import org.bigbluebutton.modules.phone.Red5Manager;
-	import org.bigbluebutton.modules.phone.view.components.ToolbarButton;
+	import org.bigbluebutton.modules.deskShare.DeskShareModuleConstants;
+	import org.bigbluebutton.modules.deskShare.view.components.ToolbarButton;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
@@ -33,37 +32,47 @@ package org.bigbluebutton.modules.phone.view
 		public static const NAME:String = "ToolbarButtonMediator";
 		
 		private var button:ToolbarButton;
-		private var module:PhoneModule;
-		private var red5Manager:Red5Manager;
+		private var module:DeskShareModule;
+		private var deskshareButtonDisplayed:Boolean;
 		
-		public function ToolbarButtonMediator(module:PhoneModule)
+		public function ToolbarButtonMediator(module:DeskShareModule)
 		{
 			super(NAME);
 			this.module = module;
-			button = new ToolbarButton();			
-			button.addEventListener(PhoneModuleConstants.START_PHONE_EVENT, onStartPhoneEvent);			
+			button = new ToolbarButton();	
+			button.enabled = true;	
+			deskshareButtonDisplayed = false;	
+			button.addEventListener(DeskShareModuleConstants.START_DESKSHARE_EVENT, onStartDeskShareEvent);			
 		}
 		
-		private function onStartPhoneEvent(e:Event):void {
-			button.enabled = false;	
-			var uid:String = String( Math.floor( new Date().getTime() ) );		
-			red5Manager = new Red5Manager(uid, module.username, module.voicebridge, module.uri);
-			red5Manager.connectRed5();
+		private function onStartDeskShareEvent(e:Event):void {
+			button.enabled = false;		
+//			facade.sendNotification(DeskShareModuleConstants.OPEN_WINDOW);
 		}
 		
 		override public function listNotificationInterests():Array
 		{
 			return [
-				PhoneModuleConstants.CONNECTED
+				DeskShareModuleConstants.PARTICIPANT_IS_PRESENTER
 			];
 		}
 		
 		override public function handleNotification(notification:INotification):void
 		{
 			switch(notification.getName()){
-				case PhoneModuleConstants.CONNECTED:
-					LogUtil.debug(NAME + ": Opening Phone Toolbar Button");
-					facade.sendNotification(PhoneModuleConstants.ADD_BUTTON, button);
+				case DeskShareModuleConstants.PARTICIPANT_IS_PRESENTER:
+					var showButton:Boolean = notification.getBody();
+					if (showButton) {
+						LogUtil.debug(NAME + ": Opening DeskShare Toolbar Button");
+						facade.sendNotification(DeskShareModuleConstants.ADD_BUTTON, button);
+						deskshareButtonDisplayed = true;
+					} else {
+						LogUtil.debug(NAME + ": Removing DeskShare Toolbar Button");
+						if (deskshareButtonDisplayed) {
+							facade.sendNotification(DeskShareModuleConstants.REMOVE_BUTTON, button);
+							deskshareButtonDisplayed = false;
+						}
+					}
 				break;
 			}
 		}
