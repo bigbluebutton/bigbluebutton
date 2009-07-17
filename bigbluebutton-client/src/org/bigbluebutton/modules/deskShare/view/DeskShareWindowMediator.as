@@ -115,8 +115,7 @@ package org.bigbluebutton.modules.deskShare.view
 					if (!sharing){
 						var capResVO:CaptureResolutionVO = notification.getBody() as CaptureResolutionVO;
 						_window.videoWidth = capResVO.width;
-						_window.videoHeight = capResVO.height;
-						_window.showCloseButton = false;
+						_window.videoHeight = capResVO.height;						
 						startViewing();
 					} 
 					break;
@@ -153,7 +152,11 @@ package org.bigbluebutton.modules.deskShare.view
 		}
 		
 		private function startViewing():void{
+			
+			_window.showCloseButton = false;
+			
 			facade.sendNotification(DeskShareModuleConstants.OPEN_WINDOW);
+			
 			
 			_window.videoPlayer = new Video(_window.videoWidth, _window.videoHeight);
 			_window.videoPlayer.width = _window.videoWidth;
@@ -189,6 +192,8 @@ package org.bigbluebutton.modules.deskShare.view
 			_window.btnStartApplet.visible = false;
 			_window.addZoomSlider();
 			_window.addDragSupport();
+			
+			
 		}
 		
 		private function onAsyncError(e:AsyncErrorEvent):void{
