@@ -66,11 +66,13 @@ package org.bigbluebutton.modules.deskShare.view
 						LogUtil.debug(NAME + ": Opening DeskShare Toolbar Button");
 						facade.sendNotification(DeskShareModuleConstants.ADD_BUTTON, button);
 						deskshareButtonDisplayed = true;
+						button.enabled = true;
 					} else {
 						LogUtil.debug(NAME + ": Removing DeskShare Toolbar Button");
 						if (deskshareButtonDisplayed) {
 							facade.sendNotification(DeskShareModuleConstants.REMOVE_BUTTON, button);
 							deskshareButtonDisplayed = false;
+							button.enabled = false;
 						}
 					}
 				break;
