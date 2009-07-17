@@ -116,12 +116,13 @@ package org.bigbluebutton.modules.deskShare.view
 						var capResVO:CaptureResolutionVO = notification.getBody() as CaptureResolutionVO;
 						_window.videoWidth = capResVO.width;
 						_window.videoHeight = capResVO.height;
+						_window.showCloseButton = false;
 						startViewing();
 					} 
 					break;
 				case DeskShareModuleConstants.STOP_VIEWING:
 					if (viewing) {
-						stopViewing();
+						closeWindow();
 					}
 					break;
 				case DeskShareModuleConstants.GOT_HEIGHT:
@@ -153,6 +154,7 @@ package org.bigbluebutton.modules.deskShare.view
 		
 		private function startViewing():void{
 			facade.sendNotification(DeskShareModuleConstants.OPEN_WINDOW);
+			
 			_window.videoPlayer = new Video(_window.videoWidth, _window.videoHeight);
 			_window.videoPlayer.width = _window.videoWidth;
 			_window.videoPlayer.height = _window.videoHeight;
