@@ -85,7 +85,8 @@ package org.bigbluebutton.modules.deskShare.view
 					DeskShareModuleConstants.STOP_VIEWING,
 					DeskShareModuleConstants.GOT_HEIGHT,
 					DeskShareModuleConstants.GOT_WIDTH,
-					DeskShareModuleConstants.APPLET_STARTED
+					DeskShareModuleConstants.APPLET_STARTED,
+					DeskShareModuleConstants.PARTICIPANT_IS_PRESENTER
 					];
 		}
 		
@@ -119,7 +120,9 @@ package org.bigbluebutton.modules.deskShare.view
 					} 
 					break;
 				case DeskShareModuleConstants.STOP_VIEWING:
-					if (viewing) stopViewing();
+					if (viewing) {
+						stopViewing();
+					}
 					break;
 				case DeskShareModuleConstants.GOT_HEIGHT:
 					_window.videoHeight = notification.getBody() as Number;
@@ -129,8 +132,21 @@ package org.bigbluebutton.modules.deskShare.view
 					_window.videoWidth = notification.getBody() as Number;
 					break;
 				case DeskShareModuleConstants.APPLET_STARTED:
-					if(sharing) onAppletStart();
+					if(sharing) {
+						onAppletStart();
+					}
 					break;
+				case DeskShareModuleConstants.PARTICIPANT_IS_PRESENTER:
+					if (viewing) {
+						stopViewing();
+						facade.sendNotification(DeskShareModuleConstants.CLOSE_WINDOW);
+					}
+					
+					if (sharing) {
+						stopApplet();
+						facade.sendNotification(DeskShareModuleConstants.CLOSE_WINDOW);
+					}
+				break;
 			}
 		}
 		
@@ -144,6 +160,7 @@ package org.bigbluebutton.modules.deskShare.view
 		}
 		
 		private function startViewing():void{
+			facade.sendNotification(DeskShareModuleConstants.OPEN_WINDOW);
 			_window.videoPlayer = new Video(_window.videoWidth, _window.videoHeight);
 			_window.videoPlayer.width = _window.videoWidth;
 			_window.videoPlayer.height = _window.videoHeight;

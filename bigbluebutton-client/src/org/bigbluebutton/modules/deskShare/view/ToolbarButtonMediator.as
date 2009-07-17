@@ -45,9 +45,9 @@ package org.bigbluebutton.modules.deskShare.view
 			button.addEventListener(DeskShareModuleConstants.START_DESKSHARE_EVENT, onStartDeskShareEvent);			
 		}
 		
-		private function onStartDeskShareEvent(e:Event):void {
-			button.enabled = false;		
-//			facade.sendNotification(DeskShareModuleConstants.OPEN_WINDOW);
+		private function onStartDeskShareEvent(e:Event):void {				
+			facade.sendNotification(DeskShareModuleConstants.OPEN_WINDOW);
+			button.enabled = false;	
 		}
 		
 		override public function listNotificationInterests():Array

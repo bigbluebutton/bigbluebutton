@@ -100,7 +100,6 @@ package org.bigbluebutton.modules.deskShare
 				case DeskShareModuleConstants.CONNECTED:
 					LogUtil.debug("sending DeskShare MODULE_STARTED message to main");
 					_endpoint.sendMessage(EndpointMessageConstants.MODULE_STARTED, EndpointMessageConstants.TO_MAIN_APP, _module.moduleId);
-					facade.sendNotification(DeskShareModuleConstants.OPEN_WINDOW);
 					break;
 				case DeskShareModuleConstants.DISCONNECTED:
 					LogUtil.debug("sending DeskShare MODULE_STOPPER message to main");

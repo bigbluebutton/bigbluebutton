@@ -26,6 +26,7 @@
     
 	<mx:Script>
 		<![CDATA[
+			import net.digitalprimates.fluint.events.AsyncEvent;
 			import org.bigbluebutton.modules.deskShare.DeskShareModuleConstants;
 			import mx.core.UIComponent;
 
