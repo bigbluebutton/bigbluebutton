@@ -22,7 +22,7 @@
 
 <MDIWindow xmlns="flexlib.mdi.containers.*" 
 	       xmlns:mx="http://www.adobe.com/2006/mxml" 
-	       width="600" height="300" showCloseButton="false"
+	       width="590" height="300" showCloseButton="false"
 	       focusEnd="setFocusOff()"
 	       creationComplete="init()"
 	       implements="org.bigbluebutton.common.IBbbModuleWindow" xmlns:components="org.bigbluebutton.modules.chat.view.components.*">
