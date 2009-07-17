@@ -30,6 +30,8 @@ public class ScreenCaptureTaker implements Runnable {
 				System.exit(0);
 			}
 		}
+		
+		System.out.println("Stopping screen capture.");
 	}
 	
 	private void notifyListeners(BufferedImage image) {
