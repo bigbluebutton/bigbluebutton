@@ -10,7 +10,7 @@ public class ScreenCaptureProtocolCodecFactory implements ProtocolCodecFactory {
     private ProtocolDecoder decoder;
 
     public ScreenCaptureProtocolCodecFactory() {
-            encoder = null;
+            encoder = new NullProtocolEncoder();
             decoder = new ScreenCaptureProtocolDecoder();
     }
 
@@ -21,5 +21,4 @@ public class ScreenCaptureProtocolCodecFactory implements ProtocolCodecFactory {
     public ProtocolDecoder getDecoder(IoSession ioSession) throws Exception {
         return decoder;
     }
-
 }

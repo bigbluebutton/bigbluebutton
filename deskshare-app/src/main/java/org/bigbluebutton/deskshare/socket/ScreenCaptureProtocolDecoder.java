@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 public class ScreenCaptureProtocolDecoder extends CumulativeProtocolDecoder {
 	final private Logger log = Red5LoggerFactory.getLogger(ScreenCaptureProtocolDecoder.class, "deskshare");
 	
-    private static final int MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+    private static final int MAX_IMAGE_SIZE = 2 * 1024 * 1024;
     private static final String ROOM = "ROOM";
     private static final String VIDEO_INFO = "VIDEO_INFO";
     private static final String CAPTURED_SCREEN = "CAPTURED_SCREEN";

@@ -194,7 +194,7 @@
 	</macrodef>
 	
 	<target name="deploy" description="Deploy deskshare into red5" depends="dist">
-		<delete dir="${red5.home}/webapps/sip"/>
+		<delete dir="${red5.home}/webapps/deskshare"/>
 		<copy todir="${red5.home}/webapps">
 			   	<fileset dir="${dist.webapps.dir}"/>
 		</copy>		
