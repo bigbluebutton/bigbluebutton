@@ -94,9 +94,11 @@ package org.bigbluebutton.modules.presentation.view
 		private function onKeyPressed(event:KeyboardEvent):void {
 			//Alert.show("Key Pressed");
 			switch (event.keyCode) {
-				case Keyboard.LEFT:				
+				case Keyboard.LEFT:	
+				case Keyboard.DOWN:			
 					gotoPreviousSlide();		
 				break;
+				case Keyboard.UP:
 				case Keyboard.RIGHT: 
 				case Keyboard.SPACE:
 					gotoNextSlide();
