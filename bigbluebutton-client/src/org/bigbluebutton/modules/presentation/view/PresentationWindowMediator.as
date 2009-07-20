@@ -24,7 +24,6 @@ package org.bigbluebutton.modules.presentation.view
 	import flash.geom.Point;
 	import flash.ui.Keyboard;
 	
-	import mx.controls.Alert;
 	import mx.managers.PopUpManager;
 	
 	import org.bigbluebutton.common.IBigBlueButtonModule;
@@ -345,10 +344,6 @@ package org.bigbluebutton.modules.presentation.view
 				
 			if (proxy.isPresenter()) 
 			{
-				// Remove the uploadWindow
-				//PopUpManager.removePopUp(_presWin.uploadWindow);
-				// Remove the mediator	
-				//facade.removeMediator(FileUploadWindowMediator.NAME);
 				removeFileUploadPopup();
 				
 				_presWin.backButton.visible = true;
@@ -361,8 +356,6 @@ package org.bigbluebutton.modules.presentation.view
 				proxy.sharePresentation(true, presentationName);
 				proxy.gotoSlide(0);
 				
-				//Initialize the thumbnails
-				//_presWin.thumbnailWindow.fisheye.selectedIndex = 0; // Initialize to prevent ArrayIndexException
 				_presWin.thumbnailWindow.setDataProvider(_presWin.slideView.slides);
 				_presWin.isPresenter = true;
 				
@@ -427,6 +420,14 @@ package org.bigbluebutton.modules.presentation.view
 		private function get proxy():PresentProxy {
 			var p:PresentProxy = facade.retrieveProxy(PresentProxy.NAME) as PresentProxy;
 			return p;
+		}
+		
+		public function getXPos():Number{
+			return _presWin.slideView.myLoader.x;
+		}
+		
+		public function getYPos():Number{
+			return _presWin.slideView.myLoader.y;
 		}
 	}
 }
