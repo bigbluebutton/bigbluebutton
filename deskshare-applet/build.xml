@@ -109,6 +109,7 @@
 	</target>
 	
 	<target name="echoall">
+		<echo>${java.home}</echo>
 		<echoproperties/>
 	</target>
 </project>

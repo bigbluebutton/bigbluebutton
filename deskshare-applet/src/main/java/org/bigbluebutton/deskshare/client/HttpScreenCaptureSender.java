@@ -50,7 +50,7 @@ public class HttpScreenCaptureSender implements IScreenCaptureSender {
 	    ClientHttpRequest chr = new ClientHttpRequest(conn);
 	    chr.setParameter("room", room);
 	    chr.setParameter("videoInfo", videoInfo);
-	    chr.setParameter("startCapture", startCapture);
+	    chr.setParameter("startCapture", new Boolean(startCapture).toString());
 		System.out.println("Start capture = " + startCapture);
 		
 	    if (startCapture) {

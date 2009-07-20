@@ -22,6 +22,7 @@ public class DeskShareApplet extends JApplet implements IScreenCaptureListener {
 	private String host = "192.168.0.136";
 	
 	public void init(){
+		System.out.println("Applet built july 20, 2009 at 3:03PM");
 		screenWidth = Integer.parseInt(getParameter("CAPTURE_WIDTH"));
 		screenHeight = Integer.parseInt(getParameter("CAPTURE_HEIGHT"));
 		x = Integer.parseInt(getParameter("X"));

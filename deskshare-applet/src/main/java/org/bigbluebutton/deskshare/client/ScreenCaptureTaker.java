@@ -8,7 +8,8 @@ public class ScreenCaptureTaker implements Runnable {
 	
 	private ScreenCapture capture;
 	private int timeBase;
-	private Set<IScreenCaptureListener> listeners = new HashSet<IScreenCaptureListener>();
+//	private Set<IScreenCaptureListener> listeners = new HashSet<IScreenCaptureListener>();
+	private IScreenCaptureListener listeners;
 	
 	private volatile boolean startCapture = false;
 	
@@ -35,17 +36,18 @@ public class ScreenCaptureTaker implements Runnable {
 	}
 	
 	private void notifyListeners(BufferedImage image) {
-		for (IScreenCaptureListener listener : listeners) {
-			listener.onScreenCaptured(image);
-		}		
+//		for (IScreenCaptureListener listener : listeners) {
+			listeners.onScreenCaptured(image);
+//		}		
 	}
 	
 	public void addListener(IScreenCaptureListener listener) {
-		listeners.add(listener);
+//		listeners.add(listener);
+		listeners = listener;
 	}
 
 	public void removeListener(IScreenCaptureListener listener) {
-		listeners.remove(listener);
+//		listeners.remove(listener);
 	}
 	
 	public void setCapture(boolean capture) {
