@@ -68,7 +68,7 @@ package org.bigbluebutton.modules.chat.view
 		{
 			var newMessage:String;			
 			newMessage = "<font color=\"#" + _chatWindow.cmpColorPicker.selectedColor.toString(16) + "\"><b>[" + 
-					_module.username +" - "+ time()+ "]</b> " + _chatWindow.txtMsg.text + "</font><br/>";
+					_module.username +" - "+ time()+ "]</b> " + parseURLs(_chatWindow.txtMsg.text) + "</font><br/>";
 			
 			if (_chatWindow.tabNav.selectedChild.id == "All") proxy.sendMessage(newMessage);
 			else{
@@ -183,6 +183,23 @@ package org.bigbluebutton.modules.chat.view
 		private function onUserClosedTab(e:SuperTabEvent):void{
 			var name:String = _chatWindow.tabNav.getChildAt(e.tabIndex).name;
 			facade.removeMediator(name);
+		}
+		
+		private function parseURLs(message:String):String{
+			var indexOfHTTP:Number = message.indexOf("http://");
+			var indexOfWWW:Number = message.indexOf("www.");
+			if (indexOfHTTP == -1 && indexOfWWW == -1) return message;
+			
+			var words:Array = message.split(" ");
+			var parsedString:String = "";
+			
+			for (var n:Number = 0; n<words.length; n++){
+				var word:String = words[n] as String;
+				if (word.indexOf("http://") != -1) parsedString += '<a href="event:' + word + '"> <u>' + word + '</u></a> ';
+				else if (word.indexOf("www.") != -1) parsedString += '<a href="event:http://' + word + '"> <u>' + word + '</u></a> ';
+				else parsedString += word + ' ';
+			}
+			return parsedString;
 		}
 	}
 }

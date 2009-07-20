@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" click="setMessageRead()">
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" click="setMessageRead()" creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
+			import flash.net.navigateToURL;
 			import mx.controls.Alert;
 			import mx.controls.Button;
 			public var read:Boolean = true;
 			[Bindable]
 			private var backgroundColor:uint = 0x000000;
+			
+			private function init():void{
+				txtChatBox.htmlText
+			}
 			
 			private function updateScroll():void{
 				txtChatBox.verticalScrollPosition = txtChatBox.maxVerticalScrollPosition;
@@ -27,7 +32,12 @@
 				backgroundColor = 0x000000;
 			}
 			
+			private function onLinkClick(e:TextEvent):void{
+				var url:URLRequest = new URLRequest(e.text);
+				navigateToURL(url, '_blank');
+			}
+			
 		]]>
 	</mx:Script>
-	<mx:TextArea id="txtChatBox" editable="false" width="100%" height="100%" focusEnabled="false" updateComplete="updateScroll()" />
+	<mx:TextArea id="txtChatBox" editable="false" width="100%" height="100%" focusEnabled="false" updateComplete="updateScroll()" link="onLinkClick(event)" />
 </mx:VBox>
