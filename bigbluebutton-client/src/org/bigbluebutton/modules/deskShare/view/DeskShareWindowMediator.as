@@ -105,7 +105,7 @@ package org.bigbluebutton.modules.deskShare.view
 					}
 					break;
 				case DeskShareModuleConstants.OPEN_WINDOW:
-					_window.title = "Desk Share";
+					_window.title = "Deskop Sharing";
 					_window.xPosition = 675;
 					_window.yPosition = 310;
 					facade.sendNotification(DeskShareModuleConstants.ADD_WINDOW, _window);
@@ -171,11 +171,9 @@ package org.bigbluebutton.modules.deskShare.view
 			_window.videoHolder.y = 20;
 			
 			_window.dimensionsBox.visible = false;
-			_window.height = 600;//_window.videoHeight + 73;
-			_window.width = 500;//_window.videoWidth + 12;
+			_window.height = 600;
+			_window.width = 500;
 			_window.canvas.visible = true;
-			//_window.canvas.width = videoWidth;
-			//_window.canvas.height = videoHeight;
 			_window.ns = new NetStream(proxy.getConnection());
 			_window.ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
 			_window.ns.client = this;

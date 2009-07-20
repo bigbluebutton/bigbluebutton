@@ -21,6 +21,8 @@ package org.bigbluebutton.modules.chat.view
 {
 	import flash.events.Event;
 	
+	import flexlib.events.SuperTabEvent;
+	
 	import mx.core.Container;
 	
 	import org.bigbluebutton.modules.chat.ChatModuleConstants;
@@ -52,6 +54,7 @@ package org.bigbluebutton.modules.chat.view
 			_chatWindow.name = _module.username;
 			_chatWindow.addEventListener(ChatWindow.SEND_MESSAGE, onSendChatMessage);
 			_chatWindow.addEventListener(ChatModuleConstants.OPEN_CHAT_BOX, onOpenChatBox);
+			_chatWindow.addEventListener(SuperTabEvent.TAB_CLOSE, onUserClosedTab);
 		}
 
         private function time() : String
@@ -175,6 +178,11 @@ package org.bigbluebutton.modules.chat.view
 			chatBox.name = owner;
 			sendNotification(ChatModuleConstants.OPEN_CHAT_BOX, chatBox);
 			return facade.retrieveMediator(owner) as ChatBoxMediator;
+		}
+		
+		private function onUserClosedTab(e:SuperTabEvent):void{
+			var name:String = _chatWindow.tabNav.getChildAt(e.tabIndex).name;
+			facade.removeMediator(name);
 		}
 	}
 }
