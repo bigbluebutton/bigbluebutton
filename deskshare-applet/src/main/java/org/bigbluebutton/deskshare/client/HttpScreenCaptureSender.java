@@ -24,7 +24,6 @@ public class HttpScreenCaptureSender implements IScreenCaptureSender {
 	private String videoInfo;
 	private boolean startCapture = true;
 	
-	@Override
 	public void connect(String host, String room, int videoWidth,
 			int videoHeight, int frameRate) {
 		this.host = host;
@@ -38,13 +37,11 @@ public class HttpScreenCaptureSender implements IScreenCaptureSender {
 				+ "x" + Integer.toString(frameRate);
 	}
 
-	@Override
 	public void disconnect() {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
 	public void send(BufferedImage screenCapture) {
 		try {
 

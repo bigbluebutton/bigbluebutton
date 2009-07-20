@@ -82,9 +82,9 @@
 	<target name="create-signing-key" depends="get-password">
 		<genkey	alias="${keystore.alias}" keystore="${keystore}" storepass="${keystore.password}" validity="366" >
 			<dname>
-				<param name="CN" value="autosigner"/>
-				<param name="OU" value="Denis Zgonjanin"/>
-				<param name="O" value="BigBlueButton Project"/>
+				<param name="CN" value="BigBlueButton"/>
+				<param name="OU" value="BigBlueButton Project"/>
+				<param name="O" value="BigBlueButton"/>
 				<param name="C" value="CA"/>
 			</dname>
 		</genkey>
