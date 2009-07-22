@@ -117,9 +117,6 @@
 			}
 			
 			public function removeParticipant(name:String):void{
-				//if (tabNav.getChildByName(name) != null){
-				//	tabNav.removeChild(tabNav.getChildByName(name));
-				//}
 				if (tabNav.getChildByName(name) == tabNav.selectedChild){
 					txtMsg.enabled = false;
 				}

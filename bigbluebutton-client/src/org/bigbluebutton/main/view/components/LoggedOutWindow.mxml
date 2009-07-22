@@ -45,4 +45,5 @@
 		<mx:Spacer width="100%"/>
 		<mx:Button id="okBtn" label="OK" click="closeWindow()"/>
 	</mx:ControlBar>	
+	<mx:Label text="You have logged out of the conference" />
 </mx:TitleWindow> 
