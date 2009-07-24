@@ -75,6 +75,10 @@
 			public function stop():void{
 				BoardFacade.getInstance().stop(this);
 			}
+			
+			public function get role():String{
+				return _attributes.role;
+			}
 		]]>
 	</mx:Script>
 	

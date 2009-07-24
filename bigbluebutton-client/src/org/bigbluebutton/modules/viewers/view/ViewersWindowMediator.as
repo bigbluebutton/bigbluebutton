@@ -21,6 +21,8 @@ package org.bigbluebutton.modules.viewers.view
 {
 	import flash.events.Event;
 	
+	import mx.controls.Alert;
+	
 	import org.bigbluebutton.modules.viewers.ViewersModuleConstants;
 	import org.bigbluebutton.modules.viewers.model.ViewersProxy;
 	import org.bigbluebutton.modules.viewers.view.components.ViewersWindow;
@@ -93,7 +95,8 @@ package org.bigbluebutton.modules.viewers.view
 			return [
 					ViewersModuleConstants.OPEN_VIEWERS_WINDOW,
 					ViewersModuleConstants.CLOSE_VIEWERS_WINDOW,
-					ViewersModuleConstants.BECOME_VIEWER					
+					ViewersModuleConstants.BECOME_VIEWER,
+					ViewersModuleConstants.USER_JOINED					
 					];
 		}
 		
@@ -113,12 +116,11 @@ package org.bigbluebutton.modules.viewers.view
 					break;
 				case ViewersModuleConstants.BECOME_VIEWER:
 					LogUtil.debug('Sending BECOME_VIEWER_EVENT');
-//					_viewersWindow.becomeViewer(notification.getBody());
 					break;
-//				case ViewersModuleConstants.ASSIGN_PRESENTER:
-//					LogUtil.debug('Sending ASSIGN_PRESENTER_EVENT');
-//					_viewersWindow.becomePresenter(notification.getBody());
-//					break;
+				case ViewersModuleConstants.USER_JOINED:
+					_viewersWindow.userJoinSound.end();
+					_viewersWindow.userJoinSound.play();
+					break;
 			}
 		}
 			

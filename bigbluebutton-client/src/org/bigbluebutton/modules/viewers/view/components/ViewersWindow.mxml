@@ -81,7 +81,7 @@
         ]]>
     </mx:Script>
 
-    <mx:DataGrid id="viewersGrid" dataProvider="{participants}" editable="false" 
+    <mx:DataGrid id="viewersGrid" dataProvider="{participants}" editable="false" mouseDownEffect="{userJoinSound}"
     	dragEnabled="false" itemClick="viewerSelectEvent(event);" width="100%" height="100%">
     	<mx:columns>
     		<mx:DataGridColumn dataField="role" headerText="Role" dataTipField="Role" editable="false" width="35"
@@ -102,4 +102,6 @@
     	   			width="20" height="20"
     	   			toolTip="{toggleTooltip}" click="dispatchEvent(new Event(ViewersWindowMediator.CHANGE_STATUS))"/>  			
     </mx:ControlBar>  
+    
+    <mx:SoundEffect id="userJoinSound" source="@Embed('../assets/sounds/user_join.mp3')" target="{this}" />
 </viewer:MDIWindow>

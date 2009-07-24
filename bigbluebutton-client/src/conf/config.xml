@@ -48,6 +48,13 @@
 			onUserJoinedEvent="START" 
 			onUserLogoutEvent="STOP"
 		/-->
+		
+		<!--<module name="WhiteboardModule" url="WhiteboardModule.swf" 
+			uri="rtmp://192.168.0.124/bigbluebutton" 
+			onUserJoinedEvent="START" 
+			onUserLogoutEvent="STOP"
+		/>-->
+		
 	</modules>
 </config>
 

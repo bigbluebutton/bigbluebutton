@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.modules.notes.business.NotesProxy;
+			import org.bigbluebutton.modules.notes.events.MessageEvent;
+		]]>
+	</mx:Script>
+	<Debugger level="{Debugger.ALL}" />
+	
+	<EventHandlers type="{MessageEvent.NEW}" debug="true">
+		<MethodInvoker generator="{NotesProxy}" method="sendNewMessage()" arguments="{event.message}" />
+	</EventHandlers>
+</EventMap>
