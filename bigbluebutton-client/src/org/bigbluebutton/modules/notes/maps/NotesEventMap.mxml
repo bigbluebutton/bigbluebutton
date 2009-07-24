@@ -1,14 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/" xmlns:mate="org.bigbluebutton.common.mate.*">
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.notes.business.NotesProxy;
+			import org.bigbluebutton.modules.notes.views.Notes;
 			import org.bigbluebutton.modules.notes.events.MessageEvent;
+			
+			[Bindable]
+			public var webServiceUrl:String;
+			[Bindable]
+			public var connection:NetConnection;
 		]]>
 	</mx:Script>
 	<Debugger level="{Debugger.ALL}" />
 	
 	<EventHandlers type="{MessageEvent.NEW}" debug="true">
-		<MethodInvoker generator="{NotesProxy}" method="sendNewMessage()" arguments="{event.message}" />
+		<mate:SharedObjectInvoker SOName="notesSharedObject" url="{webServiceUrl}" connection="{connection}">
+		<Properties message="{event.message}" />
+			<mate:resultHandlers>
+				<MethodInvoker generator="{Notes}" method="displayNewMessage" arguments="{resultObject}" />
+			</mate:resultHandlers>
+		</mate:SharedObjectInvoker>
 	</EventHandlers>
 </EventMap>

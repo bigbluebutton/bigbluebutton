@@ -23,22 +23,25 @@
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="onCreationComplete()" implements="org.bigbluebutton.common.IBigBlueButtonModule" xmlns:maps="org.bigbluebutton.modules.notes.maps.*" xmlns:views="org.bigbluebutton.modules.notes.views.*">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.notes.views.Notes;
 			import org.bigbluebutton.modules.notes.business.NotesEndpoint;
 			import org.bigbluebutton.common.messaging.Router;
 			
 			private var _router:Router;			
-			private var _moduleId:String = "ChatModule";
-			private var _moduleName:String = "Chat Module";			
+			private var _moduleId:String = "NotesModule";
+			private var _moduleName:String = "Notes Module";			
 			private var _attributes:Object;
 			private var _endpoint:NotesEndpoint;
 			
+			public var notesWindow:Notes;
+			
 			private function onCreationComplete():void {
-				LogUtil.debug("ChatModule Initialized");	
-				_endpoint = new NotesEndpoint(this);		
+				LogUtil.debug("NotesModule Initialized");	
 			}
 			
 			public function acceptRouter(router:Router):void{
 				_router = router;
+				createNotesEndpoint();
 			}
 		
 			public function get router():Router{
@@ -90,14 +93,20 @@
 			public function start(attributes:Object):void {	
 				LogUtil.debug("notes attr: " + attributes.username);
 				_attributes = attributes;	
+				eventMap.webServiceUrl = this.uri;
+				eventMap.connection = connection;
 			}
 		
 			public function stop():void {
 
 			}
+			
+			private function createNotesEndpoint():void{
+				_endpoint = new NotesEndpoint(this);
+			}
 		]]>
 	</mx:Script>
 	
-	<maps:NotesEventMap />
-	<views:Notes id="notesWindow" width="400" height="400" label="Shared Notes" />
+	<maps:NotesEventMap id="eventMap" />
+	<!--<views:Notes id="notesWindow" width="400" height="400" label="Shared Notes" />-->
 </mx:Module>
