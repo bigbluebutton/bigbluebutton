@@ -39,6 +39,7 @@
 		
 		<module name="DeskShareModule" url="DeskShareModule.swf" 
 			uri="rtmp://192.168.0.124/deskShare" 
+			loadNextModule="NotesModule"
 			onUserJoinedEvent="START" 
 			onUserLogoutEvent="STOP"
 		/>
@@ -55,11 +56,11 @@
 			onUserLogoutEvent="STOP"
 		/>-->
 		
-		<!--<module name="NotesModule" url="NotesModule.swf" 
+		<module name="NotesModule" url="NotesModule.swf" 
 			uri="rtmp://192.168.0.124/bigbluebutton" 
 			onUserJoinedEvent="START" 
 			onUserLogoutEvent="STOP"
-		/>-->
+		/>
 		
 	</modules>
 </config>

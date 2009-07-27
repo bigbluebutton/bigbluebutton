@@ -1,5 +1,7 @@
 package org.bigbluebutton.common.mate
 {
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.EventDispatcher;
 	import flash.events.IOErrorEvent;
@@ -8,8 +10,6 @@ package org.bigbluebutton.common.mate
 	import flash.events.SyncEvent;
 	import flash.net.NetConnection;
 	import flash.net.SharedObject;
-	
-	import mx.controls.Alert;
 	
 	public class SharedObjectService extends EventDispatcher
 	{
@@ -46,7 +46,6 @@ package org.bigbluebutton.common.mate
 			var e:SharedObjectEvent = new SharedObjectEvent(SharedObjectEvent.SHARED_OBJECT_UPDATE_FAILED);
 			e.message = event;
 			dispatchEvent(e);
-			Alert.show("async error " + event.toString());
 		}
 		
 		private function onIOError(event:NetStatusEvent):void{
@@ -72,12 +71,10 @@ package org.bigbluebutton.common.mate
 			}
 		}
 		
-		private function onSecurityError(event:NetStatusEvent):void{
-			Alert.show("Security error " + event.toString()); 
+		private function onSecurityError(event:NetStatusEvent):void{ 
 		}
 		
 		private function connectToSharedObject():void{
-			Alert.show("trying to connect to shared object");
 			so = SharedObject.getRemote(sharedObject, url, false);
 			so.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
 			so.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
@@ -87,22 +84,24 @@ package org.bigbluebutton.common.mate
 		}
 		
 		public function updateSharedObject(message:Object):void{
-			Alert.show(message as String);
+			//Alert.show(message as String);
 			so.send("sharedObjectCallback", message);
 		}
 		
 		public function sharedObjectCallback(message:Object):void{
 			var event:SharedObjectEvent = new SharedObjectEvent(SharedObjectEvent.SHARED_OBJECT_UPDATE_SUCCESS);
 			event.message = message;
-			dispatchEvent(event);
+			var dispatcher:Dispatcher = new Dispatcher();
+			dispatcher.dispatchEvent(event);
+			//dispatchEvent(event);
 		}
 		
 		private function onSharedObjectSync(event:SyncEvent):void{
-			Alert.show("Shared object synced " + event.toString());
+			
 		}
 		
 		private function sendConnectionFailedEvent(event:NetStatusEvent):void{
-			Alert.show("Connection Failed " + event.toString());
+			
 		}
 
 	}

@@ -95,6 +95,8 @@
 				_attributes = attributes;	
 				eventMap.webServiceUrl = this.uri;
 				eventMap.connection = connection;
+				eventMap.notes = notesWindow;
+				notesWindow.sendNewMessage("message");
 			}
 		
 			public function stop():void {

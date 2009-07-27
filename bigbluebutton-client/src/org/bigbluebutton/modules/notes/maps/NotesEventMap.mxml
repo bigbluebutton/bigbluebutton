@@ -2,6 +2,8 @@
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/" xmlns:mate="org.bigbluebutton.common.mate.*">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.common.mate.SharedObjectEvent;
+			import mx.controls.Alert;
 			import org.bigbluebutton.modules.notes.views.Notes;
 			import org.bigbluebutton.modules.notes.events.MessageEvent;
 			
@@ -9,16 +11,18 @@
 			public var webServiceUrl:String;
 			[Bindable]
 			public var connection:NetConnection;
+			public var notes:Notes;
+			
+			private function displayNewMessage(message:String):void{
+				notes.txtArea.text = message;
+			}
 		]]>
 	</mx:Script>
 	<Debugger level="{Debugger.ALL}" />
 	
-	<EventHandlers type="{MessageEvent.NEW}" debug="true">
-		<mate:SharedObjectInvoker SOName="notesSharedObject" url="{webServiceUrl}" connection="{connection}">
-		<Properties message="{event.message}" />
-			<mate:resultHandlers>
-				<MethodInvoker generator="{Notes}" method="displayNewMessage" arguments="{resultObject}" />
-			</mate:resultHandlers>
+	<EventHandlers id="sender" type="{MessageEvent.NEW}" debug="true">
+		<mate:SharedObjectInvoker id="soInvoker" SOName="notesSharedObject" url="{webServiceUrl}" connection="{connection}" debug="true">
+			<Properties message="{event.message}" />
 		</mate:SharedObjectInvoker>
 	</EventHandlers>
 </EventMap>
