@@ -18,7 +18,7 @@ Notes.mxml is the main view of the SharedNotes application
 			private var _yPosition:int;
 			
 			private var timer:Timer;
-			private var dirty:Boolean = false;
+			private var dirty:Boolean = true;
 			
 			private function startTimer():void{
 				timer = new Timer(1000);

@@ -95,7 +95,6 @@
 				_attributes = attributes;
 				eventMap.startSOService(uri, connection);
 				eventMap.notes = notesWindow;
-				notesWindow.sendNewMessage("message");
 			}
 		
 			public function stop():void {
