@@ -22,10 +22,12 @@ package org.bigbluebutton.common.mate
 		public var sharedObject:String;
 		
 		private var listOfConnectedObjects:ArrayCollection;
+		private var dispatcher:Dispatcher;
 		
 		public function SharedObjectService(url:String, connection:NetConnection = null)
 		{
 			listOfConnectedObjects = new ArrayCollection();
+			dispatcher = new Dispatcher();
 			
 			if (connection != null) this.nc = connection;
 			else nc = new NetConnection();
@@ -53,25 +55,31 @@ package org.bigbluebutton.common.mate
 		private function onNetStatus(event:NetStatusEvent):void{
 			switch(event.info.code){
 				case "NetConnection.Connect.Failed":
-					sendConnectionFailedEvent(event);
+					sendUpdateFailedEvent(event.info.toString());
 				break;
 				case "NetConnection.Connect.Success":
 				break;
 				case "NetConnection.Connect.Rejected":
+					sendUpdateFailedEvent(event.info.toString());
 				break;
 				case "NetConnection.Connect.Closed":
+					sendUpdateFailedEvent(event.info.toString());
 				break;
 				case "NetConnection.Connect.InvalidApp":
+					sendUpdateFailedEvent(event.info.toString());
 				break;
 				case "NetConnection.Connect.AppShutdown":
+					sendUpdateFailedEvent(event.info.toString());
 				break;
 			}
 		}
 		
 		private function onSecurityError(event:NetStatusEvent):void{ 
+			sendUpdateFailedEvent(event.info.toString());
 		}
 		
 		public function connectToSharedObject(sharedObject:String):void{
+			if (!nc.connected) sendUpdateFailedEvent("NetConnection.Closed");
 			if (isConnected(sharedObject)) return;
 			listOfConnectedObjects.addItem(sharedObject);
 			
@@ -85,28 +93,27 @@ package org.bigbluebutton.common.mate
 		}
 		
 		public function updateSharedObject(message:Object):void{
-			//Alert.show(message as String);
 			so.send("sharedObjectCallback", message);
 		}
 		
 		public function sharedObjectCallback(message:Object):void{
-			var event:SharedObjectEvent = new SharedObjectEvent(SharedObjectEvent.SHARED_OBJECT_UPDATE_SUCCESS);
+			var event:SharedObjectEvent = new SharedObjectEvent(sharedObject);
 			event.message = message;
-			var dispatcher:Dispatcher = new Dispatcher();
 			dispatcher.dispatchEvent(event);
-			//dispatchEvent(event);
 		}
 		
 		private function onSharedObjectSync(event:SyncEvent):void{
 			
 		}
 		
-		private function sendConnectionFailedEvent(event:NetStatusEvent):void{
-			
-		}
-		
 		private function isConnected(sharedObject:String):Boolean{
 			return listOfConnectedObjects.contains(sharedObject);
+		}
+		
+		private function sendUpdateFailedEvent(message:String):void{
+			var e:SharedObjectEvent = new SharedObjectEvent(SharedObjectEvent.SHARED_OBJECT_UPDATE_FAILED);
+			e.message = message;
+			dispatcher.dispatchEvent(e);
 		}
 
 	}

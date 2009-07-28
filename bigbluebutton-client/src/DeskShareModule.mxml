@@ -28,7 +28,6 @@
 		<![CDATA[
 			import mx.controls.Alert;
 			import org.bigbluebutton.modules.deskShare.DeskShareFacade;
-			import org.bigbluebutton.modules.chat.ChatFacade;
 			import org.bigbluebutton.common.messaging.Router;
 			
 			private var _router:Router;

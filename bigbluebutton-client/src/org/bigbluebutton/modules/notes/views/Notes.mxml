@@ -1,25 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+Notes.mxml is the main view of the SharedNotes application
+-->
 <MDIWindow xmlns="flexlib.mdi.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="400" height="300" xmlns:mate="http://mate.asfusion.com/" 
-	implements="org.bigbluebutton.common.IBbbModuleWindow">
+	implements="org.bigbluebutton.common.IBbbModuleWindow" creationComplete="startTimer()">
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.notes.maps.NotesEventMap;
 			import com.asfusion.mate.utils.debug.Debugger;
 			import org.bigbluebutton.common.mate.SharedObjectEvent;
 			import mx.controls.Alert;
-			import org.bigbluebutton.modules.notes.events.MessageEvent;
+			import org.bigbluebutton.modules.notes.events.NotesUpdateEvent;
 			
 			private var _xPosition:int;
 			private var _yPosition:int;
 			
-			public function sendNewMessage(message:String):void{
-				var messageEvent:MessageEvent = new MessageEvent(MessageEvent.NEW);
-				messageEvent.message = txtArea.text;
-				txtArea.text = "";
-				dispatchEvent(messageEvent);
+			private var timer:Timer;
+			private var dirty:Boolean = false;
+			
+			private function startTimer():void{
+				timer = new Timer(5000);
+				timer.addEventListener(TimerEvent.TIMER, timerHandler);
+				timer.start();
 			}
 			
+			private function timerHandler(e:TimerEvent):void{
+				if (!dirty) return;
+				var messageEvent:NotesUpdateEvent = new NotesUpdateEvent(NotesUpdateEvent.NEW);
+				messageEvent.message = txtArea.text;
+				dispatchEvent(messageEvent);
+				dirty = false;
+			}
+			
+			//Sends out an update to all the other clients
+			public function sendNewMessage(message:String):void{
+				dirty = true;
+			}
+			
+			//Displays the updated message
 			private function displayNewMessage(event:SharedObjectEvent):void{
 				txtArea.text = event.message.toString();
 			}
@@ -43,8 +63,11 @@
 		]]>
 	</mx:Script>
 	
+	<mate:Debugger level="{Debugger.ALL}" />
+	
+	<!-- The text area where the notes get displayed -->
 	<mx:TextArea id="txtArea" width="100%" height="100%" keyUp="sendNewMessage(txtArea.text)" />
 	
-	<mate:Debugger level="{Debugger.ALL}" />
-	<mate:Listener type="{SharedObjectEvent.SHARED_OBJECT_UPDATE_SUCCESS}" method="displayNewMessage" />
+	<!-- This listener calls the displayNewMessage method every time a NOTES_UPDATE_EVENT gets dispatched -->
+	<mate:Listener type="{NotesEventMap.NOTES_UPDATE_EVENT}" method="displayNewMessage" />
 </MDIWindow>

@@ -31,7 +31,7 @@ package org.bigbluebutton.common.mate
 			innerHandlersDispatcher = soService;
 			
 			if (this.resultHandlers && resultHandlers.length > 0) {
-				this.createInnerHandlers(scope, SharedObjectEvent.SHARED_OBJECT_UPDATE_SUCCESS, resultHandlers);
+				this.createInnerHandlers(scope, SOName, resultHandlers);
 			}
 			
 			if (this.faultHandlers && faultHandlers.length > 0) {

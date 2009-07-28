@@ -109,5 +109,4 @@
 	</mx:Script>
 	
 	<maps:NotesEventMap id="eventMap" />
-	<!--<views:Notes id="notesWindow" width="400" height="400" label="Shared Notes" />-->
 </mx:Module>
