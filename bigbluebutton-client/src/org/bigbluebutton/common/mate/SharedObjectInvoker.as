@@ -10,27 +10,21 @@ package org.bigbluebutton.common.mate
 	public class SharedObjectInvoker extends AbstractServiceInvoker implements IAction
 	{
 		public var SOName:String;
-		public var url:String;
 		public var message:Object;
-		public var connection:NetConnection;
 		
-		private var soService:SharedObjectService;
-		private var scope:IScope;
+		public var soService:SharedObjectService;
 		
 		private static const UPDATE_CLIENT:String = "updateClient";
 		
 		public function SharedObjectInvoker()
 		{
-			soService = new SharedObjectService();
 			debug = true;
 		}
 		
 		override protected function prepare(scope:IScope):void{
 			super.prepare(scope);
 			currentInstance = this;
-			soService.connect(url, SOName, connection);
-			//soService.addEventListener(SharedObjectEvent.SHARED_OBJECT_UPDATE_SUCCESS, onSOUpdate);
-			
+			soService.connectToSharedObject(SOName);
 		}
 		
 		override protected function run(scope:IScope):void{

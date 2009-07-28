@@ -11,6 +11,8 @@ package org.bigbluebutton.common.mate
 	import flash.net.NetConnection;
 	import flash.net.SharedObject;
 	
+	import mx.collections.ArrayCollection;
+	
 	public class SharedObjectService extends EventDispatcher
 	{
 		private var nc:NetConnection;
@@ -19,27 +21,23 @@ package org.bigbluebutton.common.mate
 		public var url:String;
 		public var sharedObject:String;
 		
-		public function SharedObjectService()
+		private var listOfConnectedObjects:ArrayCollection;
+		
+		public function SharedObjectService(url:String, connection:NetConnection = null)
 		{
-			nc = new NetConnection();
+			listOfConnectedObjects = new ArrayCollection();
+			
+			if (connection != null) this.nc = connection;
+			else nc = new NetConnection();
+			
+			this.url = url;
 			nc.client = this;
 			nc.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
 			nc.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
 			nc.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
 			nc.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurityError);
-		}
-		
-		public function connect(url:String, sharedObject:String, connection:NetConnection = null):void{
-			if (nc.connected) return;
 			
-			this.url = url;
-			this.sharedObject = sharedObject;
-			
-			if (connection != null){
-				this.nc = connection; 
-				connectToSharedObject();
-			} 
-			else nc.connect(url);
+			if (!nc.connected) nc.connect(url); 
 		}
 		
 		private function onAsyncError(event:NetStatusEvent):void{
@@ -58,7 +56,6 @@ package org.bigbluebutton.common.mate
 					sendConnectionFailedEvent(event);
 				break;
 				case "NetConnection.Connect.Success":
-					connectToSharedObject();
 				break;
 				case "NetConnection.Connect.Rejected":
 				break;
@@ -74,7 +71,11 @@ package org.bigbluebutton.common.mate
 		private function onSecurityError(event:NetStatusEvent):void{ 
 		}
 		
-		private function connectToSharedObject():void{
+		public function connectToSharedObject(sharedObject:String):void{
+			if (isConnected(sharedObject)) return;
+			listOfConnectedObjects.addItem(sharedObject);
+			
+			this.sharedObject = sharedObject;
 			so = SharedObject.getRemote(sharedObject, url, false);
 			so.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
 			so.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
@@ -102,6 +103,10 @@ package org.bigbluebutton.common.mate
 		
 		private function sendConnectionFailedEvent(event:NetStatusEvent):void{
 			
+		}
+		
+		private function isConnected(sharedObject:String):Boolean{
+			return listOfConnectedObjects.contains(sharedObject);
 		}
 
 	}

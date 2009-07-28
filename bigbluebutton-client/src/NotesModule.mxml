@@ -92,9 +92,8 @@
 			
 			public function start(attributes:Object):void {	
 				LogUtil.debug("notes attr: " + attributes.username);
-				_attributes = attributes;	
-				eventMap.webServiceUrl = this.uri;
-				eventMap.connection = connection;
+				_attributes = attributes;
+				eventMap.startSOService(uri, connection);
 				eventMap.notes = notesWindow;
 				notesWindow.sendNewMessage("message");
 			}
