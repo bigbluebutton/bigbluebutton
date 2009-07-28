@@ -19,12 +19,16 @@
  */
 package org.bigbluebutton.modules.viewers.model.services
 {
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
 	import flash.net.SharedObject;
-
+	
+	import org.bigbluebutton.main.events.ParticipantJoinEvent;
+	import org.bigbluebutton.main.model.Participant;
 	import org.bigbluebutton.modules.viewers.ViewersFacade;
 	import org.bigbluebutton.modules.viewers.ViewersModuleConstants;
 	import org.bigbluebutton.modules.viewers.model.business.IViewers;
@@ -171,7 +175,7 @@ package org.bigbluebutton.modules.viewers.model.services
 		}
 		
 		public function participantLeft(user:Object):void { 
-
+			
 			//This sends a notification that a user has left. Another dirty hack, by Denis
 			var participant:User = _participants.getParticipant(Number(user));
 			var userObj:Object = {username:participant.name, userid:participant.userid, userrole:participant.role};
@@ -195,7 +199,15 @@ package org.bigbluebutton.modules.viewers.model.services
 			participantStatusChange(user.userid, "streamName", joinedUser.status.streamName);
 			participantStatusChange(user.userid, "presenter", joinedUser.status.presenter);
 			participantStatusChange(user.userid, "raiseHand", joinedUser.status.raiseHand);
+
+			var participant:Participant = new Participant();
+			participant.userid = String(user.userid);
+			participant.name = user.name;
 			
+			var dispatcher:Dispatcher = new Dispatcher();
+			var joinEvent:ParticipantJoinEvent = new ParticipantJoinEvent(ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT);
+			joinEvent.participant = participant;
+			dispatcher.dispatchEvent(joinEvent);						
 			//This sends a notification that a new user has joined to other modules. Right now a dirty, dirty hack - Denis
 			var userObj:Object = {username:user.name, userid:user.userid, userrole:user.role};
 			ViewersFacade.getInstance().sendNotification(ViewersModuleConstants.USER_JOINED, userObj);

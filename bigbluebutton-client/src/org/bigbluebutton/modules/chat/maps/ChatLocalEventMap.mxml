@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LocalEventMap xmlns="http://mate.asfusion.com/"
+	xmlns:mx="http://www.adobe.com/2006/mxml">
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.modules.chat.events.StopChatModuleEvent;
+			import org.bigbluebutton.modules.chat.events.QueryParticipantsEvent;
+			import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
+			import org.bigbluebutton.modules.chat.views.components.ChatView;
+			import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
+			import org.bigbluebutton.modules.chat.services.PrivateChatService;
+			import org.bigbluebutton.main.events.OpenWindowEvent;
+			import org.bigbluebutton.modules.chat.events.ConnectionEvent;
+			import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
+			import org.bigbluebutton.modules.chat.services.PublicChatService;
+			import mx.events.FlexEvent;
+			import org.bigbluebutton.main.events.ModuleStartedEvent;
+			import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
+			import org.bigbluebutton.modules.chat.events.ChatEvent;
+			import org.bigbluebutton.modules.chat.managers.ChatManager;
+		]]>
+	</mx:Script>
+	
+	<!--
+	This is the main event map for the chat module, think of it as the application controller.
+	-->
+	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
+		<!--
+		The FlexEvent.PREINITIALIZE event is a good place for creating and initializing managers.
+		-->
+		<ObjectBuilder generator="{ChatLocalEventMapDelegate}" constructorArguments="{scope.dispatcher}"/>
+		<ObjectBuilder generator="{ChatManager}">
+			<Properties dispatcher="{scope.dispatcher}"/>
+		</ObjectBuilder>
+		<ObjectBuilder generator="{PublicChatService}">
+			<Properties dispatcher="{scope.dispatcher}"/>
+		</ObjectBuilder>
+		<ObjectBuilder generator="{PrivateChatService}">
+			<Properties dispatcher="{scope.dispatcher}"/>
+		</ObjectBuilder>
+	</EventHandlers>
+	
+	<EventHandlers type="{StartChatModuleEvent.START_CHAT_MODULE_EVENT}">        
+   		<MethodInvoker generator="{ChatManager}" method="setModuleAttributes" arguments="{event.attributes}"/>
+   		<MethodInvoker generator="{PublicChatService}" method="setModuleAttributes" arguments="{event.attributes}" />
+   		<MethodInvoker generator="{PublicChatService}" method="join"/>
+   		<MethodInvoker generator="{PrivateChatService}" method="setModuleAttributes" arguments="{event.attributes}" />
+   		<MethodInvoker generator="{PrivateChatService}" method="join"/>
+    </EventHandlers>
+    
+    <EventHandlers type="{StopChatModuleEvent.STOP_CHAT_MODULE_EVENT}">        
+   		<MethodInvoker generator="{PublicChatService}" method="leave"/>
+   		<MethodInvoker generator="{PrivateChatService}" method="leave"/>
+   		<MethodInvoker generator="{ChatLocalEventMapDelegate}" method="closeChatWindow" />
+    </EventHandlers>
+        
+    <EventHandlers type="{ConnectionEvent.CONNECT_EVENT}">        
+ 		<MethodInvoker generator="{ChatLocalEventMapDelegate}" method="openChatWindow" />
+ 		<MethodInvoker generator="{PrivateChatService}" method="queryForParticipants"/>		
+    </EventHandlers>
+    
+    <EventHandlers type="{SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT}">        
+ 		<MethodInvoker generator="{PublicChatService}" method="sendChatMessageEvent" arguments="{event}"/>		
+    </EventHandlers>
+    
+    <EventHandlers type="{SendPrivateChatMessageEvent.SEND_PRIVATE_CHAT_MESSAGE_EVENT}">        
+ 		<MethodInvoker generator="{PrivateChatService}" method="sendChatMessageEvent" arguments="{event}"/>		
+    </EventHandlers>
+    
+    <EventHandlers type="{QueryParticipantsEvent.QUERY_PARTICIPANTS_EVENT}">        
+ 		<MethodInvoker generator="{PrivateChatService}" method="queryForParticipants"/>		
+    </EventHandlers>
+    
+	<!--EventHandlers type="{ConnectionEvent.CONNECT_EVENT}">        
+ 		<MethodInvoker generator="{ChatManager}" method="receivedMessage" />
+		<EventAnnouncer dispatcherType="inherit"
+   				generator="{ChatEvent}" bubbles="true"
+   				type="{ChatEvent.PRIVATE_CHAT_MESSAGE_EVENT}" /> 
+   		<EventAnnouncer dispatcherType="global"
+   				generator="{ChatEvent}" bubbles="true"
+   				type="{ChatEvent.PRIVATE_CHAT_MESSAGE_EVENT}" /> 
+    </EventHandlers-->	
+    
+</LocalEventMap>

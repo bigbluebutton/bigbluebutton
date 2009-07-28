@@ -22,24 +22,125 @@
 
 <EventMap xmlns="http://mate.asfusion.com/" xmlns:mx="http://www.adobe.com/2006/mxml">
 
+	<!--
+	This is the main event map for the application, think of it as the application controller.
+	-->
+	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
+		<!--
+		The FlexEvent.PREINITIALIZE event is a good place for creating and initializing managers.
+		-->
+		<ObjectBuilder generator="{ModulesManager}">
+			<Properties dispatcher="{scope.dispatcher}"/>
+		</ObjectBuilder>
+		<ObjectBuilder generator="{ApplicationModel}"/>
+	</EventHandlers>
+	
 	<EventHandlers type="{FlexEvent.CREATION_COMPLETE}">        
+        <MethodInvoker generator="{ModeInitializer}" method="getUrl" />
+        <MethodInvoker generator="{ModeInitializer}" method="queryMode" arguments="{lastReturn}" />
+        <EventAnnouncer generator="{ModeEvent}" type="{ModeEvent.MODE_INIT_EVENT}">
+            <Properties mode="{lastReturn}" />
+        </EventAnnouncer>
+    </EventHandlers>
+
+	<EventHandlers type="{ModeEvent.MODE_INIT_EVENT}">
         <HTTPServiceInvoker instance="{configService}">
 			<resultHandlers>
-				<MethodInvoker generator="{ConfigManager}" method="parseModules" arguments="{resultObject}" /> 
+				<MethodInvoker generator="{ConfigLoader}" method="setMode" arguments="{event.mode}"/>
+				<MethodInvoker generator="{ConfigLoader}" method="parse" arguments="{resultObject}" /> 
 				<EventAnnouncer generator="{ConfigEvent}" type="{ConfigEvent.CONFIG_LOADED_EVENT}">
             		<Properties numberOfModules="{lastReturn.numberOfModules}" moduleDescriptors="{lastReturn.moduleDescriptors}"/>
         		</EventAnnouncer>
 			</resultHandlers>
-		</HTTPServiceInvoker>  
+		</HTTPServiceInvoker>   
     </EventHandlers>
 
+	<EventHandlers type="{ConfigEvent.CONFIG_LOADED_EVENT}">
+		<MethodInvoker generator="{ModulesManager}" method="numberOfModules" arguments="{event.numberOfModules}"/>
+		<MethodInvoker generator="{ModulesManager}" method="moduleDescriptors" arguments="{event.moduleDescriptors}"/>
+		<MethodInvoker generator="{ModulesManager}" method="loadFirstModule"/>
+	</EventHandlers>
+	
+	<EventHandlers type="{ModuleEvent.MODULE_LOADED_EVENT}">
+		<MethodInvoker generator="{StatusManager}" method="setLoadedModuleStatus" arguments="{[event.moduleName]}"/>
+		<MethodInvoker generator="{ModulesManager}" method="loadNextModule" arguments="{[event.moduleName]}"/>
+	</EventHandlers>
+	
+	<EventHandlers type="{ModuleEvent.MODULE_LOAD_PROGRESS_EVENT}">
+		<MethodInvoker generator="{StatusManager}" method="setLoadingStatus" arguments="{[event.moduleName,event.percentLoaded]}"/>
+	</EventHandlers>
+	
+	<!-- We set the priority to 20 so it gets executed before the other handlers (e.g. in AppEventMapMock)-->
+	<EventHandlers type="{ModuleEvent.ALL_MODULES_LOADED_EVENT}" priority="20">
+		<MethodInvoker generator="{StatusManager}" method="clear"/>		
+		<HTTPServiceInvoker instance="{joinService}">
+			<resultHandlers>
+				<MethodInvoker generator="{JoiningParticipant}" method="parse" arguments="{resultObject}" /> 
+				<EventAnnouncer generator="{ParticipantJoinEvent}" type="{ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT}">
+            		<Properties participant="{lastReturn}"/>
+        		</EventAnnouncer>
+			</resultHandlers>
+		</HTTPServiceInvoker> 
+	</EventHandlers>
+	
+	<EventHandlers type="{ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT}">
+		<MethodInvoker generator="{ApplicationModel}" method="setParticipant" arguments="{[event.participant]}"/>
+		<EventAnnouncer generator="{ConnectedEvent}" type="{ConnectedEvent.CONNECTED_EVENT}">
+            <Properties participant="{event.participant}"/>
+        </EventAnnouncer>
+	</EventHandlers>
+		
+	<Injectors target="{MainView}">
+		<!--
+		This creates the Presentation Model object for the MainView, notice the registerTarget
+		property, which makes it possible to use Injectors that target this object, something that
+		otherwise is only possible with view objects.
+		-->
+	    <ObjectBuilder generator="{MainViewModel}" registerTarget="true" />
+
+		<!-- This injects the MainModel instance created by the last tag into the MainView instance -->
+		<PropertyInjector targetKey="model" source="{lastReturn}" />
+	</Injectors>
+	
+	<Injectors target="{MainViewModel}">
+		<!--
+		MainModel is not a view class, but can be used as a target for injection because an instance
+		of the class was created with an ObjectBuilder that had the registerTarget property set to true,
+		see the Injectors for MainView.
+		-->
+
+		<!--
+		"scope.dispatcher" refers to the event dispatcher used by the event map. Events dispatched using this
+		dispatcher will be heard by this event map. The reason why I inject this dispatcher into the MainModel
+		object is that since it's not a view class events that it dispatches don't bubble up, and so it needs
+		a way to dispatch events that can be heard by this event map.
+		-->
+		<PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>
+		
+		<ObjectBuilder generator="{StatusManager}" registerTarget="true" />
+
+		<!-- This injects the StatusManager instance created by the last tag into the MainModel instance -->
+		<PropertyInjector targetKey="status" source="{lastReturn}" />
+	</Injectors>
 	<mx:Script>
 	<![CDATA[
 			
 	import mx.events.FlexEvent;
+	import org.bigbluebutton.main.services.ModeInitializer;	
+	import org.bigbluebutton.main.events.ModeEvent;
+	import org.bigbluebutton.main.services.ConfigLoader;
+	import org.bigbluebutton.main.views.model.MainViewModel;
+	import org.bigbluebutton.main.views.components.MainView;
 	import org.bigbluebutton.main.events.ConfigEvent;
-	import org.bigbluebutton.core.config.ConfigManager;
-	
+	import org.bigbluebutton.main.managers.ModulesManager;
+	import org.bigbluebutton.main.model.ApplicationModel;
+	import org.bigbluebutton.main.managers.LoadModuleManager;
+	import org.bigbluebutton.main.events.ModuleEvent;
+	import org.bigbluebutton.main.events.AppEvent;
+	import org.bigbluebutton.main.events.ConnectedEvent;
+	import org.bigbluebutton.main.managers.StatusManager;
+	import org.bigbluebutton.main.services.JoiningParticipant;
+	import org.bigbluebutton.main.events.ParticipantJoinEvent;
 	]]>
 	</mx:Script>
 	

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns="http://mate.asfusion.com/" xmlns:mx="http://www.adobe.com/2006/mxml">
+
+	<EventHandlers type="{LoginEvent.LOGIN_EVENT}">
+		
+	</EventHandlers>
+
+	<mx:Script>
+	<![CDATA[
+			
+	import org.bigbluebutton.main.events.LoginEvent;
+
+	]]>
+	</mx:Script>
+	
+</EventMap>

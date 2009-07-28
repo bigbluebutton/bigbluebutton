@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MDIWindow xmlns="flexlib.mdi.containers.*" 
+	       xmlns:mx="http://www.adobe.com/2006/mxml" 
+	       title="Log Window" creationComplete="displayLogMessages();"
+	       width="700" height="200" showCloseButton="true">
+
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.util.logging.Logger;
+			import mx.logging.Log;
+			import mx.logging.LogEventLevel;
+			import mx.collections.ArrayCollection;
+			import mx.managers.PopUpManager;
+			
+			[Bindable]
+			public var logs:Logger;
+			
+			private function changeTarget():void {
+				if (!chkFlag.selected) {
+					logs.enableLogging(true)
+				} else {
+					logs.enableLogging(false)
+				}
+			}
+			
+			private function filterTarget():void {
+				logs.changeFilterTarget(idFilter.text.split(","));
+			}
+			
+			private function displayLogMessages():void {
+				txtOutput.text = logs.messages
+			}
+			
+		]]>
+	</mx:Script>
+	<mx:TextArea id="txtOutput" text="" updateComplete="txtOutput.verticalScrollPosition = txtOutput.maxVerticalScrollPosition + 1;"
+		width="100%" height="100%"/>	
+	<mx:ApplicationControlBar id="chatCtrlBar" width="100%" height="10%">		
+		<mx:HBox>
+		<mx:Label text="Filter Categories:" />
+		<mx:TextInput id="idFilter" text="*" change="filterTarget()"/>
+	</mx:HBox>
+	<mx:HBox>
+		<mx:Label text="Turn Logging Off"/>
+		<mx:CheckBox id="chkFlag" selected="false" change="changeTarget()"/>
+		<mx:Button label="Clear" click="txtOutput.text = ''"/>
+		<mx:Button label="Refresh" click="displayLogMessages()"/>
+	</mx:HBox>			    
+	</mx:ApplicationControlBar>
+</MDIWindow>

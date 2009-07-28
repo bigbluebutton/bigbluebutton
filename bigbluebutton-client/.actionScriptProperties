@@ -26,6 +26,7 @@
 </sourceAttachmentPath>
 </compiler>
 <applications>
+<application path="BigBlueButtonMain.mxml"/>
 <application path="src/main.mxml"/>
 <application path="PresentationUnitTest.mxml"/>
 <application path="MessagingUnitTests.mxml"/>

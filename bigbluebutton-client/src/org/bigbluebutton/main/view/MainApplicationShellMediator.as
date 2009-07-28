@@ -19,6 +19,8 @@
 */
 package org.bigbluebutton.main.view 
 {
+	import com.asfusion.mate.events.Listener;
+	
 	import flash.events.Event;
 	import flash.geom.Point;
 	
@@ -28,6 +30,7 @@ package org.bigbluebutton.main.view
 	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.main.MainApplicationConstants;
+	import org.bigbluebutton.main.events.OpenWindowEvent;
 	import org.bigbluebutton.main.model.ModulesProxy;
 	import org.bigbluebutton.main.model.PortTestProxy;
 	import org.bigbluebutton.main.view.components.LoggedOutWindow;
@@ -51,12 +54,27 @@ package org.bigbluebutton.main.view
 		public static const START_WEBCAM:String = "Start Webcam";
 
 		private var mshell:MainApplicationShell;
+		
+		private var mateListener:Listener;
 		      
 		public function MainApplicationShellMediator( viewComponent:MainApplicationShell )
 		{
 			super( NAME, viewComponent );	
 			viewComponent.toolbar.addEventListener(MainApplicationConstants.LOGOUT_EVENT, onLogoutEventHandler);
 			viewComponent.addEventListener(StartModuleEvent.START_MODULE_RETRY_EVENT, onRestartModuleEvent);
+			
+//			mateListener = new Listener();
+//			mateListener.addEventListener(AddWindowEvent.NAME, addWindowMessageHandler);
+		}
+		
+		private function addWindowMessageHandler(event:OpenWindowEvent):void {
+			trace("Received ADD WINDOW EVENT");
+		//	displayWindow(event.component);
+		}
+		
+		private function displayWindow(window:IBbbModuleWindow):void {
+			shell.mdiCanvas.windowManager.add(window as MDIWindow);
+			shell.mdiCanvas.windowManager.absPos(window as MDIWindow, window.xPosition, window.yPosition);
 		}
 							
 		protected function get shell():MainApplicationShell
@@ -108,9 +126,7 @@ package org.bigbluebutton.main.view
 					break;
 				case MainApplicationConstants.ADD_WINDOW_MSG:
 					var win:IBbbModuleWindow = notification.getBody() as IBbbModuleWindow;
-					//LogUtil.debug(NAME + "::putting window in " + win.xPosition + " " + win.yPosition);
-					shell.mdiCanvas.windowManager.add(win as MDIWindow);
-					shell.mdiCanvas.windowManager.absPos(win as MDIWindow, win.xPosition, win.yPosition);										
+					displayWindow(win);										
 					break;			
 				case MainApplicationConstants.REMOVE_WINDOW_MSG:
 					var rwin:IBbbModuleWindow = notification.getBody() as IBbbModuleWindow;

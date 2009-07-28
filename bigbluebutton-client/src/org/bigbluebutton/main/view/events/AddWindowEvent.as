@@ -23,7 +23,7 @@ package org.bigbluebutton.main.view.events
 	import flash.events.Event;	
 	import flexlib.mdi.containers.MDIWindow;
 
-	public class AddWindowEvent extends Event
+	public class OpenWindowEvent extends Event
 	{
 		// The View Component to be added
 		public var component:MDIWindow;
@@ -32,7 +32,7 @@ package org.bigbluebutton.main.view.events
 		public static const NAME:String = 'ADD_WINDOW';
 			
 		// Constructor
-		public function AddWindowEvent( component:MDIWindow )
+		public function OpenWindowEvent( component:MDIWindow )
 //		public function AddWindowEvent( component:String )
 		{
 			super( NAME, true );

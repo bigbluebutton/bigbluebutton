@@ -17,14 +17,27 @@
   You should have received a copy of the GNU Lesser General Public License along 
   with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
  
+
+	
   $Id: $
 --> 
 
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" 
+ 	xmlns:maps="org.bigbluebutton.modules.chat.maps.*"
+	xmlns:mate="http://mate.asfusion.com/"
 	implements="org.bigbluebutton.common.IBigBlueButtonModule"
 	creationComplete="onCreationComplete()">
+	
+	<maps:ChatLocalEventMap dispatcher="{this}" id="chatLocalEventMap"/>
+	<maps:ChatEventMap id="ChatGlobalEventMap"/>
+	<mate:Listener type="{ChatEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent" />
+		
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.chat.events.StopChatModuleEvent;
+			import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
+			import com.asfusion.mate.events.Dispatcher;
+			import org.bigbluebutton.modules.chat.events.ChatEvent;
 			import org.bigbluebutton.modules.chat.ChatFacade;
 			import org.bigbluebutton.common.messaging.Router;
 			
@@ -90,11 +103,22 @@
 			public function start(attributes:Object):void {	
 				LogUtil.debug("chat attr: " + attributes.username);
 				_attributes = attributes;	
-				ChatFacade.getInstance().startup(this);	
+				LogUtil.debug("Dispatching StartChatModuleEvent");
+				
+				var event:StartChatModuleEvent = new StartChatModuleEvent(StartChatModuleEvent.START_CHAT_MODULE_EVENT)
+				event.start = true;
+				event.attributes = _attributes;
+				this.dispatchEvent(event);
 			}
 		
 			public function stop():void {
-				ChatFacade.getInstance().stop(this);
+				LogUtil.debug("Dispatching StopChatModuleEvent");
+				var event:StopChatModuleEvent = new StopChatModuleEvent(StopChatModuleEvent.STOP_CHAT_MODULE_EVENT);
+				this.dispatchEvent(event);
+			}
+			
+			private function handlePrivateChatMessageEvent(event:Event):void {
+				trace("Received PRIVATE CHAT MESSAGE EVENT");
 			}
 		]]>
 	</mx:Script>

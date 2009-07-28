@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns="http://mate.asfusion.com/" xmlns:mx="http://www.adobe.com/2006/mxml">
+
+	<EventHandlers type="{ModuleEvent.ALL_MODULES_LOADED_EVENT}">
+		<MethodInvoker generator="{StatusManager}" method="setLoadedModuleStatus" arguments="test"/>		
+	</EventHandlers>
+
+	<mx:Script>
+	<![CDATA[
+			
+	import org.bigbluebutton.main.events.ModuleEvent;
+	import org.bigbluebutton.main.managers.StatusManager;
+
+	]]>
+	</mx:Script>
+	
+</EventMap>

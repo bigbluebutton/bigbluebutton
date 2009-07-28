@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:mate="http://mate.asfusion.com/"
+	creationComplete="onCreationComplete()"
+	width="100%" height="100%">
+
+	<mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
+	<mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
+	<mate:Listener type="{ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT}" method="handleParticipantJoinedEvent"/>
+	
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.modules.chat.events.QueryParticipantsEvent;
+			import org.bigbluebutton.main.events.ParticipantJoinEvent;
+			import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
+			import com.asfusion.mate.events.Dispatcher;
+			import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
+			import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
+			import org.bigbluebutton.modules.chat.model.MessageVO;
+			import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
+			import mx.core.Container;
+			import org.bigbluebutton.modules.chat.model.business.UserVO;
+			import mx.collections.ArrayCollection;
+			import org.bigbluebutton.modules.chat.view.SendMessageEvent;
+			import mx.core.UIComponent;
+									
+			public static const SEND_MESSAGE:String = 'sendMessageEvent';
+			private static const PUBLIC_CHAT_USERID:String = '0';
+			
+			[Bindable]
+			public var localDispatcher:IEventDispatcher;
+			
+			[Bindable]
+			private var participants:ArrayCollection = new ArrayCollection();
+						
+			private function onCreationComplete():void{
+				addParticipant(new UserVO("All", PUBLIC_CHAT_USERID));
+				onOpenChatBox();
+//				queryForParticipants();
+			}
+			
+			public function setFocusOn(component:UIComponent):void
+			{
+				if (component.id == "txtMsg") {
+				component.setFocus();
+                component.drawFocus(true);
+    			}
+    			else
+    			{
+    				this.txtMsg.setFocus();
+    				this.txtMsg.drawFocus(true);
+    			}
+			}
+			
+			public function setFocusOff():void
+			{
+				this.txtMsg.drawFocus(false);
+			}
+			
+			private function time() : String
+			{
+				var date:Date = new Date();
+				var t:String = date.toLocaleTimeString();
+				return t;
+			}
+		
+		    public function sendMessages():void
+		    {
+		    	trace("Sending message");
+		    	if (txtMsg.text != ""){				
+					if (tabNav.selectedChild.name == PUBLIC_CHAT_USERID) {
+						var publicEvent:SendPublicChatMessageEvent = new SendPublicChatMessageEvent(SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT);
+						publicEvent.message = txtMsg.text;
+						publicEvent.color = cmpColorPicker.selectedColor.toString(16);
+						publicEvent.time = time();
+						
+						sendPublicChatMessage(publicEvent);
+					} else{
+						var privateEvent:SendPrivateChatMessageEvent = new SendPrivateChatMessageEvent(SendPrivateChatMessageEvent.SEND_PRIVATE_CHAT_MESSAGE_EVENT);
+						privateEvent.message = txtMsg.text;
+						privateEvent.toUser = tabNav.selectedChild.name;
+						privateEvent.color = cmpColorPicker.selectedColor.toString(16);
+						privateEvent.time = time();
+						
+						sendPrivateChatMessage(privateEvent);
+						(tabNav.selectedChild as ChatBox).showNewMessage(privateEvent.message);
+					}
+					txtMsg.text = "";
+			   	}
+			}			
+			
+			private function sendPublicChatMessage(publicEvent:SendPublicChatMessageEvent):void {
+				trace("Sending public chat message");
+				localDispatcher.dispatchEvent(publicEvent);
+			}
+			
+			private function queryForParticipants():void {
+				trace("Sending query for participants message");
+				var event:QueryParticipantsEvent = new QueryParticipantsEvent(QueryParticipantsEvent.QUERY_PARTICIPANTS_EVENT);
+				localDispatcher.dispatchEvent(event);
+			}
+			
+			private function sendPrivateChatMessage(privateEvent:SendPrivateChatMessageEvent):void {
+				trace("Sending private chat message");
+				localDispatcher.dispatchEvent(privateEvent);
+			}
+			
+			private function handleParticipantJoinedEvent(event:ParticipantJoinEvent):void {
+				var item:Object = new Object();
+				item.label = event.participant.name;
+				item.userid = event.participant.userid;
+				participants.addItem(item);
+				trace("New participant " + item.label + "[" + item.userid + "]");
+			}
+						
+			public function addParticipant(userVO:UserVO):void{
+				 
+				var item:Object = new Object();
+				item.label = userVO.username;
+				item.userid = userVO.userid;
+				participants.addItem(item);
+			}
+			
+			public function removeParticipant(name:String):void{
+				if (tabNav.getChildByName(name) == tabNav.selectedChild){
+					txtMsg.enabled = false;
+				}
+				for (var i:Number = 0; i<participants.length; i++){
+					if (participants.getItemAt(i).userid == name) participants.removeItemAt(i);
+				}
+			}
+			
+			public function setMessageUnread(name:String):void{
+				var tab:Button = tabNav.getTabAt(tabNav.getChildIndex(tabNav.getChildByName(name)));
+				tab.setStyle("fillColors", new Array(0xFFAE00, 0xD3800A));
+				tab.setStyle("fillAlphas", new Array(1.0, 0.8));
+			}
+			
+			private function updateTabNav():void{
+				var tab:Button = tabNav.getTabAt(tabNav.selectedIndex);
+				tab.setStyle("fillColors", new Array(0xFFFFFF, 0xCCCCCC));
+				var found:Boolean = false;
+				for (var i:Number = 0; i<participants.length; i++){
+					if (participants.getItemAt(i).label == tab.label){
+						participantList.selectedItem = participants.getItemAt(i); 
+						found = true;
+					}
+				}
+				txtMsg.enabled = found;
+			}
+			
+			public function getParticipantName(userid:String):String{
+				for (var i:Number = 0; i<participants.length; i++){
+					if (participants.getItemAt(i).userid == userid) return participants.getItemAt(i).label;
+				}
+				return "unknown user";
+			}
+			
+			public function onOpenChatBox():void{				
+				var name:String = participantList.selectedItem.userid;
+				trace("Opening chat box " + name);
+				if (tabNav.getChildByName(name) != null){
+					tabNav.selectedChild = tabNav.getChildByName(name) as Container;
+					return;
+				}
+				
+				var chatBox:ChatBox = createChatBox(name);
+				tabNav.selectedChild = chatBox;
+			}
+			
+			private function createChatBox(owner:String):ChatBox {
+				var chatBox:ChatBox = new ChatBox();
+				chatBox.id = getParticipantName(owner);
+				chatBox.label = getParticipantName(owner);
+				chatBox.name = owner;
+				tabNav.addChild(chatBox);
+				return chatBox;
+			}
+
+			private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
+				trace("Got PrivateChatMessageEvent");
+				var publicChat:ChatBox = tabNav.getChildByName(PUBLIC_CHAT_USERID) as ChatBox;
+				publicChat.showNewMessage(event.message);
+				if (tabNav.selectedChild.name != PUBLIC_CHAT_USERID) 
+						setMessageUnread(PUBLIC_CHAT_USERID);
+			}
+			
+			private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
+				trace("Got PrivateChatMessageEvent");
+				showPrivateMessage(event.message);
+			}
+			
+			public function showPrivateMessage(message:MessageVO):void{
+				var participantName:String = getParticipantName(message.sender);
+	
+				var chatBox:ChatBox = tabNav.getChildByName(participantName) as ChatBox;
+				if (chatBox == null) {
+					chatBox = createChatBox(message.sender);
+				}
+				
+				if (tabNav.selectedChild.name != message.sender) setMessageUnread(message.sender);
+				chatBox.showNewMessage(message.message);
+			}
+		]]>
+	</mx:Script>
+	<mx:TabNavigator id="tabNav" width="100%" height="100%" change="updateTabNav()"/>
+	
+	<mx:ApplicationControlBar id="chatCtrlBar" width="100%" height="10%">		
+		<mx:TextInput id="txtMsg" width="100%" enter="sendMessages()"/>
+		<mx:ColorPicker id="cmpColorPicker" showTextField="false" toolTip="Text Color" selectedColor="0x000000"/>
+		<mx:Button label="Send" id="sendBtn" toolTip="Send Message" click="sendMessages()"/>	
+		<mx:ComboBox id="participantList" dataProvider="{participants}" close="onOpenChatBox()" />		    
+	</mx:ApplicationControlBar>	
+</mx:VBox>

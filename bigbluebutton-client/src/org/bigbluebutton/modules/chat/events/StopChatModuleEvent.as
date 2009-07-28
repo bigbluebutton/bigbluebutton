@@ -17,10 +17,18 @@
  *
  * $Id: $
  */
-package org.bigbluebutton.common
+package org.bigbluebutton.modules.chat.events
 {
-	public interface ModuleInterface
+	import flash.events.Event;
+
+	public class StopChatModuleEvent extends Event
 	{
-		function getBBBModule():BigBlueButtonModule;
+		public static const STOP_CHAT_MODULE_EVENT:String = 'STOP_CHAT_MODULE_EVENT';
+				
+		public function StopChatModuleEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
+		{
+			super(type, bubbles, cancelable);
+		}
+		
 	}
 }

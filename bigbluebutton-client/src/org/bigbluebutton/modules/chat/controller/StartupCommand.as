@@ -21,7 +21,6 @@ package org.bigbluebutton.modules.chat.controller
 {
 	import org.bigbluebutton.modules.chat.ChatEndpointMediator;
 	import org.bigbluebutton.modules.chat.ChatModuleConstants;
-	import org.bigbluebutton.modules.chat.ChatModuleMediator;
 	import org.bigbluebutton.modules.chat.model.business.ChatProxy;
 	import org.bigbluebutton.modules.chat.model.business.PrivateProxy;
 	import org.bigbluebutton.modules.chat.view.ChatWindowMediator;
@@ -34,7 +33,6 @@ package org.bigbluebutton.modules.chat.controller
 		override public function execute(notification:INotification):void {
 			var m:ChatModule = notification.getBody() as ChatModule;
 			
-			facade.registerMediator(new ChatModuleMediator(m));
 			facade.registerMediator(new ChatEndpointMediator(m));
 			facade.registerMediator( new ChatWindowMediator(m) );
 			facade.registerProxy(new ChatProxy(m));

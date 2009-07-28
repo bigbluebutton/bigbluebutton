@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:view="org.bigbluebutton.main.views.components.*"
+	xmlns:maps="org.bigbluebutton.main.maps.*"
+	pageTitle="Big Blue Button"
+	layout="absolute">
+	<mx:Script>
+		<![CDATA[
+		/**
+		 * Thse two lines are workaround for this. (ralam - Nov 8, 2008)
+		 * http://gregjessup.com/flex-3-advanceddatagrid-cannot-convert-mxmanagersdragmanagerimpl-to-mxmanagersidragmanager/
+		 * http://butterfliesandbugs.wordpress.com/2007/10/25/workaround-for-error-when-loading-popups-from-modules/
+		 */
+			import mx.managers.IDragManager; 
+			private var iDragManager:IDragManager;  
+		]]>
+	</mx:Script>			
+	<maps:ApplicationEventMap />
+	<maps:AppEventMapMock />
+	<view:MainView/>
+</mx:Application>

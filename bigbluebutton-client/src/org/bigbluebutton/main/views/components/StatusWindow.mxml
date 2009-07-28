@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="400" height="50">
+	<mx:ProgressBar width="100%" height="10"
+        indeterminate="true" label=""
+        visible="{this.showProgress}" showEffect="Fade" hideEffect="Fade"/>
+        
+    <mx:Text width="100%" text="{this.message}" selectable="false"/>
+    
+    <mx:Script><![CDATA[
+        
+        [Bindable]
+        /**
+         * A message to explain the current status.
+         */
+        public var message:String = "";
+        
+        [Bindable]
+        /**
+         * If true, a progress bar will be displayed.
+         */
+        public var showProgress:Boolean = false;
+            
+    ]]></mx:Script>
+
+</mx:Panel>

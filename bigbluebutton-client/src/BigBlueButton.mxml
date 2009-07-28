@@ -28,7 +28,7 @@
 	layout="absolute">
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.main.view.components.MainApplicationShell;
+		import org.bigbluebutton.main.view.components.MainApplicationShell;
 		
 		import org.bigbluebutton.main.events.ConfigEvent;
 		
@@ -44,11 +44,13 @@
 			trace('Got CONFIG_LOADED_EVENT');
 			mainShell.visible = true;
 		}	
+		private function handleChatEvent(e:Event):void {
+			trace('Got CHAT_EVENT');
+		}
 		]]>
 	</mx:Script>		
-	<!--maps:ApplicationEventMap />	
+	<maps:ApplicationEventMap />	
 	
-	<mate:Listener type="{ConfigEvent.CONFIG_LOADED_EVENT}" method="handleConfigLoadedEvent" /-->
-	
+	<mate:Listener type="{ConfigEvent.CONFIG_LOADED_EVENT}" method="handleConfigLoadedEvent" />
 	<mainView:MainApplicationShell id="mainShell"/>	
 </mx:Application>

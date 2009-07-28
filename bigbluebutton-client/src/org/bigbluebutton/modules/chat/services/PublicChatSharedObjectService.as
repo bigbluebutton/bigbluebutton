@@ -17,102 +17,77 @@
 * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 * 
 */
-package org.bigbluebutton.modules.chat.model.business
+package org.bigbluebutton.modules.chat.services
 {
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.AsyncErrorEvent;
+	import flash.events.IEventDispatcher;
 	import flash.events.NetStatusEvent;
 	import flash.events.SyncEvent;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
 	import flash.net.SharedObject;
+	
+	import org.bigbluebutton.modules.chat.events.ConnectionEvent;
+	import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
 
-	public class ChatSOService implements IChatService
+	public class PublicChatSharedObjectService
 	{
-		public static const NAME:String = "ChatSOService";
+		public static const NAME:String = "ChatSharedObjectService";
 		
-		private static const TRANSCRIPT:String = "TRANSCRIPT";
-		private var chatSO : SharedObject;
-		private var module:ChatModule;
-		private var _msgListener:Function;
-		private var _connectionListener:Function;
-		private var _soErrors:Array;
+		private var chatSO:SharedObject;
+		private var connection:NetConnection;
+		private var dispatcher:IEventDispatcher;
 		
-		private var needsTranscript:Boolean = false;
-		
-		public function ChatSOService(module:ChatModule)
+		public function PublicChatSharedObjectService(connection:NetConnection, dispatcher:IEventDispatcher)
 		{			
-			this.module = module;		
+			this.connection = connection;
+			this.dispatcher = dispatcher;		
 		}
-				
-		private function connectionListener(connected:Boolean, errors:Array=null):void {
-			if (connected) {
-				LogUtil.debug(NAME + ":Connected to the Chat application");
-				join();
-				notifyConnectionStatusListener(true);
-			} else {
-				leave();
-				LogUtil.debug(NAME + ":Disconnected from the Chat application");
-				notifyConnectionStatusListener(false, errors);
-			}
-		}
-		
-	    public function join() : void
+						
+	    public function join(uri:String):void
 		{
-			chatSO = SharedObject.getRemote("chatSO", module.uri, false);
+			chatSO = SharedObject.getRemote("chatSO", uri, false);
 			chatSO.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
 			chatSO.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
 			chatSO.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);	
 			chatSO.client = this;
-			chatSO.connect(module.connection);
-			LogUtil.debug(NAME + ":Chat is connected to Shared object");
-			notifyConnectionStatusListener(true);
-			if (module.mode == 'LIVE') {
-				getChatTranscript();
-			}						
+			if (connection == null) trace("Joininh ChatSharedObject");
+			trace("Chat connection = " + connection.uri);
+			chatSO.connect(connection);					
 		}
+		
+	    public function leave():void
+	    {
+	    	if (chatSO != null) {
+	    		chatSO.close();
+	    	}
+	    }
 
 		private function netStatusHandler(event:NetStatusEvent):void
 		{
 			var statusCode:String = event.info.code;
+			var connEvent:ConnectionEvent = new ConnectionEvent(ConnectionEvent.CONNECT_EVENT);
+			
 			switch ( statusCode ) 
 			{
 				case "NetConnection.Connect.Success":			
-					trace("Connection success");							
+					trace("Connection success");		
+					connEvent.success = true;					
 					break;
 				default:
 					trace("Connection failed");
+					connEvent.success = false;
 				   break;
 			}
 			trace("Dispatching NET CONNECTION SUCCESS");
-		}
-		
-		private function asyncErrorHandler(event:AsyncErrorEvent):void
-		{
-			trace("PresentSO asynchronous error.");
-		}
-		
-		private function sharedObjectSyncHandler(event:SyncEvent) : void
-		{
-			trace("chatSO sharedObjectSyncHandler event.");
-		}
-				
-	    public function leave():void
-	    {
-	    	if (chatSO != null) chatSO.close();
-	    	notifyConnectionStatusListener(false);
-	    }
-
-		public function addMessageListener(messageListener:Function):void {
-			_msgListener = messageListener;
-		}
-		
-		public function addConnectionStatusListener(connectionListener:Function):void {
-			_connectionListener = connectionListener;
+			dispatcher.dispatchEvent(connEvent);
 		}
 		
 		public function sendMessage(message:String):void
 		{
-			var nc:NetConnection = module.connection;
+			var nc:NetConnection = connection;
 			nc.call(
 				"chat.sendMessage",// Remote function name
 				new Responder(
@@ -136,13 +111,17 @@ package org.bigbluebutton.modules.chat.model.business
 		 * Called by the server to deliver a new chat message.
 		 */	
 		public function newChatMessage(message:String):void{
-			if (_msgListener != null) {
-				_msgListener( message);
-			}		   
+			trace("Received New Chat Message " + message);	
+			var event:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
+			event.message = message;
+//			dispatcher.dispatchEvent(event);
+			
+			var globalDispatcher:Dispatcher = new Dispatcher();
+			globalDispatcher.dispatchEvent(event);	   
 		}
 
 		public function getChatTranscript():void {
-			var nc:NetConnection = module.connection;
+			var nc:NetConnection = connection;
 			nc.call(
 				"chat.getChatMessages",// Remote function name
 				new Responder(
@@ -164,20 +143,17 @@ package org.bigbluebutton.modules.chat.model.business
 			); //_netConnection.call				
 		}
 		
-		private function notifyConnectionStatusListener(connected:Boolean, errors:Array=null):void {
-			if (_connectionListener != null) {
-				LogUtil.debug('notifying connectionListener for CHat');
-				_connectionListener(connected, errors);
-			} else {
-				LogUtil.debug("_connectionListener is null");
-			}
+		private function asyncErrorHandler(event:AsyncErrorEvent):void
+		{
+			trace("PresentSO asynchronous error.");
 		}
 		
-		private function addError(error:String):void {
-			if (_soErrors == null) {
-				_soErrors = new Array();
-			}
-			_soErrors.push(error);
+		private function sharedObjectSyncHandler(event:SyncEvent) : void
+		{
+			var connEvent:ConnectionEvent = new ConnectionEvent(ConnectionEvent.CONNECT_EVENT);	
+			connEvent.success = true;		
+			trace("Dispatching NET CONNECTION SUCCESS");
+			dispatcher.dispatchEvent(connEvent);
 		}
 	}
 }
