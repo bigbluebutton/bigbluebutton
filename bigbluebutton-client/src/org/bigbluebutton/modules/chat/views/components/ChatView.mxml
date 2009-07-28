@@ -21,7 +21,6 @@
 			import mx.core.Container;
 			import org.bigbluebutton.modules.chat.model.business.UserVO;
 			import mx.collections.ArrayCollection;
-			import org.bigbluebutton.modules.chat.view.SendMessageEvent;
 			import mx.core.UIComponent;
 									
 			public static const SEND_MESSAGE:String = 'sendMessageEvent';
@@ -36,7 +35,6 @@
 			private function onCreationComplete():void{
 				addParticipant(new UserVO("All", PUBLIC_CHAT_USERID));
 				onOpenChatBox();
-//				queryForParticipants();
 			}
 			
 			public function setFocusOn(component:UIComponent):void
