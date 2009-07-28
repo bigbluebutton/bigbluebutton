@@ -13,19 +13,30 @@ package org.bigbluebutton.common.mate
 	
 	import mx.collections.ArrayCollection;
 	
+	/**
+	 * The SharedObjectService abstracts the communication with Remote SharedObjects located on a server 
+	 * @author Snap
+	 * 
+	 */	
 	public class SharedObjectService extends EventDispatcher
 	{
 		private var nc:NetConnection;
-		private var so:SharedObject;
 		
 		public var url:String;
-		public var sharedObject:String;
 		
+		private var arrayOfConnectedObjects:ArrayCollection;
 		private var listOfConnectedObjects:ArrayCollection;
 		private var dispatcher:Dispatcher;
 		
+		/**
+		 * The constructor 
+		 * @param url - The url of the application on the server (Flash Media Server, Red5) to which you are trying to connect to
+		 * @param connection - An already open connection, if you have one. If this is null, a new connection to the url parameter will be made
+		 * 
+		 */		
 		public function SharedObjectService(url:String, connection:NetConnection = null)
 		{
+			arrayOfConnectedObjects = new ArrayCollection();
 			listOfConnectedObjects = new ArrayCollection();
 			dispatcher = new Dispatcher();
 			
@@ -78,13 +89,18 @@ package org.bigbluebutton.common.mate
 			sendUpdateFailedEvent(event.info.toString());
 		}
 		
+		/**
+		 * Connects to shared object specified by the string. If unable to connect, will dispatch a SharedObjectEvent.SHARED_OBJECT_UPDATE_FAILED event
+		 * @param sharedObject
+		 * 
+		 */		
 		public function connectToSharedObject(sharedObject:String):void{
 			if (!nc.connected) sendUpdateFailedEvent("NetConnection.Closed");
 			if (isConnected(sharedObject)) return;
-			listOfConnectedObjects.addItem(sharedObject);
 			
-			this.sharedObject = sharedObject;
-			so = SharedObject.getRemote(sharedObject, url, false);
+			var so:SharedObject = SharedObject.getRemote(sharedObject, url, false);
+			arrayOfConnectedObjects.addItem(so);
+			listOfConnectedObjects.addItem(sharedObject);
 			so.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
 			so.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
 			so.addEventListener(SyncEvent.SYNC, onSharedObjectSync);
@@ -92,11 +108,22 @@ package org.bigbluebutton.common.mate
 			so.connect(nc);
 		}
 		
-		public function updateSharedObject(message:Object):void{
-			so.send("sharedObjectCallback", message);
+		/**
+		 * Update the SharedObject with a message 
+		 * If the object is updated successfully, the service will dispatch a bubbling event with type=sharedObject
+		 * @param sharedObject - The name of the SharedObject you are sending the update to. Also the name of the event that gets dispatched on successfull update
+		 * @param message - The message you are sending
+		 * 
+		 */		
+		public function updateSharedObject(sharedObject:String, message:Object):void{
+			var so:SharedObject = getSharedObject(sharedObject);
+			
+			if (so == null) sendUpdateFailedEvent("Could not find Shared Object: " + sharedObject); 
+			
+			so.send("sharedObjectCallback", sharedObject, message);
 		}
 		
-		public function sharedObjectCallback(message:Object):void{
+		public function sharedObjectCallback(sharedObject:String, message:Object):void{
 			var event:SharedObjectEvent = new SharedObjectEvent(sharedObject);
 			event.message = message;
 			dispatcher.dispatchEvent(event);
@@ -107,13 +134,23 @@ package org.bigbluebutton.common.mate
 		}
 		
 		private function isConnected(sharedObject:String):Boolean{
-			return listOfConnectedObjects.contains(sharedObject);
+			for (var i:Number = 0; i<listOfConnectedObjects.length; i++){
+				if (listOfConnectedObjects.getItemAt(i) == sharedObject) return true;
+			}
+			return false;
 		}
 		
 		private function sendUpdateFailedEvent(message:String):void{
 			var e:SharedObjectEvent = new SharedObjectEvent(SharedObjectEvent.SHARED_OBJECT_UPDATE_FAILED);
 			e.message = message;
 			dispatcher.dispatchEvent(e);
+		}
+		
+		private function getSharedObject(sharedObject:String):SharedObject{
+			for (var i:Number = 0; i<listOfConnectedObjects.length; i++){
+				if (listOfConnectedObjects.getItemAt(i) == sharedObject) return arrayOfConnectedObjects.getItemAt(i) as SharedObject;
+			}
+			return null;
 		}
 
 	}

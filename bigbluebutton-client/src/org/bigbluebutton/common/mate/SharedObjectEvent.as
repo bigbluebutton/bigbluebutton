@@ -2,6 +2,11 @@ package org.bigbluebutton.common.mate
 {
 	import flash.events.Event;
 	
+	/**
+	 * Represents an event sent by the SharedObjectService 
+	 * @author Snap
+	 * 
+	 */	
 	public class SharedObjectEvent extends Event
 	{
 		public static const SHARED_OBJECT_UPDATE_SUCCESS:String = "sharedObjectUpdateSuccess";
