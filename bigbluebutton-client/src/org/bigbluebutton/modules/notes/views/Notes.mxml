@@ -21,7 +21,7 @@ Notes.mxml is the main view of the SharedNotes application
 			private var dirty:Boolean = false;
 			
 			private function startTimer():void{
-				timer = new Timer(5000);
+				timer = new Timer(1000);
 				timer.addEventListener(TimerEvent.TIMER, timerHandler);
 				timer.start();
 			}
