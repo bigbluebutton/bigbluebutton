@@ -68,14 +68,14 @@
 		    	if (txtMsg.text != ""){				
 					if (tabNav.selectedChild.name == PUBLIC_CHAT_USERID) {
 						var publicEvent:SendPublicChatMessageEvent = new SendPublicChatMessageEvent(SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT);
-						publicEvent.message = txtMsg.text;
+						publicEvent.message = parseURLs(txtMsg.text);
 						publicEvent.color = cmpColorPicker.selectedColor.toString(16);
 						publicEvent.time = time();
 						
 						sendPublicChatMessage(publicEvent);
 					} else{
 						var privateEvent:SendPrivateChatMessageEvent = new SendPrivateChatMessageEvent(SendPrivateChatMessageEvent.SEND_PRIVATE_CHAT_MESSAGE_EVENT);
-						privateEvent.message = txtMsg.text;
+						privateEvent.message = parseURLs(txtMsg.text);
 						privateEvent.toUser = tabNav.selectedChild.name;
 						privateEvent.color = cmpColorPicker.selectedColor.toString(16);
 						privateEvent.time = time();
@@ -87,6 +87,23 @@
 			   	}
 			}			
 			
+			private function parseURLs(message:String):String{
+				var indexOfHTTP:Number = message.indexOf("http://");
+				var indexOfWWW:Number = message.indexOf("www.");
+				if (indexOfHTTP == -1 && indexOfWWW == -1) return message;
+				
+				var words:Array = message.split(" ");
+				var parsedString:String = "";
+				
+				for (var n:Number = 0; n<words.length; n++){
+					var word:String = words[n] as String;
+					if (word.indexOf("http://") != -1) parsedString += '<a href="event:' + word + '"> <u>' + word + '</u></a> ';
+					else if (word.indexOf("www.") != -1) parsedString += '<a href="event:http://' + word + '"> <u>' + word + '</u></a> ';
+					else parsedString += word + ' ';
+				}
+				return parsedString;
+			}
+		
 			private function sendPublicChatMessage(publicEvent:SendPublicChatMessageEvent):void {
 				trace("Sending public chat message");
 				localDispatcher.dispatchEvent(publicEvent);
