@@ -154,6 +154,8 @@ package org.bigbluebutton.modules.chat.services
 			connEvent.success = true;		
 			trace("Dispatching NET CONNECTION SUCCESS");
 			dispatcher.dispatchEvent(connEvent);
+			
+			getChatTranscript();
 		}
 	}
 }
