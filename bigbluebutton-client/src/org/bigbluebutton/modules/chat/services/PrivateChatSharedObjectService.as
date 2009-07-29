@@ -101,6 +101,12 @@ package org.bigbluebutton.modules.chat.services
 		
 		public function sendMessage(message:MessageVO):void{
 			connection.call("chat.privateMessage", privateResponder, message.message, message.sender , message.recepient);
+			
+			sendMessageToSelf(message);
+		}
+		
+		private function sendMessageToSelf(message:MessageVO):void {
+			messageReceived(message.recepient, message.message);
 		}
 		
 		public function messageReceived(from:String, message:String):void {

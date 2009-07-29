@@ -81,7 +81,6 @@
 						privateEvent.time = time();
 						
 						sendPrivateChatMessage(privateEvent);
-						(tabNav.selectedChild as ChatBox).showNewMessage(privateEvent.message);
 					}
 					txtMsg.text = "";
 			   	}
@@ -183,7 +182,7 @@
 				tabNav.selectedChild = chatBox;
 			}
 			
-			private function createChatBox(owner:String):ChatBox {
+			private function createChatBox(owner:String):ChatBox {				
 				var chatBox:ChatBox = new ChatBox();
 				chatBox.id = getParticipantName(owner);
 				chatBox.label = getParticipantName(owner);
@@ -206,9 +205,7 @@
 			}
 			
 			public function showPrivateMessage(message:MessageVO):void{
-				var participantName:String = getParticipantName(message.sender);
-	
-				var chatBox:ChatBox = tabNav.getChildByName(participantName) as ChatBox;
+				var chatBox:ChatBox = tabNav.getChildByName(message.sender) as ChatBox;
 				if (chatBox == null) {
 					chatBox = createChatBox(message.sender);
 				}

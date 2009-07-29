@@ -30,8 +30,7 @@
 	
 	<maps:ChatLocalEventMap dispatcher="{this}" id="chatLocalEventMap"/>
 	<maps:ChatEventMap id="ChatGlobalEventMap"/>
-	<mate:Listener type="{ChatEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent" />
-		
+	
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.modules.chat.events.StopChatModuleEvent;
