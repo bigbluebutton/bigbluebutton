@@ -9,7 +9,7 @@
     	<!-- Documentation -->
     	<dependency org="net.jcip" name="jcip-annotations" rev="1.0" />
     	<!-- Testing support -->
-        <dependency name="junit" rev="4.0"/>
+        <!--dependency name="junit" rev="4.5"/-->
         <dependency org="org.testng" name="testng" rev="5.8"/>
         <dependency org="commons" name="commons-lang" rev="2.4" />
         <!-- Logging --> 
