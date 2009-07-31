@@ -46,7 +46,7 @@ Notes.mxml is the main view of the SharedNotes application
 			
 			public function get xPosition():int {
 				return _xPosition;
-			}
+			} 
 			
 			public function get yPosition():int {
 				return _yPosition;
@@ -62,8 +62,6 @@ Notes.mxml is the main view of the SharedNotes application
 			
 		]]>
 	</mx:Script>
-	
-	<mate:Debugger level="{Debugger.ALL}" />
 	
 	<!-- The text area where the notes get displayed -->
 	<mx:TextArea id="txtArea" width="100%" height="100%" keyUp="sendNewMessage(txtArea.text)" />

@@ -30,10 +30,11 @@
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	mouseMove="thumbnailDisplay()"
 	creationComplete="init()"
-	rollOut="hideThumbs()">
+	rollOut="hideThumbs()" xmlns:mate="http://mate.asfusion.com/">
 
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.main.events.AddHighligtherCanvasEvent;
 			import org.bigbluebutton.modules.presentation.view.SlideViewMediator;
 		
 			import org.bigbluebutton.modules.presentation.view.PresentationWindowMediator;
@@ -140,6 +141,12 @@
 			private function onCanvasClick():void{
 				thumbnailWindow.visible = false;
 			}
+			
+			private function addHighlighter(event:AddHighligtherCanvasEvent):void{
+				Alert.show("highlighter added");
+				var highlighter:Canvas = event.canvas;
+				this.addChild(highlighter);
+			}
 
 		]]>
 	</mx:Script>
@@ -173,4 +180,7 @@
     	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="false" width="20" height="20" 
     		toolTip="Reset Zoom" click="dispatchEvent(new Event(PresentationWindowMediator.RESET_ZOOM))"/>
     </mx:ApplicationControlBar>			
+    
+    <mate:Debugger level="{Debugger.ALL}" />
+    <mate:Listener type="{AddHighligtherCanvasEvent.ADD_HIGHLIGHTER_CANVAS}" method="addHighlighter" />
 </pres:MDIWindow>

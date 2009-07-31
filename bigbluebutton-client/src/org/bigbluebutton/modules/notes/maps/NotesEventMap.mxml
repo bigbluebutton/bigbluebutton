@@ -27,8 +27,8 @@
 	</mx:Script>
 	
 	<!-- The EventHandler that handles all dispathes of the MessageEvent.NEW event-->
-	<EventHandlers id="sender" type="{NotesUpdateEvent.NEW}" debug="true">
-		<mate:SharedObjectInvoker id="soInvoker" SOName="{NOTES_UPDATE_EVENT}" debug="true" sharedObjectService="{soService}">
+	<EventHandlers type="{NotesUpdateEvent.NEW}" >
+		<mate:SharedObjectInvoker SOName="{NOTES_UPDATE_EVENT}" debug="true" sharedObjectService="{soService}">
 			<Properties message="{event.message}" />
 			<mate:faultHandlers>
 				<InlineInvoker method="sharedObjectUpdateFailed" arguments="{fault}" />

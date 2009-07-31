@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/" xmlns:mate="org.bigbluebutton.common.mate.*">
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import org.bigbluebutton.common.mate.SharedObjectService;
+			import org.bigbluebutton.modules.highlighter.events.HighlighterUpdateEvent;
+			import org.bigbluebutton.modules.highlighter.events.HighlighterDrawEvent;
+			
+			private var soService:SharedObjectService;
+			
+			//Start the SharedObjectService the application will be communicating with
+			public function startSOService(url:String, connection:NetConnection = null):void{
+				soService = new SharedObjectService(url, connection);
+			}
+			
+			private function sharedObjectUpdateFailed(fault:Object):void{
+				Alert.show("HIghlighterEventMap::sharedObjectUpdateFailed-" + fault.toString());
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<EventHandlers type="{HighlighterDrawEvent.CLEAR_BOARD}" >
+		<mate:SharedObjectInvoker SOName="{HighlighterUpdateEvent.BOARD_CLEARED}" sharedObjectService="{soService}" >
+			<Properties message="{event.message}" />
+			<mate:faultHandlers>
+				<InlineInvoker method="sharedObjectUpdateFailed" arguments="{fault}" />
+			</mate:faultHandlers>
+		</mate:SharedObjectInvoker>
+	</EventHandlers>
+	
+	<EventHandlers type="{HighlighterDrawEvent.SEND_SHAPE}">
+		<mate:SharedObjectInvoker SOName="{HighlighterUpdateEvent.BOARD_UPDATED}" sharedObjectService="{soService}">
+			<Properties message="{event.message}" />
+			<mate:faultHandlers>
+				<InlineInvoker method="sharedObjectUpdateFailed" arguments="{fault}" />
+			</mate:faultHandlers>
+		</mate:SharedObjectInvoker>
+	</EventHandlers>
+	
+	<EventHandlers type="{HighlighterDrawEvent.UNDO_SHAPE}" >
+		<mate:SharedObjectInvoker SOName="{HighlighterUpdateEvent.SHAPE_UNDONE}" sharedObjectService="{soService}" >
+			<Properties message="{event.message}" />
+			<mate:faultHandlers>
+				<InlineInvoker method="sharedObjectUpdateFailed" arguments="{fault}" />
+			</mate:faultHandlers>
+		</mate:SharedObjectInvoker>
+	</EventHandlers>
+</EventMap>

@@ -19,31 +19,40 @@
  
   $Id: $
 --> 
-
-<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="onCreationComplete()" implements="org.bigbluebutton.common.IBigBlueButtonModule" xmlns:maps="org.bigbluebutton.modules.notes.maps.*" xmlns:views="org.bigbluebutton.modules.notes.views.*">
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="400" height="300" 
+	implements="org.bigbluebutton.common.IBigBlueButtonModule" xmlns:maps="org.bigbluebutton.modules.highlighter.maps.*"
+	creationComplete="init()" xmlns:mate="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.main.events.AddHighligtherCanvasEvent;
 			import com.asfusion.mate.events.Dispatcher;
-			import org.bigbluebutton.main.events.CloseWindowEvent;
-			import org.bigbluebutton.main.events.OpenWindowEvent;
-			import org.bigbluebutton.modules.notes.views.Notes;
+			import org.bigbluebutton.common.messaging.EndpointMessageConstants;
+			import org.puremvc.as3.multicore.utilities.pipes.interfaces.IPipeMessage;
+			import org.bigbluebutton.common.messaging.Endpoint;
+			import mx.controls.Alert;
+			import org.bigbluebutton.modules.highlighter.views.HighlighterCanvas;
 			import org.bigbluebutton.common.messaging.Router;
+			
+			private static const TO_HIGHLIGHTER_MODULE:String = "TO_HIGHLIGHTER_MODULE";
+			private static const FROM_HIGHLIGHTER_MODULE:String = "FROM_HIGHLIGHTER_MODULE";
 			
 			private var _router:Router;			
 			private var _moduleId:String = "NotesModule";
 			private var _moduleName:String = "Notes Module";			
 			private var _attributes:Object;
 			
-			public var notesWindow:Notes;
+			private var highlighterCanvas:HighlighterCanvas;
 			private var globalDispatcher:Dispatcher;
 			
-			private function onCreationComplete():void {
-				LogUtil.debug("NotesModule Initialized");	
-				globalDispatcher = new Dispatcher();
+			private function init():void{
+				LogUtil.debug("HighlighterModule::init");
 			}
 			
 			public function acceptRouter(router:Router):void{
 				_router = router;
+			}
+			
+			private function messageReceive(message : IPipeMessage):void{
 				
 			}
 		
@@ -79,9 +88,9 @@
 				if (_attributes.mode == null) {					
 					//_attributes.mode = "PLAYBACK"
 					_attributes.mode = "LIVE"
-					LogUtil.debug('Setting NotesModule mode: ' + _attributes.mode);
+					LogUtil.debug('Setting ChatModule mode: ' + _attributes.mode);
 				}
-				LogUtil.debug('NotesModule mode: ' + _attributes.mode);
+				LogUtil.debug('ChatModule mode: ' + _attributes.mode);
 				return _attributes.mode;
 			}
 						
@@ -96,25 +105,21 @@
 			public function start(attributes:Object):void {	
 				LogUtil.debug("notes attr: " + attributes.username);
 				_attributes = attributes;
-				eventMap.startSOService(uri, connection);
+				globalDispatcher = new Dispatcher();
+				eventMap.startSOService(this.uri, this.connection);
 				
-				notesWindow = new Notes();
-				notesWindow.xPosition = 500;
-				notesWindow.yPosition = 500;
-				eventMap.notes = notesWindow;
-				
-				var event:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-				event.window = notesWindow;
-				globalDispatcher.dispatchEvent(event);
+				highlighterCanvas = new HighlighterCanvas();
+				var e:AddHighligtherCanvasEvent = new AddHighligtherCanvasEvent(AddHighligtherCanvasEvent.ADD_HIGHLIGHTER_CANVAS);
+				e.canvas = highlighterCanvas;
+				LogUtil.debug("HighlighterModule - sending canvas to presentation");
+				globalDispatcher.dispatchEvent(e);				
 			}
 		
 			public function stop():void {
-				var event:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
-				event.window = notesWindow;
-				globalDispatcher.dispatchEvent(event);
+				
 			}
 		]]>
 	</mx:Script>
-	
-	<maps:NotesEventMap id="eventMap" />
+	<mate:Debugger level="{Debugger.ALL}" />
+	<maps:HighlighterEventMap id="eventMap" />
 </mx:Module>

@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="400" height="300" xmlns:mate="http://mate.asfusion.com/">
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.modules.highlighter.events.HighlighterDrawEvent;
+			import mx.core.Application;
+			import org.bigbluebutton.modules.highlighter.business.shapes.ShapeFactory;
+			import org.bigbluebutton.modules.highlighter.business.shapes.DrawObjectFactory;
+			import org.bigbluebutton.modules.highlighter.events.HighlighterUpdateEvent;
+			import org.bigbluebutton.modules.highlighter.business.shapes.DrawObject;
+			
+			private var x1:int;
+			private var y1:int;
+			private var x2:int; 
+			private var y2:int;
+			
+			public var d:DrawObject;	
+			private var isDrawing:Boolean; 
+			private var feedback:Shape = new Shape();
+			private var segment:Array = new Array();
+			private var newShape:Shape = new Shape();
+			private var shapeList:Array = new Array();
+			
+			protected var drawFactory:DrawObjectFactory;
+			protected var shapeFactory:ShapeFactory;
+		
+			protected var shapeStyle:String = DrawObject.PENCIL;
+			protected var drawColor:uint;
+			protected var thickness:uint;
+			
+			private var _xPosition:int;
+			private var _yPosition:int;
+			
+			private function init():void{
+				drawFactory = new DrawObjectFactory();
+				shapeFactory = new ShapeFactory();
+			}
+			
+			/**
+			*Method is invoked when the mouse is released
+			*<p>
+			*The method finalizes the shape that was being edited. The shape is then sent as 
+			*an event, which updates all client views.  
+			*<p>
+			*The method also deleted the temporary feedback shape from the screen.
+			*/
+			private function doMouseUp():void{
+				isDrawing = false;
+				this.d = drawFactory.makeDrawObject(this.shapeStyle,segment, this.drawColor, this.thickness);
+				dispatchEvent(new Event(HighlighterDrawEvent.SEND_SHAPE));
+				if (rawChildren.contains(feedback)){
+					rawChildren.removeChild(feedback);
+				}
+				feedback = new Shape();
+			}
+
+			/**
+			*Method is invoked when the mouse is pressed
+			*<p>
+			*The method captures the x and y coordinates of the mouse click and uses the point as
+			*the starting point in a shape
+			*/
+			private function doMouseDown():void{
+				isDrawing = true;
+				x1 = this.mouseX;
+				y1 = this.mouseY;
+				segment.push(x1);
+				segment.push(y1);
+				rawChildren.addChild(feedback);
+			}
+			
+			/**
+			*Method is invoked when the mouse is moved over the canvas
+			*<p>
+			*The method captures the x and y coordinates of the mouse, adding the points to the current
+			*shape being drawn. 
+			*<p>
+			*Note: The method only works if the mouse is pressed, otherwise does nothing.
+			*/
+			private function doMouseMove():void{
+				if (isDrawing){
+					x2 = this.mouseX;
+					y2 = this.mouseY;
+					segment.push(x2);
+					segment.push(y2);
+					
+					rawChildren.removeChild(feedback);
+					feedback = shapeFactory.makeFeedback(segment,this.shapeStyle, this.drawColor, this.thickness);
+					rawChildren.addChild(feedback);
+					
+					x1 = x2;
+					y1 = y2;
+				}
+			}
+			
+			/**
+			 * Draws the segment stored in the drawVO Value Object
+			 * <p>
+			 * This method is executed by the BoardMediator upon reception of an Update request. The method
+			 * is executed on all clients, even the one which sent the update request.
+			 */
+			public function drawSegment(event:HighlighterUpdateEvent):void{
+				var draw:DrawObject = event.message as DrawObject;
+				newShape = shapeFactory.makeShape(draw);
+	            shapeList.push(newShape);
+	            rawChildren.addChild(shapeList[shapeList.length-1]);
+	            segment = new Array();
+	            newShape = new Shape();
+
+			}
+			
+			/**
+			 * Sets the type of shape we're drawing (pencil, rectangle, etc...) 
+			 * @param s The type
+			 * 
+			 */		
+			protected function setShape(s:String):void{
+				this.shapeStyle = s;
+			}
+			
+			/**
+			 * Sets the color 
+			 * @param e event containing the color (e.target.selectedColor)
+			 * 
+			 */		
+			protected function changeColor(e:Event):void{
+				drawColor = e.target.selectedColor;
+			}
+			
+			/**
+			 * Sets the thickness 
+			 * @param e event containing the thickness (e.target.value)
+			 * 
+			 */		
+			protected function changeThickness(e:Event):void{
+				this.thickness = e.target.value;
+			}
+			
+			/**
+			 * Clears the entire board
+			 */
+			public function clearBoard(event:HighlighterUpdateEvent):void{
+				for (var i:Number = 0; i<this.shapeList.length; i++){
+					if (this.rawChildren.contains(this.shapeList[i])){
+						this.rawChildren.removeChild(this.shapeList[i]);	
+					}
+				}
+				this.shapeList = new Array();
+			}
+			
+			public function undoShape(event:HighlighterUpdateEvent):void{
+				if (this.shapeList.length > 0){
+					this.rawChildren.removeChild(this.shapeList[this.shapeList.length-1]);
+					shapeList.pop();
+				}
+			}
+			
+			public function get xPosition():int {
+				return _xPosition;
+			}
+			
+			public function get yPosition():int {
+				return _yPosition;
+			}
+			
+			public function set xPosition(x:int):void {
+				_xPosition = x;
+			}
+			
+			public function set yPosition(y:int):void {
+				_yPosition = y;
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mate:Debugger level="{Debugger.ALL}" />
+	<mate:Listener type="{HighlighterUpdateEvent.BOARD_CLEARED}" method="clearBoard" />
+	<mate:Listener type="{HighlighterUpdateEvent.BOARD_UPDATED}" method="drawSegment" />
+	<mate:Listener type="{HighlighterUpdateEvent.SHAPE_UNDONE}" method="undoShape" />
+</mx:Canvas>
