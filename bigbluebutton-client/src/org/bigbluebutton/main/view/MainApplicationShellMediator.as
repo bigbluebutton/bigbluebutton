@@ -19,8 +19,6 @@
 */
 package org.bigbluebutton.main.view 
 {
-	import com.asfusion.mate.events.Listener;
-	
 	import flash.events.Event;
 	import flash.geom.Point;
 	
@@ -37,10 +35,12 @@ package org.bigbluebutton.main.view
 	import org.bigbluebutton.main.view.components.MainApplicationShell;
 	import org.bigbluebutton.main.view.components.ModuleStoppedWindow;
 	import org.bigbluebutton.main.view.events.StartModuleEvent;
+	import org.bigbluebutton.modules.phone.PhoneModuleConstants;
+	import org.bigbluebutton.modules.phone.Red5Manager;
+	import org.bigbluebutton.modules.phone.view.components.ToolbarButton;
 	import org.bigbluebutton.modules.red5phone.view.components.Red5PhoneWindow;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
-
 	
 /**
 *   This is the Mediator class for MainApplicationShell view compom\nent
@@ -55,16 +55,17 @@ package org.bigbluebutton.main.view
 
 		private var mshell:MainApplicationShell;
 		
-		private var mateListener:Listener;
+		private var phoneButton:ToolbarButton;
+		private var red5Manager:Red5Manager;
+		private var phoneRegistered:Boolean = false;
+		
+		
 		      
 		public function MainApplicationShellMediator( viewComponent:MainApplicationShell )
 		{
 			super( NAME, viewComponent );	
 			viewComponent.toolbar.addEventListener(MainApplicationConstants.LOGOUT_EVENT, onLogoutEventHandler);
 			viewComponent.addEventListener(StartModuleEvent.START_MODULE_RETRY_EVENT, onRestartModuleEvent);
-			
-//			mateListener = new Listener();
-//			mateListener.addEventListener(AddWindowEvent.NAME, addWindowMessageHandler);
 		}
 		
 		private function addWindowMessageHandler(event:OpenWindowEvent):void {
@@ -135,10 +136,10 @@ package org.bigbluebutton.main.view
 					break;
 				case MainApplicationConstants.USER_LOGGED_OUT:
 					handleUserLoggedOut();
-					//if (red5phoneAdded) {
-					//	red5phoneAdded = false;
-					//	shell.mdiCanvas.windowManager.remove(red5PhoneWindow as MDIWindow);
-					//}
+//					if (red5phoneAdded) {
+//						red5phoneAdded = false;
+//						shell.mdiCanvas.windowManager.remove(red5PhoneWindow as MDIWindow);
+//					}
 					break;
 				case MainApplicationConstants.USER_JOINED:
 					/**
@@ -147,15 +148,21 @@ package org.bigbluebutton.main.view
 					//red5PhoneWindow.sipusername = modulesProxy.username;
 					shell.statusInfo.text = "";
 					shell.statusProgress.text = "";
+					trace("User has joined");
+//					if (!red5phoneAdded) {
+//						red5phoneAdded = true;
+//						phoneButton = new ToolbarButton();			
+//						phoneButton.addEventListener(PhoneModuleConstants.START_PHONE_EVENT, onStartPhoneEvent);	
+//						trace("Adding red5phone button");
+//						var uid:String = String( Math.floor( new Date().getTime() ) );		
+//						red5Manager = new Red5Manager(uid, "Ricahrd ALam", '600', "rtmp://192.168.0.136/sip");
+//						sendNotification(MainApplicationConstants.ADD_BUTTON, phoneButton);						
+//					}
 					break;
 				case MainApplicationConstants.USER_LOGGED_IN:
 					shell.statusInfo.text = "";
 					shell.statusProgress.text = "";
-					//if (!red5phoneAdded) {
-					//	red5phoneAdded = true;
-					//	shell.mdiCanvas.windowManager.add(red5PhoneWindow as MDIWindow);
-					//	shell.mdiCanvas.windowManager.absPos(red5PhoneWindow as MDIWindow, red5PhoneWindow.xPosition, red5PhoneWindow.yPosition);						
-					//}	
+	
 					break;
 				case MainApplicationConstants.MODULE_STOPPED:
 					var info:Object = notification.getBody();
@@ -176,6 +183,16 @@ package org.bigbluebutton.main.view
 					
 					shell.statusProgress.text = "Loading: " + mod + " " + prog + "% loaded.";
 					break;
+			}
+		}
+		
+		private function onStartPhoneEvent(e:Event):void {
+			//phoneButton.enabled = false;	
+			if (red5Manager.isRegistered()) {
+				red5Manager.call();
+			} else {
+
+				red5Manager.connectRed5();
 			}
 		}
 		

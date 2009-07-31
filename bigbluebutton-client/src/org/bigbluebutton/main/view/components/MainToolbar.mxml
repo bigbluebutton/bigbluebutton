@@ -21,9 +21,17 @@
 --> 
 
 <mx:ApplicationControlBar xmlns:mx="http://www.adobe.com/2006/mxml" 
-						  enabled="true" >   
+	xmlns:mate="http://mate.asfusion.com/"
+	enabled="true" >   
+	
+	<mate:Listener type="{AddToolbarButtonEvent.ADD_TOOLBAR_BUTTON_EVENT}" method="handleAddToolbarButtonEvent" />	
+	<mate:Listener type="{RemoveToolbarButtonEvent.REMOVE_TOOLBAR_BUTTON_EVENT}" method="handleRemoveToolbarButtonEvent"/>
+	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.main.events.AddToolbarButtonEvent;
+			import org.bigbluebutton.main.events.RemoveToolbarButtonEvent;
+			import org.bigbluebutton.main.events.CloseWindowEvent;
 			import org.bigbluebutton.main.MainApplicationConstants;
 			import org.bigbluebutton.main.view.MainApplicationShellMediator;
 
@@ -47,9 +55,16 @@
 				dispatchEvent(new Event(MainApplicationConstants.LOGOUT_EVENT));
 			}
 			
+			private function handleAddToolbarButtonEvent(event:AddToolbarButtonEvent):void {
+				addedBtns.addChild(event.button);
+			}
+			
+			private function handleRemoveToolbarButtonEvent(event:RemoveToolbarButtonEvent):void {
+				addedBtns.removeChild(event.button);
+			}
+			
 		]]>
-	</mx:Script>
-	<!--<mx:Button id="webcamBtn" label="Open Webcam" visible="true" height="20" toolTip="Click to open webcam"/> -->	
+	</mx:Script>	
 	<mx:Label id="loggedInUserLbl" text="" visible="true"/>	
 	<mx:HBox id="addedBtns">
 	</mx:HBox>		

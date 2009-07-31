@@ -17,97 +17,94 @@
  *
  * $Id: $
  */
-package org.bigbluebutton.modules.phone {
+package org.bigbluebutton.modules.phone.managers {
 	
 	import flash.events.AsyncErrorEvent;
+	import flash.events.IEventDispatcher;
 	import flash.events.NetStatusEvent;
 	import flash.events.SecurityErrorEvent;
 	import flash.external.*;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
 	
-	public class Red5Manager {
+	import org.bigbluebutton.core.events.ConnectionStatusEvent;
+	import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
+	import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
+	import org.bigbluebutton.modules.phone.events.RegistrationFailedEvent;
+	import org.bigbluebutton.modules.phone.events.RegistrationSuccessEvent;
+	
+	public class ConnectionManager {
 			
-		[Bindable]
-		public  var netConnection:NetConnection = null;
+		private  var netConnection:NetConnection = null;
 		private var incomingNetStream:NetStream = null;
 		private var outgoingNetStream:NetStream = null;
 		private var username:String;
-		private var red5Url:String;
+		private var uri:String;
 		private var uid:String;
 		private var room:String;
 		
 		private var isConnected:Boolean = false;
 		private var registered:Boolean = false;
-		private var phone:Phone;
+
+		private var localDispatcher:IEventDispatcher;
 		
-		public function Red5Manager(uid:String, username:String, room:String, red5Url:String) {
+		public function ConnectionManager(dispatcher:IEventDispatcher):void {
+			localDispatcher = dispatcher;
+		}
+		
+		public function getConnection():NetConnection {
+			return netConnection;
+		}
+		
+		public function connect(uid:String, username:String, room:String, uri:String):void {
 			this.uid = uid;	
 			this.username  = username;
 			this.room = room;
-			this.red5Url   = red5Url;
-			this.init();
-			phone = new Phone(this);
-			phone.initMicrophone();
+			this.uri   = uri;
+			connectToServer();
 		}
 		
-		private function init():void {			
+		private function connectToServer():void {			
 			NetConnection.defaultObjectEncoding = flash.net.ObjectEncoding.AMF0;	
 			netConnection = new NetConnection();
 			netConnection.client = this;
 			netConnection.addEventListener( NetStatusEvent.NET_STATUS , netStatus );
 			netConnection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
+			netConnection.connect(uri);
 		}
-		
-		public function connectRed5():void {
-			netConnection.connect(red5Url);
-		}
-		
-		public function closeNetConnection():void {
+
+		public function disconnect():void {
 			netConnection.close();
 		}
 		
 		private function netStatus (evt:NetStatusEvent ):void {		 
-
+			var event:ConnectionStatusEvent = new ConnectionStatusEvent();
+			
 			switch(evt.info.code) {				
 				case "NetConnection.Connect.Success":
-					LogUtil.debug("Successfully connected to SIP application.");
-					this.doOpen();									
+					trace("Successfully connected to SIP application.");
+					event.status = ConnectionStatusEvent.SUCCESS;								
 					break;
 		
 				case "NetConnection.Connect.Failed":
-					LogUtil.error("Failed to connect to SIP application.");
+					trace("Failed to connect to SIP application.");
+					event.status = ConnectionStatusEvent.FAILED;
 					break;
 					
 				case "NetConnection.Connect.Closed":
-					LogUtil.error("Connection to SIP application has closed.");
+					trace("Connection to SIP application has closed.");
+					event.status = ConnectionStatusEvent.CLOSED;
 				break;
 		
 				case "NetConnection.Connect.Rejected":
-					LogUtil.error("Connection to SIP application was rejected.");
-					break;
-		
-				case "NetStream.Play.StreamNotFound":
-					break;
-		
-				case "NetStream.Play.Failed":
-					this.doStreamStatus("failed");
-					break;
-					
-				case "NetStream.Play.Start":	
-					this.doStreamStatus("start");	
-					break;
-					
-				case "NetStream.Play.Stop":			
-					this.doStreamStatus("stop");	
-					break;
-					
-				case "NetStream.Buffer.Full":
-					break;
-					
-				default:
-					
-			}			 
+					trace("Connection to SIP application was rejected.");
+					event.status = ConnectionStatusEvent.REJECTED;
+					break;					
+				default:					
+			}			
+			
+			trace("Dispatching " + event.status);
+			localDispatcher.dispatchEvent(event); 
 		} 
 		
 		private function asyncErrorHandler(event:AsyncErrorEvent):void {
@@ -119,7 +116,7 @@ package org.bigbluebutton.modules.phone {
         }
         
      	public function call():void {
-     		LogUtil.debug("Calling " + room);
+     		trace("Calling " + room);
 			doCall(room);
      	}
         
@@ -130,28 +127,36 @@ package org.bigbluebutton.modules.phone {
 		//********************************************************************************************
 
 		public function registrationSucess(msg:String):* {
-			LogUtil.debug("REGISTRATION to the SIP server Succeeded.");
+			trace("REGISTRATION to the SIP server Succeeded.");
 			registered = true;
+			var regSuccessEvent:RegistrationSuccessEvent = new RegistrationSuccessEvent();
+			localDispatcher.dispatchEvent(regSuccessEvent);
 		}
 	
 		public function registrationFailure(msg:String):* {
-			LogUtil.error("REGISTRATION to the SIP server failed.");		
+			trace("REGISTRATION to the SIP server failed.");	
+			var regFailedEvent:RegistrationFailedEvent = new RegistrationFailedEvent();
+			localDispatcher.dispatchEvent(regFailedEvent);	
 		}
 
 		public function callState(msg:String):* {
 			LogUtil.debug("RED5Manager callState " + msg);
 	
 			if (msg == "onUaCallClosed" ||  msg == "onUaCallFailed") {
-				LogUtil.debug("Call has been disconnected.");
-				phone.callDisconnected();
+				trace("Call has been disconnected.");
 				isConnected = false;
+				var event:CallDisconnectedEvent = new CallDisconnectedEvent();
+				localDispatcher.dispatchEvent(event);
 			}
 		}
 				
         public function connected(publishName:String, playName:String):* {
-        	LogUtil.debug("Call has been connected");
-			phone.callConnected(netConnection, playName, publishName);
+        	trace("Call has been connected");
 			isConnected = true;
+			var event:CallConnectedEvent = new CallConnectedEvent();
+			event.publishStreamName = publishName;
+			event.playStreamName = playName;
+			localDispatcher.dispatchEvent(event);
 		}
 				
 		//********************************************************************************************
@@ -160,8 +165,7 @@ package org.bigbluebutton.modules.phone {
 		//
 		//********************************************************************************************
 		
-		
-		public function doOpen():void {
+		public function register():void {
 			trace("Open " + username);
 			netConnection.call("open", null, uid, username);
 		}

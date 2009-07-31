@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns="http://mate.asfusion.com/" xmlns:mx="http://www.adobe.com/2006/mxml">
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.modules.phone.managers.PhoneManager;
+			import org.bigbluebutton.core.events.ConnectionStatusEvent;
+		]]>
+	</mx:Script>
+
+    <EventHandlers type="{ConnectionStatusEvent.SUCCESS}">        
+		<MethodInvoker generator="{PhoneManager}" method="calledFromGlobal" arguments="ConnectionStatusEvent.SUCCESS"/>
+    </EventHandlers>
+    
+</EventMap>

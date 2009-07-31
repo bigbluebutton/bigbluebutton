@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LocalEventMap xmlns="http://mate.asfusion.com/"
+	xmlns:mx="http://www.adobe.com/2006/mxml">
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
+			import org.bigbluebutton.modules.phone.events.RegistrationSuccessEvent;
+			import org.bigbluebutton.core.events.ConnectionStatusEvent;
+			import org.bigbluebutton.modules.phone.managers.PhoneManager;
+			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceEvent;
+			import org.bigbluebutton.modules.phone.managers.StreamManager;
+			import org.bigbluebutton.modules.phone.managers.ConnectionManager;
+			import org.bigbluebutton.modules.phone.events.StartPhoneModuleEvent;
+			import org.bigbluebutton.modules.chat.events.StopChatModuleEvent;
+			import org.bigbluebutton.modules.chat.events.QueryParticipantsEvent;
+			import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
+			import org.bigbluebutton.modules.chat.views.components.ChatView;
+			import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
+			import org.bigbluebutton.modules.chat.services.PrivateChatService;
+			import org.bigbluebutton.main.events.OpenWindowEvent;
+			import org.bigbluebutton.modules.chat.events.ConnectionEvent;
+			import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
+			import org.bigbluebutton.modules.chat.services.PublicChatService;
+			import mx.events.FlexEvent;
+		]]>
+	</mx:Script>
+	
+	<!--
+	This is the main event map for the chat module, think of it as the application controller.
+	-->
+	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
+		<!--
+		The FlexEvent.PREINITIALIZE event is a good place for creating and initializing managers.
+		-->
+		<ObjectBuilder generator="{PhoneLocalEventMapDelegate}" constructorArguments="{scope.dispatcher}"/>
+		<ObjectBuilder generator="{PhoneManager}" constructorArguments="{scope.dispatcher}"/>
+	</EventHandlers>
+	
+	<EventHandlers type="{StartPhoneModuleEvent.START_PHONE_MODULE_EVENT}">        
+		<MethodInvoker generator="{PhoneManager}" method="setModuleAttributes" arguments="{event.attributes}" />
+		<MethodInvoker generator="{PhoneLocalEventMapDelegate}" method="addToolbarButton"/>
+    </EventHandlers>
+    
+    <EventHandlers type="{JoinVoiceConferenceEvent.JOIN_VOICE_CONFERENCE_EVENT}">        
+		<MethodInvoker generator="{PhoneManager}" method="join"/>
+    </EventHandlers>
+    
+    <EventHandlers type="{RegistrationSuccessEvent.REGISTRATION_SUCCESS_EVENT}">        
+		<MethodInvoker generator="{PhoneManager}" method="dialConference"/>
+    </EventHandlers>
+
+	<EventHandlers type="{CallConnectedEvent.CALL_CONNECTED_EVENT}">        
+		<MethodInvoker generator="{PhoneManager}" method="callConnected" arguments="{event}"/>
+    </EventHandlers>
+        
+    <EventHandlers type="{ConnectionStatusEvent.CONNECTION_STATUS_EVENT}">        
+		<MethodInvoker generator="{PhoneManager}" method="register"/>
+    </EventHandlers>
+    
+</LocalEventMap>

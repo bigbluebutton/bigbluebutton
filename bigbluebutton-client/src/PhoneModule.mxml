@@ -21,10 +21,18 @@
 --> 
 
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:maps="org.bigbluebutton.modules.phone.maps.*"
+	xmlns:mate="http://mate.asfusion.com/"
 	implements="org.bigbluebutton.common.IBigBlueButtonModule"
 	creationComplete="onCreationComplete()">
+	
+	<maps:PhoneLocalEventMap dispatcher="{this}" id="phoneLocalEventMap"/>
+	<maps:PhoneGlobalEventMap id="PhoneGlobalEventMap"/>
+	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.phone.events.StopPhoneModuleEvent;
+			import org.bigbluebutton.modules.phone.events.StartPhoneModuleEvent;
 			import org.bigbluebutton.modules.phone.PhoneFacade;
 			import org.bigbluebutton.common.messaging.Router;
 			
@@ -92,11 +100,17 @@
 			public function start(attributes:Object):void {	
 				LogUtil.debug("phone attr: " + attributes.username);
 				_attributes = attributes;	
-				PhoneFacade.getInstance().startup(this);	
+//				PhoneFacade.getInstance().startup(this);
+				
+				var event:StartPhoneModuleEvent = new StartPhoneModuleEvent(StartPhoneModuleEvent.START_PHONE_MODULE_EVENT);
+				event.attributes = _attributes;
+				this.dispatchEvent(event);	
 			}
 			
 			public function stop():void {
-				PhoneFacade.getInstance().stop(this);
+//				PhoneFacade.getInstance().stop(this);
+				var event:StopPhoneModuleEvent = new StopPhoneModuleEvent(StopPhoneModuleEvent.STOP_PHONE_MODULE_EVENT);
+				this.dispatchEvent(event);
 			}
 		]]>
 	</mx:Script>

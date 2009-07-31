@@ -26,7 +26,6 @@
 			public static const SEND_MESSAGE:String = 'sendMessageEvent';
 			private static const PUBLIC_CHAT_USERID:String = '0';
 			
-			[Bindable]
 			public var localDispatcher:IEventDispatcher;
 			
 			[Bindable]
