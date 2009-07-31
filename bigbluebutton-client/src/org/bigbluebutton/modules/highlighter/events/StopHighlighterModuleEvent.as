@@ -17,22 +17,18 @@
  *
  * $Id: $
  */
-package org.bigbluebutton.modules.red5phone.view {
-	
+package org.bigbluebutton.modules.phone.events
+{
 	import flash.events.Event;
-	
-	public class MissedCallEvent extends Event{
-		
-		public static var CALLMISSED:String    = "callmised";
-		public var message:String;
-		
-		public function MissedCallEvent(type:String, message:String, bubbles:Boolean = false, cancelable:Boolean = false) {
+
+	public class StopHighlighterModuleEvent extends Event
+	{
+		public static const STOP_PHONE_MODULE_EVENT:String = 'STOP_PHONE_MODULE_EVENT';
+				
+		public function StopHighlighterModuleEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
+		{
 			super(type, bubbles, cancelable);
-			this.message = message;
 		}
 		
-		public override function clone():Event {
-			return new MissedCallEvent(type, message, bubbles, cancelable);
-		}
 	}
 }

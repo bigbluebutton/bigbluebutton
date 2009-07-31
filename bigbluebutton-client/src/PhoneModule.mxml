@@ -33,7 +33,6 @@
 		<![CDATA[
 			import org.bigbluebutton.modules.phone.events.StopPhoneModuleEvent;
 			import org.bigbluebutton.modules.phone.events.StartPhoneModuleEvent;
-			import org.bigbluebutton.modules.phone.PhoneFacade;
 			import org.bigbluebutton.common.messaging.Router;
 			
 			private var _router:Router;			
@@ -100,15 +99,13 @@
 			public function start(attributes:Object):void {	
 				LogUtil.debug("phone attr: " + attributes.username);
 				_attributes = attributes;	
-//				PhoneFacade.getInstance().startup(this);
-				
+
 				var event:StartPhoneModuleEvent = new StartPhoneModuleEvent(StartPhoneModuleEvent.START_PHONE_MODULE_EVENT);
 				event.attributes = _attributes;
 				this.dispatchEvent(event);	
 			}
 			
 			public function stop():void {
-//				PhoneFacade.getInstance().stop(this);
 				var event:StopPhoneModuleEvent = new StopPhoneModuleEvent(StopPhoneModuleEvent.STOP_PHONE_MODULE_EVENT);
 				this.dispatchEvent(event);
 			}

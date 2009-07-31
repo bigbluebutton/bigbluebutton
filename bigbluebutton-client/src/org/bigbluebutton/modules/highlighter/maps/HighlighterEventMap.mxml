@@ -7,6 +7,7 @@
 			import org.bigbluebutton.modules.highlighter.events.HighlighterUpdateEvent;
 			import org.bigbluebutton.modules.highlighter.events.HighlighterDrawEvent;
 			
+			[Bindable]
 			private var soService:SharedObjectService;
 			
 			//Start the SharedObjectService the application will be communicating with

@@ -35,19 +35,18 @@
 <application path="BigBlueButton.mxml"/>
 </applications>
 <modules>
-<module application="src/BigBlueButton.mxml" destPath="VideoModule.swf" optimize="true" sourcePath="src/VideoModule.mxml"/>
-<module application="src/BigBlueButton.mxml" destPath="ViewersModule.swf" optimize="true" sourcePath="src/ViewersModule.mxml"/>
-<module application="src/BigBlueButton.mxml" destPath="ListenersModule.swf" optimize="true" sourcePath="src/ListenersModule.mxml"/>
-<module application="src/BigBlueButton.mxml" destPath="ChatModule.swf" optimize="true" sourcePath="src/ChatModule.mxml"/>
-<module application="src/BigBlueButton.mxml" destPath="PresentationModule.swf" optimize="true" sourcePath="src/PresentationModule.mxml"/>
-<module application="src/BigBlueButton.mxml" destPath="LoginModule.swf" optimize="true" sourcePath="src/LoginModule.mxml"/>
-<module application="src/BigBlueButton.mxml" destPath="JoinModule.swf" optimize="true" sourcePath="src/JoinModule.mxml"/>
-<module application="src/BigBlueButton.mxml" destPath="PhoneModule.swf" optimize="true" sourcePath="src/PhoneModule.mxml"/>
-<module application="src/BigBlueButton.mxml" destPath="Red5PhoneModule.swf" optimize="true" sourcePath="src/Red5PhoneModule.mxml"/>
-<module application="src/BigBlueButton.mxml" destPath="DeskShareModule.swf" optimize="true" sourcePath="src/DeskShareModule.mxml"/>
-<module application="src/BigBlueButton.mxml" destPath="NotesModule.swf" optimize="true" sourcePath="src/NotesModule.mxml"/>
 <module application="src/BigBlueButton.mxml" destPath="WhiteboardModule.swf" optimize="true" sourcePath="src/WhiteboardModule.mxml"/>
+<module application="src/BigBlueButton.mxml" destPath="ListenersModule.swf" optimize="true" sourcePath="src/ListenersModule.mxml"/>
+<module application="src/BigBlueButton.mxml" destPath="VideoModule.swf" optimize="true" sourcePath="src/VideoModule.mxml"/>
+<module application="src/BigBlueButton.mxml" destPath="PhoneModule.swf" optimize="true" sourcePath="src/PhoneModule.mxml"/>
+<module application="src/BigBlueButton.mxml" destPath="ViewersModule.swf" optimize="true" sourcePath="src/ViewersModule.mxml"/>
+<module application="src/BigBlueButton.mxml" destPath="JoinModule.swf" optimize="true" sourcePath="src/JoinModule.mxml"/>
+<module application="src/BigBlueButton.mxml" destPath="LoginModule.swf" optimize="true" sourcePath="src/LoginModule.mxml"/>
 <module application="src/BigBlueButton.mxml" destPath="HighlighterModule.swf" optimize="true" sourcePath="src/HighlighterModule.mxml"/>
+<module application="src/BigBlueButton.mxml" destPath="ChatModule.swf" optimize="true" sourcePath="src/ChatModule.mxml"/>
+<module application="src/BigBlueButton.mxml" destPath="DeskShareModule.swf" optimize="true" sourcePath="src/DeskShareModule.mxml"/>
+<module application="src/BigBlueButton.mxml" destPath="PresentationModule.swf" optimize="true" sourcePath="src/PresentationModule.mxml"/>
+<module application="src/BigBlueButton.mxml" destPath="NotesModule.swf" optimize="true" sourcePath="src/NotesModule.mxml"/>
 </modules>
 <buildCSSFiles/>
 </actionScriptProperties>

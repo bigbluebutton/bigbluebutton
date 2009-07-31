@@ -17,25 +17,20 @@
  *
  * $Id: $
  */
-package org.bigbluebutton.modules.red5phone.view {
-	
+package org.bigbluebutton.modules.highlighter.events
+{
 	import flash.events.Event;
-	
-	public class CallConnectedEvent extends Event{
-		
-		public static var CONNECTED:String    = "connected";
-		public var publishName:String;
-		public var playName:String;
-		
-		public function CallConnectedEvent(type:String, publishName:String, playName:String, bubbles:Boolean = false, cancelable:Boolean = false) {
-			super(type, bubbles, cancelable);
-			this.publishName = publishName;
-			this.playName = playName;	
-		}
-		
-		public override function clone():Event {
-			return new CallConnectedEvent(type, publishName, playName, bubbles, cancelable);
-		}
 
+	public class StartHighligtherModuleEvent extends Event
+	{
+		public static const START_HIGHLIGHTER_MODULE_EVENT:String = 'START_HIGHLIGHTER_MODULE_EVENT';
+		
+		public var attributes:Object;
+		
+		public function StartHighligtherModuleEvent(bubbles:Boolean=true, cancelable:Boolean=false)
+		{
+			super(START_HIGHLIGHTER_MODULE_EVENT, bubbles, cancelable);
+		}
+		
 	}
 }

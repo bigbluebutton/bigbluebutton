@@ -35,10 +35,7 @@ package org.bigbluebutton.main.view
 	import org.bigbluebutton.main.view.components.MainApplicationShell;
 	import org.bigbluebutton.main.view.components.ModuleStoppedWindow;
 	import org.bigbluebutton.main.view.events.StartModuleEvent;
-	import org.bigbluebutton.modules.phone.PhoneModuleConstants;
-	import org.bigbluebutton.modules.phone.Red5Manager;
-	import org.bigbluebutton.modules.phone.view.components.ToolbarButton;
-	import org.bigbluebutton.modules.red5phone.view.components.Red5PhoneWindow;
+	import org.bigbluebutton.modules.phone.views.components.ToolbarButton;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
 	
@@ -56,7 +53,6 @@ package org.bigbluebutton.main.view
 		private var mshell:MainApplicationShell;
 		
 		private var phoneButton:ToolbarButton;
-		private var red5Manager:Red5Manager;
 		private var phoneRegistered:Boolean = false;
 		
 		
@@ -108,7 +104,6 @@ package org.bigbluebutton.main.view
 		}
 		
 		private var red5phoneAdded:Boolean = false;
-		private var red5PhoneWindow:Red5PhoneWindow = new Red5PhoneWindow();
 		
 		override public function handleNotification(notification:INotification):void{
 			switch(notification.getName()){	
@@ -185,17 +180,7 @@ package org.bigbluebutton.main.view
 					break;
 			}
 		}
-		
-		private function onStartPhoneEvent(e:Event):void {
-			//phoneButton.enabled = false;	
-			if (red5Manager.isRegistered()) {
-				red5Manager.call();
-			} else {
-
-				red5Manager.connectRed5();
-			}
-		}
-		
+				
 		private function testRTMPConnection():void {
 			var host:String = modulesProxy.getPortTestHost();
 			var app:String = modulesProxy.getPortTestApplication();

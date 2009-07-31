@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LocalEventMap xmlns="http://mate.asfusion.com/"
+	xmlns:mx="http://www.adobe.com/2006/mxml">
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.modules.highlighter.views.HighlighterCanvas;
+			import org.bigbluebutton.main.events.AddHighligtherCanvasEvent;
+			import mx.events.FlexEvent;
+			import org.bigbluebutton.modules.highlighter.events.StartHighligtherModuleEvent;
+
+			[Bindable]
+			private var highlighterCanvas:HighlighterCanvas;
+			
+			private function createHighlighterCanvas():void {
+				highlighterCanvas = new HighlighterCanvas();
+			}
+		]]>
+	</mx:Script>
+	
+	<!--
+	This is the main event map for the chat module, think of it as the application controller.
+	-->
+	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
+		<!--
+		The FlexEvent.PREINITIALIZE event is a good place for creating and initializing managers.
+		-->
+	</EventHandlers>
+	
+	<EventHandlers type="{StartHighligtherModuleEvent.START_HIGHLIGHTER_MODULE_EVENT}"> 
+		<InlineInvoker method="createHighlighterCanvas" />   
+   		<EventAnnouncer generator="{AddHighligtherCanvasEvent}" type="{AddHighligtherCanvasEvent.ADD_HIGHLIGHTER_CANVAS}" 
+   				dispatcherType="global">
+   				<Properties canvas="{highlighterCanvas}"/>
+   		</EventAnnouncer>
+    </EventHandlers>
+
+    
+</LocalEventMap>

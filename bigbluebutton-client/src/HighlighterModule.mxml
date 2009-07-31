@@ -24,6 +24,7 @@
 	creationComplete="init()" xmlns:mate="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.highlighter.events.StartHighligtherModuleEvent;
 			import org.bigbluebutton.main.events.AddHighligtherCanvasEvent;
 			import com.asfusion.mate.events.Dispatcher;
 			import org.bigbluebutton.common.messaging.EndpointMessageConstants;
@@ -108,11 +109,9 @@
 				globalDispatcher = new Dispatcher();
 				eventMap.startSOService(this.uri, this.connection);
 				
-				highlighterCanvas = new HighlighterCanvas();
-				var e:AddHighligtherCanvasEvent = new AddHighligtherCanvasEvent(AddHighligtherCanvasEvent.ADD_HIGHLIGHTER_CANVAS);
-				e.canvas = highlighterCanvas;
-				LogUtil.debug("HighlighterModule - sending canvas to presentation");
-				globalDispatcher.dispatchEvent(e);				
+				var startEvent:StartHighligtherModuleEvent = new StartHighligtherModuleEvent();
+				dispatchEvent(startEvent);
+								
 			}
 		
 			public function stop():void {
@@ -122,4 +121,5 @@
 	</mx:Script>
 	<mate:Debugger level="{Debugger.ALL}" />
 	<maps:HighlighterEventMap id="eventMap" />
+	<maps:HighlighterLocalEventMap dispatcher="{this}" id="highlighterLocalEventMap"/>
 </mx:Module>

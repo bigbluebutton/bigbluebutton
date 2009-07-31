@@ -30,9 +30,11 @@
 		
 	<mate:Listener type="{OpenWindowEvent.OPEN_WINDOW_EVENT}" method="handleOpenWindowEvent" />	
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="handleCloseWindowEvent"/>
+	<mate:Listener type="{AddHighligtherCanvasEvent.ADD_HIGHLIGHTER_CANVAS}" method="handleAddHighlighter" />
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.main.events.AddHighligtherCanvasEvent;
 			import org.bigbluebutton.main.events.OpenWindowEvent;
 			import org.bigbluebutton.main.events.CloseWindowEvent;
 			import org.bigbluebutton.common.IBbbModuleWindow;
@@ -138,6 +140,10 @@
 	   			var window:IBbbModuleWindow = event.window;
 				mdiCanvas.windowManager.remove(window as MDIWindow);
 	   		}		
+	   		
+	   		private function handleAddHighlighter(event:AddHighligtherCanvasEvent):void {
+	   			trace("GOT HIGHLIGHTER EVENT");
+	   		}
 		]]>
 	</mx:Script>
 			
