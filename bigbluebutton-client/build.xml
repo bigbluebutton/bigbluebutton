@@ -19,6 +19,7 @@
 		<mxmlc-compile target="${APP_ROOT}/DeskShareModule" />		
 		<mxmlc-compile target="${APP_ROOT}/PhoneModule" />
 		<mxmlc-compile target="${APP_ROOT}/NotesModule" />
+		<mxmlc-compile target="${APP_ROOT}/HighlighterModule" />
 		
 		<copy todir="${OUTPUT_DIR}/conf" >
 			<fileset dir="./src/conf" />
