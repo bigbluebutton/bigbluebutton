@@ -3,17 +3,11 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml">
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.highlighter.views.HighlighterCanvas;
-			import org.bigbluebutton.main.events.AddHighligtherCanvasEvent;
+
 			import mx.events.FlexEvent;
 			import org.bigbluebutton.modules.highlighter.events.StartHighligtherModuleEvent;
 
-			[Bindable]
-			private var highlighterCanvas:HighlighterCanvas;
-			
-			private function createHighlighterCanvas():void {
-				highlighterCanvas = new HighlighterCanvas();
-			}
+
 		]]>
 	</mx:Script>
 	
@@ -27,11 +21,7 @@
 	</EventHandlers>
 	
 	<EventHandlers type="{StartHighligtherModuleEvent.START_HIGHLIGHTER_MODULE_EVENT}"> 
-		<InlineInvoker method="createHighlighterCanvas" />   
-   		<EventAnnouncer generator="{AddHighligtherCanvasEvent}" type="{AddHighligtherCanvasEvent.ADD_HIGHLIGHTER_CANVAS}" 
-   				dispatcherType="global">
-   				<Properties canvas="{highlighterCanvas}"/>
-   		</EventAnnouncer>
+
     </EventHandlers>
 
     

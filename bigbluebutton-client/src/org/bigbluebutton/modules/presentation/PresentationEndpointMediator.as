@@ -19,10 +19,13 @@
  */
 package org.bigbluebutton.modules.presentation
 {
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.common.messaging.Endpoint;
 	import org.bigbluebutton.common.messaging.EndpointMessageConstants;
 	import org.bigbluebutton.common.messaging.Router;
+	import org.bigbluebutton.main.events.ModuleStartedEvent;
 	import org.bigbluebutton.modules.presentation.model.business.PresentProxy;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
@@ -93,6 +96,8 @@ package org.bigbluebutton.modules.presentation
 					LogUtil.debug('Sending Present ADD_WINDOW message to main');
 					_endpoint.sendMessage(EndpointMessageConstants.ADD_WINDOW, 
 							EndpointMessageConstants.TO_MAIN_APP, notification.getBody());
+							
+					sendModuleReadyEvent();
 					break;
 				case PresentModuleConstants.REMOVE_WINDOW:
 					LogUtil.debug('Sending Present REMOVE_WINDOW message to main');
@@ -140,5 +145,12 @@ package org.bigbluebutton.modules.presentation
 		private function get presentProxy():PresentProxy {
 			return facade.retrieveProxy(PresentProxy.NAME) as PresentProxy;
 		}	
+		
+		private function sendModuleReadyEvent():void {
+			var globalDispatcher:Dispatcher = new Dispatcher();
+			var readyEvent:ModuleStartedEvent = new ModuleStartedEvent();
+			readyEvent.moduleName = "PresentationModule";
+			globalDispatcher.dispatchEvent(readyEvent);
+		}
 	}
 }

@@ -2,11 +2,22 @@
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/" xmlns:mate="org.bigbluebutton.common.mate.*">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.main.events.ModuleStartedEvent;
+			import org.bigbluebutton.main.events.AddHighligtherCanvasEvent;
 			import mx.controls.Alert;
 			import org.bigbluebutton.common.mate.SharedObjectService;
 			import org.bigbluebutton.modules.highlighter.events.HighlighterUpdateEvent;
 			import org.bigbluebutton.modules.highlighter.events.HighlighterDrawEvent;
+			import org.bigbluebutton.modules.highlighter.views.HighlighterCanvas;
+			import org.bigbluebutton.main.events.AddHighligtherCanvasEvent;
 			
+			[Bindable]
+			private var highlighterCanvas:HighlighterCanvas;
+			
+			private function createHighlighterCanvas():void {
+				highlighterCanvas = new HighlighterCanvas();
+			}
+						
 			[Bindable]
 			private var soService:SharedObjectService;
 			
@@ -22,6 +33,14 @@
 		]]>
 	</mx:Script>
 	
+	<EventHandlers type="{ModuleStartedEvent.MODULE_STARTED_EVENT}">
+		<InlineInvoker method="createHighlighterCanvas" />   
+   		<EventAnnouncer generator="{AddHighligtherCanvasEvent}" type="{AddHighligtherCanvasEvent.ADD_HIGHLIGHTER_CANVAS}" 
+   				dispatcherType="global">
+   				<Properties canvas="{highlighterCanvas}"/>
+   	</EventAnnouncer>		
+		
+	</EventHandlers>
 	<EventHandlers type="{HighlighterDrawEvent.CLEAR_BOARD}" >
 		<mate:SharedObjectInvoker SOName="{HighlighterUpdateEvent.BOARD_CLEARED}" sharedObjectService="{soService}" >
 			<Properties message="{event.message}" />

@@ -9,9 +9,9 @@ package org.bigbluebutton.main.events
 		public var started:Boolean = false;
 		public var moduleName:String = '';
 		
-		public function ModuleStartedEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false)
+		public function ModuleStartedEvent(bubbles:Boolean=false, cancelable:Boolean=false)
 		{
-			super(type, bubbles, cancelable);
+			super(MODULE_STARTED_EVENT, bubbles, cancelable);
 		}
 		
 	}
