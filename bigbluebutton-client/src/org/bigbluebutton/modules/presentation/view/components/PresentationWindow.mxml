@@ -143,9 +143,11 @@
 			}
 			
 			private function addHighlighter(event:AddHighligtherCanvasEvent):void{
-				Alert.show("highlighter added");
+				//Alert.show("highlighter added");
 				var highlighter:Canvas = event.canvas;
 				this.addChild(highlighter);
+				highlighter.width = mainCanvas.width;
+				highlighter.height = mainCanvas.height;
 			}
 
 		]]>

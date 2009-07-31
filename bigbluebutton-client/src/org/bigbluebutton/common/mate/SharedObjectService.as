@@ -130,7 +130,9 @@ package org.bigbluebutton.common.mate
 		}
 		
 		private function onSharedObjectSync(event:SyncEvent):void{
-			
+			var e:SharedObjectEvent = new SharedObjectEvent(SharedObjectEvent.SHARED_OBJECT_SYNC);
+			e.message = event;
+			dispatcher.dispatchEvent(e);
 		}
 		
 		private function isConnected(sharedObject:String):Boolean{

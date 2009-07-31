@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="400" height="300" xmlns:mate="http://mate.asfusion.com/">
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="400" height="300" xmlns:mate="http://mate.asfusion.com/"
+	mouseDown="doMouseDown()" mouseMove="doMouseMove()" backgroundAlpha="0" alpha="0" creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.modules.highlighter.events.HighlighterDrawEvent;
@@ -25,7 +26,7 @@
 			protected var shapeFactory:ShapeFactory;
 		
 			protected var shapeStyle:String = DrawObject.PENCIL;
-			protected var drawColor:uint;
+			protected var drawColor:uint = 0xCCFF00;
 			protected var thickness:uint;
 			
 			private var _xPosition:int;

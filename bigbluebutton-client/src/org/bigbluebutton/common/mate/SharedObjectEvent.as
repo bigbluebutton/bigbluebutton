@@ -11,6 +11,7 @@ package org.bigbluebutton.common.mate
 	{
 		public static const SHARED_OBJECT_UPDATE_SUCCESS:String = "sharedObjectUpdateSuccess";
 		public static const SHARED_OBJECT_UPDATE_FAILED:String = "sharedObjectUpdateFailed";
+		public static const SHARED_OBJECT_SYNC:String = "shareObjectSynced";
 		
 		public var message:Object;
 		
