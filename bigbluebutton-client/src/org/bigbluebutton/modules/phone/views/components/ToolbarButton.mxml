@@ -25,7 +25,6 @@
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceEvent;
-			import org.bigbluebutton.modules.phone.PhoneModuleConstants;
 			import org.bigbluebutton.modules.phone.view.components.Images;
 			
 			private var images:Images = new Images();
