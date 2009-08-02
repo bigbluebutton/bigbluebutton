@@ -17,11 +17,7 @@
             <url name="googlecode">
                 <artifact pattern="http://red5.googlecode.com/svn/repository/[artifact](-[revision]).[ext]" />
                 <artifact pattern="http://red5.googlecode.com/svn/repository/[organisation]/[artifact](-[revision]).[ext]" />
-            </url>   
-            <url name="cvsdude">
-                <artifact pattern="https://svn1.cvsdude.com/osflash/red5/repository/[artifact](-[revision]).[ext]" />
-                <artifact pattern="https://svn1.cvsdude.com/osflash/red5/repository/[organisation]/[artifact](-[revision]).[ext]" />
-            </url>  
+            </url>    
             <url name="blindside-repos">
                 <artifact pattern="http://blindside.googlecode.com/svn/repository/[artifact](-[revision]).[ext]" />
                 <artifact pattern="http://blindside.googlecode.com/svn/repository/[organisation]/[artifact](-[revision]).[ext]" />
