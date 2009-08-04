@@ -15,11 +15,14 @@
 		<mxmlc-compile target="${APP_ROOT}/ListenersModule" />
 		<mxmlc-compile target="${APP_ROOT}/PresentationModule" />
 		<mxmlc-compile target="${APP_ROOT}/VideoModule" />
-		<mxmlc-compile target="${APP_ROOT}/LoginModule" />
 		<mxmlc-compile target="${APP_ROOT}/DeskShareModule" />		
 		<mxmlc-compile target="${APP_ROOT}/PhoneModule" />
+		
+<!-- REMOVE FOR NOW (RALAM AUG 3, 2009)
+		<mxmlc-compile target="${APP_ROOT}/LoginModule" />
 		<mxmlc-compile target="${APP_ROOT}/NotesModule" />
 		<mxmlc-compile target="${APP_ROOT}/HighlighterModule" />
+-->
 		
 		<copy todir="${OUTPUT_DIR}/conf" >
 			<fileset dir="./src/conf" />
