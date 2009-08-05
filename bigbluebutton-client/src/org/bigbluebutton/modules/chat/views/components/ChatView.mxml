@@ -118,12 +118,18 @@
 				localDispatcher.dispatchEvent(privateEvent);
 			}
 			
+
 			private function handleParticipantJoinedEvent(event:ParticipantJoinEvent):void {
 				var item:Object = new Object();
 				item.label = event.participant.name;
 				item.userid = event.participant.userid;
-				participants.addItem(item);
-				trace("New participant " + item.label + "[" + item.userid + "]");
+				if (event.join) {
+					participants.addItem(item);
+					trace("New participant " + item.label + "[" + item.userid + "]");					
+				} else {
+					trace("removing participant " + item.label + "[" + item.userid + "]");
+					removeParticipantFromList(event.participant.userid);
+				}
 			}
 						
 			public function addParticipant(userVO:UserVO):void{
@@ -138,8 +144,12 @@
 				if (tabNav.getChildByName(name) == tabNav.selectedChild){
 					txtMsg.enabled = false;
 				}
+				removeParticipantFromList(name);
+			}
+			
+			private function removeParticipantFromList(userid:String):void {
 				for (var i:Number = 0; i<participants.length; i++){
-					if (participants.getItemAt(i).userid == name) participants.removeItemAt(i);
+					if (participants.getItemAt(i).userid == userid) participants.removeItemAt(i);
 				}
 			}
 			

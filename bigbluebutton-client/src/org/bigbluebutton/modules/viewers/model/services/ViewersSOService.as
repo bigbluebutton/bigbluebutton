@@ -174,13 +174,19 @@ package org.bigbluebutton.modules.viewers.model.services
 			_connectionStatusListener = connectionListener;
 		}
 		
-		public function participantLeft(user:Object):void { 
-			
-			//This sends a notification that a user has left. Another dirty hack, by Denis
+		public function participantLeft(user:Object):void { 			
 			var participant:User = _participants.getParticipant(Number(user));
-			var userObj:Object = {username:participant.name, userid:participant.userid, userrole:participant.role};
-			ViewersFacade.getInstance().sendNotification(ViewersModuleConstants.USER_LEFT, userObj);
-		
+			
+			var p:Participant = new Participant();
+			p.userid = String(participant.userid);
+			p.name = participant.name;
+			
+			var dispatcher:Dispatcher = new Dispatcher();
+			var joinEvent:ParticipantJoinEvent = new ParticipantJoinEvent(ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT);
+			joinEvent.participant = p;
+			joinEvent.join = false;
+			dispatcher.dispatchEvent(joinEvent);	
+			
 			_participants.removeParticipant(Number(user));	
 		}
 		
@@ -207,10 +213,8 @@ package org.bigbluebutton.modules.viewers.model.services
 			var dispatcher:Dispatcher = new Dispatcher();
 			var joinEvent:ParticipantJoinEvent = new ParticipantJoinEvent(ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT);
 			joinEvent.participant = participant;
+			joinEvent.join = true;
 			dispatcher.dispatchEvent(joinEvent);						
-			//This sends a notification that a new user has joined to other modules. Right now a dirty, dirty hack - Denis
-			var userObj:Object = {username:user.name, userid:user.userid, userrole:user.role};
-			ViewersFacade.getInstance().sendNotification(ViewersModuleConstants.USER_JOINED, userObj);
 		}
 		
 		public function participantStatusChange(userid:Number, status:String, value:Object):void {

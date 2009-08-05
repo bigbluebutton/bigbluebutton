@@ -133,6 +133,7 @@ package org.bigbluebutton.modules.chat.services
 			var globalDispatcher:Dispatcher = new Dispatcher();
 			var joinEvent:ParticipantJoinEvent = new ParticipantJoinEvent(ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT);
 			joinEvent.participant = participant;
+			joinEvent.join = true;
 			globalDispatcher.dispatchEvent(joinEvent);
 		}
 		
