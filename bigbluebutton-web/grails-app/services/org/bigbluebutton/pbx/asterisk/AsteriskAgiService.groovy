@@ -37,30 +37,28 @@ class AsteriskAgiService implements AgiScript {
             throws AgiException {
     	
        	def number = request.getParameter("conference")
-		println "you entered $number"
+		log.debug "Looking for conference $number"
 		
 		def conf = ScheduledSession.findByVoiceConferenceBridge(number)
 
 		if (conf) { 
-			println "found one! " + conf.conferenceName
+			log.debug("found conference " + conf.name)
 					
 			def startTime = conf.startDateTime.time - _10_minutes				
-			def endTime = conf.startDateTime.time + conf.lengthOfConference*60*60*1000 + _10_minutes				
+			def endTime = conf.endDateTime.time + _10_minutes				
 			def now = new Date()
 					
-			println "startTime " + new Date(startTime)
-			println "endTime " + new Date(endTime)
-			println "now " + now
+			log.debug("startTime " + new Date(startTime) + " endTime " + new Date(endTime) + " now " + now)
 					
 			if ((startTime < now.time) && (endTime > now.time)) {	
-				println "CONFERENCE_FOUND=$number"
+				log.debug("Setting channel var CONFERENCE_FOUND to $number")
 				channel.setVariable("CONFERENCE_FOUND", number)
 			} else {
-				println ("CONFERENCE_FOUND=")
+				log.debug("The conference $number has no schedule at this moment")
 				channel.setVariable("CONFERENCE_FOUND", "0")
 			}
 		} else {
-			println ("CONFERENCE_INVALID=TRUE")
+			log.debug("Could not find conference $number")
 			channel.setVariable("CONFERENCE_FOUND", "0")
 		}
     } 
