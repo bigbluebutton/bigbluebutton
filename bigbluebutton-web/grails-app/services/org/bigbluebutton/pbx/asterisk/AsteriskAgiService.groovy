@@ -31,68 +31,37 @@ import org.bigbluebutton.web.domain.ScheduledSession
 
 class AsteriskAgiService implements AgiScript {
 
-    private int tries = 0
     private long _10_minutes = 10*60*1000
-    
-    def conferenceRecordingDir = "/var/spool/asterisk/meetme"
     
     public void service(AgiRequest request, AgiChannel channel)
             throws AgiException {
-        try {
-	        tries = 0
-	        boolean found = false
-	        while ((tries < 3).and(!found)) {
-	            
-				def number = channel.getData("conf-getconfno", 10000, 10)
-				log.debug "The user pressed $number "
-			
-				def conf = ScheduledSession.findByVoiceConferenceBridge(number)
-	
-				if (conf) { 
-					def startTime = conf.startDateTime.time - _10_minutes				
-					def endTime = conf.endDateTime.time + _10_minutes				
-					def now = new Date().time
+    	
+       	def number = request.getParameter("conference")
+		println "you entered $number"
+		
+		def conf = ScheduledSession.findByVoiceConferenceBridge(number)
+
+		if (conf) { 
+			println "found one! " + conf.conferenceName
 					
-					if ((startTime < now) && (endTime > now)) {				
-						channel.streamFile("conf-placeintoconf")
-						
-						/**
-						 * # 'c' — announce user(s) count on joining a conference
-						 * # 'd' — dynamically add conference
-						 * # 'M' — enable music on hold when the conference has a single caller
-						 * # 'q' — quiet mode (don't play enter/leave sounds)
-						 * # 'r' — Record conference
-						 * # 's' — Present menu (user or admin) when '*' is received ('send' to menu)
-						 * # 'T' — set talker detection (sent to manager interface and meetme list)
-						 */
-						 def RECORD_OPTION = ""
-						 if (conf.record) {
-							 log.debug "Recording voice conference"
-							 RECORD_OPTION = "r"
-							 def recordedFile = "/var/spool/asterisk/meetme/${now}-${number}-conf-record"
-							 log.debug "Recording voice conference $recordedFile"
-							 channel.setVariable("MEETME_RECORDINGFILE", recordedFile)
-						 } else {
-							 log.debug "Not recording voice conference"
-						 }
-						
-						def OPTIONS = "cdMqs${RECORD_OPTION}T"
-						
-						channel.exec("Meetme", "$number|$OPTIONS")
-						found = true
-					} else {
-						channel.streamFile("conference")
-						channel.streamFile("is")
-						channel.streamFile("unavailable")
-					}
-				} else {
-					channel.streamFile("conf-invalid")
-				}
-				tries++
+			def startTime = conf.startDateTime.time - _10_minutes				
+			def endTime = conf.startDateTime.time + conf.lengthOfConference*60*60*1000 + _10_minutes				
+			def now = new Date()
+					
+			println "startTime " + new Date(startTime)
+			println "endTime " + new Date(endTime)
+			println "now " + now
+					
+			if ((startTime < now.time) && (endTime > now.time)) {	
+				println "CONFERENCE_FOUND=$number"
+				channel.setVariable("CONFERENCE_FOUND", number)
+			} else {
+				println ("CONFERENCE_FOUND=")
+				channel.setVariable("CONFERENCE_FOUND", "0")
 			}
-			channel.streamFile("goodbye")
-        } catch (AgiHangupException e) {
-        	log.debug "User has hangup"
-        }
+		} else {
+			println ("CONFERENCE_INVALID=TRUE")
+			channel.setVariable("CONFERENCE_FOUND", "0")
+		}
     } 
 }
