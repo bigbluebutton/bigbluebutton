@@ -19,6 +19,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 		<property name="mappings">
 			<map>
 				<entry key="meetme.groovy" value-ref="asteriskAgi" />
+				<entry key="findConference" value-ref="asteriskAgi" />
 			</map>
 		</property>
 	</bean>
