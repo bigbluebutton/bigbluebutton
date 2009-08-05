@@ -5,6 +5,8 @@
 			import mx.controls.Alert;
 			import mx.controls.Button;
 			public var read:Boolean = true;
+			public var participantLoggedOut:Boolean = false;
+			
 			[Bindable]
 			private var backgroundColor:uint = 0x000000;
 			

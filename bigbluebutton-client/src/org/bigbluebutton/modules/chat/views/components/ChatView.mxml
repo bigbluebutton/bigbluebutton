@@ -2,6 +2,7 @@
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:mate="http://mate.asfusion.com/"
 	creationComplete="onCreationComplete()"
+	xmlns:flexlib="http://code.google.com/p/flexlib/"
 	width="100%" height="100%">
 
 	<mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
@@ -10,6 +11,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import flexlib.events.SuperTabEvent;
 			import org.bigbluebutton.modules.chat.events.QueryParticipantsEvent;
 			import org.bigbluebutton.main.events.ParticipantJoinEvent;
 			import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
@@ -34,6 +36,7 @@
 			private function onCreationComplete():void{
 				addParticipant(new UserVO("All", PUBLIC_CHAT_USERID));
 				onOpenChatBox();
+				addEventListener(SuperTabEvent.TAB_CLOSE, onUserClosedTab);
 			}
 			
 			public function setFocusOn(component:UIComponent):void
@@ -141,10 +144,21 @@
 			}
 			
 			public function removeParticipant(name:String):void{
-				if (tabNav.getChildByName(name) == tabNav.selectedChild){
-					txtMsg.enabled = false;
+				var chatBox:ChatBox = findChatBox(name);
+				if (chatBox != null) {
+					chatBox.participantLoggedOut = true;
 				}
+				if (isChatBoxDisplayed(name)){
+					txtMsg.enabled = false;
+				}				
 				removeParticipantFromList(name);
+			}
+			
+			private function isChatBoxDisplayed(id:String):Boolean {
+				if (tabNav.getChildByName(id) == tabNav.selectedChild){
+					return true;
+				}
+				return false;
 			}
 			
 			private function removeParticipantFromList(userid:String):void {
@@ -213,8 +227,12 @@
 				showPrivateMessage(event.message);
 			}
 			
+			private function findChatBox(id:String):ChatBox {
+				return tabNav.getChildByName(id) as ChatBox;
+			}
+			
 			public function showPrivateMessage(message:MessageVO):void{
-				var chatBox:ChatBox = tabNav.getChildByName(message.sender) as ChatBox;
+				var chatBox:ChatBox = findChatBox(message.sender);
 				if (chatBox == null) {
 					chatBox = createChatBox(message.sender);
 				}
@@ -222,9 +240,17 @@
 				if (tabNav.selectedChild.name != message.sender) setMessageUnread(message.sender);
 				chatBox.showNewMessage(message.message);
 			}
+			
+			private function onTabClose(e:SuperTabEvent):void{
+				dispatchEvent(e);
+			}
+			
+			private function onUserClosedTab(e:SuperTabEvent):void{
+				var name:String = tabNav.getChildAt(e.tabIndex).name;
+			}
 		]]>
 	</mx:Script>
-	<mx:TabNavigator id="tabNav" width="100%" height="100%" change="updateTabNav()"/>
+	<flexlib:SuperTabNavigator id="tabNav" width="100%" height="100%" change="updateTabNav()" tabClose="onTabClose(event)"/>
 	
 	<mx:ApplicationControlBar id="chatCtrlBar" width="100%" height="10%">		
 		<mx:TextInput id="txtMsg" width="100%" enter="sendMessages()"/>
