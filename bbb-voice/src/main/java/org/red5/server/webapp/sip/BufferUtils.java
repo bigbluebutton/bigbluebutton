@@ -1,11 +1,11 @@
 package org.red5.server.webapp.sip;
 
+import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class BufferUtils {
 
-    protected static Logger log = LoggerFactory.getLogger( RTPStreamSender.class );
+    protected static Logger log = Red5LoggerFactory.getLogger( RTPStreamSender.class, "sip" );
 
 
     /**
@@ -63,12 +63,12 @@ public class BufferUtils {
         int origBufferIndex = startOrigBuffer;
         int counter = 0;
 
-        println( "byteBufferIndexedCopy",
-                "destBuffer.length = " + destBuffer.length +
-                ", startDestBuffer = " + startDestBuffer +
-                ", origBuffer.length = " + origBuffer.length +
-                ", startOrigBuffer = " + startOrigBuffer +
-                ", copySize = " + copySize + "." );
+//        println( "byteBufferIndexedCopy",
+///                "destBuffer.length = " + destBuffer.length +
+ //               ", startDestBuffer = " + startDestBuffer +
+ //               ", origBuffer.length = " + origBuffer.length +
+ //              ", startOrigBuffer = " + startOrigBuffer +
+ //               ", copySize = " + copySize + "." );
 
         if ( destBuffer.length < ( startDestBuffer + copySize ) ) {
             println( "byteBufferIndexedCopy", "size copy problem." );

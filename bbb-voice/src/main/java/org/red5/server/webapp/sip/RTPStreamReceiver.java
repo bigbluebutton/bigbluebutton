@@ -218,6 +218,10 @@ public class RTPStreamReceiver extends Thread {
     /** Runs it in a new Thread. */
     public void run() {
 
+        int packetLength = 0;
+        int headerOffset = 0;
+        int payloadLength = 0;
+        
         if ( rtpSocket == null ) {
             println( "run", "RTP socket is null." );
             return;
@@ -227,8 +231,7 @@ public class RTPStreamReceiver extends Thread {
       	encoderMap = new float[64];
 
         tempBuffer = new float[ NELLYMOSER_DECODED_PACKET_SIZE ];
-
-        byte[] codedBuffer = new byte[ sipCodec.getIncomingEncodedFrameSize() ];
+        
         byte[] internalBuffer = new byte[
                 sipCodec.getIncomingEncodedFrameSize() + RTP_HEADER_SIZE ];
 
@@ -240,14 +243,15 @@ public class RTPStreamReceiver extends Thread {
 
             rtpSocket.getDatagramSocket().setSoTimeout( SO_TIMEOUT );
 
-            float[] decodingBuffer = new float[ sipCodec.getIncomingDecodedFrameSize() ];
-            int packetCount = 0;
 
-            println( "run",
-                    "internalBuffer.length = " + internalBuffer.length
-                    + ", codedBuffer.length = " + codedBuffer.length
-                    + ", decodingBuffer.length = " + decodingBuffer.length + "." );
 
+//            println( "run",
+//                    "internalBuffer.length = " + internalBuffer.length
+ //                   + ", codedBuffer.length = " + codedBuffer.length
+ //                   + ", decodingBuffer.length = " + decodingBuffer.length + "." );
+
+
+            
             while ( running ) {
 
                 try {
@@ -260,17 +264,24 @@ public class RTPStreamReceiver extends Thread {
                         int offset = rtpPacket.getHeaderLength();
                         int length = rtpPacket.getPayloadLength();
 
-                        //println( "run",
-                        //        "pkt.length = " + packetBuffer.length
-                        //        + ", offset = " + offset
-                        //        + ", length = " + length + "." );
+                        packetLength = packetBuffer.length;
+                        headerOffset = offset;
+                        payloadLength = length;
+                        
+                        float[] decodingBuffer = new float[  length ];
+                        byte[] codedBuffer = new byte[  length ];
+                        
+                   //     println( "run",
+                   //             "pkt.length = " + packetBuffer.length
+                   //             + ", offset = " + offset
+                   //             + ", length = " + length + "." );
 
                         BufferUtils.byteBufferIndexedCopy(
                                 codedBuffer,
                                 0,
                                 packetBuffer,
                                 offset,
-                                sipCodec.getIncomingEncodedFrameSize() );
+                                length );
 
                         int decodedBytes = sipCodec.codecToPcm( codedBuffer, decodingBuffer );
 
@@ -295,6 +306,12 @@ public class RTPStreamReceiver extends Thread {
         catch ( Exception e ) {
 
             running = false;
+            println("run", sipCodec.getCodecName());
+                 println( "run",
+                         "pkt.length = " + packetLength
+                         + ", offset = " + headerOffset
+                         + ", length = " + payloadLength + "." );
+            println("Exception - ", e.toString());
             e.printStackTrace();
         }
 
