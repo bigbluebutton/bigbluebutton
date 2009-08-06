@@ -3,6 +3,7 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
 			import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
 			import org.bigbluebutton.modules.phone.events.RegistrationSuccessEvent;
 			import org.bigbluebutton.core.events.ConnectionStatusEvent;
@@ -49,8 +50,13 @@
 		<MethodInvoker generator="{PhoneManager}" method="dialConference"/>
     </EventHandlers>
 
-	<EventHandlers type="{CallConnectedEvent.CALL_CONNECTED_EVENT}">        
+	<EventHandlers type="{CallConnectedEvent.CALL_CONNECTED_EVENT}">     
+		<MethodInvoker generator="{PhoneLocalEventMapDelegate}" method="disableToolbarButton"/>
 		<MethodInvoker generator="{PhoneManager}" method="callConnected" arguments="{event}"/>
+    </EventHandlers>
+    
+    <EventHandlers type="{CallDisconnectedEvent.CALL_DISCONNECTED_EVENT}">     
+		<MethodInvoker generator="{PhoneLocalEventMapDelegate}" method="enableToolbarButton"/>
     </EventHandlers>
         
     <EventHandlers type="{ConnectionStatusEvent.CONNECTION_STATUS_EVENT}">        

@@ -48,5 +48,13 @@ package org.bigbluebutton.modules.phone.maps
 		   	
 		   	buttonOpen = false;
 		}
+		
+		public function disableToolbarButton():void {
+			phoneButton.enabled = false;
+		}
+		
+		public function enableToolbarButton():void {
+			phoneButton.enabled = true;
+		}
 	}
 }

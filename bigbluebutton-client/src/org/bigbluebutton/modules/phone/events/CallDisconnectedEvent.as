@@ -6,7 +6,7 @@ package org.bigbluebutton.modules.phone.events
 	{
 		public static const CALL_DISCONNECTED_EVENT:String = 'CALL_DISCONNECTED_EVENT';
 		
-		public function CallDisconnectedEvent(bubbles:Boolean=false, cancelable:Boolean=false)
+		public function CallDisconnectedEvent(bubbles:Boolean=true, cancelable:Boolean=false)
 		{
 			super(CALL_DISCONNECTED_EVENT, bubbles, cancelable);
 		}

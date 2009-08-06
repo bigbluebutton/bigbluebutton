@@ -21,11 +21,18 @@
 --> 
 
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
-	icon="{phoneIcon}" click="startPhone()">
+	icon="{phoneIcon}" click="startPhone()"
+	xmlns:mate="http://mate.asfusion.com/">
+	
+	<mate:Listener type="{CallConnectedEvent.CALL_CONNECTED_EVENT}" method="handleCallConnectedEvent"/>
+	<mate:Listener type="{CallDisconnectedEvent.CALL_DISCONNECTED_EVENT}" method="handleCallDisconnectedEvent"/>
+	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
+			import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
 			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceEvent;
-			import org.bigbluebutton.modules.phone.view.components.Images;
+			import org.bigbluebutton.modules.phone.views.assets.Images;
 			
 			private var images:Images = new Images();
 			private var localDispatcher:IEventDispatcher;
@@ -39,6 +46,15 @@
 			public function setLocalDispatcher(dispatcher:IEventDispatcher):void {
 				localDispatcher = dispatcher;
 			} 
+			
+			private function handleCallConnectedEvent(event:CallConnectedEvent):void {
+				this.enabled = false;
+			}
+			
+			private function handleCallDisconnectedEvent(event:CallConnectedEvent):void {
+				this.enabled = true;
+			}
+			
 		]]>
 	</mx:Script>
 </mx:Button>

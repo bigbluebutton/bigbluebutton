@@ -19,7 +19,10 @@
  */
 package org.bigbluebutton.modules.phone.managers {
 	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.AsyncErrorEvent;
+	import flash.events.Event;
 	import flash.events.IEventDispatcher;
 	import flash.events.NetStatusEvent;
 	import flash.events.SecurityErrorEvent;
@@ -146,7 +149,7 @@ package org.bigbluebutton.modules.phone.managers {
 				trace("Call has been disconnected.");
 				isConnected = false;
 				var event:CallDisconnectedEvent = new CallDisconnectedEvent();
-				localDispatcher.dispatchEvent(event);
+				localDispatcher.dispatchEvent(event);				
 			}
 		}
 				
@@ -158,7 +161,7 @@ package org.bigbluebutton.modules.phone.managers {
 			event.playStreamName = playName;
 			localDispatcher.dispatchEvent(event);
 		}
-				
+						
 		//********************************************************************************************
 		//			
 		//			SIP Actions

@@ -9,7 +9,7 @@ package org.bigbluebutton.modules.phone.events
 		public var publishStreamName:String;
 		public var playStreamName:String;
 		
-		public function CallConnectedEvent(bubbles:Boolean=false, cancelable:Boolean=false)
+		public function CallConnectedEvent(bubbles:Boolean=true, cancelable:Boolean=false)
 		{
 			super(CALL_CONNECTED_EVENT, bubbles, cancelable);
 		}

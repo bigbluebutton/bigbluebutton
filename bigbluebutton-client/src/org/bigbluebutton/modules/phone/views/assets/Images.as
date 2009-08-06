@@ -17,16 +17,12 @@
 * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 * 
 */
-package org.bigbluebutton.modules.phone.view.components
+package org.bigbluebutton.modules.phone.views.assets
 {
 	[Bindable]
 		public class Images
-	{
-
-        [Embed(source="../assets/images/stop.png")]
-        public var stop:Class;        
-        
-        [Embed(source="../assets/images/phone_sound.png")]
+	{             
+        [Embed(source="images/phone_sound.png")]
         public var phone_sound_icon:Class;  
         
 	}
