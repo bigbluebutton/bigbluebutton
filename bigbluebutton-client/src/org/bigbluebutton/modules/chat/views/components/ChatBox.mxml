@@ -33,6 +33,7 @@
 				var url:URLRequest = new URLRequest(e.text);
 				navigateToURL(url, '_blank');
 			}
+		
 			
 		]]>
 	</mx:Script>

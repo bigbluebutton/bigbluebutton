@@ -11,6 +11,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import flexlib.controls.tabBarClasses.SuperTab;
 			import flexlib.events.SuperTabEvent;
 			import org.bigbluebutton.modules.chat.events.QueryParticipantsEvent;
 			import org.bigbluebutton.main.events.ParticipantJoinEvent;
@@ -25,8 +26,8 @@
 			import mx.collections.ArrayCollection;
 			import mx.core.UIComponent;
 									
-			public static const SEND_MESSAGE:String = 'sendMessageEvent';
 			private static const PUBLIC_CHAT_USERID:String = '0';
+			private static const PUBLIC_CHAT_USERNAME:String = 'All';
 			
 			public var localDispatcher:IEventDispatcher;
 			
@@ -34,11 +35,16 @@
 			private var participants:ArrayCollection = new ArrayCollection();
 						
 			private function onCreationComplete():void{
-				addParticipant(new UserVO("All", PUBLIC_CHAT_USERID));
-				onOpenChatBox();
+				addParticipantToList(PUBLIC_CHAT_USERID, PUBLIC_CHAT_USERNAME);
+				openChatBoxFor(PUBLIC_CHAT_USERID);
+				callLater(makePublicChatUncloseable);
 				addEventListener(SuperTabEvent.TAB_CLOSE, onUserClosedTab);
 			}
 			
+			private function makePublicChatUncloseable():void {
+                chatTabs.setClosePolicyForTab(0, SuperTab.CLOSE_NEVER);
+            }
+                        
 			public function setFocusOn(component:UIComponent):void
 			{
 				if (component.id == "txtMsg") {
@@ -64,18 +70,26 @@
 				return t;
 			}
 		
-		    public function sendMessages():void
+		    private function sendMessages():void
 		    {
 		    	trace("Sending message");
-		    	if (txtMsg.text != ""){				
-					if (tabNav.selectedChild.name == PUBLIC_CHAT_USERID) {						
+		    	if (hasMessageToSend()){				
+					if (isChatBoxCurrentlySelected(PUBLIC_CHAT_USERID)) {						
 						sendPublicChatMessage();
 					} else{						
 						sendPrivateChatMessage();
 					}
-					txtMsg.text = "";
+					clearMessageEntryTextBox();
 			   	}
 			}			
+			
+			private function hasMessageToSend():Boolean {
+				return txtMsg.text != "";
+			}
+			
+			private function clearMessageEntryTextBox():void {
+				txtMsg.text = "";
+			}
 			
 			private function parseURLs(message:String):String{
 				var indexOfHTTP:Number = message.indexOf("http://");
@@ -113,140 +127,157 @@
 				trace("Sending private chat message");
 				var privateEvent:SendPrivateChatMessageEvent = new SendPrivateChatMessageEvent(SendPrivateChatMessageEvent.SEND_PRIVATE_CHAT_MESSAGE_EVENT);
 				privateEvent.message = parseURLs(txtMsg.text);
-				privateEvent.toUser = tabNav.selectedChild.name;
+				privateEvent.toUser = chatTabs.selectedChild.name;
 				privateEvent.color = cmpColorPicker.selectedColor.toString(16);
 				privateEvent.time = currentTime();
 				localDispatcher.dispatchEvent(privateEvent);
 			}
 			
 			private function handleParticipantJoinedEvent(event:ParticipantJoinEvent):void {
-				var item:Object = new Object();
-				item.label = event.participant.name;
-				item.userid = event.participant.userid;
 				if (event.join) {
-					participants.addItem(item);
-					trace("New participant " + item.label + "[" + item.userid + "]");					
+					trace("New participant " + event.participant.name + "[" + event.participant.userid + "]");	
+					addParticipantToList(event.participant.userid, event.participant.name);									
 				} else {
-					trace("removing participant " + item.label + "[" + item.userid + "]");
+					trace("removing participant " + event.participant.name + "[" + event.participant.userid + "]");
 					removeParticipantFromList(event.participant.userid);
 				}
 			}
-						
-			public function addParticipant(userVO:UserVO):void{
-				 
-				var item:Object = new Object();
-				item.label = userVO.username;
-				item.userid = userVO.userid;
-				participants.addItem(item);
-			}
-			
-			public function removeParticipant(name:String):void{
-				var chatBox:ChatBox = findChatBox(name);
-				if (chatBox != null) {
-					chatBox.participantLoggedOut = true;
-				}
-				if (isChatBoxCurrentlySelected(name)){
-					disableMessageEntryTextBox();
-				}				
-				removeParticipantFromList(name);
-			}
-			
+					
 			private function isChatBoxCurrentlySelected(id:String):Boolean {
-				if (tabNav.getChildByName(id) == tabNav.selectedChild){
+				if (chatTabs.getChildByName(id) == chatTabs.selectedChild){
 					return true;
 				}
 				return false;
 			}
 			
+			private function addParticipantToList(userid:String, name:String):void {
+				var item:Object = new Object();
+				item.label = name;
+				item.userid = userid;
+				participants.addItem(item);
+			}
+			
 			private function removeParticipantFromList(userid:String):void {
 				for (var i:Number = 0; i<participants.length; i++){
-					if (participants.getItemAt(i).userid == userid) participants.removeItemAt(i);
+					if (participants.getItemAt(i).userid == userid) {
+						participants.removeItemAt(i);
+						updateChatBoxThatParticipantHasLeft(userid);
+					}
 				}
 			}
 			
-			public function setMessageUnread(name:String):void{
-				var tab:Button = tabNav.getTabAt(tabNav.getChildIndex(tabNav.getChildByName(name)));
+			private function updateChatBoxThatParticipantHasLeft(userid:String):void {
+				if (participantHasChatBox(userid)) {
+					var chatBox:ChatBox = getChatBoxForParticipant(userid);
+					trace("Setting participantLoggedOut to true");
+					chatBox.participantLoggedOut = true;
+					
+					if (isChatBoxCurrentlySelected(userid)) {
+						disableMessageEntryTextBox();
+					}
+				}
+			}
+			
+			private function notifyParticipantOfUnreadMessageFrom(userid:String):void {
+				var chatBox:ChatBox = getChatBoxForParticipant(userid);
+				var tabIndex:int = getTabIndexFor(chatBox);
+				var tab:Button = chatTabs.getTabAt(tabIndex);
 				tab.setStyle("fillColors", new Array(0xFFAE00, 0xD3800A));
 				tab.setStyle("fillAlphas", new Array(1.0, 0.8));
 			}
 			
-			private function updateTabNav():void{
-				var tab:Button = tabNav.getTabAt(tabNav.selectedIndex);
-				tab.setStyle("fillColors", new Array(0xFFFFFF, 0xCCCCCC));
-				var found:Boolean = false;
-				for (var i:Number = 0; i<participants.length; i++){
-					if (participants.getItemAt(i).label == tab.label){
-						participantList.selectedItem = participants.getItemAt(i); 
-						found = true;
-					}
-				}
-				
-				if (found) {
-					enableMessageEntryTextBox();
-				}
+			private function getTabIndexFor(chatBox:ChatBox):int {
+				return chatTabs.getChildIndex(chatBox);
 			}
 			
-			public function getParticipantName(userid:String):String{
+			private function onTabNavChange():void{
+				var tab:Button = chatTabs.getTabAt(chatTabs.selectedIndex);
+				tab.setStyle("fillColors", new Array(0xFFFFFF, 0xCCCCCC));
+
+				var chatBox:ChatBox = chatTabs.getChildAt(chatTabs.selectedIndex) as ChatBox;
+				if (chatBox.participantLoggedOut) {
+					trace("Disabling message box");
+					disableMessageEntryTextBox();
+				} else {
+					trace("Enabling message box");
+					enableMessageEntryTextBox();
+				}				
+			}
+						
+			private function getParticipantName(userid:String):String{
 				for (var i:Number = 0; i<participants.length; i++){
 					if (participants.getItemAt(i).userid == userid) return participants.getItemAt(i).label;
 				}
 				return "unknown user";
 			}
 			
-			public function onOpenChatBox():void{				
-				var name:String = participantList.selectedItem.userid;
-				trace("Opening chat box " + name);
-				if (tabNav.getChildByName(name) != null){
-					tabNav.selectedChild = tabNav.getChildByName(name) as Container;
-					return;
-				}
-				
-				var chatBox:ChatBox = createChatBox(name);
-				tabNav.selectedChild = chatBox;
+			private function onOpenChatBox():void{				
+				var userid:String = participantList.selectedItem.userid;
+				openChatBoxFor(userid);
 			}
 			
-			private function createChatBox(owner:String):ChatBox {				
+			private function openChatBoxFor(userid:String):void {
+				trace("Opening chat box " + userid);
+				var chatBox:ChatBox;
+				
+				if (participantHasChatBox(userid)) {
+					chatBox = getChatBoxForParticipant(userid);
+				} else {
+					chatBox = createChatBoxFor(userid);
+				}
+								 
+				chatTabs.selectedChild = chatBox;				
+			}
+			
+			private function createChatBoxFor(userid:String):ChatBox {				
 				var chatBox:ChatBox = new ChatBox();
-				chatBox.id = getParticipantName(owner);
-				chatBox.label = getParticipantName(owner);
-				chatBox.name = owner;
-				tabNav.addChild(chatBox);
+				chatBox.id = getParticipantName(userid);
+				chatBox.label = getParticipantName(userid);
+				chatBox.name = userid;
+				chatTabs.addChild(chatBox);
 				return chatBox;
 			}
 
 			private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
-				trace("Got PrivateChatMessageEvent");
-				var publicChat:ChatBox = tabNav.getChildByName(PUBLIC_CHAT_USERID) as ChatBox;
-				publicChat.showNewMessage(event.message);
-				if (! isChatBoxCurrentlySelected(PUBLIC_CHAT_USERID)) 
-						setMessageUnread(PUBLIC_CHAT_USERID);
+				trace("Got PublicChatMessageEvent");
+				showMessage(PUBLIC_CHAT_USERID, event.message);
 			}
 			
 			private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
 				trace("Got PrivateChatMessageEvent");
-				showPrivateMessage(event.message);
+				showMessage(event.message.sender, event.message.message);
 			}
 			
-			private function findChatBox(id:String):ChatBox {
-				return tabNav.getChildByName(id) as ChatBox;
+			private function participantHasChatBox(id:String):Boolean {
+				var chatBox:ChatBox = chatTabs.getChildByName(id) as ChatBox;
+				if (chatBox != null) return true;
+				return false;
 			}
 			
-			public function showPrivateMessage(message:MessageVO):void{
-				var chatBox:ChatBox = findChatBox(message.sender);
-				if (chatBox == null) {
-					chatBox = createChatBox(message.sender);
+			private function getChatBoxForParticipant(id:String):ChatBox {
+				return chatTabs.getChildByName(id) as ChatBox;
+			}
+			
+			private function showMessage(sender:String, message:String):void{
+				var chatBox:ChatBox;
+				if (! participantHasChatBox(sender)) {
+					chatBox = createChatBoxFor(sender);
 				}
 				
-				if (! isChatBoxCurrentlySelected(message.sender)) setMessageUnread(message.sender);
-				chatBox.showNewMessage(message.message);
+				chatBox = getChatBoxForParticipant(sender);
+				chatBox.showNewMessage(message);
+				
+				if (! isChatBoxCurrentlySelected(sender)) {
+					notifyParticipantOfUnreadMessageFrom(sender);
+				}				
 			}
-			
+						
 			private function onTabClose(e:SuperTabEvent):void{
 				dispatchEvent(e);
 			}
 			
 			private function onUserClosedTab(e:SuperTabEvent):void{
-				var name:String = tabNav.getChildAt(e.tabIndex).name;
+				var name:String = chatTabs.getChildAt(e.tabIndex).name;
 			}
 			
 			private function enableMessageEntryTextBox():void {
@@ -258,7 +289,7 @@
 			}
 		]]>
 	</mx:Script>
-	<flexlib:SuperTabNavigator id="tabNav" width="100%" height="100%" change="updateTabNav()" tabClose="onTabClose(event)"/>
+	<flexlib:SuperTabNavigator id="chatTabs" width="100%" height="100%" change="onTabNavChange()" tabClose="onTabClose(event)"/>
 	
 	<mx:ApplicationControlBar id="chatCtrlBar" width="100%" height="10%">		
 		<mx:TextInput id="txtMsg" width="100%" enter="sendMessages()"/>
