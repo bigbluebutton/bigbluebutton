@@ -24,6 +24,7 @@ package org.bigbluebutton.modules.deskShare.view
 	import flash.external.ExternalInterface;
 	import flash.media.Video;
 	import flash.net.NetStream;
+	import flash.system.Capabilities;
 	
 	import mx.core.UIComponent;
 	
@@ -265,9 +266,16 @@ package org.bigbluebutton.modules.deskShare.view
 			captureWidth = Math.round(_window.dimensionsBox.box.width * DeskShareModuleConstants.SCALE - 5);
 			captureHeight = Math.round(_window.dimensionsBox.box.height * DeskShareModuleConstants.SCALE - 5);
 			sharing = true;
+			var os:String = Capabilities.os;
+			var useTunnel:Boolean;
+			if (os == "MacOs") {
+				useTunnel = true;
+			} else {
+				useTunnel = _module.tunnel();
+			}
 			ExternalInterface.call("startApplet", _module.getCaptureServerUri(), _module.getRoom(), 
 														captureX, captureY, captureWidth, captureHeight,
-														_module.tunnel().toString());			
+														useTunnel.toString());			
 		}
 		
 		private function stopSharing():void {
