@@ -37,12 +37,19 @@
 			private function onCreationComplete():void{
 				addParticipantToList(PUBLIC_CHAT_USERID, PUBLIC_CHAT_USERNAME);
 				openChatBoxFor(PUBLIC_CHAT_USERID);
-				callLater(makePublicChatUncloseable);
+				makePublicChatUncloseable();
 				addEventListener(SuperTabEvent.TAB_CLOSE, onUserClosedTab);
 			}
 			
 			private function makePublicChatUncloseable():void {
-                chatTabs.setClosePolicyForTab(0, SuperTab.CLOSE_NEVER);
+				// See definition of callLater on Adobe Flash doc.
+                callLater(calledOnTheNextScreenRefresh);
+            }
+            
+            private function calledOnTheNextScreenRefresh():void {
+            	var chatBox:ChatBox = getChatBoxForParticipant(PUBLIC_CHAT_USERID);
+            	var chatIndex:int = getTabIndexFor(chatBox);
+            	chatTabs.setClosePolicyForTab(chatIndex, SuperTab.CLOSE_NEVER);
             }
                         
 			public function setFocusOn(component:UIComponent):void
