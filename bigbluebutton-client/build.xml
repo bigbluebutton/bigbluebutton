@@ -56,8 +56,8 @@
 			<fileset dir="./src/org/bigbluebutton/modules/video/view/assets/images/" />
 		</copy>
 
-		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/phone/view/assets/images/" >
-			<fileset dir="./src/org/bigbluebutton/modules/phone/view/assets/images/" />
+		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/phone/views/assets/images/" >
+			<fileset dir="./src/org/bigbluebutton/modules/phone/views/assets/images/" />
 		</copy>
 		
 		<copy file="./html-template/deskshareapplet-0.1.jar" todir="${OUTPUT_DIR}"/>
