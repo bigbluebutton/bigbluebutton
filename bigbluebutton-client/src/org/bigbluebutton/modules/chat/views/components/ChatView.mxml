@@ -57,7 +57,7 @@
 				this.txtMsg.drawFocus(false);
 			}
 			
-			private function time() : String
+			private function currentTime() : String
 			{
 				var date:Date = new Date();
 				var t:String = date.toLocaleTimeString();
@@ -68,21 +68,10 @@
 		    {
 		    	trace("Sending message");
 		    	if (txtMsg.text != ""){				
-					if (tabNav.selectedChild.name == PUBLIC_CHAT_USERID) {
-						var publicEvent:SendPublicChatMessageEvent = new SendPublicChatMessageEvent(SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT);
-						publicEvent.message = parseURLs(txtMsg.text);
-						publicEvent.color = cmpColorPicker.selectedColor.toString(16);
-						publicEvent.time = time();
-						
-						sendPublicChatMessage(publicEvent);
-					} else{
-						var privateEvent:SendPrivateChatMessageEvent = new SendPrivateChatMessageEvent(SendPrivateChatMessageEvent.SEND_PRIVATE_CHAT_MESSAGE_EVENT);
-						privateEvent.message = parseURLs(txtMsg.text);
-						privateEvent.toUser = tabNav.selectedChild.name;
-						privateEvent.color = cmpColorPicker.selectedColor.toString(16);
-						privateEvent.time = time();
-						
-						sendPrivateChatMessage(privateEvent);
+					if (tabNav.selectedChild.name == PUBLIC_CHAT_USERID) {						
+						sendPublicChatMessage();
+					} else{						
+						sendPrivateChatMessage();
 					}
 					txtMsg.text = "";
 			   	}
@@ -105,8 +94,12 @@
 				return parsedString;
 			}
 		
-			private function sendPublicChatMessage(publicEvent:SendPublicChatMessageEvent):void {
+			private function sendPublicChatMessage():void {
 				trace("Sending public chat message");
+				var publicEvent:SendPublicChatMessageEvent = new SendPublicChatMessageEvent(SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT);
+				publicEvent.message = parseURLs(txtMsg.text);
+				publicEvent.color = cmpColorPicker.selectedColor.toString(16);
+				publicEvent.time = currentTime();
 				localDispatcher.dispatchEvent(publicEvent);
 			}
 			
@@ -116,12 +109,16 @@
 				localDispatcher.dispatchEvent(event);
 			}
 			
-			private function sendPrivateChatMessage(privateEvent:SendPrivateChatMessageEvent):void {
+			private function sendPrivateChatMessage():void {
 				trace("Sending private chat message");
+				var privateEvent:SendPrivateChatMessageEvent = new SendPrivateChatMessageEvent(SendPrivateChatMessageEvent.SEND_PRIVATE_CHAT_MESSAGE_EVENT);
+				privateEvent.message = parseURLs(txtMsg.text);
+				privateEvent.toUser = tabNav.selectedChild.name;
+				privateEvent.color = cmpColorPicker.selectedColor.toString(16);
+				privateEvent.time = currentTime();
 				localDispatcher.dispatchEvent(privateEvent);
 			}
 			
-
 			private function handleParticipantJoinedEvent(event:ParticipantJoinEvent):void {
 				var item:Object = new Object();
 				item.label = event.participant.name;
@@ -148,13 +145,13 @@
 				if (chatBox != null) {
 					chatBox.participantLoggedOut = true;
 				}
-				if (isChatBoxDisplayed(name)){
-					txtMsg.enabled = false;
+				if (isChatBoxCurrentlySelected(name)){
+					disableMessageEntryTextBox();
 				}				
 				removeParticipantFromList(name);
 			}
 			
-			private function isChatBoxDisplayed(id:String):Boolean {
+			private function isChatBoxCurrentlySelected(id:String):Boolean {
 				if (tabNav.getChildByName(id) == tabNav.selectedChild){
 					return true;
 				}
@@ -183,7 +180,10 @@
 						found = true;
 					}
 				}
-				txtMsg.enabled = found;
+				
+				if (found) {
+					enableMessageEntryTextBox();
+				}
 			}
 			
 			public function getParticipantName(userid:String):String{
@@ -218,7 +218,7 @@
 				trace("Got PrivateChatMessageEvent");
 				var publicChat:ChatBox = tabNav.getChildByName(PUBLIC_CHAT_USERID) as ChatBox;
 				publicChat.showNewMessage(event.message);
-				if (tabNav.selectedChild.name != PUBLIC_CHAT_USERID) 
+				if (! isChatBoxCurrentlySelected(PUBLIC_CHAT_USERID)) 
 						setMessageUnread(PUBLIC_CHAT_USERID);
 			}
 			
@@ -237,7 +237,7 @@
 					chatBox = createChatBox(message.sender);
 				}
 				
-				if (tabNav.selectedChild.name != message.sender) setMessageUnread(message.sender);
+				if (! isChatBoxCurrentlySelected(message.sender)) setMessageUnread(message.sender);
 				chatBox.showNewMessage(message.message);
 			}
 			
@@ -247,6 +247,14 @@
 			
 			private function onUserClosedTab(e:SuperTabEvent):void{
 				var name:String = tabNav.getChildAt(e.tabIndex).name;
+			}
+			
+			private function enableMessageEntryTextBox():void {
+				txtMsg.enabled = true;
+			}
+			
+			private function disableMessageEntryTextBox():void {
+				txtMsg.enabled = false;
 			}
 		]]>
 	</mx:Script>
