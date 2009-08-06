@@ -21,6 +21,7 @@ package org.bigbluebutton.modules.viewers.model.business
 {
 	import mx.collections.ArrayCollection;
 	
+	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.modules.viewers.model.vo.Status;
 	import org.bigbluebutton.modules.viewers.model.vo.User;
 	
@@ -70,6 +71,35 @@ package org.bigbluebutton.modules.viewers.model.business
 			}
 						
 			return false;		
+		}
+		
+		public function hasOnlyOneModerator():Boolean {
+			var p:User;
+			var moderatorCount:int = 0;
+			
+			for (var i:int = 0; i < users.length; i++)
+			{
+				p = users.getItemAt(i) as User;				
+				if (p.role == Role.MODERATOR) {
+					moderatorCount++;
+				}
+			}				
+			
+			if (moderatorCount == 1) return true;
+			return false;			
+		}
+		
+		public function getTheOnlyModerator():User {
+			var p:User;
+			for (var i:int = 0; i < users.length; i++)
+			{
+				p = users.getItemAt(i) as User;				
+				if (p.role == Role.MODERATOR) {
+					return User.copy(p);
+				}
+			}		
+			
+			return null;	
 		}
 		
 		/**

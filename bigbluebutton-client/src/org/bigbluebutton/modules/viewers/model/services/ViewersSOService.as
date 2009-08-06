@@ -29,7 +29,6 @@ package org.bigbluebutton.modules.viewers.model.services
 	
 	import org.bigbluebutton.main.events.ParticipantJoinEvent;
 	import org.bigbluebutton.main.model.Participant;
-	import org.bigbluebutton.modules.viewers.ViewersFacade;
 	import org.bigbluebutton.modules.viewers.ViewersModuleConstants;
 	import org.bigbluebutton.modules.viewers.model.business.IViewers;
 	import org.bigbluebutton.modules.viewers.model.vo.User;
@@ -149,9 +148,13 @@ package org.bigbluebutton.modules.viewers.model.services
 							for(var p:Object in result.participants) 
 							{
 								participantJoined(result.participants[p]);
-							}							
+							}		
+							notifyConnectionStatusListener(true);
+							trace("Am I the only moderator?");
+							LogUtil.debug("Am I the only moderator?");
+							becomePresenterIfLoneModerator();				
 						}	
-						notifyConnectionStatusListener(true);
+						
 					},	
 					// status - On error occurred
 					function(status:Object):void { 
@@ -163,6 +166,22 @@ package org.bigbluebutton.modules.viewers.model.services
 					}
 				)//new Responder
 			); //_netConnection.call
+		}
+		
+		private function becomePresenterIfLoneModerator():void {
+			if (_participants.hasOnlyOneModerator()) {
+				trace("There is only one moderator");
+				var user:User = _participants.getTheOnlyModerator();
+				if (user.me) {
+					trace("I am the only moderator");
+					sendMessage(ViewersModuleConstants.ASSIGN_PRESENTER, {assignTo:user.userid, name:user.name});
+				} else {
+					trace("The moderator is not me");
+				}
+			} else {
+				trace("I am not the only moderator");
+			}
+			
 		}
 		
 	    private function leave():void

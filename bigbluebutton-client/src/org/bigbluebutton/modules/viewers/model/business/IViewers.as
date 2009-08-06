@@ -21,7 +21,6 @@ package org.bigbluebutton.modules.viewers.model.business
 {
 	import mx.collections.ArrayCollection;
 	
-	import org.bigbluebutton.modules.viewers.model.vo.Status;
 	import org.bigbluebutton.modules.viewers.model.vo.User;
 	
 	public interface IViewers {
@@ -33,5 +32,7 @@ package org.bigbluebutton.modules.viewers.model.business
 		function removeParticipant(userid:Number):void;
 		function removeAllParticipants():void;
 		function newUserStatus(id:Number, status:String, value:Object):void;
+		function hasOnlyOneModerator():Boolean;
+		function getTheOnlyModerator():User;
 	}
 }

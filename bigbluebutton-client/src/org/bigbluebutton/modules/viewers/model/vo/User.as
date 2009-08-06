@@ -103,5 +103,21 @@ package org.bigbluebutton.modules.viewers.model.vo
 			streamName = s["streamName"];
 		}
 	*/
+	
+		public static function copy(user:User):User {
+			var n:User = new User();
+			n.authToken = user.authToken;
+			n.me = user.me;
+			n.userid = user.userid;
+			n.name = user.name;
+			n.hasStream = user.hasStream;
+			n.streamName = user.streamName;
+			n.presenter = user.presenter;
+			n.raiseHand = user.raiseHand;
+			n.role = user.role;	
+			n.room = user.room;
+			
+			return n;		
+		}
 	}
 }

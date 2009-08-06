@@ -161,14 +161,13 @@ package org.bigbluebutton.modules.viewers.model
 		private function messageSender(msg:String, body:Object=null):void {
 			switch (msg) {
 				case ViewersModuleConstants.ASSIGN_PRESENTER:
-					if (me.userid == body.assignedTo) {
+					LogUtil.debug('Got ViewersModuleConstants.ASSIGN_PRESENTER ' + me.userid + " " + body.assignedTo);
+					if (me.userid == body.assignTo) {
 						// I've been assigned as presenter.
 						LogUtil.debug('I have become presenter');
 						isPresenter = true;
 						var newStatus:Status = new Status("presenter", body.assignedBy);
-//						_viewersService.iAmPresenter(me.userid, true);
-						var presenterInfo:Object = {presenterId:body.assignedTo, presenterName:me.name, assignedBy:body.assignedBy}
-						sendNotification(msg, presenterInfo);
+						sendNotification(msg, body);
 					} else {
 						// Somebody else has become presenter.
 						if (isPresenter) {
