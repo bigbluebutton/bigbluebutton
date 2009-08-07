@@ -37,7 +37,7 @@
 			private var images:Images = new Images();
 			private var localDispatcher:IEventDispatcher;
 			 
-			[Bindable] public var phoneIcon:Class = images.phone_sound_icon;
+			[Bindable] public var phoneIcon:Class = images.headset_icon;
 			
 			private function startPhone():void {
 				localDispatcher.dispatchEvent(new JoinVoiceConferenceEvent());

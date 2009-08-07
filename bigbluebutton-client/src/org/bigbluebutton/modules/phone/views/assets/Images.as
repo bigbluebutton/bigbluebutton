@@ -22,8 +22,8 @@ package org.bigbluebutton.modules.phone.views.assets
 	[Bindable]
 		public class Images
 	{             
-        [Embed(source="images/phone_sound.png")]
-        public var phone_sound_icon:Class;  
+        [Embed(source="images/headset.png")]
+        public var headset_icon:Class;  
         
 	}
 }
