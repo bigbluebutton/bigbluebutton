@@ -6,9 +6,15 @@
                            http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
 
 	<bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-	    <property name="location" value="/WEB-INF/red5-web.properties" />
+	    <property name="locations">
+	    	<list>
+	    	 	<value>/WEB-INF/red5-web.properties</value>
+	    	 	<value>/WEB-INF/bigbluebutton-sip.properties</value>
+	    	</list>
+	    </property>
 	</bean>
-
+	
+	
 	<bean id="web.context" class="org.red5.server.Context"
 		autowire="byType" />
 
@@ -23,7 +29,7 @@
 	</bean>
 
 	<bean id="web.handler" class="org.bigbluebutton.conference.voice.VoiceApplication">
-		<property name="asteriskHost" value="192.168.0.136" />
+		<property name="asteriskHost" value="${sip.server.host}" />
 	</bean>
 	
 	<!--bean id="web.handler" class="org.red5.server.webapp.sip.Application">
