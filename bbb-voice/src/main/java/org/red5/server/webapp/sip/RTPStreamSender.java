@@ -283,7 +283,6 @@ public class RTPStreamSender {
     /** Fill the buffer of RtpPacket with necessary data. */
     private int fillRtpPacketBuffer(byte[] asaoBuffer) {
 
-        boolean isBufferFilled = false;
         int copyingSize = 0;
         int finalCopySize = 0;
         byte[] codedBuffer = new byte[ sipCodec.getOutgoingEncodedFrameSize() ];
@@ -383,7 +382,7 @@ public class RTPStreamSender {
 
             if (encodingOffset == encodingBuffer.length)
             {
-                isBufferFilled = true;
+ //               isBufferFilled = true;
 
                 int encodedBytes = sipCodec.pcmToCodec( encodingBuffer, codedBuffer );
 
@@ -408,6 +407,9 @@ public class RTPStreamSender {
             //        + ", tempBufferRemaining = " + tempBufferRemaining + "." );
         }
         catch ( Exception e ) {
+        	
+        	println("Exception - ", e.toString());
+        	
             e.printStackTrace();
         }
 

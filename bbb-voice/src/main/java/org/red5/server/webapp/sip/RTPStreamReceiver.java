@@ -334,7 +334,7 @@ public class RTPStreamReceiver extends Thread {
     /** Debug output */
     private static void println( String method, String message ) {
 
-        log.debug( "RtpStreamReceiver - " + method + " -> " + message );
-        System.out.println( "RtpStreamReceiver - " + method + " -> " + message );
+//        log.debug( "RtpStreamReceiver - " + method + " -> " + message );
+//        System.out.println( "RtpStreamReceiver - " + method + " -> " + message );
     }
 }
