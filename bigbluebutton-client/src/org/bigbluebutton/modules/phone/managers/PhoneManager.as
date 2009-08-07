@@ -52,8 +52,10 @@ package org.bigbluebutton.modules.phone.managers
 			streamManager.callConnected(event.playStreamName, event.publishStreamName);
 		}
 		
-		public function calledFromGlobal(message:String):void {
-			trace("PhoneManager global " + message);
+		public function hangup():void {
+			trace("PhoneManager hangup");
+			connectionManager.doHangUp();
+			connectionManager.doClose();
 		}
 	}
 }

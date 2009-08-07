@@ -199,7 +199,7 @@ package org.bigbluebutton.modules.phone.managers {
 			netConnection.call("streamStatus", null, uid, status);	
 		}
 		
-		public function doClose1():void {
+		public function doClose():void {
 			netConnection.call("unregister", null, uid);	
 		}
 		
