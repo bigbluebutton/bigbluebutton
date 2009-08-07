@@ -1,11 +1,11 @@
 <?xml version="1.0" ?>
 <config>
     <version>0.4</version>
-    <porttest host="192.168.0.136" application="oflaDemo"/>    
+    <porttest host="192.168.0.136" application="video"/>    
 	<modules>
 
 		<module name="VideoModule" url="VideoModule.swf" 
-			uri="rtmp://192.168.0.136/oflaDemo"
+			uri="rtmp://192.168.0.136/video"
 			onUserJoinedEvent="START"
 			onUserLogoutEvent="STOP"	
 		/>
