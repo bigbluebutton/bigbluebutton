@@ -16,6 +16,8 @@
  * with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
  *
  * $Id: $
+ * 
+ * Author: http://www.quietlyscheming.com/blog/components/fisheye-component/
  */
 package org.bigbluebutton.modules.presentation.view.fisheye.controls.fisheyeClasses
 {
