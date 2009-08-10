@@ -8,6 +8,7 @@ import org.red5.server.api.service.IServiceCapableConnection;
 import org.red5.server.api.IConnection;
 
 import org.zoolu.sip.address.*;
+import org.zoolu.sip.message.SipMethods;
 import org.zoolu.sip.provider.*;
 import org.zoolu.net.SocketAddress;
 
@@ -170,6 +171,9 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
             sipProvider = new SipProvider( null, sipPort );
             sipProvider.setOutboundProxy(new SocketAddress(optOutboundProxy));
 
+            sipProvider.addSipProviderListener(new OptionMethodListener());
+            //sipProvider.addSipProviderListener(new Identifier(SipMethods.OPTION), new OptionMethodListener());
+            
             userProfile = new SIPUserAgentProfile();
             userProfile.audioPort = rtpPort;
             userProfile.username = username;

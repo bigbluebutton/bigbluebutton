@@ -23,12 +23,12 @@ public class BufferUtils {
         int origBufferIndex = startOrigBuffer;
         int counter = 0;
 
-        println( "floatBufferIndexedCopy",
-                "destBuffer.length = " + destBuffer.length +
-                ", startDestBuffer = " + startDestBuffer +
-                ", origBuffer.length = " + origBuffer.length +
-                ", startOrigBuffer = " + startOrigBuffer +
-                ", copySize = " + copySize + "." );
+///        println( "floatBufferIndexedCopy",
+//                "destBuffer.length = " + destBuffer.length +
+//                ", startDestBuffer = " + startDestBuffer +
+//                ", origBuffer.length = " + origBuffer.length +
+//                ", startOrigBuffer = " + startOrigBuffer +
+ //               ", copySize = " + copySize + "." );
 
         if ( destBuffer.length < ( startDestBuffer + copySize ) ) {
             println( "floatBufferIndexedCopy", "Size copy problem." );
@@ -42,7 +42,7 @@ public class BufferUtils {
             origBufferIndex++;
         }
 
-        println( "floatBufferIndexedCopy", counter + " bytes copied." );
+ //       println( "floatBufferIndexedCopy", counter + " bytes copied." );
 
         return counter;
     }
@@ -82,7 +82,7 @@ public class BufferUtils {
             origBufferIndex++;
         }
 
-        println( "byteBufferIndexedCopy", counter + " bytes copied." );
+//        println( "byteBufferIndexedCopy", counter + " bytes copied." );
 
         return counter;
     }
