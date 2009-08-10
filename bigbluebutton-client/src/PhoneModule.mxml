@@ -106,6 +106,7 @@
 			}
 			
 			public function stop():void {
+				trace("Stopping phone module");
 				var event:StopPhoneModuleEvent = new StopPhoneModuleEvent(StopPhoneModuleEvent.STOP_PHONE_MODULE_EVENT);
 				this.dispatchEvent(event);
 			}
