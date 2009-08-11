@@ -61,7 +61,6 @@ class ScheduledSession implements Comparable {
 		name(maxLength:50, blank:false)
 		tokenId(blank:false)
 		sessionId(blank:false)
-		numberOfAttendees()
 	}
 	
 	String toString() {"${this.id}:${this.name} - ${this.sessionId} ${this.tokenId}"}

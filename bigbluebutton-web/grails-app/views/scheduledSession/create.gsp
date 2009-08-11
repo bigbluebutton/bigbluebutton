@@ -44,7 +44,7 @@
                                 	<g:textArea name="description" value="${fieldValue(bean:scheduledSessionInstance,field:'description')}" rows="5" cols="40"/>
                                 </td>
                             </tr>
-                                                        
+<!-- Comment for now (ralam aug 11, 2009)                                                         
                             <tr class="prop">
                                 <td valign="top" class="name">
                                     <label for="numberOfAttendees">Number Of Attendees:</label>
@@ -53,6 +53,7 @@
                                     <input type="text" id="numberOfAttendees" name="numberOfAttendees" value="${fieldValue(bean:scheduledSessionInstance,field:'numberOfAttendees')}" />
                                 </td>
                             </tr> 
+-->
 <!-- Comment for now (ralam jun 3, 2009) 
                             <tr class="prop">
                                 <td valign="top" class="name">

@@ -35,7 +35,7 @@
                                     <input type="text" id="name" name="name" value="${fieldValue(bean:scheduledSessionInstance,field:'name')}"/>
                                 </td>
                             </tr> 
-                        
+<!-- Comment for now (ralam aug 11, 2009)                        
                             <tr class="prop">
                                 <td valign="top" class="name">
                                     <label for="numberOfAttendees">Number Of Attendees:</label>
@@ -44,6 +44,7 @@
                                     <input type="text" id="numberOfAttendees" name="numberOfAttendees" value="${fieldValue(bean:scheduledSessionInstance,field:'numberOfAttendees')}" />
                                 </td>
                             </tr> 
+-->                            
 <!-- Comment for now (ralam jun 3, 2009) 
                             <tr class="prop">
                                 <td valign="top" class="name">

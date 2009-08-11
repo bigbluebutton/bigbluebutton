@@ -40,12 +40,12 @@
                             	${hostUrl}/bigbluebutton/conference-session/joinIn/${fieldValue(bean:scheduledSessionInstance, field:'voiceConferenceBridge')} (<a href="${hostUrl}/bigbluebutton/conference-session/joinIn/${fieldValue(bean:scheduledSessionInstance, field:'voiceConferenceBridge')}">JOIN</a>)
 							</td>                            
                         </tr>
-
+<!-- Comment for now (ralam aug 11, 2009) 
                         <tr class="prop">
                             <td valign="top" class="name">Number Of Attendees:</td>                            
                             <td valign="top" class="value">${fieldValue(bean:scheduledSessionInstance, field:'numberOfAttendees')}</td>                            
                         </tr>
-
+-->
                         <tr class="prop">
                             <td valign="top" class="name">Conference:</td>                            
                             <td valign="top" class="value">

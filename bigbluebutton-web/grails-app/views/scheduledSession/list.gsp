@@ -24,9 +24,7 @@
                    	        <g:sortableColumn property="startDateId" title="Start" />
                         
                    	        <g:sortableColumn property="endDateId" title="End" />
-                        
-                   	        <g:sortableColumn property="numberOfAttendees" title="Number Of Attendees" />
-                        
+              
                         </tr>
                     </thead>
                     <tbody>
@@ -37,9 +35,7 @@
                             <td>${fieldValue(bean:scheduledSessionInstance, field:'startDateTime')}</td>
                         
                             <td>${fieldValue(bean:scheduledSessionInstance, field:'endDateTime')}</td>
-                        
-                            <td>${fieldValue(bean:scheduledSessionInstance, field:'numberOfAttendees')}</td>
-                        
+
                         </tr>
                     </g:each>
                     </tbody>
