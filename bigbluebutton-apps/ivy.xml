@@ -9,11 +9,11 @@
     	<!-- Documentation -->
     	<dependency org="net.jcip" name="jcip-annotations" rev="1.0" />
     	<!-- Testing support -->
-        <dependency name="junit" rev="4.0"/>
+        <dependency name="junit" rev="4.5"/>
         <dependency org="org.testng" name="testng" rev="5.8"/>
         <dependency org="org/fitnesse" name="fitnesse" rev="20090214"/>
         <dependency org="org.easymock" name="easymock" rev="2.4"/>
-        <dependency org="commons" name="commons-lang" rev="2.3" />
+        <dependency org="commons" name="commons-lang" rev="2.4" />
         <!-- Logging --> 
         <dependency name="log4j-over-slf4j" rev="1.5.6" />
         <dependency name="logback-core" rev="0.9.14" />
@@ -28,7 +28,6 @@
 		<dependency org="org/apache/geronimo" name="geronimo-j2ee-management_1.0_spec" rev="1.0"/>
 		<dependency org="org/apache/geronimo" name="geronimo-jms_1.1_spec" rev="1.0"/>
 		<dependency org="javax" name="servlet-api" rev="2.5"/>
-		<dependency org="spring" name="spring-jms" rev="2.0.8" />
 		<dependency org="org/ho" name="jyaml" rev="1.3" />
         <!-- Spring --> 
         <!--dependency org="spring" name="spring-dao" rev="2.0.8" /-->
@@ -41,6 +40,6 @@
         <dependency org="spring" name="spring-tx" rev="2.5.6" />
         <dependency org="spring" name="aopalliance" rev="" />
         
-        <dependency org="mina" name="mina-core" rev="1.1.6" />
+        <dependency org="mina" name="mina-core" rev="1.1.7" />
     </dependencies>
 </ivy-module>
