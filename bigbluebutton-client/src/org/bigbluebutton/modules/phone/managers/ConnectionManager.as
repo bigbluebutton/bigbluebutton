@@ -184,9 +184,9 @@ package org.bigbluebutton.modules.phone.managers {
 			}
 		}
 		
-		public function doHangUp():void {
-			netConnection.call("hangup", null, uid);
+		public function doHangUp():void {			
 			if (isConnected) {
+				netConnection.call("hangup", null, uid);
 				isConnected = false;
 			}
 		}
@@ -200,7 +200,9 @@ package org.bigbluebutton.modules.phone.managers {
 		}
 		
 		public function doClose():void {
-			netConnection.call("unregister", null, uid);	
+			if (isRegistered()) {
+				netConnection.call("unregister", null, uid);	
+			}			
 		}
 		
 		public function isRegistered():Boolean {
