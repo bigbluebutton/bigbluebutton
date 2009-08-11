@@ -96,7 +96,6 @@ package org.bigbluebutton.modules.viewers.view
 					ViewersModuleConstants.OPEN_VIEWERS_WINDOW,
 					ViewersModuleConstants.CLOSE_VIEWERS_WINDOW,
 					ViewersModuleConstants.BECOME_VIEWER,
-					ViewersModuleConstants.USER_JOINED					
 					];
 		}
 		
@@ -116,10 +115,6 @@ package org.bigbluebutton.modules.viewers.view
 					break;
 				case ViewersModuleConstants.BECOME_VIEWER:
 					LogUtil.debug('Sending BECOME_VIEWER_EVENT');
-					break;
-				case ViewersModuleConstants.USER_JOINED:
-					_viewersWindow.userJoinSound.end();
-					_viewersWindow.userJoinSound.play();
 					break;
 			}
 		}

@@ -71,8 +71,5 @@ package org.bigbluebutton.modules.viewers
 		public static const APP_SHUTDOWN:String 				= "APP_SHUTDOWN";
 		public static const CONNECT_REJECTED:String 			= "CONNECT_REJECTED";
 		public static const UNKNOWN_REASON:String 				= "UNKNOWN_REASON";
-		
-		public static const USER_JOINED:String					= "USER_JOINED";
-		public static const USER_LEFT:String					= "USER_LEFT";
 	}
 }

@@ -22,10 +22,12 @@
 
 <viewer:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:viewer="flexlib.mdi.containers.*" 
-	implements="org.bigbluebutton.common.IBbbModuleWindow">
+	implements="org.bigbluebutton.common.IBbbModuleWindow" xmlns:mate="http://mate.asfusion.com/">
 
     <mx:Script>
         <![CDATA[
+        	import mx.controls.Alert;
+        	import org.bigbluebutton.main.events.ParticipantJoinEvent;
         	import org.bigbluebutton.modules.viewers.view.events.ChangeStatusEvent;
         	import org.bigbluebutton.modules.viewers.ViewersModuleConstants;
         	import mx.events.ListEvent;
@@ -78,10 +80,17 @@
 			private function viewerSelectEvent(event:ListEvent):void {
 	            dispatchEvent(new Event(ViewersModuleConstants.VIEWER_SELECTED_EVENT));
         	}           
+        	
+        	private function playSound(e:ParticipantJoinEvent):void{
+        		if (e.join){
+        			userJoinSound.end();
+					userJoinSound.play();
+        		}
+        	}
         ]]>
     </mx:Script>
 
-    <mx:DataGrid id="viewersGrid" dataProvider="{participants}" editable="false" mouseDownEffect="{userJoinSound}"
+    <mx:DataGrid id="viewersGrid" dataProvider="{participants}" editable="false"
     	dragEnabled="false" itemClick="viewerSelectEvent(event);" width="100%" height="100%">
     	<mx:columns>
     		<mx:DataGridColumn dataField="role" headerText="Role" dataTipField="Role" editable="false" width="35"
@@ -104,4 +113,5 @@
     </mx:ControlBar>  
     
     <mx:SoundEffect id="userJoinSound" source="@Embed('../assets/sounds/user_join.mp3')" target="{this}" />
+    <mate:Listener id="joinListener" method="playSound" type="{ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT}" />
 </viewer:MDIWindow>

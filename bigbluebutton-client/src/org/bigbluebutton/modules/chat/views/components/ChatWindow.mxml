@@ -30,10 +30,13 @@
 
 	<mx:Script>
 		<![CDATA[
+			import mx.core.Application;
 			
 			private var _xPosition:int;
 			private var _yPosition:int;
 			private var localDispatcher:IEventDispatcher;
+			
+			private var dispState:String;
 			
 			public function get xPosition():int {
 				return _xPosition;
@@ -57,7 +60,22 @@
 			
 			private function onCreationComplete():void {
 				chatView.localDispatcher = localDispatcher;
-			}  
+				
+				/* Set up full screen handler. */
+				Application.application.stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
+				dispState = Application.application.stage.displayState;
+			}
+			
+			private function fullScreenHandler(evt:FullScreenEvent):void {
+				dispState = Application.application.stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
+				if (evt.fullScreen) {
+					chatView.txtMsg.text = "Chat not enabled in full screen mode";
+					chatView.txtMsg.enabled = false;
+				} else {
+					chatView.txtMsg.text = "";
+					chatView.txtMsg.enabled = true;
+				}
+			}			  
 		]]>
 	</mx:Script>
 	

@@ -22,16 +22,20 @@
 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
     title="Logged Out" showCloseButton="true" creationComplete="init()"
-    x="168" y="86" layout="absolute" width="500" height="200">
+    x="168" y="86" layout="absolute" width="300" height="100">
 	<mx:Script>
 		<![CDATA[
+			import mx.controls.Alert;
 			import mx.managers.PopUpManager;
 
 			private function init():void {
 				addEventListener(Event.CLOSE, onUserLoggedOutWindowClose);
 			}
 			
-            private function closeWindow():void {
+            private function redirect():void {
+            	var pageURL:String = mx.core.Application.application.url.split("/")[2];
+            	var url:URLRequest = new URLRequest("http://" + pageURL);
+				navigateToURL(url, '_blank');
             	PopUpManager.removePopUp(this);
             }
             
@@ -40,10 +44,7 @@
             }
 		]]>
 	</mx:Script>
-	
-	<mx:ControlBar horizontalAlign="center" verticalAlign="middle" x="0" y="106">
-		<mx:Spacer width="100%"/>
-		<mx:Button id="okBtn" label="OK" click="closeWindow()"/>
-	</mx:ControlBar>	
-	<mx:Label text="You have logged out of the conference" />
+
+	<mx:Button id="okBtn" label="OK" click="redirect()" x="118.5" y="28"/>
+	<mx:Label text="You have logged out of the conference"  y="7" x="24"/>
 </mx:TitleWindow> 
