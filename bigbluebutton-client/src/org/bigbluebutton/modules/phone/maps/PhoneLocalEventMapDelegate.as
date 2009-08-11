@@ -61,12 +61,15 @@ package org.bigbluebutton.modules.phone.maps
 		}
 		
 		public function removeToolbarButton():void {
-			var event:RemoveToolbarButtonEvent = new RemoveToolbarButtonEvent(RemoveToolbarButtonEvent.REMOVE_TOOLBAR_BUTTON_EVENT);
-			event.button = phoneButton;
-			trace("Dispatching REMOVE TOOLBAR BUTTON EVENT");
-			globalDispatcher.dispatchEvent(event);
-		   	
-		   	buttonOpen = false;
+			if (buttonOpen) {
+				var event:RemoveToolbarButtonEvent = new RemoveToolbarButtonEvent(RemoveToolbarButtonEvent.REMOVE_TOOLBAR_BUTTON_EVENT);
+				event.button = phoneButton;
+				trace("Dispatching REMOVE TOOLBAR BUTTON EVENT");
+				globalDispatcher.dispatchEvent(event);
+			   	
+			   	buttonOpen = false;				
+			}
+
 		}
 		
 		public function disableToolbarButton():void {
