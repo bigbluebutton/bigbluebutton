@@ -143,6 +143,7 @@ package org.bigbluebutton.main.view
 					//red5PhoneWindow.sipusername = modulesProxy.username;
 					shell.statusInfo.text = "";
 					shell.statusProgress.text = "";
+					shell.statusInfo2.text = "";
 					trace("User has joined");
 //					if (!red5phoneAdded) {
 //						red5phoneAdded = true;
@@ -157,7 +158,7 @@ package org.bigbluebutton.main.view
 				case MainApplicationConstants.USER_LOGGED_IN:
 					shell.statusInfo.text = "";
 					shell.statusProgress.text = "";
-	
+					shell.statusInfo2.text = "";
 					break;
 				case MainApplicationConstants.MODULE_STOPPED:
 					var info:Object = notification.getBody();
@@ -185,6 +186,7 @@ package org.bigbluebutton.main.view
 			var host:String = modulesProxy.getPortTestHost();
 			var app:String = modulesProxy.getPortTestApplication();
 			shell.statusInfo.text = "Please wait while we test your connection to the server.";
+			shell.statusInfo2.text =  "This may take a minute or two.";
 			shell.statusProgress.text = "Connecting to RTMP://" + host + ":1935/" + app + ".";
 			portTestProxy.connect("RTMP", host, "", app);
 		}
