@@ -274,7 +274,7 @@ package org.bigbluebutton.modules.presentation.view
             	_presWin.slideNumLbl.text = (_presWin.slideView.selectedSlide + 1) + " of " + _presWin.slideView.slides.length;	
 				_presWin.backButton.visible = false;
 				_presWin.forwardButton.visible = false;	
-				_presWin.zoomSlider.visible = true;	
+				_presWin.zoomSlider.visible = false;	
 
 				//Initialize the thumbnails mediator
 				if ( facade.hasMediator( ThumbnailViewMediator.NAME ) ) {
