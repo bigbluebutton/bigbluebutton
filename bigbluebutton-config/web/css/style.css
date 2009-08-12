@@ -3,7 +3,7 @@ body{
 	margin-top:25px;
 	margin-bottom:40px;
 	height:100%;
-	background-color: #d1dce2;
+	background-color: #f8f8f8;
 	}
 	
 img{
@@ -16,16 +16,24 @@ img{
 	margin-right:auto;	
 	width:800px;
 	background-color:#fff;	
-	border:5px solid #e3ecf1;
+	border:1px solid #CCC;
 	padding:15px;
 	height:1055px;
 
 }
 
+#header{
+	width:800px;
+	height:150px;
+	background-color:#d1dce2;
+	padding: 0;
+	
+}
+
 #logo{
 	width:775px;
 	height:113px;
-	float:left;
+	float:left;	
 	margin-left:15px;
 	margin-top:15px;
 /*	border:#C66 solid 1px; */
