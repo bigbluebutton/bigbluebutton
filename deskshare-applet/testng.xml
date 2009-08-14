@@ -8,7 +8,7 @@
 	  </groups>
   
     <packages>
-    	<package name="org.bigbluebutton.deskshare.client"/>
+    	<package name="org.bigbluebutton.deskshare.client.tiles"/>
     </packages>
   </test>
 </suite>

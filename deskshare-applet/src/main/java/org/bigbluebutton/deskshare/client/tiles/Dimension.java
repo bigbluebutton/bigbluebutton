@@ -1,4 +1,4 @@
-package org.bigbluebutton.deskshare.client;
+package org.bigbluebutton.deskshare.client.tiles;
 
 public final class Dimension {
 

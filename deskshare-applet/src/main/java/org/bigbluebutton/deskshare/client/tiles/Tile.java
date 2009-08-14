@@ -1,6 +1,7 @@
 
-package org.bigbluebutton.deskshare.client;
+package org.bigbluebutton.deskshare.client.tiles;
 
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.awt.image.PixelGrabber;
@@ -12,23 +13,21 @@ public class Tile {
     private Adler32 checksum;
     private long version;
     private boolean dirty;
-    private int width;
-    private int height;
+    private Dimension dim;
     private int position;
-    private int x = 0;
-	private int y = 0;
+    private Point location;
     private boolean topRowTile = false;
 	private boolean lastColumnTile = false;
         
 	private BufferedImage image = null;
     
-    public Tile(int width, int height, int position) {
+    public Tile(Dimension dim, int position, Point location) {
         checksum = new Adler32();
         version = 0;
         dirty = true;
-        this.width = width;
-        this.height = height;
+        this.dim = dim;
         this.position = position;
+        this.location = location;
     }
     
     public void updateImage(BufferedImage image)
@@ -100,12 +99,12 @@ public class Tile {
     
     public int getWidth()
     {
-        return width;
+        return dim.getWidth();
     }
     
     public int getHeight()
     {
-        return height;
+        return dim.getHeight();
     }
     
     public int getTilePosition() {
@@ -129,18 +128,10 @@ public class Tile {
 	}
 
     public int getX() {
-		return x;
-	}
-
-	public void setX(int x) {
-		this.x = x;
+		return location.x;
 	}
 
 	public int getY() {
-		return y;
-	}
-
-	public void setY(int y) {
-		this.y = y;
+		return location.y;
 	}
 }
