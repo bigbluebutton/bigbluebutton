@@ -1,0 +1,15 @@
+<!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
+<suite name="BigBlueButton Deskshare Applet Test Suite">
+  <test name="Deskshare Applet Tests">
+	  <groups>
+	    <run> 
+	      <exclude name="broken"/>
+	    </run>
+	  </groups>
+  
+    <packages>
+    	<package name="org.bigbluebutton.deskshare.client"/>
+    </packages>
+  </test>
+</suite>
+

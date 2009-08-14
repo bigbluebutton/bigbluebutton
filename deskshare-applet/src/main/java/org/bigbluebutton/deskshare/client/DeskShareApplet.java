@@ -23,6 +23,9 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JApplet;
 
+import org.bigbluebutton.deskshare.client.net.HttpScreenCaptureSender;
+import org.bigbluebutton.deskshare.client.net.SocketScreenCaptureSender;
+
 public class DeskShareApplet extends JApplet implements IScreenCaptureListener {
 
 	private static final long serialVersionUID = 1L;

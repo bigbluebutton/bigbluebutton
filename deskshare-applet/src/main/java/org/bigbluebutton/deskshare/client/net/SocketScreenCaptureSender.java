@@ -17,7 +17,7 @@
  *
  * $Id: $
  */
-package org.bigbluebutton.deskshare.client;
+package org.bigbluebutton.deskshare.client.net;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -28,6 +28,8 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 import javax.imageio.ImageIO;
+
+import org.bigbluebutton.deskshare.client.IScreenCaptureSender;
 
 public class SocketScreenCaptureSender implements IScreenCaptureSender {
 	

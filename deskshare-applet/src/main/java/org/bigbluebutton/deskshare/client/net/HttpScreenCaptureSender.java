@@ -17,7 +17,7 @@
  *
  * $Id: $
  */
-package org.bigbluebutton.deskshare.client;
+package org.bigbluebutton.deskshare.client.net;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -29,6 +29,8 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import javax.imageio.ImageIO;
+
+import org.bigbluebutton.deskshare.client.IScreenCaptureSender;
 
 import com.myjavatools.web.ClientHttpRequest;
 
