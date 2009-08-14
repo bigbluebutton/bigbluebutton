@@ -26,7 +26,7 @@
 	<mx:Script>
 		<![CDATA[
 			import mx.controls.Alert;
-			import mx.managers.PopUpManager;
+			import mx.managers.PopUpManager; 
 
 			private function init():void {
 				addEventListener(Event.CLOSE, onUserLoggedOutWindowClose);
@@ -35,7 +35,7 @@
             private function redirect():void {
             	var pageURL:String = mx.core.Application.application.url.split("/")[2];
             	var url:URLRequest = new URLRequest("http://" + pageURL);
-				navigateToURL(url, '_blank');
+				navigateToURL(url, '_self');
             	PopUpManager.removePopUp(this);
             }
             
