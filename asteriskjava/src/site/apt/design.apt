@@ -1,0 +1,285 @@
+  ---
+  Design
+  ---
+  Stefan Reuter
+  ---
+  $Id: design.apt 1001 2008-03-16 23:30:56Z msmith $
+
+Design
+  
+  This document gives a brief overview of the design of 
+  Asterisk-Java and the requirements that lead to this
+  design.
+  
+* Introduction
+  
+  When I first stumbled upon Asterisk there haven't been 
+  many options to integrate your own applications.
+  
+  First of all you had the possibility to write your own 
+  Asterisk applications. That's the way many internal 
+  functions are implemented, for example Asterisk's 
+  Dial, Voicemail and	Queue commands.
+  This approach usually requires writing a small
+  module in C that uses Asterisk's internal API. It is
+  compiled into a shared object that is loaded when
+  Asterisk starts. Your application is then tightly
+  coupled to Asterisk but has access to any internal
+  structure.
+  
+  The second approach is to write AGI (Asterisk Gateway Interface) 
+  scripts. An AGI script is to Asterisk what a CGI script is to an
+  HTTP server. You can think of AGI as a means to
+  make your dialplan more dynamic by handing control
+  to an external process. As with CGI in its early
+  days Asterisk had to spawn a new short
+  lived process for each AGI request. When using
+  external application that consume a lot of resources
+  at startup (like spawning a Java Virtual Machine
+  when launching a Java application) this approach
+  has major drawbacks. These shortcoming have been
+  mitigated with the introduction of FastAGI that
+  doesn't spawn a new process for each request but
+  communicates with a long running process via
+  TCP/IP.
+  
+  The third approach is to use Asterisk's Manager API.
+  The Manager API allows an external application to
+  query and change Asterisk's state by sending actions
+  and listening to responses and events. Communication
+  occurs via TCP/IP. Compared to AGI the Manager API
+  works without the need to operate on a concrete call
+  in Asterisk parlance a channel).
+  
+  The last approach is to talk to Asterisk via IAX
+  (Inter Asterisk eXchange protocol), a
+  UDP based protocol used by Asterisk to communicate
+  with other Asterisk servers and IAX enabled phones.
+  In contrast to AGI and the Manager API IAX allows
+  passing media streams, for example sending and
+  receiving audio.
+  
+  Regarding the first approach a JNI (Java Native Interface) 
+  based solution (JAsterisk) is available that spawns a 
+  Java Virtual Machine from within Asterisk and exposes Asterisk's
+  internal API. Development of JAsterisk seems to be
+  discontinued. Due to the involved tight coupling this
+  approach is questionable anyway.
+
+  Regarding option two and three I realized
+  there were two implementations of FastAGI for Java
+  but none for the Manager API. So I decided to build
+  a library to make those interfaces accessible from
+  Java applications. This is what became Asterisk-Java.
+
+  Regarding IAX there is a C library available and a
+  Java wrapper using Java Native Interface (JNI).
+  Several people are working on a pure Java
+  implementation though up to now no usable implementation
+  is available to the public.
+
+* Requirements
+
+  So what are the requirements for a library like
+  Asterisk-Java that focuses on AGI and the Manager API?
+  
+  In one sentence: Asterisk-Java must be flexible, robust 
+  and easy to use and maintain.
+  
+  Flexible means you should be able to use it in a variety
+  of different environments, like standalone Java GUI
+  applications running on a user's desktop, servlets running
+  in a J2EE servlet container, Java webstart applications,
+  or maybe even applets if anybody is still using them.
+  Being flexible also means you should have access to any
+  feature exposed by the corresponding Asterisk interface
+  and not be limited in any way due to using Asterisk-Java.
+  And finally being flexible also means it should be easy to
+  extend Asterisk-Java to support additional features.
+  This extensibility is important when you choose to run a
+  modified version of Asterisk that supports additional
+  actions and events through the Manager API or additional
+  commands via AGI.
+  
+  Robust means you can focus on your own
+  application and rest asured that Asterisk-Java "just
+  works". This implies you don't have to worry about things
+  like reconnecting after restarting Asterisk. Being robust 
+  also means that Asterisk-Java must still work as expected 
+  when put under heavy load.
+  
+  Easy to use means there should only be a small number of
+  well defined and easy to understand classes and interfaces 
+  that an application developer must be aware of. The
+  programming model should follow the style Java developers
+  are used to.
+  
+  And finally easy to maintain means being well structured and
+  allowing for automated testing. Of course being easy to
+  maintain also requires extensibility as stated above as
+  Asterisk itself is in active development and new features
+  that Asterisk-Java must keep track of are added all 
+  the time.
+  
+* Overall Design
+
+  Let's have a look at Asterisk-Java's overall design.
+  
+  You might have noticed that Asterisk-Java is composed 
+  of two packages: one to support AGI and one to support 
+  the Manager API.
+  Although these two packages are quite different (due to 
+  the conceptual differences in the Asterisk interfaces 
+  they support) they share several common design
+  principles. This section will highlight them before we
+  dive into the details of the two packages.
+  
+  Asterisk-Java is based on interfaces. As you will see
+  below starting to use Asterisk-Java usually implies 
+  getting an implementation of the interface you want to
+  use (i.e. AGI-based or Manager API-based). This
+  approach allows you to easily integrate Asterisk-Java into
+  IoC (inversion of control) containers like the Spring 
+  Framework. It decouples your application from the internal
+  implementation of Asterisk-Java and supports testability as
+  you can easily substitue Asterisk-Java by some mock objects.
+  You can see examples of what that means when looking at
+  the source of Asterisk-Java's unit tests where I am using 
+  {{{http://www.easymock.org}EasyMock}} for that
+  purpose.
+  
+  To provide extensibility the commands and replies (for 
+  AGI) and actions, repsonses and events (for Manager API) are
+  designed as class hierarchies with one abstract base
+  class at the top of each one. Asterisk-Java does not need to know
+  the concrete classes upfront so you are free to extend these
+  hierarchies as needed. There is a little difference in how 
+  the two packages implement this strategy, but the general
+  concept is the same.\
+  Note that this looks like the GoF Command Pattern and in 
+  fact both are fairly similar. The 
+  difference is that Asterisk-Java's commands and
+  actions are not self-executable. Instead of an
+  execute method there is a uniform way to "render" them
+  to the format Asterisk understands (i.e. convert them to a
+  String that can be sent over the wire). When using AGI this
+  is done by the AgiCommands themselves that provide
+  a <<<buildCommand()>>> method, when using the 
+  Manager API there is an ActionBuilder that renders 
+  ManagerActions by using reflection.
+  
+  Asterisk-Java depends on no external libraries at runtime.
+  This decision is crucial when using Asterisk-Java in special
+  environments where size matters. It also ensures that no 
+  conflicts arise from different components requiring different
+  version of the same external library.
+
+* AGI
+
+  This section describes the design of Asterisk-Java's support
+  for FastAGI. The corresponding Java package is called
+  <<<org.asteriskjava.fastagi>>>.
+  
+[images/agi-thumb.png]
+
+  {{{images/agi.png}AGI Package Overview}}
+  
+  As you can see on the diagram the AGI package of 
+  Asterisk-Java consists of three fundamental interfaces:
+  AgiServer, AgiScript and MappingStrategy.
+  
+  The responsibility of an AgiServer is to listen for new
+  incoming AGI requests that an Asterisk server directs to
+  that server. The AgiServer must then choose the right
+  processor for that request, invoke it and provide it with
+  a means to send commands to Asterisk and receive the
+  corresponding reply.\
+  Asterisk-Java includes DefaultAgiServer that contains the
+  default implementation of this interface.
+  
+  To choose the right processor for an AgiRequest, the 
+  AgiServer uses a MappingStrategy that returns an executable
+  AgiScript based on the request.\
+  Asterisk-Java includes a
+  simple implementation of a MappingStrategy that is
+  based on reading a resource bundle and matching the URL.
+  It is called ResourceBundleMappingStrategy. If you
+  have other requirements regarding the mapping you can provide
+  your own implementation of the MappingStrategy interface.
+  
+  The third important interface in this package is the
+  AgiScript. An AGI Script is the piece of code that is
+  invoked to service the request. An AgiScript is to
+  Asterisk-Java what a servlet is to a servlet container.
+  So when you want to expose your own Java based services
+  to Asterisk you must implement this interface. The AgiScript
+  interface is really simple: It contains only one method called
+  <<<service()>>> that is passed the AgiRequest and an
+  AgiChannel, that allows you to send AgiCommands back to
+  Asterisk.\
+  Asterisk-Java also includes an abstract base class that
+  implements the AgiScript interface and provides convenience
+  methods for sending commands. You can choose whatever 
+  you like more: either implementing AgiScript or extending 
+  BaseAgiScript works fine.
+
+* Manager API
+
+  This section describes the design of Asterisk-Java's support
+  for the Manager API. The corresponding Java package is called
+  <<<org.asteriskjava.manager>>>.
+
+[images/manager-thumb.png]
+
+  {{{images/manager.png}Manager API Package Overview}}
+
+  The important interfaces of Asterisk-Java's Manager 
+  API package are ManagerConnection, ManagerEventHandler
+  and AsteriskManager.
+  
+  In contrast to AGI communication between the Asterisk
+  server and your application is not initiated by Asterisk
+  when using the Manager API but has to be initiated by you.
+  Asterisk-Java provides the ManagerConnection interface that
+  is well suited for this purpose. Its responsibility is to
+  establish a TCP/IP connection to Asterisk (and reestablish
+  that connection in case of a restart of Asterisk or a network
+  failure), to enable its clients to send ManagerActions 
+  and receive the corresponding ManagerResponses and to
+  dispatch events received from Asterisk.\
+  Once you are connected to
+  Asterisk you can not only actively send ManagerActions but
+  you will also receive MangerEvents from Asterisk.
+  ManagerEvents usually inform your application about state
+  changes that occur within your Asterisk server, for
+  example due to a user dialing an extension or hanging 
+  up the phone. To recieve these events you can implement
+  the ManagerEventHandler interface and register your
+  handler with the corresponding ManagerConnection.
+
+  Instances of the MangerConnection interface are usually
+  obtained from the ManagerConnectionFactory unless you are
+  using an IoC container. Asterisk-Java provides a default
+  implementation of the ManagerConnection interface called
+  DefaultManagerConnection.
+  
+  Finally there is the AsteriskManager interface that
+  provides a higher level abstraction on top of the
+  ManagerConnection. It keeps track of Asterisk's state
+  by listening to all state changing events and provides
+  support for domain objects like Channel, Call and Queue
+  that make it easier for your application to interact
+  with Asterisk without diving into details.\
+  Asterisk-Java provides a default implementation of the
+  AsteriskManager interface called DefaultAsteriskManager
+  that is initialized by passing a ManagerConnection.\
+  You can use both interfaces at the same time thus using
+  the abstracted AsteriskManager where it is sufficient and 
+  going back to ManagerConnection where needed. If you choose
+  to do so be sure to initialize the AsteriskManager before
+  you register any of your own ManagerEventHandlers.
+
+  Please note that the AsteriskManager interface is still
+  in an early state and the functionality exposed through it
+  is rather limited. This interface will certainly change 
+  in the future so be aware of that when using it.

@@ -1,0 +1,25 @@
+  ---
+  Building with Maven
+  ---
+  Stefan Reuter
+  ---
+  $Id: building.apt 944 2008-01-22 01:06:38Z srt $
+
+Building with Maven
+
+  Retrieve the latest version of Asterisk-Java from SVN:
+
+---
+svn co http://svn.reucon.net/repos/asterisk-java/trunk asterisk-java
+---
+  
+  Then change to the created asterisk-java directory and use Maven2 to
+  build the project
+  
+---
+cd asterisk-java
+mvn install
+---
+
+  This will create the asterisk-java-${VERSION}.jar in the target subdirectory
+  as well as in your local maven repository.

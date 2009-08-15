@@ -1,0 +1,145 @@
+Asterisk-Java 1.0.0
+    Warning:
+    Values for event properties of type String that match one of the null
+    literals used by Asterisk are automatically set to null in A-J 1.0.0.
+    The null literals are:
+     "<unknown>", "unknown", "none", "<none>", "-none-", "(none)",
+     "<not set>", "(not set)", "<no name>", "n/a", "<null>" and
+     "(null)".
+
+
+Asterisk-Java 0.3.1
+    * [AJ-81] - executeCliCommand() always executes "show voicemail users"
+    * [AJ-86] - getChannelByName doesn't return the latest channel
+    * [AJ-79] - Support for the CallWeaver protocol identifier
+    * [AJ-80] - getMeetMeRooms() should only return active rooms
+    * [AJ-68] - Support for Bridge Action
+    * [AJ-74] - Support Strategy property in QueueParamsEvent
+    * [AJ-78] - Documentation needs thorough examples of the Live API
+
+Asterisk-Java 0.3
+    * [AJ-30] - Fixed version detection when restarting Asterisk
+    * [AJ-59] - Fixed incorrect class and method names when using JavaLoggingLog
+    * [AJ-60] - Fixed DefaultManagerConnection.sendEventGeneratingAction()
+                for Asterisk 1.4.1
+    * [AJ-50] - Finished support for Asterisk 1.4
+    * [AJ-54] - Fixed AsteriskQueue observer and Park events
+    * [AJ-55] - Added "videoSupport" and "realtimeDevice" to PeerEntryEvent
+    * [AJ-56] - Added "callerIdNum" to AbstractChannelEvent
+    * [AJ-57] - Added "memberName" to AbstractQueueMemberEvent
+    * [AJ-58] - Added support for OpenPBX
+    * [AJ-43] - Added support for GetConfig and UpdateConfig actions
+    * [AJ-62] - Added executeCliCommand() method to AsteriskServer
+    * [AJ-2] - Updated design doc and tutorial according to AGI changes
+
+Asterisk-Java 0.3-m2
+	* Added getManagerConnection() to AsteriskServer (AJ-41)
+	* Added timestamp property to ManagerEvent (AJ-35)
+	* Added QueueSummaryAction, QueueSummaryEvent and 
+	  QueueSummaryCompleteEvent (AJ-42)
+	* Added ZapRestartAction (AJ-45)
+	* Added PauseMontiorAction and UnpauseMonitorAction and
+	  pauseMontior() and unpauseMonitor() methods to
+	  AsteriskChannel (AJ-44)
+	* Added AbstractManagerEventListener
+
+Asterisk-Java 0.3-m1
+	* Changed package name from net.sf.asterisk to org.asteriskjava
+	  and renamed AGI classes to Agi to conform to Java coding
+	  standards
+	* Renamed ManagerEventHandler and ManagerResponseHandler to 
+	  ManagerEventListener and SendActionCallback.
+	* Introduced generics and leveraged other Java5 features like
+	  java.util.concurrent.
+	* Added SSL support for the Manager API.
+	* ManagerReader threads are now daemon threads so as soon as
+	  all other threads are terminated the JVM will quit
+	* Changed log level for message about ManagerReader termination
+	  from INFO to DEBUG
+	* ManagerConnectionFactory has been simplified. Usage example:
+	  new ManagerConnectionFactory("host", "user", "pass")
+	    .createManagerConnection();
+	* Fixed timing bug in ResourceBundleMappingStrategy (AJ-25)
+	* Fixed interrupt in DefaultManagerConnection (AJ-27)
+	* Fixed accountCode always being null in AgiRequest
+	* Fixed synchronization bug when generating internal action ids for
+	  the Manager API
+	* Fixed synchronous sendAction for responses that are received really
+	  fast, i.e. before the thread is put asleep.
+	* Fixed ConnectEvent being only fired after a successful 
+	  login (AJ-32)
+	* Fixed no setter for the dnd field when sending
+	  ZapShowChannelsAction (AJ-33)
+	* Added support for login with eventMask (AJ-28)
+	* Added support for using non-shared instances AgiScript, i.e. a
+	  new instance is used for each request if you set the
+	  shareInstances property on your MappingStrategy to false.
+	  Default is still to use shared instances (AJ-29)
+	* Live objects now fire PropertyChangeEvents
+	* Added extraContext, extraExten, extraPriority properties to
+	  RedirectAction to support BRIstuffed versions of Asterisk (AJ-34)
+	* Added recordFile and controlStreamFile methods to AgiChannel and
+	  BaseAgiScript
+	* Added channel variable AJ_AGISTATUS that is set by the AgiServer
+	  to "SUCCESS" if the AgiScript completed successfully, "FAILED" 
+	  if it threw an exception or "NOT_FOUND" if the mapping strategy 
+	  did not return a script for the requested URL.
+	* Added MeetMeMuteEvent and muted property for MeetMeUser.
+	* Added MeetMeMuteAction and MeetMeUnmuteAction.
+	* Added ParkAction.
+	* Added PlayDtmfAction and playDtmf() method for AsteriskChannel.
+	* Added several new event properties for Asterisk 1.4:
+	  - MeetMeEvent: channel and uniqueId
+	  - MeetMeLeaveEvent: callerIdNum, callerIdName and duration
+	  - MeetMeTalkingEvent: status
+	  - StatusEvent: callerIdNum and callerIdName
+	  - OriginateEvent: callerIdNum and callerIdName
+	  - JoinEvent and LeaveEvent: uniqueId
+	  - AgentConnectEvent: brigedChannel
+
+Asterisk-Java 0.2
+	* Added SayDateTimeCommand (AJ-23)
+	* Added GetFullVariableCommand (AJ-23)
+	* Added ReceiveTextCommand (AJ-23)
+	* Changed SetPriorityCommand to support labels (AJ-23)
+	* Added callingPres, callingAni2, callingTns and callingTon
+	  properties to AGIRequest (AJ-22)
+	* Fixed CallerId information in AGIRequest for 
+	  Asterisk 1.2 (AJ-21)
+
+Asterisk-Java 0.2-rc2
+	* Fixed mapping of Variable property in OriginateAction for
+	  Asterisk 1.2 (AJ-15)
+	* Added FaxReceived event from spandsp (AJ-20)
+	* Added SimpleMappingStrategy and AGIServerThread to ease
+	  integration of AGIServer when using Spring Framework
+	* Timeout for socket connection can now be specified for
+	  the ManagerConnection (AJ-16)
+	* Added getPort() method to lookup port of an AGIServer (AJ-14)
+	* Readded getContext(), getExtension(), getPriority() as 
+	  convenience methods to Channel (AJ-12)
+	* Decreased log level for unknown events to INFO (AJ-13)
+
+Asterisk-Java 0.2-rc1
+	* Added Support for the new Actions, Events and Commands 
+	  of Asterisk 1.2
+	* Fixed getting the uniqueId from a successful originate
+	  in the DefaultAsteriskManager
+	* Added isConnected() method to ManagerConnection
+	* Changed ManagerAction to be an interface rather that an
+	  abstract base class. If you extended ManagerAction, please
+	  use AbstractManagerAction instead.
+	* Added support for event generating Actions, i.e. Actions
+	  that send their result as a series of Event rather than
+	  the usual ManagerResults. See the sendEventGeneratingAction()
+	  methods in ManagerConnection for more information.
+	* Deprecated AbstractAGIScript in favor of BaseAGIScript. This
+	  allows you write cleaner AGI scripts as you don't have to
+	  pass the channel variable to all methods.
+	* Added convenience constructors for manager actions
+
+Asterisk-Java 0.1
+	* Added accessors for raw attributes in ManagerResponse
+	* Fixed bug in action id creation
+	* Changed logging to use either log4j or java.util.logging
+	* Fixed ExecCommand

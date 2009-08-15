@@ -1,0 +1,32 @@
+<atlassian-ide-plugin>
+  <project-configuration>
+    <servers>
+      <jira>
+        <server-id>e88a6130-6bd2-45dd-aa5d-57b845f76d0f</server-id>
+        <name>jira.reucon.org</name>
+        <url>http://jira.reucon.org</url>
+      </jira>
+      <crucible>
+        <server-id>89c4100c-3c20-4d7d-8611-0dbe1bee742e</server-id>
+        <name>reucon</name>
+        <url>https://secure.reucon.net/fisheye</url>
+        <isFisheyeInstance>true</isFisheyeInstance>
+      </crucible>
+      <bamboo>
+        <server-id>68a20e42-e943-4a1d-b807-45cad35b4f73</server-id>
+        <name>reucon</name>
+        <url>https://secure.reucon.net/build</url>
+        <use-favourites>false</use-favourites>
+        <bamboo2>true</bamboo2>
+        <plans>
+          <plan key="AJ-DEF" />
+          <plan key="AJ-NIGHTLY" />
+        </plans>
+      </bamboo>
+    </servers>
+    <default-crucible-server>89c4100c-3c20-4d7d-8611-0dbe1bee742e</default-crucible-server>
+    <default-fisheye-server>89c4100c-3c20-4d7d-8611-0dbe1bee742e</default-fisheye-server>
+    <default-fisheye-repo>repos</default-fisheye-repo>
+    <fisheye-project-path>asterisk-java/trunk</fisheye-project-path>
+  </project-configuration>
+</atlassian-ide-plugin>

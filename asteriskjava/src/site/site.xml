@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<!--
+	/*
+	*  Copyright 2004-2006 Stefan Reuter
+	*
+	*  Licensed under the Apache License, Version 2.0 (the "License");
+	*  you may not use this file except in compliance with the License.
+	*  You may obtain a copy of the License at
+	*
+	*      http://www.apache.org/licenses/LICENSE-2.0
+	*
+	*  Unless required by applicable law or agreed to in writing, software
+	*  distributed under the License is distributed on an "AS IS" BASIS,
+	*  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	*  See the License for the specific language governing permissions and
+	*  limitations under the License.
+	*
+	*/
+-->
+<project name="Asterisk-Java">
+
+	<bannerLeft>
+		<name>Asterisk-Java-Banner</name>
+		<src>images/asterisk-java.png</src>
+		<href>http://asterisk-java.org/</href>
+		<alt>Asterisk-Java</alt>
+	</bannerLeft>
+
+	<bannerRight>
+		<name>Sourceforge-Banner</name>
+		<src>http://sourceforge.net/sflogo.php?group_id=118998&amp;type=5</src>
+	</bannerRight>
+
+	<skin>
+		<groupId>org.asteriskjava</groupId>
+		<artifactId>asterisk-java-skin</artifactId>
+		<version>1.0.1</version>
+	</skin>
+
+	<body>
+
+		<links>
+			<item name="Asterisk" href="http://www.asterisk.org/" />
+			<item name="Asterisk-Java" href="http://asterisk-java.org" />
+		</links>
+
+		<menu name="Overview">
+			<item name="Home" href="index.html" />
+			<item name="Building with Maven" href="building.html" />
+			<item name="Mailing Lists" href="mail-lists.html" />
+			<item name="Patch Howto" href="patch.html" />
+			<item name="Bug Tracker"
+				href="http://jira.reucon.org/browse/AJ" />
+		</menu>
+		<menu name="Documentation">
+			<item name="Design" href="design.html" />
+			<item name="Tutorials" href="tutorial.html" />
+			<item name="Frequently Asked Questions" href="faq.html" />
+			<item name="API Reference" href="apidocs/index.html" />
+		</menu>
+		<menu name="Sponsors">
+			<item name="Code Coverage by Clover"
+				href="http://www.cenqua.com/clover/"
+				img="http://www.cenqua.com/clover/images/clovered1.gif" />
+			<item name="Source Perspective by FishEye"
+				href="http://fisheye.reucon.org/fisheye/changelog/repos/asterisk-java"
+				img="http://www.cenqua.com/images/fisheyed2.gif" />
+		</menu>
+		${reports}
+	</body>
+</project>

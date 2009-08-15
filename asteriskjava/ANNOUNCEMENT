@@ -1,0 +1,39 @@
+ANNOUNCEMENT: Asterisk-Java 0.3.1 released
+
+Asterisk-Java 0.3.1, the free Java library for Asterisk PBX integration,
+has been released.
+
+The Asterisk-Java package consists of a set of Java classes that allow
+you to easily build Java applications that interact with an Asterisk
+PBX Server. Asterisk-Java supports both interfaces that Asterisk 
+provides for this scenario: The FastAGI protocol and the Manager API.
+
+Asterisk-Java 0.3.1 is a maintenance release that solves the 
+following issues:
+    * [AJ-81] - executeCliCommand() always executes "show voicemail users"
+    * [AJ-86] - getChannelByName doesn't return the latest channel
+    * [AJ-80] - getMeetMeRooms() should only return active rooms
+    * [AJ-68] - Support for Bridge Action
+    * [AJ-74] - Support Strategy property in QueueParamsEvent
+
+Asterisk-Java takes advantage of the features of Java 5.0 and therefore
+requires a Java Virtual Machine of at least version 1.5.0.
+
+Asterisk-Java is used in several commercial environments and by
+the following Open Source projects:
+    * Asterisk-JTAPI
+      JTAPI implementation for Asterisk.
+      http://asterisk-jtapi.sf.net/
+    * Asterisk-IM
+      A plugin for the Openfire XMPP (jabber) server. It provides
+      integrated presence between your IM client and phone, notification
+      of incoming calls by IM and originate calls from supported IM
+      clients.
+      http://www.igniterealtime.org/projects/openfire/
+    * Asterisk Desktop Manager (ADM)
+      A desktop application that will allow for automatic on-call volume
+      reduction, one click dial from clipboard, integrated phonebook
+      and more.
+      http://adm.hamnett.org/
+
+Asterisk-Java is available under Apache 2.0 license at http://asterisk-java.org

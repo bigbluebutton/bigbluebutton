@@ -1,0 +1,60 @@
+  ---
+  How To Create and Submit a Patch
+  ---
+  Stefan Reuter
+  ---
+  $Id: patch.apt 944 2008-01-22 01:06:38Z srt $
+
+How To Create and Submit a Patch
+
+  This documents how to create and submit patches for Asterisk-Java.
+
+* Introduction
+
+  A patch is exactly what the word says: a small piece of code used to 
+  repair a breach. It is normally a plain text file containing only 
+  the differences between the current version of the code and the 
+  fixed version.
+  
+  Often patches are also used to submit enhancements.
+
+* Generating a Patch
+  
+  The preferred way of creating a patch is to create it against latest 
+  SVN. This ensures that the patch works with the latest version of 
+  the source code and makes it easier to apply the patch.
+  
+  To generate the patch you need to check out a copy of the source code 
+  from SVN. Look a the {{{cvs-usage.html}CVS Howto}} for
+  the details.
+  
+  After you have made the changes to the source code and 
+  made sure it compiles and works as expected, you can create the 
+  patch file using the command 
+  
++-----------------------------------------+
+svn diff > /path/to/patchfile.patch
++-----------------------------------------+
+  
+  If you do not have access to SVN you can generate the patch against 
+  the latest release.
+  
+  To generate the patch you will need two copies of the source code:
+  one that is unmodified and one containing your changes to the source.
+  Start by downloading the source code of the latest release, extract 
+  it and make a copy of the entire source directory. After you have 
+  made your changes to one of the source directories and made sure it 
+  compiles and works as expected, you can create the patch file using 
+  the command 
+  
++-----------------------------------------+
+diff -ru /path/to/unmodified/source /path/to/modified/source > /path/to/patchfile.patch
++-----------------------------------------+
+
+* Sending a Patch
+
+  The preferred way to submit a patch is via the
+  {{{http://jira.reucon.com/browse/AJ}Bug Tracker}}.
+  
+  The patch can be reviewed there in public and other suggestions
+  can be discussed.

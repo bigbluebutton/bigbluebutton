@@ -1,0 +1,182 @@
+  ---
+  Asterisk-Java
+  ---
+  Stefan Reuter
+  ---
+  $Id: index.apt 1302 2009-05-12 16:39:11Z srt $
+
+Asterisk-Java
+
+  The Asterisk-Java package consists of a set of Java classes 
+  that allow you to easily build Java applications that interact with an 
+  {{{http://www.asterisk.org/}Asterisk PBX Server}}. 
+  
+  Asterisk-Java supports most features of the following Asterisk interfaces:
+  
+   * {{{http://www.voip-info.org/wiki-Asterisk+AGI}Fast Asterisk Gateway Interface}} (FastAGI)  ({{{apidocs/org/asteriskjava/manager/event/package-summary.html}javadocs}})
+   
+   * {{{http://www.voip-info.org/wiki-Asterisk+manager+API}Asterisk Manager interface}} (AMI) ({{{apidocs/org/asteriskjava/fastagi/command/package-summary.html}javadocs}}).
+   
+   * Inter-Asterisk eXchange (IAX) Protocol (<<coming soon!>>)
+   
+  <<Please start with the {{{tutorial.html}tutorials}}, the {{{faq.html}frequently asked questions}}, or the {{{apidocs/index.html}API reference}}.>> 
+
+* License
+
+  Asterisk-Java is provided under the terms of the 
+  {{{http://www.apache.org/licenses/LICENSE-2.0}Apache License, Version 2.0}}.
+  
+* Status
+
+  We plan to release Asterisk-Java 1.0.0 shortly after Asterisk 1.6. It will be
+  available at the 
+  {{{http://maven.reucon.com/public/org/asteriskjava/asterisk-java/}distribution site}}
+  where you can also find the previous releases.
+  
+  Asterisk-Java 1.0.0 will further enhance the new stateful higher level API
+  with operations like "get list of currently active calls" or "place call"
+  with objects like "Channel" or "Agent" that are transparently updated
+  as the state of the corresponding object within the Asterisk server
+  changes. You can have a look at
+  {{{apidocs/org/asteriskjava/live/package-summary.html}org.asteriskjava.live}}
+  that represents its current state.
+
+* Download
+
+  Official releases and release candidates are available from the our
+  {{{http://maven.reucon.com/public/org/asteriskjava/asterisk-java/}distribution site}}.
+
+  The
+  {{{http://maven.reucon.com/public-snapshot/org/asteriskjava/asterisk-java/}snapshot distribution site}}
+  hosts the latest snapshot releases.
+  
+  Please feel free to provide any feedback or ask for support via the
+  {{{mail-lists.html}Asterisk-Java users mailing list}}.
+  
+  The latest development version of Asterisk-Java is always available via SVN:
+
++-----------------------------------------------------------------------+
+  svn co http://svn.reucon.net/repos/asterisk-java/trunk asterisk-java
++-----------------------------------------------------------------------+
+
+* Requirements
+
+  Asterisk-Java is compatible with Asterisk 1.0, 1.2 and 1.4. The upcoming
+  1.0.0 release will add full support for Asterisk 1.6.
+
+  At runtime Asterisk-Java requires a Java Runtime 
+  Environment (JRE) of at least version 1.6 (Java SE 6).
+
+  Of course you also need a working Asterisk server. When 
+  using the Manager API be sure that it has been enabled (see
+  {{{http://www.voip-info.org/tiki-index.php?page=Asterisk%20config%20manager.conf}Asterisk config manager.conf}}).
+
+  For logging Asterisk-Java will use 
+  {{{http://logging.apache.org/log4j/}log4j}} when
+  available. If you do not include log4j in your Classpath 
+  Asterisk-Java will use java.util.logging.
+  
+  If you choose to compile Asterisk-Java on your own you need a
+  Java Developer Kit (JDK) of at least version 1.6 (Java SE 6). To run the unit
+  tests you need {{{http://www.junit.org/}JUnit}} and
+  {{{http://www.easymock.org/}EasyMock}} in addition.
+
+* Related Projects
+
+  {{{http://adm.hamnett.org/}Asterisk Desktop Manager}}, or
+  ADM for short, brings the power of Asterisk to the user's desktop. It
+  is written in Java, uses the Eclipse SWT library for its GUI and 
+  Asterisk-Java to provide Asterisk connectivity.\
+  Available under the GNU General Public License (GPL).
+  
+  {{{http://jivesoftware.org/asterisk-im/}Asterisk-IM}} is a plugin
+  for the Wildfire XMPP (Jabber) server. It provides integrated 
+  presence between your IM client and phone, notification of incoming calls by IM
+  and originate calls from the IM client - and of course it is based on
+  Asterisk-Java.\
+  Available under the GNU General Public License (GPL).
+  
+  {{{http://asterfax.sourceforge.net/}AsterFax}} provides an 
+  SMTP Fax gateway for the transmission of faxes using Asterisk and
+  is based on Asterisk-Java.\
+  Available under a modified GNU General Public License
+  (Organizations with more than one fax lines must purchase a 
+  commercial licence).
+  
+  {{{http://asterisk-jtapi.sourceforge.net/}Asterisk-JTAPI}}
+  is a JTAPI implementation for the Asterisk software PBX system. JTAPI is 
+  a provider independent programming interface for Java to build applications 
+  for computer telephony or to add support for it. JTAPI covers a wide range 
+  of usage scenarios starting from controlling a single telephone to a 
+  whole PBX system for example in call-centers.\
+  Asterisk-JTAPI builds on top of two other projects: Asterisk-Java, which 
+  provides a Java interface to the Asterisk Manager API, and GJTAPI, which 
+  provides a general framework for JTAPI interfaces.\
+  Available under Apache License.
+  
+  {{{http://www.voip-info.org/wiki/view/Asterisk+.NET}Asterisk .NET}}
+  is a full port of Asterisk-Java to .NET. It supports both the Manager API
+  and FastAGI. The latest version is available from
+  {{{http://asterisk-dotnet.sourceforge.net}SourceForge}}.\
+  Available under Apache License.
+  
+  {{{http://www3.mb.sympatico.ca/~chadk/}Asterisk-Java for Mono/.NET}}
+  is a port of Asterisk-Java to C# for Mono, Microsoft's .NET 
+  Framework and anything else that implements the basic 
+  portions of the framework. It currently only supports the Manager API and
+  is based on a pre-0.1 snapshot of Asterisk-Java.\
+  Available under Apache License.
+
+  {{{http://www.mobicents.org}Mobicents}} is a VoIP 
+  Middleware based on the
+  {{{http://java.sun.com/products/jain/article_slee_principles.html}JAIN SLEE}}
+  standard. It includes an
+  {{{http://wiki.java.net/bin/view/Communications/MobicentsAsteriskRA}Asterisk RA}}
+  that is based on Asterisk-Java.\
+  Available under Lesser GNU General Public License (LGPL)
+  
+  {{{http://tanesha.net/Wiki/JastAgi.html}Jast Agi}}
+  is another toolkit for writing Java applications that connect to
+  Asterisk using the FastAGI protocol. The lastest version introduces
+  a statemachine approach to handle AGI requests and uses java.nio to
+  process	all requests in one Thread.\
+  Available under Apache License.
+
+  {{{http://orderlycalls.sourceforge.net/}OrderlyCalls}}
+  supports writing Java based AGI Scripts using FastAGI. Support 
+  for the Manager API was recently added.\
+  Available under a modified Lesser GNU General Public License
+  (It is prohibited to use it for automating 'cold-calling' and you
+  need prior written permission to provide or augment call queuing).
+  
+  {{{http://sourceforge.net/projects/jasterisk/}JAsterisk}}
+  is a set of JNI classes providing direct access to Asterisk 
+  PBX functionality from Java. It is not a socket-level 
+  interface to Asterisk (like Asterisk-Java) but a true Java-Asterisk 
+  integration at the Thread level.\
+  Available under GNU General Public License.
+  
+* Sponsors
+
+  Thanks to our sponsors:
+
+  * JetBrains for providing a free license of
+    {{{http://www.jetbrains.com/idea/}IntelliJ Idea}}.
+
+  * {{{http://www.atlassian.com/}Atlassian}} for providing a free license of
+    the excellent {{{http://www.atlassian.com/software/jira/}JIRA}} Bug tracker
+    as well as {{{http://www.cenqua.com/clover/}Clover}} and
+    {{{http://www.cenqua.com/fisheye/}FishEye}}.
+
+  * YourKit {{{http://www.yourkit.com/}Java Profiler}}.
+
+  * ej-technologies for providing free licenses
+    of {{{http://www.ej-technologies.com/products/jprofiler/overview.html}JProfiler}}
+    and {{{http://www.ej-technologies.com/products/install4j/overview.html}install4j}}.
+
+  * {{{http://www.sourceforge.net}Sourceforge.net}} for hosting
+    the original development infrastructure for Asterisk-Java.
+
+* Contact
+
+  You can reach me at <<<stefan.reuter>>> at <<<reucon>>> dot <<<com>>>.

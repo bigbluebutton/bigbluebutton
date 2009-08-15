@@ -1,0 +1,609 @@
+  ---
+  Tutorial
+  ---
+  Stefan Reuter
+  ---
+  $Id: tutorial.apt 1289 2009-04-07 08:40:12Z srt $
+
+  This page provides a basic introduction and some sample code for 
+  {{{#The FastAGI Protocol}The FastAGI Protocol}}, {{{#The Manager API}The Manager API}}, and {{{#The Live API}The Live API}}. If 
+  you don't see a tutorial for the part of Asterisk-Java that you're 
+  interested in, please scroll down to make sure it isn't further down the 
+  page, or send us more examples that you would like to see included.    
+
+{The FastAGI Protocol}
+
+  The easiest way to interact with Asterisk from Java applications is via
+  the FastAGI protocol. AGI scripts can handle either incoming calls or
+  calls originated via the Manager API (see below for an example on how to
+  use Asterisk-Java to originate a call from your Java application).
+  
+  The AGI (Asterisk Gateway Interface) facility allows you to launch scripts,
+  from the Asterisk dial plan. Traditionally communication between the scripts
+  and Asterisk was via standard input and standard output and scripts had to run
+  on the same machine as Asterisk. Due to the large amount of time a Java 
+  Virtual Machine needs for startup and the discomfort of having to install 
+  a Java environment on the PBX box(es) Java has not been the language 
+  of choice for writing AGI scripts.
+  
+  These drawbacks have been addressed by the addition of FastAGI to Asterisk.
+  FastAGI is basically AGI over TCP/IP socket connections instead of using
+  standard input and standard output as communication medium.
+  
+  Using FastAGI you can run a Java application (on the same machine that runs
+  Asterisk or on a separate machine) that is only started once and serves AGI
+  scripts until it is shut down. Combined with Java's multithreading support
+  you can build pretty fast AGI scripts using this protocol.
+  
+  Asterisk-Java helps you with running your Java based AGI scripts by providing
+  a container that receives connections from the Asterisk server, parses the
+  request and calls your scripts mapped to the called URL.
+  
+* Hello AGI!
+
+  To write your own AGI scripts you must implement the AgiScript interface.
+  You can do so by simply extending BaseAgiScript that provides
+  some convenience methods that further simplify that task.
+ 
+  A simple AgiScript might look as follows:
+  
++--
+import org.asteriskjava.fastagi.AgiChannel;
+import org.asteriskjava.fastagi.AgiException;
+import org.asteriskjava.fastagi.AgiRequest;
+import org.asteriskjava.fastagi.BaseAgiScript;
+
+public class HelloAgiScript extends BaseAgiScript
+{
+    public void service(AgiRequest request, AgiChannel channel)
+            throws AgiException
+    {
+        // Answer the channel...
+        answer();
+		
+        // ...say hello...
+        streamFile("welcome");
+		
+        // ...and hangup.
+        hangup();
+    }
+}
++--
+
+  Put this Java source file into a directory of your choice,
+  add the <<<asterisk-java.jar>>> and compile it:
+
++--
+$ javac -cp asterisk-java.jar HelloAgiScript.java
+$ 
++--
+
+  Next you have to add a call to your script to your dialplan in Asterisk.
+
+  You might want to add an extension 1300 to the default section of your 
+  <<<extensions.conf>>>:
+  
++--
+[default]
+...
+exten => 1300,1,Agi(agi://localhost/hello.agi)
++--
+
+  Replace localhost with the hostname of the machine that runs Asterisk-Java.
+  
+  Be sure to reload Asterisk for this change to take effect. You can do so
+  by executing <<<extensions reload>>> on the Asterisk CLI.
+  
+  Now you must map the script name <<<hello.agi>>> to the HelloAgiScript
+  we just created. By default this is done in a properties file called
+  <<<fastagi-mapping.properties>>> that must be on the classpath
+  when we start the AgiServer. In this case it looks like:
+  
++--
+hello.agi = HelloAgiScript
++--
+
+  Your directory should now contain the following files:
+  
++--
+$ ls -l
+-rw-r--r--  1 srt srt 163689 2005-03-11 22:07 asterisk-java.jar
+-rw-r--r--  1 srt srt     26 2005-03-11 20:50 fastagi-mapping.properties
+-rw-r--r--  1 srt srt    624 2005-03-11 22:07 HelloAgiScript.class
+-rw-r--r--  1 srt srt    438 2005-03-11 20:50 HelloAgiScript.java
++--
+
+  Finally we start the AgiServer:
+
++--
+$ java -jar asterisk-java.jar
++--
+
+  For Asterisk-Java 0.3.1 and earlier you would use
+
++--
+$ java -cp asterisk-java.jar:. org.asteriskjava.fastagi.DefaultAgiServer
++--
+
+  or on Windows:
+
++--
+$ java -cp asterisk-java.jar;. org.asteriskjava.fastagi.DefaultAgiServer
++--
+
+  You should see some logging output indicating that the AgiServer has
+  been successfully started and is listening for incoming connections:
+
++--
+Mar 11, 2005 10:20:12 PM org.asteriskjava.fastagi.DefaultAgiServer run
+INFO: Thread pool started.
+Mar 11, 2005 10:20:12 PM org.asteriskjava.fastagi.DefaultAgiServer run
+INFO: Listening on *:4573.
++--
+
+  When you call extension 1300 you will see the AGI script being launched:
+
++--
+Mar 11, 2005 10:22:47 PM org.asteriskjava.fastagi.DefaultAgiServer run
+INFO: Received connection.
+Mar 11, 2005 10:22:47 PM org.asteriskjava.fastagi.AgiConnectionHandler run
+INFO: Begin AgiScript HelloAgiScript on AgiServer-TaskThread-0
+Mar 11, 2005 10:22:48 PM org.asteriskjava.fastagi.AGIConnectionHandler run
+INFO: End AgiScript HelloAgiScript on AgiServer-TaskThread-0
++--
+
+* Extending the Example
+
+  Have a look at the documentation of 
+  {{{apidocs/org/asteriskjava/fastagi/BaseAgiScript.html}BaseAgiScript}}
+  there you will find additional methods that you can use for your own scripts.
+  If you want to use commands that do not yet have a corresponding method in
+  BaseAgiScript or if you want to extend the FastAGI protocol by adding your
+  own commands you can also use the 
+  {{{apidocs/org/asteriskjava/fastagi/AgiChannel.html}channel}}.sendCommand({{{apidocs/org/asteriskjava/fastagi/command/AgiCommand.html}AgiCommand}})
+  method to send arbitrary commands.
+  
+  You can pass parameters to your scripts by including them in the URL used with
+  the AGI command. These parameters can be read by the getParameter(String) and
+  getParameterValues(String) methods in
+  {{{apidocs/org/asteriskjava/fastagi/AgiRequest.html}AgiRequest}}.
+  
+  If you want to pass a parameter named user with a value of "john" to your
+  script called hello.agi running on localhost your call to the AGI application
+  looks like this:
+
++--
+exten => 1300,1,Agi(agi://localhost/hello.agi?user=john)
++--
+
+  You can also pass multiple parameters. Parameters containing special characters
+  must be URL encoded.
+  
+  If you are about to write more complex scripts please note that your AgiScript 
+  must be thread-safe. Only one instance will be used to serve all requests.
+  This is kind of similar to the constraints a servlet engine places on the 
+  implementation of servlets.
+  
+* Configuration
+
+  You can tune the DefaultAgiServer by setting two properties: The bindPort
+  and the poolSize.
+  
+  The bindPort determines the TCP port the server will listen on. By default
+  this is the FastAGI port 4573. If you change it make sure to include the
+  new port in the URLs used in <<<extensions.conf>>>. When using
+  bindPort 1234 your <<<extensions.conf>>> will contain:
+
++--
+exten => 1300,1,Agi(agi://localhost:1234/hello.agi)
++--
+
+  To understand the poolSize property you need to know that the 
+  DefaultAgiServer uses a fixed size thread pool to serve your AgiScripts.
+  The poolSize determines how many threads are spawned at startup and thus
+  limits the number of AgiScripts that can run at the same time. So you
+  should set the poolSize to at least the number of concurrent calls the
+  AgiServer should be able to handle. The default value is 10.
+  
+  These configuration properties can be set by providing a
+  <<<fastagi.properties>>> file on the classpath.
+
+  This might look like:
+
++--
+bindPort = 1234
+poolSize = 20
++--
+
+{The Manager API}
+
+  The Manager API is the other way for remote interaction with an Asterisk server.
+  In contrast to the FastAGI protocol Asterisk does not explicitly pass control
+  to your application when using the Manager API but allows you to
+  query and change its state at any time.
+
+  The Manager API is made up of three concepts: Actions, Responses and	Events.
+  Actions can be sent to Asterisk and instruct it to do someting. For example your
+  application can send an Action to Asterisk requesting it to dial a number and
+  direct the dialed party to one of your phones. In reply to an
+  Action Asterisk sends a Reply that contains the results of the operation 
+  performed.
+
+  Events are sent by Asterisk without a direct relation to the Actions your
+  application is sending.
+  Events inform you about the relevant changes in Asterisk's state. For example
+  Events are used to inform your application about incoming calls or users joining
+  or leaving MeetMe conference rooms.
+
+  The connection to the Asterisk server via Manager API occurs over TCP/IP usually
+  on the default port 5038.
+  
+  To enable the Manager API on Asterisk you must edit your <<<manager.conf>>>
+  configuration file and restart Asterisk. The <<<manager.conf>>> also contains
+  constraints on the range of IP addresses that are allowed to connect and username
+  and passwords for authentication. A sample might look like:
+  
++--
+[general]
+enabled = yes
+port = 5038
+bindaddr = 0.0.0.0
+
+[manager]
+secret=pa55w0rd
+permit=0.0.0.0/0.0.0.0
+read=system,call,log,verbose,agent,command,user
+write=system,call,log,verbose,agent,command,user
++--
+
+  This will enable the Manager AP, allow access from any IP address using the
+  username "manager" and the password "pa55w0rd".
+  
+* Hello Manager!
+
+  Assume we have a phone connected via SIP that is available at SIP/john and
+  we want to initiate a call from that phone to extension 1300 in the default
+  context.
+  
+  We have to obtain a
+  {{{apidocs/org/asteriskjava/manager/ManagerConnection.html}ManagerConnection}}
+  providing the hostname Asterisk is running on and the username and password
+  as configured in <<<manager.conf>>>. Next we log in and send an
+  {{{apidocs/org/asteriskjava/manager/action/OriginateAction.html}OriginateAction}}
+  and finally we disconnect.
+  
+  An example that does this is shown below.
+  
++--
+import java.io.IOException;
+
+import org.asteriskjava.manager.AuthenticationFailedException;
+import org.asteriskjava.manager.ManagerConnection;
+import org.asteriskjava.manager.ManagerConnectionFactory;
+import org.asteriskjava.manager.TimeoutException;
+import org.asteriskjava.manager.action.OriginateAction;
+import org.asteriskjava.manager.response.ManagerResponse;
+
+public class HelloManager
+{
+    private ManagerConnection managerConnection;
+
+    public HelloManager() throws IOException
+    {
+        ManagerConnectionFactory factory = new ManagerConnectionFactory(
+                "localhost", "manager", "pa55w0rd");
+
+        this.managerConnection = factory.createManagerConnection();
+    }
+
+    public void run() throws IOException, AuthenticationFailedException,
+            TimeoutException
+    {
+        OriginateAction originateAction;
+        ManagerResponse originateResponse;
+
+        originateAction = new OriginateAction();
+        originateAction.setChannel("SIP/John");
+        originateAction.setContext("default");
+        originateAction.setExten("1300");
+        originateAction.setPriority(new Integer(1));
+        originateAction.setTimeout(new Integer(30000));
+
+        // connect to Asterisk and log in
+        managerConnection.login();
+
+        // send the originate action and wait for a maximum of 30 seconds for Asterisk
+        // to send a reply
+        originateResponse = managerConnection.sendAction(originateAction, 30000);
+
+        // print out whether the originate succeeded or not
+        System.out.println(originateResponse.getResponse());
+
+        // and finally log off and disconnect
+        managerConnection.logoff();
+    }
+
+    public static void main(String[] args) throws Exception
+    {
+        HelloManager helloManager;
+
+        helloManager = new HelloManager();
+        helloManager.run();
+    }
+}
++--
+
+  A list of the other {{{apidocs/org/asteriskjava/manager/action/package-summary.html}Actions}}
+  provided by the Manager API is available in the {{{apidocs/index.html}javadocs}}.
+  
+* Hello Events!
+
+  To receive events from Asterisk you have to implement the 
+  {{{apidocs/org/asteriskjava/manager/ManagerEventListener.html}ManagerEventListener}}
+  interface and add it to the 
+  {{{apidocs/org/asteriskjava/manager/ManagerConnection.html}ManagerConnection}}.
+  
+  The following code shows a simple example of how to do this:
+  
++--
+import java.io.IOException;
+
+import org.asteriskjava.manager.AuthenticationFailedException;
+import org.asteriskjava.manager.ManagerConnection;
+import org.asteriskjava.manager.ManagerConnectionFactory;
+import org.asteriskjava.manager.ManagerEventListener;
+import org.asteriskjava.manager.TimeoutException;
+import org.asteriskjava.manager.action.StatusAction;
+import org.asteriskjava.manager.event.ManagerEvent;
+
+public class HelloEvents implements ManagerEventListener
+{
+    private ManagerConnection managerConnection;
+
+    public HelloEvents() throws IOException
+    {
+        ManagerConnectionFactory factory = new ManagerConnectionFactory(
+                "localhost", "manager", "pa55w0rd");
+
+        this.managerConnection = factory.createManagerConnection();
+    }
+
+    public void run() throws IOException, AuthenticationFailedException,
+            TimeoutException, InterruptedException
+    {
+        // register for events
+        managerConnection.addEventListener(this);
+        
+        // connect to Asterisk and log in
+        managerConnection.login();
+
+        // request channel state
+        managerConnection.sendAction(new StatusAction());
+        
+        // wait 10 seconds for events to come in
+        Thread.sleep(10000);
+
+        // and finally log off and disconnect
+        managerConnection.logoff();
+    }
+
+    public void onManagerEvent(ManagerEvent event)
+    {
+        // just print received events
+        System.out.println(event);
+    }
+
+    public static void main(String[] args) throws Exception
+    {
+        HelloEvents helloEvents;
+
+        helloEvents = new HelloEvents();
+        helloEvents.run();
+    }
+}
++--
+
+  A list of the other {{{apidocs/org/asteriskjava/manager/event/package-summary.html}Events}}
+  povided by the Manager API is available in the
+  {{{apidocs/index.html}javadocs}}.
+
+{The Live API}
+
+  The live API is built on top of the Manager API and provides additional abstraction.
+  Instead of directly using actions and events to interact with Asterisk you can use
+  active domain objects (live objects) that represent Asterisk concepts like a channel
+  or an extension. The behavior of live objects follows the pattern of the 
+  {{{http://java.sun.com/products/javabeans/reference/api/index.html}JavaBeans specification}} by Sun.
+
+  To get started, have a look at the the {{{apidocs/org/asteriskjava/live/package-summary.html}live package}} 
+  in the {{{apidocs/index.html}javadocs}}, especially the interfaces for {{{apidocs/org/asteriskjava/live/AsteriskServer.html}AsteriskServer}}, 
+  {{{apidocs/org/asteriskjava/live/AsteriskChannel.html}AsteriskChannel}}, and 
+  {{{apidocs/org/asteriskjava/live/AsteriskQueue.html}AsteriskQueue}}. Asterisk-Java provides implementations
+  for these interfaces, such as {{{apidocs/org/asteriskjava/live/DefaultAsteriskServer.html}DefaultAsteriskServer}}
+  for {{{apidocs/org/asteriskjava/live/AsteriskServer.html}AsteriskServer}}. DefaultAsteriskServer, in turn, relies
+  on other implementation classes provided.
+
+* HelloLive
+ 
+ To run commands using the live API, you need to create an AsteriskServer using the DefaultAsteriskServer implementation.
+ Alternatively, if you already have a manager connection (see "The Manager API" above), you can pass that to the DefaultAsteriskServer.
+ Once connected, this sample program prints all channels, queues, and meet me objects. In a real project, you will probably do this at
+ the start, and perhaps perform some actions based on the current state of Asterisk. Continue below to see how to use events in the live package.
+ 
+ The following code shows a simple example of how to connect to Asterisk using the live API:
+ 
++--
+import org.asteriskjava.live.AsteriskServer;
+import org.asteriskjava.live.AsteriskChannel;
+import org.asteriskjava.live.AsteriskQueue;
+import org.asteriskjava.live.MeetMeRoom;
+import org.asteriskjava.live.DefaultAsteriskServer;
+
+import org.asteriskjava.live.ManagerCommunicationException;
+
+public class HelloLive
+{
+    private AsteriskServer asteriskServer;
+
+    public HelloLive()
+    {
+        asteriskServer = new DefaultAsteriskServer("localhost", "manager", "pa55w0rd");
+    }
+
+    public void run() throws ManagerCommunicationException
+    {
+        for (AsteriskChannel asteriskChannel : asteriskServer.getChannels())
+        {
+            System.out.println(asteriskChannel);
+        }
+
+        for (AsteriskQueue asteriskQueue : asteriskServer.getQueues())
+        {
+            System.out.println(asteriskQueue);
+        }
+
+        for (MeetMeRoom meetMeRoom : asteriskServer.getMeetMeRooms())
+        {
+            System.out.println(meetMeRoom);
+        }
+    }
+
+    public static void main(String[] args) throws Exception
+    {
+        HelloLive helloLive = new HelloLive();
+        helloLive.run();
+    }
+}
++--
+
+* HelloLiveEvents
+ 
+ To process events using the live API, you need to implement an {{{apidocs/org/asteriskjava/live/AsteriskServerListener.html}AsteriskServerListener}}.
+ Once you have a class that implements that interface, you can add it via the DefaultAsteriskServer in order to hear about new channels.
+ 
+ The following code snippet shows a simple example of how to listen for new channels or meet me users:
+
++--
+import org.asteriskjava.live.AsteriskChannel;
+import org.asteriskjava.live.AsteriskServer;
+import org.asteriskjava.live.AsteriskServerListener;
+import org.asteriskjava.live.DefaultAsteriskServer;
+import org.asteriskjava.live.ManagerCommunicationException;
+import org.asteriskjava.live.MeetMeUser;
+
+public class HelloLiveEvents implements AsteriskServerListener
+{
+    private AsteriskServer asteriskServer;
+
+    public HelloLiveEvents()
+    {
+        asteriskServer = new DefaultAsteriskServer("localhost", "manager", "pa55w0rd");
+    }
+
+    public void run() throws ManagerCommunicationException
+    {
+        asteriskServer.addAsteriskServerListener(this);
+    }
+
+    public void onNewAsteriskChannel(AsteriskChannel channel)
+    {
+        System.out.println(channel);
+    }
+
+    public void onNewMeetMeUser(MeetMeUser user)
+    {
+        System.out.println(user);
+    }
+
+    public static void main(String[] args) throws Exception
+    {
+        HelloLiveEvents helloLiveEvents = new HelloLiveEvents();
+        helloLiveEvents.run();
+    }
+}
++--
+
+* HelloLiveEverything
+ 
+ Finally, for every AsteriskChannel or MeetMeUser you can get examine through the live API, you can also add a listener
+ for properties that change on that object.
+  
+ The following code snippet shows a longer example that adds event listeners for new channels or meet me users, and 
+ property change listeners to new and old channels and users:
+
++--
+import org.asteriskjava.live.AsteriskChannel;
+import org.asteriskjava.live.AsteriskQueue;
+import org.asteriskjava.live.AsteriskServer;
+import org.asteriskjava.live.AsteriskServerListener;
+import org.asteriskjava.live.DefaultAsteriskServer;
+import org.asteriskjava.live.ManagerCommunicationException;
+import org.asteriskjava.live.MeetMeRoom;
+import org.asteriskjava.live.MeetMeUser;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
+
+public class HelloLiveEverything implements AsteriskServerListener, PropertyChangeListener
+{
+    private AsteriskServer asteriskServer;
+
+    public HelloLiveEverything()
+    {
+        asteriskServer = new DefaultAsteriskServer("localhost", "manager", "pa55w0rd");
+    }
+
+    public void run() throws ManagerCommunicationException
+    {
+        // listen for new events
+        asteriskServer.addAsteriskServerListener(this);
+
+        // add property change listeners to existing objects
+        for (AsteriskChannel asteriskChannel : asteriskServer.getChannels())
+        {
+            System.out.println(asteriskChannel);
+            asteriskChannel.addPropertyChangeListener(this);
+        }
+
+        for (AsteriskQueue asteriskQueue : asteriskServer.getQueues())
+        {
+            System.out.println(asteriskQueue);
+            for (AsteriskChannel asteriskChannel : asteriskQueue.getEntries())
+            {
+                asteriskChannel.addPropertyChangeListener(this);
+            }
+        }
+
+        for (MeetMeRoom meetMeRoom : asteriskServer.getMeetMeRooms())
+        {
+            System.out.println(meetMeRoom);
+            for (MeetMeUser user : meetMeRoom.getUsers())
+            {
+                user.addPropertyChangeListener(this);
+            }
+        }
+    }
+
+    public void onNewAsteriskChannel(AsteriskChannel channel)
+    {
+        System.out.println(channel);
+        channel.addPropertyChangeListener(this);
+    }
+
+    public void onNewMeetMeUser(MeetMeUser user)
+    {
+        System.out.println(user);
+        user.addPropertyChangeListener(this);
+    }
+
+    public void propertyChange(PropertyChangeEvent propertyChangeEvent)
+    {
+        System.out.println(propertyChangeEvent);
+    }
+
+    public static void main(String[] args) throws Exception
+    {
+        HelloLiveEvents helloLiveEvents = new HelloLiveEvents();
+        helloLiveEvents.run();
+    }
+}
++--
