@@ -3,170 +3,83 @@ package org.bigbluebutton.deskshare.client.tiles;
 
 import java.awt.Point;
 import java.awt.image.*;
-
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class TileManager {
-    public final int MAX_TILE = 256;
     private Tile tiles[][];
     private int numColumns;
     private int numRows;
-    private Dimension screenDim;
-    private Dimension tileDim;
-        
+    
+    private TileFactory factory;
+    private Set<ChangedTilesListener> listeners = new HashSet<ChangedTilesListener>();
+    
     public TileManager() {}
     
     public void initialize(Dimension screen, Dimension tile) {
-        this.screenDim = screen;
-        this.tileDim = tile;
+    	factory = new TileFactory(screen, tile);
         
-        numColumns = computeNumberOfColumnTiles();
-        numRows = computeNumberOfRowTiles();
+        numColumns = factory.getColumnCount();
+        numRows = factory.getRowCount();
         tiles = new Tile[numRows][numColumns];
-    }
-    
-    private int computeNumberOfColumnTiles() {
-    	int columns = screenDim.getWidth() / tileDim.getWidth();
-    	if (hasPartialColumnTile()) {
-    		columns += 1;
-    	}
-    	return columns;
-    }
-    
-    private boolean hasPartialColumnTile() {
-    	return (screenDim.getWidth() % tileDim.getWidth()) != 0;
-    }
-    
-    private int computeNumberOfRowTiles() {
-    	int rows = screenDim.getHeight() / tileDim.getHeight();
-    	if (hasPartialRowTile()) {
-    		rows += 1;
-    	}
-    	return rows;
-    }
-    
-    private boolean hasPartialRowTile() {
-    	return (screenDim.getHeight() % tileDim.getHeight()) != 0;
-    }
-    
-    public void processCapturedScreen(BufferedImage image)
-    {
-        BufferedImage subimage;
-        int subw, subh;
-        boolean changed;
-        
+
         for (int row = 0; row < numRows; row++) {
         	for (int col = 0; col > numColumns; col++) {
             	if (tiles[row][col] == null) {
- //           		tiles[row][col] = createTile(row, col);
+            		int position = factory.indexToPosition(row, col);
+            		tiles[row][col] = factory.createTile(position);
             	}       		
-        	}
-
-        	
-        	
+        	}        	
+        }    
+    }
+    
+    public void processCapturedScreen(BufferedImage capturedSreen)
+    {
+        BufferedImage capturedTile;
+        ArrayList<ChangedTile> changedTiles = new ArrayList<ChangedTile>();
+        
+        for (int row = 0; row < numRows; row++) {
+        	for (int col = 0; col > numColumns; col++) {
+        		int position = factory.indexToPosition(row, col);
+            	Tile tile =  getTile(position);   
+            	capturedTile = capturedSreen.getSubimage(tile.getWidth(), tile.getHeight(), tile.getX(), tile.getY());
+            	tile.updateTile(capturedTile);
+            	if (tile.isDirty()) {
+            		ChangedTileImp ct = new ChangedTileImp(tile.getDimension(), tile.getTilePosition(), tile.getLocation(), tile.getImage());
+            		changedTiles.add(ct);
+            	}
+        	}        	
         }
-/*
-        for (int i=0; i < numxtile; i++) {
-            for (int j=0; j < numytile; j++) {
-                if (tiles[i][j]==null) tiles[i][j] = new Tile();
-                    if (i == numxtile-1) 
-                        subw = tilewidth + (screenwidth % tilewidth);
-                    else
-                        subw = tilewidth;
-                    if (j == numytile-1)
-                        subh = tileheight + (screenheight % tileheight);
-                    else
-                        subh = tileheight;
-                    subimage = image.getSubimage(i*tilewidth, j*tileheight, subw, subh);
-                    
-		    synchronized (tiles[i][j]) {
-			    changed = tiles[i][j].updateImage2(subimage);
-			    if (DEBUG) {
-				    if (changed) System.out.println(getClass().getName() + ": [" + i + "," + j + "] Changed. ["+tiles[i][j].fileSize()+"]");
-			    }
-		    }
-           }
-         }    
-  */
+        
+        if (changedTiles.size() > 0) {
+        	notifyChangedTilesListener(changedTiles);
+        }
     }
     
-//    private BufferedImage getTileImage(BufferedImage capturedScreen, Tile tile) {
-//    	
-//    }
+    private void notifyChangedTilesListener(ArrayList<ChangedTile> changedTiles) {
+    	
+    }
     
-    void createTile(int position) {
-    	int col = computeColumn(position);
-    	int row = computeRow(position);
-		int w = computeTileWidth(col);
-		int h = computeTileHeight(row);		
-		int x = computeTileXLocation(col);
-		int y = computeTileYLocation(row);
-		int pos = computeTilePosition(row, col);
-		
-		System.out.println("Tile dim=" + w + "x" + h + " index=" + row + "," + col + " loc=" + x + "," + y);
-		Tile t = new Tile(new Dimension(w, h), pos, new Point(x,y));
 
-		tiles[row][col] = t;
-    }
-    
-    private int computeTilePosition(int row, int col) {
-    	return (((numRows - (row+1)) * numColumns) + (col + 1));
-    }
-    
-    private int computeTileXLocation(int col) {
-    	return col * tileDim.getWidth();
-    }
-    
-    private int computeTileYLocation(int row) {
-    	if (isTopRowTile(row)) return 0;
-    	return screenDim.getHeight() - ((numRows - row) * tileDim.getHeight());
-    }
-    
-    Tile getTile(int position) {    	
-    	return tiles[computeRow(position)][computeColumn(position)];
-    }
-    
-    private int computeRow(int position) {
-    	return -(position - (getRowCount() * getColumnCount())) / getColumnCount();
-    }
-    
-    private int computeColumn(int position) {
-		return (position - 1) % getColumnCount();    	
-    }
-    
-    private int computeTileWidth(int col) {
-    	if (isLastColumnTile(col)) {
-    		if (hasPartialColumnTile()) {
-    			return partialTileWidth();
-    		}
-    	}
-    	return tileDim.getWidth();
-    }
-    
-    private int partialTileWidth() {
-    	return screenDim.getWidth() % tileDim.getWidth();
-    }
-    
-    private int computeTileHeight(int row) {
-    	if (isTopRowTile(row)) {
-    		if (hasPartialRowTile()) {
-    			return partialTileHeight();
-    		}
-    	}
-    	return tileDim.getWidth();
-    }
-    
-    private int partialTileHeight() {
-    	return screenDim.getHeight() % tileDim.getHeight();
-    }
+	public void addListener(ChangedTilesListener listener) {
+		listeners.add(listener);
+	}
 
-    private boolean isLastColumnTile(int col) {
-    	return ((col+1) % numColumns) == 0;
+
+	public void removeListener(ChangedTilesListener listener) {
+		listeners.remove(listener);
+	}
+    
+    void createTile(int position) {		
+    	Point coord = factory.positionToIndex(position);
+		tiles[coord.x][coord.y] = factory.createTile(position);
     }
     
-    private boolean isTopRowTile(int row) {
-    	return (row == 0);
+    Tile getTile(int position) {
+    	Point coord = factory.positionToIndex(position);
+    	return tiles[coord.x][coord.y];
     }
-
     
     int getRowCount()
     {

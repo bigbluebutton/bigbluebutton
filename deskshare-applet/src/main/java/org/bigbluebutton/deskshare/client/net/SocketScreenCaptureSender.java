@@ -29,7 +29,6 @@ import java.net.UnknownHostException;
 
 import javax.imageio.ImageIO;
 
-import org.bigbluebutton.deskshare.client.IScreenCaptureSender;
 
 public class SocketScreenCaptureSender implements IScreenCaptureSender {
 	

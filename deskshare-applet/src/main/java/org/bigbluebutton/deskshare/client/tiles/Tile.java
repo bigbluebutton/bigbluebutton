@@ -7,21 +7,17 @@ import java.awt.image.ImageObserver;
 import java.awt.image.PixelGrabber;
 import java.util.zip.Adler32;
 
-
-
-public class Tile {    
-    private Adler32 checksum;
+final class Tile {    
+    private final Adler32 checksum;
+    private final Dimension dim;
+    private final int position;
+    private final Point location;
+    
+	private BufferedImage image = null;
     private long version;
     private boolean dirty;
-    private Dimension dim;
-    private int position;
-    private Point location;
-    private boolean topRowTile = false;
-	private boolean lastColumnTile = false;
-        
-	private BufferedImage image = null;
     
-    public Tile(Dimension dim, int position, Point location) {
+    Tile(Dimension dim, int position, Point location) {
         checksum = new Adler32();
         version = 0;
         dirty = true;
@@ -30,13 +26,13 @@ public class Tile {
         this.location = location;
     }
     
-    public void updateImage(BufferedImage image)
+    void updateTile(BufferedImage tile)
     {
         long oldsum;
         oldsum = checksum.getValue(); 
-        calcChecksum(image);
+        calcChecksum(tile);
         if (oldsum != checksum.getValue()) {
-        	this.image = image;
+        	this.image = tile;
             version++;
             dirty = true;
         }
@@ -45,7 +41,7 @@ public class Tile {
         }
     }
     
-    public boolean isSameVersion(long ver)
+    boolean isSameVersion(long ver)
     {
         if (ver != version) {
             return false;
@@ -55,12 +51,12 @@ public class Tile {
         }
     }
     
-    public boolean isDirty()
+    boolean isDirty()
     {
         return dirty;
     }
     
-    public void clearDirty()
+    void clearDirty()
     {
         dirty = false;
     }
@@ -93,45 +89,37 @@ public class Tile {
 		}	        
     }
     
-    public BufferedImage getImage() {
+    BufferedImage getImage() {
     	return image;
     }
     
-    public int getWidth()
+    int getWidth()
     {
         return dim.getWidth();
     }
     
-    public int getHeight()
+    int getHeight()
     {
         return dim.getHeight();
     }
     
-    public int getTilePosition() {
+    int getTilePosition() {
 		return position;
 	}
     
-    public boolean isTopRowTile() {
-		return topRowTile;
-	}
-
-	public void setTopRowTile(boolean topRowTile) {
-		this.topRowTile = topRowTile;
-	}
-
-	public boolean isLastColumnTile() {
-		return lastColumnTile;
-	}
-
-	public void setLastColumnTile(boolean lastColumnTile) {
-		this.lastColumnTile = lastColumnTile;
-	}
-
-    public int getX() {
+    int getX() {
 		return location.x;
 	}
 
-	public int getY() {
+	int getY() {
 		return location.y;
+	}
+	
+	Dimension getDimension() {
+		return dim;
+	}
+	
+	Point getLocation() {
+		return location;
 	}
 }

@@ -30,7 +30,6 @@ import java.net.URLConnection;
 
 import javax.imageio.ImageIO;
 
-import org.bigbluebutton.deskshare.client.IScreenCaptureSender;
 
 import com.myjavatools.web.ClientHttpRequest;
 

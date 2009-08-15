@@ -17,7 +17,7 @@
  *
  * $Id: $
  */
-package org.bigbluebutton.deskshare.client;
+package org.bigbluebutton.deskshare.client.net;
 
 import java.awt.image.BufferedImage;
 
