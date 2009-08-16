@@ -1,0 +1,72 @@
+Current dialplan flags and arguments used by app_konference
+Please note that app_konference is still work in progress, so this document might be outdated. As always, the source code is the definitive reference (member.c in create_member())
+
+The general syntax of Appkonference dialplan entries is:
+
+exten => <ext>,<pri>,Konference(<confname>/<flags>/<optional args>/<more optional args>)
+
+The optional arguments have the format <arg>=<value> and should be separated by slashes(/)
+
+1. Flags
+
+Mute/no receive options:
+'C' : member starts with video muted
+'c' : member starts unable to receive video
+'L' : member starts with audio muted
+'l' : member starts unable to receive audio
+
+Speex preprocessing options (right now app_konference does preprocessing only for Zaptel members):
+'V' : enable speex preprocessing Voice Activity Detection 
+'D' : enable speex preprocessing De-noise
+'A' : enable speex preprocessing Automatic Gain Control
+'T' : member connects through Zaptel, so speex preprocessing should be enabled
+
+DTMF options:
+'X' : enable DTMF switch: video can be switched by users using DTMF. Do not use with 'S'.
+'R' : enable DTMF relay: DTMF tones generate a manager event
+If neither 'X' nor 'R' are present, DTMF tones will be forwarded to all members in the conference
+
+Moderator/video switch options:
+'M' : member is a "moderator". When a moderator quits, all members are kicked and the conference is disabled.
+'S' : member accepts VAD controlled video switching.  Do not use with 'X'.
+'z' : member can "linger". When the member is currently transmitting video and becomes silent and nobody else is speaking, we stay on it.
+'o' : enable special behavior when in 1 and 2 member situation (one on one video). The conference observes the 'o' status of the last 
+      member to join it
+'F' : force switch mode: if the member is talking, force a switch to it even when there is no video
+
+Miscellaneous:
+'t' : member accepts text based control messages.  The messages are described in a separate document
+'N' : Assume that the member starts off with camera disabled.
+'x' : if a moderator leaves, all conferees are kicked and conference ends.
+
+Future development (these are not implemented yet):
+?
+
+2. Arguments
+
+The parser is not perfect so it might not cope well with spurious spaces or other characters.
+All arguments are optional; appkonference will use sane default values for missing arguments.
+
+priority=<int> : This argument is currently unused, it was intended to allow for prioritization of speakers.  It might be reinstated in a future appconference revision
+vad_prob_start=<float> : Probability used to detect start of speech
+vad_prob_continue=<float> : Probability to detect continuation of speech
+video_start_timeout=<int> : Length of speech (in ms) before we say that a member is speaking (for video switching purposes)
+video_stop_timeout=<int>  : Length of silence (in ms) before we say that a member has stopped speaking (for video switching purposes)
+max_users=<int> : Limit conference participants to max_users.
+
+3. Examples
+
+exten => 6969,1,Konference(testconf/SNt)
+
+Calling extension 6969 will connect to conference "testconf". The member accepts VAD based video switching, knows about
+the text based control protocol and is assumed to start off with camera disabled
+
+
+exten => 6969,1,Konference(testconf/SNt/video_start_timeout=1000/video_stop_timeout=1000)
+
+Same as above, but the timeouts used for VAD based video switching are set to 1000 ms (from the default of 2000 ms).
+The effect is faster video switching.
+
+exten => 6969,1,Konference(testconf/XNt)
+
+Same as the first example, but video switching is now controlled by clients via DTMF

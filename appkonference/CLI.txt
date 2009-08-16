@@ -1,0 +1,130 @@
+
+Please note that app_konference is still work in progress, so this document
+might be outdated. As always, the source code is the definitive reference
+(cli.[ch] and conference.[ch]).  You can also obtain help/usage information by
+using Asterisk CLI help system ("help konference")
+
+A member in a conference can be referred to by its id or by its channel.  Id
+is a positive number assigned automatically when the member joins the
+conference.  Channel is Asterisk channel identifier. To obtain a list of
+member ids and channels in a conference, do:
+
+*CLI> konference list <conference name>
+
+Current command line used by app_konference:
+
+- konference debug: enable debugging for a conference
+  usage: conference debug <conference_name> [ on | off ]
+
+- konference end: stops a conference
+  usage: conference end <conference name>
+
+- konference kick: kick member from a conference
+  usage: conference kick <conference_name> <member id>
+
+- konference kickchannel: kick channel from a conference
+  usage: conference kickchannel <channel>
+
+- konference list: list members of a conference. If no conference is specified, all conferences are listed
+  usage: conference list {conference_name}
+
+- konference lock: locks incoming video to a member
+  usage: conference lock <conference name> <member id>
+
+- konference lockchannel: locks incoming video to a channel
+  usage: conference lockchannel <conference name> <channel>
+
+- konference mute: mute member in a conference
+  usage: conference mute <conference_name> <member id>
+
+- konference muteconference: mute all members in a conference
+  usage: conference muteconference <conference_name>
+
+- konference mutechannel: mute channel in a conference
+  usage: conference mutechannel <channel>
+
+- konference talkvolume: raise or lower the talker's volume
+  usage: conference talkvolume <channel> (up|down)
+
+- konference listenvolume: raise or lower the listener's volume
+  usage: conference listenervolume <channel> (up|down)
+
+- konference volume: raise or lower the conference volume
+  usage: conference volume <conference name> (up|down)
+
+- konference play sound: play a sound to a conference member
+  usage: conference play sound <channel> (<sound-file>)+ [mute]
+  If mute is specified, all other audio is muted while the sound is played back.
+
+- konference stop sound: stop playing sounds to a conference member
+  usage: conference stop sound <channel>
+
+- konference start moh: start music on hold for a conference member
+  usage: conference start moh <channel>
+
+- konference stop moh: stop music on hold for a conference member
+  usage: conference start moh <channel>
+
+- konference version: display konference version
+  usage: conference version
+  
+- konference restart: kick all users in all conferences
+  usage: conference restart
+  
+- konference set default: sets default video source
+  usage: conference set default <conference name> <member>
+  use a negative value for member if you want to clear the default
+
+- konference set defaultchannel: sets default video source channel
+  usage: conference set defaultchannel <conference name> <channel>
+
+- konference show stats: show conference stats
+  usage: conference show stats
+
+- konference text: sends a text message to a member. Depends on the member's channel capabilities.
+  usage: conference text <conference name> <member> <text>
+
+- konference textbroadcast: sends a text message to all members in a conference
+  usage: conference textbroadcast <conference name> <text>
+
+- konference textchannel: sends a text message to a channel
+  usage: conference textchannel <conference name> <channel> <text>
+
+- konference unlock: unlocks incoming video
+  usage: conference unlock <conference name>
+
+- konference unmute: unmute member in a conference
+  usage: conference unmute <conference_name> <member id>
+
+- konference unmuteconference: unmute members in a conference
+  usage: conference unmuteconference <conference_name>
+
+- konference unmutechannel: unmute channel in a conference
+  usage: conference unmutechannel <channel>
+
+- konference video mute: mutes video from a member
+  usage: conference video mute <conference name> <member>
+
+- konference video mutechannel: mutes video from a channel
+  usage: conference video mutechannel <conference name> <channel>
+
+- konference video unmute: unmutes video from a member
+  usage: conference video unmute <conference name> <member>
+
+- konference video unmutechannel: unmutes video from a channel
+  usage: conference video unmutechannel <conference name> <channel>
+
+- konference viewchannel: switch video for a channel in a conference
+  usage: conference viewchannel <conference_name> <dest channel> <src channel>
+
+- konference viewstream: switch video for a member a conference
+  usage: conference viewstream <conference_name> <member id> <stream no>
+
+- konference drive: drive VAD video switching of destination member using audio from source member
+  usage: conference drive <conference name> <source member> [destination member]
+  If destination member is missing or negative, break existing connection
+
+- konference drivechannel: drive VAD video switching of destination channel using audio from source channel
+  usage: conference drivechannel <conference name> <source channel> [destination channel]
+  If destination channel is missing, break existing connection
+ 

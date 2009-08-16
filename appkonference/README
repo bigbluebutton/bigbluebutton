@@ -1,0 +1,136 @@
+Introduction
+
+App_konference is a channel-independent conference application.
+It features efficient audio mixing algorithms as well as video selection
+support based on VAD, DTMF or CLI. 
+
+
+Design goals
+
+Appkonference has several design goals which are different than Meetme:
+
+    * It does not require a zap channel for timing.
+    * It is very efficient when used with channels which support DTX (silence
+	detection/discontinuous transmission).
+
+    * It can do VAD on channels which do not support DTX (although this 
+	is more expensive than just mixing them, but less expensive then
+	encoding; therefore it might still be a win). 
+    * It presents messages on the Monitor interface for determine which 
+	speakers are active. 
+
+Mixing design
+
+    * Minimize encoding/decoding, minimize mixing.
+    * Minimize generational loss from trancoding.
+    * Usual cases are handled very efficiently:
+          o One speaker: That speaker's frame is sent directly to each 
+		participant which uses the same codec. It is trancoded 
+		_once_ for each additional codec type used by participants.
+          o Two speakers: Each speaker gets the other speaker's frames.  
+		The two speaker's frames are decoded and mixed, and then 
+		encoded _once_ for each codec type used by participants. 
+
+Video features
+
+    * Video passthrough: video from selected member is passed to every
+        member of the conference.
+    * Multiple ways to select video
+        - VAD
+	- DTMF from conference members
+	- CLI 
+    * Ability to set default video sources and to lock/unlock video sources.
+
+
+License
+
+Naturally, app_konference is GPL. The SVN repository also includes parts of 
+libspeex, which is distributed under a BSD-style license. See LICENSE for more
+details.
+
+
+Getting app_konference
+
+app_konference is available via SVN from its own home on sourceforge:
+
+    * http://sourceforge.net/projects/appkonference
+
+
+Compiling app_konference
+
+    * Checkout sources
+    * Modify Makefile to point to your Asterisk include directory
+    * make
+    * sudo make install 
+
+
+Using app_konference
+
+There is no configuration file. Conferences are created on-the-fly.
+
+Dialplan syntax: Konference(ConferenceName/Flags/Priority[/VADSTART/VADCONTINUE])
+
+    * ConferenceName: Whatever you want to name the conference
+    * Flags: please see Flags.txt for a comprehensive list of dialplan flags
+    * Priority: Currently ignored; was to be a "speaking priority" so a 
+	higher priority caller could "override" others.
+    * VADSTART: Optional: "probability" to use to detect start of speech.
+    * VADCONTINUE: Optional: "probability" to use to detect continuation 
+	of speech. 
+
+
+CLI Commands
+
+Please look at CLI.txt for a comprehensive list of CLI commands and parameters.
+
+
+Manager Events
+
+app_konference generates several detailed manager events so that applications
+interfacing with the manager API can monitor conferences:
+
+	* ConferenceJoin: join conference
+	* ConferenceLeave: leave conference
+
+	* ConferenceDTMF: dtmf received
+	* ConferenceState: speaking state changed
+	* ConferenceSoundComplete: sound completed
+
+	* ConferenceMemberMute: mute member
+	* ConferenceMute: mute conference
+	* ConferenceMemberUnmute: unmute member
+	* ConferenceUnmute: unmute conference
+
+	* ConferenceCameraDisabled: camera disabled
+	* ConferenceCameraEnabled: camera enabled
+	* ConferenceStopVideoTransmit: stop video
+	* ConferenceStartVideoTransmit: start video
+	* ConferenceUnlock: unlock conference video
+	* ConferenceLock: lock conference video
+	* ConferenceVideoBroadcastOff: video broadcast off
+	* ConferenceVideoBroadcastOn: video broadcast on
+	* ConferenceVideoMute: mute video
+	* ConferenceVideoUnmute: unmute video
+	* ConferenceDefault: set video default
+	* ConferenceVideoSwitch: video switched
+
+
+
+Benchmarking
+
+It would be nice to have solid benchmarks to present, but a good size 
+machine should be able to handle many callers when either (a) they are 
+using DTX, or (b) they are listen-only.  It's used often with hundreds of
+simultaneous callers.
+
+
+Discussion
+
+The appkonference-devel mailing list is the place to discuss everything related
+to app_konference.  The bug tracker on SourceForge gets a little bit of 
+attention now and then.
+
+
+---
+
+app_konference is brought to you by the letter q, and the number e

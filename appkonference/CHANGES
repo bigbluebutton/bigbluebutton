@@ -1,0 +1,86 @@
+AppKonference is a fork of AppConference. It comprises a set of enhancements
+needed to migrate a MeetMe application to AppConference.  The goals of this
+project are scalability and stability focused on voice.
+
+Here's the url to the AppKonference sourceforge site:
+	http://sourceforge.net/projects/appkonference/
+
+You can check out the code for the AppKonference project using subversion:
+	svn co https://appkonference.svn.sourceforge.net/svnroot/appkonference
+
+Here is a brief summary of the changes to AppConference:
+
+Added commands to mute/unmute a conference, increase/decrease conference
+volume, increase/decrease member volume, and start/stop moh for a member.
+
+Changed play sound command so that more than one sound can be entered on
+the command line.
+
+Added conference parameter, max_users, that limits conference members to a user
+specified maximum.
+
+Added channel variable, KONFERENCE, which is set to MAXUSERS or KICKED after
+exiting the application so that the reason for leaving a conference can be
+determined in the dial plan.
+
+Added application, KonferenceCount, was so that the member count can be used in
+the dial plan.
+
+Added new AMI event messages for mute status: ConferenceMemberMute,
+ConferenceMemberUnmute, ConferenceMute, and ConferenceUnmute.
+
+Added conference flags to ConferenceDTMF, ConferenceJoin, ConferenceState, and
+ConferenceLeave AMI event messages.
+
+Added "x" option so that when a moderator leaves callers get kicked.
+
+Added "a" option which sets vad and telephone flags on conference entry.
+
+Changed formatting of conference list command to include new listening
+state and did some rearrangement so that the channel name is displayed without
+truncation.
+
+Fixes for locking: First, fixed the conference thread so that the
+conference list lock is only locked when it's required. Second, changed the
+conference mutex to a rdlock for greater concurrency. Third, changed the way
+sounds are handled so the member lock is not held over calls to asterisk
+procedures.
+
+Fixes for compiling with asterisk 1.6 and ifdef'ing out video and/or text
+and/or dtmf. The default is voice only. To compile with video, text, and dtmf
+change the defaults in the Makefile or specify them on the command line: make
+VIDEO=1 TEXT=1 DTMF=1. 
+
+Added an examples directory for a simple AMI based application and web site.
+
+Changed find_member so that members are located via a hash table rather than a
+sequential search through the conference and member lists.  The size of the
+table is configurable via the Makefile and the default is 997 buckets.  To
+change the default table size either edit the Makefile default or specify the
+value on the command line: make CHANNEL_TABLE_SIZE=1009.  Table entries are
+list heads and chaining is used to resolve collisions so that the number of
+entries is not limited to the number of buckets in the table.  A bucket field
+is added to the conference list command output so that a channel name can be
+correlated with its hash table entry.
+
+Changed add_member and remove_member for voice so that adding or removing a
+member control block is O(1).  Specifically, the allocation of member id's is
+changed to work like MeetMe, that is, the member id list is ordered, new
+entries are placed at the end of the list, and the next member id  allocated is
+the highest active id (the entry at the end of the list) plus one.  Further,
+member control blocks are doubly linked so that removing a block doesn't
+require running the list to find the back pointer required to update the member
+list.
+
+Changed conference_kickchannel, dropping the conference name argument, so that
+its signature is consistent with the other commands which refer to a member by
+channel name.
+
+Added conference parameter, type, that can be used to partition users into
+groups within a conference which can be managed differently via the AMI. The
+ConferenceJoin, ConferenceLeave, and ConferenceDTMF events are updated to
+include the new type field.
+
+Added command to display the conference version number. The version number is
+either the konference release number or the subversion revision number if the
+code was checked out from the konference repository.
