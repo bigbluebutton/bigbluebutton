@@ -1288,9 +1288,9 @@ int show_conference_list ( int fd, const char *name )
 
 			// ast_cli(fd, "Chat mode is %s\n", conf->chat_mode_on ? "ON" : "OFF");
 #ifdef	VIDEO
-			ast_cli( fd, "%-20.20s %-20.20s %-20.20s %-20.20s %-20.20s %-20.20s %-20.20s\n", "User #", "CallerIDName", "CallerID", "Audio", "UniqueID", "Conference Name", "Channel");
+			//ast_cli( fd, "%-20.20s %-20.20s %-20.20s %-20.20s %-20.20s %-20.20s %-20.20s\n", "User #", "CallerIDName", "CallerID", "Audio", "UniqueID", "Conference Name", "Channel");
 #else
-			ast_cli( fd, "%-20.20s %-20.20s %-20.20s %-20.20s %-20.20s %-20.20s %-20.20s\n", "User #", "CallerIDName", "CallerID", "Audio", "UniqueID", "Conference Name", "Channel");
+			//ast_cli( fd, "%-20.20s %-20.20s %-20.20s %-20.20s %-20.20s %-20.20s %-20.20s\n", "User #", "CallerIDName", "CallerID", "Audio", "UniqueID", "Conference Name", "Channel");
 #endif
 			// do the biz
 			member = conf->memberlist ;
@@ -1300,14 +1300,14 @@ int show_conference_list ( int fd, const char *name )
 #ifdef	VIDEO
 				if ( member->driven_member == NULL )
 				{
-					ast_cli( fd, "%-20d %-20.20s %-20.20s %-20.20s %-20.20s %-20.20s %-80s\n",
+					ast_cli( fd, "MemberId: %-20d CIDName: %-20.20s CID: %-20.20s Audio: %-20.20s UniqueID: %-20.20s ConfName: %-20.20s Channel: %-80s\n",
 					member->id, (member->chan->cid.cid_name ? member->chan->cid.cid_name: "unknown"), (member->chan->cid.cid_num ? member->chan->cid.cid_num : "unknown"), (member->mute_audio == 0 ? "Unmuted" : "Muted"), member->uniqueid, member->conf_name, member->channel_name);
 				} else {
-					ast_cli( fd, "%-20d %-20.20s %-20.20s %-20.20s %-20.20s %-20.20s %-80s\n",
+					ast_cli( fd, "MemberId: %-20d CIDName: %-20.20s CID: %-20.20s Audio: %-20.20s UniqueID: %-20.20s ConfName: %-20.20s Channel: %-80s\n",
 					member->id, (member->chan->cid.cid_name ? member->chan->cid.cid_name: "unknown"), (member->chan->cid.cid_num ? member->chan->cid.cid_num : "unknown"), (member->mute_audio == 0 ? "Unmuted" : "Muted"), member->uniqueid, member->conf_name, member->channel_name);
 				}
 #else
-					ast_cli( fd, "%-20d %-20.20s %-20.20s %-20.20s %-20.20s %-20.20s %-80s\n",
+					ast_cli( fd, "MemberId: %-20d CIDName: %-20.20s CID: %-20.20s Audio: %-20.20s UniqueID: %-20.20s ConfName: %-20.20s Channel: %-80s\n",
 					member->id, (member->chan->cid.cid_name ? member->chan->cid.cid_name: "unknown"), (member->chan->cid.cid_num ? member->chan->cid.cid_num : "unknown"), (member->mute_audio == 0 ? "Unmuted" : "Muted"), member->uniqueid, member->conf_name, member->channel_name);
 #endif
 				member = member->next;
