@@ -7,8 +7,8 @@ public class ImageProcessor {
 	private BufferedImage image;
 	private Graphics2D graphics;
 	
-	public ImageProcessor(BufferedImage image){
-		this.image = image;
+	public ImageProcessor(int width, int height){
+		this.image = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
 		this.graphics = this.image.createGraphics();
 	}
 	

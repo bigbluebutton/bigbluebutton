@@ -91,6 +91,7 @@ public class DeskShareStream {
 		this.height = height;
 		this.frameRate = frameRate;
 		this.timestampBase = 1000000 / this.frameRate;
+		this.imageProcessor = new ImageProcessor(width, height);
 		
 		outputHandler = new IRTMPEventIOHandler(){
 			public Red5Message read() throws InterruptedException{
@@ -140,8 +141,7 @@ public class DeskShareStream {
 	
 	private void handleCaptureEvent(CaptureUpdateEvent event) {
 		BufferedImage image = event.getScreen();
-		if (imageProcessor == null) imageProcessor = new ImageProcessor(image);
-		else imageProcessor.appendTile(image, event.getX(), event.getY());
+		imageProcessor.appendTile(image, event.getX(), event.getY());
 		imageReceived(imageProcessor.getImage());
 	}
 	
