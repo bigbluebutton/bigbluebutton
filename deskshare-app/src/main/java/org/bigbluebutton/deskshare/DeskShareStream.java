@@ -142,7 +142,7 @@ public class DeskShareStream {
 		BufferedImage image = event.getScreen();
 		if (imageProcessor == null) imageProcessor = new ImageProcessor(image);
 		else imageProcessor.appendTile(image, event.getX(), event.getY());
-		imageReceived(image);
+		imageReceived(imageProcessor.getImage());
 	}
 	
 	public void accept(CaptureUpdateEvent event) {

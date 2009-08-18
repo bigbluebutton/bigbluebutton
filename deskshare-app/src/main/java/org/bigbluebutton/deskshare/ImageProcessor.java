@@ -16,4 +16,7 @@ public class ImageProcessor {
 		graphics.drawImage(tile, x, y, null);
 	}
 	
+	public BufferedImage getImage(){
+		return this.image;
+	}
 }
