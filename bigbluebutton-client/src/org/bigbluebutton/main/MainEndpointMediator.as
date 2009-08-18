@@ -19,9 +19,12 @@
  */
 package org.bigbluebutton.main
 {
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import org.bigbluebutton.common.messaging.Endpoint;
 	import org.bigbluebutton.common.messaging.EndpointMessageConstants;
 	import org.bigbluebutton.common.messaging.Router;
+	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.main.model.ModulesProxy;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
@@ -34,12 +37,14 @@ package org.bigbluebutton.main
 
 		private var _router : Router;
 		private var _endpoint:Endpoint;
+		private var _dispatcher:Dispatcher;
 				
 		public function MainEndpointMediator()
 		{
 			super(NAME);
 			_router = new Router();
 			_endpoint = new Endpoint(_router, EndpointMessageConstants.FROM_MAIN_APP, EndpointMessageConstants.TO_MAIN_APP, messageReceiver);		
+			_dispatcher = new Dispatcher();
 		}
 		
 		public function get router():Router
@@ -145,8 +150,9 @@ package org.bigbluebutton.main
 					break;
 				case EndpointMessageConstants.PARTICIPANT_IS_PRESENTER:
 					LogUtil.debug(NAME + "::Got PARTICIPANT_IS_PRESENTER from " + message.getHeader().SRC as String);
-					_endpoint.sendMessage(EndpointMessageConstants.PARTICIPANT_IS_PRESENTER, 
-							EndpointMessageConstants.TO_DESK_SHARE_MODULE, message.getBody());
+					var e:MadePresenterEvent = new MadePresenterEvent();
+					e.presenter = message.getBody() as Boolean;
+					_dispatcher.dispatchEvent(e);
 					break;
 			}
 		}	

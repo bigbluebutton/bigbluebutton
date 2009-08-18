@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/" xmlns:mate="org.bigbluebutton.common.mate.*">
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.modules.deskShare.events.StartViewingEvent;
+			import org.bigbluebutton.main.events.OpenWindowEvent;
+			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.main.events.RemoveToolbarButtonEvent;
+			import org.bigbluebutton.main.events.AddToolbarButtonEvent;
+			import org.bigbluebutton.modules.deskShare.view.components.ToolbarButton;
+			import org.bigbluebutton.modules.deskShare.events.StartDeskShareModuleEvent;
+			import org.bigbluebutton.modules.deskShare.events.WindowCommand;
+			import org.bigbluebutton.modules.deskShare.events.ViewCommand;
+			import org.bigbluebutton.modules.deskShare.business.DeskShareProxy;
+			import org.bigbluebutton.modules.deskShare.view.components.DeskShareWindow;
+		
+			public var window:DeskShareWindow;
+			public var proxy:DeskShareProxy;
+			private var button:ToolbarButton;
+			public var module:DeskShareModule;
+			
+			private function sendStartViewingCommand(e:ViewCommand):void{
+				proxy.sendStartViewingNotification(e.captureWidth, e.captureHeight);
+			}
+			
+			private function sendStopViewingCommand():void{
+				proxy.sendStopViewingNotification();
+			}
+			
+			private function openWindow():void{
+				
+			}
+			
+			private function closeWindow():void{
+				
+			}
+			
+			public function addToolbarButton():void {
+				LogUtil.debug("DeskShare::addToolbarButton");
+				button = new ToolbarButton();
+			   	
+			   	// Use the GLobal Dispatcher so that this message will be heard by the
+			   	// main application.		   	
+				var event:AddToolbarButtonEvent = new AddToolbarButtonEvent(AddToolbarButtonEvent.ADD_TOOLBAR_BUTTON_EVENT);
+				event.button = button;
+				trace("Dispatching ADD TOOLBAR BUTTON EVENT");
+				globalDispatcher.dispatchEvent(event);
+			}
+			
+			public function removeToolbarButton():void {
+				if (button.enabled) {
+					var event:RemoveToolbarButtonEvent = new RemoveToolbarButtonEvent(RemoveToolbarButtonEvent.REMOVE_TOOLBAR_BUTTON_EVENT);
+					event.button = button;
+					trace("Dispatching REMOVE TOOLBAR BUTTON EVENT");
+					globalDispatcher.dispatchEvent(event);
+				}
+			}
+			
+			private function changeToolbarButton(e:MadePresenterEvent):void{
+				if (e.presenter) addToolbarButton();
+				else removeToolbarButton();
+			}
+			
+			private function openDeskShareWindow():void{
+				LogUtil.debug("opening desk share window");
+				window = new DeskShareWindow();
+				window.xPosition = 675;
+				window.yPosition = 310;
+				window._module = module;
+				
+				var e:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
+				e.window = window;
+				globalDispatcher.dispatchEvent(e);
+			}
+			
+			private function startViewing(e:StartViewingEvent):void{
+				LogUtil.debug("DeskShareEventsMap::startViewing");
+				if (window == null){
+					openDeskShareWindow();
+					window.startViewing(e);
+				}
+			}
+		]]>
+	</mx:Script>
+	
+	<EventHandlers type="{StartDeskShareModuleEvent.START_DESK_SHARE}">
+		<InlineInvoker method="openDeskShareWindow" />
+	</EventHandlers>
+	
+	<EventHandlers type="{MadePresenterEvent.MADE_PRESENTER}">
+		<InlineInvoker method="changeToolbarButton" />
+	</EventHandlers>
+	
+	<EventHandlers type="{ViewCommand.START}">
+		<InlineInvoker method="sendStartViewingCommand" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{ViewCommand.STOP}" >
+		<InlineInvoker method="sendStopViewingCommand" /> 
+	</EventHandlers>
+	
+	<EventHandlers type="{WindowCommand.OPEN}" >
+		<InlineInvoker method="openWindow" />
+	</EventHandlers>
+	
+	<EventHandlers type="{WindowCommand.CLOSE}" >
+		<InlineInvoker method="closeWindow" />
+	</EventHandlers>
+	
+	<Listener method="startViewing" type="{StartViewingEvent.START_VIEWING}" />
+</EventMap>

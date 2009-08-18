@@ -21,19 +21,43 @@
 --> 
 
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
-	icon="{deskShareIcon}" click="startPhone()">
+	icon="{deskShareIcon}" click="startDeskShare()" xmlns:mate="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.deskShare.DeskShareModuleConstants;
+			import org.bigbluebutton.modules.deskShare.events.StartDeskShareModuleEvent;
+			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.modules.deskShare.events.WindowCommand;
 			import org.bigbluebutton.modules.deskShare.view.components.Images;
 			
 			private var images:Images = new Images();
 			
 			[Bindable] public var deskShareIcon:Class = images.deskShareIcon;
 			
-			private function startPhone():void {
-				dispatchEvent(new Event(DeskShareModuleConstants.START_DESKSHARE_EVENT));
+			private function startDeskShare():void {
+				LogUtil.debug("desk share button clicked");
+				this.enabled = false;
+				dispatchEvent(new StartDeskShareModuleEvent());
+			}
+			
+			private function madePresenter(e:MadePresenterEvent):void{
+				var showButton:Boolean = e.presenter;
+				if (showButton) {
+					LogUtil.debug("Opening DeskShare Toolbar Button");
+					enabled = true;
+				} else {
+					LogUtil.debug("Removing DeskShare Toolbar Button");
+					if (enabled) {
+						enabled = false;
+					}
+				}
+			}
+			
+			private function windowClosed(e:WindowCommand):void{
+				enabled = true;
 			}
 		]]>
 	</mx:Script>
+	
+	<mate:Listener type="{MadePresenterEvent.MADE_PRESENTER}" method="madePresenter" />
+	<mate:Listener type="{WindowCommand.CLOSE}" method="windowClosed" />
 </mx:Button>

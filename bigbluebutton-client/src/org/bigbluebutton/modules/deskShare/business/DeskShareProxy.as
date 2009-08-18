@@ -17,38 +17,39 @@
  *
  * $Id: $
  */
-package org.bigbluebutton.modules.deskShare.model.business
+package org.bigbluebutton.modules.deskShare.business
 {
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.SyncEvent;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
 	import flash.net.SharedObject;
 	
-	import mx.controls.Alert;
-	
 	import org.bigbluebutton.common.red5.Connection;
 	import org.bigbluebutton.common.red5.ConnectionEvent;
-	import org.bigbluebutton.modules.deskShare.DeskShareModuleConstants;
-	import org.bigbluebutton.modules.deskShare.model.vo.CaptureResolutionVO;
-	import org.puremvc.as3.multicore.interfaces.IProxy;
-	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
+	import org.bigbluebutton.modules.deskShare.events.AppletStartedEvent;
+	import org.bigbluebutton.modules.deskShare.events.StartViewingEvent;
+	import org.bigbluebutton.modules.deskShare.events.StopViewingEvent;
 	
 	/**
 	 * The DeskShareProxy communicates with the Red5 deskShare server application 
 	 * @author Snap
 	 * 
 	 */	
-	public class DeskShareProxy extends Proxy implements IProxy
+	public class DeskShareProxy
 	{
-		public static const NAME:String = "DeskShareProxy";
-		//public static const URI:String = "rtmp://192.168.0.135/deskShare";
-		
 		private var module:DeskShareModule;
 		
 		private var conn:Connection;
 		private var nc:NetConnection;
 		private var deskSO:SharedObject;
 		private var responder:Responder;
+		
+		private var dispatcher:Dispatcher;
+		
+		private var width:Number;
+		private var height:Number;
 		
 		/**
 		 * The constructor. 
@@ -57,8 +58,8 @@ package org.bigbluebutton.modules.deskShare.model.business
 		 */		
 		public function DeskShareProxy(module:DeskShareModule)
 		{
-			super(NAME);
 			this.module = module;
+			this.dispatcher = new Dispatcher();
 			
 			conn = new Connection();
 			conn.addEventListener(Connection.SUCCESS, connectionSuccessHandler);
@@ -70,6 +71,7 @@ package org.bigbluebutton.modules.deskShare.model.business
 			responder = new Responder(
 							function(result:Object):void{
 								if (result != null && (result as Boolean)){
+									LogUtil.debug("Desk Share stream is streaming");
 									checkVideoWidth();
 									checkVideoHeight();
 								}
@@ -129,7 +131,7 @@ package org.bigbluebutton.modules.deskShare.model.business
 		 * 
 		 */		
 		public function connectionFailedHandler(e:ConnectionEvent):void{
-			Alert.show("connection failed to " + module.uri + " with message " + e.toString());
+			LogUtil.error("connection failed to " + module.uri + " with message " + e.toString());
 		}
 		
 		/**
@@ -138,7 +140,7 @@ package org.bigbluebutton.modules.deskShare.model.business
 		 * 
 		 */		
 		public function connectionRejectedHandler(e:ConnectionEvent):void{
-			Alert.show("connection rejected " + module.uri + " with message " + e.toString());
+			LogUtil.error("connection rejected " + module.uri + " with message " + e.toString());
 		}
 		
 		/**
@@ -156,7 +158,7 @@ package org.bigbluebutton.modules.deskShare.model.business
 		 */		
 		public function appletStarted():void{
 			LogUtil.debug("Got applet started");
-			sendNotification(DeskShareModuleConstants.APPLET_STARTED);
+			dispatcher.dispatchEvent(new AppletStartedEvent());
 		}
 		
 		/**
@@ -177,7 +179,10 @@ package org.bigbluebutton.modules.deskShare.model.business
 		 * 
 		 */		
 		public function startViewing(captureWidth:Number, captureHeight:Number):void{
-			sendNotification(DeskShareModuleConstants.START_VIEWING, new CaptureResolutionVO(captureWidth, captureHeight));
+			var e:StartViewingEvent = new StartViewingEvent();
+			e.height = captureHeight;
+			e.width = captureWidth;
+			dispatcher.dispatchEvent(e);
 		}
 		
 		/**
@@ -198,7 +203,7 @@ package org.bigbluebutton.modules.deskShare.model.business
 		 * 
 		 */		
 		public function stopViewing():void{
-			sendNotification(DeskShareModuleConstants.STOP_VIEWING);
+			dispatcher.dispatchEvent(new StopViewingEvent());
 		}
 		
 		/**
@@ -207,6 +212,7 @@ package org.bigbluebutton.modules.deskShare.model.business
 		 * 
 		 */		
 		private function checkIfStreamIsPublishing():void{
+			LogUtil.debug("checking if desk share stream is publishing");
 			nc.call("deskshare.checkIfStreamIsPublishing", responder);
 		}
 		
@@ -218,7 +224,7 @@ package org.bigbluebutton.modules.deskShare.model.business
 		public function checkVideoWidth():void{
 			var widthResponder:Responder = new Responder(
 							function(result:Object):void{
-								if (result != null) sendNotification(DeskShareModuleConstants.GOT_WIDTH, result as Number);
+								if (result != null) width = result as Number;
 							},
 							function(status:Object):void{
 								LogUtil.error("Error while trying to call remote mathod on server");
@@ -236,9 +242,13 @@ package org.bigbluebutton.modules.deskShare.model.business
 		public function checkVideoHeight():void{
 			var heightResponder:Responder = new Responder(
 							function(result:Object):void{
-								//var resultString:String = "got result, it was " + (result as Number).toString();
-								//Alert.show(resultString);
-								if (result != null) sendNotification(DeskShareModuleConstants.GOT_HEIGHT, result as Number);
+								if (result != null){
+									height = result as Number;
+									var e:StartViewingEvent = new StartViewingEvent();
+									e.width = width;
+									e.height = height;
+									dispatcher.dispatchEvent(e);
+								} 
 							},
 							function(status:Object):void{
 								LogUtil.error("Error while trying to call remote mathod on server");

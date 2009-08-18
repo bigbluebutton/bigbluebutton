@@ -27,9 +27,9 @@
 	<mx:Script>
 		<![CDATA[
 			import net.digitalprimates.fluint.events.AsyncEvent;
-			import org.bigbluebutton.modules.deskShare.DeskShareModuleConstants;
 			import mx.core.UIComponent;
 
+			public static const SCALE:Number = 5;
 			private var screenWidth:Number;
 			private var screenHeight:Number;
 			
@@ -50,12 +50,14 @@
 			private function onCreationComplete():void{
 				screenWidth = Capabilities.screenResolutionX;
 				screenHeight = Capabilities.screenResolutionY;
-				this.width = Math.round(screenWidth / DeskShareModuleConstants.SCALE);
-				this.height = Math.round(screenHeight / DeskShareModuleConstants.SCALE);
+				this.width = Math.round(screenWidth / SCALE);
+				this.height = Math.round(screenHeight / SCALE);
 				updateBoxInfo();
 			}
 			
 			public function startThumbnail(nc:NetConnection, streamName:String):void{
+				LogUtil.debug("DimensionsBox - Starting thumbnail view");
+				LogUtil.debug("connection:" + nc.uri + " stream:" + streamName);
 				this.visible = true;
 				box.visible = false;
 				
@@ -126,11 +128,11 @@
 			}
 			
 			private function getXPosition():Number{
-				return videoHolder.x * DeskShareModuleConstants.SCALE;
+				return videoHolder.x * SCALE;
 			}
 			
 			private function getYPosition():Number{
-				return videoHolder.y * DeskShareModuleConstants.SCALE;
+				return videoHolder.y * SCALE;
 			}
 			
 			private function onAsyncError(e:AsyncErrorEvent):void{
@@ -138,11 +140,11 @@
 			}
 			
 			private function updateBoxInfo():void{
-				if (box.width *DeskShareModuleConstants.SCALE >= Capabilities.screenResolutionX) lblWidth.text 
+				if (box.width *SCALE >= Capabilities.screenResolutionX) lblWidth.text 
 						= Capabilities.screenResolutionX.toString();
-				if (box.height*DeskShareModuleConstants.SCALE >= Capabilities.screenResolutionY) lblHeight.text
+				if (box.height*SCALE >= Capabilities.screenResolutionY) lblHeight.text
 						= Capabilities.screenResolutionY.toString();
-				var area:Number = (box.width*DeskShareModuleConstants.SCALE) * (box.height*DeskShareModuleConstants.SCALE);
+				var area:Number = (box.width*SCALE) * (box.height*SCALE);
 				if (area > 1000000){
 					 suggestedFrameRate = 1;
 					 suggestedQuality = "Poor";
@@ -165,17 +167,17 @@
 	</mx:Script>
 
 	<components:ResizableBox id="box" x="10" y="10" resize="updateBoxInfo()" useHandCursor="true"
-		width="{(Math.round((Capabilities.screenResolutionX/2)/DeskShareModuleConstants.SCALE))}" 
-		height="{(Math.round((Capabilities.screenResolutionY - 100)/DeskShareModuleConstants.SCALE))}" 
-		minWidth="{Math.round(300/DeskShareModuleConstants.SCALE)}" 
-		minHeight="{Math.round(300/DeskShareModuleConstants.SCALE)}" 
-		maxWidth="{Math.round((Capabilities.screenResolutionX)/DeskShareModuleConstants.SCALE)}" 
-		maxHeight="{Math.round((Capabilities.screenResolutionY)/DeskShareModuleConstants.SCALE)}" 
+		width="{(Math.round((Capabilities.screenResolutionX/2)/SCALE))}" 
+		height="{(Math.round((Capabilities.screenResolutionY - 100)/SCALE))}" 
+		minWidth="{Math.round(300/SCALE)}" 
+		minHeight="{Math.round(300/SCALE)}" 
+		maxWidth="{Math.round((Capabilities.screenResolutionX)/SCALE)}" 
+		maxHeight="{Math.round((Capabilities.screenResolutionY)/SCALE)}" 
 		verticalScrollPolicy="off" horizontalScrollPolicy="off">
         <mx:HBox horizontalGap="0">
-        	<mx:Label id="lblWidth" text="{(box.width * DeskShareModuleConstants.SCALE).toString()}"/>
+        	<mx:Label id="lblWidth" text="{(box.width * SCALE).toString()}"/>
         	<mx:Label text="x"/>
-        	<mx:Label id="lblHeight" text="{(box.height * DeskShareModuleConstants.SCALE).toString()}"/>
+        	<mx:Label id="lblHeight" text="{(box.height * SCALE).toString()}"/>
         </mx:HBox>
         <mx:HBox>
         	<mx:Label text="FrameRate: " />
