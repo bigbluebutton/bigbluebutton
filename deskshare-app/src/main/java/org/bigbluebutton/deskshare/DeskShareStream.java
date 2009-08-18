@@ -69,6 +69,7 @@ public class DeskShareStream {
 	private BroadcastStream broadcastStream;
 	private IContainer outContainer;
 	private IStream outStream;
+	private ImageProcessor imageProcessor;
 	
 	private static final Red5HandlerFactory factory = Red5HandlerFactory.getFactory();
 	private final IRTMPEventIOHandler outputHandler;
@@ -138,7 +139,9 @@ public class DeskShareStream {
 	}
 	
 	private void handleCaptureEvent(CaptureUpdateEvent event) {
-		BufferedImage image = event.getCapturedScreen();
+		BufferedImage image = event.getScreen();
+		if (imageProcessor == null) imageProcessor = new ImageProcessor(image);
+		else imageProcessor.appendTile(image, event.getX(), event.getY());
 		imageReceived(image);
 	}
 	
