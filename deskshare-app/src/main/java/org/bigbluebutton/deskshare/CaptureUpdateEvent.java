@@ -19,34 +19,55 @@
  */
 package org.bigbluebutton.deskshare;
 
-import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.api.IScope;
-import org.slf4j.Logger;
+import java.awt.image.BufferedImage;
 
-public class StreamFactory {
-	final private Logger log = Red5LoggerFactory.getLogger(StreamFactory.class, "deskshare");
-	
-	private DeskShareApplication app;
-	
-	public DeskShareStream createStream(CaptureStartEvent event) {
-		String room = event.getRoom();
-		int width = event.getWidth();
-		int height = event.getHeight();
-		int frameRate = event.getFrameRate();
-		
-		IScope scope = app.getAppScope().getScope(room);
+public class CaptureUpdateEvent implements ICaptureEvent {
 
-		log.debug("Created stream {}", scope.getName());
-		return new DeskShareStream(scope, room, width, height, frameRate);
+	private final BufferedImage screen;
+	private final String room;
+	
+	private final int width;
+	private final int height;
+	private final int x;
+	private final int y;
+	
+	public CaptureUpdateEvent(BufferedImage screen, String room, int width,
+			int height, int x, int y) {
+
+		this.screen = screen;
+		this.room = room;
+		this.width = width;
+		this.height = height;
+		this.x = x;
+		this.y = y;
 	}
-	
-	public void setDeskShareApplication(DeskShareApplication app) {
-		this.app = app;
-		if (app == null) {
-			log.error("DeskShareApplication is NULL!!!");
-		} else {
-			log.debug("DeskShareApplication is NOT NULL!!!");
-		}
-		
+
+	public BufferedImage getScreen() {
+		return screen;
+	}
+
+	public String getRoom() {
+		return room;
+	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+
+	public int getX() {
+		return x;
+	}
+
+	public int getY() {
+		return y;
+	}
+
+	@Override
+	public CaptureMessage getMessageType() {
+		return CaptureMessage.CAPTURE_UPDATE;
 	}
 }

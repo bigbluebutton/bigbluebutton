@@ -30,10 +30,9 @@ import org.bigbluebutton.deskshare.StreamerGateway;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
-public class ScreenCaptureMessageHandler extends IoHandlerAdapter {
-	final private Logger log = Red5LoggerFactory.getLogger(ScreenCaptureMessageHandler.class, "deskshare");
+public class DebugScreenCaptureMessageHandler extends IoHandlerAdapter {
+	final private Logger log = Red5LoggerFactory.getLogger(DebugScreenCaptureMessageHandler.class, "deskshare");
 	
-	private StreamerGateway streamerGateway;
 	
     @Override
     public void exceptionCaught( IoSession session, Throwable cause ) throws Exception
@@ -45,6 +44,8 @@ public class ScreenCaptureMessageHandler extends IoHandlerAdapter {
     @Override
     public void messageReceived( IoSession session, Object message ) throws Exception
     {
+    	log.debug("Message Received " + (String) message);
+/*    	
     	CapturedScreen cs = (CapturedScreen) message;
         String room = cs.getRoom();
         log.debug("Got room {}", room);
@@ -54,7 +55,8 @@ public class ScreenCaptureMessageHandler extends IoHandlerAdapter {
         } else {
         	session.setAttribute("room", room);
         	sendCaptureStartEvent(cs);
-        }        
+        }
+*/        
     }
 
     @Override
@@ -81,19 +83,14 @@ public class ScreenCaptureMessageHandler extends IoHandlerAdapter {
     }
     
     private void sendCaptureEndEvent(String room) {
-    	streamerGateway.onCaptureEndEvent(new CaptureEndEvent(room));
+
     }
     
     private void sendCaptureEvent(CapturedScreen cs) {
-    	streamerGateway.onCaptureEvent(new CaptureUpdateEvent(cs));
+
     }
     
     private void sendCaptureStartEvent(CapturedScreen cs) {
-    	
-    	streamerGateway.onCaptureStartEvent(new CaptureStartEvent(cs));
-    }
-    
-    public void setStreamerGateway(StreamerGateway sg) {
-    	streamerGateway = sg;
+
     }
 }
