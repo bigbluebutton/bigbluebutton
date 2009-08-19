@@ -62,14 +62,14 @@ public class DeskShareStream {
 	
 	private BlockingQueue<CaptureUpdateEvent> queue = new LinkedBlockingQueue<CaptureUpdateEvent>();
 	private final Executor exec = Executors.newSingleThreadExecutor();
-	private Runnable eventHandler;
-	private volatile boolean handleEvent = false;
+	private Runnable capturedScreenSender;
+	private volatile boolean sendCapturedScreen = false;
 	
 	private IStreamCoder outStreamCoder;
 	private BroadcastStream broadcastStream;
 	private IContainer outContainer;
 	private IStream outStream;
-	private ImageProcessor imageProcessor;
+	private ChangedTileProcessor changedTileProcessor;
 	
 	private static final Red5HandlerFactory factory = Red5HandlerFactory.getFactory();
 	private final IRTMPEventIOHandler outputHandler;
@@ -78,6 +78,7 @@ public class DeskShareStream {
 	private int width, height, frameRate, timestampBase;
 	private String outStreamName;
 	private IScope scope;
+	private long lastUpdate;
 	
 	/**
 	 * The default constructor
@@ -91,7 +92,11 @@ public class DeskShareStream {
 		this.height = height;
 		this.frameRate = frameRate;
 		this.timestampBase = 1000000 / this.frameRate;
-		this.imageProcessor = new ImageProcessor(width, height);
+		this.changedTileProcessor = new ChangedTileProcessor(width, height);
+		
+		changedTileProcessor.start();
+		
+		lastUpdate = System.currentTimeMillis();
 		
 		outputHandler = new IRTMPEventIOHandler(){
 			public Red5Message read() throws InterruptedException{
@@ -115,42 +120,42 @@ public class DeskShareStream {
 	}
 
 	public void stop() {
-		handleEvent = false;
+		sendCapturedScreen = false;
 		streamEnded();
+		changedTileProcessor.stop();
 	}
 	
 	public void start() {
 		startPublishing(scope);
 		setupStreams();
-		handleEvent = true;
+		sendCapturedScreen = true;
 		log.debug("Starting stream {}", outStreamName);
-		eventHandler = new Runnable() {
+		capturedScreenSender = new Runnable() {
 			public void run() {
-				while (handleEvent) {
-					try {
-						CaptureUpdateEvent event = queue.take();
-						handleCaptureEvent(event);
-					} catch (InterruptedException e) {
-						log.warn("InterruptedExeption while taking event.");
-					}
+				while (sendCapturedScreen) {
+//					try {
+//						CaptureUpdateEvent event = queue.take();
+						sendCapturedScreen();
+//					} catch (InterruptedException e) {
+//						log.warn("InterruptedExeption while taking event.");
+//					}
 				}
 			}
 		};
-		exec.execute(eventHandler);
+		exec.execute(capturedScreenSender);
 	}
 	
-	private void handleCaptureEvent(CaptureUpdateEvent event) {
-		BufferedImage image = event.getScreen();
-		imageProcessor.appendTile(image, event.getX(), event.getY());
-		imageReceived(imageProcessor.getImage());
+	private void sendCapturedScreen() {
+		long now = System.currentTimeMillis();
+		if ((now - lastUpdate) > 30000) {
+			log.debug("Sending image to XUGGLER");
+			imageReceived(changedTileProcessor.getImage());
+			lastUpdate = now;
+		}		
 	}
 	
 	public void accept(CaptureUpdateEvent event) {
-		try {
-			queue.put(event);
-		} catch (InterruptedException e) {
-			log.warn("InterruptedException while putting event into queue.");
-		}
+		changedTileProcessor.accept(event);
 	}
 	
 	private void imageReceived(BufferedImage image) {

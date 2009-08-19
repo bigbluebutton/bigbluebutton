@@ -23,27 +23,29 @@ import java.awt.image.BufferedImage;
 
 public class CaptureUpdateEvent implements ICaptureEvent {
 
-	private final BufferedImage screen;
+	private final BufferedImage tile;
 	private final String room;
 	
 	private final int width;
 	private final int height;
 	private final int x;
 	private final int y;
+	private final int position;
 	
 	public CaptureUpdateEvent(BufferedImage screen, String room, int width,
-			int height, int x, int y) {
+			int height, int x, int y, int position) {
 
-		this.screen = screen;
+		this.tile = screen;
 		this.room = room;
 		this.width = width;
 		this.height = height;
 		this.x = x;
 		this.y = y;
+		this.position = position;
 	}
 
-	public BufferedImage getScreen() {
-		return screen;
+	public BufferedImage getTile() {
+		return tile;
 	}
 
 	public String getRoom() {
@@ -66,8 +68,18 @@ public class CaptureUpdateEvent implements ICaptureEvent {
 		return y;
 	}
 
+	public int getPosition() {
+		return position;
+	}
+
 	@Override
 	public CaptureMessage getMessageType() {
 		return CaptureMessage.CAPTURE_UPDATE;
+	}
+	
+	public static CaptureUpdateEvent copy(CaptureUpdateEvent event) {
+		return new CaptureUpdateEvent(event.getTile(), event.getRoom(),
+				event.getWidth(), event.getHeight(),
+				event.getX(), event.getY(), event.getPosition());
 	}
 }

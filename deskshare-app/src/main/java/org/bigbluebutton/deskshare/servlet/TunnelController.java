@@ -95,12 +95,12 @@ public class TunnelController extends MultiActionController {
     }
     
     private void sendCaptureEvent(CapturedScreen cs) {
-    	streamerGateway.onCaptureEvent(new CaptureUpdateEvent(cs));
+//    	streamerGateway.onCaptureEvent(new CaptureUpdateEvent(cs));
     }
     
     private void sendCaptureStartEvent(CapturedScreen cs) {
     	
-    	streamerGateway.onCaptureStartEvent(new CaptureStartEvent(cs));
+//    	streamerGateway.onCaptureStartEvent(new CaptureStartEvent(cs));
     }
     
 	private StreamerGateway getStreamerGateway() {

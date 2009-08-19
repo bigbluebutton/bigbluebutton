@@ -23,9 +23,13 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.so.ISharedObject;
+import org.slf4j.Logger;
 
 public class StreamerGateway { 
+	final private Logger log = Red5LoggerFactory.getLogger(StreamerGateway.class, "deskshare");
+	
 	private final Map<String, DeskShareStream> streamsMap;
 	private StreamFactory streamFactory;
 	private DeskShareApplication deskShareApp;
@@ -35,6 +39,8 @@ public class StreamerGateway {
 	}
 	
 	public void onCaptureStartEvent(CaptureStartEvent event) {
+		log.debug("Creating stream " + event.getRoom());
+		
 		DeskShareStream stream = streamFactory.createStream(event);
 
 		streamsMap.put(event.getRoom(), stream);

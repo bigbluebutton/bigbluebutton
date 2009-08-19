@@ -31,7 +31,7 @@
   	</bean>
   	
 	<bean id="deskShareServer" class="org.bigbluebutton.deskshare.socket.DeskShareServer" >
-		<property name="screenCaptureHandler" ref="debugScreenCaptureHandler"/>
+		<property name="screenCaptureHandler" ref="screenCaptureHandler"/>
 	</bean>
 	
     <!-- The IoHandler implementation -->
@@ -47,9 +47,5 @@
   	<bean id="streamFactory" class="org.bigbluebutton.deskshare.StreamFactory">
   		<property name="deskShareApplication" ref="web.handler"/>
   	</bean>
-  	
-  	<!-- The Debug IoHandler implementation -->
-    <bean id="debugScreenCaptureHandler" class="org.bigbluebutton.deskshare.socket.DebugScreenCaptureMessageHandler">
-    </bean>
-    
+  	    
 </beans>
