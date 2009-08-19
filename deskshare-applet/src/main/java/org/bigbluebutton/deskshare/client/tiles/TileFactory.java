@@ -49,7 +49,7 @@ class TileFactory {
 		int y = computeTileYLocation(row);
 		int pos = computeTilePosition(row, col);
 		
-		System.out.println("Tile dim=" + w + "x" + h + " index=" + row + "," + col + " loc=" + x + "," + y);
+//		System.out.println("Tile dim=" + w + "x" + h + " index=" + row + "," + col + " loc=" + x + "," + y);
 		Tile t = new Tile(new Dimension(w, h), pos, new Point(x,y));
 
 		return t;

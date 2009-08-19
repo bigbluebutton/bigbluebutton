@@ -1,20 +1,20 @@
 package org.bigbluebutton.deskshare.client.tiles;
 
-final class Dimension {
+public final class Dimension {
 
 	private final int width;
 	private final int height;
 	
-	Dimension(int width, int height) {
+	public Dimension(int width, int height) {
 		this.width = width;
 		this.height = height;
 	}
 
-	int getWidth() {
+	public int getWidth() {
 		return width;
 	}
 
-	int getHeight() {
+	public int getHeight() {
 		return height;
 	}
 

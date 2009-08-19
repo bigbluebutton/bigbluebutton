@@ -27,13 +27,16 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
+
+import org.bigbluebutton.deskshare.client.tiles.ChangedTile;
 
 
 import com.myjavatools.web.ClientHttpRequest;
 
-public class HttpScreenCaptureSender implements IScreenCaptureSender {
+public class HttpScreenCaptureSender implements ScreenCaptureSender {
 	private String host = "localhost";
 	private String room;
 	private int videoWidth;
@@ -99,5 +102,8 @@ public class HttpScreenCaptureSender implements IScreenCaptureSender {
 		}
 	}
 
-
+	public void send(ArrayList<ChangedTile> changedTiles) {
+		// TODO Auto-generated method stub
+		
+	}
 }

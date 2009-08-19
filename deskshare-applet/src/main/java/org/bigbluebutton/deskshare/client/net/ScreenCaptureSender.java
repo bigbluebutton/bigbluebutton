@@ -19,12 +19,14 @@
  */
 package org.bigbluebutton.deskshare.client.net;
 
-import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
-public interface IScreenCaptureSender {
+import org.bigbluebutton.deskshare.client.tiles.ChangedTile;
+
+public interface ScreenCaptureSender {
 
 	public void connect(String host, String room, int videoWidth, int videoHeight, int frameRate);
-	public void send(BufferedImage screenCapture);
+	public void send(ArrayList<ChangedTile> changedTiles);
 	public void disconnect();
 	
 }

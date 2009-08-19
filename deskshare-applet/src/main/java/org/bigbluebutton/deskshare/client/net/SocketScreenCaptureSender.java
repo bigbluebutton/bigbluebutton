@@ -26,11 +26,14 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
+import org.bigbluebutton.deskshare.client.tiles.ChangedTile;
 
-public class SocketScreenCaptureSender implements IScreenCaptureSender {
+
+public class SocketScreenCaptureSender implements ScreenCaptureSender {
 	
 	private static final int PORT = 9123;
 	
@@ -45,6 +48,10 @@ public class SocketScreenCaptureSender implements IScreenCaptureSender {
 	private int videoHeight;
 	private int frameRate;
 	
+	private static final int CAPTURE_START = 0;
+	private static final int CAPTURE_UPDATE = 1;
+	private static final int CAPTURE_END = 2;
+	
 	public void connect(String host, String room, int videoWidth, int videoHeight, int frameRate) {
 		this.room = room;
 		this.videoWidth = videoWidth;
@@ -52,8 +59,8 @@ public class SocketScreenCaptureSender implements IScreenCaptureSender {
 		this.frameRate = frameRate;
 		try{
 			socket = new Socket(host, PORT);
-			out = new PrintWriter(socket.getOutputStream(), true);
 			outStream = new DataOutputStream(socket.getOutputStream());
+			sendCaptureStartMessage();
 			sendRoom(room);
 			sendScreenCaptureInfo(videoWidth, videoHeight, frameRate);
 			
@@ -64,34 +71,63 @@ public class SocketScreenCaptureSender implements IScreenCaptureSender {
 		}
 	}
 	
-	private void sendRoom(String room) {
-		out.println(room);
+	private void sendCaptureStartMessage() throws IOException {
+		outStream.writeInt(CAPTURE_START);		
 	}
 	
-	private void sendScreenCaptureInfo(int videoWidth, int videoHeight, int frameRate) {
-			out.println(Integer.toString(videoWidth)
-					+ "x" + Integer.toString(videoHeight)
-					+ "x" + Integer.toString(frameRate));
+	private void sendRoom(String room) throws IOException {
+		outStream.writeInt(room.length());
+		outStream.writeBytes(room);
+	}
+	private void sendScreenCaptureInfo(int videoWidth, int videoHeight, int frameRate) throws IOException {
+		String videoInfo = Integer.toString(videoWidth)	+ "x" + Integer.toString(videoHeight) + "x" + Integer.toString(frameRate);
+		System.out.println("Sending video info " + videoInfo);
+		outStream.writeInt(videoInfo.length());
+		outStream.writeBytes(videoInfo);
 	}
 	
-	public void send(BufferedImage screenCapture) {
-		sendRoom(room);
-		sendScreenCaptureInfo(videoWidth, videoHeight, frameRate);
-		try{
-			ByteArrayOutputStream byteConvert = new ByteArrayOutputStream();
-			ImageIO.write(screenCapture, "jpeg", byteConvert);
-			byte[] imageData = byteConvert.toByteArray();
-			outStream.writeInt(imageData.length);
-			//out.println("xxx");
-			outStream.write(imageData);
-			//out.println("vvv");
-			System.out.println("Sent: "+ imageData.length);
-			outStream.flush();
-		} catch(IOException e){
-			System.out.println("IOException while sending screen capture.");
+	public void send(ArrayList<ChangedTile> changedTiles) {		
+		for (ChangedTile ct : changedTiles) {			
+			sendChangedTileInfo(ct);
+			sendTile(ct);
 		}
 	}
 
+	private void sendCaptureUpdateMessage() throws IOException {
+		outStream.writeInt(CAPTURE_UPDATE);		
+	}
+	
+	private void sendChangedTileInfo(ChangedTile tile) {
+		String tileInfo = Integer.toString(tile.getWidth())
+							+ "x" + Integer.toString(tile.getHeight())
+							+ "x" + Integer.toString(tile.getX())
+							+ "x" + Integer.toString(tile.getY())
+							+ "x" + Integer.toString(tile.getPosition());
+		try {
+			sendCaptureUpdateMessage();
+			outStream.writeInt(tileInfo.length());
+			outStream.writeBytes(tileInfo);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+		
+	}
+	
+	private void sendTile(ChangedTile tile) {
+		try{
+			ByteArrayOutputStream byteConvert = new ByteArrayOutputStream();
+			ImageIO.write(tile.getImage(), "jpeg", byteConvert);
+			byte[] imageData = byteConvert.toByteArray();
+			outStream.writeInt(imageData.length);
+			outStream.write(imageData);
+//			System.out.println("Sent: tile "+ tile.getPosition() + " with size " + imageData.length);
+			outStream.flush();
+		} catch(IOException e){
+			System.out.println("IOException while sending screen capture.");
+		}		
+	}
+	
 	public void disconnect(){
 		System.out.println("Closing connection.");
 		try{
