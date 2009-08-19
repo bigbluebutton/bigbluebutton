@@ -20,10 +20,14 @@
 package org.bigbluebutton.deskshare;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import javax.imageio.ImageIO;
 
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IContext;
@@ -48,6 +52,7 @@ import com.xuggle.xuggler.ISimpleMediaFile;
 import com.xuggle.xuggler.IStream;
 import com.xuggle.xuggler.IStreamCoder;
 import com.xuggle.xuggler.IVideoPicture;
+import com.xuggle.xuggler.IVideoResampler;
 import com.xuggle.xuggler.SimpleMediaFile;
 import com.xuggle.xuggler.video.ConverterFactory;
 import com.xuggle.xuggler.video.IConverter;
@@ -57,10 +62,10 @@ import com.xuggle.xuggler.video.IConverter;
  * @author Snap
  *
  */
-public class DeskShareStream {
+public class DeskShareStream implements NewScreenListener {
 	final private Logger log = Red5LoggerFactory.getLogger(DeskShareStream.class, "deskshare");
 	
-	private BlockingQueue<CaptureUpdateEvent> queue = new LinkedBlockingQueue<CaptureUpdateEvent>();
+	private BlockingQueue<BufferedImage> screenQueue = new LinkedBlockingQueue<BufferedImage>();
 	private final Executor exec = Executors.newSingleThreadExecutor();
 	private Runnable capturedScreenSender;
 	private volatile boolean sendCapturedScreen = false;
@@ -76,15 +81,18 @@ public class DeskShareStream {
 	
 	private long timestamp = 0, frameNumber = 0;
 	private int width, height, frameRate, timestampBase;
+	private int encodingWidth, encodingHeight;
 	private String outStreamName;
 	private IScope scope;
-	private long lastUpdate;
+	
+	public static final int LARGER_DIMENSION = 1000;
+
 	
 	/**
 	 * The default constructor
 	 * The stream which gets published by the streamer has the same name as the scope. One stream allowed per room
 	 */
-	public DeskShareStream(IScope scope, String streamName, int width, int height, int frameRate){
+	public DeskShareStream(IScope scope, String streamName, int width, int height, int frameRate) {
 		this.scope = scope;
 		scope.setName(streamName);
 		this.outStreamName = streamName;
@@ -93,11 +101,13 @@ public class DeskShareStream {
 		this.frameRate = frameRate;
 		this.timestampBase = 1000000 / this.frameRate;
 		this.changedTileProcessor = new ChangedTileProcessor(width, height);
+		//encodingHeight = 500;
+		//encodingWidth = 800;
+		calculateEncodingDimensions();
 		
+		changedTileProcessor.addNewScreenListener(this);		
 		changedTileProcessor.start();
-		
-		lastUpdate = System.currentTimeMillis();
-		
+				
 		outputHandler = new IRTMPEventIOHandler(){
 			public Red5Message read() throws InterruptedException{
 				return null;
@@ -118,6 +128,29 @@ public class DeskShareStream {
 		};
 		
 	}
+	
+	public void calculateEncodingDimensions(){
+		int biggerDimension, smallerDimension;
+		double ratio;
+		if (width > height){
+			biggerDimension = width;
+			smallerDimension = height;
+		} else{
+			biggerDimension = height;
+			smallerDimension = width;
+		}
+		ratio = (double)biggerDimension/(double)smallerDimension;
+		System.out.println("ration = " + ratio);
+		
+		if (width > height){
+			encodingWidth = LARGER_DIMENSION;
+			encodingHeight = (int) Math.round(LARGER_DIMENSION/ratio);
+		} else{
+			encodingHeight = LARGER_DIMENSION;
+			encodingWidth = (int) Math.round(LARGER_DIMENSION/ratio);
+		}
+		System.out.println("widht: " + encodingWidth + " ,height: " + encodingHeight);
+	}
 
 	public void stop() {
 		sendCapturedScreen = false;
@@ -133,41 +166,48 @@ public class DeskShareStream {
 		capturedScreenSender = new Runnable() {
 			public void run() {
 				while (sendCapturedScreen) {
-//					try {
-//						CaptureUpdateEvent event = queue.take();
-						sendCapturedScreen();
-//					} catch (InterruptedException e) {
-//						log.warn("InterruptedExeption while taking event.");
-//					}
+					try {
+						log.debug("ScreenQueue size " + screenQueue.size());
+						BufferedImage newScreen = screenQueue.take();
+						sendCapturedScreen(newScreen);
+					} catch (InterruptedException e) {
+						log.warn("InterruptedExeption while taking event.");
+					}
 				}
 			}
 		};
 		exec.execute(capturedScreenSender);
 	}
-	
-	private void sendCapturedScreen() {
-		long now = System.currentTimeMillis();
-		if ((now - lastUpdate) > 30000) {
-			log.debug("Sending image to XUGGLER");
-			imageReceived(changedTileProcessor.getImage());
-			lastUpdate = now;
-		}		
-	}
-	
+		
 	public void accept(CaptureUpdateEvent event) {
 		changedTileProcessor.accept(event);
 	}
 	
-	private void imageReceived(BufferedImage image) {
+	private void sendCapturedScreen(BufferedImage screen) {
+		log.debug("Sending screen captured");
+		try {
+			ImageIO.write(screen, "jpg", new File("/tmp/partil.jpg"));
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
 		IPacket packet = IPacket.make();
 
 		IConverter converter = null;
+		IVideoResampler resampler = IVideoResampler.make(encodingWidth, encodingHeight, IPixelFormat.Type.YUV420P, 
+				width, height, IPixelFormat.Type.BGR24);
 		try{
-			converter = ConverterFactory.createConverter(image, IPixelFormat.Type.YUV420P);
+			converter = ConverterFactory.createConverter(screen, IPixelFormat.Type.BGR24);
 		} catch(UnsupportedOperationException e){
 			log.error("could not create converter");
 		}
-		IVideoPicture outFrame = converter.toPicture(image, timestamp);
+
+//		IConverter converter = new BbbPicConverter(IPixelFormat.Type.YUV420P, screen.getWidth(), screen.getHeight(), screen.getWidth(), screen.getHeight());
+		IVideoPicture inFrame = converter.toPicture(screen, timestamp);
+		IVideoPicture outFrame = IVideoPicture.make(IPixelFormat.Type.YUV420P, encodingWidth, encodingHeight);
+		resampler.resample(outFrame, inFrame);
+		log.debug(outFrame.getPixelType().toString());
 		timestamp += timestampBase;
 		frameNumber ++;
 
@@ -233,8 +273,8 @@ public class DeskShareStream {
 		outInfo.setURL(outputURL);
 		outInfo.setHasVideo(true);
 		outInfo.setHasAudio(false);
-		outInfo.setVideoWidth(width);
-		outInfo.setVideoHeight(height);
+		outInfo.setVideoWidth(encodingWidth);
+		outInfo.setVideoHeight(encodingHeight);
 		outInfo.setVideoBitRate(DeskShareConstants.BIT_RATE);
 		outInfo.setVideoPixelFormat(IPixelFormat.Type.YUV420P);
 		outInfo.setVideoNumPicturesInGroupOfPictures(DeskShareConstants.NUM_PICTURES_IN_GROUP);
@@ -261,8 +301,8 @@ public class DeskShareStream {
 		outStreamCoder.setBitRateTolerance(DeskShareConstants.BIT_RATE_TOLERANCE);
 
 		outStreamCoder.setPixelType(IPixelFormat.Type.YUV420P);
-		outStreamCoder.setHeight(height);
-		outStreamCoder.setWidth(width);
+		outStreamCoder.setHeight(encodingHeight);
+		outStreamCoder.setWidth(encodingWidth);
 		outStreamCoder.setFlag(IStreamCoder.Flags.FLAG_QSCALE, true);
 		outStreamCoder.setGlobalQuality(0);
 
@@ -283,14 +323,24 @@ public class DeskShareStream {
 	}
 	
 	public int getWidth() {
-		return width;
+		return encodingWidth;
 	}
 	
 	public int getHeight() {
-		return height;
+		return encodingHeight;
 	}
 	
 	public IScope getScope() {
 		return scope;
+	}
+
+	@Override
+	public void onNewScreen(BufferedImage newScreen) {
+		try {
+			screenQueue.put(newScreen);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

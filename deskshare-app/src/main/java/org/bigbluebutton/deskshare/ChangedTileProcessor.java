@@ -2,14 +2,12 @@ package org.bigbluebutton.deskshare;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import javax.imageio.ImageIO;
 
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
@@ -22,12 +20,17 @@ public class ChangedTileProcessor {
 	private Runnable eventHandler;
 	private volatile boolean handleEvent = false;
 
+	private Set<NewScreenListener> listeners = new HashSet<NewScreenListener>();
+	private long lastUpdate;
+	
 	private BufferedImage image;
 	private Graphics2D graphics;
 	
 	public ChangedTileProcessor(int width, int height){
 		this.image = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
 		this.graphics = this.image.createGraphics();
+		
+		lastUpdate = System.currentTimeMillis();
 	}
 	
 	public void appendTile(BufferedImage tile, int x, int y){
@@ -56,12 +59,18 @@ public class ChangedTileProcessor {
 	}
 	
 	private void handleCaptureEvent(CaptureUpdateEvent event) {
-		log.debug("Handling captured event " + event.getPosition());
 		BufferedImage image = event.getTile();
-		appendTile(image, event.getX(), event.getY());		
+		appendTile(image, event.getX(), event.getY());	
+		
+		long now = System.currentTimeMillis();
+		if ((now - lastUpdate) > 1000) {
+			log.debug("Creating new screen");
+			notifyNewScreenListener(getNewScreen());
+			lastUpdate = now;
+		}		
 	}
 	
-	public BufferedImage getImage(){
+	private BufferedImage getNewScreen(){
 		return image.getSubimage(0, 0, image.getWidth(), image.getHeight());
 	}
 	
@@ -74,4 +83,19 @@ public class ChangedTileProcessor {
 			log.warn("InterruptedException while putting event into queue.");
 		}
 	}
+	
+	public void addNewScreenListener(NewScreenListener listener) {
+		listeners.add(listener);
+	}
+
+
+	public void removeListener(NewScreenListener listener) {
+		listeners.remove(listener);
+	}
+	
+	private void notifyNewScreenListener(BufferedImage newScreen) {
+    	for (NewScreenListener ctl : listeners) {
+    		ctl.onNewScreen(newScreen);
+    	}
+    }
 }
