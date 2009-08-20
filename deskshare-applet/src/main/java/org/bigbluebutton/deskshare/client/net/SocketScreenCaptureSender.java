@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
 import org.bigbluebutton.deskshare.client.tiles.ChangedTile;
+import org.bigbluebutton.deskshare.client.tiles.Tile;
 
 
 public class SocketScreenCaptureSender implements ScreenCaptureSender {
@@ -42,7 +43,6 @@ public class SocketScreenCaptureSender implements ScreenCaptureSender {
 	private Socket socket = null;
 	
 	private DataOutputStream outStream = null;
-	private PrintWriter out;
 	private String room;
 	private int videoWidth;
 	private int videoHeight;
@@ -61,8 +61,8 @@ public class SocketScreenCaptureSender implements ScreenCaptureSender {
 			socket = new Socket(host, PORT);
 			outStream = new DataOutputStream(socket.getOutputStream());
 			sendCaptureStartMessage();
-			sendRoom(room);
-			sendScreenCaptureInfo(videoWidth, videoHeight, frameRate);
+			sendRoom(this.room);
+			sendScreenCaptureInfo(this.videoWidth, this.videoHeight, this.frameRate);
 			
 		} catch(UnknownHostException e){
 			System.out.println("Unknow host: " + host);
@@ -86,23 +86,25 @@ public class SocketScreenCaptureSender implements ScreenCaptureSender {
 		outStream.writeBytes(videoInfo);
 	}
 	
-	public void send(ArrayList<ChangedTile> changedTiles) {		
-		for (ChangedTile ct : changedTiles) {			
-			sendChangedTileInfo(ct);
-			sendTile(ct);
-		}
+	public void send(Tile changedTile) {		
+//		for (ChangedTile ct : changedTiles) {			
+			sendChangedTileInfo(changedTile);
+			sendTile(changedTile);
+//		}
+		System.out.println("NULLing changedTiles");
+		changedTile = null;
 	}
 
 	private void sendCaptureUpdateMessage() throws IOException {
 		outStream.writeInt(CAPTURE_UPDATE);		
 	}
 	
-	private void sendChangedTileInfo(ChangedTile tile) {
+	private void sendChangedTileInfo(Tile tile) {
 		String tileInfo = Integer.toString(tile.getWidth())
 							+ "x" + Integer.toString(tile.getHeight())
 							+ "x" + Integer.toString(tile.getX())
 							+ "x" + Integer.toString(tile.getY())
-							+ "x" + Integer.toString(tile.getPosition());
+							+ "x" + Integer.toString(tile.getTilePosition());
 		try {
 			sendCaptureUpdateMessage();
 			outStream.writeInt(tileInfo.length());
@@ -114,10 +116,10 @@ public class SocketScreenCaptureSender implements ScreenCaptureSender {
 		
 	}
 	
-	private void sendTile(ChangedTile tile) {
+	private void sendTile(Tile tile) {
 		try{
 			ByteArrayOutputStream byteConvert = new ByteArrayOutputStream();
-			ImageIO.write(tile.getImage(), "jpeg", byteConvert);
+			ImageIO.write(tile.getImage(), "png", byteConvert);
 			byte[] imageData = byteConvert.toByteArray();
 			outStream.writeInt(imageData.length);
 			outStream.write(imageData);
@@ -125,7 +127,9 @@ public class SocketScreenCaptureSender implements ScreenCaptureSender {
 			outStream.flush();
 		} catch(IOException e){
 			System.out.println("IOException while sending screen capture.");
-		}		
+		} finally {
+			tile.imageSent();
+		}
 	}
 	
 	public void disconnect(){

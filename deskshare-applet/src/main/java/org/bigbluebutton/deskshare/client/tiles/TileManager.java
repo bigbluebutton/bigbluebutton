@@ -13,7 +13,8 @@ public class TileManager {
     private int numRows;
     
     private TileFactory factory;
-    private Set<ChangedTilesListener> listeners = new HashSet<ChangedTilesListener>();
+    private ChangedTilesListener listeners;
+    //private Set<ChangedTilesListener> listeners = new HashSet<ChangedTilesListener>();
     
     public TileManager() {}
     
@@ -35,47 +36,44 @@ public class TileManager {
         }    
     }
     
-    public void processCapturedScreen(BufferedImage capturedSreen)
+    public void processCapturedScreen(BufferedImage capturedScreen)
     {
-    	System.out.println("Processing captured screen.");
-        BufferedImage capturedTile;
-        ArrayList<ChangedTile> changedTiles = new ArrayList<ChangedTile>();
-        
+    	System.out.println("Processing captured screen."); 
         for (int row = 0; row < numRows; row++) {
         	for (int col = 0; col < numColumns; col++) {
         		int position = factory.indexToPosition(row, col);
             	Tile tile =  getTile(position);   
-//            	System.out.println("Processing tile [" + row + "," + col + "] " + position);
-//            	System.out.println("tile [" + tile.getWidth() + "," + tile.getHeight() + "][" + tile.getX() + "," + tile.getY() + "]");
-            	capturedTile = capturedSreen.getSubimage(tile.getX(), tile.getY(), tile.getWidth(), tile.getHeight());
-            	tile.updateTile(capturedTile);
+            	tile.updateTile(capturedScreen);
             	if (tile.isDirty()) {
-            		ChangedTileImp ct = new ChangedTileImp(tile.getDimension(), tile.getTilePosition(), tile.getLocation(), tile.getImage());
-            		changedTiles.add(ct);
- //           		System.out.println("Changed Tile " + tile.getTilePosition());
+            		//ChangedTileImp ct = new ChangedTileImp(tile.getDimension(), tile.getTilePosition(), tile.getLocation(), tile.getImage());
+            		notifyChangedTilesListener(tile);
             	}
         	}        	
         }
         
-        if (changedTiles.size() > 0) {
-        	notifyChangedTilesListener(changedTiles);
-        }
+//        if (changedTiles.size() > 0) {
+//        	notifyChangedTilesListener(changedTiles);
+//        }
+        
+//        capturedScreen = null;
     }
     
-    private void notifyChangedTilesListener(ArrayList<ChangedTile> changedTiles) {
-    	for (ChangedTilesListener ctl : listeners) {
-    		ctl.onChangedTiles(changedTiles);
-    	}
+    private void notifyChangedTilesListener(Tile changedTile) {
+//    	for (ChangedTilesListener ctl : listeners) {
+//    		ctl.onChangedTiles(changedTile);
+//    	}
+    	listeners.onChangedTiles(changedTile);
     }
     
 
 	public void addListener(ChangedTilesListener listener) {
-		listeners.add(listener);
+		listeners = listener;
 	}
 
 
 	public void removeListener(ChangedTilesListener listener) {
-		listeners.remove(listener);
+		//listeners.remove(listener);
+		listeners = null;
 	}
     
     void createTile(int position) {		

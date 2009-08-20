@@ -19,10 +19,10 @@
  */
 package org.bigbluebutton.deskshare.client;
 
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
+import java.applet.Applet;
 
-import javax.swing.JApplet;
+import java.awt.image.BufferedImage;
+
 
 import org.bigbluebutton.deskshare.client.net.HttpScreenCaptureSender;
 import org.bigbluebutton.deskshare.client.net.ScreenCaptureSender;
@@ -30,9 +30,10 @@ import org.bigbluebutton.deskshare.client.net.SocketScreenCaptureSender;
 import org.bigbluebutton.deskshare.client.tiles.ChangedTile;
 import org.bigbluebutton.deskshare.client.tiles.ChangedTilesListener;
 import org.bigbluebutton.deskshare.client.tiles.Dimension;
+import org.bigbluebutton.deskshare.client.tiles.Tile;
 import org.bigbluebutton.deskshare.client.tiles.TileManager;
 
-public class DeskShareApplet extends JApplet implements IScreenCaptureListener, ChangedTilesListener {
+public class DeskShareApplet extends Applet implements IScreenCaptureListener, ChangedTilesListener {
 
 	private static final long serialVersionUID = 1L;
 	private ScreenCaptureTaker captureTaker;
@@ -40,8 +41,8 @@ public class DeskShareApplet extends JApplet implements IScreenCaptureListener, 
 	private Thread captureTakerThread;
 	private ScreenCaptureSender captureSender;
 	
-	private int screenWidth = 800;
-	private int screenHeight = 600;
+	private int screenWidth = 1400;
+	private int screenHeight = 1000;
 	private int x = 0;
 	private int y = 0;
 	private boolean httpTunnel = false;
@@ -51,7 +52,8 @@ public class DeskShareApplet extends JApplet implements IScreenCaptureListener, 
 	private String host = "192.168.0.136";
 	
 	public void init(){
-		System.out.println("Applet built july 20, 2009 at 3:03PM");
+
+		System.out.println("Applet built aug 20, 2009 at 11:50AM");
 		screenWidth = Integer.parseInt(getParameter("CAPTURE_WIDTH"));
 		screenHeight = Integer.parseInt(getParameter("CAPTURE_HEIGHT"));
 		x = Integer.parseInt(getParameter("X"));
@@ -84,7 +86,7 @@ public class DeskShareApplet extends JApplet implements IScreenCaptureListener, 
 		}
 
 		Dimension screenDim = new Dimension(screenWidth, screenHeight);
-		Dimension tileDim = new Dimension(64, 64);
+		Dimension tileDim = new Dimension(256, 256);
 		tileManager = new TileManager();
 		tileManager.addListener(this);
 		tileManager.initialize(screenDim, tileDim);
@@ -95,7 +97,7 @@ public class DeskShareApplet extends JApplet implements IScreenCaptureListener, 
 		captureTaker.addListener(this);
 		captureTaker.setCapture(true);
 		
-		captureTakerThread = new Thread(captureTaker);
+		captureTakerThread = new Thread(captureTaker, "ScreenCapture");
 		captureTakerThread.start();
 	}
 	
@@ -118,12 +120,12 @@ public class DeskShareApplet extends JApplet implements IScreenCaptureListener, 
 	}
 
 	static public void main (String argv[]) {
-	    final JApplet applet = new DeskShareApplet();
+	    final Applet applet = new DeskShareApplet();
 	    applet.start();
 	}
 
-	public void onChangedTiles(ArrayList<ChangedTile> changedTiles) {
-		System.out.println("On ChangedTiles " + changedTiles.size());
-		captureSender.send(changedTiles);
+	public void onChangedTiles(Tile changedTile) {
+//		System.out.println("On ChangedTiles " + changedTiles.size());
+		captureSender.send(changedTile);
 	}
 }

@@ -42,9 +42,11 @@ public class ScreenCaptureTaker implements Runnable {
 		while (startCapture){
 			BufferedImage image = capture.takeSingleSnapshot();
 			notifyListeners(image);
-			
+			image = null;
+			System.gc();
 			try{
-				Thread.sleep(timeBase);
+				//Thread.sleep(timeBase);
+				Thread.sleep(1000);
 			} catch (Exception e){
 				System.out.println("Exception sleeping.");
 				System.exit(0);

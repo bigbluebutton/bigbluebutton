@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
 import org.bigbluebutton.deskshare.client.tiles.ChangedTile;
+import org.bigbluebutton.deskshare.client.tiles.Tile;
 
 
 import com.myjavatools.web.ClientHttpRequest;
@@ -102,7 +103,7 @@ public class HttpScreenCaptureSender implements ScreenCaptureSender {
 		}
 	}
 
-	public void send(ArrayList<ChangedTile> changedTiles) {
+	public void send(Tile changedTile) {
 		// TODO Auto-generated method stub
 		
 	}

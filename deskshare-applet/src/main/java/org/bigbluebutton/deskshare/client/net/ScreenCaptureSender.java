@@ -22,11 +22,12 @@ package org.bigbluebutton.deskshare.client.net;
 import java.util.ArrayList;
 
 import org.bigbluebutton.deskshare.client.tiles.ChangedTile;
+import org.bigbluebutton.deskshare.client.tiles.Tile;
 
 public interface ScreenCaptureSender {
 
 	public void connect(String host, String room, int videoWidth, int videoHeight, int frameRate);
-	public void send(ArrayList<ChangedTile> changedTiles);
+	public void send(Tile changedTile);
 	public void disconnect();
 	
 }

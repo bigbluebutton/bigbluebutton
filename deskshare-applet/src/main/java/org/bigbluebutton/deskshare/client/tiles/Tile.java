@@ -7,7 +7,7 @@ import java.awt.image.ImageObserver;
 import java.awt.image.PixelGrabber;
 import java.util.zip.Adler32;
 
-final class Tile {    
+public final class Tile {    
     private final Adler32 checksum;
     private final Dimension dim;
     private final int position;
@@ -26,17 +26,21 @@ final class Tile {
         this.location = location;
     }
     
-    void updateTile(BufferedImage tile)
+    void updateTile(BufferedImage capturedSreen)
     {
+    	BufferedImage tile = capturedSreen.getSubimage(getX(), getY(), getWidth(), getHeight());
+    	
         long oldsum;
         oldsum = checksum.getValue(); 
         calcChecksum(tile);
         if (oldsum != checksum.getValue()) {
+        	image = null;
         	this.image = tile;
             version++;
             dirty = true;
         }
         else {
+        	tile = null;
             dirty = false;
         }
     }
@@ -89,37 +93,41 @@ final class Tile {
 		}	        
     }
     
-    BufferedImage getImage() {
-    	return image;
+    public BufferedImage getImage() {
+    	return image.getSubimage(0, 0, getWidth(), getHeight());
     }
     
-    int getWidth()
+    public int getWidth()
     {
-        return dim.getWidth();
+        return new Integer(dim.getWidth()).intValue();
     }
     
-    int getHeight()
+    public int getHeight()
     {
-        return dim.getHeight();
+        return new Integer(dim.getHeight()).intValue();
     }
     
-    int getTilePosition() {
-		return position;
+    public int getTilePosition() {
+		return new Integer(position).intValue();
 	}
     
-    int getX() {
-		return location.x;
+    public int getX() {
+		return new Integer(location.x).intValue();
 	}
 
-	int getY() {
-		return location.y;
+    public int getY() {
+		return new Integer(location.y).intValue();
 	}
 	
 	Dimension getDimension() {
-		return dim;
+		return new Dimension(dim.getWidth(), dim.getHeight());
 	}
 	
 	Point getLocation() {
-		return location;
+		return new Point(location.x, location.y);
+	}
+	
+	public void imageSent() {
+		image = null;
 	}
 }
