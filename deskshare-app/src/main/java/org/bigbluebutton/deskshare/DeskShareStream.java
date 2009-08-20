@@ -184,13 +184,13 @@ public class DeskShareStream implements NewScreenListener {
 	}
 	
 	private void sendCapturedScreen(BufferedImage screen) {
-		log.debug("Sending screen captured");
-		try {
-			ImageIO.write(screen, "jpg", new File("/tmp/partil.jpg"));
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		log.debug("Sending screen captured - built aug 20 12:39PM");
+//		try {
+//			ImageIO.write(screen, "jpg", new File("/tmp/partil.jpg"));
+//		} catch (IOException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
 		
 		IPacket packet = IPacket.make();
 
