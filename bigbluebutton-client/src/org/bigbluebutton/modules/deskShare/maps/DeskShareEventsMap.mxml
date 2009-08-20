@@ -67,6 +67,7 @@
 				window.xPosition = 675;
 				window.yPosition = 310;
 				window._module = module;
+				window.connection = proxy.getConnection();
 				
 				var e:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 				e.window = window;

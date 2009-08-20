@@ -66,6 +66,7 @@
 			public var sharing:Boolean = false;
 			
 			public var _module:DeskShareModule;
+			public var connection:NetConnection;
 			
 			public function get xPosition():int{
 				return _xPosition;
@@ -233,7 +234,7 @@
 				btnStartApplet.label = "Stop Sharing";
 				dimensionsBox.x = 0;
 				dimensionsBox.y = bar.height + 5;
-				dimensionsBox.startThumbnail(_module.connection, _module.getRoom());
+				dimensionsBox.startThumbnail(connection, _module.getRoom());
 				
 				//Send a notification to all room participants to start viewing the stream
 				var e:ViewCommand = new ViewCommand(ViewCommand.START);
@@ -268,7 +269,7 @@
 				height = 600;
 				width = 500;
 				canvas.visible = true;
-				ns = new NetStream(_module.connection);
+				ns = new NetStream(connection);
 				ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
 				ns.client = this;
 				ns.bufferTime = 0;
@@ -287,7 +288,7 @@
 		}
 		
 		private function onAsyncError(e:AsyncErrorEvent):void{
-			
+			LogUtil.error("DeskShare::error when playing stream!");
 		}
 		
 		private function closeWindow(e:StopViewingEvent):void {
