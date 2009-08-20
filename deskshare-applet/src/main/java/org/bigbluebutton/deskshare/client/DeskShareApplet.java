@@ -86,7 +86,7 @@ public class DeskShareApplet extends Applet implements IScreenCaptureListener, C
 		}
 
 		Dimension screenDim = new Dimension(screenWidth, screenHeight);
-		Dimension tileDim = new Dimension(256, 256);
+		Dimension tileDim = new Dimension(32, 32);
 		tileManager = new TileManager();
 		tileManager.addListener(this);
 		tileManager.initialize(screenDim, tileDim);
