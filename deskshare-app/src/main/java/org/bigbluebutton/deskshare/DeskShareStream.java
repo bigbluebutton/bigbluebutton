@@ -85,7 +85,7 @@ public class DeskShareStream implements NewScreenListener {
 	private String outStreamName;
 	private IScope scope;
 	
-	public static final int LARGER_DIMENSION = 1000;
+	public static final int LARGER_DIMENSION = 1280;
 
 	
 	/**
