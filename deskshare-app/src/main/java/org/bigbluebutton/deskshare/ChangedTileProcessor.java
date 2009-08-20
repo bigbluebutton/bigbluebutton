@@ -24,12 +24,12 @@ public class ChangedTileProcessor {
 	private Set<NewScreenListener> listeners = new HashSet<NewScreenListener>();
 	private long lastUpdate;
 	
-	private BufferedImage image;
+	private BufferedImage capturedScreen;
 	private Graphics2D graphics;
 	
 	public ChangedTileProcessor(int width, int height){
-		this.image = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
-		this.graphics = this.image.createGraphics();
+		this.capturedScreen = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
+		this.graphics = this.capturedScreen.createGraphics();
 		
 		lastUpdate = System.currentTimeMillis();
 	}
@@ -64,19 +64,24 @@ public class ChangedTileProcessor {
 		appendTile(image, event.getX(), event.getY());	
 		
 		long now = System.currentTimeMillis();
-		if ((now - lastUpdate) > 1000) {
+		if ((now - lastUpdate) > 500) {
 			log.debug("Creating new screen");
 			notifyNewScreenListener(getNewScreen());
 			lastUpdate = now;
 		}		
 	}
 	
-	private BufferedImage getNewScreen(){
-		WritableRaster raster = image.copyData( null );
-		BufferedImage copy = new BufferedImage( image.getColorModel(), raster, image.isAlphaPremultiplied(), null );
+	private BufferedImage getNewScreen() { 
+		/**
+		 * Some kind of double-buffering (richard - aug 20, 2009)
+		 * Make a true copy of the captured screen. BufferedImage.getSubImage just returns
+		 * a reference to the capturedScreen, so when the tiles get updated we see the tiling
+		 * on the client. Creating a copy prevents this and provides a cleaner experience.
+		 */
+		WritableRaster raster = capturedScreen.copyData( null );
+		BufferedImage copy = new BufferedImage( capturedScreen.getColorModel(), raster, capturedScreen.isAlphaPremultiplied(), null );
 		
 		return copy;
-		//return image.getSubimage(0, 0, image.getWidth(), image.getHeight());
 	}
 	
 	public void accept(CaptureUpdateEvent event) {
