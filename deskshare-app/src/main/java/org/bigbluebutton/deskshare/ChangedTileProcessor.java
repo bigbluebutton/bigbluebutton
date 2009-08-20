@@ -2,6 +2,7 @@ package org.bigbluebutton.deskshare;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -71,7 +72,11 @@ public class ChangedTileProcessor {
 	}
 	
 	private BufferedImage getNewScreen(){
-		return image.getSubimage(0, 0, image.getWidth(), image.getHeight());
+		WritableRaster raster = image.copyData( null );
+		BufferedImage copy = new BufferedImage( image.getColorModel(), raster, image.isAlphaPremultiplied(), null );
+		
+		return copy;
+		//return image.getSubimage(0, 0, image.getWidth(), image.getHeight());
 	}
 	
 	public void accept(CaptureUpdateEvent event) {
