@@ -319,6 +319,7 @@
 		private function closeWindow(e:StopViewingEvent):void {
 			stopViewing();						
 			stopSharing();
+			close();
 		}
 			
 		]]>

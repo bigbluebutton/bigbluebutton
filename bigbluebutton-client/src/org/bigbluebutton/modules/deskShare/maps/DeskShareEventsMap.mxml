@@ -32,7 +32,7 @@
 			}
 			
 			private function closeWindow():void{
-				
+				proxy.stop();
 			}
 			
 			public function addToolbarButton():void {

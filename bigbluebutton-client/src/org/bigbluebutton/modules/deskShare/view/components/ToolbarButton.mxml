@@ -32,6 +32,7 @@
 			private var images:Images = new Images();
 			
 			[Bindable] public var deskShareIcon:Class = images.deskShareIcon;
+			[Bindable] private var presenter:Boolean = false;
 			
 			private function startDeskShare():void {
 				LogUtil.debug("desk share button clicked");
@@ -40,8 +41,8 @@
 			}
 			
 			private function madePresenter(e:MadePresenterEvent):void{
-				var showButton:Boolean = e.presenter;
-				if (showButton) {
+				presenter = e.presenter;
+				if (presenter) {
 					LogUtil.debug("Opening DeskShare Toolbar Button");
 					enabled = true;
 				} else {
@@ -53,7 +54,7 @@
 			}
 			
 			private function windowClosed(e:WindowCommand):void{
-				enabled = true;
+				if (presenter) enabled = true;
 			}
 		]]>
 	</mx:Script>
