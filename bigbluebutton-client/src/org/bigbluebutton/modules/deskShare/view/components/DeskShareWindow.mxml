@@ -30,6 +30,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import flexlib.mdi.events.MDIWindowEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.modules.deskShare.events.WindowCommand;
 			import org.bigbluebutton.modules.deskShare.events.ViewCommand;
@@ -67,6 +68,30 @@
 			
 			public var _module:DeskShareModule;
 			public var connection:NetConnection;
+			
+			//The following code block is to deal with a bug in FLexLib with MDI windows not responding well to being maximized
+			private var savedWindowWidth:Number;
+			private var savedWindowHeight:Number;
+			private var savedX:Number;
+			private var savedY:Number;
+			private var isMaximized:Boolean = false;
+			override public function maximize():void{
+				if (!isMaximized){
+					savedWindowHeight = this.height;
+					savedWindowWidth = this.width;
+					savedX = this.x;
+					savedY = this.y;
+                	dispatchEvent(new MDIWindowEvent(MDIWindowEvent.MAXIMIZE, this));
+                	isMaximized = true;
+				} else{
+					this.width = savedWindowWidth;
+					this.height = savedWindowHeight;
+					this.x = savedX;
+					this.y = savedY;
+					isMaximized = false;
+					//dispatchEvent(new MDIWindowEvent(MDIWindowEvent.RESTORE, this));
+				}	
+			}
 			
 			public function get xPosition():int{
 				return _xPosition;

@@ -34,6 +34,7 @@
 
 	<mx:Script>
 		<![CDATA[
+			import flexlib.mdi.events.MDIWindowEvent;
 			import org.bigbluebutton.main.events.AddHighligtherCanvasEvent;
 			import org.bigbluebutton.modules.presentation.view.SlideViewMediator;
 		
@@ -68,6 +69,30 @@
 			
 			private var mouseDown:Boolean = false;
 			public var isPresenter:Boolean = false;
+			
+			//The following code block is to deal with a bug in FLexLib with MDI windows not responding well to being maximized
+			private var savedWindowWidth:Number;
+			private var savedWindowHeight:Number;
+			private var savedX:Number;
+			private var savedY:Number;
+			private var isMaximized:Boolean = false;
+			override public function maximize():void{
+				if (!isMaximized){
+					savedWindowHeight = this.height;
+					savedWindowWidth = this.width;
+					savedX = this.x;
+					savedY = this.y;
+                	dispatchEvent(new MDIWindowEvent(MDIWindowEvent.MAXIMIZE, this));
+                	isMaximized = true;
+				} else{
+					this.width = savedWindowWidth;
+					this.height = savedWindowHeight;
+					this.x = savedX;
+					this.y = savedY;
+					isMaximized = false;
+					//dispatchEvent(new MDIWindowEvent(MDIWindowEvent.RESTORE, this));
+				}	
+			}
 			
 			private function init():void{
 				positionThumbnails();

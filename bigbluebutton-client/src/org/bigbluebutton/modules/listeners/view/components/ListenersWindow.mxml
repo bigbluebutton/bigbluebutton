@@ -26,6 +26,7 @@
 
 	<mx:Script>
 		<![CDATA[
+			import flexlib.mdi.events.MDIWindowEvent;
 			import org.bigbluebutton.modules.listeners.view.events.ListenerSelectedEvent;
 			import mx.events.ListEvent;
 			import org.bigbluebutton.modules.listeners.ListenersModuleConstants;
@@ -40,12 +41,37 @@
 			private var _xPosition:int;
 			private var _yPosition:int;
  			  			
-			[Bindable] private var muteAllIcon:Class = images.sound_mute;
+			[Bindable] private var muteAllIcon:Class = images.sound_mute; 
 			[Bindable] private var unmuteAllIcon:Class = images.sound_none;
 			[Bindable] private var ejectIcon:Class = images.eject_user;
 
 			[Bindable] public var listeners:ArrayCollection;
 			[Bindable] public var moderator:Boolean;
+			
+			
+			//The following code block is to deal with a bug in FLexLib with MDI windows not responding well to being maximized
+			private var savedWindowWidth:Number;
+			private var savedWindowHeight:Number;
+			private var savedX:Number;
+			private var savedY:Number;
+			private var isMaximized:Boolean = false;
+			override public function maximize():void{
+				if (!isMaximized){
+					savedWindowHeight = this.height;
+					savedWindowWidth = this.width;
+					savedX = this.x;
+					savedY = this.y;
+                	dispatchEvent(new MDIWindowEvent(MDIWindowEvent.MAXIMIZE, this));
+                	isMaximized = true;
+				} else{
+					this.width = savedWindowWidth;
+					this.height = savedWindowHeight;
+					this.x = savedX;
+					this.y = savedY;
+					isMaximized = false;
+					//dispatchEvent(new MDIWindowEvent(MDIWindowEvent.RESTORE, this));
+				}	
+			}
 			
 			public function get xPosition():int {
 				return _xPosition;

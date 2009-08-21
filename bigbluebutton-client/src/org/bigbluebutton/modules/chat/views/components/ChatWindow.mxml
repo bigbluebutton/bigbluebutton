@@ -30,11 +30,37 @@
 
 	<mx:Script>
 		<![CDATA[
+			import mx.controls.Alert;
+			import flexlib.mdi.events.MDIWindowEvent;
 			import mx.core.Application;
 			
 			private var _xPosition:int;
 			private var _yPosition:int;
 			private var localDispatcher:IEventDispatcher;
+			
+			//The following code block is to deal with a bug in FLexLib with MDI windows not responding well to being maximized
+			private var savedWindowWidth:Number;
+			private var savedWindowHeight:Number;
+			private var savedX:Number;
+			private var savedY:Number;
+			private var isMaximized:Boolean = false;
+			override public function maximize():void{
+				if (!isMaximized){
+					savedWindowHeight = this.height;
+					savedWindowWidth = this.width;
+					savedX = this.x;
+					savedY = this.y;
+                	dispatchEvent(new MDIWindowEvent(MDIWindowEvent.MAXIMIZE, this));
+                	isMaximized = true;
+				} else{
+					this.width = savedWindowWidth;
+					this.height = savedWindowHeight;
+					this.x = savedX;
+					this.y = savedY;
+					isMaximized = false;
+					//dispatchEvent(new MDIWindowEvent(MDIWindowEvent.RESTORE, this));
+				}	
+			}
 			
 			private var dispState:String;
 			
@@ -76,6 +102,7 @@
 					chatView.txtMsg.enabled = true;
 				}
 			}			  
+			
 		]]>
 	</mx:Script>
 	
