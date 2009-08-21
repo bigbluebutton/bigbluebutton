@@ -129,7 +129,16 @@ public class DeskShareStream implements NewScreenListener {
 		
 	}
 	
+	/**
+	 * Calculates the dimensions of the encoded video, in case the video is too large and needs to be scaled
+	 */
 	public void calculateEncodingDimensions(){
+		if (width < LARGER_DIMENSION && height< LARGER_DIMENSION){
+			encodingHeight = height;
+			encodingWidth = width;
+			return;
+		}
+		
 		int biggerDimension, smallerDimension;
 		double ratio;
 		if (width > height){
@@ -149,7 +158,7 @@ public class DeskShareStream implements NewScreenListener {
 			encodingHeight = LARGER_DIMENSION;
 			encodingWidth = (int) Math.round(LARGER_DIMENSION/ratio);
 		}
-		System.out.println("widht: " + encodingWidth + " ,height: " + encodingHeight);
+		//System.out.println("widht: " + encodingWidth + " ,height: " + encodingHeight);
 	}
 
 	public void stop() {
