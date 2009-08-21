@@ -34,6 +34,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
 			import org.bigbluebutton.main.events.AddHighligtherCanvasEvent;
 			import org.bigbluebutton.main.events.OpenWindowEvent;
 			import org.bigbluebutton.main.events.CloseWindowEvent;
@@ -55,6 +56,7 @@
 			
 			public static const NAME:String = 'MainApplicationShell';
 			protected var facade:MainApplicationFacade = MainApplicationFacade.getInstance();	
+			private var globalDispatcher:Dispatcher;
 			
 			private var dispState:String; //full-screen?
 			private var images:Images = new Images();
@@ -72,6 +74,7 @@
 			
 			[Bindable] private var fullscreen_icon:Class = images.full_screen;
 			[Bindable] private var logs_icon:Class = images.logs;
+			[Bindable] private var reset_layout_icon:Class = images.layout;
 			
 			public function get mode():String {
 				return _mode;
@@ -84,6 +87,7 @@
 				logWindow.logs = logs;
 				
 				facade.startup(this);
+				globalDispatcher = new Dispatcher();
 			}		
 
 			protected function initFullScreen():void
@@ -144,6 +148,14 @@
 	   		private function handleAddHighlighter(event:AddHighligtherCanvasEvent):void {
 	   			trace("GOT HIGHLIGHTER EVENT");
 	   		}
+	   		
+	   		private function resetLayout():void{
+	   			var windows:Array = mdiCanvas.windowManager.getOpenWindowList();
+	   			for (var i:Number=0; i<windows.length; i++){
+	   				var window:IBbbModuleWindow = windows[i] as IBbbModuleWindow;
+	   				mdiCanvas.windowManager.absPos(window as MDIWindow, window.xPosition, window.yPosition);
+	   			}
+	   		}
 		]]>
 	</mx:Script>
 			
@@ -161,5 +173,6 @@
 		  <mx:Spacer width="100%"/> 
 		  <mx:Button width="20" height="20" toolTip="Open Log Window" id="logBtn" icon="{logs_icon}" click="openLogWindow()" />
 		  <mx:Button width="20" height="20" toolTip="Toggle Full-Screen" id="fullScreen" icon="{fullscreen_icon}" click="toggleFullScreen()" />
+		  <mx:Button width="20" height="20" toolTip="Reset Layout" id="btnResetLayout" icon="{reset_layout_icon}" click="resetLayout()" />
 		</mx:ControlBar>
 </mx:VBox>

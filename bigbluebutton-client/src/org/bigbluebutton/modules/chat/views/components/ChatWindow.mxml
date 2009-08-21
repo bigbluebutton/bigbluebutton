@@ -26,10 +26,11 @@
 	       width="590" height="300" showCloseButton="false"
 	       implements="org.bigbluebutton.common.IBbbModuleWindow" 
 	       creationComplete="onCreationComplete()"
-	       xmlns:components="org.bigbluebutton.modules.chat.view.components.*">
-
+	       xmlns:components="org.bigbluebutton.modules.chat.view.components.*" xmlns:mate="http://mate.asfusion.com/">
+	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.main.events.ResetLayoutEvent;
 			import mx.controls.Alert;
 			import flexlib.mdi.events.MDIWindowEvent;
 			import mx.core.Application;

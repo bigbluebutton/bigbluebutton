@@ -27,5 +27,8 @@ package org.bigbluebutton.main.view.assets
 		
 		[Embed(source="images/arrow_out.png")]
         public var full_screen:Class; 
+        
+        [Embed(source="images/shape_move_front.png")]
+        public var layout:Class; 
 	}
 }

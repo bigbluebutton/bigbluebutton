@@ -19,7 +19,9 @@
  */
 package org.bigbluebutton.modules.presentation.model.business
 {
+	import flash.events.TimerEvent;
 	import flash.net.FileReference;
+	import flash.utils.Timer;
 	
 	import mx.collections.ArrayCollection;
 	
@@ -153,6 +155,16 @@ package org.bigbluebutton.modules.presentation.model.business
 			if (isPresenter()) {
 				_presentService.gotoSlide(num);
 			}
+		}
+		
+		public function notifyViewersOfPresentationLoaded():void{
+			var timer:Timer = new Timer(3000, 1);
+			timer.addEventListener(TimerEvent.TIMER, sendViewerNotify);
+			timer.start();
+		}
+		
+		private function sendViewerNotify(e:TimerEvent):void{
+			_presentService.gotoSlide(0);
 		}
 		
 		public function get presentationLoaded():Boolean {
