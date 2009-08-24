@@ -30,7 +30,6 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.main.events.ResetLayoutEvent;
 			import mx.controls.Alert;
 			import flexlib.mdi.events.MDIWindowEvent;
 			import mx.core.Application;
