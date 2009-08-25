@@ -121,6 +121,16 @@ function checkForJava(){
 	if (navigator.javaEnabled()) return 1; 
 }
 
+var loggedIn = false;
+
+function setLoggedInTrue(){
+	loggedIn = true;
+}
+
+function testRCLogin(){
+	return loggedIn
+}
+
 </script>
 <noscript>
   	<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"

@@ -9,6 +9,7 @@
 			public function createCallbacks():void
 			{
 				ExternalInterface.addCallback("isLoginSuccess", onLoginSuccess);
+				ExternalInterface.call("setLoggedInTrue");
 			}
 			
 			private function onLoginSuccess():String{
