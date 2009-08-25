@@ -26,11 +26,12 @@
 		xmlns:main="org.bigbluebutton.main.view.components.*"
 		xmlns:mate="http://mate.asfusion.com/"
 		width="100%" height="100%"
-		creationComplete="initializeShell()">
+		creationComplete="initializeShell()" xmlns:maps="org.bigbluebutton.main.maps.*">
 		
 	<mate:Listener type="{OpenWindowEvent.OPEN_WINDOW_EVENT}" method="handleOpenWindowEvent" />	
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="handleCloseWindowEvent"/>
 	<mate:Listener type="{AddHighligtherCanvasEvent.ADD_HIGHLIGHTER_CANVAS}" method="handleAddHighlighter" />
+	<maps:RCTestEventMap id="rcTestMap" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -68,7 +69,7 @@
 			// LIVE or PLAYBACK
 			private var _mode:String = 'LIVE';
 			[Bindable]
-			public var appVersion:String = '0.1';
+			public var appVersion:String = '0.6';
 			[Bindable]
 			public var numberOfModules:int = 0;
 			
@@ -88,6 +89,7 @@
 				
 				facade.startup(this);
 				globalDispatcher = new Dispatcher();
+				rcTestMap.createCallbacks();
 			}		
 
 			protected function initFullScreen():void

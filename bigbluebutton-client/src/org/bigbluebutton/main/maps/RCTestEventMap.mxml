@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
+	
+	<mx:Script>
+		<![CDATA[
+		
+			private var isLoginSuccess:Boolean = false;
+			
+			public function createCallbacks():void
+			{
+				ExternalInterface.addCallback("isLoginSuccess", onLoginSuccess);
+			}
+			
+			private function onLoginSuccess():String{
+				if (isLoginSuccess) return "true";
+				else return "false";
+			}
+		]]>
+	</mx:Script>
+	
+	<Listener />
+</EventMap>
