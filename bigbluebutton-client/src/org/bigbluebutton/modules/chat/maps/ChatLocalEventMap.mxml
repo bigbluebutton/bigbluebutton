@@ -21,18 +21,6 @@
 			import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
 			import org.bigbluebutton.modules.chat.events.ChatEvent;
 			import org.bigbluebutton.modules.chat.managers.ChatManager;
-			
-			private function checkForRCMessage(e:PublicChatMessageEvent):void{
-				if (e.message == "RC_message"){
-					var event:RCRecieveEvent = new RCRecieveEvent();
-					event.message = e.message;
-					var dispatcher:Dispatcher = new Dispatcher();
-					dispatcher.dispatchEvent(event);
-				} else{
-					this.rc_listener = null;
-					return;
-				}
-			}
 		]]>
 	</mx:Script>
 	
@@ -85,14 +73,6 @@
     <EventHandlers type="{QueryParticipantsEvent.QUERY_PARTICIPANTS_EVENT}">        
  		<MethodInvoker generator="{PrivateChatService}" method="queryForParticipants"/>		
     </EventHandlers>
-    
-    <EventHandlers type="{RCSendEvent.RC_SEND}">
-    	<ObjectBuilder id="e" generator="{SendPublicChatMessageEvent}" constructorArguments="{SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT}">
-    		<Properties message="RC_message" time="1" color="0x00ff00" />
-    	</ObjectBuilder>
-    	<MethodInvoker generator="{PublicChatService}" method="sendChatMessageEvent" arguments="e" />
-    </EventHandlers>
-    <Listener id="rc_listener" type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="checkForRCMessage" />
     
 	<!--EventHandlers type="{ConnectionEvent.CONNECT_EVENT}">        
  		<MethodInvoker generator="{ChatManager}" method="receivedMessage" />

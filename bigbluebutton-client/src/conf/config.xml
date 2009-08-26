@@ -4,11 +4,6 @@
     <porttest host="192.168.0.124" application="video"/>    
 	<modules>
 
-		<module name="VideoModule" url="VideoModule.swf" 
-			uri="rtmp://192.168.0.124/video"
-			onUserJoinedEvent="START"
-			onUserLogoutEvent="STOP"	
-		/>
 		<module name="ChatModule" url="ChatModule.swf" 
 			uri="rtmp://192.168.0.124/bigbluebutton" 
 			loadNextModule="PresentationModule"	
@@ -49,6 +44,19 @@
 			onUserJoinedEvent="START" 
 			onUserLogoutEvent="STOP"
 			loadNextModule="VideoModule"
+		/>
+		
+		<module name="VideoModule" url="VideoModule.swf" 
+			uri="rtmp://192.168.0.124/video"
+			loadNextModule="AutotestModule"
+			onUserJoinedEvent="START"
+			onUserLogoutEvent="STOP"	
+		/>
+		
+		<module name="AutotestModule" url="AutotestModule.swf" 
+			uri="rtmp://192.168.0.124/bigbluebutton" 
+			onUserJoinedEvent="START" 
+			onUserLogoutEvent="STOP"
 		/>
 	</modules>
 </config>

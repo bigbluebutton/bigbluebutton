@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" implements="org.bigbluebutton.common.IBigBlueButtonModule" layout="absolute" width="400" height="300" xmlns:maps="org.blindside.modules.autotest.maps.*">
+	<mx:Script>
+		<![CDATA[
+			import org.blindside.modules.autotest.events.LoginTestEvent;
+			import com.asfusion.mate.events.Dispatcher;
+			import org.bigbluebutton.main.events.CloseWindowEvent;
+			import org.bigbluebutton.main.events.OpenWindowEvent;
+			import org.bigbluebutton.modules.notes.views.Notes;
+			import org.bigbluebutton.common.messaging.Router;
+			
+			private var _router:Router;			
+			private var _moduleId:String = "NotesModule";
+			private var _moduleName:String = "Notes Module";			
+			private var _attributes:Object;
+			
+			private function onCreationComplete():void {
+				LogUtil.debug("AutotestModule initialized");	
+			}
+			
+			public function acceptRouter(router:Router):void{
+				_router = router;
+				
+			}
+		
+			public function get router():Router{
+				return _router;
+			}
+				
+			public function get moduleId():String {
+				return _moduleId;
+			}
+			
+			public function get moduleName():String {
+				return _moduleName;
+			}
+		
+			public function get uri():String {
+				if (_attributes.mode == "PLAYBACK") {										
+					return _attributes.uri + "/" + _attributes.playbackRoom;
+				} 
+				
+				return _attributes.uri + "/" + _attributes.room;
+			}
+			
+			public function get username():String {
+				return _attributes.username;
+			}
+			
+			public function get connection():NetConnection {
+				return _attributes.connection;
+			}
+			
+			public function get mode():String {
+				if (_attributes.mode == null) {					
+					//_attributes.mode = "PLAYBACK"
+					_attributes.mode = "LIVE"
+					LogUtil.debug('Setting NotesModule mode: ' + _attributes.mode);
+				}
+				LogUtil.debug('NotesModule mode: ' + _attributes.mode);
+				return _attributes.mode;
+			}
+						
+			public function get userid():Number {
+				return _attributes.userid as Number;
+			}
+			
+			public function get role():String {
+				return _attributes.userrole as String;
+			}
+			
+			public function start(attributes:Object):void {	
+				LogUtil.debug("notes attr: " + attributes.username);
+				_attributes = attributes;
+				
+				eventMap.connection = connection;
+				dispatchEvent(new LoginTestEvent());
+			}
+		
+			public function stop():void {
+				
+			}
+		]]>
+	</mx:Script>
+	
+	<maps:AutotestEventMap id="eventMap" />
+</mx:Module>

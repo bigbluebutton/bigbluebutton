@@ -42,6 +42,7 @@
 <module application="src/BigBlueButton.mxml" destPath="ChatModule.swf" optimize="true" sourcePath="src/ChatModule.mxml"/>
 <module application="src/BigBlueButton.mxml" destPath="DeskShareModule.swf" optimize="true" sourcePath="src/DeskShareModule.mxml"/>
 <module application="src/BigBlueButton.mxml" destPath="PresentationModule.swf" optimize="true" sourcePath="src/PresentationModule.mxml"/>
+<module application="src/BigBlueButton.mxml" destPath="AutotestModule.swf" optimize="true" sourcePath="src/AutotestModule.mxml"/>
 </modules>
 <buildCSSFiles/>
 </actionScriptProperties>

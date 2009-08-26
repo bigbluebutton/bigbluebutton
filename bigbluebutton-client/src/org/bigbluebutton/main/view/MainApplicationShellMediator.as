@@ -66,7 +66,6 @@ package org.bigbluebutton.main.view
 		
 		private function addWindowMessageHandler(event:OpenWindowEvent):void {
 			trace("Received ADD WINDOW EVENT");
-		//	displayWindow(event.component);
 		}
 		
 		private function displayWindow(window:IBbbModuleWindow):void {

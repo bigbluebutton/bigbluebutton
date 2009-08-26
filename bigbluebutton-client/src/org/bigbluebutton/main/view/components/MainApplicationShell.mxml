@@ -31,7 +31,6 @@
 	<mate:Listener type="{OpenWindowEvent.OPEN_WINDOW_EVENT}" method="handleOpenWindowEvent" />	
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="handleCloseWindowEvent"/>
 	<mate:Listener type="{AddHighligtherCanvasEvent.ADD_HIGHLIGHTER_CANVAS}" method="handleAddHighlighter" />
-	<maps:RCTestEventMap id="rcTestMap" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -89,7 +88,6 @@
 				
 				facade.startup(this);
 				globalDispatcher = new Dispatcher();
-				rcTestMap.createCallbacks();
 			}		
 
 			protected function initFullScreen():void
