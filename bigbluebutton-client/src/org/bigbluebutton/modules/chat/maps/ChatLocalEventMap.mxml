@@ -4,8 +4,6 @@
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-			import org.bigbluebutton.core.events.RCRecieveEvent;
-			import org.bigbluebutton.core.events.RCSendEvent;
 			import org.bigbluebutton.modules.chat.events.StopChatModuleEvent;
 			import org.bigbluebutton.modules.chat.events.QueryParticipantsEvent;
 			import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;

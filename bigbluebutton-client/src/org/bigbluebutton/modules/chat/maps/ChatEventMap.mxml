@@ -4,7 +4,7 @@
 		<![CDATA[
 			import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
 			import org.bigbluebutton.modules.chat.managers.ChatManager;
-			import org.bigbluebutton.modules.chat.events.ChatEvent;
+			import org.bigbluebutton.modules.chat.events.ChatEvent; 
 		]]>
 	</mx:Script>
 	<EventHandlers type="{ChatEvent.CHAT_EVENT}">        
