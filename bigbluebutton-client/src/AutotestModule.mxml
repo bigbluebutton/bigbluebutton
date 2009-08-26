@@ -2,7 +2,7 @@
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" implements="org.bigbluebutton.common.IBigBlueButtonModule" layout="absolute" width="400" height="300" xmlns:maps="org.blindside.modules.autotest.maps.*">
 	<mx:Script>
 		<![CDATA[
-			import org.blindside.modules.autotest.events.LoginTestEvent;
+			import org.blindside.modules.autotest.business.TestRequestListener;
 			import com.asfusion.mate.events.Dispatcher;
 			import org.bigbluebutton.main.events.CloseWindowEvent;
 			import org.bigbluebutton.main.events.OpenWindowEvent;
@@ -13,6 +13,8 @@
 			private var _moduleId:String = "NotesModule";
 			private var _moduleName:String = "Notes Module";			
 			private var _attributes:Object;
+			
+			private var requestListener:TestRequestListener;
 			
 			private function onCreationComplete():void {
 				LogUtil.debug("AutotestModule initialized");	
@@ -70,11 +72,11 @@
 			}
 			
 			public function start(attributes:Object):void {	
-				LogUtil.debug("notes attr: " + attributes.username);
+				LogUtil.debug("Autotest attr: " + attributes.username);
 				_attributes = attributes;
 				
-				eventMap.connection = connection;
-				dispatchEvent(new LoginTestEvent());
+				requestListener = new TestRequestListener();
+				requestListener.setLoggedIn();
 			}
 		
 			public function stop():void {
@@ -83,5 +85,4 @@
 		]]>
 	</mx:Script>
 	
-	<maps:AutotestEventMap id="eventMap" />
 </mx:Module>
