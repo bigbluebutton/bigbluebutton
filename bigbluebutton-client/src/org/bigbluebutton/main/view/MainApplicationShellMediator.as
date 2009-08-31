@@ -187,7 +187,7 @@ package org.bigbluebutton.main.view
 			shell.statusInfo.text = "Please wait while we test your connection to the server.";
 			shell.statusInfo2.text =  "This may take a minute or two.";
 			shell.statusProgress.text = "Connecting to RTMP://" + host + ":1935/" + app + ".";
-			portTestProxy.connect("RTMP", host, "", app);
+			portTestProxy.connect("RTMP", host, "1935", app);
 		}
 		
 		private function testRTMPTConnection():void {
