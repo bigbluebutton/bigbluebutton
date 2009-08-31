@@ -89,7 +89,7 @@
 	</EventHandlers>
 	
 	<EventHandlers type="{MadePresenterEvent.MADE_PRESENTER}">
-		<InlineInvoker method="changeToolbarButton" />
+		<InlineInvoker method="changeToolbarButton" arguments="{event}"/>
 	</EventHandlers>
 	
 	<EventHandlers type="{ViewCommand.START}">
