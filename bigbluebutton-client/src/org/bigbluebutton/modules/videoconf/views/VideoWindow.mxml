@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MDIWindow xmlns="flexlib.mdi.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" width="640" height="480" creationComplete="init()">
+	<mx:Script>
+		<![CDATA[
+		
+			private var video:Video;
+			private var ns:NetStream;
+			
+			private function init():void{
+				video = new Video(640, 480);
+				videoHolder.addChild(video);
+			}
+			
+			public function startVideo(connection:NetConnection, stream:String):void{
+				ns = new NetStream(connection);
+				ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
+				ns.client = this;
+				ns.bufferTime = 0;
+				ns.receiveVideo(true);
+				ns.receiveAudio(false);
+				video.attachNetStream(ns);
+				ns.play(stream);
+			}
+			
+			private function onAsyncError(e:AsyncErrorEvent):void{
+				LogUtil.debug("VIdeoWindow::asyncerror " + e.toString());
+			}
+		]]>
+	</mx:Script>
+	<mx:Canvas id="videoHolder" width="640" height="480"/>
+</MDIWindow>

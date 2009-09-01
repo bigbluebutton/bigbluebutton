@@ -45,6 +45,12 @@
 				if (presenter) {
 					LogUtil.debug("Opening DeskShare Toolbar Button");
 					enabled = true;
+					
+					if (ExternalInterface.call("checkForJava") != 1){
+						this.enabled = false;
+						this.toolTip = "Java not enabled";
+					}
+				
 				} else {
 					LogUtil.debug("Removing DeskShare Toolbar Button");
 					if (enabled) {

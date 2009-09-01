@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" icon="{camIcon}" click="startBroadcast()" creationComplete="init()">
+	<mx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
+			private var images:Images = new Images();
+			[Bindable] public var camIcon = images.webcam_img;
+			
+			private var dispatcher:Dispatcher;
+			
+			private function init():void{
+				dispatcher = new Dispatcher();
+			}
+			
+			private function startBroadcast():void{
+				
+			}
+		]]>
+	</mx:Script>
+</mx:Button>

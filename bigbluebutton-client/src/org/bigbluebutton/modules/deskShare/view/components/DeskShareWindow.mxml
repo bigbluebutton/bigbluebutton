@@ -25,7 +25,7 @@
 	xmlns:components="org.bigbluebutton.modules.deskShare.view.components.*" 
 	creationComplete="onCreationComplete()"
 	implements="org.bigbluebutton.common.IBbbModuleWindow" 
-	showCloseButton="true"	
+	showCloseButton="true" title="DesktopSharing"	
 	layout="absolute" resizable="false" verticalScrollPolicy="off" horizontalScrollPolicy="off" xmlns:mate="http://mate.asfusion.com/">
 	
 	<mx:Script>
@@ -89,7 +89,6 @@
 					this.x = savedX;
 					this.y = savedY;
 					isMaximized = false;
-					//dispatchEvent(new MDIWindowEvent(MDIWindowEvent.RESTORE, this));
 				}	
 			}
 			
@@ -110,10 +109,6 @@
 			}
 			
 			private function onCreationComplete():void{
-				if (ExternalInterface.call("checkForJava") != 1){
-					this.enabled = false;
-					this.lblStatus.text = "Java not enabled";
-				}
 				height = bar.height + dimensionsBox.height + 33;
 				width = dimensionsBox.width + 7;
 				dimensionsBox.y = bar.height + 5;
@@ -279,8 +274,6 @@
 				dispatchEvent(new WindowCommand(WindowCommand.OPEN));
 				
 				videoPlayer = new Video(videoWidth, videoHeight);
-				videoPlayer.width = videoWidth;
-				videoPlayer.height = videoHeight;
 				videoHolder = new UIComponent();
 				videoHolder.width = videoWidth;
 				videoHolder.height = videoHeight;
