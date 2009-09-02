@@ -57,8 +57,7 @@
 			}
 			
 			private function changeToolbarButton(e:MadePresenterEvent):void{
-				if (e.presenter) addToolbarButton();
-				else removeToolbarButton();
+				if (!e.presenter) removeToolbarButton();  
 			}
 			
 			private function openDeskShareWindow():void{
