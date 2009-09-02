@@ -1,5 +1,5 @@
-/*
- * BigBlueButton - http://www.bigbluebutton.org
+/* BigBlueButton - http://www.bigbluebutton.org
+ * 
  * 
  * Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
  * 
@@ -84,7 +84,16 @@ class PublicScheduledSessionController {
 
 	}
 	
-    def signIn = {    
+    def signIn = { 
+		if (params.fullname.trim() == "") {
+			log.debug "USer entered a blank name"
+			flash.message = "Please enter your name."
+			render(view:"joinIn", model: [id:params.id, fullname:params.fullname])
+			return
+		} else {
+			log.debug "Fullname is not null ${params.fullname}"
+		}
+			
 		log.debug "Attempting to sign in to ${params.id}"	
 		def conference = Conference.findByConferenceNumber(params.id)
 		def signedIn = false
@@ -166,72 +175,7 @@ class PublicScheduledSessionController {
 			render(view:"joinIn",model: [id:params.id, fullname:params.fullname])
 		}	
 	}
-	
-    def signIn2 = {    
-		println 'signIn start'		
-		def confSession = ScheduledSession.findByTokenId(params.id)
-		def role = ''
-		def signedIn = false
-			
-		if (confSession) {
-			println 'signIn: has conference session'
-			
-			println 'Found scheduled session'
-			switch (params.password) {
-				case confSession.hostPassword:
-					println 'as host'
-					// Let us set role to MODERATOR for now as we don't support HOST yet
-					role = "MODERATOR"
-					signedIn = true
-					break
-				case confSession.moderatorPassword:
-					println 'as moderator'
-					role = "MODERATOR"
-					signedIn = true
-					break
-				case confSession.attendeePassword:
-					println 'as viewer'
-					role = "VIEWER"
-					signedIn = true
-					break
-			}
-			if (signedIn) {						
-		    	println 'successful'
-	   			session["fullname"] = params.fullname 
-				session["role"] = role
-				session["conference"] = params.id
-				session["room"] = confSession.sessionId
-				session["voicebridge"] = confSession.voiceConferenceBridge
-			}
-						
-			def long _10_MINUTES = 10*60*1000
-			def now = new Date().time
-							
-			def startTime = confSession.startDateTime.time - _10_MINUTES
-			def endTime = confSession.endDateTime.time + _10_MINUTES
-			
-			if ((startTime <= now) && (now <= endTime)) {
-				session["mode"] = "LIVE"
-				session["record"] = false
-				if (confSession.record) {
-					session["record"] = true
-				}
-			} else {
-				session["mode"] = "PLAYBACK"
-			}
-		    	
-		    println 'rendering signIn'
 
-		    redirect(action:show)			
-		}
-		
-		if (!signedIn) {
-			println 'failed'
-			flash.message = "Failed to join the conference session."
-			redirect(action:joinIn,id:params.id, params:[fullname:params.fullname])		
-		}
-	}
-		
 	def enter = {
 	    def fname = session["fullname"]
 	    def rl = session["role"]
@@ -247,7 +191,7 @@ class PublicScheduledSessionController {
 				xml {
 					render(contentType:"text/xml") {
 						'join'() {
-							returnCode("FAILED")
+							returncode("FAILED")
 							message("Could not find conference ${params.conference}.")
 						}
 					}
@@ -278,7 +222,10 @@ class PublicScheduledSessionController {
 		// Log the user out of the application.
 	    session.invalidate()
 
+	    def config = ConfigurationHolder.config
+        def hostURL = config.bigbluebutton.web.serverURL
+        println "serverURL $hostURL"	
 	    // For now, redirect back to the home page.
-	    redirect(uri: '/')
+	    redirect(url: hostURL)
 	}
 }
