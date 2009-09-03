@@ -19,9 +19,9 @@
 */
 package org.bigbluebutton.modules.viewers.view
 {
-	import flash.events.Event;
+	import com.asfusion.mate.events.Dispatcher;
 	
-	import mx.controls.Alert;
+	import flash.events.Event;
 	
 	import org.bigbluebutton.modules.viewers.ViewersModuleConstants;
 	import org.bigbluebutton.modules.viewers.model.ViewersProxy;
@@ -95,7 +95,7 @@ package org.bigbluebutton.modules.viewers.view
 			return [
 					ViewersModuleConstants.OPEN_VIEWERS_WINDOW,
 					ViewersModuleConstants.CLOSE_VIEWERS_WINDOW,
-					ViewersModuleConstants.BECOME_VIEWER,
+					ViewersModuleConstants.BECOME_VIEWER
 					];
 		}
 		
@@ -130,7 +130,7 @@ package org.bigbluebutton.modules.viewers.view
 		   		_viewersWindow.yPosition = 0;
 		   		facade.sendNotification(ViewersModuleConstants.ADD_WINDOW, _viewersWindow); 			
 		}	
-				
+						
 		/**
 		 * Change the raisehand/lowerhand status 
 		 * @param e

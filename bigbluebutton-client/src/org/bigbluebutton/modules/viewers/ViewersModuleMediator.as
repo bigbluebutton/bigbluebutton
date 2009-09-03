@@ -19,6 +19,9 @@
 */
 package org.bigbluebutton.modules.viewers
 {  
+	import com.asfusion.mate.events.Dispatcher;
+	
+	import org.bigbluebutton.modules.viewers.events.JoinFailedEvent;
 	import org.bigbluebutton.modules.viewers.model.vo.User;
 	import org.bigbluebutton.modules.viewers.view.ViewersWindowMediator;
 	import org.bigbluebutton.modules.viewers.view.components.ViewersWindow;
@@ -76,7 +79,8 @@ package org.bigbluebutton.modules.viewers
 		override public function listNotificationInterests():Array{
 			return [
 					ViewersModuleConstants.LOGGED_IN,
-					ViewersModuleConstants.LOGGED_OUT
+					ViewersModuleConstants.LOGGED_OUT,
+					ViewersModuleConstants.JOIN_FAILED
 					];
 		}
 		
@@ -103,8 +107,16 @@ package org.bigbluebutton.modules.viewers
 					}
 					sendNotification(ViewersModuleConstants.OPEN_VIEWERS_WINDOW);
 					break;
+				case ViewersModuleConstants.JOIN_FAILED:
+					handleJoinFailed();
+					break;
 			}
 		}
 
+		private function handleJoinFailed():void {
+			LogUtil.debug("Dispatching JoinFailedEvent");
+			var disp:Dispatcher = new Dispatcher();
+			disp.dispatchEvent(new JoinFailedEvent());
+		}
 	}
 }

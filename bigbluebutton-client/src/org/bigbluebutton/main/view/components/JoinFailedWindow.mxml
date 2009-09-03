@@ -21,8 +21,8 @@
 --> 
 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-    title="Logged Out" showCloseButton="true" creationComplete="init()"
-    x="168" y="86" layout="absolute" width="300" height="100">
+    title="Join Failed" showCloseButton="false" creationComplete="init()"
+    x="168" y="86" layout="absolute" width="400" height="100">
 	<mx:Script>
 		<![CDATA[
 			import mx.controls.Alert;
@@ -50,5 +50,5 @@
 	</mx:Script>
 
 	<mx:Button id="okBtn" label="OK" click="redirect()" x="118.5" y="28"/>
-	<mx:Label text="You have logged out of the conference"  y="7" x="24"/>
+	<mx:Label text="No valid session. Click ok to login."  y="7" x="24"/>
 </mx:TitleWindow> 

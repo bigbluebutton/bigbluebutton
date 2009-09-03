@@ -56,10 +56,11 @@ package org.bigbluebutton.modules.viewers.model.services
 		private function handleComplete(e:Event):void{
 			
 			var xml:XML = new XML(e.target.data)
-			LogUtil.debug("Loading complete: " + xml);
+			LogUtil.debug("Join complete: " + xml);
+			
 			var returncode:String = xml.returncode;
 			if (returncode == 'FAILED') {
-				LogUtil.debug("Result = " + returncode + " " + xml.message);
+				LogUtil.debug("Join Result = " + returncode + " " + xml.message);
 				_resultListener(false, {message:xml.message});
 			} else if (returncode == 'SUCCESS') {
 				LogUtil.debug(xml.returncode + " " + xml.fullname + " " + xml.conference + " " + xml.role

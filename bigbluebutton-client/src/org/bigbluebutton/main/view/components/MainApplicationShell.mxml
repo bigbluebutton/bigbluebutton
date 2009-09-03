@@ -31,9 +31,11 @@
 	<mate:Listener type="{OpenWindowEvent.OPEN_WINDOW_EVENT}" method="handleOpenWindowEvent" />	
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="handleCloseWindowEvent"/>
 	<mate:Listener type="{AddHighligtherCanvasEvent.ADD_HIGHLIGHTER_CANVAS}" method="handleAddHighlighter" />
+	<mate:Listener type="{JoinFailedEvent.JOIN_FAILED_EVENT}" method="handleJoinFailedEvent" />
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.viewers.events.JoinFailedEvent;
 			import com.asfusion.mate.events.Dispatcher;
 			import org.bigbluebutton.main.events.AddHighligtherCanvasEvent;
 			import org.bigbluebutton.main.events.OpenWindowEvent;
@@ -144,6 +146,19 @@
 	   			var window:IBbbModuleWindow = event.window;
 				mdiCanvas.windowManager.remove(window as MDIWindow);
 	   		}		
+	   		
+	   		private function handleJoinFailedEvent(event:JoinFailedEvent):void {
+	   			LogUtil.debug("GOT JOIN FAILED EVENT");
+				var t:JoinFailedWindow = JoinFailedWindow(PopUpManager.createPopUp( this, JoinFailedWindow, false));
+
+				var point1:Point = new Point();
+            	// Calculate position of TitleWindow in Application's coordinates. 
+            	point1.x = 200;
+            	point1.y = 400;                
+            	point1 = this.localToGlobal(point1);
+           	 	t.x = point1.x + 25;
+            	t.y = point1.y + 25;	
+	   		}
 	   		
 	   		private function handleAddHighlighter(event:AddHighligtherCanvasEvent):void {
 	   			trace("GOT HIGHLIGHTER EVENT");

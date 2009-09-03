@@ -72,6 +72,7 @@ package org.bigbluebutton.modules.viewers.model
 		}
 		
 		private function joinListener(success:Boolean, result:Object):void {
+			LogUtil.debug("Got join result");
 			if (success) {
 				LogUtil.debug(NAME + '::Sending ViewersModuleConstants.JOIN_SUCCESS' + result.role);
 				_participants = new Conference();
