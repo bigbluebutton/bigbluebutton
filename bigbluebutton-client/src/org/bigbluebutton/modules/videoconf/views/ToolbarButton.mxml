@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" icon="{camIcon}" click="startBroadcast()" creationComplete="init()">
+<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" icon="{camIcon}" click="openPublishWindow()" creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.videoconf.events.OpenPublishWindowEvent;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			private var images:Images = new Images();
-			[Bindable] public var camIcon = images.webcam_img;
+			[Bindable] public var camIcon:Class = images.webcam_img;
 			
 			private var dispatcher:Dispatcher;
 			
@@ -13,8 +14,8 @@
 				dispatcher = new Dispatcher();
 			}
 			
-			private function startBroadcast():void{
-				
+			private function openPublishWindow():void{
+				dispatchEvent(new OpenPublishWindowEvent());
 			}
 		]]>
 	</mx:Script>

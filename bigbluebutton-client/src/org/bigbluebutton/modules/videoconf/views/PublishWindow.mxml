@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MDIWindow xmlns="flexlib.mdi.containers.*" 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	implements="org.bigbluebutton.common.IBbbModuleWindow"
+	creationComplete="init()" width="326" height="313" title="Stream webcam">
+	
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
+			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
+			import mx.core.UIComponent;
+			import mx.controls.Alert;
+		
+			private var _xPosition:int = 500;
+			private var _yPosition:int = 500;
+			
+			private var images:Images = new Images();
+			[Bindable] public var camIcon:Class = images.webcam_img;
+			
+			private var video:Video;
+			public var streamName:String;
+			
+			private function init():void{
+				if (Camera.names.length > 1) cmbCameraSelector.visible = true;
+				else startPublishing();
+			}
+			
+			public function get xPosition():int {
+				return _xPosition;
+			}
+			
+			public function get yPosition():int {
+				return _yPosition;
+			}
+			
+			public function set xPosition(x:int):void {
+				_xPosition = x;
+			}
+			
+			public function set yPosition(y:int):void {
+				_yPosition = y;
+			}		
+			
+			private function startPublishing():void{
+				var camera:Camera = Camera.getCamera(cmbCameraSelector.selectedIndex.toString());
+				if (camera == null) return;
+				
+				var camWidth:Number = camera.width;
+				var camHeight:Number = camera.height;
+				if (camWidth < 320) {
+					camWidth = 320;
+					camHeight = 240;
+				}
+				
+				video = new Video(camWidth, camHeight);
+				video.attachCamera(camera);
+				videoHolder.addChild(video);
+				addChild(videoHolder);
+				
+				var e:StartBroadcastEvent = new StartBroadcastEvent();
+				e.stream = this.streamName;
+				e.camera = camera;
+				dispatchEvent(e);
+			}
+			
+			override public function close(event:MouseEvent=null):void{
+				stopPublishing();
+				super.close(event);
+			}
+			
+			private function stopPublishing():void{
+				var e:StopBroadcastEvent = new StopBroadcastEvent()
+				e.stream = this.streamName;
+				dispatchEvent(e);
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:UIComponent id="videoHolder" width="100%" height="100%" />
+	<mx:ControlBar>
+		<mx:Button id="btnStartPublish" toolTip="start streaming" icon="{camIcon}" click="startPublishing()" />
+		<mx:ComboBox id="cmbCameraSelector" dataProvider="{Camera.names}" visible="false" width="50%" />
+	</mx:ControlBar>
+</MDIWindow>

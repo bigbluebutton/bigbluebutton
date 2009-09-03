@@ -1,5 +1,6 @@
 package org.bigbluebutton.common.mate
 {
+	import flash.events.AsyncErrorEvent;
 	import flash.events.EventDispatcher;
 	import flash.events.NetStatusEvent;
 	import flash.net.NetConnection;
@@ -36,7 +37,7 @@ package org.bigbluebutton.common.mate
 			} 
 		}
 		
-		private function onAsyncError(event:NetStatusEvent):void{
+		private function onAsyncError(event:AsyncErrorEvent):void{
 			sendCallFailedEvent(event.info.toString());
 		}
 		

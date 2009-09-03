@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
+	
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.modules.videoconf.events.BroadcastStoppedEvent;
+			import mx.controls.Alert;
+			import org.bigbluebutton.modules.videoconf.events.BroadcastStartedEvent;
+			import org.bigbluebutton.modules.viewers.model.ViewersProxy;
+			
+			public var proxy:ViewersProxy;
+			
+			private function streamIsBroadcasting(e:BroadcastStartedEvent):void{
+				proxy.addStream(e.userid, e.stream);
+			}
+			
+			private function streamHasStopped(e:BroadcastStoppedEvent):void{
+				proxy.removeStream(e.userid, e.stream);
+			}
+		]]>
+	</mx:Script>
+	
+	<Listener type="{BroadcastStartedEvent.BROADCAST_STARTED_EVENT}" method="streamIsBroadcasting" />
+	<Listener type="{BroadcastStoppedEvent.BROADCAST_STOPPED}" method="streamHasStopped" />
+</EventMap>

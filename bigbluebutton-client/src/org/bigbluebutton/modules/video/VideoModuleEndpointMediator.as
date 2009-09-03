@@ -120,7 +120,7 @@ package org.bigbluebutton.modules.video
 					//LogUtil.debug('Received OPEN_WINDOW message from ' + message.getHeader().SRC);
 					//facade.sendNotification(ChatModuleConstants.OPEN_WINDOW);
 					break;
-				case EndpointMessageConstants.VIEW_CAMERA:
+				case 'VIEW_CAMERA':
 					LogUtil.debug('Received VIEW_CAMERA message from ' + message.getHeader().SRC);
 					facade.sendNotification(VideoModuleConstants.START_VIEW_CAMERA, message.getBody());
 					break;

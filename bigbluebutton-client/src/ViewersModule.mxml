@@ -22,9 +22,10 @@
 
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" 
 	implements="org.bigbluebutton.common.IBigBlueButtonModule"
-	creationComplete="onCreationComplete()">
+	creationComplete="onCreationComplete()" xmlns:maps="org.bigbluebutton.modules.viewers.maps.*">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.viewers.model.ViewersProxy;
 			import org.bigbluebutton.modules.viewers.ViewersFacade;
 			import org.bigbluebutton.common.messaging.Router;
 			
@@ -158,6 +159,7 @@
 				
 				LogUtil.debug('Passed ViewersModule mode: ' + _attributes.mode);
 				ViewersFacade.getInstance().startup(this);	
+				eventMap.proxy = ViewersFacade.getInstance().retrieveProxy(ViewersProxy.NAME) as ViewersProxy;
 			}
 		
 			public function stop():void {
@@ -165,4 +167,6 @@
 			}
 		]]>
 	</mx:Script>
+	
+	<maps:ViewersEventMap id="eventMap" />
 </mx:Module>

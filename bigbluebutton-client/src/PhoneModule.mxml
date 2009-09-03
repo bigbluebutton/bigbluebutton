@@ -31,6 +31,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.controls.Alert;
 			import org.bigbluebutton.modules.phone.events.StopPhoneModuleEvent;
 			import org.bigbluebutton.modules.phone.events.StartPhoneModuleEvent;
 			import org.bigbluebutton.common.messaging.Router;

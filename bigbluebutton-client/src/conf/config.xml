@@ -43,21 +43,20 @@
 			uri="rtmp://192.168.0.182/sip" 
 			onUserJoinedEvent="START" 
 			onUserLogoutEvent="STOP"
-			loadNextModule="VideoModule"
+			loadNextModule="VideoconfModule"
 		/>
 		
-		<module name="VideoModule" url="VideoModule.swf" 
+		<module name="VideoconfModule" url="VideoconfModule.swf" 
 			uri="rtmp://192.168.0.182/video"
-			loadNextModule="AutotestModule"
 			onUserJoinedEvent="START"
 			onUserLogoutEvent="STOP"	
 		/>
 		
-		<module name="AutotestModule" url="AutotestModule.swf" 
+		<!--<module name="AutotestModule" url="AutotestModule.swf" 
 			uri="rtmp://192.168.0.182/bigbluebutton" 
 			onUserJoinedEvent="START" 
 			onUserLogoutEvent="STOP"
-		/>
+		/>-->
 	</modules>
 </config>
 

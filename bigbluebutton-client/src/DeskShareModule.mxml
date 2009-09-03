@@ -26,6 +26,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.controls.Alert;
 			import org.bigbluebutton.modules.deskShare.events.StartDeskShareModuleEvent;
 			import org.bigbluebutton.modules.deskShare.business.DeskShareProxy;
 			import org.bigbluebutton.main.events.CloseWindowEvent;

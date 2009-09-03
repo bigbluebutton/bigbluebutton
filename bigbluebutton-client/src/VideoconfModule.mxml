@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="400" height="300">
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="400" height="300" 
+	xmlns:maps="org.bigbluebutton.modules.videoconf.maps.*" implements="org.bigbluebutton.common.IBigBlueButtonModule">
 	<mx:Script>
 		<![CDATA[
-			import org.blindside.modules.autotest.business.TestRequestListener;
+			import org.bigbluebutton.modules.videoconf.business.VideoProxy;
+			import mx.controls.Alert;
 			import com.asfusion.mate.events.Dispatcher;
 			import org.bigbluebutton.main.events.CloseWindowEvent;
 			import org.bigbluebutton.main.events.OpenWindowEvent;
@@ -13,8 +15,7 @@
 			private var _moduleId:String = "VideoconfModule";
 			private var _moduleName:String = "Videoconf Module";			
 			private var _attributes:Object;
-			
-			private var requestListener:TestRequestListener;
+			private var proxy:VideoProxy;
 			
 			private function onCreationComplete():void {
 				LogUtil.debug("VideoconfModule initialized");	
@@ -50,7 +51,7 @@
 			}
 			
 			public function get connection():NetConnection {
-				return _attributes.connection;
+				return proxy.connection;
 			}
 			
 			public function get mode():String {
@@ -74,9 +75,11 @@
 			public function start(attributes:Object):void {	
 				LogUtil.debug("Videoconf attr: " + attributes.username);
 				_attributes = attributes;
+				proxy = new VideoProxy(uri);
 				
-				requestListener = new TestRequestListener();
-				requestListener.setLoggedIn();
+				eventMap.module = this;
+				eventMap.proxy = proxy;
+				eventMap.addToolbarButton();
 			}
 		
 			public function stop():void {
@@ -84,4 +87,6 @@
 			}
 		]]>
 	</mx:Script>
+	
+	<maps:VideoEventMap id="eventMap"/>
 </mx:Module>

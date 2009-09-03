@@ -2,12 +2,81 @@
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.videoconf.events.BroadcastStoppedEvent;
+			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
+			import org.bigbluebutton.modules.videoconf.events.BroadcastStartedEvent;
+			import org.bigbluebutton.modules.videoconf.business.VideoProxy;
+			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
+			import org.bigbluebutton.modules.videoconf.views.PublishWindow;
+			import org.bigbluebutton.modules.videoconf.events.OpenPublishWindowEvent;
+			import org.bigbluebutton.main.events.AddToolbarButtonEvent;
+			import org.bigbluebutton.modules.videoconf.views.ToolbarButton;
+			import mx.controls.Alert;
+			import org.bigbluebutton.modules.viewers.view.events.ViewCameraEvent;
+			import org.bigbluebutton.main.events.OpenWindowEvent;
+			import org.bigbluebutton.modules.videoconf.views.VideoWindow;
 			
+			public var module:VideoconfModule;
+			private var button:ToolbarButton;
+			private var publishWindow:PublishWindow;
+			public var proxy:VideoProxy;
 			
+			private function viewCamera(e:ViewCameraEvent):void{
+				var window:VideoWindow = new VideoWindow();
+				window.startVideo(module.connection, e.stream);
+				window.title = e.viewedName;
+				
+				var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
+				windowEvent.window = window;
+				globalDispatcher.dispatchEvent(windowEvent);
+			}
+			
+			public function addToolbarButton():void{
+				button = new ToolbarButton();	   	
+				var event:AddToolbarButtonEvent = new AddToolbarButtonEvent(AddToolbarButtonEvent.ADD_TOOLBAR_BUTTON_EVENT);
+				event.button = button;
+				globalDispatcher.dispatchEvent(event);
+			}
+			
+			private function openPublishWindow():void{
+				publishWindow = new PublishWindow();
+				publishWindow.streamName = module.userid.toString();
+				
+				var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
+				windowEvent.window = publishWindow;
+				globalDispatcher.dispatchEvent(windowEvent);
+			}
+			
+			private function startPublishing(e:StartBroadcastEvent):void{
+			    LogUtil.debug("Publishing stream " + e.stream);
+				proxy.startPublishing(e);
+				var broadcastEvent:BroadcastStartedEvent = new BroadcastStartedEvent();
+				broadcastEvent.stream = e.stream;
+				broadcastEvent.userid = module.userid;
+				globalDispatcher.dispatchEvent(broadcastEvent);
+			}
+			
+			private function stopPublishing(e:StopBroadcastEvent):void{
+				proxy.stopBroadcasting(e);
+				var broadcastEvent:BroadcastStoppedEvent = new BroadcastStoppedEvent();
+				broadcastEvent.stream = e.stream;
+				broadcastEvent.userid = module.userid;
+				globalDispatcher.dispatchEvent(broadcastEvent);
+			}
 		]]>
 	</mx:Script>
 	
-	<EventHandlers>
-		
+	<EventHandlers type="{OpenPublishWindowEvent.OPEN_PUBLISH_WINDOW}">
+		<InlineInvoker method="openPublishWindow" />
 	</EventHandlers>
+	
+	<EventHandlers type="{StartBroadcastEvent.START_BROADCAST}" >
+		<InlineInvoker method="startPublishing" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{StopBroadcastEvent.STOP_BROADCASTING}" >
+		<InlineInvoker method="stopPublishing" arguments="{event}" />
+	</EventHandlers>
+	
+	<Listener type="{ViewCameraEvent.VIEW_CAMERA_EVENT}" method="viewCamera" />
 </EventMap>

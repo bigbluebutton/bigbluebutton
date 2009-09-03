@@ -33,6 +33,8 @@
 	<mate:Listener type="{AddHighligtherCanvasEvent.ADD_HIGHLIGHTER_CANVAS}" method="handleAddHighlighter" />
 	<mate:Listener type="{JoinFailedEvent.JOIN_FAILED_EVENT}" method="handleJoinFailedEvent" />
 	
+	<maps:CrossModuleEventMap />
+	
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.modules.viewers.events.JoinFailedEvent;

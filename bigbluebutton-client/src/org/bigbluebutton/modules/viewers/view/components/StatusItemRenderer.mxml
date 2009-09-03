@@ -21,19 +21,21 @@
 --> 
 
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
-	verticalScrollPolicy="off" horizontalScrollPolicy="off">
+	verticalScrollPolicy="off" horizontalScrollPolicy="off"> 
 	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.viewers.view.events.LowerHandEvent;
 			import org.bigbluebutton.modules.viewers.view.events.ViewCameraEvent;
+			import com.asfusion.mate.events.Dispatcher;
+			import org.bigbluebutton.modules.viewers.view.events.LowerHandEvent;
 			import org.bigbluebutton.modules.viewers.model.vo.Status;
 			import org.bigbluebutton.modules.viewers.view.components.Images;
 
-			private var images:Images = new Images();	
+			private var images:Images = new Images();
 				
 			private function viewCamera():void
    			{
+   				LogUtil.debug("ViewersModule - sending camera view request for stream" + data.streamName);
 				dispatchEvent(new ViewCameraEvent(data.streamName, data.name));
    			}
    			
