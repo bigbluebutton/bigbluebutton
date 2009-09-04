@@ -2,7 +2,8 @@
 <MDIWindow xmlns="flexlib.mdi.containers.*" 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
-	creationComplete="init()" width="{camWidth + 6}" height="{camHeight + 73}" title="Stream webcam">
+	creationComplete="init()" width="{camWidth + 6}" height="{camHeight + 73}" 
+	title="Stream webcam" backgroundImage="{bbbLogo}">
 	
 	<mx:Script>
 		<![CDATA[
@@ -16,6 +17,7 @@
 			
 			private var images:Images = new Images();
 			[Bindable] public var camIcon:Class = images.webcam_img;
+			[Bindable] public var bbbLogo:Class = images.bbb_logo;
 			[Bindable] private var resolutions:Array = new Array("320x240", "640x480");
 			
 			private var video:Video;
@@ -86,6 +88,7 @@
 					camHeight = 480;
 					camWidth = 640;
 				}
+				this.streamName = cmbResolution.selectedLabel.concat(this.streamName);
 			}
 			
 		]]>

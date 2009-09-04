@@ -7,6 +7,9 @@ package org.bigbluebutton.modules.videoconf.views
 	{
 		[Embed(source="assets/images/webcam.png")]		
 		public var webcam_img:Class;
+		
+		[Embed(source="assets/images/BBBlogo.png")]		
+		public var bbb_logo:Class;
 
 	}
 }
