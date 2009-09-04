@@ -5,6 +5,7 @@ import org.red5.server.adapter.MultiThreadedApplicationAdapter;
 import org.red5.server.api.IBandwidthConfigure;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.IScope;
+import org.red5.server.api.stream.IBroadcastStream;
 import org.red5.server.api.stream.IServerStream;
 import org.red5.server.api.stream.IStreamCapableConnection;
 import org.red5.server.api.stream.support.SimpleConnectionBWConfig;
@@ -52,4 +53,18 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 		}
 		super.appDisconnect(conn);
 	}
+    
+    @Override
+    public void streamPublishStart(IBroadcastStream stream){
+    	super.streamPublishStart(stream);
+    }
+    
+    @Override
+    public boolean roomStart(IScope room){
+    	boolean ret = super.roomStart(room);
+    	
+    	
+    	
+    	return ret;
+    }
 }
