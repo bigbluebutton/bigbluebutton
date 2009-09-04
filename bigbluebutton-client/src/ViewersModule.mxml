@@ -25,6 +25,7 @@
 	creationComplete="onCreationComplete()" xmlns:maps="org.bigbluebutton.modules.viewers.maps.*">
 	<mx:Script>
 		<![CDATA[
+			import mx.controls.Alert;
 			import org.bigbluebutton.modules.viewers.model.ViewersProxy;
 			import org.bigbluebutton.modules.viewers.ViewersFacade;
 			import org.bigbluebutton.common.messaging.Router;
@@ -153,7 +154,6 @@
 						
 			public function start(attributes:Object):void {		
 				_attributes = attributes;	
-				
 				var now:Date = new Date();	
 				_playbackRoom = now.getTime().toString();
 				

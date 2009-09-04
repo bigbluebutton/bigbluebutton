@@ -41,6 +41,7 @@
 			private function openPublishWindow():void{
 				publishWindow = new PublishWindow();
 				publishWindow.streamName = module.userid.toString();
+				publishWindow.userrole = module.role;
 				
 				var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 				windowEvent.window = publishWindow;

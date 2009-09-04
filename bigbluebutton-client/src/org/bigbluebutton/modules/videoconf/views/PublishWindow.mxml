@@ -24,9 +24,10 @@
 			public var streamName:String;
 			[Bindable] private var camWidth:Number = 320;
 			[Bindable] private var camHeight:Number = 240;
+			private var _userrole:String;
 			
 			private function init():void{
-				if (Camera.names.length > 1) bottomBar.enabled = true;
+				if (Camera.names.length > 1) showVideoControls(true);
 				else startPublishing();
 			}
 			
@@ -66,7 +67,7 @@
 				e.camera = camera;
 				dispatchEvent(e);
 				
-				bottomBar.enabled = false;
+				showVideoControls(false);
 			}
 			
 			override public function close(event:MouseEvent=null):void{
@@ -89,6 +90,31 @@
 					camWidth = 640;
 				}
 				this.streamName = cmbResolution.selectedLabel.concat(this.streamName);
+			}
+			
+			public function set userrole(role:String):void{
+				this._userrole = role;
+			}
+			
+			private function isPresenter():Boolean{
+				if (this._userrole == "MODERATOR" || this._userrole == "PRESENTER") return true;
+				else return false;
+			}
+			
+			private function showVideoControls(show:Boolean):void{
+				if (isPresenter()) cmbResolution.visible = true;
+				else cmbResolution.visible = false;
+				
+				if (show){
+					bottomBar.visible = true;
+					btnStartPublish.visible = true;
+					cmbCameraSelector.visible = true;
+				} else{
+					bottomBar.visible = false;
+					btnStartPublish.visible = false;
+					cmbCameraSelector.visible = false;
+					cmbResolution.visible = false;
+				}
 			}
 			
 		]]>
