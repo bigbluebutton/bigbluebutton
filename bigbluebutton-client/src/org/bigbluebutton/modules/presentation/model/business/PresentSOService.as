@@ -19,6 +19,8 @@
  */
 package org.bigbluebutton.modules.presentation.model.business
 {
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
 	import flash.events.SyncEvent;
@@ -30,6 +32,8 @@ package org.bigbluebutton.modules.presentation.model.business
 	import org.bigbluebutton.modules.presentation.controller.notifiers.MoveNotifier;
 	import org.bigbluebutton.modules.presentation.controller.notifiers.ProgressNotifier;
 	import org.bigbluebutton.modules.presentation.controller.notifiers.ZoomNotifier;
+	import org.bigbluebutton.modules.presentation.events.ConvertSuccessEvent;
+	import org.bigbluebutton.modules.presentation.events.ThumbnailsProgressEvent;
 	
 	public class PresentSOService implements IPresentService
 	{
@@ -44,7 +48,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		private static const UPDATE_RC:String = "UPDATE";
 		private static const SUCCESS_RC:String = "SUCCESS";
 		private static const FAILED_RC:String = "FAILED";
-		private static const EXTRACT_RC:String = "EXTRACT";
+		private static const THUMBNAILS_RC:String = "THUMBNAILS";
 		private static const CONVERT_RC:String = "CONVERT";
 		
 		private var _presentationSO:SharedObject;
@@ -433,6 +437,10 @@ package org.bigbluebutton.modules.presentation.model.business
 					var info:Object = new Object();
 					info["message"] = _presentationSO.data.updateMessage.message;
 					info["presentationName"] = _presentationSO.data.updateMessage.presentationName;
+					
+					var dispatcher:Dispatcher = new Dispatcher();
+					dispatcher.dispatchEvent(new ConvertSuccessEvent());
+					
 					sendMessage(PresentModuleConstants.CONVERT_SUCCESS_EVENT, info);
 					break;
 					
@@ -445,13 +453,19 @@ package org.bigbluebutton.modules.presentation.model.business
 				case FAILED_RC:
 					//LogUtil.debug("PresentationDelegate - FAILED_RC");
 					break;
-				case EXTRACT_RC:
+				case THUMBNAILS_RC:
+				
+					LogUtil.debug("RECEIVED THUMBNAILS UPDATE");
+					
+					var dispatcher:Dispatcher = new Dispatcher();
+					dispatcher.dispatchEvent(new ThumbnailsProgressEvent());
+/**
 					totalSlides = _presentationSO.data.updateMessage.totalSlides;
 					completedSlides = _presentationSO.data.updateMessage.completedSlides;
 					LogUtil.debug( "EXTRACTING = [" + completedSlides + " of " + totalSlides + "]");					
 					sendMessage(PresentModuleConstants.EXTRACT_PROGRESS_EVENT,
 										new ProgressNotifier(totalSlides,completedSlides));
-					
+**/					
 					break;
 				case CONVERT_RC:
 					totalSlides = _presentationSO.data.updateMessage.totalSlides;

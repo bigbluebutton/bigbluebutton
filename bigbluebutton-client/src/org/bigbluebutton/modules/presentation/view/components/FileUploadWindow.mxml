@@ -21,11 +21,17 @@
 --> 
 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:mate="http://mate.asfusion.com/"
     title="Upload Presentation"
     x="168" y="86" layout="absolute" width="500" height="200"
-    initialize="initData();">
+    	initialize="initData();">
+    <mate:Listener type="{ThumbnailsProgressEvent.THUMBNAILS_PROGRESS_EVENT}" method="handleThumbnailsProgressEvent" />
+    <mate:Listener type="{ConvertSuccessEvent.CONVERT_SUCCESS_EVENT}" method="handleConvertSuccessEvent" />
+    	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.presentation.events.ConvertSuccessEvent;
+			import org.bigbluebutton.modules.presentation.events.ThumbnailsProgressEvent;
 			import org.bigbluebutton.modules.presentation.view.FileUploadWindowMediator;
 			import mx.collections.*
 			import org.bigbluebutton.modules.presentation.view.event.*;
@@ -34,6 +40,9 @@
             import mx.events.FlexEvent;
             	
 			public var presentationNames:Array;
+	        
+	        private var thumbnailTimer:Timer;
+	        private var genThumbText:String = "Generate thumbnails..";
 	        
 	        [Bindable]
     	    public var presentationNamesAC:ArrayCollection;
@@ -60,6 +69,36 @@
 				LogUtil.debug("FileUploadWindow::cancelPresentation()");
 				dispatchEvent(new Event(FileUploadWindowMediator.TERMINATE_UPLOAD_WINDOW));       
 			}			
+			
+			private function handleThumbnailsProgressEvent(event:Event):void {				
+				var delay:uint = 2000;
+            	var repeat:uint = 20;
+            	thumbnailTimer = new Timer(delay, repeat);
+            	thumbnailTimer.addEventListener(TimerEvent.TIMER, timerHandler);
+            	thumbnailTimer.addEventListener(TimerEvent.TIMER_COMPLETE, completeHandler);
+            
+            	thumbnailTimer.start();
+				
+			}
+			
+			private function handleConvertSuccessEvent(event:Event):void {
+				thumbnailTimer.stop();
+			}
+			
+			private function timerHandler(e:TimerEvent):void{
+            	displayGeneratingThumbnailsMessage();
+        	}
+
+        	private function completeHandler(e:TimerEvent):void {
+            	 displayGeneratingThumbnailsMessage();
+            	 thumbnailTimer.stop();
+        	}
+        	
+        	private function displayGeneratingThumbnailsMessage():void {
+        		genThumbText = genThumbText + ".";
+        		progressLbl.text = genThumbText;
+				progressBar.label = genThumbText;
+        	}
 
 		]]>
 		
