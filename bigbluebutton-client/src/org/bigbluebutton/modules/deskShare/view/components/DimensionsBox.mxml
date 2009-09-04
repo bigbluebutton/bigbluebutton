@@ -166,9 +166,9 @@
 		]]>
 	</mx:Script>
 
-	<components:ResizableBox id="box" x="10" y="10" resize="updateBoxInfo()" useHandCursor="true"
-		width="{(Math.round((Capabilities.screenResolutionX/2)/SCALE))}" 
-		height="{(Math.round((Capabilities.screenResolutionY - 100)/SCALE))}" 
+	<components:ResizableBox id="box" x="0" y="0" resize="updateBoxInfo()" useHandCursor="true"
+		width="{(Math.round((Capabilities.screenResolutionX)/SCALE))}" 
+		height="{(Math.round((Capabilities.screenResolutionY)/SCALE))}" 
 		minWidth="{Math.round(300/SCALE)}" 
 		minHeight="{Math.round(300/SCALE)}" 
 		maxWidth="{Math.round((Capabilities.screenResolutionX)/SCALE)}" 
