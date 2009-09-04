@@ -2,7 +2,7 @@
 <configuration>
 	<appender name="BIGBLUEBUTTON" class="ch.qos.logback.core.FileAppender">
 		<File>log/bigbluebutton.log</File>
-		<Append>false</Append>
+		<Append>true</Append>
 		<Encoding>UTF-8</Encoding>
 		<BufferedIO>false</BufferedIO>
 		<ImmediateFlush>true</ImmediateFlush>
