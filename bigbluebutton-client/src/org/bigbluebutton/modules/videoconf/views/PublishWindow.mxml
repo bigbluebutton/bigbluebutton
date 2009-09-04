@@ -27,8 +27,9 @@
 			private var _userrole:String;
 			
 			private function init():void{
+				if (isPresenter()) showResControls(true);
 				if (Camera.names.length > 1) showVideoControls(true);
-				else startPublishing();
+				if (!isPresenter() && Camera.names.length == 1) startPublishing();
 			}
 			
 			public function get xPosition():int {
@@ -68,6 +69,7 @@
 				dispatchEvent(e);
 				
 				showVideoControls(false);
+				showResControls(false);
 			}
 			
 			override public function close(event:MouseEvent=null):void{
@@ -102,9 +104,6 @@
 			}
 			
 			private function showVideoControls(show:Boolean):void{
-				if (isPresenter()) cmbResolution.visible = true;
-				else cmbResolution.visible = false;
-				
 				if (show){
 					bottomBar.visible = true;
 					btnStartPublish.visible = true;
@@ -113,8 +112,12 @@
 					bottomBar.visible = false;
 					btnStartPublish.visible = false;
 					cmbCameraSelector.visible = false;
-					cmbResolution.visible = false;
 				}
+			}
+			
+			private function showResControls(show:Boolean):void{
+				if (show) cmbResolution.visible = true;
+				else cmbResolution.visible = false;
 			}
 			
 		]]>
