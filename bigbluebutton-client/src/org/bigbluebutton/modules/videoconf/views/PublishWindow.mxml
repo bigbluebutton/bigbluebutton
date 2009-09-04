@@ -2,7 +2,7 @@
 <MDIWindow xmlns="flexlib.mdi.containers.*" 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
-	creationComplete="init()" width="326" height="313" title="Stream webcam">
+	creationComplete="init()" width="{camWidth + 6}" height="{camHeight + 73}" title="Stream webcam">
 	
 	<mx:Script>
 		<![CDATA[
@@ -16,12 +16,15 @@
 			
 			private var images:Images = new Images();
 			[Bindable] public var camIcon:Class = images.webcam_img;
+			[Bindable] private var resolutions:Array = new Array("320x240", "640x480");
 			
 			private var video:Video;
 			public var streamName:String;
+			[Bindable] private var camWidth:Number = 320;
+			[Bindable] private var camHeight:Number = 240;
 			
 			private function init():void{
-				if (Camera.names.length > 1) cmbCameraSelector.visible = true;
+				if (Camera.names.length > 1) bottomBar.enabled = true;
 				else startPublishing();
 			}
 			
@@ -45,12 +48,11 @@
 				var camera:Camera = Camera.getCamera(cmbCameraSelector.selectedIndex.toString());
 				if (camera == null) return;
 				
-				var camWidth:Number = camera.width;
-				var camHeight:Number = camera.height;
-				if (camWidth < 320) {
-					camWidth = 320;
-					camHeight = 240;
-				}
+				setResolution();
+				
+				camera.setKeyFrameInterval(5);
+				camera.setMode(camWidth,camHeight,15);
+				camera.setQuality(0,0);
 				
 				video = new Video(camWidth, camHeight);
 				video.attachCamera(camera);
@@ -61,6 +63,8 @@
 				e.stream = this.streamName;
 				e.camera = camera;
 				dispatchEvent(e);
+				
+				bottomBar.enabled = false;
 			}
 			
 			override public function close(event:MouseEvent=null):void{
@@ -74,12 +78,23 @@
 				dispatchEvent(e);
 			}
 			
+			private function setResolution():void{
+				if (cmbResolution.selectedLabel == "320x240"){
+					camHeight = 240;
+					camWidth = 320;
+				} else if (cmbResolution.selectedLabel == "640x480"){
+					camHeight = 480;
+					camWidth = 640;
+				}
+			}
+			
 		]]>
 	</mx:Script>
 	
 	<mx:UIComponent id="videoHolder" width="100%" height="100%" />
-	<mx:ControlBar>
+	<mx:ControlBar id="bottomBar">
 		<mx:Button id="btnStartPublish" toolTip="start streaming" icon="{camIcon}" click="startPublishing()" />
-		<mx:ComboBox id="cmbCameraSelector" dataProvider="{Camera.names}" visible="false" width="50%" />
+		<mx:ComboBox id="cmbCameraSelector" dataProvider="{Camera.names}" width="150" />
+		<mx:ComboBox id="cmbResolution" dataProvider="{resolutions}" width="20%" />
 	</mx:ControlBar>
 </MDIWindow>
