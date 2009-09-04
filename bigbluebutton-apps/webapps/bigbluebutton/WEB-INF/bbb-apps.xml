@@ -45,8 +45,8 @@
 		<property name="archiveApplication"> 
 			<ref local="archiveApplication"/>
 		</property>
-		<property name="conversionUpdatesService"> 
-			<ref local="conversionUpdatesService"/>
+		<property name="conversionUpdatesReceiver"> 
+			<ref local="conversionUpdatesReceiver"/>
 		</property>
 	</bean>
 	
@@ -79,9 +79,13 @@
         </constructor-arg>
     </bean>
     
-	<bean id="conversionUpdatesService" class="org.bigbluebutton.conference.service.presentation.ConversionUpdatesService">
+	<bean id="conversionUpdatesReceiver" class="org.bigbluebutton.conference.service.presentation.ConversionUpdatesReceiverImp">
 		<property name="jmsTemplate"> <ref local="jmsTemplate"/> </property>
 		<property name="destination"> <ref local="destination"/> </property> 
+		<property name="conversionUpdatesProcessor"> <ref local="conversionUpdatesProcessor"/></property>
+	</bean>
+	
+	<bean id="conversionUpdatesProcessor" class="org.bigbluebutton.conference.service.presentation.ConversionUpdatesProcessor">
 		<property name="presentationApplication"> <ref local="presentationApplication"/></property>
 	</bean>
   	<!-- END PRESENTATION -->

@@ -72,7 +72,10 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 				update.put('returnCode', message['code'])
 				update.put("message", message['message'])
 				break
-			case 'EXTRACT':
+			case 'THUMBNAILS':
+				update.put('returnCode', message['code'])
+				update.put("presentationName", message['presentationName'])
+				break
 			case 'CONVERT':
 				update.put('returnCode', message['code'])
 				update.put("totalSlides", message['totalSlides'])
