@@ -8,55 +8,38 @@ import local.media.G711;
 public class SIPCodecPCMU implements SIPCodec {
 
     // Codec information
-    private static final String codecName = "PCMU";
-    
+    private static final String codecName = "PCMU";    
     private static final int codecId = 0;
-
     private static int defaultEncodedFrameSize = 160;
-
-    private static int defaultDecodedFrameSize = 160;
-        
+    private static int defaultDecodedFrameSize = 160;        
     private static int defaultSampleRate = 8000;
-
     private int outgoingPacketization = 0;
-
     private int incomingPacketization = 0;
 
 
-    public SIPCodecPCMU() {
-
-    }
+    public SIPCodecPCMU() {}
 
 
-    public void encodeInit( int defaultEncodePacketization ) {
-        
-        if ( this.outgoingPacketization == 0 ) {
-            
+    public void encodeInit( int defaultEncodePacketization ) {        
+        if ( this.outgoingPacketization == 0 ) {            
             this.outgoingPacketization = defaultEncodePacketization;
         }
     }
 
-
-    public void decodeInit( int defaultDecodePacketization ) {
-        
-        if ( this.incomingPacketization == 0 ) {
-            
+    public void decodeInit( int defaultDecodePacketization ) {        
+        if ( this.incomingPacketization == 0 ) {            
             this.incomingPacketization = defaultDecodePacketization;
         }
     }
 
 
     public String codecNegotiateAttribute( String attributeName, String localAttributeValue, String remoteAttributeValue ) {
-
         // Not applicable for this codec type
         return null;
     }
 
-
     public int getCodecBlankPacket( byte[] buffer, int offset ) {
-
-        Arrays.fill( buffer, offset, offset + getOutgoingEncodedFrameSize(), (byte)G711.linear2ulaw(0));
-        
+        Arrays.fill( buffer, offset, offset + getOutgoingEncodedFrameSize(), (byte)G711.linear2ulaw(0));        
         return getOutgoingEncodedFrameSize();
     }
 
@@ -104,7 +87,6 @@ public class SIPCodecPCMU implements SIPCodec {
 
 
     public int getOutgoingEncodedFrameSize() {
-
         return ( defaultEncodedFrameSize / SIPCodec.DEFAULT_PACKETIZATION ) * outgoingPacketization;
     }
 

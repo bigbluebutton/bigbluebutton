@@ -7,7 +7,7 @@
 
 	<appender name="SIP" class="ch.qos.logback.core.FileAppender">
 		<File>log/sip.log</File>
-		<Append>false</Append>
+		<Append>true</Append>
 		<Encoding>UTF-8</Encoding>
 		<BufferedIO>false</BufferedIO>
 		<ImmediateFlush>true</ImmediateFlush>

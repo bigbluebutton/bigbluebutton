@@ -28,7 +28,6 @@ import org.red5.server.stream.AbstractClientStream;
 import org.red5.server.stream.IStreamData;
 import org.red5.server.stream.message.RTMPMessage;
 
-
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 
@@ -36,47 +35,24 @@ import org.red5.logging.Red5LoggerFactory;
 public class RTMPUser extends RTMPClient implements INetStreamEventHandler, ClientExceptionHandler, IPendingServiceCallback {
 
     private static final Logger logger = Red5LoggerFactory.getLogger( RTMPUser.class, "sip" );
-
     public boolean createdPlayStream = false;
-
     public boolean startPublish = false;
-
     public Integer playStreamId;
-
     public Integer publishStreamId;
-
     public RTPStreamSender rtpStreamSender;
-
     private String publishName;
-
     private String playName;
-
     private RTMPConnection conn;
-
-    private ITagWriter writer;
-
-    private ITagReader reader;
-
+//    private ITagWriter writer;
+//    private ITagReader reader;
     private int videoTs = 0;
-
     private int audioTs = 0;
-
     private int kt = 0;
-
     private int kt2 = 0;
-
     private IoBuffer buffer;
-
-
-    // ------------------------------------------------------------------------
-    //
-    // Overide
-    //
-    // ------------------------------------------------------------------------
 
     @Override
     public void connectionOpened( RTMPConnection conn, RTMP state ) {
-
         logger.debug( "connection opened" );
         super.connectionOpened( conn, state );
         this.conn = conn;
@@ -135,10 +111,6 @@ public class RTMPUser extends RTMPClient implements INetStreamEventHandler, Clie
 
         try {
             connect( host, port, app, this );
-
-//            while ( !startPublish ) {
- //               Thread.yield();
- //           }
         }
         catch ( Exception e ) {
             logger.error( "RTMPUser startStream exception " + e );
@@ -152,6 +124,7 @@ public class RTMPUser extends RTMPClient implements INetStreamEventHandler, Clie
     	logger.debug( "RTMPUser stopStream" );
 
         try {
+        	unpublish(publishStreamId);
             disconnect();
         }
         catch ( Exception e ) {
@@ -230,8 +203,11 @@ public class RTMPUser extends RTMPClient implements INetStreamEventHandler, Clie
         buffer.put( (byte) codec ); // first byte 2 mono 5500; 6 mono 11025; 22
         // mono 11025 adpcm 82 nellymoser 8000 178
         // speex 8000
-        buffer.put( audio );
-
+        byte [] copy = new byte[audio.length];
+	    System.arraycopy( audio, 0, copy, 0, audio.length );
+        
+        buffer.put( copy );
+        
         buffer.flip();
 
         AudioData audioData = new AudioData( buffer );

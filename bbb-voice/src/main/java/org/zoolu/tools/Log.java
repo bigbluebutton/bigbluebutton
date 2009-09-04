@@ -167,10 +167,17 @@ public class Log
 
    /** Logs the packet timestamp */
    public Log printPacketTimestamp(String proto, String remote_addr, int remote_port, int len, String message, int level)
-   {  String str=remote_addr+":"+remote_port+"/"+proto+" ("+len+" bytes)";
-      if (message!=null) str+=": "+message;
-      println(DateFormat.formatHHMMSS(new Date())+", "+str,level);
-      return this;
+   {  
+	   StringBuilder sb = new StringBuilder();
+	   sb.append(remote_addr).append(":").append(remote_port).append("/").append(proto).append(" (").append(len).append(" bytes)");
+	   
+//	   String str = remote_addr + ":" + remote_port + "/" +proto +" (" + len +" bytes)";
+      
+	   if (message != null) sb.append(": ").append(message);
+     
+	   println(DateFormat.formatHHMMSS(new Date()) + ", "+ sb.toString(), level);
+      
+	   return this;
    }
 
    /** Prints the <i>log</i> if <i>level</i> isn't greater than the Log <i>verbose_level</i> */
@@ -190,7 +197,9 @@ public class Log
 
    /** Prints the <i>log</i> if <i>level</i> isn't greater than the Log <i>verbose_level</i> */
    public Log print(String message, int level)
-   {  if (do_log && level<=verbose_level)
+   {  
+	
+	  if (do_log && level<=verbose_level)
       {  
          if (log_tag!=null) out_stream.print(log_tag+": "+message);
          else out_stream.print(message);
@@ -203,6 +212,7 @@ public class Log
             }
          }
       }
+      
       return this;
    }
 

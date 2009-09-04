@@ -12,12 +12,7 @@ public class BufferUtils {
      * Copy "copySize" floats from "origBuffer", starting on "startOrigBuffer",
      * to "destBuffer", starting on "startDestBuffer".
      */
-    public static int floatBufferIndexedCopy(
-        float[] destBuffer,
-        int startDestBuffer,
-        float[] origBuffer,
-        int startOrigBuffer,
-        int copySize ) {
+    public static int floatBufferIndexedCopy(float[] destBuffer, int startDestBuffer, float[] origBuffer, int startOrigBuffer, int copySize ) {
 
         int destBufferIndex = startDestBuffer;
         int origBufferIndex = startOrigBuffer;
@@ -52,12 +47,8 @@ public class BufferUtils {
      * Copy "copySize" bytes from "origBuffer", starting on "startOrigBuffer",
      * to "destBuffer", starting on "startDestBuffer".
      */
-    public static int byteBufferIndexedCopy(
-        byte[] destBuffer,
-        int startDestBuffer,
-        byte[] origBuffer,
-        int startOrigBuffer,
-        int copySize ) {
+    public static int byteBufferIndexedCopy(byte[] destBuffer, int startDestBuffer, byte[] origBuffer,
+    					int startOrigBuffer, int copySize ) {
 
         int destBufferIndex = startDestBuffer;
         int origBufferIndex = startOrigBuffer;
@@ -90,7 +81,7 @@ public class BufferUtils {
 
     private static void println( String method, String message ) {
 
-        log.debug( "BufferUtils - " + method + " -> " + message );
+//        log.debug( "BufferUtils - " + method + " -> " + message );
         //System.out.println( "BufferUtils - " + method + " -> " + message );
     }
 }

@@ -1212,16 +1212,24 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
 
    /** Adds the SIP message to the messageslog */
    private final void printMessageLog(String proto, String addr, int port, int len, Message msg, String str)
-   {  if (log_all_packets || len>=MIN_MESSAGE_LENGTH)
-      {  if (message_log!=null)
-         {  message_log.printPacketTimestamp(proto,addr,port,len,str+"\r\n"+msg.toString()+"-----End-of-message-----\r\n",1);
+   {  
+	  if (log_all_packets || len>=MIN_MESSAGE_LENGTH)
+      {  
+		 if (message_log!=null)
+         {  
+			 
+			 message_log.printPacketTimestamp(proto,addr,port,len,str+"\r\n"+msg.toString()+"-----End-of-message-----\r\n",1);
          }
          if (event_log!=null)
-         {  String first_line=msg.getFirstLine();
-            if (first_line!=null) first_line=first_line.trim(); else first_line="NOT a SIP message";
-            event_log.print("\r\n");
-            event_log.printPacketTimestamp(proto,addr,port,len,first_line+", "+str,1);
-            event_log.print("\r\n");
+         {  
+        	 String first_line=msg.getFirstLine();
+        	 
+        	 if (first_line!=null) first_line=first_line.trim(); 
+        	 else first_line="NOT a SIP message";
+        	 
+        	 event_log.print("\r\n");
+        	 event_log.printPacketTimestamp(proto,addr,port,len,first_line+", "+str,1);
+        	 event_log.print("\r\n");
          }
       }
    }

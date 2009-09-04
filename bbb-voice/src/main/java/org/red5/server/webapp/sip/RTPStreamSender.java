@@ -19,36 +19,22 @@ public class RTPStreamSender {
     protected static Logger log = Red5LoggerFactory.getLogger( RTPStreamSender.class, "sip" );
 
     public static int RTP_HEADER_SIZE = 12;
-
     private static final int NELLYMOSER_DECODED_PACKET_SIZE = 256;
-
     private static final int NELLYMOSER_ENCODED_PACKET_SIZE = 64;
-
     RtpSocket rtpSocket = null;
 
     /** Sip codec to be used on audio session */
     private SIPCodec sipCodec = null;
-
     boolean socketIsLocal = false;
-
     boolean doSync = true;
-
     private int syncAdj = 0;
-
     private Decoder decoder;
-
     private DecoderMap decoderMap;
-
     private byte[] packetBuffer;
-
     private RtpPacket rtpPacket;
-
     private int startPayloadPos;
-
     private int dtmf2833Type = 101;
-
     private int seqn = 0;
-
     private long time = 0;
 
     // Temporary buffer with received PCM audio from FlashPlayer.
@@ -88,13 +74,8 @@ public class RTPStreamSender {
      *            the destination port
      */
 
-    public RTPStreamSender(
-        RTMPUser rtmpUser,
-        boolean do_sync,
-        SIPCodec sipCodec,
-        String dest_addr,
-        int dest_port ) {
-
+    public RTPStreamSender(RTMPUser rtmpUser, boolean do_sync, SIPCodec sipCodec,
+    			String dest_addr, int dest_port ) {
         init( rtmpUser, do_sync, sipCodec, null, dest_addr, dest_port );
     }
 
@@ -141,27 +122,15 @@ public class RTPStreamSender {
      * @param dest_port
      *            the thestination port
      */
-    public RTPStreamSender(
-        RTMPUser rtmpUser,
-        boolean do_sync,
-        SIPCodec sipCodec,
-        DatagramSocket src_socket,
-        String dest_addr,
-        int dest_port ) {
-
+    public RTPStreamSender( RTMPUser rtmpUser, boolean do_sync, SIPCodec sipCodec,
+        DatagramSocket src_socket, String dest_addr, int dest_port ) {
         init( rtmpUser, do_sync, sipCodec, src_socket, dest_addr, dest_port );
     }
 
 
     /** Inits the RtpStreamSender */
-    private void init(
-        RTMPUser rtmpUser,
-        boolean do_sync,
-        SIPCodec sipCodec,
-        DatagramSocket src_socket,
-        String dest_addr,
-        int dest_port ) {
-
+    private void init(RTMPUser rtmpUser, boolean do_sync, SIPCodec sipCodec,
+    					DatagramSocket src_socket, String dest_addr, int dest_port ) {
         rtmpUser.rtpStreamSender = this;
         this.sipCodec = sipCodec;
         this.doSync = do_sync;
@@ -189,7 +158,6 @@ public class RTPStreamSender {
 
 
     public void start() {
-
         packetBuffer = new byte[ sipCodec.getOutgoingEncodedFrameSize() + RTP_HEADER_SIZE ];
         rtpPacket = new RtpPacket( packetBuffer, 0 );
         rtpPacket.setPayloadType( sipCodec.getCodecId() );

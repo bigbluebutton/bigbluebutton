@@ -14,7 +14,7 @@ public class OptionMethodListener implements SipProviderListener {
 	public void onReceivedMessage(SipProvider sip_provider, Message message) {
 		// TODO Auto-generated method stub
 		if (message.isOption()) {
-			log.debug("Received message: " + message.toString());
+			log.debug("Received OPTION message");
 			Message response = MessageFactory.createResponse(message, 200, "OK", message.getFromHeader().getNameAddress());
 			sip_provider.sendMessage(response);
 		}

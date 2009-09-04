@@ -2,13 +2,11 @@ package org.red5.server.webapp.sip;
 
 
 import java.io.IOException;
-import java.io.PipedOutputStream;
 
 import org.red5.server.api.service.IServiceCapableConnection;
 import org.red5.server.api.IConnection;
 
 import org.zoolu.sip.address.*;
-import org.zoolu.sip.message.SipMethods;
 import org.zoolu.sip.provider.*;
 import org.zoolu.net.SocketAddress;
 
@@ -20,128 +18,44 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
     protected static Logger log = Red5LoggerFactory.getLogger( SIPUser.class, "sip" );
 
     public boolean sipReady = false;
-
     private IConnection service;
-
     private long lastCheck;
-
     private String sessionID;
-
     private SIPUserAgentProfile userProfile;
-
     private SipProvider sipProvider;
-
-    private boolean optRegist = false;
-
-    private boolean optUnregist = false;
-
-    private boolean optUnregistAll = false;
-
-    private int optExpires = -1;
-
-    private long optKeepaliveTime = -1;
-
-    private boolean optNoOffer = false;
-
-    private String optCallTo = null;
-
-    private int optAcceptTime = -1;
-
-    private int optHangupTime = -1;
-
-    private String optRedirectTo = null;
-
-    private String optTransferTo = null;
-
-    private int optTransferTime = -1;
-
-    private int optReInviteTime = -1;
-
-    private boolean optAudio = false;
-
-    private boolean optVideo = false;
-
-    private int optMediaPort = 0;
-
-    private boolean optRecvOnly = false;
-
-    private boolean optSendOnly = false;
-
-    private boolean optSendTone = false;
-
-    private String optSendFile = null;
-
-    private String optRecvFile = null;
-
-    private boolean optNoPrompt = false;
-
-    private String optFromUrl = null;
-
-    private String optContactUrl = null;
-
-    private String optUsername = null;
-
-    private String optRealm = null;
-
-    private String optPasswd = null;
-
-    private int optDebugLevel = -1;
-
     private String optOutboundProxy = null;
-
-    private String optViaAddr = SipProvider.AUTO_CONFIGURATION;
-
-    private int optHostPort = SipStack.default_port;
-
     private SIPUserAgent ua;
-
     private SIPRegisterAgent ra;
-
     private RTMPUser rtmpUser;
-
-    private PipedOutputStream publishStream;
-
     private String username;
-
     private String password;
-
     private String publishName;
-
     private String playName;
-
     private int sipPort;
-
     private int rtpPort;
-
     private String proxy;
-
 
     public SIPUser( String sessionID, IConnection service, int sipPort, int rtpPort ) throws IOException {
 
-        p( "SIPUser Constructor: sip port " + sipPort + " rtp port:" + rtpPort );
+        log.debug( "SIPUser Constructor: sip port " + sipPort + " rtp port:" + rtpPort );
 
         try {
-
             this.sessionID = sessionID;
             this.service = service;
             this.sipPort = sipPort;
             this.rtpPort = rtpPort;
-
         }
         catch ( Exception e ) {
-            p( "SIPUser constructor: Exception:>\n" + e );
-
+        	log.error( "SIPUser constructor: Exception:>\n" + e );
         }
     }
 
 
     public boolean isRunning() {
-
         boolean resp = false;
 
         try {
             resp = ua.audioApp.receiver.isRunning();
-
         }
         catch ( Exception e ) {
             resp = false;
@@ -153,7 +67,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
     public void login( String phone, String username, String password, String realm, String proxy ) {
 
-        p( "SIPUser login" );
+    	log.debug( "SIPUser login" );
 
         this.username = username;
         this.password = password;
@@ -197,14 +111,14 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
         }
         catch ( Exception e ) {
-            p( "login: Exception:>\n" + e );
+            log.error( "login: Exception:>\n" + e );
         }
     }
 
 
     public void register() {
 
-        p( "SIPUser register" );
+    	log.debug( "SIPUser register" );
 
         try {
 
@@ -216,14 +130,14 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
         }
         catch ( Exception e ) {
-            p( "register: Exception:>\n" + e );
+        	log.error( "register: Exception:>\n" + e );
         }
     }
 
 
     public void dtmf( String digits ) {
 
-        p( "SIPUser dtmf " + digits );
+    	log.debug( "SIPUser dtmf " + digits );
 
         try {
 
@@ -233,14 +147,14 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
         }
         catch ( Exception e ) {
-            p( "dtmf: Exception:>\n" + e );
+        	log.error( "dtmf: Exception:>\n" + e );
         }
     }
 
 
     public void call( String destination ) {
 
-        p( "SIPUser Calling " + destination );
+        log.debug( "SIPUser Calling " + destination );
 
         try {
 
@@ -265,36 +179,35 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
         }
         catch ( Exception e ) {
-            p( "call: Exception:>\n" + e );
+        	log.error( "call: Exception:>\n" + e );
         }
     }
 
 
 	public void close() {
-		p("SIPUser close1");
+		log.debug("SIPUser close1");
          try {
 
 			hangup();
 			unregister();
-		    new Thread().sleep(3000);
-
 		} catch(Exception e) {
-			p("close: Exception:>\n" + e);
+			log.error("close: Exception:>\n" + e);
 		}
 
         try {
-            p("SIPUser provider.halt");
+        	log.debug("SIPUser provider.halt");
 			sipProvider.halt();
 
 	    } catch(Exception e) {
-			p("close: Exception:>\n" + e);
+	    	log.error("close: Exception:>\n" + e);
 	    }
+	    service = null;
 	}
 
 
     public void accept() {
 
-        p( "SIPUser accept" );
+    	log.debug( "SIPUser accept" );
 
         if ( ua != null ) {
 
@@ -310,7 +223,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
             }
             catch ( Exception e ) {
-                p( "SIPUser: accept - Exception:>\n" + e );
+            	log.error( "SIPUser: accept - Exception:>\n" + e );
             }
         }
     }
@@ -318,7 +231,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
     public void hangup() {
 
-        p( "SIPUser hangup" );
+    	log.debug( "SIPUser hangup" );
 
         if ( ua != null ) {
 
@@ -335,7 +248,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
     public void streamStatus( String status ) {
 
-        p( "SIPUser streamStatus " + status );
+    	log.debug( "SIPUser streamStatus " + status );
 
         if ( "stop".equals( status ) ) {
             // ua.listen();
@@ -345,7 +258,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
     public void unregister() {
 
-        p( "SIPUser unregister" );
+    	log.debug( "SIPUser unregister" );
 
         if ( ra != null ) {
             if ( ra.isRegistering() ) {
@@ -364,13 +277,13 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
     private void closeStreams() {
 
-        p( "SIPUser closeStreams" );
+    	log.debug( "SIPUser closeStreams" );
 
         try {
 
         }
         catch ( Exception e ) {
-            p( "closeStreams: Exception:>\n" + e );
+        	log.error( "closeStreams: Exception:>\n" + e );
         }
     }
 
@@ -435,7 +348,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
     public void onUaCallConnected( SIPUserAgent ua ) {
 
-        p( "SIP Call Connected" );
+    	log.debug( "SIP Call Connected" );
         sipReady = true;
 
         if ( service != null ) {
@@ -491,7 +404,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
     public void onUaRegistrationSuccess( SIPRegisterAgent ra, NameAddress target, NameAddress contact, String result ) {
 
-        p( "SIP Registration success " + result );
+    	log.debug( "SIP Registration success " + result );
 
         if ( service != null ) {
             ( (IServiceCapableConnection) service ).invoke( "registrationSucess", new Object[] { result } );
@@ -501,7 +414,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
     public void onUaRegistrationFailure( SIPRegisterAgent ra, NameAddress target, NameAddress contact, String result ) {
 
-        p( "SIP Registration failure " + result );
+    	log.debug( "SIP Registration failure " + result );
 
         if ( service != null ) {
             ( (IServiceCapableConnection) service ).invoke( "registrationFailure", new Object[] { result } );
@@ -509,9 +422,9 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
     }
 
 
-    private void p( String s ) {
+	public void onUaUnregistedSuccess() {
+		// TODO Auto-generated method stub
+		
+	}
 
-        log.debug( s );
-		System.out.println(s);
-    }
 }

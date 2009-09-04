@@ -16,18 +16,12 @@ public class SIPAudioLauncher implements MediaLauncher {
     protected static Logger log = Red5LoggerFactory.getLogger( SIPAudioLauncher.class, "sip" );
 
     DatagramSocket socket = null;
-
     public RTPStreamSender sender = null;
-
     public RTPStreamReceiver receiver = null;
 
 
-    public SIPAudioLauncher(
-            SIPCodec sipCodec,
-            int localPort,
-            String remoteAddr,
-            int remotePort,
-            RTMPUser rtmpUser ) {
+    public SIPAudioLauncher( SIPCodec sipCodec, int localPort,
+            String remoteAddr, int remotePort, RTMPUser rtmpUser ) {
         
         try {
             socket = new DatagramSocket( localPort );
@@ -38,8 +32,7 @@ public class SIPAudioLauncher implements MediaLauncher {
                     "sender configs: payloadType = [" + sipCodec.getCodecId() + 
                     "], payloadName = [" + sipCodec.getCodecName() + "].");
             
-            sender = new RTPStreamSender( rtmpUser, false, 
-                    sipCodec, socket, remoteAddr, remotePort );
+            sender = new RTPStreamSender( rtmpUser, false, sipCodec, socket, remoteAddr, remotePort );
             
             printLog( "SIPAudioLauncher", "New audio receiver on " + localPort + "." );
             

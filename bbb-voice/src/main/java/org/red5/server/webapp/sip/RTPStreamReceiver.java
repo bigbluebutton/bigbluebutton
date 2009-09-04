@@ -1,6 +1,5 @@
 package org.red5.server.webapp.sip;
 
-
 import local.net.RtpPacket;
 import local.net.RtpSocket;
 
@@ -136,31 +135,25 @@ public class RTPStreamReceiver extends Thread {
         boolean pcmBufferProcessed = false;
 
         do {
-            //println( "forwardAudioToFlashPlayer",
-            //        "tempBuffer.length = " + tempBuffer.length
-            //        + ", tempBufferOffset = " + tempBufferOffset
-            //        + ", pcmBuffer.length = " + pcmBuffer.length
-            //        + ", pcmBufferOffset = " + pcmBufferOffset + "." );
+//            println( "forwardAudioToFlashPlayer",
+ //                   "tempBuffer.length = " + tempBuffer.length
+//                    + ", tempBufferOffset = " + tempBufferOffset
+ //                   + ", pcmBuffer.length = " + pcmBuffer.length
+ //                   + ", pcmBufferOffset = " + pcmBufferOffset + "." );
 
-            if ( ( tempBuffer.length - tempBufferOffset ) <=
-                    ( pcmBuffer.length - pcmBufferOffset ) ) {
-
+            if ((tempBuffer.length - tempBufferOffset) <= (pcmBuffer.length - pcmBufferOffset)) {
                 copySize = tempBuffer.length - tempBufferOffset;
             }
             else {
-
                 copySize = pcmBuffer.length - pcmBufferOffset;
             }
 
-            //println( "forwardAudioToFlashPlayer", "copySize = " + copySize + "." );
+//            println( "forwardAudioToFlashPlayer", "copySize = " + copySize + "." );
 
-            BufferUtils.floatBufferIndexedCopy(
-                    tempBuffer,
-                    tempBufferOffset,
-                    pcmBuffer,
-                    pcmBufferOffset,
-                    copySize );
+//            BufferUtils.floatBufferIndexedCopy(tempBuffer, tempBufferOffset, pcmBuffer, pcmBufferOffset, copySize );
 
+            System.arraycopy( pcmBuffer, pcmBufferOffset, tempBuffer, tempBufferOffset, copySize);
+            
             tempBufferOffset += copySize;
             pcmBufferOffset += copySize;
 
@@ -178,38 +171,33 @@ public class RTPStreamReceiver extends Thread {
 
                     //tempBuffer = ResampleUtils.normalize(tempBuffer, 256); 	// normalise volume
 
-                    if ( true ) {
-
+                    if (true) {
 						encoderMap = CodecImpl.encode(encoderMap, tempBuffer, encodedStream.bytes);
-						rtmpUser.pushAudio(NELLYMOSER_ENCODED_PACKET_SIZE, encodedStream.bytes, timeStamp, 82);
+					    rtmpUser.pushAudio(NELLYMOSER_ENCODED_PACKET_SIZE, encodedStream.bytes, timeStamp, 82);
                     }
                     else {
-
-                        byte[] aux = ResampleUtils.resample(
-                                (float) ( 8.0 / 11.025 ), tempBuffer );
-
+                        byte[] aux = ResampleUtils.resample((float) ( 8.0 / 11.025 ), tempBuffer );
                         rtmpUser.pushAudio( aux.length, aux, timeStamp, 6 );
                     }
                 }
                 catch ( Exception exception ) {
-                    println( "forwardAudioToFlashPlayer", "asao Encoder Error." );
+//                    println( "forwardAudioToFlashPlayer", "asao Encoder Error." );
                 }
 
                 timeStamp = timeStamp + NELLYMOSER_ENCODED_PACKET_SIZE;
 
-                //println( "forwardAudioToFlashPlayer", "Encoded asao " +
-                //        NELLYMOSER_DECODED_PACKET_SIZE + " bytes." );
+//                println( "forwardAudioToFlashPlayer", "Encoded asao " +
+//                        NELLYMOSER_DECODED_PACKET_SIZE + " bytes." );
 
                 tempBufferOffset = 0;
             }
 
             if ( pcmBufferOffset == pcmBuffer.length ) {
-
                 pcmBufferProcessed = true;
             }
 
-            //println( "forwardAudioToFlashPlayer",
-            //        "pcmBufferProcessed = " + pcmBufferProcessed + "." );
+//            println( "forwardAudioToFlashPlayer",
+//                    "pcmBufferProcessed = " + pcmBufferProcessed + "." );
         }
         while ( !pcmBufferProcessed );
     }
@@ -230,12 +218,9 @@ public class RTPStreamReceiver extends Thread {
         encoder = new Encoder();
       	encoderMap = new float[64];
 
-        tempBuffer = new float[ NELLYMOSER_DECODED_PACKET_SIZE ];
-        
-        byte[] internalBuffer = new byte[
-                sipCodec.getIncomingEncodedFrameSize() + RTP_HEADER_SIZE ];
-
-        RtpPacket rtpPacket = new RtpPacket( internalBuffer, 0 );
+        tempBuffer = new float[ NELLYMOSER_DECODED_PACKET_SIZE ];        
+//        byte[] internalBuffer = new byte[sipCodec.getIncomingEncodedFrameSize() + RTP_HEADER_SIZE ];
+//        RtpPacket rtpPacket = new RtpPacket(internalBuffer, 0);
 
         running = true;
 
@@ -253,8 +238,9 @@ public class RTPStreamReceiver extends Thread {
 
             
             while ( running ) {
-
                 try {
+                    byte[] internalBuffer = new byte[sipCodec.getIncomingEncodedFrameSize() + RTP_HEADER_SIZE ];
+                    RtpPacket rtpPacket = new RtpPacket(internalBuffer, 0);                	
                     rtpSocket.receive( rtpPacket );
                     frameCounter++;
 
@@ -271,24 +257,21 @@ public class RTPStreamReceiver extends Thread {
                         float[] decodingBuffer = new float[  length ];
                         byte[] codedBuffer = new byte[  length ];
                         
-                   //     println( "run",
-                   //             "pkt.length = " + packetBuffer.length
-                   //             + ", offset = " + offset
-                   //             + ", length = " + length + "." );
+                        println( "run",
+                                "pkt.length = " + packetBuffer.length
+                                + ", offset = " + offset
+                                + ", length = " + length + "." );
 
-                        BufferUtils.byteBufferIndexedCopy(
-                                codedBuffer,
-                                0,
-                                packetBuffer,
-                                offset,
-                                length );
+ //                       BufferUtils.byteBufferIndexedCopy(codedBuffer, 0, packetBuffer, offset, length );
 
+                	    System.arraycopy( packetBuffer, offset, codedBuffer, 0, length);
+                        
                         int decodedBytes = sipCodec.codecToPcm( codedBuffer, decodingBuffer );
 
-                        //println( "run",
-                        //        "encodedBytes = " + decodedBytes +
-                        //        ", incomingDecodedFrameSize = " +
-                        //        sipCodec.getIncomingDecodedFrameSize() + "." );
+                        println( "run",
+                                "encodedBytes = " + decodedBytes +
+                                ", incomingDecodedFrameSize = " +
+                                sipCodec.getIncomingDecodedFrameSize() + "." );
 
                         if ( decodedBytes == sipCodec.getIncomingDecodedFrameSize() ) {
 
@@ -335,6 +318,6 @@ public class RTPStreamReceiver extends Thread {
     private static void println( String method, String message ) {
 
 //        log.debug( "RtpStreamReceiver - " + method + " -> " + message );
-//        System.out.println( "RtpStreamReceiver - " + method + " -> " + message );
+        System.out.println( "RtpStreamReceiver - " + method + " -> " + message );
     }
 }

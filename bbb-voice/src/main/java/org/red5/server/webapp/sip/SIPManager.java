@@ -71,9 +71,10 @@ public final class SIPManager {
 
 
     public SIPUser removeSIPUser( String sipID ) {
-
+    	log.debug("Number of SipUsers in Manager before remove {}", sessions.size());
         SIPUser sess = sessions.remove( sipID );
         sess = null;
+        log.debug("Number of SipUsers in Manager after remove {}", sessions.size());
         return sess;
     }
 

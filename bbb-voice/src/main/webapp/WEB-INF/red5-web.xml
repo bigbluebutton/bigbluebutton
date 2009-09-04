@@ -30,10 +30,12 @@
 
 	<bean id="web.handler" class="org.bigbluebutton.conference.voice.VoiceApplication">
 		<property name="asteriskHost" value="${sip.server.host}" />
+		<property name="startSIPPort" value="${startSIPPort}" />
+		<property name="stopSIPPort" value="${stopSIPPort}" />
+		<property name="startRTPPort" value="${startRTPPort}" />
+		<property name="stopRTPPort" value="${stopRTPPort}" />
 	</bean>
 	
 	<!--bean id="web.handler" class="org.red5.server.webapp.sip.Application">
 	</bean-->
-	
-
 </beans>

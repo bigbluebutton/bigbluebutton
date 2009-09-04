@@ -8,7 +8,6 @@
 	<classpathentry kind="lib" path="lib/jcip-annotations-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/jcl-over-slf4j-1.5.6.jar"/>
 	<classpathentry kind="lib" path="lib/jmf-2.1.1e.jar"/>
-	<classpathentry kind="lib" path="lib/junit-4.0.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-over-slf4j-1.5.6.jar"/>
 	<classpathentry kind="lib" path="lib/logback-classic-0.9.14.jar"/>
 	<classpathentry kind="lib" path="lib/logback-core-0.9.14.jar"/>

@@ -14,4 +14,5 @@ public interface SIPRegisterAgentListener {
     /** When a UA failed on (un)registering. */
     void onUaRegistrationFailure( SIPRegisterAgent ra, NameAddress target, NameAddress contact, String result );
 
+    void onUaUnregistedSuccess();
 }

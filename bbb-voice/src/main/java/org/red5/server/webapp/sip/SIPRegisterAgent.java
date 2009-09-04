@@ -211,6 +211,8 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener {
 	/** Unregister with the registrar server */
 	public void unregister() {
 		register(0);
+		sipProvider = null;
+		listener = null;
 	}
 
 	/** Unregister all contacts with the registrar server */
