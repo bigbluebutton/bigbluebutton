@@ -270,8 +270,8 @@ package org.bigbluebutton.modules.presentation.view
 		 */		
 		private function handleConvertProgressEvent(note:INotification):void{
 			var convertEvt:ProgressNotifier = note.getBody() as ProgressNotifier;
-			_fileWin.progressLbl.text = "Converting slide " + convertEvt.completedSlides + " of " + convertEvt.totalSlides + " slides.";
-			_fileWin.progressBar.label = "Converting slide " + convertEvt.completedSlides + " of " 
+			_fileWin.progressLbl.text = "Converted " + convertEvt.completedSlides + " of " + convertEvt.totalSlides + " slides.";
+			_fileWin.progressBar.label = "Converted " + convertEvt.completedSlides + " of " 
 					+ convertEvt.totalSlides + " slides.";
 			_fileWin.progressBar.setProgress(convertEvt.completedSlides, convertEvt.totalSlides);
 			_fileWin.progressBar.validateNow();

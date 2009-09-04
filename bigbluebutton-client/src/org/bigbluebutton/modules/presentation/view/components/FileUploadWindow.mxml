@@ -42,7 +42,8 @@
 			public var presentationNames:Array;
 	        
 	        private var thumbnailTimer:Timer;
-	        private var genThumbText:String = "Generate thumbnails..";
+	        private var genThumbText:String = "Generating thumbnails..";
+	        private var genThumbDots:String = ".";
 	        
 	        [Bindable]
     	    public var presentationNamesAC:ArrayCollection;
@@ -70,8 +71,10 @@
 				dispatchEvent(new Event(FileUploadWindowMediator.TERMINATE_UPLOAD_WINDOW));       
 			}			
 			
-			private function handleThumbnailsProgressEvent(event:Event):void {				
-				var delay:uint = 2000;
+			private function handleThumbnailsProgressEvent(event:Event):void {	
+				genThumbDots = ".";
+							
+				var delay:uint = 5000;
             	var repeat:uint = 20;
             	thumbnailTimer = new Timer(delay, repeat);
             	thumbnailTimer.addEventListener(TimerEvent.TIMER, timerHandler);
@@ -95,9 +98,9 @@
         	}
         	
         	private function displayGeneratingThumbnailsMessage():void {
-        		genThumbText = genThumbText + ".";
-        		progressLbl.text = genThumbText;
-				progressBar.label = genThumbText;
+        		genThumbDots += ".";
+        		progressLbl.text = genThumbText + genThumbDots;
+				progressBar.label = genThumbText + genThumbDots;
         	}
 
 		]]>
@@ -111,19 +114,19 @@
 	<mx:Button id="uploadBtn" label="Upload" toolTip="Upload file"  click="dispatchEvent(new Event(FileUploadWindowMediator.START_UPLOAD))"
 		enabled="false" icon="@Embed('../assets/bullet_go.png')" x="366" y="48"/>
 
-	<mx:Label id="presentationNamesLb" text="Uploaded Presentations:" x="50" y="80"/>
-    <mx:ComboBox id="presentationNamesCombobox" width="125" x="190" y="80" dataProvider="{presentationNamesAC}"/> 
-	<mx:Button id="deleteBtn" label="" toolTip="Delete Presentation"  
-		click="deletePresentation()" enabled="true"	icon="@Embed('../assets/delete.png')" width="26" x="332" y="80"/>
-	<mx:Button id="showBtn" label="Show" toolTip="Show Presentation"  
-		click="showPresentation()" enabled="true" icon="@Embed('../assets/bullet_go.png')" x="366" y="80"/>
+	<mx:Label id="progBarLbl" text="Progress:" x="21" y="75" visible="false"/>
+	<mx:ProgressBar id="progressBar" mode="manual" label="" labelPlacement="center" width="360" y="75" x="87" visible="false"/>
 	
-	<mx:Label id="progBarLbl" text="Progress:" x="21" y="67" visible="false"/>
-	<mx:ProgressBar id="progressBar" mode="manual" label="" labelPlacement="center" width="360" y="67" x="87" visible="false"/>
+	<mx:Label id="presentationNamesLb" text="Uploaded Presentations:" x="50" y="90"/>
+    <mx:ComboBox id="presentationNamesCombobox" width="125" x="190" y="90" dataProvider="{presentationNamesAC}"/> 
+	<mx:Button id="deleteBtn" label="" toolTip="Delete Presentation"  
+		click="deletePresentation()" enabled="true"	icon="@Embed('../assets/delete.png')" width="26" x="332" y="90"/>
+	<mx:Button id="showBtn" label="Show" toolTip="Show Presentation"  
+		click="showPresentation()" enabled="true" icon="@Embed('../assets/bullet_go.png')" x="366" y="90"/>
 	
 	<mx:ControlBar horizontalAlign="center" verticalAlign="middle" x="0" y="106">
 		<mx:Label id="progressLbl" text="" width="100%"/>
 		<mx:Spacer width="100%"/>
-		<mx:Button id="okCancelBtn" label="OK" click="terminatePresentation()"/>
+		<mx:Button id="okCancelBtn" label="Cancel" click="terminatePresentation()"/>
 	</mx:ControlBar>	
 </mx:TitleWindow> 
