@@ -14,7 +14,6 @@
 		<mxmlc-compile target="${APP_ROOT}/ViewersModule" />
 		<mxmlc-compile target="${APP_ROOT}/ListenersModule" />
 		<mxmlc-compile target="${APP_ROOT}/PresentationModule" />
-		<mxmlc-compile target="${APP_ROOT}/VideoModule" />
 		<mxmlc-compile target="${APP_ROOT}/DeskShareModule" />		
 		<mxmlc-compile target="${APP_ROOT}/PhoneModule" />
 		<mxmlc-compile target="${APP_ROOT}/AutotestModule" />
