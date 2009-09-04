@@ -32,12 +32,7 @@
 			onUserLogoutEvent="STOP"
 		/>
 		
-		<module name="DeskShareModule" url="DeskShareModule.swf" 
-			uri="rtmp://192.168.0.124/deskShare" 
-			onUserJoinedEvent="START" 
-			onUserLogoutEvent="STOP"
-			loadNextModule="PhoneModule"
-		/>
+		<!-- module name="DeskShareModule" url="DeskShareModule.swf" uri="rtmp://192.168.0.124/deskShare" onUserJoinedEvent="START" onUserLogoutEvent="STOP" loadNextModule="PhoneModule" /-->
 		
 		<module name="PhoneModule" url="PhoneModule.swf" 
 			uri="rtmp://192.168.0.124/sip" 
