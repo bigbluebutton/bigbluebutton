@@ -49,8 +49,8 @@
 			<fileset dir="./src/org/bigbluebutton/modules/presentation/view/assets/" />
 		</copy>
 
-		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/video/view/assets/" >
-			<fileset dir="./src/org/bigbluebutton/modules/video/view/assets/" />
+		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/videoconf/views/assets/" >
+			<fileset dir="./src/org/bigbluebutton/modules/videoconf/views/assets/" />
 		</copy>
 
 		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/video/view/assets/images/" >
