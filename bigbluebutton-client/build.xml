@@ -53,8 +53,8 @@
 			<fileset dir="./src/org/bigbluebutton/modules/videoconf/views/assets/" />
 		</copy>
 
-		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/video/view/assets/images/" >
-			<fileset dir="./src/org/bigbluebutton/modules/video/view/assets/images/" />
+		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/videoconf/views/assets/images/" >
+			<fileset dir="./src/org/bigbluebutton/modules/videoconf/views/assets/images/" />
 		</copy>
 
 		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/phone/views/assets/images/" >
