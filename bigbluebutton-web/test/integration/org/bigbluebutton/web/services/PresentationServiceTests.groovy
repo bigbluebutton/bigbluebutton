@@ -35,7 +35,7 @@ class PresentationServiceTests extends GroovyTestCase {
 		
 		presService.jmsTemplate = new FakeJmsTemplate()
 	}
-	
+/**	
 	void testGetUploadDirectory() {
 		def uploadedFilename = 'sample-presentation.pdf'		
 		def uploadedFile = new File("test/resources/$uploadedFilename")
@@ -64,7 +64,7 @@ class PresentationServiceTests extends GroovyTestCase {
 	    int copied = FileCopyUtils.copy(uploadedFile, uploadedPresentation) 
 	    assertTrue(uploadedPresentation.exists())
 	    
-	    presService.convertUploadedPresentation(rm, presName, uploadedPresentation, 21)
+	    presService.convertUploadedPresentation(conf, rm, presName, uploadedPresentation, 21)
 	    
 		int numPages = presService.numberOfThumbnails(conf, rm, presName)
 		assertEquals 21, numPages
@@ -84,7 +84,7 @@ class PresentationServiceTests extends GroovyTestCase {
 	    int copied = FileCopyUtils.copy(uploadedFile, uploadedPresentation) 
 	    assertTrue(uploadedPresentation.exists())
 	    
-	    presService.convertUploadedPresentation(rm, presName, uploadedPresentation, 1)
+	    presService.convertUploadedPresentation(conf, rm, presName, uploadedPresentation, 1)
 	    
 		int numPages = presService.numberOfThumbnails(conf, rm, presName)
 		assertEquals 1, numPages
@@ -104,7 +104,7 @@ class PresentationServiceTests extends GroovyTestCase {
 	    int copied = FileCopyUtils.copy(uploadedFile, uploadedPresentation) 
 	    assertTrue(uploadedPresentation.exists())
 	    
-	    presService.convertUploadedPresentation(rm, presName, uploadedPresentation, 5)
+	    presService.convertUploadedPresentation(conf, rm, presName, uploadedPresentation, 5)
 	    
 		int numPages = presService.numberOfThumbnails(conf, rm, presName)
 		assertEquals 5, numPages
@@ -124,7 +124,7 @@ class PresentationServiceTests extends GroovyTestCase {
 	    int copied = FileCopyUtils.copy(uploadedFile, uploadedPresentation) 
 	    assertTrue(uploadedPresentation.exists())
 	    
-	    presService.convertUploadedPresentation(rm, presName, uploadedPresentation, 2)
+	    presService.convertUploadedPresentation(conf, rm, presName, uploadedPresentation, 2)
 	    
 		int numPages = presService.numberOfThumbnails(conf, rm, presName)
 		assertEquals 2, numPages
@@ -144,11 +144,54 @@ class PresentationServiceTests extends GroovyTestCase {
 	    int copied = FileCopyUtils.copy(uploadedFile, uploadedPresentation) 
 	    assertTrue(uploadedPresentation.exists())
 	    
-	    presService.convertUploadedPresentation(rm, presName, uploadedPresentation, 2)
+	    presService.convertUploadedPresentation(conf, rm, presName, uploadedPresentation, 2)
 	    
 		int numPages = presService.numberOfThumbnails(conf, rm, presName)
 		assertEquals 2, numPages
 	}
+
+	void testSecuredSlides() {
+		def uploadedFilename = 'secure-slides.pdf'		
+		def uploadedFile = new File("test/resources/$uploadedFilename")
+		def conf = "test-conf"
+		def rm = "test-room"
+		def presName = "secure-slides"
+	    	    	
+		File uploadDir = presService.uploadedPresentationDirectory(conf, rm, presName)
+		def uploadedPresentation = new File(uploadDir.absolutePath + File.separator + uploadedFilename)
+	    uploadedPresentation = new File("$PRESENTATIONDIR/$conf/$rm/$presName/$uploadedFilename")
+		
+	    int copied = FileCopyUtils.copy(uploadedFile, uploadedPresentation) 
+	    assertTrue(uploadedPresentation.exists())
+	    
+	    presService.convertUploadedPresentation(conf, rm, presName, uploadedPresentation, 17)
+	    
+		int numPages = presService.numberOfThumbnails(conf, rm, presName)
+		assertEquals 17, numPages
+	}
+**/
+
+	void testSlideWithTooManyObject() {
+		def uploadedFilename = 'SalesNetworks.pdf'		
+		def uploadedFile = new File("test/resources/$uploadedFilename")
+		def conf = "test-conf"
+		def rm = "test-room"
+		def presName = "SalesNetworks"
+	    	    	
+		File uploadDir = presService.uploadedPresentationDirectory(conf, rm, presName)
+		def uploadedPresentation = new File(uploadDir.absolutePath + File.separator + uploadedFilename)
+	    uploadedPresentation = new File("$PRESENTATIONDIR/$conf/$rm/$presName/$uploadedFilename")
+		
+	    int copied = FileCopyUtils.copy(uploadedFile, uploadedPresentation) 
+	    assertTrue(uploadedPresentation.exists())
+	    
+	    presService.convertUploadedPresentation(conf, rm, presName, uploadedPresentation, 12)
+	    
+		int numPages = presService.numberOfThumbnails(conf, rm, presName)
+		assertEquals 12, numPages
+	}
+
+
 }
 
 /*** Helper classes **/

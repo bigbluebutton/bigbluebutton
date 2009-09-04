@@ -113,7 +113,7 @@ class PresentationService {
 			
 			int numPages = pageCounter.countNumberOfPages(presentationFile)
 			log.info "There are $numPages pages in $presentationFile.absolutePath"
-			convertUploadedPresentation(room, presentationName, presentationFile, numPages)		
+			convertUploadedPresentation(conf, room, presentationName, presentationFile, numPages)		
 		}
 	}
  	
@@ -142,39 +142,19 @@ class PresentationService {
 		return new File(presentationDir + File.separatorChar + conf + File.separatorChar + room)
     }
 
-	public boolean convertUploadedPresentation(String room, String presentationName, File presentationFile, int numPages) {		
+	public boolean convertUploadedPresentation(String conference, String room, String presentationName, File presentationFile, int numPages) {		
 		log.debug "Converting uploaded presentation $presentationFile.absolutePath"
 		for (int page = 1; page <= numPages; page++) 
-	    {
-			def msg = new HashMap()
-			msg.put("room", room)
-			msg.put("returnCode", "CONVERT")
-			msg.put("presentationName", presentationName)
-			msg.put("totalSlides", new Integer(numPages))
-			msg.put("slidesCompleted", new Integer(page))
-			sendJmsMessage(msg)
-			
-			log.debug "Converting page $page of $presentationFile.absolutePath"
-			
+	    {		
+			log.debug "Converting page $page of $presentationFile.absolutePath"			
 			convertPage(presentationFile, page)
+			sendConversionUpdateMessage(conference, room, presentationName, numPages, page)
 	    }
 
-		log.debug "Creating thumbnails for $presentationFile.absolutePath"
+		sendCreatingThumbnailsUpdateMessage(conference, room, presentationName)
+		createPresentationThumbnails(presentationFile, numPages)
 		
-		ThumbnailCreatorImp tc = new ThumbnailCreatorImp()
-		tc.imageMagickDir = imageMagickDir
-		tc.blankThumbnail = BLANK_THUMBNAIL
-		tc.createThumbnails(presentationFile, numPages)
-		
-		def msg = new HashMap()
-		msg.put("room", room)
-		msg.put("returnCode", "SUCCESS")
-		msg.put("presentationName", presentationName)
-		msg.put("message", "The presentation is now ready.")
-		log.debug "Sending presentation conversion success for $presentationFile.absolutePath."
-		sendJmsMessage(msg)		
-		log.debug "Send another success message...looks like bbb-apps at Red5 sometimes miss the message...need to investigate"
-		sendJmsMessage(msg)
+		sendConversionCompletedMessage(conference, room, presentationName, numPages)
 	}
 
 	public boolean convertPage(File presentationFile, int page) {
@@ -240,6 +220,69 @@ class PresentationService {
 	private void generateBlankSlide(String dest) {
 		File slide = new File(dest);		
 		FileCopyUtils.copy(new File(BLANK_SLIDE), slide);		
+	}
+	
+	private void createPresentationThumbnails(File presentation, int numberOfPages) {		
+		log.debug "Creating thumbnails for presentation.absolutePath"		
+		ThumbnailCreatorImp tc = new ThumbnailCreatorImp()
+		tc.imageMagickDir = imageMagickDir
+		tc.blankThumbnail = BLANK_THUMBNAIL
+		tc.createThumbnails(presentation, numberOfPages)		
+	}
+	
+	private void sendConversionUpdateMessage(String conference, String room, String presName, int totalSlides, int slidesCompleted) {
+		def msg = new HashMap()
+		msg.put("room", room)
+		msg.put("returnCode", "CONVERT")
+		msg.put("presentationName", presName)
+		msg.put("totalSlides", new Integer(totalSlides))
+		msg.put("slidesCompleted", new Integer(slidesCompleted))
+		sendJmsMessage(msg)		
+	}
+	
+	private void sendCreatingThumbnailsUpdateMessage(String conference, String room, String presName) {
+		def msg = new HashMap()
+		msg.put("room", room)
+		msg.put("returnCode", "THUMBNAILS")
+		msg.put("presentationName", presName)
+		sendJmsMessage(msg)			
+	}
+	
+	private void sendConversionCompletedMessage(String conference, String room, String presName, int numberOfPages) {
+		
+		String xml = generateUploadedPresentationInfo(conference, room, presName, numberOfPages)
+		
+		println xml
+		
+		def msg = new HashMap()
+		msg.put("room", room)
+		msg.put("returnCode", "SUCCESS")
+		msg.put("presentationName", presName)
+		msg.put("message", xml)
+		log.debug "Sending presentation conversion success for ${room} ${presName}."
+		sendJmsMessage(msg)		
+		log.debug "Send another success message...looks like bbb-apps at Red5 sometimes miss the message...need to investigate"
+		sendJmsMessage(msg)
+		
+	}
+	
+	private String generateUploadedPresentationInfo(String conf, String confRoom, String presName, int numberOfPages) {
+		def writer = new java.io.StringWriter()
+		def builder = new groovy.xml.MarkupBuilder(writer)
+		        		
+		def uploadedpresentation = builder.uploadedpresentation {        
+		    conference(id:conf, room:confRoom) {
+		       presentation(name:presName) {
+		          slides(count:numberOfPages) {
+		             for (def i = 1; i <= numberOfPages; i++) {
+		                slide(number:"${i}", name:"slide/${i}", thumb:"thumbnail/${i}")
+		             }
+		          }
+		       }
+			}
+		}
+	
+		return writer.toString()
 	}
 	
 	private sendJmsMessage(HashMap message) {

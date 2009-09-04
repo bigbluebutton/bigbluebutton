@@ -9,3 +9,6 @@
   mysql> create database bigbluebutton_prod;
 
   mysql> grant all on bigbluebutton_dev.* to 'bbb'@'localhost' identified by 'secret';
+  
+  
+  
