@@ -126,7 +126,7 @@
 	<mx:UIComponent id="videoHolder" width="100%" height="100%" />
 	<mx:ControlBar id="bottomBar">
 		<mx:Button id="btnStartPublish" toolTip="start streaming" icon="{camIcon}" click="startPublishing()" />
-		<mx:ComboBox id="cmbCameraSelector" dataProvider="{Camera.names}" width="150" />
-		<mx:ComboBox id="cmbResolution" dataProvider="{resolutions}" width="20%" />
+		<mx:ComboBox id="cmbCameraSelector" dataProvider="{Camera.names}" width="150" visible="false" />
+		<mx:ComboBox id="cmbResolution" dataProvider="{resolutions}" width="20%" visible="false" />
 	</mx:ControlBar>
 </MDIWindow>

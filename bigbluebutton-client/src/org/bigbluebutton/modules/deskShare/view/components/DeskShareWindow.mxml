@@ -289,6 +289,7 @@
 				canvas.visible = true;
 				ns = new NetStream(connection);
 				ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
+				ns.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
 				ns.client = this;
 				ns.bufferTime = 0;
 				ns.receiveVideo(true);
@@ -307,6 +308,17 @@
 		
 		private function onAsyncError(e:AsyncErrorEvent):void{
 			LogUtil.error("DeskShare::error when playing stream!");
+		}
+		
+		private function onNetStatus(e:NetStatusEvent):void{
+			switch(e.info.code){
+				case "NetStream.Publish.Start":
+					LogUtil.debug("NetStream.Publish.Start for desktop sharing stream");
+					break;
+				case "NetStream.Play.UnpublishNotify":
+					this.close();
+					break;
+				}
 		}
 		
 		private function closeWindow(e:StopViewingEvent):void {
