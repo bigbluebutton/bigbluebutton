@@ -170,8 +170,8 @@
 				canvas.removeEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
 			}
 			
-			private function share(share:Boolean):void{
-				if (share) startSharing();
+			private function share():void{
+				if (sharing) startSharing();
 				else stopSharing();
 			}
 			
@@ -329,12 +329,12 @@
 			
 		]]>
 	</mx:Script>
-	<mx:Canvas id="canvas" x="0" y="50" visible="false" width="100%" height="100%"/>
-	<mx:ApplicationControlBar id="bar" width="100%">
-		<mx:RadioButton id="btnStartApplet" label="Start Sharing" click="share(btnStartApplet.enabled)" x="10" y="10"/>
+	<components:DimensionsBox id="dimensionsBox" x="0" y="0"/>
+	<mx:Canvas id="canvas" visible="false" width="100%" height="100%"/>
+	<mx:ControlBar id="bar" width="100%">
+		<mx:RadioButton id="btnStartApplet" label="Start Sharing" click="share()" x="10" y="10"/>
 		<mx:Label id="lblStatus" />
-	</mx:ApplicationControlBar>
-	<components:DimensionsBox id="dimensionsBox"/>
+	</mx:ControlBar>
 	
 	<mate:Listener type="{AppletStartedEvent.APPLET_STARTED}" method="onAppletStart" />
 	<mate:Listener type="{MadePresenterEvent.MADE_PRESENTER}" method="closeWindow" />

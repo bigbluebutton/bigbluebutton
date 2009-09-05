@@ -25,6 +25,7 @@ package org.bigbluebutton.modules.deskShare.business
 	import flash.net.NetConnection;
 	import flash.net.Responder;
 	import flash.net.SharedObject;
+	import flash.system.Capabilities;
 	
 	import org.bigbluebutton.common.red5.Connection;
 	import org.bigbluebutton.common.red5.ConnectionEvent;
@@ -39,6 +40,8 @@ package org.bigbluebutton.modules.deskShare.business
 	 */	
 	public class DeskShareProxy
 	{
+		public static const LARGER_DIMENSION:Number = Capabilities.screenResolutionX/2;
+		
 		private var module:DeskShareModule;
 		
 		private var conn:Connection;
@@ -180,8 +183,9 @@ package org.bigbluebutton.modules.deskShare.business
 		 */		
 		public function startViewing(captureWidth:Number, captureHeight:Number):void{
 			var e:StartViewingEvent = new StartViewingEvent();
-			e.height = captureHeight;
-			e.width = captureWidth;
+			calculateEncodingDimensions(captureWidth, captureHeight);
+			e.height = height;
+			e.width = width;
 			dispatcher.dispatchEvent(e);
 		}
 		
@@ -244,6 +248,7 @@ package org.bigbluebutton.modules.deskShare.business
 							function(result:Object):void{
 								if (result != null){
 									height = result as Number;
+									calculateEncodingDimensions(width, height);
 									var e:StartViewingEvent = new StartViewingEvent();
 									e.width = width;
 									e.height = height;
@@ -256,6 +261,34 @@ package org.bigbluebutton.modules.deskShare.business
 									);
 									
 			nc.call("deskshare.getVideoHeight", heightResponder);
+		}
+		
+		public function calculateEncodingDimensions(captureWidth:Number, captureHeight:Number):void{
+			if (captureWidth <= LARGER_DIMENSION && captureHeight <= LARGER_DIMENSION){
+				height = captureHeight;
+				width = captureWidth;
+				return;
+			}
+			
+			var biggerDimension:Number; 
+			var smallerDimension:Number;
+			var ratio:Number;
+			if (captureWidth > captureHeight){
+				biggerDimension = captureWidth;
+				smallerDimension = captureHeight;
+			} else{
+				biggerDimension = captureHeight;
+				smallerDimension = captureWidth;
+			}
+			ratio = biggerDimension/smallerDimension;
+			
+			if (captureWidth > captureHeight){
+				width = LARGER_DIMENSION;
+				height = Math.round(LARGER_DIMENSION/ratio);
+			} else{
+				height = LARGER_DIMENSION;
+				width = Math.round(LARGER_DIMENSION/ratio);
+			}
 		}
 
 	}

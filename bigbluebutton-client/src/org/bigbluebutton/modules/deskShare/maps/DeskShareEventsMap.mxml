@@ -2,6 +2,9 @@
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/" xmlns:mate="org.bigbluebutton.common.mate.*">
 	<mx:Script>
 		<![CDATA[
+			import mx.controls.Alert;
+			import org.bigbluebutton.modules.deskShare.view.components.DesktopViewWindow;
+			import org.bigbluebutton.modules.deskShare.view.components.DesktopPublishWindow;
 			import org.bigbluebutton.modules.deskShare.events.StartViewingEvent;
 			import org.bigbluebutton.main.events.OpenWindowEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
@@ -14,7 +17,7 @@
 			import org.bigbluebutton.modules.deskShare.business.DeskShareProxy;
 			import org.bigbluebutton.modules.deskShare.view.components.DeskShareWindow;
 		
-			public var window:DeskShareWindow;
+			public var window:DesktopPublishWindow;
 			public var proxy:DeskShareProxy;
 			private var button:ToolbarButton;
 			public var module:DeskShareModule;
@@ -62,11 +65,12 @@
 			
 			private function openDeskShareWindow():void{
 				LogUtil.debug("opening desk share window");
-				window = new DeskShareWindow();
+				window = new DesktopPublishWindow();
 				window.xPosition = 675;
 				window.yPosition = 310;
 				window._module = module;
 				window.connection = proxy.getConnection();
+				window.startSharing();
 				
 				var e:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 				e.window = window;
@@ -74,11 +78,15 @@
 			}
 			
 			private function startViewing(e:StartViewingEvent):void{
+				if (window != null) return;
 				LogUtil.debug("DeskShareEventsMap::startViewing");
-				if (window == null){
-					openDeskShareWindow();
-					window.startViewing(e);
-				}
+				
+				var viewWindow:DesktopViewWindow = new DesktopViewWindow();
+				viewWindow.startVideo(proxy.getConnection(), module.getRoom(), e.width, e.height);
+				
+				var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
+				windowEvent.window = viewWindow;
+				globalDispatcher.dispatchEvent(windowEvent);
 			}
 		]]>
 	</mx:Script>
@@ -107,5 +115,5 @@
 		<InlineInvoker method="closeWindow" />
 	</EventHandlers>
 	
-	<Listener method="startViewing" type="{StartViewingEvent.START_VIEWING}" />
+	<Listener type="{StartViewingEvent.START_VIEWING}" method="startViewing" />
 </EventMap>

@@ -2,11 +2,15 @@
 <MDIWindow xmlns="flexlib.mdi.containers.*" 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
-	creationComplete="init()" width="{camWidth + 6}" height="{camHeight + 73}" 
-	title="Stream webcam" backgroundImage="{bbbLogo}">
+	creationComplete="init()"
+	width="{camWidth + 6}" height="{camHeight + 73}" 
+	title="Stream webcam" 
+	backgroundImage="{bbbLogo}" 
+	resizable="false">
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
 			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
 			import mx.core.UIComponent;
@@ -16,7 +20,7 @@
 			private var _yPosition:int = 500;
 			
 			private var images:Images = new Images();
-			[Bindable] public var camIcon:Class = images.webcam_img;
+			[Bindable] public var camIcon:Class = images.webcam;
 			[Bindable] public var bbbLogo:Class = images.bbb_logo;
 			[Bindable] private var resolutions:Array = new Array("320x240", "640x480");
 			

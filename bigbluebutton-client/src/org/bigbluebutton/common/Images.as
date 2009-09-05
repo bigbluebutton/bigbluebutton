@@ -144,5 +144,11 @@ package org.bigbluebutton.common
         
         [Embed(source="assets/images/arrow_out.png")]
         public var full_screen:Class; 
+        
+        [Embed(source="assets/images/BBBlogo.png")]
+        public var bbb_logo:Class; 
+        
+        [Embed(source="assets/images/deskshare_icon.png")]
+        public var deskShareIcon:Class;  
 	}
 }

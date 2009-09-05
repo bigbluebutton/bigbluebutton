@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <MDIWindow xmlns="flexlib.mdi.containers.*" 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
-	creationComplete="init()" 
+	width="400" height="300"
+	creationComplete="onCreationComplete()"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
-	resizable="false" >
+	xmlns:mate="http://mate.asfusion.com/">
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.events.ResizeEvent;
+			import mx.controls.Alert;
+			import org.bigbluebutton.modules.deskShare.events.StopViewingEvent;
 			import mx.core.UIComponent;
-		
+			import mx.events.SliderEvent;
+			
 			private var video:Video;
 			private var ns:NetStream;
 			private var videoHolder:UIComponent;
@@ -16,18 +21,22 @@
 			private var videoHeight:Number;
 			private var videoWidth:Number;
 			
-			private var _xPosition:int;
-			private var _yPosition:int;
+			private var _xPosition:int = 675;
+			private var _yPosition:int = 310;
 			
-			private function init():void{
-				_xPosition = 400;
-				_yPosition = 400;
+			private function onCreationComplete():void{
 				videoHolder = new UIComponent();
 				videoHolder.addChild(video);
 				this.addChild(videoHolder);
+				videoHolder.percentWidth = 100;
+				videoHolder.percentHeight = 100;
+				videoHolder.addEventListener(ResizeEvent.RESIZE, onResize);
 			}
 			
-			public function startVideo(connection:NetConnection, stream:String):void{
+			public function startVideo(connection:NetConnection, stream:String, width:Number, height:Number):void{
+				this.videoWidth = width;
+				this.videoHeight = height;
+				
 				ns = new NetStream(connection);
 				ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );
 				ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
@@ -36,8 +45,7 @@
 				ns.receiveVideo(true);
 				ns.receiveAudio(false);
 				
-				setVideoResolution(stream);
-				video = new Video(this.width, this.height);
+				video = new Video(width, height);
 				video.attachNetStream(ns);
 				ns.play(stream);	
 				
@@ -46,29 +54,20 @@
 				this.stream = stream;
 			}
 			
-			private function setVideoResolution(stream:String):void{
-				var resString:String = stream.substr(0, 7);
-				switch(resString){
-					case "320x240":
-						this.width = 320;
-						this.height = 240;
-						break;
-					case "640x480":
-						this.width = 640;
-						this.height = 480;
-						break;
-				}
-			}
-			
 			private function onAsyncError(e:AsyncErrorEvent):void{
 				LogUtil.debug("VIdeoWindow::asyncerror " + e.toString());
 			}
 			
-			public function onMetaData(info:Object):void{
-				LogUtil.debug("metadata: width=" + info.width + " height=" + info.height);
-				videoHolder.width = info.width;
-				videoHolder.height = info.height;
-			}
+			private function onNetStatus(e:NetStatusEvent):void{
+				switch(e.info.code){
+				case "NetStream.Publish.Start":
+					LogUtil.debug("NetStream.Publish.Start for broadcast stream " + stream);
+					break;
+				case "NetStream.Play.UnpublishNotify":
+					this.close();
+					break;
+				}
+			}		
 			
 			public function get xPosition():int {
 				return _xPosition;
@@ -86,17 +85,16 @@
 				_yPosition = y;
 			}	
 			
-			private function onNetStatus(e:NetStatusEvent):void{
-				switch(e.info.code){
-				case "NetStream.Publish.Start":
-					LogUtil.debug("NetStream.Publish.Start for broadcast stream " + stream);
-					break;
-				case "NetStream.Play.UnpublishNotify":
-					this.close();
-					break;
-				}
-			}		
+			public function onResize(e:ResizeEvent):void{
+				video.width = videoHolder.width;
+				video.height = videoHolder.height;
+			}
 			
+			private function closeWindow(e:StopViewingEvent):void{
+				this.close();
+			}
 		]]>
 	</mx:Script>
+	
+	<mate:Listener type="{StopViewingEvent.STOP_VIEWING}" method="closeWindow" />
 </MDIWindow>

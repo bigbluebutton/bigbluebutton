@@ -24,10 +24,10 @@
 	icon="{deskShareIcon}" click="startDeskShare()" xmlns:mate="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.modules.deskShare.events.StartDeskShareModuleEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.modules.deskShare.events.WindowCommand;
-			import org.bigbluebutton.modules.deskShare.view.components.Images;
 			
 			private var images:Images = new Images();
 			

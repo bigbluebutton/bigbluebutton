@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MDIWindow xmlns="flexlib.mdi.containers.*" 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	creationComplete="onCreationComplete()"
+	implements="org.bigbluebutton.common.IBbbModuleWindow"
+	xmlns:mate="http://mate.asfusion.com/"
+	backgroundImage="{bbbLogo}"
+	title="Desktop Sharing"
+	resizable="false">
+	
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.modules.deskShare.events.StopViewingEvent;
+			import org.bigbluebutton.modules.deskShare.events.WindowCommand;
+			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.modules.deskShare.events.ViewCommand;
+			import mx.core.UIComponent;
+			import org.bigbluebutton.modules.deskShare.events.AppletStartedEvent;
+			
+			public static const SCALE:Number = 5;
+			
+			private var images:Images = new Images();
+			[Bindable] public var bbbLogo:Class = images.bbb_logo;
+			
+			private var _xPosition:int = 675;
+			private var _yPosition:int = 310;
+			
+			public var sharing:Boolean = false;
+			
+			public var _module:DeskShareModule;
+			public var connection:NetConnection;
+			
+			private var video:Video;
+			private var ns:NetStream;
+			private var videoHolder:UIComponent;
+			private var stream:String;
+			private var videoHeight:Number;
+			private var videoWidth:Number;
+			private var captureHeight:Number = Capabilities.screenResolutionY;
+			private var captureWidth:Number = Capabilities.screenResolutionX;
+			
+			private function onCreationComplete():void{
+				
+			}
+			
+			public function get xPosition():int {
+				return _xPosition;
+			}
+			
+			public function get yPosition():int {
+				return _yPosition;
+			}
+			
+			public function set xPosition(x:int):void {
+				_xPosition = x;
+			}
+			
+			public function set yPosition(y:int):void {
+				_yPosition = y;
+			}
+			
+			public function startSharing():void{
+				var captureX:Number = 0;
+				var captureY:Number = 0;
+				sharing = true;
+				var os:String = Capabilities.os;
+				var useTunnel:Boolean;
+				if (os == "MacOs") {
+					useTunnel = true;
+				} else {
+					useTunnel = _module.tunnel();
+				}
+				ExternalInterface.call("startApplet", _module.getCaptureServerUri(), _module.getRoom(), 
+															captureX, captureY, captureWidth, captureHeight,
+															useTunnel.toString());
+			}
+			
+			private function stopSharing():void{
+				if (!sharing) return;
+			
+				sharing = false;
+				stopThumbnail();
+					
+				ExternalInterface.call("stopApplet");
+				dispatchEvent(new ViewCommand(ViewCommand.STOP));
+			}
+			
+			public function onAppletStart(event:AppletStartedEvent):void{
+				if (!sharing) return;
+				
+				LogUtil.debug("DeskShareWindow::onAppletStart");
+				sharing = true;
+				startThumbnail(connection, _module.getRoom());
+				
+				//Send a notification to all room participants to start viewing the stream
+				var e:ViewCommand = new ViewCommand(ViewCommand.START);
+				e.captureHeight = captureHeight;
+				e.captureWidth = captureWidth;
+				dispatchEvent(e);
+			}
+			
+			public function startThumbnail(nc:NetConnection, streamName:String):void{
+				LogUtil.debug("DimensionsBox - Starting thumbnail view");
+				LogUtil.debug("connection:" + nc.uri + " stream:" + streamName);
+				
+				videoHolder = new UIComponent();
+				video = new Video(captureWidth/SCALE, captureHeight/SCALE);
+				videoHolder.width = captureWidth/SCALE;
+				videoHolder.height = captureHeight/SCALE;
+				videoHolder.addChild(video);
+				this.addChild(videoHolder);
+				this.width = video.width + 6;
+				this.height = video.height + 29;
+				
+				ns = new NetStream(nc);
+				ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
+				ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );
+				ns.client = this;
+				ns.bufferTime = 0;
+				ns.receiveVideo(true);
+				ns.receiveAudio(false);
+				video.attachNetStream(ns);
+				ns.play(streamName);
+			}
+			
+			public function stopThumbnail():void{
+				ns.close();
+			}
+			
+			private function onAsyncError(e:AsyncErrorEvent):void{
+				LogUtil.debug("VIdeoWindow::asyncerror " + e.toString());
+			}
+			
+			private function onNetStatus(e:NetStatusEvent):void{
+				switch(e.info.code){
+				case "NetStream.Publish.Start":
+					LogUtil.debug("NetStream.Publish.Start for broadcast stream " + stream);
+					break;
+				case "NetStream.Play.UnpublishNotify":
+					this.close();
+					break;
+				}
+			}
+			
+			private function closeWindow(e:Event):void{
+				this.close();
+			}
+			
+			override public function close(event:MouseEvent = null):void {
+				stopSharing();
+				dispatchEvent(new WindowCommand(WindowCommand.CLOSE));
+				super.close(event);
+			}		
+		]]>
+	</mx:Script>
+	
+	<mate:Listener type="{AppletStartedEvent.APPLET_STARTED}" method="onAppletStart" />
+	<mate:Listener type="{MadePresenterEvent.MADE_PRESENTER}" method="closeWindow" />
+</MDIWindow>
