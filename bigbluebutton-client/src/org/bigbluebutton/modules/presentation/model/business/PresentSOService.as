@@ -429,6 +429,7 @@ package org.bigbluebutton.modules.presentation.model.business
 			var completedSlides : Number;
 			var message : String;
 			
+			var dispatcher:Dispatcher;
 			switch (returnCode)
 			{
 				case SUCCESS_RC:
@@ -438,7 +439,7 @@ package org.bigbluebutton.modules.presentation.model.business
 					info["message"] = _presentationSO.data.updateMessage.message;
 					info["presentationName"] = _presentationSO.data.updateMessage.presentationName;
 					
-					var dispatcher:Dispatcher = new Dispatcher();
+					dispatcher = new Dispatcher();
 					dispatcher.dispatchEvent(new ConvertSuccessEvent());
 					
 					sendMessage(PresentModuleConstants.CONVERT_SUCCESS_EVENT, info);
@@ -457,7 +458,7 @@ package org.bigbluebutton.modules.presentation.model.business
 				
 					LogUtil.debug("RECEIVED THUMBNAILS UPDATE");
 					
-					var dispatcher:Dispatcher = new Dispatcher();
+					dispatcher = new Dispatcher();
 					dispatcher.dispatchEvent(new ThumbnailsProgressEvent());
 /**
 					totalSlides = _presentationSO.data.updateMessage.totalSlides;
