@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import xugglerutils.JoinedStream;
 import xugglerutils.StreamDownsizer;
 
-public class VideoApplication extends MultiThreadedApplicationAdapter {
+public class VideoApplication extends MultiThreadedApplicationAdapter { 
 	private static Logger log = Red5LoggerFactory.getLogger(VideoApplication.class, "video");
 	
 	private IScope appScope;
