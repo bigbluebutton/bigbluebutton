@@ -10,6 +10,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.events.ResizeEvent;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
@@ -64,6 +65,9 @@
 				camera.setQuality(0,0);
 				
 				video = new Video(camWidth, camHeight);
+				//Next two lines may seem redundant but they're not. Do not delete.
+				video.width = camWidth;
+				video.height = camHeight;
 				video.attachCamera(camera);
 				videoHolder.addChild(video);
 				addChild(videoHolder);
@@ -132,7 +136,7 @@
 		]]>
 	</mx:Script>
 	
-	<mx:UIComponent id="videoHolder" width="100%" height="100%" />
+	<mx:UIComponent id="videoHolder" width="{camWidth}" height="{camHeight}" />
 	<mx:ControlBar id="bottomBar">
 		<mx:Button id="btnStartPublish" toolTip="start streaming" icon="{camIcon}" click="startPublishing()" />
 		<mx:ComboBox id="cmbCameraSelector" dataProvider="{Camera.names}" width="150" visible="false" />

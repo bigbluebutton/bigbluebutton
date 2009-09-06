@@ -38,6 +38,8 @@
 				
 				setVideoResolution(stream);
 				video = new Video(this.width, this.height);
+				video.width = this.width;
+				video.height = this.height;
 				video.attachNetStream(ns);
 				ns.play(stream);	
 				

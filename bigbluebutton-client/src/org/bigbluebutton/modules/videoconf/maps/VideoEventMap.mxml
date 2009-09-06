@@ -59,6 +59,8 @@
 			
 			private function stopPublishing(e:StopBroadcastEvent):void{
 				proxy.stopBroadcasting(e);
+				proxy = null;
+				proxy = new VideoProxy(module.uri);
 				var broadcastEvent:BroadcastStoppedEvent = new BroadcastStoppedEvent();
 				broadcastEvent.stream = e.stream;
 				broadcastEvent.userid = module.userid;
