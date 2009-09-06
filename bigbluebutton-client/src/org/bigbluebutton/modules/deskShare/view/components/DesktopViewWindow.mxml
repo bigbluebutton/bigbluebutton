@@ -87,8 +87,8 @@
 			}	
 			
 			public function onResize(e:ResizeEvent):void{
-				video.width = videoHolder.width;
-				video.height = videoHolder.height;
+				//video.width = videoHolder.width;
+				//video.height = videoHolder.height;
 			}
 			
 			private function closeWindow(e:StopViewingEvent):void{
