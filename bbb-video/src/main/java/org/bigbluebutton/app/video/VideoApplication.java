@@ -56,6 +56,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     @Override
     public void streamPublishStart(IBroadcastStream stream) {
       log.debug("streamPublishStart: {}; {}", stream, stream.getPublishedName());
+      System.out.println("streamPublishStart: "+ stream.getPublishedName());
       super.streamPublishStart(stream);
       videoTranscoder.startTranscodingStream(stream,
           Red5.getConnectionLocal().getScope());
