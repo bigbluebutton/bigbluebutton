@@ -11,4 +11,6 @@ public class VideoAppConstants {
 	
 	public static final int TILE_WIDTH = 160;
 	public static final int TILE_HEIGHT = 160;
+	
+	public static final String TILE_PREFIX = "small";
 }
