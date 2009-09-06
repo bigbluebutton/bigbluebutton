@@ -47,7 +47,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     @Override
 	public void appDisconnect(IConnection conn) {
 		log.info("oflaDemo appDisconnect");
-		super.appDisconnect(conn);
+		super.appDisconnect(conn);//
 	}
     
     /**
