@@ -2,11 +2,12 @@
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" icon="{camIcon}" click="openPublishWindow()" creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.modules.videoconf.events.OpenPublishWindowEvent;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			private var images:Images = new Images();
-			[Bindable] public var camIcon:Class = images.webcam_img;
+			[Bindable] public var camIcon:Class = images.webcam;
 			
 			private var dispatcher:Dispatcher;
 			
