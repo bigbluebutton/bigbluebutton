@@ -6,10 +6,11 @@
 	width="{camWidth + 6}" height="{camHeight + 73}" 
 	title="Stream webcam" 
 	backgroundImage="{bbbLogo}" 
-	resizable="false">
+	resizable="false" xmlns:mate="http://mate.asfusion.com/">
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
 			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
@@ -124,6 +125,10 @@
 				else cmbResolution.visible = false;
 			}
 			
+			private function closeWindow(e:CloseAllWindowsEvent):void{
+				this.close();
+			}
+			
 		]]>
 	</mx:Script>
 	
@@ -133,4 +138,6 @@
 		<mx:ComboBox id="cmbCameraSelector" dataProvider="{Camera.names}" width="150" visible="false" />
 		<mx:ComboBox id="cmbResolution" dataProvider="{resolutions}" width="20%" visible="false" />
 	</mx:ControlBar>
+	
+	<mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
 </MDIWindow>

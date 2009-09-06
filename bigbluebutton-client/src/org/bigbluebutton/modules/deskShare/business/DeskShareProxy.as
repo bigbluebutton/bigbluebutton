@@ -155,6 +155,10 @@ package org.bigbluebutton.modules.deskShare.business
 			
 		}
 		
+		public function onBWDone():void{
+			
+		}
+		
 		/**
 		 * Invoked on the server once the clients' applet has started sharing and the server has started a video stream 
 		 * 

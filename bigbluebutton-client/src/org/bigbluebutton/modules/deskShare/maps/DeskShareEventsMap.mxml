@@ -15,7 +15,6 @@
 			import org.bigbluebutton.modules.deskShare.events.WindowCommand;
 			import org.bigbluebutton.modules.deskShare.events.ViewCommand;
 			import org.bigbluebutton.modules.deskShare.business.DeskShareProxy;
-			import org.bigbluebutton.modules.deskShare.view.components.DeskShareWindow;
 		
 			public var window:DesktopPublishWindow;
 			public var proxy:DeskShareProxy;

@@ -3,6 +3,7 @@
 	xmlns:maps="org.bigbluebutton.modules.videoconf.maps.*" implements="org.bigbluebutton.common.IBigBlueButtonModule">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
 			import org.bigbluebutton.modules.videoconf.business.VideoProxy;
 			import mx.controls.Alert;
 			import com.asfusion.mate.events.Dispatcher;
@@ -83,7 +84,7 @@
 			}
 		
 			public function stop():void {
-				
+				dispatchEvent(new CloseAllWindowsEvent());
 			}
 		]]>
 	</mx:Script>

@@ -97,6 +97,10 @@ package org.bigbluebutton.modules.videoconf.business
 		public function stopBroadcasting(e:StopBroadcastEvent):void{
 			ns.close();
 		}
+		
+		public function onBWDone():void{
+			
+		}
 
 	}
 }

@@ -29,9 +29,6 @@
 			import mx.managers.PopUpManager; 
 
 			private function init():void {
-				var pageURL:String = mx.core.Application.application.url.split("/")[2];
-            	var url:URLRequest = new URLRequest("http://" + pageURL + "/conference-session/signOut");
-            	LogUtil.debug("Log out url: " + pageURL);
 				addEventListener(Event.CLOSE, onUserLoggedOutWindowClose);
 			}
 			

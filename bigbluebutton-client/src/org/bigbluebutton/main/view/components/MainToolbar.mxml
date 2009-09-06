@@ -29,6 +29,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.controls.Alert;
 			import org.bigbluebutton.main.events.AddToolbarButtonEvent;
 			import org.bigbluebutton.main.events.RemoveToolbarButtonEvent;
 			import org.bigbluebutton.main.events.CloseWindowEvent;
