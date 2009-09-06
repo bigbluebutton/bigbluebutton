@@ -31,7 +31,7 @@ import com.xuggle.xuggler.SimpleMediaFile;
 import com.xuggle.xuggler.video.ConverterFactory;
 import com.xuggle.xuggler.video.IConverter;
 
-public class JoinedStream {
+public class JoinedStream implements Runnable {
 	final private Logger log = Red5LoggerFactory.getLogger(JoinedStream.class, "deskshare");
 	
 	private IStreamCoder outStreamCoder;
@@ -42,8 +42,7 @@ public class JoinedStream {
 	
 	private static final Red5HandlerFactory factory = Red5HandlerFactory.getFactory();
 	private final IRTMPEventIOHandler outputHandler;
-	private Runnable pictureSender;
-	private boolean keepStreaming = false;
+	private boolean keepStreaming = true;
 	
 	private long timestamp = 0, frameNumber = 0;
 	private int width, height, frameRate, timestampBase;
@@ -80,16 +79,12 @@ public class JoinedStream {
 		};
 	}
 	
-	public void start(){
+	public void run(){
 		startPublishing(scope);
-		setupStreams();
-		pictureSender = new Runnable() {
-			public void run(){
-				while(keepStreaming){
-					encodePicture(imageProcessor.getImage());
-				}
-			}
-		};
+		while(keepStreaming){
+			encodePicture(imageProcessor.getImage());
+		}
+			
 	}
 	
 	/**
