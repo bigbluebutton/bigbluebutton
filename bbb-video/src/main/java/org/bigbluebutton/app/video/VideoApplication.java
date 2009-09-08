@@ -28,7 +28,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 
     @Override
 	public boolean appConnect(IConnection conn, Object[] params) {
-		log.info("oflaDemo appConnect");
+		log.info("bbb-video appConnect");
 		// Trigger calling of "onBWDone", required for some FLV players
 		measureBandwidth(conn);
 		if (conn instanceof IStreamCapableConnection) {
@@ -46,7 +46,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 
     @Override
 	public void appDisconnect(IConnection conn) {
-		log.info("oflaDemo appDisconnect");
+		log.info("bbb-video appDisconnect");
 		super.appDisconnect(conn);//
 	}
     

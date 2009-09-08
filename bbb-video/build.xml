@@ -245,6 +245,20 @@
       	</sequential>
 	</macrodef>	
 	
+	<macrodef name="xuggler">
+   		<attribute name="webapp"/>
+   		<sequential>
+			<!-- copy the xuggler config per webapp and associated jars -->			
+			<copy todir="${dist.webapps.dir}/@{webapp}/WEB-INF/lib/">
+				<fileset dir="${lib.dir}">
+					<include name="xuggle-xuggler-3.0.660.jar"/>
+					<include name="xuggle-xuggler-red5-3.0.662.jar"/>
+					<include name="mina-core-2.0.0-M6.jar"/>
+				</fileset>
+			</copy>		
+      	</sequential>
+	</macrodef>
+	
 	<target name="dist" description="Make Binary distribution" depends="jar">
 		<copy-app name="video">
 			<copy-assets>

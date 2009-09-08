@@ -20,6 +20,11 @@
         <dependency org="spring" name="spring-context" rev="2.5.6" />
         <dependency org="spring" name="spring-core" rev="2.5.6" />
         
+        <!--Xuggler -->
+        <dependency org="com/xuggle" name="xuggle-xuggler" rev="3.0.660" />
+        <dependency org="com/xuggle" name="xuggle-xuggler-red5" rev="3.0.662" />
+        <dependency org="org.apache.mina" name="mina-core" rev="2.0.0-M6" />
+        
         <dependency org="javax.servlet" name="servlet-api" rev="2.5" />     
     </dependencies>
 </ivy-module>

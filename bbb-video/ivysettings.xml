@@ -29,6 +29,7 @@
         </chain>
     </resolvers>
     <modules>
+    	<module organisation="com/xuggle" name="*" resolver="blindside-repos"/>
     	<module organisation="spring" name="*" resolver="googlecode"/> 
         <module organisation=".*" name="*" resolver="remote"/>		
     </modules>    
