@@ -58,6 +58,7 @@
 			private var _userrole:String;
 			
 			private function init():void{
+				checkIfMacCamera();
 				if (isPresenter()) showResControls(true);
 				if (Camera.names.length > 1) showVideoControls(true);
 				if (!isPresenter() && Camera.names.length == 1) startPublishing();
@@ -156,6 +157,12 @@
 			
 			private function closeWindow(e:CloseAllWindowsEvent):void{
 				this.close();
+			}
+			
+			private function checkIfMacCamera():void{
+				for (var i:Number; i<Camera.names.length; i++){
+					if (Camera.names[i] == "USB Video Class Video") cmbCameraSelector.selectedIndex = i;
+				}
 			}
 			
 		]]>
