@@ -254,6 +254,7 @@
 					<include name="xuggle-xuggler-3.0.660.jar"/>
 					<include name="xuggle-xuggler-red5-3.0.662.jar"/>
 					<include name="mina-core-2.0.0-M6.jar"/>
+					<include name="jetm-1.2.3.jar"/>
 				</fileset>
 			</copy>		
       	</sequential>
@@ -263,6 +264,7 @@
 		<copy-app name="video">
 			<copy-assets>
 				<logback webapp="video"/>
+				<xuggler webapp="video"/>
 			</copy-assets>
 		</copy-app>
 	</target>
