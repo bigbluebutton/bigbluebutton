@@ -47,6 +47,8 @@
 				ns.receiveAudio(false);
 				
 				video = new Video(width, height);
+				video.width = width;
+				video.height = height;
 				video.attachNetStream(ns);
 				ns.play(stream);	
 				

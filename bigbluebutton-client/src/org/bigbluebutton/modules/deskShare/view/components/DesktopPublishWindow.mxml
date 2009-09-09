@@ -106,6 +106,8 @@
 				
 				videoHolder = new UIComponent();
 				video = new Video(captureWidth/SCALE, captureHeight/SCALE);
+				video.width = captureWidth/SCALE;
+				video.height = captureHeight/SCALE;
 				videoHolder.width = captureWidth/SCALE;
 				videoHolder.height = captureHeight/SCALE;
 				videoHolder.addChild(video);

@@ -27,6 +27,8 @@
 			
 			private function sendStopViewingCommand():void{
 				proxy.sendStopViewingNotification();
+				proxy = new DeskShareProxy(module);
+				window = null;
 			}
 			
 			private function openWindow():void{
@@ -35,6 +37,7 @@
 			
 			private function closeWindow():void{
 				proxy.stop();
+				window = null;
 			}
 			
 			public function addToolbarButton():void {
@@ -49,17 +52,18 @@
 				globalDispatcher.dispatchEvent(event);
 			}
 			
-			public function removeToolbarButton():void {
+			public function disableToolbarButton():void {
 				if (button.enabled) {
-					var event:RemoveToolbarButtonEvent = new RemoveToolbarButtonEvent(RemoveToolbarButtonEvent.REMOVE_TOOLBAR_BUTTON_EVENT);
+					button.enabled = false;
+					/*var event:RemoveToolbarButtonEvent = new RemoveToolbarButtonEvent(RemoveToolbarButtonEvent.REMOVE_TOOLBAR_BUTTON_EVENT);
 					event.button = button;
 					trace("Dispatching REMOVE TOOLBAR BUTTON EVENT");
-					globalDispatcher.dispatchEvent(event);
+					globalDispatcher.dispatchEvent(event);*/
 				}
 			}
 			
 			private function changeToolbarButton(e:MadePresenterEvent):void{
-				if (!e.presenter) removeToolbarButton();  
+				if (!e.presenter) disableToolbarButton();  
 			}
 			
 			private function openDeskShareWindow():void{
