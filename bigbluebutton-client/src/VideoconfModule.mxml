@@ -81,6 +81,9 @@
 				eventMap.module = this;
 				eventMap.proxy = proxy;
 				eventMap.addToolbarButton();
+				
+				//experimantal
+				//eventMap.addTiledWindow();
 			}
 		
 			public function stop():void {

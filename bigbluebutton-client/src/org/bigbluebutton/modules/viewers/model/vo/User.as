@@ -19,9 +19,13 @@
 */
 package org.bigbluebutton.modules.viewers.model.vo
 {
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import mx.collections.ArrayCollection;
+	import mx.controls.Alert;
 	
 	import org.bigbluebutton.common.Role;
+	import org.bigbluebutton.modules.viewers.view.events.StreamStartedEvent;
 	
 	public class User
 	{
@@ -61,6 +65,7 @@ package org.bigbluebutton.modules.viewers.model.vo
 					break;
 				case "hasStream":
 					hasStream = status.value;
+					if (hasStream) sendStreamStartedEvent();
 					break;
 				case "streamName":
 					streamName = status.value as String;
@@ -118,6 +123,11 @@ package org.bigbluebutton.modules.viewers.model.vo
 			n.room = user.room;
 			
 			return n;		
+		}
+		
+		private function sendStreamStartedEvent():void{
+			var dispatcher:Dispatcher = new Dispatcher();
+			dispatcher.dispatchEvent(new StreamStartedEvent(this.name, this.streamName));
 		}
 	}
 }

@@ -2,6 +2,8 @@
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.viewers.view.events.StreamStartedEvent;
+			import org.bigbluebutton.modules.videoconf.views.TiledVideoWindow;
 			import org.bigbluebutton.modules.videoconf.events.BroadcastStoppedEvent;
 			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
 			import org.bigbluebutton.modules.videoconf.events.BroadcastStartedEvent;
@@ -20,6 +22,7 @@
 			private var button:ToolbarButton;
 			private var publishWindow:PublishWindow;
 			public var proxy:VideoProxy;
+			private var tiledWindow:TiledVideoWindow;
 			
 			private function viewCamera(e:ViewCameraEvent):void{
 				var window:VideoWindow = new VideoWindow();
@@ -49,7 +52,7 @@
 			}
 			
 			private function startPublishing(e:StartBroadcastEvent):void{
-			    LogUtil.debug("Publishing stream " + e.stream);
+			    LogUtil.debug("Publishing stream to: " + proxy.connection.uri + "/" + e.stream);
 				proxy.startPublishing(e);
 				var broadcastEvent:BroadcastStartedEvent = new BroadcastStartedEvent();
 				broadcastEvent.stream = e.stream;
@@ -65,6 +68,21 @@
 				broadcastEvent.stream = e.stream;
 				broadcastEvent.userid = module.userid;
 				globalDispatcher.dispatchEvent(broadcastEvent);
+			}
+			
+			public function addTiledWindow():void{
+				tiledWindow = new TiledVideoWindow();
+				tiledWindow.connection = module.connection;
+				
+				var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
+				windowEvent.window = tiledWindow;
+				globalDispatcher.dispatchEvent(windowEvent);
+				
+			}
+			
+			private function streamStarted(e:StreamStartedEvent):void{
+				if (tiledWindow == null) return;
+				tiledWindow.addStream(e.user, e.stream);
 			}
 		]]>
 	</mx:Script>
@@ -82,4 +100,5 @@
 	</EventHandlers>
 	
 	<Listener type="{ViewCameraEvent.VIEW_CAMERA_EVENT}" method="viewCamera" />
+	<Listener type="{StreamStartedEvent.STREAM_STARTED}" method="streamStarted" />
 </EventMap>

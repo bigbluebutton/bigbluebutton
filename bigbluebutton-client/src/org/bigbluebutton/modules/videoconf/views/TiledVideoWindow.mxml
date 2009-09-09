@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MDIWindow xmlns="flexlib.mdi.containers.*" 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	implements="org.bigbluebutton.common.IBbbModuleWindow"
+	creationComplete="onCreationComplete()"
+	resizable="false"
+	width="390" height="361">
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.core.UIComponent;
+			import flexlib.mdi.events.MDIWindowEvent;
+			
+			public static const TILE_WIDTH:Number = 128;
+			public static const TILE_HEIGHT:Number = 96;
+			
+			private var _xPosition:int = 200;
+			private var _yPosition:int = 200;
+			
+			private var tiles:Array = new Array(9); 
+			public var connection:NetConnection;
+			private var numStreamsPlaying:Number = 0;
+			//private var ns:NetStream;
+			
+			//The following code block is to deal with a bug in FLexLib with MDI windows not responding well to being maximized
+			private var savedWindowWidth:Number;
+			private var savedWindowHeight:Number;
+			private var savedX:Number;
+			private var savedY:Number;
+			private var isMaximized:Boolean = false;
+			override public function maximize():void{
+				if (!isMaximized){
+					savedWindowHeight = this.height;
+					savedWindowWidth = this.width;
+					savedX = this.x;
+					savedY = this.y;
+                	dispatchEvent(new MDIWindowEvent(MDIWindowEvent.MAXIMIZE, this));
+                	isMaximized = true;
+				} else{
+					this.width = savedWindowWidth;
+					this.height = savedWindowHeight;
+					this.x = savedX;
+					this.y = savedY;
+					isMaximized = false;
+					//dispatchEvent(new MDIWindowEvent(MDIWindowEvent.RESTORE, this));
+				}	
+			}
+			
+			private function onCreationComplete():void{
+				setupTiles();
+			}
+			
+			public function addStream(user:String, stream:String):void{
+				LogUtil.debug("TiledVideo new stream added: " + stream);
+				var ns:NetStream = new NetStream(connection);
+				ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
+				ns.client = this;
+				ns.bufferTime = 0;
+				ns.receiveVideo(true);
+				ns.receiveAudio(false);
+				
+				var video:Video = tiles[numStreamsPlaying] as Video;
+				video.width = TILE_WIDTH;
+				video.height = TILE_HEIGHT;
+				video.attachNetStream(ns);
+				ns.play("small" + stream);
+				
+				numStreamsPlaying ++;
+			}
+			
+			private function onAsyncError(e:AsyncErrorEvent):void{
+				LogUtil.debug("TiledVideoWindow::asyncerror " + e.toString());
+			}
+			
+			public function get xPosition():int {
+				return _xPosition;
+			}
+			
+			public function get yPosition():int {
+				return _yPosition;
+			}
+			
+			public function set xPosition(x:int):void {
+				_xPosition = x;
+			}
+			
+			public function set yPosition(y:int):void {
+				_yPosition = y;
+			}	
+			
+			private function setupTiles():void{
+				var tile0:UIComponent = new UIComponent();
+				tile0.x = 0;
+				tile0.y = 0;
+				addChild(tile0);
+				var video0:Video= new Video(TILE_WIDTH, TILE_HEIGHT);
+				tiles[0] = video0;
+				tile0.addChild(video0);
+				
+				var tile1:UIComponent = new UIComponent();
+				tile1.x = TILE_WIDTH + 1;
+				tile1.y = 0;
+				addChild(tile1);
+				var video1:Video= new Video(TILE_WIDTH, TILE_HEIGHT);
+				tiles[1] = video1;
+				tile1.addChild(video1);
+				
+				var tile2:UIComponent = new UIComponent();
+				tile2.x = TILE_WIDTH*2 + 2;
+				tile2.y = 0;
+				addChild(tile2);
+				var video2:Video= new Video(TILE_WIDTH, TILE_HEIGHT);
+				tiles[2] = video2;
+				tile2.addChild(video2);
+				
+				var tile3:UIComponent = new UIComponent();
+				tile3.x = 0;
+				tile3.y = TILE_HEIGHT + 1;
+				addChild(tile3);
+				var video3:Video= new Video(TILE_WIDTH, TILE_HEIGHT);
+				tiles[3] = video3;
+				tile3.addChild(video3);
+				
+				var tile4:UIComponent = new UIComponent();
+				tile4.x = TILE_WIDTH + 1;
+				tile4.y = TILE_HEIGHT + 1;
+				addChild(tile4);
+				var video4:Video= new Video(TILE_WIDTH, TILE_HEIGHT);
+				tiles[4] = video4;
+				tile4.addChild(video4);
+				
+				var tile5:UIComponent = new UIComponent();
+				tile5.x = TILE_WIDTH*2 + 2;
+				tile5.y = TILE_HEIGHT + 1;
+				addChild(tile5);
+				var video5:Video= new Video(TILE_WIDTH, TILE_HEIGHT);
+				tiles[5] = video5;
+				tile5.addChild(video5);
+				
+				var tile6:UIComponent = new UIComponent();
+				tile6.x = 0;
+				tile6.y = TILE_HEIGHT*2 + 2;
+				addChild(tile6);
+				var video6:Video= new Video(TILE_WIDTH, TILE_HEIGHT);
+				tiles[6] = video6;
+				tile6.addChild(video6);
+				
+				var tile7:UIComponent = new UIComponent();
+				tile7.x = TILE_WIDTH + 1;
+				tile7.y = TILE_HEIGHT*2 + 2;
+				addChild(tile7);
+				var video7:Video= new Video(TILE_WIDTH, TILE_HEIGHT);
+				tiles[7] = video7;
+				tile7.addChild(video7);
+				
+				var tile8:UIComponent = new UIComponent();
+				tile8.x = TILE_WIDTH*2 + 2;
+				tile8.y = TILE_HEIGHT*2 + 2;
+				addChild(tile8);
+				var video8:Video= new Video(TILE_WIDTH, TILE_HEIGHT);
+				tiles[8] = video8;
+				tile8.addChild(video8);
+			}
+		]]>
+	</mx:Script>
+	
+</MDIWindow>
