@@ -66,6 +66,8 @@ public class ConversionUpdatesReceiverImp implements ConversionUpdatesReceiver {
 		message.put('code', code)
 		message.put('presentationName', presentationName)
 		
+		log.debug "JMS: ${code}[$presentationName]"
+		
 		switch (code) {
 			case 'SUCCESS':
 				log.debug "JMS: SUCCESS[$presentationName]"
