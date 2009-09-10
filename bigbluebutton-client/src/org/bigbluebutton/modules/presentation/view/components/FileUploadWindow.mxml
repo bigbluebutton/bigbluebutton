@@ -41,7 +41,7 @@
             	
 			public var presentationNames:Array;
 	        
-	        private var thumbnailTimer:Timer;
+	        private var thumbnailTimer:Timer = new Timer(5000);
 	        private var genThumbText:String = "Generating thumbnails..";
 	        private var genThumbDots:String = ".";
 	        
@@ -73,10 +73,8 @@
 			
 			private function handleThumbnailsProgressEvent(event:Event):void {	
 				genThumbDots = ".";
-							
-				var delay:uint = 5000;
-            	var repeat:uint = 20;
-            	thumbnailTimer = new Timer(delay, repeat);
+
+            	thumbnailTimer.repeatCount = 20;
             	thumbnailTimer.addEventListener(TimerEvent.TIMER, timerHandler);
             	thumbnailTimer.addEventListener(TimerEvent.TIMER_COMPLETE, completeHandler);
             
