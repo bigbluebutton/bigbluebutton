@@ -151,6 +151,9 @@ class PresentationService {
 			sendConversionUpdateMessage(conference, room, presentationName, numPages, page)
 	    }
 
+		// Send twice...seem to be loosing messages...need to understand some more 
+		// how to set JMS producer-consumer
+		sendCreatingThumbnailsUpdateMessage(conference, room, presentationName)
 		sendCreatingThumbnailsUpdateMessage(conference, room, presentationName)
 		createPresentationThumbnails(presentationFile, numPages)
 		
