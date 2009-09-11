@@ -85,7 +85,7 @@ public class DeskShareStream implements NewScreenListener {
 	private String outStreamName;
 	private IScope scope;
 	
-	public static final int LARGER_DIMENSION = 1280;
+	public static final int LARGER_DIMENSION = 5280;
 
 	
 	/**
@@ -103,7 +103,7 @@ public class DeskShareStream implements NewScreenListener {
 		this.changedTileProcessor = new ChangedTileProcessor(width, height);
 		encodingHeight = height;
 		encodingWidth = width;
-	//	calculateEncodingDimensions();
+	  	calculateEncodingDimensions();
 		
 		changedTileProcessor.addNewScreenListener(this);		
 		changedTileProcessor.start();
