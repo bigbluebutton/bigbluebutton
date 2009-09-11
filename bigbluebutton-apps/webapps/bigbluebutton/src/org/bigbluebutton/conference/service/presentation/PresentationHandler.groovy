@@ -40,7 +40,7 @@ public class PresentationHandler extends ApplicationAdapter implements IApplicat
 
 	private ArchiveApplication archiveApplication
 	private PresentationApplication presentationApplication
-	private ConversionUpdatesReceiver conversionUpdatesReceiver
+	private ConversionUpdatesMessageListener conversionUpdatesMessageListener
 	
 	@Override
 	public boolean appConnect(IConnection conn, Object[] params) {
@@ -68,14 +68,14 @@ public class PresentationHandler extends ApplicationAdapter implements IApplicat
 	@Override
 	public boolean appStart(IScope scope) {
 		log.debug("${APP}:appStart ${scope.name}")
-		conversionUpdatesReceiver.start()
+		conversionUpdatesMessageListener.start()
 		return true;
 	}
 
 	@Override
 	public void appStop(IScope scope) {
 		log.debug("${APP}:appStop ${scope.name}")
-		conversionUpdatesReceiver.stop()
+		conversionUpdatesMessageListener.stop()
 	}
 
 	@Override
@@ -151,9 +151,9 @@ public class PresentationHandler extends ApplicationAdapter implements IApplicat
 		archiveApplication = a
 	}
 	
-	public void setConversionUpdatesReceiver(ConversionUpdatesReceiver service) {
-		log.debug("Setting ConversionUpdatesReceiver")
-		conversionUpdatesReceiver = service
+	public void setConversionUpdatesMessageListener(ConversionUpdatesMessageListener service) {
+		log.debug("Setting conversionUpdatesMessageListener")
+		conversionUpdatesMessageListener = service
 	}
 	
 	private BigBlueButtonSession getBbbSession() {

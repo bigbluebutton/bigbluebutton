@@ -45,8 +45,8 @@
 		<property name="archiveApplication"> 
 			<ref local="archiveApplication"/>
 		</property>
-		<property name="conversionUpdatesReceiver"> 
-			<ref local="conversionUpdatesReceiver"/>
+		<property name="conversionUpdatesMessageListener"> 
+			<ref local="messageListener"/>
 		</property>
 	</bean>
 	
@@ -67,26 +67,24 @@
         </property>
     </bean>
     
-    <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
-        <property name="connectionFactory">
-            <ref local="connectionFactory"/>
-        </property>
-    </bean>
-   
     <bean id="destination" class="org.apache.activemq.command.ActiveMQQueue">
         <constructor-arg index="0">
             <value>UpdatesQueue</value>
         </constructor-arg>
     </bean>
-    
-	<bean id="conversionUpdatesReceiver" class="org.bigbluebutton.conference.service.presentation.ConversionUpdatesReceiverImp">
-		<property name="jmsTemplate"> <ref local="jmsTemplate"/> </property>
-		<property name="destination"> <ref local="destination"/> </property> 
-		<property name="conversionUpdatesProcessor"> <ref local="conversionUpdatesProcessor"/></property>
-	</bean>
-	
+
 	<bean id="conversionUpdatesProcessor" class="org.bigbluebutton.conference.service.presentation.ConversionUpdatesProcessor">
 		<property name="presentationApplication"> <ref local="presentationApplication"/></property>
+	</bean>
+
+	<bean id="messageListener" class="org.bigbluebutton.conference.service.presentation.ConversionUpdatesMessageListener">
+		<property name="conversionUpdatesProcessor" ref="conversionUpdatesProcessor" />
+	</bean>
+
+	<bean id="jmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+  		<property name="connectionFactory" ref="connectionFactory"/>
+  		<property name="destination" ref="destination"/>
+  		<property name="messageListener" ref="messageListener" />
 	</bean>
   	<!-- END PRESENTATION -->
   	

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
   <appender name="BIGBLUEBUTTON" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <File>log/bigbluebutton.log"/File>
+    <File>log/bigbluebutton.log</File>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
       <FileNamePattern>bigbluebutton.%d{yyyy-MM-dd}.log</FileNamePattern>
       <!-- keep 30 days worth of history -->
