@@ -101,9 +101,9 @@ public class DeskShareStream implements NewScreenListener {
 		this.frameRate = frameRate;
 		this.timestampBase = 1000000 / this.frameRate;
 		this.changedTileProcessor = new ChangedTileProcessor(width, height);
-		//encodingHeight = 500;
-		//encodingWidth = 800;
-		calculateEncodingDimensions();
+		encodingHeight = height;
+		encodingWidth = width;
+	//	calculateEncodingDimensions();
 		
 		changedTileProcessor.addNewScreenListener(this);		
 		changedTileProcessor.start();
