@@ -130,7 +130,7 @@
 	<mate:Listener type="{StopViewingEvent.STOP_VIEWING}" method="closeWindow" />
 	
 	<mx:ControlBar id="bottomBar">
-		<mx:HSlider id="zoomSlider" value="100" minimum="50" maximum="150" change="onZoomChange(event)" labels="{['50%','150%']}" labelOffset="0" />
+		<mx:HSlider id="zoomSlider" value="100" minimum="50" maximum="600" change="onZoomChange(event)" labels="{['50%','150%']}" labelOffset="0" />
 		<mx:Label id="lblStatus" />
 	</mx:ControlBar>
 </MDIWindow>
