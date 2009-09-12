@@ -85,7 +85,7 @@ public class DeskShareStream implements NewScreenListener {
 	private String outStreamName;
 	private IScope scope;
 	
-	public static final int LARGER_DIMENSION = 5280;
+	public static final int LARGER_DIMENSION = 1280;
 
 	
 	/**
@@ -136,6 +136,7 @@ public class DeskShareStream implements NewScreenListener {
 		if (width < LARGER_DIMENSION && height< LARGER_DIMENSION){
 			encodingHeight = height;
 			encodingWidth = width;
+			System.out.println("widht: " + encodingWidth + " ,height: " + encodingHeight);
 			return;
 		}
 		
@@ -149,7 +150,7 @@ public class DeskShareStream implements NewScreenListener {
 			smallerDimension = width;
 		}
 		ratio = (double)biggerDimension/(double)smallerDimension;
-		System.out.println("ration = " + ratio);
+		System.out.println("ratio = " + ratio);
 		
 		if (width > height){
 			encodingWidth = LARGER_DIMENSION;
@@ -158,7 +159,7 @@ public class DeskShareStream implements NewScreenListener {
 			encodingHeight = LARGER_DIMENSION;
 			encodingWidth = (int) Math.round(LARGER_DIMENSION/ratio);
 		}
-		//System.out.println("widht: " + encodingWidth + " ,height: " + encodingHeight);
+		System.out.println("widht: " + encodingWidth + " ,height: " + encodingHeight);
 	}
 
 	public void stop() {
