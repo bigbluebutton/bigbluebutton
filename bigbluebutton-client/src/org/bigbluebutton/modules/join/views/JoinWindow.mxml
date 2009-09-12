@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MDIWindow xmlns="flexlib.mdi.containers.*" 
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	implements="org.bigbluebutton.common.IBbbModuleWindow"
+	width="328" height="265" layout="absolute" showCloseButton="false">
+	
+	<mx:Script>
+		<![CDATA[
+			
+			//The following code block is to deal with a bug in FLexLib with MDI windows not responding well to being maximized
+			private var savedWindowWidth:Number;
+			private var savedWindowHeight:Number;
+			private var savedX:Number;
+			private var savedY:Number;
+			private var isMaximized:Boolean = false;
+			override public function maximize():void{
+				if (!isMaximized){
+					savedWindowHeight = this.height;
+					savedWindowWidth = this.width;
+					savedX = this.x;
+					savedY = this.y;
+                	dispatchEvent(new MDIWindowEvent(MDIWindowEvent.MAXIMIZE, this));
+                	isMaximized = true;
+				} else{
+					this.width = savedWindowWidth;
+					this.height = savedWindowHeight;
+					this.x = savedX;
+					this.y = savedY;
+					isMaximized = false;
+					//dispatchEvent(new MDIWindowEvent(MDIWindowEvent.RESTORE, this));
+				}	
+			}
+			
+			private var _xPosition:int;
+			private var _yPosition:int;
+
+			public function get xPosition():int {
+				return _xPosition;
+			}
+			
+			public function get yPosition():int {
+				return _yPosition;
+			}
+			
+			public function set xPosition(x:int):void {
+				_xPosition = x;
+			}
+			
+			public function set yPosition(y:int):void {
+				_yPosition = y;
+			}
+			
+			private function sendJoinEvent():void{
+				
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:Label x="41" y="52" text="Name" id="nameLabel"/> 
+	<mx:TextInput id="nameField" x="98" y="50" tabIndex="1"/>
+	<mx:Label x="10" y="91" text="Conference" id="confLabel"/>
+	<mx:TextInput x="98" y="89" id="confField" tabIndex="2"/>
+	<mx:Label x="22" y="132" text="Password" id="passwdLabel"/>
+	<mx:TextInput x="98" y="130" id="passwdField" displayAsPassword="true" tabIndex="3"/>
+	<mx:Button label="Join" x="243" y="169" click="sendJoinEvent()" tabIndex="4"/>
+	<mx:Label x="21" y="10" text="Complete form to join conference." width="256" id="messageLbl"/>
+	<mx:Label x="22" y="208" width="270" id="lblNote"/>
+</MDIWindow>

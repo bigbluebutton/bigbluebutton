@@ -74,7 +74,7 @@
 				ns.play(stream);	
 				
 				this.width = video.width + 6;
-				this.height = video.height + 29;
+				this.height = video.height + 73;
 				this.stream = stream;
 			}
 			
