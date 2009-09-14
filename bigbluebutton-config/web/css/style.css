@@ -8,7 +8,6 @@ body{
 	
 img{
 	padding:3px;
-	border:#afafaf solid 1px;	
 }
 
 #wrapper{
@@ -16,7 +15,7 @@ img{
 	margin-right:auto;	
 	width:800px;
 	background-color:#fff;	
-	border:1px solid #CCC;
+	/* border:1px solid #CCC; */
 	padding:15px;
 	height:1055px;
 
@@ -39,8 +38,8 @@ img{
 /*	border:#C66 solid 1px; */
 }
 #forUser{
-	width:870px;
-	height:250px;
+	width:800px;
+	height:260px;
 	/* border:#C66 solid 1px;*/
 }
 
@@ -53,6 +52,7 @@ img{
  	height: 225px;
  	width: 225px;
  	float: left;
+	text-align: center;
 }
 
 #userTwo{
@@ -66,9 +66,9 @@ img{
 
 #userThree{
  /*	border:#C66 solid 1px; */
- 	margin: 65px 5px 5px 55px;
+ 	margin: 75px 5px 5px 25px;
  	padding: 10px;
- 	height: 75px;
+ 	height: 100px;
  	width: 125px;
  	float: left;
 }
@@ -141,11 +141,11 @@ img{
 #tutorials{
 	width:100%;
 	height:225px;
-	border:#afafaf solid 1px;
+	/* border:#afafaf solid 1px; */
 }
 
 #usingBBB{
-	margin:0px 5px 5px 10px;
+	margin:0px 0px 0px 0px;
 	width:350px;
 	height:150px;
 	float:left;
@@ -167,6 +167,7 @@ h1 {
 	font-weight:bold;
 	color: #303030;
 	letter-spacing:0.5px;
+	background: #ccd2eb;
 }
 
 
@@ -182,7 +183,7 @@ h2 {
 
 p, ol {
 	margin: 0 0 0.2em 0;
-	text-align: justify;
+	/* text-align: justify; */
 	font-family: Arial, Helvetica, sans-serif;
 	color: #303030;
 }
@@ -213,9 +214,7 @@ html>body #footer {
 	padding-top: 20px;
 	text-align: center;
 	font-size: 10px;
-	color: #303030;
+	/* color: #303030; */
 }
 
-#legal a {
-	color: #cacaca;
-}
+
