@@ -139,7 +139,7 @@
 				video.height = camHeight;
 				video.attachCamera(camera);
 				videoHolder.addChild(video);
-				addChild(videoHolder);
+//				addChild(videoHolder);
 				
 				var e:StartBroadcastEvent = new StartBroadcastEvent();
 				e.stream = this.streamName;
