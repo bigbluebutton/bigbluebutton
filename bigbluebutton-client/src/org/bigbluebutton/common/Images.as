@@ -150,5 +150,8 @@ package org.bigbluebutton.common
         
         [Embed(source="assets/images/deskshare_icon.png")]
         public var deskShareIcon:Class;  
+        
+        [Embed(source="assets/images/control_play_blue.png")]
+        public var control_play:Class;  
 	}
 }

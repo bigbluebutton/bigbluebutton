@@ -69,7 +69,7 @@
 			}
 			
 			private var images:Images = new Images();
-			[Bindable] public var camIcon:Class = images.webcam;
+			[Bindable] public var camIcon:Class = images.control_play;
 			[Bindable] public var bbbLogo:Class = images.bbb_logo;
 			[Bindable] private var resolutions:Array = new Array("320x240", "640x480");
 			
