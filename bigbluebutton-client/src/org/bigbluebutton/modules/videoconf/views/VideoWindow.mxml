@@ -158,9 +158,15 @@
 					LogUtil.debug("NetStream.Publish.Start for broadcast stream " + stream);
 					break;
 				case "NetStream.Play.UnpublishNotify":
+					ns.close();
 					this.close();
 					break;
 				}
+			}
+			
+			override public function close(event:MouseEvent=null):void{
+				ns.close();
+				super.close(event);
 			}		
 			
 		]]>
