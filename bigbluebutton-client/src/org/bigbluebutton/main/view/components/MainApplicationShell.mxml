@@ -171,6 +171,7 @@
 	   			for (var i:Number=0; i<windows.length; i++){
 	   				var window:IBbbModuleWindow = windows[i] as IBbbModuleWindow;
 	   				mdiCanvas.windowManager.absPos(window as MDIWindow, window.xPosition, window.yPosition);
+	   				window.resetWidthAndHeight();
 	   			}
 	   		}
 		]]>

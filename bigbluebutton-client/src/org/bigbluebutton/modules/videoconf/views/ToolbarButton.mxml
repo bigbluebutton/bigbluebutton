@@ -38,6 +38,11 @@
 			
 			private function openPublishWindow():void{
 				dispatchEvent(new OpenPublishWindowEvent());
+				this.visible = false;
+			}
+			
+			public function show():void{
+				this.visible = true;
 			}
 		]]>
 	</mx:Script>

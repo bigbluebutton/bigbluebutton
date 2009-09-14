@@ -132,7 +132,25 @@
 			
 			public function set yPosition(y:int):void {
 				_yPosition = y;
-			}	
+			}
+			
+			public function get defaultWidth():int{
+				return this.width;
+			}
+			
+			public function get defaultHeight():int{
+				return this.height;
+			}
+			
+			public function set defaultHeight(height:int):void{
+				this.height = height;
+			}
+			
+			public function set defaultWidth(width:int):void{
+				this.width = width;
+			}
+			
+			public function resetWidthAndHeight():void{}
 			
 			private function onNetStatus(e:NetStatusEvent):void{
 				switch(e.info.code){

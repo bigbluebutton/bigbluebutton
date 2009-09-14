@@ -29,6 +29,7 @@
 	 
 	<mx:Script>
 		<![CDATA[
+			import flexlib.mdi.events.MDIWindowEvent;
 			import mx.core.Application;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.modules.whiteboard.BoardFacade;

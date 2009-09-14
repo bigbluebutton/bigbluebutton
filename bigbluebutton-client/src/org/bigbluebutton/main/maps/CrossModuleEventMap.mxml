@@ -33,6 +33,7 @@ TypeError: Error #1034: Type Coercion failed: cannot convert org.bigbluebutton.m
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.main.events.AddHighligtherCanvasEvent;
 			import org.bigbluebutton.modules.viewers.view.events.StreamStartedEvent;
 			import org.bigbluebutton.modules.videoconf.events.BroadcastStoppedEvent;
 			import org.bigbluebutton.modules.videoconf.events.BroadcastStartedEvent;
@@ -44,4 +45,5 @@ TypeError: Error #1034: Type Coercion failed: cannot convert org.bigbluebutton.m
 	<Listener type="{BroadcastStartedEvent.BROADCAST_STARTED_EVENT}" />
 	<Listener type="{BroadcastStoppedEvent.BROADCAST_STOPPED}" />
 	<Listener type="{StreamStartedEvent.STREAM_STARTED}" />
+	<Listener type="{AddHighligtherCanvasEvent.ADD_HIGHLIGHTER_CANVAS}" />
 </EventMap>

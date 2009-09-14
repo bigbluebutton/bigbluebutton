@@ -14,7 +14,7 @@
 			[Bindable]
 			private var highlighterCanvas:HighlighterCanvas;
 			
-			private function createHighlighterCanvas():void {
+			public function createHighlighterCanvas():void {
 				highlighterCanvas = new HighlighterCanvas();
 			}
 						

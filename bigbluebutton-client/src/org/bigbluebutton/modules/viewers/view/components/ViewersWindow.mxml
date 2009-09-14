@@ -22,7 +22,9 @@
 
 <viewer:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:viewer="flexlib.mdi.containers.*" 
-	implements="org.bigbluebutton.common.IBbbModuleWindow" xmlns:mate="http://mate.asfusion.com/">
+	implements="org.bigbluebutton.common.IBbbModuleWindow" 
+	xmlns:mate="http://mate.asfusion.com/"
+	width="210" height="220">
 
     <mx:Script>
         <![CDATA[
@@ -96,6 +98,30 @@
 			
 			public function set yPosition(y:int):void {
 				_yPosition = y;
+			}
+			
+			private var _defaultWidth:int = 210;
+			private var _defaultHeight:int = 220;
+			
+			public function get defaultWidth():int{
+				return _defaultWidth;
+			}
+			
+			public function get defaultHeight():int{
+				return _defaultHeight;
+			}
+			
+			public function set defaultHeight(height:int):void{
+				this._defaultHeight = height;
+			}
+			
+			public function set defaultWidth(width:int):void{
+				this._defaultWidth = width;
+			}
+			
+			public function resetWidthAndHeight():void{
+				this.width = _defaultWidth;
+				this.height = _defaultHeight;
 			}
 								
 			public function changeStatus(status:ArrayCollection):void {

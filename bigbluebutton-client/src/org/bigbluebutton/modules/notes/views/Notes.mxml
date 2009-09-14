@@ -84,6 +84,30 @@ Notes.mxml is the main view of the SharedNotes application
 				_yPosition = y;
 			}
 			
+			private var _defaultWidth:int = 400;
+			private var _defaultHeight:int = 300;
+			
+			public function get defaultWidth():int{
+				return _defaultWidth;
+			}
+			
+			public function get defaultHeight():int{
+				return _defaultHeight;
+			}
+			
+			public function set defaultHeight(height:int):void{
+				this._defaultHeight = height;
+			}
+			
+			public function set defaultWidth(width:int):void{
+				this._defaultWidth = width;
+			}
+			
+			public function resetWidthAndHeight():void{
+				this.width = _defaultWidth;
+				this.height = _defaultHeight;
+			}
+			
 		]]>
 	</mx:Script>
 	

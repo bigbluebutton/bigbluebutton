@@ -27,7 +27,8 @@
 	width="{camWidth + 6}" height="{camHeight + 73}" 
 	title="Stream webcam" 
 	backgroundImage="{bbbLogo}" 
-	resizable="false" xmlns:mate="http://mate.asfusion.com/">
+	resizable="false" 
+	xmlns:mate="http://mate.asfusion.com/">
 	
 	<mx:Script>
 		<![CDATA[
@@ -99,7 +100,28 @@
 			
 			public function set yPosition(y:int):void {
 				_yPosition = y;
-			}		
+			}	
+			
+			private var _defaultWidth:int;
+			private var _defaultHeight:int;
+			
+			public function get defaultWidth():int{
+				return _defaultWidth;
+			}
+			
+			public function get defaultHeight():int{
+				return _defaultHeight;
+			}
+			
+			public function set defaultHeight(height:int):void{
+				this._defaultHeight = height;
+			}
+			
+			public function set defaultWidth(width:int):void{
+				this._defaultWidth = width;
+			}
+			
+			public function resetWidthAndHeight():void{}	
 			
 			private function startPublishing():void{
 				var camera:Camera = Camera.getCamera(cmbCameraSelector.selectedIndex.toString());

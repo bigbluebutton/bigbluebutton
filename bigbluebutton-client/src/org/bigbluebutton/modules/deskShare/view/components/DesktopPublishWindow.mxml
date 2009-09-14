@@ -31,6 +31,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import flexlib.mdi.events.MDIWindowEvent;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.modules.deskShare.events.StopViewingEvent;
 			import org.bigbluebutton.modules.deskShare.events.WindowCommand;
@@ -61,6 +62,30 @@
 			private var captureHeight:Number = Capabilities.screenResolutionY;
 			private var captureWidth:Number = Capabilities.screenResolutionX;
 			
+			//The following code block is to deal with a bug in FLexLib with MDI windows not responding well to being maximized
+			private var savedWindowWidth:Number;
+			private var savedWindowHeight:Number;
+			private var savedX:Number;
+			private var savedY:Number;
+			private var isMaximized:Boolean = false;
+			override public function maximize():void{
+				if (!isMaximized){
+					savedWindowHeight = this.height;
+					savedWindowWidth = this.width;
+					savedX = this.x;
+					savedY = this.y;
+                	dispatchEvent(new MDIWindowEvent(MDIWindowEvent.MAXIMIZE, this));
+                	isMaximized = true;
+				} else{
+					this.width = savedWindowWidth;
+					this.height = savedWindowHeight;
+					this.x = savedX;
+					this.y = savedY;
+					isMaximized = false;
+					//dispatchEvent(new MDIWindowEvent(MDIWindowEvent.RESTORE, this));
+				}	
+			}
+			
 			private function onCreationComplete():void{
 				
 			}
@@ -80,6 +105,24 @@
 			public function set yPosition(y:int):void {
 				_yPosition = y;
 			}
+			
+			public function get defaultWidth():int{
+				return this.width;
+			}
+			
+			public function get defaultHeight():int{
+				return this.height;
+			}
+			
+			public function set defaultHeight(height:int):void{
+				this.height = height;
+			}
+			
+			public function set defaultWidth(width:int):void{
+				this.width = width;
+			}
+			
+			public function resetWidthAndHeight():void{}
 			
 			public function startSharing():void{
 				var captureX:Number = 0;

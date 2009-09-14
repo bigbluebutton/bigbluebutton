@@ -26,10 +26,12 @@
 	creationComplete="onCreationComplete()"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
-	title="Desktop Sharing">
+	title="Desktop Sharing" 
+	showCloseButton="false">
 	
 	<mx:Script>
 		<![CDATA[
+			import flexlib.mdi.events.MDIWindowEvent;
 			import mx.events.ResizeEvent;
 			import mx.controls.Alert;
 			import org.bigbluebutton.modules.deskShare.events.StopViewingEvent;
@@ -45,6 +47,30 @@
 			
 			private var _xPosition:int = 675;
 			private var _yPosition:int = 310;
+			
+			//The following code block is to deal with a bug in FLexLib with MDI windows not responding well to being maximized
+			private var savedWindowWidth:Number;
+			private var savedWindowHeight:Number;
+			private var savedX:Number;
+			private var savedY:Number;
+			private var isMaximized:Boolean = false;
+			override public function maximize():void{
+				if (!isMaximized){
+					savedWindowHeight = this.height;
+					savedWindowWidth = this.width;
+					savedX = this.x;
+					savedY = this.y;
+                	dispatchEvent(new MDIWindowEvent(MDIWindowEvent.MAXIMIZE, this));
+                	isMaximized = true;
+				} else{
+					this.width = savedWindowWidth;
+					this.height = savedWindowHeight;
+					this.x = savedX;
+					this.y = savedY;
+					isMaximized = false;
+					//dispatchEvent(new MDIWindowEvent(MDIWindowEvent.RESTORE, this));
+				}	
+			}
 			
 			private function onCreationComplete():void{
 				videoHolder = new UIComponent();
@@ -108,6 +134,30 @@
 			public function set yPosition(y:int):void {
 				_yPosition = y;
 			}	
+			
+			private var _defaultWidth:int = 400;
+			private var _defaultHeight:int = 300; 
+			
+			public function get defaultWidth():int{
+				return _defaultWidth;
+			}
+			
+			public function get defaultHeight():int{
+				return _defaultHeight;
+			}
+			
+			public function set defaultHeight(height:int):void{
+				this._defaultHeight = height;
+			}
+			
+			public function set defaultWidth(width:int):void{
+				this._defaultWidth = width;
+			}
+			
+			public function resetWidthAndHeight():void{
+				this.width = _defaultWidth;
+				this.height = _defaultHeight;
+			}
 			
 			public function onResize(e:ResizeEvent):void{
 				//video.width = videoHolder.width;

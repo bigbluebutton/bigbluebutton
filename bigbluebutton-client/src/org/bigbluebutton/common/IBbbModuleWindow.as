@@ -25,5 +25,10 @@ package org.bigbluebutton.common
 		function get yPosition():int;
 		function set xPosition(x:int):void;
 		function set yPosition(y:int):void;
+		function get defaultWidth():int
+		function get defaultHeight():int;
+		function set defaultWidth(width:int):void;
+		function set defaultHeight(height:int):void;
+		function resetWidthAndHeight():void;
 	}
 }

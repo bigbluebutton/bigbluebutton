@@ -30,7 +30,8 @@
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	mouseMove="thumbnailDisplay()"
 	creationComplete="init()"
-	rollOut="hideThumbs()" xmlns:mate="http://mate.asfusion.com/">
+	rollOut="hideThumbs()" xmlns:mate="http://mate.asfusion.com/"
+	width="450" height="450">
 
 	<mx:Script>
 		<![CDATA[
@@ -121,6 +122,30 @@
 				_yPosition = y;
 			}	
 			
+			[Bindable] private var _defaultWidth:int = 450;
+			[Bindable] private var _defaultHeight:int = 450;
+			
+			public function get defaultWidth():int{
+				return _defaultWidth;
+			}
+			
+			public function get defaultHeight():int{
+				return _defaultHeight;
+			}
+			
+			public function set defaultHeight(height:int):void{
+				this._defaultHeight = height;
+			}
+			
+			public function set defaultWidth(width:int):void{
+				this._defaultWidth = width;
+			}
+			
+			public function resetWidthAndHeight():void{
+				this.width = _defaultWidth;
+				this.height = _defaultHeight;
+			}
+			
 			private function thumbnailDisplay():void{
 				if (!mouseDown && mouseY > this.height*0.8 && isPresenter){
 					thumbnailWindow.y = this.height - 270;
@@ -168,15 +193,18 @@
 			}
 			
 			private function addHighlighter(event:AddHighligtherCanvasEvent):void{
-				var highlighter:Canvas = event.canvas;
-				this.addChild(highlighter);
+				/*var highlighter:Canvas = event.canvas;
+				highlighter.x = mainCanvas.x;
+				highlighter.y = mainCanvas.y;
 				highlighter.width = mainCanvas.width;
 				highlighter.height = mainCanvas.height;
+				this.addChild(highlighter);
+				this.addChildAt(highlighter, numChildren-1);*/
 			}
 
 		]]>
 	</mx:Script>
-	
+	 
 	<mx:Fade id="thumbFadeIn" alphaFrom="1" alphaTo="0" duration="100" />
 	<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />
 	

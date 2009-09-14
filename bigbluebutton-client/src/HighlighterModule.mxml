@@ -38,8 +38,8 @@
 			private static const FROM_HIGHLIGHTER_MODULE:String = "FROM_HIGHLIGHTER_MODULE";
 			
 			private var _router:Router;			
-			private var _moduleId:String = "NotesModule";
-			private var _moduleName:String = "Notes Module";			
+			private var _moduleId:String = "HighlighterModule";
+			private var _moduleName:String = "Highlighter Module";			
 			private var _attributes:Object;
 			
 			private var highlighterCanvas:HighlighterCanvas;
@@ -89,9 +89,9 @@
 				if (_attributes.mode == null) {					
 					//_attributes.mode = "PLAYBACK"
 					_attributes.mode = "LIVE"
-					LogUtil.debug('Setting ChatModule mode: ' + _attributes.mode);
+					LogUtil.debug('Setting HighlighterModule mode: ' + _attributes.mode);
 				}
-				LogUtil.debug('ChatModule mode: ' + _attributes.mode);
+				LogUtil.debug('HighlighterModule mode: ' + _attributes.mode);
 				return _attributes.mode;
 			}
 						
@@ -104,10 +104,11 @@
 			}
 			
 			public function start(attributes:Object):void {	
-				LogUtil.debug("notes attr: " + attributes.username);
+				LogUtil.debug("highlighter attr: " + attributes.username);
 				_attributes = attributes;
 				globalDispatcher = new Dispatcher();
 				eventMap.startSOService(this.uri, this.connection);
+				//eventMap.createHighlighterCanvas();
 				
 				var startEvent:StartHighligtherModuleEvent = new StartHighligtherModuleEvent();
 				dispatchEvent(startEvent);

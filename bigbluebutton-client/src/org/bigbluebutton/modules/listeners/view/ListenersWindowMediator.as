@@ -144,8 +144,6 @@ package org.bigbluebutton.modules.listeners.view
 		private function handleOpenListenersWindow():void {
 			_listenersWindow.listeners = proxy.listeners;
 			_listenersWindow.moderator = proxy.isModerator();
-			_listenersWindow.width = 210;
-		   	_listenersWindow.height = 220;
 		   	_listenersWindow.title = "Voice Participants";
 		   	_listenersWindow.showCloseButton = false;
 		   	_listenersWindow.xPosition = 0;

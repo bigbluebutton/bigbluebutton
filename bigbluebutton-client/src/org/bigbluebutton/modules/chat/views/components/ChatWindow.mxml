@@ -23,7 +23,7 @@
 <MDIWindow xmlns="flexlib.mdi.containers.*" 
 	       xmlns:mx="http://www.adobe.com/2006/mxml" 
 	       xmlns:chat="org.bigbluebutton.modules.chat.views.components.*"
-	       width="590" height="300" showCloseButton="false"
+	       width="{_defaultWidth}" height="{_defaultHeight}" showCloseButton="false"
 	       implements="org.bigbluebutton.common.IBbbModuleWindow" 
 	       creationComplete="onCreationComplete()"
 	       xmlns:components="org.bigbluebutton.modules.chat.view.components.*" xmlns:mate="http://mate.asfusion.com/">
@@ -63,6 +63,30 @@
 			}
 			
 			private var dispState:String;
+			
+			[Bindable] private var _defaultWidth:int = 590;
+			[Bindable] private var _defaultHeight:int = 300;
+			
+			public function get defaultWidth():int{
+				return _defaultWidth;
+			}
+			
+			public function get defaultHeight():int{
+				return _defaultHeight;
+			}
+			
+			public function set defaultHeight(height:int):void{
+				this._defaultHeight = height;
+			}
+			
+			public function set defaultWidth(width:int):void{
+				this._defaultWidth = width;
+			}
+			
+			public function resetWidthAndHeight():void{
+				this.width = _defaultWidth;
+				this.height = _defaultHeight;
+			}
 			
 			public function get xPosition():int {
 				return _xPosition;

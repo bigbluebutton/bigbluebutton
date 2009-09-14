@@ -116,8 +116,6 @@ package org.bigbluebutton.modules.viewers.view
 		private function handleOpenViewersWindow():void {
 				_viewersWindow.participants = proxy.participants;
 				_viewersWindow.isModerator = proxy.isModerator();
-				_viewersWindow.width = 210;
-		   		_viewersWindow.height = 220;
 		   		_viewersWindow.title = "Web Participants";
 		   		_viewersWindow.showCloseButton = false;
 		   		_viewersWindow.xPosition = 0;

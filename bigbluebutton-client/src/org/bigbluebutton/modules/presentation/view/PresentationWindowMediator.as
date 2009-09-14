@@ -176,8 +176,8 @@ package org.bigbluebutton.modules.presentation.view
 					handleViewerMode();
 					break;
 				case PresentModuleConstants.OPEN_PRESENT_WINDOW:
-		   			_presWin.height = 450;
-		   			_presWin.width = 450;
+		   			//_presWin.height = 450;
+		   			//_presWin.width = 450;
 		   			_presWin.title = PresentationWindow.TITLE;
 		   			_presWin.showCloseButton = false;	
 		   			_presWin.xPosition = 220;

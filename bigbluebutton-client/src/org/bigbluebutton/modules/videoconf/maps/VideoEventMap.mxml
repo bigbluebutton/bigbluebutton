@@ -89,6 +89,9 @@
 				broadcastEvent.stream = e.stream;
 				broadcastEvent.userid = module.userid;
 				globalDispatcher.dispatchEvent(broadcastEvent);
+				
+				//Make toolbar button visible again
+				button.show();
 			}
 			
 			public function addTiledWindow():void{
