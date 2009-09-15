@@ -17,7 +17,6 @@ import com.xuggle.red5.Transcoder;
 import com.xuggle.red5.VideoPictureListener;
 import com.xuggle.red5.io.BroadcastStream;
 import com.xuggle.xuggler.ICodec;
-import com.xuggle.xuggler.IPixelFormat;
 import com.xuggle.xuggler.ISimpleMediaFile;
 import com.xuggle.xuggler.IVideoPicture;
 import com.xuggle.xuggler.IVideoResampler;
@@ -38,7 +37,7 @@ public class VideoTranscoder {
 					VideoAppConstants.TILE_WIDTH, VideoAppConstants.TILE_HEIGHT);
 
 			IVideoResampler resampler = IVideoResampler.make(VideoAppConstants.TILE_WIDTH, 
-					VideoAppConstants.TILE_HEIGHT, IPixelFormat.Type.YUV420P, 
+					VideoAppConstants.TILE_HEIGHT, picture.getPixelType(), 
 					picture.getWidth(), picture.getHeight(), picture.getPixelType());
 
 			resampler.resample(outPicture, picture);
@@ -102,12 +101,16 @@ public class VideoTranscoder {
 		 * Now let's give aaffmpeg-red5 some information about what we want to transcode as.
 		 */
 		ISimpleMediaFile outputStreamInfo = new SimpleMediaFile();
-		outputStreamInfo.setHasAudio(false);
+		outputStreamInfo.setHasAudio(true);
+		outputStreamInfo.setAudioBitRate(32000);
+		outputStreamInfo.setAudioChannels(1);
+		outputStreamInfo.setAudioSampleRate(22050);
+		outputStreamInfo.setAudioCodec(ICodec.ID.CODEC_ID_MP3);
 		outputStreamInfo.setHasVideo(true);
 		// Unfortunately the Trans-coder needs to know the width and height
 		// you want to output as; even if you don't know yet.
-		outputStreamInfo.setVideoWidth(VideoAppConstants.TILE_WIDTH);
-		outputStreamInfo.setVideoHeight(VideoAppConstants.TILE_HEIGHT);
+		outputStreamInfo.setVideoWidth(320);
+		outputStreamInfo.setVideoHeight(240);
 		outputStreamInfo.setVideoBitRate(320000);
 		outputStreamInfo.setVideoCodec(ICodec.ID.CODEC_ID_FLV1);
 		outputStreamInfo.setVideoGlobalQuality(0);
