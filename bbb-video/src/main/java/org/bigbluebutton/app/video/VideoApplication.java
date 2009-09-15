@@ -5,30 +5,30 @@ import org.red5.server.adapter.MultiThreadedApplicationAdapter;
 import org.red5.server.api.IBandwidthConfigure;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.IScope;
-import org.red5.server.api.Red5;
-import org.red5.server.api.stream.IBroadcastStream;
+import org.red5.server.api.stream.IServerStream;
 import org.red5.server.api.stream.IStreamCapableConnection;
 import org.red5.server.api.stream.support.SimpleConnectionBWConfig;
 import org.slf4j.Logger;
 
-public class VideoApplication extends MultiThreadedApplicationAdapter { 
+public class VideoApplication extends MultiThreadedApplicationAdapter {
 	private static Logger log = Red5LoggerFactory.getLogger(VideoApplication.class, "video");
 	
-	private VideoTranscoder videoTranscoder = new VideoTranscoder();
-	
 	private IScope appScope;
+
+	private IServerStream serverStream;
 	
     @Override
 	public boolean appStart(IScope app) {
 	    super.appStart(app);
-		log.info("video appStart");  
+		log.info("oflaDemo appStart");
+		System.out.println("oflaDemo appStart");    	
 		appScope = app;
 		return true;
 	}
 
     @Override
 	public boolean appConnect(IConnection conn, Object[] params) {
-		log.info("bbb-video appConnect");
+		log.info("oflaDemo appConnect");
 		// Trigger calling of "onBWDone", required for some FLV players
 		measureBandwidth(conn);
 		if (conn instanceof IStreamCapableConnection) {
@@ -46,30 +46,10 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 
     @Override
 	public void appDisconnect(IConnection conn) {
-		log.info("bbb-video appDisconnect");
-		super.appDisconnect(conn);//
+		log.info("oflaDemo appDisconnect");
+		if (appScope == conn.getScope() && serverStream != null) {
+			serverStream.close();
+		}
+		super.appDisconnect(conn);
 	}
-    
-    /**
-     * Called on publish: NetStream.publish("streamname", "live")
-     */
-    @Override
-    public void streamPublishStart(IBroadcastStream stream) {
-      log.debug("streamPublishStart: {}; {}", stream, stream.getPublishedName());
-      System.out.println("streamPublishStart: "+ stream.getPublishedName());
-      super.streamPublishStart(stream);
-      videoTranscoder.startTranscodingStream(stream,
-          Red5.getConnectionLocal().getScope());
-    }
-    
-    @Override
-    public void streamBroadcastClose(IBroadcastStream stream) {
-      log.debug("streamBroadcastClose: {}; {}", stream, stream.getPublishedName());
-      
-      videoTranscoder.stopTranscodingStream(stream,
-          Red5.getConnectionLocal().getScope());
-      super.streamBroadcastClose(stream);
-    }
-
-    
 }
