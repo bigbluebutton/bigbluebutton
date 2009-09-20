@@ -43,7 +43,14 @@ class UrlMappings {
       		action = [GET:'showThumbnail']
       }
       
-      "/conference-session/$action?/$id?"(controller:"publicScheduledSession") 
+      "/portal/$action"(controller:"portal") 
+
+      "/api/conference"(controller:"adhoc") {
+    	  format = 'xml'
+    	  action = [GET:'show', POST:'create', DELETE:'delete']
+      }
+      
+	  "/conference-session/$action?/$id?"(controller:"publicScheduledSession") 
       
       "/schedule/$action?/$id?"(controller:"scheduledSession") {
 //    	  action = [GET:'show', POST:'create', DELETE:'delete']

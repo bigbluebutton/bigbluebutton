@@ -17,7 +17,8 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 	</bean>
 
     <bean id="pluginMetaManager" class="org.codehaus.groovy.grails.plugins.DefaultPluginMetaManager">
-        <constructor-arg value="classpath*:**/plugins/*/plugin.xml" />
+        <property name="grailsApplication" ref="grailsApplication" />
+        <property name="resourcePattern" value="/WEB-INF/plugins/*/plugin.xml" />
     </bean>
 
     <bean id="grailsConfigurator" class="org.codehaus.groovy.grails.commons.spring.GrailsRuntimeConfigurator">

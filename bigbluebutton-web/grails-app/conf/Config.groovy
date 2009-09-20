@@ -102,7 +102,7 @@ environments {
         	 * 	 grails.app.controller="debug, stdout, logfile"
         	 * }
         	 */
-        	logger.grails.app="debug, stdout, logfile"
+        	//logger.grails.app="debug, stdout, logfile"
        }
    }
    production {
@@ -114,7 +114,7 @@ environments {
 	         * 	 grails.app.controller="debug, stdout, logfile"
 	         * }
 	         */
-	        logger.grails.app="debug, stdout, logfile"
+	        //logger.grails.app="debug, stdout, logfile"
        }
    }
    test {
@@ -125,7 +125,7 @@ environments {
    	         * 	 grails.app.controller="debug, stdout, logfile"
    	         * }
    	         */
-   	        logger.grails.app="debug, stdout, logfile"
+   	        //logger.grails.app="debug, stdout, logfile"
        }
    }
 }

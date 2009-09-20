@@ -27,7 +27,9 @@ class SecurityFilters {
                 //if ((controllerName == "join") || (controllerName == "presentation")) return true
 
                 switch (controllerName) {
-                	case 'join':
+                	case 'portal':
+            		case 'join':
+            		case 'adhoc':
                 	case 'presentation':
                 		return true
                 		break
