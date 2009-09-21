@@ -25,7 +25,7 @@
 //                             "file:${userHome}/.grails/${appName}-config.properties",
 //                             "file:${userHome}/.grails/${appName}-config.groovy"]
 
-grails.config.locations = [ "classpath:bigbluebutton.properties","file:/etc/default/bigbluebutton", "file:${userHome}/.bigbluebutton/bigbluebutton.properties"]
+grails.config.locations = [ "classpath:bigbluebutton.properties","file:/etc/default/bigbluebutton"]
 
 // if(System.properties["${appName}.config.location"]) {
 //    grails.config.locations << "file:" + System.properties["${appName}.config.location"]

@@ -24,18 +24,18 @@ public final class AdhocConference{
 
 	final String room  
 	final String moderatorToken
-	final String attendeeToken
+	final String viewerToken
 	final String voiceBridge
 	
 	public AdhocConference(String voiceBridge) {
 		this(voiceBridge, UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString())
 	}
 	
-	public AdhocConference(String voiceBridge, String room, String modToken, String attToken) {
+	public AdhocConference(String voiceBridge, String room, String modToken, String viewerToken) {
 		this.voiceBridge = voiceBridge
 		this.room = room
 		this.moderatorToken = modToken
-		this.attendeeToken = attToken
+		this.viewerToken = viewerToken
 	}
 	
 }

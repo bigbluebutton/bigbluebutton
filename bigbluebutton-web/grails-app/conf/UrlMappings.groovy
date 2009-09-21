@@ -45,11 +45,7 @@ class UrlMappings {
       
       "/portal/$action"(controller:"portal") 
 
-      "/api/conference"(controller:"adhoc") {
-    	  format = 'xml'
-    	  action = [GET:'show', POST:'create', DELETE:'delete']
-      }
-      
+   
 	  "/conference-session/$action?/$id?"(controller:"publicScheduledSession") 
       
       "/schedule/$action?/$id?"(controller:"scheduledSession") {
@@ -64,5 +60,20 @@ class UrlMappings {
 	  "500"(view:'/error')
 	  
 	  "/" (controller: 'conference', action: 'list')
+	  
+	  /***
+	   * Beginning of BBB's REST -APIs
+	   */
+	  
+      "/api/conference"(controller:"adhoc", parseRequest:true) {
+    	  format = 'xml'
+    	  action = [GET:'showConference', POST:'createConference', DELETE:'deleteConference']
+      }
+      
+      "/api/conference/session"(controller:"adhoc", parseRequest:true) {
+    	  format = 'xml'
+    	  action = [GET:'enterConference', POST:'joinConference']
+      }
+         
 	}
 }

@@ -23,8 +23,8 @@ import org.bigbluebutton.presentation.service.AdhocConference
 import java.util.concurrent.ConcurrentHashMap
 
 public class AdhocConferenceService{
-
-	 boolean enabled = false
+	 boolean transactional = false
+	 def serviceEnabled = false
 	
 	 private final Map<String, AdhocConference> conferences
 	 
@@ -83,11 +83,11 @@ public class AdhocConferenceService{
 		return null
 	 }	 
 	 
-	 public boolean conferenceExistWithAttendeeToken(String token) {
+	 public boolean conferenceExistWithViewerToken(String token) {
 		for (Iterator iter = conferences.values().iterator(); iter.hasNext();) {
 			AdhocConference conf = (AdhocConference) iter.next()
-			println conf.attendeeToken
-			if (conf.attendeeToken == token) {
+			println conf.viewerToken
+			if (conf.viewerToken == token) {
 				return true
 			}
 		}			 
@@ -99,15 +99,16 @@ public class AdhocConferenceService{
 	  *  Returns the AdhocConference if present, 
 	  *  or null if absent.
 	  */
-	public AdhocConference getConferenceWithAttendeeToken(String token) {
+	public AdhocConference getConferenceWithViewerToken(String token) {
 		for (Iterator iter = conferences.values().iterator(); iter.hasNext();) {
 			AdhocConference conf = (AdhocConference) iter.next()
-			println conf.attendeeToken
-			if (conf.attendeeToken == token) {
+			println conf.viewerToken
+			if (conf.viewerToken == token) {
 				return conf
 			}
 		}			 
 				
 		return null
 	}	 
+	 
 }

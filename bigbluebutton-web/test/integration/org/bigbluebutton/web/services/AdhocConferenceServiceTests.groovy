@@ -36,12 +36,12 @@ class AdhocConferenceServiceTests extends GrailsUnitTestCase {
     	assertEquals conf1.moderatorToken, 'modToken'
     }
     
-    void testGetConferenceWithAttendeeToken() {
+    void testGetConferenceWithViewerToken() {
     	AdhocConferenceService service = new AdhocConferenceService()
     	AdhocConference conf = new AdhocConference('85115', 'test-room', 'modToken', 'attToken')
     	service.createConference(conf);
     	
-    	AdhocConference conf1 = service.getConferenceWithAttendeeToken('attToken')
-    	assertEquals conf1.attendeeToken, 'attToken'
+    	AdhocConference conf1 = service.getConferenceWithViewerToken('attToken')
+    	assertEquals conf1.viewerToken, 'attToken'
     }
 }
