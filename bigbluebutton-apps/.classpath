@@ -10,7 +10,6 @@
 	<classpathentry kind="lib" path="lib/aopalliance-.jar"/>
 	<classpathentry kind="lib" path="lib/easymock-2.4.jar"/>
 	<classpathentry exported="true" kind="con" path="GROOVY_SUPPORT"/>
-	<classpathentry exported="true" kind="lib" path="lib/groovy-all-1.5.6.jar"/>
 	<classpathentry kind="lib" path="lib/jcip-annotations-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/jyaml-1.3.jar"/>
 	<classpathentry kind="lib" path="lib/fitnesse-20090214.jar"/>
@@ -33,5 +32,6 @@
 	<classpathentry kind="lib" path="lib/commons-lang-2.4.jar"/>
 	<classpathentry kind="lib" path="lib/geronimo-jms_1.1_spec-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-over-slf4j-1.5.6.jar"/>
+	<classpathentry kind="lib" path="lib/groovy-all-1.6.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
