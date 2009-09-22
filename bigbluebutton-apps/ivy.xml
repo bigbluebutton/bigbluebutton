@@ -24,7 +24,7 @@
 		<dependency org="org/red5" name="red5" rev="0.8rc3"/>
 		<dependency org="org.asteriskjava" name="asterisk-java" rev="0.3.1"/>
 		<dependency org="org.apache.activemq" name="activemq-core" rev="5.1.0"/>
-		<dependency org="org.codehaus.groovy" name="groovy-all" rev="1.5.6"/>
+		<dependency org="org.codehaus.groovy" name="groovy-all" rev="1.6.4"/>
 		<dependency org="org/apache/geronimo" name="geronimo-j2ee-management_1.0_spec" rev="1.0"/>
 		<dependency org="org/apache/geronimo" name="geronimo-jms_1.1_spec" rev="1.0"/>
 		<dependency org="javax" name="servlet-api" rev="2.5"/>
