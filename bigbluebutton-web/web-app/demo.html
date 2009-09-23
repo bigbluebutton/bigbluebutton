@@ -1,0 +1,58 @@
+ <html>                                                                  
+ <head>                                                                  
+ <script type="text/javascript" src="/bigbluebutton/js/jquery-1.3.1.js"></script>          
+ <script type="text/javascript">                                         
+    $(document).ready(function() {   	
+   	 	$.post("/bigbluebutton/api/conference.xml", { voiceBridge: "85115"},
+  			function(data){
+    			//alert("Data Loaded: " + data.voiceBridge + " " + data.moderatorToken + " " + data.viewerToken);
+    			
+    			$("div:first").text(data.moderatorToken);
+    			$("div:last").text(data.viewerToken);
+    			$("input:first").val(data.moderatorToken);
+    			$("input:last").val(data.viewerToken);
+  			}, "json"
+  		);  		
+ 	});   
+ 		
+                               
+ </script>                                                               
+ </head>                                                                 
+ <body>                                                                  
+   <form action="/bigbluebutton/api/conference/session.html" method="post">
+   <!-- IMPORTANT: Make this input the first one as script above relies on it's position to assign the moderatorToken value -->
+   <input type="hidden" name="authToken" value="" />
+    <table>
+      <tbody>
+        <tr>
+          <td>Enter your name:</td>
+          <td><input type="text" name="fullname" value="" /></td>
+        </tr>
+        <tr>
+          <td />
+          <td><input type="submit" value="Join as moderator" /></td>
+        </tr>
+      </tbody>
+    </table>
+  </form>    
+     <form action="/bigbluebutton/api/conference/session.html" method="post">
+     
+    <table>
+      <tbody>
+        <tr>
+          <td>Enter your name:</td>
+          <td><input type="text" name="fullname" value="" /></td>
+        </tr>
+        <tr>
+          <td />
+          <td><input type="submit" value="Join as viewer" /></td>
+        </tr>
+      </tbody>
+    </table>
+    <!-- IMPORTANT: Make this input the last one as script above relies on it's position to assign the viewerToken value -->
+    <input type="hidden" name="authToken" value="" />
+  </form>       
+  <div></div>
+  <div></div>                           
+ </body>                                                                 
+ </html>

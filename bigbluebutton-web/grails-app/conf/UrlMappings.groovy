@@ -65,15 +65,32 @@ class UrlMappings {
 	   * Beginning of BBB's REST -APIs
 	   */
 	  
-      "/api/conference"(controller:"adhoc", parseRequest:true) {
-    	  format = 'xml'
-    	  action = [GET:'showConference', POST:'createConference', DELETE:'deleteConference']
+//      "/api/conference"(controller:"adhoc", parseRequest:true) {
+//    	  format = 'xml'
+//    	  action = [GET:'showConference', POST:'createConference', DELETE:'deleteConference']
+//      }
+      
+//      "/api/conference/session"(controller:"adhoc", parseRequest:true) {
+//    	  format = 'xml'
+//    	  action = [GET:'enterConference', POST:'joinConference']
+//      }
+
+      "/api/demo"(controller:"adhoc") {
+    	  action = [GET:'demoapi']
+      }
+
+      "/api/demo/join"(controller:"adhoc") {
+    	  action = [GET:'joindemoapi']
       }
       
-      "/api/conference/session"(controller:"adhoc", parseRequest:true) {
-    	  format = 'xml'
+      "/api/conference"(controller:"adhoc") {
+//    	  format = 'xml'
+    	  action = [GET:'showConference', POST:'createConference', DELETE:'deleteConference']    	  
+      }
+
+      "/api/conference/session"(controller:"adhoc") {
+//    	  format = 'xml'
     	  action = [GET:'enterConference', POST:'joinConference']
       }
-         
 	}
 }

@@ -65,6 +65,14 @@ class AdhocController {
 	    redirect(action:invalid)
 	}
 
+	def demoapi = {
+		 render(view:'demo')
+	}
+
+	def joindemoapi = {
+		 render(view:'joindemo')
+	}
+	 
 	def invalid = {
 		log.info "AdhocController#invalid"
 		response.addHeader("Cache-Control", "no-cache")
@@ -83,7 +91,7 @@ class AdhocController {
 	
 	def createConference = {
 		println "AdhocController#create"	
-		def voiceConf = params.conference.voiceBridge
+		def voiceConf = params.voiceBridge
 		println "Got voiceBridge ${voiceConf}"
 		
 		/***
@@ -92,7 +100,7 @@ class AdhocController {
 		AdhocConference newConf = new AdhocConference(voiceConf, 'test-room', 'modToken', 'attToken')		
 		adhocConferenceService.createConference(newConf)
 		
-		AdhocConference conf = adhocConferenceService.getConferenceWithVoiceBridge(newConf)
+		AdhocConference conf = adhocConferenceService.getConferenceWithVoiceBridge(voiceConf)
 		
 		response.addHeader("Cache-Control", "no-cache")
 	    withFormat {	
@@ -107,13 +115,24 @@ class AdhocController {
 					}
 				}
 			}
+			html {
+				render(view:'show', model:[voicebridge:conf.voiceBridge, modToken:conf.moderatorToken, viewerToken:conf.viewerToken])
+			}
+			json {
+				println "Rendering as json"
+				render(contentType:"text/json") {
+					returncode SUCCESS
+					voiceBridge conf.voiceBridge
+					moderatorToken conf.moderatorToken
+					viewerToken conf.viewerToken
+				}				
+			}
 		}
-
 	}
 
 	def showConference = {
 		println "AdhocController#show"		
-		def voiceConf = params.conference.voiceBridge
+		def voiceConf = params.voiceBridge
 		println "Got voiceBridge ${voiceConf}"
 		AdhocConference conf = adhocConferenceService.getConferenceWithVoiceBridge(voiceConf)
 			
@@ -124,20 +143,24 @@ class AdhocController {
 					response() {
 						returncode(SUCCESS)
 						moderatorToken("${conf.moderatorToken}")
-						viewerToken("${conf.attendeeToken}")
+						viewerToken("${conf.viewerToken}")
 					}
 				}
+			}
+			html {
+				render(view:'joindemo')
 			}
 		}		
 			
 	}
 	
 	def joinConference = {
-		String authToken = params.conference.authToken
-		String fullname = params.conference.fullname
+		String authToken = params.authToken
+		String fullname = params.fullname
 
 		println "AdhocController#join"
 
+		println "Joining as $fullname using token $authToken"
 		AdhocConference conf = adhocConferenceService.getConferenceWithViewerToken(authToken)
 		
 		if (conf == null) {
@@ -145,6 +168,7 @@ class AdhocController {
 		}
 		
 		if (conf == null) {
+			println "Could not find any conference."
 			response.addHeader("Cache-Control", "no-cache")
 		    withFormat {				
 				xml {
@@ -179,6 +203,10 @@ class AdhocController {
 							returncode(SUCCESS)
 						}
 					}
+				}
+				html {
+					def hostUrl = getClientUrl()
+					redirect(url:"${hostUrl}/client/BigBlueButton.html")
 				}
 			}			
 		}		
@@ -222,5 +250,10 @@ class AdhocController {
 				}
 			}
 	    }    
+	}
+	 
+	private String getClientUrl() {
+	    def config = ConfigurationHolder.config
+        return config.bigbluebutton.web.serverURL
 	}
 }
