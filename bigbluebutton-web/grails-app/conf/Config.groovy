@@ -60,62 +60,44 @@ grails.enable.native2ascii = true
 //}
 
 // log4j configuration
-log4j {
-    appender.stdout = "org.apache.log4j.ConsoleAppender"
-    appender.'stdout.layout'="org.apache.log4j.PatternLayout"
-    appender.'stdout.layout.ConversionPattern'='[%r] %c{2} %m%n'
-    appender.errors = "org.apache.log4j.FileAppender"
-    appender.'errors.layout'="org.apache.log4j.PatternLayout"
-    appender.'errors.layout.ConversionPattern'='[%r] %c{2} %m%n'
-    appender.'errors.File'="stacktrace.log"
-    appender.logfile = "org.apache.log4j.DailyRollingFileAppender "
-    appender.'logfile.File' = "bbb-web.log"
-    appender.'logfile.layout' = "org.apache.log4j.PatternLayout"
-    appender.'logfile.layout.ConversionPattern' = '%d{[dd.MM.yy HH:mm:ss.SSS]} %-5p %c %x - %m%n'
+log4j = {
     rootLogger="error,stdout"
-    logger {
-        grails="error"
-        StackTrace="error,errors"
-        org {
-            codehaus.groovy.grails.web.servlet="error"  //  controllers
-            codehaus.groovy.grails.web.pages="error" //  GSP
-            codehaus.groovy.grails.web.sitemesh="error" //  layouts
-            codehaus.groovy.grails."web.mapping.filter"="error" // URL mapping
-            codehaus.groovy.grails."web.mapping"="error" // URL mapping
-            codehaus.groovy.grails.commons="info" // core / classloading
-            codehaus.groovy.grails.plugins="error" // plugins
-            codehaus.groovy.grails.orm.hibernate="error" // hibernate integration
-            springframework="off"
-            hibernate="off"
-        }        
-    }
+    error  	'org.codehaus.groovy.grails.web.servlet',  //  controllers
+    		'org.codehaus.groovy.grails.web.pages', //  GSP
+    		'org.codehaus.groovy.grails.web.sitemesh', //  layouts
+    		'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
+    		'org.codehaus.groovy.grails.web.mapping', // URL mapping
+    		'org.codehaus.groovy.grails.commons', // core / classloading
+    		'org.codehaus.groovy.grails.plugins', // plugins
+    		'org.codehaus.groovy.grails.orm.hibernate', // hibernate integration
+    		'org.springframework',
+    		'org.hibernate'
+
+    warn   'org.mortbay.log'
+
     additivity.StackTrace=false
 }
 
 environments {
     development {
-    	grails.serverURL = "http://localhost:8080"
-        log4j {
-        	appender.'logfile.File' = "bbb-web-dev.log"
-        	/* GRAILS 1.04 doesn't seem to like this format (ralam 04/19/2009)
-        	 * logger {
-        	 * 	 grails.app.controller="debug, stdout, logfile"
-        	 * }
-        	 */
-        	//logger.grails.app="debug, stdout, logfile"
-       }
+    	grails.serverURL = "http://localhost:8080"    	
+        log4j = {
+    	    appenders {
+    	    	rollingFile name:"logfile", maxFileSize:1024, file:"/tmp/logs/bbb-web-dev.log"
+    	    	console name:'console', layout:pattern(conversionPattern: '%d{[dd.MM.yy HH:mm:ss.SSS]} %-5p %c %x - %m%n')
+    	    }
+        	debug logfile:"grails.app.controller"
+    	}
    }
    production {
 	   grails.serverURL = "http://www.changeme.com"
-       log4j {
-	       	appender.'logfile.File' = "bbb-web-prod.log"
-	       	/* GRAILS 1.04 doesn't seem to like this format (ralam 04/19/2009)
-	         * logger {
-	         * 	 grails.app.controller="debug, stdout, logfile"
-	         * }
-	         */
-	        //logger.grails.app="debug, stdout, logfile"
-       }
+	   log4j = {
+	   	    appenders {
+	   	    	rollingFile name:"logfile", maxFileSize:1024, file:"/tmp/logs/bbb-web-prod.log"
+	   	    	console name:'console', layout:pattern(conversionPattern: '%d{[dd.MM.yy HH:mm:ss.SSS]} %-5p %c %x - %m%n')
+	   	    }
+	       	debug logfile:"grails.app.controller"
+	   }
    }
    test {
        log4j {
