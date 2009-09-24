@@ -90,21 +90,24 @@ class AdhocController {
 	}
 	
 	def createConference = {
-		println "AdhocController#create"	
-		def voiceConf = params.voiceBridge
+		log.debug "AdhocController#create"	
+		println "Format $request.format"
+		String voiceConf
+		if (request.format == 'xml') {
+			voiceConf = params.conference.voiceBridge
+		} else {
+			voiceConf = params.voiceBridge
+		}
+	
 		println "Got voiceBridge ${voiceConf}"
-		
-		/***
-		 * Hardcode for now...this is only for demo purposes.
-		 */
-		AdhocConference newConf = new AdhocConference(voiceConf, 'test-room', 'modToken', 'attToken')		
-		adhocConferenceService.createConference(newConf)
+			
+		adhocConferenceService.createConference(voiceConf)
 		
 		AdhocConference conf = adhocConferenceService.getConferenceWithVoiceBridge(voiceConf)
 		
 		response.addHeader("Cache-Control", "no-cache")
 	    withFormat {	
-			xml {
+			xml form {
 				println "Rendering as xml"
 				render(contentType:"text/xml") {
 					response() {
@@ -116,7 +119,15 @@ class AdhocController {
 				}
 			}
 			html {
-				render(view:'show', model:[voicebridge:conf.voiceBridge, modToken:conf.moderatorToken, viewerToken:conf.viewerToken])
+				println "Rendering html as xml"
+				render(contentType:"text/xml") {
+					response() {
+						returncode(SUCCESS)
+						voiceBridge("${conf.voiceBridge}")
+						moderatorToken("${conf.moderatorToken}")
+						viewerToken("${conf.viewerToken}")
+					}
+				}				
 			}
 			json {
 				println "Rendering as json"
@@ -155,11 +166,19 @@ class AdhocController {
 	}
 	
 	def joinConference = {
-		String authToken = params.authToken
-		String fullname = params.fullname
-
 		println "AdhocController#join"
 
+		String authToken
+		String fullname
+		
+		if (request.format == 'xml') {
+			authToken = params.conference.authToken
+			fullname = params.conference.fullname
+		} else {
+			authToken = params.authToken
+			fullname = params.fullname
+		}
+		
 		println "Joining as $fullname using token $authToken"
 		AdhocConference conf = adhocConferenceService.getConferenceWithViewerToken(authToken)
 		
