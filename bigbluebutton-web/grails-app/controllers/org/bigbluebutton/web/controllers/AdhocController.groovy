@@ -65,14 +65,6 @@ class AdhocController {
 	    redirect(action:invalid)
 	}
 
-	def demoapi = {
-		 render(view:'demo')
-	}
-
-	def joindemoapi = {
-		 render(view:'joindemo')
-	}
-	 
 	def invalid = {
 		log.info "AdhocController#invalid"
 		response.addHeader("Cache-Control", "no-cache")
@@ -90,8 +82,8 @@ class AdhocController {
 	}
 	
 	def createConference = {
-		log.debug "AdhocController#create"	
-		println "Format $request.format"
+		log.info "AdhocController#create: format $request.format"	
+		
 		String voiceConf
 		if (request.format == 'xml') {
 			voiceConf = params.conference.voiceBridge
@@ -99,7 +91,7 @@ class AdhocController {
 			voiceConf = params.voiceBridge
 		}
 	
-		println "Got voiceBridge ${voiceConf}"
+		log.debug "Got voiceBridge ${voiceConf}"
 			
 		adhocConferenceService.createConference(voiceConf)
 		
@@ -108,7 +100,7 @@ class AdhocController {
 		response.addHeader("Cache-Control", "no-cache")
 	    withFormat {	
 			xml form {
-				println "Rendering as xml"
+				log.debug "Respond using xml format"
 				render(contentType:"text/xml") {
 					response() {
 						returncode(SUCCESS)
@@ -119,7 +111,7 @@ class AdhocController {
 				}
 			}
 			html {
-				println "Rendering html as xml"
+				log.debug "Respond using xml format event if request is in html format"
 				render(contentType:"text/xml") {
 					response() {
 						returncode(SUCCESS)
@@ -130,7 +122,7 @@ class AdhocController {
 				}				
 			}
 			json {
-				println "Rendering as json"
+				log.debug "REspond using json format"
 				render(contentType:"text/json") {
 					returncode SUCCESS
 					voiceBridge conf.voiceBridge
@@ -142,9 +134,9 @@ class AdhocController {
 	}
 
 	def showConference = {
-		println "AdhocController#show"		
+		log.info "AdhocController#show"		
 		def voiceConf = params.voiceBridge
-		println "Got voiceBridge ${voiceConf}"
+		log.debug "Got voiceBridge ${voiceConf}"
 		AdhocConference conf = adhocConferenceService.getConferenceWithVoiceBridge(voiceConf)
 			
 		response.addHeader("Cache-Control", "no-cache")
@@ -166,7 +158,7 @@ class AdhocController {
 	}
 	
 	def joinConference = {
-		println "AdhocController#join"
+		log.info "AdhocController#join"
 
 		String authToken
 		String fullname
@@ -179,7 +171,7 @@ class AdhocController {
 			fullname = params.fullname
 		}
 		
-		println "Joining as $fullname using token $authToken"
+		log.debug "Joining as $fullname using token $authToken"
 		AdhocConference conf = adhocConferenceService.getConferenceWithViewerToken(authToken)
 		
 		if (conf == null) {
@@ -187,7 +179,7 @@ class AdhocController {
 		}
 		
 		if (conf == null) {
-			println "Could not find any conference."
+			log.info "Could not find any conference."
 			response.addHeader("Cache-Control", "no-cache")
 		    withFormat {				
 				xml {
@@ -232,11 +224,10 @@ class AdhocController {
 	}
 
 	def enterConference = {
-		println "AdhocController#enter"
-
-		println "Getting session"	
+		log.info "AdhocController#enter"
+	
 	    if (!session[ROOM]) {
-	    	println "No room found."
+	    	log.info "No room found."
 	    	response.addHeader("Cache-Control", "no-cache")
 	    	withFormat {				
 	    		xml {
@@ -250,7 +241,7 @@ class AdhocController {
 				}
 			}
 	    } else {	
-	    	println "FOund room"
+	    	log.debug "Found room"
 	    	response.addHeader("Cache-Control", "no-cache")
 	    	withFormat {				
 				xml {
