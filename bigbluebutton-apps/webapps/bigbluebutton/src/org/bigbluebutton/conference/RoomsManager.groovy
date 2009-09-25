@@ -85,6 +85,7 @@ public class RoomsManager {
 	}
 	
 	public void removeRoomListener(IRoomListener listener) {
+		// TODO: this must be broken, right?  where is roomName? (JRT: 9/25/2009)
 		Room r = getRoom(roomName)
 		if (r != null) {
 			r.removeRoomListener(listener)
@@ -94,6 +95,7 @@ public class RoomsManager {
 	}
 	
 	public void addParticipant(String roomName, Participant participant) {
+		log.debug("In RoomsManager - ${roomName} add participant ${participant.name}")
 		Room r = getRoom(roomName)
 		if (r != null) {
 			r.addParticipant(participant)
@@ -103,6 +105,7 @@ public class RoomsManager {
 	}
 	
 	public void removeParticipant(String roomName, Long userid) {
+		log.debug("In RoomsManager - ${roomName} remove participant ${participant.name}")
 		Room r = getRoom(roomName)
 		if (r != null) {
 			r.removeParticipant(userid)
@@ -112,6 +115,7 @@ public class RoomsManager {
 	}
 	
 	public void changeParticipantStatus(String roomName, Long userid, String status, Object value) {
+		log.debug("In RoomsManager - ${roomName} change participant status ${userid} - ${status} [${value}]")
 		Room r = getRoom(roomName)
 		if (r != null) {
 			r.changeParticipantStatus(userid, status, value)

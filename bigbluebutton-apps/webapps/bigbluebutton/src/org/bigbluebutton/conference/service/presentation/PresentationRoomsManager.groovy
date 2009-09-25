@@ -40,17 +40,17 @@ public class PresentationRoomsManager {
 	}
 	
 	public void addRoom(PresentationRoom room) {
-		log.debug("In RoomsManager adding room ${room.name}")
+		log.debug("In PresentationRoomsManager adding room ${room.name}")
 		rooms.put(room.name, room)
 	}
 	
 	public void removeRoom(String name) {
-		log.debug("In RoomsManager remove room ${name}")
+		log.debug("In PresentationRoomsManager remove room ${name}")
 		rooms.remove(name)
 	}
 		
 	public boolean hasRoom(String name) {
-		log.debug("In RoomsManager has Room ${name}")
+		log.debug("In PresentationRoomsManager has Room ${name}")
 		return ((HashMap)rooms).containsKey(name)
 	}
 	
@@ -59,7 +59,7 @@ public class PresentationRoomsManager {
 	 * Keeping getRoom private so that all access to ChatRoom goes through here.
 	 */
 	private PresentationRoom getRoom(String name) {
-		log.debug("In RoomsManager get room ${name}")
+		log.debug("In PresentationRoomsManager get room ${name}")
 		rooms.get(name)
 	}
 		

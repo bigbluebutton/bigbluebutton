@@ -38,17 +38,17 @@ public class VoiceRoomsManager {
 	}
 	
 	public void addRoom(VoiceRoom room) {
-		log.debug("In RoomsManager adding room ${room.name}")
+		log.debug("In VoiceRoomsManager adding room ${room.name}")
 		rooms.put(room.name, room)
 	}
 	
 	public void removeRoom(String name) {
-		log.debug("In RoomsManager remove room ${name}")
+		log.debug("In VoiceRoomsManager remove room ${name}")
 		rooms.remove(name)
 	}
 		
 	public boolean hasRoom(String name) {
-		log.debug("In RoomsManager has Room ${name}")
+		log.debug("In VoiceRoomsManager has Room ${name}")
 		return ((HashMap)rooms).containsKey(name)
 	}
 	
@@ -65,7 +65,7 @@ public class VoiceRoomsManager {
 	 * Keeping getRoom private so that all access to ChatRoom goes through here.
 	 */
 	private VoiceRoom getRoom(String name) {
-		log.debug("In RoomsManager get room ${name}")
+		log.debug("In VoiceRoomsManager get room ${name}")
 		rooms.get(name)
 	}
 	
