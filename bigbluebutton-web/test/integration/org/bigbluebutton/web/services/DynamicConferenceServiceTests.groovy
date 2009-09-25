@@ -40,6 +40,15 @@ class DynamicConferenceServiceTests extends GrailsUnitTestCase {
 
     	assertEquals(conf, service.getConferenceByMeetingID("abc"));
     	assertEquals(conf, service.getConferenceByToken(conf.getMeetingToken()));
+
+    	assertNull(service.getConferenceByMeetingID("abd"));
+    	assertNull(service.getConferenceByMeetingID(conf.getMeetingToken()));
+    	assertNull(service.getConferenceByToken("abc"));
+
+    	assertNull(service.findConference("1234", "abcd"));
+
+    	assertEquals(conf, service.findConference("token", "abc"));
+    	assertEquals(conf, service.findConference(conf.getMeetingToken(), "abcd"));
     }
     
 }

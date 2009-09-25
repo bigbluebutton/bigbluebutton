@@ -40,12 +40,28 @@ public class DynamicConferenceService{
 		 tokenMap.put(conf.getMeetingToken(), conf.getMeetingID());
 	 }
 	 public DynamicConference getConferenceByMeetingID(String meetingID) {
+		 if (meetingID == null) {
+			 return null;
+		 }
 		 return confsByMtgID.get(meetingID);
 	 }
 	 public DynamicConference getConferenceByToken(String token) {
+		 if (token == null) {
+			 return null;
+		 }
 		 String mtgID = tokenMap.get(token);
+		 if (mtgID == null) {
+			 return null;
+		 }
 		 return confsByMtgID.get(mtgID);
 	 }
 
+	 public DynamicConference findConference(String token, String mtgID) {
+		DynamicConference conf = getConferenceByToken(token);
+		if (conf == null) {
+			conf = getConferenceByMeetingID(mtgID);
+		}
+		return conf;
+	 }
 
 }

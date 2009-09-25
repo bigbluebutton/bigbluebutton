@@ -41,6 +41,9 @@ class ApiController {
 	private static final String RESP_CODE_SUCCESS = 'SUCCESS'
 	private static final String RESP_CODE_FAILED = 'FAILED'
 
+	private static final String ROLE_MODERATOR = "mod";
+	private static final String ROLE_ATTENDEE = "att";
+
 	private static final String SECURITY_SALT = '639259d4-9dd8-4b25-bf01-95f9567eaf4b'
 
 	// TODO: security salt will obviously need to be a part of the server configuration
@@ -96,11 +99,47 @@ class ApiController {
 
 		// success!
 		dynamicConferenceService.storeConference(conf);
-		respondWithConference(conf)
+		respondWithConference(conf, null, null)
 	}
 
 	def join = {
-		invalid("notImplemented", "This call is not yet implemented.")
+		println CONTROLLER_NAME + "#join"
+
+		if (!doChecksumSecurity()) {
+			return
+		}
+
+		String fullName = params.fullName
+		if (fullName == null) {
+			invalid("missingParamFullName", "You must specify a name for the attendee who will be joining the meeting.");
+			return
+		}
+		
+		String mtgToken = params.meetingToken
+		String mtgID = params.meetingID
+		String attPW = params.password
+		boolean redirectImm = parseBoolean(params.redirectImmediately)
+
+		// check for existing:
+		DynamicConference conf = dynamicConferenceService.findConference(mtgToken, mtgID);
+		if (conf == null) {
+			invalid("invalidMeetingIdentifier", "The meeting ID or token that you supplied did not match any existing meetings");
+			return;
+		}
+
+		String role = null;
+		if (conf.getModeratorPassword().equals(attPW)) {
+			role = ROLE_MODERATOR;
+		} else if (conf.getAttendeePassword().equals(attPW)) {
+			role = ROLE_ATTENDEE;
+		}
+		if (role == null) {
+			invalid("invalidPassword", "You either did not supply a password or the password supplied is neither the attendee or moderator password for this conference.");
+			return;
+		}
+
+		// TODO: success....
+		invalid("notImplemented", "You have entered a successful join call - but we haven't implemented the actual join functionality yet");
 	}
 
 	def isMeetingRunning = {
@@ -192,4 +231,10 @@ class ApiController {
 		}			 
 	}
 
+	def parseBoolean(obj) {
+		if (obj instanceof Number) {
+			return ((Number) obj).intValue() == 1;
+		}
+		return false
+	}
 }
