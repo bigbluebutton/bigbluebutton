@@ -45,6 +45,8 @@ class UrlMappings {
       
       "/portal/$action"(controller:"portal") 
 
+      "/api/$action"(controller:"api") 
+
    
 	  "/conference-session/$action?/$id?"(controller:"publicScheduledSession") 
       

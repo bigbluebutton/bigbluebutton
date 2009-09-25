@@ -10,14 +10,9 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
-		<buildCommand>
-			<name>org.codehaus.groovy.eclipse.groovyBuilder</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
 	</buildSpec>
 	<natures>
+		<nature>org.eclipse.jdt.groovy.core.groovyNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
-		<nature>org.codehaus.groovy.eclipse.groovyNature</nature>
 	</natures>
 </projectDescription>

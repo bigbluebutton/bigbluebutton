@@ -1,0 +1,10 @@
+# This file simply contains up-to-date merge information for this branch.
+# 
+# All changes from trunk will be merged into this trunk during development.
+# 
+
+# Last update was:
+# -r 2575:HEAD - Sep 22 13:43
+
+# Command used
+svn merge -r 2575:HEAD https://bigbluebutton.googlecode.com/svn/trunk/
