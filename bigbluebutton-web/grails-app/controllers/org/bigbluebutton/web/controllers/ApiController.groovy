@@ -27,7 +27,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 
 import org.bigbluebutton.api.domain.DynamicConference;
-import org.bigbluebutton.web.services.AdhocConferenceService
+import org.bigbluebutton.web.services.DynamicConferenceService
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -45,8 +45,8 @@ class ApiController {
 
 	// TODO: security salt will obviously need to be a part of the server configuration
 	//			and not hard-coded here.  This is just for development / testing
-	String securitySalt = SECURITY_SALT
-	AdhocConferenceService adhocConferenceService
+	String securitySalt = SECURITY_SALT;
+	DynamicConferenceService dynamicConferenceService;
 
 	/* general methods */
 	def index = {
@@ -76,13 +76,47 @@ class ApiController {
 		String mmRoom = params.meetmeRoom
 		String mmServer = params.meetmeServer
 
+		// check for existing:
+		DynamicConference existing = dynamicConferenceService.getConferenceByMeetingID(mtgID);
+		if (existing != null) {
+			println "Existing conference found"
+			if (existing.getAttendeePassword().equals(attPW) && existing.getModeratorPassword().equals(modPW)) {
+				// trying to create a conference a second time
+				// return success, but give extra info
+				respondWithConference(existing, "duplicateWarning", "This conference was already in existance and may currently be in progress.");
+			} else {
+				// enforce meetingID unique-ness
+				invalid("idNotUnique", "A meeting already exists with that meeting ID.  Please use a different meeting ID.");
+			}
+			return;
+		}
 		DynamicConference conf = new DynamicConference(name, mtgID, attPW, modPW, maxParts)
 		println("Conference created: " + conf);
-		// TODO: put this into a service that holds the active dynamic conferences
 		// TODO: support meetmeRoom and meetmeServer
 
 		// success!
-		respondWithConference(conf, params)
+		dynamicConferenceService.storeConference(conf);
+		respondWithConference(conf)
+	}
+
+	def join = {
+		invalid("notImplemented", "This call is not yet implemented.")
+	}
+
+	def isMeetingRunning = {
+		invalid("notImplemented", "This call is not yet implemented.")
+	}
+
+	def listAttendees = {
+		invalid("notImplemented", "This call is not yet implemented.")
+	}
+
+	def endMeeting = {
+		invalid("notImplemented", "This call is not yet implemented.")
+	}
+
+	def getMeetingInfo = {
+		invalid("notImplemented", "This call is not yet implemented.")
 	}
 	
 	/* helper methods */
@@ -117,12 +151,12 @@ class ApiController {
 	}
 
 	def beforeInterceptor = {
-		if (!adhocConferenceService.serviceEnabled) {
+		if (dynamicConferenceService.serviceEnabled) {
 			invalid("apiNotEnabled", "The API service and/or controller is not enabled on this server.  To use it, you must first enable it.")
 		}
 	}
 
-	def respondWithConference(conf, params) {
+	def respondWithConference(conf, msgKey, msg) {
 		response.addHeader("Cache-Control", "no-cache")
 		withFormat {	
 			xml {
@@ -134,6 +168,8 @@ class ApiController {
 						meetingID("${conf.meetingID}")
 						attendeePW("${conf.attendeePassword}")
 						moderatorPW("${conf.moderatorPassword}")
+						messageKey(msgKey)
+						message(msg)
 					}
 				}
 			}
@@ -141,7 +177,7 @@ class ApiController {
 	}
 	
 	def invalid(key, msg) {
-		println CONTROLLER_NAME + "#failure"
+		println CONTROLLER_NAME + "#invalid"
 		response.addHeader("Cache-Control", "no-cache")
 		withFormat {				
 			xml {
