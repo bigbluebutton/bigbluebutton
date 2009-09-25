@@ -143,7 +143,29 @@ class ApiController {
 	}
 
 	def isMeetingRunning = {
-		invalid("notImplemented", "This call is not yet implemented.")
+		println CONTROLLER_NAME + "#isMeetingRunning"
+
+		if (!doChecksumSecurity()) {
+			return
+		}
+
+		String mtgToken = params.meetingToken
+		String mtgID = params.meetingID
+		String attPW = params.password
+
+		// check for existing:
+		DynamicConference conf = dynamicConferenceService.findConference(mtgToken, mtgID);
+		response.addHeader("Cache-Control", "no-cache")
+		withFormat {	
+			xml {
+				render(contentType:"text/xml") {
+					response() {
+						returncode(RESP_CODE_SUCCESS)
+						running(conf == null ? "false" : "true")
+					}
+				}
+			}
+		}
 	}
 
 	def listAttendees = {
