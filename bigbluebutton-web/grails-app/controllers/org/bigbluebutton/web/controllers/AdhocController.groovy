@@ -33,7 +33,7 @@ class AdhocController {
 	 private final static String FULLNAME = 'fullname'
 	 private final static String CONFERENCE = 'conference'
 	 private final static String ROOM = 'room'
-	 private final static String VOICEBRIDGE = 'voiceBridge'
+	 private final static String VOICEBRIDGE = 'voicebridge'
 	 private final static String MODE = 'mode'
 	 private final static String LIVE = 'LIVE'
 	 private final static String RECORD = 'record'
