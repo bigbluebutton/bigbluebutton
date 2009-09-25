@@ -74,11 +74,11 @@ class UrlMappings {
     	  action = [GET:'enterConference', POST:'joinConference']
       }
       
-      "/api/conference/create/$id"(controller:"adhoc") {
+      "/api/conference/create"(controller:"adhoc") {
     	  action = [GET:'createConference']    	  
       }
       
-      "/api/conference/join/$authToken/$fullname"(controller:"adhoc") {
+      "/api/conference/join"(controller:"adhoc") {
     	  action = [GET:'joinConference']    	  
       }
 
