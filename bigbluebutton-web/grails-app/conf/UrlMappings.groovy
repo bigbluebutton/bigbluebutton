@@ -73,5 +73,18 @@ class UrlMappings {
       "/api/conference/session"(controller:"adhoc", parseRequest:true) {
     	  action = [GET:'enterConference', POST:'joinConference']
       }
+      
+      "/api/conference/create"(controller:"adhoc") {
+    	  action = [GET:'createConference']    	  
+      }
+      
+      "/api/conference/join"(controller:"adhoc") {
+    	  action = [GET:'joinConference']    	  
+      }
+
+      "/api/conference/enter"(controller:"adhoc") {
+    	  action = [GET:'enterConference']    	  
+      }
+
 	}
 }

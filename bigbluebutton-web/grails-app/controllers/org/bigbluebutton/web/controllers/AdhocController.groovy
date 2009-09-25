@@ -86,9 +86,9 @@ class AdhocController {
 		
 		String voiceConf
 		if (request.format == 'xml') {
-			voiceConf = params.conference.voiceBridge
+			voiceConf = params.conference.id
 		} else {
-			voiceConf = params.voiceBridge
+			voiceConf = params.id
 		}
 	
 		log.debug "Got voiceBridge ${voiceConf}"
