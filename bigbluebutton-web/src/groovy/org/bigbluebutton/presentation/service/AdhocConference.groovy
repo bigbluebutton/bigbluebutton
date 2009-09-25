@@ -27,8 +27,8 @@ public final class AdhocConference{
 	final String viewerToken
 	final String voiceBridge
 	
-	public AdhocConference(String voiceBridge) {
-		this(voiceBridge, UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString())
+	public AdhocConference(String voicebridge) {
+		this(voicebridge, UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString())
 	}
 	
 	public AdhocConference(String voiceBridge, String room, String modToken, String viewerToken) {
