@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap
 import org.bigbluebutton.api.domain.DynamicConference;
 
 public class DynamicConferenceService{
+	boolean transactional = false
 	 def serviceEnabled = false
 	
 	 private final Map<String, DynamicConference> confsByMtgID

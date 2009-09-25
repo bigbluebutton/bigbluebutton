@@ -4,7 +4,7 @@
  <script type="text/javascript">                                         
     $(document).ready(function() {   	
     	alert("Hello world! ");
-   	 	$.post("/bigbluebutton/api/conference.json", { voiceBridge: "85115"},
+   	 	$.get("/bigbluebutton/api/conference/create/85115.json", { id: "85115"},
   			function(data){
     			alert("Data Loaded: " + data.voiceBridge + " " + data.moderatorToken + " " + data.viewerToken);
     			
@@ -20,7 +20,7 @@
  </script>                                                               
  </head>                                                                 
  <body>                                                                  
-   <form action="/bigbluebutton/api/conference/session.html" method="post">
+   <form action="/bigbluebutton/api/conference/join.html" method="get">
    <!-- IMPORTANT: Make this input the first one as script above relies on it's position to assign the moderatorToken value -->
    <input type="hidden" name="authToken" value="" />
     <table>
@@ -36,7 +36,7 @@
       </tbody>
     </table>
   </form>    
-     <form action="/bigbluebutton/api/conference/session.html" method="post">
+     <form action="/bigbluebutton/api/conference/join.html" method="get">
      
     <table>
       <tbody>
