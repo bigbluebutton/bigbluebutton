@@ -59,7 +59,6 @@ class ApiController {
 		println CONTROLLER_NAME + "#create"
 
 		if (!doChecksumSecurity()) {
-			invalid("checksumError", "You did not pass the checksum security check")
 			return
 		}
 
@@ -103,7 +102,11 @@ class ApiController {
 			println "query string after checksum removed: " + qs
 			String cs = getHash(qs, securitySalt)
 			println "our checksum: " + cs
-			return cs != null && cs.equals(params.checksum)
+			if (cs == null || cs.equals(params.checksum) == false) {
+				invalid("checksumError", "You did not pass the checksum security check")
+				return false;
+			}
+			return true; 
 		}
 		println "Security is disabled in this service currently."
 		return true;
@@ -138,7 +141,7 @@ class ApiController {
 	}
 	
 	def invalid(key, msg) {
-		println CONTROLLER_NAME + "#invalid"
+		println CONTROLLER_NAME + "#failure"
 		response.addHeader("Cache-Control", "no-cache")
 		withFormat {				
 			xml {
@@ -152,5 +155,5 @@ class ApiController {
 			}
 		}			 
 	}
-	
+
 }
