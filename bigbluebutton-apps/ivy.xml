@@ -39,7 +39,13 @@
         <dependency org="spring" name="spring-jms" rev="2.5.6" />
         <dependency org="spring" name="spring-tx" rev="2.5.6" />
         <dependency org="spring" name="aopalliance" rev="" />
-        
+        <!-- Spring Integration -->
+        <dependency org="org.springframework.integration" name="spring-integration-core" rev="1.0.3.RELEASE" />
+        <dependency org="org.springframework.integration" name="spring-integration-adapter" rev="1.0.3.RELEASE" />
+        <dependency org="org.springframework.integration" name="spring-integration-stream" rev="1.0.3.RELEASE" />
+        <dependency org="org.springframework.integration" name="spring-integration-file" rev="1.0.3.RELEASE" />
+        <dependency org="org.springframework.integration" name="spring-integration-jms" rev="1.0.3.RELEASE" />
+        <!-- Other -->
         <dependency org="mina" name="mina-core" rev="1.1.7" />
     </dependencies>
 </ivy-module>

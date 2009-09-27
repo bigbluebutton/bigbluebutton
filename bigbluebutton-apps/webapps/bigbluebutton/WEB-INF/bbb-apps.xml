@@ -1,12 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:lang="http://www.springframework.org/schema/lang"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-                           http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
-
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:integration="http://www.springframework.org/schema/integration"
+	xmlns:jms="http://www.springframework.org/schema/integration/jms"
+	xmlns:file="http://www.springframework.org/schema/integration/file"
+	xmlns:stream="http://www.springframework.org/schema/integration/stream"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/integration
+			http://www.springframework.org/schema/integration/spring-integration-1.0.xsd
+			http://www.springframework.org/schema/integration/jms
+			http://www.springframework.org/schema/integration/jms/spring-integration-jms-1.0.xsd
+			http://www.springframework.org/schema/integration/stream
+			http://www.springframework.org/schema/integration/stream/spring-integration-stream-1.0.xsd
+			http://www.springframework.org/schema/integration/file
+			http://www.springframework.org/schema/integration/file/spring-integration-file-1.0.xsd
+			">
 	
-	<bean id="roomsManager" class="org.bigbluebutton.conference.RoomsManager"/>
+	<bean id="roomsManager" class="org.bigbluebutton.conference.RoomsManager">
+		<property name="conferenceEventListener" ref="conferenceEventListener" />
+	</bean>
 			
 	<bean id="participantsHandler" class="org.bigbluebutton.conference.service.participants.ParticipantsHandler">
 		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
@@ -140,5 +153,30 @@
 		<property name="password" value="${ami.password}"/>
 	</bean>
 	<!-- END VOICE -->
-	
+
+	<!-- Starting the Spring Integration configuration for JMS integration -->
+
+	<integration:gateway id="conferenceEventListener" service-interface="org.bigbluebutton.conference.IConferenceEventListener" />
+
+	<integration:channel id="conferenceStarted">
+		<integration:queue capacity="20"/>
+	</integration:channel>
+	<jms:outbound-channel-adapter id="conferenceStartedJmsOut" destination="conferenceStartedEvents" channel="conferenceStarted">
+		<integration:poller send-timeout="1500">
+			<integration:interval-trigger interval="1000"/>
+		</integration:poller>
+	</jms:outbound-channel-adapter>
+    <bean id="conferenceStartedEvents" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg value="conferenceStartedEvents"/>
+    </bean>
+
+	<integration:channel id="conferenceEnded"/>
+	<!-- 
+
+	<jms:outbound-channel-adapter id="conferenceEndedJmsOut" destination="conferenceEndedEvents" channel="conferenceEnded"/>
+    <bean id="conferenceEndedEvents" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg value="conferenceEndedEvents"/>
+    </bean>
+	<stream:stdout-channel-adapter id="stdout" channel="conferenceStarted" append-newline="true"/>
+	-->
 </beans>

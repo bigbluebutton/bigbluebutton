@@ -33,6 +33,8 @@ public class RoomsManager {
 	private static Logger log = Red5LoggerFactory.getLogger(RoomsManager.class, "bigbluebutton")
 	
 	private final Map <String, Room> rooms
+
+	private IConferenceEventListener conferenceEventListener
 	
 	public RoomsManager() {
 		log.debug("In RoomsManager constructor")	
@@ -41,13 +43,28 @@ public class RoomsManager {
 	
 	public void addRoom(Room room) {
 		log.debug("In RoomsManager adding room ${room.name}")
+		if (checkEvtListener()) {
+			conferenceEventListener.started(room)
+			log.debug("notified event listener of conference start")
+		}
 		rooms.put(room.name, room)
 	}
 	
 	public void removeRoom(String name) {
 		log.debug("In RoomsManager remove room ${name}")
+		if (checkEvtListener()) {
+			conferenceEventListener.ended(room)
+			log.debug("notified event listener of conference end")
+		}
 		rooms.remove(name)
 	}
+
+	private boolean checkEvtListener() {
+		println "RoomsManager event listener: " + conferenceEventListener
+		log.debug("RoomsManager event listener: " + conferenceEventListener)
+		return conferenceEventListener != null;
+	}
+
 		
 	public boolean hasRoom(String name) {
 		log.debug("In RoomsManager has Room ${name}")
@@ -122,5 +139,14 @@ public class RoomsManager {
 			return
 		}		
 		log.warn("Changing participant status on a non-existing room ${roomName}")
+	}
+
+	public void setConferenceEventListener(
+			IConferenceEventListener conferenceEventListener) {
+		this.conferenceEventListener = conferenceEventListener;
+	}
+
+	public IConferenceEventListener getConferenceEventListener() {
+		return conferenceEventListener;
 	}
 }
