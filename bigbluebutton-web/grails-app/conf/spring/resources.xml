@@ -1,8 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="
-http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:integration="http://www.springframework.org/schema/integration"
+	xmlns:jms="http://www.springframework.org/schema/integration/jms"
+	xmlns:file="http://www.springframework.org/schema/integration/file"
+	xmlns:stream="http://www.springframework.org/schema/integration/stream"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/integration
+			http://www.springframework.org/schema/integration/spring-integration-1.0.xsd
+			http://www.springframework.org/schema/integration/jms
+			http://www.springframework.org/schema/integration/jms/spring-integration-jms-1.0.xsd
+			http://www.springframework.org/schema/integration/stream
+			http://www.springframework.org/schema/integration/stream/spring-integration-stream-1.0.xsd
+			http://www.springframework.org/schema/integration/file
+			http://www.springframework.org/schema/integration/file/spring-integration-file-1.0.xsd
+			">
 
 
    <bean class="org.asteriskjava.fastagi.AgiServerThread"
@@ -26,4 +39,35 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 			
 	<bean id="asteriskAgi" class="org.bigbluebutton.pbx.asterisk.AsteriskAgiService" />
 
+	<!-- Spring Integration / JMS gateways -->
+    <bean id="connectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+        <property name="brokerURL">
+            <value>tcp://localhost:61616</value>
+        </property>
+    </bean>
+
+	<jms:inbound-channel-adapter id="jmsInConferenceStarted"
+		destination-name="conferenceStartedEvents"
+        channel="conferenceStarted"
+        extract-payload="true">
+		<integration:poller>
+			<integration:interval-trigger interval="5" time-unit="SECONDS"/>
+		</integration:poller>
+	</jms:inbound-channel-adapter>
+	<jms:inbound-channel-adapter id="jmsInConferenceEnded"
+		destination-name="conferenceEndedEvents"
+        channel="conferenceEnded"
+        extract-payload="true">
+		<integration:poller>
+			<integration:interval-trigger interval="5" time-unit="SECONDS"/>
+		</integration:poller>
+	</jms:inbound-channel-adapter>
+ 
+	<integration:channel id="conferenceStarted"/>
+	<integration:channel id="conferenceEnded"/>
+
+	<integration:service-activator input-channel="conferenceStarted" ref="dynamicConferenceService" method="conferenceStarted" />
+	<integration:service-activator input-channel="conferenceEnded" ref="dynamicConferenceService" method="conferenceEnded" />
+	
+<!--	<stream:stdout-channel-adapter id="stdout" channel="jmsinToStdoutChannel" append-newline="true"/>-->
 </beans>

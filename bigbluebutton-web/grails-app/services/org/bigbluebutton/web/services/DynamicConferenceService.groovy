@@ -24,45 +24,53 @@ import java.util.concurrent.ConcurrentHashMap
 
 import org.bigbluebutton.api.domain.DynamicConference;
 
-public class DynamicConferenceService{
-	boolean transactional = false
-	 def serviceEnabled = false
+public class DynamicConferenceService {
 	
-	 private final Map<String, DynamicConference> confsByMtgID
-	 private final Map<String, String> tokenMap
-	 
-	 public DynamicConferenceService() {
-		 confsByMtgID = new ConcurrentHashMap<String, DynamicConference>()
-		 tokenMap = new ConcurrentHashMap<String, String>()
-	 }
-
-	 public void storeConference(DynamicConference conf) {
-		 confsByMtgID.put(conf.getMeetingID(), conf);
-		 tokenMap.put(conf.getMeetingToken(), conf.getMeetingID());
-	 }
-	 public DynamicConference getConferenceByMeetingID(String meetingID) {
-		 if (meetingID == null) {
-			 return null;
-		 }
-		 return confsByMtgID.get(meetingID);
-	 }
-	 public DynamicConference getConferenceByToken(String token) {
-		 if (token == null) {
-			 return null;
-		 }
-		 String mtgID = tokenMap.get(token);
-		 if (mtgID == null) {
-			 return null;
-		 }
-		 return confsByMtgID.get(mtgID);
-	 }
-
-	 public DynamicConference findConference(String token, String mtgID) {
+	boolean transactional = false
+	def serviceEnabled = false
+	
+	private final Map<String, DynamicConference> confsByMtgID
+	private final Map<String, String> tokenMap
+	
+	public DynamicConferenceService() {
+		confsByMtgID = new ConcurrentHashMap<String, DynamicConference>()
+		tokenMap = new ConcurrentHashMap<String, String>()
+	}
+	
+	public void storeConference(DynamicConference conf) {
+		confsByMtgID.put(conf.getMeetingID(), conf);
+		tokenMap.put(conf.getMeetingToken(), conf.getMeetingID());
+	}
+	public DynamicConference getConferenceByMeetingID(String meetingID) {
+		if (meetingID == null) {
+			return null;
+		}
+		return confsByMtgID.get(meetingID);
+	}
+	public DynamicConference getConferenceByToken(String token) {
+		if (token == null) {
+			return null;
+		}
+		String mtgID = tokenMap.get(token);
+		if (mtgID == null) {
+			return null;
+		}
+		return confsByMtgID.get(mtgID);
+	}
+	
+	public DynamicConference findConference(String token, String mtgID) {
 		DynamicConference conf = getConferenceByToken(token);
 		if (conf == null) {
 			conf = getConferenceByMeetingID(mtgID);
 		}
 		return conf;
-	 }
-
+	}
+	
+	// these methods called by spring integration:
+	public void conferenceStarted(String conferenceID) {
+		println "conference started: " + conferenceID;
+	}
+	public void conferenceEnded(String conferenceID) {
+		println "conference ended: " + conferenceID;
+	}
 }

@@ -20,6 +20,12 @@
         </dependency>
         <dependency org="hsqldb" name="hsqldb" rev="1.8.0.5" conf="runtime"/>
 		<dependency org="net.sf.ehcache" name="ehcache" rev="1.5.0" conf="runtime"/>
+        <!-- Spring Integration -->
+        <dependency org="org.springframework.integration" name="spring-integration-core" rev="1.0.2.RELEASE" />
+        <dependency org="org.springframework.integration" name="spring-integration-adapter" rev="1.0.2.RELEASE" />
+        <dependency org="org.springframework.integration" name="spring-integration-stream" rev="1.0.2.RELEASE" />
+        <dependency org="org.springframework.integration" name="spring-integration-file" rev="1.0.2.RELEASE" />
+        <dependency org="org.springframework.integration" name="spring-integration-jms" rev="1.0.2.RELEASE" />
         <!--
         <dependency org="mysql" name="mysql-connector-java" rev="5.1.6" conf="runtime"/>
         <dependency org="postgresql" name="postgresql" rev="8.3-603.jdbc3" conf="runtime"/>
