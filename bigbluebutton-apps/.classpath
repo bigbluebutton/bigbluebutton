@@ -33,7 +33,10 @@
 	<classpathentry kind="lib" path="lib/geronimo-jms_1.1_spec-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-over-slf4j-1.5.6.jar"/>
 	<classpathentry kind="lib" path="lib/groovy-all-1.6.4.jar"/>
-	<classpathentry kind="lib" path="lib/spring-integration-core-1.0.3.RELEASE.jar"/>
-	<classpathentry kind="lib" path="lib/spring-integration-jms-1.0.3.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-integration-adapter-1.0.2.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-integration-core-1.0.2.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-integration-file-1.0.2.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-integration-jms-1.0.2.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-integration-stream-1.0.2.RELEASE.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
