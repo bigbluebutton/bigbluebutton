@@ -52,11 +52,11 @@ public class RoomsManager {
 	
 	public void removeRoom(String name) {
 		log.debug("In RoomsManager remove room ${name}")
-		if (checkEvtListener()) {
+		Room room = rooms.remove(name);
+		if (checkEvtListener() && room != null) {
 			conferenceEventListener.ended(room)
 			log.debug("notified event listener of conference end")
 		}
-		rooms.remove(name)
 	}
 
 	private boolean checkEvtListener() {

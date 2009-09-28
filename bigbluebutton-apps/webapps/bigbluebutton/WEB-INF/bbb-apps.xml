@@ -170,13 +170,18 @@
 		<constructor-arg value="conferenceStartedEvents"/>
     </bean>
 
-	<integration:channel id="conferenceEnded"/>
-	<!-- 
-
-	<jms:outbound-channel-adapter id="conferenceEndedJmsOut" destination="conferenceEndedEvents" channel="conferenceEnded"/>
+	<integration:channel id="conferenceEnded">
+		<integration:queue capacity="20"/>
+	</integration:channel>
+	<jms:outbound-channel-adapter id="conferenceEndedJmsOut" destination="conferenceEndedEvents" channel="conferenceEnded">
+		<integration:poller send-timeout="1500">
+			<integration:interval-trigger interval="1000"/>
+		</integration:poller>
+	</jms:outbound-channel-adapter>
     <bean id="conferenceEndedEvents" class="org.apache.activemq.command.ActiveMQQueue">
 		<constructor-arg value="conferenceEndedEvents"/>
     </bean>
+	<!-- 
 	<stream:stdout-channel-adapter id="stdout" channel="conferenceStarted" append-newline="true"/>
 	-->
 </beans>

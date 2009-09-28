@@ -37,8 +37,8 @@ public class Room implements Serializable {
 	
 	private final String name
 	private final Map <Long, Participant> participants	
-	private final Map <Long, Participant> unmodifiableMap
-	private final Map<String, IRoomListener> listeners
+	private transient final Map <Long, Participant> unmodifiableMap
+	private transient final Map<String, IRoomListener> listeners
 
 	public Room(String name) {
 		this.name = name

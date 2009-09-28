@@ -19,12 +19,13 @@
  */
 package org.bigbluebutton.conference
 
-import net.jcip.annotations.ThreadSafeimport java.util.concurrent.ConcurrentHashMapimport java.util.Collectionsimport java.lang.Long
+import net.jcip.annotations.ThreadSafeimport java.util.concurrent.ConcurrentHashMapimport java.util.Collectionsimport java.io.Serializable;
+import java.lang.Long
 /**
  * Contains information for a Participant. Encapsulates status and the
  * only way to change/add status is through setStatus;
  */
-@ThreadSafepublic class Participant  {
+@ThreadSafepublic class Participant implements Serializable {
 	private final Long userid
 	private final String name
 	private final String role = "VIEWER"
