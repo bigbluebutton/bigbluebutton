@@ -28,6 +28,8 @@ import org.apache.commons.lang.StringUtils;
 
 import org.bigbluebutton.api.domain.DynamicConference;
 import org.bigbluebutton.web.services.DynamicConferenceService
+import org.codehaus.groovy.grails.commons.ConfigurationHolder;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -41,14 +43,14 @@ class ApiController {
 	private static final String RESP_CODE_SUCCESS = 'SUCCESS'
 	private static final String RESP_CODE_FAILED = 'FAILED'
 
-	private static final String ROLE_MODERATOR = "mod";
-	private static final String ROLE_ATTENDEE = "att";
+	private static final String ROLE_MODERATOR = "MODERATOR";
+	private static final String ROLE_ATTENDEE = "VIEWER";
 
 	private static final String SECURITY_SALT = '639259d4-9dd8-4b25-bf01-95f9567eaf4b'
 
 	// TODO: security salt will obviously need to be a part of the server configuration
 	//			and not hard-coded here.  This is just for development / testing
-	String securitySalt = SECURITY_SALT;
+	String securitySalt = null;
 	DynamicConferenceService dynamicConferenceService;
 
 	/* general methods */
@@ -139,7 +141,17 @@ class ApiController {
 		}
 
 		// TODO: success....
-		invalid("notImplemented", "You have entered a successful join call - but we haven't implemented the actual join functionality yet");
+		log.debug "join successful - setting session parameters and redirecting to join"
+		session["fullname"] = fullName 
+		session["role"] = role
+		session["conference"] = conf.getMeetingToken()
+		session["room"] = conf.getMeetingToken()
+		session["voicebridge"] = 'TODO-API'
+		session["mode"] = "LIVE"
+		session["record"] = false
+    	def config = ConfigurationHolder.config
+    	def hostURL = config.bigbluebutton.web.serverURL
+    	redirect(url:"${hostURL}/client/BigBlueButton.html")
 	}
 
 	def isMeetingRunning = {
@@ -212,7 +224,7 @@ class ApiController {
 	}
 
 	def beforeInterceptor = {
-		if (dynamicConferenceService.serviceEnabled) {
+		if (dynamicConferenceService.serviceEnabled == false) {
 			invalid("apiNotEnabled", "The API service and/or controller is not enabled on this server.  To use it, you must first enable it.")
 		}
 	}
@@ -229,8 +241,8 @@ class ApiController {
 						meetingID("${conf.meetingID}")
 						attendeePW("${conf.attendeePassword}")
 						moderatorPW("${conf.moderatorPassword}")
-						messageKey(msgKey)
-						message(msg)
+						messageKey(msgKey == null ? "" : msgKey)
+						message(msg == null ? "" : msg)
 					}
 				}
 			}

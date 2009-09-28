@@ -67,10 +67,20 @@ public class DynamicConferenceService {
 	}
 	
 	// these methods called by spring integration:
-	public void conferenceStarted(String conferenceID) {
-		println "conference started: " + conferenceID;
+	public void conferenceStarted(String token) {
+		println "conference started: " + token;
+		DynamicConference conf = getConferenceByToken(token);
+		if (conf != null) {
+			conf.setStartTime(new Date());
+			println "found conference and set start date"
+		}
 	}
-	public void conferenceEnded(String conferenceID) {
-		println "conference ended: " + conferenceID;
+	public void conferenceEnded(String token) {
+		println "conference ended: " + token;
+		DynamicConference conf = getConferenceByToken(token);
+		if (conf != null) {
+			conf.setEndTime(new Date());
+			println "found conference and set end date"
+		}
 	}
 }

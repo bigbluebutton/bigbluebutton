@@ -28,6 +28,9 @@ import org.bigbluebutton.web.domain.Conference;
 
 public class DynamicConference extends Conference {
 
+	Date startTime;
+	Date endTime;
+	
 	String meetingID
 	String meetingToken
 	
@@ -54,6 +57,10 @@ public class DynamicConference extends Conference {
 
 	public static String createPassword() {
 		return RandomStringUtils.randomAlphanumeric(8).toLowerCase();
+	}
+
+	public boolean isRunning() {
+		return startTime != null && endTime == null;
 	}
 
 	String toString() {"DynamicConference: ${this.meetingToken} [${this.meetingID}]:${this.name}"}
