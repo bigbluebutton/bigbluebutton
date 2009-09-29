@@ -161,45 +161,20 @@
 	<!-- shared -->
 	<bean id="roomTransformer" class="org.bigbluebutton.springintegration.RoomToStringTransformer" />
 
-	<!-- TODO: need to simplify this configuration for each event type!! (JRT: 09/28/2009) -->
 	<!-- conferenceStarted -->
-	<integration:channel id="conferenceStarted">
-		<integration:queue capacity="20"/>
-	</integration:channel>
-	<integration:channel id="conferenceStartedStrings">
-		<integration:queue capacity="20"/>
-	</integration:channel>
-	<integration:transformer ref="roomTransformer" input-channel="conferenceStarted" output-channel="conferenceStartedStrings">
-		<integration:poller send-timeout="1500">
-			<integration:interval-trigger interval="1000"/>
-		</integration:poller>
-	</integration:transformer>
-	<jms:outbound-channel-adapter id="conferenceStartedJmsOut" destination="conferenceStartedEvents" channel="conferenceStartedStrings">
-		<integration:poller send-timeout="1500">
-			<integration:interval-trigger interval="1000"/>
-		</integration:poller>
-	</jms:outbound-channel-adapter>
+	<integration:channel id="conferenceStarted" />
+	<integration:channel id="conferenceStartedStrings" />
+	<integration:transformer ref="roomTransformer" input-channel="conferenceStarted" output-channel="conferenceStartedStrings" />
+	<jms:outbound-channel-adapter id="conferenceStartedJmsOut" destination="conferenceStartedEvents" channel="conferenceStartedStrings" />
     <bean id="conferenceStartedEvents" class="org.apache.activemq.command.ActiveMQQueue">
 		<constructor-arg value="conferenceStartedEvents"/>
     </bean>
 
 	<!-- conferenceEnded -->
-	<integration:channel id="conferenceEnded">
-		<integration:queue capacity="20"/>
-	</integration:channel>
-	<integration:channel id="conferenceEndedStrings">
-		<integration:queue capacity="20"/>
-	</integration:channel>
-	<integration:transformer ref="roomTransformer" input-channel="conferenceEnded" output-channel="conferenceEndedStrings">
-		<integration:poller send-timeout="1500">
-			<integration:interval-trigger interval="1000"/>
-		</integration:poller>
-	</integration:transformer>
-	<jms:outbound-channel-adapter id="conferenceEndedJmsOut" destination="conferenceEndedEvents" channel="conferenceEndedStrings">
-		<integration:poller send-timeout="1500">
-			<integration:interval-trigger interval="1000"/>
-		</integration:poller>
-	</jms:outbound-channel-adapter>
+	<integration:channel id="conferenceEnded" />
+	<integration:channel id="conferenceEndedStrings" />
+	<integration:transformer ref="roomTransformer" input-channel="conferenceEnded" output-channel="conferenceEndedStrings" />
+	<jms:outbound-channel-adapter id="conferenceEndedJmsOut" destination="conferenceEndedEvents" channel="conferenceEndedStrings" />
     <bean id="conferenceEndedEvents" class="org.apache.activemq.command.ActiveMQQueue">
 		<constructor-arg value="conferenceEndedEvents"/>
     </bean>
