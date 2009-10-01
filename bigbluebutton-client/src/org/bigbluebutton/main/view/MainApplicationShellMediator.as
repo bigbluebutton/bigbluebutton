@@ -21,12 +21,9 @@ package org.bigbluebutton.main.view
 {
 	import flash.events.Event;
 	import flash.geom.Point;
-	import flash.net.URLRequest;
-	import flash.net.navigateToURL;
 	
 	import flexlib.mdi.containers.MDIWindow;
 	
-	import mx.core.Application;
 	import mx.managers.PopUpManager;
 	
 	import org.bigbluebutton.common.IBbbModuleWindow;
@@ -34,6 +31,7 @@ package org.bigbluebutton.main.view
 	import org.bigbluebutton.main.events.OpenWindowEvent;
 	import org.bigbluebutton.main.model.ModulesProxy;
 	import org.bigbluebutton.main.model.PortTestProxy;
+	import org.bigbluebutton.main.view.components.LoggedOutWindow;
 	import org.bigbluebutton.main.view.components.MainApplicationShell;
 	import org.bigbluebutton.main.view.components.ModuleStoppedWindow;
 	import org.bigbluebutton.main.view.events.StartModuleEvent;
@@ -200,7 +198,7 @@ package org.bigbluebutton.main.view
 		}
 		
 		private function handleUserLoggedOut():void {
-/*
+
 				var t:LoggedOutWindow = LoggedOutWindow(PopUpManager.createPopUp( shell.mdiCanvas, LoggedOutWindow, false));
 
 				var point1:Point = new Point();
@@ -210,11 +208,13 @@ package org.bigbluebutton.main.view
             	point1 = shell.localToGlobal(point1);
            	 	t.x = point1.x + 25;
             	t.y = point1.y + 25;	
-*/            	
+       
+/*     	
             	var pageURL:String = mx.core.Application.application.url.split("/")[2];
             	var url:URLRequest = new URLRequest("http://" + pageURL + "/bigbluebutton/conference-session/signOut");
             	LogUtil.debug("Log out url: " + pageURL);
-				navigateToURL(url, '_self');			
+				navigateToURL(url, '_self');
+*/			
 		}
 		
 		private function handleModuleStopped(moduleName:String, errors:Array):void {
