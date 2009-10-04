@@ -114,6 +114,7 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 		
 		public function stopBroadcasting(e:StopBroadcastEvent):void{
+			ns.attachCamera(null);
 			ns.close();
 			ns = null;
 		}

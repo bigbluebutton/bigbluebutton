@@ -156,6 +156,7 @@
 			}
 			
 			private function stopPublishing():void{
+				video.attachCamera(null);
 				var e:StopBroadcastEvent = new StopBroadcastEvent()
 				e.stream = this.streamName;
 				dispatchEvent(e);

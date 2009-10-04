@@ -52,13 +52,14 @@
 			uri="rtmp://192.168.0.124/bigbluebutton" 
 			onUserJoinedEvent="START" 
 			onUserLogoutEvent="STOP"
+			loadNextModule="HighlighterModule"
 		/>
 		
-		<!--<module name="HighlighterModule" url="HighlighterModule.swf" 
+		<module name="HighlighterModule" url="HighlighterModule.swf" 
 			uri="rtmp://192.168.0.124/bigbluebutton" 
 			onUserJoinedEvent="START" 
 			onUserLogoutEvent="STOP"
-		/>-->
+		/>
 		
 	</modules>
 </config>
