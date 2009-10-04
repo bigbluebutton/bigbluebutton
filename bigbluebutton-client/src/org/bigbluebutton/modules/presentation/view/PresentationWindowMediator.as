@@ -243,6 +243,8 @@ package org.bigbluebutton.modules.presentation.view
 				} else {
 					_presWin.forwardButton.enabled = false;
 				}
+				
+				onResetZoom(null);
 			}			
 		}
 		

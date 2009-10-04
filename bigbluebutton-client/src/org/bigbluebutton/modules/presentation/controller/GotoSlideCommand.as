@@ -30,8 +30,8 @@ package org.bigbluebutton.modules.presentation.controller
 			if (facade.hasProxy(PresentProxy.NAME)) {
 				var p:PresentProxy = facade.retrieveProxy(PresentProxy.NAME) as PresentProxy;
 				p.gotoSlide(notification.getBody() as int);
-				var mediator:PresentationWindowMediator = facade.retrieveMediator(PresentationWindowMediator.NAME) as PresentationWindowMediator;
-				p.move(mediator.getXPos(),mediator.getYPos());
+				//var mediator:PresentationWindowMediator = facade.retrieveMediator(PresentationWindowMediator.NAME) as PresentationWindowMediator;
+				//p.move(mediator.getXPos(),mediator.getYPos());
 			} else {
 				LogUtil.debug('Present Proxy not found.');
 			}			

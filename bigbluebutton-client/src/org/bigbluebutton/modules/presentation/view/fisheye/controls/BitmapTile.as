@@ -192,11 +192,7 @@ package org.bigbluebutton.modules.presentation.view.fisheye.controls
 			}
 			slideNumber.x = this.width / 2;
 			slideNumber.y = this.height / 2; 
-//			var format:TextFormat = new TextFormat();
-//            format.font = "Verdana";
- //           format.color = 0xBBBBBB;
- //           format.size = 10;
-		//	slideNumber.defaultTextFormat = format;
+			slideNumber.selectable = false;
 			this.addChild(slideNumber);
 
 

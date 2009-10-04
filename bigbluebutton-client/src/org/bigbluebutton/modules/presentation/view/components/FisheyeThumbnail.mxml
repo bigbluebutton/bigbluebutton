@@ -72,17 +72,12 @@
 			public function displayIndex():void{
 				if (this.visible){
 					slideNumber = fisheye.getHighlightedIndex(fisheye.mouseX, fisheye.mouseY);
-					//dispatchEvent(new Event(SLIDE_HIGHLIGHTED));	
 				}
 			}
 
 			public function setFisheyeVisibility(visible:Boolean):void{
 				fisheye.visible = visible;
 				LogUtil.debug('FisheyeThumbnail::setVisibility()...this.visible=' + this.visible + "  " + fisheye.visible);
-			}
-			
-			private function getSlideNumber():Number {
-				return slideNumber;
 			}
 			
 			private function onRollOut():void{
@@ -92,10 +87,6 @@
 			private function onRollOver():void{
 				this.visible = true;
 			}
-			
-//			private function alignToParent(e:Event):void{
-//				this.x = - (fisheye.midPointFor(1));
-//			}
 			
 		]]>
 	</mx:Script>
