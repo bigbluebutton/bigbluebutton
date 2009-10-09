@@ -60,7 +60,9 @@ public class DynamicConference extends Conference {
 	}
 
 	public boolean isRunning() {
-		return startTime != null && endTime == null;
+		boolean running = startTime != null && endTime == null;
+		println "running: ${running}; startTime: ${startTime}; endTime: ${endTime}"; 
+		return running;
 	}
 
 	String toString() {"DynamicConference: ${this.meetingToken} [${this.meetingID}]:${this.name}"}

@@ -167,13 +167,14 @@ class ApiController {
 
 		// check for existing:
 		DynamicConference conf = dynamicConferenceService.findConference(mtgToken, mtgID);
+		boolean isRunning = conf != null && conf.isRunning();
 		response.addHeader("Cache-Control", "no-cache")
 		withFormat {	
 			xml {
 				render(contentType:"text/xml") {
 					response() {
 						returncode(RESP_CODE_SUCCESS)
-						running(conf == null ? "false" : "true")
+						running(isRunning ? "true" : "false")
 					}
 				}
 			}
@@ -225,6 +226,8 @@ class ApiController {
 
 	def beforeInterceptor = {
 		if (dynamicConferenceService.serviceEnabled == false) {
+			// TODO: this doesn't stop the request - so it generates invalid XML
+			//			since the request continues and renders a second response
 			invalid("apiNotEnabled", "The API service and/or controller is not enabled on this server.  To use it, you must first enable it.")
 		}
 	}

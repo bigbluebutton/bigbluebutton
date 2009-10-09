@@ -72,6 +72,7 @@ public class DynamicConferenceService {
 		DynamicConference conf = getConferenceByToken(token);
 		if (conf != null) {
 			conf.setStartTime(new Date());
+			conf.setEndTime(null);
 			println "found conference and set start date"
 		}
 	}
