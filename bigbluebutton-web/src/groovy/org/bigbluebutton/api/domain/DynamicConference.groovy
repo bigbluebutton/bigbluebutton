@@ -33,6 +33,7 @@ public class DynamicConference extends Conference {
 	
 	String meetingID
 	String meetingToken
+	String voiceBridge
 	
 	String moderatorPassword
 	String attendeePassword
@@ -65,6 +66,6 @@ public class DynamicConference extends Conference {
 		return running;
 	}
 
-	String toString() {"DynamicConference: ${this.meetingToken} [${this.meetingID}]:${this.name}"}
+	String toString() {"DynamicConference: ${this.meetingToken} [${this.meetingID}|${this.voiceBridge}]:${this.name}"}
 
 }

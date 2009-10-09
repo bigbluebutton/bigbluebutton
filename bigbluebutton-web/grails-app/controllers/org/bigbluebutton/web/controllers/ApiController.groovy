@@ -77,6 +77,7 @@ class ApiController {
 		String mtgID = params.meetingID
 		String attPW = params.attendeePW
 		String modPW = params.moderatorPW
+		String voiceBr = params.voiceBridge
 		Integer maxParts = params.maxParticipants
 		String mmRoom = params.meetmeRoom
 		String mmServer = params.meetmeServer
@@ -96,8 +97,9 @@ class ApiController {
 			return;
 		}
 		DynamicConference conf = new DynamicConference(name, mtgID, attPW, modPW, maxParts)
+		conf.setVoiceBridge(voiceBr == null || voiceBr == "" ? mtgID : voiceBr)
 		println("Conference created: " + conf);
-		// TODO: support meetmeRoom and meetmeServer
+		// TODO: support voiceBridge and voiceServer
 
 		// success!
 		dynamicConferenceService.storeConference(conf);
@@ -146,7 +148,7 @@ class ApiController {
 		session["role"] = role
 		session["conference"] = conf.getMeetingToken()
 		session["room"] = conf.getMeetingToken()
-		session["voicebridge"] = 'TODO-API'
+		session["voicebridge"] = conf.getVoiceBridge()
 		session["mode"] = "LIVE"
 		session["record"] = false
     	def config = ConfigurationHolder.config
