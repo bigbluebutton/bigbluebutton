@@ -23,11 +23,13 @@ package org.bigbluebutton.web.controllers
 
 
 import org.apache.commons.codec.binary.Hex;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 
+import org.bigbluebutton.web.services.DynamicConferenceService;
 import org.bigbluebutton.api.domain.DynamicConference;
-import org.bigbluebutton.web.services.DynamicConferenceService
+
 import org.codehaus.groovy.grails.commons.ConfigurationHolder;
 
 import java.security.MessageDigest;
@@ -78,7 +80,10 @@ class ApiController {
 		String attPW = params.attendeePW
 		String modPW = params.moderatorPW
 		String voiceBr = params.voiceBridge
-		Integer maxParts = params.maxParticipants
+		Integer maxParts = -1;
+		try {
+			maxParts = Integer.parseInt(params.maxParticipants);
+		} catch(Exception ex) { /* do nothing */ }
 		String mmRoom = params.meetmeRoom
 		String mmServer = params.meetmeServer
 
