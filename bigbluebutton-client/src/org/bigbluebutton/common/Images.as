@@ -159,5 +159,27 @@ package org.bigbluebutton.common
         
         [Embed(source="assets/images/arrow_inout.png")]
         public var fit_to_width:Class; 
+        
+        [Embed(source="assets/images/magnifier_reset.png")]
+        public var mag_reset:Class;
+        
+        ///
+        [Embed(source="assets/images/thumbnails.png")]
+        public var thumbnails:Class;
+
+        [Embed(source="assets/images/arrow_right.png")]
+        public var forward:Class;
+
+        [Embed(source="assets/images/arrow_left.png")]
+        public var backward:Class;
+        
+        [Embed(source="assets/images/magnifier.png")]
+        public var magnifier:Class;
+        
+        [Embed(source="assets/images/add.png")]
+        public var add:Class;
+        
+        [Embed(source="assets/images/bullet_go.png")]
+        public var bulletGo:Class;
 	}
 }

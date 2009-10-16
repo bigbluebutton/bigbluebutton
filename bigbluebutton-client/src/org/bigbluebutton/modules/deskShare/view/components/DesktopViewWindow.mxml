@@ -40,8 +40,8 @@
 			import mx.events.SliderEvent;
 			
 			private var images:Images = new Images();
-			[Bindable] public var fitToWidthIcon:Class = images.fit_to_width;
-			[Bindable] public var fitToActualSizeIcon:Class = images.full_screen;
+			[Bindable] public var fitToWidthIcon:Class = images.magnifier;
+			[Bindable] public var fitToActualSizeIcon:Class = images.mag_reset;
 			
 			private var video:Video;
 			private var ns:NetStream;

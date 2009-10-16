@@ -35,13 +35,13 @@
 
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.common.Images;
 			import flexlib.mdi.events.MDIWindowEvent;
 			import org.bigbluebutton.main.events.AddHighligtherCanvasEvent;
 			import org.bigbluebutton.modules.presentation.view.SlideViewMediator;
 		
 			import org.bigbluebutton.modules.presentation.view.PresentationWindowMediator;
 			import mx.core.Application;
-			import org.bigbluebutton.modules.presentation.view.components.Images;
 			import org.bigbluebutton.modules.presentation.PresentationFacade;
 			import mx.binding.utils.BindingUtils;
 
