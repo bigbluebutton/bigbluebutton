@@ -10,6 +10,7 @@
 	<mate:Listener type="{OpenWindowEvent.OPEN_WINDOW_EVENT}" method="handleOpenWindowEvent" />	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.main.events.OpenWindowEvent;
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.main.events.LoginEvent;
@@ -25,7 +26,6 @@
 			import org.bigbluebutton.common.Constants;
 			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
 			import flash.events.MouseEvent;
-			import org.bigbluebutton.main.view.assets.Images;
 			import org.bigbluebutton.main.MainApplicationFacade;
 			
 			public static const NAME:String = 'MAinView';
@@ -45,7 +45,7 @@
 			private var _mode:String = 'LIVE';
 			
 			[Bindable] private var fullscreen_icon:Class = images.full_screen;
-			[Bindable] private var logs_icon:Class = images.logs;
+			[Bindable] private var logs_icon:Class = images.table;
 			
 			[Bindable]
 			public var model:MainViewModel;

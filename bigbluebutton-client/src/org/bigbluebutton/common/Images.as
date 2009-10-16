@@ -92,7 +92,7 @@ package org.bigbluebutton.common
         public var refresh_slides:Class;
         
         [Embed(source="assets/images/table.png")]
-        public var presentation:Class;
+        public var table:Class;
 
         [Embed(source="assets/images/tfn.png")]
         public var blindside:Class;    
@@ -153,5 +153,11 @@ package org.bigbluebutton.common
         
         [Embed(source="assets/images/control_play_blue.png")]
         public var control_play:Class;  
+
+        [Embed(source="assets/images/shape_move_front.png")]
+        public var layout:Class; 
+        
+        [Embed(source="assets/images/arrow_inout.png")]
+        public var fit_to_width:Class; 
 	}
 }

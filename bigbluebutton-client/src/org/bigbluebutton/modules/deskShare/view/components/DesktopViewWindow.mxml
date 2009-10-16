@@ -31,12 +31,17 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.common.Images;
 			import flexlib.mdi.events.MDIWindowEvent;
 			import mx.events.ResizeEvent;
 			import mx.controls.Alert;
 			import org.bigbluebutton.modules.deskShare.events.StopViewingEvent;
 			import mx.core.UIComponent;
 			import mx.events.SliderEvent;
+			
+			private var images:Images = new Images();
+			[Bindable] public var fitToWidthIcon:Class = images.fit_to_width;
+			[Bindable] public var fitToActualSizeIcon:Class = images.full_screen;
 			
 			private var video:Video;
 			private var ns:NetStream;
@@ -78,7 +83,10 @@
 				this.addChild(videoHolder);
 				videoHolder.percentWidth = 100;
 				videoHolder.percentHeight = 100;
-				videoHolder.addEventListener(ResizeEvent.RESIZE, onResize);
+				//videoHolder.addEventListener(ResizeEvent.RESIZE, onResize);
+				
+				this.width = 600;
+				fitToWidth();
 			}
 			
 			public function startVideo(connection:NetConnection, stream:String, width:Number, height:Number):void{
@@ -98,9 +106,6 @@
 				video.height = height;
 				video.attachNetStream(ns);
 				ns.play(stream);	
-				
-				this.width = video.width + 6;
-				this.height = video.height + 73;
 				this.stream = stream;
 			}
 			
@@ -168,11 +173,32 @@
 				this.close();
 			}
 			
-			private function onZoomChange(e:SliderEvent):void{
+			/*private function onZoomChange(e:SliderEvent):void{
 				video.width = zoomSlider.value/100 * videoWidth;
 				video.height = zoomSlider.value/100 * videoHeight;
 				videoHolder.width = zoomSlider.value/100 * videoWidth;
 				videoHolder.height = zoomSlider.value/100 * videoHeight;
+			}*/
+			
+			/**
+			 * resizes the desktop sharing video to fit to the width of this window
+			 */
+			private function fitToWidth():void{
+				var aspectRatio:Number = video.width/video.height;
+				video.width = this.width - 22;
+				videoHolder.width = this.width - 22;
+				video.height = video.width / aspectRatio;
+				videoHolder.height = video.width / aspectRatio;
+			}
+			
+			/**
+			 * resizes the desktop sharing video to actual video resolution
+			 */
+			private function fitToActualSize():void{
+				video.width = videoWidth;
+				videoHolder.width = videoWidth;
+				video.height = videoHeight;
+				videoHolder.height = videoHeight;
 			}
 		]]>
 	</mx:Script>
@@ -180,7 +206,8 @@
 	<mate:Listener type="{StopViewingEvent.STOP_VIEWING}" method="closeWindow" />
 	
 	<mx:ControlBar id="bottomBar">
-		<mx:HSlider id="zoomSlider" value="100" minimum="50" maximum="250" change="onZoomChange(event)" labels="{['50%','250%']}" labelOffset="0" />
-		<mx:Label id="lblStatus" />
+		<!--<mx:HSlider id="zoomSlider" value="100" minimum="50" maximum="250" change="onZoomChange(event)" labels="{['50%','250%']}" labelOffset="0" />-->
+		<mx:Button id="btnFitToWidth" click="fitToWidth()" icon="{fitToWidthIcon}" toolTip="Fit To Width" />
+		<mx:Button id="btnActualSize" click="fitToActualSize()" icon="{fitToActualSizeIcon}" toolTip="100% zoom" />
 	</mx:ControlBar>
 </MDIWindow>

@@ -268,7 +268,9 @@ package org.bigbluebutton.modules.deskShare.business
 		}
 		
 		public function calculateEncodingDimensions(captureWidth:Number, captureHeight:Number):void{
-			if (captureWidth <= LARGER_DIMENSION && captureHeight <= LARGER_DIMENSION){
+			height = captureHeight;
+			width = captureWidth;
+			/*if (captureWidth <= LARGER_DIMENSION && captureHeight <= LARGER_DIMENSION){
 				height = captureHeight;
 				width = captureWidth;
 				return;
@@ -292,7 +294,7 @@ package org.bigbluebutton.modules.deskShare.business
 			} else{
 				height = LARGER_DIMENSION;
 				width = Math.round(LARGER_DIMENSION/ratio);
-			}
+			}*/
 		}
 
 	}
