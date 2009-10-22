@@ -2,6 +2,7 @@
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/" xmlns:mate="org.bigbluebutton.common.mate.*">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.common.IBbbModuleWindow;
 			import mx.controls.Alert;
 			import org.bigbluebutton.modules.deskShare.view.components.DesktopViewWindow;
 			import org.bigbluebutton.modules.deskShare.view.components.DesktopPublishWindow;
@@ -16,7 +17,7 @@
 			import org.bigbluebutton.modules.deskShare.events.ViewCommand;
 			import org.bigbluebutton.modules.deskShare.business.DeskShareProxy;
 		
-			public var window:DesktopPublishWindow;
+			public var window:IBbbModuleWindow;
 			public var proxy:DeskShareProxy;
 			private var button:ToolbarButton;
 			public var module:DeskShareModule;
@@ -37,7 +38,6 @@
 			
 			private function closeWindow():void{
 				proxy.stop();
-				window = null;
 			}
 			
 			public function addToolbarButton():void {
@@ -69,11 +69,12 @@
 			private function openDeskShareWindow():void{
 				LogUtil.debug("opening desk share window");
 				window = new DesktopPublishWindow();
-				window.xPosition = 675;
-				window.yPosition = 310;
-				window._module = module;
-				window.connection = proxy.getConnection();
-				window.startSharing();
+				var pubWindow:DesktopPublishWindow = window as DesktopPublishWindow;
+				pubWindow.xPosition = 675;
+				pubWindow.yPosition = 310;
+				pubWindow._module = module;
+				pubWindow.connection = proxy.getConnection();
+				pubWindow.startSharing();
 				
 				var e:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 				e.window = window;
@@ -84,11 +85,12 @@
 				if (window != null) return;
 				LogUtil.debug("DeskShareEventsMap::startViewing");
 				
-				var viewWindow:DesktopViewWindow = new DesktopViewWindow();
+				window = new DesktopViewWindow();
+				var viewWindow:DesktopViewWindow = window as DesktopViewWindow;
 				viewWindow.startVideo(proxy.getConnection(), module.getRoom(), e.width, e.height);
 				
 				var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-				windowEvent.window = viewWindow;
+				windowEvent.window = window;
 				globalDispatcher.dispatchEvent(windowEvent);
 			}
 		]]>

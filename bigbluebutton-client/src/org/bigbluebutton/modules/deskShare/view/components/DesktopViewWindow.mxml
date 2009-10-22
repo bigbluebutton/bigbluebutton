@@ -73,7 +73,6 @@
 					this.x = savedX;
 					this.y = savedY;
 					isMaximized = false;
-					//dispatchEvent(new MDIWindowEvent(MDIWindowEvent.RESTORE, this));
 				}	
 			}
 			
@@ -200,6 +199,10 @@
 				videoHolder.width = videoWidth;
 				video.height = videoHeight;
 				videoHolder.height = videoHeight;
+			}
+			
+			override public function close(event:MouseEvent = null):void {
+				super.close(event);
 			}
 		]]>
 	</mx:Script>
