@@ -44,11 +44,11 @@
 		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/listeners/view/assets/images/" >
 			<fileset dir="./src/org/bigbluebutton/modules/listeners/view/assets/images/" />
 		</copy>
-
+<!--
 		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/presentation/view/assets/" >
 			<fileset dir="./src/org/bigbluebutton/modules/presentation/view/assets/" />
 		</copy>
-
+-->
 		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/phone/views/assets/images/" >
 			<fileset dir="./src/org/bigbluebutton/modules/phone/views/assets/images/" />
 		</copy>
