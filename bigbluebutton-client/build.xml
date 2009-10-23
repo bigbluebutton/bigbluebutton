@@ -36,11 +36,11 @@
 		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/common/assets/images" >
 			<fileset dir="./src/org/bigbluebutton/common/assets/images/" />
 		</copy>
-
+<!--
 		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/main/view/assets/images" >
 			<fileset dir="./src/org/bigbluebutton/main/view/assets/images" />
 		</copy>
-
+-->
 		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/listeners/view/assets/images/" >
 			<fileset dir="./src/org/bigbluebutton/modules/listeners/view/assets/images/" />
 		</copy>
