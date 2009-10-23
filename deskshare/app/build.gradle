@@ -18,7 +18,7 @@ dependencies {
 }
 
 war.doLast {
-  ant.unzip(src: war.archivePath, dest: "$buildDir/exploded")
+  ant.unzip(src: war.archivePath, dest: "$buildDir/deskshare")
 }
    
 task deploy(dependsOn:war, type:Copy) {
