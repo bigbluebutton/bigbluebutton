@@ -57,7 +57,7 @@
 			<fileset dir="./src/org/bigbluebutton/modules/videoconf/views/assets/images/" />
 		</copy>
 		
-		<copy file="./html-template/deskshareapplet-0.1.jar" todir="${OUTPUT_DIR}"/>
+		<copy file="./html-template/bbb-deskshare-applet-0.62.jar" todir="${OUTPUT_DIR}"/>
 		
 		<move todir="${OUTPUT_DIR}" >
 			<fileset dir="${OUTPUT_DIR}/src" />
