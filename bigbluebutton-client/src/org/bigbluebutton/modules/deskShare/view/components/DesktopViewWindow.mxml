@@ -59,13 +59,14 @@
 			private var savedX:Number;
 			private var savedY:Number;
 			private var isMaximized:Boolean = false;
+			
 			override public function maximize():void{
 				if (!isMaximized){
 					savedWindowHeight = this.height;
 					savedWindowWidth = this.width;
 					savedX = this.x;
-					savedY = this.y;
-                	dispatchEvent(new MDIWindowEvent(MDIWindowEvent.MAXIMIZE, this));
+					savedY = this.y;    
+					dispatchEvent(new MDIWindowEvent(MDIWindowEvent.MAXIMIZE, this));            	
                 	isMaximized = true;
 				} else{
 					this.width = savedWindowWidth;
@@ -82,10 +83,14 @@
 				this.addChild(videoHolder);
 				videoHolder.percentWidth = 100;
 				videoHolder.percentHeight = 100;
-				//videoHolder.addEventListener(ResizeEvent.RESIZE, onResize);
-				
 				this.width = 600;
+				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);				
 				fitToWindow();
+			}
+			
+			private function onResizeEndEvent(event:MDIWindowEvent):void {
+				if (event.window == this)
+					fitToWindow();
 			}
 			
 			public function startVideo(connection:NetConnection, stream:String, width:Number, height:Number):void{
@@ -162,12 +167,7 @@
 				this.width = _defaultWidth;
 				this.height = _defaultHeight;
 			}
-			
-			public function onResize(e:ResizeEvent):void{
-				//video.width = videoHolder.width;
-				//video.height = videoHolder.height;
-			}
-			
+						
 			private function closeWindow(e:StopViewingEvent):void{
 				this.close();
 			}
@@ -177,7 +177,7 @@
 			 */
 			private function fitToWindow():void{
 				if (this.width < this.height) {
-					video.width = this.width-15;
+					video.width = this.width-7;
 					videoHolder.width = video.width;
 					video.height = (videoHeight * video.width) / videoWidth;
 					videoHolder.height = video.height;
@@ -187,7 +187,7 @@
 					videoHolder.height = video.height;
 					video.width = (videoWidth * video.height) / videoHeight;
 					videoHolder.width = video.width;
-					this.width = video.width + 15;					
+					this.width = video.width + 7;					
 				}
 			}
 									
