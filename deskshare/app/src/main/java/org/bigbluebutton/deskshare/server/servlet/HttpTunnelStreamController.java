@@ -1,0 +1,133 @@
+/*
+ * BigBlueButton - http://www.bigbluebutton.org
+ * 
+ * Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
+ * 
+ * BigBlueButton is free software; you can redistribute it and/or modify it under the 
+ * terms of the GNU Affero General Public License as published by the Free Software 
+ * Foundation; either version 3 of the License, or (at your option) any later 
+ * version. 
+ * 
+ * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+ * PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public License along 
+ * with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Author: Richard Alam <ritzalam@gmail.com>
+ *
+ * $Id: $x
+ */
+package org.bigbluebutton.deskshare.server.servlet;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.bigbluebutton.deskshare.common.Dimension;
+import org.bigbluebutton.deskshare.server.CaptureEvents;
+import org.bigbluebutton.deskshare.server.session.SessionManager;
+import org.red5.logging.Red5LoggerFactory;
+import org.slf4j.Logger;
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
+
+public class HttpTunnelStreamController extends MultiActionController {
+	private static Logger log = Red5LoggerFactory.getLogger(HttpTunnelStreamController.class, "deskshare");
+	
+	private boolean hasSessionManager = false;
+	private SessionManager sessionManager;
+	
+	public ModelAndView screenCaptureHandler(HttpServletRequest request, HttpServletResponse response) throws Exception {		
+
+		String event = request.getParameterValues("event")[0];	
+		int captureRequest = Integer.parseInt(event);
+
+		if (CaptureEvents.CAPTURE_START.getEvent() == captureRequest) {
+			handleCaptureStartRequest(request, response);
+		} else if (CaptureEvents.CAPTURE_UPDATE.getEvent() == captureRequest) {
+			handleCaptureUpdateRequest(request, response);
+		} else if (CaptureEvents.CAPTURE_END.getEvent() == captureRequest) {
+			handleCaptureEndRequest(request, response);
+		} else {
+			log.debug("Cannot handle screen capture event " + captureRequest);
+			System.out.println("Cannot handle screen capture event " + captureRequest);
+		}
+		return null;
+	}	
+	
+	private void handleCaptureStartRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {		
+		String room = request.getParameterValues("room")[0];
+		String screenInfo = request.getParameterValues("screenInfo")[0];
+		String blockInfo = request.getParameterValues("blockInfo")[0];
+		
+		String[] screen = screenInfo.split("x");
+		String[] block = blockInfo.split("x");
+		
+		Dimension screenDim, blockDim;
+		screenDim = new Dimension(Integer.parseInt(screen[0]), Integer.parseInt(screen[1]));
+		blockDim = new Dimension(Integer.parseInt(block[0]), Integer.parseInt(block[1]));
+		
+		if (! hasSessionManager) {
+			sessionManager = getSessionManager();
+			hasSessionManager = true;
+		}
+				
+		sessionManager.createSession(room, screenDim, blockDim);		
+	}	
+	
+	private void handleCaptureUpdateRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {		
+		MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
+		// MultipartFile is a copy of file in memory, not in file system
+		MultipartFile multipartFile = multipartRequest.getFile("blockdata");
+	
+		long startRx = System.currentTimeMillis();
+		
+		byte[] blockData = multipartFile.getBytes();
+		String room = request.getParameterValues("room")[0];
+		String keyframe = request.getParameterValues("keyframe")[0];
+		String position = request.getParameterValues("position")[0];
+				
+		if (! hasSessionManager) {
+			sessionManager = getSessionManager();
+			hasSessionManager = true;
+		}
+			
+		sessionManager.updateBlock(room, Integer.valueOf(position), blockData, Boolean.parseBoolean(keyframe));
+			
+		long completeRx = System.currentTimeMillis();
+//		System.out.println("Http receive and send took " + (completeRx - startRx) + "ms.");
+	}
+	
+	private void handleCaptureEndRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {		
+		String room = request.getParameterValues("room")[0];
+		if (! hasSessionManager) {
+			sessionManager = getSessionManager();
+			hasSessionManager = true;
+		}
+		System.out.println("HttpTunnel: Received Capture Enfd Event.");
+    	sessionManager.removeSession(room);
+	}
+	    
+	private SessionManager getSessionManager() {
+		//Get the servlet context
+		ServletContext ctx = getServletContext();
+		log.info("Got the servlet context: {}", ctx);
+		
+		//Grab a reference to the application context
+		ApplicationContext appCtx = (ApplicationContext) ctx.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+		log.info("Got the application context: {}", appCtx);
+		
+		//Get the bean holding the parameter
+		SessionManager manager = (SessionManager) appCtx.getBean("sessionManager");
+		if (manager != null) {
+			log.info("Got the SessionManager context: {}", appCtx);
+		}
+		return manager;
+	}
+}

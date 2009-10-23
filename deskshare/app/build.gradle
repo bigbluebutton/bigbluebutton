@@ -1,0 +1,31 @@
+usePlugin 'java'
+usePlugin 'war'
+
+version = '0.62'
+
+jar.enabled = true
+
+archivesBaseName = 'bbb-deskshare-app' 
+
+dependencies {	  
+    providedCompile ':log4j-over-slf4j:1.5.6@jar', 'spring:spring-web:2.5.6@jar', 'javax.servlet:servlet-api:2.5@jar', 'org.apache.mina:mina-core:2.0.0-M6@jar'
+    providedCompile 'spring:spring-aop:2.5.6@jar', 'spring:spring-beans:2.5.6@jar', 'spring:spring-context:2.5.6@jar', 'spring:spring-core:2.5.6@jar'
+	providedCompile 'org/red5:red5:0.8@jar'
+	compile project(':common')
+    compile 'commons-fileupload:commons-fileupload:1.2.1@jar', 'commons-io:commons-io:1.4@jar' 
+    compile ':logback-core:0.9.14@jar', ':logback-classic:0.9.14@jar', ':slf4j-api:1.5.6@jar'
+    compile 'spring:spring-webmvc:2.5.6@jar', 'org.apache.mina:mina-integration-spring:1.1.7@jar'
+}
+
+war.doLast {
+  ant.unzip(src: war.archivePath, dest: "$buildDir/exploded")
+}
+   
+task deploy(dependsOn:war, type:Copy) {
+	def red5AppsDir = '/usr/share/red5/webapps'
+	def deskshareDir = new File("${red5AppsDir}/deskshare")
+	println "Deleting $deskshareDir"
+	ant.delete(dir: deskshareDir)
+	into(deskshareDir)
+    from "$buildDir/exploded"
+} 

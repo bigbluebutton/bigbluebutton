@@ -1,0 +1,25 @@
+ant.importBuild 'build.xml'
+
+archivesBaseName = 'bbb-deskshare-applet' 
+
+dependencies {	   
+	testRuntime 'org.testng:testng:5.8@jar'  
+	compile project(':common')
+	compile 'net/jcip:jcip-annotations:1.0@jar'
+}
+
+test {
+    useTestNG()
+}
+
+
+jar.doFirst {
+   println '''
+	/**
+	* Combine the common classes into the applet's jar because we
+	* do not want to sign and manage 2 jar files.
+	**/'''
+
+   jar.merge('../common/build/libs/bbb-deskshare-common-0.62.jar')
+}
+
