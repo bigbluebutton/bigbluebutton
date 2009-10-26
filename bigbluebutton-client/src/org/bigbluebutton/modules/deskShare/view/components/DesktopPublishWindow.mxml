@@ -22,7 +22,6 @@
 
 <MDIWindow xmlns="flexlib.mdi.containers.*" 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
-	creationComplete="onCreationComplete()"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
 	backgroundImage="{bbbLogo}"
@@ -31,6 +30,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.deskShare.events.StreamEvent;
 			import flexlib.mdi.events.MDIWindowEvent;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.modules.deskShare.events.StopViewingEvent;
@@ -48,10 +48,10 @@
 			private var _xPosition:int = 675;
 			private var _yPosition:int = 310;
 			
-			public var sharing:Boolean = false;
-			
-			public var _module:DeskShareModule;
-			public var connection:NetConnection;
+			private var connection:NetConnection;
+			private var uri:String;
+			private var room:String;
+			private var sharing:Boolean = false;
 			
 			private var video:Video;
 			private var ns:NetStream;
@@ -85,10 +85,6 @@
 					isMaximized = false;
 					//dispatchEvent(new MDIWindowEvent(MDIWindowEvent.RESTORE, this));
 				}	
-			}
-			
-			private function onCreationComplete():void{
-				
 			}
 			
 			public function get xPosition():int {
@@ -125,47 +121,40 @@
 			
 			public function resetWidthAndHeight():void{}
 			
-			public function startSharing():void{
+			public function startSharing(connection:NetConnection, uri:String, room:String):void {
+				this.connection = connection;
+				this.uri = uri;
+				this.room = room;
 				var captureX:Number = 0;
 				var captureY:Number = 0;
+				
 				sharing = true;
-				var os:String = Capabilities.os;
-				var useTunnel:Boolean;
-				if (os == "MacOs") {
-					useTunnel = true;
-				} else {
-					useTunnel = _module.tunnel();
-				}
-				ExternalInterface.call("startApplet", _module.getCaptureServerUri(), _module.getRoom(), 
-															captureX, captureY, captureWidth, captureHeight,
-															useTunnel.toString());
+				
+				ExternalInterface.call("startApplet", uri, room, 
+										captureX, captureY, 
+										captureWidth, captureHeight);
 			}
 			
 			private function stopSharing():void{
-				if (!sharing) return;
-			
 				sharing = false;
-				stopThumbnail();
+				stopStream();
+				var streamEvent:StreamEvent = new StreamEvent(StreamEvent.STOP);
+				dispatchEvent(streamEvent);
 					
 				ExternalInterface.call("stopApplet");
-				dispatchEvent(new ViewCommand(ViewCommand.STOP));
 			}
 			
-			public function onAppletStart(event:AppletStartedEvent):void{
-				if (!sharing) return;
-				
+			private function onAppletStart(event:AppletStartedEvent):void{
 				LogUtil.debug("DeskShareWindow::onAppletStart");
-				sharing = true;
-				startThumbnail(connection, _module.getRoom());
+				startStream(connection, room);
 				
-				//Send a notification to all room participants to start viewing the stream
-				var e:ViewCommand = new ViewCommand(ViewCommand.START);
-				e.captureHeight = captureHeight;
-				e.captureWidth = captureWidth;
-				dispatchEvent(e);
+				var streamEvent:StreamEvent = new StreamEvent(StreamEvent.START);
+				streamEvent.videoWidth = captureWidth;
+				streamEvent.videoHeight = captureHeight;
+				dispatchEvent(streamEvent);
 			}
 			
-			public function startThumbnail(nc:NetConnection, streamName:String):void{
+			private function startStream(nc:NetConnection, streamName:String):void{
 				LogUtil.debug("DimensionsBox - Starting thumbnail view");
 				LogUtil.debug("connection:" + nc.uri + " stream:" + streamName);
 				
@@ -191,7 +180,7 @@
 				ns.play(streamName);
 			}
 			
-			public function stopThumbnail():void{
+			private function stopStream():void{
 				ns.close();
 			}
 			
@@ -210,19 +199,18 @@
 				}
 			}
 			
-			private function closeWindow(e:Event):void{
+			private function onChangedPresenter(e:Event):void{
 				stopSharing();
 				this.close();
 			}
 			
 			override public function close(event:MouseEvent = null):void {
 				stopSharing();
-				dispatchEvent(new WindowCommand(WindowCommand.CLOSE));
 				super.close(event);
 			}		
 		]]>
 	</mx:Script>
 	
 	<mate:Listener type="{AppletStartedEvent.APPLET_STARTED}" method="onAppletStart" />
-	<mate:Listener type="{MadePresenterEvent.MADE_PRESENTER}" method="closeWindow" />
+	<mate:Listener type="{MadePresenterEvent.BECOME_PRESENTER}" method="onChangedPresenter" />
 </MDIWindow>

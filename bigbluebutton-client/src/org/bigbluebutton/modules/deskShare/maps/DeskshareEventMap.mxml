@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns="http://mate.asfusion.com/">
+
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.modules.deskShare.events.ViewStreamEvent;
+			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import mx.events.FlexEvent;
+			import org.bigbluebutton.modules.deskShare.events.StreamEvent;
+			import org.bigbluebutton.modules.deskShare.events.ShareEvent;
+			import org.bigbluebutton.modules.deskShare.maps.DeskshareEventMapDelegate;
+			import org.bigbluebutton.modules.deskShare.events.StopModuleEvent;
+			import org.bigbluebutton.modules.deskShare.events.StartModuleEvent;
+		]]>
+	</mx:Script>
+	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
+		<!--
+		The FlexEvent.PREINITIALIZE event is a good place for creating and initializing managers.
+		-->
+		<ObjectBuilder generator="{DeskshareEventMapDelegate}"/>
+	</EventHandlers>
+		
+	<EventHandlers type="{ShareEvent.START_SHARING}">
+		<MethodInvoker generator="{DeskshareEventMapDelegate}" method="startSharing"/>
+	</EventHandlers>
+		
+	<EventHandlers type="{MadePresenterEvent.BECOME_PRESENTER}">
+		<MethodInvoker generator="{DeskshareEventMapDelegate}" method="showToolbarButton" arguments="{event}"/>
+	</EventHandlers>
+	
+	<EventHandlers type="{StreamEvent.START}">
+		<MethodInvoker generator="{DeskshareEventMapDelegate}" 
+			method="sendStartViewingCommand" arguments="{[event.videoWidth, event.videoHeight]}"/>
+	</EventHandlers>
+
+	<EventHandlers type="{StreamEvent.STOP}" >
+		<MethodInvoker generator="{DeskshareEventMapDelegate}" method="sendStopViewingCommand"/>
+	</EventHandlers>
+		
+	<EventHandlers type="{ViewStreamEvent.START}">
+		<MethodInvoker generator="{DeskshareEventMapDelegate}" 
+			method="startViewing" arguments="{[event.videoWidth, event.videoHeight]}"/>
+	</EventHandlers>
+	
+	<EventHandlers type="{ViewStreamEvent.STOP}">
+		<MethodInvoker generator="{DeskshareEventMapDelegate}" 	method="stopViewing"/>
+	</EventHandlers>
+			
+	<EventHandlers type="{StopModuleEvent.STOP_MODULE_EVENT}">		
+		<MethodInvoker generator="{DeskshareEventMapDelegate}" method="stopModule"/>
+	</EventHandlers>
+
+	<EventHandlers type="{StartModuleEvent.START_MODULE_EVENT}">		
+		<MethodInvoker generator="{DeskshareEventMapDelegate}" method="startModule" arguments="{event.module}"/>
+	</EventHandlers>
+	
+</EventMap>

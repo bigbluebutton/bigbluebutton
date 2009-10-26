@@ -21,51 +21,25 @@
 --> 
 
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
-	icon="{deskShareIcon}" click="startDeskShare()" xmlns:mate="http://mate.asfusion.com/">
+	xmlns:mate="http://mate.asfusion.com/"
+	icon="{deskShareIcon}" 
+	click="startDeskShare()">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.deskShare.events.ShareEvent;
 			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.modules.deskShare.events.StartDeskShareModuleEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.modules.deskShare.events.WindowCommand;
 			
 			private var images:Images = new Images();
 			
 			[Bindable] public var deskShareIcon:Class = images.deskShareIcon;
-			[Bindable] private var presenter:Boolean = false;
-			
+
 			private function startDeskShare():void {
 				LogUtil.debug("desk share button clicked");
 				this.enabled = false;
-				dispatchEvent(new StartDeskShareModuleEvent());
-			}
-			
-			private function madePresenter(e:MadePresenterEvent):void{
-				presenter = e.presenter;
-				if (presenter) {
-					LogUtil.debug("Opening DeskShare Toolbar Button");
-					enabled = true;
-					visible = true;
-					if (ExternalInterface.call("checkForJava") != 1){
-						this.enabled = false;
-						this.toolTip = "Java not enabled";
-					}
-				
-				} else {
-					LogUtil.debug("Removing DeskShare Toolbar Button");
-					if (enabled) {
-						enabled = false;
-					}
-					visible = false;
-				}
-			}
-			
-			private function windowClosed(e:WindowCommand):void{
-				if (presenter) enabled = true;
+				dispatchEvent(new ShareEvent(ShareEvent.START_SHARING));
 			}
 		]]>
 	</mx:Script>
-	
-	<mate:Listener type="{MadePresenterEvent.MADE_PRESENTER}" method="madePresenter" />
-	<mate:Listener type="{WindowCommand.CLOSE}" method="windowClosed" />
 </mx:Button>

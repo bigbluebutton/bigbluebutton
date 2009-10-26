@@ -33,11 +33,7 @@
 		<![CDATA[
 			import org.bigbluebutton.common.Images;
 			import flexlib.mdi.events.MDIWindowEvent;
-			import mx.events.ResizeEvent;
-			import mx.controls.Alert;
-			import org.bigbluebutton.modules.deskShare.events.StopViewingEvent;
 			import mx.core.UIComponent;
-			import mx.events.SliderEvent;
 			
 			private var images:Images = new Images();
 			[Bindable] public var fitToWidthIcon:Class = images.magnifier;
@@ -113,6 +109,10 @@
 				this.stream = stream;
 			}
 			
+			public function stopViewing():void {
+				ns.close();
+			}
+			
 			private function onAsyncError(e:AsyncErrorEvent):void{
 				LogUtil.debug("VIdeoWindow::asyncerror " + e.toString());
 			}
@@ -167,11 +167,7 @@
 				this.width = _defaultWidth;
 				this.height = _defaultHeight;
 			}
-						
-			private function closeWindow(e:StopViewingEvent):void{
-				this.close();
-			}
-						
+												
 			/**
 			 * resizes the desktop sharing video to fit to this window
 			 */
@@ -206,8 +202,6 @@
 			}
 		]]>
 	</mx:Script>
-	
-	<mate:Listener type="{StopViewingEvent.STOP_VIEWING}" method="closeWindow" />
 	
 	<mx:ControlBar id="bottomBar" height="35">
 		<mx:Button id="btnFitToWidth" click="fitToWindow()" height="90%" icon="{fitToWidthIcon}" toolTip="Fit To Width" />

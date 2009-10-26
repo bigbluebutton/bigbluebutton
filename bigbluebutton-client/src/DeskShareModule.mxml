@@ -21,14 +21,18 @@
 --> 
 
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:maps="org.bigbluebutton.modules.deskShare.maps.*"
 	implements="org.bigbluebutton.common.IBigBlueButtonModule"
-	creationComplete="onCreationComplete()" xmlns:maps="org.bigbluebutton.modules.deskShare.maps.*">
+	creationComplete="onCreationComplete()">
 	
+	<maps:DeskshareEventMap id="deskshareGlobalEventMap" />
+
 	<mx:Script>
 		<![CDATA[
-			import mx.controls.Alert;
-			import org.bigbluebutton.modules.deskShare.events.StartDeskShareModuleEvent;
-			import org.bigbluebutton.modules.deskShare.business.DeskShareProxy;
+			import org.bigbluebutton.modules.deskShare.events.StopModuleEvent;
+			import org.bigbluebutton.modules.deskShare.events.StartModuleEvent;
+			import org.bigbluebutton.modules.deskShare.events.WindowCommand;
+			import org.bigbluebutton.modules.deskShare.maps.DeskshareEventMap;
 			import org.bigbluebutton.main.events.CloseWindowEvent;
 			import org.bigbluebutton.main.events.OpenWindowEvent;
 			import com.asfusion.mate.events.Dispatcher;
@@ -97,16 +101,14 @@
 				LogUtil.debug("desk share attr: " + attributes.username);
 				_attributes = attributes;
 				
-				eventMap.module = this;
-				eventMap.addToolbarButton();
-				eventMap.proxy = new DeskShareProxy(this);
+				var startEvent:StartModuleEvent = new StartModuleEvent(this);
+				globalDispatcher.dispatchEvent(startEvent);
 			}
 			
 			public function stop():void{
-				if (eventMap.window == null) return;
-				var e:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
-				e.window = eventMap.window;
-				globalDispatcher.dispatchEvent(e);
+				LogUtil.debug("STOPPING DESKSHARE MODULE!!!");
+				var stopEvent:StopModuleEvent = new StopModuleEvent();				
+				globalDispatcher.dispatchEvent(stopEvent);
 			}
 			
 			public function getRoom():String{
@@ -132,5 +134,5 @@
 			}
 		]]>
 	</mx:Script>
-	<maps:DeskShareEventsMap id="eventMap" />
+	
 </mx:Module>

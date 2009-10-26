@@ -105,7 +105,7 @@
 		<InlineInvoker method="openDeskShareWindow" />
 	</EventHandlers>
 	
-	<EventHandlers type="{MadePresenterEvent.MADE_PRESENTER}">
+	<EventHandlers type="{MadePresenterEvent.BECOME_PRESENTER}">
 		<InlineInvoker method="changeToolbarButton" arguments="{event}"/>
 	</EventHandlers>
 	

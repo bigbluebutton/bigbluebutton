@@ -33,6 +33,10 @@ package org.bigbluebutton.modules.chat.managers
 			trace("Got New Global Chat message");
 		}
 		
+		public function receivedAppletStartedMessage():void {
+			LogUtil.debug("Got APPLET STARTED message");
+		}
+		
 		public function receivedSendPublicChatMessageEvent():void {
 			trace("Receive receivedSendPublicChatMessageEvent");
 		}
