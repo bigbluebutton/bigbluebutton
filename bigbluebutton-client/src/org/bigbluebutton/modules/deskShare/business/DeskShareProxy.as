@@ -39,9 +39,7 @@ package org.bigbluebutton.modules.deskShare.business
 	 * 
 	 */	
 	public class DeskShareProxy
-	{
-		public static const LARGER_DIMENSION:Number = Capabilities.screenResolutionX/2;
-		
+	{	
 		private var module:DeskShareModule;
 		
 		private var conn:Connection;
@@ -54,11 +52,6 @@ package org.bigbluebutton.modules.deskShare.business
 		private var width:Number;
 		private var height:Number;
 		
-		/**
-		 * The constructor. 
-		 * @param module - The DeskShareModule for which this class is a proxy
-		 * 
-		 */		
 		public function DeskShareProxy(module:DeskShareModule)
 		{
 			this.module = module;
@@ -84,31 +77,16 @@ package org.bigbluebutton.modules.deskShare.business
 							}
 									);
 		}
-		
-		/**
-		 * Called when the application starts
-		 * @not implemented 
-		 * 
-		 */		
+			
 		public function start():void{
 			
 		}
 		
-		/**
-		 * Called when the application stops
-		 * @not implemented
-		 * 
-		 */		
 		public function stop():void{
 			sendStopViewingNotification();
 			nc.close();
 		}
 		
-		/**
-		 * Called when a successful server connection is established 
-		 * @param e
-		 * 
-		 */		
 		private function connectionSuccessHandler(e:ConnectionEvent):void{
 			nc = conn.getConnection();
 			deskSO = SharedObject.getRemote("deskSO", module.uri, false);
@@ -118,45 +96,28 @@ package org.bigbluebutton.modules.deskShare.business
             
             checkIfStreamIsPublishing();
 		}
-		
-		/**
-		 * Returns the connection object which this object is using to communicate to the Red5 server
-		 * @return - The NetConnection object
-		 * 
-		 */		
+			
 		public function getConnection():NetConnection{
 			return nc;
 		}
-		
-		/**
-		 * Called in case the connection to the server fails 
-		 * @param e
-		 * 
-		 */		
+			
 		public function connectionFailedHandler(e:ConnectionEvent):void{
 			LogUtil.error("connection failed to " + module.uri + " with message " + e.toString());
 		}
-		
-		/**
-		 * Called in case the connection is rejected 
-		 * @param e
-		 * 
-		 */		
+			
 		public function connectionRejectedHandler(e:ConnectionEvent):void{
 			LogUtil.error("connection rejected " + module.uri + " with message " + e.toString());
 		}
-		
-		/**
-		 * A sync handler for the deskShare Shared Objects 
-		 * @param e
-		 * 
-		 */		
+			
 		public function sharedObjectSyncHandler(e:SyncEvent):void{
 			
 		}
 		
+		/**
+		 * Called by server when client connects.
+		 */
 		public function onBWDone():void{
-			
+			// do nothing
 		}
 		
 		/**
@@ -186,6 +147,7 @@ package org.bigbluebutton.modules.deskShare.business
 		 * 
 		 */		
 		public function startViewing(captureWidth:Number, captureHeight:Number):void{
+			LogUtil.debug("startViewing invoked by server");
 			var e:StartViewingEvent = new StartViewingEvent();
 			calculateEncodingDimensions(captureWidth, captureHeight);
 			e.height = height;
@@ -270,31 +232,6 @@ package org.bigbluebutton.modules.deskShare.business
 		public function calculateEncodingDimensions(captureWidth:Number, captureHeight:Number):void{
 			height = captureHeight;
 			width = captureWidth;
-			/*if (captureWidth <= LARGER_DIMENSION && captureHeight <= LARGER_DIMENSION){
-				height = captureHeight;
-				width = captureWidth;
-				return;
-			}
-			
-			var biggerDimension:Number; 
-			var smallerDimension:Number;
-			var ratio:Number;
-			if (captureWidth > captureHeight){
-				biggerDimension = captureWidth;
-				smallerDimension = captureHeight;
-			} else{
-				biggerDimension = captureHeight;
-				smallerDimension = captureWidth;
-			}
-			ratio = biggerDimension/smallerDimension;
-			
-			if (captureWidth > captureHeight){
-				width = LARGER_DIMENSION;
-				height = Math.round(LARGER_DIMENSION/ratio);
-			} else{
-				height = LARGER_DIMENSION;
-				width = Math.round(LARGER_DIMENSION/ratio);
-			}*/
 		}
 
 	}

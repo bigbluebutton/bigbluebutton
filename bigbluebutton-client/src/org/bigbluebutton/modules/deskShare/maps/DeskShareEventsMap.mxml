@@ -2,6 +2,7 @@
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/" xmlns:mate="org.bigbluebutton.common.mate.*">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.deskShare.events.StopViewingEvent;
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import mx.controls.Alert;
 			import org.bigbluebutton.modules.deskShare.view.components.DesktopViewWindow;
@@ -23,12 +24,12 @@
 			public var module:DeskShareModule;
 			
 			private function sendStartViewingCommand(e:ViewCommand):void{
+				LogUtil.debug("Sending startViewing command");
 				proxy.sendStartViewingNotification(e.captureWidth, e.captureHeight);
 			}
 			
 			private function sendStopViewingCommand():void{
 				proxy.sendStopViewingNotification();
-				proxy = new DeskShareProxy(module);
 				window = null;
 			}
 			
@@ -37,7 +38,7 @@
 			}
 			
 			private function closeWindow():void{
-				proxy.stop();
+				window = null;
 			}
 			
 			public function addToolbarButton():void {
@@ -48,17 +49,12 @@
 			   	// main application.		   	
 				var event:AddToolbarButtonEvent = new AddToolbarButtonEvent(AddToolbarButtonEvent.ADD_TOOLBAR_BUTTON_EVENT);
 				event.button = button;
-				trace("Dispatching ADD TOOLBAR BUTTON EVENT");
 				globalDispatcher.dispatchEvent(event);
 			}
 			
 			public function disableToolbarButton():void {
 				if (button.enabled) {
 					button.enabled = false;
-					/*var event:RemoveToolbarButtonEvent = new RemoveToolbarButtonEvent(RemoveToolbarButtonEvent.REMOVE_TOOLBAR_BUTTON_EVENT);
-					event.button = button;
-					trace("Dispatching REMOVE TOOLBAR BUTTON EVENT");
-					globalDispatcher.dispatchEvent(event);*/
 				}
 			}
 			
@@ -81,8 +77,17 @@
 				globalDispatcher.dispatchEvent(e);
 			}
 			
+			private function stopViewing(e:StopViewingEvent):void{
+				LogUtil.debug("Received stop vieweing command");
+				closeWindow();
+			}
+			
 			private function startViewing(e:StartViewingEvent):void{
-				if (window != null) return;
+				LogUtil.debug("Received start vieweing command");
+				if (window != null) {
+					LogUtil.debug("Window is not NULL...so not starting to view");
+					return;
+				} 
 				LogUtil.debug("DeskShareEventsMap::startViewing");
 				
 				window = new DesktopViewWindow();
@@ -121,4 +126,5 @@
 	</EventHandlers>
 	
 	<Listener type="{StartViewingEvent.START_VIEWING}" method="startViewing" />
+	<Listener type="{StopViewingEvent.STOP_VIEWING}" method="stopViewing" />
 </EventMap>
