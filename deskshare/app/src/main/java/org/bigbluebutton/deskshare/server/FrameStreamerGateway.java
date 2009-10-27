@@ -57,10 +57,14 @@ public class FrameStreamerGateway {
 	}
 	
 	public void onCaptureEndEvent(String room) {
-		IDeskShareStream ds = streamsMap.remove(room);
-		if (ds != null) {
-			ds.stop();
-			ds = null;
+		IDeskShareStream stream = streamsMap.remove(room);
+		if (stream != null) {
+			//notify the clients in the room that the stream has now started broadcasting.
+			ISharedObject deskSO = deskShareApp.getSharedObject(stream.getScope(), "deskSO");
+			System.out.println("Sending applet started");
+			deskSO.sendMessage("deskshareStreamStopped" , new ArrayList<Object>());
+			stream.stop();
+			stream = null;
 		}
 	}
 	
