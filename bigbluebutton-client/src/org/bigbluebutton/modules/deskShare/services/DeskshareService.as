@@ -15,6 +15,8 @@
  * You should have received a copy of the GNU Lesser General Public License along 
  * with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
  *
+ * Authors: Denis Zgonjanin <me.snap@gmail.com>
+ *          Richard Alam <ritzalam@gmail.com> 
  * $Id: $
  */
 package org.bigbluebutton.modules.deskShare.services
