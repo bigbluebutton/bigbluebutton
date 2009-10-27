@@ -29,8 +29,7 @@
 
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.deskShare.events.StopModuleEvent;
-			import org.bigbluebutton.modules.deskShare.events.StartModuleEvent;
+			import org.bigbluebutton.modules.deskShare.events.ModuleEvent;
 			import org.bigbluebutton.modules.deskShare.maps.DeskshareEventMap;
 			import org.bigbluebutton.main.events.CloseWindowEvent;
 			import org.bigbluebutton.main.events.OpenWindowEvent;
@@ -100,13 +99,14 @@
 				LogUtil.debug("desk share attr: " + attributes.username);
 				_attributes = attributes;
 				
-				var startEvent:StartModuleEvent = new StartModuleEvent(this);
+				var startEvent:ModuleEvent = new ModuleEvent(ModuleEvent.START);
+				startEvent.module = this;
 				globalDispatcher.dispatchEvent(startEvent);
 			}
 			
 			public function stop():void{
 				LogUtil.debug("STOPPING DESKSHARE MODULE!!!");
-				var stopEvent:StopModuleEvent = new StopModuleEvent();				
+				var stopEvent:ModuleEvent = new ModuleEvent(ModuleEvent.STOP);				
 				globalDispatcher.dispatchEvent(stopEvent);
 			}
 			

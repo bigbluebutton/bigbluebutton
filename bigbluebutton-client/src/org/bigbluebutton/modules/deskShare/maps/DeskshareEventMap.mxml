@@ -10,8 +10,7 @@
 			import org.bigbluebutton.modules.deskShare.events.StreamEvent;
 			import org.bigbluebutton.modules.deskShare.events.ShareEvent;
 			import org.bigbluebutton.modules.deskShare.maps.DeskshareEventMapDelegate;
-			import org.bigbluebutton.modules.deskShare.events.StopModuleEvent;
-			import org.bigbluebutton.modules.deskShare.events.StartModuleEvent;
+			import org.bigbluebutton.modules.deskShare.events.ModuleEvent;
 		]]>
 	</mx:Script>
 	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
@@ -47,11 +46,11 @@
 		<MethodInvoker generator="{DeskshareEventMapDelegate}" 	method="stopViewing"/>
 	</EventHandlers>
 			
-	<EventHandlers type="{StopModuleEvent.STOP_MODULE_EVENT}">		
+	<EventHandlers type="{ModuleEvent.STOP}">		
 		<MethodInvoker generator="{DeskshareEventMapDelegate}" method="stopModule"/>
 	</EventHandlers>
 
-	<EventHandlers type="{StartModuleEvent.START_MODULE_EVENT}">		
+	<EventHandlers type="{ModuleEvent.START}">		
 		<MethodInvoker generator="{DeskshareEventMapDelegate}" method="startModule" arguments="{event.module}"/>
 	</EventHandlers>
 	
