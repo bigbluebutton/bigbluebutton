@@ -157,6 +157,13 @@ package org.bigbluebutton.modules.deskShare.services
 		}
 		
 		/**
+		 * Called by the server to notify clients that the deskshare stream has stooped.
+		 */
+		public function deskshareStreamStopped():void {
+			stopViewing();
+		}
+		
+		/**
 		 * Sends a notification to the module to stop viewing the stream 
 		 * This method is called on successful execution of sendStopViewingNotification()
 		 * 
