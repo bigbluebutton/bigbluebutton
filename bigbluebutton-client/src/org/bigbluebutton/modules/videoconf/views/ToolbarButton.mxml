@@ -20,7 +20,7 @@
   $Id: $
 --> 
 
-<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" icon="{camIcon}" click="openPublishWindow()" creationComplete="init()">
+<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" icon="{camIcon}" click="openPublishWindow()" creationComplete="init()" toolTip="Start My Camera">
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.common.Images;
