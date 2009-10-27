@@ -33,10 +33,7 @@
 			import org.bigbluebutton.modules.deskShare.events.StreamEvent;
 			import flexlib.mdi.events.MDIWindowEvent;
 			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.modules.deskShare.events.StopViewingEvent;
-			import org.bigbluebutton.modules.deskShare.events.WindowCommand;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import org.bigbluebutton.modules.deskShare.events.ViewCommand;
 			import mx.core.UIComponent;
 			import org.bigbluebutton.modules.deskShare.events.AppletStartedEvent;
 			

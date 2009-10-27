@@ -28,7 +28,6 @@ package org.bigbluebutton.modules.deskShare.services
 	import org.bigbluebutton.common.red5.Connection;
 	import org.bigbluebutton.common.red5.ConnectionEvent;
 	import org.bigbluebutton.modules.deskShare.events.AppletStartedEvent;
-	import org.bigbluebutton.modules.deskShare.events.StartViewingEvent;
 	import org.bigbluebutton.modules.deskShare.events.ViewStreamEvent;
 	
 	/**

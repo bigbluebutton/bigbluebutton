@@ -29,7 +29,6 @@
 			import org.bigbluebutton.modules.deskShare.events.ShareEvent;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import org.bigbluebutton.modules.deskShare.events.WindowCommand;
 			
 			private var images:Images = new Images();
 			

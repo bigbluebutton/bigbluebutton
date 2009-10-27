@@ -31,7 +31,6 @@
 		<![CDATA[
 			import org.bigbluebutton.modules.deskShare.events.StopModuleEvent;
 			import org.bigbluebutton.modules.deskShare.events.StartModuleEvent;
-			import org.bigbluebutton.modules.deskShare.events.WindowCommand;
 			import org.bigbluebutton.modules.deskShare.maps.DeskshareEventMap;
 			import org.bigbluebutton.main.events.CloseWindowEvent;
 			import org.bigbluebutton.main.events.OpenWindowEvent;
