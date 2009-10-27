@@ -23,6 +23,7 @@
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.main.events.ToolbarButtonEvent;
 			import org.bigbluebutton.modules.viewers.view.events.StreamStartedEvent;
 			import org.bigbluebutton.modules.videoconf.views.TiledVideoWindow;
 			import org.bigbluebutton.modules.videoconf.events.BroadcastStoppedEvent;
@@ -32,7 +33,6 @@
 			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
 			import org.bigbluebutton.modules.videoconf.views.PublishWindow;
 			import org.bigbluebutton.modules.videoconf.events.OpenPublishWindowEvent;
-			import org.bigbluebutton.main.events.AddToolbarButtonEvent;
 			import org.bigbluebutton.modules.videoconf.views.ToolbarButton;
 			import mx.controls.Alert;
 			import org.bigbluebutton.modules.viewers.view.events.ViewCameraEvent;
@@ -57,7 +57,7 @@
 			
 			public function addToolbarButton():void{
 				button = new ToolbarButton();	   	
-				var event:AddToolbarButtonEvent = new AddToolbarButtonEvent(AddToolbarButtonEvent.ADD_TOOLBAR_BUTTON_EVENT);
+				var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
 				event.button = button;
 				globalDispatcher.dispatchEvent(event);
 			}

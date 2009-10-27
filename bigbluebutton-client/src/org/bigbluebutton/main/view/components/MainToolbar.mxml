@@ -24,14 +24,13 @@
 	xmlns:mate="http://mate.asfusion.com/"
 	enabled="true" >   
 	
-	<mate:Listener type="{AddToolbarButtonEvent.ADD_TOOLBAR_BUTTON_EVENT}" method="handleAddToolbarButtonEvent" />	
-	<mate:Listener type="{RemoveToolbarButtonEvent.REMOVE_TOOLBAR_BUTTON_EVENT}" method="handleRemoveToolbarButtonEvent"/>
+	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarButtonEvent" />	
+	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarButtonEvent"/>
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.main.events.ToolbarButtonEvent;
 			import mx.controls.Alert;
-			import org.bigbluebutton.main.events.AddToolbarButtonEvent;
-			import org.bigbluebutton.main.events.RemoveToolbarButtonEvent;
 			import org.bigbluebutton.main.events.CloseWindowEvent;
 			import org.bigbluebutton.main.MainApplicationConstants;
 			import org.bigbluebutton.main.view.MainApplicationShellMediator;
@@ -56,11 +55,11 @@
 				dispatchEvent(new Event(MainApplicationConstants.LOGOUT_EVENT));
 			}
 			
-			private function handleAddToolbarButtonEvent(event:AddToolbarButtonEvent):void {
+			private function handleAddToolbarButtonEvent(event:ToolbarButtonEvent):void {
 				addedBtns.addChild(event.button);
 			}
 			
-			private function handleRemoveToolbarButtonEvent(event:RemoveToolbarButtonEvent):void {
+			private function handleRemoveToolbarButtonEvent(event:ToolbarButtonEvent):void {
 				addedBtns.removeChild(event.button);
 			}
 			

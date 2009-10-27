@@ -3,10 +3,9 @@ package org.bigbluebutton.modules.deskShare.maps
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import org.bigbluebutton.common.IBbbModuleWindow;
-	import org.bigbluebutton.main.events.AddToolbarButtonEvent;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.main.events.OpenWindowEvent;
-	import org.bigbluebutton.main.events.RemoveToolbarButtonEvent;
+	import org.bigbluebutton.main.events.ToolbarButtonEvent;
 	import org.bigbluebutton.modules.deskShare.services.DeskshareService;
 	import org.bigbluebutton.modules.deskShare.view.components.DesktopPublishWindow;
 	import org.bigbluebutton.modules.deskShare.view.components.DesktopViewWindow;
@@ -61,13 +60,13 @@ package org.bigbluebutton.modules.deskShare.maps
 			   	
 		   	// Use the GLobal Dispatcher so that this message will be heard by the
 		   	// main application.		   	
-			var event:AddToolbarButtonEvent = new AddToolbarButtonEvent(AddToolbarButtonEvent.ADD_TOOLBAR_BUTTON_EVENT);
+			var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
 			event.button = button;
 			globalDispatcher.dispatchEvent(event);
 		}
 			
 		private function removeToolbarButton():void {
-			var event:RemoveToolbarButtonEvent = new RemoveToolbarButtonEvent(RemoveToolbarButtonEvent.REMOVE_TOOLBAR_BUTTON_EVENT);
+			var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.REMOVE);
 			event.button = button;
 			globalDispatcher.dispatchEvent(event);
 		}

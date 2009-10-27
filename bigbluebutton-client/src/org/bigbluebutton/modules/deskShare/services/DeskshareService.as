@@ -204,11 +204,10 @@ package org.bigbluebutton.modules.deskShare.services
 							function(result:Object):void{
 								if (result != null){
 									height = result as Number;
-									calculateEncodingDimensions(width, height);
-									var e:StartViewingEvent = new StartViewingEvent();
-									e.width = width;
-									e.height = height;
-									dispatcher.dispatchEvent(e);
+									var event:ViewStreamEvent = new ViewStreamEvent(ViewStreamEvent.START);
+									event.videoWidth = width;
+									event.videoHeight = height;
+									dispatcher.dispatchEvent(event);
 								} 
 							},
 							function(status:Object):void{

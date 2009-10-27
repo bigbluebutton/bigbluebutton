@@ -24,9 +24,7 @@ package org.bigbluebutton.modules.phone.maps
 	
 	import flash.events.IEventDispatcher;
 	
-	import org.bigbluebutton.main.events.AddToolbarButtonEvent;
-	import org.bigbluebutton.main.events.CloseWindowEvent;
-	import org.bigbluebutton.main.events.RemoveToolbarButtonEvent;
+	import org.bigbluebutton.main.events.ToolbarButtonEvent;
 	import org.bigbluebutton.modules.phone.views.components.ToolbarButton;
 	
 	public class PhoneLocalEventMapDelegate
@@ -51,7 +49,7 @@ package org.bigbluebutton.modules.phone.maps
 		   	
 		   	// Use the GLobal Dispatcher so that this message will be heard by the
 		   	// main application.		   	
-			var event:AddToolbarButtonEvent = new AddToolbarButtonEvent(AddToolbarButtonEvent.ADD_TOOLBAR_BUTTON_EVENT);
+			var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
 			event.button = phoneButton;
 			trace("Dispatching ADD TOOLBAR BUTTON EVENT");
 			globalDispatcher.dispatchEvent(event);
@@ -62,7 +60,7 @@ package org.bigbluebutton.modules.phone.maps
 		
 		public function removeToolbarButton():void {
 			if (buttonOpen) {
-				var event:RemoveToolbarButtonEvent = new RemoveToolbarButtonEvent(RemoveToolbarButtonEvent.REMOVE_TOOLBAR_BUTTON_EVENT);
+				var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.REMOVE);
 				event.button = phoneButton;
 				trace("Dispatching REMOVE TOOLBAR BUTTON EVENT");
 				globalDispatcher.dispatchEvent(event);

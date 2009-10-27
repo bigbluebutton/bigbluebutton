@@ -1,6 +1,8 @@
 package org.bigbluebutton.main.events
 {
 	import flash.events.Event;
+	
+	import mx.controls.Button;
 
 	public class ToolbarButtonEvent extends Event
 	{
