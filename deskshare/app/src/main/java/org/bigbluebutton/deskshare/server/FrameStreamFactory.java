@@ -22,7 +22,6 @@
 package org.bigbluebutton.deskshare.server;
 
 import org.bigbluebutton.deskshare.server.streamer.DeskShareStream;
-import org.bigbluebutton.deskshare.server.streamer.FlvStreamToFile;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IScope;
 import org.slf4j.Logger;
@@ -32,25 +31,13 @@ public class FrameStreamFactory {
 	
 	private DeskShareApplication app;
 	
-	public IDeskShareStream createStream(String room, int screenWidth, int screenHeight) {
-//		int frameRate = event.getFrameRate();
-		
+	public IDeskShareStream createStream(String room, int screenWidth, int screenHeight) {	
 //		IScope scope = app.getAppScope();
 		
 		IScope scope = app.getAppScope().getScope(room);
-/*
-		if (scope == null) {
-			if (app.getAppScope().createChildScope("testroom")) {
-				log.debug("create child scope testroom");
-				scope = app.getAppScope().getScope("testroom");
-			} else {
-				log.warn("Failed to create child scope testroom");
-			}			
-		}
-*/
+
 //		log.debug("Created stream {}", scope.getName());
 		return new DeskShareStream(scope, room, screenWidth, screenHeight);
-		//return new FlvStreamToFile();
 	}
 	
 	public void setDeskShareApplication(DeskShareApplication app) {

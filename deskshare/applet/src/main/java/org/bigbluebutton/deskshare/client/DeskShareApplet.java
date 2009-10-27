@@ -26,7 +26,6 @@ import java.applet.Applet;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 
-
 import org.bigbluebutton.deskshare.client.blocks.BlockManager;
 import org.bigbluebutton.deskshare.client.blocks.ChangedBlocksListener;
 import org.bigbluebutton.deskshare.client.net.ConnectionException;
@@ -39,13 +38,11 @@ public class DeskShareApplet extends Applet implements IScreenCaptureListener, C
 	private ScreenCaptureTaker captureTaker;
 	private ScreenCapture capture;
 	private Thread captureTakerThread;
-//	private ScreenCaptureSender captureSender;
-	
+
 	private int screenWidth = 1680; //1536;
 	private int screenHeight = 1050; //1024;
 	private int x = 0;
 	private int y = 0;
-	private boolean httpTunnel = false;
 	private BlockManager blockManager;
 	private int blockWidth = 64;
 	private int blockHeight = 64;
@@ -67,8 +64,6 @@ public class DeskShareApplet extends Applet implements IScreenCaptureListener, C
 		room = getParameter("ROOM");
 		host = getParameter("IP");
 		
-		httpTunnel = Boolean.parseBoolean(getParameter("TUNNEL"));
-		System.out.println("Tunnel " + httpTunnel);
 		String t = getParameter("TUNNEL");
 		System.out.println("Tunnel param " + t);
 	}
@@ -87,7 +82,7 @@ public class DeskShareApplet extends Applet implements IScreenCaptureListener, C
 		}			
 	}
 	
-	public void start() {
+	public void start() {		 
 		System.out.println("RunnerApplet start()");
 		capture = new ScreenCapture(x, y, screenWidth, screenHeight);
 		captureTaker = new ScreenCaptureTaker(capture);

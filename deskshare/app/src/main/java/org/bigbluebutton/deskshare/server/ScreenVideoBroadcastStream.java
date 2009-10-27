@@ -103,7 +103,7 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 
   public Collection<IStreamListener> getStreamListeners()
   {
-    log.trace("getStreamListeners()");
+//    log.trace("getStreamListeners()");
     return streamListeners;
   }
 
@@ -133,7 +133,7 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 
   public IStreamCodecInfo getCodecInfo()
   {
-    log.trace("getCodecInfo()");
+//    log.trace("getCodecInfo()");
     // we don't support this right now.
     return streamCodecInfo;
   }
@@ -215,7 +215,8 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
   public void dispatchEvent(IEvent event)
   {
     try {
-      log.trace("dispatchEvent(event:{})", event);
+//      log.trace("dispatchEvent(event:{})", event);
+    	System.out.println("dispatchEvent(event:screenVideo)");
       if (event instanceof IRTMPEvent)
       {
         IRTMPEvent rtmpEvent = (IRTMPEvent) event;

@@ -54,7 +54,11 @@ public class ScreenVideo implements IVideoStreamCodec {
 	}
 
     public boolean canDropFrames() {
-		return true;
+    	/*
+    	 * MUST be false. Otherwise, Red5 starts dropping frames if
+    	 * the framerate is not fast enough.
+    	 */
+		return false;
 	}
 
     public boolean addData(IoBuffer data) {

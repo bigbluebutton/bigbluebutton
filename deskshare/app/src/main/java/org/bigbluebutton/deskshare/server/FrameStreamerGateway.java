@@ -51,6 +51,7 @@ public class FrameStreamerGateway {
 			
 		//notify the clients in the room that the stream has now started broadcasting.
 		ISharedObject deskSO = deskShareApp.getSharedObject(stream.getScope(), "deskSO");
+		System.out.println("Sending applet started");
 		deskSO.sendMessage("appletStarted" , new ArrayList<Object>());
 
 	}

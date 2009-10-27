@@ -27,5 +27,5 @@ task deploy(dependsOn:war, type:Copy) {
 	println "Deleting $deskshareDir"
 	ant.delete(dir: deskshareDir)
 	into(deskshareDir)
-    from "$buildDir/exploded"
+    from "$buildDir/deskshare"
 } 
