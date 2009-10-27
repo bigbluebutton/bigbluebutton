@@ -12,8 +12,8 @@
 <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/framework.swc" sourcepath="${PROJECT_FRAMEWORKS}/source" useDefaultLinkType="true"/>
 </modifiedEntries>
 <excludedEntries>
-<libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/automation.swc" useDefaultLinkType="false"/>
 <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/automation_agent.swc" useDefaultLinkType="false"/>
+<libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/automation.swc" useDefaultLinkType="false"/>
 <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/qtp.swc" useDefaultLinkType="false"/>
 <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/automation_dmv.swc" useDefaultLinkType="false"/>
 </excludedEntries>
@@ -26,10 +26,10 @@
 </sourceAttachmentPath>
 </compiler>
 <applications>
-<application path="BigBlueButtonMain.mxml"/>
+<application path="BbbTestRunner.mxml"/>
 <application path="src/main.mxml"/>
-<application path="PresentationUnitTest.mxml"/>
 <application path="MessagingUnitTests.mxml"/>
+<application path="PresentationUnitTest.mxml"/>
 <application path="BbbUnitTests.mxml"/>
 <application path="src/TestRunners.mxml"/>
 <application path="BigBlueButton.mxml"/>
