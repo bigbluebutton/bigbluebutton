@@ -223,9 +223,8 @@ class PublicScheduledSessionController {
 	    session.invalidate()
 
 	    def config = ConfigurationHolder.config
-        def hostURL = config.bigbluebutton.web.serverURL
+        def hostURL = config.bigbluebutton.web.loggedOutUrl
         println "serverURL $hostURL"	
-	    // For now, redirect back to the home page.
 	    redirect(url: hostURL)
 	}
 }
