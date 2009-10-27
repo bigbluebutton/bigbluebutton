@@ -22,7 +22,8 @@
 
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
 	icon="{phoneIcon}" click="startPhone()"
-	xmlns:mate="http://mate.asfusion.com/">
+	xmlns:mate="http://mate.asfusion.com/"
+	toolTip="Start My Microphone">
 	
 	<mate:Listener type="{CallConnectedEvent.CALL_CONNECTED_EVENT}" method="handleCallConnectedEvent"/>
 	<mate:Listener type="{CallDisconnectedEvent.CALL_DISCONNECTED_EVENT}" method="handleCallDisconnectedEvent"/>
