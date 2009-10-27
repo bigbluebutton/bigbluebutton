@@ -132,6 +132,13 @@
 	            dispatchEvent(new Event(ViewersModuleConstants.VIEWER_SELECTED_EVENT));
         	}           
         	
+        	private function assignPresenterClicked():void {
+        		// Ignore if the selected user is already the presenter.
+        		if (viewersGrid.selectedItem.presenter) return;
+        		
+        		dispatchEvent(new AssignPresenterEvent(viewersGrid.selectedItem.userid, viewersGrid.selectedItem.name));
+        	}
+        	
         	private function playSound(e:ParticipantJoinEvent):void{
         		if (e.join){
         			userJoinSound.end();
@@ -156,7 +163,8 @@
    <mx:ControlBar width="100%"> 
    		 <mx:Button id="presentBtn" icon="{presenterIcon}" visible="{isModerator}" enabled="{viewersGrid.selectedItem != null}"
     	   			width="20" height="20"
-    	   			toolTip="Select web participant to be presenter." click="dispatchEvent(new AssignPresenterEvent(viewersGrid.selectedItem.userid, viewersGrid.selectedItem.name))"/>
+    	   			toolTip="Select web participant to be presenter." 
+    	   			click="assignPresenterClicked()"/>
      	 <mx:Spacer width="100%"/>
     	 <mx:Button id="raiseHandImage" icon="{handIcon}" toggle="true" 
     	   			width="20" height="20"

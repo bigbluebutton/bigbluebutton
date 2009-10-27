@@ -149,6 +149,7 @@ package org.bigbluebutton.modules.deskShare.services
 		 * 
 		 */		
 		public function sendStopViewingNotification():void{
+			LogUtil.debug("Sending stop viewing notification to other clients.");
 			try{
 				deskSO.send("stopViewing");
 			} catch(e:Error){

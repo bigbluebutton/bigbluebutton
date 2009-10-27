@@ -3,6 +3,7 @@ package org.bigbluebutton.modules.deskShare.maps
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import org.bigbluebutton.common.IBbbModuleWindow;
+	import org.bigbluebutton.main.events.CloseWindowEvent;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.main.events.OpenWindowEvent;
 	import org.bigbluebutton.main.events.ToolbarButtonEvent;
@@ -34,6 +35,7 @@ package org.bigbluebutton.modules.deskShare.maps
 		}
 		
 		public function stopModule():void {
+			LogUtil.debug("Deskshare Module stopping");
 			sendStopViewingCommand();			
 			service.disconnect();
 		}
@@ -46,6 +48,7 @@ package org.bigbluebutton.modules.deskShare.maps
 		}
 			
 		public function sendStopViewingCommand():void {
+			LogUtil.debug("sendStopViewingCommand()");
 			if (isSharing) {
 				button.enabled = true;
 				service.sendStopViewingNotification();
@@ -109,6 +112,9 @@ package org.bigbluebutton.modules.deskShare.maps
 		}
 		
 		private function resetWindow():void {
+			var event:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
+			event.window = window;
+			globalDispatcher.dispatchEvent(event);
 			window = null;
 		}
 			

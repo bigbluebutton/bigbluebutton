@@ -9,7 +9,7 @@ package org.bigbluebutton.modules.deskShare.events
 		public static const START_MODULE_EVENT:String = "Start Module Event";
 		public var module:IBigBlueButtonModule;
 		
-		public function StartModuleEvent(module:IBigBlueButtonModule, bubbles:Boolean=false, cancelable:Boolean=false)
+		public function StartModuleEvent(module:IBigBlueButtonModule, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
 			this.module = module;
 			super(START_MODULE_EVENT, bubbles, cancelable);

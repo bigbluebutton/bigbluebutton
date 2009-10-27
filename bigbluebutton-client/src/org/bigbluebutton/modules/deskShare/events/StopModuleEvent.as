@@ -6,7 +6,7 @@ package org.bigbluebutton.modules.deskShare.events
 	{
 		public static const STOP_MODULE_EVENT:String = "Stop Module Event";
 		
-		public function StopModuleEvent(bubbles:Boolean=false, cancelable:Boolean=false)
+		public function StopModuleEvent(bubbles:Boolean=true, cancelable:Boolean=false)
 		{
 			super(STOP_MODULE_EVENT, bubbles, cancelable);
 		}
