@@ -20,7 +20,7 @@
  * $Id: $
  */
 
-package org.bigbluebutton.modules.deskShare.maps
+package org.bigbluebutton.modules.deskShare.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
@@ -34,7 +34,7 @@ package org.bigbluebutton.modules.deskShare.maps
 	import org.bigbluebutton.modules.deskShare.view.components.DesktopViewWindow;
 	import org.bigbluebutton.modules.deskShare.view.components.ToolbarButton;
 			
-	public class DeskshareEventMapDelegate
+	public class DeskshareManager
 	{		
 		private var shareWindow:DesktopPublishWindow;
 		private var viewWindow:DesktopViewWindow;
@@ -47,7 +47,7 @@ package org.bigbluebutton.modules.deskShare.maps
 		
 		private var buttonShownOnToolbar:Boolean = false;
 		
-		public function DeskshareEventMapDelegate()
+		public function DeskshareManager()
 		{
 			service = new DeskshareService();
 			globalDispatcher = new Dispatcher();

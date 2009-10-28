@@ -27,6 +27,7 @@
 
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.deskShare.managers.DeskshareManager;
 			import org.bigbluebutton.modules.deskShare.events.ViewWindowEvent;
 			import org.bigbluebutton.modules.deskShare.events.ShareWindowEvent;
 			import org.bigbluebutton.modules.deskShare.events.ViewStreamEvent;
@@ -34,7 +35,6 @@
 			import mx.events.FlexEvent;
 			import org.bigbluebutton.modules.deskShare.events.StreamEvent;
 			import org.bigbluebutton.modules.deskShare.events.ShareEvent;
-			import org.bigbluebutton.modules.deskShare.maps.DeskshareEventMapDelegate;
 			import org.bigbluebutton.modules.deskShare.events.ModuleEvent;
 		]]>
 	</mx:Script>
@@ -42,45 +42,45 @@
 		<!--
 		The FlexEvent.PREINITIALIZE event is a good place for creating and initializing managers.
 		-->
-		<ObjectBuilder generator="{DeskshareEventMapDelegate}"/>
+		<ObjectBuilder generator="{DeskshareManager}"/>
 	</EventHandlers>
 		
 	<EventHandlers type="{ShareEvent.START_SHARING}">
-		<MethodInvoker generator="{DeskshareEventMapDelegate}" method="handleStartSharingEvent"/>
+		<MethodInvoker generator="{DeskshareManager}" method="handleStartSharingEvent"/>
 	</EventHandlers>
 		
 	<EventHandlers type="{MadePresenterEvent.BECOME_PRESENTER}">
-		<MethodInvoker generator="{DeskshareEventMapDelegate}" method="handleMadePresenterEvent" arguments="{event}"/>
+		<MethodInvoker generator="{DeskshareManager}" method="handleMadePresenterEvent" arguments="{event}"/>
 	</EventHandlers>
 	
 	<EventHandlers type="{StreamEvent.START}">
-		<MethodInvoker generator="{DeskshareEventMapDelegate}" 
+		<MethodInvoker generator="{DeskshareManager}" 
 			method="handleStreamStartedEvent" arguments="{[event.videoWidth, event.videoHeight]}"/>
 	</EventHandlers>
 
 	<EventHandlers type="{StreamEvent.STOP}" >
-		<MethodInvoker generator="{DeskshareEventMapDelegate}" method="handleStreamStoppedEvent"/>
+		<MethodInvoker generator="{DeskshareManager}" method="handleStreamStoppedEvent"/>
 	</EventHandlers>
 		
 	<EventHandlers type="{ViewStreamEvent.START}">
-		<MethodInvoker generator="{DeskshareEventMapDelegate}" 
+		<MethodInvoker generator="{DeskshareManager}" 
 						method="handleStreamStartEvent" arguments="{[event.videoWidth, event.videoHeight]}"/>
 	</EventHandlers>
 
 	<EventHandlers type="{ShareWindowEvent.CLOSE}">		
-		<MethodInvoker generator="{DeskshareEventMapDelegate}" method="handleShareWindowCloseEvent"/>
+		<MethodInvoker generator="{DeskshareManager}" method="handleShareWindowCloseEvent"/>
 	</EventHandlers>
 		
 	<EventHandlers type="{ViewWindowEvent.CLOSE}">
-		<MethodInvoker generator="{DeskshareEventMapDelegate}" 	method="handleViewWindowCloseEvent"/>
+		<MethodInvoker generator="{DeskshareManager}" 	method="handleViewWindowCloseEvent"/>
 	</EventHandlers>
 			
 	<EventHandlers type="{ModuleEvent.STOP}">		
-		<MethodInvoker generator="{DeskshareEventMapDelegate}" method="handleStopModuleEvent"/>
+		<MethodInvoker generator="{DeskshareManager}" method="handleStopModuleEvent"/>
 	</EventHandlers>
 
 	<EventHandlers type="{ModuleEvent.START}">		
-		<MethodInvoker generator="{DeskshareEventMapDelegate}" method="handleStartModuleEvent" arguments="{event.module}"/>
+		<MethodInvoker generator="{DeskshareManager}" method="handleStartModuleEvent" arguments="{event.module}"/>
 	</EventHandlers>
 	
 </EventMap>
