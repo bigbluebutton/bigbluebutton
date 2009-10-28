@@ -78,9 +78,26 @@
 					this.y = savedY;
 					isMaximized = false;
 				}	
+				
+				/*
+				 * Need to have a timer to trigger resizing video to window after the 
+				 * window has been maximized/restored. The MAXIMIZE/RESTORE events are
+				 * generated when the button is clicked so the width and height are not
+				 * the ones we want.
+				 */
+				var fitToWindowTimer:Timer = new Timer(100);
+				fitToWindowTimer.addEventListener(TimerEvent.TIMER, timerHandler);
+				fitToWindowTimer.start();
+			}
+			
+			private function timerHandler(event:TimerEvent):void {
+				fitToWindow();
 			}
 			
 			private function onCreationComplete():void{
+				windowControls.maximizeRestoreBtn.toolTip = "Maximize this window";
+				windowControls.minimizeBtn.toolTip = "Minimize this window";
+				
 				videoHolder = new UIComponent();
 				videoHolder.addChild(video);
 				this.addChild(videoHolder);
@@ -217,7 +234,7 @@
 	</mx:Script>
 	
 	<mx:ControlBar id="bottomBar" height="35">
-		<mx:Button id="btnFitToWidth" click="fitToWindow()" height="90%" icon="{fitToWidthIcon}" toolTip="Fit To Width" />
+		<mx:Button id="btnFitToWidth" click="fitToWindow()" height="90%" icon="{fitToWidthIcon}" toolTip="Fit To Window" />
 		<mx:Button id="btnActualSize" click="fitToActualSize()" height="90%" icon="{fitToActualSizeIcon}" toolTip="100% zoom" />
 	</mx:ControlBar>
 </MDIWindow>

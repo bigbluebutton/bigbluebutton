@@ -27,6 +27,7 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
+	creationComplete="onCreationComplete()"
 	backgroundImage="{bbbLogo}"	
 	title="Desktop Sharing"
 	resizable="false">
@@ -73,23 +74,13 @@
 			private var savedY:Number;
 			private var isMaximized:Boolean = false;
 			
-			override public function maximize():void{
-				if (!isMaximized){
-					savedWindowHeight = this.height;
-					savedWindowWidth = this.width;
-					savedX = this.x;
-					savedY = this.y;
-                	dispatchEvent(new MDIWindowEvent(MDIWindowEvent.MAXIMIZE, this));
-                	isMaximized = true;
-				} else{
-					this.width = savedWindowWidth;
-					this.height = savedWindowHeight;
-					this.x = savedX;
-					this.y = savedY;
-					isMaximized = false;
-				}	
+			private function onCreationComplete():void {
+				windowControls.maximizeRestoreBtn.enabled = false;
+				windowControls.maximizeRestoreBtn.toolTip = "You cannot maximize this window.";
+				windowControls.closeBtn.toolTip = "Stop sharing and close this window.";
+				windowControls.minimizeBtn.toolTip = "Minimize this window.";
 			}
-			
+	
 			public function get xPosition():int {
 				return _xPosition;
 			}
