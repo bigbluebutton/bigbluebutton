@@ -27,8 +27,8 @@ package org.bigbluebutton.modules.deskShare.events
 
 	public class ModuleEvent extends Event
 	{
-		public static const START:String = "Start Module Event";
-		public static const STOP:String = "Stop Module Event";
+		public static const START:String = "Deskshare Module Start Event";
+		public static const STOP:String = "Deskshare Module Stop Event";
 		
 		public var module:IBigBlueButtonModule;
 		

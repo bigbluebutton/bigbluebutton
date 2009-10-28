@@ -27,12 +27,16 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
-	backgroundImage="{bbbLogo}"
+	backgroundImage="{bbbLogo}"	
 	title="Desktop Sharing"
 	resizable="false">
-	
+		
+	<mate:Listener type="{AppletStartedEvent.APPLET_STARTED}" method="onAppletStart" />
+	<mate:Listener type="{MadePresenterEvent.BECOME_PRESENTER}" method="onChangedPresenter" />
+		
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.deskShare.events.ShareWindowEvent;
 			import org.bigbluebutton.modules.deskShare.events.StreamEvent;
 			import flexlib.mdi.events.MDIWindowEvent;
 			import org.bigbluebutton.common.Images;
@@ -83,7 +87,6 @@
 					this.x = savedX;
 					this.y = savedY;
 					isMaximized = false;
-					//dispatchEvent(new MDIWindowEvent(MDIWindowEvent.RESTORE, this));
 				}	
 			}
 			
@@ -118,13 +121,20 @@
 			public function set defaultWidth(width:int):void{
 				this.width = width;
 			}
+
+			/*
+			 * Implement resizeable interface.
+			 */			
+			public function resetWidthAndHeight():void{/* do nothing */}
 			
-			public function resetWidthAndHeight():void{}
-			
-			public function startSharing(connection:NetConnection, uri:String, room:String):void {
+			public function initWindow(connection:NetConnection, uri:String, room:String):void {
 				this.connection = connection;
 				this.uri = uri;
 				this.room = room;
+				startSharing(connection, uri, room);				
+			}
+			
+			private function startSharing(connection:NetConnection, uri:String, room:String):void {
 				var captureX:Number = 0;
 				var captureY:Number = 0;
 				
@@ -135,13 +145,14 @@
 										captureWidth, captureHeight);
 			}
 			
-			private function stopSharing():void{
+			public function stopSharing():void{
 				sharing = false;
 				stopStream();
 				var streamEvent:StreamEvent = new StreamEvent(StreamEvent.STOP);
 				dispatchEvent(streamEvent);
 					
 				ExternalInterface.call("stopApplet");
+				closeWindow();
 			}
 			
 			private function onAppletStart(event:AppletStartedEvent):void{
@@ -194,23 +205,30 @@
 					LogUtil.debug("NetStream.Publish.Start for broadcast stream " + stream);
 					break;
 				case "NetStream.Play.UnpublishNotify":
-					this.close();
+					LogUtil.debug("NetStream.Play.UnpublishNotify for broadcast stream " + stream);
+					stopSharing();
 					break;
 				}
 			}
 			
 			private function onChangedPresenter(e:Event):void{
 				stopSharing();
-				this.close();
+				closeWindow();
 			}
-			
+
+			private function closeWindow():void {				
+				dispatchEvent(new ShareWindowEvent(ShareWindowEvent.CLOSE));				
+			}		
+				
+			/*
+			 * Override the close handler. We want the Event Map to send a message to
+			 * the MDIManager to close this window;
+			 */
 			override public function close(event:MouseEvent = null):void {
 				stopSharing();
-				super.close(event);
+				closeWindow();
 			}		
 		]]>
 	</mx:Script>
-	
-	<mate:Listener type="{AppletStartedEvent.APPLET_STARTED}" method="onAppletStart" />
-	<mate:Listener type="{MadePresenterEvent.BECOME_PRESENTER}" method="onChangedPresenter" />
+
 </MDIWindow>

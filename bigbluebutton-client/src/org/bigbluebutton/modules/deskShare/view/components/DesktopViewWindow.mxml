@@ -32,8 +32,12 @@
 	title="Desktop Sharing" 
 	showCloseButton="false">
 	
+	<mate:Listener type="{ViewStreamEvent.STOP}" method="onStopViewStreamEvent" />
+		
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.deskShare.events.ViewWindowEvent;
+			import org.bigbluebutton.modules.deskShare.events.ViewStreamEvent;
 			import org.bigbluebutton.common.Images;
 			import flexlib.mdi.events.MDIWindowEvent;
 			import mx.core.UIComponent;
@@ -114,8 +118,13 @@
 			
 			public function stopViewing():void {
 				ns.close();
+				closeWindow();				
 			}
 			
+			private function onStopViewStreamEvent(event:ViewStreamEvent):void {
+				stopViewing();
+			}
+						
 			private function onAsyncError(e:AsyncErrorEvent):void{
 				LogUtil.debug("VIdeoWindow::asyncerror " + e.toString());
 			}
@@ -126,7 +135,8 @@
 					LogUtil.debug("NetStream.Publish.Start for broadcast stream " + stream);
 					break;
 				case "NetStream.Play.UnpublishNotify":
-					this.close();
+					LogUtil.debug("NetStream.Play.UnpublishNotify for broadcast stream " + stream);
+					stopViewing();
 					break;
 				}
 			}		
@@ -200,8 +210,8 @@
 				videoHolder.height = videoHeight;
 			}
 			
-			override public function close(event:MouseEvent = null):void {
-				super.close(event);
+			private function closeWindow():void {
+				dispatchEvent(new ViewWindowEvent(ViewWindowEvent.CLOSE));
 			}
 		]]>
 	</mx:Script>

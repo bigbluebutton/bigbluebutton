@@ -27,6 +27,8 @@
 
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.deskShare.events.ViewWindowEvent;
+			import org.bigbluebutton.modules.deskShare.events.ShareWindowEvent;
 			import org.bigbluebutton.modules.deskShare.events.ViewStreamEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import mx.events.FlexEvent;
@@ -44,37 +46,41 @@
 	</EventHandlers>
 		
 	<EventHandlers type="{ShareEvent.START_SHARING}">
-		<MethodInvoker generator="{DeskshareEventMapDelegate}" method="startSharing"/>
+		<MethodInvoker generator="{DeskshareEventMapDelegate}" method="handleStartSharingEvent"/>
 	</EventHandlers>
 		
 	<EventHandlers type="{MadePresenterEvent.BECOME_PRESENTER}">
-		<MethodInvoker generator="{DeskshareEventMapDelegate}" method="showToolbarButton" arguments="{event}"/>
+		<MethodInvoker generator="{DeskshareEventMapDelegate}" method="handleMadePresenterEvent" arguments="{event}"/>
 	</EventHandlers>
 	
 	<EventHandlers type="{StreamEvent.START}">
 		<MethodInvoker generator="{DeskshareEventMapDelegate}" 
-			method="sendStartViewingCommand" arguments="{[event.videoWidth, event.videoHeight]}"/>
+			method="handleStreamStartedEvent" arguments="{[event.videoWidth, event.videoHeight]}"/>
 	</EventHandlers>
 
 	<EventHandlers type="{StreamEvent.STOP}" >
-		<MethodInvoker generator="{DeskshareEventMapDelegate}" method="sendStopViewingCommand"/>
+		<MethodInvoker generator="{DeskshareEventMapDelegate}" method="handleStreamStoppedEvent"/>
 	</EventHandlers>
 		
 	<EventHandlers type="{ViewStreamEvent.START}">
 		<MethodInvoker generator="{DeskshareEventMapDelegate}" 
-			method="startViewing" arguments="{[event.videoWidth, event.videoHeight]}"/>
+						method="handleStreamStartEvent" arguments="{[event.videoWidth, event.videoHeight]}"/>
 	</EventHandlers>
-	
-	<EventHandlers type="{ViewStreamEvent.STOP}">
-		<MethodInvoker generator="{DeskshareEventMapDelegate}" 	method="stopViewing"/>
+
+	<EventHandlers type="{ShareWindowEvent.CLOSE}">		
+		<MethodInvoker generator="{DeskshareEventMapDelegate}" method="handleShareWindowCloseEvent"/>
+	</EventHandlers>
+		
+	<EventHandlers type="{ViewWindowEvent.CLOSE}">
+		<MethodInvoker generator="{DeskshareEventMapDelegate}" 	method="handleViewWindowCloseEvent"/>
 	</EventHandlers>
 			
 	<EventHandlers type="{ModuleEvent.STOP}">		
-		<MethodInvoker generator="{DeskshareEventMapDelegate}" method="stopModule"/>
+		<MethodInvoker generator="{DeskshareEventMapDelegate}" method="handleStopModuleEvent"/>
 	</EventHandlers>
 
 	<EventHandlers type="{ModuleEvent.START}">		
-		<MethodInvoker generator="{DeskshareEventMapDelegate}" method="startModule" arguments="{event.module}"/>
+		<MethodInvoker generator="{DeskshareEventMapDelegate}" method="handleStartModuleEvent" arguments="{event.module}"/>
 	</EventHandlers>
 	
 </EventMap>

@@ -36,7 +36,8 @@ package org.bigbluebutton.modules.deskShare.maps
 			
 	public class DeskshareEventMapDelegate
 	{		
-		private var window:IBbbModuleWindow;
+		private var shareWindow:DesktopPublishWindow;
+		private var viewWindow:DesktopViewWindow;
 		private var button:ToolbarButton;
 		private var module:DeskShareModule;
 		private var service:DeskshareService;
@@ -44,119 +45,143 @@ package org.bigbluebutton.modules.deskShare.maps
 		private var isViewing:Boolean = false;
 		private var globalDispatcher:Dispatcher;
 		
+		private var buttonShownOnToolbar:Boolean = false;
+		
 		public function DeskshareEventMapDelegate()
 		{
 			service = new DeskshareService();
 			globalDispatcher = new Dispatcher();
+			button = new ToolbarButton();
+			
 		}
 		
-		public function startModule(module:DeskShareModule):void {
+		public function handleStartModuleEvent(module:DeskShareModule):void {
 			LogUtil.debug("Deskshare Module starting");
 			this.module = module;			
 			service.connect(module.uri);
 		}
 		
-		public function stopModule():void {
+		public function handleStopModuleEvent():void {
 			LogUtil.debug("Deskshare Module stopping");
-			sendStopViewingCommand();			
+			stopSharing();
+			stopViewing();
+			notifyOthersToStopViewing();			
 			service.disconnect();
 		}
 			
-		public function sendStartViewingCommand(videoWidth:Number, videoHeight:Number):void{
+		private function stopSharing():void {
+			if (isSharing) shareWindow.stopSharing();
+		}
+		
+		private function stopViewing():void {
+			if (isViewing) viewWindow.stopViewing();
+		}
+		
+		public function handleStreamStartedEvent(videoWidth:Number, videoHeight:Number):void{
 			LogUtil.debug("Sending startViewing command");
 			isSharing = true;
 			button.enabled = false;
 			service.sendStartViewingNotification(videoWidth, videoHeight);
 		}
-			
-		public function sendStopViewingCommand():void {
-			LogUtil.debug("sendStopViewingCommand()");
+		
+		public function handleStreamStoppedEvent():void {
+			notifyOthersToStopViewing();			
+		}
+
+		/*
+		 * Notify other participants to stop viewing this participant's stream.
+		 */	
+		private function notifyOthersToStopViewing():void {
+			LogUtil.debug("notifyOthersToStopViewing()");
 			if (isSharing) {
 				button.enabled = true;
 				service.sendStopViewingNotification();
 				isSharing = false;
 			}			
-			resetWindow();
 		}
-						
+								
 		private function addToolbarButton():void {
 			LogUtil.debug("DeskShare::addToolbarButton");
-			button = new ToolbarButton();
-			   	
-		   	// Use the GLobal Dispatcher so that this message will be heard by the
-		   	// main application.		   	
-			var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
-			event.button = button;
-			globalDispatcher.dispatchEvent(event);
+			
+			if ((button != null) && (!buttonShownOnToolbar)) {
+				button = new ToolbarButton();
+				   			   	
+				var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
+				event.button = button;
+				globalDispatcher.dispatchEvent(event);	
+				buttonShownOnToolbar = true;			
+			}
 		}
 			
 		private function removeToolbarButton():void {
-			var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.REMOVE);
-			event.button = button;
-			globalDispatcher.dispatchEvent(event);
+			if (buttonShownOnToolbar) {
+				var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.REMOVE);
+				event.button = button;
+				globalDispatcher.dispatchEvent(event);	
+				buttonShownOnToolbar = false;			
+			}
 		}
-			
-		public function showToolbarButton(e:MadePresenterEvent):void{
+		
+		/* 
+		 * Show the deskshare toolbar if this participant becomes the presenter.
+		 */	
+		public function handleMadePresenterEvent(e:MadePresenterEvent):void{
 			LogUtil.debug("Got MadePresenterEvent " + e.presenter);
 			if (e.presenter) {
+				// stop viewing
+				// add toolbar
 				addToolbarButton();
 			} else {
+				// stop sharing
+				// close window
+				// remove toolbar
 				removeToolbarButton();
 			}
 		}
 		
-		public function startSharing():void {
-			openDeskShareWindow();
+		public function handleStartSharingEvent():void {
+			LogUtil.debug("opening desk share window");
+			shareWindow = new DesktopPublishWindow();
+			shareWindow.xPosition = 675;
+			shareWindow.yPosition = 310;
+			shareWindow.initWindow(service.getConnection(), module.getCaptureServerUri(), module.getRoom());
+			openWindow(shareWindow);
 		}
 		
-		private function openDeskShareWindow():void{
-			LogUtil.debug("opening desk share window");
-			window = new DesktopPublishWindow();
-			var pubWindow:DesktopPublishWindow = window as DesktopPublishWindow;
-			pubWindow.xPosition = 675;
-			pubWindow.yPosition = 310;
-			pubWindow.startSharing(service.getConnection(), module.getCaptureServerUri(), module.getRoom());
-				
-			var e:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-			e.window = window;
-			globalDispatcher.dispatchEvent(e);
+		public function handleShareWindowCloseEvent():void {
+			closeWindow(shareWindow);
+		}
+		
+		private function openWindow(window:IBbbModuleWindow):void{				
+			var event:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
+			event.window = window;
+			globalDispatcher.dispatchEvent(event);
 		}
 			
-		public function stopViewing():void {
-			LogUtil.debug("Received stop viewing command");
-			if (isViewing) {				
-				var viewWindow:DesktopViewWindow = window as DesktopViewWindow;
-				viewWindow.stopViewing();
-				viewWindow.close();
-				resetWindow();	
-				isViewing = false;			
-			}
+		public function handleViewWindowCloseEvent():void {
+			LogUtil.debug("Received stop viewing command");				
+			closeWindow(viewWindow);
+			isViewing = false;	
 		}
 		
-		private function resetWindow():void {
+		private function closeWindow(window:IBbbModuleWindow):void {
 			var event:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
 			event.window = window;
 			globalDispatcher.dispatchEvent(event);
-			window = null;
 		}
 			
-		public function startViewing(videoWidth:Number, videoHeight:Number):void{
+		public function handleStreamStartEvent(videoWidth:Number, videoHeight:Number):void{
 			LogUtil.debug("Received start vieweing command");
 			if (isSharing) {
 				LogUtil.debug("We are the one sharing, so ignore this message");
 				return;
 			} 
 			LogUtil.debug("DeskShareEventsMap::startViewing");
-			
-			isViewing = true;
-				
-			window = new DesktopViewWindow();
-			var viewWindow:DesktopViewWindow = window as DesktopViewWindow;
+			viewWindow = new DesktopViewWindow();
 			viewWindow.startVideo(service.getConnection(), module.getRoom(), videoWidth, videoHeight);
 			
-			var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-			windowEvent.window = window;
-			globalDispatcher.dispatchEvent(windowEvent);
+			openWindow(viewWindow);
+			isViewing = true;
 		}
 	}
 }

@@ -26,6 +26,7 @@
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:mate="http://mate.asfusion.com/"
 	icon="{deskShareIcon}" 
+	toolTip="Share your desktop"
 	click="startDeskShare()">
 	<mx:Script>
 		<![CDATA[
