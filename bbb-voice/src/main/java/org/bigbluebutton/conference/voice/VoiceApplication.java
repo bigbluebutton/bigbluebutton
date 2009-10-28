@@ -1,5 +1,6 @@
 package org.bigbluebutton.conference.voice;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +29,7 @@ public class VoiceApplication extends MultiThreadedApplicationAdapter {
     private int sipPort;
     private int startRTPPort = 3000;
 	private int stopRTPPort = 3029;
+	private MessageFormat callExtensionPattern = new MessageFormat("{0}");
     private int rtpPort;
     private Map< String, String > userNames = new HashMap< String, String >();
 
@@ -148,8 +150,9 @@ public class VoiceApplication extends MultiThreadedApplicationAdapter {
 		SIPUser sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser != null) {
-			log.debug("Red5SIP Call found user " + uid + " making call to " + destination);
-			sipUser.call(destination);
+			String extension = callExtensionPattern.format(new String[] { destination });
+			log.debug("Red5SIP Call found user " + uid + " making call to " + extension + " (dest was: " + destination + ")");
+			sipUser.call(extension);
 		}
 
 	}
@@ -233,5 +236,9 @@ public class VoiceApplication extends MultiThreadedApplicationAdapter {
 
 	public void setStopRTPPort(int stopRTPPort) {
 		this.stopRTPPort = stopRTPPort;
+	}
+	
+	public void setCallExtensionPattern(String callExtensionPattern) {
+		this.callExtensionPattern = new MessageFormat(callExtensionPattern);
 	}
 }
