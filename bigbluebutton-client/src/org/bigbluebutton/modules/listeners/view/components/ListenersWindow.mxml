@@ -117,13 +117,13 @@
 			private function listenerSelectEvent(event:ListEvent):void {
 	            dispatchEvent(new ListenerSelectedEvent(moderator , listeners.getItemAt(listenersList.selectedIndex).userid));
         	}   
-        				
+        	//columnWidth="200"			
 		]]>
 	</mx:Script>
-	
+		
     	<mx:TileList id="listenersList" height="100%" width="100%" itemClick="listenerSelectEvent(event);"
  			itemRenderer="org.bigbluebutton.modules.listeners.view.components.ListenerItem"
-            maxColumns="1" rowHeight="25" columnWidth="200" dragEnabled="false"
+            maxColumns="1" rowHeight="25"  dragEnabled="false"
             dataProvider="{listeners}">          
     	</mx:TileList>				
     	    	
