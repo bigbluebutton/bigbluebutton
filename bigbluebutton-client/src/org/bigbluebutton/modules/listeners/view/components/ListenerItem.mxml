@@ -71,6 +71,6 @@
    </mx:Script>
    		<mx:Button id="muteBtn" width="18" height="16" icon="{data.muted ? muteIcon : unmuteIcon}" 
    			click="muteUser()"/>
-	    <mx:Label id="nameLabel" width="80%" text="{data.callerName}" toolTip="Select this user and click button to mute or unmute."/>
+	    <mx:Label id="nameLabel" text="{data.callerName}" toolTip="Select this user and click button to mute or unmute."/>
 		<mx:Image id="talkImg" source="{talkIcon}" visible="{data.talking}" toolTip="Talking"/>
 </mx:HBox>
