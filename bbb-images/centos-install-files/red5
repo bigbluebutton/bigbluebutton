@@ -1,0 +1,87 @@
+#!/bin/bash
+#
+# red5  Starts Red5.
+# chkconfig: 345 88 12
+# description: Red5 flash streaming server
+#
+# processname: java (unfortunately)
+# pidfile: /var/run/red5.pid
+# config: /etc/red5.conf
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+RED5_HOME=/opt/red5-0.8/
+RUNTIME_USER=red5
+JAVACMD=/usr/bin/java
+DESCR="Red5 flash streaming server"
+PID_FILE=/var/run/red5.pid
+PID=`ps ax |grep java|grep red5|sed "s/\([0-9]\) .*/\1/"`
+RETVAL=0
+
+# JAVA options
+# You can set JAVA_OPTS to add additional options if you want
+# Set up logging options
+LOGGING_OPTS="-Dlogback.ContextSelector=org.red5.logging.LoggingContextSelector -Dcatalina.useNaming=true"
+# Set up security options
+SECURITY_OPTS="-Djava.security.debug=failure"
+export JAVA_OPTS="$LOGGING_OPTS $SECURITY_OPTS $JAVA_OPTS"
+
+if [ -z "$RED5_MAINCLASS" ]; then
+  export RED5_MAINCLASS=org.red5.server.Bootstrap
+fi
+
+# Jython options
+JYTHON="-Dpython.home=lib"
+
+export RED5_CLASSPATH="${RED5_HOME}/boot.jar:${RED5_HOME}/conf:${CLASSPATH}"
+
+# Gracefully exit if the package has been removed.
+test -x $DAEMON || exit 0
+
+# Read config file if it is present.
+if [ -r /etc/red5.conf ]
+then
+. /etc/red5.conf
+fi
+
+
+start() {
+echo -n $"Starting $DESCR: "
+# daemon $JAVACMD $OPTIONS > /dev/null 2>&1 &
+cd $RED5_HOME
+su -p -s /bin/sh $RUNTIME_USER -c "\"$JAVACMD\" \"$JYTHON\" -Dred5.root=\"${RED5_HOME}\" $JAVA_OPTS -cp \"${RED5_CLASSPATH}\" \"$RED5_MAINCLASS\" $RED5_OPTS" > /dev/null 2>&1 &
+RETVAL=$?
+[ $RETVAL = 0 ] && touch /var/lock/subsys/red5 && echo $!>$PID_FILE && echo_success
+echo
+return $RETVAL
+}
+stop() {
+echo -n $"Stopping $DESCR: "
+#killproc $PID_FILE
+[[ $PID != "" ]] && success && kill $PID || failure
+RETVAL=$?
+echo
+[ $RETVAL = 0 ] && rm -f /var/lock/subsys/red5 $PID_FILE
+}
+
+
+# See how we were called.
+case "$1" in
+start)
+start
+;;
+stop)
+stop
+;;
+restart)
+stop
+sleep 3
+start
+;;
+*)
+echo $"Usage: $DESCR {start|stop|restart"
+exit 1
+esac
+
+exit $RETVAL
