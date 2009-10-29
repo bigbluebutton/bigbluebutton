@@ -91,15 +91,17 @@ package org.bigbluebutton.modules.presentation.view
 		}
 		
 		private function onKeyPressed(event:KeyboardEvent):void {
-			//Alert.show("Key Pressed");
 			switch (event.keyCode) {
 				case Keyboard.LEFT:	
-				case Keyboard.DOWN:			
+				case Keyboard.UP:	
+				case Keyboard.PAGE_UP:		
 					gotoPreviousSlide();		
 				break;
-				case Keyboard.UP:
+				case Keyboard.DOWN:
 				case Keyboard.RIGHT: 
 				case Keyboard.SPACE:
+				case Keyboard.PAGE_DOWN:
+				case Keyboard.ENTER:
 					gotoNextSlide();
 				break; 
 			}
