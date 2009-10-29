@@ -56,12 +56,15 @@
 			private var _xPosition:int = 675;
 			private var _yPosition:int = 310;
 			
-			//The following code block is to deal with a bug in FLexLib with MDI windows not responding well to being maximized
+			// The following code block is to deal with a bug in FLexLib 
+			// with MDI windows not responding well to being maximized
 			private var savedWindowWidth:Number;
 			private var savedWindowHeight:Number;
 			private var savedX:Number;
 			private var savedY:Number;
 			private var isMaximized:Boolean = false;
+			
+			// Timer to make sure the video fits to window whenever the window is resized.
 			private var fitToWindowTimer:Timer;
 			
 			override public function maximize():void{
@@ -100,7 +103,7 @@
 				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);				
 				fitToWindow();
 				
-								/*
+				/*
 				 * Need to have a timer to trigger resizing video to window after the 
 				 * window has been maximized/restored. The MAXIMIZE/RESTORE events are
 				 * generated when the button is clicked so the width and height are not
@@ -112,7 +115,7 @@
 			}
 			
 			private function onResizeEndEvent(event:MDIWindowEvent):void {
-				if ((event.window == this) && (! btnActualSize.selected)) {
+				if (event.window == this) {
 						fitToWindow();
 				}
 			}
@@ -206,21 +209,34 @@
 			 * resizes the desktop sharing video to fit to this window
 			 */
 			private function fitToWindow():void{
+				// Ignore if we are displaying the actual size of the video
+				if (btnActualSize.selected) return;
+				
 				if (this.width < this.height) {
-					video.width = this.width-7;
+					fitToWidthAndAdjustHeight();				
+				} else {
+					fitToHeightAndAdjustWidth();
+				}
+			}
+			
+			private function fitToWidthAndAdjustHeight():void {
+					video.width = this.width - 7;
 					videoHolder.width = video.width;
+					// Maintain aspect-ratio
 					video.height = (videoHeight * video.width) / videoWidth;
 					videoHolder.height = video.height;
-					this.height = video.height + 65;										
-				} else {
+					this.height = video.height + 65;					
+			}
+				
+			private function fitToHeightAndAdjustWidth():void {
 					video.height = this.height - 65;
 					videoHolder.height = video.height;
+					// Maintain aspect-ratio
 					video.width = (videoWidth * video.height) / videoHeight;
 					videoHolder.width = video.width;
 					this.width = video.width + 7;					
-				}
 			}
-									
+								
 			/**
 			 * resizes the desktop sharing video to actual video resolution
 			 */
@@ -231,12 +247,14 @@
 				videoHolder.height = videoHeight;
 			}
 			
-			private function toggleViewWindowFit():void {
+			private function determineHowToDisplayVideo():void {
 				if (btnActualSize.selected) {
 					fitToWindowTimer.stop();
-					fitToActualSize();					
+					fitToActualSize();			
+					btnActualSize.toolTip = "Fit to window";		
 				} else {
 					fitToWindowTimer.start();
+					btnActualSize.toolTip = "Display actual size";
 				}
 			}
 			
@@ -247,7 +265,6 @@
 	</mx:Script>
 	
 	<mx:ControlBar id="bottomBar" height="35">
-		<!--mx:Button id="btnFitToWidth" click="fitToWindow()" height="90%" icon="{fitToWidthIcon}" toolTip="Fit To Window" /-->
-		<mx:Button id="btnActualSize" toggle="true" click="toggleViewWindowFit()" height="90%" icon="{fitToActualSizeIcon}" toolTip="100% zoom" />
+		<mx:Button id="btnActualSize" toggle="true" click="determineHowToDisplayVideo()" height="90%" icon="{fitToActualSizeIcon}" toolTip="Display actual size" />
 	</mx:ControlBar>
 </MDIWindow>
