@@ -251,7 +251,7 @@
 				if (btnActualSize.selected) {
 					fitToWindowTimer.stop();
 					fitToActualSize();			
-					btnActualSize.toolTip = "Fit to window";		
+					btnActualSize.toolTip = "Fit to window";	
 				} else {
 					fitToWindowTimer.start();
 					btnActualSize.toolTip = "Display actual size";
@@ -265,6 +265,8 @@
 	</mx:Script>
 	
 	<mx:ControlBar id="bottomBar" height="35">
-		<mx:Button id="btnActualSize" toggle="true" click="determineHowToDisplayVideo()" height="90%" icon="{fitToActualSizeIcon}" toolTip="Display actual size" />
+		<mx:Button id="btnActualSize" toggle="true" click="determineHowToDisplayVideo()" 
+			height="90%" icon="{btnActualSize.selected ? fitToActualSizeIcon : fitToWidthIcon}" 
+			toolTip="Display actual size" />
 	</mx:ControlBar>
 </MDIWindow>
