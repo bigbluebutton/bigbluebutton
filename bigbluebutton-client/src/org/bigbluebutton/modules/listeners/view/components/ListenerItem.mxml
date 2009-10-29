@@ -20,7 +20,9 @@
   $Id: $
 --> 
 
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" creationComplete="init()" horizontalScrollPolicy="off">
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" 
+	creationComplete="init()" 
+	horizontalScrollPolicy="off">
    <mx:Script>
    	<![CDATA[
    		import org.bigbluebutton.modules.listeners.view.events.ListenerSelectedEvent;
@@ -69,7 +71,7 @@
        }	
    	]]>
    </mx:Script>
-   		<mx:Button id="muteBtn" width="18" height="16" icon="{data.muted ? muteIcon : unmuteIcon}" click="muteUser()"/>
-	    <mx:Label id="nameLabel" textAlign="left" text="{data.callerName}" width="160" toolTip="Select this user and click button to mute or unmute."/>
-		<mx:Image id="talkImg" source="{talkIcon}" visible="{data.talking}" toolTip="Talking"/>
+   	<mx:Button id="muteBtn" width="18" height="16" icon="{data.muted ? muteIcon : unmuteIcon}" click="muteUser()"/>
+	<mx:Label id="nameLabel" textAlign="left" text="{data.callerName}" width="147" toolTip="Select this user and click button to mute or unmute."/>
+	<mx:Image id="talkImg" source="{talkIcon}" visible="{data.talking}" toolTip="Talking"/>
 </mx:HBox>

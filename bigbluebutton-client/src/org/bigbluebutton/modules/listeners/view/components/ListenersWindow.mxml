@@ -116,8 +116,7 @@
 
 			private function listenerSelectEvent(event:ListEvent):void {
 	            dispatchEvent(new ListenerSelectedEvent(moderator , listeners.getItemAt(listenersList.selectedIndex).userid));
-        	}   
-        	//columnWidth="200"			
+        	}   		
 		]]>
 	</mx:Script>
 		
