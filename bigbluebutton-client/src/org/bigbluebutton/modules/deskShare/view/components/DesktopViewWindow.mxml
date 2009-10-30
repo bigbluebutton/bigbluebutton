@@ -64,6 +64,9 @@
 			private var savedY:Number;
 			private var isMaximized:Boolean = false;
 			
+			private static const VIDEO_WIDTH_PADDING:int = 7;
+			private static const VIDEO_HEIGHT_PADDING:int = 65;
+			
 			// Timer to make sure the video fits to window whenever the window is resized.
 			private var fitToWindowTimer:Timer;
 			
@@ -116,7 +119,7 @@
 			
 			private function onResizeEndEvent(event:MDIWindowEvent):void {
 				if (event.window == this) {
-						fitToWindow();
+					fitToWindow();
 				}
 			}
 			
@@ -209,51 +212,76 @@
 			 * resizes the desktop sharing video to fit to this window
 			 */
 			private function fitToWindow():void{
-				// Ignore if we are displaying the actual size of the video
-				if (btnActualSize.selected) return;
+				if (videoIsSmallerThanWindow()) {
+					fitWindowToVideo();
+				}
 				
-				if (this.width < this.height) {
-					fitToWidthAndAdjustHeight();				
-				} else {
-					fitToHeightAndAdjustWidth();
+				// Ignore if we are displaying the actual size of the video
+				if (! btnActualSize.selected) {
+					fitVideoToWindow();
 				}
 			}
 			
-			private function fitToWidthAndAdjustHeight():void {
-					video.width = this.width - 7;
+			private function fitVideoToWindow():void {
+				if (this.width < this.height) {
+					fitToWidthAndAdjustHeightToMaintainAspectRatio();				
+				} else {
+					fitToHeightAndAdjustWidthToMaintainAspectRatio();
+				}				
+			}
+						
+			private function fitWindowToVideo():void {	
+				video.width = videoWidth;
+				videoHolder.width = videoWidth;
+				video.height = videoHeight;
+				videoHolder.height = videoHeight;			
+				this.height = videoHeight + VIDEO_HEIGHT_PADDING;
+				this.width = videoWidth + VIDEO_WIDTH_PADDING;
+			}
+			
+			private function videoIsSmallerThanWindow():Boolean {
+				return (videoHeight < this.height) && (videoWidth < this.width);
+			}
+			
+		
+			private function fitToWidthAndAdjustHeightToMaintainAspectRatio():void {
+					video.width = this.width - VIDEO_WIDTH_PADDING;
 					videoHolder.width = video.width;
 					// Maintain aspect-ratio
 					video.height = (videoHeight * video.width) / videoWidth;
 					videoHolder.height = video.height;
-					this.height = video.height + 65;					
+					this.height = video.height + VIDEO_HEIGHT_PADDING;					
 			}
 				
-			private function fitToHeightAndAdjustWidth():void {
-					video.height = this.height - 65;
+			private function fitToHeightAndAdjustWidthToMaintainAspectRatio():void {
+					video.height = this.height - VIDEO_HEIGHT_PADDING;
 					videoHolder.height = video.height;
 					// Maintain aspect-ratio
 					video.width = (videoWidth * video.height) / videoHeight;
 					videoHolder.width = video.width;
-					this.width = video.width + 7;					
+					this.width = video.width + VIDEO_WIDTH_PADDING;					
 			}
 								
 			/**
 			 * resizes the desktop sharing video to actual video resolution
 			 */
 			private function fitToActualSize():void{
-				video.width = videoWidth;
-				videoHolder.width = videoWidth;
-				video.height = videoHeight;
-				videoHolder.height = videoHeight;
+				if (videoIsSmallerThanWindow()) {
+					fitWindowToVideo();
+				} else {
+					video.width = videoWidth;
+					videoHolder.width = videoWidth;
+					video.height = videoHeight;
+					videoHolder.height = videoHeight;					
+				}
 			}
 			
 			private function determineHowToDisplayVideo():void {
 				if (btnActualSize.selected) {
-					fitToWindowTimer.stop();
 					fitToActualSize();			
 					btnActualSize.toolTip = "Fit to window";	
 				} else {
-					fitToWindowTimer.start();
+					fitToWindow();
 					btnActualSize.toolTip = "Display actual size";
 				}
 			}
