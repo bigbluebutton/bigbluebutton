@@ -10,8 +10,8 @@
 			import org.bigbluebutton.common.messaging.Router;
 			
 			private var _router:Router;			
-			private var _moduleId:String = "NotesModule";
-			private var _moduleName:String = "Notes Module";			
+			private var _moduleId:String = "AutotestModule";
+			private var _moduleName:String = "Autotest Module";			
 			private var _attributes:Object;
 			
 			private var requestListener:TestRequestListener;

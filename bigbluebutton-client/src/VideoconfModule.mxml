@@ -87,7 +87,7 @@
 			}
 		
 			public function stop():void {
-				dispatchEvent(new CloseAllWindowsEvent());
+				eventMap.closeAllWindows();
 			}
 		]]>
 	</mx:Script>

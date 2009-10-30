@@ -24,10 +24,11 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	creationComplete="init()" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
-	resizable="false" >
+	resizable="false" xmlns:mate="http://mate.asfusion.com/">
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
 			import flexlib.mdi.events.MDIWindowEvent;
 			import mx.core.UIComponent;
 		
@@ -169,6 +170,12 @@
 				super.close(event);
 			}		
 			
+			private function closeWindow(e:CloseAllWindowsEvent):void{
+				this.close();
+			}
+			
 		]]>
 	</mx:Script>
+	
+	<mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
 </MDIWindow>

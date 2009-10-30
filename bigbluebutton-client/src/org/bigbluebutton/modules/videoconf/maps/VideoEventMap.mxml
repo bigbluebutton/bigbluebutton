@@ -23,6 +23,7 @@
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
 			import org.bigbluebutton.main.events.ToolbarButtonEvent;
 			import org.bigbluebutton.modules.viewers.view.events.StreamStartedEvent;
 			import org.bigbluebutton.modules.videoconf.views.TiledVideoWindow;
@@ -94,6 +95,12 @@
 				button.show();
 			}
 			
+			public function closeAllWindows():void{
+				if (publishWindow != null) publishWindow.close();
+				globalDispatcher.dispatchEvent(new CloseAllWindowsEvent());
+			}
+			
+			//Experimental, not used
 			public function addTiledWindow():void{
 				tiledWindow = new TiledVideoWindow();
 				tiledWindow.connection = module.connection;
@@ -104,6 +111,7 @@
 				
 			}
 			
+			//Experimental, not used
 			private function streamStarted(e:StreamStartedEvent):void{
 				if (tiledWindow == null) return;
 				tiledWindow.addStream(e.user, e.stream);
