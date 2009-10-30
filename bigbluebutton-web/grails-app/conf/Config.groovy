@@ -77,7 +77,7 @@ environments {
     	grails.serverURL = "http://localhost:8080"    	
         log4j = {
     	    appenders {
-    	    	rollingFile name:"logfile", maxFileSize:1024, file:"/tmp/logs/bbb-web-dev.log"
+    	    	rollingFile name:"logfile", maxFileSize:1024, file:"bbb-web-dev.log"
     	    	console name:'console', layout:pattern(conversionPattern: '%d{[dd.MM.yy HH:mm:ss.SSS]} %-5p %c %x - %m%n')
     	    }
         	debug logfile:"grails.app.controller"
@@ -87,7 +87,7 @@ environments {
 	   grails.serverURL = "http://www.changeme.com"
 	   log4j = {
 	   	    appenders {
-	   	    	rollingFile name:"logfile", maxFileSize:1024, file:"/tmp/logs/bbb-web-prod.log"
+	   	    	rollingFile name:"logfile", maxFileSize:1024, file:"bbb-web-prod.log"
 	   	    	console name:'console', layout:pattern(conversionPattern: '%d{[dd.MM.yy HH:mm:ss.SSS]} %-5p %c %x - %m%n')
 	   	    }
 	       	debug logfile:"grails.app.controller"
