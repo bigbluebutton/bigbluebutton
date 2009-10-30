@@ -31,6 +31,15 @@
 			<arg value="test-app"/>
 		</exec>                               
     </target>
+
+<!-- =================================
+     target: run
+     ================================= -->
+    <target name="run" description="--> Run a Grails applications unit tests">
+		<exec executable="${grails}" failonerror="true">
+			<arg value="run-app"/>
+		</exec>                               
+    </target>
 	
 	<!-- ================================= 
           target: deploy              
