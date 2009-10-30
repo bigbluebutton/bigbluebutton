@@ -25,15 +25,32 @@ import org.bigbluebutton.deskshare.common.Dimension;
 
 public class Session {
 	private BlockManager blockManager;
+	
+	private final static int KEEP_ALIVE_TIME = 30000;
+	
+	private long lastUpdate = 0;
+	
 	public Session(String room, Dimension screen, Dimension block, FrameStreamer streamer) {
 		blockManager = new BlockManager(room, screen, block, streamer);
 	}
 	
 	public void initialize() {
 		blockManager.initialize();
-	}
-	public void updateBlock(int position, byte[] videoData, boolean keyFrame) {
-		blockManager.updateBlock(position, videoData, keyFrame);
+		synchronized (this) {
+			lastUpdate = System.currentTimeMillis();
+		}
+		
 	}
 	
+	public void updateBlock(int position, byte[] videoData, boolean keyFrame) {
+		blockManager.updateBlock(position, videoData, keyFrame);
+		synchronized(this) {
+			lastUpdate = System.currentTimeMillis();
+		}
+		
+	}
+	
+	public synchronized boolean keepAlive() {
+		return (System.currentTimeMillis() - lastUpdate) < KEEP_ALIVE_TIME;
+	}
 }

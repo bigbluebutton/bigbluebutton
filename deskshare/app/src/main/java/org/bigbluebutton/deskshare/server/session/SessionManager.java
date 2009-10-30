@@ -21,17 +21,57 @@
  */
 package org.bigbluebutton.deskshare.server.session;
 
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.bigbluebutton.deskshare.common.Dimension;
 
 public class SessionManager {
 
 	private final ConcurrentHashMap<String, Session> sessions;
+	private final Map<String, Session> unmodifiableMap;
+	
 	private FrameStreamer frameStreamer;
+	private ExecutorService exec = Executors.newSingleThreadExecutor();
+	private volatile boolean keepAliveAudit = false;
+	private Runnable keepAliveAuditThread;
+	private final static int AUDIT_INTERVAL = 60000;
 	
 	public SessionManager() {
 		sessions = new ConcurrentHashMap<String, Session>();
+		unmodifiableMap = Collections.unmodifiableMap(sessions);
+		
+		keepAliveAudit = true;
+		
+		keepAliveAuditThread = new Runnable() {
+			public void run() {
+				while (keepAliveAudit) {
+					Session session;
+					String room;
+					
+					for (Iterator<String> iter = unmodifiableMap.keySet().iterator(); iter.hasNext(); ) {
+						room = (String) iter.next();
+						session = unmodifiableMap.get(room);
+						System.out.println("Checking if we should terminate " + room);
+						if (! session.keepAlive()) {
+							removeSession(room);
+						}
+					}
+					try {
+						Thread.sleep(AUDIT_INTERVAL);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		};
+		exec.execute(keepAliveAuditThread);	
+		
 	}
 	
 	public synchronized void createSession(String room, Dimension screen, Dimension block) {

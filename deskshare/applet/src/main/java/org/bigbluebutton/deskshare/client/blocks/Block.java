@@ -23,6 +23,7 @@ package org.bigbluebutton.deskshare.client.blocks;
 
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.util.Random;
 import java.util.zip.Adler32;
 
 import org.bigbluebutton.deskshare.client.net.EncodedBlockData;
@@ -30,7 +31,8 @@ import org.bigbluebutton.deskshare.common.PixelExtractException;
 import org.bigbluebutton.deskshare.common.ScreenVideoEncoder;
 import org.bigbluebutton.deskshare.common.Dimension;
 
-public final class Block {    
+public final class Block {   
+	Random random = new Random();
     private final Adler32 checksum;
     private final Dimension dim;
     private final int position;
@@ -39,8 +41,11 @@ public final class Block {
     private boolean isKeyFrame = false;
     private int[] pixels;
     private EncodedBlockData encodedBlockData;
+
+    private int nextForceUpdate = 10000;
+    private final static int MIN_DURATION = 5000;
+    private final static int MAX_DURATION = 10000;
     private long lastChanged;
-    private static int FORCE_UPDATE_DURATION = 10000;
     
     Block(Dimension dim, int position, Point location) {
         checksum = new Adler32();
@@ -71,8 +76,7 @@ public final class Block {
         byte[] encodedBlock;
         boolean hasChanged = false;
         boolean forceUpdate = forceUpdate();
-        //if (!checksumSame(pixelsCopy) || forceUpdate) {
-        if (!checksumSame(pixelsCopy) || isKeyFrame) {// || forceUpdate()) {
+        if (!checksumSame(pixelsCopy) || forceUpdate) {
          	encodedBlock = ScreenVideoEncoder.encodePixels(pixelsCopy, getWidth(), getHeight(), false, isKeyFrame);
            	hasChanged = true;           	
         } else {
@@ -92,14 +96,23 @@ public final class Block {
     }
     
     private boolean forceUpdate() {         
-        long now = System.currentTimeMillis();        
-        boolean update = ((now - lastChanged) > FORCE_UPDATE_DURATION);
+        long now = System.currentTimeMillis();    
+        boolean update = ((now - lastChanged) > nextForceUpdate);
         if (update) {
         	synchronized(this) {
+        		nextUpdate();
         		lastChanged = now;
         	}       	
         }
         return update;
+    }
+    
+    private void nextUpdate() {
+        //get the range, casting to long to avoid overflow problems
+        long range = (long)MAX_DURATION - (long)MIN_DURATION + 1;
+        // compute a fraction of the range, 0 <= frac < range
+        long fraction = (long)(range * random.nextDouble());
+        nextForceUpdate =  (int)(fraction + 5000); 
     }
     
     public synchronized EncodedBlockData getEncodedBlockData() {

@@ -1,23 +1,21 @@
 /*
- * BigBlueButton - http://www.bigbluebutton.org
+ * Copyright (c) 2008, 2009 by Xuggle Incorporated.  All rights reserved.
  * 
- * Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
+ * This file is part of Xuggler.
  * 
- * BigBlueButton is free software; you can redistribute it and/or modify it under the 
- * terms of the GNU Affero General Public License as published by the Free Software 
- * Foundation; either version 3 of the License, or (at your option) any later 
- * version. 
+ * You can redistribute Xuggler and/or modify it under the terms of the GNU
+ * Affero General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any
+ * later version.
  * 
- * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+ * Xuggler is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public
+ * License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License along 
- * with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
- *
- * Author: Richard Alam <ritzalam@gmail.com>
- *
- * $Id: $x
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Xuggler.  If not, see <http://www.gnu.org/licenses/>.
+ * 
  */
 package org.bigbluebutton.deskshare.server;
 
@@ -180,8 +178,7 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 	    case PipeConnectionEvent.PROVIDER_CONNECT_PUSH:
 	    	log.trace("PipeConnectionEvent.PROVIDER_CONNECT_PUSH");
 		      if (event.getProvider() == this
-		          && (event.getParamMap() == null || !event.getParamMap()
-		              .containsKey("record")))
+		          && (event.getParamMap() == null || !event.getParamMap().containsKey("record")))
 		      {
 		    	  log.trace("Creating a live pipe");
 		    	  System.out.println("Creating a live pipe");
@@ -216,7 +213,7 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
   {
     try {
 //      log.trace("dispatchEvent(event:{})", event);
-    	System.out.println("dispatchEvent(event:screenVideo)");
+//    	System.out.println("dispatchEvent(event:screenVideo)");
       if (event instanceof IRTMPEvent)
       {
         IRTMPEvent rtmpEvent = (IRTMPEvent) event;

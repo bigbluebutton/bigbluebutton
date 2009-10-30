@@ -21,7 +21,7 @@ war.doLast {
   ant.unzip(src: war.archivePath, dest: "$buildDir/deskshare")
 }
    
-task deploy(dependsOn:war, type:Copy) {
+task deploy(type:Copy) {
 	def red5AppsDir = '/usr/share/red5/webapps'
 	def deskshareDir = new File("${red5AppsDir}/deskshare")
 	println "Deleting $deskshareDir"

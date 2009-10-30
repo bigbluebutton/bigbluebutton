@@ -28,15 +28,15 @@ import org.bigbluebutton.deskshare.common.Dimension;
 public class Block {
 	Random random = new Random();
     private final Dimension dim;
-    private final int position;
+//    private final int position;
  
     private boolean isKeyFrame = false;
     private byte[] encodedBlock;
-    private int[] pixels;
+//    private int[] pixels;
     
-    private boolean encoded = false;
+//    private boolean encoded = false;
     private boolean hasChanged = false;
-    private static int FORCE_UPDATE_DURATION = 10000;
+//    private static int FORCE_UPDATE_DURATION = 10000;
     private int nextForceUpdate = 10000;
     private static int MIN_DURATION = 5000;
     private static int MAX_DURATION = 10000;
@@ -44,7 +44,7 @@ public class Block {
     
     Block(Dimension dim, int position) {
         this.dim = dim;
-        this.position = position;
+//        this.position = position;
     }
     
     public synchronized void update(byte[] videoData, boolean isKeyFrame)
