@@ -75,8 +75,9 @@ public final class Block {
     	
         byte[] encodedBlock;
         boolean hasChanged = false;
-        boolean forceUpdate = forceUpdate();
-        if (!checksumSame(pixelsCopy) || forceUpdate) {
+//        boolean forceUpdate = forceUpdate();
+        //if (!checksumSame(pixelsCopy) || forceUpdate()) {
+        if (!checksumSame(pixelsCopy) || isKeyFrame) {
          	encodedBlock = ScreenVideoEncoder.encodePixels(pixelsCopy, getWidth(), getHeight(), false, isKeyFrame);
            	hasChanged = true;           	
         } else {
