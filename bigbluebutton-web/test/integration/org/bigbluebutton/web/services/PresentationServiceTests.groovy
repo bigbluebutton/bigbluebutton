@@ -171,6 +171,7 @@ class PresentationServiceTests extends GroovyTestCase {
 	}
 **/
 
+/*
 	void testSlideWithTooManyObject() {
 		def uploadedFilename = 'SalesNetworks.pdf'		
 		def uploadedFile = new File("test/resources/$uploadedFilename")
@@ -190,7 +191,7 @@ class PresentationServiceTests extends GroovyTestCase {
 		int numPages = presService.numberOfThumbnails(conf, rm, presName)
 		assertEquals 12, numPages
 	}
-
+*/
 
 }
 
