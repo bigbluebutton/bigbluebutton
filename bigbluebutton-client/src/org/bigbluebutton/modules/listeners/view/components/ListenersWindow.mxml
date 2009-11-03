@@ -23,7 +23,7 @@
 <MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 			xmlns="flexlib.mdi.containers.*"
 			implements="org.bigbluebutton.common.IBbbModuleWindow"
-			width="210" height="220">
+			width="215" height="226">
 
 	<mx:Script>
 		<![CDATA[

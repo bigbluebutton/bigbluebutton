@@ -24,7 +24,7 @@
 	xmlns:viewer="flexlib.mdi.containers.*" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow" 
 	xmlns:mate="http://mate.asfusion.com/"
-	width="210" height="220">
+	width="215" height="220">
 
     <mx:Script>
         <![CDATA[
