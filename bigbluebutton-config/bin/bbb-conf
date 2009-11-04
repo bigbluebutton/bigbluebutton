@@ -1,0 +1,303 @@
+#!/bin/bash
+#
+# Copyright (c) 2008-2009 by BigBlueButton
+#
+# This file is part of BigBlueButton - http://www.bigbluebutton.org
+#
+# BigBlueButton is free software; you can redistribute it and/or modify it under the
+# terms of the GNU Lesser General Public License as published by the Free Software
+# Foundation; either version 3 of the License, or (at your option) any later
+# version.
+#
+# BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License along
+# with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
+#
+# Author(s):
+#       Fred Dixon <ffdixon@bigbluebutton.org>
+#
+# Changelog:
+#       2009-10-18      Inital Version          FFD
+
+
+# set -x
+
+check_root() {
+	if [ $EUID == 0 ]; then
+		echo "This opearation should not be run as root."
+		echo 
+		echo "If this operation needs to execute an operation as root, you'll be asked for"
+		echo "your password to execute the operation using sudo."
+		exit 1
+	fi
+}
+
+usage () {
+	echo "$0 [options] [<file>]"
+	echo
+	echo "Options:"
+	echo "   --help                           This message"
+	echo "   --version                        Display BigBlueButton version"
+	echo "   --check                          Check current setup"
+	echo
+	echo "   --setup-dev                      Setup development environment (VM only)"
+	echo
+}
+
+# utility function to make a copy of the conf file
+check_and_backup () {
+	# can we write to the configuration file?
+	if [ ! -w $1 ]; then
+		echo "Cannot write to $1!"
+		exit 1
+	fi
+
+	# let's see if we need a copy
+	if [ "$TO_BACKUP" = "Y" ]; then
+		cp $1 $1.bak
+		TO_BACKUP="N"
+	fi
+}
+
+# 3 paramenter: the file, the variable name, the new value
+change_var_value () {
+	check_and_backup $1
+	sed -i "s<^[[:blank:]#]*\(${2}\).*<\1=\"${3}\"<" $1
+}
+# comment lines matching $2 ($1 is the file)
+comment () {
+	check_and_backup $1
+	sed -i "s<^[[:blank:]]*\(${2}.*\)<#\1<" $1
+}
+# comment lines matching $2 ($1 is the file)
+uncomment () {
+	check_and_backup $1
+	sed -i "s<^[#[:blank:]]*\(${2}.*\)<\1<" $1
+}
+
+if [ $# -eq 0 ]; then
+	usage
+	exit 1
+fi
+
+# Parse the parameters
+while [ $# -gt 0 ]; do
+	if [ "$1" = "-h" -o "$1" = "-help" -o "$1" = "?" -o "$1" = "--help" ]; then
+		usage
+		exit 1
+	fi
+
+	if [ "$1" = "-check" -o "$1" = "--check" ]; then
+		CHECK=1
+		usage
+		exit 1
+	fi
+
+	if [ "$1" = "--setup-dev" -o "$1" = "-setup-dev" ]; then
+		SETUPDEV=1
+		shift; shift
+		continue
+	fi		
+
+	#
+	# all other parameters requires at least 1 argument
+	#
+	
+	if [ $# -lt 2 ]; then
+		usage
+		exit 1
+	fi
+
+	if [ "$1" = "-setip" -o "$1" = "--setip" ]; then
+		SETIP="${2}"
+		shift; shift
+		continue
+	fi		
+
+	usage 
+	exit 1
+done
+
+
+#
+# Version 
+#
+if [ $VERSION ]; then
+
+	dpkg -l | grep bbb
+
+	exit 0
+fi
+
+#
+# Setup the development environemnt.
+#
+
+if [ $SETUPDEV ]; then
+	check_root
+
+        if [  -d ~/dev/bbb-web ]; then
+		mkdir -p ~/dev/bbb-web
+
+                # svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-web bbb-web
+                # cd bbb-web
+
+		IP="$(ifconfig eth0 | sed -n '/inet /{s/.*addr://;s/ .*//;p}')"
+
+		echo "Setting IP address $IP in ~/.grails/bigbluebutton-config.properties"
+		mkdir -p ~/.grails
+		echo "bigbluebutton.web.serverURL=http://$IP" > ~/.grails/bigbluebutton-config.properties
+
+		echo "Enabling $USER to write to /var/bigbluebutton"
+		sudo chmod -R ugo+rw /var/bigbluebutton
+
+                #./build.sh
+        fi
+fi
+
+
+#
+# Check current setup
+#
+if [ $CHECK ]; then
+
+        echo "Current Parameters:"
+
+        IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/porttest /{s/.*host="//;s/".*//;p}')
+        echo
+        echo "/var/www/bigbluebutton/client/conf/config.xml (configuration file for BigBlueButton Client)"
+        echo "                 IP for tunnel check: $IP"
+
+        IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/uri.*video/{s/.*rtmp:\/\///;s/\/.*//;p}')
+        echo "                  IP for rtmp (red5): $IP"
+
+        HOST=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/recordingHost/{s/.*recordingHost="http:\/\///;s/"//;p}')
+        echo "          host for bbb-web interface: $HOST"
+
+        IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
+        echo
+        echo "/etc/nginx/sites-available/bigbluebutton (configuration file for nginx)"
+        echo "                         server_name: $IP"
+
+        PORT=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/listen/{s/.*listen[ ]*//;s/;//;p}')
+        echo "                                port: $PORT"
+
+        HOST=$(cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/bigbluebutton.web.serverURL/{s/.*\///;p}')
+        echo
+        echo "/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties (BigblueButton Web apps)"
+        echo "                                host: $HOST"
+        
+	exit 0
+fi
+
+
+
+# if asked to print the version that's all we do
+if [ -n "$SETIP" ]; then
+
+	#
+	# Just use the IP for port test in /var/www/bigbluebutton/client/conf/config.xml
+	#
+	echo "Assigning $HOST for testing for firewall in /var/www/bigbluebutton/client/conf/config.xml"
+	sudo sed -i "s/porttest host=\(\"[^\"]*\"\)/porttest host=\"$HOST\"/g" /var/www/bigbluebutton/client/conf/config.xml
+	echo "Assigning $HOST for rtmp:// in /var/www/bigbluebutton/client/conf/config.xml"
+	sudo sed -i "s/rtmp:\/\/\([^\"\/]*\)\([\"\/]\)/rtmp:\/\/$HOST\2/g" /var/www/bigbluebutton/client/conf/config.xml
+
+	echo "Assigning $HOST for servername in /etc/nginx/sites-available/bigbluebutton"
+	sudo sed -i "s/server_name  .*/server_name  $HOST;/g" /etc/nginx/sites-available/bigbluebutton
+
+	#
+	# Use port for remaining substitutions
+	#
+	if [ $PORT ]; then
+		HOST="$HOST:$PORT"
+	fi
+
+	#
+	# Update configuration for BigBlueButton client
+	#
+	echo "Assigning $HOST for http:// in /var/www/bigbluebutton/client/conf/config.xml"
+	sudo sed -i "s/http:\/\/\([^\"\/]*\)\([\"\/]\)/http:\/\/$HOST\2/g" /var/www/bigbluebutton/client/conf/config.xml
+
+
+	#
+	# Update configuration for BigBlueButton web app
+	#
+	echo "Assigning $HOST for web application URL in /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties"
+
+	sudo sed -i "s/bigbluebutton.web.serverURL=http:\/\/.*/bigbluebutton.web.serverURL=http:\/\/$HOST/g" \
+				/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
+
+	# cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
+
+	#
+	# Update nginx
+	#
+
+	if [ $PORT ]; then
+		echo "Assigning $PORT for listen in /etc/nginx/sites-available/bigbluebutton"
+		sudo sed -i "s/listen  .*/listen  $PORT;/g" /etc/nginx/sites-available/bigbluebutton
+	fi
+
+	if ! grep -q server_names_hash_bucket_size /etc/nginx/nginx.conf; then
+		sudo sed -i "s/gzip  on;/gzip  on;\n    server_names_hash_bucket_size  64;/g" /etc/nginx/nginx.conf
+	fi
+
+	echo "Restarting tomcat6 and nginx ..."
+	sudo /etc/init.d/tomcat6 restart  > /tmp/result 2>&1;cat /tmp/result;rm /tmp/result
+	sudo /etc/init.d/nginx restart
+
+	exit 0
+fi
+
+
+# if asked to print the version that's all we do
+if [ -n "$CREATEDEV" ]; then
+        #
+        # Instal Samba
+        #
+        if ! dpkg-query -s samba > /dev/null 2>&1; then
+                sudo apt-get install --force-yes samba ant
+        fi
+
+        #
+        # Add a share to samba
+        #
+        if ! grep -q $CURRENT_USER /etc/samba/smb.conf; then
+
+                echo ";
+; BigBlueButton: Share the development directory
+[$CURRENT_USER]
+   comment = BigBlueButton Development share
+   path = /home/$CURRENT_USER
+   browseable = yes
+   read only = no
+   create mask = 0755
+   directory mask = 0775
+   guest ok = yes
+   force user = $CURRENT_USER
+" | sudo tee -a /etc/samba/smb.conf > /dev/null 2>&1
+
+                sudo /etc/init.d/samba restart
+
+        echo "
+You can now access your development folder through:
+
+        \\\\$(hostname)\\$CURRENT_USER
+
+If you are running a development environment on Windows (such as using Eclipse or FlexBuilder),
+you can map the above path to a drive letter.
+"
+        else
+                echo "Already detected a definition for $CURRENT_USER in /etc/samba/smb.conf"
+                echo "No changes were made to /etc/samba/smb.conf"
+        fi
+
+	echo "setip"
+	exit 0
+fi
+
+
