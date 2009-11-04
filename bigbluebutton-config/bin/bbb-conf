@@ -43,8 +43,8 @@ usage () {
 	echo "   --version                        Display BigBlueButton version"
 	echo "   --check                          Check current setup"
 	echo
-	echo "   --setup-dev                      Setup development environment (VM only)"
-	echo "   --setup-samba                    Share /home/firstuser/dev via samba (VM only)"
+	echo "   --setup-samba                    Share samba (VM only)"
+	echo "   --setup-dev [bbb-web|bbb-client] Setup dev environment (VM only)"
 	echo
 }
 
@@ -97,12 +97,6 @@ while [ $# -gt 0 ]; do
 		exit 1
 	fi
 
-	if [ "$1" = "--setup-dev" -o "$1" = "-setup-dev" ]; then
-		SETUPDEV=1
-		shift; shift
-		continue
-	fi		
-
 	if [ "$1" = "--setup-samba" -o "$1" = "-setup-samba" ]; then
 		SAMBA=1
 		shift; shift
@@ -120,6 +114,12 @@ while [ $# -gt 0 ]; do
 
 	if [ "$1" = "-setip" -o "$1" = "--setip" ]; then
 		SETIP="${2}"
+		shift; shift
+		continue
+	fi		
+
+	if [ "$1" = "--setup-dev" -o "$1" = "-setup-dev" ]; then
+		SETUPDEV="${2}"
 		shift; shift
 		continue
 	fi		
@@ -198,11 +198,13 @@ if [ $SETUPDEV ]; then
 		mkdir ~/dev
 	fi
 
+	if [ $SETUPDEV == "bbb-web" ]; then
+            if [ ! -d ~/dev/bbb-web ]; then
 
-        if [ ! -d ~/dev/bbb-web ]; then
-
+		echo "#"
 		echo "# Setting up ~/dev/bbb-web"
-
+		echo "#"
+		
                 cd ~/dev
                 svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-web bbb-web
 
@@ -215,9 +217,11 @@ if [ $SETUPDEV ]; then
 		echo "Enabling $USER to write to /var/bigbluebutton to upload slides"
 		sudo chmod -R ugo+rw /var/bigbluebutton
 
-        fi
+            fi
+	fi
 
-        if [ ! -d ~/dev/bbb-client ]; then
+	if [ $SETUPDEV == "bbb-client" ]; then
+            if [ ! -d ~/dev/bbb-client ]; then
 
 		echo "# Setting up ~/dev/bbb-client"
 
@@ -248,6 +252,7 @@ if [ $SETUPDEV ]; then
 		echo "# Copying /var/www/bigbluebutton/client/conf/config.xml to ~/dev/bbb-client/bin/conf/config.xml"
 		cp /var/www/bigbluebutton/client/conf/config.xml ~/dev/bbb-client/bin/conf/config.xml
 
+	    fi
 	fi
 
 fi
