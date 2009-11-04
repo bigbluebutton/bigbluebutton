@@ -1,4 +1,4 @@
-<project name="bigbluebutton" default="test">
+<project name="bigbluebutton" default="run">
 
     <condition property="grails" value="grails.bat">
         <os family="windows"/>
