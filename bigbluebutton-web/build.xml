@@ -35,7 +35,19 @@
 <!-- =================================
      target: run
      ================================= -->
-    <target name="run" description="--> Run a Grails applications unit tests">
+
+ <!-- Check whether Tomcat is running -->
+  <target name="check-port-8080" description="Check whether tomcat6 is running">
+    <echo message="Checking whether tomcat6 is running before doing 'grails run-app'"/>
+    <condition property="tomcat.running">
+      <socket server="127.0.0.1" port="8080"/> 
+    </condition>
+  </target>
+
+    <target name="run" depends="check-port-8080" description="--> Run a Grails applications unit tests">
+
+	<fail message="Detected that tomcat6 is running on port 8080.  Stop tomcat6 then try again." if="tomcat.running" />
+	<echo message="Running grails ..." />
 		<exec executable="${grails}" failonerror="true">
 			<arg value="run-app"/>
 		</exec>                               
