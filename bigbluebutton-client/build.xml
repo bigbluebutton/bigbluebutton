@@ -5,7 +5,7 @@
     <property name="FLEX_HOME" value="${env.FLEX_HOME}" />
 	<property name="APP_ROOT" value="./src" />
 	<property name="ROOT_DIR" value="." />
-	<property name="OUTPUT_DIR" value="./client" />
+	<property name="OUTPUT_DIR" value="./bin" />
 	<taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar" />
 	
 	<target name="mxmlc-component" description="Compiling the BBB mxml files">
