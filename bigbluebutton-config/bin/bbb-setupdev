@@ -1,10 +1,26 @@
 #!/bin/bash
-
-# Updates
 #
-# Date       Update
-# ========== ==========================================================
-# 2009-06-17 Output proper LOGNAME and IP address when setting up samba
+# Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
+#
+# This file is part of BigBlueButton - http://www.bigbluebutton.org
+#
+# BigBlueButton is free software; you can redistribute it and/or modify it under the 
+# terms of the GNU Lesser General Public License as published by the Free Software 
+# Foundation; either version 3 of the License, or (at your option) any later 
+# version. 
+#
+# BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+# PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+#  
+# You should have received a copy of the GNU Lesser General Public License along 
+# with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
+# 
+# Author(s):
+#	Fred Dixon <ffdixon@bigbluebutton.org>
+#
+# Changelog:
+#	2009-09-13	Fixed problem with $CURRENT_USER	FFD
 #
 
 if [ "$#" -eq 0 ]; then
@@ -17,6 +33,8 @@ Usage:
 "
 fi
 
+CURRENT_USER=$(whoami)
+
 while getopts "sd" flag
 do
   case "$flag" in
@@ -24,7 +42,7 @@ do
         SAMBA=1
         ;;
 
-    d) echo "Setting up BigBlueButton Devopment for $LOGNAME"
+    d) echo "Setting up BigBlueButton Devopment for $CURRENT_USER"
         DEV=1
         ;;
 
@@ -39,7 +57,6 @@ done
 #
 
 if [ $SAMBA ]; then
-
         #
         # Instal Samba
         #
@@ -50,37 +67,33 @@ if [ $SAMBA ]; then
         #
         # Add a share to samba
         #
-        if ! grep -q $LOGNAME /etc/samba/smb.conf; then
+        if ! grep -q $CURRENT_USER /etc/samba/smb.conf; then
 
-		IP="$(ifconfig eth0 | sed -n '/inet /{s/.*addr://;s/ .*//;p}')"
                 echo ";
 ; BigBlueButton: Share the development directory
-[$LOGNAME]
+[$CURRENT_USER]
    comment = BigBlueButton Development share
-   path = /home/$LOGNAME
+   path = /home/$CURRENT_USER
    browseable = yes
    read only = no
    create mask = 0755
    directory mask = 0775
    guest ok = yes
-   force user = $LOGNAME
+   force user = $CURRENT_USER
 " | sudo tee -a /etc/samba/smb.conf > /dev/null 2>&1
 
                 sudo /etc/init.d/samba restart
                 
         echo "
-You can now access your development folder either through
+You can now access your development folder through:
 
-	\\\\$(hostname)\\$LOGNAME
-
-or
-
-	\\\\$IP\\$LOGNAME
+	\\\\$(hostname)\\$CURRENT_USER
 	
-If you are running on Windows, you can map the above path to a drive letter.
+If you are running a development environment on Windows (such as using Eclipse or FlexBuilder), 
+you can map the above path to a drive letter.
 "
         else
-        	echo "Already detected a definition for $LOGNAME in /etc/samba/smb.conf"
+        	echo "Already detected a definition for $CURRENT_USER in /etc/samba/smb.conf"
         	echo "No changes were made to /etc/samba/smb.conf"
         fi
 fi
