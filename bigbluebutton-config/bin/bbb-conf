@@ -201,6 +201,8 @@ if [ $SETUPDEV ]; then
 
         if [ ! -d ~/dev/bbb-web ]; then
 
+		echo "# Setting up ~/dev/bbb-web"
+
                 cd ~/dev
                 svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-web bbb-web
 
@@ -210,25 +212,43 @@ if [ $SETUPDEV ]; then
 		mkdir -p ~/.grails
 		echo "bigbluebutton.web.serverURL=http://$IP" > ~/.grails/bigbluebutton-config.properties
 
-		echo "Enabling $USER to write to /var/bigbluebutton"
+		echo "Enabling $USER to write to /var/bigbluebutton to upload slides"
 		sudo chmod -R ugo+rw /var/bigbluebutton
 
-                #./build.sh
         fi
 
         if [ ! -d ~/dev/bbb-client ]; then
 
+		echo "# Setting up ~/dev/bbb-client"
+
                 cd ~/dev
                 svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-client bbb-client
 
+		#
+		# Setup the directories so we can point /etc/nginx/sites-available/bigbluebutton to this
+		# local copy of the client
+		#
         	if [ ! -d ~/dev/bbb-client/bin ]; then
 			mkdir -p ~/dev/bbb-client/bin
 		fi
 
+        	if [ ! -d ~/dev/bbb-client/bin/conf ]; then
+			mkdir -p ~/dev/bbb-client/bin/conf
+		fi
+
+		if [ ! -h ~/dev/bbb-client/client ]; then
+			ln -s ~/dev/bbb-client/bin ~/dev/bbb-client/client
+		fi
+
 		echo "Modifying /etc/nginx/sites-available/bigbluebutton to point to your local copy of bbb-client"
-		sudo sed -i "s/\/var\/www\/bigbluebutton;/\/home\/firstuser\/dev\/bbb-client\/bin/g" \
+		sudo sed -i "s/\/var\/www\/bigbluebutton;/\/home\/firstuser\/dev\/bbb-client;/g" \
 			/etc/nginx/sites-available/bigbluebutton
 		sudo /etc/init.d/nginx restart	
+
+		echo "# Copying /var/www/bigbluebutton/client/conf/config.xml to ~/dev/bbb-client/bin/conf/config.xml"
+		cp /var/www/bigbluebutton/client/conf/config.xml ~/dev/bbb-client/bin/conf/config.xml
+
+	fi
 
 fi
 
