@@ -8,7 +8,7 @@
 	<property name="OUTPUT_DIR" value="./bin" />
 	<taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar" />
 	
-	<target name="mxmlc-component" description="Compiling the BBB mxml files">
+	<target name="mxmlc-component" depends="copy-config-xml" description="Compiling the BBB mxml files">
 		<mxmlc-compile target="${APP_ROOT}/BigBlueButton" />
 		<mxmlc-compile target="${APP_ROOT}/ChatModule" />
 		<mxmlc-compile target="${APP_ROOT}/ViewersModule" />
@@ -62,6 +62,15 @@
 		<move todir="${OUTPUT_DIR}" >
 			<fileset dir="${OUTPUT_DIR}/src" />
 		</move>
+	</target>
+
+	<target name="check-config-xml">
+    		<available file="/var/www/bigbluebutton/client/conf/config.xml" property="config-xml.present"/>
+	</target>
+
+	<target name="copy-config-xml" depends="check-config-xml" if="config-xml.present">
+		<echo message="Updating config.xml from /var/www/bigbluebutton/client/conf/config.xml" />
+		<copy file="/var/www/bigbluebutton/client/conf/config.xml" todir="${OUTPUT_DIR}/conf" /> 
 	</target>
 	
 	<target name="generate-wrapper" depends="mxmlc-component">
