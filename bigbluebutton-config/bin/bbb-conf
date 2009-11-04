@@ -44,6 +44,7 @@ usage () {
 	echo "   --check                          Check current setup"
 	echo
 	echo "   --setup-dev                      Setup development environment (VM only)"
+	echo "   --setup-samba                    Share /home/firstuser/dev via samba (VM only)"
 	echo
 }
 
@@ -102,6 +103,12 @@ while [ $# -gt 0 ]; do
 		continue
 	fi		
 
+	if [ "$1" = "--setup-samba" -o "$1" = "-setup-samba" ]; then
+		SAMBA=1
+		shift; shift
+		continue
+	fi		
+
 	#
 	# all other parameters requires at least 1 argument
 	#
@@ -132,6 +139,54 @@ if [ $VERSION ]; then
 	exit 0
 fi
 
+
+#
+# Setup samba
+#
+
+if [ $SAMBA ]; then
+        #
+        # Instal Samba
+        #
+        if ! dpkg-query -s samba > /dev/null 2>&1; then
+                sudo apt-get install --force-yes samba ant
+        fi
+
+        #
+        # Add a share to samba
+        #
+        if ! grep -q $USER /etc/samba/smb.conf; then
+
+                echo ";
+; BigBlueButton: Share the development directory
+[$USER]
+   comment = BigBlueButton Development share
+   path = /home/$USER
+   browseable = yes
+   read only = no
+   create mask = 0755
+   directory mask = 0775
+   guest ok = yes
+   force user = $USER
+" | sudo tee -a /etc/samba/smb.conf > /dev/null 2>&1
+
+                sudo /etc/init.d/samba restart
+
+        echo "
+You can now access your development folder through:
+
+        \\\\$(hostname)\\$USER
+
+If you are running a development environment on Windows (such as using Eclipse or FlexBuilder),
+you can map the above path to a drive letter.
+"
+        else
+                echo "Already detected a definition for $USER in /etc/samba/smb.conf"
+                echo "No changes were made to /etc/samba/smb.conf"
+        fi
+fi
+
+
 #
 # Setup the development environemnt.
 #
@@ -139,11 +194,15 @@ fi
 if [ $SETUPDEV ]; then
 	check_root
 
-        if [  -d ~/dev/bbb-web ]; then
-		mkdir -p ~/dev/bbb-web
+        if [ ! -d ~/dev ]; then
+		mkdir ~/dev
+	fi
 
-                # svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-web bbb-web
-                # cd bbb-web
+
+        if [ ! -d ~/dev/bbb-web ]; then
+
+                cd ~/dev
+                svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-web bbb-web
 
 		IP="$(ifconfig eth0 | sed -n '/inet /{s/.*addr://;s/ .*//;p}')"
 
@@ -156,6 +215,21 @@ if [ $SETUPDEV ]; then
 
                 #./build.sh
         fi
+
+        if [ ! -d ~/dev/bbb-client ]; then
+
+                cd ~/dev
+                svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-client bbb-client
+
+        	if [ ! -d ~/dev/bbb-client/bin ]; then
+			mkdir -p ~/dev/bbb-client/bin
+		fi
+
+		echo "Modifying /etc/nginx/sites-available/bigbluebutton to point to your local copy of bbb-client"
+		sudo sed -i "s/\/var\/www\/bigbluebutton;/\/home\/firstuser\/dev\/bbb-client\/bin/g" \
+			/etc/nginx/sites-available/bigbluebutton
+		sudo /etc/init.d/nginx restart	
+
 fi
 
 
@@ -252,52 +326,4 @@ if [ -n "$SETIP" ]; then
 
 	exit 0
 fi
-
-
-# if asked to print the version that's all we do
-if [ -n "$CREATEDEV" ]; then
-        #
-        # Instal Samba
-        #
-        if ! dpkg-query -s samba > /dev/null 2>&1; then
-                sudo apt-get install --force-yes samba ant
-        fi
-
-        #
-        # Add a share to samba
-        #
-        if ! grep -q $CURRENT_USER /etc/samba/smb.conf; then
-
-                echo ";
-; BigBlueButton: Share the development directory
-[$CURRENT_USER]
-   comment = BigBlueButton Development share
-   path = /home/$CURRENT_USER
-   browseable = yes
-   read only = no
-   create mask = 0755
-   directory mask = 0775
-   guest ok = yes
-   force user = $CURRENT_USER
-" | sudo tee -a /etc/samba/smb.conf > /dev/null 2>&1
-
-                sudo /etc/init.d/samba restart
-
-        echo "
-You can now access your development folder through:
-
-        \\\\$(hostname)\\$CURRENT_USER
-
-If you are running a development environment on Windows (such as using Eclipse or FlexBuilder),
-you can map the above path to a drive letter.
-"
-        else
-                echo "Already detected a definition for $CURRENT_USER in /etc/samba/smb.conf"
-                echo "No changes were made to /etc/samba/smb.conf"
-        fi
-
-	echo "setip"
-	exit 0
-fi
-
 
