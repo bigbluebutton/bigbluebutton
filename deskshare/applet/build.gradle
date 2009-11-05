@@ -3,7 +3,7 @@ ant.importBuild 'build.xml'
 archivesBaseName = 'bbb-deskshare-applet' 
 
 dependencies {	   
-	testRuntime 'org.testng:testng:5.8@jar'  
+	testRuntime 'org/testng:testng:5.8@jar'  
 	compile project(':common')
 	compile 'net/jcip:jcip-annotations:1.0@jar'
 }
