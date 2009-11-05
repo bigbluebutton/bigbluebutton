@@ -43,8 +43,11 @@ usage () {
 	echo "   --version                        Display BigBlueButton version"
 	echo "   --check                          Check current setup"
 	echo
-	echo "   --setup-samba                    Share samba (VM only)"
-	echo "   --setup-dev [bbb-web|bbb-client] Setup dev environment (VM only)"
+	echo "   --setip <host>                   Set IP/Hostname for BigBlueButton's configuration"
+	echo
+	echo "   --setup-samba                    Setup samba share (VM only)"
+	echo "   --setup-dev [bbb-web|bbb-client|bbb-apps] "
+	echo "                                    Setup dev environment (VM only)"
 	echo
 }
 
@@ -93,8 +96,8 @@ while [ $# -gt 0 ]; do
 
 	if [ "$1" = "-check" -o "$1" = "--check" ]; then
 		CHECK=1
-		usage
-		exit 1
+		shift; shift
+		continue
 	fi
 
 	if [ "$1" = "--setup-samba" -o "$1" = "-setup-samba" ]; then
@@ -113,7 +116,7 @@ while [ $# -gt 0 ]; do
 	fi
 
 	if [ "$1" = "-setip" -o "$1" = "--setip" ]; then
-		SETIP="${2}"
+		HOST="${2}"
 		shift; shift
 		continue
 	fi		
@@ -201,20 +204,19 @@ if [ $SETUPDEV ]; then
 	if [ $SETUPDEV == "bbb-web" ]; then
             if [ ! -d ~/dev/bbb-web ]; then
 
-		echo "#"
 		echo "# Setting up ~/dev/bbb-web"
-		echo "#"
+                echo "  svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-web bbb-web"
 		
                 cd ~/dev
                 svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-web bbb-web
 
 		IP="$(ifconfig eth0 | sed -n '/inet /{s/.*addr://;s/ .*//;p}')"
 
-		echo "Setting IP address $IP in ~/.grails/bigbluebutton-config.properties"
+		echo "# Setting IP address $IP in ~/.grails/bigbluebutton-config.properties"
 		mkdir -p ~/.grails
 		echo "bigbluebutton.web.serverURL=http://$IP" > ~/.grails/bigbluebutton-config.properties
 
-		echo "Enabling $USER to write to /var/bigbluebutton to upload slides"
+		echo "# Enabling $USER to write to /var/bigbluebutton to upload slides"
 		sudo chmod -R ugo+rw /var/bigbluebutton
 
             fi
@@ -224,6 +226,7 @@ if [ $SETUPDEV ]; then
             if [ ! -d ~/dev/bbb-client ]; then
 
 		echo "# Setting up ~/dev/bbb-client"
+                echo "  svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-client bbb-client"
 
                 cd ~/dev
                 svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-client bbb-client
@@ -252,8 +255,71 @@ if [ $SETUPDEV ]; then
 		echo "# Copying /var/www/bigbluebutton/client/conf/config.xml to ~/dev/bbb-client/bin/conf/config.xml"
 		cp /var/www/bigbluebutton/client/conf/config.xml ~/dev/bbb-client/bin/conf/config.xml
 
+		echo "
+# Done.  To run your local build of bbb-web:
+
+	sudo /etc/init.d/tomcat6 stop
+	cd ~/dev/bbb-web
+	ant
+"
 	    fi
 	fi
+
+	if [ $SETUPDEV == "bbb-apps" ]; then
+            if [ ! -d ~/dev/bbb-apps ]; then
+
+		echo "# Setting up ~/dev/bbb-apps:"
+  		echo "  svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-apps bbb-apps"
+           
+                cd ~/dev
+                svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-apps bbb-apps
+            
+             fi 
+
+		#
+		# We're going to make it easier to deploy by giving write access to others to 
+		# /usr/share/red5/webapps
+		#
+		sudo chmod o+w /usr/share/red5/webapps
+
+		#
+		# Let's remove the existing bbb-apps
+		#
+		if dpkg-query -s bbb-apps | grep "install ok installed" > /dev/null 2>&1; then
+        		sudo apt-get purge --yes bbb-apps
+		fi
+
+		if [ ! -f ~/.bbb-apps-build.properties ]; then
+			echo "#
+# Override the default properties for bbb-apps
+#
+red5.home = /usr/share/red5
+" > ~/.bbb-apps-build.properties
+		fi
+
+		#
+		# Setup the directories so we can point /etc/nginx/sites-available/bigbluebutton to this
+		# local copy of the client
+		#
+		echo "
+# Done.  To run your local build of bbb-apps:
+
+    sudo /etc/init.d/red5 stop
+    cd ~/dev/bbb-apps
+    ant deploy					
+    sudo -u red5 /usr/share/red5/red5.sh		
+
+# To restore the packaged version of bbb-apps:
+
+    rm -rf /usr/share/red5/webapps/bigbluebutton
+    sudo apt-get install bbb-apps
+    sudo /etc/init.d/red5 start
+"
+
+	fi
+
+
+
 
 fi
 
@@ -263,11 +329,11 @@ fi
 #
 if [ $CHECK ]; then
 
-        echo "Current Parameters:"
+        echo "Current Configuration:"
 
         IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/porttest /{s/.*host="//;s/".*//;p}')
         echo
-        echo "/var/www/bigbluebutton/client/conf/config.xml (configuration file for BigBlueButton Client)"
+        echo "/var/www/bigbluebutton/client/conf/config.xml (bbb-client)"
         echo "                 IP for tunnel check: $IP"
 
         IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/uri.*video/{s/.*rtmp:\/\///;s/\/.*//;p}')
@@ -278,24 +344,27 @@ if [ $CHECK ]; then
 
         IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
         echo
-        echo "/etc/nginx/sites-available/bigbluebutton (configuration file for nginx)"
+        echo "/etc/nginx/sites-available/bigbluebutton (configuration file nginx)"
         echo "                         server_name: $IP"
 
         PORT=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/listen/{s/.*listen[ ]*//;s/;//;p}')
         echo "                                port: $PORT"
 
+	BBB_CLINET_DOC_ROOT=$(cat /etc/nginx/sites-available/bigbluebutton | grep \/client -A 1 | grep root  | sed -n '{s/[ ]*root[ ]*//;s/;//;p}') 
+        echo "                client document root: $BBB_CLINET_DOC_ROOT"
+
         HOST=$(cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/bigbluebutton.web.serverURL/{s/.*\///;p}')
         echo
-        echo "/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties (BigblueButton Web apps)"
+        echo "/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties (for bbb-web)"
         echo "                                host: $HOST"
-        
+
 	exit 0
 fi
 
 
 
 # if asked to print the version that's all we do
-if [ -n "$SETIP" ]; then
+if [ -n "$HOST" ]; then
 
 	#
 	# Just use the IP for port test in /var/www/bigbluebutton/client/conf/config.xml
