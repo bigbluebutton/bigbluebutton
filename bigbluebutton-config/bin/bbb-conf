@@ -25,6 +25,14 @@
 
 # set -x
 
+print_header() {
+	if [ ! $HEADER ]; then
+		echo 		
+		echo "Potential problems:"
+		HEADER=1
+	fi
+}
+
 check_root() {
 	if [ $EUID == 0 ]; then
 		echo "This opearation should not be run as root."
@@ -374,6 +382,32 @@ if [ $CHECK ]; then
         echo "/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties (for bbb-web)"
         echo "                                host: $HOST"
 
+	if ! ps aux | grep '[/]usr/share/activemq' > /dev/null; then
+		print_header
+        	echo "                            activeMQ: -- not running --"
+	fi	
+
+	if ! ps aux | grep 'org.red5.server.Bootstrap' > /dev/null; then
+		print_header
+        	echo "                                red5: -- not running --"
+	fi	
+
+	if ! ps aux | grep '[/]usr/sbin/asterisk' > /dev/null; then
+		print_header
+        	echo "                            asterisk: -- not running --"
+	fi	
+
+	if ! netstat -ant | grep '8080' > /dev/null; then
+		print_header
+        	echo "                             tomcat6: -- not running --"
+	fi	
+
+	if [ ! -L /etc/nginx/sites-enabled/bigbluebutton ]; then
+		print_header
+        	echo "                        nginx (conf): no symbolic link in /etc/nginx/sites-enabled for bigbluebutton"
+	fi	
+
+	echo
 	exit 0
 fi
 
