@@ -11,18 +11,6 @@
 		<property name="defaultHandler" ref="httpTunnelController"/>
 	</bean>
 
-	<bean id="tunnelController" class="org.bigbluebutton.deskshare.server.servlet.TunnelController">
-		<property name="methodNameResolver">
-			<bean class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
-				<property name="mappings">
-					<props>
-						<prop key="/screenCapture">screenCaptureHandler</prop>
-					</props>
-				</property>
-			</bean>
-		</property>
-	</bean>
-
 	<bean id="httpTunnelController" class="org.bigbluebutton.deskshare.server.servlet.HttpTunnelStreamController">
 		<property name="methodNameResolver">
 			<bean class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
