@@ -28,7 +28,7 @@
 print_header() {
 	if [ ! $HEADER ]; then
 		echo 		
-		echo "Potential problems:"
+		echo "** Potential Problems **"
 		HEADER=1
 	fi
 }
@@ -382,6 +382,10 @@ if [ $CHECK ]; then
         echo "/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties (for bbb-web)"
         echo "                                host: $HOST"
 
+	#
+	# Check for potential problems
+	#
+
 	if ! ps aux | grep '[/]usr/share/activemq' > /dev/null; then
 		print_header
         	echo "                            activeMQ: -- not running --"
@@ -406,6 +410,22 @@ if [ $CHECK ]; then
 		print_header
         	echo "                        nginx (conf): no symbolic link in /etc/nginx/sites-enabled for bigbluebutton"
 	fi	
+
+	DIRECTORIES="bigbluebutton sip video"
+	for dir in $DIRECTORIES ; do
+		if [ ! -d /usr/share/red5/webapps/$dir ]; then
+        		echo "                   missing red5 app: /usr/share/red5/webapps/$dir "
+		fi
+	done
+
+	RED5_LOG_FILES="bigbluebutton oflademo red5 sip video"
+	for file in $RED5_LOG_FILES ; do
+		if [ ! -f /usr/share/red5/log/$file.log ]; then
+        		echo "                   missing red5 log: /usr/share/red5/log/$file.demo"
+		fi
+	done
+
+	echo
 
 	echo
 	exit 0
