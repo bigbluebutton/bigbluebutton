@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="Deskshare Applet Tests" failures="0" tests="5" time="0.04" errors="0">
-  <properties/>
-  <testcase name="createTile1Test" time="0.02" classname="org.bigbluebutton.deskshare.client.tiles.TileManagerTest"/>
-  <testcase name="createTile12Test" time="0.0010" classname="org.bigbluebutton.deskshare.client.tiles.TileManagerTest"/>
-  <testcase name="createTile7Test" time="0.0010" classname="org.bigbluebutton.deskshare.client.tiles.TileManagerTest"/>
-  <testcase name="computeNumberOfTilesTest" time="0.0010" classname="org.bigbluebutton.deskshare.client.tiles.TileManagerTest"/>
-  <testcase name="createTile4Test" time="0.0010" classname="org.bigbluebutton.deskshare.client.tiles.TileManagerTest"/>
-</testsuite>
