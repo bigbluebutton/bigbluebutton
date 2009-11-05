@@ -21,6 +21,7 @@
 #
 # Changelog:
 #       2009-10-18      Inital Version          FFD
+#       2009-11-05      Updated for 0.62        FFD
 
 
 # set -x
@@ -341,10 +342,6 @@ red5.home = /usr/share/red5
 "
 
 	fi
-
-
-
-
 fi
 
 
@@ -399,6 +396,11 @@ if [ $CHECK ]; then
 	if ! ps aux | grep '[/]usr/sbin/asterisk' > /dev/null; then
 		print_header
         	echo "                            asterisk: -- not running --"
+	fi	
+
+	if ! ps aux | grep '[/]usr/sbin/nginx' > /dev/null; then
+		print_header
+        	echo "                              ngingx: -- not running --"
 	fi	
 
 	if ! netstat -ant | grep '8080' > /dev/null; then
