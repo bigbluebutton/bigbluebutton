@@ -64,7 +64,6 @@ public final class Block {
         		System.out.println(e.toString());
     		}    		
     	}
-
     }
     
     public  EncodedBlockData encode() {
@@ -75,8 +74,11 @@ public final class Block {
     	
         byte[] encodedBlock;
         boolean hasChanged = false;
-//        boolean forceUpdate = forceUpdate();
-        //if (!checksumSame(pixelsCopy) || forceUpdate()) {
+
+        /** Seems that this thing isn't working properly.
+         *  The blocks only gets sent after forceUpdate. (ralam Oct 29, 2009)
+         */
+        //if (!checksumSame(pixelsCopy) || forceUpdate()) { 
         if (!checksumSame(pixelsCopy) || isKeyFrame) {
          	encodedBlock = ScreenVideoEncoder.encodePixels(pixelsCopy, getWidth(), getHeight(), false, isKeyFrame);
            	hasChanged = true;           	
