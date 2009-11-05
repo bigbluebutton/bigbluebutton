@@ -94,7 +94,7 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
     private void decodeCaptureEndEvent(IoSession session, IoBuffer in, ProtocolDecoderOutput out) {
     	String room = decodeRoom(session, in);
     	
-    	if (! room.isEmpty()) {
+    	if (! "".equals(room)) {
     		CaptureEndBlockEvent event = new CaptureEndBlockEvent(room);
     		out.write(event);
     	} else {

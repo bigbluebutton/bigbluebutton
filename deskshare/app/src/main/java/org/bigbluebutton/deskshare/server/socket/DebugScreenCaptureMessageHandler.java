@@ -24,11 +24,7 @@ package org.bigbluebutton.deskshare.server.socket;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
-import org.bigbluebutton.deskshare.server.CaptureEndEvent;
-import org.bigbluebutton.deskshare.server.CaptureStartEvent;
-import org.bigbluebutton.deskshare.server.CaptureUpdateEvent;
 import org.bigbluebutton.deskshare.server.CapturedScreen;
-import org.bigbluebutton.deskshare.server.StreamerGateway;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
