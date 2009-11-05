@@ -152,7 +152,7 @@
 	</target>
 
 	<target name="compile" depends="prepare" description="Compiles bigbluebutton">
-		<antcall target="compile_apps" inheritAll="true" inheritRefs="true"/>
+		<antcall target="compile_apps" inheritAll="true" inheritRefs="true" />
 	</target>
 
 	<macrodef name="build-app">
@@ -213,7 +213,17 @@
 	   			</copy>			
 	      	</sequential>
 	</macrodef>
-	
+
+
+
+	<target name="check-known-jar">
+                <available file="${lib.dir}/activemq-core-5.1.0.jar" property="known-jar.exists" />
+        </target>
+
+	<target name="check-first-run-resolve" depends="check-known-jar" unless="known-jar.exists" >
+		<antcall target="resolve" />
+	</target>
+
 	<target name="deploy" description="Deploy apps into red5" depends="dist">
 		<!-- need to do this one-by-one as it seems like macrodef does not support delete -->
 		<delete dir="${red5.home}/webapps/bigbluebutton"/>
@@ -311,7 +321,7 @@
 		      	</sequential>
 		</macrodef>
 	
-	<target name="dist" description="Make Binary distribution" depends="testng-reports, jar">
+	<target name="dist" description="Make Binary distribution" depends="check-first-run-resolve, testng-reports, jar">
 		<copy-app name="bigbluebutton">
 			<copy-assets>
 				<logback webapp="bigbluebutton"/>
