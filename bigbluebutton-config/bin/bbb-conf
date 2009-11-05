@@ -94,15 +94,21 @@ while [ $# -gt 0 ]; do
 		exit 1
 	fi
 
-	if [ "$1" = "-check" -o "$1" = "--check" ]; then
+	if [ "$1" = "-check" -o "$1" = "--check" -o "$1" = "-c" ]; then
 		CHECK=1
-		shift; shift
+		shift 
 		continue
 	fi
 
 	if [ "$1" = "--setup-samba" -o "$1" = "-setup-samba" ]; then
 		SAMBA=1
-		shift; shift
+		shift
+		continue
+	fi		
+
+	if [ "$1" = "--version" -o "$1" = "-version" -o "$1" = "-v" ]; then
+		VERSION=1
+		shift
 		continue
 	fi		
 
@@ -137,6 +143,7 @@ done
 #
 if [ $VERSION ]; then
 
+	echo 
 	dpkg -l | grep bbb
 
 	exit 0
@@ -219,6 +226,13 @@ if [ $SETUPDEV ]; then
 		echo "# Enabling $USER to write to /var/bigbluebutton to upload slides"
 		sudo chmod -R ugo+rw /var/bigbluebutton
 
+		echo "
+# Done.  To run your local build of bbb-web:
+
+	sudo /etc/init.d/tomcat6 stop
+	cd ~/dev/bbb-web
+	ant
+"
             fi
 	fi
 
@@ -256,11 +270,13 @@ if [ $SETUPDEV ]; then
 		cp /var/www/bigbluebutton/client/conf/config.xml ~/dev/bbb-client/bin/conf/config.xml
 
 		echo "
-# Done.  To run your local build of bbb-web:
+# Done.  To build your local build of bbb-client:
 
-	sudo /etc/init.d/tomcat6 stop
-	cd ~/dev/bbb-web
+	cd ~/dev/bbb-client
 	ant
+
+# The nginx server now loads the BigBlueButton Flash client from 
+# /home/firstuser/dev/bbb-client.
 "
 	    fi
 	fi
