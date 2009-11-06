@@ -224,6 +224,9 @@ class PublicScheduledSessionController {
 
 	    def config = ConfigurationHolder.config
         def hostURL = config.bigbluebutton.web.loggedOutUrl
+        if (!hostURL){
+        	hostURL = config.bigbluebutton.web.serverURL
+        }
         println "serverURL $hostURL"	
 	    redirect(url: hostURL)
 	}
