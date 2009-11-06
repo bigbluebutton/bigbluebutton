@@ -168,7 +168,7 @@ if [ $SAMBA ]; then
         # Instal Samba
         #
         if ! dpkg-query -s samba > /dev/null 2>&1; then
-                sudo apt-get install --force-yes samba ant
+                sudo apt-get install -y --force-yes samba ant
         fi
 
         #
@@ -233,7 +233,7 @@ if [ $SETUPDEV ]; then
 		echo "bigbluebutton.web.serverURL=http://$IP" > ~/.grails/bigbluebutton-config.properties
 
 		echo "# Enabling $USER to write to /var/bigbluebutton to upload slides"
-		sudo chmod -R ugo+rw /var/bigbluebutton
+		sudo chmod -R ugo+rwx /var/bigbluebutton
 
 		echo "
 # Done.  To run your local build of bbb-web:
