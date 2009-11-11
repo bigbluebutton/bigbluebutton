@@ -55,7 +55,7 @@
             public static const TITLE:String = "Presentation";
 			private var images:Images = new Images();
 
-			[Bindable] private var uploadIcon : Class = images.pdf;
+			[Bindable] private var uploadIcon : Class = images.upload;
 			[Bindable] private var forwardIcon : Class = images.forward;
 			[Bindable] private var backwardIcon : Class = images.backward;
 			[Bindable] private var thumbnailIcon : Class = images.thumbnails;

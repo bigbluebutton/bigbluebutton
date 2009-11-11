@@ -48,6 +48,7 @@ package org.bigbluebutton.modules.presentation.model.business
 		private static const UPDATE_RC:String = "UPDATE";
 		private static const SUCCESS_RC:String = "SUCCESS";
 		private static const FAILED_RC:String = "FAILED";
+		private static const FAILED_CONVERT_RC:String = "FAILED_CONVERT";
 		private static const THUMBNAILS_RC:String = "THUMBNAILS";
 		private static const CONVERT_RC:String = "CONVERT";
 		
@@ -79,7 +80,7 @@ package org.bigbluebutton.modules.presentation.model.business
 			
 		public function disconnect():void {
 			leave();
-			notifyConnectionStatusListener(false, ["Disconnected to presetation application"]);
+			notifyConnectionStatusListener(false, ["Disconnected to presentation application"]);
 //			netConnectionDelegate.disconnect();
 		}
 		
@@ -454,6 +455,12 @@ package org.bigbluebutton.modules.presentation.model.business
 				case FAILED_RC:
 					//LogUtil.debug("PresentationDelegate - FAILED_RC");
 					break;
+				case FAILED_CONVERT_RC:
+					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT");
+					message = _presentationSO.data.updateMessage.message;
+					sendMessage(PresentModuleConstants.CONVERT_ERROR_EVENT, message);
+					break;
+					
 				case THUMBNAILS_RC:
 				
 					LogUtil.debug("RECEIVED THUMBNAILS UPDATE");

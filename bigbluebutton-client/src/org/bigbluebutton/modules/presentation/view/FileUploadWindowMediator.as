@@ -91,7 +91,7 @@ package org.bigbluebutton.modules.presentation.view
 			var proxy:PresentProxy = facade.retrieveProxy(PresentProxy.NAME) as PresentProxy;
 	
 			var presentationName:String = fileToUpload.name
-			var filenamePattern:RegExp = /(.+)(\.pdf)/i;
+			var filenamePattern:RegExp = /(.+)(\.pdf|\.doc|\.docx|\.xls|\.xlsx|\.ppt|\.pptx)/i;
 			// Get the first match which should be the filename without the extension.
 			presentationName = presentationName.replace(filenamePattern, "$1")
 			// Replace any character other than a word character (A-Z, a-z, 0-9, or _).
@@ -163,7 +163,7 @@ package org.bigbluebutton.modules.presentation.view
 	
 		private function selectFile(e:Event):void{
 			fileToUpload.addEventListener(Event.SELECT, onSelectFile);	
-			fileToUpload.browse([new FileFilter("PDF", "*.pdf")]);
+			fileToUpload.browse([new FileFilter("PDF", "*.pdf"), new FileFilter("WORD", "*.doc;*.docx"), new FileFilter("EXCEL", "*.xls;*.xlsx"), new FileFilter("POWERPOINT", "*.ppt;*.pptx")]);
 		}
 			
 		override public function listNotificationInterests():Array{
@@ -175,7 +175,8 @@ package org.bigbluebutton.modules.presentation.view
 					PresentModuleConstants.CONVERT_PROGRESS_EVENT,
 					PresentModuleConstants.EXTRACT_PROGRESS_EVENT,
 					PresentModuleConstants.UPDATE_PROGRESS_EVENT,
-					PresentModuleConstants.CONVERT_SUCCESS_EVENT
+					PresentModuleConstants.CONVERT_SUCCESS_EVENT,
+					PresentModuleConstants.CONVERT_ERROR_EVENT
 					];
 		}
 		
@@ -192,6 +193,9 @@ package org.bigbluebutton.modules.presentation.view
 				case PresentModuleConstants.CONVERT_SUCCESS_EVENT:
 					handleConvertSuccessEvent(notification);
 					break;
+				case PresentModuleConstants.CONVERT_ERROR_EVENT:
+					handleConvertErrorEvent(notification);
+					break
 				case PresentModuleConstants.UPLOAD_IO_ERROR_EVENT:
 					handleUploadIOErrorEvent(notification);
 					break;
@@ -261,6 +265,20 @@ package org.bigbluebutton.modules.presentation.view
 		private function handleUploadSecurityErrorEvent(note:INotification):void{
 			enableControls();
 			Alert.show(note.getBody() as String, "Security Error When Uploading File");
+		}
+
+		/**
+		 * Handles an ConvertError Notification 
+		 * @param note
+		 * 
+		 */		
+		private function handleConvertErrorEvent(note:INotification):void{
+			enableControls();
+                        _fileWin.okCancelBtn.label = "Ok";
+                        _fileWin.okCancelBtn.visible = true;
+                        okState = false;
+                        closeWindow();
+			Alert.show(note.getBody() as String, "Error When Converting Uploaded File");
 		}
 		
 		/**

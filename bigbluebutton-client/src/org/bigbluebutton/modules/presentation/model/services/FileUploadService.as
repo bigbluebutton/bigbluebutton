@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.presentation.model.services
 	import flash.events.IOErrorEvent;
 	import flash.events.ProgressEvent;
 	import flash.events.SecurityErrorEvent;
+	import flash.events.*
 	import flash.net.FileReference;
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
@@ -77,13 +78,26 @@ package org.bigbluebutton.modules.presentation.model.services
 			fileToUpload.addEventListener(Event.COMPLETE, onUploadComplete);
 			fileToUpload.addEventListener(IOErrorEvent.IO_ERROR, onUploadIoError);
 			fileToUpload.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onUploadSecurityError);
-			
+			fileToUpload.addEventListener(HTTPStatusEvent.HTTP_STATUS, httpStatusHandler);
+			fileToUpload.addEventListener(Event.OPEN, openHandler);
+
 			request.method = URLRequestMethod.POST;
 			
 			// "fileUpload" is the variable name of the uploaded file in the server
-			fileToUpload.upload(request, "fileUpload", false);	
+			fileToUpload.upload(request, "fileUpload", true);
 		}
 		
+		private function httpStatusHandler(event:HTTPStatusEvent):void {
+			// TO CLEANUP
+			//_progressListener(PresentModuleConstants.UPLOAD_IO_ERROR_EVENT, "HTTP STATUS EVENT");
+        	}
+
+		private function openHandler(event:Event):void {
+			// TO CLEANUP
+			//_progressListener(PresentModuleConstants.UPLOAD_IO_ERROR_EVENT, "OPEN HANDLER");
+        	}
+
+
 		/**
 		 * Receives an ProgressEvent which then updated the progress bar on the view 
 		 * @param event - a ProgressEvent

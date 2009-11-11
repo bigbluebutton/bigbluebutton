@@ -65,6 +65,7 @@ package org.bigbluebutton.modules.presentation
 		public static const	UPLOAD_IO_ERROR_EVENT:String = "UPLOAD_IO_ERROR_EVENT";
 		public static const	UPLOAD_SECURITY_ERROR_EVENT:String = "UPLOAD_SECURITY_ERROR_EVENT";
 		public static const CONVERT_SUCCESS_EVENT:String = "CONVERT_SUCCESS_EVENT";
+		public static const CONVERT_ERROR_EVENT:String = "CONVERT_ERROR_EVENT";
 		public static const UPDATE_PROGRESS_EVENT:String = "UPDATE_PROGRESS_EVENT";
 		public static const EXTRACT_PROGRESS_EVENT:String = "EXTRACT_PROGRESS_EVENT";
 		public static const CONVERT_PROGRESS_EVENT:String = "CONVERT_PROGRESS_EVENT";
