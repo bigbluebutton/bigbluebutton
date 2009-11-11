@@ -181,5 +181,8 @@ package org.bigbluebutton.common
         
         [Embed(source="assets/images/bullet_go.png")]
         public var bulletGo:Class;
+
+        [Embed(source="assets/images/page_white_get.png")]
+        public var upload:Class;
 	}
 }
