@@ -75,6 +75,14 @@ public class ConversionUpdatesService {
 								message.put('message', mapMessage.getStringProperty("message"))
 								presentationApplication.sendUpdateMessage(message)
 								break
+							case 'FAILED':
+							case 'FAILED_CONVERT':
+								log.debug "JMS: FAILED[$presentationName]"
+
+								message.put('message', mapMessage.getStringProperty("message"))
+								presentationApplication.sendUpdateMessage(message)
+						
+								break;
 							case 'EXTRACT':
 							case 'CONVERT':
 								def totalSlides = mapMessage.getInt("totalSlides")

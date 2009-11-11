@@ -69,6 +69,7 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 				break
 			case 'UPDATE':
 			case 'FAILED':
+			case 'FAILED_CONVERT':
 				update.put('returnCode', message['code'])
 				update.put("message", message['message'])
 				break

@@ -75,6 +75,10 @@ public class ConversionUpdatesMessageListener implements MessageListener{
 				log.debug "JMS: THUMBNAILS[$presentationName]"
 				conversionUpdatesProcessor.process(message)
 				break
+			case 'FAILED_CONVERT':
+				log.debug "JMS: FAILED_CONVERT[$presentationName]"
+				conversionUpdatesProcessor.process(message)
+				break
 			case 'CONVERT':
 				def totalSlides = mapMessage.getInt("totalSlides")
 				def completedSlides = mapMessage.getInt("slidesCompleted")
