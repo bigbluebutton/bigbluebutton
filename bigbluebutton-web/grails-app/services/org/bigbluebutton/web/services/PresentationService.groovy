@@ -38,6 +38,7 @@ class PresentationService {
 	def imageMagickDir
 	def ghostScriptExec
 	def swfToolsDir
+	def officeToolsDir
 	def presentationDir
 	def BLANK_SLIDE = '/var/bigbluebutton/blank/blank-slide.swf'
 	def BLANK_THUMBNAIL = '/var/bigbluebutton/blank/blank-thumb.png'
@@ -106,14 +107,34 @@ class PresentationService {
 		// Run conversion on another thread.
 		new Timer().runAfter(1000) 
 		{
-			//first we need to know how many pages in this pdf
-			log.debug "Determining number of pages"
-			PageCounter pageCounter = new Pdf2SwfPageCounter()
-			pageCounter.setSwfToolsDir(swfToolsDir)
+			// first we need to determine what filetype the file is and convert it to pdf if necessary. Else throw an error !
+			if (!presentationFile.getAbsolutePath().endsWith('pdf'))
+			{
+				log.debug "Not a PDF File, converting to PDF..."
+				PageConverter converter = new Office2SwfPageConverter()
+				converter.setOfficeToolsDir(officeToolsDir)
+				File output = new File(presentationFile.getAbsolutePath().substring(0, presentationFile.getAbsolutePath().lastIndexOf(".")) + ".pdf")
+				log.debug "Not a PDF File, converting to PDF..."
+				if (converter.convert(presentationFile, output, 0))
+				{
+					presentationFile = output
+				}
+			}
 			
-			int numPages = pageCounter.countNumberOfPages(presentationFile)
-			log.info "There are $numPages pages in $presentationFile.absolutePath"
-			convertUploadedPresentation(conf, room, presentationName, presentationFile, numPages)		
+			// second we need to know how many pages in the pdf
+			if (presentationFile.getAbsolutePath().endsWith('pdf'))
+			{
+				log.debug "Determining number of pages"
+				PageCounter pageCounter = new Pdf2SwfPageCounter()
+				pageCounter.setSwfToolsDir(swfToolsDir)
+
+				int numPages = pageCounter.countNumberOfPages(presentationFile)
+				log.info "There are $numPages pages in $presentationFile.absolutePath"
+				convertUploadedPresentation(conf, room, presentationName, presentationFile, numPages)	
+			}
+			else // Problem with fileformat
+				sendFileFormatErrorMessage(conf, room, presentationName, presentationFile)
+	
 		}
 	}
  	
@@ -231,6 +252,17 @@ class PresentationService {
 		tc.imageMagickDir = imageMagickDir
 		tc.blankThumbnail = BLANK_THUMBNAIL
 		tc.createThumbnails(presentation, numberOfPages)		
+	}
+	
+	private void sendFileFormatErrorMessage(String conference, String room, String presName, File presentationFile) {
+		def msg = new HashMap()
+		msg.put("room", room)
+		msg.put("returnCode", "FAILED_CONVERT")
+		msg.put("presentationName", presName)
+		msg.put("message", "An error occured converting the file to PDF.")
+		log.debug "Failed to convert $presentationFile.absolutePath to PDF File."
+		println "Failed to convert $presentationFile.absolutePath to PDF File."
+		sendJmsMessage(msg)
 	}
 	
 	private void sendConversionUpdateMessage(String conference, String room, String presName, int totalSlides, int slidesCompleted) {

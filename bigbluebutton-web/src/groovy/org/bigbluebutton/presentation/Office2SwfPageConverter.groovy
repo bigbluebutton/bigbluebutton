@@ -1,0 +1,52 @@
+/*
+ * BigBlueButton - http://www.bigbluebutton.org
+ * 
+ * Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
+ * 
+ * BigBlueButton is free software; you can redistribute it and/or modify it under the 
+ * terms of the GNU Lesser General Public License as published by the Free Software 
+ * Foundation; either version 3 of the License, or (at your option) any later 
+ * version. 
+ * 
+ * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+ * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License along 
+ * with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
+ *
+ * $Id: $
+ */
+package org.bigbluebutton.presentation
+
+
+public class Office2SwfPageConverter implements PageConverter{
+
+	private String JODCONVERTER_DIR
+	
+	public boolean convert(File presentationFile, File output, int page){
+
+		def now = new Date()
+		println "Office2SWF starting $now"
+		
+		def command = "java -jar " + JODCONVERTER_DIR + "/jodconverter-cli-2.2.2.jar " + presentationFile.getAbsolutePath() + " " + output.getAbsolutePath()
+        	/*
+        	 * def command = "java -jar " + JODCONVERTER_DIR + "/jodconverter-cli-2.2.2.jar " + output.getAbsolutePath() + " " + presentationFile.getAbsolutePath()
+        	 */
+        	println "Executing $command"
+	    	def process = Runtime.getRuntime().exec(command);
+
+		// Wait for the process to finish.
+		int exitValue = process.waitFor()
+		
+		now = new Date()
+		println "OFFICE2SWF ended $now with exitValue $exitValue"
+				    
+		if (output.exists()) return true	
+		return false
+	}
+	
+	public void setOfficeToolsDir(String dir) {
+		JODCONVERTER_DIR = dir
+	}
+}
