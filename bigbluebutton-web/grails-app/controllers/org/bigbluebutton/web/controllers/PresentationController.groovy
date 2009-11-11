@@ -30,15 +30,15 @@ import grails.converters.*
 import org.bigbluebutton.web.services.PresentationService
 
 class PresentationController {
-    PresentationService presentationService
-    static transactional = true
+	PresentationService presentationService
+	static transactional = true
     
-    def index = {
-    	println 'in PresentationController index'
-    	render(view:'upload-file') 
-    }
+	def index = {
+		println 'in PresentationController index'
+		render(view:'upload-file') 
+	}
 	
-    def list = {						      				
+	def list = {						      				
 		def f = confInfo()
 		println "conference info ${f.conference} ${f.room}"
 		def presentationsList = presentationService.listPresentations(f.conference, f.room)
@@ -60,35 +60,36 @@ class PresentationController {
 		} else {
 			render(view:'upload-file')
 		}
-    }
+	}
 
-    def delete = {		
+	def delete = {		
 		def filename = params.presentation_name
 		def f = confInfo()
 		presentationService.deletePresentation(f.conference, f.room, filename)
 		flash.message = "file ${filename} removed" 
 		redirect( action:list )
-    }
+	}
 
 	def upload = {		
 		println 'PresentationController:upload'
 		def file = request.getFile('fileUpload')
-	    if(!file.empty) {
-	    	flash.message = 'Your file has been uploaded'
-	    	// Replace any character other than a (A-Z, a-z, 0-9, _ or .) with a - (dash).
-	    	def notValiedCharsRegExp = /[^0-9a-zA-Z_\.]/
-	    	def presentationName = params.presentation_name.replaceAll(notValiedCharsRegExp, '-')
-	    	File uploadDir = presentationService.uploadedPresentationDirectory(params.conference, params.room, presentationName)
-	    	
-	    	def newFilename = file.getOriginalFilename().replaceAll(notValiedCharsRegExp, '-')
-	    	def pres = new File( uploadDir.absolutePath + File.separatorChar + newFilename )
-	    	file.transferTo( pres )	
-	  		presentationService.processUploadedPresentation(params.conference, params.room, presentationName, pres)							             			     	
+	    	if(file && !file.empty) {
+			flash.message = 'Your file has been uploaded'
+			// Replace any character other than a (A-Z, a-z, 0-9, _ or .) with a - (dash).
+			def notValiedCharsRegExp = /[^0-9a-zA-Z_\.]/
+			def presentationName = params.presentation_name.replaceAll(notValiedCharsRegExp, '-')
+			File uploadDir = presentationService.uploadedPresentationDirectory(params.conference, params.room, presentationName)
+
+			def newFilename = file.getOriginalFilename().replaceAll(notValiedCharsRegExp, '-')
+			def pres = new File( uploadDir.absolutePath + File.separatorChar + newFilename )
+			file.transferTo( pres )	
+			presentationService.processUploadedPresentation(params.conference, params.room, presentationName, pres)							             			     	
 		}    
-	    else {
-	       flash.message = 'file cannot be empty'
-	    }
-		redirect( action:list)
+	    	else {
+	       		flash.message = 'file cannot be empty'
+	    	}
+		//redirect( action:list)
+		return [];
 	}
 
 	//handle external presentation server 
@@ -102,7 +103,7 @@ class PresentationController {
 		def totalSlides = request.getParameter('totalSlides')
 		def slidesCompleted = request.getParameter('slidesCompleted')
 		
-	    presentationService.processDelegatedPresentation(conference, room, presentation_name, returnCode, totalSlides, slidesCompleted)
+	    	presentationService.processDelegatedPresentation(conference, room, presentation_name, returnCode, totalSlides, slidesCompleted)
 		redirect( action:list)
 	}
 	
