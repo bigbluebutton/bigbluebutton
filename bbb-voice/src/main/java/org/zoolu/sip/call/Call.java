@@ -67,6 +67,7 @@ public class Call implements InviteDialogListener
    /** The call listener (sipx.call.CallListener) */
    CallListener listener;
 
+   private boolean callWasUsed=false;
 
    /** Creates a new Call. */
    public Call(SipProvider sip_provider, String from_url, String contact_url, CallListener call_listener)
@@ -134,6 +135,7 @@ public class Call implements InviteDialogListener
    /** Starts a new call, inviting a remote user (<i>callee</i>) */
    public void call(String callee, String from, String contact, String sdp)
    {  printLog("calling "+callee,LogLevel.HIGH);
+      callWasUsed=true;
       if (from==null) from=from_url;
       if (contact==null) contact=contact_url;
       if (sdp!=null) local_sdp=sdp;
@@ -146,6 +148,8 @@ public class Call implements InviteDialogListener
    /** Starts a new call with the <i>invite</i> message request */
    public void call(Message invite)
    {  dialog=new InviteDialog(sip_provider,this);
+      callWasUsed=true;
+
       local_sdp=invite.getBody();
       if (local_sdp!=null)
          dialog.invite(invite);
@@ -176,7 +180,9 @@ public class Call implements InviteDialogListener
    /** Accepts the incoming call */
    public void accept(String sdp)
    {  local_sdp=sdp;
-      if (dialog!=null) dialog.accept(contact_url,local_sdp);
+      callWasUsed=true;
+
+     if (dialog!=null) dialog.accept(contact_url,local_sdp);
    }
 
    /** Redirects the incoming call */
@@ -208,9 +214,15 @@ public class Call implements InviteDialogListener
    /** Closes an ongoing or incoming/outgoing call
      * <p> It trys to fires refuse(), cancel(), and bye() methods */
    public void hangup()
-   {  if (dialog!=null)
+      {
+   	   hangup(403);
+   }
+
+   public void hangup(int status)
+   {  if (dialog!=null && !dialog.isWaiting() && !dialog.isTerminated())
       {  // try dialog.refuse(), cancel(), and bye() methods..
-         dialog.refuse();
+         callWasUsed=true;
+         dialog.refuse(status,SipResponses.reasonOf(status));
          dialog.cancel();
          dialog.bye();
       }
@@ -223,6 +235,7 @@ public class Call implements InviteDialogListener
    public void onDlgInvite(InviteDialog d, NameAddress callee, NameAddress caller, String sdp, Message msg)
    {  if (d!=dialog) {  printLog("NOT the current dialog",LogLevel.HIGH);  return;  }
       if (sdp!=null && sdp.length()!=0) remote_sdp=sdp;
+      callWasUsed=true;
       if (listener!=null) listener.onCallIncoming(this,callee,caller,sdp,msg);
    }
 
@@ -348,7 +361,16 @@ public class Call implements InviteDialogListener
    //public void onDlgByeing(InviteDialog dialog) {}
 
    /** When the dialog is finally closed */
-   public void onDlgClose(InviteDialog dialog) {}
+   public void onDlgClose(InviteDialog d)
+   {
+	   if (d==dialog)
+		   callWasUsed=true;
+
+	   if (listener!=null) listener.onCallClosed(this,null);
+	}
+
+
+
 
 
    //**************************** Logs ****************************/

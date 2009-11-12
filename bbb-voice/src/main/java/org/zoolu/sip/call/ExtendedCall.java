@@ -48,8 +48,8 @@ public class ExtendedCall extends Call implements ExtendedInviteDialogListener
    ExtendedCallListener xcall_listener;
 
    Message refer;
-   
-   
+
+
    /** User name. */
    String username;
 
@@ -85,7 +85,7 @@ public class ExtendedCall extends Call implements ExtendedInviteDialogListener
       xcall_listener=call_listener;
    }*/
 
-         
+
    /** Creates a new ExtendedCall. */
    public ExtendedCall(SipProvider sip_provider, String from_url, String contact_url, String username, String realm, String passwd, ExtendedCallListener call_listener)
    {  super(sip_provider,from_url,contact_url,call_listener);
@@ -141,7 +141,7 @@ public class ExtendedCall extends Call implements ExtendedInviteDialogListener
    {  ((ExtendedInviteDialog)dialog).acceptRefer(refer);
    }
 
-   
+
    /** Refuses a call transfer request */
    public void refuseTransfer()
    {  ((ExtendedInviteDialog)dialog).refuseRefer(refer);
@@ -178,38 +178,39 @@ public class ExtendedCall extends Call implements ExtendedInviteDialogListener
       }
    }
 
-   /** When an incoming NOTIFY request is received within the dialog */ 
+   /** When an incoming NOTIFY request is received within the dialog */
    public void onDlgNotify(org.zoolu.sip.dialog.InviteDialog d, String event, String sipfragment, Message msg)
    {  if (d!=dialog) {  printLog("NOT the current dialog",LogLevel.HIGH);  return;  }
-      printLog("onDlgNotify()",LogLevel.LOW);
-      if (event.equals("refer"))
+      printLog("onDlgNotify("+event.substring(0,5)+")",LogLevel.LOW);
+      //if (event.equals("refer"))
+       if (event.substring(0,5).equals("refer"))
       {  Message fragment=new Message(sipfragment);
-         printLog("Notify: "+sipfragment,LogLevel.HIGH);
+         printLog("Notify: "+sipfragment,LogLevel.LOW);
          if (fragment.isResponse())
          {  StatusLine status_line=fragment.getStatusLine();
             int code=status_line.getCode();
             String reason=status_line.getReason();
-            if (code>=200 && code<300)
-            {  printLog("Call successfully transferred",LogLevel.MEDIUM);
+            if (code>=180 && code<300)
+            {  printLog("Call successfully transferred",LogLevel.LOW);
                if(xcall_listener!=null) xcall_listener.onCallTransferSuccess(this,msg);
             }
             else
             if (code>=300)
-            {  printLog("Call NOT transferred",LogLevel.MEDIUM);
+            {  printLog("Call NOT transferred",LogLevel.LOW);
                if(xcall_listener!=null) xcall_listener.onCallTransferFailure(this,reason,msg);
-            }            
+            }
          }
       }
    }
 
    /** When an incoming request is received within the dialog
-     * different from INVITE, CANCEL, ACK, BYE */ 
+     * different from INVITE, CANCEL, ACK, BYE */
    public void onDlgAltRequest(org.zoolu.sip.dialog.InviteDialog d, String method, String body, Message msg)
    {
    }
 
-   /** When a response is received for a request within the dialog 
-     * different from INVITE, CANCEL, ACK, BYE */ 
+   /** When a response is received for a request within the dialog
+     * different from INVITE, CANCEL, ACK, BYE */
    public void onDlgAltResponse(org.zoolu.sip.dialog.InviteDialog d, String method, int code, String reason, String body, Message msg)
    {
    }
@@ -219,7 +220,7 @@ public class ExtendedCall extends Call implements ExtendedInviteDialogListener
 
    /** Adds a new string to the default Log */
    protected void printLog(String str, int level)
-   {  if (log!=null) log.println("ExtendedCall: "+str,level+SipStack.LOG_LEVEL_CALL);  
+   {  if (log!=null) log.println("ExtendedCall: "+str,level+SipStack.LOG_LEVEL_CALL);
    }
 }
 

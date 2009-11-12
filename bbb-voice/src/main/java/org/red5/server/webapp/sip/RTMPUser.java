@@ -1,6 +1,5 @@
 package org.red5.server.webapp.sip;
 
-
 import java.io.*;
 
 import org.apache.mina.core.buffer.IoBuffer;

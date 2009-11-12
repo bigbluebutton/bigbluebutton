@@ -1,22 +1,22 @@
 /*
  * Copyright (C) 2005 Luca Veltri - University of Parma - Italy
- * 
+ *
  * This file is part of MjSip (http://www.mjsip.org)
- * 
+ *
  * MjSip is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * MjSip is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with MjSip; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- * 
+ *
  * Author(s):
  * Luca Veltri (luca.veltri@unipr.it)
  */
@@ -65,7 +65,7 @@ public class MessageFactory extends org.zoolu.sip.message.BaseMessageFactory
       //String branch=SipStack.pickBranch();
       Message req=createRequest(sip_provider,SipMethods.MESSAGE,request_uri,recipient,from,null,callid,cseq,localtag,null,null,null);
       if (subject!=null) req.setSubjectHeader(new SubjectHeader(subject));
-      req.setBody(type,body);     
+      req.setBody(type,body);
       return req;
    }
 
@@ -103,7 +103,7 @@ public class MessageFactory extends org.zoolu.sip.message.BaseMessageFactory
       req.setBody(content_type,body);
       return req;
    }
-   
+
 
    /** Creates a new SUBSCRIBE request (RFC3265) within a dialog (re-subscribe). */
    public static Message createSubscribeRequest(Dialog dialog, String event, String id, String content_type, String body)
@@ -112,7 +112,7 @@ public class MessageFactory extends org.zoolu.sip.message.BaseMessageFactory
       req.setBody(content_type,body);
       return req;
    }
-   
+
 
    /** Creates a new NOTIFY request (RFC3265) within a dialog */
    public static Message createNotifyRequest(Dialog dialog, String event, String id, String content_type, String body)

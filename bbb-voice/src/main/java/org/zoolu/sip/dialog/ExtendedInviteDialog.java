@@ -28,6 +28,7 @@ import org.zoolu.sip.provider.*;
 import org.zoolu.sip.address.NameAddress;
 import org.zoolu.sip.header.StatusLine;
 import org.zoolu.sip.header.RequestLine;
+import org.zoolu.sip.header.ViaHeader;
 import org.zoolu.sip.header.AuthorizationHeader;
 import org.zoolu.sip.header.WwwAuthenticateHeader;
 import org.zoolu.sip.header.ProxyAuthenticateHeader;
@@ -218,7 +219,9 @@ public class ExtendedInviteDialog extends org.zoolu.sip.dialog.InviteDialog
    /** Inherited from TransactionClientListener.
      * When the TransactionClientListener goes into the "Completed" state, receiving a failure response */
    public void onTransFailureResponse(TransactionClient tc, Message msg)
-   {  printLog("inside onTransFailureResponse("+tc.getTransactionId()+",msg)",LogLevel.LOW);
+   {
+ printLog("onTransFailureResponse 1",LogLevel.HIGH);
+	   printLog("inside onTransFailureResponse("+tc.getTransactionId()+",msg)",LogLevel.LOW);
       String method=tc.getTransactionMethod();
       StatusLine status_line=msg.getStatusLine();
       int code=status_line.getCode();
@@ -230,11 +233,17 @@ public class ExtendedInviteDialog extends org.zoolu.sip.dialog.InviteDialog
       {  attempts++;
 
 		 Message ack=MessageFactory.createRequest(this,SipMethods.ACK,null);
-		 TransactionClient acktc=new TransactionClient(sip_provider,ack,this);
-		 transactions.put(acktc.getTransactionId(),acktc);
+		 AckTransactionClient acktc=new AckTransactionClient(sip_provider,ack,null);
+		 //TransactionClient acktc=new TransactionClient(sip_provider,ack,this);
+		 //transactions.put(acktc.getTransactionId(),acktc);
 		 acktc.request();
 
          Message req=tc.getRequestMessage();
+         // select a new branch - rfc3261 says should be new on each request
+         ViaHeader via=req.getViaHeader();
+         req.removeViaHeader();
+         via.setBranch(SipProvider.pickBranch());
+         req.addViaHeader(via);
          req.setCSeqHeader(req.getCSeqHeader().incSequenceNumber());
          WwwAuthenticateHeader wah;
          if (code==401) wah=msg.getWwwAuthenticateHeader();
@@ -247,6 +256,12 @@ public class ExtendedInviteDialog extends org.zoolu.sip.dialog.InviteDialog
          if (code==401) ah=digest.getAuthorizationHeader();
          else ah=digest.getProxyAuthorizationHeader();
          req.setAuthorizationHeader(ah);
+
+         if (req.isInvite()) // make sure it's an invite
+		         	 this.invite_req=req; // must track last invite so cancel will work correctly - fixes 503 from asterisk on cancel
+
+
+
          transactions.remove(tc.getTransactionId());
          tc=new TransactionClient(sip_provider,req,this);
          transactions.put(tc.getTransactionId(),tc);
@@ -313,7 +328,8 @@ public class ExtendedInviteDialog extends org.zoolu.sip.dialog.InviteDialog
 
    /** Adds a new string to the default Log */
    protected void printLog(String str, int level)
-   {  if (log!=null) log.println("ExtendedInviteDialog#"+dialog_sqn+": "+str,level+SipStack.LOG_LEVEL_DIALOG);
+   {
+	   if (log!=null) log.println("ExtendedInviteDialog#"+dialog_sqn+": "+str,level+SipStack.LOG_LEVEL_DIALOG);
    }
 
 }

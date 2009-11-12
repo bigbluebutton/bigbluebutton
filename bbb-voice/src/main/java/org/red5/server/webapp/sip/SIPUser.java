@@ -27,6 +27,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
     private SIPUserAgent ua;
     private SIPRegisterAgent ra;
     private RTMPUser rtmpUser;
+    private PipedOutputStream publishStream;
     private String username;
     private String password;
     private String publishName;
@@ -34,6 +35,10 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
     private int sipPort;
     private int rtpPort;
     private String proxy;
+
+    private String realm;
+
+    private String obproxy;
 
     public SIPUser( String sessionID, IConnection service, int sipPort, int rtpPort ) throws IOException {
 
@@ -65,16 +70,17 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
     }
 
 
-    public void login( String phone, String username, String password, String realm, String proxy ) {
+    public void login( String obproxy, String phone, String username, String password, String realm, String proxy ) {
 
     	log.debug( "SIPUser login" );
 
         this.username = username;
         this.password = password;
         this.proxy = proxy;
-		this.optOutboundProxy = proxy;
+		this.opt_outbound_proxy = obproxy;
+		this.realm = realm;
 
-        String fromURL = "\"" + username + "\" <sip:" + phone + "@" + proxy + ">";
+        String fromURL = "\"" + phone + "\" <sip:" + phone + "@" + proxy + ">";
 
         try {
             rtmpUser = new RTMPUser();
@@ -183,6 +189,30 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
         }
     }
 
+	/** Add by Lior call transfer test */
+
+
+	   public void transfer( String transferTo ) {
+
+	           p( "Transfer To: " + transferTo );
+
+	           try {
+	               if (transferTo.indexOf("@") == -1) {
+					transferTo = transferTo + "@" + proxy ;
+			   }
+
+	               ua.transfer( transferTo );
+
+	           }
+	           catch ( Exception e ) {
+	               p( "call: Exception:>\n" + e );
+	           }
+	       }
+
+	/** end of transfer code */
+
+
+
 
 	public void close() {
 		log.debug("SIPUser close1");
@@ -190,6 +220,8 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
 			hangup();
 			unregister();
+		    new Thread().sleep(3000);
+
 		} catch(Exception e) {
 			log.error("close: Exception:>\n" + e);
 		}
@@ -322,6 +354,8 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
         String destination = callee.getAddress().toString();
         String destinationName = callee.hasDisplayName() ? callee.getDisplayName() : "";
 
+        p( "onUaCallIncoming " + source + " " + destination);
+
         if ( service != null ) {
             ( (IServiceCapableConnection) service ).invoke( "incoming", new Object[] { source, sourceName, destination,
                 destinationName } );
@@ -330,6 +364,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
 
     public void onUaCallRinging( SIPUserAgent ua ) {
+        p( "onUaCallRinging" );
 
         if ( service != null ) {
             ( (IServiceCapableConnection) service ).invoke( "callState", new Object[] { "onUaCallRinging" } );
@@ -338,6 +373,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
 
     public void onUaCallAccepted( SIPUserAgent ua ) {
+        p( "onUaCallAccepted" );
 
         if ( service != null ) {
             ( (IServiceCapableConnection) service ).invoke( "callState", new Object[] { "onUaCallAccepted" } );
@@ -359,11 +395,17 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
 
     public void onUaCallTrasferred( SIPUserAgent ua ) {
+        p( "onUaCallTrasferred");
+
+		 if (service != null) {
+		 	((IServiceCapableConnection) service).invoke("callState", new Object[] {"onUaCallTrasferred"});
+		}
 
     }
 
 
     public void onUaCallCancelled( SIPUserAgent ua ) {
+        p( "onUaCallCancelled");
 
         sipReady = false;
         closeStreams();
@@ -377,6 +419,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
 
     public void onUaCallFailed( SIPUserAgent ua ) {
+        p( "onUaCallFailed");
 
         sipReady = false;
         closeStreams();
@@ -390,6 +433,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
 
     public void onUaCallClosed( SIPUserAgent ua ) {
+        p( "onUaCallClosed");
 
         sipReady = false;
         closeStreams();
@@ -427,4 +471,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 		
 	}
 
+        log.debug( s );
+		System.out.println("[SIPUser] " + s);
+    }
 }

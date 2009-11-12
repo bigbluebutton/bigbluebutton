@@ -38,7 +38,7 @@ public class DigestAuthentication
 
    protected String body;
 
-   
+
    /** Costructs a new DigestAuthentication. */
    protected DigestAuthentication()
    {
@@ -111,8 +111,25 @@ public class DigestAuthentication
       ah.addUriParam(uri);
       if (algorithm!=null) ah.addAlgorithParam(algorithm);
       if (opaque!=null) ah.addOpaqueParam(opaque);
+      /*
       if (qop!=null) ah.addQopParam(qop);
       if (nc!=null) ah.addNcParam(nc);
+      */
+
+      if (qop!=null)
+	        {
+	      	  ah.addQopParam(qop);
+	      	  if (qop.equalsIgnoreCase("auth-int") || qop.equalsIgnoreCase("auth"))
+	      	  {
+	      		  // qop requires cnonce and nc as per rfc2617
+	  	    	  cnonce=HEX(MD5(Long.toString(System.currentTimeMillis()))); // unique hopefully
+	  	    	  ah.addCnonceParam(cnonce);
+	  	    	  nc="00000001"; // always 1 since cnonce should be unique - avoids having to have a static counter
+	  	    	  ah.addNcParam(nc);
+	      	  }
+      }
+
+
       String response=getResponse();
       ah.addResponseParam(response);
       return ah;
@@ -145,12 +162,12 @@ public class DigestAuthentication
          sb.append(qop);
          sb.append(":");
       }
-      sb.append(HEX(MD5(A2())));  
-      String data=sb.toString();    
+      sb.append(HEX(MD5(A2())));
+      String data=sb.toString();
       return HEX(KD(secret,data));
    }
 
-   
+
    /** Calculates KD() value.
      * <p> KD(secret, data) = H(concat(secret, ":", data))
      */
@@ -159,8 +176,8 @@ public class DigestAuthentication
       sb.append(secret).append(":").append(data);
       return MD5(sb.toString());
    }
-      
-   
+
+
    /** Calculates A1 value.
      * <p> If the "algorithm" directive's value is "MD5" or is unspecified:
      * <br>   A1 = unq(username) ":" unq(realm) ":" passwd
@@ -174,22 +191,22 @@ public class DigestAuthentication
       sb.append(":");
       if (realm!=null) sb.append(realm);
       sb.append(":");
-      if (passwd!=null) sb.append(passwd); 
-      
+      if (passwd!=null) sb.append(passwd);
+
       if (algorithm==null || !algorithm.equalsIgnoreCase("MD5-sess"))
       {  return sb.toString().getBytes();
       }
       else
       {  StringBuffer sb2=new StringBuffer();
          sb2.append(":");
-         if (nonce!=null) sb2.append(nonce); 
+         if (nonce!=null) sb2.append(nonce);
          sb2.append(":");
-         if (cnonce!=null) sb2.append(cnonce); 
-         return cat(MD5(sb.toString()),sb2.toString().getBytes()); 
+         if (cnonce!=null) sb2.append(cnonce);
+         return cat(MD5(sb.toString()),sb2.toString().getBytes());
       }
    }
 
-  
+
    /** Calculates A2 value.
      * <p> If the "qop" directive's value is "auth" or is unspecified:
      * <br>   A2 = Method ":" digest-uri
@@ -202,7 +219,7 @@ public class DigestAuthentication
       sb.append(method);
       sb.append(":");
       if (uri!=null) sb.append(uri);
-      
+
       if (qop!=null && qop.equalsIgnoreCase("auth-int"))
       {  sb.append(":");
          if (body==null) sb.append(HEX(MD5("")));
@@ -263,26 +280,25 @@ public class DigestAuthentication
       a.nc="00000001";
       a.cnonce="0a4f113b";
       a.username="Mufasa";
-      
+
       String response1=a.getResponse();
       String response2="6629fae49393a05397450978507c4ef1";
       System.out.println(response1);
       System.out.println(response2);
 
       System.out.println(" ");
-      
-      
+
+
       String ah_str="Digest username=\"Mufasa\", realm=\"testrealm@host.com\", nonce=\"dcd98b7102dd2f0e8b11d0f600bfb0c093\", uri=\"/dir/index.html\", qop=auth, nc=00000001, cnonce=\"0a4f113b\", response=\"6629fae49393a05397450978507c4ef1\", opaque=\"5ccc069c403ebaf9f0171e9517f40e41\"\n";
-                 
+
       AuthorizationHeader ah=new AuthorizationHeader(ah_str);
       a=new DigestAuthentication("GET",ah,null,"Circle Of Life");
       response1=a.getResponse();
       response2="6629fae49393a05397450978507c4ef1";
       System.out.println(response1);
       System.out.println(response2);
-      
+
       System.out.println(a.checkResponse());
 
    }
 }
- 

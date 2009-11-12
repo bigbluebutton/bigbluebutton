@@ -59,6 +59,8 @@ public class Application extends MultiThreadedApplicationAdapter implements IStr
         // stopRTPPort =
         // Integer.parseInt(PacketHandler.getInstance().getEndRTPPort());
 
+		loginfo("Red5SIP using RTP port range " + startRTPPort + "-" + stopRTPPort + ", using SIP port range " + startSIPPort + "-" + stopSIPPort);
+
         sipPort = startSIPPort;
         rtpPort = startRTPPort;
         return true;
@@ -182,15 +184,15 @@ public class Application extends MultiThreadedApplicationAdapter implements IStr
     }
 
 
-	public void open(String uid, String phone,String username, String password, String realm, String proxy) {
+	public void open(String obproxy,String uid, String phone,String username, String password, String realm, String proxy) {
 		loginfo("Red5SIP open");
 
-		login(uid, phone, username, password, realm, proxy);
+		login(obproxy, uid, phone, username, password, realm, proxy);
 		register(uid);
 	}
 
 
-	public void login(String uid, String phone, String username, String password, String realm, String proxy) {
+	public void login(String obproxy, String uid, String phone, String username, String password, String realm, String proxy) {
 		loginfo("Red5SIP login " + uid);
 
 		IConnection conn = Red5.getConnectionLocal();
@@ -210,7 +212,7 @@ public class Application extends MultiThreadedApplicationAdapter implements IStr
 			}
 		}
 
-		sipUser.login(phone,username, password, realm, proxy);
+		sipUser.login(obproxy,phone,username, password, realm, proxy);
 		userNames.put(conn.getClient().getId(), uid);
 
 		sipPort++;
@@ -242,8 +244,52 @@ public class Application extends MultiThreadedApplicationAdapter implements IStr
 		if(sipUser != null) {
 			loginfo("Red5SIP Call found user " + uid + " making call to " + destination);
 			sipUser.call(destination);
-		} else {
-			loginfo("Red5SIP Call found user " + uid + " making call to " + destination);
+		}
+
+	}
+
+
+	/** call tarensfer test by Lior */
+
+
+	 public void transfer(String uid, String transferTo) {
+			loginfo("Red5SIP transfer " + transferTo);
+
+			SIPUser sipUser = sipManager.getSIPUser(uid);
+
+			if(sipUser != null) {
+				loginfo("Red5SIP Call found user " + uid + " transfering call to " + transferTo);
+				sipUser.transfer(transferTo);
+			}
+
+		}
+
+	/** transfer end tetst */
+
+
+
+	public void addToConf(String uid, String conf) {
+		loginfo("Red5SIP addToConf " + conf);
+
+		SIPUser sipUser = sipManager.getSIPUser(uid);
+
+		if(sipUser != null) {
+			loginfo("Red5SIP addToConf found user " + uid + " adding to conf " + conf);
+			sipUser.transfer("8" + conf);
+		}
+
+	}
+
+
+
+	public void joinConf(String uid, String conf) {
+		loginfo("Red5SIP joinConf " + conf);
+
+		SIPUser sipUser = sipManager.getSIPUser(uid);
+
+		if(sipUser != null) {
+			loginfo("Red5SIP joinConf found user " + uid + " joining conf " + conf);
+			sipUser.call("8" + conf );
 		}
 
 	}

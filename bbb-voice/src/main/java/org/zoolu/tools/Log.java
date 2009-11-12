@@ -211,8 +211,7 @@ public class Log
                do_log=false;
             }
          }
-      }
-      
+      }      
       return this;
    }
 

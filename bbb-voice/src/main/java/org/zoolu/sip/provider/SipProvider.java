@@ -21,13 +21,29 @@
  * Luca Veltri (luca.veltri@unipr.it)
  */
 
+/*
+ * Greg Dorfuss - http://mhspot.com
+ * Allow Invite Listener to be added no matter what
+ * Added SIP OPTION message support
+ * Added 405 to NOTIFY messages
+ * added extra break for branch - I was getting intermittant duplicate branches
+ * added params to control handling of addresses
+ * 2008/10/08 added 302 redir if busy
+ * added sychronize on invite request
+ */
+
+
 package org.zoolu.sip.provider;
 
 
 import org.zoolu.net.*;
 import org.zoolu.sip.header.*;
 import org.zoolu.sip.message.Message;
+import org.zoolu.sip.message.MessageFactory;
+import org.zoolu.sip.message.SipResponses;
 import org.zoolu.sip.address.*;
+import org.zoolu.sip.transaction.TransactionServer;
+import org.zoolu.sip.transaction.InviteTransactionServer;
 import org.zoolu.sip.transaction.Transaction;
 import org.zoolu.tools.Configure;
 import org.zoolu.tools.Configurable;
@@ -126,12 +142,13 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
      * for capturing messages in PROMISQUE mode. */
    public static final Identifier PROMISQUE=new Identifier("PROMISQUE");
 
+   public static final Identifier INVITE=new Identifier("INVITE");
 
    /** Minimum length for a valid SIP message.  */
    private static final int MIN_MESSAGE_LENGTH=12;
 
    // ***************** Readable/configurable attributes *****************
-
+    String sipBusyUrl=null;
    /** Via address/name.
      * Use 'auto-configuration' for auto detection, or let it undefined. */
    String via_addr=null;
@@ -156,6 +173,12 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
    /** Whether logging all packets (including non-SIP keepalive tokens). */
    boolean log_all_packets=false;
 
+   private String inviteLock="";
+
+      // new params to control address handling
+      private boolean sendResponseUsingOutboundProxy=false;
+      private boolean useViaReceived=true;
+      private boolean useViaRport=true;
 
    // for backward compatibility:
 
@@ -163,6 +186,13 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
    private String outbound_addr=null;
    /** Outbound proxy port (for backward compatibility). */
    private int outbound_port=-1;
+
+   private OptionHandler optionHandler=null;
+
+
+
+
+
 
 
    // ********************* Non-readable attributes *********************
@@ -178,6 +208,13 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
 
    /** Default transport */
    String default_transport=null;
+
+    static long breaker=0;
+
+   private boolean initComplete=false;
+
+
+
 
    /** Whether using UDP as transport protocol */
    boolean transport_udp=false;
@@ -195,7 +232,9 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
    boolean force_rport=false;
 
    /** List of provider listeners */
-   Hashtable listeners=null;
+   SpcHashtable listeners=null;
+
+
 
    /** List of exception listeners */
    HashSet exception_listeners=null;
@@ -284,8 +323,10 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
       force_rport=SipStack.force_rport;
 
       exception_listeners=new HashSet();
-      listeners=new Hashtable();
-
+      //listeners=new Hashtable();
+      Hashtable dupeKeys=new Hashtable();
+	   dupeKeys.put(INVITE, "");
+      listeners=new SpcHashtable(dupeKeys);
       connections=new Hashtable();
    }
 
@@ -361,8 +402,9 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
    public void halt()
    {  printLog("halt: SipProvider is going down",LogLevel.MEDIUM);
       stopTrasport();
-      listeners=new Hashtable();
-      exception_listeners=new HashSet();
+      //listeners=new Hashtable();
+   listeners=new SpcHashtable(null);
+   exception_listeners=new HashSet();
    }
 
 
@@ -402,6 +444,21 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
          outbound_port=par.getInt();
          return;
       }
+
+      if (attribute.equals("sendResponseUsingOutboundProxy")) { sendResponseUsingOutboundProxy=(par.getString().toLowerCase().startsWith("y")); return; }
+	        if (attribute.equals("useViaReceived")) { useViaReceived=(par.getString().toLowerCase().startsWith("y")); return; }
+	        if (attribute.equals("useViaRport")) { useViaRport=(par.getString().toLowerCase().startsWith("y")); return; }
+
+	        if (attribute.equals("SipInboundAllChannelsBusyAction"))
+	        {
+	      	  String sipInboundAllChannelsBusyAction=(par.getRemainingString());
+	      	  if (sipInboundAllChannelsBusyAction.startsWith("transferto:"))  // redirect the call elsewhere
+	  	 		  sipBusyUrl=sipInboundAllChannelsBusyAction.replaceAll("transferto:","");
+	      	  else
+	      		  sipBusyUrl=null;
+	      	  return;
+      }
+
    }
 
 
@@ -520,7 +577,7 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
 
 
    /** Returns the list (Hashtable) of active listener_IDs. */
-   public Hashtable getListeners()
+   public SpcHashtable getListeners()
    {  return listeners;
    }
 
@@ -559,11 +616,11 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
      * @param listener is the SipProviderListener for this message id.
      * @return It returns <i>true</i> if the SipProviderListener is added,
      * <i>false</i> if the listener_ID is already in use. */
-   public boolean addSipProviderListener(Identifier id, SipProviderListener listener)
-   {  printLog("adding SipProviderListener: "+id,LogLevel.MEDIUM);
+   public boolean addSipProviderListener(Identifier key, SipProviderListener listener)
+   {  printLog("adding SipProviderListener: "+key,LogLevel.MEDIUM);
       boolean ret;
-      Identifier key=id;
-      if (listeners.containsKey(key))
+      //Identifier key=id;
+      if (listeners.containsKey(key) && !key.toString().equals("INVITE"))
       {  printWarning("trying to add a SipProviderListener with a id that is already in use.",LogLevel.HIGH);
          ret=false;
       }
@@ -585,10 +642,10 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
      * @param id is the unique identifier used to select the listened messages.
      * @return It returns <i>true</i> if the SipProviderListener is removed,
      * <i>false</i> if the  identifier is missed. */
-   public boolean removeSipProviderListener(Identifier id)
-   {  printLog("removing SipProviderListener: "+id,LogLevel.MEDIUM);
+   public boolean removeSipProviderListener(Identifier key)
+   {  printLog("removing SipProviderListener: "+key,LogLevel.MEDIUM);
       boolean ret;
-      Identifier key=id;
+      //Identifier key=id;
       if (!listeners.containsKey(key))
       {  printWarning("trying to remove a missed SipProviderListener.",LogLevel.HIGH);
          ret=false;
@@ -606,6 +663,31 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
       return ret;
    }
 
+
+
+
+  public boolean removeSipProviderListener(Identifier key,Object listener)
+     {  printLog("removing SipProviderListener Pair: "+key ,LogLevel.HIGH);
+        boolean ret;
+
+        if (!listeners.containsPair(key,listener))
+        {  printLog("trying to remove a missed SipProviderListener Pair." ,LogLevel.LOW);
+           ret=false;
+        }
+        else
+        {
+      	   listeners.removePair(key,listener);
+             ret=true;
+        }
+
+        if (listeners!=null)
+        {
+     		String list="";
+         	for (Enumeration e=listeners.keys(); e.hasMoreElements();) list+=e.nextElement()+", ";
+         	printLog(listeners.size()+" listeners: "+list+"\n"+listeners.toString() ,LogLevel.LOW);
+        }
+        return ret;
+   }
 
    /** Sets the SipProviderExceptionListener.
      * The SipProviderExceptionListener is the listener for all exceptions
@@ -803,19 +885,36 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
       }
       else
       {  // RESPONSES
+
+        if (outbound_proxy!=null && this.sendResponseUsingOutboundProxy)
+		          {
+		        	 dest_addr=outbound_proxy.getAddress().toString();
+		             dest_port=outbound_proxy.getPort();
+		          }
+		          else
+          {
          SipURL url=via.getSipURL();
-         if (via.hasReceived()) dest_addr=via.getReceived(); else dest_addr=url.getHost();
-         if (via.hasRport()) dest_port=via.getRport();
-         if (dest_port<=0) dest_port=url.getPort();
+           if (via.hasReceived()) dest_addr=via.getReceived();
+         else
+           dest_addr=url.getHost();
+
+         if (via.hasRport())
+             dest_port=via.getRport();
+
+         if (dest_port<=0)
+           dest_port=url.getPort();
       }
 
+
+ }
       if (dest_port<=0) dest_port=SipStack.default_port;
 
       return sendMessage(msg,proto,dest_addr,dest_port,ttl);
    }
 
 
-   /** Sends the message <i>msg</i> using the specified connection. */
+
+  /** Sends the message <i>msg</i> using the specified connection. */
    public ConnectionIdentifier sendMessage(Message msg, ConnectionIdentifier conn_id)
    {  if (log_all_packets || msg.getLength()>MIN_MESSAGE_LENGTH) printLog("Sending message through conn "+conn_id,LogLevel.HIGH);
       printLog("message:\r\n"+msg.toString(),LogLevel.LOWER);
@@ -876,13 +975,16 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
             int via_port=vh.getPort();
             if (via_port<=0) via_port=SipStack.default_port;
 
-            if (!via_addr.equals(src_addr))
+            if (!via_addr.equals(src_addr) && this.useViaReceived)
             {  vh.setReceived(src_addr);
                via_changed=true;
             }
 
+            if (this.useViaRport)
+        	{
             if (vh.hasRport())
-            {  vh.setRport(src_port);
+            {
+			   vh.setRport(src_port);
                via_changed=true;
             }
             else
@@ -891,8 +993,10 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
                   via_changed=true;
                }
             }
+	   }
 
-            if (via_changed)
+
+           if (via_changed)
             {  msg.removeViaHeader();
                msg.addViaHeader(vh);
             }
@@ -900,7 +1004,9 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
 
          // is there any listeners?
          if (listeners==null || listeners.size()==0)
-         {  printLog("no listener found: meesage discarded.",LogLevel.HIGH);
+         {
+			 if (initComplete)
+			 printLog("no listener found: meesage discarded.",LogLevel.HIGH);
             return;
          }
 
@@ -918,7 +1024,37 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
 
          // this was the promisque listener; now keep on looking for a tighter listener..
 
-         // try to look for a transaction
+
+          if (msg.isRequest() && msg.isOption())
+		          {
+		         	 // handle SIP OPTIONS message
+		         	 int optStat=486; // default busy
+		         	 if (listeners.containsKey(INVITE)) // if existing INVITE key then we might be available
+		         	 {
+		 	          	   if (this.optionHandler!=null)
+		 	          	   {
+		 		          	   String optBody=optionHandler.onOptionMsgReceived();
+		 		          	   if (optBody!=null)
+		 		          	   {
+		 		          		   optStat=200;
+		 		          		   // add capabilities to msg to be sent
+		 				       	   printLog("OPTION Request - response status="+optStat , LogLevel.HIGH);
+		 				       	   TransactionServer ts=new TransactionServer(this,msg,null);
+		 				           ts.respondWith(MessageFactory.createResponse(msg,optStat,SipResponses.reasonOf(optStat),null,null,"application/sdp",optBody));
+		 			    		   return;
+		 		          	   }
+		 	          	   }
+		 	          	   else
+		 	        		   optStat=200; // assume available if no option handler
+		         	 }
+
+		        		 printLog("OPTION Request - response status="+optStat,LogLevel.MEDIUM );
+		        		 TransactionServer ts=new TransactionServer(this,msg,null);
+		            	 ts.respondWith(MessageFactory.createResponse(msg,optStat,SipResponses.reasonOf(optStat),null));
+		         	 return;
+         }
+
+    // try to look for a transaction
          Identifier key=msg.getTransactionId();
          printLog("DEBUG: transaction-id: "+key,LogLevel.MEDIUM);
          if (listeners.containsKey(key))
@@ -936,11 +1072,27 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
          }
          // try to look for a UAS
          key=msg.getMethodId();
+         if (msg.isRequest() && msg.isInvite())
+		          {
+		         	// need to synchronize invite requests to avoid issues
+		         	synchronized (inviteLock)
+        	{
          if (listeners.containsKey(key))
          {  printLog("message passed to uas: "+key,LogLevel.MEDIUM);
             ((SipProviderListener)listeners.get(key)).onReceivedMessage(this,msg);
             return;
          }
+         	}
+		          }
+		          else if (listeners.containsKey(key))
+		          {
+		         	printLog("message passed to uas: "+key ,LogLevel.LOW);
+		             ((SipProviderListener)listeners.get(key)).onReceivedMessage(this,msg);
+		             return;
+         }
+
+
+
          // try to look for a default UA
          if (listeners.containsKey(ANY))
          {  printLog("message passed to uas: "+ANY,LogLevel.MEDIUM);
@@ -948,7 +1100,40 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
             return;
          }
 
-         // if we are here, no listener_ID matched..
+         if (msg.isRequest() && msg.isInvite())
+         {
+        	 // we are busy or can't answer - Invite would have been picked up above already if we could handle it
+
+        	 if (sipBusyUrl!=null)
+        	 {
+        		 // redirect the call elsewhere
+        		 String targetId=msg.getToHeader().getNameAddress().toString().replaceAll("(?i).*sip:<?([^@<]+)@.*", "$1");
+        		 String redirect_Url=sipBusyUrl.replaceAll("calleeid", targetId);
+
+           		 printLog("Incoming SIP Call - Channel busy - Redirect to: "+redirect_Url ,LogLevel.LOW);
+
+ 	             Message resp=MessageFactory.createResponse(msg,302,SipResponses.reasonOf(302),new NameAddress(redirect_Url));
+ 	       		 InviteTransactionServer ts=new InviteTransactionServer(this,msg,null);
+ 	           	 ts.respondWith(resp);
+ 	        	 return;
+        	 }
+
+       		 printLog("Invite Request - Sending busy response (486)",LogLevel.MEDIUM);
+       		 InviteTransactionServer ts=new InviteTransactionServer(this,msg,null);
+           	 ts.respondWith(MessageFactory.createResponse(msg,486,SipResponses.reasonOf(486),null));
+        	 return;
+         }
+
+         if (msg.isRequest() && msg.isNotify())
+         {
+        	 // nobody handled it, just respond 405 (method not allowed) to get it to go away
+       		 printLog("Notify Request - Sending unsupported response (405)",LogLevel.MEDIUM);
+       		 TransactionServer ts=new TransactionServer(this,msg,null);
+           	 ts.respondWith(MessageFactory.createResponse(msg,405,SipResponses.reasonOf(405),null));
+        	 return;
+         }
+
+        // if we are here, no listener_ID matched..
          printLog("No SipListener found matching that message: message DISCARDED",LogLevel.HIGH);
          //printLog("Pending SipProviderListeners= "+getListeners().size(),3);
          printLog("Pending SipProviderListeners= "+listeners.size(),LogLevel.MEDIUM);
@@ -972,7 +1157,10 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
          }
       }
    }
-
+  public void setOPTIONHandler(OptionHandler oh)
+     {
+  	   this.optionHandler=oh;
+   }
 
    /** Adds a new Connection */
    private void addConnection(ConnectedTransport conn)
@@ -1072,7 +1260,7 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
    {  //String str=Long.toString(Math.abs(Random.nextLong()),16);
       //if (str.length()<5) str+="00000";
       //return "z9hG4bK"+str.substring(0,5);
-      return "z9hG4bK"+Random.nextNumString(5);
+      return "z9hG4bK"+Random.nextNumString(5)+((breaker++)%100000);
    }
 
    /** Picks an unique branch value based on a SIP message.
@@ -1212,24 +1400,16 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
 
    /** Adds the SIP message to the messageslog */
    private final void printMessageLog(String proto, String addr, int port, int len, Message msg, String str)
-   {  
-	  if (log_all_packets || len>=MIN_MESSAGE_LENGTH)
-      {  
-		 if (message_log!=null)
-         {  
-			 
-			 message_log.printPacketTimestamp(proto,addr,port,len,str+"\r\n"+msg.toString()+"-----End-of-message-----\r\n",1);
+   {  if (log_all_packets || len>=MIN_MESSAGE_LENGTH)
+      {  if (message_log!=null)
+         {  message_log.printPacketTimestamp(proto,addr,port,len,str+"\r\n"+msg.toString()+"-----End-of-message-----\r\n",1);
          }
          if (event_log!=null)
-         {  
-        	 String first_line=msg.getFirstLine();
-        	 
-        	 if (first_line!=null) first_line=first_line.trim(); 
-        	 else first_line="NOT a SIP message";
-        	 
-        	 event_log.print("\r\n");
-        	 event_log.printPacketTimestamp(proto,addr,port,len,first_line+", "+str,1);
-        	 event_log.print("\r\n");
+         {  String first_line=msg.getFirstLine();
+            if (first_line!=null) first_line=first_line.trim(); else first_line="NOT a SIP message";
+            event_log.print("\r\n");
+            event_log.printPacketTimestamp(proto,addr,port,len,first_line+", "+str,1);
+            event_log.print("\r\n");
          }
       }
    }

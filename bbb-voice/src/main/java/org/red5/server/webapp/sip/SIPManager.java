@@ -1,6 +1,5 @@
 package org.red5.server.webapp.sip;
 
-
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 

@@ -126,6 +126,13 @@ public class InviteDialog extends Dialog implements TransactionClientListener, I
    {  return (status==D_CALL);
    }
 
+    /** Whether the dialog is waiting. */
+      public boolean isWaiting()
+      {
+   	   printLog("isWaiting - callState="+status,LogLevel.MEDIUM);
+   	   return (status==D_WAITING);
+   }
+
    /** Gets the invite message */
    public Message getInviteMessage()
    {  return invite_req;
@@ -578,6 +585,11 @@ public class InviteDialog extends Dialog implements TransactionClientListener, I
          StatusLine statusline=msg.getStatusLine();
          int code=statusline.getCode();
          verifyThat(code>=300 && code <700,"error code was expected");
+         // new code to fix not sending ack
+		 Message ack=MessageFactory.createRequest(this,SipMethods.ACK,null);
+		 AckTransactionClient ack_tc=new AckTransactionClient(sip_provider,ack,null);
+		 ack_tc.request();
+
          if (statusIs(D_ReINVITING))
          {  changeStatus(D_CALL);
             listener.onDlgReInviteFailureResponse(this,code,statusline.getReason(),msg);
@@ -595,6 +607,15 @@ public class InviteDialog extends Dialog implements TransactionClientListener, I
          StatusLine statusline=msg.getStatusLine();
          int code=statusline.getCode();
          verifyThat(code>=300 && code <700,"error code was expected");
+         // new code to fix not sending ack
+
+		 Message ack=MessageFactory.createRequest(this,SipMethods.ACK,null);
+
+		 AckTransactionClient ack_tc=new AckTransactionClient(sip_provider,ack,null);
+
+		 ack_tc.request();
+
+
          changeStatus(this.D_CALL);
          listener.onDlgByeFailureResponse(this,code,statusline.getReason(),msg);
       }
