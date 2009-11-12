@@ -2,6 +2,7 @@ package org.red5.server.webapp.sip;
 
 
 import java.io.IOException;
+import java.io.PipedOutputStream;
 
 import org.red5.server.api.service.IServiceCapableConnection;
 import org.red5.server.api.IConnection;
@@ -77,7 +78,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
         this.username = username;
         this.password = password;
         this.proxy = proxy;
-		this.opt_outbound_proxy = obproxy;
+		this.optOutboundProxy = obproxy;
 		this.realm = realm;
 
         String fromURL = "\"" + phone + "\" <sip:" + phone + "@" + proxy + ">";
@@ -194,7 +195,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
 	   public void transfer( String transferTo ) {
 
-	           p( "Transfer To: " + transferTo );
+	           log.debug( "Transfer To: " + transferTo );
 
 	           try {
 	               if (transferTo.indexOf("@") == -1) {
@@ -205,7 +206,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
 	           }
 	           catch ( Exception e ) {
-	               p( "call: Exception:>\n" + e );
+	               log.debug( "call: Exception:>\n" + e );
 	           }
 	       }
 
@@ -354,7 +355,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
         String destination = callee.getAddress().toString();
         String destinationName = callee.hasDisplayName() ? callee.getDisplayName() : "";
 
-        p( "onUaCallIncoming " + source + " " + destination);
+        log.debug( "onUaCallIncoming " + source + " " + destination);
 
         if ( service != null ) {
             ( (IServiceCapableConnection) service ).invoke( "incoming", new Object[] { source, sourceName, destination,
@@ -364,7 +365,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
 
     public void onUaCallRinging( SIPUserAgent ua ) {
-        p( "onUaCallRinging" );
+        log.debug( "onUaCallRinging" );
 
         if ( service != null ) {
             ( (IServiceCapableConnection) service ).invoke( "callState", new Object[] { "onUaCallRinging" } );
@@ -373,7 +374,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
 
     public void onUaCallAccepted( SIPUserAgent ua ) {
-        p( "onUaCallAccepted" );
+        log.debug( "onUaCallAccepted" );
 
         if ( service != null ) {
             ( (IServiceCapableConnection) service ).invoke( "callState", new Object[] { "onUaCallAccepted" } );
@@ -395,7 +396,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
 
     public void onUaCallTrasferred( SIPUserAgent ua ) {
-        p( "onUaCallTrasferred");
+        log.debug( "onUaCallTrasferred");
 
 		 if (service != null) {
 		 	((IServiceCapableConnection) service).invoke("callState", new Object[] {"onUaCallTrasferred"});
@@ -405,7 +406,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
 
     public void onUaCallCancelled( SIPUserAgent ua ) {
-        p( "onUaCallCancelled");
+        log.debug( "onUaCallCancelled");
 
         sipReady = false;
         closeStreams();
@@ -419,7 +420,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
 
     public void onUaCallFailed( SIPUserAgent ua ) {
-        p( "onUaCallFailed");
+        log.debug( "onUaCallFailed");
 
         sipReady = false;
         closeStreams();
@@ -433,7 +434,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
 
     public void onUaCallClosed( SIPUserAgent ua ) {
-        p( "onUaCallClosed");
+    	log.debug( "onUaCallClosed");
 
         sipReady = false;
         closeStreams();
@@ -470,8 +471,4 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 		// TODO Auto-generated method stub
 		
 	}
-
-        log.debug( s );
-		System.out.println("[SIPUser] " + s);
-    }
 }

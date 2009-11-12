@@ -68,7 +68,7 @@ public class VoiceService {
 			}
 		}
 
-		sipUser.login(phone,username, password, realm, proxy);
+		sipUser.login(proxy, phone,username, password, realm, proxy);
 		userNames.put(conn.getClient().getId(), uid);
 
 		sipPort++;
@@ -115,7 +115,7 @@ public class VoiceService {
 		String password = "secret";
 		String realm = asteriskHost;
 		String proxy = realm;
-		sipUser.login(new Integer(rtpPort).toString(),username, password, realm, proxy);
+		sipUser.login(proxy, new Integer(rtpPort).toString(),username, password, realm, proxy);
 		
 		userNames.put(conn.getClient().getId(), uid);
 

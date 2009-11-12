@@ -1,25 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry including="**/*.java" kind="src" output="target/test-classes" path="src/test/java"/>
-	<classpathentry including="**/*.java" kind="src" path="src/main/java"/>
-	<classpathentry kind="var" path="M2_REPO/junit/junit/3.8.1/junit-3.8.1.jar"/>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" output="build/classes/test" path="src/test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/commons-lang-2.4.jar"/>
-	<classpathentry kind="lib" path="lib/jcip-annotations-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/jcl-over-slf4j-1.5.6.jar"/>
 	<classpathentry kind="lib" path="lib/jmf-2.1.1e.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-over-slf4j-1.5.6.jar"/>
 	<classpathentry kind="lib" path="lib/logback-classic-0.9.14.jar"/>
 	<classpathentry kind="lib" path="lib/logback-core-0.9.14.jar"/>
-	<classpathentry kind="lib" path="lib/mina-core-2.0.0-M5.jar"/>
-	<classpathentry kind="lib" path="lib/mina-integration-jmx-2.0.0-M5.jar"/>
-	<classpathentry kind="lib" path="lib/red5-0.8rc3.jar"/>
+	<classpathentry kind="lib" path="lib/mina-core-2.0.0-M6.jar"/>
+	<classpathentry kind="lib" path="lib/mina-integration-spring-1.1.7.jar"/>
+	<classpathentry kind="lib" path="lib/red5-0.8.jar"/>
+	<classpathentry kind="lib" path="lib/servlet-api-2.5.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.5.6.jar"/>
 	<classpathentry kind="lib" path="lib/spring-aop-2.5.6.jar"/>
 	<classpathentry kind="lib" path="lib/spring-beans-2.5.6.jar"/>
 	<classpathentry kind="lib" path="lib/spring-context-2.5.6.jar"/>
 	<classpathentry kind="lib" path="lib/spring-core-2.5.6.jar"/>
 	<classpathentry kind="lib" path="lib/spring-web-2.5.6.jar"/>
-	<classpathentry kind="lib" path="lib/testng-5.8.jar"/>
-	<classpathentry kind="output" path="target/classes"/>
+	<classpathentry kind="output" path="build/classes/main"/>
 </classpath>

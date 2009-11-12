@@ -119,7 +119,8 @@ public class VoiceApplication extends MultiThreadedApplicationAdapter {
 		String password = "secret";
 		String realm = asteriskHost;
 		String proxy = realm;
-		sipUser.login(new Integer(rtpPort).toString(),username, password, realm, proxy);
+		//SipUser will connect to "outbound-proxy", just pass-in the proxy for it.
+		sipUser.login(proxy, new Integer(rtpPort).toString(),username, password, realm, proxy);
 		
 		userNames.put(conn.getClient().getId(), uid);
 

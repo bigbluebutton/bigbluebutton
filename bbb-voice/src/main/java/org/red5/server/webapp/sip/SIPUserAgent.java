@@ -244,14 +244,16 @@ public class SIPUserAgent extends CallListenerAdapter {
   /** Call Transfer test by Lior */
 
    public void transfer( String transfer_to ){
-         printLog("REFER/TRANSFER", "Init..." );
+	   log.debug("REFER/TRANSFER", "Init..." );
   	         try
   			      { if (call!=null && call.isOnCall())
   			         {
   			            call.transfer(transfer_to);
   			         }
   			      }
-  			      catch (Exception e) { printLog("transfer: ", e.toString());}
+  			      catch (Exception e) { 
+  			    	  log.debug("transfer: " + e.toString());
+  			    }
   	}
 /** end of transfer test code */
 
