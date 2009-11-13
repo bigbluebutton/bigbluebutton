@@ -1,7 +1,7 @@
 package org.red5.server.webapp.sip;
 
 
-import org.red5.codecs.SIPCodec;
+import org.red5.app.sip.codecs.SIPCodec;
 import org.zoolu.sip.address.*;
 import org.zoolu.sip.provider.SipStack;
 import org.zoolu.sip.provider.SipProvider;

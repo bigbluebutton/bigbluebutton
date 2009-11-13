@@ -5,7 +5,7 @@ import local.ua.MediaLauncher;
 
 import java.net.DatagramSocket;
 
-import org.red5.codecs.SIPCodec;
+import org.red5.app.sip.codecs.SIPCodec;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 

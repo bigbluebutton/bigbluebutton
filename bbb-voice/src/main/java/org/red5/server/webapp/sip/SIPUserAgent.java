@@ -8,8 +8,8 @@ import org.zoolu.sip.header.StatusLine;
 import org.zoolu.sip.message.*;
 import org.zoolu.sdp.*;
 
-import org.red5.codecs.SIPCodec;
-import org.red5.codecs.SIPCodecUtils;
+import org.red5.app.sip.codecs.SIPCodec;
+import org.red5.app.sip.codecs.SIPCodecUtils;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 

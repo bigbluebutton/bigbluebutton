@@ -3,8 +3,8 @@ package org.red5.server.webapp.sip;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import org.red5.codecs.SIPCodec;
-import org.red5.codecs.SIPCodecFactory;
+import org.red5.app.sip.codecs.SIPCodec;
+import org.red5.app.sip.codecs.SIPCodecFactory;
 import org.zoolu.sdp.AttributeField;
 import org.zoolu.sdp.MediaDescriptor;
 import org.zoolu.sdp.MediaField;

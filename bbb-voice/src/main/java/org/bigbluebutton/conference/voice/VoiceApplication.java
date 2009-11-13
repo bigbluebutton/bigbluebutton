@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
+import org.red5.app.sip.SIPManager;
 import org.red5.logging.Red5LoggerFactory;
 
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
@@ -14,7 +15,6 @@ import org.red5.server.api.IConnection;
 import org.red5.server.api.IScope;
 import org.red5.server.api.Red5;
 import org.red5.server.api.service.IServiceCapableConnection;
-import org.red5.server.webapp.sip.SIPManager;
 import org.red5.server.webapp.sip.SIPUser;
 
 

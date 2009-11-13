@@ -8,7 +8,10 @@ import java.net.DatagramSocket;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 
-import org.red5.codecs.SIPCodec;
+import org.red5.app.sip.codecs.SIPCodec;
+import org.red5.app.sip.codecs.asao.ByteStream;
+import org.red5.app.sip.codecs.asao.CodecImpl;
+import org.red5.app.sip.codecs.asao.Encoder;
 import org.red5.codecs.asao.*;
 
 
