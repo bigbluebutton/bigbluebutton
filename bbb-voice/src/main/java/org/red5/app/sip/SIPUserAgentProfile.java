@@ -1,4 +1,4 @@
-package org.red5.server.webapp.sip;
+package org.red5.app.sip;
 
 
 import org.red5.app.sip.codecs.SIPCodec;

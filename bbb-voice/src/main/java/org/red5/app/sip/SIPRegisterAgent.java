@@ -1,4 +1,4 @@
-package org.red5.server.webapp.sip;
+package org.red5.app.sip;
 
 import local.net.KeepAliveSip;
 import org.zoolu.net.SocketAddress;

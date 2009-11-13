@@ -1,6 +1,6 @@
 package org.red5.app.sip.codecs;
 
-import org.red5.server.webapp.sip.SIPUserAgent;
+import org.red5.app.sip.SIPUserAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

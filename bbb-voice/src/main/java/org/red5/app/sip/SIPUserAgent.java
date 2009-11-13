@@ -1,4 +1,4 @@
-package org.red5.server.webapp.sip;
+package org.red5.app.sip;
 
 import local.media.AudioClipPlayer;
 import org.zoolu.sip.call.*;

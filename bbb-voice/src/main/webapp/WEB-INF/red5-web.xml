@@ -28,7 +28,7 @@
 		<property name="virtualHosts" value="${webapp.virtualHosts}" />
 	</bean>
 
-	<bean id="web.handler" class="org.bigbluebutton.conference.voice.VoiceApplication">
+	<bean id="web.handler" class="org.red5.server.webapp.sip.VoiceConferenceApplication">
 		<property name="asteriskHost" value="${sip.server.host}" />
 		<property name="startSIPPort" value="${startSIPPort}" />
 		<property name="stopSIPPort" value="${stopSIPPort}" />

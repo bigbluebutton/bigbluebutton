@@ -1,75 +1,89 @@
-package org.bigbluebutton.conference.voice;
+package org.red5.server.webapp.sip;
 
+import java.text.MessageFormat;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.red5.app.sip.SIPManager;
+import org.red5.app.sip.SIPUser;
 import org.red5.logging.Red5LoggerFactory;
+
+import org.red5.server.adapter.MultiThreadedApplicationAdapter;
+import org.red5.server.api.IClient;
 import org.red5.server.api.IConnection;
+import org.red5.server.api.IScope;
 import org.red5.server.api.Red5;
 import org.red5.server.api.service.IServiceCapableConnection;
-import org.red5.server.webapp.sip.SIPUser;
 
 
-public class VoiceService {
+public class VoiceConferenceApplication extends MultiThreadedApplicationAdapter {
 
-    protected static Logger log = Red5LoggerFactory.getLogger( VoiceService.class, "sip" );
+    protected static Logger log = Red5LoggerFactory.getLogger( VoiceConferenceApplication.class, "sip" );
 
     private SIPManager sipManager;
-    private boolean available = false;
     private String asteriskHost;
     private int startSIPPort = 5070;
     private int stopSIPPort = 5099;
     private int sipPort;
     private int startRTPPort = 3000;
-    private int stopRTPPort = 3029;
+	private int stopRTPPort = 3029;
+	private MessageFormat callExtensionPattern = new MessageFormat("{0}");
     private int rtpPort;
     private Map< String, String > userNames = new HashMap< String, String >();
 
+    @Override
+    public boolean appStart( IScope scope ) {
+    	log.debug( "Red5SIP starting in scope " + scope.getName() + " " + System.getProperty( "user.dir" ) );
+        sipManager = SIPManager.getInstance();
+        sipPort = startSIPPort;
+        rtpPort = startRTPPort;
+        return true;
+    }
 
-/*****************************************************/	
-    
-	public void open(String uid, String phone,String username, String password, String realm, String proxy) {
-		log.debug("Red5SIP open");
+    @Override
+    public void appStop( IScope scope ) {
+        log.debug( "Red5SIP stopping in scope " + scope.getName() );
+        sipManager.destroyAllSessions();
+    }
 
-		login(uid, phone, username, password, realm, proxy);
-		register(uid);
-	}
+    @Override
+    public boolean appConnect( IConnection conn, Object[] params ) {
+        IServiceCapableConnection service = (IServiceCapableConnection) conn;
+        log.debug( "Red5SIP Client connected " + conn.getClient().getId() + " service " + service );
+        return true;
+    }
 
+    @Override
+    public boolean appJoin( IClient client, IScope scope ) {
+        log.debug( "Red5SIP Client joined app " + client.getId() );
+        IConnection conn = Red5.getConnectionLocal();
+        IServiceCapableConnection service = (IServiceCapableConnection) conn;
 
-	public void login(String uid, String phone, String username, String password, String realm, String proxy) {
-		log.debug("Red5SIP login " + uid);
+        return true;
+    }
 
-		IConnection conn = Red5.getConnectionLocal();
-		IServiceCapableConnection service = (IServiceCapableConnection) conn;
+    @Override
+    public void appLeave( IClient client, IScope scope ) {
+        IConnection conn = Red5.getConnectionLocal();
+        log.debug( "Red5SIP Client leaving app " + client.getId() );
 
-		SIPUser sipUser = sipManager.getSIPUser(uid);
+        if ( userNames.containsKey( client.getId() ) ) {
+        	log.debug( "Red5SIP Client closing client " + userNames.get( client.getId() ) );
+            sipManager.closeSIPUser( userNames.get( client.getId() ) );
+            userNames.remove( client.getId() );
+        }
+    }
 
-		if(sipUser == null) {
-			log.debug("Red5SIP open creating sipUser for " + username + " on sip port " + sipPort + " audio port " + rtpPort + " uid " + uid );
+    public List< String > getStreams() {
+        IConnection conn = Red5.getConnectionLocal();
+        return getBroadcastStreamNames( conn.getScope() );
+    }
 
-			try {
-				sipUser = new SIPUser(conn.getClient().getId(), service, sipPort, rtpPort);
-				sipManager.addSIPUser(uid, sipUser);
-
-			} catch (Exception e) {
-				log.error("open error " + e);
-			}
-		}
-
-		sipUser.login(proxy, phone,username, password, realm, proxy);
-		userNames.put(conn.getClient().getId(), uid);
-
-		sipPort++;
-		if (sipPort > stopSIPPort) sipPort = startSIPPort;
-
-		rtpPort++;
-		if (rtpPort > stopRTPPort) rtpPort = startRTPPort;
-
-	}
-
-/*****************************************************/	
+    public void onPing() {
+    	log.debug( "Red5SIP Ping" );
+    }
 	
 	public void open(String uid, String username) {
 		log.debug("Red5SIP open");
@@ -94,7 +108,7 @@ public class VoiceService {
 				sipManager.addSIPUser(uid, sipUser);
 
 			} catch (Exception e) {
-				log.error("open error " + e);
+				log.debug("open error " + e);
 			}
 		}
 
@@ -105,6 +119,7 @@ public class VoiceService {
 		String password = "secret";
 		String realm = asteriskHost;
 		String proxy = realm;
+		//SipUser will connect to "outbound-proxy", just pass-in the proxy for it.
 		sipUser.login(proxy, new Integer(rtpPort).toString(),username, password, realm, proxy);
 		
 		userNames.put(conn.getClient().getId(), uid);
@@ -114,10 +129,7 @@ public class VoiceService {
 
 		rtpPort++;
 		if (rtpPort > stopRTPPort) rtpPort = startRTPPort;
-
 	}
-
-
 
 	public void register(String uid) {
 		log.debug("Red5SIP register");
@@ -136,8 +148,9 @@ public class VoiceService {
 		SIPUser sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser != null) {
-			log.debug("Red5SIP Call found user " + uid + " making call to " + destination);
-			sipUser.call(destination);
+			String extension = callExtensionPattern.format(new String[] { destination });
+			log.debug("Red5SIP Call found user " + uid + " making call to " + extension + " (dest was: " + destination + ")");
+			sipUser.call(extension);
 		}
 
 	}
@@ -195,7 +208,6 @@ public class VoiceService {
 		}
 	}
 
-
 	public void close(String uid) {
 		log.debug("Red5SIP endRegister");
 
@@ -203,5 +215,28 @@ public class VoiceService {
 		sipManager.closeSIPUser(uid);
 		userNames.remove(conn.getClient().getId());
 	}
+    
+    public void setAsteriskHost(String h) {
+    	asteriskHost = h;
+    }
+    
+    public void setStartSIPPort(int startSIPPort) {
+		this.startSIPPort = startSIPPort;
+	}
 
+	public void setStopSIPPort(int stopSIPPort) {
+		this.stopSIPPort = stopSIPPort;
+	}
+
+	public void setStartRTPPort(int startRTPPort) {
+		this.startRTPPort = startRTPPort;
+	}
+
+	public void setStopRTPPort(int stopRTPPort) {
+		this.stopRTPPort = stopRTPPort;
+	}
+	
+	public void setCallExtensionPattern(String callExtensionPattern) {
+		this.callExtensionPattern = new MessageFormat(callExtensionPattern);
+	}
 }

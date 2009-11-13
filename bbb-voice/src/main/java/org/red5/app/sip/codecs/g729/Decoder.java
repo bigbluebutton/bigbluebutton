@@ -1,7 +1,7 @@
 package org.red5.app.sip.codecs.g729;
 
 
-import org.red5.server.webapp.sip.BufferUtils;
+import org.red5.app.sip.BufferUtils;
 
 
 public class Decoder {

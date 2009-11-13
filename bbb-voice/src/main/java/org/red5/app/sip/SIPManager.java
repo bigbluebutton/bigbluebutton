@@ -2,7 +2,6 @@ package org.red5.app.sip;
 
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.webapp.sip.SIPUser;
 
 import java.util.*;
 
