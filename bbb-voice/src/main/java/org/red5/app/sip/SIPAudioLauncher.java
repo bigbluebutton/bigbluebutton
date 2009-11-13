@@ -5,7 +5,7 @@ import local.ua.MediaLauncher;
 
 import java.net.DatagramSocket;
 
-import org.red5.app.sip.codecs.SIPCodec;
+import org.red5.app.sip.codecs.Codec;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 
@@ -19,7 +19,7 @@ public class SIPAudioLauncher implements MediaLauncher {
     public RTPStreamReceiver receiver = null;
 
 
-    public SIPAudioLauncher( SIPCodec sipCodec, int localPort,
+    public SIPAudioLauncher( Codec sipCodec, int localPort,
             String remoteAddr, int remotePort, RTMPUser rtmpUser ) {
         
         try {

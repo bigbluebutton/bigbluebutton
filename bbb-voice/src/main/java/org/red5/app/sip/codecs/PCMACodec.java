@@ -5,7 +5,7 @@ import java.util.Arrays;
 import local.media.G711;
 
 
-public class SIPCodecPCMA implements SIPCodec {
+public class PCMACodec implements Codec {
 
     // Codec information
     private static final String codecName = "PCMA";
@@ -23,7 +23,7 @@ public class SIPCodecPCMA implements SIPCodec {
     private int incomingPacketization = 0;
 
 
-    public SIPCodecPCMA() {
+    public PCMACodec() {
 
     }
 
@@ -89,25 +89,25 @@ public class SIPCodecPCMA implements SIPCodec {
 
     public int getIncomingEncodedFrameSize() {
 
-        return ( defaultEncodedFrameSize / SIPCodec.DEFAULT_PACKETIZATION ) * incomingPacketization;
+        return ( defaultEncodedFrameSize / Codec.DEFAULT_PACKETIZATION ) * incomingPacketization;
     }
 
 
     public int getIncomingDecodedFrameSize() {
 
-        return ( defaultDecodedFrameSize / SIPCodec.DEFAULT_PACKETIZATION ) * incomingPacketization;
+        return ( defaultDecodedFrameSize / Codec.DEFAULT_PACKETIZATION ) * incomingPacketization;
     }
 
 
     public int getOutgoingEncodedFrameSize() {
 
-        return ( defaultEncodedFrameSize / SIPCodec.DEFAULT_PACKETIZATION ) * outgoingPacketization;
+        return ( defaultEncodedFrameSize / Codec.DEFAULT_PACKETIZATION ) * outgoingPacketization;
     }
 
 
     public int getOutgoingDecodedFrameSize() {
 
-        return ( defaultDecodedFrameSize / SIPCodec.DEFAULT_PACKETIZATION ) * outgoingPacketization;
+        return ( defaultDecodedFrameSize / Codec.DEFAULT_PACKETIZATION ) * outgoingPacketization;
     }
 
 

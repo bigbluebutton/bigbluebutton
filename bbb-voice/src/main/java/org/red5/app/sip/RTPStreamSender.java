@@ -10,7 +10,7 @@ import java.net.DatagramSocket;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 
-import org.red5.app.sip.codecs.SIPCodec;
+import org.red5.app.sip.codecs.Codec;
 import org.red5.app.sip.codecs.asao.ByteStream;
 import org.red5.app.sip.codecs.asao.Decoder;
 import org.red5.app.sip.codecs.asao.DecoderMap;
@@ -27,7 +27,7 @@ public class RTPStreamSender {
     RtpSocket rtpSocket = null;
 
     /** Sip codec to be used on audio session */
-    private SIPCodec sipCodec = null;
+    private Codec sipCodec = null;
     boolean socketIsLocal = false;
     boolean doSync = true;
     private int syncAdj = 0;
@@ -77,7 +77,7 @@ public class RTPStreamSender {
      *            the destination port
      */
 
-    public RTPStreamSender(RTMPUser rtmpUser, boolean do_sync, SIPCodec sipCodec,
+    public RTPStreamSender(RTMPUser rtmpUser, boolean do_sync, Codec sipCodec,
     			String dest_addr, int dest_port ) {
         init( rtmpUser, do_sync, sipCodec, null, dest_addr, dest_port );
     }
@@ -125,14 +125,14 @@ public class RTPStreamSender {
      * @param dest_port
      *            the thestination port
      */
-    public RTPStreamSender( RTMPUser rtmpUser, boolean do_sync, SIPCodec sipCodec,
+    public RTPStreamSender( RTMPUser rtmpUser, boolean do_sync, Codec sipCodec,
         DatagramSocket src_socket, String dest_addr, int dest_port ) {
         init( rtmpUser, do_sync, sipCodec, src_socket, dest_addr, dest_port );
     }
 
 
     /** Inits the RtpStreamSender */
-    private void init(RTMPUser rtmpUser, boolean do_sync, SIPCodec sipCodec,
+    private void init(RTMPUser rtmpUser, boolean do_sync, Codec sipCodec,
     					DatagramSocket src_socket, String dest_addr, int dest_port ) {
         rtmpUser.rtpStreamSender = this;
         this.sipCodec = sipCodec;

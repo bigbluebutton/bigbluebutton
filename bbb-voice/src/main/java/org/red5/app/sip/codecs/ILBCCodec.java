@@ -9,9 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class SIPCodeciLBC implements SIPCodec {
+public class ILBCCodec implements Codec {
 
-    protected static Logger log = LoggerFactory.getLogger( SIPCodeciLBC.class );
+    protected static Logger log = LoggerFactory.getLogger( ILBCCodec.class );
     
     
     // Codec information
@@ -46,7 +46,7 @@ public class SIPCodeciLBC implements SIPCodec {
     private ilbc_decoder ilbcDecoder;
 
 
-    public SIPCodeciLBC() {
+    public ILBCCodec() {
 
     }
 
@@ -65,7 +65,7 @@ public class SIPCodeciLBC implements SIPCodec {
 
     public String codecNegotiateAttribute( String attributeName, String localAttributeValue, String remoteAttributeValue ) {
 
-        Integer localMode = SIPCodec.DEFAULT_PACKETIZATION;
+        Integer localMode = Codec.DEFAULT_PACKETIZATION;
         Integer remoteMode = 0;
         String finalAttributeValue = "";
 
@@ -74,7 +74,7 @@ public class SIPCodeciLBC implements SIPCodec {
                 "localAttributeValue = [" + localAttributeValue + 
                 "] remoteAttributeValue = [" + remoteAttributeValue + "]." );
         
-        if ( 0 == attributeName.compareTo( SIPCodec.ATTRIBUTE_FMTP ) ) {
+        if ( 0 == attributeName.compareTo( Codec.ATTRIBUTE_FMTP ) ) {
             
             if ( ( null == remoteAttributeValue ) || ( remoteAttributeValue.isEmpty() ) ) {
                 
@@ -127,7 +127,7 @@ public class SIPCodeciLBC implements SIPCodec {
 
     public int codecToPcm( byte[] bufferIn, float[] bufferOut ) {
 
-        short[] encodedData = SIPCodecUtils.byteToShortArray(bufferIn, 0, bufferIn.length, false);
+        short[] encodedData = CodecUtils.byteToShortArray(bufferIn, 0, bufferIn.length, false);
 
         bitstream encodedBitStream = new bitstream( getOutgoingDecodedFrameSize() * 2 );
         
@@ -154,7 +154,7 @@ public class SIPCodeciLBC implements SIPCodec {
             encodedData[ i ] = (short) ( ( ( encodedBitStream.buffer[ 2 * i ] << 8 ) & 0xff00 ) | ( ( (short) encodedBitStream.buffer[ 2 * i + 1 ] ) & 0x00ff ) );
         }
 
-        SIPCodecUtils.shortArrToByteArr( encodedData, bufferOut, false );
+        CodecUtils.shortArrToByteArr( encodedData, bufferOut, false );
 
         return getIncomingEncodedFrameSize();
     }

@@ -8,8 +8,8 @@ import org.zoolu.sip.header.StatusLine;
 import org.zoolu.sip.message.*;
 import org.zoolu.sdp.*;
 
-import org.red5.app.sip.codecs.SIPCodec;
-import org.red5.app.sip.codecs.SIPCodecUtils;
+import org.red5.app.sip.codecs.Codec;
+import org.red5.app.sip.codecs.CodecUtils;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 
@@ -41,7 +41,7 @@ public class SIPUserAgent extends CallListenerAdapter {
     AudioClipPlayer clip_off;
 
     private RTMPUser rtmpUser;
-    private SIPCodec sipCodec = null;    
+    private Codec sipCodec = null;    
 
     // *********************** Startup Configuration ***********************
 
@@ -496,7 +496,7 @@ public class SIPUserAgent extends CallListenerAdapter {
             
             // Finally, we use the "newSdp" and "remoteSdp" to initialize 
             // the lasting codec informations.
-            SIPCodecUtils.initSipAudioCodec( 
+            CodecUtils.initSipAudioCodec( 
                     sipCodec, 
                     userProfile.audioDefaultPacketization, 
                     userProfile.audioDefaultPacketization, newSdp, remoteSdp );
@@ -591,7 +591,7 @@ public class SIPUserAgent extends CallListenerAdapter {
         
         // Finally, we use the "newSdp" and "remoteSdp" to initialize 
         // the lasting codec informations.
-        SIPCodecUtils.initSipAudioCodec( 
+        CodecUtils.initSipAudioCodec( 
                 sipCodec, 
                 userProfile.audioDefaultPacketization, 
                 userProfile.audioDefaultPacketization, newSdp, remoteSdp );

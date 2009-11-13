@@ -6,13 +6,11 @@ import java.util.Hashtable;
 /**
  * A class to store codecs attributes, used to configure them
  */
-public class SIPCodecAttributes {
+public class CodecAttributes {
     private Hashtable< String, String > codecEncodeAttributes;
     private Hashtable< String, String > codecDecodeAttributes;
-    
-    
-    public SIPCodecAttributes( String[] encodeAttributes, String[] decodeAttributes ) {
         
+    public CodecAttributes( String[] encodeAttributes, String[] decodeAttributes ) {        
         codecEncodeAttributes = new Hashtable< String, String >();
         
         for (int i = 0; i < encodeAttributes.length; i++) {
@@ -26,46 +24,37 @@ public class SIPCodecAttributes {
         }
     }
     
-    public void setEncodeAttribute( String attributeName, String attributeValue ) {
-        
+    public void setEncodeAttribute( String attributeName, String attributeValue ) {        
         codecEncodeAttributes.put( attributeName, attributeValue );
     }
     
-    public String getEncodeAttribute( String attributeName ) {
-        
+    public String getEncodeAttribute( String attributeName ) {        
         return codecEncodeAttributes.get( attributeName );
     }
     
-    public void setDecodeAttribute( String attributeName, String attributeValue ) {
-        
+    public void setDecodeAttribute( String attributeName, String attributeValue ) {        
         codecDecodeAttributes.put( attributeName, attributeValue );
     }
     
-    public String getDecodeAttribute( String attributeName ) {
-        
+    public String getDecodeAttribute( String attributeName ) {        
         return codecDecodeAttributes.get( attributeName );
     }
     
-    public boolean hasEncodeAttribute( String attributeName ) {
-        
+    public boolean hasEncodeAttribute( String attributeName ) {        
         return codecEncodeAttributes.containsKey( attributeName );
     }
     
-    public boolean hasDecodeAttribute( String attributeName ) {
-        
+    public boolean hasDecodeAttribute( String attributeName ) {        
         return codecDecodeAttributes.containsKey( attributeName );
     }
     
-    public boolean hasEncodeAttributeValue( String attributeName ) {
-        
+    public boolean hasEncodeAttributeValue( String attributeName ) {        
         boolean hasAttribute = false;
         
-        if ( codecEncodeAttributes.containsKey( attributeName ) ) {
-            
+        if ( codecEncodeAttributes.containsKey( attributeName ) ) {           
             String attributeValue = codecEncodeAttributes.get( attributeName );
             
-            if ( ( attributeValue != null ) && ( !attributeValue.isEmpty() ) ) {
-                
+            if ( ( attributeValue != null ) && ( !attributeValue.isEmpty() ) ) {                
                 hasAttribute = true;
             }
         }
@@ -73,16 +62,13 @@ public class SIPCodecAttributes {
         return hasAttribute;
     }
     
-    public boolean hasDecodeAttributeValue( String attributeName ) {
-        
+    public boolean hasDecodeAttributeValue( String attributeName ) {        
         boolean hasAttribute = false;
         
-        if ( codecDecodeAttributes.containsKey( attributeName ) ) {
-            
+        if ( codecDecodeAttributes.containsKey( attributeName ) ) {            
             String attributeValue = codecEncodeAttributes.get( attributeName );
             
-            if ( ( attributeValue != null ) && ( !attributeValue.isEmpty() ) ) {
-                
+            if ( ( attributeValue != null ) && ( !attributeValue.isEmpty() ) ) {                
                 hasAttribute = true;
             }
         }
@@ -91,33 +77,27 @@ public class SIPCodecAttributes {
     }
     
     @Override
-    public String toString() {
-        
+    public String toString() {        
         String toStringRet = "";
         
-        if ( codecEncodeAttributes.size() > 0 ) {
-            
+        if ( codecEncodeAttributes.size() > 0 ) {           
             toStringRet += "Encode attributes:\n";
         }
         
-        for ( Enumeration keysEnum = codecEncodeAttributes.keys(); keysEnum.hasMoreElements(); ) {
-            
+        for ( Enumeration keysEnum = codecEncodeAttributes.keys(); keysEnum.hasMoreElements(); ) {            
             String attributeName = (String) keysEnum.nextElement();
             toStringRet += "\t" + attributeName + "=" + codecEncodeAttributes.get( attributeName );
         }
         
-        if ( codecDecodeAttributes.size() > 0 ) {
-            
-            if ( codecEncodeAttributes.size() > 0 ) {
-                
+        if ( codecDecodeAttributes.size() > 0 ) {            
+            if ( codecEncodeAttributes.size() > 0 ) {                
                 toStringRet += "\n";
             }
             
             toStringRet += "Decode attributes:\n";
         }
         
-        for ( Enumeration keysEnum = codecDecodeAttributes.keys(); keysEnum.hasMoreElements(); ) {
-            
+        for ( Enumeration keysEnum = codecDecodeAttributes.keys(); keysEnum.hasMoreElements(); ) {            
             String attributeName = (String) keysEnum.nextElement();
             toStringRet += "\t" + attributeName + "=" + codecDecodeAttributes.get( attributeName );
         }

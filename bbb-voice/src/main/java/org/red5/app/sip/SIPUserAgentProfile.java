@@ -1,7 +1,7 @@
 package org.red5.app.sip;
 
 
-import org.red5.app.sip.codecs.SIPCodec;
+import org.red5.app.sip.codecs.Codec;
 import org.zoolu.sip.address.*;
 import org.zoolu.sip.provider.SipStack;
 import org.zoolu.sip.provider.SipProvider;
@@ -149,7 +149,7 @@ public class SIPUserAgentProfile {
     public int audioPort = 21000;
 
     /** Audio packetization */
-    public int audioDefaultPacketization = SIPCodec.DEFAULT_PACKETIZATION;
+    public int audioDefaultPacketization = Codec.DEFAULT_PACKETIZATION;
 
     /** Video port */
     public int videoPort = 21070;

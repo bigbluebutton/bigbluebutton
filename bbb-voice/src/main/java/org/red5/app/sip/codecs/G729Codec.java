@@ -5,7 +5,7 @@ import org.red5.app.sip.codecs.g729.Decoder;
 import org.red5.app.sip.codecs.g729.Encoder;
 
 
-public class SIPCodecG729 implements SIPCodec {
+public class G729Codec implements Codec {
 
     // Codec information
     private static final String codecName = "G729";
@@ -29,7 +29,7 @@ public class SIPCodecG729 implements SIPCodec {
     private Decoder decoder = new Decoder();
 
 
-    public SIPCodecG729() {
+    public G729Codec() {
 
     }
 
@@ -77,22 +77,22 @@ public class SIPCodecG729 implements SIPCodec {
 
     public int getIncomingEncodedFrameSize() {
 
-        return ( defaultEncodedFrameSize / SIPCodec.DEFAULT_PACKETIZATION ) * incomingPacketization;
+        return ( defaultEncodedFrameSize / Codec.DEFAULT_PACKETIZATION ) * incomingPacketization;
     }
 
     public int getIncomingDecodedFrameSize() {
 
-        return ( defaultDecodedFrameSize / SIPCodec.DEFAULT_PACKETIZATION ) * incomingPacketization;
+        return ( defaultDecodedFrameSize / Codec.DEFAULT_PACKETIZATION ) * incomingPacketization;
     }
 
     public int getOutgoingEncodedFrameSize() {
 
-        return ( defaultEncodedFrameSize / SIPCodec.DEFAULT_PACKETIZATION ) * outgoingPacketization;
+        return ( defaultEncodedFrameSize / Codec.DEFAULT_PACKETIZATION ) * outgoingPacketization;
     }
 
     public int getOutgoingDecodedFrameSize() {
 
-        return ( defaultDecodedFrameSize / SIPCodec.DEFAULT_PACKETIZATION ) * outgoingPacketization;
+        return ( defaultDecodedFrameSize / Codec.DEFAULT_PACKETIZATION ) * outgoingPacketization;
     }
 
     public int getIncomingPacketization() {

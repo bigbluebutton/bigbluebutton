@@ -13,17 +13,17 @@ import org.zoolu.sdp.SessionDescriptor;
  * A utility class for determine, instantiate and configure SIP codec,
  * based on payload, local and remote SDP packets
  */
-public class SIPCodecUtils {
+public class CodecUtils {
 
-    protected static Logger log = LoggerFactory.getLogger( SIPCodecUtils.class );
+    protected static Logger log = LoggerFactory.getLogger( CodecUtils.class );
     
     
-    public static SIPCodec initSipAudioCodec( SIPCodec audioCodec, int defaultEncodePacketization, 
+    public static Codec initSipAudioCodec( Codec audioCodec, int defaultEncodePacketization, 
             int defaultDecodePacketization, SessionDescriptor localSDP, SessionDescriptor remoteSDP ) {
         
         AttributeField remotePtimeAttribute = 
-                remoteSDP.getMediaDescriptor( SIPCodec.MEDIA_TYPE_AUDIO ).
-                getAttribute( SIPCodec.ATTRIBUTE_PTIME );
+                remoteSDP.getMediaDescriptor( Codec.MEDIA_TYPE_AUDIO ).
+                getAttribute( Codec.ATTRIBUTE_PTIME );
         
         if ( remotePtimeAttribute != null ) {
             
@@ -32,8 +32,8 @@ public class SIPCodecUtils {
         }
         
         AttributeField localPtimeAttribute = 
-                localSDP.getMediaDescriptor( SIPCodec.MEDIA_TYPE_AUDIO ).
-                getAttribute( SIPCodec.ATTRIBUTE_PTIME );
+                localSDP.getMediaDescriptor( Codec.MEDIA_TYPE_AUDIO ).
+                getAttribute( Codec.ATTRIBUTE_PTIME );
         
         if ( localPtimeAttribute != null ) {
             

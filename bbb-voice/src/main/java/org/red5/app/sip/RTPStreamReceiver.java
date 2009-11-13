@@ -8,7 +8,7 @@ import java.net.DatagramSocket;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 
-import org.red5.app.sip.codecs.SIPCodec;
+import org.red5.app.sip.codecs.Codec;
 import org.red5.app.sip.codecs.asao.ByteStream;
 import org.red5.app.sip.codecs.asao.CodecImpl;
 import org.red5.app.sip.codecs.asao.Encoder;
@@ -35,7 +35,7 @@ public class RTPStreamReceiver extends Thread {
     public static final int SO_TIMEOUT = 200;
 
     /** Sip codec to be used on audio session */
-    private SIPCodec sipCodec = null;
+    private Codec sipCodec = null;
 
     /** The RTMPUser */
     RTMPUser rtmpUser = null;
@@ -70,7 +70,7 @@ public class RTPStreamReceiver extends Thread {
      * @param local_port
      *            the local receiver port
      */
-    public RTPStreamReceiver( SIPCodec sipCodec, RTMPUser rtmpUser, int local_port ) {
+    public RTPStreamReceiver( Codec sipCodec, RTMPUser rtmpUser, int local_port ) {
 
         try {
             DatagramSocket socket = new DatagramSocket( local_port );
@@ -95,14 +95,14 @@ public class RTPStreamReceiver extends Thread {
      * @param socket
      *            the local receiver DatagramSocket
      */
-    public RTPStreamReceiver( SIPCodec sipCodec, RTMPUser rtmpUser, DatagramSocket socket ) {
+    public RTPStreamReceiver( Codec sipCodec, RTMPUser rtmpUser, DatagramSocket socket ) {
 
         init( sipCodec, rtmpUser, socket );
     }
 
 
     /** Inits the RtpStreamReceiver */
-    private void init( SIPCodec sipCodec, RTMPUser rtmpUser, DatagramSocket socket ) {
+    private void init( Codec sipCodec, RTMPUser rtmpUser, DatagramSocket socket ) {
 
         this.sipCodec = sipCodec;
         this.rtmpUser = rtmpUser;
