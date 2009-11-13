@@ -3,8 +3,6 @@ package org.red5.app.sip;
 import java.io.*;
 
 import org.apache.mina.core.buffer.IoBuffer;
-import org.red5.io.ITagWriter;
-import org.red5.io.ITagReader;
 import org.red5.io.utils.ObjectMap;
 import org.red5.server.api.event.IEvent;
 import org.red5.server.api.event.IEventDispatcher;
@@ -42,8 +40,6 @@ public class RTMPUser extends RTMPClient implements INetStreamEventHandler, Clie
     private String publishName;
     private String playName;
     private RTMPConnection conn;
-//    private ITagWriter writer;
-//    private ITagReader reader;
     private int videoTs = 0;
     private int audioTs = 0;
     private int kt = 0;
@@ -68,7 +64,6 @@ public class RTMPUser extends RTMPClient implements INetStreamEventHandler, Clie
 
     @Override
     protected void onInvoke( RTMPConnection conn, Channel channel, Header header, Notify notify, RTMP rtmp ) {
-
         super.onInvoke( conn, channel, header, notify, rtmp );
 
         try {
@@ -94,7 +89,6 @@ public class RTMPUser extends RTMPClient implements INetStreamEventHandler, Clie
     // ------------------------------------------------------------------------
 
     public void startStream( String host, String app, int port, String publishName, String playName ) {
-
     	logger.debug( "RTMPUser startStream" );
 
         this.publishName = publishName;
@@ -119,7 +113,6 @@ public class RTMPUser extends RTMPClient implements INetStreamEventHandler, Clie
 
 
     public void stopStream() {
-
     	logger.debug( "RTMPUser stopStream" );
 
         try {
@@ -131,13 +124,6 @@ public class RTMPUser extends RTMPClient implements INetStreamEventHandler, Clie
         }
 
     }
-
-
-    // ------------------------------------------------------------------------
-    //
-    // Implementations
-    //
-    // ------------------------------------------------------------------------
 
 	public void handleException(Throwable throwable)
 	{

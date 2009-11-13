@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
-import org.red5.app.sip.SIPManager;
-import org.red5.app.sip.SIPUser;
+import org.red5.app.sip.UserManager;
+import org.red5.app.sip.User;
 import org.red5.logging.Red5LoggerFactory;
 
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
@@ -22,21 +22,23 @@ public class VoiceConferenceApplication extends MultiThreadedApplicationAdapter 
 
     protected static Logger log = Red5LoggerFactory.getLogger( VoiceConferenceApplication.class, "sip" );
 
-    private SIPManager sipManager;
+    private UserManager sipManager;
     private String asteriskHost;
     private int startSIPPort = 5070;
     private int stopSIPPort = 5099;
     private int sipPort;
     private int startRTPPort = 3000;
 	private int stopRTPPort = 3029;
+	private int rtpPort;
+	
 	private MessageFormat callExtensionPattern = new MessageFormat("{0}");
-    private int rtpPort;
+    
     private Map< String, String > userNames = new HashMap< String, String >();
 
     @Override
     public boolean appStart( IScope scope ) {
-    	log.debug( "Red5SIP starting in scope " + scope.getName() + " " + System.getProperty( "user.dir" ) );
-        sipManager = SIPManager.getInstance();
+    	log.debug( "VoiceConferenceApplication appStart[" + scope.getName() + "]");
+        sipManager = UserManager.getInstance();
         sipPort = startSIPPort;
         rtpPort = startRTPPort;
         return true;
@@ -44,23 +46,22 @@ public class VoiceConferenceApplication extends MultiThreadedApplicationAdapter 
 
     @Override
     public void appStop( IScope scope ) {
-        log.debug( "Red5SIP stopping in scope " + scope.getName() );
+        log.debug( "VoiceConferenceApplication appStop[" + scope.getName() + "]");
         sipManager.destroyAllSessions();
     }
 
     @Override
     public boolean appConnect( IConnection conn, Object[] params ) {
         IServiceCapableConnection service = (IServiceCapableConnection) conn;
-        log.debug( "Red5SIP Client connected " + conn.getClient().getId() + " service " + service );
+        log.debug( "VoiceConferenceApplication appConnect[" + conn.getClient().getId() + "," + service + "]");
         return true;
     }
 
     @Override
     public boolean appJoin( IClient client, IScope scope ) {
-        log.debug( "Red5SIP Client joined app " + client.getId() );
+        log.debug( "VoiceConferenceApplication appJoin[" + client.getId() + "]");
         IConnection conn = Red5.getConnectionLocal();
         IServiceCapableConnection service = (IServiceCapableConnection) conn;
-
         return true;
     }
 
@@ -98,13 +99,13 @@ public class VoiceConferenceApplication extends MultiThreadedApplicationAdapter 
 		IConnection conn = Red5.getConnectionLocal();
 		IServiceCapableConnection service = (IServiceCapableConnection) conn;
 
-		SIPUser sipUser = sipManager.getSIPUser(uid);
+		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser == null) {
 			log.debug("Red5SIP open creating sipUser for " + username + " on sip port " + sipPort + " audio port " + rtpPort + " uid " + uid );
 
 			try {
-				sipUser = new SIPUser(conn.getClient().getId(), service, sipPort, rtpPort);
+				sipUser = new User(conn.getClient().getId(), service, sipPort, rtpPort);
 				sipManager.addSIPUser(uid, sipUser);
 
 			} catch (Exception e) {
@@ -134,7 +135,7 @@ public class VoiceConferenceApplication extends MultiThreadedApplicationAdapter 
 	public void register(String uid) {
 		log.debug("Red5SIP register");
 
-		SIPUser sipUser = sipManager.getSIPUser(uid);
+		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser != null) {
 			sipUser.register();
@@ -145,7 +146,7 @@ public class VoiceConferenceApplication extends MultiThreadedApplicationAdapter 
 	public void call(String uid, String destination) {
 		log.debug("Red5SIP Call " + destination);
 
-		SIPUser sipUser = sipManager.getSIPUser(uid);
+		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser != null) {
 			String extension = callExtensionPattern.format(new String[] { destination });
@@ -158,7 +159,7 @@ public class VoiceConferenceApplication extends MultiThreadedApplicationAdapter 
 	public void dtmf(String uid, String digits) {
 		log.debug("Red5SIP DTMF " + digits);
 
-		SIPUser sipUser = sipManager.getSIPUser(uid);
+		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser != null) {
 			log.debug("Red5SIP DTMF found user " + uid + " sending dtmf digits " + digits);
@@ -170,7 +171,7 @@ public class VoiceConferenceApplication extends MultiThreadedApplicationAdapter 
 	public void accept(String uid) {
 		log.debug("Red5SIP Accept");
 
-		SIPUser sipUser = sipManager.getSIPUser(uid);
+		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser != null) {
 			sipUser.accept();
@@ -181,7 +182,7 @@ public class VoiceConferenceApplication extends MultiThreadedApplicationAdapter 
 	public void unregister(String uid) {
 		log.debug("Red5SIP unregister");
 
-			SIPUser sipUser = sipManager.getSIPUser(uid);
+			User sipUser = sipManager.getSIPUser(uid);
 
 			if(sipUser != null) {
 				sipUser.unregister();
@@ -191,7 +192,7 @@ public class VoiceConferenceApplication extends MultiThreadedApplicationAdapter 
 	public void hangup(String uid) {
 		log.debug("Red5SIP Hangup");
 
-		SIPUser sipUser = sipManager.getSIPUser(uid);
+		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser != null) {
 			sipUser.hangup();
@@ -201,7 +202,7 @@ public class VoiceConferenceApplication extends MultiThreadedApplicationAdapter 
 	public void streamStatus(String uid, String status) {
 		log.debug("Red5SIP streamStatus");
 
-		SIPUser sipUser = sipManager.getSIPUser(uid);
+		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser != null) {
 			sipUser.streamStatus(status);

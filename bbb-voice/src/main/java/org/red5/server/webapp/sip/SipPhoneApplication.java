@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
-import org.red5.app.sip.SIPManager;
-import org.red5.app.sip.SIPUser;
+import org.red5.app.sip.UserManager;
+import org.red5.app.sip.User;
 import org.red5.logging.Red5LoggerFactory;
 
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
@@ -21,11 +21,10 @@ import org.red5.server.api.stream.IPlaylistSubscriberStream;
 import org.red5.server.api.stream.IStreamAwareScopeHandler;
 import org.red5.server.api.stream.ISubscriberStream;
 
-
 public class SipPhoneApplication extends MultiThreadedApplicationAdapter implements IStreamAwareScopeHandler {
     protected static Logger log = Red5LoggerFactory.getLogger( SipPhoneApplication.class, "sip" );
 
-    private SIPManager sipManager;
+    private UserManager sipManager;
     private boolean available = false;
     private int startSIPPort = 5070;
     private int stopSIPPort = 5099;
@@ -38,9 +37,8 @@ public class SipPhoneApplication extends MultiThreadedApplicationAdapter impleme
 
     @Override
     public boolean appStart( IScope scope ) {
-
         loginfo( "Red5SIP starting in scope " + scope.getName() + " " + System.getProperty( "user.dir" ) );
-        sipManager = SIPManager.getInstance();
+        sipManager = UserManager.getInstance();
 		loginfo("Red5SIP using RTP port range " + startRTPPort + "-" + stopRTPPort + ", using SIP port range " + startSIPPort + "-" + stopSIPPort);
 
         sipPort = startSIPPort;
@@ -139,13 +137,13 @@ public class SipPhoneApplication extends MultiThreadedApplicationAdapter impleme
 		IConnection conn = Red5.getConnectionLocal();
 		IServiceCapableConnection service = (IServiceCapableConnection) conn;
 
-		SIPUser sipUser = sipManager.getSIPUser(uid);
+		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser == null) {
 			loginfo("Red5SIP open creating sipUser for " + username + " on sip port " + sipPort + " audio port " + rtpPort + " uid " + uid );
 
 			try {
-				sipUser = new SIPUser(conn.getClient().getId(), service, sipPort, rtpPort);
+				sipUser = new User(conn.getClient().getId(), service, sipPort, rtpPort);
 				sipManager.addSIPUser(uid, sipUser);
 
 			} catch (Exception e) {
@@ -165,7 +163,7 @@ public class SipPhoneApplication extends MultiThreadedApplicationAdapter impleme
 
 	public void register(String uid) {
 		loginfo("Red5SIP register");
-		SIPUser sipUser = sipManager.getSIPUser(uid);
+		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser != null) {
 			sipUser.register();
@@ -175,7 +173,7 @@ public class SipPhoneApplication extends MultiThreadedApplicationAdapter impleme
 	public void call(String uid, String destination) {
 		loginfo("Red5SIP Call " + destination);
 
-		SIPUser sipUser = sipManager.getSIPUser(uid);
+		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser != null) {
 			loginfo("Red5SIP Call found user " + uid + " making call to " + destination);
@@ -187,7 +185,7 @@ public class SipPhoneApplication extends MultiThreadedApplicationAdapter impleme
 	 public void transfer(String uid, String transferTo) {
 			loginfo("Red5SIP transfer " + transferTo);
 
-			SIPUser sipUser = sipManager.getSIPUser(uid);
+			User sipUser = sipManager.getSIPUser(uid);
 
 			if(sipUser != null) {
 				loginfo("Red5SIP Call found user " + uid + " transfering call to " + transferTo);
@@ -199,7 +197,7 @@ public class SipPhoneApplication extends MultiThreadedApplicationAdapter impleme
 
 	public void addToConf(String uid, String conf) {
 		loginfo("Red5SIP addToConf " + conf);
-		SIPUser sipUser = sipManager.getSIPUser(uid);
+		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser != null) {
 			loginfo("Red5SIP addToConf found user " + uid + " adding to conf " + conf);
@@ -210,7 +208,7 @@ public class SipPhoneApplication extends MultiThreadedApplicationAdapter impleme
 	public void joinConf(String uid, String conf) {
 		loginfo("Red5SIP joinConf " + conf);
 
-		SIPUser sipUser = sipManager.getSIPUser(uid);
+		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser != null) {
 			loginfo("Red5SIP joinConf found user " + uid + " joining conf " + conf);
@@ -221,7 +219,7 @@ public class SipPhoneApplication extends MultiThreadedApplicationAdapter impleme
 	public void dtmf(String uid, String digits) {
 		loginfo("Red5SIP DTMF " + digits);
 
-		SIPUser sipUser = sipManager.getSIPUser(uid);
+		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser != null) {
 			loginfo("Red5SIP DTMF found user " + uid + " sending dtmf digits " + digits);
@@ -233,7 +231,7 @@ public class SipPhoneApplication extends MultiThreadedApplicationAdapter impleme
 	public void accept(String uid) {
 		loginfo("Red5SIP Accept");
 
-		SIPUser sipUser = sipManager.getSIPUser(uid);
+		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser != null) {
 			sipUser.accept();
@@ -244,7 +242,7 @@ public class SipPhoneApplication extends MultiThreadedApplicationAdapter impleme
 	public void unregister(String uid) {
 			loginfo("Red5SIP unregister");
 
-			SIPUser sipUser = sipManager.getSIPUser(uid);
+			User sipUser = sipManager.getSIPUser(uid);
 
 			if(sipUser != null) {
 				sipUser.unregister();
@@ -254,7 +252,7 @@ public class SipPhoneApplication extends MultiThreadedApplicationAdapter impleme
 	public void hangup(String uid) {
 		loginfo("Red5SIP Hangup");
 
-		SIPUser sipUser = sipManager.getSIPUser(uid);
+		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser != null) {
 			sipUser.hangup();
@@ -264,7 +262,7 @@ public class SipPhoneApplication extends MultiThreadedApplicationAdapter impleme
 	public void streamStatus(String uid, String status) {
 		loginfo("Red5SIP streamStatus");
 
-		SIPUser sipUser = sipManager.getSIPUser(uid);
+		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser != null) {
 			sipUser.streamStatus(status);

@@ -20,7 +20,7 @@ import java.util.Vector;
  * Register User Agent. It registers (one time or periodically) a contact
  * address with a registrar server.
  */
-public class SIPRegisterAgent implements Runnable, TransactionClientListener {
+public class RegisterAgent implements Runnable, TransactionClientListener {
 
 	/** The CallerID and CSeq that should be used during REGISTER method */
 	private CallIdHeader registerCallID;
@@ -30,7 +30,7 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener {
 	static final int MAX_ATTEMPTS = 3;
 
 	/** RegisterAgent listener */
-	SIPRegisterAgentListener listener;
+	RegisterAgentListener listener;
 
 	/** SipProvider */
 	SipProvider sipProvider;
@@ -77,7 +77,7 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener {
 	boolean isRunning;
 
 	/** Event logger. */
-	private static Logger log = Red5LoggerFactory.getLogger(SIPRegisterAgent.class, "sip");
+	private static Logger log = Red5LoggerFactory.getLogger(RegisterAgent.class, "sip");
 
 	/** Number of registration attempts. */
 	int attempts;
@@ -86,11 +86,11 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener {
 	KeepAliveSip keepAlive;
 
 	/** Creates a new RegisterAgent. */
-	public SIPRegisterAgent(
+	public RegisterAgent(
 			SipProvider sipProvider,
 			String targetUrl,
 			String contactUrl,
-			SIPRegisterAgentListener listener) {
+			RegisterAgentListener listener) {
 
 		init(sipProvider, targetUrl, contactUrl, listener);
 	}
@@ -99,14 +99,14 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener {
 	 * Creates a new RegisterAgent with authentication credentials (i.e.
 	 * username, realm, and passwd).
 	 */
-	public SIPRegisterAgent(
+	public RegisterAgent(
 			SipProvider sipProvider,
 			String targetUrl,
 			String contactUrl,
 			String username,
 			String realm,
 			String passwd,
-			SIPRegisterAgentListener listener) {
+			RegisterAgentListener listener) {
 
 		init(sipProvider, targetUrl, contactUrl, listener);
 
@@ -121,7 +121,7 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener {
 			SipProvider sipProvider, 
 			String targetUrl,
 			String contactUrl, 
-			SIPRegisterAgentListener listener) {
+			RegisterAgentListener listener) {
 
 		this.listener = listener;
 		this.sipProvider = sipProvider;

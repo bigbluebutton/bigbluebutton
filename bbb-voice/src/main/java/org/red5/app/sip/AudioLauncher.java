@@ -10,16 +10,16 @@ import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 
 
-public class SIPAudioLauncher implements MediaLauncher {
+public class AudioLauncher implements MediaLauncher {
 
-    protected static Logger log = Red5LoggerFactory.getLogger( SIPAudioLauncher.class, "sip" );
+    protected static Logger log = Red5LoggerFactory.getLogger( AudioLauncher.class, "sip" );
 
     DatagramSocket socket = null;
     public RTPStreamSender sender = null;
     public RTPStreamReceiver receiver = null;
 
 
-    public SIPAudioLauncher( Codec sipCodec, int localPort,
+    public AudioLauncher( Codec sipCodec, int localPort,
             String remoteAddr, int remotePort, RTMPUser rtmpUser ) {
         
         try {

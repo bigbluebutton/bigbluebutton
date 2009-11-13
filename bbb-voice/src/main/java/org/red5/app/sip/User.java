@@ -1,6 +1,5 @@
 package org.red5.app.sip;
 
-
 import java.io.IOException;
 import java.io.PipedOutputStream;
 
@@ -14,21 +13,19 @@ import org.zoolu.net.SocketAddress;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 
-public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
-
-    protected static Logger log = Red5LoggerFactory.getLogger( SIPUser.class, "sip" );
+public class User implements UserAgentListener, RegisterAgentListener {
+    protected static Logger log = Red5LoggerFactory.getLogger( User.class, "sip" );
 
     public boolean sipReady = false;
-    private IConnection service;
+    private IConnection connectionService;
     private long lastCheck;
     private String sessionID;
-    private SIPUserAgentProfile userProfile;
+    private UserAgentProfile userProfile;
     private SipProvider sipProvider;
     private String optOutboundProxy = null;
-    private SIPUserAgent ua;
-    private SIPRegisterAgent ra;
+    private UserAgent userAgent;
+    private RegisterAgent registerAgent;
     private RTMPUser rtmpUser;
-    private PipedOutputStream publishStream;
     private String username;
     private String password;
     private String publishName;
@@ -38,16 +35,14 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
     private String proxy;
 
     private String realm;
-
     private String obproxy;
 
-    public SIPUser( String sessionID, IConnection service, int sipPort, int rtpPort ) throws IOException {
-
+    public User( String sessionID, IConnection service, int sipPort, int rtpPort ) throws IOException {
         log.debug( "SIPUser Constructor: sip port " + sipPort + " rtp port:" + rtpPort );
 
         try {
             this.sessionID = sessionID;
-            this.service = service;
+            this.connectionService = service;
             this.sipPort = sipPort;
             this.rtpPort = rtpPort;
         }
@@ -56,12 +51,11 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
         }
     }
 
-
     public boolean isRunning() {
         boolean resp = false;
 
         try {
-            resp = ua.audioApp.receiver.isRunning();
+            resp = userAgent.audioApp.receiver.isRunning();
         }
         catch ( Exception e ) {
             resp = false;
@@ -70,9 +64,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
         return resp;
     }
 
-
     public void login( String obproxy, String phone, String username, String password, String realm, String proxy ) {
-
     	log.debug( "SIPUser login" );
 
         this.username = username;
@@ -91,11 +83,9 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
             sipProvider = new SipProvider( null, sipPort );
             sipProvider.setOutboundProxy(new SocketAddress(optOutboundProxy));
-
             sipProvider.addSipProviderListener(new OptionMethodListener());
-            //sipProvider.addSipProviderListener(new Identifier(SipMethods.OPTION), new OptionMethodListener());
-            
-            userProfile = new SIPUserAgentProfile();
+
+            userProfile = new UserAgentProfile();
             userProfile.audioPort = rtpPort;
             userProfile.username = username;
             userProfile.passwd = password;
@@ -111,26 +101,21 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 			userProfile.acceptTime=0;
 			userProfile.hangupTime=20;
 
-            ua = new SIPUserAgent( sipProvider, userProfile, this, rtmpUser );
+            userAgent = new UserAgent( sipProvider, userProfile, this, rtmpUser );
 
             sipReady = false;
-            ua.listen();
-
+            userAgent.listen();
         }
         catch ( Exception e ) {
             log.error( "login: Exception:>\n" + e );
         }
     }
-
-
+    
     public void register() {
-
     	log.debug( "SIPUser register" );
-
         try {
-
             if ( sipProvider != null ) {
-                ra = new SIPRegisterAgent( sipProvider, userProfile.fromUrl, userProfile.contactUrl, username,
+                registerAgent = new RegisterAgent( sipProvider, userProfile.fromUrl, userProfile.contactUrl, username,
                     userProfile.realm, password, this );
                 loopRegister( userProfile.expires, userProfile.expires / 2, userProfile.keepaliveTime );
             }
@@ -141,17 +126,12 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
         }
     }
 
-
     public void dtmf( String digits ) {
-
     	log.debug( "SIPUser dtmf " + digits );
-
         try {
-
-            if ( ua != null && ua.audioApp != null && ua.audioApp.sender != null ) {
-                ua.audioApp.sender.queueSipDtmfDigits( digits );
+            if ( userAgent != null && userAgent.audioApp != null && userAgent.audioApp.sender != null ) {
+                userAgent.audioApp.sender.queueSipDtmfDigits( digits );
             }
-
         }
         catch ( Exception e ) {
         	log.error( "dtmf: Exception:>\n" + e );
@@ -160,19 +140,17 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
 
     public void call( String destination ) {
-
         log.debug( "SIPUser Calling " + destination );
 
         try {
-
             publishName = "microphone_" + System.currentTimeMillis();
             playName = "speaker_" + System.currentTimeMillis();
 
             rtmpUser.startStream( "localhost", "sip", 1935, publishName, playName );
 
             sipReady = false;
-            ua.setMedia( rtmpUser );
-            ua.hangup();
+            userAgent.setMedia( rtmpUser );
+            userAgent.hangup();
 
             if ( destination.indexOf( "@" ) == -1 ) {
                 destination = destination + "@" + proxy;
@@ -182,7 +160,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
                 destination = destination.substring( 4 );
             }
 
-            ua.call( destination );
+            userAgent.call( destination );
 
         }
         catch ( Exception e ) {
@@ -191,10 +169,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
     }
 
 	/** Add by Lior call transfer test */
-
-
 	   public void transfer( String transferTo ) {
-
 	           log.debug( "Transfer To: " + transferTo );
 
 	           try {
@@ -202,7 +177,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 					transferTo = transferTo + "@" + proxy ;
 			   }
 
-	               ua.transfer( transferTo );
+	               userAgent.transfer( transferTo );
 
 	           }
 	           catch ( Exception e ) {
@@ -211,9 +186,6 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 	       }
 
 	/** end of transfer code */
-
-
-
 
 	public void close() {
 		log.debug("SIPUser close1");
@@ -234,16 +206,13 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 	    } catch(Exception e) {
 	    	log.error("close: Exception:>\n" + e);
 	    }
-	    service = null;
+	    connectionService = null;
 	}
 
-
     public void accept() {
-
     	log.debug( "SIPUser accept" );
 
-        if ( ua != null ) {
-
+        if ( userAgent != null ) {
             try {
                 publishName = "microphone_" + System.currentTimeMillis();
                 playName = "speaker_" + System.currentTimeMillis();
@@ -251,8 +220,8 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
                 rtmpUser.startStream( "localhost", "sip", 1935, publishName, playName );
 
                 sipReady = false;
-                ua.setMedia( rtmpUser );
-                ua.accept();
+                userAgent.setMedia( rtmpUser );
+                userAgent.accept();
 
             }
             catch ( Exception e ) {
@@ -261,16 +230,13 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
         }
     }
 
-
     public void hangup() {
-
     	log.debug( "SIPUser hangup" );
 
-        if ( ua != null ) {
-
-            if ( ua.call_state != SIPUserAgent.UA_IDLE ) {
-                ua.hangup();
-                ua.listen();
+        if ( userAgent != null ) {
+            if ( userAgent.call_state != UserAgent.UA_IDLE ) {
+                userAgent.hangup();
+                userAgent.listen();
             }
         }
 
@@ -278,9 +244,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
         rtmpUser.stopStream();
     }
 
-
     public void streamStatus( String status ) {
-
     	log.debug( "SIPUser streamStatus " + status );
 
         if ( "stop".equals( status ) ) {
@@ -288,28 +252,24 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
         }
     }
 
-
     public void unregister() {
-
     	log.debug( "SIPUser unregister" );
 
-        if ( ra != null ) {
-            if ( ra.isRegistering() ) {
-                ra.halt();
+        if ( registerAgent != null ) {
+            if ( registerAgent.isRegistering() ) {
+                registerAgent.halt();
             }
-            ra.unregister();
-            ra = null;
+            registerAgent.unregister();
+            registerAgent = null;
         }
 
-        if ( ua != null ) {
-            ua.hangup();
+        if ( userAgent != null ) {
+            userAgent.hangup();
         }
-        ua = null;
+        userAgent = null;
     }
 
-
     private void closeStreams() {
-
     	log.debug( "SIPUser closeStreams" );
 
         try {
@@ -320,36 +280,29 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
         }
     }
 
-
     public long getLastCheck() {
-
         return lastCheck;
     }
 
-
     public boolean isClosed() {
-
-        return ua == null;
+        return userAgent == null;
     }
 
 
     public String getSessionID() {
-
         return sessionID;
     }
 
 
     private void loopRegister( int expire_time, int renew_time, long keepalive_time ) {
-
-        if ( ra.isRegistering() ) {
-            ra.halt();
+        if ( registerAgent.isRegistering() ) {
+            registerAgent.halt();
         }
-        ra.loopRegister( expire_time, renew_time, keepalive_time );
+        registerAgent.loopRegister( expire_time, renew_time, keepalive_time );
     }
 
 
-    public void onUaCallIncoming( SIPUserAgent ua, NameAddress callee, NameAddress caller ) {
-
+    public void onUaCallIncoming( UserAgent ua, NameAddress callee, NameAddress caller ) {
         String source = caller.getAddress().toString();
         String sourceName = caller.hasDisplayName() ? caller.getDisplayName() : "";
         String destination = callee.getAddress().toString();
@@ -357,112 +310,112 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
         log.debug( "onUaCallIncoming " + source + " " + destination);
 
-        if ( service != null ) {
-            ( (IServiceCapableConnection) service ).invoke( "incoming", new Object[] { source, sourceName, destination,
-                destinationName } );
+        if (connectionService != null ) {
+            ( (IServiceCapableConnection) connectionService ).invoke( "incoming", 
+            		new Object[] { source, sourceName, destination,
+            						destinationName } );
         }
     }
 
 
-    public void onUaCallRinging( SIPUserAgent ua ) {
+    public void onUaCallRinging( UserAgent ua ) {
         log.debug( "onUaCallRinging" );
-
-        if ( service != null ) {
-            ( (IServiceCapableConnection) service ).invoke( "callState", new Object[] { "onUaCallRinging" } );
+        if ( connectionService != null ) {
+            ( (IServiceCapableConnection) connectionService ).invoke( "callState", new Object[] { "onUaCallRinging" } );
         }
     }
 
 
-    public void onUaCallAccepted( SIPUserAgent ua ) {
+    public void onUaCallAccepted( UserAgent ua ) {
         log.debug( "onUaCallAccepted" );
 
-        if ( service != null ) {
-            ( (IServiceCapableConnection) service ).invoke( "callState", new Object[] { "onUaCallAccepted" } );
+        if ( connectionService != null ) {
+            ( (IServiceCapableConnection) connectionService ).invoke( "callState", new Object[] { "onUaCallAccepted" } );
         }
 
     }
 
 
-    public void onUaCallConnected( SIPUserAgent ua ) {
+    public void onUaCallConnected( UserAgent ua ) {
 
     	log.debug( "SIP Call Connected" );
         sipReady = true;
 
-        if ( service != null ) {
-            ( (IServiceCapableConnection) service ).invoke( "connected", new Object[] { playName, publishName } );
+        if ( connectionService != null ) {
+            ( (IServiceCapableConnection) connectionService ).invoke( "connected", new Object[] { playName, publishName } );
         }
 
     }
 
 
-    public void onUaCallTrasferred( SIPUserAgent ua ) {
+    public void onUaCallTrasferred( UserAgent ua ) {
         log.debug( "onUaCallTrasferred");
 
-		 if (service != null) {
-		 	((IServiceCapableConnection) service).invoke("callState", new Object[] {"onUaCallTrasferred"});
+		 if (connectionService != null) {
+		 	((IServiceCapableConnection) connectionService).invoke("callState", new Object[] {"onUaCallTrasferred"});
 		}
 
     }
 
 
-    public void onUaCallCancelled( SIPUserAgent ua ) {
+    public void onUaCallCancelled( UserAgent ua ) {
         log.debug( "onUaCallCancelled");
 
         sipReady = false;
         closeStreams();
 
-        if ( service != null ) {
-            ( (IServiceCapableConnection) service ).invoke( "callState", new Object[] { "onUaCallCancelled" } );
+        if ( connectionService != null ) {
+            ( (IServiceCapableConnection) connectionService ).invoke( "callState", new Object[] { "onUaCallCancelled" } );
         }
 
         ua.listen();
     }
 
 
-    public void onUaCallFailed( SIPUserAgent ua ) {
+    public void onUaCallFailed( UserAgent ua ) {
         log.debug( "onUaCallFailed");
 
         sipReady = false;
         closeStreams();
 
-        if ( service != null ) {
-            ( (IServiceCapableConnection) service ).invoke( "callState", new Object[] { "onUaCallFailed" } );
+        if ( connectionService != null ) {
+            ( (IServiceCapableConnection) connectionService ).invoke( "callState", new Object[] { "onUaCallFailed" } );
         }
 
         ua.listen();
     }
 
 
-    public void onUaCallClosed( SIPUserAgent ua ) {
+    public void onUaCallClosed( UserAgent ua ) {
     	log.debug( "onUaCallClosed");
 
         sipReady = false;
         closeStreams();
 
-        if ( service != null ) {
-            ( (IServiceCapableConnection) service ).invoke( "callState", new Object[] { "onUaCallClosed" } );
+        if ( connectionService != null ) {
+            ( (IServiceCapableConnection) connectionService ).invoke( "callState", new Object[] { "onUaCallClosed" } );
         }
 
         ua.listen();
     }
 
 
-    public void onUaRegistrationSuccess( SIPRegisterAgent ra, NameAddress target, NameAddress contact, String result ) {
+    public void onUaRegistrationSuccess( RegisterAgent ra, NameAddress target, NameAddress contact, String result ) {
 
     	log.debug( "SIP Registration success " + result );
 
-        if ( service != null ) {
-            ( (IServiceCapableConnection) service ).invoke( "registrationSucess", new Object[] { result } );
+        if ( connectionService != null ) {
+            ( (IServiceCapableConnection) connectionService ).invoke( "registrationSucess", new Object[] { result } );
         }
     }
 
 
-    public void onUaRegistrationFailure( SIPRegisterAgent ra, NameAddress target, NameAddress contact, String result ) {
+    public void onUaRegistrationFailure( RegisterAgent ra, NameAddress target, NameAddress contact, String result ) {
 
     	log.debug( "SIP Registration failure " + result );
 
-        if ( service != null ) {
-            ( (IServiceCapableConnection) service ).invoke( "registrationFailure", new Object[] { result } );
+        if ( connectionService != null ) {
+            ( (IServiceCapableConnection) connectionService ).invoke( "registrationFailure", new Object[] { result } );
         }
     }
 

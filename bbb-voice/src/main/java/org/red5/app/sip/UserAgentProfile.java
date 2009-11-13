@@ -11,7 +11,7 @@ import org.zoolu.tools.Configure;
 /**
  * UserProfile maintains the user configuration
  */
-public class SIPUserAgentProfile {
+public class UserAgentProfile {
 
     // ********************** user configurations *********************
 
@@ -176,7 +176,7 @@ public class SIPUserAgentProfile {
     // ************************** Costructors *************************
 
     /** Costructs a void UserProfile */
-    public SIPUserAgentProfile() {
+    public UserAgentProfile() {
 
         init();
     }

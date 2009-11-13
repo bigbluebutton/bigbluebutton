@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
-import org.red5.app.sip.SIPManager;
-import org.red5.app.sip.SIPUser;
+import org.red5.app.sip.UserManager;
+import org.red5.app.sip.User;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.Red5;
@@ -16,7 +16,7 @@ public class VoiceConferenceService {
 
     protected static Logger log = Red5LoggerFactory.getLogger( VoiceConferenceService.class, "sip" );
 
-    private SIPManager sipManager;
+    private UserManager sipManager;
     private boolean available = false;
     private String asteriskHost;
     private int startSIPPort = 5070;
@@ -44,13 +44,13 @@ public class VoiceConferenceService {
 		IConnection conn = Red5.getConnectionLocal();
 		IServiceCapableConnection service = (IServiceCapableConnection) conn;
 
-		SIPUser sipUser = sipManager.getSIPUser(uid);
+		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser == null) {
 			log.debug("Red5SIP open creating sipUser for " + username + " on sip port " + sipPort + " audio port " + rtpPort + " uid " + uid );
 
 			try {
-				sipUser = new SIPUser(conn.getClient().getId(), service, sipPort, rtpPort);
+				sipUser = new User(conn.getClient().getId(), service, sipPort, rtpPort);
 				sipManager.addSIPUser(uid, sipUser);
 
 			} catch (Exception e) {
@@ -84,13 +84,13 @@ public class VoiceConferenceService {
 		IConnection conn = Red5.getConnectionLocal();
 		IServiceCapableConnection service = (IServiceCapableConnection) conn;
 
-		SIPUser sipUser = sipManager.getSIPUser(uid);
+		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser == null) {
 			log.debug("Red5SIP open creating sipUser for " + username + " on sip port " + sipPort + " audio port " + rtpPort + " uid " + uid );
 
 			try {
-				sipUser = new SIPUser(conn.getClient().getId(), service, sipPort, rtpPort);
+				sipUser = new User(conn.getClient().getId(), service, sipPort, rtpPort);
 				sipManager.addSIPUser(uid, sipUser);
 
 			} catch (Exception e) {
@@ -122,7 +122,7 @@ public class VoiceConferenceService {
 	public void register(String uid) {
 		log.debug("Red5SIP register");
 
-		SIPUser sipUser = sipManager.getSIPUser(uid);
+		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser != null) {
 			sipUser.register();
@@ -133,7 +133,7 @@ public class VoiceConferenceService {
 	public void call(String uid, String destination) {
 		log.debug("Red5SIP Call " + destination);
 
-		SIPUser sipUser = sipManager.getSIPUser(uid);
+		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser != null) {
 			log.debug("Red5SIP Call found user " + uid + " making call to " + destination);
@@ -145,7 +145,7 @@ public class VoiceConferenceService {
 	public void dtmf(String uid, String digits) {
 		log.debug("Red5SIP DTMF " + digits);
 
-		SIPUser sipUser = sipManager.getSIPUser(uid);
+		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser != null) {
 			log.debug("Red5SIP DTMF found user " + uid + " sending dtmf digits " + digits);
@@ -157,7 +157,7 @@ public class VoiceConferenceService {
 	public void accept(String uid) {
 		log.debug("Red5SIP Accept");
 
-		SIPUser sipUser = sipManager.getSIPUser(uid);
+		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser != null) {
 			sipUser.accept();
@@ -168,7 +168,7 @@ public class VoiceConferenceService {
 	public void unregister(String uid) {
 		log.debug("Red5SIP unregister");
 
-			SIPUser sipUser = sipManager.getSIPUser(uid);
+			User sipUser = sipManager.getSIPUser(uid);
 
 			if(sipUser != null) {
 				sipUser.unregister();
@@ -178,7 +178,7 @@ public class VoiceConferenceService {
 	public void hangup(String uid) {
 		log.debug("Red5SIP Hangup");
 
-		SIPUser sipUser = sipManager.getSIPUser(uid);
+		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser != null) {
 			sipUser.hangup();
@@ -188,7 +188,7 @@ public class VoiceConferenceService {
 	public void streamStatus(String uid, String status) {
 		log.debug("Red5SIP streamStatus");
 
-		SIPUser sipUser = sipManager.getSIPUser(uid);
+		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser != null) {
 			sipUser.streamStatus(status);

@@ -3,39 +3,31 @@ package org.red5.app.sip;
 public class ResampleUtils {
 
     public static byte[] resample( float sampleRateFactor, float[] s1 ) {
-
         int o1 = 0;
         int l1 = s1.length;
-
         int resampledLength = (int) ( (float) l1 / sampleRateFactor );
-
         float[] tmp = new float[ resampledLength ];
-
         double oldIndex = o1;
 
         for ( int i = o1; i < o1 + resampledLength; i++ ) {
-
             if ( ( (int) oldIndex + 1 ) < s1.length ) {
                 tmp[ i ] = interpolate0( s1, (float) oldIndex );
             }
             else {
                 break; // end of source
             }
-
             oldIndex += sampleRateFactor;
         }
 
         oldIndex = o1;
 
         for ( int i = o1; i < o1 + resampledLength; i++ ) {
-
             if ( ( (int) oldIndex + 1 ) < s1.length ) {
                 tmp[ i ] = interpolate1( s1, (float) oldIndex );
             }
             else {
                 break; // end of source
             }
-
             oldIndex += sampleRateFactor;
         }
 
@@ -52,14 +44,11 @@ public class ResampleUtils {
 
 
     public static int byte2int( byte b ) { // return (b>=0)? b : -((b^0xFF)+1);
-
         // return (b>=0)? b : b+0x100;
         return ( b + 0x100 ) % 0x100;
     }
 
-
     public static int byte2int( byte b1, byte b2 ) {
-
         return ( ( ( b1 + 0x100 ) % 0x100 ) << 8 ) + ( b2 + 0x100 ) % 0x100;
     }
 
@@ -71,7 +60,6 @@ public class ResampleUtils {
      *            seen as circular buffer when array out of bounds
      */
     public static float interpolate0( float[] data, float index ) {
-
         try {
             return data[ ( (int) index ) % data.length ];
         }
@@ -88,7 +76,6 @@ public class ResampleUtils {
      *            seen as circular buffer when array out of bounds
      */
     public static float interpolate1( float[] data, float index ) {
-
         try {
             int ip = ( (int) index );
             float fp = index - ip;
@@ -108,7 +95,6 @@ public class ResampleUtils {
      *            seen as circular buffer when array out of bounds
      */
     public static float interpolate2( float[] data, float index ) {
-
         try {
             // Newton's 2nd order interpolation
             int ip = ( (int) index );
@@ -138,7 +124,6 @@ public class ResampleUtils {
      *            seen as circular buffer when array out of bounds
      */
     public static float interpolate3( float[] data, float index ) {
-
         try {
             // cubic hermite interpolation
             int ip = (int) index;
@@ -187,6 +172,5 @@ public class ResampleUtils {
 		}
 
 		return audio;
-
    	}
 }

@@ -14,8 +14,6 @@ import org.red5.app.sip.codecs.Codec;
 import org.red5.app.sip.codecs.asao.ByteStream;
 import org.red5.app.sip.codecs.asao.Decoder;
 import org.red5.app.sip.codecs.asao.DecoderMap;
-import org.red5.codecs.asao.*;
-
 
 public class RTPStreamSender {
 
@@ -189,9 +187,7 @@ public class RTPStreamSender {
         blankpacket.setPayloadLength( sipCodec.getOutgoingEncodedFrameSize() );
 
         for ( int d = 0; d < argDigits.length(); d++ ) {
-
             char digit = argDigits.charAt( d );
-
             if ( digit == '*' ) {
                 dtmfbuf[ startPayloadPos ] = 10;
             }

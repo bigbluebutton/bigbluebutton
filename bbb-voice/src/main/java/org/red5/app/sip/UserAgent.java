@@ -21,17 +21,17 @@ import java.util.Vector;
 
 import local.ua.*;
 
-public class SIPUserAgent extends CallListenerAdapter {
-    protected static Logger log = Red5LoggerFactory.getLogger( SIPUserAgent.class, "sip" );
+public class UserAgent extends CallListenerAdapter {
+    protected static Logger log = Red5LoggerFactory.getLogger( UserAgent.class, "sip" );
     
-    protected SIPUserAgentProfile userProfile;
+    protected UserAgentProfile userProfile;
     protected SipProvider sipProvider;
     protected ExtendedCall call;
     protected ExtendedCall callTransfer;
-    public SIPAudioLauncher audioApp = null;
+    public AudioLauncher audioApp = null;
     protected MediaLauncher videoApp = null;
     protected String localSession = null;
-    protected SIPUserAgentListener listener = null;
+    protected UserAgentListener listener = null;
     final String MEDIA_PATH = "media/local/ua/";
     final String CLIP_ON = MEDIA_PATH + "on.wav";
     final String CLIP_OFF = MEDIA_PATH + "off.wav";
@@ -69,21 +69,15 @@ public class SIPUserAgent extends CallListenerAdapter {
 
 
     // *************************** Basic methods ***************************
-
-    /** Changes the call state */
     protected void changeStatus( String state ) {
         call_state = state;
         // printLog("state: "+call_state);
     }
 
-
-    /** Checks the call state */
     protected boolean statusIs( String state ) {
         return call_state.equals( state );
     }
 
-
-    /** Gets the call state */
     protected String getStatus() {
         return call_state;
     }
@@ -112,77 +106,48 @@ public class SIPUserAgent extends CallListenerAdapter {
         userProfile.redirectTo = url;
     }
 
-
     /** Sets the no offer mode for the invite (default is false) */
     public void setNoOfferMode( boolean nooffer ) {
         userProfile.noOffer = nooffer;
     }
 
-
-    /** Enables audio */
     public void setAudio( boolean enable ) {
         userProfile.audio = enable;
     }
 
-
-    /** Enables video */
     public void setVideo( boolean enable ) {
         userProfile.video = enable;
     }
 
-
-    /** Sets the receive only mode */
     public void setReceiveOnlyMode( boolean r_only ) {
-
         userProfile.recvOnly = r_only;
     }
 
-
-    /** Sets the send only mode */
     public void setSendOnlyMode( boolean s_only ) {
-
         userProfile.sendOnly = s_only;
     }
 
-
-    /** Sets the send tone mode */
     public void setSendToneMode( boolean s_tone ) {
-
         userProfile.sendTone = s_tone;
     }
 
-
-    /** Sets the send file */
     public void setSendFile( String file_name ) {
-
         userProfile.sendFile = file_name;
     }
 
-
-    /** Sets the recv file */
     public void setRecvFile( String file_name ) {
-
         userProfile.recvFile = file_name;
     }
 
-
-    /** Gets the local SDP */
     public String getSessionDescriptor() {
-
         return localSession;
     }
 
-
-    /** Sets the local SDP */
     public void setSessionDescriptor( String sdp ) {
-
         localSession = sdp;
     }
 
-
-    /** Inits the local SDP (no media spec) */
-    public void initSessionDescriptor() {
-        
+    public void initSessionDescriptor() {        
         log.debug( "initSessionDescriptor", "Init..." );
         
         SessionDescriptor newSdp = SdpUtils.createInitialSdp(
@@ -194,12 +159,11 @@ public class SIPUserAgent extends CallListenerAdapter {
         log.debug( "initSessionDescriptor", "localSession = " + localSession );
     }
 
-
     // *************************** Public Methods **************************
 
     /** Costructs a UA with a default media port */
-    public SIPUserAgent(SipProvider sip_provider, SIPUserAgentProfile user_profile,
-    					SIPUserAgentListener listener, RTMPUser rtmpUser ) {
+    public UserAgent(SipProvider sip_provider, UserAgentProfile user_profile,
+    					UserAgentListener listener, RTMPUser rtmpUser ) {
         
         this.sipProvider = sip_provider;
         this.listener = listener;
@@ -212,10 +176,8 @@ public class SIPUserAgent extends CallListenerAdapter {
     }
 
 
-    public void call( String target_url ) {
-    	
-    	log.debug( "call", "Init..." );
-        
+    public void call( String target_url ) {    	
+    	log.debug( "call", "Init..." );        
         changeStatus( UA_OUTGOING_CALL );
         
         call = new ExtendedCall( sipProvider, userProfile.fromUrl, 
@@ -233,16 +195,12 @@ public class SIPUserAgent extends CallListenerAdapter {
         }
     }
 
-
     public void setMedia( RTMPUser rtmpUser ) {
-
-    	log.debug( "setMedia", "Init..." );
-        
+    	log.debug( "setMedia", "Init..." );        
         this.rtmpUser = rtmpUser;
     }
 
   /** Call Transfer test by Lior */
-
    public void transfer( String transfer_to ){
 	   log.debug("REFER/TRANSFER", "Init..." );
   	         try
@@ -260,9 +218,7 @@ public class SIPUserAgent extends CallListenerAdapter {
 
     /** Waits for an incoming call (acting as UAS). */
     public void listen() {
-
-    	log.debug( "listen", "Init..." );
-        
+    	log.debug( "listen", "Init..." );       
         changeStatus( UA_IDLE );
         
         call = new ExtendedCall( sipProvider, userProfile.fromUrl, 
@@ -274,7 +230,6 @@ public class SIPUserAgent extends CallListenerAdapter {
 
     /** Closes an ongoing, incoming, or pending call */
     public void hangup() {
-
     	log.debug( "hangup", "Init..." );
         
         if ( clip_ring != null ) {
@@ -403,7 +358,7 @@ public class SIPUserAgent extends CallListenerAdapter {
 
                 if ( sipCodec != null ) {
                     
-                    audioApp = new SIPAudioLauncher( sipCodec, localAudioPort, 
+                    audioApp = new AudioLauncher( sipCodec, localAudioPort, 
                             remoteMediaAddress, remoteAudioPort, rtmpUser );
                 }
                 else {
