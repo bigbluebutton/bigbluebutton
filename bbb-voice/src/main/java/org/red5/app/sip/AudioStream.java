@@ -50,219 +50,206 @@ import org.red5.server.api.stream.IStreamPacket;;
 
 public class AudioStream implements IBroadcastStream, IProvider, IPipeConnectionListener
 {
-  /** Listeners to get notified about received packets. */
-  private Set<IStreamListener> streamListeners = new CopyOnWriteArraySet<IStreamListener>();
-  final private Logger log = Red5LoggerFactory.getLogger(AudioStream.class, "deskshare");
+	/** Listeners to get notified about received packets. */
+	private Set<IStreamListener> streamListeners = new CopyOnWriteArraySet<IStreamListener>();
+	final private Logger log = Red5LoggerFactory.getLogger(AudioStream.class, "deskshare");
 
-  private String publishedStreamName;
-  private IPipe livePipe;
-  private IScope mScope;
+	private String publishedStreamName;
+	private IPipe livePipe;
+	private IScope scope;
 
-  // Codec handling stuff for frame dropping
-  private StreamCodecInfo streamCodecInfo;
-  private Long mCreationTime;
+	// Codec handling stuff for frame dropping
+	private StreamCodecInfo streamCodecInfo;
+	private Long creationTime;
   
-  public AudioStream(String name)
-  {
-    publishedStreamName = name;
-    livePipe = null;
-    log.trace("name: {}", name);
+	public AudioStream(String name) {
+		publishedStreamName = name;
+		livePipe = null;
+		log.trace("name: {}", name);
 
-    streamCodecInfo = new StreamCodecInfo();
-    mCreationTime = null;
-  }
+		streamCodecInfo = new StreamCodecInfo();
+		creationTime = null;
+	}
 
-  public IProvider getProvider()
-  {
-    log.trace("getProvider()");
-    return this;
-  }
+	public IProvider getProvider()  {
+		log.trace("getProvider()");
+		return this;
+	}
 
-  public String getPublishedName()
-  {
-    log.trace("getPublishedName()");
-    return publishedStreamName;
-  }
+	public String getPublishedName()  {
+		log.trace("getPublishedName()");
+		return publishedStreamName;
+	}
 
-  public String getSaveFilename()
-  {
-    log.trace("getSaveFilename()");
-    throw new Error("unimplemented method");
-  }
+	public String getSaveFilename() {
+		log.trace("getSaveFilename()");
+		throw new Error("unimplemented method");
+	}
 
-  public void addStreamListener(IStreamListener listener)
-  {
-    log.trace("addStreamListener(listener: {})", listener);
-    streamListeners.add(listener);
-  }
+	public void addStreamListener(IStreamListener listener) {
+		log.trace("addStreamListener(listener: {})", listener);
+		streamListeners.add(listener);
+	}
 
-  public Collection<IStreamListener> getStreamListeners()
-  {
-//    log.trace("getStreamListeners()");
-    return streamListeners;
-  }
+	public Collection<IStreamListener> getStreamListeners() {
+		//    log.trace("getStreamListeners()");
+		return streamListeners;
+	}
 
-  public void removeStreamListener(IStreamListener listener)
-  {
-    log.trace("removeStreamListener({})", listener);
-    streamListeners.remove(listener);
-  }
+	public void removeStreamListener(IStreamListener listener) {
+		log.trace("removeStreamListener({})", listener);
+		streamListeners.remove(listener);
+	}
 
-  public void saveAs(String filePath, boolean isAppend) throws IOException,
-  ResourceNotFoundException, ResourceExistException
-  {
-    log.trace("saveAs(filepath:{}, isAppend:{})", filePath, isAppend);
-    throw new Error("unimplemented method");
-  }
+	public void saveAs(String filePath, boolean isAppend) throws IOException,
+						ResourceNotFoundException, ResourceExistException {
+		log.trace("saveAs(filepath:{}, isAppend:{})", filePath, isAppend);
+		throw new Error("unimplemented method");
+	}
 
-  public void setPublishedName(String name)
-  {
-    log.trace("setPublishedName(name:{})", name);
-    publishedStreamName = name;
-  }
+	public void setPublishedName(String name) {
+		log.trace("setPublishedName(name:{})", name);
+		publishedStreamName = name;
+	}
 
-  public void close()
-  {
-    log.trace("close()");
-  }
+	public void close()	{
+		log.trace("close()");
+	}
 
-  public IStreamCodecInfo getCodecInfo()
-  {
-//    log.trace("getCodecInfo()");
-    // we don't support this right now.
-    return streamCodecInfo;
-  }
+	public IStreamCodecInfo getCodecInfo() {
+		//    log.trace("getCodecInfo()");
+		// we don't support this right now.
+		return streamCodecInfo;
+	}
 
-  public String getName()
-  {
-    log.trace("getName(): {}", publishedStreamName);
-    // for now, just return the published name
-    return publishedStreamName;
-  }
+	public String getName()
+	{
+		log.trace("getName(): {}", publishedStreamName);
+		// for now, just return the published name
+		return publishedStreamName;
+	}
 
-  public void setScope(IScope scope)
-  {
-    mScope = scope;
-  }
+	public void setScope(IScope scope)
+	{
+		this.scope = scope;
+	}
 
-  public IScope getScope()
-  {
-    log.trace("getScope(): {}", mScope);
-    return mScope;
-  }
+	public IScope getScope()
+	{
+		log.trace("getScope(): {}", scope);
+		return scope;
+	}
 
-  public void start()
-  {
-    log.trace("start()");
-  }
+	public void start()
+	{
+		log.trace("start()");
+	}
 
-  public void stop()
-  {
-    log.trace("stop");
-  }
+	public void stop()
+	{
+		log.trace("stop");
+	}
 
-  public void onOOBControlMessage(IMessageComponent source, IPipe pipe,
-      OOBControlMessage oobCtrlMsg)
-  {
-    log.trace("onOOBControlMessage");
-  }
+	public void onOOBControlMessage(IMessageComponent source, IPipe pipe,
+										OOBControlMessage oobCtrlMsg)
+	{
+		log.trace("onOOBControlMessage");
+	}
 
-  public void onPipeConnectionEvent(PipeConnectionEvent event)
-  {
-    log.trace("onPipeConnectionEvent(event:{})", event);
-    switch (event.getType())
-    {
-	    case PipeConnectionEvent.PROVIDER_CONNECT_PUSH:
-	    	log.trace("PipeConnectionEvent.PROVIDER_CONNECT_PUSH");
-		      if (event.getProvider() == this
-		          && (event.getParamMap() == null || !event.getParamMap().containsKey("record")))
-		      {
-		    	  log.trace("Creating a live pipe");
-		    	  System.out.println("Creating a live pipe");
-		        this.livePipe = (IPipe) event.getSource();
-		      }
-	      break;
-	    case PipeConnectionEvent.PROVIDER_DISCONNECT:
-	    	log.trace("PipeConnectionEvent.PROVIDER_DISCONNECT");
-	      if (this.livePipe == event.getSource())
-	      {
-	    	  log.trace("PipeConnectionEvent.PROVIDER_DISCONNECT - this.mLivePipe = null;");
-	    	  System.out.println("PipeConnectionEvent.PROVIDER_DISCONNECT - this.mLivePipe = null;");
-	        this.livePipe = null;
-	      }
-	      break;
-	    case PipeConnectionEvent.CONSUMER_CONNECT_PUSH:
-	    	log.trace("PipeConnectionEvent.CONSUMER_CONNECT_PUSH");
-	    	System.out.println("PipeConnectionEvent.CONSUMER_CONNECT_PUSH");
-	      break;
-	    case PipeConnectionEvent.CONSUMER_DISCONNECT:
-	    	log.trace("PipeConnectionEvent.CONSUMER_DISCONNECT");
-	    	System.out.println("PipeConnectionEvent.CONSUMER_DISCONNECT");
-	      break;
-	    default:
-	    	log.trace("PipeConnectionEvent default");
-	    	System.out.println("PipeConnectionEvent default");
-	      break;
-    }
-  }
+	public void onPipeConnectionEvent(PipeConnectionEvent event)
+	{
+		log.trace("onPipeConnectionEvent(event:{})", event);
+		switch (event.getType())
+		{
+	    	case PipeConnectionEvent.PROVIDER_CONNECT_PUSH:
+	    		log.trace("PipeConnectionEvent.PROVIDER_CONNECT_PUSH");
+	    		if (event.getProvider() == this
+	    				&& (event.getParamMap() == null 
+	    				|| !event.getParamMap().containsKey("record")))
+	    		{
+	    			log.trace("Creating a live pipe");
+	    			System.out.println("Creating a live pipe");
+	    			this.livePipe = (IPipe) event.getSource();
+	    		}
+	    		break;
+	    	case PipeConnectionEvent.PROVIDER_DISCONNECT:
+	    		log.trace("PipeConnectionEvent.PROVIDER_DISCONNECT");
+	    		if (this.livePipe == event.getSource())
+	    		{
+	    			log.trace("PipeConnectionEvent.PROVIDER_DISCONNECT - this.mLivePipe = null;");
+	    			System.out.println("PipeConnectionEvent.PROVIDER_DISCONNECT - this.mLivePipe = null;");
+	    			this.livePipe = null;
+	    		}
+	    		break;
+	    	case PipeConnectionEvent.CONSUMER_CONNECT_PUSH:
+	    		log.trace("PipeConnectionEvent.CONSUMER_CONNECT_PUSH");
+	    		System.out.println("PipeConnectionEvent.CONSUMER_CONNECT_PUSH");
+	    		break;
+	    	case PipeConnectionEvent.CONSUMER_DISCONNECT:
+	    		log.trace("PipeConnectionEvent.CONSUMER_DISCONNECT");
+	    		System.out.println("PipeConnectionEvent.CONSUMER_DISCONNECT");
+	    		break;
+	    	default:
+	    		log.trace("PipeConnectionEvent default");
+	    		System.out.println("PipeConnectionEvent default");
+	    		break;
+		}
+	}
 
-  public void dispatchEvent(IEvent event)
-  {
-    try {
-//      log.trace("dispatchEvent(event:{})", event);
-//    	System.out.println("dispatchEvent(event:screenVideo)");
-      if (event instanceof IRTMPEvent)
-      {
-        IRTMPEvent rtmpEvent = (IRTMPEvent) event;
-        if (livePipe != null)
-        {
-          RTMPMessage msg = new RTMPMessage();
+	public void dispatchEvent(IEvent event)
+	{
+		try {
+			//      log.trace("dispatchEvent(event:{})", event);
+			//    	System.out.println("dispatchEvent(event:screenVideo)");
+			if (event instanceof IRTMPEvent)
+			{
+				IRTMPEvent rtmpEvent = (IRTMPEvent) event;
+				if (livePipe != null)
+				{
+					RTMPMessage msg = new RTMPMessage();
 
-          msg.setBody(rtmpEvent);
+					msg.setBody(rtmpEvent);
           
-          if (mCreationTime == null)
-            mCreationTime = (long)rtmpEvent.getTimestamp();
+					if (creationTime == null)
+						creationTime = (long)rtmpEvent.getTimestamp();
           
-          try
-          {
-//        	  IVideoStreamCodec videoStreamCodec = new ScreenVideo();
-//        	  streamCodecInfo.setHasVideo(true);
- //       	  streamCodecInfo.setVideoCodec(videoStreamCodec);
-//        	  videoStreamCodec.reset();
- //       	  videoStreamCodec.addData(((VideoData) rtmpEvent).getData());
-        	  livePipe.pushMessage(msg);
+					try
+					{
+//        	  			IVideoStreamCodec videoStreamCodec = new ScreenVideo();
+//        	  			streamCodecInfo.setHasVideo(true);
+ //       	  			streamCodecInfo.setVideoCodec(videoStreamCodec);
+//        	  			videoStreamCodec.reset();
+ //       	  			videoStreamCodec.addData(((VideoData) rtmpEvent).getData());
+						livePipe.pushMessage(msg);
 
-              // Notify listeners about received packet
-              if (rtmpEvent instanceof IStreamPacket)
-              {
-                for (IStreamListener listener : getStreamListeners())
-                {
-                  try
-                  {
-                    listener.packetReceived(this, (IStreamPacket) rtmpEvent);
-                  }
-                  catch (Exception e)
-                  {
-                    log.error("Error while notifying listener " + listener, e);
-                  }
-                }
-              } 	  
-        	  
-          }
-          catch (IOException ex)
-          {
-            // ignore
-            log.error("Got exception: {}", ex);
-          }
-        }
-      }
-    } finally {
-      
-    }
-  }
+						// Notify listeners about received packet
+						if (rtmpEvent instanceof IStreamPacket)
+						{
+							for (IStreamListener listener : getStreamListeners())
+							{
+								try
+								{
+									listener.packetReceived(this, (IStreamPacket) rtmpEvent);
+								}
+								catch (Exception e)
+								{
+									log.error("Error while notifying listener " + listener, e);
+								}
+							}
+						} 	          	  
+					}
+					catch (IOException ex)
+					{
+						// ignore
+						log.error("Got exception: {}", ex);
+					}
+				}
+			}
+		} finally { }
+	}
 
-  public long getCreationTime()
-  {
-    return mCreationTime != null ? mCreationTime : 0L;
-  }
+	public long getCreationTime()
+	{
+		return creationTime != null ? creationTime : 0L;
+	}
 }

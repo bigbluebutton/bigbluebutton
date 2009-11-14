@@ -55,7 +55,8 @@ public class User implements UserAgentListener, RegisterAgentListener {
         boolean resp = false;
 
         try {
-            resp = userAgent.audioApp.receiver.isRunning();
+            //resp = userAgent.audioApp.receiver.isRunning();
+        	resp = userAgent.audioApp.isReceiverRunning();
         }
         catch ( Exception e ) {
             resp = false;
@@ -129,8 +130,8 @@ public class User implements UserAgentListener, RegisterAgentListener {
     public void dtmf( String digits ) {
     	log.debug( "SIPUser dtmf " + digits );
         try {
-            if ( userAgent != null && userAgent.audioApp != null && userAgent.audioApp.sender != null ) {
-                userAgent.audioApp.sender.queueSipDtmfDigits( digits );
+            if ( userAgent != null && userAgent.audioApp != null) {
+                userAgent.audioApp.queueSipDtmfDigits( digits );
             }
         }
         catch ( Exception e ) {

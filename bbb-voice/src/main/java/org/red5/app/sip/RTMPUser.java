@@ -46,6 +46,8 @@ public class RTMPUser extends RTMPClient implements INetStreamEventHandler, Clie
     private int kt2 = 0;
     private IoBuffer buffer;
 
+    private RtpSender rtpSender;
+    
     @Override
     public void connectionOpened( RTMPConnection conn, RTMP state ) {
         logger.debug( "connection opened" );
@@ -81,6 +83,9 @@ public class RTMPUser extends RTMPClient implements INetStreamEventHandler, Clie
 
     }
 
+    public void setRtpSender(RtpSender rtpSender) {
+    	this.rtpSender = rtpSender;
+    }
 
     // ------------------------------------------------------------------------
     //
@@ -311,8 +316,14 @@ public class RTMPUser extends RTMPClient implements INetStreamEventHandler, Clie
                 }
 
                 try {
+                	/*
                     if ( rtpStreamSender != null ) {
                         rtpStreamSender.send( data, 1, data.length - 1 );
+                    }
+                    */
+                	
+                    if (rtpSender != null ) {
+                        rtpSender.send( data, 1, data.length - 1 );
                     }
                 }
                 catch ( Exception e ) {
