@@ -30,7 +30,8 @@
 			import org.bigbluebutton.modules.viewers.view.events.LowerHandEvent;
 			import org.bigbluebutton.modules.viewers.model.vo.Status;
 			import org.bigbluebutton.modules.viewers.view.components.Images;
-
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
 			private var images:Images = new Images();
 				
 			private function viewCamera():void
@@ -49,7 +50,7 @@
    			[Bindable] private var presenterIcon:Object = images.presenter;
 		]]>
 	</mx:Script>
-	<mx:Image id="raiseHand" visible="{data.raiseHand}" click="lowerHand()" source="{handIcon}" toolTip="Hand Raised on {new Date()}"/>
-	<mx:Image id="streamIcon" visible="{data.hasStream}" doubleClick="viewCamera()" source="{webcamIcon}" toolTip="Double-Click to view."/>	
-	<mx:Image id="presIcon" visible="{data.presenter}" source="{presenterIcon}" toolTip="Presenter"/>
+	<mx:Image id="raiseHand" visible="{data.raiseHand}" click="lowerHand()" source="{handIcon}" toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.raiseHand.toolTip'), [new Date()]}"/>
+	<mx:Image id="streamIcon" visible="{data.hasStream}" doubleClick="viewCamera()" source="{webcamIcon}" toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.streamIcon.toolTip')}"/>	
+	<mx:Image id="presIcon" visible="{data.presenter}" source="{presenterIcon}" toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.presIcon.toolTip')}"/>
 </mx:HBox>

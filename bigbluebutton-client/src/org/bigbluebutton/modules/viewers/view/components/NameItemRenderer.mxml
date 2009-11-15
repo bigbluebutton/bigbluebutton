@@ -22,9 +22,13 @@
 
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
 	verticalScrollPolicy="off" horizontalScrollPolicy="off">
-	
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+		]]>
+	</mx:Script>
 	<mx:Label id="nameLabel" textAlign="left" text="{data.name}" 
 		fontWeight="{data.me ? 'bold' : 'normal'}"
 		color="{data.me ? 0x003399 : 0x000000}"
-		toolTip="{data.me ? 'You are logged in as this user.' : ''}"/>
+		toolTip="{data.me ? ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.nameItemRenderer.nameLabel.toolTip') : ''}"/>
 </mx:HBox>

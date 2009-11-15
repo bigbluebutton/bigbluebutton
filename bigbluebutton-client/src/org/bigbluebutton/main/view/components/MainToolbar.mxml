@@ -34,9 +34,10 @@
 			import org.bigbluebutton.main.events.CloseWindowEvent;
 			import org.bigbluebutton.main.MainApplicationConstants;
 			import org.bigbluebutton.main.view.MainApplicationShellMediator;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			public function loggedIn(name:String, room:String, role:String):void{
-				loggedInUserLbl.text = "You are logged in as " + name + " to " + room + " as role " + role + ".";
+				loggedInUserLbl.text = ResourceUtil.getInstance().getString('bbb.mainToolbar.loggedInUserLbl',[name, room, role]);//"You are logged in as " + name + " to " + room + " as role " + role + ".";
 				this.visible = true;
 			}
 			
@@ -69,7 +70,7 @@
 	<mx:HBox id="addedBtns">
 	</mx:HBox>		
 	<mx:Spacer width="100%"/>
-	<mx:LinkButton label="Help" click="navigateToURL(new URLRequest('http://www.bigbluebutton.org/content/videos'))"/>
-	<mx:Button label="Logout" id="btnLogout" toolTip="Log out" right="10" click="doLogout()"/>		
+	<mx:LinkButton label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" click="navigateToURL(new URLRequest('http://www.bigbluebutton.org/content/videos'))"/>
+	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn')}" id="btnLogout" toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="doLogout()"/>		
 	
 </mx:ApplicationControlBar>

@@ -31,6 +31,7 @@ package org.bigbluebutton.modules.viewers.view
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
+	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 	/**
 	 *  The ViewersWindowMediator is a mediator class for the ViewersWindow gui component
@@ -116,7 +117,7 @@ package org.bigbluebutton.modules.viewers.view
 		private function handleOpenViewersWindow():void {
 				_viewersWindow.participants = proxy.participants;
 				_viewersWindow.isModerator = proxy.isModerator();
-		   		_viewersWindow.title = "Web Participants";
+		   		_viewersWindow.title = ResourceUtil.getInstance().getString('bbb.viewers.title');
 		   		_viewersWindow.showCloseButton = false;
 		   		_viewersWindow.xPosition = 0;
 		   		_viewersWindow.yPosition = 0;

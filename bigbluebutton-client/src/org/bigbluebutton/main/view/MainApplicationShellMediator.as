@@ -38,6 +38,7 @@ package org.bigbluebutton.main.view
 	import org.bigbluebutton.modules.phone.views.components.ToolbarButton;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
+	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 /**
 *   This is the Mediator class for MainApplicationShell view compom\nent
@@ -164,7 +165,7 @@ package org.bigbluebutton.main.view
 				//	handleModuleStopped(info.moduleId, info.errors);
 					break;
 				case MainApplicationConstants.LOADED_MODULE:
-					shell.statusInfo.text += notification.getBody() + "(loaded) ";
+					shell.statusInfo.text += ResourceUtil.getInstance().getString('bbb.mainshell.statusInfo.loaded',[notification.getBody()]);
 					
 					// Should do this properly.
 					//if (notification.getBody() == "ViewersModule") {
@@ -176,7 +177,7 @@ package org.bigbluebutton.main.view
 					var mod:String = notification.getBody().name as String;
 					var prog:Number = notification.getBody().progress as Number;
 					
-					shell.statusProgress.text = "Loading: " + mod + " " + prog + "% loaded.";
+					shell.statusProgress.text = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loaded',[mod, prog]);
 					break;
 			}
 		}
@@ -184,16 +185,16 @@ package org.bigbluebutton.main.view
 		private function testRTMPConnection():void {
 			var host:String = modulesProxy.getPortTestHost();
 			var app:String = modulesProxy.getPortTestApplication();
-			shell.statusInfo.text = "Please wait while we test your connection to the server.";
-			shell.statusInfo2.text =  "This may take a minute or two.";
-			shell.statusProgress.text = "Connecting to RTMP://" + host + ":1935/" + app + ".";
+			shell.statusInfo.text = ResourceUtil.getInstance().getString('bbb.mainshell.statusInfo.testRTMPConnection');
+			shell.statusInfo2.text =  ResourceUtil.getInstance().getString('bbb.mainshell.statusInfo2.testRTMPConnection');
+			shell.statusProgress.text = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.testRTMPConnection', [host, app]);
 			portTestProxy.connect("RTMP", host, "1935", app);
 		}
 		
 		private function testRTMPTConnection():void {
 			var host:String = modulesProxy.getPortTestHost();
 			var app:String = modulesProxy.getPortTestApplication();
-			shell.statusProgress.text = "Connecting to RTMPT://" + host + ":80/" + app + ".";
+			shell.statusProgress.text = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.testRTMPTConnection', [host, app]);
 			portTestProxy.connect("RTMPT", host, "", "bigbluebutton");
 		}
 		

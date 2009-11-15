@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- myMXMLCBuild.xml -->
+<project name="My App Builder" basedir="." default="build">
+    <property environment="env" />
+    <property name="FLEX_HOME" value="${env.FLEX_HOME}" />
+	<property name="ROOT_DIR" value="." />
+	<property name="OUTPUT_DIR" value="${ROOT_DIR}/bin" />
+	
+	<!-- Threading Properties -->
+	<property name="threads.maximum" value="4" />
+
+	<!-- Import Flex Ant Tasks. -->
+	<taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar" />
+
+	<!-- Default Build Target. -->
+	<target name="build">
+		<echo>Building Localization .swf's</echo>
+		<parallel threadCount="${threads.maximum}">
+			<compileLocale locale="en_US" />
+			<compileLocale locale="zh_CN" />
+		</parallel>
+	</target>
+
+	<!-- Compiles Localization Resource Bundle. -->
+	<macrodef name="compileLocale" description="Compiles the Resource package for the given locale">
+		<attribute name="locale" default="en_US"/>
+		<sequential>
+			<!--
+			Create the Flex Home directory for the language in question.
+			This is necessary to compensate for a bug in pre-3.2 releases of 
+			mxmlc.
+			-->
+			<mkdir dir="${FLEX_HOME}/frameworks/locale/@{locale}"/>
+			
+			<!-- Invoke MXMLC -->
+			<mxmlc output="${OUTPUT_DIR}/locale/@{locale}_resources.swf">
+				<locale>@{locale}</locale>
+				<source-path path-element="locale/{locale}"/>
+				<include-resource-bundles>bbbResources</include-resource-bundles>
+				<source-path path-element="${FLEX_HOME}/frameworks"/>
+			</mxmlc>
+		</sequential>
+	</macrodef>
+
+</project>
+

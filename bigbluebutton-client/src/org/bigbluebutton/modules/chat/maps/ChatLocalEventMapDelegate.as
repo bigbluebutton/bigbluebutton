@@ -7,6 +7,7 @@ package org.bigbluebutton.modules.chat.maps
 	import org.bigbluebutton.main.events.CloseWindowEvent;
 	import org.bigbluebutton.main.events.OpenWindowEvent;
 	import org.bigbluebutton.modules.chat.views.components.ChatWindow;
+	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 	public class ChatLocalEventMapDelegate
 	{
@@ -24,7 +25,7 @@ package org.bigbluebutton.modules.chat.maps
 		}
 
 		public function openChatWindow():void {
-		   	_chatWindow.title = "Chat";
+		   	_chatWindow.title = ResourceUtil.getInstance().getString("bbb.chat.title");
 		   	_chatWindow.showCloseButton = false;
 		   	_chatWindow.xPosition = 675;
 		   	_chatWindow.yPosition = 0;

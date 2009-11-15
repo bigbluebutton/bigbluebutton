@@ -38,6 +38,7 @@
         	import org.bigbluebutton.modules.viewers.view.components.Images;
         	import org.bigbluebutton.modules.viewers.view.ViewersWindowMediator; 
         	import mx.collections.ArrayCollection;
+        	import org.bigbluebutton.util.i18n.ResourceUtil;
 		
 			public static const TITLE:String = "Viewers";
 			
@@ -151,11 +152,11 @@
     <mx:DataGrid id="viewersGrid" dataProvider="{participants}" editable="false"
     	dragEnabled="false" itemClick="viewerSelectEvent(event);" width="100%" height="100%">
     	<mx:columns>
-    		<mx:DataGridColumn dataField="role" headerText="Role" dataTipField="Role" editable="false" width="35"
+    		<mx:DataGridColumn dataField="role" headerText="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.roleItemRenderer')}" dataTipField="Role" editable="false" width="35"
     			itemRenderer="org.bigbluebutton.modules.viewers.view.components.RoleItemRenderer" sortable="false"/>
-    		<mx:DataGridColumn dataField="name" headerText="Name" editable="true" width="100" sortable="false"
+    		<mx:DataGridColumn dataField="name" headerText="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.nameItemRenderer')}" editable="true" width="100" sortable="false"
     			itemRenderer="org.bigbluebutton.modules.viewers.view.components.NameItemRenderer"/>
-    		<mx:DataGridColumn dataField="status" headerText="Status" sortable="false"
+    		<mx:DataGridColumn dataField="status" headerText="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer')}" sortable="false"
     			itemRenderer="org.bigbluebutton.modules.viewers.view.components.StatusItemRenderer"/>
     	</mx:columns>
     </mx:DataGrid>
@@ -163,12 +164,12 @@
    <mx:ControlBar width="100%"> 
    		 <mx:Button id="presentBtn" icon="{presenterIcon}" visible="{isModerator}" enabled="{viewersGrid.selectedItem != null}"
     	   			width="20" height="20"
-    	   			toolTip="Select web participant to be presenter." 
+    	   			toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.presentBtn.toolTip')}"
     	   			click="assignPresenterClicked()"/>
      	 <mx:Spacer width="100%"/>
     	 <mx:Button id="raiseHandImage" icon="{handIcon}" toggle="true" 
     	   			width="20" height="20"
-    	   			toolTip="{toggleTooltip}" click="dispatchEvent(new Event(ViewersWindowMediator.CHANGE_STATUS))"/>  			
+    	   			toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.raiseHandBtn.toolTip')}" click="dispatchEvent(new Event(ViewersWindowMediator.CHANGE_STATUS))"/>  			
     </mx:ControlBar>  
     
     <mx:SoundEffect id="userJoinSound" source="@Embed('../assets/sounds/user_join.mp3')" target="{this}" />

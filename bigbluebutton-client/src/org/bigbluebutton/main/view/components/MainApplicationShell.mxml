@@ -37,6 +37,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.modules.viewers.events.JoinFailedEvent;
 			import com.asfusion.mate.events.Dispatcher;
@@ -181,16 +182,16 @@
 		<flexmdi:MDICanvas id="mdiCanvas" horizontalScrollPolicy="off" verticalScrollPolicy="off"
 			effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}"
 			width="100%" height="100%">		
-			<mx:Label x="200" y="400" id="statusInfo" text="Please wait while we load {numberOfModules} modules: "/>
+			<mx:Label x="200" y="400" id="statusInfo" text="{ResourceUtil.getInstance().getString('bbb.mainshell.statusInfo',[numberOfModules])}"/>
 			<mx:Label x="200" y="420" id="statusInfo2"/>
-			<mx:Label x="200" y="440" id="statusProgress" text="Loading: "/>
+			<mx:Label x="200" y="440" id="statusProgress" text="{ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loading')}"/>
 		</flexmdi:MDICanvas>	
 	 	<mx:ControlBar width="100%" height="20" paddingTop="0">		
-		  <mx:Label text="(c) 2009, BigBlueButton version {appVersion} - For more information see http://www.bigbluebutton.org/." id="copyrightLabel2"/>
+		  <mx:Label text="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}" id="copyrightLabel2"/>
 		  <mx:Spacer width="20"/>
 		  <mx:Spacer width="100%"/> 
-		  <mx:Button width="20" height="20" toolTip="Open Log Window" id="logBtn" icon="{logs_icon}" click="openLogWindow()" />
-		  <mx:Button width="20" height="20" toolTip="Toggle Full-Screen" id="fullScreen" icon="{fullscreen_icon}" click="toggleFullScreen()" />
-		  <mx:Button width="20" height="20" toolTip="Reset Layout" id="btnResetLayout" icon="{reset_layout_icon}" click="resetLayout()" />
+		  <mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}" id="logBtn" icon="{logs_icon}" click="openLogWindow()" />
+		  <mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.fullScreenBtn.toolTip')}" id="fullScreen" icon="{fullscreen_icon}" click="toggleFullScreen()" />
+		  <mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.resetLayoutBtn.toolTip')}" id="btnResetLayout" icon="{reset_layout_icon}" click="resetLayout()" />
 		</mx:ControlBar>
 </mx:VBox>

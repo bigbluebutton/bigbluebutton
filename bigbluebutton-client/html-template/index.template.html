@@ -33,6 +33,28 @@ var hasProductInstall = DetectFlashVer(6, 0, 65);
 var hasRequestedVersion = DetectFlashVer(requiredMajorVersion, requiredMinorVersion, requiredRevision);
 
 
+// Check locale
+var localeChain = "en_US";
+
+if (navigator.language)
+	localeChain = navigator.language;
+else if (navigator.browserLanguage)
+	localeChain = navigator.browserLanguage; 
+
+if(/^([a-z]+)-([a-z]+)$/i.test(localeChain)){
+	var matches = /^([a-z]+)-([a-z]+)$/i.exec(localeChain);
+	localeChain = matches[1].toLowerCase() + "_" + matches[2].toUpperCase();
+}
+else if(/^([a-z]+)$/i.test(localeChain)){
+	var matches = /^([a-z]+)$/i.exec(localeChain);
+	localeChain = matches[1].toLowerCase();
+}
+else{
+	localeChain = "en_US";
+}
+
+var resourceModuleURLs = "locale/" + localeChain + "_resources.swf";
+
 // Check to see if a player with Flash Product Install is available and the version does not meet the requirements for playback
 if ( hasProductInstall && !hasRequestedVersion ) {
 	// MMdoctitle is the stored document.title value used by the installation process to close the window that started the process
@@ -46,7 +68,7 @@ if ( hasProductInstall && !hasRequestedVersion ) {
 
 	AC_FL_RunContent(
 		"src", "playerProductInstall",
-		"FlashVars", "MMredirectURL="+MMredirectURL+'&MMplayerType='+MMPlayerType+'&MMdoctitle='+MMdoctitle+"",
+		"FlashVars", "MMredirectURL="+MMredirectURL+'&MMplayerType='+MMPlayerType+'&MMdoctitle='+MMdoctitle+"" + '&resourceModuleURLs='+resourceModuleURLs+'&localeChain='+localeChain,
 		"width", "${width}",
 		"height", "${height}",
 		"align", "middle",
@@ -64,6 +86,7 @@ if ( hasProductInstall && !hasRequestedVersion ) {
 	// embed the Flash Content SWF when all tests are passed
 	AC_FL_RunContent(
 			"src", "${swf}",
+			"FlashVars", 'resourceModuleURLs='+resourceModuleURLs+'&localeChain='+localeChain,
 			"width", "${width}",
 			"height", "${height}",
 			"align", "middle",
