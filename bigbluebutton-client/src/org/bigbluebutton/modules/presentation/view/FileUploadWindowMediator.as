@@ -163,7 +163,7 @@ package org.bigbluebutton.modules.presentation.view
 	
 		private function selectFile(e:Event):void{
 			fileToUpload.addEventListener(Event.SELECT, onSelectFile);	
-			fileToUpload.browse([new FileFilter("PDF", "*.pdf"), new FileFilter("WORD", "*.doc;*.docx"), new FileFilter("EXCEL", "*.xls;*.xlsx"), new FileFilter("POWERPOINT", "*.ppt;*.pptx")]);
+			fileToUpload.browse([new FileFilter("Presentation file", "*.pdf;*.doc;*.docx;*.xls;*.xlsx;*.ppt;*.pptx"), new FileFilter("PDF", "*.pdf"), new FileFilter("WORD", "*.doc;*.docx"), new FileFilter("EXCEL", "*.xls;*.xlsx"), new FileFilter("POWERPOINT", "*.ppt;*.pptx")]);
 		}
 			
 		override public function listNotificationInterests():Array{
