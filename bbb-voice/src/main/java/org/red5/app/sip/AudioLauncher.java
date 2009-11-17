@@ -21,8 +21,7 @@ public class AudioLauncher implements MediaLauncher {
     private RtpReceiver rtpReceiver;
     private RtpSender rtpSender;
     
-    public AudioLauncher( Codec sipCodec, int localPort,
-            String remoteAddr, int remotePort, RTMPUser rtmpUser ) {
+    public AudioLauncher( Codec sipCodec, int localPort, String remoteAddr, int remotePort, RTMPUser rtmpUser ) {
         
         try {
             socket = new DatagramSocket( localPort );

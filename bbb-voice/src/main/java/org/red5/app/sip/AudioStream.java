@@ -40,7 +40,6 @@ import org.red5.server.messaging.IProvider;
 import org.red5.server.messaging.OOBControlMessage;
 import org.red5.server.messaging.PipeConnectionEvent;
 import org.red5.server.net.rtmp.event.IRTMPEvent;
-import org.red5.server.net.rtmp.event.VideoData;
 import org.red5.server.stream.codec.StreamCodecInfo;
 import org.red5.server.stream.message.RTMPMessage;
 
@@ -48,11 +47,10 @@ import org.slf4j.Logger;
 
 import org.red5.server.api.stream.IStreamPacket;;
 
-public class AudioStream implements IBroadcastStream, IProvider, IPipeConnectionListener
-{
+public class AudioStream implements IBroadcastStream, IProvider, IPipeConnectionListener {
 	/** Listeners to get notified about received packets. */
 	private Set<IStreamListener> streamListeners = new CopyOnWriteArraySet<IStreamListener>();
-	final private Logger log = Red5LoggerFactory.getLogger(AudioStream.class, "deskshare");
+	final private Logger log = Red5LoggerFactory.getLogger(AudioStream.class, "sip");
 
 	private String publishedStreamName;
 	private IPipe livePipe;
@@ -71,7 +69,7 @@ public class AudioStream implements IBroadcastStream, IProvider, IPipeConnection
 		creationTime = null;
 	}
 
-	public IProvider getProvider()  {
+	public IProvider getProvider() {
 		log.trace("getProvider()");
 		return this;
 	}
@@ -122,42 +120,34 @@ public class AudioStream implements IBroadcastStream, IProvider, IPipeConnection
 		return streamCodecInfo;
 	}
 
-	public String getName()
-	{
+	public String getName() {
 		log.trace("getName(): {}", publishedStreamName);
 		// for now, just return the published name
 		return publishedStreamName;
 	}
 
-	public void setScope(IScope scope)
-	{
+	public void setScope(IScope scope) {
 		this.scope = scope;
 	}
 
-	public IScope getScope()
-	{
+	public IScope getScope() {
 		log.trace("getScope(): {}", scope);
 		return scope;
 	}
 
-	public void start()
-	{
+	public void start() {
 		log.trace("start()");
 	}
 
-	public void stop()
-	{
+	public void stop() {
 		log.trace("stop");
 	}
 
-	public void onOOBControlMessage(IMessageComponent source, IPipe pipe,
-										OOBControlMessage oobCtrlMsg)
-	{
+	public void onOOBControlMessage(IMessageComponent source, IPipe pipe, OOBControlMessage oobCtrlMsg) {
 		log.trace("onOOBControlMessage");
 	}
 
-	public void onPipeConnectionEvent(PipeConnectionEvent event)
-	{
+	public void onPipeConnectionEvent(PipeConnectionEvent event) {
 		log.trace("onPipeConnectionEvent(event:{})", event);
 		switch (event.getType())
 		{
@@ -165,8 +155,7 @@ public class AudioStream implements IBroadcastStream, IProvider, IPipeConnection
 	    		log.trace("PipeConnectionEvent.PROVIDER_CONNECT_PUSH");
 	    		if (event.getProvider() == this
 	    				&& (event.getParamMap() == null 
-	    				|| !event.getParamMap().containsKey("record")))
-	    		{
+	    				|| !event.getParamMap().containsKey("record"))) {
 	    			log.trace("Creating a live pipe");
 	    			System.out.println("Creating a live pipe");
 	    			this.livePipe = (IPipe) event.getSource();
@@ -174,8 +163,7 @@ public class AudioStream implements IBroadcastStream, IProvider, IPipeConnection
 	    		break;
 	    	case PipeConnectionEvent.PROVIDER_DISCONNECT:
 	    		log.trace("PipeConnectionEvent.PROVIDER_DISCONNECT");
-	    		if (this.livePipe == event.getSource())
-	    		{
+	    		if (this.livePipe == event.getSource()) {
 	    			log.trace("PipeConnectionEvent.PROVIDER_DISCONNECT - this.mLivePipe = null;");
 	    			System.out.println("PipeConnectionEvent.PROVIDER_DISCONNECT - this.mLivePipe = null;");
 	    			this.livePipe = null;
@@ -196,60 +184,38 @@ public class AudioStream implements IBroadcastStream, IProvider, IPipeConnection
 		}
 	}
 
-	public void dispatchEvent(IEvent event)
-	{
-		try {
-			//      log.trace("dispatchEvent(event:{})", event);
-			//    	System.out.println("dispatchEvent(event:screenVideo)");
-			if (event instanceof IRTMPEvent)
-			{
-				IRTMPEvent rtmpEvent = (IRTMPEvent) event;
-				if (livePipe != null)
-				{
-					RTMPMessage msg = new RTMPMessage();
-
-					msg.setBody(rtmpEvent);
+	public void dispatchEvent(IEvent event) {
+		//      log.trace("dispatchEvent(event:{})", event);
+		//    	System.out.println("dispatchEvent(event:screenVideo)");
+		if (event instanceof IRTMPEvent) {
+			IRTMPEvent rtmpEvent = (IRTMPEvent) event;
+			if (livePipe != null) {
+				RTMPMessage msg = new RTMPMessage();
+				msg.setBody(rtmpEvent);
           
-					if (creationTime == null)
-						creationTime = (long)rtmpEvent.getTimestamp();
+				if (creationTime == null)
+					creationTime = (long)rtmpEvent.getTimestamp();
           
-					try
-					{
-//        	  			IVideoStreamCodec videoStreamCodec = new ScreenVideo();
-//        	  			streamCodecInfo.setHasVideo(true);
- //       	  			streamCodecInfo.setVideoCodec(videoStreamCodec);
-//        	  			videoStreamCodec.reset();
- //       	  			videoStreamCodec.addData(((VideoData) rtmpEvent).getData());
-						livePipe.pushMessage(msg);
+				try {
+					livePipe.pushMessage(msg);
 
-						// Notify listeners about received packet
-						if (rtmpEvent instanceof IStreamPacket)
-						{
-							for (IStreamListener listener : getStreamListeners())
-							{
-								try
-								{
-									listener.packetReceived(this, (IStreamPacket) rtmpEvent);
-								}
-								catch (Exception e)
-								{
-									log.error("Error while notifying listener " + listener, e);
-								}
+					if (rtmpEvent instanceof IStreamPacket) {
+						for (IStreamListener listener : getStreamListeners()) {
+							try {
+								listener.packetReceived(this, (IStreamPacket) rtmpEvent);
+							} catch (Exception e) {
+								log.error("Error while notifying listener " + listener, e);
 							}
-						} 	          	  
-					}
-					catch (IOException ex)
-					{
-						// ignore
-						log.error("Got exception: {}", ex);
-					}
+						}
+					} 	          	  
+				} catch (IOException ex) {
+					log.error("Got exception: {}", ex);
 				}
 			}
-		} finally { }
+		}
 	}
 
-	public long getCreationTime()
-	{
+	public long getCreationTime() {
 		return creationTime != null ? creationTime : 0L;
 	}
 }

@@ -1,7 +1,6 @@
 package org.red5.app.sip;
 
 import java.io.IOException;
-import java.io.PipedOutputStream;
 
 import org.red5.server.api.service.IServiceCapableConnection;
 import org.red5.server.api.IConnection;
@@ -17,7 +16,7 @@ public class User implements UserAgentListener, RegisterAgentListener {
     protected static Logger log = Red5LoggerFactory.getLogger( User.class, "sip" );
 
     public boolean sipReady = false;
-    private IConnection connectionService;
+    private IConnection connection;
     private long lastCheck;
     private String sessionID;
     private UserAgentProfile userProfile;
@@ -37,12 +36,12 @@ public class User implements UserAgentListener, RegisterAgentListener {
     private String realm;
     private String obproxy;
 
-    public User( String sessionID, IConnection service, int sipPort, int rtpPort ) throws IOException {
+    public User( String sessionID, IConnection connection, int sipPort, int rtpPort ) throws IOException {
         log.debug( "SIPUser Constructor: sip port " + sipPort + " rtp port:" + rtpPort );
 
         try {
             this.sessionID = sessionID;
-            this.connectionService = service;
+            this.connection = connection;
             this.sipPort = sipPort;
             this.rtpPort = rtpPort;
         }
@@ -105,7 +104,7 @@ public class User implements UserAgentListener, RegisterAgentListener {
             userAgent = new UserAgent( sipProvider, userProfile, this, rtmpUser );
 
             sipReady = false;
-            userAgent.listen();
+            userAgent.waitForIncomingCalls();
         }
         catch ( Exception e ) {
             log.error( "login: Exception:>\n" + e );
@@ -207,7 +206,7 @@ public class User implements UserAgentListener, RegisterAgentListener {
 	    } catch(Exception e) {
 	    	log.error("close: Exception:>\n" + e);
 	    }
-	    connectionService = null;
+	    connection = null;
 	}
 
     public void accept() {
@@ -237,7 +236,7 @@ public class User implements UserAgentListener, RegisterAgentListener {
         if ( userAgent != null ) {
             if ( userAgent.call_state != UserAgent.UA_IDLE ) {
                 userAgent.hangup();
-                userAgent.listen();
+                userAgent.waitForIncomingCalls();
             }
         }
 
@@ -311,8 +310,8 @@ public class User implements UserAgentListener, RegisterAgentListener {
 
         log.debug( "onUaCallIncoming " + source + " " + destination);
 
-        if (connectionService != null ) {
-            ( (IServiceCapableConnection) connectionService ).invoke( "incoming", 
+        if (connection != null ) {
+            ( (IServiceCapableConnection) connection ).invoke( "incoming", 
             		new Object[] { source, sourceName, destination,
             						destinationName } );
         }
@@ -321,8 +320,8 @@ public class User implements UserAgentListener, RegisterAgentListener {
 
     public void onUaCallRinging( UserAgent ua ) {
         log.debug( "onUaCallRinging" );
-        if ( connectionService != null ) {
-            ( (IServiceCapableConnection) connectionService ).invoke( "callState", new Object[] { "onUaCallRinging" } );
+        if ( connection != null ) {
+            ( (IServiceCapableConnection) connection ).invoke( "callState", new Object[] { "onUaCallRinging" } );
         }
     }
 
@@ -330,8 +329,8 @@ public class User implements UserAgentListener, RegisterAgentListener {
     public void onUaCallAccepted( UserAgent ua ) {
         log.debug( "onUaCallAccepted" );
 
-        if ( connectionService != null ) {
-            ( (IServiceCapableConnection) connectionService ).invoke( "callState", new Object[] { "onUaCallAccepted" } );
+        if ( connection != null ) {
+            ( (IServiceCapableConnection) connection ).invoke( "callState", new Object[] { "onUaCallAccepted" } );
         }
 
     }
@@ -342,8 +341,8 @@ public class User implements UserAgentListener, RegisterAgentListener {
     	log.debug( "SIP Call Connected" );
         sipReady = true;
 
-        if ( connectionService != null ) {
-            ( (IServiceCapableConnection) connectionService ).invoke( "connected", new Object[] { playName, publishName } );
+        if ( connection != null ) {
+            ( (IServiceCapableConnection) connection ).invoke( "connected", new Object[] { playName, publishName } );
         }
 
     }
@@ -352,8 +351,8 @@ public class User implements UserAgentListener, RegisterAgentListener {
     public void onUaCallTrasferred( UserAgent ua ) {
         log.debug( "onUaCallTrasferred");
 
-		 if (connectionService != null) {
-		 	((IServiceCapableConnection) connectionService).invoke("callState", new Object[] {"onUaCallTrasferred"});
+		 if (connection != null) {
+		 	((IServiceCapableConnection) connection).invoke("callState", new Object[] {"onUaCallTrasferred"});
 		}
 
     }
@@ -365,11 +364,11 @@ public class User implements UserAgentListener, RegisterAgentListener {
         sipReady = false;
         closeStreams();
 
-        if ( connectionService != null ) {
-            ( (IServiceCapableConnection) connectionService ).invoke( "callState", new Object[] { "onUaCallCancelled" } );
+        if ( connection != null ) {
+            ( (IServiceCapableConnection) connection ).invoke( "callState", new Object[] { "onUaCallCancelled" } );
         }
 
-        ua.listen();
+        ua.waitForIncomingCalls();
     }
 
 
@@ -379,11 +378,11 @@ public class User implements UserAgentListener, RegisterAgentListener {
         sipReady = false;
         closeStreams();
 
-        if ( connectionService != null ) {
-            ( (IServiceCapableConnection) connectionService ).invoke( "callState", new Object[] { "onUaCallFailed" } );
+        if ( connection != null ) {
+            ( (IServiceCapableConnection) connection ).invoke( "callState", new Object[] { "onUaCallFailed" } );
         }
 
-        ua.listen();
+        ua.waitForIncomingCalls();
     }
 
 
@@ -393,11 +392,11 @@ public class User implements UserAgentListener, RegisterAgentListener {
         sipReady = false;
         closeStreams();
 
-        if ( connectionService != null ) {
-            ( (IServiceCapableConnection) connectionService ).invoke( "callState", new Object[] { "onUaCallClosed" } );
+        if ( connection != null ) {
+            ( (IServiceCapableConnection) connection ).invoke( "callState", new Object[] { "onUaCallClosed" } );
         }
 
-        ua.listen();
+        ua.waitForIncomingCalls();
     }
 
 
@@ -405,8 +404,8 @@ public class User implements UserAgentListener, RegisterAgentListener {
 
     	log.debug( "SIP Registration success " + result );
 
-        if ( connectionService != null ) {
-            ( (IServiceCapableConnection) connectionService ).invoke( "registrationSucess", new Object[] { result } );
+        if ( connection != null ) {
+            ( (IServiceCapableConnection) connection ).invoke( "registrationSucess", new Object[] { result } );
         }
     }
 
@@ -415,8 +414,8 @@ public class User implements UserAgentListener, RegisterAgentListener {
 
     	log.debug( "SIP Registration failure " + result );
 
-        if ( connectionService != null ) {
-            ( (IServiceCapableConnection) connectionService ).invoke( "registrationFailure", new Object[] { result } );
+        if ( connection != null ) {
+            ( (IServiceCapableConnection) connection ).invoke( "registrationFailure", new Object[] { result } );
         }
     }
 

@@ -180,9 +180,7 @@ public class RTMPUser extends RTMPClient implements INetStreamEventHandler, Clie
         }
     }
 
-
     public void pushAudio( int len, byte[] audio, long ts, int codec ) throws IOException {
-
         if ( buffer == null ) {
             buffer = IoBuffer.allocate( 1024 );
             buffer.setAutoExpand( true );

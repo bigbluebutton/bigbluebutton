@@ -23,7 +23,6 @@
 
 package org.zoolu.sip.call;
 
-
 import org.zoolu.sip.dialog.*;
 import org.zoolu.sip.provider.*;
 import org.zoolu.sip.message.*;

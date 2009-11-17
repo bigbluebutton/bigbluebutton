@@ -163,7 +163,7 @@ public class UserAgent extends CallListenerAdapter {
 
     /** Costructs a UA with a default media port */
     public UserAgent(SipProvider sip_provider, UserAgentProfile user_profile,
-    					UserAgentListener listener, RTMPUser rtmpUser ) {
+    					UserAgentListener listener, RTMPUser rtmpUser) {
         
         this.sipProvider = sip_provider;
         this.listener = listener;
@@ -176,13 +176,13 @@ public class UserAgent extends CallListenerAdapter {
     }
 
 
-    public void call( String target_url ) {    	
+    public void call(String target_url) {    	
     	log.debug( "call", "Init..." );        
         changeStatus( UA_OUTGOING_CALL );
         
-        call = new ExtendedCall( sipProvider, userProfile.fromUrl, 
+        call = new ExtendedCall(sipProvider, userProfile.fromUrl, 
                 userProfile.contactUrl, userProfile.username,
-                userProfile.realm, userProfile.passwd, this );       
+                userProfile.realm, userProfile.passwd, this);       
         // In case of incomplete url (e.g. only 'user' is present), try to
         // complete it.       
         target_url = sipProvider.completeNameAddress( target_url ).toString();
@@ -217,7 +217,7 @@ public class UserAgent extends CallListenerAdapter {
 
 
     /** Waits for an incoming call (acting as UAS). */
-    public void listen() {
+    public void waitForIncomingCalls() {
     	log.debug( "listen", "Init..." );       
         changeStatus( UA_IDLE );
         
@@ -244,23 +244,21 @@ public class UserAgent extends CallListenerAdapter {
 
 
     /** Closes an ongoing, incoming, or pending call */
-    public void accept() {
-        
+    public void accept() {        
     	log.debug( "accept", "Init..." );
         
-        if ( clip_ring != null ) {
+        if (clip_ring != null) {
             clip_ring.stop();
         }
 
-        if ( call != null ) {
+        if (call != null) {
             call.accept( localSession );
         }
     }
 
 
     /** Redirects an incoming call */
-    public void redirect( String redirection ) {
-    	
+    public void redirect(String redirection) {    	
     	log.debug( "redirect", "Init..." );
         
         if ( clip_ring != null ) {
@@ -272,24 +270,18 @@ public class UserAgent extends CallListenerAdapter {
         }
     }
 
-
     protected void launchMediaApplication() {
-
         // Exit if the Media Application is already running.
-        if ( audioApp != null || videoApp != null ) {
-            
-        	log.debug( "launchMediaApplication", 
-                    "Media application is already running." );
+        if ( audioApp != null || videoApp != null ) {            
+        	log.debug( "launchMediaApplication", "Media application is already running." );
             return;
         }
 
         if ( listener != null ) {
-
             listener.onUaCallConnected( this );
         }
         
-        SessionDescriptor localSdp = 
-                new SessionDescriptor( call.getLocalSessionDescriptor() );
+        SessionDescriptor localSdp = new SessionDescriptor( call.getLocalSessionDescriptor() );
 
         int localAudioPort = 0;
         int localVideoPort = 0;
@@ -305,22 +297,16 @@ public class UserAgent extends CallListenerAdapter {
             }
         }
 
-        log.debug( "launchMediaApplication", 
-                "localAudioPort = " + localAudioPort + 
-                ", localVideoPort = " + localVideoPort + "." );
+        log.debug("localAudioPort = " + localAudioPort + ", localVideoPort = " + localVideoPort + "." );
 
         // Parse remote sdp.
-        SessionDescriptor remoteSdp = 
-                new SessionDescriptor( call.getRemoteSessionDescriptor() );
-        String remoteMediaAddress = ( new Parser( 
-                remoteSdp.getConnection().toString() ) ).
-                skipString().skipString().getString();
+        SessionDescriptor remoteSdp = new SessionDescriptor( call.getRemoteSessionDescriptor() );
+        String remoteMediaAddress = (new Parser(remoteSdp.getConnection().toString())).skipString().skipString().getString();
 
         int remoteAudioPort = 0;
         int remoteVideoPort = 0;
 
         for ( Enumeration e = remoteSdp.getMediaDescriptors().elements(); e.hasMoreElements(); ) {
-
             MediaDescriptor descriptor = (MediaDescriptor) e.nextElement();
             MediaField media = descriptor.getMedia();
 
@@ -333,9 +319,7 @@ public class UserAgent extends CallListenerAdapter {
             }
         }
         
-        log.debug( "launchMediaApplication", 
-                "remoteAudioPort = " + remoteAudioPort + 
-                ", remoteVideoPort = " + remoteVideoPort + "." );
+        log.debug("remoteAudioPort = " + remoteAudioPort + ", remoteVideoPort = " + remoteVideoPort + "." );
 
         // Select the media direction (send_only, recv_ony, fullduplex).
         int dir = 0;
@@ -346,35 +330,26 @@ public class UserAgent extends CallListenerAdapter {
             dir = 1;
         }
         
-        log.debug( "launchMediaApplication", 
-                "user_profile.audio = " + userProfile.audio + 
-                ", user_profile.video = " + userProfile.video + 
-                ", audio_app = " + audioApp + 
+        log.debug("user_profile.audio = " + userProfile.audio + 
+                ", user_profile.video = " + userProfile.video + ", audio_app = " + audioApp + 
                 ", video_app = " + videoApp + "." );
 
-        if ( userProfile.audio && localAudioPort != 0 && remoteAudioPort != 0 ) {
-
-            if ( audioApp == null ) {
-
-                if ( sipCodec != null ) {
-                    
-                    audioApp = new AudioLauncher( sipCodec, localAudioPort, 
-                            remoteMediaAddress, remoteAudioPort, rtmpUser );
+        if (userProfile.audio && localAudioPort != 0 && remoteAudioPort != 0) {
+            if (audioApp == null) {
+                if (sipCodec != null) {                    
+                    audioApp = new AudioLauncher(sipCodec, localAudioPort, remoteMediaAddress, remoteAudioPort, rtmpUser);
                 }
                 else {
                 	log.debug( "launchMediaApplication", "SipCodec not initialized." );
                 }
             }
 
-            if ( audioApp != null ) {
-
+            if (audioApp != null) {
                 audioApp.startMedia();
             }
         }
-        if ( userProfile.video && localVideoPort != 0 && remoteVideoPort != 0 ) {
-
-            if ( videoApp == null ) {
-                
+        if (userProfile.video && localVideoPort != 0 && remoteVideoPort != 0) {
+            if (videoApp == null) {                
             	log.debug( "launchMediaApplication", 
                         "No external video application nor JMF has been provided: Video not started." );
                 return;
@@ -386,18 +361,15 @@ public class UserAgent extends CallListenerAdapter {
 
 
     /** Close the Media Application */
-    protected void closeMediaApplication() {
-        
+    protected void closeMediaApplication() {        
     	log.debug( "closeMediaApplication", "Init..." );
         
-        if ( audioApp != null ) {
-
+        if (audioApp != null) {
             audioApp.stopMedia();
             audioApp = null;
         }
 
-        if ( videoApp != null ) {
-
+        if (videoApp != null) {
             videoApp.stopMedia();
             videoApp = null;
         }

@@ -15,7 +15,6 @@ public class RtpSender {
 
     boolean socketIsLocal = false;
     boolean doSync = true;
-    private int syncAdj = 0;
     private byte[] packetBuffer;
     private RtpPacket rtpPacket;
     private int startPayloadPos;
@@ -42,7 +41,8 @@ public class RtpSender {
      * @param dest_port
      *            the thestination port
      */
-    public RtpSender(NellyToPcmTranscoder transcoder, boolean do_sync, DatagramSocket src_socket, String dest_addr, int dest_port ) {
+    public RtpSender(NellyToPcmTranscoder transcoder, boolean do_sync, 
+    		DatagramSocket src_socket, String dest_addr, int dest_port ) {
         this.transcoder = transcoder;
     	init(  do_sync, src_socket, dest_addr, dest_port );
     }
@@ -62,13 +62,6 @@ public class RtpSender {
             e.printStackTrace();
         }
     }
-
-
-    /** Sets the synchronization adjustment time (in milliseconds). */
-    public void setSyncAdj( int millisecs ) {
-        syncAdj = millisecs;
-    }
-
 
     public void start() {
         packetBuffer = new byte[ transcoder.getOutgoingEncodedFrameSize() + RTP_HEADER_SIZE ];
