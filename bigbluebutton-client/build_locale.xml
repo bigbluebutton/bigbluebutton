@@ -18,6 +18,7 @@
 		<parallel threadCount="${threads.maximum}">
 			<compileLocale locale="en_US" />
 			<compileLocale locale="zh_CN" />
+			<compileLocale locale="fr_FR" />
 		</parallel>
 	</target>
 

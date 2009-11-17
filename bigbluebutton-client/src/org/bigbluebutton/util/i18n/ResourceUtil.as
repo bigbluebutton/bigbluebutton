@@ -14,7 +14,7 @@ package org.bigbluebutton.util.i18n
 		
 		private static var MSG_RESOURCE:String = 'bbbResources';
 		
-		private var localeChain:Array = [ "en_US", "zh_CN" ];
+		private var localeChain:Array = [ "en_US", "zh_CN", "fr_FR" ];
 		
 		private var resourceManager:IResourceManager = ResourceManager.getInstance();
 		
