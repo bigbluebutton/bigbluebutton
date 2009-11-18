@@ -1,12 +1,11 @@
 package org.red5.app.sip;
 
-import org.zoolu.sip.address.*;
 import org.zoolu.sip.provider.*;
 import org.zoolu.net.SocketAddress;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 
-public class SipUser implements SipUserAgentListener, RegisterAgentListener {
+public class SipUser {
     private static Logger log = Red5LoggerFactory.getLogger(SipUser.class, "sip");
 
     private RtmpConnection rtmpConnection;
@@ -16,58 +15,33 @@ public class SipUser implements SipUserAgentListener, RegisterAgentListener {
     private SipProvider sipProvider;
     private String optOutboundProxy = null;
     private SipUserAgent userAgent;
-    private RegisterAgent registerAgent;
-    private RTMPUser rtmpUser;
-    private String username;
-    private String password;
-    private String publishName;
-    private String playName;
-    private int sipPort;
-    private int rtpPort;
+    private SipRegisterAgent registerAgent;
     private String proxy;
-    private String realm;
 
     public SipUser(String userid, RtmpConnection connection, int sipPort, int rtpPort) {
         log.debug( "SIPUser Constructor: sip port " + sipPort + " rtp port:" + rtpPort );
         this.userid = userid;
         this.rtmpConnection = connection;
-        this.sipPort = sipPort;
-        this.rtpPort = rtpPort;
+        
+        initializeSipStack();
+        initializeSipProvider(sipPort);
+        initializeUserProfile(rtpPort);        
     }
-/*
-    public boolean isRunning() {
-        boolean resp = false;
 
-        try {
-        	resp = userAgent.isReceiverRunning();
-        }
-        catch ( Exception e ) {
-            resp = false;
-        }
-
-        return resp;
-    }
-*/
     public void login(String obproxy, String phone, String username, String password, String realm, String proxy) {
     	log.debug( "SIPUser login" );
-
-        this.username = username;
-        this.password = password;
         this.proxy = proxy;
 		this.optOutboundProxy = obproxy;
-		this.realm = realm;
 
-        rtmpUser = new RTMPUser();
-
-        initializeSipStack();
-        initializeSipProvider();
-        initializeUserProfile(phone);
+		sipProvider.setOutboundProxy(new SocketAddress(optOutboundProxy));        
+		setupUserProfile(username, password, realm, phone);
         initializeUserAgent();                              
     }
     
     private void initializeUserAgent() {
-    	userAgent = new SipUserAgent(sipProvider, userProfile, this, rtmpConnection);            
-        userAgent.waitForIncomingCalls();
+    	userAgent = new SipUserAgent(sipProvider, userProfile, rtmpConnection);
+    	userAgent.addListener(rtmpConnection);
+        userAgent.initialize();
     }
     
     private void initializeSipStack() {
@@ -76,23 +50,24 @@ public class SipUser implements SipUserAgentListener, RegisterAgentListener {
         SipStack.log_path = "log";    	
     }
     
-    private void initializeSipProvider() {
-        sipProvider = new SipProvider( null, sipPort );
-        sipProvider.setOutboundProxy(new SocketAddress(optOutboundProxy));
+    private void initializeSipProvider(int sipPort) {
+        sipProvider = new SipProvider(null, sipPort);        
         sipProvider.addSipProviderListener(new OptionMethodListener());    	
     }
     
-    private void initializeUserProfile(String phone) {
+    private void setupUserProfile(String username, String password, String realm, String phone) {
     	String fromURL = "\"" + phone + "\" <sip:" + phone + "@" + proxy + ">";
-    	
-        userProfile = new SipUserAgentProfile();
-        userProfile.audioPort = rtpPort;
-        userProfile.username = username;
+    	userProfile.username = username;
         userProfile.passwd = password;
         userProfile.realm = realm;
         userProfile.fromUrl = fromURL;
 		userProfile.contactUrl = "sip:" + phone + "@" + sipProvider.getViaAddress();
-
+    }
+    
+    private void initializeUserProfile(int rtpPort) {    	    	
+    	userProfile = new SipUserAgentProfile();
+        userProfile.audioPort = rtpPort;
+        
         if ( sipProvider.getPort() != SipStack.default_port ) {
             userProfile.contactUrl += ":" + sipProvider.getPort();
         }
@@ -105,9 +80,10 @@ public class SipUser implements SipUserAgentListener, RegisterAgentListener {
     public void register() {
     	log.debug( "SIPUser register" );
         if (sipProvider != null) {
-        	registerAgent = new RegisterAgent( sipProvider, userProfile.fromUrl, userProfile.contactUrl, username,
-                    							userProfile.realm, password, this );
-            loopRegister(userProfile.expires, userProfile.expires / 2, userProfile.keepaliveTime);
+        	registerAgent = new SipRegisterAgent(sipProvider, userProfile.fromUrl, userProfile.contactUrl, 
+        			userProfile.username, userProfile.realm, userProfile.passwd);
+        	registerAgent.addListener(rtmpConnection);
+            loopRegister(userProfile.expires, userProfile.expires/2, userProfile.keepaliveTime);
         }
     }
 
@@ -148,7 +124,7 @@ public class SipUser implements SipUserAgentListener, RegisterAgentListener {
 
 	public void close() {
 		log.debug("SIPUser close1");
-         try {
+        try {
 			hangup();
 			unregister();
 		    new Thread().sleep(3000);
@@ -156,41 +132,26 @@ public class SipUser implements SipUserAgentListener, RegisterAgentListener {
 			log.error("close: Exception:>\n" + e);
 		}
 
-        try {
-        	log.debug("SIPUser provider.halt");
-			sipProvider.halt();
-
-	    } catch(Exception e) {
-	    	log.error("close: Exception:>\n" + e);
-	    }
-	    rtmpConnection = null;
+       log.debug("Stopping SipProvider");
+       sipProvider.halt();
 	}
 
     public void accept() {
     	log.debug( "SIPUser accept" );
 
         if (userAgent != null) {
-            try {
-                userAgent.accept();
-            }
-            catch ( Exception e ) {
-            	log.error( "SIPUser: accept - Exception:>\n" + e );
-            }
+            userAgent.accept();
         }
     }
 
     public void hangup() {
     	log.debug( "SIPUser hangup" );
 
-        if ( userAgent != null ) {
-            if ( userAgent.call_state != UserAgent.UA_IDLE ) {
-                userAgent.hangup();
-                userAgent.waitForIncomingCalls();
-            }
+        if (userAgent != null) {
+           userAgent.hangup();
         }
 
         closeStreams();
-        rtmpUser.stopStream();
     }
 
     public void streamStatus( String status ) {
@@ -204,15 +165,12 @@ public class SipUser implements SipUserAgentListener, RegisterAgentListener {
     public void unregister() {
     	log.debug( "SIPUser unregister" );
 
-        if ( registerAgent != null ) {
-            if ( registerAgent.isRegistering() ) {
-                registerAgent.halt();
-            }
+        if (registerAgent != null) {
             registerAgent.unregister();
             registerAgent = null;
         }
 
-        if ( userAgent != null ) {
+        if (userAgent != null) {
             userAgent.hangup();
         }
         userAgent = null;
@@ -247,77 +205,6 @@ public class SipUser implements SipUserAgentListener, RegisterAgentListener {
     }
 
     private void loopRegister( int expire_time, int renew_time, long keepalive_time ) {
-        if ( registerAgent.isRegistering() ) {
-            registerAgent.halt();
-        }
         registerAgent.loopRegister( expire_time, renew_time, keepalive_time );
     }
-
-    public void onUaCallIncoming( SipUserAgent ua, NameAddress callee, NameAddress caller ) {
-        String source = caller.getAddress().toString();
-        String sourceName = caller.hasDisplayName() ? caller.getDisplayName() : "";
-        String destination = callee.getAddress().toString();
-        String destinationName = callee.hasDisplayName() ? callee.getDisplayName() : "";
-
-        log.debug( "onUaCallIncoming " + source + " " + destination);
-        rtmpConnection.onCallIncoming(source, sourceName, destination, destinationName);
-    }
-
-    public void onUaCallRinging( SipUserAgent ua ) {
-        log.debug( "onUaCallRinging" );
-        rtmpConnection.onUaCallRinging();
-    }
-
-    public void onUaCallAccepted( SipUserAgent ua ) {
-        log.debug( "onUaCallAccepted" );
-        rtmpConnection.onUaCallAccepted();
-    }
-
-    public void onUaCallConnected(SipUserAgent ua, String playName, String publishName) {
-    	log.debug( "SIP Call Connected" );
-        rtmpConnection.onUaCallConnected(playName, publishName);
-    }
-
-    public void onUaCallTrasferred( SipUserAgent ua ) {
-        log.debug( "onUaCallTrasferred");
-        rtmpConnection.onUaCallTrasferred();
-    }
-
-    public void onUaCallCancelled( SipUserAgent ua ) {
-        log.debug( "onUaCallCancelled");
-        closeStreams();
-        rtmpConnection.onUaCallCancelled();
-        ua.waitForIncomingCalls();
-    }
-
-    public void onUaCallFailed( SipUserAgent ua ) {
-        log.debug( "onUaCallFailed");
-        closeStreams();
-        rtmpConnection.onUaCallFailed();
-        ua.waitForIncomingCalls();
-    }
-
-
-    public void onUaCallClosed( SipUserAgent ua ) {
-    	log.debug( "onUaCallClosed");
-        closeStreams();
-        rtmpConnection.onUaCallClosed();
-        ua.waitForIncomingCalls();
-    }
-
-    public void onUaRegistrationSuccess( RegisterAgent ra, NameAddress target, NameAddress contact, String result ) {
-    	log.debug( "SIP Registration success " + result );
-        rtmpConnection.onUaRegistrationSuccess(result);
-    }
-
-
-    public void onUaRegistrationFailure( RegisterAgent ra, NameAddress target, NameAddress contact, String result ) {
-    	log.debug( "SIP Registration failure " + result );
-        rtmpConnection.onUaRegistrationFailure(result);
-    }
-
-
-	public void onUaUnregistedSuccess() {
-		// TODO Auto-generated method stub		
-	}
 }
