@@ -4,6 +4,8 @@ import org.zoolu.sip.provider.*;
 import org.zoolu.net.SocketAddress;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
+import org.red5.server.api.IScope;
+import org.red5.server.api.stream.IBroadcastStream;
 
 public class SipUser {
     private static Logger log = Red5LoggerFactory.getLogger(SipUser.class, "sip");
@@ -154,10 +156,10 @@ public class SipUser {
         closeStreams();
     }
 
-    public void streamStatus( String status ) {
+    public void streamStatus(String status) {
     	log.debug( "SIPUser streamStatus " + status );
 
-        if ( "stop".equals( status ) ) {
+        if ( "stop".equals(status)) {
             // ua.listen();
         }
     }
@@ -195,9 +197,12 @@ public class SipUser {
         return userAgent == null;
     }
 
-    public void startTalkStream(String callid) {
-    	// TODO: Callid should be used when we support multiple-calls.
-    	userAgent.startTalkStream();
+    public void startTalkStream(IBroadcastStream broadcastStream, IScope scope) {
+    	userAgent.startTalkStream(broadcastStream, scope);
+    }
+    
+    public void stopTalkStream(IBroadcastStream broadcastStream, IScope scope) {
+    	userAgent.stopTalkStream(broadcastStream, scope);
     }
     
     public String getSessionID() {

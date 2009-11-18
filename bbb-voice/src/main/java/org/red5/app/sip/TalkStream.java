@@ -58,7 +58,7 @@ public class TalkStream {
 		};		    
 	}
 	
-	public void startStream(IBroadcastStream broadcastStream, IScope scope) {
+	public void start(IBroadcastStream broadcastStream, IScope scope) {
 	    log.debug("startTranscodingStream({},{})", broadcastStream.getPublishedName(), scope.getName());
 	    broadcastStream.addStreamListener(mInputListener);
 	    
@@ -84,7 +84,7 @@ public class TalkStream {
         rtpSender.send(data, 1, data.length-1);
 	}
 	
-	public void stopStream() {
+	public void stop() {
 		processAudio = false;		
 	}
 	

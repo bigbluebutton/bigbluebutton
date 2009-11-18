@@ -10,6 +10,8 @@ import org.red5.app.sip.codecs.Codec;
 import org.red5.app.sip.codecs.CodecUtils;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
+import org.red5.server.api.IScope;
+import org.red5.server.api.stream.IBroadcastStream;
 import org.zoolu.tools.Parser;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -174,7 +176,7 @@ public class SipUserAgent extends CallListenerAdapter {
             	
             	try {
 					callStream = new CallStream(sipCodec, connInfo, scopeProvider);
-					notifyListenersOnCallConnected(callStream.getListenStreamName(), callStream.getTalkStreamName());
+					notifyListenersOnCallConnected(callStream.getTalkStreamName(), callStream.getListenStreamName());
 				} catch (Exception e) {
 					log.error("Failed to create Call Stream.");
 				}                
@@ -182,9 +184,9 @@ public class SipUserAgent extends CallListenerAdapter {
         }
     }
 
-    private void notifyListenersOnCallConnected(String listenStream, String talkStream) {
+    private void notifyListenersOnCallConnected(String talkStream, String listenStream) {
     	for (SipUserAgentListener listener : listeners) {
-    		listener.onCallConnected(listenStream, talkStream);
+    		listener.onCallConnected(talkStream, listenStream);
     	}   	
     }
       
@@ -226,8 +228,12 @@ public class SipUserAgent extends CallListenerAdapter {
         return remoteAudioPort;
     }
     
-    public void startTalkStream() {
-    	callStream.startMedia();   	
+    public void startTalkStream(IBroadcastStream broadcastStream, IScope scope) {
+    	callStream.startTalkStream(broadcastStream, scope);   	
+    }
+    
+    public void stopTalkStream(IBroadcastStream broadcastStream, IScope scope) {
+    	callStream.stopTalkStream(broadcastStream, scope);   	
     }
     
     protected void closeMediaApplication() {        

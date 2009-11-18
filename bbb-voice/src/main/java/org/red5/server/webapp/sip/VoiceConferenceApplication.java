@@ -2,12 +2,9 @@ package org.red5.server.webapp.sip;
 
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.HashMap;
-import java.util.Map;
 import org.slf4j.Logger;
 import org.red5.app.sip.RtmpConnection;
 import org.red5.app.sip.SipUserManager;
-import org.red5.app.sip.SipUser;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
 import org.red5.server.api.IClient;
@@ -15,6 +12,7 @@ import org.red5.server.api.IConnection;
 import org.red5.server.api.IScope;
 import org.red5.server.api.Red5;
 import org.red5.server.api.service.IServiceCapableConnection;
+import org.red5.server.api.stream.IBroadcastStream;
 
 public class VoiceConferenceApplication extends MultiThreadedApplicationAdapter {
     private static Logger log = Red5LoggerFactory.getLogger(VoiceConferenceApplication.class, "sip");
@@ -67,6 +65,21 @@ public class VoiceConferenceApplication extends MultiThreadedApplicationAdapter 
         sipManager.close(userid);
     }
 
+    @Override
+    public void streamPublishStart(IBroadcastStream stream) {
+    	log.debug("streamPublishStart: {}; {}", stream, stream.getPublishedName());
+    	super.streamPublishStart(stream);
+    	String userid = getSipUserId();
+    	sipManager.startTalkStream(userid, stream, Red5.getConnectionLocal().getScope());
+    }
+    
+    @Override
+    public void streamBroadcastClose(IBroadcastStream stream) {
+    	String userid = getSipUserId();
+    	sipManager.stopTalkStream(userid, stream, Red5.getConnectionLocal().getScope());
+    	super.streamBroadcastClose(stream);
+    }
+    
     public List<String> getStreams() {
         IConnection conn = Red5.getConnectionLocal();
         return getBroadcastStreamNames( conn.getScope() );
@@ -113,7 +126,6 @@ public class VoiceConferenceApplication extends MultiThreadedApplicationAdapter 
 		String userid = getSipUserId();
 		sipManager.registerSipUser(userid);
 	}
-
 
 	public void call(String uid, String destination) {
 		log.debug("Red5SIP Call " + destination);

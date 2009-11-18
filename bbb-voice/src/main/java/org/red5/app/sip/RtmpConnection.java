@@ -34,9 +34,9 @@ public class RtmpConnection implements ScopeProvider, SipUserAgentListener, SipR
         connection.invoke("callState", new Object[] {"onUaCallAccepted"});
     }
 
-    public void onCallConnected(String playName, String publishName) {
+    public void onCallConnected(String publishName, String playName) {
     	log.debug( "SIP Call Connected" );
-        connection.invoke("connected", new Object[] {playName, publishName});
+        connection.invoke("connected", new Object[] {publishName, playName});
     }
 
     public void onCallTrasferred() {

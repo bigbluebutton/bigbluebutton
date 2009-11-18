@@ -35,6 +35,8 @@ public class CallStream {
             
 		PcmToNellyTranscoder2 transcoder = new PcmToNellyTranscoder2(sipCodec, listenStream);
 		rtpReceiver = new RtpReceiver2(transcoder, socket);
+		listenStream.start();
+		rtpReceiver.start();
     }
     
     public String getTalkStreamName() {
@@ -51,14 +53,14 @@ public class CallStream {
     }
     
     public void startTalkStream(IBroadcastStream broadcastStream, IScope scope) {
-    	talkStream.startStream(broadcastStream, scope);
+    	talkStream.start(broadcastStream, scope);
     }
     
-    public void stopTalkStream() {
-    	talkStream.stopStream();
+    public void stopTalkStream(IBroadcastStream broadcastStream, IScope scope) {
+    	talkStream.stop();
     }
     
-    public boolean startMedia() {
+    public boolean startMedia1() {
         printLog( "startMedia", "Starting sip audio..." );
 
         if ( rtpReceiver != null ) {
@@ -72,7 +74,7 @@ public class CallStream {
 
     public boolean stopMedia() {
         printLog( "stopMedia", "Halting sip audio..." );
-        talkStream.stopStream();
+        talkStream.stop();
         listenStream.stop();
         
         // take into account the resilience of RtpStreamSender

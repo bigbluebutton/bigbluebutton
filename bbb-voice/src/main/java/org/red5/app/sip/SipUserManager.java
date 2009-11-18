@@ -2,6 +2,8 @@ package org.red5.app.sip;
 
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
+import org.red5.server.api.IScope;
+import org.red5.server.api.stream.IBroadcastStream;
 
 import java.util.*;
 
@@ -80,10 +82,17 @@ public final class SipUserManager {
     	}
     }
     
-    public void startTalkStream(String userid, String callid) {
+    public void startTalkStream(String userid, IBroadcastStream broadcastStream, IScope scope) {
     	SipUser sipUser = sessions.get(userid);
     	if (sipUser != null) {
-    		sipUser.startTalkStream(callid);
+    		sipUser.startTalkStream(broadcastStream, scope);
+    	}
+    }
+    
+    public void stopTalkStream(String userid, IBroadcastStream broadcastStream, IScope scope) {
+    	SipUser sipUser = sessions.get(userid);
+    	if (sipUser != null) {
+    		sipUser.stopTalkStream(broadcastStream, scope);
     	}
     }
     

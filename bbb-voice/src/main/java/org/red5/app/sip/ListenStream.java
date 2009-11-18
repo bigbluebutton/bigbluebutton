@@ -1,5 +1,6 @@
 package org.red5.app.sip;
 
+import java.util.Iterator;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -29,6 +30,11 @@ public class ListenStream implements TranscodedAudioDataListener {
 		this.scope = scope;
 		listenStreamName = "speaker_" + System.currentTimeMillis();
 		scope.setName(listenStreamName);	
+		Iterator<String> it = scope.getScopeNames();
+		while (it.hasNext()) {
+			log.debug((String) it.next());
+			System.out.println((String) it.next());
+		}
 	}
 	
 	public String getStreamName() {
