@@ -22,7 +22,7 @@ public class TalkStream {
 	private final RtpSender2 rtpSender;
 	private final IStreamListener mInputListener;
 	
-	private BlockingQueue<IStreamPacket> packets = new LinkedBlockingQueue<IStreamPacket>();
+	private BlockingQueue<RtmpAudioData> packets = new LinkedBlockingQueue<RtmpAudioData>();
 	private final Executor exec = Executors.newSingleThreadExecutor();
 	private Runnable audioProcessor;
 	private volatile boolean processAudio = false;
@@ -42,14 +42,16 @@ public class TalkStream {
 		    
 		      if (buf == null || buf.remaining() == 0){
 		    	log.debug("skipping empty packet with no data");
+		    	System.out.println("skipping empty packet with no data");
 		    	return;
 		      }
 		          
 		      if (packet instanceof AudioData) {
-		    	log.debug("adding packet type: {}; ts: {}; on stream: {}",
-		    			  new Object[]{"AUDIO", packet.getTimestamp(), broadcastStream.getPublishedName()});
 		    	try {
-					packets.put(packet);
+		            byte[] data = SerializeUtils.ByteBufferToByteArray(buf);
+		            RtmpAudioData audioData = new RtmpAudioData(data);
+		            System.out.println("Adding data " + data.length);
+					packets.put(audioData);
 		    	} catch (InterruptedException e) {
 					log.info("Interrupted exception while queieing audio packet");
 		    	}		    			  
@@ -67,7 +69,7 @@ public class TalkStream {
 			public void run() {
 				while (processAudio) {
 					try {
-						IStreamPacket packet = packets.take();
+						RtmpAudioData packet = packets.take();
 						processAudioPacket(packet);
 					} catch (InterruptedException e) {
 						log.info("InterruptedExeption while taking audio packet.");
@@ -78,9 +80,9 @@ public class TalkStream {
 		exec.execute(audioProcessor);	    
 	}
 	
-	private void processAudioPacket(IStreamPacket packet) {
-		IoBuffer audioData = ((AudioData)packet).getData().asReadOnlyBuffer();
-        byte[] data = SerializeUtils.ByteBufferToByteArray(audioData);
+	private void processAudioPacket(RtmpAudioData packet) {
+		byte[] data = packet.getData();
+		System.out.println("Proccessing voice data");
         rtpSender.send(data, 1, data.length-1);
 	}
 	

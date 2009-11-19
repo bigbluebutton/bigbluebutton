@@ -35,7 +35,7 @@ public class RtpReceiver2 {
             rtpSocket = new RtpSocket(socket);
         }
 
-        initializeSocket();
+ //       initializeSocket();
     }
     
     private void initializeSocket() {
@@ -85,9 +85,10 @@ public class RtpReceiver2 {
                                 + ", length = " + payloadLength + "." );
 
         		System.arraycopy(packetBuffer, headerOffset, codedBuffer, 0, payloadLength);                        
-                transcoder.transcode(codedBuffer);                    
-        	}	catch (IOException e) {
+        		transcoder.transcode(codedBuffer);                    
+        	} catch (IOException e) {
         		log.error("IOException while receiving rtp packets.");
+        		receivePackets = false;
         	}
         }
 

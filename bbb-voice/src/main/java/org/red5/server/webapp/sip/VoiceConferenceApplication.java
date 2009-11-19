@@ -5,6 +5,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.red5.app.sip.RtmpConnection;
 import org.red5.app.sip.SipUserManager;
+import org.red5.app.sip.User;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
 import org.red5.server.api.IClient;
@@ -25,6 +26,7 @@ public class VoiceConferenceApplication extends MultiThreadedApplicationAdapter 
     private int startRTPPort = 3000;
 	private int stopRTPPort = 3029;
 	private int rtpPort;
+	private String password = "secret";
 	
 	private MessageFormat callExtensionPattern = new MessageFormat("{0}");
     
@@ -89,14 +91,18 @@ public class VoiceConferenceApplication extends MultiThreadedApplicationAdapter 
     	log.debug( "Red5SIP Ping" );
     }
 	
-	public void open(String uid, String username) {
-		log.debug("Red5SIP open");
-		login(uid, username);
+/******************************************************************/
+	public void open(String obproxy,String uid, String phone,
+			String username, String password, String realm, String proxy) {
+		System.out.println("Red5SIP open");
+
+		login(obproxy, uid, phone, username, password, realm, proxy);
 		register(uid);
 	}
 
-	public void login(String uid, String username) {
-		log.debug("Red5SIP login " + uid);
+	public void login(String obproxy, String uid, String phone, 
+			String username, String password, String realm, String proxy) {
+		System.out.println("Red5SIP login " + uid);
 		IConnection conn = Red5.getConnectionLocal();
 		IServiceCapableConnection service = (IServiceCapableConnection) conn;
 		
@@ -104,15 +110,35 @@ public class VoiceConferenceApplication extends MultiThreadedApplicationAdapter 
 		String userid = getSipUserId();
 		sipManager.createSipUser(userid, rtmpConnection, sipPort, rtpPort);
 		
+		sipManager.login(userid, obproxy, phone, username, password, realm, proxy);
+		
+		sipPort++;
+		if (sipPort > stopSIPPort) sipPort = startSIPPort;
+
+		rtpPort++;
+		if (rtpPort > stopRTPPort) rtpPort = startRTPPort;
+
+	}
+
+/******************************************************************/
+	public void open(String uid, String username) {
+		log.debug("Red5SIP open");
+		login(uid, username);
+		register(uid);
+	}
+
+	public void login(String userid, String username) {
+		log.debug("Red5SIP login " + userid);
+				
 		/*
 		 * Let's tie this users account to the RTPPort. This allows us to dynamically
 		 * register a user when he/she joins the conference.
 		 */
-		String password = "secret";
-		String realm = asteriskHost;
+		
+		String realm =  asteriskHost; //asteriskHost; "192.168.0.120";
 		String proxy = realm;
 		//SipUser will connect to "outbound-proxy", just pass-in the proxy for it.
-		sipManager.login(userid, proxy, new Integer(rtpPort).toString(),username, password, realm, proxy);
+		login(proxy, userid, new Integer(rtpPort).toString(), username, password, realm, proxy);
 		
 		sipPort++;
 		if (sipPort > stopSIPPort) sipPort = startSIPPort;
@@ -128,6 +154,7 @@ public class VoiceConferenceApplication extends MultiThreadedApplicationAdapter 
 	}
 
 	public void call(String uid, String destination) {
+		destination = "600";
 		log.debug("Red5SIP Call " + destination);
 		String userid = getSipUserId();
 		String extension = callExtensionPattern.format(new String[] { destination });

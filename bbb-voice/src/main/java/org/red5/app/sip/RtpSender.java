@@ -154,6 +154,7 @@ public class RtpSender {
         rtpPacket.setSequenceNumber( seqn++ );
         rtpPacket.setTimestamp( time );
         rtpPacket.setPayloadLength( transcoder.getOutgoingEncodedFrameSize() );
+        
         rtpSocketSend( rtpPacket );    	
     }
     

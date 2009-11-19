@@ -3,15 +3,26 @@ package org.red5.app.sip;
 import local.net.RtpPacket;
 import local.net.RtpSocket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 
 public class RtpSender2 {
-    protected static Logger log = Red5LoggerFactory.getLogger( RtpSender2.class, "sip" );
+    private static Logger log = Red5LoggerFactory.getLogger( RtpSender2.class, "sip" );
 
-    public static int RTP_HEADER_SIZE = 12;
+    private BlockingQueue<RtmpAudioData> packets = new LinkedBlockingQueue<RtmpAudioData>();
+	private final Executor exec = Executors.newSingleThreadExecutor();
+	private Runnable audioProcessor;
+	private volatile boolean processAudio = false;
+	
+    private static final int RTP_HEADER_SIZE = 12;
     private RtpSocket rtpSocket = null;
 
     private boolean socketIsLocal = false;
@@ -23,7 +34,7 @@ public class RtpSender2 {
     private long timestamp = 0;
     private NellyToPcmTranscoder2 transcoder;
     
-    public RtpSender2(NellyToPcmTranscoder2 transcoder, DatagramSocket srcSocket, String destAddr, int destPort) {
+    public RtpSender2(NellyToPcmTranscoder2 transcoder, DatagramSocket srcSocket, String destAddr, int destPort) throws UnknownHostException {
         this.transcoder = transcoder;
         if (srcSocket == null) {
         	try {
@@ -34,6 +45,8 @@ public class RtpSender2 {
 			}
             socketIsLocal = true;
         }
+        
+        rtpSocket = new RtpSocket(srcSocket, InetAddress.getByName(destAddr), destPort);
     }
 
     public void start() {
@@ -113,13 +126,17 @@ public class RtpSender2 {
     }
 
     public void send(byte[] asaoBuffer, int offset, int num) {
+    	System.out.println("Transcoding from Nelly to PCM");
     	transcoder.transcode(asaoBuffer, offset, num, packetBuffer, RTP_HEADER_SIZE, this);
     }
     
     public void sendTranscodedData() {
         rtpPacket.setSequenceNumber( sequenceNum++ );
+        timestamp += transcoder.getOutgoingEncodedFrameSize();
+        
         rtpPacket.setTimestamp( timestamp );
         rtpPacket.setPayloadLength( transcoder.getOutgoingEncodedFrameSize() );
+        System.out.println("Sending rtpPacket " + timestamp);
         rtpSocketSend( rtpPacket );    	
     }
     

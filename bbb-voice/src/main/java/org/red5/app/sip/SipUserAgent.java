@@ -236,7 +236,7 @@ public class SipUserAgent extends CallListenerAdapter {
     	callStream.stopTalkStream(broadcastStream, scope);   	
     }
     
-    protected void closeMediaApplication() {        
+    private void closeMediaApplication() {        
     	log.debug("closeMediaApplication" );
         
         if (callStream != null) {

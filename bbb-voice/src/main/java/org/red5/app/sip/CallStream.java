@@ -29,7 +29,7 @@ public class CallStream {
 		NellyToPcmTranscoder2 pTranscoder = new NellyToPcmTranscoder2(sipCodec);
 		rtpSender = new RtpSender2(pTranscoder, socket, connInfo.getRemoteAddr(), connInfo.getRemotePort());
 		printLog( "SIPAudioLauncher", "New audio receiver on " + connInfo.getLocalPort() + "." );
-            
+        rtpSender.start();    
 		talkStream = new TalkStream(pTranscoder, rtpSender);
 		listenStream = new ListenStream(scopeProvider.getScope());
             
