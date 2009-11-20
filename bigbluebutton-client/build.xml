@@ -23,6 +23,7 @@
 		<mxmlc-compile target="${APP_ROOT}/LoginModule" />
 		<mxmlc-compile target="${APP_ROOT}/NotesModule" />
 		<mxmlc-compile target="${APP_ROOT}/HighlighterModule" />
+		<mxmlc-compile target="${APP_ROOT}/PresentModule" />
 -->
 		
 		<copy todir="${OUTPUT_DIR}/conf" >
@@ -73,7 +74,7 @@
 		<copy file="/var/www/bigbluebutton/client/conf/config.xml" todir="${OUTPUT_DIR}/conf" /> 
 	</target>
 	
-	<target name="generate-wrapper" depends="mxmlc-component">
+	<target name="generate-wrapper" depends="mxmlc-component, localization">
 		<html-wrapper
 			title="BigBlueButton"
 			file="BigBlueButton.html"
@@ -122,6 +123,35 @@
 				</compiler.library-path>
 
 				<default-size width="500" height="600" />
+			</mxmlc>
+		</sequential>
+	</macrodef>
+	
+	<!-- Build Localization swfs. -->
+	<target name="localization">
+		<echo>Building Localization .swf's</echo>
+		<compileLocale locale="en_US" />
+		<compileLocale locale="zh_CN" />
+		<compileLocale locale="fr_FR" />
+	</target>
+	
+	<!-- Compiles Localization Resource Bundle. -->
+	<macrodef name="compileLocale" description="Compiles the Resource package for the given locale">
+		<attribute name="locale" default="en_US"/>
+		<sequential>
+			<!--
+			Create the Flex Home directory for the language in question.
+			This is necessary to compensate for a bug in pre-3.2 releases of 
+			mxmlc.
+			
+			<mkdir dir="${FLEX_HOME}/frameworks/locale/@{locale}"/>-->
+			
+			<!-- Invoke MXMLC -->
+			<mxmlc output="${OUTPUT_DIR}/locale/@{locale}_resources.swf">
+				<locale>@{locale}</locale>
+				<source-path path-element="locale/{locale}"/>
+				<include-resource-bundles>bbbResources</include-resource-bundles>
+				<source-path path-element="${FLEX_HOME}/frameworks"/>
 			</mxmlc>
 		</sequential>
 	</macrodef>
