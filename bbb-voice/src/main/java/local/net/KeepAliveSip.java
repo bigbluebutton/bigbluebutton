@@ -26,10 +26,6 @@ import org.zoolu.net.*;
 import org.zoolu.sip.provider.SipProvider;
 import org.zoolu.sip.message.Message;
 
-import org.zoolu.tools.Timer;
-import org.zoolu.tools.TimerListener;
-import java.util.Date;
-
 
 /** KeepAliveSip thread, for keeping the connection up toward a target SIP node
   * (e.g. toward the seriving proxy/gw or a remote UA).

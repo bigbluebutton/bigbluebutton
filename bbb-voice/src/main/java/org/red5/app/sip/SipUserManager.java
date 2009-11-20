@@ -74,14 +74,7 @@ public final class SipUserManager {
     		sipUser.hangup();
     	}
     }
-    
-    public void streamStatus(String userid, String status) {
-    	SipUser sipUser = sessions.get(userid);
-    	if (sipUser != null) {
-    		sipUser.streamStatus(status);
-    	}
-    }
-    
+        
     public void startTalkStream(String userid, IBroadcastStream broadcastStream, IScope scope) {
     	SipUser sipUser = sessions.get(userid);
     	if (sipUser != null) {

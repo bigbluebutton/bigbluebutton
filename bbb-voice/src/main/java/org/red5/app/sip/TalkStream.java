@@ -50,7 +50,7 @@ public class TalkStream {
 		    	try {
 		            byte[] data = SerializeUtils.ByteBufferToByteArray(buf);
 		            RtmpAudioData audioData = new RtmpAudioData(data);
-		            System.out.println("Adding data " + data.length);
+//		            System.out.println("Adding data " + data.length);
 					packets.put(audioData);
 		    	} catch (InterruptedException e) {
 					log.info("Interrupted exception while queieing audio packet");
@@ -82,7 +82,7 @@ public class TalkStream {
 	
 	private void processAudioPacket(RtmpAudioData packet) {
 		byte[] data = packet.getData();
-		System.out.println("Proccessing voice data");
+//		System.out.println("Proccessing voice data");
         rtpSender.send(data, 1, data.length-1);
 	}
 	

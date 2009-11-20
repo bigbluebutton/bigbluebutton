@@ -59,7 +59,7 @@ public class CallStream {
     public void stopTalkStream(IBroadcastStream broadcastStream, IScope scope) {
     	talkStream.stop();
     }
-    
+/*    
     public boolean startMedia1() {
         printLog( "startMedia", "Starting sip audio..." );
 
@@ -70,21 +70,13 @@ public class CallStream {
                
         return true;
     }
-
+*/
 
     public boolean stopMedia() {
         printLog( "stopMedia", "Halting sip audio..." );
         talkStream.stop();
         listenStream.stop();
-        
-        // take into account the resilience of RtpStreamSender
-        // (NOTE: it does not take into account the resilience of
-        // RtpStreamReceiver; this can cause SocketException)
-        try {
-            Thread.sleep( RTPStreamReceiver.SO_TIMEOUT );
-        }
-        catch ( Exception e ) {
-        }
+               
         socket.close();
         return true;
     }

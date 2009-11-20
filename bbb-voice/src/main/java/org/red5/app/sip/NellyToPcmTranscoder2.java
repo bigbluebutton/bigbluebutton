@@ -133,7 +133,7 @@ public class NellyToPcmTranscoder2 {
                 }
 
                 if ( encodingOffset == sipCodec.getOutgoingDecodedFrameSize() ) {
-                	System.out.println("Send this audio to asterisk.");
+//                	System.out.println("Send this audio to asterisk.");
                     rtpSender.sendTranscodedData();
                     encodingOffset = 0;
                 }

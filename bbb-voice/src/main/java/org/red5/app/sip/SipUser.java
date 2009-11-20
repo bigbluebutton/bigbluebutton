@@ -11,7 +11,6 @@ public class SipUser {
     private static Logger log = Red5LoggerFactory.getLogger(SipUser.class, "sip");
 
     private RtmpConnection rtmpConnection;
-    private long lastCheck;
     private String userid;
     private SipUserAgentProfile userProfile;
     private SipProvider sipProvider;
@@ -30,7 +29,8 @@ public class SipUser {
         initializeUserProfile(rtpPort);        
     }
 
-    public void login(String obproxy, String phone, String username, String password, String realm, String proxy) {
+    public void login(String obproxy, String phone, String username, String password, 
+    		String realm, String proxy) {
     	log.debug( "SIPUser login" );
         this.proxy = proxy;
 		this.optOutboundProxy = obproxy;
@@ -153,15 +153,6 @@ public class SipUser {
            userAgent.hangup();
         }
 
-        closeStreams();
-    }
-
-    public void streamStatus(String status) {
-    	log.debug( "SIPUser streamStatus " + status );
-
-        if ( "stop".equals(status)) {
-            // ua.listen();
-        }
     }
 
     public void unregister() {
@@ -178,31 +169,14 @@ public class SipUser {
         userAgent = null;
     }
 
-    private void closeStreams() {
-    	log.debug( "SIPUser closeStreams" );
-
-        try {
-
-        }
-        catch ( Exception e ) {
-        	log.error( "closeStreams: Exception:>\n" + e );
-        }
-    }
-
-    public long getLastCheck() {
-        return lastCheck;
-    }
-
-    public boolean isClosed() {
-        return userAgent == null;
-    }
-
     public void startTalkStream(IBroadcastStream broadcastStream, IScope scope) {
-    	userAgent.startTalkStream(broadcastStream, scope);
+    	if (userAgent != null)
+    		userAgent.startTalkStream(broadcastStream, scope);
     }
     
     public void stopTalkStream(IBroadcastStream broadcastStream, IScope scope) {
-    	userAgent.stopTalkStream(broadcastStream, scope);
+    	if (userAgent != null)
+    		userAgent.stopTalkStream(broadcastStream, scope);
     }
     
     public String getSessionID() {

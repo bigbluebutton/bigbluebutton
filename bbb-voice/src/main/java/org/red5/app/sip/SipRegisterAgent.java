@@ -174,7 +174,6 @@ public class SipRegisterAgent implements TransactionClientListener {
 			stopRegistering();
 		}
 		
-		register(0);
 		sipProvider = null;
 	}
 

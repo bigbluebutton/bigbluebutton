@@ -5,7 +5,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.red5.app.sip.RtmpConnection;
 import org.red5.app.sip.SipUserManager;
-import org.red5.app.sip.User;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
 import org.red5.server.api.IClient;
@@ -156,6 +155,7 @@ public class VoiceConferenceApplication extends MultiThreadedApplicationAdapter 
 	public void call(String uid, String destination) {
 		destination = "600";
 		log.debug("Red5SIP Call " + destination);
+		System.out.println("Red5SIP Call " + destination);
 		String userid = getSipUserId();
 		String extension = callExtensionPattern.format(new String[] { destination });
 		sipManager.call(userid, extension);
@@ -184,13 +184,13 @@ public class VoiceConferenceApplication extends MultiThreadedApplicationAdapter 
 		String userid = getSipUserId();
 		sipManager.hangup(userid);
 	}
-
+/*
 	public void streamStatus(String uid, String status) {
 		log.debug("Red5SIP streamStatus");
 		String userid = getSipUserId();
 		sipManager.streamStatus(userid, status);
 	}
-
+*/
 	public void close(String uid) {
 		log.debug("Red5SIP endRegister");
 		String userid = getSipUserId();

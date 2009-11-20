@@ -126,7 +126,7 @@ public class RtpSender2 {
     }
 
     public void send(byte[] asaoBuffer, int offset, int num) {
-    	System.out.println("Transcoding from Nelly to PCM");
+//    	System.out.println("Transcoding from Nelly to PCM");
     	transcoder.transcode(asaoBuffer, offset, num, packetBuffer, RTP_HEADER_SIZE, this);
     }
     
@@ -136,7 +136,7 @@ public class RtpSender2 {
         
         rtpPacket.setTimestamp( timestamp );
         rtpPacket.setPayloadLength( transcoder.getOutgoingEncodedFrameSize() );
-        System.out.println("Sending rtpPacket " + timestamp);
+//        System.out.println("Sending rtpPacket " + timestamp);
         rtpSocketSend( rtpPacket );    	
     }
     
