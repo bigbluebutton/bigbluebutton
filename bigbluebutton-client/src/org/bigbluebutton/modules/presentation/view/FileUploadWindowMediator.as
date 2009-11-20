@@ -91,7 +91,7 @@ package org.bigbluebutton.modules.presentation.view
 			var proxy:PresentProxy = facade.retrieveProxy(PresentProxy.NAME) as PresentProxy;
 	
 			var presentationName:String = fileToUpload.name
-			var filenamePattern:RegExp = /(.+)(\.pdf|\.doc|\.docx|\.xls|\.xlsx|\.ppt|\.pptx)/i;
+			var filenamePattern:RegExp = /(.+)(\.pdf|\.doc|\.docx|\.xls|\.xlsx|\.ppt|\.pptx|\.jpg|\.png)/i;
 			// Get the first match which should be the filename without the extension.
 			presentationName = presentationName.replace(filenamePattern, "$1")
 			// Replace any character other than a word character (A-Z, a-z, 0-9, or _).
@@ -163,7 +163,7 @@ package org.bigbluebutton.modules.presentation.view
 	
 		private function selectFile(e:Event):void{
 			fileToUpload.addEventListener(Event.SELECT, onSelectFile);	
-			fileToUpload.browse([new FileFilter("Presentation file", "*.pdf;*.doc;*.docx;*.xls;*.xlsx;*.ppt;*.pptx"), new FileFilter("PDF", "*.pdf"), new FileFilter("WORD", "*.doc;*.docx"), new FileFilter("EXCEL", "*.xls;*.xlsx"), new FileFilter("POWERPOINT", "*.ppt;*.pptx")]);
+			fileToUpload.browse([new FileFilter("Presentation file", "*.pdf;*.doc;*.docx;*.xls;*.xlsx;*.ppt;*.pptx"), new FileFilter("PDF", "*.pdf"), new FileFilter("WORD", "*.doc;*.docx"), new FileFilter("EXCEL", "*.xls;*.xlsx"), new FileFilter("POWERPOINT", "*.ppt;*.pptx"), new FileFilter("IMAGE", "*.png;*.jpg;*.jpeg")]);
 		}
 			
 		override public function listNotificationInterests():Array{
