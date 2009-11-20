@@ -51,9 +51,9 @@ class PresentationService {
 	    
 	private static String JMS_UPDATES_Q = 'UpdatesQueue'
 	    
-    def deletePresentation = {conf, room, filename ->
-    	def directory = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + filename)
-    	deleteDirectory(directory) 
+    	def deletePresentation = {conf, room, filename ->
+    		def directory = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + filename)
+    		deleteDirectory(directory) 
 	}
 	
 	def deleteDirectory = {directory ->
@@ -89,52 +89,232 @@ class PresentationService {
 		return presentationsList
 	}
 	
-    public File uploadedPresentationDirectory(String conf, String room, String presentation_name) {
-	    println "Uploaded presentation ${presentation_name}"
+	public File uploadedPresentationDirectory(String conf, String room, String presentation_name) {
+	    println "Uploaded presentation ${presentation_name} for conf ${conf} and room ${room} to dir ${presentationDir}"
 		File dir = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentation_name)
 		println "upload to directory ${dir.absolutePath}"
-			
+
 		/* If the presentation name already exist, delete it. We should provide a check later on to notify user
 			that there is already a presentation with that name. */
 		if (dir.exists()) deleteDirectory(dir)		
 		dir.mkdirs()
-		
+
 		assert dir.exists()
 		return dir
-    }
+	}
+	
+	public File prepareFileType(String ext, File presentationFile) {
+		log.debug "Preparing file $ext"
+		println "Preparing file $ext"
+		
+		switch(ext)
+		{
+			/* OFFICE FILE */
+			case 'xls':
+			case 'xlsx':
+			case 'doc':
+			case 'docx':
+			case 'ppt':
+			case 'pptx':
+				log.debug "Office File " + ext + ", converting to PDF..."
+				println "Office File " + ext + ", converting to PDF..."
+				PageConverter converter = new Office2PdfPageConverter()
+				converter.setOfficeToolsDir(officeToolsDir)
+				File output = new File(presentationFile.getAbsolutePath().substring(0, presentationFile.getAbsolutePath().lastIndexOf(".")) + ".pdf")
+				println presentationFile.getAbsolutePath().substring(0, presentationFile.getAbsolutePath().lastIndexOf(".")) + ".pdf"
+				Boolean convertion = converter.convert(presentationFile, output, 0)
+				println convertion
+				if (convertion)
+					return (output);
+				break;
+			case 'avi':
+			case 'mpg':
+				/* Testing requirements - ffmpeg */
+				return (null);
+				break;
+			case 'mp3':
+				/* Testing requirements - ffmpeg */
+				return (null);
+				break;
+			/* DEFAULT SUPPORTED FILES - NO PREPARATION NEEDED*/
+			case 'pdf':
+			case 'jpg':
+			case 'jpeg':
+			case 'png':
+				return (presentationFile);
+				break;
+			default:
+				break;
+		}
+		return (null);
+	}
+	
+	public boolean convertFileType(String ext, String conference, String room, String presentationName, File presentationFile, int numPages) {
+		log.debug "Converting uploaded presentation $presentationFile.absolutePath"
+		
+		switch(ext)
+		{
+			/* OFFICE FILE CONVERTED TO PDF in prepareFileType */
+			/* PDF FILE */
+			case 'xls':
+			case 'xlsx':
+			case 'doc':
+			case 'docx':
+			case 'ppt':
+			case 'pptx':
+			case 'pdf':
+				for (int page = 1; page <= numPages; page++) 
+				{	
+					log.debug "Converting page $page of $presentationFile.absolutePath"			
+					convertPage(presentationFile, page)
+					sendConversionUpdateMessage(conference, room, presentationName, numPages, page)
+				}
+				return (true);
+				break;
+			case 'jpg':
+			case 'jpeg':
+			case 'png':
+				PageConverter converter;
+				if (ext == 'png')
+					converter = new Png2SwfPageConverter()
+				else if (ext == 'jpg' || ext == 'jpeg')
+					converter = new Jpeg2SwfPageConverter()
+				else
+					return (false);
+				converter.setSwfToolsDir(swfToolsDir)
+				
+				File output = new File(presentationFile.getParent() + File.separatorChar + "slide-1.swf")
+				if (!converter.convert(presentationFile, output, 1))
+					generateBlankSlide(output.getAbsolutePath());
+				sendConversionUpdateMessage(conference, room, presentationName, numPages, 1)
+				return (true);
+				break;
+			case 'avi':
+			case 'mpg':
+				/* Conversion to flv using ffmpeg */
+				return (false);
+				break;
+			case 'mp3':
+				/* Conversion to flv using ffmpeg */
+				return (false);
+				break;
+			default:
+				break;
+		}
+		return (false);
+	}
+	
+	public int getnumPages(String ext, File presentationFile) {
+		log.debug "Determining number of pages"
+		
+		switch(ext)
+		{
+			/* OFFICE FILE CONVERTED TO PDF in convertFileTypeToSwf */
+			/* PDF FILE */
+			case 'xls':
+			case 'xlsx':
+			case 'doc':
+			case 'docx':
+			case 'ppt':
+			case 'pptx':
+			case 'pdf':
+				PageCounter pageCounter = new Pdf2SwfPageCounter()
+				pageCounter.setSwfToolsDir(swfToolsDir)
+				int numPages = pageCounter.countNumberOfPages(presentationFile)
+				return (numPages);
+				break;
+			case 'avi':
+			case 'mpg':
+			case 'mp3':
+			case 'jpg':
+			case 'jpeg':
+			case 'png':
+				return (1);
+				break;
+			default:
+				break;
+		}
+		return (0);
+	}
+	
+	public boolean createThumbnails(String ext, String conference, String room, String presentationName, File presentationFile, int numPages) {
+		log.debug "Creating thumbnails for presentation.absolutePath"
+		// Send twice...seem to be loosing messages...need to understand some more 
+		// how to set JMS producer-consumer
+		sendCreatingThumbnailsUpdateMessage(conference, room, presentationName)
+		sendCreatingThumbnailsUpdateMessage(conference, room, presentationName)
+		
+		switch(ext)
+		{
+			/* OFFICE FILE CONVERTED TO PDF in prepareFileType */
+			/* PDF FILE */
+			case 'xls':
+			case 'xlsx':
+			case 'doc':
+			case 'docx':
+			case 'ppt':
+			case 'pptx':
+			case 'pdf':
+			case 'jpg':
+			case 'jpeg':
+			case 'png':
+				ThumbnailCreatorImp tc = new ThumbnailCreatorImp()
+				tc.imageMagickDir = imageMagickDir
+				tc.blankThumbnail = BLANK_THUMBNAIL
+				tc.createThumbnails(presentationFile, numPages)
+				break;
+			case 'avi':
+			case 'mpg':
+			case 'mp3':
+				/* TODO ADD SUPPORT */
+				return (true);
+				break;
+			default:
+				break;
+		}
+		return (false);
+	}
 
 	def processUploadedPresentation = {conf, room, presentationName, presentationFile ->	
 		// Run conversion on another thread.
 		new Timer().runAfter(1000) 
 		{
-			// first we need to determine what filetype the file is and convert it to pdf if necessary. Else throw an error !
-			if (!presentationFile.getAbsolutePath().endsWith('pdf'))
+			/* Getting file extension - Perhaps try to rely on smth more accurate than an extension type ? */
+			String ext = presentationFile.getName().toLowerCase().substring(presentationFile.getName().toLowerCase().lastIndexOf('.') + 1)
+			if (ext)
 			{
-				log.debug "Not a PDF File, converting to PDF..."
-				PageConverter converter = new Office2SwfPageConverter()
-				converter.setOfficeToolsDir(officeToolsDir)
-				File output = new File(presentationFile.getAbsolutePath().substring(0, presentationFile.getAbsolutePath().lastIndexOf(".")) + ".pdf")
-				log.debug "Not a PDF File, converting to PDF..."
-				if (converter.convert(presentationFile, output, 0))
+				/* Prepare file convertion depending on filetype (OFFICE -> PDF) */
+				File ConvertedPresentationFile = prepareFileType(ext, presentationFile)
+				println ConvertedPresentationFile
+				if (ConvertedPresentationFile)
 				{
-					presentationFile = output
-				}
-			}
-			
-			// second we need to know how many pages in the pdf
-			if (presentationFile.getAbsolutePath().endsWith('pdf'))
-			{
-				log.debug "Determining number of pages"
-				PageCounter pageCounter = new Pdf2SwfPageCounter()
-				pageCounter.setSwfToolsDir(swfToolsDir)
+					/* Getting number of pages, if available */
+					int numPages = getnumPages(ext, ConvertedPresentationFile)
+					log.info "There is/are $numPages slide(s) for $presentationFile.absolutePath"
 
-				int numPages = pageCounter.countNumberOfPages(presentationFile)
-				log.info "There are $numPages pages in $presentationFile.absolutePath"
-				convertUploadedPresentation(conf, room, presentationName, presentationFile, numPages)	
+					if (numPages)
+					{
+						/* Convert File to Presentation Pages */
+						if (convertFileType(ext, conf, room, presentationName, ConvertedPresentationFile, numPages))
+						{
+							/* Create thumbnails for each pages */
+							createThumbnails(ext, conf, room, presentationName, ConvertedPresentationFile, numPages)
+
+							/* We're done */
+							sendConversionCompletedMessage(conf, room, presentationName, numPages)
+						}
+						else /* Problem while converting to SWF - Throw generic error for now... - FIXME SPECIFIED ERROR */
+							sendConvertErrorMessage(conf, room, presentationName, presentationFile, "Error while converting file to SWF")
+					}
+					else /* Problem getting number of pages - Throw generic error for now... - FIXME SPECIFIED ERROR */
+						sendConvertErrorMessage(conf, room, presentationName, presentationFile, "Error while getting number of pages")
+					
+				}
+				else /* Problem while preparing file - Throw generic error  - FIXME SPECIFIED ERROR */
+					sendConvertErrorMessage(conf, room, presentationName, presentationFile, "Error while preparing file")
 			}
-			else // Problem with fileformat
-				sendFileFormatErrorMessage(conf, room, presentationName, presentationFile)
-	
+			else /* Problem with fileformat - Throw generic error */
+				sendConvertErrorMessage(conf, room, presentationName, presentationFile, "Unable to determine file format")
 		}
 	}
  	
@@ -159,86 +339,68 @@ class PresentationService {
 		thumbDir.listFiles().length
 	}   
 	
-    def roomDirectory = {conf, room ->
+	def roomDirectory = {conf, room ->
 		return new File(presentationDir + File.separatorChar + conf + File.separatorChar + room)
-    }
-
-	public boolean convertUploadedPresentation(String conference, String room, String presentationName, File presentationFile, int numPages) {		
-		log.debug "Converting uploaded presentation $presentationFile.absolutePath"
-		for (int page = 1; page <= numPages; page++) 
-	    {		
-			log.debug "Converting page $page of $presentationFile.absolutePath"			
-			convertPage(presentationFile, page)
-			sendConversionUpdateMessage(conference, room, presentationName, numPages, page)
-	    }
-
-		// Send twice...seem to be loosing messages...need to understand some more 
-		// how to set JMS producer-consumer
-		sendCreatingThumbnailsUpdateMessage(conference, room, presentationName)
-		sendCreatingThumbnailsUpdateMessage(conference, room, presentationName)
-		createPresentationThumbnails(presentationFile, numPages)
-		
-		sendConversionCompletedMessage(conference, room, presentationName, numPages)
 	}
 
 	public boolean convertPage(File presentationFile, int page) {
 		PageConverter converter = new Pdf2SwfPageConverter()
 		converter.setSwfToolsDir(swfToolsDir)
-		
+
 		File output = new File(presentationFile.getParent() + File.separatorChar + "slide-" + page + ".swf")
-		
-	    if (! converter.convert(presentationFile, output, page)) {
-	    	log.info "cannot create ${output.absolutePath}"
-	    	println "cannot create ${output.absolutePath}"
-	    	convertPageAsAnImage(presentationFile, output, page)
-	    } else {
-	    	println "The size of the swf file is " + output.size()
-	    	// If the resulting swf file is greater than 500K, it probably contains a lot of objects
-	    	// that it becomes very slow to render on the client. Take an image snapshot instead and
-	    	// use it to generate the SWF file. (ralam Sept 2, 2009)
-	    	if (output.size() > 500000) {
-	    		convertPageAsAnImage(presentationFile, output, page)
-	    	}
-	    }
-		
+
+		if (! converter.convert(presentationFile, output, page)) {
+			log.info "cannot create ${output.absolutePath}"
+			println "cannot create ${output.absolutePath}"
+			convertPageAsAnImage(presentationFile, output, page)
+		} else {
+			println "The size of the swf file is " + output.size()
+			// If the resulting swf file is greater than 500K, it probably contains a lot of objects
+			// that it becomes very slow to render on the client. Take an image snapshot instead and
+			// use it to generate the SWF file. (ralam Sept 2, 2009)
+			if (output.size() > 500000) {
+				convertPageAsAnImage(presentationFile, output, page)
+			}
+		}
+
 		// If all fails, generate a blank slide.
 		if (! output.exists()) {
-			println "Creating balnk slide for ${output.absolutePath}"
+			println "Creating blank slide for ${output.absolutePath}"
 			generateBlankSlide(output.getAbsolutePath())
 		}
-	    return true	
+		return true
 	}
 	
 	private boolean convertPageAsAnImage(File presentationFile, File output, int page) {
-    	PageExtractor extractor = new GhostscriptPageExtractor()
-    	extractor.setGhostscriptExec(ghostScriptExec)
-    	extractor.setNoPdfMarkWorkaround(noPdfMarkWorkaround)
-    	
-    	def tempDir = new File(presentationFile.parent + File.separatorChar + "temp")
-    	tempDir.mkdir()
-	
-    	File tempPdfFile = new File(tempDir.absolutePath + File.separator + "temp-${page}.pdf")
-    	
-    	if (extractor.extractPage(presentationFile, tempPdfFile, page)) {
-    		log.info "created using ghostscript ${tempPdfFile.absolutePath}"
-    		println "created using ghostscript ${tempPdfFile.absolutePath}"
-    		
-    		File tempPngFile = new File(tempDir.getAbsolutePath() + "/temp-${page}.png")
-    		
-    		PageConverter imConverter = new ImageMagickPageConverter()
-    		imConverter.setImageMagickDir(imageMagickDir)
-    		if (imConverter.convert(tempPdfFile, tempPngFile, 1)) {
-    			log.info "created using imagemagick ${tempPngFile.absolutePath}"
-    			println "created using imagemagick ${tempPngFile.absolutePath}"
-    			
-    			PageConverter pngConverter = new Png2SwfPageConverter()
-    			pngConverter.setSwfToolsDir(swfToolsDir)
-    			if (pngConverter.convert(tempPngFile, output, 1)) {
-    				log.info "converted ${tempPngFile.absolutePath} to ${output.absolutePath} "
-    				println "converted ${tempPngFile.absolutePath} to ${output.absolutePath}"
-    			}
-    		}
-    	}		
+		PageExtractor extractor = new GhostscriptPageExtractor()
+		extractor.setGhostscriptExec(ghostScriptExec)
+		extractor.setNoPdfMarkWorkaround(noPdfMarkWorkaround)
+
+		def tempDir = new File(presentationFile.parent + File.separatorChar + "temp")
+		tempDir.mkdir()
+
+		File tempPdfFile = new File(tempDir.absolutePath + File.separator + "temp-${page}.pdf")
+
+		if (extractor.extractPage(presentationFile, tempPdfFile, page)) {
+			log.info "created using ghostscript ${tempPdfFile.absolutePath}"
+			println "created using ghostscript ${tempPdfFile.absolutePath}"
+
+			File tempPngFile = new File(tempDir.getAbsolutePath() + "/temp-${page}.png")
+
+			PageConverter imConverter = new ImageMagickPageConverter()
+			imConverter.setImageMagickDir(imageMagickDir)
+			if (imConverter.convert(tempPdfFile, tempPngFile, 1)) {
+				log.info "created using imagemagick ${tempPngFile.absolutePath}"
+				println "created using imagemagick ${tempPngFile.absolutePath}"
+
+				PageConverter pngConverter = new Png2SwfPageConverter()
+				pngConverter.setSwfToolsDir(swfToolsDir)
+				if (pngConverter.convert(tempPngFile, output, 1)) {
+					log.info "converted ${tempPngFile.absolutePath} to ${output.absolutePath} "
+					println "converted ${tempPngFile.absolutePath} to ${output.absolutePath}"
+				}
+			}
+		}		
 	}
 
 	private void generateBlankSlide(String dest) {
@@ -246,22 +408,14 @@ class PresentationService {
 		FileCopyUtils.copy(new File(BLANK_SLIDE), slide);		
 	}
 	
-	private void createPresentationThumbnails(File presentation, int numberOfPages) {		
-		log.debug "Creating thumbnails for presentation.absolutePath"		
-		ThumbnailCreatorImp tc = new ThumbnailCreatorImp()
-		tc.imageMagickDir = imageMagickDir
-		tc.blankThumbnail = BLANK_THUMBNAIL
-		tc.createThumbnails(presentation, numberOfPages)		
-	}
-	
-	private void sendFileFormatErrorMessage(String conference, String room, String presName, File presentationFile) {
+	private void sendConvertErrorMessage(String conference, String room, String presName, File presentationFile, String errorMsg) {
 		def msg = new HashMap()
 		msg.put("room", room)
 		msg.put("returnCode", "FAILED_CONVERT")
 		msg.put("presentationName", presName)
-		msg.put("message", "An error occured converting the file to PDF.")
-		log.debug "Failed to convert $presentationFile.absolutePath to PDF File."
-		println "Failed to convert $presentationFile.absolutePath to PDF File."
+		msg.put("message", errorMsg)
+		log.debug "Failed to convert $presentationFile.absolutePath to presentation file : " + errorMsg
+		println "Failed to convert $presentationFile.absolutePath to presentation file : " + errorMsg
 		sendJmsMessage(msg)
 	}
 	
