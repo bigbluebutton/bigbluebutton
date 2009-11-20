@@ -59,14 +59,14 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
 	 	def source = presentationFile.getAbsolutePath()
 	 	def dest = thumbsDir.getAbsolutePath() + "/${TEMP_THUMB_NAME}.png"
 	 	
-        def command = imageMagickDir + "/convert -thumbnail 150x150 " + source + " " + dest
-        println "Executing $command"
-        Process p = Runtime.getRuntime().exec(command);       
+		def command = imageMagickDir + "/convert -thumbnail 150x150 " + source + " " + dest
+		println "Executing $command"
+		Process p = Runtime.getRuntime().exec(command);       
 	
 		int exitValue = p.waitFor()
 
-        if (exitValue == 0) return true
-		
+		if (exitValue == 0)
+			return true
 		return false		
 	}
 	
@@ -75,26 +75,37 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
 	}
 	
 	private def renameThumbnails(File dir) {
-		
-        dir.eachFile{ file ->
-        	// filename should be something like 'c:/temp/bigluebutton/presname/thumbnails/temp-thumb-1.png'
-        	def filename = file.absolutePath
+		/*
+		 * If more than 1 file, filename like 'temp-thumb-X.png' else filename is 'temp-thumb.png'
+		 */
+		 println dir.list().length
+		if (dir.list().length > 1)
+		{
+			dir.eachFile { file ->
+				// filename should be something like 'c:/temp/bigluebutton/presname/thumbnails/temp-thumb-1.png'
+				def filename = file.absolutePath
 
-        	// Extract the page number. There should be 3 matches.
-        	// 1. c:/temp/bigluebutton/presname/thumbnails/temp-thumb
-        	// 2. 1 ---> what we are interested in
-        	// 3. .png
-        	def infoRegExp = /(.+-thumb)-([0-9]+)(.png)/
-        	def matcher = (filename =~ infoRegExp)
-        	if (matcher.matches()) {  
-        		// We are interested in the second match.
-        	    int pageNum = new Integer(matcher[0][2]).intValue()
-        	    println "Renaming thumnail ${pageNum}"
-        	    def newFilename = "thumb-${++pageNum}.png"
-        	    File renamedFile = new File(file.parent + File.separator + newFilename)
-        	    file.renameTo(renamedFile)
-        	}        	
-        }
+				// Extract the page number. There should be 3 matches.
+				// 1. c:/temp/bigluebutton/presname/thumbnails/temp-thumb
+				// 2. 1 ---> what we are interested in
+				// 3. .png
+				def infoRegExp = /(.+-thumb)-([0-9]+)(.png)/
+				def matcher = (filename =~ infoRegExp)
+				if (matcher.matches()) {  
+					// We are interested in the second match.
+				    int pageNum = new Integer(matcher[0][2]).intValue()
+				    println "Renaming thumnail ${pageNum}"
+				    def newFilename = "thumb-${++pageNum}.png"
+				    File renamedFile = new File(file.parent + File.separator + newFilename)
+				    file.renameTo(renamedFile)
+				}
+			}
+		} else if (dir.list().length == 1) {
+			def oldFilename = new File(dir.getAbsolutePath() + File.separator + dir.list()[0])
+			def newFilename = "thumb-1.png"
+			File renamedFile = new File(oldFilename.parent + File.separator + newFilename)
+			oldFilename.renameTo(renamedFile)
+		}
 	}
 	
 	def createBlankThumbnails(File thumbsDir, int pageCount) {
