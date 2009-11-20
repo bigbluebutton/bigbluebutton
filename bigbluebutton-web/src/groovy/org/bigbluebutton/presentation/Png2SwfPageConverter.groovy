@@ -29,9 +29,9 @@ public class Png2SwfPageConverter implements PageConverter{
 		def now = new Date()
 		println "PNG2SWF starting $now"
 		
-        def command = SWFTOOLS_DIR + "/png2swf -o " + output.getAbsolutePath() + " " + presentationFile.getAbsolutePath()
-        println "Executing $command"
-	    def process = Runtime.getRuntime().exec(command);            
+		def command = SWFTOOLS_DIR + "/png2swf -o " + output.getAbsolutePath() + " " + presentationFile.getAbsolutePath()
+		println "Executing $command"
+		def process = Runtime.getRuntime().exec(command);            
 
 		// Wait for the process to finish.
 		int exitValue = process.waitFor()
