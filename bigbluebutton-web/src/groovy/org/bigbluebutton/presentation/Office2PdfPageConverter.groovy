@@ -20,14 +20,14 @@
 package org.bigbluebutton.presentation
 
 
-public class Office2SwfPageConverter implements PageConverter{
+public class Office2PdfPageConverter implements PageConverter{
 
 	private String JODCONVERTER_DIR
 	
 	public boolean convert(File presentationFile, File output, int page){
 
 		def now = new Date()
-		println "Office2SWF starting $now"
+		println "Office2PDF starting $now"
 		
 		def command = "java -jar " + JODCONVERTER_DIR + "/jodconverter-cli-2.2.2.jar " + presentationFile.getAbsolutePath() + " " + output.getAbsolutePath()
         	/*
@@ -40,7 +40,7 @@ public class Office2SwfPageConverter implements PageConverter{
 		int exitValue = process.waitFor()
 		
 		now = new Date()
-		println "OFFICE2SWF ended $now with exitValue $exitValue"
+		println "OFFICE2PDF ended $now with exitValue $exitValue"
 				    
 		if (output.exists()) return true	
 		return false
