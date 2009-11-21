@@ -19,34 +19,41 @@
  */
 package org.bigbluebutton.presentation
 
+import com.artofsolving.jodconverter.*
+import com.artofsolving.jodconverter.openoffice.connection.*
+import com.artofsolving.jodconverter.openoffice.converter.*
 
 public class Office2PdfPageConverter implements PageConverter{
 
-	private String JODCONVERTER_DIR
-	
 	public boolean convert(File presentationFile, File output, int page){
-
 		def now = new Date()
 		println "Office2PDF starting $now"
 		
-		def command = "java -jar " + JODCONVERTER_DIR + "/jodconverter-cli-2.2.2.jar " + presentationFile.getAbsolutePath() + " " + output.getAbsolutePath()
-        	/*
-        	 * def command = "java -jar " + JODCONVERTER_DIR + "/jodconverter-cli-2.2.2.jar " + output.getAbsolutePath() + " " + presentationFile.getAbsolutePath()
-        	 */
-        	println "Executing $command"
-	    	def process = Runtime.getRuntime().exec(command);
+		def connection = new SocketOpenOfficeConnection(8100)
 
-		// Wait for the process to finish.
-		int exitValue = process.waitFor()
+		try
+		{
+			connection.connect()
 		
-		now = new Date()
-		println "OFFICE2PDF ended $now with exitValue $exitValue"
-				    
-		if (output.exists()) return true	
-		return false
-	}
-	
-	public void setOfficeToolsDir(String dir) {
-		JODCONVERTER_DIR = dir
+			def registry = new DefaultDocumentFormatRegistry()
+			def converter = new OpenOfficeDocumentConverter(connection, registry)
+
+			def pdf = registry.getFormatByFileExtension("pdf")
+			def pdfOptions = [ 'ReduceImageResolution': true, 'MaxImageResolution': 300 ]
+			pdf.setExportOption(DocumentFamily.TEXT, "FilterData", pdfOptions)
+
+			converter.convert(presentationFile, output, pdf)
+
+			connection.disconnect()
+			
+			now = new Date()
+			println "OFFICE2PDF ended $now"
+			return true
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			return false
+		}
 	}
 }

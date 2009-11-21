@@ -38,7 +38,6 @@ class PresentationService {
 	def imageMagickDir
 	def ghostScriptExec
 	def swfToolsDir
-	def officeToolsDir
 	def presentationDir
 	def BLANK_SLIDE = '/var/bigbluebutton/blank/blank-slide.swf'
 	def BLANK_THUMBNAIL = '/var/bigbluebutton/blank/blank-thumb.png'
@@ -119,7 +118,6 @@ class PresentationService {
 				log.debug "Office File " + ext + ", converting to PDF..."
 				println "Office File " + ext + ", converting to PDF..."
 				PageConverter converter = new Office2PdfPageConverter()
-				converter.setOfficeToolsDir(officeToolsDir)
 				File output = new File(presentationFile.getAbsolutePath().substring(0, presentationFile.getAbsolutePath().lastIndexOf(".")) + ".pdf")
 				println presentationFile.getAbsolutePath().substring(0, presentationFile.getAbsolutePath().lastIndexOf(".")) + ".pdf"
 				Boolean convertion = converter.convert(presentationFile, output, 0)
@@ -285,7 +283,8 @@ class PresentationService {
 			{
 				/* Prepare file convertion depending on filetype (OFFICE -> PDF) */
 				File ConvertedPresentationFile = prepareFileType(ext, presentationFile)
-				println ConvertedPresentationFile
+				log.debug ConvertedPresentationFile
+				
 				if (ConvertedPresentationFile)
 				{
 					/* Getting number of pages, if available */
