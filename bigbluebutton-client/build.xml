@@ -74,7 +74,7 @@
 		<copy file="/var/www/bigbluebutton/client/conf/config.xml" todir="${OUTPUT_DIR}/conf" /> 
 	</target>
 	
-	<target name="generate-wrapper" depends="mxmlc-component, localization">
+	<target name="generate-wrapper" depends="mxmlc-component">
 		<html-wrapper
 			title="BigBlueButton"
 			file="BigBlueButton.html"
@@ -127,8 +127,7 @@
 		</sequential>
 	</macrodef>
 	
-	<!-- Build Localization swfs. -->
-	<target name="localization">
+	<target name="localization" description="Builds BigBlueButton localization files">
 		<echo>Building Localization .swf's</echo>
 		<compileLocale locale="en_US" />
 		<compileLocale locale="zh_CN" />
