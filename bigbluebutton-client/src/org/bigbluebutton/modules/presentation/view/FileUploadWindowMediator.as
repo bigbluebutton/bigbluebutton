@@ -34,6 +34,7 @@ package org.bigbluebutton.modules.presentation.view
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
 	
 	import org.bigbluebutton.modules.presentation.view.event.*;
+	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 
 	/**
@@ -91,7 +92,7 @@ package org.bigbluebutton.modules.presentation.view
 			var proxy:PresentProxy = facade.retrieveProxy(PresentProxy.NAME) as PresentProxy;
 	
 			var presentationName:String = fileToUpload.name
-			var filenamePattern:RegExp = /(.+)(\.pdf|\.doc|\.docx|\.xls|\.xlsx|\.ppt|\.pptx|\.jpg|\.png)/i;
+			var filenamePattern:RegExp = /(.+)(\.pdf|\.doc|\.docx|\.xls|\.xlsx|\.ppt|\.pptx|\.jpg|\.png|\.jpeg)/i;
 			// Get the first match which should be the filename without the extension.
 			presentationName = presentationName.replace(filenamePattern, "$1")
 			// Replace any character other than a word character (A-Z, a-z, 0-9, or _).
@@ -163,7 +164,7 @@ package org.bigbluebutton.modules.presentation.view
 	
 		private function selectFile(e:Event):void{
 			fileToUpload.addEventListener(Event.SELECT, onSelectFile);	
-			fileToUpload.browse([new FileFilter("Presentation file", "*.pdf;*.doc;*.docx;*.xls;*.xlsx;*.ppt;*.pptx"), new FileFilter("PDF", "*.pdf"), new FileFilter("WORD", "*.doc;*.docx"), new FileFilter("EXCEL", "*.xls;*.xlsx"), new FileFilter("POWERPOINT", "*.ppt;*.pptx"), new FileFilter("IMAGE", "*.png;*.jpg;*.jpeg")]);
+			fileToUpload.browse([new FileFilter(ResourceUtil.getInstance().getString('bbb.presentation.uploadwindow.presentationfile'), "*.pdf;*.doc;*.docx;*.xls;*.xlsx;*.ppt;*.pptx;*.jpg;*.png;*.jpeg"), new FileFilter(ResourceUtil.getInstance().getString('bbb.presentation.uploadwindow.pdf'), "*.pdf"), new FileFilter(ResourceUtil.getInstance().getString('bbb.presentation.uploadwindow.word'), "*.doc;*.docx"), new FileFilter(ResourceUtil.getInstance().getString('bbb.presentation.uploadwindow.excel'), "*.xls;*.xlsx"), new FileFilter(ResourceUtil.getInstance().getString('bbb.presentation.uploadwindow.powerpoint'), "*.ppt;*.pptx"), new FileFilter(ResourceUtil.getInstance().getString('bbb.presentation.uploadwindow.image'), "*.png;*.jpg;*.jpeg")]);
 		}
 			
 		override public function listNotificationInterests():Array{
@@ -220,8 +221,8 @@ package org.bigbluebutton.modules.presentation.view
 		 * 
 		 */		
 		private function handleUploadCompleteEvent(note:INotification):void{
-			_fileWin.progressLbl.text = "Upload completed. Please wait while we convert the document."
-			_fileWin.progressBar.label = "Upload successful.";
+			_fileWin.progressLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.uploadcomplete')
+			_fileWin.progressBar.label = ResourceUtil.getInstance().getString('bbb.presentation.uploadwindow.uploadsuccessful');
 			_fileWin.progressBar.setProgress(0, 100);
 			_fileWin.progressBar.validateNow();
 			_fileWin.progressLbl.validateNow();
@@ -240,8 +241,8 @@ package org.bigbluebutton.modules.presentation.view
 		private function handleUploadProgressEvent(note:INotification):void{
 			var progress:Number = note.getBody() as Number;
 			LogUtil.debug("FileUpload " + progress + "% uploaded.");
-			_fileWin.progressLbl.text = progress + "% uploaded.";
-			_fileWin.progressBar.label = progress + "% uploaded.";
+			_fileWin.progressLbl.text = progress + "%" + ResourceUtil.getInstance().getString('bbb.presentation.uploaded');
+			_fileWin.progressBar.label = progress + "%" + ResourceUtil.getInstance().getString('bbb.presentation.uploaded');
 			_fileWin.progressBar.setProgress(progress, 100);
 			_fileWin.progressBar.validateNow();
 			_fileWin.progressLbl.validateNow();
@@ -254,7 +255,7 @@ package org.bigbluebutton.modules.presentation.view
 		 */		
 		private function handleUploadIOErrorEvent(note:INotification):void{
 			enableControls();
-			Alert.show(note.getBody() as String, "IO Error When Uploading File");
+			Alert.show(note.getBody() as String, ResourceUtil.getInstance().getString('bbb.presentation.error.io'));
 		}
 		
 		/**
@@ -264,7 +265,7 @@ package org.bigbluebutton.modules.presentation.view
 		 */		
 		private function handleUploadSecurityErrorEvent(note:INotification):void{
 			enableControls();
-			Alert.show(note.getBody() as String, "Security Error When Uploading File");
+			Alert.show(note.getBody() as String, ResourceUtil.getInstance().getString('bbb.presentation.error.security'));
 		}
 
 		/**
@@ -278,7 +279,7 @@ package org.bigbluebutton.modules.presentation.view
                         _fileWin.okCancelBtn.visible = true;
                         okState = false;
                         closeWindow();
-			Alert.show(note.getBody() as String, "Error When Converting Uploaded File");
+			Alert.show(note.getBody() as String, ResourceUtil.getInstance().getString('bbb.presentation.error.convert'));
 		}
 		
 		/**
@@ -288,9 +289,8 @@ package org.bigbluebutton.modules.presentation.view
 		 */		
 		private function handleConvertProgressEvent(note:INotification):void{
 			var convertEvt:ProgressNotifier = note.getBody() as ProgressNotifier;
-			_fileWin.progressLbl.text = "Converted " + convertEvt.completedSlides + " of " + convertEvt.totalSlides + " slides.";
-			_fileWin.progressBar.label = "Converted " + convertEvt.completedSlides + " of " 
-					+ convertEvt.totalSlides + " slides.";
+			_fileWin.progressLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.converted',[convertEvt.completedSlides, convertEvt.totalSlides]);
+			_fileWin.progressBar.label = ResourceUtil.getInstance().getString('bbb.presentation.converted',[convertEvt.completedSlides, convertEvt.totalSlides]);
 			_fileWin.progressBar.setProgress(convertEvt.completedSlides, convertEvt.totalSlides);
 			_fileWin.progressBar.validateNow();
 			_fileWin.progressLbl.validateNow();
@@ -303,9 +303,8 @@ package org.bigbluebutton.modules.presentation.view
 		 */		
 		private function handleExtractProgressEvent(note:INotification):void{
 			var extractEvt:ProgressNotifier = note.getBody() as ProgressNotifier;
-			_fileWin.progressLbl.text = "Extracting slide " + extractEvt.completedSlides + " of " + extractEvt.totalSlides + " slides.";
-			_fileWin.progressBar.label = "Extracting slide " + extractEvt.completedSlides + " of " 
-					+ extractEvt.totalSlides + " slides.";
+			_fileWin.progressLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.extracting',[extractEvt.completedSlides, extractEvt.totalSlides]);
+			_fileWin.progressBar.label = ResourceUtil.getInstance().getString('bbb.presentation.extracting',[extractEvt.completedSlides, extractEvt.totalSlides]);
 			_fileWin.progressBar.setProgress(extractEvt.completedSlides, extractEvt.totalSlides);
 			_fileWin.progressBar.validateNow();
 			_fileWin.progressLbl.validateNow();
@@ -328,7 +327,7 @@ package org.bigbluebutton.modules.presentation.view
 		 */		
 		private function handleConvertSuccessEvent(note:INotification):void
 		{
-			_fileWin.okCancelBtn.label = "Ok";
+			_fileWin.okCancelBtn.label = ResourceUtil.getInstance().getString('bbb.presentation.ok');
 			_fileWin.okCancelBtn.visible = true;
 			okState = true;
 			info = note.getBody();

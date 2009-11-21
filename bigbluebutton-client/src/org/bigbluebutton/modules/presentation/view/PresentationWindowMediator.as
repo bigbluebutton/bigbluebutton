@@ -40,6 +40,7 @@ package org.bigbluebutton.modules.presentation.view
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
+	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 	/**
 	 * This class is a Mediator class of the PresentationWindow GUI component 
@@ -207,7 +208,7 @@ package org.bigbluebutton.modules.presentation.view
 	
 		private function  displayPresenterName(presenterName:String):void {
 			if (! proxy.isPresenter()) {
-				_presWin.presenterNameLabel.text = presenterName + " is currently presenting.";
+				_presWin.presenterNameLabel.text = ResourceUtil.getInstance().getString('bbb.presentation.presenting', [presenterName]);
 				_presWin.presenterNameLabel.visible = true;
 			} else {
 				_presWin.presenterNameLabel.text = "";
@@ -229,7 +230,7 @@ package org.bigbluebutton.modules.presentation.view
 				//resetPositionAndSize();
 				
 				_presWin.slideView.selectedSlide = slidenum;
-				_presWin.slideNumLbl.text = (slidenum + 1) + " of " + _presWin.slideView.slides.length;
+				_presWin.slideNumLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.pages', [(slidenum + 1), _presWin.slideView.slides.length]);
 				
 				var slideProxy:SlideProxy = facade.retrieveProxy(SlideProxy.NAME) as SlideProxy;
 				slideProxy.load(_presWin.slideView.slides.getItemAt(slidenum) as Slide);
@@ -332,7 +333,7 @@ package org.bigbluebutton.modules.presentation.view
 			LogUtil.debug('PresentationWindowMediator::handlePresentationLoadedEvent()...presentationName=' + presentationName);
 
 			_presWin.slideView.slides = proxy.slides;         	
-            _presWin.slideNumLbl.text = (_presWin.slideView.selectedSlide + 1) + " of " + _presWin.slideView.slides.length;		
+            		_presWin.slideNumLbl.text = (_presWin.slideView.selectedSlide + 1) + " of " + _presWin.slideView.slides.length;		
 			_presWin.slideView.visible = true;		
 			_presWin.btnResetZoom.visible = true;
 
