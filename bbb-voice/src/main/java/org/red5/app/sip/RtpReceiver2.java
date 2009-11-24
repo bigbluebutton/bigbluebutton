@@ -27,9 +27,9 @@ public class RtpReceiver2 {
 	private Runnable rtpPacketReceiver;
 	private volatile boolean receivePackets = false;
 	
-    private PcmToNellyTranscoder2 transcoder;
+    private Transcoder transcoder;
 
-    public RtpReceiver2(PcmToNellyTranscoder2 transcoder, DatagramSocket socket) {
+    public RtpReceiver2(Transcoder transcoder, DatagramSocket socket) {
     	this.transcoder = transcoder;
         if (socket != null) {
             rtpSocket = new RtpSocket(socket);

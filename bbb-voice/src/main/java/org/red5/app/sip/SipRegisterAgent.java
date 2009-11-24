@@ -51,7 +51,6 @@ public class SipRegisterAgent implements TransactionClientListener {
 	private int renewTime;	
 	private int origRenewTime;				// Change by lior.
 	private int minRenewTime = 20;
-	private int regFailRetryTime = 15;
 	private boolean lastRegFailed = false; 	// Changed by Lior.
 	private boolean regInprocess = false;	
 	private int attempts; 					/** Number of registration attempts. */	
@@ -94,8 +93,6 @@ public class SipRegisterAgent implements TransactionClientListener {
 		this.qop = null;
 		this.attempts = 0;
 		this.minRenewTime = 20;
-		this.regFailRetryTime = 5;
-
 		this.registerCallID = null;
 		this.registerCSeq = 0;
 	}
@@ -112,7 +109,6 @@ public class SipRegisterAgent implements TransactionClientListener {
 		return continueRegistering;
 	}
 
-	/** Registers with the registrar server. */
 	public void register() {
 		register(expireTime);
 	}

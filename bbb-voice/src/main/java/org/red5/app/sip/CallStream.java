@@ -4,6 +4,7 @@ import java.net.DatagramSocket;
 import java.net.SocketException;
 
 import org.red5.app.sip.codecs.Codec;
+import org.red5.app.sip.codecs.SpeexCodec;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IScope;
@@ -25,7 +26,9 @@ public class CallStream {
 			log.error("SocketException while initializing DatagramSocket");
 			throw new Exception("Exception while initializing CallStream");
 		}     
-                        
+        
+/*		
+		
 		NellyToPcmTranscoder2 pTranscoder = new NellyToPcmTranscoder2(sipCodec);
 		rtpSender = new RtpSender2(pTranscoder, socket, connInfo.getRemoteAddr(), connInfo.getRemotePort());
 		printLog( "SIPAudioLauncher", "New audio receiver on " + connInfo.getLocalPort() + "." );
@@ -35,6 +38,24 @@ public class CallStream {
             
 		PcmToNellyTranscoder2 transcoder = new PcmToNellyTranscoder2(sipCodec, listenStream);
 		rtpReceiver = new RtpReceiver2(transcoder, socket);
+*/		
+		
+		listenStream = new ListenStream(scopeProvider.getScope());
+		
+		Transcoder rtmpToRtpTranscoder, rtpToRtmpTranscoder;
+		if (sipCodec.getCodecId() == SpeexCodec.codecId) {
+			rtmpToRtpTranscoder = new SpeexToSpeexTranscoder(sipCodec);
+			rtpToRtmpTranscoder = new SpeexToSpeexTranscoder(sipCodec, listenStream);
+		} else {
+			rtmpToRtpTranscoder = new NellyToPcmTranscoder2(sipCodec);
+			rtpToRtmpTranscoder = new PcmToNellyTranscoder2(sipCodec, listenStream);
+			
+		}
+		
+		rtpReceiver = new RtpReceiver2(rtpToRtmpTranscoder, socket);
+		rtpSender = new RtpSender2(rtmpToRtpTranscoder, socket, connInfo.getRemoteAddr(), connInfo.getRemotePort());
+		talkStream = new TalkStream(rtmpToRtpTranscoder, rtpSender);
+		rtpSender.start(); 
 		listenStream.start();
 		rtpReceiver.start();
     }
@@ -59,18 +80,6 @@ public class CallStream {
     public void stopTalkStream(IBroadcastStream broadcastStream, IScope scope) {
     	talkStream.stop();
     }
-/*    
-    public boolean startMedia1() {
-        printLog( "startMedia", "Starting sip audio..." );
-
-        if ( rtpReceiver != null ) {
-            printLog( "startMedia", "Start receiving." );
-            rtpReceiver.start();
-        }
-               
-        return true;
-    }
-*/
 
     public boolean stopMedia() {
         printLog( "stopMedia", "Halting sip audio..." );

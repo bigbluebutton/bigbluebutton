@@ -73,7 +73,7 @@ public class RtpReceiver extends Thread {
                     headerOffset = rtpPacket.getHeaderLength();
                     payloadLength = rtpPacket.getPayloadLength();
                     packetLength = packetBuffer.length;                        
-                    byte[] codedBuffer = new byte[  payloadLength ];
+                    byte[] codedBuffer = new byte[payloadLength];
                         
                     log.debug("pkt.length = " + packetBuffer.length
                                 + ", offset = " + headerOffset

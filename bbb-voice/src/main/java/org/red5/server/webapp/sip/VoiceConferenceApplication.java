@@ -139,6 +139,8 @@ public class VoiceConferenceApplication extends MultiThreadedApplicationAdapter 
 		//SipUser will connect to "outbound-proxy", just pass-in the proxy for it.
 		login(proxy, userid, new Integer(rtpPort).toString(), username, password, realm, proxy);
 		
+//		login(proxy, userid, "echotest", "echotest", "secret", realm, proxy);
+		
 		sipPort++;
 		if (sipPort > stopSIPPort) sipPort = startSIPPort;
 

@@ -7,7 +7,7 @@ import org.red5.app.sip.codecs.asao.ByteStream;
 import org.red5.app.sip.codecs.asao.Decoder;
 import org.red5.app.sip.codecs.asao.DecoderMap;
 
-public class NellyToPcmTranscoder2 {
+public class NellyToPcmTranscoder2 implements Transcoder {
     protected static Logger log = Red5LoggerFactory.getLogger( NellyToPcmTranscoder2.class, "sip" );
 
     private static final int NELLYMOSER_DECODED_PACKET_SIZE = 256;
@@ -147,4 +147,14 @@ public class NellyToPcmTranscoder2 {
             log.debug("Closing" );
         }
     }
+
+	public void transcode(byte[] codedBuffer) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public int getIncomingEncodedFrameSize() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

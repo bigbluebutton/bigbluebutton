@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 public class TalkStream {
 	private final static Logger log = Red5LoggerFactory.getLogger(TalkStream.class, "sip");
 
-	private final NellyToPcmTranscoder2 transcoder;
+	private final Transcoder transcoder;
 	private final RtpSender2 rtpSender;
 	private final IStreamListener mInputListener;
 	
@@ -29,7 +29,7 @@ public class TalkStream {
 	
 	private final String talkStreamName;
 	
-	public TalkStream(final NellyToPcmTranscoder2 transcoder, final RtpSender2 rtpSender) {
+	public TalkStream(final Transcoder transcoder, final RtpSender2 rtpSender) {
 		this.transcoder = transcoder;
 		this.rtpSender = rtpSender;
 		talkStreamName = "microphone_" + System.currentTimeMillis();

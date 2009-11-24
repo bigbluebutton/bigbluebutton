@@ -9,7 +9,7 @@ import org.red5.app.sip.codecs.Codec;
 import org.red5.app.sip.codecs.asao.ByteStream;
 import org.red5.app.sip.codecs.asao.CodecImpl;
 
-public class PcmToNellyTranscoder2 {
+public class PcmToNellyTranscoder2 implements Transcoder {
     protected static Logger log = Red5LoggerFactory.getLogger(PcmToNellyTranscoder2.class, "sip");
 
     private static final int NELLYMOSER_DECODED_PACKET_SIZE = 256;
@@ -65,7 +65,7 @@ public class PcmToNellyTranscoder2 {
                 pcmBufferProcessed = true;
             }
         }
-        while ( !pcmBufferProcessed );
+        while (!pcmBufferProcessed);
     }
 
     public void transcode(byte[] codedBuffer) {
@@ -107,4 +107,25 @@ public class PcmToNellyTranscoder2 {
     public int getIncomingEncodedFrameSize() {
     	return audioCodec.getIncomingEncodedFrameSize();
     }
+
+	public void transcode(byte[] asaoBuffer, int offset, int num,
+			byte[] transcodedData, int dataOffset, RtpSender2 rtpSender) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public int getCodecId() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public int getOutgoingEncodedFrameSize() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public int getOutgoingPacketization() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

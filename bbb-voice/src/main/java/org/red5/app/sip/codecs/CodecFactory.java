@@ -1,42 +1,28 @@
 package org.red5.app.sip.codecs;
 
-import org.red5.app.sip.UserAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-/**
- * SIPCodec Factory
- * */
-public class CodecFactory {
+public class CodecFactory {    
+    protected static Logger log = LoggerFactory.getLogger(CodecFactory.class);
     
-    protected static Logger log = LoggerFactory.getLogger( CodecFactory.class );
-    
-    // ----------------
     // Available audio codecs
-    private static final int audioCodecPCMU = 0; 
-    
-    private static final int audioCodecPCMA = 8;
-    
+    private static final int audioCodecPCMU = 0;     
+    private static final int audioCodecPCMA = 8;    
     private static final int audioCodecG729 = 18;
-    
+    private static final int audioCodecSpeex = 110;
     private static final int audioCodeciLBC = 111;
     
-    private int[] availableAudioCodecsId = { audioCodecPCMU, audioCodecPCMA, audioCodecG729, audioCodeciLBC };
-
-    // ----------------
-    // Available video codecs
-    
+    private int[] availableAudioCodecsId = {audioCodecPCMU, audioCodecPCMA, 
+    		audioCodecG729, audioCodecSpeex, audioCodeciLBC};
+ 
     private int[] availableVideoCodecsId = {};
-    
-    
+        
     private static CodecFactory singletonSIPCodecFactory = new CodecFactory();
     
-    private static String[] codecCommonAudioMediaAttributes = { "ptime:20" };
-        
-    
+    private static String[] codecCommonAudioMediaAttributes = {"ptime:20"};
+            
     public static CodecFactory getInstance() {
-
         return singletonSIPCodecFactory;
     }
     
@@ -44,15 +30,13 @@ public class CodecFactory {
      * Create a new instance of SIPCodec by codec id.
      * @return The codec associated with "codecId".
      * */
-    public Codec getSIPAudioCodec( int codecId ) {
+    public Codec getSIPAudioCodec(int codecId) {        
+        Codec sipCodec;       
+        printLog("getSIPAudioCodec", "Init...");
         
-        Codec sipCodec;
+        printLog("getSIPAudioCodec", "codecId = [" + codecId + "].");
         
-        printLog( "getSIPAudioCodec", "Init..." );
-        
-        printLog( "getSIPAudioCodec", "codecId = [" + codecId + "]." );
-        
-        switch ( codecId ) {
+        switch (codecId) {
             case audioCodecPCMU:
                 sipCodec = new PCMUCodec();
                 break;
@@ -62,6 +46,9 @@ public class CodecFactory {
             case audioCodecG729:
                 sipCodec = new G729Codec();
                 break;
+            case audioCodecSpeex:
+                sipCodec = new SpeexCodec();
+                break;
             case audioCodeciLBC:
                 sipCodec = new ILBCCodec();
                 break;
@@ -69,8 +56,7 @@ public class CodecFactory {
                 sipCodec = null;
         }
         
-        if ( sipCodec != null ) {
-            
+        if (sipCodec != null) {            
             printLog( "getSIPAudioCodec", 
                     "codecId = [" + sipCodec.getCodecId() + 
                     "], codecName =  [" + sipCodec.getCodecName() + "]." );
@@ -83,13 +69,12 @@ public class CodecFactory {
      * Get all available audio codecs
      * @return SIPCodec array containing all audio codecs instances
      */
-    public Codec[] getAvailableAudioCodecs() {
-        
+    public Codec[] getAvailableAudioCodecs() {        
         printLog( "getAvailableAudioCodecs", "Init..." );
         
         Codec[] availableCodecs = new Codec[availableAudioCodecsId.length];
         
-        for ( int i = 0; i < availableAudioCodecsId.length; i++ ) {
+        for (int i = 0; i < availableAudioCodecsId.length; i++) {
             int codecId = availableAudioCodecsId[ i ];
             Codec codec = getSIPAudioCodec( codecId );
             availableCodecs[i] = codec;            
@@ -103,15 +88,14 @@ public class CodecFactory {
      * Get all available video codecs
      * @return SIPCodec array containing all video codecs instances
      */
-    public Codec[] getAvailableVideoCodecs() {
-        
+    public Codec[] getAvailableVideoCodecs() {        
         printLog( "getAvailableVideoCodecs", "Init..." );
         
         Codec[] availableCodecs = new Codec[availableVideoCodecsId.length];
         
-        for ( int i = 0; i < availableVideoCodecsId.length; i++ ) {
-            int codecId = availableVideoCodecsId[ i ];
-            Codec codec = getSIPAudioCodec( codecId );
+        for (int i = 0; i < availableVideoCodecsId.length; i++) {
+            int codecId = availableVideoCodecsId[i];
+            Codec codec = getSIPAudioCodec(codecId);
             availableCodecs[i] = codec;            
         }
         
@@ -124,10 +108,9 @@ public class CodecFactory {
      * @param codecsPrecedence semicolon separated ids from the codecs
      * @return SIPCodec array containing all codecs instances
      */
-    public Codec[] getAvailableAudioCodecsWithPrecedence( String codecsPrecedence ) {
-        
+    public Codec[] getAvailableAudioCodecsWithPrecedence(String codecsPrecedence) {        
         int initIndex = 0;
-        int finalIndex = codecsPrecedence.indexOf( ";" );
+        int finalIndex = codecsPrecedence.indexOf(";");
         String codecId;
         Codec[] availableCodecs = new Codec[availableAudioCodecsId.length];
         int codecsIndex = 0;
@@ -137,18 +120,14 @@ public class CodecFactory {
                 "], initIndex =  [" + initIndex + 
                 "], finalIndex =  [" + finalIndex + "]." );
         
-        while ( initIndex < finalIndex ) {
+        while ( initIndex < finalIndex ) {            
+            codecId = codecsPrecedence.substring(initIndex, finalIndex);
             
-            codecId = codecsPrecedence.substring( initIndex, finalIndex );
+            printLog( "getAvailableAudioCodecsWithPrecedence", "codecId = [" + codecId + "]." );
             
-            printLog( "getAvailableAudioCodecsWithPrecedence", 
-                    "codecId = [" + codecId + "]." );
+            Codec sipCodec = getSIPAudioCodec(Integer.valueOf( codecId ).intValue());
             
-            Codec sipCodec = getSIPAudioCodec( 
-                    Integer.valueOf( codecId ).intValue() );
-            
-            if ( sipCodec != null ) {
-                
+            if (sipCodec != null) {                
                 printLog( "getAvailableAudioCodecsWithPrecedence", 
                         "codecId = [" + sipCodec.getCodecId() + 
                         "], codecName =  [" + sipCodec.getCodecName() + "]." );
@@ -157,7 +136,7 @@ public class CodecFactory {
                 codecsIndex++;
                 
                 initIndex = finalIndex+1;
-                finalIndex = codecsPrecedence.indexOf( ";", initIndex );
+                finalIndex = codecsPrecedence.indexOf(";", initIndex);
                 
                 if ( (finalIndex == -1 ) && 
                         ( initIndex <= codecsPrecedence.length() ) ) {
@@ -185,32 +164,27 @@ public class CodecFactory {
     /**
      * @return Count of available audio codecs
      */
-    public int getAvailableAudioCodecsCount() {
-        
+    public int getAvailableAudioCodecsCount() {        
         return availableAudioCodecsId.length;
     }
     
     /**
      * @return Count of available video codecs
      */
-    public int getAvailableVideoCodecsCount() {
-        
+    public int getAvailableVideoCodecsCount() {        
         return availableVideoCodecsId.length;
     }
     
-    public String[] getCommonAudioMediaAttributes() {
-        
+    public String[] getCommonAudioMediaAttributes() {        
         return codecCommonAudioMediaAttributes;
     }
     
-    public String[] getCommonVideoMediaAttributes() {
-        
+    public String[] getCommonVideoMediaAttributes() {        
         return null;
     }
 
 
-    private static void printLog( String method, String message ) {
-        
+    private static void printLog( String method, String message ) {        
         log.debug( "SIPCodecFactory - " + method + " -> " + message );
         System.out.println( "SIPCodecFactory - " + method + " -> " + message );
     }

@@ -2,61 +2,42 @@ package org.red5.app.sip;
 
 import java.util.Enumeration;
 import java.util.Vector;
-
 import org.red5.app.sip.codecs.Codec;
 import org.red5.app.sip.codecs.CodecFactory;
 import org.zoolu.sdp.AttributeField;
 import org.zoolu.sdp.MediaDescriptor;
 import org.zoolu.sdp.MediaField;
 import org.zoolu.sdp.SessionDescriptor;
-
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 
 public class SdpUtils {
-
-    protected static Logger log = Red5LoggerFactory.getLogger( SdpUtils.class, "sip" );
+    protected static Logger log = Red5LoggerFactory.getLogger(SdpUtils.class, "sip");
     
     
     /**
      * @return Returns the audio codec to be used on current session.
      */
-    public static Codec getNegotiatedAudioCodec( SessionDescriptor negotiatedSDP )
-    {
+    public static Codec getNegotiatedAudioCodec(SessionDescriptor negotiatedSDP){
         int payloadId;
         String rtpmap;
         Codec sipCodec = null;
         
-//        printLog( "getNegotiatedAudioCodec", "Init..." );
+        MediaDescriptor md = negotiatedSDP.getMediaDescriptor(Codec.MEDIA_TYPE_AUDIO );
+        rtpmap = md.getAttribute(Codec.ATTRIBUTE_RTPMAP).getAttributeValue();
         
-        rtpmap = negotiatedSDP.getMediaDescriptor( Codec.MEDIA_TYPE_AUDIO ).
-                getAttribute( Codec.ATTRIBUTE_RTPMAP ).getAttributeValue();
-        
-//        printLog( "getNegotiatedAudioCodec", "rtpmap = [" + rtpmap + "]." );
-        
-        if ( !rtpmap.isEmpty() ) {
+        if (!rtpmap.isEmpty()) {            
+            payloadId = Integer.parseInt(rtpmap.substring(0, rtpmap.indexOf(" ")));
             
-            payloadId = Integer.parseInt(
-                    rtpmap.substring(0, rtpmap.indexOf(" ")));
-            
-//            printLog( "getNegotiatedAudioCodec", "payloadId = [" + payloadId + "]." );
-            
-            sipCodec = CodecFactory.getInstance().getSIPAudioCodec( payloadId );
-            
-            if ( sipCodec == null ) {
-                
-//                printLog( "getNegotiatedAudioCodec", "Error... codec not found." );
+            sipCodec = CodecFactory.getInstance().getSIPAudioCodec(payloadId);            
+            if (sipCodec == null) {
+            	log.error("Negotiated codec {} not found", payloadId);
             }
             else {
-                
-//                printLog( "getNegotiatedAudioCodec", 
-//                        "payloadType = " + sipCodec.getCodecId() + 
-//                        ", payloadName = " + sipCodec.getCodecName() + "." );
+                log.info("Found codec: payloadType={}, payloadName={}.", sipCodec.getCodecId(), 
+                			sipCodec.getCodecName());
             }
-        }
-        
-//        printLog( "getNegotiatedAudioCodec", "End..." );
-        
+        }        
         return sipCodec;
     }
     
@@ -68,61 +49,46 @@ public class SdpUtils {
      * 
      * @return Return the initial local SDP.
      */
-    public static SessionDescriptor createInitialSdp( 
-            String userName, String viaAddress, int audioPort, 
-            int videoPort, String audioCodecsPrecedence ) {
+    public static SessionDescriptor createInitialSdp(String userName, String viaAddress, 
+    		int audioPort, int videoPort, String audioCodecsPrecedence) {
         
         SessionDescriptor initialDescriptor = null;
-        
-//        printLog( "createInitialSdp", "Init..." );
-        
-        try {
-            
-//            printLog( "createInitialSdp", 
-//                    "userName = [" + userName + "], viaAddress = [" + viaAddress + 
-//                    "], audioPort = [" + audioPort + "], videoPort = [" + videoPort + 
-//                    "], audioCodecsPrecedence = [" + audioCodecsPrecedence + "]." );
+                
+        try {            
+            printLog( "createInitialSdp", 
+                    "userName = [" + userName + "], viaAddress = [" + viaAddress + 
+                    "], audioPort = [" + audioPort + "], videoPort = [" + videoPort + 
+                    "], audioCodecsPrecedence = [" + audioCodecsPrecedence + "]." );
             
             int audioCodecsNumber = CodecFactory.getInstance().getAvailableAudioCodecsCount();
             int videoCodecsNumber = CodecFactory.getInstance().getAvailableVideoCodecsCount();
             
-            if ( ( audioCodecsNumber == 0 ) && ( videoCodecsNumber == 0 ) ) {
-                
-//                printLog( "createInitialSdp", 
-//                        "audioCodecsNumber = [" + audioCodecsNumber + 
-//                        "], videoCodecsNumber = [" + videoCodecsNumber + "]." );
+            if ((audioCodecsNumber == 0) && (videoCodecsNumber == 0)) {                
+                printLog( "createInitialSdp", "audioCodecsNumber = [" + audioCodecsNumber + 
+                        "], videoCodecsNumber = [" + videoCodecsNumber + "]." );
                 
                 return null;
             }
             
-            initialDescriptor = new SessionDescriptor( userName, viaAddress );
+            initialDescriptor = new SessionDescriptor(userName, viaAddress);
             
-            if ( initialDescriptor == null ) {
-                
-//                printLog( "createInitialSdp", 
-//                        "Error instantiating the initialDescriptor!" ); 
-                
+            if (initialDescriptor == null) {                
+                printLog("createInitialSdp", "Error instantiating the initialDescriptor!");                 
                 return null;
             }
             
-            if ( audioCodecsNumber > 0 ) {
-                
+            if (audioCodecsNumber > 0) {                
                 Codec[] audioCodecs;
                 Vector audioAttributes = new Vector();
                 
-                if ( audioCodecsPrecedence.isEmpty() ) {
-                    
+                if (audioCodecsPrecedence.isEmpty()) {                    
                     audioCodecs = CodecFactory.getInstance().getAvailableAudioCodecs();
-                }
-                else {
-                    
-                    audioCodecs = CodecFactory.getInstance().
-                            getAvailableAudioCodecsWithPrecedence( audioCodecsPrecedence );
+                } else {                    
+                    audioCodecs = CodecFactory.getInstance().getAvailableAudioCodecsWithPrecedence(audioCodecsPrecedence);
                 }
                 
-                for ( int audioIndex = 0; audioIndex < audioCodecsNumber; audioIndex++ ) {
-                    
-                    String payloadId = String.valueOf( audioCodecs[audioIndex].getCodecId() );
+                for (int audioIndex = 0; audioIndex < audioCodecsNumber; audioIndex++) {                   
+                    String payloadId = String.valueOf(audioCodecs[audioIndex].getCodecId());
                     String rtpmapParamValue = payloadId;
                     rtpmapParamValue += " " + audioCodecs[audioIndex].getCodecName();
                     rtpmapParamValue += "/" + audioCodecs[audioIndex].getSampleRate() + "/1";
@@ -131,13 +97,11 @@ public class SdpUtils {
 //                            "Adding rtpmap for payload [" + payloadId + 
 //                            "] with value = [" + rtpmapParamValue + "]." );
                     
-                    audioAttributes.add( new AttributeField( 
-                            Codec.ATTRIBUTE_RTPMAP, rtpmapParamValue ) );
+                    audioAttributes.add(new AttributeField(Codec.ATTRIBUTE_RTPMAP, rtpmapParamValue));
                     
-                    String[] codecMediaAttributes = 
-                            audioCodecs[audioIndex].getCodecMediaAttributes();
+                    String[] codecMediaAttributes = audioCodecs[audioIndex].getCodecMediaAttributes();
                     
-                    if ( codecMediaAttributes != null ) {
+                    if (codecMediaAttributes != null) {
                         
 //                        printLog( "createInitialSdp", 
 //                                "Adding " + codecMediaAttributes.length + 
@@ -777,7 +741,7 @@ public class SdpUtils {
 
     private static void printLog( String method, String message ) {
         
-//        log.debug( "SdpUtils - " + method + " -> " + message );
-//        System.out.println( "SdpUtils - " + method + " -> " + message );
+        log.debug( "SdpUtils - " + method + " -> " + message );
+        System.out.println( "SdpUtils - " + method + " -> " + message );
     }
 }

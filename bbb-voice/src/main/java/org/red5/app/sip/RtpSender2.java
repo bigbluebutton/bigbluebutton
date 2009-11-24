@@ -32,9 +32,9 @@ public class RtpSender2 {
     private int dtmf2833Type = 101;
     private int sequenceNum = 0;
     private long timestamp = 0;
-    private NellyToPcmTranscoder2 transcoder;
+    private Transcoder transcoder;
     
-    public RtpSender2(NellyToPcmTranscoder2 transcoder, DatagramSocket srcSocket, String destAddr, int destPort) throws UnknownHostException {
+    public RtpSender2(Transcoder transcoder, DatagramSocket srcSocket, String destAddr, int destPort) throws UnknownHostException {
         this.transcoder = transcoder;
         if (srcSocket == null) {
         	try {
