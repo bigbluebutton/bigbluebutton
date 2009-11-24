@@ -55,8 +55,9 @@ war.doLast {
   ant.unzip(src: war.archivePath, dest: "$buildDir/sip")
   ant.copy(file: "$buildDir/sip/WEB-INF/logback-sip.xml", todir: "$buildDir/sip/WEB-INF/classes")
 }
-/*
-task deploy() {
+
+
+task deploy() << {
 	def red5AppsDir = '/usr/share/red5/webapps'
 	def sipDir = new File("${red5AppsDir}/sip")
 	println "Deleting $sipDir"
@@ -66,7 +67,8 @@ task deploy() {
     	fileset(dir: "$buildDir/sip")
     }
 } 
-*/  
+
+/*
 task deploy(type:Copy) {
 	def red5AppsDir = '/usr/share/red5/webapps'
 	def sipDir = new File("${red5AppsDir}/sip")
@@ -75,3 +77,4 @@ task deploy(type:Copy) {
 	into(sipDir)
     from "$buildDir/sip"
 } 
+*/
