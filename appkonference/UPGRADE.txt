@@ -1,0 +1,21 @@
+===========================================================================
+===
+=== Information for upgrading from AppKonference 1.0 or 1.1 to 1.2
+===
+===========================================================================
+
+The application argument delimiter has been changed from the forward slash,
+"/", to the comma, ",", to simplify parsing of channel name parameters and to
+be consistent with other asterisk applications.
+
+NOTE THAT THIS REQUIRES UPDATING YOUR DIAL PLAN, THAT IS, APPKONFERENCE
+ARGUMENTS MUST NOW BE DELIMITED WITH A COMMA INSTEAD OF A FORWARD SLASH.
+
+For example, if you have previously invoked appkonference:
+
+	exten => _X.,n,konference(1234/RVxT/max_users=3)
+
+then, you would change the forward slashes to commas:
+
+	exten => _X.,n,konference(1234,RVxT,max_users=3)
+
