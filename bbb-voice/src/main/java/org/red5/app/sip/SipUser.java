@@ -58,7 +58,7 @@ public class SipUser {
     }
     
     private void setupUserProfile(String username, String password, String realm, String phone) {
-    	String fromURL = "\"" + phone + "\" <sip:" + phone + "@" + proxy + ">";
+    	String fromURL = "\"" + username + "\" <sip:" + phone + "@" + proxy + ">";
     	userProfile.username = username;
         userProfile.passwd = password;
         userProfile.realm = realm;
