@@ -155,7 +155,7 @@ public class VoiceConferenceApplication extends MultiThreadedApplicationAdapter 
 	}
 
 	public void call(String uid, String destination) {
-		destination = "600";
+		//destination = "600";
 		log.debug("Red5SIP Call " + destination);
 		System.out.println("Red5SIP Call " + destination);
 		String userid = getSipUserId();
