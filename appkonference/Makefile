@@ -22,13 +22,16 @@ INSTALL_MODULES_DIR := $(INSTALL_PREFIX)/usr/lib/asterisk/modules
 
 ASTERISK_INCLUDE_DIR ?= ../asterisk/include
 
-RELEASE = 1.1
+RELEASE = 1.2
 
 # turn app_konference debugging on or off ( 0 == OFF, 1 == ON )
 APP_KONFERENCE_DEBUG ?= 0
 
 # channel table size default
 CHANNEL_TABLE_SIZE ?= 997
+
+# schedule conference threads fifo ( 0 == OFF, 1 == ON )
+REALTIME ?= 1
 
 # turn app_konference texting on of off ( 0 == OFF, 1 == ON )
 TEXT ?= 0
@@ -85,6 +88,10 @@ CPPFLAGS += -DCHANNEL_TABLE_SIZE=$(CHANNEL_TABLE_SIZE)
 
 ifeq ($(APP_KONFERENCE_DEBUG), 1)
 CPPFLAGS += -DAPP_KONFERENCE_DEBUG
+endif
+
+ifeq ($(REALTIME), 1)
+CPPFLAGS += -DREALTIME
 endif
 
 ifeq ($(TEXT), 1)

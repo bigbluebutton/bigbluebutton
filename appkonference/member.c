@@ -176,11 +176,17 @@ static int process_incoming(struct ast_conf_member *member, struct ast_conferenc
 	}
 	ast_mutex_unlock( &member->lock );
 #endif
-	if ((f->frametype == AST_FRAME_VOICE && (member->mute_audio == 1 ||
+	if ((f->frametype == AST_FRAME_VOICE
+			&& (member->mute_audio == 1
+				|| (member->soundq != NULL && member->muted == 1)
+				)
+			)
 #ifdef	VIDEO
-		(f->frametype == AST_FRAME_VIDEO && member->mute_video == 1) ||
+		|| (f->frametype == AST_FRAME_VIDEO
+			&& member->mute_video == 1
+			)
 #endif
-		(member->soundq && member->muted))))
+		)
 	{
 		// this is a listen-only user, ignore the frame
 		//ast_log( AST_CONF_DEBUG, "Listen only user frame");
@@ -697,15 +703,43 @@ int member_exec( struct ast_channel* chan, void* data )
 	// setup a conference for the new member
 	//
 
-	conf = join_conference( member ) ;
+	char* max_users_flag = 0 ;
+	conf = join_conference( member, max_users_flag ) ;
 
 	if ( conf == NULL )
 	{
 		ast_log( LOG_ERROR, "unable to setup member conference\n" ) ;
-		int res = (member->max_users_flag ? 0 : -1 ) ;
 		delete_member( member) ;
-		return res ;
+		return (*max_users_flag ? 0 : -1 ) ;
 	}
+
+	//
+	// if spying, setup spyer/spyee
+	//
+	struct ast_conf_member *spyee = NULL;
+
+	if ( member->spyee_channel_name != NULL )
+	{
+		spyee = member->spy_partner = find_member(member->spyee_channel_name);	
+		if ( spyee != NULL && spyee->spy_partner == NULL )
+		{
+			spyee->spy_partner = member;
+			ast_mutex_unlock( &spyee->lock ) ;
+
+			//ast_log( AST_CONF_DEBUG, "Start spyer %s, spyee is %s\n", member->channel_name, member->spyee_channel_name) ;
+		} else
+		{
+			if ( spyee != NULL ) {
+				if ( !--spyee->use_count && spyee->delete_flag )
+					ast_cond_signal ( &spyee->delete_var ) ;
+				ast_mutex_unlock( &spyee->lock ) ;
+			}
+			pbx_builtin_setvar_helper(member->chan, "KONFERENCE", "SPYFAILED" );
+			//ast_log( AST_CONF_DEBUG, "Failed to start spyer %s, spyee is %s\n", member->channel_name, member->spyee_channel_name) ;
+			remove_member( member, conf ) ;
+			return 0 ;
+		}
+	} 
 
 	// add member to channel table
 	member->bucket = &(channel_table[hash(member->chan->name) % CHANNEL_TABLE_SIZE]);
@@ -859,6 +893,22 @@ int member_exec( struct ast_channel* chan, void* data )
 //	int expected_frames = ( int )( floor( (double)( msecdiff( &end, &start ) / AST_CONF_FRAME_INTERVAL ) ) ) ;
 //	ast_log( AST_CONF_DEBUG, "expected_frames => %d\n", expected_frames ) ;
 
+	//
+	// if spying sever connection to spyee
+	//
+	if ( spyee != NULL )
+	{
+		ast_mutex_lock ( &spyee->lock ) ;
+		spyee->spy_partner = NULL;
+
+		if ( !--spyee->use_count && spyee->delete_flag )
+			ast_cond_signal ( &spyee->delete_var ) ;
+
+		ast_mutex_unlock ( &spyee->lock ) ;
+
+		//ast_log( AST_CONF_DEBUG, "End spyer %s, spyee is %s\n", member->channel_name, member->spyee_channel_name) ;
+	}
+
 	remove_member( member, conf ) ;
 	return 0 ;
 }
@@ -940,6 +990,7 @@ struct ast_conf_member* create_member( struct ast_channel *chan, const char* dat
 	member->vad_prob_continue = AST_CONF_PROB_CONTINUE;
 	member->max_users = AST_CONF_MAX_USERS;
 	member->type = NULL;
+	member->spyee_channel_name = NULL;
 
 	//
 	// initialize member with passed data values
@@ -956,20 +1007,20 @@ struct ast_conf_member* create_member( struct ast_channel *chan, const char* dat
 
 	// parse the id
 	char *token;
-	if ( ( token = strsep( &stringp, "/" ) ) != NULL )
+	if ( ( token = strsep( &stringp, argument_delimiter ) ) != NULL )
 	{
 		member->conf_name = malloc( strlen( token ) + 1 ) ;
 		strcpy( member->conf_name, token ) ;
 	}
 	else
 	{
-		ast_log( LOG_ERROR, "unable to parse member id\n" ) ;
+		ast_log( LOG_ERROR, "create_member unable to parse member data: channel name = %s, data = %s\n", chan->name, data ) ;
 		free( member ) ;
 		return NULL ;
 	}
 
 	// parse the flags
-	if ( ( token = strsep( &stringp, "/" ) ) != NULL )
+	if ( ( token = strsep( &stringp, argument_delimiter ) ) != NULL )
 	{
 		member->flags = malloc( strlen( token ) + 1 ) ;
 		strcpy( member->flags, token ) ;
@@ -981,7 +1032,7 @@ struct ast_conf_member* create_member( struct ast_channel *chan, const char* dat
 		memset( member->flags, 0x0, sizeof( char ) ) ;
 	}
 
-	while ( (token = strsep(&stringp, "/")) != NULL )
+	while ( (token = strsep(&stringp, argument_delimiter )) != NULL )
 	{
 		static const char arg_priority[] = "priority";
 		static const char arg_vad_prob_start[] = "vad_prob_start";
@@ -992,6 +1043,7 @@ struct ast_conf_member* create_member( struct ast_channel *chan, const char* dat
 #endif
 		static const char arg_max_users[] = "max_users";
 		static const char arg_conf_type[] = "type";
+		static const char arg_chanspy[] = "spy";
 
 		char *value = token;
 		const char *key = strsep(&value, "=");
@@ -1032,6 +1084,11 @@ struct ast_conf_member* create_member( struct ast_channel *chan, const char* dat
 			member->type = malloc( strlen( value ) + 1 ) ;
 			strcpy( member->type, value ) ;
 			ast_log(AST_CONF_DEBUG, "type = %s\n", member->type);
+		} else if ( strncasecmp(key, arg_chanspy, sizeof(arg_chanspy) - 1) == 0 )
+		{
+			member->spyee_channel_name = malloc( strlen( value ) + 1 ) ;
+			strcpy( member->spyee_channel_name, value ) ;
+			ast_log(AST_CONF_DEBUG, "spyee channel name is %s\n", member->spyee_channel_name);
 		} else
 		{
 			ast_log(LOG_WARNING, "unknown parameter %s with value %s\n", key, value);
@@ -1059,6 +1116,9 @@ struct ast_conf_member* create_member( struct ast_channel *chan, const char* dat
 		strcpy( member->type, AST_CONF_TYPE_DEFAULT ) ;
 		ast_log(AST_CONF_DEBUG, "type = %s\n", member->type);
 	}
+
+	// spy_partner default is NULL
+	member->spy_partner = NULL;
 
 	// ( default can be overridden by passed flags )
 	member->mute_audio = 0;
@@ -1160,6 +1220,7 @@ struct ast_conf_member* create_member( struct ast_channel *chan, const char* dat
 #ifndef	VIDEO
 	member->prev = NULL ;
 #endif
+	member->bucket = NULL ;
 	// account data
 	member->frames_in = 0 ;
 	member->frames_in_dropped = 0 ;
@@ -1189,7 +1250,6 @@ struct ast_conf_member* create_member( struct ast_channel *chan, const char* dat
 
 	// flags
 	member->kick_flag = 0;
-	member->max_users_flag = 0;
 
 	// record start time
 	// init dropped frame timestamps
@@ -1210,6 +1270,9 @@ struct ast_conf_member* create_member( struct ast_channel *chan, const char* dat
 
 	// is this member using the telephone?
 	member->via_telephone = 0 ;
+
+	// moh if only member flag
+	member->hold_flag = 0 ;
 	
 	// temp pointer to flags string
 	char* flags = member->flags ;
@@ -1236,7 +1299,7 @@ struct ast_conf_member* create_member( struct ast_channel *chan, const char* dat
 		else
 #endif
 		{
-			// allowed flags are C, c, L, l, V, D, A, C, X, R, T, t, M, S, z, o, F
+			// allowed flags are C, c, L, l, V, D, A, C, X, R, T, t, M, S, z, o, F, H
 			// mute/no_recv options
 			switch ( flags[i] )
 			{
@@ -1313,6 +1376,10 @@ struct ast_conf_member* create_member( struct ast_channel *chan, const char* dat
 				member->vad_flag = 1 ;
 			case 'T':
 				member->via_telephone = 1;
+				break;
+
+			case 'H':
+				member->hold_flag = 1;
 				break;
 
 			default:
@@ -1621,6 +1688,9 @@ struct ast_conf_member* delete_member( struct ast_conf_member* member )
 
 	// free the member's copy of the conference type
 	free(member->type);
+
+	// free the member's copy of the spyee channel name
+	free(member->spyee_channel_name);
 
 	// free the member's memory
 	free(member->callerid);
@@ -3040,6 +3110,11 @@ int queue_frame_for_listener(
 		if ( frame->member != NULL && frame->member != member )
 			continue ;
 
+		// if this member is a spyer, only queue frames from the spyee
+		if ( ( member->spyee_channel_name != NULL && frame->member == NULL )
+			&& ( frame->spy_partner == NULL || frame->spy_partner != member ) )
+			continue ;
+
 		if ( frame->fr == NULL )
 		{
 			ast_log( LOG_WARNING, "unknown error queueing frame for listener, frame->fr == NULL\n" ) ;
@@ -3047,7 +3122,7 @@ int queue_frame_for_listener(
 		}
 
 		// first, try for a pre-converted frame
-		qf = (member->listen_volume == 0 ? frame->converted[ member->write_format_index ] : 0);
+		qf = (member->listen_volume == 0 && member->spy_partner == NULL? frame->converted[ member->write_format_index ] : 0);
 
 		// convert ( and store ) the frame
 		if ( qf == NULL )
@@ -3071,7 +3146,7 @@ int queue_frame_for_listener(
 
 			// store the converted frame
 			// ( the frame will be free'd next time through the loop )
-			if (member->listen_volume == 0)
+			if (member->listen_volume == 0 && member->spy_partner == NULL)
 			{
 				frame->converted[ member->write_format_index ] = qf ;
 			}
@@ -3092,7 +3167,7 @@ int queue_frame_for_listener(
 				//qf = NULL ;
 			}
 
-			if (member->listen_volume != 0)
+			if (member->listen_volume != 0 || member->spy_partner != NULL)
 			{
 				// free frame ( the translator's copy )
 				ast_frfree( qf ) ;

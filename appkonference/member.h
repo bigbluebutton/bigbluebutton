@@ -60,7 +60,7 @@ struct ast_conf_member
 	char* uniqueid ;  // member's uniqueid
 
 	ast_cond_t delete_var ; // delete cv
-	int delete_flag ; // delete flag
+	char delete_flag ; // delete flag
 	int use_count ; // use count
 
 	// values passed to create_member () via *data
@@ -68,8 +68,8 @@ struct ast_conf_member
 	char* flags ;	// raw member-type flags
 	char *type ;		// conference type
 	char* conf_name ;		// name of the conference that own this member
+	char *spyee_channel_name ; // spyee  channel name
 	int max_users ; // zero or max users for this conference
-	short max_users_flag ;
 
 	char *callerid;
 	char *callername;
@@ -97,7 +97,10 @@ struct ast_conf_member
 	int listen_volume;
 
 	// music on hold flag
-	int moh_flag;
+	char moh_flag;
+
+	// hold option flag
+	char hold_flag;
 
 	// this member will not hear/see
 	int norecv_audio;
@@ -243,6 +246,9 @@ struct ast_conf_member
 	// list entry for member's bucket list
 	AST_LIST_ENTRY(ast_conf_member) hash_entry ;
 
+	// spyer pointer to spyee or vice versa
+	struct ast_conf_member* spy_partner ;
+
 	// accounting values
 	unsigned long frames_in ;
 	unsigned long frames_in_dropped ;
@@ -277,7 +283,7 @@ struct ast_conf_member
 	struct timeval lastsent_timeval ;
 
 	// flag indicating we should remove this member
-	short kick_flag ;
+	char kick_flag ;
 
 #if ( SILDET == 2 )
 	// pointer to speex preprocessor dsp

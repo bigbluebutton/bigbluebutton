@@ -88,7 +88,18 @@ static void conference_exec( struct ast_conference *conf )
 	int listener_count ;
 
 	ast_log( AST_CONF_DEBUG, "Entered conference_exec, name => %s\n", conf->name ) ;
+#ifdef	REALTIME
+	int policy;
+	struct sched_param param;
 
+	pthread_getschedparam(conf->conference_thread, &policy, &param);
+
+	if ( policy == SCHED_RR ) {
+		++param.sched_priority;
+		policy = SCHED_FIFO;
+		pthread_setschedparam(conf->conference_thread, policy, &param);
+	}
+#endif
 	// timer timestamps
 	struct timeval base, curr, notify ;
 	base = notify = ast_tvnow();
@@ -536,14 +547,17 @@ static void conference_exec( struct ast_conference *conf )
 void init_conference( void )
 {
 	ast_mutex_init( &conflist_lock ) ;
+
 	channel_table = malloc (CHANNEL_TABLE_SIZE * sizeof (struct channel_bucket) ) ;
 	int i;
 	for ( i = 0; i < CHANNEL_TABLE_SIZE; i++)
 		AST_LIST_HEAD_INIT (&channel_table[i]) ;
 	ast_log( LOG_NOTICE, "initializing channel table, size = %d\n", CHANNEL_TABLE_SIZE ) ;
+
+	argument_delimiter = ( !strcmp(PACKAGE_VERSION,"1.4") ? "|" : "," ) ;
 }
 
-struct ast_conference* join_conference( struct ast_conf_member* member )
+struct ast_conference* join_conference( struct ast_conf_member* member, char* max_users_flag )
 {
 	struct ast_conference* conf = NULL ;
 
@@ -582,7 +596,7 @@ struct ast_conference* join_conference( struct ast_conf_member* member )
 		} else {
 			ast_log( LOG_NOTICE, "conference %s max users exceeded: member count = %d\n", conf->name, conf->membercount ) ;
 			pbx_builtin_setvar_helper(member->chan, "KONFERENCE", "MAXUSERS");
-			member->max_users_flag = 1;
+			*max_users_flag = 1;
 			conf = NULL;
 		}
 	}
@@ -900,6 +914,24 @@ static void add_member( struct ast_conf_member *member, struct ast_conference *c
 	// update conference stats
 	conf->membercount++;
 
+	if ( member->hold_flag == 1 )
+	{
+		if  ( conf->membercount == 1 )
+		{
+			ast_mutex_lock( &member->lock ) ;
+			member->moh_flag = 1 ;
+			ast_mutex_unlock( &member->lock ) ;
+		}
+		else if ( conf->membercount == 2 && conf->memberlist->hold_flag == 1)
+		{
+			ast_mutex_lock( &conf->memberlist->lock ) ;
+			conf->memberlist->moh_flag = 0 ;
+			conf->memberlist->ready_for_outgoing = 1;
+			ast_moh_stop(conf->memberlist->chan);
+			ast_mutex_unlock( &conf->memberlist->lock ) ;
+		}
+	}
+
 	if (member->ismoderator)
 		conf->stats.moderators++;
 
@@ -1093,6 +1125,13 @@ void remove_member( struct ast_conf_member* member, struct ast_conference* conf 
 			// update conference stats
 			membercount = --conf->membercount;
 
+			if ( member->hold_flag == 1 && conf->membercount == 1 && conf->memberlist->hold_flag == 1 )
+			{
+					ast_mutex_lock( &conf->memberlist->lock ) ;
+					conf->memberlist->moh_flag = 1 ;
+					ast_mutex_unlock( &conf->memberlist->lock ) ;
+			}
+
 			// update moderator count
 			moderators = (!member->ismoderator ? conf->stats.moderators : --conf->stats.moderators );
 #ifdef	VIDEO
@@ -1141,11 +1180,13 @@ void remove_member( struct ast_conf_member* member, struct ast_conference* conf 
 			member->conf_name, membercount ) ;
 
 	// remove member from channel table
-	AST_LIST_LOCK (member->bucket ) ;
-	AST_LIST_REMOVE (member->bucket, member, hash_entry) ;
-	AST_LIST_UNLOCK (member->bucket ) ;
-
-	//ast_log( AST_CONF_DEBUG, "Removed %s from the channel table, bucket => %ld\n", member->chan->name, member->bucket - channel_table) ;
+	if ( member->bucket != NULL )
+	{
+		AST_LIST_LOCK (member->bucket ) ;
+		AST_LIST_REMOVE (member->bucket, member, hash_entry) ;
+		AST_LIST_UNLOCK (member->bucket ) ;
+		//ast_log( AST_CONF_DEBUG, "Removed %s from the channel table, bucket => %ld\n", member->chan->name, member->bucket - channel_table ) ;
+	}
 
 	// output to manager...
 	manager_event(
@@ -1265,6 +1306,7 @@ int show_conference_list ( int fd, const char *name )
 {
 	struct ast_conf_member *member;
 	char volume_str[10];
+	char spy_str[10];
 
         // no conferences exist
 	if ( conflist == NULL )
@@ -1297,6 +1339,10 @@ int show_conference_list ( int fd, const char *name )
 			while ( member != NULL )
 			{
 				snprintf(volume_str, 10, "%d:%d", member->talk_volume, member->listen_volume);
+				if ( member->spyee_channel_name != NULL )
+					snprintf(spy_str, 10, "%d", member->spy_partner->id);
+				else
+					strcpy(spy_str , "*");
 #ifdef	VIDEO
 				if ( member->driven_member == NULL )
 				{

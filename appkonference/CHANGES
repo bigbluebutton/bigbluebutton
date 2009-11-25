@@ -82,5 +82,26 @@ ConferenceJoin, ConferenceLeave, and ConferenceDTMF events are updated to
 include the new type field.
 
 Added command to display the conference version number. The version number is
-either the konference release number or the subversion revision number if the
-code was checked out from the konference repository.
+either the AppKonference release number or the subversion revision number if the
+code was checked out from the AppKonference repository.
+
+Fix to bump the conference thread's priority and change its scheduling
+algorithm to fifo when asterisk is started realtime with the "-p" option.
+
+Added conference parameter, spy, which specifies a conference member channel
+name, the spyee. When a conference is entered in spy mode, the spyer receives
+voice only from the spyee.  If unmuted, the spyer can whisper to the spyee,
+that is, spyer voice is mixed with conference voice and sent to the spyee.
+Note that this initial implementation limits one spyer per spyee and a spyer
+can not be a spyee.
+
+Added a new field, spy, to the conference list command output. The spy
+field is the id of the spyee if the member is a spyer; otherwise, the asterisk
+character is used to indicate the member is not a spyer.
+
+Changed the application argument delimiter from the forward slash, "/", to the
+comma character, ",", to simplify parsing of channel name parameters and to be
+consistent with other asterisk applications.
+
+Added "H" option which enables "music on hold" if there is only one member in
+the conference.

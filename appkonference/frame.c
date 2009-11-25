@@ -112,8 +112,16 @@ conf_frame* mix_single_speaker( conf_frame* frames_in, int volume )
 		ast_frame_adjust_volume(frames_in->fr, frames_in->member->talk_volume + volume);
 	}
 
-	// set the frame's member to null ( i.e. all listeners )
-	frames_in->member = NULL ;
+	if ( frames_in->member->spyee_channel_name == NULL )
+	{
+		// set frame's spy partner
+		frames_in->spy_partner = frames_in->member->spy_partner ;
+
+		// set the frame's member to null ( i.e. all listeners )
+		frames_in->member = NULL ;
+	}
+	else
+		frames_in->member = frames_in->member->spy_partner ;
 
 	return frames_in ;
 }
@@ -233,10 +241,14 @@ conf_frame* mix_multiple_speakers(
 			{
 				ast_log( LOG_WARNING, "unable to convert frame to slinear\n" ) ;
 			}
-			else
+			else if ( cf_spoken->member->spyee_channel_name == NULL )
 			{
 				// create new conf frame with last frame as 'next'
 				cf_sendFrames = create_conf_frame( cf_spoken->member, cf_sendFrames, NULL ) ;
+			}
+			else if ( cf_spoken->member->spy_partner->local_speaking_state == 0 )
+			{
+				cf_sendFrames = create_conf_frame( cf_spoken->member->spy_partner, cf_sendFrames, NULL ) ;
 			}
 		}
 
@@ -282,8 +294,9 @@ conf_frame* mix_multiple_speakers(
 			// are not null, do not mix them.
 			//
 			if (
-				( cf_send->member == cf_spoken->member )
-				&& ( cf_send->member != NULL )
+				( cf_spoken->member == cf_send->member )
+				|| ( cf_spoken->member->spyee_channel_name != NULL
+					&& cf_spoken->member->spy_partner != cf_send->member)
 			)
 			{
 				// don't mix this frame
@@ -326,8 +339,31 @@ conf_frame* mix_multiple_speakers(
 
 	while ( cf_spoken != NULL )
 	{
-		// delete the frame
-		cf_spoken = delete_conf_frame( cf_spoken ) ;
+		struct ast_conf_member *spy_partner = cf_spoken->member->spy_partner ;
+
+		if ( spy_partner == NULL || cf_spoken->member->spyee_channel_name != NULL )
+		{
+			// delete the frame
+			cf_spoken = delete_conf_frame( cf_spoken ) ;
+		}
+		else
+		{
+			// move the unmixed frame to sendFrames
+			//  and indicate who it's for
+			conf_frame *spy_frame = cf_spoken ;
+
+			cf_spoken = cf_spoken->next;
+			if ( cf_spoken != NULL )
+				cf_spoken->prev = NULL;
+
+			spy_frame->next = cf_sendFrames;
+			cf_sendFrames->prev = spy_frame;
+			spy_frame->prev = NULL;
+
+			spy_frame->member = spy_partner;
+
+			cf_sendFrames = spy_frame;
+		}
 	}
 
 	// return the list of frames for sending
@@ -481,6 +517,8 @@ conf_frame* create_conf_frame( struct ast_conf_member* member, conf_frame* next,
 
 	cf->member = member ;
 	// cf->priority = 0 ;
+
+	cf->spy_partner = NULL ;
 
 	cf->prev = NULL ;
 	cf->next = next ;

@@ -53,6 +53,9 @@ typedef struct conf_frame
 	// pointer to the frame's owner
 	struct ast_conf_member* member ; // who sent this frame
 
+	// frame owner's spy partner
+	struct ast_conf_member* spy_partner ; // spyer (or spyee) to receive frame
+
 	// frame meta data
 //	struct timeval timestamp ;
 //	unsigned long cycleid ;

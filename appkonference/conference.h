@@ -129,7 +129,7 @@ struct ast_conference
 	short debug_flag ;
 
 	// flag indicating we should remove this member
-	short kick_flag ;
+	char kick_flag ;
 } ;
 
 
@@ -143,7 +143,7 @@ int hash( const char *channel_name ) ;
 
 int count_exec( struct ast_channel* chan, void* data ) ;
 
-struct ast_conference* join_conference( struct ast_conf_member* member ) ;
+struct ast_conference* join_conference( struct ast_conf_member* member, char* max_users_flag ) ;
 
 int end_conference( const char *name, int hangup ) ;
 

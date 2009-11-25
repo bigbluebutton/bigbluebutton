@@ -68,15 +68,21 @@ Using app_konference
 
 There is no configuration file. Conferences are created on-the-fly.
 
-Dialplan syntax: Konference(ConferenceName/Flags/Priority[/VADSTART/VADCONTINUE])
+Dialplan syntax:
 
-    * ConferenceName: Whatever you want to name the conference
-    * Flags: please see Flags.txt for a comprehensive list of dialplan flags
-    * Priority: Currently ignored; was to be a "speaking priority" so a 
-	higher priority caller could "override" others.
-    * VADSTART: Optional: "probability" to use to detect start of speech.
-    * VADCONTINUE: Optional: "probability" to use to detect continuation 
-	of speech. 
+Konference(NAME,FLAGS[,MAXUSERS][,TYPE][,SPY][,VADSTART][,VADCONTINUE][,VIDEOSTART][,VIDEOSTOP])
+
+* NAME: whatever you want to identify the conference
+* FLAGS: dialplan flags, see Flags.txt for a comprehensive list
+
+* MAXUSERS: limit conference participants to max_users
+* TYPE: conference type identifier
+* SPY: channel name to spy
+
+* VADSTART:  "probability" to use to detect start of speech.
+* VADCONTINUE: "probability" to use to detect continuation of speech. 
+* VIDEOSTART: length of speech before assuming that a member is speaking 
+* VIDEOSTOP: length of silence before assuming that a member has stopped speaking
 
 
 CLI Commands

@@ -3,9 +3,9 @@ Please note that app_konference is still work in progress, so this document migh
 
 The general syntax of Appkonference dialplan entries is:
 
-exten => <ext>,<pri>,Konference(<confname>/<flags>/<optional args>/<more optional args>)
+exten => <ext>,<pri>,Konference(<confname>,<flags>,<optional args>,<more optional args>)
 
-The optional arguments have the format <arg>=<value> and should be separated by slashes(/)
+The optional arguments have the format <arg>=<value> and should be separated by a comma
 
 1. Flags
 
@@ -38,6 +38,8 @@ Miscellaneous:
 't' : member accepts text based control messages.  The messages are described in a separate document
 'N' : Assume that the member starts off with camera disabled.
 'x' : if a moderator leaves, all conferees are kicked and conference ends.
+'a' : V + T
+'H' : play music on hold if only one member in conference
 
 Future development (these are not implemented yet):
 ?
@@ -52,21 +54,23 @@ vad_prob_start=<float> : Probability used to detect start of speech
 vad_prob_continue=<float> : Probability to detect continuation of speech
 video_start_timeout=<int> : Length of speech (in ms) before we say that a member is speaking (for video switching purposes)
 video_stop_timeout=<int>  : Length of silence (in ms) before we say that a member has stopped speaking (for video switching purposes)
-max_users=<int> : Limit conference participants to max_users.
+max_users=<int> : Limit conference participants to max_users
+type=<string>: Type identifier
+spy=<string>: Channel name to spy
 
 3. Examples
 
-exten => 6969,1,Konference(testconf/SNt)
+exten => 6969,1,Konference(testconf,SNt)
 
 Calling extension 6969 will connect to conference "testconf". The member accepts VAD based video switching, knows about
 the text based control protocol and is assumed to start off with camera disabled
 
 
-exten => 6969,1,Konference(testconf/SNt/video_start_timeout=1000/video_stop_timeout=1000)
+exten => 6969,1,Konference(testconf,SNt,video_start_timeout=1000,video_stop_timeout=1000)
 
 Same as above, but the timeouts used for VAD based video switching are set to 1000 ms (from the default of 2000 ms).
 The effect is faster video switching.
 
-exten => 6969,1,Konference(testconf/XNt)
+exten => 6969,1,Konference(testconf,XNt)
 
 Same as the first example, but video switching is now controlled by clients via DTMF

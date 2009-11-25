@@ -63,4 +63,6 @@
 #define SETDATA2PTR(data,ptr) data = (typeof(data))((void*)ptr)
 #define CASTDATA2PTR(data, type) (type*)(*((long *)&(data)))
 
+const char *argument_delimiter ;
+
 #endif
