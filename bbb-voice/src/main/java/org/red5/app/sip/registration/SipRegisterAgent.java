@@ -1,4 +1,4 @@
-package org.red5.app.sip;
+package org.red5.app.sip.registration;
 
 import local.net.KeepAliveSip;
 import org.zoolu.net.SocketAddress;
@@ -12,6 +12,7 @@ import org.zoolu.sip.transaction.TransactionClientListener;
 import org.zoolu.sip.authentication.DigestAuthentication;
 
 import org.slf4j.Logger;
+import org.red5.app.sip.SipRegisterAgentListener;
 import org.red5.logging.Red5LoggerFactory;
 
 import java.util.HashSet;
@@ -36,7 +37,23 @@ public class SipRegisterAgent implements TransactionClientListener {
 	private int registerCSeq;
 
 	private static final int MAX_ATTEMPTS = 3;
-
+	private Status agentStatus = Status.UNREGISTERED;
+	private Request request;
+	
+	private enum Status {
+    	REGISTERING(0), REGISTERED(1), RENEWING(2), UNREGISTERING(3), UNREGISTERED(4);    	
+    	private final int state;
+    	Status(int state) {this.state = state;}
+    	private int getState() {return state;}
+    }
+	
+	private enum Request {
+    	REGISTERING(0), RENEWING(1), UNREGISTERING(1);    	
+    	private final int request;
+    	Request(int request) {this.request = request;}
+    	private int getRequest() {return request;}
+    }
+	
 	private Set<SipRegisterAgentListener> listeners = new HashSet<SipRegisterAgentListener>();
 
 	private SipProvider sipProvider;	
@@ -51,11 +68,9 @@ public class SipRegisterAgent implements TransactionClientListener {
 	private int expireTime;					// Expiration time. 
 	private int renewTime;	
 	private int origRenewTime;				// Change by lior.
-	private int minRenewTime = 20;
+	private int minRenewTime = 2;
 	private boolean lastRegFailed = false; 	// Changed by Lior.
 	private boolean regInprocess = false;	
-	private boolean renewing = false;
-	private boolean registered = true;
 	private int attempts; 					// Number of registration attempts.	
 	private KeepAliveSip keepAlive; 		// KeepAliveSip daemon. 
 
@@ -112,12 +127,18 @@ public class SipRegisterAgent implements TransactionClientListener {
 		return continueRegistering;
 	}
 
-	public void register() {
+	private void register() {
 		register(expireTime);
 	}
 
 	/** Registers with the registrar server for <i>expire_time</i> seconds. */
-	public void register(int expireTime) {
+	private void register(int expireTime) {
+		if (agentStatus == Status.REGISTERED) {
+			request = Request.RENEWING;
+		} else {
+			request = Request.REGISTERING;
+		}
+		
 		attempts = 0;
 		lastRegFailed = false;
 		regInprocess = true;
@@ -173,12 +194,14 @@ public class SipRegisterAgent implements TransactionClientListener {
 		if (isPeriodicallyRegistering()) {
 			stopRegistering();
 		}
-		
+		unregisterWithServer();
 		sipProvider = null;
 	}
 
-	public void unregisterall() {
+	private void unregisterWithServer() {
 		attempts = 0;
+		request = Request.UNREGISTERING;
+		
 		Message req = MessageFactory.createRegisterRequest(sipProvider, target, target, null);
 		req.setExpiresHeader(new ExpiresHeader(String.valueOf(0)));
 		printLog("Unregistering all contacts");
@@ -194,7 +217,7 @@ public class SipRegisterAgent implements TransactionClientListener {
 	 * @param renewTime
 	 *            renew time in seconds
 	 */
-	public void loopRegister(int expireTime, int renewTime) {
+	private void loopRegister(int expireTime, int renewTime) {
 		this.expireTime = expireTime;
 		this.renewTime = renewTime;
 	
@@ -218,7 +241,7 @@ public class SipRegisterAgent implements TransactionClientListener {
 	 * @param keepaliveTime
 	 *            keep-alive packet rate (inter-arrival time) in milliseconds
 	 */
-	public void loopRegister(int expireTime, int renewTime, long keepaliveTime) {
+	public void register(int expireTime, int renewTime, long keepaliveTime) {
 		if (isPeriodicallyRegistering()) {
 			stopRegistering();
 		}
@@ -315,10 +338,19 @@ public class SipRegisterAgent implements TransactionClientListener {
 						+ expires + " origrenew=" + origRenewTime + "\r\nResponse=" + resp.toString());
 			}
 
-			printLog("Registration success: ");
+			printLog("Registration success: " + result);
 			regInprocess = false;
 			
-			notifyListenersOfRegistrationSuccess(result);
+			if (request == Request.REGISTERING) {
+				agentStatus = Status.REGISTERED;
+				notifyListenersOfRegistrationSuccess("REGISTERED");
+			} else if (request == Request.UNREGISTERING){
+				agentStatus = Status.UNREGISTERED;
+				notifyListenersOfRegistrationSuccess("UNREGISTERED");
+			} else if (request == Request.RENEWING) {
+				agentStatus = Status.REGISTERED;
+				// Don't notify the listeners.
+			}			
 		}
 	}
 	

@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IScope;
 import org.red5.server.api.stream.IBroadcastStream;
+import org.red5.app.sip.registration.SipRegisterAgent;
 
 public class SipUser {
     private static Logger log = Red5LoggerFactory.getLogger(SipUser.class, "sip");
@@ -77,6 +78,7 @@ public class SipUser {
         userProfile.keepaliveTime=8000;
 		userProfile.acceptTime=0;
 		userProfile.hangupTime=20;    	
+		
     }
     
     public void register() {
@@ -85,7 +87,7 @@ public class SipUser {
         	registerAgent = new SipRegisterAgent(sipProvider, userProfile.fromUrl, userProfile.contactUrl, 
         			userProfile.username, userProfile.realm, userProfile.passwd);
         	registerAgent.addListener(rtmpConnection);
-            loopRegister(userProfile.expires, userProfile.expires/2, userProfile.keepaliveTime);
+        	registerAgent.register(userProfile.expires, userProfile.expires/2, userProfile.keepaliveTime);
         }
     }
 
@@ -99,7 +101,8 @@ public class SipUser {
     public void call(String destination) {
         log.debug( "SIPUser Calling " + destination );
 
-        userAgent.hangup();
+        if (userAgent != null)
+        	userAgent.hangup();
 
         if (destination.indexOf("@") == -1) {
         	destination = destination + "@" + proxy;
@@ -109,7 +112,8 @@ public class SipUser {
         	destination = destination.substring(4);
         }
 
-        userAgent.call(destination);
+        if (userAgent != null)
+        	userAgent.call(destination);
     }
 
 	/** Add by Lior call transfer test */
@@ -181,9 +185,5 @@ public class SipUser {
     
     public String getSessionID() {
         return userid;
-    }
-
-    private void loopRegister( int expire_time, int renew_time, long keepalive_time ) {
-        registerAgent.loopRegister( expire_time, renew_time, keepalive_time );
     }
 }
