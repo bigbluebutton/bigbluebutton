@@ -101,10 +101,7 @@ public class DeskShareStream  implements IDeskShareStream {
 		exec.execute(capturedScreenSender);
 	}
 	
-	public void stream(ScreenVideoFrame frame) {
-		
-		
-	}
+	public void stream(ScreenVideoFrame frame) {}
 	
 	public void accept(CaptureUpdateEvent event) {
 		// Make a copy so we can process safely on our own thread.
