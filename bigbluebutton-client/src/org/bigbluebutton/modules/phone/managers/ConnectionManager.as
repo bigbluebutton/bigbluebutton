@@ -130,10 +130,14 @@ package org.bigbluebutton.modules.phone.managers {
 		//********************************************************************************************
 
 		public function registrationSucess(msg:String):* {
-			trace("REGISTRATION to the SIP server Succeeded.");
-			registered = true;
-			var regSuccessEvent:RegistrationSuccessEvent = new RegistrationSuccessEvent();
-			localDispatcher.dispatchEvent(regSuccessEvent);
+			LogUtil.debug("REGISTRATION to the SIP server Succeeded. " + msg);
+			if (msg == "REGISTERED") {
+				registered = true;
+				var regSuccessEvent:RegistrationSuccessEvent = new RegistrationSuccessEvent();
+				localDispatcher.dispatchEvent(regSuccessEvent);
+			} else {
+				LogUtil.debug("Got unregister message" + msg);
+			}
 		}
 	
 		public function registrationFailure(msg:String):* {
