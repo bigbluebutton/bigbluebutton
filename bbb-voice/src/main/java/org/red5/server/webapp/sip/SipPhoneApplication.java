@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
-import org.red5.app.sip.UserManager;
-import org.red5.app.sip.User;
+import org.red5.app.sip.SipUserManager;
+import org.red5.app.sip.SipUser;
 import org.red5.logging.Red5LoggerFactory;
 
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
@@ -24,7 +24,7 @@ import org.red5.server.api.stream.ISubscriberStream;
 public class SipPhoneApplication extends MultiThreadedApplicationAdapter implements IStreamAwareScopeHandler {
     protected static Logger log = Red5LoggerFactory.getLogger( SipPhoneApplication.class, "sip" );
 
-    private UserManager sipManager;
+    private SipUserManager sipManager;
     private boolean available = false;
     private int startSIPPort = 5070;
     private int stopSIPPort = 5099;
@@ -38,7 +38,7 @@ public class SipPhoneApplication extends MultiThreadedApplicationAdapter impleme
     @Override
     public boolean appStart( IScope scope ) {
         loginfo( "Red5SIP starting in scope " + scope.getName() + " " + System.getProperty( "user.dir" ) );
-        sipManager = UserManager.getInstance();
+        sipManager = SipUserManager.getInstance();
 		loginfo("Red5SIP using RTP port range " + startRTPPort + "-" + stopRTPPort + ", using SIP port range " + startSIPPort + "-" + stopSIPPort);
 
         sipPort = startSIPPort;
@@ -75,7 +75,7 @@ public class SipPhoneApplication extends MultiThreadedApplicationAdapter impleme
 
         if ( userNames.containsKey( client.getId() ) ) {
             loginfo( "Red5SIP Client closing client " + userNames.get( client.getId() ) );
-            sipManager.closeSIPUser( userNames.get( client.getId() ) );
+//            sipManager.closeSIPUser( userNames.get( client.getId() ) );
             userNames.remove( client.getId() );
         }
     }
@@ -133,11 +133,11 @@ public class SipPhoneApplication extends MultiThreadedApplicationAdapter impleme
 
 	public void login(String obproxy, String uid, String phone, String username, String password, String realm, String proxy) {
 		loginfo("Red5SIP login " + uid);
-
+/*
 		IConnection conn = Red5.getConnectionLocal();
 		IServiceCapableConnection service = (IServiceCapableConnection) conn;
 
-		User sipUser = sipManager.getSIPUser(uid);
+		SipUser sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser == null) {
 			loginfo("Red5SIP open creating sipUser for " + username + " on sip port " + sipPort + " audio port " + rtpPort + " uid " + uid );
@@ -159,123 +159,137 @@ public class SipPhoneApplication extends MultiThreadedApplicationAdapter impleme
 
 		rtpPort++;
 		if (rtpPort > stopRTPPort) rtpPort = startRTPPort;
+*/
 	}
 
 	public void register(String uid) {
 		loginfo("Red5SIP register");
+/*
 		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser != null) {
 			sipUser.register();
 		}
+*/
 	}
 
 	public void call(String uid, String destination) {
 		loginfo("Red5SIP Call " + destination);
-
+/*
 		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser != null) {
 			loginfo("Red5SIP Call found user " + uid + " making call to " + destination);
 			sipUser.call(destination);
 		}
+*/
 	}
 
 	/** call tarensfer test by Lior */
 	 public void transfer(String uid, String transferTo) {
 			loginfo("Red5SIP transfer " + transferTo);
-
+/*
 			User sipUser = sipManager.getSIPUser(uid);
 
 			if(sipUser != null) {
 				loginfo("Red5SIP Call found user " + uid + " transfering call to " + transferTo);
 				sipUser.transfer(transferTo);
 			}
+*/
 		}
 
 	/** transfer end tetst */
 
 	public void addToConf(String uid, String conf) {
 		loginfo("Red5SIP addToConf " + conf);
+/*
 		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser != null) {
 			loginfo("Red5SIP addToConf found user " + uid + " adding to conf " + conf);
 			sipUser.transfer("8" + conf);
 		}
+*/
 	}
 
 	public void joinConf(String uid, String conf) {
 		loginfo("Red5SIP joinConf " + conf);
-
+/*
 		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser != null) {
 			loginfo("Red5SIP joinConf found user " + uid + " joining conf " + conf);
 			sipUser.call("8" + conf );
 		}
+*/
 	}
 
 	public void dtmf(String uid, String digits) {
 		loginfo("Red5SIP DTMF " + digits);
-
+/*
 		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser != null) {
 			loginfo("Red5SIP DTMF found user " + uid + " sending dtmf digits " + digits);
 			sipUser.dtmf(digits);
 		}
-
+*/
 	}
 
 	public void accept(String uid) {
 		loginfo("Red5SIP Accept");
-
+/*
 		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser != null) {
 			sipUser.accept();
 		}
+*/
 	}
 	//Lior Add
 
 	public void unregister(String uid) {
-			loginfo("Red5SIP unregister");
 
+		loginfo("Red5SIP unregister");
+/*
 			User sipUser = sipManager.getSIPUser(uid);
 
 			if(sipUser != null) {
 				sipUser.unregister();
 			}
+*/
 	}
 
 	public void hangup(String uid) {
 		loginfo("Red5SIP Hangup");
-
+/*
 		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser != null) {
 			sipUser.hangup();
 		}
+*/
 	}
 
 	public void streamStatus(String uid, String status) {
 		loginfo("Red5SIP streamStatus");
-
+/*
 		User sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser != null) {
 			sipUser.streamStatus(status);
 		}
+*/
 	}
 
 
 	public void close(String uid) {
 		loginfo("Red5SIP endRegister");
-
+/*
 		IConnection conn = Red5.getConnectionLocal();
 		sipManager.closeSIPUser(uid);
 		userNames.remove(conn.getClient().getId());
+*/
 	}
 
 

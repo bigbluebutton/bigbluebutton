@@ -115,10 +115,10 @@ public final class SipUserManager {
 
     public void destroyAllSessions() {
         Collection sipUsers = getSIPUsers();
-        User sipUser;
+        SipUser sipUser;
 
         for (Iterator iter = sipUsers.iterator(); iter.hasNext();) {
-            sipUser = (User) iter.next();
+            sipUser = (SipUser) iter.next();
             sipUser.close();
 
             sipUser = null;

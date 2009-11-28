@@ -12,7 +12,6 @@ import org.zoolu.sip.transaction.TransactionClientListener;
 import org.zoolu.sip.authentication.DigestAuthentication;
 
 import org.slf4j.Logger;
-import org.red5.app.sip.SipRegisterAgentListener;
 import org.red5.logging.Red5LoggerFactory;
 
 import java.util.HashSet;

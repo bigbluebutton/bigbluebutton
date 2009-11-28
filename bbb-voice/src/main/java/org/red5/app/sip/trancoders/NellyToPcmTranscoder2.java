@@ -1,4 +1,4 @@
-package org.red5.app.sip;
+package org.red5.app.sip.trancoders;
 
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
@@ -6,38 +6,25 @@ import org.red5.app.sip.codecs.Codec;
 import org.red5.app.sip.codecs.asao.ByteStream;
 import org.red5.app.sip.codecs.asao.Decoder;
 import org.red5.app.sip.codecs.asao.DecoderMap;
+import org.red5.app.sip.stream.RtpSender2;
 
-public class NellyToPcmTranscoder {
-    protected static Logger log = Red5LoggerFactory.getLogger( NellyToPcmTranscoder.class, "sip" );
+public class NellyToPcmTranscoder2 implements Transcoder {
+    protected static Logger log = Red5LoggerFactory.getLogger( NellyToPcmTranscoder2.class, "sip" );
 
     private static final int NELLYMOSER_DECODED_PACKET_SIZE = 256;
     private static final int NELLYMOSER_ENCODED_PACKET_SIZE = 64;
-    /** Sip codec to be used on audio session */
-    private Codec sipCodec = null;
+    
+    private Codec sipCodec = null;	// Sip codec to be used on audio session 
     private Decoder decoder;
-    private DecoderMap decoderMap;
-    private byte[] packetBuffer;
+    private DecoderMap decoderMap;    
+    float[] tempBuffer;				// Temporary buffer with received PCM audio from FlashPlayer.    
+    int tempBufferRemaining = 0; 	// Floats remaining on temporary buffer.
+    float[] encodingBuffer;			// Encoding buffer used to encode to final codec format;    
+    int encodingOffset = 0;			// Offset of encoding buffer.    
+    boolean asao_buffer_processed = false;		// Indicates whether the current asao buffer was processed.
+    boolean hasInitilializedBuffers = false;	// Indicates whether the handling buffers have already been initialized.
 
-    // Temporary buffer with received PCM audio from FlashPlayer.
-    float[] tempBuffer;
-
-    // Floats remaining on temporary buffer.
-    int tempBufferRemaining = 0;
-
-    // Encoding buffer used to encode to final codec format;
-    float[] encodingBuffer;
-
-    // Offset of encoding buffer.
-    int encodingOffset = 0;
-
-    // Indicates whether the current asao buffer was processed.
-    boolean asao_buffer_processed = false;
-
-    // Indicates whether the handling buffers have already
-    // been initialized.
-    boolean hasInitilializedBuffers = false;
-
-    public NellyToPcmTranscoder(Codec sipCodec) {
+    public NellyToPcmTranscoder2(Codec sipCodec) {
     	this.sipCodec = sipCodec;
     	decoder = new Decoder();
         decoderMap = null;
@@ -58,16 +45,14 @@ public class NellyToPcmTranscoder {
     private int fillRtpPacketBuffer(byte[] asaoBuffer, byte[] transcodedData, int dataOffset) {
         int copyingSize = 0;
         int finalCopySize = 0;
-        byte[] codedBuffer = new byte[ sipCodec.getOutgoingEncodedFrameSize() ];
+        byte[] codedBuffer = new byte[sipCodec.getOutgoingEncodedFrameSize()];
 
         try {
-            if ((tempBufferRemaining + encodingOffset) >= sipCodec.getOutgoingDecodedFrameSize()) {
-                copyingSize = encodingBuffer.length - encodingOffset;
-
-                //BufferUtils.floatBufferIndexedCopy(encodingBuffer, encodingOffset, tempBuffer,
-                //        tempBuffer.length - tempBufferRemaining, copyingSize );
+        	if ((tempBufferRemaining + encodingOffset) >= sipCodec.getOutgoingDecodedFrameSize()) {
+        		copyingSize = encodingBuffer.length - encodingOffset;
                 
-                System.arraycopy(tempBuffer, tempBuffer.length-tempBufferRemaining, encodingBuffer, encodingOffset, copyingSize);
+                System.arraycopy(tempBuffer, tempBuffer.length-tempBufferRemaining, 
+                		encodingBuffer, encodingOffset, copyingSize);
 
                 encodingOffset = sipCodec.getOutgoingDecodedFrameSize();
                 tempBufferRemaining -= copyingSize;
@@ -75,9 +60,9 @@ public class NellyToPcmTranscoder {
             }
             else {
                 if (tempBufferRemaining > 0) {
-                    BufferUtils.floatBufferIndexedCopy(encodingBuffer, encodingOffset, tempBuffer,
-                            tempBuffer.length - tempBufferRemaining, tempBufferRemaining );
-
+                    System.arraycopy(tempBuffer, tempBuffer.length - tempBufferRemaining, 
+                    		encodingBuffer, encodingOffset, tempBufferRemaining);
+                    		
                     encodingOffset += tempBufferRemaining;
                     finalCopySize += tempBufferRemaining;
                     tempBufferRemaining = 0;
@@ -91,9 +76,6 @@ public class NellyToPcmTranscoder {
                 //tempBuffer = ResampleUtils.normalize(tempBuffer, 256); 	// normalise volume
                 tempBufferRemaining = tempBuffer.length;
 
-                //println( "fillRtpPacketBuffer",
-                //        "Decoded pcm " + tempBuffer.length + " floats." );
-
                 if ( tempBuffer.length <= 0 ) {
                     log.error("Asao decoder Error." );
                 }
@@ -106,8 +88,7 @@ public class NellyToPcmTranscoder {
                     copyingSize = tempBufferRemaining;
                 }
 
-                BufferUtils.floatBufferIndexedCopy(encodingBuffer, encodingOffset, tempBuffer,
-                        						0, copyingSize );
+                System.arraycopy(tempBuffer, 0, encodingBuffer, encodingOffset, copyingSize);
 
                 encodingOffset += copyingSize;
                 tempBufferRemaining -= copyingSize;
@@ -119,7 +100,7 @@ public class NellyToPcmTranscoder {
                 int encodedBytes = sipCodec.pcmToCodec( encodingBuffer, codedBuffer );
 
                 if ( encodedBytes == sipCodec.getOutgoingEncodedFrameSize() ) {
-                    BufferUtils.byteBufferIndexedCopy(transcodedData, dataOffset, codedBuffer, 0, codedBuffer.length );
+                    System.arraycopy(codedBuffer, 0, transcodedData, dataOffset, codedBuffer.length);
                 }
                 else {
                     //println( "fillRtpPacketBuffer", "Failure encoding buffer." );
@@ -134,16 +115,16 @@ public class NellyToPcmTranscoder {
         return finalCopySize;
     }
 
-    public void transcode(byte[] asaoBuffer, int offset, int num, byte[] transcodedData, int dataOffset, RtpSender rtpSender) {  
+    public void transcode(byte[] asaoBuffer, int offset, int num, byte[] transcodedData, int dataOffset, RtpSender2 rtpSender) {  
         asao_buffer_processed = false;
 
-        if ( !hasInitilializedBuffers ) {
-            tempBuffer = new float[ NELLYMOSER_DECODED_PACKET_SIZE ];
-            encodingBuffer = new float[ sipCodec.getOutgoingDecodedFrameSize() ];
+        if (!hasInitilializedBuffers) {
+            tempBuffer = new float[NELLYMOSER_DECODED_PACKET_SIZE];
+            encodingBuffer = new float[sipCodec.getOutgoingDecodedFrameSize()];
             hasInitilializedBuffers = true;
         }
 
-        if ( num > 0 ) {
+        if (num > 0) {
             do {
                 int encodedBytes = fillRtpPacketBuffer( asaoBuffer, transcodedData, dataOffset );
                 //println( "send", sipCodec.getCodecName() + " encoded " + encodedBytes + " bytes." );
@@ -153,14 +134,8 @@ public class NellyToPcmTranscoder {
                 }
 
                 if ( encodingOffset == sipCodec.getOutgoingDecodedFrameSize() ) {
-                    //println( "send", "Seding packet with " + encodedBytes + " bytes." );
-                    try {
-                    	rtpSender.sendTranscodedData();
-                    }
-                    catch ( Exception e ) {
-                        log.debug(sipCodec.getCodecName() + " encoder error." );
-                    }
-
+//                	System.out.println("Send this audio to asterisk.");
+                    rtpSender.sendTranscodedData();
                     encodingOffset = 0;
                 }
 
@@ -173,4 +148,14 @@ public class NellyToPcmTranscoder {
             log.debug("Closing" );
         }
     }
+
+	public void transcode(byte[] codedBuffer) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public int getIncomingEncodedFrameSize() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

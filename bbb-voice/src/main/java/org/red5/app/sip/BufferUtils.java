@@ -5,7 +5,7 @@ import org.slf4j.Logger;
 
 public class BufferUtils {
 
-    protected static Logger log = Red5LoggerFactory.getLogger( RTPStreamSender.class, "sip" );
+    protected static Logger log = Red5LoggerFactory.getLogger( BufferUtils.class, "sip" );
 
 
     /**

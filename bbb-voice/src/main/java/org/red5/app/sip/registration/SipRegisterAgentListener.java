@@ -1,4 +1,4 @@
-package org.red5.app.sip;
+package org.red5.app.sip.registration;
 
 public interface SipRegisterAgentListener {
     /** When a UA has been successfully (un)registered. */    
