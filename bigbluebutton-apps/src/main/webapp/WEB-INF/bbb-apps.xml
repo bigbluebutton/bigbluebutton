@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:integration="http://www.springframework.org/schema/integration"
+	xmlns:jms="http://www.springframework.org/schema/integration/jms"
+	xmlns:file="http://www.springframework.org/schema/integration/file"
+	xmlns:stream="http://www.springframework.org/schema/integration/stream"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/integration
+			http://www.springframework.org/schema/integration/spring-integration-1.0.xsd
+			http://www.springframework.org/schema/integration/jms
+			http://www.springframework.org/schema/integration/jms/spring-integration-jms-1.0.xsd
+			http://www.springframework.org/schema/integration/stream
+			http://www.springframework.org/schema/integration/stream/spring-integration-stream-1.0.xsd
+			http://www.springframework.org/schema/integration/file
+			http://www.springframework.org/schema/integration/file/spring-integration-file-1.0.xsd
+			">
+	
+	<bean id="roomsManager" class="org.bigbluebutton.conference.RoomsManager">
+		<property name="conferenceEventListener" ref="conferenceEventListener" />
+	</bean>
+			
+	<bean id="participantsHandler" class="org.bigbluebutton.conference.service.participants.ParticipantsHandler">
+		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
+		<property name="archiveApplication"> <ref local="archiveApplication"/></property>
+	</bean>
+	
+	<bean id="participantsApplication" 
+	    class="org.bigbluebutton.conference.service.participants.ParticipantsApplication">
+		<property name="roomsManager"> <ref local="roomsManager"/></property>
+	</bean>
+	
+	<bean id="participants.service" class="org.bigbluebutton.conference.service.participants.ParticipantsService">
+		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
+	</bean>
+	
+	<!-- BEGIN ARCHIVE -->
+	<bean id="archiveApplication" class="org.bigbluebutton.conference.service.archive.ArchiveApplication">
+		<property name="recordingsDirectory" value="${recordingsDirectory}"/>
+		<property name="playbackJobScheduler"> <ref local="playbackJobScheduler"/></property>
+	</bean>
+	
+	<bean id="archive.service" class="org.bigbluebutton.conference.service.archive.ArchiveService">
+		<property name="archiveApplication"> <ref local="archiveApplication"/></property>
+	</bean>
+	
+	<bean id="playbackJobScheduler" class="org.bigbluebutton.conference.service.archive.playback.PlaybackJobScheduler"/>
+	<!-- END ARCHIVE -->
+	
+	<!-- BEGIN PRESENTATION -->	
+	<bean id="presentationRoomsManager" class="org.bigbluebutton.conference.service.presentation.PresentationRoomsManager"/>
+			
+	<bean id="presentationHandler" class="org.bigbluebutton.conference.service.presentation.PresentationHandler">
+		<property name="presentationApplication"> 
+			<ref local="presentationApplication"/>
+		</property>
+		<property name="archiveApplication"> 
+			<ref local="archiveApplication"/>
+		</property>
+		<property name="conversionUpdatesMessageListener"> 
+			<ref local="messageListener"/>
+		</property>
+	</bean>
+	
+	<bean id="presentationApplication" class="org.bigbluebutton.conference.service.presentation.PresentationApplication">
+		<property name="roomsManager"> 
+			<ref local="presentationRoomsManager"/>
+		</property>
+	</bean>
+	
+	<bean id="presentation.service" class="org.bigbluebutton.conference.service.presentation.PresentationService">
+		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
+		<property name="presentationApplication"> <ref local="presentationApplication"/></property>
+	</bean>
+		
+    <bean id="connectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+        <property name="brokerURL">
+            <value>tcp://localhost:61616</value>
+        </property>
+    </bean>
+    
+    <bean id="destination" class="org.apache.activemq.command.ActiveMQQueue">
+        <constructor-arg index="0">
+            <value>UpdatesQueue</value>
+        </constructor-arg>
+    </bean>
+
+	<bean id="conversionUpdatesProcessor" class="org.bigbluebutton.conference.service.presentation.ConversionUpdatesProcessor">
+		<property name="presentationApplication"> <ref local="presentationApplication"/></property>
+	</bean>
+
+	<bean id="messageListener" class="org.bigbluebutton.conference.service.presentation.ConversionUpdatesMessageListener">
+		<property name="conversionUpdatesProcessor" ref="conversionUpdatesProcessor" />
+	</bean>
+
+	<bean id="jmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+  		<property name="connectionFactory" ref="connectionFactory"/>
+  		<property name="destination" ref="destination"/>
+  		<property name="messageListener" ref="messageListener" />
+	</bean>
+  	<!-- END PRESENTATION -->
+  	
+  	<!-- BEGIN CHAT -->
+  	<bean id="chatHandler" class="org.bigbluebutton.conference.service.chat.ChatHandler">
+		<property name="chatApplication"> <ref local="chatApplication"/></property>
+		<property name="archiveApplication"> <ref local="archiveApplication"/></property>
+	</bean>
+	
+	<bean id="chatApplication" 
+	    class="org.bigbluebutton.conference.service.chat.ChatApplication">
+		<property name="roomsManager"> <ref local="chatRoomsManager"/></property>
+	</bean>
+	
+	<bean id="chat.service" class="org.bigbluebutton.conference.service.chat.ChatService">
+		<property name="chatApplication"> <ref local="chatApplication"/></property>
+	</bean>
+	
+	<bean id="chatRoomsManager" class="org.bigbluebutton.conference.service.chat.ChatRoomsManager"/>
+	<!-- END CHAT -->
+	
+	<!-- BEGIN VOICE -->
+	<bean id="voiceHandler" class="org.bigbluebutton.conference.service.voice.VoiceHandler">
+		<property name="voiceApplication"> <ref local="voiceApplication"/></property>
+		<property name="archiveApplication"> <ref local="archiveApplication"/></property>
+		<property name="IVoiceServer"> <ref local="asteriskVoiceServer"/></property>
+	</bean>
+	
+	<bean id="voiceApplication" class="org.bigbluebutton.conference.service.voice.VoiceApplication">
+		<property name="roomsManager"> <ref local="voiceRoomsManager"/></property>
+	</bean>
+	
+	<bean id="voice.service" class="org.bigbluebutton.conference.service.voice.VoiceService">
+		<property name="voiceApplication"> <ref local="voiceApplication"/></property>
+		<property name="IVoiceServer"> <ref local="asteriskVoiceServer"/></property>
+	</bean>
+	
+	<bean id="voiceRoomsManager" class="org.bigbluebutton.conference.service.voice.VoiceRoomsManager"/>
+	
+	<bean id="conferenceServerListener" class="org.bigbluebutton.conference.service.voice.ConferenceServerListener">
+		<property name="voiceApplication"> <ref local="voiceApplication"/></property>
+	</bean>
+	
+	<bean id="asteriskVoiceServer" class="org.bigbluebutton.conference.service.voice.asterisk.AsteriskVoiceServer">
+		<property name="managerConnection"> <ref local="amiConnection"/> </property>
+		<property name="conferenceServerListener"> <ref local="conferenceServerListener"/></property>
+	</bean>
+	
+	<bean id="amiConnection" class="org.asteriskjava.manager.DefaultManagerConnection">
+		<property name="hostname" value="${ami.host}"/>
+		<property name="port" value="${ami.port}"/>
+		<property name="username" value="${ami.username}"/>
+		<property name="password" value="${ami.password}"/>
+	</bean>
+	<!-- END VOICE -->
+
+	<!-- Starting the Spring Integration configuration for JMS integration -->
+
+	<integration:gateway id="conferenceEventListener" service-interface="org.bigbluebutton.conference.IConferenceEventListener" />
+
+	<!-- shared -->
+	<bean id="roomTransformer" class="org.bigbluebutton.springintegration.RoomToStringTransformer" />
+
+	<!-- conferenceStarted -->
+	<integration:channel id="conferenceStarted" />
+	<integration:channel id="conferenceStartedStrings" />
+	<integration:transformer ref="roomTransformer" input-channel="conferenceStarted" output-channel="conferenceStartedStrings" />
+	<jms:outbound-channel-adapter id="conferenceStartedJmsOut" destination="conferenceStartedEvents" channel="conferenceStartedStrings" />
+    <bean id="conferenceStartedEvents" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg value="conferenceStartedEvents"/>
+    </bean>
+
+	<!-- conferenceEnded -->
+	<integration:channel id="conferenceEnded" />
+	<integration:channel id="conferenceEndedStrings" />
+	<integration:transformer ref="roomTransformer" input-channel="conferenceEnded" output-channel="conferenceEndedStrings" />
+	<jms:outbound-channel-adapter id="conferenceEndedJmsOut" destination="conferenceEndedEvents" channel="conferenceEndedStrings" />
+    <bean id="conferenceEndedEvents" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg value="conferenceEndedEvents"/>
+    </bean>
+
+</beans>
