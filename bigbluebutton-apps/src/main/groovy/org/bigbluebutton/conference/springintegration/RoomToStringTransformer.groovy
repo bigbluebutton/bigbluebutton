@@ -18,7 +18,7 @@
  * @author Jeremy Thomerson <jthomerson@genericconf.com>
  * $Id: $
  */
-package org.bigbluebutton.springintegration
+package org.bigbluebutton.conference.springintegration
 
 import org.bigbluebutton.conference.Room;
 import org.springframework.integration.core.Message;
