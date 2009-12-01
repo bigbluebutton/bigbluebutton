@@ -4,6 +4,7 @@ public class ConferenceStateEvent extends AbstractConferenceEvent {
 	
 	private String flags;
 	private String state;
+	private Integer memberId;
 	
 	public ConferenceStateEvent(Object source)
     {
@@ -24,5 +25,13 @@ public class ConferenceStateEvent extends AbstractConferenceEvent {
 
 	public void setState(String state) {
 		this.state = state;
+	}
+
+	public Integer getMemberId() {
+		return memberId;
+	}
+
+	public void setMemberId(Integer memberId) {
+		this.memberId = memberId;
 	}
 }
