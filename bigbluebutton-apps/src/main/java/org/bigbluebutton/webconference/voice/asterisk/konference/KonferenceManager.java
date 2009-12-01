@@ -1,25 +1,17 @@
 package org.bigbluebutton.webconference.voice.asterisk.konference;
 
-import org.asteriskjava.live.ManagerCommunicationException;
 import org.asteriskjava.manager.ManagerConnection;
 import org.asteriskjava.manager.ManagerEventListener;
-import org.asteriskjava.manager.action.CommandAction;
 import org.asteriskjava.manager.event.ManagerEvent;
-import org.asteriskjava.manager.response.CommandResponse;
-import org.asteriskjava.manager.response.ManagerError;
-import org.asteriskjava.manager.response.ManagerResponse;
-import org.asteriskjava.util.DateUtil;
 import org.asteriskjava.util.Log;
 import org.asteriskjava.util.LogFactory;
-import org.bigbluebutton.webconference.voice.asterisk.konference.events.AbstractKonferenceEvent;
-import org.bigbluebutton.webconference.voice.asterisk.konference.events.KonferenceJoinEvent;
-import org.bigbluebutton.webconference.voice.asterisk.konference.events.KonferenceLeaveEvent;
-import org.bigbluebutton.webconference.voice.asterisk.konference.events.KonferenceMemberMuteEvent;
-import org.bigbluebutton.webconference.voice.asterisk.konference.events.KonferenceMemberUnmuteEvent;
-import org.bigbluebutton.webconference.voice.asterisk.konference.events.KonferenceStateEvent;
+import org.bigbluebutton.webconference.voice.asterisk.konference.events.AbstractConferenceEvent;
+import org.bigbluebutton.webconference.voice.asterisk.konference.events.ConferenceJoinEvent;
+import org.bigbluebutton.webconference.voice.asterisk.konference.events.ConferenceLeaveEvent;
+import org.bigbluebutton.webconference.voice.asterisk.konference.events.ConferenceMemberMuteEvent;
+import org.bigbluebutton.webconference.voice.asterisk.konference.events.ConferenceMemberUnmuteEvent;
+import org.bigbluebutton.webconference.voice.asterisk.konference.events.ConferenceStateEvent;
 
-import java.util.*;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 class KonferenceManager implements ManagerEventListener {
@@ -29,18 +21,16 @@ class KonferenceManager implements ManagerEventListener {
     private final Log logger = LogFactory.getLog(getClass());
     private final ManagerConnection manager;
 
-//    private final Map<String, ConferenceRoomImpl> rooms;
-
     KonferenceManager(ManagerConnection manager) {
         this.manager = manager;
         
 //        this.rooms = new HashMap<String, ConferenceRoomImpl>();
         
-        manager.registerUserEventClass(KonferenceJoinEvent.class);
-        manager.registerUserEventClass(KonferenceLeaveEvent.class);
-        manager.registerUserEventClass(KonferenceStateEvent.class);
-        manager.registerUserEventClass(KonferenceMemberMuteEvent.class);
-        manager.registerUserEventClass(KonferenceMemberUnmuteEvent.class);
+        manager.registerUserEventClass(ConferenceJoinEvent.class);
+        manager.registerUserEventClass(ConferenceLeaveEvent.class);
+        manager.registerUserEventClass(ConferenceStateEvent.class);
+        manager.registerUserEventClass(ConferenceMemberMuteEvent.class);
+        manager.registerUserEventClass(ConferenceMemberUnmuteEvent.class);
     }
 
 
@@ -54,7 +44,7 @@ class KonferenceManager implements ManagerEventListener {
         */
     }
 
-    private void handleConferenceEvent(AbstractKonferenceEvent event) {
+    private void handleConferenceEvent(AbstractConferenceEvent event) {
 
     }
 
@@ -261,6 +251,6 @@ class KonferenceManager implements ManagerEventListener {
     }
 */
 	public void onManagerEvent(ManagerEvent event) {
-		handleConferenceEvent((AbstractKonferenceEvent)event);		
+		handleConferenceEvent((AbstractConferenceEvent)event);		
 	}
 }

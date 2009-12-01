@@ -1,10 +1,10 @@
 package org.bigbluebutton.webconference.voice.asterisk.konference.events;
 
-public class KonferenceSoundCompleteEvent extends AbstractKonferenceEvent {
+public class ConferenceSoundCompleteEvent extends AbstractConferenceEvent {
 
 	private String sound;
 	
-	public KonferenceSoundCompleteEvent(Object source) {
+	public ConferenceSoundCompleteEvent(Object source) {
         super(source);
     }
 

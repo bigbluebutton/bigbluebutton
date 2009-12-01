@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src/main/java"/>
-	<classpathentry kind="src" path="src/main/groovy"/>
+	<classpathentry excluding="org/bigbluebutton/webconference/voice/asterisk/" kind="src" path="src/main/groovy"/>
 	<classpathentry kind="src" path="test/commandline/src"/>
 	<classpathentry excluding="src/" kind="src" path="test/commandline"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>

@@ -2,13 +2,13 @@ package org.bigbluebutton.webconference.voice.asterisk.konference.events;
 
 import org.asteriskjava.manager.event.ManagerEvent;
 
-public class KonferenceUnlockEvent extends ManagerEvent {
+public class ConferenceUnmuteEvent extends ManagerEvent {
 
 	private static final long serialVersionUID = 1L;
 
 	private String conferenceName;
 	
-	public KonferenceUnlockEvent(Object source)
+	public ConferenceUnmuteEvent(Object source)
     {
         super(source);
     }

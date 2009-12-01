@@ -1,7 +1,8 @@
 package org.bigbluebutton.webconference.voice.asterisk.konference.events;
 
-public class KonferenceLeaveEvent extends AbstractKonferenceEvent {
+public class ConferenceLeaveEvent extends AbstractConferenceEvent {
 
+	private static final long serialVersionUID = 4836233262809045338L;
 	private String type;
 	private String uniqueID;
 	private Integer member;
@@ -12,8 +13,7 @@ public class KonferenceLeaveEvent extends AbstractKonferenceEvent {
 	private Integer moderators;
 	private Integer count;
 	    
-	public KonferenceLeaveEvent(Object source)
-    {
+	public ConferenceLeaveEvent(Object source) {
         super(source);
     }
 
