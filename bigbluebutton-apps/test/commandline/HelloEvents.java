@@ -28,7 +28,7 @@ public class HelloEvents implements ManagerEventListener {
     private static final Pattern KONFERENCE_LIST_PATTERN = Pattern.compile("^User #: ([0-9]+).*Channel: (\\S+).*$");
     
     private ManagerConnection managerConnection;
-
+    
     public HelloEvents() throws IOException
     {
         ManagerConnectionFactory factory = new ManagerConnectionFactory(

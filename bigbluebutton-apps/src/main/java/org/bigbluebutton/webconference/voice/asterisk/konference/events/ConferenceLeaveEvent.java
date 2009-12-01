@@ -1,7 +1,11 @@
 package org.bigbluebutton.webconference.voice.asterisk.konference.events;
 
-public class ConferenceLeaveEvent extends AbstractConferenceEvent {
-
+public class ConferenceLeaveEvent extends KonferenceEvent {
+	/*
+	 * WARNING: Be careful not to rename the class as Asterisk-Java uses the class name
+	 * to convert from raw AMI to Java. Therefore, when the appkonference event name
+	 * changes, you should also rename this class.
+	 */
 	private static final long serialVersionUID = 4836233262809045338L;
 	private String type;
 	private String uniqueID;

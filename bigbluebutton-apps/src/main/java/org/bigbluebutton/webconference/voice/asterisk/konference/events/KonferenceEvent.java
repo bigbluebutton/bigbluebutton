@@ -2,12 +2,12 @@ package org.bigbluebutton.webconference.voice.asterisk.konference.events;
 
 import org.asteriskjava.manager.event.ManagerEvent;
 
-public abstract class AbstractConferenceEvent extends ManagerEvent {
+public abstract class KonferenceEvent extends ManagerEvent {
 	private static final long serialVersionUID = 4049251911383919117L;
 	private String channel;
     private String conferenceName;
 
-	protected AbstractConferenceEvent(Object source) {
+	protected KonferenceEvent(Object source) {
         super(source);
     }
 	

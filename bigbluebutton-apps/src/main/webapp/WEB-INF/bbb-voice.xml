@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/integration"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:stream="http://www.springframework.org/schema/integration/stream"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/integration
+            http://www.springframework.org/schema/integration/spring-integration-1.0.xsd
+            http://www.springframework.org/schema/integration/stream
+            http://www.springframework.org/schema/integration/stream/spring-integration-stream-1.0.xsd">
+
+    <gateway id="cafe" service-interface="org.springframework.integration.samples.cafe.Cafe"/>
+
+    <channel id="orders"/>
+    <splitter input-channel="orders" ref="orderSplitter" method="split" output-channel="drinks"/>
+
+    <channel id="drinks"/>
+    <router input-channel="drinks" ref="drinkRouter" method="resolveOrderItemChannel"/>
+
+    <channel id="coldDrinks">
+        <queue capacity="10"/>
+    </channel>
+    <service-activator input-channel="coldDrinks" ref="barista"
+                       method="prepareColdDrink" output-channel="preparedDrinks"/>
+
+    <channel id="hotDrinks">
+        <queue capacity="10"/>
+    </channel>
+    <service-activator input-channel="hotDrinks" ref="barista"
+                       method="prepareHotDrink" output-channel="preparedDrinks"/>
+
+    <channel id="preparedDrinks"/>
+    <aggregator input-channel="preparedDrinks" ref="waiter"
+                method="prepareDelivery" output-channel="deliveries"/>
+
+    <stream:stdout-channel-adapter id="deliveries"/>
+
+    <beans:bean id="orderSplitter"
+                class="org.springframework.integration.samples.cafe.xml.OrderSplitter"/>
+
+    <beans:bean id="drinkRouter"
+                class="org.springframework.integration.samples.cafe.xml.DrinkRouter"/>
+
+    <beans:bean id="barista" class="org.springframework.integration.samples.cafe.xml.Barista"/>
+
+    <beans:bean id="waiter" class="org.springframework.integration.samples.cafe.xml.Waiter"/>
+
+    <poller id="poller" default="true">
+        <interval-trigger interval="1000"/>
+    </poller>
+
+</beans:beans>

@@ -179,4 +179,5 @@
 		<constructor-arg value="conferenceEndedEvents"/>
     </bean>
 
+	<!--import resource="bbb-voice.xml" /-->
 </beans>
