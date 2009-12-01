@@ -384,9 +384,11 @@ again:
 			EVENT_FLAG_CALL,
 			"ConferenceSoundComplete",
 			"ConferenceName: %s\r\n"
+			"MemberId: %d\r\n"
 			"Channel: %s\r\n"
 			"Sound: %s\r\n",
 			member->conf_name,
+			member->id,
 			member->channel_name,
 			toboot->name
 		);
@@ -2888,10 +2890,12 @@ void send_state_change_notifications( struct ast_conf_member* member )
 				EVENT_FLAG_CALL,
 				"ConferenceState",
 				"ConferenceName: %s\r\n"
+				"MemberId: %d\r\n"
 				"Channel: %s\r\n"
 				"Flags: %s\r\n"
 				"State: %s\r\n",
 				member->conf_name,
+				member->id,
 				member->channel_name,
 				member->flags,
 				( ( member->speaking_state == 1 ) ? "speaking" : "silent" )

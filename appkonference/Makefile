@@ -20,7 +20,7 @@
 INSTALL_PREFIX :=
 INSTALL_MODULES_DIR := $(INSTALL_PREFIX)/usr/lib/asterisk/modules
 
-ASTERISK_INCLUDE_DIR ?= ../asterisk/include
+ASTERISK_INCLUDE_DIR ?= /usr/src/asterisk/include
 
 RELEASE = 1.2
 

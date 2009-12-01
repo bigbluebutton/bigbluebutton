@@ -1607,8 +1607,10 @@ int mute_member (  const char* confname, int user_id)
 						EVENT_FLAG_CALL,
 						"ConferenceMemberMute",
 						"ConferenceName: %s\r\n"
+						"MemberId: %d\r\n"
 						"Channel: %s\r\n",
                 				member->conf_name,
+                				member->id,
 						member->channel_name
 					) ;
 				      res = 1;
@@ -1720,8 +1722,10 @@ int unmute_member (  const char* confname, int user_id)
 						EVENT_FLAG_CALL,
 						"ConferenceMemberUnmute",
 						"ConferenceName: %s\r\n"
+						"MemberId: %d\r\n"
 						"Channel: %s\r\n",
 						member->conf_name,
+						member->id,
 						member->channel_name
 					) ;
 				      res = 1;
