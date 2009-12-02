@@ -763,6 +763,8 @@ int member_exec( struct ast_channel* chan, void* data )
 		"Channel: %s\r\n"
 		"CallerID: %s\r\n"
 		"CallerIDName: %s\r\n"
+		"Muted: %s\r\n"
+		"Speaking: %s\r\n"
 		"Moderators: %d\r\n"
 		"Count: %d\r\n",
 		conf->name,
@@ -773,6 +775,8 @@ int member_exec( struct ast_channel* chan, void* data )
 		member->channel_name,
 		member->chan->cid.cid_num ? member->chan->cid.cid_num : "unknown",
 		member->chan->cid.cid_name ? member->chan->cid.cid_name: "unknown",
+		(member->mute_audio == 0 ? "False" : "True"),
+		(member->speaking_state == 1 ? "True" : "False"),
 		conf->stats.moderators,
 		conf->membercount
 	) ;

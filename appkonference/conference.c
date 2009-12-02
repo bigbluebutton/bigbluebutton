@@ -1346,15 +1346,15 @@ int show_conference_list ( int fd, const char *name )
 #ifdef	VIDEO
 				if ( member->driven_member == NULL )
 				{
-					ast_cli( fd, "MemberId: %-20d CIDName: %-20.20s CID: %-20.20s Audio: %-20.20s UniqueID: %-20.20s ConfName: %-20.20s Channel: %-80s\n",
-					member->id, (member->chan->cid.cid_name ? member->chan->cid.cid_name: "unknown"), (member->chan->cid.cid_num ? member->chan->cid.cid_num : "unknown"), (member->mute_audio == 0 ? "Unmuted" : "Muted"), member->uniqueid, member->conf_name, member->channel_name);
+					ast_cli( fd, "MemberId: %-20d CIDName: %-20.20s CID: %-20.20s Muted: %-20.20s UniqueID: %-20.20s ConfName: %-20.20s Channel: %-80s\n",
+					member->id, (member->chan->cid.cid_name ? member->chan->cid.cid_name: "unknown"), (member->chan->cid.cid_num ? member->chan->cid.cid_num : "unknown"), (member->mute_audio == 0 ? "False" : "True"), member->uniqueid, member->conf_name, member->channel_name);
 				} else {
-					ast_cli( fd, "MemberId: %-20d CIDName: %-20.20s CID: %-20.20s Audio: %-20.20s UniqueID: %-20.20s ConfName: %-20.20s Speaking: %s Channel: %-80s\n",
-					member->id, (member->chan->cid.cid_name ? member->chan->cid.cid_name: "unknown"), (member->chan->cid.cid_num ? member->chan->cid.cid_num : "unknown"), (member->mute_audio == 0 ? "Unmuted" : "Muted"), member->uniqueid, member->conf_name, (( member->speaking_state == 1 ) ? "speaking" : "silent"), member->channel_name);
+					ast_cli( fd, "MemberId: %-20d CIDName: %-20.20s CID: %-20.20s Muted: %-20.20s UniqueID: %-20.20s ConfName: %-20.20s Speaking: %s Channel: %-80s\n",
+					member->id, (member->chan->cid.cid_name ? member->chan->cid.cid_name: "unknown"), (member->chan->cid.cid_num ? member->chan->cid.cid_num : "unknown"), (member->mute_audio == 0 ? "False" : "True"), member->uniqueid, member->conf_name, (( member->speaking_state == 1 ) ? "True" : "False"), member->channel_name);
 				}
 #else
-					ast_cli( fd, "MemberId: %-20d CIDName: %-20.20s CID: %-20.20s Audio: %-20.20s UniqueID: %-20.20s ConfName: %-20.20s Speaking: %s Channel: %-80s\n",
-					member->id, (member->chan->cid.cid_name ? member->chan->cid.cid_name: "unknown"), (member->chan->cid.cid_num ? member->chan->cid.cid_num : "unknown"), (member->mute_audio == 0 ? "Unmuted" : "Muted"), member->uniqueid, member->conf_name, (( member->speaking_state == 1 ) ? "speaking" : "silent"), member->channel_name);
+					ast_cli( fd, "MemberId: %-20d CIDName: %-20.20s CID: %-20.20s Muted: %-20.20s UniqueID: %-20.20s ConfName: %-20.20s Speaking: %s Channel: %-80s\n",
+					member->id, (member->chan->cid.cid_name ? member->chan->cid.cid_name: "unknown"), (member->chan->cid.cid_num ? member->chan->cid.cid_num : "unknown"), (member->mute_audio == 0 ? "False" : "True"), member->uniqueid, member->conf_name, (( member->speaking_state == 1 ) ? "True" : "False"), member->channel_name);
 #endif
 				member = member->next;
 			}
