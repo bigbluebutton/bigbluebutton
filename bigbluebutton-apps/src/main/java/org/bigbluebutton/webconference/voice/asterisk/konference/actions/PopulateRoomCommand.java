@@ -8,12 +8,13 @@ import org.asteriskjava.manager.action.CommandAction;
 import org.asteriskjava.manager.response.CommandResponse;
 import org.asteriskjava.manager.response.ManagerResponse;
 import org.bigbluebutton.webconference.voice.asterisk.konference.KonferenceEventHandler;
+import org.bigbluebutton.webconference.voice.asterisk.konference.KonferenceEventsTransformer;
 import org.bigbluebutton.webconference.voice.asterisk.konference.events.ConferenceJoinEvent;
 
-public class GetParticipantsCommand extends KonferenceCommand {
+public class PopulateRoomCommand extends KonferenceCommand {
 	private static final Pattern KONFERENCE_LIST_PATTERN = Pattern.compile("^MemberId:(.+)CIDName:(.+)CID:(.+)Muted:(.+)UniqueID:(.+)ConfName:(.+)Speaking:(.+)Channel:(.+)$");
 	
-	public GetParticipantsCommand(String room, Integer requesterId) {
+	public PopulateRoomCommand(String room, Integer requesterId) {
 		super(room, requesterId);
 		// TODO Auto-generated constructor stub
 	}
@@ -24,7 +25,7 @@ public class GetParticipantsCommand extends KonferenceCommand {
 	}
 
 	@Override
-	public void handleResponse(ManagerResponse response, KonferenceEventHandler eventHandler) {
+	public void handleResponse(ManagerResponse response, KonferenceEventsTransformer eventHandler) {
 		final List<String> lines;
 		Matcher matcher;
 		
@@ -46,7 +47,7 @@ public class GetParticipantsCommand extends KonferenceCommand {
             	cj.setConferenceName(conferenceName);
             	cj.setMuted(muted);
             	cj.setSpeaking(speaking);
-            	eventHandler.handleKonferenceEvent(cj);
+            	eventHandler.transform(cj);
             }        	
         }
 	}

@@ -1,6 +1,6 @@
 package org.bigbluebutton.webconference.voice.asterisk.konference;
 
-import org.bigbluebutton.webconference.voice.ConferenceListener;
+import org.bigbluebutton.webconference.voice.ConferenceServerListener;
 import org.bigbluebutton.webconference.voice.asterisk.konference.events.ConferenceJoinEvent;
 import org.bigbluebutton.webconference.voice.asterisk.konference.events.ConferenceLeaveEvent;
 import org.bigbluebutton.webconference.voice.asterisk.konference.events.ConferenceMemberMuteEvent;
@@ -10,7 +10,7 @@ import org.bigbluebutton.webconference.voice.asterisk.konference.events.Konferen
 
 public class KonferenceEventHandler {
 	
-	private ConferenceListener listener;
+	private ConferenceServerListener listener;
 	
 	public void handleKonferenceEvent(KonferenceEvent event) {
 		if (event instanceof ConferenceJoinEvent) {
@@ -32,7 +32,7 @@ public class KonferenceEventHandler {
 		}		
 	}
 
-	public void setListener(ConferenceListener listener) {
+	public void setListener(ConferenceServerListener listener) {
 		this.listener = listener;
 	}
 	

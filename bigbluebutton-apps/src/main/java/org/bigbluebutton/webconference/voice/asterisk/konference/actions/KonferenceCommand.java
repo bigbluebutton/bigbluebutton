@@ -3,6 +3,7 @@ package org.bigbluebutton.webconference.voice.asterisk.konference.actions;
 import org.asteriskjava.manager.action.CommandAction;
 import org.asteriskjava.manager.response.ManagerResponse;
 import org.bigbluebutton.webconference.voice.asterisk.konference.KonferenceEventHandler;
+import org.bigbluebutton.webconference.voice.asterisk.konference.KonferenceEventsTransformer;
 
 public abstract class KonferenceCommand {
 
@@ -15,7 +16,7 @@ public abstract class KonferenceCommand {
 	}
 		
 	public abstract CommandAction getCommandAction();
-	public abstract void handleResponse(ManagerResponse response, KonferenceEventHandler eventHandler);
+	public abstract void handleResponse(ManagerResponse response, KonferenceEventsTransformer eventHandler);
 	
 	public String getRoom() {
 		return room;

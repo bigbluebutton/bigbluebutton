@@ -21,23 +21,25 @@ import org.slf4j.Logger;
 import java.io.IOException;
 
 class KonferenceManager implements ManagerEventListener {
-	private static Logger log = Red5LoggerFactory.getLogger( KonferenceManager.class, "bigbluebutton" );
+	private static Logger log = Red5LoggerFactory.getLogger(KonferenceManager.class, "bigbluebutton");
 
-    private final ManagerConnection manager;
-    private KonferenceEventHandler eventHandler;
+    private ManagerConnection manager;
+    private KonferenceEventsTransformer transformer;
     
-    KonferenceManager(ManagerConnection manager) {
-        this.manager = manager;
-               
+    public void startup() {  
         manager.registerUserEventClass(ConferenceJoinEvent.class);
         manager.registerUserEventClass(ConferenceLeaveEvent.class);
         manager.registerUserEventClass(ConferenceStateEvent.class);
         manager.registerUserEventClass(ConferenceMemberMuteEvent.class);
         manager.registerUserEventClass(ConferenceMemberUnmuteEvent.class);
     }
+    
+    public void shutdown() {
+    	// do nothing
+    }
 
     private void handleConferenceEvent(KonferenceEvent event) {
-    	eventHandler.handleKonferenceEvent(event);
+    	transformer.transform(event);
     }
     
     public void sendCommand(KonferenceCommand command) {
@@ -57,7 +59,7 @@ class KonferenceManager implements ManagerEventListener {
                 return;
             }
             
-            command.handleResponse(response, eventHandler);
+            command.handleResponse(response, transformer);
         } catch (TimeoutException e) {
     		System.out.println("Unable to send command");
     	} catch (IllegalArgumentException e) {
@@ -73,7 +75,11 @@ class KonferenceManager implements ManagerEventListener {
 		handleConferenceEvent((KonferenceEvent)event);		
 	}
 
-	public void setEventHandler(KonferenceEventHandler eventHandler) {
-		this.eventHandler = eventHandler;
+	public void setKonferenceEventsTransformer(KonferenceEventsTransformer transformer) {
+		this.transformer = transformer;
+	}
+	
+	public void setKonferenceManager(ManagerConnection manager) {
+        this.manager = manager;
 	}
 }
