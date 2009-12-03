@@ -32,7 +32,7 @@ public class HelloEvents implements ManagerEventListener {
     public HelloEvents() throws IOException
     {
         ManagerConnectionFactory factory = new ManagerConnectionFactory(
-                "192.168.0.120", "bbb", "secret");
+                "192.168.0.182", "bbb", "secret");
 
         this.managerConnection = factory.createManagerConnection();
         managerConnection.registerUserEventClass(ConferenceJoinEvent.class);
@@ -57,7 +57,7 @@ public class HelloEvents implements ManagerEventListener {
         // wait 10 seconds for events to come in
         Thread.sleep(10000);
 
-        populateRoom("85115");
+//        populateRoom("85115");
         
         // and finally log off and disconnect
 //        managerConnection.logoff();

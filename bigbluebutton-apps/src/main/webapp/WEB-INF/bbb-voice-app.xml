@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			">
+	
+	<bean id="voiceHandler" class="org.bigbluebutton.conference.service.voice.VoiceHandler">
+		<property name="voiceApplication"> <ref local="voiceApplication"/></property>
+		<property name="archiveApplication"> <ref local="archiveApplication"/></property>
+		<property name="IVoiceServer"> <ref local="asteriskVoiceServer"/></property>
+	</bean>
+	
+	<bean id="voiceApplication" class="org.bigbluebutton.conference.service.voice.VoiceApplication">
+		<property name="roomsManager"> <ref local="voiceRoomsManager"/></property>
+	</bean>
+	
+	<bean id="voice.service" class="org.bigbluebutton.conference.service.voice.VoiceService">
+		<property name="voiceApplication"> <ref local="voiceApplication"/></property>
+		<property name="IVoiceServer"> <ref local="asteriskVoiceServer"/></property>
+	</bean>
+	
+	<bean id="voiceRoomsManager" class="org.bigbluebutton.conference.service.voice.VoiceRoomsManager"/>
+	
+	<bean id="conferenceServerListener" class="org.bigbluebutton.conference.service.voice.ConferenceServerListener">
+		<property name="voiceApplication"> <ref local="voiceApplication"/></property>
+	</bean>
+	
+	<bean id="asteriskVoiceServer" class="org.bigbluebutton.conference.service.voice.asterisk.AsteriskVoiceServer">
+		<property name="managerConnection"> <ref local="amiConnection"/> </property>
+		<property name="conferenceServerListener"> <ref local="conferenceServerListener"/></property>
+	</bean>
+	
+	<bean id="amiConnection" class="org.asteriskjava.manager.DefaultManagerConnection">
+		<property name="hostname" value="${ami.host}"/>
+		<property name="port" value="${ami.port}"/>
+		<property name="username" value="${ami.username}"/>
+		<property name="password" value="${ami.password}"/>
+	</bean>
+	
+</beans>

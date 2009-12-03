@@ -30,7 +30,7 @@ public class KonferenceEventsTransformer {
 		if (event instanceof ConferenceJoinEvent) {
 			ConferenceJoinEvent cj = (ConferenceJoinEvent) event;
 			ParticipantJoinedEvent pj = new ParticipantJoinedEvent(cj.getMember(), cj.getConferenceName(),
-					cj.getCallerID(), cj.getCallerIDName());
+					cj.getCallerID(), cj.getCallerIDName(), cj.getMuted(), cj.getSpeaking());
 			return pj;
 		} else if (event instanceof ConferenceLeaveEvent) {
 			ConferenceLeaveEvent cl = (ConferenceLeaveEvent) event;

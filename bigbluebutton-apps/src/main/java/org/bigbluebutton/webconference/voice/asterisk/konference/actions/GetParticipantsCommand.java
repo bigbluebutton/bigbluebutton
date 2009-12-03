@@ -9,10 +9,9 @@ import org.asteriskjava.manager.response.CommandResponse;
 import org.asteriskjava.manager.response.ManagerResponse;
 import org.bigbluebutton.webconference.voice.asterisk.konference.KonferenceEventHandler;
 import org.bigbluebutton.webconference.voice.asterisk.konference.events.ConferenceJoinEvent;
-import org.bigbluebutton.webconference.voice.commands.ConferenceCommandResult;
 
 public class GetParticipantsCommand extends KonferenceCommand {
-	private static final Pattern KONFERENCE_LIST_PATTERN = Pattern.compile("^MemberId:(.+)CIDName:(.+)CID:(.+)Audio:(.+)UniqueID:(.+)ConfName:(.+)Channel:(.+)$");
+	private static final Pattern KONFERENCE_LIST_PATTERN = Pattern.compile("^MemberId:(.+)CIDName:(.+)CID:(.+)Muted:(.+)UniqueID:(.+)ConfName:(.+)Speaking:(.+)Channel:(.+)$");
 	
 	public GetParticipantsCommand(String room, Integer requesterId) {
 		super(room, requesterId);
@@ -36,16 +35,18 @@ public class GetParticipantsCommand extends KonferenceCommand {
             	Integer memberId = Integer.valueOf(matcher.group(1).trim());
             	String callerIdName = matcher.group(2).trim();
             	String callerIdNum = matcher.group(3).trim();
-            	boolean muted = "Unmuted".equals(matcher.group(4).trim()) ? true : false;
+            	Boolean muted = Boolean.valueOf(matcher.group(4).trim());
             	String conferenceName = matcher.group(6).trim();
+            	Boolean speaking = Boolean.valueOf(matcher.group(7).trim());
             	
             	ConferenceJoinEvent cj = new ConferenceJoinEvent(memberId);
             	cj.setMember(memberId);
             	cj.setCallerID(callerIdNum);
             	cj.setCallerIDName(callerIdName);
             	cj.setConferenceName(conferenceName);
-            	
-            	eventHandler.handlKonferenceEvent(cj);
+            	cj.setMuted(muted);
+            	cj.setSpeaking(speaking);
+            	eventHandler.handleKonferenceEvent(cj);
             }        	
         }
 	}

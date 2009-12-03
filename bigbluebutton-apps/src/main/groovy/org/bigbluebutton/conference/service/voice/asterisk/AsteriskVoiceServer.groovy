@@ -38,7 +38,7 @@ import org.asteriskjava.live.MeetMeUser
 import org.asteriskjava.live.MeetMeUserState
 import org.asteriskjava.live.MeetMeRoomimport org.bigbluebutton.conference.service.voice.IConferenceServerListenerimport org.red5.logging.Red5LoggerFactory
 import org.asteriskjava.manager.ManagerConnectionState
-public class AsteriskVoiceServer extends AbstractAsteriskServerListener implements IVoiceServer, PropertyChangeListener{
+public class AsteriskVoiceServer /*extends AbstractAsteriskServerListener*/ implements IVoiceServer, PropertyChangeListener{
 	private static Logger log = Red5LoggerFactory.getLogger( AsteriskVoiceServer.class, "bigbluebutton" )
 
 	private ManagerConnection managerConnection;	
@@ -52,6 +52,7 @@ public class AsteriskVoiceServer extends AbstractAsteriskServerListener implemen
 	private PingThread pingThread;
 	private boolean waitForMessage = true;
 	def amiThread
+	
 	
 	def start(){
 		amiThread = new Thread() {

@@ -8,8 +8,6 @@ import org.asteriskjava.manager.event.ManagerEvent;
 import org.asteriskjava.manager.response.CommandResponse;
 import org.asteriskjava.manager.response.ManagerError;
 import org.asteriskjava.manager.response.ManagerResponse;
-import org.asteriskjava.util.Log;
-import org.asteriskjava.util.LogFactory;
 import org.bigbluebutton.webconference.voice.asterisk.konference.actions.KonferenceCommand;
 import org.bigbluebutton.webconference.voice.asterisk.konference.events.KonferenceEvent;
 import org.bigbluebutton.webconference.voice.asterisk.konference.events.ConferenceJoinEvent;
@@ -17,15 +15,14 @@ import org.bigbluebutton.webconference.voice.asterisk.konference.events.Conferen
 import org.bigbluebutton.webconference.voice.asterisk.konference.events.ConferenceMemberMuteEvent;
 import org.bigbluebutton.webconference.voice.asterisk.konference.events.ConferenceMemberUnmuteEvent;
 import org.bigbluebutton.webconference.voice.asterisk.konference.events.ConferenceStateEvent;
+import org.red5.logging.Red5LoggerFactory;
+import org.slf4j.Logger;
 
 import java.io.IOException;
-import java.util.regex.Pattern;
 
 class KonferenceManager implements ManagerEventListener {
-    private static final String KONFERENCE_LIST_COMMAND = "konference list";
-    private static final Pattern KONFERENCE_LIST_PATTERN = Pattern.compile("^User #: ([0-9]+).*Channel: (\\S+).*$");
+	private static Logger log = Red5LoggerFactory.getLogger( KonferenceManager.class, "bigbluebutton" );
 
-    private final Log logger = LogFactory.getLog(getClass());
     private final ManagerConnection manager;
     private KonferenceEventHandler eventHandler;
     
@@ -40,7 +37,7 @@ class KonferenceManager implements ManagerEventListener {
     }
 
     private void handleConferenceEvent(KonferenceEvent event) {
-    	eventHandler.handlKonferenceEvent(event);
+    	eventHandler.handleKonferenceEvent(event);
     }
     
     public void sendCommand(KonferenceCommand command) {
@@ -50,25 +47,25 @@ class KonferenceManager implements ManagerEventListener {
             response = manager.sendAction(cmd);
                         
             if (response instanceof ManagerError) {
-                logger.error("Unable to send \"" + KONFERENCE_LIST_COMMAND + "\" command: " + response.getMessage());
+                log.error("Unable to send command: ");
                 return;
             }
             
             if (!(response instanceof CommandResponse)) {
-                logger.error("Response to \"" + KONFERENCE_LIST_COMMAND + "\" command is not a CommandResponse but "
+                log.error("Response to command is not a CommandResponse but "
                         + response.getClass());
                 return;
             }
             
             command.handleResponse(response, eventHandler);
         } catch (TimeoutException e) {
-    		System.out.println("Unable to send \"" + KONFERENCE_LIST_COMMAND + "\" command");
+    		System.out.println("Unable to send command");
     	} catch (IllegalArgumentException e) {
-    		logger.error("Unable to send \"" + KONFERENCE_LIST_COMMAND + "\" command: ");
+    		log.error("Unable to send command: ");
 		} catch (IllegalStateException e) {
-			logger.error("Unable to send \"" + KONFERENCE_LIST_COMMAND + "\" command: ");
+			log.error("Unable to send command: ");
 		} catch (IOException e) {
-			logger.error("Unable to send \"" + KONFERENCE_LIST_COMMAND + "\" command: ");
+			log.error("Unable to send command: ");
 		}    	    	
     }
 

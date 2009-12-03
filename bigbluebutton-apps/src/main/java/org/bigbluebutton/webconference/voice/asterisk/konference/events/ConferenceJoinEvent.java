@@ -17,7 +17,9 @@ public class ConferenceJoinEvent extends KonferenceEvent {
 	private String callerIDName;
 	private Integer moderators;
 	private Integer count;
-	    
+	private Boolean muted;
+	private Boolean speaking;
+	
 	public ConferenceJoinEvent(Object source) {
         super(source);
     }
@@ -84,5 +86,21 @@ public class ConferenceJoinEvent extends KonferenceEvent {
 
 	public void setCount(Integer count) {
 		this.count = count;
+	}
+
+	public Boolean getMuted() {
+		return muted;
+	}
+
+	public void setMuted(Boolean muted) {
+		this.muted = muted;
+	}
+
+	public Boolean getSpeaking() {
+		return speaking;
+	}
+
+	public void setSpeaking(Boolean speaking) {
+		this.speaking = speaking;
 	}
 }
