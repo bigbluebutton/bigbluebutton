@@ -48,7 +48,7 @@ public class ClientManager implements ClientNotifier {
 	}
 	
 	public void left(String room, Integer participant){
-		log.debug("Participant $user leaving");
+		log.debug("Participant [" + participant + "," + room + "] leaving");
 		RoomInfo soi = voiceRooms.get(room);
 		if (soi != null) {
 			List<Object> list = new ArrayList<Object>();

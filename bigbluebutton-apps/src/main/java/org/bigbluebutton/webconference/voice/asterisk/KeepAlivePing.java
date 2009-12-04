@@ -19,6 +19,8 @@ public class KeepAlivePing {
     private static final long DEFAULT_INTERVAL = 20 * 1000L;
     private long interval = DEFAULT_INTERVAL;
     private long timeout = 0;
+    private int pingCount = 0;
+    
     private final ManagerConnection connection;
     
     public KeepAlivePing(ManagerConnection connection) {
@@ -100,8 +102,14 @@ public class KeepAlivePing {
 		ManagerResponse response;
 		try {
 			if (timeout <= 0) {
-				log.debug("Sending Ping");
+				if (pingCount == 5) { // To minize logging, log only every 5 tries.
+					log.debug("Sending Ping");
+					pingCount = 0;
+				}
+				pingCount++;
+				
                 connection.sendAction(new PingAction(), null);
+                pingCount++;
              } else {
              	log.debug("Sending ping response:");
                 response = connection.sendAction(new PingAction(), timeout);

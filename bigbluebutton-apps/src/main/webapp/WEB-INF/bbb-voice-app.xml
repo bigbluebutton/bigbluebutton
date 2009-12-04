@@ -22,7 +22,7 @@
 	</bean>
 	
 	<bean id="conferenceApplication" class="org.bigbluebutton.webconference.voice.asterisk.AsteriskApplication">
-		<property name="conferenceApplication"> <ref local="konferenceApplication"/></property>
+		<property name="conferenceApplication"> <ref local="meetMeApplicationFacade"/></property>
 		<property name="managerConnection"> <ref local="amiConnection"/></property>
 	</bean>
 	

@@ -15,7 +15,11 @@ import org.slf4j.Logger;
 
 public class UserStateChangeListener implements PropertyChangeListener {
 	private static Logger log = Red5LoggerFactory.getLogger(UserStateChangeListener.class, "bigbluebutton");
-	
+
+    String PROPERTY_TALKING = "talking";
+    String PROPERTY_MUTED = "muted";
+    String PROPERTY_STATE = "state";
+    
 	private ConferenceEventListener conferenceEventListener;
 	
 	@Override
@@ -26,15 +30,15 @@ public class UserStateChangeListener implements PropertyChangeListener {
 				" old = '" + evt.getOldValue() + "' new = '" + evt.getNewValue() +
 				"' room = '" + ((MeetMeUser) evt.getSource()).getRoom() + "'");	
 		
-		if (evt.getPropertyName().equals("muted")) {	
+		if (evt.getPropertyName().equals(MeetMeUser.PROPERTY_MUTED)) {	
 			ParticipantMutedEvent pme = new ParticipantMutedEvent(cu.getUserNumber(), 
 								cu.getRoom().getRoomNumber(), cu.isMuted());
 			conferenceEventListener.handleConferenceEvent(pme);
-		} else if (evt.getPropertyName().equals("talking")) {	
+		} else if (evt.getPropertyName().equals(MeetMeUser.PROPERTY_TALKING)) {	
 			ParticipantTalkingEvent pte = new ParticipantTalkingEvent(cu.getUserNumber(),
 								cu.getRoom().getRoomNumber(), cu.isTalking());
 			conferenceEventListener.handleConferenceEvent(pte);
-		} else if ("state".equals(evt.getPropertyName())) {
+		} else if (MeetMeUser.PROPERTY_STATE.equals(evt.getPropertyName())) {
 			if (MeetMeUserState.LEFT == (MeetMeUserState) evt.getNewValue()) {
 				ParticipantLeftEvent ple = new ParticipantLeftEvent(cu.getUserNumber(),
 								cu.getRoom().getRoomNumber());

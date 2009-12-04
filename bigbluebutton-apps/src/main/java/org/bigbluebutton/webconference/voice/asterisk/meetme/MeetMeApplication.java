@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.asteriskjava.live.DefaultAsteriskServer;
 import org.asteriskjava.live.ManagerCommunicationException;
 import org.asteriskjava.manager.ManagerConnection;
+import org.asteriskjava.manager.ManagerEventListener;
 import org.asteriskjava.live.MeetMeUser;
 import java.util.Collection;
 import java.util.Iterator;
@@ -12,8 +13,10 @@ import org.asteriskjava.live.MeetMeRoom;
 import org.bigbluebutton.webconference.voice.asterisk.AbstractAsteriskServerListener;
 import org.red5.logging.Red5LoggerFactory;
 import org.asteriskjava.manager.ManagerConnectionState;
+import org.asteriskjava.manager.event.AbstractMeetMeEvent;
+import org.asteriskjava.manager.event.ManagerEvent;
 
-class MeetMeApplication extends AbstractAsteriskServerListener {
+class MeetMeApplication extends AbstractAsteriskServerListener implements ManagerEventListener {
 	private static Logger log = Red5LoggerFactory.getLogger(MeetMeApplication.class, "bigbluebutton");
 
 	private ManagerConnection managerConnection;	
@@ -27,6 +30,7 @@ class MeetMeApplication extends AbstractAsteriskServerListener {
 		try {
 			asteriskServer.addAsteriskServerListener(this);
 			asteriskServer.initialize();
+			managerConnection.addEventListener(this);
 		} catch (ManagerCommunicationException e) {
 			log.error("ManagerCommunicationException while starting meetme application");
 		}						
@@ -178,5 +182,12 @@ class MeetMeApplication extends AbstractAsteriskServerListener {
 		
 	public void setUserStateListener(UserStateChangeListener listener) {
 		userStateListener = listener;
+	}
+
+	@Override
+	public void onManagerEvent(ManagerEvent event) {
+		if (event instanceof AbstractMeetMeEvent) {
+			log.debug("MeetMeApplication received event: " + event.getClass().getName());
+		}
 	}
 }
