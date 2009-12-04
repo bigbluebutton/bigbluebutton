@@ -26,6 +26,7 @@
 		<property name="managerConnection"> <ref local="amiConnection"/></property>
 	</bean>
 	
+	<!-- BEGIN APP-KONFERENCE -->
 	<bean id="konferenceApplication" class="org.bigbluebutton.webconference.voice.asterisk.konference.KonferenceApplication">
 		<property name="konferenceManager"> <ref local="konferenceManager"/></property>
 	</bean>
@@ -38,6 +39,22 @@
 	<bean id="konferenceEventsTransformer" class="org.bigbluebutton.webconference.voice.asterisk.konference.KonferenceEventsTransformer">
 		<property name="conferenceEventListener"> <ref local="conferenceServer"/></property>
 	</bean>
+	<!-- END APP-KONFERENCE -->
+	
+	<!-- BEGIN APP-MEETME -->
+	<bean id="meetMeApplicationFacade" class="org.bigbluebutton.webconference.voice.asterisk.meetme.MeetMeApplicationFacade">
+		<property name="meetMeApplication"> <ref local="meetMeApplication"/></property>
+	</bean>
+	
+	<bean id="meetMeApplication" class="org.bigbluebutton.webconference.voice.asterisk.meetme.MeetMeApplication">
+		<property name="managerConnection"> <ref local="amiConnection"/></property>
+		<property name="userStateListener"> <ref local="userStateChangeListener"/></property>
+	</bean>
+	
+	<bean id="userStateChangeListener" class="org.bigbluebutton.webconference.voice.asterisk.meetme.UserStateChangeListener">
+		<property name="conferenceEventListener"> <ref local="conferenceServer"/></property>
+	</bean>	
+	<!-- END APP-MEETME -->
 	
 	<bean id="amiConnection" class="org.asteriskjava.manager.DefaultManagerConnection">
 		<property name="hostname" value="${ami.host}"/>

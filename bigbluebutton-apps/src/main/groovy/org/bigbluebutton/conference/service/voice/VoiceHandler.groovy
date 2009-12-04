@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory
 import org.red5.server.api.so.ISharedObject
 import org.red5.server.adapter.ApplicationAdapter
 import org.red5.server.api.Red5import java.util.Mapimport org.bigbluebutton.conference.BigBlueButtonSessionimport org.bigbluebutton.conference.Constantsimport org.bigbluebutton.conference.service.archive.ArchiveApplicationimport org.red5.logging.Red5LoggerFactory
-import org.bigbluebutton.webconference.voice.ConferenceServerimport org.bigbluebutton.webconference.red5.voice.ClientManager
+import org.bigbluebutton.webconference.voice.ConferenceServer
 import org.bigbluebutton.webconference.red5.voice.ClientNotifier 
 public class VoiceHandler extends ApplicationAdapter implements IApplication{
 	private static Logger log = Red5LoggerFactory.getLogger(VoiceHandler.class, "bigbluebutton")
