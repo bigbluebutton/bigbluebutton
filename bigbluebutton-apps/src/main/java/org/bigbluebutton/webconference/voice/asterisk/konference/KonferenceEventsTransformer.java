@@ -6,13 +6,11 @@ import org.bigbluebutton.webconference.voice.asterisk.konference.events.Conferen
 import org.bigbluebutton.webconference.voice.asterisk.konference.events.ConferenceMemberMuteEvent;
 import org.bigbluebutton.webconference.voice.asterisk.konference.events.ConferenceMemberUnmuteEvent;
 import org.bigbluebutton.webconference.voice.asterisk.konference.events.ConferenceStateEvent;
-import org.bigbluebutton.webconference.voice.events.ConferenceEvent;
 import org.bigbluebutton.webconference.voice.events.ConferenceEventListener;
 import org.bigbluebutton.webconference.voice.events.ParticipantJoinedEvent;
 import org.bigbluebutton.webconference.voice.events.ParticipantLeftEvent;
 import org.bigbluebutton.webconference.voice.events.ParticipantMutedEvent;
 import org.bigbluebutton.webconference.voice.events.ParticipantTalkingEvent;
-import org.bigbluebutton.webconference.voice.events.UnknownConferenceEvent;
 
 /**
  * This class transforms AppKonference events into BigBlueButton Voice
@@ -55,7 +53,7 @@ public class KonferenceEventsTransformer {
 		}
 	}
 
-	public void setListener(ConferenceEventListener listener) {
+	public void setConferenceEventListener(ConferenceEventListener listener) {
 		this.conferenceEventListener = listener;
 	}
 }

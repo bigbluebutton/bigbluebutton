@@ -6,29 +6,37 @@
 			">
 	
 	<bean id="voiceHandler" class="org.bigbluebutton.conference.service.voice.VoiceHandler">
-		<property name="voiceApplication"> <ref local="voiceApplication"/></property>
-		<property name="archiveApplication"> <ref local="archiveApplication"/></property>
-		<property name="IVoiceServer"> <ref local="asteriskVoiceServer"/></property>
+		<property name="conferenceServer"> <ref local="conferenceServer"/></property>
+		<property name="clientNotifier"> <ref local="clientNotifier"/></property>
 	</bean>
-	
-	<bean id="voiceApplication" class="org.bigbluebutton.conference.service.voice.VoiceApplication">
-		<property name="roomsManager"> <ref local="voiceRoomsManager"/></property>
+		
+	<bean id="clientNotifier" class="org.bigbluebutton.webconference.red5.voice.ClientManager"/>
+		
+	<bean id="conferenceServer" class="org.bigbluebutton.webconference.voice.ConferenceServer">
+		<property name="conferenceApplication"> <ref local="conferenceApplication"/></property>
+		<property name="conferenceServerListener"> <ref local="clientNotifier"/></property>
 	</bean>
 	
 	<bean id="voice.service" class="org.bigbluebutton.conference.service.voice.VoiceService">
-		<property name="voiceApplication"> <ref local="voiceApplication"/></property>
-		<property name="IVoiceServer"> <ref local="asteriskVoiceServer"/></property>
+		<property name="conferenceServer"> <ref local="conferenceServer"/></property>
 	</bean>
 	
-	<bean id="voiceRoomsManager" class="org.bigbluebutton.conference.service.voice.VoiceRoomsManager"/>
-	
-	<bean id="conferenceServerListener" class="org.bigbluebutton.conference.service.voice.ConferenceServerListener">
-		<property name="voiceApplication"> <ref local="voiceApplication"/></property>
+	<bean id="conferenceApplication" class="org.bigbluebutton.webconference.voice.asterisk.AsteriskApplication">
+		<property name="conferenceApplication"> <ref local="konferenceApplication"/></property>
+		<property name="managerConnection"> <ref local="amiConnection"/></property>
 	</bean>
 	
-	<bean id="asteriskVoiceServer" class="org.bigbluebutton.conference.service.voice.asterisk.AsteriskVoiceServer">
+	<bean id="konferenceApplication" class="org.bigbluebutton.webconference.voice.asterisk.konference.KonferenceApplication">
+		<property name="konferenceManager"> <ref local="konferenceManager"/></property>
+	</bean>
+	
+	<bean id="konferenceManager" class="org.bigbluebutton.webconference.voice.asterisk.konference.KonferenceManager">
 		<property name="managerConnection"> <ref local="amiConnection"/> </property>
-		<property name="conferenceServerListener"> <ref local="conferenceServerListener"/></property>
+		<property name="konferenceEventsTransformer"> <ref local="konferenceEventsTransformer"/></property>
+	</bean>
+	
+	<bean id="konferenceEventsTransformer" class="org.bigbluebutton.webconference.voice.asterisk.konference.KonferenceEventsTransformer">
+		<property name="conferenceEventListener"> <ref local="conferenceServer"/></property>
 	</bean>
 	
 	<bean id="amiConnection" class="org.asteriskjava.manager.DefaultManagerConnection">

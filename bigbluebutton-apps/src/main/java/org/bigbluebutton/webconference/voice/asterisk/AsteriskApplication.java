@@ -43,6 +43,7 @@ public class AsteriskApplication implements ConferenceApplication {
 			log.info("Logging off fom [" + connection.getHostname() + ":" + connection.getPort() + "]");
 			connection.logoff();
 		}
+		appDelegate.shutdown();
 	}
 
 	@Override
@@ -55,6 +56,7 @@ public class AsteriskApplication implements ConferenceApplication {
 		if (login()) {
 			ping = new KeepAlivePing(connection);
 			ping.start();
+			appDelegate.startup();
 		}
 	}
 	

@@ -4,9 +4,12 @@ import org.bigbluebutton.webconference.voice.ConferenceApplication;
 import org.bigbluebutton.webconference.voice.asterisk.konference.actions.EjectParticipantCommand;
 import org.bigbluebutton.webconference.voice.asterisk.konference.actions.MuteParticipantCommand;
 import org.bigbluebutton.webconference.voice.asterisk.konference.actions.PopulateRoomCommand;
+import org.red5.logging.Red5LoggerFactory;
+import org.slf4j.Logger;
 
 public class KonferenceApplication implements ConferenceApplication {
-
+	private static Logger log = Red5LoggerFactory.getLogger(KonferenceApplication.class, "bigbluebutton");
+	
 	private KonferenceManager konfMgr;
 
 	private final Integer USER = 0; /* not used for now */
@@ -36,6 +39,7 @@ public class KonferenceApplication implements ConferenceApplication {
 
 	@Override
 	public void startup() {
+		log.debug("Starting KonferenceApplication");
 		konfMgr.startup();
 	}
 	

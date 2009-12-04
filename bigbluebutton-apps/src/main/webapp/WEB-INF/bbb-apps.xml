@@ -119,47 +119,12 @@
 	<bean id="chatRoomsManager" class="org.bigbluebutton.conference.service.chat.ChatRoomsManager"/>
 	<!-- END CHAT -->
 	
-	<!-- BEGIN VOICE -->
-	<bean id="voiceHandler" class="org.bigbluebutton.conference.service.voice.VoiceHandler">
-		<property name="voiceApplication"> <ref local="voiceApplication"/></property>
-		<property name="archiveApplication"> <ref local="archiveApplication"/></property>
-		<property name="IVoiceServer"> <ref local="asteriskVoiceServer"/></property>
-	</bean>
-	
-	<bean id="voiceApplication" class="org.bigbluebutton.conference.service.voice.VoiceApplication">
-		<property name="roomsManager"> <ref local="voiceRoomsManager"/></property>
-	</bean>
-	
-	<bean id="voice.service" class="org.bigbluebutton.conference.service.voice.VoiceService">
-		<property name="voiceApplication"> <ref local="voiceApplication"/></property>
-		<property name="IVoiceServer"> <ref local="asteriskVoiceServer"/></property>
-	</bean>
-	
-	<bean id="voiceRoomsManager" class="org.bigbluebutton.conference.service.voice.VoiceRoomsManager"/>
-	
-	<bean id="conferenceServerListener" class="org.bigbluebutton.conference.service.voice.ConferenceServerListener">
-		<property name="voiceApplication"> <ref local="voiceApplication"/></property>
-	</bean>
-	
-	<bean id="asteriskVoiceServer" class="org.bigbluebutton.conference.service.voice.asterisk.AsteriskVoiceServer">
-		<property name="managerConnection"> <ref local="amiConnection"/> </property>
-		<property name="conferenceServerListener"> <ref local="conferenceServerListener"/></property>
-	</bean>
-	
-	<bean id="amiConnection" class="org.asteriskjava.manager.DefaultManagerConnection">
-		<property name="hostname" value="${ami.host}"/>
-		<property name="port" value="${ami.port}"/>
-		<property name="username" value="${ami.username}"/>
-		<property name="password" value="${ami.password}"/>
-	</bean>
-	<!-- END VOICE -->
-
 	<!-- Starting the Spring Integration configuration for JMS integration -->
 
 	<integration:gateway id="conferenceEventListener" service-interface="org.bigbluebutton.conference.IConferenceEventListener" />
 
 	<!-- shared -->
-	<bean id="roomTransformer" class="org.bigbluebutton.springintegration.RoomToStringTransformer" />
+	<bean id="roomTransformer" class="org.bigbluebutton.conference.springintegration.RoomToStringTransformer" />
 
 	<!-- conferenceStarted -->
 	<integration:channel id="conferenceStarted" />
@@ -179,5 +144,4 @@
 		<constructor-arg value="conferenceEndedEvents"/>
     </bean>
 
-	<!--import resource="bbb-voice.xml" /-->
 </beans>

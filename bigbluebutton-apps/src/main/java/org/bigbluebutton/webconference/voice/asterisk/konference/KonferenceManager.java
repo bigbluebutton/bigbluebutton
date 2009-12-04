@@ -26,12 +26,14 @@ class KonferenceManager implements ManagerEventListener {
     private ManagerConnection manager;
     private KonferenceEventsTransformer transformer;
     
-    public void startup() {  
+    public void startup() { 
+    	log.debug("Starting KonferenceManager");
         manager.registerUserEventClass(ConferenceJoinEvent.class);
         manager.registerUserEventClass(ConferenceLeaveEvent.class);
         manager.registerUserEventClass(ConferenceStateEvent.class);
         manager.registerUserEventClass(ConferenceMemberMuteEvent.class);
         manager.registerUserEventClass(ConferenceMemberUnmuteEvent.class);
+        manager.addEventListener(this);
     }
     
     public void shutdown() {
@@ -39,6 +41,7 @@ class KonferenceManager implements ManagerEventListener {
     }
 
     private void handleConferenceEvent(KonferenceEvent event) {
+    	log.debug("Transforming event: " + event.getClass().getName());
     	transformer.transform(event);
     }
     
@@ -72,14 +75,16 @@ class KonferenceManager implements ManagerEventListener {
     }
 
 	public void onManagerEvent(ManagerEvent event) {
-		handleConferenceEvent((KonferenceEvent)event);		
+		log.debug("Received ManagerEvent");
+		if (event instanceof KonferenceEvent)
+			handleConferenceEvent((KonferenceEvent)event);		
 	}
 
 	public void setKonferenceEventsTransformer(KonferenceEventsTransformer transformer) {
 		this.transformer = transformer;
 	}
 	
-	public void setKonferenceManager(ManagerConnection manager) {
+	public void setManagerConnection(ManagerConnection manager) {
         this.manager = manager;
 	}
 }

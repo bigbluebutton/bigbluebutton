@@ -29,16 +29,17 @@ import org.slf4j.LoggerFactory
 import org.red5.server.api.so.ISharedObject
 import org.red5.server.adapter.ApplicationAdapter
 import org.red5.server.api.Red5import java.util.Mapimport org.bigbluebutton.conference.BigBlueButtonSessionimport org.bigbluebutton.conference.Constantsimport org.bigbluebutton.conference.service.archive.ArchiveApplicationimport org.red5.logging.Red5LoggerFactory
+import org.bigbluebutton.webconference.voice.ConferenceServerimport org.bigbluebutton.webconference.red5.voice.ClientManager
+import org.bigbluebutton.webconference.red5.voice.ClientNotifier 
 public class VoiceHandler extends ApplicationAdapter implements IApplication{
-	private static Logger log = Red5LoggerFactory.getLogger( VoiceHandler.class, "bigbluebutton" )
+	private static Logger log = Red5LoggerFactory.getLogger(VoiceHandler.class, "bigbluebutton")
 
 	private static final String VOICE = "VOICE"
 	private static final String VOICE_SO = "meetMeUsersSO"
 	private static final String APP = "VOICE"
 
-	private ArchiveApplication archiveApplication
-	private VoiceApplication voiceApplication
-	private IVoiceServer voiceServer
+	private ClientNotifier clientManager
+	private ConferenceServer conferenceServer
 	
 	@Override
 	public boolean appConnect(IConnection conn, Object[] params) {
@@ -66,14 +67,14 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 	@Override
 	public boolean appStart(IScope scope) {
 		log.debug("${APP}:appStart ${scope.name}")
-		voiceServer.start()
+		conferenceServer.startup()
 		return true;
 	}
 
 	@Override
 	public void appStop(IScope scope) {
 		log.debug("${APP}:appStop ${scope.name}")
-		voiceServer.stop()
+		conferenceServer.shutdown()
 	}
 
 	@Override
@@ -81,25 +82,14 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 		log.debug("${APP}:roomConnect")
 		if (getBbbSession().playbackMode()) {
 			log.debug("In playback mode")
-			ISharedObject so = getSharedObject(connection.scope, VOICE_SO)
-			VoicePlaybackNotifier notifier = new VoicePlaybackNotifier(so)
-			archiveApplication.addPlaybackNotifier(connection.scope.name, notifier)
 		} else {
 			log.debug("In live mode")
 			ISharedObject so = getSharedObject(connection.scope, VOICE_SO)
-			
-			log.debug("Setting up recorder")
-			VoiceEventRecorder recorder = new VoiceEventRecorder(so, getBbbSession().record)
-			log.debug("adding event recorder to ${connection.scope.name}")
-			archiveApplication.addEventRecorder(connection.scope.name, recorder)
-			
-			log.debug("Adding room listener")
-    		voiceApplication.addRoomListener(connection.scope.name, recorder)
-    		
+			    		
     		def voiceBridge = getBbbSession().voiceBridge    		
     		log.debug("Setting up voiceBridge $voiceBridge")
-    		voiceApplication.setConference(connection.scope.name, voiceBridge)
-    		voiceServer.initializeRoom(voiceBridge)
+    		clientManager.addSharedObject(connection.scope.name, voiceBridge, so)
+    		conferenceServer.createConference(voiceBridge)    		
 		}
     	return true;
 	}
@@ -107,7 +97,6 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 	@Override
 	public void roomDisconnect(IConnection connection) {
 		log.debug("${APP}:roomDisconnect")
-
 	}
 
 	@Override
@@ -124,7 +113,7 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 	@Override
 	public boolean roomStart(IScope scope) {
 		log.debug("${APP} - roomStart ${scope.name}")
-		voiceApplication.createRoom(scope.name)
+
     	if (!hasSharedObject(scope, VOICE_SO)) {
     		if (createSharedObject(scope, VOICE_SO, false)) {    			
     			return true 			
@@ -137,28 +126,24 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 	@Override
 	public void roomStop(IScope scope) {
 		log.debug("${APP}:roomStop ${scope.name}")
-		voiceApplication.destroyRoom(scope.name)
+		conferenceServer.destroyConference(scope.name)
+		clientManager.removeSharedObject(scope.name);
 		if (!hasSharedObject(scope, VOICE_SO)) {
     		clearSharedObjects(scope, VOICE_SO)
     	}
 	}
 	
-	public void setVoiceApplication(VoiceApplication a) {
+	public void setClientNotifier(ClientNotifier c) {
 		log.debug("Setting voice application")
-		voiceApplication = a
+		clientManager = c
 	}
 	
-	public void setIVoiceServer(IVoiceServer s) {
+	public void setConferenceServer(ConferenceServer s) {
 		log.debug("Setting voice server")
-		voiceServer = s
+		conferenceServer = s
 		log.debug("Setting voice server DONE")
 	}
-	
-	public void setArchiveApplication(ArchiveApplication a) {
-		log.debug("Setting archive application")
-		archiveApplication = a
-		log.debug("Setting archive application DONE")
-	}
+
 	
 	private BigBlueButtonSession getBbbSession() {
 		return Red5.connectionLocal.getAttribute(Constants.SESSION)

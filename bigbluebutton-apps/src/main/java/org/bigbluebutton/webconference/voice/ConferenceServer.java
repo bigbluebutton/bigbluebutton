@@ -27,6 +27,7 @@ public class ConferenceServer implements ConferenceEventListener {
 	}
 	
 	public void createConference(String room) {
+		if (roomMgr.hasRoom(room)) return;
 		roomMgr.createRoom(room);
 		confApp.populateRoom(room);
 	}
@@ -89,11 +90,14 @@ public class ConferenceServer implements ConferenceEventListener {
 		} else if (event instanceof ParticipantTalkingEvent) {
 			ParticipantTalkingEvent pte = (ParticipantTalkingEvent) event;
 			listener.talking(pte.getRoom(), pte.getParticipantId(), pte.isTalking());
-		}	
-		
+		}			
 	}
 	
 	public void setConferenceServerListener(ConferenceServerListener listener) {
 		this.listener = listener;
+	}
+	
+	public void setConferenceApplication(ConferenceApplication c) {
+		confApp = c;
 	}
 }

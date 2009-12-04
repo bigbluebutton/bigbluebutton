@@ -19,58 +19,68 @@
  */
 package org.bigbluebutton.conference.service.voice
 import org.slf4j.Loggerimport org.slf4j.LoggerFactoryimport org.red5.server.api.Red5import org.red5.server.api.IScopeimport org.bigbluebutton.conference.BigBlueButtonSessionimport org.bigbluebutton.conference.Constantsimport org.red5.logging.Red5LoggerFactory
+import org.bigbluebutton.webconference.voice.ConferenceServerimport java.util.ArrayListimport org.bigbluebutton.webconference.voice.Participant
 public class VoiceService {
 	
 	private static Logger log = Red5LoggerFactory.getLogger( VoiceService.class, "bigbluebutton" );
 	
-	private VoiceApplication application
-	private IVoiceServer voiceServer
+	private ConferenceServer conferenceServer
 
 	public Map<String, List> getMeetMeUsers() {
-		def sessionName = getBbbSession().sessionName
+		def voiceBridge = getBbbSession().voiceBridge
 		
-    	log.debug("GetMeetmeUsers request for room[$sessionName]")
-    	Map p = application.participants(sessionName)
+    	log.debug("GetMeetmeUsers request for room[$voiceBridge]")
+    	ArrayList<Participant> p = conferenceServer.getParticipants(voiceBridge)
 
 		Map participants = new HashMap()
 		if (p == null) {
 			participants.put("count", 0)
 		} else {		
 			participants.put("count", p.size())
-			if (p.size() > 0) { 
-				participants.put("participants", p)
+			if (p.size() > 0) {				
+				participants.put("participants", arrayListToMap(p))
 			}			
 		}
 		log.info("MeetMe::service - Sending " + p.size() + " current users...");
 		return participants
 	}
 	
+	private Map<Integer, Map> arrayListToMap(ArrayList<Participant> alp) {
+		Map<Integer, Map> result = new HashMap();
+		
+		for (Participant p : alp) {
+			Map<String, Object> pmap = new HashMap();
+			pmap.put('participant', p.id);
+			pmap.put('name', p.name)
+			pmap.put('muted', p.muted)
+			pmap.put('talking', p.talking)
+			result.put(p.id, pmap)
+		}
+		
+		return result
+	}
+	
 	def muteAllUsers(mute) {
 		def conference = getBbbSession().voiceBridge    	
     	log.debug("Mute all users in room[$conference]")
-    	voiceServer.mute(conference, mute)	   	
+    	conferenceServer.mute(conference, mute)	   	
 	}	
 	
 	def muteUnmuteUser(userid, mute) {
 		def conference = getBbbSession().voiceBridge    	
     	log.debug("MuteUnmute request for user [$userid] in room[$conference]")
-    	voiceServer.mute(userid, conference, mute)
+    	conferenceServer.mute(userid, conference, mute)
 	}
 	
 	def kickUSer(userid) {
 		def conference = getBbbSession().voiceBridge		
     	log.debug("KickUser $userid from $conference")		
-		voiceServer.kick(userid, conference)
+		conferenceServer.eject(userid, conference)
 	}
 	
-	public void setVoiceApplication(VoiceApplication a) {
-		log.debug("Setting Voice Applications")
-		application = a
-	}
-	
-	public void setIVoiceServer(IVoiceServer s) {
+	public void setConferenceServer(ConferenceServer s) {
 		log.debug("Setting voice server")
-		voiceServer = s
+		conferenceServer = s
 		log.debug("Setting voice server DONE")
 	}
 	
