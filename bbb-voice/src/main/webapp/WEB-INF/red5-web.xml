@@ -35,8 +35,8 @@
 		<property name="startRTPPort" value="${startRTPPort}" />
 		<property name="stopRTPPort" value="${stopRTPPort}" />
 		<property name="callExtensionPattern" value="${callExtensionPattern}" />
+		<property name="sipUserManager" ref="sipUserManager"/>
 	</bean>
 	
-	<!--bean id="web.handler" class="org.red5.server.webapp.sip.Application">
-	</bean-->
+	<bean id="sipUserManager" class="org.red5.app.sip.SipUserManager"/>
 </beans>

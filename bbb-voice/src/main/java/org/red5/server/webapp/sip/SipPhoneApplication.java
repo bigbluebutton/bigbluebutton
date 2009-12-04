@@ -38,7 +38,6 @@ public class SipPhoneApplication extends MultiThreadedApplicationAdapter impleme
     @Override
     public boolean appStart( IScope scope ) {
         loginfo( "Red5SIP starting in scope " + scope.getName() + " " + System.getProperty( "user.dir" ) );
-        sipManager = SipUserManager.getInstance();
 		loginfo("Red5SIP using RTP port range " + startRTPPort + "-" + stopRTPPort + ", using SIP port range " + startSIPPort + "-" + stopSIPPort);
 
         sipPort = startSIPPort;
@@ -298,4 +297,8 @@ public class SipPhoneApplication extends MultiThreadedApplicationAdapter impleme
 
         log.info( s );
     }
+    
+	public void setSipUserManager(SipUserManager sum) {
+		sipManager = sum;
+	}
 }

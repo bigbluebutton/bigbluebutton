@@ -32,7 +32,6 @@ public class VoiceConferenceApplication extends MultiThreadedApplicationAdapter 
     @Override
     public boolean appStart(IScope scope) {
     	log.debug("VoiceConferenceApplication appStart[" + scope.getName() + "]");
-        sipManager = SipUserManager.getInstance();
         sipPort = startSIPPort;
         rtpPort = startRTPPort;
         return true;
@@ -226,5 +225,9 @@ public class VoiceConferenceApplication extends MultiThreadedApplicationAdapter 
 	
 	public void setCallExtensionPattern(String callExtensionPattern) {
 		this.callExtensionPattern = new MessageFormat(callExtensionPattern);
+	}
+	
+	public void setSipUserManager(SipUserManager sum) {
+		sipManager = sum;
 	}
 }

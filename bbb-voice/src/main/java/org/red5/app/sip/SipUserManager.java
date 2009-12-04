@@ -11,13 +11,8 @@ public final class SipUserManager {
 	private static final Logger log = Red5LoggerFactory.getLogger( SipUserManager.class, "sip" );
 	
     private static Map<String, SipUser> sessions;
-    private static SipUserManager singleton = new SipUserManager();
-
-    public static SipUserManager getInstance() {
-        return singleton;
-    }
-
-    private SipUserManager() {
+    
+    public SipUserManager() {
         sessions = Collections.synchronizedMap(new HashMap<String, SipUser>());
     }
 

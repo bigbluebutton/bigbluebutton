@@ -23,15 +23,10 @@
 
 package org.zoolu.sip.provider;
 
-
 import org.zoolu.tools.Configure;
 import org.zoolu.tools.Parser;
-import org.zoolu.tools.Log;
 import org.zoolu.tools.RotatingLog;
 import org.zoolu.tools.Timer;
-
-import java.io.*;
-import java.util.Vector;
 
 
 /** SipStack includes all static attributes used by the sip stack.
