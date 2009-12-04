@@ -1,66 +1,71 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans
-			http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-			">
+<beans:beans xmlns="http://www.springframework.org/schema/integration"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:stream="http://www.springframework.org/schema/integration/stream"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/integration
+            http://www.springframework.org/schema/integration/spring-integration-1.0.xsd
+            http://www.springframework.org/schema/integration/stream
+            http://www.springframework.org/schema/integration/stream/spring-integration-stream-1.0.xsd">
 	
-	<bean id="voiceHandler" class="org.bigbluebutton.conference.service.voice.VoiceHandler">
-		<property name="conferenceServer"> <ref local="conferenceServer"/></property>
-		<property name="clientNotifier"> <ref local="clientNotifier"/></property>
-	</bean>
+	<beans:bean id="voiceHandler" class="org.bigbluebutton.conference.service.voice.VoiceHandler">
+		<beans:property name="conferenceServer" ref="conferenceServer"/>
+		<beans:property name="clientNotifier" ref="clientNotifier"/>
+	</beans:bean>
 		
-	<bean id="clientNotifier" class="org.bigbluebutton.webconference.red5.voice.ClientManager"/>
+	<beans:bean id="clientNotifier" class="org.bigbluebutton.webconference.red5.voice.ClientManager"/>
 		
-	<bean id="conferenceServer" class="org.bigbluebutton.webconference.voice.ConferenceServer">
-		<property name="conferenceApplication"> <ref local="conferenceApplication"/></property>
-		<property name="conferenceServerListener"> <ref local="clientNotifier"/></property>
-	</bean>
+	<beans:bean id="conferenceServer" class="org.bigbluebutton.webconference.voice.ConferenceServer">
+		<beans:property name="conferenceApplication" ref="conferenceApplication"/>
+		<beans:property name="conferenceServerListener" ref="clientNotifier"/>
+	</beans:bean>
+		
+	<beans:bean id="voice.service" class="org.bigbluebutton.conference.service.voice.VoiceService">
+		<beans:property name="conferenceServer" ref="conferenceServer"/>
+	</beans:bean>
 	
-	<bean id="voice.service" class="org.bigbluebutton.conference.service.voice.VoiceService">
-		<property name="conferenceServer"> <ref local="conferenceServer"/></property>
-	</bean>
-	
-	<bean id="conferenceApplication" class="org.bigbluebutton.webconference.voice.asterisk.AsteriskApplication">
-		<property name="conferenceApplication"> <ref local="meetMeApplicationFacade"/></property>
-		<property name="managerConnection"> <ref local="amiConnection"/></property>
-	</bean>
+	<beans:bean id="conferenceApplication" class="org.bigbluebutton.webconference.voice.asterisk.AsteriskApplication">
+		<beans:property name="conferenceApplication" ref="meetMeApplicationFacade"/>
+		<beans:property name="managerConnection" ref="amiConnection"/>
+	</beans:bean>
 	
 	<!-- BEGIN APP-KONFERENCE -->
-	<bean id="konferenceApplication" class="org.bigbluebutton.webconference.voice.asterisk.konference.KonferenceApplication">
-		<property name="konferenceManager"> <ref local="konferenceManager"/></property>
-	</bean>
+	<beans:bean id="konferenceApplication" class="org.bigbluebutton.webconference.voice.asterisk.konference.KonferenceApplication">
+		<beans:property name="konferenceManager" ref="konferenceManager"/>
+	</beans:bean>
 	
-	<bean id="konferenceManager" class="org.bigbluebutton.webconference.voice.asterisk.konference.KonferenceManager">
-		<property name="managerConnection"> <ref local="amiConnection"/> </property>
-		<property name="konferenceEventsTransformer"> <ref local="konferenceEventsTransformer"/></property>
-	</bean>
+	<beans:bean id="konferenceManager" class="org.bigbluebutton.webconference.voice.asterisk.konference.KonferenceManager">
+		<beans:property name="managerConnection" ref="amiConnection"/>
+		<beans:property name="konferenceEventsTransformer" ref="konferenceEventsTransformer"/>
+	</beans:bean>
 	
-	<bean id="konferenceEventsTransformer" class="org.bigbluebutton.webconference.voice.asterisk.konference.KonferenceEventsTransformer">
-		<property name="conferenceEventListener"> <ref local="conferenceServer"/></property>
-	</bean>
+	<beans:bean id="konferenceEventsTransformer" class="org.bigbluebutton.webconference.voice.asterisk.konference.KonferenceEventsTransformer">
+		<beans:property name="conferenceEventListener" ref="conferenceServer"/>
+	</beans:bean>
 	<!-- END APP-KONFERENCE -->
 	
 	<!-- BEGIN APP-MEETME -->
-	<bean id="meetMeApplicationFacade" class="org.bigbluebutton.webconference.voice.asterisk.meetme.MeetMeApplicationFacade">
-		<property name="meetMeApplication"> <ref local="meetMeApplication"/></property>
-	</bean>
+	<beans:bean id="meetMeApplicationFacade" class="org.bigbluebutton.webconference.voice.asterisk.meetme.MeetMeApplicationFacade">
+		<beans:property name="meetMeApplication" ref="meetMeApplication"/>
+	</beans:bean>
 	
-	<bean id="meetMeApplication" class="org.bigbluebutton.webconference.voice.asterisk.meetme.MeetMeApplication">
-		<property name="managerConnection"> <ref local="amiConnection"/></property>
-		<property name="userStateListener"> <ref local="userStateChangeListener"/></property>
-	</bean>
+	<beans:bean id="meetMeApplication" class="org.bigbluebutton.webconference.voice.asterisk.meetme.MeetMeApplication">
+		<beans:property name="managerConnection" ref="amiConnection"/>
+		<beans:property name="userStateListener" ref="userStateChangeListener"/>
+	</beans:bean>
 	
-	<bean id="userStateChangeListener" class="org.bigbluebutton.webconference.voice.asterisk.meetme.UserStateChangeListener">
-		<property name="conferenceEventListener"> <ref local="conferenceServer"/></property>
-	</bean>	
+	<beans:bean id="userStateChangeListener" class="org.bigbluebutton.webconference.voice.asterisk.meetme.UserStateChangeListener">
+		<beans:property name="conferenceEventListener" ref="conferenceServer"/>
+	</beans:bean>	
 	<!-- END APP-MEETME -->
 	
-	<bean id="amiConnection" class="org.asteriskjava.manager.DefaultManagerConnection">
-		<property name="hostname" value="${ami.host}"/>
-		<property name="port" value="${ami.port}"/>
-		<property name="username" value="${ami.username}"/>
-		<property name="password" value="${ami.password}"/>
-	</bean>
+	<beans:bean id="amiConnection" class="org.asteriskjava.manager.DefaultManagerConnection">
+		<beans:property name="hostname" value="${ami.host}"/>
+		<beans:property name="port" value="${ami.port}"/>
+		<beans:property name="username" value="${ami.username}"/>
+		<beans:property name="password" value="${ami.password}"/>
+	</beans:bean>
 	
-</beans>
+</beans:beans>
