@@ -19,7 +19,6 @@
 		
 	<beans:bean id="conferenceServer" class="org.bigbluebutton.webconference.voice.ConferenceServer">
 		<beans:property name="conferenceApplication" ref="conferenceApplication"/>
-		<beans:property name="conferenceServerListener" ref="clientNotifier"/>
 	</beans:bean>
 		
 	<beans:bean id="voice.service" class="org.bigbluebutton.conference.service.voice.VoiceService">
@@ -31,6 +30,11 @@
 		<beans:property name="managerConnection" ref="amiConnection"/>
 	</beans:bean>
 	
+	<gateway id="voiceConferenceEventListener" service-interface="org.bigbluebutton.webconference.voice.events.ConferenceEventListener"/>
+	<publish-subscribe-channel id="conferenceEventChannel"/>	
+	<service-activator input-channel="conferenceEventChannel" ref="conferenceServer"  method="handleConferenceEvent"/>
+    <service-activator input-channel="conferenceEventChannel" ref="clientNotifier"  method="handleConferenceEvent"/>
+                       
 	<!-- BEGIN APP-KONFERENCE -->
 	<beans:bean id="konferenceApplication" class="org.bigbluebutton.webconference.voice.asterisk.konference.KonferenceApplication">
 		<beans:property name="konferenceManager" ref="konferenceManager"/>
@@ -42,7 +46,7 @@
 	</beans:bean>
 	
 	<beans:bean id="konferenceEventsTransformer" class="org.bigbluebutton.webconference.voice.asterisk.konference.KonferenceEventsTransformer">
-		<beans:property name="conferenceEventListener" ref="conferenceServer"/>
+		<beans:property name="conferenceEventListener" ref="voiceConferenceEventListener"/>
 	</beans:bean>
 	<!-- END APP-KONFERENCE -->
 	
@@ -57,7 +61,7 @@
 	</beans:bean>
 	
 	<beans:bean id="userStateChangeListener" class="org.bigbluebutton.webconference.voice.asterisk.meetme.UserStateChangeListener">
-		<beans:property name="conferenceEventListener" ref="conferenceServer"/>
+		<beans:property name="conferenceEventListener" ref="voiceConferenceEventListener"/>
 	</beans:bean>	
 	<!-- END APP-MEETME -->
 	

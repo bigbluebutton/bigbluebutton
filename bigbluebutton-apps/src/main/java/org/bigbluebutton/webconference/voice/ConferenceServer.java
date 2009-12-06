@@ -25,17 +25,12 @@ import java.util.ArrayList;
 
 import org.bigbluebutton.webconference.voice.events.ConferenceEvent;
 import org.bigbluebutton.webconference.voice.events.ConferenceEventListener;
-import org.bigbluebutton.webconference.voice.events.ParticipantJoinedEvent;
-import org.bigbluebutton.webconference.voice.events.ParticipantLeftEvent;
-import org.bigbluebutton.webconference.voice.events.ParticipantMutedEvent;
-import org.bigbluebutton.webconference.voice.events.ParticipantTalkingEvent;
 import org.bigbluebutton.webconference.voice.internal.RoomManager;
 
 public class ConferenceServer implements ConferenceEventListener {
 
 	private RoomManager roomMgr;
 	private ConferenceApplication confApp;
-	private ConferenceServerListener listener;
 	
 	public void startup() {
 		roomMgr = new RoomManager();
@@ -99,25 +94,8 @@ public class ConferenceServer implements ConferenceEventListener {
 	
 	public void handleConferenceEvent(ConferenceEvent event) {
 		roomMgr.processConferenceEvent(event);
+	}
 		
-		if (event instanceof ParticipantJoinedEvent) {
-			ParticipantJoinedEvent pje = (ParticipantJoinedEvent) event;
-			listener.joined(pje.getRoom(), pje.getParticipantId(), pje.getCallerIdName(), pje.getMuted(), pje.getSpeaking());
-		} else if (event instanceof ParticipantLeftEvent) {		
-			listener.left(event.getRoom(), event.getParticipantId());		
-		} else if (event instanceof ParticipantMutedEvent) {
-			ParticipantMutedEvent pme = (ParticipantMutedEvent) event;
-			listener.muted(pme.getRoom(), pme.getParticipantId(), pme.isMuted());
-		} else if (event instanceof ParticipantTalkingEvent) {
-			ParticipantTalkingEvent pte = (ParticipantTalkingEvent) event;
-			listener.talking(pte.getRoom(), pte.getParticipantId(), pte.isTalking());
-		}			
-	}
-	
-	public void setConferenceServerListener(ConferenceServerListener listener) {
-		this.listener = listener;
-	}
-	
 	public void setConferenceApplication(ConferenceApplication c) {
 		confApp = c;
 	}

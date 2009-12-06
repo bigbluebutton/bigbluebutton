@@ -96,7 +96,7 @@ class KonferenceManager implements ManagerEventListener {
     }
 
 	public void onManagerEvent(ManagerEvent event) {
-		log.debug("Received ManagerEvent");
+		log.debug("Received ManagerEvent " + event.getClass().getName());
 		if (event instanceof KonferenceEvent)
 			handleConferenceEvent((KonferenceEvent)event);		
 	}

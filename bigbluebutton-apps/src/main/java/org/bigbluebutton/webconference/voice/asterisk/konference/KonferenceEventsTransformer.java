@@ -48,7 +48,7 @@ public class KonferenceEventsTransformer {
 	 * Transforms AppKonferenceEvents into BBB Voice Conference Events.
 	 * Return UnknownConferenceEvent if unable to transform the event.
 	 */
-	public void transform(KonferenceEvent event) {		
+	public void transform(KonferenceEvent event) {	
 		if (event instanceof ConferenceJoinEvent) {
 			ConferenceJoinEvent cj = (ConferenceJoinEvent) event;
 			ParticipantJoinedEvent pj = new ParticipantJoinedEvent(cj.getMember(), cj.getConferenceName(),

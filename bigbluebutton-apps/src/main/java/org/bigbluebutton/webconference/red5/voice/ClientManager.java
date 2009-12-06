@@ -26,6 +26,11 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.bigbluebutton.webconference.voice.events.ConferenceEvent;
+import org.bigbluebutton.webconference.voice.events.ParticipantJoinedEvent;
+import org.bigbluebutton.webconference.voice.events.ParticipantLeftEvent;
+import org.bigbluebutton.webconference.voice.events.ParticipantMutedEvent;
+import org.bigbluebutton.webconference.voice.events.ParticipantTalkingEvent;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.so.ISharedObject;
 import org.slf4j.Logger;
@@ -53,7 +58,7 @@ public class ClientManager implements ClientNotifier {
 		if (soi != null) voiceRooms.remove(soi.getVoiceRoom());
 	}
 		
-	public void joined(String room, Integer participant, String name, Boolean muted, Boolean talking){
+	private void joined(String room, Integer participant, String name, Boolean muted, Boolean talking){
 		log.debug("Participant " + name + "joining room " + room);
 		RoomInfo soi = voiceRooms.get(room);
 		if (soi != null) {
@@ -68,7 +73,7 @@ public class ClientManager implements ClientNotifier {
 		}				
 	}
 	
-	public void left(String room, Integer participant){
+	private void left(String room, Integer participant){
 		log.debug("Participant [" + participant + "," + room + "] leaving");
 		RoomInfo soi = voiceRooms.get(room);
 		if (soi != null) {
@@ -78,7 +83,7 @@ public class ClientManager implements ClientNotifier {
 		}
 	}
 	
-	public void muted(String room, Integer participant, Boolean muted){
+	private void muted(String room, Integer participant, Boolean muted){
 		log.debug("Participant " + participant + " " + muted);
 		RoomInfo soi = voiceRooms.get(room);
 		if (soi != null) {
@@ -89,7 +94,7 @@ public class ClientManager implements ClientNotifier {
 		}		
 	}
 	
-	public void talking(String room, Integer participant, Boolean talking){
+	private void talking(String room, Integer participant, Boolean talking){
 		log.debug("Participant " + participant + " " + talking);
 		RoomInfo soi = voiceRooms.get(room);
 		if (soi != null) {
@@ -99,4 +104,19 @@ public class ClientManager implements ClientNotifier {
 			soi.getSharedObject().sendMessage("userTalk", list);
 		}
 	}	
+	
+	public void handleConferenceEvent(ConferenceEvent event) {
+		if (event instanceof ParticipantJoinedEvent) {
+			ParticipantJoinedEvent pje = (ParticipantJoinedEvent) event;
+			joined(pje.getRoom(), pje.getParticipantId(), pje.getCallerIdName(), pje.getMuted(), pje.getSpeaking());
+		} else if (event instanceof ParticipantLeftEvent) {		
+			left(event.getRoom(), event.getParticipantId());		
+		} else if (event instanceof ParticipantMutedEvent) {
+			ParticipantMutedEvent pme = (ParticipantMutedEvent) event;
+			muted(pme.getRoom(), pme.getParticipantId(), pme.isMuted());
+		} else if (event instanceof ParticipantTalkingEvent) {
+			ParticipantTalkingEvent pte = (ParticipantTalkingEvent) event;
+			talking(pte.getRoom(), pte.getParticipantId(), pte.isTalking());
+		}			
+	}
 }
