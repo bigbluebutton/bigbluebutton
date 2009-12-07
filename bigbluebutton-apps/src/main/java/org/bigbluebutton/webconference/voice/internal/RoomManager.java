@@ -85,19 +85,28 @@ public class RoomManager {
 		}
 		
 		if (event instanceof ParticipantJoinedEvent) {
+			log.debug("Processing ParticipantJoinedEvent for room: " + event.getRoom());
 			ParticipantJoinedEvent pje = (ParticipantJoinedEvent) event;
 			ParticipantImp p = new ParticipantImp(pje.getParticipantId(), pje.getCallerIdName());
+			p.setMuted(pje.getMuted());
+			p.setTalking(pje.getSpeaking());
+			log.debug("Joined [" + p.getId() + "," + p.getName() + "," + p.isMuted() + "," + p.isTalking() + "] to room " + rm.getName());
 			rm.add(p);
 		} else if (event instanceof ParticipantLeftEvent) {		
+			log.debug("Processing ParticipantLeftEvent for room: " + event.getRoom());
 			rm.remove(event.getParticipantId());		
 		} else if (event instanceof ParticipantMutedEvent) {
+			log.debug("Processing ParticipantMutedEvent for room: " + event.getRoom());
 			ParticipantMutedEvent pme = (ParticipantMutedEvent) event;
 			ParticipantImp p = (ParticipantImp) rm.getParticipant(event.getParticipantId());
 			if (p != null) p.setMuted(pme.isMuted());
 		} else if (event instanceof ParticipantTalkingEvent) {
+			log.debug("Processing ParticipantTalkingEvent for room: " + event.getRoom());
 			ParticipantTalkingEvent pte = (ParticipantTalkingEvent) event;
 			ParticipantImp p = (ParticipantImp) rm.getParticipant(event.getParticipantId());
-			if (p != null) p.setMuted(pte.isTalking());
-		}	
+			if (p != null) p.setTalking(pte.isTalking());
+		} else {
+			log.debug("Processing UnknowEvent " + event.getClass().getName() + " for room: " + event.getRoom() );
+		}
 	}
 }

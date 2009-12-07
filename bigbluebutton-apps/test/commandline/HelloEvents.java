@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.asteriskjava.live.ManagerCommunicationException;
 import org.asteriskjava.manager.AuthenticationFailedException;
 import org.asteriskjava.manager.ManagerConnection;
 import org.asteriskjava.manager.ManagerConnectionFactory;
@@ -25,14 +24,14 @@ import org.bigbluebutton.webconference.voice.asterisk.konference.events.Conferen
 
 public class HelloEvents implements ManagerEventListener {
     private static final String KONFERENCE_LIST_COMMAND = "konference list";
-    private static final Pattern KONFERENCE_LIST_PATTERN = Pattern.compile("^User #: ([0-9]+).*Channel: (\\S+).*$");
+    private static final Pattern KONFERENCE_LIST_PATTERN = Pattern.compile("^MemberId:(.+)CIDName:(.+)CID:(.+)Muted:(.+)UniqueID:(.+)ConfName:(.+)Speaking:(.+)Channel:(.+)$");
     
     private ManagerConnection managerConnection;
     
     public HelloEvents() throws IOException
     {
         ManagerConnectionFactory factory = new ManagerConnectionFactory(
-                "192.168.0.182", "bbb", "secret");
+                "192.168.0.120", "bbb", "secret");
 
         this.managerConnection = factory.createManagerConnection();
         managerConnection.registerUserEventClass(ConferenceJoinEvent.class);

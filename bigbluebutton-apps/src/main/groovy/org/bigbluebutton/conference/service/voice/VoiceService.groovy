@@ -46,6 +46,7 @@ public class VoiceService {
 	}
 	
 	private Map<Integer, Map> arrayListToMap(ArrayList<Participant> alp) {
+		log.debug("Converting arraylist to Map " + alp.size())
 		Map<Integer, Map> result = new HashMap();
 		
 		for (Participant p : alp) {
@@ -54,6 +55,7 @@ public class VoiceService {
 			pmap.put('name', p.name)
 			pmap.put('muted', p.muted)
 			pmap.put('talking', p.talking)
+			log.debug("[$p.id,$p.name,$p.muted,$p.talking]")
 			result.put(p.id, pmap)
 		}
 		

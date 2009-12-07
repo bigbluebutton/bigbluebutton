@@ -84,7 +84,7 @@ public class ClientManager implements ClientNotifier {
 	}
 	
 	private void muted(String room, Integer participant, Boolean muted){
-		log.debug("Participant " + participant + " " + muted);
+		log.debug("Participant " + participant + " is muted = " + muted);
 		RoomInfo soi = voiceRooms.get(room);
 		if (soi != null) {
 			List<Object> list = new ArrayList<Object>();
@@ -95,7 +95,7 @@ public class ClientManager implements ClientNotifier {
 	}
 	
 	private void talking(String room, Integer participant, Boolean talking){
-		log.debug("Participant " + participant + " " + talking);
+		log.debug("Participant " + participant + " is talking = " + talking);
 		RoomInfo soi = voiceRooms.get(room);
 		if (soi != null) {
 			List<Object> list = new ArrayList<Object>();
