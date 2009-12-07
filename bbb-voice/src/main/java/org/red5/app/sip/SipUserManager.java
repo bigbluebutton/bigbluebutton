@@ -1,6 +1,7 @@
 package org.red5.app.sip;
 
 import org.slf4j.Logger;
+import org.zoolu.sip.provider.SipStack;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IScope;
 import org.red5.server.api.stream.IBroadcastStream;
@@ -11,6 +12,7 @@ public final class SipUserManager {
 	private static final Logger log = Red5LoggerFactory.getLogger( SipUserManager.class, "sip" );
 	
     private static Map<String, SipUser> sessions;
+    private int sipStackDebugLevel = 8;
     
     public SipUserManager() {
         sessions = Collections.synchronizedMap(new HashMap<String, SipUser>());
@@ -122,4 +124,14 @@ public final class SipUserManager {
         sessions = new HashMap<String, SipUser>();
     }
 
+	public void setSipStackDebugLevel(int sipStackDebugLevel) {
+		this.sipStackDebugLevel = sipStackDebugLevel;
+		initializeSipStack();
+	}
+
+	private void initializeSipStack() {
+        SipStack.init();
+        SipStack.debug_level = sipStackDebugLevel;
+        SipStack.log_path = "log";    	
+    }
 }

@@ -67,7 +67,7 @@ public class SipRegisterAgent implements TransactionClientListener {
 	private int expireTime;					// Expiration time. 
 	private int renewTime;	
 	private int origRenewTime;				// Change by lior.
-	private int minRenewTime = 2;
+	private int minRenewTime = 20;
 	private boolean lastRegFailed = false; 	// Changed by Lior.
 	private boolean regInprocess = false;	
 	private int attempts; 					// Number of registration attempts.	

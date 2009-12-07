@@ -13,8 +13,7 @@ public class CodecFactory {
     private static final int audioCodecSpeex = 110;
     private static final int audioCodeciLBC = 111;
     
-    private int[] availableAudioCodecsId = {audioCodecPCMU, audioCodecPCMA, 
-    		audioCodecG729, audioCodecSpeex, audioCodeciLBC};
+    private int[] availableAudioCodecsId = {audioCodecPCMU, audioCodecPCMA, audioCodecG729, audioCodecSpeex, audioCodeciLBC};
  
     private int[] availableVideoCodecsId = {};
         
@@ -32,8 +31,6 @@ public class CodecFactory {
      * */
     public Codec getSIPAudioCodec(int codecId) {        
         Codec sipCodec;       
-        printLog("getSIPAudioCodec", "Init...");
-        
         printLog("getSIPAudioCodec", "codecId = [" + codecId + "].");
         
         switch (codecId) {
@@ -185,7 +182,7 @@ public class CodecFactory {
 
 
     private static void printLog( String method, String message ) {        
-        log.debug( "SIPCodecFactory - " + method + " -> " + message );
-        System.out.println( "SIPCodecFactory - " + method + " -> " + message );
+        log.debug( "SCodecFactory - " + method + " -> " + message );
+        System.out.println("CodecFactory - " + method + " -> " + message );
     }
 }

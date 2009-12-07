@@ -81,9 +81,9 @@ public class RtpReceiver2 {
         		packetLength = packetBuffer.length;                        
         		byte[] codedBuffer = new byte[payloadLength];
                         
-        		log.debug("pkt.length = " + packetLength
-                                + ", offset = " + headerOffset
-                                + ", length = " + payloadLength + "." );
+//        		log.debug("pkt.length = " + packetLength
+//                                + ", offset = " + headerOffset
+//                                + ", length = " + payloadLength + "." );
 
         		System.arraycopy(packetBuffer, headerOffset, codedBuffer, 0, payloadLength);                        
         		transcoder.transcode(codedBuffer);                    

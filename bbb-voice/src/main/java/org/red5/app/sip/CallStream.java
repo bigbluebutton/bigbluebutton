@@ -64,7 +64,7 @@ public class CallStream {
 		rtpSender = new RtpSender2(rtmpToRtpTranscoder, socket, connInfo.getRemoteAddr(), connInfo.getRemotePort());
 		talkStream = new TalkStream(rtmpToRtpTranscoder, rtpSender);
 		rtpSender.start(); 
-		listenStream.start();
+//		listenStream.start();
 		rtpReceiver.start();
     }
     
@@ -83,10 +83,12 @@ public class CallStream {
     
     public void startTalkStream(IBroadcastStream broadcastStream, IScope scope) {
     	talkStream.start(broadcastStream, scope);
+    	listenStream.start();
     }
     
     public void stopTalkStream(IBroadcastStream broadcastStream, IScope scope) {
     	talkStream.stop();
+    	listenStream.stop();
     }
 
     public boolean stopMedia() {

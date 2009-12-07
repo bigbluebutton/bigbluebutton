@@ -25,7 +25,6 @@ public class SipUser {
         this.userid = userid;
         this.rtmpConnection = connection;
         
-        initializeSipStack();
         initializeSipProvider(sipPort);
         initializeUserProfile(rtpPort);        
     }
@@ -46,13 +45,7 @@ public class SipUser {
     	userAgent.addListener(rtmpConnection);
         userAgent.initialize();
     }
-    
-    private void initializeSipStack() {
-        SipStack.init();
-        SipStack.debug_level = 8;
-        SipStack.log_path = "log";    	
-    }
-    
+        
     private void initializeSipProvider(int sipPort) {
         sipProvider = new SipProvider(null, sipPort);        
         sipProvider.addSipProviderListener(new OptionMethodListener());    	

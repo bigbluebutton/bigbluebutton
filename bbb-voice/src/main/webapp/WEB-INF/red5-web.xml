@@ -38,5 +38,7 @@
 		<property name="sipUserManager" ref="sipUserManager"/>
 	</bean>
 	
-	<bean id="sipUserManager" class="org.red5.app.sip.SipUserManager"/>
+	<bean id="sipUserManager" class="org.red5.app.sip.SipUserManager">
+		<property name="sipStackDebugLevel" value="8"/>
+	</bean>
 </beans>

@@ -55,8 +55,7 @@ public class SdpUtils {
         SessionDescriptor initialDescriptor = null;
                 
         try {            
-            printLog( "createInitialSdp", 
-                    "userName = [" + userName + "], viaAddress = [" + viaAddress + 
+            log.debug("userName = [" + userName + "], viaAddress = [" + viaAddress + 
                     "], audioPort = [" + audioPort + "], videoPort = [" + videoPort + 
                     "], audioCodecsPrecedence = [" + audioCodecsPrecedence + "]." );
             
@@ -64,16 +63,15 @@ public class SdpUtils {
             int videoCodecsNumber = CodecFactory.getInstance().getAvailableVideoCodecsCount();
             
             if ((audioCodecsNumber == 0) && (videoCodecsNumber == 0)) {                
-                printLog( "createInitialSdp", "audioCodecsNumber = [" + audioCodecsNumber + 
-                        "], videoCodecsNumber = [" + videoCodecsNumber + "]." );
-                
+                log.debug("audioCodecsNumber = [" + audioCodecsNumber + 
+                        "], videoCodecsNumber = [" + videoCodecsNumber + "].");                
                 return null;
             }
             
             initialDescriptor = new SessionDescriptor(userName, viaAddress);
             
             if (initialDescriptor == null) {                
-                printLog("createInitialSdp", "Error instantiating the initialDescriptor!");                 
+                log.error("Error instantiating the initialDescriptor!");                 
                 return null;
             }
             
@@ -93,263 +91,180 @@ public class SdpUtils {
                     rtpmapParamValue += " " + audioCodecs[audioIndex].getCodecName();
                     rtpmapParamValue += "/" + audioCodecs[audioIndex].getSampleRate() + "/1";
                     
-//                    printLog( "createInitialSdp", 
-//                            "Adding rtpmap for payload [" + payloadId + 
+//                    log.debug("Adding rtpmap for payload [" + payloadId + 
 //                            "] with value = [" + rtpmapParamValue + "]." );
                     
                     audioAttributes.add(new AttributeField(Codec.ATTRIBUTE_RTPMAP, rtpmapParamValue));
                     
                     String[] codecMediaAttributes = audioCodecs[audioIndex].getCodecMediaAttributes();
                     
-                    if (codecMediaAttributes != null) {
-                        
-//                        printLog( "createInitialSdp", 
-//                                "Adding " + codecMediaAttributes.length + 
+                    if (codecMediaAttributes != null) {                        
+//                        log.debug("Adding " + codecMediaAttributes.length + 
 //                                " audio codec media attributes." );
                         
-                        for ( int attribIndex = 0; attribIndex < codecMediaAttributes.length; attribIndex++ ) {
-                            
-//                            printLog( "createInitialSdp", 
-//                                    "Adding audio media attribute [" + 
+                        for (int attribIndex = 0; attribIndex < codecMediaAttributes.length; attribIndex++) {                            
+//                            log.debug("Adding audio media attribute [" + 
 //                                    codecMediaAttributes[attribIndex] + "]." );
                             
-                            AttributeField newAttribute = 
-                                    parseAttributeField( codecMediaAttributes[attribIndex] );
+                            AttributeField newAttribute = parseAttributeField(codecMediaAttributes[attribIndex]);
                             
-                            if ( newAttribute != null ) {
-                                
-                                audioAttributes.add( newAttribute );
+                            if (newAttribute != null) {                                
+                                audioAttributes.add(newAttribute);
                             }
                         }
-                    }
-                    else {
-                        
-//                        printLog( "createInitialSdp", 
-//                                "Audio codec has no especific media attributes." );
+                    } else {                        
+                        log.warn("Audio codec has no especific media attributes." );
                     }
                 }
                 
                 // Calculate the format list to be used on MediaDescriptor creation.
-                String formatList = getFormatList( audioAttributes );
+                String formatList = getFormatList(audioAttributes);
                 
-                for ( Enumeration attributesEnum = audioAttributes.elements(); attributesEnum.hasMoreElements(); ) {
-                    
+                for (Enumeration attributesEnum = audioAttributes.elements(); attributesEnum.hasMoreElements();) {                    
                     AttributeField audioAttribute = (AttributeField) attributesEnum.nextElement();
                     
-                    if ( initialDescriptor.getMediaDescriptor( Codec.MEDIA_TYPE_AUDIO ) == null ) {
+                    if (initialDescriptor.getMediaDescriptor(Codec.MEDIA_TYPE_AUDIO) == null) {                        
+//                        log.debug("Creating audio media descriptor." );
                         
-//                        printLog( "createInitialSdp", 
-//                                "Creating audio media descriptor." );
-                        
-                        initialDescriptor.addMedia( 
-                                new MediaField( Codec.MEDIA_TYPE_AUDIO, audioPort, 0, "RTP/AVP", formatList ), 
-                                audioAttribute );
-                    }
-                    else {
-                        
-//                        printLog( "createInitialSdp", 
-//                                "Just adding attribute." );
-                        
-                        initialDescriptor.getMediaDescriptor( Codec.MEDIA_TYPE_AUDIO ).
-                                addAttribute( audioAttribute );
+                    	MediaField mf = new MediaField(Codec.MEDIA_TYPE_AUDIO, audioPort, 0, "RTP/AVP", formatList);
+                        initialDescriptor.addMedia(mf, audioAttribute);
+                    } else {                        
+                        log.debug("Just adding attribute.");
+                        initialDescriptor.getMediaDescriptor(Codec.MEDIA_TYPE_AUDIO).addAttribute(audioAttribute);
                     }
                 }
                 
-                String[] commonAudioMediaAttributes = 
-                        CodecFactory.getInstance().getCommonAudioMediaAttributes();
+                String[] commonAudioMediaAttributes = CodecFactory.getInstance().getCommonAudioMediaAttributes();
                 
-                if ( commonAudioMediaAttributes != null ) {
+                if (commonAudioMediaAttributes != null) {                    
+                    log.debug("Adding " + commonAudioMediaAttributes.length + " common audio media attributes." );
                     
-//                    printLog( "createInitialSdp", "Adding " + 
-//                            commonAudioMediaAttributes.length + " common audio media attributes." );
-                    
-                    for ( int attribIndex = 0; attribIndex < commonAudioMediaAttributes.length; attribIndex++ ) {
+                    for (int attribIndex = 0; attribIndex < commonAudioMediaAttributes.length; attribIndex++) {                        
+//                        log.debug("Adding common audio media attribute [" + commonAudioMediaAttributes[attribIndex] + "].");
                         
-//                        printLog( "createInitialSdp", 
-//                                "Adding common audio media attribute [" + 
-//                                commonAudioMediaAttributes[attribIndex] + "]." );
+                        AttributeField newAttribute = parseAttributeField(commonAudioMediaAttributes[attribIndex]);
                         
-                        AttributeField newAttribute = 
-                                parseAttributeField( commonAudioMediaAttributes[attribIndex] );
-                        
-                        if ( newAttribute != null ) {
-                            
-                            initialDescriptor.getMediaDescriptor( Codec.MEDIA_TYPE_AUDIO ).
-                                    addAttribute( newAttribute );
+                        if (newAttribute != null) {                            
+                            initialDescriptor.getMediaDescriptor(Codec.MEDIA_TYPE_AUDIO).addAttribute( newAttribute);
                         }
                     }
-                }
-                else {
-                    
- //                   printLog( "createInitialSdp", "No common audio media attributes." );
+                } else {                    
+                    log.debug("No common audio media attributes.");
                 }
             }
             
-            if ( videoCodecsNumber > 0 ) {
-                
+            if (videoCodecsNumber > 0) {                
                 Codec[] videoCodecs = CodecFactory.getInstance().getAvailableVideoCodecs();
                 Vector videoAttributes = new Vector();
                 
-                for ( int videoIndex = 0; videoIndex < audioCodecsNumber; videoIndex++ ) {
-                    
-                    String payloadId = String.valueOf( videoCodecs[videoIndex].getCodecId() );
+                for (int videoIndex = 0; videoIndex < audioCodecsNumber; videoIndex++) {                    
+                    String payloadId = String.valueOf(videoCodecs[videoIndex].getCodecId());
                     String rtpmapParamValue = payloadId;
                     rtpmapParamValue += " " + videoCodecs[videoIndex].getCodecName();
                     rtpmapParamValue += "/" + videoCodecs[videoIndex].getSampleRate() + "/1";
                     
-//                    printLog( "createInitialSdp", 
-//                            "Adding rtpmap for payload [" + payloadId + 
-//                            "] with value = [" + rtpmapParamValue + "]." );
+//                    log.debug("Adding rtpmap for payload [" + payloadId + "] with value = [" + rtpmapParamValue + "].");
                     
-                    videoAttributes.add( new AttributeField( 
-                            Codec.ATTRIBUTE_RTPMAP, rtpmapParamValue ) );
-                    
+                    videoAttributes.add(new AttributeField(Codec.ATTRIBUTE_RTPMAP, rtpmapParamValue));                    
                     String[] codecMediaAttributes = videoCodecs[videoIndex].getCodecMediaAttributes();
                     
-                    if ( codecMediaAttributes != null ) {
+                    if (codecMediaAttributes != null) {                        
+                        log.debug("Adding " + codecMediaAttributes.length + " video codec media attributes.");
                         
-//                        printLog( "createInitialSdp", 
-//                                "Adding " + codecMediaAttributes.length + 
-//                                " video codec media attributes." );
-                        
-                        for ( int attribIndex = 0; attribIndex < codecMediaAttributes.length; attribIndex++ ) {
+                        for (int attribIndex = 0; attribIndex < codecMediaAttributes.length; attribIndex++) {                            
+                            log.debug("Adding video media attribute [" + codecMediaAttributes[attribIndex] + "].");
                             
-                            printLog( "createInitialSdp", 
-                                    "Adding video media attribute [" + 
-                                    codecMediaAttributes[attribIndex] + "]." );
+                            AttributeField newAttribute = parseAttributeField(codecMediaAttributes[attribIndex]);
                             
-                            AttributeField newAttribute = 
-                                    parseAttributeField( codecMediaAttributes[attribIndex] );
-                            
-                            if ( newAttribute != null ) {
-                                
-                                videoAttributes.add( newAttribute );
+                            if (newAttribute != null) {                                
+                                videoAttributes.add(newAttribute);
                             }
                         }
-                    }
-                    else {
-                        
-                        printLog( "createInitialSdp", 
-                                "Video codec has no especific media attributes." );
+                    } else {
+                       log.info("Video codec has no especific media attributes.");
                     }
                 }
                 
                 // Calculate the format list to be used on MediaDescriptor creation.
-                String formatList = getFormatList( videoAttributes );
+                String formatList = getFormatList(videoAttributes);
                 
-                for ( Enumeration attributesEnum = videoAttributes.elements(); attributesEnum.hasMoreElements(); ) {
-                    
+                for (Enumeration attributesEnum = videoAttributes.elements(); attributesEnum.hasMoreElements();) {                    
                     AttributeField videoAttribute = (AttributeField) attributesEnum.nextElement();
                     
-                    if ( initialDescriptor.getMediaDescriptor( Codec.MEDIA_TYPE_VIDEO ) == null ) {
-                        
-                        initialDescriptor.addMedia( 
-                                new MediaField( Codec.MEDIA_TYPE_VIDEO, audioPort, 0, "RTP/AVP", formatList ), 
-                                videoAttribute );
-                    }
-                    else {
-                        
-                        initialDescriptor.getMediaDescriptor( Codec.MEDIA_TYPE_VIDEO ).
-                                addAttribute( videoAttribute );
+                    if (initialDescriptor.getMediaDescriptor(Codec.MEDIA_TYPE_VIDEO) == null) {    
+                    	MediaField mf = new MediaField(Codec.MEDIA_TYPE_VIDEO, audioPort, 0, "RTP/AVP", formatList);
+                        initialDescriptor.addMedia(mf, videoAttribute);
+                    } else {
+                        initialDescriptor.getMediaDescriptor(Codec.MEDIA_TYPE_VIDEO).addAttribute(videoAttribute);
                     }
                 }
                 
-                String[] commonVideoMediaAttributes = 
-                        CodecFactory.getInstance().getCommonAudioMediaAttributes();
+                String[] commonVideoMediaAttributes = CodecFactory.getInstance().getCommonAudioMediaAttributes();
                 
-                if ( commonVideoMediaAttributes != null ) {
+                if (commonVideoMediaAttributes != null) {                    
+                    log.debug("Adding " + commonVideoMediaAttributes.length + " common video media attributes.");
                     
-                    printLog( "createInitialSdp", "Adding " + 
-                            commonVideoMediaAttributes.length + " common video media attributes." );
-                    
-                    for ( int attribIndex = 0; attribIndex < commonVideoMediaAttributes.length; attribIndex++ ) {
+                    for (int attribIndex = 0; attribIndex < commonVideoMediaAttributes.length; attribIndex++) {                        
+                        log.debug("Adding common video media attribute [" + commonVideoMediaAttributes[attribIndex] + "]." );
                         
-                        printLog( "createInitialSdp", 
-                                "Adding common video media attribute [" + 
-                                commonVideoMediaAttributes[attribIndex] + "]." );
+                        AttributeField newAttribute = parseAttributeField(commonVideoMediaAttributes[attribIndex]);
                         
-                        AttributeField newAttribute = 
-                                parseAttributeField( commonVideoMediaAttributes[attribIndex] );
-                        
-                        if ( newAttribute != null ) {
-                            
-                            initialDescriptor.getMediaDescriptor( Codec.MEDIA_TYPE_VIDEO ).
-                                    addAttribute( newAttribute );
+                        if (newAttribute != null) {                            
+                            initialDescriptor.getMediaDescriptor(Codec.MEDIA_TYPE_VIDEO).addAttribute(newAttribute);
                         }
                     }
-                }
-                else {
-                    
-                    printLog( "createInitialSdp", "No common video media attributes." );
+                } else {                    
+                    log.info("No common video media attributes.");
                 }
             }
-        }
-        catch ( Exception exception ) {
-            
-            printLog( "createInitialSdp", "Failure creating initial SDP: " );
-            exception.printStackTrace();
+        } catch (Exception exception) {
+            log.error("Failure creating initial SDP: " + exception.toString());
         }
         
-        printLog( "createInitialSdp", "End..." );
+        log.debug("Created initial SDP");
         
         return initialDescriptor;
     }
     
     
-    private static String getFormatList( Vector mediaAttributes ) {
-        
+    private static String getFormatList(Vector mediaAttributes) {        
         AttributeField mediaAttribute = null;
         String formatList = "";
         
-        printLog( "getFormatList", "Init..." );
+        log.debug("getting Format List");
         
-        for ( Enumeration attributeEnum = mediaAttributes.elements(); attributeEnum.hasMoreElements(); ) {
-            
+        for (Enumeration attributeEnum = mediaAttributes.elements(); attributeEnum.hasMoreElements();) {            
             mediaAttribute = (AttributeField) attributeEnum.nextElement();
             
-            if ( mediaAttribute.getAttributeName().equalsIgnoreCase( Codec.ATTRIBUTE_RTPMAP ) ) {
-                
-                if ( !formatList.isEmpty() ) {
+            if (mediaAttribute.getAttributeName().equalsIgnoreCase(Codec.ATTRIBUTE_RTPMAP)) {                
+                if (!formatList.isEmpty()) {
                     formatList += " ";
                 }
                 
-                formatList += getPayloadIdFromAttribute( mediaAttribute );
+                formatList += getPayloadIdFromAttribute(mediaAttribute);
             }
         }
         
-        printLog( "getFormatList", "formatList = [" + formatList + "]." );
-        
-        printLog( "getFormatList", "End..." );
-        
+        log.debug("formatList = [" + formatList + "].");
+                
         return formatList;
     }
     
     
-    private static AttributeField parseAttributeField( String codecMediaAttribute ) {
-        
+    private static AttributeField parseAttributeField(String codecMediaAttribute) {        
         AttributeField newAttribute = null;
         
-        printLog( "parseAttributeField", "Init..." );
+        log.debug("codecMediaAttribute = [" + codecMediaAttribute + "].");
         
-        printLog( "parseAttributeField", 
-                "codecMediaAttribute = [" + codecMediaAttribute + "]." );
+        String attribName = codecMediaAttribute.substring(0, codecMediaAttribute.indexOf(":"));
+        String attribValue = codecMediaAttribute.substring(codecMediaAttribute.indexOf(":") + 1);
         
-        String attribName = codecMediaAttribute.substring(
-                0, codecMediaAttribute.indexOf( ":" ) );
-        String attribValue = codecMediaAttribute.substring(
-                codecMediaAttribute.indexOf( ":" ) + 1 );
+        log.debug("attribName = [" + attribName + "] attribValue  = [" + attribValue + "].");
         
-        printLog( "parseAttributeField", 
-                "attribName = [" + attribName + 
-                "] attribValue  = [" + attribValue + "]." );
-        
-        if ( ( !attribName.isEmpty() ) && ( !attribValue.isEmpty() ) ) {
-            
-            newAttribute = new AttributeField( attribName, attribValue );
+        if ((!attribName.isEmpty()) && (!attribValue.isEmpty())) {            
+            newAttribute = new AttributeField(attribName, attribValue);
         }
-        
-        printLog( "parseAttributeField", "End..." );
-        
+                
         return newAttribute;
     }
     
@@ -365,83 +280,60 @@ public class SdpUtils {
      * @return Returns the new local descriptor as a result of media 
      *         payloads negotiation.
      */
-    public static SessionDescriptor makeMediaPayloadsNegotiation( 
-            SessionDescriptor localSdp, SessionDescriptor remoteSdp ) {
-        
-        SessionDescriptor newSdp = null;
-        
-        printLog( "makeMediaPayloadsNegotiation", "Init..." );
-        
-        try {
-            
-            newSdp = new SessionDescriptor( remoteSdp.getOrigin(), remoteSdp.getSessionName(),
-                    localSdp.getConnection(), localSdp.getTime() );
+    public static SessionDescriptor makeMediaPayloadsNegotiation(SessionDescriptor localSdp, SessionDescriptor remoteSdp) {        
+    	log.debug("makeMediaPayloadsNegotiation");
+    	
+    	SessionDescriptor newSdp = null;    
+        try {            
+            newSdp = new SessionDescriptor(remoteSdp.getOrigin(), remoteSdp.getSessionName(),
+                    localSdp.getConnection(), localSdp.getTime());
             
             Vector remoteDescriptors = remoteSdp.getMediaDescriptors();
             
-            for ( Enumeration descriptorsEnum = remoteDescriptors.elements(); descriptorsEnum.hasMoreElements(); ) {
-                
+            for (Enumeration descriptorsEnum = remoteDescriptors.elements(); descriptorsEnum.hasMoreElements();) {                
                 MediaDescriptor remoteDescriptor = (MediaDescriptor) descriptorsEnum.nextElement();
-                MediaDescriptor localDescriptor = localSdp.getMediaDescriptor( 
-                        remoteDescriptor.getMedia().getMedia() );
+                MediaDescriptor localDescriptor = localSdp.getMediaDescriptor(remoteDescriptor.getMedia().getMedia() );
                 
-                if ( localDescriptor != null ) {
-                    
-                    Vector remoteAttributes = remoteDescriptor.getAttributes( Codec.ATTRIBUTE_RTPMAP );
+                if (localDescriptor != null) {                    
+                    Vector remoteAttributes = remoteDescriptor.getAttributes(Codec.ATTRIBUTE_RTPMAP);
                     Vector newSdpAttributes = new Vector();
                     
-                    for ( Enumeration attributesEnum = remoteAttributes.elements(); attributesEnum.hasMoreElements(); ) {
-                        
+                    for (Enumeration attributesEnum = remoteAttributes.elements(); attributesEnum.hasMoreElements();) {                        
                         AttributeField remoteAttribute = (AttributeField) attributesEnum.nextElement();
                         
-                        String payloadId = getPayloadIdFromAttribute( remoteAttribute );
+                        String payloadId = getPayloadIdFromAttribute(remoteAttribute);
                         
-                        if ( "".equals( payloadId ) ) {
-                            
-                            printLog( "makeMediaPayloadsNegotiation", 
-                                    "Error! Payload id not found on attribute: Name = [" + 
+                        if ("".equals(payloadId)) {                            
+                            log.error("Payload id not found on attribute: Name = [" + 
                                     remoteAttribute.getAttributeName() + "], Value = [" + 
                                     remoteAttribute.getAttributeValue() + "]." );
-                        }
-                        else if ( findAttributeByPayloadId(
-                                remoteAttribute.getAttributeName(), payloadId, 
-                                localDescriptor ) != null ) {
-                            
-                            newSdpAttributes.add( remoteAttribute );
+                        } else if (findAttributeByPayloadId(remoteAttribute.getAttributeName(), 
+                        		payloadId, localDescriptor) != null) {                            
+                            newSdpAttributes.add(remoteAttribute);
                         }
                     }
                     
                     // Calculate the format list to be used on MediaDescriptor creation.
-                    String formatList = getFormatList( newSdpAttributes );
+                    String formatList = getFormatList(newSdpAttributes);
                     
-                    for ( Enumeration attributesEnum = newSdpAttributes.elements(); attributesEnum.hasMoreElements(); ) {
-                        
+                    for (Enumeration attributesEnum = newSdpAttributes.elements(); attributesEnum.hasMoreElements();) {                        
                         AttributeField mediaAttribute = (AttributeField) attributesEnum.nextElement();
                         
-                        if ( newSdp.getMediaDescriptors().size() == 0 ) {
-                            
-                            newSdp.addMediaDescriptor( new MediaDescriptor(
-                                    new MediaField( localDescriptor.getMedia().getMedia(), 
-                                            localDescriptor.getMedia().getPort(), 
-                                            0, 
-                                            localDescriptor.getMedia().getTransport(), 
-                                            formatList ), 
-                                    localDescriptor.getConnection() ) );
+                        if (newSdp.getMediaDescriptors().size() == 0) {  
+                        	MediaField mf = new MediaField(localDescriptor.getMedia().getMedia(), 
+                                    						localDescriptor.getMedia().getPort(), 
+                                    						0, localDescriptor.getMedia().getTransport(), 
+                                    						formatList); 
+                            newSdp.addMediaDescriptor(new MediaDescriptor(mf, localDescriptor.getConnection()));
                         }
                         
-                        newSdp.getMediaDescriptor( localDescriptor.getMedia().getMedia() ).
-                                addAttribute( mediaAttribute );
+                        newSdp.getMediaDescriptor(localDescriptor.getMedia().getMedia()).addAttribute( mediaAttribute );
                     }
                 }
             }
+        } catch (Exception exception) {            
+            log.error("Failure creating initial SDP: " + exception.toString());
         }
-        catch ( Exception exception ) {
-            
-            printLog( "makeMediaPayloadsNegotiation", "Failure creating initial SDP: " );
-            exception.printStackTrace();
-        }
-        
-        printLog( "makeMediaPayloadsNegotiation", "End..." );
         
         return newSdp;
     }
@@ -457,46 +349,32 @@ public class SdpUtils {
      * @param remoteSdp
      * 
      */
-    public static void completeSdpNegotiation(
-    		SessionDescriptor newSdp, SessionDescriptor localSdp, 
-    		SessionDescriptor remoteSdp ) {
-        
-        printLog( "makeSdpNegotiation", "Init..." );
-        
-        try {
-            
-            if ( newSdp.getMediaDescriptors().size() == 0 ) {
-                
+    public static void completeSdpNegotiation(SessionDescriptor newSdp, SessionDescriptor localSdp, SessionDescriptor remoteSdp) {        
+        try {            
+            if (newSdp.getMediaDescriptors().size() == 0) {                
                 // Something is wrong.
                 // We should have at least a "audio" media descriptor with 
                 // all audio payloads suported.
                 
-                printLog( "completeSdpNegotiation", 
-                        "Error! No media descriptors after \"makeMediaPayloadsNegotiation\"." );
-                
+                log.error("No media descriptors after \"makeMediaPayloadsNegotiation\"." );                
                 return;
             }
             
             Vector remoteDescriptors = remoteSdp.getMediaDescriptors();
             
-            for ( Enumeration descriptorsEnum = remoteDescriptors.elements(); descriptorsEnum.hasMoreElements(); ) {
-                
+            for (Enumeration descriptorsEnum = remoteDescriptors.elements(); descriptorsEnum.hasMoreElements();) {                
                 MediaDescriptor remoteDescriptor = (MediaDescriptor) descriptorsEnum.nextElement();
-                MediaDescriptor localDescriptor = localSdp.getMediaDescriptor( 
-                        remoteDescriptor.getMedia().getMedia() );
+                MediaDescriptor localDescriptor = localSdp.getMediaDescriptor(remoteDescriptor.getMedia().getMedia());
                 
-                if ( localDescriptor != null ) {
-                    
+                if (localDescriptor != null) {                    
                     // First we make the negotiation of remote attributes with 
                     // local ones to generate the new SDP "newSdp".
                     
                     Vector remoteAttributes = remoteDescriptor.getAttributes();
                     
-                    for ( Enumeration atributesEnum = remoteAttributes.elements(); atributesEnum.hasMoreElements(); ) {
-                        
-                        AttributeField remoteAttribute = (AttributeField) atributesEnum.nextElement();
-                        
-                        makeAttributeNegotiation( newSdp, localDescriptor, remoteAttribute );
+                    for (Enumeration atributesEnum = remoteAttributes.elements(); atributesEnum.hasMoreElements();) {                        
+                        AttributeField remoteAttribute = (AttributeField) atributesEnum.nextElement();                        
+                        makeAttributeNegotiation(newSdp, localDescriptor, remoteAttribute);
                     }
                     
                     // Now we add to "newSdp" all the local attributes that 
@@ -504,40 +382,26 @@ public class SdpUtils {
                     
                     Vector localAttributes = localDescriptor.getAttributes();
                     
-                    for ( Enumeration atributesEnum = localAttributes.elements(); atributesEnum.hasMoreElements(); ) {
-                        
+                    for (Enumeration atributesEnum = localAttributes.elements(); atributesEnum.hasMoreElements();) {                        
                         AttributeField localAttribute = (AttributeField) atributesEnum.nextElement();
-                        MediaDescriptor newLocalDescriptor = 
-                                newSdp.getMediaDescriptor( localDescriptor.getMedia().getMedia() );
+                        MediaDescriptor newLocalDescriptor = newSdp.getMediaDescriptor(localDescriptor.getMedia().getMedia());
                         
-                        if ( isPayloadRelatedAttribute( localAttribute ) ) {
+                        if (isPayloadRelatedAttribute(localAttribute)) {                            
+                            String payloadId = getPayloadIdFromAttribute(localAttribute);
                             
-                            String payloadId = getPayloadIdFromAttribute( localAttribute );
-                            
-                            if ( findAttributeByPayloadId( 
-                                    localAttribute.getAttributeName(), 
-                                    payloadId, 
-                                    newLocalDescriptor) == null ) {
-                                
-                                newLocalDescriptor.addAttribute( localAttribute );
+                            if (findAttributeByPayloadId(localAttribute.getAttributeName(), 
+                                    					payloadId, newLocalDescriptor) == null) {                                
+                                newLocalDescriptor.addAttribute(localAttribute);
                             }
-                        }
-                        else if ( newLocalDescriptor.getAttribute( 
-                                localAttribute.getAttributeName() ) == null ) {
-                            
-                            newLocalDescriptor.addAttribute( localAttribute );
+                        } else if (newLocalDescriptor.getAttribute(localAttribute.getAttributeName()) == null) {                            
+                            newLocalDescriptor.addAttribute(localAttribute);
                         }
                     }
                 }
             }
+        } catch (Exception exception) {            
+            log.error("Failure creating initial SDP: " + exception.toString());
         }
-        catch ( Exception exception ) {
-            
-            printLog( "completeSdpNegotiation", "Failure creating initial SDP: " );
-            exception.printStackTrace();
-        }
-        
-        printLog( "completeSdpNegotiation", "End..." );
     }
     
     
@@ -549,199 +413,123 @@ public class SdpUtils {
      * @param localMedia
      * @param remoteAttribute
      */
-    private static void makeAttributeNegotiation( 
-            SessionDescriptor newSdp, MediaDescriptor localMedia, AttributeField remoteAttribute ) {
-        
-        printLog( "makeAttributeNegotiation", "Init..." );
-        
-        try {
-            
-            printLog( "makeAttributeNegotiation", 
-                    "AttributeName = [" + remoteAttribute.getAttributeName() + 
+    private static void makeAttributeNegotiation(SessionDescriptor newSdp, MediaDescriptor localMedia, AttributeField remoteAttribute ) {
+        try {            
+            log.debug("AttributeName = [" + remoteAttribute.getAttributeName() + 
                     "], AttributeValue = [" + remoteAttribute.getAttributeValue() + "].");
             
-            if ( remoteAttribute.getAttributeName().equals( Codec.ATTRIBUTE_RTPMAP ) ) {
-                
-                printLog( "makeAttributeNegotiation", 
-                        "\"rtpmap\" attributes were already negotiated." );
-            }
-            else if ( !isPayloadRelatedAttribute( remoteAttribute ) ) {
-                
+            if (remoteAttribute.getAttributeName().equals(Codec.ATTRIBUTE_RTPMAP)) {                
+                log.info("\"rtpmap\" attributes were already negotiated." );
+            } else if (!isPayloadRelatedAttribute(remoteAttribute)) {                
                 // We do nothing with attributes that are not payload 
                 // related, like: "ptime", "direction", etc.
-                // For now, we consider that they don't demand negotiation.
+                // For now, we consider that they don't demand negotiation.                
+                log.info("Attribute is not payload related. Do not negotiate it...");
+            } else {                
+                String payloadId = getPayloadIdFromAttribute(remoteAttribute);
                 
-                printLog( "makeAttributeNegotiation", 
-                        "Attribute is not payload related. Do not negotiate it..." );
-            }
-            else {
-                
-                String payloadId = getPayloadIdFromAttribute( remoteAttribute );
-                
-                if ( "".equals( payloadId ) ) {
-                    
-                    printLog( "makeAttributeNegotiation", 
-                            "Error! Payload id not found on attribute: Name = [" + 
+                if ("".equals(payloadId)) {                    
+                    log.error("Payload id not found on attribute: Name = [" + 
                             remoteAttribute.getAttributeName() + "], Value = [" + 
                             remoteAttribute.getAttributeValue() + "]." );
-                }
-                // We must be sure this attribute is related with a payload 
-                // already present on newSdp.
-                else if ( findAttributeByPayloadId( Codec.ATTRIBUTE_RTPMAP, payloadId, 
-                        newSdp.getMediaDescriptor( localMedia.getMedia().getMedia() ) ) != null ) {
+                } else if (findAttributeByPayloadId( Codec.ATTRIBUTE_RTPMAP, payloadId, 
+                        newSdp.getMediaDescriptor(localMedia.getMedia().getMedia())) != null) {
+                    // We must be sure this attribute is related with a payload 
+                    // already present on newSdp.                    
+                    log.debug("Payload " + payloadId + " present on newSdp.");
                     
-                    printLog( "makeAttributeNegotiation", 
-                            "Payload " + payloadId + " present on newSdp." );
+                    AttributeField localAttribute = findAttributeByPayloadId(remoteAttribute.getAttributeName(), payloadId, localMedia );
                     
-                    AttributeField localAttribute = findAttributeByPayloadId( 
-                            remoteAttribute.getAttributeName(), payloadId, localMedia );
+                    Codec sipCodec = CodecFactory.getInstance().getSIPAudioCodec(Integer.valueOf( payloadId));
                     
-                    Codec sipCodec = CodecFactory.getInstance().getSIPAudioCodec(
-                            Integer.valueOf( payloadId ) );
-                    
-                    if ( sipCodec != null ) {
-                        
+                    if (sipCodec != null) {                        
                         String localAttibuteValue = "";
                         
-                        if ( localAttribute != null ) {
-                            
+                        if (localAttribute != null) {                            
                             localAttibuteValue = localAttribute.getAttributeValue();
-                        }
-                        else {
-                            
-                            printLog( "makeAttributeNegotiation", 
-                                    "Attribute not found on local media." );
+                        } else {
+                            log.info("Attribute not found on local media.");
                         }
                         
-                        String attributeValueResult = sipCodec.codecNegotiateAttribute(
-                                remoteAttribute.getAttributeName(), 
-                                localAttibuteValue, 
-                                remoteAttribute.getAttributeValue() );
+                        String attributeValueResult = sipCodec.codecNegotiateAttribute(remoteAttribute.getAttributeName(), 
+                                					localAttibuteValue, remoteAttribute.getAttributeValue());
                         
-                        if ( ( attributeValueResult != null ) && ( !"".equals( attributeValueResult ) ) ) {
-                            
-                            newSdp.getMediaDescriptor( localMedia.getMedia().getMedia() ).
-                                    addAttribute( new AttributeField( 
-                                            remoteAttribute.getAttributeName(), attributeValueResult ) );
+                        if ((attributeValueResult != null) && (!"".equals(attributeValueResult))) { 
+                        	AttributeField af = new AttributeField(remoteAttribute.getAttributeName(), attributeValueResult);
+                        	MediaDescriptor md = newSdp.getMediaDescriptor(localMedia.getMedia().getMedia());
+                            md.addAttribute(af);
                         }
-                    }
-                    else {
-                        
-                        printLog( "makeAttributeNegotiation", "Codec not found!" );
+                    } else {                        
+                        log.warn("Codec not found!");
                     }
                 }
             }
+        } catch (Exception exception) {            
+            log.error("Failure creating initial SDP: " + exception.toString());
         }
-        catch ( Exception exception ) {
-            
-            printLog( "makeAttributeNegotiation", "Failure creating initial SDP: " );
-            exception.printStackTrace();
-        }
-        
-        printLog( "makeAttributeNegotiation", "End..." );
     }
     
     
-    private static AttributeField findAttributeByPayloadId( 
-            String attributeName, String payloadId, MediaDescriptor mediaDescriptor ) {
-        
-        printLog( "findAttributeByPayloadId", "Init..." );
-        
+    private static AttributeField findAttributeByPayloadId(String attributeName, String payloadId, 
+    				MediaDescriptor mediaDescriptor) {
         AttributeField searchingMediaAttribute = null;
         
-        printLog( "findAttributeByPayloadId", 
-                "attributeName = [" + attributeName + 
-                "], payloadId = [" + payloadId + "]." );
+        log.debug("attributeName = [" + attributeName + "], payloadId = [" + payloadId + "].");
         
         Vector mediaAttributes = mediaDescriptor.getAttributes( attributeName );
         
-        for ( Enumeration attributesEnum = mediaAttributes.elements(); attributesEnum.hasMoreElements(); ) {
-            
+        for (Enumeration attributesEnum = mediaAttributes.elements(); attributesEnum.hasMoreElements();) {            
             AttributeField mediaAttribute = (AttributeField) attributesEnum.nextElement();
+
+//            log.debug("Validating attribute with name = [" + mediaAttribute.getAttributeName() + 
+//                    "] and value = [" + mediaAttribute.getAttributeValue() + "].");
             
-            printLog( "findAttributeByPayloadId", 
-                    "Validating attribute with name = [" + mediaAttribute.getAttributeName() + 
-                    "] and value = [" + mediaAttribute.getAttributeValue() + "]." );
-            
-            if ( getPayloadIdFromAttribute( mediaAttribute ).equals( payloadId ) ) {
-                
+            if (getPayloadIdFromAttribute(mediaAttribute).equals(payloadId)) {                
                 searchingMediaAttribute = mediaAttribute;
                 break;
             }
         }
         
-        if ( searchingMediaAttribute != null ) {
-            
-            printLog( "findAttributeByPayloadId", 
-                    "Attribute found with name = [" + 
+        if (searchingMediaAttribute != null) {            
+            log.debug("Attribute found with name = [" + 
                     searchingMediaAttribute.getAttributeName() + "] and value = [" + 
                     searchingMediaAttribute.getAttributeValue() + "]." );
+        } else {            
+            log.info("Attribute with name [" + attributeName + "] and payloadId [" + payloadId + "] was not found." );
         }
-        else {
-            
-            printLog( "findAttributeByPayloadId", 
-                    "Attribute with name [" + attributeName + 
-                    "] and payloadId [" + payloadId + "] was not found." );
-        }
-        
-        printLog( "findAttributeByPayloadId", "End..." );
         
         return searchingMediaAttribute;
     }
     
     
-    private static String getPayloadIdFromAttribute( AttributeField attribute ) {
-        
+    private static String getPayloadIdFromAttribute(AttributeField attribute) {        
         String payloadId = "";
+
+        log.debug("AttributeName = [" + attribute.getAttributeName() + "], AttributeValue = [" + attribute.getAttributeValue() + "]." );
         
-        printLog( "getPayloadIdFromAttribute", "Init..." );
-        
-        printLog( "getPayloadIdFromAttribute", 
-                "AttributeName = [" + attribute.getAttributeName() + 
-                "], AttributeValue = [" + attribute.getAttributeValue() + "]." );
-        
-        if ( isPayloadRelatedAttribute( attribute ) ) {
-            
-            payloadId = attribute.getAttributeValue().substring( 0, 
-                    attribute.getAttributeValue().indexOf( " " ) );
+        if (isPayloadRelatedAttribute(attribute)) {            
+            payloadId = attribute.getAttributeValue().substring(0, attribute.getAttributeValue().indexOf(" "));
         }
         
-        printLog( "getPayloadIdFromAttribute", "payloadId = " + payloadId ); 
-        
-        printLog( "getPayloadIdFromAttribute", "End..." );
+        log.debug("payloadId = " + payloadId); 
         
         return payloadId;
     }
     
     
-    private static boolean isPayloadRelatedAttribute( AttributeField attribute ) {
-        
+    private static boolean isPayloadRelatedAttribute(AttributeField attribute) {        
         boolean isPayloadAttribute = false;
+
+        log.debug("AttributeName = [" + attribute.getAttributeName() + "], AttributeValue = [" + attribute.getAttributeValue() + "]." );
         
-        printLog( "isPayloadRelatedAttribute", "Init..." );
-        
-        printLog( "isPayloadRelatedAttribute", 
-                "AttributeName = [" + attribute.getAttributeName() + 
-                "], AttributeValue = [" + attribute.getAttributeValue() + "]." );
-        
-        if ( ( attribute.getAttributeName().compareToIgnoreCase( Codec.ATTRIBUTE_RTPMAP ) == 0 ) || 
-                ( attribute.getAttributeName().compareToIgnoreCase( Codec.ATTRIBUTE_AS ) == 0 ) || 
-                ( attribute.getAttributeName().compareToIgnoreCase( Codec.ATTRIBUTE_FMTP ) == 0 ) ) {
-            
+        if ((attribute.getAttributeName().compareToIgnoreCase(Codec.ATTRIBUTE_RTPMAP) == 0) || 
+                (attribute.getAttributeName().compareToIgnoreCase(Codec.ATTRIBUTE_AS) == 0) || 
+                (attribute.getAttributeName().compareToIgnoreCase(Codec.ATTRIBUTE_FMTP) == 0)) {            
             isPayloadAttribute = true;
         }
         
-        printLog( "isPayloadRelatedAttribute", "isPayloadAttribute = " + isPayloadAttribute ); 
-        
-        printLog( "isPayloadRelatedAttribute", "End..." );
-        
+        log.debug("isPayloadAttribute = " + isPayloadAttribute); 
+
         return isPayloadAttribute;
-    }
-
-
-    private static void printLog( String method, String message ) {
-        
-        log.debug( "SdpUtils - " + method + " -> " + message );
-        System.out.println( "SdpUtils - " + method + " -> " + message );
     }
 }

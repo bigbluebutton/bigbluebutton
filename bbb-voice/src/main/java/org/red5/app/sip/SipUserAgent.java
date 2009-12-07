@@ -233,7 +233,9 @@ public class SipUserAgent extends CallListenerAdapter {
     }
     
     public void stopTalkStream(IBroadcastStream broadcastStream, IScope scope) {
-    	callStream.stopTalkStream(broadcastStream, scope);   	
+    	if (callStream != null) {
+    		callStream.stopTalkStream(broadcastStream, scope);   	
+    	}
     }
     
     private void closeMediaApplication() {        
