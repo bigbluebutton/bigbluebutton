@@ -17,8 +17,5 @@
 	<root>
 		<level value="DEBUG" />
 		<appender-ref ref="BIGBLUEBUTTON" />
-	</root>	
-	<!--logger name="org.blindsideproject.chat">
-		<level value="DEBUG" />
-	</logger-->			
+	</root>		
 </configuration>
