@@ -27,6 +27,8 @@
 	
 	<beans:bean id="conferenceApplication" class="org.bigbluebutton.webconference.voice.asterisk.AsteriskApplication">
 		<beans:property name="conferenceApplication" ref="konferenceApplication"/>
+		<!-- Uncomment the line below and comment the line above if you want to use MeetMe instead. --> 
+		<!--beans:property name="conferenceApplication" ref="meetMeApplicationFacade"/-->
 		<beans:property name="managerConnection" ref="amiConnection"/>
 	</beans:bean>
 	
