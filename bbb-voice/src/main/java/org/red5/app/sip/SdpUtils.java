@@ -55,9 +55,9 @@ public class SdpUtils {
         SessionDescriptor initialDescriptor = null;
                 
         try {            
-            log.debug("userName = [" + userName + "], viaAddress = [" + viaAddress + 
-                    "], audioPort = [" + audioPort + "], videoPort = [" + videoPort + 
-                    "], audioCodecsPrecedence = [" + audioCodecsPrecedence + "]." );
+//            log.debug("userName = [" + userName + "], viaAddress = [" + viaAddress + 
+//                    "], audioPort = [" + audioPort + "], videoPort = [" + videoPort + 
+//                    "], audioCodecsPrecedence = [" + audioCodecsPrecedence + "]." );
             
             int audioCodecsNumber = CodecFactory.getInstance().getAvailableAudioCodecsCount();
             int videoCodecsNumber = CodecFactory.getInstance().getAvailableVideoCodecsCount();
@@ -129,7 +129,7 @@ public class SdpUtils {
                     	MediaField mf = new MediaField(Codec.MEDIA_TYPE_AUDIO, audioPort, 0, "RTP/AVP", formatList);
                         initialDescriptor.addMedia(mf, audioAttribute);
                     } else {                        
-                        log.debug("Just adding attribute.");
+//                        log.debug("Just adding attribute.");
                         initialDescriptor.getMediaDescriptor(Codec.MEDIA_TYPE_AUDIO).addAttribute(audioAttribute);
                     }
                 }
@@ -137,7 +137,7 @@ public class SdpUtils {
                 String[] commonAudioMediaAttributes = CodecFactory.getInstance().getCommonAudioMediaAttributes();
                 
                 if (commonAudioMediaAttributes != null) {                    
-                    log.debug("Adding " + commonAudioMediaAttributes.length + " common audio media attributes." );
+//                    log.debug("Adding " + commonAudioMediaAttributes.length + " common audio media attributes." );
                     
                     for (int attribIndex = 0; attribIndex < commonAudioMediaAttributes.length; attribIndex++) {                        
 //                        log.debug("Adding common audio media attribute [" + commonAudioMediaAttributes[attribIndex] + "].");
@@ -169,10 +169,10 @@ public class SdpUtils {
                     String[] codecMediaAttributes = videoCodecs[videoIndex].getCodecMediaAttributes();
                     
                     if (codecMediaAttributes != null) {                        
-                        log.debug("Adding " + codecMediaAttributes.length + " video codec media attributes.");
+//                        log.debug("Adding " + codecMediaAttributes.length + " video codec media attributes.");
                         
                         for (int attribIndex = 0; attribIndex < codecMediaAttributes.length; attribIndex++) {                            
-                            log.debug("Adding video media attribute [" + codecMediaAttributes[attribIndex] + "].");
+//                            log.debug("Adding video media attribute [" + codecMediaAttributes[attribIndex] + "].");
                             
                             AttributeField newAttribute = parseAttributeField(codecMediaAttributes[attribIndex]);
                             
@@ -202,10 +202,10 @@ public class SdpUtils {
                 String[] commonVideoMediaAttributes = CodecFactory.getInstance().getCommonAudioMediaAttributes();
                 
                 if (commonVideoMediaAttributes != null) {                    
-                    log.debug("Adding " + commonVideoMediaAttributes.length + " common video media attributes.");
+//                    log.debug("Adding " + commonVideoMediaAttributes.length + " common video media attributes.");
                     
                     for (int attribIndex = 0; attribIndex < commonVideoMediaAttributes.length; attribIndex++) {                        
-                        log.debug("Adding common video media attribute [" + commonVideoMediaAttributes[attribIndex] + "]." );
+//                        log.debug("Adding common video media attribute [" + commonVideoMediaAttributes[attribIndex] + "]." );
                         
                         AttributeField newAttribute = parseAttributeField(commonVideoMediaAttributes[attribIndex]);
                         
@@ -221,7 +221,7 @@ public class SdpUtils {
             log.error("Failure creating initial SDP: " + exception.toString());
         }
         
-        log.debug("Created initial SDP");
+//        log.debug("Created initial SDP");
         
         return initialDescriptor;
     }
@@ -231,7 +231,7 @@ public class SdpUtils {
         AttributeField mediaAttribute = null;
         String formatList = "";
         
-        log.debug("getting Format List");
+//        log.debug("getting Format List");
         
         for (Enumeration attributeEnum = mediaAttributes.elements(); attributeEnum.hasMoreElements();) {            
             mediaAttribute = (AttributeField) attributeEnum.nextElement();
@@ -245,7 +245,7 @@ public class SdpUtils {
             }
         }
         
-        log.debug("formatList = [" + formatList + "].");
+//        log.debug("formatList = [" + formatList + "].");
                 
         return formatList;
     }
@@ -254,12 +254,12 @@ public class SdpUtils {
     private static AttributeField parseAttributeField(String codecMediaAttribute) {        
         AttributeField newAttribute = null;
         
-        log.debug("codecMediaAttribute = [" + codecMediaAttribute + "].");
+//        log.debug("codecMediaAttribute = [" + codecMediaAttribute + "].");
         
         String attribName = codecMediaAttribute.substring(0, codecMediaAttribute.indexOf(":"));
         String attribValue = codecMediaAttribute.substring(codecMediaAttribute.indexOf(":") + 1);
         
-        log.debug("attribName = [" + attribName + "] attribValue  = [" + attribValue + "].");
+//        log.debug("attribName = [" + attribName + "] attribValue  = [" + attribValue + "].");
         
         if ((!attribName.isEmpty()) && (!attribValue.isEmpty())) {            
             newAttribute = new AttributeField(attribName, attribValue);
@@ -415,8 +415,8 @@ public class SdpUtils {
      */
     private static void makeAttributeNegotiation(SessionDescriptor newSdp, MediaDescriptor localMedia, AttributeField remoteAttribute ) {
         try {            
-            log.debug("AttributeName = [" + remoteAttribute.getAttributeName() + 
-                    "], AttributeValue = [" + remoteAttribute.getAttributeValue() + "].");
+//            log.debug("AttributeName = [" + remoteAttribute.getAttributeName() + 
+//                    "], AttributeValue = [" + remoteAttribute.getAttributeValue() + "].");
             
             if (remoteAttribute.getAttributeName().equals(Codec.ATTRIBUTE_RTPMAP)) {                
                 log.info("\"rtpmap\" attributes were already negotiated." );
@@ -436,7 +436,7 @@ public class SdpUtils {
                         newSdp.getMediaDescriptor(localMedia.getMedia().getMedia())) != null) {
                     // We must be sure this attribute is related with a payload 
                     // already present on newSdp.                    
-                    log.debug("Payload " + payloadId + " present on newSdp.");
+//                    log.debug("Payload " + payloadId + " present on newSdp.");
                     
                     AttributeField localAttribute = findAttributeByPayloadId(remoteAttribute.getAttributeName(), payloadId, localMedia );
                     
@@ -474,7 +474,7 @@ public class SdpUtils {
     				MediaDescriptor mediaDescriptor) {
         AttributeField searchingMediaAttribute = null;
         
-        log.debug("attributeName = [" + attributeName + "], payloadId = [" + payloadId + "].");
+//        log.debug("attributeName = [" + attributeName + "], payloadId = [" + payloadId + "].");
         
         Vector mediaAttributes = mediaDescriptor.getAttributes( attributeName );
         
@@ -491,11 +491,11 @@ public class SdpUtils {
         }
         
         if (searchingMediaAttribute != null) {            
-            log.debug("Attribute found with name = [" + 
-                    searchingMediaAttribute.getAttributeName() + "] and value = [" + 
-                    searchingMediaAttribute.getAttributeValue() + "]." );
+//            log.debug("Attribute found with name = [" + 
+//                    searchingMediaAttribute.getAttributeName() + "] and value = [" + 
+//                    searchingMediaAttribute.getAttributeValue() + "]." );
         } else {            
-            log.info("Attribute with name [" + attributeName + "] and payloadId [" + payloadId + "] was not found." );
+//            log.info("Attribute with name [" + attributeName + "] and payloadId [" + payloadId + "] was not found." );
         }
         
         return searchingMediaAttribute;
@@ -505,13 +505,13 @@ public class SdpUtils {
     private static String getPayloadIdFromAttribute(AttributeField attribute) {        
         String payloadId = "";
 
-        log.debug("AttributeName = [" + attribute.getAttributeName() + "], AttributeValue = [" + attribute.getAttributeValue() + "]." );
+//        log.debug("AttributeName = [" + attribute.getAttributeName() + "], AttributeValue = [" + attribute.getAttributeValue() + "]." );
         
         if (isPayloadRelatedAttribute(attribute)) {            
             payloadId = attribute.getAttributeValue().substring(0, attribute.getAttributeValue().indexOf(" "));
         }
         
-        log.debug("payloadId = " + payloadId); 
+//        log.debug("payloadId = " + payloadId); 
         
         return payloadId;
     }
@@ -520,7 +520,7 @@ public class SdpUtils {
     private static boolean isPayloadRelatedAttribute(AttributeField attribute) {        
         boolean isPayloadAttribute = false;
 
-        log.debug("AttributeName = [" + attribute.getAttributeName() + "], AttributeValue = [" + attribute.getAttributeValue() + "]." );
+//        log.debug("AttributeName = [" + attribute.getAttributeName() + "], AttributeValue = [" + attribute.getAttributeValue() + "]." );
         
         if ((attribute.getAttributeName().compareToIgnoreCase(Codec.ATTRIBUTE_RTPMAP) == 0) || 
                 (attribute.getAttributeName().compareToIgnoreCase(Codec.ATTRIBUTE_AS) == 0) || 
@@ -528,7 +528,7 @@ public class SdpUtils {
             isPayloadAttribute = true;
         }
         
-        log.debug("isPayloadAttribute = " + isPayloadAttribute); 
+//        log.debug("isPayloadAttribute = " + isPayloadAttribute); 
 
         return isPayloadAttribute;
     }

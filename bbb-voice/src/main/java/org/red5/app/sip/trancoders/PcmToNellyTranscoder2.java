@@ -73,8 +73,8 @@ public class PcmToNellyTranscoder2 implements Transcoder {
     	float[] decodingBuffer = new float[codedBuffer.length];
         int decodedBytes = audioCodec.codecToPcm(codedBuffer, decodingBuffer);
 
-        log.debug("encodedBytes = " + decodedBytes + ", incomingDecodedFrameSize = " +
-                audioCodec.getIncomingDecodedFrameSize() + "." );
+//        log.debug("encodedBytes = " + decodedBytes + ", incomingDecodedFrameSize = " +
+//                audioCodec.getIncomingDecodedFrameSize() + "." );
 
         if (decodedBytes == audioCodec.getIncomingDecodedFrameSize()) {
             forwardAudioToFlashPlayer(decodingBuffer);
