@@ -429,7 +429,43 @@ if [ $CHECK ]; then
 
 	echo
 
-	echo
+	#
+	# Check log files
+	#
+
+	rm -rf /tmp/t
+	grep ERROR /usr/share/red5/log/* > /tmp/t 
+	if [ -s /tmp/t ]; then
+		echo "   -- ERRORS found in /usr/share/red5/log/* -- "
+		cat /tmp/t
+		echo
+	fi
+
+
+	rm -rf /tmp/t
+	grep Exception /usr/share/red5/log/* > /tmp/t 
+	if [ -s /tmp/t ]; then
+		echo "   -- Exceptions found in /usr/share/red5/log/* -- "
+		cat /tmp/t
+		echo
+	fi
+
+	rm -rf /tmp/t
+	find /var/log/asterisk -exec grep -H -i "Unable to register" '{}' \; > /tmp/t
+	if [ -s /tmp/t ]; then
+		echo "   -- Registration errors found in /var/log/asterisk/ -- "
+		echo "Found $(cat /tmp/t | wc -l) errors in /var/log/asterisk/* containing string \"Unable to register\""
+		echo
+	fi
+
+	rm -rf /tmp/t
+	grep Exception /var/lib/tomcat6/logs/* > /tmp/t 
+	if [ -s /tmp/t ]; then
+		echo "   -- Exceptions found in /var/lib/tomcat6/logs/ -- "
+		cat /tmp/t
+		echo
+	fi
+
 	exit 0
 fi
 
