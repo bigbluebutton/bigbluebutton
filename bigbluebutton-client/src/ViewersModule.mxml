@@ -20,7 +20,7 @@
   $Id: $
 --> 
 
-<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml"
 	implements="org.bigbluebutton.common.IBigBlueButtonModule"
 	creationComplete="onCreationComplete()" xmlns:maps="org.bigbluebutton.modules.viewers.maps.*">
 	<mx:Script>

@@ -22,7 +22,38 @@ package org.bigbluebutton.common
 	public class Role
 	{
 		public static const VIEWER:String = "VIEWER";
-		public static const MODERATOR:String = "MODERATOR";
-		public static const ADMINISTRATOR:String = "ADMINISTRATOR";		
+		public static const PRESENTER:String = "PRESENTER";
+		public static const MODERATOR:String = "MODERATOR";	
+		
+		private static var userrole:String;
+		
+		[Bindable] public static var isPresenter:Boolean;
+		
+		/**
+		 * Set the role of the user, with the role being one of the constants defined in this class. 
+		 * @param role
+		 * 
+		 */		
+		public static function setRole(role:String):void{
+			if (role == VIEWER){
+				Role.userrole = VIEWER;
+				Role.isPresenter = false;
+			} else if (role == MODERATOR){
+				Role.userrole = MODERATOR;
+			} else if (role == PRESENTER){
+				Role.userrole = PRESENTER;
+				Role.isPresenter = true;
+			}
+			else LogUtil.error("TRYING TO SET INVALID USER ROLE:" + role);
+		}
+		
+		/**
+		 * Return the role of the user, with the role being one of the constants defined in this class. 
+		 * @return The role of the user
+		 * 
+		 */		
+		public static function getRole():String{
+			return Role.userrole;
+		}
 	}
 }

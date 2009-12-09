@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  BigBlueButton - http://www.bigbluebutton.org
+  
+  Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
+  
+  BigBlueButton is free software; you can redistribute it and/or modify it under the 
+  terms of the GNU Lesser General Public License as published by the Free Software 
+  Foundation; either version 3 of the License, or (at your option) any later 
+  version. 
+  
+  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public License along 
+  with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
+  
+  Authors: Denis Zgonjanin <me.snap@gmail.com>
+           Richard Alam <ritzalam@gmail.com>  
+  $Id: $
+--> 
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:mate="http://mate.asfusion.com/"
+    title="Upload Presentation"
+    x="168" y="86" layout="absolute" width="500" height="200"
+    	initialize="initData();">
+    	
+    <mate:Dispatcher id="globalDispatch" />
+    <mate:Listener type="{UploadEvent.UPLOAD_PROGRESS_UPDATE}" method="uploadProgressUpdate" />
+    <mate:Listener type="{UploadEvent.UPLOAD_COMPLETE}" method="uploadComplete" />
+    <mate:Listener type="{UploadEvent.UPLOAD_IO_ERROR}" method="uploadIOError" />
+    <mate:Listener type="{UploadEvent.UPLOAD_SECURITY_ERROR}" method="uploadSecurityError" />
+    <mate:Listener type="{UploadEvent.CONVERT_ERROR}" method="convertError" />
+    <mate:Listener type="{UploadEvent.CONVERT_SUCCESS}" method="convertSuccess" />
+    <mate:Listener type="{UploadEvent.CONVERT_UPDATE}" method="convertUpdate" />
+    <mate:Listener type="{UploadEvent.UPDATE_PROGRESS}" method="updateProgress" />
+    
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.modules.present.events.UploadEvent;
+			import com.asfusion.mate.events.Dispatcher;
+			import mx.managers.PopUpManager;
+			import org.bigbluebutton.common.Images;
+			import mx.collections.*
+            import mx.events.ValidationResultEvent;
+            import mx.validators.*;
+            import mx.events.FlexEvent;
+            	
+			public var presentationNames:Array = new Array();
+			[Bindable] public var presentationNamesAC:ArrayCollection;
+			
+			private var images:Images = new Images();
+			[Bindable] private var addIcon : Class = images.add;
+			[Bindable] private var bulletGoIcon : Class = images.bulletGo;
+			[Bindable] private var deleteIcon : Class = images.delete_icon;
+	        
+	        private var thumbnailTimer:Timer = new Timer(5000);
+	        private var genThumbText:String = "Generating thumbnails..";
+	        private var genThumbDots:String = ".";
+	        
+	        private var fileToUpload:FileReference = new FileReference();
+
+	        private function initData():void {
+    	        presentationNamesAC = new ArrayCollection(presentationNames);
+    	        if(presentationNames.length<=0) {
+					deleteBtn.enabled = false;
+					showBtn.enabled = false;
+    	        }
+            }			
+            
+	        private function showPresentation():void {
+				LogUtil.debug("FileUploadWindow::showPresentation() " + this.presentationNamesCombobox.selectedLabel);   
+				var readyEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
+				readyEvent.presentationName = this.presentationNamesCombobox.selectedLabel;
+				globalDispatch.dispatchEvent(readyEvent);
+				
+				dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
+			}			
+            
+	        private function deletePresentation():void {
+				LogUtil.debug("FileUploadWindow.mxml::deletePresentation() " + this.presentationNamesCombobox.selectedIndex);
+				presentationNamesAC.removeItemAt(presentationNamesCombobox.selectedIndex);
+			}					
+			
+			private function handleThumbnailsProgressEvent(event:Event):void {	
+				genThumbDots = ".";
+
+            	thumbnailTimer.repeatCount = 20;
+            	thumbnailTimer.addEventListener(TimerEvent.TIMER, timerHandler);
+            	thumbnailTimer.addEventListener(TimerEvent.TIMER_COMPLETE, completeHandler);
+            
+            	thumbnailTimer.start();
+				
+			}
+			
+			private function handleConvertSuccessEvent(event:Event):void {
+				thumbnailTimer.stop();
+			}
+			
+			private function timerHandler(e:TimerEvent):void{
+            	displayGeneratingThumbnailsMessage();
+        	}
+
+        	private function completeHandler(e:TimerEvent):void {
+            	 displayGeneratingThumbnailsMessage();
+            	 thumbnailTimer.stop();
+        	}
+        	
+        	private function displayGeneratingThumbnailsMessage():void {
+        		genThumbDots += ".";
+        		progressLbl.text = genThumbText + genThumbDots;
+				progressBar.label = genThumbText + genThumbDots;
+        	}
+        	
+        	private function selectFile():void{
+        		fileToUpload.addEventListener(Event.SELECT, onSelectFile);	
+				fileToUpload.browse([new FileFilter("Presentation file", "*.pdf;*.doc;*.docx;*.xls;*.xlsx;*.ppt;*.pptx"), 
+									 new FileFilter("PDF", "*.pdf"), new FileFilter("WORD", "*.doc;*.docx"), 
+									 new FileFilter("EXCEL", "*.xls;*.xlsx"), 
+									 new FileFilter("POWERPOINT", "*.ppt;*.pptx")]);
+        	}
+        	
+        	private function onSelectFile(e:Event):void{
+        		fileTxtInput.text = fileToUpload.name;
+        		uploadBtn.enabled = true;
+        	}
+        	
+        	private function startUpload():void{
+        		var presentationName:String = fileToUpload.name
+				var filenamePattern:RegExp = /(.+)(\.pdf|\.doc|\.docx|\.xls|\.xlsx|\.ppt|\.pptx)/i;
+				// Get the first match which should be the filename without the extension.
+				presentationName = presentationName.replace(filenamePattern, "$1")
+				// Replace any character other than a word character (A-Z, a-z, 0-9, or _).
+				presentationName = presentationName.replace(/[^0-9a-zA-Z_\.]/g, "-");
+				var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.START_UPLOAD);
+				uploadEvent.presentationName = presentationName;
+				uploadEvent.fileToUpload = fileToUpload;
+				globalDispatch.dispatchEvent(uploadEvent);
+				
+				progBarLbl.visible = true;
+				progressBar.visible = true;
+				
+				okCancelBtn.visible = false;
+				selectBtn.enabled = false;
+				uploadBtn.enabled = false;
+				fileTxtInput.enabled = false;
+				
+				presentationNamesLb.visible = false;
+				presentationNamesCombobox.visible = false;
+				deleteBtn.visible = false;
+				showBtn.visible = false;
+        	}
+        	
+        	private function uploadProgressUpdate(e:UploadEvent):void{
+        		var progress:Number = e.percentageComplete;
+				progressLbl.text = progress + "%" + ResourceUtil.getInstance().getString('bbb.presentation.uploaded');
+				progressBar.label = progress + "%" + ResourceUtil.getInstance().getString('bbb.presentation.uploaded');
+				progressBar.setProgress(progress, 100);
+				progressBar.validateNow();
+				progressLbl.validateNow();
+        	}
+        	
+        	private function uploadComplete(e:UploadEvent):void{
+        		progressLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.uploadcomplete')
+				progressBar.label = ResourceUtil.getInstance().getString('bbb.presentation.uploadwindow.uploadsuccessful');
+				progressBar.setProgress(0, 100);
+				progressBar.validateNow();
+				progressLbl.validateNow();
+	
+				fileLbl.visible = false;
+				selectBtn.visible = false;
+				uploadBtn.visible = false;
+				fileTxtInput.visible = false;
+        	}
+        	
+        	private function uploadIOError(e:UploadEvent):void{
+        		enableControls();
+        		//Alert.show(ResourceUtil.getInstance().getString('bbb.presentation.error.io'));
+        		LogUtil.error("IO error occured when uploading presentation. FileUploadWindow::uploadIOError");
+        	}
+        	
+        	private function uploadSecurityError(e:UploadEvent):void{
+        		enableControls();
+				//Alert.show(ResourceUtil.getInstance().getString('bbb.presentation.error.security'));
+				LogUtil.error("Security error occured when uploading presentation. FileUploadWindow::uploadSecurityError");
+        	}
+        	
+        	private function enableControls() : void
+			{
+				okCancelBtn.visible = true;
+				selectBtn.enabled = true;
+				uploadBtn.enabled = true;
+				fileTxtInput.enabled = true;			
+			}
+			
+			private function convertUpdate(e:UploadEvent):void{
+				progressLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.converted',[e.completedSlides, e.totalSlides]);
+				progressBar.label = ResourceUtil.getInstance().getString('bbb.presentation.converted',[e.completedSlides, e.totalSlides]);
+				progressBar.setProgress(e.completedSlides, e.totalSlides);
+				progressBar.validateNow();
+				progressLbl.validateNow();
+			}
+			
+			private function convertError(e:UploadEvent):void{
+				enableControls();
+                okCancelBtn.label = "Ok";
+                okCancelBtn.visible = true;
+                Alert.show(ResourceUtil.getInstance().getString('bbb.presentation.error.convert'));
+                globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
+			}
+			
+			private function convertSuccess(e:UploadEvent):void{
+				okCancelBtn.label = ResourceUtil.getInstance().getString('bbb.presentation.ok');
+				okCancelBtn.visible = true;
+				var readyEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
+				readyEvent.presentationName = e.presentationName;
+				globalDispatch.dispatchEvent(readyEvent);
+				globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
+			}
+			
+			//Unlike UploadProgress, this event comes from the PresentSOService, not the UploadService
+			private function updateProgress(e:UploadEvent):void{
+				progressLbl.text = e.data as String;
+				progressLbl.validateNow();
+			}
+
+		]]>
+		
+	</mx:Script>
+           
+	<mx:Spacer height="100%" x="0" y="0"/>	
+	<mx:Label id="fileLbl" text="File:" x="50" y="50"/>
+	<mx:TextInput id="fileTxtInput" width="228" x="87" y="48"/>
+	<mx:Button id="selectBtn" toolTip="Browse file" click="selectFile()" icon="{addIcon}" width="26" x="332" y="48"/>
+	<mx:Button id="uploadBtn" label="Upload" toolTip="Upload file"  click="startUpload()"
+		enabled="false" icon="{bulletGoIcon}" x="366" y="48"/>
+
+	<mx:Label id="progBarLbl" text="Progress:" x="21" y="75" visible="false"/>
+	<mx:ProgressBar id="progressBar" mode="manual" label="" labelPlacement="center" width="360" y="75" x="87" visible="false"/>
+	
+	<mx:Label id="presentationNamesLb" text="Uploaded Presentations:" x="50" y="90"/>
+    <mx:ComboBox id="presentationNamesCombobox" width="125" x="190" y="90" dataProvider="{presentationNamesAC}"/> 
+	<mx:Button id="deleteBtn" label="" toolTip="Delete Presentation"  
+		click="deletePresentation()" enabled="true"	icon="{deleteIcon}" width="26" x="332" y="90"/>
+	<mx:Button id="showBtn" label="Show" toolTip="Show Presentation"  
+		click="showPresentation()" enabled="true" icon="{bulletGoIcon}" x="366" y="90"/>
+	
+	<mx:ControlBar horizontalAlign="center" verticalAlign="middle" x="0" y="106">
+		<mx:Label id="progressLbl" text="" width="100%"/>
+		<mx:Spacer width="100%"/>
+		<mx:Button id="okCancelBtn" label="Cancel" 
+			click="globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW))"/>
+	</mx:ControlBar>	
+</mx:TitleWindow> 

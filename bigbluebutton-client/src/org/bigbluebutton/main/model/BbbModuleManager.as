@@ -27,6 +27,7 @@ package org.bigbluebutton.main.model
 	import mx.collections.ArrayCollection;
 	
 	import org.bigbluebutton.common.IBigBlueButtonModule;
+	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.common.messaging.Router;
 	import org.bigbluebutton.main.MainApplicationConstants;
 	
@@ -117,6 +118,11 @@ package org.bigbluebutton.main.model
 			_protocol = protocol;
 		}
 		
+		/**
+		 * Set the properties of the local user who logged in.
+		 * @param user - The properties object for the user that just logged in
+		 * 
+		 */		
 		public function loggedInUser(user:Object):void {
 			LogUtil.debug('loggedin user ' + user.username);
 			_user = new Object();
@@ -131,6 +137,8 @@ package org.bigbluebutton.main.model
 			_user.connection = user.connection;
 			_user.playbackRoom = user.playbackRoom;
 			_user.record = user.record;
+			
+			Role.setRole(user.userrole);
 		}
 		
 		public function get portTestHost():String {

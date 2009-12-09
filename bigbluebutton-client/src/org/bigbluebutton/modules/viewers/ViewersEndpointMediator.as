@@ -19,9 +19,14 @@
  */
 package org.bigbluebutton.modules.viewers
 {
+	import com.asfusion.mate.events.Dispatcher;
+	
+	import mx.controls.Alert;
+	
 	import org.bigbluebutton.common.messaging.Endpoint;
 	import org.bigbluebutton.common.messaging.EndpointMessageConstants;
 	import org.bigbluebutton.common.messaging.Router;
+	import org.bigbluebutton.modules.viewers.events.UserStatusEvent;
 	import org.bigbluebutton.modules.viewers.model.ViewersProxy;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
@@ -35,6 +40,9 @@ package org.bigbluebutton.modules.viewers
 		private var _module:ViewersModule;
 		private var _router:Router;
 		private var _endpoint:Endpoint;		
+		
+		private var _dispatcher:Dispatcher;
+		
 		private static const TO_VIEWERS_MODULE:String = "TO_VIEWERS_MODULE";
 		private static const FROM_VIEWERS_MODULE:String = "FROM_VIEWERS_MODULE";
 		
@@ -48,6 +56,8 @@ package org.bigbluebutton.modules.viewers
 			_router = module.router
 			LogUtil.debug("Creating endpoint for ViewersModule");
 			_endpoint = new Endpoint(_router, FROM_VIEWERS_MODULE, TO_VIEWERS_MODULE, messageReceiver);	
+			
+			_dispatcher = new Dispatcher();
 		}
 		
 		override public function getMediatorName():String
@@ -110,9 +120,13 @@ package org.bigbluebutton.modules.viewers
 							EndpointMessageConstants.TO_MAIN_APP, notification.getBody());
 					break;
 				case ViewersModuleConstants.ASSIGN_PRESENTER:
+					/* old puremvc code. delete when refactoring is done
 					LogUtil.debug('Sending ASSIGN_PRESENTER to main');
 					_endpoint.sendMessage(EndpointMessageConstants.ASSIGN_PRESENTER, 
-							EndpointMessageConstants.TO_MAIN_APP, notification.getBody());
+							EndpointMessageConstants.TO_MAIN_APP, notification.getBody());*/
+					var assignPresenterEvent:UserStatusEvent = new UserStatusEvent(UserStatusEvent.ASSIGN_PRESENTER);
+					assignPresenterEvent.data = notification.getBody();
+					_dispatcher.dispatchEvent(assignPresenterEvent);
 					break;
 				case ViewersModuleConstants.BECOME_VIEWER:
 					LogUtil.debug('Sending BECOME_VIEWER to main');

@@ -67,13 +67,6 @@
 			private var captureHeight:Number = Capabilities.screenResolutionY;
 			private var captureWidth:Number = Capabilities.screenResolutionX;
 			
-			//The following code block is to deal with a bug in FLexLib with MDI windows not responding well to being maximized
-			private var savedWindowWidth:Number;
-			private var savedWindowHeight:Number;
-			private var savedX:Number;
-			private var savedY:Number;
-			private var isMaximized:Boolean = false;
-			
 			private function onCreationComplete():void {
 				windowControls.maximizeRestoreBtn.enabled = false;
 				windowControls.maximizeRestoreBtn.toolTip = "You cannot maximize this window.";

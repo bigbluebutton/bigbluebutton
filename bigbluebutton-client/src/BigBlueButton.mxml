@@ -20,7 +20,7 @@
   $Id: $
 --> 
 
-<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:mainView="org.bigbluebutton.main.view.components.*"
 	xmlns:maps="org.bigbluebutton.main.maps.*"
 	xmlns:mate="http://mate.asfusion.com/"

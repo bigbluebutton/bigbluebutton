@@ -138,11 +138,12 @@ package org.bigbluebutton.main
 					LogUtil.debug(NAME + "::Got REMOVE_WINDOW from " + message.getHeader().SRC as String);
 					sendNotification(MainApplicationConstants.REMOVE_WINDOW_MSG, message.getBody());
 					break;		
+				/* old puremvc code. delete once refactoring complete
 				case EndpointMessageConstants.ASSIGN_PRESENTER:
 					LogUtil.debug(NAME + "::Got ASSIGN_PRESENTER from " + message.getHeader().SRC as String);
 					_endpoint.sendMessage(EndpointMessageConstants.ASSIGN_PRESENTER, 
 							EndpointMessageConstants.TO_PRESENTATION_MODULE, message.getBody());
-					break;			
+					break;			*/
 				case EndpointMessageConstants.BECOME_VIEWER:
 					LogUtil.debug(NAME + "::Got BECOME_VIEWER from " + message.getHeader().SRC as String);
 					_endpoint.sendMessage(EndpointMessageConstants.BECOME_VIEWER, 
@@ -150,9 +151,9 @@ package org.bigbluebutton.main
 					break;
 				case EndpointMessageConstants.PARTICIPANT_IS_PRESENTER:
 					LogUtil.debug(NAME + "::Got PARTICIPANT_IS_PRESENTER from " + message.getHeader().SRC as String);
-					var e:MadePresenterEvent = new MadePresenterEvent();
-					e.presenter = message.getBody() as Boolean;
-					_dispatcher.dispatchEvent(e);
+					var madePresentEvent:MadePresenterEvent = new MadePresenterEvent();
+					madePresentEvent.presenter = message.getBody() as Boolean;
+					_dispatcher.dispatchEvent(madePresentEvent);
 					break;
 			}
 		}	

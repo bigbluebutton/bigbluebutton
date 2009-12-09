@@ -13,7 +13,7 @@
 		<mxmlc-compile target="${APP_ROOT}/ChatModule" />
 		<mxmlc-compile target="${APP_ROOT}/ViewersModule" />
 		<mxmlc-compile target="${APP_ROOT}/ListenersModule" />
-		<mxmlc-compile target="${APP_ROOT}/PresentationModule" />
+		<mxmlc-compile target="${APP_ROOT}/PresentModule" />
 		<mxmlc-compile target="${APP_ROOT}/DeskShareModule" />		
 		<mxmlc-compile target="${APP_ROOT}/PhoneModule" />
 		<mxmlc-compile target="${APP_ROOT}/AutotestModule" />
@@ -23,7 +23,6 @@
 		<mxmlc-compile target="${APP_ROOT}/LoginModule" />
 		<mxmlc-compile target="${APP_ROOT}/NotesModule" />
 		<mxmlc-compile target="${APP_ROOT}/HighlighterModule" />
-		<mxmlc-compile target="${APP_ROOT}/PresentModule" />
 -->
 		
 		<copy todir="${OUTPUT_DIR}/conf" >
@@ -45,11 +44,7 @@
 		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/listeners/view/assets/images/" >
 			<fileset dir="./src/org/bigbluebutton/modules/listeners/view/assets/images/" />
 		</copy>
-<!--
-		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/presentation/view/assets/" >
-			<fileset dir="./src/org/bigbluebutton/modules/presentation/view/assets/" />
-		</copy>
--->
+
 		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/phone/views/assets/images/" >
 			<fileset dir="./src/org/bigbluebutton/modules/phone/views/assets/images/" />
 		</copy>
