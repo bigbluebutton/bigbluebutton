@@ -22,6 +22,7 @@
 # Changelog:
 #       2009-10-18      Inital Version          FFD
 #       2009-11-05      Updated for 0.62        FFD
+#       2009-12-09      Updated for 0.63        FFD
 
 
 # set -x
@@ -44,13 +45,14 @@ check_root() {
 	fi
 }
 
-usage () {
+usage() {
 	echo "$0 [options] [<file>]"
 	echo
 	echo "Options:"
 	echo "   --help                           This message"
 	echo "   --version                        Display BigBlueButton version"
-	echo "   --check                          Check current setup"
+	echo "   --check                          Check current settings"
+	echo "   --debug                          Check the log files for errors"
 	echo
 	echo "   --setip <host>                   Set IP/Hostname for BigBlueButton's configuration"
 	echo
@@ -120,6 +122,12 @@ while [ $# -gt 0 ]; do
 		shift
 		continue
 	fi		
+
+	if [ "$1" = "--debug" -o "$1" = "-debug" -o "$1" = "-d" ]; then
+		DEBUG=1
+		shift
+		continue
+	fi
 
 	#
 	# all other parameters requires at least 1 argument
@@ -344,40 +352,7 @@ red5.home = /usr/share/red5
 	fi
 fi
 
-
-#
-# Check current setup
-#
-if [ $CHECK ]; then
-
-        echo "Current Configuration:"
-
-        IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/porttest /{s/.*host="//;s/".*//;p}')
-        echo
-        echo "/var/www/bigbluebutton/client/conf/config.xml (bbb-client)"
-        echo "                 IP for tunnel check: $IP"
-
-        IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/uri.*video/{s/.*rtmp:\/\///;s/\/.*//;p}')
-        echo "                  IP for rtmp (red5): $IP"
-
-        HOST=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/recordingHost/{s/.*recordingHost="http:\/\///;s/"//;p}')
-        echo "          host for bbb-web interface: $HOST"
-
-        IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
-        echo
-        echo "/etc/nginx/sites-available/bigbluebutton (configuration file nginx)"
-        echo "                         server_name: $IP"
-
-        PORT=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/listen/{s/.*listen[ ]*//;s/;//;p}')
-        echo "                                port: $PORT"
-
-	BBB_CLINET_DOC_ROOT=$(cat /etc/nginx/sites-available/bigbluebutton | grep \/client -A 1 | grep root  | sed -n '{s/[ ]*root[ ]*//;s/;//;p}') 
-        echo "                client document root: $BBB_CLINET_DOC_ROOT"
-
-        HOST=$(cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/bigbluebutton.web.serverURL/{s/.*\///;p}')
-        echo
-        echo "/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties (for bbb-web)"
-        echo "                                host: $HOST"
+check_processes() {
 
 	#
 	# Check for potential problems
@@ -428,7 +403,54 @@ if [ $CHECK ]; then
 	done
 
 	echo
+	exit 0
+}
 
+
+#
+# Check current setup
+#
+if [ $CHECK ]; then
+
+        echo "Current Configuration:"
+
+        IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/porttest /{s/.*host="//;s/".*//;p}')
+        echo
+        echo "/var/www/bigbluebutton/client/conf/config.xml (bbb-client)"
+        echo "                 IP for tunnel check: $IP"
+
+        IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/uri.*video/{s/.*rtmp:\/\///;s/\/.*//;p}')
+        echo "                  IP for rtmp (red5): $IP"
+
+        HOST=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/recordingHost/{s/.*recordingHost="http:\/\///;s/"//;p}')
+        echo "          host for bbb-web interface: $HOST"
+
+        IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
+        echo
+        echo "/etc/nginx/sites-available/bigbluebutton (configuration file nginx)"
+        echo "                         server_name: $IP"
+
+        PORT=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/listen/{s/.*listen[ ]*//;s/;//;p}')
+        echo "                                port: $PORT"
+
+	BBB_CLINET_DOC_ROOT=$(cat /etc/nginx/sites-available/bigbluebutton | grep \/client -A 1 | grep root  | sed -n '{s/[ ]*root[ ]*//;s/;//;p}') 
+        echo "                client document root: $BBB_CLINET_DOC_ROOT"
+
+        HOST=$(cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/bigbluebutton.web.serverURL/{s/.*\///;p}')
+        echo
+        echo "/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties (for bbb-web)"
+        echo "                                host: $HOST"
+
+	check_processes
+
+	exit 0
+fi
+
+
+#
+# Check current setup
+#
+if [ $DEBUG ]; then
 	#
 	# Check log files
 	#
@@ -459,7 +481,7 @@ if [ $CHECK ]; then
 	fi
 
 	rm -rf /tmp/t
-	grep Exception /var/lib/tomcat6/logs/* > /tmp/t 
+	sudo grep Exception /var/lib/tomcat6/logs/* > /tmp/t 
 	if [ -s /tmp/t ]; then
 		echo "   -- Exceptions found in /var/lib/tomcat6/logs/ -- "
 		cat /tmp/t
