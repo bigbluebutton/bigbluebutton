@@ -28,6 +28,8 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.present.events.PresenterCommands;
+			import mx.controls.Alert;
 			import org.bigbluebutton.modules.present.events.NavigationEvent;
 			import mx.controls.Text;
 			import mx.controls.TextArea;
@@ -69,7 +71,7 @@
 			}
 			
 			public function selectSlide():void{
-				dispatchEvent(new Event(SLIDE_SELECTED));
+				dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, fisheye.selectedIndex));
 			}
 			
 			public function displayIndex():void{

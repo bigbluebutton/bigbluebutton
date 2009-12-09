@@ -238,6 +238,8 @@
 					backButton.visible = true;
 					forwardButton.visible = true;	
 					zoomSlider.visible = true;
+					thumbnailWindow.fisheye.selectedIndex = 0;
+					thumbnailWindow.setDataProvider(slideView.slides);
 				}
 				
 				presenterNameLabel.text = ResourceUtil.getInstance().getString('bbb.presentation.presenting', [e.presenterName]);
@@ -259,8 +261,8 @@
 				
 				presenterNameLabel.text = "";
 				presenterNameLabel.visible = false;
-				thumbnailWindow.visible = true;
-				thumbnailWindow.setFisheyeVisibility(true);
+				thumbnailWindow.visible = false;
+				thumbnailWindow.setFisheyeVisibility(false);
 			}
 			
 			private function handlePresentationLoadedEvent(e:PresentationEvent):void
@@ -290,6 +292,9 @@
 					gotoSlideEvent.slideNumber = 0;
 					dispatchEvent(gotoSlideEvent);
 					dispatchEvent(new PresenterCommands(PresenterCommands.NOTIFY_LOADED));
+					
+					thumbnailWindow.fisheye.selectedIndex = 0;
+					thumbnailWindow.setDataProvider(slideView.slides);
 	
 				} else {
 					dispatchEvent(new SlideEvent(SlideEvent.LOAD_CURRENT_SLIDE));
