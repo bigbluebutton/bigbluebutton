@@ -28,7 +28,7 @@ public class ListenStream implements TranscodedAudioDataListener {
 	private AudioStream broadcastStream;
 	private IScope scope;
 	private final String listenStreamName;
-	
+
 	public ListenStream(IScope scope) {
 		this.scope = scope;
 		listenStreamName = "speaker_" + System.currentTimeMillis();
@@ -78,9 +78,14 @@ public class ListenStream implements TranscodedAudioDataListener {
 	
 	private void streamAudioData(AudioData audioData) {
 		long now = System.currentTimeMillis();
+		
+		/*
+		 * Don't set the timestamp as it results in choppy audio. Let the client
+		 * play the audio as soon as they receive the packets. (ralam dec 10, 2009)
+		 */
 		broadcastStream.dispatchEvent(audioData);
 		audioData.release();
-		long completeRx = System.currentTimeMillis();
+//		long completeRx = System.currentTimeMillis();
 //		System.out.println("Send took " + (completeRx - startRx) + "ms.");
 	}
 
