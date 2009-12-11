@@ -14,18 +14,19 @@
 # PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 #
 # You should have received a copy of the GNU Lesser General Public License along
-# with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
+# with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 #
 # Author(s):
 #       Fred Dixon <ffdixon@bigbluebutton.org>
 #
 # Changelog:
-#       2009-10-18      Inital Version          FFD
-#       2009-11-05      Updated for 0.62        FFD
-#       2009-12-09      Updated for 0.63        FFD
+#       2009-10-18 FFD  Inital Version
+#       2009-11-05 FFD  Updated for 0.62
+#       2009-12-09 FFD  Updated for 0.63
+#       2009-12-11 FFD  Added ability to swtich conference servers
 
 
-# set -x
+#set -x
 
 print_header() {
 	if [ ! $HEADER ]; then
@@ -45,6 +46,13 @@ check_root() {
 	fi
 }
 
+need_root() {
+	if [ $EUID != 0 ]; then
+		echo "Need to be root to run this application"
+		exit 1
+	fi
+}
+
 usage() {
 	echo "$0 [options] [<file>]"
 	echo
@@ -59,6 +67,7 @@ usage() {
 	echo "   --setup-samba                    Setup samba share (VM only)"
 	echo "   --setup-dev [bbb-web|bbb-client|bbb-apps] "
 	echo "                                    Setup dev environment (VM only)"
+	echo "version: 0.62-1"
 	echo
 }
 
@@ -149,6 +158,13 @@ while [ $# -gt 0 ]; do
 		shift; shift
 		continue
 	fi		
+
+	if [ "$1" = "--voice-conerence" -o "$1" = "-voice-conference" -o "$1" = "-vc" ]; then
+		CONFERENCE="${2}"
+		shift; shift
+		continue
+	fi		
+
 
 	usage 
 	exit 1
@@ -381,12 +397,23 @@ check_processes() {
 	if ! netstat -ant | grep '8080' > /dev/null; then
 		print_header
         	echo "                             tomcat6: -- not running --"
-	fi	
+	else 
+		if ps aux |  ps -aef | grep grails | grep run-app > /dev/null; then
+			print_header
+        		echo "                             tomcat6: noticed you are running grails run-app instead of tomcat"
+		fi
+	fi
 
 	if [ ! -L /etc/nginx/sites-enabled/bigbluebutton ]; then
 		print_header
         	echo "                        nginx (conf): no symbolic link in /etc/nginx/sites-enabled for bigbluebutton"
 	fi	
+
+	if grep /home/firstuser/dev/bbb-client /etc/nginx/sites-available/bigbluebutton > /dev/null; then
+		print_header
+        	echo "                        nginx (conf): noticed that location for cient is /home/firstuser/dev/bbb-client"
+        	echo "                                      instead of the usual /var/www/bigbluebutton"
+	fi
 
 	DIRECTORIES="bigbluebutton sip video"
 	for dir in $DIRECTORIES ; do
@@ -451,6 +478,7 @@ fi
 # Check current setup
 #
 if [ $DEBUG ]; then
+	need_root
 	#
 	# Check log files
 	#
@@ -487,6 +515,14 @@ if [ $DEBUG ]; then
 		cat /tmp/t
 		echo
 	fi
+
+	rm -rf /tmp/t
+	if [ -s /var/log/nginx/error.log ]; then
+		echo "   -- Errors found in /var/log/nginx/error.log -- "
+		cat /var/log/nginx/error.log
+		echo
+	fi
+
 
 	exit 0
 fi
@@ -549,5 +585,60 @@ if [ -n "$HOST" ]; then
 	sudo /etc/init.d/nginx restart
 
 	exit 0
+fi
+
+if [ $CONFERENCE ]; then
+	if [ ! -f /usr/share/red5/webapps/bigbluebutton/WEB-INF/bbb-voice-app.xml ]; then
+		echo "Error: Unable to find /usr/share/red5/webapps/bigbluebutton/WEB-INF/bbb-voice-app.xml"
+		exit 1
+	fi
+
+	if [ ! -f /etc/asterisk/bbb_extensions.conf ]; then
+		echo "Error: Unable to find /etc/asterisk/bbb_extensions.conf"
+		exit 1
+	fi
+
+	if [ "$CONFERENCE" = "m" ]; then
+		CONFERENCE=meetme
+	else
+		if [ "$CONFERENCE" = "k" ]; then
+			CONFERENCE=konference
+		else
+			echo "Error: Valid options are m (meetme) or k (konference)"
+		fi
+	fi
+
+        if [ $CONFERENCE = "meetme" ]; then
+		sudo sed -i "s/<beans:property name=\"conferenceApplication\" ref=\"konferenceApplication\"\/>/<\!--beans:property name=\"conferenceApplication\" ref=\"konferenceApplication\"\/-->/g" \
+			/usr/share/red5/webapps/bigbluebutton/WEB-INF/bbb-voice-app.xml	
+
+		sudo sed -i "s/<\!--beans:property name=\"conferenceApplication\" ref=\"meetMeApplicationFacade\"\/-->/<beans:property name=\"conferenceApplication\" ref=\"meetMeApplicationFacade\"\>/g" \
+			/usr/share/red5/webapps/bigbluebutton/WEB-INF/bbb-voice-app.xml	
+
+		sudo sed -i "s/# exten => _XXXX.,n,MeetMe(\${CONFERENCE_FOUND},cdMsT)/exten => _XXXX.,n,MeetMe(\${CONFERENCE_FOUND},cdMsT)/g" \
+			/etc/asterisk/bbb_extensions.conf
+
+		sudo sed -i "s/exten => _XXXX.,n,Konference(\${CONFERENCE_FOUND},H)/# exten => _XXXX.,n,Konference(\${CONFERENCE_FOUND},H)/g" \
+			/etc/asterisk/bbb_extensions.conf
+
+	fi
+ 
+        if [ $CONFERENCE = "konference" ]; then
+		sudo sed -i "s/<\!--beans:property name=\"conferenceApplication\" ref=\"konferenceApplication\"\/-->/<beans:property name=\"conferenceApplication\" ref=\"konferenceApplication\"\/>/g" \
+			/usr/share/red5/webapps/bigbluebutton/WEB-INF/bbb-voice-app.xml	
+ 
+		sudo sed -i "s/<beans:property name=\"conferenceApplication\" ref=\"meetMeApplicationFacade\"\>/<\!--beans:property name=\"conferenceApplication\" ref=\"meetMeApplicationFacade\"\/-->/g" \
+			/usr/share/red5/webapps/bigbluebutton/WEB-INF/bbb-voice-app.xml	
+
+		sudo sed -i "s/exten => _XXXX.,n,MeetMe(\${CONFERENCE_FOUND},cdMsT)/# exten => _XXXX.,n,MeetMe(\${CONFERENCE_FOUND},cdMsT)/g" \
+			/etc/asterisk/bbb_extensions.conf
+
+		sudo sed -i "s/# exten => _XXXX.,n,Konference(\${CONFERENCE_FOUND},H)/exten => _XXXX.,n,Konference(\${CONFERENCE_FOUND},H)/g" \
+			/etc/asterisk/bbb_extensions.conf
+	fi
+
+	echo "Swtiching to $CONFERENCE ... "
+	sudo /etc/init.d/asterisk restart
+	sudo /etc/init.d/red5 restart
 fi
 
