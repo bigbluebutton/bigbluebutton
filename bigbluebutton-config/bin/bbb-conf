@@ -24,9 +24,10 @@
 #       2009-11-05 FFD  Updated for 0.62
 #       2009-12-09 FFD  Updated for 0.63
 #       2009-12-11 FFD  Added ability to swtich conference servers
+#       2009-12-12 FFD  Added cleaning and watching of log files
 
 
-#set -x
+# set -x
 
 print_header() {
 	if [ ! $HEADER ]; then
@@ -59,15 +60,16 @@ usage() {
 	echo "Options:"
 	echo "   --help                           This message"
 	echo "   --version                        Display BigBlueButton version"
-	echo "   --check                          Check current settings"
-	echo "   --debug                          Check the log files for errors"
-	echo
 	echo "   --setip <host>                   Set IP/Hostname for BigBlueButton's configuration"
-	echo
+	echo 
+	echo "development:"
 	echo "   --setup-samba                    Setup samba share (VM only)"
 	echo "   --setup-dev [bbb-web|bbb-client|bbb-apps] "
-	echo "                                    Setup dev environment (VM only)"
-	echo "version: 0.62-1"
+	echo "   --check                          Check current settings"
+	echo "   --debug                          Check the log files for errors"
+	echo "   --watch                          Watch log files for error messages"
+	echo
+	echo "version: 0.63-2"
 	echo
 }
 
@@ -134,6 +136,18 @@ while [ $# -gt 0 ]; do
 
 	if [ "$1" = "--debug" -o "$1" = "-debug" -o "$1" = "-d" ]; then
 		DEBUG=1
+		shift
+		continue
+	fi
+
+	if [ "$1" = "--clean" -o "$1" = "-clean" -o "$1" = "-c" ]; then
+		CLEAN=1
+		shift
+		continue
+	fi
+
+	if [ "$1" = "--watch" -o "$1" = "-watch" -o "$1" = "-w" ]; then
+		WATCH=1
 		shift
 		continue
 	fi
@@ -642,3 +656,39 @@ if [ $CONFERENCE ]; then
 	sudo /etc/init.d/red5 restart
 fi
 
+if [ $CLEAN ]; then
+	need_root
+
+	echo "# Stoping BigBlueButton ..."
+	/etc/init.d/asterisk stop
+	/etc/init.d/red5 stop
+	/etc/init.d/tomcat6 stop
+	/etc/init.d/nginx stop
+	/etc/init.d/activemq stop
+
+
+	#
+	# Clean log files
+	#
+
+	echo 
+	echo "# Cleaning Log Files ..."
+	rm -rf /var/log/asterisk/*
+	rm -rf /usr/share/red5/log/*
+	rm -rf /var/lib/tomcat6/logs/*
+	rm -rf /var/log/nginx/*
+
+	echo	
+	echo "# Starting BigBlueButton ..."
+	/etc/init.d/activemq start
+	/etc/init.d/nginx start
+	/etc/init.d/asterisk start
+	/etc/init.d/red5 start
+	/etc/init.d/tomcat6 start
+fi
+
+if [ $WATCH ]; then
+	need_root
+
+	watch -n 1 ./bbb-conf -d
+fi
