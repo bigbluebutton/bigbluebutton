@@ -675,10 +675,10 @@ if [ $CLEAN ]; then
 	echo "# Doing a clean restart of BigBlueButton"
 	echo
 
-	/etc/init.d/activemq stop
-	/etc/init.d/asterisk stop
 	/etc/init.d/red5 stop
 	/etc/init.d/tomcat6 stop
+	/etc/init.d/asterisk stop
+	/etc/init.d/activemq stop
 	/etc/init.d/nginx stop
 
 	#
@@ -687,17 +687,18 @@ if [ $CLEAN ]; then
 
 	echo 
 	echo "# Cleaning Log Files ..."
-	rm -f /var/log/asterisk/* 1>&2 /dev/null
+	rm -f /var/log/asterisk/event* 
+	rm -f /var/log/asterisk/messages* 
+	rm -f /var/log/asterisk/queue* 
 	rm -rf /usr/share/red5/log/*
 	rm -rf /var/lib/tomcat6/logs/*
 	rm -rf /var/log/nginx/*
 
 	echo
-	/etc/init.d/activemq start
 	/etc/init.d/asterisk start
+	/etc/init.d/activemq start
 	/etc/init.d/nginx start
 	/etc/init.d/red5 start
-
 	/etc/init.d/tomcat6 start
 fi
 
