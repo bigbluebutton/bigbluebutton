@@ -677,9 +677,9 @@ if [ $CLEAN ]; then
 
 	/etc/init.d/red5 stop
 	/etc/init.d/tomcat6 stop
-	/etc/init.d/asterisk stop
-	/etc/init.d/activemq stop
 	/etc/init.d/nginx stop
+	/etc/init.d/asterisk stop
+	# /etc/init.d/activemq stop
 
 	#
 	# Clean log files
@@ -694,27 +694,35 @@ if [ $CLEAN ]; then
 	rm -rf /var/lib/tomcat6/logs/*
 	rm -rf /var/log/nginx/*
 
+	/etc/init.d/asterisk status
+	# /etc/init.d/activemq status
+	/etc/init.d/nginx status
+	/etc/init.d/red5 status
+	/etc/init.d/tomcat6 status
+
 	echo
 	/etc/init.d/asterisk start
-	/etc/init.d/activemq start
+	# /etc/init.d/activemq start
 	/etc/init.d/nginx start
 	/etc/init.d/red5 start
 	/etc/init.d/tomcat6 start
 fi
 
 if [ $NETWORK ]; then
-	netstat -ant | egrep "1935|9123" | grep -v ::: > /tmp/t_net
+	netstat -ant | egrep ":1935|:9123|:80\ " | egrep -v ":::|0.0.0.0" > /tmp/t_net
 	REMOTE=$(cat /tmp/t_net | cut -c 45-68 | cut -d ":" -f1 | sort | uniq)
 
 	if [ "$REMOTE" != "" ]; then
-        	echo -e "Remote IP\t\tred5\tDeskShare"
+        	echo -e "netstat\t\t\t80\t1935\t9123"
         	for IP in $REMOTE ; do
-			DESKSHARE=""
-			if cat /tmp/t_net | grep 9123 | cut -c 45-68 | cut -d ":" -f1 | grep $IP > /dev/null; then
-				DESKSHARE="   XXX"
-			fi
+			PORT_1935=$(cat /tmp/t_net | grep :1935 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l)
+			PORT_9123=$(cat /tmp/t_net | grep :9123 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l )
+			PORT_80=$(cat /tmp/t_net | grep :80 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l )
+			#if cat /tmp/t_net | grep 9123 | cut -c 45-68 | cut -d ":" -f1 | grep $IP > /dev/null; then
+			#	DESKSHARE="   XXX"
+			#fi
 
-                	echo -e "$IP\t\t$(cat /tmp/t_net | grep 1935 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l)\t$DESKSHARE"
+                	echo -e "$IP\t\t$PORT_80\t$PORT_1935\t$PORT_9123"
         	done
 	fi
 fi
@@ -722,5 +730,5 @@ fi
 if [ $WATCH ]; then
 	need_root
 
-	watch -n 2 "asterisk -r -x \"core show channels\"; echo; ./bbb-conf --network; ./bbb-conf --debug"
+	watch -n 2 "asterisk -r -x \"core show channels\"; echo; bbb-conf --network; bbb-conf --debug"
 fi
