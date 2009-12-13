@@ -49,7 +49,7 @@ check_root() {
 
 need_root() {
 	if [ $EUID != 0 ]; then
-		echo "Need to be root to run this application"
+		echo "Need to be root to run this option"
 		exit 1
 	fi
 }
@@ -148,6 +148,12 @@ while [ $# -gt 0 ]; do
 
 	if [ "$1" = "--watch" -o "$1" = "-watch" -o "$1" = "-w" ]; then
 		WATCH=1
+		shift
+		continue
+	fi
+
+	if [ "$1" = "--network" -o "$1" = "-network" -o "$1" = "-n" ]; then
+		NETWORK=1
 		shift
 		continue
 	fi
@@ -423,7 +429,7 @@ check_processes() {
         	echo "                        nginx (conf): no symbolic link in /etc/nginx/sites-enabled for bigbluebutton"
 	fi	
 
-	if grep /home/firstuser/dev/bbb-client /etc/nginx/sites-available/bigbluebutton > /dev/null; then
+	if grep -v \# /etc/nginx/sites-available/bigbluebutton | grep /home/firstuser/dev/bbb-client > /dev/null; then
 		print_header
         	echo "                        nginx (conf): noticed that location for cient is /home/firstuser/dev/bbb-client"
         	echo "                                      instead of the usual /var/www/bigbluebutton"
@@ -537,6 +543,13 @@ if [ $DEBUG ]; then
 		echo
 	fi
 
+	rm -rf /tmp/t
+	sudo grep -v "No Voicetronix cards detected" /var/log/asterisk/* | grep ERROR > /tmp/t 
+	if [ -s /tmp/t ]; then
+		echo "   -- Errors found in /var/log/asterisk/* -- "
+		cat /tmp/t
+		echo
+	fi
 
 	exit 0
 fi
@@ -616,7 +629,7 @@ if [ $CONFERENCE ]; then
 		CONFERENCE=meetme
 	else
 		if [ "$CONFERENCE" = "k" ]; then
-			CONFERENCE=konference
+			CONFERENCE=app_konference
 		else
 			echo "Error: Valid options are m (meetme) or k (konference)"
 		fi
@@ -626,7 +639,7 @@ if [ $CONFERENCE ]; then
 		sudo sed -i "s/<beans:property name=\"conferenceApplication\" ref=\"konferenceApplication\"\/>/<\!--beans:property name=\"conferenceApplication\" ref=\"konferenceApplication\"\/-->/g" \
 			/usr/share/red5/webapps/bigbluebutton/WEB-INF/bbb-voice-app.xml	
 
-		sudo sed -i "s/<\!--beans:property name=\"conferenceApplication\" ref=\"meetMeApplicationFacade\"\/-->/<beans:property name=\"conferenceApplication\" ref=\"meetMeApplicationFacade\"\>/g" \
+		sudo sed -i "s/<\!--beans:property name=\"conferenceApplication\" ref=\"meetMeApplicationFacade\"\/-->/<beans:property name=\"conferenceApplication\" ref=\"meetMeApplicationFacade\"\/>/g" \
 			/usr/share/red5/webapps/bigbluebutton/WEB-INF/bbb-voice-app.xml	
 
 		sudo sed -i "s/# exten => _XXXX.,n,MeetMe(\${CONFERENCE_FOUND},cdMsT)/exten => _XXXX.,n,MeetMe(\${CONFERENCE_FOUND},cdMsT)/g" \
@@ -637,11 +650,11 @@ if [ $CONFERENCE ]; then
 
 	fi
  
-        if [ $CONFERENCE = "konference" ]; then
+        if [ $CONFERENCE = "app_konference" ]; then
 		sudo sed -i "s/<\!--beans:property name=\"conferenceApplication\" ref=\"konferenceApplication\"\/-->/<beans:property name=\"conferenceApplication\" ref=\"konferenceApplication\"\/>/g" \
 			/usr/share/red5/webapps/bigbluebutton/WEB-INF/bbb-voice-app.xml	
  
-		sudo sed -i "s/<beans:property name=\"conferenceApplication\" ref=\"meetMeApplicationFacade\"\>/<\!--beans:property name=\"conferenceApplication\" ref=\"meetMeApplicationFacade\"\/-->/g" \
+		sudo sed -i "s/<beans:property name=\"conferenceApplication\" ref=\"meetMeApplicationFacade\"\/>/<\!--beans:property name=\"conferenceApplication\" ref=\"meetMeApplicationFacade\"\/-->/g" \
 			/usr/share/red5/webapps/bigbluebutton/WEB-INF/bbb-voice-app.xml	
 
 		sudo sed -i "s/exten => _XXXX.,n,MeetMe(\${CONFERENCE_FOUND},cdMsT)/# exten => _XXXX.,n,MeetMe(\${CONFERENCE_FOUND},cdMsT)/g" \
@@ -659,13 +672,14 @@ fi
 if [ $CLEAN ]; then
 	need_root
 
-	echo "# Stoping BigBlueButton ..."
+	echo "# Doing a clean restart of BigBlueButton"
+	echo
+
+	/etc/init.d/activemq stop
 	/etc/init.d/asterisk stop
 	/etc/init.d/red5 stop
 	/etc/init.d/tomcat6 stop
 	/etc/init.d/nginx stop
-	/etc/init.d/activemq stop
-
 
 	#
 	# Clean log files
@@ -673,22 +687,39 @@ if [ $CLEAN ]; then
 
 	echo 
 	echo "# Cleaning Log Files ..."
-	rm -rf /var/log/asterisk/*
+	rm -f /var/log/asterisk/* 1>&2 /dev/null
 	rm -rf /usr/share/red5/log/*
 	rm -rf /var/lib/tomcat6/logs/*
 	rm -rf /var/log/nginx/*
 
-	echo	
-	echo "# Starting BigBlueButton ..."
+	echo
 	/etc/init.d/activemq start
-	/etc/init.d/nginx start
 	/etc/init.d/asterisk start
+	/etc/init.d/nginx start
 	/etc/init.d/red5 start
+
 	/etc/init.d/tomcat6 start
+fi
+
+if [ $NETWORK ]; then
+	netstat -ant | egrep "1935|9123" | grep -v ::: > /tmp/t_net
+	REMOTE=$(cat /tmp/t_net | cut -c 45-68 | cut -d ":" -f1 | sort | uniq)
+
+	if [ "$REMOTE" != "" ]; then
+        	echo -e "Remote IP\t\tred5\tDeskShare"
+        	for IP in $REMOTE ; do
+			DESKSHARE=""
+			if cat /tmp/t_net | grep 9123 | cut -c 45-68 | cut -d ":" -f1 | grep $IP > /dev/null; then
+				DESKSHARE="   XXX"
+			fi
+
+                	echo -e "$IP\t\t$(cat /tmp/t_net | grep 1935 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l)\t$DESKSHARE"
+        	done
+	fi
 fi
 
 if [ $WATCH ]; then
 	need_root
 
-	watch -n 1 ./bbb-conf -d
+	watch -n 2 "asterisk -r -x \"core show channels\"; echo; ./bbb-conf --network; ./bbb-conf --debug"
 fi
