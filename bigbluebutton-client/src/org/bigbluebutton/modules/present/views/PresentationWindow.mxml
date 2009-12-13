@@ -26,6 +26,7 @@
 	xmlns:pres="flexlib.mdi.containers.*"
 	paddingBottom="0" paddingTop="0" 
 	paddingLeft="0" paddingRight="0" 
+	showCloseButton="false"
     verticalScrollPolicy="off" horizontalScrollPolicy="off"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	mouseMove="thumbnailDisplay()"
