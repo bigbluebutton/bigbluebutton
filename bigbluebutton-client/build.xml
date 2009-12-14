@@ -69,7 +69,7 @@
 		<copy file="/var/www/bigbluebutton/client/conf/config.xml" todir="${OUTPUT_DIR}/conf" /> 
 	</target>
 	
-	<target name="generate-wrapper" depends="mxmlc-component, localization">
+	<target name="generate-wrapper" depends="mxmlc-component">
 		<html-wrapper
 			title="BigBlueButton"
 			file="BigBlueButton.html"
