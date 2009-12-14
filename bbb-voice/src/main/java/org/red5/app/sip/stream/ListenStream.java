@@ -1,11 +1,5 @@
 package org.red5.app.sip.stream;
 
-import java.util.Iterator;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-
 import org.red5.app.sip.AudioStream;
 import org.red5.app.sip.trancoders.TranscodedAudioDataListener;
 import org.red5.logging.Red5LoggerFactory;
@@ -19,12 +13,7 @@ import org.slf4j.Logger;
 
 public class ListenStream implements TranscodedAudioDataListener {
 	final private Logger log = Red5LoggerFactory.getLogger(ListenStream.class, "sip");
-	
-	private BlockingQueue<AudioData> audioDataQ = new LinkedBlockingQueue<AudioData>();
-	private final Executor exec = Executors.newSingleThreadExecutor();
-	private Runnable audioStreamer;
-	private volatile boolean streamAudio = false;
-	
+		
 	private AudioStream broadcastStream;
 	private IScope scope;
 	private final String listenStreamName;
@@ -33,11 +22,6 @@ public class ListenStream implements TranscodedAudioDataListener {
 		this.scope = scope;
 		listenStreamName = "speaker_" + System.currentTimeMillis();
 		scope.setName(listenStreamName);	
-		Iterator<String> it = scope.getScopeNames();
-		while (it.hasNext()) {
-			log.debug((String) it.next());
-			System.out.println((String) it.next());
-		}
 	}
 	
 	public String getStreamName() {
@@ -45,35 +29,15 @@ public class ListenStream implements TranscodedAudioDataListener {
 	}
 	
 	public void stop() {
-		streamAudio = false;
 		streamEnded();
 	}
 	
 	public void start() {
 		startPublishing(scope);
-		
-		streamAudio = true;
-		audioStreamer = new Runnable() {
-			public void run() {
-				while (streamAudio) {
-					try {					
-						AudioData audioData = audioDataQ.take();
-						streamAudioData(audioData);
-					} catch (InterruptedException e) {
-						log.warn("InterruptedExeption while taking event.");
-					}
-				}
-			}
-		};
-		exec.execute(audioStreamer);
 	}
 	
 	public void handleTranscodedAudioData(AudioData audioData) {
-		try {
-			audioDataQ.put(audioData);
-		} catch (InterruptedException e) {
-			log.warn("InterruptedException while putting event into queue.");
-		}
+		streamAudioData(audioData);
 	}
 	
 	private void streamAudioData(AudioData audioData) {

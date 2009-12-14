@@ -106,15 +106,17 @@ public class VoiceConferenceApplication extends MultiThreadedApplicationAdapter 
 		
 		ConnectionClientMethodInvoker rtmpConnection = new ConnectionClientMethodInvoker(service, conn.getScope());
 		String userid = getSipUserId();
-		sipManager.createSipUser(userid, rtmpConnection, sipPort, rtpPort);
+		synchronized (this) {
+			sipManager.createSipUser(userid, rtmpConnection, sipPort, rtpPort);
+			sipPort++;
+			if (sipPort > stopSIPPort) sipPort = startSIPPort;
+			rtpPort++;
+			if (rtpPort > stopRTPPort) rtpPort = startRTPPort;			
+		}
 		
 		sipManager.login(userid, obproxy, phone, username, password, realm, proxy);
 		
-		sipPort++;
-		if (sipPort > stopSIPPort) sipPort = startSIPPort;
 
-		rtpPort++;
-		if (rtpPort > stopRTPPort) rtpPort = startRTPPort;
 
 	}
 

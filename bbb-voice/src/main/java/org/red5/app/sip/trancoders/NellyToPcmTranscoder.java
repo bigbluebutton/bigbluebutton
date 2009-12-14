@@ -8,8 +8,8 @@ import org.red5.app.sip.codecs.asao.Decoder;
 import org.red5.app.sip.codecs.asao.DecoderMap;
 import org.red5.app.sip.stream.RtpStreamSender;
 
-public class NellyToPcmTranscoder2 implements Transcoder {
-    protected static Logger log = Red5LoggerFactory.getLogger( NellyToPcmTranscoder2.class, "sip" );
+public class NellyToPcmTranscoder implements Transcoder {
+    protected static Logger log = Red5LoggerFactory.getLogger( NellyToPcmTranscoder.class, "sip" );
 
     private static final int NELLYMOSER_DECODED_PACKET_SIZE = 256;
     private static final int NELLYMOSER_ENCODED_PACKET_SIZE = 64;
@@ -24,7 +24,7 @@ public class NellyToPcmTranscoder2 implements Transcoder {
     boolean asao_buffer_processed = false;		// Indicates whether the current asao buffer was processed.
     boolean hasInitilializedBuffers = false;	// Indicates whether the handling buffers have already been initialized.
 
-    public NellyToPcmTranscoder2(Codec sipCodec) {
+    public NellyToPcmTranscoder(Codec sipCodec) {
     	this.sipCodec = sipCodec;
     	decoder = new Decoder();
         decoderMap = null;

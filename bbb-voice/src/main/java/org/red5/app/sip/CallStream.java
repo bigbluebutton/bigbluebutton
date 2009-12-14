@@ -6,11 +6,13 @@ import java.net.SocketException;
 import org.red5.app.sip.codecs.Codec;
 import org.red5.app.sip.codecs.SpeexCodec;
 import org.red5.app.sip.stream.ListenStream;
+import org.red5.app.sip.stream.ReceivedRtpPacketProcessor;
 import org.red5.app.sip.stream.RtpStreamReceiver;
+import org.red5.app.sip.stream.RtpStreamReceiverListener;
 import org.red5.app.sip.stream.RtpStreamSender;
 import org.red5.app.sip.stream.TalkStream;
-import org.red5.app.sip.trancoders.NellyToPcmTranscoder2;
-import org.red5.app.sip.trancoders.PcmToNellyTranscoder2;
+import org.red5.app.sip.trancoders.NellyToPcmTranscoder;
+import org.red5.app.sip.trancoders.PcmToNellyTranscoder;
 import org.red5.app.sip.trancoders.SpeexToSpeexTranscoder;
 import org.red5.app.sip.trancoders.Transcoder;
 import org.slf4j.Logger;
@@ -18,7 +20,7 @@ import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IScope;
 import org.red5.server.api.stream.IBroadcastStream;
 
-public class CallStream {
+public class CallStream implements RtpStreamReceiverListener {
     private final static Logger log = Red5LoggerFactory.getLogger(CallStream.class, "sip");
 
     private DatagramSocket socket = null;
@@ -26,6 +28,7 @@ public class CallStream {
     private final RtpStreamSender rtpSender;
     private final TalkStream talkStream;
     private final ListenStream listenStream;
+    private final ReceivedRtpPacketProcessor packetProcessor;
     
     public CallStream(Codec sipCodec, SipConnectInfo connInfo, ScopeProvider scopeProvider) throws Exception {        
     	try {
@@ -42,16 +45,15 @@ public class CallStream {
 			rtmpToRtpTranscoder = new SpeexToSpeexTranscoder(sipCodec);
 			rtpToRtmpTranscoder = new SpeexToSpeexTranscoder(sipCodec, listenStream);
 		} else {
-			rtmpToRtpTranscoder = new NellyToPcmTranscoder2(sipCodec);
-			rtpToRtmpTranscoder = new PcmToNellyTranscoder2(sipCodec, listenStream);
-			
+			rtmpToRtpTranscoder = new NellyToPcmTranscoder(sipCodec);
+			rtpToRtmpTranscoder = new PcmToNellyTranscoder(sipCodec, listenStream);			
 		}
 		
-		rtpReceiver = new RtpStreamReceiver(rtpToRtmpTranscoder, socket);
+		packetProcessor = new ReceivedRtpPacketProcessor(rtpToRtmpTranscoder);		
+		rtpReceiver = new RtpStreamReceiver(packetProcessor, socket, rtpToRtmpTranscoder.getIncomingEncodedFrameSize());
 		rtpSender = new RtpStreamSender(rtmpToRtpTranscoder, socket, connInfo.getRemoteAddr(), connInfo.getRemotePort());
 		talkStream = new TalkStream(rtmpToRtpTranscoder, rtpSender);
-		rtpSender.start(); 
-		rtpReceiver.start();
+
     }
     
     public String getTalkStreamName() {
@@ -69,18 +71,25 @@ public class CallStream {
     
     public void startTalkStream(IBroadcastStream broadcastStream, IScope scope) {
     	talkStream.start(broadcastStream, scope);
-    	listenStream.start();
+    	packetProcessor.start();
+		listenStream.start();
+		rtpSender.start(); 
+		rtpReceiver.setRtpStreamReceiverListener(this);
+		rtpReceiver.start();
     }
     
     public void stopTalkStream(IBroadcastStream broadcastStream, IScope scope) {
-    	talkStream.stop();
-    	listenStream.stop();
+    	stopMedia();
     }
 
     public boolean stopMedia() {
         printLog( "stopMedia", "Halting sip audio..." );
         talkStream.stop();
         listenStream.stop();
+        packetProcessor.stop();
+		rtpSender.stop(); 
+		rtpReceiver.stop();
+		
         return true;
     }
 
@@ -89,4 +98,9 @@ public class CallStream {
         log.debug( "SipAudioLauncher - " + method + " -> " + message );
         System.out.println( "SipAudioLauncher - " + method + " -> " + message );
     }
+
+	public void onStoppedReceiving() {
+		System.out.println("Closing socket");
+		socket.close();
+	}
 }

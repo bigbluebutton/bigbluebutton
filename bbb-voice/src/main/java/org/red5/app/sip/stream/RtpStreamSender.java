@@ -12,12 +12,10 @@ import org.red5.app.sip.trancoders.Transcoder;
 import org.red5.logging.Red5LoggerFactory;
 
 public class RtpStreamSender {
-    private static Logger log = Red5LoggerFactory.getLogger( RtpStreamSender.class, "sip" );
+    private static Logger log = Red5LoggerFactory.getLogger(RtpStreamSender.class, "sip");
 	
     private static final int RTP_HEADER_SIZE = 12;
     private RtpSocket rtpSocket = null;
-
-    private boolean socketIsLocal = false;
     private byte[] packetBuffer;
     private RtpPacket rtpPacket;
     private int startPayloadPos;
@@ -27,17 +25,7 @@ public class RtpStreamSender {
     private Transcoder transcoder;
     
     public RtpStreamSender(Transcoder transcoder, DatagramSocket srcSocket, String destAddr, int destPort) throws UnknownHostException {
-        this.transcoder = transcoder;
-        if (srcSocket == null) {
-        	try {
-				srcSocket = new DatagramSocket();
-			} catch (SocketException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-            socketIsLocal = true;
-        }
-        
+        this.transcoder = transcoder;        
         rtpSocket = new RtpSocket(srcSocket, InetAddress.getByName(destAddr), destPort);
     }
 
@@ -129,16 +117,11 @@ public class RtpStreamSender {
         rtpPacket.setTimestamp( timestamp );
         rtpPacket.setPayloadLength( transcoder.getOutgoingEncodedFrameSize() );
 //        System.out.println("Sending rtpPacket " + timestamp);
-        rtpSocketSend( rtpPacket );    	
+        rtpSocketSend(rtpPacket);    	
     }
     
-    public void halt() {
-        DatagramSocket socket = rtpSocket.getDatagramSocket();
+    public void stop() {
         rtpSocket.close();
-        if (socketIsLocal && socket != null) {
-            socket.close();
-        }
-        rtpSocket = null;
         log.debug(" Stopping Rtp sender." );
     }
 
@@ -155,7 +138,8 @@ public class RtpStreamSender {
          	rtpSocket.send( rtpPacket );
             timestamp += rtpPacket.getPayloadLength();
         }
-        catch ( Exception e ) {
+        catch (Exception e) {
+        	log.error("Exception while sending packet");
         }
     }
 }

@@ -10,8 +10,8 @@ import org.red5.app.sip.codecs.asao.ByteStream;
 import org.red5.app.sip.codecs.asao.CodecImpl;
 import org.red5.app.sip.stream.RtpStreamSender;
 
-public class PcmToNellyTranscoder2 implements Transcoder {
-    protected static Logger log = Red5LoggerFactory.getLogger(PcmToNellyTranscoder2.class, "sip");
+public class PcmToNellyTranscoder implements Transcoder {
+    protected static Logger log = Red5LoggerFactory.getLogger(PcmToNellyTranscoder.class, "sip");
 
     private static final int NELLYMOSER_DECODED_PACKET_SIZE = 256;
     private static final int NELLYMOSER_ENCODED_PACKET_SIZE = 64;
@@ -24,7 +24,7 @@ public class PcmToNellyTranscoder2 implements Transcoder {
     private final TranscodedAudioDataListener listener;
     private int timestamp = 0;
     
-    public PcmToNellyTranscoder2(Codec audioCodec, TranscodedAudioDataListener listener) {
+    public PcmToNellyTranscoder(Codec audioCodec, TranscodedAudioDataListener listener) {
     	this.audioCodec = audioCodec;
     	this.listener = listener;
     	
@@ -99,7 +99,7 @@ public class PcmToNellyTranscoder2 implements Transcoder {
         buffer.put(copy);        
         buffer.flip();
 
-        AudioData audioData = new AudioData( buffer );
+        AudioData audioData = new AudioData(buffer);
         audioData.setTimestamp((int)timestamp );
 
         listener.handleTranscodedAudioData(audioData);
