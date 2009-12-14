@@ -115,6 +115,11 @@ class PresentationService {
 			case 'docx':
 			case 'ppt':
 			case 'pptx':
+			case 'odt':
+			case 'rtf':
+			case 'txt':
+			case 'ods':
+			case 'odp':
 				log.debug "Office File " + ext + ", converting to PDF..."
 				println "Office File " + ext + ", converting to PDF..."
 				PageConverter converter = new Office2PdfPageConverter()
@@ -161,6 +166,11 @@ class PresentationService {
 			case 'ppt':
 			case 'pptx':
 			case 'pdf':
+			case 'odt':
+			case 'rtf':
+			case 'txt':
+			case 'ods':
+			case 'odp':
 				for (int page = 1; page <= numPages; page++) 
 				{	
 					log.debug "Converting page $page of $presentationFile.absolutePath"			
@@ -216,6 +226,11 @@ class PresentationService {
 			case 'ppt':
 			case 'pptx':
 			case 'pdf':
+			case 'odt':
+			case 'rtf':
+			case 'txt':
+			case 'ods':
+			case 'odp':
 				PageCounter pageCounter = new Pdf2SwfPageCounter()
 				pageCounter.setSwfToolsDir(swfToolsDir)
 				int numPages = pageCounter.countNumberOfPages(presentationFile)
@@ -256,6 +271,11 @@ class PresentationService {
 			case 'jpg':
 			case 'jpeg':
 			case 'png':
+			case 'odt':
+			case 'rtf':
+			case 'txt':
+			case 'ods':
+			case 'odp':
 				ThumbnailCreatorImp tc = new ThumbnailCreatorImp()
 				tc.imageMagickDir = imageMagickDir
 				tc.blankThumbnail = BLANK_THUMBNAIL
