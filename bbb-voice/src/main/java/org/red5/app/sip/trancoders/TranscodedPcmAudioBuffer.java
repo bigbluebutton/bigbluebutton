@@ -1,14 +1,14 @@
 package org.red5.app.sip.trancoders;
 
-import org.red5.app.sip.stream.RtpSender2;
+import org.red5.app.sip.stream.RtpStreamSender;
 
 public class TranscodedPcmAudioBuffer {
 
 	private byte[] buffer;
 	private int offset;
-	private RtpSender2 sender;
+	private RtpStreamSender sender;
 	
-	TranscodedPcmAudioBuffer(byte[] data, int offset, RtpSender2 sender) {
+	TranscodedPcmAudioBuffer(byte[] data, int offset, RtpStreamSender sender) {
 		buffer = data;
 		this.offset = offset;
 	}

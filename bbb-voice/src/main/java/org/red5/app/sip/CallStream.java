@@ -6,8 +6,8 @@ import java.net.SocketException;
 import org.red5.app.sip.codecs.Codec;
 import org.red5.app.sip.codecs.SpeexCodec;
 import org.red5.app.sip.stream.ListenStream;
-import org.red5.app.sip.stream.RtpReceiver2;
-import org.red5.app.sip.stream.RtpSender2;
+import org.red5.app.sip.stream.RtpStreamReceiver;
+import org.red5.app.sip.stream.RtpStreamSender;
 import org.red5.app.sip.stream.TalkStream;
 import org.red5.app.sip.trancoders.NellyToPcmTranscoder2;
 import org.red5.app.sip.trancoders.PcmToNellyTranscoder2;
@@ -22,8 +22,8 @@ public class CallStream {
     private final static Logger log = Red5LoggerFactory.getLogger(CallStream.class, "sip");
 
     private DatagramSocket socket = null;
-    private final RtpReceiver2 rtpReceiver;
-    private final RtpSender2 rtpSender;
+    private final RtpStreamReceiver rtpReceiver;
+    private final RtpStreamSender rtpSender;
     private final TalkStream talkStream;
     private final ListenStream listenStream;
     
@@ -35,19 +35,6 @@ public class CallStream {
 			throw new Exception("Exception while initializing CallStream");
 		}     
         
-/*		
-		
-		NellyToPcmTranscoder2 pTranscoder = new NellyToPcmTranscoder2(sipCodec);
-		rtpSender = new RtpSender2(pTranscoder, socket, connInfo.getRemoteAddr(), connInfo.getRemotePort());
-		printLog( "SIPAudioLauncher", "New audio receiver on " + connInfo.getLocalPort() + "." );
-        rtpSender.start();    
-		talkStream = new TalkStream(pTranscoder, rtpSender);
-		listenStream = new ListenStream(scopeProvider.getScope());
-            
-		PcmToNellyTranscoder2 transcoder = new PcmToNellyTranscoder2(sipCodec, listenStream);
-		rtpReceiver = new RtpReceiver2(transcoder, socket);
-*/		
-		
 		listenStream = new ListenStream(scopeProvider.getScope());
 		
 		Transcoder rtmpToRtpTranscoder, rtpToRtmpTranscoder;
@@ -60,11 +47,10 @@ public class CallStream {
 			
 		}
 		
-		rtpReceiver = new RtpReceiver2(rtpToRtmpTranscoder, socket);
-		rtpSender = new RtpSender2(rtmpToRtpTranscoder, socket, connInfo.getRemoteAddr(), connInfo.getRemotePort());
+		rtpReceiver = new RtpStreamReceiver(rtpToRtmpTranscoder, socket);
+		rtpSender = new RtpStreamSender(rtmpToRtpTranscoder, socket, connInfo.getRemoteAddr(), connInfo.getRemotePort());
 		talkStream = new TalkStream(rtmpToRtpTranscoder, rtpSender);
 		rtpSender.start(); 
-//		listenStream.start();
 		rtpReceiver.start();
     }
     
@@ -95,8 +81,6 @@ public class CallStream {
         printLog( "stopMedia", "Halting sip audio..." );
         talkStream.stop();
         listenStream.stop();
-               
-        socket.close();
         return true;
     }
 

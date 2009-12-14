@@ -11,7 +11,7 @@ import org.red5.app.sip.registration.SipRegisterAgent;
 public class SipUser {
     private static Logger log = Red5LoggerFactory.getLogger(SipUser.class, "sip");
 
-    private RtmpConnection rtmpConnection;
+    private ConnectionClientMethodInvoker rtmpConnection;
     private String userid;
     private SipUserAgentProfile userProfile;
     private SipProvider sipProvider;
@@ -20,7 +20,7 @@ public class SipUser {
     private SipRegisterAgent registerAgent;
     private String proxy;
 
-    public SipUser(String userid, RtmpConnection connection, int sipPort, int rtpPort) {
+    public SipUser(String userid, ConnectionClientMethodInvoker connection, int sipPort, int rtpPort) {
         log.debug( "SIPUser Constructor: sip port " + sipPort + " rtp port:" + rtpPort );
         this.userid = userid;
         this.rtmpConnection = connection;

@@ -6,13 +6,18 @@ import org.red5.server.api.IScope;
 import org.red5.server.api.service.IServiceCapableConnection;
 import org.slf4j.Logger;
 
-public class RtmpConnection implements ScopeProvider, SipUserAgentListener, SipRegisterAgentListener {
-	private static Logger log = Red5LoggerFactory.getLogger( RtmpConnection.class, "sip" );
+/**
+ * Invokes methods on the client through the RTMPConnection. 
+ * @author Richard Alam
+ *
+ */
+public class ConnectionClientMethodInvoker implements ScopeProvider, SipUserAgentListener, SipRegisterAgentListener {
+	private static Logger log = Red5LoggerFactory.getLogger( ConnectionClientMethodInvoker.class, "sip" );
 	
 	private final IServiceCapableConnection connection;
 	private final IScope scope;
 	
-	public RtmpConnection(IServiceCapableConnection connection, IScope scope) {
+	public ConnectionClientMethodInvoker(IServiceCapableConnection connection, IScope scope) {
 		this.connection = connection;
 		this.scope = scope;
 	}

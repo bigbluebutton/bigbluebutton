@@ -6,23 +6,13 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
-import org.red5.app.sip.RtmpAudioData;
 import org.red5.app.sip.trancoders.Transcoder;
 import org.red5.logging.Red5LoggerFactory;
 
-public class RtpSender2 {
-    private static Logger log = Red5LoggerFactory.getLogger( RtpSender2.class, "sip" );
-
-    private BlockingQueue<RtmpAudioData> packets = new LinkedBlockingQueue<RtmpAudioData>();
-	private final Executor exec = Executors.newSingleThreadExecutor();
-	private Runnable audioProcessor;
-	private volatile boolean processAudio = false;
+public class RtpStreamSender {
+    private static Logger log = Red5LoggerFactory.getLogger( RtpStreamSender.class, "sip" );
 	
     private static final int RTP_HEADER_SIZE = 12;
     private RtpSocket rtpSocket = null;
@@ -36,7 +26,7 @@ public class RtpSender2 {
     private long timestamp = 0;
     private Transcoder transcoder;
     
-    public RtpSender2(Transcoder transcoder, DatagramSocket srcSocket, String destAddr, int destPort) throws UnknownHostException {
+    public RtpStreamSender(Transcoder transcoder, DatagramSocket srcSocket, String destAddr, int destPort) throws UnknownHostException {
         this.transcoder = transcoder;
         if (srcSocket == null) {
         	try {
@@ -118,7 +108,7 @@ public class RtpSender2 {
                     blankpacket.setSequenceNumber(sequenceNum++);
                     blankpacket.setTimestamp(transcoder.getOutgoingEncodedFrameSize());
                     doRtpDelay();
-                    rtpSocketSend( blankpacket );
+                    rtpSocketSend(blankpacket);
                 }
             }
             catch (Exception e) {

@@ -21,7 +21,7 @@ public class TalkStream {
 	private final static Logger log = Red5LoggerFactory.getLogger(TalkStream.class, "sip");
 
 	private final Transcoder transcoder;
-	private final RtpSender2 rtpSender;
+	private final RtpStreamSender rtpSender;
 	private final IStreamListener mInputListener;
 	
 	private BlockingQueue<RtmpAudioData> packets = new LinkedBlockingQueue<RtmpAudioData>();
@@ -31,7 +31,7 @@ public class TalkStream {
 	
 	private final String talkStreamName;
 	
-	public TalkStream(final Transcoder transcoder, final RtpSender2 rtpSender) {
+	public TalkStream(final Transcoder transcoder, final RtpStreamSender rtpSender) {
 		this.transcoder = transcoder;
 		this.rtpSender = rtpSender;
 		talkStreamName = "microphone_" + System.currentTimeMillis();

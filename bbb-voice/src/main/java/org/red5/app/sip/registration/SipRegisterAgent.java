@@ -341,14 +341,17 @@ public class SipRegisterAgent implements TransactionClientListener {
 			regInprocess = false;
 			
 			if (request == Request.REGISTERING) {
+				printLog("Notifying listeners of REGISTRATION success");
 				agentStatus = Status.REGISTERED;
 				notifyListenersOfRegistrationSuccess("REGISTERED");
 			} else if (request == Request.UNREGISTERING){
+				printLog("Notifying listeners of UNREGISTRATION success");
 				agentStatus = Status.UNREGISTERED;
 				notifyListenersOfRegistrationSuccess("UNREGISTERED");
 			} else if (request == Request.RENEWING) {
 				agentStatus = Status.REGISTERED;
 				// Don't notify the listeners.
+				printLog("NOT Notifying listeners of RENEW success");
 			}			
 		}
 	}

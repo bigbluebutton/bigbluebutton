@@ -13,8 +13,8 @@ import org.slf4j.Logger;
 import org.red5.app.sip.trancoders.Transcoder;
 import org.red5.logging.Red5LoggerFactory;
 
-public class RtpReceiver2 {
-    protected static Logger log = Red5LoggerFactory.getLogger(RtpReceiver2.class, "sip");
+public class RtpStreamReceiver {
+    protected static Logger log = Red5LoggerFactory.getLogger(RtpStreamReceiver.class, "sip");
     
     // Maximum blocking time, spent waiting for reading new bytes [milliseconds]     
     private static final int SO_TIMEOUT = 200;
@@ -30,7 +30,7 @@ public class RtpReceiver2 {
 	
     private Transcoder transcoder;
 
-    public RtpReceiver2(Transcoder transcoder, DatagramSocket socket) {
+    public RtpStreamReceiver(Transcoder transcoder, DatagramSocket socket) {
     	this.transcoder = transcoder;
         if (socket != null) {
             rtpSocket = new RtpSocket(socket);

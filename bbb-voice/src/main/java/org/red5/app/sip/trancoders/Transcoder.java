@@ -1,9 +1,9 @@
 package org.red5.app.sip.trancoders;
 
-import org.red5.app.sip.stream.RtpSender2;
+import org.red5.app.sip.stream.RtpStreamSender;
 
 public interface Transcoder {
-	void transcode(byte[] asaoBuffer, int offset, int num, byte[] transcodedData, int dataOffset, RtpSender2 rtpSender);
+	void transcode(byte[] asaoBuffer, int offset, int num, byte[] transcodedData, int dataOffset, RtpStreamSender rtpSender);
 	void transcode(byte[] codedBuffer);
 	
 	int getOutgoingEncodedFrameSize();

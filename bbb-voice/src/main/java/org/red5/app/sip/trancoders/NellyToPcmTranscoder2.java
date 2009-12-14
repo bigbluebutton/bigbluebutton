@@ -6,7 +6,7 @@ import org.red5.app.sip.codecs.Codec;
 import org.red5.app.sip.codecs.asao.ByteStream;
 import org.red5.app.sip.codecs.asao.Decoder;
 import org.red5.app.sip.codecs.asao.DecoderMap;
-import org.red5.app.sip.stream.RtpSender2;
+import org.red5.app.sip.stream.RtpStreamSender;
 
 public class NellyToPcmTranscoder2 implements Transcoder {
     protected static Logger log = Red5LoggerFactory.getLogger( NellyToPcmTranscoder2.class, "sip" );
@@ -115,7 +115,7 @@ public class NellyToPcmTranscoder2 implements Transcoder {
         return finalCopySize;
     }
 
-    public void transcode(byte[] asaoBuffer, int offset, int num, byte[] transcodedData, int dataOffset, RtpSender2 rtpSender) {  
+    public void transcode(byte[] asaoBuffer, int offset, int num, byte[] transcodedData, int dataOffset, RtpStreamSender rtpSender) {  
         asao_buffer_processed = false;
 
         if (!hasInitilializedBuffers) {

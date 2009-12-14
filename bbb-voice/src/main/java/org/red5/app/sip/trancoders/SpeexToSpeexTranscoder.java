@@ -2,7 +2,7 @@ package org.red5.app.sip.trancoders;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.red5.app.sip.codecs.Codec;
-import org.red5.app.sip.stream.RtpSender2;
+import org.red5.app.sip.stream.RtpStreamSender;
 import org.red5.server.net.rtmp.event.AudioData;
 
 public class SpeexToSpeexTranscoder implements Transcoder {
@@ -23,7 +23,7 @@ public class SpeexToSpeexTranscoder implements Transcoder {
 	}
 	
 	public void transcode(byte[] asaoBuffer, int offset, int num,
-			byte[] transcodedData, int dataOffset, RtpSender2 rtpSender) {
+			byte[] transcodedData, int dataOffset, RtpStreamSender rtpSender) {
 		System.arraycopy(asaoBuffer, offset, transcodedData, dataOffset, num);
 		rtpSender.sendTranscodedData();
 	}

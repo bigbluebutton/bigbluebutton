@@ -18,7 +18,7 @@ public final class SipUserManager {
         sessions = Collections.synchronizedMap(new HashMap<String, SipUser>());
     }
 
-    public void createSipUser(String userid, RtmpConnection connection, int sipPort, int rtpPort) {
+    public void createSipUser(String userid, ConnectionClientMethodInvoker connection, int sipPort, int rtpPort) {
     	SipUser sipUser = new SipUser(userid, connection, sipPort, rtpPort);
     	sessions.put(userid, sipUser);
     }

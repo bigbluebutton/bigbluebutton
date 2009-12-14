@@ -8,7 +8,7 @@ import org.red5.server.net.rtmp.event.AudioData;
 import org.red5.app.sip.codecs.Codec;
 import org.red5.app.sip.codecs.asao.ByteStream;
 import org.red5.app.sip.codecs.asao.CodecImpl;
-import org.red5.app.sip.stream.RtpSender2;
+import org.red5.app.sip.stream.RtpStreamSender;
 
 public class PcmToNellyTranscoder2 implements Transcoder {
     protected static Logger log = Red5LoggerFactory.getLogger(PcmToNellyTranscoder2.class, "sip");
@@ -110,7 +110,7 @@ public class PcmToNellyTranscoder2 implements Transcoder {
     }
 
 	public void transcode(byte[] asaoBuffer, int offset, int num,
-			byte[] transcodedData, int dataOffset, RtpSender2 rtpSender) {
+			byte[] transcodedData, int dataOffset, RtpStreamSender rtpSender) {
 		// TODO Auto-generated method stub
 		
 	}

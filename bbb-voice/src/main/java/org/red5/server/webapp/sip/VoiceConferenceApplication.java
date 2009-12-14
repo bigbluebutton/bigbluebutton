@@ -3,7 +3,7 @@ package org.red5.server.webapp.sip;
 import java.text.MessageFormat;
 import java.util.List;
 import org.slf4j.Logger;
-import org.red5.app.sip.RtmpConnection;
+import org.red5.app.sip.ConnectionClientMethodInvoker;
 import org.red5.app.sip.SipUserManager;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
@@ -104,7 +104,7 @@ public class VoiceConferenceApplication extends MultiThreadedApplicationAdapter 
 		IConnection conn = Red5.getConnectionLocal();
 		IServiceCapableConnection service = (IServiceCapableConnection) conn;
 		
-		RtmpConnection rtmpConnection = new RtmpConnection(service, conn.getScope());
+		ConnectionClientMethodInvoker rtmpConnection = new ConnectionClientMethodInvoker(service, conn.getScope());
 		String userid = getSipUserId();
 		sipManager.createSipUser(userid, rtmpConnection, sipPort, rtpPort);
 		
