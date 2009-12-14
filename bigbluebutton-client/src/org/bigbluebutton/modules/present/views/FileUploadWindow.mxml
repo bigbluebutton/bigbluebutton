@@ -117,10 +117,13 @@
         	
         	private function selectFile():void{
         		fileToUpload.addEventListener(Event.SELECT, onSelectFile);	
-				fileToUpload.browse([new FileFilter("Presentation file", "*.pdf;*.doc;*.docx;*.xls;*.xlsx;*.ppt;*.pptx"), 
-									 new FileFilter("PDF", "*.pdf"), new FileFilter("WORD", "*.doc;*.docx"), 
-									 new FileFilter("EXCEL", "*.xls;*.xlsx"), 
-									 new FileFilter("POWERPOINT", "*.ppt;*.pptx")]);
+				fileToUpload.browse([
+						new FileFilter("Presentation file", "*.pdf;*.doc;*.docx;*.xls;*.xlsx;*.ppt;*.pptx;*.txt;*.rtf;*.odt;*.ods;*.odp;*.odg;*.odc;*.odi;*.jpg;*.png"), 
+						new FileFilter("PDF", "*.pdf"),
+						new FileFilter("WORD", "*.doc;*.docx;*.odt;*.rtf;*.txt"), 
+						new FileFilter("EXCEL", "*.xls;*.xlsx;*.ods"),
+						new FileFilter("POWERPOINT", "*.ppt;*.pptx;*.odp"),
+						new FileFilter("IMAGE", "*.jpg;*.jpeg;*.png")]);
         	}
         	
         	private function onSelectFile(e:Event):void{
