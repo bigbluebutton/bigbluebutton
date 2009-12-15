@@ -95,6 +95,14 @@ public class ConversionUpdatesReceiverImp implements ConversionUpdatesReceiver {
 				log.debug "JMS: THUMBNAILS[$presentationName]"
 				conversionUpdatesProcessor.process(message)
 				break
+			case 'FAILED_CONVERT_FORMAT':
+			case 'FAILED_CONVERT_PREPARATION':
+			case 'FAILED_CONVERT_NBPAGE':
+			case 'FAILED_CONVERT_SWF':
+				log.debug "JMS: ${code}[$presentationName]"
+				conversionUpdatesProcessor.process(message)
+				break
+			/* Obsolete */
 			case 'FAILED_CONVERT':
 				log.debug "JMS: FAILED_CONVERT[$presentationName]"
 				message.put('message', mapMessage.getStringProperty("message"))

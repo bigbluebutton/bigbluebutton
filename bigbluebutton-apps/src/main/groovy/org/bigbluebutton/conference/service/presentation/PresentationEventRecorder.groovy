@@ -67,6 +67,13 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 				update.put("presentationName", message['presentationName'])
 				update.put("message", message['message'])
 				break
+			case 'FAILED_CONVERT_FORMAT':
+			case 'FAILED_CONVERT_PREPARATION':
+			case 'FAILED_CONVERT_NBPAGE':
+			case 'FAILED_CONVERT_SWF':
+				update.put('returnCode', message['code'])
+				break;
+			/* Deprecated */
 			case 'UPDATE':
 			case 'FAILED':
 			case 'FAILED_CONVERT':

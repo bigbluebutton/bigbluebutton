@@ -75,6 +75,14 @@ public class ConversionUpdatesService {
 								message.put('message', mapMessage.getStringProperty("message"))
 								presentationApplication.sendUpdateMessage(message)
 								break
+							case 'FAILED_CONVERT_FORMAT':
+							case 'FAILED_CONVERT_PREPARATION':
+							case 'FAILED_CONVERT_NBPAGE':
+							case 'FAILED_CONVERT_SWF':
+								log.debug "JMS: ${code}[$presentationName]"
+								presentationApplication.sendUpdateMessage(message)
+								break;
+							/* Obsolete */
 							case 'FAILED':
 							case 'FAILED_CONVERT':
 								log.debug "JMS: FAILED[$presentationName]"
