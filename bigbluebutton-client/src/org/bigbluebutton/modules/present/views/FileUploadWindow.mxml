@@ -191,46 +191,46 @@
 				LogUtil.error("Security error occured when uploading presentation. FileUploadWindow::uploadSecurityError");
         	}
         	
-        	private function enableControls() : void
-			{
-				okCancelBtn.visible = true;
-				selectBtn.enabled = true;
-				uploadBtn.enabled = true;
-				fileTxtInput.enabled = true;			
-			}
-			
-			private function convertUpdate(e:UploadEvent):void{
-				progressLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.converted',[e.completedSlides, e.totalSlides]);
-				progressBar.label = ResourceUtil.getInstance().getString('bbb.presentation.converted',[e.completedSlides, e.totalSlides]);
-				progressBar.setProgress(e.completedSlides, e.totalSlides);
-				progressBar.validateNow();
-				progressLbl.validateNow();
-			}
-			
-			private function convertError(e:UploadEvent):void{
-				enableControls();
-                okCancelBtn.label = "Ok";
-                okCancelBtn.visible = true;
-                Alert.show(ResourceUtil.getInstance().getString('bbb.presentation.error.convert'));
-                globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
-			}
-			
-			private function convertSuccess(e:UploadEvent):void{
-				okCancelBtn.label = ResourceUtil.getInstance().getString('bbb.presentation.ok');
-				okCancelBtn.visible = true;
-				var readyEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
-				readyEvent.presentationName = e.presentationName;
-				globalDispatch.dispatchEvent(readyEvent);
-				globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
-			}
-			
-			//Unlike UploadProgress, this event comes from the PresentSOService, not the UploadService
-			private function updateProgress(e:UploadEvent):void{
-				progressLbl.text = e.data as String;
-				progressLbl.validateNow();
-			}
+		private function enableControls() : void
+		{
+			okCancelBtn.visible = true;
+			selectBtn.enabled = true;
+			uploadBtn.enabled = true;
+			fileTxtInput.enabled = true;			
+		}
 
-		]]>
+		private function convertUpdate(e:UploadEvent):void{
+			progressLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.converted',[e.completedSlides, e.totalSlides]);
+			progressBar.label = ResourceUtil.getInstance().getString('bbb.presentation.converted',[e.completedSlides, e.totalSlides]);
+			progressBar.setProgress(e.completedSlides, e.totalSlides);
+			progressBar.validateNow();
+			progressLbl.validateNow();
+		}
+
+		private function convertError(e:UploadEvent):void{
+			enableControls();
+			okCancelBtn.label = "Ok";
+			okCancelBtn.visible = true;
+			Alert.show(e.data as String);
+			globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
+		}
+
+		private function convertSuccess(e:UploadEvent):void{
+			okCancelBtn.label = ResourceUtil.getInstance().getString('bbb.presentation.ok');
+			okCancelBtn.visible = true;
+			var readyEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
+			readyEvent.presentationName = e.presentationName;
+			globalDispatch.dispatchEvent(readyEvent);
+			globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
+		}
+
+		//Unlike UploadProgress, this event comes from the PresentSOService, not the UploadService
+		private function updateProgress(e:UploadEvent):void{
+			progressLbl.text = e.data as String;
+			progressLbl.validateNow();
+		}
+
+	]]>
 		
 	</mx:Script>
            

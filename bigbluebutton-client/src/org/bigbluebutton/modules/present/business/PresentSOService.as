@@ -34,6 +34,8 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.events.ZoomEvent;
 	
+	import org.bigbluebutton.util.i18n.ResourceUtil;
+	
 	public class PresentSOService
 	{
 		public static const NAME:String = "PresentSOService";
@@ -48,6 +50,11 @@ package org.bigbluebutton.modules.present.business
 		private static const SUCCESS_RC:String = "SUCCESS";
 		private static const FAILED_RC:String = "FAILED";
 		private static const FAILED_CONVERT_RC:String = "FAILED_CONVERT";
+		private static const FAILED_CONVERT_FORMAT_RC:String = "FAILED_CONVERT_FORMAT";
+		private static const FAILED_CONVERT_PREPARATION_RC:String = "FAILED_CONVERT_PREPARATION";
+		private static const FAILED_CONVERT_NBPAGE_RC:String = "FAILED_CONVERT_NBPAGE";
+		private static const FAILED_CONVERT_SWF_RC:String = "FAILED_CONVERT_SWF";
+		
 		private static const THUMBNAILS_RC:String = "THUMBNAILS";
 		private static const CONVERT_RC:String = "CONVERT";
 		
@@ -453,6 +460,32 @@ package org.bigbluebutton.modules.present.business
 				case FAILED_RC:
 					//LogUtil.debug("PresentationDelegate - FAILED_RC");
 					break;
+				case FAILED_CONVERT_FORMAT_RC:
+					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_FORMAT");
+					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
+					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.format')
+					dispatcher.dispatchEvent(e);
+					break;s
+				case FAILED_CONVERT_PREPARATION_RC:
+					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_PREPARATION");
+					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
+					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.preparation')
+					dispatcher.dispatchEvent(e);
+					break;
+				case FAILED_CONVERT_NBPAGE_RC:
+					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_NBPAGE");
+					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
+					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.nbpage')
+					dispatcher.dispatchEvent(e);
+				break;
+				case FAILED_CONVERT_SWF_RC:
+					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_SWF");
+					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
+					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.swf')
+					dispatcher.dispatchEvent(e);
+					break;
+					
+				/* deprecated */
 				case FAILED_CONVERT_RC:
 					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT");
 					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
