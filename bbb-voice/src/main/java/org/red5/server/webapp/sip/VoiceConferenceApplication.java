@@ -101,26 +101,28 @@ public class VoiceConferenceApplication extends MultiThreadedApplicationAdapter 
 	public void login(String obproxy, String uid, String phone, 
 			String username, String password, String realm, String proxy) {
 		System.out.println("Red5SIP login " + uid);
-		IConnection conn = Red5.getConnectionLocal();
-		IServiceCapableConnection service = (IServiceCapableConnection) conn;
 		
-		ConnectionClientMethodInvoker rtmpConnection = new ConnectionClientMethodInvoker(service, conn.getScope());
-		String userid = getSipUserId();
-		synchronized (this) {
-			sipManager.createSipUser(userid, rtmpConnection, sipPort, rtpPort);
-			sipPort++;
-			if (sipPort > stopSIPPort) sipPort = startSIPPort;
-			rtpPort++;
-			if (rtpPort > stopRTPPort) rtpPort = startRTPPort;			
-		}
-		
-		sipManager.login(userid, obproxy, phone, username, password, realm, proxy);
-		
-
-
+		int rport = getRtpPort();
+		int sport = getSipPort();
+		login(proxy, uid, new Integer(rtpPort).toString(), username, password, realm, proxy, sport, rport);
 	}
 
 /******************************************************************/
+	
+	private synchronized int getRtpPort() {
+		int rtpport = rtpPort;
+		rtpPort++;
+		if (rtpPort > stopRTPPort) rtpPort = startRTPPort;
+		return rtpport;
+	}
+	
+	private synchronized int getSipPort() {
+		int sipport = sipPort;
+		sipPort++;
+		if (sipPort > stopSIPPort) sipPort = startSIPPort;
+		return sipport;
+	}
+	
 	public void open(String uid, String username) {
 		log.debug("Red5SIP open");
 		login(uid, username);
@@ -137,18 +139,25 @@ public class VoiceConferenceApplication extends MultiThreadedApplicationAdapter 
 		
 		String realm =  asteriskHost; //asteriskHost; "192.168.0.120";
 		String proxy = realm;
+		int rport = getRtpPort();
+		int sport = getSipPort();
+		log.debug("Logging in as [" + rport + "," + sport + "]");
 		//SipUser will connect to "outbound-proxy", just pass-in the proxy for it.
-		login(proxy, userid, new Integer(rtpPort).toString(), username, password, realm, proxy);
-		
-//		login(proxy, userid, "echotest", "echotest", "secret", realm, proxy);
-		
-		sipPort++;
-		if (sipPort > stopSIPPort) sipPort = startSIPPort;
-
-		rtpPort++;
-		if (rtpPort > stopRTPPort) rtpPort = startRTPPort;
+		login(proxy, userid, new Integer(rport).toString(), username, password, realm, proxy, sport, rport);
 	}
 
+	private void login(String obproxy, String uid, String phone, String username, 
+			String password, String realm, String proxy, int sipport, int rtpport) {
+		System.out.println("Red5SIP login " + uid);
+		IConnection conn = Red5.getConnectionLocal();
+		IServiceCapableConnection service = (IServiceCapableConnection) conn;
+		
+		ConnectionClientMethodInvoker rtmpConnection = new ConnectionClientMethodInvoker(service, conn.getScope());
+		String userid = getSipUserId();
+		sipManager.createSipUser(userid, rtmpConnection, sipport, rtpport);
+		sipManager.login(userid, obproxy, phone, username, password, realm, proxy);
+	}
+	
 	public void register(String uid) {
 		log.debug("Red5SIP register");
 		String userid = getSipUserId();
