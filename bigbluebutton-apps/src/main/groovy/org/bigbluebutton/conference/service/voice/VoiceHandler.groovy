@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory
 import org.red5.server.api.so.ISharedObject
 import org.red5.server.adapter.ApplicationAdapter
 import org.red5.server.api.Red5import java.util.Mapimport org.bigbluebutton.conference.BigBlueButtonSessionimport org.bigbluebutton.conference.Constantsimport org.bigbluebutton.conference.service.archive.ArchiveApplicationimport org.red5.logging.Red5LoggerFactory
-import org.bigbluebutton.webconference.voice.ConferenceServer
+import org.bigbluebutton.webconference.voice.ConferenceService
 import org.bigbluebutton.webconference.red5.voice.ClientNotifier 
 public class VoiceHandler extends ApplicationAdapter implements IApplication{
 	private static Logger log = Red5LoggerFactory.getLogger(VoiceHandler.class, "bigbluebutton")
@@ -39,7 +39,7 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 	private static final String APP = "VOICE"
 
 	private ClientNotifier clientManager
-	private ConferenceServer conferenceServer
+	private ConferenceService conferenceService
 	
 	@Override
 	public boolean appConnect(IConnection conn, Object[] params) {
@@ -67,14 +67,14 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 	@Override
 	public boolean appStart(IScope scope) {
 		log.debug("${APP}:appStart ${scope.name}")
-		conferenceServer.startup()
+		conferenceService.startup()
 		return true;
 	}
 
 	@Override
 	public void appStop(IScope scope) {
 		log.debug("${APP}:appStop ${scope.name}")
-		conferenceServer.shutdown()
+		conferenceService.shutdown()
 	}
 
 	@Override
@@ -89,7 +89,7 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
     		def voiceBridge = getBbbSession().voiceBridge    		
     		log.debug("Setting up voiceBridge $voiceBridge")
     		clientManager.addSharedObject(connection.scope.name, voiceBridge, so)
-    		conferenceServer.createConference(voiceBridge)    		
+    		conferenceService.createConference(voiceBridge)    		
 		}
     	return true;
 	}
@@ -126,7 +126,7 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 	@Override
 	public void roomStop(IScope scope) {
 		log.debug("${APP}:roomStop ${scope.name}")
-		conferenceServer.destroyConference(scope.name)
+		conferenceService.destroyConference(scope.name)
 		clientManager.removeSharedObject(scope.name);
 		if (!hasSharedObject(scope, VOICE_SO)) {
     		clearSharedObjects(scope, VOICE_SO)
@@ -138,9 +138,9 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 		clientManager = c
 	}
 	
-	public void setConferenceServer(ConferenceServer s) {
+	public void setConferenceService(ConferenceService s) {
 		log.debug("Setting voice server")
-		conferenceServer = s
+		conferenceService = s
 		log.debug("Setting voice server DONE")
 	}
 

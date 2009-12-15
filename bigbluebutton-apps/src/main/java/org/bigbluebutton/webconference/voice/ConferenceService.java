@@ -27,25 +27,25 @@ import org.bigbluebutton.webconference.voice.events.ConferenceEvent;
 import org.bigbluebutton.webconference.voice.events.ConferenceEventListener;
 import org.bigbluebutton.webconference.voice.internal.RoomManager;
 
-public class ConferenceServer implements ConferenceEventListener {
+public class ConferenceService implements ConferenceEventListener {
 
 	private RoomManager roomMgr;
-	private ConferenceApplication confApp;
+	private ConferenceServiceProvider confProvider;
 	
 	public void startup() {
 		roomMgr = new RoomManager();
-		confApp.startup();
+		confProvider.startup();
 	}
 	
 	public void shutdown() {
-		confApp.shutdown();
+		confProvider.shutdown();
 		roomMgr = null;
 	}
 	
 	public void createConference(String room) {
 		if (roomMgr.hasRoom(room)) return;
 		roomMgr.createRoom(room);
-		confApp.populateRoom(room);
+		confProvider.populateRoom(room);
 	}
 	
 	public void destroyConference(String room) {
@@ -67,7 +67,7 @@ public class ConferenceServer implements ConferenceEventListener {
 	}
 	
 	private void muteParticipant(Integer participant, String room, Boolean mute) {
-		confApp.mute(room, participant, mute);
+		confProvider.mute(room, participant, mute);
 	}
 	
 	public void eject(Integer participant, String room) {
@@ -85,7 +85,7 @@ public class ConferenceServer implements ConferenceEventListener {
 	}
 	
 	private void ejectParticipant(String room, Integer participant) {
-		confApp.eject(room, participant);
+		confProvider.eject(room, participant);
 	}
 
 	public ArrayList<Participant> getParticipants(String room) {
@@ -96,7 +96,7 @@ public class ConferenceServer implements ConferenceEventListener {
 		roomMgr.processConferenceEvent(event);
 	}
 		
-	public void setConferenceApplication(ConferenceApplication c) {
-		confApp = c;
+	public void setConferenceServiceProvider(ConferenceServiceProvider c) {
+		confProvider = c;
 	}
 }

@@ -22,21 +22,24 @@
 package org.bigbluebutton.webconference.voice.asterisk;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.asteriskjava.manager.AuthenticationFailedException;
 import org.asteriskjava.manager.ManagerConnection;
 import org.asteriskjava.manager.ManagerConnectionState;
 import org.asteriskjava.manager.TimeoutException;
-import org.bigbluebutton.webconference.voice.ConferenceApplication;
+import org.bigbluebutton.webconference.voice.ConferenceServiceProvider;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
-public class AsteriskApplication implements ConferenceApplication {
-	private static Logger log = Red5LoggerFactory.getLogger(AsteriskApplication.class, "bigbluebutton");
+public class AsteriskServiceProvider implements ConferenceServiceProvider {
+	private static Logger log = Red5LoggerFactory.getLogger(AsteriskServiceProvider.class, "bigbluebutton");
 	
-	private ConferenceApplication appDelegate;
+	private ConferenceServiceProvider appDelegate;
 	private KeepAlivePing ping;
 	private ManagerConnection connection;
+	private Map<String, ConferenceServiceProvider> appsMap = new HashMap<String, ConferenceServiceProvider>();
 	
 	@Override
 	public void eject(String room, Integer participant) {
@@ -99,8 +102,15 @@ public class AsteriskApplication implements ConferenceApplication {
 		return false;
 	}
 
-	public void setConferenceApplication(ConferenceApplication c) {
-		appDelegate = c;
+	public void setApplicationsMap(Map<String, ConferenceServiceProvider> appsMap) {
+		this.appsMap = appsMap;
+	}
+		
+	public void setAsteriskApplication(String appName) {
+		appDelegate = appsMap.get(appName);
+		if (appDelegate == null) {
+			log.error("There is no conference application with name {}", appName);
+		}
 	}
 	
 	public void setManagerConnection(ManagerConnection c) {

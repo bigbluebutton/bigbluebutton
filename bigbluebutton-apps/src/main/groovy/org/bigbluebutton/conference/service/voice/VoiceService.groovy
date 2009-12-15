@@ -19,18 +19,18 @@
  */
 package org.bigbluebutton.conference.service.voice
 import org.slf4j.Loggerimport org.slf4j.LoggerFactoryimport org.red5.server.api.Red5import org.red5.server.api.IScopeimport org.bigbluebutton.conference.BigBlueButtonSessionimport org.bigbluebutton.conference.Constantsimport org.red5.logging.Red5LoggerFactory
-import org.bigbluebutton.webconference.voice.ConferenceServerimport java.util.ArrayListimport org.bigbluebutton.webconference.voice.Participant
+import org.bigbluebutton.webconference.voice.ConferenceServiceimport java.util.ArrayListimport org.bigbluebutton.webconference.voice.Participant
 public class VoiceService {
 	
 	private static Logger log = Red5LoggerFactory.getLogger( VoiceService.class, "bigbluebutton" );
 	
-	private ConferenceServer conferenceServer
+	private ConferenceService conferenceService
 
 	public Map<String, List> getMeetMeUsers() {
 		def voiceBridge = getBbbSession().voiceBridge
 		
     	log.debug("GetMeetmeUsers request for room[$voiceBridge]")
-    	ArrayList<Participant> p = conferenceServer.getParticipants(voiceBridge)
+    	ArrayList<Participant> p = conferenceService.getParticipants(voiceBridge)
 
 		Map participants = new HashMap()
 		if (p == null) {
@@ -65,24 +65,24 @@ public class VoiceService {
 	def muteAllUsers(mute) {
 		def conference = getBbbSession().voiceBridge    	
     	log.debug("Mute all users in room[$conference]")
-    	conferenceServer.mute(conference, mute)	   	
+    	conferenceService.mute(conference, mute)	   	
 	}	
 	
 	def muteUnmuteUser(userid, mute) {
 		def conference = getBbbSession().voiceBridge    	
     	log.debug("MuteUnmute request for user [$userid] in room[$conference]")
-    	conferenceServer.mute(userid, conference, mute)
+    	conferenceService.mute(userid, conference, mute)
 	}
 	
 	def kickUSer(userid) {
 		def conference = getBbbSession().voiceBridge		
     	log.debug("KickUser $userid from $conference")		
-		conferenceServer.eject(userid, conference)
+		conferenceService.eject(userid, conference)
 	}
 	
-	public void setConferenceServer(ConferenceServer s) {
+	public void setConferenceService(ConferenceService s) {
 		log.debug("Setting voice server")
-		conferenceServer = s
+		conferenceService = s
 		log.debug("Setting voice server DONE")
 	}
 	

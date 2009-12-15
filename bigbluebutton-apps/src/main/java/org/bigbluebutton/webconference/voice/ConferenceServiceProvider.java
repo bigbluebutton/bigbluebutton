@@ -21,7 +21,7 @@
  */
 package org.bigbluebutton.webconference.voice;
 
-public interface ConferenceApplication {
+public interface ConferenceServiceProvider {
 	public void startup();
 	public void shutdown();
 	public void populateRoom(String room);
