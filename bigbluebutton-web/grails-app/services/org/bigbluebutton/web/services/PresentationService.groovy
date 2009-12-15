@@ -89,9 +89,8 @@ class PresentationService {
 	}
 	
 	public File uploadedPresentationDirectory(String conf, String room, String presentation_name) {
-	    println "Uploaded presentation ${presentation_name} for conf ${conf} and room ${room} to dir ${presentationDir}"
 		File dir = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentation_name)
-		println "upload to directory ${dir.absolutePath}"
+		println "Uploaded presentation ${presentation_name} for conf ${conf} and room ${room} to dir ${dir.absolutePath}"
 
 		/* If the presentation name already exist, delete it. We should provide a check later on to notify user
 			that there is already a presentation with that name. */
@@ -122,13 +121,18 @@ class PresentationService {
 			case 'odp':
 				log.debug "Office File " + ext + ", converting to PDF..."
 				println "Office File " + ext + ", converting to PDF..."
-				PageConverter converter = new Office2PdfPageConverter()
-				File output = new File(presentationFile.getAbsolutePath().substring(0, presentationFile.getAbsolutePath().lastIndexOf(".")) + ".pdf")
-				println presentationFile.getAbsolutePath().substring(0, presentationFile.getAbsolutePath().lastIndexOf(".")) + ".pdf"
-				Boolean convertion = converter.convert(presentationFile, output, 0)
-				println convertion
-				if (convertion)
-					return (output);
+				try {
+					PageConverter converter = new Office2PdfPageConverter()
+					File output = new File(presentationFile.getAbsolutePath().substring(0, presentationFile.getAbsolutePath().lastIndexOf(".")) + ".pdf")
+					println presentationFile.getAbsolutePath().substring(0, presentationFile.getAbsolutePath().lastIndexOf(".")) + ".pdf"
+					Boolean convertion = converter.convert(presentationFile, output, 0)
+					println convertion
+					if (convertion)
+						return (output);
+				} catch (Exception ex) {
+					println("Error converting File " + ext + " to PDF...")
+				} 
+
 				break;
 			case 'avi':
 			case 'mpg':
@@ -322,18 +326,18 @@ class PresentationService {
 							/* We're done */
 							sendConversionCompletedMessage(conf, room, presentationName, numPages)
 						}
-						else /* Problem while converting to SWF - Throw generic error for now... - FIXME SPECIFIED ERROR */
-							sendConvertErrorMessage(conf, room, presentationName, presentationFile, "Error while converting file to SWF")
+						else /* Problem while converting to SWF "Error while converting file to SWF" */
+							sendConvertErrorMessage(conf, room, presentationName, presentationFile, "FAILED_CONVERT_SWF")
 					}
-					else /* Problem getting number of pages - Throw generic error for now... - FIXME SPECIFIED ERROR */
-						sendConvertErrorMessage(conf, room, presentationName, presentationFile, "Error while getting number of pages")
+					else /* Problem getting number of pages "Error while getting number of pages" */
+						sendConvertErrorMessage(conf, room, presentationName, presentationFile, "FAILED_CONVERT_NBPAGE")
 					
 				}
-				else /* Problem while preparing file - Throw generic error  - FIXME SPECIFIED ERROR */
-					sendConvertErrorMessage(conf, room, presentationName, presentationFile, "Error while preparing file")
+				else /* Problem while preparing file "Error while preparing file" - Throw generic error  - FIXME SPECIFIED ERROR */
+					sendConvertErrorMessage(conf, room, presentationName, presentationFile, "FAILED_CONVERT_PREPARATION")
 			}
-			else /* Problem with fileformat - Throw generic error */
-				sendConvertErrorMessage(conf, room, presentationName, presentationFile, "Unable to determine file format")
+			else /* Problem with fileformat "Unable to determine file format" */
+				sendConvertErrorMessage(conf, room, presentationName, presentationFile, "FAILED_CONVERT_FORMAT")
 		}
 	}
  	
@@ -427,14 +431,13 @@ class PresentationService {
 		FileCopyUtils.copy(new File(BLANK_SLIDE), slide);		
 	}
 	
-	private void sendConvertErrorMessage(String conference, String room, String presName, File presentationFile, String errorMsg) {
+	private void sendConvertErrorMessage(String conference, String room, String presName, File presentationFile, String returnCode) {
 		def msg = new HashMap()
 		msg.put("room", room)
-		msg.put("returnCode", "FAILED_CONVERT")
+		msg.put("returnCode", returnCode)
 		msg.put("presentationName", presName)
-		msg.put("message", errorMsg)
-		log.debug "Failed to convert $presentationFile.absolutePath to presentation file : " + errorMsg
-		println "Failed to convert $presentationFile.absolutePath to presentation file : " + errorMsg
+		log.debug "Failed to convert $presentationFile.absolutePath to presentation file : " + returnCode
+		println "Failed to convert $presentationFile.absolutePath to presentation file : " + returnCode
 		sendJmsMessage(msg)
 	}
 	
@@ -445,7 +448,7 @@ class PresentationService {
 		msg.put("presentationName", presName)
 		msg.put("totalSlides", new Integer(totalSlides))
 		msg.put("slidesCompleted", new Integer(slidesCompleted))
-		sendJmsMessage(msg)		
+		sendJmsMessage(msg)	
 	}
 	
 	private void sendCreatingThumbnailsUpdateMessage(String conference, String room, String presName) {
