@@ -76,9 +76,14 @@ public class ConversionUpdatesMessageListener implements MessageListener{
 				conversionUpdatesProcessor.process(message)
 				break
 			case 'FAILED_CONVERT_FORMAT':
-			case 'FAILED_CONVERT_PREPARATION':
+			case 'FAILED_CONVERT_NOT_SUPPORTED':
+			case 'FAILED_CONVERT_SOFFICE':
 			case 'FAILED_CONVERT_NBPAGE':
+			case 'FAILED_CONVERT_MAXNBPAGE_REACH':
 			case 'FAILED_CONVERT_SWF':
+			case 'FAILED_CONVERT_SWF_IMAGE':
+			case 'FAILED_CONVERT_SWF_PDF':
+			case 'FAILED_CONVERT_THUMBNAIL':
 				log.debug "JMS: ${code}[$presentationName]"
 				conversionUpdatesProcessor.process(message)
 				break;
