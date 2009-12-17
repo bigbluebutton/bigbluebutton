@@ -49,9 +49,8 @@ package org.bigbluebutton.modules.present.business
 		 * @param room - a room in the server we're connecting to
 		 * 
 		 */		
-		public function FileUploadService(url:String, presentationName:String, conference:String, room:String) : void
+		public function FileUploadService(url:String, conference:String, room:String) : void
 		{
-			sendVars.presentation_name = presentationName;	
 			sendVars.conference = conference;
 			sendVars.room = room;
 			request.url = url;
@@ -64,8 +63,9 @@ package org.bigbluebutton.modules.present.business
 		 * @param file - The FileReference class of the file we wish to send
 		 * 
 		 */		
-		public function upload(presName:String, file:FileReference):void
+		public function upload(presentationName:String, file:FileReference):void
 		{
+			sendVars.presentation_name = presentationName;
 			var fileToUpload : FileReference = new FileReference();
 			fileToUpload = file;
 			
