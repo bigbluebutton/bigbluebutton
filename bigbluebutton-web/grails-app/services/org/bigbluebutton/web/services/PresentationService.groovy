@@ -101,7 +101,7 @@ class PresentationService {
 		return dir
 	}
 	
-	public File prepareFileType(String ext, File presentationFile) {
+	public File prepareFileType(String conference, String room, String presentationName, File presentationFile, String ext) {
 		log.debug "Preparing file $ext"
 		println "Preparing file $ext"
 		
@@ -129,19 +129,21 @@ class PresentationService {
 					println convertion
 					if (convertion)
 						return (output);
+					else
+						throw new Exception("");
 				} catch (Exception ex) {
-					println("Error converting File " + ext + " to PDF...")
-				} 
-
+					println("Error converting FileType " + ext + " to PDF...")
+					sendConvertErrorMessage(conference, room, presentationName, presentationFile, "FAILED_CONVERT_SOFFICE")
+				}
 				break;
 			case 'avi':
 			case 'mpg':
 				/* Testing requirements - ffmpeg */
-				return (null);
+				sendConvertErrorMessage(conference, room, presentationName, presentationFile, "FAILED_CONVERT_NOT_SUPPORTED")
 				break;
 			case 'mp3':
 				/* Testing requirements - ffmpeg */
-				return (null);
+				sendConvertErrorMessage(conference, room, presentationName, presentationFile, "FAILED_CONVERT_NOT_SUPPORTED")
 				break;
 			/* DEFAULT SUPPORTED FILES - NO PREPARATION NEEDED*/
 			case 'pdf':
@@ -151,12 +153,14 @@ class PresentationService {
 				return (presentationFile);
 				break;
 			default:
+				sendConvertErrorMessage(conference, room, presentationName, presentationFile, "FAILED_CONVERT_NOT_SUPPORTED")
 				break;
 		}
+		
 		return (null);
 	}
 	
-	public boolean convertFileType(String ext, String conference, String room, String presentationName, File presentationFile, int numPages) {
+	public boolean convertFileType(String conference, String room, String presentationName, File presentationFile, String ext, int numPages) {
 		log.debug "Converting uploaded presentation $presentationFile.absolutePath"
 		
 		switch(ext)
@@ -175,53 +179,64 @@ class PresentationService {
 			case 'txt':
 			case 'ods':
 			case 'odp':
-				for (int page = 1; page <= numPages; page++) 
-				{	
-					log.debug "Converting page $page of $presentationFile.absolutePath"			
-					convertPage(presentationFile, page)
-					sendConversionUpdateMessage(conference, room, presentationName, numPages, page)
+				try {
+					for (int page = 1; page <= numPages; page++) 
+					{	
+						log.debug "Converting page $page of $presentationFile.absolutePath"			
+						convertPage(presentationFile, page)
+						sendConversionUpdateMessage(conference, room, presentationName, numPages, page)
+					}
+					return (true);
+				} catch (Exception ex) {
+					println("Error converting File " + ext + " to PDF...")
+					sendConvertErrorMessage(conference, room, presentationName, presentationFile, "FAILED_CONVERT_SWF_PDF")
 				}
-				return (true);
 				break;
 			case 'jpg':
 			case 'jpeg':
 			case 'png':
-				PageConverter converter;
-				if (ext == 'png')
-					converter = new Png2SwfPageConverter()
-				else if (ext == 'jpg' || ext == 'jpeg')
-					converter = new Jpeg2SwfPageConverter()
-				else
-					return (false);
-				converter.setSwfToolsDir(swfToolsDir)
-				
-				File output = new File(presentationFile.getParent() + File.separatorChar + "slide-1.swf")
-				if (!converter.convert(presentationFile, output, 1))
-					generateBlankSlide(output.getAbsolutePath());
-				sendConversionUpdateMessage(conference, room, presentationName, numPages, 1)
-				return (true);
+				try {
+					PageConverter converter;
+					if (ext == 'png')
+						converter = new Png2SwfPageConverter()
+					else if (ext == 'jpg' || ext == 'jpeg')
+						converter = new Jpeg2SwfPageConverter()
+					else
+						return (false);
+					converter.setSwfToolsDir(swfToolsDir)
+
+					File output = new File(presentationFile.getParent() + File.separatorChar + "slide-1.swf")
+					if (!converter.convert(presentationFile, output, 1))
+						generateBlankSlide(output.getAbsolutePath());
+					sendConversionUpdateMessage(conference, room, presentationName, numPages, 1)
+					return (true);
+				} catch (Exception ex) {
+					println("Error converting File " + ext + " to PDF...")
+					sendConvertErrorMessage(conference, room, presentationName, presentationFile, "FAILED_CONVERT_SWF_IMAGE")
+				}
 				break;
 			case 'avi':
 			case 'mpg':
 				/* Conversion to flv using ffmpeg */
-				return (false);
+				sendConvertErrorMessage(conference, room, presentationName, presentationFile, "FAILED_CONVERT_SWF")
 				break;
 			case 'mp3':
 				/* Conversion to flv using ffmpeg */
-				return (false);
+				sendConvertErrorMessage(conference, room, presentationName, presentationFile, "FAILED_CONVERT_SWF")
 				break;
 			default:
+				sendConvertErrorMessage(conference, room, presentationName, presentationFile, "FAILED_CONVERT_SWF")
 				break;
 		}
 		return (false);
 	}
 	
-	public int getnumPages(String ext, File presentationFile) {
+	public int getnumPages(String conference, String room, String presentationName, File presentationFile, String ext) {
 		log.debug "Determining number of pages"
 		
 		switch(ext)
 		{
-			/* OFFICE FILE CONVERTED TO PDF in convertFileTypeToSwf */
+			/* OFFICE FILE CONVERTED TO PDF IN prepareFileType */
 			/* PDF FILE */
 			case 'xls':
 			case 'xlsx':
@@ -235,10 +250,24 @@ class PresentationService {
 			case 'txt':
 			case 'ods':
 			case 'odp':
-				PageCounter pageCounter = new Pdf2SwfPageCounter()
-				pageCounter.setSwfToolsDir(swfToolsDir)
-				int numPages = pageCounter.countNumberOfPages(presentationFile)
-				return (numPages);
+				try
+				{
+					PageCounter pageCounter = new Pdf2SwfPageCounter()
+					pageCounter.setSwfToolsDir(swfToolsDir)
+					int numPages = pageCounter.countNumberOfPages(presentationFile)
+					if (numPages > 100)
+					{
+						sendConvertErrorMessage(conference, room, presentationName, presentationFile, "FAILED_CONVERT_MAXNBPAGE_REACH")
+						return (0);
+					}
+					else if (numPages > 0)
+						return (numPages);
+					else
+						throw new Exception("");
+				} catch (Exception ex) {
+					println("Error getting number of pages")
+					sendConvertErrorMessage(conference, room, presentationName, presentationFile, "FAILED_CONVERT_NBPAGE")
+				}
 				break;
 			case 'avi':
 			case 'mpg':
@@ -249,12 +278,14 @@ class PresentationService {
 				return (1);
 				break;
 			default:
+				/* Problem getting number of pages "Error while getting number of pages" */
+				sendConvertErrorMessage(conference, room, presentationName, presentationFile, "FAILED_CONVERT_NBPAGE")
 				break;
 		}
 		return (0);
 	}
 	
-	public boolean createThumbnails(String ext, String conference, String room, String presentationName, File presentationFile, int numPages) {
+	public boolean createThumbnails(String conference, String room, String presentationName, File presentationFile, String ext, int numPages) {
 		log.debug "Creating thumbnails for presentation.absolutePath"
 		// Send twice...seem to be loosing messages...need to understand some more 
 		// how to set JMS producer-consumer
@@ -280,18 +311,25 @@ class PresentationService {
 			case 'txt':
 			case 'ods':
 			case 'odp':
-				ThumbnailCreatorImp tc = new ThumbnailCreatorImp()
-				tc.imageMagickDir = imageMagickDir
-				tc.blankThumbnail = BLANK_THUMBNAIL
-				tc.createThumbnails(presentationFile, numPages)
+				try
+				{
+					ThumbnailCreatorImp tc = new ThumbnailCreatorImp()
+					tc.imageMagickDir = imageMagickDir
+					tc.blankThumbnail = BLANK_THUMBNAIL
+					tc.createThumbnails(presentationFile, numPages)
+					return (true);
+				} catch (Exception ex) {
+					sendConvertErrorMessage(conference, room, presentationName, presentationFile, "FAILED_CONVERT_THUMBNAIL")
+				}
 				break;
 			case 'avi':
 			case 'mpg':
 			case 'mp3':
 				/* TODO ADD SUPPORT */
-				return (true);
+				sendConvertErrorMessage(conference, room, presentationName, presentationFile, "FAILED_CONVERT_THUMBNAIL")
 				break;
 			default:
+				sendConvertErrorMessage(conference, room, presentationName, presentationFile, "FAILED_CONVERT_THUMBNAIL")
 				break;
 		}
 		return (false);
@@ -306,35 +344,29 @@ class PresentationService {
 			if (ext)
 			{
 				/* Prepare file convertion depending on filetype (OFFICE -> PDF) */
-				File ConvertedPresentationFile = prepareFileType(ext, presentationFile)
+				File ConvertedPresentationFile = prepareFileType(conf, room, presentationName, presentationFile, ext)
 				log.debug ConvertedPresentationFile
 				
 				if (ConvertedPresentationFile)
 				{
 					/* Getting number of pages, if available */
-					int numPages = getnumPages(ext, ConvertedPresentationFile)
+					int numPages = getnumPages(conf, room, presentationName, ConvertedPresentationFile, ext)
 					log.info "There is/are $numPages slide(s) for $presentationFile.absolutePath"
 
 					if (numPages)
 					{
 						/* Convert File to Presentation Pages */
-						if (convertFileType(ext, conf, room, presentationName, ConvertedPresentationFile, numPages))
+						if (convertFileType(conf, room, presentationName, ConvertedPresentationFile, ext, numPages))
 						{
 							/* Create thumbnails for each pages */
-							createThumbnails(ext, conf, room, presentationName, ConvertedPresentationFile, numPages)
-
-							/* We're done */
-							sendConversionCompletedMessage(conf, room, presentationName, numPages)
+							if (createThumbnails(conf, room, presentationName, ConvertedPresentationFile, ext, numPages))
+							{
+								/* We're done */
+								sendConversionCompletedMessage(conf, room, presentationName, numPages)
+							}
 						}
-						else /* Problem while converting to SWF "Error while converting file to SWF" */
-							sendConvertErrorMessage(conf, room, presentationName, presentationFile, "FAILED_CONVERT_SWF")
 					}
-					else /* Problem getting number of pages "Error while getting number of pages" */
-						sendConvertErrorMessage(conf, room, presentationName, presentationFile, "FAILED_CONVERT_NBPAGE")
-					
 				}
-				else /* Problem while preparing file "Error while preparing file" - Throw generic error  - FIXME SPECIFIED ERROR */
-					sendConvertErrorMessage(conf, room, presentationName, presentationFile, "FAILED_CONVERT_PREPARATION")
 			}
 			else /* Problem with fileformat "Unable to determine file format" */
 				sendConvertErrorMessage(conf, room, presentationName, presentationFile, "FAILED_CONVERT_FORMAT")

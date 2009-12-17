@@ -56,7 +56,7 @@ public class Pdf2SwfPageCounter implements PageCounter{
 			stdError.close();
 
 			// Wait for the process to finish.
-        	int exitVal = p.waitFor()
+        		int exitVal = p.waitFor()
 		}
 		catch (IOException e) {
 			System.out.println("exception happened - here's what I know: ");
