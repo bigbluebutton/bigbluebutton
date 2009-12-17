@@ -51,10 +51,14 @@ package org.bigbluebutton.modules.present.business
 		private static const FAILED_RC:String = "FAILED";
 		private static const FAILED_CONVERT_RC:String = "FAILED_CONVERT";
 		private static const FAILED_CONVERT_FORMAT_RC:String = "FAILED_CONVERT_FORMAT";
-		private static const FAILED_CONVERT_PREPARATION_RC:String = "FAILED_CONVERT_PREPARATION";
+		private static const FAILED_CONVERT_NOT_SUPPORTED_RC:String = "FAILED_CONVERT_NOT_SUPPORTED";
+		private static const FAILED_CONVERT_SOFFICE_RC:String = "FAILED_CONVERT_SOFFICE";
 		private static const FAILED_CONVERT_NBPAGE_RC:String = "FAILED_CONVERT_NBPAGE";
+		private static const FAILED_CONVERT_MAXNBPAGE_REACH_RC:String = "FAILED_CONVERT_MAXNBPAGE_REACH";
 		private static const FAILED_CONVERT_SWF_RC:String = "FAILED_CONVERT_SWF";
-		
+		private static const FAILED_CONVERT_SWF_IMAGE_RC:String = "FAILED_CONVERT_SWF_IMAGE";
+		private static const FAILED_CONVERT_SWF_PDF_RC:String = "FAILED_CONVERT_SWF_PDF";
+		private static const FAILED_CONVERT_THUMBNAIL_RC:String = "FAILED_CONVERT_THUMBNAIL";
 		private static const THUMBNAILS_RC:String = "THUMBNAILS";
 		private static const CONVERT_RC:String = "CONVERT";
 		
@@ -465,11 +469,17 @@ package org.bigbluebutton.modules.present.business
 					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
 					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.format')
 					dispatcher.dispatchEvent(e);
-					break;s
-				case FAILED_CONVERT_PREPARATION_RC:
-					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_PREPARATION");
+					break;
+				case FAILED_CONVERT_NOT_SUPPORTED_RC:
+					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_NOT_SUPPORTED");
 					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
-					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.preparation')
+					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.notsupported')
+					dispatcher.dispatchEvent(e);
+					break;
+				case FAILED_CONVERT_SOFFICE_RC:
+					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_SOFFICE");
+					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
+					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.soffice')
 					dispatcher.dispatchEvent(e);
 					break;
 				case FAILED_CONVERT_NBPAGE_RC:
@@ -477,14 +487,37 @@ package org.bigbluebutton.modules.present.business
 					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
 					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.nbpage')
 					dispatcher.dispatchEvent(e);
-				break;
+					break;
+				case FAILED_CONVERT_MAXNBPAGE_REACH_RC:
+					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_MAXNBPAGE_REACH_RC");
+					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
+					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.maxnbpagereach')
+					dispatcher.dispatchEvent(e);
+					break;
 				case FAILED_CONVERT_SWF_RC:
 					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_SWF");
 					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
 					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.swf')
 					dispatcher.dispatchEvent(e);
 					break;
-					
+				case FAILED_CONVERT_SWF_IMAGE_RC:
+					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_SWF_IMAGE");
+					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
+					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.swfimage')
+					dispatcher.dispatchEvent(e);
+					break;
+				case FAILED_CONVERT_SWF_PDF_RC:
+					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_SWF_PDF");
+					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
+					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.swfpdf')
+					dispatcher.dispatchEvent(e);
+					break;
+				case FAILED_CONVERT_THUMBNAIL_RC:
+					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_THUMBNAIL");
+					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
+					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.thumbnail')
+					dispatcher.dispatchEvent(e);
+					break;	
 				/* deprecated */
 				case FAILED_CONVERT_RC:
 					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT");
