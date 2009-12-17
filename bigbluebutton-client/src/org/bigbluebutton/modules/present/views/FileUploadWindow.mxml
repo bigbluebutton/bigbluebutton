@@ -133,7 +133,7 @@
         	
         	private function startUpload():void{
         		var presentationName:String = fileToUpload.name
-				var filenamePattern:RegExp = /(.+)(\.pdf|\.doc|\.docx|\.xls|\.xlsx|\.ppt|\.pptx)/i;
+				var filenamePattern:RegExp = /(.+)(\.pdf|\.doc|\.docx|\.xls|\.xlsx|\.ppt|\.pptx|\.txt|\.rtf|\.odt|\.ods|\.odp|\.odg|\.odc|\.odi|\.jpg|\.png)/i;
 				// Get the first match which should be the filename without the extension.
 				presentationName = presentationName.replace(filenamePattern, "$1")
 				// Replace any character other than a word character (A-Z, a-z, 0-9, or _).
@@ -235,21 +235,21 @@
 	</mx:Script>
            
 	<mx:Spacer height="100%" x="0" y="0"/>	
-	<mx:Label id="fileLbl" text="File:" x="50" y="50"/>
-	<mx:TextInput id="fileTxtInput" width="228" x="87" y="48"/>
-	<mx:Button id="selectBtn" toolTip="Browse file" click="selectFile()" icon="{addIcon}" width="26" x="332" y="48"/>
+	<mx:Label id="fileLbl" text="File:" x="50" y="11"/>
+	<mx:TextInput id="fileTxtInput" width="228" x="87" y="9"/>
+	<mx:Button id="selectBtn" toolTip="Browse file" click="selectFile()" icon="{addIcon}" width="26" x="332" y="9"/>
 	<mx:Button id="uploadBtn" label="Upload" toolTip="Upload file"  click="startUpload()"
-		enabled="false" icon="{bulletGoIcon}" x="366" y="48"/>
+		enabled="false" icon="{bulletGoIcon}" x="366" y="9"/>
 
 	<mx:Label id="progBarLbl" text="Progress:" x="21" y="75" visible="false"/>
 	<mx:ProgressBar id="progressBar" mode="manual" label="" labelPlacement="center" width="360" y="75" x="87" visible="false"/>
 	
-	<mx:Label id="presentationNamesLb" text="Uploaded Presentations:" x="50" y="90"/>
-    <mx:ComboBox id="presentationNamesCombobox" width="125" x="190" y="90" dataProvider="{presentationNamesAC}"/> 
+	<mx:Label id="presentationNamesLb" text="Uploaded Presentations:" x="50" y="40"/>
+    <mx:ComboBox id="presentationNamesCombobox" width="265" x="50" y="66" dataProvider="{presentationNamesAC}"/> 
 	<mx:Button id="deleteBtn" label="" toolTip="Delete Presentation"  
-		click="deletePresentation()" enabled="true"	icon="{deleteIcon}" width="26" x="332" y="90"/>
+		click="deletePresentation()" enabled="true"	icon="{deleteIcon}" width="26" x="332" y="66"/>
 	<mx:Button id="showBtn" label="Show" toolTip="Show Presentation"  
-		click="showPresentation()" enabled="true" icon="{bulletGoIcon}" x="366" y="90"/>
+		click="showPresentation()" enabled="true" icon="{bulletGoIcon}" x="366" y="66"/>
 	
 	<mx:ControlBar horizontalAlign="center" verticalAlign="middle" x="0" y="106">
 		<mx:Label id="progressLbl" text="" width="100%"/>
