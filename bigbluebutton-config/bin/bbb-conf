@@ -551,6 +551,15 @@ if [ $DEBUG ]; then
 		echo
 	fi
 
+	rm -rf /tmp/t
+	sudo grep -i exception /var/log/syslog > /tmp/t 
+	if [ -s /tmp/t ]; then
+		echo "   -- Errors found in /var/log/syslog -- "
+		cat /tmp/t
+		echo
+	fi
+
+
 	exit 0
 fi
 
@@ -693,6 +702,8 @@ if [ $CLEAN ]; then
 	rm -rf /usr/share/red5/log/*
 	rm -rf /var/lib/tomcat6/logs/*
 	rm -rf /var/log/nginx/*
+	mv /var/log/syslog /tmp/syslog.$$
+	echo "" > /var/log/syslog
 
 	/etc/init.d/asterisk status
 	# /etc/init.d/activemq status
