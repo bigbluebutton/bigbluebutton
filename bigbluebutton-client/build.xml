@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- BigBlueButton Client build.xml for use by Hudson builds.  -->
+<!-- BigBlueButton Client build.xml for use by Hudson builds.   -->
 <project name="BigBlueButton Client" basedir="." default="cleanandmake" >
     <property environment="env" />
     <property name="FLEX_HOME" value="${env.FLEX_HOME}" />
