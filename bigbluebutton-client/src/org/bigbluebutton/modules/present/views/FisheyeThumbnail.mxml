@@ -71,7 +71,7 @@
 			}
 			
 			public function selectSlide():void{
-				if (images == null || !fisheye.selectedIndex) return;
+				if (images == null) return;
 				dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, fisheye.selectedIndex));
 			}
 			
