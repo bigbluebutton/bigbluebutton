@@ -69,7 +69,7 @@ usage() {
 	echo "   --debug                          Check the log files for errors"
 	echo "   --watch                          Watch log files for error messages"
 	echo
-	echo "version: 0.63-7"
+	echo "version: 0.63-8"
 	echo
 }
 
