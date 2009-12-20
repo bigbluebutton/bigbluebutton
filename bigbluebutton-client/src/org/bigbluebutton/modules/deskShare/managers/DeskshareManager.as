@@ -26,8 +26,8 @@ package org.bigbluebutton.modules.deskShare.managers
 	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.main.events.CloseWindowEvent;
-	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.main.events.OpenWindowEvent;
+	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.main.events.ToolbarButtonEvent;
 	import org.bigbluebutton.modules.deskShare.services.DeskshareService;
 	import org.bigbluebutton.modules.deskShare.view.components.DesktopPublishWindow;
@@ -126,17 +126,19 @@ package org.bigbluebutton.modules.deskShare.managers
 		 * Show the deskshare toolbar if this participant becomes the presenter.
 		 */	
 		public function handleMadePresenterEvent(e:MadePresenterEvent):void{
-			LogUtil.debug("Got MadePresenterEvent " + e.presenter);
-			if (e.presenter) {
-				// stop viewing
-				// add toolbar
-				addToolbarButton();
-			} else {
-				// stop sharing
-				// close window
-				// remove toolbar
-				removeToolbarButton();
-			}
+			LogUtil.debug("Got MadePresenterEvent ");
+			addToolbarButton();
+		}
+		
+		/* 
+		 * Show the deskshare toolbar if this participant becomes a viewer.
+		 */	
+		public function handleMadeViewerEvent(e:MadePresenterEvent):void{
+			LogUtil.debug("Got MadeViewerEvent ");
+			// stop sharing
+			// close window
+			// remove toolbar
+			removeToolbarButton();
 		}
 		
 		public function handleStartSharingEvent():void {

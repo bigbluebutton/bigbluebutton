@@ -1,4 +1,4 @@
-package org.bigbluebutton.modules.present.events
+package org.bigbluebutton.main.events
 {
 	import flash.events.Event;
 	

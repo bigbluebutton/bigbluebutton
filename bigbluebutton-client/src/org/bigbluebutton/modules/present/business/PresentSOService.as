@@ -28,12 +28,11 @@ package org.bigbluebutton.modules.present.business
 	import flash.net.Responder;
 	import flash.net.SharedObject;
 	
+	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.modules.present.events.MoveEvent;
 	import org.bigbluebutton.modules.present.events.NavigationEvent;
-	import org.bigbluebutton.modules.present.events.PresenterStatusEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.events.ZoomEvent;
-	
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 	public class PresentSOService
@@ -231,7 +230,7 @@ package org.bigbluebutton.modules.present.business
 					function(result:Object):void { 	
 						LogUtil.debug("Successfully querried for presentation information.");					 
 						if (result.presenter.hasPresenter) {
-							dispatcher.dispatchEvent(new PresenterStatusEvent(PresenterStatusEvent.SWITCH_TO_VIEWER_MODE));						
+							dispatcher.dispatchEvent(new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE));						
 						}	
 						
 						if (result.presentation.sharing) {							
@@ -284,7 +283,7 @@ package org.bigbluebutton.modules.present.business
 		public function assignPresenterCallback(userid:Number, name:String, assignedBy:Number):void {
 			LogUtil.debug("assignPresenterCallback " + userid + "," + name + "," + assignedBy);
 			if (this.userid == userid) {
-				var e:PresenterStatusEvent = new PresenterStatusEvent(PresenterStatusEvent.SWITCH_TO_PRESENTER_MODE);
+				var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE);
 				e.userid = userid;
 				e.presenterName = name;
 				e.assignerBy = assignedBy;
@@ -292,7 +291,7 @@ package org.bigbluebutton.modules.present.business
 				
 				setPresenterName(name);
 			} else {
-				dispatcher.dispatchEvent(new PresenterStatusEvent(PresenterStatusEvent.SWITCH_TO_VIEWER_MODE));
+				dispatcher.dispatchEvent(new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE));
 			}
 		}
 		
@@ -421,7 +420,7 @@ package org.bigbluebutton.modules.present.business
 
 				case PRESENTER:
 					if (_presentationSO.data[PRESENTER] != null)
-						var e:PresenterStatusEvent = new PresenterStatusEvent(PresenterStatusEvent.PRESENTER_NAME_CHANGE);
+						var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.PRESENTER_NAME_CHANGE);
 						e.presenterName = _presentationSO.data[PRESENTER] as String;
 						dispatcher.dispatchEvent(e);
 					break;

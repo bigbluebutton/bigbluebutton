@@ -4,11 +4,15 @@ package org.bigbluebutton.main.events
 	
 	public class MadePresenterEvent extends Event
 	{
-		public static const BECOME_PRESENTER:String = "MadePresenter";
+		public static const PRESENTER_NAME_CHANGE:String = "PRESENTER_NAME_CHANGE";
+		public static const SWITCH_TO_VIEWER_MODE:String = "VIEWER_MODE";
+		public static const SWITCH_TO_PRESENTER_MODE:String = "PRESENTER_MODE";
 		
-		public var presenter:Boolean;
+		public var presenterName:String;
+		public var assignerBy:Number;
+		public var userid:Number;
 		
-		public function MadePresenterEvent(type:String = BECOME_PRESENTER)
+		public function MadePresenterEvent(type:String)
 		{
 			super(type, true, false);
 		}

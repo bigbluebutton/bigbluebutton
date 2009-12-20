@@ -36,14 +36,15 @@
 	title="Presentation" keyUp="onKeyUp(event)">
 	
 	<mate:Dispatcher id="globalDispatcher" />
-	<mate:Listener type="{PresenterStatusEvent.SWITCH_TO_PRESENTER_MODE}" method="becomePresenter" />
-	<mate:Listener type="{PresenterStatusEvent.SWITCH_TO_VIEWER_MODE}" method="becomeViewer" />
+	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="becomePresenter" />
+	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="becomeViewer" />
 	<mate:Listener type="{PresentationEvent.PRESENTATION_LOADED}" method="handlePresentationLoadedEvent" />
 	<mate:Listener type="{NavigationEvent.GOTO_PAGE}" method="gotoPage" />
 	<mate:Listener type="{UploadEvent.CLEAR_PRESENTATION}" method="clearPresentation" />
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.modules.present.events.SlideEvent;
 			import mx.controls.Alert;
 			import org.bigbluebutton.modules.present.managers.Slide;
@@ -53,7 +54,6 @@
 			import org.bigbluebutton.modules.present.events.ZoomEvent;
 			import org.bigbluebutton.modules.present.managers.SlideManager;
 			import org.bigbluebutton.modules.present.events.PresentationEvent;
-			import org.bigbluebutton.modules.present.events.PresenterStatusEvent;
 			import org.bigbluebutton.modules.present.events.PresenterCommands;
 			import org.bigbluebutton.modules.present.events.UploadEvent;
 			import org.bigbluebutton.modules.present.events.NavigationEvent;
@@ -230,7 +230,7 @@
 				this.addChildAt(highlighter, numChildren-1);*/
 			}
 			
-			private function becomePresenter(e:PresenterStatusEvent):void{
+			private function becomePresenter(e:MadePresenterEvent):void{
 				uploadPres.visible = true;
 				this.isPresenter = true;
 			
@@ -249,7 +249,7 @@
 				thumbnailWindow.setFisheyeVisibility(true);
 			}
 			
-			private function becomeViewer(e:PresenterStatusEvent):void{
+			private function becomeViewer(e:MadePresenterEvent):void{
 				this.isPresenter = false;
 				uploadPres.visible = false;
 				if (presentationLoaded) {

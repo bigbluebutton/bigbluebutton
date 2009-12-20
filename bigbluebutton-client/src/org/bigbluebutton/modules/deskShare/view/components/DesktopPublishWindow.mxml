@@ -33,8 +33,8 @@
 	resizable="false">
 		
 	<mate:Listener type="{AppletStartedEvent.APPLET_STARTED}" method="onAppletStart" />
-	<mate:Listener type="{MadePresenterEvent.BECOME_PRESENTER}" method="onChangedPresenter" />
-		
+	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="onChangedPresenter" />
+	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="onChangedPresenter" />	
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.modules.deskShare.events.ShareWindowEvent;

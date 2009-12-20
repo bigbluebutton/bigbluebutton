@@ -151,9 +151,9 @@ package org.bigbluebutton.main
 					break;
 				case EndpointMessageConstants.PARTICIPANT_IS_PRESENTER:
 					LogUtil.debug(NAME + "::Got PARTICIPANT_IS_PRESENTER from " + message.getHeader().SRC as String);
-					var madePresentEvent:MadePresenterEvent = new MadePresenterEvent();
-					madePresentEvent.presenter = message.getBody() as Boolean;
-					_dispatcher.dispatchEvent(madePresentEvent);
+//					var madePresentEvent:MadePresenterEvent = new MadePresenterEvent();
+//					madePresentEvent.presenter = message.getBody() as Boolean;
+//					_dispatcher.dispatchEvent(madePresentEvent);
 					break;
 			}
 		}	
