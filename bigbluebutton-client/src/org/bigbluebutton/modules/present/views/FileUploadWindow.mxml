@@ -23,7 +23,7 @@
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mate="http://mate.asfusion.com/"
     title="Upload Presentation"
-    x="168" y="86" layout="absolute" width="500" height="200"
+    x="168" y="86" layout="absolute" width="600" height="200"
     	initialize="initData();">
     	
     <mate:Dispatcher id="globalDispatch" />
@@ -211,7 +211,6 @@
 			enableControls();
 			okCancelBtn.label = "Ok";
 			okCancelBtn.visible = true;
-			Alert.show(e.data as String);
 			globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
 		}
 
@@ -236,20 +235,20 @@
            
 	<mx:Spacer height="100%" x="0" y="0"/>	
 	<mx:Label id="fileLbl" text="File:" x="50" y="11"/>
-	<mx:TextInput id="fileTxtInput" width="228" x="87" y="9"/>
-	<mx:Button id="selectBtn" toolTip="Browse file" click="selectFile()" icon="{addIcon}" width="26" x="332" y="9"/>
+	<mx:TextInput id="fileTxtInput" width="328" x="87" y="9"/>
+	<mx:Button id="selectBtn" toolTip="Browse file" click="selectFile()" icon="{addIcon}" width="26" x="432" y="9"/>
 	<mx:Button id="uploadBtn" label="Upload" toolTip="Upload file"  click="startUpload()"
-		enabled="false" icon="{bulletGoIcon}" x="366" y="9"/>
+		enabled="false" icon="{bulletGoIcon}" x="466" y="9"/>
 
 	<mx:Label id="progBarLbl" text="Progress:" x="21" y="75" visible="false"/>
-	<mx:ProgressBar id="progressBar" mode="manual" label="" labelPlacement="center" width="360" y="75" x="87" visible="false"/>
+	<mx:ProgressBar id="progressBar" mode="manual" label="" labelPlacement="center" width="460" y="75" x="87" visible="false"/>
 	
 	<mx:Label id="presentationNamesLb" text="Uploaded Presentations:" x="50" y="40"/>
-    <mx:ComboBox id="presentationNamesCombobox" width="265" x="50" y="66" dataProvider="{presentationNamesAC}"/> 
+    <mx:ComboBox id="presentationNamesCombobox" width="365" x="50" y="66" dataProvider="{presentationNamesAC}"/> 
 	<mx:Button id="deleteBtn" label="" toolTip="Delete Presentation"  
-		click="deletePresentation()" enabled="true"	icon="{deleteIcon}" width="26" x="332" y="66"/>
+		click="deletePresentation()" enabled="true"	icon="{deleteIcon}" width="26" x="432" y="66"/>
 	<mx:Button id="showBtn" label="Show" toolTip="Show Presentation"  
-		click="showPresentation()" enabled="true" icon="{bulletGoIcon}" x="366" y="66"/>
+		click="showPresentation()" enabled="true" icon="{bulletGoIcon}" x="466" y="66"/>
 	
 	<mx:ControlBar horizontalAlign="center" verticalAlign="middle" x="0" y="106">
 		<mx:Label id="progressLbl" text="" width="100%"/>

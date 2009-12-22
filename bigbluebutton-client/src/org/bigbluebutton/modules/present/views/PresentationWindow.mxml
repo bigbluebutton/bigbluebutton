@@ -306,7 +306,8 @@
 				slideView.selectedSlide = e.pageNumber;
 				slideNumLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.pages', [(e.pageNumber + 1), slideView.slides.length]);
 				
-				slideManager.load(slideView.slides.getItemAt(e.pageNumber) as Slide);
+				if (e.pageNumber <= slideView.slides.length-1 && e.pageNumber >= 0)
+					slideManager.load(slideView.slides.getItemAt(e.pageNumber) as Slide); 
 				
 				if (e.pageNumber == 0) {
 					backButton.enabled = false;

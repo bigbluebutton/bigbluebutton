@@ -124,6 +124,7 @@ package org.bigbluebutton.modules.present.business
 		private function onUploadIoError(event:IOErrorEvent):void
 		{
 			dispatcher.dispatchEvent(new UploadEvent(UploadEvent.UPLOAD_IO_ERROR));
+			LogUtil.error("An error occured while uploading the file. " + event.toString()); 
 		}
 		
 		/**
@@ -134,6 +135,7 @@ package org.bigbluebutton.modules.present.business
 		private function onUploadSecurityError(event:SecurityErrorEvent) : void
 		{
 			dispatcher.dispatchEvent(new UploadEvent(UploadEvent.UPLOAD_SECURITY_ERROR));
+			LogUtil.error("A security error occured while trying to upload the presentation. " + event.toString());
 		}		
 	}
 }

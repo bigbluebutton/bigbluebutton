@@ -37,6 +37,8 @@ package org.bigbluebutton.modules.present.managers
 		}
 		
 		public function load(slide:Slide):void {
+			if (slide == null) return;
+			
 			slides[slide.slideNumber] = slide;
 			slide.load(slideLoadListener);
 		}

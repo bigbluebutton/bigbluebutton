@@ -30,7 +30,6 @@
 			import org.bigbluebutton.modules.present.events.PresenterCommands;
 			import org.bigbluebutton.modules.present.events.UploadEvent;
 			import org.bigbluebutton.modules.present.events.PresentModuleEvent;
-			import mx.controls.Alert;
 			import org.bigbluebutton.modules.present.business.PresentProxy;
 			import org.bigbluebutton.modules.viewers.events.UserStatusEvent;
 			import org.bigbluebutton.modules.present.managers.PresentManager;

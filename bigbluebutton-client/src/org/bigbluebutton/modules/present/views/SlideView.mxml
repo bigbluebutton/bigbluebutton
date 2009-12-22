@@ -28,6 +28,7 @@
     resize="onResize()" xmlns:mate="http://mate.asfusion.com/">
     
     <mate:Listener type="{ZoomEvent.ZOOM}" method="zoomCallback" />
+    <mate:Listener type="{ZoomEvent.RESTORE}" method="restoreNormalZoom" />
     <mate:Listener type="{MoveEvent.MOVE}" method="moveCallback" />
     <mate:Listener type="{SlideEvent.SLIDE_LOADED}" method="handleSlideLoadedEvent" />
     
@@ -134,6 +135,11 @@
 			
 			private function handleSlideLoadedEvent(e:SlideEvent):void{
 				myLoader.source = e.slide;
+			}
+			
+			private function restoreNormalZoom(e:ZoomEvent):void{
+				myLoader.percentWidth = 100;
+				myLoader.percentHeight = 100;
 			}
 		]]>
 	</mx:Script>

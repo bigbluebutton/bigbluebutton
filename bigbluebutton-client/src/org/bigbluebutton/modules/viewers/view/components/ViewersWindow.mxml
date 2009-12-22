@@ -101,7 +101,7 @@
 				_yPosition = y;
 			}
 			
-			private var _defaultWidth:int = 210;
+			private var _defaultWidth:int = 215;
 			private var _defaultHeight:int = 220;
 			
 			public function get defaultWidth():int{

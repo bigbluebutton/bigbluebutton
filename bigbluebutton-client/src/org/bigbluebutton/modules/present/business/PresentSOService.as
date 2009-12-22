@@ -464,7 +464,8 @@ package org.bigbluebutton.modules.present.business
 					//LogUtil.debug("PresentationDelegate - FAILED_RC");
 					break;
 				case FAILED_CONVERT_FORMAT_RC:
-					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_FORMAT");
+					LogUtil.error("An error occured while trying to convert the presentation on the server. " + 
+							"The presentation could be in a format not supported");
 					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
 					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.format')
 					dispatcher.dispatchEvent(e);
