@@ -87,8 +87,8 @@
 			private var _yPosition:int = 0;
 			
 			private var mouseDown:Boolean = false;
-			[Bindable] public var isPresenter:Boolean = false;
-			[Bindable] public var presentationLoaded:Boolean = false;
+			[Bindable] private var isPresenter:Boolean = false;
+			[Bindable] private var presentationLoaded:Boolean = false;
 			private var currentPresentation:String = "";
 			
 			//The following code block is to deal with a bug in FLexLib with MDI windows not responding well to being maximized

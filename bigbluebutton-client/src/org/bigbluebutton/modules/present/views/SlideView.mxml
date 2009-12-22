@@ -31,9 +31,12 @@
     <mate:Listener type="{ZoomEvent.RESTORE}" method="restoreNormalZoom" />
     <mate:Listener type="{MoveEvent.MOVE}" method="moveCallback" />
     <mate:Listener type="{SlideEvent.SLIDE_LOADED}" method="handleSlideLoadedEvent" />
+    <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="switchToPresenter" />
+    <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="switchToViewer" />
     
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.modules.present.events.SlideEvent;
 			import org.bigbluebutton.modules.present.events.MoveEvent;
 			import org.bigbluebutton.modules.present.events.ZoomEvent;
@@ -53,11 +56,9 @@
 			private var xPercent:Number;
 			private var yPercent:Number;
 				
-        	[Bindable] 
-        	public var slides:ArrayCollection;
-        		
-			[Bindable]
-			public var selectedSlide:int=0;
+        	[Bindable] public var slides:ArrayCollection;
+			[Bindable] public var selectedSlide:int=0;
+			[Bindable] private var isPresenter:Boolean = false;
 				
 			private function init() : void
 			{
@@ -71,7 +72,8 @@
 				var wid:Number = myLoader.width + e.delta * 10;
 				var hei:Number = myLoader.height + e.delta *10;
 				
-				if (wid > imageCanvas.width * 3 || hei > imageCanvas.height * 3) return;
+				//Arbitrarily allow zoom up to 600% bigger than the size of the presentation window
+				if (wid > imageCanvas.width * 6 || hei > imageCanvas.height * 6) return;
 				
 				if (hei >= this.height || hei >= myLoader.height){
 					myLoader.width += e.delta * 10;
@@ -124,11 +126,13 @@
 			}
 			
 			private function zoomCallback(e:ZoomEvent):void{
+				if (isPresenter) return;
 				myLoader.width = e.slideWidth * imageCanvas.width;
 				myLoader.height = e.slideHeight * imageCanvas.height;
 			}
 			
 			private function moveCallback(e:MoveEvent):void{
+				if (isPresenter) return;
 				myLoader.x = e.slideXPosition * imageCanvas.width;
 				myLoader.y = e.slideYPosition * imageCanvas.height;
 			}
@@ -138,14 +142,23 @@
 			}
 			
 			private function restoreNormalZoom(e:ZoomEvent):void{
-				myLoader.percentWidth = 100;
-				myLoader.percentHeight = 100;
+				myLoader.width = this.width;
+				myLoader.x = 0;
+				myLoader.y = 0;
+			}
+			
+			private function switchToViewer(e:MadePresenterEvent):void{
+				this.isPresenter = false;
+			}
+			
+			private function switchToPresenter(e:MadePresenterEvent):void{
+				this.isPresenter = true;
 			}
 		]]>
 	</mx:Script>
 	
 	<mx:Canvas id="imageCanvas" width="100%" height="100%" verticalScrollPolicy="off" horizontalScrollPolicy="off">  
-		<mx:SWFLoader id="myLoader" width="100%" height="100%"
+		<mx:SWFLoader id="myLoader"
     		scaleContent="true" maintainAspectRatio="true" showBusyCursor="true"
     		completeEffect="Fade"/>    	
 	</mx:Canvas>    	      		 
