@@ -1,12 +1,13 @@
-package org.bigbluebutton.presentation
+package org.bigbluebutton.presentation.imp
 
 import org.springframework.util.FileCopyUtils
+import org.bigbluebutton.presentation.Util
 
 class ImageMagickPageConverterTests extends GroovyTestCase {
 
 	def pageConverter
 	def IMAGEMAGICK_DIR = '/usr/bin'
-	static final String PRESENTATIONDIR = '/var/bigbluebutton'
+	static final String PRESENTATIONDIR = '/tmp/var/bigbluebutton'
 
 	def conf = "test-conf"
 	def rm = "test-room"

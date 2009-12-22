@@ -76,11 +76,13 @@ class PresentationController {
 	    	if(file && !file.empty) {
 			flash.message = 'Your file has been uploaded'
 			// Replace any character other than a (A-Z, a-z, 0-9, _ or .) with a - (dash).
-			def notValiedCharsRegExp = /[^0-9a-zA-Z_\.]/
-			def presentationName = params.presentation_name.replaceAll(notValiedCharsRegExp, '-')
+			def notValidCharsRegExp = /[^0-9a-zA-Z_\.]/
+			log.debug "Uploaded presentation name : $params.presentation_name"
+			def presentationName = params.presentation_name.replaceAll(notValidCharsRegExp, '-')
+			log.debug "Uploaded presentation name : $presentationName"
 			File uploadDir = presentationService.uploadedPresentationDirectory(params.conference, params.room, presentationName)
 
-			def newFilename = file.getOriginalFilename().replaceAll(notValiedCharsRegExp, '-')
+			def newFilename = file.getOriginalFilename().replaceAll(notValidCharsRegExp, '-')
 			def pres = new File( uploadDir.absolutePath + File.separatorChar + newFilename )
 			file.transferTo( pres )	
 			presentationService.processUploadedPresentation(params.conference, params.room, presentationName, pres)							             			     	
@@ -131,22 +133,28 @@ class PresentationController {
 	}
 	
 	def showThumbnail = {
+		
 		def presentationName = params.presentation_name
 		def conf = params.conference
 		def rm = params.room
 		def thumb = params.id
+		println "Controller: Show thumbnails request for $presentationName $thumb"
 		
 		InputStream is = null;
 		try {
 			def pres = presentationService.showThumbnail(conf, rm, presentationName, thumb)
 			if (pres.exists()) {
+				println "Controller: Sending thumbnails reply for $presentationName $thumb"
+				
 				def bytes = pres.readBytes()
 				response.addHeader("Cache-Control", "no-cache")
 				response.contentType = 'image'
 				response.outputStream << bytes;
-			}	
+			} else {
+				println "$pres does not exist."
+			}
 		} catch (IOException e) {
-			System.out.println("Error reading file.\n" + e.getMessage());
+			println("Error reading file.\n" + e.getMessage());
 		}
 		
 		return null;

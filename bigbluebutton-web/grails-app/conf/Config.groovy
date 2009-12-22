@@ -77,20 +77,30 @@ environments {
     	grails.serverURL = "http://localhost:8080"    	
         log4j = {
     	    appenders {
-    	    	rollingFile name:"logfile", maxFileSize:1024, file:"bbb-web-dev.log"
-    	    	console name:'console', layout:pattern(conversionPattern: '%d{[dd.MM.yy HH:mm:ss.SSS]} %-5p %c %x - %m%n')
+    	    	rollingFile name:"logfileAppender", file:"/var/log/bbb-web-dev.log"
+    	    	console name:'consoleAppender', layout:pattern(conversionPattern: '%d{[dd.MM.yy HH:mm:ss.SSS]} %-5p %c %x - %m%n')
     	    }
-        	debug logfile:"grails.app.controller"
+        	debug logfileAppender:"grails.app.controller"
+        	debug logfileAppender:"grails.app.service"
+        	debug logfileAppender:"org.bigbluebutton"
+        	debug consoleAppender:"grails.app.controller"
+        	debug consoleAppender:"grails.app.service"
+        	debug consoleAppender:"org.bigbluebutton"
     	}
    }
    production {
 	   grails.serverURL = "http://www.changeme.com"
 	   log4j = {
 	   	    appenders {
-	   	    	rollingFile name:"logfile", maxFileSize:1024, file:"bbb-web-prod.log"
-	   	    	console name:'console', layout:pattern(conversionPattern: '%d{[dd.MM.yy HH:mm:ss.SSS]} %-5p %c %x - %m%n')
+	   	    	rollingFile name:"logfileAppender", file:"/var/log/bbb-web-prod.log"
+	   	    	console name:'consoleAppender', layout:pattern(conversionPattern: '%d{[dd.MM.yy HH:mm:ss.SSS]} %-5p %c %x - %m%n')
 	   	    }
-	       	debug logfile:"grails.app.controller"
+	   	    debug logfileAppender:"grails.app.controller"
+	   	    debug logfileAppender:"grails.app.service"
+	        debug logfileAppender:"org.bigbluebutton"
+	        debug consoleAppender:"grails.app.controller"
+	        debug consoleAppender:"grails.app.service"
+	        debug consoleAppender:"org.bigbluebutton"
 	   }
    }
    test {

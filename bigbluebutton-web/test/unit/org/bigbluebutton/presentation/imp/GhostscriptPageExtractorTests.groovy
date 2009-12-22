@@ -1,12 +1,13 @@
-package org.bigbluebutton.presentation
+package org.bigbluebutton.presentation.imp
 
 import org.springframework.util.FileCopyUtils
+import org.bigbluebutton.presentation.Util
 
 class GhostscriptPageExtractorTests extends GroovyTestCase {
 
 	def pageExtractor
 	def GS_EXEC = '/usr/bin/gs'
-	static final String PRESENTATIONDIR = '/var/bigbluebutton'
+	static final String PRESENTATIONDIR = '/tmp/var/bigbluebutton'
 	def noPdfMarkWorkaround = "/etc/bigbluebutton/nopdfmark.ps"
 	
 	def conf = "test-conf"

@@ -91,5 +91,12 @@
 	<classpathentry kind="var" path="GRAILS_HOME/dist/grails-resources-1.1.1.jar"/>
 	<classpathentry kind="var" path="GRAILS_HOME/dist/grails-web-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/groovy-all-1.6.4.jar"/>
+	<classpathentry kind="lib" path="lib/jodconverter-2.2.2.jar"/>
+	<classpathentry kind="lib" path="lib/juh-3.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jurt-3.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/ridl-3.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/unoil-3.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-io-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.5.6.jar"/>
 	<classpathentry kind="output" path="web-app/WEB-INF/classes"/>
 </classpath>

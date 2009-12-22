@@ -1,13 +1,14 @@
-package org.bigbluebutton.presentation
+package org.bigbluebutton.presentation.imp
 
 import org.springframework.util.FileCopyUtils
+import org.bigbluebutton.presentation.Util
 
 class Pdf2SwfPageConverterTests extends GroovyTestCase {
 
 	def pageConverter
 	def SWFTOOLS_DIR = '/bin'
 	def BLANK_SLIDE = '/var/bigbluebutton/blank/blank-slide.swf'
-	static final String PRESENTATIONDIR = '/var/bigbluebutton'
+	static final String PRESENTATIONDIR = '/tmp/var/bigbluebutton'
 
 	def conf = "test-conf"
 	def rm = "test-room"
@@ -18,7 +19,6 @@ class Pdf2SwfPageConverterTests extends GroovyTestCase {
 		println "Test setup"
 		pageConverter = new Pdf2SwfPageConverter()		
 		pageConverter.setSwfToolsDir(SWFTOOLS_DIR)	
-		pageConverter.setBlankSlide(BLANK_SLIDE)
 		
 		presDir = new File("$PRESENTATIONDIR/$conf/$rm/$presName")
 		if (presDir.exists()) Util.deleteDirectory(presDir)

@@ -29,6 +29,7 @@ import java.util.concurrent.*;
 import java.lang.InterruptedException
 import org.springframework.util.FileCopyUtils
 
+import org.bigbluebutton.presentation.imp.*
 import org.bigbluebutton.presentation.*
 
 class PresentationService {
@@ -50,7 +51,7 @@ class PresentationService {
 	    
 	private static String JMS_UPDATES_Q = 'UpdatesQueue'
 	    
-    	def deletePresentation = {conf, room, filename ->
+    def deletePresentation = {conf, room, filename ->
     		def directory = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + filename)
     		deleteDirectory(directory) 
 	}
@@ -382,6 +383,7 @@ class PresentationService {
 	}
 	
 	def showThumbnail = {conf, room, presentationName, thumb ->
+		println "Show thumbnails request for $presentationName $thumb"
 		def thumbFile = roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar +
 					"thumbnails" + File.separatorChar + "thumb-${thumb}.png"
 		log.debug "showing $thumbFile"
