@@ -31,7 +31,7 @@ package org.bigbluebutton.modules.present.managers
 		}
 		
 		public function handleStopModuleEvent():void{
-			
+			presentWindow.close();
 		}
 		
 		private function openWindow(window:IBbbModuleWindow):void{				
