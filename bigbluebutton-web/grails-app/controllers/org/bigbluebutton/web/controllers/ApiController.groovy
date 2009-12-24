@@ -256,6 +256,18 @@ class ApiController {
 					}
 				}
 			}
+			json {
+				println "Rendering as json"
+				render(contentType:"text/json") {
+						returncode(RESP_CODE_SUCCESS)
+						meetingToken("${conf.meetingToken}")
+						meetingID("${conf.meetingID}")
+						attendeePW("${conf.attendeePassword}")
+						moderatorPW("${conf.moderatorPassword}")
+						messageKey(msgKey == null ? "" : msgKey)
+						message(msg == null ? "" : msg)
+				}
+			}
 		}
 	}
 	
