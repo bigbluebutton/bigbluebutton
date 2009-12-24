@@ -27,17 +27,21 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 <%@ page import="org.apache.commons.codec.digest.*"%>
 
 
-<%!public String getURL(String name, String meetingID) {
+<%!
 
-		String salt = "639259d4-9dd8-4b25-bf01-95f9567eaf4b";
-		String BigBlueButtonURL = "http://192.168.0.154/bigbluebutton/api";
+String salt = "639259d4-9dd8-4b25-bf01-95f9567eaf4b";
+String BigBlueButtonURL = "http://192.168.0.154/bigbluebutton/";
+
+
+public String getURL(String name, String meetingID) {
+
 		String checksum = "";
 
 		String base_main = "name=" + name + "&meetingID=" + meetingID
 				+ "&attendeePW=ap&moderatorPW=mp";
 
-		String base_create = BigBlueButtonURL + "/create?";
-		String base_join = BigBlueButtonURL + "/join?";
+		String base_create = BigBlueButtonURL + "api/create?";
+		String base_join = BigBlueButtonURL + "api/join?";
 
 		try {
 			checksum = DigestUtils.shaHex(base_main + salt);

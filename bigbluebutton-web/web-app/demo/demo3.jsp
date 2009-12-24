@@ -85,8 +85,7 @@ Enter your name: <input type="text"
 	String meetingID = URLEncoder.encode(name+"'s meeting","UTF-8");
 	
 	String joinURL = getURL(name, meetingID);
-	// String joinURL = "xxx";
-	String inviteURL = request.getRequestURL()+"?action=invite&meetingID="+meetingID;
+	String inviteURL = BigBlueButtonURL+"demo/demo3.jsp?action=invite&meetingID="+meetingID;
 	
 	%>
 	

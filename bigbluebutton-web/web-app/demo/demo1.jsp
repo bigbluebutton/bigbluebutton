@@ -89,7 +89,7 @@ Join: Demo Meeting
 
 	%>
 	
-	<script language="javascript" type="text/javascript">
+<script language="javascript" type="text/javascript">
 window.location.href="<%=joinURL%>";
 </script>
 
