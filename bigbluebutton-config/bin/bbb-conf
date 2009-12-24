@@ -279,6 +279,9 @@ if [ $SETUPDEV ]; then
 		echo "# Enabling $USER to write to /var/bigbluebutton to upload slides"
 		sudo chmod -R ugo+rwx /var/bigbluebutton
 
+		echo "# Enabling $USER to write to /var/log/bigbluebutton to write log files"
+		sudo chmod -R ugo+rwx /var/log/bigbluebutton
+
 		echo "
 # Done.  To run your local build of bbb-web:
 
@@ -488,6 +491,13 @@ if [ $CHECK ]; then
         echo "/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties (for bbb-web)"
         echo "                                host: $HOST"
 
+	if [ -f /var/lib/tomcat6/webapps/bigbluebutton/demo/login.jsp ]; then
+        	HOST=$(cat /var/lib/tomcat6/webapps/bigbluebutton/demo/login.jsp  | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}')
+        	echo
+        	echo "/var/lib/tomcat6/webapps/bigbluebutton/demo/login.jsp (for api demos)"
+        	echo "                                host: $HOST"
+	fi
+
 	check_processes
 
 	exit 0
@@ -559,6 +569,15 @@ if [ $DEBUG ]; then
 		echo
 	fi
 
+	rm -rf /tmp/t
+	if [ -d /var/log/bigbluebutton ]; then
+		sudo grep -i exception /var/log/bigbluebutton > /tmp/t 
+		if [ -s /tmp/t ]; then
+			echo "   -- Errors found in /var/log/bigbluebutton -- "
+			cat /tmp/t
+			echo
+		fi
+	fi
 
 	exit 0
 fi
@@ -615,6 +634,17 @@ if [ -n "$HOST" ]; then
 	if ! grep -q server_names_hash_bucket_size /etc/nginx/nginx.conf; then
 		sudo sed -i "s/gzip  on;/gzip  on;\n    server_names_hash_bucket_size  64;/g" /etc/nginx/nginx.conf
 	fi
+
+	#
+	# Update api demos
+	#
+
+        if [ -f /var/lib/tomcat6/webapps/bigbluebutton/demo/login.jsp ]; then
+		echo "Assigning $HOST for api demos in /var/lib/tomcat6/webapps/bigbluebutton/demo/login.jsp"
+		sudo sed -i "s/http:\/\/\([^\"\/]*\)\([\"\/]\)/http:\/\/$HOST\2/g" \
+				/var/lib/tomcat6/webapps/bigbluebutton/demo/login.jsp
+        fi
+
 
 	echo "Restarting tomcat6 and nginx ..."
 	sudo /etc/init.d/tomcat6 restart  > /tmp/result 2>&1;cat /tmp/result;rm /tmp/result
