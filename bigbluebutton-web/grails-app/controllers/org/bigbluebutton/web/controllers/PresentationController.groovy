@@ -28,6 +28,7 @@ import org.springframework.util.FileCopyUtils
 
 import grails.converters.*
 import org.bigbluebutton.web.services.PresentationService
+import org.bigbluebutton.presentation.UploadedPresentation
 
 class PresentationController {
 	PresentationService presentationService
@@ -84,8 +85,12 @@ class PresentationController {
 
 			def newFilename = file.getOriginalFilename().replaceAll(notValidCharsRegExp, '-')
 			def pres = new File( uploadDir.absolutePath + File.separatorChar + newFilename )
-			file.transferTo( pres )	
-			presentationService.processUploadedPresentation(params.conference, params.room, presentationName, pres)							             			     	
+			file.transferTo(pres)	
+			
+			UploadedPresentation uploadedPres = new UploadedPresentation(params.conference, params.room, presentationName);
+			uploadedPres.setUploadedFile(pres);
+			
+			presentationService.processUploadedPresentation(uploadedPres)							             			     	
 		}    
 	    	else {
 	       		flash.message = 'file cannot be empty'

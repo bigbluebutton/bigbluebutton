@@ -104,14 +104,13 @@ environments {
 	   }
    }
    test {
-       log4j {
-    	   appender.'logfile.File' = "bbb-web-test.log"
-   	       	/* GRAILS 1.04 doesn't seem to like this format (ralam 04/19/2009)
-   	         * logger {
-   	         * 	 grails.app.controller="debug, stdout, logfile"
-   	         * }
-   	         */
-   	        //logger.grails.app="debug, stdout, logfile"
+       log4j = {
+    	   appenders {
+	   	    	rollingFile name:"logfileAppender", file:"bbb-web-test.log"
+	   	    	console name:'consoleAppender', layout:pattern(conversionPattern: '%d{[dd.MM.yy HH:mm:ss.SSS]} %-5p %c %x - %m%n')
+	   	    }
+    	   debug logfileAppender:"org.bigbluebutton"
+    	   debug consoleAppender:"org.bigbluebutton"
        }
    }
 }

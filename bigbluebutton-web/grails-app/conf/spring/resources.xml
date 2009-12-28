@@ -70,4 +70,6 @@
 	<integration:service-activator input-channel="conferenceEnded" ref="dynamicConferenceService" method="conferenceEnded" />
 	
 <!--	<stream:stdout-channel-adapter id="stdout" channel="jmsinToStdoutChannel" append-newline="true"/>-->
+
+	<import resource="doc-conversion.xml" />
 </beans>

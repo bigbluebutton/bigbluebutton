@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/integration"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:stream="http://www.springframework.org/schema/integration/stream"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/integration
+            http://www.springframework.org/schema/integration/spring-integration-1.0.xsd
+            http://www.springframework.org/schema/integration/stream
+            http://www.springframework.org/schema/integration/stream/spring-integration-stream-1.0.xsd">
+	
+	<beans:bean id="pageExtractor" class="org.bigbluebutton.presentation.imp.GhostscriptPageExtractor">
+		<beans:property name="ghostscriptExec" value="${ghostScriptExec}"/>
+		<beans:property name="noPdfMarkWorkaround" value="${noPdfMarkWorkaround}"/>
+	</beans:bean>
+	
+	<beans:bean id="imageMagickPageConverter" class="org.bigbluebutton.presentation.imp.ImageMagickPageConverter">
+		<beans:property name="imageMagickDir" value="${imageMagickDir}"/>
+	</beans:bean>
+		
+	<beans:bean id="png2SwfConverter" class="org.bigbluebutton.presentation.imp.Png2SwfPageConverter">
+		<beans:property name="swfToolsDir" value="${swfToolsDir}"/>
+	</beans:bean>
+		
+	<beans:bean id="pageCounter" class="org.bigbluebutton.presentation.imp.Pdf2SwfPageCounter">
+		<beans:property name="swfToolsDir" value="${swfToolsDir}"/>
+	</beans:bean>
+		
+	<beans:bean id="pageCounterService" class="org.bigbluebutton.presentation.imp.PageCounterService">
+		<beans:property name="pageCounter" ref="pageCounter"/>
+	</beans:bean>
+	
+	<beans:bean id="pdf2SwfPageConverter" class="org.bigbluebutton.presentation.imp.Pdf2SwfPageConverter">
+		<beans:property name="swfToolsDir" value="${swfToolsDir}"/>
+	</beans:bean>
+	
+	<beans:bean id="imageConvSvc" class="org.bigbluebutton.presentation.imp.PdfPageToImageConversionService">
+		<beans:property name="pageExtractor" ref="pageExtractor"/>
+		<beans:property name="pdfToImageConverter" ref="imageMagickPageConverter"/>
+		<beans:property name="imageToSwfConverter" ref="png2SwfConverter"/>
+	</beans:bean>
+	
+	<beans:bean id="thumbCreator" class="org.bigbluebutton.presentation.imp.ThumbnailCreatorImp">
+		<beans:property name="imageMagickDir" value="${imageMagickDir}"/>
+		<beans:property name="blankThumbnail" value="${BLANK_THUMBNAIL}"/>
+	</beans:bean>
+	
+	<beans:bean id="slidesGenerationService" class="org.bigbluebutton.presentation.imp.PdfToSwfSlidesGenerationService">
+		<beans:property name="counterService" ref="pageCounterService"/>
+		<beans:property name="pageConverter" ref="pdf2SwfPageConverter"/>
+		<beans:property name="pdfPageToImageConversionService" ref="imageConvSvc"/>
+		<beans:property name="thumbnailCreator" ref="thumbCreator"/>
+		<beans:property name="blankSlide" value="${BLANK_SLIDE}"/>
+		<beans:property name="maxConversionTime" value="${maxConversionTime}"/>
+	</beans:bean>		
+						
+</beans:beans>
