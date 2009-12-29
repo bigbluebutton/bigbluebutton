@@ -37,8 +37,8 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
 	
 	private static final Pattern PAGE_NUMBER_PATTERN = Pattern.compile("(.+-thumb)-([0-9]+)(.png)");
 	
-	private String imageMagickDir;
-	private String blankThumbnail;
+	private String IMAGEMAGICK_DIR;
+	private String BLANK_THUMBNAIL;
 	
 	private static String TEMP_THUMB_NAME = "temp-thumb";
 	
@@ -68,7 +68,7 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
 	 	String source = presentationFile.getAbsolutePath();
 	 	String dest = thumbsDir.getAbsolutePath() + File.separator + TEMP_THUMB_NAME + ".png";
 	 	
-		String COMMAND = imageMagickDir + "/convert -thumbnail 150x150 " + source + " " + dest;
+		String COMMAND = IMAGEMAGICK_DIR + "/convert -thumbnail 150x150 " + source + " " + dest;
 		
 		Process p;
 		try {
@@ -137,7 +137,7 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
 	
 	private void copyBlankThumbnail(File thumb) {
 		try {
-			FileUtils.copyFile(new File(blankThumbnail), thumb);
+			FileUtils.copyFile(new File(BLANK_THUMBNAIL), thumb);
 		} catch (IOException e) {
 			log.error("IOException while copying blank thumbnail.");
 		}		
@@ -151,11 +151,11 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
 	}
 
 	public void setImageMagickDir(String imageMagickDir) {
-		this.imageMagickDir = imageMagickDir;
+		IMAGEMAGICK_DIR = imageMagickDir;
 	}
 
 	public void setBlankThumbnail(String blankThumbnail) {
-		this.blankThumbnail = blankThumbnail;
+		BLANK_THUMBNAIL = blankThumbnail;
 	}
 
 }

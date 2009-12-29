@@ -26,8 +26,11 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class SupportedDocumentFilter {
-	
+	private static Logger log = LoggerFactory.getLogger(SupportedDocumentFilter.class);
 	private ConversionProgressNotifier notifier;
 	
 	public boolean isSupported(UploadedPresentation pres) {
@@ -39,6 +42,7 @@ public class SupportedDocumentFilter {
 		boolean supported = SupportedFileTypes.isFileSupported(ext);
 		notifyProgressListener(supported, pres);
 		if (supported) {
+			log.info("Received supported file " + pres.getUploadedFile().getAbsolutePath());
 			pres.setFileType(ext);
 		}
 		return supported;

@@ -24,11 +24,11 @@ dataSource {
 	password = "secret"
 }
 
-hibernate {
-    cache.use_second_level_cache=true
-    cache.use_query_cache=true
-    cache.provider_class='org.hibernate.cache.EhCacheProvider'
-}
+//hibernate {
+//    cache.use_second_level_cache=true
+//    cache.use_query_cache=true
+//    cache.provider_class='org.hibernate.cache.EhCacheProvider'
+//}
 
 // environment specific settings
 environments {
@@ -41,7 +41,7 @@ environments {
 	test {
 		dataSource {
 			dbCreate = 'create'
-			url = "jdbc:hsqldb:mem:testDb"
+			url = "jdbc:mysql://localhost/bigbluebutton_test"
 		}
 	}
 	production {

@@ -99,7 +99,7 @@ public class PdfToSwfSlidesGenerationService {
 				}
 			}
 			slideGenerated++;	
-			sendConversionUpdateMessage(slideGenerated++, pres);
+			sendConversionUpdateMessage(slideGenerated, pres);
 		}
 	}
 	

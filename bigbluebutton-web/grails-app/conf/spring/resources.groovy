@@ -29,5 +29,9 @@ beans = {
 	
 	jmsTemplate(org.springframework.jms.core.JmsTemplate) {
 		connectionFactory = jmsFactory
-	} 		
+	} 	
+	
+	jmsTemplate(org.springframework.jms.core.JmsTemplate) {
+		connectionFactory = jmsFactory
+	} 
 }

@@ -28,9 +28,11 @@ import org.bigbluebutton.presentation.ChannelNameConstants;
 import org.bigbluebutton.presentation.PageConverter;
 import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.presentation.UploadedPresentation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OfficeToPdfConversionService {
-		
+	private static Logger log = LoggerFactory.getLogger(OfficeToPdfConversionService.class);	
 	/*
 	 * Converts the Office document to Pdf.
 	 * Returns 
@@ -46,6 +48,7 @@ public class OfficeToPdfConversionService {
 				boolean success = converter.convert(presentationFile, pdfOutput, 0);
 				
 				if (success) {
+					log.info("Successfully converted office file to pdf.");
 					return makePdfTheUploadedFileAndSendForProcessing(pres, pdfOutput);
 				} 
 		}

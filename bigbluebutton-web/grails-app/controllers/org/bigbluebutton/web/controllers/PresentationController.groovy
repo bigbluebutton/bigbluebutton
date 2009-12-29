@@ -29,11 +29,13 @@ import org.springframework.util.FileCopyUtils
 import grails.converters.*
 import org.bigbluebutton.web.services.PresentationService
 import org.bigbluebutton.presentation.UploadedPresentation
+import org.bigbluebutton.presentation.imp.Testing123
 
 class PresentationController {
 	PresentationService presentationService
-	static transactional = true
-    
+//	static transactional = false
+	def test123
+	
 	def index = {
 		println 'in PresentationController index'
 		render(view:'upload-file') 
@@ -89,7 +91,7 @@ class PresentationController {
 			
 			UploadedPresentation uploadedPres = new UploadedPresentation(params.conference, params.room, presentationName);
 			uploadedPres.setUploadedFile(pres);
-			
+//			test123.testtest();
 			presentationService.processUploadedPresentation(uploadedPres)							             			     	
 		}    
 	    	else {

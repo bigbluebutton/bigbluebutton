@@ -2,14 +2,49 @@
 <beans:beans xmlns="http://www.springframework.org/schema/integration"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:jms="http://www.springframework.org/schema/integration/jms"
     xmlns:stream="http://www.springframework.org/schema/integration/stream"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
             http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
             http://www.springframework.org/schema/integration
             http://www.springframework.org/schema/integration/spring-integration-1.0.xsd
+            http://www.springframework.org/schema/integration/jms
+			http://www.springframework.org/schema/integration/jms/spring-integration-jms-1.0.xsd
             http://www.springframework.org/schema/integration/stream
             http://www.springframework.org/schema/integration/stream/spring-integration-stream-1.0.xsd">
+
+	<!--beans:bean id="documentConversionServiceGateway" class="org.bigbluebutton.presentation.DocumentConversionServiceGateway">
+		<beans:property name="presentationService" ref="presentationService"/>
+		<beans:property name="documentConversionService" ref="documentConversionService"/>
+	</beans:bean-->
+		
+	<gateway id="documentConversionService" service-interface="org.bigbluebutton.presentation.DocumentConversionService"/>
+	<channel id="convertChannel"/>
+	<filter method="isSupported" input-channel="convertChannel" output-channel="docRouterChannel" discard-channel="discardChannel">
+		<beans:bean class="org.bigbluebutton.presentation.SupportedDocumentFilter">
+			<beans:property name="conversionProgressNotifier" ref="conversionProgressNotifier"/>
+		</beans:bean>
+	</filter>
+
+	<channel id="docRouterChannel"/>
+	<router input-channel="docRouterChannel">
+		<beans:bean class="org.bigbluebutton.presentation.FileTypeRouter"/>
+	</router>
+
+	<channel id="officeFileChannel"/>
+	<channel id="pdfFileChannel"/>
 	
+	<gateway id="conversionProgressNotifier" service-interface="org.bigbluebutton.presentation.ConversionProgressNotifier"/>
+	
+	<service-activator input-channel="officeFileChannel" method="convertOfficeToPdf">
+		<beans:bean class="rg.bigbluebutton.presentation.imp.OfficeToPdfConversionService"/>
+	</service-activator>
+    <service-activator input-channel="pdfFileChannel" ref="slidesGenerationService" method="generateSlides"/>
+	<channel id="discardChannel"/>
+    <channel id="conversionProgressChannel"/>
+    
+    <jms:outbound-channel-adapter id="jmsOut" destination="UpdatesQueue" channel="conversionProgressChannel"/>
+        	
 	<beans:bean id="pageExtractor" class="org.bigbluebutton.presentation.imp.GhostscriptPageExtractor">
 		<beans:property name="ghostscriptExec" value="${ghostScriptExec}"/>
 		<beans:property name="noPdfMarkWorkaround" value="${noPdfMarkWorkaround}"/>
@@ -53,6 +88,7 @@
 		<beans:property name="thumbnailCreator" ref="thumbCreator"/>
 		<beans:property name="blankSlide" value="${BLANK_SLIDE}"/>
 		<beans:property name="maxConversionTime" value="${maxConversionTime}"/>
+		<beans:property name="conversionProgressNotifier" ref="conversionProgressNotifier"/>
 	</beans:bean>		
 						
 </beans:beans>

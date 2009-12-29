@@ -28,6 +28,6 @@ import org.springframework.integration.annotation.Gateway;
 
 public interface ConversionProgressNotifier {
 	
-	@Gateway(requestChannel="conversionProgressChannel")
+	@Gateway(requestChannel=ChannelNameConstants.conversionProgressChannel)
 	void sendConversionProgress(Map<String, Object> message);
 }
