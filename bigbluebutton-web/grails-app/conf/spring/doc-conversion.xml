@@ -26,6 +26,7 @@
 	
 	<integration:channel id="officeFileChannel"/>
 	<integration:channel id="pdfFileChannel"/>
+	<integration:channel id="imageFileChannel"/>
 	<integration:channel id="conversionProgressChannel"/>
 	<integration:gateway id="conversionProgressNotifier" service-interface="org.bigbluebutton.presentation.ConversionProgressNotifier"/>
 	
@@ -40,8 +41,10 @@
 		<property name="conversionProgressNotifier" ref="conversionProgressNotifier"/>
 	</bean>
 		
-    <integration:service-activator input-channel="pdfFileChannel" ref="slidesGenerationService" method="generateSlides"/>
+    <integration:service-activator input-channel="pdfFileChannel" ref="pdfToSwfSlidesGenerationService" method="generateSlides"/>
 	<integration:channel id="discardChannel"/>
+    
+    <integration:service-activator input-channel="imageFileChannel" ref="imageToSwfSlidesGenerationService" method="generateSlides"/>
         
     <jms:outbound-channel-adapter id="jmsOut" destination-name="UpdatesQueue" channel="conversionProgressChannel"/>
         	
@@ -87,15 +90,28 @@
 	
 	<bean id="generatedSlidesInfoHelper" class="org.bigbluebutton.presentation.GeneratedSlidesInfoHelperImp"/>
 	
-	<bean id="slidesGenerationService" class="org.bigbluebutton.presentation.imp.PdfToSwfSlidesGenerationService">
+	<bean id="pdfToSwfSlidesGenerationService" class="org.bigbluebutton.presentation.imp.PdfToSwfSlidesGenerationService">
 		<property name="counterService" ref="pageCounterService"/>
 		<property name="pageConverter" ref="pdf2SwfPageConverter"/>
 		<property name="pdfPageToImageConversionService" ref="imageConvSvc"/>
 		<property name="thumbnailCreator" ref="thumbCreator"/>
 		<property name="blankSlide" value="${BLANK_SLIDE}"/>
 		<property name="maxConversionTime" value="${maxConversionTime}"/>
+		<property name="swfSlidesGenerationProgressNotifier" ref="swfSlidesGenerationProgressNotifier"/>
+	</bean>	
+	
+	<bean id="imageToSwfSlidesGenerationService" class="org.bigbluebutton.presentation.imp.ImageToSwfSlidesGenerationService">
+		<property name="pngPageConverter" ref="png2SwfConverter"/>
+		<property name="jpgPageConverter" ref="jpg2SwfConverter"/>
+		<property name="thumbnailCreator" ref="thumbCreator"/>
+		<property name="blankSlide" value="${BLANK_SLIDE}"/>
+		<property name="maxConversionTime" value="${maxConversionTime}"/>
+		<property name="swfSlidesGenerationProgressNotifier" ref="swfSlidesGenerationProgressNotifier"/>
+	</bean>
+	
+	<bean id="swfSlidesGenerationProgressNotifier" class="org.bigbluebutton.presentation.imp.SwfSlidesGenerationProgressNotifier">
 		<property name="conversionProgressNotifier" ref="conversionProgressNotifier"/>
 		<property name="generatedSlidesInfoHelper" ref="generatedSlidesInfoHelper"/>
-	</bean>				
+	</bean>			
 						
 </beans>

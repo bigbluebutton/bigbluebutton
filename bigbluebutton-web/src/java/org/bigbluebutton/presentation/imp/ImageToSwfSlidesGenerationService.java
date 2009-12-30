@@ -11,38 +11,38 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.bigbluebutton.presentation.PageConverter;
-import org.bigbluebutton.presentation.PdfToSwfSlide;
+import org.bigbluebutton.presentation.ImageToSwfSlide;
 import org.bigbluebutton.presentation.ThumbnailCreator;
 import org.bigbluebutton.presentation.UploadedPresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PdfToSwfSlidesGenerationService {
-	private static Logger log = LoggerFactory.getLogger(PdfToSwfSlidesGenerationService.class);
+public class ImageToSwfSlidesGenerationService {
+	private static Logger log = LoggerFactory.getLogger(ImageToSwfSlidesGenerationService.class);
 	
 	private ExecutorService executor;
-	private CompletionService<PdfToSwfSlide> completionService;
+	private CompletionService<ImageToSwfSlide> completionService;
 	
 	private SwfSlidesGenerationProgressNotifier notifier;
-	private PageCounterService counterService;
-	private PageConverter pdfToSwfConverter;
-	private PdfPageToImageConversionService imageConvertService;
+	private PageConverter jpgToSwfConverter;
+	private PageConverter pngToSwfConverter;
 	private ThumbnailCreator thumbnailCreator;
 	private long MAX_CONVERSION_TIME = 5*60*1000;
 	private String BLANK_SLIDE;
 	
-	public PdfToSwfSlidesGenerationService() {
+	public ImageToSwfSlidesGenerationService() {
 		int numThreads = Runtime.getRuntime().availableProcessors();
 		executor = Executors.newFixedThreadPool(numThreads);
-		completionService = new ExecutorCompletionService<PdfToSwfSlide>(executor);
+		completionService = new ExecutorCompletionService<ImageToSwfSlide>(executor);
 	}
 	
 	public void generateSlides(UploadedPresentation pres) {
-		log.debug("Generating slides");		
-		counterService.determineNumberOfPages(pres);
-		System.out.println("Determined number of pages " + pres.getNumberOfPages());
+		log.debug("Generating slides");	
+		pres.setNumberOfPages(1); // There should be only one image to convert.
+		log.debug("Determined number of pages " + pres.getNumberOfPages());
 		if (pres.getNumberOfPages() > 0) {
-			convertPdfToSwf(pres);
+			PageConverter pageConverter = determinePageConverter(pres);
+			convertImageToSwf(pres, pageConverter);
 		}
 		
 		log.debug("Creating thumbnails.");
@@ -52,28 +52,38 @@ public class PdfToSwfSlidesGenerationService {
 		notifier.sendConversionCompletedMessage(pres);
 	}
 	
+	private PageConverter determinePageConverter(UploadedPresentation pres) {
+		String fileType = pres.getFileType().toUpperCase();
+		if (("JPEG".equals(fileType)) || ("JPG".equals(fileType))) {
+			return jpgToSwfConverter;
+		}
+		
+		return pngToSwfConverter;
+	}
+	
 	private void createThumbnails(UploadedPresentation pres) {
 		thumbnailCreator.createThumbnails(pres.getUploadedFile(), pres.getNumberOfPages());
 	}
 	
-	private void convertPdfToSwf(UploadedPresentation pres) {
+	private void convertImageToSwf(UploadedPresentation pres, PageConverter pageConverter) {
 		int numPages = pres.getNumberOfPages();				
-		PdfToSwfSlide[] slides = setupSlides(pres, numPages);
+		ImageToSwfSlide[] slides = setupSlides(pres, numPages, pageConverter);
 		generateSlides(slides);		
 		handleSlideGenerationResult(pres, slides);		
 	}
 	
-	private void handleSlideGenerationResult(UploadedPresentation pres, PdfToSwfSlide[] slides) {
+	private void handleSlideGenerationResult(UploadedPresentation pres, ImageToSwfSlide[] slides) {
 		long endTime = System.currentTimeMillis() + MAX_CONVERSION_TIME;
 		int slideGenerated = 0;
 		
 		for (int t = 0; t < slides.length; t++) {
-			Future<PdfToSwfSlide> future = null;
-			PdfToSwfSlide slide = null;
+			Future<ImageToSwfSlide> future = null;
+			ImageToSwfSlide slide = null;
 			try {
 				long timeLeft = endTime - System.currentTimeMillis();
 				future = completionService.take();
 				slide = future.get(timeLeft, TimeUnit.MILLISECONDS);
+				System.out.println("handleSlideGenerationResult " + slide.getPageNumber());
 			} catch (InterruptedException e) {
 				log.error("InterruptedException while creating slide " + pres.getName());
 			} catch (ExecutionException e) {
@@ -92,14 +102,13 @@ public class PdfToSwfSlidesGenerationService {
 		}
 	}
 	
-	private PdfToSwfSlide[] setupSlides(UploadedPresentation pres, int numPages) {
-		PdfToSwfSlide[] slides = new PdfToSwfSlide[numPages];
+	private ImageToSwfSlide[] setupSlides(UploadedPresentation pres, int numPages, PageConverter pageConverter) {
+		ImageToSwfSlide[] slides = new ImageToSwfSlide[numPages];
 		
 		for (int page = 1; page <= numPages; page++) {		
-			PdfToSwfSlide slide = new PdfToSwfSlide(pres, page);
+			ImageToSwfSlide slide = new ImageToSwfSlide(pres, page);
 			slide.setBlankSlide(BLANK_SLIDE);
-			slide.setPageConverter(pdfToSwfConverter);
-			slide.setPdfPageToImageConversionService(imageConvertService);
+			slide.setPageConverter(pageConverter);
 			
 			// Array index is zero-based
 			slides[page-1] = slide;
@@ -108,28 +117,24 @@ public class PdfToSwfSlidesGenerationService {
 		return slides;
 	}
 	
-	private void generateSlides(PdfToSwfSlide[] slides) {
+	private void generateSlides(ImageToSwfSlide[] slides) {
 		for (int i = 0; i < slides.length; i++) {
 			System.out.println("generateSlides " + i);
-			final PdfToSwfSlide slide = slides[i];
-			completionService.submit(new Callable<PdfToSwfSlide>() {
-				public PdfToSwfSlide call() {
+			final ImageToSwfSlide slide = slides[i];
+			completionService.submit(new Callable<ImageToSwfSlide>() {
+				public ImageToSwfSlide call() {
 					return slide.createSlide();
 				}
 			});
 		}
 	}
 		
-	public void setCounterService(PageCounterService counterService) {
-		this.counterService = counterService;
+	public void setJpgPageConverter(PageConverter converter) {
+		this.jpgToSwfConverter = converter;
 	}
 	
-	public void setPageConverter(PageConverter converter) {
-		this.pdfToSwfConverter = converter;
-	}
-	
-	public void setPdfPageToImageConversionService(PdfPageToImageConversionService service) {
-		this.imageConvertService = service;
+	public void setPngPageConverter(PageConverter converter) {
+		this.pngToSwfConverter = converter;
 	}
 	
 	public void setBlankSlide(String blankSlide) {

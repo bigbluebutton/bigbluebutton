@@ -30,8 +30,8 @@ import org.bigbluebutton.presentation.imp.PdfPageToImageConversionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Slide {
-	private static Logger log = LoggerFactory.getLogger(Slide.class);
+public class PdfToSwfSlide {
+	private static Logger log = LoggerFactory.getLogger(PdfToSwfSlide.class);
 	
 	private UploadedPresentation pres;
 	private int page;
@@ -43,12 +43,12 @@ public class Slide {
 	private boolean done = false;
 	private File slide;
 	
-	public Slide(UploadedPresentation pres, int page) {
+	public PdfToSwfSlide(UploadedPresentation pres, int page) {
 		this.pres = pres;
 		this.page = page;
 	}
 	
-	public Slide createSlide() {		
+	public PdfToSwfSlide createSlide() {		
 		File presentationFile = pres.getUploadedFile();
 		slide = new File(presentationFile.getParent() + File.separatorChar + "slide-" + page + ".swf");
 		System.out.println("Creating slide " + slide.getAbsolutePath());
