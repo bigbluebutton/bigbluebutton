@@ -30,7 +30,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 </head>
 <body>
 
-<%@ include file="login.jsp" %>
+<%@ include file="bbb-api.jsp" %>
 <%@ include file="demo_header.jsp" %>
 
 <br>
@@ -54,7 +54,7 @@ if (request.getParameterMap().isEmpty()) {
 <td width="50%">
 
 Enter your name: <input type="text"
-	name="name" /> <br />
+	name="username" /> <br />
 
 <p/>
 
@@ -82,10 +82,10 @@ Join: Demo Meeting
 	// Got an action=create
 	//
 	
-	String name = request.getParameter("name");
+	String username = request.getParameter("username");
 	String meetingID = URLEncoder.encode("Demo Meeting","UTF-8");
 	out.println( "<p>Joining Demo Meeting ..." );
-	String joinURL = getURL(name, meetingID);
+	String joinURL = getJoinURL(username, meetingID);
 
 	%>
 	

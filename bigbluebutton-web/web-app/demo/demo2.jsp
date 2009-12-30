@@ -30,7 +30,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 </head>
 <body>
 
-<%@ include file="login.jsp" %>
+<%@ include file="bbb-api.jsp" %>
 <%@ include file="demo_header.jsp" %>
 
 <br>
