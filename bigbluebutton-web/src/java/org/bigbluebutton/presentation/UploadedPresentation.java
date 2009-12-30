@@ -31,6 +31,7 @@ public final class UploadedPresentation {
 	private File uploadedFile;
 	private String fileType = "unknown";
 	private int numberOfPages = 0;
+	private boolean lastStepSuccessful = false;
 	
 	public UploadedPresentation(String conference, String room, String name) {
 		this.conference = conference;
@@ -72,6 +73,14 @@ public final class UploadedPresentation {
 
 	public void setNumberOfPages(int numberOfPages) {
 		this.numberOfPages = numberOfPages;
+	}
+
+	public boolean isLastStepSuccessful() {
+		return lastStepSuccessful;
+	}
+
+	public void setLastStepSuccessful(boolean lastStepSuccessful) {
+		this.lastStepSuccessful = lastStepSuccessful;
 	}
 	
 	

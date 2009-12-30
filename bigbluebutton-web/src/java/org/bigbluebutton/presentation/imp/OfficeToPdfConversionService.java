@@ -23,8 +23,6 @@
 package org.bigbluebutton.presentation.imp;
 
 import java.io.File;
-
-import org.bigbluebutton.presentation.ChannelNameConstants;
 import org.bigbluebutton.presentation.PageConverter;
 import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.presentation.UploadedPresentation;
@@ -33,30 +31,43 @@ import org.slf4j.LoggerFactory;
 
 public class OfficeToPdfConversionService {
 	private static Logger log = LoggerFactory.getLogger(OfficeToPdfConversionService.class);	
+	
 	/*
-	 * Converts the Office document to Pdf.
-	 * Returns 
-	 * 		the PDFChannel if successful
-	 * 		the discardChannel if unsuccessful
+	 * Convert the Office document to PDF. If successful, update 
+	 * UploadPresentation.uploadedFile with the new PDF out and
+	 * UploadPresentation.lastStepSuccessful to TRUE.
 	 */
-	public String convertOfficeToPdf(UploadedPresentation pres) {
+	public UploadedPresentation convertOfficeToPdf(UploadedPresentation pres) {
+		initialize(pres);
 		if (SupportedFileTypes.isOfficeFile(pres.getFileType())) {
-				PageConverter converter = new Office2PdfPageConverter();
-				File presentationFile = pres.getUploadedFile();
-				String filenameWithoutExt = presentationFile.getAbsolutePath().substring(0, presentationFile.getAbsolutePath().lastIndexOf("."));
-				File pdfOutput = new File(filenameWithoutExt + ".pdf");
-				boolean success = converter.convert(presentationFile, pdfOutput, 0);
-				
-				if (success) {
-					log.info("Successfully converted office file to pdf.");
-					return makePdfTheUploadedFileAndSendForProcessing(pres, pdfOutput);
-				} 
+			File pdfOutput = setupOutputPdfFile(pres);				
+			if (convertOfficeDocToPdf(pres, pdfOutput)) {
+				log.info("Successfully converted office file to pdf.");
+				makePdfTheUploadedFileAndSetStepAsSuccess(pres, pdfOutput);
+			} else {
+				log.warn("Failed to convert " + pres.getUploadedFile().getAbsolutePath() + " to Pdf.");
+			}
 		}
-		return ChannelNameConstants.discardChannel;
+		return pres;
 	}
 	
-	private String makePdfTheUploadedFileAndSendForProcessing(UploadedPresentation pres, File pdf) {
+	public void initialize(UploadedPresentation pres) {
+		pres.setLastStepSuccessful(false);
+	}
+	
+	private File setupOutputPdfFile(UploadedPresentation pres) {		
+		File presentationFile = pres.getUploadedFile();
+		String filenameWithoutExt = presentationFile.getAbsolutePath().substring(0, presentationFile.getAbsolutePath().lastIndexOf("."));
+		return new File(filenameWithoutExt + ".pdf");
+	}
+	
+	private boolean convertOfficeDocToPdf(UploadedPresentation pres, File pdfOutput) {
+		PageConverter converter = new Office2PdfPageConverter();
+		return converter.convert(pres.getUploadedFile(), pdfOutput, 0);
+	}
+	
+	private void makePdfTheUploadedFileAndSetStepAsSuccess(UploadedPresentation pres, File pdf) {
 		pres.setUploadedFile(pdf);
-		return ChannelNameConstants.pdfFileChannel;
+		pres.setLastStepSuccessful(true);
 	}
 }

@@ -22,27 +22,18 @@
  */
 package org.bigbluebutton.web.services
 
-import org.springframework.jms.core.JmsTemplate
 import java.util.*;
 import java.util.concurrent.*;
 import java.lang.InterruptedException
 import org.springframework.util.FileCopyUtils
-
-import org.bigbluebutton.presentation.DocumentConversionServiceGateway
-import org.bigbluebutton.presentation.imp.Testing123
+import org.bigbluebutton.presentation.DocumentConversionService
 
 class PresentationService {
 
     static transactional = false
-//    DocumentConversionServiceGateway documentConversionServiceGateway
 	def documentConversionService
 	def presentationDir
-	def test123
-	
-	public PresentationService() {
-    	println "Start Presetnation Service"
-    }
-	
+		
     def deletePresentation = {conf, room, filename ->
     		def directory = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + filename)
     		deleteDirectory(directory) 
@@ -99,7 +90,6 @@ class PresentationService {
 		new Timer().runAfter(1000) 
 		{
 			documentConversionService.processDocument(uploadedPres)
-			test123.testtest();
 		}
 	}
  	
