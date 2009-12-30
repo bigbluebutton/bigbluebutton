@@ -33,7 +33,6 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 <%@ include file="bbb_api.jsp"%>
 <%@ include file="demo_header.jsp"%>
 
-
 <br>
 
 <% 
