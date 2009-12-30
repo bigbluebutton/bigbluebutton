@@ -641,7 +641,7 @@ if [ -n "$HOST" ]; then
 
         if [ -f /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api.jsp ]; then
 		echo "Assigning $HOST for api demos in /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api.jsp"
-		sudo sed -i "s/http:\/\/\([^\"\/]*\)\([\"\/]\)/http:\/\/$HOST\2/g" \
+		sudo sed -i "s/BigBlueButtonURL = \"http:\/\/\([^\"\/]*\)\([\"\/]\)/BigBlueButtonURL = \"http:\/\/$HOST\2/g" \
 				/var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api.jsp
         fi
 
