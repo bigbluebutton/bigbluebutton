@@ -22,7 +22,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 
 <%@ page
 	import="java.util.*,java.io.*,java.net.*,javax.crypto.*,javax.xml.parsers.*,org.w3c.dom.Document,org.xml.sax.*"
-	errorPage="/error.jsp" %>
+	errorPage="error.jsp" %>
 
 <%@ page import="org.apache.commons.codec.digest.*"%>
 

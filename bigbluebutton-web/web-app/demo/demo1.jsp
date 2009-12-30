@@ -26,7 +26,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Insert title here</title>
+<title>BigBlueButton API Demos</title>
 </head>
 <body>
 
@@ -43,7 +43,7 @@ if (request.getParameterMap().isEmpty()) {
 	%>
 	
 	<hr />
-<h2>Demo #1: Join the Demo Meeting</h2>
+<h2>Demo #1: Join the Demo Meeting.</h2>
 <hr />
 
 <FORM NAME="form1" METHOD="GET">
@@ -82,9 +82,8 @@ Join: Demo Meeting
 	// Got an action=create
 	//
 	
-	String username = request.getParameter("username");
+	String username = URLEncoder.encode(request.getParameter("username"),"UTF-8");
 	String meetingID = URLEncoder.encode("Demo Meeting","UTF-8");
-	out.println( "<p>Joining Demo Meeting ..." );
 	String joinURL = getJoinURL(username, meetingID);
 
 	%>

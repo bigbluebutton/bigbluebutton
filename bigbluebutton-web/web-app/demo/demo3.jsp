@@ -39,7 +39,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 <%@ include file="bbb_api.jsp"%>
 <%@ include file="demo_header.jsp"%>
 
-<%@ page import="java.util.regex.*" errorPage="/error.jsp"%>
+<%@ page import="java.util.regex.*" %>
 
 <br>
 
@@ -51,7 +51,7 @@ if (request.getParameterMap().isEmpty()) {
 	%>
 
 <hr />
-<h2>Demo #3: Create a You Own Meeting.1</h2>
+<h2>Demo #3: Create a You Own Meeting.2.</h2>
 <hr />
 
 <p />
@@ -84,11 +84,11 @@ if (request.getParameterMap().isEmpty()) {
 	//
 	
     String username = request.getParameter("username");
-	String meetingID = URLEncoder.encode(username+"xxxmeeting","UTF-8");
+	String meetingID = URLEncoder.encode(username+"'s meeting","UTF-8");
 
     String meetingToken = "";
     
-	String joinURL = getJoinURL(username, meetingID);
+	String joinURL = getJoinURL(URLEncoder.encode(username,"UTF-8"), meetingID);
 
 	 	String p = "meetingToken=[^&]*";
 	 Pattern pattern =
@@ -108,7 +108,7 @@ if (request.getParameterMap().isEmpty()) {
 	%>
 
 <hr />
-<h2><%=username %>'s meeting has been created.</h2>
+<h2>Created: <%=username %>'s meeting.</h2>
 <hr />
 
 
@@ -122,12 +122,12 @@ if (request.getParameterMap().isEmpty()) {
 			created.</center>
 			</td>
 
-			<td width="50%">Click (or book mark) the following link to join:
+			<td width="50%">Click (or bookmark) the following link to join:
 			<p />
-			<center><a href="<%=joinURL%>">Join</a> <a
-				href="<%=inviteURL%>">Invite</a></center>
+			<center><a href="<%=joinURL%>">Join</a> </center>
 			<p />&nbsp;
-			<p />To invite others, send them the following link:
+			<p />To invite others, send them the following <a
+				href="<%=inviteURL%>">link</a>:
 			<form name="empty" method="POST"><textarea cols="60" rows="5"
 				name="myname" style="overflow: hidden">
 <%=inviteURL%>
@@ -149,14 +149,15 @@ if (request.getParameterMap().isEmpty()) {
 	String meetingID = request.getParameter("meetingID");
 	String username = request.getParameter("username");
 	String meetingToken = request.getParameter("meetingToken");
-	String enterURL = BigBlueButtonURL+"demo/demo3.jsp?action=join&username="+username+"&meetingID="+meetingID+"&"+meetingToken;
+	out.println( "MeetingID: #"+meetingID+"#");
+	
+	String enterURL = BigBlueButtonURL+"demo/demo3.jsp?action=join&username="+URLEncoder.encode(username,"UTF-8")+"&meetingID="+URLEncoder.encode(meetingID,"UTF-8");
 	//out.print( "meetingID: # 1 #" + meetingID +"#" );	
 	//out.print( "meetingToken: ##" + meetingToken +"#" );
 	// out.print( "meetingRunning: ## ##" + isMeetingRunning( meetingToken, meetingID ) + "## #"); 
 	//out.print( "meetingRunning: ##" + getURLisMeetingRunning(meetingToken, meetingID ));
-	// String hard = "http://192.168.0.154/bigbluebutton/api/isMeetingRunning?meetingToken=34e57723-2529-4e33-b4ba-3626d2941bdb&meetingID=asfsdxxxmeeting&checksum=aea313057ef4cc9b32913c8c257381b47fde86ca";
 
-	if ( isMeetingRunning( meetingToken, meetingID ).equals("true") ) {
+	if ( isMeetingRunning( meetingToken, URLEncoder.encode(meetingID,"UTF-8")).equals("true") ) {
 		//
 		// The meeting is running so let's join now
 		//
@@ -169,7 +170,7 @@ if (request.getParameterMap().isEmpty()) {
 		//
 		// The meeting has not yet started, so let's poll every five seconds until the meeting begins
 		//
-	String checkMeetingStatus = getURLisMeetingRunning(meetingToken, meetingID );
+	String checkMeetingStatus = getURLisMeetingRunning(meetingToken, URLEncoder.encode(meetingID,"UTF-8") );
 
 	%>
 
@@ -272,7 +273,7 @@ function mycallback() {
 	//
 	// We have an invite request to join an existing meeting and the meeting is running
 	//
-	String username = request.getParameter("username");
+	String username = URLEncoder.encode(request.getParameter("username"),"UTF-8");
 	String meetingID = URLEncoder.encode(request.getParameter("meetingID"),"UTF-8");
 	String joinURL = getJoinURL(username, meetingID);
 	%>
