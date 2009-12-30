@@ -51,7 +51,7 @@ if (request.getParameterMap().isEmpty()) {
 	%>
 
 <hr />
-<h2>Demo #3: Create a You Own Meeting.</h2>
+<h2>Demo #3: Create a You Own Meeting.1</h2>
 <hr />
 
 <p />
@@ -145,10 +145,11 @@ if (request.getParameterMap().isEmpty()) {
 
 <%
 	
-} else if (request.getParameter("action").equals("invite")) {
+} else if (request.getParameter("action").equals("enter")) {
 	String meetingID = request.getParameter("meetingID");
+	String username = request.getParameter("username");
 	String meetingToken = request.getParameter("meetingToken");
-	String enterURL = BigBlueButtonURL+"demo/demo3.jsp?action=enter&meetingID="+meetingID+"&"+meetingToken;
+	String enterURL = BigBlueButtonURL+"demo/demo3.jsp?action=join&username="+username+"&meetingID="+meetingID+"&"+meetingToken;
 	//out.print( "meetingID: # 1 #" + meetingID +"#" );	
 	//out.print( "meetingToken: ##" + meetingToken +"#" );
 	// out.print( "meetingRunning: ## ##" + isMeetingRunning( meetingToken, meetingID ) + "## #"); 
@@ -200,7 +201,7 @@ function mycallback() {
 </script>
 
 <hr />
-<h2>Waiting for <strong><%=meetingID %></strong> to start.</h2>
+<h2>Now waiting for <strong><%=meetingID %></strong> to start.</h2>
 <hr />
 
 
@@ -211,7 +212,9 @@ function mycallback() {
 		<tr>
 			<td width="50%">
 
-			<p />Waiting for <strong><%=meetingID %></strong> to start.
+			<p>Hi <%=username %>.  Waiting for <strong><%=meetingID %></strong> to start.</p>
+			<br/>
+			<p>(You will be automatically entered into the meeting when it starts).</p>
 			</td>
 			<td width="50%">&nbsp;</td>
 		</tr>
@@ -221,7 +224,7 @@ function mycallback() {
 
 <%
 	}
-} else if (request.getParameter("action").equals("enter")) {
+} else if (request.getParameter("action").equals("invite")) {
 	//
 	// We have an invite to an active meeting.  Ask the person for their name 
 	// so they can join.
@@ -236,7 +239,7 @@ function mycallback() {
 	%>
 
 <hr />
-<h2><strong><%=meetingID %></strong> has started.</h2>
+<h2><strong>You are requesting to join <%=meetingID %></strong>.</h2>
 <hr />
 
 <FORM NAME="form1" METHOD="GET">
@@ -249,11 +252,12 @@ function mycallback() {
 			<td width="50%">Enter your name: <input type="text" name="username" />
 			<br />
 			<INPUT TYPE=hidden NAME=meetingID VALUE="<%=meetingID %>">
-			<p />You are joining <strong><%=meetingID %></strong>.
+			<INPUT TYPE=hidden NAME=meetingToken VALUE="<%=meetingToken %>">
+						<p />You are requesting to join <strong><%=meetingID %></strong>.
 			</td>
-			<td width="50%"><INPUT TYPE=hidden NAME=action VALUE="join">
+			<td width="50%"><INPUT TYPE=hidden NAME=action VALUE="enter">
 			<br />
-			<input type="submit" value="Join" /></td>
+			<input type="submit" value="Enter" /></td>
 		</tr>
 	</tbody>
 </table>
@@ -266,7 +270,7 @@ function mycallback() {
 <%
 } else if (request.getParameter("action").equals("join")) {
 	//
-	// We an ivite request to join an existing meeting and the meeting is running
+	// We have an invite request to join an existing meeting and the meeting is running
 	//
 	String username = request.getParameter("username");
 	String meetingID = URLEncoder.encode(request.getParameter("meetingID"),"UTF-8");
