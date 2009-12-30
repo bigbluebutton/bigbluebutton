@@ -491,10 +491,10 @@ if [ $CHECK ]; then
         echo "/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties (for bbb-web)"
         echo "                                host: $HOST"
 
-	if [ -f /var/lib/tomcat6/webapps/bigbluebutton/demo/login.jsp ]; then
-        	HOST=$(cat /var/lib/tomcat6/webapps/bigbluebutton/demo/login.jsp  | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}')
+	if [ -f /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api.jsp ]; then
+        	HOST=$(cat /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api.jsp  | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}')
         	echo
-        	echo "/var/lib/tomcat6/webapps/bigbluebutton/demo/login.jsp (for api demos)"
+        	echo "/var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api.jsp (for api demos)"
         	echo "                                host: $HOST"
 	fi
 
@@ -639,10 +639,10 @@ if [ -n "$HOST" ]; then
 	# Update api demos
 	#
 
-        if [ -f /var/lib/tomcat6/webapps/bigbluebutton/demo/login.jsp ]; then
-		echo "Assigning $HOST for api demos in /var/lib/tomcat6/webapps/bigbluebutton/demo/login.jsp"
+        if [ -f /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api.jsp ]; then
+		echo "Assigning $HOST for api demos in /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api.jsp"
 		sudo sed -i "s/http:\/\/\([^\"\/]*\)\([\"\/]\)/http:\/\/$HOST\2/g" \
-				/var/lib/tomcat6/webapps/bigbluebutton/demo/login.jsp
+				/var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api.jsp
         fi
 
 
