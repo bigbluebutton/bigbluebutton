@@ -190,7 +190,7 @@ $(document).ready(function(){
 function mycallback() {
 	var isMeetingRunning = $("#HeartBeatDIV > response > running").text();
 	if ( isMeetingRunning == "true" ) {
-		alert("true");
+		//alert("true");
 		window.location = "<%=enterURL %>";
 	}
 	
@@ -266,17 +266,16 @@ function mycallback() {
 <%
 } else if (request.getParameter("action").equals("join")) {
 	//
-	// We have a request to join an existing meeting
+	// We an ivite request to join an existing meeting and the meeting is running
 	//
 	String username = request.getParameter("username");
 	String meetingID = URLEncoder.encode(request.getParameter("meetingID"),"UTF-8");
 	String joinURL = getJoinURL(username, meetingID);
-	// String joinURL = "xxx";
 	%>
 
-<!--  script language="javascript" type="text/javascript">
-window.location.href="<%=joinURL%>";
-</script-->
+<script language="javascript" type="text/javascript">
+	window.location.href="<%=joinURL%>";
+</script>
 
 <% } %>
 
