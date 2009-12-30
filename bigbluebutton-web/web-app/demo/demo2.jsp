@@ -30,8 +30,9 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 </head>
 <body>
 
-<%@ include file="bbb-api.jsp" %>
-<%@ include file="demo_header.jsp" %>
+<%@ include file="bbb_api.jsp"%>
+<%@ include file="demo_header.jsp"%>
+
 
 <br>
 
@@ -90,7 +91,7 @@ Join:&nbsp;<select name="meetingID">
 	String name = request.getParameter("name");
 	String meetingID = URLEncoder.encode(request.getParameter("meetingID"),"UTF-8");
 	
-	String joinURL = getURL(name, meetingID);
+	String joinURL = getJoinURL(name, meetingID);
 
 	
 	%>
