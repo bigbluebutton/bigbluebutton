@@ -41,41 +41,34 @@ if (request.getParameterMap().isEmpty()) {
 	// Assume we want to create a meeting
 	//
 	%>
-	
-	<hr />
+
+<hr />
 <h2>Demo #1: Join the Demo Meeting.</h2>
 <hr />
 
 <FORM NAME="form1" METHOD="GET">
-	
-	<table width=600 cellspacing="20" cellpadding="20" style="border-collapse: collapse; border-right-color: rgb(136, 136, 136);" border=3>
-<tbody>
-<tr>
-<td width="50%">
 
-Enter your name: <input type="text"
-	name="username" /> <br />
+<table width=600 cellspacing="20" cellpadding="20"
+	style="border-collapse: collapse; border-right-color: rgb(136, 136, 136);"
+	border=3>
+	<tbody>
+		<tr>
+			<td width="50%">
 
-<p/>
-
-Join: Demo Meeting
-	
-</td>
-<td width="50%">
-
-	<INPUT TYPE=hidden NAME=action VALUE="create">
-	<br/>
-	<input type="submit"
-	value="Join" />
-	</td>
-</tr>
-</tbody>
+			<p />Join <strong>Demo Meeting</strong>
+			</td>
+			<td width="50%">Enter your name: <input type="text"
+				name="username" /> <br />
+			<INPUT TYPE=hidden NAME=action VALUE="create"> <br />
+			<input type="submit" value="Join" /></td>
+		</tr>
+	</tbody>
 </table>
 
 </FORM>
 
-	
-	<%
+
+<%
 } else  if (request.getParameter("action").equals("create")) {
 	
 	//
@@ -87,14 +80,14 @@ Join: Demo Meeting
 	String joinURL = getJoinURL(username, meetingID);
 
 	%>
-	
+
 <script language="javascript" type="text/javascript">
 window.location.href="<%=joinURL%>";
 </script>
 
-	<% } %>
-	
-<%@ include file="demo_footer.jsp" %>
+<% } %>
+
+<%@ include file="demo_footer.jsp"%>
 
 </body>
 </html>

@@ -28,7 +28,8 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>API Demo - 3</title>
 
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
+<script type="text/javascript"
+	src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
 <script type="text/javascript" src="heartbeat.js"></script>
 
 
@@ -39,7 +40,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 <%@ include file="bbb_api.jsp"%>
 <%@ include file="demo_header.jsp"%>
 
-<%@ page import="java.util.regex.*" %>
+<%@ page import="java.util.regex.*"%>
 
 <br>
 
@@ -51,7 +52,7 @@ if (request.getParameterMap().isEmpty()) {
 	%>
 
 <hr />
-<h2>Demo #3: Create a You Own Meeting.2.</h2>
+<h2>Demo #3: Create a You Own Meeting.25.</h2>
 <hr />
 
 <p />
@@ -62,20 +63,30 @@ if (request.getParameterMap().isEmpty()) {
 	border=3>
 	<tbody>
 		<tr>
-			<td width="50%">Enter your name: <input type="text" name="username" />
-			<br />
-
+			<td width="50%">Step 1. Enter your name.
 			<p />
 			</td>
-			<td width="50%"><INPUT TYPE=hidden NAME=action VALUE="create">
-			<br />
-			<input type="submit" value="Create" /></td>
+			<td width="50%">Enter your name: <input type="text"
+				name="username1" /> <br />
+			<INPUT TYPE=hidden NAME=action VALUE="create"> <br />
+			<input id="submit-button" type="submit" value="Create meeting" /></td>
 		</tr>
 	</tbody>
 </table>
 
 </FORM>
 
+<script>
+$(document).ready(function(){
+    $("input[name='username1']").keyup(function() {
+        if ($("input[name='username1']").val() == "") {
+        	$("#submit-button").attr('value',"Create meeting" );
+        } else {
+       $("#submit-button").attr('value',"Create " +$("input[name='username1']").val()+ "'s meeting" );
+        }
+    });
+});
+</script>
 
 <%
 } else  if (request.getParameter("action").equals("create")) {
@@ -83,7 +94,7 @@ if (request.getParameterMap().isEmpty()) {
 	// User has requested to create a meeting
 	//
 	
-    String username = request.getParameter("username");
+    String username = request.getParameter("username1");
 	String meetingID = URLEncoder.encode(username+"'s meeting","UTF-8");
 
     String meetingToken = "";
@@ -122,16 +133,21 @@ if (request.getParameterMap().isEmpty()) {
 			created.</center>
 			</td>
 
-			<td width="50%">Click (or bookmark) the following link to join:
-			<p />
-			<center><a href="<%=joinURL%>">Join</a> </center>
-			<p />&nbsp;
-			<p />To invite others, send them the following <a
+			<td width="50%">
+						<p />
+						
+						Step 2.  Invite others using the following <a
 				href="<%=inviteURL%>">link</a>:
-			<form name="empty" method="POST"><textarea cols="60" rows="5"
+			<form name="form2" method="POST"><textarea cols="60" rows="5"
 				name="myname" style="overflow: hidden">
 <%=inviteURL%>
 </textarea></form>
+			<p />&nbsp;<p />
+			Step 3.  Click to start your meeting:
+			<p />
+			<center><a href="<%=joinURL%>">Start Meeting</a></center>
+			<p />&nbsp;
+
 			</td>
 		</tr>
 	</tbody>
@@ -149,19 +165,15 @@ if (request.getParameterMap().isEmpty()) {
 	String meetingID = request.getParameter("meetingID");
 	String username = request.getParameter("username");
 	String meetingToken = request.getParameter("meetingToken");
-	out.println( "MeetingID: #"+meetingID+"#");
 	
 	String enterURL = BigBlueButtonURL+"demo/demo3.jsp?action=join&username="+URLEncoder.encode(username,"UTF-8")+"&meetingID="+URLEncoder.encode(meetingID,"UTF-8");
-	//out.print( "meetingID: # 1 #" + meetingID +"#" );	
-	//out.print( "meetingToken: ##" + meetingToken +"#" );
-	// out.print( "meetingRunning: ## ##" + isMeetingRunning( meetingToken, meetingID ) + "## #"); 
-	//out.print( "meetingRunning: ##" + getURLisMeetingRunning(meetingToken, meetingID ));
+
 
 	if ( isMeetingRunning( meetingToken, URLEncoder.encode(meetingID,"UTF-8")).equals("true") ) {
 		//
 		// The meeting is running so let's join now
 		//
-		%> 
+		%>
 <script type="text/javascript">
 	window.location = "<%=enterURL %>";
 </script>
@@ -176,10 +188,6 @@ if (request.getParameterMap().isEmpty()) {
 
 <script type="text/javascript">
 $(document).ready(function(){
- $("#msgid1").html("This is Hello World by JQuery 13");
-});
-
-	$(document).ready(function(){
 		$.jheartbeat.set({
 		   url: "<%=checkMeetingStatus%>",
 		   delay: 5000
@@ -195,14 +203,11 @@ function mycallback() {
 		//alert("true");
 		window.location = "<%=enterURL %>";
 	}
-	
-	$("#msgid1").text( "*********** fred #" + isMeetingRunning + "# " + new Date() );
-
 }
 </script>
 
 <hr />
-<h2>Now waiting for <strong><%=meetingID %></strong> to start.</h2>
+<h2><strong><%=meetingID %></strong> has not yet started.</h2>
 <hr />
 
 
@@ -213,11 +218,12 @@ function mycallback() {
 		<tr>
 			<td width="50%">
 
-			<p>Hi <%=username %>.  Waiting for <strong><%=meetingID %></strong> to start.</p>
-			<br/>
-			<p>(You will be automatically entered into the meeting when it starts).</p>
+			<p>Hi <%=username %>,</p>
+			<p>Now waiting for the moderator to start <strong><%=meetingID %></strong>.</p>
+			<br />
+			<p>(Your browser will automatically refresh and join the meeting when it starts.)</p>
 			</td>
-			<td width="50%">&nbsp;</td>
+			<td width="50%"><img src="polling.gif"></img></td>
 		</tr>
 	</tbody>
 </table>
@@ -232,9 +238,6 @@ function mycallback() {
 	//
 	String meetingID = request.getParameter("meetingID");
 	String meetingToken = request.getParameter("meetingToken");
-	//out.print( "meetingID: #" + meetingID +"#" );	
-	//out.print( "meetingToken: #" + meetingToken +"#" );
-	//out.print( "meetingRunning: #" + isMeetingRunning( meetingToken, meetingID ));
 
 	
 	%>
@@ -243,22 +246,24 @@ function mycallback() {
 <h2><strong>You are requesting to join <%=meetingID %></strong>.</h2>
 <hr />
 
-<FORM NAME="form1" METHOD="GET">
+<FORM NAME="form3" METHOD="GET">
 
 <table width=600 cellspacing="20" cellpadding="20"
 	style="border-collapse: collapse; border-right-color: rgb(136, 136, 136);"
 	border=3>
 	<tbody>
 		<tr>
-			<td width="50%">Enter your name: <input type="text" name="username" />
-			<br />
-			<INPUT TYPE=hidden NAME=meetingID VALUE="<%=meetingID %>">
-			<INPUT TYPE=hidden NAME=meetingToken VALUE="<%=meetingToken %>">
-						<p />You are requesting to join <strong><%=meetingID %></strong>.
+			<td width="50%">
+
+			<p />You are requesting to join<br/><strong><%=meetingID %></strong>.
 			</td>
-			<td width="50%"><INPUT TYPE=hidden NAME=action VALUE="enter">
-			<br />
-			<input type="submit" value="Enter" /></td>
+
+			<td width="50%">Enter your name: <input type="text"
+				name="username" /> <br />
+			<INPUT TYPE=hidden NAME=meetingID VALUE="<%=meetingID %>"> <INPUT
+				TYPE=hidden NAME=meetingToken VALUE="<%=meetingToken %>"> <INPUT
+				TYPE=hidden NAME=action VALUE="enter"> <br />
+			<input type="submit" value="Join" /></td>
 		</tr>
 	</tbody>
 </table>

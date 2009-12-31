@@ -1,1 +1,1 @@
-<p/>(Demos for BigBlueButton 0.63)
+<p/><small>API demos for <a href="http://bigbluebutton.org/">BigBlueButton 0.63</a></small>

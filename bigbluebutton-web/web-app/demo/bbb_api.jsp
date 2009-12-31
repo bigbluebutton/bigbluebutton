@@ -41,11 +41,17 @@ String BigBlueButtonURL = "http://192.168.0.154/bigbluebutton/";
 public String getJoinURL(String username, String meetingID) {
 
 		String checksum = "";
-		String create_parameters = "name=" + username + "&meetingID=" + meetingID
-				+ "&attendeePW=ap&moderatorPW=mp";
 
 		String base_url_create = BigBlueButtonURL + "api/create?";
 		String base_url_join = BigBlueButtonURL + "api/join?";
+		
+		Random random = new Random();
+		Integer voiceBridge = 10000 + random.nextInt(89999);
+		
+		String create_parameters = "name=" + username + "&meetingID=" + meetingID
+		+ "&attendeePW=ap&moderatorPW=mp&voiceBridge="+voiceBridge;
+
+
 		Document doc = null;
 
 		try {
