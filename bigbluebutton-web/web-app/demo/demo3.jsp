@@ -63,10 +63,10 @@ if (request.getParameterMap().isEmpty()) {
 	border=3>
 	<tbody>
 		<tr>
-			<td width="50%">Step 1. Enter your name.
+			<td width="50%">Create your own meeting.
 			<p />
 			</td>
-			<td width="50%">Enter your name: <input type="text"
+			<td width="50%">Step 1. Enter your name: <input type="text"
 				name="username1" /> <br />
 			<INPUT TYPE=hidden NAME=action VALUE="create"> <br />
 			<input id="submit-button" type="submit" value="Create meeting" /></td>
@@ -119,7 +119,7 @@ $(document).ready(function(){
 	%>
 
 <hr />
-<h2>Created: <%=username %>'s meeting.</h2>
+<h2>Meeting Created</h2>
 <hr />
 
 
@@ -143,7 +143,7 @@ $(document).ready(function(){
 <%=inviteURL%>
 </textarea></form>
 			<p />&nbsp;<p />
-			Step 3.  Click to start your meeting:
+			Step 3.  Click the following link to start your meeting:
 			<p />
 			<center><a href="<%=joinURL%>">Start Meeting</a></center>
 			<p />&nbsp;
@@ -243,7 +243,7 @@ function mycallback() {
 	%>
 
 <hr />
-<h2><strong>You are requesting to join <%=meetingID %></strong>.</h2>
+<h2>Invite</h2>
 <hr />
 
 <FORM NAME="form3" METHOD="GET">
@@ -255,7 +255,7 @@ function mycallback() {
 		<tr>
 			<td width="50%">
 
-			<p />You are requesting to join<br/><strong><%=meetingID %></strong>.
+			<p />You have been invited to join<br/><strong><%=meetingID %></strong>.
 			</td>
 
 			<td width="50%">Enter your name: <input type="text"
