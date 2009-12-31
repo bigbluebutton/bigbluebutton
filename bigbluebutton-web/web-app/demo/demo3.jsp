@@ -52,7 +52,7 @@ if (request.getParameterMap().isEmpty()) {
 	%>
 
 <hr />
-<h2>Demo #3: Create a You Own Meeting.25.</h2>
+<h2>Demo #3: Create a You Own Meeting.</h2>
 <hr />
 
 <p />
