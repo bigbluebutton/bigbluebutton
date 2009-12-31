@@ -1,184 +1,59 @@
-body{
-	margin:0px;
-	margin-top:25px;
-	margin-bottom:40px;
-	height:100%;
-	background-color: #f8f8f8;
-	}
-	
-img{
-	padding:3px;
-}
+@charset "UTF-8";
 
-#wrapper{
-	margin-left:auto; 
-	margin-right:auto;	
-	width:800px;
-	background-color:#fff;	
-	/* border:1px solid #CCC; */
-	padding:15px;
-	height:1055px;
-
-}
-
-#header{
-	width:800px;
-	height:150px;
-	background-color:#d1dce2;
+body {
+	margin: 0;
 	padding: 0;
-	
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 13px;
 }
 
-#logo{
-	width:775px;
-	height:113px;
-	float:left;	
-	margin-left:15px;
-	margin-top:15px;
-/*	border:#C66 solid 1px; */
-}
-#forUser{
-	width:800px;
-	height:260px;
-	/* border:#C66 solid 1px;*/
-}
-
-/* margin-top, margin-right, margin-bottom, margin-left */
-
-#userOne{
-/*	border:#C66 solid 1px; */
-	margin: 10px 5px 5px 0px;
- 	padding: 10px;
- 	height: 225px;
- 	width: 225px;
- 	float: left;
-	text-align: center;
-}
-
-#userTwo{
- /*	border:#C66 solid 1px;*/
- 	margin: 75px 5px 5px 25px;
- 	padding: 10px;
- 	height: 100px;
- 	width: 250px;
- 	float: left;
-}
-
-#userThree{
- /*	border:#C66 solid 1px; */
- 	margin: 75px 5px 5px 25px;
- 	padding: 10px;
- 	height: 100px;
- 	width: 125px;
- 	float: left;
-}
-
-#forAdmin{
-	/*	border:#C66 solid 1px; */
-	margin-top:10px;
-	width:870px;
-	height:250px;
-}
-
-#adminOne{
-	/*border:#C66 solid 1px; */
-	margin: 10px 5px 5px 0px;
- 	padding: 10px;
- 	height: 225px;
- 	width: 225px;
- 	float: left;
-}
-
-#adminTwo{
-	/*	border:#C66 solid 1px;*/
- 	margin: 75px 5px 5px 25px;
- 	padding: 10px;
- 	height: 100px;
- 	width: 250px;
- 	float: left;
-	
-}
-
-#adminThree{
-	/*	border:#C66 solid 1px; */
- 	margin: 65px 5px 5px 55px;
- 	padding: 10px;
- 	height: 75px;
- 	width: 125px;
- 	float: left;
-}
-
-
-#content{
-	width:775px;
-	float:left;
-	margin-left:15px;
-	margin-top:15px;
-	/* border:#C66 solid 1px; */
-}
-
-
-#content_left{
-	width:250px;
-	height:59px;
-	display:block;
-	float:left;
-	background-image:url(../images/button.png);
-	background-repeat:no-repeat;	
-	}
-
-#content_right{
-	display:block;
-	float:left;
-	width:250px;
-	height:59px;
-	margin-left:30px;
-	background-image:url(../images/button.png);
-	background-repeat:no-repeat;
-	}
-
-
-#tutorials{
-	width:100%;
-	height:225px;
-	/* border:#afafaf solid 1px; */
-}
-
-#usingBBB{
-	margin:0px 0px 0px 0px;
-	width:350px;
-	height:150px;
-	float:left;
-	
-}
-
-#devBBB{
-	margin:0px 5px 5px 10px;
-	width:350px;
-	height:150px;
-	float:left;
-	
+img {
+	border:0;
 }
 
 h1 {
+	font-size: 40px;
+	margin: 0;
+	font-family:"Helvetica";
+	color: #555b63;
+	letter-spacing:0.5px;
+	font-weight:100;
+	line-height: 125%;
+}
+
+h1.api{
 	font-size: 18px;
 	margin: 0;
 	font-family:"Trebuchet MS";
 	font-weight:bold;
 	color: #303030;
 	letter-spacing:0.5px;
-	background: #ccd2eb;
 }
 
-
 h2 {
+	font-size: 25px;
+	margin: 0;
+	margin-top:13px;
+	font-family:"Helvetica";
+	color: #919da6;
+	letter-spacing:0.5px;
+	font-weight:100;
+	line-height: 125%;
+}
+
+h2.api{
 	font-size: 16px;
 	margin: 0;
 	font-family:"Trebuchet MS";
 	font-weight:bold;
-	color: #303030;
-	letter-spacing:0.5px;
-	
+	color: #666;
+}
+
+h3 {
+	font-size: 14px;
+	margin:0;
+	font-family:"Helvetica";
+	color: #000;
 }
 
 p, ol {
@@ -187,34 +62,235 @@ p, ol {
 	font-family: Arial, Helvetica, sans-serif;
 	color: #303030;
 }
+
 p.small{
+	/* text-align: justify; */
+	font-family: Arial, Helvetica, sans-serif;
+	color: #666;
+	letter-spacing:0.5px;
+	font-size:11px;
+	margin-top:10px;
+}
+
+p.content {
+	margin: 0.5em 0 0.5em 0;
+	/* text-align: justify; */
+	font-family:"Helvetica";
+	line-height:20px;
+	letter-spacing:0.2px;
+	color: #303030;
+	
+}
+
+p.join{
 	text-align: justify;
 	font-family: Arial, Helvetica, sans-serif;
 	color: #303030;
-	letter-spacing:0.5px;
-	font-size:11px;
-	font-weight:bold;
+	margin-top:-20px;
+	margin-left:30px;
+	
 }
 
+ul{
+	text-align: justify;
+	font-family: Arial, Helvetica, sans-serif;	
+}
+
+li {
+	text-align: justify;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+a{
+	color:#adb1ca;
+	text-decoration:none;
+}
+
+a:hover{
+	color:#919da6;
+	text-decoration:underline;
+	
+}
+
+a:active{
+	color:#919da6;
+	text-decoration:underline;
+	
+}
+
+#wrapper {
+	background: #b2bad9;
+	height: 136px;
+}
+
+
+/* Header */
+
+#header {
+	width: 800px;
+	height: 120px;
+	margin: 0 auto 20px auto;
+	padding-top: 10px;
+  /*border:solid #FF0000 1px;*/
+}
+
+#header_bottom {
+	width:800px;
+	height:21px;
+	margin: 0 auto;
+}
+
+#logo {
+	float: left;
+	height: 89px;
+	width: 364px;
+	margin-top: 10px;
+}
+
+#logo a {
+	text-decoration: none;
+}
+
+#slogan{
+	float:right;
+	margin-top:-25px;
+	letter-spacing:1px;
+}
+
+#versionNum{
+	float: right;
+	margin-top: 15px;
+	/*border:solid #666 1px;*/
+	width:250px;
+	height:50px;
+}
+
+
+#menu {
+	margin-left:-5px;
+}
+
+#menu ul {
+	margin: 0;
+	padding: 0 0 0 0;
+	list-style: none;
+}
+
+#menu li {
+	display: inline;
+}
+
+#menu a {
+	display: block;
+	background:#d5d9ec;
+	float:left;
+	margin-left: 5px;
+	padding: 7px 10px;
+	line-height: 140%;
+	font-family:"Trebuchet MS";
+	letter-spacing:1px;
+	font-size: 12pt;
+	text-decoration: none;
+	color: #666;
+	border-bottom:solid #666 1px;
+	margin-top:20px;
+}
+
+#menu a:hover {
+	background:#c0c4d4;
+	
+}
+
+#menu a:active {
+	background:#c0c4d4;
+	
+}
+
+
+/* Page */
+#nav{
+	width: 700px;
+	margin: 0 auto;
+}
+#content {
+	width: 800px;
+	height:auto;
+	min-height: 400px;
+	margin: 0 auto;
+	/*padding: 20px 20px;*/
+	margin-top:32px;
+	/*border:solid #FF0000 1px;*/
+}
+
+#content_api {
+	width: 750px;
+	height:auto;
+	min-height: 400px;
+	margin: 0 auto;
+	padding: 20px 20px;
+	margin-top:56px;
+	border:solid #666 1px;
+	
+}
+
+#welcome{
+	width:452px;
+	height:200px;
+	/*border:solid #666 1px;*/
+	float:left;
+	
+}
+
+#join{
+	width:315px;
+	height:200px;
+	/*border:solid #666 1px;*/
+	float:right;
+}
+
+#about{
+	width:452px;
+	height:200px;
+	/*border:solid #666 1px;*/
+	margin-top:15px;
+	float:left;
+	
+}
+
+#api{
+	
+	width:315px;
+	height:200px;
+	/*border:solid #666 1px;*/
+	margin-top:15px;
+	float:right;
+	
+}
+
+/* Footer */
+
 #footer {
-	height: 100px;
+	height: 200px;
 	min-height: 74px;
 	padding: 10px 0 0 0;
+	/*background: #000;*/
 	clear:both;
-	position:center;
 }
 
 html>body #footer {
 	height: auto;
 }
 
-
 #legal {
 	clear: both;
 	padding-top: 20px;
 	text-align: center;
 	font-size: 10px;
-	/* color: #303030; */
+	color: #666;
+}
+
+#legal a {
+	color: #cacaca;
 }
 
 
