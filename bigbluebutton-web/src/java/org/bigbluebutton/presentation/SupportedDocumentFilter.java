@@ -23,9 +23,7 @@
 package org.bigbluebutton.presentation;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-
+import org.bigbluebutton.presentation.ConversionUpdateMessage.MessageBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,22 +47,19 @@ public class SupportedDocumentFilter {
 	}
 	
 	private void notifyProgressListener(boolean supported, UploadedPresentation pres) {
-		Map<String, Object> msg = new HashMap<String, Object>();
-		msg.put("conference", pres.getConference());
-		msg.put("room", pres.getRoom());
-		msg.put("step", "FILTER");
-		
+		MessageBuilder builder = new ConversionUpdateMessage.MessageBuilder(pres);
+						
 		if (supported) {
-			msg.put("status", "OK");
-			msg.put("message", "Document is supported");
-			msg.put("messageKey", "SUPPORTED_DOCUMENT");
+			builder.messageKey(ConversionMessageConstants.SUPPORTED_DOCUMENT_KEY);
 		} else {
-			msg.put("status", "FAILED");
-			msg.put("message", "Document is not supported");
-			msg.put("messageKey", "UNSUPPORTED_DOCUMENT");
+			builder.messageKey(ConversionMessageConstants.UNSUPPORTED_DOCUMENT_KEY);
 		}
 		
-		if (notifier != null) notifier.sendConversionProgress(msg);	
+		if (notifier != null) {
+			notifier.sendConversionProgress(builder.build().getMessage());
+		} else {
+			log.warn("ConversionProgressNotifier has not been set!");
+		}
 	}
 	
 	public void setConversionProgressNotifier(ConversionProgressNotifier notifier) {

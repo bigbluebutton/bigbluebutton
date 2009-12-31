@@ -34,36 +34,52 @@ public class PageCounterService {
 	private int maxNumPages = 100;
 	private PageCounter pageCounter;
 	
-	public void determineNumberOfPages(UploadedPresentation pres) {
+	public void determineNumberOfPages(UploadedPresentation pres) throws CountingPageException {
 		int numberOfPages = 0;
 		if (SupportedFileTypes.isPdfFile(pres.getFileType())) {
-			System.out.println("Counting pages for " + pres.getFileType());
+			log.debug("Counting pages for " + pres.getFileType());
 			numberOfPages = countPages(pres);			
 		} else if (SupportedFileTypes.isImageFile(pres.getFileType())) {
-			System.out.println("Counting pages for " + pres.getFileType());
+			log.debug("Counting pages for " + pres.getFileType());
 			numberOfPages = 1;
 		}
 		
-		System.out.println("Counting pages for " + pres.getFileType() + " " + numberOfPages);
-		pres.setNumberOfPages(numberOfPages);
+		if (isNumberOfPagesValid(numberOfPages)) {
+			log.debug("Counting pages for " + pres.getFileType() + " " + numberOfPages);
+			pres.setNumberOfPages(numberOfPages);
+		}		
+	}
+
+	private boolean isNumberOfPagesValid(int numberOfPages) throws CountingPageException {
+		if (numberOfPages <= 0) {
+			throw new CountingPageException(CountingPageException.ExceptionType.PAGE_COUNT_EXCEPTION, 0, maxNumPages);
+		} 
+		
+		if (checkIfNumberOfPagesExceedsLimit(numberOfPages)) {
+			throw new CountingPageException(CountingPageException.ExceptionType.PAGE_EXCEEDED_EXCEPTION, numberOfPages, maxNumPages);
+		}
+		
+		return true;
+	}
+	
+	private boolean checkIfNumberOfPagesExceedsLimit(int numberOfPages) {
+		if (numberOfPages > maxNumPages) {
+			log.warn("Number of pages greater than maximum [" + numberOfPages + ">" + maxNumPages);
+			return true;
+		}
+		return false;
 	}
 	
 	private int countPages(UploadedPresentation pres) {
 		int numPages = 0;
-		System.out.println("Counting pages");
+		
 		if (pageCounter == null) {
-			System.out.println("No page counter");
+			log.warn("No page counter!");
 			return 0;
 		}
 		
 		numPages = pageCounter.countNumberOfPages(pres.getUploadedFile());
-		
-		if (numPages > maxNumPages) {
-			System.out.println("Number of pages greater than maximum [" + numPages + ">" + maxNumPages);
-			log.warn("Number of pages greater than maximum [" + numPages + ">" + maxNumPages);
-			return 0;
-		}
-		System.out.println("There are " + numPages);
+				
 		log.debug("There are " + numPages);
 		return numPages;
 	}
