@@ -44,6 +44,17 @@ package org.bigbluebutton.modules.present.business
 		private static const SHARING:String = "sharing";
 		private static const UPDATE_MESSAGE:String = "updateMessage";
 		private static const CURRENT_PAGE:String = "currentPage";
+
+		private static const OFFICE_DOC_CONVERSION_SUCCESS_KEY:String = "OFFICE_DOC_CONVERSION_SUCCESS";
+    	private static const OFFICE_DOC_CONVERSION_FAILED_KEY:String = "OFFICE_DOC_CONVERSION_FAILED";
+    	private static const SUPPORTED_DOCUMENT_KEY:String = "SUPPORTED_DOCUMENT";
+    	private static const UNSUPPORTED_DOCUMENT_KEY:String = "UNSUPPORTED_DOCUMENT";
+    	private static const PAGE_COUNT_FAILED_KEY:String = "PAGE_COUNT_FAILED";
+    	private static const PAGE_COUNT_EXCEEDED_KEY:String = "PAGE_COUNT_EXCEEDED";	
+    	private static const GENERATED_SLIDE_KEY:String = "GENERATED_SLIDE";
+    	private static const GENERATING_THUMBNAIL_KEY:String = "GENERATING_THUMBNAIL";
+    	private static const GENERATED_THUMBNAIL_KEY:String = "GENERATED_THUMBNAIL";
+    	private static const CONVERSION_COMPLETED_KEY:String = "CONVERSION_COMPLETED";
 		
 		private static const UPDATE_RC:String = "UPDATE";
 		private static const SUCCESS_RC:String = "SUCCESS";
@@ -430,7 +441,181 @@ package org.bigbluebutton.modules.present.business
 					break;
 			}
 		}
-		
+
+		public function pageCountExceededUpdateMessageCallback(conference:String, room:String, 
+				code:String, presentationName:String, messageKey:String, numberOfPages:Number, 
+				maxNumberOfPages:Number) : void
+		{
+			var e:UploadEvent;
+			LogUtil.debug("Received update message " + messageKey);
+			e = new UploadEvent(UploadEvent.CONVERT_ERROR);
+			e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.maxnbpagereach')
+			dispatcher.dispatchEvent(e);
+		}
+
+		public function generatedSlideUpdateMessageCallback(conference:String, room:String, 
+				code:String, presentationName:String, messageKey:String, numberOfPages:Number, 
+				pagesCompleted:Number) : void
+		{
+			var e:UploadEvent;
+			LogUtil.debug("Received update message " + messageKey);
+			LogUtil.debug( "CONVERTING = [" + pagesCompleted + " of " + numberOfPages + "]");					
+			e = new UploadEvent(UploadEvent.CONVERT_UPDATE);
+			e.totalSlides = numberOfPages;
+			e.completedSlides = pagesCompleted;
+			dispatcher.dispatchEvent(e);	
+		}
+
+		public function conversionCompletedUpdateMessageCallback(conference:String, room:String, 
+				code:String, presentationName:String, messageKey:String, slidesInfo:String) : void
+		{
+			var e:UploadEvent;
+			LogUtil.debug("Received update message " + messageKey);
+			e = new UploadEvent(UploadEvent.CONVERT_SUCCESS);
+			e.data = messageKey;
+			e.presentationName = presentationName;
+			dispatcher.dispatchEvent(e);
+		}
+				
+		public function conversionUpdateMessageCallback(conference:String, room:String, 
+				code:String, presentationName:String, messageKey:String) : void
+		{
+			LogUtil.debug("Received update message " + messageKey);
+			var totalSlides : Number;
+			var completedSlides : Number;
+			var message : String;
+			var e:UploadEvent;
+			
+			switch (messageKey)
+			{
+				case OFFICE_DOC_CONVERSION_SUCCESS_KEY :
+				case OFFICE_DOC_CONVERSION_FAILED_KEY :
+				case SUPPORTED_DOCUMENT_KEY :
+				case UNSUPPORTED_DOCUMENT_KEY :
+				case GENERATING_THUMBNAIL_KEY :				
+				case PAGE_COUNT_FAILED_KEY :
+				break;
+				case GENERATED_THUMBNAIL_KEY :
+					dispatcher.dispatchEvent(new UploadEvent(UploadEvent.THUMBNAILS_UPDATE));
+					break;
+			}
+				
+/*			
+			private static const OFFICE_DOC_CONVERSION_SUCCESS_KEY:String = "OFFICE_DOC_CONVERSION_SUCCESS";
+    	private static const OFFICE_DOC_CONVERSION_FAILED_KEY:String = "OFFICE_DOC_CONVERSION_FAILED";
+    	private static const SUPPORTED_DOCUMENT_KEY:String = "SUPPORTED_DOCUMENT";
+    	private static const UNSUPPORTED_DOCUMENT_KEY:String = "UNSUPPORTED_DOCUMENT";
+    	private static const PAGE_COUNT_FAILED_KEY:String = "PAGE_COUNT_FAILED";
+    	private static const PAGE_COUNT_EXCEEDED_KEY:String = "PAGE_COUNT_EXCEEDED";	
+    	private static const GENERATED_SLIDE_KEY:String = "GENERATED_SLIDE";
+    	private static const GENERATING_THUMBNAIL_KEY:String = "GENERATING_THUMBNAIL";
+    	private static const GENERATED_THUMBNAIL_KEY:String = "GENERATED_THUMBNAIL";
+    	private static const CONVERSION_COMPLETED_KEY:String = "CONVERSION_COMPLETED";
+    	
+			switch (message.messageKey)
+			{
+				case SUCCESS_RC:
+					LogUtil.debug("PresentSOService::processUpdateMessage() .... SUCCESS:presentationName=" + _presentationSO.data.updateMessage.presentationName);
+					//dispatcher.dispatchEvent(new ConvertSuccessEvent());
+					
+					e = new UploadEvent(UploadEvent.CONVERT_SUCCESS);
+					e.data = _presentationSO.data.updateMessage.message;
+					e.presentationName = _presentationSO.data.updateMessage.presentationName;
+					dispatcher.dispatchEvent(e);
+					break;
+					
+				case UPDATE_RC:
+					e = new UploadEvent(UploadEvent.UPDATE_PROGRESS);
+					e.data = _presentationSO.data.updateMessage.message;
+					dispatcher.dispatchEvent(e);
+					break;
+										
+				case FAILED_RC:
+					//LogUtil.debug("PresentationDelegate - FAILED_RC");
+					break;
+				case FAILED_CONVERT_FORMAT_RC:
+					LogUtil.error("An error occured while trying to convert the presentation on the server. " + 
+							"The presentation could be in a format not supported");
+					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
+					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.format')
+					dispatcher.dispatchEvent(e);
+					break;
+				case FAILED_CONVERT_NOT_SUPPORTED_RC:
+					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_NOT_SUPPORTED");
+					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
+					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.notsupported')
+					dispatcher.dispatchEvent(e);
+					break;
+				case FAILED_CONVERT_SOFFICE_RC:
+					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_SOFFICE");
+					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
+					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.soffice')
+					dispatcher.dispatchEvent(e);
+					break;
+				case FAILED_CONVERT_NBPAGE_RC:
+					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_NBPAGE");
+					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
+					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.nbpage')
+					dispatcher.dispatchEvent(e);
+					break;
+				case FAILED_CONVERT_MAXNBPAGE_REACH_RC:
+					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_MAXNBPAGE_REACH_RC");
+					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
+					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.maxnbpagereach')
+					dispatcher.dispatchEvent(e);
+					break;
+				case FAILED_CONVERT_SWF_RC:
+					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_SWF");
+					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
+					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.swf')
+					dispatcher.dispatchEvent(e);
+					break;
+				case FAILED_CONVERT_SWF_IMAGE_RC:
+					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_SWF_IMAGE");
+					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
+					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.swfimage')
+					dispatcher.dispatchEvent(e);
+					break;
+				case FAILED_CONVERT_SWF_PDF_RC:
+					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_SWF_PDF");
+					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
+					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.swfpdf')
+					dispatcher.dispatchEvent(e);
+					break;
+				case FAILED_CONVERT_THUMBNAIL_RC:
+					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_THUMBNAIL");
+					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
+					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.thumbnail')
+					dispatcher.dispatchEvent(e);
+					break;	
+				
+				case FAILED_CONVERT_RC:
+					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT");
+					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
+					e.data = _presentationSO.data.updateMessage.message;
+					dispatcher.dispatchEvent(e);
+					break;
+					
+				case THUMBNAILS_RC:
+					LogUtil.debug("RECEIVED THUMBNAILS UPDATE");
+					dispatcher.dispatchEvent(new UploadEvent(UploadEvent.THUMBNAILS_UPDATE));
+					break;
+				case CONVERT_RC:
+					totalSlides = _presentationSO.data.updateMessage.totalSlides;
+					completedSlides = _presentationSO.data.updateMessage.completedSlides;
+					LogUtil.debug( "CONVERTING = [" + completedSlides + " of " + totalSlides + "]");					
+					e = new UploadEvent(UploadEvent.CONVERT_UPDATE);
+					e.totalSlides = totalSlides;
+					e.completedSlides = completedSlides;
+					dispatcher.dispatchEvent(e);						
+					break;			
+				default:
+			
+					break;	
+			}
+*/															
+		}	
+				
 		/**
 		 *  Called when there is an update from the server
 		 * @param returnCode - an update message from the server
