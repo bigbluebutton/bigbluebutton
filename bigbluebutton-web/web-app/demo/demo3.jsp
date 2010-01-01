@@ -19,13 +19,13 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 Author: Fred Dixon <ffdixon@bigbluebutton.org>
   
 -->
-
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
 <title>API Demo - 3</title>
 
 <script type="text/javascript"
@@ -134,7 +134,7 @@ $(document).ready(function(){
 			</td>
 
 			<td width="50%">
-						<p />
+						<p>&nbsp;</p>
 						
 						Step 2.  Invite others using the following <a
 				href="<%=inviteURL%>">link</a>:
@@ -142,11 +142,11 @@ $(document).ready(function(){
 				name="myname" style="overflow: hidden">
 <%=inviteURL%>
 </textarea></form>
-			<p />&nbsp;<p />
+			<p>&nbsp;<p />
 			Step 3.  Click the following link to start your meeting:
-			<p />
+			<p>&nbsp;</p>
 			<center><a href="<%=joinURL%>">Start Meeting</a></center>
-			<p />&nbsp;
+			<p>&nbsp;</p>
 
 			</td>
 		</tr>
@@ -162,6 +162,9 @@ $(document).ready(function(){
 <%
 	
 } else if (request.getParameter("action").equals("enter")) {
+	//
+	// The user is now attempting to joing the meeting
+	//
 	String meetingID = request.getParameter("meetingID");
 	String username = request.getParameter("username");
 	String meetingToken = request.getParameter("meetingToken");
@@ -171,7 +174,7 @@ $(document).ready(function(){
 
 	if ( isMeetingRunning( meetingToken, URLEncoder.encode(meetingID,"UTF-8")).equals("true") ) {
 		//
-		// The meeting is running so let's join now
+		// The meeting has started -- bring the user into the meeting.
 		//
 		%>
 <script type="text/javascript">
@@ -180,7 +183,7 @@ $(document).ready(function(){
 <% 
 	} else {
 		//
-		// The meeting has not yet started, so let's poll every five seconds until the meeting begins
+		// The meeting has not yet started, so check until we get back the status that the meeting is running
 		//
 	String checkMeetingStatus = getURLisMeetingRunning(meetingToken, URLEncoder.encode(meetingID,"UTF-8") );
 
@@ -198,9 +201,10 @@ $(document).ready(function(){
 
 
 function mycallback() {
-	var isMeetingRunning = $("#HeartBeatDIV > response > running").text();
-	if ( isMeetingRunning == "true" ) {
-		//alert("true");
+	// Not elegant, but works around a bug in IE8
+	var isMeetingRunning = ($("#HeartBeatDIV").text().search("true") > 0 );
+
+	if ( isMeetingRunning ) {
 		window.location = "<%=enterURL %>";
 	}
 }
