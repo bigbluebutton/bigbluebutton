@@ -35,6 +35,7 @@
     <mate:Listener type="{UploadEvent.CONVERT_SUCCESS}" method="convertSuccess" />
     <mate:Listener type="{UploadEvent.CONVERT_UPDATE}" method="convertUpdate" />
     <mate:Listener type="{UploadEvent.UPDATE_PROGRESS}" method="updateProgress" />
+    <mate:Listener type="{UploadEvent.THUMBNAILS_UPDATE}" method="handleThumbnailsProgressEvent" />
     
 	<mx:Script>
 		<![CDATA[

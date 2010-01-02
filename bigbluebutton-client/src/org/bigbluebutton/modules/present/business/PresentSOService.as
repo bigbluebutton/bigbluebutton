@@ -17,8 +17,7 @@
  *
  * $Id: $
  */
-package org.bigbluebutton.modules.present.business
-{
+package org.bigbluebutton.modules.present.business {
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import flash.events.AsyncErrorEvent;
@@ -35,8 +34,7 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.events.ZoomEvent;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
-	public class PresentSOService
-	{
+	public class PresentSOService {
 		public static const NAME:String = "PresentSOService";
 
 		private static const SHAREDOBJECT:String = "presentationSO";
@@ -55,23 +53,7 @@ package org.bigbluebutton.modules.present.business
     	private static const GENERATING_THUMBNAIL_KEY:String = "GENERATING_THUMBNAIL";
     	private static const GENERATED_THUMBNAIL_KEY:String = "GENERATED_THUMBNAIL";
     	private static const CONVERSION_COMPLETED_KEY:String = "CONVERSION_COMPLETED";
-		
-		private static const UPDATE_RC:String = "UPDATE";
-		private static const SUCCESS_RC:String = "SUCCESS";
-		private static const FAILED_RC:String = "FAILED";
-		private static const FAILED_CONVERT_RC:String = "FAILED_CONVERT";
-		private static const FAILED_CONVERT_FORMAT_RC:String = "FAILED_CONVERT_FORMAT";
-		private static const FAILED_CONVERT_NOT_SUPPORTED_RC:String = "FAILED_CONVERT_NOT_SUPPORTED";
-		private static const FAILED_CONVERT_SOFFICE_RC:String = "FAILED_CONVERT_SOFFICE";
-		private static const FAILED_CONVERT_NBPAGE_RC:String = "FAILED_CONVERT_NBPAGE";
-		private static const FAILED_CONVERT_MAXNBPAGE_REACH_RC:String = "FAILED_CONVERT_MAXNBPAGE_REACH";
-		private static const FAILED_CONVERT_SWF_RC:String = "FAILED_CONVERT_SWF";
-		private static const FAILED_CONVERT_SWF_IMAGE_RC:String = "FAILED_CONVERT_SWF_IMAGE";
-		private static const FAILED_CONVERT_SWF_PDF_RC:String = "FAILED_CONVERT_SWF_PDF";
-		private static const FAILED_CONVERT_THUMBNAIL_RC:String = "FAILED_CONVERT_THUMBNAIL";
-		private static const THUMBNAILS_RC:String = "THUMBNAILS";
-		private static const CONVERT_RC:String = "CONVERT";
-		
+				
 		private var nc:NetConnection;
 		private var url:String;
 		private var userid:Number;
@@ -111,22 +93,18 @@ package org.bigbluebutton.modules.present.business
 			}
 		}
 		
-	    private function join() : void
-		{
+	    private function join() : void {
 			_presentationSO = SharedObject.getRemote(SHAREDOBJECT, url, false);			
 			_presentationSO.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
-			_presentationSO.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
-			_presentationSO.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);			
+			_presentationSO.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);		
 			_presentationSO.client = this;
 			_presentationSO.connect(nc);
 			LogUtil.debug(NAME + ": PresentationModule is connected to Shared object");
-			notifyConnectionStatusListener(true);	
-			//if (_module.mode == 'LIVE')	
-				getPresentationInfo();		
+			notifyConnectionStatusListener(true);		
+			getPresentationInfo();		
 		}
 		
-	    private function leave():void
-	    {
+	    private function leave():void {
 	    	if (_presentationSO != null) _presentationSO.close();
 	    }
 
@@ -213,8 +191,7 @@ package org.bigbluebutton.modules.present.business
 		 * Send an event to the server to clear the presentation 
 		 * 
 		 */		
-		public function clearPresentation() : void
-		{
+		public function clearPresentation() : void {
 			_presentationSO.send("clearCallback");			
 		}
 		
@@ -223,8 +200,7 @@ package org.bigbluebutton.modules.present.business
 		 * successfuly called the server.
 		 * 
 		 */		
-		public function clearCallback() : void
-		{
+		public function clearCallback() : void {
 			_presentationSO.setProperty(SHARING, false);
 			dispatcher.dispatchEvent(new UploadEvent(UploadEvent.CLEAR_PRESENTATION));
 		}
@@ -234,8 +210,7 @@ package org.bigbluebutton.modules.present.business
 		}
 		
 		public function getPresentationInfo():void {
-			nc.call(
-				"presentation.getPresentationInfo",// Remote function name
+			nc.call( "presentation.getPresentationInfo",// Remote function name
 				new Responder(
 	        		// participants - On successful result
 					function(result:Object):void { 	
@@ -264,8 +239,7 @@ package org.bigbluebutton.modules.present.business
 		}
 		
 		public function assignPresenter(userid:Number, name:String, assignedBy:Number):void {
-			nc.call(
-				"presentation.assignPresenter",// Remote function name
+			nc.call("presentation.assignPresenter",// Remote function name
 				new Responder(
 	        		// participants - On successful result
 					function(result:Boolean):void { 
@@ -311,10 +285,8 @@ package org.bigbluebutton.modules.present.business
 		 * @param page
 		 * 
 		 */		
-		public function gotoSlide(num:int) : void
-		{
-			nc.call(
-				"presentation.gotoSlide",// Remote function name
+		public function gotoSlide(num:int) : void {
+			nc.call("presentation.gotoSlide",// Remote function name
 				new Responder(
 	        		// participants - On successful result
 					function(result:Boolean):void { 
@@ -341,8 +313,7 @@ package org.bigbluebutton.modules.present.business
 		 * @param page
 		 * 
 		 */		
-		public function gotoSlideCallback(page : Number) : void
-		{
+		public function gotoSlideCallback(page : Number) : void {
 			var e:NavigationEvent = new NavigationEvent(NavigationEvent.GOTO_PAGE)
 			e.pageNumber = page;
 			dispatcher.dispatchEvent(e);
@@ -358,8 +329,7 @@ package org.bigbluebutton.modules.present.business
 		
 		public function sharePresentation(share:Boolean, presentationName:String):void {
 			LogUtil.debug("PresentationSOService::sharePresentation()... presentationName=" + presentationName);
-			nc.call(
-				"presentation.sharePresentation",// Remote function name
+			nc.call("presentation.sharePresentation",// Remote function name
 				new Responder(
 	        		// participants - On successful result
 					function(result:Boolean):void { 
@@ -390,393 +360,100 @@ package org.bigbluebutton.modules.present.business
 			}
 		}
 		
-		/**
-		 * Event called automatically once a SharedObject Sync method is received 
-		 * @param event
-		 * 
-		 */								
-		private function sharedObjectSyncHandler( event : SyncEvent) : void
-		{
-			for (var i : uint = 0; i < event.changeList.length; i++) 
-			{
-				//LogUtil.debug( "Presentation::handlingChanges[" + event.changeList[i].name + "][" + i + "]");
-				handleChangesToSharedObject(event.changeList[i].code, 
-						event.changeList[i].name, event.changeList[i].oldValue);
-			}
-		}
-		
-		/**
-		 * See flash.events.SyncEvent. EXAMINE IF WE REALLY NEED THIS METHOD? Denis Zgonjanin, Dec 8 2009
-		 */
-		private function handleChangesToSharedObject(code : String, name : String, oldValue : Object) : void
-		{
-			switch (name)
-			{
-				case UPDATE_MESSAGE:
-//					if (presentation.isPresenter) {
-						//LogUtil.debug( UPDATE_MESSAGE + " = [" + _presentationSO.data.updateMessage.returnCode + "]");
-						processUpdateMessage(_presentationSO.data.updateMessage.returnCode);
-//					}
-					
-					break;
-															
-				case SHARING :			
-					if (_presentationSO.data[SHARING]) {
-						//LogUtil.debug( "SHARING =[" + _presentationSO.data[SHARING] + "]");
-						//dispatcher.dispatchEvent(new PresentationEvent(PresentationEvent.LOAD_PRESENTATION));
-					} else {
-						//LogUtil.debug( "SHARING =[" + _presentationSO.data[SHARING] + "]");
-					}
-					break;
-
-				case PRESENTER:
-					if (_presentationSO.data[PRESENTER] != null)
-						var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.PRESENTER_NAME_CHANGE);
-						e.presenterName = _presentationSO.data[PRESENTER] as String;
-						dispatcher.dispatchEvent(e);
-					break;
-							
-				default:
-					LogUtil.debug( "default = [" + code + "," + name + "," + oldValue + "]");				 
-					break;
-			}
-		}
-
 		public function pageCountExceededUpdateMessageCallback(conference:String, room:String, 
 				code:String, presentationName:String, messageKey:String, numberOfPages:Number, 
-				maxNumberOfPages:Number) : void
-		{
-			var e:UploadEvent;
-			LogUtil.debug("Received update message " + messageKey);
-			e = new UploadEvent(UploadEvent.CONVERT_ERROR);
-			e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.maxnbpagereach')
-			dispatcher.dispatchEvent(e);
+				maxNumberOfPages:Number) : void {
+			LogUtil.debug("pageCountExceededUpdateMessageCallback:Received update message " + messageKey);
+			var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_ERROR);
+			uploadEvent.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.maxnbpagereach')
+			dispatcher.dispatchEvent(uploadEvent);
 		}
 
 		public function generatedSlideUpdateMessageCallback(conference:String, room:String, 
 				code:String, presentationName:String, messageKey:String, numberOfPages:Number, 
-				pagesCompleted:Number) : void
-		{
-			var e:UploadEvent;
-			LogUtil.debug("Received update message " + messageKey);
+				pagesCompleted:Number) : void {
 			LogUtil.debug( "CONVERTING = [" + pagesCompleted + " of " + numberOfPages + "]");					
-			e = new UploadEvent(UploadEvent.CONVERT_UPDATE);
-			e.totalSlides = numberOfPages;
-			e.completedSlides = pagesCompleted;
-			dispatcher.dispatchEvent(e);	
+			var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_UPDATE);
+			uploadEvent.totalSlides = numberOfPages;
+			uploadEvent.completedSlides = pagesCompleted;
+			dispatcher.dispatchEvent(uploadEvent);	
 		}
 
 		public function conversionCompletedUpdateMessageCallback(conference:String, room:String, 
-				code:String, presentationName:String, messageKey:String, slidesInfo:String) : void
-		{
-			var e:UploadEvent;
-			LogUtil.debug("Received update message " + messageKey);
-			e = new UploadEvent(UploadEvent.CONVERT_SUCCESS);
-			e.data = messageKey;
-			e.presentationName = presentationName;
-			dispatcher.dispatchEvent(e);
+				code:String, presentationName:String, messageKey:String, slidesInfo:String) : void {
+			LogUtil.debug("conversionCompletedUpdateMessageCallback:Received update message " + messageKey);
+			var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_SUCCESS);
+			uploadEvent.data = messageKey;
+			uploadEvent.presentationName = presentationName;
+			dispatcher.dispatchEvent(uploadEvent);
 		}
 				
 		public function conversionUpdateMessageCallback(conference:String, room:String, 
-				code:String, presentationName:String, messageKey:String) : void
-		{
-			LogUtil.debug("Received update message " + messageKey);
+				code:String, presentationName:String, messageKey:String) : void {
+			LogUtil.debug("conversionUpdateMessageCallback:Received update message " + messageKey);
 			var totalSlides : Number;
 			var completedSlides : Number;
 			var message : String;
-			var e:UploadEvent;
+			var uploadEvent:UploadEvent;
 			
-			switch (messageKey)
-			{
+			switch (messageKey) {
 				case OFFICE_DOC_CONVERSION_SUCCESS_KEY :
+					break;
 				case OFFICE_DOC_CONVERSION_FAILED_KEY :
+					break;
 				case SUPPORTED_DOCUMENT_KEY :
+					break;
 				case UNSUPPORTED_DOCUMENT_KEY :
-				case GENERATING_THUMBNAIL_KEY :				
-				case PAGE_COUNT_FAILED_KEY :
-				break;
-				case GENERATED_THUMBNAIL_KEY :
+					uploadEvent = new UploadEvent(UploadEvent.CONVERT_ERROR);
+					uploadEvent.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.format')
+					dispatcher.dispatchEvent(uploadEvent);
+					break;
+				case GENERATING_THUMBNAIL_KEY :	
 					dispatcher.dispatchEvent(new UploadEvent(UploadEvent.THUMBNAILS_UPDATE));
-					break;
-			}
-				
-/*			
-			private static const OFFICE_DOC_CONVERSION_SUCCESS_KEY:String = "OFFICE_DOC_CONVERSION_SUCCESS";
-    	private static const OFFICE_DOC_CONVERSION_FAILED_KEY:String = "OFFICE_DOC_CONVERSION_FAILED";
-    	private static const SUPPORTED_DOCUMENT_KEY:String = "SUPPORTED_DOCUMENT";
-    	private static const UNSUPPORTED_DOCUMENT_KEY:String = "UNSUPPORTED_DOCUMENT";
-    	private static const PAGE_COUNT_FAILED_KEY:String = "PAGE_COUNT_FAILED";
-    	private static const PAGE_COUNT_EXCEEDED_KEY:String = "PAGE_COUNT_EXCEEDED";	
-    	private static const GENERATED_SLIDE_KEY:String = "GENERATED_SLIDE";
-    	private static const GENERATING_THUMBNAIL_KEY:String = "GENERATING_THUMBNAIL";
-    	private static const GENERATED_THUMBNAIL_KEY:String = "GENERATED_THUMBNAIL";
-    	private static const CONVERSION_COMPLETED_KEY:String = "CONVERSION_COMPLETED";
-    	
-			switch (message.messageKey)
-			{
-				case SUCCESS_RC:
-					LogUtil.debug("PresentSOService::processUpdateMessage() .... SUCCESS:presentationName=" + _presentationSO.data.updateMessage.presentationName);
-					//dispatcher.dispatchEvent(new ConvertSuccessEvent());
-					
-					e = new UploadEvent(UploadEvent.CONVERT_SUCCESS);
-					e.data = _presentationSO.data.updateMessage.message;
-					e.presentationName = _presentationSO.data.updateMessage.presentationName;
-					dispatcher.dispatchEvent(e);
-					break;
-					
-				case UPDATE_RC:
-					e = new UploadEvent(UploadEvent.UPDATE_PROGRESS);
-					e.data = _presentationSO.data.updateMessage.message;
-					dispatcher.dispatchEvent(e);
-					break;
-										
-				case FAILED_RC:
-					//LogUtil.debug("PresentationDelegate - FAILED_RC");
-					break;
-				case FAILED_CONVERT_FORMAT_RC:
-					LogUtil.error("An error occured while trying to convert the presentation on the server. " + 
-							"The presentation could be in a format not supported");
-					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
-					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.format')
-					dispatcher.dispatchEvent(e);
-					break;
-				case FAILED_CONVERT_NOT_SUPPORTED_RC:
-					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_NOT_SUPPORTED");
-					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
-					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.notsupported')
-					dispatcher.dispatchEvent(e);
-					break;
-				case FAILED_CONVERT_SOFFICE_RC:
-					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_SOFFICE");
-					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
-					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.soffice')
-					dispatcher.dispatchEvent(e);
-					break;
-				case FAILED_CONVERT_NBPAGE_RC:
-					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_NBPAGE");
-					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
-					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.nbpage')
-					dispatcher.dispatchEvent(e);
-					break;
-				case FAILED_CONVERT_MAXNBPAGE_REACH_RC:
-					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_MAXNBPAGE_REACH_RC");
-					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
-					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.maxnbpagereach')
-					dispatcher.dispatchEvent(e);
-					break;
-				case FAILED_CONVERT_SWF_RC:
-					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_SWF");
-					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
-					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.swf')
-					dispatcher.dispatchEvent(e);
-					break;
-				case FAILED_CONVERT_SWF_IMAGE_RC:
-					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_SWF_IMAGE");
-					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
-					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.swfimage')
-					dispatcher.dispatchEvent(e);
-					break;
-				case FAILED_CONVERT_SWF_PDF_RC:
-					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_SWF_PDF");
-					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
-					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.swfpdf')
-					dispatcher.dispatchEvent(e);
-					break;
-				case FAILED_CONVERT_THUMBNAIL_RC:
-					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_THUMBNAIL");
-					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
-					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.thumbnail')
-					dispatcher.dispatchEvent(e);
-					break;	
-				
-				case FAILED_CONVERT_RC:
-					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT");
-					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
-					e.data = _presentationSO.data.updateMessage.message;
-					dispatcher.dispatchEvent(e);
-					break;
-					
-				case THUMBNAILS_RC:
-					LogUtil.debug("RECEIVED THUMBNAILS UPDATE");
-					dispatcher.dispatchEvent(new UploadEvent(UploadEvent.THUMBNAILS_UPDATE));
-					break;
-				case CONVERT_RC:
-					totalSlides = _presentationSO.data.updateMessage.totalSlides;
-					completedSlides = _presentationSO.data.updateMessage.completedSlides;
-					LogUtil.debug( "CONVERTING = [" + completedSlides + " of " + totalSlides + "]");					
-					e = new UploadEvent(UploadEvent.CONVERT_UPDATE);
-					e.totalSlides = totalSlides;
-					e.completedSlides = completedSlides;
-					dispatcher.dispatchEvent(e);						
 					break;			
-				default:
-			
-					break;	
-			}
-*/															
+				case PAGE_COUNT_FAILED_KEY :
+					break;
+				case GENERATED_THUMBNAIL_KEY :
+					break;
+			}														
 		}	
 				
-		/**
-		 *  Called when there is an update from the server
-		 * @param returnCode - an update message from the server
-		 * 
-		 */		
-		private function processUpdateMessage(returnCode : String) : void
-		{
-			var totalSlides : Number;
-			var completedSlides : Number;
-			var message : String;
-			var e:UploadEvent;
-			switch (returnCode)
-			{
-				case SUCCESS_RC:
-					LogUtil.debug("PresentSOService::processUpdateMessage() .... SUCCESS:presentationName=" + _presentationSO.data.updateMessage.presentationName);
-					//dispatcher.dispatchEvent(new ConvertSuccessEvent());
-					
-					e = new UploadEvent(UploadEvent.CONVERT_SUCCESS);
-					e.data = _presentationSO.data.updateMessage.message;
-					e.presentationName = _presentationSO.data.updateMessage.presentationName;
-					dispatcher.dispatchEvent(e);
-					break;
-					
-				case UPDATE_RC:
-					e = new UploadEvent(UploadEvent.UPDATE_PROGRESS);
-					e.data = _presentationSO.data.updateMessage.message;
-					dispatcher.dispatchEvent(e);
-					break;
-										
-				case FAILED_RC:
-					//LogUtil.debug("PresentationDelegate - FAILED_RC");
-					break;
-				case FAILED_CONVERT_FORMAT_RC:
-					LogUtil.error("An error occured while trying to convert the presentation on the server. " + 
-							"The presentation could be in a format not supported");
-					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
-					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.format')
-					dispatcher.dispatchEvent(e);
-					break;
-				case FAILED_CONVERT_NOT_SUPPORTED_RC:
-					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_NOT_SUPPORTED");
-					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
-					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.notsupported')
-					dispatcher.dispatchEvent(e);
-					break;
-				case FAILED_CONVERT_SOFFICE_RC:
-					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_SOFFICE");
-					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
-					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.soffice')
-					dispatcher.dispatchEvent(e);
-					break;
-				case FAILED_CONVERT_NBPAGE_RC:
-					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_NBPAGE");
-					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
-					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.nbpage')
-					dispatcher.dispatchEvent(e);
-					break;
-				case FAILED_CONVERT_MAXNBPAGE_REACH_RC:
-					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_MAXNBPAGE_REACH_RC");
-					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
-					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.maxnbpagereach')
-					dispatcher.dispatchEvent(e);
-					break;
-				case FAILED_CONVERT_SWF_RC:
-					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_SWF");
-					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
-					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.swf')
-					dispatcher.dispatchEvent(e);
-					break;
-				case FAILED_CONVERT_SWF_IMAGE_RC:
-					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_SWF_IMAGE");
-					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
-					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.swfimage')
-					dispatcher.dispatchEvent(e);
-					break;
-				case FAILED_CONVERT_SWF_PDF_RC:
-					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_SWF_PDF");
-					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
-					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.swfpdf')
-					dispatcher.dispatchEvent(e);
-					break;
-				case FAILED_CONVERT_THUMBNAIL_RC:
-					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT_THUMBNAIL");
-					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
-					e.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.thumbnail')
-					dispatcher.dispatchEvent(e);
-					break;	
-				/* deprecated */
-				case FAILED_CONVERT_RC:
-					LogUtil.debug("PresentSOService::processUpdateMessage() .... FAILED_CONVERT");
-					e = new UploadEvent(UploadEvent.CONVERT_ERROR);
-					e.data = _presentationSO.data.updateMessage.message;
-					dispatcher.dispatchEvent(e);
-					break;
-					
-				case THUMBNAILS_RC:
-					LogUtil.debug("RECEIVED THUMBNAILS UPDATE");
-					dispatcher.dispatchEvent(new UploadEvent(UploadEvent.THUMBNAILS_UPDATE));
-					break;
-				case CONVERT_RC:
-					totalSlides = _presentationSO.data.updateMessage.totalSlides;
-					completedSlides = _presentationSO.data.updateMessage.completedSlides;
-					LogUtil.debug( "CONVERTING = [" + completedSlides + " of " + totalSlides + "]");					
-					e = new UploadEvent(UploadEvent.CONVERT_UPDATE);
-					e.totalSlides = totalSlides;
-					e.completedSlides = completedSlides;
-					dispatcher.dispatchEvent(e);						
-					break;			
-				default:
-			
-					break;	
-			}															
-		}		
-
 		private function notifyConnectionStatusListener(connected:Boolean, errors:Array=null):void {
 			if (_connectionListener != null) {
 				_connectionListener(connected, errors);
 			}
 		}
 
-		private function netStatusHandler (event:NetStatusEvent):void
-		{
+		private function netStatusHandler (event:NetStatusEvent):void {
 			var statusCode:String = event.info.code;
 			
-			switch ( statusCode ) 
-			{
+			switch (statusCode) {
 				case "NetConnection.Connect.Success":
-					LogUtil.debug(NAME + ":Connection Success");		
-					//notifyConnectionStatusListener(true);			
-					break;
-			
+					LogUtil.debug(NAME + ":Connection Success");			
+					break;			
 				case "NetConnection.Connect.Failed":
 					addError("PresentSO connection failed");			
-					break;
-					
+					break;					
 				case "NetConnection.Connect.Closed":
 					addError("Connection to PresentSO was closed.");									
 					notifyConnectionStatusListener(false, _soErrors);
-					break;
-					
+					break;					
 				case "NetConnection.Connect.InvalidApp":
 					addError("PresentSO not found in server");				
-					break;
-					
+					break;					
 				case "NetConnection.Connect.AppShutDown":
 					addError("PresentSO is shutting down");
-					break;
-					
+					break;					
 				case "NetConnection.Connect.Rejected":
 					addError("No permissions to connect to the PresentSO");
-					break;
-					
+					break;					
 				default :
-					//addError("ChatSO " + event.info.code);
 				   LogUtil.debug(NAME + ":default - " + event.info.code );
 				   break;
 			}
 		}
 			
-		private function asyncErrorHandler (event:AsyncErrorEvent):void
-		{
+		private function asyncErrorHandler (event:AsyncErrorEvent):void {
 			addError("PresentSO asynchronous error.");
 		}
 		
