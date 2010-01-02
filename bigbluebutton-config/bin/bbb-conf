@@ -546,12 +546,15 @@ if [ $DEBUG ]; then
 		echo
 	fi
 
-	rm -rf /tmp/t
-	if [ -s /var/log/nginx/error.log ]; then
-		echo "   -- Errors found in /var/log/nginx/error.log -- "
-		cat /var/log/nginx/error.log
-		echo
-	fi
+        rm -rf /tmp/t
+        if [ -s /var/log/nginx/error.log ]; then
+                cat /var/log/nginx/error.log | grep -v "/fcs/ident2" > /tmp/t
+                if [ -s /tmp/t ]; then
+                        echo "   -- Errors found in /var/log/nginx/error.log -- "
+                        cat /tmp/t
+                        echo
+                fi
+        fi
 
 	rm -rf /tmp/t
 	sudo grep -v "No Voicetronix cards detected" /var/log/asterisk/* | grep ERROR > /tmp/t 
@@ -736,14 +739,14 @@ if [ $CLEAN ]; then
 	echo "" > /var/log/syslog
 
 	/etc/init.d/asterisk status
-	# /etc/init.d/activemq status
+	/etc/init.d/activemq status
 	/etc/init.d/nginx status
 	/etc/init.d/red5 status
 	/etc/init.d/tomcat6 status
 
 	echo
 	/etc/init.d/asterisk start
-	# /etc/init.d/activemq start
+	/etc/init.d/activemq start
 	/etc/init.d/nginx start
 	/etc/init.d/red5 start
 	/etc/init.d/tomcat6 start
@@ -771,5 +774,5 @@ fi
 if [ $WATCH ]; then
 	need_root
 
-	watch -n 2 "asterisk -r -x \"core show channels\"; echo; bbb-conf --network; bbb-conf --debug"
+        watch -n 2 "top -n 1 -b | head -n 5; echo; asterisk -r -x \"core show channels\"; echo; bbb-conf --network; bbb-conf --debug"
 fi
