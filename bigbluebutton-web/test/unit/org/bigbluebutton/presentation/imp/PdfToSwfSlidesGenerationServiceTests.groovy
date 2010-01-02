@@ -56,29 +56,28 @@ class PdfToSwfSlidesGenerationServiceTests extends GroovyTestCase {
 		
 		PageCounterService pageCounterService = new PageCounterService();
 		pageCounterService.setPageCounter(pageCounter)
-		
-		slidesGenerationService = new PdfToSwfSlidesGenerationService()
-		slidesGenerationService.setCounterService(pageCounterService)
-		
+				
 		PageConverter pdf2SwfPageConverter = new Pdf2SwfPageConverter()
 		pdf2SwfPageConverter.setSwfToolsDir(SWFTOOLS)
-		slidesGenerationService.setPageConverter(pdf2SwfPageConverter) 
-		
+				
 		PdfPageToImageConversionService imageConvSvc = new PdfPageToImageConversionService()
 		imageConvSvc.setPageExtractor(pageExtractor)
 		imageConvSvc.setPdfToImageConverter(imageMagickPageConverter)
 		imageConvSvc.setImageToSwfConverter(png2SwfConverter)
-		slidesGenerationService.setPdfPageToImageConversionService(imageConvSvc)
-		
-		slidesGenerationService.setBlankSlide(BLANK_SLIDE)
-	
+			
 		ThumbnailCreator thumbCreator = new ThumbnailCreatorImp()
 		thumbCreator.setImageMagickDir(IMAGEMAGICK_DIR)
 		thumbCreator.setBlankThumbnail(BLANK_THUMBNAIL)
-		
+
+		SwfSlidesGenerationProgressNotifier notifier = new SwfSlidesGenerationProgressNotifier()
+		slidesGenerationService = new PdfToSwfSlidesGenerationService()
+		slidesGenerationService.setPageConverter(pdf2SwfPageConverter) 
+		slidesGenerationService.setCounterService(pageCounterService)
 		slidesGenerationService.setThumbnailCreator(thumbCreator)
 		slidesGenerationService.setMaxConversionTime(5) 
-	
+		slidesGenerationService.setPdfPageToImageConversionService(imageConvSvc)		
+		slidesGenerationService.setBlankSlide(BLANK_SLIDE)
+		slidesGenerationService.setSwfSlidesGenerationProgressNotifier(notifier)
 	}
 	
 	void testGetUploadDirectory() {

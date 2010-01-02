@@ -22,8 +22,6 @@
  */
 package org.bigbluebutton.presentation.imp;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
@@ -46,10 +44,7 @@ import org.slf4j.LoggerFactory;
 
 public class PdfToSwfSlidesGenerationService {
 	private static Logger log = LoggerFactory.getLogger(PdfToSwfSlidesGenerationService.class);
-	
-	private ExecutorService executor;
-	private CompletionService<PdfToSwfSlide> completionService;
-	
+		
 	private SwfSlidesGenerationProgressNotifier notifier;
 	private PageCounterService counterService;
 	private PageConverter pdfToSwfConverter;
@@ -57,13 +52,7 @@ public class PdfToSwfSlidesGenerationService {
 	private ThumbnailCreator thumbnailCreator;
 	private long MAX_CONVERSION_TIME = 5*60*1000;
 	private String BLANK_SLIDE;
-	
-	public PdfToSwfSlidesGenerationService() {
-		int numThreads = Runtime.getRuntime().availableProcessors();
-		executor = Executors.newFixedThreadPool(numThreads);
-		completionService = new ExecutorCompletionService<PdfToSwfSlide>(executor);
-	}
-	
+		
 	public void generateSlides(UploadedPresentation pres) {
 		log.debug("Generating slides");		
 		determineNumberOfPages(pres);
@@ -107,11 +96,17 @@ public class PdfToSwfSlidesGenerationService {
 	private void convertPdfToSwf(UploadedPresentation pres) {
 		int numPages = pres.getNumberOfPages();				
 		PdfToSwfSlide[] slides = setupSlides(pres, numPages);
-		generateSlides(slides);		
-		handleSlideGenerationResult(pres, slides);		
+		
+		ExecutorService executor;
+		CompletionService<PdfToSwfSlide> completionService;
+		int numThreads = Runtime.getRuntime().availableProcessors();
+		executor = Executors.newFixedThreadPool(numThreads);
+		completionService = new ExecutorCompletionService<PdfToSwfSlide>(executor);		
+		generateSlides(slides, completionService);		
+		handleSlideGenerationResult(pres, slides, completionService);		
 	}
 	
-	private void handleSlideGenerationResult(UploadedPresentation pres, PdfToSwfSlide[] slides) {
+	private void handleSlideGenerationResult(UploadedPresentation pres, PdfToSwfSlide[] slides, CompletionService<PdfToSwfSlide> completionService) {
 		long endTime = System.currentTimeMillis() + MAX_CONVERSION_TIME;
 		int slideGenerated = 0;
 		
@@ -156,9 +151,8 @@ public class PdfToSwfSlidesGenerationService {
 		return slides;
 	}
 	
-	private void generateSlides(PdfToSwfSlide[] slides) {
+	private void generateSlides(PdfToSwfSlide[] slides, CompletionService<PdfToSwfSlide> completionService) {
 		for (int i = 0; i < slides.length; i++) {
-			System.out.println("generateSlides " + i);
 			final PdfToSwfSlide slide = slides[i];
 			completionService.submit(new Callable<PdfToSwfSlide>() {
 				public PdfToSwfSlide call() {
