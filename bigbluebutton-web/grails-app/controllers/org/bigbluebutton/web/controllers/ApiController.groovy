@@ -52,20 +52,21 @@ class ApiController {
 
 	// TODO: security salt will obviously need to be a part of the server configuration
 	//			and not hard-coded here.  This is just for development / testing
-	String securitySalt = null;
+//	def securitySalt = null;
 	DynamicConferenceService dynamicConferenceService;
 
 	/* general methods */
 	def index = {
-			println CONTROLLER_NAME + "#index"
+			log.debug CONTROLLER_NAME + "#index"
 			invalid("noActionSpecified", "You did not specify an API action.")
 	}
 
 	/* interface (API) methods */
 	def create = {
-		println CONTROLLER_NAME + "#create"
+		log.debug CONTROLLER_NAME + "#create"
 
 		if (!doChecksumSecurity()) {
+			invalid("checksumError", "You did not pass the checksum security check")
 			return
 		}
 
@@ -75,7 +76,7 @@ class ApiController {
 			return
 		}
 		
-		println("passed parameter validation - creating conference");
+		log.debug("passed parameter validation - creating conference");
 		String mtgID = params.meetingID
 		String attPW = params.attendeePW
 		String modPW = params.moderatorPW
@@ -90,7 +91,7 @@ class ApiController {
 		// check for existing:
 		DynamicConference existing = dynamicConferenceService.getConferenceByMeetingID(mtgID);
 		if (existing != null) {
-			println "Existing conference found"
+			log.debug "Existing conference found"
 			if (existing.getAttendeePassword().equals(attPW) && existing.getModeratorPassword().equals(modPW)) {
 				// trying to create a conference a second time
 				// return success, but give extra info
@@ -103,7 +104,7 @@ class ApiController {
 		}
 		DynamicConference conf = new DynamicConference(name, mtgID, attPW, modPW, maxParts)
 		conf.setVoiceBridge(voiceBr == null || voiceBr == "" ? mtgID : voiceBr)
-		println("Conference created: " + conf);
+		log.debug("Conference created: " + conf);
 		// TODO: support voiceBridge and voiceServer
 
 		// success!
@@ -112,9 +113,10 @@ class ApiController {
 	}
 
 	def join = {
-		println CONTROLLER_NAME + "#join"
+		log.debug CONTROLLER_NAME + "#join"
 
 		if (!doChecksumSecurity()) {
+			invalid("checksumError", "You did not pass the checksum security check")
 			return
 		}
 
@@ -162,7 +164,7 @@ class ApiController {
 	}
 
 	def isMeetingRunning = {
-		println CONTROLLER_NAME + "#isMeetingRunning"
+		log.debug CONTROLLER_NAME + "#isMeetingRunning"
 
 		if (!doChecksumSecurity()) {
 			return
@@ -202,31 +204,37 @@ class ApiController {
 	
 	/* helper methods */
 	def doChecksumSecurity() {
-		println CONTROLLER_NAME + "#doChecksumSecurity"
-		println "checksum: " + params.checksum + "; query string: " + request.getQueryString()
+		log.debug CONTROLLER_NAME + "#doChecksumSecurity"
+		log.debug "checksum: " + params.checksum + "; query string: " + request.getQueryString()
 		if (StringUtils.isEmpty(request.getQueryString())) {
 			invalid("noQueryString", "No query string was found in your request.")
 			return false;
 		}
-		if (StringUtils.isEmpty(securitySalt) == false) {
+	
+		if (StringUtils.isEmpty(securitySalt()) == false) {
 			String qs = request.getQueryString()
 			// handle either checksum as first or middle / end parameter
 			// TODO: this is hackish - should be done better
 			qs = qs.replace("&checksum=" + params.checksum, "")
 			qs = qs.replace("checksum=" + params.checksum + "&", "")
-			println "query string after checksum removed: " + qs
-			String cs = getHash(qs, securitySalt)
-			println "our checksum: " + cs
+			log.debug "query string after checksum removed: " + qs
+			String cs = getHash(qs, securitySalt())
+			log.debug "our checksum: " + cs
 			if (cs == null || cs.equals(params.checksum) == false) {
-				invalid("checksumError", "You did not pass the checksum security check")
+//				invalid("checksumError", "You did not pass the checksum security check")
 				return false;
 			}
 			return true; 
 		}
+		
 		println "Security is disabled in this service currently."
 		return true;
 	}
 
+	private String securitySalt() {
+		dynamicConferenceService.securitySalt
+	}
+	
 	public String getHash(String string, String salt) throws NoSuchAlgorithmException {
 		return DigestUtils.shaHex(string + salt)
 	}
@@ -243,7 +251,7 @@ class ApiController {
 		response.addHeader("Cache-Control", "no-cache")
 		withFormat {	
 			xml {
-				println "Rendering as xml"
+				log.debug "Rendering as xml"
 				render(contentType:"text/xml") {
 					response() {
 						returncode(RESP_CODE_SUCCESS)
@@ -257,7 +265,7 @@ class ApiController {
 				}
 			}
 			json {
-				println "Rendering as json"
+				log.debug "Rendering as json"
 				render(contentType:"text/json") {
 						returncode(RESP_CODE_SUCCESS)
 						meetingToken("${conf.meetingToken}")
@@ -272,7 +280,7 @@ class ApiController {
 	}
 	
 	def invalid(key, msg) {
-		println CONTROLLER_NAME + "#invalid"
+		log.debug CONTROLLER_NAME + "#invalid"
 		response.addHeader("Cache-Control", "no-cache")
 		withFormat {				
 			xml {
@@ -282,6 +290,14 @@ class ApiController {
 						messageKey(key)
 						message(msg)
 					}
+				}
+			}
+			json {
+				log.debug "Rendering as json"
+				render(contentType:"text/json") {
+						returncode(RESP_CODE_FAILED)
+						messageKey(key)
+						message(msg)
 				}
 			}
 		}			 

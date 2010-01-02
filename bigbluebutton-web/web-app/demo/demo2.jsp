@@ -89,6 +89,7 @@ if (request.getParameterMap().isEmpty()) {
 	
 	String joinURL = getJoinURL(username, meetingID);
 
+	if ("".equals(joinURL)) joinURL = "www.google.com";
 	
 	%>
 

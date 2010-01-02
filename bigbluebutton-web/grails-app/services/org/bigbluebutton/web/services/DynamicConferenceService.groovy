@@ -28,6 +28,7 @@ public class DynamicConferenceService {
 	
 	boolean transactional = false
 	def serviceEnabled = false
+	def securitySalt = null;
 	
 	private final Map<String, DynamicConference> confsByMtgID
 	private final Map<String, String> tokenMap
@@ -41,12 +42,14 @@ public class DynamicConferenceService {
 		confsByMtgID.put(conf.getMeetingID(), conf);
 		tokenMap.put(conf.getMeetingToken(), conf.getMeetingID());
 	}
+	
 	public DynamicConference getConferenceByMeetingID(String meetingID) {
 		if (meetingID == null) {
 			return null;
 		}
 		return confsByMtgID.get(meetingID);
 	}
+	
 	public DynamicConference getConferenceByToken(String token) {
 		if (token == null) {
 			return null;
@@ -68,20 +71,21 @@ public class DynamicConferenceService {
 	
 	// these methods called by spring integration:
 	public void conferenceStarted(String token) {
-		println "conference started: " + token;
+		log.debug "conference started: " + token;
 		DynamicConference conf = getConferenceByToken(token);
 		if (conf != null) {
 			conf.setStartTime(new Date());
 			conf.setEndTime(null);
-			println "found conference and set start date"
+			log.debug "found conference and set start date"
 		}
 	}
+	
 	public void conferenceEnded(String token) {
-		println "conference ended: " + token;
+		log.debug "conference ended: " + token;
 		DynamicConference conf = getConferenceByToken(token);
 		if (conf != null) {
 			conf.setEndTime(new Date());
-			println "found conference and set end date"
+			log.debug "found conference and set end date"
 		}
 	}
 }

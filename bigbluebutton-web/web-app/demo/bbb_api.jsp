@@ -33,7 +33,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 String salt = "639259d4-9dd8-4b25-bf01-95f9567eaf4b";
 
 // This is the URL for the BigBlueButton server
-String BigBlueButtonURL = "http://192.168.0.154/bigbluebutton/";
+String BigBlueButtonURL = "http://192.168.0.120/bigbluebutton/";
 
 //
 // Create a meeting that does not require passwords
