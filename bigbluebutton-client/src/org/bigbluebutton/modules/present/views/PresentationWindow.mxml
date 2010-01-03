@@ -41,6 +41,7 @@
 	<mate:Listener type="{PresentationEvent.PRESENTATION_LOADED}" method="handlePresentationLoadedEvent" />
 	<mate:Listener type="{NavigationEvent.GOTO_PAGE}" method="gotoPage" />
 	<mate:Listener type="{UploadEvent.CLEAR_PRESENTATION}" method="clearPresentation" />
+	<mate:Listener type="{ZoomEvent.ZOOM}" method="zoomCallback" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -208,12 +209,20 @@
 			}
 			
 			private function sliderZoom():void{
-				slideView.myLoader.width = slideView.imageCanvas.width * (zoomSlider.value/100);
-				slideView.myLoader.height = slideView.imageCanvas.height * (zoomSlider.value/100);
+				var newWidth:Number = slideView.imageCanvas.width * (zoomSlider.value/100);
+				var newHeight:Number = slideView.imageCanvas.height * (zoomSlider.value/100);
+				
+				var xPercent:Number = newWidth / slideView.imageCanvas.width;
+				var yPercent:Number = newHeight / slideView.imageCanvas.height;
+				
+				var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.ZOOM);
+				presentEvent.xPercent = xPercent;
+				presentEvent.yPercent = yPercent;
+				dispatchEvent(presentEvent);
 			}
 			
-			private function scrollZoom(e:Event):void{
-				zoomSlider.value = (slideView.myLoader.width / slideView.imageCanvas.width) * 100;
+			private function zoomCallback(e:Event):void{
+				//zoomSlider.value = (slideView.myLoader.width / slideView.imageCanvas.width) * 100;
 			}
 			
 			private function onCanvasClick():void{
@@ -239,6 +248,7 @@
 					backButton.visible = true;
 					forwardButton.visible = true;	
 					zoomSlider.visible = true;
+					btnResetZoom.visible = true;
 					thumbnailWindow.fisheye.selectedIndex = 0;
 					thumbnailWindow.setDataProvider(slideView.slides);
 				}
@@ -257,6 +267,7 @@
 					backButton.visible = false;
 					forwardButton.visible = false;	
 					zoomSlider.visible = false;	
+					btnResetZoom.visible = false;
 				}
 				dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
 				
@@ -275,7 +286,6 @@
 				slideView.slides = e.slides.slides;         	
 	            slideNumLbl.text = (slideView.selectedSlide + 1) + " of " + slideView.slides.length;		
 				slideView.visible = true;		
-				btnResetZoom.visible = true;
 	
 				if (slideManager != null) slideManager.clear();	
 					

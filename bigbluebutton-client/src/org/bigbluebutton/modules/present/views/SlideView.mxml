@@ -62,10 +62,7 @@
 				
 			private function init() : void
 			{
-				addEventListener(MouseEvent.MOUSE_WHEEL, zoom);
-				myLoader.addEventListener(MouseEvent.MOUSE_DOWN, mouseDown);
-				myLoader.addEventListener(MouseEvent.MOUSE_UP, mouseUp);
-				myLoader.addEventListener(MouseEvent.MOUSE_OUT, mouseOut);
+				
 			}	
 				
 			private function zoom(e:MouseEvent):void{		
@@ -75,13 +72,13 @@
 				//Arbitrarily allow zoom up to 600% bigger than the size of the presentation window
 				if (wid > imageCanvas.width * 6 || hei > imageCanvas.height * 6) return;
 				
-				if (hei >= this.height || hei >= myLoader.height){
+				/*if (hei >= this.height || hei >= myLoader.height){
 					myLoader.width += e.delta * 10;
 					myLoader.height += e.delta * 10;
-				} 
+				} */
 				
-				xPercent = myLoader.width / imageCanvas.width;
-				yPercent = myLoader.height / imageCanvas.height;
+				xPercent = wid / imageCanvas.width;
+				yPercent = hei / imageCanvas.height;
 				
 				var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.ZOOM);
 				presentEvent.xPercent = xPercent;
@@ -98,11 +95,11 @@
 			}
 			
 			private function mouseMove(e:MouseEvent):void{	
-				myLoader.x = startDragX + (imageCanvas.mouseX - startDragMouseX);
-				myLoader.y = startDragY + (imageCanvas.mouseY - startDragMouseY);
+				var newX:Number = startDragX + (imageCanvas.mouseX - startDragMouseX);
+				var newY:Number = startDragY + (imageCanvas.mouseY - startDragMouseY);
 				
-				var xOffset:Number = myLoader.x / imageCanvas.width;
-				var yOffset:Number = myLoader.y / imageCanvas.height;
+				var xOffset:Number = newX / imageCanvas.width;
+				var yOffset:Number = newY / imageCanvas.height;
 			
 				var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.MOVE);
 				presentEvent.xOffset = xOffset;
@@ -126,13 +123,11 @@
 			}
 			
 			private function zoomCallback(e:ZoomEvent):void{
-				if (isPresenter) return;
 				myLoader.width = e.slideWidth * imageCanvas.width;
 				myLoader.height = e.slideHeight * imageCanvas.height;
 			}
 			
 			private function moveCallback(e:MoveEvent):void{
-				if (isPresenter) return;
 				myLoader.x = e.slideXPosition * imageCanvas.width;
 				myLoader.y = e.slideYPosition * imageCanvas.height;
 			}
@@ -149,10 +144,18 @@
 			
 			private function switchToViewer(e:MadePresenterEvent):void{
 				this.isPresenter = false;
+				removeEventListener(MouseEvent.MOUSE_WHEEL, zoom);
+				myLoader.removeEventListener(MouseEvent.MOUSE_DOWN, mouseDown);
+				myLoader.removeEventListener(MouseEvent.MOUSE_UP, mouseUp);
+				myLoader.removeEventListener(MouseEvent.MOUSE_OUT, mouseOut);
 			}
 			
 			private function switchToPresenter(e:MadePresenterEvent):void{
 				this.isPresenter = true;
+				addEventListener(MouseEvent.MOUSE_WHEEL, zoom);
+				myLoader.addEventListener(MouseEvent.MOUSE_DOWN, mouseDown);
+				myLoader.addEventListener(MouseEvent.MOUSE_UP, mouseUp);
+				myLoader.addEventListener(MouseEvent.MOUSE_OUT, mouseOut);
 			}
 		]]>
 	</mx:Script>
