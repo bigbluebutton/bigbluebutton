@@ -1,9 +1,9 @@
 package org.bigbluebutton.util.i18n
 {
 	import flash.events.Event;
-	import flash.events.IEventDispatcher;
 	import flash.events.EventDispatcher;
-	import mx.controls.Alert;
+	import flash.events.IEventDispatcher;
+	
 	import mx.events.ResourceEvent;
 	import mx.resources.IResourceManager;
 	import mx.resources.ResourceManager;
@@ -13,6 +13,7 @@ package org.bigbluebutton.util.i18n
 		private static var instance:ResourceUtil = null;
 		
 		private static var MSG_RESOURCE:String = 'bbbResources';
+		private static var DEFAULT_LANGUAGE = "en_US";
 		
 		private var localeChain:Array = [ "en_US", "zh_CN", "fr_FR" ];
 		
@@ -43,11 +44,22 @@ package org.bigbluebutton.util.i18n
         		var eventDispatcher:IEventDispatcher = resourceManager.loadResourceModule(localeURI,true);
 				localeChain = [chain[0]];
 				eventDispatcher.addEventListener(ResourceEvent.COMPLETE, localeChangeComplete);
+				eventDispatcher.addEventListener(ResourceEvent.ERROR, handleResourceNotLoaded);
         	}
         }
         
         private function localeChangeComplete(event:ResourceEvent):void{
         	resourceManager.localeChain = localeChain;
+        	update();
+        }
+        
+        /**
+         * Defaults to DEFAULT_LANGUAGE when an error is thrown by the ResourceManager 
+         * @param event
+         * 
+         */        
+        private function handleResourceNotLoaded(event:ResourceEvent):void{
+        	resourceManager.localeChain = DEFAULT_LANGUAGE;
         	update();
         }
         
