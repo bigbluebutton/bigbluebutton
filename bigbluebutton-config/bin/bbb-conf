@@ -294,7 +294,7 @@ if [ $SETUPDEV ]; then
 		echo "# Setting salt and BigBlueButtonURL in ./bigbluebutton/demo/bbb_api.jsp"
 		sudo chmod -R ugo+rwx /var/log/bigbluebutton
 
-	`	HOST=$(cat /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api.jsp | tr -d '\015' | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}')
+	 	HOST=$(cat /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api.jsp | tr -d '\015' | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}')
 		sed -i "s/BigBlueButtonURL = \"http:\/\/\([^\"\/]*\)\([\"\/]\)/BigBlueButtonURL = \"http:\/\/$HOST\2/g" \
                		./bbb-web/web-app/demo/bbb_api.jsp
 
