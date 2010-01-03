@@ -266,6 +266,12 @@ if [ $SETUPDEV ]; then
 
 		echo "# Setting up ~/dev/bbb-web"
                 echo "  svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-web bbb-web"
+
+		# This is a step towards setting up a development environment on a non-BigBlueButton VM
+		which svn
+		if [ $? != 0 ]; then
+			sudo apt-get install subversion ant -y --force-yes
+		fi
 		
                 cd ~/dev
                 svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-web bbb-web
@@ -281,6 +287,20 @@ if [ $SETUPDEV ]; then
 
 		echo "# Enabling $USER to write to /var/log/bigbluebutton to write log files"
 		sudo chmod -R ugo+rwx /var/log/bigbluebutton
+	
+		#
+		# ToDo: This needs more work
+		#	
+		echo "# Setting salt and BigBlueButtonURL in ./bigbluebutton/demo/bbb_api.jsp"
+		sudo chmod -R ugo+rwx /var/log/bigbluebutton
+
+	`	HOST=$(cat /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api.jsp | tr -d '\015' | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}')
+		sed -i "s/BigBlueButtonURL = \"http:\/\/\([^\"\/]*\)\([\"\/]\)/BigBlueButtonURL = \"http:\/\/$HOST\2/g" \
+               		./bbb-web/web-app/demo/bbb_api.jsp
+
+		SALT=$(cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | tr -d '\015' | sed -n '/securitySalt/{s/.*=//;p}')
+		sed -i "s/String salt = \".*/String salt = \"$SALT\";/g" \
+               		./bbb-web/web-app/demo/bbb_api.jsp
 
 		echo "
 # Done.  To run your local build of bbb-web:
@@ -451,6 +471,13 @@ check_processes() {
         		echo "                   missing red5 log: /usr/share/red5/log/$file.demo"
 		fi
 	done
+
+	SALT_PROPERTIES=$(cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
+	SALT_DEMO=$(cat /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api.jsp | tr -d '\r' | sed -n '/salt =/{s/.* = "//;s/".*//g;p}')
+
+	if [ "$SALT_PROPERTIES" != "$SALT_DEMO" ]; then
+        	echo "                      salt mismatch: salt in bigbluebutton.properties and bbb_api.jsp do not match"
+	fi
 
 	echo
 	exit 0
