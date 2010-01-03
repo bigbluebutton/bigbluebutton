@@ -476,7 +476,7 @@ check_processes() {
 	SALT_DEMO=$(cat /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api.jsp | tr -d '\r' | sed -n '/salt =/{s/.* = "//;s/".*//g;p}')
 
 	if [ "$SALT_PROPERTIES" != "$SALT_DEMO" ]; then
-        	echo "                      salt mismatch: salt in bigbluebutton.properties and bbb_api.jsp do not match"
+        	echo "                       salt mismatch: salt in bigbluebutton.properties and bbb_api.jsp do not match"
 	fi
 
 	echo
