@@ -350,7 +350,7 @@
     
     <mx:ApplicationControlBar id="presCtrlBar" width="100%" >
     	  <mx:Button id="uploadPres" icon="{uploadIcon}" visible="false" width="20" height="20"
-    	   		toolTip="Upload PDF document for presentation." click="dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW))"/>    
+    	   		toolTip="Upload a document for presentation." click="dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW))"/>    
     	  <mx:Label id="presenterNameLabel" visible="false" text=""/>
     	  <mx:Spacer width="10%" id="spacer1"/>
     	  <mx:Button id="backButton" icon="{backwardIcon}" visible="false" width="40" height="20"
