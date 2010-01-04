@@ -151,6 +151,7 @@ class ApiController {
 
 		// TODO: success....
 		log.debug "join successful - setting session parameters and redirecting to join"
+		session["conferencename"] = conf.meetingID
 		session["fullname"] = fullName 
 		session["role"] = role
 		session["conference"] = conf.getMeetingToken()

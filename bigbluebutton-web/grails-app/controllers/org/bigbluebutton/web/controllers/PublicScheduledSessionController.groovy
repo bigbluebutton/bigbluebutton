@@ -142,6 +142,7 @@ class PublicScheduledSessionController {
 						session["conference"] = confSession.tokenId
 						session["room"] = confSession.sessionId
 						session["voicebridge"] = confSession.voiceConferenceBridge
+						session["conferencename"] = confSession.getName()
 				
 						def long _10_MINUTES = 10*60*1000
 					
@@ -184,6 +185,7 @@ class PublicScheduledSessionController {
 		def vb = session["voicebridge"]   
 	    def rec = session["record"]
 	    def md = session["mode"]
+	    def confName = session["conferencename"]
 	    
 	    if (!rm) {
 	    	response.addHeader("Cache-Control", "no-cache")
@@ -205,6 +207,7 @@ class PublicScheduledSessionController {
 						'join'() {
 							returncode("SUCCESS")
 							fullname("$fname")
+							confname("$confName")
 	        				role("$rl")
 	        				conference("$cnf")
 	        				room("$rm")
