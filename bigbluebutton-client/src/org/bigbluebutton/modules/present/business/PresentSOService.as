@@ -276,7 +276,11 @@ package org.bigbluebutton.modules.present.business {
 				
 				setPresenterName(name);
 			} else {
-				dispatcher.dispatchEvent(new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE));
+				var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
+				viewerEvent.userid = userid;
+				viewerEvent.presenterName = name;
+				viewerEvent.assignerBy = assignedBy;
+				dispatcher.dispatchEvent(viewerEvent);
 			}
 		}
 		

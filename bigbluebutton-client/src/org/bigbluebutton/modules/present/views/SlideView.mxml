@@ -60,22 +60,17 @@
 			[Bindable] public var selectedSlide:int=0;
 			[Bindable] private var isPresenter:Boolean = false;
 				
-			private function init() : void
-			{
-				
-			}	
-				
+			private function init():void{
+				myLoader.width = imageCanvas.width;
+				myLoader.height = imageCanvas.height;
+			}
+			
 			private function zoom(e:MouseEvent):void{		
 				var wid:Number = myLoader.width + e.delta * 10;
 				var hei:Number = myLoader.height + e.delta *10;
 				
 				//Arbitrarily allow zoom up to 600% bigger than the size of the presentation window
 				if (wid > imageCanvas.width * 6 || hei > imageCanvas.height * 6) return;
-				
-				/*if (hei >= this.height || hei >= myLoader.height){
-					myLoader.width += e.delta * 10;
-					myLoader.height += e.delta * 10;
-				} */
 				
 				xPercent = wid / imageCanvas.width;
 				yPercent = hei / imageCanvas.height;

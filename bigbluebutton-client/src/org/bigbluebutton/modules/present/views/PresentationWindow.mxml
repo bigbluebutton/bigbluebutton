@@ -33,7 +33,7 @@
 	creationComplete="init()"
 	rollOut="hideThumbs()" xmlns:mate="http://mate.asfusion.com/"
 	width="450" height="450" x="220" y="0"
-	title="Presentation" keyUp="onKeyUp(event)">
+	title="{currentPresentation}" keyUp="onKeyUp(event)">
 	
 	<mate:Dispatcher id="globalDispatcher" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="becomePresenter" />
@@ -90,7 +90,7 @@
 			private var mouseDown:Boolean = false;
 			[Bindable] private var isPresenter:Boolean = false;
 			[Bindable] private var presentationLoaded:Boolean = false;
-			private var currentPresentation:String = "";
+			[Bindable] private var currentPresentation:String = "Presentation";
 			
 			//The following code block is to deal with a bug in FLexLib with MDI windows not responding well to being maximized
 			private var savedWindowWidth:Number;
@@ -253,8 +253,8 @@
 					thumbnailWindow.setDataProvider(slideView.slides);
 				}
 				
-				presenterNameLabel.text = ResourceUtil.getInstance().getString('bbb.presentation.presenting', [e.presenterName]);
-				presenterNameLabel.visible = true;
+				presenterNameLabel.text = "";
+				presenterNameLabel.visible = false;
 				thumbnailWindow.visible = true;
 				thumbnailWindow.setFisheyeVisibility(true);
 			}
@@ -271,8 +271,8 @@
 				}
 				dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
 				
-				presenterNameLabel.text = "";
-				presenterNameLabel.visible = false;
+				presenterNameLabel.visible = true;
+				if (e.presenterName != null) presenterNameLabel.text = ResourceUtil.getInstance().getString('bbb.presentation.presenting', [e.presenterName]);
 				thumbnailWindow.visible = false;
 				thumbnailWindow.setFisheyeVisibility(false);
 			}
@@ -299,10 +299,6 @@
 					shareEvent.presentationName = e.presentationName;
 					shareEvent.share = true;
 					dispatchEvent(shareEvent);
-					var gotoSlideEvent:PresenterCommands = new PresenterCommands(PresenterCommands.GOTO_SLIDE);
-					gotoSlideEvent.slideNumber = 0;
-					dispatchEvent(gotoSlideEvent);
-					dispatchEvent(new PresenterCommands(PresenterCommands.NOTIFY_LOADED));
 					
 					thumbnailWindow.fisheye.selectedIndex = 0;
 					thumbnailWindow.setDataProvider(slideView.slides);
