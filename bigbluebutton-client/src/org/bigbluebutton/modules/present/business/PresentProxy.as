@@ -166,6 +166,15 @@ package org.bigbluebutton.modules.present.business
 		public function zoomSlide(e:PresenterCommands):void{
 			soService.zoom(e.xPercent, e.yPercent);
 		}
+		
+		/**
+		 * Update the presenter cursor within the presentation window 
+		 * @param e
+		 * 
+		 */		
+		public function sendCursorUpdate(e:PresenterCommands):void{
+			soService.sendCursorUpdate(e.xPercent, e.yPercent);
+		}
 
 	}
 }

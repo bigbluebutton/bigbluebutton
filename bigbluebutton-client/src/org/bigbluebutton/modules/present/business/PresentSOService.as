@@ -22,12 +22,12 @@ package org.bigbluebutton.modules.present.business {
 	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
-	import flash.events.SyncEvent;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
 	import flash.net.SharedObject;
 	
 	import org.bigbluebutton.main.events.MadePresenterEvent;
+	import org.bigbluebutton.modules.present.events.CursorEvent;
 	import org.bigbluebutton.modules.present.events.MoveEvent;
 	import org.bigbluebutton.modules.present.events.NavigationEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
@@ -131,7 +131,7 @@ package org.bigbluebutton.modules.present.business {
 		}
 		
 		/**
-		 * A callback method for zooming in a slide. Called once zoom gets executed 
+		 * A callback method for zooming in a slide. Called when preseter zooms the slide
 		 * @param slideHeight
 		 * @param slideWidth
 		 * 
@@ -140,6 +140,29 @@ package org.bigbluebutton.modules.present.business {
 			var e:ZoomEvent = new ZoomEvent(ZoomEvent.ZOOM);
 			e.slideWidth = slideWidth;
 			e.slideHeight = slideHeight;
+			dispatcher.dispatchEvent(e);
+		}
+		
+		/**
+		 * Send an event to the server to update the presenter's cursor view on the client 
+		 * @param xPercent
+		 * @param yPercent
+		 * 
+		 */		
+		public function sendCursorUpdate(xPercent:Number, yPercent:Number):void{
+			_presentationSO.send("updateCursorCallback", xPercent, yPercent);
+		}
+		
+		/**
+		 * A callback method for the cursor update. Called whenever the presenter moves the mouse within the present window
+		 * @param xPercent
+		 * @param yPercent
+		 * 
+		 */		
+		public function updateCursorCallback(xPercent:Number, yPercent:Number):void{
+			var e:CursorEvent = new CursorEvent(CursorEvent.UPDATE_CURSOR);
+			e.xPercent = xPercent;
+			e.yPercent = yPercent;
 			dispatcher.dispatchEvent(e);
 		}
 		

@@ -88,6 +88,10 @@
 		<MethodInvoker generator="{PresentProxy}" method="zoomSlide" arguments="{event}" />
 	</EventHandlers>
 	
+	<EventHandlers type="{PresenterCommands.SEND_CURSOR_UPDATE}" >
+		<MethodInvoker generator="{PresentProxy}" method="sendCursorUpdate" arguments="{event}" />
+	</EventHandlers>
+	
 	<EventHandlers type="{UploadEvent.PRESENTATION_READY}" >
 		<MethodInvoker generator="{PresentProxy}" method="loadPresentation" arguments="{event}" />
 	</EventHandlers>

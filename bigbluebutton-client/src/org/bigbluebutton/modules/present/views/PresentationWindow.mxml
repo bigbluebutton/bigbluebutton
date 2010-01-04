@@ -29,7 +29,7 @@
 	showCloseButton="false"
     verticalScrollPolicy="off" horizontalScrollPolicy="off"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
-	mouseMove="thumbnailDisplay()"
+	mouseMove="hideThumbnails()"
 	creationComplete="init()"
 	rollOut="hideThumbs()" xmlns:mate="http://mate.asfusion.com/"
 	width="450" height="450" x="220" y="0"
@@ -175,7 +175,7 @@
 				this.height = _defaultHeight;
 			}
 			
-			private function thumbnailDisplay():void{
+			private function hideThumbnails():void{
 				if (!mouseDown && mouseY > this.height*0.8 && isPresenter){
 					thumbnailWindow.y = this.height - 270;
 					thumbnailWindow.visible = true;

@@ -25,7 +25,7 @@
     horizontalAlign="center" paddingBottom="5" 
     creationComplete="init()" verticalScrollPolicy="off" horizontalScrollPolicy="off" 
     xmlns:panzoom="com.adobe.wheelerstreet.fig.panzoom.*" xmlns:local="*"
-    resize="onResize()" xmlns:mate="http://mate.asfusion.com/">
+    resize="onResize()" xmlns:mate="http://mate.asfusion.com/" rollOut="hideCursor()">
     
     <mate:Listener type="{ZoomEvent.ZOOM}" method="zoomCallback" />
     <mate:Listener type="{ZoomEvent.RESTORE}" method="restoreNormalZoom" />
@@ -33,9 +33,12 @@
     <mate:Listener type="{SlideEvent.SLIDE_LOADED}" method="handleSlideLoadedEvent" />
     <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="switchToPresenter" />
     <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="switchToViewer" />
+    <mate:Listener type="{CursorEvent.UPDATE_CURSOR}" method="updateCursorCallback" />
     
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.present.events.CursorEvent;
+			import mx.controls.Alert;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.modules.present.events.SlideEvent;
 			import org.bigbluebutton.modules.present.events.MoveEvent;
@@ -55,6 +58,8 @@
 			
 			private var xPercent:Number;
 			private var yPercent:Number;
+			
+			private var cursor:Shape;
 				
         	[Bindable] public var slides:ArrayCollection;
 			[Bindable] public var selectedSlide:int=0;
@@ -63,9 +68,15 @@
 			private function init():void{
 				myLoader.width = imageCanvas.width;
 				myLoader.height = imageCanvas.height;
+				
+				cursor = new Shape();
+				cursor.graphics.lineStyle(6, 0xD3C933, 0.6);
+				cursor.graphics.drawCircle(0,0,3);
+				imageCanvas.rawChildren.addChild(cursor);
+				cursor.visible = false;
 			}
 			
-			private function zoom(e:MouseEvent):void{		
+			private function zoom(e:MouseEvent):void{
 				var wid:Number = myLoader.width + e.delta * 10;
 				var hei:Number = myLoader.height + e.delta *10;
 				
@@ -123,8 +134,11 @@
 			}
 			
 			private function moveCallback(e:MoveEvent):void{
-				myLoader.x = e.slideXPosition * imageCanvas.width;
-				myLoader.y = e.slideYPosition * imageCanvas.height;
+				var newX:Number = e.slideXPosition * imageCanvas.width;
+				var newY:Number = e.slideYPosition * imageCanvas.height;
+				
+				if (newX <= 0) myLoader.x = newX;
+				if (newY <= 0) myLoader.y = newY;
 			}
 			
 			private function handleSlideLoadedEvent(e:SlideEvent):void{
@@ -139,19 +153,42 @@
 			
 			private function switchToViewer(e:MadePresenterEvent):void{
 				this.isPresenter = false;
+				//this.cursor.visible = true;
 				removeEventListener(MouseEvent.MOUSE_WHEEL, zoom);
 				myLoader.removeEventListener(MouseEvent.MOUSE_DOWN, mouseDown);
 				myLoader.removeEventListener(MouseEvent.MOUSE_UP, mouseUp);
 				myLoader.removeEventListener(MouseEvent.MOUSE_OUT, mouseOut);
+				imageCanvas.removeEventListener(MouseEvent.MOUSE_MOVE, sendCursorUpdate);
 			}
 			
 			private function switchToPresenter(e:MadePresenterEvent):void{
 				this.isPresenter = true;
+				//this.cursor.visible = false;
 				addEventListener(MouseEvent.MOUSE_WHEEL, zoom);
 				myLoader.addEventListener(MouseEvent.MOUSE_DOWN, mouseDown);
 				myLoader.addEventListener(MouseEvent.MOUSE_UP, mouseUp);
 				myLoader.addEventListener(MouseEvent.MOUSE_OUT, mouseOut);
+				imageCanvas.addEventListener(MouseEvent.MOUSE_MOVE, sendCursorUpdate);
 			}
+			
+			public function sendCursorUpdate(e:MouseEvent):void{
+				var command:PresenterCommands = new PresenterCommands(PresenterCommands.SEND_CURSOR_UPDATE);
+				command.xPercent = myLoader.mouseX / myLoader.width;
+				command.yPercent = myLoader.mouseY / myLoader.height;
+				dispatchEvent(command);
+			}
+			
+			private function updateCursorCallback(e:CursorEvent):void{
+				//if (isPresenter) return;
+				cursor.visible = true;
+				cursor.x = myLoader.x + (e.xPercent * myLoader.width);
+				cursor.y = myLoader.y + (e.yPercent * myLoader.height);
+			}
+			
+			private function hideCursor():void{
+				cursor.visible = false;
+			}
+			
 		]]>
 	</mx:Script>
 	
