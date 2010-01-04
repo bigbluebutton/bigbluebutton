@@ -36,7 +36,9 @@
 		</property>
 	</bean>
 			
-	<bean id="asteriskAgi" class="org.bigbluebutton.pbx.asterisk.AsteriskAgiService" />
+	<bean id="asteriskAgi" class="org.bigbluebutton.pbx.asterisk.AsteriskAgiService">
+		<property name="dynamicConferenceService" ref="dynamicConferenceService"/>
+	</bean>
 	
 	<!-- Spring Integration / JMS gateways -->
     <bean id="connectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">

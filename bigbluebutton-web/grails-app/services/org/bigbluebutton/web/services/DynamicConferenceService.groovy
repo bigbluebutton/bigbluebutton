@@ -21,11 +21,10 @@
 package org.bigbluebutton.web.services
 
 import java.util.concurrent.ConcurrentHashMap
-
+import java.util.Collection
 import org.bigbluebutton.api.domain.DynamicConference;
-
-public class DynamicConferenceService {
-	
+ 
+public class DynamicConferenceService {	
 	boolean transactional = false
 	def serviceEnabled = false
 	def securitySalt = null;
@@ -87,5 +86,17 @@ public class DynamicConferenceService {
 			conf.setEndTime(new Date());
 			log.debug "found conference and set end date"
 		}
+	}
+	
+	public boolean isMeetingWithVoiceBridgeExist(String voiceBridge) {
+		Collection<DynamicConference> confs = confsByMtgID.values()
+		for (DynamicConference c : confs) {
+	        if (voiceBridge == c.voiceBridge) {
+	        	log.debug "Found voice bridge $voiceBridge"
+	        	return true
+	        }
+		}
+		log.debug "could not find voice bridge $voiceBridge"
+		return false
 	}
 }
