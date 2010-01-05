@@ -25,6 +25,7 @@
 #       2009-12-09 FFD  Updated for 0.63
 #       2009-12-11 FFD  Added ability to swtich conference servers
 #       2009-12-12 FFD  Added cleaning and watching of log files
+#       2010-01-05 FFD  Added zipping of log files
 
 
 # set -x
@@ -67,7 +68,8 @@ usage() {
 	echo "   --setup-dev [bbb-web|bbb-client|bbb-apps] "
 	echo "   --check                          Check current settings"
 	echo "   --debug                          Check the log files for errors"
-	echo "   --watch                          Watch log files for error messages"
+	echo "   --watch                          Watch log files for error messages every 2 seconds"
+	echo "   --zip                            Zip up log files for reporting an error"
 	echo
 	echo "version: 0.63-9"
 	echo
@@ -154,6 +156,12 @@ while [ $# -gt 0 ]; do
 
 	if [ "$1" = "--network" -o "$1" = "-network" -o "$1" = "-n" ]; then
 		NETWORK=1
+		shift
+		continue
+	fi
+
+	if [ "$1" = "--zip" -o "$1" = "-zip" -o "$1" = "-z" ]; then
+		ZIP=1
 		shift
 		continue
 	fi
@@ -257,6 +265,12 @@ fi
 if [ $SETUPDEV ]; then
 	check_root
 
+	# This is a step towards setting up a development environment on a non-BigBlueButton VM
+	which svn
+	if [ $? != 0 ]; then
+		sudo apt-get install subversion ant -y --force-yes
+	fi
+
         if [ ! -d ~/dev ]; then
 		mkdir ~/dev
 	fi
@@ -267,12 +281,6 @@ if [ $SETUPDEV ]; then
 		echo "# Setting up ~/dev/bbb-web"
                 echo "  svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-web bbb-web"
 
-		# This is a step towards setting up a development environment on a non-BigBlueButton VM
-		which svn
-		if [ $? != 0 ]; then
-			sudo apt-get install subversion ant -y --force-yes
-		fi
-		
                 cd ~/dev
                 svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-web bbb-web
 
@@ -294,8 +302,8 @@ if [ $SETUPDEV ]; then
 		echo "# Setting salt and BigBlueButtonURL in ./bigbluebutton/demo/bbb_api.jsp"
 		sudo chmod -R ugo+rwx /var/log/bigbluebutton
 
-	 	HOST=$(cat /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api.jsp | tr -d '\015' | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}')
-		sed -i "s/BigBlueButtonURL = \"http:\/\/\([^\"\/]*\)\([\"\/]\)/BigBlueButtonURL = \"http:\/\/$HOST\2/g" \
+	 	BBB_HOST=$(cat /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api.jsp | tr -d '\015' | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}')
+		sed -i "s/BigBlueButtonURL = \"http:\/\/\([^\"\/]*\)\([\"\/]\)/BigBlueButtonURL = \"http:\/\/$BBB_HOST\2/g" \
                		./bbb-web/web-app/demo/bbb_api.jsp
 
 		SALT=$(cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | tr -d '\015' | sed -n '/securitySalt/{s/.*=//;p}')
@@ -344,6 +352,9 @@ if [ $SETUPDEV ]; then
 
 		echo "# Copying /var/www/bigbluebutton/client/conf/config.xml to ~/dev/bbb-client/bin/conf/config.xml"
 		cp /var/www/bigbluebutton/client/conf/config.xml ~/dev/bbb-client/bin/conf/config.xml
+
+		cd bbb-client
+		ant localization 
 
 		echo "
 # Done.  To build your local build of bbb-client:
@@ -530,6 +541,35 @@ if [ $CHECK ]; then
 	exit 0
 fi
 
+#
+# Check current setup
+#
+if [ $ZIP ]; then
+	need_root
+
+	LOG_FILE="$(date +'%Y%m%d')-$(date +%H)"
+	#
+	# Check log files
+	#
+	rm -f /tmp/$LOG_FILE.tar
+	rm -f /tmp/$LOG_FILE.tar.gz
+	rm -f /tmp/a
+
+	touch /tmp/a
+	tar cf /tmp/$LOG_FILE.tar /tmp/a			> /dev/null 2>&1
+	tar rf /tmp/$LOG_FILE.tar /usr/share/red5/log		> /dev/null 2>&1
+	tar rf /tmp/$LOG_FILE.tar /var/lib/tomcat6/logs		> /dev/null 2>&1
+	tar rf /tmp/$LOG_FILE.tar /var/log/nginx/error.log	> /dev/null 2>&1
+	tar rf /tmp/$LOG_FILE.tar /var/log/syslog		> /dev/null 2>&1
+
+	echo
+	echo "  Created: /tmp/$LOG_FILE.tar.gz"
+	echo "  It contains the following log files:"
+	echo
+	tar tf /tmp/$LOG_FILE.tar
+	gzip /tmp/$LOG_FILE.tar
+	echo
+fi
 
 #
 # Check current setup
@@ -741,8 +781,7 @@ fi
 if [ $CLEAN ]; then
 	need_root
 
-	echo "# Doing a clean restart of BigBlueButton"
-	echo
+	echo "Doing a clean restart of BigBlueButton ..."
 
 	/etc/init.d/red5 stop
 	/etc/init.d/tomcat6 stop
@@ -755,7 +794,7 @@ if [ $CLEAN ]; then
 	#
 
 	echo 
-	echo "# Cleaning Log Files ..."
+	echo "Cleaning Log Files ..."
 	rm -f /var/log/asterisk/event* 
 	rm -f /var/log/asterisk/messages* 
 	rm -f /var/log/asterisk/queue* 
