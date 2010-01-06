@@ -209,15 +209,8 @@
 			}
 			
 			private function sliderZoom():void{
-				var newWidth:Number = slideView.imageCanvas.width * (zoomSlider.value/100);
-				var newHeight:Number = slideView.imageCanvas.height * (zoomSlider.value/100);
-				
-				var xPercent:Number = newWidth / slideView.imageCanvas.width;
-				var yPercent:Number = newHeight / slideView.imageCanvas.height;
-				
 				var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.ZOOM);
-				presentEvent.xPercent = xPercent;
-				presentEvent.yPercent = yPercent;
+				presentEvent.zoomPercentage = (zoomSlider.value - 100)/100;
 				dispatchEvent(presentEvent);
 			}
 			

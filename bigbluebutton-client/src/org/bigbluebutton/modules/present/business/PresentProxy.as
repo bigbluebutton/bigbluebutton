@@ -164,7 +164,7 @@ package org.bigbluebutton.modules.present.business
 		 * 
 		 */		
 		public function zoomSlide(e:PresenterCommands):void{
-			soService.zoom(e.xPercent, e.yPercent);
+			soService.zoom(e.zoomPercentage);
 		}
 		
 		/**

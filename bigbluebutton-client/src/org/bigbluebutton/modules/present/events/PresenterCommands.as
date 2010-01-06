@@ -40,6 +40,9 @@ package org.bigbluebutton.modules.present.events
 		public var slideNumber:Number;
 		
 		//Parameters for the zoom event
+		public var zoomPercentage:Number;
+		
+		//Parameters for the cursor event
 		public var xPercent:Number;
 		public var yPercent:Number;
 		

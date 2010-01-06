@@ -27,8 +27,7 @@ package org.bigbluebutton.modules.present.events
 		public static const MAXIMIZE:String = "MAXIMIZE";
 		public static const RESTORE:String = "RESTORE";
 		
-		public var slideWidth:Number;
-		public var slideHeight:Number;
+		public var zoomPercentage:Number;
 		
 		public function ZoomEvent(type:String)
 		{

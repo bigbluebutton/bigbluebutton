@@ -126,8 +126,8 @@ package org.bigbluebutton.modules.present.business {
 		 * @param slideWidth
 		 * 
 		 */		
-		public function zoom(slideHeight:Number, slideWidth:Number):void{
-			_presentationSO.send("zoomCallback", slideHeight, slideWidth);
+		public function zoom(zoomPercent:Number):void{
+			_presentationSO.send("zoomCallback", zoomPercent);
 		}
 		
 		/**
@@ -136,10 +136,9 @@ package org.bigbluebutton.modules.present.business {
 		 * @param slideWidth
 		 * 
 		 */		
-		public function zoomCallback(slideHeight:Number, slideWidth:Number):void{
+		public function zoomCallback(zoomPercent:Number):void{
 			var e:ZoomEvent = new ZoomEvent(ZoomEvent.ZOOM);
-			e.slideWidth = slideWidth;
-			e.slideHeight = slideHeight;
+			e.zoomPercentage = zoomPercent;
 			dispatcher.dispatchEvent(e);
 		}
 		
