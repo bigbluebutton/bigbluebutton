@@ -118,9 +118,6 @@
 			}
 			
 			private function zoomCallback(e:ZoomEvent):void{
-				myLoader.scaleX += e.zoomPercentage;
-				myLoader.scaleY += e.zoomPercentage;
-				
 				myLoader.content.scaleX += e.zoomPercentage;
 				myLoader.content.scaleY += e.zoomPercentage;
 			}
@@ -165,16 +162,16 @@
 			
 			public function sendCursorUpdate(e:MouseEvent):void{
 				var command:PresenterCommands = new PresenterCommands(PresenterCommands.SEND_CURSOR_UPDATE);
-				command.xPercent = myLoader.mouseX / myLoader.width;
-				command.yPercent = myLoader.mouseY / myLoader.height;
+				command.xPercent = myLoader.mouseX / myLoader.content.width;
+				command.yPercent = myLoader.mouseY / myLoader.content.height;
 				dispatchEvent(command);
 			}
 			
 			private function updateCursorCallback(e:CursorEvent):void{
 				//if (isPresenter) return;
 				cursor.visible = true;
-				cursor.x = myLoader.x + (e.xPercent * myLoader.width);
-				cursor.y = myLoader.y + (e.yPercent * myLoader.height);
+				cursor.x = myLoader.x + (e.xPercent * myLoader.content.width);
+				cursor.y = myLoader.y + (e.yPercent * myLoader.content.height);
 			}
 			
 			private function hideCursor():void{
@@ -185,8 +182,9 @@
 	</mx:Script>
 	
 	<mx:Canvas id="imageCanvas" width="100%" height="100%" verticalScrollPolicy="off" horizontalScrollPolicy="off">  
-		<mx:SWFLoader id="myLoader"
-    		scaleContent="true" maintainAspectRatio="true" showBusyCursor="true"
+		<mx:SWFLoader id="myLoader" width="100%" height="100%"
+    		scaleContent="false" maintainAspectRatio="true" showBusyCursor="true"
     		completeEffect="Fade"/>    	
-	</mx:Canvas>    	      		 
+	</mx:Canvas>  
+		      		 
 </mx:VBox>
