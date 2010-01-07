@@ -114,19 +114,23 @@
 			}
 			
 			public function onResize():void{
-				var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.RESET_ZOOM);
-				presentEvent.zoomPercentage = 1;
-				dispatchEvent(presentEvent);
+				//var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.RESET_ZOOM);
+				//presentEvent.zoomPercentage = 1;
+				//dispatchEvent(presentEvent);
 			}
 			
 			private function zoomCallback(e:ZoomEvent):void{
 				myLoader.content.scaleX += e.zoomPercentage;
 				myLoader.content.scaleY += e.zoomPercentage;
+				myLoader.width = myLoader.content.width;
+				myLoader.height = myLoader.content.height;
 			}
 			
 			private function resizeSlide(e:ZoomEvent):void{
 				myLoader.content.scaleX = e.zoomPercentage;
 				myLoader.content.scaleY = e.zoomPercentage;
+				myLoader.width = myLoader.content.width;
+				myLoader.height = myLoader.content.height;
 			}
 			
 			private function moveCallback(e:MoveEvent):void{
@@ -179,11 +183,12 @@
 			private function updateCursorCallback(e:CursorEvent):void{
 				if (myLoader.content == null) return;
 				
-				if (e.xPercent < 1 && e.yPercent < 1) cursor.visible = true;
-				else cursor.visible = false;
-				
 				cursor.x = myLoader.x + (e.xPercent * myLoader.content.width);
 				cursor.y = myLoader.y + (e.yPercent * myLoader.content.height);
+				
+				//If cursor is off window, don't show it
+				if ((e.xPercent > 1 && e.yPercent > 1) || (cursor.x > this.width || cursor.y > this.height)) cursor.visible = false;
+				else cursor.visible = true;	
 			}
 			
 			private function hideCursor():void{
