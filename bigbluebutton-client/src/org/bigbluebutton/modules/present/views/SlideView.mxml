@@ -114,9 +114,9 @@
 			}
 			
 			public function onResize():void{
-				//var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.RESET_ZOOM);
-				//presentEvent.zoomPercentage = 1;
-				//dispatchEvent(presentEvent);
+				if (myLoader.content == null) return;
+				myLoader.width = myLoader.content.width;
+				myLoader.height = myLoader.content.height;
 			}
 			
 			private function zoomCallback(e:ZoomEvent):void{
