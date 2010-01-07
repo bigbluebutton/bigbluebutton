@@ -41,8 +41,8 @@
 			import mx.core.UIComponent;
 			import mx.controls.Alert;
 		
-			private var _xPosition:int = 400;
-			private var _yPosition:int = 300;
+			private var _xPosition:int = 200;
+			private var _yPosition:int = 200;
 			
 			//The following code block is to deal with a bug in FLexLib with MDI windows not responding well to being maximized
 			private var savedWindowWidth:Number;

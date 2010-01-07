@@ -67,8 +67,8 @@
 			}
 			
 			private function init():void{
-				_xPosition = 400;
-				_yPosition = 400;
+				_xPosition = 250;
+				_yPosition = 250;
 				videoHolder = new UIComponent();
 				videoHolder.addChild(video);
 				this.addChild(videoHolder);
