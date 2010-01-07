@@ -31,6 +31,7 @@ package org.bigbluebutton.modules.present.events
 	{
 		public static const GOTO_SLIDE:String = "GOTO_SLIDE_COMMAND";
 		public static const ZOOM:String = "ZOOM_COMMAND";
+		public static const RESIZE:String = "RESIZE_COMMAND";
 		public static const RESET_ZOOM:String = "RESTORE_ZOOM";
 		public static const MOVE:String = "MOVE_COMMAND";
 		public static const SHARE_PRESENTATION_COMMAND:String = "SHARE_PRESENTATION_COMMAND";
@@ -41,6 +42,9 @@ package org.bigbluebutton.modules.present.events
 		
 		//Parameters for the zoom event
 		public var zoomPercentage:Number;
+		
+		//Parameters for the resize event
+		public var newSizeInPercent:Number;
 		
 		//Parameters for the cursor event
 		public var xPercent:Number;

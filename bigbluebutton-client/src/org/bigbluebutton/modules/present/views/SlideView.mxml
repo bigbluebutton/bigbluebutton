@@ -28,12 +28,14 @@
     resize="onResize()" xmlns:mate="http://mate.asfusion.com/" rollOut="hideCursor()">
     
     <mate:Listener type="{ZoomEvent.ZOOM}" method="zoomCallback" />
-    <mate:Listener type="{ZoomEvent.RESTORE}" method="restoreNormalZoom" />
+    <mate:Listener type="{ZoomEvent.RESTORE}" method="restoreSlideSize" />
     <mate:Listener type="{MoveEvent.MOVE}" method="moveCallback" />
     <mate:Listener type="{SlideEvent.SLIDE_LOADED}" method="handleSlideLoadedEvent" />
     <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="switchToPresenter" />
     <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="switchToViewer" />
     <mate:Listener type="{CursorEvent.UPDATE_CURSOR}" method="updateCursorCallback" />
+    <mate:Listener type="{ZoomEvent.RESIZE}" method="resizeSlide" />
+    
     
 	<mx:Script>
 		<![CDATA[
@@ -83,8 +85,8 @@
 			}
 		
 			private function mouseDown(e:MouseEvent):void{		
-				startDragX = myLoader.x;
-				startDragY = myLoader.y;
+				startDragX = myLoader.content.x;
+				startDragY = myLoader.content.y;
 				startDragMouseX = imageCanvas.mouseX;
 				startDragMouseY = imageCanvas.mouseY;
 				addEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
@@ -122,27 +124,34 @@
 				myLoader.content.scaleY += e.zoomPercentage;
 			}
 			
+			private function resizeSlide(e:ZoomEvent):void{
+				myLoader.content.scaleX = e.zoomPercentage;
+				myLoader.content.scaleY = e.zoomPercentage;
+			}
+			
 			private function moveCallback(e:MoveEvent):void{
+				if (myLoader.content == null) return;
 				var newX:Number = e.slideXPosition * imageCanvas.width;
 				var newY:Number = e.slideYPosition * imageCanvas.height;
 				
-				if (newX <= 0) myLoader.x = newX;
-				if (newY <= 0) myLoader.y = newY;
+				if (newX <= 0) myLoader.content.x = newX;
+				if (newY <= 0) myLoader.content.y = newY;
 			}
 			
 			private function handleSlideLoadedEvent(e:SlideEvent):void{
 				myLoader.source = e.slide;
 			}
 			
-			private function restoreNormalZoom(e:ZoomEvent):void{
-				myLoader.width = this.width;
-				myLoader.x = 0;
-				myLoader.y = 0;
+			private function restoreSlideSize(e:ZoomEvent):void{
+				if (myLoader.content == null) return;
+				myLoader.content.scaleX = 1;
+				myLoader.content.scaleY = 1;
+				myLoader.content.x = 0;
+				myLoader.content.y = 0;
 			}
 			
 			private function switchToViewer(e:MadePresenterEvent):void{
 				this.isPresenter = false;
-				//this.cursor.visible = true;
 				removeEventListener(MouseEvent.MOUSE_WHEEL, zoom);
 				myLoader.removeEventListener(MouseEvent.MOUSE_DOWN, mouseDown);
 				myLoader.removeEventListener(MouseEvent.MOUSE_UP, mouseUp);
@@ -152,7 +161,6 @@
 			
 			private function switchToPresenter(e:MadePresenterEvent):void{
 				this.isPresenter = true;
-				//this.cursor.visible = false;
 				addEventListener(MouseEvent.MOUSE_WHEEL, zoom);
 				myLoader.addEventListener(MouseEvent.MOUSE_DOWN, mouseDown);
 				myLoader.addEventListener(MouseEvent.MOUSE_UP, mouseUp);
@@ -161,6 +169,7 @@
 			}
 			
 			public function sendCursorUpdate(e:MouseEvent):void{
+				if (myLoader.content == null) return;
 				var command:PresenterCommands = new PresenterCommands(PresenterCommands.SEND_CURSOR_UPDATE);
 				command.xPercent = myLoader.mouseX / myLoader.content.width;
 				command.yPercent = myLoader.mouseY / myLoader.content.height;

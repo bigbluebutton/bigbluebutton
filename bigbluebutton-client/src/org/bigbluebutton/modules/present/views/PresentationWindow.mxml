@@ -41,7 +41,7 @@
 	<mate:Listener type="{PresentationEvent.PRESENTATION_LOADED}" method="handlePresentationLoadedEvent" />
 	<mate:Listener type="{NavigationEvent.GOTO_PAGE}" method="gotoPage" />
 	<mate:Listener type="{UploadEvent.CLEAR_PRESENTATION}" method="clearPresentation" />
-	<mate:Listener type="{ZoomEvent.ZOOM}" method="zoomCallback" />
+	<mate:Listener type="{ZoomEvent.RESTORE}" method="restoreZoomSliderValue" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -209,13 +209,13 @@
 			}
 			
 			private function sliderZoom():void{
-				var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.ZOOM);
-				presentEvent.zoomPercentage = (zoomSlider.value - 100)/100;
+				var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.RESIZE);
+				presentEvent.newSizeInPercent = (zoomSlider.value)/100;
 				dispatchEvent(presentEvent);
 			}
 			
-			private function zoomCallback(e:Event):void{
-				//zoomSlider.value = (slideView.myLoader.width / slideView.imageCanvas.width) * 100;
+			private function restoreZoomSliderValue(e:ZoomEvent):void{
+				zoomSlider.value = 100;
 			}
 			
 			private function onCanvasClick():void{
@@ -359,8 +359,8 @@
     	   		toolTip="Next slide" click="dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, slideView.selectedSlide + 1))"/>    				
     	<mx:Spacer width="10%" id="spacer2"/>
     	<mx:HSlider id="zoomSlider" visible="false"
-    		minimum="100" maximum="300" value="100" 
-    		dataTipPlacement="right" labels="['100%','300%']"
+    		minimum="20" maximum="400" value="100" 
+    		dataTipPlacement="right" labels="['20%','400%']"
     		allowTrackClick="true" liveDragging="true" change="sliderZoom()" width="100" />
     	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="false" width="20" height="20" 
     		toolTip="Reset Zoom" click="dispatchEvent(new PresenterCommands(PresenterCommands.RESET_ZOOM))"/>

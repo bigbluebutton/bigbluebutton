@@ -21,11 +21,20 @@ package org.bigbluebutton.modules.present.events
 {
 	import flash.events.Event;
 	
+	/**
+	 * Several events relating to zooming the slides in an out. Note that the difference betweeen the ZOOM event and the RESIZE event. The ZOOM event increases or decreases
+	 * the zoom value of the slide in increments, while the RESIZE event updates the zoom value of the slide in terms of the original value. So for example, a ZOOM event
+	 * might send the message to increase the size of the slide by 10% of it's current value, while RESIZE would send a message to enlarge the slide to 300% of it's default
+	 * size. 
+	 * @author Denis
+	 * 
+	 */	
 	public class ZoomEvent extends Event
 	{
 		public static const ZOOM:String = "ZOOM";
 		public static const MAXIMIZE:String = "MAXIMIZE";
 		public static const RESTORE:String = "RESTORE";
+		public static const RESIZE:String = "RESIZE";
 		
 		public var zoomPercentage:Number;
 		

@@ -121,7 +121,7 @@ package org.bigbluebutton.modules.present.business {
 		}
 		
 		/**
-		 * Send an event to the server to update the clients with a new slide zoom ratio
+		 * Send an event to the server to resize the clients view of the slide in percentage increments
 		 * @param slideHeight
 		 * @param slideWidth
 		 * 
@@ -162,6 +162,21 @@ package org.bigbluebutton.modules.present.business {
 			var e:CursorEvent = new CursorEvent(CursorEvent.UPDATE_CURSOR);
 			e.xPercent = xPercent;
 			e.yPercent = yPercent;
+			dispatcher.dispatchEvent(e);
+		}
+		
+		/**
+		 * Send an event to the server to update the size of the slide shows, as a percentage of the default value 
+		 * @param newSizeInPercent
+		 * 
+		 */		
+		public function resizeSlide(newSizeInPercent:Number):void{
+			_presentationSO.send("resizeSlideCallback", newSizeInPercent);
+		}
+		
+		public function resizeSlideCallback(newSizeInPercent:Number):void{
+			var e:ZoomEvent = new ZoomEvent(ZoomEvent.RESIZE);
+			e.zoomPercentage = newSizeInPercent;
 			dispatcher.dispatchEvent(e);
 		}
 		

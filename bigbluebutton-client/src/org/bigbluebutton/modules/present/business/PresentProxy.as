@@ -175,6 +175,10 @@ package org.bigbluebutton.modules.present.business
 		public function sendCursorUpdate(e:PresenterCommands):void{
 			soService.sendCursorUpdate(e.xPercent, e.yPercent);
 		}
+		
+		public function resizeSlide(e:PresenterCommands):void{
+			soService.resizeSlide(e.newSizeInPercent);
+		}
 
 	}
 }
