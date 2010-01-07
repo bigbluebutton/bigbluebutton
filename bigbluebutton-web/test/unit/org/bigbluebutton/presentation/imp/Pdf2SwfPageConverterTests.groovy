@@ -29,6 +29,7 @@ class Pdf2SwfPageConverterTests extends GroovyTestCase {
 
 	def pageConverter
 	def SWFTOOLS_DIR = '/bin'
+	def FONTS_DIR = '/usr/share/fonts/'
 	def BLANK_SLIDE = '/var/bigbluebutton/blank/blank-slide.swf'
 	static final String PRESENTATIONDIR = '/tmp/var/bigbluebutton'
 
@@ -41,7 +42,7 @@ class Pdf2SwfPageConverterTests extends GroovyTestCase {
 		println "Test setup"
 		pageConverter = new Pdf2SwfPageConverter()		
 		pageConverter.setSwfToolsDir(SWFTOOLS_DIR)	
-		
+		pageConverter.setFontsDir(FONTS_DIR)
 		presDir = new File("$PRESENTATIONDIR/$conf/$rm/$presName")
 		if (presDir.exists()) Util.deleteDirectory(presDir)
 		
