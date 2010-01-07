@@ -23,9 +23,11 @@ import org.bigbluebutton.web.domain.ScheduledSession
 import org.bigbluebutton.web.domain.Conference
 import grails.converters.*
 import org.codehaus.groovy.grails.commons.*
-
+import org.bigbluebutton.web.services.DynamicConferenceService;
+ 
 class PublicScheduledSessionController {
-		
+	DynamicConferenceService dynamicConferenceService;
+	 
 	def index = {
 	    redirect(action:joinIn)
 	}
@@ -137,12 +139,15 @@ class PublicScheduledSessionController {
 					}
 					if (signedIn) {						
 						log.debug "Login successful...setting in session information"
+						def defaultWelcomeMessage = dynamicConferenceService.defaultWelcomeMessage
+						def welcomeMessage = "$defaultWelcomeMessage ${confSession.voiceConferenceBridge}"
 			   			session["fullname"] = params.fullname 
 						session["role"] = role
 						session["conference"] = confSession.tokenId
 						session["room"] = confSession.sessionId
 						session["voicebridge"] = confSession.voiceConferenceBridge
 						session["conferencename"] = confSession.getName()
+						session['welcome'] = welcomeMessage
 				
 						def long _10_MINUTES = 10*60*1000
 					
@@ -186,6 +191,7 @@ class PublicScheduledSessionController {
 	    def rec = session["record"]
 	    def md = session["mode"]
 	    def confName = session["conferencename"]
+	    def welcomeMsg = session['welcome']
 	    
 	    if (!rm) {
 	    	response.addHeader("Cache-Control", "no-cache")
@@ -214,6 +220,7 @@ class PublicScheduledSessionController {
 	        				voicebridge("${vb}")
 	        				mode("$md")
 	        				record("$rec")
+	        				welcome("$welcomeMsg")
 						}
 					}
 				}

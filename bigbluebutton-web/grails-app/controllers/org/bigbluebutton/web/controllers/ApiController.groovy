@@ -73,6 +73,8 @@ class ApiController {
 		String attPW = params.attendeePW
 		String modPW = params.moderatorPW
 		String voiceBr = params.voiceBridge
+		String welcomeMessage = params.welcome
+		
 		Integer maxParts = -1;
 		try {
 			maxParts = Integer.parseInt(params.maxParticipants);
@@ -96,6 +98,13 @@ class ApiController {
 		}
 		DynamicConference conf = new DynamicConference(name, mtgID, attPW, modPW, maxParts)
 		conf.setVoiceBridge(voiceBr == null || voiceBr == "" ? mtgID : voiceBr)
+		
+		if (welcomeMessage == null || welcomeMessage == "") {
+			def defaultWelcomeMessage = dynamicConferenceService.defaultWelcomeMessage
+			welcomeMessage = "$defaultWelcomeMessage ${conf.voiceBridge}"
+		}
+		conf.welcome = welcomeMessage
+								
 		log.debug("Conference created: " + conf);
 		// TODO: support voiceBridge and voiceServer
 
@@ -140,7 +149,8 @@ class ApiController {
 			invalid("invalidPassword", "You either did not supply a password or the password supplied is neither the attendee or moderator password for this conference.");
 			return;
 		}
-
+		
+		
 		// TODO: success....
 		log.debug "join successful - setting session parameters and redirecting to join"
 		session["conferencename"] = conf.meetingID
@@ -151,6 +161,8 @@ class ApiController {
 		session["voicebridge"] = conf.getVoiceBridge()
 		session["mode"] = "LIVE"
 		session["record"] = false
+		session['welcome'] = conf.welcome
+		
     	def config = ConfigurationHolder.config
     	def hostURL = config.bigbluebutton.web.serverURL
     	redirect(url:"${hostURL}/client/BigBlueButton.html")

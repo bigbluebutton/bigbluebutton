@@ -27,7 +27,8 @@ import org.bigbluebutton.api.domain.DynamicConference;
 public class DynamicConferenceService {	
 	static transactional = false
 	def serviceEnabled = false
-	def securitySalt;
+	def securitySalt
+	def defaultWelcomeMessage
 	
 	private final Map<String, DynamicConference> confsByMtgID
 	private final Map<String, String> tokenMap

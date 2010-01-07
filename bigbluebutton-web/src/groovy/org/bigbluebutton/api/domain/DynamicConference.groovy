@@ -37,12 +37,11 @@ public class DynamicConference extends Conference {
 	
 	String moderatorPassword
 	String attendeePassword
-
+	String welcome
 	int maxParticipants
 
-	public DynamicConference() {
-		
-	}
+	public DynamicConference() {}
+	
 	public DynamicConference(name, meetingID, attendeePW, moderatorPW, maxParticipants) {
 		this.setName(name)
 		this.setMeetingID(StringUtils.isEmpty(meetingID) ? "" : meetingID)
