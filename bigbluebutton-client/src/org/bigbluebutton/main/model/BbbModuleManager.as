@@ -137,6 +137,7 @@ package org.bigbluebutton.main.model
 			_user.connection = user.connection;
 			_user.playbackRoom = user.playbackRoom;
 			_user.record = user.record;
+			_user.welcome = user.welcome;
 			
 			Role.setRole(user.userrole);
 		}
@@ -188,6 +189,7 @@ package org.bigbluebutton.main.model
 					m.addAttribute("voicebridge", _user.voicebridge);
 					m.addAttribute("playbackRoom", _user.playbackRoom);
 					m.addAttribute("record", _user.record);
+					m.addAttribute("welcome", _user.welcome);
 					
 				} else {
 					// Pass the mode that we got from the URL query string.

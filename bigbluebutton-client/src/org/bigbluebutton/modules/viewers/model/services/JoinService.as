@@ -65,9 +65,9 @@ package org.bigbluebutton.modules.viewers.model.services
 			} else if (returncode == 'SUCCESS') {
 				LogUtil.debug(xml.returncode + " " + xml.fullname + " " + xml.conference + " " + xml.role
 					+ " " + xml.room + " " + xml.voicebridge + " " + xml.mode);
-				var user:Object = {username:xml.fullname, conference:xml.conference, 
+				var user:Object = {username:xml.fullname, conference:xml.conference, conferenceName:xml.confname,
 										role:xml.role, room:xml.room, authToken:xml.room, record:xml.record, 
-										voicebridge:xml.voicebridge, mode:xml.mode};
+										voicebridge:xml.voicebridge, mode:xml.mode, welcome:xml.welcome};
 				_resultListener(true, user);
 			}
 				

@@ -247,12 +247,12 @@
 			}
 
 			private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
-				trace("Got PublicChatMessageEvent");
+				LogUtil.debug("Got PublicChatMessageEvent");
 				showMessage(PUBLIC_CHAT_USERID, event.message);
 			}
 			
 			private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
-				trace("Got PrivateChatMessageEvent");
+				LogUtil.debug("Got PrivateChatMessageEvent");
 				showMessage(event.message.sender, event.message.message);
 			}
 			

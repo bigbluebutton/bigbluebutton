@@ -144,6 +144,22 @@
 				return _attributes.conference;
 			}
 			
+			public function set conferenceName(c:String):void {
+				_attributes.conferenceName = c;
+			}
+			
+			public function get conferenceName():String {
+				return _attributes.conferenceName;
+			}
+			
+			public function set welcome(c:String):void {
+				_attributes.welcome = c;
+			}
+			
+			public function get welcome():String {
+				return _attributes.welcome;
+			}
+			
 			public function set record(r:Boolean):void {
 				_attributes.record = r;
 			}

@@ -31,13 +31,18 @@
 	<maps:ChatLocalEventMap dispatcher="{this}" id="chatLocalEventMap"/>
 	<maps:ChatEventMap id="ChatGlobalEventMap"/>
 	
+	<mate:Listener type="{TranscriptLoadedEvent.TRANSCRIPT_EVENT}" method="handleTranscriptLoadedEvent"/>
+	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
+			import org.bigbluebutton.modules.chat.events.BannerEvent;
 			import org.bigbluebutton.modules.chat.events.StopChatModuleEvent;
 			import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
 			import com.asfusion.mate.events.Dispatcher;
 			import org.bigbluebutton.modules.chat.events.ChatEvent;
 			import org.bigbluebutton.common.messaging.Router;
+			import org.bigbluebutton.modules.chat.events.TranscriptLoadedEvent;
 			
 			private var _router:Router;			
 			private var _moduleId:String = "ChatModule";
@@ -117,6 +122,15 @@
 			
 			private function handlePrivateChatMessageEvent(event:Event):void {
 				trace("Received PRIVATE CHAT MESSAGE EVENT");
+			}
+			
+			private function handleTranscriptLoadedEvent(event:Event):void {
+				LogUtil.debug("Handling TranscriptLoadedEvent");
+				var welcome:String = _attributes.welcome as String;
+				var welcomeEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
+				welcomeEvent.message = welcome;
+				var globalDispatcher:Dispatcher = new Dispatcher();
+				globalDispatcher.dispatchEvent(welcomeEvent);
 			}
 		]]>
 	</mx:Script>

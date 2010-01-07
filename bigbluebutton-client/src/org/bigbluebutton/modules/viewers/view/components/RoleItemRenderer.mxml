@@ -35,5 +35,6 @@
   			   			   			
 		]]>
 	</mx:Script>	
-	<mx:Image id="roleImage" source="{data.role == Role.MODERATOR ? adminIcon : ''}"/>
+	<mx:Image id="roleImage" source="{data.role == Role.MODERATOR ? adminIcon : ''}" 
+			toolTip="{data.role == Role.MODERATOR ? 'moderator' : 'viewer'}"/>
 </mx:HBox>

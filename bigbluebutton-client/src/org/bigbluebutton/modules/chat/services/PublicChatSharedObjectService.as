@@ -31,6 +31,7 @@ package org.bigbluebutton.modules.chat.services
 	
 	import org.bigbluebutton.modules.chat.events.ConnectionEvent;
 	import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
+	import org.bigbluebutton.modules.chat.events.TranscriptLoadedEvent;
 
 	public class PublicChatSharedObjectService
 	{
@@ -114,12 +115,18 @@ package org.bigbluebutton.modules.chat.services
 			trace("Received New Chat Message " + message);	
 			var event:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
 			event.message = message;
-//			dispatcher.dispatchEvent(event);
 			
 			var globalDispatcher:Dispatcher = new Dispatcher();
 			globalDispatcher.dispatchEvent(event);	   
 		}
 
+		private function sendTranscriptLoadedEvent():void {
+			LogUtil.debug("Sending transcript loaded Event");
+			var event:TranscriptLoadedEvent = new TranscriptLoadedEvent(TranscriptLoadedEvent.TRANSCRIPT_EVENT);
+			var globalDispatcher:Dispatcher = new Dispatcher();
+			globalDispatcher.dispatchEvent(event);	
+		}
+		
 		public function getChatTranscript():void {
 			var nc:NetConnection = connection;
 			nc.call(
@@ -131,6 +138,7 @@ package org.bigbluebutton.modules.chat.services
 						if (result != null) {
 							newChatMessage(result as String);
 						}	
+						sendTranscriptLoadedEvent();
 					},	
 					// status - On error occurred
 					function(status:Object):void { 

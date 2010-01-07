@@ -169,7 +169,8 @@
      	 <mx:Spacer width="100%"/>
     	 <mx:Button id="raiseHandImage" icon="{handIcon}" toggle="true" 
     	   			width="20" height="20"
-    	   			toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.raiseHandBtn.toolTip')}" click="dispatchEvent(new Event(ViewersWindowMediator.CHANGE_STATUS))"/>  			
+    	   			toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.raiseHandBtn.toolTip')}" 
+    	   			click="dispatchEvent(new Event(ViewersWindowMediator.CHANGE_STATUS))"/>  			
     </mx:ControlBar>  
     
     <mx:SoundEffect id="userJoinSound" source="@Embed('../assets/sounds/user_join.mp3')" target="{this}" />

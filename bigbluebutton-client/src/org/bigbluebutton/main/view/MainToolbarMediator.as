@@ -51,7 +51,7 @@ package org.bigbluebutton.main.view
 		override public function handleNotification(notification:INotification):void{
 			switch(notification.getName()){	
 				case MainApplicationConstants.USER_JOINED:
-					toolbar.loggedIn(notification.getBody().username, notification.getBody().voicebridge, notification.getBody().userrole);
+					toolbar.loggedIn(notification.getBody().username, notification.getBody().conferenceName, notification.getBody().userrole);
 					toolbar.visible = true;
 					break;
 				case MainApplicationConstants.USER_LOGGED_OUT:

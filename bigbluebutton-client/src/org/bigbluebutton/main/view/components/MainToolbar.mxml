@@ -37,7 +37,7 @@
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			public function loggedIn(name:String, room:String, role:String):void{
-				loggedInUserLbl.text = ResourceUtil.getInstance().getString('bbb.mainToolbar.loggedInUserLbl',[name, room, role]);//"You are logged in as " + name + " to " + room + " as role " + role + ".";
+//				loggedInUserLbl.text = ResourceUtil.getInstance().getString('bbb.mainToolbar.loggedInUserLbl',[name, room, role]);//"You are logged in as " + name + " to " + room + " as role " + role + ".";
 				this.visible = true;
 			}
 			
@@ -66,7 +66,7 @@
 			
 		]]>
 	</mx:Script>	
-	<mx:Label id="loggedInUserLbl" text="" visible="true"/>	
+	<!--mx:Label id="loggedInUserLbl" text="" visible="true"/-->	
 	<mx:HBox id="addedBtns">
 	</mx:HBox>		
 	<mx:Spacer width="100%"/>

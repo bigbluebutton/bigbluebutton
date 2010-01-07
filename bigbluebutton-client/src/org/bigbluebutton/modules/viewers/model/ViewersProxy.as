@@ -88,6 +88,8 @@ package org.bigbluebutton.modules.viewers.model
 				module.authToken = _participants.me.authToken;
 				module.mode = result.mode;
 				module.voicebridge = result.voicebridge;
+				module.conferenceName = result.conferenceName;
+				module.welcome = result.welcome;
 				
 				if (result.record == 'true') {
 					module.record = true;
