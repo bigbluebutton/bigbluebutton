@@ -36,7 +36,6 @@
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
-			import org.bigbluebutton.modules.chat.events.BannerEvent;
 			import org.bigbluebutton.modules.chat.events.StopChatModuleEvent;
 			import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
 			import com.asfusion.mate.events.Dispatcher;
