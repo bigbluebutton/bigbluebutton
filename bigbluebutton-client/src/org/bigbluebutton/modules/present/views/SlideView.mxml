@@ -70,7 +70,7 @@
 				myLoader.height = imageCanvas.height;
 				
 				cursor = new Shape();
-				cursor.graphics.lineStyle(6, 0xD3C933, 0.6);
+				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
 				cursor.graphics.drawCircle(0,0,3);
 				imageCanvas.rawChildren.addChild(cursor);
 				cursor.visible = false;
@@ -168,8 +168,11 @@
 			}
 			
 			private function updateCursorCallback(e:CursorEvent):void{
-				//if (isPresenter) return;
-				cursor.visible = true;
+				if (myLoader.content == null) return;
+				
+				if (e.xPercent < 1 && e.yPercent < 1) cursor.visible = true;
+				else cursor.visible = false;
+				
 				cursor.x = myLoader.x + (e.xPercent * myLoader.content.width);
 				cursor.y = myLoader.y + (e.yPercent * myLoader.content.height);
 			}
