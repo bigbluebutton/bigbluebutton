@@ -31,7 +31,7 @@ import org.bigbluebutton.web.services.DynamicConferenceService
 
  
 public class AsteriskAgiService implements AgiScript {
-
+	 static transactional = false
     private long _10_minutes = 10*60*1000
     def dynamicConferenceService
     

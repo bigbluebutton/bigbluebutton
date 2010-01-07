@@ -25,9 +25,9 @@ import java.util.Collection
 import org.bigbluebutton.api.domain.DynamicConference;
  
 public class DynamicConferenceService {	
-	boolean transactional = false
+	static transactional = false
 	def serviceEnabled = false
-	def securitySalt = null;
+	def securitySalt;
 	
 	private final Map<String, DynamicConference> confsByMtgID
 	private final Map<String, String> tokenMap

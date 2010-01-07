@@ -52,66 +52,48 @@ grails.converters.encoding="UTF-8"
 // enabled native2ascii conversion of i18n properties files
 grails.enable.native2ascii = true
 
-
-// log4j configuration
-log4j = {
-    rootLogger="error,stdout"
-    error  	'org.codehaus.groovy.grails.web.servlet',  //  controllers
-    		'org.codehaus.groovy.grails.web.pages', //  GSP
-    		'org.codehaus.groovy.grails.web.sitemesh', //  layouts
-    		'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
-    		'org.codehaus.groovy.grails.web.mapping', // URL mapping
-    		'org.codehaus.groovy.grails.commons', // core / classloading
-    		'org.codehaus.groovy.grails.plugins', // plugins
-    		'org.codehaus.groovy.grails.orm.hibernate', // hibernate integration
-    		'org.springframework',
-    		'org.hibernate'
-
-    warn   'org.mortbay.log'
-
-    additivity.StackTrace=false
-}
-
 environments {
     development {
-    	grails.serverURL = "http://localhost:8080"    	
-        log4j = {
-    	    appenders {
-    	    	rollingFile name:"logfileAppender", file:"/var/log/bigbluebutton/bbb-web-dev.log"
-    	    	console name:'consoleAppender', layout:pattern(conversionPattern: '%d{[dd.MM.yy HH:mm:ss.SSS]} %-5p %c %x - %m%n')
-    	    }
-        	debug logfileAppender:"grails.app.controller"
-        	debug logfileAppender:"grails.app.service"
-        	debug logfileAppender:"org.bigbluebutton"
-        	debug consoleAppender:"grails.app.controller"
-        	debug consoleAppender:"grails.app.service"
-        	debug consoleAppender:"org.bigbluebutton"
-    	}
+    	grails.serverURL = "http://localhost:8080"  
    }
    production {
-	   grails.serverURL = "http://www.changeme.com"
-	   log4j = {
-	   	    appenders {
-	   	    	rollingFile name:"logfileAppender", file:"/var/log/bigbluebutton/bbb-web-prod.log"
-	   	    	console name:'consoleAppender', layout:pattern(conversionPattern: '%d{[dd.MM.yy HH:mm:ss.SSS]} %-5p %c %x - %m%n')
-	   	    }
-	   	    debug logfileAppender:"grails.app.controller"
-	   	    debug logfileAppender:"grails.app.service"
-	        debug logfileAppender:"org.bigbluebutton"
-	        debug consoleAppender:"grails.app.controller"
-	        debug consoleAppender:"grails.app.service"
-	        debug consoleAppender:"org.bigbluebutton"
-	   }
+	   grails.serverURL = "http://localhost:8080"
    }
    test {
-       log4j = {
-    	   appenders {
-	   	    	rollingFile name:"logfileAppender", file:"bbb-web-test.log"
-	   	    	console name:'consoleAppender', layout:pattern(conversionPattern: '%d{[dd.MM.yy HH:mm:ss.SSS]} %-5p %c %x - %m%n')
-	   	    }
-    	   debug logfileAppender:"org.bigbluebutton"
-    	   debug consoleAppender:"org.bigbluebutton"
-       }
    }
+}
+
+// Use own log4j.properties for logging as it seems there is a
+// problem with logging on production using the DSL. This works
+// ok when ran using "grails run-war"
+// (ralam - jan 7, 2010)
+
+//log4j configuration
+log4j = {
+	appenders {
+	   	rollingFile name:'logfileAppender', maxFileSize:500000, file:"/tmp/bbb-web.log"
+	   	console name:'consoleAppender', layout:pattern(conversionPattern: '%d{[dd.MM.yy HH:mm:ss.SSS]} %-5p %c %x - %m%n')
+	}
+
+	root {
+		warn 'logfileAppender', 'consoleAppender'
+		additivity = true
+	}	
+
+	warn  	'org.codehaus.groovy.grails.web.servlet',  //  controllers
+ 			'org.codehaus.groovy.grails.web.pages', //  GSP
+ 			'org.codehaus.groovy.grails.web.sitemesh', //  layouts
+ 			'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
+ 			'org.codehaus.groovy.grails.web.mapping', // URL mapping
+ 			'org.codehaus.groovy.grails.commons', // core / classloading
+ 			'org.codehaus.groovy.grails.plugins', // plugins
+ 			'org.codehaus.groovy.grails.orm.hibernate', // hibernate integration
+ 			'org.springframework',
+ 			'org.hibernate',
+ 			'org.mortbay.log'
+	debug   'grails.app',
+			'org.bigbluebutton'
+ 
+// additivity.StackTrace=false
 }
 
