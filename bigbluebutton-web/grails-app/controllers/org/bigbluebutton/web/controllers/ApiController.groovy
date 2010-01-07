@@ -37,22 +37,14 @@ import java.security.NoSuchAlgorithmException;
 
 class ApiController {
 
-	// TODO: turn println back into log.debug and log.info - not sure why those weren't working
-	//			but it must be a configuration thing
-	
-	private static final String CONTROLLER_NAME = 'ApiController'
-		
+	private static final String CONTROLLER_NAME = 'ApiController'		
 	private static final String RESP_CODE_SUCCESS = 'SUCCESS'
 	private static final String RESP_CODE_FAILED = 'FAILED'
-
 	private static final String ROLE_MODERATOR = "MODERATOR";
 	private static final String ROLE_ATTENDEE = "VIEWER";
 
 	private static final String SECURITY_SALT = '639259d4-9dd8-4b25-bf01-95f9567eaf4b'
 
-	// TODO: security salt will obviously need to be a part of the server configuration
-	//			and not hard-coded here.  This is just for development / testing
-//	def securitySalt = null;
 	DynamicConferenceService dynamicConferenceService;
 
 	/* general methods */
@@ -222,13 +214,14 @@ class ApiController {
 			String cs = getHash(qs, securitySalt())
 			log.debug "our checksum: " + cs
 			if (cs == null || cs.equals(params.checksum) == false) {
-//				invalid("checksumError", "You did not pass the checksum security check")
+				log.info("checksumError: request did not pass the checksum security check")
 				return false;
 			}
+			log.debug("checksum ok: request passed the checksum security check")
 			return true; 
 		}
 		
-		println "Security is disabled in this service currently."
+		log.warn "Security is disabled in this service. Make sure this is intentional."
 		return true;
 	}
 
@@ -242,6 +235,7 @@ class ApiController {
 
 	def beforeInterceptor = {
 		if (dynamicConferenceService.serviceEnabled == false) {
+			log.info("apiNotEnabled: The API service and/or controller is not enabled on this server.  To use it, you must first enable it.")
 			// TODO: this doesn't stop the request - so it generates invalid XML
 			//			since the request continues and renders a second response
 			invalid("apiNotEnabled", "The API service and/or controller is not enabled on this server.  To use it, you must first enable it.")
