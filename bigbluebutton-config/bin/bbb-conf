@@ -641,9 +641,19 @@ if [ $DEBUG ]; then
 
 	rm -rf /tmp/t
 	if [ -d /var/log/bigbluebutton ]; then
-		sudo grep -i exception /var/log/bigbluebutton > /tmp/t 
+		sudo grep ERROR /var/log/bigbluebutton > /tmp/t 
 		if [ -s /tmp/t ]; then
 			echo "   -- Errors found in /var/log/bigbluebutton -- "
+			cat /tmp/t
+			echo
+		fi
+	fi
+
+	rm -rf /tmp/t
+	if [ -d /var/log/bigbluebutton ]; then
+		sudo grep -i exception /var/log/bigbluebutton > /tmp/t 
+		if [ -s /tmp/t ]; then
+			echo "   -- Exceptions found in /var/log/bigbluebutton -- "
 			cat /tmp/t
 			echo
 		fi
