@@ -76,6 +76,7 @@
 	
 	<bean id="pdf2SwfPageConverter" class="org.bigbluebutton.presentation.imp.Pdf2SwfPageConverter">
 		<property name="swfToolsDir" value="${swfToolsDir}"/>
+		<property name="fontsDir" value="${fontsDir}"/>
 	</bean>
 	
 	<bean id="imageConvSvc" class="org.bigbluebutton.presentation.imp.PdfPageToImageConversionService">
