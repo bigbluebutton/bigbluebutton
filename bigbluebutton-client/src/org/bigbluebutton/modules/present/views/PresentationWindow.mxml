@@ -79,6 +79,8 @@
 			[Bindable] private var backwardIcon : Class = images.backward;
 			[Bindable] private var thumbnailIcon : Class = images.thumbnails;
 			[Bindable] private var magnifierIcon : Class = images.magnifier;
+			[Bindable] public var fitToWidthIcon:Class = images.magnifier;
+			[Bindable] public var fitToActualSizeIcon:Class = images.mag_reset;
 						
 			[Bindable] private var thumbY:Number;
 			public var uploadWindow:FileUploadWindow = null;
@@ -92,28 +94,31 @@
 			[Bindable] private var presentationLoaded:Boolean = false;
 			[Bindable] private var currentPresentation:String = "Presentation";
 			
-			//The following code block is to deal with a bug in FLexLib with MDI windows not responding well to being maximized
+			// The following code block is to deal with a bug in FLexLib 
+			// with MDI windows not responding well to being maximized
 			private var savedWindowWidth:Number;
 			private var savedWindowHeight:Number;
 			private var savedX:Number;
 			private var savedY:Number;
 			private var isMaximized:Boolean = false;
+			
 			override public function maximize():void{
 				if (!isMaximized){
 					savedWindowHeight = this.height;
 					savedWindowWidth = this.width;
 					savedX = this.x;
-					savedY = this.y;
-                	dispatchEvent(new MDIWindowEvent(MDIWindowEvent.MAXIMIZE, this));
+					savedY = this.y;    
+					dispatchEvent(new MDIWindowEvent(MDIWindowEvent.MAXIMIZE, this));            	
                 	isMaximized = true;
+                	windowControls.maximizeRestoreBtn.toolTip = "Restore to previous size";
 				} else{
 					this.width = savedWindowWidth;
 					this.height = savedWindowHeight;
 					this.x = savedX;
 					this.y = savedY;
 					isMaximized = false;
-					//dispatchEvent(new MDIWindowEvent(MDIWindowEvent.RESTORE, this));
-				}	
+					windowControls.maximizeRestoreBtn.toolTip = "Maximize this window";
+				}				
 			}
 			
 			private function init():void{
@@ -332,6 +337,27 @@
 				presenterNameLabel.text = "";
 				presenterNameLabel.visible = false;
 			}
+			
+			private function fitToActualSize():void{
+/*				if (videoIsSmallerThanWindow()) {
+					fitWindowToVideo();
+				} else {
+					video.width = videoWidth;
+					videoHolder.width = videoWidth;
+					video.height = videoHeight;
+					videoHolder.height = videoHeight;					
+				}
+*/			}
+			
+			private function determineHowToDisplaySlide():void {
+/*				if (btnActualSize.selected) {
+					fitToActualSize();			
+					btnActualSize.toolTip = "Fit to window";	
+				} else {
+					fitToWindow();
+					btnActualSize.toolTip = "Display actual size";
+				}
+*/			}
 
 		]]>
 	</mx:Script>
@@ -345,25 +371,26 @@
 		<thumb:FisheyeThumbnail y="{thumbY}" id="thumbnailWindow" width="100%" height="100%" visible="false" backgroundAlpha="1" 
 			verticalScrollPolicy="off" horizontalScrollPolicy="off" verticalCenter="top"/>
 	</mx:Canvas>
-			
-    
-    <mx:ApplicationControlBar id="presCtrlBar" width="100%" >
+			    
+    <mx:ApplicationControlBar id="presCtrlBar" width="100%">
     	  <mx:Button id="uploadPres" icon="{uploadIcon}" visible="false" width="20" height="20"
     	   		toolTip="Upload a document for presentation." click="dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW))"/>    
     	  <mx:Label id="presenterNameLabel" visible="false" text=""/>
     	  <mx:Spacer width="10%" id="spacer1"/>
-    	  <mx:Button id="backButton" icon="{backwardIcon}" visible="false" width="40" height="20"
+    	  <mx:Button id="backButton" icon="{backwardIcon}" visible="false" width="30" height="20"
     	   		toolTip="Previous slide." click="dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, slideView.selectedSlide - 1))"/>
     	  <mx:Label id="slideNumLbl" text=""/>    
-    	  <mx:Button id="forwardButton" icon="{forwardIcon}" visible="false" width="40" height="20"
+    	  <mx:Button id="forwardButton" icon="{forwardIcon}" visible="false" width="30" height="20"
     	   		toolTip="Next slide" click="dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, slideView.selectedSlide + 1))"/>    				
     	<mx:Spacer width="10%" id="spacer2"/>
     	<mx:HSlider id="zoomSlider" visible="false"
-    		minimum="20" maximum="400" value="100" 
-    		dataTipPlacement="right" labels="['20%','400%']"
+    		minimum="20" maximum="400" value="100" dataTipPlacement="right" labels="['20%','400%']"
     		allowTrackClick="true" liveDragging="true" change="sliderZoom()" width="100" />
     	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="false" width="20" height="20" 
     		toolTip="Reset Zoom" click="dispatchEvent(new PresenterCommands(PresenterCommands.RESET_ZOOM))"/>
+    	<mx:Button id="btnActualSize" toggle="true" click="determineHowToDisplaySlide()" 
+			height="90%" icon="{btnActualSize.selected ? fitToActualSizeIcon : fitToWidthIcon}" 
+			toolTip="Display actual size" />
     </mx:ApplicationControlBar>
     
     <mate:Debugger level="{Debugger.ALL}" />
