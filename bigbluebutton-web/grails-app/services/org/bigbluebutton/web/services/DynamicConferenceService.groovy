@@ -29,6 +29,7 @@ public class DynamicConferenceService {
 	def serviceEnabled = false
 	def securitySalt
 	def defaultWelcomeMessage
+	def defaultDialAccessNumber
 	
 	private final Map<String, DynamicConference> confsByMtgID
 	private final Map<String, String> tokenMap

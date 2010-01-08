@@ -19,6 +19,7 @@
  */
 package org.bigbluebutton.web.controllers
 
+import java.text.MessageFormat;
 import org.bigbluebutton.web.domain.ScheduledSession
 import org.bigbluebutton.web.domain.Conference
 import grails.converters.*
@@ -139,8 +140,16 @@ class PublicScheduledSessionController {
 					}
 					if (signedIn) {						
 						log.debug "Login successful...setting in session information"
-						def defaultWelcomeMessage = dynamicConferenceService.defaultWelcomeMessage
-						def welcomeMessage = "$defaultWelcomeMessage ${confSession.voiceConferenceBridge}"
+
+						String defaultWelcomeMessage = dynamicConferenceService.defaultWelcomeMessage
+						String defaultDialAccessNumber = dynamicConferenceService.defaultDialAccessNumber
+								
+						MessageFormat msgFormat = new MessageFormat(defaultWelcomeMessage)
+						String[] args = new String[2]
+					    args[0] = defaultDialAccessNumber
+					    args[1] = confSession.voiceConferenceBridge
+						def welcomeMessage = msgFormat.format(args)
+						
 			   			session["fullname"] = params.fullname 
 						session["role"] = role
 						session["conference"] = confSession.tokenId

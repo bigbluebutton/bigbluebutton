@@ -21,7 +21,7 @@
 package org.bigbluebutton.web.controllers
 
 
-
+import java.text.MessageFormat;
 import org.apache.commons.codec.binary.Hex;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -100,8 +100,14 @@ class ApiController {
 		conf.setVoiceBridge(voiceBr == null || voiceBr == "" ? mtgID : voiceBr)
 		
 		if (welcomeMessage == null || welcomeMessage == "") {
-			def defaultWelcomeMessage = dynamicConferenceService.defaultWelcomeMessage
-			welcomeMessage = "$defaultWelcomeMessage ${conf.voiceBridge}"
+			String defaultWelcomeMessage = dynamicConferenceService.defaultWelcomeMessage
+			String defaultDialAccessNumber = dynamicConferenceService.defaultDialAccessNumber
+			
+			MessageFormat msgFormat = new MessageFormat(defaultWelcomeMessage);
+			String[] args = new String[2]
+		    args[0] = defaultDialAccessNumber
+		    args[1] = conf.voiceBridge
+			welcomeMessage = msgFormat.format(args)
 		}
 		conf.welcome = welcomeMessage
 								
