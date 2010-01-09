@@ -30,7 +30,7 @@
     verticalScrollPolicy="off" horizontalScrollPolicy="off"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	mouseMove="hideThumbnails()"
-	creationComplete="init()"
+	creationComplete="onCreationComplete()"
 	rollOut="hideThumbs()" xmlns:mate="http://mate.asfusion.com/"
 	width="450" height="450" x="220" y="0"
 	title="{currentPresentation}" keyUp="onKeyUp(event)">
@@ -42,9 +42,11 @@
 	<mate:Listener type="{NavigationEvent.GOTO_PAGE}" method="gotoPage" />
 	<mate:Listener type="{UploadEvent.CLEAR_PRESENTATION}" method="clearPresentation" />
 	<mate:Listener type="{ZoomEvent.RESTORE}" method="restoreZoomSliderValue" />
+	<mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleDisplaySlideEvent" />
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.modules.present.events.SlideEvent;
 			import mx.controls.Alert;
@@ -89,6 +91,9 @@
 			private var _xPosition:int = 220;
 			private var _yPosition:int = 0;
 			
+			private var currentSlideWidth:int = 0;
+			private var currentSlideHeight:int = 0;
+			
 			private var mouseDown:Boolean = false;
 			[Bindable] private var isPresenter:Boolean = false;
 			[Bindable] private var presentationLoaded:Boolean = false;
@@ -121,11 +126,31 @@
 				}				
 			}
 			
-			private function init():void{
+			private function onCreationComplete():void{
 				positionThumbnails();
 				thumbnailWindow.addEventListener(FisheyeThumbnail.SLIDE_HIGHLIGHTED, onSlideHighlighted);
 				thumbY = this.height - 160;
-				//slideView.addEventListener(SlideViewMediator.ZOOM, scrollZoom);
+				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
+			}
+			
+			private function onResizeEndEvent(event:MDIWindowEvent):void {
+				if (event.window == this) {
+					fitSlideToWindowMaintainingAspectRatio();
+				}
+			}
+			
+			private function fitSlideToWindowMaintainingAspectRatio():void {
+				var aspectRatio:int = currentSlideWidth/currentSlideHeight;
+				
+				this.width = aspectRatio * this.height;
+				this.height = aspectRatio * this.width;
+				LogUtil.debug("fitSlideToWindowMaintainingAspectRatio");
+			}
+			
+			private function handleDisplaySlideEvent(event:DisplaySlideEvent):void {
+				currentSlideWidth = event.slideWidth;
+				currentSlideHeight = event.slideHeight;
+				fitSlideToWindowMaintainingAspectRatio();
 			}
 			
 			private function onKeyUp(e:KeyboardEvent):void{
@@ -288,7 +313,6 @@
 				if (slideManager != null) slideManager.clear();	
 					
 				if (isPresenter) {
-					//removeFileUploadPopup();
 					backButton.visible = true;
 					forwardButton.visible = true;
 					zoomSlider.visible = true;
@@ -365,14 +389,14 @@
 	<mx:Fade id="thumbFadeIn" alphaFrom="1" alphaTo="0" duration="100" />
 	<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />
 	
-	<mx:Canvas id="mainCanvas" width="100%" height="100%" resize="positionThumbnails()" mouseDown="mouseDown = true"
+	<mx:Canvas id="mainCanvas" width="100%" height="100%" resize="positionThumbnails()" mouseDown="mouseDown = true" 
 		mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off" click="onCanvasClick()">
 		<thumb:SlideView id="slideView" width="100%" height="100%" visible="false"/>
 		<thumb:FisheyeThumbnail y="{thumbY}" id="thumbnailWindow" width="100%" height="100%" visible="false" backgroundAlpha="1" 
 			verticalScrollPolicy="off" horizontalScrollPolicy="off" verticalCenter="top"/>
 	</mx:Canvas>
 			    
-    <mx:ApplicationControlBar id="presCtrlBar" width="100%">
+    <mx:ApplicationControlBar id="presCtrlBar" width="100%" height="45">
     	  <mx:Button id="uploadPres" icon="{uploadIcon}" visible="false" width="20" height="20"
     	   		toolTip="Upload a document for presentation." click="dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW))"/>    
     	  <mx:Label id="presenterNameLabel" visible="false" text=""/>
@@ -384,15 +408,14 @@
     	   		toolTip="Next slide" click="dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, slideView.selectedSlide + 1))"/>    				
     	<mx:Spacer width="10%" id="spacer2"/>
     	<mx:HSlider id="zoomSlider" visible="false"
-    		minimum="20" maximum="400" value="100" dataTipPlacement="right" labels="['20%','400%']"
+    		minimum="100" maximum="400" value="100" dataTipPlacement="right" labels="['100%','400%']"
     		allowTrackClick="true" liveDragging="true" change="sliderZoom()" width="100" />
     	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="false" width="20" height="20" 
     		toolTip="Reset Zoom" click="dispatchEvent(new PresenterCommands(PresenterCommands.RESET_ZOOM))"/>
-    	<mx:Button id="btnActualSize" toggle="true" click="determineHowToDisplaySlide()" 
+    	<!--mx:Button id="btnActualSize" toggle="true" click="determineHowToDisplaySlide()" 
 			height="90%" icon="{btnActualSize.selected ? fitToActualSizeIcon : fitToWidthIcon}" 
-			toolTip="Display actual size" />
+			toolTip="Display actual size" /-->
     </mx:ApplicationControlBar>
     
-    <mate:Debugger level="{Debugger.ALL}" />
     <mate:Listener type="{AddHighligtherCanvasEvent.ADD_HIGHLIGHTER_CANVAS}" method="addHighlighter" />
 </pres:MDIWindow>
