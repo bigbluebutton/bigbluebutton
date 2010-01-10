@@ -32,7 +32,7 @@ package org.bigbluebutton.util.i18n
 		private static var instance:ResourceUtil = null;
 		
 		private static var MSG_RESOURCE:String = 'bbbResources';
-		private static var DEFAULT_LANGUAGE:String = "en_US";
+		public static var DEFAULT_LANGUAGE:String = "en_US";
 		
 		private var localeChain:Array = [ "en_US", "zh_CN", "fr_FR" ];
 		
