@@ -140,20 +140,23 @@
 			
 			private function onResizeEndEvent(event:MDIWindowEvent):void {
 				if (event.window == this) {
-	//				fitSlideToWindowMaintainingAspectRatio();
+					fitSlideToWindowMaintainingAspectRatio();
 				}
 			}
 			
 			private function fitSlideToWindowMaintainingAspectRatio():void {
 				// Initialize to snap to take the width of the window as the size of the slide.
 				var slideWidth:int = this.width;
-				var slideHeight:int = ((currentSlideHeight * slideWidth)/currentSlideWidth);
+				var slideHeight:int = this.height;
 				
 				// If the height is smaller than the width, we use the height as the base to determine
 				// the size of the slide.
 				if (this.height < this.width) {
-					slideHeight = this.height;
+					slideHeight = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
 					slideWidth = ((currentSlideWidth * slideHeight)/currentSlideHeight);
+				} else {
+					slideWidth = this.width;
+					slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
 				}
 				
 				LogUtil.debug("before: fitSlideToWindowMaintainingAspectRatio " + this.width + "," + this.height);
@@ -161,7 +164,7 @@
 				this.height = slideHeight + CONTROL_BAR_HEIGHT + TOP_WINDOW_BORDER;
 				LogUtil.debug("after: fitSlideToWindowMaintainingAspectRatio " + "," + this.width + "," + this.height);
 				
-//				sendWindowResizedEvent(slideWidth, slideHeight);
+				sendWindowResizedEvent(slideWidth, slideHeight);
 			}
 			
 			/*
