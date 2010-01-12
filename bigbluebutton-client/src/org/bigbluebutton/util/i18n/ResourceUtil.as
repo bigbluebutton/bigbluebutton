@@ -55,7 +55,7 @@ package org.bigbluebutton.util.i18n
 			if (!localeAvailable){
 				resourceManager.localeChain = [DEFAULT_LANGUAGE];
 				resourceManager.loadResourceModule('locale/' + DEFAULT_LANGUAGE + '_resources.swf', true);
-			} 
+			} else resourceManager.loadResourceModule('locale/' + resourceManager.localeChain[0] + '_resources.swf', true);
 		}
 		
 		public static function getInstance():ResourceUtil {
