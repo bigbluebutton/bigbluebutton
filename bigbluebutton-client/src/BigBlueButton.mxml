@@ -25,7 +25,8 @@
 	xmlns:maps="org.bigbluebutton.main.maps.*"
 	xmlns:mate="http://mate.asfusion.com/"
 	pageTitle="Big Blue Button"
-	layout="absolute">
+	layout="absolute"
+	preloader="org.bigbluebutton.main.managers.BigBlueButtonPreloader">
 	<mx:Script>
 		<![CDATA[
 		import org.bigbluebutton.main.view.components.MainApplicationShell;

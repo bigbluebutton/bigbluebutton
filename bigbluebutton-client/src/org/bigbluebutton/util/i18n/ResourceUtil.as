@@ -22,6 +22,7 @@ package org.bigbluebutton.util.i18n
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;
+	import flash.external.ExternalInterface;
 	
 	import mx.events.ResourceEvent;
 	import mx.resources.IResourceManager;
@@ -46,6 +47,15 @@ package org.bigbluebutton.util.i18n
 			else {
 				// changeLocale(localeChain[0]);
 			}
+			resourceManager.localeChain = [ExternalInterface.call("getLanguage")];
+			var localeAvailable:Boolean = false;
+			for (var i:Number = 0; i<localeChain.length; i++){
+				if (resourceManager.localeChain[0] == localeChain[i]) localeAvailable = true;
+			}
+			if (!localeAvailable){
+				resourceManager.localeChain = [DEFAULT_LANGUAGE];
+				resourceManager.loadResourceModule('locale/' + DEFAULT_LANGUAGE + '_resources.swf', true);
+			} 
 		}
 		
 		public static function getInstance():ResourceUtil {

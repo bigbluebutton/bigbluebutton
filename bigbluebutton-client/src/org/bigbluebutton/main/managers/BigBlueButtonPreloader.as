@@ -1,5 +1,8 @@
 package org.bigbluebutton.main.managers
 {
+	import flash.display.Sprite;
+	
+	import mx.controls.Alert;
 	import mx.events.RSLEvent;
 	import mx.preloaders.DownloadProgressBar;
 	
@@ -11,8 +14,13 @@ package org.bigbluebutton.main.managers
 		{
 			super();
 			downloadingLabel = "Downloading BigBlueButton main...";
-			initializingLabel = "Initializing BigBlueButton...";
-			addEventListener(RSLEvent.RSL_ERROR, sharedLibraryLoadingFailed);
+			initializingLabel = "BigBlueButton starting...";
+			MINIMUM_DISPLAY_TIME = 0;
+		}
+		
+		override public function set preloader(value:Sprite):void{
+			super.preloader = value;
+			value.addEventListener(RSLEvent.RSL_ERROR, sharedLibraryLoadingFailed);
 		}
 		
 		private function sharedLibraryLoadingFailed(e:RSLEvent):void{
