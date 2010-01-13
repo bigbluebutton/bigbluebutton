@@ -490,6 +490,18 @@ check_processes() {
         	echo "                       salt mismatch: salt in bigbluebutton.properties and bbb_api.jsp do not match"
 	fi
 
+	CONFIG_FILES="/usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties \
+/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties \
+/usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
+
+	for file in $CONFIG_FILES ; do
+		if grep -q "^[^=]*=$" $file; then
+        		echo "            empty parameter(s) found: $(grep '^[^=]*=$' $file | sed 's/=//g') ($file)"
+		fi
+	done
+
+	SALT_PROPERTIES=$(cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
+
 	echo
 	exit 0
 }
@@ -530,7 +542,7 @@ if [ $CHECK ]; then
         echo "                                host: $HOST"
 
 	if [ -f /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api.jsp ]; then
-        	HOST=$(cat /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api.jsp  | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}')
+        	HOST=$(cat /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api.jsp  | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}' | tr -d '\015')
         	echo
         	echo "/var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api.jsp (for api demos)"
         	echo "                                host: $HOST"
@@ -559,6 +571,7 @@ if [ $ZIP ]; then
 	tar cf /tmp/$LOG_FILE.tar /tmp/a			> /dev/null 2>&1
 	tar rf /tmp/$LOG_FILE.tar /usr/share/red5/log		> /dev/null 2>&1
 	tar rf /tmp/$LOG_FILE.tar /var/lib/tomcat6/logs		> /dev/null 2>&1
+	tar rf /tmp/$LOG_FILE.tar /var/log/bigbluebutton/*	> /dev/null 2>&1
 	tar rf /tmp/$LOG_FILE.tar /var/log/nginx/error.log	> /dev/null 2>&1
 	tar rf /tmp/$LOG_FILE.tar /var/log/syslog		> /dev/null 2>&1
 
