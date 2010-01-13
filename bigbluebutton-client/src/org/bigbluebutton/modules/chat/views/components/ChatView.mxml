@@ -121,6 +121,13 @@
 			private function clearMessageEntryTextBox():void {
 				txtMsg.text = "";
 			}
+
+			private function cleanup(message:String):String{
+				var parsedString = message.replace('<', '&#60;')
+				parsedString = parsedString.replace('>', '&#62;')
+				
+				return parsedString;
+			}
 			
 			private function parseURLs(message:String):String{
 				var indexOfHTTP:Number = message.indexOf("http://");
@@ -142,7 +149,7 @@
 			private function sendPublicChatMessage():void {
 				trace("Sending public chat message");
 				var publicEvent:SendPublicChatMessageEvent = new SendPublicChatMessageEvent(SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT);
-				publicEvent.message = parseURLs(txtMsg.text);
+				publicEvent.message = parseURLs(cleanup(txtMsg.text));
 				publicEvent.color = cmpColorPicker.selectedColor.toString(16);
 				publicEvent.time = currentTime();
 				localDispatcher.dispatchEvent(publicEvent);
@@ -157,7 +164,7 @@
 			private function sendPrivateChatMessage():void {
 				trace("Sending private chat message");
 				var privateEvent:SendPrivateChatMessageEvent = new SendPrivateChatMessageEvent(SendPrivateChatMessageEvent.SEND_PRIVATE_CHAT_MESSAGE_EVENT);
-				privateEvent.message = parseURLs(txtMsg.text);
+				privateEvent.message = parseURLs(cleanup(txtMsg.text));
 				privateEvent.toUser = chatTabs.selectedChild.name;
 				privateEvent.color = cmpColorPicker.selectedColor.toString(16);
 				privateEvent.time = currentTime();
