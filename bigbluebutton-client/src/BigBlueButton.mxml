@@ -27,8 +27,10 @@
 	pageTitle="Big Blue Button"
 	layout="absolute"
 	preloader="org.bigbluebutton.main.managers.BigBlueButtonPreloader">
+	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 		import org.bigbluebutton.main.view.components.MainApplicationShell;
 		
 		import org.bigbluebutton.main.events.ConfigEvent;
@@ -48,6 +50,7 @@
 		private function handleChatEvent(e:Event):void {
 			trace('Got CHAT_EVENT');
 		}
+
 		]]>
 	</mx:Script>		
 	<maps:ApplicationEventMap />	

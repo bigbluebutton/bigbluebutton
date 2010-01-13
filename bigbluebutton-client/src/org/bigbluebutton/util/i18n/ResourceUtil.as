@@ -37,16 +37,15 @@ package org.bigbluebutton.util.i18n
 		
 		private var localeChain:Array = [ "en_US", "zh_CN", "fr_FR", "nl_NL" ];
 		
-		private var resourceManager:IResourceManager = ResourceManager.getInstance();
+		private var resourceManager:IResourceManager;
 		
 		public function ResourceUtil(enforcer:SingletonEnforcer)
 		{
 			if (enforcer == null) {
 				throw new Error( "You Can Only Have One ResourceUtil" );
 			}
-			else {
-				// changeLocale(localeChain[0]);
-			}
+			
+			resourceManager = ResourceManager.getInstance();
 			resourceManager.localeChain = [ExternalInterface.call("getLanguage")];
 			var localeAvailable:Boolean = false;
 			for (var i:Number = 0; i<localeChain.length; i++){
@@ -54,8 +53,8 @@ package org.bigbluebutton.util.i18n
 			}
 			if (!localeAvailable){
 				resourceManager.localeChain = [DEFAULT_LANGUAGE];
-				resourceManager.loadResourceModule('locale/' + DEFAULT_LANGUAGE + '_resources.swf', true);
-			} else resourceManager.loadResourceModule('locale/' + resourceManager.localeChain[0] + '_resources.swf', true);
+				changeLocale([DEFAULT_LANGUAGE]);
+			} else changeLocale(resourceManager.localeChain[0]);
 		}
 		
 		public static function getInstance():ResourceUtil {

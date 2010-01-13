@@ -2,7 +2,6 @@ package org.bigbluebutton.main.managers
 {
 	import flash.display.Sprite;
 	
-	import mx.controls.Alert;
 	import mx.events.RSLEvent;
 	import mx.preloaders.DownloadProgressBar;
 	
@@ -21,6 +20,7 @@ package org.bigbluebutton.main.managers
 		override public function set preloader(value:Sprite):void{
 			super.preloader = value;
 			value.addEventListener(RSLEvent.RSL_ERROR, sharedLibraryLoadingFailed);
+			ResourceUtil.getInstance();
 		}
 		
 		private function sharedLibraryLoadingFailed(e:RSLEvent):void{
