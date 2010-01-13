@@ -26,13 +26,14 @@
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:mate="http://mate.asfusion.com/"
 	icon="{deskShareIcon}" 
-	toolTip="Share your desktop"
+	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.deskshare.toolTip')}"
 	click="startDeskShare()">
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.modules.deskShare.events.ShareEvent;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
 			

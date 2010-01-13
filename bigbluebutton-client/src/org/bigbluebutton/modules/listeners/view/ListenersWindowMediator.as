@@ -29,6 +29,7 @@ package org.bigbluebutton.modules.listeners.view
 	import org.bigbluebutton.modules.listeners.view.events.ListenerSelectedEvent;
 	import org.bigbluebutton.modules.listeners.view.events.UserMuteEvent;
 	import org.bigbluebutton.modules.listeners.view.events.UserTalkEvent;
+	import org.bigbluebutton.util.i18n.ResourceUtil;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
@@ -144,7 +145,7 @@ package org.bigbluebutton.modules.listeners.view
 		private function handleOpenListenersWindow():void {
 			_listenersWindow.listeners = proxy.listeners;
 			_listenersWindow.moderator = proxy.isModerator();
-		   	_listenersWindow.title = "Voice Participants";
+		   	_listenersWindow.title = ResourceUtil.getInstance().getString('bbb.listeners.title');
 		   	_listenersWindow.showCloseButton = false;
 		   	_listenersWindow.xPosition = 0;
 		   	_listenersWindow.yPosition = 225;

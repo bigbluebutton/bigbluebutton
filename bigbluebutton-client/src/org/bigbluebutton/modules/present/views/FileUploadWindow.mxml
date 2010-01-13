@@ -22,8 +22,8 @@
 --> 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mate="http://mate.asfusion.com/"
-    title="Upload Presentation"
-    x="168" y="86" layout="absolute" width="600" height="200"
+    	title="{ResourceUtil.getInstance().getString('bbb.fileupload.title')}"
+    	x="168" y="86" layout="absolute" width="600" height="200"
     	initialize="initData();">
     	
     <mate:Dispatcher id="globalDispatch" />
@@ -46,9 +46,10 @@
 			import mx.managers.PopUpManager;
 			import org.bigbluebutton.common.Images;
 			import mx.collections.*
-            import mx.events.ValidationResultEvent;
-            import mx.validators.*;
-            import mx.events.FlexEvent;
+			import mx.events.ValidationResultEvent;
+			import mx.validators.*;
+			import mx.events.FlexEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
             	
 			public var presentationNames:Array = new Array();
 			[Bindable] public var presentationNamesAC:ArrayCollection;
@@ -59,7 +60,7 @@
 			[Bindable] private var deleteIcon : Class = images.delete_icon;
 	        
 	        private var thumbnailTimer:Timer = new Timer(5000);
-	        private var genThumbText:String = "Generating thumbnails..";
+	        private var genThumbText:String = ResourceUtil.getInstance().getString('bbb.fileupload.genThumbText');
 	        private var genThumbDots:String = ".";
 	        
 	        private var fileToUpload:FileReference = new FileReference();
@@ -119,12 +120,12 @@
         	private function selectFile():void{
         		fileToUpload.addEventListener(Event.SELECT, onSelectFile);	
 				fileToUpload.browse([
-						new FileFilter("Presentation file", "*.pdf;*.doc;*.docx;*.xls;*.xlsx;*.ppt;*.pptx;*.txt;*.rtf;*.odt;*.ods;*.odp;*.odg;*.odc;*.odi;*.jpg;*.png"), 
-						new FileFilter("PDF", "*.pdf"),
-						new FileFilter("WORD", "*.doc;*.docx;*.odt;*.rtf;*.txt"), 
-						new FileFilter("EXCEL", "*.xls;*.xlsx;*.ods"),
-						new FileFilter("POWERPOINT", "*.ppt;*.pptx;*.odp"),
-						new FileFilter("IMAGE", "*.jpg;*.jpeg;*.png")]);
+						new FileFilter(ResourceUtil.getInstance().getString('bbb.presentation.uploadwindow.presentationfile'), "*.pdf;*.doc;*.docx;*.xls;*.xlsx;*.ppt;*.pptx;*.txt;*.rtf;*.odt;*.ods;*.odp;*.odg;*.odc;*.odi;*.jpg;*.png"), 
+						new FileFilter(ResourceUtil.getInstance().getString('bbb.presentation.uploadwindow.pdf'), "*.pdf"),
+						new FileFilter(ResourceUtil.getInstance().getString('bbb.presentation.uploadwindow.word'), "*.doc;*.docx;*.odt;*.rtf;*.txt"), 
+						new FileFilter(ResourceUtil.getInstance().getString('bbb.presentation.uploadwindow.excel'), "*.xls;*.xlsx;*.ods"),
+						new FileFilter(ResourceUtil.getInstance().getString('bbb.presentation.uploadwindow.powerpoint'), "*.ppt;*.pptx;*.odp"),
+						new FileFilter(ResourceUtil.getInstance().getString('bbb.presentation.uploadwindow.image'), "*.jpg;*.jpeg;*.png")]);
         	}
         	
         	private function onSelectFile(e:Event):void{
@@ -239,26 +240,26 @@
 	</mx:Script>
            
 	<mx:Spacer height="100%" x="0" y="0"/>	
-	<mx:Label id="fileLbl" text="File:" x="50" y="11"/>
+	<mx:Label id="fileLbl" text="{ResourceUtil.getInstance().getString('bbb.fileupload.fileLbl')}" x="50" y="11"/>
 	<mx:TextInput id="fileTxtInput" width="328" x="87" y="9"/>
-	<mx:Button id="selectBtn" toolTip="Browse file" click="selectFile()" icon="{addIcon}" width="26" x="432" y="9"/>
-	<mx:Button id="uploadBtn" label="Upload" toolTip="Upload file"  click="startUpload()"
+	<mx:Button id="selectBtn" toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.selectBtn.toolTip')}" click="selectFile()" icon="{addIcon}" width="26" x="432" y="9"/>
+	<mx:Button id="uploadBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.uploadBtn')}" toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.uploadBtn.toolTip')}"  click="startUpload()"
 		enabled="false" icon="{bulletGoIcon}" x="466" y="9"/>
 
-	<mx:Label id="progBarLbl" text="Progress:" x="21" y="75" visible="false"/>
+	<mx:Label id="progBarLbl" text="{ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl')}" x="21" y="75" visible="false"/>
 	<mx:ProgressBar id="progressBar" mode="manual" label="" labelPlacement="center" width="460" y="75" x="87" visible="false"/>
 	
-	<mx:Label id="presentationNamesLb" text="Uploaded Presentations:" x="50" y="40"/>
+	<mx:Label id="presentationNamesLb" text="{ResourceUtil.getInstance().getString('bbb.fileupload.presentationNamesLbl')}" x="50" y="40"/>
     <mx:ComboBox id="presentationNamesCombobox" width="365" x="50" y="66" dataProvider="{presentationNamesAC}"/> 
-	<mx:Button id="deleteBtn" label="" toolTip="Delete Presentation"  
+	<mx:Button id="deleteBtn" label="" toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.deleteBtn.toolTip')}"  
 		click="deletePresentation()" enabled="true"	icon="{deleteIcon}" width="26" x="432" y="66"/>
-	<mx:Button id="showBtn" label="Show" toolTip="Show Presentation"  
+	<mx:Button id="showBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn')}" toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn.toolTip')}"  
 		click="showPresentation()" enabled="true" icon="{bulletGoIcon}" x="466" y="66"/>
 	
 	<mx:ControlBar horizontalAlign="center" verticalAlign="middle" x="0" y="106">
 		<mx:Label id="progressLbl" text="" width="100%"/>
 		<mx:Spacer width="100%"/>
-		<mx:Button id="okCancelBtn" label="Cancel" 
+		<mx:Button id="okCancelBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.okCancelBtn')}" 
 			click="globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW))"/>
 	</mx:ControlBar>	
 </mx:TitleWindow> 
