@@ -127,6 +127,7 @@
 		<compileLocale locale="en_US" />
 		<compileLocale locale="zh_CN" />
 		<compileLocale locale="fr_FR" />
+		<compileLocale locale="nl_NL" />
 	</target>
 	
 	<!-- Compiles Localization Resource Bundle. -->
