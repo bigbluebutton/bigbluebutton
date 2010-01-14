@@ -38,6 +38,12 @@ package org.bigbluebutton.modules.present.events
 		
 		public var zoomPercentage:Number;
 		
+		public var xOffset:Number;
+		public var yOffset:Number;
+		
+		public var slideToCanvasWidthRatio:Number;
+		public var slideToCanvasHeightRatio:Number;
+		
 		public function ZoomEvent(type:String)
 		{
 			super(type, true, false);

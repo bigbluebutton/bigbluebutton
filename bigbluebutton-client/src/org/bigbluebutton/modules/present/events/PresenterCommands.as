@@ -54,6 +54,9 @@ package org.bigbluebutton.modules.present.events
 		public var xOffset:Number;
 		public var yOffset:Number;
 		
+		public var slideToCanvasWidthRatio:Number;
+		public var slideToCanvasHeightRatio:Number;
+		
 		//Parameters for the share event
 		public var presentationName:String;
 		public var share:Boolean;

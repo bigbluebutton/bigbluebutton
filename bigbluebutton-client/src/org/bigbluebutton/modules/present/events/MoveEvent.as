@@ -25,13 +25,14 @@ package org.bigbluebutton.modules.present.events
 	{
 		public static const MOVE:String = "MOVE";
 		
-		public var slideXPosition:Number;
-		public var slideYPosition:Number;
+		public var xOffset:Number;
+		public var yOffset:Number;
 		
-		public function MoveEvent(type:String, slideXPosition:Number, slideYPosition:Number)
+		public var slideToCanvasWidthRatio:Number;
+		public var slideToCanvasHeightRatio:Number;
+		
+		public function MoveEvent(type:String)
 		{
-			this.slideXPosition = slideXPosition;
-			this.slideYPosition = slideYPosition;
 			super(type, true, false);
 		}
 

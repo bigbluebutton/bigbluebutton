@@ -270,13 +270,13 @@
 			}
 			
 			private function sliderZoom():void{
-				var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.RESIZE);
-				presentEvent.newSizeInPercent = (zoomSlider.value)/100;
-				dispatchEvent(presentEvent);
+//				var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.RESIZE);
+//				presentEvent.newSizeInPercent = (zoomSlider.value)/100;
+//				dispatchEvent(presentEvent);
 			}
 			
 			private function restoreZoomSliderValue(e:ZoomEvent):void{
-				zoomSlider.value = 100;
+//				zoomSlider.value = 100;
 			}
 			
 			private function onCanvasClick():void{
@@ -301,8 +301,8 @@
 	            			slideNumLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.pages', [(slideView.selectedSlide + 1), slideView.slides.length]);	
 					backButton.visible = true;
 					forwardButton.visible = true;	
-					zoomSlider.visible = true;
-					btnResetZoom.visible = true;
+//					zoomSlider.visible = true;
+//					btnResetZoom.visible = true;
 					thumbnailWindow.fisheye.selectedIndex = 0;
 					thumbnailWindow.setDataProvider(slideView.slides);
 				}
@@ -320,8 +320,8 @@
 	            			slideNumLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.pages', [(slideView.selectedSlide + 1), slideView.slides.length]);	
 					backButton.visible = false;
 					forwardButton.visible = false;	
-					zoomSlider.visible = false;	
-					btnResetZoom.visible = false;
+//					zoomSlider.visible = false;	
+//					btnResetZoom.visible = false;
 				}
 				dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
 				
@@ -346,7 +346,7 @@
 				if (isPresenter) {
 					backButton.visible = true;
 					forwardButton.visible = true;
-					zoomSlider.visible = true;
+//					zoomSlider.visible = true;
 					
 					var shareEvent:PresenterCommands = new PresenterCommands(PresenterCommands.SHARE_PRESENTATION_COMMAND);
 					shareEvent.presentationName = e.presentationName;
@@ -380,9 +380,9 @@
 					forwardButton.enabled = false;
 				}
 				
-				zoomSlider.value = 100;
-				dispatchEvent(new ZoomEvent(ZoomEvent.RESTORE));
-				dispatchEvent(new MoveEvent(MoveEvent.MOVE, 0, 0));
+//				zoomSlider.value = 100;
+//				dispatchEvent(new ZoomEvent(ZoomEvent.RESTORE));
+//				dispatchEvent(new MoveEvent(MoveEvent.MOVE));
 			}
 			
 			private function clearPresentation(e:UploadEvent):void{
@@ -418,11 +418,11 @@
     	  <mx:Button id="forwardButton" icon="{forwardIcon}" visible="false" width="30" height="20"
     	   		toolTip="Next slide" click="dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, slideView.selectedSlide + 1))"/>    				
     	<mx:Spacer width="10%" id="spacer2"/>
-    	<mx:HSlider id="zoomSlider" visible="false"
+    	<!--mx:HSlider id="zoomSlider" visible="false"
     		minimum="100" maximum="400" value="100" dataTipPlacement="right" labels="['100%','400%']"
     		allowTrackClick="true" liveDragging="true" change="sliderZoom()" width="100" />
     	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="false" width="20" height="20" 
-    		toolTip="Reset Zoom" click="dispatchEvent(new PresenterCommands(PresenterCommands.RESET_ZOOM))"/>
+    		toolTip="Reset Zoom" click="dispatchEvent(new PresenterCommands(PresenterCommands.RESET_ZOOM))"/-->
     </mx:ApplicationControlBar>
     
     <mate:Listener type="{AddHighligtherCanvasEvent.ADD_HIGHLIGHTER_CANVAS}" method="addHighlighter" />

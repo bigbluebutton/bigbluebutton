@@ -126,8 +126,8 @@ package org.bigbluebutton.modules.present.business {
 		 * @param slideWidth
 		 * 
 		 */		
-		public function zoom(zoomPercent:Number):void{
-			_presentationSO.send("zoomCallback", zoomPercent);
+		public function zoom(xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void{
+			_presentationSO.send("zoomCallback", xOffset, yOffset, widthRatio, heightRatio);
 		}
 		
 		/**
@@ -136,9 +136,12 @@ package org.bigbluebutton.modules.present.business {
 		 * @param slideWidth
 		 * 
 		 */		
-		public function zoomCallback(zoomPercent:Number):void{
+		public function zoomCallback(xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void{
 			var e:ZoomEvent = new ZoomEvent(ZoomEvent.ZOOM);
-			e.zoomPercentage = zoomPercent;
+			e.xOffset = xOffset;
+			e.yOffset = yOffset;
+			e.slideToCanvasWidthRatio = widthRatio;
+			e.slideToCanvasHeightRatio = heightRatio;
 			dispatcher.dispatchEvent(e);
 		}
 		
@@ -186,8 +189,8 @@ package org.bigbluebutton.modules.present.business {
 		 * @param slideYPosition
 		 * 
 		 */		
-		public function move(slideXPosition:Number, slideYPosition:Number):void{
-			_presentationSO.send("moveCallback", slideXPosition, slideYPosition);
+		public function move(xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void{
+			_presentationSO.send("moveCallback", xOffset, yOffset, widthRatio, heightRatio);
 		}
 		
 		/**
@@ -196,8 +199,13 @@ package org.bigbluebutton.modules.present.business {
 		 * @param slideYPosition
 		 * 
 		 */		
-		public function moveCallback(slideXPosition:Number, slideYPosition:Number):void{
-		   dispatcher.dispatchEvent(new MoveEvent(MoveEvent.MOVE, slideXPosition, slideYPosition));
+		public function moveCallback(xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void{
+			var e:MoveEvent = new MoveEvent(MoveEvent.MOVE);
+			e.xOffset = xOffset;
+			e.yOffset = yOffset;
+			e.slideToCanvasWidthRatio = widthRatio;
+			e.slideToCanvasHeightRatio = heightRatio;
+			dispatcher.dispatchEvent(e);
 		}
 		
 		/**

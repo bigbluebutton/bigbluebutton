@@ -155,7 +155,7 @@ package org.bigbluebutton.modules.present.business
 		 * 
 		 */		
 		public function moveSlide(e:PresenterCommands):void{
-			soService.move(e.xOffset, e.yOffset);
+			soService.move(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
 		}
 		
 		/**
@@ -164,7 +164,7 @@ package org.bigbluebutton.modules.present.business
 		 * 
 		 */		
 		public function zoomSlide(e:PresenterCommands):void{
-			soService.zoom(e.zoomPercentage);
+			soService.zoom(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
 		}
 		
 		/**
