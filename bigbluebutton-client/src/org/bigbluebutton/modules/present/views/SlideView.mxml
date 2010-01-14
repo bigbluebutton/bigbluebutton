@@ -205,6 +205,7 @@
 			}
 						
 			private function makeSlideFitLoader():void {
+				if (swfSlideLoader.content == null) return;
 				swfSlideLoader.content.x = loaderX();
 				swfSlideLoader.content.y = loaderY();
 				swfSlideLoader.content.width = swfSlideLoader.width;
