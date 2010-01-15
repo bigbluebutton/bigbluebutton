@@ -26,17 +26,15 @@
 	xmlns:local="*"
     width="100%" height="100%" 
     horizontalAlign="center" paddingBottom="5" 
-    creationComplete="init()" verticalScrollPolicy="off" horizontalScrollPolicy="off"      
+    creationComplete="onCreationComplete()" verticalScrollPolicy="off" horizontalScrollPolicy="off"      
     rollOut="hideCursor()">
     
     <mate:Listener type="{ZoomEvent.ZOOM}" method="handleZoomEvent" />
-    <mate:Listener type="{ZoomEvent.RESTORE}" method="handleRestoreSlideSizeEvent" />
     <mate:Listener type="{MoveEvent.MOVE}" method="handleMoveEvent" />
     <mate:Listener type="{SlideEvent.SLIDE_LOADED}" method="handleSlideLoadedEvent" />
     <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleSwitchToPresenterEvent" />
     <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="handleSwitchToViewerEvent" />
     <mate:Listener type="{CursorEvent.UPDATE_CURSOR}" method="handleUpdateCursorEvent" />
-    <!--mate:Listener type="{ZoomEvent.RESIZE}" method="handleResizeSlideEvent" /-->
     <mate:Listener type="{WindowResizedEvent.PRESENTATION_WINDOW_RESIZED_EVENT}" method="handleWindowResizeEvent"/>
     
 	<mx:Script>
@@ -44,7 +42,6 @@
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 			import com.asfusion.mate.events.Dispatcher;
 			import org.bigbluebutton.modules.present.events.CursorEvent;
-			import mx.controls.Alert;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.modules.present.events.SlideEvent;
 			import org.bigbluebutton.modules.present.events.MoveEvent;
@@ -62,32 +59,18 @@
 			private var slideRealHeight:int;
 			private static const MAX_ZOOM:int = 4;
 			
-			private var presentersXOffset:Number = 0;
-			private var presentersYOffset:Number = 0;
-			private var presentersWidthRatio:Number = 1;
-			private var presentersHeightRatio:Number = 1;
+			private var presentersLoaderXOffsetFromCanvas:Number = 0;
+			private var presentersLoaderYOffsetFromCanvas:Number = 0;
+			private var presentersLoaderCanvasWidthRatio:Number = 1;
+			private var presentersLoaderCanvasHeightRatio:Number = 1;
 			
 			private var canvasMouseXOnMouseDown:int;
 			private	var canvasMouseYOnMouseDown:int;
-			private var lastMouseXPosition:int;
-			private var lastMouseYPosition:int;
-			
-			private var loaderMouseXOnMouseDown:int;
-			private	var loaderMouseYOnMouseDown:int;
 			private var loaderXOnMouseDown:int;
 			private var loaderYOnMouseDown:int;
-				
-			private var startDragMouseX:Number;
-			private var startDragMouseY:Number;
-			private var startDragX:Number;
-			private var startDragY:Number;
-			
-			private var xPercent:Number;
-			private var yPercent:Number;
-			
-			private var makeSlideFitToWindow:Boolean = true;
 						
 			private var cursor:Shape;
+			
 			//The following few variables concern text selection
 			private var slideClip:MovieClip;
 			private var slideText:TextSnapshot;
@@ -98,9 +81,9 @@
 			[Bindable] public var selectedSlide:int=0;
 			[Bindable] private var isPresenter:Boolean = false;
 				
-			private function init():void{
-				swfSlideLoader.width = slideCanvas.width;
-				swfSlideLoader.height = slideCanvas.height;
+			private function onCreationComplete():void{
+				swfSlideLoader.width = canvasWidth();
+				swfSlideLoader.height = canvasHeight();
 				
 				cursor = new Shape();
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
@@ -109,42 +92,30 @@
 				cursor.visible = false;
 			}
 					
-			private function mouseDown(e:MouseEvent):void{						
-				canvasMouseXOnMouseDown = slideCanvas.mouseX;
-				canvasMouseYOnMouseDown = slideCanvas.mouseY;
+			private function onMouseDown(e:MouseEvent):void{						
+				canvasMouseXOnMouseDown = canvasMouseX();
+				canvasMouseYOnMouseDown = canvasMouseY();
 				loaderXOnMouseDown = loaderX();
 				loaderYOnMouseDown = loaderY();
-				
-				LogUtil.debug("mouseDown[canvas:("+ canvasWidth() + "," + canvasHeight() + "," + canvasX() + "," + canvasY() + "," + canvasMouseX() + "," + canvasMouseY()
-								+ ")content(" + slideWidth() + "," + slideHeight() + "," + slideX() + "," + slideY() + "," + slideMouseX() + "," + slideMouseY()
-								+ ")loader(" + swfSlideLoader.width + "," + swfSlideLoader.height + "," + loaderX() + "," + loaderY() + "," + loaderMouseX() + "," + loaderMouseY() + ")]");				
-				addEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
+							
+				addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 			}
 			
-			private function mouseMove(e:MouseEvent):void {	
-				// Get the cursor position on the slideCanvas.
-				var currentCanvasMouseX:int = slideCanvas.mouseX;
-				var currentCanvasMouseY:int = slideCanvas.mouseY;
-				
-				// Translate the slideCanvas cursor position to the swfSlideLoader coordinate.
-				// We need to do this to maintain sync with the other clients.
-				var deltaCanvasMouseX:int = currentCanvasMouseX - canvasMouseXOnMouseDown;
-				var deltaCanvasMouseY:int = currentCanvasMouseY - canvasMouseYOnMouseDown;
-								
-//				LogUtil.debug("before: mouseMove[canvas:("+ canvasWidth() + "," + canvasHeight() + "," + canvasX() + "," + canvasY() 
-//								+ ")content(" + slideWidth() + "," + slideHeight() + "," + slideX() + "," + slideY()
-//								+ ")loader(" + swfSlideLoader.width + "," + swfSlideLoader.height + "," + loaderX() + "," + loaderY() + ")]");	
-								
-				swfSlideLoader.x = loaderXOnMouseDown + deltaCanvasMouseX;
-				swfSlideLoader.y = loaderYOnMouseDown + deltaCanvasMouseY;
-				makeSlideFitLoader();
-				
-//				LogUtil.debug("Delta(" + deltaCanvasMouseX + "," + deltaCanvasMouseY + ")");
-//				LogUtil.debug("after: mouseMove[canvas:("+ canvasWidth() + "," + canvasHeight() + "," + canvasX() + "," + canvasY() 
-//								+ ")content(" + slideWidth() + "," + slideHeight() + "," + slideX() + "," + slideY()
-//								+ ")loader(" + swfSlideLoader.width + "," + swfSlideLoader.height + "," + loaderX() + "," + loaderY() + ")]");	
-
-
+			private function onMouseMove(e:MouseEvent):void {	
+				var deltaCanvasMouseX:int = canvasMouseX() - canvasMouseXOnMouseDown;
+				var deltaCanvasMouseY:int = canvasMouseY() - canvasMouseYOnMouseDown;
+													
+				moveLoaderTo(loaderXOnMouseDown + deltaCanvasMouseX, loaderYOnMouseDown + deltaCanvasMouseY);				
+				fitSlideToLoader();				
+				notifyOtherParticipantsOfSlideMoving();
+			}
+			
+			private function moveLoaderTo(xOffset:int, yOffset:int):void {
+				swfSlideLoader.x = xOffset;
+				swfSlideLoader.y = yOffset;
+			}
+			
+			private function notifyOtherParticipantsOfSlideMoving():void {
 				var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.MOVE);
 				presentEvent.xOffset = getLoaderXOffsetWithCanvas();
 				presentEvent.yOffset = getLoaderYOffsetWithCanvas();
@@ -154,117 +125,84 @@
 			}
 
 			private function handleMoveEvent(e:MoveEvent):void{
-				savePresentersSettings(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
-				
-				if (isPresenter) {
-					LogUtil.debug("IS PRESENTER - NOT HANDLING MOVE EVENT");
-					return;
-				} else {
-					LogUtil.debug("IS NOT PRESENTER - HANDLING MOVE EVENT");
-				}
-				
-//				LogUtil.debug("before: handleMoveEventXXXX[canvas:("+ canvasWidth() + "," + canvasHeight() + "," + canvasX() + "," + canvasY() + "," + canvasMouseX() + "," + canvasMouseY()
-//								+ ")content(" + slideWidth() + "," + slideHeight() + "," + slideX() + "," + slideY() + "," + slideMouseX() + "," + slideMouseY()
-//								+ ")loader(" + loaderWidth() + "," + loaderHeight() + "," + loaderX() + "," + loaderY() + "," + loaderMouseX() + "," + loaderMouseY() + ")] ");
-				
-				resizeLoaderInRelationToCanvas(e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
-				moveLoaderInRelationToCanvas(e.xOffset, e.yOffset);
-				makeSlideFitLoader();
-								
-//				LogUtil.debug("after: handleMoveEvent[canvas:("+ canvasWidth() + "," + canvasHeight() + "," + canvasX() + "," + canvasY() + "," + canvasMouseX() + "," + canvasMouseY()
-//								+ ")content(" + slideWidth() + "," + slideHeight() + "," + slideX() + "," + slideY() + "," + slideMouseX() + "," + slideMouseY()
-//								+ ")loader(" + loaderWidth() + "," + loaderHeight() + "," + loaderX() + "," + loaderY() + "," + loaderMouseX() + "," + loaderMouseY() + ")]");
+				savePresentersSettings(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);				
+				if (participantShouldHandleMessage()) {
+					resizeAndMoveLoaderInRelationToCanvas();
+				}				
+			}
+			
+			private function participantShouldHandleMessage():Boolean {
+				// If presenter, then ignore the message because the presenter was the one who sent the event.
+				return ! isPresenter;
 			}
 					
-			private function mouseUp(e:MouseEvent):void{		
-				removeEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
+			private function onMouseUp(e:MouseEvent):void{		
+				removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 			}
 			
-			private function mouseOut(e:MouseEvent):void{
-				removeEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
+			private function onMouseOut(e:MouseEvent):void{
+				removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 			}
 			
-			private function handleWindowResizeEvent(event:WindowResizedEvent):void {
-				var oldCanvasWidth:int = canvasWidth();
-				var oldCanvasHeight:int = canvasHeight();
-				
-//				LogUtil.debug("before: handleWindowResizeEvent[canvas:("+ canvasWidth() + "," + canvasHeight() + "," + canvasX() + "," + canvasY()
-//						+ ")content(" + slideWidth() + "," + slideHeight() + "," + slideX() + "," + slideY()
-//						+ ")loader(" + swfSlideLoader.width + "," + swfSlideLoader.height + "," + loaderX() + "," + loaderY()+ ")]");	
-						
+			private function handleWindowResizeEvent(event:WindowResizedEvent):void {						
 				slideCanvas.width = event.width;
 				slideCanvas.height = event.height;
-				
-				resizeLoaderInRelationToCanvas(presentersWidthRatio, presentersHeightRatio);
-				moveLoaderInRelationToCanvas(presentersXOffset, presentersYOffset);					
-				makeSlideFitLoader();
-							
-//				LogUtil.debug("after: handleWindowResizeEvent[canvas:("+ canvasWidth() + "," + canvasHeight() + "," + canvasX() + "," + canvasY()
-//								+ ")content(" + slideWidth() + "," + slideHeight() + "," + slideX() + "," + slideY()
-//								+ ")loader(" + swfSlideLoader.width + "," + swfSlideLoader.height + "," + loaderX() + "," + loaderY() + ")]");
+				resizeAndMoveLoaderInRelationToCanvas();				
 			}
 						
-			private function makeSlideFitLoader():void {
-				if (swfSlideLoader.content == null) return;
+			private function resizeAndMoveLoaderInRelationToCanvas():void {
+				resizeLoaderInRelationToCanvas(presentersLoaderCanvasWidthRatio, presentersLoaderCanvasHeightRatio);
+				moveLoaderInRelationToCanvas(presentersLoaderXOffsetFromCanvas, presentersLoaderYOffsetFromCanvas);					
+				fitSlideToLoader();
+			}
+						
+			private function fitSlideToLoader():void {
+				if (noSlideContentLoaded()) return;
+				
 				swfSlideLoader.content.x = loaderX();
 				swfSlideLoader.content.y = loaderY();
-				swfSlideLoader.content.width = swfSlideLoader.width;
-				swfSlideLoader.content.height = swfSlideLoader.height;	
+				swfSlideLoader.content.width = loaderWidth();
+				swfSlideLoader.content.height = loaderHeight();	
 			}
 									
-			private function fitSlideToWindow():void{
-				if (swfSlideLoader.content == null) return;
-//				LogUtil.debug("before: fitSlideToWindow[canvas:("+ canvasWidth() + "," + canvasHeight() + "," + canvasX() + "," + canvasY()
-//								+ ")content(" + slideWidth() + "," + slideHeight() + "," + slideX() + "," + slideY()
-//								+ ")loader(" + swfSlideLoader.width + "," + swfSlideLoader.height + "," + loaderX() + "," + loaderY()+ ")]");	
+			private function fitLoaderToCanvas():void{
+				if (noSlideContentLoaded()) return;
 				
 				swfSlideLoader.width = canvasWidth();
 				swfSlideLoader.height = canvasHeight();
+				swfSlideLoader.x = canvasX();
+				swfSlideLoader.y = canvasY();
 				
-				makeSlideFitLoader();
-				
-//				LogUtil.debug("after: fitSlideToWindow[canvas:("+ canvasWidth() + "," + canvasHeight() + "," + canvasX() + "," + canvasY()
-//								+ ")content(" + slideWidth() + "," + slideHeight() + "," + slideX() + "," + slideY()
-//								+ ")loader(" + swfSlideLoader.width + "," + swfSlideLoader.height + "," + loaderX() + "," + loaderY() + ")]");				
+				fitSlideToLoader();						
 			}
 
-			private function onMouseWheelZoomEvent(e:MouseEvent):void {
-//				LogUtil.debug("before: onMouseWheelZoomEvent[canvas:("+ canvasWidth() + "," + canvasHeight() + "," + canvasX() + "," + canvasY()
-//								+ ")content(" + slideWidth() + "," + slideHeight() + "," + slideX() + "," + slideY() + "," 
-//								+ swfSlideLoader.content.scaleX + "," + swfSlideLoader.content.scaleY 
-//								+ ")loader(" + swfSlideLoader.width + "," + swfSlideLoader.height + "," + loaderX() + "," + loaderY() + "," 
-//								+ swfSlideLoader.scaleX + "," + swfSlideLoader.scaleY + ")] " + e.delta);
+			private function resizeAndMoveLoaderBy(delta:int):void {
+				swfSlideLoader.width += (loaderWidth() * delta/100);
+				swfSlideLoader.height += (loaderHeight() * delta/100);
+				swfSlideLoader.x -= delta;
+				swfSlideLoader.y -= delta;
 				
-				var lastLoaderX:int = loaderX();
-				var lastLoaderY:int = loaderY();
-				var lastLoaderWidth:int = loaderWidth();
-				var lastLoaderHeight:int = loaderHeight();
+				fitSlideToLoader();
+			}
+			
+			private function onMouseWheelZoomEvent(e:MouseEvent):void {			
+				var newLoaderWidth:int = loaderWidth() + (loaderWidth() * e.delta/100);
+				var newLoaderHeight:int = loaderHeight() + (loaderHeight() * e.delta/100);
 				
-				var newLoaderWidth:int = swfSlideLoader.width + (swfSlideLoader.width * e.delta/100);
-				var newLoaderHeight:int = swfSlideLoader.height + (swfSlideLoader.height * e.delta/100);
-				
-				if (isZoomingOut(e.delta) && (willSlideBeSmallerThanCanvas(newLoaderWidth, newLoaderHeight))) {
-//					LogUtil.debug("Resetting slide size");
-					swfSlideLoader.width = canvasWidth();
-					swfSlideLoader.height = canvasHeight();
-					swfSlideLoader.x = 0;
-					swfSlideLoader.y = 0;
-				} else if ((newLoaderWidth <= MAX_ZOOM * slideRealWidth) && (newLoaderHeight <= MAX_ZOOM * slideRealHeight)) {
-//					LogUtil.debug("Calculating slide size");
-					swfSlideLoader.width += swfSlideLoader.width * e.delta/100;
-					swfSlideLoader.height += swfSlideLoader.height * e.delta/100;
-					swfSlideLoader.x = swfSlideLoader.x - e.delta;
-					swfSlideLoader.y = swfSlideLoader.y - e.delta;
+				if (presenterIsZoomingOut(e.delta) && (loaderWillBeSmallerThanCanvas(newLoaderWidth, newLoaderHeight))) {
+					fitLoaderToCanvas();
+				} else if (loaderWillBeSmallerThanMaxAllowed(newLoaderWidth, newLoaderHeight)) {
+					resizeAndMoveLoaderBy(e.delta);
 				} 
 													
-				makeSlideFitLoader();
-				
-//				LogUtil.debug("after: onMouseWheelZoomEvent[canvas:("+ canvasWidth() + "," + canvasHeight() + "," + canvasX() + "," + canvasY()
-//								+ ")content(" + slideWidth() + "," + slideHeight() + "," + slideX() + "," + slideY() + "," 
-//								+ swfSlideLoader.content.scaleX + "," + swfSlideLoader.content.scaleY 
-//								+ ")loader(" + swfSlideLoader.width + "," + swfSlideLoader.height + "," + loaderX() + "," + loaderY() + "," 
-//								+ swfSlideLoader.scaleX + "," + swfSlideLoader.scaleY + ")] " + e.delta);
-
+				notifyOthersOfZoomEvent();				
+			}
+			
+			private function loaderWillBeSmallerThanMaxAllowed(newWidth:int, newHeight:int):Boolean {
+				return (newWidth <= MAX_ZOOM * slideRealWidth) && (newHeight <= MAX_ZOOM * slideRealHeight)
+			}
+			
+			private function notifyOthersOfZoomEvent():void {
 				var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.ZOOM);
 				presentEvent.xOffset = getLoaderXOffsetWithCanvas();
 				presentEvent.yOffset = getLoaderYOffsetWithCanvas();
@@ -273,127 +211,89 @@
 				dispatchEvent(presentEvent);
 			}
 			
-			private function isZoomingOut(delta:int):Boolean {
+			private function presenterIsZoomingOut(delta:int):Boolean {
+				// If delta is negative, the presenter is zooming-out of the presentation.
 				return delta < 0;
 			}
-			private function isSlideEqualCanvas():Boolean {
-				return (loaderWidth() == canvasWidth()) && (loaderHeight() == canvasHeight())
-			}
 			
-			private function willSlideBeSmallerThanCanvas(newSlideWidth:int, newSlideHeight:int):Boolean {
+			private function loaderWillBeSmallerThanCanvas(newSlideWidth:int, newSlideHeight:int):Boolean {
 				return (newSlideWidth <= canvasWidth()) || (newSlideHeight <= canvasHeight())
 			}
 						
 			private function handleZoomEvent(e:ZoomEvent):void {
-				savePresentersSettings(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
-				
-				if (isPresenter) return;
-				
-//				LogUtil.debug("before: handleZoomEvent[canvas:("+ canvasWidth() + "," + canvasHeight() + "," + canvasX() + "," + canvasY()
-//								+ ")content(" + slideWidth() + "," + slideHeight() + "," + slideX() + "," + slideY() + "," 
-//								+ swfSlideLoader.content.scaleX + "," + swfSlideLoader.content.scaleY 
-//								+ ")loader(" + swfSlideLoader.width + "," + swfSlideLoader.height + "," + loaderX() + "," + loaderY() + "," 
-//								+ swfSlideLoader.scaleX + "," + swfSlideLoader.scaleY + ")] ");
-								
-				var oldLoaderWidth:int = loaderWidth();
-				var oldLoaderHeight:int = loaderHeight();
-				var oldLoaderX:int = loaderX();
-				var oldLoaderY:int = loaderY();
-				
-				resizeLoaderInRelationToCanvas(e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
-				moveLoaderInRelationToCanvas(e.xOffset, e.yOffset);
-				makeSlideFitLoader();
-				
-//				LogUtil.debug("after: handleZoomEvent[canvas:("+ canvasWidth() + "," + canvasHeight() + "," + canvasX() + "," + canvasY() 
-//								+ ")content(" + slideWidth() + "," + slideHeight() + "," + slideX() + "," + slideY() + "," 
-//								+ swfSlideLoader.content.scaleX + "," + swfSlideLoader.content.scaleY
-//								+ ")loader(" + swfSlideLoader.width + "," + swfSlideLoader.height + "," + loaderX() + "," + loaderY() + "," 
-//								+ swfSlideLoader.scaleX + "," + swfSlideLoader.scaleY + ")]");
+				savePresentersSettings(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);													
+				if (participantShouldHandleMessage()) {
+					resizeAndMoveLoaderInRelationToCanvas();
+				}
 			}
-			
-			private function handleResizeSlideEvent(e:ZoomEvent):void{
-				swfSlideLoader.content.scaleX = e.zoomPercentage;
-				swfSlideLoader.content.scaleY = e.zoomPercentage;
-				makeSlideFitLoader();
-			}
-						
+									
 			private function handleSlideLoadedEvent(e:SlideEvent):void{
 				swfSlideLoader.source = e.slide;
 			}
-			
-			private function restoreSlideSize():void {
-				if (swfSlideLoader.content == null) return;
-				swfSlideLoader.scaleX = 1;
-				swfSlideLoader.scaleY = 1;
-				swfSlideLoader.content.scaleX = 1;
-				swfSlideLoader.content.scaleY = 1;
-				swfSlideLoader.content.x = 0;
-				swfSlideLoader.content.y = 0;
-				swfSlideLoader.x = 0;
-				swfSlideLoader.y = 0;
-			}
-			
-			private function handleRestoreSlideSizeEvent(e:ZoomEvent):void{
-				restoreSlideSize();
-			}
-			
+						
 			private function handleSwitchToViewerEvent(e:MadePresenterEvent):void{
-				this.isPresenter = false;
+				participantIsNowPresenter(false);
 				removeEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
-				swfSlideLoader.removeEventListener(MouseEvent.MOUSE_DOWN, mouseDown);
-				swfSlideLoader.removeEventListener(MouseEvent.MOUSE_UP, mouseUp);
-				swfSlideLoader.removeEventListener(MouseEvent.MOUSE_OUT, mouseOut);
-			//	slideCanvas.removeEventListener(MouseEvent.MOUSE_MOVE, mouseCursorUpdateListener);
+				swfSlideLoader.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+				swfSlideLoader.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+				swfSlideLoader.removeEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
 				removeEventListener(MouseEvent.MOUSE_MOVE, mouseCursorUpdateListener);
 			}
 			
 			private function handleSwitchToPresenterEvent(e:MadePresenterEvent):void{
-				this.isPresenter = true;
+				participantIsNowPresenter(true);
 				addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
-				swfSlideLoader.addEventListener(MouseEvent.MOUSE_DOWN, mouseDown);
-				swfSlideLoader.addEventListener(MouseEvent.MOUSE_UP, mouseUp);
-				swfSlideLoader.addEventListener(MouseEvent.MOUSE_OUT, mouseOut);
-			//	slideCanvas.addEventListener(MouseEvent.MOUSE_MOVE, mouseCursorUpdateListener);
+				swfSlideLoader.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+				swfSlideLoader.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+				swfSlideLoader.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
 				addEventListener(MouseEvent.MOUSE_MOVE, mouseCursorUpdateListener);
 			}
 			
+			private function participantIsNowPresenter(presenter:Boolean):void {
+				this.isPresenter = presenter;
+			}
+			
 			public function mouseCursorUpdateListener(e:MouseEvent):void{
-				if (swfSlideLoader.content == null) return;
-
-				// Get the cursor position on the slideCanvas.
-				var canvasMouseX:int = slideCanvas.mouseX;
-				var canvasMouseY:int = slideCanvas.mouseY;
-								
-				var command:PresenterCommands = new PresenterCommands(PresenterCommands.SEND_CURSOR_UPDATE);				
-				command.xPercent = canvasMouseX / canvasWidth();
-				command.yPercent = canvasMouseY / canvasHeight();				
-				dispatchEvent(command);
+				if (noSlideContentLoaded()) return;
+				
+				notifyOthersOfPresentersCursorPosition(canvasMouseX(), canvasMouseY());
 
 			}
 			
+			private function notifyOthersOfPresentersCursorPosition(cursorXPosition:int, cursorYPosition:int):void {
+				var command:PresenterCommands = new PresenterCommands(PresenterCommands.SEND_CURSOR_UPDATE);				
+				command.xPercent = cursorXPosition / canvasWidth();
+				command.yPercent = cursorYPosition / canvasHeight();				
+				dispatchEvent(command);
+			}
+			
 			private function handleUpdateCursorEvent(e:CursorEvent):void{
-				if (swfSlideLoader.content == null) return;
+				if (noSlideContentLoaded()) return;
+				
 				cursor.x = e.xPercent * canvasWidth();
 				cursor.y = e.yPercent * canvasHeight();
 								
 				if (isCursorOutsideWindow(e)) {
 					hideCursor()
-				}
-				else {
+				} else {
 					showCursor();
 				}	
 			}
 			
-			private function savePresentersSettings(xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void {
-				presentersXOffset = xOffset;
-				presentersYOffset = yOffset;
-				presentersWidthRatio = widthRatio;
-				presentersHeightRatio = heightRatio;
+			private function noSlideContentLoaded():Boolean {
+				return swfSlideLoader.content == null
 			}
 			
-			/*********************
+			private function savePresentersSettings(xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void {
+				presentersLoaderXOffsetFromCanvas = xOffset;
+				presentersLoaderYOffsetFromCanvas = yOffset;
+				presentersLoaderCanvasWidthRatio = widthRatio;
+				presentersLoaderCanvasHeightRatio = heightRatio;
+			}
+			
+			/******************************************************
 			 * Helper functions to determine offsets
-			 * *******************/
+			 ******************************************************/
 			
 			private function getLoaderXOffsetWithCanvas():Number {
 				return loaderX()/loaderWidth();
@@ -421,34 +321,6 @@
 				swfSlideLoader.y = swfSlideLoader.height * loaderYOffset;
 			}
 			
-			
-			/***********************************************************************
-			 * Bounds helper functions
-			 ***********************************************************************/
-			private function isRightEdgeAligned():Boolean {
-				return ((Math.abs(slideX()) + canvasWidth()) >= slideWidth()); 
-			}
-			
-			private function isTopEdgeAligned():Boolean {
-				return slideY() == canvasY();
-			} 
-			
-			private function isBottomEdgeAligned():Boolean {
-				return ((Math.abs(slideY()) + canvasHeight()) >= slideHeight());
-			}
-			
-			private function isLeftEdgeAligned():Boolean {
-				return slideX() == canvasX();
-			}
-			
-			private function snapSlideToTopOfCanvas():void {
-				swfSlideLoader.y = swfSlideLoader.content.y = canvasY();
-			}
-			
-			private function snapSlideToLeftSideOfCanvas():void {
-				swfSlideLoader.x = swfSlideLoader.content.x = canvasX();
-			}
-			
 			/*
 			 * Fire an event when a single slide has been loaded.
 			 */
@@ -459,17 +331,17 @@
 			private function handleSlideLoadedCompleteEvent(event:Event):void {				
 				slideRealWidth = slideWidth();
 				slideRealHeight = slideHeight();
-				
-				restoreSlideSize();
-//				LogUtil.debug("handleSlideLoadCompleteEvent[" + slideWidth() + "," + slideHeight() + "]");
-				
-				fitSlideToWindow();
+					
+				fitLoaderToCanvas();
+				dispatchNewSlideDisplayedEvent();				
+			}
+			
+			private function dispatchNewSlideDisplayedEvent():void {
 				var dispatcher:Dispatcher = new Dispatcher();
 				var dispEvent:DisplaySlideEvent = new DisplaySlideEvent(DisplaySlideEvent.DISPLAY_SLIDE_EVENT);
-				dispEvent.slideWidth = slideWidth();
-				dispEvent.slideHeight = slideHeight();
+				dispEvent.slideWidth = slideRealWidth;
+				dispEvent.slideHeight = slideRealHeight;
 				dispatcher.dispatchEvent(dispEvent);
-				
 			}
 						
 			/************************************************************
@@ -483,7 +355,7 @@
 				swfSlideLoader.addEventListener(MouseEvent.MOUSE_OUT, onTextMouseOut);
 				slideText.setSelectColor(0xFFFF00);
 				slideText.setSelected(0, slideText.charCount, true);
-				Alert.show(slideText.getSelectedText());
+//				Alert.show(slideText.getSelectedText());
 				
 				var runInfo:Array = slideText.getTextRunInfo(0,1);
 				var highlight:Shape = new Shape();
@@ -566,7 +438,7 @@
 				return swfSlideLoader.content.height;
 			}
 			
-			/******* Canvas *****/
+			/************ Canvas *****************/
 			private function canvasX():int {
 				return slideCanvas.x;
 			}
@@ -591,7 +463,7 @@
 				return slideCanvas.height;
 			}
 			
-			/******** Loader ********/
+			/************ Loader ******************/
 			private function loaderX():int {
 				return swfSlideLoader.x;
 			}
