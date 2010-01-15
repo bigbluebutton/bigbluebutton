@@ -36,9 +36,11 @@
     <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="handleSwitchToViewerEvent" />
     <mate:Listener type="{CursorEvent.UPDATE_CURSOR}" method="handleUpdateCursorEvent" />
     <mate:Listener type="{WindowResizedEvent.PRESENTATION_WINDOW_RESIZED_EVENT}" method="handleWindowResizeEvent"/>
+    <mate:Listener type="{PresenterCommands.RESIZE}" method="handleSlideResizeEvent"/>
     
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.present.events.SlideResizedEvent;
 			import mx.controls.Alert;
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 			import com.asfusion.mate.events.Dispatcher;
@@ -56,12 +58,24 @@
 			import mx.events.ListEvent;
 			import mx.events.FlexEvent;
 
-			private var slideRealWidth:int;
-			private var slideRealHeight:int;
 			private static const MAX_ZOOM:int = 4;
+			private var zoomPercentage:int = 100;
+			private static const ZOOM_STEP:int = 5;
 			
+			/**
+			 * Variables that holds the presenter's locations of the
+			 * loader so we can move the participant's slides in the
+			 * same scale to maintain sync on the presenter's cursor.
+			 */ 
 			private var presentersLoaderXOffsetFromCanvas:Number = 0;
 			private var presentersLoaderYOffsetFromCanvas:Number = 0;
+			
+			/**
+			 * Variables that stores the presenter's ratio between
+			 * loader and canvas. We need to size the slide with the
+			 * same scale as the presenter so that the cursor syncs
+			 * properly.
+			 */
 			private var presentersLoaderCanvasWidthRatio:Number = 1;
 			private var presentersLoaderCanvasHeightRatio:Number = 1;
 			
@@ -177,32 +191,81 @@
 				fitSlideToLoader();						
 			}
 
-			private function resizeAndMoveLoaderBy(delta:int):void {
-				swfSlideLoader.width += (loaderWidth() * delta/100);
-				swfSlideLoader.height += (loaderHeight() * delta/100);
-				swfSlideLoader.x -= delta;
-				swfSlideLoader.y -= delta;
-				
+			private function resizeAndMoveLoaderBy(percent:Number):void {	
+				// Save the old loader dimensions. We need these to calculate
+				// the new position of the loader;
+				var oldLoaderHeight:int = loaderHeight();
+				var oldLoaderWidth:int = loaderWidth();
+							
+				resizeLoaderInRelationToCanvas(percent/100, percent/100);				
+				moveLoaderTo(calculateNewLoaderX(oldLoaderWidth), calculateNewLoaderY(oldLoaderHeight));
 				fitSlideToLoader();
 			}
 			
-			private function onMouseWheelZoomEvent(e:MouseEvent):void {			
-				var newLoaderWidth:int = loaderWidth() + (loaderWidth() * e.delta/100);
-				var newLoaderHeight:int = loaderHeight() + (loaderHeight() * e.delta/100);
+			private function calculateNewLoaderY(oldLoaderHeight:int):int {				
+				var deltaPercentHeight:Number = (loaderHeight() - oldLoaderHeight) /oldLoaderHeight;
+								
+				var newLoaderY:int = (loaderY()/loaderHeight()) * deltaPercentHeight;				
+				if (newLoaderY == 0) {
+					newLoaderY = loaderY() - (deltaPercentHeight * 100);
+				} else {
+					newLoaderY = loaderY() - newLoaderY;
+				}
 				
-				if (presenterIsZoomingOut(e.delta) && (loaderWillBeSmallerThanCanvas(newLoaderWidth, newLoaderHeight))) {
-					fitLoaderToCanvas();
-				} else if (loaderWillBeSmallerThanMaxAllowed(newLoaderWidth, newLoaderHeight)) {
-					resizeAndMoveLoaderBy(e.delta);
-				} 
-													
-				notifyOthersOfZoomEvent();				
+				return newLoaderY;
 			}
 			
-			private function loaderWillBeSmallerThanMaxAllowed(newWidth:int, newHeight:int):Boolean {
-				return (newWidth <= MAX_ZOOM * slideRealWidth) && (newHeight <= MAX_ZOOM * slideRealHeight)
+			private function calculateNewLoaderX(oldLoaderWidth:int):int {				
+				var deltaPercentWidth:Number = (loaderWidth() - oldLoaderWidth) / oldLoaderWidth;
+				var newLoaderX:int = (loaderX()/loaderWidth()) * deltaPercentWidth;
+				if (newLoaderX == 0) {
+					newLoaderX = loaderX() - (deltaPercentWidth * 100);
+				} else {
+					newLoaderX = loaderX() - newLoaderX;
+				}		
+				
+				return newLoaderX;		
 			}
 			
+			private function handleSlideResizeEvent(event:PresenterCommands):void {
+				zoomLoaderBy(event.newSizeInPercent);
+			}
+			
+			private function zoomLoaderBy(percent:Number):void {				
+				if (percent < 100) {
+					zoomPercentage = 100;
+				} else if (percent > 400) {
+					zoomPercentage = 400;
+				} else {
+					zoomPercentage = percent;
+				}
+				
+ 				if (zoomPercentage == 100) {
+ 					fitLoaderToCanvas();
+ 				} else {
+ 					resizeAndMoveLoaderBy(zoomPercentage);
+ 				}
+				notifyOthersOfZoomEvent();
+			}
+			
+			private function onMouseWheelZoomEvent(e:MouseEvent):void {
+				if (presenterIsZoomingOut(e.delta)) {
+					zoomPercentage -= ZOOM_STEP;
+				} else {
+					zoomPercentage += ZOOM_STEP;
+				}
+				
+				zoomLoaderBy(zoomPercentage);	
+				notifyListenersOfSlideResize(zoomPercentage);			
+			}
+			
+			private function notifyListenersOfSlideResize(percent:Number):void {
+				var event:SlideResizedEvent = new SlideResizedEvent();
+				event.percent = percent;
+				var dispatcher:Dispatcher = new Dispatcher();
+				dispatcher.dispatchEvent(event);
+			}
+						
 			private function notifyOthersOfZoomEvent():void {
 				var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.ZOOM);
 				presentEvent.xOffset = getLoaderXOffsetWithCanvas();
@@ -212,15 +275,11 @@
 				dispatchEvent(presentEvent);
 			}
 			
-			private function presenterIsZoomingOut(delta:int):Boolean {
+			private function presenterIsZoomingOut(delta:Number):Boolean {
 				// If delta is negative, the presenter is zooming-out of the presentation.
 				return delta < 0;
 			}
-			
-			private function loaderWillBeSmallerThanCanvas(newSlideWidth:int, newSlideHeight:int):Boolean {
-				return (newSlideWidth <= canvasWidth()) || (newSlideHeight <= canvasHeight())
-			}
-						
+									
 			private function handleZoomEvent(e:ZoomEvent):void {
 				savePresentersSettings(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);													
 				if (participantShouldHandleMessage()) {
@@ -318,8 +377,8 @@
 			}
 						
 			private function moveLoaderInRelationToCanvas(loaderXOffset:Number, loaderYOffset:Number):void {
-				swfSlideLoader.x = swfSlideLoader.width * loaderXOffset;
-				swfSlideLoader.y = swfSlideLoader.height * loaderYOffset;
+				swfSlideLoader.x = loaderWidth() * loaderXOffset;
+				swfSlideLoader.y = loaderHeight() * loaderYOffset;
 			}
 			
 			/*
@@ -330,14 +389,11 @@
 			}
 			
 			private function handleSlideLoadedCompleteEvent(event:Event):void {				
-				slideRealWidth = slideWidth();
-				slideRealHeight = slideHeight();
-					
 				fitLoaderToCanvas();
-				dispatchNewSlideDisplayedEvent();				
+				dispatchNewSlideDisplayedEvent(slideWidth(), slideHeight());				
 			}
 			
-			private function dispatchNewSlideDisplayedEvent():void {
+			private function dispatchNewSlideDisplayedEvent(slideRealWidth:int, slideRealHeight:int):void {
 				var dispatcher:Dispatcher = new Dispatcher();
 				var dispEvent:DisplaySlideEvent = new DisplaySlideEvent(DisplaySlideEvent.DISPLAY_SLIDE_EVENT);
 				dispEvent.slideWidth = slideRealWidth;
@@ -400,7 +456,7 @@
 				swfSlideLoader.removeEventListener(MouseEvent.MOUSE_MOVE, onTextMouseMove);
 				selectText(0, slideText.charCount, false);
 			}
-			
+
 			private function selectText(beginIndex:int, endIndex:int, select:Boolean):void{
 				if (!select){
 					//remove all highlight shapes
@@ -430,7 +486,6 @@
 					highlight.y = Math.abs(begginingY);	
 				}
 			}
-
 			/*****************************************
 			 * Helper functions
 			 *****************************************/

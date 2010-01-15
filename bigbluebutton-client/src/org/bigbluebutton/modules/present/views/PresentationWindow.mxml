@@ -41,11 +41,12 @@
 	<mate:Listener type="{PresentationEvent.PRESENTATION_LOADED}" method="handlePresentationLoadedEvent" />
 	<mate:Listener type="{NavigationEvent.GOTO_PAGE}" method="gotoPage" />
 	<mate:Listener type="{UploadEvent.CLEAR_PRESENTATION}" method="clearPresentation" />
-	<mate:Listener type="{ZoomEvent.RESTORE}" method="restoreZoomSliderValue" />
+	<mate:Listener type="{SlideResizedEvent.SLIDE_RESIZED_EVENT}" method="handleSlideResizedEvent" />
 	<mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleDisplaySlideEvent" />
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.present.events.SlideResizedEvent;
 			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
@@ -77,11 +78,11 @@
             public static const TITLE:String = "Presentation";
 			private var images:Images = new Images();
 
-			[Bindable] private var uploadIcon : Class = images.upload;
-			[Bindable] private var forwardIcon : Class = images.forward;
-			[Bindable] private var backwardIcon : Class = images.backward;
-			[Bindable] private var thumbnailIcon : Class = images.thumbnails;
-			[Bindable] private var magnifierIcon : Class = images.magnifier;
+			[Bindable] private var uploadIcon:Class = images.upload;
+			[Bindable] private var forwardIcon:Class = images.forward;
+			[Bindable] private var backwardIcon:Class = images.backward;
+			[Bindable] private var thumbnailIcon:Class = images.thumbnails;
+			[Bindable] private var magnifierIcon:Class = images.magnifier;
 			[Bindable] public var fitToWidthIcon:Class = images.magnifier;
 			[Bindable] public var fitToActualSizeIcon:Class = images.mag_reset;
 						
@@ -98,6 +99,8 @@
 			// Init to the size of the window.
 			private var currentSlideWidth:int = 450;
 			private var currentSlideHeight:int = 450;
+			
+			private var lastZoomSliderValue:int = 100;
 			
 			private var mouseDown:Boolean = false;
 			[Bindable] private var isPresenter:Boolean = false;
@@ -132,6 +135,7 @@
 			}
 			
 			private function onCreationComplete():void{
+				lastZoomSliderValue = 100;
 				positionThumbnails();
 				thumbnailWindow.addEventListener(FisheyeThumbnail.SLIDE_HIGHLIGHTED, onSlideHighlighted);
 				thumbY = this.height - 160;
@@ -269,14 +273,16 @@
 				}				
 			}
 			
-			private function sliderZoom():void{
-//				var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.RESIZE);
-//				presentEvent.newSizeInPercent = (zoomSlider.value)/100;
-//				dispatchEvent(presentEvent);
+			private function sliderZoom():void {
+				var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.RESIZE);
+				presentEvent.newSizeInPercent = zoomSlider.value;
+				dispatchEvent(presentEvent);
 			}
 			
-			private function restoreZoomSliderValue(e:ZoomEvent):void{
-//				zoomSlider.value = 100;
+			private function handleSlideResizedEvent(e:SlideResizedEvent):void{
+				LogUtil.debug("handlingSlideResizedEvent " + e.percent);
+				
+				zoomSlider.value = e.percent;
 			}
 			
 			private function onCanvasClick():void{
@@ -301,7 +307,7 @@
 	            			slideNumLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.pages', [(slideView.selectedSlide + 1), slideView.slides.length]);	
 					backButton.visible = true;
 					forwardButton.visible = true;	
-//					zoomSlider.visible = true;
+					zoomSlider.visible = true;
 //					btnResetZoom.visible = true;
 					thumbnailWindow.fisheye.selectedIndex = 0;
 					thumbnailWindow.setDataProvider(slideView.slides);
@@ -320,7 +326,7 @@
 	            			slideNumLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.pages', [(slideView.selectedSlide + 1), slideView.slides.length]);	
 					backButton.visible = false;
 					forwardButton.visible = false;	
-//					zoomSlider.visible = false;	
+					zoomSlider.visible = false;	
 //					btnResetZoom.visible = false;
 				}
 				dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
@@ -346,7 +352,7 @@
 				if (isPresenter) {
 					backButton.visible = true;
 					forwardButton.visible = true;
-//					zoomSlider.visible = true;
+					zoomSlider.visible = true;
 					
 					var shareEvent:PresenterCommands = new PresenterCommands(PresenterCommands.SHARE_PRESENTATION_COMMAND);
 					shareEvent.presentationName = e.presentationName;
@@ -422,10 +428,10 @@
     	  <mx:Button id="forwardButton" icon="{forwardIcon}" visible="false" width="30" height="20"
     	   		toolTip="Next slide" click="dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, slideView.selectedSlide + 1))"/>    				
     	<mx:Spacer width="10%" id="spacer2"/>
-    	<!--mx:HSlider id="zoomSlider" visible="false"
+    	<mx:HSlider id="zoomSlider" visible="false"
     		minimum="100" maximum="400" value="100" dataTipPlacement="right" labels="['100%','400%']"
     		allowTrackClick="true" liveDragging="true" change="sliderZoom()" width="100" />
-    	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="false" width="20" height="20" 
+    	<!--mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="false" width="20" height="20" 
     		toolTip="Reset Zoom" click="dispatchEvent(new PresenterCommands(PresenterCommands.RESET_ZOOM))"/-->
     	<!--<mx:Button id="btnSelection" click="enableTextSelection()" />-->
     </mx:ApplicationControlBar>
