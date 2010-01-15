@@ -392,6 +392,10 @@
 				presenterNameLabel.text = "";
 				presenterNameLabel.visible = false;
 			}
+			
+			private function enableTextSelection():void{
+				slideView.turnOnTextSelection();
+			}
 
 
 		]]>
@@ -423,6 +427,7 @@
     		allowTrackClick="true" liveDragging="true" change="sliderZoom()" width="100" />
     	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="false" width="20" height="20" 
     		toolTip="Reset Zoom" click="dispatchEvent(new PresenterCommands(PresenterCommands.RESET_ZOOM))"/-->
+    	<!--<mx:Button id="btnSelection" click="enableTextSelection()" />-->
     </mx:ApplicationControlBar>
     
     <mate:Listener type="{AddHighligtherCanvasEvent.ADD_HIGHLIGHTER_CANVAS}" method="addHighlighter" />

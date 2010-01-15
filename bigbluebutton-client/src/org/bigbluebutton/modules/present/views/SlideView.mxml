@@ -39,6 +39,7 @@
     
 	<mx:Script>
 		<![CDATA[
+			import mx.controls.Alert;
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 			import com.asfusion.mate.events.Dispatcher;
 			import org.bigbluebutton.modules.present.events.CursorEvent;
@@ -354,34 +355,24 @@
 				swfSlideLoader.addEventListener(MouseEvent.MOUSE_UP, onTextMouseUp);
 				swfSlideLoader.addEventListener(MouseEvent.MOUSE_OUT, onTextMouseOut);
 				slideText.setSelectColor(0xFFFF00);
-				slideText.setSelected(0, slideText.charCount, true);
-//				Alert.show(slideText.getSelectedText());
-				
-				var runInfo:Array = slideText.getTextRunInfo(0,1);
-				var highlight:Shape = new Shape();
-				var h:Number = runInfo[0].height;
-				highlight.graphics.lineStyle(4,0xFF0000);
-				highlight.graphics.drawRect(0 ,0 , Math.abs(runInfo[0].height * 10), Math.abs(runInfo[0].height * 10));
-				slideClip.addChild(highlight);
-				highlight.x = Math.abs(runInfo[0].matrix_tx);
-				highlight.y = Math.abs(runInfo[0].matrix_ty);
 			}
 			
 			private function onTextMouseDown(e:MouseEvent):void{
 				swfSlideLoader.addEventListener(MouseEvent.MOUSE_MOVE, onTextMouseMove);
+				//NOTE: hitTestTextNearPos() seems to be failing me right now. Something about font metrics according to documentation. -Denis Zgonjanin, Jan 15 2010
 				firstChar = slideText.hitTestTextNearPos(slideClip.mouseX, slideClip.mouseY, 0);
-				slideText.setSelected(0, slideText.charCount, false);
+				selectText(0, slideText.charCount, false);
 			}
 			
 			private function onTextMouseMove(e:MouseEvent):void{
 				if (firstChar != -1){
-					slideText.setSelected(0, slideText.charCount, false)
+					selectText(0, slideText.charCount, false)
 					
 					lastChar = slideText.hitTestTextNearPos(slideClip.mouseX, slideClip.mouseY, 0);
 					if (firstChar < lastChar){
-						slideText.setSelected(firstChar, lastChar + 1, true);
+						selectText(firstChar, lastChar + 1, true);
 					} else{
-						slideText.setSelected(lastChar, firstChar + 1, true);
+						selectText(lastChar, firstChar + 1, true);
 					}
 				}
 			}
@@ -393,9 +384,9 @@
 					lastChar = slideText.hitTestTextNearPos(slideClip.mouseX, slideClip.mouseY, 0);
 					if (firstChar != lastChar){
 						if (firstChar < lastChar){
-							slideText.setSelected(firstChar, lastChar + 1, true);
+							selectText(firstChar, lastChar + 1, true);
 						} else{
-							slideText.setSelected(lastChar, firstChar + 1, true);
+							selectText(lastChar, firstChar + 1, true);
 						}
 					}
 					firstChar = -1;
@@ -407,7 +398,37 @@
 			
 			private function onTextMouseOut(e:MouseEvent):void{
 				swfSlideLoader.removeEventListener(MouseEvent.MOUSE_MOVE, onTextMouseMove);
-				slideText.setSelected(0, slideText.charCount, false);
+				selectText(0, slideText.charCount, false);
+			}
+			
+			private function selectText(beginIndex:int, endIndex:int, select:Boolean):void{
+				if (!select){
+					//remove all highlight shapes
+					return;
+				}
+				
+				//first, separate text into lines in case user selects multiple lines
+				var text:String = slideText.getText(beginIndex, endIndex, true);
+				var lines:Array = text.split("\n");
+				
+				//Highlight each row independantly
+				var characterIndex:int = beginIndex;
+				for (var line:int = 0; line<lines.length; line++){
+					var lineLength:int = (lines[line] as String).length;
+					var textInfo:Array = slideText.getTextRunInfo(characterIndex, characterIndex + lineLength);
+					var charWidth:Number = textInfo[1].matrix_tx - textInfo[0].matrix_tx; //how wide is one character
+					var lineWidth:Number = textInfo[textInfo.length - 1].matrix_tx - textInfo[0].matrix_tx + charWidth; //beginning to end of line plus 1 character lenght
+					var charHeight:Number = charWidth * 1.5;//Totally arbitrary
+					var begginingX:Number = textInfo[0].matrix_tx;
+					var begginingY:Number = textInfo[0].matrix_ty;
+					
+					var highlight:Shape = new Shape();
+					highlight.graphics.lineStyle(2,0xFF0000);
+					highlight.graphics.drawRect(0,0,lineWidth,charHeight);
+					slideClip.addChild(highlight);
+					highlight.x = Math.abs(begginingX);
+					highlight.y = Math.abs(begginingY);	
+				}
 			}
 
 			/*****************************************
