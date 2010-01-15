@@ -500,7 +500,9 @@ check_processes() {
 		fi
 	done
 
-	SALT_PROPERTIES=$(cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
+	if [ -z "$(ls -A /var/lib/tomcat6/logs)" ]; then
+        	echo "                     empty directory: /var/lib/tomcat6/logs contains no logs"
+	fi
 
 	echo
 	exit 0
@@ -567,20 +569,19 @@ if [ $ZIP ]; then
 	rm -f /tmp/$LOG_FILE.tar.gz
 	rm -f /tmp/a
 
-	touch /tmp/a
-	tar cf /tmp/$LOG_FILE.tar /tmp/a			> /dev/null 2>&1
+	touch /tmp/empty
+	tar cf /tmp/$LOG_FILE.tar /tmp/empty			> /dev/null 2>&1
 	tar rf /tmp/$LOG_FILE.tar /usr/share/red5/log		> /dev/null 2>&1
 	tar rf /tmp/$LOG_FILE.tar /var/lib/tomcat6/logs		> /dev/null 2>&1
 	tar rf /tmp/$LOG_FILE.tar /var/log/bigbluebutton/*	> /dev/null 2>&1
 	tar rf /tmp/$LOG_FILE.tar /var/log/nginx/error.log	> /dev/null 2>&1
 	tar rf /tmp/$LOG_FILE.tar /var/log/syslog		> /dev/null 2>&1
 
-	echo
-	echo "  Created: /tmp/$LOG_FILE.tar.gz"
-	echo "  It contains the following log files:"
-	echo
 	tar tf /tmp/$LOG_FILE.tar
 	gzip /tmp/$LOG_FILE.tar
+	mv /tmp/$LOG_FILE.tar.gz /root/$LOG_FILE.tar.gz
+	echo
+	echo "  Created: /root/$LOG_FILE.tar.gz"
 	echo
 fi
 
