@@ -58,7 +58,6 @@
 			import mx.events.ListEvent;
 			import mx.events.FlexEvent;
 
-			private static const MAX_ZOOM:int = 4;
 			private var zoomPercentage:int = 100;
 			private static const ZOOM_STEP:int = 5;
 			
@@ -314,10 +313,8 @@
 			}
 			
 			public function mouseCursorUpdateListener(e:MouseEvent):void{
-				if (noSlideContentLoaded()) return;
-				
+				if (noSlideContentLoaded()) return;				
 				notifyOthersOfPresentersCursorPosition(canvasMouseX(), canvasMouseY());
-
 			}
 			
 			private function notifyOthersOfPresentersCursorPosition(cursorXPosition:int, cursorYPosition:int):void {

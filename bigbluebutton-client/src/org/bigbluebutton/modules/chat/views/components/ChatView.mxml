@@ -123,7 +123,7 @@
 			}
 
 			private function cleanup(message:String):String{
-				var parsedString = message.replace('<', '&#60;')
+				var parsedString:String = message.replace('<', '&#60;')
 				parsedString = parsedString.replace('>', '&#62;')
 				
 				return parsedString;

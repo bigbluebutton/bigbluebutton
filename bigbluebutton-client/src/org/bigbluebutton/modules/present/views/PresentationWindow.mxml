@@ -115,6 +115,8 @@
 			private var savedY:Number;
 			private var isMaximized:Boolean = false;
 			
+			private var fitToWindowTimer:Timer;
+			
 			override public function maximize():void{
 				if (!isMaximized){
 					savedWindowHeight = this.height;
@@ -122,8 +124,8 @@
 					savedX = this.x;
 					savedY = this.y;    
 					dispatchEvent(new MDIWindowEvent(MDIWindowEvent.MAXIMIZE, this));            	
-                			isMaximized = true;
-                			windowControls.maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString('bbb.presentation.maximizeRestoreBtn.toolTip2');
+                	isMaximized = true;
+                	windowControls.maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString('bbb.presentation.maximizeRestoreBtn.toolTip2');
 				} else{
 					this.width = savedWindowWidth;
 					this.height = savedWindowHeight;
@@ -131,7 +133,22 @@
 					this.y = savedY;
 					isMaximized = false;
 					windowControls.maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString('bbb.presentation.maximizeRestoreBtn.toolTip');
-				}				
+				}					
+				/*
+				 * Need to have a timer to trigger resizing slide to window after the 
+				 * window has been maximized/restored. The MAXIMIZE/RESTORE events are
+				 * generated when the button is clicked so the width and height are not
+				 * the ones we want.
+				 */
+				fitToWindowTimer = new Timer(1000);
+				fitToWindowTimer.addEventListener(TimerEvent.TIMER, maximizeTimerHandler);
+				fitToWindowTimer.start();
+			}
+			
+			private function maximizeTimerHandler(event:TimerEvent):void {
+				// When the window is maximized, we want to resize the slide maintaining the aspect ratio.			
+				fitSlideToWindowMaintainingAspectRatio();
+				fitToWindowTimer.stop();
 			}
 			
 			private function onCreationComplete():void{
@@ -280,8 +297,6 @@
 			}
 			
 			private function handleSlideResizedEvent(e:SlideResizedEvent):void{
-				LogUtil.debug("handlingSlideResizedEvent " + e.percent);
-				
 				zoomSlider.value = e.percent;
 			}
 			
