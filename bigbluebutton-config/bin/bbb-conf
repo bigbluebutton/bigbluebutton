@@ -422,7 +422,7 @@ red5.home = /usr/share/red5
 	fi
 fi
 
-check_processes() {
+check_state() {
 
 	#
 	# Check for potential problems
@@ -483,6 +483,9 @@ check_processes() {
 		fi
 	done
 
+	#
+	# Make sure the salt for the API matches the server
+	#
 	SALT_PROPERTIES=$(cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
 	SALT_DEMO=$(cat /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api.jsp | tr -d '\r' | sed -n '/salt =/{s/.* = "//;s/".*//g;p}')
 
@@ -490,18 +493,32 @@ check_processes() {
         	echo "                       salt mismatch: salt in bigbluebutton.properties and bbb_api.jsp do not match"
 	fi
 
+	#
+	# Look for properties with no values set
+	#
 	CONFIG_FILES="/usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties \
 /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties \
 /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 
 	for file in $CONFIG_FILES ; do
-		if grep -q "^[^=]*=$" $file; then
-        		echo "            empty parameter(s) found: $(grep '^[^=]*=$' $file | sed 's/=//g') ($file)"
+		if grep -q "^[^=]*=[ ]*$" $file; then
+        		echo "            empty parameter(s) found: $(grep '^[^=]*=[ ]*$' $file | sed 's/=//g') ($file)"
 		fi
 	done
 
+	#
+	# Check that tomcat6 started properly and has created log files
+	#
 	if [ -z "$(ls -A /var/lib/tomcat6/logs)" ]; then
         	echo "                     empty directory: /var/lib/tomcat6/logs contains no logs"
+	fi
+
+	#
+	# Check that bigbluebutton in red5 has started propertly 
+	# 
+	BIGBLUEBUTTON_RED5_LOG=$(stat -c%s /usr/share/red5/log/bigbluebutton.log)
+	if [ $BIGBLUEBUTTON_RED5_LOG -lt 100 ]; then
+        	echo "       bigbluebutton failed to start: /usr/share/red5/log/bigbluebutton.log (red5)"
 	fi
 
 	echo
@@ -550,7 +567,7 @@ if [ $CHECK ]; then
         	echo "                                host: $HOST"
 	fi
 
-	check_processes
+	check_state
 
 	exit 0
 fi
@@ -811,7 +828,7 @@ if [ $CLEAN ]; then
 	/etc/init.d/tomcat6 stop
 	/etc/init.d/nginx stop
 	/etc/init.d/asterisk stop
-	# /etc/init.d/activemq stop
+	/etc/init.d/activemq stop
 
 	#
 	# Clean log files
@@ -837,6 +854,7 @@ if [ $CLEAN ]; then
 	echo
 	/etc/init.d/asterisk start
 	/etc/init.d/activemq start
+	sleep 5
 	/etc/init.d/nginx start
 	/etc/init.d/red5 start
 	/etc/init.d/tomcat6 start
