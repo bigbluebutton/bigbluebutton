@@ -56,22 +56,23 @@ need_root() {
 }
 
 usage() {
-	echo "$0 [options] [<file>]"
+	echo "$0 [options]"
 	echo
 	echo "Options:"
 	echo "   --help                           This message"
 	echo "   --version                        Display BigBlueButton version"
 	echo "   --setip <host>                   Set IP/Hostname for BigBlueButton's configuration"
 	echo 
-	echo "development:"
-	echo "   --setup-samba                    Setup samba share (VM only)"
-	echo "   --setup-dev [bbb-web|bbb-client|bbb-apps] "
+	echo "Development:"
 	echo "   --check                          Check current settings"
+	echo "   --conference [konference|meetme] Switch VoIP conferencing module in Asterisk"
 	echo "   --debug                          Check the log files for errors"
+	echo "   --setup-samba                    Setup samba share for development (VM only)"
+	echo "   --setup-dev [bbb-web|bbb-client|bbb-apps] "
 	echo "   --watch                          Watch log files for error messages every 2 seconds"
 	echo "   --zip                            Zip up log files for reporting an error"
 	echo
-	echo "version: 0.63-9"
+	echo "version: 0.63-10"
 	echo
 }
 
@@ -142,7 +143,7 @@ while [ $# -gt 0 ]; do
 		continue
 	fi
 
-	if [ "$1" = "--clean" -o "$1" = "-clean" -o "$1" = "-c" ]; then
+	if [ "$1" = "--clean" -o "$1" = "-clean" ]; then
 		CLEAN=1
 		shift
 		continue
@@ -187,7 +188,7 @@ while [ $# -gt 0 ]; do
 		continue
 	fi		
 
-	if [ "$1" = "--voice-conerence" -o "$1" = "-voice-conference" -o "$1" = "-vc" ]; then
+	if [ "$1" = "--conference" -o "$1" = "-conference" ]; then
 		CONFERENCE="${2}"
 		shift; shift
 		continue
@@ -424,6 +425,8 @@ fi
 
 check_state() {
 
+	echo
+
 	#
 	# Check for potential problems
 	#
@@ -564,15 +567,33 @@ if [ $CHECK ]; then
 
         HOST=$(cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
         echo
-        echo "/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties (for bbb-web)"
+        echo "/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties (bbb-web)"
         echo "                                host: $HOST"
 
 	if [ -f /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api.jsp ]; then
         	HOST=$(cat /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api.jsp  | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}' | tr -d '\015')
         	echo
-        	echo "/var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api.jsp (for api demos)"
+        	echo "/var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api.jsp (API demos)"
         	echo "                                host: $HOST"
 	fi
+
+        if  ps aux | grep '[/]usr/sbin/asterisk' > /dev/null; then
+        	CONFERENCING_MODULE=$(cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | sed -n '/asterisk.application/{s/.*=[ ]*//g;p}')
+        	echo
+        	echo "/etc/asterisk/bbb_extensions.conf (asterisk)"
+        	echo "            VoIP conferencing module: $CONFERENCING_MODULE"
+	fi
+
+	check_state
+
+	exit 0
+fi
+
+#
+# Check current setup
+                print_header
+                echo "                            asterisk: -- not running --"
+        fi
 
 	check_state
 
@@ -772,6 +793,8 @@ if [ -n "$HOST" ]; then
 fi
 
 if [ $CONFERENCE ]; then
+	need_root
+
 	if [ ! -f /usr/share/red5/webapps/bigbluebutton/WEB-INF/bbb-voice-app.xml ]; then
 		echo "Error: Unable to find /usr/share/red5/webapps/bigbluebutton/WEB-INF/bbb-voice-app.xml"
 		exit 1
@@ -782,39 +805,41 @@ if [ $CONFERENCE ]; then
 		exit 1
 	fi
 
-	if [ "$CONFERENCE" = "m" ]; then
+	if [ "$CONFERENCE" = "meetme" ]; then
 		CONFERENCE=meetme
 	else
-		if [ "$CONFERENCE" = "k" ]; then
+		if [ "$CONFERENCE" = "konference" ]; then
 			CONFERENCE=app_konference
 		else
-			echo "Error: Valid options are m (meetme) or k (konference)"
+			echo "Error: Valid options for --conference are: meetme, konference"
 		fi
 	fi
 
         if [ $CONFERENCE = "meetme" ]; then
-		sudo sed -i "s/<beans:property name=\"conferenceApplication\" ref=\"konferenceApplication\"\/>/<\!--beans:property name=\"conferenceApplication\" ref=\"konferenceApplication\"\/-->/g" \
-			/usr/share/red5/webapps/bigbluebutton/WEB-INF/bbb-voice-app.xml	
+		#
+		# update /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
+		#
+	        sudo sed -i "s/asterisk.application[ ]*=.*/asterisk.application=meetme/g" \
+			/usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
 
-		sudo sed -i "s/<\!--beans:property name=\"conferenceApplication\" ref=\"meetMeApplicationFacade\"\/-->/<beans:property name=\"conferenceApplication\" ref=\"meetMeApplicationFacade\"\/>/g" \
-			/usr/share/red5/webapps/bigbluebutton/WEB-INF/bbb-voice-app.xml	
 
+		#
+		# update /etc/asterisk/bbb_extensions.conf
 		sudo sed -i "s/# exten => _XXXX.,n,MeetMe(\${CONFERENCE_FOUND},cdMsT)/exten => _XXXX.,n,MeetMe(\${CONFERENCE_FOUND},cdMsT)/g" \
 			/etc/asterisk/bbb_extensions.conf
 
-		sudo sed -i "s/exten => _XXXX.,n,Konference(\${CONFERENCE_FOUND},H)/# exten => _XXXX.,n,Konference(\${CONFERENCE_FOUND},H)/g" \
+		sudo sed -i "s/^exten => _XXXX.,n,Konference(\${CONFERENCE_FOUND},H)/# exten => _XXXX.,n,Konference(\${CONFERENCE_FOUND},H)/g" \
 			/etc/asterisk/bbb_extensions.conf
-
 	fi
  
         if [ $CONFERENCE = "app_konference" ]; then
-		sudo sed -i "s/<\!--beans:property name=\"conferenceApplication\" ref=\"konferenceApplication\"\/-->/<beans:property name=\"conferenceApplication\" ref=\"konferenceApplication\"\/>/g" \
-			/usr/share/red5/webapps/bigbluebutton/WEB-INF/bbb-voice-app.xml	
- 
-		sudo sed -i "s/<beans:property name=\"conferenceApplication\" ref=\"meetMeApplicationFacade\"\/>/<\!--beans:property name=\"conferenceApplication\" ref=\"meetMeApplicationFacade\"\/-->/g" \
-			/usr/share/red5/webapps/bigbluebutton/WEB-INF/bbb-voice-app.xml	
+		#
+		# update /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
+		#
+	        sudo sed -i "s/asterisk.application[ ]*=.*/asterisk.application=konference/g" \
+			/usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
 
-		sudo sed -i "s/exten => _XXXX.,n,MeetMe(\${CONFERENCE_FOUND},cdMsT)/# exten => _XXXX.,n,MeetMe(\${CONFERENCE_FOUND},cdMsT)/g" \
+		sudo sed -i "s/^exten => _XXXX.,n,MeetMe(\${CONFERENCE_FOUND},cdMsT)/# exten => _XXXX.,n,MeetMe(\${CONFERENCE_FOUND},cdMsT)/g" \
 			/etc/asterisk/bbb_extensions.conf
 
 		sudo sed -i "s/# exten => _XXXX.,n,Konference(\${CONFERENCE_FOUND},H)/exten => _XXXX.,n,Konference(\${CONFERENCE_FOUND},H)/g" \
