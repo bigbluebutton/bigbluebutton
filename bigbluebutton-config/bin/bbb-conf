@@ -591,17 +591,6 @@ fi
 
 #
 # Check current setup
-                print_header
-                echo "                            asterisk: -- not running --"
-        fi
-
-	check_state
-
-	exit 0
-fi
-
-#
-# Check current setup
 #
 if [ $ZIP ]; then
 	need_root
