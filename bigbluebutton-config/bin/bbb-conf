@@ -284,7 +284,7 @@ if [ $SETUPDEV ]; then
                 cd ~/dev
                 svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-web bbb-web
 
-		IP="$(ifconfig eth0 | sed -n '/inet /{s/.*addr://;s/ .*//;p}')"
+		IP=$(ifconfig | grep -v '127.0.0.1' | grep -m 1 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
 
 		echo "# Setting IP address $IP in ~/.grails/bigbluebutton-config.properties"
 		mkdir -p ~/.grails
@@ -519,6 +519,13 @@ check_state() {
 	BIGBLUEBUTTON_RED5_LOG=$(stat -c%s /usr/share/red5/log/bigbluebutton.log)
 	if [ $BIGBLUEBUTTON_RED5_LOG -lt 100 ]; then
         	echo "       bigbluebutton failed to start: /usr/share/red5/log/bigbluebutton.log (red5)"
+	fi
+
+	HOST_IP=$(ifconfig | grep -v '127.0.0.1' | grep -m 1 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
+ 	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
+
+	if [ $HOST_IP != $NGINX_IP ]; then
+        	echo "Host IP does not match BigBlueButton: ${HOST_IP} != ${NGINX_IP}"
 	fi
 
 	echo
