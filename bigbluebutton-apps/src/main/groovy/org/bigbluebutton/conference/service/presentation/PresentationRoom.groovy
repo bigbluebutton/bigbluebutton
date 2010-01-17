@@ -38,6 +38,10 @@ public class PresentationRoom {
 	def currentSlide
 	def sharing
 	def currentPresentation
+	def xOffset
+	def yOffset
+	def widthRatio
+	def heightRatio
 	
 	public PresentationRoom(String name) {
 		this.name = name
@@ -67,6 +71,20 @@ public class PresentationRoom {
 			log.debug("calling sendUpdateMessage on listener ${listener.getName()}")
 			listener.sendUpdateMessage(it)
 		}	
+	}
+	
+	def resizeAndMoveSlide(xOffset, yOffset, widthRatio, heightRatio) {
+		this.xOffset = xOffset;
+		this.yOffset = yOffset;
+		this.widthRatio = widthRatio;
+		this.heightRatio = heightRatio;
+		
+		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
+			log.debug("calling on listener")
+			IPresentationRoomListener listener = (IPresentationRoomListener) iter.next()
+			log.debug("calling sendUpdateMessage on listener ${listener.getName()}")
+			listener.resizeAndMoveSlide(xOffset, yOffset, widthRatio, heightRatio)
+		}		
 	}
 	
 	def assignPresenter = {

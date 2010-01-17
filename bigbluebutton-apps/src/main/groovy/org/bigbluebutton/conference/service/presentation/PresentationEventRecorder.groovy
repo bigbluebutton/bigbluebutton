@@ -127,6 +127,11 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 		}			
 	}
 	
+	def resizeAndMoveSlide(xOffset, yOffset, widthRatio, heightRatio) {
+		log.debug("calling moveCallback[$xOffset,$yOffset,$widthRatio,$heightRatio]")
+		so.sendMessage("moveCallback", [xOffset, yOffset, widthRatio, heightRatio])
+	}
+	
 	def assignPresenter = {userid, name, assignedBy ->	
 		log.debug("calling assignPresenterCallback $userid, $name $assignedBy")
 		so.sendMessage("assignPresenterCallback", [userid, name, assignedBy])	

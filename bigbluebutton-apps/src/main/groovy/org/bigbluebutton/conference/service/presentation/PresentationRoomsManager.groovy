@@ -22,6 +22,8 @@ package org.bigbluebutton.conference.service.presentation
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.red5.logging.Red5LoggerFactory
+import java.util.Map
+import java.util.HashMap
 
 import net.jcip.annotations.ThreadSafe
 import java.util.concurrent.ConcurrentHashMap
@@ -115,6 +117,29 @@ public class PresentationRoomsManager {
 			return
 		}	
 		log.warn("Assigning presenter to a non-existing room $room")	
+	}
+	
+	def getPresenterSettings = {room ->
+		PresentationRoom r = getRoom(room)
+		if (r != null){
+			Map settings = new HashMap()
+			settings.put("xOffset", r.xOffset)
+			settings.put("yOffset", r.yOffset)
+			settings.put('widthRatio', r.widthRatio)
+			settings.put('heightRatio', r.heightRatio)
+			return settings			
+		}
+		log.warn("Getting settings information on a non-existant room ${room}")	
+	}
+	
+	def resizeAndMoveSlide(room, xOffset, yOffset, widthRatio, heightRatio) {
+		PresentationRoom r = getRoom(room)
+		if (r != null){
+			log.debug("Request to resize and move slide[$xOffset,$yOffset,$widthRatio,$heightRatio]")
+			r.resizeAndMoveSlide(xOffset, yOffset, widthRatio, heightRatio)
+			return
+		}
+		log.warn("resizeAndMoveSlide on a non-existant room ${room}")		
 	}
 	
 	def gotoSlide = {room, slide ->

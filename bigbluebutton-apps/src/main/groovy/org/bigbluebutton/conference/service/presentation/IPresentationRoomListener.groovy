@@ -28,4 +28,5 @@ interface IPresentationRoomListener {
 	def sendUpdateMessage
 	def assignPresenter
 	def gotoSlide
+	def resizeAndMoveSlide(xOffset, yOffset, widthRatio, heightRatio)
 }

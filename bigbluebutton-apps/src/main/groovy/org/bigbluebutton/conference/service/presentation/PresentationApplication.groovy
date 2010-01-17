@@ -91,11 +91,27 @@ public class PresentationApplication {
 		log.warn("Getting current presentation on a non-existant room ${room}")	
 	}
 	
+	def getPresenterSettings = {room ->
+		if (roomsManager.hasRoom(room)){
+			return roomsManager.getPresenterSettings(room)			
+		}
+		log.warn("Getting settings information on a non-existant room ${room}")	
+	}
+	
 	def getSharingPresentation = {room ->
 		if (roomsManager.hasRoom(room)){
 			return roomsManager.getSharingPresentation(room)			
 		}
 		log.warn("Getting share information on a non-existant room ${room}")	
+	}
+	
+	def resizeAndMoveSlide(room, xOffset, yOffset, widthRatio, heightRatio) {
+		if (roomsManager.hasRoom(room)){
+			log.debug("Request to resize and move slide[$xOffset,$yOffset,$widthRatio,$heightRatio]")
+			roomsManager.resizeAndMoveSlide(room, xOffset, yOffset, widthRatio, heightRatio)
+			return
+		}
+		log.warn("resizeAndMoveSlide on a non-existant room ${room}")		
 	}
 	
 	def assignPresenter = {room, presenter ->

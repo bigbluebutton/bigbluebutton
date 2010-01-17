@@ -50,13 +50,14 @@ public class PresentationService {
 		def curSlide = presentationApplication.getCurrentSlide(scope.name)
 		def isSharing = presentationApplication.getSharingPresentation(scope.name)
 		def currentPresentation = presentationApplication.getCurrentPresentation(scope.name)
+		Map presentersSettings = presentationApplication.getPresenterSettings(scope.name)
 		
 		Map presenter = new HashMap()		
 		if (curPresenter != null) {
 			presenter.put('hasPresenter', true)
 			presenter.put('user', curPresenter[0])
 			presenter.put('name', curPresenter[1])
-			presenter.put('assignedBy',curPresenter[2] )
+			presenter.put('assignedBy',curPresenter[2])
 			log.debug("Presenter: ${curPresenter[0]} ${curPresenter[1]} ${curPresenter[2]}")
 		} else {
 			presenter.put('hasPresenter', false)
@@ -67,6 +68,12 @@ public class PresentationService {
 			presentation.put('sharing', true)
 			presentation.put('slide', curSlide)
 			presentation.put('currentPresentation', currentPresentation)
+			if (presentersSettings) {
+				presentation.put("xOffset", presentersSettings.get('xOffset'))
+				presentation.put("yOffset", presentersSettings.get('yOffset'))
+				presentation.put('widthRatio', presentersSettings.get('widthRatio'))
+				presentation.put('heightRatio', presentersSettings.get('heightRatio'))
+			}
 			log.debug("Presentation: presentation= $currentPresentation slide= $curSlide")
 		} else {
 			presentation.put('sharing', false)
@@ -90,6 +97,12 @@ public class PresentationService {
 		log.debug("Request to go to sharePresentation $presentationName $share")
 		IScope scope = Red5.connectionLocal.scope
 		presentationApplication.sharePresentation(scope.name, presentationName, share)
+	}
+	
+	public void resizeAndMoveSlide(xOffset, yOffset, widthRatio, heightRatio) {
+		log.debug("Request to resize and move slide[$xOffset,$yOffset,$widthRatio,$heightRatio]")
+		IScope scope = Red5.connectionLocal.scope
+		presentationApplication.resizeAndMoveSlide(scope.name, xOffset, yOffset, widthRatio, heightRatio)
 	}
 	
 	public void setParticipantsApplication(ParticipantsApplication a) {
