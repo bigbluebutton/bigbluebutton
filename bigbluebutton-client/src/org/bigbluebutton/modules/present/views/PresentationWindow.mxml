@@ -148,6 +148,10 @@
 			private function maximizeTimerHandler(event:TimerEvent):void {
 				// When the window is maximized, we want to resize the slide maintaining the aspect ratio.			
 				fitSlideToWindowMaintainingAspectRatio();
+				
+				// Move window so that it won't overlap with Participant's window.
+				this.x = 220;
+				this.y = 0;
 				fitToWindowTimer.stop();
 			}
 			
