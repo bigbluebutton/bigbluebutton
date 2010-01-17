@@ -127,7 +127,8 @@ package org.bigbluebutton.modules.present.business {
 		 * 
 		 */		
 		public function zoom(xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void{
-			_presentationSO.send("zoomCallback", xOffset, yOffset, widthRatio, heightRatio);
+			//_presentationSO.send("zoomCallback", xOffset, yOffset, widthRatio, heightRatio);
+			move(xOffset, yOffset, widthRatio, heightRatio);
 		}
 		
 		/**
@@ -190,7 +191,29 @@ package org.bigbluebutton.modules.present.business {
 		 * 
 		 */		
 		public function move(xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void{
-			_presentationSO.send("moveCallback", xOffset, yOffset, widthRatio, heightRatio);
+			//_presentationSO.send("moveCallback", xOffset, yOffset, widthRatio, heightRatio);
+			nc.call("presentation.resizeAndMoveSlide",// Remote function name
+				new Responder(
+	        		// participants - On successful result
+					function(result:Boolean):void { 
+						 
+						if (result) {
+							LogUtil.debug("Successfully sent resizeAndMoveSlide");							
+						}	
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+							} 
+					}
+				), //new Responder
+				xOffset,
+				yOffset,
+				widthRatio,
+				heightRatio
+			); //_netConnection.call
 		}
 		
 		/**
@@ -271,6 +294,16 @@ package org.bigbluebutton.modules.present.business {
 							shareEvent.presentationName = String(result.presentation.currentPresentation);
 							dispatcher.dispatchEvent(shareEvent);
 						}
+						if (result.presentation.xOffset) {
+							LogUtil.debug("Sending presenters slide settings");
+							var e:MoveEvent = new MoveEvent(MoveEvent.MOVE);
+							e.xOffset = result.presentation.xOffset;
+							e.yOffset = result.presentation.yOffset;
+							e.slideToCanvasWidthRatio = result.presentation.widthRatio;
+							e.slideToCanvasHeightRatio = result.presentation.heightRatio;
+							dispatcher.dispatchEvent(e);
+						}
+						
 					},	
 					// status - On error occurred
 					function(status:Object):void { 
