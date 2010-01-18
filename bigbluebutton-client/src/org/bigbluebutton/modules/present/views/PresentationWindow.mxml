@@ -99,9 +99,7 @@
 			// Init to the size of the window.
 			private var currentSlideWidth:int = 450;
 			private var currentSlideHeight:int = 450;
-			
-			private var lastZoomSliderValue:int = 100;
-			
+						
 			private var mouseDown:Boolean = false;
 			[Bindable] private var isPresenter:Boolean = false;
 			[Bindable] private var presentationLoaded:Boolean = false;
@@ -156,7 +154,6 @@
 			}
 			
 			private function onCreationComplete():void{
-				lastZoomSliderValue = 100;
 				positionThumbnails();
 				thumbnailWindow.addEventListener(FisheyeThumbnail.SLIDE_HIGHLIGHTED, onSlideHighlighted);
 				thumbY = this.height - 160;
@@ -294,10 +291,19 @@
 				}				
 			}
 			
-			private function sliderZoom():void {
+			private function onSliderZoom():void {
+				dispatchResizeEvent(zoomSlider.value);
+			}
+			
+			private function dispatchResizeEvent(newSize:int):void {
 				var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.RESIZE);
-				presentEvent.newSizeInPercent = zoomSlider.value;
+				presentEvent.newSizeInPercent = newSize;
 				dispatchEvent(presentEvent);
+			}
+			
+			private function onResetZoom():void {
+				zoomSlider.value = 100;
+				dispatchResizeEvent(zoomSlider.value);
 			}
 			
 			private function handleSlideResizedEvent(e:SlideResizedEvent):void{
@@ -323,11 +329,11 @@
 				this.isPresenter = true;
 			
 				if (presentationLoaded) {
-	            			slideNumLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.pages', [(slideView.selectedSlide + 1), slideView.slides.length]);	
+	            	slideNumLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.pages', [(slideView.selectedSlide + 1), slideView.slides.length]);	
 					backButton.visible = true;
 					forwardButton.visible = true;	
 					zoomSlider.visible = true;
-//					btnResetZoom.visible = true;
+					btnResetZoom.visible = true;
 					thumbnailWindow.fisheye.selectedIndex = 0;
 					thumbnailWindow.setDataProvider(slideView.slides);
 				}
@@ -342,11 +348,11 @@
 				this.isPresenter = false;
 				uploadPres.visible = false;
 				if (presentationLoaded) {
-	            			slideNumLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.pages', [(slideView.selectedSlide + 1), slideView.slides.length]);	
+           			slideNumLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.pages', [(slideView.selectedSlide + 1), slideView.slides.length]);	
 					backButton.visible = false;
 					forwardButton.visible = false;	
 					zoomSlider.visible = false;	
-//					btnResetZoom.visible = false;
+					btnResetZoom.visible = false;
 				}
 				dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
 				
@@ -372,7 +378,7 @@
 					backButton.visible = true;
 					forwardButton.visible = true;
 					zoomSlider.visible = true;
-					
+					btnResetZoom.visible = true;
 					var shareEvent:PresenterCommands = new PresenterCommands(PresenterCommands.SHARE_PRESENTATION_COMMAND);
 					shareEvent.presentationName = e.presentationName;
 					shareEvent.share = true;
@@ -448,10 +454,11 @@
     	   		toolTip="Next slide" click="dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, slideView.selectedSlide + 1))"/>    				
     	<mx:Spacer width="10%" id="spacer2"/>
     	<mx:HSlider id="zoomSlider" visible="false"
-    		minimum="100" maximum="400" value="100" dataTipPlacement="right" labels="['100%','400%']"
-    		allowTrackClick="true" liveDragging="true" change="sliderZoom()" width="100" />
-    	<!--mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="false" width="20" height="20" 
-    		toolTip="Reset Zoom" click="dispatchEvent(new PresenterCommands(PresenterCommands.RESET_ZOOM))"/-->
+    		minimum="100" maximum="400" value="100" dataTipPlacement="top" labels="['100%','400%']"
+    		allowTrackClick="true" liveDragging="true" change="onSliderZoom()" width="100" />
+    	<mx:Spacer width="100%" id="spacer3"/>
+    	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="false" width="20" height="20" 
+    		toolTip="Reset Zoom" click="onResetZoom()"/>
     	<!--<mx:Button id="btnSelection" click="enableTextSelection()" />-->
     </mx:ApplicationControlBar>
     
