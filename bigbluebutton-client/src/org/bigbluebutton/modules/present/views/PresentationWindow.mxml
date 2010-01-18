@@ -266,7 +266,7 @@
 			}
 			
 			private function hideThumbnails():void{
-				if (!mouseDown && mouseY > this.height*0.8 && isPresenter){
+				if (!mouseDown && mouseY > this.height*0.90 && isPresenter){
 					thumbnailWindow.y = this.height - 270;
 					thumbnailWindow.visible = true;
 				} else if (slideView.slides != null){
