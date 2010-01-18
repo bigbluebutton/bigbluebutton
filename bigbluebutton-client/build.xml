@@ -68,7 +68,7 @@
 		<echo message="Updating config.xml from /var/www/bigbluebutton/client/conf/config.xml" />
 		<copy file="/var/www/bigbluebutton/client/conf/config.xml" todir="${OUTPUT_DIR}/conf" /> 
 	</target>
-	
+
 	<target name="generate-wrapper" depends="mxmlc-component">
 		<html-wrapper
 			title="BigBlueButton"
@@ -121,8 +121,14 @@
 			</mxmlc>
 		</sequential>
 	</macrodef>
+
+	<target name="setuplocale" depends="" description="Checking to see if need to copylocale">
+		<exec dir="." vmlauncher="true" executable="/bin/bash">
+			<arg value="setuplocale.sh"/> 
+		</exec>
+	</target>
 	
-	<target name="localization" description="Builds BigBlueButton localization files">
+	<target name="localization" depends="setuplocale" description="Builds BigBlueButton localization files">
 		<echo>Building Localization .swf's</echo>
 		<compileLocale locale="en_US" />
 		<compileLocale locale="zh_CN" />
