@@ -385,9 +385,11 @@
 				swfSlideLoader.addEventListener(Event.COMPLETE, handleSlideLoadedCompleteEvent);
 			}
 			
-			private function handleSlideLoadedCompleteEvent(event:Event):void {				
+			private function handleSlideLoadedCompleteEvent(event:Event):void {		
+				var slideRealWidth:int = slideWidth();
+				var slideRealHeight:int = slideHeight();				
 				fitLoaderToCanvas();
-				dispatchNewSlideDisplayedEvent(slideWidth(), slideHeight());				
+				dispatchNewSlideDisplayedEvent(slideRealWidth, slideRealHeight);				
 			}
 			
 			private function dispatchNewSlideDisplayedEvent(slideRealWidth:int, slideRealHeight:int):void {
