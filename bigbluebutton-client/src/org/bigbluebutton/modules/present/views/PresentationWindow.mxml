@@ -63,9 +63,7 @@
 			import org.bigbluebutton.modules.present.events.UploadEvent;
 			import org.bigbluebutton.modules.present.events.NavigationEvent;
 			import org.bigbluebutton.common.Images;
-			import flexlib.mdi.events.MDIWindowEvent;
-			import org.bigbluebutton.main.events.AddHighligtherCanvasEvent;
-		
+			import flexlib.mdi.events.MDIWindowEvent;		
 			import mx.core.Application;
 			import mx.binding.utils.BindingUtils;
 
@@ -206,12 +204,21 @@
 				fitSlideToWindowMaintainingAspectRatio();			
 			}
 			
-			private function onKeyUp(e:KeyboardEvent):void{
-				if (e.keyCode == Keyboard.LEFT){
-					
-				} else if (e.keyCode == Keyboard.RIGHT){
-					dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, slideView.selectedSlide + 1));
-				}
+			private function onKeyUp(event:KeyboardEvent):void{
+				switch (event.keyCode) {
+				case Keyboard.LEFT:
+				case Keyboard.UP:
+				case Keyboard.PAGE_UP:				
+					gotoPreviousSlide();		
+				break;
+				case Keyboard.DOWN:
+				case Keyboard.RIGHT: 
+				case Keyboard.SPACE:
+				case Keyboard.PAGE_DOWN:
+				case Keyboard.ENTER:
+					gotoNextSlide();
+				break; 
+			}
 			}
 			
 			private function positionThumbnails():void{
@@ -313,17 +320,7 @@
 			private function onCanvasClick():void{
 				thumbnailWindow.visible = false;
 			}
-			
-			private function addHighlighter(event:AddHighligtherCanvasEvent):void{
-				/*var highlighter:Canvas = event.canvas;
-				highlighter.x = mainCanvas.x;
-				highlighter.y = mainCanvas.y;
-				highlighter.width = mainCanvas.width;
-				highlighter.height = mainCanvas.height;
-				this.addChild(highlighter);
-				this.addChildAt(highlighter, numChildren-1);*/
-			}
-			
+						
 			private function becomePresenter(e:MadePresenterEvent):void{
 				uploadPres.visible = true;
 				this.isPresenter = true;
@@ -428,7 +425,15 @@
 				slideView.turnOnTextSelection();
 			}
 
-
+			private function gotoPreviousSlide():void {
+				if ((slideView.selectedSlide - 1) >= 0)
+					dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, slideView.selectedSlide - 1));
+			}
+			
+			private function gotoNextSlide():void {
+				if ((slideView.selectedSlide + 1) < slideView.slides.length)
+					dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, slideView.selectedSlide + 1));
+			}
 		]]>
 	</mx:Script>
 	 
@@ -448,10 +453,10 @@
     	  <mx:Label id="presenterNameLabel" visible="false" text=""/>
     	  <mx:Spacer width="10%" id="spacer1"/>
     	  <mx:Button id="backButton" icon="{backwardIcon}" visible="false" width="30" height="20"
-    	   		toolTip="Previous slide." click="dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, slideView.selectedSlide - 1))"/>
+    	   		toolTip="Previous slide." click="gotoPreviousSlide()"/>
     	  <mx:Label id="slideNumLbl" text=""/>    
     	  <mx:Button id="forwardButton" icon="{forwardIcon}" visible="false" width="30" height="20"
-    	   		toolTip="Next slide" click="dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, slideView.selectedSlide + 1))"/>    				
+    	   		toolTip="Next slide" click="gotoNextSlide()"/>    				
     	<mx:Spacer width="10%" id="spacer2"/>
     	<mx:HSlider id="zoomSlider" visible="false"
     		minimum="100" maximum="400" value="100" dataTipPlacement="top" labels="['100%','400%']"
@@ -461,6 +466,4 @@
     		toolTip="Reset Zoom" click="onResetZoom()"/>
     	<!--<mx:Button id="btnSelection" click="enableTextSelection()" />-->
     </mx:ApplicationControlBar>
-    
-    <mate:Listener type="{AddHighligtherCanvasEvent.ADD_HIGHLIGHTER_CANVAS}" method="addHighlighter" />
 </pres:MDIWindow>
