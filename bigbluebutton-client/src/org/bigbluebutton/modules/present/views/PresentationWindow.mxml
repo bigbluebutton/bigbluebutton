@@ -32,7 +32,7 @@
 	mouseMove="hideThumbnails()"
 	creationComplete="onCreationComplete()"
 	rollOut="hideThumbs()" xmlns:mate="http://mate.asfusion.com/"
-	width="450" height="450" x="220" y="0"
+	width="600" height="450" x="220" y="0"
 	title="{currentPresentation}" keyUp="onKeyUp(event)">
 	
 	<mate:Dispatcher id="globalDispatcher" />
@@ -241,7 +241,7 @@
 				_yPosition = y;
 			}	
 			
-			[Bindable] private var _defaultWidth:int = 450;
+			[Bindable] private var _defaultWidth:int = 600;
 			[Bindable] private var _defaultHeight:int = 450;
 			
 			public function get defaultWidth():int{
