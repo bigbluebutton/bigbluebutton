@@ -57,7 +57,9 @@ package org.bigbluebutton.main.model
 		}
 		
 		public function initialize():void {
-			loadXmlFile(_urlLoader, FILE_PATH);
+			// Add a random string on the query so that we always get an up-to-date config.xml
+			var date:Date = new Date();
+			loadXmlFile(_urlLoader, FILE_PATH + "?a=" + date.time);
 		}
 		
 		public function addInitializedListener(initializedListener:Function):void {
