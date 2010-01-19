@@ -92,7 +92,7 @@
 		<delete dir="${OUTPUT_DIR}" />
 	</target>
 
-	<target name="cleanandmake" depends="clean, generate-wrapper"></target>
+	<target name="cleanandmake" depends="clean, localization, generate-wrapper"></target>
 	
 	<macrodef name="mxmlc-compile">
 		<attribute name="target" description="Path to the file being compiled." />
