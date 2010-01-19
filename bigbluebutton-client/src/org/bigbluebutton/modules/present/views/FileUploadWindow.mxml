@@ -165,8 +165,8 @@
         	
         	private function uploadProgressUpdate(e:UploadEvent):void{
         		var progress:Number = e.percentageComplete;
-				progressLbl.text = progress + "%" + ResourceUtil.getInstance().getString('bbb.presentation.uploaded');
-				progressBar.label = progress + "%" + ResourceUtil.getInstance().getString('bbb.presentation.uploaded');
+				progressLbl.text = progress + "% " + ResourceUtil.getInstance().getString('bbb.presentation.uploaded');
+				progressBar.label = progress + "% " + ResourceUtil.getInstance().getString('bbb.presentation.uploaded');
 				progressBar.setProgress(progress, 100);
 				progressBar.validateNow();
 				progressLbl.validateNow();

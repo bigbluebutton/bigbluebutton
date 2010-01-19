@@ -27,7 +27,7 @@ package org.bigbluebutton.modules.chat.maps
 		public function openChatWindow():void {
 		   	_chatWindow.title = ResourceUtil.getInstance().getString("bbb.chat.title");
 		   	_chatWindow.showCloseButton = false;
-		   	_chatWindow.xPosition = 740;
+		   	_chatWindow.xPosition = 825;
 		   	_chatWindow.yPosition = 0;
 		   	
 		   	// Set the local dispatcher for this window so that it can send messages

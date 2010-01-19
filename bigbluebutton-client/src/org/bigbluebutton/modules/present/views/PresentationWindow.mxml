@@ -92,10 +92,11 @@
 			private var _yPosition:int = 0;
 			
 			[Bindable] private var CONTROL_BAR_HEIGHT:int = 45;
-			private static const TOP_WINDOW_BORDER:int = 20;
+			private static const TOP_WINDOW_BORDER:int = 30;
+			private static const WIDTH_PADDING:int = 5;
 			
 			// Init to the size of the window.
-			private var currentSlideWidth:int = 450;
+			private var currentSlideWidth:int = 600;
 			private var currentSlideHeight:int = 450;
 						
 			private var mouseDown:Boolean = false;
@@ -122,6 +123,17 @@
 					dispatchEvent(new MDIWindowEvent(MDIWindowEvent.MAXIMIZE, this));            	
                 	isMaximized = true;
                 	windowControls.maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString('bbb.presentation.maximizeRestoreBtn.toolTip2');
+                	
+	                /*
+					 * Need to have a timer to trigger resizing slide to window after the 
+					 * window has been maximized/restored. The MAXIMIZE/RESTORE events are
+					 * generated when the button is clicked so the width and height are not
+					 * the ones we want.
+					 */
+					fitToWindowTimer = new Timer(1000);
+					fitToWindowTimer.addEventListener(TimerEvent.TIMER, maximizeTimerHandler);
+					fitToWindowTimer.start();
+				
 				} else{
 					this.width = savedWindowWidth;
 					this.height = savedWindowHeight;
@@ -130,15 +142,7 @@
 					isMaximized = false;
 					windowControls.maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString('bbb.presentation.maximizeRestoreBtn.toolTip');
 				}					
-				/*
-				 * Need to have a timer to trigger resizing slide to window after the 
-				 * window has been maximized/restored. The MAXIMIZE/RESTORE events are
-				 * generated when the button is clicked so the width and height are not
-				 * the ones we want.
-				 */
-				fitToWindowTimer = new Timer(1000);
-				fitToWindowTimer.addEventListener(TimerEvent.TIMER, maximizeTimerHandler);
-				fitToWindowTimer.start();
+				
 			}
 			
 			private function maximizeTimerHandler(event:TimerEvent):void {
@@ -179,11 +183,8 @@
 					slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
 				}
 				
-				LogUtil.debug("before: fitSlideToWindowMaintainingAspectRatio " + this.width + "," + this.height);
-				this.width = slideWidth;
+				this.width = slideWidth + WIDTH_PADDING;
 				this.height = slideHeight + CONTROL_BAR_HEIGHT + TOP_WINDOW_BORDER;
-				LogUtil.debug("after: fitSlideToWindowMaintainingAspectRatio " + "," + this.width + "," + this.height);
-				
 				sendWindowResizedEvent(slideWidth, slideHeight);
 			}
 			
@@ -299,7 +300,7 @@
 			}
 			
 			private function onSliderZoom():void {
-				dispatchResizeEvent(zoomSlider.value);
+				dispatchResizeEvent((zoomSlider.value/10)*10);
 			}
 			
 			private function dispatchResizeEvent(newSize:int):void {
@@ -335,8 +336,8 @@
 					thumbnailWindow.setDataProvider(slideView.slides);
 				}
 				
-				presenterNameLabel.text = "";
-				presenterNameLabel.visible = false;
+				presenterNameLabel.text = ResourceUtil.getInstance().getString('bbb.presentation.clickToUpload');
+				presenterNameLabel.visible = true;
 				thumbnailWindow.visible = true;
 				thumbnailWindow.setFisheyeVisibility(true);
 			}
@@ -370,7 +371,9 @@
 				slideView.visible = true;		
 	
 				if (slideManager != null) slideManager.clear();	
-					
+				
+				presenterNameLabel.visible = false;
+				presenterNameLabel.text = "";	
 				if (isPresenter) {
 					backButton.visible = true;
 					forwardButton.visible = true;
@@ -407,17 +410,13 @@
 				} else {
 					forwardButton.enabled = false;
 				}
-				
-//				zoomSlider.value = 100;
-//				dispatchEvent(new ZoomEvent(ZoomEvent.RESTORE));
-//				dispatchEvent(new MoveEvent(MoveEvent.MOVE));
 			}
 			
 			private function clearPresentation(e:UploadEvent):void{
 				slideView.visible = false;		
 				slideView.selectedSlide = 0;
 				slideNumLbl.text = "";
-				presenterNameLabel.text = "";
+				presenterNameLabel.text = ResourceUtil.getInstance().getString('bbb.presentation.clickToUpload');
 				presenterNameLabel.visible = false;
 			}
 			
