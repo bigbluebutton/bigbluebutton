@@ -6,12 +6,19 @@
 NEW_LANG=$(cat ./src/org/bigbluebutton/util/i18n/ResourceUtil.as | tr -d '\r' | sed -n "/localeChain:Array/{s/.*\[ //g;s/\];//g;s/\"//g;s/,//g;p}")
 echo "Checking languages: $NEW_LANG"
 
-cd ~/dev/tools/flex3/frameworks/locale
+CUR_DIR=$(pwd)
+
+FLEX_DIR=$(which copylocale)
+FLEX_DIR=${FLEX_DIR%/*}
+
+cd "${FLEX_DIR}/../frameworks/locale"
+
 for v in $NEW_LANG; do
         if [ ! -d ${v} ]; then
                 echo "Creating locale for: ${v}"
                 copylocale en_US ${v}
         fi
 done
-cd ~/dev/bbb-client
+
+cd $CUR_DIR
 
