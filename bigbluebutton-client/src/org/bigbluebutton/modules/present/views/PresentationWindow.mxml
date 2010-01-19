@@ -124,17 +124,7 @@
 					savedY = this.y;    
 					dispatchEvent(new MDIWindowEvent(MDIWindowEvent.MAXIMIZE, this));            	
                 	isMaximized = true;
-                	windowControls.maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString('bbb.presentation.maximizeRestoreBtn.toolTip2');
-                	
-	                /*
-					 * Need to have a timer to trigger resizing slide to window after the 
-					 * window has been maximized/restored. The MAXIMIZE/RESTORE events are
-					 * generated when the button is clicked so the width and height are not
-					 * the ones we want.
-					 */
-					fitToWindowTimer = new Timer(1000);
-					fitToWindowTimer.addEventListener(TimerEvent.TIMER, maximizeTimerHandler);
-					fitToWindowTimer.start();
+                	windowControls.maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString('bbb.presentation.maximizeRestoreBtn.toolTip2');	                
 				
 				} else{
 					this.width = savedWindowWidth;
@@ -145,6 +135,15 @@
 					windowControls.maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString('bbb.presentation.maximizeRestoreBtn.toolTip');
 				}					
 				
+				/*
+				 * Need to have a timer to trigger resizing slide to window after the 
+				 * window has been maximized/restored. The MAXIMIZE/RESTORE events are
+				 * generated when the button is clicked so the width and height are not
+				 * the ones we want.
+				 */
+				fitToWindowTimer = new Timer(1000);
+				fitToWindowTimer.addEventListener(TimerEvent.TIMER, maximizeTimerHandler);
+				fitToWindowTimer.start();
 			}
 			
 			private function maximizeTimerHandler(event:TimerEvent):void {
