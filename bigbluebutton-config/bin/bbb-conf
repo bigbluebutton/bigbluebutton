@@ -26,6 +26,7 @@
 #       2009-12-11 FFD  Added ability to swtich conference servers
 #       2009-12-12 FFD  Added cleaning and watching of log files
 #       2010-01-05 FFD  Added zipping of log files
+#       2010-01-18 FFD  Added resetting of environment back to using packages
 
 
 # set -x
@@ -69,6 +70,7 @@ usage() {
 	echo "   --debug                          Check the log files for errors"
 	echo "   --setup-samba                    Setup samba share for development (VM only)"
 	echo "   --setup-dev [bbb-web|bbb-client|bbb-apps] "
+	echo "   --reset-dev                      Reset environment back to using packages" 
 	echo "   --watch                          Watch log files for error messages every 2 seconds"
 	echo "   --zip                            Zip up log files for reporting an error"
 	echo
@@ -163,6 +165,12 @@ while [ $# -gt 0 ]; do
 
 	if [ "$1" = "--zip" -o "$1" = "-zip" -o "$1" = "-z" ]; then
 		ZIP=1
+		shift
+		continue
+	fi
+
+	if [ "$1" = "--reset-dev" -o "$1" = "-reset-dev" -o "$1" = "-r" ]; then
+		RESET_DEV=1
 		shift
 		continue
 	fi
@@ -421,6 +429,16 @@ red5.home = /usr/share/red5
 "
 
 	fi
+fi
+
+if [ $RESET_DEV ]; then
+	check_root
+
+        echo "Reseting /etc/nginx/sites-available/bigbluebutton to point to /var/www/bigbluebutton"
+        sudo sed -i "s/\/home\/firstuser\/dev\/bbb-client;/\/var\/www\/bigbluebutton;/g" \
+                        /etc/nginx/sites-available/bigbluebutton
+        sudo /etc/init.d/nginx restart
+
 fi
 
 check_state() {
