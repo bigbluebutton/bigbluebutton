@@ -104,6 +104,8 @@
 			[Bindable] private var presentationLoaded:Boolean = false;
 			[Bindable] private var currentPresentation:String = ResourceUtil.getInstance().getString('bbb.presentation.title');
 			
+			private var presenterName:String = "";
+			
 			// The following code block is to deal with a bug in FLexLib 
 			// with MDI windows not responding well to being maximized
 			private var savedWindowWidth:Number;
@@ -271,13 +273,13 @@
 					thumbnailWindow.y = this.height - 270;
 					thumbnailWindow.visible = true;
 				} else if (slideView.slides != null){
-					slideNumLbl.text = "" + ResourceUtil.getInstance().getString('bbb.presentation.pages', [(slideView.selectedSlide + 1), slideView.slides.length]);
+					displaySlideNumber(slideView.selectedSlide + 1);
 				}
 			}
 			
 			private function onSlideHighlighted(e:Event):void{
 				if (slideView.visible)
-				slideNumLbl.text = "" + ResourceUtil.getInstance().getString('bbb.presentation.pages', [(thumbnailWindow.slideNumber + 1), slideView.slides.length]);
+					displaySlideNumber(thumbnailWindow.slideNumber + 1);
 			}
 			
 			/**
@@ -285,12 +287,12 @@
 			 */
 			private function hideThumbs():void{
 				if (slideView.slides != null)
-					slideNumLbl.text = "" + ResourceUtil.getInstance().getString('bbb.presentation.pages', [(slideView.selectedSlide + 1), slideView.slides.length]);
+					displaySlideNumber(slideView.selectedSlide + 1);
 				
 				thumbnailWindow.visible = false;
 			}
 			
-			private function showThumbs():void {
+			private function showThumbsXXX():void {
 				 if (isPresenter){
 					//readjust the position of the thumbnails in case the window was resized
 					//Note: this is necessary because the MDIWindow does not let you listen to the resize() event!
@@ -300,7 +302,8 @@
 			}
 			
 			private function onSliderZoom():void {
-				dispatchResizeEvent((zoomSlider.value/10)*10);
+				var roundOff:int = (zoomSlider.value/10)
+				dispatchResizeEvent(roundOff*10);
 			}
 			
 			private function dispatchResizeEvent(newSize:int):void {
@@ -323,101 +326,123 @@
 			}
 						
 			private function becomePresenter(e:MadePresenterEvent):void{
-				uploadPres.visible = true;
-				this.isPresenter = true;
-			
-				if (presentationLoaded) {
-	            	slideNumLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.pages', [(slideView.selectedSlide + 1), slideView.slides.length]);	
-					backButton.visible = true;
-					forwardButton.visible = true;	
-					zoomSlider.visible = true;
-					btnResetZoom.visible = true;
-					thumbnailWindow.fisheye.selectedIndex = 0;
-					thumbnailWindow.setDataProvider(slideView.slides);
-				}
-				
-				presenterNameLabel.text = ResourceUtil.getInstance().getString('bbb.presentation.clickToUpload');
-				presenterNameLabel.visible = true;
-				thumbnailWindow.visible = true;
-				thumbnailWindow.setFisheyeVisibility(true);
+				setupPresenter(true, e.presenterName);
 			}
 			
 			private function becomeViewer(e:MadePresenterEvent):void{
-				this.isPresenter = false;
-				uploadPres.visible = false;
-				if (presentationLoaded) {
-           			slideNumLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.pages', [(slideView.selectedSlide + 1), slideView.slides.length]);	
-					backButton.visible = false;
-					forwardButton.visible = false;	
-					zoomSlider.visible = false;	
-					btnResetZoom.visible = false;
-				}
+				setupPresenter(false, e.presenterName);
 				dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
+			}
+						
+			private function setupPresenter(isPresenter:Boolean, presentersName:String):void {
+				this.isPresenter = isPresenter;
+				uploadPres.visible = isPresenter;
 				
-				presenterNameLabel.visible = true;
-				if (e.presenterName != null) presenterNameLabel.text = ResourceUtil.getInstance().getString('bbb.presentation.presenting', [e.presenterName]);
-				thumbnailWindow.visible = false;
-				thumbnailWindow.setFisheyeVisibility(false);
+				if (presentationLoaded) {
+	            	displaySlideNumber(slideView.selectedSlide + 1);	
+					displaySlideNavigationControls(isPresenter);
+					if (isPresenter) initializeThumbnails();
+				}
+				
+				setPresentersName(presentersName);
+				showUploadPresentationLabel(isPresenter);
+				showFisheyeThumbnail(isPresenter);
 			}
 			
-			private function handlePresentationLoadedEvent(e:PresentationEvent):void
-			{	
+			private function setPresentersName(name:String):void {
+				if (name != null) presenterName = name;
+			}
+			
+			private function showFisheyeThumbnail(show:Boolean):void {
+				thumbnailWindow.visible = show;
+				thumbnailWindow.setFisheyeVisibility(show);
+			}
+			
+			private function handlePresentationLoadedEvent(e:PresentationEvent):void {	
 				if (e.presentationName == currentPresentation) return;
 				currentPresentation = e.presentationName;
-				
 				presentationLoaded = true;
-				slideView.slides = e.slides.slides;         	
-	            slideNumLbl.text = (slideView.selectedSlide + 1) + " of " + slideView.slides.length;		
+				slideView.slides = e.slides.slides;         		            		
 				slideView.visible = true;		
 	
 				if (slideManager != null) slideManager.clear();	
 				
-				presenterNameLabel.visible = false;
-				presenterNameLabel.text = "";	
+				showUploadPresentationLabel(false);
+				displaySlideNumber(slideView.selectedSlide + 1);	
 				if (isPresenter) {
-					backButton.visible = true;
-					forwardButton.visible = true;
-					zoomSlider.visible = true;
-					btnResetZoom.visible = true;
-					var shareEvent:PresenterCommands = new PresenterCommands(PresenterCommands.SHARE_PRESENTATION_COMMAND);
-					shareEvent.presentationName = e.presentationName;
-					shareEvent.share = true;
-					dispatchEvent(shareEvent);
-					
-					thumbnailWindow.fisheye.selectedIndex = 0;
-					thumbnailWindow.setDataProvider(slideView.slides);
-	
+					displaySlideNavigationControls(true);					
+					notifyOthersOfSharingPresentation(e.presentationName);
+					initializeThumbnails();	
 				} else {
 					dispatchEvent(new SlideEvent(SlideEvent.LOAD_CURRENT_SLIDE));
 				}
 			}
 			
+			private function initializeThumbnails():void {
+				thumbnailWindow.fisheye.selectedIndex = 0;
+				thumbnailWindow.setDataProvider(slideView.slides);
+			}
+			
+			private function displaySlideNavigationControls(show:Boolean):void {
+				backButton.visible = show;
+				forwardButton.visible = show;
+				zoomSlider.visible = show;
+				btnResetZoom.visible = show;
+			}
+			
+			private function notifyOthersOfSharingPresentation(presentationName:String):void {
+				var shareEvent:PresenterCommands = new PresenterCommands(PresenterCommands.SHARE_PRESENTATION_COMMAND);
+					shareEvent.presentationName = presentationName;
+					shareEvent.share = true;
+					dispatchEvent(shareEvent);
+			}
+			
 			private function gotoPage(e:NavigationEvent):void{
 				slideView.selectedSlide = e.pageNumber;
-				slideNumLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.pages', [(e.pageNumber + 1), slideView.slides.length]);
-				
-				if (e.pageNumber <= slideView.slides.length-1 && e.pageNumber >= 0)
-					slideManager.load(slideView.slides.getItemAt(e.pageNumber) as Slide); 
-				
-				if (e.pageNumber == 0) {
+								
+				if (validPageNumber(e.pageNumber)) {
+					loadSlide(e.pageNumber);
+					disableSlideNavigationButtons(e.pageNumber);
+					displaySlideNumber(e.pageNumber + 1);
+				}				
+			}
+			
+			private function loadSlide(page:int):void {
+				slideManager.load(slideView.slides.getItemAt(page) as Slide);
+			}
+			
+			private function validPageNumber(pageNumber:int):Boolean {
+				return (pageNumber <= slideView.slides.length-1 && pageNumber >= 0)
+			}
+			
+			private function disableSlideNavigationButtons(pageNumber:int):void {
+				if (pageNumber == 0) {
 					backButton.enabled = false;
 				} else {
 					backButton.enabled = true;
 				}
 				
-				if (e.pageNumber < slideView.slides.length - 1) {
+				if (pageNumber < slideView.slides.length - 1) {
 					forwardButton.enabled = true;
 				} else {
 					forwardButton.enabled = false;
 				}
 			}
 			
+			private function displaySlideNumber(currentSlide:int):void {
+				slideNumLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.pages', [currentSlide, slideView.slides.length]);
+			}
+			
 			private function clearPresentation(e:UploadEvent):void{
 				slideView.visible = false;		
 				slideView.selectedSlide = 0;
 				slideNumLbl.text = "";
-				presenterNameLabel.text = ResourceUtil.getInstance().getString('bbb.presentation.clickToUpload');
-				presenterNameLabel.visible = false;
+				showUploadPresentationLabel(false);
+			}
+			
+			private function showUploadPresentationLabel(show:Boolean):void {
+				uploadPresentationLabel.text = ResourceUtil.getInstance().getString('bbb.presentation.clickToUpload');
+				uploadPresentationLabel.visible = show;
 			}
 			
 			private function enableTextSelection():void{
@@ -449,7 +474,7 @@
     <mx:ApplicationControlBar id="presCtrlBar" width="100%" height="{CONTROL_BAR_HEIGHT}">
     	  <mx:Button id="uploadPres" icon="{uploadIcon}" visible="false" width="20" height="20"
     	   		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.uploadPresBtn')}" click="dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW))"/>    
-    	  <mx:Label id="presenterNameLabel" visible="false" text=""/>
+    	  <mx:Label id="uploadPresentationLabel" visible="false" text=""/>
     	  <mx:Spacer width="10%" id="spacer1"/>
     	  <mx:Button id="backButton" icon="{backwardIcon}" visible="false" width="30" height="20"
     	   		toolTip="Previous slide." click="gotoPreviousSlide()"/>
