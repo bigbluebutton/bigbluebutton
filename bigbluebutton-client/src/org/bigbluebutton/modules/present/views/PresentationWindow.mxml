@@ -180,7 +180,7 @@
 					slideHeight = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
 					slideWidth = ((currentSlideWidth * slideHeight)/currentSlideHeight);
 				} else {
-					slideWidth = this.width;
+					slideWidth = this.width - WIDTH_PADDING;
 					slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
 				}
 				
