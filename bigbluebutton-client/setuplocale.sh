@@ -8,10 +8,7 @@ echo "Checking languages: $NEW_LANG"
 
 CUR_DIR=$(pwd)
 
-FLEX_DIR=$(which copylocale)
-FLEX_DIR=${FLEX_DIR%/*}
-
-cd "${FLEX_DIR}/../frameworks/locale"
+cd "${FLEX_HOME}/frameworks/locale"
 
 for v in $NEW_LANG; do
         if [ ! -d ${v} ]; then
