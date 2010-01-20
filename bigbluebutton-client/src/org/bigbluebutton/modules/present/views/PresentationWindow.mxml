@@ -186,9 +186,23 @@
 				
 				this.width = slideWidth + WIDTH_PADDING;
 				this.height = slideHeight + CONTROL_BAR_HEIGHT + TOP_WINDOW_BORDER;
-				LogUtil.debug("Window dim["+this.width + "," + this.height + "]");
+//				LogUtil.debug("Window dim["+this.width + "," + this.height + "]" + "Parent dim = " + this.parent.width + "," + this.parent.height + "]");
+
+				// Test if the height and width are bigger than it's parent. If so, resize
+				// to make it fit inside so that the controls will still be visible.
+				if (this.height > this.parent.height) {
+					this.height = this.parent.height;
+					slideHeight = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
+					slideWidth = ((currentSlideWidth * slideHeight)/currentSlideHeight);
+				}				
 				
+				if (this.width > this.parent.width) {
+					this.width = this.parent.width;
+					slideWidth = this.width - WIDTH_PADDING;
+					slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
+				}
 				sendWindowResizedEvent(slideWidth, slideHeight);
+
 			}
 			
 			/*
@@ -474,9 +488,10 @@
 			    
     <mx:ApplicationControlBar id="presCtrlBar" width="100%" height="{CONTROL_BAR_HEIGHT}">
     	  <mx:Button id="uploadPres" icon="{uploadIcon}" visible="false" width="20" height="20"
-    	   		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.uploadPresBtn')}" click="dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW))"/>    
-    	  <mx:Label id="uploadPresentationLabel" visible="false" text=""/>
-    	  <mx:Spacer width="10%" id="spacer1"/>
+    	   		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.uploadPresBtn')}" 
+    	   		click="dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW))"/>    
+    	  <mx:Label id="uploadPresentationLabel" visible="false" text="" width="10%"/>
+    	  <mx:Spacer width="5%" id="spacer1"/>
     	  <mx:Button id="backButton" icon="{backwardIcon}" visible="false" width="30" height="20"
     	   		toolTip="Previous slide." click="gotoPreviousSlide()"/>
     	  <mx:Label id="slideNumLbl" text=""/>    
