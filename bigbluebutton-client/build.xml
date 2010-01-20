@@ -134,6 +134,7 @@
 		<compileLocale locale="zh_CN" />
 		<compileLocale locale="fr_FR" />
 		<compileLocale locale="nl_NL" />
+		<compileLocale locale="es_ES" />
 	</target>
 	
 	<!-- Compiles Localization Resource Bundle. -->
