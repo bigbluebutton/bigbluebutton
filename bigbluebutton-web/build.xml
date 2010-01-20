@@ -49,7 +49,7 @@
 	<fail message="Detected that tomcat6 is running on port 8080.  Stop tomcat6 then try again." if="tomcat.running" />
 	<echo message="Running grails ..." />
 		<exec executable="${grails}" failonerror="true">
-			<arg value="run-app"/>
+			<arg value="run-war"/>
 		</exec>                               
     </target>
 	
