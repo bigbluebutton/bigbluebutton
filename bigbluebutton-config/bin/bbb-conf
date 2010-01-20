@@ -828,6 +828,13 @@ if [ $CONFERENCE ]; then
 	        sudo sed -i "s/asterisk.application[ ]*=.*/asterisk.application=meetme/g" \
 			/usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
 
+		#
+		# update /etc/asterisk/bbb_extensions.conf
+		sudo sed -i "s/^exten => _XXXX.,n,Konference(\${EXTEN},H)/# exten => _XXXX.,n,Konference(\${EXTEN},H)/g" \
+			/etc/asterisk/bbb_extensions.conf
+
+		sudo sed -i "s/#[ ]*exten => _XXXX.,n,MeetMe(\${EXTEN},cdMsT)/exten => _XXXX.,n,MeetMe(\${EXTEN},cdMsT)/g" \
+			/etc/asterisk/bbb_extensions.conf
 
 		#
 		# update /etc/asterisk/bbb_extensions.conf
@@ -844,6 +851,15 @@ if [ $CONFERENCE ]; then
 		#
 	        sudo sed -i "s/asterisk.application[ ]*=.*/asterisk.application=konference/g" \
 			/usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
+
+		#
+		# update /etc/asterisk/bbb_extensions.conf
+		sudo sed -i "s/#[ ]*exten => _XXXX.,n,Konference(\${EXTEN},H)/exten => _XXXX.,n,Konference(\${EXTEN},H)/g" \
+			/etc/asterisk/bbb_extensions.conf
+
+		sudo sed -i "s/^exten => _XXXX.,n,MeetMe(\${EXTEN},cdMsT)/# exten => _XXXX.,n,MeetMe(\${EXTEN},cdMsT)/g" \
+			/etc/asterisk/bbb_extensions.conf
+
 
 		sudo sed -i "s/^exten => _XXXX.,n,MeetMe(\${CONFERENCE_FOUND},cdMsT)/# exten => _XXXX.,n,MeetMe(\${CONFERENCE_FOUND},cdMsT)/g" \
 			/etc/asterisk/bbb_extensions.conf
