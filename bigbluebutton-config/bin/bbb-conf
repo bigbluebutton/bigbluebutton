@@ -66,7 +66,7 @@ usage() {
 	echo 
 	echo "Development:"
 	echo "   --check                          Check current settings"
-	echo "   --conference [konference|meetme] Switch VoIP conferencing module in Asterisk"
+	echo "   --conference [konference|meetme] Switch conference module in Asterisk"
 	echo "   --debug                          Check the log files for errors"
 	echo "   --setup-samba                    Setup samba share for development (VM only)"
 	echo "   --setup-dev [bbb-web|bbb-client|bbb-apps] "
@@ -363,7 +363,6 @@ if [ $SETUPDEV ]; then
 		cp /var/www/bigbluebutton/client/conf/config.xml ~/dev/bbb-client/bin/conf/config.xml
 
 		cd bbb-client
-		ant localization 
 
 		echo "
 # Done.  To build your local build of bbb-client:
@@ -599,7 +598,7 @@ if [ $CHECK ]; then
         	CONFERENCING_MODULE=$(cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | sed -n '/asterisk.application/{s/.*=[ ]*//g;p}')
         	echo
         	echo "/etc/asterisk/bbb_extensions.conf (asterisk)"
-        	echo "            VoIP conferencing module: $CONFERENCING_MODULE"
+        	echo "                   conference module: $CONFERENCING_MODULE"
 	fi
 
 	check_state
@@ -707,7 +706,7 @@ if [ $DEBUG ]; then
 
 	rm -rf /tmp/t
 	if [ -d /var/log/bigbluebutton ]; then
-		sudo grep ERROR /var/log/bigbluebutton > /tmp/t 
+		sudo grep ERROR /var/log/bigbluebutton/* > /tmp/t 
 		if [ -s /tmp/t ]; then
 			echo "   -- Errors found in /var/log/bigbluebutton -- "
 			cat /tmp/t
@@ -717,7 +716,7 @@ if [ $DEBUG ]; then
 
 	rm -rf /tmp/t
 	if [ -d /var/log/bigbluebutton ]; then
-		sudo grep -i exception /var/log/bigbluebutton > /tmp/t 
+		sudo grep -i exception /var/log/bigbluebutton/* > /tmp/t 
 		if [ -s /tmp/t ]; then
 			echo "   -- Exceptions found in /var/log/bigbluebutton -- "
 			cat /tmp/t
