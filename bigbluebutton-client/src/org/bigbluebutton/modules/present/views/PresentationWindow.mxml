@@ -32,7 +32,7 @@
 	mouseMove="hideThumbnails()"
 	creationComplete="onCreationComplete()"
 	rollOut="hideThumbs()" xmlns:mate="http://mate.asfusion.com/"
-	width="600" height="450" x="220" y="0"
+	width="510" height="450" x="220" y="0"
 	title="{currentPresentation}" keyUp="onKeyUp(event)">
 	
 	<mate:Dispatcher id="globalDispatcher" />
@@ -96,7 +96,7 @@
 			private static const WIDTH_PADDING:int = 5;
 			
 			// Init to the size of the window.
-			private var currentSlideWidth:int = 600;
+			private var currentSlideWidth:int = 510;
 			private var currentSlideHeight:int = 450;
 						
 			private var mouseDown:Boolean = false;
@@ -186,6 +186,8 @@
 				
 				this.width = slideWidth + WIDTH_PADDING;
 				this.height = slideHeight + CONTROL_BAR_HEIGHT + TOP_WINDOW_BORDER;
+				LogUtil.debug("Window dim["+this.width + "," + this.height + "]");
+				
 				sendWindowResizedEvent(slideWidth, slideHeight);
 			}
 			
