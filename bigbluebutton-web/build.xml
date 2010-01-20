@@ -38,7 +38,7 @@
 
  <!-- Check whether Tomcat is running -->
   <target name="check-port-8080" description="Check whether tomcat6 is running">
-    <echo message="Checking whether tomcat6 is running before doing 'grails run-app'"/>
+    <echo message="Checking whether tomcat6 is running before doing 'grails run-war'"/>
     <condition property="tomcat.running">
       <socket server="127.0.0.1" port="8080"/> 
     </condition>
