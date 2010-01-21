@@ -13,7 +13,7 @@ cd "${FLEX_HOME}/frameworks/locale"
 for v in $NEW_LANG; do
         if [ ! -d ${v} ]; then
                 echo "Creating locale for: ${v}"
-                copylocale en_US ${v}
+                $FLEX_HOME/bin/copylocale en_US ${v}
         fi
 done
 
