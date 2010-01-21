@@ -32,7 +32,8 @@
 	mouseMove="hideThumbnails()"
 	creationComplete="onCreationComplete()"
 	rollOut="hideThumbs()" xmlns:mate="http://mate.asfusion.com/"
-	width="510" height="450" x="{DEFAULT_X_POSITION}" y="0"
+	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
+	x="{DEFAULT_X_POSITION}" y="{DEFAULT_Y_POSITION}"
 	title="{currentPresentation}" keyUp="onKeyUp(event)">
 	
 	<mate:Dispatcher id="globalDispatcher" />
@@ -89,7 +90,7 @@
 			private var slideManager:SlideManager = new SlideManager();
 			
 			[Bindable] private var DEFAULT_X_POSITION:int = 220;
-			
+			[Bindable] private var DEFAULT_Y_POSITION:int = 0;
 			private var _xPosition:int = DEFAULT_X_POSITION;
 			private var _yPosition:int = 0;
 			
@@ -162,7 +163,7 @@
 					this.x = this.parent.width - this.width;
 				} else {
 					// Move window so that it won't overlap with Participant's window.
-					this.x = 220;
+					this.x = DEFAULT_X_POSITION;
 				}
 				
 				this.y = 0;
@@ -292,6 +293,7 @@
 			public function resetWidthAndHeight():void{
 				this.width = DEFAULT_WINDOW_WIDTH;
 				this.height = DEFAULT_WINDOW_HEIGHT;
+				fitSlideToWindowMaintainingAspectRatio();
 			}
 			
 			private function hideThumbnails():void{

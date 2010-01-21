@@ -241,7 +241,7 @@
            
 	<mx:Spacer height="100%" x="0" y="0"/>	
 	<mx:Label id="fileLbl" text="{ResourceUtil.getInstance().getString('bbb.fileupload.fileLbl')}" x="50" y="11"/>
-	<mx:TextInput id="fileTxtInput" width="328" x="87" y="9"/>
+	<mx:TextInput id="fileTxtInput" width="328" x="87" y="9" editable="false"/>
 	<mx:Button id="selectBtn" toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.selectBtn.toolTip')}" click="selectFile()" icon="{addIcon}" width="26" x="432" y="9"/>
 	<mx:Button id="uploadBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.uploadBtn')}" toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.uploadBtn.toolTip')}"  click="startUpload()"
 		enabled="false" icon="{bulletGoIcon}" x="466" y="9"/>
