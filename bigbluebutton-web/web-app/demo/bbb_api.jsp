@@ -46,7 +46,7 @@ public String getJoinURL(String username, String meetingID) {
 		String base_url_join = BigBlueButtonURL + "api/join?";
 		
 		Random random = new Random();
-		Integer voiceBridge = 10000 + random.nextInt(89999);
+		Integer voiceBridge = 70000 + random.nextInt(79999);
 		
 		String create_parameters = "name=" + username + "&meetingID=" + meetingID
 		+ "&attendeePW=ap&moderatorPW=mp&voiceBridge="+voiceBridge;
