@@ -32,7 +32,7 @@
 	mouseMove="hideThumbnails()"
 	creationComplete="onCreationComplete()"
 	rollOut="hideThumbs()" xmlns:mate="http://mate.asfusion.com/"
-	width="510" height="450" x="220" y="0"
+	width="510" height="450" x="{DEFAULT_X_POSITION}" y="0"
 	title="{currentPresentation}" keyUp="onKeyUp(event)">
 	
 	<mate:Dispatcher id="globalDispatcher" />
@@ -88,17 +88,24 @@
 			public var uploadWindow:FileUploadWindow = null;
 			private var slideManager:SlideManager = new SlideManager();
 			
-			private var _xPosition:int = 220;
+			[Bindable] private var DEFAULT_X_POSITION:int = 220;
+			
+			private var _xPosition:int = DEFAULT_X_POSITION;
 			private var _yPosition:int = 0;
 			
 			[Bindable] private var CONTROL_BAR_HEIGHT:int = 45;
 			private static const TOP_WINDOW_BORDER:int = 30;
 			private static const WIDTH_PADDING:int = 5;
-			
-			// Init to the size of the window.
-			private var currentSlideWidth:int = 510;
-			private var currentSlideHeight:int = 450;
+
+			[Bindable] private var DEFAULT_WINDOW_WIDTH:int = 510;
+			[Bindable] private var DEFAULT_WINDOW_HEIGHT:int = 450;
 						
+			// Init to the size of the window.
+			private var currentSlideWidth:int = DEFAULT_WINDOW_WIDTH;
+			private var currentSlideHeight:int = DEFAULT_WINDOW_HEIGHT;
+			
+
+									
 			private var mouseDown:Boolean = false;
 			[Bindable] private var isPresenter:Boolean = false;
 			[Bindable] private var presentationLoaded:Boolean = false;
@@ -150,9 +157,16 @@
 				// When the window is maximized, we want to resize the slide maintaining the aspect ratio.			
 				fitSlideToWindowMaintainingAspectRatio();
 				
-				// Move window so that it won't overlap with Participant's window.
-				this.x = 220;
+				if ((DEFAULT_X_POSITION + this.width) > this.parent.width) {
+					// Adjust presentation window so that it doesn't go over the side of the browser window
+					this.x = this.parent.width - this.width;
+				} else {
+					// Move window so that it won't overlap with Participant's window.
+					this.x = 220;
+				}
+				
 				this.y = 0;
+				
 				fitToWindowTimer.stop();
 			}
 			
@@ -258,29 +272,26 @@
 			public function set yPosition(y:int):void {
 				_yPosition = y;
 			}	
-			
-			[Bindable] private var _defaultWidth:int = 600;
-			[Bindable] private var _defaultHeight:int = 450;
-			
+					
 			public function get defaultWidth():int{
-				return _defaultWidth;
+				return DEFAULT_WINDOW_WIDTH;
 			}
 			
 			public function get defaultHeight():int{
-				return _defaultHeight;
+				return DEFAULT_WINDOW_HEIGHT;
 			}
 			
 			public function set defaultHeight(height:int):void{
-				this._defaultHeight = height;
+				this.DEFAULT_WINDOW_HEIGHT = height;
 			}
 			
 			public function set defaultWidth(width:int):void{
-				this._defaultWidth = width;
+				this.DEFAULT_WINDOW_WIDTH = width;
 			}
 			
 			public function resetWidthAndHeight():void{
-				this.width = _defaultWidth;
-				this.height = _defaultHeight;
+				this.width = DEFAULT_WINDOW_WIDTH;
+				this.height = DEFAULT_WINDOW_HEIGHT;
 			}
 			
 			private function hideThumbnails():void{
@@ -317,8 +328,7 @@
 			}
 			
 			private function onSliderZoom():void {
-				var roundOff:int = (zoomSlider.value/10)
-				dispatchResizeEvent(roundOff*10);
+				dispatchResizeEvent(zoomSlider.value);
 			}
 			
 			private function dispatchResizeEvent(newSize:int):void {
@@ -499,8 +509,9 @@
     	   		toolTip="Next slide" click="gotoNextSlide()"/>    				
     	<mx:Spacer width="10%" id="spacer2"/>
     	<mx:HSlider id="zoomSlider" visible="false"
-    		minimum="100" maximum="400" value="100" dataTipPlacement="top" labels="['100%','400%']"
-    		allowTrackClick="true" liveDragging="true" change="onSliderZoom()" width="100" />
+    		minimum="100" maximum="400" value="100" dataTipPlacement="top" labels="['100%','400%']" 
+    		useHandCursor="true" snapInterval="5" allowTrackClick="true" liveDragging="true" 
+    		change="onSliderZoom()" width="100" />
     	<mx:Spacer width="100%" id="spacer3"/>
     	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="false" width="20" height="20" 
     		toolTip="Reset Zoom" click="onResetZoom()"/>
