@@ -25,10 +25,21 @@ import org.bigbluebutton.web.domain.Conference
 import grails.converters.*
 import org.codehaus.groovy.grails.commons.*
 import org.bigbluebutton.web.services.DynamicConferenceService;
- 
+import org.bigbluebutton.web.services.SchedulingService
+
 class PublicScheduledSessionController {
 	DynamicConferenceService dynamicConferenceService;
-	 
+	def schedulingService
+	
+	def beforeInterceptor = {
+		if (schedulingService.schedulingServiceEnabled) {
+			return true
+		}
+
+		response.sendError 403
+		return false
+	}
+
 	def index = {
 	    redirect(action:joinIn)
 	}

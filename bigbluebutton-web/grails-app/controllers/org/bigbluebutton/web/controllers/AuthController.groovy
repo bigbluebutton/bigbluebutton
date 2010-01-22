@@ -25,9 +25,21 @@ import org.jsecurity.SecurityUtils
 import org.jsecurity.session.Session
 import org.jsecurity.subject.Subject
 import org.bigbluebutton.web.domain.User
+import org.bigbluebutton.web.services.SchedulingService
 
 class AuthController {
 
+	def schedulingService
+	
+	def beforeInterceptor = {
+		if (schedulingService.schedulingServiceEnabled) {
+			return true
+		}
+
+		response.sendError 403
+		return false
+	}
+	
     def jsecSecurityManager
 
     def index = { redirect(action: 'login', params: params) }
