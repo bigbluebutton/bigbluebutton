@@ -36,7 +36,13 @@
     <mate:Listener type="{UploadEvent.CONVERT_UPDATE}" method="convertUpdate" />
     <mate:Listener type="{UploadEvent.UPDATE_PROGRESS}" method="updateProgress" />
     <mate:Listener type="{UploadEvent.THUMBNAILS_UPDATE}" method="handleThumbnailsProgressEvent" />
-    
+	<mate:Listener type="{UploadEvent.OFFICE_DOC_CONVERSION_FAILED}" method="handleOfficeDocumentConversionFailed"/>
+	<mate:Listener type="{UploadEvent.OFFICE_DOC_CONVERSION_SUCCESS}" method="handleOfficeDocumentConversionSuccess"/>
+	<mate:Listener type="{UploadEvent.SUPPORTED_DOCUMENT}" method="handleSupportedDocument"/>	
+	<mate:Listener type="{UploadEvent.UNSUPPORTED_DOCUMENT}" method="handleUnsupportedDocument"/>
+	<mate:Listener type="{UploadEvent.PAGE_COUNT_FAILED}" method="handlePageCountFailed"/>
+	<mate:Listener type="{UploadEvent.PAGE_COUNT_EXCEEDED}" method="handlePageCountExceeded"/>
+    	    
 	<mx:Script>
 		<![CDATA[
 			import mx.controls.Alert;
@@ -92,10 +98,8 @@
 
             	thumbnailTimer.repeatCount = 20;
             	thumbnailTimer.addEventListener(TimerEvent.TIMER, timerHandler);
-            	thumbnailTimer.addEventListener(TimerEvent.TIMER_COMPLETE, completeHandler);
-            
-            	thumbnailTimer.start();
-				
+            	thumbnailTimer.addEventListener(TimerEvent.TIMER_COMPLETE, completeHandler);           
+            	thumbnailTimer.start();				
 			}
 			
 			private function handleConvertSuccessEvent(event:Event):void {
@@ -184,41 +188,82 @@
 				uploadBtn.visible = false;
 				fileTxtInput.visible = false;
         	}
-        	
+
+			private function handleOfficeDocumentConversionFailed(e:UploadEvent):void {
+				enableControls();
+				displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.document.convert.failed'));
+			}   
+			
+			private function handleOfficeDocumentConversionSuccess(e:UploadEvent):void {
+				progressLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.document.converted')
+				progressBar.label = ResourceUtil.getInstance().getString('bbb.presentation.document.converted');
+				progressBar.setProgress(0, 100);
+				progressBar.validateNow();
+				progressLbl.validateNow();
+			}
+			
+			private function handleSupportedDocument(e:UploadEvent):void {
+				LogUtil.debug("handleSupportedDocument");
+				progressLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.document.supported')
+				progressBar.label = ResourceUtil.getInstance().getString('bbb.presentation.document.supported');
+				progressBar.setProgress(0, 100);
+				progressBar.validateNow();
+				progressLbl.validateNow();
+			}
+			
+			private function handleUnsupportedDocument(e:UploadEvent):void {
+				enableControls();
+				displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.convert.notsupported'));
+			}
+			
+			private function handlePageCountFailed(e:UploadEvent):void {
+				enableControls();
+				displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.convert.nbpage'));
+			}
+			
+			private function handlePageCountExceeded(e:UploadEvent):void {
+				LogUtil.debug("handlePageCountExceeded");
+				enableControls();
+				displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.convert.maxnbpagereach'));
+			}
+			     	
         	private function uploadIOError(e:UploadEvent):void{
         		enableControls();
-        		//Alert.show(ResourceUtil.getInstance().getString('bbb.presentation.error.io'));
-        		LogUtil.error("IO error occured when uploading presentation. FileUploadWindow::uploadIOError");
+        		displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.io'));
         	}
         	
         	private function uploadSecurityError(e:UploadEvent):void{
         		enableControls();
-				//Alert.show(ResourceUtil.getInstance().getString('bbb.presentation.error.security'));
-				LogUtil.error("Security error occured when uploading presentation. FileUploadWindow::uploadSecurityError");
+				displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.security'));
         	}
         	
-		private function enableControls() : void
-		{
-			okCancelBtn.visible = true;
-			selectBtn.enabled = true;
-			uploadBtn.enabled = true;
-			fileTxtInput.enabled = true;			
-		}
+        	private function displayAlert(text:String):void {
+        		Alert.okLabel = ResourceUtil.getInstance().getString('bbb.presentation.ok');        		
+        		Alert.show(text);
 
-		private function convertUpdate(e:UploadEvent):void{
-			progressLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.converted',[e.completedSlides, e.totalSlides]);
-			progressBar.label = ResourceUtil.getInstance().getString('bbb.presentation.converted',[e.completedSlides, e.totalSlides]);
-			progressBar.setProgress(e.completedSlides, e.totalSlides);
-			progressBar.validateNow();
-			progressLbl.validateNow();
-		}
+        	}
+        	
+			private function enableControls():void {
+				okCancelBtn.visible = true;
+				selectBtn.enabled = true;
+				uploadBtn.enabled = true;
+				fileTxtInput.enabled = true;			
+			}
 
-		private function convertError(e:UploadEvent):void{
-			enableControls();
-			okCancelBtn.label = "Ok";
-			okCancelBtn.visible = true;
-			globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
-		}
+			private function convertUpdate(e:UploadEvent):void{
+				progressLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.converted',[e.completedSlides, e.totalSlides]);
+				progressBar.label = ResourceUtil.getInstance().getString('bbb.presentation.converted',[e.completedSlides, e.totalSlides]);
+				progressBar.setProgress(e.completedSlides, e.totalSlides);
+				progressBar.validateNow();
+				progressLbl.validateNow();
+			}
+
+			private function convertError(e:UploadEvent):void{
+				enableControls();
+				okCancelBtn.label = "Ok";
+				okCancelBtn.visible = true;
+				globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
+			}
 
 		private function convertSuccess(e:UploadEvent):void{
 			okCancelBtn.label = ResourceUtil.getInstance().getString('bbb.presentation.ok');

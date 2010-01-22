@@ -48,7 +48,7 @@ package org.bigbluebutton.modules.present.business {
     	private static const SUPPORTED_DOCUMENT_KEY:String = "SUPPORTED_DOCUMENT";
     	private static const UNSUPPORTED_DOCUMENT_KEY:String = "UNSUPPORTED_DOCUMENT";
     	private static const PAGE_COUNT_FAILED_KEY:String = "PAGE_COUNT_FAILED";
-    	private static const PAGE_COUNT_EXCEEDED_KEY:String = "PAGE_COUNT_EXCEEDED";	
+    	private static const PAGE_COUNT_EXCEEDED_KEY:String = "PAGE_COUNT_EXCEEDED";    	
     	private static const GENERATED_SLIDE_KEY:String = "GENERATED_SLIDE";
     	private static const GENERATING_THUMBNAIL_KEY:String = "GENERATING_THUMBNAIL";
     	private static const GENERATED_THUMBNAIL_KEY:String = "GENERATED_THUMBNAIL";
@@ -446,8 +446,7 @@ package org.bigbluebutton.modules.present.business {
 				code:String, presentationName:String, messageKey:String, numberOfPages:Number, 
 				maxNumberOfPages:Number) : void {
 			LogUtil.debug("pageCountExceededUpdateMessageCallback:Received update message " + messageKey);
-			var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_ERROR);
-			uploadEvent.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.maxnbpagereach')
+			var uploadEvent = new UploadEvent(UploadEvent.PAGE_COUNT_EXCEEDED);
 			dispatcher.dispatchEvent(uploadEvent);
 		}
 
@@ -471,7 +470,7 @@ package org.bigbluebutton.modules.present.business {
 		}
 				
 		public function conversionUpdateMessageCallback(conference:String, room:String, 
-				code:String, presentationName:String, messageKey:String) : void {
+			code:String, presentationName:String, messageKey:String) : void {
 			LogUtil.debug("conversionUpdateMessageCallback:Received update message " + messageKey);
 			var totalSlides : Number;
 			var completedSlides : Number;
@@ -480,22 +479,33 @@ package org.bigbluebutton.modules.present.business {
 			
 			switch (messageKey) {
 				case OFFICE_DOC_CONVERSION_SUCCESS_KEY :
+					uploadEvent = new UploadEvent(UploadEvent.OFFICE_DOC_CONVERSION_SUCCESS);
+					dispatcher.dispatchEvent(uploadEvent);
 					break;
 				case OFFICE_DOC_CONVERSION_FAILED_KEY :
+					uploadEvent = new UploadEvent(UploadEvent.OFFICE_DOC_CONVERSION_FAILED);
+					dispatcher.dispatchEvent(uploadEvent);
 					break;
 				case SUPPORTED_DOCUMENT_KEY :
+					uploadEvent = new UploadEvent(UploadEvent.SUPPORTED_DOCUMENT);
+					dispatcher.dispatchEvent(uploadEvent);
 					break;
 				case UNSUPPORTED_DOCUMENT_KEY :
-					uploadEvent = new UploadEvent(UploadEvent.CONVERT_ERROR);
-					uploadEvent.data = ResourceUtil.getInstance().getString('bbb.presentation.error.convert.format')
+					uploadEvent = new UploadEvent(UploadEvent.UNSUPPORTED_DOCUMENT);
 					dispatcher.dispatchEvent(uploadEvent);
 					break;
 				case GENERATING_THUMBNAIL_KEY :	
 					dispatcher.dispatchEvent(new UploadEvent(UploadEvent.THUMBNAILS_UPDATE));
-					break;			
+					break;		
 				case PAGE_COUNT_FAILED_KEY :
-					break;
+					uploadEvent = new UploadEvent(UploadEvent.PAGE_COUNT_FAILED);
+					dispatcher.dispatchEvent(uploadEvent);
+					break;	
 				case GENERATED_THUMBNAIL_KEY :
+					LogUtil.warn("conversionUpdateMessageCallback:GENERATED_THUMBNAIL_KEY " + messageKey);
+					break;
+				default:
+					LogUtil.warn("conversionUpdateMessageCallback:Unknown message " + messageKey);
 					break;
 			}														
 		}	

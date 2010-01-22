@@ -22,8 +22,7 @@ package org.bigbluebutton.modules.present.events
 	import flash.events.Event;
 	import flash.net.FileReference;
 	
-	public class UploadEvent extends Event
-	{
+	public class UploadEvent extends Event {
 		public static const OPEN_UPLOAD_WINDOW:String = "OPEN_UPLOAD_WINDOW";
 		public static const CLOSE_UPLOAD_WINDOW:String = "CLOSE_UPLOAD_WINDOW";
 		public static const CLEAR_PRESENTATION:String = "CLEAR_PRESENTATION";
@@ -38,7 +37,14 @@ package org.bigbluebutton.modules.present.events
 		public static const UPDATE_PROGRESS:String = "UPDATE_PROGRESS";
 		public static const THUMBNAILS_UPDATE:String = "THUMBNAILS_UPDATE";
 		public static const PRESENTATION_READY:String = "PRESENTATION_READY";
-		
+
+		public static const OFFICE_DOC_CONVERSION_SUCCESS:String = "OFFICE_DOC_CONVERSION_SUCCESS";
+    	public static const OFFICE_DOC_CONVERSION_FAILED:String = "OFFICE_DOC_CONVERSION_FAILED";
+    	public static const SUPPORTED_DOCUMENT:String = "SUPPORTED_DOCUMENT";
+    	public static const UNSUPPORTED_DOCUMENT:String = "UNSUPPORTED_DOCUMENT";
+    	public static const PAGE_COUNT_FAILED:String = "PAGE_COUNT_FAILED";
+    	public static const PAGE_COUNT_EXCEEDED:String = "PAGE_COUNT_EXCEEDED";
+    			
 		public var presentationName:String;
 		public var data:Object;
 		public var completedSlides:Number;
@@ -46,8 +52,7 @@ package org.bigbluebutton.modules.present.events
 		public var fileToUpload:FileReference;
 		public var percentageComplete:Number;
 		
-		public function UploadEvent(type:String)
-		{
+		public function UploadEvent(type:String) {
 			super(type, true, false);
 		}
 
