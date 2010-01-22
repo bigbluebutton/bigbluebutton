@@ -45,6 +45,12 @@ class ApiController {
 
 	private static final String SECURITY_SALT = '639259d4-9dd8-4b25-bf01-95f9567eaf4b'
 
+	def DIAL_NUM = /%%DIALNUM%%/
+	def CONF_NUM = /%%CONFNUM%%/
+	def CONF_NAME = /%%CONFNAME%%/
+	
+	def keywordList = [DIAL_NUM, CONF_NUM, CONF_NAME];
+		
 	DynamicConferenceService dynamicConferenceService;
 
 	/* general methods */
@@ -74,6 +80,7 @@ class ApiController {
 		String modPW = params.moderatorPW
 		String voiceBr = params.voiceBridge
 		String welcomeMessage = params.welcome
+		String dialNumber = params.dialNumber
 		
 		Integer maxParts = -1;
 		try {
@@ -100,15 +107,34 @@ class ApiController {
 		conf.setVoiceBridge(voiceBr == null || voiceBr == "" ? mtgID : voiceBr)
 		
 		if (welcomeMessage == null || welcomeMessage == "") {
-			String defaultWelcomeMessage = dynamicConferenceService.defaultWelcomeMessage
-			String defaultDialAccessNumber = dynamicConferenceService.defaultDialAccessNumber
-			
-			MessageFormat msgFormat = new MessageFormat(defaultWelcomeMessage);
-			String[] args = new String[2]
-		    args[0] = defaultDialAccessNumber
-		    args[1] = conf.voiceBridge
-			welcomeMessage = msgFormat.format(args)
+			welcomeMessage = dynamicConferenceService.defaultWelcomeMessage
 		}
+
+		if ((dialNumber == null) || (dialNumber == "")) {
+			dialNumber = dynamicConferenceService.defaultDialAccessNumber
+		}
+
+		if (welcomeMessage != null || welcomeMessage != "") {
+			log.debug "Substituting keywords"
+			
+			keywordList.each{ keyword ->
+				switch(keyword){
+					case DIAL_NUM:
+						if ((dialNumber != null) || (dialNumber != "")) {
+							welcomeMessage = welcomeMessage.replaceAll(DIAL_NUM, dialNumber)
+						}
+						break
+					case CONF_NUM:
+						welcomeMessage = welcomeMessage.replaceAll(CONF_NUM, conf.voiceBridge)
+						break
+					case CONF_NAME:
+						welcomeMessage = welcomeMessage.replaceAll(CONF_NAME, conf.name)
+						break
+				}			  
+			}
+		}
+		
+		
 		conf.welcome = welcomeMessage
 								
 		log.debug("Conference created: " + conf);

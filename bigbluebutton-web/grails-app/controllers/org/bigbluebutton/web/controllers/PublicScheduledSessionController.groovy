@@ -30,6 +30,12 @@ import org.bigbluebutton.web.services.SchedulingService
 class PublicScheduledSessionController {
 	DynamicConferenceService dynamicConferenceService;
 	def schedulingService
+
+	def DIAL_NUM = /%%DIALNUM%%/
+	def CONF_NUM = /%%CONFNUM%%/
+	def CONF_NAME = /%%CONFNAME%%/
+	
+	def keywordList = [DIAL_NUM, CONF_NUM, CONF_NAME];
 	
 	def beforeInterceptor = {
 		if (schedulingService.schedulingServiceEnabled) {
@@ -152,14 +158,28 @@ class PublicScheduledSessionController {
 					if (signedIn) {						
 						log.debug "Login successful...setting in session information"
 
-						String defaultWelcomeMessage = dynamicConferenceService.defaultWelcomeMessage
-						String defaultDialAccessNumber = dynamicConferenceService.defaultDialAccessNumber
+						def welcomeMessage = dynamicConferenceService.defaultWelcomeMessage
+						def dialNumber = dynamicConferenceService.defaultDialAccessNumber
 								
-						MessageFormat msgFormat = new MessageFormat(defaultWelcomeMessage)
-						String[] args = new String[2]
-					    args[0] = defaultDialAccessNumber
-					    args[1] = confSession.voiceConferenceBridge
-						def welcomeMessage = msgFormat.format(args)
+						if (welcomeMessage != null || welcomeMessage != "") {
+							log.debug "Substituting keywords"
+							
+							keywordList.each{ keyword ->
+								switch(keyword){
+									case DIAL_NUM:
+										if ((dialNumber != null) || (dialNumber != "")) {
+											welcomeMessage = welcomeMessage.replaceAll(DIAL_NUM, dialNumber)
+										}
+										break
+									case CONF_NUM:
+										welcomeMessage = welcomeMessage.replaceAll(CONF_NUM, confSession.voiceConferenceBridge)
+										break
+									case CONF_NAME:
+										welcomeMessage = welcomeMessage.replaceAll(CONF_NAME, confSession.getName())
+										break
+								}			  
+							}
+						}
 						
 			   			session["fullname"] = params.fullname 
 						session["role"] = role
