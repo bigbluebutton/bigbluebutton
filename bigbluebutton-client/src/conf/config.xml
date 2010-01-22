@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <config>
-    <version>0.4</version>
+    <version>dev build</version>
     <porttest host="192.168.0.120" application="video"/>    
 	<modules>
 
