@@ -89,17 +89,22 @@ if (request.getParameterMap().isEmpty()) {
 	
 	String joinURL = getJoinURL(username, meetingID);
 
-	if ("".equals(joinURL)) joinURL = "www.google.com";
-	
-	%>
+	if ("".equals(joinURL)) { 
+%>
+	Error: getJoinURL() returned an empty URL
+<%
+	else {
+%>
 
 <script language="javascript" type="text/javascript">
 window.location.href="<%=joinURL%>";
 </script>
 
-<% } %>
+<%  }
+} %>
 
 <%@ include file="demo_footer.jsp"%>
 
 </body>
 </html>
+
