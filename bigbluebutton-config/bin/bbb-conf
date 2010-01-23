@@ -237,6 +237,8 @@ if [ $SAMBA ]; then
         #
         if ! grep -q $USER /etc/samba/smb.conf; then
 
+	IP=$(ifconfig | grep -v '127.0.0.1' | grep -m 1 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
+
                 echo ";
 ; BigBlueButton: Share the development directory
 [$USER]
@@ -255,7 +257,7 @@ if [ $SAMBA ]; then
         echo "
 You can now access your development folder through:
 
-        \\\\$(hostname)\\$USER
+        \\\\$(IP)\\$USER
 
 If you are running a development environment on Windows (such as using Eclipse or FlexBuilder),
 you can map the above path to a drive letter.
@@ -295,9 +297,12 @@ if [ $SETUPDEV ]; then
 
 		IP=$(ifconfig | grep -v '127.0.0.1' | grep -m 1 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
 
-		echo "# Setting IP address $IP in ~/.grails/bigbluebutton-config.properties"
+		echo "# Copying the bigbluebutton.properites in /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties to ~/.grails/bigbluebutton-config.properties"
 		mkdir -p ~/.grails
-		echo "bigbluebutton.web.serverURL=http://$IP" > ~/.grails/bigbluebutton-config.properties
+		cp /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties ~/.grails/bigbluebutton-config.properties
+
+		echo "# Copying the bbb_api_conf.jsp into /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties to ~/dev/bbb-web/web-app/demo"
+		cp /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api_conf.jsp ~/dev/bbb-web/web-app/demo
 
 		echo "# Enabling $USER to write to /var/bigbluebutton to upload slides"
 		sudo chmod -R ugo+rwx /var/bigbluebutton
@@ -305,20 +310,6 @@ if [ $SETUPDEV ]; then
 		echo "# Enabling $USER to write to /var/log/bigbluebutton to write log files"
 		sudo chmod -R ugo+rwx /var/log/bigbluebutton
 	
-		#
-		# ToDo: This needs more work
-		#	
-		echo "# Setting salt and BigBlueButtonURL in ./bigbluebutton/demo/bbb_api.jsp"
-		sudo chmod -R ugo+rwx /var/log/bigbluebutton
-
-	 	BBB_HOST=$(cat /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api.jsp | tr -d '\015' | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}')
-		sed -i "s/BigBlueButtonURL = \"http:\/\/\([^\"\/]*\)\([\"\/]\)/BigBlueButtonURL = \"http:\/\/$BBB_HOST\2/g" \
-               		./bbb-web/web-app/demo/bbb_api.jsp
-
-		SALT=$(cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | tr -d '\015' | sed -n '/securitySalt/{s/.*=//;p}')
-		sed -i "s/String salt = \".*/String salt = \"$SALT\";/g" \
-               		./bbb-web/web-app/demo/bbb_api.jsp
-
 		echo "
 # Done.  To run your local build of bbb-web:
 
@@ -507,7 +498,7 @@ check_state() {
 	# Make sure the salt for the API matches the server
 	#
 	SALT_PROPERTIES=$(cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
-	SALT_DEMO=$(cat /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api.jsp | tr -d '\r' | sed -n '/salt =/{s/.* = "//;s/".*//g;p}')
+	SALT_DEMO=$(cat /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api_conf.jsp | tr -d '\r' | sed -n '/salt =/{s/.* = "//;s/".*//g;p}')
 
 	if [ "$SALT_PROPERTIES" != "$SALT_DEMO" ]; then
         	echo "                       salt mismatch: salt in bigbluebutton.properties and bbb_api.jsp do not match"
@@ -544,7 +535,7 @@ check_state() {
 	HOST_IP=$(ifconfig | grep -v '127.0.0.1' | grep -m 1 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
  	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
 
-	if [ $HOST_IP != $NGINX_IP ]; then
+	if [ "$HOST_IP" != "$NGINX_IP" ]; then
         	echo "Host IP does not match BigBlueButton: ${HOST_IP} != ${NGINX_IP}"
 	fi
 
