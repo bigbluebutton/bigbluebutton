@@ -139,7 +139,7 @@ public String getJoinURL(String username, String meetingID, String welcome) {
 	}
 	
 	public String getURLisMeetingRunning(String meetingToken, String meetingID) {
-		String base_main = "meetingToken=" + meetingToken + "&meetingID=" + meetingID;
+		String base_main = "meetingToken=" + meetingToken + "&meetingID=" + urlEncode(meetingID);
 		String base_url = BigBlueButtonURL + "api/isMeetingRunning?";
 		String checksum ="";
 		
@@ -155,7 +155,7 @@ public String getJoinURL(String username, String meetingID, String welcome) {
 
 		
 	public String isMeetingRunning(String meetingToken, String meetingID) {
-		String base_main = "meetingToken=" + meetingToken + "&meetingID=" + meetingID;
+		String base_main = "meetingToken=" + meetingToken + "&meetingID=" + urlEncode(meetingID);
 		String base_url = BigBlueButtonURL + "api/isMeetingRunning?";
 		String checksum ="";
 		
