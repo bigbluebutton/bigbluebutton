@@ -26,26 +26,30 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>BigBlueButton API Demos</title>
+<title>Join a Selected Course</title>
 </head>
 <body>
 
 <%@ include file="bbb_api.jsp"%>
-<%@ include file="demo_header.jsp"%>
-
 
 <br>
 
-<% 
-if (request.getParameterMap().isEmpty()) {
-	//
-	// Assume we want to create a meeting
-	//
-	%>
+<%
+	if (request.getParameterMap().isEmpty()) {
+		//
+		// Assume we want to create a meeting
+		//
+%>
+<a href="demo1.jsp">Join a Course</a>
+|
+<a href="demo2.jsp">Join a Selected Course</a>
+|
+<a href="demo3.jsp">Create Your Own Meeting</a>
+|
+<a href="/">Home</a>
 
-<hr />
-<h2>Demo #2: Join a Selected Meeting.</h2>
-<hr />
+<h2>Demo #2: Join a Selected Course</h2>
+
 
 <FORM NAME="form1" METHOD="GET">
 
@@ -54,24 +58,22 @@ if (request.getParameterMap().isEmpty()) {
 	border=3>
 	<tbody>
 		<tr>
-			<td width="50%">Join a selected meeting. 
-			</td>
+			<td width="50%">Join a Selected Course.</td>
 
 			<td width="50%">
 
-			<p/>Enter your name: <input
-				type="text" name="username" /> <br />
-			
+			<p />Enter your name: <input type="text" name="username" /> <br />
+
 			<INPUT TYPE=hidden NAME=action VALUE="create">
-						<p />Meeting:&nbsp;<select name="meetingID">
+			<p />Course:&nbsp;<select name="meetingID">
 				<option value="English 232">English 232</option>
 				<option value="English 300">English 300</option>
 				<option value="English 402">English 402</option>
 				<option value="Demo Meeting">Demo Meeting</option>
 			</select>
-			<p/>			
-			<br />
-			<input type="submit" value="Join" /></td>
+			<p /><br />
+			<input type="submit" value="Join" />
+			</td>
 		</tr>
 	</tbody>
 </table>
@@ -79,32 +81,32 @@ if (request.getParameterMap().isEmpty()) {
 </FORM>
 
 <%
-} else  if (request.getParameter("action").equals("create")) {
-	//
-	// Got an action=create
-	//
-	
-	String username = URLEncoder.encode(request.getParameter("username"),"UTF-8");
-	String meetingID = URLEncoder.encode(request.getParameter("meetingID"),"UTF-8");
-	
-	String joinURL = getJoinURL(username, meetingID);
+	} else if (request.getParameter("action").equals("create")) {
+		//
+		// Got an action=create
+		//
 
-	if ("".equals(joinURL)) { 
+		String username = request.getParameter("username");
+		String meetingID = request.getParameter("meetingID");
+
+		String joinURL = getJoinURL(username, meetingID, "Welcome %%CONFNAME%%." );
+
+		if (joinURL.startsWith("http://")) {
 %>
-	Error: getJoinURL() returned an empty URL
+
+<script language="javascript" type="text/javascript">
+  window.location.href="<%=joinURL%>";
+</script>
+
 <%
 	} else {
 %>
 
-<script language="javascript" type="text/javascript">
-window.location.href="<%=joinURL%>";
-</script>
-
-<%  }
-} %>
-
-<%@ include file="demo_footer.jsp"%>
-
+Error: getJoinURL() failed
+<p /><%=joinURL%> <%
+ 	}
+ 	}
+ %> <%@ include file="demo_footer.jsp"%>
 </body>
 </html>
 

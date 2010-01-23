@@ -1,14 +1,15 @@
 <%@ page isErrorPage="true" %>
 <%@ page language="java" %>
-<%@ page import="java.util.*,java.io.*" %>
+<%@ page import="java.util.*" %>
+<%@ page import="java.io.*" %>
+
 <%
     Object statusCode = request.getAttribute("javax.servlet.error.status_code"); 
     Object exceptionType = request.getAttribute("javax.servlet.error.exception_type"); 
     Object message = request.getAttribute("javax.servlet.error.message"); 
 %>
 
-
-<html>
+<html> 
 <head>
 <title>Error Page</title>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">

@@ -26,7 +26,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>BigBlueButton API Demos</title>
+<title>Join a Course</title>
 </head>
 <body>
 
@@ -39,12 +39,11 @@ if (request.getParameterMap().isEmpty()) {
 	//
 	// Assume we want to create a meeting
 	//
-	%>
+	%> 
+<a href="demo1.jsp">Join a Course</a> | <a href="demo2.jsp">Join a Selected Course</a> | <a href="demo3.jsp">Create Your Own Meeting</a> | <a href="/">Home</a>
 
-<a href="demo1.jsp">Join a Meeting</a> | <a href="demo2.jsp">Join a Selected Meeting</a> | <a href="demo3.jsp">Create Your Own Meeting and Invite Others</a> | <a href="/">Home</a>
-<hr />
-<h2>Demo #1: Join the Demo Meeting.</h2>
-<hr />
+<h2>Demo #1: Join a Course</h2>
+
 
 <FORM NAME="form1" METHOD="GET">
 
@@ -55,7 +54,7 @@ if (request.getParameterMap().isEmpty()) {
 		<tr>
 			<td width="50%">
 
-			<p />Join <strong>Demo Meeting</strong>
+			<p />Join a Course.
 			</td>
 			<td width="50%">Enter your name: <input type="text"
 				name="username" /> <br />
@@ -75,24 +74,28 @@ if (request.getParameterMap().isEmpty()) {
 	// Got an action=create
 	//
 	
-	String username = URLEncoder.encode(request.getParameter("username"),"UTF-8");
-	String meetingID = URLEncoder.encode("Demo Meeting","UTF-8");
-	String joinURL = getJoinURL(username, meetingID);
+	//
+    // Request a URL to join a meeting called "Demo Meeting"
+    // Pass null for welcome message to use the default message (see defaultWelcomeMessage in bigbluebutton.properties)
+    //
+	String joinURL = getJoinURL(request.getParameter("username"), "Demo Meeting", null );
 
-	if ("".equals(joinURL)) { 
+	if (joinURL.startsWith("http://")) { 
 %>
 
-Error: getJoinURL() returned an empty URL
+<script language="javascript" type="text/javascript">
+  window.location.href="<%=joinURL%>";
+</script>
 
 <%
 	} else {
 %>
 
-<script language="javascript" type="text/javascript">
-window.location.href="<%=joinURL%>";
-</script>
+Error: getJoinURL() failed
+<p/>
+<%=joinURL %>
 
-<%
+<% 
 	}
 } 
 %>

@@ -28,31 +28,33 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 <%@ include file="bbb_api_conf.jsp"%>
 
 <%!
-//
-// Create a meeting that does not require passwords
-//
-public String getJoinURL(String username, String meetingID) {
 
-		String checksum = "";
-
+// 
+// Create a meeting and return a URL to join it
+//
+public String getJoinURL(String username, String meetingID, String welcome) {
 		String base_url_create = BigBlueButtonURL + "api/create?";
 		String base_url_join = BigBlueButtonURL + "api/join?";
 		
-		Random random = new Random();
-		Integer voiceBridge = 70000 + random.nextInt(79999);
+		String welcome_param = "";
+		String checksum = "";
 		
-		String create_parameters = "name=" + username + "&meetingID=" + meetingID
-		+ "&attendeePW=ap&moderatorPW=mp&voiceBridge="+voiceBridge;
-
+		Random random = new Random();
+		Integer voiceBridge = 70000 + random.nextInt(9999);
+		
+		if ( (welcome != null) && ! welcome.equals("")) {
+			welcome_param = "&welcome=" + urlEncode(welcome);
+		}
+			
+		String create_parameters = "name=" + urlEncode(username) + "&meetingID=" + urlEncode(meetingID)
+		+ welcome_param + "&attendeePW=ap&moderatorPW=mp&voiceBridge="+voiceBridge;
 
 		Document doc = null;
 
 		try {
 			// Attempt to create a meeting of that name
-			
 			String xml = getURL(base_url_create + create_parameters + "&checksum=" + checksum(create_parameters + salt) );
-			doc = parseXml(xml);
-			
+			doc = parseXml(xml);		
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -73,13 +75,15 @@ public String getJoinURL(String username, String meetingID) {
 			return base_url_join + join_parameters + "&checksum=" + checksum(join_parameters + salt);
 
 		}
-		return "";
+		return doc.getElementsByTagName("messageKey").item(0).getTextContent().trim() 
+		+ ": " + doc.getElementsByTagName("message").item(0).getTextContent().trim();
 	}
 
 	public static String checksum(String s) {
 		String checksum = "";
 		try {
-			checksum = DigestUtils.shaHex(s);
+			checksum = org.apache.commons.codec.digest.DigestUtils.shaHex(s);
+			// checksum = DigestUtils.shaHex(s);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -188,4 +192,15 @@ public String getJoinURL(String username, String meetingID) {
 		DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 		Document doc = docBuilder.parse(new InputSource(new StringReader(xml)));
 		return doc;
-	}%>
+	}
+	
+	
+	public static String urlEncode(String s) {	
+		try {
+			return URLEncoder.encode(s, "UTF-8");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
+%>
