@@ -89,7 +89,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 		String username = request.getParameter("username");
 		String meetingID = request.getParameter("meetingID");
 
-		String joinURL = getJoinURL(username, meetingID, "Welcome %%CONFNAME%%." );
+		String joinURL = getJoinURL(username, meetingID, "Welcome to " + meetingID );
 
 		if (joinURL.startsWith("http://")) {
 %>
