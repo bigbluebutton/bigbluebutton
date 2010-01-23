@@ -200,7 +200,7 @@ $(document).ready(function(){
 			// The meeting has not yet started, so check until we get back the status that the meeting is running
 			//
 			String checkMeetingStatus = getURLisMeetingRunning(
-					meetingToken, URLEncoder.encode(meetingID, "UTF-8"));
+					meetingToken, meetingID);
 %>
 
 <script type="text/javascript">

@@ -69,7 +69,7 @@ public String getJoinURL(String username, String meetingID, String welcome) {
 						.getTextContent().trim();
 			}
 
-			String join_parameters = "meetingToken=" + meetingToken + "&fullName=" + username
+			String join_parameters = "meetingToken=" + meetingToken + "&fullName=" + urlEncode(username)
 					+ "&password=mp";
 
 			return base_url_join + join_parameters + "&checksum=" + checksum(join_parameters + salt);
