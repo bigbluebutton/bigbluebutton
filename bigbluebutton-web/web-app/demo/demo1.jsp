@@ -41,7 +41,7 @@ if (request.getParameterMap().isEmpty()) {
 	//
 	%>
 
-<a href="demo1.jsp">aJoin a Meeting</a> | <a href="demo2.jsp">Join a Selected Meeting</a> | <a href="demo3.jsp">Create Your Own Meeting and Invite Others</a> | <a href="/">Home</a>
+<a href="demo1.jsp">Join a Meeting</a> | <a href="demo2.jsp">Join a Selected Meeting</a> | <a href="demo3.jsp">Create Your Own Meeting and Invite Others</a> | <a href="/">Home</a>
 <hr />
 <h2>Demo #1: Join the Demo Meeting.</h2>
 <hr />
