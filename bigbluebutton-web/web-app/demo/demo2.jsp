@@ -93,7 +93,7 @@ if (request.getParameterMap().isEmpty()) {
 %>
 	Error: getJoinURL() returned an empty URL
 <%
-	else {
+	} else {
 %>
 
 <script language="javascript" type="text/javascript">
