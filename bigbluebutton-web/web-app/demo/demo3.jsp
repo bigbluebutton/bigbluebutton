@@ -110,7 +110,7 @@ $(document).ready(function(){
 		// This is the URL for to join the meeting as moderator
 		//
 		String joinURL = getJoinURL(username, meetingID, "Welcome to "
-				+ meetingID);
+				+ meetingID + ".<br>");
 
 		//
 		// We're going to extract the meetingToken to enable others to join as viewers
@@ -149,8 +149,8 @@ $(document).ready(function(){
 			<td width="50%">
 			<p>&nbsp;</p>
 
-			Step 2. Invite others using the following <a href="<%=inviteURL%>">link</a>:
-			<form name="form2" method="POST"><textarea cols="60" rows="5"
+			Step 2. Invite others using the following <a href="<%=inviteURL%>">link</a> (shown below):
+			<form name="form2" method="POST"><textarea cols="62" rows="5"
 				name="myname" style="overflow: hidden">
 <%=inviteURL%>
 </textarea></form>
@@ -185,8 +185,7 @@ $(document).ready(function(){
 				+ URLEncoder.encode(username, "UTF-8") + "&meetingID="
 				+ URLEncoder.encode(meetingID, "UTF-8");
 
-		if (isMeetingRunning(meetingToken,
-				URLEncoder.encode(meetingID, "UTF-8")).equals("true")) {
+		if (isMeetingRunning(meetingToken, meetingID).equals("true")) {
 			//
 			// The meeting has started -- bring the user into the meeting.
 			//

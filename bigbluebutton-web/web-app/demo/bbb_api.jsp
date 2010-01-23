@@ -29,7 +29,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 
 <%!
 
-//  
+// 
 // Create a meeting and return a URL to join it
 //
 public String getJoinURL(String username, String meetingID, String welcome) {
