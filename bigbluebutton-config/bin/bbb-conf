@@ -501,7 +501,7 @@ check_state() {
 	SALT_DEMO=$(cat /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api_conf.jsp | tr -d '\r' | sed -n '/salt =/{s/.* = "//;s/".*//g;p}')
 
 	if [ "$SALT_PROPERTIES" != "$SALT_DEMO" ]; then
-        	echo "                       salt mismatch: salt in bigbluebutton.properties and bbb_api.jsp do not match"
+        	echo "                       salt mismatch: salt in bigbluebutton.properties and bbb_api_conf.jsp do not match"
 	fi
 
 	#
@@ -578,10 +578,10 @@ if [ $CHECK ]; then
         echo "/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties (bbb-web)"
         echo "                                host: $HOST"
 
-	if [ -f /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api.jsp ]; then
-        	HOST=$(cat /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api.jsp  | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}' | tr -d '\015')
+	if [ -f /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api_conf.jsp ]; then
+        	HOST=$(cat /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api_conf.jsp  | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}' | tr -d '\015')
         	echo
-        	echo "/var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api.jsp (API demos)"
+        	echo "/var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api_conf.jsp (API demos)"
         	echo "                                host: $HOST"
 	fi
 
