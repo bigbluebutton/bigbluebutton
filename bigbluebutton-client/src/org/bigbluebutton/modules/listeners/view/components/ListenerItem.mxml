@@ -74,5 +74,5 @@
    </mx:Script>
    	<mx:Button id="muteBtn" width="18" height="16" icon="{data.muted ? muteIcon : unmuteIcon}" click="muteUser()"/>
 	<mx:Label id="nameLabel" textAlign="left" text="{data.callerName}" width="147" toolTip="{ResourceUtil.getInstance().getString('bbb.listenerItem.nameLbl.toolTip')}"/>
-	<mx:Image id="talkImg" source="{talkIcon}" visible="{data.talking}" toolTip=""{ResourceUtil.getInstance().getString('bbb.listenerItem.talkImg.toolTip')}"/>
+	<mx:Image id="talkImg" source="{talkIcon}" visible="{data.talking}" toolTip="{ResourceUtil.getInstance().getString('bbb.listenerItem.talkImg.toolTip')}"/>
 </mx:HBox>
