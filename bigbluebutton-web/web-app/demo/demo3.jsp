@@ -181,8 +181,8 @@ $(document).ready(function(){
 
 		String enterURL = BigBlueButtonURL
 				+ "demo/demo3.jsp?action=join&username="
-				+ URLEncoder.encode(username, "UTF-8") + "&meetingID="
-				+ URLEncoder.encode(meetingID, "UTF-8");
+				+ URLEncoder.encode(username, "UTF-8") + "&meetingToken="
+				+ URLEncoder.encode(meetingToken, "UTF-8");
 
 		if (isMeetingRunning(meetingToken, meetingID).equals("true")) {
 			//
@@ -296,7 +296,7 @@ function mycallback() {
 		//
 		// We don't need to pass a meeting descritpion as it's already been set by the first time 
 		// the meeting was created.
-		String joinURL = getJoinURL(request.getParameter("username"), request.getParameter("meetingID"), null);
+		String joinURL = getJoinURLViewer(request.getParameter("username"), request.getParameter("meetingToken"));
 
 		if (joinURL.startsWith("http://")) {
 %>

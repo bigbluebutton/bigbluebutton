@@ -30,7 +30,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 <%!
 
 // 
-// Create a meeting and return a URL to join it
+// Create a meeting and return a URL to join it as moderator
 //
 public String getJoinURL(String username, String meetingID, String welcome) {
 		String base_url_create = BigBlueButtonURL + "api/create?";
@@ -56,6 +56,9 @@ public String getJoinURL(String username, String meetingID, String welcome) {
 		// This means the first person to call getJoinURL with meetingID="Demo Meeting" will actually create the
 		// meeting.  Subsequent calls will return the same meetingToken and thus subsequent users will join the same
 		// meeting.
+		//
+		// Note: We're hard-coding the password for moderator and attendee (viewer) for purposes of demo.
+		//
 
 		String create_parameters = "name=" + urlEncode(meetingID) + "&meetingID=" + urlEncode(meetingID)
 		+ welcome_param + "&attendeePW=ap&moderatorPW=mp&voiceBridge="+voiceBridge;
@@ -92,6 +95,19 @@ public String getJoinURL(String username, String meetingID, String welcome) {
 		return doc.getElementsByTagName("messageKey").item(0).getTextContent().trim() 
 		+ ": " + doc.getElementsByTagName("message").item(0).getTextContent().trim();
 	}
+
+
+//
+// getJoinURLViewer() -- Get the URL to join a meeting as viewer
+//
+public String getJoinURLViewer(String username, String meetingToken) {
+
+	String base_url_join = BigBlueButtonURL + "api/join?";
+	String join_parameters = "meetingToken=" + meetingToken + "&fullName=" + urlEncode(username)
+	+ "&password=ap";
+
+	return base_url_join + join_parameters + "&checksum=" + checksum(join_parameters + salt);
+}
 
 	//
 	// checksum() -- create a hash based on the shared salt (located in bbb_api_conf.jsp)
