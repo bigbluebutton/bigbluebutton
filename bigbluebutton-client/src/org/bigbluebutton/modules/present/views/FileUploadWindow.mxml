@@ -76,6 +76,7 @@
     	        if(presentationNames.length<=0) {
 					deleteBtn.enabled = false;
 					showBtn.enabled = false;
+					selectFile();
     	        }
             }			
             
