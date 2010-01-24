@@ -225,6 +225,8 @@ fi
 #
 
 if [ $SAMBA ]; then
+	check_root
+
         #
         # Instal Samba
         #
@@ -257,7 +259,7 @@ if [ $SAMBA ]; then
         echo "
 You can now access your development folder through:
 
-        \\\\$(IP)\\$USER
+        \\\\${IP}\\$USER
 
 If you are running a development environment on Windows (such as using Eclipse or FlexBuilder),
 you can map the above path to a drive letter.
