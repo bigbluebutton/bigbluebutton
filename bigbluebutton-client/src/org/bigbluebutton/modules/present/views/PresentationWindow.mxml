@@ -470,7 +470,7 @@
 			private function showUploadPresentationLabel(show:Boolean):void {
 				if (show) {
 					uploadPresentationLabel.text = ResourceUtil.getInstance().getString('bbb.presentation.clickToUpload');
-		//			uploadPresentationLabel.width = 100;
+					uploadPresentationLabel.width = 100;
 				} else {
 					uploadPresentationLabel.text = "";
 					uploadPresentationLabel.width = 10;
