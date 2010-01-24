@@ -468,7 +468,14 @@
 			}
 			
 			private function showUploadPresentationLabel(show:Boolean):void {
-				uploadPresentationLabel.text = ResourceUtil.getInstance().getString('bbb.presentation.clickToUpload');
+				if (show) {
+					uploadPresentationLabel.text = ResourceUtil.getInstance().getString('bbb.presentation.clickToUpload');
+		//			uploadPresentationLabel.width = 100;
+				} else {
+					uploadPresentationLabel.text = "";
+					uploadPresentationLabel.width = 10;
+				}
+								
 				uploadPresentationLabel.visible = show;
 			}
 			
@@ -507,20 +514,20 @@
     	   		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.uploadPresBtn')}" 
     	   		click="dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW))"/>    
     	  <mx:Label id="uploadPresentationLabel" visible="false" text="" width="10%"/>
-    	  <mx:Spacer width="5%" id="spacer1"/>
+    	  <mx:Spacer width="50%" id="spacer1"/>
     	  <mx:Button id="backButton" icon="{backwardIcon}" visible="false" width="30" height="20"
     	   		toolTip="Previous slide." click="gotoPreviousSlide()"/>
     	  <mx:Label id="slideNumLbl" text=""/>    
     	  <mx:Button id="forwardButton" icon="{forwardIcon}" visible="false" width="30" height="20"
     	   		toolTip="Next slide" click="gotoNextSlide()"/>    				
-    	<mx:Spacer width="10%" id="spacer2"/>
     	<mx:HSlider id="zoomSlider" visible="false"
     		minimum="100" maximum="400" value="100" dataTipPlacement="top" labels="['100%','400%']" 
     		useHandCursor="true" snapInterval="5" allowTrackClick="true" liveDragging="true" 
-    		dataTipFormatFunction="removeDecimalFromDataTip" change="onSliderZoom()" width="100" />
-    	<mx:Spacer width="100%" id="spacer3"/>
+    		dataTipFormatFunction="removeDecimalFromDataTip" change="onSliderZoom()" width="75"/>
+    	<mx:Spacer width="50%" id="spacer3"/>
     	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="false" width="20" height="20" 
     		toolTip="Reset Zoom" click="onResetZoom()"/>
+    	<mx:Spacer width="5" id="spacer4"/>
     	<!--<mx:Button id="btnSelection" click="enableTextSelection()" />-->
     </mx:ApplicationControlBar>
 </pres:MDIWindow>
