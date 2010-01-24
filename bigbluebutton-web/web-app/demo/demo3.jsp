@@ -109,8 +109,7 @@ $(document).ready(function(){
 		//
 		// This is the URL for to join the meeting as moderator
 		//
-		String joinURL = getJoinURL(username, meetingID, "Welcome to "
-				+ meetingID + ".<br>");
+		String joinURL = getJoinURL(username, meetingID, "<br>Welcome to %%CONFNAME%%.<br>");
 
 		//
 		// We're going to extract the meetingToken to enable others to join as viewers

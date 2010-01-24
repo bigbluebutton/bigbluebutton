@@ -45,14 +45,25 @@ public String getJoinURL(String username, String meetingID, String welcome) {
 		if ( (welcome != null) && ! welcome.equals("")) {
 			welcome_param = "&welcome=" + urlEncode(welcome);
 		}
-			
-		String create_parameters = "name=" + urlEncode(username) + "&meetingID=" + urlEncode(meetingID)
+		
+		//
+		// When creating a meeting, the 'name' parameter is the name of the meeting (not to be confused with
+		// the username).  For example, the name could be "Fred's meeting" and the meetingID could be "ID-1234312".
+		//
+		// While name and meetinID could be different, we'll keep them the same.  Why?  Because calling api/create? 
+		// with a previously used meetingID will return same meetingToken (regardless if the meeting is running or not).
+		//
+		// This means the first person to call getJoinURL with meetingID="Demo Meeting" will actually create the
+		// meeting.  Subsequent calls will return the same meetingToken and thus subsequent users will join the same
+		// meeting.
+
+		String create_parameters = "name=" + urlEncode(meetingID) + "&meetingID=" + urlEncode(meetingID)
 		+ welcome_param + "&attendeePW=ap&moderatorPW=mp&voiceBridge="+voiceBridge;
 
 		Document doc = null;
 
 		try {
-			// Attempt to create a meeting of that name
+			// Attempt to create a meeting using meetingID
 			String xml = getURL(base_url_create + create_parameters + "&checksum=" + checksum(create_parameters + salt) );
 			doc = parseXml(xml);		
 		} catch (Exception e) {
@@ -69,6 +80,9 @@ public String getJoinURL(String username, String meetingID, String welcome) {
 						.getTextContent().trim();
 			}
 
+			//
+			// Now create a URL to join that meeting
+			//
 			String join_parameters = "meetingToken=" + meetingToken + "&fullName=" + urlEncode(username)
 					+ "&password=mp";
 
@@ -79,25 +93,24 @@ public String getJoinURL(String username, String meetingID, String welcome) {
 		+ ": " + doc.getElementsByTagName("message").item(0).getTextContent().trim();
 	}
 
+	//
+	// checksum() -- create a hash based on the shared salt (located in bbb_api_conf.jsp)
+	//
 	public static String checksum(String s) {
 		String checksum = "";
 		try {
 			checksum = org.apache.commons.codec.digest.DigestUtils.shaHex(s);
-			// checksum = DigestUtils.shaHex(s);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return checksum;
 	}
 
+	//
+	// getURL() -- fetch a URL and return its contents as a String
+	//
 	public static String getURL(String url) {
 		StringBuffer response = null;
-
-		// Verify that the communication will be over SSL.
-		if (!url.startsWith("http")) {
-			// throw new MalformedURLException("getURL(): URL \"" + url +
-			// "\" does not use HTTPS.");
-		}
 
 		try {
 			URL u = new URL(url);
@@ -138,6 +151,9 @@ public String getJoinURL(String username, String meetingID, String welcome) {
 		}
 	}
 	
+	//
+	// getURLisMeetingRunning() -- return a URL that the client can use to poll for whether the given meeting is running
+	//
 	public String getURLisMeetingRunning(String meetingToken, String meetingID) {
 		String base_main = "meetingToken=" + meetingToken + "&meetingID=" + urlEncode(meetingID);
 		String base_url = BigBlueButtonURL + "api/isMeetingRunning?";
@@ -153,7 +169,9 @@ public String getJoinURL(String username, String meetingID, String welcome) {
 		return base_url + base_main + "&checksum=" + checksum;
 	}
 
-		
+	//
+	// isMeetingRunning() -- check the BigBlueButton server to see if the meeting is running (i.e. there is someone in the meeting)
+	//
 	public String isMeetingRunning(String meetingToken, String meetingID) {
 		String base_main = "meetingToken=" + meetingToken + "&meetingID=" + urlEncode(meetingID);
 		String base_url = BigBlueButtonURL + "api/isMeetingRunning?";
@@ -184,7 +202,9 @@ public String getJoinURL(String username, String meetingID, String welcome) {
 		
 	}
 	
-	
+	//
+	// parseXml() -- return a DOM of the XML
+	//
 	public static Document parseXml(String xml)
 			throws ParserConfigurationException, IOException, SAXException {
 		DocumentBuilderFactory docFactory = DocumentBuilderFactory
@@ -194,7 +214,9 @@ public String getJoinURL(String username, String meetingID, String welcome) {
 		return doc;
 	}
 	
-	
+	//
+	// urlEncode() -- URL encode the string
+	//
 	public static String urlEncode(String s) {	
 		try {
 			return URLEncoder.encode(s, "UTF-8");
