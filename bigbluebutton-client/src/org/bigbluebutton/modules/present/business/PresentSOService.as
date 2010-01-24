@@ -127,7 +127,6 @@ package org.bigbluebutton.modules.present.business {
 		 * 
 		 */		
 		public function zoom(xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void{
-			//_presentationSO.send("zoomCallback", xOffset, yOffset, widthRatio, heightRatio);
 			move(xOffset, yOffset, widthRatio, heightRatio);
 		}
 		
@@ -446,7 +445,7 @@ package org.bigbluebutton.modules.present.business {
 				code:String, presentationName:String, messageKey:String, numberOfPages:Number, 
 				maxNumberOfPages:Number) : void {
 			LogUtil.debug("pageCountExceededUpdateMessageCallback:Received update message " + messageKey);
-			var uploadEvent = new UploadEvent(UploadEvent.PAGE_COUNT_EXCEEDED);
+			var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.PAGE_COUNT_EXCEEDED);
 			dispatcher.dispatchEvent(uploadEvent);
 		}
 
