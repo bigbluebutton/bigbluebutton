@@ -31,6 +31,11 @@
 
 # set -x
 
+#
+# This ensures that we checkout the 0.63 release of BigBlueButton
+#
+RELEASE="-r 3489"
+
 print_header() {
 	if [ ! $HEADER ]; then
 		echo 		
@@ -292,10 +297,10 @@ if [ $SETUPDEV ]; then
             if [ ! -d ~/dev/bbb-web ]; then
 
 		echo "# Setting up ~/dev/bbb-web"
-                echo "  svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-web bbb-web"
+                echo "  svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-web bbb-web ${RELEASE}"
 
                 cd ~/dev
-                svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-web bbb-web
+                svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-web bbb-web $RELEASE
 
 		IP=$(ifconfig | grep -v '127.0.0.1' | grep -m 1 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
 
@@ -326,10 +331,10 @@ if [ $SETUPDEV ]; then
             if [ ! -d ~/dev/bbb-client ]; then
 
 		echo "# Setting up ~/dev/bbb-client"
-                echo "  svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-client bbb-client"
+                echo "  svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-client bbb-client ${RELEASE}"
 
                 cd ~/dev
-                svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-client bbb-client
+                svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-client bbb-client $RELEASE
 
 		#
 		# Setup the directories so we can point /etc/nginx/sites-available/bigbluebutton to this
@@ -373,10 +378,10 @@ if [ $SETUPDEV ]; then
             if [ ! -d ~/dev/bbb-apps ]; then
 
 		echo "# Setting up ~/dev/bbb-apps:"
-  		echo "  svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-apps bbb-apps"
+  		echo "  svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-apps bbb-apps ${RELEASE}"
            
                 cd ~/dev
-                svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-apps bbb-apps
+                svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-apps bbb-apps $RELEASE
             
              fi 
 
