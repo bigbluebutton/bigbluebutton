@@ -139,13 +139,7 @@
         		
         		dispatchEvent(new AssignPresenterEvent(viewersGrid.selectedItem.userid, viewersGrid.selectedItem.name));
         	}
-        	
-        	private function playSound(e:ParticipantJoinEvent):void{
-        		if (e.join){
-        			userJoinSound.end();
-					userJoinSound.play();
-        		}
-        	}
+
         ]]>
     </mx:Script>
 
@@ -173,6 +167,4 @@
     	   			click="dispatchEvent(new Event(ViewersWindowMediator.CHANGE_STATUS))"/>  			
     </mx:ControlBar>  
     
-    <mx:SoundEffect id="userJoinSound" source="@Embed('../assets/sounds/user_join.mp3')" target="{this}" />
-    <mate:Listener id="joinListener" method="playSound" type="{ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT}" />
 </viewer:MDIWindow>
