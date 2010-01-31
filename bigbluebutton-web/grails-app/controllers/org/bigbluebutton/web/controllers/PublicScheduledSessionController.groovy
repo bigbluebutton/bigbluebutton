@@ -26,6 +26,7 @@ import grails.converters.*
 import org.codehaus.groovy.grails.commons.*
 import org.bigbluebutton.web.services.DynamicConferenceService;
 import org.bigbluebutton.web.services.SchedulingService
+import org.bigbluebutton.api.domain.DynamicConference;
 
 class PublicScheduledSessionController {
 	DynamicConferenceService dynamicConferenceService;
@@ -269,14 +270,24 @@ class PublicScheduledSessionController {
 	}
 
 	def signOut = {
-		// Log the user out of the application.
-	    session.invalidate()
+		
 
 	    def config = ConfigurationHolder.config
         def hostURL = config.bigbluebutton.web.loggedOutUrl
+        
+	    def meetingToken = session["conference"]
+        DynamicConference conf = dynamicConferenceService.getConferenceByToken(meetingToken)
+        if (conf != null) {
+        	if ((conf.logoutUrl != null) || (conf.logoutUrl != "")) {
+        		hostURL = conf.logoutUrl
+    		}
+        }
+	    	    
         if (!hostURL){
         	hostURL = config.bigbluebutton.web.serverURL
         }
+        // Log the user out of the application.
+	    session.invalidate()
         println "serverURL $hostURL"	
 	    redirect(url: hostURL)
 	}

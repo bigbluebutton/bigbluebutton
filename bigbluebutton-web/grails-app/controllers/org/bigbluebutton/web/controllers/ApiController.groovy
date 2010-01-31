@@ -81,6 +81,7 @@ class ApiController {
 		String voiceBr = params.voiceBridge
 		String welcomeMessage = params.welcome
 		String dialNumber = params.dialNumber
+		String logoutUrl = params.logoutUrl
 		
 		Integer maxParts = -1;
 		try {
@@ -105,6 +106,10 @@ class ApiController {
 		}
 		DynamicConference conf = new DynamicConference(name, mtgID, attPW, modPW, maxParts)
 		conf.setVoiceBridge(voiceBr == null || voiceBr == "" ? mtgID : voiceBr)
+		
+		if ((logoutUrl != null) || (logoutUrl != "")) {
+			conf.logoutUrl = logoutUrl
+		}
 		
 		if (welcomeMessage == null || welcomeMessage == "") {
 			welcomeMessage = dynamicConferenceService.defaultWelcomeMessage

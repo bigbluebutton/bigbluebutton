@@ -38,6 +38,7 @@ public class DynamicConference extends Conference {
 	String moderatorPassword
 	String attendeePassword
 	String welcome
+	String logoutUrl
 	int maxParticipants
 
 	public DynamicConference() {}
