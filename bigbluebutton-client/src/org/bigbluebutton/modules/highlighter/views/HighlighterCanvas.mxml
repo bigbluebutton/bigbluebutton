@@ -3,12 +3,14 @@
 	mouseDown="doMouseDown()" mouseMove="doMouseMove()" mouseUp="doMouseUp()" creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.highlighter.events.HighlighterUpdate;
+			import org.bigbluebutton.common.mate.SharedObjectEvent;
+			import org.bigbluebutton.modules.highlighter.maps.HighlighterEventMap;
 			import mx.controls.Alert;
 			import org.bigbluebutton.modules.highlighter.events.HighlighterDrawEvent;
 			import mx.core.Application;
 			import org.bigbluebutton.modules.highlighter.business.shapes.ShapeFactory;
 			import org.bigbluebutton.modules.highlighter.business.shapes.DrawObjectFactory;
-			import org.bigbluebutton.modules.highlighter.events.HighlighterUpdateEvent;
 			import org.bigbluebutton.modules.highlighter.business.shapes.DrawObject;
 			
 			private var x1:int;
@@ -49,7 +51,9 @@
 			private function doMouseUp():void{
 				isDrawing = false;
 				this.d = drawFactory.makeDrawObject(this.shapeStyle,segment, this.drawColor, this.thickness);
-				dispatchEvent(new Event(HighlighterDrawEvent.SEND_SHAPE));
+				var event:HighlighterDrawEvent = new HighlighterDrawEvent(HighlighterDrawEvent.SEND_SHAPE);
+				event.message = d;
+				dispatchEvent(event);
 				if (rawChildren.contains(feedback)){
 					rawChildren.removeChild(feedback);
 				}
@@ -101,8 +105,8 @@
 			 * This method is executed by the BoardMediator upon reception of an Update request. The method
 			 * is executed on all clients, even the one which sent the update request.
 			 */
-			public function drawSegment(event:HighlighterUpdateEvent):void{
-				var draw:DrawObject = event.message as DrawObject;
+			public function drawSegment(event:HighlighterUpdate):void{
+				var draw:DrawObject = event.data;
 				newShape = shapeFactory.makeShape(draw);
 	            shapeList.push(newShape);
 	            rawChildren.addChild(shapeList[shapeList.length-1]);
@@ -116,7 +120,7 @@
 			 * @param s The type
 			 * 
 			 */		
-			protected function setShape(s:String):void{
+			public function setShape(s:String):void{
 				this.shapeStyle = s;
 			}
 			
@@ -125,7 +129,7 @@
 			 * @param e event containing the color (e.target.selectedColor)
 			 * 
 			 */		
-			protected function changeColor(e:Event):void{
+			public function changeColor(e:Event):void{
 				drawColor = e.target.selectedColor;
 			}
 			
@@ -134,14 +138,14 @@
 			 * @param e event containing the thickness (e.target.value)
 			 * 
 			 */		
-			protected function changeThickness(e:Event):void{
+			public function changeThickness(e:Event):void{
 				this.thickness = e.target.value;
 			}
 			
 			/**
 			 * Clears the entire board
 			 */
-			public function clearBoard(event:HighlighterUpdateEvent):void{
+			public function clearBoard(event:HighlighterUpdate):void{
 				for (var i:Number = 0; i<this.shapeList.length; i++){
 					if (this.rawChildren.contains(this.shapeList[i])){
 						this.rawChildren.removeChild(this.shapeList[i]);	
@@ -150,7 +154,7 @@
 				this.shapeList = new Array();
 			}
 			
-			public function undoShape(event:HighlighterUpdateEvent):void{
+			public function undoShape(event:HighlighterUpdate):void{
 				if (this.shapeList.length > 0){
 					this.rawChildren.removeChild(this.shapeList[this.shapeList.length-1]);
 					shapeList.pop();
@@ -177,7 +181,7 @@
 	</mx:Script>
 	
 	<mate:Debugger level="{Debugger.ALL}" />
-	<mate:Listener type="{HighlighterUpdateEvent.BOARD_CLEARED}" method="clearBoard" />
-	<mate:Listener type="{HighlighterUpdateEvent.BOARD_UPDATED}" method="drawSegment" />
-	<mate:Listener type="{HighlighterUpdateEvent.SHAPE_UNDONE}" method="undoShape" />
+	<mate:Listener type="{HighlighterUpdate.BOARD_CLEARED}" method="clearBoard" />
+	<mate:Listener type="{HighlighterUpdate.BOARD_UPDATED}" method="drawSegment" />
+	<mate:Listener type="{HighlighterUpdate.SHAPE_UNDONE}" method="undoShape" />
 </mx:Canvas>

@@ -13,6 +13,8 @@ package org.bigbluebutton.common.mate
 	
 	import mx.collections.ArrayCollection;
 	
+	import org.bigbluebutton.modules.highlighter.business.shapes.DrawObject;
+	
 	/**
 	 * The SharedObjectService abstracts the communication with Remote SharedObjects located on a server 
 	 * @author Snap
@@ -126,6 +128,7 @@ package org.bigbluebutton.common.mate
 		public function sharedObjectCallback(sharedObject:String, message:Object):void{
 			var event:SharedObjectEvent = new SharedObjectEvent(sharedObject);
 			event.message = message;
+			var obj:DrawObject = DrawObject(message);
 			dispatcher.dispatchEvent(event);
 		}
 		

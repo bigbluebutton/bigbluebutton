@@ -107,11 +107,11 @@
 				LogUtil.debug("highlighter attr: " + attributes.username);
 				_attributes = attributes;
 				globalDispatcher = new Dispatcher();
-				eventMap.startSOService(this.uri, this.connection);
 				//eventMap.createHighlighterCanvas();
 				
 				var startEvent:StartHighligtherModuleEvent = new StartHighligtherModuleEvent();
-				dispatchEvent(startEvent);
+				startEvent.attributes = attributes;
+				globalDispatcher.dispatchEvent(startEvent);
 								
 			}
 		

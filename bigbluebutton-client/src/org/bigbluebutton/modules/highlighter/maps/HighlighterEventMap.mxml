@@ -2,69 +2,38 @@
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/" xmlns:mate="org.bigbluebutton.common.mate.*">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.highlighter.business.DrawProxy;
+			import org.bigbluebutton.modules.highlighter.events.StartHighligtherModuleEvent;
+			import mx.events.FlexEvent;
+			import org.bigbluebutton.modules.highlighter.managers.HighlighterManager;
 			import org.bigbluebutton.main.events.ModuleStartedEvent;
 			import org.bigbluebutton.main.events.AddHighligtherCanvasEvent;
-			import mx.controls.Alert;
-			import org.bigbluebutton.common.mate.SharedObjectService;
-			import org.bigbluebutton.modules.highlighter.events.HighlighterUpdateEvent;
 			import org.bigbluebutton.modules.highlighter.events.HighlighterDrawEvent;
 			import org.bigbluebutton.modules.highlighter.views.HighlighterCanvas;
 			import org.bigbluebutton.main.events.AddHighligtherCanvasEvent;
 			
-			[Bindable]
-			private var highlighterCanvas:HighlighterCanvas;
-			
-			public function createHighlighterCanvas():void {
-				highlighterCanvas = new HighlighterCanvas();
-			}
-						
-			[Bindable]
-			private var soService:SharedObjectService;
-			
-			//Start the SharedObjectService the application will be communicating with
-			public function startSOService(url:String, connection:NetConnection = null):void{
-				soService = new SharedObjectService(url, connection);
-			}
-			
-			private function sharedObjectUpdateFailed(fault:Object):void{
-				Alert.show("HIghlighterEventMap::sharedObjectUpdateFailed-" + fault.toString());
-			}
-			
 		]]>
 	</mx:Script>
 	
-	<EventHandlers type="{ModuleStartedEvent.MODULE_STARTED_EVENT}">
-		<InlineInvoker method="createHighlighterCanvas" />   
-   		<EventAnnouncer generator="{AddHighligtherCanvasEvent}" type="{AddHighligtherCanvasEvent.ADD_HIGHLIGHTER_CANVAS}" 
-   				dispatcherType="global">
-   				<Properties canvas="{highlighterCanvas}"/>
-   	</EventAnnouncer>		
-		
+	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
+		<ObjectBuilder generator="{HighlighterManager}" cache="global" />
+		<ObjectBuilder generator="{DrawProxy}" cache="global" />
 	</EventHandlers>
+	
+	<EventHandlers type="{StartHighligtherModuleEvent.START_HIGHLIGHTER_MODULE_EVENT}">
+		<MethodInvoker generator="{HighlighterManager}" method="handleStartModuleEvent" />
+		<MethodInvoker generator="{DrawProxy}" method="connect" arguments="{event}" />
+	</EventHandlers>
+	
 	<EventHandlers type="{HighlighterDrawEvent.CLEAR_BOARD}" >
-		<mate:SharedObjectInvoker SOName="{HighlighterUpdateEvent.BOARD_CLEARED}" sharedObjectService="{soService}" >
-			<Properties message="{event.message}" />
-			<mate:faultHandlers>
-				<InlineInvoker method="sharedObjectUpdateFailed" arguments="{fault}" />
-			</mate:faultHandlers>
-		</mate:SharedObjectInvoker>
+		<MethodInvoker generator="{DrawProxy}" method="clearBoard" />
 	</EventHandlers>
 	
 	<EventHandlers type="{HighlighterDrawEvent.SEND_SHAPE}">
-		<mate:SharedObjectInvoker SOName="{HighlighterUpdateEvent.BOARD_UPDATED}" sharedObjectService="{soService}">
-			<Properties message="{event.message}" />
-			<mate:faultHandlers>
-				<InlineInvoker method="sharedObjectUpdateFailed" arguments="{fault}" />
-			</mate:faultHandlers>
-		</mate:SharedObjectInvoker>
+		<MethodInvoker generator="{DrawProxy}" method="sendShape" arguments="{event}" />
 	</EventHandlers>
 	
 	<EventHandlers type="{HighlighterDrawEvent.UNDO_SHAPE}" >
-		<mate:SharedObjectInvoker SOName="{HighlighterUpdateEvent.SHAPE_UNDONE}" sharedObjectService="{soService}" >
-			<Properties message="{event.message}" />
-			<mate:faultHandlers>
-				<InlineInvoker method="sharedObjectUpdateFailed" arguments="{fault}" />
-			</mate:faultHandlers>
-		</mate:SharedObjectInvoker>
+		<MethodInvoker generator="{DrawProxy}" method="undoShape" />
 	</EventHandlers>
 </EventMap>
