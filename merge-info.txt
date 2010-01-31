@@ -8,3 +8,8 @@
 
 # Command used
 svn merge -r 2575:HEAD https://bigbluebutton.googlecode.com/svn/trunk/
+
+test
+test
+test
+test
