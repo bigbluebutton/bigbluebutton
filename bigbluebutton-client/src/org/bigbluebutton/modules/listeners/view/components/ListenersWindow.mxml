@@ -144,11 +144,18 @@
  
  			private function listenerSelectEvent(event:ListEvent):void {
 	            dispatchEvent(new ListenerSelectedEvent(moderator , listeners.getItemAt(listenersList.selectedIndex).userid)); 
-        	}   			   
+        	}   		
+        	
+        	private function handleEjectButtonClick():void {
+        		if ((listeners != null) && (listeners.length > 0)) {
+        			dispatchEvent(new Event(ListenersModuleConstants.EJECT_LISTENER_EVENT));
+        			ejectBtn.enabled = false;
+        		}
+        	}	   
 		]]>
 	</mx:Script>
     	<mx:TileList id="listenersList" height="100%" width="100%" itemClick="listenerSelectEvent(event);"
- 			itemRenderer="org.bigbluebutton.modules.listeners.view.components.ListenerItem"
+ 			itemRenderer="org.bigbluebutton.modules.listeners.view.components.ListenerItem" 
             maxColumns="1" rowHeight="25"  dragEnabled="false" dataProvider="{listeners}">          
     	</mx:TileList>				
     	    	
@@ -164,8 +171,8 @@
      	   <mx:Spacer width="100%"/>		
 			<mx:Button id="ejectBtn" icon="{ejectIcon}" 
     	   			toolTip="{ResourceUtil.getInstance().getString('bbb.listeners.ejectBtn.toolTip')}" 
-    	   			click="dispatchEvent(new Event(ListenersModuleConstants.EJECT_LISTENER_EVENT))"
-    	   			visible="{moderator}" width="18" height="18"/> 
+    	   			click="handleEjectButtonClick()"
+    	   			visible="{moderator}" enabled="false" width="18" height="18"/> 
     	</mx:ControlBar>
 
 </MDIWindow>
