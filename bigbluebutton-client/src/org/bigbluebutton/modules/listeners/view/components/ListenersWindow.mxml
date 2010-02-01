@@ -23,7 +23,8 @@
 <MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 			xmlns="flexlib.mdi.containers.*"
 			implements="org.bigbluebutton.common.IBbbModuleWindow"
-			width="215" height="226">
+			width="215" height="226"
+			creationComplete="addAutomationCallback()">
 
 	<mx:Script>
 		<![CDATA[
@@ -50,6 +51,18 @@
 			[Bindable] public var listeners:ArrayCollection;
 			[Bindable] public var moderator:Boolean;
 			
+			//Adds a callback so that we can call the function externally for testing purposes
+			private function addAutomationCallback():void{
+				ExternalInterface.addCallback("testVoiceJoined", testVoiceJoined);
+			}
+			
+			//The callback for "testVoiceJoined". Accepts a user name and returns whether the user is in the voice conference.
+			private function testVoiceJoined(user:String):String{
+				for (var i:int=0; i<listeners.length ;i++){
+					if (listeners.getItemAt(i).userid == user) return "true";
+				}
+				return "false";
+			}
 			
 			//The following code block is to deal with a bug in FLexLib with MDI windows not responding well to being maximized
 			private var savedWindowWidth:Number;

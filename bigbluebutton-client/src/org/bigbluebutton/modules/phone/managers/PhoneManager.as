@@ -22,6 +22,7 @@ package org.bigbluebutton.modules.phone.managers
 	import flash.events.IEventDispatcher;
 	
 	import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
+	import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceEvent;
 	
 	public class PhoneManager
 	{
@@ -43,15 +44,20 @@ package org.bigbluebutton.modules.phone.managers
 			this.attributes = attributes;
 		}
 		
-		public function setupMic():void {
-			streamManager.initMicrophone();
+		/**
+		 *  Sets up the microphone
+		 * @param test - Is the client running as a test? If so, pass true to skip mic initialization
+		 * 
+		 */		
+		public function setupMic(test:Boolean):void {
+			streamManager.initMicrophone(!test);
 		}
 		
 		public function setupConnection():void {
 			streamManager.setConnection(connectionManager.getConnection());
 		}
-		public function join():void {
-			setupMic();
+		public function join(e:JoinVoiceConferenceEvent):void {
+			setupMic(e.test);
 			var uid:String = String( Math.floor( new Date().getTime() ) );
 			connectionManager.connect(uid, attributes.username, attributes.room, attributes.uri);
 		}

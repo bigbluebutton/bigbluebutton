@@ -63,6 +63,17 @@
 				openChatBoxFor(PUBLIC_CHAT_USERID);
 				makePublicChatUncloseable();
 				addEventListener(SuperTabEvent.TAB_CLOSE, onUserClosedTab);
+				
+				//For automated testing
+				ExternalInterface.addCallback("testChatMessage", testChatMessage);
+			}
+			
+			//Function called to test chat from outside. There is a delay to get the message back from server, so the function should be called twice, with a delay of 2 seconds
+			private var messageRecieveCount:int = 0;
+			private function testChatMessage():int{
+				txtMsg.text = "Message Test";
+				sendMessages();
+				return messageRecieveCount;
 			}
 			
 			private function makePublicChatUncloseable():void {
@@ -277,6 +288,7 @@
 			}
 
 			private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
+				messageRecieveCount++;
 				LogUtil.debug("Got PublicChatMessageEvent");
 				showMessage(PUBLIC_CHAT_USERID, event.message);
 			}
@@ -325,6 +337,7 @@
 			private function disableMessageEntryTextBox():void {
 				txtMsg.enabled = false;
 			}
+
 		]]>
 	</mx:Script>
 	<flexlib:SuperTabNavigator id="chatTabs" width="100%" height="100%" change="onTabNavChange()" tabClose="onTabClose(event)"/>

@@ -93,7 +93,15 @@
 				
 				facade.startup(this);
 				globalDispatcher = new Dispatcher();
+				
+				//For automated testing
+				ExternalInterface.addCallback("checkLogin", checkLogin);
 			}		
+			
+			//Can be called if registered with ExternalInterface, which means client successfully logged in
+			private function checkLogin():String{
+				return "true";
+			}
 
 			protected function initFullScreen():void
 			{				

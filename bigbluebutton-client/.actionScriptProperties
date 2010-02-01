@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <actionScriptProperties mainApplicationPath="BigBlueButton.mxml" version="3">
-<compiler additionalCompilerArguments="-locale=" copyDependentFiles="true" enableModuleDebug="false" generateAccessible="false" htmlExpressInstall="true" htmlGenerate="true" htmlHistoryManagement="true" htmlPlayerVersion="9.0.115" htmlPlayerVersionCheck="true" outputFolderPath="bin" sourceFolderPath="src" strict="true" useApolloConfig="false" verifyDigests="true" warn="true">
+<compiler additionalCompilerArguments="-include-libraries &quot;..\libs\sfapi.swc&quot; -locale=" copyDependentFiles="true" enableModuleDebug="false" generateAccessible="false" htmlExpressInstall="true" htmlGenerate="true" htmlHistoryManagement="true" htmlPlayerVersion="9.0.115" htmlPlayerVersionCheck="true" outputFolderPath="bin" sourceFolderPath="src" strict="true" useApolloConfig="false" verifyDigests="true" warn="true">
 <compilerSourcePath>
 <compilerSourcePathEntry kind="1" linkType="1" path="tests/integration"/>
 <compilerSourcePathEntry kind="1" linkType="1" path="tests/unit"/>
@@ -33,14 +33,14 @@
 <application path="BigBlueButton.mxml"/>
 </applications>
 <modules>
-<module application="src/BigBlueButton.mxml" destPath="ViewersModule.swf" optimize="true" sourcePath="src/ViewersModule.mxml"/>
 <module application="src/BigBlueButton.mxml" destPath="VideoconfModule.swf" optimize="true" sourcePath="src/VideoconfModule.mxml"/>
 <module application="src/BigBlueButton.mxml" destPath="ChatModule.swf" optimize="true" sourcePath="src/ChatModule.mxml"/>
-<module application="src/BigBlueButton.mxml" destPath="AutotestModule.swf" optimize="true" sourcePath="src/AutotestModule.mxml"/>
-<module application="src/BigBlueButton.mxml" destPath="PhoneModule.swf" optimize="true" sourcePath="src/PhoneModule.mxml"/>
-<module application="src/BigBlueButton.mxml" destPath="DeskShareModule.swf" optimize="true" sourcePath="src/DeskShareModule.mxml"/>
-<module application="src/BigBlueButton.mxml" destPath="ListenersModule.swf" optimize="true" sourcePath="src/ListenersModule.mxml"/>
 <module application="src/BigBlueButton.mxml" destPath="PresentModule.swf" optimize="true" sourcePath="src/PresentModule.mxml"/>
+<module application="src/BigBlueButton.mxml" destPath="ListenersModule.swf" optimize="true" sourcePath="src/ListenersModule.mxml"/>
+<module application="src/BigBlueButton.mxml" destPath="HighlighterModule.swf" optimize="true" sourcePath="src/HighlighterModule.mxml"/>
+<module application="src/BigBlueButton.mxml" destPath="DeskShareModule.swf" optimize="true" sourcePath="src/DeskShareModule.mxml"/>
+<module application="src/BigBlueButton.mxml" destPath="PhoneModule.swf" optimize="true" sourcePath="src/PhoneModule.mxml"/>
+<module application="src/BigBlueButton.mxml" destPath="ViewersModule.swf" optimize="true" sourcePath="src/ViewersModule.mxml"/>
 </modules>
 <buildCSSFiles/>
 </actionScriptProperties>

@@ -23,7 +23,8 @@
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
 	icon="{phoneIcon}" click="startPhone()"
 	xmlns:mate="http://mate.asfusion.com/"
-	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip')}">
+	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip')}"
+	creationComplete="addAutomationCallback()">
 	
 	<mate:Listener type="{CallConnectedEvent.CALL_CONNECTED_EVENT}" method="handleCallConnectedEvent"/>
 	<mate:Listener type="{CallDisconnectedEvent.CALL_DISCONNECTED_EVENT}" method="handleCallDisconnectedEvent"/>
@@ -55,6 +56,18 @@
 			
 			private function handleCallDisconnectedEvent(event:CallConnectedEvent):void {
 				this.enabled = true;
+			}
+			
+			//Adds a callback to the outside so that we can test the voice conference using automatic tests
+			private function addAutomationCallback():void{
+				ExternalInterface.addCallback("joinVoiceConferenceTest", joinVoiceConferenceTest);
+			}
+			
+			//Joins the voice conference, without the microphone. To check whether the call was successfull wait a while then call function "testVoiceJoined"
+			private function joinVoiceConferenceTest():void{
+				var e:JoinVoiceConferenceEvent = new JoinVoiceConferenceEvent();
+				e.test = true;
+				localDispatcher.dispatchEvent(e);
 			}
 			
 		]]>

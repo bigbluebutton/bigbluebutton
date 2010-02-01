@@ -52,8 +52,8 @@ package org.bigbluebutton.modules.phone.managers
 			this.connection = connection;
 		}
 		
-		public function initMicrophone():void {
-			mic = Microphone.getMicrophone();
+		public function initMicrophone(init:Boolean = true):void {
+			if (init) mic = Microphone.getMicrophone();
 		
 			if(mic == null){
 				trace("No available microphone");
