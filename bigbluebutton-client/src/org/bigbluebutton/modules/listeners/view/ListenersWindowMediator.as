@@ -83,7 +83,7 @@ package org.bigbluebutton.modules.listeners.view
 		
 		private function onListenerSelectedEvent(e:Event):void {
 			_listenersWindow.ejectBtn.enabled = true;
-			_listenersWindow.ejectBtn.toolTip = "Click to eject selected voice participant.";
+			_listenersWindow.ejectBtn.toolTip = ResourceUtil.getInstance().getString('bbb.listeners.ejectTooltip');
 		}
 			
 		override public function listNotificationInterests():Array{
