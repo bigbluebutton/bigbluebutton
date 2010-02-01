@@ -24,6 +24,8 @@
 	xmlns:viewer="flexlib.mdi.containers.*" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow" 
 	xmlns:mate="http://mate.asfusion.com/"
+	title="{windowTitle}"
+	creationComplete="onCreationComplete()"
 	width="215" height="220">
 
     <mx:Script>
@@ -39,8 +41,10 @@
         	import org.bigbluebutton.modules.viewers.view.ViewersWindowMediator; 
         	import mx.collections.ArrayCollection;
         	import org.bigbluebutton.util.i18n.ResourceUtil;
-		
-			public static const TITLE:String = "Viewers";
+			import mx.binding.utils.BindingUtils;
+			
+			[Bindable]
+			private var windowTitle:String = ResourceUtil.getInstance().getString('bbb.viewers.title',[0]) ;
 			
 			[Bindable]
 			public var participants:ArrayCollection;
@@ -83,6 +87,14 @@
 					isMaximized = false;
 					//dispatchEvent(new MDIWindowEvent(MDIWindowEvent.RESTORE, this));
 				}	
+			}
+			
+			private function onCreationComplete():void {
+				BindingUtils.bindSetter(updateNumberOfListeners, participants, "length");				
+			}
+			
+			private function updateNumberOfListeners(numListeners:int):void {
+				windowTitle = ResourceUtil.getInstance().getString('bbb.viewers.title', [numListeners]) ;
 			}
 			
 			public function get xPosition():int {

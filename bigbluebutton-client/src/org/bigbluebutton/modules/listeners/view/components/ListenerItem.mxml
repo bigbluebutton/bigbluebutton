@@ -21,7 +21,6 @@
 --> 
 
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" 
-	creationComplete="init()" 
 	horizontalScrollPolicy="off">
    <mx:Script>
    	<![CDATA[
@@ -45,26 +44,8 @@
    		[Bindable] private var ejectIcon:Object = images.eject_user;  		  		
    		[Bindable] private var statusTooltip : String = "";
    		[Bindable] private var ejectTooltip : String = ResourceUtil.getInstance().getString('bbb.listeners.ejectTooltip');
-		[Bindable] private var isModerator:Boolean = false;
-		
-   		private function init():void
-   		{
-   			// Use parent document to hook into the event flow.
-   			this.parentDocument.addEventListener(ListenerSelectedEvent.LISTENER_SELECTED_EVENT, onListenerSelectedEvent);			
-   		}
-   		
-   		private function onListenerSelectedEvent(e:ListenerSelectedEvent):void {
-   			if ((data.userid == e.selectedListener) && e.isModerator) {
-   				isModerator = e.isModerator;
-   				muteBtn.enabled = true;
-   			} else {
-   				isModerator = false;
-   				muteBtn.enabled = false;
-   			}
-   		}
    				   			   	
-       public function muteUser():void
-       {
+       public function muteUser():void {
        		var e:UserMuteEvent = new UserMuteEvent(ListenersModuleConstants.MUTE_USER_EVENT);
        		e.userid = data.userid;
        		e.mute = !data.muted; // toggle muted
@@ -72,7 +53,7 @@
        }	
    	]]>
    </mx:Script>
-   	<mx:Button id="muteBtn" width="18" height="16" icon="{data.muted ? muteIcon : unmuteIcon}" click="muteUser()"/>
+   	<mx:Button id="muteBtn" width="18" height="16" visible="{data.moderator}" enabled="{data.moderator}" icon="{data.muted ? muteIcon : unmuteIcon}" click="muteUser()"/>
 	<mx:Label id="nameLabel" textAlign="left" text="{data.callerName}" width="147" toolTip="{ResourceUtil.getInstance().getString('bbb.listenerItem.nameLbl.toolTip')}"/>
 	<mx:Image id="talkImg" source="{talkIcon}" visible="{data.talking}" toolTip="{ResourceUtil.getInstance().getString('bbb.listenerItem.talkImg.toolTip')}"/>
 </mx:HBox>

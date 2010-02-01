@@ -17,11 +17,9 @@
 * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 * 
 */
-package org.bigbluebutton.modules.listeners.model.vo
-{
+package org.bigbluebutton.modules.listeners.model.vo {
 	[Bindable]
-	public class Listener
-	{
+	public class Listener {
 		public var room:String;
 		public var callerName:String;
 		public var callerNumber:String;
@@ -29,6 +27,10 @@ package org.bigbluebutton.modules.listeners.model.vo
 		public var dateLeft:Date;
 		public var userid:Number;
 		public var muted:Boolean;
-		public var talking:Boolean;				
+		public var talking:Boolean;		
+		// Stores if the participant is moderator or not.
+		// This is not the role of the joining listener
+		// but of the participant running the client.
+		public var moderator:Boolean = false;	
 	}
 }

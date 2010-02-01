@@ -115,6 +115,8 @@ package org.bigbluebutton.modules.listeners.model.service
 				n.muted = muted;
 				n.userid = userId;
 				n.talking = talking;
+				n.moderator = _module.isModerator();
+				
 				LogUtil.info(LOGNAME + "Adding listener [" + n.callerName + "," + userId + "]");
 				_listeners.addListener(n);
 				/**
@@ -137,7 +139,7 @@ package org.bigbluebutton.modules.listeners.model.service
 			var l:Listener = _listeners.getListener(userId);			
 			if (l != null) {
 				l.muted = mute;
-				LogUtil.debug(LOGNAME + 'Un/Muting user ' + userId + " mute=" + mute);
+//				LogUtil.debug(LOGNAME + 'Un/Muting user ' + userId + " mute=" + mute);
 			}					
 		}
 

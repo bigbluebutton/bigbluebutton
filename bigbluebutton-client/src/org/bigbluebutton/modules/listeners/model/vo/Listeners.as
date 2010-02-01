@@ -25,21 +25,18 @@ package org.bigbluebutton.modules.listeners.model.vo
 	{			
 		[Bindable] public var listeners:ArrayCollection = null;				
 				
-		public function Listeners():void
-		{
+		public function Listeners():void {
 			listeners = new ArrayCollection();
 		}
 
-		public function addListener(listener:Listener):void
-		{				
+		public function addListener(listener:Listener):void {				
 			if (! hasListener(listener.userid)) {						
 				listeners.addItem(listener);
 				sort();
 			}					
 		}
 
-		public function hasListener(id:Number):Boolean
-		{
+		public function hasListener(id:Number):Boolean {
 			var l:Object = getListenerIndex(id);			
 			if (l != null) {
 				return true;
@@ -47,8 +44,7 @@ package org.bigbluebutton.modules.listeners.model.vo
 			return false;		
 		}
 			
-		public function getListener(id:Number):Listener
-		{
+		public function getListener(id:Number):Listener {
 			var l:Object = getListenerIndex(id);			
 			if (l != null) {
 				return l.listener as Listener;
@@ -62,7 +58,8 @@ package org.bigbluebutton.modules.listeners.model.vo
 			var l:Object = getListenerIndex(id);					
 			if (l != null) {
 				LogUtil.info( "removing listener[" + l.listener.callerName + "," + l.listener.userid + "]")				
-				listeners.removeItemAt(l.index);
+				l = listeners.removeItemAt(l.index);
+				l = null;
 				sort();
 			}							
 		}

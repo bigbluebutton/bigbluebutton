@@ -24,6 +24,7 @@
 			xmlns="flexlib.mdi.containers.*"
 			implements="org.bigbluebutton.common.IBbbModuleWindow"
 			width="215" height="226"
+			title="{windowTitle}"
 			creationComplete="addAutomationCallback()">
 
 	<mx:Script>
@@ -38,6 +39,8 @@
 			import mx.controls.Label;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Image;	
+			import mx.binding.utils.BindingUtils;
+			
 			
 			private var images:Images = new Images();
 			
@@ -50,9 +53,20 @@
 
 			[Bindable] public var listeners:ArrayCollection;
 			[Bindable] public var moderator:Boolean;
+			[Bindable] private var windowTitle:String = ResourceUtil.getInstance().getString('bbb.listeners.title', [0]) ;
+			
+			
+			private function onCreationComplete():void {
+				BindingUtils.bindSetter(updateNumberOfListeners, listeners, "length");				
+			}
+			
+			private function updateNumberOfListeners(numListeners:int):void {
+				windowTitle = ResourceUtil.getInstance().getString('bbb.listeners.title', [numListeners]) ;
+			}
 			
 			//Adds a callback so that we can call the function externally for testing purposes
 			private function addAutomationCallback():void{
+				onCreationComplete();
 				ExternalInterface.addCallback("testVoiceJoined", testVoiceJoined);
 			}
 			
@@ -127,30 +141,31 @@
 				this.width = _defaultWidth;
 				this.height = _defaultHeight;
 			}
-
-			private function listenerSelectEvent(event:ListEvent):void {
-	            dispatchEvent(new ListenerSelectedEvent(moderator , listeners.getItemAt(listenersList.selectedIndex).userid));
-        	}   		
+ 
+ 			private function listenerSelectEvent(event:ListEvent):void {
+	            dispatchEvent(new ListenerSelectedEvent(moderator , listeners.getItemAt(listenersList.selectedIndex).userid)); 
+        	}   			   
 		]]>
 	</mx:Script>
-		
     	<mx:TileList id="listenersList" height="100%" width="100%" itemClick="listenerSelectEvent(event);"
  			itemRenderer="org.bigbluebutton.modules.listeners.view.components.ListenerItem"
-            maxColumns="1" rowHeight="25"  dragEnabled="false"
-            dataProvider="{listeners}">          
+            maxColumns="1" rowHeight="25"  dragEnabled="false" dataProvider="{listeners}">          
     	</mx:TileList>				
     	    	
     	<mx:ControlBar width="100%">
     	   <mx:Button id="muteAllBtn" icon="{muteAllIcon}" 
-    	   			toolTip="{ResourceUtil.getInstance().getString('bbb.listeners.muteAllBtn.toolTip')}" click="dispatchEvent(new Event(ListenersModuleConstants.MUTE_ALL))"
+    	   			toolTip="{ResourceUtil.getInstance().getString('bbb.listeners.muteAllBtn.toolTip')}" 
+    	   			click="dispatchEvent(new Event(ListenersModuleConstants.MUTE_ALL))"
     	   			visible="{moderator}" width="18" height="18"/> 
     	   <mx:Button id="unmuteAllBtn" icon="{unmuteAllIcon}" 
-    	   			toolTip="{ResourceUtil.getInstance().getString('bbb.listeners.unmuteAllBtn.toolTip')}" click="dispatchEvent(new Event(ListenersModuleConstants.UNMUTE_ALL))"
-    	   			visible="{moderator}" width="18" height="18"/> 
-     	   <mx:Spacer width="100%"/>			
+    	   			toolTip="{ResourceUtil.getInstance().getString('bbb.listeners.unmuteAllBtn.toolTip')}" 
+    	   			click="dispatchEvent(new Event(ListenersModuleConstants.UNMUTE_ALL))"
+    	   			visible="{moderator}" width="18" height="18"/>      	   
+     	   <mx:Spacer width="100%"/>		
 			<mx:Button id="ejectBtn" icon="{ejectIcon}" 
-    	   			toolTip="{ResourceUtil.getInstance().getString('bbb.listeners.ejectBtn.toolTip')}" click="dispatchEvent(new Event(ListenersModuleConstants.EJECT_LISTENER_EVENT))"
-    	   			visible="{moderator}" enabled="false" width="18" height="18"/> 
+    	   			toolTip="{ResourceUtil.getInstance().getString('bbb.listeners.ejectBtn.toolTip')}" 
+    	   			click="dispatchEvent(new Event(ListenersModuleConstants.EJECT_LISTENER_EVENT))"
+    	   			visible="{moderator}" width="18" height="18"/> 
     	</mx:ControlBar>
 
 </MDIWindow>
