@@ -73,7 +73,7 @@
 			//The callback for "testVoiceJoined". Accepts a user name and returns whether the user is in the voice conference.
 			private function testVoiceJoined(user:String):String{
 				for (var i:int=0; i<listeners.length ;i++){
-					if (listeners.getItemAt(i).userid == user) return "true";
+					if (listeners.getItemAt(i).callerName == user) return "true";
 				}
 				return "false";
 			}
