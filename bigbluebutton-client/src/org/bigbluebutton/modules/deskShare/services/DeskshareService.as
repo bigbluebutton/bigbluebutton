@@ -80,7 +80,7 @@ package org.bigbluebutton.modules.deskShare.services
 		}
 			
 		public function disconnect():void{
-			nc.close();
+			if (nc != null) nc.close();
 		}
 		
 		private function connectionSuccessHandler(e:ConnectionEvent):void{
