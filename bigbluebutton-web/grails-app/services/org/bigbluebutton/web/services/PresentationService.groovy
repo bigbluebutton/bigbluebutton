@@ -27,13 +27,18 @@ import java.util.concurrent.*;
 import java.lang.InterruptedException
 import org.springframework.util.FileCopyUtils
 import org.bigbluebutton.presentation.DocumentConversionService
+import org.bigbluebutton.presentation.UploadedPresentation
 
 class PresentationService {
 
     static transactional = false
 	def documentConversionService
 	def presentationDir
-		
+	def testConferenceMock
+	def testRoomMock
+	def testPresentationName
+	def testUploadedPresentation
+	
     def deletePresentation = {conf, room, filename ->
     		def directory = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + filename)
     		deleteDirectory(directory) 
@@ -117,6 +122,28 @@ class PresentationService {
 	
 	def roomDirectory = {conf, room ->
 		return new File(presentationDir + File.separatorChar + conf + File.separatorChar + room)
+	}
+
+	def testConversionProcess() {
+		File presDir = new File(roomDirectory(testConferenceMock, testRoomMock).absolutePath + File.separatorChar + testPresentationName)
+		
+		if (presDir.exists()) {
+			File pres = new File(presDir.getAbsolutePath() + File.separatorChar + testUploadedPresentation)
+			if (pres.exists()) {
+				UploadedPresentation uploadedPres = new UploadedPresentation(testConferenceMock, testRoomMock, testPresentationName);
+				uploadedPres.setUploadedFile(pres);
+				// Run conversion on another thread.
+				new Timer().runAfter(1000) 
+				{
+					documentConversionService.processDocument(uploadedPres)
+				}
+			} else {
+				log.error "${pres.absoluteParth} does NOT exist"
+			}			
+		} else {
+			log.error "${presDir.absolutePath} does NOT exist."
+		}
+		
 	}
 	
 }	

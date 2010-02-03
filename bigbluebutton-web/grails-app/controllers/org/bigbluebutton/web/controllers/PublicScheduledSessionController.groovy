@@ -270,8 +270,6 @@ class PublicScheduledSessionController {
 	}
 
 	def signOut = {
-		
-
 	    def config = ConfigurationHolder.config
         def hostURL = config.bigbluebutton.web.loggedOutUrl
         

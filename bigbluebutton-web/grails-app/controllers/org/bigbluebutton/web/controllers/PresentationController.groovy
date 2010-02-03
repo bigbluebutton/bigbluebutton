@@ -97,6 +97,10 @@ class PresentationController {
 		return [];
 	}
 
+	def testConversion = {
+		presentationService.testConversionProcess();
+	}
+
 	//handle external presentation server 
 	def delegate = {		
 		println '\nPresentationController:delegate'

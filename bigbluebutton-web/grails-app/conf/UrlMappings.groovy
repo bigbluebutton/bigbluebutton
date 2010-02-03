@@ -26,6 +26,10 @@ class UrlMappings {
       "/presentation/upload"(controller:"presentation") {
       		action = [GET:'show', POST:'upload', DELETE:'delete']
       }
+
+      "/presentation/test-convert"(controller:"presentation") {
+  		action = [GET:'testConversion']
+  }
       
       "/presentation/$conference/$room/$presentation_name/slides"(controller:"presentation") {
       		action = [GET:'numberOfSlides']
