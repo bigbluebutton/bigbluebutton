@@ -138,7 +138,7 @@ class PresentationService {
 					documentConversionService.processDocument(uploadedPres)
 				}
 			} else {
-				log.error "${pres.absoluteParth} does NOT exist"
+				log.error "${pres.absolutePath} does NOT exist"
 			}			
 		} else {
 			log.error "${presDir.absolutePath} does NOT exist."
