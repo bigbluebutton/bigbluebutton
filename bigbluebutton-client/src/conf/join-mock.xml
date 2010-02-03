@@ -2,8 +2,8 @@
 	<returncode>SUCCESS</returncode>
 	<fullname>Guilermo</fullname>
 	<role>MODERATOR</role>
-	<conference>662542a2-99bc-40f2-adef-6c7cc2db07b2</conference>
-	<room>37504b14-1e07-43fd-80aa-2d16d5d2d551</room>
+	<conference>conference-mock-default</conference>
+	<room>room-mock-default</room>
 	<voicebridge>85115</voicebridge>
 	<mode>LIVE</mode>
 	<record>true</record>
