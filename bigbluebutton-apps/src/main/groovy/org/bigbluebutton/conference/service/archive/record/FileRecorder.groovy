@@ -44,7 +44,7 @@ public class FileRecorder implements IRecorder{
 			roomDir.mkdirs()
 		// Comment out for now..let's use yaml at the moment (ralam 4/17/2009)
 		//recordingFile = new File(roomDir.canonicalPath + File.separator + "recordings.xml" )
-		recordingFile = new File(roomDir.canonicalPath + File.separator + "recordings.yaml" )
+		//recordingFile = new File(roomDir.canonicalPath + File.separator + "recordings.yaml" )
 		/**
 		 * We do not actually want to delete the file. We just want to append to it.
 		 */

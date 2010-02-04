@@ -63,7 +63,7 @@ public class ChatEventRecorder implements IEventRecorder, IChatRoomListener {
 		log.debug("New chat message...")
 		so.sendMessage("newChatMessage", [msg])
 		
-		recordYamlEvent(msg)
+//		recordYamlEvent(msg)
 	}
 	
 	private def recordXmlEvent(msg) {
