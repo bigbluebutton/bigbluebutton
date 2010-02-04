@@ -369,10 +369,15 @@
 	            	displaySlideNumber(slideView.selectedSlide + 1);	
 					displaySlideNavigationControls(isPresenter);
 					if (isPresenter) initializeThumbnails();
+					showUploadPresentationLabel(false);
+				} else {
+					if (isPresenter)
+						showUploadPresentationLabel(true);
+					else
+						showUploadPresentationLabel(false);
 				}
 				
-				setPresentersName(presentersName);
-				showUploadPresentationLabel(isPresenter);
+				setPresentersName(presentersName);				
 				showFisheyeThumbnail(isPresenter);
 			}
 			
@@ -468,15 +473,11 @@
 			}
 			
 			private function showUploadPresentationLabel(show:Boolean):void {
-				if (show) {
-					uploadPresentationLabel.text = ResourceUtil.getInstance().getString('bbb.presentation.clickToUpload');
-					uploadPresentationLabel.width = 150;
+				if (!show) {		
+					currentState = "";		
 				} else {
-					uploadPresentationLabel.text = "";
-					uploadPresentationLabel.width = 10;
-				}
-								
-				uploadPresentationLabel.visible = show;
+					currentState = "dispUploadPresLabel";
+				}				
 			}
 			
 			private function enableTextSelection():void{
@@ -496,12 +497,23 @@
 			private function removeDecimalFromDataTip(val:String):String {			
                 return val; 
             }
+            
 		]]>
 	</mx:Script>
-	 
+
+	<pres:states>
+	    <!--http://stackoverflow.com/questions/369120/why-does-mxstates-have-trouble-being-resolved-to-a-component-implementation-->
+        <mx:State name="dispUploadPresLabel">      
+            <mx:AddChild relativeTo="{spacer1}" position="before">
+                <mx:Label id="uploadPresentationLabel" visible="true" 
+    	  			text="{ResourceUtil.getInstance().getString('bbb.presentation.clickToUpload')}" width="100%"/>
+            </mx:AddChild>
+        </mx:State>		
+	</pres:states>
+    	 
 	<mx:Fade id="thumbFadeIn" alphaFrom="1" alphaTo="0" duration="100" />
 	<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />
-	
+
 	<mx:Canvas id="mainCanvas" width="100%" height="100%" resize="positionThumbnails()" mouseDown="mouseDown = true"
 		mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off" click="onCanvasClick()">
 		<thumb:SlideView id="slideView" width="100%" height="100%" visible="false"/>
@@ -512,8 +524,7 @@
     <mx:ApplicationControlBar id="presCtrlBar" width="100%" height="{CONTROL_BAR_HEIGHT}">
     	  <mx:Button id="uploadPres" icon="{uploadIcon}" visible="false" width="20" height="20"
     	   		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.uploadPresBtn')}" 
-    	   		click="dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW))"/>    
-    	  <mx:Label id="uploadPresentationLabel" visible="false" text="" width="10%"/>
+    	   		click="dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW))"/>        	  
     	  <mx:Spacer width="50%" id="spacer1"/>
     	  <mx:Button id="backButton" icon="{backwardIcon}" visible="false" width="30" height="20"
     	   		toolTip="Previous slide." click="gotoPreviousSlide()"/>
