@@ -44,6 +44,7 @@
 	<mate:Listener type="{UploadEvent.CLEAR_PRESENTATION}" method="clearPresentation" />
 	<mate:Listener type="{SlideResizedEvent.SLIDE_RESIZED_EVENT}" method="handleSlideResizedEvent" />
 	<mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleDisplaySlideEvent" />
+	<mate:Listener type="{UploadEvent.CONVERT_SUCCESS}" method="passConversionTest" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -105,7 +106,15 @@
 			private var currentSlideWidth:int = DEFAULT_WINDOW_WIDTH;
 			private var currentSlideHeight:int = DEFAULT_WINDOW_HEIGHT;
 			
-
+			//The following block is for automated testing purposes
+			private var conversionSuccess:Boolean = false
+			private function passConversionTest(e:UploadEvent):void{
+				conversionSuccess = true;
+			}
+			private function testPresentationConversion():String{
+				if (conversionSuccess) return "true";
+				else return "false";
+			}
 									
 			private var mouseDown:Boolean = false;
 			[Bindable] private var isPresenter:Boolean = false;
@@ -176,6 +185,7 @@
 				thumbnailWindow.addEventListener(FisheyeThumbnail.SLIDE_HIGHLIGHTED, onSlideHighlighted);
 				thumbY = this.height - 160;
 				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
+				ExternalInterface.addCallback("testPresentationConversion", testPresentationConversion);
 			}
 			
 			private function onResizeEndEvent(event:MDIWindowEvent):void {
