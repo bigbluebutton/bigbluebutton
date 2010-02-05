@@ -84,6 +84,7 @@
 				if (isPresenter()) showResControls(true);
 				if (Camera.names.length > 1) showVideoControls(true);
 				if (!isPresenter() && Camera.names.length == 1) startPublishing();
+				maximizeRestoreBtn.visible = false;
 			}
 			
 			public function get xPosition():int {
