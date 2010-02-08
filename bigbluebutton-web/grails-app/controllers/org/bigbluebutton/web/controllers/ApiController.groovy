@@ -81,7 +81,7 @@ class ApiController {
 		String voiceBr = params.voiceBridge
 		String welcomeMessage = params.welcome
 		String dialNumber = params.dialNumber
-		String logoutUrl = params.logoutUrl
+		String logoutUrl = params.logoutURL
 		
 		Integer maxParts = -1;
 		try {
@@ -138,8 +138,7 @@ class ApiController {
 				}			  
 			}
 		}
-		
-		
+				
 		conf.welcome = welcomeMessage
 								
 		log.debug("Conference created: " + conf);
