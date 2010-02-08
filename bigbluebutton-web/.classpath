@@ -102,7 +102,6 @@
 	<classpathentry kind="lib" path="lib/spring-integration-file-1.0.2.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring-integration-jms-1.0.2.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring-integration-stream-1.0.2.RELEASE.jar"/>
-	<classpathentry kind="con" path="ch.epfl.lamp.sdt.launching.SCALA_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="web-app/WEB-INF/classes"/>
 </classpath>
