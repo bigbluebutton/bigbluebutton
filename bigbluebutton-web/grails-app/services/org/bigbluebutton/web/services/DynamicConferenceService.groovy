@@ -30,6 +30,8 @@ public class DynamicConferenceService {
 	def securitySalt
 	def defaultWelcomeMessage
 	def defaultDialAccessNumber
+	def testVoiceBridge
+	def testConferenceMock
 	
 	private final Map<String, DynamicConference> confsByMtgID
 	private final Map<String, String> tokenMap

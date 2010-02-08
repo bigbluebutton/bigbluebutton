@@ -107,6 +107,13 @@ class ApiController {
 		DynamicConference conf = new DynamicConference(name, mtgID, attPW, modPW, maxParts)
 		conf.setVoiceBridge(voiceBr == null || voiceBr == "" ? mtgID : voiceBr)
 		
+		if ((dynamicConferenceService.testVoiceBridge != null) && (conf.voiceBridge == dynamicConferenceService.testVoiceBridge)) {
+			if (dynamicConferenceService.testConferenceMock != null) 
+				conf.meetingToken = dynamicConferenceService.testConferenceMock
+			else
+				log.warn("Cannot set test conference because it is not set in bigbluebutton.properties")	
+		} 
+		
 		if ((logoutUrl != null) || (logoutUrl != "")) {
 			conf.logoutUrl = logoutUrl
 		}
