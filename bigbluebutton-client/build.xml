@@ -16,7 +16,6 @@
 		<mxmlc-compile target="${APP_ROOT}/PresentModule" />
 		<mxmlc-compile target="${APP_ROOT}/DeskShareModule" />		
 		<mxmlc-compile target="${APP_ROOT}/PhoneModule" />
-		<!-- DELETED MODULE mxmlc-compile target="${APP_ROOT}/AutotestModule" /-->
 		<mxmlc-compile target="${APP_ROOT}/VideoconfModule" />
 		
 <!-- REMOVE FOR NOW (RALAM AUG 3, 2009)
