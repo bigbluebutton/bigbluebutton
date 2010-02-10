@@ -16,7 +16,7 @@
 		<mxmlc-compile target="${APP_ROOT}/PresentModule" />
 		<mxmlc-compile target="${APP_ROOT}/DeskShareModule" />		
 		<mxmlc-compile target="${APP_ROOT}/PhoneModule" />
-		<mxmlc-compile target="${APP_ROOT}/AutotestModule" />
+		<!-- DELETED MODULE mxmlc-compile target="${APP_ROOT}/AutotestModule" /-->
 		<mxmlc-compile target="${APP_ROOT}/VideoconfModule" />
 		
 <!-- REMOVE FOR NOW (RALAM AUG 3, 2009)
@@ -132,10 +132,14 @@
 		<echo>Building Localization .swf's</echo>
 		<compileLocale locale="en_US" />
 		<compileLocale locale="zh_CN" />
+		<compileLocale locale="zh_TW" />
 		<compileLocale locale="fr_FR" />
 		<compileLocale locale="nl_NL" />
 		<compileLocale locale="es_ES" />
 		<compileLocale locale="vi_VN" />
+		<compileLocale locale="lt_LT" />
+		<compileLocale locale="az_AZ" />
+		<compileLocale locale="el_GR" />
 	</target>
 	
 	<!-- Compiles Localization Resource Bundle. -->
