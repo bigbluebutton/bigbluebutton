@@ -21,9 +21,19 @@
 --> 
 
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" 
-	horizontalScrollPolicy="off">
+	horizontalScrollPolicy="off" creationComplete="displayMuteCheckBox()">
+	<!--mx:Style>
+        mx.CheckBox {
+            /* Unselected icons */
+            upIcon: Embed(source="../assets/images/lock_open.png");
+            /* Selected icons */
+            selectedUpIcon: Embed(source="../assets/images/lock.png");
+        }
+    </mx:Style-->
+    
    <mx:Script>
    	<![CDATA[
+   		import org.bigbluebutton.modules.listeners.view.events.LockMuteEvent;
    		import org.bigbluebutton.modules.listeners.view.events.ListenerSelectedEvent;
    		import org.bigbluebutton.modules.listeners.view.events.UserTalkEvent;
    		import org.bigbluebutton.modules.listeners.view.events.UserMuteEvent;
@@ -51,9 +61,57 @@
        		e.mute = !data.muted; // toggle muted
        		dispatchEvent(e);
        }	
+       
+       public function lockMuteUser():void {
+       		var e:LockMuteEvent = new LockMuteEvent(ListenersModuleConstants.LOCK_MUTE_USER);
+       		e.userid = data.userid;
+       		e.lock = muteCB.selected;
+       		dispatchEvent(e);
+       }
+       
+       private function showMuteButton():void {
+       		if (data.moderator) {
+        		muteBtn.visible = true;
+       			muteCB.visible = true;      			
+       		} else {
+       			muteBtn.visible = false;
+       			muteBtn.visible = false;
+       			muteCB.visible = false;
+       		}       			
+       }
+       
+       private function hideMuteButton():void {
+       			muteBtn.visible = false;
+       			muteCB.visible = false;
+       }
+       
+       private function displayMuteCheckBox():void {
+       		if (data.moderator) {		
+				currentState = "dispMuteCheckBox";		
+			} else {
+				currentState = "";
+			}
+       }
    	]]>
    </mx:Script>
-   	<mx:Button id="muteBtn" width="18" height="16" visible="{data.moderator}" enabled="{data.moderator}" icon="{data.muted ? muteIcon : unmuteIcon}" click="muteUser()"/>
-	<mx:Label id="nameLabel" textAlign="left" text="{data.callerName}" width="147" toolTip="{ResourceUtil.getInstance().getString('bbb.listenerItem.nameLbl.toolTip')}"/>
+   
+   <mx:states>
+        <mx:State name="dispMuteCheckBox">      
+            <mx:AddChild relativeTo="{muteBtn}" position="before">
+                <mx:CheckBox id="muteCB" visible="{data.moderator}" selected="{data.locked}" toolTip="Keep muted/unmuted" click="lockMuteUser()">
+					<mx:upIcon>@Embed(source="../assets/images/lock_open.png")</mx:upIcon>
+     				<mx:overIcon>@Embed(source="../assets/images/lock_open.png")</mx:overIcon>
+     				<mx:downIcon>@Embed(source="../assets/images/lock_open.png")</mx:downIcon>
+     				<mx:selectedUpIcon>@Embed(source="../assets/images/lock.png")</mx:selectedUpIcon>
+     				<mx:selectedOverIcon>@Embed(source="../assets/images/lock.png")</mx:selectedOverIcon>
+     				<mx:selectedDownIcon>@Embed(source="../assets/images/lock.png")</mx:selectedDownIcon>                	
+                </mx:CheckBox>
+            </mx:AddChild>
+        </mx:State>		
+	</mx:states>
+	   	
+   	<mx:Button id="muteBtn" width="18" height="16" toggle="true" visible="true" enabled="{data.moderator}" icon="{data.muted ? muteIcon : unmuteIcon}" click="muteUser()"/>
+	<mx:Label id="nameLabel" textAlign="left" text="{data.callerName}" width="147" 
+		toolTip="{ResourceUtil.getInstance().getString('bbb.listenerItem.nameLbl.toolTip')}"/>
 	<mx:Image id="talkImg" source="{talkIcon}" visible="{data.talking}" toolTip="{ResourceUtil.getInstance().getString('bbb.listenerItem.talkImg.toolTip')}"/>
 </mx:HBox>

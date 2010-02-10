@@ -106,7 +106,7 @@ package org.bigbluebutton.modules.listeners.model.service
 		}
 				
 		public function userJoin(userId:Number, cidName:String, cidNum:String, 
-									muted:Boolean, talking:Boolean):void
+									muted:Boolean, talking:Boolean, locked:Boolean):void
 		{
 			if (! _listeners.hasListener(userId)) {
 				var n:Listener = new Listener();
@@ -115,6 +115,7 @@ package org.bigbluebutton.modules.listeners.model.service
 				n.muted = muted;
 				n.userid = userId;
 				n.talking = talking;
+				n.locked = locked;
 				n.moderator = _module.isModerator();
 				
 				LogUtil.info(LOGNAME + "Adding listener [" + n.callerName + "," + userId + "]");
@@ -143,6 +144,15 @@ package org.bigbluebutton.modules.listeners.model.service
 			}					
 		}
 
+		public function userLockedMute(userId:Number, locked:Boolean):void
+		{
+			var l:Listener = _listeners.getListener(userId);			
+			if (l != null) {
+				l.locked = locked;
+				LogUtil.debug(LOGNAME + 'Lock Un/Muting user ' + userId + " locked=" + locked);
+			}					
+		}
+		
 		public function userTalk(userId:Number, talk:Boolean) : void
 		{
 			var l:Listener = _listeners.getListener(userId);			
@@ -165,6 +175,29 @@ package org.bigbluebutton.modules.listeners.model.service
 				LogUtil.debug(LOGNAME + "[" + t + '] - Received ping from server: ' + message);
 				pingCount = 0;
 			}
+		}
+		
+		public function lockMuteUser(userid:Number, lock:Boolean):void
+		{
+			var nc:NetConnection = _module.connection;
+			nc.call(
+				"voice.lockMuteUser",// Remote function name
+				new Responder(
+	        		// participants - On successful result
+					function(result:Object):void { 
+						LogUtil.debug("Successfully lock mute/unmute: " + userid); 	
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+							} 
+					}
+				),//new Responder
+				userid,
+				lock
+			); //_netConnection.call		
 		}
 		
 		public function muteUnmuteUser(userid:Number, mute:Boolean):void
@@ -246,7 +279,7 @@ package org.bigbluebutton.modules.listeners.model.service
 							for(var p:Object in result.participants) 
 							{
 								var u:Object = result.participants[p]
-								userJoin(u.participant, u.name, u.name, u.muted, u.talking);
+								userJoin(u.participant, u.name, u.name, u.muted, u.talking, u.locked);
 							}							
 						}	
 					},	
@@ -260,20 +293,7 @@ package org.bigbluebutton.modules.listeners.model.service
 				)//new Responder
 			); //_netConnection.call
 		}
-/*		
-		public function getMeetMeUsers(meetmeUser:Object):void
-		{			
-			for(var items:String in meetmeUser) 
-			{
-				var userId:Number = meetmeUser[items][0];
-				var cidName:String = meetmeUser[items][1];	
-				var cidNum:String  = meetmeUser[items][2];
-				var muted:Boolean = meetmeUser[items][3];
-				var talking:Boolean = meetmeUser[items][4];
-				userJoin(userId, cidName, cidNum, muted, talking);
-			}
-		}
-*/		
+		
 		private function notifyConnectionStatusListener(connected:Boolean, errors:Array=null):void {
 			if (_connectionListener != null) {
 				LogUtil.debug(LOGNAME + 'notifying connectionListener for Voice');

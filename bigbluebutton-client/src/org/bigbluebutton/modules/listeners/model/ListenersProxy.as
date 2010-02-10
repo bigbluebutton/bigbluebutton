@@ -98,6 +98,11 @@ package org.bigbluebutton.modules.listeners.model
 			_listenersService.muteUnmuteUser(userid, mute);		
 		}
 
+		public function lockMuteUser(userid:Number, lock:Boolean):void
+		{
+			_listenersService.lockMuteUser(userid, lock);		
+		}
+		
 		public function muteAllUsers(mute:Boolean):void
 		{	
 			_listenersService.muteAllUsers(mute);			

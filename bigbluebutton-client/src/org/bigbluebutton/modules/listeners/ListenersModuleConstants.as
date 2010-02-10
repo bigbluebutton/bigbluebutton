@@ -44,6 +44,7 @@ package org.bigbluebutton.modules.listeners
 		public static const MUTE_ALL:String = "Mute All Users";
 		public static const EJECT_USER:String = "Eject User";
 		public static const MUTE_USER:String = "Mute User";
+		public static const LOCK_MUTE_USER:String = "Lock Mute User";
 		
 		public static const USER_MUTE_NOTIFICATION:String = "USER_MUTE_NOTIFICATION";
 		public static const USER_TALKING_NOTIFICATION:String = "USER_TALKING_NOTIFICATION";

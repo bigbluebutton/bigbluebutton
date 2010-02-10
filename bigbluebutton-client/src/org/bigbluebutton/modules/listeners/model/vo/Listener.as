@@ -28,6 +28,7 @@ package org.bigbluebutton.modules.listeners.model.vo {
 		public var userid:Number;
 		public var muted:Boolean;
 		public var talking:Boolean;		
+		public var locked:Boolean;
 		// Stores if the participant is moderator or not.
 		// This is not the role of the joining listener
 		// but of the participant running the client.

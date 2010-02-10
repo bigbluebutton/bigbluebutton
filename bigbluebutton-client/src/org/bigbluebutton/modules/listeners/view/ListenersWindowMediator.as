@@ -27,6 +27,7 @@ package org.bigbluebutton.modules.listeners.view
 	import org.bigbluebutton.modules.listeners.model.ListenersProxy;
 	import org.bigbluebutton.modules.listeners.view.components.ListenersWindow;
 	import org.bigbluebutton.modules.listeners.view.events.ListenerSelectedEvent;
+	import org.bigbluebutton.modules.listeners.view.events.LockMuteEvent;
 	import org.bigbluebutton.modules.listeners.view.events.UserMuteEvent;
 	import org.bigbluebutton.modules.listeners.view.events.UserTalkEvent;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -59,7 +60,7 @@ package org.bigbluebutton.modules.listeners.view
 			_listenersWindow.addEventListener(ListenersModuleConstants.EJECT_LISTENER_EVENT, onEjectListenerEvent);
 			_listenersWindow.addEventListener(ListenersModuleConstants.MUTE_USER_EVENT, onMuteUserEvent);
 			_listenersWindow.addEventListener(ListenerSelectedEvent.LISTENER_SELECTED_EVENT, onListenerSelectedEvent);
-			
+			_listenersWindow.addEventListener(ListenersModuleConstants.LOCK_MUTE_USER, onLockMuteUserEvent);
 		}
 
 		private function onUnmuteAllUsers(e:Event) : void
@@ -75,6 +76,10 @@ package org.bigbluebutton.modules.listeners.view
    		
    		private function onMuteUserEvent(e:UserMuteEvent):void{
    			proxy.muteUnmuteUser(e.userid, e.mute);
+   		}
+   		
+   		private function onLockMuteUserEvent(e:LockMuteEvent):void{
+   			proxy.lockMuteUser(e.userid, e.lock);
    		}
    				
 		private function onEjectListenerEvent(e:Event):void {
