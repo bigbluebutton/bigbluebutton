@@ -25,15 +25,17 @@ import java.util.ArrayList;
 
 import org.bigbluebutton.webconference.voice.events.ConferenceEvent;
 import org.bigbluebutton.webconference.voice.events.ConferenceEventListener;
+import org.bigbluebutton.webconference.voice.events.ParticipantLockedEvent;
 import org.bigbluebutton.webconference.voice.internal.RoomManager;
 
 public class ConferenceService implements ConferenceEventListener {
 
 	private RoomManager roomMgr;
 	private ConferenceServiceProvider confProvider;
+	private ConferenceEventListener conferenceEventListener;
 	
 	public void startup() {
-		roomMgr = new RoomManager();
+		roomMgr = new RoomManager(this);
 		confProvider.startup();
 	}
 	
@@ -52,6 +54,14 @@ public class ConferenceService implements ConferenceEventListener {
 		roomMgr.destroyRoom(room);
 	}
 	
+	public void lock(Integer participant, String room, Boolean lock) {
+		if (roomMgr.hasParticipant(room, participant)) {
+//			roomMgr.lockParticipant(participant, room, lock);
+			ParticipantLockedEvent ple = new ParticipantLockedEvent(participant, room, lock);
+			conferenceEventListener.handleConferenceEvent(ple);
+		}			
+	}
+	
 	public void mute(Integer participant, String room, Boolean mute) {
 		if (roomMgr.hasParticipant(room, participant))
 			muteParticipant(participant, room, mute);
@@ -59,15 +69,18 @@ public class ConferenceService implements ConferenceEventListener {
 	
 	public void mute(String room, Boolean mute) {
 		if (roomMgr.hasRoom(room)) {
+			roomMgr.mute(room, mute);
 			ArrayList<Participant> p = getParticipants(room);
 			for (Participant o : p) {
-				muteParticipant(o.getId(), room, mute);
+				if (! roomMgr.isParticipantMuteLocked(o.getId(), room)) {
+					muteParticipant(o.getId(), room, mute);
+				}				
 			}
 		}
 	}
 	
 	private void muteParticipant(Integer participant, String room, Boolean mute) {
-		confProvider.mute(room, participant, mute);
+		confProvider.mute(room, participant, mute);		
 	}
 	
 	public void eject(Integer participant, String room) {
@@ -98,5 +111,9 @@ public class ConferenceService implements ConferenceEventListener {
 		
 	public void setConferenceServiceProvider(ConferenceServiceProvider c) {
 		confProvider = c;
+	}
+	
+	public void setConferenceEventListener(ConferenceEventListener l) {
+		conferenceEventListener = l;
 	}
 }

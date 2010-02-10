@@ -30,4 +30,5 @@ public interface Room {
 	public Participant getParticipant(Integer id);
 	public boolean hasParticipant(Integer id);
 	public ArrayList<Participant> getParticipants();
+	public boolean isMuted();
 }

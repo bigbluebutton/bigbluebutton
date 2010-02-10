@@ -19,6 +19,7 @@
 		
 	<beans:bean id="conferenceService" class="org.bigbluebutton.webconference.voice.ConferenceService">
 		<beans:property name="conferenceServiceProvider" ref="conferenceServiceProvider"/>
+		<beans:property name="conferenceEventListener" ref="voiceConferenceEventListener"/>
 	</beans:bean>
 		
 	<beans:bean id="voice.service" class="org.bigbluebutton.conference.service.voice.VoiceService">

@@ -55,6 +55,7 @@ public class VoiceService {
 			pmap.put('name', p.name)
 			pmap.put('muted', p.muted)
 			pmap.put('talking', p.talking)
+			pmap.put 'locked', p.isMuteLocked();
 			log.debug("[$p.id,$p.name,$p.muted,$p.talking]")
 			result.put(p.id, pmap)
 		}
@@ -72,6 +73,12 @@ public class VoiceService {
 		def conference = getBbbSession().voiceBridge    	
     	log.debug("MuteUnmute request for user [$userid] in room[$conference]")
     	conferenceService.mute(userid, conference, mute)
+	}
+
+	def lockMuteUser(userid, lock) {
+		def conference = getBbbSession().voiceBridge    	
+    	log.debug("Lock request for user [$userid] in room[$conference]")
+    	conferenceService.lock(userid, conference, lock)
 	}
 	
 	def kickUSer(userid) {

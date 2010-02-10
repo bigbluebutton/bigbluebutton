@@ -37,6 +37,8 @@ public class RoomImp implements Room {
 	private final String name;
 	private final ConcurrentMap<Integer, Participant> participants;
 	
+	private boolean muted = false;
+	
 	public RoomImp(String name) {
 		this.name = name;
 		participants = new ConcurrentHashMap<Integer, Participant>();
@@ -65,6 +67,14 @@ public class RoomImp implements Room {
 	public void remove(Integer id) {
 		Participant p = participants.remove(id);
 		if (p != null) p = null;
+	}
+	
+	public void mute(boolean mute) {
+		muted = mute;
+	}
+	
+	public boolean isMuted() {
+		return muted;
 	}
 	
 	public ArrayList<Participant> getParticipants() {
