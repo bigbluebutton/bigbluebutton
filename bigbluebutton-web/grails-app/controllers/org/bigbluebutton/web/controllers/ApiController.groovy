@@ -215,6 +215,7 @@ class ApiController {
 		log.debug CONTROLLER_NAME + "#isMeetingRunning"
 
 		if (!doChecksumSecurity()) {
+			invalid("checksumError", "You did not pass the checksum security check")
 			return
 		}
 
