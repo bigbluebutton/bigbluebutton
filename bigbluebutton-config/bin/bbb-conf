@@ -37,7 +37,6 @@
 RELEASE="-r 3489"
 
 get_platform() {
-	#x=$(cat /proc/version | grep "Red Hat")
 
 	if [ -f /etc/lsb-release ]; then
 		if grep -q Ubuntu /etc/lsb-release; then
@@ -48,11 +47,6 @@ get_platform() {
 	else
 		echo "redhat"
 	fi
-	#if [ "$x" != "" ]; then
-	#	echo "redhat"
-	#else
-	#	echo "ubuntu"
-	#fi
 }
 
 PLATFORM=$(get_platform)
