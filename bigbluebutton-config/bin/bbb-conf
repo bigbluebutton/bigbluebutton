@@ -37,13 +37,22 @@
 RELEASE="-r 3489"
 
 get_platform() {
-	x=$(cat /proc/version | grep "Red Hat")
+	#x=$(cat /proc/version | grep "Red Hat")
 
-	if [ "$x" != "" ]; then
-		echo "redhat"
+	if [ -f /etc/lsb-release ]; then
+		if grep -q Ubuntu /etc/lsb-release; then
+			echo "ubuntu"
+		else
+			echo "redhat"
+		fi
 	else
-		echo "ubuntu"
+		echo "redhat"
 	fi
+	#if [ "$x" != "" ]; then
+	#	echo "redhat"
+	#else
+	#	echo "ubuntu"
+	#fi
 }
 
 PLATFORM=$(get_platform)
@@ -66,12 +75,12 @@ is_vm() {
 	fi
 }
 
-if [ $(is_redhat) ]; then
+if [ "$(is_redhat)" ]; then
 	RED5_DIRECTORY="/opt/red5"
 	ACTIVEMQ_DIRECTORY="/opt/activemq"
 	TOMCAT6_LOGS="/var/log/tomcat6"
 else 
-	if [ $(is_ubuntu) ]; then
+	if [ "$(is_ubuntu)" ]; then
 		RED5_DIRECTORY="/usr/share/red5"
 		ACTIVEMQ_DIRECTORY="/usr/share/activemq"
 		TOMCAT6_LOGS="/var/lib/tomcat6/logs"
@@ -115,7 +124,7 @@ usage() {
 	echo "   --check                          Check current settings"
 	echo "   --conference [konference|meetme] Switch conference module in Asterisk"
 	echo "   --debug                          Check the log files for errors"
-	if [ $(is_vm) ]; then
+	if [ "$(is_vm)" ]; then
 		echo "   --setup-samba                    Setup samba share for development (VM only)"
 		echo "   --setup-dev [bbb-web|bbb-client|bbb-apps] "
 		echo "   --reset-dev                      Reset environment back to using packages" 
@@ -261,10 +270,10 @@ done
 # Version 
 #
 if [ $VERSION ]; then
-	if [ $(is_redhat) ]; then
+	if [ "$(is_redhat)" ]; then
 		echo "$(yum list installed | grep bbb-conf)"
 	else 
-		if [ $(is_ubuntu) ]; then
+		if [ "$(is_ubuntu)" ]; then
 			echo 
 			dpkg -l | grep bbb
 		fi
