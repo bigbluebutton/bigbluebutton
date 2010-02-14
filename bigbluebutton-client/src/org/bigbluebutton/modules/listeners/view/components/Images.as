@@ -34,5 +34,11 @@ package org.bigbluebutton.modules.listeners.view.components
 
         [Embed(source="../assets/images/sound_none.png")]
         public var sound_none:Class;
+        
+        [Embed(source="../assets/images/lock.png")]
+        public var locked:Class;
+        
+        [Embed(source="../assets/images/unlock.png")]
+        public var unlocked:Class;
 	}
 }

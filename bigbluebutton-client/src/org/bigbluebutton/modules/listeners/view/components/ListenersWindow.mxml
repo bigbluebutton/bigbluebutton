@@ -23,7 +23,7 @@
 <MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 			xmlns="flexlib.mdi.containers.*"
 			implements="org.bigbluebutton.common.IBbbModuleWindow"
-			width="215" height="226"
+			width="233" height="226"
 			title="{windowTitle}"
 			creationComplete="addAutomationCallback()">
 
@@ -118,7 +118,7 @@
 				_yPosition = y;
 			}		
 			
-			private var _defaultWidth:int = 215;
+			private var _defaultWidth:int = 233;
 			private var _defaultHeight:int = 226;
 			
 			public function get defaultWidth():int{

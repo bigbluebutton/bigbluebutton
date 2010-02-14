@@ -150,7 +150,6 @@ package org.bigbluebutton.modules.listeners.view
 		private function handleOpenListenersWindow():void {
 			_listenersWindow.listeners = proxy.listeners;
 			_listenersWindow.moderator = proxy.isModerator();
-//		   	_listenersWindow.title = ResourceUtil.getInstance().getString('bbb.listeners.title');
 		   	_listenersWindow.showCloseButton = false;
 		   	_listenersWindow.xPosition = 0;
 		   	_listenersWindow.yPosition = 225;

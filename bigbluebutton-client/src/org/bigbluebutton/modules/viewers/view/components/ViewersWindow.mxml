@@ -26,7 +26,7 @@
 	xmlns:mate="http://mate.asfusion.com/"
 	title="{windowTitle}"
 	creationComplete="onCreationComplete()"
-	width="215" height="220">
+	width="233" height="220">
 
     <mx:Script>
         <![CDATA[
@@ -113,7 +113,7 @@
 				_yPosition = y;
 			}
 			
-			private var _defaultWidth:int = 215;
+			private var _defaultWidth:int = 233;
 			private var _defaultHeight:int = 220;
 			
 			public function get defaultWidth():int{
