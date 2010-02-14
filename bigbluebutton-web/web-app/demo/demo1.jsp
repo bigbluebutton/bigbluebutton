@@ -25,8 +25,8 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Join a Course</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+	<title>Join a Course</title>
 </head>
 <body>
 
@@ -40,30 +40,38 @@ if (request.getParameterMap().isEmpty()) {
 	// Assume we want to create a meeting
 	//
 	%> 
-<a href="demo1.jsp">Join a Course</a> | <a href="demo2.jsp">Join a Selected Course</a> | <a href="demo3.jsp">Create Your Own Meeting</a> | <a href="/">Home</a>
+<a href="demo1.jsp">Join a Course</a> | <a href="demo2.jsp">Join a Selected Course</a> | <a href="demo3.jsp">Join a Selected Course (password required)</a> | <a href="create.jsp">Create Your Own Meeting</a>
 
 <h2>Demo #1: Join a Course</h2>
 
 
-<FORM NAME="form1" METHOD="GET">
-
-<table width=600 cellspacing="20" cellpadding="20"
-	style="border-collapse: collapse; border-right-color: rgb(136, 136, 136);"
-	border=3>
+<FORM NAME="form1" METHOD="GET"> 
+<table cellpadding="5" cellspacing="5" style="width: 400px; ">
 	<tbody>
 		<tr>
-			<td width="50%">
-
-			<p />Join a Course.
-			</td>
-			<td width="50%">Enter your name: <input type="text"
-				name="username" /> <br />
-			<INPUT TYPE=hidden NAME=action VALUE="create"> <br />
-			<input type="submit" value="Join" /></td>
+			<td>
+				&nbsp;</td>
+			<td style="text-align: right; ">
+				Full Name:</td>
+			<td style="width: 5px; ">
+				&nbsp;</td>
+			<td style="text-align: left ">
+				<input type="text" name="username" /></td>
 		</tr>
+		
+		<tr>
+			<td>
+				&nbsp;</td>
+			<td>
+				&nbsp;</td>
+			<td>
+				&nbsp;</td>
+			<td>
+				<input type="submit" value="Join" /></td>
+		</tr>	
 	</tbody>
 </table>
-
+<INPUT TYPE=hidden NAME=action VALUE="create">
 </FORM>
 
 

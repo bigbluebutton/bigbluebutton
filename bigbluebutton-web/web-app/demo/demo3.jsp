@@ -17,288 +17,260 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 
 Author: Fred Dixon <ffdixon@bigbluebutton.org>
-  
+
 -->
+
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
-<title>Create Your Own Meeting</title>
-
-<script type="text/javascript"
-	src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
-<script type="text/javascript" src="heartbeat.js"></script>
-
-
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+	<title>Join a Course (Password Required)</title>
 </head>
 <body>
 
-
 <%@ include file="bbb_api.jsp"%>
-<%@ page import="java.util.regex.*"%>
 
 <br>
 
-<%
-	if (request.getParameterMap().isEmpty()) {
-		//
-		// Assume we want to create a meeting
-		//
-%>
-<a href="demo1.jsp">Join a Course</a>
-|
-<a href="demo2.jsp">Join a Selected Course</a>
-|
-<a href="demo3.jsp">Create Your Own Meeting</a>
-|
-<a href="/">Home</a>
+<% 
 
-<h2>Demo #3: Create Your Own Meeting</h2>
+//
+// We're going to define some sample courses (meetings) below.  This API exampe shows how you can create a login page for a course. 
+// The password below are not available to users as they are compiled on the server.
+//
 
-<p />
+HashMap<String, HashMap> allMeetings = new HashMap<String, HashMap>();
+HashMap<String, String> meeting;
+
+String welcome = "<br>Welcome to %%CONFNAME%%!<br><br>For help see our <a href=\"event:http://www.bigbluebutton.org/content/videos\"><u>tutorial videos</u></a>.<br><br>To join the voice bridge for this meeting:<br>  (1) click the headset icon in the upper-left, or<br>  (2) dial xxx-xxx-xxxx (toll free:1-xxx-xxx-xxxx) and enter conference ID: %%CONFNUM%%.<br><br>";
+
+
+//
+// English courses
+//
+
+meeting = new HashMap<String, String>();
+allMeetings.put( "ENGL-2013: Research Methods in English", meeting );	// The title that will appear in the drop-down menu
+	meeting.put("welcomeMsg", 	welcome);			// The welcome mesage
+	meeting.put("moderatorPW", 	"prof123");			// The password for moderator
+	meeting.put("viewerPW", 	"student123");			// The password for viewer
+	meeting.put("voiceBridge", 	"82013");			// The extension number for the voice bridge (use if connected to phone system)
+	meeting.put("logoutURL", 	"/");				// The logout URL (use if you want to return to your pages)
+
+meeting = new HashMap<String, String>();
+allMeetings.put( "ENGL-2213: Drama Production I", meeting );
+	meeting.put("welcomeMsg", 	welcome);
+	meeting.put("moderatorPW", 	"prof123");
+	meeting.put("viewerPW", 	"student123");
+	meeting.put("voiceBridge", 	"82213");
+	meeting.put("logoutURL", 	"/");
+
+meeting = new HashMap<String, String>();
+allMeetings.put( "ENGL-2023: Survey of English Literature", meeting );
+	meeting.put("welcomeMsg", 	welcome);
+	meeting.put("moderatorPW", 	"prof123");
+	meeting.put("viewerPW", 	"student123");
+	meeting.put("voiceBridge", 	"82023");
+	meeting.put("logoutURL", 	"/");
+
+//
+// Law Courses
+//
+
+meeting = new HashMap<String, String>();
+allMeetings.put( "LAW-1323: Fundamentals of Advocacy ", meeting );
+	meeting.put("welcomeMsg", 	welcome);
+	meeting.put("moderatorPW", 	"prof123");
+	meeting.put("viewerPW", 	"student123");
+	meeting.put("voiceBridge", 	"81232");
+	meeting.put("logoutURL", 	"/");
+
+meeting = new HashMap<String, String>();
+allMeetings.put( "LAW-2273: Business Organizations", meeting );
+	meeting.put("welcomeMsg", 	welcome);
+	meeting.put("moderatorPW", 	"prof123");
+	meeting.put("viewerPW", 	"student123");
+	meeting.put("voiceBridge", 	"82273");
+	meeting.put("logoutURL", 	"/");
+
+meeting = new HashMap<String, String>();
+allMeetings.put( "LAW-3113: Corporate Finance", meeting );
+	meeting.put("welcomeMsg", 	welcome);
+	meeting.put("moderatorPW", 	"theprof");
+	meeting.put("viewerPW", 	"student123");
+	meeting.put("voiceBridge", 	"81642");
+	meeting.put("logoutURL", 	"/");
+
+
+//
+// Professor's Virtaul Office Hours
+//
+
+meeting = new HashMap<String, String>();
+allMeetings.put( "Virtual Office Hours - Steve Stoyan", meeting );
+	meeting.put("welcomeMsg", 	welcome);
+	meeting.put("moderatorPW", 	"prof123");
+	meeting.put("viewerPW", 	"student123");
+	meeting.put("voiceBridge", 	"80001");
+	meeting.put("logoutURL", 	"/");
+
+meeting = new HashMap<String, String>();
+allMeetings.put( "Virtual Office Hours - Michael Bailetti", meeting );
+	meeting.put("welcomeMsg", 	welcome);
+	meeting.put("moderatorPW", 	"prof123");
+	meeting.put("viewerPW", 	"student123");
+	meeting.put("voiceBridge", 	"80002");
+	meeting.put("logoutURL", 	"/");
+
+meeting = new HashMap<String, String>();
+allMeetings.put( "Virtual Office Hours - Tony Weiss", meeting );
+	meeting.put("welcomeMsg", 	welcome);
+	meeting.put("moderatorPW", 	"prof123");
+	meeting.put("viewerPW", 	"student123");
+	meeting.put("voiceBridge", 	"80003");
+	meeting.put("logoutURL", 	"/");
+
+
+meeting = null;
+
+Iterator<String> meetingIterator = new TreeSet<String>(allMeetings.keySet()).iterator();
+
+if (request.getParameterMap().isEmpty()) {
+		//
+		// Assume we want to join a course
+		//
+	%> 
+<a href="demo1.jsp">Join a Course</a> | <a href="demo2.jsp">Join a Selected Course</a> | <a href="demo3.jsp">Join a Selected Course (password required)</a> | <a href="create.jsp">Create Your Own Meeting</a>
+
+<h2>Demo #3: Join a Course (password required)</h2>
+
+
 <FORM NAME="form1" METHOD="GET">
-
-<table width=600 cellspacing="20" cellpadding="20"
-	style="border-collapse: collapse; border-right-color: rgb(136, 136, 136);"
-	border=3>
+<table cellpadding="5" cellspacing="5" style="width: 400px; ">
 	<tbody>
 		<tr>
-			<td width="50%">Create your own meeting.
-			<p />
-			</td>
-			<td width="50%">Step 1. Enter your name: <input type="text"
-				name="username1" /> <br />
-			<INPUT TYPE=hidden NAME=action VALUE="create"> <br />
-			<input id="submit-button" type="submit" value="Create meeting" /></td>
+			<td>
+				&nbsp;</td>
+			<td style="text-align: right; ">
+				Full&nbsp;Name:</td>
+			<td style="width: 5px; ">
+				&nbsp;</td>
+			<td style="text-align: left ">
+				<input type="text" name="username" /></td>
 		</tr>
+		
+	
+		
+		<tr>
+			<td>
+				&nbsp;</td>
+			<td style="text-align: right; ">
+				Course:</td>
+			<td>
+				&nbsp;
+			</td>
+			<td style="text-align: left ">
+			<select name="meetingID">
+			<%
+				String key;
+				while (meetingIterator.hasNext()) {
+					key = meetingIterator.next(); 
+					out.println("<option value=\"" + key + "\">" + key + "</option>");
+				}
+			%>
+			</select>
+				
+			</td>
+		</tr>
+		<tr>
+			<td>
+				&nbsp;</td>
+			<td style="text-align: right; ">
+				Password:</td>
+			<td>
+				&nbsp;</td>
+			<td>
+				<input type="password" name="password" /></td>
+		</tr>
+		<tr>
+			<td>
+				&nbsp;</td>
+			<td>
+				&nbsp;</td>
+			<td>
+				&nbsp;</td>
+			<td>
+				<input type="submit" value="Join" /></td>
+		</tr>	
 	</tbody>
 </table>
-
+<INPUT TYPE=hidden NAME=action VALUE="create">
 </FORM>
 
-<script>
-//
-// We could have asked the user for both their name and a meeting title, but we'll just use their name to create a title
-// We'll use JQuery to dynamically update the button
-//
-$(document).ready(function(){
-    $("input[name='username1']").keyup(function() {
-        if ($("input[name='username1']").val() == "") {
-        	$("#submit-button").attr('value',"Create meeting" );
-        } else {
-       $("#submit-button").attr('value',"Create " +$("input[name='username1']").val()+ "'s meeting" );
-        }
-    });
-});
-</script>
+Passwords:  
+<ul>
+   <li>prof123 - login as professor (moderator privlidges)</li>
+   <li>student123 - login as student (viewer privlidges)</li>
+</ul>
+
 
 <%
 	} else if (request.getParameter("action").equals("create")) {
 		//
-		// User has requested to create a meeting
+		// Got an action=create
 		//
 
-		String username = request.getParameter("username1");
-		String meetingID = username + "'s meeting";
-
-		String meetingToken = "";
-
-		//
-		// This is the URL for to join the meeting as moderator
-		//
-		String joinURL = getJoinURL(username, meetingID, "<br>Welcome to %%CONFNAME%%.<br>");
-
-		//
-		// We're going to extract the meetingToken to enable others to join as viewers
-		//
-		String p = "meetingToken=[^&]*";
-		Pattern pattern = Pattern.compile(p);
-		Matcher matcher = pattern.matcher(joinURL);
-
-		if (matcher.find()) {
-			meetingToken = joinURL.substring(matcher.start(), matcher
-					.end());
-		} else {
-			out.print("Error: Did not find meeting token.");
-		}
-		//out.print ("Match : " + meetingToken );
-		String inviteURL = BigBlueButtonURL
-				+ "demo/demo3.jsp?action=invite&meetingID=" + URLEncoder.encode(meetingID, "UTF-8")
-				+ "&" + meetingToken;
-%>
-
-<hr />
-<h2>Meeting Created</h2>
-<hr />
-
-
-<table width="800" cellspacing="20" cellpadding="20"
-	style="border-collapse: collapse; border-right-color: rgb(136, 136, 136);"
-	border=3>
-	<tbody>
-		<tr>
-			<td width="50%">
-			<center><strong> <%=username%>'s meeting</strong> has been
-			created.</center>
-			</td>
-
-			<td width="50%">
-			<p>&nbsp;</p>
-
-			Step 2. Invite others using the following <a href="<%=inviteURL%>">link</a> (shown below):
-			<form name="form2" method="POST"><textarea cols="62" rows="5"
-				name="myname" style="overflow: hidden">
-<%=inviteURL%>
-</textarea></form>
-			<p>&nbsp;
-			<p />Step 3. Click the following link to start your meeting:
-			<p>&nbsp;</p>
-			<center><a href="<%=joinURL%>">Start Meeting</a></center>
-			<p>&nbsp;</p>
-
-			</td>
-		</tr>
-	</tbody>
-</table>
-
-
-
-
-
-
-
-<%
-	} else if (request.getParameter("action").equals("enter")) {
-		//
-		// The user is now attempting to joing the meeting
-		//
-		String meetingID = request.getParameter("meetingID");
 		String username = request.getParameter("username");
-		String meetingToken = request.getParameter("meetingToken");
-
-		String enterURL = BigBlueButtonURL
-				+ "demo/demo3.jsp?action=join&username="
-				+ URLEncoder.encode(username, "UTF-8") + "&meetingToken="
-				+ URLEncoder.encode(meetingToken, "UTF-8");
-
-		if (isMeetingRunning(meetingToken, meetingID).equals("true")) {
-			//
-			// The meeting has started -- bring the user into the meeting.
-			//
-%>
-<script type="text/javascript">
-	window.location = "<%=enterURL%>";
-</script>
-<%
-	} else {
-			//
-			// The meeting has not yet started, so check until we get back the status that the meeting is running
-			//
-			String checkMeetingStatus = getURLisMeetingRunning(
-					meetingToken, meetingID);
-%>
-
-<script type="text/javascript">
-$(document).ready(function(){
-		$.jheartbeat.set({
-		   url: "<%=checkMeetingStatus%>",
-		   delay: 5000
-		}, function () {
-			mycallback();
-		});
-		});
-
-
-function mycallback() {
-	// Not elegant, but works around a bug in IE8
-	var isMeetingRunning = ($("#HeartBeatDIV").text().search("true") > 0 );
-
-	if ( isMeetingRunning) {
-	window.location = "<%=enterURL%>"; 
-	}
-}
-</script>
-
-<hr />
-<h2><strong><%=meetingID%></strong> has not yet started.</h2>
-<hr />
-
-
-<table width=600 cellspacing="20" cellpadding="20"
-	style="border-collapse: collapse; border-right-color: rgb(136, 136, 136);"
-	border=3>
-	<tbody>
-		<tr>
-			<td width="50%">
-
-			<p>Hi <%=username%>,</p>
-			<p>Now waiting for the moderator to start <strong><%=meetingID%></strong>.</p>
-			<br />
-			<p>(Your browser will automatically refresh and join the meeting
-			when it starts.)</p>
-			</td>
-			<td width="50%"><img src="polling.gif"></img></td>
-		</tr>
-	</tbody>
-</table>
-
-
-<%
-	}
-	} else if (request.getParameter("action").equals("invite")) {
-		//
-		// We have an invite to an active meeting.  Ask the person for their name 
-		// so they can join.
-		//
 		String meetingID = request.getParameter("meetingID");
-		String meetingToken = request.getParameter("meetingToken");
+		String password = request.getParameter("password");
+		
+		meeting = allMeetings.get( meetingID );
+		
+		String welcomeMsg = meeting.get( "welcomeMsg" );
+		String logoutURL = meeting.get( "logoutURL" );
+		Integer voiceBridge = Integer.parseInt( meeting.get( "voiceBridge" ).trim() );
+
+		String viewerPW = meeting.get( "viewerPW" );
+		String moderatorPW = meeting.get( "moderatorPW" );
+		
+		//
+		// Check if we have a valid password
+		//
+		if ( ! password.equals(viewerPW) && ! password.equals(moderatorPW) ) {
 %>
 
-<hr />
-<h2>Invite</h2>
-<hr />
+Invalid Password, please <a href="javascript:history.go(-1)">try again</a>.
 
-<FORM NAME="form3" METHOD="GET">
+<%
+			return;
+		}
+		
+		//
+		// Looks good, let's create the meeting
+		//
+		String meetingToken = createMeeting( meetingID, welcomeMsg, moderatorPW, viewerPW, voiceBridge, logoutURL );
+		
+		//
+		// Check if we have an error.
+		//
+		if( meetingToken.startsWith("Error ")) {
+%>
 
-<table width=600 cellspacing="20" cellpadding="20"
-	style="border-collapse: collapse; border-right-color: rgb(136, 136, 136);"
-	border=3>
-	<tbody>
-		<tr>
-			<td width="50%">
-
-			<p />You have been invited to join<br />
-			<strong><%=meetingID%></strong>.
-			</td>
-
-			<td width="50%">Enter your name: <input type="text"
-				name="username" /> <br />
-			<INPUT TYPE=hidden NAME=meetingID VALUE="<%=meetingID%>"> <INPUT
-				TYPE=hidden NAME=meetingToken VALUE="<%=meetingToken%>"> <INPUT
-				TYPE=hidden NAME=action VALUE="enter"> <br />
-			<input type="submit" value="Join" /></td>
-		</tr>
-	</tbody>
-</table>
-
-</FORM>
-
-
+Error: createMeeting() failed
+<p /><%=meetingToken%> 
 
 
 <%
-	} else if (request.getParameter("action").equals("join")) {
+			return;
+		}
+		
 		//
-		// We have an invite request to join an existing meeting and the meeting is running
+		// We've got a valid meetingToken and passoword -- let's join!
 		//
-		// We don't need to pass a meeting descritpion as it's already been set by the first time 
-		// the meeting was created.
-		String joinURL = getJoinURLViewer(request.getParameter("username"), request.getParameter("meetingToken"));
-
-		if (joinURL.startsWith("http://")) {
+		
+		String joinURL = getJoinMeetingURL(username, meetingToken, password);			
 %>
 
 <script language="javascript" type="text/javascript">
@@ -306,18 +278,12 @@ function mycallback() {
 </script>
 
 <%
-	} else { 
+	} 
 %>
-
-Error: getJoinURL() failed
-<p /><%=joinURL%> 
-
-<%
- 	}
- }
- %> 
-
+ 
 <%@ include file="demo_footer.jsp"%>
 
 </body>
 </html>
+
+

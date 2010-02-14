@@ -40,44 +40,55 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 		// Assume we want to create a meeting
 		//
 %>
-<a href="demo1.jsp">Join a Course</a>
-|
-<a href="demo2.jsp">Join a Selected Course</a>
-|
-<a href="demo3.jsp">Create Your Own Meeting</a>
-|
-<a href="/">Home</a>
+<a href="demo1.jsp">Join a Course</a> | <a href="demo2.jsp">Join a Selected Course</a> | <a href="demo3.jsp">Join a Selected Course (password required)</a> | <a href="create.jsp">Create Your Own Meeting</a>
 
 <h2>Demo #2: Join a Selected Course</h2>
 
 
 <FORM NAME="form1" METHOD="GET">
-
-<table width=600 cellspacing="20" cellpadding="20"
-	style="border-collapse: collapse; border-right-color: rgb(136, 136, 136);"
-	border=3>
+<table cellpadding="5" cellspacing="5" style="width: 400px; ">
 	<tbody>
 		<tr>
-			<td width="50%">Join a Selected Course.</td>
-
-			<td width="50%">
-
-			<p />Enter your name: <input type="text" name="username" /> <br />
-
-			<INPUT TYPE=hidden NAME=action VALUE="create">
-			<p />Course:&nbsp;<select name="meetingID">
+			<td>
+				&nbsp;</td>
+			<td style="text-align: right; ">
+				Full Name:</td>
+			<td style="width: 5px; ">
+				&nbsp;</td>
+			<td style="text-align: left ">
+				<input type="text" name="username" /></td>
+		</tr>
+		
+		<tr>
+			<td>
+				&nbsp;</td>
+			<td style="text-align: right; ">
+				Course:</td>
+			<td>
+				&nbsp;
+			</td>
+			<td style="text-align: left ">
+			<select name="meetingID">
 				<option value="English 232">English 232</option>
 				<option value="English 300">English 300</option>
 				<option value="English 402">English 402</option>
 				<option value="Demo Meeting">Demo Meeting</option>
-			</select>
-			<p /><br />
-			<input type="submit" value="Join" />
+			</select>				
 			</td>
 		</tr>
+		<tr>
+			<td>
+				&nbsp;</td>
+			<td>
+				&nbsp;</td>
+			<td>
+				&nbsp;</td>
+			<td>
+				<input type="submit" value="Join" /></td>
+		</tr>	
 	</tbody>
 </table>
-
+<INPUT TYPE=hidden NAME=action VALUE="create">
 </FORM>
 
 <%
