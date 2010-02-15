@@ -40,6 +40,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 		// Assume we want to create a meeting
 		//
 %>
+<img src="/bigbluebutton/images/bbb_banner.jpg" /><br>
 <a href="demo1.jsp">Join a Course</a> | <a href="demo2.jsp">Join a Selected Course</a> | <a href="demo3.jsp">Join a Selected Course (password required)</a> | <a href="create.jsp">Create Your Own Meeting</a>
 
 <h2>Demo #2: Join a Selected Course</h2>
