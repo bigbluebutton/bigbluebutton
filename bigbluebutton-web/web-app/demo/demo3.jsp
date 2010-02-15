@@ -18,7 +18,7 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 
 Author: Fred Dixon <ffdixon@bigbluebutton.org>
 
--->
+--> 
 
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
@@ -145,7 +145,7 @@ if (request.getParameterMap().isEmpty()) {
 <img src="/bigbluebutton/images/bbb_banner.jpg" /><br>
 <a href="demo1.jsp">Join a Course</a> | <a href="demo2.jsp">Join a Selected Course</a> | <a href="demo3.jsp">Join a Selected Course (password required)</a> | <a href="create.jsp">Create Your Own Meeting</a>
 
-<h2>Demo #3: Join a Course (password required) b</h2>
+<h2>Demo #3: Join a Course (password required)</h2>
 
 
 <FORM NAME="form1" METHOD="GET">
