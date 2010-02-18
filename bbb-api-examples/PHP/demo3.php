@@ -100,6 +100,9 @@ switch ($_REQUEST['action'])
 		}
 		break;
 	case 'isMeetingRunning':
+		/*
+		 * This function proxy the request "isMeetingRunning" through PHP Script to BBB Server so we don't have any AJAX security issue
+		 */
 		ob_clean();
 		$checkMeetingStatus = getURLisMeetingRunning($_REQUEST['meetingToken'], $_REQUEST['meetingID']);
 		echo file_get_contents($checkMeetingStatus);

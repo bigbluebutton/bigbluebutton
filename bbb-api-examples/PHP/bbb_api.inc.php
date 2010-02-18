@@ -78,6 +78,7 @@ function getJoinURLViewer($username, $meetingToken, $welcome = '')
 
 /*
  * getURLisMeetingRunning() -- return a URL that the client can use to poll for whether the given meeting is running
+ * Beware : check that BIGBLUEBUTTONURL is reachable internally from your PHP Web Application Server. (Hosts, firewall...)
  */
 
 function getURLisMeetingRunning($meetingToken, $meetingID)
