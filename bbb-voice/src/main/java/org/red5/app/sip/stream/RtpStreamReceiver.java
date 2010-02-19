@@ -94,9 +94,9 @@ public class RtpStreamReceiver {
 		byte[] codedBuffer = new byte[payloadLength];
 */
 
-//		log.debug("pkt.length = " + packetLength
-//                        + ", offset = " + headerOffset
-//                        + ", length = " + payloadLength + "." );
+//		System.out.println("pkt.length = " + rtpPacket.getPayloadLength()
+//                        + ", offset = " + rtpPacket.getHeaderLength()
+//                        + ", length = " + rtpPacket.getPayloadLength() + "." );
 
 //		System.arraycopy(packetBuffer, headerOffset, codedBuffer, 0, payloadLength);
 //    	transcoder.transcode(codedBuffer);

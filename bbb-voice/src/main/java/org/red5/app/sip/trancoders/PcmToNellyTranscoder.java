@@ -22,7 +22,7 @@ public class PcmToNellyTranscoder implements Transcoder {
     private float[] tempBuffer; 		// Temporary buffer with PCM audio to be sent to FlashPlayer.
     private int tempBufferOffset = 0;
     private final TranscodedAudioDataListener listener;
-    private int timestamp = 0;
+    private long start = 0;
     
     public PcmToNellyTranscoder(Codec audioCodec, TranscodedAudioDataListener listener) {
     	this.audioCodec = audioCodec;
@@ -30,6 +30,7 @@ public class PcmToNellyTranscoder implements Transcoder {
     	
       	encoderMap = new float[64];
         tempBuffer = new float[NELLYMOSER_DECODED_PACKET_SIZE]; 
+        start = System.currentTimeMillis();
     }
 
     /**
@@ -85,8 +86,6 @@ public class PcmToNellyTranscoder implements Transcoder {
     }
     
     private void pushAudio(byte[] audio) {
-    	timestamp = timestamp + audio.length;
-    	
         IoBuffer buffer = IoBuffer.allocate(1024);
         buffer.setAutoExpand(true);
 
@@ -100,8 +99,7 @@ public class PcmToNellyTranscoder implements Transcoder {
         buffer.flip();
 
         AudioData audioData = new AudioData(buffer);
-        audioData.setTimestamp((int)timestamp );
-
+        audioData.setTimestamp((int)(System.currentTimeMillis() - start) );
         listener.handleTranscodedAudioData(audioData);
     }    
     

@@ -39,6 +39,7 @@ import org.red5.server.messaging.IProvider;
 import org.red5.server.messaging.OOBControlMessage;
 import org.red5.server.messaging.PipeConnectionEvent;
 import org.red5.server.net.rtmp.event.IRTMPEvent;
+import org.red5.server.net.rtmp.event.Notify;
 import org.red5.server.stream.codec.StreamCodecInfo;
 import org.red5.server.stream.message.RTMPMessage;
 
@@ -71,6 +72,11 @@ public class AudioStream implements IBroadcastStream, IProvider, IPipeConnection
 	public IProvider getProvider() {
 		log.trace("getProvider()");
 		return this;
+	}
+
+	public Notify getMetaData() {
+		System.out.println("**** GETTING METADATA ******");
+		return null;
 	}
 
 	public String getPublishedName()  {
@@ -152,6 +158,7 @@ public class AudioStream implements IBroadcastStream, IProvider, IPipeConnection
 		{
 	    	case PipeConnectionEvent.PROVIDER_CONNECT_PUSH:
 	    		log.trace("PipeConnectionEvent.PROVIDER_CONNECT_PUSH");
+	    		System.out.println("PipeConnectionEvent.PROVIDER_CONNECT_PUSH");
 	    		if (event.getProvider() == this
 	    				&& (event.getParamMap() == null 
 	    				|| !event.getParamMap().containsKey("record"))) {
@@ -162,6 +169,7 @@ public class AudioStream implements IBroadcastStream, IProvider, IPipeConnection
 	    		break;
 	    	case PipeConnectionEvent.PROVIDER_DISCONNECT:
 	    		log.trace("PipeConnectionEvent.PROVIDER_DISCONNECT");
+	    		System.out.println("PipeConnectionEvent.PROVIDER_DISCONNECT");
 	    		if (this.livePipe == event.getSource()) {
 	    			log.trace("PipeConnectionEvent.PROVIDER_DISCONNECT - this.mLivePipe = null;");
 	    			System.out.println("PipeConnectionEvent.PROVIDER_DISCONNECT - this.mLivePipe = null;");
@@ -185,7 +193,7 @@ public class AudioStream implements IBroadcastStream, IProvider, IPipeConnection
 
 	public void dispatchEvent(IEvent event) {
 		//      log.trace("dispatchEvent(event:{})", event);
-		//    	System.out.println("dispatchEvent(event:screenVideo)");
+		//    	System.out.println("dispatchEvent(event:)" + event);
 		if (event instanceof IRTMPEvent) {
 			IRTMPEvent rtmpEvent = (IRTMPEvent) event;
 			if (livePipe != null) {
@@ -196,11 +204,14 @@ public class AudioStream implements IBroadcastStream, IProvider, IPipeConnection
 					creationTime = (long)rtmpEvent.getTimestamp();
           
 				try {
+//					System.out.println("dispatchEvent(event:)" + event);
 					livePipe.pushMessage(msg);
 
 					if (rtmpEvent instanceof IStreamPacket) {
+						System.out.println("dispatchEvent(IStreamPacket:)" + event);
 						for (IStreamListener listener : getStreamListeners()) {
 							try {
+								System.out.println("dispatchEvent(event:)" + event);
 								listener.packetReceived(this, (IStreamPacket) rtmpEvent);
 							} catch (Exception e) {
 								log.error("Error while notifying listener " + listener, e);

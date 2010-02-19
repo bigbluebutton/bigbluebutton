@@ -33,6 +33,7 @@ public class ListenStream implements TranscodedAudioDataListener {
 	}
 	
 	public void start() {
+		System.out.println("**** Starting listen stream ****");
 		startPublishing(scope);
 	}
 	
@@ -41,7 +42,7 @@ public class ListenStream implements TranscodedAudioDataListener {
 	}
 	
 	private void streamAudioData(AudioData audioData) {
-		long now = System.currentTimeMillis();
+		long startRx = System.currentTimeMillis();
 		
 		/*
 		 * Don't set the timestamp as it results in choppy audio. Let the client
@@ -49,7 +50,7 @@ public class ListenStream implements TranscodedAudioDataListener {
 		 */
 		broadcastStream.dispatchEvent(audioData);
 		audioData.release();
-//		long completeRx = System.currentTimeMillis();
+		long completeRx = System.currentTimeMillis();
 //		System.out.println("Send took " + (completeRx - startRx) + "ms.");
 	}
 

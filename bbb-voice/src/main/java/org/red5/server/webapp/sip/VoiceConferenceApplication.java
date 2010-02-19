@@ -68,6 +68,7 @@ public class VoiceConferenceApplication extends MultiThreadedApplicationAdapter 
     @Override
     public void streamPublishStart(IBroadcastStream stream) {
     	log.debug("streamPublishStart: {}; {}", stream, stream.getPublishedName());
+    	System.out.println("streamPublishStart: " + stream.getPublishedName());
     	super.streamPublishStart(stream);
     	String userid = getSipUserId();
     	sipManager.startTalkStream(userid, stream, Red5.getConnectionLocal().getScope());
@@ -75,6 +76,7 @@ public class VoiceConferenceApplication extends MultiThreadedApplicationAdapter 
     
     @Override
     public void streamBroadcastClose(IBroadcastStream stream) {
+    	System.out.println("streamBroadcastClose: " + stream.getPublishedName());
     	String userid = getSipUserId();
     	sipManager.stopTalkStream(userid, stream, Red5.getConnectionLocal().getScope());
     	super.streamBroadcastClose(stream);

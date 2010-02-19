@@ -42,6 +42,7 @@ public class ConnectionClientMethodInvoker implements ScopeProvider, SipUserAgen
 
     public void onCallConnected(String publishName, String playName) {
     	log.debug( "SIP Call Connected" );
+    	System.out.println( "SIP Call Connected" );
         connection.invoke("connected", new Object[] {publishName, playName});
     }
 
@@ -67,6 +68,7 @@ public class ConnectionClientMethodInvoker implements ScopeProvider, SipUserAgen
 
     public void onRegistrationSuccess(String result) {
     	log.debug( "SIP Registration success " + result );
+    	System.out.println( "SIP Registration success " + result );
         connection.invoke("registrationSucess", new Object[] {result});
     }
 

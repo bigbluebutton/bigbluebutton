@@ -53,7 +53,6 @@ public class CallStream implements RtpStreamReceiverListener {
 		rtpReceiver = new RtpStreamReceiver(packetProcessor, socket, rtpToRtmpTranscoder.getIncomingEncodedFrameSize());
 		rtpSender = new RtpStreamSender(rtmpToRtpTranscoder, socket, connInfo.getRemoteAddr(), connInfo.getRemotePort());
 		talkStream = new TalkStream(rtmpToRtpTranscoder, rtpSender);
-
     }
     
     public String getTalkStreamName() {
