@@ -16,7 +16,7 @@ import org.springframework.core.io.Resource;
 
 public class DemoService {
 
-	private static Logger log = Red5LoggerFactory.getLogger(DemoService.class, "oflaDemo");
+	private static Logger log = Red5LoggerFactory.getLogger(DemoService.class, "video");
 	
 	{
 		log.info("oflaDemo DemoService created");

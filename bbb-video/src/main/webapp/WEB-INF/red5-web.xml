@@ -23,5 +23,4 @@
 	</bean>
 
 	<bean id="web.handler" class="org.bigbluebutton.app.video.VideoApplication" />
-    <bean id="demoService.service" class="org.bigbluebutton.app.video.DemoService" />
 </beans>

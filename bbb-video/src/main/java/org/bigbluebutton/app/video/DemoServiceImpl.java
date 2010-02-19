@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 
 public class DemoServiceImpl implements IDemoService {
 	
-	private static Logger log = Red5LoggerFactory.getLogger(DemoServiceImpl.class, "oflaDemo");
+	private static Logger log = Red5LoggerFactory.getLogger(DemoServiceImpl.class, "video");
 	
 	/**
      * Getter for property 'listOfAvailableFLVs'.

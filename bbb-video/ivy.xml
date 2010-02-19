@@ -7,18 +7,18 @@
 	</configurations>
     <dependencies>
         <!-- Logging --> 
-        <dependency name="log4j-over-slf4j" rev="1.5.6" />
-        <dependency name="logback-core" rev="0.9.14" />
-        <dependency name="logback-classic" rev="0.9.14" />
-        <dependency name="slf4j-api" rev="1.5.6" />
+        <dependency name="log4j-over-slf4j" rev="1.5.10" />
+        <dependency name="logback-core" rev="0.9.18" />
+        <dependency name="logback-classic" rev="0.9.18" />
+        <dependency name="slf4j-api" rev="1.5.10" />
 
 		<!-- Red5 -->
-		<dependency org="org/red5" name="red5" rev="0.8"/>
+		<dependency org="org/red5" name="red5" rev="0.9"/>
 
         <!-- Spring --> 
-        <dependency org="spring" name="spring-beans" rev="2.5.6" />
-        <dependency org="spring" name="spring-context" rev="2.5.6" />
-        <dependency org="spring" name="spring-core" rev="2.5.6" />
+        <dependency org="spring" name="spring-beans" rev="3.0.0" />
+        <dependency org="spring" name="spring-context" rev="3.0.0" />
+        <dependency org="spring" name="spring-core" rev="3.0.0" />
         
         <dependency org="javax.servlet" name="servlet-api" rev="2.5" />     
     </dependencies>
