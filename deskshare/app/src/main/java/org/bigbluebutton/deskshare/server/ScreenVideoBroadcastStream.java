@@ -40,11 +40,12 @@ import org.red5.server.messaging.IProvider;
 import org.red5.server.messaging.OOBControlMessage;
 import org.red5.server.messaging.PipeConnectionEvent;
 import org.red5.server.net.rtmp.event.IRTMPEvent;
+import org.red5.server.net.rtmp.event.Notify;
 import org.red5.server.net.rtmp.event.VideoData;
 import org.bigbluebutton.deskshare.server.ScreenVideo;
 import org.red5.server.stream.codec.StreamCodecInfo;
 import org.red5.server.stream.message.RTMPMessage;
-
+import org.red5.server.net.rtmp.event.Notify;
 import org.slf4j.Logger;
 
 import org.red5.server.api.stream.IStreamPacket;;
@@ -268,4 +269,9 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
   {
     return mCreationTime != null ? mCreationTime : 0L;
   }
+  
+  public Notify getMetaData() {
+		System.out.println("**** GETTING METADATA ******");
+		return null;
+	}
 }

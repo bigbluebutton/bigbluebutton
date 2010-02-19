@@ -26,13 +26,13 @@ import java.util.List;
 import org.bigbluebutton.deskshare.server.socket.DeskShareServer;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
-import org.red5.server.api.IBandwidthConfigure;
+//import org.red5.server.api.IBandwidthConfigure;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.IScope;
 import org.red5.server.api.Red5;
 import org.red5.server.api.stream.IServerStream;
 import org.red5.server.api.stream.IStreamCapableConnection;
-import org.red5.server.api.stream.support.SimpleConnectionBWConfig;
+//import org.red5.server.api.stream.support.SimpleConnectionBWConfig;
 
 import org.slf4j.Logger;
 
@@ -66,6 +66,7 @@ public class DeskShareApplication extends MultiThreadedApplicationAdapter {
 	public boolean appConnect(IConnection conn, Object[] params){
 		log.info("deskShare appConnect to scope " + conn.getScope().getContext().toString());
 		System.out.println("deskShare appConnect to scope " + conn.getScope().getContextPath());
+/*
 		measureBandwidth(conn);
 		
 		if (conn instanceof IStreamCapableConnection){
@@ -77,7 +78,7 @@ public class DeskShareApplication extends MultiThreadedApplicationAdapter {
 				128*1024;
 			streamConn.setBandwidthConfigure(bwConfig);
 		}
-		
+*/		
 		return super.appConnect(conn, params);
 	}
 	

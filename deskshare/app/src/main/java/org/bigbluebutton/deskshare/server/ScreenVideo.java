@@ -79,5 +79,9 @@ public class ScreenVideo implements IVideoStreamCodec {
 		return data;
 	}
 
+    public IoBuffer getDecoderConfiguration() {
+    	log.debug("getting DecoderConfiguration");
+		return data;
+    }
 }
 
