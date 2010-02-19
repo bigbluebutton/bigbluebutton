@@ -55,31 +55,37 @@ dependencies {
 	providedCompile 'javax.servlet:servlet-api:2.5@jar'
 	
 	// Mina
-	providedCompile 'org.apache.mina:mina-core:2.0.0-M6@jar'
+	providedCompile 'org.apache.mina:mina-core:2.0.0-RC1@jar'
 	providedCompile 'org.apache.mina:mina-integration-spring:1.1.7@jar'
 	
 	// Asterisk-Java
 	compile 'org.asteriskjava:asterisk-java:1.0.0.M3@jar'
 	
 	// Spring 
-    providedCompile 'spring:spring-web:2.5.6@jar', 'spring:aopalliance:@jar'    
-    providedCompile 'spring:spring-aop:2.5.6@jar', 'spring:spring-beans:2.5.6@jar'
-    providedCompile 'spring:spring-context:2.5.6@jar', 'spring:spring-core:2.5.6@jar'
-    compile 'spring:spring-tx:2.5.6@jar', 'spring:spring-jms:2.5.6@jar'
+    providedCompile 'spring:spring-web:3.0.0@jar', 'aopalliance:aopalliance:1.0:@jar'    
+    providedCompile  'spring:spring-beans:3.0.0@jar', 'spring:spring-aop:3.0.0@jar'
+    providedCompile 'spring:spring-context:3.0.0@jar', 'spring:spring-core:3.0.0@jar'
+    compile 'spring:spring-tx:2.5.6@jar', 'spring:spring-jms:3.0.0@jar'
 	
 	// Spring Integration
-	compile 'org.springframework.integration:spring-integration-core:1.0.2.RELEASE@jar'
-	compile 'org.springframework.integration:spring-integration-adapter:1.0.2.RELEASE@jar'
-	compile 'org.springframework.integration:spring-integration-stream:1.0.2.RELEASE@jar'
-	compile 'org.springframework.integration:spring-integration-file:1.0.2.RELEASE@jar'
-	compile 'org.springframework.integration:spring-integration-jms:1.0.2.RELEASE@jar'
-	
+//	compile 'org.springframework.integration:spring-integration-core:1.0.3.RELEASE@jar'
+//	compile 'org.springframework.integration:spring-integration-adapter:1.0.3.RELEASE@jar'
+//	compile 'org.springframework.integration:spring-integration-stream:1.0.3.RELEASE@jar'
+//	compile 'org.springframework.integration:spring-integration-file:1.0.3.RELEASE@jar'
+//	compile 'org.springframework.integration:spring-integration-jms:1.0.3.RELEASE@jar'
+
+	compile 'org/spring/integration:spring-integration-core:2.0.0.M2@jar'
+	compile 'org/spring/integration:spring-integration-adapter:2.0.0.M2@jar'
+	compile 'org/spring/integration:spring-integration-stream:2.0.0.M2@jar'
+	compile 'org/spring/integration:spring-integration-file:2.0.0.M2@jar'
+	compile 'org/spring/integration:spring-integration-jms:2.0.0.M2@jar'
+		
 	// Red5
-	providedCompile 'org/red5:red5:0.8@jar'
+	providedCompile 'org/red5:red5:0.9@jar'
 	
 	// Logging
-    compile ':logback-core:0.9.14@jar', ':logback-classic:0.9.14@jar', ':slf4j-api:1.5.6@jar'
-    providedCompile ':jcl-over-slf4j:1.5.6@jar', ':log4j-over-slf4j:1.5.6@jar' 
+    providedCompile ':logback-core:0.9.18@jar', ':logback-classic:0.9.18@jar', ':slf4j-api:1.5.10@jar'
+    providedCompile ':jcl-over-slf4j:1.5.10@jar', ':log4j-over-slf4j:1.5.10@jar' 
      
     // Java Concurrency In Practice
     providedCompile 'net.jcip:jcip-annotations:1.0@jar'
