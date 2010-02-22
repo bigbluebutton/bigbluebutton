@@ -126,7 +126,6 @@ package org.bigbluebutton.common.mate
 		public function sharedObjectCallback(sharedObject:String, message:Object):void{
 			var event:SharedObjectEvent = new SharedObjectEvent(sharedObject);
 			event.message = message;
-			var obj:DrawObject = DrawObject(message);
 			dispatcher.dispatchEvent(event);
 		}
 		

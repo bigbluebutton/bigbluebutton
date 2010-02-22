@@ -8,6 +8,7 @@ Notes.mxml is the main view of the SharedNotes application
 	
 	<mx:Script>
 		<![CDATA[
+			import flexlib.mdi.events.MDIWindowEvent;
 			import org.bigbluebutton.modules.notes.maps.NotesEventMap;
 			import com.asfusion.mate.utils.debug.Debugger;
 			import org.bigbluebutton.common.mate.SharedObjectEvent;
