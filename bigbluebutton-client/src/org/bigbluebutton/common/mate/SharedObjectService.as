@@ -13,8 +13,6 @@ package org.bigbluebutton.common.mate
 	
 	import mx.collections.ArrayCollection;
 	
-	import org.bigbluebutton.modules.highlighter.business.shapes.DrawObject;
-	
 	/**
 	 * The SharedObjectService abstracts the communication with Remote SharedObjects located on a server 
 	 * @author Snap
