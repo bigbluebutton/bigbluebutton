@@ -43,6 +43,7 @@
 			[Bindable] public var phoneIcon:Class = images.headset_icon;
 			
 			private function startPhone():void {
+				this.enabled = false;
 				localDispatcher.dispatchEvent(new JoinVoiceConferenceEvent());
 			}
 			
