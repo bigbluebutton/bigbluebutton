@@ -138,34 +138,46 @@
         		uploadBtn.enabled = true;
         	}
         	
-        	private function startUpload():void{
-        		var presentationName:String = fileToUpload.name
-        		LogUtil.debug("Uploading file : " + presentationName);
+        	private function startUpload():void {
+        		var fileSize:Number = fileToUpload.size;
+				var maxFileSize:Number = 30000000;
+				
+        		if (fileSize > maxFileSize) {     
+        			// Hardcode for now to 30M limit. 
+        			// This should be configurable to match what's allowed in nginx. (ralam feb 23, 2010) 
+        			LogUtil.error("File exceeds max limit:(" + fileSize + ">" + maxFileSize + ")");  			
+        			enableControls();
+					displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.maxUploadFileExceededAlert'));
+        		} else {
+        			var presentationName:String = fileToUpload.name
+	        		LogUtil.debug("Uploading file : " + presentationName);
+	        		
+					var filenamePattern:RegExp = /(.+)(\..+)/i;
+					// Get the first match which should be the filename without the extension.
+					presentationName = presentationName.replace(filenamePattern, "$1")
+					// Replace any character other than a word character (A-Z, a-z, 0-9, or _).
+					presentationName = presentationName.replace(/[^0-9a-zA-Z_\.]/g, "-");
+					LogUtil.debug("Uploadling presentation name: " + presentationName);
+					
+					var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.START_UPLOAD);
+					uploadEvent.presentationName = presentationName;
+					uploadEvent.fileToUpload = fileToUpload;
+					globalDispatch.dispatchEvent(uploadEvent);
+					
+					progBarLbl.visible = true;
+					progressBar.visible = true;
+					
+					okCancelBtn.visible = false;
+					selectBtn.enabled = false;
+					uploadBtn.enabled = false;
+					fileTxtInput.enabled = false;
+					
+					presentationNamesLb.visible = false;
+					presentationNamesCombobox.visible = false;
+					deleteBtn.visible = false;
+					showBtn.visible = false;
+        		}
         		
-				var filenamePattern:RegExp = /(.+)(\..+)/i;
-				// Get the first match which should be the filename without the extension.
-				presentationName = presentationName.replace(filenamePattern, "$1")
-				// Replace any character other than a word character (A-Z, a-z, 0-9, or _).
-				presentationName = presentationName.replace(/[^0-9a-zA-Z_\.]/g, "-");
-				LogUtil.debug("Uploadling presentation name: " + presentationName);
-				
-				var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.START_UPLOAD);
-				uploadEvent.presentationName = presentationName;
-				uploadEvent.fileToUpload = fileToUpload;
-				globalDispatch.dispatchEvent(uploadEvent);
-				
-				progBarLbl.visible = true;
-				progressBar.visible = true;
-				
-				okCancelBtn.visible = false;
-				selectBtn.enabled = false;
-				uploadBtn.enabled = false;
-				fileTxtInput.enabled = false;
-				
-				presentationNamesLb.visible = false;
-				presentationNamesCombobox.visible = false;
-				deleteBtn.visible = false;
-				showBtn.visible = false;
         	}
         	
         	private function uploadProgressUpdate(e:UploadEvent):void{
