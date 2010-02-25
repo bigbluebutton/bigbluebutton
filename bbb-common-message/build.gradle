@@ -1,0 +1,24 @@
+usePlugin 'eclipse'
+usePlugin 'java'
+
+version = '0.64'
+jar.enabled = true
+
+def appName = 'bbb-common-message'
+
+archivesBaseName = appName 
+
+artifacts {
+    archives jar
+}
+
+repositories {
+    flatDir(name: 'fileRepo', dirs: "/home/firstuser/dev/repo")
+}
+
+uploadArchives {
+    uploadDescriptor = false
+    repositories {
+        add project.repositories.fileRepo
+    }
+}
