@@ -43,7 +43,6 @@
 		<![CDATA[
 			import org.bigbluebutton.modules.present.events.UploadEvent;
 			import org.bigbluebutton.modules.present.events.SlideResizedEvent;
-			import mx.controls.Alert;
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 			import com.asfusion.mate.events.Dispatcher;
 			import org.bigbluebutton.modules.present.events.CursorEvent;
@@ -96,6 +95,8 @@
         	[Bindable] public var slides:ArrayCollection;
 			[Bindable] public var selectedSlide:int=0;
 			[Bindable] private var isPresenter:Boolean = false;
+			
+			private var dispatcher:Dispatcher = new Dispatcher();
 				
 			private function onCreationComplete():void{
 				swfSlideLoader.width = canvasWidth();
@@ -275,7 +276,6 @@
 			private function notifyListenersOfSlideResize(percent:Number):void {
 				var event:SlideResizedEvent = new SlideResizedEvent();
 				event.percent = percent;
-				var dispatcher:Dispatcher = new Dispatcher();
 				dispatcher.dispatchEvent(event);
 			}
 						
@@ -407,7 +407,6 @@
 			}
 			
 			private function dispatchNewSlideDisplayedEvent(slideRealWidth:int, slideRealHeight:int):void {
-				var dispatcher:Dispatcher = new Dispatcher();
 				var dispEvent:DisplaySlideEvent = new DisplaySlideEvent(DisplaySlideEvent.DISPLAY_SLIDE_EVENT);
 				dispEvent.slideWidth = slideRealWidth;
 				dispEvent.slideHeight = slideRealHeight;

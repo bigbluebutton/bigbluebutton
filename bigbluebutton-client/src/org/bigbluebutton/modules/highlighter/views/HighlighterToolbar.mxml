@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DockableToolBar xmlns="flexlib.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" draggable="true">
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.modules.highlighter.business.shapes.DrawObject;
+			import org.bigbluebutton.modules.highlighter.events.HighlighterDrawEvent;
+			import org.bigbluebutton.common.Images;
+			
+			private var images:Images = new Images();
+			[Bindable] private var pencil_icon:Class = images.pencil_icon;
+			[Bindable] private var undo_icon:Class = images.undo_icon;
+			[Bindable] private var delete_icon:Class = images.delete_icon;
+			
+			public var canvas:HighlighterCanvas;
+			
+			/**
+			 * Sets the type of shape we're drawing (pencil, rectangle, etc...) 
+			 * @param s The type
+			 * 
+			 */		
+			protected function setShape(s:String):void{
+				canvas.setShape(s);
+			}
+			
+			/**
+			 * Sets the color 
+			 * @param e event containing the color (e.target.selectedColor)
+			 * 
+			 */		
+			protected function changeColor(e:Event):void{
+				canvas.changeColor(e);
+			}
+			
+			/**
+			 * Sets the thickness 
+			 * @param e event containing the thickness (e.target.value)
+			 * 
+			 */		
+			protected function changeThickness(e:Event):void{
+				canvas.changeThickness(e);
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:Button width="20" height="20"  id="btnPenc" click="setShape(DrawObject.PENCIL)"  icon="{pencil_icon}" />
+	<mx:Button width="20" height="20" id="btnClear" click="dispatchEvent(new HighlighterDrawEvent(HighlighterDrawEvent.CLEAR_BOARD))" icon="{delete_icon}" />
+	<mx:Button width="20" height="20" id="btnUndo" click="dispatchEvent(new HighlighterDrawEvent(HighlighterDrawEvent.UNDO_SHAPE))" icon="{undo_icon}" />
+	<mx:ColorPicker change="changeColor(event)" id="cpik"/>
+	<mx:HSlider width="50" id="sld" change="changeThickness(event)"/>
+</DockableToolBar>

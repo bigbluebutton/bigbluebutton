@@ -41,6 +41,7 @@
 <module application="src/BigBlueButton.mxml" destPath="DeskShareModule.swf" optimize="true" sourcePath="src/DeskShareModule.mxml"/>
 <module application="src/BigBlueButton.mxml" destPath="PhoneModule.swf" optimize="true" sourcePath="src/PhoneModule.mxml"/>
 <module application="src/BigBlueButton.mxml" destPath="ViewersModule.swf" optimize="true" sourcePath="src/ViewersModule.mxml"/>
+<module application="src/BigBlueButton.mxml" destPath="NotesModule.swf" optimize="true" sourcePath="src/NotesModule.mxml"/>
 </modules>
 <buildCSSFiles/>
 </actionScriptProperties>

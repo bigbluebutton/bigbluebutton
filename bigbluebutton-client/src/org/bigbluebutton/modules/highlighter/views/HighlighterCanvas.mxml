@@ -3,10 +3,10 @@
 	mouseDown="doMouseDown()" mouseMove="doMouseMove()" mouseUp="doMouseUp()" creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
 			import org.bigbluebutton.modules.highlighter.events.HighlighterUpdate;
 			import org.bigbluebutton.common.mate.SharedObjectEvent;
 			import org.bigbluebutton.modules.highlighter.maps.HighlighterEventMap;
-			import mx.controls.Alert;
 			import org.bigbluebutton.modules.highlighter.events.HighlighterDrawEvent;
 			import mx.core.Application;
 			import org.bigbluebutton.modules.highlighter.business.shapes.ShapeFactory;
@@ -38,6 +38,7 @@
 			private function init():void{
 				drawFactory = new DrawObjectFactory();
 				shapeFactory = new ShapeFactory();
+				this.label = "Highlighter";
 			}
 			
 			/**
@@ -177,6 +178,11 @@
 				_yPosition = y;
 			}
 			
+			private function scaleCanvas(e:WindowResizedEvent):void{
+				this.scaleX = this.scaleX * (e.width/e.old_width);
+				this.scaleY = this.scaleY * (e.height/e.old_height);
+			}
+			
 		]]>
 	</mx:Script>
 	
@@ -184,4 +190,5 @@
 	<mate:Listener type="{HighlighterUpdate.BOARD_CLEARED}" method="clearBoard" />
 	<mate:Listener type="{HighlighterUpdate.BOARD_UPDATED}" method="drawSegment" />
 	<mate:Listener type="{HighlighterUpdate.SHAPE_UNDONE}" method="undoShape" />
+	<mate:Listener type="{WindowResizedEvent.PRESENTATION_WINDOW_RESIZED_EVENT}" method="scaleCanvas" />
 </mx:Canvas>

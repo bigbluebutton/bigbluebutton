@@ -8,6 +8,9 @@ package org.bigbluebutton.modules.present.events
 		public var width:int = 450;
 		public var height:int = 450;
 		
+		public var old_width:int = 450;
+		public var old_height:int = 450;
+		
 		public function WindowResizedEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=true)
 		{
 			super(type, bubbles, cancelable);

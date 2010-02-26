@@ -25,13 +25,11 @@
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.modules.highlighter.events.StartHighligtherModuleEvent;
-			import org.bigbluebutton.main.events.AddHighligtherCanvasEvent;
 			import com.asfusion.mate.events.Dispatcher;
 			import org.bigbluebutton.common.messaging.EndpointMessageConstants;
 			import org.puremvc.as3.multicore.utilities.pipes.interfaces.IPipeMessage;
 			import org.bigbluebutton.common.messaging.Endpoint;
 			import mx.controls.Alert;
-			import org.bigbluebutton.modules.highlighter.views.HighlighterCanvas;
 			import org.bigbluebutton.common.messaging.Router;
 			
 			private static const TO_HIGHLIGHTER_MODULE:String = "TO_HIGHLIGHTER_MODULE";
@@ -42,7 +40,6 @@
 			private var _moduleName:String = "Highlighter Module";			
 			private var _attributes:Object;
 			
-			private var highlighterCanvas:HighlighterCanvas;
 			private var globalDispatcher:Dispatcher;
 			
 			private function init():void{

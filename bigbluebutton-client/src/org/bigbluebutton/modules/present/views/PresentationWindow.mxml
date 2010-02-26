@@ -34,7 +34,7 @@
 	rollOut="hideThumbs()" xmlns:mate="http://mate.asfusion.com/"
 	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
 	x="{DEFAULT_X_POSITION}" y="{DEFAULT_Y_POSITION}"
-	title="{currentPresentation}" keyUp="onKeyUp(event)">
+	title="{currentPresentation}" keyUp="onKeyUp(event)" xmlns:code="http://code.google.com/p/flexlib/">
 	
 	<mate:Dispatcher id="globalDispatcher" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="becomePresenter" />
@@ -44,9 +44,15 @@
 	<mate:Listener type="{UploadEvent.CLEAR_PRESENTATION}" method="clearPresentation" />
 	<mate:Listener type="{SlideResizedEvent.SLIDE_RESIZED_EVENT}" method="handleSlideResizedEvent" />
 	<mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleDisplaySlideEvent" />
+	<mate:Listener type="{AddOverlayCanvasEvent.ADD_OVERLAY_CANVAS}" method="addOverlayCanvas" />
+	<mate:Listener type="{AddPresentationToolbarEvent.ADD_TOOLBAR}" method="addToolbar" />
 	
 	<mx:Script>
 		<![CDATA[
+			import flexlib.containers.DockableToolBar;
+			import org.bigbluebutton.modules.present.events.AddPresentationToolbarEvent;
+			import mx.controls.Alert;
+			import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
 			import org.bigbluebutton.modules.present.events.SlideResizedEvent;
 			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
@@ -225,6 +231,8 @@
 				var dispEvent:WindowResizedEvent = new WindowResizedEvent(WindowResizedEvent.PRESENTATION_WINDOW_RESIZED_EVENT);
 				dispEvent.width = slideWidth;
 				dispEvent.height = slideHeight;
+				dispEvent.old_width = this.slideView.slideCanvas.width;
+				dispEvent.old_height = this.slideView.slideCanvas.height;
 				dispatcher.dispatchEvent(dispEvent);
 			}
 			
@@ -495,6 +503,18 @@
                 return val; 
             }
             
+            private function addOverlayCanvas(e:AddOverlayCanvasEvent):void{
+            	var canvas:Canvas = e.canvas;
+            	this.mainCanvas.addChild(canvas);
+            	canvas.x = 0;
+            	canvas.y = 0;
+            }
+            
+            private function addToolbar(e:AddPresentationToolbarEvent):void{
+            	var toolbar:DockableToolBar = e.toolbar;
+            	this.toolbarDocker.addChild(toolbar);
+            }
+            
 		]]>
 	</mx:Script>
 
@@ -534,6 +554,7 @@
     		useHandCursor="true" snapInterval="5" allowTrackClick="true" liveDragging="true" 
     		dataTipFormatFunction="removeDecimalFromDataTip" change="onSliderZoom()" width="100"/>
     	<mx:Spacer width="50%" id="spacer3"/>
+    	<code:Docker id="toolbarDocker" height="100%" width="200" />
     	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="false" width="20" height="20" 
     		toolTip="Reset Zoom" click="onResetZoom()"/>
     	<mx:Spacer width="5" id="spacer4"/>
