@@ -425,6 +425,7 @@
 				forwardButton.visible = show;
 				zoomSlider.visible = show;
 				btnResetZoom.visible = show;
+				toolbarDocker.visible = show;
 			}
 			
 			private function notifyOthersOfSharingPresentation(presentationName:String):void {
@@ -554,7 +555,7 @@
     		useHandCursor="true" snapInterval="5" allowTrackClick="true" liveDragging="true" 
     		dataTipFormatFunction="removeDecimalFromDataTip" change="onSliderZoom()" width="100"/>
     	<mx:Spacer width="50%" id="spacer3"/>
-    	<code:Docker id="toolbarDocker" height="100%" width="200" />
+    	<code:Docker id="toolbarDocker" height="100%" width="250" />
     	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="false" width="20" height="20" 
     		toolTip="Reset Zoom" click="onResetZoom()"/>
     	<mx:Spacer width="5" id="spacer4"/>

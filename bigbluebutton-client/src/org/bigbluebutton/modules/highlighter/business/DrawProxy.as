@@ -28,6 +28,7 @@ package org.bigbluebutton.modules.highlighter.business
 	import org.bigbluebutton.modules.highlighter.business.shapes.DrawObject;
 	import org.bigbluebutton.modules.highlighter.business.shapes.DrawObjectFactory;
 	import org.bigbluebutton.modules.highlighter.events.HighlighterDrawEvent;
+	import org.bigbluebutton.modules.highlighter.events.HighlighterPresenterEvent;
 	import org.bigbluebutton.modules.highlighter.events.HighlighterUpdate;
 	import org.bigbluebutton.modules.highlighter.events.StartHighligtherModuleEvent;
 	
@@ -146,6 +147,16 @@ package org.bigbluebutton.modules.highlighter.business
 		 */		
 		public function undo():void{
 			dispatcher.dispatchEvent(new HighlighterUpdate(HighlighterUpdate.SHAPE_UNDONE));
+		}
+		
+		public function modifyEnabled(e:HighlighterPresenterEvent):void{
+			drawSO.send("modifyEnabledCallback", e.enabled);
+		}
+		
+		public function modifyEnabledCallback(enabled:Boolean):void{
+			var e:HighlighterUpdate = new HighlighterUpdate(HighlighterUpdate.BOARD_ENABLED);
+			e.boardEnabled = enabled;
+			dispatcher.dispatchEvent(e);
 		}
 
 	}

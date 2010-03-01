@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:mate="http://mate.asfusion.com/"
-	mouseDown="doMouseDown()" mouseMove="doMouseMove()" mouseUp="doMouseUp()" creationComplete="init()">
+	mouseDown="doMouseDown()" mouseMove="doMouseMove()" mouseUp="doMouseUp()" creationComplete="init()" visible="false">
 	<mx:Script>
 		<![CDATA[
 			import mx.collections.ArrayCollection;
@@ -198,6 +198,10 @@
 				}
 			}
 			
+			private function modifyEnabled(e:HighlighterUpdate):void{
+				this.visible = e.boardEnabled;
+			}
+			
 		]]>
 	</mx:Script>
 	
@@ -207,4 +211,5 @@
 	<mate:Listener type="{HighlighterUpdate.SHAPE_UNDONE}" method="undoShape" />
 	<mate:Listener type="{WindowResizedEvent.PRESENTATION_WINDOW_RESIZED_EVENT}" method="scaleCanvas" />
 	<mate:Listener type="{PageEvent.CHANGE_PAGE}" method="changePage" />
+	<mate:Listener type="{HighlighterUpdate.BOARD_ENABLED}" method="modifyEnabled" />
 </mx:Canvas>

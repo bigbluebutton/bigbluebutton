@@ -2,6 +2,7 @@
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/" xmlns:mate="org.bigbluebutton.common.mate.*">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.highlighter.events.HighlighterPresenterEvent;
 			import mx.controls.Alert;
 			import org.bigbluebutton.modules.present.events.NavigationEvent;
 			import org.bigbluebutton.modules.highlighter.events.HighlighterUpdate;
@@ -21,6 +22,10 @@
 		<ObjectBuilder generator="{HighlighterManager}" cache="global" />
 		<ObjectBuilder generator="{DrawProxy}" cache="global" />
 		<ObjectBuilder generator="{PageManager}" cache="global" />
+	</EventHandlers>
+	
+	<EventHandlers type="{HighlighterPresenterEvent.MODIFY_ENABLED}" >
+		<MethodInvoker generator="{DrawProxy}" method="modifyEnabled" arguments="{event}" />
 	</EventHandlers>
 	
 	<EventHandlers type="{NavigationEvent.GOTO_PAGE}" >

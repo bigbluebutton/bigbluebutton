@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<DockableToolBar xmlns="flexlib.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" draggable="true" xmlns:mate="http://mate.asfusion.com/">
+<DockableToolBar xmlns="flexlib.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" draggable="true" xmlns:mate="http://mate.asfusion.com/" visible="false">
 	
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="presenterMode" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="viewerMode" />
+	<mate:Listener type="{PresentationEvent.PRESENTATION_LOADED}" method="showToolbar" />
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.present.events.PresentationEvent;
+			import org.bigbluebutton.modules.highlighter.events.HighlighterPresenterEvent;
+			import mx.controls.Alert;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.modules.highlighter.business.shapes.DrawObject;
 			import org.bigbluebutton.modules.highlighter.events.HighlighterDrawEvent;
@@ -46,19 +50,30 @@
 			}
 			
 			private function presenterMode(e:MadePresenterEvent):void{
-				this.visible = false;
+				this.visible = true;
 			}
 			
 			private function viewerMode(e:MadePresenterEvent):void{
+				this.visible = false;
+			}
+			
+			private function showToolbar(e:PresentationEvent):void{
 				this.visible = true;
+			}
+			
+			private function modifyEnabled():void{
+				var e:HighlighterPresenterEvent = new HighlighterPresenterEvent(HighlighterPresenterEvent.MODIFY_ENABLED);
+				e.enabled = highligherEnabled.selected;
+				dispatchEvent(e);
 			}
 			
 		]]>
 	</mx:Script>
 	
-	<mx:Button width="20" height="20"  id="btnPenc" click="setShape(DrawObject.PENCIL)"  icon="{pencil_icon}" />
-	<mx:Button width="20" height="20" id="btnClear" click="dispatchEvent(new HighlighterDrawEvent(HighlighterDrawEvent.CLEAR_BOARD))" icon="{delete_icon}" />
-	<mx:Button width="20" height="20" id="btnUndo" click="dispatchEvent(new HighlighterDrawEvent(HighlighterDrawEvent.UNDO_SHAPE))" icon="{undo_icon}" />
-	<mx:ColorPicker change="changeColor(event)" id="cpik"/>
-	<mx:HSlider width="50" id="sld" change="changeThickness(event)"/>
+	<mx:CheckBox id="highligherEnabled" toolTip="Enable Highlighter" click="modifyEnabled()" width="20" height="20" selected="false"/>
+	<mx:Button width="20" height="20"  id="btnPenc" click="setShape(DrawObject.PENCIL)"  icon="{pencil_icon}" enabled="{highligherEnabled.selected}" />
+	<mx:Button width="20" height="20" id="btnClear" click="dispatchEvent(new HighlighterDrawEvent(HighlighterDrawEvent.CLEAR_BOARD))" icon="{delete_icon}" enabled="{highligherEnabled.selected}" />
+	<mx:Button width="20" height="20" id="btnUndo" click="dispatchEvent(new HighlighterDrawEvent(HighlighterDrawEvent.UNDO_SHAPE))" icon="{undo_icon}" enabled="{highligherEnabled.selected}" />
+	<mx:ColorPicker change="changeColor(event)" id="cpik" enabled="{highligherEnabled.selected}"/>
+	<mx:HSlider width="50" id="sld" change="changeThickness(event)" enabled="{highligherEnabled.selected}"/>
 </DockableToolBar>
