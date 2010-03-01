@@ -2,6 +2,9 @@
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/" xmlns:mate="org.bigbluebutton.common.mate.*">
 	<mx:Script>
 		<![CDATA[
+			import mx.controls.Alert;
+			import org.bigbluebutton.modules.present.events.NavigationEvent;
+			import org.bigbluebutton.modules.highlighter.events.HighlighterUpdate;
 			import org.bigbluebutton.modules.highlighter.business.DrawProxy;
 			import org.bigbluebutton.modules.highlighter.events.StartHighligtherModuleEvent;
 			import mx.events.FlexEvent;
@@ -9,13 +12,23 @@
 			import org.bigbluebutton.main.events.ModuleStartedEvent;
 			import org.bigbluebutton.modules.highlighter.events.HighlighterDrawEvent;
 			import org.bigbluebutton.modules.highlighter.views.HighlighterCanvas;
-			
+			import org.bigbluebutton.modules.highlighter.managers.PageManager;
+			import org.bigbluebutton.modules.present.events.PresentationEvent;
 		]]>
 	</mx:Script>
 	
 	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
 		<ObjectBuilder generator="{HighlighterManager}" cache="global" />
 		<ObjectBuilder generator="{DrawProxy}" cache="global" />
+		<ObjectBuilder generator="{PageManager}" cache="global" />
+	</EventHandlers>
+	
+	<EventHandlers type="{NavigationEvent.GOTO_PAGE}" >
+		<MethodInvoker generator="{PageManager}" method="changePage" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{PresentationEvent.PRESENTATION_LOADED}" >
+		<MethodInvoker generator="{PageManager}" method="createPages" arguments="{event}" />
 	</EventHandlers>
 	
 	<EventHandlers type="{StartHighligtherModuleEvent.START_HIGHLIGHTER_MODULE_EVENT}">
@@ -33,5 +46,17 @@
 	
 	<EventHandlers type="{HighlighterDrawEvent.UNDO_SHAPE}" >
 		<MethodInvoker generator="{DrawProxy}" method="undoShape" />
+	</EventHandlers>
+	
+	<EventHandlers type="{HighlighterUpdate.BOARD_UPDATED}">
+		<MethodInvoker generator="{PageManager}" method="addShapeToPage" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{HighlighterUpdate.SHAPE_UNDONE}" >
+		<MethodInvoker generator="{PageManager}" method="undoShapeFromPage" />
+	</EventHandlers>
+	
+	<EventHandlers type="{HighlighterUpdate.BOARD_CLEARED}" >
+		<MethodInvoker generator="{PageManager}" method="clearPage" />
 	</EventHandlers>
 </EventMap>

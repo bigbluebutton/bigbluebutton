@@ -33,6 +33,8 @@ TypeError: Error #1034: Type Coercion failed: cannot convert org.bigbluebutton.m
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.present.events.PresentationEvent;
+			import org.bigbluebutton.modules.present.events.NavigationEvent;
 			import org.bigbluebutton.modules.present.events.AddPresentationToolbarEvent;
 			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
 			import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
@@ -54,4 +56,6 @@ TypeError: Error #1034: Type Coercion failed: cannot convert org.bigbluebutton.m
 	<Listener type="{UserStatusEvent}" />
 	<Listener type="{MadePresenterEvent}" />
 	<Listener type="{AddPresentationToolbarEvent}" />
+	<Listener type="{NavigationEvent}" />
+	<Listener type="{PresentationEvent}" />
 </EventMap>

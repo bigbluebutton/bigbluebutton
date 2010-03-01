@@ -3,6 +3,8 @@
 	mouseDown="doMouseDown()" mouseMove="doMouseMove()" mouseUp="doMouseUp()" creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import org.bigbluebutton.modules.highlighter.events.PageEvent;
 			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
 			import org.bigbluebutton.modules.highlighter.events.HighlighterUpdate;
 			import org.bigbluebutton.common.mate.SharedObjectEvent;
@@ -107,13 +109,16 @@
 			 * is executed on all clients, even the one which sent the update request.
 			 */
 			public function drawSegment(event:HighlighterUpdate):void{
-				var draw:DrawObject = event.data;
-				newShape = shapeFactory.makeShape(draw);
+				var o:DrawObject = event.data;
+				draw(o);
+			}
+			
+			private function draw(o:DrawObject):void{
+				newShape = shapeFactory.makeShape(o);
 	            shapeList.push(newShape);
 	            rawChildren.addChild(shapeList[shapeList.length-1]);
 	            segment = new Array();
 	            newShape = new Shape();
-
 			}
 			
 			/**
@@ -146,7 +151,7 @@
 			/**
 			 * Clears the entire board
 			 */
-			public function clearBoard(event:HighlighterUpdate):void{
+			public function clearBoard(event:HighlighterUpdate = null):void{
 				for (var i:Number = 0; i<this.shapeList.length; i++){
 					if (this.rawChildren.contains(this.shapeList[i])){
 						this.rawChildren.removeChild(this.shapeList[i]);	
@@ -183,6 +188,16 @@
 				this.scaleY = this.scaleY * (e.height/e.old_height);
 			}
 			
+			private function changePage(e:PageEvent):void{
+				var page:Number = e.pageNum;
+				var shapes:ArrayCollection = e.shapes;
+				clearBoard();
+				for (var i:int = 0; i<shapes.length; i++){
+					var o:DrawObject = shapes.getItemAt(i) as DrawObject;
+					draw(o);
+				}
+			}
+			
 		]]>
 	</mx:Script>
 	
@@ -191,4 +206,5 @@
 	<mate:Listener type="{HighlighterUpdate.BOARD_UPDATED}" method="drawSegment" />
 	<mate:Listener type="{HighlighterUpdate.SHAPE_UNDONE}" method="undoShape" />
 	<mate:Listener type="{WindowResizedEvent.PRESENTATION_WINDOW_RESIZED_EVENT}" method="scaleCanvas" />
+	<mate:Listener type="{PageEvent.CHANGE_PAGE}" method="changePage" />
 </mx:Canvas>

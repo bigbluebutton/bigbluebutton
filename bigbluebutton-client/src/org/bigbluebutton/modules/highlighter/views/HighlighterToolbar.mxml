@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<DockableToolBar xmlns="flexlib.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" draggable="true">
+<DockableToolBar xmlns="flexlib.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" draggable="true" xmlns:mate="http://mate.asfusion.com/">
+	
+	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="presenterMode" />
+	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="viewerMode" />
+	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.modules.highlighter.business.shapes.DrawObject;
 			import org.bigbluebutton.modules.highlighter.events.HighlighterDrawEvent;
 			import org.bigbluebutton.common.Images;
@@ -38,6 +43,14 @@
 			 */		
 			protected function changeThickness(e:Event):void{
 				canvas.changeThickness(e);
+			}
+			
+			private function presenterMode(e:MadePresenterEvent):void{
+				this.visible = false;
+			}
+			
+			private function viewerMode(e:MadePresenterEvent):void{
+				this.visible = true;
 			}
 			
 		]]>

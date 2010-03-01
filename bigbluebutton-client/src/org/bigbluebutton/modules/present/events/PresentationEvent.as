@@ -29,11 +29,21 @@ package org.bigbluebutton.modules.present.events
 		public static const PRESENTATION_NOT_LOADED:String = "Presentation Not Loaded";
 		
 		public var presentationName:String;
-		public var slides:PresentationSlides;
+		private var _slides:PresentationSlides;
+		public var numberOfSlides:int;
 		
 		public function PresentationEvent(type:String)
 		{
 			super(type, true, false);
+		}
+		
+		public function set slides(presentSlides:PresentationSlides):void{
+			this._slides = presentSlides;
+			this.numberOfSlides = presentSlides.size();
+		}
+		
+		public function get slides():PresentationSlides{
+			return this._slides;
 		}
 
 	}

@@ -399,7 +399,7 @@
 				if (e.presentationName == currentPresentation) return;
 				currentPresentation = e.presentationName;
 				presentationLoaded = true;
-				slideView.slides = e.slides.slides;         		            		
+				slideView.slides = e.slides.slides;    		            		
 				slideView.visible = true;		
 	
 				if (slideManager != null) slideManager.clear();	
