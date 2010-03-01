@@ -53,6 +53,7 @@ package org.bigbluebutton.modules.highlighter.business.shapes
 			} else if (shape.getType() == DrawObject.ELLIPSE){
 				s = makeEllipse(Ellipse(shape));
 			}
+			s.alpha = 0.2;
 			return s;
 		}
 		

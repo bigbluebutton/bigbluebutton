@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:mate="http://mate.asfusion.com/"
-	mouseDown="doMouseDown()" mouseMove="doMouseMove()" mouseUp="doMouseUp()" creationComplete="init()" visible="false">
+	mouseDown="doMouseDown()" mouseMove="doMouseMove()" mouseUp="doMouseUp()" creationComplete="init()" visible="false"
+	mouseOver="setCursor()" mouseOut="removeCursor()">
 	<mx:Script>
 		<![CDATA[
+			import mx.managers.CursorManager;
+			import org.bigbluebutton.common.Images;
 			import mx.collections.ArrayCollection;
 			import org.bigbluebutton.modules.highlighter.events.PageEvent;
 			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
@@ -36,6 +39,9 @@
 			
 			private var _xPosition:int;
 			private var _yPosition:int;
+			
+			private var images:Images = new Images();
+			[Bindable] private var pencil_icon:Class = images.pencil_icon;
 			
 			private function init():void{
 				drawFactory = new DrawObjectFactory();
@@ -198,8 +204,23 @@
 				}
 			}
 			
+			private function zoomAndMove():void{
+				/*this.x = e.x;
+				this.y = e.y;
+				var zoomX:Number = e.slideWidth/this.width - 1;
+				var zoomY:Number = e.slideHeight/this.height - 1;*/
+			}
+			
 			private function modifyEnabled(e:HighlighterUpdate):void{
 				this.visible = e.boardEnabled;
+			}
+			
+			private function setCursor():void{
+				CursorManager.setCursor(pencil_icon);
+			}
+			
+			private function removeCursor():void{
+				CursorManager.removeCursor(CursorManager.currentCursorID);
 			}
 			
 		]]>
