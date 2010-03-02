@@ -31,10 +31,11 @@
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	mouseMove="hideThumbnails()"
 	creationComplete="onCreationComplete()"
+	resize="maximizeHandler()"
 	rollOut="hideThumbs()" xmlns:mate="http://mate.asfusion.com/"
 	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
 	x="{DEFAULT_X_POSITION}" y="{DEFAULT_Y_POSITION}"
-	title="{currentPresentation}" keyUp="onKeyUp(event)" xmlns:code="http://code.google.com/p/flexlib/">
+	title="{currentPresentation}" keyUp="onKeyUp(event)" xmlns:code="http://code.google.com/p/flexlib/" xmlns:containers="flexlib.containers.*">
 	
 	<mate:Dispatcher id="globalDispatcher" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="becomePresenter" />
@@ -49,6 +50,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.events.ResizeEvent;
 			import flexlib.containers.DockableToolBar;
 			import org.bigbluebutton.modules.present.events.AddPresentationToolbarEvent;
 			import mx.controls.Alert;
@@ -116,48 +118,9 @@
 			[Bindable] private var currentPresentation:String = ResourceUtil.getInstance().getString('bbb.presentation.title');
 			
 			private var presenterName:String = "";
+		
 			
-			// The following code block is to deal with a bug in FLexLib 
-			// with MDI windows not responding well to being maximized
-			private var savedWindowWidth:Number;
-			private var savedWindowHeight:Number;
-			private var savedX:Number;
-			private var savedY:Number;
-			private var isMaximized:Boolean = false;
-			
-			private var fitToWindowTimer:Timer;
-			
-			override public function maximize():void{
-				if (!isMaximized){
-					savedWindowHeight = this.height;
-					savedWindowWidth = this.width;
-					savedX = this.x;
-					savedY = this.y;    
-					dispatchEvent(new MDIWindowEvent(MDIWindowEvent.MAXIMIZE, this));            	
-                	isMaximized = true;
-                	windowControls.maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString('bbb.presentation.maximizeRestoreBtn.toolTip2');	                
-				
-				} else{
-					this.width = savedWindowWidth;
-					this.height = savedWindowHeight;
-					this.x = savedX;
-					this.y = savedY;
-					isMaximized = false;
-					windowControls.maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString('bbb.presentation.maximizeRestoreBtn.toolTip');
-				}					
-				
-				/*
-				 * Need to have a timer to trigger resizing slide to window after the 
-				 * window has been maximized/restored. The MAXIMIZE/RESTORE events are
-				 * generated when the button is clicked so the width and height are not
-				 * the ones we want.
-				 */
-				fitToWindowTimer = new Timer(1000);
-				fitToWindowTimer.addEventListener(TimerEvent.TIMER, maximizeTimerHandler);
-				fitToWindowTimer.start();
-			}
-			
-			private function maximizeTimerHandler(event:TimerEvent):void {
+			private function maximizeHandler():void {
 				// When the window is maximized, we want to resize the slide maintaining the aspect ratio.			
 				fitSlideToWindowMaintainingAspectRatio();
 				
@@ -170,8 +133,6 @@
 				}
 				
 				this.y = 0;
-				
-				fitToWindowTimer.stop();
 			}
 			
 			private function onCreationComplete():void{
@@ -555,7 +516,7 @@
     		useHandCursor="true" snapInterval="5" allowTrackClick="true" liveDragging="true" 
     		dataTipFormatFunction="removeDecimalFromDataTip" change="onSliderZoom()" width="100"/>
     	<mx:Spacer width="50%" id="spacer3"/>
-    	<code:Docker id="toolbarDocker" height="100%" width="250" />
+    	<containers:Docker id="toolbarDocker" height="100%" width="250" />
     	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="false" width="20" height="20" 
     		toolTip="Reset Zoom" click="onResetZoom()"/>
     	<mx:Spacer width="5" id="spacer4"/>

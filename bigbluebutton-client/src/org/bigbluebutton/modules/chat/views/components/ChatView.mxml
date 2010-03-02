@@ -3,7 +3,7 @@
 	xmlns:mate="http://mate.asfusion.com/"
 	creationComplete="onCreationComplete()"
 	xmlns:flexlib="http://code.google.com/p/flexlib/"
-	width="100%" height="100%">
+	width="100%" height="100%" xmlns:containers="flexlib.containers.*">
 
 	<mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
 	<mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
@@ -340,7 +340,7 @@
 
 		]]>
 	</mx:Script>
-	<flexlib:SuperTabNavigator id="chatTabs" width="100%" height="100%" change="onTabNavChange()" tabClose="onTabClose(event)"/>
+	<containers:SuperTabNavigator id="chatTabs" width="100%" height="100%" change="onTabNavChange()" tabClose="onTabClose(event)"/>
 	
 	<mx:ApplicationControlBar id="chatCtrlBar" width="100%" height="10%">		
 		<mx:TextInput id="txtMsg" width="100%" enter="sendMessages()"/>
