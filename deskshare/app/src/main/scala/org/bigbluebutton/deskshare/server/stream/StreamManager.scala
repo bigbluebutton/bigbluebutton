@@ -30,7 +30,8 @@ class StreamManager(app: DeskShareApplication) extends Actor {
 	      case ds: RemoveStream => {
 	    	  println("Removing Stream")
 	    	  val stream = streams.remove(ds.room)
-	    	  stream.exit
+	    	  println("Removed Stream. Exiting Stream")
+	    	  println("Notifying client that stream has stopped")
 	    	  clientInvoker ! new StreamStopped(ds.room)
 	      	}
 	      case is: IsStreamPublishing => {
@@ -55,7 +56,7 @@ class StreamManager(app: DeskShareApplication) extends Actor {
 		return stream
 	}
  
-  	def destoryStream(room: String) {
+  	def destroyStream(room: String) {
   		this ! new RemoveStream(room)
   	}
       
@@ -66,7 +67,7 @@ class StreamManager(app: DeskShareApplication) extends Actor {
      def act() = {
        loop {
          receive {
-           case so: StreamStopped => notifyClientOfStreamStopped(so.room)
+           case so: StreamStopped => println("Got stream stopped"); notifyClientOfStreamStopped(so.room)
            case sa: StreamStarted => notifyClientOfStreamStarted(sa.room)
          }
        }
@@ -80,7 +81,7 @@ class StreamManager(app: DeskShareApplication) extends Actor {
      
      private def notifyClientOfStreamStopped(room: String) {
 		val deskSO: ISharedObject  = app.getSharedObject(app.getAppScope().getScope(room), "deskSO");
-		println("Sending deskshareStreamStopped started");
+		println("Sending deskshareStreamStopped stopped");
 		deskSO.sendMessage("deskshareStreamStopped" , new ArrayList[Object]());
      }
    }

@@ -41,8 +41,8 @@ class SessionSVC(room: String, screenDim: Dimension, blockDim: Dimension, stream
         	  	println("**** [" + count + "] Received generate frame **** stop=" + stop)
 	            generateFrame(false)
 	            if (!stop) scheduleGenerateFrame()
-	            if (count > 1000) {
-	              self ! GenerateKeyFrame
+	            if (count > 500) {
+	  //            self ! GenerateKeyFrame
 	              count = 0
 	            } else {	              
 	              count = count + 1
@@ -70,6 +70,7 @@ class SessionSVC(room: String, screenDim: Dimension, blockDim: Dimension, stream
 	private def stopSession() {
 		stream ! StopStream
 		stop = true
+		streamManager.destroyStream(room)
 	}
 	
 	private def updateBlock(position: Int, videoData: Array[Byte], keyFrame: Boolean): Unit = {

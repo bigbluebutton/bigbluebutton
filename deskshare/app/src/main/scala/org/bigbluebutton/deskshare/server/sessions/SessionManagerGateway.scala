@@ -31,4 +31,8 @@ class SessionManagerGateway(streamManager: StreamManager) extends ISessionManage
 	def updateBlock(room : String, position : Int, blockData : Array[Byte], keyframe : Boolean): Unit = {
 		sessionManager ! new UpdateBlock(room, position, blockData, keyframe)
 	}
+ 
+	def sendKeyFrame(room: String) {
+		sessionManager ! new SendKeyFrame(room)
+	}
 }

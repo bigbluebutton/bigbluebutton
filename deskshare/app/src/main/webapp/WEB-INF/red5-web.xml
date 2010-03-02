@@ -28,6 +28,7 @@
   	
   	<bean id="deskshare.service" class="org.bigbluebutton.deskshare.server.stream.DeskshareService">
   		<constructor-arg ref="streamManager"/>
+  		<constructor-arg ref="sessionManagerGateway"/>
   	</bean>
   	
 	<bean id="deskShareServer" class="org.bigbluebutton.deskshare.server.socket.DeskShareServer" >

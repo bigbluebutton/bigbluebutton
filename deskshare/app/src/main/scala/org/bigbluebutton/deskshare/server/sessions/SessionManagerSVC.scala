@@ -9,6 +9,7 @@ import org.bigbluebutton.deskshare.server.stream.StreamManager
 
 case class CreateSession(room: String, screenDim: Dimension, blockDim: Dimension)
 case class RemoveSession(room: String)
+case class SendKeyFrame(room: String)
 case class UpdateBlock(room: String, position: Int, blockData: Array[Byte], keyframe: Boolean)
 
 class SessionManagerSVC(streamManager: StreamManager) extends Actor {
@@ -20,10 +21,17 @@ class SessionManagerSVC(streamManager: StreamManager) extends Actor {
 	    react {
 	      case c: CreateSession => createSession(c) 
 	      case r: RemoveSession => removeSession(r.room)
+	      case k : SendKeyFrame => sendKeyFrame(k.room)
 	      case ub: UpdateBlock => updateBlock(ub.room, ub.position, ub.blockData, ub.keyframe)
 	      case m:Any => println("Unknown SessionManager message " + m)
 	    }
 	  }
+	}
+ 
+	private def sendKeyFrame(room: String) {
+		println("Request to send key frame for room " + room);
+		val session: SessionSVC = sessions.get(room);
+  		if (session != null) session ! GenerateKeyFrame	  
 	}
  
 	private def createSession(c: CreateSession): Unit = {
@@ -43,7 +51,12 @@ class SessionManagerSVC(streamManager: StreamManager) extends Actor {
 	private def removeSession(room: String): Unit = {
 //		println("Removing session " + room);
 		val session: SessionSVC = sessions.remove(room);
-  		if (session != null) session ! StopSession
+  		if (session != null) {
+  		  session ! StopSession
+  		} else {
+  		  println("Remove: Session " + room + " not found.")
+  		}
+    
 	}
 	
 	private def updateBlock(room: String, position: Int, blockData: Array[Byte], keyframe: Boolean): Unit = {

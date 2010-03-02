@@ -1,10 +1,11 @@
 package org.bigbluebutton.deskshare.server.stream
 
+import org.bigbluebutton.deskshare.server.sessions.SessionManagerGateway
 import org.red5.server.api.Red5
 import java.util.HashMap
 
-class DeskshareService(streamManager: StreamManager) {
-	def checkIfStreamIsPublishing(): Boolean = {
+class DeskshareService(streamManager: StreamManager, sessionGateway: SessionManagerGateway) {
+	def checkIfStreamIsPublishing(): HashMap[String, Any] = {
 		val room: String = Red5.getConnectionLocal().getScope().getName();
 		println("Checking if " + room + " is streaming.")
 		var publishing = false
@@ -21,14 +22,22 @@ class DeskshareService(streamManager: StreamManager) {
 		  	}
 		}
   
+		
+  
 		val stream = new HashMap[String, Any]()
 		stream.put("publishing", publishing)
 		stream.put("width", width)
 		stream.put("height", height)
   
-		return publishing;
+		return stream;
 	}
 	
+	def startedToViewStream(): Unit = {
+		val room: String = Red5.getConnectionLocal().getScope().getName();
+		println("Started viewing stream for room " + room)
+		sessionGateway.sendKeyFrame(room)
+	}
+ 
 	def getVideoWidth(): Int = {
 		val room: String = Red5.getConnectionLocal().getScope().getName();
 		println("Checking if " + room + " is streaming.")
