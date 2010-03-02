@@ -19,10 +19,13 @@
  */
 package org.bigbluebutton.modules.viewers.model
 {
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.net.NetConnection;
 	
 	import mx.collections.ArrayCollection;
 	
+	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.viewers.ViewersModuleConstants;
 	import org.bigbluebutton.modules.viewers.model.business.Conference;
 	import org.bigbluebutton.modules.viewers.model.business.IViewers;
@@ -154,6 +157,8 @@ package org.bigbluebutton.modules.viewers.model
 				// Set the module.userid, _participants.me.userid in the ViewersSOService.
 				module.userid = _participants.me.userid;
 				sendNotification(ViewersModuleConstants.LOGGED_IN);
+				new Dispatcher().dispatchEvent(new BBBEvent(BBBEvent.LOGIN_EVENT));
+				//new Dispatcher().dispatchEvent(new BBBMessageEvent(BBBMessageEvent.MESSAGE_EVENT, "test"));
 			} else {
 				_participants = null;
 				if (reason == null) reason = ViewersModuleConstants.UNKNOWN_REASON;

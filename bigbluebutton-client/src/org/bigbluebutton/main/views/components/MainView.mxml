@@ -34,7 +34,7 @@
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.main.events.OpenWindowEvent;
 			import org.bigbluebutton.common.IBbbModuleWindow;
-			import org.bigbluebutton.main.events.LoginEvent;
+			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.AppEvent;
 			import org.bigbluebutton.main.views.model.MainViewModel;
 			import flexlib.mdi.containers.MDIWindow;
@@ -101,7 +101,7 @@
 			private function openLogWindow():void {
 				mdiCanvas.windowManager.add(logWindow);
 				mdiCanvas.windowManager.absPos(logWindow, 200, 700);
-				dispatchEvent(new LoginEvent(LoginEvent.LOGIN_EVENT));
+				dispatchEvent(new BBBEvent(BBBEvent.LOGIN_EVENT));
 			}
 			
 			private function toggleFullScreen():void{

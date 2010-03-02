@@ -19,12 +19,15 @@
 */
 package org.bigbluebutton.modules.listeners.model.service
 {
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
 	import flash.net.SharedObject;
 	
+	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.listeners.ListenersModuleConstants;
 	import org.bigbluebutton.modules.listeners.model.vo.IListeners;
 	import org.bigbluebutton.modules.listeners.model.vo.Listener;
@@ -47,6 +50,8 @@ package org.bigbluebutton.modules.listeners.model.service
 		private var _soErrors:Array;
 		private var pingCount:int = 0;
 		private var _module:ListenersModule;
+		
+		private static var globalDispatcher:Dispatcher = new Dispatcher();
 							
 		public function ListenersSOService(listeners:IListeners, module:ListenersModule)
 		{			
@@ -129,7 +134,9 @@ package org.bigbluebutton.modules.listeners.model.service
 					if (_listeners.listeners.length == 1) {
 						sendMessage(ListenersModuleConstants.FIRST_LISTENER_JOINED_EVENT);
 					}
-				}				
+				}
+				
+				globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.ADDED_LISTENER, n.callerName));
 			} else {
 				LogUtil.debug(LOGNAME + "There is a listener with userid " + userId + " " + cidName + " in the conference.");
 			}

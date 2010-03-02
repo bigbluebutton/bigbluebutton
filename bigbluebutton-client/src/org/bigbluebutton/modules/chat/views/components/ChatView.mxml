@@ -8,6 +8,7 @@
 	<mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
 	<mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
 	<mate:Listener type="{ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT}" method="handleParticipantJoinedEvent"/>
+	<mate:Listener type="{BBBEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT}" method="sendMessageReceivedFromBBBEvent"/>
 	
 	<mx:Style>
 		.colorPickerStyle {
@@ -30,6 +31,8 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.controls.Alert;
+			import org.bigbluebutton.main.events.BBBEvent;
 			import flexlib.controls.tabBarClasses.SuperTab;
 			import flexlib.events.SuperTabEvent;
 			import org.bigbluebutton.modules.chat.events.QueryParticipantsEvent;
@@ -55,6 +58,8 @@
 			
 			public var localDispatcher:IEventDispatcher;
 			
+			private var globalDispatcher:Dispatcher = new Dispatcher();
+			
 			[Bindable]
 			private var participants:ArrayCollection = new ArrayCollection();
 						
@@ -63,19 +68,13 @@
 				openChatBoxFor(PUBLIC_CHAT_USERID);
 				makePublicChatUncloseable();
 				addEventListener(SuperTabEvent.TAB_CLOSE, onUserClosedTab);
-				
-				//For automated testing
-				ExternalInterface.addCallback("testChatMessage", testChatMessage);
 			}
 			
-			//Function called to test chat from outside. There is a delay to get the message back from server, so the function should be called twice, with a delay of 2 seconds
-			private var messageRecieveCount:int = 0;
-			private function testChatMessage():int{
-				txtMsg.text = "Message Test";
+			private function sendMessageReceivedFromBBBEvent(event:BBBEvent):void {
+				txtMsg.text = event.message;
 				sendMessages();
-				return messageRecieveCount;
 			}
-			
+
 			private function makePublicChatUncloseable():void {
 				// See definition of callLater on Adobe Flash doc.
                 callLater(calledOnTheNextScreenRefresh);
@@ -115,6 +114,7 @@
 		    private function sendMessages():void
 		    {
 		    	trace("Sending message");
+		    	
 		    	if (hasMessageToSend()){				
 					if (isChatBoxCurrentlySelected(PUBLIC_CHAT_USERID)) {						
 						sendPublicChatMessage();
@@ -288,9 +288,9 @@
 			}
 
 			private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
-				messageRecieveCount++;
 				LogUtil.debug("Got PublicChatMessageEvent");
 				showMessage(PUBLIC_CHAT_USERID, event.message);
+				globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.RECEIVED_PUBLIC_CHAT_MESSAGE_EVENT, event.message));
 			}
 			
 			private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {

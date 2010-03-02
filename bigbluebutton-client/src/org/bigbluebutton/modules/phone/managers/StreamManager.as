@@ -52,13 +52,11 @@ package org.bigbluebutton.modules.phone.managers
 			this.connection = connection;
 		}
 		
-		public function initMicrophone(init:Boolean = true):void {
-			if (init) mic = Microphone.getMicrophone();
+		public function initMicrophone():void {
+			mic = Microphone.getMicrophone();
 		
 			if(mic == null){
-				trace("No available microphone");
-				var event:MicrophoneUnavailEvent = new MicrophoneUnavailEvent();
-				localDispatcher.dispatchEvent(event);
+				initWithNoMicrophone();
 			} else {
 				mic.setUseEchoSuppression(true);
 				mic.setLoopBack(false);
@@ -69,6 +67,12 @@ package org.bigbluebutton.modules.phone.managers
 				mic.addEventListener(StatusEvent.STATUS, micStatusHandler);
 			}
 		}	
+		
+		public function initWithNoMicrophone(): void {
+			trace("No available microphone");
+			var event:MicrophoneUnavailEvent = new MicrophoneUnavailEvent();
+			localDispatcher.dispatchEvent(event);
+		}
 						
 		private function micActivityHandler(event:ActivityEvent):void {}
 	

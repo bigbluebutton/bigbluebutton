@@ -25,9 +25,7 @@ package org.bigbluebutton.modules.phone.events
 	{
 		
 		public static const JOIN_VOICE_CONFERENCE_EVENT:String = 'JOIN_VOICE_CONFERENCE_EVENT';
-		
-		//For automation testing. Is not a test unless set to true. If true, skip microphone initialization
-		public var test:Boolean = false;
+		public var useMicrophone:Boolean = true;
 		
 		public function JoinVoiceConferenceEvent(bubbles:Boolean=false, cancelable:Boolean=false)
 		{

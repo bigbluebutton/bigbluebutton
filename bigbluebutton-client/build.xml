@@ -19,11 +19,6 @@
 		<mxmlc-compile target="${APP_ROOT}/VideoconfModule" />
 		<mxmlc-compile target="${APP_ROOT}/HighlighterModule" />
 		
-<!-- REMOVE FOR NOW (RALAM AUG 3, 2009)
-		<mxmlc-compile target="${APP_ROOT}/LoginModule" />
-		<mxmlc-compile target="${APP_ROOT}/NotesModule" />
--->
-		
 		<copy todir="${OUTPUT_DIR}/conf" >
 			<fileset dir="./src/conf" />
 		</copy>
@@ -35,21 +30,13 @@
 		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/common/assets/images" >
 			<fileset dir="./src/org/bigbluebutton/common/assets/images/" />
 		</copy>
-<!--
-		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/main/view/assets/images" >
-			<fileset dir="./src/org/bigbluebutton/main/view/assets/images" />
-		</copy>
--->
+
 		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/listeners/view/assets/images/" >
 			<fileset dir="./src/org/bigbluebutton/modules/listeners/view/assets/images/" />
 		</copy>
 
 		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/phone/views/assets/images/" >
 			<fileset dir="./src/org/bigbluebutton/modules/phone/views/assets/images/" />
-		</copy>
-		
-		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/videoconf/views/assets/images/" >
-			<fileset dir="./src/org/bigbluebutton/modules/videoconf/views/assets/images/" />
 		</copy>
 		
 		<copy file="./html-template/bbb-deskshare-applet-0.62.jar" todir="${OUTPUT_DIR}"/>

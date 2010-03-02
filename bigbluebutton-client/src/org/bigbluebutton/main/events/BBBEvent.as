@@ -21,13 +21,20 @@ package org.bigbluebutton.main.events
 {
 	import flash.events.Event;
 
-	public class LoginEvent extends Event
+	public class BBBEvent extends Event
 	{
 		public static const LOGIN_EVENT:String = 'loginEvent';
+		public static const RECEIVED_PUBLIC_CHAT_MESSAGE_EVENT:String = 'RECEIVED_PUBLIC_CHAT_MESSAGE_EVENT';
+		public static const SEND_PUBLIC_CHAT_MESSAGE_EVENT:String = 'SEND_PUBLIC_CHAT_MESSAGE_EVENT';
+		public static const JOIN_VOICE_CONFERENCE:String = 'BBB_JOIN_VOICE_CONFERENCE';
+		public static const ADDED_LISTENER:String = 'BBB_ADDED_LISTENER';
 		
-		public function LoginEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
+		public var message:String;
+		
+		public function BBBEvent(type:String, message:String = "", bubbles:Boolean=true, cancelable:Boolean=false)
 		{
 			super(type, bubbles, cancelable);
+			this.message = message;
 		}
 		
 	}

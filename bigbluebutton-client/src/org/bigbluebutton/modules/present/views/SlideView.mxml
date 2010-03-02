@@ -37,7 +37,6 @@
     <mate:Listener type="{CursorEvent.UPDATE_CURSOR}" method="handleUpdateCursorEvent" />
     <mate:Listener type="{WindowResizedEvent.PRESENTATION_WINDOW_RESIZED_EVENT}" method="handleWindowResizeEvent"/>
     <mate:Listener type="{PresenterCommands.RESIZE}" method="handleSlideResizeEvent"/>
-    <mate:Listener type="{UploadEvent.CONVERT_SUCCESS}" method="passConversionTest" />
     
 	<mx:Script>
 		<![CDATA[
@@ -107,18 +106,6 @@
 				cursor.graphics.drawCircle(0,0,3);
 				slideCanvas.rawChildren.addChild(cursor);
 				cursor.visible = false;
-				
-				ExternalInterface.addCallback("testPresentationConversion", testPresentationConversion);
-			}
-			
-			//The following block is for automated testing purposes
-			private var conversionSuccess:Boolean = false
-			private function passConversionTest(e:UploadEvent):void{
-				conversionSuccess = true;
-			}
-			private function testPresentationConversion():String{
-				if (conversionSuccess) return "true";
-				else return "false";
 			}
 					
 			private function onMouseDown(e:MouseEvent):void{						
