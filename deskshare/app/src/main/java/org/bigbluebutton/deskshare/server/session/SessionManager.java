@@ -29,6 +29,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.bigbluebutton.deskshare.common.Dimension;
+import org.bigbluebutton.deskshare.server.session.Session;
 
 public class SessionManager {
 

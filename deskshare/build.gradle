@@ -1,3 +1,4 @@
+usePlugin 'scala'
 usePlugin 'java'
 usePlugin 'eclipse'
 
@@ -43,6 +44,16 @@ dependencies {
 	compile project(':common')
     compile 'commons-fileupload:commons-fileupload:1.2.1@jar', 'commons-io:commons-io:1.4@jar' 
 	compile 'org/testng:testng:5.8@jar', 'net/jcip:jcip-annotations:1.0@jar'  
+	compile 'com/sun/java:plugin:1.6.0_16@jar'
+	
+	// Libraries needed to run the scala tools
+    scalaTools 'org.scala-lang:scala-compiler:2.7.7'
+    scalaTools 'org.scala-lang:scala-library:2.7.7'
+
+    // Libraries needed for scala api
+    compile 'org.scala-lang:scala-library:2.7.7'   
+    
+    compile 'net/lag/configgy:configgy:1.5@jar'
 }
       
 subprojects {

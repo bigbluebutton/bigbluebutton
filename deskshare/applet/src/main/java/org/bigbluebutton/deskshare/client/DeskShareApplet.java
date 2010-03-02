@@ -31,6 +31,7 @@ import org.bigbluebutton.deskshare.client.blocks.ChangedBlocksListener;
 import org.bigbluebutton.deskshare.client.net.ConnectionException;
 import org.bigbluebutton.deskshare.client.net.NetworkStreamSender;
 import org.bigbluebutton.deskshare.common.Dimension;
+import netscape.javascript.*;
 
 public class DeskShareApplet extends Applet implements IScreenCaptureListener, ChangedBlocksListener {
 
@@ -54,8 +55,7 @@ public class DeskShareApplet extends Applet implements IScreenCaptureListener, C
 	private NetworkStreamSender sender;
 	
 	public void init() {
-
-		System.out.println("Applet built oct 7, 2009 at 7:53PM");
+		System.out.println("(c) 2010 Blindside Networks. All Rights Reserved.");
 		screenWidth = Integer.parseInt(getParameter("CAPTURE_WIDTH"));
 		screenHeight = Integer.parseInt(getParameter("CAPTURE_HEIGHT"));
 				
@@ -84,6 +84,11 @@ public class DeskShareApplet extends Applet implements IScreenCaptureListener, C
 	
 	public void start() {		 
 		System.out.println("RunnerApplet start()");
+		
+		startCapture();		
+	}
+
+	public void startCapture() {
 		capture = new ScreenCapture(x, y, screenWidth, screenHeight);
 		captureTaker = new ScreenCaptureTaker(capture);
 		
@@ -103,7 +108,35 @@ public class DeskShareApplet extends Applet implements IScreenCaptureListener, C
 			captureTakerThread.start();	
 		}
 	}
-			
+	
+	private void testFunctionCall() {
+        try {
+            System.out.println("testFunctionCall: test started");
+            JSObject window = JSObject.getWindow(this);
+            System.out.println("Calling JavaScript getString();");
+            if (window == null) System.out.println("WINDOW IS NULL");
+            else System.out.println("WINDOW IS NOT NULL");
+            
+            String res = (String) window.eval("getString();");
+            System.out.println("Got string from JavaScript: \"" + res + "\"");
+            if (!res.equals("Hello, world!")) {
+                throw new RuntimeException("string value did not match expected value");
+            }
+            Number num = (Number) window.eval("getNumber()");
+            System.out.println("Got number from JavaScript: " + num);
+            if (num.intValue() != 5) {
+                throw new RuntimeException("number value did not match expected value");
+            }
+            System.out.println("testFunctionCall: test passed.");
+        } catch (JSException e) {
+            e.printStackTrace();
+            System.out.println("TEST FAILED");
+        } catch (Exception e2) {
+            e2.printStackTrace();
+            System.out.println("TEST FAILED");
+        }
+    }
+	
 	/**
 	 * This method is called when the user closes the browser window containing the applet
 	 * It is very important that the connection to the server is closed at this point. That way the server knows to

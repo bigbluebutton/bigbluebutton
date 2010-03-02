@@ -1,3 +1,4 @@
+usePlugin 'scala'
 usePlugin 'java'
 usePlugin 'war'
 
@@ -16,6 +17,14 @@ dependencies {
 	compile project(':common')
     compile 'commons-fileupload:commons-fileupload:1.2.1@jar', 'commons-io:commons-io:1.4@jar' 
     compile 'spring:spring-webmvc:2.5.6@jar', 'org.apache.mina:mina-integration-spring:1.1.7@jar'
+    
+    // Libraries needed to run the scala tools
+    scalaTools 'org.scala-lang:scala-compiler:2.7.7'
+    scalaTools 'org.scala-lang:scala-library:2.7.7'
+
+    // Libraries needed for scala api
+    compile 'org.scala-lang:scala-library:2.7.7'   
+    compile 'net/lag/configgy:configgy:1.5@jar'
 }
 
 war.doLast {

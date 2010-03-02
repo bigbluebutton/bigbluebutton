@@ -89,8 +89,7 @@ public class SocketScreenVideoSender implements ScreenCaptureSender {
 				}
 			}
 		};
-		exec.execute(capturedScreenSender);
-	
+		exec.execute(capturedScreenSender);	
 	}
 	
 	private void sendScreenCaptureInfo(int videoWidth, int videoHeight) throws IOException {
@@ -101,7 +100,6 @@ public class SocketScreenVideoSender implements ScreenCaptureSender {
 	}
 	
 	private void sendCapturedScreen(ScreenVideo video) throws ConnectionException {
-
 		try {
 			long snapshotTime = System.currentTimeMillis();
 			ByteArrayOutputStream videoData = video.getVideoData();

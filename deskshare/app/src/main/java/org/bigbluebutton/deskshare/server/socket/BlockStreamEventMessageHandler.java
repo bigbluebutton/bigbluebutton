@@ -21,6 +21,7 @@
  */
 package org.bigbluebutton.deskshare.server.socket;
 
+import org.bigbluebutton.deskshare.server.session.ISessionManagerGateway;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
@@ -34,7 +35,9 @@ import org.slf4j.Logger;
 public class BlockStreamEventMessageHandler extends IoHandlerAdapter {
 	final private Logger log = Red5LoggerFactory.getLogger(BlockStreamEventMessageHandler.class, "deskshare");
 	
-	private SessionManager sessionManager;
+//	private SessionManager sessionManager;
+	
+	private ISessionManagerGateway sessionManager;
 	
     @Override
     public void exceptionCaught( IoSession session, Throwable cause ) throws Exception
@@ -85,7 +88,11 @@ public class BlockStreamEventMessageHandler extends IoHandlerAdapter {
     	sessionManager.removeSession(room);
     }
     
-    public void setSessionManager(SessionManager sm) {
+//    public void setSessionManager(SessionManager sm) {
+ //   	sessionManager = sm;
+ //   }
+    
+    public void setSessionManagerGateway(ISessionManagerGateway sm) {
     	sessionManager = sm;
     }
 }

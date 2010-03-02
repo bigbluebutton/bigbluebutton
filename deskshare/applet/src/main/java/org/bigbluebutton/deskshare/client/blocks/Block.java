@@ -78,8 +78,8 @@ public final class Block {
         /** Seems that this thing isn't working properly.
          *  The blocks only gets sent after forceUpdate. (ralam Oct 29, 2009)
          */
-        //if (!checksumSame(pixelsCopy) || forceUpdate()) { 
-        if (!checksumSame(pixelsCopy) || isKeyFrame) {
+        if (!checksumSame(pixelsCopy)) { 
+        //if (!checksumSame(pixelsCopy) || isKeyFrame) {
          	encodedBlock = ScreenVideoEncoder.encodePixels(pixelsCopy, getWidth(), getHeight(), false, isKeyFrame);
            	hasChanged = true;           	
         } else {
