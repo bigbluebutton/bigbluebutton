@@ -27,14 +27,22 @@
 #       2009-12-12 FFD  Added cleaning and watching of log files
 #       2010-01-05 FFD  Added zipping of log files
 #       2010-01-18 FFD  Added resetting of environment back to using packages
-
+#       2010-03-02 JRT  Added trunk checkout options / fixed bbb-apps instructions
 
 # set -x
 
 #
 # This ensures that we checkout the 0.63 release of BigBlueButton
+#   Note that this can be overridden with the --trunk option
 #
 RELEASE="-r 3489"
+
+#
+# SVNPROTO is http if read-only, or https if you specify a Google code username
+# SVNUSERNAME is blank if read-only, or '--username ${arg}' if you specify a Google code username
+# 
+SVNPROTO="http"
+SVNUSERNAME=""
 
 get_platform() {
 
@@ -91,7 +99,7 @@ print_header() {
 
 check_root() {
 	if [ $EUID == 0 ]; then
-		echo "This opearation should not be run as root."
+		echo "This operation should not be run as root."
 		echo 
 		echo "If this operation needs to execute an operation as root, you'll be asked for"
 		echo "your password to execute the operation using sudo."
@@ -122,6 +130,9 @@ usage() {
 		echo "   --setup-samba                    Setup samba share for development (VM only)"
 		echo "   --setup-dev [bbb-web|bbb-client|bbb-apps] "
 		echo "   --reset-dev                      Reset environment back to using packages" 
+		echo "   --trunk                          Checkout trunk instead of last release" 
+		echo "   --svn-username [user]            Your Google code username if you want to " 
+		echo "                                      commit from the checked out code" 
 	fi
 	echo "   --watch                          Watch log files for error messages every 2 seconds"
 	echo "   --zip                            Zip up log files for reporting an error"
@@ -248,6 +259,21 @@ while [ $# -gt 0 ]; do
 		continue
 	fi		
 
+	if [ "$1" = "--svn-username" -o "$1" = "-svn-username" ]; then
+		SVNUSERNAME="--username ${2}"
+		SVNPROTO="https"
+		shift; shift
+		continue
+	fi		
+
+	if [ "$1" = "--trunk" -o "$1" = "-trunk" ]; then
+		# replace the value for for RELEASE because we don't want
+		#  a particular release
+		RELEASE=""
+		shift
+		continue
+	fi		
+
 	if [ "$1" = "--conference" -o "$1" = "-conference" ]; then
 		CONFERENCE="${2}"
 		shift; shift
@@ -348,10 +374,10 @@ if [ $SETUPDEV ]; then
             if [ ! -d ~/dev/bbb-web ]; then
 
 		echo "# Setting up ~/dev/bbb-web"
-                echo "  svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-web bbb-web ${RELEASE}"
+                echo "  svn checkout ${SVNPROTO}://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-web bbb-web ${RELEASE} ${SVNUSERNAME}"
 
                 cd ~/dev
-                svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-web bbb-web $RELEASE
+                svn checkout ${SVNPROTO}://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-web bbb-web $RELEASE $SVNUSERNAME
 
 		IP=$(ifconfig | grep -v '127.0.0.1' | grep -m 1 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
 
@@ -382,10 +408,10 @@ if [ $SETUPDEV ]; then
             if [ ! -d ~/dev/bbb-client ]; then
 
 		echo "# Setting up ~/dev/bbb-client"
-                echo "  svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-client bbb-client ${RELEASE}"
+                echo "  svn checkout ${SVNPROTO}://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-client bbb-client ${RELEASE} ${SVNUSERNAME}"
 
                 cd ~/dev
-                svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-client bbb-client $RELEASE
+                svn checkout ${SVNPROTO}://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-client bbb-client $RELEASE $SVNUSERNAME
 
 		#
 		# Setup the directories so we can point /etc/nginx/sites-available/bigbluebutton to this
@@ -429,10 +455,10 @@ if [ $SETUPDEV ]; then
             if [ ! -d ~/dev/bbb-apps ]; then
 
 		echo "# Setting up ~/dev/bbb-apps:"
-  		echo "  svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-apps bbb-apps ${RELEASE}"
+  		echo "  svn checkout ${SVNPROTO}://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-apps bbb-apps ${RELEASE} ${SVNUSERNAME}"
            
                 cd ~/dev
-                svn checkout http://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-apps bbb-apps $RELEASE
+                svn checkout ${SVNPROTO}://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-apps bbb-apps $RELEASE $SVNUSERNAME
             
              fi 
 
@@ -466,8 +492,9 @@ red5.home = $RED5_DIRECTORY
 
     sudo /etc/init.d/red5 stop
     cd ~/dev/bbb-apps
-    ant deploy					
-    sudo -u red5 $RED5_DIRECTORY/red5.sh		
+    gradle war
+    cd $RED5_DIRECTORY			
+    sudo -u red5 ./red5.sh		
 
 # To restore the packaged version of bbb-apps:
 
