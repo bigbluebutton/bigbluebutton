@@ -18,6 +18,8 @@ class DeskshareStream(val scope: IScope, name: String, val width: Int, val heigh
 	broadcastStream.setPublishedName(name)
 	broadcastStream.setScope(scope)
 
+	var startTimestamp: Long = System.currentTimeMillis()
+ 
 	def act() = {
 	  loop {
 	    react {
@@ -58,6 +60,7 @@ class DeskshareStream(val scope: IScope, name: String, val width: Int, val heigh
 		buffer.rewind();	
 
 		val data: VideoData = new VideoData(buffer)
+		data.setTimestamp((System.currentTimeMillis() - startTimestamp).toInt)
 		broadcastStream.dispatchEvent(data)
 		data.release()
 	}
