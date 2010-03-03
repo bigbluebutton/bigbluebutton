@@ -6,7 +6,13 @@
 <link rel="stylesheet" href="css/style.css" type="text/css" />
 </head>
 
-<body>
+<script type="text/javascript">
+	function autoFocus() {
+		document.getElementById("username").focus();
+	}
+</script>
+
+<body onload="autoFocus();">
 
 <!-- Header Start -->
     <div id="wrapper">
@@ -44,7 +50,7 @@
             <FORM NAME="form1" METHOD="GET" action="/bigbluebutton/demo/demo1.jsp">
 
                         <p class="content">Enter your name:</p>
-                        <input type="text"name="username" size="29" /><input type="submit" value="Join"/> <br />
+                        <input type="text" id="username"  name="username" size="29" /><input type="submit" value="Join"/> <br />
 
                         <input TYPE="hidden" NAME="action" VALUE="create">
 
