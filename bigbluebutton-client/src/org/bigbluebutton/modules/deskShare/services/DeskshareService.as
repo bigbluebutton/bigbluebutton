@@ -67,10 +67,14 @@ package org.bigbluebutton.modules.deskShare.services
 			
 			responder = new Responder(
 							function(result:Object):void{
-								if (result != null && (result as Boolean)){
-									LogUtil.debug("Desk Share stream is streaming");
-									checkVideoWidth();
-									checkVideoHeight();
+								if (result != null && (result.publishing as Boolean)){
+									width = result.width as Number;
+									height = result.height as Number;
+									LogUtil.debug("Desk Share stream is streaming [" + width + "," + height + "]");
+									var event:ViewStreamEvent = new ViewStreamEvent(ViewStreamEvent.START);
+									event.videoWidth = width;
+									event.videoHeight = height;
+									dispatcher.dispatchEvent(event);
 								}
 							},
 							function(status:Object):void{
@@ -132,6 +136,11 @@ package org.bigbluebutton.modules.deskShare.services
 			}
 		}
 		
+		public function sendStartedViewingNotification():void{
+			LogUtil.debug("Sending start viewing to server");
+			nc.call("deskshare.startedToViewStream", null);
+		}
+		
 		/**
 		 * Called by the server when a notification is received to start viewing the broadcast stream .
 		 * This method is called on successful execution of sendStartViewingNotification()
@@ -184,49 +193,7 @@ package org.bigbluebutton.modules.deskShare.services
 			LogUtil.debug("checking if desk share stream is publishing");
 			nc.call("deskshare.checkIfStreamIsPublishing", responder);
 		}
-		
-		/**
-		 * Check what the width of the published video is
-		 * This method is useful for clients which have joined a room where somebody is already publishing 
-		 * 
-		 */		
-		public function checkVideoWidth():void{
-			var widthResponder:Responder = new Responder(
-							function(result:Object):void{
-								if (result != null) width = result as Number;
-							},
-							function(status:Object):void{
-								LogUtil.error("Error while trying to call remote mathod on server");
-							}
-								);
-							
-			nc.call("deskshare.getVideoWidth", widthResponder);
-		}
-		
-		/**
-		 * Check what the height of the published video is
-		 * This method is useful for clients which have joined a room where somebody is already publishing 
-		 * 
-		 */		
-		public function checkVideoHeight():void{
-			var heightResponder:Responder = new Responder(
-							function(result:Object):void{
-								if (result != null){
-									height = result as Number;
-									var event:ViewStreamEvent = new ViewStreamEvent(ViewStreamEvent.START);
-									event.videoWidth = width;
-									event.videoHeight = height;
-									dispatcher.dispatchEvent(event);
-								} 
-							},
-							function(status:Object):void{
-								LogUtil.error("Error while trying to call remote mathod on server");
-							}
-									);
-									
-			nc.call("deskshare.getVideoHeight", heightResponder);
-		}
-		
+				
 		public function calculateEncodingDimensions(captureWidth:Number, captureHeight:Number):void{
 			height = captureHeight;
 			width = captureWidth;

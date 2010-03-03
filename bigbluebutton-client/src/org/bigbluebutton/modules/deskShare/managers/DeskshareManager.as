@@ -84,6 +84,11 @@ package org.bigbluebutton.modules.deskShare.managers
 			service.sendStartViewingNotification(videoWidth, videoHeight);
 		}
 		
+		public function handleStartedViewingEvent():void{
+			LogUtil.debug("handleStartedViewingEvent");
+			service.sendStartedViewingNotification();
+		}
+		
 		public function handleStreamStoppedEvent():void {
 			notifyOthersToStopViewing();			
 		}

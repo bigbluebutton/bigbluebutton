@@ -27,6 +27,7 @@
 
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.deskShare.events.StartedViewingEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.modules.deskShare.managers.DeskshareManager;
 			import org.bigbluebutton.modules.deskShare.events.ViewWindowEvent;
@@ -77,6 +78,10 @@
 
 	<EventHandlers type="{ShareWindowEvent.CLOSE}">		
 		<MethodInvoker generator="{DeskshareManager}" method="handleShareWindowCloseEvent"/>
+	</EventHandlers>
+	
+	<EventHandlers type="{StartedViewingEvent.STARTED_VIEWING_EVENT}">		
+		<MethodInvoker generator="{DeskshareManager}" method="handleStartedViewingEvent"/>
 	</EventHandlers>
 		
 	<EventHandlers type="{ViewWindowEvent.CLOSE}">

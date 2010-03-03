@@ -19,7 +19,6 @@
 </excludedEntries>
 </libraryPathEntry>
 <libraryPathEntry kind="1" linkType="1" path="libs"/>
-<libraryPathEntry kind="3" linkType="1" path="/flexlib/bin/flexlib.swc" useDefaultLinkType="false"/>
 </libraryPath>
 <sourceAttachmentPath>
 <sourceAttachmentPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/datavisualization.swc" sourcepath="${PROJECT_FRAMEWORKS}/source" useDefaultLinkType="false"/>
