@@ -5,12 +5,10 @@ import org.bigbluebutton.deskshare.server.svc1.Dimension
 import org.bigbluebutton.deskshare.server.stream.StreamManager
 import org.bigbluebutton.deskshare.server.session.ISessionManagerGateway
 
-import net.lag.configgy.Configgy
 import net.lag.logging.Logger
 
 class SessionManagerGateway(streamManager: StreamManager) extends ISessionManagerGateway {  
-	// load our config file and configure logfiles:
-	Configgy.configure("/etc/bigbluebutton/deskshare.conf")	
+	
 	private val log = Logger.get 
 
 	streamManager.start
@@ -19,7 +17,7 @@ class SessionManagerGateway(streamManager: StreamManager) extends ISessionManage
   
 	def createSession(room: String, screenDim: common.Dimension, blockDim: common.Dimension): Unit = {
 		sessionManager ! new CreateSession(room, new svc1.Dimension(screenDim.getWidth(), screenDim.getHeight()), 
-                                                              new svc1.Dimension(blockDim.getWidth(), blockDim.getHeight()))
+                                           new svc1.Dimension(blockDim.getWidth(), blockDim.getHeight()))
 	}
 
 	def removeSession(room: String): Unit = {

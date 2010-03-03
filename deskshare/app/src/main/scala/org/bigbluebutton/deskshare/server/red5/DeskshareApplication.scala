@@ -6,11 +6,18 @@ import org.red5.server.adapter.MultiThreadedApplicationAdapter
 import org.red5.server.api.IConnection
 import org.red5.server.api.IScope
 
+import net.lag.configgy.Configgy
+import net.lag.logging.Logger
+
 class DeskshareApplication(streamManager: StreamManager, deskShareServer: DeskShareServer) extends MultiThreadedApplicationAdapter {
+	// load our config file and configure logfiles:
+	Configgy.configure("/etc/bigbluebutton/deskshare.conf")	
+	private val logger = Logger.get
+ 
 	var appScope: IScope = null
  
 	override def appStart(app: IScope): Boolean = {
-		println("deskShare appStart");
+		logger.debug("deskShare appStart");
 		appScope = app
 		streamManager.setDeskshareApplication(this)
 		deskShareServer.start();
@@ -18,16 +25,17 @@ class DeskshareApplication(streamManager: StreamManager, deskShareServer: DeskSh
 	}
 	
 	override def appConnect(conn: IConnection, params: Array[Object]): Boolean = {
-		println("deskShare appConnect to scope " + conn.getScope().getContextPath());
+		logger.debug("deskShare appConnect to scope " + conn.getScope().getContextPath());
 		super.appConnect(conn, params);
 	}
 	
 	override def appDisconnect(conn: IConnection) {
-		println ("deskShare appDisconnect");
+		logger.debug("deskShare appDisconnect");
 		super.appDisconnect(conn);
 	}
 	
 	override def appStop(app: IScope) {
+		logger.debug("Stopping deskshare")
 		deskShareServer.stop();
 		super.appStop(app)
 	}

@@ -3,17 +3,20 @@ package org.bigbluebutton.deskshare.server.stream
 import org.bigbluebutton.deskshare.server.sessions.SessionManagerGateway
 import org.red5.server.api.Red5
 import java.util.HashMap
+import net.lag.logging.Logger
 
 class DeskshareService(streamManager: StreamManager, sessionGateway: SessionManagerGateway) {
+	private val log = Logger.get
+ 
 	def checkIfStreamIsPublishing(): HashMap[String, Any] = {
 		val room: String = Red5.getConnectionLocal().getScope().getName();
-		println("Checking if " + room + " is streaming.")
+		log.debug("Checking if " + room + " is streaming.")
 		var publishing = false
 		var width = 0
 		var height = 0
   
 		streamManager !? (3000, IsStreamPublishing(room)) match {
-		  	case None => println("Timeout waiting for reply to IsStreamPublishing")
+		  	case None => log.warning("Timeout waiting for reply to IsStreamPublishing")
 		  	case Some(rep) => {
 		  		val reply = rep.asInstanceOf[StreamPublishingReply]
 		  		publishing = reply.publishing
@@ -32,7 +35,7 @@ class DeskshareService(streamManager: StreamManager, sessionGateway: SessionMana
 	
 	def startedToViewStream(): Unit = {
 		val room: String = Red5.getConnectionLocal().getScope().getName();
-		println("Started viewing stream for room " + room)
+		log.debug("Started viewing stream for room " + room)
 		sessionGateway.sendKeyFrame(room)
 	}
 }

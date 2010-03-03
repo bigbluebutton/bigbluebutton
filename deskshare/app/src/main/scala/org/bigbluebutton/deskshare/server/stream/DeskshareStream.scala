@@ -10,7 +10,10 @@ import org.apache.mina.core.buffer.IoBuffer
 import scala.actors.Actor
 import scala.actors.Actor._
 
+import net.lag.logging.Logger
+
 class DeskshareStream(val scope: IScope, name: String, val width: Int, val height: Int) extends Stream {
+	private val log = Logger.get
 	private val broadcastStream = new ScreenVideoBroadcastStream(name)
 	broadcastStream.setPublishedName(name)
 	broadcastStream.setScope(scope)
@@ -26,14 +29,14 @@ class DeskshareStream(val scope: IScope, name: String, val width: Int, val heigh
 	}
  
 	private def stopStream() = {
-		println("DeskShareStream Stopping stream " + name)
+		log.debug("DeskShareStream Stopping stream " + name)
 		broadcastStream.stop()
 	    broadcastStream.close()
 	}
 	
 	private def startStream() = {
-	  println("DeskShareStream Starting stream " + name)
-	  println("started publishing stream in " + scope.getName())	
+	  log.debug("DeskShareStream Starting stream " + name)
+
 	  val context: IContext  = scope.getContext()
 		
 	  val providerService: IProviderService  = context.getBean(IProviderService.BEAN_NAME).asInstanceOf[IProviderService]
@@ -41,13 +44,11 @@ class DeskshareStream(val scope: IScope, name: String, val width: Int, val heigh
 		var bScope: BroadcastScope = providerService.getLiveProviderInput(scope, name, true).asInstanceOf[BroadcastScope]			
 		bScope.setAttribute(IBroadcastScope.STREAM_ATTRIBUTE, broadcastStream)
 	  } else{
-		println("could not register broadcast stream")
-		throw new RuntimeException("could not register broadcast stream")
+		log.error("could not register broadcast stream")
 	  }
 	}
 	
 	private def updateStream(us: UpdateStream) {
-		println("DeskShareStream Updating stream " + name)
 		val buffer: IoBuffer  = IoBuffer.allocate(us.videoData.length, false);
 		buffer.put(us.videoData);
 		

@@ -3,15 +3,21 @@ package org.bigbluebutton.deskshare.server.stream
 import org.bigbluebutton.deskshare.server.red5.DeskshareApplication
 import org.red5.server.api.IScope
 import org.red5.server.api.so.ISharedObject
-import java.util.HashMap
+
 import java.util.ArrayList
+
 import scala.actors.Actor
 import scala.actors.Actor._
+import scala.collection.mutable.HashMap
+
+import net.lag.logging.Logger
 
 case class IsStreamPublishing(room: String)
 case class StreamPublishingReply(publishing: Boolean, width: Int, height: Int)
 
 class StreamManager extends Actor {
+	private val log = Logger.get
+ 
 	var app: DeskshareApplication = null
  
 	def setDeskshareApplication(a: DeskshareApplication) {
@@ -21,7 +27,8 @@ class StreamManager extends Actor {
   	private case class AddStream(room: String, stream: DeskshareStream)
   	private case class RemoveStream(room: String)
 
-	private val streams = new HashMap[String, DeskshareStream]()
+	private val streams = new HashMap[String, DeskshareStream]
+ 
 	private val clientInvoker: ClientInvoker = new ClientInvoker()
 	clientInvoker.start
  
@@ -29,27 +36,23 @@ class StreamManager extends Actor {
 	  loop {
 	    react {
 	      case cs: AddStream => {
-	    	  println("Adding stream")
-	    	  streams.put(cs.room, cs.stream)
+	    	  log.debug("Adding stream " + cs.room)
+	    	  streams += cs.room -> cs.stream
 	    	  clientInvoker ! new StreamStarted(cs.room)
 	        }
 	      case ds: RemoveStream => {
-	    	  println("Removing Stream")
-	    	  val stream = streams.remove(ds.room)
-	    	  println("Removed Stream. Exiting Stream")
-	    	  println("Notifying client that stream has stopped")
+	    	  log.debug("Removing Stream " + ds.room)
+	    	  streams -= ds.room
 	    	  clientInvoker ! new StreamStopped(ds.room)
 	      	}
 	      case is: IsStreamPublishing => {
-	    	  println("Received IsStreamPublishing message")
-	    	  val stream: DeskshareStream = streams.get(is.room)
-	    	  if (stream != null) {
-	    	    reply(new StreamPublishingReply(true, stream.width, stream.height))
-	    	  } else {
-	    	    reply(new StreamPublishingReply(false, 0, 0))
+	    	  log.debug("Received IsStreamPublishing message for " + is.room)
+	    	  streams.get(is.room) match {
+	    	    case Some(str) =>  reply(new StreamPublishingReply(true, str.width, str.height))
+	    	    case None => reply(new StreamPublishingReply(false, 0, 0))
 	    	  }
 	      	}
-	      case m: Any => println("Receive unknown message: " + m)
+	      case m: Any => log.warning("Receive unknown message: " + m)
 	    }
 	  }
 	}
@@ -80,15 +83,15 @@ class StreamManager extends Actor {
      }
      
      private def notifyClientOfStreamStarted(room: String) {
-		val deskSO: ISharedObject  = app.getSharedObject(app.getAppScope().getScope(room), "deskSO");
-		println("Sending applet started");
-		deskSO.sendMessage("appletStarted" , new ArrayList[Object]());
+		val deskSO: ISharedObject  = app.getSharedObject(app.getAppScope().getScope(room), "deskSO")
+		log.info("Sending stream started for " + room)
+		deskSO.sendMessage("appletStarted" , new ArrayList[Object]())
      }
      
      private def notifyClientOfStreamStopped(room: String) {
-		val deskSO: ISharedObject  = app.getSharedObject(app.getAppScope().getScope(room), "deskSO");
-		println("Sending deskshareStreamStopped stopped");
-		deskSO.sendMessage("deskshareStreamStopped" , new ArrayList[Object]());
+		val deskSO: ISharedObject  = app.getSharedObject(app.getAppScope().getScope(room), "deskSO")
+		log.info("Sending stream stopped for " + room)
+		deskSO.sendMessage("deskshareStreamStopped" , new ArrayList[Object]())
      }
    }
   	
