@@ -32,7 +32,6 @@ public class ScreenCaptureProtocolCodecFactory implements ProtocolCodecFactory {
 
     public ScreenCaptureProtocolCodecFactory() {
             encoder = new NullProtocolEncoder();
-            //decoder = new ScreenCaptureProtocolDecoder();
             decoder = new BlockStreamProtocolDecoder();
     }
 

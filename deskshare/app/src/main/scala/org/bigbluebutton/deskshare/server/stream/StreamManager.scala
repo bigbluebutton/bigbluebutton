@@ -1,6 +1,6 @@
 package org.bigbluebutton.deskshare.server.stream
 
-import org.bigbluebutton.deskshare.server.DeskShareApplication
+import org.bigbluebutton.deskshare.server.red5.DeskshareApplication
 import org.red5.server.api.IScope
 import org.red5.server.api.so.ISharedObject
 import java.util.HashMap
@@ -11,7 +11,13 @@ import scala.actors.Actor._
 case class IsStreamPublishing(room: String)
 case class StreamPublishingReply(publishing: Boolean, width: Int, height: Int)
 
-class StreamManager(app: DeskShareApplication) extends Actor {
+class StreamManager extends Actor {
+	var app: DeskshareApplication = null
+ 
+	def setDeskshareApplication(a: DeskshareApplication) {
+	  app = a
+	}
+	
   	private case class AddStream(room: String, stream: DeskshareStream)
   	private case class RemoveStream(room: String)
 

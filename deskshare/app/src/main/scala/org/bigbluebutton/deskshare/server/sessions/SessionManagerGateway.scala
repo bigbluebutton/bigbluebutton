@@ -7,14 +7,12 @@ import org.bigbluebutton.deskshare.server.session.ISessionManagerGateway
 
 import net.lag.configgy.Configgy
 import net.lag.logging.Logger
-//import java.util.logging.Logger
 
 class SessionManagerGateway(streamManager: StreamManager) extends ISessionManagerGateway {  
 	// load our config file and configure logfiles:
-	Configgy.configure("/etc/bigbluebutton/deskshare.conf")
-	
+	Configgy.configure("/etc/bigbluebutton/deskshare.conf")	
 	private val log = Logger.get 
-	log.warning("CAN'T GET Configuration" )
+
 	streamManager.start
 	val sessionManager: SessionManagerSVC = new SessionManagerSVC(streamManager)
     sessionManager.start 

@@ -29,8 +29,6 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.CumulativeProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.bigbluebutton.deskshare.common.Dimension;
-import org.bigbluebutton.deskshare.server.CaptureStartEvent;
-import org.bigbluebutton.deskshare.server.CaptureUpdateEvent;
 import org.bigbluebutton.deskshare.server.events.CaptureEndBlockEvent;
 import org.bigbluebutton.deskshare.server.events.CaptureStartBlockEvent;
 import org.bigbluebutton.deskshare.server.events.CaptureUpdateBlockEvent;

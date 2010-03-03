@@ -26,8 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.bigbluebutton.deskshare.common.Dimension;
-import org.bigbluebutton.deskshare.server.CaptureEvents;
-import org.bigbluebutton.deskshare.server.session.SessionManager;
+import org.bigbluebutton.deskshare.server.session.ISessionManagerGateway;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.context.ApplicationContext;
@@ -41,18 +40,18 @@ public class HttpTunnelStreamController extends MultiActionController {
 	private static Logger log = Red5LoggerFactory.getLogger(HttpTunnelStreamController.class, "deskshare");
 	
 	private boolean hasSessionManager = false;
-	private SessionManager sessionManager;
+	private ISessionManagerGateway sessionManager;
 	
 	public ModelAndView screenCaptureHandler(HttpServletRequest request, HttpServletResponse response) throws Exception {		
 
 		String event = request.getParameterValues("event")[0];	
 		int captureRequest = Integer.parseInt(event);
 
-		if (CaptureEvents.CAPTURE_START.getEvent() == captureRequest) {
+		if (0 == captureRequest) {
 			handleCaptureStartRequest(request, response);
-		} else if (CaptureEvents.CAPTURE_UPDATE.getEvent() == captureRequest) {
+		} else if (1 == captureRequest) {
 			handleCaptureUpdateRequest(request, response);
-		} else if (CaptureEvents.CAPTURE_END.getEvent() == captureRequest) {
+		} else if (2 == captureRequest) {
 			handleCaptureEndRequest(request, response);
 		} else {
 			log.debug("Cannot handle screen capture event " + captureRequest);
@@ -77,7 +76,7 @@ public class HttpTunnelStreamController extends MultiActionController {
 			sessionManager = getSessionManager();
 			hasSessionManager = true;
 		}
-				
+		
 		sessionManager.createSession(room, screenDim, blockDim);		
 	}	
 	
@@ -114,7 +113,7 @@ public class HttpTunnelStreamController extends MultiActionController {
     	sessionManager.removeSession(room);
 	}
 	    
-	private SessionManager getSessionManager() {
+	private ISessionManagerGateway getSessionManager() {
 		//Get the servlet context
 		ServletContext ctx = getServletContext();
 		log.info("Got the servlet context: {}", ctx);
@@ -124,7 +123,7 @@ public class HttpTunnelStreamController extends MultiActionController {
 		log.info("Got the application context: {}", appCtx);
 		
 		//Get the bean holding the parameter
-		SessionManager manager = (SessionManager) appCtx.getBean("sessionManager");
+		ISessionManagerGateway manager = (ISessionManagerGateway) appCtx.getBean("sessionManagerGateway");
 		if (manager != null) {
 			log.info("Got the SessionManager context: {}", appCtx);
 		}

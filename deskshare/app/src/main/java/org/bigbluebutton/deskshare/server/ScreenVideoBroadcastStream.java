@@ -42,7 +42,6 @@ import org.red5.server.messaging.PipeConnectionEvent;
 import org.red5.server.net.rtmp.event.IRTMPEvent;
 import org.red5.server.net.rtmp.event.Notify;
 import org.red5.server.net.rtmp.event.VideoData;
-import org.bigbluebutton.deskshare.server.ScreenVideo;
 import org.red5.server.stream.codec.StreamCodecInfo;
 import org.red5.server.stream.message.RTMPMessage;
 import org.slf4j.Logger;

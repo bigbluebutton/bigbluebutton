@@ -22,8 +22,9 @@
 		<property name="virtualHosts" value="${webapp.virtualHosts}" />
 	</bean>
 
-  	<bean id="web.handler"  class="org.bigbluebutton.deskshare.server.DeskShareApplication">
-  		<property name="deskShareServer" ref="deskShareServer"/>
+  	<bean id="web.handler"  class="org.bigbluebutton.deskshare.server.red5.DeskshareApplication">
+  	     <constructor-arg ref="streamManager"/>
+  	     <constructor-arg ref="deskShareServer"/>
   	</bean>	
   	
   	<bean id="deskshare.service" class="org.bigbluebutton.deskshare.server.stream.DeskshareService">
@@ -44,8 +45,5 @@
         <constructor-arg ref="streamManager"/>
     </bean>
             
-    <bean id="streamManager" class="org.bigbluebutton.deskshare.server.stream.StreamManager">
-    	<constructor-arg ref="web.handler"/>
-    </bean>
-    
+    <bean id="streamManager" class="org.bigbluebutton.deskshare.server.stream.StreamManager"/>    
 </beans>

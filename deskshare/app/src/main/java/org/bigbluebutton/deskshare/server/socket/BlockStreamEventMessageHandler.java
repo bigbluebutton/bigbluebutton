@@ -28,14 +28,11 @@ import org.apache.mina.core.session.IoSession;
 import org.bigbluebutton.deskshare.server.events.CaptureEndBlockEvent;
 import org.bigbluebutton.deskshare.server.events.CaptureStartBlockEvent;
 import org.bigbluebutton.deskshare.server.events.CaptureUpdateBlockEvent;
-import org.bigbluebutton.deskshare.server.session.SessionManager;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
 public class BlockStreamEventMessageHandler extends IoHandlerAdapter {
 	final private Logger log = Red5LoggerFactory.getLogger(BlockStreamEventMessageHandler.class, "deskshare");
-	
-//	private SessionManager sessionManager;
 	
 	private ISessionManagerGateway sessionManager;
 	
@@ -87,10 +84,6 @@ public class BlockStreamEventMessageHandler extends IoHandlerAdapter {
     	System.out.println("Session Closed for room " + room);
     	sessionManager.removeSession(room);
     }
-    
-//    public void setSessionManager(SessionManager sm) {
- //   	sessionManager = sm;
- //   }
     
     public void setSessionManagerGateway(ISessionManagerGateway sm) {
     	sessionManager = sm;
