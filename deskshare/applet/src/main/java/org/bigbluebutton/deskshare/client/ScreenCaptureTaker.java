@@ -23,11 +23,8 @@ package org.bigbluebutton.deskshare.client;
 
 import java.awt.image.BufferedImage;
 
-public class ScreenCaptureTaker implements Runnable {
-	
+public class ScreenCaptureTaker implements Runnable {	
 	private ScreenCapture capture;
-	private int timeBase;
-	private int frameCount = 0;
 	private IScreenCaptureListener listeners;
 	
 	private volatile boolean startCapture = false;
@@ -35,63 +32,33 @@ public class ScreenCaptureTaker implements Runnable {
 	public ScreenCaptureTaker(ScreenCapture capture){
 		System.out.println("Capture thread constructor.");
 		this.capture = capture;
-		this.timeBase = 1000 / capture.getProperFrameRate();
 	}
 	
 	public void run(){		
 		while (startCapture){
 			System.out.println("----- Taking screen capture -----");
-			long snapshotTime = System.currentTimeMillis();
 			BufferedImage image = capture.takeSingleSnapshot();
-			long snapshotEnd = System.currentTimeMillis();
-//			System.out.println("Snapshot time = " + (snapshotEnd - snapshotTime) + "ms.");
 			notifyListeners(image);
-			long completeTime = System.currentTimeMillis();
-//			System.out.println("Processing time = " + (completeTime - snapshotTime) + "ms.");
 			try{
-				//Thread.sleep(timeBase);
-				Thread.sleep(500);
+				System.out.println("Going to sleeeeeep.");
+				Thread.sleep(1000);
+				System.out.println("Just woke up.");
 			} catch (Exception e){
 				System.out.println("Exception sleeping.");
 				System.exit(0);
 			}
 		}
 		
-		System.out.println("Stopping screen capture.");
-		
+		System.out.println("Stopping screen capture.");		
 		listeners.screenCaptureStopped();
 	}
 	
 	private void notifyListeners(BufferedImage image) {
-		listeners.onScreenCaptured(image, isKeyFrame());
+		listeners.onScreenCaptured(image);
 	}
-	
-	private boolean isKeyFrame() {
 		
-		if (frameCount == 0) {
-//			System.out.println("Is Key Frame " + frameCount);
-			frameCount++;
-			
-			return true;
-		} else {
-//			System.out.println("Is Not Key Frame " + frameCount);
-			if (frameCount < 20) {
-				frameCount++;
-			} else {
-				frameCount = 0;
-			}
-			
-			return false;
-		}
-	}
-	
 	public void addListener(IScreenCaptureListener listener) {
-//		listeners.add(listener);
 		listeners = listener;
-	}
-
-	public void removeListener(IScreenCaptureListener listener) {
-//		listeners.remove(listener);
 	}
 	
 	public void setCapture(boolean capture) {

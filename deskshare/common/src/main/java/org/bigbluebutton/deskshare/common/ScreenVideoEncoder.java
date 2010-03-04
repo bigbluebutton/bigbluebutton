@@ -84,11 +84,11 @@ public final class ScreenVideoEncoder {
 		return pixels;	
 	}
 	
-	public static byte[] encodePixels(int pixels[], int width, int height, boolean isRedTile, boolean isKeyFrame) {
+	public static byte[] encodePixels(int pixels[], int width, int height) {
 		
 		changePixelScanFromBottomLeftToTopRight(pixels, width, height);
 		
-		byte[] bgrPixels = convertFromRGBtoBGR(pixels, isRedTile, isKeyFrame);
+		byte[] bgrPixels = convertFromRGBtoBGR(pixels);
 		
 		byte[] compressedPixels = compressUsingZlib(bgrPixels);  
 		
@@ -165,7 +165,7 @@ public final class ScreenVideoEncoder {
 	 * @param pixels
 	 * @return pixels in BGR order
 	 */
-	private static byte[] convertFromRGBtoBGR(int[] pixels, boolean isRedTile, boolean isKeyFrame) {	
+	private static byte[] convertFromRGBtoBGR(int[] pixels) {	
 		long start = System.currentTimeMillis();
 		byte[] rgbPixels = new byte[pixels.length * 3];
 		int position = 0;
@@ -175,21 +175,10 @@ public final class ScreenVideoEncoder {
 			byte green = (byte) ((pixels[i] >> 8) & 0xff);
 			byte blue = (byte) (pixels[i] & 0xff);
 			
-			if (isRedTile && !isKeyFrame) {
-				// Sequence should be BGR
-				rgbPixels[position++] = 0;
-				rgbPixels[position++] = 0;
-				rgbPixels[position++] = (byte) 0xff;				
-			} else if (isRedTile && isKeyFrame) {
-				rgbPixels[position++] = (byte) 0xff;
-				rgbPixels[position++] = 0;
-				rgbPixels[position++] = 0;					
-			}	else {
-				// Sequence should be BGR
-				rgbPixels[position++] = blue;
-				rgbPixels[position++] = green;
-				rgbPixels[position++] = red;				
-			}
+			// Sequence should be BGR
+			rgbPixels[position++] = blue;
+			rgbPixels[position++] = green;
+			rgbPixels[position++] = red;				
 		}
 		
 		long end = System.currentTimeMillis();

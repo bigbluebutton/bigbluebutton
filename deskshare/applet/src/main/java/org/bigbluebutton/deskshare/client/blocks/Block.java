@@ -36,16 +36,9 @@ public final class Block {
     private final Adler32 checksum;
     private final Dimension dim;
     private final int position;
-    private final Point location;
-    
-    private boolean isKeyFrame = false;
+    private final Point location;    
     private int[] pixels;
-    private EncodedBlockData encodedBlockData;
-
-    private int nextForceUpdate = 10000;
-    private final static int MIN_DURATION = 5000;
-    private final static int MAX_DURATION = 10000;
-    private long lastChanged;
+    private boolean firstTime = true;
     
     Block(Dimension dim, int position, Point location) {
         checksum = new Adler32();
@@ -54,10 +47,8 @@ public final class Block {
         this.location = location;
     }
     
-    public void updateBlock(BufferedImage capturedScreen, boolean isKeyFrame)
-    {	
-    	synchronized(this) {
-        	this.isKeyFrame = isKeyFrame;        	
+    public void updateBlock(BufferedImage capturedScreen) {	
+    	synchronized(this) {     	
         	try {
     			pixels = ScreenVideoEncoder.getPixels(capturedScreen, getX(), getY(), getWidth(), getHeight());
         	} catch (PixelExtractException e) {
@@ -66,82 +57,44 @@ public final class Block {
     	}
     }
     
-    public  EncodedBlockData encode() {
-    	int[] pixelsCopy = new int[pixels.length];
-    	synchronized (this) {           
-            System.arraycopy(pixels, 0, pixelsCopy, 0, pixels.length);
-		}
-    	
-        byte[] encodedBlock;
-        boolean hasChanged = false;
-
-        /** Seems that this thing isn't working properly.
-         *  The blocks only gets sent after forceUpdate. (ralam Oct 29, 2009)
-         */
-        if (!checksumSame(pixelsCopy)) { 
-        //if (!checksumSame(pixelsCopy) || isKeyFrame) {
-         	encodedBlock = ScreenVideoEncoder.encodePixels(pixelsCopy, getWidth(), getHeight(), false, isKeyFrame);
-           	hasChanged = true;           	
-        } else {
-           	encodedBlock = ScreenVideoEncoder.encodeBlockUnchanged();  
-           	hasChanged = false;
-        }    	    
-        
-        EncodedBlockData data = new EncodedBlockData(position, hasChanged, encodedBlock, isKeyFrame);
-        return data;			
+    public boolean hasChanged() {
+    	if (firstTime) {
+    		firstTime = false;
+    		return true;
+    	}
+    	return ! checksumSame();
     }
     
-    private boolean checksumSame(int[] pixelsCopy) {
+    public  EncodedBlockData encode() {    	
+        byte[] encodedBlock = ScreenVideoEncoder.encodePixels(pixels, getWidth(), getHeight()); 	        
+        return new EncodedBlockData(position, encodedBlock);		
+    }
+    
+    private boolean checksumSame() {
     	long oldsum;
         oldsum = checksum.getValue(); 
-        calcChecksum(pixelsCopy);  
+        calcChecksum();  
         return (oldsum == checksum.getValue());
     }
-    
-    private boolean forceUpdate() {         
-        long now = System.currentTimeMillis();    
-        boolean update = ((now - lastChanged) > nextForceUpdate);
-        if (update) {
-        	synchronized(this) {
-        		nextUpdate();
-        		lastChanged = now;
-        	}       	
-        }
-        return update;
-    }
-    
-    private void nextUpdate() {
-        //get the range, casting to long to avoid overflow problems
-        long range = (long)MAX_DURATION - (long)MIN_DURATION + 1;
-        // compute a fraction of the range, 0 <= frac < range
-        long fraction = (long)(range * random.nextDouble());
-        nextForceUpdate =  (int)(fraction + 5000); 
-    }
-    
-    public synchronized EncodedBlockData getEncodedBlockData() {
-    	return encodedBlockData;
-    }
-    
-    private synchronized void calcChecksum(int pixelsCopy[])
-    {
+          
+    private void calcChecksum() {
     	checksum.reset();   
     	int height = getHeight();
     	int width = getWidth();
+	
 		for (int i = 0; i < height; i++) {
 		    for (int j = 0; j < width; j++) {
-		    	if ((i * width + i) % 13 == 0)
-		    		checksum.update(pixelsCopy[i * width + j]);
+		    	if ((i * width + j) % 5 == 0)
+		    		checksum.update(pixels[i * width + j]);
 		    }
 		}	 
     }
 
-    public int getWidth()
-    {
+    public int getWidth() {
         return new Integer(dim.getWidth()).intValue();
     }
     
-    public int getHeight()
-    {
+    public int getHeight() {
         return new Integer(dim.getHeight()).intValue();
     }
     

@@ -22,18 +22,13 @@
 package org.bigbluebutton.deskshare.client.net;
 
 public class EncodedBlockData {
-
 	private final byte[] videoData;
-	private final boolean keyFrame;
 	private final int position;
 	private final long timestamp;
-	private final boolean hasChanged;
 	
-	public EncodedBlockData(int position, boolean hasChanged, byte[] videoData, boolean keyFrame) {
+	public EncodedBlockData(int position, byte[] videoData) {
 		this.position = position;
 		this.videoData = videoData;
-		this.keyFrame = keyFrame;
-		this.hasChanged = hasChanged;
 		timestamp = System.currentTimeMillis();
 	}
 	
@@ -44,16 +39,8 @@ public class EncodedBlockData {
 	public byte[] getVideoData() {
 		return videoData;
 	}
-
-	public boolean isKeyFrame() {
-		return keyFrame;
-	}	
 	
 	public long getTimestamp() {
 		return timestamp;
-	}
-	
-	public boolean hasChanged() {
-		return hasChanged;
 	}
 }

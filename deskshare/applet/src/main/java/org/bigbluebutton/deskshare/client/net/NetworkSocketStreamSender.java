@@ -26,8 +26,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
-
-import org.bigbluebutton.deskshare.client.blocks.Block;
 import org.bigbluebutton.deskshare.common.Dimension;
 
 public class NetworkSocketStreamSender implements Runnable {
@@ -42,8 +40,11 @@ public class NetworkSocketStreamSender implements Runnable {
 	private final NextBlockRetriever retriever;
 	private volatile boolean processBlocks = false;
 	
-	public NetworkSocketStreamSender(NextBlockRetriever retriever) {
+	public NetworkSocketStreamSender(NextBlockRetriever retriever, String room, Dimension screenDim, Dimension blockDim) {
 		this.retriever = retriever;
+		this.room = room;
+		this.screenDim = screenDim;
+		this.blockDim = blockDim;
 	}
 	
 	public void connect(String host) throws ConnectionException {
@@ -60,10 +61,7 @@ public class NetworkSocketStreamSender implements Runnable {
 		}
 	}
 	
-	public void sendStartStreamMessage(String room, Dimension screen, Dimension block) {
-		this.room = room;
-		screenDim = screen;
-		blockDim = block;
+	public void sendStartStreamMessage() {		
 		try {
 			ByteArrayOutputStream dataToSend = new ByteArrayOutputStream();
 			dataToSend.reset();
@@ -121,12 +119,16 @@ public class NetworkSocketStreamSender implements Runnable {
 	public void run() {
 		processBlocks = true;		
 		while (processBlocks) {
-			Block block = retriever.fetchNextBlockToSend();
-			EncodedBlockData ebd = block.encode();
-			if (ebd.hasChanged()) {					
-				BlockVideoData	bv = new BlockVideoData(room, ebd.getPosition(), ebd.getVideoData(), ebd.isKeyFrame());	
+			EncodedBlockData block;
+			try {
+				block = retriever.fetchNextBlockToSend();
+				BlockVideoData	bv = new BlockVideoData(room, block.getPosition(), block.getVideoData(), false /* should remove later */);	
+				System.out.println("Sending block " + block.getPosition());
 				sendBlock(bv);
-			}						
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}					
 		}
 
 	}

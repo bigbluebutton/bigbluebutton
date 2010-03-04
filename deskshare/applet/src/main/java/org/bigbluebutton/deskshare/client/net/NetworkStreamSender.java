@@ -21,36 +21,33 @@
  */
 package org.bigbluebutton.deskshare.client.net;
 
-import java.util.Map;
-
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import net.jcip.annotations.GuardedBy;
+import java.util.concurrent.LinkedBlockingQueue;
 import net.jcip.annotations.ThreadSafe;
-
-import org.bigbluebutton.deskshare.client.blocks.Block;
-import org.bigbluebutton.deskshare.client.blocks.BlockManager;
+import org.bigbluebutton.deskshare.common.Dimension;
 
 @ThreadSafe
 public class NetworkStreamSender implements NextBlockRetriever {	
-	private BlockManager blockManager;
-	private ExecutorService executor;
-	
-	@GuardedBy("this") private int nextBlockToSend = 1;
-    private final Map<Integer, Block> blocksMap;
+	private ExecutorService executor;	
+    private final BlockingQueue<EncodedBlockData> blockDataQ = new LinkedBlockingQueue<EncodedBlockData>();
+    
     private final int numThreads;
     private final String host;
     private final String room;
     private NetworkSocketStreamSender[] senders;
-    private NetworkHttpStreamSender httpSender;
+    private NetworkHttpStreamSender[] httpSenders;
     private boolean tunneling = false;
     private int numRunningThreads = 0;
-    
-	public NetworkStreamSender(BlockManager blockManager, String host, String room) {
-		this.blockManager = blockManager;
-		blocksMap = blockManager.getBlocks();
+	private Dimension screenDim;
+	private Dimension blockDim;
+	
+	public NetworkStreamSender(String host, String room, Dimension screenDim, Dimension blockDim) {
 		this.host = host;
 		this.room = room;
+		this.screenDim = screenDim;
+		this.blockDim = blockDim;
 		
 		numThreads = Runtime.getRuntime().availableProcessors();
 		System.out.println("Starting up " + numThreads + " sender threads.");
@@ -73,6 +70,7 @@ public class NetworkStreamSender implements NextBlockRetriever {
 			System.out.println("Trying http tunneling");
 			if (tryHttpTunneling()) {
 				tunneling = true;
+				httpSenders = new NetworkHttpStreamSender[numThreads];
 				return true;
 			}
 		} else {
@@ -83,28 +81,32 @@ public class NetworkStreamSender implements NextBlockRetriever {
 	}
 	
 	private void createSender(int i) throws ConnectionException {
-		senders[i] = new NetworkSocketStreamSender(this);
+		senders[i] = new NetworkSocketStreamSender(this, room, screenDim, blockDim);
 		senders[i].connect(host);		
 	}
 	
+	public void send(EncodedBlockData data) {
+		blockDataQ.offer(data);
+	}
+	
 	public void start() {
-		if (tunneling) {
-			httpSender.sendStartStreamMessage(room, blockManager.getScreenDim(), blockManager.getBlockDim());
-			executor.execute(httpSender);
-		} else {
-			for (int i = 0; i < numRunningThreads; i++) {
-				senders[i].sendStartStreamMessage(room, blockManager.getScreenDim(), blockManager.getBlockDim());
-				executor.execute(senders[i]);
-			}	
+		for (int i = 0; i < numRunningThreads; i++) {
+			if (tunneling) {
+				httpSenders[i].sendStartStreamMessage();
+				executor.execute(httpSenders[i]);
+			} else {			
+				senders[i].sendStartStreamMessage();
+				executor.execute(senders[i]);	
+			}
 		}
 	}
 	
 	public void stop() throws ConnectionException {
 		System.out.println("Stopping network sender");
-		if (tunneling) {
-			httpSender.disconnect();
-		} else {
-			for (int i = 0; i < numRunningThreads; i++) {
+		for (int i = 0; i < numRunningThreads; i++) {
+			if (tunneling) {
+				httpSenders[i].disconnect();
+			} else {
 				senders[i].disconnect();
 			}				
 		}
@@ -113,7 +115,7 @@ public class NetworkStreamSender implements NextBlockRetriever {
 	}
 
 	private boolean tryHttpTunneling() {
-		httpSender = new NetworkHttpStreamSender(this);
+		NetworkHttpStreamSender httpSender = new NetworkHttpStreamSender(this, room, screenDim, blockDim);
 		try {
 			httpSender.connect(host);
 			return true;
@@ -123,14 +125,7 @@ public class NetworkStreamSender implements NextBlockRetriever {
 		return false;
 	}
 	
-	public Block fetchNextBlockToSend() {
-		synchronized(this) {
-			//Block block = blocksMap.get(new Integer(nextBlockToSend));
-			Block block = blockManager.getBlock(nextBlockToSend);
-//			System.out.println("Fetched block " + nextBlockToSend);
-			nextBlockToSend++;
-			if (nextBlockToSend > blocksMap.size()) nextBlockToSend = 1;
-			return block;
-		}
+	public EncodedBlockData fetchNextBlockToSend() throws InterruptedException {
+		return (EncodedBlockData) blockDataQ.take();
 	}
 }

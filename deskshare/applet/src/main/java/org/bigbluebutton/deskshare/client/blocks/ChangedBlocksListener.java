@@ -21,9 +21,8 @@
  */
 package org.bigbluebutton.deskshare.client.blocks;
 
-import java.io.ByteArrayOutputStream;
+import org.bigbluebutton.deskshare.client.net.EncodedBlockData;
 
 public interface ChangedBlocksListener {
-
-	public void onChangedTiles(ByteArrayOutputStream pixelData, boolean isKeyFrame);
+	public void onChangedBlock(EncodedBlockData encodedData);
 }

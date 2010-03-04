@@ -25,5 +25,5 @@ import java.awt.image.BufferedImage;
 
 public interface IScreenCaptureListener {
 	public void screenCaptureStopped();
-	public void onScreenCaptured(BufferedImage screen, boolean isKeyFrame);
+	public void onScreenCaptured(BufferedImage screen);
 }

@@ -40,12 +40,17 @@ public class NetworkHttpStreamSender implements Runnable {
 	private URL url;
 	URLConnection conn;
 	private String room;
+	private Dimension screenDim;
+	private Dimension blockDim;
 	private final NextBlockRetriever retriever;
 	private volatile boolean processBlocks = false;
 
 	
-	public NetworkHttpStreamSender(NextBlockRetriever retriever) {
+	public NetworkHttpStreamSender(NextBlockRetriever retriever, String room, Dimension screenDim, Dimension blockDim) {
 		this.retriever = retriever;
+		this.room = room;
+		this.screenDim = screenDim;
+		this.blockDim = blockDim;
 	}
 	
 	public void connect(String host) throws ConnectionException {
@@ -74,11 +79,10 @@ public class NetworkHttpStreamSender implements Runnable {
 		}
 	}
 	
-	public void sendStartStreamMessage(String room, Dimension screen, Dimension block) {
-		this.room = room;
+	public void sendStartStreamMessage() {
 		try {
 			openConnection();
-			sendCaptureStartEvent(screen, block);
+			sendCaptureStartEvent(screenDim, blockDim);
 		} catch (ConnectionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -142,13 +146,15 @@ public class NetworkHttpStreamSender implements Runnable {
 		processBlocks = true;
 		
 		while (processBlocks) {
-			Block block = retriever.fetchNextBlockToSend();
-			EncodedBlockData ebd = block.encode();
-			if (ebd.hasChanged()) {					
-				BlockVideoData	bv = new BlockVideoData(room, ebd.getPosition(), ebd.getVideoData(), ebd.isKeyFrame());	
-				
-				sendBlockData(bv);
-			}						
+			EncodedBlockData block;
+			try {
+				block = retriever.fetchNextBlockToSend();
+				BlockVideoData	bv = new BlockVideoData(room, block.getPosition(), block.getVideoData(), false);	
+				sendBlockData(bv);	
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}								
 		}
 	}
 	

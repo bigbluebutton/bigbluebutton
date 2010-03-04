@@ -23,18 +23,11 @@ package org.bigbluebutton.deskshare.client.blocks;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
-import org.bigbluebutton.deskshare.client.encoder.BlockEncodeException;
-import org.bigbluebutton.deskshare.client.encoder.ScreenVideoBlockEncoder;
-import org.bigbluebutton.deskshare.common.ScreenVideoEncoder;
 import org.bigbluebutton.deskshare.common.Dimension;
+import org.bigbluebutton.deskshare.client.net.EncodedBlockData;
 
 public class BlockManager {
     private final Map<Integer, Block> blocksMap;
@@ -48,12 +41,9 @@ public class BlockManager {
     private ByteArrayOutputStream encodedPixelStream = new ByteArrayOutputStream();
     private Dimension screenDim, blockDim;
     
-//    private ScreenVideoBlockEncoder encoder;
-    
     public BlockManager() {
     	blocksMap = new HashMap<Integer, Block>();
     	unmodifiableBlocksMap = Collections.unmodifiableMap(blocksMap);
- //   	encoder = new ScreenVideoBlockEncoder();
     }
     
     public void initialize(Dimension screen, Dimension tile) {
@@ -72,62 +62,24 @@ public class BlockManager {
         }  
     }
     
-    public void processCapturedScreen(BufferedImage capturedScreen, boolean isKeyFrame)
-    {    	
+    public void processCapturedScreen(BufferedImage capturedScreen) {    	
     	long start = System.currentTimeMillis();
-//		Block[] blocks = new Block[numRows * numColumns];
-		int index = 0;
 		int numberOfBlocks = numColumns * numRows;
         for (int position = 1; position <= numberOfBlocks; position++) {
         	Block block = blocksMap.get(new Integer(position));
-        	block.updateBlock(capturedScreen, isKeyFrame);
-        	
-        	
-//            blocks[index++] = block;
+        	block.updateBlock(capturedScreen);
+        	if (block.hasChanged()) {
+        		System.out.println("Block " + block.getPosition() + " has changed.");
+        		notifyChangedBlockListener(block.encode());
+        	}
         }
         
-		long qEncode = System.currentTimeMillis();
-//		System.out.println("Grabbing pixels for blocks[" + numberOfBlocks + "] took " + (qEncode-start) + " ms.");   
-		
-//        try {
-//			encoder.encode(blocks);
-//			sendEncodedData(isKeyFrame);
-//		} catch (BlockEncodeException e) {
-//			e.printStackTrace();
-//		}
-		notifyChangedTilesListener(null, isKeyFrame);
 		long end = System.currentTimeMillis();
 		System.out.println("ProcessCapturedScreen took " + (end-start) + " ms.");
     }
-/*    
-    private void sendEncodedData(boolean isKeyFrame) {
-    	long start = System.currentTimeMillis();
-    	encodedPixelStream.reset();
-    	byte[] encodedDim = ScreenVideoEncoder.encodeBlockDimensionsAndGridSize(blockDim.getWidth(), screenDim.getWidth(), blockDim.getHeight(), screenDim.getHeight());
-     	byte videoDataHeader = ScreenVideoEncoder.encodeFlvVideoDataHeader(isKeyFrame);
-    	try {
-    		encodedPixelStream.write(videoDataHeader);
-			encodedPixelStream.write(encodedDim);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		int numberOfBlocks = numColumns * numRows;
-        for (int position = 1; position <= numberOfBlocks; position++) {
-        	Block block = blocksMap.get(new Integer(position));
-        	byte[] data = block.getEncodedBlock();
-           	encodedPixelStream.write(data, 0, data.length);
-        }
-        
-//	    System.out.println("Encoded data length = " + encodedPixelStream.size());
-	    notifyChangedTilesListener(encodedPixelStream, isKeyFrame);	
-	    long end = System.currentTimeMillis();
-	    System.out.println("Sending encoded data took " + (end-start) + " ms.");
-    }
-*/    
-    private void notifyChangedTilesListener(ByteArrayOutputStream encodedPixelStream, boolean isKeyFrame) {
-    	listeners.onChangedTiles(encodedPixelStream, isKeyFrame);
+    
+    private void notifyChangedBlockListener(EncodedBlockData encodedData) {
+    	listeners.onChangedBlock(encodedData);
     }
     
 
@@ -135,9 +87,7 @@ public class BlockManager {
 		listeners = listener;
 	}
 
-
 	public void removeListener(ChangedBlocksListener listener) {
-		//listeners.remove(listener);
 		listeners = null;
 	}
     
@@ -145,13 +95,11 @@ public class BlockManager {
 		return (Block) blocksMap.get(Integer.valueOf(position));
 	}
 	
-    public int getRowCount()
-    {
+    public int getRowCount() {
         return numRows;
     }
     
-    public int getColumnCount()
-    {
+    public int getColumnCount() {
         return numColumns;
     }
 
@@ -161,12 +109,5 @@ public class BlockManager {
 
 	public Dimension getBlockDim() {
 		return blockDim;
-	}
-
-	/*
-	 * Returns a read-only "live" view of the blocks;
-	 */
-	public Map<Integer, Block> getBlocks() {
-		return unmodifiableBlocksMap;
 	}
 }

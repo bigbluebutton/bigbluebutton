@@ -42,7 +42,7 @@ public class ScreenCapture {
 	private Rectangle screenBounds;	
 	private int width, height, x,y, videoWidth, videoHeight;
 
-	public ScreenCapture(int x, int y, int screenWidth, int screenHeight){
+	public ScreenCapture(int x, int y, int screenWidth, int screenHeight) {
 		this.width = screenWidth;
 		this.height = screenHeight;
 		try{
@@ -54,26 +54,26 @@ public class ScreenCapture {
 		this.screenBounds = new Rectangle(x, y, this.width, this.height);
 	}
 	
-	public BufferedImage takeSingleSnapshot(){
+	public BufferedImage takeSingleSnapshot() {
 		return robot.createScreenCapture(this.screenBounds);
 	}
 	
-	public int getScreenshotWidth(){
+	public int getScreenshotWidth() {
 		return toolkit.getScreenSize().width;
 	}
 	
-	public int getScreenshotHeight(){
+	public int getScreenshotHeight() {
 		return toolkit.getScreenSize().height;
 	}
 	
-	public void setWidth(int width){
+	public void setWidth(int width) {
 		int screenWidth = toolkit.getScreenSize().width;
 		if (width > screenWidth) this.width = screenWidth;
 		else this.width = width;
 		updateBounds();
 	}
 	
-	public void setHeight(int height){
+	public void setHeight(int height) {
 		int screenHeight = toolkit.getScreenSize().height;
 		if (height > screenHeight) {
 			this.height = screenHeight;
@@ -84,29 +84,29 @@ public class ScreenCapture {
 		updateBounds();
 	}
 	
-	public void setX(int x){
+	public void setX(int x) {
 		this.x = x;
 		updateBounds();
 	}
 	
-	public void setY(int y){
+	public void setY(int y) {
 		this.y = y;
 		updateBounds();
 	}
 	
-	public void updateBounds(){
+	public void updateBounds() {
 		this.screenBounds = new Rectangle(x,y,width,height);
 	}
 	
-	 public int getWidth(){
+	 public int getWidth() {
 		 return this.width;
 	 }
 	 
-	 public int getHeight(){
+	 public int getHeight() {
 		 return this.height;
 	 }
 	 
-	 public int getProperFrameRate(){
+	 public int getProperFrameRate() {
 		 long area = width*height;
 		 if (area > 1000000) return 1;
 		 else if (area > 600000) return 2;
@@ -115,11 +115,11 @@ public class ScreenCapture {
 		 else return 10;
 	 }
 	 	 
-	 public int getVideoWidth(){
+	 public int getVideoWidth() {
 		 return videoWidth;
 	 }
 	 
-	 public int getVideoHeight(){
+	 public int getVideoHeight() {
 		 return videoHeight;
 	 }
 

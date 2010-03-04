@@ -29,12 +29,11 @@ import java.io.ByteArrayOutputStream;
 import org.bigbluebutton.deskshare.client.blocks.BlockManager;
 import org.bigbluebutton.deskshare.client.blocks.ChangedBlocksListener;
 import org.bigbluebutton.deskshare.client.net.ConnectionException;
+import org.bigbluebutton.deskshare.client.net.EncodedBlockData;
 import org.bigbluebutton.deskshare.client.net.NetworkStreamSender;
 import org.bigbluebutton.deskshare.common.Dimension;
-import netscape.javascript.*;
 
 public class DeskShareApplet extends Applet implements IScreenCaptureListener, ChangedBlocksListener {
-
 	private static final long serialVersionUID = 1L;
 	private ScreenCaptureTaker captureTaker;
 	private ScreenCapture capture;
@@ -63,9 +62,6 @@ public class DeskShareApplet extends Applet implements IScreenCaptureListener, C
 		y = Integer.parseInt(getParameter("Y"));
 		room = getParameter("ROOM");
 		host = getParameter("IP");
-		
-		String t = getParameter("TUNNEL");
-		System.out.println("Tunnel param " + t);
 	}
 	
 	public void stop() {
@@ -76,15 +72,13 @@ public class DeskShareApplet extends Applet implements IScreenCaptureListener, C
 				if (senderStarted)
 					sender.stop();
 			} catch (ConnectionException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}			
 	}
 	
 	public void start() {		 
-		System.out.println("RunnerApplet start()");
-		
+		System.out.println("Deskshare Applet start");		
 		startCapture();		
 	}
 
@@ -98,7 +92,7 @@ public class DeskShareApplet extends Applet implements IScreenCaptureListener, C
 		blockManager.addListener(this);
 		blockManager.initialize(screenDim, tileDim);
 	
-		sender = new NetworkStreamSender(blockManager, host, room);
+		sender = new NetworkStreamSender(host, room, screenDim, tileDim);
 		connected = sender.connect();
 		if (connected) {
 			captureTaker.addListener(this);
@@ -107,52 +101,31 @@ public class DeskShareApplet extends Applet implements IScreenCaptureListener, C
 			captureTakerThread = new Thread(captureTaker, "ScreenCaptureTaker");
 			captureTakerThread.start();	
 		}
+		sender.start();
 	}
-	
-	private void testFunctionCall() {
-        try {
-            System.out.println("testFunctionCall: test started");
-            JSObject window = JSObject.getWindow(this);
-            System.out.println("Calling JavaScript getString();");
-            if (window == null) System.out.println("WINDOW IS NULL");
-            else System.out.println("WINDOW IS NOT NULL");
-            
-            String res = (String) window.eval("getString();");
-            System.out.println("Got string from JavaScript: \"" + res + "\"");
-            if (!res.equals("Hello, world!")) {
-                throw new RuntimeException("string value did not match expected value");
-            }
-            Number num = (Number) window.eval("getNumber()");
-            System.out.println("Got number from JavaScript: " + num);
-            if (num.intValue() != 5) {
-                throw new RuntimeException("number value did not match expected value");
-            }
-            System.out.println("testFunctionCall: test passed.");
-        } catch (JSException e) {
-            e.printStackTrace();
-            System.out.println("TEST FAILED");
-        } catch (Exception e2) {
-            e2.printStackTrace();
-            System.out.println("TEST FAILED");
-        }
-    }
-	
+		
 	/**
 	 * This method is called when the user closes the browser window containing the applet
 	 * It is very important that the connection to the server is closed at this point. That way the server knows to
 	 * close the stream.
 	 */
-	public void destroy(){
+	public void destroy() {
+		try {
+			sender.stop();
+		} catch (ConnectionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		stop();
 	}
 	
-	public void setScreenCoordinates(int x, int y){
+	public void setScreenCoordinates(int x, int y) {
 		capture.setX(x);
 		capture.setY(y);
 	}
 	
-	public void onScreenCaptured(BufferedImage screen, boolean isKeyFrame) {
-		blockManager.processCapturedScreen(screen, isKeyFrame);		
+	public void onScreenCaptured(BufferedImage screen) {
+		blockManager.processCapturedScreen(screen);		
 	}
 	
 	
@@ -161,11 +134,8 @@ public class DeskShareApplet extends Applet implements IScreenCaptureListener, C
 		destroy();
 	}
 
-	public void onChangedTiles(ByteArrayOutputStream pixelData, boolean isKeyFrame) {
-		if (! senderStarted) {
-			sender.start();
-			senderStarted = true;
-		}
+	public void onChangedBlock(EncodedBlockData encodedData) {
+		sender.send(encodedData);
 	}
 	
 	static public void main (String argv[]) {
