@@ -25,15 +25,9 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 	errorPage="error.jsp" %>
 
 <%@ page import="org.apache.commons.codec.digest.*"%>
-
+<%@ include file="demo/bbb_api_conf.jsp"%>
 
 <%!
-	// This is the security salt that must match the value set in the BigBlueButton server	32	// This is the security salt that must match the value set in the BigBlueButton server
-	String salt = "639259d4-9dd8-4b25-bf01-95f9567eaf4b";
-			
-	// This is the URL for the BigBlueButton server	35	// This is the URL for the BigBlueButton server
-	String BigBlueButtonURL = "http://192.168.0.120/bigbluebutton/";
-
 // 
 // Create a meeting and return a URL to join it as moderator
 //

@@ -26,13 +26,13 @@ package org.bigbluebutton.modules.present.business {
 	import flash.net.Responder;
 	import flash.net.SharedObject;
 	
+	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.modules.present.events.CursorEvent;
 	import org.bigbluebutton.modules.present.events.MoveEvent;
 	import org.bigbluebutton.modules.present.events.NavigationEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.events.ZoomEvent;
-	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 	public class PresentSOService {
 		public static const NAME:String = "PresentSOService";
@@ -466,6 +466,7 @@ package org.bigbluebutton.modules.present.business {
 			uploadEvent.data = messageKey;
 			uploadEvent.presentationName = presentationName;
 			dispatcher.dispatchEvent(uploadEvent);
+			dispatcher.dispatchEvent(new BBBEvent(BBBEvent.PRESENTATION_CONVERTED));
 		}
 				
 		public function conversionUpdateMessageCallback(conference:String, room:String, 

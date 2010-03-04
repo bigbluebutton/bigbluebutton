@@ -28,6 +28,7 @@ package org.bigbluebutton.main.events
 		public static const SEND_PUBLIC_CHAT_MESSAGE_EVENT:String = 'SEND_PUBLIC_CHAT_MESSAGE_EVENT';
 		public static const JOIN_VOICE_CONFERENCE:String = 'BBB_JOIN_VOICE_CONFERENCE';
 		public static const ADDED_LISTENER:String = 'BBB_ADDED_LISTENER';
+		public static const PRESENTATION_CONVERTED:String = 'BBB_PRESENTATION_CONVERTED';
 		
 		public var message:String;
 		
