@@ -13,7 +13,7 @@ artifacts {
 }
 
 repositories {
-    flatDir(name: 'fileRepo', dirs: "/home/firstuser/dev/repo")
+    flatDir(name: 'fileRepo', dirs: "/opt/bigbluebutton/repo")
 }
 
 uploadArchives {
