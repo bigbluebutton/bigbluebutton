@@ -5,6 +5,7 @@
 	<classpathentry kind="src" path="test/commandline/src"/>
 	<classpathentry excluding="src/" kind="src" path="test/commandline"/>
 	<classpathentry kind="src" path="src/main/scala"/>
+	<classpathentry kind="lib" path="lib/bbb-common-message-0.64.jar"/>
 	<classpathentry kind="lib" path="lib/geronimo-j2ee-management_1.0_spec-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/servlet-api-2.5.jar"/>
 	<classpathentry exported="true" kind="con" path="GROOVY_SUPPORT"/>
