@@ -25,7 +25,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 	errorPage="error.jsp" %>
 
 <%@ page import="org.apache.commons.codec.digest.*"%>
-<%@ include file="demo/bbb_api_conf.jsp"%>
+<%@ include file="../demo/bbb_api_conf.jsp"%>
 
 <%!
 // 
