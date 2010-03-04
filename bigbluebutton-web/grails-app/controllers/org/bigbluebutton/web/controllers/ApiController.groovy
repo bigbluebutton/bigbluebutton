@@ -29,6 +29,7 @@ import org.apache.commons.lang.StringUtils;
 
 import org.bigbluebutton.web.services.DynamicConferenceService;
 import org.bigbluebutton.api.domain.DynamicConference;
+import org.bigbluebutton.conference.Room
 
 import org.codehaus.groovy.grails.commons.ConfigurationHolder;
 
@@ -64,8 +65,7 @@ class ApiController {
 		log.debug CONTROLLER_NAME + "#create"
 
 		if (!doChecksumSecurity()) {
-			invalid("checksumError", "You did not pass the checksum security check")
-			return
+			invalidChecksum(); return;
 		}
 
 		String name = params.name
@@ -160,8 +160,7 @@ class ApiController {
 		log.debug CONTROLLER_NAME + "#join"
 
 		if (!doChecksumSecurity()) {
-			invalid("checksumError", "You did not pass the checksum security check")
-			return
+			invalidChecksum(); return;
 		}
 
 		String fullName = params.fullName
@@ -215,13 +214,11 @@ class ApiController {
 		log.debug CONTROLLER_NAME + "#isMeetingRunning"
 
 		if (!doChecksumSecurity()) {
-			invalid("checksumError", "You did not pass the checksum security check")
-			return
+			invalidChecksum(); return;
 		}
 
 		String mtgToken = params.meetingToken
 		String mtgID = params.meetingID
-		String attPW = params.password
 
 		// check for existing:
 		DynamicConference conf = dynamicConferenceService.findConference(mtgToken, mtgID);
@@ -239,16 +236,36 @@ class ApiController {
 		}
 	}
 
-	def listAttendees = {
-		invalid("notImplemented", "This call is not yet implemented.")
-	}
-
 	def endMeeting = {
+		log.debug CONTROLLER_NAME + "#endMeeting"
+
+		if (!doChecksumSecurity()) {
+			invalidChecksum(); return;
+		}
+
 		invalid("notImplemented", "This call is not yet implemented.")
 	}
 
 	def getMeetingInfo = {
-		invalid("notImplemented", "This call is not yet implemented.")
+		log.debug CONTROLLER_NAME + "#getMeetingInfo"
+
+		if (!doChecksumSecurity()) {
+			invalidChecksum(); return;
+		}
+
+		String mtgToken = params.meetingToken
+		String mtgID = params.meetingID
+
+		// check for existing:
+		DynamicConference conf = dynamicConferenceService.findConference(mtgToken, mtgID);
+		Room room = dynamicConferenceService.findRoom(mtgToken, mtgID);
+		
+		if (conf == null || room == null) {
+			invalid("notFound", "We could not find a meeting with that token or ID");
+			return;
+		}
+		
+		respondWithConferenceDetails(conf, room, null, null);
 	}
 	
 	/* helper methods */
@@ -298,6 +315,26 @@ class ApiController {
 		}
 	}
 
+	def respondWithConferenceDetails(conf, room, msgKey, msg) {
+		response.addHeader("Cache-Control", "no-cache")
+		withFormat {				
+			xml {
+				render(contentType:"text/xml") {
+					response() {
+						returncode(RESP_CODE_SUCCESS)
+						meetingToken("${conf.meetingToken}")
+						meetingID("${conf.meetingID}")
+						attendeePW("${conf.attendeePassword}")
+						moderatorPW("${conf.moderatorPassword}")
+						running(conf.isRunning() ? "true" : "false")
+						messageKey(msgKey == null ? "" : msgKey)
+						message(msg == null ? "" : msg)
+					}
+				}
+			}
+		}			 
+	}
+
 	def respondWithConference(conf, msgKey, msg) {
 		response.addHeader("Cache-Control", "no-cache")
 		withFormat {	
@@ -328,6 +365,10 @@ class ApiController {
 				}
 			}
 		}
+	}
+	
+	def invalidChecksum() {
+		invalid("checksumError", "You did not pass the checksum security check")
 	}
 	
 	def invalid(key, msg) {

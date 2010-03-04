@@ -38,7 +38,9 @@ public class Room implements Serializable {
 	private static Logger log = LoggerFactory.getLogger(Room.class)
 	
 	private final String name
-	private final Map <Long, Participant> participants	
+	private final Map <Long, Participant> participants
+	
+	// these should stay transient so they're not serialized in ActiveMQ messages:	
 	private transient final Map <Long, Participant> unmodifiableMap
 	private transient final Map<String, IRoomListener> listeners
 
