@@ -1,3 +1,4 @@
+usePlugin 'scala'
 usePlugin 'groovy'
 usePlugin 'war'
 usePlugin 'eclipse'
@@ -42,6 +43,8 @@ repositories {
        		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision])-jdk15.[ext]"
 		}  
    	}
+   	mavenRepo urls: 'http://scala-tools.org/repo-releases/'
+   	flatDir name: 'fileRepo', dirs: "/home/firstuser/dev/repo"
 }
 
 
@@ -98,7 +101,14 @@ dependencies {
     
     // Testing
     testRuntime 'org/testng:testng:5.8@jar', 'org/fitnesse:fitnesse:20090214@jar', 'org.easymock:easymock:2.4@jar'
-    
+
+	// Libraries needed to run the scala tools
+    scalaTools 'org.scala-lang:scala-compiler:2.7.7'
+    scalaTools 'org.scala-lang:scala-library:2.7.7'
+
+    // Libraries needed for scala api
+    compile 'org.scala-lang:scala-library:2.7.7'   
+    compile 'org/bigbluebutton/common:bbb-common-message:0.64@jar' 
 }
 
 test {

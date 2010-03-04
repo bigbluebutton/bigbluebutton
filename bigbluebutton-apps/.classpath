@@ -4,7 +4,7 @@
 	<classpathentry excluding="org/bigbluebutton/webconference/voice/asterisk/" kind="src" path="src/main/groovy"/>
 	<classpathentry kind="src" path="test/commandline/src"/>
 	<classpathentry excluding="src/" kind="src" path="test/commandline"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="src/main/scala"/>
 	<classpathentry kind="lib" path="lib/geronimo-j2ee-management_1.0_spec-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/servlet-api-2.5.jar"/>
 	<classpathentry exported="true" kind="con" path="GROOVY_SUPPORT"/>
@@ -34,5 +34,8 @@
 	<classpathentry kind="lib" path="lib/spring-integration-file-2.0.0.M2.jar"/>
 	<classpathentry kind="lib" path="lib/spring-integration-jms-2.0.0.M2.jar"/>
 	<classpathentry kind="lib" path="lib/spring-integration-stream-2.0.0.M2.jar"/>
+	<classpathentry kind="con" path="ch.epfl.lamp.sdt.launching.SCALA_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/bbb-common-messaging"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
