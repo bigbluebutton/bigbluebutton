@@ -34,10 +34,7 @@ public interface IConferenceEventListener {
 	
 	@Gateway(requestChannel="conferenceEnded")
 	void ended(Room room);
-	
-	/*
-	void participantJoined(Room room, Participant participant);
-	
-	void participantLeft(Room room, Participant participant);
-	*/
+
+	@Gateway(requestChannel="participantsUpdated")
+	void participantsUpdated(Room room);	
 }

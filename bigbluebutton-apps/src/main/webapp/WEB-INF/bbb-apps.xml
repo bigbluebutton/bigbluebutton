@@ -137,4 +137,11 @@
 		<constructor-arg value="conferenceEndedEvents"/>
     </bean>
 
+	<!-- participantsUpdated -->
+	<integration:channel id="participantsUpdated" />
+	<jms:outbound-channel-adapter id="participantsUpdatedJmsOut" destination="participantsUpdatedEvents" channel="participantsUpdated" />
+	<bean id="participantsUpdatedEvents" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg value="participantsUpdatedEvents"/>
+	</bean>
+
 </beans>

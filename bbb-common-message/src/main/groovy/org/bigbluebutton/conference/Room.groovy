@@ -132,4 +132,16 @@ public class Room implements Serializable {
 		return participants.size()
 	}
 	
+	public int getNumberOfModerators() {
+		int sum = 0;
+		for (Iterator<Participant> it = participants.values().iterator(); it.hasNext(); ) {
+			Participant part = it.next();
+			if (part.isModerator()) {
+				sum++;
+			}
+		} 
+		log.debug("Returning number of moderators: " + sum)
+		return sum;
+	}
+	
 }

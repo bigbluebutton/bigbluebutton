@@ -41,8 +41,10 @@ public class RoomsManager {
 		rooms = new ConcurrentHashMap<String, Room>()
 	}
 	
-	public void addRoom(Room room) {
+	public void addRoom(final Room room) {
 		log.debug("In RoomsManager adding room ${room.name}")
+		room.addRoomListener(new ParticipantUpdatingRoomListener(conferenceEventListener, room)); 	
+		
 		if (checkEvtListener()) {
 			conferenceEventListener.started(room)
 			log.debug("notified event listener of conference start")
@@ -60,7 +62,6 @@ public class RoomsManager {
 	}
 
 	private boolean checkEvtListener() {
-		println "RoomsManager event listener: " + conferenceEventListener
 		log.debug("RoomsManager event listener: " + conferenceEventListener)
 		return conferenceEventListener != null;
 	}
@@ -110,11 +111,18 @@ public class RoomsManager {
 		}	
 		log.warn("Removing listener from a non-existing room ${roomName}")
 	}
-	
+
 	public void addParticipant(String roomName, Participant participant) {
 		log.debug("In RoomsManager - ${roomName} add participant ${participant.name}")
 		Room r = getRoom(roomName)
 		if (r != null) {
+			if (checkEvtListener()) {
+				conferenceEventListener.participantsUpdated(room);
+				if (r.getNumberOfParticipants() == 0) {
+					conferenceEventListener.started(room)
+					log.debug("notified event listener of conference start")
+				}
+			}
 			r.addParticipant(participant)
 			return
 		}
@@ -125,6 +133,9 @@ public class RoomsManager {
 		log.debug("In RoomsManager - ${roomName} remove participant ${participant.name}")
 		Room r = getRoom(roomName)
 		if (r != null) {
+			if (checkEvtListener()) {
+				conferenceEventListener.participantsUpdated(room);
+			}
 			r.removeParticipant(userid)
 			return
 		}

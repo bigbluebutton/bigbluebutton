@@ -40,6 +40,10 @@ import java.lang.Long
 		unmodifiableStatus = Collections.unmodifiableMap(status)
 	}
 	
+	public boolean isModerator() {
+		return "MODERATOR".equals(role);
+	}
+	
 	public String getName() {
 		return name
 	}

@@ -63,12 +63,22 @@
 			<integration:interval-trigger interval="5" time-unit="SECONDS"/>
 		</integration:poller>
 	</jms:inbound-channel-adapter>
+	<jms:inbound-channel-adapter id="jmsInParticipantsUpdated"
+		destination-name="participantsUpdatedEvents"
+        channel="participantsUpdated"
+        extract-payload="true">
+		<integration:poller>
+			<integration:interval-trigger interval="5" time-unit="SECONDS"/>
+		</integration:poller>
+	</jms:inbound-channel-adapter>
  
 	<integration:channel id="conferenceStarted"/>
 	<integration:channel id="conferenceEnded"/>
+	<integration:channel id="participantsUpdated"/>
 
 	<integration:service-activator input-channel="conferenceStarted" ref="dynamicConferenceService" method="conferenceStarted" />
 	<integration:service-activator input-channel="conferenceEnded" ref="dynamicConferenceService" method="conferenceEnded" />
+	<integration:service-activator input-channel="participantsUpdated" ref="dynamicConferenceService" method="participantsUpdated" />
 	
 <!--	<stream:stdout-channel-adapter id="stdout" channel="jmsinToStdoutChannel" append-newline="true"/>-->
 

@@ -327,6 +327,8 @@ class ApiController {
 						attendeePW("${conf.attendeePassword}")
 						moderatorPW("${conf.moderatorPassword}")
 						running(conf.isRunning() ? "true" : "false")
+						participantCount(room.getNumberOfParticipants())
+						moderatorCount(room.getNumberOfModerators())
 						messageKey(msgKey == null ? "" : msgKey)
 						message(msg == null ? "" : msg)
 					}
