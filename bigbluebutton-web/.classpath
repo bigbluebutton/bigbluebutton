@@ -9,6 +9,7 @@
 	<classpathentry kind="src" path="grails-app/taglib"/>
 	<classpathentry kind="src" path="test/integration"/>
 	<classpathentry kind="src" path="test/unit"/>
+        <classpathentry kind="lib" path="lib/bbb-common-message-0.64.jar"/>
 	<classpathentry kind="lib" path="lib/asterisk-java-0.3.1.jar"/>
 	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.6-bin.jar"/>
 	<classpathentry kind="lib" path="lib/commons-httpclient.jar"/>
