@@ -492,7 +492,7 @@ red5.home = $RED5_DIRECTORY
 
     sudo /etc/init.d/red5 stop
     cd ~/dev/bbb-apps
-    gradle war
+    gradle war deploy
     cd $RED5_DIRECTORY			
     sudo -u red5 ./red5.sh		
 
