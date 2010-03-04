@@ -20,6 +20,7 @@
  */
 package org.bigbluebutton.web.services
 
+import org.bigbluebutton.conference.Room;
 import java.util.concurrent.ConcurrentHashMap
 import java.util.Collection
 import org.bigbluebutton.api.domain.DynamicConference;
@@ -73,9 +74,9 @@ public class DynamicConferenceService {
 	}
 	
 	// these methods called by spring integration:
-	public void conferenceStarted(String token) {
-		log.debug "conference started: " + token;
-		DynamicConference conf = getConferenceByToken(token);
+	public void conferenceStarted(Room room) {
+		log.debug "conference started: " + room.getName();
+		DynamicConference conf = getConferenceByToken(room.getName());
 		if (conf != null) {
 			conf.setStartTime(new Date());
 			conf.setEndTime(null);
@@ -83,9 +84,9 @@ public class DynamicConferenceService {
 		}
 	}
 	
-	public void conferenceEnded(String token) {
-		log.debug "conference ended: " + token;
-		DynamicConference conf = getConferenceByToken(token);
+	public void conferenceEnded(Room room) {
+		log.debug "conference ended: " + room.getName();
+		DynamicConference conf = getConferenceByToken(room.getName());
 		if (conf != null) {
 			conf.setEndTime(new Date());
 			log.debug "found conference and set end date"

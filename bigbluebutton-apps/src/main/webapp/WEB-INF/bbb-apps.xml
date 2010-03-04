@@ -123,23 +123,16 @@
 
 	<integration:gateway id="conferenceEventListener" service-interface="org.bigbluebutton.conference.IConferenceEventListener" />
 
-	<!-- shared -->
-	<bean id="roomTransformer" class="org.bigbluebutton.conference.springintegration.RoomToStringTransformer" />
-
 	<!-- conferenceStarted -->
 	<integration:channel id="conferenceStarted" />
-	<integration:channel id="conferenceStartedStrings" />
-	<integration:transformer ref="roomTransformer" input-channel="conferenceStarted" output-channel="conferenceStartedStrings" />
-	<jms:outbound-channel-adapter id="conferenceStartedJmsOut" destination="conferenceStartedEvents" channel="conferenceStartedStrings" />
+	<jms:outbound-channel-adapter id="conferenceStartedJmsOut" destination="conferenceStartedEvents" channel="conferenceStarted" />
     <bean id="conferenceStartedEvents" class="org.apache.activemq.command.ActiveMQQueue">
 		<constructor-arg value="conferenceStartedEvents"/>
     </bean>
 
 	<!-- conferenceEnded -->
 	<integration:channel id="conferenceEnded" />
-	<integration:channel id="conferenceEndedStrings" />
-	<integration:transformer ref="roomTransformer" input-channel="conferenceEnded" output-channel="conferenceEndedStrings" />
-	<jms:outbound-channel-adapter id="conferenceEndedJmsOut" destination="conferenceEndedEvents" channel="conferenceEndedStrings" />
+	<jms:outbound-channel-adapter id="conferenceEndedJmsOut" destination="conferenceEndedEvents" channel="conferenceEnded" />
     <bean id="conferenceEndedEvents" class="org.apache.activemq.command.ActiveMQQueue">
 		<constructor-arg value="conferenceEndedEvents"/>
     </bean>
