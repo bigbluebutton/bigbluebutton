@@ -21,8 +21,6 @@
  */
 package org.bigbluebutton.deskshare.client.blocks;
 
-import org.bigbluebutton.deskshare.client.net.EncodedBlockData;
-
 public interface ChangedBlocksListener {
-	public void onChangedBlock(EncodedBlockData encodedData);
+	public void onChangedBlock(Integer blockPosition);
 }

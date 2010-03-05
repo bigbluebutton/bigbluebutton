@@ -92,7 +92,7 @@ public class DeskShareApplet extends Applet implements IScreenCaptureListener, C
 		blockManager.addListener(this);
 		blockManager.initialize(screenDim, tileDim);
 	
-		sender = new NetworkStreamSender(host, room, screenDim, tileDim);
+		sender = new NetworkStreamSender(blockManager, host, room, screenDim, tileDim);
 		connected = sender.connect();
 		if (connected) {
 			captureTaker.addListener(this);
@@ -134,8 +134,8 @@ public class DeskShareApplet extends Applet implements IScreenCaptureListener, C
 		destroy();
 	}
 
-	public void onChangedBlock(EncodedBlockData encodedData) {
-		sender.send(encodedData);
+	public void onChangedBlock(Integer blockPosition) {
+		sender.send(blockPosition);
 	}
 	
 	static public void main (String argv[]) {

@@ -24,6 +24,7 @@ package org.bigbluebutton.deskshare.client.blocks;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.Adler32;
 
 import org.bigbluebutton.deskshare.client.net.EncodedBlockData;
@@ -38,7 +39,7 @@ public final class Block {
     private final int position;
     private final Point location;    
     private int[] pixels;
-    private boolean firstTime = true;
+    private AtomicBoolean sendFlag = new AtomicBoolean(false);
     
     Block(Dimension dim, int position, Point location) {
         checksum = new Adler32();
@@ -47,26 +48,31 @@ public final class Block {
         this.location = location;
     }
     
-    public void updateBlock(BufferedImage capturedScreen) {	
-    	synchronized(this) {     	
-        	try {
-    			pixels = ScreenVideoEncoder.getPixels(capturedScreen, getX(), getY(), getWidth(), getHeight());
-        	} catch (PixelExtractException e) {
-        		System.out.println(e.toString());
-    		}    		
+    public boolean hasChanged(BufferedImage capturedScreen) {	 
+    	synchronized(this) {
+            try {
+        		pixels = ScreenVideoEncoder.getPixels(capturedScreen, getX(), getY(), getWidth(), getHeight());
+            } catch (PixelExtractException e) {
+            	System.out.println(e.toString());
+        	}    	
+            
+            if (! checksumSame()) {
+            	sendFlag.compareAndSet(false, true);
+            	return true;
+            }   		
     	}
+    	
+        return false;
     }
-    
-    public boolean hasChanged() {
-    	if (firstTime) {
-    		firstTime = false;
-    		return true;
-    	}
-    	return ! checksumSame();
-    }
-    
-    public  EncodedBlockData encode() {    	
-        byte[] encodedBlock = ScreenVideoEncoder.encodePixels(pixels, getWidth(), getHeight()); 	        
+        
+    public EncodedBlockData encode() {   
+    	int[] pixelsCopy = new int[pixels.length];
+    	synchronized (this) {           
+            System.arraycopy(pixels, 0, pixelsCopy, 0, pixels.length);
+		}
+    	
+        byte[] encodedBlock = ScreenVideoEncoder.encodePixels(pixelsCopy, getWidth(), getHeight()); 	
+        sendFlag.compareAndSet(true, false);
         return new EncodedBlockData(position, encodedBlock);		
     }
     

@@ -26,12 +26,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import net.jcip.annotations.ThreadSafe;
+
+import org.bigbluebutton.deskshare.client.blocks.BlockManager;
 import org.bigbluebutton.deskshare.common.Dimension;
 
 @ThreadSafe
 public class NetworkStreamSender implements NextBlockRetriever {	
 	private ExecutorService executor;	
-    private final BlockingQueue<EncodedBlockData> blockDataQ = new LinkedBlockingQueue<EncodedBlockData>();
+    private final BlockingQueue<Integer> blockDataQ = new LinkedBlockingQueue<Integer>();
     
     private final int numThreads;
     private final String host;
@@ -42,8 +44,10 @@ public class NetworkStreamSender implements NextBlockRetriever {
     private int numRunningThreads = 0;
 	private Dimension screenDim;
 	private Dimension blockDim;
+	private BlockManager blockManager;
 	
-	public NetworkStreamSender(String host, String room, Dimension screenDim, Dimension blockDim) {
+	public NetworkStreamSender(BlockManager blockManager, String host, String room, Dimension screenDim, Dimension blockDim) {
+		this.blockManager = blockManager;
 		this.host = host;
 		this.room = room;
 		this.screenDim = screenDim;
@@ -85,8 +89,8 @@ public class NetworkStreamSender implements NextBlockRetriever {
 		senders[i].connect(host);		
 	}
 	
-	public void send(EncodedBlockData data) {
-		blockDataQ.offer(data);
+	public void send(Integer blockPosition) {
+		blockDataQ.offer(blockPosition);
 	}
 	
 	public void start() {
@@ -126,6 +130,7 @@ public class NetworkStreamSender implements NextBlockRetriever {
 	}
 	
 	public EncodedBlockData fetchNextBlockToSend() throws InterruptedException {
-		return (EncodedBlockData) blockDataQ.take();
+		Integer position = (Integer) blockDataQ.take();
+		return blockManager.getBlock(position).encode();
 	}
 }
