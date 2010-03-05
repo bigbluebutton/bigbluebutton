@@ -61,7 +61,6 @@ public class BlockManager {
         for (int position = 1; position <= numberOfBlocks; position++) {
         	Block block = blocksMap.get(new Integer(position));
         	if (block.hasChanged(capturedScreen)) {
-        		System.out.println("Block " + block.getPosition() + " has changed.");
         		notifyChangedBlockListener(new Integer(block.getPosition()));
         	}
         }
