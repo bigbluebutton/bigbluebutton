@@ -188,8 +188,7 @@ class ApiController {
 			role = ROLE_ATTENDEE;
 		}
 		if (role == null) {
-			invalid("invalidPassword", "You either did not supply a password or the password supplied is neither the attendee or moderator password for this conference.");
-			return;
+			invalidPassword("You either did not supply a password or the password supplied is neither the attendee or moderator password for this conference."); return;
 		}
 		
 		
@@ -255,6 +254,7 @@ class ApiController {
 
 		String mtgToken = params.meetingToken
 		String mtgID = params.meetingID
+		String callPW = params.password
 
 		// check for existing:
 		DynamicConference conf = dynamicConferenceService.findConference(mtgToken, mtgID);
@@ -265,6 +265,10 @@ class ApiController {
 			return;
 		}
 		
+		if (conf.getModeratorPassword().equals(callPW) == false) {
+			invalidPassword("You must supply the moderator password for this call."); return;
+		}
+
 		respondWithConferenceDetails(conf, room, null, null);
 	}
 	
@@ -378,6 +382,10 @@ class ApiController {
 				}
 			}
 		}
+	}
+	
+	def invalidPassword(msg) {
+		invalid("invalidPassword", msg);
 	}
 	
 	def invalidChecksum() {
