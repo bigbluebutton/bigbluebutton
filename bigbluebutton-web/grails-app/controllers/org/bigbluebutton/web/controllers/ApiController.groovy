@@ -327,8 +327,19 @@ class ApiController {
 						attendeePW("${conf.attendeePassword}")
 						moderatorPW("${conf.moderatorPassword}")
 						running(conf.isRunning() ? "true" : "false")
+						startTime("${conf.startTime}")
+						endTime("${conf.endTime}")
 						participantCount(room.getNumberOfParticipants())
 						moderatorCount(room.getNumberOfModerators())
+						attendees() {
+							room.participantCollection.each { att ->
+								attendee() {
+									userID("${att.userid}")
+									fullName("${att.name}")
+									role("${att.role}")
+								}
+							}
+						}
 						messageKey(msgKey == null ? "" : msgKey)
 						message(msg == null ? "" : msg)
 					}

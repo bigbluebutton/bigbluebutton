@@ -127,6 +127,10 @@ public class Room implements Serializable {
 		return unmodifiableMap
 	}	
 	
+	public Collection<Participant> getParticipantCollection() {
+		return participants.values();
+	}
+	
 	public int getNumberOfParticipants() {
 		log.debug("Returning number of participants: " + participants.size())
 		return participants.size()
