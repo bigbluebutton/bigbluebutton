@@ -28,7 +28,7 @@ class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension) exte
 			for (i: Int <- 0 until blankPixels.length) {
 				blankPixels(i) = 0xFFFF;
 			}
-			val encodedPixels = ScreenVideoEncoder.encodePixels(blankPixels, dim.width, dim.height, false, true)
+			val encodedPixels = ScreenVideoEncoder.encodePixels(blankPixels, dim.width, dim.height)
 			block.update(encodedPixels, true)
 			blocksMap.put(position, block)
 		}

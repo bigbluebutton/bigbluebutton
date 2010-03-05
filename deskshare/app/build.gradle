@@ -2,7 +2,7 @@ usePlugin 'scala'
 usePlugin 'java'
 usePlugin 'war'
 
-version = '0.62'
+version = '0.64'
 
 jar.enabled = true
 
