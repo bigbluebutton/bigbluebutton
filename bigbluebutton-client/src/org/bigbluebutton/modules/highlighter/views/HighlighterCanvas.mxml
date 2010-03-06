@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:mate="http://mate.asfusion.com/"
 	mouseDown="doMouseDown()" mouseMove="doMouseMove()" mouseUp="doMouseUp()" creationComplete="init()" visible="false"
-	mouseOver="setCursor()" mouseOut="removeCursor()">
+	mouseOver="setCursor()" mouseOut="removeCursor()" implements="org.bigbluebutton.common.IBbbCanvas">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.common.IBbbCanvas;
+			import mx.controls.Alert;
+			import org.bigbluebutton.modules.present.events.CrossModuleSlideZoomMoveEvent;
 			import mx.managers.CursorManager;
 			import org.bigbluebutton.common.Images;
 			import mx.collections.ArrayCollection;
@@ -32,6 +35,7 @@
 			
 			protected var drawFactory:DrawObjectFactory;
 			protected var shapeFactory:ShapeFactory;
+			protected var bbbCanvas:IBbbCanvas;
 		
 			protected var shapeStyle:String = DrawObject.PENCIL;
 			protected var drawColor:uint = 0xCCFF00;
@@ -59,7 +63,9 @@
 			*/
 			private function doMouseUp():void{
 				isDrawing = false;
-				this.d = drawFactory.makeDrawObject(this.shapeStyle,segment, this.drawColor, this.thickness);
+				this.d = drawFactory.makeDrawObject(this.shapeStyle, segment, this.drawColor, this.thickness);
+				this.d.parentHeight = this.height;
+				this.d.parentWidth = this.width;
 				var event:HighlighterDrawEvent = new HighlighterDrawEvent(HighlighterDrawEvent.SEND_SHAPE);
 				event.message = d;
 				dispatchEvent(event);
@@ -121,8 +127,11 @@
 			
 			private function draw(o:DrawObject):void{
 				newShape = shapeFactory.makeShape(o);
+				newShape.width = newShape.width * (this.width/o.parentWidth);
+				newShape.height = newShape.height * (this.height/o.parentHeight);
 	            shapeList.push(newShape);
-	            rawChildren.addChild(shapeList[shapeList.length-1]);
+	            //rawChildren.addChild(shapeList[shapeList.length-1]);
+	            bbbCanvas.addRawChild(shapeList[shapeList.length-1]);
 	            segment = new Array();
 	            newShape = new Shape();
 			}
@@ -159,8 +168,8 @@
 			 */
 			public function clearBoard(event:HighlighterUpdate = null):void{
 				for (var i:Number = 0; i<this.shapeList.length; i++){
-					if (this.rawChildren.contains(this.shapeList[i])){
-						this.rawChildren.removeChild(this.shapeList[i]);	
+					if (this.bbbCanvas.doesContain(this.shapeList[i])){
+						this.bbbCanvas.removeRawChild(this.shapeList[i]);	
 					}
 				}
 				this.shapeList = new Array();
@@ -168,7 +177,7 @@
 			
 			public function undoShape(event:HighlighterUpdate):void{
 				if (this.shapeList.length > 0){
-					this.rawChildren.removeChild(this.shapeList[this.shapeList.length-1]);
+					this.bbbCanvas.removeRawChild(this.shapeList[this.shapeList.length-1]);
 					shapeList.pop();
 				}
 			}
@@ -190,8 +199,7 @@
 			}
 			
 			private function scaleCanvas(e:WindowResizedEvent):void{
-				this.scaleX = this.scaleX * (e.width/e.old_width);
-				this.scaleY = this.scaleY * (e.height/e.old_height);
+				zoomCanvas(e.width, e.height);
 			}
 			
 			private function changePage(e:PageEvent):void{
@@ -204,11 +212,12 @@
 				}
 			}
 			
-			private function zoomAndMove():void{
-				/*this.x = e.x;
-				this.y = e.y;
-				var zoomX:Number = e.slideWidth/this.width - 1;
-				var zoomY:Number = e.slideHeight/this.height - 1;*/
+			private function zoomAndMove(e:CrossModuleSlideZoomMoveEvent):void{
+				for (var i:int = 0; i<this.shapeList.length; i++){
+					var s:Shape = this.shapeList[i] as Shape;
+					//s.x = e.x * 2;
+					//s.y = e.y * 2;
+				}
 			}
 			
 			private function modifyEnabled(e:HighlighterUpdate):void{
@@ -223,6 +232,39 @@
 				CursorManager.removeCursor(CursorManager.currentCursorID);
 			}
 			
+			/** Inherited from org.bigbluebutton.common.IBbbCanvas*/
+			public function addRawChild(child:DisplayObject):void{
+				this.rawChildren.addChild(child);
+			}
+			
+			public function removeRawChild(child:DisplayObject):void{
+				this.rawChildren.removeChild(child);
+			}
+			
+			public function doesContain(child:DisplayObject):Boolean{
+				return this.rawChildren.contains(child);
+			}
+			
+			public function acceptOverlayCanvas(overlay:IBbbCanvas):void{
+				this.bbbCanvas = overlay;
+			}
+			
+			public function moveCanvas(x:int, y:int):void{
+				this.x = x;
+				this.y = y;
+			}
+			
+			public function zoomCanvas(width:int, height:int):void{
+				for (var i:int = 0; i<this.shapeList.length; i++){
+					var s:Shape = this.shapeList[i] as Shape;
+					s.width = s.width * (width /this.width);
+					s.height = s.height * (height /this.height);
+				}
+				
+				this.width = width;
+				this.height = height;
+			}
+			
 		]]>
 	</mx:Script>
 	
@@ -231,6 +273,7 @@
 	<mate:Listener type="{HighlighterUpdate.BOARD_UPDATED}" method="drawSegment" />
 	<mate:Listener type="{HighlighterUpdate.SHAPE_UNDONE}" method="undoShape" />
 	<mate:Listener type="{WindowResizedEvent.PRESENTATION_WINDOW_RESIZED_EVENT}" method="scaleCanvas" />
+	<mate:Listener type="{CrossModuleSlideZoomMoveEvent.SLIDE_MOVE}" method="zoomAndMove" />
 	<mate:Listener type="{PageEvent.CHANGE_PAGE}" method="changePage" />
 	<mate:Listener type="{HighlighterUpdate.BOARD_ENABLED}" method="modifyEnabled" />
 </mx:Canvas>

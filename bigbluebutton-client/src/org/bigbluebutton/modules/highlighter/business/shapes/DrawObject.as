@@ -39,6 +39,8 @@ package org.bigbluebutton.modules.highlighter.business.shapes
 		protected var shape:Array;
 		protected var color:uint;
 		protected var thickness:uint;
+		public var parentWidth:Number;
+		public var parentHeight:Number;
 		
 		/**
 		 * The default constructor for the DrawObject 

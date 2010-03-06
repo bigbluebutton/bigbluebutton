@@ -99,7 +99,7 @@ package org.bigbluebutton.modules.highlighter.business
 		public function sendShape(e:HighlighterDrawEvent):void{
 			var shape:DrawObject = e.message;
 			try{
-				drawSO.send("addSegment", shape.getShapeArray(), shape.getType(), shape.getColor(), shape.getThickness());	
+				drawSO.send("addSegment", shape.getShapeArray(), shape.getType(), shape.getColor(), shape.getThickness(), shape.parentWidth, shape.parentHeight);	
 			} catch(e:Error){
 				LogUtil.error("DrawProxy::sendShape - sending shape failed");
 			}
@@ -110,8 +110,10 @@ package org.bigbluebutton.modules.highlighter.business
 		 * @param array The array representation of a shape
 		 * 
 		 */		
-		public function addSegment(array:Array, type:String, color:uint, thickness:uint):void{
+		public function addSegment(array:Array, type:String, color:uint, thickness:uint, parentWidth:Number, parentHeight:Number):void{
 			var d:DrawObject = drawFactory.makeDrawObject(type,array,color,thickness);
+			d.parentWidth = parentWidth;
+			d.parentHeight = parentHeight;
 			var e:HighlighterUpdate = new HighlighterUpdate(HighlighterUpdate.BOARD_UPDATED);
 			e.data = d;
 			dispatcher.dispatchEvent(e);

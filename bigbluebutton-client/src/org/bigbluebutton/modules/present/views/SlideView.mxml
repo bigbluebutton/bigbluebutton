@@ -20,14 +20,15 @@
   $Id: $
 --> 
 
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mate="http://mate.asfusion.com/"
-	xmlns:panzoom="com.adobe.wheelerstreet.fig.panzoom.*"
 	xmlns:local="*"
     width="100%" height="100%" 
-    horizontalAlign="center" paddingBottom="5" 
+    paddingBottom="5" 
     creationComplete="onCreationComplete()" verticalScrollPolicy="off" horizontalScrollPolicy="off"      
-    rollOut="hideCursor()">
+    rollOut="hideCursor()"
+    xmlns:views="org.bigbluebutton.modules.present.views.*"
+    implements="org.bigbluebutton.common.IBbbCanvas">
     
     <mate:Listener type="{ZoomEvent.ZOOM}" method="handleZoomEvent" />
     <mate:Listener type="{MoveEvent.MOVE}" method="handleMoveEvent" />
@@ -40,6 +41,9 @@
     
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.common.IBbbCanvas;
+			import mx.controls.Alert;
+			import org.bigbluebutton.modules.present.events.CrossModuleSlideZoomMoveEvent;
 			import org.bigbluebutton.modules.present.events.UploadEvent;
 			import org.bigbluebutton.modules.present.events.SlideResizedEvent;
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
@@ -84,6 +88,8 @@
 			private var loaderYOnMouseDown:int;
 						
 			private var cursor:Shape;
+			private var overlayChildrenHolder:Canvas = new Canvas();
+			private var overlayCanvas:IBbbCanvas;
 			
 			//The following few variables concern text selection
 			private var slideClip:MovieClip;
@@ -104,8 +110,13 @@
 				cursor = new Shape();
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
 				cursor.graphics.drawCircle(0,0,3);
-				slideCanvas.rawChildren.addChild(cursor);
+				this.rawChildren.addChild(cursor);
 				cursor.visible = false;
+				
+				overlayChildrenHolder = new Canvas();
+				this.addChild(overlayChildrenHolder);
+				overlayChildrenHolder.x = 0;
+				overlayChildrenHolder.y = 0;
 			}
 					
 			private function onMouseDown(e:MouseEvent):void{						
@@ -139,13 +150,6 @@
 				presentEvent.slideToCanvasHeightRatio = getHeightRatioBetweenCanvasAndLoader();
 				dispatchEvent(presentEvent);
 			}
-
-			private function handleMoveEvent(e:MoveEvent):void{
-				savePresentersSettings(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);				
-				if (participantShouldHandleMessage()) {
-					resizeAndMoveLoaderInRelationToCanvas();
-				}				
-			}
 			
 			private function participantShouldHandleMessage():Boolean {
 				// If presenter, then ignore the message because the presenter was the one who sent the event.
@@ -161,9 +165,9 @@
 			}
 			
 			private function handleWindowResizeEvent(event:WindowResizedEvent):void {						
-				slideCanvas.width = event.width;
-				slideCanvas.height = event.height;
-				resizeAndMoveLoaderInRelationToCanvas();				
+				this.width = event.width;
+				this.height = event.height;
+				resizeAndMoveLoaderInRelationToCanvas();		
 			}
 						
 			private function resizeAndMoveLoaderInRelationToCanvas():void {
@@ -179,6 +183,8 @@
 				swfSlideLoader.content.y = loaderY();
 				swfSlideLoader.content.width = loaderWidth();
 				swfSlideLoader.content.height = loaderHeight();	
+				
+				zoomCanvas(loaderWidth(), loaderHeight());
 			}
 									
 			private function fitLoaderToCanvas():void{
@@ -279,12 +285,28 @@
 				// If delta is negative, the presenter is zooming-out of the presentation.
 				return delta < 0;
 			}
+			
+			private function handleMoveEvent(e:MoveEvent):void{
+				savePresentersSettings(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);				
+				if (participantShouldHandleMessage()) {
+					resizeAndMoveLoaderInRelationToCanvas();
+				}			
+				
+				/*var event:CrossModuleSlideZoomMoveEvent = new CrossModuleSlideZoomMoveEvent(CrossModuleSlideZoomMoveEvent.SLIDE_MOVE);
+				event.x = loaderX();
+				event.y = loaderY();
+				dispatchEvent(event);*/
+				
+				moveCanvas(loaderX(), loaderY());
+			}
 									
 			private function handleZoomEvent(e:ZoomEvent):void {
 				savePresentersSettings(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);													
 				if (participantShouldHandleMessage()) {
 					resizeAndMoveLoaderInRelationToCanvas();
 				}
+				
+				zoomCanvas(loaderWidth(), loaderHeight());
 			}
 									
 			private function handleSlideLoadedEvent(e:SlideEvent):void{
@@ -515,27 +537,27 @@
 			
 			/************ Canvas *****************/
 			private function canvasX():int {
-				return slideCanvas.x;
+				return this.x;
 			}
 			
 			private function canvasY():int {
-				return slideCanvas.y;
+				return this.y;
 			}
 			
 			private function canvasMouseX():int {
-				return slideCanvas.mouseX;
+				return this.mouseX;
 			}
 			
 			private function canvasMouseY():int {
-				return slideCanvas.mouseY;
+				return this.mouseY;
 			}
 			
 			private function canvasWidth():int {
-				return slideCanvas.width;
+				return this.width;
 			}
 			
 			private function canvasHeight():int {
-				return slideCanvas.height;
+				return this.height;
 			}
 			
 			/************ Loader ******************/
@@ -574,12 +596,45 @@
 			private function hideCursor():void{
 				cursor.visible = false;
 			}			
+			
+			/** Inherited from IBbbCanvas*/
+			public function addRawChild(child:DisplayObject):void{
+				this.overlayChildrenHolder.rawChildren.addChild(child);
+			}
+			
+			public function removeRawChild(child:DisplayObject):void{
+				this.overlayChildrenHolder.rawChildren.removeChild(child);
+			}
+			
+			public function doesContain(child:DisplayObject):Boolean{
+				return this.overlayChildrenHolder.rawChildren.contains(child);
+			}
+			
+			public function acceptOverlayCanvas(overlay:IBbbCanvas):void{
+				overlayCanvas = overlay;
+				var c:Canvas = overlay as Canvas;
+				this.addChild(c);
+				c.x = 0;
+            	c.y = 0;
+			}
+			
+			public function moveCanvas(x:int, y:int):void{
+				overlayChildrenHolder.x = loaderX() * 2;
+				overlayChildrenHolder.y = loaderY() * 2;
+				
+				if (overlayCanvas != null) overlayCanvas.moveCanvas(overlayChildrenHolder.x, overlayChildrenHolder.y);
+			}
+			
+			public function zoomCanvas(width:int, height:int):void{
+				overlayChildrenHolder.width = width;
+				overlayChildrenHolder.height = height;
+				moveCanvas(loaderX(), loaderY());
+				if (overlayCanvas != null) overlayCanvas.zoomCanvas(width, height);
+			}
 		]]>
 	</mx:Script>
 	
-	<mx:Canvas id="slideCanvas" width="100%" height="100%" verticalScrollPolicy="off" horizontalScrollPolicy="off">  
-		<mx:SWFLoader id="swfSlideLoader" width="100%" height="100%" creationComplete="listenForSlideLoadedCompleteEvent()"
+	<mx:SWFLoader id="swfSlideLoader" width="100%" height="100%" creationComplete="listenForSlideLoadedCompleteEvent()"
     		scaleContent="false" maintainAspectRatio="true" showBusyCursor="true" completeEffect="Fade"/>    	
-	</mx:Canvas>  
 		      		 
-</mx:VBox>
+</mx:Canvas>

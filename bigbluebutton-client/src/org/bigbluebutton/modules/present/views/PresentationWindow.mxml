@@ -29,7 +29,6 @@
 	showCloseButton="false"
     verticalScrollPolicy="off" horizontalScrollPolicy="off"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
-	mouseMove="hideThumbnails()"
 	creationComplete="onCreationComplete()"
 	resize="maximizeHandler()"
 	rollOut="hideThumbs()" xmlns:mate="http://mate.asfusion.com/"
@@ -50,6 +49,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.common.IBbbCanvas;
 			import mx.events.ResizeEvent;
 			import flexlib.containers.DockableToolBar;
 			import org.bigbluebutton.modules.present.events.AddPresentationToolbarEvent;
@@ -136,8 +136,6 @@
 			}
 			
 			private function onCreationComplete():void{
-				positionThumbnails();
-				thumbnailWindow.addEventListener(FisheyeThumbnail.SLIDE_HIGHLIGHTED, onSlideHighlighted);
 				thumbY = this.height - 160;
 				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
 			}
@@ -192,8 +190,8 @@
 				var dispEvent:WindowResizedEvent = new WindowResizedEvent(WindowResizedEvent.PRESENTATION_WINDOW_RESIZED_EVENT);
 				dispEvent.width = slideWidth;
 				dispEvent.height = slideHeight;
-				dispEvent.old_width = this.slideView.slideCanvas.width;
-				dispEvent.old_height = this.slideView.slideCanvas.height;
+				dispEvent.old_width = this.slideView.width;
+				dispEvent.old_height = this.slideView.height;
 				dispatcher.dispatchEvent(dispEvent);
 			}
 			
@@ -217,11 +215,7 @@
 				case Keyboard.ENTER:
 					gotoNextSlide();
 				break; 
-			}
-			}
-			
-			private function positionThumbnails():void{
-				this.thumbnailWindow.y = this.mainCanvas.height*0.9;
+				}
 			}
 			
 			public function get xPosition():int {
@@ -262,28 +256,12 @@
 				fitSlideToWindowMaintainingAspectRatio();
 			}
 			
-			private function hideThumbnails():void{
-				if (!mouseDown && mouseY > this.height*0.90 && isPresenter){
-					thumbnailWindow.y = this.height - 270;
-					thumbnailWindow.visible = true;
-				} else if (slideView.slides != null){
-					displaySlideNumber(slideView.selectedSlide + 1);
-				}
-			}
-			
-			private function onSlideHighlighted(e:Event):void{
-				if (slideView.visible)
-					displaySlideNumber(thumbnailWindow.slideNumber + 1);
-			}
-			
 			/**
 			 * Hide the thumbnails in case the user moves the mouse outside this window
 			 */
 			private function hideThumbs():void{
 				if (slideView.slides != null)
 					displaySlideNumber(slideView.selectedSlide + 1);
-				
-				thumbnailWindow.visible = false;
 			}
 			
 			private function showThumbsXXX():void {
@@ -291,7 +269,6 @@
 					//readjust the position of the thumbnails in case the window was resized
 					//Note: this is necessary because the MDIWindow does not let you listen to the resize() event!
 					thumbY = this.height - 150;
-					thumbnailWindow.visible = true;
 				}				
 			}
 			
@@ -313,10 +290,6 @@
 			private function handleSlideResizedEvent(e:SlideResizedEvent):void{
 				zoomSlider.value = e.percent;
 			}
-			
-			private function onCanvasClick():void{
-				thumbnailWindow.visible = false;
-			}
 						
 			private function becomePresenter(e:MadePresenterEvent):void{
 				setupPresenter(true, e.presenterName);
@@ -334,7 +307,6 @@
 				if (presentationLoaded) {
 	            	displaySlideNumber(slideView.selectedSlide + 1);	
 					displaySlideNavigationControls(isPresenter);
-					if (isPresenter) initializeThumbnails();
 					showUploadPresentationLabel(false);
 				} else {
 					if (isPresenter)
@@ -344,16 +316,10 @@
 				}
 				
 				setPresentersName(presentersName);				
-				showFisheyeThumbnail(isPresenter);
 			}
 			
 			private function setPresentersName(name:String):void {
 				if (name != null) presenterName = name;
-			}
-			
-			private function showFisheyeThumbnail(show:Boolean):void {
-				thumbnailWindow.visible = show;
-				thumbnailWindow.setFisheyeVisibility(show);
 			}
 			
 			private function handlePresentationLoadedEvent(e:PresentationEvent):void {	
@@ -370,15 +336,9 @@
 				if (isPresenter) {
 					displaySlideNavigationControls(true);					
 					notifyOthersOfSharingPresentation(e.presentationName);
-					initializeThumbnails();	
 				} else {
 					dispatchEvent(new SlideEvent(SlideEvent.LOAD_CURRENT_SLIDE));
 				}
-			}
-			
-			private function initializeThumbnails():void {
-				thumbnailWindow.fisheye.selectedIndex = 0;
-				thumbnailWindow.setDataProvider(slideView.slides);
 			}
 			
 			private function displaySlideNavigationControls(show:Boolean):void {
@@ -466,10 +426,8 @@
             }
             
             private function addOverlayCanvas(e:AddOverlayCanvasEvent):void{
-            	var canvas:Canvas = e.canvas;
-            	this.mainCanvas.addChild(canvas);
-            	canvas.x = 0;
-            	canvas.y = 0;
+            	slideView.acceptOverlayCanvas(e.canvas);
+            	e.canvas.acceptOverlayCanvas(slideView);
             }
             
             private function addToolbar(e:AddPresentationToolbarEvent):void{
@@ -493,12 +451,8 @@
 	<mx:Fade id="thumbFadeIn" alphaFrom="1" alphaTo="0" duration="100" />
 	<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />
 
-	<mx:Canvas id="mainCanvas" width="100%" height="100%" resize="positionThumbnails()" mouseDown="mouseDown = true"
-		mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off" click="onCanvasClick()">
-		<thumb:SlideView id="slideView" width="100%" height="100%" visible="false"/>
-		<thumb:FisheyeThumbnail y="{thumbY}" id="thumbnailWindow" width="100%" height="100%" visible="false" backgroundAlpha="1" 
-			verticalScrollPolicy="off" horizontalScrollPolicy="off" verticalCenter="top"/>
-	</mx:Canvas>
+	<thumb:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" 
+			mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off" />
 			    
     <mx:ApplicationControlBar id="presCtrlBar" width="100%" height="{CONTROL_BAR_HEIGHT}">
     	  <mx:Button id="uploadPres" icon="{uploadIcon}" visible="false" width="20" height="20"
@@ -516,7 +470,7 @@
     		useHandCursor="true" snapInterval="5" allowTrackClick="true" liveDragging="true" 
     		dataTipFormatFunction="removeDecimalFromDataTip" change="onSliderZoom()" width="100"/>
     	<mx:Spacer width="50%" id="spacer3"/>
-    	<containers:Docker id="toolbarDocker" height="100%" width="250" />
+    	<containers:Docker id="toolbarDocker" height="100%" width="250" visible="{isPresenter}" />
     	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="false" width="20" height="20" 
     		toolTip="Reset Zoom" click="onResetZoom()"/>
     	<mx:Spacer width="5" id="spacer4"/>

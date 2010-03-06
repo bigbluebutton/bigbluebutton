@@ -3,7 +3,6 @@ package org.bigbluebutton.modules.highlighter.managers
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import mx.collections.ArrayCollection;
-	import mx.controls.Alert;
 	
 	import org.bigbluebutton.modules.highlighter.events.HighlighterUpdate;
 	import org.bigbluebutton.modules.highlighter.events.PageEvent;
@@ -30,7 +29,8 @@ package org.bigbluebutton.modules.highlighter.managers
 		}
 		
 		public function undoShapeFromPage():void{
-			(pages.getItemAt(pageNum) as ArrayCollection).removeItemAt(pages.length - 1);
+			var page:ArrayCollection = pages.getItemAt(pageNum) as ArrayCollection;
+			if (page.length > 0) page.removeItemAt(page.length - 1);
 		}
 		
 		public function clearPage():void{
