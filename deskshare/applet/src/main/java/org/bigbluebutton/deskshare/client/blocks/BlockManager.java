@@ -66,7 +66,7 @@ public class BlockManager {
         }
         
 		long end = System.currentTimeMillis();
-		System.out.println("ProcessCapturedScreen took " + (end-start) + " ms.");
+//		System.out.println("ProcessCapturedScreen took " + (end-start) + " ms.");
     }
     
     private void notifyChangedBlockListener(Integer position) {

@@ -30,7 +30,7 @@ public class ScreenCaptureTaker implements Runnable {
 	private volatile boolean startCapture = false;
 		
 	public ScreenCaptureTaker(ScreenCapture capture){
-		System.out.println("Capture thread constructor.");
+//		System.out.println("Capture thread constructor.");
 		this.capture = capture;
 	}
 	
@@ -40,12 +40,11 @@ public class ScreenCaptureTaker implements Runnable {
 			BufferedImage image = capture.takeSingleSnapshot();
 			notifyListeners(image);
 			try{
-				System.out.println("Going to sleeeeeep.");
+//				System.out.println("Going to sleeeeeep.");
 				Thread.sleep(1000);
-				System.out.println("Just woke up.");
+//				System.out.println("Just woke up.");
 			} catch (Exception e){
 				System.out.println("Exception sleeping.");
-				System.exit(0);
 			}
 		}
 		

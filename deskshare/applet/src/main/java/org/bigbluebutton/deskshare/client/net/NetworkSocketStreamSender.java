@@ -83,8 +83,8 @@ public class NetworkSocketStreamSender implements Runnable {
 			sendHeader(BlockStreamProtocolEncoder.encodeHeaderAndLength(dataToSend));
 			sendToStream(dataToSend);
 			long end = System.currentTimeMillis();
-			if ((end - start) > 200)
-				System.out.println("Sending " + dataToSend.size() + " bytes took " + (end - start) + "ms");
+//			if ((end - start) > 200)
+//				System.out.println("Sending " + dataToSend.size() + " bytes took " + (end - start) + "ms");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -93,11 +93,11 @@ public class NetworkSocketStreamSender implements Runnable {
 	}
 	
 	private void sendHeader(byte[] header) throws IOException {
-		outstream.write(header);
+		if (outstream != null) outstream.write(header);
 	}
 	
 	private void sendToStream(ByteArrayOutputStream dataToSend) throws IOException {
-		dataToSend.writeTo(outstream);
+		if (outstream != null) dataToSend.writeTo(outstream);
 	}
 	
 	public void disconnect() throws ConnectionException {
@@ -123,13 +123,21 @@ public class NetworkSocketStreamSender implements Runnable {
 			try {
 				block = retriever.fetchNextBlockToSend();
 				BlockVideoData	bv = new BlockVideoData(room, block.getPosition(), block.getVideoData(), false /* should remove later */);	
-				System.out.println("Sending block " + block.getPosition());
+//				System.out.println("Sending block " + block.getPosition());
 				sendBlock(bv);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}					
 		}
-
+		
+		try {
+			outstream.close();
+			outstream = null;
+			socket.close();		
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

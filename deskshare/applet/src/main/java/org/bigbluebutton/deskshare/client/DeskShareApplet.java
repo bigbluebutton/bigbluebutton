@@ -24,12 +24,9 @@ package org.bigbluebutton.deskshare.client;
 import java.applet.Applet;
 
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-
 import org.bigbluebutton.deskshare.client.blocks.BlockManager;
 import org.bigbluebutton.deskshare.client.blocks.ChangedBlocksListener;
 import org.bigbluebutton.deskshare.client.net.ConnectionException;
-import org.bigbluebutton.deskshare.client.net.EncodedBlockData;
 import org.bigbluebutton.deskshare.client.net.NetworkStreamSender;
 import org.bigbluebutton.deskshare.common.Dimension;
 
@@ -50,11 +47,12 @@ public class DeskShareApplet extends Applet implements IScreenCaptureListener, C
 	private String host = "192.168.0.182";
 	
 	boolean connected = false;
-	private boolean senderStarted = false;
+	private boolean started = false;
 	private NetworkStreamSender sender;
 	
 	public void init() {
 		System.out.println("(c) 2010 Blindside Networks. All Rights Reserved.");
+		System.out.println("Deskshare Applet v0.64");
 		screenWidth = Integer.parseInt(getParameter("CAPTURE_WIDTH"));
 		screenHeight = Integer.parseInt(getParameter("CAPTURE_HEIGHT"));
 				
@@ -63,23 +61,11 @@ public class DeskShareApplet extends Applet implements IScreenCaptureListener, C
 		room = getParameter("ROOM");
 		host = getParameter("IP");
 	}
-	
-	public void stop() {
-		System.out.println("Stopping applet");
-		captureTaker.setCapture(false);
-		if (connected) {
-			try {
-				if (senderStarted)
-					sender.stop();
-			} catch (ConnectionException e) {
-				e.printStackTrace();
-			}
-		}			
-	}
-	
+		
 	public void start() {		 
-		System.out.println("Deskshare Applet start");		
+		System.out.println("Start");		
 		startCapture();		
+		started = true;
 	}
 
 	public void startCapture() {
@@ -110,13 +96,22 @@ public class DeskShareApplet extends Applet implements IScreenCaptureListener, C
 	 * close the stream.
 	 */
 	public void destroy() {
-		try {
-			sender.stop();
-		} catch (ConnectionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		System.out.println("Destroy");
 		stop();
+	}
+
+	public void stop() {
+		System.out.println("Stop");
+		captureTaker.setCapture(false);
+		if (connected && started) {
+			try {
+				sender.stop();
+				started = false;
+				connected = false;
+			} catch (ConnectionException e) {
+				e.printStackTrace();
+			}
+		}			
 	}
 	
 	public void setScreenCoordinates(int x, int y) {

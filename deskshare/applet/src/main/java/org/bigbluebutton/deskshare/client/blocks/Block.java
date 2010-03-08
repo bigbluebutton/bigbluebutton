@@ -58,10 +58,10 @@ public final class Block {
             
             if (! checksumSame()) {
             	if (sendFlag.compareAndSet(false, true)) {
-            		System.out.println("Block " + position + " has changed. Need to send it.");
+//            		System.out.println("Block " + position + " has changed. Need to send it.");
             		return true;
             	} else {
-            		System.out.println("Block " + position + " has changed but is already queued for sending.");
+//            		System.out.println("Block " + position + " has changed but is already queued for sending.");
             		return false;
             	}
             }   		

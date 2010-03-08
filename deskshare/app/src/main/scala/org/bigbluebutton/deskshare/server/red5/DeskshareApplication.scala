@@ -14,8 +14,7 @@ class DeskshareApplication(streamManager: StreamManager, deskShareServer: DeskSh
 	// load our config file and configure logfiles.
 	Configgy.configure("webapps/deskshare/WEB-INF/deskshare.conf")
  
-	private val logger = Logger.get
- 
+	private val logger = Logger.get 
 	var appScope: IScope = null
  
 	override def appStart(app: IScope): Boolean = {

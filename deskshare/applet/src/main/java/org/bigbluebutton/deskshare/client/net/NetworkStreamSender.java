@@ -41,6 +41,7 @@ public class NetworkStreamSender implements NextBlockRetriever {
     private NetworkSocketStreamSender[] senders;
     private NetworkHttpStreamSender[] httpSenders;
     private boolean tunneling = false;
+    private boolean stopped = true;
     private int numRunningThreads = 0;
 	private Dimension screenDim;
 	private Dimension blockDim;
@@ -103,6 +104,7 @@ public class NetworkStreamSender implements NextBlockRetriever {
 				executor.execute(senders[i]);	
 			}
 		}
+		stopped = false;
 	}
 	
 	public void stop() throws ConnectionException {
@@ -114,7 +116,7 @@ public class NetworkStreamSender implements NextBlockRetriever {
 				senders[i].disconnect();
 			}				
 		}
-	
+		stopped = true;
 		executor.shutdownNow();
 	}
 
@@ -129,8 +131,14 @@ public class NetworkStreamSender implements NextBlockRetriever {
 		return false;
 	}
 	
-	public EncodedBlockData fetchNextBlockToSend() throws InterruptedException {
-		Integer position = (Integer) blockDataQ.take();
+	public EncodedBlockData fetchNextBlockToSend() {
+		Integer position = 1;
+		try {
+			position = (Integer) blockDataQ.take();			
+		} catch (InterruptedException e) {
+			if (!stopped)
+				e.printStackTrace();
+		}
 		return blockManager.getBlock(position).encode();
-	}
+	}	
 }
