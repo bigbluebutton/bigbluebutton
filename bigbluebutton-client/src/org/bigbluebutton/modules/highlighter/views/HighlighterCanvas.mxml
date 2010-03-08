@@ -5,8 +5,6 @@
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.common.IBbbCanvas;
-			import mx.controls.Alert;
-			import org.bigbluebutton.modules.present.events.CrossModuleSlideZoomMoveEvent;
 			import mx.managers.CursorManager;
 			import org.bigbluebutton.common.Images;
 			import mx.collections.ArrayCollection;
@@ -212,14 +210,6 @@
 				}
 			}
 			
-			private function zoomAndMove(e:CrossModuleSlideZoomMoveEvent):void{
-				for (var i:int = 0; i<this.shapeList.length; i++){
-					var s:Shape = this.shapeList[i] as Shape;
-					//s.x = e.x * 2;
-					//s.y = e.y * 2;
-				}
-			}
-			
 			private function modifyEnabled(e:HighlighterUpdate):void{
 				this.visible = e.boardEnabled;
 			}
@@ -273,7 +263,6 @@
 	<mate:Listener type="{HighlighterUpdate.BOARD_UPDATED}" method="drawSegment" />
 	<mate:Listener type="{HighlighterUpdate.SHAPE_UNDONE}" method="undoShape" />
 	<mate:Listener type="{WindowResizedEvent.PRESENTATION_WINDOW_RESIZED_EVENT}" method="scaleCanvas" />
-	<mate:Listener type="{CrossModuleSlideZoomMoveEvent.SLIDE_MOVE}" method="zoomAndMove" />
 	<mate:Listener type="{PageEvent.CHANGE_PAGE}" method="changePage" />
 	<mate:Listener type="{HighlighterUpdate.BOARD_ENABLED}" method="modifyEnabled" />
 </mx:Canvas>

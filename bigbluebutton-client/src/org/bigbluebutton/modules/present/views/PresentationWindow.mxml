@@ -406,10 +406,6 @@
 					currentState = "dispUploadPresLabel";
 				}				
 			}
-			
-			private function enableTextSelection():void{
-				slideView.turnOnTextSelection();
-			}
 
 			private function gotoPreviousSlide():void {
 				if ((slideView.selectedSlide - 1) >= 0)

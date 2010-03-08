@@ -42,8 +42,6 @@
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.common.IBbbCanvas;
-			import mx.controls.Alert;
-			import org.bigbluebutton.modules.present.events.CrossModuleSlideZoomMoveEvent;
 			import org.bigbluebutton.modules.present.events.UploadEvent;
 			import org.bigbluebutton.modules.present.events.SlideResizedEvent;
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
@@ -290,12 +288,7 @@
 				savePresentersSettings(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);				
 				if (participantShouldHandleMessage()) {
 					resizeAndMoveLoaderInRelationToCanvas();
-				}			
-				
-				/*var event:CrossModuleSlideZoomMoveEvent = new CrossModuleSlideZoomMoveEvent(CrossModuleSlideZoomMoveEvent.SLIDE_MOVE);
-				event.x = loaderX();
-				event.y = loaderY();
-				dispatchEvent(event);*/
+				}
 				
 				moveCanvas(loaderX(), loaderY());
 			}
@@ -421,92 +414,7 @@
 				dispEvent.slideHeight = slideRealHeight;
 				dispatcher.dispatchEvent(dispEvent);
 			}
-						
-			/************************************************************
-			 * Methods supporting text selection within the slide.
-			 ************************************************************/
-			public function turnOnTextSelection():void{
-				slideClip = swfSlideLoader.content as MovieClip;
-				slideText = slideClip.textSnapshot;
-				swfSlideLoader.addEventListener(MouseEvent.MOUSE_DOWN, onTextMouseDown);
-				swfSlideLoader.addEventListener(MouseEvent.MOUSE_UP, onTextMouseUp);
-				swfSlideLoader.addEventListener(MouseEvent.MOUSE_OUT, onTextMouseOut);
-				slideText.setSelectColor(0xFFFF00);
-			}
-			
-			private function onTextMouseDown(e:MouseEvent):void{
-				swfSlideLoader.addEventListener(MouseEvent.MOUSE_MOVE, onTextMouseMove);
-				//NOTE: hitTestTextNearPos() seems to be failing me right now. Something about font metrics according to documentation. -Denis Zgonjanin, Jan 15 2010
-				firstChar = slideText.hitTestTextNearPos(slideClip.mouseX, slideClip.mouseY, 0);
-				selectText(0, slideText.charCount, false);
-			}
-			
-			private function onTextMouseMove(e:MouseEvent):void{
-				if (firstChar != -1){
-					selectText(0, slideText.charCount, false)
-					
-					lastChar = slideText.hitTestTextNearPos(slideClip.mouseX, slideClip.mouseY, 0);
-					if (firstChar < lastChar){
-						selectText(firstChar, lastChar + 1, true);
-					} else{
-						selectText(lastChar, firstChar + 1, true);
-					}
-				}
-			}
-			
-			private function onTextMouseUp(e:MouseEvent):void{
-				swfSlideLoader.removeEventListener(MouseEvent.MOUSE_MOVE, onTextMouseMove);
-				
-				if (firstChar >= 0){
-					lastChar = slideText.hitTestTextNearPos(slideClip.mouseX, slideClip.mouseY, 0);
-					if (firstChar != lastChar){
-						if (firstChar < lastChar){
-							selectText(firstChar, lastChar + 1, true);
-						} else{
-							selectText(lastChar, firstChar + 1, true);
-						}
-					}
-					firstChar = -1;
-					lastChar = -1;
-				}
-				swfSlideLoader.removeEventListener(MouseEvent.MOUSE_OUT, onTextMouseOut);
-				swfSlideLoader.removeEventListener(MouseEvent.MOUSE_MOVE, onTextMouseMove);
-			}
-			
-			private function onTextMouseOut(e:MouseEvent):void{
-				swfSlideLoader.removeEventListener(MouseEvent.MOUSE_MOVE, onTextMouseMove);
-				selectText(0, slideText.charCount, false);
-			}
 
-			private function selectText(beginIndex:int, endIndex:int, select:Boolean):void{
-				if (!select){
-					//remove all highlight shapes
-					return;
-				}
-				
-				//first, separate text into lines in case user selects multiple lines
-				var text:String = slideText.getText(beginIndex, endIndex, true);
-				var lines:Array = text.split("\n");
-				
-				//Highlight each row independantly
-				var characterIndex:int = beginIndex;
-				for (var line:int = 0; line<lines.length; line++){
-					var lineLength:int = (lines[line] as String).length;
-					var textInfo:Array = slideText.getTextRunInfo(characterIndex, characterIndex + lineLength);
-					var charWidth:Number = textInfo[1].matrix_tx - textInfo[0].matrix_tx; //how wide is one character
-					var lineWidth:Number = textInfo[textInfo.length - 1].matrix_tx - textInfo[0].matrix_tx + charWidth; //beginning to end of line plus 1 character lenght
-					var charHeight:Number = charWidth * 1.5;//Totally arbitrary
-					var begginingX:Number = textInfo[0].matrix_tx;
-					var begginingY:Number = textInfo[0].matrix_ty;
-					
-					var highlight:Shape = new Shape();
-					highlight.graphics.lineStyle(2,0xFF0000);
-					highlight.graphics.drawRect(0,0,lineWidth,charHeight);
-					slideClip.addChild(highlight);
-					highlight.x = Math.abs(begginingX);
-					highlight.y = Math.abs(begginingY);	
-				}
-			}
 			/*****************************************
 			 * Helper functions
 			 *****************************************/
