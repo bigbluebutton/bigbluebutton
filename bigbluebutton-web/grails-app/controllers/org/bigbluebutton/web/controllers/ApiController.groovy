@@ -22,6 +22,7 @@ package org.bigbluebutton.web.controllers
 
 
 import java.text.MessageFormat;
+import java.util.Collections;
 import org.apache.commons.codec.binary.Hex;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -260,7 +261,7 @@ class ApiController {
 		DynamicConference conf = dynamicConferenceService.findConference(mtgToken, mtgID);
 		Room room = dynamicConferenceService.findRoom(mtgToken, mtgID);
 		
-		if (conf == null || room == null) {
+		if (conf == null) {
 			invalid("notFound", "We could not find a meeting with that token or ID");
 			return;
 		}
@@ -333,10 +334,10 @@ class ApiController {
 						running(conf.isRunning() ? "true" : "false")
 						startTime("${conf.startTime}")
 						endTime("${conf.endTime}")
-						participantCount(room.getNumberOfParticipants())
-						moderatorCount(room.getNumberOfModerators())
+						participantCount(room == null ? 0 : room.getNumberOfParticipants())
+						moderatorCount(room == null ? 0 : room.getNumberOfModerators())
 						attendees() {
-							room.participantCollection.each { att ->
+							room == null ? Collections.emptyList() : room.participantCollection.each { att ->
 								attendee() {
 									userID("${att.userid}")
 									fullName("${att.name}")
