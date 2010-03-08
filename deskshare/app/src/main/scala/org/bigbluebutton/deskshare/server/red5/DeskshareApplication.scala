@@ -8,10 +8,12 @@ import org.red5.server.api.IScope
 
 import net.lag.configgy.Configgy
 import net.lag.logging.Logger
+import java.io.File
 
 class DeskshareApplication(streamManager: StreamManager, deskShareServer: DeskShareServer) extends MultiThreadedApplicationAdapter {
-	// load our config file and configure logfiles:
-	Configgy.configure("/etc/bigbluebutton/deskshare.conf")	
+	// load our config file and configure logfiles.
+	Configgy.configure("webapps/deskshare/WEB-INF/deskshare.conf")
+ 
 	private val logger = Logger.get
  
 	var appScope: IScope = null
