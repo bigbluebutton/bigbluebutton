@@ -86,8 +86,8 @@ public class DeskShareApplet extends Applet implements IScreenCaptureListener, C
 			
 			captureTakerThread = new Thread(captureTaker, "ScreenCaptureTaker");
 			captureTakerThread.start();	
-		}
-		sender.start();
+			sender.start();
+		}		
 	}
 		
 	/**

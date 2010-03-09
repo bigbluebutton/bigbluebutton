@@ -28,7 +28,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
-import org.bigbluebutton.deskshare.client.blocks.Block;
 import org.bigbluebutton.deskshare.common.CaptureEvents;
 import org.bigbluebutton.deskshare.common.Dimension;
 
@@ -69,6 +68,7 @@ public class NetworkHttpStreamSender implements Runnable {
 		 */				
 		try {			
 			url = new URL("http://" + host + SCREEN_CAPTURE__URL);
+			System.out.println("Connecting to " + url.toString());
 			conn = url.openConnection();
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
@@ -80,6 +80,7 @@ public class NetworkHttpStreamSender implements Runnable {
 	}
 	
 	public void sendStartStreamMessage() {
+		System.out.println("Tunneling sendStartStreamMessage");
 		try {
 			openConnection();
 			sendCaptureStartEvent(screenDim, blockDim);
@@ -90,6 +91,7 @@ public class NetworkHttpStreamSender implements Runnable {
 	}
 
 	private void sendCaptureStartEvent(Dimension screen, Dimension block) throws ConnectionException {
+		System.out.println("Tunneling sendCaptureStartEvent");
 		ClientHttpRequest chr;
 		try {
 			chr = new ClientHttpRequest(conn);
@@ -115,6 +117,7 @@ public class NetworkHttpStreamSender implements Runnable {
 	}
 	
 	public void disconnect() throws ConnectionException {
+		System.out.println("Disconnecting http stream");
 		try {
 			openConnection();
 			sendCaptureEndEvent();
@@ -128,7 +131,7 @@ public class NetworkHttpStreamSender implements Runnable {
 	}
 
 	private void sendCaptureEndEvent() throws ConnectionException {
-		System.out.println("Disconnecting http stream");
+		System.out.println("sendCaptureEndEvent http stream");
 		ClientHttpRequest chr;
 		try {
 			chr = new ClientHttpRequest(conn);
@@ -150,6 +153,7 @@ public class NetworkHttpStreamSender implements Runnable {
 			try {
 				block = retriever.fetchNextBlockToSend();
 				BlockVideoData	bv = new BlockVideoData(room, block.getPosition(), block.getVideoData(), false);	
+				System.out.println("Sending block " + block.getPosition());
 				sendBlockData(bv);	
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -159,6 +163,7 @@ public class NetworkHttpStreamSender implements Runnable {
 	}
 	
 	private void sendBlockData(BlockVideoData blockData) {
+		System.out.println("Tunneling sendBlockData");
 	    ClientHttpRequest chr;
 		try {
 			openConnection();
@@ -167,8 +172,7 @@ public class NetworkHttpStreamSender implements Runnable {
 		    chr.setParameter("position", blockData.getPosition());
 		    chr.setParameter("keyframe", blockData.isKeyFrame());
 		    chr.setParameter("event", CaptureEvents.CAPTURE_UPDATE.getEvent());
-			ByteArrayInputStream block = new ByteArrayInputStream(blockData.getVideoData());
-				
+			ByteArrayInputStream block = new ByteArrayInputStream(blockData.getVideoData());				
 			chr.setParameter("blockdata", "block", block);
 			chr.post();		
 		} catch (IOException e) {

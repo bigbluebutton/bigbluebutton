@@ -27,8 +27,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.bigbluebutton.deskshare.common.Dimension;
 import org.bigbluebutton.deskshare.server.session.ISessionManagerGateway;
-import org.red5.logging.Red5LoggerFactory;
-import org.slf4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,13 +35,12 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 
 public class HttpTunnelStreamController extends MultiActionController {
-	private static Logger log = Red5LoggerFactory.getLogger(HttpTunnelStreamController.class, "deskshare");
-	
+
 	private boolean hasSessionManager = false;
 	private ISessionManagerGateway sessionManager;
 	
 	public ModelAndView screenCaptureHandler(HttpServletRequest request, HttpServletResponse response) throws Exception {		
-
+		System.out.println("**** In deskshare tunneling ******");
 		String event = request.getParameterValues("event")[0];	
 		int captureRequest = Integer.parseInt(event);
 
@@ -54,13 +51,13 @@ public class HttpTunnelStreamController extends MultiActionController {
 		} else if (2 == captureRequest) {
 			handleCaptureEndRequest(request, response);
 		} else {
-			log.debug("Cannot handle screen capture event " + captureRequest);
-			System.out.println("Cannot handle screen capture event " + captureRequest);
+			System.out.println("****Cannot handle screen capture event " + captureRequest);
 		}
 		return null;
 	}	
 	
 	private void handleCaptureStartRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {		
+		System.out.println("**** In handleCaptureStartRequest deskshare tunneling ******");
 		String room = request.getParameterValues("room")[0];
 		String screenInfo = request.getParameterValues("screenInfo")[0];
 		String blockInfo = request.getParameterValues("blockInfo")[0];
@@ -76,11 +73,12 @@ public class HttpTunnelStreamController extends MultiActionController {
 			sessionManager = getSessionManager();
 			hasSessionManager = true;
 		}
-		
+		System.out.println("Http received. Creating session ");
 		sessionManager.createSession(room, screenDim, blockDim);		
 	}	
 	
-	private void handleCaptureUpdateRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {		
+	private void handleCaptureUpdateRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		System.out.println("**** In handleCaptureUpdateRequest deskshare tunneling ******");
 		MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
 		// MultipartFile is a copy of file in memory, not in file system
 		MultipartFile multipartFile = multipartRequest.getFile("blockdata");
@@ -100,10 +98,11 @@ public class HttpTunnelStreamController extends MultiActionController {
 		sessionManager.updateBlock(room, Integer.valueOf(position), blockData, Boolean.parseBoolean(keyframe));
 			
 		long completeRx = System.currentTimeMillis();
-//		System.out.println("Http receive and send took " + (completeRx - startRx) + "ms.");
+		System.out.println("Http receive and send took " + (completeRx - startRx) + "ms.");
 	}
 	
-	private void handleCaptureEndRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {		
+	private void handleCaptureEndRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {	
+		System.out.println("**** In handleCaptureEndRequest deskshare tunneling ******");
 		String room = request.getParameterValues("room")[0];
 		if (! hasSessionManager) {
 			sessionManager = getSessionManager();
@@ -116,16 +115,16 @@ public class HttpTunnelStreamController extends MultiActionController {
 	private ISessionManagerGateway getSessionManager() {
 		//Get the servlet context
 		ServletContext ctx = getServletContext();
-		log.info("Got the servlet context: {}", ctx);
+		System.out.println("****Got the servlet context:}****");
 		
 		//Grab a reference to the application context
 		ApplicationContext appCtx = (ApplicationContext) ctx.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
-		log.info("Got the application context: {}", appCtx);
+		System.out.println("**** Got the application context: {} ****");
 		
 		//Get the bean holding the parameter
 		ISessionManagerGateway manager = (ISessionManagerGateway) appCtx.getBean("sessionManagerGateway");
 		if (manager != null) {
-			log.info("Got the SessionManager context: {}", appCtx);
+			System.out.println("****Got the SessionManager context: *****");
 		}
 		return manager;
 	}

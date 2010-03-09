@@ -4,7 +4,7 @@ import java.io.ByteArrayOutputStream
 
 import java.util.concurrent.ConcurrentHashMap
 import org.bigbluebutton.deskshare.common.ScreenVideoEncoder
-import org.bigbluebutton.deskshare.server.session.{ScreenVideoFrame, FrameStreamer}
+import org.bigbluebutton.deskshare.server.session.ScreenVideoFrame
 
 class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension) extends BlockFactory {
    
