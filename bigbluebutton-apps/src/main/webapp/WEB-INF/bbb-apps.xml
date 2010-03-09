@@ -121,6 +121,20 @@
 	
 	<!-- Starting the Spring Integration configuration for JMS integration -->
 
+	<!-- INCOMING MESSAGES -->
+	<!-- endMeetingRequest -->
+	<jms:inbound-channel-adapter id="jmsInEndMeetingRequest"
+		destination-name="endMeetingRequestEvents"
+        channel="endMeetingRequest"
+        extract-payload="true">
+		<integration:poller>
+			<integration:interval-trigger interval="5" time-unit="SECONDS"/>
+		</integration:poller>
+	</jms:inbound-channel-adapter>
+	<integration:channel id="endMeetingRequest"/>
+	<integration:service-activator input-channel="endMeetingRequest" ref="roomsManager" method="endMeetingRequest" />
+
+	<!-- OUTGOING MESSAGES -->
 	<integration:gateway id="conferenceEventListener" service-interface="org.bigbluebutton.conference.IConferenceEventListener" />
 
 	<!-- conferenceStarted -->
@@ -143,5 +157,4 @@
 	<bean id="participantsUpdatedEvents" class="org.apache.activemq.command.ActiveMQQueue">
 		<constructor-arg value="participantsUpdatedEvents"/>
 	</bean>
-
 </beans>

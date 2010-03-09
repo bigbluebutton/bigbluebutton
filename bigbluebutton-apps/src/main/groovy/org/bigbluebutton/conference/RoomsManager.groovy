@@ -76,6 +76,11 @@ public class RoomsManager {
 		return rooms.size()
 	}
 	
+	// this method is called by incoming JMS requests (Spring integration)
+	public void endMeetingRequest(Room room) {
+		log.debug("End meeting request for room: " + room.getName());
+	}
+	
 	/**
 	 * Keeping getRoom private so that all access to Room goes through here.
 	 */

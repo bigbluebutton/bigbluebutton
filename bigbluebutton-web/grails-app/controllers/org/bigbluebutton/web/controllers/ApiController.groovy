@@ -31,6 +31,7 @@ import org.apache.commons.lang.StringUtils;
 import org.bigbluebutton.web.services.DynamicConferenceService;
 import org.bigbluebutton.api.domain.DynamicConference;
 import org.bigbluebutton.conference.Room
+import org.bigbluebutton.api.IApiConferenceEventListener;
 
 import org.codehaus.groovy.grails.commons.ConfigurationHolder;
 
@@ -54,6 +55,7 @@ class ApiController {
 	def keywordList = [DIAL_NUM, CONF_NUM, CONF_NAME];
 		
 	DynamicConferenceService dynamicConferenceService;
+	IApiConferenceEventListener conferenceEventListener;
 
 	/* general methods */
 	def index = {
@@ -236,14 +238,32 @@ class ApiController {
 		}
 	}
 
-	def endMeeting = {
-		log.debug CONTROLLER_NAME + "#endMeeting"
+	def end = {
+		log.debug CONTROLLER_NAME + "#end"
 
 		if (!doChecksumSecurity()) {
 			invalidChecksum(); return;
 		}
 
-		invalid("notImplemented", "This call is not yet implemented.")
+		String mtgToken = params.meetingToken
+		String mtgID = params.meetingID
+		String callPW = params.password
+
+		// check for existing:
+		DynamicConference conf = dynamicConferenceService.findConference(mtgToken, mtgID);
+		Room room = dynamicConferenceService.findRoom(mtgToken, mtgID);
+		
+		if (conf == null || room == null) {
+			invalid("notFound", "We could not find a meeting with that token or ID - perhaps the meeting is not yet running?");
+			return;
+		}
+		
+		if (conf.getModeratorPassword().equals(callPW) == false) {
+			invalidPassword("You must supply the moderator password for this call."); return;
+		}
+		
+		conferenceEventListener.endMeetingRequest(room);
+		invalid("calledIt", "sent end meeting request.")
 	}
 
 	def getMeetingInfo = {
@@ -304,7 +324,7 @@ class ApiController {
 	}
 
 	private String securitySalt() {
-		dynamicConferenceService.securitySalt
+		return dynamicConferenceService.securitySalt
 	}
 	
 	public String getHash(String string, String salt) throws NoSuchAlgorithmException {

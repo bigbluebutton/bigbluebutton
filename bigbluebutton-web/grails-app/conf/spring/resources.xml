@@ -47,6 +47,9 @@
         </property>
     </bean>
 
+	<!-- INCOMING MESSAGES -->
+
+	<!-- conferenceStarted -->
 	<jms:inbound-channel-adapter id="jmsInConferenceStarted"
 		destination-name="conferenceStartedEvents"
         channel="conferenceStarted"
@@ -55,6 +58,10 @@
 			<integration:interval-trigger interval="5" time-unit="SECONDS"/>
 		</integration:poller>
 	</jms:inbound-channel-adapter>
+	<integration:channel id="conferenceStarted"/>
+	<integration:service-activator input-channel="conferenceStarted" ref="dynamicConferenceService" method="conferenceStarted" />
+
+	<!-- conferenceEnded -->
 	<jms:inbound-channel-adapter id="jmsInConferenceEnded"
 		destination-name="conferenceEndedEvents"
         channel="conferenceEnded"
@@ -63,6 +70,10 @@
 			<integration:interval-trigger interval="5" time-unit="SECONDS"/>
 		</integration:poller>
 	</jms:inbound-channel-adapter>
+	<integration:channel id="conferenceEnded"/>
+	<integration:service-activator input-channel="conferenceEnded" ref="dynamicConferenceService" method="conferenceEnded" />
+
+	<!-- participantsUpdated -->
 	<jms:inbound-channel-adapter id="jmsInParticipantsUpdated"
 		destination-name="participantsUpdatedEvents"
         channel="participantsUpdated"
@@ -71,16 +82,20 @@
 			<integration:interval-trigger interval="5" time-unit="SECONDS"/>
 		</integration:poller>
 	</jms:inbound-channel-adapter>
- 
-	<integration:channel id="conferenceStarted"/>
-	<integration:channel id="conferenceEnded"/>
 	<integration:channel id="participantsUpdated"/>
-
-	<integration:service-activator input-channel="conferenceStarted" ref="dynamicConferenceService" method="conferenceStarted" />
-	<integration:service-activator input-channel="conferenceEnded" ref="dynamicConferenceService" method="conferenceEnded" />
 	<integration:service-activator input-channel="participantsUpdated" ref="dynamicConferenceService" method="participantsUpdated" />
-	
+
 <!--	<stream:stdout-channel-adapter id="stdout" channel="jmsinToStdoutChannel" append-newline="true"/>-->
+
+	<!-- OUTGOING MESSAGES -->
+	<integration:gateway id="conferenceEventListener" service-interface="org.bigbluebutton.api.IApiConferenceEventListener" />
+
+	<!-- endMeetingRequest -->
+	<integration:channel id="endMeetingRequest" />
+	<jms:outbound-channel-adapter id="endMeetingRequestJmsOut" destination="endMeetingRequestEvents" channel="endMeetingRequest" />
+    <bean id="endMeetingRequestEvents" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg value="endMeetingRequestEvents"/>
+    </bean>
 
 	<import resource="doc-conversion.xml" />
 
