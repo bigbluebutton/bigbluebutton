@@ -40,7 +40,6 @@ public class HttpTunnelStreamController extends MultiActionController {
 	private ISessionManagerGateway sessionManager;
 	
 	public ModelAndView screenCaptureHandler(HttpServletRequest request, HttpServletResponse response) throws Exception {		
-		System.out.println("**** In deskshare tunneling ******");
 		String event = request.getParameterValues("event")[0];	
 		int captureRequest = Integer.parseInt(event);
 
@@ -57,7 +56,6 @@ public class HttpTunnelStreamController extends MultiActionController {
 	}	
 	
 	private void handleCaptureStartRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {		
-		System.out.println("**** In handleCaptureStartRequest deskshare tunneling ******");
 		String room = request.getParameterValues("room")[0];
 		String screenInfo = request.getParameterValues("screenInfo")[0];
 		String blockInfo = request.getParameterValues("blockInfo")[0];
@@ -73,12 +71,10 @@ public class HttpTunnelStreamController extends MultiActionController {
 			sessionManager = getSessionManager();
 			hasSessionManager = true;
 		}
-		System.out.println("Http received. Creating session ");
 		sessionManager.createSession(room, screenDim, blockDim);		
 	}	
 	
 	private void handleCaptureUpdateRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		System.out.println("**** In handleCaptureUpdateRequest deskshare tunneling ******");
 		MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
 		// MultipartFile is a copy of file in memory, not in file system
 		MultipartFile multipartFile = multipartRequest.getFile("blockdata");
@@ -96,13 +92,9 @@ public class HttpTunnelStreamController extends MultiActionController {
 		}
 			
 		sessionManager.updateBlock(room, Integer.valueOf(position), blockData, Boolean.parseBoolean(keyframe));
-			
-		long completeRx = System.currentTimeMillis();
-		System.out.println("Http receive and send took " + (completeRx - startRx) + "ms.");
 	}
 	
 	private void handleCaptureEndRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {	
-		System.out.println("**** In handleCaptureEndRequest deskshare tunneling ******");
 		String room = request.getParameterValues("room")[0];
 		if (! hasSessionManager) {
 			sessionManager = getSessionManager();
@@ -115,12 +107,9 @@ public class HttpTunnelStreamController extends MultiActionController {
 	private ISessionManagerGateway getSessionManager() {
 		//Get the servlet context
 		ServletContext ctx = getServletContext();
-		System.out.println("****Got the servlet context:}****");
-		
 		//Grab a reference to the application context
 		ApplicationContext appCtx = (ApplicationContext) ctx.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
-		System.out.println("**** Got the application context: {} ****");
-		
+
 		//Get the bean holding the parameter
 		ISessionManagerGateway manager = (ISessionManagerGateway) appCtx.getBean("sessionManagerGateway");
 		if (manager != null) {

@@ -68,7 +68,6 @@ public class NetworkHttpStreamSender implements Runnable {
 		 */				
 		try {			
 			url = new URL("http://" + host + SCREEN_CAPTURE__URL);
-			System.out.println("Connecting to " + url.toString());
 			conn = url.openConnection();
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
@@ -80,7 +79,6 @@ public class NetworkHttpStreamSender implements Runnable {
 	}
 	
 	public void sendStartStreamMessage() {
-		System.out.println("Tunneling sendStartStreamMessage");
 		try {
 			openConnection();
 			sendCaptureStartEvent(screenDim, blockDim);
@@ -91,7 +89,6 @@ public class NetworkHttpStreamSender implements Runnable {
 	}
 
 	private void sendCaptureStartEvent(Dimension screen, Dimension block) throws ConnectionException {
-		System.out.println("Tunneling sendCaptureStartEvent");
 		ClientHttpRequest chr;
 		try {
 			chr = new ClientHttpRequest(conn);
@@ -117,7 +114,6 @@ public class NetworkHttpStreamSender implements Runnable {
 	}
 	
 	public void disconnect() throws ConnectionException {
-		System.out.println("Disconnecting http stream");
 		try {
 			openConnection();
 			sendCaptureEndEvent();
@@ -131,7 +127,6 @@ public class NetworkHttpStreamSender implements Runnable {
 	}
 
 	private void sendCaptureEndEvent() throws ConnectionException {
-		System.out.println("sendCaptureEndEvent http stream");
 		ClientHttpRequest chr;
 		try {
 			chr = new ClientHttpRequest(conn);
@@ -153,17 +148,14 @@ public class NetworkHttpStreamSender implements Runnable {
 			try {
 				block = retriever.fetchNextBlockToSend();
 				BlockVideoData	bv = new BlockVideoData(room, block.getPosition(), block.getVideoData(), false);	
-				System.out.println("Sending block " + block.getPosition());
 				sendBlockData(bv);	
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println("ERROR: Interrupted exception while proccessing block for sending.");
 			}								
 		}
 	}
 	
 	private void sendBlockData(BlockVideoData blockData) {
-		System.out.println("Tunneling sendBlockData");
 	    ClientHttpRequest chr;
 		try {
 			openConnection();
@@ -178,10 +170,7 @@ public class NetworkHttpStreamSender implements Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (ConnectionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("ERROR: Failed to send block data.");
 		}
-	}	
-	
-	
+	}		
 }

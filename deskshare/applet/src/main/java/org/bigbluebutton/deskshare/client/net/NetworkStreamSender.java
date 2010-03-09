@@ -38,7 +38,7 @@ public class NetworkStreamSender implements NextBlockRetriever {
     private final int numThreads;
     private final String host;
     private final String room;
-    private NetworkSocketStreamSender[] senders;
+    private NetworkSocketStreamSender[] socketSenders;
     private NetworkHttpStreamSender[] httpSenders;
     private boolean tunneling = false;
     private boolean stopped = true;
@@ -60,7 +60,7 @@ public class NetworkStreamSender implements NextBlockRetriever {
 	}
 	
 	public boolean connect() {	
-		senders = new NetworkSocketStreamSender[numThreads];
+		socketSenders = new NetworkSocketStreamSender[numThreads];
 		int failedAttempts = 0;
 		for (int i = 0; i < numThreads; i++) {
 			try {
@@ -78,7 +78,6 @@ public class NetworkStreamSender implements NextBlockRetriever {
 				System.out.println("Will use http tunneling");
 				httpSenders = new NetworkHttpStreamSender[numThreads];
 				for (int i = 0; i < numThreads; i++) {
-					System.out.println("Starting http sender[" + i + "].");
 					createHttpSender(i);					
 				}
 				return true;
@@ -91,8 +90,8 @@ public class NetworkStreamSender implements NextBlockRetriever {
 	}
 	
 	private void createSender(int i) throws ConnectionException {
-		senders[i] = new NetworkSocketStreamSender(this, room, screenDim, blockDim);
-		senders[i].connect(host);		
+		socketSenders[i] = new NetworkSocketStreamSender(this, room, screenDim, blockDim);
+		socketSenders[i].connect(host);		
 	}
 	
 	private void createHttpSender(int i) {
@@ -100,8 +99,7 @@ public class NetworkStreamSender implements NextBlockRetriever {
 		try {
 			httpSenders[i].connect(host);
 		} catch (ConnectionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Http sender failed to connect to " + host);
 		}
 	}
 	
@@ -113,15 +111,13 @@ public class NetworkStreamSender implements NextBlockRetriever {
 		System.out.println("Starting network sender.");		
 		if (tunneling) {
 			for (int i = 0; i < 1; i++) {
-				System.out.println("Starting http sender[" + i + "].");
 				httpSenders[i].sendStartStreamMessage();
 				executor.execute(httpSenders[i]);
 			}
 		} else {			
 			for (int i = 0; i < numRunningThreads; i++) {					
-				System.out.println("Starting socket sender[" + i + "].");
-				senders[i].sendStartStreamMessage();
-				executor.execute(senders[i]);	
+				socketSenders[i].sendStartStreamMessage();
+				executor.execute(socketSenders[i]);	
 			}
 		}
 
@@ -134,11 +130,13 @@ public class NetworkStreamSender implements NextBlockRetriever {
 			if (tunneling) {
 				httpSenders[i].disconnect();
 			} else {
-				senders[i].disconnect();
+				socketSenders[i].disconnect();
 			}				
 		}
 		stopped = true;
 		executor.shutdownNow();
+		httpSenders = null;
+		socketSenders = null;
 	}
 
 	private boolean tryHttpTunneling() {
