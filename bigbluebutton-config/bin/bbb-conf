@@ -43,15 +43,16 @@ RELEASE="-r 3489"
 # 
 SVNPROTO="http"
 SVNUSERNAME=""
-
+GENTOO=$(uname -r | grep gentoo | cut -d- -f2);
+TOMCAT=""
 get_platform() {
 
 	if [ -f /etc/lsb-release ]; then
 		if grep -q Ubuntu /etc/lsb-release; then
 			echo "ubuntu"
-		else
-			echo "redhat"
 		fi
+	elif [ ${GENTOO} ]; then
+		echo "gentoo"
 	else
 		echo "redhat"
 	fi
@@ -71,6 +72,12 @@ is_ubuntu() {
         fi
 }
 
+is_gentoo() {
+	if [ "$PLATFORM" == "gentoo" ]; then
+		echo "yes"
+	fi
+}
+
 is_vm() {
 	if [ -f /home/firstuser/.profile ]; then
 		echo $(cat /home/firstuser/.profile | grep BigBlueButton)
@@ -78,14 +85,21 @@ is_vm() {
 }
 
 if [ "$(is_redhat)" ]; then
-	RED5_DIRECTORY="/opt/red5"
-	ACTIVEMQ_DIRECTORY="/opt/activemq"
-	TOMCAT6_LOGS="/var/log/tomcat6"
+	TOMCAT="tomcat6"
+	RED5_DIRECTORY="/usr/share/red5"
+	ACTIVEMQ_DIRECTORY="/usr/share/activemq"
+	TOMCAT6_LOGS="/var/log/${TOMCAT}"
+elif [ "$(is_gentoo)" ]; then
+	TOMCAT="tomcat-6"
+	RED5_DIRECTORY="/usr/share/red5"
+	ACTIVEMQ_DIRECTORY="/usr/share/activemq"
+	TOMCAT6_LOGS="/var/lib/${TOMCAT}/logs"
 else 
 	if [ "$(is_ubuntu)" ]; then
+		TOMCAT="tomcat6"
 		RED5_DIRECTORY="/usr/share/red5"
 		ACTIVEMQ_DIRECTORY="/usr/share/activemq"
-		TOMCAT6_LOGS="/var/lib/tomcat6/logs"
+		TOMCAT6_LOGS="/var/lib/${TOMCAT}/logs"
 	fi
 fi
 
@@ -134,11 +148,13 @@ usage() {
 		echo "   --svn-username [user]            Your Google code username if you want to " 
 		echo "                                      commit from the checked out code" 
 	fi
+	echo "   --clean			  Clear all the log files and restart BigBlueButton"
 	echo "   --watch                          Watch log files for error messages every 2 seconds"
 	echo "   --zip                            Zip up log files for reporting an error"
 	echo
 	echo "version: 0.63-10"
 	echo
+	
 }
 
 # utility function to make a copy of the conf file
@@ -249,6 +265,10 @@ while [ $# -gt 0 ]; do
 
 	if [ "$1" = "-setip" -o "$1" = "--setip" ]; then
 		HOST="${2}"
+		if echo $HOST|grep -q ":"; then
+			HOST=`echo ${2}|cut -d: -f1`
+			PORT=`echo ${2}|cut -d: -f2`
+		fi
 		shift; shift
 		continue
 	fi		
@@ -381,12 +401,12 @@ if [ $SETUPDEV ]; then
 
 		IP=$(ifconfig | grep -v '127.0.0.1' | grep -m 1 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
 
-		echo "# Copying the bigbluebutton.properites in /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties to ~/.grails/bigbluebutton-config.properties"
+		echo "# Copying the bigbluebutton.properites in /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties to ~/.grails/bigbluebutton-config.properties"
 		mkdir -p ~/.grails
-		cp /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties ~/.grails/bigbluebutton-config.properties
+		cp /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties ~/.grails/bigbluebutton-config.properties
 
-		echo "# Copying the bbb_api_conf.jsp into /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties to ~/dev/bbb-web/web-app/demo"
-		cp /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api_conf.jsp ~/dev/bbb-web/web-app/demo
+		echo "# Copying the bbb_api_conf.jsp into /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties to ~/dev/bbb-web/web-app/demo"
+		cp /var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp ~/dev/bbb-web/web-app/demo
 
 		echo "# Enabling $USER to write to /var/bigbluebutton to upload slides"
 		sudo chmod -R ugo+rwx /var/bigbluebutton
@@ -397,7 +417,7 @@ if [ $SETUPDEV ]; then
 		echo "
 # Done.  To run your local build of bbb-web:
 
-	sudo /etc/init.d/tomcat6 stop
+	sudo /etc/init.d/${TOMCAT} stop
 	cd ~/dev/bbb-web
 	ant
 "
@@ -553,11 +573,11 @@ check_state() {
 
 	if ! netstat -ant | grep '8080' > /dev/null; then
 		print_header
-        	echo "                             tomcat6: -- not running --"
+        	echo "                             ${TOMCAT}: -- not running --"
 	else 
 		if ps aux |  ps -aef | grep grails | grep run-app > /dev/null; then
 			print_header
-        		echo "                             tomcat6: noticed you are running grails run-app instead of tomcat"
+        		echo "                             ${TOMCAT}: noticed you are running grails run-app instead of tomcat"
 		fi
 	fi
 
@@ -589,8 +609,8 @@ check_state() {
 	#
 	# Make sure the salt for the API matches the server
 	#
-	SALT_PROPERTIES=$(cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
-	SALT_DEMO=$(cat /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api_conf.jsp | tr -d '\r' | sed -n '/salt =/{s/.* = "//;s/".*//g;p}')
+	SALT_PROPERTIES=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
+	SALT_DEMO=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp | tr -d '\r' | sed -n '/salt =/{s/.* = "//;s/".*//g;p}')
 
 	if [ "$SALT_PROPERTIES" != "$SALT_DEMO" ]; then
         	echo "                       salt mismatch: salt in bigbluebutton.properties and bbb_api_conf.jsp do not match"
@@ -600,7 +620,7 @@ check_state() {
 	# Look for properties with no values set
 	#
 	CONFIG_FILES="$RED5_DIRECTORY/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties \
-/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties \
+/var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties \
 $RED5_DIRECTORY/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 
 	for file in $CONFIG_FILES ; do
@@ -671,15 +691,15 @@ if [ $CHECK ]; then
 	BBB_CLINET_DOC_ROOT=$(cat /etc/nginx/sites-available/bigbluebutton | grep \/client -A 1 | grep root  | sed -n '{s/[ ]*root[ ]*//;s/;//;p}') 
         echo "                client document root: $BBB_CLINET_DOC_ROOT"
 
-        HOST=$(cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+        HOST=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
         echo
-        echo "/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties (bbb-web)"
+        echo "/var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties (bbb-web)"
         echo "                                host: $HOST"
 
-	if [ -f /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api_conf.jsp ]; then
-        	HOST=$(cat /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api_conf.jsp  | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}' | tr -d '\015')
+	if [ -f /var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp ]; then
+        	HOST=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp  | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}' | tr -d '\015')
         	echo
-        	echo "/var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api_conf.jsp (API demos)"
+        	echo "/var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp (API demos)"
         	echo "                                host: $HOST"
 	fi
 
@@ -712,7 +732,7 @@ if [ $ZIP ]; then
 	touch /tmp/empty
 	tar cf /tmp/$LOG_FILE.tar /tmp/empty			> /dev/null 2>&1
 	tar rf /tmp/$LOG_FILE.tar $RED5_DIRECTORY/log		> /dev/null 2>&1
-	tar rf /tmp/$LOG_FILE.tar $TOMCAT6_LOGS		> /dev/null 2>&1
+	tar rf /tmp/$LOG_FILE.tar $TOMCAT6_LOGS			> /dev/null 2>&1
 	tar rf /tmp/$LOG_FILE.tar /var/log/bigbluebutton/*	> /dev/null 2>&1
 	tar rf /tmp/$LOG_FILE.tar /var/log/nginx/error.log	> /dev/null 2>&1
 	tar rf /tmp/$LOG_FILE.tar /var/log/syslog		> /dev/null 2>&1
@@ -778,38 +798,44 @@ if [ $DEBUG ]; then
         fi
 
 	rm -rf /tmp/t
-	sudo grep -v "No Voicetronix cards detected" /var/log/asterisk/* | grep ERROR > /tmp/t 
-	if [ -s /tmp/t ]; then
+	if [ ! is_gentoo ]; then sudo grep -v "No Voicetronix cards detected" /var/log/asterisk/* | grep ERROR > /tmp/t 
+	  if [ -s /tmp/t ]; then
 		echo "   -- Errors found in /var/log/asterisk/* -- "
 		cat /tmp/t
 		echo
+	  fi
 	fi
 
 	rm -rf /tmp/t
-	sudo grep -i exception /var/log/syslog > /tmp/t 
-	if [ -s /tmp/t ]; then
+	if [ ! is_gentoo ]; then sudo grep -i exception /var/log/syslog > /tmp/t 
+	  if [ -s /tmp/t ]; then
 		echo "   -- Errors found in /var/log/syslog -- "
 		cat /tmp/t
 		echo
+	  fi
 	fi
 
 	rm -rf /tmp/t
 	if [ -d /var/log/bigbluebutton ]; then
-		sudo grep ERROR /var/log/bigbluebutton/* > /tmp/t 
-		if [ -s /tmp/t ]; then
+		if [ ! is_gentoo ]; then 
+		  sudo grep ERROR /var/log/bigbluebutton/* > /tmp/t 
+		  if [ -s /tmp/t ]; then
 			echo "   -- Errors found in /var/log/bigbluebutton -- "
 			cat /tmp/t
 			echo
+		  fi
 		fi
 	fi
 
 	rm -rf /tmp/t
 	if [ -d /var/log/bigbluebutton ]; then
-		sudo grep -i exception /var/log/bigbluebutton/* > /tmp/t 
-		if [ -s /tmp/t ]; then
+		if [ ! is_gentoo ]; then
+		  sudo grep -i exception /var/log/bigbluebutton/* > /tmp/t 
+		  if [ -s /tmp/t ]; then
 			echo "   -- Exceptions found in /var/log/bigbluebutton -- "
 			cat /tmp/t
 			echo
+		  fi
 		fi
 	fi
 
@@ -849,12 +875,12 @@ if [ -n "$HOST" ]; then
 	#
 	# Update configuration for BigBlueButton web app
 	#
-	echo "Assigning $HOST for web application URL in /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties"
+	echo "Assigning $HOST for web application URL in /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties"
 
 	sudo sed -i "s/bigbluebutton.web.serverURL=http:\/\/.*/bigbluebutton.web.serverURL=http:\/\/$HOST/g" \
-				/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
+				/var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
 
-	# cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
+	# cat /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
 
 	#
 	# Update nginx
@@ -873,15 +899,15 @@ if [ -n "$HOST" ]; then
 	# Update api demos
 	#
 
-        if [ -f /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api_conf.jsp ]; then
-		echo "Assigning $HOST for api demos in /var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api_conf.jsp"
+        if [ -f /var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp ]; then
+		echo "Assigning $HOST for api demos in /var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp"
 		sudo sed -i "s/BigBlueButtonURL = \"http:\/\/\([^\"\/]*\)\([\"\/]\)/BigBlueButtonURL = \"http:\/\/$HOST\2/g" \
-				/var/lib/tomcat6/webapps/bigbluebutton/demo/bbb_api_conf.jsp
+				/var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp
         fi
 
 
-	echo "Restarting tomcat6 and nginx ..."
-	sudo /etc/init.d/tomcat6 restart  > /tmp/result 2>&1;cat /tmp/result;rm /tmp/result
+	echo "Restarting ${TOMCAT} and nginx ..."
+	sudo /etc/init.d/${TOMCAT} restart  > /tmp/result 2>&1;cat /tmp/result;rm /tmp/result
 	sudo /etc/init.d/nginx restart
 
 	exit 0
@@ -965,11 +991,11 @@ fi
 
 if [ $CLEAN ]; then
 	need_root
-
+	
 	echo "Doing a clean restart of BigBlueButton ..."
 
 	/etc/init.d/red5 stop
-	/etc/init.d/tomcat6 stop
+	/etc/init.d/${TOMCAT} stop
 	/etc/init.d/nginx stop
 	/etc/init.d/asterisk stop
 	/etc/init.d/activemq stop
@@ -983,8 +1009,15 @@ if [ $CLEAN ]; then
 	rm -f /var/log/asterisk/event* 
 	rm -f /var/log/asterisk/messages* 
 	rm -f /var/log/asterisk/queue* 
-	rm -rf $RED5_DIRECTORY/log/*
-	rm -rf $TOMCAT6_LOGS/*
+	
+	if [ $RED5_DIRECTORY ]; then
+		rm -rf $RED5_DIRECTORY/log/*
+	fi
+
+	if [ $TOMCAT6_LOGS ]; then
+		rm -rf $TOMCAT6_LOGS/*
+	fi
+
 	rm -rf /var/log/nginx/*
 	mv /var/log/syslog /tmp/syslog.$$
 	echo "" > /var/log/syslog
@@ -993,7 +1026,7 @@ if [ $CLEAN ]; then
 	/etc/init.d/activemq status
 	/etc/init.d/nginx status
 	/etc/init.d/red5 status
-	/etc/init.d/tomcat6 status
+	/etc/init.d/${TOMCAT} status
 
 	echo
 	/etc/init.d/asterisk start
@@ -1001,7 +1034,7 @@ if [ $CLEAN ]; then
 	sleep 5
 	/etc/init.d/nginx start
 	/etc/init.d/red5 start
-	/etc/init.d/tomcat6 start
+	/etc/init.d/${TOMCAT} start
 fi
 
 if [ $NETWORK ]; then
