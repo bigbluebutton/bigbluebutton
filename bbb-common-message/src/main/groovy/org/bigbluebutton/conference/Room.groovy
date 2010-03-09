@@ -123,6 +123,14 @@ public class Room implements Serializable {
 		}		
 	}
 	
+	public void endAndKickAll() {
+		for (Iterator it = listeners.values().iterator(); it.hasNext();) {
+			IRoomListener listener = (IRoomListener) it.next()
+			log.debug("calling endAndKickAll on listener ${listener.getName()}")
+			listener.endAndKickAll()
+		}
+	}
+	
 	public Map getParticipants() {
 		return unmodifiableMap
 	}	

@@ -51,4 +51,8 @@ public class ParticipantUpdatingRoomListener implements IRoomListener{
 			conferenceEventListener.participantsUpdated(room);
 		}
 	}
+
+	public void endAndKickAll() {
+		// no-op
+	}	
 }

@@ -78,7 +78,9 @@ public class RoomsManager {
 	
 	// this method is called by incoming JMS requests (Spring integration)
 	public void endMeetingRequest(Room room) {
+		room = getRoom(room.name); // must do this because the room coming in is serialized (no transient values are present)
 		log.debug("End meeting request for room: " + room.getName());
+		room.endAndKickAll();
 	}
 	
 	/**

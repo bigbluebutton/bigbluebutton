@@ -80,4 +80,8 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 		args.add(userid)
 		so.sendMessage("participantLeft", args)
 	}
+
+	public void endAndKickAll() {
+		so.sendMessage("logout", new ArrayList());
+	}	
 }

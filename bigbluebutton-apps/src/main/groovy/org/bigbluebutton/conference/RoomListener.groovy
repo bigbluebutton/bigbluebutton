@@ -48,4 +48,8 @@ public class RoomListener implements IRoomListener{
 		args.add(userid)
 		so.sendMessage("participantLeft", args)
 	}
+
+	public void endAndKickAll() {
+		// no-op
+	}	
 }
