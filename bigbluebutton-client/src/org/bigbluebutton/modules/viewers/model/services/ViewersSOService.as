@@ -27,6 +27,7 @@ package org.bigbluebutton.modules.viewers.model.services
 	import flash.net.Responder;
 	import flash.net.SharedObject;
 	
+	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.ParticipantJoinEvent;
 	import org.bigbluebutton.main.model.Participant;
 	import org.bigbluebutton.modules.viewers.ViewersModuleConstants;
@@ -234,6 +235,12 @@ package org.bigbluebutton.modules.viewers.model.services
 			joinEvent.participant = participant;
 			joinEvent.join = true;
 			dispatcher.dispatchEvent(joinEvent);						
+		}
+		
+		public function logout():void {
+			var dispatcher:Dispatcher = new Dispatcher();
+			var endMeetingEvent:BBBEvent = new BBBEvent("EndMeetingKickAllEvent");
+			dispatcher.dispatchEvent(endMeetingEvent);
 		}
 		
 		public function participantStatusChange(userid:Number, status:String, value:Object):void {
