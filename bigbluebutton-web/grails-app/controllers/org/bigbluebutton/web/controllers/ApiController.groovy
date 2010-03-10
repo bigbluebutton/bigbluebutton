@@ -263,7 +263,19 @@ class ApiController {
 		}
 		
 		conferenceEventListener.endMeetingRequest(room);
-		invalid("calledIt", "sent end meeting request.")
+		
+		response.addHeader("Cache-Control", "no-cache")
+		withFormat {	
+			xml {
+				render(contentType:"text/xml") {
+					response() {
+						returncode(RESP_CODE_SUCCESS)
+						messageKey("sentEndMeetingRequest")
+						message("A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.")
+					}
+				}
+			}
+		}
 	}
 
 	def getMeetingInfo = {
