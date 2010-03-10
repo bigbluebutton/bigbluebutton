@@ -100,7 +100,7 @@ class ApiController {
 			if (existing.getAttendeePassword().equals(attPW) && existing.getModeratorPassword().equals(modPW)) {
 				// trying to create a conference a second time
 				// return success, but give extra info
-				respondWithConference(existing, "duplicateWarning", "This conference was already in existance and may currently be in progress.");
+				respondWithConference(existing, "duplicateWarning", "This conference was already in existence and may currently be in progress.");
 			} else {
 				// enforce meetingID unique-ness
 				invalid("idNotUnique", "A meeting already exists with that meeting ID.  Please use a different meeting ID.");
