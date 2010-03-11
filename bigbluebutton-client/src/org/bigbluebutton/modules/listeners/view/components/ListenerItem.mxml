@@ -99,7 +99,7 @@
    
    <mx:states>
         <mx:State name="dispMuteCheckBox">      
-            <mx:AddChild relativeTo="{muteBtn}" position="before">
+            <mx:AddChild relativeTo="{muteBtn}" position="after">
             	<mx:Button id="muteCB" width="18" height="16" toggle="true" visible="true" enabled="{data.moderator}" icon="{data.locked ? lockedIcon : unlockedIcon}" click="lockMuteUser()"/>
                 <!--mx:CheckBox id="muteCB" visible="{data.moderator}" selected="{data.locked}" toolTip="Keep muted/unmuted" click="lockMuteUser()">
 					<mx:upIcon>@Embed(source="../assets/images/unlock.png")</mx:upIcon>
