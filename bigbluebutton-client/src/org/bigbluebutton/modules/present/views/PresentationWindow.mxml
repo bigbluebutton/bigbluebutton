@@ -24,6 +24,8 @@
 <pres:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml"  
 	xmlns:thumb="org.bigbluebutton.modules.present.views.*"
 	xmlns:pres="flexlib.mdi.containers.*"
+	xmlns:code="http://code.google.com/p/flexlib/" 
+	xmlns:containers="flexlib.containers.*"
 	paddingBottom="0" paddingTop="0" 
 	paddingLeft="0" paddingRight="0" 
 	showCloseButton="false"
@@ -34,7 +36,7 @@
 	rollOut="hideThumbs()" xmlns:mate="http://mate.asfusion.com/"
 	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
 	x="{DEFAULT_X_POSITION}" y="{DEFAULT_Y_POSITION}"
-	title="{currentPresentation}" keyUp="onKeyUp(event)" xmlns:code="http://code.google.com/p/flexlib/" xmlns:containers="flexlib.containers.*">
+	title="{currentPresentation}" keyUp="onKeyUp(event)">
 	
 	<mate:Dispatcher id="globalDispatcher" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="becomePresenter" />
@@ -195,10 +197,11 @@
 				dispatcher.dispatchEvent(dispEvent);
 			}
 			
-			private function handleDisplaySlideEvent(event:DisplaySlideEvent):void {
+			private function handleDisplaySlideEvent(event:DisplaySlideEvent):void {				
 				currentSlideWidth = event.slideWidth;
 				currentSlideHeight = event.slideHeight;
 				fitSlideToWindowMaintainingAspectRatio();			
+				resetWidthAndHeight();
 			}
 			
 			private function onKeyUp(event:KeyboardEvent):void{
@@ -323,7 +326,7 @@
 			}
 			
 			private function handlePresentationLoadedEvent(e:PresentationEvent):void {	
-				if (e.presentationName == currentPresentation) return;
+				if (e.presentationName == currentPresentation) return;			
 				currentPresentation = e.presentationName;
 				presentationLoaded = true;
 				slideView.slides = e.slides.slides;    		            		
