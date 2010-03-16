@@ -24,7 +24,7 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	creationComplete="init()" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
-	resizable="false" xmlns:mate="http://mate.asfusion.com/">
+	resizable="true" xmlns:mate="http://mate.asfusion.com/">
 	
 	<mx:Script>
 		<![CDATA[
@@ -38,7 +38,14 @@
 			private var stream:String;
 			private var videoHeight:Number;
 			private var videoWidth:Number;
-			
+
+			private var _maxWidth:int = 800;
+			private var _maxHeight:int = 800;
+			private var _minWidth:int = 60;
+			private var _minHeight:int = 60;
+			private var _bResizePossible:Boolean = true;
+			private var _nAspectRatio:Number = 1;
+							
 			private var _xPosition:int;
 			private var _yPosition:int;
 			
@@ -49,6 +56,8 @@
 				videoHolder.addChild(video);
 				this.addChild(videoHolder);
 				maximizeRestoreBtn.visible = false;
+				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
+				addEventListener(MDIWindowEvent.RESIZE, onResizeEvent);
 			}
 			
 			public function startVideo(connection:NetConnection, stream:String):void{
@@ -78,10 +87,12 @@
 					case "320x240":
 						this.width = 320;
 						this.height = 240;
+						_nAspectRatio = (this.width/this.height)
 						break;
 					case "640x480":
 						this.width = 640;
 						this.height = 480;
+						_nAspectRatio = (this.width/this.height);
 						break;
 				}
 			}
@@ -149,6 +160,43 @@
 			
 			private function closeWindow(e:CloseAllWindowsEvent):void{
 				this.close();
+			}
+			
+			public function onResizeEndEvent(event:MDIWindowEvent):void {
+				// make sure the height of the window is correct
+				if ( video.height + 29 > this.height) {
+					this.height = video.height + 29;
+				} 
+			}
+					
+			public function onResizeEvent(event:Event):void {
+				// test if we are already resizing
+				if (_bResizePossible) {
+					_bResizePossible = false;
+					resizeWindow();
+					_bResizePossible = true;
+				}
+			}
+
+			private function resizeWindow():void {
+				if (this.width > _maxWidth) {
+					this.width = _maxWidth;
+				}
+				if (this.height > _maxHeight) {
+					this.height = _maxHeight;
+				}
+				if (this.height < _minHeight) {
+					this.height = _minHeight;
+				}
+				if (this.width < _minWidth) {
+					this.width = _minWidth;
+				}
+				// recalc size of video based on the width and height of the window
+				video.width = this.width - 6;
+				// make sure the video has a correct aspectratio to avoid tall or flat faces
+				video.height  = Math.floor (video.width / _nAspectRatio);
+				this.height = video.height + 29;
+				
 			}
 			
 		]]>
