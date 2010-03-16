@@ -21,10 +21,14 @@
 --> 
 
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:mate="http://mate.asfusion.com/"
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"> 
+	
+	<mate:Listener type="ViewVideoCloseEvent" method="onViewVideoCloseEvent"/>
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.modules.viewers.view.events.ViewCameraEvent;
 			import com.asfusion.mate.events.Dispatcher;
 			import org.bigbluebutton.modules.viewers.view.events.LowerHandEvent;
@@ -34,23 +38,35 @@
 			
 			private var images:Images = new Images();
 				
-			private function viewCamera():void
-   			{
+			private function viewCamera():void {
    				LogUtil.debug("ViewersModule - sending camera view request for stream" + data.streamName);
+   				streamIcon.enabled = false;
+   				//addEventListener("ViewVideoCloseEvent", onViewVideoCloseEvent);
 				dispatchEvent(new ViewCameraEvent(data.streamName, data.name));
    			}
    			
-   			private function lowerHand():void
-   			{
+   			private function onViewVideoCloseEvent(event:BBBEvent):void {
+   				LogUtil.debug("ViewWindoClosing event: " + event.message);
+   				if (data.hasStream && data.streamName == event.message) {
+   					streamIcon.enabled = true;
+   				}
+   			}
+   			
+   			private function lowerHand():void {
 				dispatchEvent(new LowerHandEvent(data.userid));
    			}				
 		
-   			[Bindable] private var webcamIcon:Object = images.webcam;
-   			[Bindable] private var handIcon:Object = images.raisehand;	
+   			[Bindable] private var webcamIcon:Class = images.webcam;
+   			[Bindable] private var handIcon:Class = images.raisehand;	
    			[Bindable] private var presenterIcon:Object = images.presenter;
 		]]>
 	</mx:Script>
-	<mx:Image id="raiseHand" visible="{data.raiseHand}" click="lowerHand()" source="{handIcon}" toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.raiseHand.toolTip'), [new Date()]}"/>
-	<mx:Image id="streamIcon" visible="{data.hasStream}" doubleClick="viewCamera()" source="{webcamIcon}" toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.streamIcon.toolTip')}"/>	
+	<mx:Button id="raiseHand" visible="{data.raiseHand}" click="lowerHand()" 
+				icon="{handIcon}" width="18" height="18"
+				toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.raiseHand.toolTip'), 
+				[new Date()]}"/>
+	<mx:Button id="streamIcon" visible="{data.hasStream}" click="viewCamera()" icon="{webcamIcon}"
+				width="18" height="18" 
+				toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.streamIcon.toolTip')}"/>	
 	<mx:Image id="presIcon" visible="{data.presenter}" source="{presenterIcon}" toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.presIcon.toolTip')}"/>
 </mx:HBox>

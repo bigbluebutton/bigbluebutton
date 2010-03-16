@@ -28,6 +28,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
 			import flexlib.mdi.events.MDIWindowEvent;
 			import mx.core.UIComponent;
@@ -58,6 +59,15 @@
 				maximizeRestoreBtn.visible = false;
 				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
 				addEventListener(MDIWindowEvent.RESIZE, onResizeEvent);
+				addEventListener(MDIWindowEvent.CLOSE, onCloseEvent);
+			}
+			
+			private function onCloseEvent(event:MDIWindowEvent):void {
+				LogUtil.debug("ViewWindow closing " + stream);
+				var bbbEvt:BBBEvent = new BBBEvent("ViewVideoCloseEvent");
+				bbbEvt.message = stream;
+				dispatchEvent(bbbEvt);
+				
 			}
 			
 			public function startVideo(connection:NetConnection, stream:String):void{
