@@ -77,6 +77,13 @@ public class PresentationApplication {
 		log.warn("Getting presenter on a non-existant room ${room}")	
 	}
 	
+	def getPresentations = {room ->
+	   if (roomsManager.hasRoom(room)){
+            return roomsManager.getPresentations(room)           
+        }
+        log.warn("Getting presentations on a non-existant room ${room}")
+	}
+	
 	def getCurrentSlide = {room ->
 		if (roomsManager.hasRoom(room)){
 			return roomsManager.getCurrentSlide(room)			

@@ -51,6 +51,7 @@ public class PresentationService {
 		def isSharing = presentationApplication.getSharingPresentation(scope.name)
 		def currentPresentation = presentationApplication.getCurrentPresentation(scope.name)
 		Map presentersSettings = presentationApplication.getPresenterSettings(scope.name)
+		List presentationNames = presentationApplication.getPresentations(scope.name)
 		
 		Map presenter = new HashMap()		
 		if (curPresenter != null) {
@@ -82,6 +83,7 @@ public class PresentationService {
 		Map presentationInfo = new HashMap()
 		presentationInfo.put('presenter', presenter)
 		presentationInfo.put('presentation', presentation)
+		presentationInfo.put('presentations', presentationNames)
 		
 		log.info("getPresentationInfo::service - Sending presentation information...");
 		return presentationInfo

@@ -177,4 +177,12 @@ public class PresentationRoomsManager {
 		}	
 		log.warn("Getting current presentation on a non-existing room $room")	
 	}
+	
+	def getPresentations = {room ->
+        PresentationRoom r = getRoom(room)
+        if (r != null) {
+            return r.getPresentationNames()
+        }   
+        log.warn("Getting current presentation on a non-existing room $room")   
+    }
 }

@@ -42,6 +42,7 @@ public class PresentationRoom {
 	def yOffset
 	def widthRatio
 	def heightRatio
+	List<String> presentationNames = new ArrayList<String>()
 	
 	public PresentationRoom(String name) {
 		this.name = name
@@ -71,7 +72,19 @@ public class PresentationRoom {
 			log.debug("calling sendUpdateMessage on listener ${listener.getName()}")
 			listener.sendUpdateMessage(it)
 		}	
+		
+		storePresentationNames(it)
 	}
+	
+	private def storePresentationNames = { message ->
+        def presentationName = message['presentationName']
+        def messageKey = message['messageKey']
+             
+        if (messageKey == "CONVERSION_COMPLETED") {            
+            log.debug "${messageKey}[$presentationName]"
+            presentationNames.add(presentationName)                                
+        }           
+    }
 	
 	def resizeAndMoveSlide(xOffset, yOffset, widthRatio, heightRatio) {
 		this.xOffset = xOffset;
