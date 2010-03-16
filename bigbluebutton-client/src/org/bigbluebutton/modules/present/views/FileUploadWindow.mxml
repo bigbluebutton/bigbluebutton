@@ -73,7 +73,7 @@
 
 	        private function initData():void {
     	        presentationNamesAC = new ArrayCollection(presentationNames);
-    	        if(presentationNames.length<=0) {
+    	        if (presentationNames.length <= 0) {
 					deleteBtn.enabled = false;
 					showBtn.enabled = false;
 					selectFile();

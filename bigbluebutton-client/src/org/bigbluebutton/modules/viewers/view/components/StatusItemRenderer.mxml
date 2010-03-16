@@ -41,7 +41,6 @@
 			private function viewCamera():void {
    				LogUtil.debug("ViewersModule - sending camera view request for stream" + data.streamName);
    				streamIcon.enabled = false;
-   				//addEventListener("ViewVideoCloseEvent", onViewVideoCloseEvent);
 				dispatchEvent(new ViewCameraEvent(data.streamName, data.name));
    			}
    			

@@ -25,12 +25,10 @@ package org.bigbluebutton.modules.present.business
 	import flash.net.FileReference;
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
-	import flash.net.URLVariables;
-	
+	import flash.net.URLVariables;	
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	
-	public class FileUploadService
-	{
+	public class FileUploadService {
 		public static const ID:String = "FileUploadService";
 
 		public static const UPLOAD_PROGRESS:String = "UPLOAD_PROGRESS";
@@ -49,8 +47,7 @@ package org.bigbluebutton.modules.present.business
 		 * @param room - a room in the server we're connecting to
 		 * 
 		 */		
-		public function FileUploadService(url:String, conference:String, room:String) : void
-		{
+		public function FileUploadService(url:String, conference:String, room:String):void {
 			sendVars.conference = conference;
 			sendVars.room = room;
 			request.url = url;
@@ -63,8 +60,7 @@ package org.bigbluebutton.modules.present.business
 		 * @param file - The FileReference class of the file we wish to send
 		 * 
 		 */		
-		public function upload(presentationName:String, file:FileReference):void
-		{
+		public function upload(presentationName:String, file:FileReference):void {
 			sendVars.presentation_name = presentationName;
 			var fileToUpload : FileReference = new FileReference();
 			fileToUpload = file;
@@ -98,8 +94,7 @@ package org.bigbluebutton.modules.present.business
 		 * @param event - a ProgressEvent
 		 * 
 		 */		
-		private function onUploadProgress(event:ProgressEvent) : void
-		{
+		private function onUploadProgress(event:ProgressEvent) : void {
 			var percentage:Number = Math.round((event.bytesLoaded / event.bytesTotal) * 100);
 			var e:UploadEvent = new UploadEvent(UploadEvent.UPLOAD_PROGRESS_UPDATE);
 			e.percentageComplete = percentage;
@@ -111,8 +106,7 @@ package org.bigbluebutton.modules.present.business
 		 * @param event
 		 * 
 		 */		
-		private function onUploadComplete(event:Event):void
-		{
+		private function onUploadComplete(event:Event):void {
 			dispatcher.dispatchEvent(new UploadEvent(UploadEvent.UPLOAD_COMPLETE));
 		}
 
@@ -121,8 +115,7 @@ package org.bigbluebutton.modules.present.business
 		 * @param event
 		 * 
 		 */
-		private function onUploadIoError(event:IOErrorEvent):void
-		{
+		private function onUploadIoError(event:IOErrorEvent):void {
 			dispatcher.dispatchEvent(new UploadEvent(UploadEvent.UPLOAD_IO_ERROR));
 			LogUtil.error("An error occured while uploading the file. " + event.toString()); 
 		}
@@ -132,8 +125,7 @@ package org.bigbluebutton.modules.present.business
 		 * @param event
 		 * 
 		 */		
-		private function onUploadSecurityError(event:SecurityErrorEvent) : void
-		{
+		private function onUploadSecurityError(event:SecurityErrorEvent) : void {
 			dispatcher.dispatchEvent(new UploadEvent(UploadEvent.UPLOAD_SECURITY_ERROR));
 			LogUtil.error("A security error occured while trying to upload the presentation. " + event.toString());
 		}		

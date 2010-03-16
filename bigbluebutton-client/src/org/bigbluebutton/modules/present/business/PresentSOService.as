@@ -302,7 +302,13 @@ package org.bigbluebutton.modules.present.business {
 							e.slideToCanvasHeightRatio = result.presentation.heightRatio;
 							dispatcher.dispatchEvent(e);
 						}
-						
+						if (result.presentations) {
+							for(var p:Object in result.presentations) {
+								var u:Object = result.presentations[p]
+								LogUtil.debug("Presentation name " + u as String);
+								sendPresentationName(u as String);
+							}
+						}
 					},	
 					// status - On error occurred
 					function(status:Object):void { 
@@ -313,6 +319,12 @@ package org.bigbluebutton.modules.present.business {
 					}
 				) //new Responder
 			); //_netConnection.call
+		}
+		
+		private function sendPresentationName(presentationName:String):void {
+			var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_SUCCESS);
+			uploadEvent.presentationName = presentationName;
+			dispatcher.dispatchEvent(uploadEvent)
 		}
 		
 		public function assignPresenter(userid:Number, name:String, assignedBy:Number):void {

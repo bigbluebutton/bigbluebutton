@@ -95,7 +95,7 @@
 			[Bindable] public var fitToActualSizeIcon:Class = images.mag_reset;
 						
 			[Bindable] private var thumbY:Number;
-			public var uploadWindow:FileUploadWindow = null;
+//			public var uploadWindow:FileUploadWindow = null;
 			private var slideManager:SlideManager = new SlideManager();
 			
 			[Bindable] private var DEFAULT_X_POSITION:int = 237;
