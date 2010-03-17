@@ -31,6 +31,7 @@ package org.bigbluebutton.modules.present.business {
 	import org.bigbluebutton.modules.present.events.CursorEvent;
 	import org.bigbluebutton.modules.present.events.MoveEvent;
 	import org.bigbluebutton.modules.present.events.NavigationEvent;
+	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.events.ZoomEvent;
 	
@@ -262,6 +263,26 @@ package org.bigbluebutton.modules.present.business {
 			_presentationSO.send("clearCallback");			
 		}
 		
+		public function removePresentation(name:String):void {
+			nc.call("presentation.removePresentation",// Remote function name
+				new Responder(
+					function(result:Boolean):void { 						 
+						if (result) {
+							LogUtil.debug("Successfully assigned presenter to: " + userid);							
+						}	
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+							} 
+					}
+				), //new Responder
+				name
+			); //_netConnection.call
+		}
+		
 		/**
 		 * A call-back method for the clear method. This method is called when the clear method has
 		 * successfuly called the server.
@@ -330,7 +351,7 @@ package org.bigbluebutton.modules.present.business {
 		public function assignPresenter(userid:Number, name:String, assignedBy:Number):void {
 			nc.call("presentation.assignPresenter",// Remote function name
 				new Responder(
-	        		// participants - On successful result
+	        		// On successful result
 					function(result:Boolean):void { 
 						 
 						if (result) {
@@ -381,7 +402,7 @@ package org.bigbluebutton.modules.present.business {
 		public function gotoSlide(num:int) : void {
 			nc.call("presentation.gotoSlide",// Remote function name
 				new Responder(
-	        		// participants - On successful result
+	        		// On successful result
 					function(result:Boolean):void { 
 						 
 						if (result) {
@@ -424,7 +445,7 @@ package org.bigbluebutton.modules.present.business {
 			LogUtil.debug("PresentationSOService::sharePresentation()... presentationName=" + presentationName);
 			nc.call("presentation.sharePresentation",// Remote function name
 				new Responder(
-	        		// participants - On successful result
+	        		// On successful result
 					function(result:Boolean):void { 
 						
 						if (result) {
@@ -439,7 +460,7 @@ package org.bigbluebutton.modules.present.business {
 							} 
 					}
 				), //new Responder
-				presentationName, // hardocde this for now...this will be used later to pre-upload multiple presentation
+				presentationName,
 				share
 			); //_netConnection.call
 		}
@@ -450,7 +471,16 @@ package org.bigbluebutton.modules.present.business {
 				var e:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
 				e.presentationName = presentationName;
 				dispatcher.dispatchEvent(e);
+			} else {
+				dispatcher.dispatchEvent(new UploadEvent(UploadEvent.CLEAR_PRESENTATION));
 			}
+		}
+		
+		public function removePresentationCallback(presentationName:String):void {
+			LogUtil.debug("removePresentationCallback " + presentationName);
+			var e:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.PRESENTATION_REMOVED_EVENT);
+			e.presentationName = presentationName;
+			dispatcher.dispatchEvent(e);
 		}
 		
 		public function pageCountExceededUpdateMessageCallback(conference:String, room:String, 

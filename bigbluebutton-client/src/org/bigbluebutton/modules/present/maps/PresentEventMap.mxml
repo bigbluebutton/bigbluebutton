@@ -24,6 +24,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 			import org.bigbluebutton.modules.present.events.SlideEvent;
 			import org.bigbluebutton.modules.present.events.PresentationEvent;
 			import org.bigbluebutton.modules.present.views.PresentationWindow;
@@ -100,6 +101,14 @@
 		<MethodInvoker generator="{PresentProxy}" method="loadPresentation" arguments="{event}" />
 	</EventHandlers>
 	
+	<EventHandlers type="{RemovePresentationEvent.REMOVE_PRESENTATION_EVENT}">
+		<MethodInvoker generator="{PresentProxy}" method="removePresentation" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{RemovePresentationEvent.PRESENTATION_REMOVED_EVENT}">
+		<MethodInvoker generator="{PresentManager}" method="removePresentation" arguments="{event}" />
+	</EventHandlers>
+	
 	<EventHandlers type="{UploadEvent.CONVERT_SUCCESS}">
 		<MethodInvoker generator="{PresentManager}" method="updatePresentationNames" arguments="{event}" />
 	</EventHandlers>
@@ -107,9 +116,5 @@
 	<EventHandlers type="{SlideEvent.LOAD_CURRENT_SLIDE}" >
 		<MethodInvoker generator="{PresentProxy}" method="loadCurrentSlideLocally" arguments="{event}" />
 	</EventHandlers>
-	
-	<!--<Injectors target="{PresentationWindow}">
-		<PropertyInjector targetKey="selected" source="{PresentManager}" sourceKey="isPresenter" />
-	</Injectors>-->
-	
+		
 </EventMap>

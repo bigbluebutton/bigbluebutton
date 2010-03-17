@@ -25,6 +25,7 @@ package org.bigbluebutton.modules.present.business
 	
 	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
 	import org.bigbluebutton.modules.present.events.PresenterCommands;
+	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 	import org.bigbluebutton.modules.present.events.SlideEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.managers.PresentationSlides;
@@ -142,6 +143,11 @@ package org.bigbluebutton.modules.present.business
 			var timer:Timer = new Timer(3000, 1);
 			timer.addEventListener(TimerEvent.TIMER, sendViewerNotify);
 			timer.start();
+		}
+		
+		public function removePresentation(e:RemovePresentationEvent):void {
+			if (soService == null) return;
+			soService.removePresentation(e.presentationName);
 		}
 		
 		private function sendViewerNotify(e:TimerEvent):void{

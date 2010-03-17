@@ -25,6 +25,7 @@ package org.bigbluebutton.modules.present.managers
 	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.main.events.OpenWindowEvent;
+	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.views.FileUploadWindow;
 	import org.bigbluebutton.modules.present.views.PresentationWindow;
@@ -73,8 +74,19 @@ package org.bigbluebutton.modules.present.managers
 		}
 		
 		public function updatePresentationNames(e:UploadEvent):void{
-			presentationNames.push({label:String(e.presentationName)});
+			LogUtil.debug("Adding presentation " + e.presentationName);
+			presentationNames.push(String(e.presentationName));
 		}
 
+		public function removePresentation(e:RemovePresentationEvent):void {
+			LogUtil.debug("Removing presentation " + e.presentationName);
+			var index:int = presentationNames.indexOf(e.presentationName as String);
+			LogUtil.debug("Presentation " + e.presentationName + " at index " + index);
+			
+			if (index > -1) {
+				presentationNames.splice(index, 1);
+				LogUtil.debug("Removing presentation " + e.presentationName + " at index " + index);
+			}
+		}
 	}
 }

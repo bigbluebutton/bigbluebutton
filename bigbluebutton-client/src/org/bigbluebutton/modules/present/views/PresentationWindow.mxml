@@ -95,7 +95,7 @@
 			[Bindable] public var fitToActualSizeIcon:Class = images.mag_reset;
 						
 			[Bindable] private var thumbY:Number;
-//			public var uploadWindow:FileUploadWindow = null;
+			public var uploadWindow:FileUploadWindow = null;
 			private var slideManager:SlideManager = new SlideManager();
 			
 			[Bindable] private var DEFAULT_X_POSITION:int = 237;
@@ -120,8 +120,7 @@
 			[Bindable] private var currentPresentation:String = ResourceUtil.getInstance().getString('bbb.presentation.title');
 			
 			private var presenterName:String = "";
-		
-			
+					
 			private function maximizeHandler():void {
 				// When the window is maximized, we want to resize the slide maintaining the aspect ratio.			
 				fitSlideToWindowMaintainingAspectRatio();
@@ -165,7 +164,6 @@
 				
 				this.width = slideWidth + WIDTH_PADDING;
 				this.height = slideHeight + CONTROL_BAR_HEIGHT + TOP_WINDOW_BORDER;
-//				LogUtil.debug("Window dim["+this.width + "," + this.height + "]" + "Parent dim = " + this.parent.width + "," + this.parent.height + "]");
 
 				// Test if the height and width are bigger than it's parent. If so, resize
 				// to make it fit inside so that the controls will still be visible.
@@ -397,9 +395,19 @@
 			
 			private function clearPresentation(e:UploadEvent):void{
 				slideView.visible = false;		
+				slideView.swfSlideLoader.source = null; 
 				slideView.selectedSlide = 0;
 				slideNumLbl.text = "";
+				displaySlideNavigationControls(false);
 				showUploadPresentationLabel(false);
+				
+				// Change the title of the window.
+				currentPresentation = ResourceUtil.getInstance().getString('bbb.presentation.title');
+				
+				// Let's reinitialize the size of the window to the default.
+				currentSlideWidth = DEFAULT_WINDOW_WIDTH;
+				currentSlideHeight = DEFAULT_WINDOW_HEIGHT;
+				resetWidthAndHeight();
 			}
 			
 			private function showUploadPresentationLabel(show:Boolean):void {
