@@ -20,11 +20,6 @@ Author: DJP <DJP@architectes.org>
 
 -->
 <?
-/*
-REQUIREMENT
- PHP.INI
-	allow_url_fopen = On
- */
 require('bbb_api_conf.inc.php');
 
 /*
@@ -53,7 +48,7 @@ function getJoinURL($username, $meetingID, $welcome = '')
 	$params = 'name='.urlencode($meetingID).'&meetingID='.urlencode($meetingID).'&attendeePW='.ATTENDEEPW.'&moderatorPW='.MODERATORPW.'&voiceBridge='.$voiceBridge;
 	if (trim($welcome))
 		$params .= '&welcome='.urlencode($welcome);
-	$xml = simplexml_load_file($base_url_create.$params.'&checksum='.sha1($params.SALT));
+	$xml = bbb_wrap_simplexml_load_file($base_url_create.$params.'&checksum='.sha1($params.SALT));
 	if ($xml && $xml->returncode == 'SUCCESS' && $meetingToken = trim($xml->meetingToken))
 	{
 		$params = 'meetingToken='.$meetingToken.'&fullName='.urlencode($username).'&password='.MODERATORPW;
@@ -94,7 +89,7 @@ function getURLisMeetingRunning($meetingToken, $meetingID)
  */
 function isMeetingRunning($meetingToken, $meetingID)
 {
-	$xml = simplexml_load_file(getURLisMeetingRunning($meetingToken, $meetingID));
+	$xml = bbb_wrap_simplexml_load_file(getURLisMeetingRunning($meetingToken, $meetingID));
 	if ($xml && $xml->returncode == 'SUCCESS')
 		return (($xml->running == 'TRUE')?true:false);
 	else
