@@ -340,6 +340,7 @@
 				} else {
 					dispatchEvent(new SlideEvent(SlideEvent.LOAD_CURRENT_SLIDE));
 				}
+				onResetZoom();
 			}
 			
 			private function displaySlideNavigationControls(show:Boolean):void {
