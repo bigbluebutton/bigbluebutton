@@ -185,4 +185,12 @@ public class PresentationRoomsManager {
         }   
         log.warn("Getting current presentation on a non-existing room $room")   
     }
+    
+    def removePresentation = {room, name ->
+        PresentationRoom r = getRoom(room)
+        if (r != null) {
+            return r.removePresentation(name)
+        }   
+        log.warn("Removing presentation from a non-existing room $room") 
+    }
 }

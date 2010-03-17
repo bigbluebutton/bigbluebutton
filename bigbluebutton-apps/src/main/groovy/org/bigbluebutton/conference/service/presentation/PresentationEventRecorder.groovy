@@ -138,6 +138,11 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 		
 	}
 	
+	def removePresentation = {name ->
+	   log.debug("calling removePresentationCallback $name")
+	   so.sendMessage("removePresentationCallback", [name])
+	}
+	
 	def gotoSlide = {slide ->
 		log.debug("calling gotoSlideCallback $slide")
 		so.sendMessage("gotoSlideCallback", [slide])	

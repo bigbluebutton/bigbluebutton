@@ -43,6 +43,12 @@ public class PresentationService {
 		presentationApplication.assignPresenter(scope.name, presenter)
 	}
 	
+	def removePresentation(name) {
+	   log.debug("removePresentation $name")
+        IScope scope = Red5.connectionLocal.scope
+        presentationApplication.removePresentation(scope.name, name)
+	}
+	
 	def getPresentationInfo() {
 		log.debug("Getting presentation information.")
 		IScope scope = Red5.connectionLocal.scope

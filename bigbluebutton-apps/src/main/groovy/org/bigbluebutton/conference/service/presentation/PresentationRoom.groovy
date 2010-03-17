@@ -124,7 +124,12 @@ public class PresentationRoom {
 	def sharePresentation = {presentationName, share ->
 		log.debug("Request share presentation $presentationName $share for room $name")
 		sharing = share
-		currentPresentation = presentationName
+		if (share) {
+		  currentPresentation = presentationName
+		} else {
+		  currentPresentation = ""
+		}
+		 
 		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
 			log.debug("calling on listener")
 			IPresentationRoomListener listener = (IPresentationRoomListener) iter.next()
@@ -132,4 +137,27 @@ public class PresentationRoom {
 			listener.sharePresentation(presentationName, share)
 		}			
 	}
+	    
+    def removePresentation = {presentationName ->
+        log.debug("Request remove presentation $presentationName")
+        def index = presentationNames.indexOf(presentationName)
+        
+        if (index < 0) {
+            log.warn("Request remove presentation $presentationName. Presentation not found.")
+            return
+        }
+        
+        presentationNames.remove(index)
+        
+        for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
+            log.debug("calling on listener")
+            IPresentationRoomListener listener = (IPresentationRoomListener) iter.next()
+            log.debug("calling removePresentation on listener ${listener.getName()}")
+            listener.removePresentation(presentationName)
+        }   
+        
+        if (currentPresentation == presentationName) {
+            sharePresentation(presentationName, false)
+        }        
+    }
 }
