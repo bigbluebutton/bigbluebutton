@@ -131,6 +131,7 @@
 		<compileLocale locale="es_LA" />
 		<compileLocale locale="it_IT" />
 		<compileLocale locale="de_DE" />
+		<compileLocale locale="ru_RU" />
 	</target>
 	
 	<!-- Compiles Localization Resource Bundle. -->
