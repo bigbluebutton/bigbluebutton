@@ -199,7 +199,6 @@
 				currentSlideWidth = event.slideWidth;
 				currentSlideHeight = event.slideHeight;
 				fitSlideToWindowMaintainingAspectRatio();			
-				resetWidthAndHeight();
 			}
 			
 			private function onKeyUp(event:KeyboardEvent):void{
@@ -341,6 +340,7 @@
 					dispatchEvent(new SlideEvent(SlideEvent.LOAD_CURRENT_SLIDE));
 				}
 				onResetZoom();
+				reinitWindowToDefaultSize();
 			}
 			
 			private function displaySlideNavigationControls(show:Boolean):void {
@@ -348,7 +348,7 @@
 				forwardButton.visible = show;
 				zoomSlider.visible = show;
 				btnResetZoom.visible = show;
-				toolbarDocker.visible = show;
+//				toolbarDocker.visible = show;
 			}
 			
 			private function notifyOthersOfSharingPresentation(presentationName:String):void {
@@ -405,7 +405,10 @@
 				// Change the title of the window.
 				currentPresentation = ResourceUtil.getInstance().getString('bbb.presentation.title');
 				
-				// Let's reinitialize the size of the window to the default.
+				reinitWindowToDefaultSize();
+			}
+			
+			private function reinitWindowToDefaultSize():void {
 				currentSlideWidth = DEFAULT_WINDOW_WIDTH;
 				currentSlideHeight = DEFAULT_WINDOW_HEIGHT;
 				resetWidthAndHeight();
@@ -440,7 +443,7 @@
             
             private function addToolbar(e:AddPresentationToolbarEvent):void{
             	var toolbar:DockableToolBar = e.toolbar;
-            	this.toolbarDocker.addChild(toolbar);
+ //           	this.toolbarDocker.addChild(toolbar);
             }
             
 		]]>
@@ -472,13 +475,13 @@
     	  <mx:Label id="slideNumLbl" text=""/>    
     	  <mx:Button id="forwardButton" icon="{forwardIcon}" visible="false" width="30" height="20"
     	   		toolTip="Next slide" click="gotoNextSlide()"/>    				
-	<mx:Spacer width="10%" id="spacer2"/>
+		<mx:Spacer width="10%" id="spacer2"/>
     	<mx:HSlider id="zoomSlider" visible="false"
     		minimum="100" maximum="400" value="100" dataTipPlacement="top" labels="['100%','400%']" 
     		useHandCursor="true" snapInterval="5" allowTrackClick="true" liveDragging="true" 
     		dataTipFormatFunction="removeDecimalFromDataTip" change="onSliderZoom()" width="100"/>
     	<mx:Spacer width="50%" id="spacer3"/>
-    	<containers:Docker id="toolbarDocker" height="100%" width="250" visible="{isPresenter}" />
+    	<!--containers:Docker id="toolbarDocker" height="100%" width="250" visible="{isPresenter}" /-->
     	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="false" width="20" height="20" 
     		toolTip="Reset Zoom" click="onResetZoom()"/>
     	<mx:Spacer width="5" id="spacer4"/>
