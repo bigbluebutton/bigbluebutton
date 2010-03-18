@@ -123,10 +123,14 @@
 		<compileLocale locale="nl_NL" />
 		<compileLocale locale="es_ES" />
 		<compileLocale locale="vi_VN" />
-		<compileLocale locale="lt_LT" />
 		<compileLocale locale="az_AZ" />
-		<compileLocale locale="tr_TR" />
+		<compileLocale locale="lt_LT" />
 		<compileLocale locale="el_GR" />
+		<compileLocale locale="tr_TR" />
+		<compileLocale locale="pl_PL" />
+		<compileLocale locale="es_LA" />
+		<compileLocale locale="it_IT" />
+		<compileLocale locale="de_DE" />
 	</target>
 	
 	<!-- Compiles Localization Resource Bundle. -->
