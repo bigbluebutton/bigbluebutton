@@ -24,6 +24,7 @@ import org.bigbluebutton.conference.Room
 import java.util.concurrent.ConcurrentHashMap
 import org.apache.commons.collections.bidimap.DualHashBidiMap
 import java.util.Collection
+import java.util.Collections
 import org.bigbluebutton.api.domain.DynamicConference;
  
 public class DynamicConferenceService {	
@@ -45,6 +46,10 @@ public class DynamicConferenceService {
 		confsByMtgID = new ConcurrentHashMap<String, DynamicConference>()
 		tokenMap = new DualHashBidiMap<String, String>()
 		roomsByToken = new ConcurrentHashMap<String, Room>()
+	}
+	
+	public Collection<DynamicConference> getAllConferences() {
+		return confsByMtgID.isEmpty() ? Collections.emptySet() : Collections.unmodifiableCollection(confsByMtgID.values());
 	}
 	
 	public void storeConference(DynamicConference conf) {

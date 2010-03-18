@@ -305,6 +305,64 @@ class ApiController {
 		respondWithConferenceDetails(conf, room, null, null);
 	}
 	
+	def getMeetings = {
+		log.debug CONTROLLER_NAME + "#getMeetings"
+
+		String random = params.random
+		if (StringUtils.isEmpty(random)) {
+			invalid("missingParamRandom", "You must specify a parameter named 'random' with any random value so that it can be used for the checksum security");
+			return
+		}
+		
+		if (!doChecksumSecurity()) {
+			invalidChecksum(); return;
+		}
+
+		// check for existing:
+		Collection<DynamicConference> confs = dynamicConferenceService.getAllConferences();
+		
+		if (confs == null || confs.size() == 0) {
+			response.addHeader("Cache-Control", "no-cache")
+			withFormat {	
+				xml {
+					log.debug "Rendering as xml"
+					render(contentType:"text/xml") {
+						response() {
+							returncode(RESP_CODE_SUCCESS)
+							meetings(null)
+							messageKey("noMeetings")
+							message("no meetings were found on this server")
+						}
+					}
+				}
+			}
+			return;
+		}
+		
+		response.addHeader("Cache-Control", "no-cache")
+		withFormat {	
+			xml {
+				log.debug "Rendering as xml"
+				render(contentType:"text/xml") {
+					response() {
+						returncode(RESP_CODE_SUCCESS)
+						meetings() {
+							confs.each { conf ->
+								meeting() {
+									meetingToken("${conf.meetingToken}")
+									meetingID("${conf.meetingID}")
+									attendeePW("${conf.attendeePassword}")
+									moderatorPW("${conf.moderatorPassword}")
+									running(conf.isRunning() ? "true" : "false")
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
 	/* helper methods */
 	def doChecksumSecurity() {
 		log.debug CONTROLLER_NAME + "#doChecksumSecurity"
