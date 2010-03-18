@@ -125,6 +125,7 @@
 		<compileLocale locale="vi_VN" />
 		<compileLocale locale="lt_LT" />
 		<compileLocale locale="az_AZ" />
+		<compileLocale locale="tr_TR" />
 		<compileLocale locale="el_GR" />
 	</target>
 	
