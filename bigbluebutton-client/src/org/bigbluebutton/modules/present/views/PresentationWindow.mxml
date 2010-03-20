@@ -26,14 +26,11 @@
 	xmlns:pres="flexlib.mdi.containers.*"
 	xmlns:code="http://code.google.com/p/flexlib/" 
 	xmlns:containers="flexlib.containers.*"
-	paddingBottom="0" paddingTop="0" 
-	paddingLeft="0" paddingRight="0" 
-	showCloseButton="false"
-    verticalScrollPolicy="off" horizontalScrollPolicy="off"
+	xmlns:mate="http://mate.asfusion.com/"
+	paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0" 
+	showCloseButton="false" verticalScrollPolicy="off" horizontalScrollPolicy="off"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
-	creationComplete="onCreationComplete()"
-	resize="maximizeHandler()"
-	rollOut="hideThumbs()" xmlns:mate="http://mate.asfusion.com/"
+	creationComplete="onCreationComplete()" resize="maximizeHandler()"
 	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
 	x="{DEFAULT_X_POSITION}" y="{DEFAULT_Y_POSITION}"
 	title="{currentPresentation}" keyUp="onKeyUp(event)">
@@ -120,7 +117,64 @@
 			[Bindable] private var currentPresentation:String = ResourceUtil.getInstance().getString('bbb.presentation.title');
 			
 			private var presenterName:String = "";
-					
+
+			// The following code block is to deal with a bug in FLexLib 
+			// with MDI windows not responding well to being maximized
+			private var savedWindowWidth:Number;
+			private var savedWindowHeight:Number;
+			private var savedX:Number;
+			private var savedY:Number;
+			private var isMaximized:Boolean = false;
+			
+			private var fitToWindowTimer:Timer;
+			
+			override public function maximize():void{
+				if (!isMaximized){
+					savedWindowHeight = this.height;
+					savedWindowWidth = this.width;
+					savedX = this.x;
+					savedY = this.y;    
+					dispatchEvent(new MDIWindowEvent(MDIWindowEvent.MAXIMIZE, this));            	
+                	isMaximized = true;
+                	windowControls.maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString('bbb.presentation.maximizeRestoreBtn.toolTip2');	                
+				
+				} else{
+					this.width = savedWindowWidth;
+					this.height = savedWindowHeight;
+					this.x = savedX;
+					this.y = savedY;
+					isMaximized = false;
+					windowControls.maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString('bbb.presentation.maximizeRestoreBtn.toolTip');
+				}					
+				
+				/*
+				 * Need to have a timer to trigger resizing slide to window after the 
+				 * window has been maximized/restored. The MAXIMIZE/RESTORE events are
+				 * generated when the button is clicked so the width and height are not
+				 * the ones we want.
+				 */
+				fitToWindowTimer = new Timer(1000);
+				fitToWindowTimer.addEventListener(TimerEvent.TIMER, maximizeTimerHandler);
+				fitToWindowTimer.start();
+			}
+			
+			private function maximizeTimerHandler(event:TimerEvent):void {
+				// When the window is maximized, we want to resize the slide maintaining the aspect ratio.			
+				fitSlideToWindowMaintainingAspectRatio();
+				
+				if ((DEFAULT_X_POSITION + this.width) > this.parent.width) {
+					// Adjust presentation window so that it doesn't go over the side of the browser window
+					this.x = this.parent.width - this.width;
+				} else {
+					// Move window so that it won't overlap with Participant's window.
+					this.x = DEFAULT_X_POSITION;
+				}
+				
+				this.y = 0;
+				
+				fitToWindowTimer.stop();
+			}
+								
 			private function maximizeHandler():void {
 				// When the window is maximized, we want to resize the slide maintaining the aspect ratio.			
 				fitSlideToWindowMaintainingAspectRatio();
@@ -152,8 +206,8 @@
 				var slideWidth:int = this.width;
 				var slideHeight:int = this.height;
 				
-				// If the height is smaller than the width, we use the height as the base to determine
-				// the size of the slide.
+				// If the height is smaller than the width, we use the height as the 
+				// base to determine the size of the slide.
 				if (this.height < this.width) {
 					slideHeight = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
 					slideWidth = ((currentSlideWidth * slideHeight)/currentSlideHeight);
@@ -179,7 +233,6 @@
 					slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
 				}
 				sendWindowResizedEvent(slideWidth, slideHeight);
-
 			}
 			
 			/*
@@ -453,8 +506,8 @@
 	    <!--http://stackoverflow.com/questions/369120/why-does-mxstates-have-trouble-being-resolved-to-a-component-implementation-->
         <mx:State name="dispUploadPresLabel">      
             <mx:AddChild relativeTo="{spacer1}" position="before">
-                <mx:Label id="uploadPresentationLabel" visible="true" 
-    	  			text="{ResourceUtil.getInstance().getString('bbb.presentation.clickToUpload')}" width="100%"/>
+                <mx:Label id="uploadPresentationLabel" visible="true" width="100%"
+    	  			text="{ResourceUtil.getInstance().getString('bbb.presentation.clickToUpload')}"/>
             </mx:AddChild>
         </mx:State>		
 	</pres:states>
@@ -462,9 +515,9 @@
 	<mx:Fade id="thumbFadeIn" alphaFrom="1" alphaTo="0" duration="100" />
 	<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />
 
-	<thumb:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" 
+		<thumb:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" 
 			mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off" />
-			    
+		    
     <mx:ApplicationControlBar id="presCtrlBar" width="100%" height="{CONTROL_BAR_HEIGHT}">
     	  <mx:Button id="uploadPres" icon="{uploadIcon}" visible="false" width="20" height="20"
     	   		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.uploadPresBtn')}" 

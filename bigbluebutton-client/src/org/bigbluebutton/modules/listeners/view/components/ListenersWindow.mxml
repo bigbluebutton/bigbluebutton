@@ -53,7 +53,7 @@
 
 			[Bindable] public var listeners:ArrayCollection;
 			[Bindable] public var moderator:Boolean;
-			[Bindable] private var windowTitle:String = ResourceUtil.getInstance().getString('bbb.listeners.title', [0]) ;
+			[Bindable] private var windowTitle:String = ResourceUtil.getInstance().getString('bbb.listeners.title', [""]) ;
 			
 			
 			private function onCreationComplete():void {
@@ -61,7 +61,8 @@
 			}
 			
 			private function updateNumberOfListeners(numListeners:int):void {
-				windowTitle = ResourceUtil.getInstance().getString('bbb.listeners.title', [numListeners]) ;
+				if (numListeners > 4)
+					windowTitle = ResourceUtil.getInstance().getString('bbb.listeners.title', [numListeners]) ;
 			}
 			
 			//The following code block is to deal with a bug in FLexLib with MDI windows not responding well to being maximized
