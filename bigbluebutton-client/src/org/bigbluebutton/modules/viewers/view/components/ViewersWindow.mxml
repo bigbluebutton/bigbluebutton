@@ -44,7 +44,7 @@
 			import mx.binding.utils.BindingUtils;
 			
 			[Bindable]
-			private var windowTitle:String = ResourceUtil.getInstance().getString('bbb.viewers.title',[""]) ;
+			private var windowTitle:String = ResourceUtil.getInstance().getString('bbb.viewers.title',["", ""]) ;
 			
 			[Bindable]
 			public var participants:ArrayCollection;
@@ -71,7 +71,7 @@
 			
 			private function updateNumberOfViewers(numViewers:int):void {
 				if (numViewers > 4)
-					windowTitle = ResourceUtil.getInstance().getString('bbb.viewers.title', [numViewers]) ;
+					windowTitle = ResourceUtil.getInstance().getString('bbb.viewers.title', [":", numViewers]) ;
 			}
 			
 			public function get xPosition():int {
