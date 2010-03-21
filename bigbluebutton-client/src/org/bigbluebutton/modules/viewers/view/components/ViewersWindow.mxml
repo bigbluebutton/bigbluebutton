@@ -71,7 +71,9 @@
 			
 			private function updateNumberOfViewers(numViewers:int):void {
 				if (numViewers > 4)
-					windowTitle = ResourceUtil.getInstance().getString('bbb.viewers.title', [":", numViewers]) ;
+					windowTitle = ResourceUtil.getInstance().getString('bbb.viewers.title', [":", numViewers]);
+				else 
+					windowTitle = ResourceUtil.getInstance().getString('bbb.viewers.title', ["", ""]);
 			}
 			
 			public function get xPosition():int {
