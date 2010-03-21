@@ -30,7 +30,7 @@
 	paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0" 
 	showCloseButton="false" verticalScrollPolicy="off" horizontalScrollPolicy="off"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
-	creationComplete="onCreationComplete()" resize="maximizeHandler()"
+	creationComplete="onCreationComplete()" 
 	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
 	x="{DEFAULT_X_POSITION}" y="{DEFAULT_Y_POSITION}"
 	title="{currentPresentation}" keyUp="onKeyUp(event)">
@@ -208,7 +208,7 @@
 				
 				// If the height is smaller than the width, we use the height as the 
 				// base to determine the size of the slide.
-				if (this.height < this.width) {
+				if (this.height < this.width) {					
 					slideHeight = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
 					slideWidth = ((currentSlideWidth * slideHeight)/currentSlideHeight);
 				} else {
@@ -456,15 +456,15 @@
 				showUploadPresentationLabel(false);
 				
 				// Change the title of the window.
-				currentPresentation = ResourceUtil.getInstance().getString('bbb.presentation.title');
-				
+				currentPresentation = ResourceUtil.getInstance().getString('bbb.presentation.title');				
 				reinitWindowToDefaultSize();
 			}
 			
 			private function reinitWindowToDefaultSize():void {
 				currentSlideWidth = DEFAULT_WINDOW_WIDTH;
 				currentSlideHeight = DEFAULT_WINDOW_HEIGHT;
-				resetWidthAndHeight();
+				this.width = DEFAULT_WINDOW_WIDTH;
+				this.height = DEFAULT_WINDOW_HEIGHT;
 			}
 			
 			private function showUploadPresentationLabel(show:Boolean):void {
