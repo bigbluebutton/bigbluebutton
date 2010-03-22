@@ -327,7 +327,7 @@ public String getJoinURLViewer(String username, String meetingToken) {
 	//
 	public static String urlEncode(String s) {	
 		try {
-			return URLEncoder.encode(s, "UTF-8");
+			return URLEncoder.encode(s, "UTF-16");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
