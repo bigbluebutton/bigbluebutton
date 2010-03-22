@@ -467,10 +467,12 @@
 			}
 			
 			private function reinitWindowToDefaultSize():void {
-				currentSlideWidth = DEFAULT_WINDOW_WIDTH;
-				currentSlideHeight = DEFAULT_WINDOW_HEIGHT;
-				this.width = DEFAULT_WINDOW_WIDTH;
-				this.height = DEFAULT_WINDOW_HEIGHT;
+				if ((this.width < DEFAULT_WINDOW_WIDTH) || (this.height < DEFAULT_WINDOW_HEIGHT)) {
+					currentSlideWidth = DEFAULT_WINDOW_WIDTH;
+					currentSlideHeight = DEFAULT_WINDOW_HEIGHT;
+					this.width = DEFAULT_WINDOW_WIDTH;
+					this.height = DEFAULT_WINDOW_HEIGHT;
+				}				
 			}
 			
 			private function showUploadPresentationLabel(show:Boolean):void {
