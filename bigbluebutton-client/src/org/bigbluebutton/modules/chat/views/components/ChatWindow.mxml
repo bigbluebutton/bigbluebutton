@@ -40,7 +40,7 @@
 			
 			private var dispState:String;
 			
-			[Bindable] private var _defaultWidth:int = 490;
+			[Bindable] private var _defaultWidth:int = 470;
 			[Bindable] private var _defaultHeight:int = 450;
 			
 			public function get defaultWidth():int{

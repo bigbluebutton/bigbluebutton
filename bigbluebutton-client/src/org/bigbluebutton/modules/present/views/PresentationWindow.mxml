@@ -106,7 +106,7 @@
 			private static const WIDTH_PADDING:int = 5;
 
 			[Bindable] private var DEFAULT_WINDOW_WIDTH:int = 510;
-			[Bindable] private var DEFAULT_WINDOW_HEIGHT:int = 450;
+			[Bindable] private var DEFAULT_WINDOW_HEIGHT:int = 451;
 						
 			// Init to the size of the window.
 			private var currentSlideWidth:int = DEFAULT_WINDOW_WIDTH;
