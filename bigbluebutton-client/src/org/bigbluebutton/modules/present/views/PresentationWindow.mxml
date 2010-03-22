@@ -174,22 +174,7 @@
 				
 				fitToWindowTimer.stop();
 			}
-								
-			private function maximizeHandler():void {
-				// When the window is maximized, we want to resize the slide maintaining the aspect ratio.			
-				fitSlideToWindowMaintainingAspectRatio();
-				
-				if ((DEFAULT_X_POSITION + this.width) > this.parent.width) {
-					// Adjust presentation window so that it doesn't go over the side of the browser window
-					this.x = this.parent.width - this.width;
-				} else {
-					// Move window so that it won't overlap with Participant's window.
-					this.x = DEFAULT_X_POSITION;
-				}
-				
-				this.y = 0;
-			}
-			
+		
 			private function onCreationComplete():void{
 				thumbY = this.height - 160;
 				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);

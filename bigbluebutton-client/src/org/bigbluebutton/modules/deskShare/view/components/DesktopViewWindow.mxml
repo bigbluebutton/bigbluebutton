@@ -61,7 +61,51 @@
 			
 			private static const VIDEO_WIDTH_PADDING:int = 7;
 			private static const VIDEO_HEIGHT_PADDING:int = 65;
+
+			// The following code block is to deal with a bug in FLexLib 
+			// with MDI windows not responding well to being maximized
+			private var savedWindowWidth:Number;
+			private var savedWindowHeight:Number;
+			private var savedX:Number;
+			private var savedY:Number;
+			private var isMaximized:Boolean = false;
 			
+			// Timer to make sure the video fits to window whenever the window is resized.
+			private var fitToWindowTimer:Timer;
+			
+			override public function maximize():void{
+				if (!isMaximized){
+					savedWindowHeight = this.height;
+					savedWindowWidth = this.width;
+					savedX = this.x;
+					savedY = this.y;    
+					dispatchEvent(new MDIWindowEvent(MDIWindowEvent.MAXIMIZE, this));            	
+                	isMaximized = true;
+                	windowControls.maximizeRestoreBtn.toolTip = "Restore to previous size";
+				} else{
+					this.width = savedWindowWidth;
+					this.height = savedWindowHeight;
+					this.x = savedX;
+					this.y = savedY;
+					isMaximized = false;
+					windowControls.maximizeRestoreBtn.toolTip = "Maximize this window";
+				}		
+				/*
+				 * Need to have a timer to trigger resizing video to window after the 
+				 * window has been maximized/restored. The MAXIMIZE/RESTORE events are
+				 * generated when the button is clicked so the width and height are not
+				 * the ones we want.
+				 */
+				fitToWindowTimer = new Timer(100);
+				fitToWindowTimer.addEventListener(TimerEvent.TIMER, maximizeTimerHandler);
+				fitToWindowTimer.start();		
+			}
+			
+			private function maximizeTimerHandler(event:TimerEvent):void {				
+				fitToWindow();
+				fitToWindowTimer.stop();
+			}
+						
 			private function onCreationComplete():void{
 				windowControls.maximizeRestoreBtn.toolTip = "Maximize this window";
 				windowControls.minimizeBtn.toolTip = "Minimize this window";
@@ -73,8 +117,6 @@
 				this.width = 600;
 				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);				
 				fitToWindow();
-				
-
 			}
 			
 			private function onResizeEndEvent(event:MDIWindowEvent):void {
