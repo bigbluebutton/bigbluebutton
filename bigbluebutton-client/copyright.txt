@@ -1,5 +1,5 @@
 
-Copyright 2006-2007 by respective authors (see below). All rights reserved.
+Copyright 2006-2010 by respective authors (see below). All rights reserved.
  
 This library is free software; you can redistribute it and/or modify it under the 
 terms of the GNU Lesser General Public License as published by the Free Software 
