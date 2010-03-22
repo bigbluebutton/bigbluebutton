@@ -48,6 +48,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.events.ListEvent;
 			import org.bigbluebutton.common.IBbbCanvas;
 			import mx.events.ResizeEvent;
 			import flexlib.containers.DockableToolBar;
@@ -118,8 +119,7 @@
 			
 			private var presenterName:String = "";
 
-			// The following code block is to deal with a bug in FLexLib 
-			// with MDI windows not responding well to being maximized
+			// The following code block is to deal with FLexLib MDI windows not being able to be moved when maximized
 			private var savedWindowWidth:Number;
 			private var savedWindowHeight:Number;
 			private var savedX:Number;
@@ -193,6 +193,11 @@
 			private function onCreationComplete():void{
 				thumbY = this.height - 160;
 				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
+				slideView.addEventListener(ListEvent.ITEM_ROLL_OVER, onItemRollOver);
+			}
+			
+			private function onItemRollOver(e:ListEvent):void{
+				this.displaySlideNumber(e.columnIndex + 1);
 			}
 			
 			private function onResizeEndEvent(event:MDIWindowEvent):void {
@@ -379,7 +384,7 @@
 				if (e.presentationName == currentPresentation) return;			
 				currentPresentation = e.presentationName;
 				presentationLoaded = true;
-				slideView.slides = e.slides.slides;    		            		
+				slideView.setSlides(e.slides.slides);    		            		
 				slideView.visible = true;		
 	
 				if (slideManager != null) slideManager.clear();	
@@ -401,6 +406,7 @@
 				forwardButton.visible = show;
 				zoomSlider.visible = show;
 				btnResetZoom.visible = show;
+				slideNumLbl.visible = show;
 //				toolbarDocker.visible = show;
 			}
 			
@@ -444,14 +450,14 @@
 			}
 			
 			private function displaySlideNumber(currentSlide:int):void {
-				slideNumLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.pages', [currentSlide, slideView.slides.length]);
+				slideNumLbl.label = ResourceUtil.getInstance().getString('bbb.presentation.pages', [currentSlide, slideView.slides.length]);
 			}
 			
 			private function clearPresentation(e:UploadEvent):void{
 				slideView.visible = false;		
 				slideView.swfSlideLoader.source = null; 
 				slideView.selectedSlide = 0;
-				slideNumLbl.text = "";
+				slideNumLbl.label = "";
 				displaySlideNavigationControls(false);
 				showUploadPresentationLabel(false);
 				
@@ -487,6 +493,10 @@
 			
 			private function removeDecimalFromDataTip(val:String):String {			
                 return val; 
+            }
+            
+            private function showThumbnails():void{
+            	slideView.thumbnailView.visible = true;
             }
             
             private function addOverlayCanvas(e:AddOverlayCanvasEvent):void{
@@ -525,7 +535,7 @@
     	  <mx:Spacer width="50%" id="spacer1"/>
     	  <mx:Button id="backButton" icon="{backwardIcon}" visible="false" width="30" height="20"
     	   		toolTip="Previous slide." click="gotoPreviousSlide()"/>
-    	  <mx:Label id="slideNumLbl" text=""/>    
+    	  <mx:Button id="slideNumLbl" visible="false" label="" click="showThumbnails()"/>    
     	  <mx:Button id="forwardButton" icon="{forwardIcon}" visible="false" width="30" height="20"
     	   		toolTip="Next slide" click="gotoNextSlide()"/>    				
 		<mx:Spacer width="10%" id="spacer2"/>

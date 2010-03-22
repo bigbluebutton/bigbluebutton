@@ -116,6 +116,20 @@
 				overlayChildrenHolder.x = 0;
 				overlayChildrenHolder.y = 0;
 			}
+			
+			public function setSlides(slides:ArrayCollection):void{
+				this.slides = slides;
+				thumbnailView.dataProvider = this.slides.toArray();
+			}
+			
+			public function changeSlide():void{
+				dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, thumbnailView.selectedIndex));
+				thumbnailView.visible = false;
+			}
+			
+			private function changeIndex(e:ListEvent):void{
+				dispatchEvent(e);
+			}
 					
 			private function onMouseDown(e:MouseEvent):void{						
 				canvasMouseXOnMouseDown = canvasMouseX();
@@ -539,10 +553,14 @@
 				moveCanvas(loaderX(), loaderY());
 				if (overlayCanvas != null) overlayCanvas.zoomCanvas(width, height);
 			}
+			
 		]]>
 	</mx:Script>
 	
 	<mx:SWFLoader id="swfSlideLoader" width="100%" height="100%" creationComplete="listenForSlideLoadedCompleteEvent()"
-    		scaleContent="false" maintainAspectRatio="true" showBusyCursor="true" completeEffect="Fade"/>    	
+    		scaleContent="false" maintainAspectRatio="true" showBusyCursor="true" completeEffect="Fade"/>   
+    		
+    <mx:HorizontalList id="thumbnailView" itemRenderer="org.bigbluebutton.modules.present.views.Thumbnail" itemRollOver="changeIndex(event)" 
+    	visible="false" width="100%" height="100" y="{this.height - 100}" change="changeSlide()" />
 		      		 
 </mx:Canvas>

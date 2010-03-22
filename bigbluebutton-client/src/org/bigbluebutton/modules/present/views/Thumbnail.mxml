@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
+    horizontalAlign="center"
+    verticalGap="0" borderStyle="none" backgroundAlpha="0" >
+	
+    <mx:Image id="image" width="100" height="100" source="{data.thumb}"/>
+</mx:VBox>
