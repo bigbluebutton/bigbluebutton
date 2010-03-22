@@ -236,7 +236,7 @@ public String getJoinURLViewer(String username, String meetingToken) {
 
 				// Read server's response.
 				response = new StringBuffer();
-				Reader reader = new InputStreamReader(input, "UTF-8");
+				Reader reader = new InputStreamReader(input, "UTF-16");
 				reader = new BufferedReader(reader);
 				char[] buffer = new char[1024];
 				for (int n = 0; n >= 0;) {
