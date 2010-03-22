@@ -250,7 +250,7 @@ class PublicScheduledSessionController {
 	    	response.addHeader("Cache-Control", "no-cache")
 	    	withFormat {				
 				xml {
-					render(contentType:"text/xml") {
+					render(contentType:"text/xml", encoding:"UTF-16") {
 						'join'() {
 							returncode("SUCCESS")
 							fullname("$fname")
