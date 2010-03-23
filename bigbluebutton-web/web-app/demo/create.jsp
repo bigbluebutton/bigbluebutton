@@ -120,7 +120,7 @@ $(document).ready(function(){
 		}
 		//out.print ("Match : " + meetingToken );
 		String inviteURL = BigBlueButtonURL
-				+ "demo/create.jsp?action=invite&meetingID=" + URLEncoder.encode(meetingID, "UTF-16")
+				+ "demo/create.jsp?action=invite&meetingID=" + URLEncoder.encode(meetingID, "UTF-8")
 				+ "&" + meetingToken;
 %>
 
@@ -175,8 +175,7 @@ $(document).ready(function(){
 		String meetingToken = request.getParameter("meetingToken");
 
 		String enterURL = BigBlueButtonURL
-			+ "demo/create.jsp?action=join&username="
-			+ URLEncoder.encode(username, "UTF-16") + "&meetingToken="
+			+ URLEncoder.encode(username, "UTF-8") + "&meetingToken="
 			+ URLEncoder.encode(meetingToken, "UTF-8");
 
 		if (isMeetingRunning(meetingToken, meetingID).equals("true")) {
