@@ -343,7 +343,7 @@ class ApiController {
 		withFormat {	
 			xml {
 				log.debug "Rendering as xml"
-				render(contentType:"text/xml", encoding:"UTF-16") {
+				render(contentType:"text/xml") {
 					response() {
 						returncode(RESP_CODE_SUCCESS)
 						meetings() {
@@ -414,7 +414,7 @@ class ApiController {
 		response.addHeader("Cache-Control", "no-cache")
 		withFormat {				
 			xml {
-				render(contentType:"text/xml", encoding:"UTF-16") {
+				render(contentType:"text/xml") {
 					response() {
 						returncode(RESP_CODE_SUCCESS)
 						meetingToken("${conf.meetingToken}")
@@ -448,7 +448,7 @@ class ApiController {
 		withFormat {	
 			xml {
 				log.debug "Rendering as xml"
-				render(contentType:"text/xml", encoding:"UTF-16") {
+				render(contentType:"text/xml") {
 					response() {
 						returncode(RESP_CODE_SUCCESS)
 						meetingToken("${conf.meetingToken}")
@@ -462,7 +462,7 @@ class ApiController {
 			}
 			json {
 				log.debug "Rendering as json"
-				render(contentType:"text/json", encoding:"UTF-16") {
+				render(contentType:"text/json") {
 						returncode(RESP_CODE_SUCCESS)
 						meetingToken("${conf.meetingToken}")
 						meetingID("${conf.meetingID}")
