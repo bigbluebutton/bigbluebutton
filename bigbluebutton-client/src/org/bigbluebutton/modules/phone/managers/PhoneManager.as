@@ -75,7 +75,7 @@ package org.bigbluebutton.modules.phone.managers
 		}
 		
 		public function hangup():void {
-			trace("PhoneManager hangup");
+			LogUtil.debug("PhoneManager hangup");
 			connectionManager.doHangUp();
 			connectionManager.doClose();
 		}

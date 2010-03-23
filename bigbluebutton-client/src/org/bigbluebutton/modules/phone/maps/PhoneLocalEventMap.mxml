@@ -26,6 +26,7 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceEvent;
 			import org.bigbluebutton.modules.phone.events.StopPhoneModuleEvent;
 			import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
 			import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
@@ -68,6 +69,10 @@
     
     <EventHandlers type="{StopPhoneModuleEvent.STOP_PHONE_MODULE_EVENT}">       
     	<MethodInvoker generator="{PhoneLocalEventMapDelegate}" method="removeToolbarButton"/> 
+		<MethodInvoker generator="{PhoneManager}" method="hangup"/>
+    </EventHandlers>
+    
+    <EventHandlers type="{LeaveVoiceConferenceEvent.LEAVE_VOICE_CONFERENCE_EVENT}">        
 		<MethodInvoker generator="{PhoneManager}" method="hangup"/>
     </EventHandlers>
     

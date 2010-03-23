@@ -46,6 +46,7 @@ package org.bigbluebutton.modules.phone.maps
 		   	// Set the local dispatcher for this window so that it can send messages
 		   	// that can be heard by the LocalEventMap.
 		   	phoneButton.setLocalDispatcher(dispatcher);
+		   	phoneButton.toggle = true;
 		   	
 		   	// Use the GLobal Dispatcher so that this message will be heard by the
 		   	// main application.		   	

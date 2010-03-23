@@ -31,6 +31,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
 			import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
@@ -44,8 +45,15 @@
 			[Bindable] public var phoneIcon:Class = images.headset_icon;
 			
 			private function startPhone():void {
-				this.enabled = false;
-				localDispatcher.dispatchEvent(new JoinVoiceConferenceEvent());
+				//this.enabled = false;
+				if (this.selected) {
+					LogUtil.debug("Joining voice conference");
+					localDispatcher.dispatchEvent(new JoinVoiceConferenceEvent());					
+				} else {
+					LogUtil.debug("Leaving voice conference");
+					localDispatcher.dispatchEvent(new LeaveVoiceConferenceEvent());
+				}
+					
 			}
 			
 			public function setLocalDispatcher(dispatcher:IEventDispatcher):void {
@@ -53,11 +61,12 @@
 			} 
 			
 			private function handleCallConnectedEvent(event:CallConnectedEvent):void {
-				this.enabled = false;
+				//this.enabled = false;
 			}
 			
 			private function handleCallDisconnectedEvent(event:CallConnectedEvent):void {
-				this.enabled = true;
+				//this.enabled = true;
+				this.selected = false;
 			}
 			
 			private function handleBBBJoinConferenceEvent(event:BBBEvent):void {
