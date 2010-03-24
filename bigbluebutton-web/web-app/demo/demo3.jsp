@@ -142,8 +142,7 @@ if (request.getParameterMap().isEmpty()) {
 		// Assume we want to join a course
 		//
 	%> 
-<img src="/bigbluebutton/images/bbb_banner.jpg" /><br>
-<a href="demo1.jsp">Join a Course</a> | <a href="demo2.jsp">Join a Selected Course</a> | <a href="demo3.jsp">Join a Selected Course (password required)</a> | <a href="create.jsp">Create Your Own Meeting</a>
+<%@ include file="demo_header.jsp"%>
 
 <h2>Demo #3: Join a Course (password required)</h2>
 

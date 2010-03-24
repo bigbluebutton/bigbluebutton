@@ -1,24 +1,33 @@
-<!--
-
-BigBlueButton - http://www.bigbluebutton.org
-
-Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
-
-BigBlueButton is free software; you can redistribute it and/or modify it under the 
-terms of the GNU Lesser General Public License as published by the Free Software 
-Foundation; either version 3 of the License, or (at your option) any later 
-version. 
-
-BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
-PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along 
-with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
-
-Author: Fred Dixon <ffdixon@bigbluebutton.org>
-
--->
+<% 
+/*
+	BigBlueButton - http://www.bigbluebutton.org
+	
+	Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
+	
+	BigBlueButton is free software; you can redistribute it and/or modify it under the 
+	terms of the GNU Lesser General Public License as published by the Free Software 
+	Foundation; either version 3 of the License, or (at your option) any later 
+	version. 
+	
+	BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+	WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+	PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+	
+	You should have received a copy of the GNU Lesser General Public License along 
+	with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
+	
+	Author: Fred Dixon <ffdixon@bigbluebutton.org>
+*/
+%>
+<%@page import="javax.xml.transform.dom.DOMSource"%>
+<%@page import="javax.xml.transform.stream.StreamResult"%>
+<%@page import="javax.xml.transform.OutputKeys"%>
+<%@page import="javax.xml.transform.TransformerFactory"%>
+<%@page import="javax.xml.transform.Transformer"%>
+<%@page import="org.w3c.dom.Element"%>
+<%@page import="com.sun.org.apache.xerces.internal.dom.ChildNode"%>
+<%@page import="org.w3c.dom.Node"%>
+<%@page import="org.w3c.dom.NodeList"%>
 
 <%@ page
 	import="java.util.*,java.io.*,java.net.*,javax.crypto.*,javax.xml.parsers.*,org.w3c.dom.Document,org.xml.sax.*"
@@ -308,6 +317,76 @@ public String getJoinURLViewer(String username, String meetingToken) {
 		
 		return  "false";
 		
+	}
+	
+	public String getMeetingInfoURL(String meetingID, String password) {
+		String meetingParameters = "meetingID=" + urlEncode(meetingID) + "&password=" + password;
+		return BigBlueButtonURL + "api/getMeetingInfo?" + meetingParameters + "&checksum=" + checksum(meetingParameters + salt);
+	}
+	
+	public String getMeetingInfo(String meetingID, String password) {
+		try {
+			URLConnection hpCon = new URL(getMeetingInfoURL(meetingID, password)).openConnection();
+	
+			InputStreamReader isr = new InputStreamReader(hpCon.getInputStream());
+			BufferedReader br = new BufferedReader(isr);
+			String data = br.readLine();
+			return data;
+		} catch (Exception e) {
+			e.printStackTrace(System.out);
+			return "";
+		}
+	}
+	
+	public String getMeetingsURL() {
+		String meetingParameters = "random=" + new Random().nextInt(9999);
+		return BigBlueButtonURL + "api/getMeetings?" + meetingParameters + "&checksum=" + checksum(meetingParameters + salt);
+	}
+	
+	//
+	// Calls getMeetings to obtain the list of meetings, then calls getMeetingInfo for each meeting
+	// and concatenates the result.
+	//
+	public String getMeetings() {
+		try {
+			
+			// Call the API and get the result
+			URLConnection hpCon = new URL(getMeetingsURL()).openConnection();
+			InputStreamReader isr = new InputStreamReader(hpCon.getInputStream());
+			BufferedReader br = new BufferedReader(isr);
+			String data = br.readLine();
+			Document doc = parseXml(data);
+			
+			// tags needed for parsing xml documents
+			final String startTag = "<meetings>";
+			final String endTag = "</meetings>";
+			final String startResponse = "<response>";
+			final String endResponse = "</response>";
+			
+			// if the request succeeded, then calculate the checksum of each meeting and insert it into the document
+			NodeList meetingsList = doc.getElementsByTagName("meeting");
+			
+			String newXMldocument = startTag;
+			for (int i = 0; i < meetingsList.getLength(); i++) {
+				Element meeting = (Element) meetingsList.item(i);
+				String meetingID = meeting.getElementsByTagName("meetingID").item(0).getTextContent();
+				String password = meeting.getElementsByTagName("moderatorPW").item(0).getTextContent();
+				
+				data = getMeetingInfo(meetingID, password);
+				
+				if (data.indexOf("<response>") != -1) {
+					int startIndex = data.indexOf(startResponse) + startTag.length();
+					int endIndex = data.indexOf(endResponse);
+					newXMldocument +=  "<meeting>" + data.substring(startIndex, endIndex) + "</meeting>";
+				}
+			}
+			newXMldocument += endTag;
+
+			return newXMldocument;
+		} catch (Exception e) {
+			e.printStackTrace(System.out);
+			return null;
+		}
 	}
 	
 	//
