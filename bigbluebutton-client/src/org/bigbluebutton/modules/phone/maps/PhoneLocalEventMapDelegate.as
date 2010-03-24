@@ -72,11 +72,13 @@ package org.bigbluebutton.modules.phone.maps
 		}
 		
 		public function disableToolbarButton():void {
-			phoneButton.enabled = false;
+//			phoneButton.enabled = false;
+			phoneButton.selected = true;
 		}
 		
 		public function enableToolbarButton():void {
-			phoneButton.enabled = true;
+//			phoneButton.enabled = true;
+			phoneButton.selected = false;
 		}
 	}
 }
