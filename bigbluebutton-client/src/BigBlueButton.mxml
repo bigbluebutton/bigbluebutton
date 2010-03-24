@@ -24,7 +24,7 @@
 	xmlns:mainView="org.bigbluebutton.main.view.components.*"
 	xmlns:maps="org.bigbluebutton.main.maps.*"
 	xmlns:mate="http://mate.asfusion.com/"
-	pageTitle="Big Blue Button"
+	pageTitle="BigBlueButton"
 	layout="absolute"
 	preloader="org.bigbluebutton.main.managers.BigBlueButtonPreloader">
 	
