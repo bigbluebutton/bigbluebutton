@@ -43,18 +43,9 @@ Author: Islam El-Ashi <ielashi@gmail.com>
 <br>
 
 <%@ include file="demo_header.jsp"%>
-<!-- <a href="demo1.jsp">Join a Course</a>
-|
-<a href="demo2.jsp">Join a Selected Course</a>
-|
-<a href="demo3.jsp">Join a Selected Course (password required)</a>
-|
-<a href="create.jsp">Create Your Own Meeting</a>
-|
-<a href="demo4.jsp">Activity Monitor</a>
 
 <h2>Demo #4: Activity Monitor</h2>
--->
+
 <p id="no_meetings"></p>
 
 <div id="meetings"></div>
