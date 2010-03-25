@@ -148,7 +148,8 @@ usage() {
 		echo "   --svn-username [user]            Your Google code username if you want to " 
 		echo "                                      commit from the checked out code" 
 	fi
-	echo "   --clean			  Clear all the log files and restart BigBlueButton"
+	echo "   --restart                        Restart BigBueButton"
+	echo "   --clean                          Clear all the log files and restart BigBlueButton"
 	echo "   --watch                          Watch log files for error messages every 2 seconds"
 	echo "   --zip                            Zip up log files for reporting an error"
 	echo
@@ -186,6 +187,32 @@ comment () {
 uncomment () {
 	check_and_backup $1
 	sed -i "s<^[#[:blank:]]*\(${2}.*\)<\1<" $1
+}
+
+stop_bigbluebutton () {
+        /etc/init.d/red5 stop
+        /etc/init.d/${TOMCAT} stop
+        /etc/init.d/nginx stop
+        /etc/init.d/asterisk stop
+        /etc/init.d/activemq stop
+
+}
+
+start_bigbluebutton () {
+	/etc/init.d/asterisk start
+	/etc/init.d/activemq start
+	sleep 5
+	/etc/init.d/nginx start
+	/etc/init.d/red5 start
+	/etc/init.d/${TOMCAT} start
+}
+
+display_bigbluebutton_status () {
+	/etc/init.d/asterisk status
+	/etc/init.d/activemq status
+	/etc/init.d/nginx status
+	/etc/init.d/red5 status
+	/etc/init.d/${TOMCAT} status
 }
 
 if [ $# -eq 0 ]; then
@@ -253,6 +280,12 @@ while [ $# -gt 0 ]; do
 		shift
 		continue
 	fi
+
+	if [ "$1" = "--restart" -o "$1" = "-restart" ]; then
+                RESTART=1
+                shift
+                continue
+        fi
 
 	#
 	# all other parameters requires at least 1 argument
@@ -989,16 +1022,28 @@ if [ $CONFERENCE ]; then
 	sudo /etc/init.d/red5 restart
 fi
 
+if [ $RESTART ]; then
+	need_root
+
+	echo "Restarting BigBlueButton ..."
+
+	stop_bigbluebutton
+
+	echo
+
+	display_bigbluebutton_status
+
+	echo
+
+	start_bigbluebutton
+fi
+
 if [ $CLEAN ]; then
 	need_root
 	
 	echo "Doing a clean restart of BigBlueButton ..."
 
-	/etc/init.d/red5 stop
-	/etc/init.d/${TOMCAT} stop
-	/etc/init.d/nginx stop
-	/etc/init.d/asterisk stop
-	/etc/init.d/activemq stop
+	stop_bigbluebutton
 
 	#
 	# Clean log files
@@ -1022,19 +1067,10 @@ if [ $CLEAN ]; then
 	mv /var/log/syslog /tmp/syslog.$$
 	echo "" > /var/log/syslog
 
-	/etc/init.d/asterisk status
-	/etc/init.d/activemq status
-	/etc/init.d/nginx status
-	/etc/init.d/red5 status
-	/etc/init.d/${TOMCAT} status
+	display_bigbluebutton_status
 
 	echo
-	/etc/init.d/asterisk start
-	/etc/init.d/activemq start
-	sleep 5
-	/etc/init.d/nginx start
-	/etc/init.d/red5 start
-	/etc/init.d/${TOMCAT} start
+	start_bigbluebutton
 fi
 
 if [ $NETWORK ]; then
