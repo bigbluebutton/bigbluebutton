@@ -23,22 +23,24 @@
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
-			import org.bigbluebutton.main.events.ToolbarButtonEvent;
-			import org.bigbluebutton.modules.viewers.view.events.StreamStartedEvent;
-			import org.bigbluebutton.modules.videoconf.views.TiledVideoWindow;
-			import org.bigbluebutton.modules.videoconf.events.BroadcastStoppedEvent;
-			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
-			import org.bigbluebutton.modules.videoconf.events.BroadcastStartedEvent;
-			import org.bigbluebutton.modules.videoconf.business.VideoProxy;
-			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
-			import org.bigbluebutton.modules.videoconf.views.PublishWindow;
-			import org.bigbluebutton.modules.videoconf.events.OpenPublishWindowEvent;
-			import org.bigbluebutton.modules.videoconf.views.ToolbarButton;
 			import mx.controls.Alert;
-			import org.bigbluebutton.modules.viewers.view.events.ViewCameraEvent;
+			
+			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.OpenWindowEvent;
+			import org.bigbluebutton.main.events.ToolbarButtonEvent;
+			import org.bigbluebutton.modules.videoconf.business.VideoProxy;
+			import org.bigbluebutton.modules.videoconf.events.BroadcastStartedEvent;
+			import org.bigbluebutton.modules.videoconf.events.BroadcastStoppedEvent;
+			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
+			import org.bigbluebutton.modules.videoconf.events.OpenPublishWindowEvent;
+			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
+			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
+			import org.bigbluebutton.modules.videoconf.views.PublishWindow;
+			import org.bigbluebutton.modules.videoconf.views.TiledVideoWindow;
+			import org.bigbluebutton.modules.videoconf.views.ToolbarButton;
 			import org.bigbluebutton.modules.videoconf.views.VideoWindow;
+			import org.bigbluebutton.modules.viewers.view.events.StreamStartedEvent;
+			import org.bigbluebutton.modules.viewers.view.events.ViewCameraEvent;
 			
 			public var module:VideoconfModule;
 			private var button:ToolbarButton;
@@ -46,14 +48,28 @@
 			public var proxy:VideoProxy;
 			private var tiledWindow:TiledVideoWindow;
 			
-			private function viewCamera(e:ViewCameraEvent):void{
+			private function viewCamera(e:ViewCameraEvent, mock:Boolean = false):void{
 				var window:VideoWindow = new VideoWindow();
-				window.startVideo(module.connection, e.stream);
+				
+				if (mock) {
+					window.startVideo(module.mockConnection, e.stream);
+				}
+				else {
+					window.startVideo(module.connection, e.stream);
+				}
 				window.title = e.viewedName;
 				
 				var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 				windowEvent.window = window;
 				globalDispatcher.dispatchEvent(windowEvent);
+			}
+
+			private function viewVideoFile(e:BBBEvent):void {
+				viewCamera(new ViewCameraEvent(e.message, e.message));
+			}
+			
+			private function mockConnect():void {
+				module.mockConnect();
 			}
 			
 			public function addToolbarButton():void{
@@ -129,6 +145,14 @@
 	
 	<EventHandlers type="{StopBroadcastEvent.STOP_BROADCASTING}" >
 		<InlineInvoker method="stopPublishing" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{BBBEvent.START_VIDEO_STREAM}" >
+		<InlineInvoker method="viewVideoFile" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{BBBEvent.START_VIDEO_CONNECTION}">
+		<InlineInvoker method="mockConnect" />
 	</EventHandlers>
 	
 	<Listener type="{ViewCameraEvent.VIEW_CAMERA_EVENT}" method="viewCamera" />

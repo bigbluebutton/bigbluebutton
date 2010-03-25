@@ -28,10 +28,15 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import flexlib.mdi.events.MDIWindowEvent;
+			
+			import mx.controls.Alert;
+			import mx.core.UIComponent;
+			
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
-			import flexlib.mdi.events.MDIWindowEvent;
-			import mx.core.UIComponent;
 		
 			private var video:Video;
 			private var ns:NetStream;
@@ -50,6 +55,8 @@
 			private var _xPosition:int;
 			private var _yPosition:int;
 			
+			private var globalDispatcher:Dispatcher;
+			
 			private function init():void{
 				_xPosition = 250;
 				_yPosition = 250;
@@ -60,6 +67,8 @@
 				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
 				addEventListener(MDIWindowEvent.RESIZE, onResizeEvent);
 				addEventListener(MDIWindowEvent.CLOSE, onCloseEvent);
+				
+				globalDispatcher = new Dispatcher();
 			}
 			
 			private function onCloseEvent(event:MDIWindowEvent):void {
@@ -153,13 +162,16 @@
 			
 			private function onNetStatus(e:NetStatusEvent):void{
 				switch(e.info.code){
-				case "NetStream.Publish.Start":
-					LogUtil.debug("NetStream.Publish.Start for broadcast stream " + stream);
-					break;
-				case "NetStream.Play.UnpublishNotify":
-					ns.close();
-					this.close();
-					break;
+					case "NetStream.Publish.Start":
+						LogUtil.debug("NetStream.Publish.Start for broadcast stream " + stream);
+						break;
+					case "NetStream.Play.UnpublishNotify":
+						ns.close();
+						this.close();
+						break;
+					case "NetStream.Play.Start":
+						LogUtil.debug("Netstatus: " + e.info.code);
+						globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.VIDEO_STARTED));
 				}
 			}
 			

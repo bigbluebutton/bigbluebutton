@@ -17,6 +17,7 @@
 			private var _moduleName:String = "Videoconf Module";			
 			private var _attributes:Object;
 			private var proxy:VideoProxy;
+			private var mockProxy:VideoProxy;
 			
 			private function onCreationComplete():void {
 				LogUtil.debug("VideoconfModule initialized");	
@@ -55,6 +56,10 @@
 				return proxy.connection;
 			}
 			
+			public function get mockConnection():NetConnection {
+				return mockProxy.connection;
+			}
+			
 			public function get mode():String {
 				if (_attributes.mode == null) {					
 					//_attributes.mode = "PLAYBACK"
@@ -88,6 +93,10 @@
 		
 			public function stop():void {
 				eventMap.closeAllWindows();
+			}
+			
+			public function mockConnect():void {
+				mockProxy = new VideoProxy(proxy.connection.uri.substring(0, proxy.connection.uri.indexOf("video") + 5));
 			}
 		]]>
 	</mx:Script>
