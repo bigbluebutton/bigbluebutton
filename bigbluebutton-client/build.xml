@@ -39,7 +39,7 @@
 			<fileset dir="./src/org/bigbluebutton/modules/phone/views/assets/images/" />
 		</copy>
 		
-		<copy file="./html-template/bbb-deskshare-applet-0.62.jar" todir="${OUTPUT_DIR}"/>
+		<copy file="./html-template/bbb-deskshare-applet-0.64.jar" todir="${OUTPUT_DIR}"/>
 		
 		<move todir="${OUTPUT_DIR}" >
 			<fileset dir="${OUTPUT_DIR}/src" />
