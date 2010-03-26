@@ -271,7 +271,14 @@ class PublicScheduledSessionController {
 
 	def signOut = {
 	    def config = ConfigurationHolder.config
-        def hostURL = config.bigbluebutton.web.loggedOutUrl
+        def hostURL = config.bigbluebutton.web.logoutURL
+        
+        // For backward compatibility. We renamed "loggedOutUrl" to
+        // "logoutURL" in 0.64 to be consistent with the API. Remove this
+        // in later iterations (ralam mar 26, 2010)
+        if ((hostURL == null) || (hostURL = "")) {
+            hostURL = config.bigbluebutton.web.loggedOutUrl
+        }
         
 	    def meetingToken = session["conference"]
         DynamicConference conf = dynamicConferenceService.getConferenceByToken(meetingToken)
