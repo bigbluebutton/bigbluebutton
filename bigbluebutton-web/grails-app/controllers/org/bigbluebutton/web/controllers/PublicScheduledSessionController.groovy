@@ -273,23 +273,31 @@ class PublicScheduledSessionController {
 	    def config = ConfigurationHolder.config
         def hostURL = config.bigbluebutton.web.logoutURL
         
+        log.debug("LogoutURL=$hostURL")
+        
         // For backward compatibility. We renamed "loggedOutUrl" to
         // "logoutURL" in 0.64 to be consistent with the API. Remove this
         // in later iterations (ralam mar 26, 2010)
-        if ((hostURL == null) || (hostURL = "")) {
+        //if ((hostURL == null) || (hostURL == "")) {
+        if (hostURL.isEmpty()) {
+            log.debug("No logoutURL property set. Checking for old loggedOutUrl.")
             hostURL = config.bigbluebutton.web.loggedOutUrl
+            if (!hostURL.isEmpty()) 
+               log.debug("Old loggedOutUrl property set to $hostURL") 
         }
         
 	    def meetingToken = session["conference"]
         DynamicConference conf = dynamicConferenceService.getConferenceByToken(meetingToken)
         if (conf != null) {
-        	if ((conf.logoutUrl != null) || (conf.logoutUrl != "")) {
-        		hostURL = conf.logoutUrl
+        	if ((conf.logoutUrl != null) && (conf.logoutUrl != "")) {
+        	   hostURL = conf.logoutUrl
+        	   log.debug("logoutURL has been set from API. Redirecting to server url $hostURL.")
     		}
         }
 	    	    
-        if (!hostURL){
+        if (hostURL.isEmpty()) {           
         	hostURL = config.bigbluebutton.web.serverURL
+        	log.debug("No logout url. Redirecting to server url $hostURL.")
         }
         // Log the user out of the application.
 	    session.invalidate()
