@@ -13,7 +13,7 @@ qualify=no
 nat=yes
 host=dynamic
 canreinvite=no
-context=demo-bbb-voip
+context=bbb-voip
 disallow=all
 allow=ulaw
 " >>  bbb_sip.conf
