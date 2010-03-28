@@ -23,7 +23,7 @@ var requiredRevision = 115;
 </script>
 </head>
 
-<body scroll="no">
+<body scroll="no" onfocus="clearblink();" onblur="lostFocus=true;">
 <script language="JavaScript" type="text/javascript">
 <!--
 // Version check for the Flash Player that has the ability to start Player Product Install (6.0r65)
@@ -53,6 +53,7 @@ if ( hasProductInstall && !hasRequestedVersion ) {
 		"quality", "high",
 		"bgcolor", "#869ca7",
 		"name", "BigBlueButton",
+		"wmode", "transparent",
 		"allowScriptAccess","sameDomain",
 		"allowFullScreen","true",
 		"type", "application/x-shockwave-flash",
@@ -69,6 +70,7 @@ if ( hasProductInstall && !hasRequestedVersion ) {
 			"id", "BigBlueButton",
 			"quality", "high",
 			"bgcolor", "#869ca7",
+			"wmode", "transparent",
 			"name", "BigBlueButton",
 			"allowScriptAccess","sameDomain",
 			"allowFullScreen","true",
@@ -120,6 +122,26 @@ function checkForJava(){
 		return 1; 
 }
 
+lostFocus = false;
+var blinktitle = function(message1, message2)
+{
+	if(lostFocus)
+	{
+		document.title = (!document.title || document.title == message2)?message1:message2;
+		blinkTimer = window.setTimeout(blinktitle, 500, message1, message2);
+	}
+}
+
+var clearblink = function()
+{
+	if(blinkTimer)
+	{
+		window.clearTimeout(blinkTimer);
+	}
+	document.title = 'BigBlueButton';
+	lostFocus=false;
+}
+
 // Check locale
 var localeChain = "en_US";
 
@@ -159,6 +181,7 @@ function getLanguage(){
 				play="true"
 				loop="false"
 				quality="high"
+				wmode="transparent"
 				allowScriptAccess="sameDomain"
 				allowFullScreen="true"
 				type="application/x-shockwave-flash"

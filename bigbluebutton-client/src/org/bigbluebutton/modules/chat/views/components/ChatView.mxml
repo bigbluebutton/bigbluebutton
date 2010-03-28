@@ -48,6 +48,7 @@
 			import mx.collections.ArrayCollection;
 			import mx.core.UIComponent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import flash.external.ExternalInterface;
 									
 			[Bindable] private var colorPickerColours:Array = ['0x000000', '0xFF0000', '0xFF8800',
                 '0xFFFF00', '0x88FF00', '0x00FF00', '0x00FF88', '0x00FFFF', 
@@ -290,11 +291,13 @@
 			private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
 				LogUtil.debug("Got PublicChatMessageEvent");
 				showMessage(PUBLIC_CHAT_USERID, event.message);
+				ExternalInterface.call("blinktitle", ResourceUtil.getInstance().getString('bbb.chat.publicMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.publicMsgAwaiting2'));
 				globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.RECEIVED_PUBLIC_CHAT_MESSAGE_EVENT, event.message));
 			}
 			
 			private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
 				LogUtil.debug("Got PrivateChatMessageEvent");
+				ExternalInterface.call("blinktitle", ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting2'));
 				showMessage(event.message.sender, event.message.message);
 			}
 			
