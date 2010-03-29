@@ -49,6 +49,7 @@ dependencies {
     providedCompile ':log4j-over-slf4j:1.5.6@jar',':logback-core:0.9.14@jar', ':logback-classic:0.9.14@jar', ':slf4j-api:1.5.6@jar'
     compile 'org.apache.mina:mina-integration-spring:1.1.7@jar'
     compile 'javax/media:jmf:2.1.1e@jar'
+    providedCompile 'com/xuggle:xuggle-xuggler:3.4@jar'
 }
 
 war.doLast {
@@ -61,7 +62,7 @@ task deploy() << {
 	def red5AppsDir = '/usr/share/red5/webapps'
 	def sipDir = new File("${red5AppsDir}/sip")
 	println "Deleting $sipDir"
-	ant.delete(dir: sipDir)
+	if (sipDir.exists()) ant.delete(dir: sipDir)
 	ant.mkdir(dir: sipDir)
 	ant.copy(todir: sipDir) {
     	fileset(dir: "$buildDir/sip")
