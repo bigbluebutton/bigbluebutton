@@ -19,6 +19,8 @@
  */
 package org.bigbluebutton.main.model
 {
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.Event;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
@@ -30,6 +32,7 @@ package org.bigbluebutton.main.model
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.common.messaging.Router;
 	import org.bigbluebutton.main.MainApplicationConstants;
+	import org.bigbluebutton.main.events.ConfigurationEvent;
 	
 	public class BbbModuleManager
 	{
@@ -47,6 +50,8 @@ package org.bigbluebutton.main.model
 		private var _protocol:String;
 		private var _portTestHost:String;
 		private var _portTestApplication:String;
+		private var _helpURL:String;
+		private var globalDispatcher:Dispatcher;
 		
 		public function BbbModuleManager(router:Router, mode:String)
 		{
@@ -101,6 +106,8 @@ package org.bigbluebutton.main.model
 			_portTestHost = xml.porttest.@host;
 			_portTestApplication = xml.porttest.@application;
 			
+			_helpURL = xml.help.@url;
+						
 			var list:XMLList = xml.modules.module;
 			_version = xml.version;
 			
@@ -112,7 +119,6 @@ package org.bigbluebutton.main.model
 				var mod:ModuleDescriptor = new ModuleDescriptor(item);
 				_modules[item.@name] = mod;
 				_numModules++;
-				//LogUtil.debug("NAME!!!!!!!!!!!!!!!! " + item.@name);
 			}					
 		}
 		
@@ -314,6 +320,14 @@ package org.bigbluebutton.main.model
 					startModule(m.getAttribute("name") as String);
 				}
 			}
+			
+			globalDispatcher  = new Dispatcher();
+			var event:ConfigurationEvent = new ConfigurationEvent(ConfigurationEvent.CONFIG_EVENT);
+			event.helpURL = _helpURL;
+			LogUtil.debug("Dispatching helpURL " + _helpURL);
+			
+			globalDispatcher.dispatchEvent(event);			
+			
 		}
 		
 		public function handleLogout():void {

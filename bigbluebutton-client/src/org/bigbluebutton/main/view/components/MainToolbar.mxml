@@ -27,8 +27,11 @@
 	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarButtonEvent" />	
 	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarButtonEvent"/>
 	<mate:Listener type="EndMeetingKickAllEvent" method="handleEndMeetingEvent"/>
+	<mate:Listener type="{ConfigurationEvent.CONFIG_EVENT}" method="handleConfigurationEvent"/>
+	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.main.events.ConfigurationEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ToolbarButtonEvent;
 			import mx.controls.Alert;
@@ -37,8 +40,9 @@
 			import org.bigbluebutton.main.view.MainApplicationShellMediator;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
+			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";
+			
 			public function loggedIn(name:String, room:String, role:String):void{
-//				loggedInUserLbl.text = ResourceUtil.getInstance().getString('bbb.mainToolbar.loggedInUserLbl',[name, room, role]);//"You are logged in as " + name + " to " + room + " as role " + role + ".";
 				this.visible = true;
 			}
 			
@@ -51,6 +55,15 @@
 				this.addChild(btn);
 				
 				return btn;
+			}
+			
+			private function handleConfigurationEvent(event:ConfigurationEvent):void {
+				if (event.helpURL != null || event.helpURL != "")
+					DEFAULT_HELP_URL = event.helpURL;
+			}
+			
+			private function onHelpButtonClicked():void {
+				navigateToURL(new URLRequest(DEFAULT_HELP_URL))
 			}
 			
 			private function handleEndMeetingEvent(event:BBBEvent):void {
@@ -71,11 +84,10 @@
 			
 		]]>
 	</mx:Script>	
-	<!--mx:Label id="loggedInUserLbl" text="" visible="true"/-->	
 	<mx:HBox id="addedBtns">
 	</mx:HBox>		
 	<mx:Spacer width="100%"/>
-	<mx:LinkButton label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" click="navigateToURL(new URLRequest('http://www.bigbluebutton.org/content/videos'))"/>
+	<mx:LinkButton label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" click="onHelpButtonClicked()"/>
 	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn')}" id="btnLogout" toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="doLogout()"/>		
 	
 </mx:ApplicationControlBar>

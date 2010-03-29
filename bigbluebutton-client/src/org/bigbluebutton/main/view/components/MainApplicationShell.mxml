@@ -31,7 +31,7 @@
 	<mate:Listener type="{OpenWindowEvent.OPEN_WINDOW_EVENT}" method="handleOpenWindowEvent" />	
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="handleCloseWindowEvent"/>
 	<mate:Listener type="{JoinFailedEvent.JOIN_FAILED_EVENT}" method="handleJoinFailedEvent" />
-	
+
 	<maps:CrossModuleEventMap />
 	
 	<mx:Script>
