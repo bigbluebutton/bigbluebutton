@@ -46,7 +46,7 @@
    			
    			private function onViewVideoCloseEvent(event:BBBEvent):void {
    				LogUtil.debug("ViewWindoClosing event: " + event.message);
-   				if (data.hasStream && data.streamName == event.message) {
+   				if (data.streamName == event.message) {
    					streamIcon.enabled = true;
    				}
    			}
