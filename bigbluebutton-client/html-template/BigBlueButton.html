@@ -129,7 +129,7 @@ var blinktitle = function(message1, message2)
 	if(lostFocus)
 	{
 		document.title = (!document.title || document.title == message2)?message1:message2;
-		blinkTimer = window.setTimeout(blinktitle, 500, message1, message2);
+		blinkTimer = window.setTimeout("blinktitle('" + message1 + "', '" + message2 + "')", 500);
 	}
 }
 
