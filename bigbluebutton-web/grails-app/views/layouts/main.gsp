@@ -14,7 +14,8 @@
         <div class="nav">
         	<div class="nav">
         		<g:render template="/adminmenubar" />
-        	</div>
+        </div>
+        <h1>NOTE: We are deprecating this web interface in favor of the API. This will be removed in the next release.</h1>
         <g:layoutBody />	
         bbb-web v. <g:meta name="app.version"/>	
     </body>	
