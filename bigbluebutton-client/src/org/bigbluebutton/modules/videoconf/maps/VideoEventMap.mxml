@@ -23,8 +23,6 @@
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
-			import mx.controls.Alert;
-			
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.OpenWindowEvent;
 			import org.bigbluebutton.main.events.ToolbarButtonEvent;
@@ -65,7 +63,7 @@
 			}
 
 			private function viewVideoFile(e:BBBEvent):void {
-				viewCamera(new ViewCameraEvent(e.message, e.message));
+				viewCamera(new ViewCameraEvent(e.message, e.message), true);
 			}
 			
 			private function mockConnect():void {
