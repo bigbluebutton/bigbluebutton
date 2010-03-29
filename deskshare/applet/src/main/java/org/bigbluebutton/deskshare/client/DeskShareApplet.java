@@ -32,6 +32,20 @@ import org.bigbluebutton.deskshare.common.Dimension;
 
 public class DeskShareApplet extends Applet implements IScreenCaptureListener, ChangedBlocksListener {
 	private static final long serialVersionUID = 1L;
+	private static final String LICENSE_HEADER = "This program is free software: you can redistribute it and/or modify\n" +
+		"it under the terms of the GNU AFFERO General Public License as published by\n" +
+		"the Free Software Foundation, either version 3 of the License, or\n" +
+		"(at your option) any later version.\n\n" +
+		"This program is distributed in the hope that it will be useful,\n" +
+		"but WITHOUT ANY WARRANTY; without even the implied warranty of\n" +
+		"MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n" +
+		"GNU General Public License for more details.\n\n" +
+		"You should have received a copy of the GNU AFFERO General Public License\n" +
+		"along with this program.  If not, see <http://www.gnu.org/licenses/>.\n\n" +
+		"To download the source of this program, see. \n" +
+		"http://code.google.com/p/bigbluebutton/wiki/InstallingDesktopSharing\n\n" +
+		"Copyright 2010 Blindside Networks. All Rights Reserved.\n\n";
+	
 	private ScreenCaptureTaker captureTaker;
 	private ScreenCapture capture;
 	private Thread captureTakerThread;
@@ -51,7 +65,7 @@ public class DeskShareApplet extends Applet implements IScreenCaptureListener, C
 	private NetworkStreamSender sender;
 	
 	public void init() {
-		System.out.println("(c) 2010 Blindside Networks. All Rights Reserved.");
+		System.out.println(LICENSE_HEADER);
 		System.out.println("Deskshare Applet v0.64");
 		screenWidth = Integer.parseInt(getParameter("CAPTURE_WIDTH"));
 		screenHeight = Integer.parseInt(getParameter("CAPTURE_HEIGHT"));
