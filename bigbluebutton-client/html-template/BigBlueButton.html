@@ -122,7 +122,8 @@ function checkForJava(){
 		return 1; 
 }
 
-lostFocus = false;
+var lostFocus = false;
+var blinkTimer = false;
 var blinktitle = function(message1, message2)
 {
 	if(lostFocus)
@@ -134,12 +135,12 @@ var blinktitle = function(message1, message2)
 
 var clearblink = function()
 {
+	lostFocus = false;
+	document.title = 'BigBlueButton';
 	if(blinkTimer)
 	{
 		window.clearTimeout(blinkTimer);
 	}
-	document.title = 'BigBlueButton';
-	lostFocus=false;
 }
 
 // Check locale
