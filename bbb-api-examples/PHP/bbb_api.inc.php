@@ -1,5 +1,5 @@
-<!--
-
+<?
+/*
 BigBlueButton - http://www.bigbluebutton.org
 
 Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
@@ -18,8 +18,7 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 
 Author: DJP <DJP@architectes.org>
 
--->
-<?
+*/
 require('bbb_api_conf.inc.php');
 
 /*
@@ -92,6 +91,67 @@ function isMeetingRunning($meetingToken, $meetingID)
 	$xml = bbb_wrap_simplexml_load_file(getURLisMeetingRunning($meetingToken, $meetingID));
 	if ($xml && $xml->returncode == 'SUCCESS')
 		return (($xml->running == 'TRUE')?true:false);
+	else
+		return (false);
+}
+
+/*
+ * getURLMeetingInfo() -- return a URL to get MeetingInfo
+ * Beware : check that BIGBLUEBUTTONURL is reachable internally from your PHP Web Application Server. (Hosts, firewall...)
+ */
+function getURLMeetingInfo($meetingID, $moderatorPW)
+{
+	$base_url = BIGBLUEBUTTONURL."api/getMeetingInfo?";
+	$params = 'meetingID='.urlencode($meetingID).'&password='.$moderatorPW;
+
+	return ($base_url.$params.'&checksum='.sha1($params.SALT));
+}
+
+/*
+ * getMeetings() -- Calls getMeetingInfo to obtain information on a given meeting.
+ */
+function getMeetingInfo($meetingID, $moderatorPW)
+{
+	$xml = bbb_wrap_simplexml_load_file(getURLMeetingInfo($meetingID, $moderatorPW));
+	return (str_replace('</response>', '', str_replace("<?xml version=\"1.0\"?>\n<response>", '', $xml->asXML())));
+}
+
+/*
+ * getURLMeetings() -- return a URL for listing all running meetings
+ * Beware : check that BIGBLUEBUTTONURL is reachable internally from your PHP Web Application Server. (Hosts, firewall...)
+ */
+function getURLMeetings()
+{
+	$base_url = BIGBLUEBUTTONURL."api/getMeetings?";
+	$params = 'random='.(rand() * 1000);
+
+	return ($base_url.$params.'&checksum='.sha1($params.SALT));
+}
+
+/*
+ * getMeetings() -- Calls getMeetings to obtain the list of meetings, then calls getMeetingInfo for each meeting and concatenates the result.
+ */
+function getMeetings()
+{
+	$xml = bbb_wrap_simplexml_load_file(getURLMeetings());
+	if ($xml && $xml->returncode == 'SUCCESS')
+	{
+		if ($xml->messageKey)
+			return ($xml->message->asXML());
+		ob_start();
+		echo '<meetings>';
+		if (count($xml->meetings) && count($xml->meetings->meeting))
+		{
+			foreach ($xml->meetings->meeting as $meeting)
+			{
+				echo '<meeting>';
+				echo getMeetingInfo($meeting->meetingID, $meeting->moderatorPW);
+				echo '</meeting>';
+			}
+		}
+		echo '</meetings>';
+		return (ob_get_clean());
+	}
 	else
 		return (false);
 }

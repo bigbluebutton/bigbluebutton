@@ -1,5 +1,5 @@
-<!--
-
+<?
+/*
 BigBlueButton - http://www.bigbluebutton.org
 
 Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
@@ -18,8 +18,8 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 
 Author: DJP <DJP@architectes.org>
 
--->
-<?
+*/
+
 require('bbb_api.inc.php');
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -137,9 +137,8 @@ switch ($_REQUEST['action'])
 switch ($step)
 {
 	case '1':
+		include('demo_header.php');
 		?>
-		<a href="demo1.php">Join a Course</a> | <a href="demo2.php">Join a Selected Course</a> | <a href="demo3.php">Create Your Own Meeting</a> | <a href="/">Home</a>
-
 		<h2>Demo #3: Create Your Own Meeting</h2>
 
 		<form name="form1" method="get">
