@@ -13,7 +13,7 @@
         <dependency name="slf4j-api" rev="1.5.10" />
 
 		<!-- Red5 -->
-		<dependency org="org/red5" name="red5" rev="0.9"/>
+		<dependency org="org/red5" name="red5" rev="0.91"/>
 
         <!-- Spring --> 
         <dependency org="spring" name="spring-beans" rev="3.0.0" />
