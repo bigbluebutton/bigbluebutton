@@ -40,7 +40,7 @@ repositories {
                 addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision])-jdk15.[ext]"
                 }
         }
-        flatDir name: 'fileRepo', dirs: "/opt/bigbluebutton/repo"
+        flatDir name: 'fileRepo', dirs: "/home/firstuser/dev/repo"
 }
 
 dependencies {
