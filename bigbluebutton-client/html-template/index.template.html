@@ -53,6 +53,7 @@ if ( hasProductInstall && !hasRequestedVersion ) {
 		"quality", "high",
 		"bgcolor", "${bgcolor}",
 		"name", "${application}",
+		"onfocus", "clearblink();",
 		"allowScriptAccess","sameDomain",
 		"allowFullScreen","true",
 		"type", "application/x-shockwave-flash",
@@ -61,6 +62,10 @@ if ( hasProductInstall && !hasRequestedVersion ) {
 } else if (hasRequestedVersion) {
 	// if we've detected an acceptable version
 	// embed the Flash Content SWF when all tests are passed
+	//
+	// NOTE: Don't use wmode=transparent because it messes up mouse wheel
+	// see. http://stackoverflow.com/questions/313966/mousewheel-not-working-when-published-movie-has-wmodetransparent
+	// ralam (mar 31, 2010)
 	AC_FL_RunContent(
 			"src", "${swf}",
 			"width", "${width}",
@@ -70,6 +75,7 @@ if ( hasProductInstall && !hasRequestedVersion ) {
 			"quality", "high",
 			"bgcolor", "${bgcolor}",
 			"name", "${application}",
+			"onfocus", "clearblink();",
 			"allowScriptAccess","sameDomain",
 			"allowFullScreen","true",
 			"type", "application/x-shockwave-flash",
@@ -118,6 +124,27 @@ function stopApplet(){
 function checkForJava(){
 //	if (navigator.javaEnabled() || window.navigator.javaEnabled()) 
 		return 1; 
+}
+
+var lostFocus = false;
+var blinkTimer = false;
+var blinktitle = function(message1, message2)
+{
+	if(lostFocus)
+	{
+		document.title = (!document.title || document.title == message2)?message1:message2;
+		blinkTimer = window.setTimeout("blinktitle('" + message1 + "', '" + message2 + "')", 500);
+	}
+}
+
+var clearblink = function()
+{
+	lostFocus = false;
+	document.title = 'BigBlueButton';
+	if(blinkTimer)
+	{
+		window.clearTimeout(blinkTimer);
+	}
 }
 
 // Check locale

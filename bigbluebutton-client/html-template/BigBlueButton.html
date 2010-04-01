@@ -23,7 +23,7 @@ var requiredRevision = 115;
 </script>
 </head>
 
-<body scroll="no" onfocus="clearblink();" onblur="lostFocus=true;">
+<body scroll="no">
 <script language="JavaScript" type="text/javascript">
 <!--
 // Version check for the Flash Player that has the ability to start Player Product Install (6.0r65)
@@ -53,7 +53,6 @@ if ( hasProductInstall && !hasRequestedVersion ) {
 		"quality", "high",
 		"bgcolor", "#869ca7",
 		"name", "BigBlueButton",
-		"wmode", "transparent",
 		"onfocus", "clearblink();",
 		"allowScriptAccess","sameDomain",
 		"allowFullScreen","true",
@@ -63,6 +62,10 @@ if ( hasProductInstall && !hasRequestedVersion ) {
 } else if (hasRequestedVersion) {
 	// if we've detected an acceptable version
 	// embed the Flash Content SWF when all tests are passed
+	//
+	// NOTE: Don't use wmode=transparent because it messes up mouse wheel
+	// see. http://stackoverflow.com/questions/313966/mousewheel-not-working-when-published-movie-has-wmodetransparent
+	// ralam (mar 31, 2010)
 	AC_FL_RunContent(
 			"src", "BigBlueButton",
 			"width", "100%",
@@ -71,9 +74,8 @@ if ( hasProductInstall && !hasRequestedVersion ) {
 			"id", "BigBlueButton",
 			"quality", "high",
 			"bgcolor", "#869ca7",
-			"wmode", "transparent",
-			"onfocus", "clearblink();",
 			"name", "BigBlueButton",
+			"onfocus", "clearblink();",
 			"allowScriptAccess","sameDomain",
 			"allowFullScreen","true",
 			"type", "application/x-shockwave-flash",
@@ -184,7 +186,6 @@ function getLanguage(){
 				play="true"
 				loop="false"
 				quality="high"
-				wmode="transparent"
 				allowScriptAccess="sameDomain"
 				allowFullScreen="true"
 				type="application/x-shockwave-flash"
