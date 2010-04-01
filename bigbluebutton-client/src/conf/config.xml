@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <config>
     <version>dev build</version>
-    <help url="http://www.bigbluebutton.org/content/videos"/>
+    <help url="http://192.168.0.120/help.html"/>
     <porttest host="192.168.0.120" application="video"/>    
 	<modules>
 
