@@ -28,8 +28,9 @@
 #       2010-01-05 FFD  Added zipping of log files
 #       2010-01-18 FFD  Added resetting of environment back to using packages
 #       2010-03-02 JRT  Added trunk checkout options / fixed bbb-apps instructions
+#       2010-04-02 FFD  Updated for 0.64
 
-set -x
+#set -x
 
 #
 # This ensures that we checkout the 0.63 release of BigBlueButton
