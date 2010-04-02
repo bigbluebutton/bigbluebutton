@@ -36,7 +36,7 @@
 # This ensures that we checkout the 0.63 release of BigBlueButton
 #   Note that this can be overridden with the --trunk option
 #
-RELEASE="-r 3489"
+RELEASE="-r 4103"
 
 #
 # SVNPROTO is http if read-only, or https if you specify a Google code username
@@ -572,7 +572,7 @@ red5.home = $RED5_DIRECTORY
 # To restore the packaged version of bbb-apps:
 
     rm -rf $RED5_DIRECTORY/webapps/bigbluebutton
-    sudo apt-get install bbb-apps
+    sudo apt-get install bigbluebutton
     sudo /etc/init.d/red5 start
 "
 
