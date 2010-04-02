@@ -1,14 +1,5 @@
-1. Create database
-> mysql -u root -p
-  Enter password: ********
-
-  mysql> create database bigbluebutton_dev;
-
-  mysql> create database bigbluebutton_test;
-
-  mysql> create database bigbluebutton_prod;
-
-  mysql> grant all on bigbluebutton_dev.* to 'bbb'@'localhost' identified by 'secret';
+Please read
+http://code.google.com/p/bigbluebutton/wiki/InstallingBigBlueButton
   
   
   
