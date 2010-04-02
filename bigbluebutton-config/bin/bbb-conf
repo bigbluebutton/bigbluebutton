@@ -29,7 +29,7 @@
 #       2010-01-18 FFD  Added resetting of environment back to using packages
 #       2010-03-02 JRT  Added trunk checkout options / fixed bbb-apps instructions
 
-# set -x
+set -x
 
 #
 # This ensures that we checkout the 0.63 release of BigBlueButton
@@ -45,6 +45,7 @@ SVNPROTO="http"
 SVNUSERNAME=""
 GENTOO=$(uname -r | grep gentoo | cut -d- -f2);
 TOMCAT=""
+
 get_platform() {
 
 	if [ -f /etc/lsb-release ]; then
@@ -57,6 +58,7 @@ get_platform() {
 		echo "redhat"
 	fi
 }
+
 
 PLATFORM=$(get_platform)
 
@@ -103,6 +105,7 @@ else
 	fi
 fi
 
+
 print_header() {
 	if [ ! $HEADER ]; then
 		echo
@@ -129,33 +132,35 @@ need_root() {
 }
 
 usage() {
-	echo "$0 [options]"
-	echo
-	echo "Options:"
-	echo "   --help                           This message"
-	echo "   --version                        Display BigBlueButton version"
-	echo "   --setip <host>                   Set IP/Hostname for BigBlueButton's configuration"
-	echo 
-	echo "Development:"
-	echo "   --check                          Check current settings"
-	echo "   --conference [konference|meetme] Switch conference module in Asterisk"
-	echo "   --debug                          Check the log files for errors"
-	if [ "$(is_vm)" ]; then
-		echo "   --setup-samba                    Setup samba share for development (VM only)"
-		echo "   --setup-dev [bbb-web|bbb-client|bbb-apps] "
-		echo "   --reset-dev                      Reset environment back to using packages" 
-		echo "   --trunk                          Checkout trunk instead of last release" 
-		echo "   --svn-username [user]            Your Google code username if you want to " 
-		echo "                                      commit from the checked out code" 
-	fi
-	echo "   --restart                        Restart BigBueButton"
-	echo "   --clean                          Clear all the log files and restart BigBlueButton"
-	echo "   --watch                          Watch log files for error messages every 2 seconds"
-	echo "   --zip                            Zip up log files for reporting an error"
-	echo
-	echo "version: 0.63-10"
-	echo
-	
+	echo "BigBlueButton Server Utility - Version 0.64"
+        echo
+        echo "$0 [options]"
+        echo
+        echo "Configuration:"
+        echo "   --version                        Display BigBlueButton version (packages)"
+        echo "   --setip <host>                   Set IP/hostname for BigBlueButton"
+        echo "   --conference [konference|meetme] Switch conference module in Asterisk"
+        echo
+        echo "Monitoring:"
+        echo "   --check                          Check for configuration problems"
+        echo "   --debug                          Scan the log files for error messages"
+        echo "   --watch                          San the log files for error messages every 2 seconds"
+        echo
+        echo "Administration":
+        echo "   --restart                        Restart BigBueButton"
+        echo "   --clean                          Clear all the log files and restart BigBlueButton"
+        echo "   --zip                            Zip up log files for reporting an error"
+        echo
+        if [ "$(is_vm)" ]; then
+                echo "Development:"
+                echo "   --setup-samba                    Setup samba share for development (VM only)"
+                echo "   --setup-dev [bbb-web|bbb-client|bbb-apps] "
+                echo "   --reset-dev                      Reset environment back to using packages"
+                echo "   --trunk                          Checkout trunk instead of last release"
+                echo "   --svn-username [user]            Your Google code username if you want to "
+                echo "                                      commit from the checked out code"
+        fi
+        echo
 }
 
 # utility function to make a copy of the conf file
@@ -446,7 +451,12 @@ if [ $SETUPDEV ]; then
 
 		echo "# Enabling $USER to write to /var/log/bigbluebutton to write log files"
 		sudo chmod -R ugo+rwx /var/log/bigbluebutton
-	
+
+		echo "# Copying bbb-common-message-0.64.jar into ~/dev/bbb-web/lib"
+		if [ -f $RED5_DIRECTORY/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.64.jar ]; then
+			cp /usr/share/red5/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.64.jar ~/dev/bbb-web/lib
+		fi
+
 		echo "
 # Done.  To run your local build of bbb-web:
 
