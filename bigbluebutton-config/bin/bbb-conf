@@ -1,4 +1,4 @@
-#!/bin/bash
+a
 #
 # Copyright (c) 2008-2009 by BigBlueButton
 #
@@ -143,9 +143,9 @@ usage() {
         echo "   --conference [konference|meetme] Switch conference module in Asterisk"
         echo
         echo "Monitoring:"
-        echo "   --check                          Check for configuration problems"
+        echo "   --check                          Check configuration files and processes for problems"
         echo "   --debug                          Scan the log files for error messages"
-        echo "   --watch                          San the log files for error messages every 2 seconds"
+        echo "   --watch                          Scan the log files for error messages every 2 seconds"
         echo
         echo "Administration":
         echo "   --restart                        Restart BigBueButton"
