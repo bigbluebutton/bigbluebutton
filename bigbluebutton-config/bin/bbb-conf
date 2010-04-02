@@ -523,7 +523,16 @@ if [ $SETUPDEV ]; then
            
                 cd ~/dev
                 svn checkout ${SVNPROTO}://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-apps bbb-apps $RELEASE $SVNUSERNAME
-            
+ 
+ 		echo "# Checking if ~/dev/repo/bbb-common-message-0.64.jar is present"
+		if [ ! -f ~/dev/repo/bbb-common-message-0.64.jar ]; then
+			echo "# Copying bbb-common-message-0.64.jar into ~/dev/repo/"
+			if [ -f $RED5_DIRECTORY/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.64.jar ]; then
+				cp /usr/share/red5/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.64.jar ~/dev/repo/
+                        else
+                                echo "# $RED5_DIRECTORY/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.64.jar does NOT exist!"
+                        fi
+                fi
              fi 
 
 		#
