@@ -38,12 +38,15 @@
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-			import org.bigbluebutton.modules.deskShare.events.StartedViewingEvent;
-			import org.bigbluebutton.modules.deskShare.events.ViewWindowEvent;
-			import org.bigbluebutton.modules.deskShare.events.ViewStreamEvent;
-			import org.bigbluebutton.common.Images;
+			
 			import flexlib.mdi.events.MDIWindowEvent;
+			
 			import mx.core.UIComponent;
+			
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.modules.deskShare.events.StartedViewingEvent;
+			import org.bigbluebutton.modules.deskShare.events.ViewStreamEvent;
+			import org.bigbluebutton.modules.deskShare.events.ViewWindowEvent;
 			
 			private var images:Images = new Images();
 			[Bindable] public var fitToWidthIcon:Class = images.magnifier;

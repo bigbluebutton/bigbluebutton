@@ -37,13 +37,18 @@
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="onChangedPresenter" />	
 	<mx:Script>
 		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import flexlib.mdi.events.MDIWindowEvent;
+			
+			import mx.core.UIComponent;
+			
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.modules.deskShare.events.AppletStartedEvent;
 			import org.bigbluebutton.modules.deskShare.events.ShareWindowEvent;
 			import org.bigbluebutton.modules.deskShare.events.StreamEvent;
-			import flexlib.mdi.events.MDIWindowEvent;
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import mx.core.UIComponent;
-			import org.bigbluebutton.modules.deskShare.events.AppletStartedEvent;
 			
 			public static const SCALE:Number = 5;
 			
@@ -66,6 +71,8 @@
 			private var videoWidth:Number;
 			private var captureHeight:Number = Capabilities.screenResolutionY;
 			private var captureWidth:Number = Capabilities.screenResolutionX;
+			
+			private var globalDispatcher:Dispatcher = new Dispatcher();
 			
 			private function onCreationComplete():void {
 				windowControls.maximizeRestoreBtn.enabled = false;
@@ -192,6 +199,9 @@
 					LogUtil.debug("NetStream.Play.UnpublishNotify for broadcast stream " + stream);
 					stopSharing();
 					break;
+				case "NetStream.Play.Start":
+					LogUtil.debug("Netstatus: " + e.info.code);
+					globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.DESKSHARE_STARTED));
 				}
 			}
 			
