@@ -101,12 +101,14 @@
         <mx:State name="dispMuteCheckBox">      
             <mx:AddChild relativeTo="{talkImg}" position="before">
             	<mx:Button id="muteCB" width="18" height="16" visible="true" enabled="{data.moderator}" 
+            		toolTip="{ResourceUtil.getInstance().getString('bbb.listenerItem.lockImg.toolTip')}"
             		icon="{data.locked ? lockedIcon : unlockedIcon}" click="lockMuteUser()"/>
             </mx:AddChild>
         </mx:State>		
 	</mx:states>
 	   	
    	<mx:Button id="muteBtn" width="18" height="16" visible="true" enabled="{data.moderator}" 
+   		toolTip="{ResourceUtil.getInstance().getString('bbb.listenerItem.muteUnmute.toolTip')}"
    		icon="{data.muted ? muteIcon : unmuteIcon}" click="muteUser()"/>
 	<mx:Label id="nameLabel" textAlign="left" text="{data.callerName}" width="145" 
 		toolTip="{ResourceUtil.getInstance().getString('bbb.listenerItem.nameLbl.toolTip')}"/>
