@@ -36,7 +36,7 @@
 # This ensures that we checkout the 0.63 release of BigBlueButton
 #   Note that this can be overridden with the --trunk option
 #
-RELEASE="-r 4103"
+RELEASE="-r 4125"
 
 #
 # SVNPROTO is http if read-only, or https if you specify a Google code username
