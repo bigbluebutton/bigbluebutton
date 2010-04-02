@@ -32,6 +32,8 @@ package org.bigbluebutton.main.events
 		public static const START_VIDEO_CONNECTION:String = 'BBB_START_VIDEO_CONNECTION';
 		public static const START_VIDEO_STREAM:String = 'BBB_START_VIDEO_STREAM';
 		public static const VIDEO_STARTED:String = 'BBB_VIDEO_STARTED';
+		public static const START_DESKSHARE:String = 'BBB_START_DESKSHARE';
+		public static const DESKSHARE_STARTED:String = 'BBB_DESKSHARE_STARTED';
 		
 		public var message:String;
 		
