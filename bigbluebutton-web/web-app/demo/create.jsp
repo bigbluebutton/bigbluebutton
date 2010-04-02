@@ -173,6 +173,7 @@ $(document).ready(function(){
 		String meetingToken = request.getParameter("meetingToken");
 
 		String enterURL = BigBlueButtonURL
+			+ "demo/create.jsp?action=join&username="
 			+ URLEncoder.encode(username, "UTF-8") + "&meetingToken="
 			+ URLEncoder.encode(meetingToken, "UTF-8");
 
