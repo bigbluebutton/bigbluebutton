@@ -116,23 +116,24 @@
 	
 	<target name="localization" depends="setuplocale" description="Builds BigBlueButton localization files">
 		<echo>Building Localization .swf's</echo>
+		<compileLocale locale="az_AZ" />
+		<compileLocale locale="de_DE" />
+		<compileLocale locale="el_GR" />
 		<compileLocale locale="en_US" />
+		<compileLocale locale="es_ES" />
+		<compileLocale locale="es_LA" />
+		<compileLocale locale="fr_FR" />
+		<compileLocale locale="hu_HU" />
+		<compileLocale locale="it_IT" />
+		<compileLocale locale="lt_LT" />
+		<compileLocale locale="nl_NL" />
+		<compileLocale locale="pl_PL" />
+		<compileLocale locale="pt_BR" />
+		<compileLocale locale="ru_RU" />
+		<compileLocale locale="tr_TR" />
+		<compileLocale locale="vi_VN" />
 		<compileLocale locale="zh_CN" />
 		<compileLocale locale="zh_TW" />
-		<compileLocale locale="fr_FR" />
-		<compileLocale locale="nl_NL" />
-		<compileLocale locale="es_ES" />
-		<compileLocale locale="vi_VN" />
-		<compileLocale locale="az_AZ" />
-		<compileLocale locale="lt_LT" />
-		<compileLocale locale="el_GR" />
-		<compileLocale locale="tr_TR" />
-		<compileLocale locale="pl_PL" />
-		<compileLocale locale="es_LA" />
-		<compileLocale locale="it_IT" />
-		<compileLocale locale="de_DE" />
-		<compileLocale locale="ru_RU" />
-		<compileLocale locale="pt_BR" />
 	</target>
 	
 	<!-- Compiles Localization Resource Bundle. -->
