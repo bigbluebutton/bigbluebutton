@@ -76,8 +76,9 @@ class StreamManager extends Actor {
      def act() = {
        loop {
          receive {
-           case so: StreamStopped => log.info("Got stream stopped"); notifyClientOfStreamStopped(so.room)
-           case sa: StreamStarted => notifyClientOfStreamStarted(sa.room)
+           case so: StreamStopped => log.info("Got stream stopped " + so.room); notifyClientOfStreamStopped(so.room)
+           case sa: StreamStarted => log.info("Got stream started " + sa.room); notifyClientOfStreamStarted(sa.room)
+           case m: Any => log.warning("ClientInvoker received unknown message: " + m)
          }
        }
      }
