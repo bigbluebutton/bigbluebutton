@@ -76,7 +76,7 @@ class StreamManager extends Actor {
      def act() = {
        loop {
          receive {
-           case so: StreamStopped => println("Got stream stopped"); notifyClientOfStreamStopped(so.room)
+           case so: StreamStopped => log.info("Got stream stopped"); notifyClientOfStreamStopped(so.room)
            case sa: StreamStarted => notifyClientOfStreamStarted(sa.room)
          }
        }

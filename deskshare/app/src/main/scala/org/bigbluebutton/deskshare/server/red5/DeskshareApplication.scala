@@ -5,12 +5,17 @@ import org.bigbluebutton.deskshare.server.socket.DeskShareServer
 import org.red5.server.adapter.MultiThreadedApplicationAdapter
 import org.red5.server.api.IConnection
 import org.red5.server.api.IScope
+import scala.actors.Actor
+import scala.actors.Actor._
 
 import net.lag.configgy.Configgy
 import net.lag.logging.Logger
 import java.io.File
+import java.util.concurrent.CountDownLatch
 
 class DeskshareApplication(streamManager: StreamManager, deskShareServer: DeskShareServer) extends MultiThreadedApplicationAdapter {
+	private val deathSwitch = new CountDownLatch(1)
+
 	// load our config file and configure logfiles.
 	Configgy.configure("webapps/deskshare/WEB-INF/deskshare.conf")
  
@@ -20,6 +25,11 @@ class DeskshareApplication(streamManager: StreamManager, deskShareServer: DeskSh
 	override def appStart(app: IScope): Boolean = {
 		logger.debug("deskShare appStart");
 		appScope = app
+      // make sure there's always one actor running so scala 2.7.2 doesn't kill off the actors library.
+      actor {
+			deathSwitch.await
+		}
+    
 		streamManager.setDeskshareApplication(this)
 		deskShareServer.start();
 		super.appStart(app)
