@@ -1,7 +1,6 @@
 package org.bigbluebutton.deskshare.server.stream
 
 import org.bigbluebutton.deskshare.server.ScreenVideoBroadcastStream
-
 import org.red5.server.api.{IContext, IScope}
 import org.red5.server.net.rtmp.event.VideoData;
 import org.red5.server.stream.{BroadcastScope, IBroadcastScope, IProviderService}
