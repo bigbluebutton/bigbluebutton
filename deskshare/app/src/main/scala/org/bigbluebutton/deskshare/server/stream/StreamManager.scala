@@ -52,7 +52,7 @@ class StreamManager extends Actor {
 	    	    case None => reply(new StreamPublishingReply(false, 0, 0))
 	    	  }
 	      	}
-	      case m: Any => log.warning("Receive unknown message: " + m)
+	      case m: Any => log.warning("StreamManager received unknown message: " + m)
 	    }
 	  }
 	}
@@ -84,14 +84,18 @@ class StreamManager extends Actor {
      }
      
      private def notifyClientOfStreamStarted(room: String) {
+    	 log.info("ClientInvoker Getting SO for room " + room)
 		val deskSO: ISharedObject  = app.getSharedObject(app.getAppScope().getScope(room), "deskSO")
 		log.info("Sending stream started for " + room)
+		if (deskSO == null) log.warning("SO is NULL")
 		deskSO.sendMessage("appletStarted" , new ArrayList[Object]())
      }
      
      private def notifyClientOfStreamStopped(room: String) {
+       log.info("ClientInvoker Getting SO for room " + room)
 		val deskSO: ISharedObject  = app.getSharedObject(app.getAppScope().getScope(room), "deskSO")
 		log.info("Sending stream stopped for " + room)
+		if (deskSO == null) log.warning("SO is NULL")
 		deskSO.sendMessage("deskshareStreamStopped" , new ArrayList[Object]())
      }
    }
