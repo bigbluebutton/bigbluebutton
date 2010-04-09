@@ -50,13 +50,13 @@ class SessionSVC(room: String, screenDim: Dimension, blockDim: Dimension, stream
 	private def initialize() {
 		blockManager.initialize()	
 		stop = false
-		stream ! new StartStream
+		stream ! StartStream
 		generateFrame(true)
 		scheduleGenerateFrame()
 	}
  
 	private def stopSession() {
-		stream ! new StopStream
+		stream ! StopStream
 		stop = true
 		streamManager.destroyStream(room)
 	}
