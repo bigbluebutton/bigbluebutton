@@ -29,8 +29,8 @@ class StreamManager extends Actor {
 
 	private val streams = new HashMap[String, DeskshareStream]
  
-	private val clientInvoker: ClientInvoker = new ClientInvoker()
-	clientInvoker.start
+//	private val clientInvoker: ClientInvoker = new ClientInvoker()
+//	clientInvoker.start
  
 	def act() = {
 	  loop {
@@ -38,12 +38,12 @@ class StreamManager extends Actor {
 	      case cs: AddStream => {
 	    	  log.debug("Adding stream " + cs.room)
 	    	  streams += cs.room -> cs.stream
-	    	  clientInvoker ! new StreamStarted(cs.room)
+//	    	  clientInvoker ! new StreamStarted(cs.room)
 	        }
 	      case ds: RemoveStream => {
 	    	  log.debug("Removing Stream " + ds.room)
 	    	  streams -= ds.room
-	    	  clientInvoker ! new StreamStopped(ds.room)
+//	    	  clientInvoker ! new StreamStopped(ds.room)
 	      	}
 	      case is: IsStreamPublishing => {
 	    	  log.debug("Received IsStreamPublishing message for " + is.room)
@@ -59,7 +59,8 @@ class StreamManager extends Actor {
  
 	def createStream(room: String, width: Int, height: Int): Stream = {	
   		val scope: IScope = app.getAppScope().getScope(room)	
-		val stream = new DeskshareStream(scope, room, width, height)
+  		val deskSO: ISharedObject  = app.getSharedObject(app.getAppScope().getScope(room), "deskSO")
+		val stream = new DeskshareStream(scope, deskSO, room, width, height)
   		stream.start
 		this ! new AddStream(room, stream)
 		return stream
@@ -88,7 +89,10 @@ class StreamManager extends Actor {
 		val deskSO: ISharedObject  = app.getSharedObject(app.getAppScope().getScope(room), "deskSO")
 		log.info("Sending stream started for " + room)
 		if (deskSO == null) log.warning("SO is NULL")
-		deskSO.sendMessage("appletStarted" , new ArrayList[Object]())
+		else {
+		  log.info("deskSO no NULL")
+		  deskSO.sendMessage("appletStarted" , new ArrayList[Object]())
+		}
      }
      
      private def notifyClientOfStreamStopped(room: String) {

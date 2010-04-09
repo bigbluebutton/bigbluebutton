@@ -2,16 +2,17 @@ package org.bigbluebutton.deskshare.server.stream
 
 import org.bigbluebutton.deskshare.server.ScreenVideoBroadcastStream
 import org.red5.server.api.{IContext, IScope}
+import org.red5.server.api.so.ISharedObject
 import org.red5.server.net.rtmp.event.VideoData;
 import org.red5.server.stream.{BroadcastScope, IBroadcastScope, IProviderService}
 import org.apache.mina.core.buffer.IoBuffer
-
+import java.util.ArrayList
 import scala.actors.Actor
 import scala.actors.Actor._
 
 import net.lag.logging.Logger
 
-class DeskshareStream(val scope: IScope, name: String, val width: Int, val height: Int) extends Stream {
+class DeskshareStream(val scope: IScope, val deskSO: ISharedObject, name: String, val width: Int, val height: Int) extends Stream {
 	private val log = Logger.get
 	private val broadcastStream = new ScreenVideoBroadcastStream(name)
 	broadcastStream.setPublishedName(name)
@@ -31,8 +32,9 @@ class DeskshareStream(val scope: IScope, name: String, val width: Int, val heigh
  
 	private def stopStream() = {
 		log.debug("DeskShareStream Stopping stream " + name)
+		deskSO.sendMessage("deskshareStreamStopped" , new ArrayList[Object]())
 		broadcastStream.stop()
-	    broadcastStream.close()
+	    broadcastStream.close()	    
 	}
 	
 	private def startStream() = {
@@ -47,6 +49,8 @@ class DeskshareStream(val scope: IScope, name: String, val width: Int, val heigh
 	  } else{
 		log.error("could not register broadcast stream")
 	  }
+   
+	  deskSO.sendMessage("appletStarted" , new ArrayList[Object]())
 	}
 	
 	private def updateStream(us: UpdateStream) {
