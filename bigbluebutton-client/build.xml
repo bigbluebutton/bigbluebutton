@@ -126,9 +126,12 @@
 		<compileLocale locale="hu_HU" />
 		<compileLocale locale="it_IT" />
 		<compileLocale locale="lt_LT" />
+		<compileLocale locale="nb_NO" />
 		<compileLocale locale="nl_NL" />
 		<compileLocale locale="pl_PL" />
 		<compileLocale locale="pt_BR" />
+		<compileLocale locale="pt_PT" />
+		<compileLocale locale="ro_RO" />
 		<compileLocale locale="ru_RU" />
 		<compileLocale locale="tr_TR" />
 		<compileLocale locale="vi_VN" />
