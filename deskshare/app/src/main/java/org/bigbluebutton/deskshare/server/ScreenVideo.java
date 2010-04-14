@@ -68,7 +68,7 @@ public class ScreenVideo implements IVideoStreamCodec {
 		}
 		this.data = data;
 		
-		log.debug("Adding data " + data.remaining());
+//		log.debug("Adding data " + data.remaining());
 		
 		this.data.rewind();
 		return true;

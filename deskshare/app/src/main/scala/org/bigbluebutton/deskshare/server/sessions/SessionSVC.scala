@@ -12,11 +12,12 @@ case class UpdateSessionBlock(position: Int, blockData: Array[Byte], keyframe: B
 case object StopSession
 case object GenerateKeyFrame
 
-class SessionSVC(room: String, screenDim: Dimension, blockDim: Dimension, streamManager: StreamManager) extends Actor {
+class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dimension, blockDim: Dimension, streamManager: StreamManager) extends Actor {
 	private val log = Logger.get
  
 	private val blockManager: BlockManager = new BlockManager(room, screenDim, blockDim)
 	private val stream:Stream = streamManager.createStream(room, screenDim.width, screenDim.height)
+	private var lastUpdate:Long = System.currentTimeMillis()
  
 	private var stop = true
 
@@ -62,10 +63,15 @@ class SessionSVC(room: String, screenDim: Dimension, blockDim: Dimension, stream
 	}
 	
 	private def updateBlock(position: Int, videoData: Array[Byte], keyFrame: Boolean): Unit = {
+		lastUpdate = System.currentTimeMillis()
 		blockManager.updateBlock(position, videoData, keyFrame)	
 	}
 	
-	private def generateFrame(keyframe:Boolean) {
-		stream ! new UpdateStream(room, blockManager.generateFrame(keyframe))
+	private def generateFrame(keyframe:Boolean) {		
+		stream ! new UpdateStream(room, blockManager.generateFrame(keyframe))  
+		if (System.currentTimeMillis() - lastUpdate > 60000) {
+			log.warning("Did not received updates for more than 1 minute. Removing session " + room)
+			sessionManager ! new RemoveSession(room)
+		}
 	}
 }

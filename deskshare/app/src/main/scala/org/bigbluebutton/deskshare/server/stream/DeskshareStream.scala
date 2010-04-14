@@ -32,6 +32,7 @@ class DeskshareStream(val scope: IScope, val deskSO: ISharedObject, name: String
  
 	private def stopStream() = {
 		log.debug("DeskShareStream Stopping stream " + name)
+		log.info("Sending deskshareStreamStopped for " + name)
 		deskSO.sendMessage("deskshareStreamStopped" , new ArrayList[Object]())
 		broadcastStream.stop()
 	    broadcastStream.close()	    
@@ -50,6 +51,7 @@ class DeskshareStream(val scope: IScope, val deskSO: ISharedObject, name: String
 		log.error("could not register broadcast stream")
 	  }
    
+	  log.info("Sending appletStarted for " + name)
 	  deskSO.sendMessage("appletStarted" , new ArrayList[Object]())
 	}
 	

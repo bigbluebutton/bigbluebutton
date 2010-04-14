@@ -41,7 +41,7 @@ class SessionManagerSVC(streamManager: StreamManager) extends Actor {
 	private def createSession(c: CreateSession): Unit = {
 		if (! sessions.contains(c.room)) {
 			log.debug("Created session " + c.room)
-			val session: SessionSVC = new SessionSVC(c.room, c.screenDim, c.blockDim, streamManager) 
+			val session: SessionSVC = new SessionSVC(this, c.room, c.screenDim, c.blockDim, streamManager) 
 			sessions += c.room -> session
 			session.start
 			session ! StartSession

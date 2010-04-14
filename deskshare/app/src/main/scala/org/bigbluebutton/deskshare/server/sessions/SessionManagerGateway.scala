@@ -16,12 +16,14 @@ class SessionManagerGateway(streamManager: StreamManager) extends ISessionManage
     sessionManager.start 
   
 	def createSession(room: String, screenDim: common.Dimension, blockDim: common.Dimension): Unit = {
-		sessionManager ! new CreateSession(room, new svc1.Dimension(screenDim.getWidth(), screenDim.getHeight()), 
+	  log.info("SessionManagerGateway:createSession for {}", room)
+	  sessionManager ! new CreateSession(room, new svc1.Dimension(screenDim.getWidth(), screenDim.getHeight()), 
                                            new svc1.Dimension(blockDim.getWidth(), blockDim.getHeight()))
 	}
 
 	def removeSession(room: String): Unit = {
-		sessionManager ! new RemoveSession(room)
+	  log.info("SessionManagerGateway:removeSession for {}", room)
+	  sessionManager ! new RemoveSession(room)
 	}
 	
 	def updateBlock(room : String, position : Int, blockData : Array[Byte], keyframe : Boolean): Unit = {
@@ -29,6 +31,7 @@ class SessionManagerGateway(streamManager: StreamManager) extends ISessionManage
 	}
  
 	def sendKeyFrame(room: String) {
-		sessionManager ! new SendKeyFrame(room)
+	  log.info("SessionManagerGateway:sendKeyFrame for {}", room)
+	  sessionManager ! new SendKeyFrame(room)
 	}
 }

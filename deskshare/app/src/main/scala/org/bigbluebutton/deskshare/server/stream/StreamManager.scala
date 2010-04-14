@@ -29,21 +29,17 @@ class StreamManager extends Actor {
 
 	private val streams = new HashMap[String, DeskshareStream]
  
-//	private val clientInvoker: ClientInvoker = new ClientInvoker()
-//	clientInvoker.start
- 
+
 	def act() = {
 	  loop {
 	    react {
 	      case cs: AddStream => {
 	    	  log.debug("Adding stream " + cs.room)
 	    	  streams += cs.room -> cs.stream
-//	    	  clientInvoker ! new StreamStarted(cs.room)
 	        }
 	      case ds: RemoveStream => {
 	    	  log.debug("Removing Stream " + ds.room)
 	    	  streams -= ds.room
-//	    	  clientInvoker ! new StreamStopped(ds.room)
 	      	}
 	      case is: IsStreamPublishing => {
 	    	  log.debug("Received IsStreamPublishing message for " + is.room)
@@ -68,40 +64,5 @@ class StreamManager extends Actor {
  
   	def destroyStream(room: String) {
   		this ! new RemoveStream(room)
-  	}
-      
-   case class StreamStarted(room: String)
-   case class StreamStopped(room: String)
-   
-   class ClientInvoker extends Actor {
-     def act() = {
-       loop {
-         receive {
-           case so: StreamStopped => log.info("Got stream stopped " + so.room); notifyClientOfStreamStopped(so.room)
-           case sa: StreamStarted => log.info("Got stream started " + sa.room); notifyClientOfStreamStarted(sa.room)
-           case m: Any => log.warning("ClientInvoker received unknown message: " + m)
-         }
-       }
-     }
-     
-     private def notifyClientOfStreamStarted(room: String) {
-    	 log.info("ClientInvoker Getting SO for room " + room)
-		val deskSO: ISharedObject  = app.getSharedObject(app.getAppScope().getScope(room), "deskSO")
-		log.info("Sending stream started for " + room)
-		if (deskSO == null) log.warning("SO is NULL")
-		else {
-		  log.info("deskSO no NULL")
-		  deskSO.sendMessage("appletStarted" , new ArrayList[Object]())
-		}
-     }
-     
-     private def notifyClientOfStreamStopped(room: String) {
-       log.info("ClientInvoker Getting SO for room " + room)
-		val deskSO: ISharedObject  = app.getSharedObject(app.getAppScope().getScope(room), "deskSO")
-		log.info("Sending stream stopped for " + room)
-		if (deskSO == null) log.warning("SO is NULL")
-		deskSO.sendMessage("deskshareStreamStopped" , new ArrayList[Object]())
-     }
-   }
-  	
+  	}  	
 }

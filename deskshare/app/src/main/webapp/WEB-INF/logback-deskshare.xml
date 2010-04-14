@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-  <appender name="BIGBLUEBUTTON" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <File>log/bigbluebutton.log</File>
+  <appender name="deskshare" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <File>log/deskshare-slf.log</File>
     
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <FileNamePattern>log/deskshare.%d{yyyy-MM-dd}.log</FileNamePattern>
+      <FileNamePattern>log/deskshare-slf.%d{yyyy-MM-dd}.log</FileNamePattern>
       <!-- keep 30 days worth of history -->
       <MaxHistory>30</MaxHistory>
     </rollingPolicy>
@@ -16,6 +16,6 @@
 
 	<root>
 		<level value="DEBUG" />	
-		<appender-ref ref="DESKSHARE" />
+		<appender-ref ref="deskshare" />
 	</root>		
 </configuration>

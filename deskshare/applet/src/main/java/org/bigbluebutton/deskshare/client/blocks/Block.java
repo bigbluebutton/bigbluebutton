@@ -40,6 +40,7 @@ public final class Block {
     private final Point location;    
     private int[] pixels;
     private AtomicBoolean sendFlag = new AtomicBoolean(false);
+    private long lastSent = System.currentTimeMillis();
     
     Block(Dimension dim, int position, Point location) {
         checksum = new Adler32();
@@ -56,7 +57,7 @@ public final class Block {
             	System.out.println(e.toString());
         	}    	
             
-            if (! checksumSame()) {
+            if ((! checksumSame()) || sendKeepAliveBlock()) {
             	if (sendFlag.compareAndSet(false, true)) {
 //            		System.out.println("Block " + position + " has changed. Need to send it.");
             		return true;
@@ -69,7 +70,25 @@ public final class Block {
     	
         return false;
     }
-        
+    
+    private boolean isKeepAliveBlock() {
+    	// Use block 1 as our keepalive block. The keepalive block is our audit so that the server knows
+    	// that the applet is still connected to the server. So it there's no change in the desktop, the applet
+    	// should still send this keepalive block.
+    	return position == 1;
+    }
+    
+    private boolean sendKeepAliveBlock() {
+    	long now = System.currentTimeMillis();
+    	if (isKeepAliveBlock() && (now - lastSent > 30000)) {
+    		// Send keepalive block every 30 seconds.
+    		lastSent = now;
+    		System.out.println("Sending keep alive block!");
+    		return true;
+    	}
+    	return false;
+    }
+    
     public EncodedBlockData encode() {   
     	int[] pixelsCopy = new int[pixels.length];
     	synchronized (this) {           

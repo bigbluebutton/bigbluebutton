@@ -93,6 +93,7 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
     	String room = decodeRoom(session, in);
     	
     	if (! "".equals(room)) {
+    		log.info("CaptureEndEvent for " + room);
     		CaptureEndBlockEvent event = new CaptureEndBlockEvent(room);
     		out.write(event);
     	} else {
@@ -107,7 +108,7 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
 		Dimension screenDim = decodeDimension(in);    	
 	    System.out.println("Block dim [" + blockDim.getWidth() + "," + blockDim.getHeight() + "]");
 	    System.out.println("Screen dim [" + screenDim.getWidth() + "," + screenDim.getHeight() + "]");
-	    
+	    log.info("CaptureStartEvent for " + room);
 	    CaptureStartBlockEvent event = new CaptureStartBlockEvent(room, 
 	    									screenDim, blockDim);	
 	    out.write(event);
