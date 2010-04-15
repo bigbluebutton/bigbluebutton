@@ -23,7 +23,7 @@ var requiredRevision = 115;
 </script>
 </head>
 
-<body scroll="no" onfocus="clearblink()" onblur="lostFocus=true;">
+<body scroll="no" onfocus="clearblink()">
 <script language="JavaScript" type="text/javascript">
 <!--
 // Version check for the Flash Player that has the ability to start Player Product Install (6.0r65)
@@ -95,14 +95,14 @@ function startApplet(IP, roomNumber, captureX, captureY, captureWidth, captureHe
    	frames[frames.length - 1].document.write(
    		"<applet code=\"org.bigbluebutton.deskshare.client.DeskShareApplet.class\"" +
    			"id=\"DeskShareApplet\" width=\"0\" height=\"400\" archive=\"bbb-deskshare-applet-0.64.jar\">" +
-        	"<param name=\"ROOM\" value=\"" + roomNumber  + "\"/>" +  
+        	"<param name=\"ROOM\" value=\"" + roomNumber  + "\"/>" +
         	"<param name=\"IP\" value=\"" + IP + "\"/>" +
         	"<param name=\"CAPTURE_WIDTH\" value=\"" + captureWidth + "\"/>" +
         	"<param name=\"CAPTURE_HEIGHT\" value=\"" + captureHeight + "\"/>" +
         	"<param name=\"X\" value=\"" + captureX + "\"/>" +
         	"<param name=\"Y\" value=\"" + captureY + "\"/>" +
       	"</applet>"
-     ); 
+     );
 }
 
 function removeFrame () {
@@ -120,8 +120,8 @@ function stopApplet(){
 }
 
 function checkForJava(){
-//	if (navigator.javaEnabled() || window.navigator.javaEnabled()) 
-		return 1; 
+//	if (navigator.javaEnabled() || window.navigator.javaEnabled())
+		return 1;
 }
 
 var blinkTimer = false;
@@ -159,7 +159,7 @@ var localeChain = "en_US";
 if (navigator.language)
 	localeChain = navigator.language;
 else if (navigator.browserLanguage)
-	localeChain = navigator.browserLanguage; 
+	localeChain = navigator.browserLanguage;
 
 if(/^([a-z]+)-([a-z]+)$/i.test(localeChain)){
 	var matches = /^([a-z]+)-([a-z]+)$/i.exec(localeChain);
