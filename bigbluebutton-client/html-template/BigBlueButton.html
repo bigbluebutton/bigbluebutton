@@ -23,7 +23,7 @@ var requiredRevision = 115;
 </script>
 </head>
 
-<body scroll="no">
+<body scroll="no" onfocus="clearblink()" onblur="lostFocus=true;">
 <script language="JavaScript" type="text/javascript">
 <!--
 // Version check for the Flash Player that has the ability to start Player Product Install (6.0r65)
@@ -53,7 +53,6 @@ if ( hasProductInstall && !hasRequestedVersion ) {
 		"quality", "high",
 		"bgcolor", "#869ca7",
 		"name", "BigBlueButton",
-		"onfocus", "clearblink();",
 		"allowScriptAccess","sameDomain",
 		"allowFullScreen","true",
 		"type", "application/x-shockwave-flash",
@@ -75,7 +74,6 @@ if ( hasProductInstall && !hasRequestedVersion ) {
 			"quality", "high",
 			"bgcolor", "#869ca7",
 			"name", "BigBlueButton",
-			"onfocus", "clearblink();",
 			"allowScriptAccess","sameDomain",
 			"allowFullScreen","true",
 			"type", "application/x-shockwave-flash",
@@ -126,25 +124,33 @@ function checkForJava(){
 		return 1; 
 }
 
-var lostFocus = false;
 var blinkTimer = false;
+var blinking = false;
+
+var startblink = function(message1, message2)
+{
+	if(!blinking)
+	{
+		document.title = (document.title == message2)?message1:message2;
+		blinkTimer = window.setTimeout("blinktitle('" + message1 + "', '" + message2 + "', 1)", 500);
+		blinking = true;
+	}
+}
+
 var blinktitle = function(message1, message2)
 {
-	if(lostFocus)
-	{
-		document.title = (!document.title || document.title == message2)?message1:message2;
-		blinkTimer = window.setTimeout("blinktitle('" + message1 + "', '" + message2 + "')", 500);
-	}
+	document.title = (document.title == message2)?message1:message2;
+	blinkTimer = window.setTimeout("blinktitle('" + message1 + "', '" + message2 + "', 1)", 500);
 }
 
 var clearblink = function()
 {
-	lostFocus = false;
-	document.title = 'BigBlueButton';
+	blinking = false;
 	if(blinkTimer)
 	{
 		window.clearTimeout(blinkTimer);
 	}
+	document.title = 'BigBlueButton';
 }
 
 // Check locale
