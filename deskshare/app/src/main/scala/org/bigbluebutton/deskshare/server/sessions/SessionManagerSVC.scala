@@ -31,10 +31,10 @@ class SessionManagerSVC(streamManager: StreamManager) extends Actor {
 	}
  
 	private def sendKeyFrame(room: String) {
-		log.debug("Request to send key frame for room " + room)  
+		log.debug("Request to send key frame for room %s", room)  
         sessions.get(room) match {
           case Some(s) => s ! GenerateKeyFrame
-          case None => log.warning("Could not find room " + room)
+          case None => log.warning("Could not find room %s", room)
         }
 	}
  
@@ -46,7 +46,7 @@ class SessionManagerSVC(streamManager: StreamManager) extends Actor {
 			session.start
 			session ! StartSession
 		} else {
-			log.warning("Session already exist for " + c.room)
+			log.warning("Session already exist for %s", c.room)
 		}
 	}
 
@@ -54,7 +54,7 @@ class SessionManagerSVC(streamManager: StreamManager) extends Actor {
 		log.debug("Removing session " + room);
     	sessions.get(room) match {
     	  case Some(s) => s ! StopSession
-    	  case None => log.warning("Could not find room " + room)
+    	  case None => log.warning("Could not find room %s", room)
     	}
     	sessions -= room
 	}
@@ -62,7 +62,7 @@ class SessionManagerSVC(streamManager: StreamManager) extends Actor {
 	private def updateBlock(room: String, position: Int, blockData: Array[Byte], keyframe: Boolean): Unit = {
 		sessions.get(room) match {
 		  case Some(s) => s ! new UpdateSessionBlock(position, blockData, keyframe)
-		  case None => log.warning("Could not find room " + room)
+		  case None => log.warning("Could not find room %s", room)
 		}
 	}
 		

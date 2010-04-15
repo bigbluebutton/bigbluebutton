@@ -39,11 +39,11 @@ class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dime
 	            if (!stop) scheduleGenerateFrame()
             }
           case GenerateKeyFrame => {
-        	  log.debug("Generating Key Frame for room " + room)
+        	  log.debug("Generating Key Frame for room %s", room)
         	  generateFrame(true)
             }
           case b: UpdateSessionBlock => updateBlock(b.position, b.blockData, b.keyframe)
-          case m: Any => log.warning("Unknown message [" + m + "]")
+          case m: Any => log.warning("Unknown message [%s]", m)
         }
       }
     }
@@ -70,7 +70,7 @@ class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dime
 	private def generateFrame(keyframe:Boolean) {		
 		stream ! new UpdateStream(room, blockManager.generateFrame(keyframe))  
 		if (System.currentTimeMillis() - lastUpdate > 60000) {
-			log.warning("Did not received updates for more than 1 minute. Removing session " + room)
+			log.warning("Did not received updates for more than 1 minute. Removing session %s", room)
 			sessionManager ! new RemoveSession(room)
 		}
 	}

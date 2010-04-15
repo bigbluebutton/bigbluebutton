@@ -31,15 +31,15 @@ class DeskshareStream(val scope: IScope, val deskSO: ISharedObject, name: String
 	}
  
 	private def stopStream() = {
-		log.debug("DeskShareStream Stopping stream " + name)
-		log.info("Sending deskshareStreamStopped for " + name)
+		log.debug("DeskShareStream Stopping stream %s", name)
+		log.info("Sending deskshareStreamStopped for %s", name)
 		deskSO.sendMessage("deskshareStreamStopped" , new ArrayList[Object]())
 		broadcastStream.stop()
 	    broadcastStream.close()	    
 	}
 	
 	private def startStream() = {
-	  log.debug("DeskShareStream Starting stream " + name)
+	  log.debug("DeskShareStream Starting stream %s", name)
 
 	  val context: IContext  = scope.getContext()
 		

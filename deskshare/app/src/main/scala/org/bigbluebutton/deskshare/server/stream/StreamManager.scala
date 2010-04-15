@@ -34,21 +34,21 @@ class StreamManager extends Actor {
 	  loop {
 	    react {
 	      case cs: AddStream => {
-	    	  log.debug("Adding stream " + cs.room)
+	    	  log.debug("Adding stream %s", cs.room)
 	    	  streams += cs.room -> cs.stream
 	        }
 	      case ds: RemoveStream => {
-	    	  log.debug("Removing Stream " + ds.room)
+	    	  log.debug("Removing Stream %s", ds.room)
 	    	  streams -= ds.room
 	      	}
 	      case is: IsStreamPublishing => {
-	    	  log.debug("Received IsStreamPublishing message for " + is.room)
+	    	  log.debug("Received IsStreamPublishing message for %s", is.room)
 	    	  streams.get(is.room) match {
 	    	    case Some(str) =>  reply(new StreamPublishingReply(true, str.width, str.height))
 	    	    case None => reply(new StreamPublishingReply(false, 0, 0))
 	    	  }
 	      	}
-	      case m: Any => log.warning("StreamManager received unknown message: " + m)
+	      case m: Any => log.warning("StreamManager received unknown message: %s", m)
 	    }
 	  }
 	}
