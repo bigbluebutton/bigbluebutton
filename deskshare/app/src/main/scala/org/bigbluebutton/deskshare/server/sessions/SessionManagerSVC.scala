@@ -53,10 +53,9 @@ class SessionManagerSVC(streamManager: StreamManager) extends Actor {
 	private def removeSession(room: String): Unit = {
 		log.debug("Removing session " + room);
     	sessions.get(room) match {
-    	  case Some(s) => s ! StopSession
+    	  case Some(s) => s ! StopSession; sessions -= room
     	  case None => log.warning("Could not find room %s", room)
     	}
-    	sessions -= room
 	}
 	
 	private def updateBlock(room: String, position: Int, blockData: Array[Byte], keyframe: Boolean): Unit = {

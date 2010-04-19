@@ -64,16 +64,19 @@ public class BlockStreamEventMessageHandler extends IoHandlerAdapter {
     public void sessionIdle( IoSession session, IdleStatus status ) throws Exception
     {
     	log.debug( "IDLE " + session.getIdleCount( status ));
+    	super.sessionIdle(session, status);
     }
     
     @Override
     public void sessionCreated(IoSession session) throws Exception {
     	log.debug("Session Created");
+    	super.sessionCreated(session);
     }
     
     @Override
     public void sessionOpened(IoSession session) throws Exception {
     	log.debug("Session Opened.");
+    	super.sessionOpened(session);
     }
     
     @Override
