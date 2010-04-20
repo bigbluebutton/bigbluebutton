@@ -97,7 +97,7 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
     		CaptureEndBlockEvent event = new CaptureEndBlockEvent(room);
     		out.write(event);
     	} else {
-    		System.out.println("Room is empty.");
+    		log.warn("Room is empty.");
     	}
     }
     
@@ -106,8 +106,8 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
 
 		Dimension blockDim = decodeDimension(in);
 		Dimension screenDim = decodeDimension(in);    	
-	    System.out.println("Block dim [" + blockDim.getWidth() + "," + blockDim.getHeight() + "]");
-	    System.out.println("Screen dim [" + screenDim.getWidth() + "," + screenDim.getHeight() + "]");
+//	    System.out.println("Block dim [" + blockDim.getWidth() + "," + blockDim.getHeight() + "]");
+//	    System.out.println("Screen dim [" + screenDim.getWidth() + "," + screenDim.getHeight() + "]");
 	    log.info("CaptureStartEvent for " + room);
 	    CaptureStartBlockEvent event = new CaptureStartBlockEvent(room, 
 	    									screenDim, blockDim);	

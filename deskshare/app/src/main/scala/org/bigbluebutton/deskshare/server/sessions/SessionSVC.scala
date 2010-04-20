@@ -74,4 +74,14 @@ class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dime
 			sessionManager ! new RemoveSession(room)
 		}
 	}
+ 
+	override def  exit() : Nothing = {
+	  log.warning("**** Exiting Session Actor for room %s", room)
+	  super.exit()
+	}
+ 
+	override def exit(reason : AnyRef) : Nothing = {
+	  log.warning("**** Exiting Session Actor %s for room %s", reason, room)
+	  super.exit(reason)
+	}
 }

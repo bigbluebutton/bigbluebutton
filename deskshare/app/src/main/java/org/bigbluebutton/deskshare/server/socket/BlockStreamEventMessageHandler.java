@@ -84,7 +84,7 @@ public class BlockStreamEventMessageHandler extends IoHandlerAdapter {
     	log.debug("Session Closed.");
     	
     	String room = (String) session.getAttribute("ROOM");
-    	System.out.println("Session Closed for room " + room);
+    	log.debug("Session Closed for room " + room);
     	sessionManager.removeSession(room);
     }
     

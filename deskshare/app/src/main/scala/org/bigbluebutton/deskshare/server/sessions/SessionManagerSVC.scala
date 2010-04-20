@@ -65,5 +65,13 @@ class SessionManagerSVC(streamManager: StreamManager) extends Actor {
 		}
 	}
 		
-	
+	override def  exit() : Nothing = {
+	  log.warning("**** Exiting SessionManager Actor")
+	  super.exit()
+	}
+ 
+	override def exit(reason : AnyRef) : Nothing = {
+	  log.warning("**** Exiting SessionManager Actor %s", reason)
+	  super.exit(reason)
+	}
 }
