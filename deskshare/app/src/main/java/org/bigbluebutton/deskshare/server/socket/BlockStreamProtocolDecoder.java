@@ -103,14 +103,14 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
     
     private void decodeCaptureStartEvent(IoSession session, IoBuffer in, ProtocolDecoderOutput out) { 
     	String room = decodeRoom(session, in);
-
+    	session.setAttribute(ROOM, room);
+    	
 		Dimension blockDim = decodeDimension(in);
 		Dimension screenDim = decodeDimension(in);    	
 //	    System.out.println("Block dim [" + blockDim.getWidth() + "," + blockDim.getHeight() + "]");
 //	    System.out.println("Screen dim [" + screenDim.getWidth() + "," + screenDim.getHeight() + "]");
 	    log.info("CaptureStartEvent for " + room);
-	    CaptureStartBlockEvent event = new CaptureStartBlockEvent(room, 
-	    									screenDim, blockDim);	
+	    CaptureStartBlockEvent event = new CaptureStartBlockEvent(room, screenDim, blockDim);	
 	    out.write(event);
     }
     
@@ -126,9 +126,14 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
     	String room = "";
     	try {    		
     		room = in.getString(roomLength, Charset.forName( "UTF-8" ).newDecoder());
-    		session.setAttribute(ROOM, room);
+    		if (session.containsAttribute(ROOM)) {
+        		String attRoom = (String) session.getAttribute(ROOM);
+        		if (!attRoom.equals(room)) {
+        			log.warn(room + " is not the same as room in attribute [" + attRoom + "]");
+        		}     			
+    		}   		
 		} catch (CharacterCodingException e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}   
 		
 		return room;

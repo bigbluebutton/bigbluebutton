@@ -34,21 +34,21 @@ class StreamManager extends Actor {
 	  loop {
 	    react {
 	      case cs: AddStream => {
-	    	  log.debug("Adding stream %s", cs.room)
+	    	  log.debug("StreamManager: Adding stream %s", cs.room)
 	    	  streams += cs.room -> cs.stream
 	        }
 	      case ds: RemoveStream => {
-	    	  log.debug("Removing Stream %s", ds.room)
+	    	  log.debug("StreamManager: Removing Stream %s", ds.room)
 	    	  streams -= ds.room
 	      	}
 	      case is: IsStreamPublishing => {
-	    	  log.debug("Received IsStreamPublishing message for %s", is.room)
+	    	  log.debug("StreamManager: Received IsStreamPublishing message for %s", is.room)
 	    	  streams.get(is.room) match {
 	    	    case Some(str) =>  reply(new StreamPublishingReply(true, str.width, str.height))
 	    	    case None => reply(new StreamPublishingReply(false, 0, 0))
 	    	  }
 	      	}
-	      case m: Any => log.warning("StreamManager received unknown message: %s", m)
+	      case m: Any => log.warning("StreamManager: StreamManager received unknown message: %s", m)
 	    }
 	  }
 	}
@@ -65,4 +65,14 @@ class StreamManager extends Actor {
   	def destroyStream(room: String) {
   		this ! new RemoveStream(room)
   	}  	
+   
+  	override def  exit() : Nothing = {
+	  log.warning("StreamManager: **** Exiting  Actor")
+	  super.exit()
+	}
+ 
+	override def exit(reason : AnyRef) : Nothing = {
+	  log.warning("StreamManager: **** Exiting Actor with reason %s")
+	  super.exit(reason)
+	}
 }

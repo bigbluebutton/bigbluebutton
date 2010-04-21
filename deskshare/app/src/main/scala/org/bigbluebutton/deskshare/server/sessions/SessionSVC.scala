@@ -36,19 +36,24 @@ class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dime
           case StopSession => stopSession()            
           case "GenerateFrame" => {
 	            generateFrame(false)
-	            if (!stop) scheduleGenerateFrame()
+	            if (!stop) {
+	              scheduleGenerateFrame()
+	            } else {
+	              exit()
+	            }
             }
           case GenerateKeyFrame => {
-        	  log.debug("Generating Key Frame for room %s", room)
+        	  log.debug("Session: Generating Key Frame for room %s", room)
         	  generateFrame(true)
             }
           case b: UpdateSessionBlock => updateBlock(b.position, b.blockData, b.keyframe)
-          case m: Any => log.warning("Unknown message [%s]", m)
+          case m: Any => log.warning("Session: Unknown message [%s]", m)
         }
       }
     }
 
 	private def initialize() {
+		log.debug("Session: Starting session %s", room)
 		blockManager.initialize()	
 		stop = false
 		stream ! StartStream
@@ -57,6 +62,7 @@ class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dime
 	}
  
 	private def stopSession() {
+		log.debug("Session: Stopping session %s", room)
 		stream ! StopStream
 		stop = true
 		streamManager.destroyStream(room)
@@ -70,18 +76,18 @@ class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dime
 	private def generateFrame(keyframe:Boolean) {		
 		stream ! new UpdateStream(room, blockManager.generateFrame(keyframe))  
 		if (System.currentTimeMillis() - lastUpdate > 60000) {
-			log.warning("Did not received updates for more than 1 minute. Removing session %s", room)
+			log.warning("Session: Did not received updates for more than 1 minute. Removing session %s", room)
 			sessionManager ! new RemoveSession(room)
 		}
 	}
  
 	override def  exit() : Nothing = {
-	  log.warning("**** Exiting Session Actor for room %s", room)
+	  log.warning("Session: **** Exiting  Actor for room %s", room)
 	  super.exit()
 	}
  
 	override def exit(reason : AnyRef) : Nothing = {
-	  log.warning("**** Exiting Session Actor %s for room %s", reason, room)
+	  log.warning("Session: **** Exiting Actor %s for room %s", reason, room)
 	  super.exit(reason)
 	}
 }

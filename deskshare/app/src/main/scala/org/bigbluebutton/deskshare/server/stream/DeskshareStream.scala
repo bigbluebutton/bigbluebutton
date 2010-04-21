@@ -31,15 +31,16 @@ class DeskshareStream(val scope: IScope, val deskSO: ISharedObject, name: String
 	}
  
 	private def stopStream() = {
-		log.debug("DeskShareStream Stopping stream %s", name)
-		log.info("Sending deskshareStreamStopped for %s", name)
+		log.debug("DeskShareStream: Stopping stream %s", name)
+		log.info("DeskShareStream: Sending deskshareStreamStopped for %s", name)
 		deskSO.sendMessage("deskshareStreamStopped" , new ArrayList[Object]())
 		broadcastStream.stop()
-	    broadcastStream.close()	    
+	    broadcastStream.close()	  
+	    exit()
 	}
 	
 	private def startStream() = {
-	  log.debug("DeskShareStream Starting stream %s", name)
+	  log.debug("DeskShareStream: Starting stream %s", name)
 
 	  val context: IContext  = scope.getContext()
 		
@@ -48,10 +49,10 @@ class DeskshareStream(val scope: IScope, val deskSO: ISharedObject, name: String
 		var bScope: BroadcastScope = providerService.getLiveProviderInput(scope, name, true).asInstanceOf[BroadcastScope]			
 		bScope.setAttribute(IBroadcastScope.STREAM_ATTRIBUTE, broadcastStream)
 	  } else{
-		log.error("could not register broadcast stream")
+		log.error("DeskShareStream: ould not register broadcast stream")
 	  }
    
-	  log.info("Sending appletStarted for " + name)
+	  log.info("DeskShareStream: Sending appletStarted for " + name)
 	  deskSO.sendMessage("appletStarted" , new ArrayList[Object]())
 	}
 	
@@ -68,5 +69,15 @@ class DeskshareStream(val scope: IScope, val deskSO: ISharedObject, name: String
 		data.setTimestamp((System.currentTimeMillis() - startTimestamp).toInt)
 		broadcastStream.dispatchEvent(data)
 		data.release()
+	}
+ 
+	override def  exit() : Nothing = {
+	  log.warning("DeskShareStream: **** Exiting  Actor for room %s", name)
+	  super.exit()
+	}
+ 
+	override def exit(reason : AnyRef) : Nothing = {
+	  log.warning("DeskShareStream: **** Exiting Actor %s for room %s", reason, name)
+	  super.exit(reason)
 	}
 }
