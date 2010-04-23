@@ -22,10 +22,11 @@ class DeskshareStream(val scope: IScope, val deskSO: ISharedObject, name: String
  
 	def act() = {
 	  loop {
-	    react {
+	    receive {
 	      case StartStream => startStream()
 	      case StopStream => stopStream()
 	      case us: UpdateStream => updateStream(us)
+	      case m:Any => log.warning("DeskshareStream: Unknown message " + m);
 	    }
 	  }
 	}

@@ -16,9 +16,10 @@ class SessionManagerGateway(streamManager: StreamManager) extends ISessionManage
     sessionManager.start 
   
 	def createSession(room: String, screenDim: common.Dimension, blockDim: common.Dimension): Unit = {
-	  log.info("SessionManagerGateway:createSession for %s", room)
-	  sessionManager ! new CreateSession(room, new svc1.Dimension(screenDim.getWidth(), screenDim.getHeight()), 
-                                           new svc1.Dimension(blockDim.getWidth(), blockDim.getHeight()))
+		log.info("SessionManagerGateway:createSession for %s", room)
+		sessionManager ! new CreateSession(room, new svc1.Dimension(screenDim.getWidth(), screenDim.getHeight()), 
+	                                       new svc1.Dimension(blockDim.getWidth(), blockDim.getHeight()))
+		log.info("SessionManagerGateway:Sent create session for %s", room)	    
 	}
 
 	def removeSession(room: String): Unit = {

@@ -12,7 +12,8 @@ case class UpdateSessionBlock(position: Int, blockData: Array[Byte], keyframe: B
 case object StopSession
 case object GenerateKeyFrame
 
-class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dimension, blockDim: Dimension, streamManager: StreamManager) extends Actor {
+class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dimension, 
+                 blockDim: Dimension, streamManager: StreamManager) extends Actor {
 	private val log = Logger.get
  
 	private val blockManager: BlockManager = new BlockManager(room, screenDim, blockDim)
