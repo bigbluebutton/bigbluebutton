@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:mate="http://mate.asfusion.com/"
+	creationComplete="onCreationComplete()"
+	width="100%" height="100%"
+	layout="absolute">
+	
+	<mate:Listener type="{AppletStartedEvent.APPLET_STARTED}" method="onAppletStart" />
+	<mate:Listener type="{ViewStreamEvent.STOP}" method="onAppletStop" />
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.modules.deskShare.events.ViewStreamEvent;
+			import mx.controls.Button;
+			import mx.containers.Canvas;
+			import org.bigbluebutton.modules.deskShare.events.AppletStartedEvent;
+			import org.bigbluebutton.util.QueryStringParameters;
+			import mx.core.UIComponent;
+			import org.bigbluebutton.modules.deskShare.services.DeskshareService;
+			import org.bigbluebutton.common.Images;
+			
+			private var videoHolder:UIComponent;
+						
+			private var images:Images = new Images();
+			[Bindable] public var bbbLogo:Class = images.bbb_logo;
+			
+			private var video:Video;
+			private var ns:NetStream;
+			private var stream:String;
+			private var videoHeight:Number;
+			private var videoWidth:Number;
+			private var logoutURL:String;
+			private var host:String;
+			private var room:String;
+			
+			private var service:DeskshareService = new DeskshareService();
+			
+			private function onCreationComplete():void {			
+			    var p:QueryStringParameters = new QueryStringParameters();
+				p.collectParameters();
+				logoutURL = p.getParameter("LOGOUTURL");
+				host = p.getParameter("HOST");
+				videoWidth = Number(p.getParameter("WIDTH"));
+				videoHeight = Number(p.getParameter("HEIGHT"));
+				room = p.getParameter("ROOM");
+				service.connect(host+"/"+room);
+			}
+			
+			private function onAppletStart(event:AppletStartedEvent):void{
+				startVideo(service.getConnection(), room, videoWidth, videoHeight);
+			}
+			
+			private function onAppletStop(event:ViewStreamEvent):void {
+				trace("Stooping stream");
+				var url:URLRequest = new URLRequest(logoutURL);
+            	trace("Log out url: " + logoutURL);
+				navigateToURL(url, '_self');
+			}
+			
+			private function view():void {
+				startVideo(service.getConnection(), room, videoWidth, videoHeight);
+			}
+			
+			private function startVideo(connection:NetConnection, stream:String, width:Number, height:Number):void{	
+				trace("wxh=" + width + "," + height);
+				width = this.parent.width;
+				height = this.parent.height;
+				
+				ns = new NetStream(connection);
+				ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );
+				ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
+				ns.client = this;
+				ns.bufferTime = 0;
+				ns.receiveVideo(true);
+				ns.receiveAudio(false);
+				trace("wxh=" + width + "," + height);
+				video = new Video(width, height);
+				trace("wxh=" + video.videoWidth + "," + video.videoHeight);
+			//	video.smoothing=true;
+				video.attachNetStream(ns);
+				
+				videoHolder = new UIComponent();
+				//videoHolder.width=width;
+				//videoHolder.height=height;
+				videoHolder.percentWidth=100;
+				videoHolder.percentHeight=100;
+				videoHolder.addChild(video);		
+				ns.play(stream);	
+				this.stream = stream;
+				vbox.addChild(videoHolder);				
+			}
+			
+			public function stopViewing():void {
+				ns.close();				
+			}
+			
+			private function onAsyncError(e:AsyncErrorEvent):void{
+				trace("VIdeoWindow::asyncerror " + e.toString());
+			}
+			
+			private function onNetStatus(e:NetStatusEvent):void{
+				switch(e.info.code){
+				case "NetStream.Play.Start":
+					trace("NetStream.Publish.Start for broadcast stream " + stream);
+					trace("Dispatching start viewing event");
+					service.sendStartedViewingNotification();
+					break;
+				case "NetStream.Play.UnpublishNotify":
+					trace("NetStream.Play.UnpublishNotify for broadcast stream " + stream);
+					stopViewing();
+					break;
+				}
+			}
+
+		]]>
+	</mx:Script>
+	<!--mx:VBox width="100%" height="100%"-->
+		<mx:Canvas id="vbox" width="100%" height="100%"/>
+	<!--/mx:VBox-->
+</mx:Application>
