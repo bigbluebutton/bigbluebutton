@@ -17,7 +17,7 @@ class SessionManagerSVC(streamManager: StreamManager) extends Actor {
 	private val log = Logger.get 
  
  	private val sessions = new HashMap[String, SessionSVC]
-  
+ 	  
 	def act() = {
 	  loop {
 	    react {
@@ -48,25 +48,19 @@ class SessionManagerSVC(streamManager: StreamManager) extends Actor {
 		  case None => {
 			  log.debug("SessionManager: Created session " + c.room)
 			  val session: SessionSVC = new SessionSVC(this, c.room, c.screenDim, c.blockDim, streamManager) 
-			  sessions += c.room -> session
-			  session.start
-			  val old:Int = sessions.size
-			  session ! StartSession
-			  log.debug("CreateSession: Session length [%d,%d]", old, sessions.size)
+			  if (session.initMe()) {
+				  val old:Int = sessions.size
+				  sessions += c.room -> session
+				  session.start			  
+				  session ! StartSession
+				  log.debug("CreateSession: Session length [%d,%d]", old, sessions.size)			    
+			  } else {
+			    log.error("SessionManager:Failed to create session for %s", c.room)
+			  }
+
 			}
 		  case Some(s) => log.warning("SessionManager: Session already exist for %s", c.room)
 		}
-  /*
-		if (! sessions.contains(c.room)) {
-			log.debug("SessionManager: Created session " + c.room)
-			val session: SessionSVC = new SessionSVC(this, c.room, c.screenDim, c.blockDim, streamManager) 
-			sessions += c.room -> session
-			session.start
-			session ! StartSession
-		} else {
-			log.warning("SessionManager: Session already exist for %s", c.room)
-		}
-*/
 	}
 
 	private def removeSession(room: String): Unit = {

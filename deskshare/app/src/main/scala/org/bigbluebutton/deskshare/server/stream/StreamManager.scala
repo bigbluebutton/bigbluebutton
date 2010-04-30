@@ -23,7 +23,7 @@ class StreamManager extends Actor {
 	def setDeskshareApplication(a: DeskshareApplication) {
 	  app = a
 	}
-	
+
   	private case class AddStream(room: String, stream: DeskshareStream)
   	private case class RemoveStream(room: String)
 
@@ -53,13 +53,19 @@ class StreamManager extends Actor {
 	  }
 	}
  
-	def createStream(room: String, width: Int, height: Int): Stream = {	
-  		val scope: IScope = app.getAppScope().getScope(room)	
-  		val deskSO: ISharedObject  = app.getSharedObject(app.getAppScope().getScope(room), "deskSO")
+	def createStream(room: String, width: Int, height: Int): Option[DeskshareStream] = {	  	  
+	  try { 
+  		val scope: IScope = app.getAppScope().getScope(room)
+  		val deskSO: ISharedObject  = app.getSharedObject(scope, "deskSO")
 		val stream = new DeskshareStream(scope, deskSO, room, width, height)
   		stream.start
 		this ! new AddStream(room, stream)
-		return stream
+		return Some(stream)
+	  } catch {
+			case nl: java.lang.NullPointerException => log.error(nl.toString());return None
+//			case ex: Any => log.warning(ex.toString()); return None
+			case _ => log.error("StreamManager:Exception while creating stream"); return None
+	  }
 	}
  
   	def destroyStream(room: String) {

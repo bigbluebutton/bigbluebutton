@@ -17,9 +17,8 @@ class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dime
 	private val log = Logger.get
  
 	private val blockManager: BlockManager = new BlockManager(room, screenDim, blockDim)
-	private val stream:Stream = streamManager.createStream(room, screenDim.width, screenDim.height)
+	private var stream:Stream = null
 	private var lastUpdate:Long = System.currentTimeMillis()
- 
 	private var stop = true
 
 	def scheduleGenerateFrame() {
@@ -53,6 +52,13 @@ class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dime
       }
     }
 
+	def initMe():Boolean = {	   
+		streamManager.createStream(room, screenDim.width, screenDim.height) match {
+		  case None => log.error("Session: Failed to create stream for room %s", room); return false
+		  case Some(s) => stream = s; return true
+		}
+	}
+ 
 	private def initialize() {
 		log.debug("Session: Starting session %s", room)
 		blockManager.initialize()	
