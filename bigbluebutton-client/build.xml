@@ -14,7 +14,8 @@
 		<mxmlc-compile target="${APP_ROOT}/ViewersModule" />
 		<mxmlc-compile target="${APP_ROOT}/ListenersModule" />
 		<mxmlc-compile target="${APP_ROOT}/PresentModule" />
-		<mxmlc-compile target="${APP_ROOT}/DeskShareModule" />		
+		<mxmlc-compile target="${APP_ROOT}/DeskShareModule" />	
+		<mxmlc-compile target="${APP_ROOT}/DeskshareStandalone" />	
 		<mxmlc-compile target="${APP_ROOT}/PhoneModule" />
 		<mxmlc-compile target="${APP_ROOT}/VideoconfModule" />
 		<mxmlc-compile target="${APP_ROOT}/HighlighterModule" />
@@ -72,6 +73,7 @@
 			output="${OUTPUT_DIR}"
 		/>
 		<copy file="./html-template/BigBlueButton.html" todir="${OUTPUT_DIR}" overwrite="true"/>
+		<copy file="./html-template/DeskshareStandalone.html" todir="${OUTPUT_DIR}" overwrite="true"/>
 	</target>
 
 	<target name="clean">
