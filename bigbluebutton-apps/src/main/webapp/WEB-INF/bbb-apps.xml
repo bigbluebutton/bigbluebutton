@@ -119,6 +119,19 @@
 	<bean id="chatRoomsManager" class="org.bigbluebutton.conference.service.chat.ChatRoomsManager"/>
 	<!-- END CHAT -->
 	
+	<!-- WHITEBOARD -->
+	<bean id="whiteboardApplication" 
+	    class="org.bigbluebutton.conference.service.whiteboard.WhiteboardApplication">
+	    <property name="roomManager"> <ref local="whiteboardRoomManager"/></property>
+	</bean>
+	
+	<bean id="whiteboard.service" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardService">
+		<property name="whiteboardApplication"> <ref local="whiteboardApplication"/></property>
+	</bean>
+	
+	<bean id="whiteboardRoomManager" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardRoomManager"/>
+	<!-- END WHITEBOARD -->
+	
 	<!-- Starting the Spring Integration configuration for JMS integration -->
 
 	<!-- INCOMING MESSAGES -->

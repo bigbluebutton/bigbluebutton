@@ -34,6 +34,7 @@
 				<ref bean="chatHandler" />
 				<ref bean="presentationHandler" />
 				<ref bean="voiceHandler" />
+				<ref bean="whiteboardApplication" />
     		</set>
   		</property>	  
   		<property name="archiveApplication"> <ref bean="archiveApplication"/></property>	
