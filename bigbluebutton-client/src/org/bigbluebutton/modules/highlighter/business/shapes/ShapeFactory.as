@@ -53,7 +53,6 @@ package org.bigbluebutton.modules.highlighter.business.shapes
 			} else if (shape.getType() == DrawObject.ELLIPSE){
 				s = makeEllipse(Ellipse(shape));
 			}
-			s.alpha = 0.2;
 			return s;
 		}
 		
@@ -80,10 +79,12 @@ package org.bigbluebutton.modules.highlighter.business.shapes
 			var newShape:Shape = new Shape();
 			newShape.graphics.lineStyle(p.getThickness(), p.getColor());
             
-	            for (var c:Number = 2; c < p.getShapeArray().length ; c += 2){
-	            	newShape.graphics.moveTo(p.getShapeArray()[c-2], p.getShapeArray()[c-1]);
-	            	newShape.graphics.lineTo(p.getShapeArray()[c],p.getShapeArray()[c+1]);
-	            }
+            for (var c:Number = 2; c < p.getShapeArray().length ; c += 2){
+            	newShape.graphics.moveTo(p.getShapeArray()[c-2], p.getShapeArray()[c-1]);
+            	newShape.graphics.lineTo(p.getShapeArray()[c],p.getShapeArray()[c+1]);
+           	}
+           	if (p.getColor() == 0x000000) newShape.alpha = 1;
+           	else newShape.alpha = 0.15;
 	            
 	        return newShape;
 		}
@@ -104,6 +105,8 @@ package org.bigbluebutton.modules.highlighter.business.shapes
 			var height:Number = r.getShapeArray()[arrayEnd-1] - y;
 			
 			newShape.graphics.drawRect(x,y,width,height);
+			if (r.getColor() == 0x000000) newShape.alpha = 1.0;
+			else newShape.alpha = 0.5;
 			
 			return newShape;	
 		}
@@ -124,6 +127,8 @@ package org.bigbluebutton.modules.highlighter.business.shapes
 			var height:Number = e.getShapeArray()[arrayEnd-1] - y;
 			
 			newShape.graphics.drawEllipse(x,y,width,height);
+			if (e.getColor() == 0x000000) newShape.alpha = 1.0;
+			else newShape.alpha = 0.5;
 			
 			return newShape;
 		}

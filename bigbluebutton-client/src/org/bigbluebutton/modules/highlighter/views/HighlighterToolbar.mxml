@@ -52,8 +52,8 @@
 			public var canvas:HighlighterCanvas;
 			private var presentationWindow:PresentationWindow;
 			
-			[Bindable] private var colorPickerColours:Array = ['0x000000', '0xFF0000', '0xFF8800',
-                '0xFFFF00', '0x88FF00', '0x00FF00', '0x00FF88', '0x00FFFF', 
+			[Bindable] private var colorPickerColours:Array = ['0xCCFF00', '0xFF0000', '0xFF8800',
+                '0xFFFF00', '0x000000', '0x00FF00', '0x00FF88', '0x00FFFF', 
                 '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF'];
 			
 			/**
@@ -125,21 +125,23 @@
 			private function onMove(e:MoveEvent):void{
 				this.x = presentationWindow.x + presentationWindow.width + 3;
 				this.y = presentationWindow.y + 30;
+				parent.setChildIndex(this, parent.numChildren-1);
 			}
 			
 			private function onResize(e:ResizeEvent):void{
 				this.x = presentationWindow.x + presentationWindow.width + 3;
 				this.y = presentationWindow.y + 30;
+				parent.setChildIndex(this, parent.numChildren-1);
 			}
 			
 		]]>
 	</mx:Script>
-	<mx:Button width="20" height="20" id="btnPenc" click="setShape(DrawObject.PENCIL)"  icon="{pencil_icon}" />
-	<mx:Button width="20" height="20" id="btnRectangle" click="setShape(DrawObject.RECTANGLE)" icon="{rectangle_icon}" />
-	<mx:Button width="20" height="20" id="btnEllipse" click="setShape(DrawObject.ELLIPSE)" icon="{ellipse_icon}" />
-	<mx:Button width="20" height="20" id="btnClear" click="dispatchEvent(new HighlighterDrawEvent(HighlighterDrawEvent.CLEAR_BOARD))" icon="{delete_icon}" />
-	<mx:Button width="20" height="20" id="btnUndo"  click="sendUndoCommand()" icon="{undo_icon}" />
-	<mx:ColorPicker change="changeColor(event)" id="cpik" swatchPanelStyleName="colorPickerStyle" dataProvider="{colorPickerColours}"/>
-	<mx:VSlider height="50" id="sld" change="changeThickness(event)" toolTip="Change Thickness" minimum="4" maximum="20" useHandCursor="true" />
+	<mx:Button width="20" height="20" id="btnPenc" click="setShape(DrawObject.PENCIL)"  icon="{pencil_icon}" toolTip="Highlighter" />
+	<mx:Button width="20" height="20" id="btnRectangle" click="setShape(DrawObject.RECTANGLE)" icon="{rectangle_icon}" toolTip="Rectangle" />
+	<mx:Button width="20" height="20" id="btnEllipse" click="setShape(DrawObject.ELLIPSE)" icon="{ellipse_icon}" toolTip="Circle" />
+	<mx:Button width="20" height="20" id="btnClear" click="dispatchEvent(new HighlighterDrawEvent(HighlighterDrawEvent.CLEAR_BOARD))" icon="{delete_icon}" toolTip="Clear Page" />
+	<mx:Button width="20" height="20" id="btnUndo"  click="sendUndoCommand()" icon="{undo_icon}" toolTip="Undo Shape" />
+	<mx:ColorPicker change="changeColor(event)" id="cpik" swatchPanelStyleName="colorPickerStyle" dataProvider="{colorPickerColours}" selectedColor="0xCCFF00" toolTip="Select Color"/>
+	<mx:VSlider height="50" id="sld" change="changeThickness(event)" toolTip="Change Thickness" minimum="4" maximum="20" useHandCursor="true" value="10" />
 	
 </mx:VBox>

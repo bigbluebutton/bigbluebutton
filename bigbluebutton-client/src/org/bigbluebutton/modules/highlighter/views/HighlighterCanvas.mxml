@@ -38,7 +38,7 @@
 		
 			protected var shapeStyle:String = DrawObject.PENCIL;
 			protected var drawColor:uint = 0xCCFF00;
-			protected var thickness:uint = 3;
+			protected var thickness:uint = 10;
 			
 			private var _xPosition:int;
 			private var _yPosition:int;
