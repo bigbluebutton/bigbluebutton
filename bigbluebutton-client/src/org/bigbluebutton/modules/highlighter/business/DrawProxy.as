@@ -21,8 +21,11 @@ package org.bigbluebutton.modules.highlighter.business
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
+	import flash.events.NetStatusEvent;
 	import flash.events.SyncEvent;
+	import flash.events.TimerEvent;
 	import flash.net.NetConnection;
+	import flash.net.Responder;
 	import flash.net.SharedObject;
 	
 	import org.bigbluebutton.modules.highlighter.business.shapes.DrawObject;
@@ -30,7 +33,9 @@ package org.bigbluebutton.modules.highlighter.business
 	import org.bigbluebutton.modules.highlighter.events.HighlighterDrawEvent;
 	import org.bigbluebutton.modules.highlighter.events.HighlighterPresenterEvent;
 	import org.bigbluebutton.modules.highlighter.events.HighlighterUpdate;
+	import org.bigbluebutton.modules.highlighter.events.PageEvent;
 	import org.bigbluebutton.modules.highlighter.events.StartHighligtherModuleEvent;
+	import org.bigbluebutton.modules.present.events.PresentationEvent;
 	
 	/**
 	 * The DrawProxy class is a Delegate class for the Red5 Server. It communicates directly with the Red5
@@ -52,6 +57,9 @@ package org.bigbluebutton.modules.highlighter.business
 		private var dispatcher:Dispatcher;
 		private var drawFactory:DrawObjectFactory;
 		
+		private var initialLoading:Boolean = true;
+		private var initialPageEvent:PageEvent;
+		
 		/**
 		 * The default constructor. Initializes the Connection and the red5 NetConnection class, which
 		 * interacts with the red5 server.
@@ -69,8 +77,15 @@ package org.bigbluebutton.modules.highlighter.business
 			
 			drawSO = SharedObject.getRemote("drawSO", url, false);
             drawSO.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);
+            drawSO.addEventListener(NetStatusEvent.NET_STATUS, netStatusEventHandler);
             drawSO.client = this;
             drawSO.connect(connection);
+		}
+		
+		private function netStatusEventHandler(e:NetStatusEvent):void{
+			LogUtil.debug("Whiteboard Shared Object Net Status: " + e.info.code);
+			LogUtil.debug("whiteboard connection uri: " + connection.uri);
+			LogUtil.debug("whiteboard shared object uri: " + url + "/" + room);
 		}
 		
 		private function extractAttributes(a:Object):void{
@@ -91,6 +106,77 @@ package org.bigbluebutton.modules.highlighter.business
 			
 		}
 		
+		public function setActivePresentation(e:PresentationEvent):void{
+			var nc:NetConnection = connection;
+			nc.call(
+				"whiteboard.setActivePresentation",// Remote function name
+				new Responder(
+	        		// On successful result
+					function(result:Object):void { 
+						LogUtil.debug("Whiteboard::setActivePresentation() : " + e.presentationName); 
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				),//new Responder
+				e.presentationName, e.numberOfSlides
+			); //_netConnection.call
+		}
+		
+		public function checkIsWhiteboardOn():void{
+			var nc:NetConnection = connection;
+			nc.call(
+				"whiteboard.isWhiteboardEnabled",// Remote function name
+				new Responder(
+	        		// On successful result
+					function(result:Object):void { 
+						LogUtil.debug("Whiteboard::checkIsWhiteboardOn() : " + result as String); 
+						if (result as Boolean) modifyEnabledCallback(true);
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				)//new Responder
+				
+			); //_netConnection.call
+		}
+		
+		public function getPageHistory(e:PageEvent):void{
+			var nc:NetConnection = connection;
+			nc.call(
+				"whiteboard.setActivePage",// Remote function name
+				new Responder(
+	        		// On successful result
+					function(result:Object):void { 
+						if ((result as int) != e.shapes.length) {
+							LogUtil.debug("Whiteboard: Need to retrieve shapes. Have " + e.shapes.length + " on client, "
+										  + (result as int) + " on server");
+							LogUtil.debug("Whiteboard: Retrieving shapes on page" + e.pageNum);
+							getHistory(); 
+						} else{
+							LogUtil.debug("Whiteboard: Shapes up to date, no need to update");
+						}
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred: Whiteboard::DrawProxy::getPageHistory()"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				),//new Responder
+				e.pageNum
+			); //_netConnection.call
+		}
+		
 		/**
 		 * Sends a shape to the Shared Object on the red5 server, and then triggers an update across all clients
 		 * @param shape The shape sent to the SharedObject
@@ -98,11 +184,31 @@ package org.bigbluebutton.modules.highlighter.business
 		 */		
 		public function sendShape(e:HighlighterDrawEvent):void{
 			var shape:DrawObject = e.message;
-			try{
+			
+			var nc:NetConnection = connection;
+			nc.call(
+				"whiteboard.sendShape",// Remote function name
+				new Responder(
+	        		// On successful result
+					function(result:Object):void { 
+						//LogUtil.debug("Whiteboard::sendShape() "); 
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				),//new Responder
+				shape.getShapeArray(), shape.getType(), shape.getColor(), shape.getThickness(), shape.parentWidth, shape.parentHeight
+			); //_netConnection.call
+			
+			/*try{
 				drawSO.send("addSegment", shape.getShapeArray(), shape.getType(), shape.getColor(), shape.getThickness(), shape.parentWidth, shape.parentHeight);	
 			} catch(e:Error){
 				LogUtil.error("DrawProxy::sendShape - sending shape failed");
-			}
+			}*/
 		}
 		
 		/**
@@ -124,7 +230,26 @@ package org.bigbluebutton.modules.highlighter.business
 		 * 
 		 */		
 		public function clearBoard():void{
-			drawSO.send("clear");
+			var nc:NetConnection = connection;
+			nc.call(
+				"whiteboard.clear",// Remote function name
+				new Responder(
+	        		// On successful result
+					function(result:Object):void { 
+						LogUtil.debug("Whiteboard::clearBoard()"); 
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				)//new Responder
+				
+			); //_netConnection.call
+			
+			//drawSO.send("clear");
 		}
 		
 		/**
@@ -140,7 +265,26 @@ package org.bigbluebutton.modules.highlighter.business
 		 * 
 		 */		
 		public function undoShape():void{
-			drawSO.send("undo");
+			var nc:NetConnection = connection;
+			nc.call(
+				"whiteboard.undo",// Remote function name
+				new Responder(
+	        		// On successful result
+					function(result:Object):void { 
+						LogUtil.debug("Whiteboard::undoShape()"); 
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				)//new Responder
+				
+			); //_netConnection.call
+			
+			//drawSO.send("undo");
 		}
 		
 		/**
@@ -152,13 +296,71 @@ package org.bigbluebutton.modules.highlighter.business
 		}
 		
 		public function modifyEnabled(e:HighlighterPresenterEvent):void{
-			drawSO.send("modifyEnabledCallback", e.enabled);
+			var nc:NetConnection = connection;
+			nc.call(
+				"whiteboard.enableWhiteboard",// Remote function name
+				new Responder(
+	        		// On successful result
+					function(result:Object):void { 
+						LogUtil.debug("Whiteboard::modifyEnabled() : " + e.enabled); 
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				),//new Responder
+				e.enabled
+			); //_netConnection.call
 		}
 		
 		public function modifyEnabledCallback(enabled:Boolean):void{
 			var e:HighlighterUpdate = new HighlighterUpdate(HighlighterUpdate.BOARD_ENABLED);
 			e.boardEnabled = enabled;
 			dispatcher.dispatchEvent(e);
+		}
+		
+		private function getHistory():void{
+			var nc:NetConnection = connection;
+			nc.call(
+				"whiteboard.getShapes",// Remote function name
+				new Responder(
+	        		// On successful result
+					function(result:Object):void { 
+						LogUtil.debug("Whiteboard::getHistory() : retrieving whiteboard history"); 
+						receivedShapesHistory(result);
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				)//new Responder
+				
+			); //_netConnection.call
+		}
+		
+		private function receivedShapesHistory(result:Object):void{
+			if (result == null) return;
+			
+			var shapes:Array = result as Array;
+			LogUtil.debug("Whiteboard::recievedShapesHistory() : recieved " + shapes.length);
+			LogUtil.debug("Shapes: " + shapes);
+			
+			for (var i:int=0; i<shapes.length; i++){
+				var shape:Array = shapes[i] as Array;
+				var shapeArray:Array = shape[0] as Array;
+				var type:String = shape[1] as String;
+				var color:uint = shape[2] as uint;
+				var thickness:uint = shape[3] as uint;
+				var width:Number = shape[4] as Number;
+				var height:Number = shape[5] as Number;
+				addSegment(shapeArray, type, color, thickness, width, height);
+			}
 		}
 
 	}

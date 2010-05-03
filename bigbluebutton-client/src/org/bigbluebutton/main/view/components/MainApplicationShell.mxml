@@ -31,11 +31,13 @@
 	<mate:Listener type="{OpenWindowEvent.OPEN_WINDOW_EVENT}" method="handleOpenWindowEvent" />	
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="handleCloseWindowEvent"/>
 	<mate:Listener type="{JoinFailedEvent.JOIN_FAILED_EVENT}" method="handleJoinFailedEvent" />
+	<mate:Listener type="{AddUIComponentToMainCanvas.ADD_COMPONENT}" method="addComponentToCanvas" />
 
 	<maps:CrossModuleEventMap />
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.main.events.AddUIComponentToMainCanvas;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.modules.viewers.events.JoinFailedEvent;
@@ -168,6 +170,10 @@
 	   				mdiCanvas.windowManager.absPos(window as MDIWindow, window.xPosition, window.yPosition);
 	   				window.resetWidthAndHeight();
 	   			}
+	   		}
+	   		
+	   		private function addComponentToCanvas(e:AddUIComponentToMainCanvas):void{
+	   			mdiCanvas.addChild(e.component);
 	   		}
 		]]>
 	</mx:Script>

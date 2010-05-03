@@ -56,7 +56,6 @@
         
 			private static const PUBLIC_CHAT_USERID:String = '0';
 			private static const PUBLIC_CHAT_USERNAME:String = ResourceUtil.getInstance().getString("bbb.chat.publicChatUsername");
-			private var focus:Boolean = true;
 			
 			public var localDispatcher:IEventDispatcher;
 			
@@ -70,21 +69,6 @@
 				openChatBoxFor(PUBLIC_CHAT_USERID);
 				makePublicChatUncloseable();
 				addEventListener(SuperTabEvent.TAB_CLOSE, onUserClosedTab);
-				systemManager.stage.addEventListener(Event.MOUSE_LEAVE, mouseLeave);
-				systemManager.stage.addEventListener(Event.ACTIVATE, activate);
-                		systemManager.stage.addEventListener(Event.DEACTIVATE, deactivate);
-			}       
-			            
-			private function mouseLeave(event:Event):void{
-				this.focus = false;
-			}
-			
-			private function activate(event:Event):void{
-				ExternalInterface.call("clearblink");
-				this.focus = true;
-			}
-			private function deactivate(event:Event):void{
-				this.focus = false;
 			}
 			
 			private function sendMessageReceivedFromBBBEvent(event:BBBEvent):void {
@@ -94,14 +78,14 @@
 
 			private function makePublicChatUncloseable():void {
 				// See definition of callLater on Adobe Flash doc.
-				callLater(calledOnTheNextScreenRefresh);
-			}
+                callLater(calledOnTheNextScreenRefresh);
+            }
             
-			private function calledOnTheNextScreenRefresh():void {
-				var chatBox:ChatBox = getChatBoxForParticipant(PUBLIC_CHAT_USERID);
-				var chatIndex:int = getTabIndexFor(chatBox);
-				chatTabs.setClosePolicyForTab(chatIndex, SuperTab.CLOSE_NEVER);
-			}
+            private function calledOnTheNextScreenRefresh():void {
+            	var chatBox:ChatBox = getChatBoxForParticipant(PUBLIC_CHAT_USERID);
+            	var chatIndex:int = getTabIndexFor(chatBox);
+            	chatTabs.setClosePolicyForTab(chatIndex, SuperTab.CLOSE_NEVER);
+            }
                         
 			public function setFocusOn(component:UIComponent):void
 			{
@@ -307,15 +291,13 @@
 			private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
 				LogUtil.debug("Got PublicChatMessageEvent");
 				showMessage(PUBLIC_CHAT_USERID, event.message);
-				if (!this.focus)
-					ExternalInterface.call("startblink", ResourceUtil.getInstance().getString('bbb.chat.publicMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.publicMsgAwaiting2'));
+				ExternalInterface.call("blinktitle", ResourceUtil.getInstance().getString('bbb.chat.publicMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.publicMsgAwaiting2'));
 				globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.RECEIVED_PUBLIC_CHAT_MESSAGE_EVENT, event.message));
 			}
 			
 			private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
 				LogUtil.debug("Got PrivateChatMessageEvent");
-				if (!this.focus)
-					ExternalInterface.call("startblink", ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting2'));
+				ExternalInterface.call("blinktitle", ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting2'));
 				showMessage(event.message.sender, event.message.message);
 			}
 			

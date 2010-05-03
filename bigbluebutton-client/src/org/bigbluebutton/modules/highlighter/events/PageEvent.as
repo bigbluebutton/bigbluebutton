@@ -7,6 +7,7 @@ package org.bigbluebutton.modules.highlighter.events
 	public class PageEvent extends Event
 	{
 		public static const CHANGE_PAGE:String = "ChangePage";
+		public static const LOAD_PAGE:String = "LoadPage";
 		
 		public var pageNum:Number;
 		public var shapes:ArrayCollection;

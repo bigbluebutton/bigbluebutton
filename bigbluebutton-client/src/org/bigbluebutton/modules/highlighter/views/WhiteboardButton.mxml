@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" icon="{pencil_icon}" width="20" height="20" click="toggleWhiteboard()" visible="false"
+	implements="org.bigbluebutton.modules.present.api.IPresentationButton" >
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.modules.present.views.PresentationWindow;
+			import org.bigbluebutton.modules.highlighter.events.WhiteboardButtonEvent;
+			import org.bigbluebutton.common.Images;
+			
+			private var images:Images = new Images();
+			[Bindable] private var pencil_icon:Class = images.pencil_icon;
+			
+			private var whiteboardEnabled:Boolean = false;
+			
+			private function toggleWhiteboard():void{
+				this.whiteboardEnabled = !this.whiteboardEnabled;
+				if (whiteboardEnabled) sendEnableWhiteboardEvent();
+				else if (!whiteboardEnabled) sendDisableWhiteboardEvent();
+			}
+			
+			private function sendEnableWhiteboardEvent():void{
+				dispatchEvent(new WhiteboardButtonEvent(WhiteboardButtonEvent.ENABLE_WHITEBOARD));
+				this.toolTip = "Disable Whiteboard";
+			}
+			
+			private function sendDisableWhiteboardEvent():void{
+				dispatchEvent(new WhiteboardButtonEvent(WhiteboardButtonEvent.DISABLE_WHITEBOARD));
+				this.toolTip = "Enable Whiteboard";
+			}
+			
+			public function buttonAdded(buttonParent:PresentationWindow):void{
+				var e:WhiteboardButtonEvent = new WhiteboardButtonEvent(WhiteboardButtonEvent.WHITEBOARD_ADDED_TO_PRESENTATION);
+				e.window = buttonParent;
+				dispatchEvent(e);
+			}
+			
+			public function setButtonVisibility(visibility:Boolean):void{
+				this.visible = visibility;
+				//if (visibility) sendEnableWhiteboardEvent();
+				//else if (!visibility) sendDisableWhiteboardEvent();
+			}
+			
+			public function setComponentEnabled(enabled:Boolean):void{
+				if (enabled) sendEnableWhiteboardEvent();
+				else if (!enabled) sendDisableWhiteboardEvent();
+			}
+		]]>
+	</mx:Script>
+</mx:Button>

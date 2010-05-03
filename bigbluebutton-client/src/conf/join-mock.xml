@@ -3,7 +3,7 @@
 	<fullname>Guilermo</fullname>
 	<role>MODERATOR</role>
 	<conference>conference-mock-default</conference>
-	<room>conference-mock-default</room>
+	<room>room-mock-default</room>
 	<voicebridge>85115</voicebridge>
 	<mode>LIVE</mode>
 	<record>true</record>

@@ -44,10 +44,13 @@
 	<mate:Listener type="{SlideResizedEvent.SLIDE_RESIZED_EVENT}" method="handleSlideResizedEvent" />
 	<mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleDisplaySlideEvent" />
 	<mate:Listener type="{AddOverlayCanvasEvent.ADD_OVERLAY_CANVAS}" method="addOverlayCanvas" />
-	<mate:Listener type="{AddPresentationToolbarEvent.ADD_TOOLBAR}" method="addToolbar" />
+	<!--<mate:Listener type="{AddPresentationToolbarEvent.ADD_TOOLBAR}" method="addToolbar" /> -->
+	<mate:Listener type="{AddButtonToPresentationEvent.ADD_BUTTON}" method="addButton" />
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.present.api.IPresentationButton;
+			import org.bigbluebutton.modules.present.events.AddButtonToPresentationEvent;
 			import mx.events.ListEvent;
 			import org.bigbluebutton.common.IBbbCanvas;
 			import mx.events.ResizeEvent;
@@ -118,6 +121,8 @@
 			[Bindable] private var currentPresentation:String = ResourceUtil.getInstance().getString('bbb.presentation.title');
 			
 			private var presenterName:String = "";
+			
+			private var externalButtons:ArrayCollection = new ArrayCollection();
 
 			// The following code block is to deal with FLexLib MDI windows not being able to be moved when maximized
 			private var savedWindowWidth:Number;
@@ -392,7 +397,7 @@
 				zoomSlider.visible = show;
 				btnResetZoom.visible = show;
 				slideNumLbl.visible = show;
-//				toolbarDocker.visible = show;
+				setButtonsVisibility(show);
 			}
 			
 			private function notifyOthersOfSharingPresentation(presentationName:String):void {
@@ -483,7 +488,8 @@
             }
             
             private function showThumbnails():void{
-            	slideView.thumbnailView.visible = true;
+            	slideView.thumbnailView.visible = !slideView.thumbnailView.visible;
+            	setComponentsEnabled(!slideView.thumbnailView.visible);
             }
             
             private function addOverlayCanvas(e:AddOverlayCanvasEvent):void{
@@ -491,9 +497,32 @@
             	e.canvas.acceptOverlayCanvas(slideView);
             }
             
-            private function addToolbar(e:AddPresentationToolbarEvent):void{
-            	var toolbar:DockableToolBar = e.toolbar;
- //           	this.toolbarDocker.addChild(toolbar);
+            /**
+            * Adds a button to the toolbar. The button is added by external modules through the API.
+            */
+            private function addButton(e:AddButtonToPresentationEvent):void{
+            	var button:IPresentationButton = e.button;
+            	externalButtons.addItem(button);
+ 				this.presCtrlBar.addChild(button as Button);
+ 				button.buttonAdded(this);
+            }
+            
+            /**
+            * Sets the visibility of buttons added throught the Presentation API
+            */
+            private function setButtonsVisibility(visible:Boolean):void{
+            	for (var i:int = 0; i<externalButtons.length; i++){
+            		(externalButtons.getItemAt(i) as IPresentationButton).setButtonVisibility(visible);
+            	}
+            }
+            
+            /**
+            * Sets the enabled of buttons added throught the Presentation API
+            */
+            private function setComponentsEnabled(enabled:Boolean):void{
+            	for (var i:int = 0; i<externalButtons.length; i++){
+            		(externalButtons.getItemAt(i) as IPresentationButton).setComponentEnabled(enabled);
+            	}
             }
             
 		]]>

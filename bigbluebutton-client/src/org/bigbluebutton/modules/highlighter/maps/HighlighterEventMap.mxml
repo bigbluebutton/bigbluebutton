@@ -2,6 +2,8 @@
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/" xmlns:mate="org.bigbluebutton.common.mate.*">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.highlighter.events.WhiteboardButtonEvent;
+			import org.bigbluebutton.modules.highlighter.events.PageEvent;
 			import org.bigbluebutton.modules.highlighter.events.HighlighterPresenterEvent;
 			import mx.controls.Alert;
 			import org.bigbluebutton.modules.present.events.NavigationEvent;
@@ -34,6 +36,7 @@
 	
 	<EventHandlers type="{PresentationEvent.PRESENTATION_LOADED}" >
 		<MethodInvoker generator="{PageManager}" method="createPages" arguments="{event}" />
+		<MethodInvoker generator="{DrawProxy}" method="setActivePresentation" arguments="{event}" />
 	</EventHandlers>
 	
 	<EventHandlers type="{StartHighligtherModuleEvent.START_HIGHLIGHTER_MODULE_EVENT}">
@@ -63,5 +66,17 @@
 	
 	<EventHandlers type="{HighlighterUpdate.BOARD_CLEARED}" >
 		<MethodInvoker generator="{PageManager}" method="clearPage" />
+	</EventHandlers>
+	
+	<EventHandlers type="{PageEvent.CHANGE_PAGE}" >
+		<MethodInvoker generator="{DrawProxy}" method="getPageHistory" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{PageEvent.LOAD_PAGE}" >
+		<MethodInvoker generator="{PageManager}" method="loadPage" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{WhiteboardButtonEvent.WHITEBOARD_ADDED_TO_PRESENTATION}" >
+		<MethodInvoker generator="{HighlighterManager}" method="positionToolbar" arguments="{event}" />
 	</EventHandlers>
 </EventMap>

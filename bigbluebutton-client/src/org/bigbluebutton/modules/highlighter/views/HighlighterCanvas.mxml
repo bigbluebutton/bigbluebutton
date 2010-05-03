@@ -4,6 +4,7 @@
 	mouseOver="setCursor()" mouseOut="removeCursor()" implements="org.bigbluebutton.common.IBbbCanvas">
 	<mx:Script>
 		<![CDATA[
+			import mx.controls.Alert;
 			import org.bigbluebutton.common.IBbbCanvas;
 			import mx.managers.CursorManager;
 			import org.bigbluebutton.common.Images;
@@ -44,6 +45,9 @@
 			
 			private var images:Images = new Images();
 			[Bindable] private var pencil_icon:Class = images.pencil_icon;
+			
+			private var whiteboardEnabled:Boolean = false;
+			private var showWhiteboard:Boolean = true;
 			
 			private function init():void{
 				drawFactory = new DrawObjectFactory();
@@ -211,7 +215,13 @@
 			}
 			
 			private function modifyEnabled(e:HighlighterUpdate):void{
-				this.visible = e.boardEnabled;
+				this.whiteboardEnabled = e.boardEnabled;
+				setWhiteboardVisibility();
+			}
+			
+			private function setWhiteboardVisibility():void{
+				if (this.whiteboardEnabled && this.showWhiteboard) this.visible = true;
+				else this.visible = false;
 			}
 			
 			private function setCursor():void{
@@ -236,7 +246,10 @@
 			}
 			
 			public function acceptOverlayCanvas(overlay:IBbbCanvas):void{
+				LogUtil.debug("WhiteboardCanvas::aceptOverlayCanvas()");
 				this.bbbCanvas = overlay;
+				//Load existing shapes onto the canvas.
+				dispatchEvent(new PageEvent(PageEvent.LOAD_PAGE));
 			}
 			
 			public function moveCanvas(x:int, y:int):void{
@@ -253,6 +266,17 @@
 				
 				this.width = width;
 				this.height = height;
+			}
+			
+			public function showCanvas(show:Boolean):void{
+				this.showWhiteboard = show;
+				setWhiteboardVisibility();
+			}
+			
+			/** End IBBBCanvas*/
+			
+			public function isPageEmpty():Boolean{
+				return (this.shapeList.length == 0);
 			}
 			
 		]]>

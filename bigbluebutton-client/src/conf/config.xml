@@ -22,7 +22,7 @@
 		/>	
 		<module name="ListenersModule" url="ListenersModule.swf" 
 			uri="rtmp://192.168.0.120/bigbluebutton" 
-			recordingHost="http://192.168.0.120"
+			recordingHost="http://192.168.0.194"
 			loadNextModule="PhoneModule"
 			onUserJoinedEvent="START"
 			onUserLogoutEvent="STOP"
@@ -44,17 +44,18 @@
 			loadNextModule="PresentModule"
 		/>
 		
-		<!--<module name="HighlighterModule" url="HighlighterModule.swf" 
+		<module name="HighlighterModule" url="HighlighterModule.swf" 
 			uri="rtmp://192.168.0.120/bigbluebutton" 
 			onUserJoinedEvent="START" 
 			onUserLogoutEvent="STOP"
-		/>-->
+		/>
 		
 		<module name="PresentModule" url="PresentModule.swf" 
 			uri="rtmp://192.168.0.120/bigbluebutton" 
 			host="http://192.168.0.120" 
 			onUserJoinedEvent="START" 
 			onUserLogoutEvent="STOP"
+			loadNextModule="HighlighterModule"
 		/>
 		
 	</modules>

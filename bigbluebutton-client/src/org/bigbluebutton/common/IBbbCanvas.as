@@ -10,5 +10,6 @@ package org.bigbluebutton.common
 		function acceptOverlayCanvas(overlay:IBbbCanvas):void;
 		function moveCanvas(x:int, y:int):void;
 		function zoomCanvas(width:int, height:int):void;
+		function showCanvas(show:Boolean):void;
 	}
 }

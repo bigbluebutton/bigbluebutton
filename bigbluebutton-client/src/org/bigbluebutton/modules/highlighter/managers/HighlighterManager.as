@@ -5,17 +5,20 @@ package org.bigbluebutton.modules.highlighter.managers
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
 	
+	import org.bigbluebutton.main.events.AddUIComponentToMainCanvas;
+	import org.bigbluebutton.modules.highlighter.events.WhiteboardButtonEvent;
 	import org.bigbluebutton.modules.highlighter.views.HighlighterCanvas;
 	import org.bigbluebutton.modules.highlighter.views.HighlighterToolbar;
+	import org.bigbluebutton.modules.highlighter.views.WhiteboardButton;
+	import org.bigbluebutton.modules.present.events.AddButtonToPresentationEvent;
 	import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
-	import org.bigbluebutton.modules.present.events.AddPresentationToolbarEvent;
 	
 	public class HighlighterManager
 	{
 		private var globalDispatcher:Dispatcher;
-		//private var highlighterWindow:HighlighterWindow;
 		private var highlighterCanvas:HighlighterCanvas;
 		private var highlighterToolbar:HighlighterToolbar;
+		private var whiteboardButton:WhiteboardButton;
 		
 		public function HighlighterManager()
 		{
@@ -28,6 +31,8 @@ package org.bigbluebutton.modules.highlighter.managers
 			if (highlighterToolbar != null) return;
 			highlighterToolbar = new HighlighterToolbar();
 			highlighterToolbar.canvas = highlighterCanvas;
+			if (whiteboardButton != null) return;
+			whiteboardButton = new WhiteboardButton();
 			
 			//Necessary now because of module loading race conditions
 			var t:Timer = new Timer(2000, 1);
@@ -43,9 +48,19 @@ package org.bigbluebutton.modules.highlighter.managers
 		}
 		
 		private function addHighlighterToolbar(e:TimerEvent):void{
-			var toolbarEvent:AddPresentationToolbarEvent = new AddPresentationToolbarEvent(AddPresentationToolbarEvent.ADD_TOOLBAR);
-			toolbarEvent.toolbar = highlighterToolbar;
-			globalDispatcher.dispatchEvent(toolbarEvent);
+			//var toolbarEvent:AddPresentationToolbarEvent = new AddPresentationToolbarEvent(AddPresentationToolbarEvent.ADD_TOOLBAR);
+			//toolbarEvent.toolbar = highlighterToolbar;
+			//globalDispatcher.dispatchEvent(toolbarEvent);
+			var buttonEvent:AddButtonToPresentationEvent = new AddButtonToPresentationEvent(AddButtonToPresentationEvent.ADD_BUTTON);
+			buttonEvent.button = whiteboardButton;
+			globalDispatcher.dispatchEvent(buttonEvent);
+		}
+		
+		public function positionToolbar(e:WhiteboardButtonEvent):void{
+			var addUIEvent:AddUIComponentToMainCanvas = new AddUIComponentToMainCanvas(AddUIComponentToMainCanvas.ADD_COMPONENT);
+			addUIEvent.component = highlighterToolbar;
+			globalDispatcher.dispatchEvent(addUIEvent);
+			highlighterToolbar.positionToolbar(e.window);
 		}
 
 	}
