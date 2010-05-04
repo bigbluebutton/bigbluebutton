@@ -26,6 +26,7 @@
 	<mx:Script>
 		<![CDATA[
 			import mx.controls.Alert;
+			import mx.core.FlexGlobals;
 			import mx.managers.PopUpManager; 
 
 			private function init():void {
@@ -33,7 +34,7 @@
 			}
 			
             private function redirect():void {
-            	var pageURL:String = mx.core.Application.application.url.split("/")[2];
+            	var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
             	var url:URLRequest = new URLRequest("http://" + pageURL + "/bigbluebutton/conference-session/signOut");
             	LogUtil.debug("Log out url: " + pageURL);
 				navigateToURL(url, '_self');

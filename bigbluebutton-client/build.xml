@@ -69,7 +69,6 @@
 			version-minor="0"
 			version-revision="0"
 			history="true"
-			template="express-installation"
 			output="${OUTPUT_DIR}"
 		/>
 		<copy file="./html-template/BigBlueButton.html" todir="${OUTPUT_DIR}" overwrite="true"/>
