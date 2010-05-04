@@ -84,8 +84,12 @@ public class BlockStreamEventMessageHandler extends IoHandlerAdapter {
     	log.debug("Session Closed.");
     	
     	String room = (String) session.getAttribute("ROOM");
-    	log.debug("Session Closed for room " + room);
-    	sessionManager.removeSession(room);
+    	if (room != null) {
+    		log.debug("Session Closed for room " + room);
+    		sessionManager.removeSession(room);
+    	} else {
+    		log.warn("Closing session for a NULL room");
+    	}
     }
     
     public void setSessionManagerGateway(ISessionManagerGateway sm) {

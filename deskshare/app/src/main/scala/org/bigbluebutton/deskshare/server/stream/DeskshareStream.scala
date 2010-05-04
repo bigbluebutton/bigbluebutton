@@ -22,7 +22,7 @@ class DeskshareStream(val scope: IScope, val deskSO: ISharedObject, name: String
  
 	def act() = {
 	  loop {
-	    receive {
+	    react {
 	      case StartStream => startStream()
 	      case StopStream => stopStream()
 	      case us: UpdateStream => updateStream(us)
