@@ -1,58 +1,58 @@
 <?xml version="1.0" ?>
 <config>
     <version>dev build</version>
-    <help url="http://192.168.0.194/help.html"/>
-    <porttest host="192.168.0.194" application="video"/>    
+    <help url="http://192.168.0.120/help.html"/>
+    <porttest host="192.168.0.120" application="video"/>    
 	<modules>
 
 		<module name="ChatModule" url="ChatModule.swf" 
-			uri="rtmp://192.168.0.194/bigbluebutton" 
+			uri="rtmp://192.168.0.120/bigbluebutton" 
 			loadNextModule="ListenersModule"	
 			onUserJoinedEvent="START"
 			onUserLogoutEvent="STOP"		 
 		/>
-		<!--host="http://192.168.0.194/bigbluebutton/conference-session/enter"-->
+		<!--host="http://192.168.0.120/bigbluebutton/conference-session/enter"-->
 		<!--host="conf/join-mock.xml"-->
 		<module name="ViewersModule" url="ViewersModule.swf" 
-			uri="rtmp://192.168.0.194/bigbluebutton" 
-			host="conf/join-mock.xml"
+			uri="rtmp://192.168.0.120/bigbluebutton" 
+			host="http://192.168.0.120/bigbluebutton/conference-session/enter"
 			onAppInitEvent="LOAD" loadNextModule="ChatModule"
 			onAppStartEvent="START"
 			onUserLogoutEvent="STOP"
 		/>	
 		<module name="ListenersModule" url="ListenersModule.swf" 
-			uri="rtmp://192.168.0.194/bigbluebutton" 
-			recordingHost="http://192.168.0.194"
+			uri="rtmp://192.168.0.120/bigbluebutton" 
+			recordingHost="http://192.168.0.120"
 			loadNextModule="PhoneModule"
 			onUserJoinedEvent="START"
 			onUserLogoutEvent="STOP"
 		/>
 		
-		<!--module name="DeskShareModule" url="DeskShareModule.swf" uri="rtmp://192.168.0.194/deskShare" onUserJoinedEvent="START" onUserLogoutEvent="STOP" loadNextModule="PhoneModule" /-->
+		<!--module name="DeskShareModule" url="DeskShareModule.swf" uri="rtmp://192.168.0.120/deskShare" onUserJoinedEvent="START" onUserLogoutEvent="STOP" loadNextModule="PhoneModule" /-->
 		
 		<module name="PhoneModule" url="PhoneModule.swf" 
-			uri="rtmp://192.168.0.194/sip" 
+			uri="rtmp://192.168.0.120/sip" 
 			onUserJoinedEvent="START" 
 			onUserLogoutEvent="STOP"
 			loadNextModule="VideoconfModule"
 		/>
 		
 		<module name="VideoconfModule" url="VideoconfModule.swf" 
-			uri="rtmp://192.168.0.194/video"
+			uri="rtmp://192.168.0.120/video"
 			onUserJoinedEvent="START"
 			onUserLogoutEvent="STOP"	
 			loadNextModule="PresentModule"
 		/>
 		
 		<module name="HighlighterModule" url="HighlighterModule.swf" 
-			uri="rtmp://192.168.0.194/bigbluebutton" 
+			uri="rtmp://192.168.0.120/bigbluebutton" 
 			onUserJoinedEvent="START" 
 			onUserLogoutEvent="STOP"
 		/>
 		
 		<module name="PresentModule" url="PresentModule.swf" 
-			uri="rtmp://192.168.0.194/bigbluebutton" 
-			host="http://192.168.0.194" 
+			uri="rtmp://192.168.0.120/bigbluebutton" 
+			host="http://192.168.0.120" 
 			onUserJoinedEvent="START" 
 			onUserLogoutEvent="STOP"
 			loadNextModule="HighlighterModule"
