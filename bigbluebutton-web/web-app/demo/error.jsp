@@ -1,9 +1,16 @@
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+	
 <%@ page isErrorPage="true" %>
 <%@ page language="java" %>
 <%@ page import="java.util.*" %>
 <%@ page import="java.io.*" %>
 
-<%
+<% 
+	request.setCharacterEncoding("UTF-8"); 
+	response.setCharacterEncoding("UTF-8"); 
+	
     Object statusCode = request.getAttribute("javax.servlet.error.status_code"); 
     Object exceptionType = request.getAttribute("javax.servlet.error.exception_type"); 
     Object message = request.getAttribute("javax.servlet.error.message"); 
@@ -12,7 +19,7 @@
 <html> 
 <head>
 <title>Error Page</title>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 </head>
 <body bgcolor="#FFFFFF">
 <P><A href="<%=response.encodeURL(request.getContextPath()) %>">Home</A></P>

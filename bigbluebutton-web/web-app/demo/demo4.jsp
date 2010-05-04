@@ -19,12 +19,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 Author: Islam El-Ashi <ielashi@gmail.com>
 
 -->
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 
-<%@page import="org.w3c.dom.*"%><html>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<% 
+	request.setCharacterEncoding("UTF-8"); 
+	response.setCharacterEncoding("UTF-8"); 
+%>
+
+<%@page import="org.w3c.dom.*"%>
+
+<html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Activity Monitor</title>
 <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
