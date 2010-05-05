@@ -1,6 +1,6 @@
 <join>
 	<returncode>SUCCESS</returncode>
-	<fullname>Guilermo</fullname>
+	<fullname>Test User</fullname>
 	<role>MODERATOR</role>
 	<conference>conference-mock-default</conference>
 	<room>room-mock-default</room>

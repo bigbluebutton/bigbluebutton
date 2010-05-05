@@ -44,7 +44,7 @@ package org.bigbluebutton.util.i18n
 			if (enforcer == null) {
 				throw new Error( "You Can Only Have One ResourceUtil" );
 			}
-			
+			 
 			resourceManager = ResourceManager.getInstance();
 			resourceManager.localeChain = [ExternalInterface.call("getLanguage")];
 			var localeAvailable:Boolean = false;
