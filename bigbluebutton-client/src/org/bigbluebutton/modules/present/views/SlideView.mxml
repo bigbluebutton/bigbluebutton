@@ -24,6 +24,7 @@
 	xmlns:mate="http://mate.asfusion.com/"
 	xmlns:local="*"
     width="100%" height="100%" 
+    paddingBottom="5" 
     creationComplete="onCreationComplete()" verticalScrollPolicy="off" horizontalScrollPolicy="off"      
     rollOut="hideCursor()"
     xmlns:views="org.bigbluebutton.modules.present.views.*"

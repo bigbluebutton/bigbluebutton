@@ -30,11 +30,9 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import flexlib.mdi.events.MDIWindowEvent;
-			
 			import mx.controls.Alert;
+			import flexlib.mdi.events.MDIWindowEvent;
 			import mx.core.Application;
-			import mx.core.FlexGlobals;
 			
 			private var _xPosition:int;
 			private var _yPosition:int;
@@ -90,12 +88,12 @@
 				chatView.localDispatcher = localDispatcher;
 				
 				/* Set up full screen handler. */
-				FlexGlobals.topLevelApplication.stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
-				dispState = FlexGlobals.topLevelApplication.stage.displayState;
+				Application.application.stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
+				dispState = Application.application.stage.displayState;
 			}
 			
 			private function fullScreenHandler(evt:FullScreenEvent):void {
-				dispState = FlexGlobals.topLevelApplication.stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
+				dispState = Application.application.stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
 				if (evt.fullScreen) {
 					chatView.txtMsg.text = "Chat not enabled in full screen mode";
 					chatView.txtMsg.enabled = false;

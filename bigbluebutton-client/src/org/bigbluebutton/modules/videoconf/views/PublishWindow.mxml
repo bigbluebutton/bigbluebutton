@@ -26,6 +26,7 @@
 	creationComplete="init()"
 	width="{camWidth + 6}" height="{camHeight + 73}" 
 	title="Stream webcam" 
+	backgroundImage="{bbbLogo}" 
 	resizable="false" 
 	xmlns:mate="http://mate.asfusion.com/">
 	

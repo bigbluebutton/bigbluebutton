@@ -28,6 +28,7 @@
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
 	creationComplete="onCreationComplete()"
+	backgroundImage="{bbbLogo}"	
 	title="Desktop Sharing"
 	resizable="false">
 		

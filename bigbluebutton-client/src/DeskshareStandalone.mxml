@@ -6,8 +6,7 @@
 	layout="absolute">
 	
 	<mate:Listener type="{AppletStartedEvent.APPLET_STARTED}" method="onAppletStart" />
-	<mate:Listener type="{ViewStreamEvent.STOP}" method="onAppletStop"/>
-	<mate:Listener type="{ViewStreamEvent.START}" method="onViewStreamStart"/>
+	<mate:Listener type="{ViewStreamEvent.STOP}" method="onAppletStop" />
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.modules.deskShare.events.ViewStreamEvent;
@@ -47,10 +46,6 @@
 			}
 			
 			private function onAppletStart(event:AppletStartedEvent):void{
-				startVideo(service.getConnection(), room, videoWidth, videoHeight);
-			}
-			
-			private function onViewStreamStart(event:ViewStreamEvent):void {
 				startVideo(service.getConnection(), room, videoWidth, videoHeight);
 			}
 			

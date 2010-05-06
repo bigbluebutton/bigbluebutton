@@ -69,6 +69,7 @@
 			version-minor="0"
 			version-revision="0"
 			history="true"
+			template="express-installation"
 			output="${OUTPUT_DIR}"
 		/>
 		<copy file="./html-template/BigBlueButton.html" todir="${OUTPUT_DIR}" overwrite="true"/>
@@ -92,7 +93,7 @@
 				output="${OUTPUT_DIR}/@{target}.swf" 
 				debug="false"
 			>
-				<load-config filename="BBB-config.xml" />
+				<load-config filename="@{flex}/frameworks/flex-config.xml" />
 				<source-path path-element="@{flex}/frameworks" />
 				<compiler.library-path dir="@{flex}/frameworks" append="true">
 					<include name="libs" />
