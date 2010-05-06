@@ -1,5 +1,6 @@
 package org.bigbluebutton.deskshare.server.stream
 
+import org.bigbluebutton.deskshare.server.red5.DeskshareApplication
 import org.bigbluebutton.deskshare.server.ScreenVideoBroadcastStream
 import org.red5.server.api.{IContext, IScope}
 import org.red5.server.api.so.ISharedObject
@@ -12,11 +13,9 @@ import scala.actors.Actor._
 
 import net.lag.logging.Logger
 
-class DeskshareStream(val scope: IScope, val deskSO: ISharedObject, name: String, val width: Int, val height: Int) extends Stream {
+class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, val height: Int) extends Stream {
 	private val log = Logger.get
-	private val broadcastStream = new ScreenVideoBroadcastStream(name)
-	broadcastStream.setPublishedName(name)
-	broadcastStream.setScope(scope)
+	private var broadcastStream:ScreenVideoBroadcastStream = null 
 
 	var startTimestamp: Long = System.currentTimeMillis()
  
@@ -31,10 +30,19 @@ class DeskshareStream(val scope: IScope, val deskSO: ISharedObject, name: String
 	  }
 	}
  
+	def initializeStream():Boolean = {
+	   app.createScreenVideoBroadcastStream(name) match {
+	     case None => return false
+	     case Some(bs) => broadcastStream = bs; return true
+	   } 
+    
+	   return false
+	}
+ 
 	private def stopStream() = {
 		log.debug("DeskShareStream: Stopping stream %s", name)
 		log.info("DeskShareStream: Sending deskshareStreamStopped for %s", name)
-		deskSO.sendMessage("deskshareStreamStopped" , new ArrayList[Object]())
+		broadcastStream.sendDeskshareStreamStopped(new ArrayList[Object]())
 		broadcastStream.stop()
 	    broadcastStream.close()	  
 	    exit()
@@ -42,19 +50,7 @@ class DeskshareStream(val scope: IScope, val deskSO: ISharedObject, name: String
 	
 	private def startStream() = {
 	  log.debug("DeskShareStream: Starting stream %s", name)
-
-	  val context: IContext  = scope.getContext()
-		
-	  val providerService: IProviderService  = context.getBean(IProviderService.BEAN_NAME).asInstanceOf[IProviderService]
-	  if (providerService.registerBroadcastStream(scope, name, broadcastStream)) {
-		var bScope: BroadcastScope = providerService.getLiveProviderInput(scope, name, true).asInstanceOf[BroadcastScope]			
-		bScope.setAttribute(IBroadcastScope.STREAM_ATTRIBUTE, broadcastStream)
-	  } else{
-		log.error("DeskShareStream: ould not register broadcast stream")
-	  }
-   
-	  log.info("DeskShareStream: Sending appletStarted for " + name)
-	  deskSO.sendMessage("appletStarted" , new ArrayList[Object]())
+   	  broadcastStream.sendDeskshareStreamStarted(new ArrayList[Object]())
 	}
 	
 	private def updateStream(us: UpdateStream) {

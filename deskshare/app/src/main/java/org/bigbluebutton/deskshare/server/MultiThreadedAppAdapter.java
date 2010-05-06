@@ -20,8 +20,9 @@ public class MultiThreadedAppAdapter extends MultiThreadedApplicationAdapter {
 	 */
 	@Override
 	public ISharedObject getSharedObject(IScope scope, String name) throws NullPointerException {
-		ISharedObjectService service = (ISharedObjectService) getScopeService(
-				scope, ISharedObjectService.class, SharedObjectService.class, false);
+		
+		ISharedObjectService service = (ISharedObjectService) getScopeService(scope, 
+				ISharedObjectService.class, SharedObjectService.class, false);
 		
 		if (service == null) throw new NullPointerException();
 		

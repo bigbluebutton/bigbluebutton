@@ -20,6 +20,7 @@
 package org.bigbluebutton.deskshare.server;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -27,6 +28,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IScope;
 import org.red5.server.api.event.IEvent;
+import org.red5.server.api.so.ISharedObject;
 import org.red5.server.api.stream.IBroadcastStream;
 import org.red5.server.api.stream.IStreamCodecInfo;
 import org.red5.server.api.stream.IStreamListener;
@@ -60,8 +62,11 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 	// Codec handling stuff for frame dropping
 	private StreamCodecInfo streamCodecInfo;
 	private Long mCreationTime;
-  
-	public ScreenVideoBroadcastStream(String name) {
+	private ISharedObject deskSO;
+	
+	public ScreenVideoBroadcastStream(String name, ISharedObject deskSO) {
+		this.deskSO = deskSO;
+		
 		publishedStreamName = name;
 		livePipe = null;
 		log.trace("name: {}", name);
@@ -233,5 +238,13 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 	public Notify getMetaData() {
 	  System.out.println("**** GETTING METADATA ******");
 	  return null;
+	}
+	
+	public void sendDeskshareStreamStopped(ArrayList<Object> msg) {
+		deskSO.sendMessage("deskshareStreamStopped" , msg);
+	}
+	
+	public void sendDeskshareStreamStarted(ArrayList<Object> msg) {
+		deskSO.sendMessage("appletStarted" , msg);
 	}
 }

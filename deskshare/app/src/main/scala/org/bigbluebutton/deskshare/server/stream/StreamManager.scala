@@ -54,16 +54,20 @@ class StreamManager extends Actor {
 	}
  
 	def createStream(room: String, width: Int, height: Int): Option[DeskshareStream] = {	  	  
-	  try { 
-  		val scope: IScope = app.getAppScope().getScope(room)
-  		val deskSO: ISharedObject  = app.getSharedObject(scope, "deskSO")
-		val stream = new DeskshareStream(scope, deskSO, room, width, height)
-  		stream.start
-		this ! new AddStream(room, stream)
-		return Some(stream)
+	  try {                                                                       
+		val stream = new DeskshareStream(app, room, width, height)
+		if (stream.initializeStream) {
+		  stream.start
+		  this ! new AddStream(room, stream)
+		  return Some(stream)
+		} else {
+		  return None
+		}  		
 	  } catch {
-			case nl: java.lang.NullPointerException => log.error(nl.toString());return None
-//			case ex: Any => log.warning(ex.toString()); return None
+			case nl: java.lang.NullPointerException => 
+			  	log.error("StreamManager: %s", nl.toString())
+			  	nl.printStackTrace
+			  	return None			  	
 			case _ => log.error("StreamManager:Exception while creating stream"); return None
 	  }
 	}
