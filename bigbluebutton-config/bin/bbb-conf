@@ -626,7 +626,7 @@ check_state() {
 
 	if ! netstat -ant | grep '8080' > /dev/null; then
 		print_header
-        	echo "                             ${TOMCAT}: -- not running --"
+        	echo "                   ${TOMCAT} or grails: -- not running --"
 	else 
 		if ps aux |  ps -aef | grep grails | grep run-app > /dev/null; then
 			print_header
