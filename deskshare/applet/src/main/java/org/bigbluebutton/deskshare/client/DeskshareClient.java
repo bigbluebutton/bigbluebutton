@@ -1,5 +1,6 @@
 package org.bigbluebutton.deskshare.client;
 
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 
 import org.bigbluebutton.deskshare.client.blocks.BlockManager;
@@ -8,7 +9,7 @@ import org.bigbluebutton.deskshare.client.net.NetworkStreamSender;
 import org.bigbluebutton.deskshare.common.Dimension;
 import org.bigbluebutton.deskshare.client.net.ConnectionException;
 
-class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener {
+class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, SystemTrayListener {
 	private static final String LICENSE_HEADER = "This program is free software: you can redistribute it and/or modify\n" +
 	"it under the terms of the GNU AFFERO General Public License as published by\n" +
 	"the Free Software Foundation, either version 3 of the License, or\n" +
@@ -41,6 +42,11 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener {
 	private int x;
 	private int y;
 	private boolean httpTunnel;
+	private Image sysTrayIcon;
+	private boolean enableTrayActions;
+	
+	private DeskshareSystemTray tray = new DeskshareSystemTray();
+	private ClientListener listener;
 	
 	public void start() {	
 		System.out.println(LICENSE_HEADER);
@@ -49,6 +55,8 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener {
 		System.out.println("Connecting to " + host + ":" + port + " room " + room);
 		System.out.println("Sharing " + width + "x" + height + " at " + x + "," + y);
 		System.out.println("Http Tunnel: " + httpTunnel);
+		tray.addSystemTrayListener(this);
+		tray.displayIconOnSystemTray(sysTrayIcon, enableTrayActions);
 		
 		startCapture();		
 		started = true;
@@ -97,7 +105,8 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener {
 			} catch (ConnectionException e) {
 				e.printStackTrace();
 			}
-		}			
+		}		
+		tray.removeIconFromSystemTray();
 	}
 	
 	public void setScreenCoordinates(int x, int y) {
@@ -119,8 +128,14 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener {
 		sender.send(blockPosition);
 	}
 
+	public void onStopSharingSysTrayMenuClicked() {
+		if (listener != null) listener.onClientStop(0);
+	}
 
-
+	public void addClientListeners(ClientListener l) {
+		listener = l;
+	}
+	
 	private DeskshareClient(Builder builder) {
        	room = builder.room;
        	host = builder.host;
@@ -130,6 +145,8 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener {
        	x = builder.x;
        	y = builder.y;
        	httpTunnel = builder.httpTunnel;
+       	sysTrayIcon = builder.sysTrayIcon;
+       	enableTrayActions = builder.enableTrayActions;
     }
 
 	
@@ -146,6 +163,8 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener {
     	private int x;
     	private int y;
     	private boolean httpTunnel;
+    	private Image sysTrayIcon;
+    	private boolean enableTrayActions;
     	
     	public Builder() {}
     	
@@ -186,6 +205,16 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener {
     	
     	public Builder httpTunnel(boolean httpTunnel) {
     		this.httpTunnel = httpTunnel;
+    		return this;
+    	}
+    	
+    	public Builder trayIcon(Image icon) {
+    		this.sysTrayIcon = icon;
+    		return this;
+    	}
+    	
+    	public Builder enableTrayIconActions(boolean enableActions) {
+    		enableTrayActions = enableActions;
     		return this;
     	}
     	

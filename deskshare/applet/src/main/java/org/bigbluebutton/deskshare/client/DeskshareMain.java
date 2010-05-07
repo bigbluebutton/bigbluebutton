@@ -3,11 +3,17 @@ package org.bigbluebutton.deskshare.client;
 import jargs.gnu.CmdLineParser;
 import jargs.gnu.CmdLineParser.Option;
 
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
-public class DeskshareMain {
+public class DeskshareMain implements ClientListener {
+	private final BlockingQueue<Integer> exitReasonQ = new LinkedBlockingQueue<Integer>(1);
+	
 	private List<String> optionHelpStrings = new ArrayList<String>();
 
 	private Option addHelp(Option option, String helpString) {
@@ -33,7 +39,8 @@ public class DeskshareMain {
     	CmdLineParser.Option xCoord = dsMain.addHelp(parser.addIntegerOption('x', "x"),"Upper-left x coordinate of the screen capture");
     	CmdLineParser.Option yCoord = dsMain.addHelp(parser.addIntegerOption('y', "y"),"Upper-left y coordinate of the screen capture");
     	CmdLineParser.Option tryHttpTunnel = dsMain.addHelp(parser.addBooleanOption('n', "httptunnel"),"Http tunnel if direct connection fails");
-        CmdLineParser.Option help = dsMain.addHelp(parser.addBooleanOption('h', "help"),"Show this help message");
+    	CmdLineParser.Option icon = dsMain.addHelp(parser.addStringOption('i', "icon"),"Path to system tray icon file");
+    	CmdLineParser.Option help = dsMain.addHelp(parser.addBooleanOption('h', "help"),"Show this help message");
         
         try {
             parser.parse(args);
@@ -59,14 +66,36 @@ public class DeskshareMain {
         Integer xValue = (Integer)parser.getOptionValue(xCoord, new Integer(0));
         Integer yValue = (Integer)parser.getOptionValue(yCoord, new Integer(0));
         Boolean tunnelValue = (Boolean)parser.getOptionValue(tryHttpTunnel, true);
+        String iconValue = (String)parser.getOptionValue(icon, "bbb.gif");
+        
+        Image image = Toolkit.getDefaultToolkit().getImage(iconValue);
         
         DeskshareClient client = new DeskshareClient.Builder().host(hostValue).port(portValue)
         						.room(roomValue).width(widthValue)
         						.height(heightValue).x(xValue).y(yValue)
-        						.httpTunnel(tunnelValue).build();
+        						.httpTunnel(tunnelValue).trayIcon(image).enableTrayIconActions(true).build();
+        
+        client.addClientListeners(dsMain);
         client.start();
         
-        while (true) {}
-    //    System.exit(0);
+        try {
+			Integer reason = dsMain.exitReasonQ.take();
+			if (reason == 0) client.stop();
+			System.exit(reason.intValue());
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.exit(500);
+		}
+        
 	}	
+	
+	public void onClientStop(int reason) {
+		try {
+			exitReasonQ.put(new Integer(reason));
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }

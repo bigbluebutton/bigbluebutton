@@ -22,8 +22,9 @@
 package org.bigbluebutton.deskshare.client;
 
 import java.applet.Applet;
+import java.awt.Image;
 
-public class DeskShareApplet extends Applet {
+public class DeskShareApplet extends Applet implements ClientListener {
 	private static final long serialVersionUID = 1L;
 
 	String hostValue = "localhost";
@@ -35,6 +36,7 @@ public class DeskShareApplet extends Applet {
     Integer yValue = new Integer(0);
     Boolean tunnelValue = true;
     DeskshareClient client;
+    Image icon;
     
 	public void init() {
 		hostValue = getParameter("IP");
@@ -47,6 +49,7 @@ public class DeskShareApplet extends Applet {
 		yValue = Integer.parseInt(getParameter("Y"));
 		String tunnel = getParameter("HTTP_TUNNEL");
 		if (tunnel != null) tunnelValue = Boolean.parseBoolean(tunnel);
+		icon = getImage(getCodeBase(), "bbb.gif");
 	}
 		
 	public void start() {		 
@@ -54,7 +57,7 @@ public class DeskShareApplet extends Applet {
 		client = new DeskshareClient.Builder().host(hostValue).port(portValue)
 								.room(roomValue).width(widthValue)
 								.height(heightValue).x(xValue).y(yValue)
-								.httpTunnel(tunnelValue).build();
+								.httpTunnel(tunnelValue).trayIcon(icon).enableTrayIconActions(false).build();
 		client.start();
 	}
 
@@ -72,5 +75,9 @@ public class DeskShareApplet extends Applet {
 	public void stop() {
 		System.out.println("Stop");
 		client.stop();			
+	}
+	
+	public void onClientStop(int reason) {
+		stop();
 	}
 }
