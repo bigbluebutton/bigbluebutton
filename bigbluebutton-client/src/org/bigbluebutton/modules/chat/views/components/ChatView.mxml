@@ -31,27 +31,31 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import mx.controls.Alert;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import flexlib.controls.tabBarClasses.SuperTab;
-			import flexlib.events.SuperTabEvent;
-			import org.bigbluebutton.modules.chat.events.QueryParticipantsEvent;
-			import org.bigbluebutton.main.events.ParticipantJoinEvent;
-			import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
 			import com.asfusion.mate.events.Dispatcher;
-			import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
-			import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
-			import org.bigbluebutton.modules.chat.model.MessageVO;
-			import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
-			import mx.core.Container;
-			import org.bigbluebutton.modules.chat.model.business.UserVO;
-			import mx.collections.ArrayCollection;
-			import mx.core.UIComponent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
 			import flash.external.ExternalInterface;
 			
-			[Bindable] private var colorPickerColours:Array = ['0x000000', '0xFF0000', '0xFF8800',
-				'0xFFFF00', '0x88FF00', '0x00FF00', '0x00FF88', '0x00FFFF', 
+			import flexlib.controls.tabBarClasses.SuperTab;
+			import flexlib.events.SuperTabEvent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.core.Container;
+			import mx.core.UIComponent;
+			
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.ParticipantJoinEvent;
+			import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
+			import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
+			import org.bigbluebutton.modules.chat.events.QueryParticipantsEvent;
+			import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
+			import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
+			import org.bigbluebutton.modules.chat.model.MessageVO;
+			import org.bigbluebutton.modules.chat.model.business.UserVO;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			[Bindable] private var colorPickerColours:Array = ['0x000000', '0x7A7A7A' ,'0xFF0000', '0xFF8800',
+				'0x88FF00', '0x00FF00', '0x00FF88', '0x00FFFF', 
 				'0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF'];
 			
 			private static const PUBLIC_CHAT_USERID:String = '0';
@@ -73,7 +77,14 @@
 				systemManager.stage.addEventListener(Event.MOUSE_LEAVE, mouseLeave);
 				systemManager.stage.addEventListener(Event.ACTIVATE, activate);
 				systemManager.stage.addEventListener(Event.DEACTIVATE, deactivate);
+				
+				setColor();
 			}       
+			
+			private function setColor():void{
+				var r:int = Math.round(Math.random()*12);
+				cmpColorPicker.selectedIndex = r;
+			}
 			
 			private function mouseLeave(event:Event):void{
 				this.focus = false;
