@@ -74,6 +74,7 @@
 		/>
 		<copy file="./html-template/BigBlueButton.html" todir="${OUTPUT_DIR}" overwrite="true"/>
 		<copy file="./html-template/DeskshareStandalone.html" todir="${OUTPUT_DIR}" overwrite="true"/>
+		<copy file="./html-template/bbb.gif" todir="${OUTPUT_DIR}" overwrite="true"/>
 	</target>
 
 	<target name="clean">
