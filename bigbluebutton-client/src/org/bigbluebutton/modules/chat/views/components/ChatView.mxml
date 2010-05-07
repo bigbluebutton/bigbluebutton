@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
-	xmlns:mate="http://mate.asfusion.com/"
-	creationComplete="onCreationComplete()"
-	xmlns:flexlib="http://code.google.com/p/flexlib/"
-	width="100%" height="100%" xmlns:containers="flexlib.containers.*">
-
+		 xmlns:mate="http://mate.asfusion.com/"
+		 creationComplete="onCreationComplete()"
+		 xmlns:flexlib="http://code.google.com/p/flexlib/"
+		 width="100%" height="100%" xmlns:containers="flexlib.containers.*">
+	
 	<mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
 	<mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
 	<mate:Listener type="{ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT}" method="handleParticipantJoinedEvent"/>
-	<mate:Listener type="{BBBEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT}" method="sendMessageReceivedFromBBBEvent"/>
+	<mate:Listener type="{BBBEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT}" method="sendMessageReceivedFromBBBEvent"/> 
 	
 	<mx:Style>
 		.colorPickerStyle {
-	      backgroundColor:#E5E6E7;
-	      columnCount:12;
-	      horizontalGap:0;
-	      previewHeight:22;
-	      previewWidth:45;
-	      swatchGridBackgroundColor:#000000;
-	      swatchGridBorderSize:0;
-	      swatchHeight:60;
-	      swatchHighlightColor:#FFFFFF;
-	      swatchHighlightSize:1;
-	      swatchWidth:12;
-	      textFieldWidth:72;
-	      verticalGap:0;
-	   }
-
+			backgroundColor:#E5E6E7;
+			columnCount:12;
+			horizontalGap:0;
+			previewHeight:22;
+			previewWidth:45;
+			swatchGridBackgroundColor:#000000;
+			swatchGridBorderSize:0;
+			swatchHeight:60;
+			swatchHighlightColor:#FFFFFF;
+			swatchHighlightSize:1;
+			swatchWidth:12;
+			textFieldWidth:72;
+			verticalGap:0;
+		}
+		
 	</mx:Style>
 	
 	<mx:Script>
@@ -49,13 +49,14 @@
 			import mx.core.UIComponent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import flash.external.ExternalInterface;
-									
+			
 			[Bindable] private var colorPickerColours:Array = ['0x000000', '0xFF0000', '0xFF8800',
-                '0xFFFF00', '0x88FF00', '0x00FF00', '0x00FF88', '0x00FFFF', 
-                '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF'];
-        
+				'0xFFFF00', '0x88FF00', '0x00FF00', '0x00FF88', '0x00FFFF', 
+				'0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF'];
+			
 			private static const PUBLIC_CHAT_USERID:String = '0';
 			private static const PUBLIC_CHAT_USERNAME:String = ResourceUtil.getInstance().getString("bbb.chat.publicChatUsername");
+			private var focus:Boolean = true;
 			
 			public var localDispatcher:IEventDispatcher;
 			
@@ -63,41 +64,56 @@
 			
 			[Bindable]
 			private var participants:ArrayCollection = new ArrayCollection();
-						
+			
 			private function onCreationComplete():void{
 				addParticipantToList(PUBLIC_CHAT_USERID, PUBLIC_CHAT_USERNAME);
 				openChatBoxFor(PUBLIC_CHAT_USERID);
 				makePublicChatUncloseable();
 				addEventListener(SuperTabEvent.TAB_CLOSE, onUserClosedTab);
+				systemManager.stage.addEventListener(Event.MOUSE_LEAVE, mouseLeave);
+				systemManager.stage.addEventListener(Event.ACTIVATE, activate);
+				systemManager.stage.addEventListener(Event.DEACTIVATE, deactivate);
+			}       
+			
+			private function mouseLeave(event:Event):void{
+				this.focus = false;
+			}
+			
+			private function activate(event:Event):void{
+				ExternalInterface.call("clearblink");
+				this.focus = true;
+			}
+			private function deactivate(event:Event):void{
+				this.focus = false;
 			}
 			
 			private function sendMessageReceivedFromBBBEvent(event:BBBEvent):void {
 				txtMsg.text = event.message;
 				sendMessages();
 			}
-
+			
 			private function makePublicChatUncloseable():void {
 				// See definition of callLater on Adobe Flash doc.
-                callLater(calledOnTheNextScreenRefresh);
-            }
-            
-            private function calledOnTheNextScreenRefresh():void {
-            	var chatBox:ChatBox = getChatBoxForParticipant(PUBLIC_CHAT_USERID);
-            	var chatIndex:int = getTabIndexFor(chatBox);
-            	chatTabs.setClosePolicyForTab(chatIndex, SuperTab.CLOSE_NEVER);
-            }
-                        
+				callLater(calledOnTheNextScreenRefresh);
+			}
+			
+			private function calledOnTheNextScreenRefresh():void {
+				var chatBox:ChatBox = getChatBoxForParticipant(PUBLIC_CHAT_USERID);
+				var chatIndex:int = getTabIndexFor(chatBox);
+				chatTabs.setClosePolicyForTab(chatIndex, SuperTab.CLOSE_NEVER);
+			}
+			
 			public function setFocusOn(component:UIComponent):void
 			{
 				if (component.id == "txtMsg") {
-				component.setFocus();
-                component.drawFocus(true);
-    			}
-    			else
-    			{
-    				this.txtMsg.setFocus();
-    				this.txtMsg.drawFocus(true);
-    			}
+					component.setFocus();
+					component.drawFocus(true);
+				}
+				else
+				{
+					this.txtMsg.setFocus();
+					this.txtMsg.drawFocus(true);
+				}
 			}
 			
 			public function setFocusOff():void
@@ -111,19 +127,19 @@
 				var t:String = date.toLocaleTimeString();
 				return t;
 			}
-		
-		    private function sendMessages():void
-		    {
-		    	trace("Sending message");
-		    	
-		    	if (hasMessageToSend()){				
+			
+			private function sendMessages():void
+			{
+				trace("Sending message");
+				
+				if (hasMessageToSend()){				
 					if (isChatBoxCurrentlySelected(PUBLIC_CHAT_USERID)) {						
 						sendPublicChatMessage();
 					} else{						
 						sendPrivateChatMessage();
 					}
 					clearMessageEntryTextBox();
-			   	}
+				}
 			}			
 			
 			private function hasMessageToSend():Boolean {
@@ -133,7 +149,7 @@
 			private function clearMessageEntryTextBox():void {
 				txtMsg.text = "";
 			}
-
+			
 			private function cleanup(message:String):String{
 				var parsedString:String = message.replace('<', '&#60;')
 				parsedString = parsedString.replace('>', '&#62;')
@@ -157,7 +173,7 @@
 				}
 				return parsedString;
 			}
-		
+			
 			private function sendPublicChatMessage():void {
 				trace("Sending public chat message");
 				var publicEvent:SendPublicChatMessageEvent = new SendPublicChatMessageEvent(SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT);
@@ -192,7 +208,7 @@
 					removeParticipantFromList(event.participant.userid);
 				}
 			}
-					
+			
 			private function isChatBoxCurrentlySelected(id:String):Boolean {
 				if (chatTabs.getChildByName(id) == chatTabs.selectedChild){
 					return true;
@@ -243,7 +259,7 @@
 			private function onTabNavChange():void{
 				var tab:Button = chatTabs.getTabAt(chatTabs.selectedIndex);
 				tab.setStyle("fillColors", new Array(0xFFFFFF, 0xCCCCCC));
-
+				
 				var chatBox:ChatBox = chatTabs.getChildAt(chatTabs.selectedIndex) as ChatBox;
 				if (chatBox.participantLoggedOut) {
 					trace("Disabling message box");
@@ -253,7 +269,7 @@
 					enableMessageEntryTextBox();
 				}				
 			}
-						
+			
 			private function getParticipantName(userid:String):String{
 				for (var i:Number = 0; i<participants.length; i++){
 					if (participants.getItemAt(i).userid == userid) return participants.getItemAt(i).label;
@@ -275,7 +291,7 @@
 				} else {
 					chatBox = createChatBoxFor(userid);
 				}
-								 
+				
 				chatTabs.selectedChild = chatBox;				
 			}
 			
@@ -287,17 +303,19 @@
 				chatTabs.addChild(chatBox);
 				return chatBox;
 			}
-
+			
 			private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
 				LogUtil.debug("Got PublicChatMessageEvent");
 				showMessage(PUBLIC_CHAT_USERID, event.message);
-				ExternalInterface.call("blinktitle", ResourceUtil.getInstance().getString('bbb.chat.publicMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.publicMsgAwaiting2'));
+				if (!this.focus)
+					ExternalInterface.call("startblink", ResourceUtil.getInstance().getString('bbb.chat.publicMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.publicMsgAwaiting2'));
 				globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.RECEIVED_PUBLIC_CHAT_MESSAGE_EVENT, event.message));
 			}
 			
 			private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
 				LogUtil.debug("Got PrivateChatMessageEvent");
-				ExternalInterface.call("blinktitle", ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting2'));
+				if (!this.focus)
+					ExternalInterface.call("startblink", ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting2'));
 				showMessage(event.message.sender, event.message.message);
 			}
 			
@@ -324,7 +342,7 @@
 					notifyParticipantOfUnreadMessageFrom(sender);
 				}				
 			}
-						
+			
 			private function onTabClose(e:SuperTabEvent):void{
 				dispatchEvent(e);
 			}
@@ -340,7 +358,7 @@
 			private function disableMessageEntryTextBox():void {
 				txtMsg.enabled = false;
 			}
-
+			
 		]]>
 	</mx:Script>
 	<containers:SuperTabNavigator id="chatTabs" width="100%" height="100%" change="onTabNavChange()" tabClose="onTabClose(event)"/>
@@ -348,9 +366,9 @@
 	<mx:ApplicationControlBar id="chatCtrlBar" width="100%" height="10%">		
 		<mx:TextInput id="txtMsg" width="100%" enter="sendMessages()"/>
 		<mx:ColorPicker id="cmpColorPicker" showTextField="false" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmpColorPicker.toolTip')}" 
-			selectedColor="0x000000" dataProvider="{colorPickerColours}" swatchPanelStyleName="colorPickerStyle"/>
+						selectedColor="0x000000" dataProvider="{colorPickerColours}" swatchPanelStyleName="colorPickerStyle"/>
 		<mx:Button label="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn')}" id="sendBtn" 
-			toolTip="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.toolTip')}" click="sendMessages()"/>	
+				   toolTip="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.toolTip')}" click="sendMessages()"/>	
 		<mx:ComboBox id="participantList" dataProvider="{participants}" close="onOpenChatBox()" />		    
 	</mx:ApplicationControlBar>	
 </mx:VBox>
