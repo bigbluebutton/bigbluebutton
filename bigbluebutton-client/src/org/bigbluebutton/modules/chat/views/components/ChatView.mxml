@@ -42,6 +42,7 @@
 			import mx.controls.Alert;
 			import mx.core.Container;
 			import mx.core.UIComponent;
+			import mx.events.IndexChangedEvent;
 			
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ParticipantJoinEvent;
@@ -60,6 +61,10 @@
 			
 			private static const PUBLIC_CHAT_USERID:String = '0';
 			private static const PUBLIC_CHAT_USERNAME:String = ResourceUtil.getInstance().getString("bbb.chat.publicChatUsername");
+			
+			private static const TAB_BOX_ID:String = '+';
+			private var tabBox:AddChatTabBox;
+			
 			private var focus:Boolean = true;
 			
 			public var localDispatcher:IEventDispatcher;
@@ -67,11 +72,12 @@
 			private var globalDispatcher:Dispatcher = new Dispatcher();
 			
 			[Bindable]
-			private var participants:ArrayCollection = new ArrayCollection();
+			public var participants:ArrayCollection = new ArrayCollection();
 			
 			private function onCreationComplete():void{
-				addParticipantToList(PUBLIC_CHAT_USERID, PUBLIC_CHAT_USERNAME);
+				addParticipantToList(PUBLIC_CHAT_USERID, PUBLIC_CHAT_USERNAME, "public");
 				openChatBoxFor(PUBLIC_CHAT_USERID);
+				createAddTabBox();
 				makePublicChatUncloseable();
 				addEventListener(SuperTabEvent.TAB_CLOSE, onUserClosedTab);
 				systemManager.stage.addEventListener(Event.MOUSE_LEAVE, mouseLeave);
@@ -112,6 +118,8 @@
 				var chatBox:ChatBox = getChatBoxForParticipant(PUBLIC_CHAT_USERID);
 				var chatIndex:int = getTabIndexFor(chatBox);
 				chatTabs.setClosePolicyForTab(chatIndex, SuperTab.CLOSE_NEVER);
+				
+				chatTabs.setClosePolicyForTab(chatTabs.getChildIndex(tabBox), SuperTab.CLOSE_NEVER);
 			}
 			
 			public function setFocusOn(component:UIComponent):void
@@ -213,7 +221,7 @@
 			private function handleParticipantJoinedEvent(event:ParticipantJoinEvent):void {
 				if (event.join) {
 					trace("New participant " + event.participant.name + "[" + event.participant.userid + "]");	
-					addParticipantToList(event.participant.userid, event.participant.name);									
+					addParticipantToList(event.participant.userid, event.participant.name, event.participant.role);									
 				} else {
 					trace("removing participant " + event.participant.name + "[" + event.participant.userid + "]");
 					removeParticipantFromList(event.participant.userid);
@@ -227,10 +235,11 @@
 				return false;
 			}
 			
-			private function addParticipantToList(userid:String, name:String):void {
+			private function addParticipantToList(userid:String, name:String, role:String):void {
 				var item:Object = new Object();
 				item.label = name;
 				item.userid = userid;
+				item.role = role;
 				participants.addItem(item);
 			}
 			
@@ -271,6 +280,11 @@
 				var tab:Button = chatTabs.getTabAt(chatTabs.selectedIndex);
 				tab.setStyle("fillColors", new Array(0xFFFFFF, 0xCCCCCC));
 				
+				if (chatTabs.selectedIndex == chatTabs.numChildren-1) {
+					openAddChatTabBox();
+					return;
+				}
+				
 				var chatBox:ChatBox = chatTabs.getChildAt(chatTabs.selectedIndex) as ChatBox;
 				if (chatBox.participantLoggedOut) {
 					trace("Disabling message box");
@@ -281,6 +295,10 @@
 				}				
 			}
 			
+			private function openAddChatTabBox():void{
+				
+			}
+			
 			private function getParticipantName(userid:String):String{
 				for (var i:Number = 0; i<participants.length; i++){
 					if (participants.getItemAt(i).userid == userid) return participants.getItemAt(i).label;
@@ -288,13 +306,8 @@
 				return "unknown user";
 			}
 			
-			private function onOpenChatBox():void{				
-				var userid:String = participantList.selectedItem.userid;
-				openChatBoxFor(userid);
-			}
-			
-			private function openChatBoxFor(userid:String):void {
-				trace("Opening chat box " + userid);
+			public function openChatBoxFor(userid:String):void {
+				LogUtil.debug("Opening chat box " + userid);
 				var chatBox:ChatBox;
 				
 				if (participantHasChatBox(userid)) {
@@ -303,7 +316,6 @@
 					chatBox = createChatBoxFor(userid);
 				}
 				
-				chatTabs.selectedChild = chatBox;				
 			}
 			
 			private function createChatBoxFor(userid:String):ChatBox {				
@@ -311,8 +323,21 @@
 				chatBox.id = getParticipantName(userid);
 				chatBox.label = getParticipantName(userid);
 				chatBox.name = userid;
-				chatTabs.addChild(chatBox);
+				if (chatTabs.numChildren >= 2) chatTabs.addChildAt(chatBox, chatTabs.numChildren - 1);
+				else chatTabs.addChild(chatBox);
+				
 				return chatBox;
+			}
+			
+			private function createAddTabBox():AddChatTabBox{
+				tabBox = new AddChatTabBox();
+				tabBox.chatView = this;
+				tabBox.id = TAB_BOX_ID;
+				tabBox.label = TAB_BOX_ID;
+				tabBox.name = TAB_BOX_ID;
+				chatTabs.addChild(tabBox);
+				
+				return tabBox;
 			}
 			
 			private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
@@ -372,7 +397,8 @@
 			
 		]]>
 	</mx:Script>
-	<containers:SuperTabNavigator id="chatTabs" width="100%" height="100%" change="onTabNavChange()" tabClose="onTabClose(event)"/>
+	<containers:SuperTabNavigator id="chatTabs" width="100%" height="100%" change="onTabNavChange()" tabClose="onTabClose(event)" minTabWidth="20" 
+								  dragEnabled="false" popUpButtonPolicy="off"/>
 	
 	<mx:ApplicationControlBar id="chatCtrlBar" width="100%" height="10%">		
 		<mx:TextInput id="txtMsg" width="100%" enter="sendMessages()"/>
@@ -380,6 +406,6 @@
 						selectedColor="0x000000" dataProvider="{colorPickerColours}" swatchPanelStyleName="colorPickerStyle"/>
 		<mx:Button label="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn')}" id="sendBtn" 
 				   toolTip="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.toolTip')}" click="sendMessages()"/>	
-		<mx:ComboBox id="participantList" dataProvider="{participants}" close="onOpenChatBox()" />		    
+		<!--<mx:ComboBox id="participantList" dataProvider="{participants}" close="onOpenChatBox()" />	-->	    
 	</mx:ApplicationControlBar>	
 </mx:VBox>
