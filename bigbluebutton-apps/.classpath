@@ -17,7 +17,7 @@
 	<classpathentry kind="lib" path="lib/groovy-all-1.6.4.jar"/>
 	<classpathentry kind="lib" path="lib/asterisk-java-1.0.0.M3.jar"/>
 	<classpathentry kind="lib" path="lib/mina-integration-spring-1.1.7.jar"/>
-	<classpathentry kind="lib" path="W:/dev/bbb-apps/lib/red5-0.91.jar"/>
+	<classpathentry kind="lib" path="X:/dev/bbb-apps/lib/red5-0.91.jar"/>
 	<classpathentry kind="lib" path="lib/aopalliance-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-over-slf4j-1.5.10.jar"/>
 	<classpathentry kind="lib" path="lib/logback-classic-0.9.18.jar"/>

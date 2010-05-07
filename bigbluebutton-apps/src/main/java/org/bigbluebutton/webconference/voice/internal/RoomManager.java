@@ -76,6 +76,12 @@ public class RoomManager {
 		if (rm != null) rm.mute(mute);
 	}
 	
+	public boolean isRoomMuted(String room){
+		RoomImp rm = rooms.get(room);
+		if (rm != null) return rm.isMuted();
+		else return false;
+	}
+	
 	public ArrayList<Participant> getParticipants(String room) {
 		log.debug("Getting participants for room: " + room);
 		RoomImp rm = rooms.get(room);		

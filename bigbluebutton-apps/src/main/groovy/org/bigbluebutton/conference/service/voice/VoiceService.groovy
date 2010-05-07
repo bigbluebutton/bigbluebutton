@@ -69,6 +69,11 @@ public class VoiceService {
     	conferenceService.mute(conference, mute)	   	
 	}	
 	
+	public boolean isRoomMuted(){
+		def conference = getBbbSession().voiceBridge 
+    	return conferenceService.isRoomMuted(conference)	
+	}
+	
 	def muteUnmuteUser(userid, mute) {
 		def conference = getBbbSession().voiceBridge    	
     	log.debug("MuteUnmute request for user [$userid] in room[$conference]")

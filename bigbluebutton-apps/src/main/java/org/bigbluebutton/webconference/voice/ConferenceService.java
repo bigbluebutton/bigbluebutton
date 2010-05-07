@@ -79,6 +79,13 @@ public class ConferenceService implements ConferenceEventListener {
 		}
 	}
 	
+	public boolean isRoomMuted(String room){
+		if (roomMgr.hasRoom(room)) {
+			return roomMgr.isRoomMuted(room);
+		}
+		return false;
+	}
+	
 	private void muteParticipant(Integer participant, String room, Boolean mute) {
 		confProvider.mute(room, participant, mute);		
 	}
