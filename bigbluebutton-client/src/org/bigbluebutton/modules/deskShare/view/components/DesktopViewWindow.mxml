@@ -25,7 +25,7 @@
 
 <MDIWindow xmlns="flexlib.mdi.containers.*" 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
-	width="400" height="300"
+	width="600" height="400"
 	creationComplete="onCreationComplete()"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
@@ -119,7 +119,7 @@
 				videoHolder.percentHeight = 100;
 				this.width = 600;
 				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);				
-				fitToWindow();
+				fitToActualSize();
 			}
 			
 			private function onResizeEndEvent(event:MDIWindowEvent):void {
@@ -303,8 +303,9 @@
 	</mx:Script>
 	
 	<mx:ControlBar id="bottomBar" height="35">
-		<mx:Button id="btnActualSize" toggle="true" click="determineHowToDisplayVideo()" 
+		<mx:Button id="btnActualSize" toggle="true" click="determineHowToDisplayVideo()" selected="true"
 			height="90%" icon="{btnActualSize.selected ? fitToActualSizeIcon : fitToWidthIcon}" 
 			toolTip="Display actual size" />
+		<mx:Label text="Click to toggle between fit-to-window and actual screen size. Resize the window to see more of the presenters' screen" />
 	</mx:ControlBar>
 </MDIWindow>
