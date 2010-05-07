@@ -98,7 +98,8 @@ package org.bigbluebutton.modules.listeners.view
 					ListenersModuleConstants.USER_MUTE_NOTIFICATION,
 					ListenersModuleConstants.USER_TALKING_NOTIFICATION,
 					ListenersModuleConstants.FIRST_LISTENER_JOINED_EVENT,
-					ListenersModuleConstants.CONVERTED_RECORDED_MP3_EVENT
+					ListenersModuleConstants.CONVERTED_RECORDED_MP3_EVENT,
+					ListenersModuleConstants.ROOM_MUTE_STATE
 					];
 		}
 			
@@ -129,6 +130,9 @@ package org.bigbluebutton.modules.listeners.view
 					break;
 				case ListenersModuleConstants.FIRST_LISTENER_JOINED_EVENT:
 					_recordedAudio.play();
+					break;
+				case ListenersModuleConstants.ROOM_MUTE_STATE:
+					_listenersWindow.setMuteState(notification.getBody() as Boolean);
 					break;
 			}
 		}

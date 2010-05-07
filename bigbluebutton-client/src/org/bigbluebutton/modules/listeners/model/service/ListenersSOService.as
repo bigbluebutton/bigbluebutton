@@ -92,6 +92,7 @@ package org.bigbluebutton.modules.listeners.model.service
 				
 			// Query the server if there are already listeners in the conference.
 			getCurrentUsers();
+			getRoomMuteState();
 		}
 		
 	    private function leave():void
@@ -250,6 +251,11 @@ package org.bigbluebutton.modules.listeners.model.service
 				),//new Responder
 				mute
 			); //_netConnection.call		
+			_listenersSO.send("muteStateCallback", mute);
+		}
+		
+		public function muteStateCallback(mute:Boolean):void{
+			sendMessage(ListenersModuleConstants.ROOM_MUTE_STATE, mute);
 		}
 		
 		public function ejectUser(userId:Number):void
@@ -296,6 +302,26 @@ package org.bigbluebutton.modules.listeners.model.service
 						for (var x:Object in status) { 
 							LogUtil.error(x + " : " + status[x]); 
 							} 
+					}
+				)//new Responder
+			); //_netConnection.call
+		}
+		
+		public function getRoomMuteState():void{
+			var nc:NetConnection = _module.connection;
+			nc.call(
+				"voice.isRoomMuted",// Remote function name
+				new Responder(
+					// participants - On successful result
+					function(result:Object):void { 
+						sendMessage(ListenersModuleConstants.ROOM_MUTE_STATE, result as Boolean);
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
 					}
 				)//new Responder
 			); //_netConnection.call
