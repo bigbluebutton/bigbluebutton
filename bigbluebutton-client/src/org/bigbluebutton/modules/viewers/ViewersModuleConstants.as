@@ -52,6 +52,7 @@ package org.bigbluebutton.modules.viewers
 		public static const CLOSE_VIEWERS_WINDOW:String 		= 'CLOSE_VIEWERS_WINDOW';
 		
 		public static const MODULE_STARTED:String 				= 'MODULE_STARTED';
+		public static const PLAYBACK_STARTED:String				= "PLAYBACK_STARTED";
 		
 		public static const ASSIGN_PRESENTER:String 			= "ASSIGN_PRESENTER";
 		public static const BECOME_VIEWER:String 				= "BECOME_VIEWER";
@@ -61,6 +62,7 @@ package org.bigbluebutton.modules.viewers
 		public static const BECOME_PRESENTER_EVENT:String 		= "BECOME_PRESENTER_EVENT";
 		public static const QUERY_PRESENTER_EVENT:String 		= "QUERY_PRESENTER_EVENT";
 		public static const QUERY_PRESENTER_REPLY:String 		= "QUERY_PRESENTER_REPLY";
+		public static const QUERY_PARTICIPANTS_REPLY:String 	= "QUERY_PARTICIPANTS_SUCCESS";
 		
 		public static const CONNECT_SUCCESS:String 				= "CONNECT_SUCCESS";
 		public static const CONNECT_FAILED:String 				= "CONNECT_FAILED";
@@ -69,5 +71,6 @@ package org.bigbluebutton.modules.viewers
 		public static const APP_SHUTDOWN:String 				= "APP_SHUTDOWN";
 		public static const CONNECT_REJECTED:String 			= "CONNECT_REJECTED";
 		public static const UNKNOWN_REASON:String 				= "UNKNOWN_REASON";
+		public static const ASYNC_ERROR:String 					= "ASYNC_ERROR_REASON";
 	}
 }

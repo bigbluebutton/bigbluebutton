@@ -127,6 +127,7 @@ package org.bigbluebutton.modules.viewers.model.services
 		public function handleResult(  event : Object  ) : void {
 			var info : Object = event.info;
 			var statusCode : String = info.code;
+
 			switch ( statusCode ) 
 			{
 				case CONNECT_SUCCESS :
@@ -139,7 +140,7 @@ package org.bigbluebutton.modules.viewers.model.services
 									LogUtil.debug("Successful result: " + result); 
 									_userid = Number(result);
 									if (_userid >= 0) {
-										_connectionSuccessListener(true, {userid:_userid});	
+										_connectionSuccessListener(true, ViewersModuleConstants.CONNECT_SUCCESS, {userid:_userid});	
 									}	
 								},	
 								// status - On error occurred
@@ -157,7 +158,7 @@ package org.bigbluebutton.modules.viewers.model.services
 				case CONNECT_FAILED :					
 					if (tried_tunneling) {
 						LogUtil.debug(NAME + ":Connection to viewers application failed...even when tunneling");
-						_connectionSuccessListener(false, null, ViewersModuleConstants.CONNECT_FAILED);
+						_connectionSuccessListener(false, ViewersModuleConstants.CONNECT_FAILED, null);
 					} else {
 						disconnect();
 						_netConnection = null;
@@ -170,27 +171,27 @@ package org.bigbluebutton.modules.viewers.model.services
 					
 				case CONNECT_CLOSED :	
 					LogUtil.debug(NAME + ":Connection to viewers application closed");					
-					_connectionSuccessListener(false, null, ViewersModuleConstants.CONNECT_CLOSED);								
+					_connectionSuccessListener(false, ViewersModuleConstants.CONNECT_CLOSED );								
 					break;
 					
 				case INVALID_APP :	
 					LogUtil.debug(NAME + ":viewers application not found on server");			
-					_connectionSuccessListener(false, null, ViewersModuleConstants.INVALID_APP);				
+					_connectionSuccessListener(false, ViewersModuleConstants.INVALID_APP, null);				
 					break;
 					
 				case APP_SHUTDOWN :
 					LogUtil.debug(NAME + ":viewers application has been shutdown");
-					_connectionSuccessListener(false, null, ViewersModuleConstants.APP_SHUTDOWN);	
+					_connectionSuccessListener(false, ViewersModuleConstants.APP_SHUTDOWN, null);	
 					break;
 					
 				case CONNECT_REJECTED :
-					LogUtil.debug(NAME + ":No permissions to connect to the viewers application" );
-					_connectionSuccessListener(false, null, ViewersModuleConstants.CONNECT_REJECTED);		
+					LogUtil.debug(NAME + ":Connection to the server rejected. Uri: " + _module.uri + ". Check if the red5 specified in the uri exists and is running" );
+					_connectionSuccessListener(false, ViewersModuleConstants.CONNECT_REJECTED, null);		
 					break;
 					
 				default :
 				   LogUtil.debug(NAME + ":Default status to the viewers application" );
-					_connectionSuccessListener(false, null, ViewersModuleConstants.UNKNOWN_REASON);
+					_connectionSuccessListener(false, ViewersModuleConstants.UNKNOWN_REASON, null);
 				   break;
 			}
 		}

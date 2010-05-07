@@ -25,6 +25,7 @@ package org.bigbluebutton.main.view
 	import flexlib.mdi.containers.MDIWindow;
 	
 	import mx.managers.PopUpManager;
+	import mx.managers.PopUpManagerChildList;
 	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.main.MainApplicationConstants;
@@ -36,9 +37,9 @@ package org.bigbluebutton.main.view
 	import org.bigbluebutton.main.view.components.ModuleStoppedWindow;
 	import org.bigbluebutton.main.view.events.StartModuleEvent;
 	import org.bigbluebutton.modules.phone.views.components.ToolbarButton;
+	import org.bigbluebutton.util.i18n.ResourceUtil;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
-	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 /**
 *   This is the Mediator class for MainApplicationShell view compom\nent
@@ -56,7 +57,7 @@ package org.bigbluebutton.main.view
 		private var phoneButton:ToolbarButton;
 		private var phoneRegistered:Boolean = false;
 		
-		
+		private var logoutWindow:LoggedOutWindow;
 		      
 		public function MainApplicationShellMediator( viewComponent:MainApplicationShell )
 		{
@@ -130,7 +131,7 @@ package org.bigbluebutton.main.view
 					shell.mdiCanvas.windowManager.remove(rwin as MDIWindow);						
 					break;
 				case MainApplicationConstants.USER_LOGGED_OUT:
-					handleUserLoggedOut();
+					handleUserLoggedOut(notification.getBody() as String);
 //					if (red5phoneAdded) {
 //						red5phoneAdded = false;
 //						shell.mdiCanvas.windowManager.remove(red5PhoneWindow as MDIWindow);
@@ -198,23 +199,24 @@ package org.bigbluebutton.main.view
 			portTestProxy.connect("RTMPT", host, "", "bigbluebutton");
 		}
 		
-		private function handleUserLoggedOut():void {
+		private function handleUserLoggedOut(reason:String):void {
+			if (logoutWindow != null) return;
+			logoutWindow = LoggedOutWindow(PopUpManager.createPopUp( shell.mdiCanvas, LoggedOutWindow, false));
 
-				var t:LoggedOutWindow = LoggedOutWindow(PopUpManager.createPopUp( shell.mdiCanvas, LoggedOutWindow, false));
-
-				var point1:Point = new Point();
-            	// Calculate position of TitleWindow in Application's coordinates. 
-            	point1.x = 400;
-            	point1.y = 300;                
-            	point1 = shell.localToGlobal(point1);
-           	 	t.x = point1.x + 25;
-            	t.y = point1.y + 25;	
+			var point1:Point = new Point();
+        	// Calculate position of TitleWindow in Application's coordinates. 
+        	point1.x = 400;
+        	point1.y = 300;                
+        	point1 = shell.localToGlobal(point1);
+			logoutWindow.x = point1.x + 25;
+			logoutWindow.y = point1.y + 25;	
+			logoutWindow.setReason(reason);
        
 /*     	
-            	var pageURL:String = mx.core.Application.application.url.split("/")[2];
-            	var url:URLRequest = new URLRequest("http://" + pageURL + "/bigbluebutton/conference-session/signOut");
-            	LogUtil.debug("Log out url: " + pageURL);
-				navigateToURL(url, '_self');
+        	var pageURL:String = mx.core.Application.application.url.split("/")[2];
+        	var url:URLRequest = new URLRequest("http://" + pageURL + "/bigbluebutton/conference-session/signOut");
+        	LogUtil.debug("Log out url: " + pageURL);
+			navigateToURL(url, '_self');
 */			
 		}
 		

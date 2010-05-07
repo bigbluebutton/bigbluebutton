@@ -22,17 +22,19 @@
 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
     title="Logged Out" showCloseButton="true" creationComplete="init()"
-    x="168" y="86" layout="absolute" width="300" height="100">
+    x="168" y="86" layout="vertical" width="400" height="100" horizontalAlign="center">
 	<mx:Script>
 		<![CDATA[
 			import mx.controls.Alert;
 			import mx.managers.PopUpManager; 
-
+			
+			[Bindable] private var message:String = "You have logged out of the conference";
+			
 			private function init():void {
 				addEventListener(Event.CLOSE, onUserLoggedOutWindowClose);
 			}
 			
-            private function redirect():void {
+            private function redirect():void { 
             	var pageURL:String = mx.core.Application.application.url.split("/")[2];
             	var url:URLRequest = new URLRequest("http://" + pageURL + "/bigbluebutton/conference-session/signOut");
             	LogUtil.debug("Log out url: " + pageURL);
@@ -43,9 +45,13 @@
             private function onUserLoggedOutWindowClose(e:Event):void {
             	PopUpManager.removePopUp(this);
             }
+			
+			public function setReason(reason:String):void{
+				message = reason;
+			}
 		]]>
 	</mx:Script>
 
-	<mx:Button id="okBtn" label="OK" click="redirect()" x="118.5" y="28"/>
-	<mx:Label text="You have logged out of the conference"  y="7" x="24"/>
+	<mx:Button id="okBtn" label="OK" click="redirect()"/>
+	<mx:Label text="{message}"/>
 </mx:TitleWindow> 

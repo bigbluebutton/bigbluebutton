@@ -83,7 +83,7 @@ package org.bigbluebutton.modules.viewers.model.services
 			if (_messageSender != null) _messageSender(msg, body);
 		}
 		
-		private function connectionSuccessListener(connected:Boolean, user:Object=null, failReason:String=""):void {
+		private function connectionSuccessListener(connected:Boolean, failReason:String, user:Object=null):void {
 			if (connected) {
 				LogUtil.debug(LOGNAME + ":Connected to the Viewers application " + user.userid);
 				_participants.me.userid = user.userid;
@@ -122,7 +122,7 @@ package org.bigbluebutton.modules.viewers.model.services
 	        		// participants - On successful result
 					function(result:Object):void { 
 						LogUtil.debug("Successfully started playback: "); 
-						notifyConnectionStatusListener(true);
+						notifyConnectionStatusListener(true, ViewersModuleConstants.PLAYBACK_STARTED);
 					},	
 					// status - On error occurred
 					function(status:Object):void { 
@@ -150,7 +150,7 @@ package org.bigbluebutton.modules.viewers.model.services
 							{
 								participantJoined(result.participants[p]);
 							}		
-							notifyConnectionStatusListener(true);
+							notifyConnectionStatusListener(true, ViewersModuleConstants.QUERY_PARTICIPANTS_REPLY);
 							trace("Am I the only moderator?");
 							LogUtil.debug("Am I the only moderator?");
 							becomePresenterIfLoneModerator();				
@@ -408,7 +408,7 @@ package org.bigbluebutton.modules.viewers.model.services
 		}
 		
 
-		private function notifyConnectionStatusListener(connected:Boolean, reason:String = null):void {
+		private function notifyConnectionStatusListener(connected:Boolean, reason:String):void {
 			if (_connectionStatusListener != null) {
 				_connectionStatusListener(connected, reason);
 			}
@@ -422,37 +422,37 @@ package org.bigbluebutton.modules.viewers.model.services
 			{
 				case "NetConnection.Connect.Success" :
 					LogUtil.debug(LOGNAME + ":Connection Success");		
-					notifyConnectionStatusListener(true);			
+					notifyConnectionStatusListener(true, ViewersModuleConstants.CONNECT_SUCCESS);			
 					break;
 			
 				case "NetConnection.Connect.Failed" :			
 					LogUtil.debug(LOGNAME + ":Connection to viewers application failed");
-					notifyConnectionStatusListener(false);
+					notifyConnectionStatusListener(false, ViewersModuleConstants.CONNECT_FAILED);
 					break;
 					
 				case "NetConnection.Connect.Closed" :									
 					LogUtil.debug(LOGNAME + ":Connection to viewers application closed");
-					notifyConnectionStatusListener(false);
+					notifyConnectionStatusListener(false, ViewersModuleConstants.CONNECT_CLOSED);
 					break;
 					
 				case "NetConnection.Connect.InvalidApp" :				
 					LogUtil.debug(LOGNAME + ":Viewers application not found on server");
-					notifyConnectionStatusListener(false);
+					notifyConnectionStatusListener(false, ViewersModuleConstants.INVALID_APP);
 					break;
 					
 				case "NetConnection.Connect.AppShutDown" :
 					LogUtil.debug(LOGNAME + ":Viewers application has been shutdown");
-					notifyConnectionStatusListener(false);
+					notifyConnectionStatusListener(false, ViewersModuleConstants.APP_SHUTDOWN);
 					break;
 					
 				case "NetConnection.Connect.Rejected" :
 					LogUtil.debug(LOGNAME + ":No permissions to connect to the viewers application" );
-					notifyConnectionStatusListener(false);
+					notifyConnectionStatusListener(false, ViewersModuleConstants.CONNECT_REJECTED);
 					break;
 					
 				default :
 				   LogUtil.debug(LOGNAME + ":default - " + event.info.code );
-				   notifyConnectionStatusListener(false);
+				   notifyConnectionStatusListener(false, event.info.code);
 				   break;
 			}
 		}
@@ -460,7 +460,7 @@ package org.bigbluebutton.modules.viewers.model.services
 		private function asyncErrorHandler ( event : AsyncErrorEvent ) : void
 		{
 			LogUtil.debug(LOGNAME + "participantsSO asyncErrorHandler " + event.error);
-			notifyConnectionStatusListener(false);
+			notifyConnectionStatusListener(false, ViewersModuleConstants.ASYNC_ERROR);
 		}
 		
 		public function get connection():NetConnection

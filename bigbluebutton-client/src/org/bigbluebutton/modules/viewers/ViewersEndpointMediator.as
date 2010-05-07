@@ -95,8 +95,7 @@ package org.bigbluebutton.modules.viewers
 							EndpointMessageConstants.TO_MAIN_APP, user);
 					break;
 				case ViewersModuleConstants.LOGGED_OUT:
-					_endpoint.sendMessage(EndpointMessageConstants.USER_LOGGED_OUT,
-							EndpointMessageConstants.TO_MAIN_APP, "LOGGED_OUT"); // just send a string
+					sendLogoutMessage(notification.getBody() as String);
 					break;
 				case ViewersModuleConstants.STARTED:
 					LogUtil.debug("Sending Viewers MODULE_STARTED message to main");
@@ -168,6 +167,32 @@ package org.bigbluebutton.modules.viewers
 		
 		private function get proxy():ViewersProxy {
 			return facade.retrieveProxy(ViewersProxy.NAME) as ViewersProxy;
-		}				
+		}		
+		
+		private function sendLogoutMessage(reason:String):void{
+			var logoutMessage:String;
+			switch(reason){
+				case ViewersModuleConstants.CONNECT_CLOSED:
+					logoutMessage = "The connection to the server has been closed";
+					break;
+				case ViewersModuleConstants.CONNECT_FAILED:
+					logoutMessage = "The connection to the server has failed";
+					break;
+				case ViewersModuleConstants.CONNECT_REJECTED:
+					logoutMessage = "The connection to the server has been rejected";
+					break;
+				case ViewersModuleConstants.INVALID_APP:
+					logoutMessage = "The app the client was trying to connect to doesn't exist on the red5 server";
+					break;
+				case ViewersModuleConstants.APP_SHUTDOWN:
+					logoutMessage = "The red5 app on the server has shutdown";
+					break;
+				case ViewersModuleConstants.UNKNOWN_REASON:
+					logoutMessage = "You have been logged out for an unknown reason";
+					break;
+			}
+			_endpoint.sendMessage(EndpointMessageConstants.USER_LOGGED_OUT,
+				EndpointMessageConstants.TO_MAIN_APP, logoutMessage);
+		}
 	}
 }

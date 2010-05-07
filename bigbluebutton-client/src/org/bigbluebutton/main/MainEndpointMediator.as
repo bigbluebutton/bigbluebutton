@@ -105,7 +105,7 @@ package org.bigbluebutton.main
 					break;
 				case EndpointMessageConstants.USER_LOGGED_OUT:
 					LogUtil.debug(NAME + "::Got USER_LOGGED_OUT from " + message.getHeader().SRC as String);
-					sendNotification(MainApplicationConstants.USER_LOGGED_OUT);
+					sendNotification(MainApplicationConstants.USER_LOGGED_OUT, message.getBody() as String);
 					break;
 				case EndpointMessageConstants.MODULE_STARTED:
 					LogUtil.debug(NAME + "::Got MODULE_STARTED from " + message.getBody() as String);
