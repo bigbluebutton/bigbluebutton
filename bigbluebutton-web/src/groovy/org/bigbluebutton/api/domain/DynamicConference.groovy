@@ -28,6 +28,7 @@ import org.bigbluebutton.web.domain.Conference;
 
 public class DynamicConference extends Conference {
 
+	Date storedTime;
 	Date startTime;
 	Date endTime;
 	
@@ -62,7 +63,7 @@ public class DynamicConference extends Conference {
 
 	public boolean isRunning() {
 		boolean running = startTime != null && endTime == null;
-		println "running: ${running}; startTime: ${startTime}; endTime: ${endTime}"; 
+		//println "running: ${running}; startTime: ${startTime}; endTime: ${endTime}"; 
 		return running;
 	}
 

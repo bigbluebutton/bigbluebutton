@@ -25,12 +25,17 @@ import java.util.concurrent.ConcurrentHashMap
 import org.apache.commons.collections.bidimap.DualHashBidiMap
 import java.util.Collection
 import java.util.Collections
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import org.bigbluebutton.api.domain.DynamicConference;
  
 public class DynamicConferenceService {	
 	static transactional = false
 	def serviceEnabled = false
 	def securitySalt
+	int minutesElapsedBeforeMeetingExpiration = 60
 	def defaultWelcomeMessage
 	def defaultDialAccessNumber
 	def testVoiceBridge
@@ -46,13 +51,48 @@ public class DynamicConferenceService {
 		confsByMtgID = new ConcurrentHashMap<String, DynamicConference>()
 		tokenMap = new DualHashBidiMap<String, String>()
 		roomsByToken = new ConcurrentHashMap<String, Room>()
+		
+		// wait one minute to run, and run every five minutes:
+		TimerTask task = new DynamicConferenceServiceCleanupTimerTask(this);
+		new Timer("api-cleanup", true).scheduleAtFixedRate(task, 60000, 300000);
+		// PS - <rant> I hate Groovy - no inline (anonymous or inner) class support (until 1.7)?  Come on!  Closures aren't the be-all-end-all </rant>
 	}
 	
+	void cleanupOldConferences() {
+		println("Cleaning out old conferences");
+		for (DynamicConference conf : confsByMtgID.values()) {
+			boolean remove = false;
+			if (conf.isRunning()) {
+				println "Meeting [" + conf.getMeetingID() + "] is running - not cleaning it out"
+				// won't remove one that's running
+				continue;
+			}
+			
+			long millisSinceStored = conf.getStoredTime() == null ? -1 : (System.currentTimeMillis() - conf.getStoredTime().getTime());
+			long millisSinceEnd = conf.getEndTime() == null ? -1 : (System.currentTimeMillis() - conf.getEndTime().getTime());
+			if (conf.getStartTime() != null && millisSinceEnd > (minutesElapsedBeforeMeetingExpiration * 60000)) {
+				println("Removing meeting because it started, ended, and is past the max expiration");
+				remove = true;
+			} else if (conf.getEndTime() == null && millisSinceStored > (minutesElapsedBeforeMeetingExpiration * 60000)) {
+				println("Removing meeting because it was stored, but never started [stored " + millisSinceStored + " millis ago]");
+				remove = true;
+			}
+			
+			if (remove) {
+				confsByMtgID.remove(conf.getMeetingID());
+				roomsByToken.remove(conf.getMeetingToken());
+				tokenMap.remove(conf.getMeetingToken());
+			} else {
+				println "Not removing meeting [" + conf.getMeetingID() + "]"
+			}
+		}
+	}
 	public Collection<DynamicConference> getAllConferences() {
 		return confsByMtgID.isEmpty() ? Collections.emptySet() : Collections.unmodifiableCollection(confsByMtgID.values());
 	}
 	
 	public void storeConference(DynamicConference conf) {
+		conf.setStoredTime(new Date());
 		confsByMtgID.put(conf.getMeetingID(), conf);
 		tokenMap.put(conf.getMeetingToken(), conf.getMeetingID());
 	}
