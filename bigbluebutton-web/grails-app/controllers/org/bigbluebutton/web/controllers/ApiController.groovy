@@ -26,6 +26,7 @@ import java.util.Collections;
 import org.apache.commons.codec.binary.Hex;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 
 import org.bigbluebutton.web.services.DynamicConferenceService;
@@ -106,6 +107,12 @@ class ApiController {
 				invalid("idNotUnique", "A meeting already exists with that meeting ID.  Please use a different meeting ID.");
 			}
 			return;
+		}
+		if (StringUtils.isEmpty(attPW)) {
+			attPW = RandomStringUtils.randomAlphanumeric(8);
+		}
+		if (StringUtils.isEmpty(modPW)) {
+			modPW = RandomStringUtils.randomAlphanumeric(8);
 		}
 		DynamicConference conf = new DynamicConference(name, mtgID, attPW, modPW, maxParts)
 		conf.setVoiceBridge(voiceBr == null || voiceBr == "" ? mtgID : voiceBr)
