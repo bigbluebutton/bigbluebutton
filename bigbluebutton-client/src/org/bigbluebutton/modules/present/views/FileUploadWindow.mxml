@@ -45,18 +45,19 @@
     	    
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
-			import mx.controls.Alert;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.bigbluebutton.modules.present.events.UploadEvent;
 			import com.asfusion.mate.events.Dispatcher;
-			import mx.managers.PopUpManager;
-			import org.bigbluebutton.common.Images;
-			import mx.collections.*
-			import mx.events.ValidationResultEvent;
-			import mx.validators.*;
+			
+			import mx.collections.*;
 			import mx.events.FlexEvent;
+			import mx.events.ValidationResultEvent;
+			import mx.managers.PopUpManager;
+			import mx.validators.*;
+			
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
+			import org.bigbluebutton.modules.present.events.UploadEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+
             	
 			[Bindable] public var presentationNames:Array = new Array();
 			[Bindable] public var presentationNamesAC:ArrayCollection;
@@ -246,7 +247,8 @@
 			private function handlePageCountExceeded(e:UploadEvent):void {
 				LogUtil.debug("handlePageCountExceeded");
 				enableControls();
-				displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.convert.maxnbpagereach'));
+				var message:String = " Maximum supported is " + e.maximumSupportedNumberOfSlides;
+				displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.convert.maxnbpagereach'), message);
 			}
 			     	
         	private function uploadIOError(e:UploadEvent):void{
@@ -259,9 +261,13 @@
 				displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.security'));
         	}
         	
-        	private function displayAlert(text:String):void {
-        		Alert.okLabel = ResourceUtil.getInstance().getString('bbb.presentation.ok');        		
-        		Alert.show(text);
+        	private function displayAlert(error:String, message:String = null):void {
+        		var okLabel:String = ResourceUtil.getInstance().getString('bbb.presentation.ok');        	
+				progressBar.setStyle("color", 0xFF0000);
+				progressLbl.setStyle("color", 0xFF0000);
+        		progressBar.label = error + message;
+				progressLbl.text = "Click OK to close the window";
+				okCancelBtn.label = "Ok";
 
         	}
         	

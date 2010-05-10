@@ -51,6 +51,7 @@ package org.bigbluebutton.modules.present.events
 		public var totalSlides:Number;
 		public var fileToUpload:FileReference;
 		public var percentageComplete:Number;
+		public var maximumSupportedNumberOfSlides:int;
 		
 		public function UploadEvent(type:String) {
 			super(type, true, false);

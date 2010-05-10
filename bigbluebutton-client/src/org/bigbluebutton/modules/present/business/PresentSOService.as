@@ -488,6 +488,7 @@ package org.bigbluebutton.modules.present.business {
 				maxNumberOfPages:Number) : void {
 			LogUtil.debug("pageCountExceededUpdateMessageCallback:Received update message " + messageKey);
 			var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.PAGE_COUNT_EXCEEDED);
+			uploadEvent.maximumSupportedNumberOfSlides = maxNumberOfPages;
 			dispatcher.dispatchEvent(uploadEvent);
 		}
 
