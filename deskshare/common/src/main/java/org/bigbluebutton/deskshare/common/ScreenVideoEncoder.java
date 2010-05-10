@@ -63,7 +63,7 @@ public final class ScreenVideoEncoder {
 	
 	public static int[] getPixels(BufferedImage image, int x, int y, int width, int height) throws PixelExtractException {
 		long start = System.currentTimeMillis();
-
+					
 		/* Use this!!! Fast!!! (ralam Oct. 14, 2009) */
 		int[] pixels = image.getRGB(x, y, width, height, null, 0, width);
 		
@@ -174,22 +174,33 @@ public final class ScreenVideoEncoder {
 			byte red = (byte) ((pixels[i] >> 16) & 0xff);
 			byte green = (byte) ((pixels[i] >> 8) & 0xff);
 			byte blue = (byte) (pixels[i] & 0xff);
-			
+
 			// Sequence should be BGR
 			rgbPixels[position++] = blue;
 			rgbPixels[position++] = green;
-			rgbPixels[position++] = red;				
-		}
+			rgbPixels[position++] = red;
+/*
+ * If we want to send grayscale images.			
+			byte brightness = convertToGrayScale(red, green, blue);
+			
+			// Sequence should be BGR
+			rgbPixels[position++] = brightness;
+			rgbPixels[position++] = brightness;
+			rgbPixels[position++] = brightness;				
+*/		}
 		
 		long end = System.currentTimeMillis();
 //		System.out.println("Extracting pixels[" + pixels.length + "] took " + (end-start) + " ms.");				
 		return rgbPixels;
 	}
 			
-	public static String toStringBits( int value )
-	{
+	private static byte convertToGrayScale(int r, int g, int b) {
+		return (byte)(0.212671 * r + 0.715160 * g + 0.072169 * b);
+	}
+	
+	public static String toStringBits(int value) {
 	    int displayMask = 1 << 31;
-	    StringBuffer buf = new StringBuffer( 35 );
+	    StringBuffer buf = new StringBuffer(35);
 			   
 	    for ( int c = 1; c <= 32; c++ ) 
 	    {
@@ -203,14 +214,13 @@ public final class ScreenVideoEncoder {
 	    return buf.toString();
 	}
 		    
-	public static String toStringBits( byte value )
-	{
+	public static String toStringBits(byte value) {
 	    int displayMask = 1 << 7;
-	    StringBuffer buf = new StringBuffer( 8 );
+	    StringBuffer buf = new StringBuffer(8);
 			   
 	    for ( int c = 1; c <= 8; c++ ) 
 	    {
-	        buf.append( ( value & displayMask ) == 0 ? '0' : '1' );
+	        buf.append((value & displayMask) == 0 ? '0' : '1');
 	        value <<= 1;
 			       
 	        if ( c % 8 == 0 )

@@ -13,8 +13,8 @@ public class DeskshareSystemTray {
 	}
 	
 	public void displayIconOnSystemTray(final Image image, final boolean enableActions) {
-//		Runnable runner = new Runnable() {
-//			public void run() {
+		Runnable runner = new Runnable() {
+			public void run() {
 				if (SystemTray.isSupported()) {
 					tray = SystemTray.getSystemTray();
 		          
@@ -38,9 +38,9 @@ public class DeskshareSystemTray {
 				} else {
 					System.err.println("Tray unavailable");
 				}
-//			}
-//		};
-//		EventQueue.invokeLater(runner);
+			}
+		};
+		EventQueue.invokeLater(runner);
 	}
 
     public void removeIconFromSystemTray() {
