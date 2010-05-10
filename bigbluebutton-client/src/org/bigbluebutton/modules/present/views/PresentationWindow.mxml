@@ -33,7 +33,8 @@
 	creationComplete="onCreationComplete()" 
 	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
 	x="{DEFAULT_X_POSITION}" y="{DEFAULT_Y_POSITION}"
-	title="{currentPresentation}" keyUp="onKeyUp(event)">
+	title="{currentPresentation}" keyUp="onKeyUp(event)"
+	resize="maximizeHandler()">
 	
 	<mate:Dispatcher id="globalDispatcher" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="becomePresenter" />
@@ -49,40 +50,41 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import flash.geom.Point;
+			
+			import flexlib.containers.DockableToolBar;
+			import flexlib.mdi.events.MDIWindowEvent;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.collections.ArrayCollection;
+			import mx.containers.TitleWindow;
+			import mx.core.Application;
+			import mx.effects.Move;
+			import mx.events.ListEvent;
+			import mx.events.ResizeEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.*;
+			
+			import org.bigbluebutton.common.IBbbCanvas;
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.modules.present.api.IPresentationButton;
 			import org.bigbluebutton.modules.present.events.AddButtonToPresentationEvent;
-			import mx.events.ListEvent;
-			import org.bigbluebutton.common.IBbbCanvas;
-			import mx.events.ResizeEvent;
-			import flexlib.containers.DockableToolBar;
-			import org.bigbluebutton.modules.present.events.AddPresentationToolbarEvent;
-			import mx.controls.Alert;
 			import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
-			import org.bigbluebutton.modules.present.events.SlideResizedEvent;
-			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
+			import org.bigbluebutton.modules.present.events.AddPresentationToolbarEvent;
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
-			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import org.bigbluebutton.modules.present.events.SlideEvent;
-			import org.bigbluebutton.modules.present.managers.Slide;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import mx.effects.Move;
 			import org.bigbluebutton.modules.present.events.MoveEvent;
-			import org.bigbluebutton.modules.present.events.ZoomEvent;
-			import org.bigbluebutton.modules.present.managers.SlideManager;
+			import org.bigbluebutton.modules.present.events.NavigationEvent;
 			import org.bigbluebutton.modules.present.events.PresentationEvent;
 			import org.bigbluebutton.modules.present.events.PresenterCommands;
+			import org.bigbluebutton.modules.present.events.SlideEvent;
+			import org.bigbluebutton.modules.present.events.SlideResizedEvent;
 			import org.bigbluebutton.modules.present.events.UploadEvent;
-			import org.bigbluebutton.modules.present.events.NavigationEvent;
-			import org.bigbluebutton.common.Images;
-			import flexlib.mdi.events.MDIWindowEvent;		
-			import mx.core.Application;
-			import mx.binding.utils.BindingUtils;
-
-			import mx.collections.ArrayCollection;
-			import mx.rpc.events.*;
-            import mx.managers.PopUpManager;
-            import mx.containers.TitleWindow;
-            import flash.geom.Point;
+			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
+			import org.bigbluebutton.modules.present.events.ZoomEvent;
+			import org.bigbluebutton.modules.present.managers.Slide;
+			import org.bigbluebutton.modules.present.managers.SlideManager;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
              			
             public static const TITLE:String = "Presentation";
 			private var images:Images = new Images();
@@ -123,47 +125,8 @@
 			private var presenterName:String = "";
 			
 			private var externalButtons:ArrayCollection = new ArrayCollection();
-
-			// The following code block is to deal with FLexLib MDI windows not being able to be moved when maximized
-			private var savedWindowWidth:Number;
-			private var savedWindowHeight:Number;
-			private var savedX:Number;
-			private var savedY:Number;
-			private var isMaximized:Boolean = false;
 			
-			private var fitToWindowTimer:Timer;
-			
-			override public function maximize():void{
-				if (!isMaximized){
-					savedWindowHeight = this.height;
-					savedWindowWidth = this.width;
-					savedX = this.x;
-					savedY = this.y;    
-					dispatchEvent(new MDIWindowEvent(MDIWindowEvent.MAXIMIZE, this));            	
-                	isMaximized = true;
-                	windowControls.maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString('bbb.presentation.maximizeRestoreBtn.toolTip2');	                
-				
-				} else{
-					this.width = savedWindowWidth;
-					this.height = savedWindowHeight;
-					this.x = savedX;
-					this.y = savedY;
-					isMaximized = false;
-					windowControls.maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString('bbb.presentation.maximizeRestoreBtn.toolTip');
-				}					
-				
-				/*
-				 * Need to have a timer to trigger resizing slide to window after the 
-				 * window has been maximized/restored. The MAXIMIZE/RESTORE events are
-				 * generated when the button is clicked so the width and height are not
-				 * the ones we want.
-				 */
-				fitToWindowTimer = new Timer(1000);
-				fitToWindowTimer.addEventListener(TimerEvent.TIMER, maximizeTimerHandler);
-				fitToWindowTimer.start();
-			}
-			
-			private function maximizeTimerHandler(event:TimerEvent):void {
+			private function maximizeHandler():void {
 				// When the window is maximized, we want to resize the slide maintaining the aspect ratio.			
 				fitSlideToWindowMaintainingAspectRatio();
 				
@@ -172,12 +135,12 @@
 					this.x = this.parent.width - this.width;
 				} else {
 					// Move window so that it won't overlap with Participant's window.
-					this.x = DEFAULT_X_POSITION;
+					//this.x = DEFAULT_X_POSITION;
 				}
 				
 				this.y = 0;
-				
-				fitToWindowTimer.stop();
+				if (this.maximized) callLater(restore);
+				stage.focus = this; //Remove focus from the maximize button in case the user presses the space bar, the window doesn't get maximized again.
 			}
 		
 			private function onCreationComplete():void{
@@ -389,6 +352,7 @@
 				}
 				onResetZoom();
 				reinitWindowToDefaultSize();
+				this.setFocus();
 			}
 			
 			private function displaySlideNavigationControls(show:Boolean):void {
