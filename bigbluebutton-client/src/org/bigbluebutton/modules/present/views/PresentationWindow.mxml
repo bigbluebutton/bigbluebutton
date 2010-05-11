@@ -21,7 +21,7 @@
 --> 
 
 
-<pres:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml"  
+<pres:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:thumb="org.bigbluebutton.modules.present.views.*"
 	xmlns:pres="flexlib.mdi.containers.*"
 	xmlns:code="http://code.google.com/p/flexlib/" 
@@ -87,6 +87,11 @@
 			import org.bigbluebutton.util.i18n.ResourceUtil;
              			
             public static const TITLE:String = "Presentation";
+			private var presenterName:String = "";
+			private static const NEXT_BUTTON:String = "Next";
+			private static const PREVIOUS_BUTTON:String = "Previous";
+			private static const GOTO_PAGE_BUTTON:String = "Go to Page..."
+			
 			private var images:Images = new Images();
 
 			[Bindable] private var uploadIcon:Class = images.upload;
@@ -122,25 +127,31 @@
 			[Bindable] private var presentationLoaded:Boolean = false;
 			[Bindable] private var currentPresentation:String = ResourceUtil.getInstance().getString('bbb.presentation.title');
 			
-			private var presenterName:String = "";
-			
 			private var externalButtons:ArrayCollection = new ArrayCollection();
 			
 			private function maximizeHandler():void {
 				// When the window is maximized, we want to resize the slide maintaining the aspect ratio.			
 				fitSlideToWindowMaintainingAspectRatio();
 				
+				this.y = 0;
+				if (this.maximized) {
+					callLater(restore);
+					var timer:Timer = new Timer(500, 1);
+					timer.addEventListener(TimerEvent.TIMER, adjustPosition);
+					timer.start();
+				}
+				stage.focus = this; //Remove focus from the maximize button in case the user presses the space bar, the window doesn't get maximized again.
+				
+			}
+			
+			private function adjustPosition(t:TimerEvent):void{
 				if ((DEFAULT_X_POSITION + this.width) > this.parent.width) {
 					// Adjust presentation window so that it doesn't go over the side of the browser window
 					this.x = this.parent.width - this.width;
 				} else {
 					// Move window so that it won't overlap with Participant's window.
-					//this.x = DEFAULT_X_POSITION;
+					this.x = DEFAULT_X_POSITION;
 				}
-				
-				this.y = 0;
-				if (this.maximized) callLater(restore);
-				stage.focus = this; //Remove focus from the maximize button in case the user presses the space bar, the window doesn't get maximized again.
 			}
 		
 			private function onCreationComplete():void{
@@ -353,6 +364,7 @@
 				onResetZoom();
 				reinitWindowToDefaultSize();
 				this.setFocus();
+				addContextMenuItems();
 			}
 			
 			private function displaySlideNavigationControls(show:Boolean):void {
@@ -360,8 +372,50 @@
 				forwardButton.visible = show;
 				zoomSlider.visible = show;
 				btnResetZoom.visible = show;
-				slideNumLbl.visible = show;
+				btnSlideNum.visible = show;
 				setButtonsVisibility(show);
+			}
+			
+			private function addContextMenuItems():void{
+				var contextMenu:ContextMenu = new ContextMenu();
+				contextMenu.hideBuiltInItems();
+				
+				var nextButton:ContextMenuItem = new ContextMenuItem(NEXT_BUTTON);
+				nextButton.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, menuItemHandler);
+				contextMenu.customItems.push(nextButton);
+				
+				var previousButton:ContextMenuItem = new ContextMenuItem(PREVIOUS_BUTTON);
+				previousButton.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, menuItemHandler);
+				contextMenu.customItems.push(previousButton);
+				
+				var gotoPageButton:ContextMenuItem = new ContextMenuItem(GOTO_PAGE_BUTTON);
+				gotoPageButton.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, menuItemHandler);
+				contextMenu.customItems.push(gotoPageButton);
+				
+				this.contextMenu = contextMenu;
+			}
+			
+			private function menuItemHandler(e:ContextMenuEvent):void{
+				switch(e.target.caption){
+					case NEXT_BUTTON:
+						gotoNextSlide();
+						break;
+					case PREVIOUS_BUTTON:
+						gotoPreviousSlide();
+						break;
+					case GOTO_PAGE_BUTTON:
+						showPageDialog();
+						break;
+				}
+			}
+			
+			private function showPageDialog():void{
+				var pageDialog:GotoPageDialog = new GotoPageDialog();
+				pageDialog.totalSlides = slideView.slides.length;
+				pageDialog.x = this.x + this.width/2 - pageDialog.width/2;
+				pageDialog.y = this.y + this.height/2 - pageDialog.height/2;
+				pageDialog.window = this;
+				PopUpManager.addPopUp(pageDialog, this, false);
 			}
 			
 			private function notifyOthersOfSharingPresentation(presentationName:String):void {
@@ -372,13 +426,17 @@
 			}
 			
 			private function gotoPage(e:NavigationEvent):void{
-				slideView.selectedSlide = e.pageNumber;
-								
-				if (validPageNumber(e.pageNumber)) {
-					loadSlide(e.pageNumber);
-					disableSlideNavigationButtons(e.pageNumber);
-					displaySlideNumber(e.pageNumber + 1);
-				}				
+				loadPage(e.pageNumber);
+			}
+			
+			public function loadPage(pageNumber:int):void{
+				slideView.selectedSlide = pageNumber;
+				
+				if (validPageNumber(pageNumber)) {
+					loadSlide(pageNumber);
+					disableSlideNavigationButtons(pageNumber);
+					displaySlideNumber(pageNumber + 1);
+				}	
 			}
 			
 			private function loadSlide(page:int):void {
@@ -404,14 +462,14 @@
 			}
 			
 			private function displaySlideNumber(currentSlide:int):void {
-				slideNumLbl.label = ResourceUtil.getInstance().getString('bbb.presentation.pages', [currentSlide, slideView.slides.length]);
+				btnSlideNum.label = ResourceUtil.getInstance().getString('bbb.presentation.pages', [currentSlide, slideView.slides.length]);
 			}
 			
 			private function clearPresentation(e:UploadEvent):void{
 				slideView.visible = false;		
 				slideView.swfSlideLoader.source = null; 
 				slideView.selectedSlide = 0;
-				slideNumLbl.label = "";
+				btnSlideNum.label = "";
 				displaySlideNavigationControls(false);
 				showUploadPresentationLabel(false);
 				
@@ -515,7 +573,7 @@
     	  <mx:Spacer width="50%" id="spacer1"/>
     	  <mx:Button id="backButton" icon="{backwardIcon}" visible="false" width="30" height="20"
     	   		toolTip="Previous slide." click="gotoPreviousSlide()"/>
-    	  <mx:Button id="slideNumLbl" visible="false" label="" click="showThumbnails()"/>    
+    	  <mx:Button id="btnSlideNum" visible="false" label="" click="showThumbnails()" doubleClick="showPageDialog()"/>
     	  <mx:Button id="forwardButton" icon="{forwardIcon}" visible="false" width="30" height="20"
     	   		toolTip="Next slide" click="gotoNextSlide()"/>    				
 		<mx:Spacer width="10%" id="spacer2"/>

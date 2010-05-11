@@ -39,7 +39,6 @@
 			import flexlib.events.SuperTabEvent;
 			
 			import mx.collections.ArrayCollection;
-			import mx.controls.Alert;
 			import mx.core.Container;
 			import mx.core.UIComponent;
 			import mx.events.IndexChangedEvent;
@@ -285,6 +284,7 @@
 					return;
 				}
 				
+				txtMsg.enabled = true;
 				var chatBox:ChatBox = chatTabs.getChildAt(chatTabs.selectedIndex) as ChatBox;
 				if (chatBox.participantLoggedOut) {
 					trace("Disabling message box");
@@ -296,7 +296,7 @@
 			}
 			
 			private function openAddChatTabBox():void{
-				
+				txtMsg.enabled = false;
 			}
 			
 			private function getParticipantName(userid:String):String{

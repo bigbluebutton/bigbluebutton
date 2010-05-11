@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="175" height="70" layout="horizontal" creationComplete="onCreationComplete()" keyDown="onKeyDown(event)">
+	<mx:Script>
+		<![CDATA[
+			import mx.managers.PopUpManager;
+			
+			public static const SWITCH_PAGE:String = "switch to page";
+			[Bindable] public var totalSlides:int;
+			public var window:PresentationWindow;
+			
+			private function closeDialog():void{
+				var page:Number = parseInt(txtPageNum.text);
+				window.loadPage(page - 1);
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function onCreationComplete():void{
+				txtPageNum.setFocus();
+			}
+			
+			private function onKeyDown(e:KeyboardEvent):void{
+				if (e.keyCode == Keyboard.ENTER){
+					closeDialog();
+				}
+			}
+		]]>
+	</mx:Script>
+	
+	<mx:Label text="Page" />
+	<mx:TextInput id="txtPageNum" width="25" />
+	<mx:Label id="totalPages" text="{'/' + totalSlides}" />
+	<mx:Button id="okButton" click="closeDialog()" label="Ok" />
+	
+</mx:TitleWindow>
