@@ -22,6 +22,9 @@ package org.bigbluebutton.common
 	[Bindable]
 	public class Images
 	{
+		[Embed(source="assets/images/Cursor.png")]
+		public var cursorIcon:Class;
+		
 		[Embed(source="assets/images/group.png")]
 		public var participants_img:Class;
 

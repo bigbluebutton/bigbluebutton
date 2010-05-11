@@ -30,6 +30,7 @@ package org.bigbluebutton.modules.deskShare.services
 	import org.bigbluebutton.common.red5.Connection;
 	import org.bigbluebutton.common.red5.ConnectionEvent;
 	import org.bigbluebutton.modules.deskShare.events.AppletStartedEvent;
+	import org.bigbluebutton.modules.deskShare.events.CursorEvent;
 	import org.bigbluebutton.modules.deskShare.events.ViewStreamEvent;
 	
 	/**
@@ -193,6 +194,14 @@ package org.bigbluebutton.modules.deskShare.services
 		public function stopViewing():void{
 			trace("Received dekskshareStreamStopped");
 			dispatcher.dispatchEvent(new ViewStreamEvent(ViewStreamEvent.STOP));
+		}
+		
+		public function mouseLocationCallback(x:Number, y:Number):void {
+			LogUtil.debug("Mouse location " + x + "," + y);
+			var event:CursorEvent = new CursorEvent(CursorEvent.UPDATE_CURSOR_LOC_EVENT);
+			event.x = x;
+			event.y = y;
+			dispatcher.dispatchEvent(event);
 		}
 		
 		/**

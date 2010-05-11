@@ -34,9 +34,11 @@
 	resize="fitToWindow()">
 	
 	<mate:Listener type="{ViewStreamEvent.STOP}" method="onStopViewStreamEvent" />
+	<mate:Listener type="{CursorEvent.UPDATE_CURSOR_LOC_EVENT}" method="onUpdateCursorEvent" />
 		
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.deskShare.events.CursorEvent;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
@@ -51,6 +53,8 @@
 			private var images:Images = new Images();
 			[Bindable] public var fitToWidthIcon:Class = images.magnifier;
 			[Bindable] public var fitToActualSizeIcon:Class = images.mag_reset;
+			
+			private var cursor:Shape;
 			
 			private var video:Video;
 			private var ns:NetStream;
@@ -114,18 +118,31 @@
 				windowControls.minimizeBtn.toolTip = "Minimize this window";
 				
 				videoHolder.addChild(video);
+				
 				this.addChild(videoHolder);
 				videoHolder.percentWidth = 100;
 				videoHolder.percentHeight = 100;
 				this.width = 600;
 				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);				
 				fitToActualSize();
+				
+				cursor = new Shape();
+				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
+				cursor.graphics.drawCircle(0,0,3);
+				videoHolder.addChild(cursor);
+				cursor.visible = false;
 			}
 			
 			private function onResizeEndEvent(event:MDIWindowEvent):void {
 				if (event.window == this) {
 					fitToWindow();
 				}
+			}
+			
+			private function onUpdateCursorEvent(event:CursorEvent):void {	
+				cursor.x = ((event.x/videoWidth)) * videoHolder.width;
+				cursor.y = ((event.y/videoHeight)) * videoHolder.height;
+				cursor.visible = true;
 			}
 			
 			public function startVideo(connection:NetConnection, stream:String, width:Number, height:Number):void{
@@ -145,9 +162,7 @@
 				video.height = height;
 				video.attachNetStream(ns);
 				ns.play(stream);	
-				this.stream = stream;
-				
-				
+				this.stream = stream;				
 			}
 			
 			public function stopViewing():void {

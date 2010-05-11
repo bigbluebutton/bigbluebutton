@@ -35,8 +35,10 @@
 	<mate:Listener type="{AppletStartedEvent.APPLET_STARTED}" method="onAppletStart" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="onChangedPresenter" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="onChangedPresenter" />	
+	<mate:Listener type="{CursorEvent.UPDATE_CURSOR_LOC_EVENT}" method="onUpdateCursorEvent" />
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.deskShare.events.CursorEvent;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
@@ -54,6 +56,7 @@
 			
 			private var images:Images = new Images();
 			[Bindable] public var bbbLogo:Class = images.bbb_logo;
+			[Bindable] private var cursorIcon:Class = images.cursorIcon;
 			
 			private var _xPosition:int = 675;
 			private var _yPosition:int = 310;
@@ -74,11 +77,18 @@
 			
 			private var globalDispatcher:Dispatcher = new Dispatcher();
 			
+			[Bindable] private var cursor:Sprite;
+			
 			private function onCreationComplete():void {
 				windowControls.maximizeRestoreBtn.enabled = false;
 				windowControls.maximizeRestoreBtn.toolTip = "You cannot maximize this window.";
 				windowControls.closeBtn.toolTip = "Stop sharing and close this window.";
 				windowControls.minimizeBtn.toolTip = "Minimize this window.";
+				
+				cursor = new Sprite();
+				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
+				cursor.graphics.drawCircle(0,0,3);
+				
 			}
 	
 			public function get xPosition():int {
@@ -146,6 +156,12 @@
 				closeWindow();
 			}
 			
+			private function onUpdateCursorEvent(event:CursorEvent):void {	
+				cursor.x = ((event.x/captureWidth)) * videoHolder.width;
+				cursor.y = ((event.y/captureHeight)) * videoHolder.height;		
+				cursor.visible = true;
+			}
+			
 			private function onAppletStart(event:AppletStartedEvent):void{
 				LogUtil.debug("DeskShareWindow::onAppletStart");
 				startStream(connection, room);
@@ -167,6 +183,8 @@
 				videoHolder.width = captureWidth/SCALE;
 				videoHolder.height = captureHeight/SCALE;
 				videoHolder.addChild(video);
+				videoHolder.addChild(cursor);
+				cursor.visible = false;
 				this.addChild(videoHolder);
 				this.width = video.width + 6;
 				this.height = video.height + 29;
@@ -222,7 +240,7 @@
 				stopSharing();
 				closeWindow();
 			}		
+			
 		]]>
 	</mx:Script>
-
 </MDIWindow>

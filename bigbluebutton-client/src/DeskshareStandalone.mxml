@@ -8,9 +8,10 @@
 	<mate:Listener type="{AppletStartedEvent.APPLET_STARTED}" method="onAppletStart" />
 	<mate:Listener type="{ViewStreamEvent.STOP}" method="onAppletStop" />
 	<mate:Listener type="{ViewStreamEvent.START}" method="onViewStreamStart"/>
-	
+	<mate:Listener type="{CursorEvent.UPDATE_CURSOR_LOC_EVENT}" method="onUpdateCursorEvent" />
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.deskShare.events.CursorEvent;
 			import org.bigbluebutton.modules.deskShare.events.ViewStreamEvent;
 			import mx.controls.Button;
 			import mx.containers.Canvas;
@@ -21,6 +22,8 @@
 			import org.bigbluebutton.common.Images;
 			
 			private var videoHolder:UIComponent;
+			
+			private var cursor:Shape;
 						
 			private var images:Images = new Images();
 			[Bindable] public var bbbLogo:Class = images.bbb_logo;
@@ -45,6 +48,12 @@
 				videoHeight = Number(p.getParameter("HEIGHT"));
 				room = p.getParameter("ROOM");
 				service.connect(host+"/"+room);
+				
+				cursor = new Shape();
+				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
+				cursor.graphics.drawCircle(0,0,3);
+				
+				cursor.visible = false;
 			}
 			
 			private function onAppletStart(event:AppletStartedEvent):void{
@@ -81,18 +90,22 @@
 				trace("wxh=" + width + "," + height);
 				video = new Video(width, height);
 				trace("wxh=" + video.videoWidth + "," + video.videoHeight);
-			//	video.smoothing=true;
 				video.attachNetStream(ns);
 				
 				videoHolder = new UIComponent();
-				//videoHolder.width=width;
-				//videoHolder.height=height;
 				videoHolder.percentWidth=100;
 				videoHolder.percentHeight=100;
-				videoHolder.addChild(video);		
+				videoHolder.addChild(video);	
+				videoHolder.addChild(cursor);	
 				ns.play(stream);	
 				this.stream = stream;
 				vbox.addChild(videoHolder);				
+			}
+			
+			private function onUpdateCursorEvent(event:CursorEvent):void {		
+				cursor.x = ((event.x/video.videoWidth)) * videoHolder.width;
+				cursor.y = ((event.y/video.videoHeight)) * videoHolder.height;
+				cursor.visible = true;
 			}
 			
 			public function stopViewing():void {
@@ -119,7 +132,5 @@
 
 		]]>
 	</mx:Script>
-	<!--mx:VBox width="100%" height="100%"-->
 		<mx:Canvas id="vbox" width="100%" height="100%"/>
-	<!--/mx:VBox-->
 </mx:Application>
