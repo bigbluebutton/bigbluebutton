@@ -4,21 +4,21 @@
 	mouseOver="setCursor()" mouseOut="removeCursor()" implements="org.bigbluebutton.common.IBbbCanvas">
 	<mx:Script>
 		<![CDATA[
-			import mx.controls.Alert;
-			import org.bigbluebutton.common.IBbbCanvas;
-			import mx.managers.CursorManager;
-			import org.bigbluebutton.common.Images;
 			import mx.collections.ArrayCollection;
-			import org.bigbluebutton.modules.highlighter.events.PageEvent;
-			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
-			import org.bigbluebutton.modules.highlighter.events.HighlighterUpdate;
-			import org.bigbluebutton.common.mate.SharedObjectEvent;
-			import org.bigbluebutton.modules.highlighter.maps.HighlighterEventMap;
-			import org.bigbluebutton.modules.highlighter.events.HighlighterDrawEvent;
 			import mx.core.Application;
-			import org.bigbluebutton.modules.highlighter.business.shapes.ShapeFactory;
-			import org.bigbluebutton.modules.highlighter.business.shapes.DrawObjectFactory;
+			import mx.managers.CursorManager;
+			
+			import org.bigbluebutton.common.IBbbCanvas;
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.mate.SharedObjectEvent;
 			import org.bigbluebutton.modules.highlighter.business.shapes.DrawObject;
+			import org.bigbluebutton.modules.highlighter.business.shapes.DrawObjectFactory;
+			import org.bigbluebutton.modules.highlighter.business.shapes.ShapeFactory;
+			import org.bigbluebutton.modules.highlighter.events.HighlighterDrawEvent;
+			import org.bigbluebutton.modules.highlighter.events.HighlighterUpdate;
+			import org.bigbluebutton.modules.highlighter.events.PageEvent;
+			import org.bigbluebutton.modules.highlighter.maps.HighlighterEventMap;
+			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
 			
 			private var x1:int;
 			private var y1:int;
@@ -49,6 +49,8 @@
 			private var whiteboardEnabled:Boolean = false;
 			private var showWhiteboard:Boolean = true;
 			
+			private var drawTimer:Timer;
+			
 			private function init():void{
 				drawFactory = new DrawObjectFactory();
 				shapeFactory = new ShapeFactory();
@@ -65,6 +67,18 @@
 			*/
 			private function doMouseUp():void{
 				isDrawing = false;
+				sendShapeToServer();
+				drawTimer.stop();
+			}
+			
+			private function onDrawTimer(e:TimerEvent):void{
+				var startX:Number = segment[segment.length - 2] as Number;
+				var startY:Number = segment[segment.length - 1] as Number;
+				sendShapeToServer();
+				startShape(startX,startY);
+			}
+			
+			private function sendShapeToServer():void{
 				this.d = drawFactory.makeDrawObject(this.shapeStyle, segment, this.drawColor, this.thickness);
 				this.d.parentHeight = this.height;
 				this.d.parentWidth = this.width;
@@ -75,6 +89,7 @@
 					rawChildren.removeChild(feedback);
 				}
 				feedback = new Shape();
+				segment = new Array();
 			}
 
 			/**
@@ -84,11 +99,18 @@
 			*the starting point in a shape
 			*/
 			private function doMouseDown():void{
-				isDrawing = true;
 				x1 = this.mouseX;
 				y1 = this.mouseY;
-				segment.push(x1);
-				segment.push(y1);
+				startShape(x1, y1);
+				drawTimer = new Timer(1000, 0);
+				drawTimer.addEventListener(TimerEvent.TIMER, onDrawTimer);
+				drawTimer.start();
+			}
+			
+			private function startShape(startX:Number, startY:Number):void{
+				isDrawing = true;
+				segment.push(startX);
+				segment.push(startY);
 				rawChildren.addChild(feedback);
 			}
 			
@@ -134,7 +156,6 @@
 	            shapeList.push(newShape);
 	            //rawChildren.addChild(shapeList[shapeList.length-1]);
 	            bbbCanvas.addRawChild(shapeList[shapeList.length-1]);
-	            segment = new Array();
 	            newShape = new Shape();
 			}
 			

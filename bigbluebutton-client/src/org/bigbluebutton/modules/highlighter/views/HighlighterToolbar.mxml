@@ -30,17 +30,18 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import mx.events.ResizeEvent;
-			import mx.events.MoveEvent;
-			import org.bigbluebutton.modules.present.views.PresentationWindow;
-			import org.bigbluebutton.modules.highlighter.events.WhiteboardButtonEvent;
-			import org.bigbluebutton.modules.present.events.PresentationEvent;
-			import org.bigbluebutton.modules.highlighter.events.HighlighterPresenterEvent;
 			import mx.controls.Alert;
+			import mx.events.MoveEvent;
+			import mx.events.ResizeEvent;
+			
+			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.modules.highlighter.business.shapes.DrawObject;
 			import org.bigbluebutton.modules.highlighter.events.HighlighterDrawEvent;
-			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.modules.highlighter.events.HighlighterPresenterEvent;
+			import org.bigbluebutton.modules.highlighter.events.WhiteboardButtonEvent;
+			import org.bigbluebutton.modules.present.events.PresentationEvent;
+			import org.bigbluebutton.modules.present.views.PresentationWindow;
 			
 			private var images:Images = new Images();
 			[Bindable] private var pencil_icon:Class = images.pencil_icon;
@@ -84,7 +85,7 @@
 			}
 			
 			private function presenterMode(e:MadePresenterEvent):void{
-				this.visible = true;
+				//this.visible = true;
 			}
 			
 			private function viewerMode(e:MadePresenterEvent):void{
@@ -115,20 +116,14 @@
 			
 			public function positionToolbar(window:PresentationWindow):void{
 				presentationWindow = window;
-				presentationWindow.addEventListener(MoveEvent.MOVE, onMove);
-				presentationWindow.addEventListener(ResizeEvent.RESIZE, onResize);
+				presentationWindow.addEventListener(MoveEvent.MOVE, setPositionAndDepth);
+				presentationWindow.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);
 				this.x = presentationWindow.x + presentationWindow.width + 3;
 				this.y = presentationWindow.y + 30;
 				parent.setChildIndex(this, parent.numChildren-1);
 			}
 			
-			private function onMove(e:MoveEvent):void{
-				this.x = presentationWindow.x + presentationWindow.width + 3;
-				this.y = presentationWindow.y + 30;
-				parent.setChildIndex(this, parent.numChildren-1);
-			}
-			
-			private function onResize(e:ResizeEvent):void{
+			private function setPositionAndDepth(e:Event = null):void{
 				this.x = presentationWindow.x + presentationWindow.width + 3;
 				this.y = presentationWindow.y + 30;
 				parent.setChildIndex(this, parent.numChildren-1);
