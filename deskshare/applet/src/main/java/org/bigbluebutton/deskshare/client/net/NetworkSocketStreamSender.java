@@ -30,7 +30,7 @@ import java.net.UnknownHostException;
 import org.bigbluebutton.deskshare.common.Dimension;
 
 public class NetworkSocketStreamSender implements Runnable {
-	private static final int PORT = 9125;
+	private static final int PORT = 9123;
 	
 	private Socket socket = null;
 	
