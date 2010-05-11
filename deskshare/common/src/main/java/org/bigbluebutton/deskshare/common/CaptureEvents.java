@@ -26,7 +26,7 @@ public enum CaptureEvents {
 	 * WARNING: Must match corresponding values with deskshare-app on the server.
 	 * org.bigbluebutton.deskshare.CaptureEvents
 	 */
-	CAPTURE_START(0), CAPTURE_UPDATE(1), CAPTURE_END(2);
+	CAPTURE_START(0), CAPTURE_UPDATE(1), CAPTURE_END(2), MOUSE_LOCATION_EVENT(3);
 	
 	private final int event;
 	

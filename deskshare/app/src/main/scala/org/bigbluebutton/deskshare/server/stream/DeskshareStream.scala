@@ -25,6 +25,7 @@ class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, v
 	      case StartStream => startStream()
 	      case StopStream => stopStream()
 	      case us: UpdateStream => updateStream(us)
+	      case ml: UpdateStreamMouseLocation => updateStreamMouseLocation(ml)
 	      case m:Any => log.warning("DeskshareStream: Unknown message " + m);
 	    }
 	  }
@@ -53,6 +54,10 @@ class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, v
    	  broadcastStream.sendDeskshareStreamStarted(new ArrayList[Object]())
 	}
 	
+	private def updateStreamMouseLocation(ml: UpdateStreamMouseLocation) = {
+		broadcastStream.sendMouseLocation(ml.loc)
+	}
+ 
 	private def updateStream(us: UpdateStream) {
 		val buffer: IoBuffer  = IoBuffer.allocate(us.videoData.length, false);
 		buffer.put(us.videoData);
@@ -66,6 +71,7 @@ class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, v
 		data.setTimestamp((System.currentTimeMillis() - startTimestamp).toInt)
 		broadcastStream.dispatchEvent(data)
 		data.release()
+		
 	}
  
 	override def  exit() : Nothing = {

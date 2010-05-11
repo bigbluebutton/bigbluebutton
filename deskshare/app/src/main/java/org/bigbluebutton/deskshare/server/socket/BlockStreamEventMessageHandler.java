@@ -28,6 +28,7 @@ import org.apache.mina.core.session.IoSession;
 import org.bigbluebutton.deskshare.server.events.CaptureEndBlockEvent;
 import org.bigbluebutton.deskshare.server.events.CaptureStartBlockEvent;
 import org.bigbluebutton.deskshare.server.events.CaptureUpdateBlockEvent;
+import org.bigbluebutton.deskshare.server.events.MouseLocationEvent;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
@@ -57,6 +58,9 @@ public class BlockStreamEventMessageHandler extends IoHandlerAdapter {
     	} else if (message instanceof CaptureEndBlockEvent) {
     		CaptureEndBlockEvent event = (CaptureEndBlockEvent) message;
     		sessionManager.removeSession(event.getRoom());
+    	} else if (message instanceof MouseLocationEvent) {
+    		MouseLocationEvent event = (MouseLocationEvent) message;
+    		sessionManager.updateMouseLocation(event.getRoom(), event.getLoc());
     	}
     }
 

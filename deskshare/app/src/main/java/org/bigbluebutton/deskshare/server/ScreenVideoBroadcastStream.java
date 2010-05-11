@@ -19,6 +19,7 @@
  */
 package org.bigbluebutton.deskshare.server;
 
+import java.awt.Point;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -246,5 +247,12 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 	
 	public void sendDeskshareStreamStarted(ArrayList<Object> msg) {
 		deskSO.sendMessage("appletStarted" , msg);
+	}
+	
+	public void sendMouseLocation(Point mouseLoc) {
+		ArrayList<Object> msg = new ArrayList<Object>();
+		msg.add(new Integer(mouseLoc.x));
+		msg.add(new Integer(mouseLoc.y));
+		deskSO.sendMessage("mouseLocationCallback", msg);
 	}
 }

@@ -21,6 +21,7 @@
  */
 package org.bigbluebutton.deskshare.client.net;
 
+import java.awt.Point;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -29,7 +30,7 @@ import java.net.UnknownHostException;
 import org.bigbluebutton.deskshare.common.Dimension;
 
 public class NetworkSocketStreamSender implements Runnable {
-	private static final int PORT = 9123;
+	private static final int PORT = 9125;
 	
 	private Socket socket = null;
 	
@@ -39,12 +40,13 @@ public class NetworkSocketStreamSender implements Runnable {
 	private Dimension blockDim;
 	private final NextBlockRetriever retriever;
 	private volatile boolean processBlocks = false;
-	
+	 
 	public NetworkSocketStreamSender(NextBlockRetriever retriever, String room, Dimension screenDim, Dimension blockDim) {
 		this.retriever = retriever;
 		this.room = room;
 		this.screenDim = screenDim;
 		this.blockDim = blockDim;
+	
 	}
 	
 	public void connect(String host) throws ConnectionException {
@@ -73,6 +75,19 @@ public class NetworkSocketStreamSender implements Runnable {
 			e.printStackTrace();
 		}
 	}
+
+	private void sendCursor(Point mouseLoc, String room) {
+		try {
+			ByteArrayOutputStream dataToSend = new ByteArrayOutputStream();
+			dataToSend.reset();
+			BlockStreamProtocolEncoder.encodeMouseLocation(mouseLoc, room, dataToSend);
+			sendHeader(BlockStreamProtocolEncoder.encodeHeaderAndLength(dataToSend));
+			sendToStream(dataToSend);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	
 	private void sendBlock(BlockVideoData block) {
 		long start = System.currentTimeMillis();
@@ -89,7 +104,6 @@ public class NetworkSocketStreamSender implements Runnable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 	}
 	
 	private void sendHeader(byte[] header) throws IOException {
@@ -100,6 +114,7 @@ public class NetworkSocketStreamSender implements Runnable {
 		if (outstream != null) dataToSend.writeTo(outstream);
 	}
 	
+		
 	public void disconnect() throws ConnectionException {
 		System.out.println("Disconnecting socket stream");
 		try {
@@ -115,20 +130,29 @@ public class NetworkSocketStreamSender implements Runnable {
 			processBlocks = false;
 		}
 	}
-
+	
+	private void processNextMessageToSend(Message message) {
+		if (message.getMessageType() == Message.MessageType.BLOCK) {
+			EncodedBlockData block = retriever.getBlockToSend(((BlockMessage)message).getPosition());
+			BlockVideoData	bv = new BlockVideoData(room, block.getPosition(), block.getVideoData(), false /* should remove later */);									
+			sendBlock(bv);
+		} else if (message.getMessageType() == Message.MessageType.CURSOR) {
+			CursorMessage msg = (CursorMessage)message;
+			sendCursor(msg.getMouseLocation(), msg.getRoom());
+		}
+	}
+	
 	public void run() {
 		processBlocks = true;		
 		while (processBlocks) {
-			EncodedBlockData block;
+			Message message;
 			try {
-				block = retriever.fetchNextBlockToSend();
-				BlockVideoData	bv = new BlockVideoData(room, block.getPosition(), block.getVideoData(), false /* should remove later */);	
-//				System.out.println("Sending block " + block.getPosition());
-				sendBlock(bv);
+				message = retriever.getNextMessageToSend();
+				processNextMessageToSend(message);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}					
+			}							
 		}
 		
 		try {

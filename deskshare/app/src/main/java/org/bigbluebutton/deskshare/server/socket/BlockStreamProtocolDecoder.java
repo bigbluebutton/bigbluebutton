@@ -21,6 +21,7 @@
  */
 package org.bigbluebutton.deskshare.server.socket;
 
+import java.awt.Point;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 
@@ -32,6 +33,7 @@ import org.bigbluebutton.deskshare.common.Dimension;
 import org.bigbluebutton.deskshare.server.events.CaptureEndBlockEvent;
 import org.bigbluebutton.deskshare.server.events.CaptureStartBlockEvent;
 import org.bigbluebutton.deskshare.server.events.CaptureUpdateBlockEvent;
+import org.bigbluebutton.deskshare.server.events.MouseLocationEvent;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
@@ -44,6 +46,7 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
     private static final byte CAPTURE_START_EVENT = 0;
     private static final byte CAPTURE_UPDATE_EVENT = 1;
     private static final byte CAPTURE_END_EVENT = 2;
+    private static final byte MOUSE_LOCATION_EVENT = 3;
         
     protected boolean doDecode(IoSession session, IoBuffer in, ProtocolDecoderOutput out) throws Exception {
      	
@@ -84,9 +87,19 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
 	    		System.out.println("Got CAPTURE_END_EVENT event: " + event);
 	    		decodeCaptureEndEvent(session, in, out);
 	    		break;
+	    	case MOUSE_LOCATION_EVENT:
+	    		decodeMouseLocationEvent(session, in, out);
 	    	default:
     			log.error("Unknown event: " + event);
     	}
+    }
+    
+    private void decodeMouseLocationEvent(IoSession session, IoBuffer in, ProtocolDecoderOutput out) {
+    	String room = decodeRoom(session, in);
+    	int mouseX = in.getInt();
+    	int mouseY = in.getInt();
+    	MouseLocationEvent event = new MouseLocationEvent(room, new Point(mouseX, mouseY));
+    	out.write(event);
     }
     
     private void decodeCaptureEndEvent(IoSession session, IoBuffer in, ProtocolDecoderOutput out) {

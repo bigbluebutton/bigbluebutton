@@ -1,14 +1,18 @@
 package org.bigbluebutton.deskshare.server.sessions
 
+
 import org.bigbluebutton.deskshare.server.svc1.{BlockManager, Dimension}
-import org.bigbluebutton.deskshare.server.stream.{StreamManager, Stream, UpdateStream, StartStream, StopStream}
+import org.bigbluebutton.deskshare.server.stream.{StreamManager, Stream, UpdateStream, StartStream, StopStream, UpdateStreamMouseLocation}
 
 import scala.actors.Actor
 import scala.actors.Actor._
 import net.lag.logging.Logger
+import java.awt.Point
 
 case object StartSession
 case class UpdateSessionBlock(position: Int, blockData: Array[Byte], keyframe: Boolean)
+case class UpdateSessionMouseLocation(loc: Point)
+                                      
 case object StopSession
 case object GenerateKeyFrame
 
@@ -20,7 +24,8 @@ class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dime
 	private var stream:Stream = null
 	private var lastUpdate:Long = System.currentTimeMillis()
 	private var stop = true
-
+	private var mouseLoc:Point = new Point(100,100);
+ 
 	def scheduleGenerateFrame() {
 		val mainActor = self
 		actor {
@@ -33,7 +38,8 @@ class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dime
       loop {
         react {
           case StartSession => initialize()
-          case StopSession => stopSession()            
+          case StopSession => stopSession()    
+          case ml: UpdateSessionMouseLocation => mouseLoc = ml.loc 
           case "GenerateFrame" => {
 	            generateFrame(false)
 	            if (!stop) {
@@ -80,11 +86,13 @@ class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dime
 		blockManager.updateBlock(position, videoData, keyFrame)	
 	}
 	
-	private def generateFrame(keyframe:Boolean) {		
-		stream ! new UpdateStream(room, blockManager.generateFrame(keyframe))  
+	private def generateFrame(keyframe:Boolean) {				  
 		if (System.currentTimeMillis() - lastUpdate > 60000) {
 			log.warning("Session: Did not received updates for more than 1 minute. Removing session %s", room)
 			sessionManager ! new RemoveSession(room)
+		} else {
+		   stream ! new UpdateStream(room, blockManager.generateFrame(keyframe))
+		   stream ! new UpdateStreamMouseLocation(room, mouseLoc)
 		}
 	}
  

@@ -21,6 +21,8 @@
  */
 package org.bigbluebutton.deskshare.client.blocks;
 
+import org.bigbluebutton.deskshare.client.net.BlockMessage;
+
 public interface ChangedBlocksListener {
-	public void onChangedBlock(Integer blockPosition);
+	public void onChangedBlock(BlockMessage blockPosition);
 }

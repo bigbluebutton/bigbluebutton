@@ -7,11 +7,13 @@ import net.lag.logging.Logger
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.deskshare.server.svc1.Dimension
 import org.bigbluebutton.deskshare.server.stream.StreamManager
+import java.awt.Point
 
 case class CreateSession(room: String, screenDim: Dimension, blockDim: Dimension)
 case class RemoveSession(room: String)
 case class SendKeyFrame(room: String)
 case class UpdateBlock(room: String, position: Int, blockData: Array[Byte], keyframe: Boolean)
+case class UpdateMouseLocation(room: String, mouseLoc:Point)
 
 class SessionManagerSVC(streamManager: StreamManager) extends Actor {
 	private val log = Logger.get 
@@ -25,6 +27,7 @@ class SessionManagerSVC(streamManager: StreamManager) extends Actor {
 	      case r: RemoveSession => removeSession(r.room); printMailbox("RemoveSession")
 	      case k: SendKeyFrame => sendKeyFrame(k.room); printMailbox("SendKeyFrame")
 	      case ub: UpdateBlock => updateBlock(ub.room, ub.position, ub.blockData, ub.keyframe)
+	      case ml: UpdateMouseLocation => updateMouseLocation(ml.room, ml.mouseLoc)
 	      case m: Any => log.warning("SessionManager: Unknown message " + m); printMailbox("Any")
 	    }
 	  }
@@ -74,6 +77,13 @@ class SessionManagerSVC(streamManager: StreamManager) extends Actor {
             }
     	  case None => log.warning("SessionManager: Could not remove session %s. Does not exist.", room)
     	}
+	}
+	
+	private def updateMouseLocation(room: String, mouseLoc: Point): Unit = {
+		sessions.get(room) match {
+		  case Some(s) => s ! new UpdateSessionMouseLocation(mouseLoc)
+		  case None => log.warning("SessionManager: Could not update mouse loc for session %s. Does not exist.", room)
+		}
 	}
 	
 	private def updateBlock(room: String, position: Int, blockData: Array[Byte], keyframe: Boolean): Unit = {

@@ -5,6 +5,8 @@ import java.awt.image.BufferedImage;
 
 import org.bigbluebutton.deskshare.client.blocks.BlockManager;
 import org.bigbluebutton.deskshare.client.blocks.ChangedBlocksListener;
+import org.bigbluebutton.deskshare.client.net.BlockMessage;
+import org.bigbluebutton.deskshare.client.net.CursorMessage;
 import org.bigbluebutton.deskshare.client.net.NetworkStreamSender;
 import org.bigbluebutton.deskshare.common.Dimension;
 import org.bigbluebutton.deskshare.client.net.ConnectionException;
@@ -47,6 +49,7 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
 	
 	private DeskshareSystemTray tray = new DeskshareSystemTray();
 	private ClientListener listener;
+	private MouseLocationTaker mTaker;
 	
 	public void start() {	
 		System.out.println(LICENSE_HEADER);
@@ -71,7 +74,9 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
 		blockManager = new BlockManager();
 		blockManager.addListener(this);
 		blockManager.initialize(screenDim, tileDim);
-	
+		
+		mTaker = new MouseLocationTaker();
+		
 		sender = new NetworkStreamSender(blockManager, host, room, screenDim, tileDim);
 		connected = sender.connect();
 		if (connected) {
@@ -116,6 +121,8 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
 	
 	public void onScreenCaptured(BufferedImage screen) {
 		blockManager.processCapturedScreen(screen);		
+		CursorMessage msg = new CursorMessage(mTaker.getMouseLocation(), room);
+		sender.send(msg);
 	}
 	
 	
@@ -124,8 +131,8 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
 		destroy();
 	}
 
-	public void onChangedBlock(Integer blockPosition) {
-		sender.send(blockPosition);
+	public void onChangedBlock(BlockMessage message) {
+		sender.send(message);
 	}
 
 	public void onStopSharingSysTrayMenuClicked() {

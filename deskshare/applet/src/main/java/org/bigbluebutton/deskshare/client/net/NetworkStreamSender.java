@@ -27,13 +27,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import net.jcip.annotations.ThreadSafe;
 
+import org.bigbluebutton.deskshare.client.MouseLocationTaker;
 import org.bigbluebutton.deskshare.client.blocks.BlockManager;
 import org.bigbluebutton.deskshare.common.Dimension;
 
 @ThreadSafe
 public class NetworkStreamSender implements NextBlockRetriever {	
 	private ExecutorService executor;	
-    private final BlockingQueue<Integer> blockDataQ = new LinkedBlockingQueue<Integer>();
+    private final BlockingQueue<Message> blockDataQ = new LinkedBlockingQueue<Message>();
     
     private final int numThreads;
     private final String host;
@@ -47,7 +48,8 @@ public class NetworkStreamSender implements NextBlockRetriever {
 	private Dimension blockDim;
 	private BlockManager blockManager;
 	
-	public NetworkStreamSender(BlockManager blockManager, String host, String room, Dimension screenDim, Dimension blockDim) {
+	public NetworkStreamSender(BlockManager blockManager, 
+			String host, String room, Dimension screenDim, Dimension blockDim) {
 		this.blockManager = blockManager;
 		this.host = host;
 		this.room = room;
@@ -103,8 +105,8 @@ public class NetworkStreamSender implements NextBlockRetriever {
 		}
 	}
 	
-	public void send(Integer blockPosition) {
-		blockDataQ.offer(blockPosition);
+	public void send(Message message) {
+		blockDataQ.offer(message);
 	}
 	
 	public void start() {
@@ -150,14 +152,18 @@ public class NetworkStreamSender implements NextBlockRetriever {
 		return false;
 	}
 	
-	public EncodedBlockData fetchNextBlockToSend() {
-		Integer position = 1;
+	public EncodedBlockData getBlockToSend(int position) {		
+		return blockManager.getBlock(position).encode();
+	}	
+	
+	public Message getNextMessageToSend() throws InterruptedException {
 		try {
-			position = (Integer) blockDataQ.take();			
+			return (Message) blockDataQ.take();			
 		} catch (InterruptedException e) {
 			if (!stopped)
 				e.printStackTrace();
+			throw e;
 		}
-		return blockManager.getBlock(position).encode();
-	}	
+	}
+	
 }

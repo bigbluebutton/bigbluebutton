@@ -4,7 +4,7 @@ import org.bigbluebutton.deskshare.common.Dimension
 import org.bigbluebutton.deskshare.server.svc1.Dimension
 import org.bigbluebutton.deskshare.server.stream.StreamManager
 import org.bigbluebutton.deskshare.server.session.ISessionManagerGateway
-
+import java.awt.Point
 import net.lag.logging.Logger
 
 class SessionManagerGateway(streamManager: StreamManager) extends ISessionManagerGateway {  
@@ -29,6 +29,10 @@ class SessionManagerGateway(streamManager: StreamManager) extends ISessionManage
 	
 	def updateBlock(room : String, position : Int, blockData : Array[Byte], keyframe : Boolean): Unit = {
 		sessionManager ! new UpdateBlock(room, position, blockData, keyframe)
+	}
+ 
+	def updateMouseLocation(room: String, mouseLoc: Point): Unit = {
+	    sessionManager ! new UpdateMouseLocation(room, mouseLoc)
 	}
  
 	def sendKeyFrame(room: String) {

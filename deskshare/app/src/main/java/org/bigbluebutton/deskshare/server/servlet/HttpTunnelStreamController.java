@@ -21,6 +21,8 @@
  */
 package org.bigbluebutton.deskshare.server.servlet;
 
+import java.awt.Point;
+
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -49,11 +51,27 @@ public class HttpTunnelStreamController extends MultiActionController {
 			handleCaptureUpdateRequest(request, response);
 		} else if (2 == captureRequest) {
 			handleCaptureEndRequest(request, response);
+		} else if (3 == captureRequest) {
+			handleUpdateMouseLocationRequest(request, response);
 		} else {
 			System.out.println("****Cannot handle screen capture event " + captureRequest);
 		}
 		return null;
 	}	
+	
+	private void handleUpdateMouseLocationRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {		
+		String room = request.getParameterValues("room")[0];
+		String mouseX = request.getParameterValues("mousex")[0];
+		String mouseY = request.getParameterValues("mousey")[0];
+		
+		Point loc = new Point(Integer.parseInt(mouseX), Integer.parseInt(mouseY));
+
+		if (! hasSessionManager) {
+			sessionManager = getSessionManager();
+			hasSessionManager = true;
+		}
+		sessionManager.updateMouseLocation(room, loc);		
+	}
 	
 	private void handleCaptureStartRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {		
 		String room = request.getParameterValues("room")[0];

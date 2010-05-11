@@ -21,7 +21,9 @@
  */
 package org.bigbluebutton.deskshare.client.net;
 
+import java.awt.Point;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import java.net.MalformedURLException;
@@ -140,19 +142,47 @@ public class NetworkHttpStreamSender implements Runnable {
 		}
 	}
 	
+	private void processNextMessageToSend(Message message) {
+		if (message.getMessageType() == Message.MessageType.BLOCK) {
+			EncodedBlockData block = retriever.getBlockToSend(((BlockMessage)message).getPosition());
+			BlockVideoData	bv = new BlockVideoData(room, block.getPosition(), block.getVideoData(), false /* should remove later */);									
+			sendBlockData(bv);
+		} else if (message.getMessageType() == Message.MessageType.CURSOR) {
+			CursorMessage msg = (CursorMessage)message;
+			sendCursor(msg.getMouseLocation(), msg.getRoom());
+		}
+	}
+	
 	public void run() {
 		processBlocks = true;
 		
 		while (processBlocks) {
-			EncodedBlockData block;
+			Message message;
 			try {
-				block = retriever.fetchNextBlockToSend();
-				BlockVideoData	bv = new BlockVideoData(room, block.getPosition(), block.getVideoData(), false);	
-				sendBlockData(bv);	
+				message = retriever.getNextMessageToSend();
+				processNextMessageToSend(message);
 			} catch (InterruptedException e) {
-				System.out.println("ERROR: Interrupted exception while proccessing block for sending.");
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}								
 		}
+	}
+	
+	private void sendCursor(Point mouseLoc, String room) {
+		ClientHttpRequest chr;
+		try {
+			openConnection();
+			chr = new ClientHttpRequest(conn);
+			chr.setParameter("room", room);
+			chr.setParameter("event", CaptureEvents.MOUSE_LOCATION_EVENT.getEvent());
+			chr.setParameter("mousex", mouseLoc.x);
+			chr.setParameter("mousey", mouseLoc.y);
+			chr.post();		
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ConnectionException e) {
+				System.out.println("ERROR: Failed to send block data.");
+			}
 	}
 	
 	private void sendBlockData(BlockVideoData blockData) {

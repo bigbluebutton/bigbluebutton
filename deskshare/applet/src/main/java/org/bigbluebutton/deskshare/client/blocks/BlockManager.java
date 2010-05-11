@@ -24,6 +24,8 @@ package org.bigbluebutton.deskshare.client.blocks;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.bigbluebutton.deskshare.client.net.BlockMessage;
 import org.bigbluebutton.deskshare.common.Dimension;
 
 public class BlockManager {
@@ -61,7 +63,7 @@ public class BlockManager {
         for (int position = 1; position <= numberOfBlocks; position++) {
         	Block block = blocksMap.get(new Integer(position));
         	if (block.hasChanged(capturedScreen)) {
-        		notifyChangedBlockListener(new Integer(block.getPosition()));
+        		notifyChangedBlockListener(new BlockMessage(block.getPosition()));
         	}
         }
         
@@ -69,7 +71,7 @@ public class BlockManager {
 //		System.out.println("ProcessCapturedScreen took " + (end-start) + " ms.");
     }
     
-    private void notifyChangedBlockListener(Integer position) {
+    private void notifyChangedBlockListener(BlockMessage position) {
     	listeners.onChangedBlock(position);
     }
     
@@ -82,8 +84,8 @@ public class BlockManager {
 		listeners = null;
 	}
     
-	public Block getBlock(Integer position) {
-		return (Block) blocksMap.get(position);
+	public Block getBlock(int position) {
+		return (Block) blocksMap.get(new Integer(position));
 	}
 	
     public int getRowCount() {

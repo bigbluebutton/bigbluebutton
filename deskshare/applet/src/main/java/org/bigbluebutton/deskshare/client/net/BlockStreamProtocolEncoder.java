@@ -21,6 +21,7 @@
  */
 package org.bigbluebutton.deskshare.client.net;
 
+import java.awt.Point;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
@@ -32,7 +33,8 @@ public class BlockStreamProtocolEncoder {
     private static final byte CAPTURE_START_EVENT = 0;
     private static final byte CAPTURE_UPDATE_EVENT = 1;
     private static final byte CAPTURE_END_EVENT = 2;
-    	
+    private static final byte MOUSE_LOCATION_EVENT = 3;
+    
 	public static void encodeStartStreamMessage(String room, Dimension screen, Dimension block,
 						ByteArrayOutputStream data) throws IOException {		
 		data.write(CAPTURE_START_EVENT);
@@ -78,6 +80,14 @@ public class BlockStreamProtocolEncoder {
 		header.write(HEADER);
 		header.write(intToBytes(data.size()));
 		return header.toByteArray();
+	}
+	
+	public static void encodeMouseLocation(Point mouseLoc, String room, ByteArrayOutputStream data) throws IOException {
+		data.write(MOUSE_LOCATION_EVENT);
+		data.write(room.length());
+		data.write(room.getBytes());
+		data.write(intToBytes(mouseLoc.x));
+		data.write(intToBytes(mouseLoc.y));
 	}
 	
 	public static void encodeEndStreamMessage(String room, ByteArrayOutputStream data) throws IOException {
