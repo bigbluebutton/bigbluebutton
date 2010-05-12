@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" icon="{pencil_icon}" width="20" height="20" click="toggleWhiteboard()" visible="false"
+<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" icon="{whiteboard_icon}" width="20" height="20" click="toggleWhiteboard()" visible="false"
 	implements="org.bigbluebutton.modules.present.api.IPresentationButton" >
 	<mx:Script>
 		<![CDATA[
@@ -8,7 +8,7 @@
 			import org.bigbluebutton.common.Images;
 			
 			private var images:Images = new Images();
-			[Bindable] private var pencil_icon:Class = images.pencil_icon;
+			[Bindable] private var whiteboard_icon:Class = images.whiteboard;
 			
 			private var whiteboardEnabled:Boolean = false;
 			

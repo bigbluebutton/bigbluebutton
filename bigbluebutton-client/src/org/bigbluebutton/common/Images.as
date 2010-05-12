@@ -187,5 +187,8 @@ package org.bigbluebutton.common
 
         [Embed(source="assets/images/page_white_get.png")]
         public var upload:Class;
+		
+		[Embed(source="assets/images/whiteboard.png")]
+		public var whiteboard:Class;
 	}
 }

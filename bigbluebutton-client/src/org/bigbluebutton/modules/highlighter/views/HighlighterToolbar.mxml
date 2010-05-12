@@ -134,9 +134,13 @@
 	<mx:Button width="20" height="20" id="btnPenc" click="setShape(DrawObject.PENCIL)"  icon="{pencil_icon}" toolTip="Highlighter" />
 	<mx:Button width="20" height="20" id="btnRectangle" click="setShape(DrawObject.RECTANGLE)" icon="{rectangle_icon}" toolTip="Rectangle" />
 	<mx:Button width="20" height="20" id="btnEllipse" click="setShape(DrawObject.ELLIPSE)" icon="{ellipse_icon}" toolTip="Circle" />
+	<mx:Spacer height="5" />
 	<mx:Button width="20" height="20" id="btnClear" click="dispatchEvent(new HighlighterDrawEvent(HighlighterDrawEvent.CLEAR_BOARD))" icon="{delete_icon}" toolTip="Clear Page" />
 	<mx:Button width="20" height="20" id="btnUndo"  click="sendUndoCommand()" icon="{undo_icon}" toolTip="Undo Shape" />
+	<mx:Spacer height="5" />
 	<mx:ColorPicker change="changeColor(event)" id="cpik" swatchPanelStyleName="colorPickerStyle" dataProvider="{colorPickerColours}" selectedColor="0xCCFF00" toolTip="Select Color"/>
-	<mx:VSlider height="50" id="sld" change="changeThickness(event)" toolTip="Change Thickness" minimum="4" maximum="20" useHandCursor="true" value="10" />
+	<mx:Spacer height="3" />
+	<mx:VSlider height="50" id="sld" change="changeThickness(event)" toolTip="Change Thickness" minimum="1" maximum="20" 
+				useHandCursor="true" value="10" showDataTip="false" snapInterval="1" />
 	
 </mx:VBox>
