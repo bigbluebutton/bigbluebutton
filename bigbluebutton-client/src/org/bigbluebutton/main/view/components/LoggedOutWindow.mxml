@@ -21,7 +21,7 @@
 --> 
 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-    title="Logged Out" showCloseButton="true" creationComplete="init()"
+    title="Logged Out" showCloseButton="false" creationComplete="init()"
     x="168" y="86" layout="vertical" width="400" height="100" horizontalAlign="center">
 	<mx:Script>
 		<![CDATA[

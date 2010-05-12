@@ -72,6 +72,7 @@
 			}
 			
 			private function onDrawTimer(e:TimerEvent):void{
+				if (this.shapeStyle != DrawObject.PENCIL) return;
 				var startX:Number = segment[segment.length - 2] as Number;
 				var startY:Number = segment[segment.length - 1] as Number;
 				sendShapeToServer();
@@ -251,6 +252,7 @@
 			
 			private function removeCursor():void{
 				CursorManager.removeCursor(CursorManager.currentCursorID);
+				if (isDrawing) doMouseUp();
 			}
 			
 			/** Inherited from org.bigbluebutton.common.IBbbCanvas*/
