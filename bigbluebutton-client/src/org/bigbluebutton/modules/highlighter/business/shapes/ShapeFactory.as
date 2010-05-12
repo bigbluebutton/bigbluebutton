@@ -84,7 +84,7 @@ package org.bigbluebutton.modules.highlighter.business.shapes
             	newShape.graphics.lineTo(p.getShapeArray()[c],p.getShapeArray()[c+1]);
            	}
            	if (p.getColor() == 0x000000) newShape.alpha = 1;
-           	else newShape.alpha = 0.15;
+           	else newShape.alpha = 0.40;
 	            
 	        return newShape;
 		}
