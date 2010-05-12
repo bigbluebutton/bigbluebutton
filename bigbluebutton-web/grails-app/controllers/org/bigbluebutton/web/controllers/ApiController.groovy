@@ -193,6 +193,11 @@ class ApiController {
 			invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
 			return;
 		}
+		
+		if (conf.isForciblyEnded()) {
+			invalid("meetingForciblyEnded", "You can not re-join a meeting that has already been forcibly ended.  However, once the meeting is removed from memory (according to the timeout configured on this server, you will be able to once again create a meeting with the same meeting ID");
+			return;
+		}
 
 		String role = null;
 		if (conf.getModeratorPassword().equals(attPW)) {
@@ -269,6 +274,8 @@ class ApiController {
 		if (conf.getModeratorPassword().equals(callPW) == false) {
 			invalidPassword("You must supply the moderator password for this call."); return;
 		}
+		
+		conf.setForciblyEnded(true);
 		
 		conferenceEventListener.endMeetingRequest(room);
 		

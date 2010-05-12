@@ -32,6 +32,8 @@ public class DynamicConference extends Conference {
 	Date startTime;
 	Date endTime;
 	
+	boolean forciblyEnded = false
+	
 	String meetingID
 	String meetingToken
 	String voiceBridge
