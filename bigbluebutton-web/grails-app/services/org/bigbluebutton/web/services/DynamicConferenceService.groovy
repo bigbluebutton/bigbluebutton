@@ -108,13 +108,6 @@ public class DynamicConferenceService {
 		return roomsByToken.get(token);
 	}
 	
-	public Room getRoomByToken(String token) {
-		if (token == null) {
-			return null;
-		}
-		return roomsByToken.get(token);
-	}
-	
 	public DynamicConference getConferenceByMeetingID(String meetingID) {
 		if (meetingID == null) {
 			return null;
@@ -122,7 +115,7 @@ public class DynamicConferenceService {
 		return confsByMtgID.get(meetingID);
 	}
 	
-	public DynamicConference getConferenceByToken(String token) {
+	private DynamicConference getConferenceByToken(String token) {
 		if (token == null) {
 			return null;
 		}
@@ -131,22 +124,6 @@ public class DynamicConferenceService {
 			return null;
 		}
 		return confsByMtgID.get(mtgID);
-	}
-	
-	public DynamicConference findConference(String token, String mtgID) {
-		DynamicConference conf = getConferenceByToken(token);
-		if (conf == null) {
-			conf = getConferenceByMeetingID(mtgID);
-		}
-		return conf;
-	}
-	
-	public Room findRoom(String token, String mtgID) {
-		Room room = getRoomByToken(token);
-		if (room == null) {
-			room = getRoomByMeetingID(mtgID);
-		}
-		return room;
 	}
 	
 	public boolean isMeetingWithVoiceBridgeExist(String voiceBridge) {

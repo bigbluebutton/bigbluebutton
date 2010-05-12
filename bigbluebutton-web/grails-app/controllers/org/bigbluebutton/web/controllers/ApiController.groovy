@@ -179,15 +179,14 @@ class ApiController {
 			return
 		}
 		
-		String mtgToken = params.meetingToken
 		String mtgID = params.meetingID
 		String attPW = params.password
 		boolean redirectImm = parseBoolean(params.redirectImmediately)
 
 		// check for existing:
-		DynamicConference conf = dynamicConferenceService.findConference(mtgToken, mtgID);
+		DynamicConference conf = dynamicConferenceService.getConferenceByMeetingID(mtgID);
 		if (conf == null) {
-			invalid("invalidMeetingIdentifier", "The meeting ID or token that you supplied did not match any existing meetings");
+			invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
 			return;
 		}
 
@@ -226,11 +225,10 @@ class ApiController {
 			invalidChecksum(); return;
 		}
 
-		String mtgToken = params.meetingToken
 		String mtgID = params.meetingID
 
 		// check for existing:
-		DynamicConference conf = dynamicConferenceService.findConference(mtgToken, mtgID);
+		DynamicConference conf = dynamicConferenceService.getConferenceByMeetingID(mtgID);
 		boolean isRunning = conf != null && conf.isRunning();
 		response.addHeader("Cache-Control", "no-cache")
 		withFormat {	
@@ -252,16 +250,15 @@ class ApiController {
 			invalidChecksum(); return;
 		}
 
-		String mtgToken = params.meetingToken
 		String mtgID = params.meetingID
 		String callPW = params.password
 
 		// check for existing:
-		DynamicConference conf = dynamicConferenceService.findConference(mtgToken, mtgID);
-		Room room = dynamicConferenceService.findRoom(mtgToken, mtgID);
+		DynamicConference conf = dynamicConferenceService.getConferenceByMeetingID(mtgID);
+		Room room = dynamicConferenceService.getRoomByMeetingID(mtgID);
 		
 		if (conf == null || room == null) {
-			invalid("notFound", "We could not find a meeting with that token or ID - perhaps the meeting is not yet running?");
+			invalid("notFound", "We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?");
 			return;
 		}
 		
@@ -292,16 +289,15 @@ class ApiController {
 			invalidChecksum(); return;
 		}
 
-		String mtgToken = params.meetingToken
 		String mtgID = params.meetingID
 		String callPW = params.password
 
 		// check for existing:
-		DynamicConference conf = dynamicConferenceService.findConference(mtgToken, mtgID);
-		Room room = dynamicConferenceService.findRoom(mtgToken, mtgID);
+		DynamicConference conf = dynamicConferenceService.getConferenceByMeetingID(mtgID);
+		Room room = dynamicConferenceService.getRoomByMeetingID(mtgID);
 		
 		if (conf == null) {
-			invalid("notFound", "We could not find a meeting with that token or ID");
+			invalid("notFound", "We could not find a meeting with that meeting ID");
 			return;
 		}
 		
@@ -350,7 +346,6 @@ class ApiController {
 						meetings() {
 							confs.each { conf ->
 								meeting() {
-									meetingToken("${conf.meetingToken}")
 									meetingID("${conf.meetingID}")
 									attendeePW("${conf.attendeePassword}")
 									moderatorPW("${conf.moderatorPassword}")
@@ -417,7 +412,6 @@ class ApiController {
 				render(contentType:"text/xml") {
 					response() {
 						returncode(RESP_CODE_SUCCESS)
-						meetingToken("${conf.meetingToken}")
 						meetingID("${conf.meetingID}")
 						attendeePW("${conf.attendeePassword}")
 						moderatorPW("${conf.moderatorPassword}")
@@ -451,7 +445,6 @@ class ApiController {
 				render(contentType:"text/xml") {
 					response() {
 						returncode(RESP_CODE_SUCCESS)
-						meetingToken("${conf.meetingToken}")
 						meetingID("${conf.meetingID}")
 						attendeePW("${conf.attendeePassword}")
 						moderatorPW("${conf.moderatorPassword}")
@@ -464,7 +457,6 @@ class ApiController {
 				log.debug "Rendering as json"
 				render(contentType:"text/json") {
 						returncode(RESP_CODE_SUCCESS)
-						meetingToken("${conf.meetingToken}")
 						meetingID("${conf.meetingID}")
 						attendeePW("${conf.attendeePassword}")
 						moderatorPW("${conf.moderatorPassword}")
