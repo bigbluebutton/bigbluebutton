@@ -78,8 +78,12 @@ class ApiController {
 			return
 		}
 		
-		log.debug("passed parameter validation - creating conference");
 		String mtgID = params.meetingID
+		if (StringUtils.isEmpty(mtgID)) {
+			invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
+			return
+		}
+		log.debug("passed parameter validation - creating conference");
 		String attPW = params.attendeePW
 		String modPW = params.moderatorPW
 		String voiceBr = params.voiceBridge
