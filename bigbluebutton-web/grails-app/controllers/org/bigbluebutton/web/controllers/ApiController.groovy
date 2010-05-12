@@ -68,7 +68,7 @@ class ApiController {
 	def create = {
 		log.debug CONTROLLER_NAME + "#create"
 
-		if (!doChecksumSecurity()) {
+		if (!doChecksumSecurity("create")) {
 			invalidChecksum(); return;
 		}
 
@@ -169,7 +169,7 @@ class ApiController {
 	def join = {
 		log.debug CONTROLLER_NAME + "#join"
 
-		if (!doChecksumSecurity()) {
+		if (!doChecksumSecurity("join")) {
 			invalidChecksum(); return;
 		}
 
@@ -222,7 +222,7 @@ class ApiController {
 	def isMeetingRunning = {
 		log.debug CONTROLLER_NAME + "#isMeetingRunning"
 
-		if (!doChecksumSecurity()) {
+		if (!doChecksumSecurity("isMeetingRunning")) {
 			invalidChecksum(); return;
 		}
 
@@ -248,7 +248,7 @@ class ApiController {
 	def end = {
 		log.debug CONTROLLER_NAME + "#end"
 
-		if (!doChecksumSecurity()) {
+		if (!doChecksumSecurity("end")) {
 			invalidChecksum(); return;
 		}
 
@@ -288,7 +288,7 @@ class ApiController {
 	def getMeetingInfo = {
 		log.debug CONTROLLER_NAME + "#getMeetingInfo"
 
-		if (!doChecksumSecurity()) {
+		if (!doChecksumSecurity("getMeetingInfo")) {
 			invalidChecksum(); return;
 		}
 
@@ -315,13 +315,7 @@ class ApiController {
 	def getMeetings = {
 		log.debug CONTROLLER_NAME + "#getMeetings"
 
-		String random = params.random
-		if (StringUtils.isEmpty(random)) {
-			invalid("missingParamRandom", "You must specify a parameter named 'random' with any random value so that it can be used for the checksum security");
-			return
-		}
-		
-		if (!doChecksumSecurity()) {
+		if (!doChecksumSecurity("getMeetings")) {
 			invalidChecksum(); return;
 		}
 
@@ -371,9 +365,12 @@ class ApiController {
 	}
 	
 	/* helper methods */
-	def doChecksumSecurity() {
+	def doChecksumSecurity(callName) {
 		log.debug CONTROLLER_NAME + "#doChecksumSecurity"
 		log.debug "checksum: " + params.checksum + "; query string: " + request.getQueryString()
+		if (StringUtils.isEmpty(callName)) {
+			throw new RuntimeException("Programming error - you must pass the call name to doChecksumSecurity so it can be used in the checksum");
+		}
 		if (StringUtils.isEmpty(request.getQueryString())) {
 			invalid("noQueryString", "No query string was found in your request.")
 			return false;
@@ -386,7 +383,7 @@ class ApiController {
 			qs = qs.replace("&checksum=" + params.checksum, "")
 			qs = qs.replace("checksum=" + params.checksum + "&", "")
 			log.debug "query string after checksum removed: " + qs
-			String cs = getHash(qs, securitySalt())
+			String cs = DigestUtils.shaHex(callName + qs + securitySalt());
 			log.debug "our checksum: " + cs
 			if (cs == null || cs.equals(params.checksum) == false) {
 				log.info("checksumError: request did not pass the checksum security check")
@@ -404,10 +401,6 @@ class ApiController {
 		return dynamicConferenceService.securitySalt
 	}
 	
-	public String getHash(String string, String salt) throws NoSuchAlgorithmException {
-		return DigestUtils.shaHex(string + salt)
-	}
-
 	def beforeInterceptor = {
 		if (dynamicConferenceService.serviceEnabled == false) {
 			log.info("apiNotEnabled: The API service and/or controller is not enabled on this server.  To use it, you must first enable it.")
