@@ -79,12 +79,13 @@ package org.bigbluebutton.modules.highlighter.business.shapes
 			var newShape:Shape = new Shape();
 			newShape.graphics.lineStyle(p.getThickness(), p.getColor());
             
+			newShape.graphics.moveTo(p.getShapeArray()[0], p.getShapeArray()[1]);
             for (var c:Number = 2; c < p.getShapeArray().length ; c += 2){
-            	newShape.graphics.moveTo(p.getShapeArray()[c-2], p.getShapeArray()[c-1]);
             	newShape.graphics.lineTo(p.getShapeArray()[c],p.getShapeArray()[c+1]);
            	}
+			
            	if (p.getColor() == 0x000000) newShape.alpha = 1;
-           	else newShape.alpha = 0.40;
+           	else newShape.alpha = 0.6;
 	            
 	        return newShape;
 		}
@@ -106,7 +107,7 @@ package org.bigbluebutton.modules.highlighter.business.shapes
 			
 			newShape.graphics.drawRect(x,y,width,height);
 			if (r.getColor() == 0x000000) newShape.alpha = 1.0;
-			else newShape.alpha = 0.5;
+			else newShape.alpha = 0.6;
 			
 			return newShape;	
 		}
@@ -128,7 +129,7 @@ package org.bigbluebutton.modules.highlighter.business.shapes
 			
 			newShape.graphics.drawEllipse(x,y,width,height);
 			if (e.getColor() == 0x000000) newShape.alpha = 1.0;
-			else newShape.alpha = 0.5;
+			else newShape.alpha = 0.6;
 			
 			return newShape;
 		}
