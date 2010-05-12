@@ -360,6 +360,7 @@ class ApiController {
 									meetingID("${conf.meetingID}")
 									attendeePW("${conf.attendeePassword}")
 									moderatorPW("${conf.moderatorPassword}")
+									hasBeenForciblyEnded(conf.isForciblyEnded() ? "true" : "false")
 									running(conf.isRunning() ? "true" : "false")
 								}
 							}
@@ -427,6 +428,7 @@ class ApiController {
 						attendeePW("${conf.attendeePassword}")
 						moderatorPW("${conf.moderatorPassword}")
 						running(conf.isRunning() ? "true" : "false")
+						hasBeenForciblyEnded(conf.isForciblyEnded() ? "true" : "false")
 						startTime("${conf.startTime}")
 						endTime("${conf.endTime}")
 						participantCount(room == null ? 0 : room.getNumberOfParticipants())
@@ -459,20 +461,10 @@ class ApiController {
 						meetingID("${conf.meetingID}")
 						attendeePW("${conf.attendeePassword}")
 						moderatorPW("${conf.moderatorPassword}")
+						hasBeenForciblyEnded(conf.isForciblyEnded() ? "true" : "false")
 						messageKey(msgKey == null ? "" : msgKey)
 						message(msg == null ? "" : msg)
 					}
-				}
-			}
-			json {
-				log.debug "Rendering as json"
-				render(contentType:"text/json") {
-						returncode(RESP_CODE_SUCCESS)
-						meetingID("${conf.meetingID}")
-						attendeePW("${conf.attendeePassword}")
-						moderatorPW("${conf.moderatorPassword}")
-						messageKey(msgKey == null ? "" : msgKey)
-						message(msg == null ? "" : msg)
 				}
 			}
 		}
