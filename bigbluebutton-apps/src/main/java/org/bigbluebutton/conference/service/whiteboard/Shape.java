@@ -63,6 +63,7 @@ public class Shape {
 		double newSlope;
 		double lastStableX = x1;
 		double lastStableY = y1;
+		boolean lineStable = false;
 
 		for (int i=2; i<shape.length; i= i+2){
 			double x2 = shape[i];
@@ -73,8 +74,14 @@ public class Shape {
 			if (slopeDifference(stableSlope, newSlope) < 5){
 				lastStableX = x2;
 				lastStableY = y2;
+				lineStable = true;
 			} else{
 				stableSlope = newSlope;
+				if (lineStable){
+					lineStable = false;
+					newShape.add(lastStableX);
+					newShape.add(lastStableY);
+				}
 				x1 = x2;
 				y1 = y2;
 				newShape.add(x1);
