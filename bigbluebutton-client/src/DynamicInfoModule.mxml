@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  BigBlueButton - http://www.bigbluebutton.org
+  
+  Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
+  
+  BigBlueButton is free software; you can redistribute it and/or modify it under the 
+  terms of the GNU Lesser General Public License as published by the Free Software 
+  Foundation; either version 3 of the License, or (at your option) any later 
+  version. 
+  
+  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public License along 
+  with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
+ 
+  $Id: $
+--> 
+
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="onCreationComplete()" implements="org.bigbluebutton.common.IBigBlueButtonModule" xmlns:maps="org.bigbluebutton.modules.notes.maps.*" xmlns:views="org.bigbluebutton.modules.notes.views.*">
+	<mx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			import org.bigbluebutton.main.events.CloseWindowEvent;
+			import org.bigbluebutton.main.events.OpenWindowEvent;
+			import org.bigbluebutton.common.messaging.Router;
+			import org.bigbluebutton.main.events.ToolbarButtonEvent;
+			import mx.controls.Button;
+			import mx.controls.ComboBox;
+			import mx.controls.Label;
+			import mx.core.UIComponent;
+			
+			private var _router:Router;			
+			private var _moduleId:String = "DynamicInfoModule";
+			private var _moduleName:String = "Dynamic Info Module";			
+			private var _attributes:Object;
+			
+			private var globalDispatcher:Dispatcher;
+			
+			private function onCreationComplete():void {
+				LogUtil.debug("DynamicInfoModule Initialized");	
+				globalDispatcher = new Dispatcher();
+			}
+			
+			public function acceptRouter(router:Router):void{
+				_router = router;
+				
+			}
+		
+			public function get router():Router{
+				return _router;
+			}
+				
+			public function get moduleId():String {
+				return _moduleId;
+			}
+			
+			public function get moduleName():String {
+				return _moduleName;
+			}
+		
+			public function get uri():String {
+				if (_attributes.mode == "PLAYBACK") {										
+					return _attributes.uri + "/" + _attributes.playbackRoom;
+				} 
+				
+				return _attributes.uri + "/" + _attributes.room;
+			}
+			
+			public function get username():String {
+				return _attributes.username;
+			}
+			
+			public function get connection():NetConnection {
+				return _attributes.connection;
+			}
+			
+			public function get mode():String {
+				if (_attributes.mode == null) {					
+					//_attributes.mode = "PLAYBACK"
+					_attributes.mode = "LIVE"
+					LogUtil.debug('Setting DynamicInfoModule mode: ' + _attributes.mode);
+				}
+				LogUtil.debug('DynamicInfoModule mode: ' + _attributes.mode);
+				return _attributes.mode;
+			}
+						
+			public function get userid():Number {
+				return _attributes.userid as Number;
+			}
+			
+			public function get role():String {
+				return _attributes.userrole as String;
+			}
+			
+			public function start(attributes:Object):void {	
+				LogUtil.debug("notes attr: " + attributes.username);
+				_attributes = attributes;
+				eventMap.startSOService(uri, connection);
+
+				loadXml("http://10.19.14.130/client/conf/example-info-data.xml");
+			}
+
+			public function loadXml(url:String):void {
+				LogUtil.debug("DynamicInfoModule:load(...) " + url);
+
+				var request:URLRequest = new URLRequest();
+				var vars:URLVariables = new URLVariables();
+		
+				var urlLoader:URLLoader;
+
+				request = new URLRequest(url);
+				request.method = URLRequestMethod.GET;		
+
+				urlLoader = new URLLoader();
+				urlLoader.addEventListener(Event.COMPLETE, handleComplete);	
+				urlLoader.load(request);	
+			}
+
+			private function handleComplete(e:Event):void{
+				var xml:XML = new XML(e.target.data)
+				LogUtil.debug("load URL complete: " + xml);
+
+				var returncode:String = xml.returncode;
+				LogUtil.debug("return code: " + returncode);
+				if (returncode != 'SUCCESS') {
+					LogUtil.debug("failed to load any dynamic info to add to the UI");
+					return;
+				}
+
+				var components:XMLList = xml.topbar.components.component;
+				LogUtil.debug("create components: " + components.length());
+				for each(var comp:XML in components) {
+					var type:String = comp.@type;
+					LogUtil.debug("create a component of type: " + type);
+					var cmp:UIComponent = null;
+					if (type == 'button') {
+						var txt:String = comp.@label;
+						var btn:Button = new Button();
+						btn.id = txt;
+						btn.label = txt;
+						btn.visible = true;
+						btn.addEventListener(MouseEvent.CLICK, createUrlNavigatingClickHandler(comp.@url));
+						cmp = btn;
+					} else if (type == 'combobox') {
+						var strings:Array = new Array();
+						var values:XMLList = comp.array.value;
+						for each(var value:XML in values) {
+							strings.push(value);
+						}
+						var cmb:ComboBox = new ComboBox();
+						cmb.dataProvider = strings;
+						cmp = cmb;
+					} else if (type == 'label') {
+						var label:Label = new Label();
+						if (comp.child("htmlLabel").length() == 1) {
+							label.htmlText = comp.htmlLabel;
+						} else if (comp.@label != null) {
+							label.text = comp.@label;
+						}
+						cmp = label;
+					}
+					if (cmp != null) {
+						cmp.height = 22;
+						var evt:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
+						evt.button = cmp;
+						globalDispatcher.dispatchEvent(evt);
+					}
+				}
+			}
+
+			public function stop():void {
+				LogUtil.debug("stop DynamicInfoModule");
+			}
+
+			private function createUrlNavigatingClickHandler(url:String):Function {
+				return function():void { 
+					LogUtil.debug("navigate to url: " + url); 
+					navigateToURL(new URLRequest(url), '_blank');
+				};
+			}
+
+		]]>
+	</mx:Script>
+	
+	<maps:NotesEventMap id="eventMap" />
+</mx:Module>

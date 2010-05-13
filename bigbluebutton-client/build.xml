@@ -7,7 +7,7 @@
 	<property name="ROOT_DIR" value="." />
 	<property name="OUTPUT_DIR" value="./bin" />
 	<taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar" />
-	
+
 	<target name="mxmlc-component" depends="copy-config-xml" description="Compiling the BBB mxml files">
 		<mxmlc-compile target="${APP_ROOT}/BigBlueButton" />
 		<mxmlc-compile target="${APP_ROOT}/ChatModule" />
@@ -19,6 +19,7 @@
 		<mxmlc-compile target="${APP_ROOT}/PhoneModule" />
 		<mxmlc-compile target="${APP_ROOT}/VideoconfModule" />
 		<mxmlc-compile target="${APP_ROOT}/HighlighterModule" />
+		<mxmlc-compile target="${APP_ROOT}/DynamicInfoModule" />
 		
 		<copy todir="${OUTPUT_DIR}/conf" >
 			<fileset dir="./src/conf" />
