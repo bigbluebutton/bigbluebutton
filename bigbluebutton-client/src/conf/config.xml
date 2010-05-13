@@ -57,6 +57,16 @@
 			onUserLogoutEvent="STOP"
 			loadNextModule="HighlighterModule"
 		/>
+
+		<!-- new module in development: 
+		<module name="DynamicInfoModule" url="DynamicInfoModule.swf" 
+			uri="rtmp://192.168.0.194/bigbluebutton" 
+			host="http://192.168.0.194" 
+			infoURL="http://192.168.0.194/client/conf/example-info-data.xml?user={userID}&role={role}&meetingID={meetingID}"
+			onUserJoinedEvent="START" 
+			onUserLogoutEvent="STOP"
+		/>
+		-->
 		
 	</modules>
 </config>
