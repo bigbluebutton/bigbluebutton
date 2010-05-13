@@ -4,10 +4,14 @@
 	<mx:Script>
 		<![CDATA[
 			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
 			import mx.events.ListEvent;
+			
+			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
 			
 			[Bindable] public var participants:ArrayCollection;
 			[Bindable] public var chatView:ChatView;
+			[Bindable] private var fontSizes:Array = ['8', '10', '12', '14', '16', '18'];
 			
 			private function init():void{
 				participants = new ArrayCollection();
@@ -20,12 +24,30 @@
 				participantsList.selectedIndex = -1;
 				chatView.openChatBoxFor(id);
 			}
+			
+			private function changeFontSize():void{
+				var e:ChatOptionsEvent = new ChatOptionsEvent(ChatOptionsEvent.CHANGE_FONT_SIZE);
+				e.fontSize = int(cmbFontSize.selectedItem);
+				dispatchEvent(e);
+			}
 
 		]]>
 	</mx:Script>
 	
-	<mx:Label id="lblSelect" text="Select a person to chat with privately" />
-	<mx:List id="participantsList" height="100%" width="100%" dataProvider="{chatView.participants}" change="openPrivateChat(event)">
-	</mx:List>
+	<mx:HBox width="100%" height="100%" >
+		<mx:VBox height="100%" width="50%">
+			<mx:Label id="lblSelect" text="Select a person to chat with privately" />
+			<mx:List id="participantsList" height="100%" width="100%" dataProvider="{chatView.participants}" change="openPrivateChat(event)">
+			</mx:List>
+		</mx:VBox>
+		<mx:VBox id="optionsBox" height="100%" width="50%" >
+			<mx:Label text="Chat Options" />
+			<mx:HBox width="100%">
+				<mx:Label text="Font Size" />
+				<mx:ComboBox width="60" id="cmbFontSize" dataProvider="{fontSizes}" close="changeFontSize()" />
+			</mx:HBox>
+		</mx:VBox>
+	</mx:HBox>
+	
 	
 </mx:VBox>

@@ -9,6 +9,7 @@
 	<mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
 	<mate:Listener type="{ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT}" method="handleParticipantJoinedEvent"/>
 	<mate:Listener type="{BBBEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT}" method="sendMessageReceivedFromBBBEvent"/> 
+	<mate:Listener type="{ChatOptionsEvent.CHANGE_FONT_SIZE}" method="changeFontSize" />
 	
 	<mx:Style>
 		.colorPickerStyle {
@@ -39,12 +40,14 @@
 			import flexlib.events.SuperTabEvent;
 			
 			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
 			import mx.core.Container;
 			import mx.core.UIComponent;
 			import mx.events.IndexChangedEvent;
 			
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ParticipantJoinEvent;
+			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
 			import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
 			import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
 			import org.bigbluebutton.modules.chat.events.QueryParticipantsEvent;
@@ -83,7 +86,7 @@
 				systemManager.stage.addEventListener(Event.ACTIVATE, activate);
 				systemManager.stage.addEventListener(Event.DEACTIVATE, deactivate);
 				
-				setColor();
+				//setColor();
 			}       
 			
 			private function setColor():void{
@@ -378,6 +381,10 @@
 				if (! isChatBoxCurrentlySelected(sender)) {
 					notifyParticipantOfUnreadMessageFrom(sender);
 				}				
+			}
+			
+			public function changeFontSize(e:ChatOptionsEvent):void{
+				txtMsg.setStyle("fontSize", e.fontSize);
 			}
 			
 			private function onTabClose(e:SuperTabEvent):void{

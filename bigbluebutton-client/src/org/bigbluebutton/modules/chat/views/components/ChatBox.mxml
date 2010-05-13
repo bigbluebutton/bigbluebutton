@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" click="setMessageRead()">
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" click="setMessageRead()" xmlns:mate="http://mate.asfusion.com/">
+	
+	<mate:Listener type="{ChatOptionsEvent.CHANGE_FONT_SIZE}" method="changeFontSize" />
+	
 	<mx:Script>
 		<![CDATA[
 			import mx.controls.Button;
+			
+			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
 			
 			public var read:Boolean = true;
 			public var participantLoggedOut:Boolean = false;
@@ -32,6 +37,10 @@
 			private function onLinkClick(e:TextEvent):void{
 				var url:URLRequest = new URLRequest(e.text);
 				navigateToURL(url, '_blank');
+			}
+			
+			private function changeFontSize(e:ChatOptionsEvent):void{
+				this.setStyle("fontSize", e.fontSize);
 			}
 		
 			
