@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+<info>
+	<returncode>SUCCESS</returncode>
+	<created>2010-05-12 20:57</created>
+	<topbar>
+		<components>
+			<label>
+				<htmlLabel><![CDATA[<b>Dial In Numbers:</b>]]></htmlLabel>
+			</label>
+
+			<combobox>
+				<array>
+					<value>+1 (254) 555-1212</value>
+					<value>+1 (830) 555-1212</value>
+					<value>+1 (504) 555-1212</value>
+					<value>+1 (957) 555-1212</value>
+				</array>
+
+			</combobox>
+			<label>
+				<htmlLabel><![CDATA[<b>Moderator PIN: 111222</b>]]></htmlLabel>
+			</label>
+			<label>
+				<htmlLabel><![CDATA[<b>Attendee PIN: 222333</b>]]></htmlLabel>
+			</label>
+			<button label="Help" url="http://bigbluebutton.org" />
+		</components>
+
+	</topbar>
+</info>
+
