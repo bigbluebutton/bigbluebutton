@@ -131,37 +131,26 @@
 					return;
 				}
 
-				var components:XMLList = xml.topbar.components.component;
+				var components:XMLList = xml.topbar.components.children();
 				LogUtil.debug("create components: " + components.length());
-				for each(var comp:XML in components) {
-					var type:String = comp.@type;
+				createComponents(components);
+			}
+
+			public function stop():void {
+				LogUtil.debug("stop DynamicInfoModule");
+			}
+
+			private function createComponents(components:XMLList):void {
+				for each(var compXML:XML in components) {
+					var type:String = compXML.name();
 					LogUtil.debug("create a component of type: " + type);
 					var cmp:UIComponent = null;
 					if (type == 'button') {
-						var txt:String = comp.@label;
-						var btn:Button = new Button();
-						btn.id = txt;
-						btn.label = txt;
-						btn.visible = true;
-						btn.addEventListener(MouseEvent.CLICK, createUrlNavigatingClickHandler(comp.@url));
-						cmp = btn;
+						cmp = createButton(compXML);
 					} else if (type == 'combobox') {
-						var strings:Array = new Array();
-						var values:XMLList = comp.array.value;
-						for each(var value:XML in values) {
-							strings.push(value);
-						}
-						var cmb:ComboBox = new ComboBox();
-						cmb.dataProvider = strings;
-						cmp = cmb;
+						cmp = createComboBox(compXML);
 					} else if (type == 'label') {
-						var label:Label = new Label();
-						if (comp.child("htmlLabel").length() == 1) {
-							label.htmlText = comp.htmlLabel;
-						} else if (comp.@label != null) {
-							label.text = comp.@label;
-						}
-						cmp = label;
+						cmp = createLabel(compXML);
 					}
 					if (cmp != null) {
 						cmp.height = 22;
@@ -172,8 +161,35 @@
 				}
 			}
 
-			public function stop():void {
-				LogUtil.debug("stop DynamicInfoModule");
+			private function createButton(compXML:XML):UIComponent {
+				var txt:String = compXML.@label;
+				var btn:Button = new Button();
+				btn.id = txt;
+				btn.label = txt;
+				btn.visible = true;
+				btn.addEventListener(MouseEvent.CLICK, createUrlNavigatingClickHandler(compXML.@url));
+				return btn;
+			}
+
+			private function createComboBox(compXML:XML):UIComponent {
+				var strings:Array = new Array();
+				var values:XMLList = compXML.array.value;
+				for each(var value:XML in values) {
+					strings.push(value);
+				}
+				var cmb:ComboBox = new ComboBox();
+				cmb.dataProvider = strings;
+				return cmb;
+			}
+
+			private function createLabel(compXML:XML):UIComponent {
+				var label:Label = new Label();
+				if (compXML.child("htmlLabel").length() == 1) {
+					label.htmlText = compXML.htmlLabel;
+				} else if (compXML.@label != null) {
+					label.text = compXML.@label;
+				}
+				return label;
 			}
 
 			private function createUrlNavigatingClickHandler(url:String):Function {
