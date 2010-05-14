@@ -61,7 +61,17 @@ class ApiController {
 	/* general methods */
 	def index = {
 			log.debug CONTROLLER_NAME + "#index"
-			invalid("noActionSpecified", "You did not specify an API action.")
+			response.addHeader("Cache-Control", "no-cache")
+			withFormat {	
+				xml {
+					render(contentType:"text/xml") {
+						response() {
+							returncode(RESP_CODE_SUCCESS)
+							version(dynamicConferenceService.apiVersion)
+						}
+					}
+				}
+			}
 	}
 
 	/* interface (API) methods */

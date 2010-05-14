@@ -34,6 +34,7 @@ import org.bigbluebutton.api.domain.DynamicConference;
 public class DynamicConferenceService {	
 	static transactional = false
 	def serviceEnabled = false
+	def apiVersion;
 	def securitySalt
 	int minutesElapsedBeforeMeetingExpiration = 60
 	def defaultWelcomeMessage
