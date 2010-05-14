@@ -29,13 +29,16 @@ import java.lang.Long
 	private final Long userid
 	private final String name
 	private final String role = "VIEWER"
+	private final String externUserID
+	
 	private final Map status
 	private final Map<String, Object> unmodifiableStatus
 	
-	public Participant(Long userid, String name, String role, Map<String, Object> status) {
+	public Participant(Long userid, String name, String role, String externUserID, Map<String, Object> status) {
 		this.userid = userid
 		this.name = name
 		this.role = role 
+		this.externUserID = externUserID
 		this.status = new ConcurrentHashMap<String, Object>(status)
 		unmodifiableStatus = Collections.unmodifiableMap(status)
 	}
@@ -54,6 +57,10 @@ import java.lang.Long
 	
 	public String getRole() {
 		return role
+	}
+	
+	public String getExternUserID() {
+	   return externUserID
 	}
 	
 	/**
