@@ -196,7 +196,12 @@ class ApiController {
 		String mtgID = params.meetingID
 		String attPW = params.password
 		boolean redirectImm = parseBoolean(params.redirectImmediately)
-
+        String externUserID = params.userID
+        
+        if ((externUserID == null) || (externUserID == "")) {
+            externUserID = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
+        }
+        
 		// check for existing:
 		DynamicConference conf = dynamicConferenceService.getConferenceByMeetingID(mtgID);
 		if (conf == null) {
@@ -223,6 +228,8 @@ class ApiController {
 		// TODO: success....
 		log.debug "join successful - setting session parameters and redirecting to join"
 		session["conferencename"] = conf.meetingID
+		session["meetingID"] = conf.meetingID
+		session["externUserID"] = externUserID
 		session["fullname"] = fullName 
 		session["role"] = role
 		session["conference"] = conf.getMeetingToken()

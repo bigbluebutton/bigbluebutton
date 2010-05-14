@@ -233,7 +233,9 @@ class PublicScheduledSessionController {
 	    def md = session["mode"]
 	    def confName = session["conferencename"]
 	    def welcomeMsg = session['welcome']
-	    
+	    def meetID = session["meetingID"] 
+        def externUID = session["externUserID"] 
+        
 	    if (!rm) {
 	    	response.addHeader("Cache-Control", "no-cache")
 	    	withFormat {				
@@ -255,6 +257,8 @@ class PublicScheduledSessionController {
 							returncode("SUCCESS")
 							fullname("$fname")
 							confname("$confName")
+							meetingID("$meetID")
+							externUserID("$externUID")
 	        				role("$rl")
 	        				conference("$cnf")
 	        				room("$rm")
