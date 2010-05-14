@@ -63,7 +63,7 @@ package org.bigbluebutton.modules.viewers.model
 			_viewersService.addConnectionStatusListener(connectionStatusListener);
 			_viewersService.addMessageSender(messageSender);
 			LogUtil.debug(NAME + '::' + module.username + "," + module.role);
-			_viewersService.connect(module.username, module.role, module.conference, module.mode, module.room);		
+			_viewersService.connect(module.username, module.role, module.conference, module.mode, module.room, module.externUserID);		
 		}
 
 		public function join():void {
@@ -93,6 +93,8 @@ package org.bigbluebutton.modules.viewers.model
 				module.voicebridge = result.voicebridge;
 				module.conferenceName = result.conferenceName;
 				module.welcome = result.welcome;
+				module.meetingID = result.meetingID;
+				module.externUserID = result.externUserID;
 				
 				if (result.record == 'true') {
 					module.record = true;

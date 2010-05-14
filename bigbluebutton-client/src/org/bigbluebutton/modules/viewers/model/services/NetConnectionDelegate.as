@@ -81,7 +81,7 @@ package org.bigbluebutton.modules.viewers.model.services
 		 * mode: LIVE/PLAYBACK - Live:when used to collaborate, Playback:when being used to playback a recorded conference.
 		 * room: Need the room number when playing back a recorded conference. When LIVE, the room is taken from the URI.
 		 */
-		public function connect(username:String, role:String, conference:String, mode:String, room:String, tunnel:Boolean=false):void
+		public function connect(username:String, role:String, conference:String, mode:String, room:String, externUserID:String, tunnel:Boolean=false):void
 		{	
 			tried_tunneling = tunnel;	
 			_netConnection = new NetConnection();				
@@ -99,7 +99,7 @@ package org.bigbluebutton.modules.viewers.model.services
 								
 				LogUtil.debug(NAME + "::Connecting to " + uri + " [" + username + "," + role + "," + conference + 
 						"," + mode + "," + room + "]");		
-				_netConnection.connect(uri, username, role, conference, mode, room, _module.voicebridge, _module.record);			
+				_netConnection.connect(uri, username, role, conference, mode, room, _module.voicebridge, _module.record, externUserID);			
 				
 			} catch( e : ArgumentError ) {
 				// Invalid parameters.
@@ -109,6 +109,7 @@ package org.bigbluebutton.modules.viewers.model.services
 						LogUtil.debug("Error! Invalid server location: " + uri);											   
 						break;						
 					default :
+						LogUtil.debug("UNKNOWN Error! Invalid server location: " + uri);
 					   break;
 				}
 			}	
@@ -198,7 +199,7 @@ package org.bigbluebutton.modules.viewers.model.services
 		
 		private function rtmptRetryTimerHandler(event:TimerEvent):void {
             LogUtil.debug(NAME + "rtmptRetryTimerHandler: " + event);
-            connect(_module.username, _module.role, _module.conference, _module.mode, _module.room, true);
+            connect(_module.username, _module.role, _module.conference, _module.mode, _module.room, _module.externUserID, true);
         }
         
 		private function sendFailReason(reason:String):void{

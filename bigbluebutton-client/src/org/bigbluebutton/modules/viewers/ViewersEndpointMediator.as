@@ -90,6 +90,7 @@ package org.bigbluebutton.modules.viewers
 										userid:_module.userid, connection:proxy.connection,
 										mode:_module.mode, voicebridge:_module.voicebridge,
 										record:_module.record, welcome:_module.welcome,
+										meetingID:_module.meetingID, externUserID:_module.externUserID,
 										playbackRoom:_module.playbackRoom};
 					_endpoint.sendMessage(EndpointMessageConstants.USER_JOINED,
 							EndpointMessageConstants.TO_MAIN_APP, user);

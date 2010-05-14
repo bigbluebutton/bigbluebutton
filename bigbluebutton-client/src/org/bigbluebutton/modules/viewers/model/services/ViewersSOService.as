@@ -64,10 +64,10 @@ package org.bigbluebutton.modules.viewers.model.services
 			netConnectionDelegate.addConnectionFailedListener(connectionFailedListener);
 		}
 		
-		public function connect(username:String, role:String, conference:String, mode:String, room:String):void {
+		public function connect(username:String, role:String, conference:String, mode:String, room:String, externUserID:String):void {
 			_mode = mode;
 			_room = room;
-			netConnectionDelegate.connect(username, role, conference, mode, room);
+			netConnectionDelegate.connect(username, role, conference, mode, room, externUserID);
 		}
 			
 		public function disconnect():void {

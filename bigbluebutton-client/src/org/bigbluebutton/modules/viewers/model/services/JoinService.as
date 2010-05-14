@@ -66,6 +66,7 @@ package org.bigbluebutton.modules.viewers.model.services
 				LogUtil.debug(xml.returncode + " " + xml.fullname + " " + xml.conference + " " + xml.role
 					+ " " + xml.room + " " + xml.voicebridge + " " + xml.mode);
 				var user:Object = {username:xml.fullname, conference:xml.conference, conferenceName:xml.confname,
+										meetingID:xml.meetingID, externUserID:xml.externUserID,
 										role:xml.role, room:xml.room, authToken:xml.room, record:xml.record, 
 										voicebridge:xml.voicebridge, mode:xml.mode, welcome:xml.welcome};
 				_resultListener(true, user);

@@ -167,6 +167,22 @@
 			public function get record():Boolean {
 				return _attributes.record;
 			}
+			
+			public function set meetingID(a:String):void {
+				_attributes.meetingID = a;
+			}
+			
+			public function get meetingID():String {
+				return _attributes.meetingID;
+			}
+			
+			public function set externUserID(a:String):void {
+				_attributes.externUserID = a;
+			}
+			
+			public function get externUserID():String {
+				return _attributes.externUserID;
+			}
 						
 			public function start(attributes:Object):void {		
 				_attributes = attributes;	

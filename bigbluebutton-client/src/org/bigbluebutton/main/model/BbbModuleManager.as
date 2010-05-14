@@ -146,6 +146,8 @@ package org.bigbluebutton.main.model
 			_user.playbackRoom = user.playbackRoom;
 			_user.record = user.record;
 			_user.welcome = user.welcome;
+			_user.meetingID = user.meetingID;
+			_user.externUserID = user.externUserID;
 			
 			Role.setRole(user.userrole);
 		}
@@ -198,6 +200,8 @@ package org.bigbluebutton.main.model
 					m.addAttribute("playbackRoom", _user.playbackRoom);
 					m.addAttribute("record", _user.record);
 					m.addAttribute("welcome", _user.welcome);
+					m.addAttribute("meetingID", _user.meetingID);
+					m.addAttribute("externUserID", _user.externUserID);
 					
 				} else {
 					// Pass the mode that we got from the URL query string.
