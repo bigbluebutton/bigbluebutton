@@ -254,16 +254,16 @@ Invalid Password, please <a href="javascript:history.go(-1)">try again</a>.
 		//
 		// Looks good, let's create the meeting
 		//
-		String meetingToken = createMeeting( meetingID, welcomeMsg, moderatorPW, viewerPW, voiceBridge, logoutURL );
+		String meeting_ID = createMeeting( meetingID, welcomeMsg, moderatorPW, viewerPW, voiceBridge, logoutURL );
 		
 		//
 		// Check if we have an error.
 		//
-		if( meetingToken.startsWith("Error ")) {
+		if( meeting_ID.startsWith("Error ")) {
 %>
 
 Error: createMeeting() failed
-<p /><%=meetingToken%> 
+<p /><%=meeting_ID%> 
 
 
 <%
@@ -271,10 +271,10 @@ Error: createMeeting() failed
 		}
 		
 		//
-		// We've got a valid meetingToken and passoword -- let's join!
+		// We've got a valid meeting_ID and passoword -- let's join!
 		//
 		
-		String joinURL = getJoinMeetingURL(username, meetingToken, password);			
+		String joinURL = getJoinMeetingURL(username, meeting_ID, password);			
 %>
 
 <script language="javascript" type="text/javascript">
