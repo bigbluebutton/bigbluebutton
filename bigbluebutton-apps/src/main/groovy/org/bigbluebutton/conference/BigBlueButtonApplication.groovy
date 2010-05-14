@@ -113,6 +113,7 @@ public class BigBlueButtonApplication extends ApplicationAdapter{
         def room   
         String voiceBridge = ((String) params[5]).toString()
 		Boolean record
+		String externUserID
 		
         if (Constants.PLAYBACK_MODE.equals(mode)) {
         	room = ((String) params[4]).toString()   
@@ -125,6 +126,10 @@ public class BigBlueButtonApplication extends ApplicationAdapter{
 			voiceBridge = ((String) params[5]).toString()
 			record = ((String) params[6]).toBoolean()
         	log.debug ("Got params $voiceBridge and $record")
+        	
+        	externUserID = ((String) params[7]).toString()
+        	log.debug ("Got params $externUserID")
+        	
 			if (record == true) {
 				log.debug( "${APP} - roomConnect - creating RecordSession $sessionName")
 				archiveApplication.createRecordSession(conference, room, sessionName)
@@ -133,7 +138,7 @@ public class BigBlueButtonApplication extends ApplicationAdapter{
         }
     	log.debug( "${APP} - roomConnect - creating BigBlueButtonSession")
     	BigBlueButtonSession bbbSession = new BigBlueButtonSession(sessionName, userid,  username, role, 
-    			conference, mode, room, voiceBridge, record)
+    			conference, mode, room, voiceBridge, record, externUserID)
     	log.debug( "${APP} - roomConnect - setting attribute BigBlueButtonSession")
         connection.setAttribute(Constants.SESSION, bbbSession)        
 		log.debug("${APP} - roomConnect - [${username},${role},${conference},${room}]") 

@@ -172,6 +172,8 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 		def room = bbbSession.room
 		log.debug("${APP}:participantJoin - room $room")
 		
+		String externUserID = bbbSession.externUserID
+		
 		log.debug("${APP}:participantJoin")
 		Map status = new HashMap()
 		status.put("raiseHand", false)
@@ -179,7 +181,7 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 		status.put("hasStream", false)
 		
 		log.debug("${APP}:participantJoin setting status")		
-		return participantsApplication.participantJoin(room, userid, username, role, status)
+		return participantsApplication.participantJoin(room, userid, username, role, externUserID, status)
 	}
 	
 	public void setParticipantsApplication(ParticipantsApplication a) {

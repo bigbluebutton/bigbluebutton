@@ -85,10 +85,10 @@ public class ParticipantsApplication {
 		return false;
 	}
 	
-	public boolean participantJoin(String roomName, Long userid, String username, String role, Map status) {
+	public boolean participantJoin(String roomName, Long userid, String username, String role, String externUserID, Map status) {
 		log.debug("${APP}:participant joining room ${roomName}")
 		if (roomsManager.hasRoom(roomName)) {
-			Participant p = new Participant(userid, username, role, status)			
+			Participant p = new Participant(userid, username, role, externUserID, status)			
 			Room room = roomsManager.getRoom(roomName)
 			room.addParticipant(p)
 			log.debug("${APP}:participant joined room ${roomName}")

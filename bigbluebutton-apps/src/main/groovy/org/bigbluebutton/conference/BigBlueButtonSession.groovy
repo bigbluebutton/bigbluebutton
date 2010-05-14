@@ -36,9 +36,11 @@ public class BigBlueButtonSession {
 	private final def sessionName
 	private final String voiceBridge
 	private final Boolean record
+	private final String externUserID
 	
 	public BigBlueButtonSession(def sessionName, def userid, def username, 
-				def role, def conference, def mode, def room, String voiceBridge, Boolean record){
+				def role, def conference, def mode, def room, String voiceBridge, Boolean record, 
+				String externUserID){
 		this.userid = userid
 		this.sessionName = sessionName
 		this.username = username
@@ -49,6 +51,7 @@ public class BigBlueButtonSession {
 		
 		this.voiceBridge = voiceBridge
 		this.record = record
+		this.externUserID = externUserID
 	}
 	
 	def playbackMode() {
