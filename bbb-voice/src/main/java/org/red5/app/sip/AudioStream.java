@@ -208,10 +208,10 @@ public class AudioStream implements IBroadcastStream, IProvider, IPipeConnection
 					livePipe.pushMessage(msg);
 
 					if (rtmpEvent instanceof IStreamPacket) {
-						System.out.println("dispatchEvent(IStreamPacket:)" + event);
+//						System.out.println("dispatchEvent(IStreamPacket:)" + event);
 						for (IStreamListener listener : getStreamListeners()) {
 							try {
-								System.out.println("dispatchEvent(event:)" + event);
+//								System.out.println("dispatchEvent(event:)" + event);
 								listener.packetReceived(this, (IStreamPacket) rtmpEvent);
 							} catch (Exception e) {
 								log.error("Error while notifying listener " + listener, e);
