@@ -26,11 +26,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import net.jcip.annotations.ThreadSafe;
+
+import org.bigbluebutton.deskshare.client.ExitCode;
 import org.bigbluebutton.deskshare.client.blocks.BlockManager;
 import org.bigbluebutton.deskshare.common.Dimension;
 
 @ThreadSafe
-public class NetworkStreamSender implements NextBlockRetriever {	
+public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamListener {	
 	private ExecutorService executor;	
     private final BlockingQueue<Message> blockDataQ = new LinkedBlockingQueue<Message>();
     
@@ -38,6 +40,7 @@ public class NetworkStreamSender implements NextBlockRetriever {
     private final String host;
     private final int port;
     private final String room;
+    private final boolean httpTunnel;
     private NetworkSocketStreamSender[] socketSenders;
     private NetworkHttpStreamSender[] httpSenders;
     private boolean tunneling = false;
@@ -48,13 +51,14 @@ public class NetworkStreamSender implements NextBlockRetriever {
 	private BlockManager blockManager;
 	
 	public NetworkStreamSender(BlockManager blockManager, String host, int port,
-			String room, Dimension screenDim, Dimension blockDim) {
+			String room, Dimension screenDim, Dimension blockDim, boolean httpTunnel) {
 		this.blockManager = blockManager;
 		this.host = host;
 		this.port = port;
 		this.room = room;
 		this.screenDim = screenDim;
 		this.blockDim = blockDim;
+		this.httpTunnel = httpTunnel;
 		
 		numThreads = Runtime.getRuntime().availableProcessors();
 		System.out.println("Starting up " + numThreads + " sender threads.");
@@ -73,36 +77,53 @@ public class NetworkStreamSender implements NextBlockRetriever {
 			}
 		}
 		
-		if (failedAttempts == numThreads) {
+		if ((failedAttempts == numThreads) && httpTunnel) {
 			System.out.println("Trying http tunneling");
+			failedAttempts = 0;
+			numRunningThreads = 0;
 			if (tryHttpTunneling()) {
 				tunneling = true;
 				System.out.println("Will use http tunneling");
 				httpSenders = new NetworkHttpStreamSender[numThreads];
 				for (int i = 0; i < numThreads; i++) {
-					createHttpSender(i);					
+					try {
+						createHttpSender(i);
+						numRunningThreads++;
+					} catch (ConnectionException e) {
+						failedAttempts++;
+					}					
 				}
-				return true;
+				if (failedAttempts == numThreads) {
+					return false;
+				} else {
+					return true;
+				}
 			}
 		} else {
-			return true;
+			if (numRunningThreads != numThreads) {
+				try {
+					stop();
+				} catch (ConnectionException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return false;
+			} else {
+				return true;
+			}
 		}
 		System.out.println("Http tunneling failed.");
 		return false;
 	}
 	
 	private void createSender(int i) throws ConnectionException {
-		socketSenders[i] = new NetworkSocketStreamSender(this, room, screenDim, blockDim);
+		socketSenders[i] = new NetworkSocketStreamSender(i, this, room, screenDim, blockDim);
 		socketSenders[i].connect(host, port);		
 	}
 	
-	private void createHttpSender(int i) {
-		httpSenders[i] = new NetworkHttpStreamSender(this, room, screenDim, blockDim);
-		try {
-			httpSenders[i].connect(host);
-		} catch (ConnectionException e) {
-			System.out.println("Http sender failed to connect to " + host);
-		}
+	private void createHttpSender(int i) throws ConnectionException {
+		httpSenders[i] = new NetworkHttpStreamSender(i, this, room, screenDim, blockDim);
+		httpSenders[i].connect(host);
 	}
 	
 	public void send(Message message) {
@@ -118,8 +139,13 @@ public class NetworkStreamSender implements NextBlockRetriever {
 			}
 		} else {			
 			for (int i = 0; i < numRunningThreads; i++) {					
-				socketSenders[i].sendStartStreamMessage();
-				executor.execute(socketSenders[i]);	
+				try {
+					socketSenders[i].sendStartStreamMessage();
+					executor.execute(socketSenders[i]);
+				} catch (ConnectionException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}					
 			}
 		}
 
@@ -142,7 +168,7 @@ public class NetworkStreamSender implements NextBlockRetriever {
 	}
 
 	private boolean tryHttpTunneling() {
-		NetworkHttpStreamSender httpSender = new NetworkHttpStreamSender(this, room, screenDim, blockDim);
+		NetworkHttpStreamSender httpSender = new NetworkHttpStreamSender(0, this, room, screenDim, blockDim);
 		try {
 			httpSender.connect(host);
 			return true;
@@ -164,6 +190,23 @@ public class NetworkStreamSender implements NextBlockRetriever {
 				e.printStackTrace();
 			throw e;
 		}
+	}
+
+	@Override
+	public void networkException(int id, ExitCode reason) {
+		try {
+			numRunningThreads--;
+		
+			if (tunneling) {								
+				httpSenders[id].disconnect();				
+			} else {
+				socketSenders[id].disconnect();
+			}
+			if (numRunningThreads < 1) stop();
+		} catch (ConnectionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
 	}
 	
 }

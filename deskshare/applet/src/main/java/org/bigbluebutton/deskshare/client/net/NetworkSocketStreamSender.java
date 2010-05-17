@@ -27,6 +27,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+
+import org.bigbluebutton.deskshare.client.ExitCode;
 import org.bigbluebutton.deskshare.common.Dimension;
 
 public class NetworkSocketStreamSender implements Runnable {
@@ -38,12 +40,23 @@ public class NetworkSocketStreamSender implements Runnable {
 	private Dimension blockDim;
 	private final NextBlockRetriever retriever;
 	private volatile boolean processBlocks = false;
-	 
-	public NetworkSocketStreamSender(NextBlockRetriever retriever, String room, Dimension screenDim, Dimension blockDim) {
+	private final int id;
+	private NetworkStreamListener listener;
+	
+	public NetworkSocketStreamSender(int id, NextBlockRetriever retriever, String room, Dimension screenDim, Dimension blockDim) {
+		this.id = id;
 		this.retriever = retriever;
 		this.room = room;
 		this.screenDim = screenDim;
 		this.blockDim = blockDim;	
+	}
+	
+	public void addListener(NetworkStreamListener listener) {
+		this.listener = listener;
+	}
+	
+	private void notifyNetworkStreamListener(ExitCode reason) {
+		if (listener != null) listener.networkException(id,reason);
 	}
 	
 	public void connect(String host, int port) throws ConnectionException {
@@ -60,7 +73,7 @@ public class NetworkSocketStreamSender implements Runnable {
 		}
 	}
 	
-	public void sendStartStreamMessage() {		
+	public void sendStartStreamMessage() throws ConnectionException {		
 		try {
 			ByteArrayOutputStream dataToSend = new ByteArrayOutputStream();
 			dataToSend.reset();
@@ -73,34 +86,20 @@ public class NetworkSocketStreamSender implements Runnable {
 		}
 	}
 
-	private void sendCursor(Point mouseLoc, String room) {
-		try {
-			ByteArrayOutputStream dataToSend = new ByteArrayOutputStream();
-			dataToSend.reset();
-			BlockStreamProtocolEncoder.encodeMouseLocation(mouseLoc, room, dataToSend);
-			sendHeader(BlockStreamProtocolEncoder.encodeHeaderAndLength(dataToSend));
-			sendToStream(dataToSend);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	private void sendCursor(Point mouseLoc, String room) throws IOException {
+		ByteArrayOutputStream dataToSend = new ByteArrayOutputStream();
+		dataToSend.reset();
+		BlockStreamProtocolEncoder.encodeMouseLocation(mouseLoc, room, dataToSend);
+		sendHeader(BlockStreamProtocolEncoder.encodeHeaderAndLength(dataToSend));
+		sendToStream(dataToSend);
 	}
 	
-	private void sendBlock(BlockVideoData block) {
-		long start = System.currentTimeMillis();
-		try {
-			ByteArrayOutputStream dataToSend = new ByteArrayOutputStream();
-			dataToSend.reset();
-			BlockStreamProtocolEncoder.encodeBlock(block, dataToSend);
-			sendHeader(BlockStreamProtocolEncoder.encodeHeaderAndLength(dataToSend));
-			sendToStream(dataToSend);
-			long end = System.currentTimeMillis();
-//			if ((end - start) > 200)
-//				System.out.println("Sending " + dataToSend.size() + " bytes took " + (end - start) + "ms");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	private void sendBlock(BlockVideoData block) throws IOException {
+		ByteArrayOutputStream dataToSend = new ByteArrayOutputStream();
+		dataToSend.reset();
+		BlockStreamProtocolEncoder.encodeBlock(block, dataToSend);
+		sendHeader(BlockStreamProtocolEncoder.encodeHeaderAndLength(dataToSend));
+		sendToStream(dataToSend);
 	}
 	
 	private void sendHeader(byte[] header) throws IOException {
@@ -110,10 +109,11 @@ public class NetworkSocketStreamSender implements Runnable {
 	private void sendToStream(ByteArrayOutputStream dataToSend) throws IOException {
 		if (outstream != null) dataToSend.writeTo(outstream);
 	}
-	
-		
+			
 	public void disconnect() throws ConnectionException {
 		System.out.println("Disconnecting socket stream");
+		if (!processBlocks) return;
+		
 		try {
 			ByteArrayOutputStream dataToSend = new ByteArrayOutputStream();
 			dataToSend.reset();
@@ -128,7 +128,7 @@ public class NetworkSocketStreamSender implements Runnable {
 		}
 	}
 	
-	private void processNextMessageToSend(Message message) {
+	private void processNextMessageToSend(Message message) throws IOException {
 		if (message.getMessageType() == Message.MessageType.BLOCK) {
 			EncodedBlockData block = retriever.getBlockToSend(((BlockMessage)message).getPosition());
 			BlockVideoData	bv = new BlockVideoData(room, block.getPosition(), block.getVideoData(), false /* should remove later */);									
@@ -149,7 +149,11 @@ public class NetworkSocketStreamSender implements Runnable {
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}							
+			} catch (IOException e) {
+				e.printStackTrace();
+				processBlocks = false;
+				notifyNetworkStreamListener(ExitCode.CONNECTION_TO_DESKSHARE_SERVER_DROPPED);
+			}
 		}
 		
 		try {

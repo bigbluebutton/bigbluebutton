@@ -77,7 +77,7 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
 		
 		mTaker = new MouseLocationTaker();
 		
-		sender = new NetworkStreamSender(blockManager, host, port, room, screenDim, tileDim);
+		sender = new NetworkStreamSender(blockManager, host, port, room, screenDim, tileDim, httpTunnel);
 		connected = sender.connect();
 		if (connected) {
 			captureTaker.addListener(this);
@@ -86,7 +86,9 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
 			captureTakerThread = new Thread(captureTaker, "ScreenCaptureTaker");
 			captureTakerThread.start();	
 			sender.start();
-		}		
+		} else {
+			notifyListener(ExitCode.DESKSHARE_SERVICE_UNAVAILABLE);
+		}
 	}
 		
 	/**
@@ -136,9 +138,13 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
 	}
 
 	public void onStopSharingSysTrayMenuClicked() {
-		if (listener != null) listener.onClientStop(ExitCode.NORMAL);
+		notifyListener(ExitCode.NORMAL);
 	}
 
+	private void notifyListener(ExitCode reason) {
+		if (listener != null) listener.onClientStop(reason);
+	}
+	
 	public void addClientListeners(ClientListener l) {
 		listener = l;
 	}

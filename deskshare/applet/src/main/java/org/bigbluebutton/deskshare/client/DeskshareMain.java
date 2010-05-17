@@ -70,7 +70,7 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
         Integer heightValue = (Integer)parser.getOptionValue(height, new Integer((int)dim.getHeight()));
         Integer xValue = (Integer)parser.getOptionValue(xCoord, new Integer(0));
         Integer yValue = (Integer)parser.getOptionValue(yCoord, new Integer(0));
-        Boolean tunnelValue = (Boolean)parser.getOptionValue(tryHttpTunnel, true);
+        Boolean tunnelValue = (Boolean)parser.getOptionValue(tryHttpTunnel, false);
         String iconValue = (String)parser.getOptionValue(icon, "bbb.gif");
         
         Image image = Toolkit.getDefaultToolkit().getImage(iconValue);

@@ -29,6 +29,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
+import org.bigbluebutton.deskshare.client.ExitCode;
 import org.bigbluebutton.deskshare.common.CaptureEvents;
 import org.bigbluebutton.deskshare.common.Dimension;
 
@@ -44,13 +45,23 @@ public class NetworkHttpStreamSender implements Runnable {
 	private Dimension blockDim;
 	private final NextBlockRetriever retriever;
 	private volatile boolean processBlocks = false;
-
+	private final int id;
+	private NetworkStreamListener listener;
 	
-	public NetworkHttpStreamSender(NextBlockRetriever retriever, String room, Dimension screenDim, Dimension blockDim) {
+	public NetworkHttpStreamSender(int id, NextBlockRetriever retriever, String room, Dimension screenDim, Dimension blockDim) {
+		this.id = id;
 		this.retriever = retriever;
 		this.room = room;
 		this.screenDim = screenDim;
 		this.blockDim = blockDim;
+	}
+	
+	public void addListener(NetworkStreamListener listener) {
+		this.listener = listener;
+	}
+	
+	private void notifyNetworkStreamListener(ExitCode reason) {
+		if (listener != null) listener.networkException(id,reason);
 	}
 	
 	public void connect(String host) throws ConnectionException {
@@ -84,8 +95,8 @@ public class NetworkHttpStreamSender implements Runnable {
 			openConnection();
 			sendCaptureStartEvent(screenDim, blockDim);
 		} catch (ConnectionException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			notifyNetworkStreamListener(ExitCode.DESKSHARE_SERVICE_UNAVAILABLE);
 		}
 	}
 
@@ -119,9 +130,10 @@ public class NetworkHttpStreamSender implements Runnable {
 			openConnection();
 			sendCaptureEndEvent();
 		} catch (ConnectionException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			notifyNetworkStreamListener(ExitCode.DESKSHARE_SERVICE_UNAVAILABLE);
 			throw e;
+			
 		} finally {
 			processBlocks = false;
 		}
@@ -161,8 +173,9 @@ public class NetworkHttpStreamSender implements Runnable {
 				message = retriever.getNextMessageToSend();
 				processNextMessageToSend(message);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
+				notifyNetworkStreamListener(ExitCode.DESKSHARE_SERVICE_UNAVAILABLE);
+				processBlocks = false;
 			}								
 		}
 	}
