@@ -101,30 +101,15 @@ $(document).ready(function(){
 		String username = request.getParameter("username1");
 		String meetingID = username + "'s meeting";
 
-		String meetingToken = "";
+		String meeting_ID = "";
 
 		//
 		// This is the URL for to join the meeting as moderator
 		//
 		String joinURL = getJoinURL(username, meetingID, "<br>Welcome to %%CONFNAME%%.<br>");
 
-		//
-		// We're going to extract the meetingToken to enable others to join as viewers
-		//
-		String p = "meetingToken=[^&]*";
-		Pattern pattern = Pattern.compile(p);
-		Matcher matcher = pattern.matcher(joinURL);
-
-		if (matcher.find()) {
-			meetingToken = joinURL.substring(matcher.start(), matcher
-					.end());
-		} else {
-			out.print("Error: Did not find meeting token.");
-		}
-		//out.print ("Match : " + meetingToken );
-		String inviteURL = BigBlueButtonURL
-				+ "demo/create.jsp?action=invite&meetingID=" + URLEncoder.encode(meetingID, "UTF-8")
-				+ "&" + meetingToken;
+		
+		String inviteURL = BigBlueButtonURL	+ "demo/create.jsp?action=invite&meetingID=" + URLEncoder.encode(meetingID, "UTF-8");
 %>
 
 <hr />
@@ -175,14 +160,13 @@ $(document).ready(function(){
 		//
 		String meetingID = request.getParameter("meetingID");
 		String username = request.getParameter("username");
-		String meetingToken = request.getParameter("meetingToken");
 
 		String enterURL = BigBlueButtonURL
 			+ "demo/create.jsp?action=join&username="
-			+ URLEncoder.encode(username, "UTF-8") + "&meetingToken="
-			+ URLEncoder.encode(meetingToken, "UTF-8");
+			+ URLEncoder.encode(username, "UTF-8") + "&meetingID="
+			+ URLEncoder.encode(meetingID, "UTF-8");
 
-		if (isMeetingRunning(meetingToken, meetingID).equals("true")) {
+		if (isMeetingRunning(meetingID).equals("true")) {
 			//
 			// The meeting has started -- bring the user into the meeting.
 			//
@@ -195,8 +179,7 @@ $(document).ready(function(){
 			//
 			// The meeting has not yet started, so check until we get back the status that the meeting is running
 			//
-			String checkMeetingStatus = getURLisMeetingRunning(
-					meetingToken, meetingID);
+			String checkMeetingStatus = getURLisMeetingRunning(meetingID);
 %>
 
 <script type="text/javascript">
@@ -214,7 +197,7 @@ function mycallback() {
 	// Not elegant, but works around a bug in IE8 
 	var isMeetingRunning = ($("#HeartBeatDIV").text().search("true") > 0 );
 
-	if ( isMeetingRunning) {
+	if (isMeetingRunning) {
 		window.location = "<%=enterURL%>"; 
 	}
 }
@@ -252,7 +235,6 @@ function mycallback() {
 		// so they can join.
 		//
 		String meetingID = request.getParameter("meetingID");
-		String meetingToken = request.getParameter("meetingToken");
 %>
 
 <hr />
@@ -275,7 +257,6 @@ function mycallback() {
 			<td width="50%">Enter your name: <input type="text"
 				name="username" /> <br />
 			<INPUT TYPE=hidden NAME=meetingID VALUE="<%=meetingID%>"> <INPUT
-				TYPE=hidden NAME=meetingToken VALUE="<%=meetingToken%>"> <INPUT
 				TYPE=hidden NAME=action VALUE="enter"> <br />
 			<input type="submit" value="Join" /></td>
 		</tr>
@@ -294,8 +275,8 @@ function mycallback() {
 		//
 		// We don't need to pass a meeting descritpion as it's already been set by the first time 
 		// the meeting was created.
-		String joinURL = getJoinURLViewer(request.getParameter("username"), request.getParameter("meetingToken"));
-
+		String joinURL = getJoinURLViewer(request.getParameter("username"), request.getParameter("meetingID"));
+			
 		if (joinURL.startsWith("http://")) {
 %>
 
