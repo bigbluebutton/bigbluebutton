@@ -77,7 +77,7 @@ public class DeskShareApplet extends Applet implements ClientListener {
 		client.stop();			
 	}
 	
-	public void onClientStop(int reason) {
+	public void onClientStop(ExitCode reason) {
 		stop();
 	}
 }

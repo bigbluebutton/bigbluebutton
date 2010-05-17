@@ -3,6 +3,7 @@ package org.bigbluebutton.deskshare.client;
 import jargs.gnu.CmdLineParser;
 import jargs.gnu.CmdLineParser.Option;
 
+import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.util.ArrayList;
@@ -11,8 +12,8 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class DeskshareMain implements ClientListener {
-	private final BlockingQueue<Integer> exitReasonQ = new LinkedBlockingQueue<Integer>(1);
+public class DeskshareMain implements ClientListener, LifeLineListener {
+	private final BlockingQueue<ExitCode> exitReasonQ = new LinkedBlockingQueue<ExitCode>(5);
 	
 	private List<String> optionHelpStrings = new ArrayList<String>();
 
@@ -33,6 +34,7 @@ public class DeskshareMain implements ClientListener {
     	CmdLineParser parser = new CmdLineParser();
     	CmdLineParser.Option host = dsMain.addHelp(parser.addStringOption('s', "server"),"The address of Red5 server");
         CmdLineParser.Option port = dsMain.addHelp(parser.addIntegerOption('p', "port"),"The port the application is listening");
+        CmdLineParser.Option listenPort = dsMain.addHelp(parser.addIntegerOption('l', "listenPort"),"Port to listen for lifeline");
         CmdLineParser.Option room = dsMain.addHelp(parser.addStringOption('r', "room"),"Room");        
     	CmdLineParser.Option width = dsMain.addHelp(parser.addIntegerOption('w', "width"),"Width of the screen capture");
     	CmdLineParser.Option height = dsMain.addHelp(parser.addIntegerOption('t', "height"),"Height of the screen capture");
@@ -55,20 +57,26 @@ public class DeskshareMain implements ClientListener {
             System.exit(0);
         }
         
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+
         // Extract the values entered for the various options -- if the
         // options were not specified, the corresponding values will be
         // the default.
         String hostValue = (String)parser.getOptionValue(host, "localhost");
         Integer portValue = (Integer)parser.getOptionValue(port, new Integer(9123));
+        Integer listenPortValue = (Integer)parser.getOptionValue(listenPort, new Integer(9125));
         String roomValue = (String)parser.getOptionValue(room, "85115");
-        Integer widthValue = (Integer)parser.getOptionValue(width, new Integer(800));
-        Integer heightValue = (Integer)parser.getOptionValue(height, new Integer(600));
+        Integer widthValue = (Integer)parser.getOptionValue(width, new Integer((int)dim.getWidth()));
+        Integer heightValue = (Integer)parser.getOptionValue(height, new Integer((int)dim.getHeight()));
         Integer xValue = (Integer)parser.getOptionValue(xCoord, new Integer(0));
         Integer yValue = (Integer)parser.getOptionValue(yCoord, new Integer(0));
         Boolean tunnelValue = (Boolean)parser.getOptionValue(tryHttpTunnel, true);
         String iconValue = (String)parser.getOptionValue(icon, "bbb.gif");
         
         Image image = Toolkit.getDefaultToolkit().getImage(iconValue);
+        
+        LifeLine lifeline = new LifeLine(listenPortValue.intValue(), dsMain);
+        lifeline.listen();
         
         DeskshareClient client = new DeskshareClient.Builder().host(hostValue).port(portValue)
         						.room(roomValue).width(widthValue)
@@ -79,9 +87,10 @@ public class DeskshareMain implements ClientListener {
         client.start();
         
         try {
-			Integer reason = dsMain.exitReasonQ.take();
-			if (reason == 0) client.stop();
-			System.exit(reason.intValue());
+			ExitCode reason = dsMain.exitReasonQ.take();
+			//if (reason == ExitCode.NORMAL) client.stop();
+			client.stop();
+			System.exit(reason.getExitCode());
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -90,9 +99,18 @@ public class DeskshareMain implements ClientListener {
         
 	}	
 	
-	public void onClientStop(int reason) {
+	public void onClientStop(ExitCode reason) {
+		queueExitCode(reason);
+	}
+
+	@Override
+	public void disconnected(ExitCode reason) {
+		queueExitCode(reason);		
+	}
+	
+	private void queueExitCode(ExitCode reason) {
 		try {
-			exitReasonQ.put(new Integer(reason));
+			exitReasonQ.put(reason);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

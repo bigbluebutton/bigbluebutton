@@ -26,8 +26,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import net.jcip.annotations.ThreadSafe;
-
-import org.bigbluebutton.deskshare.client.MouseLocationTaker;
 import org.bigbluebutton.deskshare.client.blocks.BlockManager;
 import org.bigbluebutton.deskshare.common.Dimension;
 
@@ -38,6 +36,7 @@ public class NetworkStreamSender implements NextBlockRetriever {
     
     private final int numThreads;
     private final String host;
+    private final int port;
     private final String room;
     private NetworkSocketStreamSender[] socketSenders;
     private NetworkHttpStreamSender[] httpSenders;
@@ -48,10 +47,11 @@ public class NetworkStreamSender implements NextBlockRetriever {
 	private Dimension blockDim;
 	private BlockManager blockManager;
 	
-	public NetworkStreamSender(BlockManager blockManager, 
-			String host, String room, Dimension screenDim, Dimension blockDim) {
+	public NetworkStreamSender(BlockManager blockManager, String host, int port,
+			String room, Dimension screenDim, Dimension blockDim) {
 		this.blockManager = blockManager;
 		this.host = host;
+		this.port = port;
 		this.room = room;
 		this.screenDim = screenDim;
 		this.blockDim = blockDim;
@@ -93,7 +93,7 @@ public class NetworkStreamSender implements NextBlockRetriever {
 	
 	private void createSender(int i) throws ConnectionException {
 		socketSenders[i] = new NetworkSocketStreamSender(this, room, screenDim, blockDim);
-		socketSenders[i].connect(host);		
+		socketSenders[i].connect(host, port);		
 	}
 	
 	private void createHttpSender(int i) {

@@ -30,8 +30,6 @@ import java.net.UnknownHostException;
 import org.bigbluebutton.deskshare.common.Dimension;
 
 public class NetworkSocketStreamSender implements Runnable {
-	private static final int PORT = 9123;
-	
 	private Socket socket = null;
 	
 	private DataOutputStream outstream = null;
@@ -45,21 +43,20 @@ public class NetworkSocketStreamSender implements Runnable {
 		this.retriever = retriever;
 		this.room = room;
 		this.screenDim = screenDim;
-		this.blockDim = blockDim;
-	
+		this.blockDim = blockDim;	
 	}
 	
-	public void connect(String host) throws ConnectionException {
+	public void connect(String host, int port) throws ConnectionException {
 		System.out.println("Starting NetworkSocketStreamSender ");
 		try {
-			socket = new Socket(host, PORT);
+			socket = new Socket(host, port);
 			outstream = new DataOutputStream(socket.getOutputStream());
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 			throw new ConnectionException("UnknownHostException: " + host);
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new ConnectionException("IOException: " + host + ":" + PORT);
+			throw new ConnectionException("IOException: " + host + ":" + port);
 		}
 	}
 	

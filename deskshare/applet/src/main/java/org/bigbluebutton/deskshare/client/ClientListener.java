@@ -1,5 +1,5 @@
 package org.bigbluebutton.deskshare.client;
 
 public interface ClientListener {
-	public void onClientStop(int reason); 
+	public void onClientStop(ExitCode reason); 
 }

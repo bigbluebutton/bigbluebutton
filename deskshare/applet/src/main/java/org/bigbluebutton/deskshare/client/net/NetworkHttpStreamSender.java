@@ -23,7 +23,6 @@ package org.bigbluebutton.deskshare.client.net;
 
 import java.awt.Point;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import java.net.MalformedURLException;
