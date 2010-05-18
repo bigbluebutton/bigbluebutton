@@ -1,6 +1,7 @@
 package org.bigbluebutton.deskshare.client;
 
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 
 import org.bigbluebutton.deskshare.client.blocks.BlockManager;
@@ -11,7 +12,7 @@ import org.bigbluebutton.deskshare.client.net.NetworkStreamSender;
 import org.bigbluebutton.deskshare.common.Dimension;
 import org.bigbluebutton.deskshare.client.net.ConnectionException;
 
-class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, SystemTrayListener {
+class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, SystemTrayListener, MouseLocationListener {
 	private static final String LICENSE_HEADER = "This program is free software: you can redistribute it and/or modify\n" +
 	"it under the terms of the GNU AFFERO General Public License as published by\n" +
 	"the Free Software Foundation, either version 3 of the License, or\n" +
@@ -50,6 +51,7 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
 	private DeskshareSystemTray tray = new DeskshareSystemTray();
 	private ClientListener listener;
 	private MouseLocationTaker mTaker;
+	private Thread mouseLocationTakerThread;
 	
 	public void start() {	
 		System.out.println(LICENSE_HEADER);
@@ -75,17 +77,23 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
 		blockManager.addListener(this);
 		blockManager.initialize(screenDim, tileDim);
 		
-		mTaker = new MouseLocationTaker();
+		
 		
 		sender = new NetworkStreamSender(blockManager, host, port, room, screenDim, tileDim, httpTunnel);
 		connected = sender.connect();
 		if (connected) {
 			captureTaker.addListener(this);
-			captureTaker.setCapture(true);
+			captureTaker.start();
 			
 			captureTakerThread = new Thread(captureTaker, "ScreenCaptureTaker");
 			captureTakerThread.start();	
 			sender.start();
+			mTaker = new MouseLocationTaker();
+			mTaker.start();
+			mouseLocationTakerThread = new Thread(mTaker, "MouseLocationTakerThread");
+			mTaker.addListener(this);
+			mouseLocationTakerThread.start();
+			
 		} else {
 			notifyListener(ExitCode.DESKSHARE_SERVICE_UNAVAILABLE);
 		}
@@ -103,7 +111,8 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
 
 	public void stop() {
 		System.out.println("Stop");
-		captureTaker.setCapture(false);
+		captureTaker.stop();
+		mTaker.stop();
 		if (connected && started) {
 			try {
 				sender.stop();
@@ -122,11 +131,13 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
 	}
 	
 	public void onScreenCaptured(BufferedImage screen) {
-		blockManager.processCapturedScreen(screen);		
-		CursorMessage msg = new CursorMessage(mTaker.getMouseLocation(), room);
-		sender.send(msg);
+		blockManager.processCapturedScreen(screen);				
 	}
 	
+	public void mouseLocation(Point loc) {
+		CursorMessage msg = new CursorMessage(loc, room);
+		sender.send(msg);
+	}
 	
 	public void screenCaptureStopped() {
 		System.out.println("Screencapture stopped");

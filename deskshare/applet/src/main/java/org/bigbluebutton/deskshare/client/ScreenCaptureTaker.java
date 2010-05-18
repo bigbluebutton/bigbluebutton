@@ -39,7 +39,7 @@ public class ScreenCaptureTaker implements Runnable {
 			BufferedImage image = capture.takeSingleSnapshot();
 			notifyListeners(image);
 			try{
-				Thread.sleep(1000);
+				Thread.sleep(200);
 			} catch (Exception e){
 				System.out.println("Exception sleeping.");
 			}
@@ -57,7 +57,11 @@ public class ScreenCaptureTaker implements Runnable {
 		listeners = listener;
 	}
 	
-	public void setCapture(boolean capture) {
-		startCapture = capture;
+	public void start() {
+		startCapture = true;
+	}
+	
+	public void stop() {
+		startCapture = false;
 	}
 }

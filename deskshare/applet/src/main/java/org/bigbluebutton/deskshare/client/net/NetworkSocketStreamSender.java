@@ -39,7 +39,7 @@ public class NetworkSocketStreamSender implements Runnable {
 	private Dimension screenDim;
 	private Dimension blockDim;
 	private final NextBlockRetriever retriever;
-	private volatile boolean processBlocks = false;
+	private volatile boolean processMessages = false;
 	private final int id;
 	private NetworkStreamListener listener;
 	
@@ -112,7 +112,7 @@ public class NetworkSocketStreamSender implements Runnable {
 			
 	public void disconnect() throws ConnectionException {
 		System.out.println("Disconnecting socket stream");
-		if (!processBlocks) return;
+		if (!processMessages) return;
 		
 		try {
 			ByteArrayOutputStream dataToSend = new ByteArrayOutputStream();
@@ -124,7 +124,7 @@ public class NetworkSocketStreamSender implements Runnable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
-			processBlocks = false;
+			processMessages = false;
 		}
 	}
 	
@@ -140,8 +140,8 @@ public class NetworkSocketStreamSender implements Runnable {
 	}
 	
 	public void run() {
-		processBlocks = true;		
-		while (processBlocks) {
+		processMessages = true;		
+		while (processMessages) {
 			Message message;
 			try {
 				message = retriever.getNextMessageToSend();
@@ -151,7 +151,7 @@ public class NetworkSocketStreamSender implements Runnable {
 				e.printStackTrace();
 			} catch (IOException e) {
 				e.printStackTrace();
-				processBlocks = false;
+				processMessages = false;
 				notifyNetworkStreamListener(ExitCode.CONNECTION_TO_DESKSHARE_SERVER_DROPPED);
 			}
 		}
