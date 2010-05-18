@@ -44,8 +44,6 @@
 				p.collectParameters();
 				logoutURL = p.getParameter("LOGOUTURL");
 				host = p.getParameter("HOST");
-				videoWidth = Number(p.getParameter("WIDTH"));
-				videoHeight = Number(p.getParameter("HEIGHT"));
 				room = p.getParameter("ROOM");
 				service.connect(host+"/"+room);
 				
