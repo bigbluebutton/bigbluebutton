@@ -24,22 +24,23 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	creationComplete="init()"
-	width="{camWidth + 6}" height="{camHeight + 73}" 
-	title="Stream webcam" 
-	backgroundImage="{bbbLogo}" 
+	width="{camWidth + 6}" height="{camHeight + 63}" 
+	title="Stream webcam"  
 	resizable="false" 
-	xmlns:mate="http://mate.asfusion.com/">
+	xmlns:mate="http://mate.asfusion.com/" xmlns:views="org.bigbluebutton.modules.videoconf.views.*" xmlns:containers="flexlib.containers.*">
 	
 	<mx:Script>
 		<![CDATA[
 			import flexlib.mdi.events.MDIWindowEvent;
-			import mx.events.ResizeEvent;
-			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
-			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
-			import mx.core.UIComponent;
+			
 			import mx.controls.Alert;
+			import mx.core.UIComponent;
+			import mx.events.ResizeEvent;
+			
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
+			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
+			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
 		
 			private var _xPosition:int = 200;
 			private var _yPosition:int = 200;
@@ -47,7 +48,6 @@
 			private var images:Images = new Images();
 			[Bindable] public var camIcon:Class = images.control_play;
 			[Bindable] public var bbbLogo:Class = images.bbb_logo;
-			[Bindable] private var resolutions:Array = new Array("320x240", "640x480");
 			
 			private var video:Video;
 			public var streamName:String;
@@ -57,10 +57,27 @@
 			
 			private function init():void{
 				checkIfMacCamera();
-				if (isPresenter()) showResControls(true);
-				if (Camera.names.length > 1) showVideoControls(true);
+				if (isPresenter() || (Camera.names.length > 1)) {
+					optionsTab.showControls(true);
+					drawTip();
+				}
+
 				if (!isPresenter() && Camera.names.length == 1) startPublishing();
 				maximizeRestoreBtn.visible = false;
+				
+				optionsTab.addEventListener(PublishOptionsTab.START_PUBLISH, startPublishing);
+			}
+			
+			private function drawTip():void{
+				var t:TextField = new TextField();
+				t.text = "Click to start sharing";
+				t.selectable = false;
+				var textFormat:TextFormat = new TextFormat("Verdana", 18, 0x000000, true);
+				t.setTextFormat(textFormat);
+				videoHolder.rawChildren.addChild(t);
+				t.x = 50;
+				t.width = videoHolder.width;
+				t.y = videoHolder.height - 50;
 			}
 			
 			public function get xPosition():int {
@@ -100,8 +117,8 @@
 			
 			public function resetWidthAndHeight():void{}	
 			
-			private function startPublishing():void{
-				var camera:Camera = Camera.getCamera(cmbCameraSelector.selectedIndex.toString());
+			private function startPublishing(event:Event = null):void{
+				var camera:Camera = Camera.getCamera(optionsTab.selectedCamera.toString());
 				if (camera == null) return;
 				
 				setResolution();
@@ -115,7 +132,7 @@
 				video.width = camWidth;
 				video.height = camHeight;
 				video.attachCamera(camera);
-				videoHolder.addChild(video);
+				videoHolder.rawChildren.addChild(video);
 //				addChild(videoHolder);
 				
 				var e:StartBroadcastEvent = new StartBroadcastEvent();
@@ -123,8 +140,8 @@
 				e.camera = camera;
 				dispatchEvent(e);
 				
-				showVideoControls(false);
-				showResControls(false);
+				optionsTab.showVideoControls(false);
+				optionsTab.showControls(false);
 			}
 			
 			override public function close(event:MouseEvent=null):void{
@@ -144,14 +161,14 @@
 			}
 			
 			private function setResolution():void{
-				if (cmbResolution.selectedLabel == "320x240"){
+				if (optionsTab.selectedResolution == PublishOptionsTab.RESOLUTION_320x240){
 					camHeight = 240;
 					camWidth = 320;
-				} else if (cmbResolution.selectedLabel == "640x480"){
+				} else if (optionsTab.selectedResolution == PublishOptionsTab.RESOLUTION_640x480){
 					camHeight = 480;
 					camWidth = 640;
 				}
-				this.streamName = cmbResolution.selectedLabel.concat(this.streamName);
+				this.streamName = optionsTab.selectedResolution.concat(this.streamName);
 			}
 			
 			public function set userrole(role:String):void{
@@ -163,23 +180,6 @@
 				else return false;
 			}
 			
-			private function showVideoControls(show:Boolean):void{
-				if (show){
-					bottomBar.visible = true;
-					btnStartPublish.visible = true;
-					cmbCameraSelector.visible = true;
-				} else{
-					bottomBar.visible = false;
-					btnStartPublish.visible = false;
-					cmbCameraSelector.visible = false;
-				}
-			}
-			
-			private function showResControls(show:Boolean):void{
-				if (show) cmbResolution.visible = true;
-				else cmbResolution.visible = false;
-			}
-			
 			private function closeWindow(e:CloseAllWindowsEvent):void{
 				this.close();
 			}
@@ -187,20 +187,22 @@
 			private function checkIfMacCamera():void{
 				for (var i:int = 0; i<Camera.names.length; i++){
 					if (Camera.names[i] == "USB Video Class Video") {
-						cmbCameraSelector.selectedIndex = i;
+						optionsTab.cmbCameraSelector.selectedIndex = i;
 					}
 				}
+			}
+			
+			private function rolloverVideoHolder():void{
+				//Do something fancy here to show the image is clickable, similar to when you rollover a button
 			}
 			
 		]]>
 	</mx:Script>
 	
-	<mx:UIComponent id="videoHolder" width="{camWidth}" height="{camHeight}" />
-	<mx:ControlBar id="bottomBar">
-		<mx:Button id="btnStartPublish" toolTip="start streaming" icon="{camIcon}" click="startPublishing()" />
-		<mx:ComboBox id="cmbCameraSelector" dataProvider="{Camera.names}" width="150" visible="false" />
-		<mx:ComboBox id="cmbResolution" dataProvider="{resolutions}" width="20%" visible="false" />
-	</mx:ControlBar>
+	<mx:TabNavigator id="tabNav" width="100%" height="100%" >
+		<mx:Canvas id="videoHolder" width="{camWidth}" height="{camHeight}" label="Stream" backgroundImage="{bbbLogo}" click="startPublishing()" rollOver="rolloverVideoHolder()" />
+		<views:PublishOptionsTab id="optionsTab" width="100%" height="100%" visible="false" />
+	</mx:TabNavigator>
 	
 	<mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
 </MDIWindow>
