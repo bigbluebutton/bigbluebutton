@@ -88,8 +88,8 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
         
         try {
 			ExitCode reason = dsMain.exitReasonQ.take();
-			//if (reason == ExitCode.NORMAL) client.stop();
 			client.stop();
+			lifeline.disconnect();
 			System.exit(reason.getExitCode());
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
