@@ -70,14 +70,13 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
 	private void startCapture() {
 		capture = new ScreenCapture(x, y, width, height);
 		captureTaker = new ScreenCaptureTaker(capture);
+		mTaker = new MouseLocationTaker();
 		
 		Dimension screenDim = new Dimension(width, height);
 		Dimension tileDim = new Dimension(blockWidth, blockHeight);
 		blockManager = new BlockManager();
 		blockManager.addListener(this);
 		blockManager.initialize(screenDim, tileDim);
-		
-		
 		
 		sender = new NetworkStreamSender(blockManager, host, port, room, screenDim, tileDim, httpTunnel);
 		connected = sender.connect();
@@ -88,7 +87,7 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
 			captureTakerThread = new Thread(captureTaker, "ScreenCaptureTaker");
 			captureTakerThread.start();	
 			sender.start();
-			mTaker = new MouseLocationTaker();
+			
 			mTaker.start();
 			mouseLocationTakerThread = new Thread(mTaker, "MouseLocationTakerThread");
 			mTaker.addListener(this);
