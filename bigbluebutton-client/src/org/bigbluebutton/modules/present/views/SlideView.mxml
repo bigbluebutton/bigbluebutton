@@ -41,27 +41,31 @@
     
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.common.IBbbCanvas;
-			import org.bigbluebutton.modules.present.events.UploadEvent;
-			import org.bigbluebutton.modules.present.events.SlideResizedEvent;
-			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 			import com.asfusion.mate.events.Dispatcher;
-			import org.bigbluebutton.modules.present.events.CursorEvent;
-			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import org.bigbluebutton.modules.present.events.SlideEvent;
-			import org.bigbluebutton.modules.present.events.MoveEvent;
-			import org.bigbluebutton.modules.present.events.ZoomEvent;
-			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
-			import org.bigbluebutton.modules.present.events.PresenterCommands;
-			import mx.controls.Button;
-			import mx.collections.ArrayCollection;
-			import mx.binding.utils.BindingUtils;
+			
 			import flash.events.Event;
-			import mx.events.ListEvent;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.collections.ArrayCollection;
+			import mx.controls.Button;
 			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			
+			import org.bigbluebutton.common.IBbbCanvas;
+			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.modules.present.events.CursorEvent;
+			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
+			import org.bigbluebutton.modules.present.events.MoveEvent;
+			import org.bigbluebutton.modules.present.events.PresenterCommands;
+			import org.bigbluebutton.modules.present.events.SlideEvent;
+			import org.bigbluebutton.modules.present.events.SlideResizedEvent;
+			import org.bigbluebutton.modules.present.events.UploadEvent;
+			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
+			import org.bigbluebutton.modules.present.events.ZoomEvent;
 
 			private var zoomPercentage:int = 100;
 			private static const ZOOM_STEP:int = 5;
+			public static const THUMBNAILS_CLOSED:String = "ThumbnailsClosed";
 			
 			/**
 			 * Variables that holds the presenter's locations of the
@@ -128,6 +132,7 @@
 				dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, thumbnailView.selectedIndex));
 				thumbnailView.visible = false;
 				showOverlayCanvas(true);
+				dispatchEvent(new Event(THUMBNAILS_CLOSED));
 			}
 			
 			private function changeIndex(e:ListEvent):void{

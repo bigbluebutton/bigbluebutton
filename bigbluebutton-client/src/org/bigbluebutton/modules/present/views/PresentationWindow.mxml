@@ -512,6 +512,7 @@
             private function showThumbnails():void{
             	slideView.thumbnailView.visible = !slideView.thumbnailView.visible;
             	setComponentsEnabled(!slideView.thumbnailView.visible);
+				slideView.addEventListener(SlideView.THUMBNAILS_CLOSED, thumnailsClosed);
             }
             
             private function addOverlayCanvas(e:AddOverlayCanvasEvent):void{
@@ -537,6 +538,14 @@
             		(externalButtons.getItemAt(i) as IPresentationButton).setButtonVisibility(visible);
             	}
             }
+			
+			/**
+			 * Executed when the thumbnails viewer is closed
+			 */
+			private function thumnailsClosed(e:Event):void{
+				slideView.removeEventListener(SlideView.THUMBNAILS_CLOSED, thumnailsClosed);
+				setComponentsEnabled(true);
+			}
             
             /**
             * Sets the enabled of buttons added throught the Presentation API

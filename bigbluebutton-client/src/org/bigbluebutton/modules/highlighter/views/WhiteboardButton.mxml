@@ -3,9 +3,11 @@
 	implements="org.bigbluebutton.modules.present.api.IPresentationButton" >
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.present.views.PresentationWindow;
-			import org.bigbluebutton.modules.highlighter.events.WhiteboardButtonEvent;
+			import mx.controls.Alert;
+			
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.modules.highlighter.events.WhiteboardButtonEvent;
+			import org.bigbluebutton.modules.present.views.PresentationWindow;
 			
 			private var images:Images = new Images();
 			[Bindable] private var whiteboard_icon:Class = images.whiteboard;
@@ -41,7 +43,7 @@
 			}
 			
 			public function setComponentEnabled(enabled:Boolean):void{
-				if (enabled) sendEnableWhiteboardEvent();
+				if (enabled && whiteboardEnabled) sendEnableWhiteboardEvent();
 				else if (!enabled) sendDisableWhiteboardEvent();
 			}
 		]]>
