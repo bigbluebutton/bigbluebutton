@@ -51,7 +51,8 @@ class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, v
 	
 	private def startStream() = {
 	  log.debug("DeskShareStream: Starting stream %s", name)
-   	  broadcastStream.sendDeskshareStreamStarted(new ArrayList[Object]())
+	  
+   	  broadcastStream.sendDeskshareStreamStarted(width, height)
 	}
 	
 	private def updateStreamMouseLocation(ml: UpdateStreamMouseLocation) = {
