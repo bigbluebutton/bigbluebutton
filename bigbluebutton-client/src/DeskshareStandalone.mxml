@@ -2,6 +2,7 @@
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mate="http://mate.asfusion.com/"
 	creationComplete="onCreationComplete()"
+	backgroundColor="white"
 	width="100%" height="100%"
 	layout="absolute">
 	
@@ -141,16 +142,16 @@
 				video.width = displayWidth;
 				videoHolder.width = video.width;
 				// Maintain aspect-ratio
-				video.height = displayHeight * aspectRatio;
+				video.height = displayWidth * aspectRatio;
 				videoHolder.height = video.height;				
 			}
 				
 			private function fitToHeightAndAdjustWidthToMaintainAspectRatio():void {
-				var aspectRatio:Number = video.height/video.width;					
+				var aspectRatio:Number = video.width/video.height;					
 				video.height = displayHeight;
 				videoHolder.height = video.height;
 				// Maintain aspect-ratio
-				video.width = (aspectRatio * displayWidth);
+				video.width = aspectRatio * displayHeight;
 				videoHolder.width = video.width;				
 			}			
 		]]>
