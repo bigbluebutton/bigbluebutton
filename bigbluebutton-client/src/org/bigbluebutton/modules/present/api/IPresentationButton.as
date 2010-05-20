@@ -7,5 +7,6 @@ package org.bigbluebutton.modules.present.api
 		function buttonAdded(buttonParent:PresentationWindow):void;
 		function setButtonVisibility(visible:Boolean):void;
 		function setComponentEnabled(enabled:Boolean):void;
+		function presenterChanged(isPresenter:Boolean, presenterName:String):void;
 	}
 }

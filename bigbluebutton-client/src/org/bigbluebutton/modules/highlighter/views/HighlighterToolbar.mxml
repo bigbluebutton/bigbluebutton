@@ -91,7 +91,9 @@
 			}
 			
 			private function viewerMode(e:MadePresenterEvent):void{
-				this.visible = false;
+				//this.visible = false;
+				
+				//disableWhiteboard();
 			}
 			
 			private function showToolbar(e:PresentationEvent):void{
@@ -102,18 +104,18 @@
 				if (!canvas.isPageEmpty()) dispatchEvent(new HighlighterDrawEvent(HighlighterDrawEvent.UNDO_SHAPE));
 			}
 			
-			private function enableWhiteboard(event:WhiteboardButtonEvent):void{
+			private function enableWhiteboard(event:WhiteboardButtonEvent = null):void{
 				this.visible = true;
-				var e:HighlighterPresenterEvent = new HighlighterPresenterEvent(HighlighterPresenterEvent.MODIFY_ENABLED);
+				/*var e:HighlighterPresenterEvent = new HighlighterPresenterEvent(HighlighterPresenterEvent.MODIFY_ENABLED);
 				e.enabled = true;
-				dispatchEvent(e);
+				dispatchEvent(e);*/
 			}
 			
-			private function disableWhiteboard(event:WhiteboardButtonEvent):void{
+			private function disableWhiteboard(event:WhiteboardButtonEvent = null):void{
 				this.visible = false;
-				var e:HighlighterPresenterEvent = new HighlighterPresenterEvent(HighlighterPresenterEvent.MODIFY_ENABLED);
+				/*var e:HighlighterPresenterEvent = new HighlighterPresenterEvent(HighlighterPresenterEvent.MODIFY_ENABLED);
 				e.enabled = false;
-				dispatchEvent(e);
+				dispatchEvent(e);*/
 			}
 			
 			public function positionToolbar(window:PresentationWindow):void{

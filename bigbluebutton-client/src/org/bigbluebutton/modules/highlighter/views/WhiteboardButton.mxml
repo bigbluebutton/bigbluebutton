@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" icon="{whiteboard_icon}" width="20" height="20" click="toggleWhiteboard()" visible="false"
-	implements="org.bigbluebutton.modules.present.api.IPresentationButton" >
+	implements="org.bigbluebutton.modules.present.api.IPresentationButton" xmlns:mate="http://mate.asfusion.com/" >
 	<mx:Script>
 		<![CDATA[
 			import mx.controls.Alert;
 			import mx.core.Application;
 			
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.modules.highlighter.events.HighlighterUpdate;
 			import org.bigbluebutton.modules.highlighter.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.modules.present.views.PresentationWindow;
 			
@@ -14,6 +15,7 @@
 			[Bindable] private var whiteboard_icon:Class = images.whiteboard;
 			
 			private var whiteboardEnabled:Boolean = false;
+			private var isPresenter:Boolean = false;
 			
 			private function toggleWhiteboard():void{
 				this.whiteboardEnabled = !this.whiteboardEnabled;
@@ -55,6 +57,13 @@
 				if (enabled && whiteboardEnabled) sendEnableWhiteboardEvent();
 				else if (!enabled) sendDisableWhiteboardEvent();
 			}
+			
+			public function presenterChanged(isPresenter:Boolean, presenterName:String):void{
+				setComponentEnabled(isPresenter);
+				this.isPresenter = isPresenter;
+			}
+			
 		]]>
 	</mx:Script>
+	
 </mx:Button>

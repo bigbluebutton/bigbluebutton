@@ -17,6 +17,7 @@
 			import org.bigbluebutton.modules.highlighter.events.HighlighterDrawEvent;
 			import org.bigbluebutton.modules.highlighter.events.HighlighterUpdate;
 			import org.bigbluebutton.modules.highlighter.events.PageEvent;
+			import org.bigbluebutton.modules.highlighter.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.modules.highlighter.maps.HighlighterEventMap;
 			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
 			
@@ -236,11 +237,6 @@
 				}
 			}
 			
-			private function modifyEnabled(e:HighlighterUpdate):void{
-				this.whiteboardEnabled = e.boardEnabled;
-				setWhiteboardVisibility();
-			}
-			
 			private function setWhiteboardVisibility():void{
 				if (this.whiteboardEnabled && this.showWhiteboard) this.visible = true;
 				else this.visible = false;
@@ -302,6 +298,16 @@
 				return (this.shapeList.length == 0);
 			}
 			
+			private function enableWhiteboard(e:WhiteboardButtonEvent):void{
+				this.whiteboardEnabled = true;
+				setWhiteboardVisibility();
+			}
+			
+			private function disableWhiteboard(e:WhiteboardButtonEvent):void{
+				this.whiteboardEnabled = false;
+				setWhiteboardVisibility();
+			}
+			
 		]]>
 	</mx:Script>
 	
@@ -311,5 +317,6 @@
 	<mate:Listener type="{HighlighterUpdate.SHAPE_UNDONE}" method="undoShape" />
 	<mate:Listener type="{WindowResizedEvent.PRESENTATION_WINDOW_RESIZED_EVENT}" method="scaleCanvas" />
 	<mate:Listener type="{PageEvent.CHANGE_PAGE}" method="changePage" />
-	<mate:Listener type="{HighlighterUpdate.BOARD_ENABLED}" method="modifyEnabled" />
+	<mate:Listener type="{WhiteboardButtonEvent.ENABLE_WHITEBOARD}" method="enableWhiteboard" />
+	<mate:Listener type="{WhiteboardButtonEvent.DISABLE_WHITEBOARD}" method="disableWhiteboard" />
 </mx:Canvas>

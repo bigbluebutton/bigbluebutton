@@ -227,7 +227,7 @@
 				} else {
 					trace("removing participant " + event.participant.name + "[" + event.participant.userid + "]");
 					removeParticipantFromList(event.participant.userid);
-					showMessage(PUBLIC_CHAT_USERID, "<b>" +  event.participant.name + " has left the conference </b>");
+					//showMessage(PUBLIC_CHAT_USERID, "<b>" +  event.participant.name + " has left the conference </b>");
 				}
 			}
 			

@@ -337,7 +337,8 @@
 						showUploadPresentationLabel(false);
 				}
 				
-				setPresentersName(presentersName);				
+				setPresentersName(presentersName);	
+				notifyComponentsOfPresenterChange(isPresenter, presentersName);
 			}
 			
 			private function setPresentersName(name:String):void {
@@ -555,6 +556,12 @@
             		(externalButtons.getItemAt(i) as IPresentationButton).setComponentEnabled(enabled);
             	}
             }
+			
+			private function notifyComponentsOfPresenterChange(isPresenter:Boolean, presenterName:String):void{
+				for (var i:int = 0; i<externalButtons.length; i++){
+					(externalButtons.getItemAt(i) as IPresentationButton).presenterChanged(isPresenter, presenterName);
+				}
+			}
             
 		]]>
 	</mx:Script>
