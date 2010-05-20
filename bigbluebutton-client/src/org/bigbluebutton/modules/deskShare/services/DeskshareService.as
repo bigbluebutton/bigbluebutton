@@ -128,10 +128,13 @@ package org.bigbluebutton.modules.deskShare.services
 		 * Invoked on the server once the clients' applet has started sharing and the server has started a video stream 
 		 * 
 		 */		
-		public function appletStarted():void{
+		public function appletStarted(videoWidth:Number, videoHeight:Number):void{
 			LogUtil.debug("Got applet started");
 			trace("Got applet started");
-			dispatcher.dispatchEvent(new AppletStartedEvent());
+			var event:AppletStartedEvent = new AppletStartedEvent();
+			event.videoWidth = videoWidth;
+			event.videoHeight = videoHeight;
+			dispatcher.dispatchEvent(event);
 		}
 		
 		/**

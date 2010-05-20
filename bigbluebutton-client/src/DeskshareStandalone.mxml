@@ -59,7 +59,7 @@
 			}
 			
 			private function onAppletStart(event:AppletStartedEvent):void{
-				startVideo(service.getConnection(), room, displayWidth, displayHeight);
+				startVideo(service.getConnection(), room, event.videoWidth, event.videoHeight);
 			}
 
 			private function onViewStreamStart(event:ViewStreamEvent):void {
