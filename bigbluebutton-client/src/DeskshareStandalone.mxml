@@ -86,9 +86,15 @@
 				calculateDisplayDimensions(video, videoHolder);
 				videoHolder.addChild(video);	
 				videoHolder.addChild(cursor);	
+				centerVideo();
 				ns.play(stream);	
 				this.stream = stream;
 				vbox.addChild(videoHolder);				
+			}
+			
+			private function centerVideo():void {
+				videoHolder.x = vbox.width/2 - video.width/2;
+				videoHolder.y = vbox.height/2 - video.height/2;				
 			}
 			
 			private function calculateDisplayDimensions(video:Video, videoHolder:UIComponent):void {
