@@ -22,13 +22,13 @@
 package org.bigbluebutton.modules.deskShare.events
 {
 	import flash.events.Event;
-	
-	public var videoWidth:Number = 0;
-	public var videoHeight:Number = 0;
-		
+			
 	public class AppletStartedEvent extends Event
 	{
 		public static const APPLET_STARTED:String = "AppletStartedEvent";
+	
+		public var videoWidth:Number = 0;
+		public var videoHeight:Number = 0;
 		
 		public function AppletStartedEvent(type:String = APPLET_STARTED)
 		{
