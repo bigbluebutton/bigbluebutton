@@ -24,13 +24,16 @@
 	creationComplete="init()" xmlns:mate="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.highlighter.events.StartHighligtherModuleEvent;
 			import com.asfusion.mate.events.Dispatcher;
-			import org.bigbluebutton.common.messaging.EndpointMessageConstants;
-			import org.puremvc.as3.multicore.utilities.pipes.interfaces.IPipeMessage;
-			import org.bigbluebutton.common.messaging.Endpoint;
+			
 			import mx.controls.Alert;
+			
+			import org.bigbluebutton.common.messaging.Endpoint;
+			import org.bigbluebutton.common.messaging.EndpointMessageConstants;
 			import org.bigbluebutton.common.messaging.Router;
+			import org.bigbluebutton.modules.highlighter.events.StartHighligtherModuleEvent;
+			import org.bigbluebutton.modules.highlighter.events.StopHighlighterModuleEvent;
+			import org.puremvc.as3.multicore.utilities.pipes.interfaces.IPipeMessage;
 			
 			private static const TO_HIGHLIGHTER_MODULE:String = "TO_HIGHLIGHTER_MODULE";
 			private static const FROM_HIGHLIGHTER_MODULE:String = "FROM_HIGHLIGHTER_MODULE";
@@ -113,7 +116,7 @@
 			}
 		
 			public function stop():void {
-				
+				globalDispatcher.dispatchEvent(new StopHighlighterModuleEvent(StopHighlighterModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT));
 			}
 		]]>
 	</mx:Script>

@@ -4,6 +4,7 @@
 	<mx:Script>
 		<![CDATA[
 			import mx.controls.Alert;
+			import mx.core.Application;
 			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.modules.highlighter.events.WhiteboardButtonEvent;
@@ -34,6 +35,14 @@
 				var e:WhiteboardButtonEvent = new WhiteboardButtonEvent(WhiteboardButtonEvent.WHITEBOARD_ADDED_TO_PRESENTATION);
 				e.window = buttonParent;
 				dispatchEvent(e);
+				
+				buttonParent.addEventListener(KeyboardEvent.KEY_UP, checkWhiteboardKeyCombo);
+			}
+			
+			private function checkWhiteboardKeyCombo(e:KeyboardEvent):void{
+				if (e.keyCode == 87){ //Shift-W
+					toggleWhiteboard();
+				}
 			}
 			
 			public function setButtonVisibility(visibility:Boolean):void{

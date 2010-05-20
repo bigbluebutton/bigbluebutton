@@ -8,6 +8,7 @@
 	<!--<mate:Listener type="{PresentationEvent.PRESENTATION_LOADED}" method="showToolbar" />-->
 	<mate:Listener type="{WhiteboardButtonEvent.DISABLE_WHITEBOARD}" method="disableWhiteboard" />
 	<mate:Listener type="{WhiteboardButtonEvent.ENABLE_WHITEBOARD}" method="enableWhiteboard" />
+	<mate:Listener type="{StopHighlighterModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT}" method="closeToolbar" />
 	
 	<mx:Style>
 		.colorPickerStyle {
@@ -39,6 +40,7 @@
 			import org.bigbluebutton.modules.highlighter.business.shapes.DrawObject;
 			import org.bigbluebutton.modules.highlighter.events.HighlighterDrawEvent;
 			import org.bigbluebutton.modules.highlighter.events.HighlighterPresenterEvent;
+			import org.bigbluebutton.modules.highlighter.events.StopHighlighterModuleEvent;
 			import org.bigbluebutton.modules.highlighter.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.modules.present.events.PresentationEvent;
 			import org.bigbluebutton.modules.present.views.PresentationWindow;
@@ -127,6 +129,10 @@
 				this.x = presentationWindow.x + presentationWindow.width + 3;
 				this.y = presentationWindow.y + 30;
 				parent.setChildIndex(this, parent.numChildren-1);
+			}
+			
+			private function closeToolbar(e:StopHighlighterModuleEvent):void{
+				parent.removeChild(this);
 			}
 			
 		]]>
