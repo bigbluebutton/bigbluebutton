@@ -201,6 +201,8 @@ public String getJoinURLViewer(String username, String meetingID) {
 	return base_url_join + join_parameters + "&checksum=" + checksum("join" + join_parameters + salt);
 }
 
+
+
 //
 // checksum() -- create a hash based on the shared salt (located in bbb_api_conf.jsp)
 //
@@ -378,6 +380,39 @@ public String getMeetings() {
 		e.printStackTrace(System.out);
 		return null;
 	}
+}
+
+//
+public String endMeeting(String meetingID, String moderatorPassword) {
+	
+	String base_main = "meetingID=" + urlEncode(meetingID) + "&password=" + urlEncode(moderatorPassword);
+	String base_url = BigBlueButtonURL + "api/end?";
+	String checksum ="";
+	
+	try {
+		checksum = DigestUtils.shaHex("end" + base_main + salt);
+	} catch (Exception e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+
+	String xml = getURL(base_url + base_main + "&checksum=" + checksum);
+
+	Document doc = null;
+	try {
+		doc = parseXml(xml);
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
+	
+	if (doc.getElementsByTagName("returncode").item(0).getTextContent()
+			.trim().equals("SUCCESS")) {
+		return "true";
+	}
+	
+	return  "Error " + doc.getElementsByTagName("messageKey").item(0).getTextContent().trim() 
+	+ ": " + doc.getElementsByTagName("message").item(0).getTextContent().trim();
+	
 }
 
 //

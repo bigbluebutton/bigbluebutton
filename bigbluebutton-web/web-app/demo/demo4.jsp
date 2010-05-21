@@ -51,13 +51,56 @@ Author: Islam El-Ashi <ielashi@gmail.com>
 
 <%@ include file="demo_header.jsp"%>
 
+
+<%
+if (request.getParameterMap().isEmpty()) {
+%>
+
 <h2>Demo #4: Activity Monitor</h2>
 
 <p id="no_meetings"></p>
 
 <div id="meetings"></div>
+
+
+<% 
+} else if (request.getParameter("action").equals("end")) {
+	 
+	String mp = request.getParameter("moderatorPW");
+	String meetingID = request.getParameter("meetingID");
+	
+	String result = endMeeting(meetingID, mp);
+	
+	if ( result.equals("true") ){
+
+%>
+
+<h2>Demo #4: Activity Monitor</h2>
+
+<%=meetingID%> has been terminated.
+
+<p id="no_meetings"></p>
+
+<div id="meetings"></div>
+
+<% } else { %>
+
+<h2>Demo #4: Activity Monitor</h2>
+
+
+Unable to end meeting: <%=meetingID%>
+
+<%=result%>
+
+
+
+
+<% 		}
+	}%>
+	
  <%@ include file="demo_footer.jsp"%>
 </body>
 </html>
 
+ 
 

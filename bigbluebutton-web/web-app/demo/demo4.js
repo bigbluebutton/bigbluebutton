@@ -102,7 +102,20 @@ function getMeetingsInfoURL(meetingID, password, checksum) {
 }
 
 function createMeetingTable(meeting) {	
-	var tableContent = '<table name="' + meeting.meetingID + '" class="hor-minimalist-b" cellspacing="0" summary="The current participants in a meeting"><caption>' + meeting.meetingID + '</caption><tr><th scope="col" abbr="Participants">Participants</th><th scope="col" abbr="Name">Name</th><th scope="col" abbr="Role">Role</th></tr>';
+	
+	var form = '<th><FORM NAME="form1" METHOD="GET"><input type="hidden" name="meetingID" value="' + meeting.meetingID + '"/>';
+	form += '<input type="hidden" name="moderatorPW" value="' + meeting.moderatorPW + '"/>';
+	form += '<INPUT TYPE=hidden NAME=action VALUE="end">';
+	form += '<input type="submit" value="End"/></FORM>';
+	form += '</th>';
+	
+	var tableContent = '<table name="' + meeting.meetingID + '" class="hor-minimalist-b" cellspacing="0" summary="The current participants in a meeting"><caption>' + meeting.meetingID + '<caption><tr><th scope="col" abbr="Participants">Participants</th><th scope="col" abbr="Name">Name</th><th scope="col" abbr="Role">Role</th>';
+	
+	//uncomment below to add the ability to end meetings in the activity monitor
+	//tableContent += form;
+	
+	tableContent += '</tr>';
+	
 	var encodedMeetingID = encode(meeting.meetingID);
 	var tableRowId;
 	var newRows = new Array();
@@ -112,7 +125,7 @@ function createMeetingTable(meeting) {
 		for (var i in meeting.attendees.attendee) {
 			var attendee = (meeting.attendees.attendee[i].userID != null) ? meeting.attendees.attendee[i] : meeting.attendees.attendee;
 			tableRowId = encodedMeetingID + '_' + attendee.userID;
-			tableContent += '<tr id="' + tableRowId + '"><td>' + attendee.userID + '<td>' + attendee.fullName + '</td><td>' + attendee.role + '</td></tr>'
+			tableContent += '<tr id="' + tableRowId + '"><td>' + attendee.userID + '<td>' + attendee.fullName + '</td><td>' + attendee.role + '</td></tr>';
 
 			// if there is a new row to be added, then add to the new rows array to display it with a flash effect.
 			if ($("#" + tableRowId).length == 0) {
