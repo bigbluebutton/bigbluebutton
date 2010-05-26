@@ -30,8 +30,11 @@ public class DeskShareApplet extends Applet implements ClientListener {
 	String hostValue = "localhost";
     Integer portValue = new Integer(9123);
     String roomValue = "85115";
-    Integer widthValue = new Integer(800);
-    Integer heightValue = new Integer(600);
+    Integer cWidthValue = new Integer(800);
+    Integer cHeightValue = new Integer(600);
+    Integer sWidthValue = new Integer(800);
+    Integer sHeightValue = new Integer(600);   
+    Boolean qualityValue = false;
     Integer xValue = new Integer(0);
     Integer yValue = new Integer(0);
     Boolean tunnelValue = true;
@@ -43,10 +46,19 @@ public class DeskShareApplet extends Applet implements ClientListener {
 		String port = getParameter("PORT");
 		if (port != null) portValue = Integer.parseInt(port);
 		roomValue = getParameter("ROOM");
-		widthValue = Integer.parseInt(getParameter("CAPTURE_WIDTH"));
-		heightValue = Integer.parseInt(getParameter("CAPTURE_HEIGHT"));				
+		cWidthValue = Integer.parseInt(getParameter("CAPTURE_WIDTH"));
+		cHeightValue = Integer.parseInt(getParameter("CAPTURE_HEIGHT"));				
 		xValue = Integer.parseInt(getParameter("X"));
 		yValue = Integer.parseInt(getParameter("Y"));
+		
+		String scaleWidth = getParameter("SCALE_WIDTH");
+		if (scaleWidth != null) sWidthValue = Integer.parseInt(scaleWidth);
+		String scaleHeight = getParameter("SCALE_HEIGHT");
+		if (scaleHeight != null) sHeightValue = Integer.parseInt(scaleHeight);
+		
+		String qualityCapture = getParameter("SCALE_WITH_QUALITY");
+		if (qualityCapture != null) qualityValue = Boolean.parseBoolean(qualityCapture);
+		
 		String tunnel = getParameter("HTTP_TUNNEL");
 		if (tunnel != null) tunnelValue = Boolean.parseBoolean(tunnel);
 		icon = getImage(getCodeBase(), "bbb.gif");
@@ -55,9 +67,10 @@ public class DeskShareApplet extends Applet implements ClientListener {
 	public void start() {		 
 		System.out.println("Start");	
 		client = new DeskshareClient.Builder().host(hostValue).port(portValue)
-								.room(roomValue).width(widthValue)
-								.height(heightValue).x(xValue).y(yValue)
-								.httpTunnel(tunnelValue).trayIcon(icon).enableTrayIconActions(false).build();
+							.room(roomValue).captureWidth(cWidthValue)
+							.captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue).quality(qualityValue)
+							.x(xValue).y(yValue)
+							.httpTunnel(tunnelValue).trayIcon(icon).enableTrayIconActions(true).build();
 		client.start();
 	}
 

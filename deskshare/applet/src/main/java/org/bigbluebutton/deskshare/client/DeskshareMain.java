@@ -36,9 +36,11 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
         CmdLineParser.Option port = dsMain.addHelp(parser.addIntegerOption('p', "port"),"The port the application is listening");
         CmdLineParser.Option listenPort = dsMain.addHelp(parser.addIntegerOption('l', "listenPort"),"Port to listen for lifeline");
         CmdLineParser.Option room = dsMain.addHelp(parser.addStringOption('r', "room"),"Room");        
-    	CmdLineParser.Option width = dsMain.addHelp(parser.addIntegerOption('w', "width"),"Width of the screen capture");
-    	CmdLineParser.Option height = dsMain.addHelp(parser.addIntegerOption('t', "height"),"Height of the screen capture");
-    	CmdLineParser.Option xCoord = dsMain.addHelp(parser.addIntegerOption('x', "x"),"Upper-left x coordinate of the screen capture");
+    	CmdLineParser.Option cWidth = dsMain.addHelp(parser.addIntegerOption('w', "captureWidth"),"Width of the screen capture");
+    	CmdLineParser.Option cHeight = dsMain.addHelp(parser.addIntegerOption('t', "captureHeight"),"Height of the screen capture");
+    	CmdLineParser.Option sWidth = dsMain.addHelp(parser.addIntegerOption('d', "scaleWidth"),"Scale capture width");
+    	CmdLineParser.Option sHeight = dsMain.addHelp(parser.addIntegerOption('g', "scaleHeight"),"Scale capture height");    
+    	CmdLineParser.Option quality = dsMain.addHelp(parser.addBooleanOption('q', "quality"),"Scale with better quality instead of speed");    	CmdLineParser.Option xCoord = dsMain.addHelp(parser.addIntegerOption('x', "x"),"Upper-left x coordinate of the screen capture");
     	CmdLineParser.Option yCoord = dsMain.addHelp(parser.addIntegerOption('y', "y"),"Upper-left y coordinate of the screen capture");
     	CmdLineParser.Option tryHttpTunnel = dsMain.addHelp(parser.addBooleanOption('n', "httptunnel"),"Http tunnel if direct connection fails");
     	CmdLineParser.Option icon = dsMain.addHelp(parser.addStringOption('i', "icon"),"Path to system tray icon file");
@@ -66,8 +68,11 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
         Integer portValue = (Integer)parser.getOptionValue(port, new Integer(9123));
         Integer listenPortValue = (Integer)parser.getOptionValue(listenPort, new Integer(9125));
         String roomValue = (String)parser.getOptionValue(room, "85115");
-        Integer widthValue = (Integer)parser.getOptionValue(width, new Integer((int)dim.getWidth()));
-        Integer heightValue = (Integer)parser.getOptionValue(height, new Integer((int)dim.getHeight()));
+        Integer cWidthValue = (Integer)parser.getOptionValue(cWidth, new Integer((int)dim.getWidth()));
+        Integer cHeightValue = (Integer)parser.getOptionValue(cHeight, new Integer((int)dim.getHeight()));
+        Integer sWidthValue = (Integer)parser.getOptionValue(sWidth, new Integer((int)dim.getWidth()));
+        Integer sHeightValue = (Integer)parser.getOptionValue(sHeight, new Integer((int)dim.getHeight()));
+        Boolean qualityValue = (Boolean)parser.getOptionValue(quality, false);
         Integer xValue = (Integer)parser.getOptionValue(xCoord, new Integer(0));
         Integer yValue = (Integer)parser.getOptionValue(yCoord, new Integer(0));
         Boolean tunnelValue = (Boolean)parser.getOptionValue(tryHttpTunnel, false);
@@ -79,8 +84,9 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
         lifeline.listen();
         
         DeskshareClient client = new DeskshareClient.Builder().host(hostValue).port(portValue)
-        						.room(roomValue).width(widthValue)
-        						.height(heightValue).x(xValue).y(yValue)
+        						.room(roomValue).captureWidth(cWidthValue)
+        						.captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue).quality(qualityValue)
+        						.x(xValue).y(yValue)
         						.httpTunnel(tunnelValue).trayIcon(image).enableTrayIconActions(true).build();
         
         client.addClientListeners(dsMain);

@@ -36,7 +36,10 @@ public class ScreenCaptureTaker implements Runnable {
 	public void run(){		
 		while (startCapture){
 //			System.out.println("----- Taking screen capture -----");
+			long start = System.currentTimeMillis();
 			BufferedImage image = capture.takeSingleSnapshot();
+			long end = System.currentTimeMillis();
+			System.out.println("Capture took " + (end - start) + " millis");
 			notifyListeners(image);
 			try{
 				Thread.sleep(200);

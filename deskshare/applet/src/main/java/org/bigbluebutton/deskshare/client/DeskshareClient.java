@@ -40,8 +40,11 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
    	private String host;
    	private int port;
    	private String room;
-   	private int width;
-   	private int height;
+   	private int captureWidth;
+   	private int captureHeight;
+   	private int scaleWidth;
+   	private int scaleHeight;
+   	private boolean quality;
 	private int x;
 	private int y;
 	private boolean httpTunnel;
@@ -58,7 +61,8 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
 		System.out.println("Desktop Sharing v0.64");
 		System.out.println("Start");
 		System.out.println("Connecting to " + host + ":" + port + " room " + room);
-		System.out.println("Sharing " + width + "x" + height + " at " + x + "," + y);
+		System.out.println("Sharing " + captureWidth + "x" + captureHeight + " at " + x + "," + y);
+		System.out.println("Scale to " + scaleWidth + "x" + scaleHeight + " with quality = " + quality);
 		System.out.println("Http Tunnel: " + httpTunnel);
 		tray.addSystemTrayListener(this);
 		tray.displayIconOnSystemTray(sysTrayIcon, enableTrayActions);
@@ -68,11 +72,11 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
 	}
 
 	private void startCapture() {
-		capture = new ScreenCapture(x, y, width, height);
+		capture = new ScreenCapture(x, y, captureWidth, captureHeight, scaleWidth, scaleHeight, quality);
 		captureTaker = new ScreenCaptureTaker(capture);
 		mTaker = new MouseLocationTaker();
 		
-		Dimension screenDim = new Dimension(width, height);
+		Dimension screenDim = new Dimension(scaleWidth, scaleHeight);
 		Dimension tileDim = new Dimension(blockWidth, blockHeight);
 		blockManager = new BlockManager();
 		blockManager.addListener(this);
@@ -163,8 +167,11 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
        	room = builder.room;
        	host = builder.host;
        	port = builder.port;
-       	width = builder.width;  
-       	height = builder.height;
+       	captureWidth = builder.captureWidth;  
+       	captureHeight = builder.captureHeight;
+       	scaleWidth = builder.scaleWidth;
+       	scaleHeight = builder.scaleHeight;
+       	quality = builder.quality;
        	x = builder.x;
        	y = builder.y;
        	httpTunnel = builder.httpTunnel;
@@ -181,8 +188,11 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
        	private String host;
        	private int port;
        	private String room;
-       	private int width;
-       	private int height;
+       	private int captureWidth;
+       	private int captureHeight;
+       	private int scaleWidth;
+       	private int scaleHeight;
+       	private boolean quality;
     	private int x;
     	private int y;
     	private boolean httpTunnel;
@@ -206,13 +216,28 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
     		return this;
     	}
     	
-    	public Builder width(int width) {
-    		this.width = width;
+    	public Builder captureWidth(int width) {
+    		this.captureWidth = width;
     		return this;
     	}
 
-    	public Builder height(int height) {
-    		this.height = height;
+    	public Builder captureHeight(int height) {
+    		this.captureHeight = height;
+    		return this;
+    	}
+    	
+    	public Builder scaleWidth(int width) {
+    		this.scaleWidth = width;
+    		return this;
+    	}
+
+    	public Builder scaleHeight(int height) {
+    		this.scaleHeight = height;
+    		return this;
+    	}
+    	
+    	public Builder quality(boolean quality) {
+    		this.quality = quality;
     		return this;
     	}
     	

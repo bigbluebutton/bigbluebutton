@@ -1,0 +1,13 @@
+.classpath
+.gradle/
+.project
+app/build/classes/
+app/build/libs/
+applet/build/classes/
+applet/build/libs/
+bin/
+common/build/classes/
+common/build/ivy.xml
+common/build/libs/
+lib/
+
