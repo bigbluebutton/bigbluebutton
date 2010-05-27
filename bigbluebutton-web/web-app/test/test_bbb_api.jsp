@@ -55,7 +55,7 @@ public String getJoinURL(String username, String meetingID) {
         if (doc.getElementsByTagName("returncode").item(0).getTextContent()
                 .trim().equals("SUCCESS")) {
             String join_parameters = "meetingID=" + urlEncode(meetingID) + "&fullName=" + urlEncode(username)
-                + "&password=" + urlEncode(password);
+                + "&password=mp";
     
             return base_url_join + join_parameters + "&checksum=" + checksum("join" + join_parameters + salt);
 
