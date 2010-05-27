@@ -9,9 +9,22 @@ public class MouseLocationTaker implements Runnable {
 	
 	private MouseLocationListener listeners;
 	private volatile boolean trackMouseLocation = false;
+	private int captureWidth;
+	private int captureHeight;
+	private int scaleWidth;
+	private int scaleHeight;
+	
+	public MouseLocationTaker(int captureWidth, int captureHeight, int scaleWidth, int scaleHeight) {
+		this.captureWidth = captureWidth;
+		this.captureHeight = captureHeight;
+		this.scaleWidth = scaleWidth;
+		this.scaleHeight = scaleHeight;
+	}
 	
 	public Point getMouseLocation() {
 		PointerInfo pInfo;
+		Point pointerLocation = new Point(0,0);
+		
 		try {
 			pInfo = MouseInfo.getPointerInfo();
 		} catch (HeadlessException e) {
@@ -20,9 +33,24 @@ public class MouseLocationTaker implements Runnable {
 			pInfo = null;
 		}
 		
-		if (pInfo == null) return new Point(0,0);
+		if (pInfo == null) return pointerLocation;
 		
-		return pInfo.getLocation();		
+		if (adjustPointerLocationDueToScaling()) {			
+			pointerLocation = calculatePointerLocation(pInfo.getLocation());
+		} else {
+			pointerLocation = pInfo.getLocation();
+		}
+		return pointerLocation;		
+	}
+	
+	private Point calculatePointerLocation(Point p) {
+		double mx = ((double)p.x/(double)captureWidth) * (double)scaleWidth;
+		double my = ((double)p.y/(double)captureHeight) * (double)scaleHeight;
+		return new Point((int)mx, (int)my);
+	}
+	
+	public boolean adjustPointerLocationDueToScaling() {
+		return (captureWidth != scaleWidth && captureHeight != scaleHeight);
 	}
 
 	@Override

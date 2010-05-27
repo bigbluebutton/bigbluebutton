@@ -45,6 +45,7 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
    	private int scaleWidth;
    	private int scaleHeight;
    	private boolean quality;
+   	private boolean aspectRatio;
 	private int x;
 	private int y;
 	private boolean httpTunnel;
@@ -72,10 +73,18 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
 	}
 
 	private void startCapture() {
+		if (aspectRatio) {
+			recalculateScaleDimensionsToMaintainAspectRatio();
+//			System.out.println("[" + scaleWidth + "x" + scaleHeight + "]");
+		}
+		
 		capture = new ScreenCapture(x, y, captureWidth, captureHeight, scaleWidth, scaleHeight, quality);
 		captureTaker = new ScreenCaptureTaker(capture);
-		mTaker = new MouseLocationTaker();
+		mTaker = new MouseLocationTaker(captureWidth, captureHeight, scaleWidth, scaleHeight);
 		
+		// Use the scaleWidth and scaleHeight as the dimension we pass to the BlockManager.
+		// If there is no scaling required, the scaleWidth and scaleHeight will be the same as 
+		// captureWidth and captureHeight (ritzalam 05/27/2010)
 		Dimension screenDim = new Dimension(scaleWidth, scaleHeight);
 		Dimension tileDim = new Dimension(blockWidth, blockHeight);
 		blockManager = new BlockManager();
@@ -101,7 +110,17 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
 			notifyListener(ExitCode.DESKSHARE_SERVICE_UNAVAILABLE);
 		}
 	}
-		
+	
+	private void recalculateScaleDimensionsToMaintainAspectRatio() {
+		if (captureWidth < captureHeight) {
+			double ratio = (double)captureHeight/(double)captureWidth;
+			scaleHeight = (int)((double)scaleWidth * ratio);
+		} else {
+			double ratio = (double)captureWidth/(double)captureHeight;
+			scaleWidth = (int)((double)scaleHeight * ratio);
+		}
+	}
+	
 	/**
 	 * This method is called when the user closes the browser window containing the applet
 	 * It is very important that the connection to the server is closed at this point. That way the server knows to
@@ -172,6 +191,7 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
        	scaleWidth = builder.scaleWidth;
        	scaleHeight = builder.scaleHeight;
        	quality = builder.quality;
+       	aspectRatio = builder.aspectRatio;
        	x = builder.x;
        	y = builder.y;
        	httpTunnel = builder.httpTunnel;
@@ -193,6 +213,7 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
        	private int scaleWidth;
        	private int scaleHeight;
        	private boolean quality;
+       	private boolean aspectRatio;
     	private int x;
     	private int y;
     	private boolean httpTunnel;
@@ -238,6 +259,11 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
     	
     	public Builder quality(boolean quality) {
     		this.quality = quality;
+    		return this;
+    	}
+    	
+    	public Builder aspectRatio(boolean aspectRatio) {
+    		this.aspectRatio = aspectRatio;
     		return this;
     	}
     	

@@ -39,7 +39,7 @@ public class ScreenCaptureTaker implements Runnable {
 			long start = System.currentTimeMillis();
 			BufferedImage image = capture.takeSingleSnapshot();
 			long end = System.currentTimeMillis();
-			System.out.println("Capture took " + (end - start) + " millis");
+//			System.out.println("Capture took " + (end - start) + " millis");
 			notifyListeners(image);
 			try{
 				Thread.sleep(200);

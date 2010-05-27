@@ -35,6 +35,7 @@ public class DeskShareApplet extends Applet implements ClientListener {
     Integer sWidthValue = new Integer(800);
     Integer sHeightValue = new Integer(600);   
     Boolean qualityValue = false;
+    Boolean aspectRatioValue = false;
     Integer xValue = new Integer(0);
     Integer yValue = new Integer(0);
     Boolean tunnelValue = true;
@@ -59,6 +60,9 @@ public class DeskShareApplet extends Applet implements ClientListener {
 		String qualityCapture = getParameter("SCALE_WITH_QUALITY");
 		if (qualityCapture != null) qualityValue = Boolean.parseBoolean(qualityCapture);
 		
+		String aspectRatio = getParameter("MAINTAIN_ASPECT_RATIO");
+		if (aspectRatio != null) aspectRatioValue = Boolean.parseBoolean(aspectRatio);
+		
 		String tunnel = getParameter("HTTP_TUNNEL");
 		if (tunnel != null) tunnelValue = Boolean.parseBoolean(tunnel);
 		icon = getImage(getCodeBase(), "bbb.gif");
@@ -68,7 +72,8 @@ public class DeskShareApplet extends Applet implements ClientListener {
 		System.out.println("Start");	
 		client = new DeskshareClient.Builder().host(hostValue).port(portValue)
 							.room(roomValue).captureWidth(cWidthValue)
-							.captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue).quality(qualityValue)
+							.captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue)
+							.quality(qualityValue).aspectRatio(aspectRatioValue)
 							.x(xValue).y(yValue)
 							.httpTunnel(tunnelValue).trayIcon(icon).enableTrayIconActions(true).build();
 		client.start();
