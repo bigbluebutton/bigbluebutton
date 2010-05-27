@@ -41,7 +41,7 @@ public String getJoinURL(String username, String meetingID) {
                         
         String create_parameters = "name=" + urlEncode(meetingID) + "&meetingID=" + urlEncode(meetingID)
                                     + welcome_param + "&attendeePW=ap&moderatorPW=mp&voiceBridge="+voiceBridge;
-
+            
         Document doc = null;
 
         try {
@@ -54,13 +54,9 @@ public String getJoinURL(String username, String meetingID) {
 
         if (doc.getElementsByTagName("returncode").item(0).getTextContent()
                 .trim().equals("SUCCESS")) {
-
-            //
-            // Now create a URL to join that meeting
-            //
-            String join_parameters = "meetingID=" + meetingID + "&fullName=" + urlEncode(username)
-                    + "&password=mp";
-
+            String join_parameters = "meetingID=" + urlEncode(meetingID) + "&fullName=" + urlEncode(username)
+                + "&password=" + urlEncode(password);
+    
             return base_url_join + join_parameters + "&checksum=" + checksum("join" + join_parameters + salt);
 
         }
@@ -75,9 +71,10 @@ public String getJoinURL(String username, String meetingID) {
 public String getJoinURLViewer(String username, String meetingID) {
 
     String base_url_join = BigBlueButtonURL + "api/join?";
-    String join_parameters = "meetingID=" + meetingID + "&fullName=" + urlEncode(username)
-    + "&password=ap";
 
+    String join_parameters = "meetingID=" + urlEncode(meetingID) + "&fullName=" + urlEncode(username)
+            + "&password=ap";
+    
     return base_url_join + join_parameters + "&checksum=" + checksum("join" + join_parameters + salt);
 }
 
