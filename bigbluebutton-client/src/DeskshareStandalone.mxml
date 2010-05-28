@@ -25,7 +25,7 @@
 			
 			private var videoHolder:UIComponent;
 			
-			private var cursor:Shape;
+			private var cursor:Shape = new Shape();;
 						
 			private var images:Images = new Images();
 			[Bindable] public var bbbLogo:Class = images.bbb_logo;
@@ -49,7 +49,6 @@
 				room = p.getParameter("ROOM");
 				service.connect(host+"/"+room);
 				
-				cursor = new Shape();
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
 				cursor.graphics.drawCircle(0,0,3);
 				
