@@ -30,9 +30,13 @@ import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Robot;
-import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
+import java.awt.image.ConvolveOp;
+import java.awt.image.Kernel;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The Capture class uses the java Robot class to capture the screen
@@ -73,7 +77,9 @@ public class ScreenCapture {
 	public BufferedImage takeSingleSnapshot() {
 		BufferedImage capturedImage = robot.createScreenCapture(this.screenBounds);
 		if (needToScaleImage()) {
-			if (quality) return useQuality(capturedImage);
+			if (quality) {
+				return useQuality(capturedImage);
+			}
 			return getScaledInstance(capturedImage, scaleWidth, scaleHeight, RenderingHints.VALUE_INTERPOLATION_BICUBIC, true);
 		} else {
 			return capturedImage;
@@ -108,12 +114,7 @@ public class ScreenCapture {
 		g2.dispose();
 		return resultImage;
 	}
-	/*
-	 * GraphicsConfiguration GrphConfig = getGraphicsConfiguration();
-BufferedImage offscreenBuf = GrphConfig.createCompatibleImage(bufWidth, bufHeight, Transparency.OPAQUE );
-offscreenBuf.setAccelerationPriority(1);
-
-	 */
+		 
 	/**
      * Convenience method that returns a scaled instance of the
      * provided {@code BufferedImage}.
