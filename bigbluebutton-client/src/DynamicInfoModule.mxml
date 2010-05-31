@@ -86,15 +86,15 @@
 			public function start(attributes:Object):void {	
 				_attributes = attributes;
 
-				/*
 				// debugging code:
+				/*
 				LogUtil.debug('all attributes:');
 				for (var p:String in _attributes) {
 					LogUtil.debug(p + ' = ' + _attributes[p]);
 				}
 				*/
 				// TODO: HACK!  should not be using voicebridge here.  we just don't have the meeting ID yet, and the voice bridge is currently the same value
-				var url:String = _attributes.infoURL.replace("{role}", _attributes.userrole).replace("{userID}", _attributes.userid).replace("{meetingID}", _attributes.voicebridge);
+				var url:String = _attributes.infoURL.replace("{role}", _attributes.userrole).replace("{userID}", _attributes.externUserID).replace("{meetingID}", _attributes.meetingID);
 				loadXml(url);
 			}
 
