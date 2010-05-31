@@ -37,17 +37,20 @@
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
+			private var streamName:String = "";
 				
 			private function viewCamera():void {
    				LogUtil.debug("ViewersModule - sending camera view request for stream" + data.streamName);
    				streamIcon.enabled = false;
+   				streamName = data.streamName;
 				dispatchEvent(new ViewCameraEvent(data.streamName, data.name));
    			}
    			
    			private function onViewVideoCloseEvent(event:BBBEvent):void {
    				LogUtil.debug("ViewWindoClosing event: " + event.message);
-   				if (data.streamName == event.message) {
+   				if (streamName == event.message) {
    					streamIcon.enabled = true;
+   					streamName = "";
    				}
    			}
    			
