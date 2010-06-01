@@ -49,6 +49,7 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
 	private Dimension screenDim;
 	private Dimension blockDim;
 	private BlockManager blockManager;
+	private NetworkConnectionListener listener;
 	
 	public NetworkStreamSender(BlockManager blockManager, String host, int port,
 			String room, Dimension screenDim, Dimension blockDim, boolean httpTunnel) {
@@ -63,6 +64,14 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
 		numThreads = Runtime.getRuntime().availableProcessors();
 		System.out.println("Starting up " + numThreads + " sender threads.");
 		executor = Executors.newFixedThreadPool(numThreads);
+	}
+	
+	public void addNetworkConnectionListener(NetworkConnectionListener listener) {
+		this.listener = listener;
+	}
+	
+	private void notifyNetworkConnectionListener(ExitCode reason) {
+		if (listener != null) listener.networkConnectionException(reason);
 	}
 	
 	public boolean connect() {	
@@ -118,11 +127,13 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
 	
 	private void createSender(int i) throws ConnectionException {
 		socketSenders[i] = new NetworkSocketStreamSender(i, this, room, screenDim, blockDim);
+		socketSenders[i].addListener(this);
 		socketSenders[i].connect(host, port);		
 	}
 	
 	private void createHttpSender(int i) throws ConnectionException {
 		httpSenders[i] = new NetworkHttpStreamSender(i, this, room, screenDim, blockDim);
+		httpSenders[i].addListener(this);
 		httpSenders[i].connect(host);
 	}
 	
@@ -133,7 +144,7 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
 	public void start() {
 		System.out.println("Starting network sender.");		
 		if (tunneling) {
-			for (int i = 0; i < 1; i++) {
+			for (int i = 0; i < numRunningThreads; i++) {
 				httpSenders[i].sendStartStreamMessage();
 				executor.execute(httpSenders[i]);
 			}
@@ -165,6 +176,7 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
 		executor.shutdownNow();
 		httpSenders = null;
 		socketSenders = null;
+		
 	}
 
 	private boolean tryHttpTunneling() {
@@ -202,7 +214,13 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
 			} else {
 				socketSenders[id].disconnect();
 			}
-			if (numRunningThreads < 1) stop();
+			if (numRunningThreads < 1) {
+				System.out.println("No more sender threads. Stopping.");
+				stop();
+				notifyNetworkConnectionListener(reason);
+			} else {
+				System.out.println("Sender thread stopped. " + numRunningThreads + " sender threads remaining.");
+			}
 		} catch (ConnectionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

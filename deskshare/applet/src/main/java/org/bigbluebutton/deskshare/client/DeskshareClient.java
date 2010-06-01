@@ -8,11 +8,13 @@ import org.bigbluebutton.deskshare.client.blocks.BlockManager;
 import org.bigbluebutton.deskshare.client.blocks.ChangedBlocksListener;
 import org.bigbluebutton.deskshare.client.net.BlockMessage;
 import org.bigbluebutton.deskshare.client.net.CursorMessage;
+import org.bigbluebutton.deskshare.client.net.NetworkConnectionListener;
 import org.bigbluebutton.deskshare.client.net.NetworkStreamSender;
 import org.bigbluebutton.deskshare.common.Dimension;
 import org.bigbluebutton.deskshare.client.net.ConnectionException;
 
-class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, SystemTrayListener, MouseLocationListener {
+class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, SystemTrayListener, 
+			MouseLocationListener, NetworkConnectionListener {
 	private static final String LICENSE_HEADER = "This program is free software: you can redistribute it and/or modify\n" +
 	"it under the terms of the GNU AFFERO General Public License as published by\n" +
 	"the Free Software Foundation, either version 3 of the License, or\n" +
@@ -94,6 +96,7 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
 		sender = new NetworkStreamSender(blockManager, host, port, room, screenDim, tileDim, httpTunnel);
 		connected = sender.connect();
 		if (connected) {
+			sender.addNetworkConnectionListener(this);
 			captureTaker.addListener(this);
 			captureTaker.start();
 			
@@ -104,8 +107,7 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
 			mTaker.start();
 			mouseLocationTakerThread = new Thread(mTaker, "MouseLocationTakerThread");
 			mTaker.addListener(this);
-			mouseLocationTakerThread.start();
-			
+			mouseLocationTakerThread.start();			
 		} else {
 			notifyListener(ExitCode.DESKSHARE_SERVICE_UNAVAILABLE);
 		}
@@ -175,12 +177,21 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
 	}
 
 	private void notifyListener(ExitCode reason) {
-		if (listener != null) listener.onClientStop(reason);
+		if (listener != null) {
+			System.out.println("Notifying app of client stopping.");
+			listener.onClientStop(reason);
+		}
 	}
 	
 	public void addClientListeners(ClientListener l) {
 		listener = l;
 	}
+
+	@Override
+	public void networkConnectionException(ExitCode reason) {
+		System.out.println("Notifying client of network stopping.");
+		notifyListener(reason);
+	}	
 	
 	private DeskshareClient(Builder builder) {
        	room = builder.room;
@@ -296,5 +307,7 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
     		return new DeskshareClient(this);
     	}
     }
+
+
 
 }

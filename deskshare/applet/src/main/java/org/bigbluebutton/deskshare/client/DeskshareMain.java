@@ -16,7 +16,10 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
 	private final BlockingQueue<ExitCode> exitReasonQ = new LinkedBlockingQueue<ExitCode>(5);
 	
 	private List<String> optionHelpStrings = new ArrayList<String>();
-
+	private static DeskshareMain dsMain;
+	private static LifeLine lifeline;
+	private static DeskshareClient client;
+	
 	private Option addHelp(Option option, String helpString) {
 		optionHelpStrings.add(" -" + option.shortForm() + ", --" + option.longForm() + ": " + helpString);
 		return option;
@@ -83,10 +86,10 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
         
         Image image = Toolkit.getDefaultToolkit().getImage(iconValue);
         
-        LifeLine lifeline = new LifeLine(listenPortValue.intValue(), dsMain);
+        lifeline = new LifeLine(listenPortValue.intValue(), dsMain);
         lifeline.listen();
         
-        DeskshareClient client = new DeskshareClient.Builder().host(hostValue).port(portValue)
+        client = new DeskshareClient.Builder().host(hostValue).port(portValue)
         						.room(roomValue).captureWidth(cWidthValue)
         						.captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue)
         						.quality(qualityValue).aspectRatio(aspectValue)
@@ -97,7 +100,9 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
         client.start();
         
         try {
+        	System.out.println("Waiting for trigger to Stop client.");
 			ExitCode reason = dsMain.exitReasonQ.take();
+			System.out.println("Stopping client.");
 			client.stop();
 			lifeline.disconnect();
 			System.exit(reason.getExitCode());
@@ -120,10 +125,15 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
 	
 	private void queueExitCode(ExitCode reason) {
 		try {
+//			System.out.println("Trigger stop client ." + exitReasonQ.remainingCapacity());
 			exitReasonQ.put(reason);
+			System.out.println("Triggered stop client.");
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			client.stop();
+			lifeline.disconnect();
+			System.exit(reason.getExitCode());
 		}
 	}
 }
