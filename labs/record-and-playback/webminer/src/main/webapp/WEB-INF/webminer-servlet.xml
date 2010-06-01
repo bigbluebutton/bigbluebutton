@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+  <!--
+    the application context definition for the webminer
+    DispatcherServlet
+  -->
+  <bean id="viewResolver"
+    class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+    <property name="viewClass"
+      value="org.springframework.web.servlet.view.JstlView"/>
+    <property name="prefix" value="/WEB-INF/jsp/"/>
+    <property name="suffix" value=".jsp"/>
+  </bean>
+  <bean id="messageSource"
+    class="org.springframework.context.support.ResourceBundleMessageSource">
+    <property name="basenames">
+      <list>
+        <value>messages</value>
+      </list>
+    </property>
+  </bean>
+  <bean id="webminerViewMapping"
+    class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+    <property name="urlMap">
+      <map>
+        <entry key="/courseIndexing.htm">
+          <ref local="webMinerCourseIndexingController"/>
+        </entry>
+        <entry key="/search.htm">
+          <ref local="webMinerSearchController"/>
+        </entry>
+        <entry key="/searchResultPlayer.htm">
+          <ref local="webMinerViewController"/>
+        </entry>
+        <entry key="/searchResultPlayer2.htm">
+          <ref local="webMinerViewController"/>
+        </entry>
+        <entry key="/index.htm">
+          <ref local="webMinerViewController"/>
+        </entry>
+      </map>
+    </property>
+  </bean>
+  <bean id="webMinerViewController"
+    class="edu.carleton.webminer.web.controller.ViewLinkController">
+    <property name="methodNameResolver">
+      <ref local="webminerViewLinkControllerResolver"/>
+    </property>
+  </bean>
+  <bean id="webminerViewLinkControllerResolver"
+    class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
+    <property name="mappings">
+      <props>
+        <prop key="/courseIndexing.htm">launchCourseIndexing</prop>
+        <prop key="/searchResultPlayer.htm">launchResultPlayer</prop>
+        <prop key="/searchResultPlayer2.htm">launchResultPlayer2</prop>
+        <prop key="/index.htm">launchWelcomePage</prop>
+      </props>
+    </property>
+  </bean>
+  <bean id="webMinerCourseIndexingController"
+    class="edu.carleton.webminer.web.controller.CourseIndexingController">
+    <property name="slideExpression">
+      <ref bean="lectureURLExpression"/>
+    </property>
+    <property name="slidePlayTimeExpression">
+      <ref bean="slideTimeExpression"/>
+    </property>
+    <property name="commandClass">
+      <value>edu.carleton.webminer.web.model.IndexingContentSource
+      </value>
+    </property>
+    <property name="commandName">
+      <value>sourceContentURL</value>
+    </property>
+    <property name="validator">
+      <ref bean="indexingContentValidator"/>
+    </property>
+    <property name="formView">
+      <value>courseIndexing</value>
+    </property>
+    <property name="successView">
+      <value>redirect:/search.htm</value>
+    </property>
+  </bean>
+  <bean id="indexingContentValidator"
+    class="edu.carleton.webminer.web.validator.IndexingContentValidator"/>
+  <bean id="contentSearchMapping"
+    class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+    <property name="urlMap">
+      <map>
+        <entry key="/search.htm">
+          <ref local="webMinerSearchController"/>
+        </entry>
+      </map>
+    </property>
+  </bean>
+  <bean id="webMinerSearchController" class="edu.carleton.webminer.web.controller.SearchController">
+    <property name="commandClass">
+      <value>edu.carleton.webminer.web.model.SearchCriteriaCommand</value>
+    </property>
+    <property name="commandName">
+      <value>searchResultURL</value>
+    </property>
+    <property name="formView">
+      <value>search</value>
+    </property>
+    <property name="successView">
+      <value>search</value>
+    </property>
+  </bean>
+  
+</beans>

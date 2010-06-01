@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="init()">
+    	<mx:Panel id="myPanel" title="Search Result Player"
+    	height="100%" width="100%" horizontalAlign="center"
+        paddingTop="10" paddingLeft="10">
+ 		<mx:Canvas y="0" styleName="slideHolder"
+ 			height="100%" width="100%" 
+ 			horizontalScrollPolicy="off" verticalScrollPolicy="off">
+			<mx:Image width="800" height="500" horizontalCenter="0" 
+				source="{currentSlide}"/>
+		</mx:Canvas>
+ 		<mx:HBox width="100%" horizontalAlign="center">
+			<mx:Button width="80" height="21" label="&lt;&lt;" click="goPrevious()"/>
+			<mx:Button width="80" height="21" label="&gt;&gt;" click="goNext()"/>
+			<mx:Button width="35" height="21" label="-" click="nudgeSlider(-0.05)"/>
+			<mx:HSlider id="slider" minimum="0" maximum="100" value="0" tickInterval="10"
+				liveDragging="true" change="onMoveSlider()"/>
+			<mx:Button width="35" height="21" label="+" click="nudgeSlider(0.05)"/>
+			<mx:Button id="play" width="80" height="21" label="&gt;" click="playRecording()"/>
+			<mx:Button id="pause" width="80" height="21" label="||" click="pauseRecording()"
+				enabled="false"/>
+			<mx:Button id="stop" width="80" height="21" label="|&lt;" click="stopRecording()"
+				enabled="false"/>
+		</mx:HBox>
+		<mx:Text width="100%" text="{status}"/>
+		<mx:Text width="100%" text="Slide source: {currentSlide}"/>
+		<!--mx:Text width="100%" text="Debug Info: {debugInfo}"/-->
+    </mx:Panel>
+	<mx:Script>
+		<![CDATA[
+			import flash.media.*;
+			import flash.net.*;
+			import flash.utils.Timer;
+    		import flash.events.TimerEvent;
+			
+			[Bindable] public var archive:String;
+			protected var room:String;
+			
+			[Bindable] protected var archiveUrl:String;
+			protected var archiveLoader:URLLoader;
+			protected var lecture:XML;
+			protected var lectureStart:Number;
+			protected var joinTime:Number;
+			
+			protected var slides:Array;
+			[Bindable] protected var currentIndex:Number;
+			[Bindable] public var currentIndexString:String;
+			[Bindable] protected var currentSlide:String;
+			protected var numberOfSlides:Number;
+			
+			[Bindable] protected var status:String;
+			[Bindable] protected var debugInfo:String="hello";
+			
+			protected var recordingUrl:String;
+			
+			// not used at the moment
+			[Bindable] protected var fading:Boolean = false;
+			
+			// kludge: need better way (UI? XML file?) to specify start of lecture on audio
+			// we need to be able to cut off the "embarrassing" starting section of a recording
+			// don't use this ...
+			// protected var recordingStartSliderPos:Number = 0;
+			
+			protected var sound:Sound;
+			protected var channel:SoundChannel;
+			protected var pos:Number = 0;
+			
+			protected function init():void {
+				if (mx.core.Application.application.parameters.archive != null) {
+					archive = mx.core.Application.application.parameters.archive;
+					room = mx.core.Application.application.parameters.room;
+					currentIndexString = mx.core.Application.application.parameters.currentIndex;
+					currentIndex = 	new Number(	currentIndexString );			
+				}
+				
+				
+				sound = null;
+				if (channel != null) {
+					channel.stop();
+					channel = null;
+				}
+				
+				archiveUrl = archive + "/" + "lecture.xml";
+				status = "Loading lecture from archive: " + archiveUrl;
+				archiveLoader = new URLLoader();
+				archiveLoader.load(new URLRequest(archiveUrl));				
+				archiveLoader.addEventListener(Event.COMPLETE, onArchiveLoaded);
+				archiveLoader.addEventListener(IOErrorEvent.IO_ERROR, onError);
+				archiveLoader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onError);
+				
+				//advanceRecordingToSlide(currentIndex);
+				//currentSlide = archive + "/slides/" + room + "-slide-11.swf"
+				
+			}
+			
+			protected function onArchiveLoaded(e:Event):void {
+				
+				try {			
+					lecture = new XML(archiveLoader.data);
+					lectureStart = lecture.@start;
+					var join:XML = lecture.par.seq.join[0];
+					if (join.@user == "1") {
+						if (join.@time > lectureStart) {
+							// lectureStart should be set to start of audio recording
+							lectureStart = joinTime = join.@time;
+						}
+					}
+					numberOfSlides = lecture.par.seq.slide.length();
+					
+					var slideNum:String = "";
+					var i:Number = 1;
+					for each (var slide:XML in lecture.par.seq.slide) {
+						if (slide.text() == currentIndexString) {
+							slideNum = slide.text();
+							currentIndex = i;
+							break;
+						}
+						i++;
+					}			
+					currentSlide = archive + "/slides/" + room + "-slide-" + slideNum + ".swf";
+					status = "Loaded lecture from " + new Date(lectureStart) +" currentIndexString="+currentIndexString+" currentIndex="+currentIndex;
+					
+				} catch (e:Error) {
+					status = "Error: " + e;
+				}
+				playRecording();
+				
+			}
+			
+			protected function onError(e:ErrorEvent):void {
+				status = "Oops: " + e.text;
+			}
+						
+			protected function goNext():void {
+				if (currentIndex < numberOfSlides) {
+					currentIndex++;
+				} else {
+					currentIndex = 1;
+				}
+				var slide:XML = lecture.par.seq.slide[currentIndex-1];
+				currentSlide = archive + "/slides/" + room + "-slide-" + slide + ".swf";
+				advanceRecordingToSlide(currentIndex);
+			}
+			
+			protected function goPrevious():void {
+				if (currentIndex > 1) {
+					currentIndex--;
+				} else {
+					currentIndex = numberOfSlides;
+				}
+				var slide:XML = lecture.par.seq.slide[currentIndex-1];
+				currentSlide = archive + "/slides/" + room + "-slide-" + slide + ".swf";
+				advanceRecordingToSlide(currentIndex);
+			}			
+			
+			protected function findSlide(pos:Number):Number {
+				var i:Number = 1;
+				for each (var slide:XML in lecture.par.seq.slide) {
+					if (slide.@time >= lectureStart + pos) {
+						return i-1;
+					};
+					i++;
+				}
+				return 1;
+			}
+			
+			protected function advanceRecordingToSlide(slide:Number):void {
+				var slideStart:Number = 
+					new Number(lecture.par.seq.slide[slide-1].@time.toString());
+				pos = slideStart - lectureStart;
+				
+				var minutes:Number = pos/(1000*60);
+				var totalMinutes:Number = sound.length/(1000*60);
+				debugInfo= "slideStart="+slideStart+"&lectureStart="+lectureStart+"&pos="+pos+"&minutes="+minutes+"&totalMini="+totalMinutes;
+				//showSlideInStatus(slide);
+				playRecording();
+			}
+			
+			protected function nudgeSlider(amount:Number):void {
+				slider.value = slider.value + amount;
+				onMoveSlider();
+			}
+
+			protected function onMoveSlider():void {
+				pos = sound.length*slider.value/100;
+				currentIndex = findSlide(pos);
+				
+				var slide:XML = lecture.par.seq.slide[currentIndex-1];
+				currentSlide = archive + "/slides/" + room + "-slide-" + slide + ".swf";
+				
+				showSlideInStatus(currentIndex);
+				playRecording();
+			}
+			
+			protected function playRecording():void {
+				if (sound == null) {
+					status = "Loading audio, please wait ...";
+					sound = new Sound();
+					sound.addEventListener(Event.COMPLETE, onFinishLoading);
+					 status = archive;
+					 status +=lecture.par.audio.@src;
+					 
+					recordingUrl = archive + "/" + lecture.par.audio.@src;
+					
+					sound.load(new URLRequest(recordingUrl));
+					return;
+				}
+				// status.text = "Playing audio";
+				if (channel != null) {
+					channel.stop();
+					channel = null;
+				}
+								
+				// adjust for mono bug
+				//channel = sound.play(pos*100);
+				channel = sound.play(pos);
+				
+				play.enabled = false;
+				pause.enabled = true;
+				stop.enabled = true;
+				
+				slider.value = 100*pos/sound.length;
+				//slider.value = pos/sound.length;
+				showSlideInStatus(currentIndex);
+			} 
+			
+			protected function onFinishLoading(e:Event):void {
+				status = "Audio loaded";
+				// start when first slide is loaded, this removes "setup" portion of recording.
+				// so use advanceRecordingToSlide(1) instead of playRecording()
+				advanceRecordingToSlide(currentIndex);
+				createTimer(1000);
+			}
+			
+			protected function pauseRecording():void {
+				var timeFromLectureStart:Number = lectureStart + pos;	
+				status = "Audio on pause at " + new Date(timeFromLectureStart);
+				pos = channel.position;
+				channel.stop();
+				channel = null;
+				play.enabled = true;
+				pause.enabled = false;
+			}
+
+			protected function stopRecording():void {
+				status = "Audio stopped";
+				pos = 0;
+				channel.stop();
+				channel = null;
+				play.enabled = true;
+				pause.enabled = false;
+				stop.enabled = false;
+				currentIndex = 1;
+				var slide:XML = lecture.par.seq.slide[currentIndex-1];
+				currentSlide = archive + "/slides/" + room + "-slide-" + slide + ".swf";				
+			}
+			
+			protected function createTimer(period:Number):void {
+				var timer:Timer = new Timer(period, 1);
+            	timer.addEventListener(TimerEvent.TIMER, advanceSliderPosition);
+            	timer.start();
+			}
+			
+			protected function advanceSliderPosition(event:TimerEvent):void {
+				// only advance slider when we are playing (ie when play button is disabled)
+				if (channel != null) {
+					pos = pos + 1000;
+					var nextIndex:Number = findSlide(pos);
+					if (nextIndex > currentIndex) {
+						currentIndex = nextIndex;
+						var slide:XML = lecture.par.seq.slide[currentIndex-1];
+						currentSlide = archive + "/slides/" + room + "-slide-" + slide + ".swf";
+						showSlideInStatus(currentIndex);
+					}
+					slider.value = 100*pos/sound.length;
+					//showSlideInStatus(currentIndex);
+				}
+				createTimer(1000);			
+			}
+			
+			protected function showSlideInStatus(slide:Number):void {
+				var timeFromLectureStart:Number = lectureStart + pos;	
+				status = "Slide " + slide + " at " + new Date(timeFromLectureStart);
+			}
+		
+		]]>
+	</mx:Script>
+</mx:Application>
