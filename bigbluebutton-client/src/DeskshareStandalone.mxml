@@ -110,7 +110,8 @@
 				}
 			}
 			
-			private function onUpdateCursorEvent(event:CursorEvent):void {		
+			private function onUpdateCursorEvent(event:CursorEvent):void {	
+				if (cursor == null) return;	
 				cursor.x = ((event.x/video.videoWidth)) * videoHolder.width;
 				cursor.y = ((event.y/video.videoHeight)) * videoHolder.height;
 				cursor.visible = true;
