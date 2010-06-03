@@ -12,21 +12,21 @@
 	<target name="compile-bbb" depends="copy-config-xml, compile-bbb-dev" description="Compiling the BBB mxml files"/>
 
 	<target name="cds" description="Compile Desktop standalone sharing">
-		<mxmlc-compile target="${APP_ROOT}/DeskshareStandalone" />
+		<mxmlc-compile src="${APP_ROOT}" target="DeskshareStandalone" />
 	</target>
 
 	<target name="compile-bbb-dev" description="Compiling the BBB without copying config.xml">
-		<mxmlc-compile target="${APP_ROOT}/BigBlueButton" />
-		<mxmlc-compile target="${APP_ROOT}/ChatModule" />
-		<mxmlc-compile target="${APP_ROOT}/ViewersModule" />
-		<mxmlc-compile target="${APP_ROOT}/ListenersModule" />
-		<mxmlc-compile target="${APP_ROOT}/PresentModule" />
-		<mxmlc-compile target="${APP_ROOT}/DeskShareModule" />	
-		<mxmlc-compile target="${APP_ROOT}/DeskshareStandalone" />	
-		<mxmlc-compile target="${APP_ROOT}/PhoneModule" />
-		<mxmlc-compile target="${APP_ROOT}/VideoconfModule" />
-		<mxmlc-compile target="${APP_ROOT}/HighlighterModule" />
-		<mxmlc-compile target="${APP_ROOT}/DynamicInfoModule" />
+		<mxmlc-compile src="${APP_ROOT}" target="BigBlueButton" />
+		<mxmlc-compile src="${APP_ROOT}" target="ChatModule" />
+		<mxmlc-compile src="${APP_ROOT}" target="ViewersModule" />
+		<mxmlc-compile src="${APP_ROOT}" target="ListenersModule" />
+		<mxmlc-compile src="${APP_ROOT}" target="PresentModule" />
+		<mxmlc-compile src="${APP_ROOT}" target="DeskShareModule" />	
+		<mxmlc-compile src="${APP_ROOT}" target="DeskshareStandalone" />	
+		<mxmlc-compile src="${APP_ROOT}" target="PhoneModule" />
+		<mxmlc-compile src="${APP_ROOT}" target="VideoconfModule" />
+		<mxmlc-compile src="${APP_ROOT}" target="HighlighterModule" />
+		<mxmlc-compile src="${APP_ROOT}" target="DynamicInfoModule" />
 		
 		<copy todir="${OUTPUT_DIR}/conf" >
 			<fileset dir="./src/conf" />
@@ -50,9 +50,9 @@
 		
 		<copy file="./${RESOURCES_DIR}/bbb-deskshare-applet-0.64.jar" todir="${OUTPUT_DIR}"/>
 		
-		<move todir="${OUTPUT_DIR}" >
+		<!--move todir="${OUTPUT_DIR}" >
 			<fileset dir="${OUTPUT_DIR}/src" />
-		</move>
+		</move-->
 	</target>
 
 	<target name="check-config-xml">
@@ -89,16 +89,18 @@
 		<delete dir="${OUTPUT_DIR}" />
 	</target>
 
+	<target name="cleanandbuild" depends="clean, generate-wrapper"></target>
+	
 	<target name="cleanandmake" depends="clean, localization, generate-wrapper"></target>
 	
 	<macrodef name="mxmlc-compile">
 		<attribute name="target" description="Path to the file being compiled." />
 		<attribute name="flex" default="${env.FLEX_HOME}" description="Location of the Flex install." />
 		<attribute name="app" default="."/>
-		<attribute name="output" default="./output" description="" />
+		<attribute name="src" default="./src" description="" />
 		<sequential>
 			<mxmlc 
-				file="@{target}.mxml" 
+				file="@{src}/@{target}.mxml" 
 				output="${OUTPUT_DIR}/@{target}.swf" 
 				debug="false"
 			>

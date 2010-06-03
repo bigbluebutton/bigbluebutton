@@ -12,7 +12,7 @@
 	<mate:Listener type="{CursorEvent.UPDATE_CURSOR_LOC_EVENT}" method="onUpdateCursorEvent" />
 	<mx:Script>
 		<![CDATA[
-			import mx.controls.Alert;
+
 			import org.bigbluebutton.modules.deskShare.events.CursorEvent;
 			import org.bigbluebutton.modules.deskShare.events.ViewStreamEvent;
 			import mx.controls.Button;
@@ -24,7 +24,7 @@
 			import org.bigbluebutton.common.Images;
 			
 			private var videoHolder:UIComponent;
-			
+
 			private var cursor:Shape = new Shape();;
 						
 			private var images:Images = new Images();
@@ -50,9 +50,9 @@
 				service.connect(host+"/"+room);
 				
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
-				cursor.graphics.drawCircle(0,0,3);
-				
+				cursor.graphics.drawCircle(0,0,3);				
 				cursor.visible = false;
+				
 				displayWidth = this.parent.width;
 				displayHeight = this.parent.height;
 			}
@@ -85,10 +85,11 @@
 				calculateDisplayDimensions(video, videoHolder);
 				videoHolder.addChild(video);	
 				videoHolder.addChild(cursor);	
+				videoHolder.addChild(cursorImg);
 				centerVideo();
 				ns.play(stream);	
 				this.stream = stream;
-				vbox.addChild(videoHolder);				
+				vbox.addChild(videoHolder);		
 			}
 			
 			private function centerVideo():void {
@@ -114,7 +115,14 @@
 				if (cursor == null) return;	
 				cursor.x = ((event.x/video.videoWidth)) * videoHolder.width;
 				cursor.y = ((event.y/video.videoHeight)) * videoHolder.height;
-				cursor.visible = true;
+//				cursor.visible = true;
+				
+				cursorImg.visible = true;
+                cursorMove.end();
+                cursorMove.xTo=cursor.x;
+                cursorMove.yTo=cursor.y; 
+                cursorMove.play();
+                
 			}
 			
 			public function stopViewing():void {
@@ -162,5 +170,7 @@
 			}			
 		]]>
 	</mx:Script>
-		<mx:Canvas id="vbox" width="100%" height="100%"/>
+		<mx:Move id="cursorMove" target="{cursorImg}"/>
+		<mx:Image id="cursorImg" visible="false" source="@Embed('org/bigbluebutton/modules/deskShare/assets/images/Cursor.png')"/>
+		<mx:Canvas id="vbox" width="100%" height="100%"/>	
 </mx:Application>
