@@ -130,6 +130,7 @@
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
 				cursor.graphics.drawCircle(0,0,3);
 				videoHolder.addChild(cursor);
+				videoHolder.addChild(cursorImg);
 				cursor.visible = false;
 			}
 			
@@ -142,7 +143,13 @@
 			private function onUpdateCursorEvent(event:CursorEvent):void {	
 				cursor.x = ((event.x/videoWidth)) * videoHolder.width;
 				cursor.y = ((event.y/videoHeight)) * videoHolder.height;
-				cursor.visible = true;
+//				cursor.visible = true;
+				
+				cursorImg.visible = true;
+                cursorMove.end();
+                cursorMove.xTo=cursor.x;
+                cursorMove.yTo=cursor.y; 
+                cursorMove.play();
 			}
 			
 			public function startVideo(connection:NetConnection, stream:String, width:Number, height:Number):void{
@@ -316,7 +323,9 @@
 			}
 		]]>
 	</mx:Script>
-	
+	<mx:Move id="cursorMove" target="{cursorImg}"/>
+	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/Cursor.png')"/>
+		
 	<mx:ControlBar id="bottomBar" height="35">
 		<mx:Button id="btnActualSize" toggle="true" click="determineHowToDisplayVideo()" selected="true"
 			height="90%" icon="{btnActualSize.selected ? fitToActualSizeIcon : fitToWidthIcon}" 
