@@ -3,12 +3,19 @@
 <project name="BigBlueButton Client" basedir="." default="cleanandmake" >
     <property environment="env" />
     <property name="FLEX_HOME" value="${env.FLEX_HOME}" />
+	<property name="RESOURCES_DIR" value="./resources" />
 	<property name="APP_ROOT" value="./src" />
 	<property name="ROOT_DIR" value="." />
 	<property name="OUTPUT_DIR" value="./bin" />
 	<taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar" />
 
-	<target name="mxmlc-component" depends="copy-config-xml" description="Compiling the BBB mxml files">
+	<target name="compile-bbb" depends="copy-config-xml, compile-bbb-dev" description="Compiling the BBB mxml files"/>
+
+	<target name="cds" description="Compile Desktop standalone sharing">
+		<mxmlc-compile target="${APP_ROOT}/DeskshareStandalone" />
+	</target>
+
+	<target name="compile-bbb-dev" description="Compiling the BBB without copying config.xml">
 		<mxmlc-compile target="${APP_ROOT}/BigBlueButton" />
 		<mxmlc-compile target="${APP_ROOT}/ChatModule" />
 		<mxmlc-compile target="${APP_ROOT}/ViewersModule" />
@@ -41,7 +48,7 @@
 			<fileset dir="./src/org/bigbluebutton/modules/phone/views/assets/images/" />
 		</copy>
 		
-		<copy file="./html-template/bbb-deskshare-applet-0.64.jar" todir="${OUTPUT_DIR}"/>
+		<copy file="./${RESOURCES_DIR}/bbb-deskshare-applet-0.64.jar" todir="${OUTPUT_DIR}"/>
 		
 		<move todir="${OUTPUT_DIR}" >
 			<fileset dir="${OUTPUT_DIR}/src" />
@@ -57,7 +64,7 @@
 		<copy file="/var/www/bigbluebutton/client/conf/config.xml" todir="${OUTPUT_DIR}/conf" /> 
 	</target>
 
-	<target name="generate-wrapper" depends="mxmlc-component">
+	<target name="generate-wrapper" depends="compile-bbb">
 		<html-wrapper
 			title="BigBlueButton"
 			file="BigBlueButton.html"
@@ -73,9 +80,9 @@
 			template="express-installation"
 			output="${OUTPUT_DIR}"
 		/>
-		<copy file="./html-template/BigBlueButton.html" todir="${OUTPUT_DIR}" overwrite="true"/>
-		<copy file="./html-template/DeskshareStandalone.html" todir="${OUTPUT_DIR}" overwrite="true"/>
-		<copy file="./html-template/bbb.gif" todir="${OUTPUT_DIR}" overwrite="true"/>
+		<copy file="./${RESOURCES_DIR}/BigBlueButton.html" todir="${OUTPUT_DIR}" overwrite="true"/>
+		<copy file="./${RESOURCES_DIR}/DeskshareStandalone.html" todir="${OUTPUT_DIR}" overwrite="true"/>
+		<copy file="./${RESOURCES_DIR}/bbb.gif" todir="${OUTPUT_DIR}" overwrite="true"/>
 	</target>
 
 	<target name="clean">
