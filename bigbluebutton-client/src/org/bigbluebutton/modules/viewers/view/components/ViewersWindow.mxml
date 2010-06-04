@@ -53,9 +53,7 @@
   			public var isModerator:Boolean = false;
   			
           	public var images:Images = new Images();
-                      
-   			[Bindable]
-   			public var presenterIcon : Class = images.presenter;
+            
    			[Bindable] 
    			public var handIcon:Class = images.raisehand;
    			
@@ -147,8 +145,8 @@
     </mx:DataGrid>
     
    <mx:ControlBar width="100%"> 
-   		 <mx:Button id="presentBtn" icon="{presenterIcon}" visible="{isModerator}" enabled="{viewersGrid.selectedItem != null}"
-    	   			width="20" height="20"
+   		 <mx:Button id="presentBtn" label="Switch Presenter" visible="{isModerator}" enabled="{viewersGrid.selectedItem != null}"
+    	   			width="130" height="20"
     	   			toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.presentBtn.toolTip')}"
     	   			click="assignPresenterClicked()"/>
      	 <mx:Spacer width="100%"/>
