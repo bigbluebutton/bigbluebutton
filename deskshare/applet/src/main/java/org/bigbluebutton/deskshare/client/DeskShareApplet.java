@@ -80,7 +80,7 @@ public class DeskShareApplet extends Applet implements ClientListener {
 							.captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue)
 							.quality(qualityValue).aspectRatio(aspectRatioValue)
 							.x(xValue).y(yValue)
-							.httpTunnel(tunnelValue).trayIcon(icon).enableTrayIconActions(true).build();
+							.httpTunnel(tunnelValue).trayIcon(icon).enableTrayIconActions(false).build();
 		client.start();
 	}
 
