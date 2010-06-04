@@ -40,8 +40,11 @@
 		 * http://gregjessup.com/flex-3-advanceddatagrid-cannot-convert-mxmanagersdragmanagerimpl-to-mxmanagersidragmanager/
 		 * http://butterfliesandbugs.wordpress.com/2007/10/25/workaround-for-error-when-loading-popups-from-modules/
 		 */
-			import mx.managers.IDragManager; 
-			private var iDragManager:IDragManager;  
+		import mx.managers.IDragManager; 
+		private var iDragManager:IDragManager;  
+
+		/** another workaround - for this issue: https://bugs.adobe.com/jira/browse/SDK-13121*/
+		private var hist:HistoryManager
 				
 		private function handleConfigLoadedEvent(e:Event):void {
 			trace('Got CONFIG_LOADED_EVENT');
