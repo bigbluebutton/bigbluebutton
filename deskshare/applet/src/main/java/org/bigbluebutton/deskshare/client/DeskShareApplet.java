@@ -52,8 +52,13 @@ public class DeskShareApplet extends Applet implements ClientListener {
 		xValue = Integer.parseInt(getParameter("X"));
 		yValue = Integer.parseInt(getParameter("Y"));
 		
+		sWidthValue = cWidthValue;
 		String scaleWidth = getParameter("SCALE_WIDTH");
-		if (scaleWidth != null) sWidthValue = Integer.parseInt(scaleWidth);
+		if (scaleWidth != null) {
+			sWidthValue = Integer.parseInt(scaleWidth);
+		} 
+		
+		sHeightValue = cHeightValue;
 		String scaleHeight = getParameter("SCALE_HEIGHT");
 		if (scaleHeight != null) sHeightValue = Integer.parseInt(scaleHeight);
 		
