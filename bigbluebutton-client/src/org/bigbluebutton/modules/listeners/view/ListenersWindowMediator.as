@@ -155,8 +155,6 @@ package org.bigbluebutton.modules.listeners.view
 			_listenersWindow.listeners = proxy.listeners;
 			_listenersWindow.moderator = proxy.isModerator();
 		   	_listenersWindow.showCloseButton = false;
-		   	_listenersWindow.xPosition = 0;
-		   	_listenersWindow.yPosition = 225;
 		   	facade.sendNotification(ListenersModuleConstants.ADD_WINDOW, _listenersWindow); 			
 		}	
 			   				

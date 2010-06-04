@@ -29,14 +29,14 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import mx.core.UIComponent;
 			import flexlib.mdi.events.MDIWindowEvent;
+			
+			import mx.core.UIComponent;
+			
+			import org.bigbluebutton.main.view.components.MainCanvas;
 			
 			public static const TILE_WIDTH:Number = 128;
 			public static const TILE_HEIGHT:Number = 96;
-			
-			private var _xPosition:int = 200;
-			private var _yPosition:int = 200;
 			
 			private var tiles:Array = new Array(9); 
 			public var connection:NetConnection;
@@ -69,44 +69,8 @@
 				LogUtil.debug("TiledVideoWindow::asyncerror " + e.toString());
 			}
 			
-			public function get xPosition():int {
-				return _xPosition;
-			}
-			
-			public function get yPosition():int {
-				return _yPosition;
-			}
-			
-			public function set xPosition(x:int):void {
-				_xPosition = x;
-			}
-			
-			public function set yPosition(y:int):void {
-				_yPosition = y;
-			}
-			
-			private var _defaultWidth:int = 390;
-			private var _defaultHeight:int = 361;
-			
-			public function get defaultWidth():int{
-				return _defaultWidth;
-			}
-			
-			public function get defaultHeight():int{
-				return _defaultHeight;
-			}
-			
-			public function set defaultHeight(height:int):void{
-				this._defaultHeight = height;
-			}
-			
-			public function set defaultWidth(width:int):void{
-				this._defaultWidth = width;
-			}
-			
-			public function resetWidthAndHeight():void{
-				this.width = _defaultWidth;
-				this.height = _defaultHeight;
+			public function getPrefferedPosition():String{
+				return MainCanvas.POPUP;
 			}
 			
 			private function setupTiles():void{

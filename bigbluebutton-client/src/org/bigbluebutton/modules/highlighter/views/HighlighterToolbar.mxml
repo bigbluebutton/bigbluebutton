@@ -5,10 +5,10 @@
 	
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="presenterMode" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="viewerMode" />
-	<!--<mate:Listener type="{PresentationEvent.PRESENTATION_LOADED}" method="showToolbar" />-->
 	<mate:Listener type="{WhiteboardButtonEvent.DISABLE_WHITEBOARD}" method="disableWhiteboard" />
 	<mate:Listener type="{WhiteboardButtonEvent.ENABLE_WHITEBOARD}" method="enableWhiteboard" />
 	<mate:Listener type="{StopHighlighterModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT}" method="closeToolbar" />
+	<mate:Listener type="{WhiteboardButtonEvent.CHANGE_TO_PENCIL}" method="setShapeToPencil" />
 	
 	<mx:Style>
 		.colorPickerStyle {
@@ -55,8 +55,8 @@
 			public var canvas:HighlighterCanvas;
 			private var presentationWindow:PresentationWindow;
 			
-			[Bindable] private var colorPickerColours:Array = ['0xCCFF00', '0xFF0000', '0xFF8800',
-                '0xFFFF00', '0x000000', '0x00FF00', '0x00FF88', '0x00FFFF', 
+			[Bindable] private var colorPickerColours:Array = ['0x000000', '0xFFFFFF' , '0xFF0000', '0xFF8800',
+                '0xCCFF00', '0x00FF00', '0x00FF88', '0x00FFFF', 
                 '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF'];
 			
 			/**
@@ -66,6 +66,28 @@
 			 */		
 			protected function setShape(s:String):void{
 				canvas.setShape(s);
+				
+				switch(s){
+					case DrawObject.PENCIL:
+						btnPenc.selected = true;
+						btnEllipse.selected = false;
+						btnRectangle.selected = false;
+						break;
+					case DrawObject.ELLIPSE:
+						btnPenc.selected = false;
+						btnEllipse.selected = true;
+						btnRectangle.selected = false;
+						break;
+					case DrawObject.RECTANGLE:
+						btnPenc.selected = false;
+						btnEllipse.selected = false;
+						btnRectangle.selected = true;
+						break;
+				}
+			}
+			
+			private function setShapeToPencil(e:WhiteboardButtonEvent):void{
+				this.setShape(DrawObject.PENCIL);
 			}
 			
 			/**
@@ -139,16 +161,16 @@
 			
 		]]>
 	</mx:Script>
-	<mx:Button width="20" height="20" id="btnPenc" click="setShape(DrawObject.PENCIL)"  icon="{pencil_icon}" toolTip="Highlighter" />
-	<mx:Button width="20" height="20" id="btnRectangle" click="setShape(DrawObject.RECTANGLE)" icon="{rectangle_icon}" toolTip="Rectangle" />
-	<mx:Button width="20" height="20" id="btnEllipse" click="setShape(DrawObject.ELLIPSE)" icon="{ellipse_icon}" toolTip="Circle" />
+	<mx:Button width="20" height="20" id="btnPenc" click="setShape(DrawObject.PENCIL)"  icon="{pencil_icon}" toolTip="Highlighter" toggle="true" selected="true" />
+	<mx:Button width="20" height="20" id="btnRectangle" click="setShape(DrawObject.RECTANGLE)" icon="{rectangle_icon}" toolTip="Rectangle" toggle="true" />
+	<mx:Button width="20" height="20" id="btnEllipse" click="setShape(DrawObject.ELLIPSE)" icon="{ellipse_icon}" toolTip="Circle" toggle="true" />
 	<mx:Spacer height="5" />
 	<mx:Button width="20" height="20" id="btnClear" click="dispatchEvent(new HighlighterDrawEvent(HighlighterDrawEvent.CLEAR_BOARD))" icon="{delete_icon}" toolTip="Clear Page" />
 	<mx:Button width="20" height="20" id="btnUndo"  click="sendUndoCommand()" icon="{undo_icon}" toolTip="Undo Shape" />
 	<mx:Spacer height="5" />
-	<mx:ColorPicker change="changeColor(event)" id="cpik" swatchPanelStyleName="colorPickerStyle" dataProvider="{colorPickerColours}" selectedColor="0xCCFF00" toolTip="Select Color"/>
+	<mx:ColorPicker change="changeColor(event)" id="cpik" swatchPanelStyleName="colorPickerStyle" dataProvider="{colorPickerColours}" selectedColor="0x000000" toolTip="Select Color"/>
 	<mx:Spacer height="3" />
 	<mx:VSlider height="50" id="sld" change="changeThickness(event)" toolTip="Change Thickness" minimum="1" maximum="20" 
-				useHandCursor="true" value="10" showDataTip="false" snapInterval="1" />
+				useHandCursor="true" value="1" showDataTip="false" snapInterval="1" />
 	
 </mx:VBox>

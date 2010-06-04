@@ -25,23 +25,25 @@
 	implements="org.bigbluebutton.common.IBbbModuleWindow" 
 	xmlns:mate="http://mate.asfusion.com/"
 	title="{windowTitle}"
-	creationComplete="onCreationComplete()"
-	width="233" height="220">
+	creationComplete="onCreationComplete()">
 
     <mx:Script>
         <![CDATA[
-        	import flexlib.mdi.events.MDIWindowEvent;
-        	import mx.controls.Alert;
-        	import org.bigbluebutton.main.events.ParticipantJoinEvent;
-        	import org.bigbluebutton.modules.viewers.view.events.ChangeStatusEvent;
-        	import org.bigbluebutton.modules.viewers.ViewersModuleConstants;
-        	import mx.events.ListEvent;
-        	import org.bigbluebutton.modules.viewers.view.events.AssignPresenterEvent;
-        	import org.bigbluebutton.modules.viewers.view.components.Images;
-        	import org.bigbluebutton.modules.viewers.view.ViewersWindowMediator; 
-        	import mx.collections.ArrayCollection;
-        	import org.bigbluebutton.util.i18n.ResourceUtil;
+			import flexlib.mdi.events.MDIWindowEvent;
+			
 			import mx.binding.utils.BindingUtils;
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.ListEvent;
+			
+			import org.bigbluebutton.main.events.ParticipantJoinEvent;
+			import org.bigbluebutton.main.view.components.MainCanvas;
+			import org.bigbluebutton.modules.viewers.ViewersModuleConstants;
+			import org.bigbluebutton.modules.viewers.view.ViewersWindowMediator;
+			import org.bigbluebutton.modules.viewers.view.components.Images;
+			import org.bigbluebutton.modules.viewers.view.events.AssignPresenterEvent;
+			import org.bigbluebutton.modules.viewers.view.events.ChangeStatusEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			[Bindable]
 			private var windowTitle:String = ResourceUtil.getInstance().getString('bbb.viewers.title',["", ""]) ;
@@ -53,15 +55,14 @@
   			public var isModerator:Boolean = false;
   			
           	public var images:Images = new Images();
-            
+                      
+   			[Bindable]
+   			public var presenterIcon : Class = images.presenter;
    			[Bindable] 
    			public var handIcon:Class = images.raisehand;
    			
    			[Bindable] 
    			public var toggleTooltip : String = "Click to raise hand.";
-   			
-			private var _xPosition:int;
-			private var _yPosition:int;
 			
 			private function onCreationComplete():void {
 				BindingUtils.bindSetter(updateNumberOfViewers, participants, "length");				
@@ -74,44 +75,8 @@
 					windowTitle = ResourceUtil.getInstance().getString('bbb.viewers.title', ["", ""]);
 			}
 			
-			public function get xPosition():int {
-				return _xPosition;
-			}
-			
-			public function get yPosition():int {
-				return _yPosition;
-			}
-			
-			public function set xPosition(x:int):void {
-				_xPosition = x;
-			}
-			
-			public function set yPosition(y:int):void {
-				_yPosition = y;
-			}
-			
-			private var _defaultWidth:int = 233;
-			private var _defaultHeight:int = 220;
-			
-			public function get defaultWidth():int{
-				return _defaultWidth;
-			}
-			
-			public function get defaultHeight():int{
-				return _defaultHeight;
-			}
-			
-			public function set defaultHeight(height:int):void{
-				this._defaultHeight = height;
-			}
-			
-			public function set defaultWidth(width:int):void{
-				this._defaultWidth = width;
-			}
-			
-			public function resetWidthAndHeight():void{
-				this.width = _defaultWidth;
-				this.height = _defaultHeight;
+			public function getPrefferedPosition():String{
+				return MainCanvas.TOP_LEFT;
 			}
 								
 			public function changeStatus(status:ArrayCollection):void {
@@ -119,7 +84,7 @@
 			}
 				
 			private function viewerSelectEvent(event:ListEvent):void {
-	            dispatchEvent(new Event(ViewersModuleConstants.VIEWER_SELECTED_EVENT));
+	            dispatchEvent(new Event(ViewersModuleConstants.VIEWER_SELECTED_EVENT));  
         	}           
         	
         	private function assignPresenterClicked():void {

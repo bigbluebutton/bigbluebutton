@@ -149,8 +149,6 @@ package org.bigbluebutton.modules.deskShare.managers
 		public function handleStartSharingEvent():void {
 			LogUtil.debug("opening desk share window");
 			shareWindow = new DesktopPublishWindow();
-			shareWindow.xPosition = 675;
-			shareWindow.yPosition = 310;
 			shareWindow.initWindow(service.getConnection(), module.getCaptureServerUri(), module.getRoom());
 			openWindow(shareWindow);
 		}

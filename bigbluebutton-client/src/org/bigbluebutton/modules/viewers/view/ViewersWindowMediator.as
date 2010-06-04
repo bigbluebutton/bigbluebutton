@@ -118,9 +118,7 @@ package org.bigbluebutton.modules.viewers.view
 				_viewersWindow.participants = proxy.participants;
 				_viewersWindow.isModerator = proxy.isModerator();
 		   		_viewersWindow.showCloseButton = false;
-		   		_viewersWindow.xPosition = 0;
-		   		_viewersWindow.yPosition = 0;
-		   		facade.sendNotification(ViewersModuleConstants.ADD_WINDOW, _viewersWindow); 			
+		   		facade.sendNotification(ViewersModuleConstants.ADD_WINDOW, _viewersWindow); 	 		
 		}	
 						
 		/**

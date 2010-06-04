@@ -5,6 +5,7 @@
 	<mx:Script>
 		<![CDATA[
 			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
 			import mx.core.Application;
 			import mx.managers.CursorManager;
 			
@@ -15,6 +16,7 @@
 			import org.bigbluebutton.modules.highlighter.business.shapes.DrawObjectFactory;
 			import org.bigbluebutton.modules.highlighter.business.shapes.ShapeFactory;
 			import org.bigbluebutton.modules.highlighter.events.HighlighterDrawEvent;
+			import org.bigbluebutton.modules.highlighter.events.HighlighterPresenterEvent;
 			import org.bigbluebutton.modules.highlighter.events.HighlighterUpdate;
 			import org.bigbluebutton.modules.highlighter.events.PageEvent;
 			import org.bigbluebutton.modules.highlighter.events.WhiteboardButtonEvent;
@@ -38,8 +40,8 @@
 			protected var bbbCanvas:IBbbCanvas;
 		
 			protected var shapeStyle:String = DrawObject.PENCIL;
-			protected var drawColor:uint = 0xCCFF00;
-			protected var thickness:uint = 10;
+			protected var drawColor:uint = 0x000000;
+			protected var thickness:uint = 1;
 			
 			private var _xPosition:int;
 			private var _yPosition:int;

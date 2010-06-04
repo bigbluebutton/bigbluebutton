@@ -38,7 +38,6 @@
 	<mate:Listener type="{CursorEvent.UPDATE_CURSOR_LOC_EVENT}" method="onUpdateCursorEvent" />
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.deskShare.events.CursorEvent;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
@@ -48,7 +47,9 @@
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.main.view.components.MainCanvas;
 			import org.bigbluebutton.modules.deskShare.events.AppletStartedEvent;
+			import org.bigbluebutton.modules.deskShare.events.CursorEvent;
 			import org.bigbluebutton.modules.deskShare.events.ShareWindowEvent;
 			import org.bigbluebutton.modules.deskShare.events.StreamEvent;
 			
@@ -57,9 +58,6 @@
 			private var images:Images = new Images();
 			[Bindable] public var bbbLogo:Class = images.bbb_logo;
 			[Bindable] private var cursorIcon:Class = images.cursorIcon;
-			
-			private var _xPosition:int = 675;
-			private var _yPosition:int = 310;
 			
 			private var connection:NetConnection;
 			private var uri:String;
@@ -90,22 +88,6 @@
 				cursor.graphics.drawCircle(0,0,3);
 				
 			}
-	
-			public function get xPosition():int {
-				return _xPosition;
-			}
-			
-			public function get yPosition():int {
-				return _yPosition;
-			}
-			
-			public function set xPosition(x:int):void {
-				_xPosition = x;
-			}
-			
-			public function set yPosition(y:int):void {
-				_yPosition = y;
-			}
 			
 			public function get defaultWidth():int{
 				return this.width;
@@ -121,6 +103,10 @@
 			
 			public function set defaultWidth(width:int):void{
 				this.width = width;
+			}
+			
+			public function getPrefferedPosition():String{
+				return MainCanvas.POPUP;
 			}
 
 			/*
@@ -159,13 +145,7 @@
 			private function onUpdateCursorEvent(event:CursorEvent):void {	
 				cursor.x = ((event.x/captureWidth)) * videoHolder.width;
 				cursor.y = ((event.y/captureHeight)) * videoHolder.height;		
-//				cursor.visible = true;
-				
-				cursorImg.visible = true;
-                cursorMove.end();
-                cursorMove.xTo=cursor.x;
-                cursorMove.yTo=cursor.y; 
-                cursorMove.play();
+				cursor.visible = true;
 			}
 			
 			private function onAppletStart(event:AppletStartedEvent):void{
@@ -190,7 +170,6 @@
 				videoHolder.height = captureHeight/SCALE;
 				videoHolder.addChild(video);
 				videoHolder.addChild(cursor);
-				videoHolder.addChild(cursorImg);
 				cursor.visible = false;
 				this.addChild(videoHolder);
 				this.width = video.width + 6;
@@ -250,7 +229,4 @@
 			
 		]]>
 	</mx:Script>
-	
-	<mx:Move id="cursorMove" target="{cursorImg}"/>
-	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/Cursor.png')"/>
 </MDIWindow>

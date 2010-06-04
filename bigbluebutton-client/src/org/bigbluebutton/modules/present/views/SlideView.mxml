@@ -47,6 +47,7 @@
 			
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
 			import mx.controls.Button;
 			import mx.events.FlexEvent;
 			import mx.events.ListEvent;
@@ -63,8 +64,8 @@
 			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
 			import org.bigbluebutton.modules.present.events.ZoomEvent;
 
-			private var zoomPercentage:int = 100;
-			private static const ZOOM_STEP:int = 5;
+			public var zoomPercentage:int = 100;
+			public static const ZOOM_STEP:int = 5;
 			public static const THUMBNAILS_CLOSED:String = "ThumbnailsClosed";
 			
 			/**
@@ -122,6 +123,8 @@
 				
 				this.setChildIndex(thumbnailView, this.numChildren - 1);
 			}
+			
+			
 			
 			public function setSlides(slides:ArrayCollection):void{
 				this.slides = slides;
@@ -258,7 +261,7 @@
 				zoomLoaderBy(event.newSizeInPercent);
 			}
 			
-			private function zoomLoaderBy(percent:Number):void {				
+			public function zoomLoaderBy(percent:Number):void {				
 				if (percent < 100) {
 					zoomPercentage = 100;
 				} else if (percent > 400) {
@@ -286,7 +289,7 @@
 				notifyListenersOfSlideResize(zoomPercentage);			
 			}
 			
-			private function notifyListenersOfSlideResize(percent:Number):void {
+			public function notifyListenersOfSlideResize(percent:Number):void {
 				var event:SlideResizedEvent = new SlideResizedEvent();
 				event.percent = percent;
 				dispatcher.dispatchEvent(event);

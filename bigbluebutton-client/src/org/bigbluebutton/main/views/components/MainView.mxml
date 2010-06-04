@@ -130,7 +130,7 @@
 	   		
 	   		public function openWindow(window:IBbbModuleWindow):void {
 	   			mdiCanvas.windowManager.add(window as MDIWindow);
-				mdiCanvas.windowManager.absPos(window as MDIWindow, window.xPosition, window.yPosition);
+				//mdiCanvas.windowManager.absPos(window as MDIWindow, window.xPosition, window.yPosition);
 	   		}	
 		]]>
 	</mx:Script>

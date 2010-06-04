@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" icon="{whiteboard_icon}" width="20" height="20" click="toggleWhiteboard()" visible="false"
-	implements="org.bigbluebutton.modules.present.api.IPresentationButton" xmlns:mate="http://mate.asfusion.com/" >
+	implements="org.bigbluebutton.modules.present.api.IPresentationButton" xmlns:mate="http://mate.asfusion.com/" toggle="true" >
 	<mx:Script>
 		<![CDATA[
 			import mx.controls.Alert;
 			import mx.core.Application;
 			
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.modules.highlighter.events.HighlighterPresenterEvent;
 			import org.bigbluebutton.modules.highlighter.events.HighlighterUpdate;
 			import org.bigbluebutton.modules.highlighter.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.modules.present.views.PresentationWindow;
@@ -19,18 +20,21 @@
 			
 			private function toggleWhiteboard():void{
 				this.whiteboardEnabled = !this.whiteboardEnabled;
+				if (this.whiteboardEnabled) this.selected = true;
+				else if (!this.whiteboardEnabled) this.selected = false;
+				
 				if (whiteboardEnabled) sendEnableWhiteboardEvent();
 				else if (!whiteboardEnabled) sendDisableWhiteboardEvent();
 			}
 			
 			private function sendEnableWhiteboardEvent():void{
 				dispatchEvent(new WhiteboardButtonEvent(WhiteboardButtonEvent.ENABLE_WHITEBOARD));
-				this.toolTip = "Disable Whiteboard";
+				this.toolTip = "Show Whiteboard";
 			}
 			
 			private function sendDisableWhiteboardEvent():void{
 				dispatchEvent(new WhiteboardButtonEvent(WhiteboardButtonEvent.DISABLE_WHITEBOARD));
-				this.toolTip = "Enable Whiteboard";
+				this.toolTip = "Hide Whiteboard";
 			}
 			
 			public function buttonAdded(buttonParent:PresentationWindow):void{
@@ -42,8 +46,17 @@
 			}
 			
 			private function checkWhiteboardKeyCombo(e:KeyboardEvent):void{
-				if (e.keyCode == 87){ //Shift-W
+				takeActionOnKeyPressed(e.keyCode);
+			}
+			
+			private function takeActionOnKeyPressed(key:int):void{
+				if (key == 87){ //W
 					toggleWhiteboard();
+				} else if (key == 68){ //D
+					this.whiteboardEnabled = true;
+					this.selected = true;
+					sendEnableWhiteboardEvent();
+					dispatchEvent(new WhiteboardButtonEvent(WhiteboardButtonEvent.CHANGE_TO_PENCIL));
 				}
 			}
 			

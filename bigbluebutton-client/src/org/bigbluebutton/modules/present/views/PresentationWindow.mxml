@@ -34,7 +34,7 @@
 	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
 	x="{DEFAULT_X_POSITION}" y="{DEFAULT_Y_POSITION}"
 	title="{currentPresentation}" keyUp="onKeyUp(event)"
-	resize="maximizeHandler()">
+	resize="maximizeHandler()" backgroundColor="0xDDDDDD">
 	
 	<mate:Dispatcher id="globalDispatcher" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="becomePresenter" />
@@ -45,7 +45,6 @@
 	<mate:Listener type="{SlideResizedEvent.SLIDE_RESIZED_EVENT}" method="handleSlideResizedEvent" />
 	<mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleDisplaySlideEvent" />
 	<mate:Listener type="{AddOverlayCanvasEvent.ADD_OVERLAY_CANVAS}" method="addOverlayCanvas" />
-	<!--<mate:Listener type="{AddPresentationToolbarEvent.ADD_TOOLBAR}" method="addToolbar" /> -->
 	<mate:Listener type="{AddButtonToPresentationEvent.ADD_BUTTON}" method="addButton" />
 	
 	<mx:Script>
@@ -58,6 +57,7 @@
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
 			import mx.containers.TitleWindow;
+			import mx.controls.Alert;
 			import mx.core.Application;
 			import mx.effects.Move;
 			import mx.events.ListEvent;
@@ -68,6 +68,7 @@
 			import org.bigbluebutton.common.IBbbCanvas;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.main.view.components.MainCanvas;
 			import org.bigbluebutton.modules.present.api.IPresentationButton;
 			import org.bigbluebutton.modules.present.events.AddButtonToPresentationEvent;
 			import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
@@ -108,8 +109,6 @@
 			
 			[Bindable] private var DEFAULT_X_POSITION:int = 237;
 			[Bindable] private var DEFAULT_Y_POSITION:int = 0;
-			private var _xPosition:int = DEFAULT_X_POSITION;
-			private var _yPosition:int = 0;
 			
 			[Bindable] private var CONTROL_BAR_HEIGHT:int = 45;
 			private static const TOP_WINDOW_BORDER:int = 30;
@@ -240,42 +239,8 @@
 				}
 			}
 			
-			public function get xPosition():int {
-				return _xPosition;
-			}
-			
-			public function get yPosition():int {
-				return _yPosition;
-			}
-			
-			public function set xPosition(x:int):void {
-				_xPosition = x;
-			}
-			
-			public function set yPosition(y:int):void {
-				_yPosition = y;
-			}	
-					
-			public function get defaultWidth():int{
-				return DEFAULT_WINDOW_WIDTH;
-			}
-			
-			public function get defaultHeight():int{
-				return DEFAULT_WINDOW_HEIGHT;
-			}
-			
-			public function set defaultHeight(height:int):void{
-				this.DEFAULT_WINDOW_HEIGHT = height;
-			}
-			
-			public function set defaultWidth(width:int):void{
-				this.DEFAULT_WINDOW_WIDTH = width;
-			}
-			
-			public function resetWidthAndHeight():void{
-				this.width = DEFAULT_WINDOW_WIDTH;
-				this.height = DEFAULT_WINDOW_HEIGHT;
-				fitSlideToWindowMaintainingAspectRatio();
+			public function getPrefferedPosition():String{
+				return MainCanvas.MIDDLE;
 			}
 			
 			/**
@@ -561,6 +526,10 @@
 				for (var i:int = 0; i<externalButtons.length; i++){
 					(externalButtons.getItemAt(i) as IPresentationButton).presenterChanged(isPresenter, presenterName);
 				}
+			}
+			
+			public function getSlideView():SlideView{
+				return this.slideView;
 			}
             
 		]]>

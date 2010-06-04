@@ -38,7 +38,6 @@
 		
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.deskShare.events.CursorEvent;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
@@ -46,6 +45,8 @@
 			import mx.core.UIComponent;
 			
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.main.view.components.MainCanvas;
+			import org.bigbluebutton.modules.deskShare.events.CursorEvent;
 			import org.bigbluebutton.modules.deskShare.events.StartedViewingEvent;
 			import org.bigbluebutton.modules.deskShare.events.ViewStreamEvent;
 			import org.bigbluebutton.modules.deskShare.events.ViewWindowEvent;
@@ -62,9 +63,6 @@
 			private var stream:String;
 			private var videoHeight:Number;
 			private var videoWidth:Number;
-			
-			private var _xPosition:int = 675;
-			private var _yPosition:int = 310;
 			
 			private static const VIDEO_WIDTH_PADDING:int = 7;
 			private static const VIDEO_HEIGHT_PADDING:int = 65;
@@ -198,46 +196,10 @@
 					stopViewing();
 					break;
 				}
-			}		
-			
-			public function get xPosition():int {
-				return _xPosition;
 			}
 			
-			public function get yPosition():int {
-				return _yPosition;
-			}
-			
-			public function set xPosition(x:int):void {
-				_xPosition = x;
-			}
-			
-			public function set yPosition(y:int):void {
-				_yPosition = y;
-			}	
-			
-			private var _defaultWidth:int = 400;
-			private var _defaultHeight:int = 300; 
-			
-			public function get defaultWidth():int{
-				return _defaultWidth;
-			}
-			
-			public function get defaultHeight():int{
-				return _defaultHeight;
-			}
-			
-			public function set defaultHeight(height:int):void{
-				this._defaultHeight = height;
-			}
-			
-			public function set defaultWidth(width:int):void{
-				this._defaultWidth = width;
-			}
-			
-			public function resetWidthAndHeight():void{
-				this.width = _defaultWidth;
-				this.height = _defaultHeight;
+			public function getPrefferedPosition():String{
+				return MainCanvas.POPUP;
 			}
 												
 			/**
@@ -312,11 +274,9 @@
 				if (btnActualSize.selected) {
 					fitToActualSize();			
 					btnActualSize.toolTip = "Fit to window";	
-					btnActualSize.label = "Fit to window";
 				} else {
 					fitToWindow();
 					btnActualSize.toolTip = "Display actual size";
-					btnActualSize.label = "Display actual size";
 				}
 			}
 			
@@ -332,6 +292,6 @@
 		<mx:Button id="btnActualSize" toggle="true" click="determineHowToDisplayVideo()" selected="true"
 			height="90%" icon="{btnActualSize.selected ? fitToActualSizeIcon : fitToWidthIcon}" 
 			toolTip="Display actual size" />
-		<!--mx:Label text="Click to toggle between fit-to-window and actual screen size. Resize the window to see more of the presenters' screen" /-->
+		<mx:Label text="Click to toggle between fit-to-window and actual screen size. Resize the window to see more of the presenters' screen" />
 	</mx:ControlBar>
 </MDIWindow>

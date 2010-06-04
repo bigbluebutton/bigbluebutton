@@ -71,8 +71,7 @@ package org.bigbluebutton.main.view
 		}
 		
 		private function displayWindow(window:IBbbModuleWindow):void {
-			shell.mdiCanvas.windowManager.add(window as MDIWindow);
-			shell.mdiCanvas.windowManager.absPos(window as MDIWindow, window.xPosition, window.yPosition);
+			shell.mdiCanvas.addWindow(window);
 		}
 							
 		protected function get shell():MainApplicationShell

@@ -33,16 +33,16 @@
 	<mx:Script>
 		<![CDATA[
 			import flexlib.mdi.events.MDIWindowEvent;
-			import mx.events.ResizeEvent;
-			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
-			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
-			import mx.core.UIComponent;
+			
 			import mx.controls.Alert;
-		
-			private var _xPosition:int = 200;
-			private var _yPosition:int = 200;
+			import mx.core.UIComponent;
+			import mx.events.ResizeEvent;
+			
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.main.view.components.MainCanvas;
+			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
+			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
+			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
 			
 			private var images:Images = new Images();
 			[Bindable] public var camIcon:Class = images.control_play;
@@ -63,42 +63,9 @@
 				maximizeRestoreBtn.visible = false;
 			}
 			
-			public function get xPosition():int {
-				return _xPosition;
+			public function getPrefferedPosition():String{
+				return MainCanvas.POPUP;
 			}
-			
-			public function get yPosition():int {
-				return _yPosition;
-			}
-			
-			public function set xPosition(x:int):void {
-				_xPosition = x;
-			}
-			
-			public function set yPosition(y:int):void {
-				_yPosition = y;
-			}	
-			
-			private var _defaultWidth:int;
-			private var _defaultHeight:int;
-			
-			public function get defaultWidth():int{
-				return _defaultWidth;
-			}
-			
-			public function get defaultHeight():int{
-				return _defaultHeight;
-			}
-			
-			public function set defaultHeight(height:int):void{
-				this._defaultHeight = height;
-			}
-			
-			public function set defaultWidth(width:int):void{
-				this._defaultWidth = width;
-			}
-			
-			public function resetWidthAndHeight():void{}	
 			
 			private function startPublishing():void{
 				var camera:Camera = Camera.getCamera(cmbCameraSelector.selectedIndex.toString());

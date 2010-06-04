@@ -48,9 +48,6 @@ package org.bigbluebutton.modules.highlighter.managers
 		}
 		
 		private function addHighlighterToolbar(e:TimerEvent):void{
-			//var toolbarEvent:AddPresentationToolbarEvent = new AddPresentationToolbarEvent(AddPresentationToolbarEvent.ADD_TOOLBAR);
-			//toolbarEvent.toolbar = highlighterToolbar;
-			//globalDispatcher.dispatchEvent(toolbarEvent);
 			var buttonEvent:AddButtonToPresentationEvent = new AddButtonToPresentationEvent(AddButtonToPresentationEvent.ADD_BUTTON);
 			buttonEvent.button = whiteboardButton;
 			globalDispatcher.dispatchEvent(buttonEvent);

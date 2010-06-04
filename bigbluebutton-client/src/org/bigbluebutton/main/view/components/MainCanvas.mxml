@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<containers:MDICanvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:containers="flexlib.mdi.containers.*" >
+	
+	<mx:Script>
+		<![CDATA[
+			import flexlib.mdi.containers.MDIWindow;
+			
+			import mx.controls.Alert;
+			
+			import org.bigbluebutton.common.IBbbModuleWindow;
+			public static const TOP_LEFT:String = "TOP_LEFT_WINDOW";
+			public static const BOTTOM_LEFT:String = "BOTTOM_LEFT_WINDOW";
+			public static const MIDDLE:String = "MIDDLE_WINDOW";
+			public static const BOTTOM:String = "BOTTOM_WINDOW";
+			public static const RIGHT:String = "RIGHT_WINDOW";
+			public static const POPUP:String = "POP_UP_WINDOW";
+			
+			private var leftWindowWidth:Number;
+			private var leftWindowHeight:Number;
+			
+			private var centerWindowWidth:Number;
+			private var centerWindowHeight:Number;
+			
+			private var rightWindowWidth:Number;
+			private var rightWindowHeight:Number;
+			
+			private function determineWindowSizes():void{
+				
+			}
+			
+			public function addWindow(window:IBbbModuleWindow):void{
+				windowManager.add(window as MDIWindow);
+				positionWindow(window);
+			}
+			
+			public function removeWindow(window:IBbbModuleWindow):void{
+				windowManager.remove(window as MDIWindow);
+			}
+			
+			public function resetWindowLayout():void{
+				/*var windows:Array = mdiCanvas.windowManager.getOpenWindowList();
+				for (var i:Number=0; i<windows.length; i++){
+					var window:IBbbModuleWindow = windows[i] as IBbbModuleWindow;
+					mdiCanvas.windowManager.absPos(window as MDIWindow, window.xPosition, window.yPosition);
+					window.resetWidthAndHeight();
+				}*/
+			}
+			
+			public function positionWindow(window:IBbbModuleWindow):void{
+				leftWindowHeight = this.height/2 - 30;
+				leftWindowWidth = (this.width / 20) * 3;
+				rightWindowHeight = this.height - 10;
+				rightWindowWidth = this.width / 3;
+				centerWindowHeight = this.height - 10;
+				centerWindowWidth = this.width / 2;
+				
+				var position:String = window.getPrefferedPosition();
+				var win:MDIWindow = window as MDIWindow;
+				var x:Number;
+				var y:Number;
+				switch(position){
+					case TOP_LEFT:
+						x = 1;
+						y = 1;
+						win.width = leftWindowWidth;
+						win.height = leftWindowHeight;
+						break;
+					case BOTTOM_LEFT:
+						x = 1;
+						y = leftWindowHeight + 50;
+						win.width = leftWindowWidth;
+						win.height = leftWindowHeight;
+						break;
+					case MIDDLE:
+						x = this.width - rightWindowWidth - centerWindowWidth;
+						y = 1;
+						win.width = centerWindowWidth;
+						win.height = centerWindowHeight;
+						break;
+					case BOTTOM:
+						x = 1;
+						y = this.height - 300;
+						win.width = this.width - 5;
+						win.height = 300;
+						break;
+					case RIGHT:
+						x = this.width - rightWindowWidth - 10;
+						y = 1;
+						win.width = rightWindowWidth;
+						win.height = rightWindowHeight;
+						break;
+					case POPUP:
+						x = 200;
+						y = 200;
+						break;
+				}
+				windowManager.absPos(win, x, y);
+			}
+			
+		]]>
+	</mx:Script>
+	
+</containers:MDICanvas>

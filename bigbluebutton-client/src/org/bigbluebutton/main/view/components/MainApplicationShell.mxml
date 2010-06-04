@@ -141,13 +141,12 @@
 	   		
 	   		private function handleOpenWindowEvent(event:OpenWindowEvent):void {
 	   			var window:IBbbModuleWindow = event.window;
-	   			mdiCanvas.windowManager.add(window as MDIWindow);
-				mdiCanvas.windowManager.absPos(window as MDIWindow, window.xPosition, window.yPosition);
+	   			mdiCanvas.addWindow(window);
 	   		}
 	   		
 	   		private function handleCloseWindowEvent(event:CloseWindowEvent):void {
 	   			var window:IBbbModuleWindow = event.window;
-				mdiCanvas.windowManager.remove(window as MDIWindow);
+				mdiCanvas.removeWindow(window);
 	   		}		
 	   		
 	   		private function handleJoinFailedEvent(event:JoinFailedEvent):void {
@@ -164,12 +163,7 @@
 	   		}
 	   		
 	   		private function resetLayout():void{
-	   			var windows:Array = mdiCanvas.windowManager.getOpenWindowList();
-	   			for (var i:Number=0; i<windows.length; i++){
-	   				var window:IBbbModuleWindow = windows[i] as IBbbModuleWindow;
-	   				mdiCanvas.windowManager.absPos(window as MDIWindow, window.xPosition, window.yPosition);
-	   				window.resetWidthAndHeight();
-	   			}
+	   			mdiCanvas.resetWindowLayout();
 	   		}
 	   		
 	   		private function addComponentToCanvas(e:AddUIComponentToMainCanvas):void{
@@ -179,13 +173,13 @@
 	</mx:Script>
 			
 		<main:MainToolbar id="toolbar" dock="true" width="100%" height="30" visible="false" verticalAlign="middle"/>
-		<flexmdi:MDICanvas id="mdiCanvas" horizontalScrollPolicy="off" verticalScrollPolicy="off"
+		<main:MainCanvas id="mdiCanvas" horizontalScrollPolicy="off" verticalScrollPolicy="off"
 			effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}"
 			width="100%" height="100%">		
 			<mx:Label x="200" y="400" id="statusInfo" text="{ResourceUtil.getInstance().getString('bbb.mainshell.statusInfo',[numberOfModules])}"/>
 			<mx:Label x="200" y="420" id="statusInfo2"/>
 			<mx:Label x="200" y="440" id="statusProgress" text="{ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loading')}"/>
-		</flexmdi:MDICanvas>	
+		</main:MainCanvas>	
 	 	<mx:ControlBar width="100%" height="20" paddingTop="0">		
 		  <mx:Label text="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}" id="copyrightLabel2"/>
 		  <mx:Spacer width="20"/>
