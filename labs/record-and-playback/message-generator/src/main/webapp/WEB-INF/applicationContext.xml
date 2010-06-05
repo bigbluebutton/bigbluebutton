@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+       <bean name="connectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+           <property name="brokerURL" value="tcp://localhost:61616" />
+       </bean>
+
+       <bean name="jmsDest" class="org.apache.activemq.command.ActiveMQQueue">
+           <property name="physicalName" value="generator.queue" />
+       </bean>
+
+       <bean name="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+           <property name="connectionFactory" ref="connectionFactory" />
+           <property name="defaultDestination" ref="jmsDest" />
+       </bean>
+
+       <bean name="sender" class="org.bbb.classes.MessageGeneratorSender">
+           <property name="jmsTemplate" ref="jmsTemplate" />
+       </bean>
+
+</beans>
