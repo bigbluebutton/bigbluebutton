@@ -72,7 +72,7 @@
 						win.height = leftWindowHeight;
 						break;
 					case MIDDLE:
-						x = leftWindowWidth + 10; //this.width - rightWindowWidth - centerWindowWidth + 20;
+						x = leftWindowWidth + 10;
 						y = 1;
 						win.width = centerWindowWidth;
 						win.height = centerWindowHeight;

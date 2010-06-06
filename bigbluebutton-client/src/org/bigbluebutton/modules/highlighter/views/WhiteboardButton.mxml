@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" icon="{whiteboard_icon}" width="20" height="20" click="toggleWhiteboard()" visible="false"
-	implements="org.bigbluebutton.modules.present.api.IPresentationButton" xmlns:mate="http://mate.asfusion.com/" toggle="true" >
+	implements="org.bigbluebutton.modules.present.api.IPresentationButton" xmlns:mate="http://mate.asfusion.com/" toggle="true" 
+	toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.button.toolTip')}" >
+	
 	<mx:Script>
 		<![CDATA[
 			import mx.controls.Alert;
@@ -11,6 +13,7 @@
 			import org.bigbluebutton.modules.highlighter.events.HighlighterUpdate;
 			import org.bigbluebutton.modules.highlighter.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.modules.present.views.PresentationWindow;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
 			[Bindable] private var whiteboard_icon:Class = images.whiteboard;
