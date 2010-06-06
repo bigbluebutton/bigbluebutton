@@ -145,7 +145,13 @@
 			private function onUpdateCursorEvent(event:CursorEvent):void {	
 				cursor.x = ((event.x/captureWidth)) * videoHolder.width;
 				cursor.y = ((event.y/captureHeight)) * videoHolder.height;		
-				cursor.visible = true;
+//				cursor.visible = true;
+				
+				cursorImg.visible = true;
+                cursorMove.end();
+                cursorMove.xTo=cursor.x;
+                cursorMove.yTo=cursor.y; 
+                cursorMove.play();
 			}
 			
 			private function onAppletStart(event:AppletStartedEvent):void{
@@ -170,6 +176,7 @@
 				videoHolder.height = captureHeight/SCALE;
 				videoHolder.addChild(video);
 				videoHolder.addChild(cursor);
+				videoHolder.addChild(cursorImg);
 				cursor.visible = false;
 				this.addChild(videoHolder);
 				this.width = video.width + 6;
@@ -229,4 +236,6 @@
 			
 		]]>
 	</mx:Script>
+	<mx:Move id="cursorMove" target="{cursorImg}"/>
+	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/Cursor.png')"/>
 </MDIWindow>

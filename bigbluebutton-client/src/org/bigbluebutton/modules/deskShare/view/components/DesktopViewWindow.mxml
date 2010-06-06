@@ -274,9 +274,11 @@
 				if (btnActualSize.selected) {
 					fitToActualSize();			
 					btnActualSize.toolTip = "Fit to window";	
+					btnActualSize.label = "Fit to window";
 				} else {
 					fitToWindow();
 					btnActualSize.toolTip = "Display actual size";
+					btnActualSize.label = "Display actual size";
 				}
 			}
 			
@@ -290,8 +292,8 @@
 		
 	<mx:ControlBar id="bottomBar" height="35">
 		<mx:Button id="btnActualSize" toggle="true" click="determineHowToDisplayVideo()" selected="true"
-			height="90%" icon="{btnActualSize.selected ? fitToActualSizeIcon : fitToWidthIcon}" 
-			toolTip="Display actual size" />
-		<mx:Label text="Click to toggle between fit-to-window and actual screen size. Resize the window to see more of the presenters' screen" />
+			height="90%" label="{btnActualSize.selected ? 'Fit to window' : 'Display actual size'}" 
+			toolTip="Fit to window" />
+		<!--mx:Label text="Click to toggle between fit-to-window and actual screen size. Resize the window to see more of the presenters' screen" /-->
 	</mx:ControlBar>
 </MDIWindow>

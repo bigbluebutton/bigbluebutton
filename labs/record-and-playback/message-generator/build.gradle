@@ -1,0 +1,59 @@
+usePlugin 'java'
+usePlugin 'eclipse'
+
+version=0.1
+
+task copyToLib(dependsOn: configurations.default.buildArtifacts, type: Copy) {
+    into('$buildDir/lib')
+    from configurations.default
+    from configurations.default.allArtifacts*.file
+}
+repositories {
+	add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+		name = 'Apache Repo'
+		addArtifactPattern 'https://repository.apache.org/content/groups/public/org/apache/[organization]/[module]/[revision]/[artifact](-[revision]).[ext]'
+    }
+	add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+		name = "maven2-central"
+		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision]).[ext]"
+		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision]).[ext]"
+	}
+	add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+		name = "ibiblio repo"
+		addArtifactPattern "http://mirrors.ibiblio.org/pub/mirrors/maven2/org/[organisation]/[module]/[revision]/[artifact](-[revision]).[ext]"
+	}
+	add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+		name = "tomcat repo"
+		addArtifactPattern "http://tomcat.apache.org/dev/dist/m2-repository/org/apache/[organisation]/[module]/[revision]/[artifact](-[revision]).[ext]"
+	}
+	flatDir(name: 'fileRepo', dirs: "$projectDir/src/main/webapp/WEB-INF/lib")
+}
+dependencies {
+	compile('activemq:activemq-all:5.2.0') {
+		artifact { name='activemq-all' ; type='jar' }
+	}
+	compile('commons-beanutils:commons-beanutils:1.8.3') {
+		artifact { name='commons-beanutils' ; type='jar' }
+	}
+	compile('commons-lang:commons-lang:2.5') {
+		artifact { name='commons-lang' ; type='jar' }
+	}
+	compile('commons-logging:commons-logging:1.1.1') {
+		artifact { name='commons-logging' ; type='jar' }
+	}
+	compile('springframework:spring:2.5.6') {
+		artifact { name='spring' ; type='jar' }
+	}
+	compile('springframework:spring-jms:2.5.6') {
+		artifact { name='spring-jms' ; type='jar' }
+	}
+	compile('tomcat:servlet-api:6.0.26') {
+		artifact { name='servlet-api' ; type='jar' }
+	}
+}
+uploadArchives {
+    uploadDescriptor = false
+    repositories {
+        add project.repositories.fileRepo
+    }
+}
