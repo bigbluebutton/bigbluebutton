@@ -110,7 +110,7 @@
     </mx:DataGrid>
     
    <mx:ControlBar width="100%"> 
-   		 <mx:Button id="presentBtn" label="Switch Presenter" visible="{isModerator}" enabled="{viewersGrid.selectedItem != null}"
+   		 <mx:Button id="presentBtn" label="{ResourceUtil.getInstance().getString('bbb.viewers.presentBtn.label')}" visible="{isModerator}" enabled="{viewersGrid.selectedItem != null}"
     	   			width="130" height="20"
     	   			toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.presentBtn.toolTip')}"
     	   			click="assignPresenterClicked()"/>

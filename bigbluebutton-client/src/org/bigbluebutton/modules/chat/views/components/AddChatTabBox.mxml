@@ -6,6 +6,7 @@
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.events.ListEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
 			
@@ -36,14 +37,14 @@
 	
 	<mx:HBox width="100%" height="100%" >
 		<mx:VBox height="100%" width="50%">
-			<mx:Label id="lblSelect" text="Select a person to chat with privately" />
+			<mx:Label id="lblSelect" text="{ResourceUtil.getInstance().getString('bbb.chat.privateChatSelect')}" />
 			<mx:List id="participantsList" height="100%" width="100%" dataProvider="{chatView.participants}" change="openPrivateChat(event)">
 			</mx:List>
 		</mx:VBox>
 		<mx:VBox id="optionsBox" height="100%" width="50%" >
-			<mx:Label text="Chat Options" />
+			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.chat.chatOptions')}" />
 			<mx:HBox width="100%">
-				<mx:Label text="Font Size" />
+				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.chat.fontSize')}" />
 				<mx:ComboBox width="60" id="cmbFontSize" dataProvider="{fontSizes}" close="changeFontSize()" />
 			</mx:HBox>
 		</mx:VBox>
