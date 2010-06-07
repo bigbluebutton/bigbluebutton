@@ -29,7 +29,7 @@
 	creationComplete="onCreationComplete()"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
-	title="Desktop Sharing" 
+	title="{ResourceUtil.getInstance().getString('bbb.desktopView.title')}" 
 	showCloseButton="false"
 	resize="fitToWindow()">
 	
@@ -50,6 +50,7 @@
 			import org.bigbluebutton.modules.deskShare.events.StartedViewingEvent;
 			import org.bigbluebutton.modules.deskShare.events.ViewStreamEvent;
 			import org.bigbluebutton.modules.deskShare.events.ViewWindowEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
 			[Bindable] public var fitToWidthIcon:Class = images.magnifier;
@@ -292,7 +293,7 @@
 		
 	<mx:ControlBar id="bottomBar" height="35">
 		<mx:Button id="btnActualSize" toggle="true" click="determineHowToDisplayVideo()" selected="true"
-			height="90%" label="{btnActualSize.selected ? 'Fit to window' : 'Display actual size'}" 
+			height="90%" label="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}" 
 			toolTip="Fit to window" />
 		<!--mx:Label text="Click to toggle between fit-to-window and actual screen size. Resize the window to see more of the presenters' screen" /-->
 	</mx:ControlBar>

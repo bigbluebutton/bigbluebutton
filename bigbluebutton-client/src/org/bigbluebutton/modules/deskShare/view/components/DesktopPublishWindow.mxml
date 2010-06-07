@@ -29,7 +29,7 @@
 	xmlns:mate="http://mate.asfusion.com/"
 	creationComplete="onCreationComplete()"
 	backgroundImage="{bbbLogo}"	
-	title="Desktop Sharing: Thumbnail"
+	title="{ResourceUtil.getInstance().getString('bbb.desktopPublish.title')}"
 	resizable="false">
 		
 	<mate:Listener type="{AppletStartedEvent.APPLET_STARTED}" method="onAppletStart" />
@@ -52,6 +52,7 @@
 			import org.bigbluebutton.modules.deskShare.events.CursorEvent;
 			import org.bigbluebutton.modules.deskShare.events.ShareWindowEvent;
 			import org.bigbluebutton.modules.deskShare.events.StreamEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			public static const SCALE:Number = 5;
 			
