@@ -45,7 +45,7 @@
 			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.chat.chatOptions')}" />
 			<mx:HBox width="100%">
 				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.chat.fontSize')}" />
-				<mx:ComboBox width="60" id="cmbFontSize" dataProvider="{fontSizes}" close="changeFontSize()" />
+				<mx:ComboBox width="60" id="cmbFontSize" dataProvider="{fontSizes}" close="changeFontSize()" selectedIndex="1" />
 			</mx:HBox>
 		</mx:VBox>
 	</mx:HBox>
