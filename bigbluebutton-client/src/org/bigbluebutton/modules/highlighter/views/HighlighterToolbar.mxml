@@ -147,6 +147,7 @@
 				presentationWindow = window;
 				presentationWindow.addEventListener(MoveEvent.MOVE, setPositionAndDepth);
 				presentationWindow.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);
+				presentationWindow.addEventListener(MouseEvent.CLICK, setPositionAndDepth);
 				this.x = presentationWindow.x + presentationWindow.width + 3;
 				this.y = presentationWindow.y + 30;
 				parent.setChildIndex(this, parent.numChildren-1);
