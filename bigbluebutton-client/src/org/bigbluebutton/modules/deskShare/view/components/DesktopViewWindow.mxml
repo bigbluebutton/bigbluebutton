@@ -274,12 +274,12 @@
 			private function determineHowToDisplayVideo():void {
 				if (btnActualSize.selected) {
 					fitToActualSize();			
-					btnActualSize.toolTip = "Fit to window";	
-					btnActualSize.label = "Fit to window";
+					btnActualSize.toolTip = ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow');	
+					btnActualSize.label = ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow');
 				} else {
 					fitToWindow();
-					btnActualSize.toolTip = "Display actual size";
-					btnActualSize.label = "Display actual size";
+					btnActualSize.toolTip = ResourceUtil.getInstance().getString('bbb.desktopView.actualSize');
+					btnActualSize.label = ResourceUtil.getInstance().getString('bbb.desktopView.actualSize');
 				}
 			}
 			
@@ -289,12 +289,11 @@
 		]]>
 	</mx:Script>
 	<mx:Move id="cursorMove" target="{cursorImg}"/>
-	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/Cursor.png')"/>
+	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
 		
 	<mx:ControlBar id="bottomBar" height="35">
 		<mx:Button id="btnActualSize" toggle="true" click="determineHowToDisplayVideo()" selected="true"
 			height="90%" label="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}" 
-			toolTip="Fit to window" />
-		<!--mx:Label text="Click to toggle between fit-to-window and actual screen size. Resize the window to see more of the presenters' screen" /-->
+			toolTip="{ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow')}" />
 	</mx:ControlBar>
 </MDIWindow>

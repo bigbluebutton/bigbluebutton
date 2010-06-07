@@ -238,5 +238,5 @@
 		]]>
 	</mx:Script>
 	<mx:Move id="cursorMove" target="{cursorImg}"/>
-	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/Cursor.png')"/>
+	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
 </MDIWindow>
