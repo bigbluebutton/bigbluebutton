@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" icon="{whiteboard_icon}" width="20" height="20" click="toggleWhiteboard()" visible="false"
-	implements="org.bigbluebutton.modules.present.api.IPresentationButton" xmlns:mate="http://mate.asfusion.com/" toggle="true" 
-	toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.button.toolTip')}" >
+	implements="org.bigbluebutton.modules.present.api.IPresentationButton" xmlns:mate="http://mate.asfusion.com/" toggle="true" >
 	
 	<mx:Script>
 		<![CDATA[
@@ -32,12 +31,12 @@
 			
 			private function sendEnableWhiteboardEvent():void{
 				dispatchEvent(new WhiteboardButtonEvent(WhiteboardButtonEvent.ENABLE_WHITEBOARD));
-				this.toolTip = "Show Whiteboard";
+				this.toolTip = ResourceUtil.getInstance().getString('bbb.highlighter.button.toolTipHide');
 			}
 			
 			private function sendDisableWhiteboardEvent():void{
 				dispatchEvent(new WhiteboardButtonEvent(WhiteboardButtonEvent.DISABLE_WHITEBOARD));
-				this.toolTip = "Hide Whiteboard";
+				this.toolTip = ResourceUtil.getInstance().getString('bbb.highlighter.button.toolTipShow');
 			}
 			
 			public function buttonAdded(buttonParent:PresentationWindow):void{
