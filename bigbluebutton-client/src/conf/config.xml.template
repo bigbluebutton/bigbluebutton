@@ -1,0 +1,71 @@
+<?xml version="1.0" ?>
+<config>
+    <version>VERSION</version>
+    <help url="http://HOST/help.html"/>
+    <porttest host="HOST" application="video"/>    
+	<modules>
+
+		<module name="ChatModule" url="ChatModule-VERSION.swf" 
+			uri="rtmp://HOST/bigbluebutton" 
+			loadNextModule="ListenersModule"	
+			onUserJoinedEvent="START"
+			onUserLogoutEvent="STOP"		 
+		/>
+		
+		<module name="ViewersModule" url="ViewersModule-VERSION.swf" 
+			uri="rtmp://HOST/bigbluebutton" 
+			host="chost="http://HOST/bigbluebutton/conference-session/enter"
+			onAppInitEvent="LOAD" loadNextModule="ChatModule"
+			onAppStartEvent="START"
+			onUserLogoutEvent="STOP"
+		/>	
+		<module name="ListenersModule" url="ListenersModule-VERSION.swf" 
+			uri="rtmp://HOST/bigbluebutton" 
+			recordingHost="http://HOST"
+			loadNextModule="DeskShareModule"
+			onUserJoinedEvent="START"
+			onUserLogoutEvent="STOP"
+		/>
+		
+		<module name="DeskShareModule" url="DeskShareModule-VERSION.swf" uri="rtmp://${HOST}/deskShare" onUserJoinedEvent="START" onUserLogoutEvent="STOP" loadNextModule="PhoneModule" />
+		
+		<module name="PhoneModule" url="PhoneModule.swf" 
+			uri="rtmp://HOST/sip" 
+			onUserJoinedEvent="START" 
+			onUserLogoutEvent="STOP"
+			loadNextModule="VideoconfModule"
+		/>
+		
+		<module name="VideoconfModule" url="VideoconfModule-VERSION.swf" 
+			uri="rtmp://HOST/video"
+			onUserJoinedEvent="START"
+			onUserLogoutEvent="STOP"	
+			loadNextModule="PresentModule"
+		/>
+		
+		<module name="HighlighterModule" url="HighlighterModule-VERSION.swf" 
+			uri="rtmp://HOST/bigbluebutton" 
+			onUserJoinedEvent="START" 
+			onUserLogoutEvent="STOP"
+		/>
+		
+		<module name="PresentModule" url="PresentModule-VERSION.swf" 
+			uri="rtmp://HOST/bigbluebutton" 
+			host="http://HOST" 
+			onUserJoinedEvent="START" 
+			onUserLogoutEvent="STOP"
+			loadNextModule="HighlighterModule"
+		/>
+
+		<!-- new module in development: 
+		<module name="DynamicInfoModule" url="DynamicInfoModule-VERSION.swf" 
+			uri="rtmp://HOST/bigbluebutton" 
+			host="http://HOST" 
+			infoURL="http://HOST/client/conf/example-info-data.xml?user={userID}&role={role}&meetingID={meetingID}"
+			onUserJoinedEvent="START" 
+			onUserLogoutEvent="STOP"
+		/>
+		-->
+		
+	</modules>
+</config>
