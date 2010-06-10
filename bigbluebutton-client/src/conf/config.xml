@@ -41,13 +41,14 @@
 			uri="rtmp://192.168.0.172/video"
 			onUserJoinedEvent="START"
 			onUserLogoutEvent="STOP"	
-			loadNextModule="PresentModule"
+			loadNextModule="HighlighterModule"
 		/>
 		
 		<module name="HighlighterModule" url="HighlighterModule.swf" 
 			uri="rtmp://192.168.0.172/bigbluebutton" 
 			onUserJoinedEvent="START" 
 			onUserLogoutEvent="STOP"
+			loadNextModule="PresentModule"
 		/>
 		
 		<module name="PresentModule" url="PresentModule.swf" 
@@ -55,7 +56,6 @@
 			host="http://192.168.0.172" 
 			onUserJoinedEvent="START" 
 			onUserLogoutEvent="STOP"
-			loadNextModule="HighlighterModule"
 		/>
 
 		<!-- new module in development: 
