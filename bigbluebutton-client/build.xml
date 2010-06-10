@@ -89,7 +89,7 @@
 	</target>
 	
 	<target name="build-viewers" description="Compile Viewers Module">
-		<build-module src="${SRC_DIR}" target="${CHAT}" />
+		<build-module src="${SRC_DIR}" target="${VIEWERS}" />
 	</target>
 	
 	<target name="build-listeners" description="Compile Listeners Module">
@@ -172,7 +172,7 @@
 		</sequential>
 	</macrodef>
 		
-	<target name="compile-bbb-dev"
+	<target name="compile-bbb"
 			depends="build-main-chat-viewers-listeners-present, build-deskshare-phone-video-highlighter-dyn, copy-resource-files"
 			description="Compiling the BBB without copying config.xml">	
 	</target>
@@ -220,11 +220,12 @@
 
 	<target name="clean">
 		<delete dir="${OUTPUT_DIR}" />
+		<mkdir dir="${OUTPUT_DIR}"/>
 	</target>
 
-	<target name="clean-build-bbb" depends="clean, generate-html-wrapper" description="Build BBB client skipping compiling of locales"/>
+	<target name="clean-build-bbb" depends="clean, generate-html-wrapper, compile-bbb" description="Build BBB client skipping compiling of locales"/>
 	
-	<target name="clean-build-all" depends="clean, localization" description="Build BBB client including locales"/>
+	<target name="clean-build-all" depends="clean, generate-html-wrapper, localization, compile-bbb" description="Build BBB client including locales"/>
 		
-
+	<target name="cleanandmake" depends="clean-build-all" description="Build BBB client including locales"/>
 </project>

@@ -77,6 +77,10 @@ package org.bigbluebutton.main.model
 			{ 
 			    var attName:String = attNamesList[i].name();
 			    var attValue:String = item.attribute(attName);
+			    if (attName == "url") {
+			    	var date:Date = new Date();
+			    	attValue += ("?a=" + date.time);
+			    }
 			    _attributes[attName] = attValue;
 			} 
 		}
@@ -92,6 +96,7 @@ package org.bigbluebutton.main.model
 //			loader.addEventListener("error", resultHandler);
 //			loader.addEventListener("unload", resultHandler);
 			_loader.url = _attributes.url;
+			LogUtil.debug("Loading " + _attributes.url);
 			_loader.loadModule();
 		}
 		

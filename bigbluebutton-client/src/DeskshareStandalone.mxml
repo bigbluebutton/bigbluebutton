@@ -32,14 +32,6 @@
 			private var images:Images = new Images();
 			[Bindable] public var bbbLogo:Class = images.bbb_logo;
 
-//			[Embed("org/bigbluebutton/modules/deskShare/assets/images/Cursor.png")]
-//			private const CursorImage:Class;
- 
-// 			[Bindable]
-//			private var cursorImg:DisplayObject = new CursorImage();
-
-//			private var cursorMove:Move;
-			
 			private var video:Video;
 			private var ns:NetStream;
 			private var stream:String;
@@ -65,9 +57,6 @@
 				
 				displayWidth = this.parent.width;
 				displayHeight = this.parent.height;
-//				cursorImg.x = 0;
-//				cursorImg.y = 0;
-//				cursorMove = new Move(cursorImg);
 			}
 			
 			private function onAppletStart(event:AppletStartedEvent):void{
