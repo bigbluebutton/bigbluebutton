@@ -77,10 +77,6 @@ package org.bigbluebutton.main.model
 			{ 
 			    var attName:String = attNamesList[i].name();
 			    var attValue:String = item.attribute(attName);
-			    if (attName == "url") {
-			    	var date:Date = new Date();
-			    	attValue += ("?a=" + date.time);
-			    }
 			    _attributes[attName] = attValue;
 			} 
 		}
