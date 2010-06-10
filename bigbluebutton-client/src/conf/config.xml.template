@@ -14,7 +14,7 @@
 		
 		<module name="ViewersModule" url="ViewersModule-VERSION.swf" 
 			uri="rtmp://HOST/bigbluebutton" 
-			host="chost="http://HOST/bigbluebutton/conference-session/enter"
+			host="http://HOST/bigbluebutton/conference-session/enter"
 			onAppInitEvent="LOAD" loadNextModule="ChatModule"
 			onAppStartEvent="START"
 			onUserLogoutEvent="STOP"
