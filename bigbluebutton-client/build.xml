@@ -23,8 +23,11 @@
 	<property name="VIDEO" value="VideoconfModule" />
 	<property name="HIGHLIGHTER" value="HighlighterModule" />
 	<property name="DYN_INFO" value="DynamicInfoModule" />
-
+	
+	<property name="AVAILABLE_LOCALES" value="az_AZ,de_DE,el_GR,en_US,es_ES,es_LA,fr_FR,hu_HU,it_IT,lt_LT,nb_NO,nl_NL,pl_PL,pt_BR,pt_PT,ro_RO,ru_RU,tr_TR,vi_VN,zh_CN,zh_TW"/>
+	
 	<xmlproperty file="${SRC_DIR}/conf/locales.xml" collapseAttributes="true"/>
+	
 	<target name="init-ant-contrib">
 		<property name="ant-contrib.jar" location="${BASE_DIR}/build/lib/ant-contrib-0.6.jar"/>
 		<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="${ant-contrib.jar}"/>
@@ -32,8 +35,9 @@
 
 	<target name="localization" depends="init-ant-contrib">
 		<echo message="Parsing ${SRC_DIR}/conf/locales.xml for supported locales"/>
-		<echo message="Supported locales ${locales.locale.code}"/>
-		<foreach list="${locales.locale.code}" target="build-locale" param="supportedlocale" delimiter=","/>
+		<echo message="Available locales ${AVAILABLE_LOCALES}"/>
+		<!--foreach list="${locales.locale.code}" target="build-locale" param="supportedlocale" delimiter=","/-->
+		<foreach list="${AVAILABLE_LOCALES}" target="build-locale" param="supportedlocale" delimiter=","/>
 	</target>
 	
 	<target name="build-locale">
@@ -54,10 +58,26 @@
         </if>
         <compileLocale locale="${supportedlocale}" />        
 	</target>
-	
+		
 	<macrodef name="compileLocale" description="Compiles the Resource package for the given locale">
 		<attribute name="locale" default="en_US"/>
 		<sequential>
+			<echo message="Building @{locale}"/>
+		<available file="${LOCALE_DIR}/@{locale}" type="dir" property="locale.dir.present"/>
+		<if> 
+           <equals arg1="${locale.dir.present}" arg2="true"/> 
+           <then> 
+              <echo message="No need to copy ${LOCALE_DIR}/@{locale}"/> 
+           </then> 
+           <else> 
+              <echo message="Need to copy ${LOCALE_DIR}/@{locale}"/> 
+              <exec dir="${BASE_DIR}" vmlauncher="true" executable="copylocale">
+				<arg value="en_US"/>
+    			<arg value="@{locale}"/>
+			</exec>
+           </else> 
+        </if>
+        
 			<!--
 			Create the Flex Home directory for the language in question.
 			This is necessary to compensate for a bug in pre-3.2 releases of 
