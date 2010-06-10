@@ -29,7 +29,7 @@
 		
 		<module name="DeskShareModule" url="DeskShareModule-VERSION.swf" uri="rtmp://${HOST}/deskShare" onUserJoinedEvent="START" onUserLogoutEvent="STOP" loadNextModule="PhoneModule" />
 		
-		<module name="PhoneModule" url="PhoneModule.swf" 
+		<module name="PhoneModule" url="PhoneModule-VERSION.swf" 
 			uri="rtmp://HOST/sip" 
 			onUserJoinedEvent="START" 
 			onUserLogoutEvent="STOP"
