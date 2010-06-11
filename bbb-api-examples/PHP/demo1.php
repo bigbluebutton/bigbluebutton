@@ -20,7 +20,7 @@ Author: DJP <DJP@architectes.org>
 
 */
 
-require('bbb_api.inc.php');
+require('bbb_api.php');
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -33,6 +33,8 @@ require('bbb_api.inc.php');
 <?
 if ($_REQUEST['action'] == 'create' && trim($_REQUEST['username']))
 {
+         $sIP = $_SERVER['SERVER_ADDR'];
+         $serverIP = 'http://'.$sIP.'/bigbluebutton/';
    /*
 	* Got an action=create
 	*
@@ -40,8 +42,9 @@ if ($_REQUEST['action'] == 'create' && trim($_REQUEST['username']))
 	* Pass null for welcome message to use the default message (see defaultWelcomeMessage in bigbluebutton.properties)
 	*
 	*/
-
-    $joinURL = getJoinURL($_REQUEST['username'], "Demo Meeting", null);
+    $joinURL = new BigBlueButton( $_REQUEST['username'], "Demo Meeting", null, "mp", "ap", $SALT, $sIP );
+    $joinURL->createMeeting( $_REQUEST['username'], "Demo Meeting", null, "mp", "ap", $SALT, $sIP );
+    //$joinURL = getJoinURL($_REQUEST['username'], "Demo Meeting", null);
     if (substr($joinURL, 0, 7) == 'http://')
     {
     	?>

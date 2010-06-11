@@ -145,10 +145,10 @@
 //				cursor.visible = true;
 				
 				cursorImg.visible = true;
-                cursorMove.end();
-                cursorMove.xTo=cursor.x;
-                cursorMove.yTo=cursor.y; 
-                cursorMove.play();
+                // DO NOT compute the x and y coordinate and assign directly to the cursorImg
+                // as it results in a flickering and jerky mouse pointer (ralam jun 10, 2010).
+                cursorImg.x = cursor.x;
+                cursorImg.y = cursor.y;
 			}
 			
 			public function startVideo(connection:NetConnection, stream:String, width:Number, height:Number):void{

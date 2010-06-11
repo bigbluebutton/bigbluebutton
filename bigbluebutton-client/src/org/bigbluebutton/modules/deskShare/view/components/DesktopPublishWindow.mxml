@@ -149,10 +149,10 @@
 //				cursor.visible = true;
 				
 				cursorImg.visible = true;
-                cursorMove.end();
-                cursorMove.xTo=cursor.x;
-                cursorMove.yTo=cursor.y; 
-                cursorMove.play();
+                // DO NOT compute the x and y coordinate and assign directly to the cursorImg
+                // as it results in a flickering and jerky mouse pointer (ralam jun 10, 2010).
+                cursorImg.x = cursor.x;
+                cursorImg.y = cursor.y;
 			}
 			
 			private function onAppletStart(event:AppletStartedEvent):void{
@@ -237,6 +237,5 @@
 			
 		]]>
 	</mx:Script>
-	<mx:Move id="cursorMove" target="{cursorImg}"/>
 	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
 </MDIWindow>

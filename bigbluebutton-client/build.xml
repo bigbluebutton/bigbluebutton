@@ -1,161 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- BigBlueButton Client build.xml for use by Hudson builds.   -->
-<project name="BigBlueButton Client" basedir="." default="cleanandmake" >
+<project name="BigBlueButton Client" basedir="." default="clean-build-all" >
     <property environment="env" />
     <property name="FLEX_HOME" value="${env.FLEX_HOME}" />
-	<property name="RESOURCES_DIR" value="./resources" />
-	<property name="APP_ROOT" value="./src" />
-	<property name="ROOT_DIR" value="." />
-	<property name="OUTPUT_DIR" value="./bin" />
+    <property name="LOCALE_DIR" value="${FLEX_HOME}/frameworks/locale"/>
+    <property name="BASE_DIR" value="${basedir}" />
+	<property name="RESOURCES_DIR" value="${BASE_DIR}/resources" />	
+	<property name="SRC_DIR" value="${BASE_DIR}/src" />
+		
+	<property name="OUTPUT_DIR" value="${BASE_DIR}/bin" />
 	<taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar" />
 
-	<target name="compile-bbb" depends="copy-config-xml, compile-bbb-dev" description="Compiling the BBB mxml files"/>
-
-	<target name="cds" description="Compile Desktop standalone sharing">
-		<mxmlc-compile src="${APP_ROOT}" target="DeskshareStandalone" />
-	</target>
-
-	<target name="compile-bbb-dev" description="Compiling the BBB without copying config.xml">
-		<mxmlc-compile src="${APP_ROOT}" target="BigBlueButton" />
-		<mxmlc-compile src="${APP_ROOT}" target="ChatModule" />
-		<mxmlc-compile src="${APP_ROOT}" target="ViewersModule" />
-		<mxmlc-compile src="${APP_ROOT}" target="ListenersModule" />
-		<mxmlc-compile src="${APP_ROOT}" target="PresentModule" />
-		<mxmlc-compile src="${APP_ROOT}" target="DeskShareModule" />	
-		<mxmlc-compile src="${APP_ROOT}" target="DeskshareStandalone" />	
-		<mxmlc-compile src="${APP_ROOT}" target="PhoneModule" />
-		<mxmlc-compile src="${APP_ROOT}" target="VideoconfModule" />
-		<mxmlc-compile src="${APP_ROOT}" target="HighlighterModule" />
-		<mxmlc-compile src="${APP_ROOT}" target="DynamicInfoModule" />
-		
-		<copy todir="${OUTPUT_DIR}/conf" >
-			<fileset dir="./src/conf" />
-		</copy>
-
-		<copy todir="${OUTPUT_DIR}/swfobject/" >
-			<fileset dir="./src/swfobject/" />
-		</copy>
-		
-		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/common/assets/images" >
-			<fileset dir="./src/org/bigbluebutton/common/assets/images/" />
-		</copy>
-
-		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/listeners/view/assets/images/" >
-			<fileset dir="./src/org/bigbluebutton/modules/listeners/view/assets/images/" />
-		</copy>
-
-		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/phone/views/assets/images/" >
-			<fileset dir="./src/org/bigbluebutton/modules/phone/views/assets/images/" />
-		</copy>
-		
-		<copy file="./${RESOURCES_DIR}/bbb-deskshare-applet-0.64.jar" todir="${OUTPUT_DIR}"/>
-		
-		<!--move todir="${OUTPUT_DIR}" >
-			<fileset dir="${OUTPUT_DIR}/src" />
-		</move-->
-	</target>
-
-	<target name="check-config-xml">
-    		<available file="/var/www/bigbluebutton/client/conf/config.xml" property="config-xml.present"/>
-	</target>
-
-	<target name="copy-config-xml" depends="check-config-xml" if="config-xml.present">
-		<echo message="Updating config.xml from /var/www/bigbluebutton/client/conf/config.xml" />
-		<copy file="/var/www/bigbluebutton/client/conf/config.xml" todir="${OUTPUT_DIR}/conf" /> 
-	</target>
-
-	<target name="generate-wrapper" depends="compile-bbb">
-		<html-wrapper
-			title="BigBlueButton"
-			file="BigBlueButton.html"
-			height="100%"
-			width="100%"
-			bgcolor="grey"
-			application="BBB"
-			swf="BigBlueButton"
-			version-major="9"
-			version-minor="0"
-			version-revision="0"
-			history="true"
-			template="express-installation"
-			output="${OUTPUT_DIR}"
-		/>
-		<copy file="./${RESOURCES_DIR}/BigBlueButton.html" todir="${OUTPUT_DIR}" overwrite="true"/>
-		<copy file="./${RESOURCES_DIR}/DeskshareStandalone.html" todir="${OUTPUT_DIR}" overwrite="true"/>
-		<copy file="./${RESOURCES_DIR}/bbb.gif" todir="${OUTPUT_DIR}" overwrite="true"/>
-	</target>
-
-	<target name="clean">
-		<delete dir="${OUTPUT_DIR}" />
-	</target>
-
-	<target name="cleanandbuild" depends="clean, generate-wrapper"></target>
+	<!-- Declare module names here -->
+	<property name="BBB_MAIN" value="BigBlueButton" />
+	<property name="CHAT" value="ChatModule" />
+	<property name="VIEWERS" value="ViewersModule" />
+	<property name="LISTENERS" value="ListenersModule" />
+	<property name="PRESENT" value="PresentModule" />
+	<property name="DESKSHARE" value="DeskShareModule" />
+	<property name="DESKSHARE_SA" value="DeskshareStandalone" />
+	<property name="PHONE" value="PhoneModule" />
+	<property name="VIDEO" value="VideoconfModule" />
+	<property name="HIGHLIGHTER" value="HighlighterModule" />
+	<property name="DYN_INFO" value="DynamicInfoModule" />
 	
-	<target name="cleanandmake" depends="clean, localization, generate-wrapper"></target>
+	<property name="AVAILABLE_LOCALES" value="az_AZ,de_DE,el_GR,en_US,es_ES,es_LA,fr_FR,hu_HU,it_IT,lt_LT,nb_NO,nl_NL,pl_PL,pt_BR,pt_PT,ro_RO,ru_RU,tr_TR,vi_VN,zh_CN,zh_TW"/>
 	
-	<macrodef name="mxmlc-compile">
-		<attribute name="target" description="Path to the file being compiled." />
-		<attribute name="flex" default="${env.FLEX_HOME}" description="Location of the Flex install." />
-		<attribute name="app" default="."/>
-		<attribute name="src" default="./src" description="" />
-		<sequential>
-			<mxmlc 
-				file="@{src}/@{target}.mxml" 
-				output="${OUTPUT_DIR}/@{target}.swf" 
-				debug="false"
-			>
-				<load-config filename="@{flex}/frameworks/flex-config.xml" />
-				<source-path path-element="@{flex}/frameworks" />
-				<compiler.library-path dir="@{flex}/frameworks" append="true">
-					<include name="libs" />
-					<include name="../bundles/{locale}" />
-				</compiler.library-path>
+	<xmlproperty file="${SRC_DIR}/conf/locales.xml" collapseAttributes="true"/>
+	
+	<target name="init-ant-contrib">
+		<property name="ant-contrib.jar" location="${BASE_DIR}/build/lib/ant-contrib-0.6.jar"/>
+		<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="${ant-contrib.jar}"/>
+	</target>
 
-				<compiler.library-path dir="@{app}" append="true">
-					<include name="libs" />
-					<include name="libs/generated" />
-				</compiler.library-path>
-
-				<default-size width="500" height="600" />
-			</mxmlc>
-		</sequential>
-	</macrodef>
-
-	<target name="setuplocale" depends="" description="Checking to see if need to copylocale">
-		<exec dir="." vmlauncher="true" executable="/bin/bash">
-			<arg value="setuplocale.sh"/> 
-		</exec>
+	<target name="localization" depends="init-ant-contrib">
+		<echo message="Parsing ${SRC_DIR}/conf/locales.xml for supported locales"/>
+		<echo message="Available locales ${AVAILABLE_LOCALES}"/>
+		<!--foreach list="${locales.locale.code}" target="build-locale" param="supportedlocale" delimiter=","/-->
+		<foreach list="${AVAILABLE_LOCALES}" target="build-locale" param="supportedlocale" delimiter=","/>
 	</target>
 	
-	<target name="localization" depends="setuplocale" description="Builds BigBlueButton localization files">
-		<echo>Building Localization .swf's</echo>
-		<compileLocale locale="az_AZ" />
-		<compileLocale locale="de_DE" />
-		<compileLocale locale="el_GR" />
-		<compileLocale locale="en_US" />
-		<compileLocale locale="es_ES" />
-		<compileLocale locale="es_LA" />
-		<compileLocale locale="fr_FR" />
-		<compileLocale locale="hu_HU" />
-		<compileLocale locale="it_IT" />
-		<compileLocale locale="lt_LT" />
-		<compileLocale locale="nb_NO" />
-		<compileLocale locale="nl_NL" />
-		<compileLocale locale="pl_PL" />
-		<compileLocale locale="pt_BR" />
-		<compileLocale locale="pt_PT" />
-		<compileLocale locale="ro_RO" />
-		<compileLocale locale="ru_RU" />
-		<compileLocale locale="tr_TR" />
-		<compileLocale locale="vi_VN" />
-		<compileLocale locale="zh_CN" />
-		<compileLocale locale="zh_TW" />
+	<target name="build-locale">
+		<echo message="Building ${supportedlocale}"/>
+		<available file="${LOCALE_DIR}/${supportedlocale}" type="dir" property="locale.dir.present"/>
+		<if> 
+           <equals arg1="${locale.dir.present}" arg2="true"/> 
+           <then> 
+              <echo message="No need to copy ${LOCALE_DIR}/${supportedlocale}"/> 
+           </then> 
+           <else> 
+              <echo message="Need to copy ${LOCALE_DIR}/${supportedlocale}"/> 
+              <exec dir="${BASE_DIR}" vmlauncher="true" executable="copylocale">
+				<arg value="en_US"/>
+    			<arg value="${supportedlocale}"/>
+			</exec>
+           </else> 
+        </if>
+        <compileLocale locale="${supportedlocale}" />        
 	</target>
-	
-	<!-- Compiles Localization Resource Bundle. -->
+		
 	<macrodef name="compileLocale" description="Compiles the Resource package for the given locale">
 		<attribute name="locale" default="en_US"/>
 		<sequential>
+			<echo message="Building @{locale}"/>
+		<available file="${LOCALE_DIR}/@{locale}" type="dir" property="locale.dir.present"/>
+		<if> 
+           <equals arg1="${locale.dir.present}" arg2="true"/> 
+           <then> 
+              <echo message="No need to copy ${LOCALE_DIR}/@{locale}"/> 
+           </then> 
+           <else> 
+              <echo message="Need to copy ${LOCALE_DIR}/@{locale}"/> 
+              <exec dir="${BASE_DIR}" vmlauncher="true" executable="copylocale">
+				<arg value="en_US"/>
+    			<arg value="@{locale}"/>
+			</exec>
+           </else> 
+        </if>
+        
 			<!--
 			Create the Flex Home directory for the language in question.
 			This is necessary to compensate for a bug in pre-3.2 releases of 
@@ -172,4 +94,158 @@
 			</mxmlc>
 		</sequential>
 	</macrodef>
+		
+	<target name="build-bbb-main" description="Compile BigBlueButton Main">
+		<build-module src="${SRC_DIR}" target="${BBB_MAIN}" />
+		
+		<echo message="Copying common assets for BBB Main" />
+		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/common/assets/images" >
+			<fileset dir="${BASE_DIR}/src/org/bigbluebutton/common/assets/images/" />
+		</copy>		
+	</target>
+	
+	<target name="build-chat" description="Compile Chat Module">
+		<build-module src="${SRC_DIR}" target="${CHAT}" />
+	</target>
+	
+	<target name="build-viewers" description="Compile Viewers Module">
+		<build-module src="${SRC_DIR}" target="${VIEWERS}" />
+	</target>
+	
+	<target name="build-listeners" description="Compile Listeners Module">
+		<build-module src="${SRC_DIR}" target="${LISTENERS}" />
+		
+		<echo message="Copying common assets for Listeners Module" />
+		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/listeners/view/assets/images/" >
+			<fileset dir="${BASE_DIR}/src/org/bigbluebutton/modules/listeners/view/assets/images/" />
+		</copy>		
+	</target>
+	
+	<target name="build-present" description="Compile Present Module">
+		<build-module src="${SRC_DIR}" target="${PRESENT}" />
+	</target>
+
+	<target name="build-deskshare-standalone" depends="build-deskshare" description="Compile Deskshare Standalone Module">
+		<build-module src="${SRC_DIR}" target="${DESKSHARE_SA}" />
+	</target>
+	
+	<target name="build-deskshare" description="Compile Deskshare Module">
+		<build-module src="${SRC_DIR}" target="${DESKSHARE}" />
+		<echo message="Copying deskshare applet for Deskshare Module" />
+		<copy file="${RESOURCES_DIR}/bbb-deskshare-applet-0.64.jar" todir="${OUTPUT_DIR}"/>		
+	</target>
+	
+	<target name="build-phone" description="Compile Phone Module">
+		<build-module src="${SRC_DIR}" target="${PHONE}" />
+		
+		<echo message="Copying assets for Phone Module" />
+		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/phone/views/assets/images/" >
+			<fileset dir="${BASE_DIR}/src/org/bigbluebutton/modules/phone/views/assets/images/" />
+		</copy>		
+	</target>
+	
+	<target name="build-video" description="Compile Video Module">
+		<build-module src="${SRC_DIR}" target="${VIDEO}" />
+	</target>
+	
+	<target name="build-highlighter" description="Compile Highlighter Module">
+		<build-module src="${SRC_DIR}" target="${HIGHLIGHTER}" />
+	</target>
+	
+	<target name="build-dyn" description="Compile Dynamic Info Module">
+		<build-module src="${SRC_DIR}" target="${DYN_INFO}" />
+	</target>
+	
+	<!-- just a grouping of modules to compile -->
+	<target name="build-main-chat-viewers-listeners-present" 
+			depends="build-bbb-main, build-chat, build-viewers, build-listeners, build-present"
+			description="Compile main, chat, viewers, listeners, present modules">
+	</target>
+	
+	<!-- just a grouping of modules to compile -->
+	<target name="build-deskshare-phone-video-highlighter-dyn" 
+			depends="build-deskshare-standalone, build-phone, build-video, build-highlighter, build-dyn"
+			description="Compile deskshare, phone, video, highlighter, dynamic info modules">
+	</target>
+	
+	<macrodef name="build-module">
+		<attribute name="target" description="Module to compile" />
+		<attribute name="flex" default="${FLEX_HOME}" description="Location of the Flex install." />
+		<attribute name="app" default="."/>
+		<attribute name="src" default="${SRC_DIR}" description="Path to the module to compile" />
+		<sequential>
+			<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="false">
+				<load-config filename="@{flex}/frameworks/flex-config.xml" />
+				<source-path path-element="@{flex}/frameworks" />
+				<compiler.library-path dir="@{flex}/frameworks" append="true">
+					<include name="libs" />
+					<include name="../bundles/{locale}" />
+				</compiler.library-path>
+
+				<compiler.library-path dir="@{app}" append="true">
+					<include name="libs" />
+					<include name="libs/generated" />
+				</compiler.library-path>
+
+				<default-size width="500" height="600" />
+			</mxmlc>
+		</sequential>
+	</macrodef>
+		
+	<target name="compile-bbb"
+			depends="build-main-chat-viewers-listeners-present, build-deskshare-phone-video-highlighter-dyn, copy-resource-files"
+			description="Compiling the BBB without copying config.xml">	
+	</target>
+
+	<target name="copy-resource-files">
+		<copy todir="${OUTPUT_DIR}/conf" >
+			<fileset dir="${BASE_DIR}/src/conf" />
+		</copy>
+
+		<copy todir="${OUTPUT_DIR}/swfobject/" >
+			<fileset dir="${BASE_DIR}/src/swfobject/" />
+		</copy>	
+		<copy file="${RESOURCES_DIR}/BigBlueButton.html" todir="${OUTPUT_DIR}" overwrite="true"/>
+		<copy file="${RESOURCES_DIR}/DeskshareStandalone.html" todir="${OUTPUT_DIR}" overwrite="true"/>
+		<copy file="${RESOURCES_DIR}/bbb.gif" todir="${OUTPUT_DIR}" overwrite="true"/>		
+			
+	</target>
+	
+	<target name="check-config-xml">
+    		<available file="/var/www/bigbluebutton/client/conf/config.xml" property="config-xml.present"/>
+	</target>
+
+	<target name="copy-config-xml" depends="check-config-xml" if="config-xml.present">
+		<echo message="Updating config.xml from /var/www/bigbluebutton/client/conf/config.xml" />
+		<copy file="/var/www/bigbluebutton/client/conf/config.xml" todir="${OUTPUT_DIR}/conf" /> 
+	</target>
+
+	<target name="generate-html-wrapper">
+		<html-wrapper
+			title="BigBlueButton"
+			file="BigBlueButton.html"
+			height="100%"
+			width="100%"
+			bgcolor="grey"
+			application="BBB"
+			swf="BigBlueButton"
+			version-major="10"
+			version-minor="0"
+			version-revision="0"
+			history="true"
+			template="express-installation"
+			output="${OUTPUT_DIR}"
+		/>
+	</target>
+
+	<target name="clean">
+		<delete dir="${OUTPUT_DIR}" />
+		<mkdir dir="${OUTPUT_DIR}"/>
+	</target>
+
+	<target name="clean-build-bbb" depends="clean, generate-html-wrapper, compile-bbb" description="Build BBB client skipping compiling of locales"/>
+	
+	<target name="clean-build-all" depends="clean, generate-html-wrapper, localization, compile-bbb" description="Build BBB client including locales"/>
+		
+	<target name="cleanandmake" depends="clean-build-all" description="Build BBB client including locales"/>
 </project>

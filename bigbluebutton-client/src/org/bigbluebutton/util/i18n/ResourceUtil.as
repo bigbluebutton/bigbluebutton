@@ -23,27 +23,58 @@ package org.bigbluebutton.util.i18n
 	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;
 	import flash.external.ExternalInterface;
+	import flash.net.URLLoader;
+	import flash.net.URLRequest;
 	
 	import mx.events.ResourceEvent;
 	import mx.resources.IResourceManager;
 	import mx.resources.ResourceManager;
 
-	public class ResourceUtil extends EventDispatcher
-	{
+	public class ResourceUtil extends EventDispatcher {
 		private static var instance:ResourceUtil = null;
+		public static const LOCALES_FILE:String = "conf/locales.xml";
+		private var inited:Boolean = false;
 		
 		private static var MSG_RESOURCE:String = 'bbbResources';
 		public static var DEFAULT_LANGUAGE:String = "en_US";
+		private var eventDispatcher:IEventDispatcher;
 		
-		private var localeChain:Array = ["az_AZ", "de_DE", "el_GR", "en_US", "es_ES", "es_LA", "fr_FR", "hu_HU", "it_IT", "lt_LT", "nb_NO", "nl_NL", "pl_PL", "pt_BR", "pt_PT", "ro_RO", "ru_RU", "tr_TR", "vi_VN", "zh_CN", "zh_TW"];
+		private var localeChain:Array = new Array();
 		
 		private var resourceManager:IResourceManager;
 		
-		public function ResourceUtil(enforcer:SingletonEnforcer)
-		{
+		public function ResourceUtil(enforcer:SingletonEnforcer) {
 			if (enforcer == null) {
 				throw new Error( "You Can Only Have One ResourceUtil" );
 			}
+			initialize();
+		}
+		
+		private function isInited():Boolean {
+			return inited;
+		}
+		
+		public function initialize():void {
+			// Add a random string on the query so that we always get an up-to-date config.xml
+			var date:Date = new Date();
+			LogUtil.debug("Loading " + LOCALES_FILE);
+			var _urlLoader:URLLoader = new URLLoader();
+			_urlLoader.addEventListener(Event.COMPLETE, handleComplete);
+			_urlLoader.load(new URLRequest(LOCALES_FILE + "?a=" + date.time));
+		}
+				
+		private function handleComplete(e:Event):void{
+			parse(new XML(e.target.data));				
+		}
+		
+		public function parse(xml:XML):void{			
+			var list:XMLList = xml.locale;
+			LogUtil.debug("--- Supported locales --- \n" + xml.toString() + "\n --- \n");
+			var locale:XML;
+						
+			for each(locale in list){
+				localeChain.push(locale.@code);
+			}							
 			
 			resourceManager = ResourceManager.getInstance();
 			resourceManager.localeChain = [ExternalInterface.call("getLanguage")];
@@ -51,25 +82,27 @@ package org.bigbluebutton.util.i18n
 			for (var i:Number = 0; i<localeChain.length; i++){
 				if (resourceManager.localeChain[0] == localeChain[i]) localeAvailable = true;
 			}
+			
 			if (!localeAvailable){
 				resourceManager.localeChain = [DEFAULT_LANGUAGE];
 				changeLocale([DEFAULT_LANGUAGE]);
-			} else changeLocale(resourceManager.localeChain[0]);
+			} else changeLocale(resourceManager.localeChain[0]);			
+			
 		}
 		
 		public static function getInstance():ResourceUtil {
 			if (instance == null) {
+				LogUtil.debug("Setting up supported locales.");
 				instance = new ResourceUtil(new SingletonEnforcer);
-			}
+			} 
 			return instance;
         }
         
-        public function changeLocale(... chain):void{
-        	
+        public function changeLocale(... chain):void{        	
         	if(chain != null && chain.length > 0)
         	{
         		var localeURI:String = 'locale/' + chain[0] + '_resources.swf';
-        		var eventDispatcher:IEventDispatcher = resourceManager.loadResourceModule(localeURI,true);
+        		eventDispatcher = resourceManager.loadResourceModule(localeURI,true);
 				localeChain = [chain[0]];
 				eventDispatcher.addEventListener(ResourceEvent.COMPLETE, localeChangeComplete);
 				eventDispatcher.addEventListener(ResourceEvent.ERROR, handleResourceNotLoaded);
