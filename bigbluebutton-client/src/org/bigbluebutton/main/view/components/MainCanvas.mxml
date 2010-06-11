@@ -38,21 +38,22 @@
 			}
 			
 			public function resetWindowLayout():void{
-				/*var windows:Array = mdiCanvas.windowManager.getOpenWindowList();
+				var windows:Array = this.windowManager.getOpenWindowList();
 				for (var i:Number=0; i<windows.length; i++){
 					var window:IBbbModuleWindow = windows[i] as IBbbModuleWindow;
-					mdiCanvas.windowManager.absPos(window as MDIWindow, window.xPosition, window.yPosition);
-					window.resetWidthAndHeight();
-				}*/
+					positionWindow(window);
+				}
 			}
 			
 			public function positionWindow(window:IBbbModuleWindow):void{
-				leftWindowHeight = this.height/2 - 30;
+				leftWindowHeight = this.height/3;
 				leftWindowWidth = (this.width / 20) * 3;
-				rightWindowHeight = this.height - 10;
+				rightWindowHeight = this.height * 0.6;
 				rightWindowWidth = (this.width / 20) * 6;
 				centerWindowHeight = this.height - 10;
 				centerWindowWidth = this.width / 2;
+				
+				if (leftWindowWidth < 225) leftWindowWidth = 225;
 				
 				var position:String = window.getPrefferedPosition();
 				var win:MDIWindow = window as MDIWindow;
@@ -67,7 +68,7 @@
 						break;
 					case BOTTOM_LEFT:
 						x = 1;
-						y = leftWindowHeight + 50;
+						y = leftWindowHeight + 10;
 						win.width = leftWindowWidth;
 						win.height = leftWindowHeight;
 						break;
