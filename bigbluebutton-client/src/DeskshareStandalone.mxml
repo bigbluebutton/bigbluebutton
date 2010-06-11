@@ -12,7 +12,6 @@
 	<mate:Listener type="{CursorEvent.UPDATE_CURSOR_LOC_EVENT}" method="onUpdateCursorEvent" />
 	<mx:Script>
 		<![CDATA[
-			import mx.effects.Move;
 			import mx.controls.Image;
 
 			import org.bigbluebutton.modules.deskShare.events.CursorEvent;
@@ -120,11 +119,7 @@
 //				cursor.visible = true;
 				
 				cursorImg.visible = true;
-                cursorMove.end();
-                cursorMove.xTo = ((event.x/video.videoWidth)) * videoHolder.width;
-                cursorMove.yTo = ((event.y/video.videoHeight)) * videoHolder.height; 
-                cursorMove.play();
-                
+           
                 // DO NOT compute the x and y coordinate and assign directly to the cursorImg
                 // as it results in a flickering and jerky mouse pointer (ralam jun 10, 2010).
                 cursorImg.x = cursor.x;
@@ -177,7 +172,6 @@
 			}			
 		]]>
 	</mx:Script>
-		<mx:Move id="cursorMove" target="{cursorImg}"/>
 		<mx:Image id="cursorImg" visible="false" source="@Embed('org/bigbluebutton/modules/deskShare/assets/images/cursor4.png')"/>
 		<mx:Canvas id="vbox" width="100%" height="100%"/>	
 </mx:Application>
