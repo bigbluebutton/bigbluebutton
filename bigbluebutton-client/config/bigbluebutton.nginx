@@ -68,6 +68,14 @@ server {
           index  index.html index.htm;
         }
 
+	# BigBlueButton.html is here so we can expire it every 1 minute to
+        # prevent caching.
+        location /client/BigBlueButton.html {
+                root    /var/www/bigbluebutton;
+                index  index.html index.htm;
+                expires 1m;
+        }
+
 	# BigBlueButton Flash client.
         location /client {
                 root    /var/www/bigbluebutton;
