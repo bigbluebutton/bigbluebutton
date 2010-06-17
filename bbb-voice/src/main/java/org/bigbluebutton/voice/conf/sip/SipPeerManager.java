@@ -2,14 +2,22 @@ package org.bigbluebutton.voice.conf.sip;
 
 import org.slf4j.Logger;
 import org.zoolu.sip.provider.SipStack;
+import org.bigbluebutton.voice.conf.sip.exception.PeerNotFoundException;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IScope;
 import org.red5.server.api.stream.IBroadcastStream;
 
 import java.util.*;
 
+/**
+ * Manages all connections to the sip voice conferencing server.
+ * @author Richard Alam
+ *
+ */
 public final class SipPeerManager {
 	private static final Logger log = Red5LoggerFactory.getLogger( SipPeerManager.class, "sip" );
+	
+	private ClientConnectionManager clientConnManager;
 	
     private Map<String, SipPeer> sipPeers;
     private int sipStackDebugLevel = 8;
@@ -18,30 +26,21 @@ public final class SipPeerManager {
         sipPeers = Collections.synchronizedMap(new HashMap<String, SipPeer>());
     }
 
-    public void createSipUser(String userid, ConnectionClientMethodInvoker connection, int sipPort, int rtpPort) {
-    	SipPeer sipUser = new SipPeer(userid, sipPort, rtpPort);
-    	sipPeers.put(userid, sipUser);
+    public void createSipPeer(String peerId, String host, int sipPort, int startRtpPort, int stopRtpPort) {
+    	SipPeer sipPeer = new SipPeer(peerId, host, sipPort, startRtpPort, stopRtpPort);
+    	sipPeers.put(peerId, sipPeer);    	
     }
     
-    public void login(String userid, String obproxy, String phone, String username, String password, String realm, String proxy) {
-    	SipPeer sipUser = sipPeers.get(userid);
-    	if (sipUser != null) {
-    		sipUser.login(obproxy, phone, username, password, realm, proxy);
-    	}
+    public void register(String peerId, String username, String password) throws PeerNotFoundException {
+    	SipPeer sipPeer = sipPeers.get(peerId);
+    	if (sipPeer == null) throw new PeerNotFoundException("Can't find sip peer " + peerId);
+  		sipPeer.register(username, password);
     }
-    
-    public void registerSipUser(String userid) {
-    	SipPeer sipUser = sipPeers.get(userid);
-    	if (sipUser != null) {
-    		sipUser.register();
-    	}
-    }
-    
-    public void call(String userid, String destination) {
-    	SipPeer sipUser = sipPeers.get(userid);
-    	if (sipUser != null) {
-    		sipUser.call(destination);
-    	}
+        
+    public void call(String peerId, String clientId, String callerName, String destination) throws PeerNotFoundException {
+    	SipPeer sipPeer = sipPeers.get(peerId);
+    	if (sipPeer == null) throw new PeerNotFoundException("Can't find sip peer " + peerId);
+    	sipPeer.call(clientId, callerName, destination);
     }
     
     public void passDtmf(String userid, String digits) {
@@ -134,4 +133,8 @@ public final class SipPeerManager {
         SipStack.debug_level = sipStackDebugLevel;
         SipStack.log_path = "log";    	
     }
+	
+	public void setClientConnectionManager(ClientConnectionManager ccm) {
+		clientConnManager = ccm;
+	}
 }

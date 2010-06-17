@@ -21,15 +21,19 @@ import java.util.Vector;
 public class CallAgent extends CallListenerAdapter {
     private static Logger log = Red5LoggerFactory.getLogger(CallAgent.class, "sip");
     
-    private SipPeerProfile userProfile;
-    private SipProvider sipProvider;
+    private final SipPeerProfile userProfile;
+    private final SipProvider sipProvider;
     private ExtendedCall call;
     private ExtendedCall callTransfer;
     private CallStream callStream;    
     private String localSession = null;
     private Codec sipCodec = null;    
     private Set<SipUserAgentListener> listeners = new HashSet<SipUserAgentListener>();
+    
     private CallStreamFactory callStreamFactory;
+    private ClientConnectionManager clientConnManager; 
+    
+    private final String clientId;
     
     private enum CallState {
     	UA_IDLE(0), UA_INCOMING_CALL(1), UA_OUTGOING_CALL(2), UA_ONCALL(3);    	
@@ -40,9 +44,10 @@ public class CallAgent extends CallListenerAdapter {
 
     private CallState callState;
 
-    public CallAgent(SipProvider sipProvider, SipPeerProfile userProfile) {
+    public CallAgent(SipProvider sipProvider, SipPeerProfile userProfile, String clientId) {
         this.sipProvider = sipProvider;
         this.userProfile = userProfile;
+        this.clientId = clientId;
         
         // If no contact_url and/or from_url has been set, create it now.
         userProfile.initContactAddress(sipProvider);        
@@ -70,10 +75,7 @@ public class CallAgent extends CallListenerAdapter {
     	callStream.queueSipDtmfDigits(digits);
     }
     
-    public void initialize() {
-    }
-    
-    public void initSessionDescriptor() {        
+    private void initSessionDescriptor() {        
         log.debug("initSessionDescriptor");        
         SessionDescriptor newSdp = SdpUtils.createInitialSdp(userProfile.username, 
         		sipProvider.getViaAddress(), userProfile.audioPort, 
@@ -83,17 +85,17 @@ public class CallAgent extends CallListenerAdapter {
     }
 
     public void call(String targetUrl) {    	
-    	log.debug( "call", "Init..." );  
+    	log.debug("call {}", targetUrl);  
     	changeStatus(CallState.UA_OUTGOING_CALL);
         
         call = new ExtendedCall(sipProvider, userProfile.fromUrl, 
                 userProfile.contactUrl, userProfile.username,
                 userProfile.realm, userProfile.passwd, this);  
         
-        // In case of incomplete url (e.g. only 'user' is present), try to
-        // complete it.       
+        // In case of incomplete url (e.g. only 'user' is present), 
+        // try to complete it.       
         targetUrl = sipProvider.completeNameAddress(targetUrl).toString();
-
+        log.debug("call {}", targetUrl);  
         if (userProfile.noOffer) {
             call.call(targetUrl);
         } else {
@@ -112,14 +114,14 @@ public class CallAgent extends CallListenerAdapter {
     	changeStatus(CallState.UA_IDLE); 
     }
 
-    protected void launchMediaApplication() {
+    private void createVoiceStreams() {
         // Exit if the Media Application is already running.
         if (callStream != null) {            
         	log.debug("launchMediaApplication", "Media application is already running.");
             return;
         }
         
-        SessionDescriptor localSdp = new SessionDescriptor( call.getLocalSessionDescriptor() );        
+        SessionDescriptor localSdp = new SessionDescriptor(call.getLocalSessionDescriptor());        
         SessionDescriptor remoteSdp = new SessionDescriptor( call.getRemoteSessionDescriptor() );
         String remoteMediaAddress = (new Parser(remoteSdp.getConnection().toString())).skipString().skipString().getString();
         int remoteAudioPort = getRemoteAudioPort(remoteSdp);
@@ -197,7 +199,6 @@ public class CallAgent extends CallListenerAdapter {
 
 
     // ********************** Call callback functions **********************
-
     private void createAudioCodec(SessionDescriptor newSdp) {
     	sipCodec = SdpUtils.getNegotiatedAudioCodec(newSdp);
     }
@@ -228,11 +229,11 @@ public class CallAgent extends CallListenerAdapter {
     }
 
 
-
-    /** Callback function called when arriving a 2xx (call accepted) */
+    /** Callback function called when arriving a 2xx (call accepted) 
+     *  The user has managed to join the conference.
+     */ 
     public void onCallAccepted(Call call, String sdp, Message resp) {        
-    	log.debug( "onCallAccepted");
-        
+    	log.debug( "onCallAccepted");        
     	if (!isCurrentCall(call)) return;
         
         log.debug("ACCEPTED/CALL.");
@@ -245,7 +246,7 @@ public class CallAgent extends CallListenerAdapter {
             call.ackWithAnswer(localSession);
         }
 
-        launchMediaApplication();
+        createVoiceStreams();
         notifyListenersOfOnOutgoingCallAccepted();
     }
 
@@ -264,7 +265,7 @@ public class CallAgent extends CallListenerAdapter {
         log.debug("CONFIRMED/CALL.");
         changeStatus(CallState.UA_ONCALL);
 
-        launchMediaApplication();
+        createVoiceStreams();
     }
 
 
@@ -294,7 +295,6 @@ public class CallAgent extends CallListenerAdapter {
     		listener.onOutgoingCallFailed();
     	}
     }
-
 
     /** Callback function called when arriving a 3xx (call redirection) */
     public void onCallRedirection(Call call, String reason, Vector contact_list, Message resp) {        
@@ -399,4 +399,8 @@ public class CallAgent extends CallListenerAdapter {
     public void setCallStreamFactory(CallStreamFactory csf) {
     	this.callStreamFactory = csf;
     }
+    
+	public void setClientConnectionManager(ClientConnectionManager ccm) {
+		clientConnManager = ccm;
+	}
 }

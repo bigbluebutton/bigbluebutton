@@ -6,24 +6,34 @@ import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IScope;
 import org.red5.server.api.stream.IBroadcastStream;
-import org.red5.app.sip.registration.SipRegisterAgent;
 
-public class SipPeer {
+/**
+ * Class that is a peer to the sip server. This class will maintain
+ * all calls to it's peer server.
+ * @author Richard Alam
+ *
+ */
+public class SipPeer implements SipRegisterAgentListener {
     private static Logger log = Red5LoggerFactory.getLogger(SipPeer.class, "sip");
 
-    private ConnectionClientMethodInvoker rtmpConnection;
-    private String userid;
-    private SipPeerProfile userProfile;
+    private ClientConnectionManager clientConnManager;
+    private CallStreamFactory callStreamFactory;
+    
+    private CallManager callManager = new CallManager();
+    
     private SipProvider sipProvider;
-    private CallAgent userAgent;
     private SipRegisterAgent registerAgent;
-    private String host;
-    private int sipPort;
-    private int startRtpPort;
-    private int stopRtpPort;
-
-    public SipPeer(String host, int sipPort, int startRtpPort, int stopRtpPort) {
-        log.debug( "SIPUser Constructor: sip port " + sipPort);
+    private final String id;
+    private final String host;
+    private final int sipPort;
+    private final int startRtpPort;
+    private final int stopRtpPort;
+    private boolean registered = false;
+    private String username;
+    private String password;
+    
+    public SipPeer(String id, String host, int sipPort, int startRtpPort, int stopRtpPort) {
+        this.id = id;
         this.host = host;
         this.sipPort = sipPort;
         this.startRtpPort = startRtpPort;
@@ -38,14 +48,24 @@ public class SipPeer {
     }
     
     public void register(String username, String password) {
-    	log.debug( "SIPUser login" );
+    	log.debug( "SIPUser register" );
+    	this.username = username;
+    	this.password = password;
+    	
 		sipProvider.setOutboundProxy(new SocketAddress(host));   
-		initializeUserProfile(username, password);
-        initializeUserAgent();                              
+		SipPeerProfile regProfile = createRegisterUserProfile(username, password);
+		
+        if (sipProvider != null) {
+        	registerAgent = new SipRegisterAgent(sipProvider, regProfile.fromUrl, 
+        			regProfile.contactUrl, regProfile.username, 
+        			regProfile.realm, regProfile.passwd);
+        	registerAgent.addListener(this);
+        	registerAgent.register(regProfile.expires, regProfile.expires/2, regProfile.keepaliveTime);
+        }                              
     }
     
-    private void initializeUserProfile(String username, String password) {    	    	
-    	userProfile = new SipPeerProfile();
+    private SipPeerProfile createRegisterUserProfile(String username, String password) {    	    	
+    	SipPeerProfile userProfile = new SipPeerProfile();
         userProfile.audioPort = startRtpPort;
             	
         String fromURL = "\"" + username + "\" <sip:" + username + "@" + host + ">";
@@ -59,11 +79,27 @@ public class SipPeer {
         }		
         userProfile.keepaliveTime=8000;
 		userProfile.acceptTime=0;
-		userProfile.hangupTime=20;    			
+		userProfile.hangupTime=20;   
+		return userProfile;
     }
     
-    private void setupUserProfile(String username, String password, String host, String phone) {
-
+    private SipPeerProfile createCallSipProfile(String callerName, String destination) {    	    	
+    	SipPeerProfile userProfile = new SipPeerProfile();
+        userProfile.audioPort = startRtpPort;
+            	
+        String fromURL = "\"" + callerName + "\" <sip:" + destination + "@" + host + ">";
+    	userProfile.username = callerName;
+        userProfile.passwd = password;
+        userProfile.realm = host;
+        userProfile.fromUrl = fromURL;
+		userProfile.contactUrl = "sip:" + destination + "@" + sipProvider.getViaAddress();
+        if (sipProvider.getPort() != SipStack.default_port) {
+            userProfile.contactUrl += ":" + sipProvider.getPort();
+        }		
+        userProfile.keepaliveTime=8000;
+		userProfile.acceptTime=0;
+		userProfile.hangupTime=20;   
+		return userProfile;
     }
     
     private void initializeUserAgent() {
@@ -71,19 +107,7 @@ public class SipPeer {
     	userAgent.addListener(rtmpConnection);
         userAgent.initialize();
     }
-        
-
-       
-    public void register() {
-    	log.debug( "SIPUser register" );
-        if (sipProvider != null) {
-        	registerAgent = new SipRegisterAgent(sipProvider, userProfile.fromUrl, userProfile.contactUrl, 
-        			userProfile.username, userProfile.realm, userProfile.passwd);
-        	registerAgent.addListener(rtmpConnection);
-        	registerAgent.register(userProfile.expires, userProfile.expires/2, userProfile.keepaliveTime);
-        }
-    }
-
+               
     public void dtmf(String digits) {
     	log.debug("SIPUser dtmf " + digits);
         if (userAgent != null) {
@@ -91,22 +115,12 @@ public class SipPeer {
         }
     }
 
-    public void call(String destination) {
-        log.debug( "SIPUser Calling " + destination );
-
-        if (userAgent != null)
-        	userAgent.hangup();
-
-        if (destination.indexOf("@") == -1) {
-        	destination = destination + "@" + proxy;
-        }
-
-        if (destination.indexOf("sip:") > -1) {
-        	destination = destination.substring(4);
-        }
-
-        if (userAgent != null)
-        	userAgent.call(destination);
+    public void call(String clientId, String callerName, String destination) {
+    	SipPeerProfile callerProfile = createCallSipProfile(callerName, destination);    	
+    	CallAgent ca = new CallAgent(sipProvider, callerProfile, clientId);
+    	ca.setClientConnectionManager(clientConnManager);
+    	ca.setCallStreamFactory(callStreamFactory);
+    	ca.call(destination);
     }
 
 	/** Add by Lior call transfer test */
@@ -179,4 +193,30 @@ public class SipPeer {
     public String getSessionID() {
         return userid;
     }
+
+	@Override
+	public void onRegistrationFailure(String result) {
+		log.error("Failed to register with Sip Server.");
+		registered = false;
+	}
+
+	@Override
+	public void onRegistrationSuccess(String result) {
+		log.info("Successfully registered with Sip Server.");
+		registered = true;
+	}
+
+	@Override
+	public void onUnregistedSuccess() {
+		log.info("Successfully unregistered with Sip Server");
+		registered = false;
+	}
+	
+	public void setCallStreamFactory(CallStreamFactory csf) {
+		callStreamFactory = csf;
+	}
+	
+	public void setClientConnectionManager(ClientConnectionManager ccm) {
+		clientConnManager = ccm;
+	}
 }

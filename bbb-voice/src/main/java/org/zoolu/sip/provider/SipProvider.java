@@ -111,19 +111,19 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
    // **************************** Constants ****************************
 
    /** UDP protocol type */
-   public static final String PROTO_UDP="udp";
+   public static final String PROTO_UDP = "udp";
    /** TCP protocol type */
-   public static final String PROTO_TCP="tcp";
+   public static final String PROTO_TCP = "tcp";
    /** TLS protocol type */
-   public static final String PROTO_TLS="tls";
+   public static final String PROTO_TLS = "tls";
    /** SCTP protocol type */
-   public static final String PROTO_SCTP="sctp";
+   public static final String PROTO_SCTP = "sctp";
 
    /** String value "auto-configuration" used for auto configuration of the host address. */
-   public static final String AUTO_CONFIGURATION="AUTO-CONFIGURATION";
+   public static final String AUTO_CONFIGURATION = "AUTO-CONFIGURATION";
 
    /** String value "auto-configuration" used for auto configuration of the host address. */
-   public static final String ALL_INTERFACES="ALL-INTERFACES";
+   public static final String ALL_INTERFACES = "ALL-INTERFACES";
 
    /** String value "NO-OUTBOUND" used for setting no outbound proxy. */
    //public static final String NO_OUTBOUND="NO-OUTBOUND";
@@ -132,7 +132,7 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
      * that does not match any active method_id, transaction_id, nor dialog_id.
      * <br> In this context, "active" means that there is a active listener
      * for that specific method, transaction, or dialog. */
-   public static final Identifier ANY=new Identifier("ANY");
+   public static final Identifier ANY = new Identifier("ANY");
 
    /** Identifier used as listener id for capturing any incoming messages in PROMISQUE mode,
      * that means that messages are passed to the present listener regardless of
@@ -140,85 +140,85 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
      * <p/>
      * More than one SipProviderListener can be added and be active concurrently
      * for capturing messages in PROMISQUE mode. */
-   public static final Identifier PROMISQUE=new Identifier("PROMISQUE");
+   public static final Identifier PROMISQUE = new Identifier("PROMISQUE");
 
-   public static final Identifier INVITE=new Identifier("INVITE");
+   public static final Identifier INVITE = new Identifier("INVITE");
 
    /** Minimum length for a valid SIP message.  */
-   private static final int MIN_MESSAGE_LENGTH=12;
+   private static final int MIN_MESSAGE_LENGTH = 12;
 
    // ***************** Readable/configurable attributes *****************
-    String sipBusyUrl=null;
+    String sipBusyUrl = null;
    /** Via address/name.
      * Use 'auto-configuration' for auto detection, or let it undefined. */
-   String via_addr=null;
+   String via_addr = null;
 
    /** Local SIP port */
-   int host_port=0;
+   int host_port = 0;
 
    /** Network interface (IP address) used by SIP.
      * Use 'ALL-INTERFACES' for binding SIP to all interfaces (or let it undefined). */
-   String host_ifaddr=null;
+   String host_ifaddr = null;
 
    /** Transport protocols (the first protocol is used as default) */
-   String[] transport_protocols=null;
+   String[] transport_protocols = null;
 
    /** Max number of (contemporary) open connections */
-   int nmax_connections=0;
+   int nmax_connections = 0;
 
    /** Outbound proxy (host_addr[:host_port]).
      * Use 'NONE' for not using an outbound proxy (or let it undefined). */
-   SocketAddress outbound_proxy=null;
+   SocketAddress outbound_proxy = null;
 
    /** Whether logging all packets (including non-SIP keepalive tokens). */
-   boolean log_all_packets=false;
+   boolean log_all_packets = false;
 
-   private String inviteLock="";
+   private String inviteLock = "";
 
       // new params to control address handling
-      private boolean sendResponseUsingOutboundProxy=false;
-      private boolean useViaReceived=true;
-      private boolean useViaRport=true;
+      private boolean sendResponseUsingOutboundProxy = false;
+      private boolean useViaReceived = true;
+      private boolean useViaRport = true;
 
    // for backward compatibility:
 
    /** Outbound proxy addr (for backward compatibility). */
-   private String outbound_addr=null;
+   private String outbound_addr = null;
    /** Outbound proxy port (for backward compatibility). */
-   private int outbound_port=-1;
+   private int outbound_port = -1;
 
-   private OptionHandler optionHandler=null;
+   private OptionHandler optionHandler = null;
 
 
    // ********************* Non-readable attributes *********************
 
    /** Event Loger */
-   protected Log event_log=null;
+   protected Log event_log = null;
 
    /** Message Loger */
-   protected Log message_log=null;
+   protected Log message_log = null;
 
    /** Network interface (IP address) used by SIP. */
-   IpAddress host_ipaddr=null;
+   IpAddress host_ipaddr = null;
 
    /** Default transport */
-   String default_transport=null;
+   String default_transport = null;
 
-    static long breaker=0;
+    static long breaker = 0;
 
-   private boolean initComplete=false;
+   private boolean initComplete = false;
 
 
 
 
    /** Whether using UDP as transport protocol */
-   boolean transport_udp=false;
+   boolean transport_udp = false;
    /** Whether using TCP as transport protocol */
-   boolean transport_tcp=false;
+   boolean transport_tcp = false;
    /** Whether using TLS as transport protocol */
-   boolean transport_tls=false;
+   boolean transport_tls = false;
    /** Whether using SCTP as transport protocol */
-   boolean transport_sctp=false;
+   boolean transport_sctp = false;
 
    /** Whether adding 'rport' parameter on outgoing requests. */
    boolean rport=true;
@@ -286,9 +286,9 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
    private void init(String viaddr, int port, String[] protocols, String ifaddr)
    {  
 	   if (!SipStack.isInit()) SipStack.init();
-	   via_addr=viaddr;
+	   via_addr = viaddr;
 	   if (via_addr==null || via_addr.equalsIgnoreCase(AUTO_CONFIGURATION)) via_addr=IpAddress.getLocalHostAddress().toString();
-	   host_port=port;
+	   host_port = port;
 	   if (host_port<=0) host_port=SipStack.default_port;
 	   host_ipaddr=null;
 	   if (ifaddr!=null && !ifaddr.equalsIgnoreCase(ALL_INTERFACES))
@@ -1343,26 +1343,27 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
      * a SIP URL is costructed using the outbound proxy as host address if present,
      * otherwise the local via address is used. */
    public NameAddress completeNameAddress(String str)
-   {  if (str.indexOf("<sip:")>=0) return new NameAddress(str);
-      else
-      {  SipURL url=completeSipURL(str);
-         return new NameAddress(url);
+   {  
+	   if (str.indexOf("<sip:") >= 0) return new NameAddress(str);
+	   else {  
+		   SipURL url = completeSipURL(str);
+		   return new NameAddress(url);
       }
    }
    /** Constructs a SipURL based on an input string. */
    private SipURL completeSipURL(String str)
-   {  // in case it is passed only the 'user' field, add '@'<outbound_proxy>[':'<outbound_port>]
-      if (!str.startsWith("sip:") && str.indexOf("@")<0 && str.indexOf(".")<0 && str.indexOf(":")<0)
-      {  // may be it is just the user name..
-         String url="sip:"+str+"@";
-         if (outbound_proxy!=null)
-         {  url+=outbound_proxy.getAddress().toString();
-            int port=outbound_proxy.getPort();
-            if (port>0 && port!=SipStack.default_port) url+=":"+port;
-         }
-         else
-         {  url+=via_addr;
-            if (host_port>0 && host_port!=SipStack.default_port) url+=":"+host_port;
+   {  
+	   // in case it is passed only the 'user' field, add '@'<outbound_proxy>[':'<outbound_port>]
+	   if (!str.startsWith("sip:") && str.indexOf("@")<0 && str.indexOf(".") < 0 && str.indexOf(":") < 0) {  
+		   // may be it is just the user name..
+		   String url = "sip:" + str + "@";
+		   if (outbound_proxy != null) {  
+			   url += outbound_proxy.getAddress().toString();
+			   int port = outbound_proxy.getPort();
+			   if (port > 0 && port != SipStack.default_port) url += ":" + port;
+         } else {  
+        	 url += via_addr;
+        	 if (host_port > 0 && host_port != SipStack.default_port) url += ":" + host_port;
          }
          return new SipURL(url);
       }
