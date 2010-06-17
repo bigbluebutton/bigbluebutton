@@ -190,11 +190,6 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
    private OptionHandler optionHandler=null;
 
 
-
-
-
-
-
    // ********************* Non-readable attributes *********************
 
    /** Event Loger */
@@ -258,42 +253,51 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
 
    /** Creates a new SipProvider. */
    public SipProvider(String via_addr, int port)
-   {  init(via_addr,port,null,null);
-      initlog();
-      startTrasport();
+   {  
+	   init(via_addr,port,null,null);
+	   initlog();
+	   startTrasport();
    }
 
 
    /** Creates a new SipProvider.
      * Costructs the SipProvider, initializing the SipProviderListeners, the transport protocols, and other attributes. */
    public SipProvider(String via_addr, int port, String[] protocols, String ifaddr)
-   {  init(via_addr,port,protocols,ifaddr);
-      initlog();
-      startTrasport();
+   {  
+	   init(via_addr,port,protocols,ifaddr);
+	   initlog();
+	   startTrasport();
    }
 
 
    /** Creates a new SipProvider.
      * The SipProvider attributres are read from file. */
    public SipProvider(String file)
-   {  if (!SipStack.isInit()) SipStack.init(file);
-      new Configure(this,file);
-      init(via_addr,host_port,transport_protocols,host_ifaddr);
-      initlog();
-      startTrasport();
+   {  
+	   if (!SipStack.isInit()) SipStack.init(file);
+	   new Configure(this,file);
+	   init(via_addr,host_port,transport_protocols,host_ifaddr);
+	   initlog();
+	   startTrasport();
    }
 
 
    /** Inits the SipProvider, initializing the SipProviderListeners, the transport protocols, the outbound proxy, and other attributes. */
    private void init(String viaddr, int port, String[] protocols, String ifaddr)
-   {  if (!SipStack.isInit()) SipStack.init();
-      via_addr=viaddr;
-      if (via_addr==null || via_addr.equalsIgnoreCase(AUTO_CONFIGURATION)) via_addr=IpAddress.getLocalHostAddress().toString();
-      host_port=port;
-      if (host_port<=0) host_port=SipStack.default_port;
-      host_ipaddr=null;
-      if (ifaddr!=null && !ifaddr.equalsIgnoreCase(ALL_INTERFACES))
-      {  try {  host_ipaddr=IpAddress.getByName(ifaddr);  } catch (IOException e) {  e.printStackTrace(); host_ipaddr=null;  }
+   {  
+	   if (!SipStack.isInit()) SipStack.init();
+	   via_addr=viaddr;
+	   if (via_addr==null || via_addr.equalsIgnoreCase(AUTO_CONFIGURATION)) via_addr=IpAddress.getLocalHostAddress().toString();
+	   host_port=port;
+	   if (host_port<=0) host_port=SipStack.default_port;
+	   host_ipaddr=null;
+	   if (ifaddr!=null && !ifaddr.equalsIgnoreCase(ALL_INTERFACES))
+	   {  
+		   try {  
+			   host_ipaddr=IpAddress.getByName(ifaddr);  
+		   } catch (IOException e) {  
+			   e.printStackTrace(); host_ipaddr=null;  
+		   }
       }
       transport_protocols=protocols;
       if (transport_protocols==null) transport_protocols=SipStack.default_transport_protocols;

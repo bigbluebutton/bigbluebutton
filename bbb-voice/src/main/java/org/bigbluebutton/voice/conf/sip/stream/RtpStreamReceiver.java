@@ -1,4 +1,4 @@
-package org.red5.app.sip.stream;
+package org.bigbluebutton.voice.conf.sip.stream;
 
 import local.net.RtpPacket;
 import local.net.RtpSocket;
@@ -29,6 +29,8 @@ public class RtpStreamReceiver {
     	this.packetProcessor = packetProcessor;
     	this.payloadLength = payloadLength;
         rtpSocket = new RtpSocket(socket);
+
+ //       initializeSocket();
     }
     
     public void setRtpStreamReceiverListener(RtpStreamReceiverListener listener) {

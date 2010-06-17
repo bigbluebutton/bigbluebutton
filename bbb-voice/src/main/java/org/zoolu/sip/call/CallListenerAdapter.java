@@ -23,16 +23,9 @@
 
 package org.zoolu.sip.call;
 
-
-import org.zoolu.sip.call.*;
-import org.zoolu.sip.provider.SipStack;
 import org.zoolu.sip.address.NameAddress;
 import org.zoolu.sip.message.Message;
-import org.zoolu.tools.Log;
-import org.zoolu.tools.LogLevel;
 import org.zoolu.sdp.*;
-//import java.util.Iterator;
-import java.util.Enumeration;
 import java.util.Vector;
 
 
@@ -62,14 +55,16 @@ public abstract class CallListenerAdapter implements ExtendedCallListener
   
    /** Changes the current session descriptor specifing the receiving RTP/UDP port number, the AVP format, the codec, and the clock rate */
    /*public static String audioSession(int port, int avp, String codec, int rate)
-   {  SessionDescriptor sdp=new SessionDescriptor();
-      sdp.addMedia(new MediaField("audio ",port,0,"RTP/AVP",String.valueOf(avp)),new AttributeField("rtpmap",avp+" "+codec+"/"+rate));
-      return sdp.toString();
+   {  
+   		SessionDescriptor sdp=new SessionDescriptor();
+      	sdp.addMedia(new MediaField("audio ",port,0,"RTP/AVP",String.valueOf(avp)),new AttributeField("rtpmap",avp+" "+codec+"/"+rate));
+      	return sdp.toString();
    }*/
 
    /** Changes the current session descriptor specifing the receiving RTP/UDP port number, the AVP format, the codec, and the clock rate */
    /*public static String audioSession(int port)
-   {  return audioSession(port,0,"PCMU",8000);
+   {  
+   		return audioSession(port,0,"PCMU",8000);
    }*/
 
 
@@ -78,17 +73,19 @@ public abstract class CallListenerAdapter implements ExtendedCallListener
    /** Accepts an incoming call.
      * Callback function called when arriving a new INVITE method (incoming call) */
    public void onCallIncoming(Call call, NameAddress callee, NameAddress caller, String sdp, Message invite)
-   {  //printLog("INCOMING");
-      call.ring();
-      String local_session;
-      if (sdp!=null && sdp.length()>0)
-      {  SessionDescriptor remote_sdp=new SessionDescriptor(sdp);     
-         SessionDescriptor local_sdp=new SessionDescriptor(call.getLocalSessionDescriptor());
-         SessionDescriptor new_sdp=new SessionDescriptor(remote_sdp.getOrigin(),remote_sdp.getSessionName(),local_sdp.getConnection(),local_sdp.getTime());
-         new_sdp.addMediaDescriptors(local_sdp.getMediaDescriptors());
-         new_sdp=SdpTools.sdpMediaProduct(new_sdp,remote_sdp.getMediaDescriptors());
-         new_sdp=SdpTools.sdpAttirbuteSelection(new_sdp,"rtpmap");
-         local_session=new_sdp.toString();
+   {  
+	   //printLog("INCOMING");
+	   call.ring();
+	   String local_session;
+	   if (sdp!=null && sdp.length()>0)
+	   {  
+		   SessionDescriptor remote_sdp = new SessionDescriptor(sdp);     
+		   SessionDescriptor local_sdp = new SessionDescriptor(call.getLocalSessionDescriptor());
+		   SessionDescriptor new_sdp = new SessionDescriptor(remote_sdp.getOrigin(),remote_sdp.getSessionName(),local_sdp.getConnection(),local_sdp.getTime());
+		   new_sdp.addMediaDescriptors(local_sdp.getMediaDescriptors());
+		   new_sdp = SdpTools.sdpMediaProduct(new_sdp,remote_sdp.getMediaDescriptors());
+		   new_sdp = SdpTools.sdpAttirbuteSelection(new_sdp,"rtpmap");
+		   local_session = new_sdp.toString();
       }
       else local_session=call.getLocalSessionDescriptor();
       // accept immediatly
@@ -98,16 +95,18 @@ public abstract class CallListenerAdapter implements ExtendedCallListener
    /** Changes the call when remotly requested.
      * Callback function called when arriving a new Re-INVITE method (re-inviting/call modify) */
    public void onCallModifying(Call call, String sdp, Message invite)
-   {  //printLog("RE-INVITE/MODIFY");
-      String local_session;
-      if (sdp!=null && sdp.length()>0)
-      {  SessionDescriptor remote_sdp=new SessionDescriptor(sdp);
-         SessionDescriptor local_sdp=new SessionDescriptor(call.getLocalSessionDescriptor());
-         SessionDescriptor new_sdp=new SessionDescriptor(remote_sdp.getOrigin(),remote_sdp.getSessionName(),local_sdp.getConnection(),local_sdp.getTime());
-         new_sdp.addMediaDescriptors(local_sdp.getMediaDescriptors());
-         new_sdp=SdpTools.sdpMediaProduct(new_sdp,remote_sdp.getMediaDescriptors());
-         new_sdp=SdpTools.sdpAttirbuteSelection(new_sdp,"rtpmap");
-         local_session=new_sdp.toString();
+   {  
+	   //printLog("RE-INVITE/MODIFY");
+	   String local_session;
+	   if (sdp!=null && sdp.length()>0)
+	   {  
+		   SessionDescriptor remote_sdp = new SessionDescriptor(sdp);
+		   SessionDescriptor local_sdp = new SessionDescriptor(call.getLocalSessionDescriptor());
+		   SessionDescriptor new_sdp = new SessionDescriptor(remote_sdp.getOrigin(),remote_sdp.getSessionName(),local_sdp.getConnection(),local_sdp.getTime());
+		   new_sdp.addMediaDescriptors(local_sdp.getMediaDescriptors());
+		   new_sdp = SdpTools.sdpMediaProduct(new_sdp,remote_sdp.getMediaDescriptors());
+		   new_sdp = SdpTools.sdpAttirbuteSelection(new_sdp,"rtpmap");
+		   local_session = new_sdp.toString();
       }
       else local_session=call.getLocalSessionDescriptor();
       // accept immediatly
