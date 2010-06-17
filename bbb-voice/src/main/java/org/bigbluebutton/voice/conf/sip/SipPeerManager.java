@@ -43,20 +43,13 @@ public final class SipPeerManager {
     	sipPeer.call(clientId, callerName, destination);
     }
     
-    public void passDtmf(String userid, String digits) {
-    	SipPeer sipUser = sipPeers.get(userid);
-    	if (sipUser != null) {
-    		sipUser.dtmf(digits);
+    public void passDtmf(String peerId, String clientId, String digits) {
+    	SipPeer sipPeer = sipPeers.get(peerId);
+    	if (sipPeer != null) {
+    		sipPeer.dtmf(clientId, digits);
     	}
     }
-    
-    public void accept(String userid) {
-    	SipPeer sipUser = sipPeers.get(userid);
-    	if (sipUser != null) {
-    		sipUser.accept();
-    	}
-    }
-    
+        
     public void unregister(String userid) {
     	SipPeer sipUser = sipPeers.get(userid);
     	if (sipUser != null) {
@@ -64,13 +57,14 @@ public final class SipPeerManager {
     	}
     }
     
-    public void hangup(String userid) {
-    	SipPeer sipUser = sipPeers.get(userid);
-    	if (sipUser != null) {
-    		sipUser.hangup();
+    public void hangup(String peerId, String clientId) {
+    	SipPeer sipPeer = sipPeers.get(peerId);
+    	if (sipPeer != null) {
+    		sipPeer.hangup(clientId);
     	}
     }
-        
+
+    /*
     public void startTalkStream(String userid, IBroadcastStream broadcastStream, IScope scope) {
     	SipPeer sipUser = sipPeers.get(userid);
     	if (sipUser != null) {
@@ -84,22 +78,12 @@ public final class SipPeerManager {
     		sipUser.stopTalkStream(broadcastStream, scope);
     	}
     }
+ */
     
     private void remove(String userid) {
     	log.debug("Number of SipUsers in Manager before remove {}", sipPeers.size());
         sipPeers.remove(userid);
     }
-
-
-    public Collection< SipPeer > getSIPUsers() {
-        return sipPeers.values();
-    }
-
-
-    public int getNumberOfSessions() {
-        return sipPeers.size();
-    }
-
 
     public void close(String userid) {
     	SipPeer sipUser = sipPeers.get(userid);
@@ -110,14 +94,13 @@ public final class SipPeerManager {
     }
 
     public void destroyAllSessions() {
-        Collection sipUsers = getSIPUsers();
-        SipPeer sipUser;
+    	Collection<SipPeer> sipUsers = sipPeers.values();
+        SipPeer sp;
 
-        for (Iterator iter = sipUsers.iterator(); iter.hasNext();) {
-            sipUser = (SipPeer) iter.next();
-            sipUser.close();
-
-            sipUser = null;
+        for (Iterator<SipPeer> iter = sipUsers.iterator(); iter.hasNext();) {
+            sp = (SipPeer) iter.next();
+            sp.close();
+            sp = null;
         }
 
         sipPeers = new HashMap<String, SipPeer>();
@@ -125,14 +108,10 @@ public final class SipPeerManager {
 
 	public void setSipStackDebugLevel(int sipStackDebugLevel) {
 		this.sipStackDebugLevel = sipStackDebugLevel;
-		initializeSipStack();
-	}
-
-	private void initializeSipStack() {
-        SipStack.init();
+		SipStack.init();
         SipStack.debug_level = sipStackDebugLevel;
-        SipStack.log_path = "log";    	
-    }
+        SipStack.log_path = "log"; 
+	}
 	
 	public void setClientConnectionManager(ClientConnectionManager ccm) {
 		clientConnManager = ccm;

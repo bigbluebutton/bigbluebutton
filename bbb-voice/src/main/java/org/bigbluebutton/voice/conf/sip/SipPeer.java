@@ -1,5 +1,8 @@
 package org.bigbluebutton.voice.conf.sip;
 
+import java.util.Collection;
+import java.util.Iterator;
+
 import org.zoolu.sip.provider.*;
 import org.zoolu.net.SocketAddress;
 import org.slf4j.Logger;
@@ -102,45 +105,33 @@ public class SipPeer implements SipRegisterAgentListener {
 		return userProfile;
     }
     
-    private void initializeUserAgent() {
-    	userAgent = new CallAgent(sipProvider, userProfile, rtmpConnection);
-    	userAgent.addListener(rtmpConnection);
-        userAgent.initialize();
-    }
-               
-    public void dtmf(String digits) {
+           
+    public void dtmf(String clientId, String digits) {
     	log.debug("SIPUser dtmf " + digits);
-        if (userAgent != null) {
-        	userAgent.queueSipDtmfDigits( digits );
+    	CallAgent ca = callManager.get(clientId);
+        if (ca != null) {
+        	ca.queueSipDtmfDigits(digits);
         }
     }
 
     public void call(String clientId, String callerName, String destination) {
+    	if (!registered) {
+    		log.warn("Call request for {} but not registered.", id);
+    		return;
+    	}
+    	
     	SipPeerProfile callerProfile = createCallSipProfile(callerName, destination);    	
     	CallAgent ca = new CallAgent(sipProvider, callerProfile, clientId);
     	ca.setClientConnectionManager(clientConnManager);
     	ca.setCallStreamFactory(callStreamFactory);
+    	callManager.add(ca);
     	ca.call(destination);
     }
-
-	/** Add by Lior call transfer test */
-	public void transfer(String transferTo) {
-	   log.debug("Transfer To: " + transferTo);
-
-	   if (transferTo.indexOf("@") == -1) {
-		   transferTo = transferTo + "@" + proxy ;
-	   }
-
-	   userAgent.transfer(transferTo);
-	}
-	/** end of transfer code */
 
 	public void close() {
 		log.debug("SIPUser close1");
         try {
-			hangup();
 			unregister();
-		    new Thread().sleep(3000);
 		} catch(Exception e) {
 			log.error("close: Exception:>\n" + e);
 		}
@@ -149,37 +140,30 @@ public class SipPeer implements SipRegisterAgentListener {
        sipProvider.halt();
 	}
 
-    public void accept() {
-    	log.debug( "SIPUser accept" );
-
-        if (userAgent != null) {
-            userAgent.accept();
-        }
-    }
-
-    public void hangup() {
+    public void hangup(String clientId) {
     	log.debug( "SIPUser hangup" );
 
-        if (userAgent != null) {
-           userAgent.hangup();
+    	CallAgent ca = callManager.get(clientId);
+        if (ca != null) {
+           ca.hangup();
         }
-
     }
 
     public void unregister() {
     	log.debug( "SIPUser unregister" );
 
+    	Collection<CallAgent> calls = callManager.getAll();
+    	for (Iterator<CallAgent> iter = calls.iterator(); iter.hasNext();) {
+    		CallAgent ca = (CallAgent) iter.next();
+    		ca.hangup();
+    	}
+    	
         if (registerAgent != null) {
             registerAgent.unregister();
             registerAgent = null;
         }
-
-        if (userAgent != null) {
-            userAgent.hangup();
-        }
-        userAgent = null;
     }
-
+/*
     public void startTalkStream(IBroadcastStream broadcastStream, IScope scope) {
     	if (userAgent != null)
     		userAgent.startTalkStream(broadcastStream, scope);
@@ -193,7 +177,7 @@ public class SipPeer implements SipRegisterAgentListener {
     public String getSessionID() {
         return userid;
     }
-
+*/
 	@Override
 	public void onRegistrationFailure(String result) {
 		log.error("Failed to register with Sip Server.");

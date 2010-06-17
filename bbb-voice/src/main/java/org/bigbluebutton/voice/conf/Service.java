@@ -29,7 +29,7 @@ public class Service {
 	
 	private MessageFormat callExtensionPattern = new MessageFormat("{0}");
     
-
+/*
     @Override
     public void streamPublishStart(IBroadcastStream stream) {
     	log.debug("streamPublishStart: {}; {}", stream, stream.getPublishedName());
@@ -55,7 +55,7 @@ public class Service {
     public void onPing() {
     	log.debug( "Red5SIP Ping" );
     }
-	
+*/	
 /******************************************************************/
 	public void open(String obproxy,String uid, String phone,
 			String username, String password, String realm, String proxy) {

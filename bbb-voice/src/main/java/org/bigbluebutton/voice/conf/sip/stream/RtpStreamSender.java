@@ -107,7 +107,7 @@ public class RtpStreamSender {
 
     public void send(byte[] asaoBuffer, int offset, int num) {
 //    	System.out.println("Transcoding from Nelly to PCM");
-    	transcoder.transcode(asaoBuffer, offset, num, packetBuffer, RTP_HEADER_SIZE, this);
+ //   	transcoder.transcode(asaoBuffer, offset, num, packetBuffer, RTP_HEADER_SIZE, this);
     }
     
     public void sendTranscodedData() {

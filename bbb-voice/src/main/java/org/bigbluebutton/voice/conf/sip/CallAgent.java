@@ -24,7 +24,6 @@ public class CallAgent extends CallListenerAdapter {
     private final SipPeerProfile userProfile;
     private final SipProvider sipProvider;
     private ExtendedCall call;
-    private ExtendedCall callTransfer;
     private CallStream callStream;    
     private String localSession = null;
     private Codec sipCodec = null;    
@@ -53,6 +52,10 @@ public class CallAgent extends CallListenerAdapter {
         userProfile.initContactAddress(sipProvider);        
         // Set local sdp.
         initSessionDescriptor();
+    }
+    
+    public String getCallId() {
+    	return clientId;
     }
     
     public void addListener(SipUserAgentListener listener) {
@@ -109,7 +112,7 @@ public class CallAgent extends CallListenerAdapter {
     	
     	if (isIdle()) return;
     	
-    	closeMediaApplication();        
+    	closeVoiceStreams();        
     	if (call != null) call.hangup();    
     	changeStatus(CallState.UA_IDLE); 
     }
@@ -188,7 +191,7 @@ public class CallAgent extends CallListenerAdapter {
     	}
     }
     
-    private void closeMediaApplication() {        
+    private void closeVoiceStreams() {        
     	log.debug("closeMediaApplication" );
         
         if (callStream != null) {
@@ -196,7 +199,6 @@ public class CallAgent extends CallListenerAdapter {
         	callStream = null;
         }
     }
-
 
     // ********************** Call callback functions **********************
     private void createAudioCodec(SessionDescriptor newSdp) {
@@ -279,14 +281,6 @@ public class CallAgent extends CallListenerAdapter {
         log.debug("REFUSED (" + reason + ").");
         changeStatus(CallState.UA_IDLE);
 
-        if (call == callTransfer) {
-            StatusLine status_line = resp.getStatusLine();
-            int code = status_line.getCode();
-            // String reason=status_line.getReason();
-            this.call.notify(code, reason);
-            callTransfer = null;
-        }
-
         notifyListenersOnOutgoingCallFailed();
     }
     
@@ -333,16 +327,9 @@ public class CallAgent extends CallListenerAdapter {
         
     	if (!isCurrentCall(call)) return;
 
-        if (call != callTransfer && callTransfer != null) {
-        	log.debug("CLOSE PREVIOUS CALL.");
-            this.call = callTransfer;
-            callTransfer = null;
-            return;
-        }
-        
         log.debug("CLOSE.");
         
-        closeMediaApplication();
+        closeVoiceStreams();
 
         notifyListenersOfOnCallClosed();
         changeStatus(CallState.UA_IDLE);
@@ -381,13 +368,6 @@ public class CallAgent extends CallListenerAdapter {
         
         log.debug("NOT FOUND/TIMEOUT.");
         changeStatus(CallState.UA_IDLE);
-
-        if (call == callTransfer) {
-            int code = 408;
-            String reason = "Request Timeout";
-            this.call.notify(code, reason);
-            callTransfer = null;
-        }
 
         notifyListenersOnOutgoingCallFailed();
     }

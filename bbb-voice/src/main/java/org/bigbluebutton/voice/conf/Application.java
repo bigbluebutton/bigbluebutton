@@ -5,7 +5,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.bigbluebutton.voice.conf.sip.ClientConnectionManager;
 import org.bigbluebutton.voice.conf.sip.SipPeerManager;
-import org.red5.app.sip.SipUserManager;
+import org.bigbluebutton.voice.conf.sip.exception.PeerNotFoundException;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
 import org.red5.server.api.IClient;
@@ -21,23 +21,29 @@ public class Application extends MultiThreadedApplicationAdapter {
     private SipPeerManager sipPeerManager;
     private ClientConnectionManager clientConnManager;
     
-    private String sipServerHost;
-    private int startSIPPort = 5070;
-    private int stopSIPPort = 5099;
+    private String sipServerHost = "localhost";
+    private int startSipPort = 5070;
+    private int stopSipPort = 5099;
     private int sipPort;
-    private int startRTPPort = 3000;
-	private int stopRTPPort = 3029;
+    private int startRtpPort = 3000;
+	private int stopRtpPort = 3029;
 	private int rtpPort;
 	private String password = "secret";
+	private String username;
 	
 	private MessageFormat callExtensionPattern = new MessageFormat("{0}");
     
     @Override
     public boolean appStart(IScope scope) {
-    	log.debug("VoiceConferenceApplication appStart[" + scope.getName() + "]");
-        sipPort = startSIPPort;
-        rtpPort = startRTPPort;
+    	log.debug("VoiceConferenceApplication appStart[" + scope.getName() + "]");   	
         sipPeerManager.setClientConnectionManager(clientConnManager);
+        sipPeerManager.createSipPeer(sipServerHost, sipServerHost, startSipPort, startRtpPort, stopRtpPort);
+        try {
+			sipPeerManager.register(sipServerHost, username, password);
+		} catch (PeerNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         return true;
     }
 
@@ -58,8 +64,9 @@ public class Application extends MultiThreadedApplicationAdapter {
     public void roomLeave(IClient client, IScope scope) {
         log.debug("VoiceConferenceApplication appLeave[" + client.getId() + "]");
     	clientConnManager.removeClient(client.getId());
-        log.debug( "Red5SIP Client closing client " +userid );
-        sipPeerManager.close(userid);
+        log.debug( "Red5SIP Client closing client {}", client.getId());
+        // TODO: Need to hangup disconnected client..but we don't have the peerid????
+//        sipPeerManager.hangup(client.getId());
     }
     
     @Override
@@ -69,7 +76,7 @@ public class Application extends MultiThreadedApplicationAdapter {
     	super.streamPublishStart(stream);
     	IConnection conn = Red5.getConnectionLocal();
     	String userid = conn.getClient().getId();
-    	sipPeerManager.startTalkStream(userid, stream, Red5.getConnectionLocal().getScope());
+ //   	sipPeerManager.startTalkStream(userid, stream, Red5.getConnectionLocal().getScope());
     }
     
     @Override
@@ -77,7 +84,7 @@ public class Application extends MultiThreadedApplicationAdapter {
     	System.out.println("streamBroadcastClose: " + stream.getPublishedName());
     	IConnection conn = Red5.getConnectionLocal();
     	String userid = conn.getClient().getId();
-    	sipPeerManager.stopTalkStream(userid, stream, Red5.getConnectionLocal().getScope());
+//    	sipPeerManager.stopTalkStream(userid, stream, Red5.getConnectionLocal().getScope());
     	super.streamBroadcastClose(stream);
     }
     
@@ -94,28 +101,36 @@ public class Application extends MultiThreadedApplicationAdapter {
     	sipServerHost = h;
     }
     
+    public void setUsername(String un) {
+    	this.username = un;
+    }
+    
+    public void setPassword(String pw) {
+    	this.password = pw;
+    }
+    
     public void setStartSIPPort(int startSIPPort) {
-		this.startSIPPort = startSIPPort;
+		this.startSipPort = startSIPPort;
 	}
 
 	public void setStopSIPPort(int stopSIPPort) {
-		this.stopSIPPort = stopSIPPort;
+		this.stopSipPort = stopSIPPort;
 	}
 
 	public void setStartRTPPort(int startRTPPort) {
-		this.startRTPPort = startRTPPort;
+		this.startRtpPort = startRTPPort;
 	}
 
 	public void setStopRTPPort(int stopRTPPort) {
-		this.stopRTPPort = stopRTPPort;
+		this.stopRtpPort = stopRTPPort;
 	}
 	
 	public void setCallExtensionPattern(String callExtensionPattern) {
 		this.callExtensionPattern = new MessageFormat(callExtensionPattern);
 	}
 	
-	public void setSipPeerManager(SipPeerManager sum) {
-		sipPeerManager = sum;
+	public void setSipPeerManager(SipPeerManager spm) {
+		sipPeerManager = spm;
 	}
 	
 	public void setClientConnectionManager(ClientConnectionManager ccm) {
