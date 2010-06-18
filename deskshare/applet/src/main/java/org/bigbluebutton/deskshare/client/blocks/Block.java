@@ -109,14 +109,9 @@ public final class Block {
           
     private void calcChecksum() {
     	checksum.reset();   
-    	int height = getHeight();
-    	int width = getWidth();
-	
-		for (int i = 0; i < height; i++) {
-		    for (int j = 0; j < width; j++) {
-		    	if ((i * width + j) % 5 == 0)
-		    		checksum.update(pixels[i * width + j]);
-		    }
+
+    	for (int i = 0; i < pixels.length; i++) {
+		    if (i % 13 == 0) checksum.update(pixels[i]);
 		}	 
     }
 
