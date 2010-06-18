@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
     horizontalAlign="center"
-    verticalGap="0" borderStyle="none" backgroundAlpha="0" creationComplete="drawNumber()" >
+    verticalGap="0" borderStyle="none" backgroundAlpha="0" >
 	
 	<mx:Script>
 		<![CDATA[
+			private var t:TextField = new TextField();
+			
 			private function drawNumber():void{
+				if (this.rawChildren.contains(t)) this.rawChildren.removeChild(t);
+				
 				var slideNumber:int = data.slideNumber;
-				var t:TextField = new TextField();
+				t = new TextField();
 				t.text = "" + slideNumber;
 				t.selectable = false;
 				var textFormat:TextFormat = new TextFormat("Verdana", 18, 0x000000, true);
@@ -17,5 +21,5 @@
 		]]>
 	</mx:Script>
 	
-    <mx:Image id="image" width="100" height="100" source="{data.thumb}"/>
+    <mx:Image id="image" width="100" height="100" source="{data.thumb}" complete="drawNumber()"/>
 </mx:VBox>
