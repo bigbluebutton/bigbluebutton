@@ -60,11 +60,7 @@ public class FlashToSipAudioStream {
 	public void stop(IBroadcastStream broadcastStream, IScope scope) {
 		broadcastStream.removeStreamListener(mInputListener);
 	}
-	
-	public void sendDtmfDigits(String dtmfDigits) throws StreamException {
-		rtpSender.sendDtmfDigits(dtmfDigits);
-	}
-	
+
 	public String getStreamName() {
 		return talkStreamName;
 	}

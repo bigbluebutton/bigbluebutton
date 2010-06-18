@@ -9,6 +9,7 @@ import org.zoolu.sdp.*;
 import org.bigbluebutton.voiceconf.red5.CallStreamFactory;
 import org.bigbluebutton.voiceconf.red5.ClientConnectionManager;
 import org.bigbluebutton.voiceconf.red5.media.CallStream;
+import org.bigbluebutton.voiceconf.red5.media.StreamException;
 import org.bigbluebutton.voiceconf.red5.media.StreamObserver;
 import org.red5.app.sip.codecs.Codec;
 import org.red5.app.sip.codecs.CodecUtils;
@@ -31,8 +32,6 @@ public class CallAgent extends CallListenerAdapter  {
     private CallStream callStream;    
     private String localSession = null;
     private Codec sipCodec = null;    
-    private Set<SipUserAgentListener> listeners = new HashSet<SipUserAgentListener>();
-    
     private CallStreamFactory callStreamFactory;
     private ClientConnectionManager clientConnManager; 
     
@@ -60,24 +59,12 @@ public class CallAgent extends CallListenerAdapter  {
     	return clientId;
     }
     
-    public void addListener(SipUserAgentListener listener) {
-		listeners.add(listener);
-	}
-    
-    public void removeListener(SipUserAgentListener listener) {
-		listeners.remove(listener);
-	}
-    
     private void changeStatus(CallState state) {
     	callState = state;
     }
     
     public boolean isIdle() {
     	return callState == CallState.UA_IDLE;
-    }
-    
-    public void sendDtmfDigits(String digits) {
-    	callStream.sendDtmfDigits(digits);
     }
     
     private void initSessionDescriptor() {        
@@ -120,9 +107,8 @@ public class CallAgent extends CallListenerAdapter  {
     }
 
     private void createVoiceStreams() {
-        // Exit if the Media Application is already running.
         if (callStream != null) {            
-        	log.debug("launchMediaApplication", "Media application is already running.");
+        	log.debug("Media application is already running.");
             return;
         }
         
@@ -184,7 +170,12 @@ public class CallAgent extends CallListenerAdapter  {
     }
     
     public void startTalkStream(IBroadcastStream broadcastStream, IScope scope) {
-    	callStream.startTalkStream(broadcastStream, scope);   	
+    	try {
+			callStream.startTalkStream(broadcastStream, scope);
+		} catch (StreamException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}   	
     }
     
     public void stopTalkStream(IBroadcastStream broadcastStream, IScope scope) {
@@ -237,7 +228,7 @@ public class CallAgent extends CallListenerAdapter  {
      *  The user has managed to join the conference.
      */ 
     public void onCallAccepted(Call call, String sdp, Message resp) {        
-    	log.debug( "onCallAccepted");        
+    	log.debug("Received 200/OK. So user has successfully joined the conference.");        
     	if (!isCurrentCall(call)) return;
         
         log.debug("ACCEPTED/CALL.");
@@ -251,7 +242,6 @@ public class CallAgent extends CallListenerAdapter  {
         }
 
         createVoiceStreams();
-        notifyListenersOfOnOutgoingCallAccepted();
     }
 
     public void notifyListenersOfOnOutgoingCallAccepted() {
@@ -262,7 +252,7 @@ public class CallAgent extends CallListenerAdapter  {
 
     /** Callback function called when arriving an ACK method (call confirmed) */
     public void onCallConfirmed(Call call, String sdp, Message ack) {
-    	log.debug("onCallConfirmed");
+    	log.debug("Received ACK. Hmmm...is this for when the server initiates the call????");
         
     	if (!isCurrentCall(call)) return;
         
@@ -307,11 +297,11 @@ public class CallAgent extends CallListenerAdapter  {
      * Callback function that may be overloaded (extended). Called when arriving a CANCEL request
      */
     public void onCallCanceling(Call call, Message cancel) {
-    	log.debug("onCallCanceling");
+    	log.error("Server shouldn't cancel call...or does it???");
         
     	if (!isCurrentCall(call)) return; 
         
-        log.debug("CANCEL.");
+        log.debug("Server has CANCEL-led the call.");
         changeStatus(CallState.UA_IDLE);
         notifyListenersOfOnIncomingCallCancelled();
     }

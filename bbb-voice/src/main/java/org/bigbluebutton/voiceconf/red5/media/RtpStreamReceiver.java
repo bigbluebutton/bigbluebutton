@@ -76,5 +76,6 @@ public class RtpStreamReceiver {
         }
         log.debug("Rtp Receiver stopped." );
         log.debug("Packet Received = " + packetReceivedCounter + "." );
+        if (listener != null) listener.onStoppedReceiving();
     }
 }

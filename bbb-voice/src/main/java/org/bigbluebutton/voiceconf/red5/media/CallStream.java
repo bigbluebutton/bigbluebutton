@@ -2,7 +2,6 @@ package org.bigbluebutton.voiceconf.red5.media;
 
 import java.net.DatagramSocket;
 import java.net.SocketException;
-
 import org.bigbluebutton.voiceconf.red5.media.transcoder.NellyToPcmTranscoder;
 import org.bigbluebutton.voiceconf.red5.media.transcoder.PcmToNellyTranscoder;
 import org.bigbluebutton.voiceconf.red5.media.transcoder.SpeexToSpeexTranscoder;
@@ -19,8 +18,8 @@ public class CallStream implements StreamObserver {
     private final static Logger log = Red5LoggerFactory.getLogger(CallStream.class, "sip");
 
     private DatagramSocket socket = null;
-    private FlashToSipAudioStream talkStream;
-    private SipToFlashAudioStream listenStream;
+    private FlashToSipAudioStream userTalkStream;
+    private SipToFlashAudioStream userListenStream;
     private final Codec sipCodec;
     private final SipConnectInfo connInfo;
     private final IScope scope;
@@ -42,40 +41,35 @@ public class CallStream implements StreamObserver {
 		Transcoder rtmpToRtpTranscoder, rtpToRtmpTranscoder;
 		if (sipCodec.getCodecId() == SpeexCodec.codecId) {
 			rtmpToRtpTranscoder = new SpeexToSpeexTranscoder(sipCodec);
-			rtpToRtmpTranscoder = new SpeexToSpeexTranscoder(sipCodec, listenStream);
+			rtpToRtmpTranscoder = new SpeexToSpeexTranscoder(sipCodec, userListenStream);
 		} else {
 			rtmpToRtpTranscoder = new NellyToPcmTranscoder(sipCodec);
-			rtpToRtmpTranscoder = new PcmToNellyTranscoder(sipCodec, listenStream);			
+			rtpToRtmpTranscoder = new PcmToNellyTranscoder(sipCodec, userListenStream);			
 		}
 			
-		listenStream = new SipToFlashAudioStream(scope, rtpToRtmpTranscoder, socket);
-		listenStream.addListenStreamObserver(this);
-		talkStream = new FlashToSipAudioStream(rtmpToRtpTranscoder, socket, connInfo); 
+		userListenStream = new SipToFlashAudioStream(scope, rtpToRtmpTranscoder, socket);
+		userListenStream.addListenStreamObserver(this);
+		userTalkStream = new FlashToSipAudioStream(rtmpToRtpTranscoder, socket, connInfo); 
     }
     
     public String getTalkStreamName() {
-    	return talkStream.getStreamName();
+    	return userTalkStream.getStreamName();
     }
     
     public String getListenStreamName() {
-    	return listenStream.getStreamName();
-    }
-    
-    public void sendSipDtmfDigits(String argDigits) throws StreamException {
-    	if (talkStream != null)
-    		talkStream.sendDtmfDigits(argDigits);
+    	return userListenStream.getStreamName();
     }
     
     public void startTalkStream(IBroadcastStream broadcastStream, IScope scope) throws StreamException {
-    	talkStream.start(broadcastStream, scope);
+    	userTalkStream.start(broadcastStream, scope);
     }
     
     public void stopTalkStream(IBroadcastStream broadcastStream, IScope scope) {
-    	talkStream.stop(broadcastStream, scope);
+    	userTalkStream.stop(broadcastStream, scope);
     }
 
     public void stop() {
-        listenStream.stop();
+        userListenStream.stop();
     }
 
 	@Override

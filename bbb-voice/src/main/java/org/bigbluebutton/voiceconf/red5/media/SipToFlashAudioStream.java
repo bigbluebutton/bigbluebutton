@@ -1,7 +1,6 @@
 package org.bigbluebutton.voiceconf.red5.media;
 
 import java.net.DatagramSocket;
-
 import org.bigbluebutton.voiceconf.red5.media.transcoder.TranscodedAudioDataListener;
 import org.bigbluebutton.voiceconf.red5.media.transcoder.Transcoder;
 import org.red5.logging.Red5LoggerFactory;
@@ -25,6 +24,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 	public SipToFlashAudioStream(IScope scope, Transcoder transcoder, DatagramSocket socket) {
 		this.scope = scope;
 		rtpStreamReceiver = new RtpStreamReceiver(transcoder, socket);
+		rtpStreamReceiver.setRtpStreamReceiverListener(this);
 		listenStreamName = "speaker_" + System.currentTimeMillis();
 		scope.setName(listenStreamName);	
 	}
@@ -77,6 +77,6 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 
 	@Override
 	public void onStoppedReceiving() {
-		if (observer != null) observer.listenStreamStopped();
+		if (observer != null) observer.onStreamStopped();
 	}
 }

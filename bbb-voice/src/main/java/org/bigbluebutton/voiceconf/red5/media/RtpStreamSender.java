@@ -55,66 +55,6 @@ public class RtpStreamSender {
         timestamp = 0;    	
     }
     
-    public void sendDtmfDigits(String dtmfDigits) throws StreamException {
-        byte[] dtmfbuf = new byte[transcoder.getOutgoingEncodedFrameSize() + RTP_HEADER_SIZE];
-        RtpPacket dtmfpacket = new RtpPacket(dtmfbuf, 0);
-        dtmfpacket.setPayloadType(DTMF2833);
-        dtmfpacket.setPayloadLength(transcoder.getOutgoingEncodedFrameSize());
-
-        byte[] blankbuf = new byte[transcoder.getOutgoingEncodedFrameSize() + RTP_HEADER_SIZE];
-        RtpPacket blankpacket = new RtpPacket(blankbuf, 0);
-        blankpacket.setPayloadType(transcoder.getCodecId());
-        blankpacket.setPayloadLength(transcoder.getOutgoingEncodedFrameSize());
-
-        for (int d = 0; d < dtmfDigits.length(); d++) {
-            char digit = dtmfDigits.charAt(d);
-            if (digit == '*') {
-                dtmfbuf[startPayloadPos] = 10;
-            }
-            else if (digit == '#') {
-                dtmfbuf[startPayloadPos] = 11;
-            }
-            else if (digit >= 'A' && digit <= 'D') {
-                dtmfbuf[startPayloadPos] = (byte) (digit - 53);
-            }
-            else {
-                dtmfbuf[startPayloadPos] = (byte) (digit - 48);
-            }
-
-            // notice we are bumping times/seqn just like audio packets
-            // send start event packet 3 times
-            dtmfbuf[startPayloadPos + 1] = 0; // start event flag and volume
-            dtmfbuf[startPayloadPos + 2] = 1; // duration 8 bits
-            dtmfbuf[startPayloadPos + 3] = -32; // duration 8 bits
-
-            for (int r = 0; r < 3; r++) {
-            	dtmfpacket.setSequenceNumber(sequenceNum++);
-            	dtmfpacket.setTimestamp(transcoder.getOutgoingEncodedFrameSize());
-            	doRtpDelay();
-            	rtpSocketSend(dtmfpacket);
-            }
-
-            // send end event packet 3 times
-            dtmfbuf[startPayloadPos + 1] = -128; // end event flag
-            dtmfbuf[startPayloadPos + 2] = 3; // duration 8 bits
-            dtmfbuf[startPayloadPos + 3] = 116; // duration 8 bits
-            for (int r = 0; r < 3; r++) {
-            	dtmfpacket.setSequenceNumber(sequenceNum++);
-            	dtmfpacket.setTimestamp(transcoder.getOutgoingEncodedFrameSize() );
-            	doRtpDelay();
-            	rtpSocketSend(dtmfpacket);
-            }
-
-            // send 200 ms of blank packets
-            for (int r = 0; r < 200 / transcoder.getOutgoingPacketization(); r++) {
-            	blankpacket.setSequenceNumber(sequenceNum++);
-            	blankpacket.setTimestamp(transcoder.getOutgoingEncodedFrameSize());
-            	doRtpDelay();
-            	rtpSocketSend(blankpacket);
-            }
-        }
-    }
-
     public void send(byte[] audioData, int offset, int num) {
     	transcoder.transcode(audioData, offset, num, transcodedAudioDataBuffer, RTP_HEADER_SIZE, this);
     }
@@ -127,13 +67,6 @@ public class RtpStreamSender {
         rtpSocketSend(rtpPacket);    	
     }
     
-    private void doRtpDelay() {
-        try {
-            Thread.sleep(transcoder.getOutgoingPacketization() - 2);
-        } catch (Exception e) {
-        }
-    }
-
     private synchronized void rtpSocketSend(RtpPacket rtpPacket) throws StreamException  {
     	try {
 			rtpSocket.send(rtpPacket);
