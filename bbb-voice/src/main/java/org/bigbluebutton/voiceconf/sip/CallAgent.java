@@ -9,6 +9,7 @@ import org.zoolu.sdp.*;
 import org.bigbluebutton.voiceconf.red5.CallStreamFactory;
 import org.bigbluebutton.voiceconf.red5.ClientConnectionManager;
 import org.bigbluebutton.voiceconf.red5.media.CallStream;
+import org.bigbluebutton.voiceconf.red5.media.ListenStreamObserver;
 import org.red5.app.sip.codecs.Codec;
 import org.red5.app.sip.codecs.CodecUtils;
 import org.slf4j.Logger;
@@ -21,7 +22,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
 
-public class CallAgent extends CallListenerAdapter {
+public class CallAgent extends CallListenerAdapter  {
     private static Logger log = Red5LoggerFactory.getLogger(CallAgent.class, "sip");
     
     private final SipPeerProfile userProfile;
@@ -51,9 +52,7 @@ public class CallAgent extends CallListenerAdapter {
         this.userProfile = userProfile;
         this.clientId = clientId;
         
-        // If no contact_url and/or from_url has been set, create it now.
         userProfile.initContactAddress(sipProvider);        
-        // Set local sdp.
         initSessionDescriptor();
     }
     
@@ -77,8 +76,8 @@ public class CallAgent extends CallListenerAdapter {
     	return callState == CallState.UA_IDLE;
     }
     
-    public void queueSipDtmfDigits(String digits) {
-    	callStream.queueSipDtmfDigits(digits);
+    public void sendDtmfDigits(String digits) {
+    	callStream.sendDtmfDigits(digits);
     }
     
     private void initSessionDescriptor() {        
@@ -198,7 +197,7 @@ public class CallAgent extends CallListenerAdapter {
     	log.debug("closeMediaApplication" );
         
         if (callStream != null) {
-        	callStream.stopMedia();
+        	callStream.stop();
         	callStream = null;
         }
     }
@@ -386,4 +385,6 @@ public class CallAgent extends CallListenerAdapter {
 	public void setClientConnectionManager(ClientConnectionManager ccm) {
 		clientConnManager = ccm;
 	}
+
+
 }

@@ -1,13 +1,10 @@
 package org.bigbluebutton.voiceconf.red5.media;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
 
+import java.net.DatagramSocket;
 import org.apache.mina.core.buffer.IoBuffer;
-import org.red5.app.sip.RtmpAudioData;
-import org.red5.app.sip.trancoders.Transcoder;
+import org.bigbluebutton.voiceconf.red5.media.transcoder.Transcoder;
+import org.bigbluebutton.voiceconf.sip.SipConnectInfo;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IScope;
 import org.red5.server.api.stream.IBroadcastStream;
@@ -20,76 +17,52 @@ import org.slf4j.Logger;
 public class TalkStream {
 	private final static Logger log = Red5LoggerFactory.getLogger(TalkStream.class, "sip");
 
-	private final Transcoder transcoder;
-	private final RtpStreamSender rtpSender;
-	private final IStreamListener mInputListener;
+	private final Transcoder transcoder;	
+	private IStreamListener mInputListener;
+	private final DatagramSocket srcSocket;
+	private final SipConnectInfo connInfo;
+	private String talkStreamName;
 	
-	private BlockingQueue<RtmpAudioData> packets = new LinkedBlockingQueue<RtmpAudioData>();
-	private final Executor exec = Executors.newSingleThreadExecutor();
-	private Runnable audioProcessor;
-	private volatile boolean processAudio = false;
+	private RtpStreamSender rtpSender;
 	
-	private final String talkStreamName;
-	
-	public TalkStream(final Transcoder transcoder, final RtpStreamSender rtpSender) {
+	public TalkStream(final Transcoder transcoder, DatagramSocket srcSocket, SipConnectInfo connInfo) {
 		this.transcoder = transcoder;
-		this.rtpSender = rtpSender;
-		talkStreamName = "microphone_" + System.currentTimeMillis();
+		this.srcSocket = srcSocket;
+		this.connInfo = connInfo;				    
+	}
+	
+	public void start(IBroadcastStream broadcastStream, IScope scope) throws StreamException {
+	    log.debug("startTranscodingStream({},{})", broadcastStream.getPublishedName(), scope.getName());
+	    talkStreamName = broadcastStream.getPublishedName();
 		
 		mInputListener = new IStreamListener() {
 			public void packetReceived(IBroadcastStream broadcastStream, IStreamPacket packet) {
 		      IoBuffer buf = packet.getData();
 		      if (buf != null)
-		    	buf.rewind();
+		    	  buf.rewind();
 		    
 		      if (buf == null || buf.remaining() == 0){
-		    	log.debug("skipping empty packet with no data");
-		    	System.out.println("skipping empty packet with no data");
-		    	return;
+		    	  log.debug("skipping empty packet with no data");
+		    	  return;
 		      }
 		          
 		      if (packet instanceof AudioData) {
-		    	try {
-		            byte[] data = SerializeUtils.ByteBufferToByteArray(buf);
-		            RtmpAudioData audioData = new RtmpAudioData(data);
-//		            System.out.println("Adding data " + data.length);
-					packets.put(audioData);
-		    	} catch (InterruptedException e) {
-					log.info("Interrupted exception while queieing audio packet");
-		    	}		    			  
+		    	  byte[] data = SerializeUtils.ByteBufferToByteArray(buf);
+		    	  rtpSender.send(data, 1, data.length-1);	    			  
 		      } 
 			}
-		};		    
-	}
-	
-	public void start(IBroadcastStream broadcastStream, IScope scope) {
-	    log.debug("startTranscodingStream({},{})", broadcastStream.getPublishedName(), scope.getName());
-	    broadcastStream.addStreamListener(mInputListener);
-	    
-	    processAudio = true;
-	    audioProcessor = new Runnable() {
-			public void run() {
-				while (processAudio) {
-					try {
-						RtmpAudioData packet = packets.take();
-						processAudioPacket(packet);
-					} catch (InterruptedException e) {
-						log.info("InterruptedExeption while taking audio packet.");
-					}
-				}
-			}
 		};
-		exec.execute(audioProcessor);	    
+	    broadcastStream.addStreamListener(mInputListener);    
+	    rtpSender = new RtpStreamSender(transcoder, srcSocket, connInfo);
+		rtpSender.connect();
+	}
+
+	public void stop(IBroadcastStream broadcastStream, IScope scope) {
+		broadcastStream.removeStreamListener(mInputListener);
 	}
 	
-	private void processAudioPacket(RtmpAudioData packet) {
-		byte[] data = packet.getData();
-//		System.out.println("Proccessing voice data");
-        rtpSender.send(data, 1, data.length-1);
-	}
-	
-	public void stop() {
-		processAudio = false;		
+	public void sendDtmfDigits(String dtmfDigits) throws StreamException {
+		rtpSender.sendDtmfDigits(dtmfDigits);
 	}
 	
 	public String getStreamName() {

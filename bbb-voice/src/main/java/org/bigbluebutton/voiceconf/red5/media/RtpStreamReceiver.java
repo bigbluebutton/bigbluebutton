@@ -8,29 +8,29 @@ import java.net.SocketException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import org.slf4j.Logger;
+import org.bigbluebutton.voiceconf.red5.media.transcoder.Transcoder;
 import org.red5.logging.Red5LoggerFactory;
 
 public class RtpStreamReceiver {
     protected static Logger log = Red5LoggerFactory.getLogger(RtpStreamReceiver.class, "sip");
     
     // Maximum blocking time, spent waiting for reading new bytes [milliseconds]     
-    private static final int SO_TIMEOUT = 200;
+//    private static final int SO_TIMEOUT = 200;
     private static int RTP_HEADER_SIZE = 12;
     private RtpSocket rtpSocket = null;
     private final Executor exec = Executors.newSingleThreadExecutor();
 	private Runnable rtpPacketReceiver;
 	private volatile boolean receivePackets = false;
-	
-    private ReceivedRtpPacketProcessor packetProcessor;
-    private RtpStreamReceiverListener listener;
+	private RtpStreamReceiverListener listener;
+    private Transcoder transcoder;
     private final int payloadLength;
     
-    public RtpStreamReceiver(ReceivedRtpPacketProcessor packetProcessor, DatagramSocket socket, int payloadLength) {
-    	this.packetProcessor = packetProcessor;
-    	this.payloadLength = payloadLength;
+    public RtpStreamReceiver(Transcoder transcoder, DatagramSocket socket) {
+    	this.transcoder = transcoder;
+    	this.payloadLength = transcoder.getIncomingEncodedFrameSize();
         rtpSocket = new RtpSocket(socket);
 
- //       initializeSocket();
+        initializeSocket();
     }
     
     public void setRtpStreamReceiverListener(RtpStreamReceiverListener listener) {
@@ -38,12 +38,12 @@ public class RtpStreamReceiver {
     }
     
     private void initializeSocket() {
-    	try {
+/*    	try {
 			rtpSocket.getDatagramSocket().setSoTimeout(SO_TIMEOUT);
 		} catch (SocketException e1) {
 			log.warn("SocketException while setting socket block time.");
 		}
-    }
+*/    }
     
     public void start() {
     	receivePackets = true;
@@ -60,7 +60,6 @@ public class RtpStreamReceiver {
     }
     
     public void receiveRtpPackets() {    
-
         int packetReceivedCounter = 0;
         int internalBufferLength = payloadLength + RTP_HEADER_SIZE;
         
@@ -70,49 +69,13 @@ public class RtpStreamReceiver {
         		RtpPacket rtpPacket = new RtpPacket(internalBuffer, 0);                	
         		rtpSocket.receive(rtpPacket);
         		packetReceivedCounter++;   
-        		processReceivedPacket(rtpPacket);
+        		transcoder.transcode(rtpPacket.getPayload()); 
         	} catch (IOException e) {
         		log.error("IOException while receiving rtp packets.");
         		receivePackets = false;
         	}
         }
-
-        closeSocket();
-
         log.debug("Rtp Receiver stopped." );
         log.debug("Packet Received = " + packetReceivedCounter + "." );
-    }
-    
-    private void processReceivedPacket(RtpPacket rtpPacket) {
-/*
-    	int headerOffset = 0;
-        int payloadLength = 0;    	
-
-		byte[] packetBuffer = rtpPacket.getPacket();
-		headerOffset = rtpPacket.getHeaderLength();
-		payloadLength = rtpPacket.getPayloadLength();                      
-		byte[] codedBuffer = new byte[payloadLength];
-*/
-
-//		System.out.println("pkt.length = " + rtpPacket.getPayloadLength()
-//                        + ", offset = " + rtpPacket.getHeaderLength()
-//                        + ", length = " + rtpPacket.getPayloadLength() + "." );
-
-//		System.arraycopy(packetBuffer, headerOffset, codedBuffer, 0, payloadLength);
-//    	transcoder.transcode(codedBuffer);
-    	
-//    	byte[] payload = rtpPacket.getPayload();
-		try {
-			packetProcessor.process(rtpPacket);
-		} catch (InterruptedException e) {
-			log.error("InterruptedException while attempting to process received Rtp packet");
-		}      	
-    }
-    
-    private void closeSocket() {
-        rtpSocket.close(); 	
-        if (listener != null) {
-        	listener.onStoppedReceiving();
-        }
     }
 }

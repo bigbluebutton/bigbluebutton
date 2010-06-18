@@ -3,33 +3,24 @@ package org.bigbluebutton.voiceconf.red5.media;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 
+import org.bigbluebutton.voiceconf.red5.media.transcoder.NellyToPcmTranscoder;
+import org.bigbluebutton.voiceconf.red5.media.transcoder.PcmToNellyTranscoder;
+import org.bigbluebutton.voiceconf.red5.media.transcoder.SpeexToSpeexTranscoder;
+import org.bigbluebutton.voiceconf.red5.media.transcoder.Transcoder;
 import org.bigbluebutton.voiceconf.sip.SipConnectInfo;
 import org.red5.app.sip.codecs.Codec;
 import org.red5.app.sip.codecs.SpeexCodec;
-import org.red5.app.sip.stream.ListenStream;
-import org.red5.app.sip.stream.ReceivedRtpPacketProcessor;
-import org.red5.app.sip.stream.RtpStreamReceiver;
-import org.red5.app.sip.stream.RtpStreamReceiverListener;
-import org.red5.app.sip.stream.RtpStreamSender;
-import org.red5.app.sip.stream.TalkStream;
-import org.red5.app.sip.trancoders.NellyToPcmTranscoder;
-import org.red5.app.sip.trancoders.PcmToNellyTranscoder;
-import org.red5.app.sip.trancoders.SpeexToSpeexTranscoder;
-import org.red5.app.sip.trancoders.Transcoder;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IScope;
 import org.red5.server.api.stream.IBroadcastStream;
 
-public class CallStream implements RtpStreamReceiverListener {
+public class CallStream implements ListenStreamObserver {
     private final static Logger log = Red5LoggerFactory.getLogger(CallStream.class, "sip");
 
     private DatagramSocket socket = null;
-    private RtpStreamReceiver rtpReceiver;
-    private RtpStreamSender rtpSender;
     private TalkStream talkStream;
     private ListenStream listenStream;
-    private ReceivedRtpPacketProcessor packetProcessor;
     private final Codec sipCodec;
     private final SipConnectInfo connInfo;
     private final IScope scope;
@@ -47,9 +38,7 @@ public class CallStream implements RtpStreamReceiverListener {
 			log.error("SocketException while initializing DatagramSocket");
 			throw new Exception("Exception while initializing CallStream");
 		}     
-        
-		listenStream = new ListenStream(scope);
-		
+        		
 		Transcoder rtmpToRtpTranscoder, rtpToRtmpTranscoder;
 		if (sipCodec.getCodecId() == SpeexCodec.codecId) {
 			rtmpToRtpTranscoder = new SpeexToSpeexTranscoder(sipCodec);
@@ -58,11 +47,10 @@ public class CallStream implements RtpStreamReceiverListener {
 			rtmpToRtpTranscoder = new NellyToPcmTranscoder(sipCodec);
 			rtpToRtmpTranscoder = new PcmToNellyTranscoder(sipCodec, listenStream);			
 		}
-		
-		packetProcessor = new ReceivedRtpPacketProcessor(rtpToRtmpTranscoder);		
-		rtpReceiver = new RtpStreamReceiver(packetProcessor, socket, rtpToRtmpTranscoder.getIncomingEncodedFrameSize());
-		rtpSender = new RtpStreamSender(rtmpToRtpTranscoder, socket, connInfo.getRemoteAddr(), connInfo.getRemotePort());
-		talkStream = new TalkStream(rtmpToRtpTranscoder, rtpSender);
+			
+		listenStream = new ListenStream(scope, rtpToRtmpTranscoder, socket);
+		listenStream.addListenStreamObserver(this);
+		talkStream = new TalkStream(rtmpToRtpTranscoder, socket, connInfo); 
     }
     
     public String getTalkStreamName() {
@@ -73,42 +61,25 @@ public class CallStream implements RtpStreamReceiverListener {
     	return listenStream.getStreamName();
     }
     
-    public void queueSipDtmfDigits(String argDigits) {
-    	if (rtpSender != null)
-    		rtpSender.queueSipDtmfDigits(argDigits);
+    public void sendSipDtmfDigits(String argDigits) throws StreamException {
+    	if (talkStream != null)
+    		talkStream.sendDtmfDigits(argDigits);
     }
     
-    public void startTalkStream(IBroadcastStream broadcastStream, IScope scope) {
+    public void startTalkStream(IBroadcastStream broadcastStream, IScope scope) throws StreamException {
     	talkStream.start(broadcastStream, scope);
-    	packetProcessor.start();
-		listenStream.start();
-		rtpSender.start(); 
-		rtpReceiver.setRtpStreamReceiverListener(this);
-		rtpReceiver.start();
     }
     
     public void stopTalkStream(IBroadcastStream broadcastStream, IScope scope) {
-    	stopMedia();
+    	talkStream.stop(broadcastStream, scope);
     }
 
-    public boolean stopMedia() {
-        printLog( "stopMedia", "Halting sip audio..." );
-        talkStream.stop();
+    public void stop() {
         listenStream.stop();
-        packetProcessor.stop();
-		rtpSender.stop(); 
-		rtpReceiver.stop();
-		
-        return true;
     }
 
-    private static void printLog( String method, String message ) {    	
-        log.debug( "SipAudioLauncher - " + method + " -> " + message );
-        System.out.println( "SipAudioLauncher - " + method + " -> " + message );
-    }
-
-	public void onStoppedReceiving() {
-		System.out.println("Closing socket");
+	@Override
+	public void listenStreamStopped() {
 		socket.close();
 	}
 }
