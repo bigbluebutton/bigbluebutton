@@ -1,4 +1,4 @@
-package org.bigbluebutton.voice.conf.sip;
+package org.bigbluebutton.voiceconf.sip;
 
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;

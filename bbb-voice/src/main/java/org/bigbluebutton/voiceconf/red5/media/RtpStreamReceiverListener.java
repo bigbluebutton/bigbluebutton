@@ -1,4 +1,4 @@
-package org.bigbluebutton.voice.conf.sip.stream;
+package org.bigbluebutton.voiceconf.red5.media;
 
 public interface RtpStreamReceiverListener {
 

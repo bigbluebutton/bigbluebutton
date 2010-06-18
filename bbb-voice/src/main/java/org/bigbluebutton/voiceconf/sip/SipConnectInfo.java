@@ -1,4 +1,4 @@
-package org.bigbluebutton.voice.conf.sip;
+package org.bigbluebutton.voiceconf.sip;
 
 class SipConnectInfo {
 

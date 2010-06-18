@@ -127,38 +127,21 @@ package org.bigbluebutton.modules.phone.managers {
 		//			
 		//			CallBack Methods from Red5 
 		//
-		//********************************************************************************************
-
-		public function registrationSucess(msg:String):* {
-			LogUtil.debug("REGISTRATION to the SIP server Succeeded. " + msg);
-			if (msg == "REGISTERED") {
-				registered = true;
-				var regSuccessEvent:RegistrationSuccessEvent = new RegistrationSuccessEvent();
-				localDispatcher.dispatchEvent(regSuccessEvent);
-			} else {
-				LogUtil.debug("Got unregister message" + msg);
-			}
+		//********************************************************************************************		
+		public function failedToJoinVoiceConferenceCallback(msg:String):* {
+			LogUtil.debug("failedToJoinVoiceConferenceCallback " + msg);
+			var event:CallDisconnectedEvent = new CallDisconnectedEvent();
+			localDispatcher.dispatchEvent(event);				
 		}
-	
-		public function registrationFailure(msg:String):* {
-			trace("REGISTRATION to the SIP server failed.");	
-			var regFailedEvent:RegistrationFailedEvent = new RegistrationFailedEvent();
-			localDispatcher.dispatchEvent(regFailedEvent);	
-		}
-
-		public function callState(msg:String):* {
-			LogUtil.debug("RED5Manager callState " + msg);
-	
-			if (msg == "onUaCallClosed" ||  msg == "onUaCallFailed") {
-				trace("Call has been disconnected.");
-				isConnected = false;
-				var event:CallDisconnectedEvent = new CallDisconnectedEvent();
-				localDispatcher.dispatchEvent(event);				
-			}
-		}
+		
+		public function disconnectedFromJoinVoiceConferenceCallback(msg:String):* {
+			LogUtil.debug("disconnectedFromJoinVoiceConferenceCallback " + msg);
+			var event:CallDisconnectedEvent = new CallDisconnectedEvent();
+			localDispatcher.dispatchEvent(event);				
+		}	
 				
-        public function connected(publishName:String, playName:String):* {
-        	trace("Call has been connected");
+        public function successfullyJoinedVoiceConferenceCallback(publishName:String, playName:String):* {
+        	LogUtil.debug("Call has been connected");
 			isConnected = true;
 			var event:CallConnectedEvent = new CallConnectedEvent();
 			event.publishStreamName = publishName;
@@ -170,47 +153,17 @@ package org.bigbluebutton.modules.phone.managers {
 		//			
 		//			SIP Actions
 		//
-		//********************************************************************************************
-		
-		public function register():void {
-			trace("Open " + username);
-			netConnection.call("open", null, uid, username);
-		}
-		
+		//********************************************************************************************		
 		public function doCall(dialStr:String):void {
-			trace("Calling " + dialStr);
+			LogUtil.debug("Calling " + dialStr);
 			netConnection.call("call", null, uid, dialStr);
 		}
-		
-		public function doCallChar(chr:String):void {
-			if (isConnected) {
-				netConnection.call("dtmf", null, uid, chr);
-			}
-		}
-		
+				
 		public function doHangUp():void {			
 			if (isConnected) {
 				netConnection.call("hangup", null, uid);
 				isConnected = false;
 			}
-		}
-		
-		public function doAccept():void {
-			netConnection.call("accept", null, uid);			
-		}
-		
-		public function doStreamStatus(status:String):void {
-			netConnection.call("streamStatus", null, uid, status);	
-		}
-		
-		public function doClose():void {
-			if (isRegistered()) {
-				netConnection.call("unregister", null, uid);	
-			}			
-		}
-		
-		public function isRegistered():Boolean {
-			return registered;
 		}
 	}
 }

@@ -1,4 +1,4 @@
-package org.bigbluebutton.voice.conf.sip;
+package org.bigbluebutton.voiceconf.sip;
 
 import java.net.DatagramSocket;
 import java.net.SocketException;
@@ -31,12 +31,12 @@ public class CallStream implements RtpStreamReceiverListener {
     private ReceivedRtpPacketProcessor packetProcessor;
     private final Codec sipCodec;
     private final SipConnectInfo connInfo;
-    private final ScopeProvider scopeProvider;
+    private final IScope scope;
     
-    public CallStream(Codec sipCodec, SipConnectInfo connInfo, ScopeProvider scopeProvider) {        
+    public CallStream(Codec sipCodec, SipConnectInfo connInfo, IScope scope) {        
     	this.sipCodec = sipCodec;
     	this.connInfo = connInfo;
-    	this.scopeProvider = scopeProvider;
+    	this.scope = scope;
     }
     
     public void start() throws Exception {        
@@ -47,7 +47,7 @@ public class CallStream implements RtpStreamReceiverListener {
 			throw new Exception("Exception while initializing CallStream");
 		}     
         
-		listenStream = new ListenStream(scopeProvider.getScope());
+		listenStream = new ListenStream(scope);
 		
 		Transcoder rtmpToRtpTranscoder, rtpToRtmpTranscoder;
 		if (sipCodec.getCodecId() == SpeexCodec.codecId) {

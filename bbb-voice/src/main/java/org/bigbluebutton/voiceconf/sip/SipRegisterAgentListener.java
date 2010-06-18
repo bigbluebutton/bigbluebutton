@@ -1,4 +1,4 @@
-package org.bigbluebutton.voice.conf.sip;
+package org.bigbluebutton.voiceconf.sip;
 
 public interface SipRegisterAgentListener {
     /** When a UA has been successfully (un)registered. */    

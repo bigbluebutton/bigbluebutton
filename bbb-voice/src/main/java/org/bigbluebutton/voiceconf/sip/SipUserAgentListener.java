@@ -1,4 +1,4 @@
-package org.bigbluebutton.voice.conf.sip;
+package org.bigbluebutton.voiceconf.sip;
 
 public interface SipUserAgentListener {
     public void onCallConnected(String talkStreamName, String listenStreamName);

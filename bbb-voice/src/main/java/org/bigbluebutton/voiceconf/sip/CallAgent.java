@@ -1,4 +1,4 @@
-package org.bigbluebutton.voice.conf.sip;
+package org.bigbluebutton.voiceconf.sip;
 
 import org.zoolu.sip.call.*;
 import org.zoolu.sip.address.*;

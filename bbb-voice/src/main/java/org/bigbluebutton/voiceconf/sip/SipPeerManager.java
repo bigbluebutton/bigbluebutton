@@ -1,12 +1,8 @@
-package org.bigbluebutton.voice.conf.sip;
+package org.bigbluebutton.voiceconf.sip;
 
 import org.slf4j.Logger;
 import org.zoolu.sip.provider.SipStack;
-import org.bigbluebutton.voice.conf.sip.exception.PeerNotFoundException;
 import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.api.IScope;
-import org.red5.server.api.stream.IBroadcastStream;
-
 import java.util.*;
 
 /**
@@ -18,6 +14,7 @@ public final class SipPeerManager {
 	private static final Logger log = Red5LoggerFactory.getLogger( SipPeerManager.class, "sip" );
 	
 	private ClientConnectionManager clientConnManager;
+	private CallStreamFactory callStreamFactory;
 	
     private Map<String, SipPeer> sipPeers;
     private int sipStackDebugLevel = 8;
@@ -28,6 +25,8 @@ public final class SipPeerManager {
 
     public void createSipPeer(String peerId, String host, int sipPort, int startRtpPort, int stopRtpPort) {
     	SipPeer sipPeer = new SipPeer(peerId, host, sipPort, startRtpPort, stopRtpPort);
+    	sipPeer.setClientConnectionManager(clientConnManager);
+    	sipPeer.setCallStreamFactory(callStreamFactory);
     	sipPeers.put(peerId, sipPeer);    	
     }
     
@@ -111,6 +110,10 @@ public final class SipPeerManager {
 		SipStack.init();
         SipStack.debug_level = sipStackDebugLevel;
         SipStack.log_path = "log"; 
+	}
+	
+	public void setCallStreamFactory(CallStreamFactory csf) {
+		callStreamFactory = csf;
 	}
 	
 	public void setClientConnectionManager(ClientConnectionManager ccm) {

@@ -1,4 +1,4 @@
-package org.bigbluebutton.voice.conf.sip.stream;
+package org.bigbluebutton.voiceconf.red5.media;
 
 import org.red5.app.sip.AudioStream;
 import org.red5.app.sip.trancoders.TranscodedAudioDataListener;

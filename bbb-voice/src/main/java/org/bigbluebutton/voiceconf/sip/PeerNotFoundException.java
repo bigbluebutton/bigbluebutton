@@ -1,4 +1,4 @@
-package org.bigbluebutton.voice.conf.sip.exception;
+package org.bigbluebutton.voiceconf.sip;
 
 public class PeerNotFoundException extends Exception {
 

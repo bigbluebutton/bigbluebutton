@@ -1,4 +1,4 @@
-package org.bigbluebutton.voice.conf.sip;
+package org.bigbluebutton.voiceconf.sip;
 
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.service.IServiceCapableConnection;
@@ -21,16 +21,16 @@ private static Logger log = Red5LoggerFactory.getLogger(ClientConnection.class, 
 	
     public void onCallConnected(String publishName, String playName) {
     	log.debug( "SIP Call Connected" );
-        connection.invoke("connected", new Object[] {publishName, playName});
+        connection.invoke("successfullyJoinedVoiceConferenceCallback", new Object[] {publishName, playName});
     }
 
     public void onOutgoingCallFailed() {
         log.debug("onOutgoingCallFailed");
-        connection.invoke("callState", new Object[] {"onUaCallFailed"});
+        connection.invoke("failedToJoinVoiceConferenceCallback", new Object[] {"onUaCallFailed"});
     }
 
     public void onCallClosed() {
     	log.debug("onCallClosed");
-        connection.invoke("callState", new Object[] {"onUaCallClosed"});
+        connection.invoke("disconnectedFromJoinVoiceConferenceCallback", new Object[] {"onUaCallClosed"});
     }
 }

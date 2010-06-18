@@ -1,4 +1,4 @@
-package org.bigbluebutton.voice.conf;
+package org.bigbluebutton.voiceconf.red5;
 
 import java.text.MessageFormat;
 import java.util.List;

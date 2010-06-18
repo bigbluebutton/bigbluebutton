@@ -69,7 +69,7 @@ package org.bigbluebutton.modules.phone.managers
 		}	
 		
 		public function initWithNoMicrophone(): void {
-			trace("No available microphone");
+			LogUtil.debug("No available microphone");
 			var event:MicrophoneUnavailEvent = new MicrophoneUnavailEvent();
 			localDispatcher.dispatchEvent(event);
 		}
@@ -90,7 +90,7 @@ package org.bigbluebutton.modules.phone.managers
 					localDispatcher.dispatchEvent(unmutedEvent);
 					break;
 				default:
-				trace("unknown micStatusHandler event: " + event);
+				LogUtil.debug("unknown micStatusHandler event: " + event);
 			}
 		}
 		

@@ -53,20 +53,15 @@ package org.bigbluebutton.modules.phone.managers
 		public function setupConnection():void {
 			streamManager.setConnection(connectionManager.getConnection());
 		}
+		
 		public function join(e:JoinVoiceConferenceEvent):void {
 			setupMic(e.useMicrophone);
 			var uid:String = String( Math.floor( new Date().getTime() ) );
 			connectionManager.connect(uid, attributes.username, attributes.room, attributes.uri);
 		}
-		
-		public function register():void {
-			setupConnection();
-			trace("Registering....");
-			connectionManager.register();
-		}
-		
+				
 		public function dialConference():void {
-			trace("Dialing...." + attributes.voicebridge);
+			LogUtil.debug("Dialing...." + attributes.voicebridge);
 			connectionManager.doCall(attributes.voicebridge);
 		}
 		
@@ -77,7 +72,6 @@ package org.bigbluebutton.modules.phone.managers
 		public function hangup():void {
 			LogUtil.debug("PhoneManager hangup");
 			connectionManager.doHangUp();
-			connectionManager.doClose();
 		}
 	}
 }

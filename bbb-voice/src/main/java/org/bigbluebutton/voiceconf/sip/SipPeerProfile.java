@@ -1,4 +1,4 @@
-package org.bigbluebutton.voice.conf.sip;
+package org.bigbluebutton.voiceconf.sip;
 
 import org.red5.app.sip.codecs.Codec;
 import org.zoolu.sip.address.*;

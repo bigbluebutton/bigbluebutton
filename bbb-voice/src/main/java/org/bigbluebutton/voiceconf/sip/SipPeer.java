@@ -1,4 +1,4 @@
-package org.bigbluebutton.voice.conf.sip;
+package org.bigbluebutton.voiceconf.sip;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -7,8 +7,7 @@ import org.zoolu.sip.provider.*;
 import org.zoolu.net.SocketAddress;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.api.IScope;
-import org.red5.server.api.stream.IBroadcastStream;
+
 
 /**
  * Class that is a peer to the sip server. This class will maintain
@@ -56,7 +55,7 @@ public class SipPeer implements SipRegisterAgentListener {
     	this.password = password;
     	
 		sipProvider.setOutboundProxy(new SocketAddress(host));   
-		SipPeerProfile regProfile = createRegisterUserProfile(username, password);
+		SipPeerProfile regProfile = createRegisterUserProfile();
 		
         if (sipProvider != null) {
         	registerAgent = new SipRegisterAgent(sipProvider, regProfile.fromUrl, 
@@ -67,7 +66,7 @@ public class SipPeer implements SipRegisterAgentListener {
         }                              
     }
     
-    private SipPeerProfile createRegisterUserProfile(String username, String password) {    	    	
+    private SipPeerProfile createRegisterUserProfile() {    	    	
     	SipPeerProfile userProfile = new SipPeerProfile();
         userProfile.audioPort = startRtpPort;
             	

@@ -1,11 +1,12 @@
-package org.bigbluebutton.voice.conf;
+package org.bigbluebutton.voiceconf.red5;
 
 import java.text.MessageFormat;
 import java.util.List;
 import org.slf4j.Logger;
-import org.bigbluebutton.voice.conf.sip.ClientConnectionManager;
-import org.bigbluebutton.voice.conf.sip.SipPeerManager;
-import org.bigbluebutton.voice.conf.sip.exception.PeerNotFoundException;
+import org.bigbluebutton.voiceconf.sip.CallStreamFactory;
+import org.bigbluebutton.voiceconf.sip.ClientConnectionManager;
+import org.bigbluebutton.voiceconf.sip.PeerNotFoundException;
+import org.bigbluebutton.voiceconf.sip.SipPeerManager;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
 import org.red5.server.api.IClient;
@@ -30,12 +31,16 @@ public class Application extends MultiThreadedApplicationAdapter {
 	private int rtpPort;
 	private String password = "secret";
 	private String username;
+	private CallStreamFactory callStreamFactory;
 	
 	private MessageFormat callExtensionPattern = new MessageFormat("{0}");
     
     @Override
     public boolean appStart(IScope scope) {
-    	log.debug("VoiceConferenceApplication appStart[" + scope.getName() + "]");   	
+    	log.debug("VoiceConferenceApplication appStart[" + scope.getName() + "]");
+    	callStreamFactory = new CallStreamFactory();
+    	callStreamFactory.setScope(scope);
+    	sipPeerManager.setCallStreamFactory(callStreamFactory);
         sipPeerManager.setClientConnectionManager(clientConnManager);
         sipPeerManager.createSipPeer(sipServerHost, sipServerHost, startSipPort, startRtpPort, stopRtpPort);
         try {
