@@ -1,0 +1,8 @@
+
+To build
+gradle copyToLib
+gradle eclipse
+
+import into eclipse
+setup build path
+
