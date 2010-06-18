@@ -15,12 +15,12 @@ import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IScope;
 import org.red5.server.api.stream.IBroadcastStream;
 
-public class CallStream implements ListenStreamObserver {
+public class CallStream implements StreamObserver {
     private final static Logger log = Red5LoggerFactory.getLogger(CallStream.class, "sip");
 
     private DatagramSocket socket = null;
-    private TalkStream talkStream;
-    private ListenStream listenStream;
+    private FlashToSipAudioStream talkStream;
+    private SipToFlashAudioStream listenStream;
     private final Codec sipCodec;
     private final SipConnectInfo connInfo;
     private final IScope scope;
@@ -48,9 +48,9 @@ public class CallStream implements ListenStreamObserver {
 			rtpToRtmpTranscoder = new PcmToNellyTranscoder(sipCodec, listenStream);			
 		}
 			
-		listenStream = new ListenStream(scope, rtpToRtmpTranscoder, socket);
+		listenStream = new SipToFlashAudioStream(scope, rtpToRtmpTranscoder, socket);
 		listenStream.addListenStreamObserver(this);
-		talkStream = new TalkStream(rtmpToRtpTranscoder, socket, connInfo); 
+		talkStream = new FlashToSipAudioStream(rtmpToRtpTranscoder, socket, connInfo); 
     }
     
     public String getTalkStreamName() {
@@ -79,7 +79,7 @@ public class CallStream implements ListenStreamObserver {
     }
 
 	@Override
-	public void listenStreamStopped() {
+	public void onStreamStopped() {
 		socket.close();
 	}
 }

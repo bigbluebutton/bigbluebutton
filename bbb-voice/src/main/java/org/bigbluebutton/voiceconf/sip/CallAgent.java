@@ -9,7 +9,7 @@ import org.zoolu.sdp.*;
 import org.bigbluebutton.voiceconf.red5.CallStreamFactory;
 import org.bigbluebutton.voiceconf.red5.ClientConnectionManager;
 import org.bigbluebutton.voiceconf.red5.media.CallStream;
-import org.bigbluebutton.voiceconf.red5.media.ListenStreamObserver;
+import org.bigbluebutton.voiceconf.red5.media.StreamObserver;
 import org.red5.app.sip.codecs.Codec;
 import org.red5.app.sip.codecs.CodecUtils;
 import org.slf4j.Logger;

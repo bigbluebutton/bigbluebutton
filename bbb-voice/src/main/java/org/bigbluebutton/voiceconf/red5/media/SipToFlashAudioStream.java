@@ -13,16 +13,16 @@ import org.red5.server.stream.IBroadcastScope;
 import org.red5.server.stream.IProviderService;
 import org.slf4j.Logger;
 
-public class ListenStream implements TranscodedAudioDataListener, RtpStreamReceiverListener {
-	final private Logger log = Red5LoggerFactory.getLogger(ListenStream.class, "sip");
+public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpStreamReceiverListener {
+	final private Logger log = Red5LoggerFactory.getLogger(SipToFlashAudioStream.class, "sip");
 		
 	private AudioBroadcastStream audioBroadcastStream;
 	private IScope scope;
 	private final String listenStreamName;
 	private RtpStreamReceiver rtpStreamReceiver;
-	private ListenStreamObserver observer;
+	private StreamObserver observer;
 	
-	public ListenStream(IScope scope, Transcoder transcoder, DatagramSocket socket) {
+	public SipToFlashAudioStream(IScope scope, Transcoder transcoder, DatagramSocket socket) {
 		this.scope = scope;
 		rtpStreamReceiver = new RtpStreamReceiver(transcoder, socket);
 		listenStreamName = "speaker_" + System.currentTimeMillis();
@@ -33,7 +33,7 @@ public class ListenStream implements TranscodedAudioDataListener, RtpStreamRecei
 		return listenStreamName;
 	}
 	
-	public void addListenStreamObserver(ListenStreamObserver o) {
+	public void addListenStreamObserver(StreamObserver o) {
 		observer = o;
 	}
 	

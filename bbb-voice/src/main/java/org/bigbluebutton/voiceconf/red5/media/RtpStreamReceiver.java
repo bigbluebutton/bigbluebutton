@@ -4,7 +4,6 @@ import local.net.RtpPacket;
 import local.net.RtpSocket;
 import java.io.IOException;
 import java.net.DatagramSocket;
-import java.net.SocketException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import org.slf4j.Logger;

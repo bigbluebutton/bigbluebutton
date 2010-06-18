@@ -14,8 +14,8 @@ import org.red5.server.net.rtmp.event.AudioData;
 import org.red5.server.net.rtmp.event.SerializeUtils;
 import org.slf4j.Logger;
 
-public class TalkStream {
-	private final static Logger log = Red5LoggerFactory.getLogger(TalkStream.class, "sip");
+public class FlashToSipAudioStream {
+	private final static Logger log = Red5LoggerFactory.getLogger(FlashToSipAudioStream.class, "sip");
 
 	private final Transcoder transcoder;	
 	private IStreamListener mInputListener;
@@ -25,7 +25,7 @@ public class TalkStream {
 	
 	private RtpStreamSender rtpSender;
 	
-	public TalkStream(final Transcoder transcoder, DatagramSocket srcSocket, SipConnectInfo connInfo) {
+	public FlashToSipAudioStream(final Transcoder transcoder, DatagramSocket srcSocket, SipConnectInfo connInfo) {
 		this.transcoder = transcoder;
 		this.srcSocket = srcSocket;
 		this.connInfo = connInfo;				    

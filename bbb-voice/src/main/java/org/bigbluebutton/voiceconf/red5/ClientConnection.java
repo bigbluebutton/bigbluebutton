@@ -19,17 +19,17 @@ private static Logger log = Red5LoggerFactory.getLogger(ClientConnection.class, 
 		return connId;
 	}
 	
-    public void onCallConnected(String publishName, String playName) {
+    public void onJoinConferenceSuccess(String publishName, String playName) {
     	log.debug( "SIP Call Connected" );
         connection.invoke("successfullyJoinedVoiceConferenceCallback", new Object[] {publishName, playName});
     }
 
-    public void onOutgoingCallFailed() {
+    public void onJoinConferenceFail() {
         log.debug("onOutgoingCallFailed");
         connection.invoke("failedToJoinVoiceConferenceCallback", new Object[] {"onUaCallFailed"});
     }
 
-    public void onCallClosed() {
+    public void onLeaveConference() {
     	log.debug("onCallClosed");
         connection.invoke("disconnectedFromJoinVoiceConferenceCallback", new Object[] {"onUaCallClosed"});
     }
