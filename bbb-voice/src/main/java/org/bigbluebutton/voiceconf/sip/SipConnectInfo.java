@@ -1,6 +1,6 @@
 package org.bigbluebutton.voiceconf.sip;
 
-class SipConnectInfo {
+public class SipConnectInfo {
 
 	private final int localPort;
 	private final String remoteAddr;

@@ -1,4 +1,4 @@
-package org.bigbluebutton.voiceconf.sip;
+package org.bigbluebutton.voiceconf.red5;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package org.bigbluebutton.voiceconf.sip;
+package org.bigbluebutton.voiceconf.red5;
 
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.service.IServiceCapableConnection;

@@ -2,6 +2,8 @@ package org.bigbluebutton.voiceconf.sip;
 
 import org.slf4j.Logger;
 import org.zoolu.sip.provider.SipStack;
+import org.bigbluebutton.voiceconf.red5.CallStreamFactory;
+import org.bigbluebutton.voiceconf.red5.ClientConnectionManager;
 import org.red5.logging.Red5LoggerFactory;
 import java.util.*;
 

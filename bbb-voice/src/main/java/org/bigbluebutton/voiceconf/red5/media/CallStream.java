@@ -1,8 +1,9 @@
-package org.bigbluebutton.voiceconf.sip;
+package org.bigbluebutton.voiceconf.red5.media;
 
 import java.net.DatagramSocket;
 import java.net.SocketException;
 
+import org.bigbluebutton.voiceconf.sip.SipConnectInfo;
 import org.red5.app.sip.codecs.Codec;
 import org.red5.app.sip.codecs.SpeexCodec;
 import org.red5.app.sip.stream.ListenStream;

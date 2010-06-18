@@ -47,11 +47,10 @@ import org.slf4j.Logger;
 
 import org.red5.server.api.stream.IStreamPacket;;
 
-public class AudioStream implements IBroadcastStream, IProvider, IPipeConnectionListener {
-	/** Listeners to get notified about received packets. */
+public class AudioBroadcastStream implements IBroadcastStream, IProvider, IPipeConnectionListener {
+	final private Logger log = Red5LoggerFactory.getLogger(AudioBroadcastStream.class, "sip");
+	
 	private Set<IStreamListener> streamListeners = new CopyOnWriteArraySet<IStreamListener>();
-	final private Logger log = Red5LoggerFactory.getLogger(AudioStream.class, "sip");
-
 	private String publishedStreamName;
 	private IPipe livePipe;
 	private IScope scope;
@@ -60,10 +59,10 @@ public class AudioStream implements IBroadcastStream, IProvider, IPipeConnection
 	private StreamCodecInfo streamCodecInfo;
 	private Long creationTime;
   
-	public AudioStream(String name) {
+	public AudioBroadcastStream(String name) {
 		publishedStreamName = name;
 		livePipe = null;
-		log.trace("name: {}", name);
+		log.trace("publishedStreamName: {}", name);
 
 		streamCodecInfo = new StreamCodecInfo();
 		creationTime = null;
@@ -75,7 +74,7 @@ public class AudioStream implements IBroadcastStream, IProvider, IPipeConnection
 	}
 
 	public Notify getMetaData() {
-		System.out.println("**** GETTING METADATA ******");
+		log.debug("**** GETTING METADATA ******");
 		return null;
 	}
 
@@ -95,7 +94,7 @@ public class AudioStream implements IBroadcastStream, IProvider, IPipeConnection
 	}
 
 	public Collection<IStreamListener> getStreamListeners() {
-		//    log.trace("getStreamListeners()");
+		log.trace("getStreamListeners()");
 		return streamListeners;
 	}
 
@@ -104,8 +103,8 @@ public class AudioStream implements IBroadcastStream, IProvider, IPipeConnection
 		streamListeners.remove(listener);
 	}
 
-	public void saveAs(String filePath, boolean isAppend) throws IOException,
-						ResourceNotFoundException, ResourceExistException {
+	public void saveAs(String filePath, boolean isAppend) 
+			throws IOException, ResourceNotFoundException, ResourceExistException {
 		log.trace("saveAs(filepath:{}, isAppend:{})", filePath, isAppend);
 		throw new Error("unimplemented method");
 	}
@@ -154,8 +153,7 @@ public class AudioStream implements IBroadcastStream, IProvider, IPipeConnection
 
 	public void onPipeConnectionEvent(PipeConnectionEvent event) {
 		log.trace("onPipeConnectionEvent(event:{})", event);
-		switch (event.getType())
-		{
+		switch (event.getType()) {
 	    	case PipeConnectionEvent.PROVIDER_CONNECT_PUSH:
 	    		log.trace("PipeConnectionEvent.PROVIDER_CONNECT_PUSH");
 	    		System.out.println("PipeConnectionEvent.PROVIDER_CONNECT_PUSH");
@@ -163,37 +161,30 @@ public class AudioStream implements IBroadcastStream, IProvider, IPipeConnection
 	    				&& (event.getParamMap() == null 
 	    				|| !event.getParamMap().containsKey("record"))) {
 	    			log.trace("Creating a live pipe");
-	    			System.out.println("Creating a live pipe");
 	    			this.livePipe = (IPipe) event.getSource();
 	    		}
 	    		break;
 	    	case PipeConnectionEvent.PROVIDER_DISCONNECT:
 	    		log.trace("PipeConnectionEvent.PROVIDER_DISCONNECT");
-	    		System.out.println("PipeConnectionEvent.PROVIDER_DISCONNECT");
 	    		if (this.livePipe == event.getSource()) {
 	    			log.trace("PipeConnectionEvent.PROVIDER_DISCONNECT - this.mLivePipe = null;");
-	    			System.out.println("PipeConnectionEvent.PROVIDER_DISCONNECT - this.mLivePipe = null;");
 	    			this.livePipe = null;
 	    		}
 	    		break;
 	    	case PipeConnectionEvent.CONSUMER_CONNECT_PUSH:
 	    		log.trace("PipeConnectionEvent.CONSUMER_CONNECT_PUSH");
-	    		System.out.println("PipeConnectionEvent.CONSUMER_CONNECT_PUSH");
 	    		break;
 	    	case PipeConnectionEvent.CONSUMER_DISCONNECT:
 	    		log.trace("PipeConnectionEvent.CONSUMER_DISCONNECT");
-	    		System.out.println("PipeConnectionEvent.CONSUMER_DISCONNECT");
 	    		break;
 	    	default:
 	    		log.trace("PipeConnectionEvent default");
-	    		System.out.println("PipeConnectionEvent default");
 	    		break;
 		}
 	}
 
 	public void dispatchEvent(IEvent event) {
-		//      log.trace("dispatchEvent(event:{})", event);
-		//    	System.out.println("dispatchEvent(event:)" + event);
+		log.trace("dispatchEvent(event:{})", event);
 		if (event instanceof IRTMPEvent) {
 			IRTMPEvent rtmpEvent = (IRTMPEvent) event;
 			if (livePipe != null) {
@@ -204,14 +195,14 @@ public class AudioStream implements IBroadcastStream, IProvider, IPipeConnection
 					creationTime = (long)rtmpEvent.getTimestamp();
           
 				try {
-//					System.out.println("dispatchEvent(event:)" + event);
+					log.debug("dispatchEvent(event:)" + event);
 					livePipe.pushMessage(msg);
 
 					if (rtmpEvent instanceof IStreamPacket) {
-//						System.out.println("dispatchEvent(IStreamPacket:)" + event);
+						log.debug("dispatchEvent(IStreamPacket:)" + event);
 						for (IStreamListener listener : getStreamListeners()) {
 							try {
-//								System.out.println("dispatchEvent(event:)" + event);
+								log.debug("dispatchEvent(event:)" + event);
 								listener.packetReceived(this, (IStreamPacket) rtmpEvent);
 							} catch (Exception e) {
 								log.error("Error while notifying listener " + listener, e);
