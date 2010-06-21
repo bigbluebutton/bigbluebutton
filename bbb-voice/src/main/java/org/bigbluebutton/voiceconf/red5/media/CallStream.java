@@ -38,7 +38,6 @@ public class CallStream implements StreamObserver {
 			throw new Exception("Exception while initializing CallStream");
 		}     
 		
-
 		Transcoder rtmpToRtpTranscoder, rtpToRtmpTranscoder;
 		if (sipCodec.getCodecId() == SpeexCodec.codecId) {
 			rtmpToRtpTranscoder = new SpeexToSpeexTranscoder(sipCodec);

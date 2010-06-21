@@ -20,6 +20,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 	private final String listenStreamName;
 	private RtpStreamReceiver rtpStreamReceiver;
 	private StreamObserver observer;
+	private long startTimestamp;
 	
 	public SipToFlashAudioStream(IScope scope, Transcoder transcoder, DatagramSocket socket) {
 		this.scope = scope;
@@ -62,7 +63,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 			log.error("could not register broadcast stream");
 			throw new RuntimeException("could not register broadcast stream");
 		}
-	    
+	    startTimestamp = System.currentTimeMillis();
 	    audioBroadcastStream.start();
 	    rtpStreamReceiver.start();
 	}
@@ -71,7 +72,10 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 		/* NOTE:
 		 * Don't set the timestamp as it results in choppy audio. Let the client
 		 * play the audio as soon as they receive the packets. (ralam dec 10, 2009)
+		 * 
+		 * Let's try this out...if connection to client is slow...audio should be dropped.
 		 */
+		audioData.setTimestamp((int)(System.currentTimeMillis() - startTimestamp));
 		audioBroadcastStream.dispatchEvent(audioData);
 		audioData.release();
 	}
