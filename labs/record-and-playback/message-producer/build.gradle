@@ -1,0 +1,63 @@
+usePlugin 'java'
+usePlugin 'eclipse'
+usePlugin 'war'
+
+version=0.2
+
+task copyToLib(dependsOn: configurations.default.buildArtifacts, type: Copy) {
+    into('$buildDir/lib')
+    from configurations.default
+    from configurations.default.allArtifacts*.file
+}
+repositories {
+	mavenCentral()
+	add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+		name = "maven2-central"
+		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision])(-[classifier]).[ext]"
+		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision])(-[classifier]).[ext]"
+	}
+	flatDir(name: 'fileRepo', dirs: "$projectDir/src/main/webapp/WEB-INF/lib")
+}
+dependencies {
+	compile('org.apache.activemq:activemq-all:5.2.0') {
+		artifact { name='activemq-all' ; type='jar' }
+	}
+	compile('commons-beanutils:commons-beanutils:1.8.3') {
+		artifact { name='commons-beanutils' ; type='jar' }
+	}
+	compile('commons-collections:commons-collections:3.2') {
+		artifact { name='commons-collections' ; type='jar' }
+	}
+	compile('commons-io:commons-io:1.4') {
+		artifact { name='commons-io' ; type='jar' }
+	}
+	compile('commons-lang:commons-lang:2.5') {
+		artifact { name='commons-lang' ; type='jar' }
+	}
+	compile('commons-logging:commons-logging:1.1.1') {
+		artifact { name='commons-logging' ; type='jar' }
+	}
+	compile('net.sf.ezmorph:ezmorph:1.0.6') {
+		artifact { name='ezmorph' ; type='jar' }
+	}
+	compile group: 'net.sf.json-lib', name: 'json-lib', version: '2.3', classifier: 'jdk15'
+
+	compile('org.springframework:spring:2.5.6') {
+		artifact { name='spring' ; type='jar' }
+	}
+	compile('org.springframework:spring-jms:2.5.6') {
+		artifact { name='spring-jms' ; type='jar' }
+	}
+	compile('org.apache.tomcat:servlet-api:6.0.26') {
+		artifact { name='servlet-api' ; type='jar' }
+	}
+	compile('xom:xom:1.2.5') {
+		artifact { name='xom' ; type='jar' }
+	}
+}
+uploadArchives {
+    uploadDescriptor = false
+    repositories {
+        add project.repositories.fileRepo
+    }
+}
