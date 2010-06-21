@@ -29,6 +29,7 @@
 #       2010-01-18 FFD  Added resetting of environment back to using packages
 #       2010-03-02 JRT  Added trunk checkout options / fixed bbb-apps instructions
 #       2010-04-02 FFD  Updated for 0.64
+#	2010-06-21 SEB  Cleaned up some code / Updated for 0.70
 
 #set -x
 
@@ -36,7 +37,7 @@
 # This ensures that we checkout the 0.63 release of BigBlueButton
 #   Note that this can be overridden with the --trunk option
 #
-RELEASE="-r 4125"
+RELEASE="-r 4126"
 
 #
 # SVNPROTO is http if read-only, or https if you specify a Google code username
@@ -590,7 +591,7 @@ if [ $RESET_DEV ]; then
 fi
 
 getIPOfDomain() {
-	ipOfDomain=$(host $1 | cut -d\  -f 4)
+	ipOfDomain=$(ifconfig | grep -v '127.0.0.1' | grep -m 1 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
 
 	if [ $ipOfDomain != "out;" ]; then
 		echo $ipOfDomain
@@ -701,7 +702,7 @@ $RED5_DIRECTORY/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
  	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
 
 	if [ "$HOST_IP" != "$NGINX_IP" ]; then
-		NGINX_DOMAIN_IP=$(getIPOfDomain $NGINX_IP)
+		NGINX_DOMAIN_IP=$($getIPOfDomain $NGINX_IP)
 
 		if [ "$HOST_IP" != "$NGINX_DOMAIN_IP" ]; then
 			echo "Host IP does not match BigBlueButton: ${HOST_IP} != ${NGINX_IP}"
