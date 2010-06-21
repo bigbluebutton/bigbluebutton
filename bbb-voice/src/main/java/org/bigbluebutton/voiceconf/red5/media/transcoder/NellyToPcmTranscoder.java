@@ -78,17 +78,17 @@ public class NellyToPcmTranscoder implements Transcoder {
                 // Decode new asao packet.
                 asao_buffer_processed = true;
                 ByteStream audioStream = new ByteStream(audioData, 1, NELLYMOSER_ENCODED_PACKET_SIZE);
-                decoderMap = decoder.decode( decoderMap, audioStream.bytes, 1, tempBuffer, 0 );
+                decoderMap = decoder.decode(decoderMap, audioStream.bytes, 1, tempBuffer, 0);
 
                 //tempBuffer = ResampleUtils.normalize(tempBuffer, 256); 	// normalise volume
                 tempBufferRemaining = tempBuffer.length;
 
-                if ( tempBuffer.length <= 0 ) {
+                if (tempBuffer.length <= 0) {
                     log.error("Asao decoder Error." );
                 }
 
                 // Try to complete the encodingBuffer with necessary data.
-                if ( ( encodingOffset + tempBufferRemaining ) > sipCodec.getOutgoingDecodedFrameSize() ) {
+                if ((encodingOffset + tempBufferRemaining) > sipCodec.getOutgoingDecodedFrameSize()) {
                     copyingSize = encodingBuffer.length - encodingOffset;
                 }
                 else {
@@ -102,11 +102,10 @@ public class NellyToPcmTranscoder implements Transcoder {
                 finalCopySize += copyingSize;
             }
 
-            if (encodingOffset == encodingBuffer.length)
-            {
+            if (encodingOffset == encodingBuffer.length) {
                 int encodedBytes = sipCodec.pcmToCodec( encodingBuffer, codedBuffer );
 
-                if ( encodedBytes == sipCodec.getOutgoingEncodedFrameSize() ) {
+                if (encodedBytes == sipCodec.getOutgoingEncodedFrameSize()) {
                     System.arraycopy(codedBuffer, 0, transcodedData, dataOffset, codedBuffer.length);
                 }
                 else {
@@ -114,7 +113,7 @@ public class NellyToPcmTranscoder implements Transcoder {
                 }
             }
         }
-        catch ( Exception e ) {        	
+        catch (Exception e) {        	
         	log.error("Exception - " + e.toString());        	
             e.printStackTrace();
         }
@@ -134,14 +133,14 @@ public class NellyToPcmTranscoder implements Transcoder {
         if (num > 0) {
             do {
                 int encodedBytes = fillRtpPacketBuffer( asaoBuffer, transcodedData, dataOffset );
-                log.debug( "send " + sipCodec.getCodecName() + " encoded " + encodedBytes + " bytes." );
+//                log.debug( "send " + sipCodec.getCodecName() + " encoded " + encodedBytes + " bytes." );
 
                 if ( encodedBytes == 0 ) {
                     break;
                 }
 
                 if (encodingOffset == sipCodec.getOutgoingDecodedFrameSize()) {
-                	log.debug("Send this audio to asterisk.");
+//                	log.debug("Send this audio to asterisk.");
                     try {
 						rtpSender.sendTranscodedData();
 					} catch (StreamException e) {
@@ -152,7 +151,7 @@ public class NellyToPcmTranscoder implements Transcoder {
                     encodingOffset = 0;
                 }
 
-                log.debug("asao_buffer_processed = [" + asao_buffer_processed + "] ." );
+//                log.debug("asao_buffer_processed = [" + asao_buffer_processed + "] ." );
             }
             while (!asao_buffer_processed);
         }

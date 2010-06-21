@@ -26,6 +26,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 		rtpStreamReceiver = new RtpStreamReceiver(transcoder, socket);
 		rtpStreamReceiver.setRtpStreamReceiverListener(this);
 		listenStreamName = "speaker_" + System.currentTimeMillis();
+		
 		scope.setName(listenStreamName);	
 	}
 	

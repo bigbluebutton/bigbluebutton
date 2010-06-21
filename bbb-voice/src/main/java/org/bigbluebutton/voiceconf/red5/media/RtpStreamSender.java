@@ -21,8 +21,6 @@ public class RtpStreamSender {
     private RtpSocket rtpSocket = null;
     private byte[] transcodedAudioDataBuffer;
     private RtpPacket rtpPacket;
-    private int startPayloadPos;
-    private static final int DTMF2833 = 101;
     private int sequenceNum = 0;
     private long timestamp = 0;
     private final Transcoder transcoder;
@@ -50,7 +48,6 @@ public class RtpStreamSender {
         transcodedAudioDataBuffer = new byte[transcoder.getOutgoingEncodedFrameSize() + RTP_HEADER_SIZE];
         rtpPacket = new RtpPacket(transcodedAudioDataBuffer, 0);
         rtpPacket.setPayloadType(transcoder.getCodecId());
-        startPayloadPos = rtpPacket.getHeaderLength();
         sequenceNum = 0;
         timestamp = 0;    	
     }

@@ -20,16 +20,16 @@
 package org.bigbluebutton.modules.phone.managers
 {
 	import flash.events.IEventDispatcher;
+	
 	import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
 	import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceEvent;
 	
-	public class PhoneManager
-	{
+	public class PhoneManager {
 		private var localDispatcher:IEventDispatcher;
 		
 		private var connectionManager:ConnectionManager;
 		private var streamManager:StreamManager;
-		
+		private var onCall:Boolean = false;
 		private var attributes:Object;
 		
 		public function PhoneManager(dispatcher:IEventDispatcher) {
@@ -68,11 +68,16 @@ package org.bigbluebutton.modules.phone.managers
 			LogUtil.debug("Call connected...");
 			setupConnection();
 			streamManager.callConnected(event.playStreamName, event.publishStreamName);
+			onCall = true;
 		}
 		
 		public function hangup():void {
 			LogUtil.debug("PhoneManager hangup");
-			connectionManager.doHangUp();
+			if (onCall) {
+				streamManager.stopStreams();
+				connectionManager.doHangUp();
+				onCall = false;
+			}			
 		}
 	}
 }

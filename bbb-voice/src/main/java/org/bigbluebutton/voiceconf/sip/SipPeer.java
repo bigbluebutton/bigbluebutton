@@ -2,6 +2,7 @@ package org.bigbluebutton.voiceconf.sip;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.zoolu.sip.provider.*;
 import org.zoolu.net.SocketAddress;
@@ -33,6 +34,8 @@ public class SipPeer implements SipRegisterAgentListener {
     private final int sipPort;
     private final int startRtpPort;
     private final int stopRtpPort;
+    private int curFreeRtpPort;
+    
     private boolean registered = false;
     private String username;
     private String password;
@@ -42,6 +45,7 @@ public class SipPeer implements SipRegisterAgentListener {
         this.host = host;
         this.sipPort = sipPort;
         this.startRtpPort = startRtpPort;
+        curFreeRtpPort = startRtpPort;
         this.stopRtpPort = stopRtpPort;
         
         initSipProvider(sipPort);                
@@ -90,8 +94,13 @@ public class SipPeer implements SipRegisterAgentListener {
     
     private SipPeerProfile createCallSipProfile(String callerName, String destination) {    	    	
     	SipPeerProfile userProfile = new SipPeerProfile();
-        userProfile.audioPort = startRtpPort;
-            	
+    	
+    	synchronized(this) {
+    		userProfile.audioPort = curFreeRtpPort;
+    		curFreeRtpPort++;
+    		log.debug("Using rtp port {} for audio.", userProfile.audioPort);
+    	}
+                    	
         String fromURL = "\"" + callerName + "\" <sip:" + destination + "@" + host + ">";
     	userProfile.username = callerName;
         userProfile.passwd = password;

@@ -159,14 +159,13 @@ package org.bigbluebutton.modules.phone.managers
 			outgoingStream.client = custom_obj;			
 		}
 			
-		public function callDisconnected():void {
+		public function stopStreams():void {
 			if(incomingStream != null) {
 				incomingStream.play(false); 
 			}
 			
 			if(outgoingStream != null) {
 				outgoingStream.attachAudio(null);
-				outgoingStream.publish(null);
 			}
 				
 			isCallConnected = false;
@@ -187,12 +186,10 @@ package org.bigbluebutton.modules.phone.managers
 					break;
 						
 				case "NetStream.Play.Start":	
-//					red5Manager.doStreamStatus("start");	
 					event.status = PlayStreamStatusEvent.START;
 					break;
 						
 				case "NetStream.Play.Stop":			
-//					red5Manager.doStreamStatus("stop");	
 					event.status = PlayStreamStatusEvent.STOP;
 					break;
 						

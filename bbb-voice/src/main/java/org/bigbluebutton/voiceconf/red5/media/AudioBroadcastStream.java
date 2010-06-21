@@ -184,7 +184,7 @@ public class AudioBroadcastStream implements IBroadcastStream, IProvider, IPipeC
 	}
 
 	public void dispatchEvent(IEvent event) {
-		log.trace("dispatchEvent(event:{})", event);
+//		log.trace("dispatchEvent(event:{})", event);
 		if (event instanceof IRTMPEvent) {
 			IRTMPEvent rtmpEvent = (IRTMPEvent) event;
 			if (livePipe != null) {
@@ -195,14 +195,14 @@ public class AudioBroadcastStream implements IBroadcastStream, IProvider, IPipeC
 					creationTime = (long)rtmpEvent.getTimestamp();
           
 				try {
-					log.debug("dispatchEvent(event:)" + event);
+//					log.debug("dispatchEvent(event:)" + event);
 					livePipe.pushMessage(msg);
 
 					if (rtmpEvent instanceof IStreamPacket) {
-						log.debug("dispatchEvent(IStreamPacket:)" + event);
+//						log.debug("dispatchEvent(IStreamPacket:)" + event);
 						for (IStreamListener listener : getStreamListeners()) {
 							try {
-								log.debug("dispatchEvent(event:)" + event);
+//								log.debug("dispatchEvent(event:)" + event);
 								listener.packetReceived(this, (IStreamPacket) rtmpEvent);
 							} catch (Exception e) {
 								log.error("Error while notifying listener " + listener, e);
