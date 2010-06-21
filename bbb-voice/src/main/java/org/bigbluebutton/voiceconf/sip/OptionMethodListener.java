@@ -12,7 +12,6 @@ public class OptionMethodListener implements SipProviderListener {
 	protected static Logger log = Red5LoggerFactory.getLogger( OptionMethodListener.class, "sip" );
 	
 	public void onReceivedMessage(SipProvider sip_provider, Message message) {
-		// TODO Auto-generated method stub
 		if (message.isOption()) {
 			log.debug("Received OPTION message");
 			Message response = MessageFactory.createResponse(message, 200, "OK", message.getFromHeader().getNameAddress());

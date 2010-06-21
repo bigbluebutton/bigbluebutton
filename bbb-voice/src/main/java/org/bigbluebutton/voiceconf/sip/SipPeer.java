@@ -145,7 +145,7 @@ public class SipPeer implements SipRegisterAgentListener {
     public void hangup(String clientId) {
     	log.debug( "SIPUser hangup" );
 
-    	CallAgent ca = callManager.get(clientId);
+    	CallAgent ca = callManager.remove(clientId);
         if (ca != null) {
            ca.hangup();
         }

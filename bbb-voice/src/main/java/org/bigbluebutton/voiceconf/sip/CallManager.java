@@ -12,8 +12,8 @@ public class CallManager {
 		return calls.put(ca.getCallId(), ca);
 	}
 	
-	public CallAgent remove(CallAgent ca) {
-		return calls.remove(ca.getCallId());
+	public CallAgent remove(String id) {
+		return calls.remove(id);
 	}
 	
 	public CallAgent get(String id) {

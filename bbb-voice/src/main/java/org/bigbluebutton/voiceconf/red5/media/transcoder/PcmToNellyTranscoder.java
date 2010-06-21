@@ -77,15 +77,15 @@ public class PcmToNellyTranscoder implements Transcoder {
     	float[] decodingBuffer = new float[codedBuffer.length];
         int decodedBytes = audioCodec.codecToPcm(codedBuffer, decodingBuffer);
 
-//        log.debug("encodedBytes = " + decodedBytes + ", incomingDecodedFrameSize = " +
+//        log.debug("incoming = " + codedBuffer.length + ", encodedBytes = " + decodedBytes + ", incomingDecodedFrameSize = " +
 //                audioCodec.getIncomingDecodedFrameSize() + "." );
 
         if (decodedBytes == audioCodec.getIncomingDecodedFrameSize()) {
             forwardAudioToFlashPlayer(decodingBuffer);
-        }
-        else {
+        } else {
             log.warn("Failure decoding buffer." );
         }    	
+        
     }
     
     private void pushAudio(byte[] audio) {
@@ -118,22 +118,17 @@ public class PcmToNellyTranscoder implements Transcoder {
      */
 	public void transcode(byte[] asaoBuffer, int offset, int num,
 			byte[] transcodedData, int dataOffset, RtpStreamSender rtpSender) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	public int getCodecId() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	public int getOutgoingEncodedFrameSize() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	public int getOutgoingPacketization() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 }
