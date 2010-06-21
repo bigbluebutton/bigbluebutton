@@ -28,7 +28,7 @@
 		<property name="virtualHosts" value="${webapp.virtualHosts}" />
 	</bean>
 
-	<bean id="web.handler" class="org.bigbluebutton.voice.conf.Application">
+	<bean id="web.handler" class="org.bigbluebutton.voiceconf.red5.Application">
 		<property name="sipServerHost" value="${sip.server.host}" />
 		<property name="username" value="${sip.server.username}" />
 		<property name="password" value="${sip.server.password}" />
@@ -36,15 +36,18 @@
 		<property name="stopSIPPort" value="${stopSIPPort}" />
 		<property name="startRTPPort" value="${startRTPPort}" />
 		<property name="stopRTPPort" value="${stopRTPPort}" />
-		<property name="callExtensionPattern" value="${callExtensionPattern}" />
 		<property name="sipPeerManager" ref="sipPeerManager"/>
 		<property name="clientConnectionManager" ref="clientConnectionManager"/>
 	</bean>
-	
-	<bean id="sipPeerManager" class="org.bigbluebutton.voice.conf.sip.SipPeerManager">
+
+    <bean id="voiceconf.service" class="org.bigbluebutton.voiceconf.red5.Service">
+        <property name="sipPeerManager" ref="sipPeerManager"/>
+    </bean>
+    	
+	<bean id="sipPeerManager" class="org.bigbluebutton.voiceconf.sip.SipPeerManager">
 		<property name="sipStackDebugLevel" value="${sipStackDebugLevel}"/>
 	</bean>
 	
-	<bean id="clientConnectionManager" class="org.bigbluebutton.voice.conf.sip.ClientConnectionManager"/>
+	<bean id="clientConnectionManager" class="org.bigbluebutton.voiceconf.red5.ClientConnectionManager"/>
       
 </beans>

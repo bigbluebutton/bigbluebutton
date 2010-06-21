@@ -32,8 +32,7 @@ package org.bigbluebutton.modules.phone.managers
 		
 		private var attributes:Object;
 		
-		public function PhoneManager(dispatcher:IEventDispatcher)
-		{
+		public function PhoneManager(dispatcher:IEventDispatcher) {
 			localDispatcher = dispatcher;
 			connectionManager = new ConnectionManager(dispatcher);
 			streamManager = new StreamManager(dispatcher);
@@ -43,14 +42,14 @@ package org.bigbluebutton.modules.phone.managers
 			this.attributes = attributes;
 		}
 				
-		public function setupMic(useMic:Boolean):void {
+		private function setupMic(useMic:Boolean):void {
 			if (useMic)
 				streamManager.initMicrophone();
 			else
 				streamManager.initWithNoMicrophone();
 		}
 		
-		public function setupConnection():void {
+		private function setupConnection():void {
 			streamManager.setConnection(connectionManager.getConnection());
 		}
 		
@@ -66,6 +65,8 @@ package org.bigbluebutton.modules.phone.managers
 		}
 		
 		public function callConnected(event:CallConnectedEvent):void {
+			LogUtil.debug("Call connected...");
+			setupConnection();
 			streamManager.callConnected(event.playStreamName, event.publishStreamName);
 		}
 		

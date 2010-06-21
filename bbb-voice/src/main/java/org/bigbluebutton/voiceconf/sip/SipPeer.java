@@ -9,7 +9,8 @@ import org.slf4j.Logger;
 import org.bigbluebutton.voiceconf.red5.CallStreamFactory;
 import org.bigbluebutton.voiceconf.red5.ClientConnectionManager;
 import org.red5.logging.Red5LoggerFactory;
-
+import org.red5.server.api.IScope;
+import org.red5.server.api.stream.IBroadcastStream;
 
 /**
  * Class that is a peer to the sip server. This class will maintain
@@ -106,15 +107,6 @@ public class SipPeer implements SipRegisterAgentListener {
 		return userProfile;
     }
     
-           
-    public void dtmf(String clientId, String digits) {
-    	log.debug("SIPUser dtmf " + digits);
-    	CallAgent ca = callManager.get(clientId);
-        if (ca != null) {
-        	ca.queueSipDtmfDigits(digits);
-        }
-    }
-
     public void call(String clientId, String callerName, String destination) {
     	if (!registered) {
     		log.warn("Call request for {} but not registered.", id);
@@ -164,21 +156,21 @@ public class SipPeer implements SipRegisterAgentListener {
             registerAgent = null;
         }
     }
-/*
-    public void startTalkStream(IBroadcastStream broadcastStream, IScope scope) {
-    	if (userAgent != null)
-    		userAgent.startTalkStream(broadcastStream, scope);
+
+    public void startTalkStream(String clientId, IBroadcastStream broadcastStream, IScope scope) {
+    	CallAgent ca = callManager.get(clientId);
+        if (ca != null) {
+           ca.startTalkStream(broadcastStream, scope);
+        }
     }
     
-    public void stopTalkStream(IBroadcastStream broadcastStream, IScope scope) {
-    	if (userAgent != null)
-    		userAgent.stopTalkStream(broadcastStream, scope);
+    public void stopTalkStream(String clientId, IBroadcastStream broadcastStream, IScope scope) {
+    	CallAgent ca = callManager.get(clientId);
+        if (ca != null) {
+           ca.stopTalkStream(broadcastStream, scope);
+        }
     }
-    
-    public String getSessionID() {
-        return userid;
-    }
-*/
+
 	@Override
 	public void onRegistrationFailure(String result) {
 		log.error("Failed to register with Sip Server.");

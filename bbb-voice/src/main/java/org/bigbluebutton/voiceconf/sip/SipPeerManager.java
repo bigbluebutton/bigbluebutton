@@ -5,6 +5,9 @@ import org.zoolu.sip.provider.SipStack;
 import org.bigbluebutton.voiceconf.red5.CallStreamFactory;
 import org.bigbluebutton.voiceconf.red5.ClientConnectionManager;
 import org.red5.logging.Red5LoggerFactory;
+import org.red5.server.api.IScope;
+import org.red5.server.api.stream.IBroadcastStream;
+
 import java.util.*;
 
 /**
@@ -43,14 +46,7 @@ public final class SipPeerManager {
     	if (sipPeer == null) throw new PeerNotFoundException("Can't find sip peer " + peerId);
     	sipPeer.call(clientId, callerName, destination);
     }
-    
-    public void passDtmf(String peerId, String clientId, String digits) {
-    	SipPeer sipPeer = sipPeers.get(peerId);
-    	if (sipPeer != null) {
-    		sipPeer.dtmf(clientId, digits);
-    	}
-    }
-        
+     
     public void unregister(String userid) {
     	SipPeer sipUser = sipPeers.get(userid);
     	if (sipUser != null) {
@@ -58,28 +54,27 @@ public final class SipPeerManager {
     	}
     }
     
-    public void hangup(String peerId, String clientId) {
+    public void hangup(String peerId, String clientId) throws PeerNotFoundException {
     	SipPeer sipPeer = sipPeers.get(peerId);
-    	if (sipPeer != null) {
-    		sipPeer.hangup(clientId);
-    	}
+    	if (sipPeer == null) throw new PeerNotFoundException("Can't find sip peer " + peerId);
+    	sipPeer.hangup(clientId);
     }
 
-    /*
-    public void startTalkStream(String userid, IBroadcastStream broadcastStream, IScope scope) {
-    	SipPeer sipUser = sipPeers.get(userid);
+    
+    public void startTalkStream(String peerId, String clientId, IBroadcastStream broadcastStream, IScope scope) {
+    	SipPeer sipUser = sipPeers.get(peerId);
     	if (sipUser != null) {
-    		sipUser.startTalkStream(broadcastStream, scope);
+    		sipUser.startTalkStream(clientId, broadcastStream, scope);
     	}
     }
     
-    public void stopTalkStream(String userid, IBroadcastStream broadcastStream, IScope scope) {
-    	SipPeer sipUser = sipPeers.get(userid);
+    public void stopTalkStream(String peerId, String clientId, IBroadcastStream broadcastStream, IScope scope) {
+    	SipPeer sipUser = sipPeers.get(peerId);
     	if (sipUser != null) {
-    		sipUser.stopTalkStream(broadcastStream, scope);
+    		sipUser.stopTalkStream(clientId, broadcastStream, scope);
     	}
     }
- */
+ 
     
     private void remove(String userid) {
     	log.debug("Number of SipUsers in Manager before remove {}", sipPeers.size());

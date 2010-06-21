@@ -2,11 +2,15 @@ package org.bigbluebutton.voiceconf.red5.media.transcoder;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.bigbluebutton.voiceconf.red5.media.RtpStreamSender;
+import org.bigbluebutton.voiceconf.red5.media.StreamException;
 import org.red5.app.sip.codecs.Codec;
+import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.net.rtmp.event.AudioData;
+import org.slf4j.Logger;
 
 public class SpeexToSpeexTranscoder implements Transcoder {
-
+	protected static Logger log = Red5LoggerFactory.getLogger(SpeexToSpeexTranscoder.class, "sip");
+	
 	private Codec audioCodec;
 	private TranscodedAudioDataListener listener;
 	private int timestamp = 0;
@@ -25,7 +29,13 @@ public class SpeexToSpeexTranscoder implements Transcoder {
 	public void transcode(byte[] asaoBuffer, int offset, int num,
 			byte[] transcodedData, int dataOffset, RtpStreamSender rtpSender) {
 		System.arraycopy(asaoBuffer, offset, transcodedData, dataOffset, num);
-		rtpSender.sendTranscodedData();
+		try {
+			rtpSender.sendTranscodedData();
+		} catch (StreamException e) {
+			// Swallow this error for now. We don't really want to end the call if sending hiccups.
+			// Just log it for now. (ralam june 18, 2010)
+			log.warn("Error while sending transcoded audio packet.");
+		}
 	}
 
 	public void transcode(byte[] codedBuffer) {

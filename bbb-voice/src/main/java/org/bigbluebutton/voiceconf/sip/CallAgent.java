@@ -1,16 +1,13 @@
 package org.bigbluebutton.voiceconf.sip;
 
 import org.zoolu.sip.call.*;
-import org.zoolu.sip.address.*;
 import org.zoolu.sip.provider.SipProvider;
-import org.zoolu.sip.header.StatusLine;
 import org.zoolu.sip.message.*;
 import org.zoolu.sdp.*;
 import org.bigbluebutton.voiceconf.red5.CallStreamFactory;
 import org.bigbluebutton.voiceconf.red5.ClientConnectionManager;
 import org.bigbluebutton.voiceconf.red5.media.CallStream;
 import org.bigbluebutton.voiceconf.red5.media.StreamException;
-import org.bigbluebutton.voiceconf.red5.media.StreamObserver;
 import org.red5.app.sip.codecs.Codec;
 import org.red5.app.sip.codecs.CodecUtils;
 import org.slf4j.Logger;
@@ -19,8 +16,6 @@ import org.red5.server.api.IScope;
 import org.red5.server.api.stream.IBroadcastStream;
 import org.zoolu.tools.Parser;
 import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.Vector;
 
 public class CallAgent extends CallListenerAdapter  {
@@ -59,14 +54,6 @@ public class CallAgent extends CallListenerAdapter  {
     	return clientId;
     }
     
-    private void changeStatus(CallState state) {
-    	callState = state;
-    }
-    
-    public boolean isIdle() {
-    	return callState == CallState.UA_IDLE;
-    }
-    
     private void initSessionDescriptor() {        
         log.debug("initSessionDescriptor");        
         SessionDescriptor newSdp = SdpUtils.createInitialSdp(userProfile.username, 
@@ -78,8 +65,8 @@ public class CallAgent extends CallListenerAdapter  {
 
     public void call(String targetUrl) {    	
     	log.debug("call {}", targetUrl);  
-    	changeStatus(CallState.UA_OUTGOING_CALL);
-        
+    	callState = CallState.UA_OUTGOING_CALL;
+    	
         call = new ExtendedCall(sipProvider, userProfile.fromUrl, 
                 userProfile.contactUrl, userProfile.username,
                 userProfile.realm, userProfile.passwd, this);  
@@ -99,11 +86,10 @@ public class CallAgent extends CallListenerAdapter  {
     public void hangup() {
     	log.debug("hangup");
     	
-    	if (isIdle()) return;
-    	
+    	if (callState == CallState.UA_IDLE) return;    	
     	closeVoiceStreams();        
     	if (call != null) call.hangup();    
-    	changeStatus(CallState.UA_IDLE); 
+    	callState = CallState.UA_IDLE; 
     }
 
     private void createVoiceStreams() {
@@ -135,12 +121,6 @@ public class CallAgent extends CallListenerAdapter  {
         }
     }
 
-    private void notifyListenersOnCallConnected(String talkStream, String listenStream) {
-    	for (SipUserAgentListener listener : listeners) {
-    		listener.onCallConnected(talkStream, listenStream);
-    	}   	
-    }
-      
     private int getLocalAudioPort(SessionDescriptor localSdp) {
         int localAudioPort = 0;
         
@@ -206,14 +186,12 @@ public class CallAgent extends CallListenerAdapter  {
         log.debug("remoteSdp = " + remoteSdp.toString() + ".");
         
         // First we need to make payloads negotiation so the related attributes can be then matched.
-        SessionDescriptor newSdp = SdpUtils.makeMediaPayloadsNegotiation(localSdp, remoteSdp);
-        
+        SessionDescriptor newSdp = SdpUtils.makeMediaPayloadsNegotiation(localSdp, remoteSdp);        
         createAudioCodec(newSdp);
         
         // Now we complete the SDP negotiation informing the selected 
         // codec, so it can be internally updated during the process.
         SdpUtils.completeSdpNegotiation(newSdp, localSdp, remoteSdp);
-
         localSession = newSdp.toString();
         
         log.debug("newSdp = " + localSession + "." );
@@ -232,7 +210,7 @@ public class CallAgent extends CallListenerAdapter  {
     	if (!isCurrentCall(call)) return;
         
         log.debug("ACCEPTED/CALL.");
-        changeStatus(CallState.UA_ONCALL);
+        callState = CallState.UA_ONCALL;
 
         setupSdpAndCodec(sdp);
 
@@ -244,42 +222,21 @@ public class CallAgent extends CallListenerAdapter  {
         createVoiceStreams();
     }
 
-    public void notifyListenersOfOnOutgoingCallAccepted() {
-    	for (SipUserAgentListener listener : listeners) {
-    		listener.onOutgoingCallAccepted();
-    	}
-    }
-
     /** Callback function called when arriving an ACK method (call confirmed) */
     public void onCallConfirmed(Call call, String sdp, Message ack) {
     	log.debug("Received ACK. Hmmm...is this for when the server initiates the call????");
         
-    	if (!isCurrentCall(call)) return;
-        
-        log.debug("CONFIRMED/CALL.");
-        changeStatus(CallState.UA_ONCALL);
-
+    	if (!isCurrentCall(call)) return;        
+        callState = CallState.UA_ONCALL;
         createVoiceStreams();
     }
 
-
-
     /** Callback function called when arriving a 4xx (call failure) */
     public void onCallRefused(Call call, String reason, Message resp) {        
-    	log.debug("onCallRefused");
-        
+    	log.debug("Call has been refused.");        
     	if (!isCurrentCall(call)) return;
-    	
-        log.debug("REFUSED (" + reason + ").");
-        changeStatus(CallState.UA_IDLE);
-
+        callState = CallState.UA_IDLE;
         notifyListenersOnOutgoingCallFailed();
-    }
-    
-    private void notifyListenersOnOutgoingCallFailed() {
-    	for (SipUserAgentListener listener : listeners) {
-    		listener.onOutgoingCallFailed();
-    	}
     }
 
     /** Callback function called when arriving a 3xx (call redirection) */
@@ -287,8 +244,6 @@ public class CallAgent extends CallListenerAdapter  {
     	log.debug("onCallRedirection");
         
     	if (!isCurrentCall(call)) return;
-        log.debug("REDIRECTION (" + reason + ")." );
-        
         call.call(((String) contact_list.elementAt(0)));
     }
 
@@ -302,17 +257,34 @@ public class CallAgent extends CallListenerAdapter  {
     	if (!isCurrentCall(call)) return; 
         
         log.debug("Server has CANCEL-led the call.");
-        changeStatus(CallState.UA_IDLE);
+        callState = CallState.UA_IDLE;
         notifyListenersOfOnIncomingCallCancelled();
     }
-    
-    private void notifyListenersOfOnIncomingCallCancelled() {
-    	for (SipUserAgentListener listener : listeners) {
-    		listener.onIncomingCallCancelled();
-    	}
+
+    private void notifyListenersOnCallConnected(String talkStream, String listenStream) {
+    	log.debug("notifyListenersOnCallConnected for {}", clientId);
+    	clientConnManager.joinConferenceSuccess(clientId, talkStream, listenStream);
+    }
+/*      
+    public void notifyListenersOfOnOutgoingCallAccepted() {
+    	log.debug("notifyListenersOfOnOutgoingCallAccepted for {}", clientId);    	
+    }
+*/    
+    private void notifyListenersOnOutgoingCallFailed() {
+    	log.debug("notifyListenersOnOutgoingCallFailed for {}", clientId);
+    	clientConnManager.joinConferenceFailed(clientId);
     }
 
-
+    
+    private void notifyListenersOfOnIncomingCallCancelled() {
+    	log.debug("notifyListenersOfOnIncomingCallCancelled for {}", clientId);
+    }
+    
+    private void notifyListenersOfOnCallClosed() {
+    	log.debug("notifyListenersOfOnCallClosed for {}", clientId);
+    	clientConnManager.leaveConference(clientId);
+    }
+    
     /** Callback function called when arriving a BYE request */
     public void onCallClosing(Call call, Message bye) {
     	log.debug("onCallClosing");
@@ -324,17 +296,12 @@ public class CallAgent extends CallListenerAdapter  {
         closeVoiceStreams();
 
         notifyListenersOfOnCallClosed();
-        changeStatus(CallState.UA_IDLE);
+        callState = CallState.UA_IDLE;
 
         // Reset local sdp for next call.
         initSessionDescriptor();
     }
 
-    private void notifyListenersOfOnCallClosed() {
-    	for (SipUserAgentListener listener : listeners) {
-    		listener.onCallClosed();
-    	}
-    }
 
     /**
      * Callback function called when arriving a response after a BYE request
@@ -343,12 +310,11 @@ public class CallAgent extends CallListenerAdapter  {
     public void onCallClosed(Call call, Message resp) {
     	log.debug("onCallClosed");
         
-    	if (!isCurrentCall(call)) return; 
-        
+    	if (!isCurrentCall(call)) return;         
         log.debug("CLOSE/OK.");
         
         notifyListenersOfOnCallClosed();
-        changeStatus(CallState.UA_IDLE);
+        callState = CallState.UA_IDLE;
     }
 
 
@@ -359,7 +325,7 @@ public class CallAgent extends CallListenerAdapter  {
     	if (!isCurrentCall(call)) return; 
         
         log.debug("NOT FOUND/TIMEOUT.");
-        changeStatus(CallState.UA_IDLE);
+        callState = CallState.UA_IDLE;
 
         notifyListenersOnOutgoingCallFailed();
     }
@@ -375,6 +341,4 @@ public class CallAgent extends CallListenerAdapter  {
 	public void setClientConnectionManager(ClientConnectionManager ccm) {
 		clientConnManager = ccm;
 	}
-
-
 }

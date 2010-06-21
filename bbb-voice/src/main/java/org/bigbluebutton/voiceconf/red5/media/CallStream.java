@@ -37,18 +37,20 @@ public class CallStream implements StreamObserver {
 			log.error("SocketException while initializing DatagramSocket");
 			throw new Exception("Exception while initializing CallStream");
 		}     
-        		
+		
+
 		Transcoder rtmpToRtpTranscoder, rtpToRtmpTranscoder;
 		if (sipCodec.getCodecId() == SpeexCodec.codecId) {
 			rtmpToRtpTranscoder = new SpeexToSpeexTranscoder(sipCodec);
 			rtpToRtmpTranscoder = new SpeexToSpeexTranscoder(sipCodec, userListenStream);
 		} else {
 			rtmpToRtpTranscoder = new NellyToPcmTranscoder(sipCodec);
-			rtpToRtmpTranscoder = new PcmToNellyTranscoder(sipCodec, userListenStream);			
+			rtpToRtmpTranscoder = new PcmToNellyTranscoder(sipCodec);	
+			userListenStream = new SipToFlashAudioStream(scope, rtpToRtmpTranscoder, socket);
+			userListenStream.addListenStreamObserver(this);	
+			((PcmToNellyTranscoder)rtpToRtmpTranscoder).addTranscodedAudioDataListener(userListenStream);
 		}
-			
-		userListenStream = new SipToFlashAudioStream(scope, rtpToRtmpTranscoder, socket);
-		userListenStream.addListenStreamObserver(this);
+
 		userTalkStream = new FlashToSipAudioStream(rtmpToRtpTranscoder, socket, connInfo); 
     }
     
@@ -61,6 +63,7 @@ public class CallStream implements StreamObserver {
     }
     
     public void startTalkStream(IBroadcastStream broadcastStream, IScope scope) throws StreamException {
+    	userListenStream.start();
     	userTalkStream.start(broadcastStream, scope);
     }
     

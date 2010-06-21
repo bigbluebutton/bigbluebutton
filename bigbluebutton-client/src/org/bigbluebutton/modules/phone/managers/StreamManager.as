@@ -130,10 +130,12 @@ package org.bigbluebutton.modules.phone.managers
 		}
 		
 		private function play(playStreamName:String):void {
+			
 			incomingStream.play(playStreamName);
 		}
 		
 		private function publish(publishStreamName:String):void {
+			LogUtil.debug("Publishing stream " + publishStreamName);
 			outgoingStream.publish(publishStreamName, "live");
 		}
 		
@@ -167,7 +169,7 @@ package org.bigbluebutton.modules.phone.managers
 				outgoingStream.publish(null);
 			}
 				
-			isCallConnected 		 = false;
+			isCallConnected = false;
 		}
 
 		private function netStatus (evt:NetStatusEvent ):void {		 

@@ -141,7 +141,7 @@ package org.bigbluebutton.modules.phone.managers {
 		}	
 				
         public function successfullyJoinedVoiceConferenceCallback(publishName:String, playName:String):* {
-        	LogUtil.debug("Call has been connected");
+        	LogUtil.debug("successfullyJoinedVoiceConferenceCallback " + publishName + " : " + playName);
 			isConnected = true;
 			var event:CallConnectedEvent = new CallConnectedEvent();
 			event.publishStreamName = publishName;
@@ -156,12 +156,12 @@ package org.bigbluebutton.modules.phone.managers {
 		//********************************************************************************************		
 		public function doCall(dialStr:String):void {
 			LogUtil.debug("Calling " + dialStr);
-			netConnection.call("call", null, uid, dialStr);
+			netConnection.call("voiceconf.call", null, "127.0.0.1", username, dialStr);
 		}
 				
 		public function doHangUp():void {			
 			if (isConnected) {
-				netConnection.call("hangup", null, uid);
+				netConnection.call("voiceconf.hangup", null, "127.0.0.1");
 				isConnected = false;
 			}
 		}

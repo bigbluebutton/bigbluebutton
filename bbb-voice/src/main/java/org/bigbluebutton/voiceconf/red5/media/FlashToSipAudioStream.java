@@ -28,12 +28,13 @@ public class FlashToSipAudioStream {
 	public FlashToSipAudioStream(final Transcoder transcoder, DatagramSocket srcSocket, SipConnectInfo connInfo) {
 		this.transcoder = transcoder;
 		this.srcSocket = srcSocket;
-		this.connInfo = connInfo;				    
+		this.connInfo = connInfo;		
+		talkStreamName = "microphone_" + System.currentTimeMillis();
 	}
 	
 	public void start(IBroadcastStream broadcastStream, IScope scope) throws StreamException {
 	    log.debug("startTranscodingStream({},{})", broadcastStream.getPublishedName(), scope.getName());
-	    talkStreamName = broadcastStream.getPublishedName();
+//	    talkStreamName = broadcastStream.getPublishedName();
 		
 		mInputListener = new IStreamListener() {
 			public void packetReceived(IBroadcastStream broadcastStream, IStreamPacket packet) {

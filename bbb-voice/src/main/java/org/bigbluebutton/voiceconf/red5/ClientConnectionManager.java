@@ -23,14 +23,29 @@ public class ClientConnectionManager {
 	}
 	
 	public void joinConferenceSuccess(String clientId, String usertalkStream, String userListenStream) {
-		
+		ClientConnection cc = clients.get(clientId);
+		if (cc != null) {
+			cc.onJoinConferenceSuccess(usertalkStream, userListenStream);
+		} else {
+			log.warn("Can't find connection {}", clientId);
+		}
 	}
 	
 	public void joinConferenceFailed(String clientId) {
-		
+		ClientConnection cc = clients.get(clientId);
+		if (cc != null) {
+			cc.onJoinConferenceFail();
+		} else {
+			log.warn("Can't find connection {}", clientId);
+		}
 	}
 	
 	public void leaveConference(String clientId) {
-		
+		ClientConnection cc = clients.get(clientId);
+		if (cc != null) {
+			cc.onLeaveConference();
+		} else {
+			log.warn("Can't find connection {}", clientId);
+		}
 	}
 }

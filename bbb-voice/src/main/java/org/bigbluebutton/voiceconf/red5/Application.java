@@ -31,8 +31,6 @@ public class Application extends MultiThreadedApplicationAdapter {
 	private String username;
 	private CallStreamFactory callStreamFactory;
 	
-	private MessageFormat callExtensionPattern = new MessageFormat("{0}");
-    
     @Override
     public boolean appStart(IScope scope) {
     	log.debug("VoiceConferenceApplication appStart[" + scope.getName() + "]");
@@ -57,38 +55,53 @@ public class Application extends MultiThreadedApplicationAdapter {
     }
 
     @Override
-    public boolean roomJoin(IClient client, IScope scope) {
-        log.debug("VoiceConferenceApplication appJoin[" + client.getId() + "]");
+    public boolean appJoin(IClient client, IScope scope) {
+        log.debug("VoiceConferenceApplication roomJoin[" + client.getId() + "]");
         clientConnManager.createClient(client.getId(), (IServiceCapableConnection) Red5.getConnectionLocal());
         return true;
     }
 
     @Override
-    public void roomLeave(IClient client, IScope scope) {
-        log.debug("VoiceConferenceApplication appLeave[" + client.getId() + "]");
+    public void appLeave(IClient client, IScope scope) {
+        log.debug("VoiceConferenceApplication roomLeave[" + client.getId() + "]");
     	clientConnManager.removeClient(client.getId());
         log.debug( "Red5SIP Client closing client {}", client.getId());
-        // TODO: Need to hangup disconnected client..but we don't have the peerid????
-//        sipPeerManager.hangup(client.getId());
+
+        String peerId = (String) Red5.getConnectionLocal().getAttribute("VOICE_CONF_PEER");
+        if (peerId != null) {
+			try {
+				sipPeerManager.hangup(peerId, client.getId());
+			} catch (PeerNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        }
     }
     
     @Override
     public void streamPublishStart(IBroadcastStream stream) {
     	log.debug("streamPublishStart: {}; {}", stream, stream.getPublishedName());
     	System.out.println("streamPublishStart: " + stream.getPublishedName());
-    	super.streamPublishStart(stream);
     	IConnection conn = Red5.getConnectionLocal();
-    	String userid = conn.getClient().getId();
- //   	sipPeerManager.startTalkStream(userid, stream, Red5.getConnectionLocal().getScope());
+    	String peerId = (String) conn.getAttribute("VOICE_CONF_PEER");
+        if (peerId != null) {
+        	super.streamPublishStart(stream);	    	
+	    	String clientId = conn.getClient().getId();
+	    	sipPeerManager.startTalkStream(peerId, clientId, stream, conn.getScope());
+        }
     }
     
     @Override
     public void streamBroadcastClose(IBroadcastStream stream) {
     	System.out.println("streamBroadcastClose: " + stream.getPublishedName());
     	IConnection conn = Red5.getConnectionLocal();
-    	String userid = conn.getClient().getId();
-//    	sipPeerManager.stopTalkStream(userid, stream, Red5.getConnectionLocal().getScope());
-    	super.streamBroadcastClose(stream);
+    	String peerId = (String) conn.getAttribute("VOICE_CONF_PEER");
+        if (peerId != null) {
+        	super.streamPublishStart(stream);	    	
+	    	String clientId = conn.getClient().getId();
+	    	sipPeerManager.stopTalkStream(peerId, clientId, stream, conn.getScope());
+	    	super.streamBroadcastClose(stream);
+        }
     }
     
     public List<String> getStreams() {
@@ -126,10 +139,6 @@ public class Application extends MultiThreadedApplicationAdapter {
 
 	public void setStopRTPPort(int stopRTPPort) {
 		this.stopRtpPort = stopRTPPort;
-	}
-	
-	public void setCallExtensionPattern(String callExtensionPattern) {
-		this.callExtensionPattern = new MessageFormat(callExtensionPattern);
 	}
 	
 	public void setSipPeerManager(SipPeerManager spm) {
