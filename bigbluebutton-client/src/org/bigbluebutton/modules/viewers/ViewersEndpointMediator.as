@@ -89,6 +89,7 @@ package org.bigbluebutton.modules.viewers
 										userrole:_module.role, room:_module.room, authToken:_module.authToken,
 										userid:_module.userid, connection:proxy.connection,
 										mode:_module.mode, voicebridge:_module.voicebridge,
+										webvoiceconf:_module.webvoiceconf,
 										record:_module.record, welcome:_module.welcome,
 										meetingID:_module.meetingID, externUserID:_module.externUserID,
 										playbackRoom:_module.playbackRoom};

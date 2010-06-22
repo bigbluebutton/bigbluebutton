@@ -127,6 +127,14 @@
 			public function get mode():String {
 				return _attributes.mode;
 			}
+			
+			public function set webvoiceconf(v:String):void {
+				_attributes.webvoiceconf = v;
+			}
+
+			public function get webvoiceconf():String {
+				return _attributes.webvoiceconf;
+			}
 									
 			public function set voicebridge(v:String):void {
 				_attributes.voicebridge = v;

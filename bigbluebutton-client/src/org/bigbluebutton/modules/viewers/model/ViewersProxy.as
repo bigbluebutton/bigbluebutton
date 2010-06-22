@@ -90,6 +90,7 @@ package org.bigbluebutton.modules.viewers.model
 				module.room = _participants.me.room;
 				module.authToken = _participants.me.authToken;
 				module.mode = result.mode;
+				module.webvoiceconf = result.webvoiceconf;
 				module.voicebridge = result.voicebridge;
 				module.conferenceName = result.conferenceName;
 				module.welcome = result.welcome;
