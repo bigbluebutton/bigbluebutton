@@ -37,7 +37,7 @@ public class DynamicConference extends Conference {
 	String meetingID
 	String meetingToken
 	String voiceBridge
-	
+	String webVoiceConf
 	String moderatorPassword
 	String attendeePassword
 	String welcome

@@ -38,9 +38,9 @@ public class Application extends MultiThreadedApplicationAdapter {
     	callStreamFactory.setScope(scope);
     	sipPeerManager.setCallStreamFactory(callStreamFactory);
         sipPeerManager.setClientConnectionManager(clientConnManager);
-        sipPeerManager.createSipPeer(sipServerHost, sipServerHost, startSipPort, startRtpPort, stopRtpPort);
+        sipPeerManager.createSipPeer("default", sipServerHost, startSipPort, startRtpPort, stopRtpPort);
         try {
-			sipPeerManager.register(sipServerHost, username, password);
+			sipPeerManager.register("default", username, password);
 		} catch (PeerNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

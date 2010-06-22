@@ -60,8 +60,8 @@ package org.bigbluebutton.modules.phone.managers
 		}
 				
 		public function dialConference():void {
-			LogUtil.debug("Dialing...." + attributes.voicebridge);
-			connectionManager.doCall(attributes.voicebridge);
+			LogUtil.debug("Dialing...." + attributes.webvoiceconf);
+			connectionManager.doCall(attributes.webvoiceconf);
 		}
 		
 		public function callConnected(event:CallConnectedEvent):void {

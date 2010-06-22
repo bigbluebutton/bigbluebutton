@@ -228,7 +228,8 @@ class PublicScheduledSessionController {
 	    def rl = session["role"]
 	    def cnf = session["conference"]
 	    def rm = session["room"]
-		def vb = session["voicebridge"]   
+		def vb = session["voicebridge"] 
+		def wbv = session["webvoiceconf"]  
 	    def rec = session["record"]
 	    def md = session["mode"]
 	    def confName = session["conferencename"]
@@ -263,6 +264,7 @@ class PublicScheduledSessionController {
 	        				conference("$cnf")
 	        				room("$rm")
 	        				voicebridge("${vb}")
+	        				webvoiceconf("${wbv}")
 	        				mode("$md")
 	        				record("$rec")
 	        				welcome("$welcomeMsg")

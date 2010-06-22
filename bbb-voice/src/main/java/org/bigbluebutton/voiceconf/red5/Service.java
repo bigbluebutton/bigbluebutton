@@ -16,7 +16,6 @@ public class Service {
 	private MessageFormat callExtensionPattern = new MessageFormat("{0}");
     	
 	public Boolean call(String peerId, String callerName, String destination) {
-//		destination = "600";
 		log.debug("Joining voice conference " + destination);
 		String extension = callExtensionPattern.format(new String[] { destination });
 		try {

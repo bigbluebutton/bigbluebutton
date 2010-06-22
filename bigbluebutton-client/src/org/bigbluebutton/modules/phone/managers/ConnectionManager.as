@@ -156,12 +156,12 @@ package org.bigbluebutton.modules.phone.managers {
 		//********************************************************************************************		
 		public function doCall(dialStr:String):void {
 			LogUtil.debug("Calling " + dialStr);
-			netConnection.call("voiceconf.call", null, "127.0.0.1", username, dialStr);
+			netConnection.call("voiceconf.call", null, "default", username, dialStr);
 		}
 				
 		public function doHangUp():void {			
 			if (isConnected) {
-				netConnection.call("voiceconf.hangup", null, "127.0.0.1");
+				netConnection.call("voiceconf.hangup", null, "default");
 				isConnected = false;
 			}
 		}

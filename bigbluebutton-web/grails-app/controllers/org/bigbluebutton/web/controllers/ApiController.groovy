@@ -97,6 +97,7 @@ class ApiController {
 		String attPW = params.attendeePW
 		String modPW = params.moderatorPW
 		String voiceBr = params.voiceBridge
+		String webVoice = params.webVoiceConf
 		String welcomeMessage = params.welcome
 		String dialNumber = params.dialNumber
 		String logoutUrl = params.logoutURL
@@ -130,6 +131,7 @@ class ApiController {
 		}
 		DynamicConference conf = new DynamicConference(name, mtgID, attPW, modPW, maxParts)
 		conf.setVoiceBridge(voiceBr == null || voiceBr == "" ? mtgID : voiceBr)
+		conf.setWebVoiceConf(webVoice == null || webVoice == "" ? conf.voiceBridge : webVoice)
 		
 		if ((dynamicConferenceService.testVoiceBridge != null) && (conf.voiceBridge == dynamicConferenceService.testVoiceBridge)) {
 			if (dynamicConferenceService.testConferenceMock != null) 
@@ -235,6 +237,7 @@ class ApiController {
 		session["conference"] = conf.getMeetingToken()
 		session["room"] = conf.getMeetingToken()
 		session["voicebridge"] = conf.getVoiceBridge()
+		session["webvoiceconf"] = conf.getWebVoiceConf()
 		session["mode"] = "LIVE"
 		session["record"] = false
 		session['welcome'] = conf.welcome
