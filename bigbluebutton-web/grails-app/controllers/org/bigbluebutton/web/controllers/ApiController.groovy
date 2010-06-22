@@ -97,7 +97,6 @@ class ApiController {
 		String attPW = params.attendeePW
 		String modPW = params.moderatorPW
 		String voiceBr = params.voiceBridge
-		String webVoice = params.webVoiceConf
 		String welcomeMessage = params.welcome
 		String dialNumber = params.dialNumber
 		String logoutUrl = params.logoutURL
@@ -131,7 +130,6 @@ class ApiController {
 		}
 		DynamicConference conf = new DynamicConference(name, mtgID, attPW, modPW, maxParts)
 		conf.setVoiceBridge(voiceBr == null || voiceBr == "" ? mtgID : voiceBr)
-		conf.setWebVoiceConf(webVoice == null || webVoice == "" ? conf.voiceBridge : webVoice)
 		
 		if ((dynamicConferenceService.testVoiceBridge != null) && (conf.voiceBridge == dynamicConferenceService.testVoiceBridge)) {
 			if (dynamicConferenceService.testConferenceMock != null) 
@@ -195,6 +193,7 @@ class ApiController {
 			return
 		}
 		
+		String webVoice = params.webVoiceConf
 		String mtgID = params.meetingID
 		String attPW = params.password
 		boolean redirectImm = parseBoolean(params.redirectImmediately)
@@ -225,13 +224,13 @@ class ApiController {
 			invalidPassword("You either did not supply a password or the password supplied is neither the attendee or moderator password for this conference."); return;
 		}
 		
+		conf.setWebVoiceConf(webVoice == null || webVoice == "" ? conf.voiceBridge : webVoice)
 		
 		// TODO: success....
 		log.debug "join successful - setting session parameters and redirecting to join"
 		session["conferencename"] = conf.meetingID
 		session["meetingID"] = conf.meetingID
 		session["externUserID"] = externUserID
-
 		session["fullname"] = fullName 
 		session["role"] = role
 		session["conference"] = conf.getMeetingToken()
