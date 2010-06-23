@@ -220,4 +220,21 @@ public class SipPeerProfile {
             fromUrl = contactUrl;
         }
     }
+    
+    public static SipPeerProfile copy(SipPeerProfile source) {
+    	SipPeerProfile userProfile = new SipPeerProfile();
+    	
+    	userProfile.audioPort = source.audioPort;
+           	
+        String fromURL = "\"" + source.username + "\" <sip:" + source.username + "@" + source.realm + ">";
+    	userProfile.username = source.username;
+        userProfile.passwd = source.passwd;
+        userProfile.realm = source.realm;
+        userProfile.fromUrl = fromURL;
+		userProfile.contactUrl = source.contactUrl;	
+        userProfile.keepaliveTime = source.keepaliveTime;
+		userProfile.acceptTime = source.acceptTime;
+		userProfile.hangupTime = source.hangupTime;   
+		return userProfile;
+    }
 }

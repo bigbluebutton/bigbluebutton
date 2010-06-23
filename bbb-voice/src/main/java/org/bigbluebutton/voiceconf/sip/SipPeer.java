@@ -30,104 +30,66 @@ public class SipPeer implements SipRegisterAgentListener {
     private SipProvider sipProvider;
     private SipRegisterAgent registerAgent;
     private final String id;
-    private final String host;
-    private final int sipPort;
-    private final int startRtpPort;
-    private final int stopRtpPort;
-    private int curFreeRtpPort;
+    private final AudioConferenceProvider audioconfProvider;
     
     private boolean registered = false;
-    private String username;
-    private String password;
+    private SipPeerProfile registeredProfile;
     
-    public SipPeer(String id, String host, int sipPort, int startRtpPort, int stopRtpPort) {
+    public SipPeer(String id, String host, int sipPort, int startAudioPort, int stopAudioPort) {
         this.id = id;
-        this.host = host;
-        this.sipPort = sipPort;
-        this.startRtpPort = startRtpPort;
-        curFreeRtpPort = startRtpPort;
-        this.stopRtpPort = stopRtpPort;
-        
-        initSipProvider(sipPort);                
+        audioconfProvider = new AudioConferenceProvider(host, sipPort, startAudioPort, stopAudioPort);
+        initSipProvider(host, sipPort);
     }
     
-    private void initSipProvider(int sipPort) {
-        sipProvider = new SipProvider(host, sipPort);        
+    private void initSipProvider(String host, int sipPort) {
+        sipProvider = new SipProvider(host, sipPort);    
+        sipProvider.setOutboundProxy(new SocketAddress(host)); 
         sipProvider.addSipProviderListener(new OptionMethodListener());    	
     }
     
     public void register(String username, String password) {
     	log.debug( "SIPUser register" );
-    	this.username = username;
-    	this.password = password;
-    	
-		sipProvider.setOutboundProxy(new SocketAddress(host));   
-		SipPeerProfile regProfile = createRegisterUserProfile();
-		
+        createRegisterUserProfile(username, password);
         if (sipProvider != null) {
-        	registerAgent = new SipRegisterAgent(sipProvider, regProfile.fromUrl, 
-        			regProfile.contactUrl, regProfile.username, 
-        			regProfile.realm, regProfile.passwd);
+        	registerAgent = new SipRegisterAgent(sipProvider, registeredProfile.fromUrl, 
+        			registeredProfile.contactUrl, registeredProfile.username, 
+        			registeredProfile.realm, registeredProfile.passwd);
         	registerAgent.addListener(this);
-        	registerAgent.register(regProfile.expires, regProfile.expires/2, regProfile.keepaliveTime);
+        	registerAgent.register(registeredProfile.expires, registeredProfile.expires/2, registeredProfile.keepaliveTime);
         }                              
     }
     
-    private SipPeerProfile createRegisterUserProfile() {    	    	
-    	SipPeerProfile userProfile = new SipPeerProfile();
-        userProfile.audioPort = startRtpPort;
+    private void createRegisterUserProfile(String username, String password) {    	    	
+    	registeredProfile = new SipPeerProfile();
+    	registeredProfile.audioPort = audioconfProvider.getStartAudioPort();
             	
-        String fromURL = "\"" + username + "\" <sip:" + username + "@" + host + ">";
-    	userProfile.username = username;
-        userProfile.passwd = password;
-        userProfile.realm = host;
-        userProfile.fromUrl = fromURL;
-		userProfile.contactUrl = "sip:" + username + "@" + sipProvider.getViaAddress();
+        String fromURL = "\"" + username + "\" <sip:" + username + "@" + audioconfProvider.getHost() + ">";
+        registeredProfile.username = username;
+        registeredProfile.passwd = password;
+        registeredProfile.realm = audioconfProvider.getHost();
+        registeredProfile.fromUrl = fromURL;
+        registeredProfile.contactUrl = "sip:" + username + "@" + sipProvider.getViaAddress();
         if (sipProvider.getPort() != SipStack.default_port) {
-            userProfile.contactUrl += ":" + sipProvider.getPort();
+        	registeredProfile.contactUrl += ":" + sipProvider.getPort();
         }		
-        userProfile.keepaliveTime=8000;
-		userProfile.acceptTime=0;
-		userProfile.hangupTime=20;   
-		return userProfile;
+        registeredProfile.keepaliveTime=8000;
+        registeredProfile.acceptTime=0;
+        registeredProfile.hangupTime=20;   
     }
     
-    private SipPeerProfile createCallSipProfile(String callerName, String destination) {    	    	
-    	SipPeerProfile userProfile = new SipPeerProfile();
-    	
-    	synchronized(this) {
-    		userProfile.audioPort = curFreeRtpPort;
-    		curFreeRtpPort++;
-    		log.debug("Using rtp port {} for audio.", userProfile.audioPort);
-    	}
-                    	
-        String fromURL = "\"" + callerName + "\" <sip:" + destination + "@" + host + ">";
-    	userProfile.username = callerName;
-        userProfile.passwd = password;
-        userProfile.realm = host;
-        userProfile.fromUrl = fromURL;
-		userProfile.contactUrl = "sip:" + destination + "@" + sipProvider.getViaAddress();
-        if (sipProvider.getPort() != SipStack.default_port) {
-            userProfile.contactUrl += ":" + sipProvider.getPort();
-        }		
-        userProfile.keepaliveTime=8000;
-		userProfile.acceptTime=0;
-		userProfile.hangupTime=20;   
-		return userProfile;
-    }
-    
+
     public void call(String clientId, String callerName, String destination) {
     	if (!registered) {
     		log.warn("Call request for {} but not registered.", id);
     		return;
     	}
     	
-    	SipPeerProfile callerProfile = createCallSipProfile(callerName, destination);    	
-    	CallAgent ca = new CallAgent(sipProvider, callerProfile, clientId);
+    	SipPeerProfile callerProfile = SipPeerProfile.copy(registeredProfile);    	
+    	CallAgent ca = new CallAgent(sipProvider, callerProfile, audioconfProvider, clientId);
     	ca.setClientConnectionManager(clientConnManager);
     	ca.setCallStreamFactory(callStreamFactory);
     	callManager.add(ca);
-    	ca.call(destination);
+    	ca.call(callerName, destination);
     }
 
 	public void close() {

@@ -71,7 +71,6 @@ package org.bigbluebutton.modules.viewers.model
 			joinService = new JoinService();
 			joinService.addJoinResultListener(joinListener);
 			joinService.load(module.host);
-
 		}
 		
 		private function joinListener(success:Boolean, result:Object):void {

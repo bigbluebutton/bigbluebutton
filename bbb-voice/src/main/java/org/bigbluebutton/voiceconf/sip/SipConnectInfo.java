@@ -1,19 +1,20 @@
 package org.bigbluebutton.voiceconf.sip;
 
-public class SipConnectInfo {
+import java.net.DatagramSocket;
 
-	private final int localPort;
+public class SipConnectInfo {
 	private final String remoteAddr;
 	private final int remotePort;
+	private final DatagramSocket socket;
 	
-	SipConnectInfo(int localPort, String remoteAddr, int remotePort) {
-		this.localPort = localPort;
+	SipConnectInfo(DatagramSocket socket, String remoteAddr, int remotePort) {
+		this.socket = socket;
 		this.remoteAddr = remoteAddr;
 		this.remotePort = remotePort;
 	}
 
-	public int getLocalPort() {
-		return localPort;
+	public DatagramSocket getSocket() {
+		return socket;
 	}
 
 	public String getRemoteAddr() {

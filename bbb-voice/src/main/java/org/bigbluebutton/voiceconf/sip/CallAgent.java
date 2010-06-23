@@ -2,6 +2,7 @@ package org.bigbluebutton.voiceconf.sip;
 
 import org.zoolu.sip.call.*;
 import org.zoolu.sip.provider.SipProvider;
+import org.zoolu.sip.provider.SipStack;
 import org.zoolu.sip.message.*;
 import org.zoolu.sdp.*;
 import org.bigbluebutton.voiceconf.red5.CallStreamFactory;
@@ -15,6 +16,9 @@ import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IScope;
 import org.red5.server.api.stream.IBroadcastStream;
 import org.zoolu.tools.Parser;
+
+import java.net.DatagramSocket;
+import java.net.SocketException;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -29,8 +33,9 @@ public class CallAgent extends CallListenerAdapter  {
     private Codec sipCodec = null;    
     private CallStreamFactory callStreamFactory;
     private ClientConnectionManager clientConnManager; 
-    
     private final String clientId;
+    private final AudioConferenceProvider portProvider;
+    private DatagramSocket localSocket;
     
     private enum CallState {
     	UA_IDLE(0), UA_INCOMING_CALL(1), UA_OUTGOING_CALL(2), UA_ONCALL(3);    	
@@ -41,13 +46,11 @@ public class CallAgent extends CallListenerAdapter  {
 
     private CallState callState;
 
-    public CallAgent(SipProvider sipProvider, SipPeerProfile userProfile, String clientId) {
+    public CallAgent(SipProvider sipProvider, SipPeerProfile userProfile, AudioConferenceProvider portProvider, String clientId) {
         this.sipProvider = sipProvider;
         this.userProfile = userProfile;
+        this.portProvider = portProvider;
         this.clientId = clientId;
-        
-        userProfile.initContactAddress(sipProvider);        
-        initSessionDescriptor();
     }
     
     public String getCallId() {
@@ -63,8 +66,20 @@ public class CallAgent extends CallListenerAdapter  {
         log.debug("localSession Descriptor = " + localSession );
     }
 
-    public void call(String targetUrl) {    	
-    	log.debug("call {}", targetUrl);  
+    public void call(String callerName, String destination) {    	
+    	log.debug("call {}", destination);  
+    	try {
+			localSocket = getLocalAudioSocket();
+			userProfile.audioPort = localSocket.getLocalPort();	    	
+		} catch (Exception e) {
+			notifyListenersOnOutgoingCallFailed();
+			return;
+		}    	
+    	
+		setupCallerDisplayName(callerName, destination);	
+    	userProfile.initContactAddress(sipProvider);        
+        initSessionDescriptor();
+        
     	callState = CallState.UA_OUTGOING_CALL;
     	
         call = new ExtendedCall(sipProvider, userProfile.fromUrl, 
@@ -73,15 +88,25 @@ public class CallAgent extends CallListenerAdapter  {
         
         // In case of incomplete url (e.g. only 'user' is present), 
         // try to complete it.       
-        targetUrl = sipProvider.completeNameAddress(targetUrl).toString();
-        log.debug("call {}", targetUrl);  
+        destination = sipProvider.completeNameAddress(destination).toString();
+        log.debug("call {}", destination);  
         if (userProfile.noOffer) {
-            call.call(targetUrl);
+            call.call(destination);
         } else {
-            call.call(targetUrl, localSession);
+            call.call(destination, localSession);
         }
     }
 
+    private void setupCallerDisplayName(String callerName, String destination) {
+    	String fromURL = "\"" + callerName + "\" <sip:" + destination + "@" + portProvider.getHost() + ">";
+    	userProfile.username = callerName;
+    	userProfile.fromUrl = fromURL;
+		userProfile.contactUrl = "sip:" + destination + "@" + sipProvider.getViaAddress();
+        if (sipProvider.getPort() != SipStack.default_port) {
+            userProfile.contactUrl += ":" + sipProvider.getPort();
+        }
+    }
+    
     /** Closes an ongoing, incoming, or pending call */
     public void hangup() {
     	log.debug("hangup");
@@ -92,6 +117,27 @@ public class CallAgent extends CallListenerAdapter  {
     	callState = CallState.UA_IDLE; 
     }
 
+    private DatagramSocket getLocalAudioSocket() throws Exception {
+    	DatagramSocket socket = null;
+    	boolean failedToGetSocket = true;
+    	
+    	for (int i = 0; i < 3; i++) {
+    		try {
+        		socket = new DatagramSocket(portProvider.getFreeAudioPort());
+        		failedToGetSocket = false;
+        		break;
+    		} catch (SocketException e) {
+    			log.error("Failed to setup local audio socket.");    			
+    		}
+    	}
+    	
+    	if (failedToGetSocket) {
+    		throw new Exception("Exception while initializing CallStream");
+    	}
+    	
+    	return socket;
+    }
+    
     private void createVoiceStreams() {
         if (callStream != null) {            
         	log.debug("Media application is already running.");
@@ -99,17 +145,17 @@ public class CallAgent extends CallListenerAdapter  {
         }
         
         SessionDescriptor localSdp = new SessionDescriptor(call.getLocalSessionDescriptor());        
-        SessionDescriptor remoteSdp = new SessionDescriptor( call.getRemoteSessionDescriptor() );
-        String remoteMediaAddress = (new Parser(remoteSdp.getConnection().toString())).skipString().skipString().getString();
-        int remoteAudioPort = getRemoteAudioPort(remoteSdp);
-        int localAudioPort = getLocalAudioPort(localSdp);
+        SessionDescriptor remoteSdp = new SessionDescriptor(call.getRemoteSessionDescriptor());
+        String remoteMediaAddress = SessionDescriptorUtil.getRemoteMediaAddress(remoteSdp);
+        int remoteAudioPort = SessionDescriptorUtil.getRemoteAudioPort(remoteSdp);
+        int localAudioPort = SessionDescriptorUtil.getLocalAudioPort(localSdp);
+    	
+    	SipConnectInfo connInfo = new SipConnectInfo(localSocket, remoteMediaAddress, remoteAudioPort);
         
         log.debug("[localAudioPort=" + localAudioPort + ",remoteAudioPort=" + remoteAudioPort + "]");
 
         if (userProfile.audio && localAudioPort != 0 && remoteAudioPort != 0) {
-            if ((callStream == null) && (sipCodec != null)) {   
-            	SipConnectInfo connInfo = new SipConnectInfo(localAudioPort, remoteMediaAddress, remoteAudioPort);
-            	
+            if ((callStream == null) && (sipCodec != null)) {               	
             	try {
 					callStream = callStreamFactory.createCallStream(sipCodec, connInfo);
 					callStream.start();
@@ -121,34 +167,7 @@ public class CallAgent extends CallListenerAdapter  {
         }
     }
 
-    private int getLocalAudioPort(SessionDescriptor localSdp) {
-        int localAudioPort = 0;
         
-        for (Enumeration e = localSdp.getMediaDescriptors().elements(); e.hasMoreElements();) {
-            MediaField media = ((MediaDescriptor) e.nextElement()).getMedia();
-            if (media.getMedia().equals("audio")) {
-                localAudioPort = media.getPort();
-            }
-        }
-        
-        return localAudioPort;
-    }
-    
-    private int getRemoteAudioPort(SessionDescriptor remoteSdp) {
-    	int remoteAudioPort = 0;
-
-        for (Enumeration e = remoteSdp.getMediaDescriptors().elements(); e.hasMoreElements();) {
-            MediaDescriptor descriptor = (MediaDescriptor) e.nextElement();
-            MediaField media = descriptor.getMedia();
-
-            if (media.getMedia().equals("audio")) {
-                remoteAudioPort = media.getPort();
-            }
-        }
-        
-        return remoteAudioPort;
-    }
-    
     public void startTalkStream(IBroadcastStream broadcastStream, IScope scope) {
     	try {
 			callStream.startTalkStream(broadcastStream, scope);
@@ -265,14 +284,11 @@ public class CallAgent extends CallListenerAdapter  {
     	log.debug("notifyListenersOnCallConnected for {}", clientId);
     	clientConnManager.joinConferenceSuccess(clientId, talkStream, listenStream);
     }
-/*      
-    public void notifyListenersOfOnOutgoingCallAccepted() {
-    	log.debug("notifyListenersOfOnOutgoingCallAccepted for {}", clientId);    	
-    }
-*/    
+  
     private void notifyListenersOnOutgoingCallFailed() {
     	log.debug("notifyListenersOnOutgoingCallFailed for {}", clientId);
     	clientConnManager.joinConferenceFailed(clientId);
+    	cleanup();
     }
 
     
@@ -283,6 +299,11 @@ public class CallAgent extends CallListenerAdapter  {
     private void notifyListenersOfOnCallClosed() {
     	log.debug("notifyListenersOfOnCallClosed for {}", clientId);
     	clientConnManager.leaveConference(clientId);
+    	cleanup();
+    }
+    
+    private void cleanup() {
+    	localSocket.close();
     }
     
     /** Callback function called when arriving a BYE request */

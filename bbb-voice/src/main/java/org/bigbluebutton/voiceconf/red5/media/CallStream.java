@@ -17,7 +17,6 @@ import org.red5.server.api.stream.IBroadcastStream;
 public class CallStream implements StreamObserver {
     private final static Logger log = Red5LoggerFactory.getLogger(CallStream.class, "sip");
 
-    private DatagramSocket socket = null;
     private FlashToSipAudioStream userTalkStream;
     private SipToFlashAudioStream userListenStream;
     private final Codec sipCodec;
@@ -30,27 +29,20 @@ public class CallStream implements StreamObserver {
     	this.scope = scope;
     }
     
-    public void start() throws Exception {        
-    	try {
-			socket = new DatagramSocket(connInfo.getLocalPort());
-		} catch (SocketException e) {
-			log.error("SocketException while initializing DatagramSocket");
-			throw new Exception("Exception while initializing CallStream");
-		}     
-		
-		Transcoder rtmpToRtpTranscoder, rtpToRtmpTranscoder;
+    public void start() {        
+    	Transcoder rtmpToRtpTranscoder, rtpToRtmpTranscoder;
 		if (sipCodec.getCodecId() == SpeexCodec.codecId) {
 			rtmpToRtpTranscoder = new SpeexToSpeexTranscoder(sipCodec);
 			rtpToRtmpTranscoder = new SpeexToSpeexTranscoder(sipCodec, userListenStream);
 		} else {
 			rtmpToRtpTranscoder = new NellyToPcmTranscoder(sipCodec);
 			rtpToRtmpTranscoder = new PcmToNellyTranscoder(sipCodec);	
-			userListenStream = new SipToFlashAudioStream(scope, rtpToRtmpTranscoder, socket);
+			userListenStream = new SipToFlashAudioStream(scope, rtpToRtmpTranscoder, connInfo.getSocket());
 			userListenStream.addListenStreamObserver(this);	
 			((PcmToNellyTranscoder)rtpToRtmpTranscoder).addTranscodedAudioDataListener(userListenStream);
 		}
 
-		userTalkStream = new FlashToSipAudioStream(rtmpToRtpTranscoder, socket, connInfo); 
+		userTalkStream = new FlashToSipAudioStream(rtmpToRtpTranscoder, connInfo.getSocket(), connInfo); 
     }
     
     public String getTalkStreamName() {
@@ -76,6 +68,6 @@ public class CallStream implements StreamObserver {
 
 	@Override
 	public void onStreamStopped() {
-		socket.close();
+
 	}
 }
