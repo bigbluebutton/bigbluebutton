@@ -141,7 +141,7 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 
 	@Override
 	public void roomStop(IScope scope) {
-		
+		roomManager.removeRoom(scope.getName());
 	}
 	
 	private IScope getLocalScope(){

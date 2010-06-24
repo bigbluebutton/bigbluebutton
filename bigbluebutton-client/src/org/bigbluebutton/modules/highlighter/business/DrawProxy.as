@@ -348,7 +348,7 @@ package org.bigbluebutton.modules.highlighter.business
 			if (result == null) return;
 			
 			var shapes:Array = result as Array;
-			LogUtil.debug("Whiteboard::recievedShapesHistory() : recieved " + shapes.length);
+			//LogUtil.debug("Whiteboard::recievedShapesHistory() : recieved " + shapes.length);
 			
 			for (var i:int=0; i<shapes.length; i++){
 				var shape:Array = shapes[i] as Array;

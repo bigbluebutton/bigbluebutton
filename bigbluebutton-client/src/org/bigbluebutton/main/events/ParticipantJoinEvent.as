@@ -21,13 +21,13 @@ package org.bigbluebutton.main.events
 {
 	import flash.events.Event;
 	
-	import org.bigbluebutton.main.model.Participant;
+	import org.bigbluebutton.main.model.User;
 
 	public class ParticipantJoinEvent extends Event
 	{
 		public static const PARTICIPANT_JOINED_EVENT:String = 'PARTICIPANT_JOINED_EVENT';
 		
-		public var participant:Participant;
+		public var participant:User;
 		public var join:Boolean = false;
 		public function ParticipantJoinEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{

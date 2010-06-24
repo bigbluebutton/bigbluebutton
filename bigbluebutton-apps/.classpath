@@ -37,6 +37,6 @@
 	<classpathentry kind="lib" path="lib/spring-integration-stream-2.0.0.M2.jar"/>
 	<classpathentry kind="con" path="ch.epfl.lamp.sdt.launching.SCALA_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/bbb-common-messaging"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/bbb-common-message"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

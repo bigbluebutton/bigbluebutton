@@ -22,7 +22,7 @@ package org.bigbluebutton.modules.viewers
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import org.bigbluebutton.modules.viewers.events.JoinFailedEvent;
-	import org.bigbluebutton.modules.viewers.model.vo.User;
+	import org.bigbluebutton.modules.viewers.model.vo.BBBUser;
 	import org.bigbluebutton.modules.viewers.view.ViewersWindowMediator;
 	import org.bigbluebutton.modules.viewers.view.components.ViewersWindow;
 	import org.puremvc.as3.multicore.interfaces.IMediator;
@@ -84,7 +84,7 @@ package org.bigbluebutton.modules.viewers
 					];
 		}
 		
-		private function openViewCamera(usr:User):void{
+		private function openViewCamera(usr:BBBUser):void{
 
 		}
 		

@@ -20,6 +20,7 @@
     <sourceAttachmentPath>
       <sourceAttachmentPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/datavisualization.swc" sourcepath="${PROJECT_FRAMEWORKS}/source" useDefaultLinkType="false"/>
       <sourceAttachmentPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/framework.swc" sourcepath="${PROJECT_FRAMEWORKS}/source" useDefaultLinkType="true"/>
+      <sourceAttachmentPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/automation_flashflexkit.swc" sourcepath="${PROJECT_FBPRO}/projects/automation_flashflexkit/src" useDefaultLinkType="false"/>
     </sourceAttachmentPath>
   </compiler>
   <applications>
@@ -31,15 +32,15 @@
     <application path="DeskshareStandalone.mxml"/>
   </applications>
   <modules>
-    <module application="src/BigBlueButton.mxml" destPath="VideoconfModule.swf" optimize="true" sourcePath="src/VideoconfModule.mxml"/>
     <module application="src/BigBlueButton.mxml" destPath="ChatModule.swf" optimize="true" sourcePath="src/ChatModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="ViewersModule.swf" optimize="true" sourcePath="src/ViewersModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="HighlighterModule.swf" optimize="true" sourcePath="src/HighlighterModule.mxml"/>
     <module application="src/BigBlueButton.mxml" destPath="PresentModule.swf" optimize="true" sourcePath="src/PresentModule.mxml"/>
     <module application="src/BigBlueButton.mxml" destPath="ListenersModule.swf" optimize="true" sourcePath="src/ListenersModule.mxml"/>
-    <module application="src/BigBlueButton.mxml" destPath="HighlighterModule.swf" optimize="true" sourcePath="src/HighlighterModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="VideoconfModule.swf" optimize="true" sourcePath="src/VideoconfModule.mxml"/>
     <module application="src/BigBlueButton.mxml" destPath="DeskShareModule.swf" optimize="true" sourcePath="src/DeskShareModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="DynamicInfoModule.swf" optimize="true" sourcePath="src/DynamicInfoModule.mxml"/>
     <module application="src/BigBlueButton.mxml" destPath="PhoneModule.swf" optimize="true" sourcePath="src/PhoneModule.mxml"/>
-    <module application="src/BigBlueButton.mxml" destPath="ViewersModule.swf" optimize="true" sourcePath="src/ViewersModule.mxml"/>
   </modules>
   <buildCSSFiles/>
 </actionScriptProperties>
-

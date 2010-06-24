@@ -21,7 +21,7 @@ package org.bigbluebutton.modules.viewers
 {
 	import org.bigbluebutton.modules.viewers.controller.StartupCommand;
 	import org.bigbluebutton.modules.viewers.controller.StopCommand;
-	import org.bigbluebutton.modules.viewers.model.vo.User;
+	import org.bigbluebutton.modules.viewers.model.vo.BBBUser;
 	import org.puremvc.as3.multicore.interfaces.IFacade;
 	import org.puremvc.as3.multicore.patterns.facade.Facade;
 	
@@ -92,7 +92,7 @@ package org.bigbluebutton.modules.viewers
 			sendNotification(STOP, app);
 		}
 		
-		public function sendViewCamera(usr:User):void{
+		public function sendViewCamera(usr:BBBUser):void{
 			sendNotification(VIEW_CAMERA, usr);
 		}
 

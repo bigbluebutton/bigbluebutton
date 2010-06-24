@@ -1,10 +1,10 @@
 package org.bigbluebutton.main.managers
 {
-	import org.bigbluebutton.main.model.Participant;
+	import org.bigbluebutton.main.model.User;
 	
 	public class ApplicationManager
 	{
-		public var participant:Participant;
+		public var participant:User;
 		
 		public function ApplicationManager()
 		{

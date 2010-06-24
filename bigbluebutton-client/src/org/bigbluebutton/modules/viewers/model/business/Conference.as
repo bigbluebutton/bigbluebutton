@@ -23,19 +23,19 @@ package org.bigbluebutton.modules.viewers.model.business
 	
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.modules.viewers.model.vo.Status;
-	import org.bigbluebutton.modules.viewers.model.vo.User;
+	import org.bigbluebutton.modules.viewers.model.vo.BBBUser;
 	
 
 	public class Conference implements IViewers
 	{		
 		private var _myUserid : Number;
 		
-		[Bindable] public var me:User = null;		
+		[Bindable] public var me:BBBUser = null;		
 		[Bindable] public var users:ArrayCollection = null;				
 				
 		public function Conference() : void
 		{
-			me = new User();
+			me = new BBBUser();
 			users = new ArrayCollection();
 		}
 
@@ -44,7 +44,7 @@ package org.bigbluebutton.modules.viewers.model.business
 		 * @param newuser
 		 * 
 		 */		
-		public function addUser(newuser:User) : void
+		public function addUser(newuser:BBBUser) : void
 		{				
 			if (! hasParticipant(newuser.userid)) {
 				
@@ -74,12 +74,12 @@ package org.bigbluebutton.modules.viewers.model.business
 		}
 		
 		public function hasOnlyOneModerator():Boolean {
-			var p:User;
+			var p:BBBUser;
 			var moderatorCount:int = 0;
 			
 			for (var i:int = 0; i < users.length; i++)
 			{
-				p = users.getItemAt(i) as User;				
+				p = users.getItemAt(i) as BBBUser;				
 				if (p.role == Role.MODERATOR) {
 					moderatorCount++;
 				}
@@ -89,13 +89,13 @@ package org.bigbluebutton.modules.viewers.model.business
 			return false;			
 		}
 		
-		public function getTheOnlyModerator():User {
-			var p:User;
+		public function getTheOnlyModerator():BBBUser {
+			var p:BBBUser;
 			for (var i:int = 0; i < users.length; i++)
 			{
-				p = users.getItemAt(i) as User;				
+				p = users.getItemAt(i) as BBBUser;				
 				if (p.role == Role.MODERATOR) {
-					return User.copy(p);
+					return BBBUser.copy(p);
 				}
 			}		
 			
@@ -108,11 +108,11 @@ package org.bigbluebutton.modules.viewers.model.business
 		 * @return 
 		 * 
 		 */		
-		public function getParticipant(userid:Number) : User
+		public function getParticipant(userid:Number) : BBBUser
 		{
 			var p:Object = getParticipantIndex(userid);
 			if (p != null) {
-				return p.participant as User;
+				return p.participant as BBBUser;
 			}
 						
 			return null;				
@@ -141,11 +141,11 @@ package org.bigbluebutton.modules.viewers.model.business
 		 */		
 		private function getParticipantIndex(userid:Number):Object
 		{
-			var aUser : User;
+			var aUser : BBBUser;
 			
 			for (var i:int = 0; i < users.length; i++)
 			{
-				aUser = users.getItemAt(i) as User;
+				aUser = users.getItemAt(i) as BBBUser;
 				
 				if (aUser.userid == userid) {
 					return {index:i, participant:aUser};
@@ -167,7 +167,7 @@ package org.bigbluebutton.modules.viewers.model.business
 	
 		public function newUserStatus(id:Number, status:String, value:Object):void
 		{
-			var aUser:User = getParticipant(id);
+			var aUser:BBBUser = getParticipant(id);
 			
 			if (aUser != null) {
 				var s:Status = new Status(status, value);

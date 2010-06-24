@@ -28,7 +28,7 @@ package org.bigbluebutton.modules.chat.services
 	import flash.net.SharedObject;
 	
 	import org.bigbluebutton.main.events.ParticipantJoinEvent;
-	import org.bigbluebutton.main.model.Participant;
+	import org.bigbluebutton.main.model.User;
 	import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
 	import org.bigbluebutton.modules.chat.model.MessageVO;
 
@@ -123,7 +123,7 @@ package org.bigbluebutton.modules.chat.services
 		}
 
 		public function participantJoined(joinedUser:Object):void { 
-			var participant:Participant = new Participant();
+			var participant:User = new User();
 			participant.userid = joinedUser.userid;
 			participant.name = joinedUser.name;
 			trace("ParticipantJoined " + joinedUser.name + "[" + joinedUser.userid + "]");

@@ -21,18 +21,18 @@ package org.bigbluebutton.modules.viewers.model.business
 {
 	import mx.collections.ArrayCollection;
 	
-	import org.bigbluebutton.modules.viewers.model.vo.User;
+	import org.bigbluebutton.modules.viewers.model.vo.BBBUser;
 	
 	public interface IViewers {
-		function get me():User;
+		function get me():BBBUser;
 		function get users():ArrayCollection;
-		function addUser(newuser:User):void;
+		function addUser(newuser:BBBUser):void;
 		function hasParticipant(id:Number):Boolean;
-		function getParticipant(id:Number):User;
+		function getParticipant(id:Number):BBBUser;
 		function removeParticipant(userid:Number):void;
 		function removeAllParticipants():void;
 		function newUserStatus(id:Number, status:String, value:Object):void;
 		function hasOnlyOneModerator():Boolean;
-		function getTheOnlyModerator():User;
+		function getTheOnlyModerator():BBBUser;
 	}
 }

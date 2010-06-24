@@ -27,11 +27,11 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="600" height="400"
 	creationComplete="onCreationComplete()"
-	implements="org.bigbluebutton.common.IBbbModuleWindow"
+	implements="org.bigbluebutton.common.IBbbModuleWindow, org.bigbluebutton.main.api.IUserListener"
 	xmlns:mate="http://mate.asfusion.com/"
 	title="{ResourceUtil.getInstance().getString('bbb.desktopView.title')}" 
 	showCloseButton="false"
-	resize="fitToWindow()">
+	resize="fitToWindow()" >
 	
 	<mate:Listener type="{ViewStreamEvent.STOP}" method="onStopViewStreamEvent" />
 	<mate:Listener type="{CursorEvent.UPDATE_CURSOR_LOC_EVENT}" method="onUpdateCursorEvent" />
@@ -40,11 +40,17 @@
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
+			import flash.sampler.NewObjectSample;
+			
 			import flexlib.mdi.events.MDIWindowEvent;
 			
+			import mx.controls.Alert;
 			import mx.core.UIComponent;
 			
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.main.api.IUserListener;
+			import org.bigbluebutton.main.api.UserManager;
+			import org.bigbluebutton.main.model.User;
 			import org.bigbluebutton.main.view.components.MainCanvas;
 			import org.bigbluebutton.modules.deskShare.events.CursorEvent;
 			import org.bigbluebutton.modules.deskShare.events.StartedViewingEvent;
@@ -131,6 +137,10 @@
 				videoHolder.addChild(cursor);
 				videoHolder.addChild(cursorImg);
 				cursor.visible = false;
+				
+				var manager:UserManager = UserManager.getInstance();
+				manager.registerListener(this);
+				this.title = manager.getPresenter().name + " is sharing their desktop with you";
 			}
 			
 			private function onResizeEndEvent(event:MDIWindowEvent):void {
@@ -168,7 +178,7 @@
 				video.height = height;
 				video.attachNetStream(ns);
 				ns.play(stream);	
-				this.stream = stream;				
+				this.stream = stream;
 			}
 			
 			public function stopViewing():void {
@@ -200,7 +210,7 @@
 			}
 			
 			public function getPrefferedPosition():String{
-				return MainCanvas.POPUP;
+				return MainCanvas.DESKTOP_SHARING_VIEW;
 			}
 												
 			/**
@@ -286,12 +296,27 @@
 			private function closeWindow():void {
 				dispatchEvent(new ViewWindowEvent(ViewWindowEvent.CLOSE));
 			}
+			
+			/** Inherited from IUserListener */
+			public function presenterChanged(newPresenter:User):void{
+				this.title = newPresenter.name + " is sharing their desktop with you";
+			}
+			
+			public function userJoined(user:User):void{
+				
+			}
+			
+			public function userLeft(user:User):void{
+				
+			}
+			/** End IUserListener implementation */
+			
 		]]>
 	</mx:Script>
 	<mx:Move id="cursorMove" target="{cursorImg}"/>
 	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
 		
-	<mx:ControlBar id="bottomBar" height="35">
+	<mx:ControlBar id="bottomBar" height="35" horizontalAlign="center">
 		<mx:Button id="btnActualSize" toggle="true" click="determineHowToDisplayVideo()" selected="true"
 			height="90%" label="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}" 
 			toolTip="{ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow')}" />

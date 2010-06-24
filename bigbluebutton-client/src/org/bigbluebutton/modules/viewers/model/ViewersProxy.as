@@ -33,7 +33,7 @@ package org.bigbluebutton.modules.viewers.model
 	import org.bigbluebutton.modules.viewers.model.services.JoinService;
 	import org.bigbluebutton.modules.viewers.model.services.ViewersSOService;
 	import org.bigbluebutton.modules.viewers.model.vo.Status;
-	import org.bigbluebutton.modules.viewers.model.vo.User;
+	import org.bigbluebutton.modules.viewers.model.vo.BBBUser;
 	import org.puremvc.as3.multicore.interfaces.IProxy;
 	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
 
@@ -113,7 +113,7 @@ package org.bigbluebutton.modules.viewers.model
 			_viewersService.disconnect();
 		}
 		
-		public function get me():User {
+		public function get me():BBBUser {
 			return _participants.me;
 		}
 		

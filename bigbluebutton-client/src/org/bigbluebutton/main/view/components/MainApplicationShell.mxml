@@ -26,7 +26,7 @@
 		xmlns:main="org.bigbluebutton.main.view.components.*"
 		xmlns:mate="http://mate.asfusion.com/"
 		width="100%" height="100%"
-		creationComplete="initializeShell()" xmlns:maps="org.bigbluebutton.main.maps.*">
+		creationComplete="initializeShell()" xmlns:maps="org.bigbluebutton.main.maps.*" xmlns:api="org.bigbluebutton.main.api.*">
 		
 	<mate:Listener type="{OpenWindowEvent.OPEN_WINDOW_EVENT}" method="handleOpenWindowEvent" />	
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="handleCloseWindowEvent"/>
@@ -34,6 +34,7 @@
 	<mate:Listener type="{AddUIComponentToMainCanvas.ADD_COMPONENT}" method="addComponentToCanvas" />
 
 	<maps:CrossModuleEventMap />
+	<api:APIEventMap />
 	
 	<mx:Script>
 		<![CDATA[

@@ -29,10 +29,11 @@ package org.bigbluebutton.modules.viewers.model.services
 	
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.ParticipantJoinEvent;
-	import org.bigbluebutton.main.model.Participant;
+	import org.bigbluebutton.main.events.PresenterStatusEvent;
+	import org.bigbluebutton.main.model.User;
 	import org.bigbluebutton.modules.viewers.ViewersModuleConstants;
 	import org.bigbluebutton.modules.viewers.model.business.IViewers;
-	import org.bigbluebutton.modules.viewers.model.vo.User;
+	import org.bigbluebutton.modules.viewers.model.vo.BBBUser;
 
 	public class ViewersSOService implements IViewersService
 	{
@@ -172,7 +173,7 @@ package org.bigbluebutton.modules.viewers.model.services
 		private function becomePresenterIfLoneModerator():void {
 			if (_participants.hasOnlyOneModerator()) {
 				trace("There is only one moderator");
-				var user:User = _participants.getTheOnlyModerator();
+				var user:BBBUser = _participants.getTheOnlyModerator();
 				if (user.me) {
 					trace("I am the only moderator");
 					sendMessage(ViewersModuleConstants.ASSIGN_PRESENTER, {assignTo:user.userid, name:user.name});
@@ -195,9 +196,9 @@ package org.bigbluebutton.modules.viewers.model.services
 		}
 		
 		public function participantLeft(user:Object):void { 			
-			var participant:User = _participants.getParticipant(Number(user));
+			var participant:BBBUser = _participants.getParticipant(Number(user));
 			
-			var p:Participant = new Participant();
+			var p:User = new User();
 			p.userid = String(participant.userid);
 			p.name = participant.name;
 			
@@ -211,30 +212,32 @@ package org.bigbluebutton.modules.viewers.model.services
 		}
 		
 		public function participantJoined(joinedUser:Object):void { 
-			var user:User = new User();
+			var user:BBBUser = new BBBUser();
 			user.userid = Number(joinedUser.userid);
-			user.name = joinedUser.name;	
-			user.role = joinedUser.role;						
-	
+			user.name = joinedUser.name;
+			user.role = joinedUser.role;
+
 			LogUtil.debug("User status: " + joinedUser.status.hasStream);
-								
+
 			LogUtil.info("Joined as [" + user.userid + "," + user.name + "," + user.role + "]");
 			_participants.addUser(user);
-			
+
 			participantStatusChange(user.userid, "hasStream", joinedUser.status.hasStream);
 			participantStatusChange(user.userid, "streamName", joinedUser.status.streamName);
 			participantStatusChange(user.userid, "presenter", joinedUser.status.presenter);
 			participantStatusChange(user.userid, "raiseHand", joinedUser.status.raiseHand);
 
-			var participant:Participant = new Participant();
+			var participant:User = new User();
 			participant.userid = String(user.userid);
 			participant.name = user.name;
+			participant.isPresenter = joinedUser.status.presenter;
+			participant.role = user.role;
 			
 			var dispatcher:Dispatcher = new Dispatcher();
 			var joinEvent:ParticipantJoinEvent = new ParticipantJoinEvent(ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT);
 			joinEvent.participant = participant;
 			joinEvent.join = true;
-			dispatcher.dispatchEvent(joinEvent);						
+			dispatcher.dispatchEvent(joinEvent);				
 		}
 		
 		public function logout():void {
@@ -247,6 +250,14 @@ package org.bigbluebutton.modules.viewers.model.services
 			LogUtil.debug("Received status change [" + userid + "," + status + "," + value + "]")
 			
 			_participants.newUserStatus(userid, status, value);
+			
+			if (status == "presenter"){
+				var e:PresenterStatusEvent = new PresenterStatusEvent(PresenterStatusEvent.PRESENTER_NAME_CHANGE);
+				e.userid = userid;
+				var dispatcher:Dispatcher = new Dispatcher();
+				dispatcher.dispatchEvent(e);
+			}
+			
 		}
 					
 		public function assignPresenter(userid:Number, assignedBy:Number):void {
@@ -324,9 +335,9 @@ package org.bigbluebutton.modules.viewers.model.services
 					// status - On error occurred
 					function(status:Object):void { 
 						LogUtil.error("Error occurred:"); 
-						for (var x:Object in status) { 
-							LogUtil.error(x + " : " + status[x]); 
-							} 
+						for (var x:Object in status) {
+							LogUtil.error(x + " : " + status[x]);
+							}
 					}
 				), //new Responder
 				userid,

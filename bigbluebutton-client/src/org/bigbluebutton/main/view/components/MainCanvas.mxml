@@ -15,6 +15,8 @@
 			public static const RIGHT:String = "RIGHT_WINDOW";
 			public static const POPUP:String = "POP_UP_WINDOW";
 			
+			public static const DESKTOP_SHARING_VIEW:String = "POP_UP_DESKSHARE";
+			
 			private var leftWindowWidth:Number;
 			private var leftWindowHeight:Number;
 			
@@ -93,6 +95,10 @@
 					case POPUP:
 						x = 200;
 						y = 200;
+						break;
+					case DESKTOP_SHARING_VIEW:
+						x = 1;
+						y = 1;
 						break;
 				}
 				windowManager.absPos(win, x, y);

@@ -1,12 +1,12 @@
 package org.bigbluebutton.main.services
 {
-	import org.bigbluebutton.main.model.Participant;
+	import org.bigbluebutton.main.model.User;
 	
 	public class JoiningParticipant
 	{
-		public function parse(xml:XML):Participant{
+		public function parse(xml:XML):User{
 			
-			var participant:Participant = new Participant();
+			var participant:User = new User();
 			participant.conference = xml.@conference;
 			participant.room = xml.@room;
 			participant.role = xml.@role;

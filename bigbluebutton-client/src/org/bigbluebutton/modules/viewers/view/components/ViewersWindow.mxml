@@ -85,6 +85,9 @@
 				
 			private function viewerSelectEvent(event:ListEvent):void {
 	            dispatchEvent(new Event(ViewersModuleConstants.VIEWER_SELECTED_EVENT));  
+				
+				if (viewersGrid.selectedItem.presenter) presentBtn.enabled = false;
+				else presentBtn.enabled = true; 
         	}           
         	
         	private function assignPresenterClicked():void {
@@ -92,6 +95,8 @@
         		if (viewersGrid.selectedItem.presenter) return;
         		
         		dispatchEvent(new AssignPresenterEvent(viewersGrid.selectedItem.userid, viewersGrid.selectedItem.name));
+				
+				presentBtn.enabled = false;
         	}
 
         ]]>
@@ -110,7 +115,7 @@
     </mx:DataGrid>
     
    <mx:ControlBar width="100%"> 
-   		 <mx:Button id="presentBtn" label="{ResourceUtil.getInstance().getString('bbb.viewers.presentBtn.label')}" visible="{isModerator}" enabled="{viewersGrid.selectedItem != null}"
+   		 <mx:Button id="presentBtn" label="{ResourceUtil.getInstance().getString('bbb.viewers.presentBtn.label')}" visible="{isModerator}"
     	   			width="130" height="20"
     	   			toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.presentBtn.toolTip')}"
     	   			click="assignPresenterClicked()"/>
