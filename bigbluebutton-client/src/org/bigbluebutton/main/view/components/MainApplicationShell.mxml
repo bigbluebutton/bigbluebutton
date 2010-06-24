@@ -170,17 +170,21 @@
 	   			mdiCanvas.addChild(e.component);
 	   		}
 	   		
-	   		public function checkLocaleVersion(appVersion:String, versionCheckResultCallback:Function):void {
-	   			LogUtil.debug("****** APP VERSION ****" + appVersion);
+	   		public function checkLocaleVersion(localeVersion:String, versionCheckResultCallback:Function):void {	   			
 	   			Alert.okLabel ="OK";
 				var version:String = "old-locales";
-				version = ResourceUtil.getInstance().getString('bbb.mainshell.locale.version');
+				LogUtil.debug("****** LOCALE VERSION ****" + localeVersion + " " + version);
+				version = ResourceUtil.getInstance().getString('bbb.mainshell.statusInfo');
+				LogUtil.debug("****** LOCALE VERSION ****" + localeVersion + " " + version);
+				versionCheckResultCallback(true);
+/*
 				if ((version == "old-locales") || (version == "") || (version == null)) {
 					wrongLocaleVersion();
 				} else {
-					if (version != appVersion) wrongLocaleVersion();
-					else versionCheckResultCallback(true);
-				}	   			
+					if (version != localeVersion) wrongLocaleVersion();
+					else 
+				}
+*/	   			
 	   		}
 	   		
 	   		private function wrongLocaleVersion():void {
