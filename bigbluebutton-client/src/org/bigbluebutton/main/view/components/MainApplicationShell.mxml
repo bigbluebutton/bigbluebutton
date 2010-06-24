@@ -174,17 +174,16 @@
 	   			Alert.okLabel ="OK";
 				var version:String = "old-locales";
 				LogUtil.debug("****** LOCALE VERSION ****" + localeVersion + " " + version);
-				version = ResourceUtil.getInstance().getString('bbb.mainshell.statusInfo');
+				version = ResourceUtil.getInstance().getString('bbb.mainshell.locale.version');
 				LogUtil.debug("****** LOCALE VERSION ****" + localeVersion + " " + version);
-				versionCheckResultCallback(true);
-/*
+//				versionCheckResultCallback(true);
+
 				if ((version == "old-locales") || (version == "") || (version == null)) {
 					wrongLocaleVersion();
 				} else {
 					if (version != localeVersion) wrongLocaleVersion();
-					else 
-				}
-*/	   			
+					else versionCheckResultCallback(true);
+				}	   			
 	   		}
 	   		
 	   		private function wrongLocaleVersion():void {

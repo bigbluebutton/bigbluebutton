@@ -1,5 +1,6 @@
 <?xml version="1.0" ?>
 <config>
+	<localeversion>0.7</localeversion>
     <version>VERSION</version>
     <help url="http://HOST/help.html"/>
     <porttest host="HOST" application="video"/>    

@@ -21,7 +21,7 @@
 --> 
 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-    title="{windowTitle}" showCloseButton="false" creationComplete="init()"
+    title="{ResourceUtil.getInstance().getString('bbb.oldlocalewindow.windowTitle')}" showCloseButton="false" creationComplete="init()"
     x="168" y="86" layout="vertical" width="400" height="150" horizontalAlign="center">
 	<mx:Script>
 		<![CDATA[
@@ -30,7 +30,7 @@
 			import mx.managers.PopUpManager; 
 			[Bindable] private var windowTitle:String="Warning: Old Language Version";
 			[Bindable] private var oldLocalesReminder1:String = "You have an old language translation of BigBlueButton.";
-			[Bindable] private var oldLocalesReminder2:String =	"Please clear you browser cache and try again.";
+			[Bindable] private var oldLocalesReminder2:String =	"Please clear your browser cache and try again.";
 
 			private function init():void {
 				addEventListener(Event.CLOSE, onUserLoggedOutWindowClose);
@@ -38,11 +38,12 @@
 				var locWindowTitle:String = ResourceUtil.getInstance().getString('bbb.oldlocalewindow.windowTitle');
 				if ((locWindowTitle != null) && (locWindowTitle != "")) windowTitle = locWindowTitle;
 				
-				var reminder1:String = ResourceUtil.getInstance().getString('bbb.oldlocalewindow.oldLocalesReminder1');
+				var reminder1:String = ResourceUtil.getInstance().getString('bbb.oldlocalewindow.reminder1');
 				if ((reminder1 != null) && (reminder1 != "")) oldLocalesReminder1 = reminder1;
 				
-				var reminder2:String = ResourceUtil.getInstance().getString('bbb.oldlocalewindow.oldLocalesReminder2');
+				var reminder2:String = ResourceUtil.getInstance().getString('bbb.oldlocalewindow.reminder2');
 				if ((reminder2 != null) && (reminder2 != "")) oldLocalesReminder2 = reminder2;
+
 			}
 			
             private function redirect():void { 
@@ -58,8 +59,8 @@
 			
 		]]>
 	</mx:Script>
-	<mx:Label text="{oldLocalesReminder1}"/>
-	<mx:Label text="{oldLocalesReminder2}"/>
+	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.oldlocalewindow.reminder1')}"/>
+	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.oldlocalewindow.reminder2')}"/>
 	<mx:Button id="okBtn" label="OK" click="redirect()"/>
 
 </mx:TitleWindow> 

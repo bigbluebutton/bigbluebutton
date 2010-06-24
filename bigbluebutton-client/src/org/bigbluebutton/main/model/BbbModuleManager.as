@@ -47,6 +47,7 @@ package org.bigbluebutton.main.model
 		private var _router:Router;
 		private var _mode:String;
 		private var _version:String;
+		private var _localeVersion:String;
 		private var _protocol:String;
 		private var _portTestHost:String;
 		private var _portTestApplication:String;
@@ -110,9 +111,8 @@ package org.bigbluebutton.main.model
 						
 			var list:XMLList = xml.modules.module;
 			_version = xml.version;
-			
-			trace("version " + _version);
-			
+			_localeVersion = xml.localeversion;
+
 			var item:XML;
 						
 			for each(item in list){
@@ -286,6 +286,10 @@ package org.bigbluebutton.main.model
 		
 		public function getAppVersion():String {
 			return _version;
+		}
+		
+		public function getLocaleVersion():String {
+			return _localeVersion;
 		}
 		
 		public function getNumberOfModules():int {

@@ -35,7 +35,7 @@ package org.bigbluebutton.util.i18n
 		public static const LOCALES_FILE:String = "conf/locales.xml";
 		private var inited:Boolean = false;
 		
-		private static var MSG_RESOURCE:String = 'bbbResources';
+		private static var BBB_RESOURCE_BUNDLE:String = 'bbbResources';
 		public static var DEFAULT_LANGUAGE:String = "en_US";
 		private var eventDispatcher:IEventDispatcher;
 		
@@ -129,7 +129,7 @@ package org.bigbluebutton.util.i18n
         
         [Bindable("change")]
         public function getString(resourceName:String, parameters:Array = null, locale:String = null):String{
-			return resourceManager.getString(MSG_RESOURCE, resourceName, parameters, locale);
+			return resourceManager.getString(BBB_RESOURCE_BUNDLE, resourceName, parameters, locale);
 		}
 	}
 }

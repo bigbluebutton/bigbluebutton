@@ -118,6 +118,10 @@ package org.bigbluebutton.main.model
 			return modulesManager.getAppVersion();
 		}
 		
+		public function getLocaleVersion():String {
+			return modulesManager.getLocaleVersion();
+		}
+		
 		public function getNumberOfModules():int {
 			return modulesManager.getNumberOfModules();
 		}
