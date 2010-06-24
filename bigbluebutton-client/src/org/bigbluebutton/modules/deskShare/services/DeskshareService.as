@@ -200,7 +200,6 @@ package org.bigbluebutton.modules.deskShare.services
 		}
 		
 		public function mouseLocationCallback(x:Number, y:Number):void {
-			LogUtil.debug("Mouse location " + x + "," + y);
 			var event:CursorEvent = new CursorEvent(CursorEvent.UPDATE_CURSOR_LOC_EVENT);
 			event.x = x;
 			event.y = y;
