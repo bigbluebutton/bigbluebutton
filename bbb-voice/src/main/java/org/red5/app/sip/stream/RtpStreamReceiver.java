@@ -29,8 +29,6 @@ public class RtpStreamReceiver {
     	this.packetProcessor = packetProcessor;
     	this.payloadLength = payloadLength;
         rtpSocket = new RtpSocket(socket);
-
- //       initializeSocket();
     }
     
     public void setRtpStreamReceiverListener(RtpStreamReceiverListener listener) {

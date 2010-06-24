@@ -193,6 +193,7 @@ class ApiController {
 			return
 		}
 		
+		String webVoice = params.webVoiceConf
 		String mtgID = params.meetingID
 		String attPW = params.password
 		boolean redirectImm = parseBoolean(params.redirectImmediately)
@@ -223,18 +224,19 @@ class ApiController {
 			invalidPassword("You either did not supply a password or the password supplied is neither the attendee or moderator password for this conference."); return;
 		}
 		
+		conf.setWebVoiceConf(webVoice == null || webVoice == "" ? conf.voiceBridge : webVoice)
 		
 		// TODO: success....
 		log.debug "join successful - setting session parameters and redirecting to join"
 		session["conferencename"] = conf.meetingID
 		session["meetingID"] = conf.meetingID
 		session["externUserID"] = externUserID
-
 		session["fullname"] = fullName 
 		session["role"] = role
 		session["conference"] = conf.getMeetingToken()
 		session["room"] = conf.getMeetingToken()
 		session["voicebridge"] = conf.getVoiceBridge()
+		session["webvoiceconf"] = conf.getWebVoiceConf()
 		session["mode"] = "LIVE"
 		session["record"] = false
 		session['welcome'] = conf.welcome

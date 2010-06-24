@@ -20,20 +20,19 @@
 package org.bigbluebutton.modules.phone.managers
 {
 	import flash.events.IEventDispatcher;
+	
 	import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
 	import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceEvent;
 	
-	public class PhoneManager
-	{
+	public class PhoneManager {
 		private var localDispatcher:IEventDispatcher;
 		
 		private var connectionManager:ConnectionManager;
 		private var streamManager:StreamManager;
-		
+		private var onCall:Boolean = false;
 		private var attributes:Object;
 		
-		public function PhoneManager(dispatcher:IEventDispatcher)
-		{
+		public function PhoneManager(dispatcher:IEventDispatcher) {
 			localDispatcher = dispatcher;
 			connectionManager = new ConnectionManager(dispatcher);
 			streamManager = new StreamManager(dispatcher);
@@ -43,41 +42,42 @@ package org.bigbluebutton.modules.phone.managers
 			this.attributes = attributes;
 		}
 				
-		public function setupMic(useMic:Boolean):void {
+		private function setupMic(useMic:Boolean):void {
 			if (useMic)
 				streamManager.initMicrophone();
 			else
 				streamManager.initWithNoMicrophone();
 		}
 		
-		public function setupConnection():void {
+		private function setupConnection():void {
 			streamManager.setConnection(connectionManager.getConnection());
 		}
+		
 		public function join(e:JoinVoiceConferenceEvent):void {
 			setupMic(e.useMicrophone);
 			var uid:String = String( Math.floor( new Date().getTime() ) );
 			connectionManager.connect(uid, attributes.username, attributes.room, attributes.uri);
 		}
-		
-		public function register():void {
-			setupConnection();
-			trace("Registering....");
-			connectionManager.register();
-		}
-		
+				
 		public function dialConference():void {
-			trace("Dialing...." + attributes.voicebridge);
-			connectionManager.doCall(attributes.voicebridge);
+			LogUtil.debug("Dialing...." + attributes.webvoiceconf);
+			connectionManager.doCall(attributes.webvoiceconf);
 		}
 		
 		public function callConnected(event:CallConnectedEvent):void {
+			LogUtil.debug("Call connected...");
+			setupConnection();
 			streamManager.callConnected(event.playStreamName, event.publishStreamName);
+			onCall = true;
 		}
 		
 		public function hangup():void {
 			LogUtil.debug("PhoneManager hangup");
-			connectionManager.doHangUp();
-			connectionManager.doClose();
+			if (onCall) {
+				streamManager.stopStreams();
+				connectionManager.doHangUp();
+				onCall = false;
+			}			
 		}
 	}
 }

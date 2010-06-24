@@ -6,6 +6,12 @@ version = '0.64'
 jar.enabled = true
 archivesBaseName = 'sip' 
 
+task dependencies(type: Copy) {
+    into('lib')
+    from configurations.default
+    from configurations.default.allArtifacts*.file
+}
+
 task copyToLib(dependsOn: configurations.default.buildArtifacts, type: Copy) {
     into('lib')
     from configurations.default

@@ -69,7 +69,7 @@ package org.bigbluebutton.modules.phone.managers
 		}	
 		
 		public function initWithNoMicrophone(): void {
-			trace("No available microphone");
+			LogUtil.debug("No available microphone");
 			var event:MicrophoneUnavailEvent = new MicrophoneUnavailEvent();
 			localDispatcher.dispatchEvent(event);
 		}
@@ -90,7 +90,7 @@ package org.bigbluebutton.modules.phone.managers
 					localDispatcher.dispatchEvent(unmutedEvent);
 					break;
 				default:
-				trace("unknown micStatusHandler event: " + event);
+				LogUtil.debug("unknown micStatusHandler event: " + event);
 			}
 		}
 		
@@ -130,10 +130,12 @@ package org.bigbluebutton.modules.phone.managers
 		}
 		
 		private function play(playStreamName:String):void {
+			
 			incomingStream.play(playStreamName);
 		}
 		
 		private function publish(publishStreamName:String):void {
+			LogUtil.debug("Publishing stream " + publishStreamName);
 			outgoingStream.publish(publishStreamName, "live");
 		}
 		
@@ -157,17 +159,16 @@ package org.bigbluebutton.modules.phone.managers
 			outgoingStream.client = custom_obj;			
 		}
 			
-		public function callDisconnected():void {
+		public function stopStreams():void {
 			if(incomingStream != null) {
 				incomingStream.play(false); 
 			}
 			
 			if(outgoingStream != null) {
 				outgoingStream.attachAudio(null);
-				outgoingStream.publish(null);
 			}
 				
-			isCallConnected 		 = false;
+			isCallConnected = false;
 		}
 
 		private function netStatus (evt:NetStatusEvent ):void {		 
@@ -185,12 +186,10 @@ package org.bigbluebutton.modules.phone.managers
 					break;
 						
 				case "NetStream.Play.Start":	
-//					red5Manager.doStreamStatus("start");	
 					event.status = PlayStreamStatusEvent.START;
 					break;
 						
 				case "NetStream.Play.Stop":			
-//					red5Manager.doStreamStatus("stop");	
 					event.status = PlayStreamStatusEvent.STOP;
 					break;
 						

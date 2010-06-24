@@ -132,7 +132,7 @@ package org.bigbluebutton.main.model
 		 * 
 		 */		
 		public function loggedInUser(user:Object):void {
-			LogUtil.debug('loggedin user ' + user.username);
+			LogUtil.debug('loggedin user ' + user.webvoiceconf);
 			_user = new Object();
 			_user.conference = user.conference;
 			_user.username = user.username;
@@ -142,6 +142,7 @@ package org.bigbluebutton.main.model
 			_user.userid = user.userid;
 			_user.mode = user.mode;
 			_user.voicebridge = user.voicebridge;
+			_user.webvoiceconf = user.webvoiceconf;
 			_user.connection = user.connection;
 			_user.playbackRoom = user.playbackRoom;
 			_user.record = user.record;
@@ -197,6 +198,7 @@ package org.bigbluebutton.main.model
 					m.addAttribute("mode", _user.mode);
 					m.addAttribute("connection", _user.connection);
 					m.addAttribute("voicebridge", _user.voicebridge);
+					m.addAttribute("webvoiceconf", _user.webvoiceconf);
 					m.addAttribute("playbackRoom", _user.playbackRoom);
 					m.addAttribute("record", _user.record);
 					m.addAttribute("welcome", _user.welcome);

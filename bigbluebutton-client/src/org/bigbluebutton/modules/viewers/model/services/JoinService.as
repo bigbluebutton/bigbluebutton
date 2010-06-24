@@ -53,21 +53,19 @@ package org.bigbluebutton.modules.viewers.model.services
 			_resultListener = listener;
 		}
 		
-		private function handleComplete(e:Event):void{
-			
+		private function handleComplete(e:Event):void {			
 			var xml:XML = new XML(e.target.data)
-			LogUtil.debug("Join complete: " + xml);
-			
+
 			var returncode:String = xml.returncode;
 			if (returncode == 'FAILED') {
-				LogUtil.debug("Join Result = " + returncode + " " + xml.message);
+				LogUtil.debug("Join FAILED = " + xml);
 				_resultListener(false, {message:xml.message});
 			} else if (returncode == 'SUCCESS') {
-				LogUtil.debug(xml.returncode + " " + xml.fullname + " " + xml.conference + " " + xml.role
-					+ " " + xml.room + " " + xml.voicebridge + " " + xml.mode);
+				LogUtil.debug("Join SUCESS = " + xml);
 				var user:Object = {username:xml.fullname, conference:xml.conference, conferenceName:xml.confname,
 										meetingID:xml.meetingID, externUserID:xml.externUserID,
 										role:xml.role, room:xml.room, authToken:xml.room, record:xml.record, 
+										webvoiceconf:xml.webvoiceconf,
 										voicebridge:xml.voicebridge, mode:xml.mode, welcome:xml.welcome};
 				_resultListener(true, user);
 			}

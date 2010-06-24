@@ -89,6 +89,7 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
 	    		break;
 	    	case MOUSE_LOCATION_EVENT:
 	    		decodeMouseLocationEvent(session, in, out);
+	    		break;
 	    	default:
     			log.error("Unknown event: " + event);
     	}

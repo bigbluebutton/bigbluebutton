@@ -49,34 +49,44 @@ public class Parser
    
    /** Creates the Parser from the String <i>s</i> and point to the beginning of the string.*/
    public Parser(String s)
-   {  if (s==null) throw (new RuntimeException("Tried to costruct a new Parser with a null String"));
-      str=s;
-      index=0;
+   {  
+	   if (s == null) throw (new RuntimeException("Tried to costruct a new Parser with a null String"));
+	   str = s;
+	   index = 0;
    }
+   
    /** Creates the Parser from the String <i>s</i> and point to the position <i>i</i>. */
    public Parser(String s, int i)
-   {  if (s==null) throw (new RuntimeException("Tried to costruct a new Parser with a null String"));
-      str=s;
-      index=i;
+   {  
+	   if (s == null) throw (new RuntimeException("Tried to costruct a new Parser with a null String"));
+	   str = s;
+	   index = i;
    }
+   
    /** Creates the Parser from the StringBuffer <i>sb</i> and point to the beginning of the string.*/
    public Parser(StringBuffer sb)
-   {  if (sb==null) throw (new RuntimeException("Tried to costruct a new Parser with a null StringBuffer"));
-      str=sb.toString();
-      index=0;
+   {  
+	   if (sb == null) throw (new RuntimeException("Tried to costruct a new Parser with a null StringBuffer"));
+	   str = sb.toString();
+      index = 0;
    }
    /** Creates the Parser from the StringBuffer <i>sb</i> and point to the position <i>i</i>. */
    public Parser(StringBuffer sb, int i)
-   {  if (sb==null) throw (new RuntimeException("Tried to costruct a new Parser with a null StringBuffer"));
-      str=sb.toString();
-      index=i;
+   {  
+	   	if (sb == null) throw (new RuntimeException("Tried to costruct a new Parser with a null StringBuffer"));
+	   	str = sb.toString();
+	   	index = i;
    }
    
    /** Gets the current index position. */
-   public int getPos() { return index; }
+   public int getPos() { 
+	   return index; 
+   }
 
    /** Gets the entire string */
-   public String getWholeString() { return str; }
+   public String getWholeString() { 
+	   return str; 
+   }
 
    /** Gets the rest of the (unparsed) string. */
    public String getRemainingString() { return str.substring(index); }

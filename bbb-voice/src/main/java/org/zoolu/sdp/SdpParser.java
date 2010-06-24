@@ -35,7 +35,8 @@ class SdpParser extends Parser
 {  
    /** Creates a SdpParser based on String <i>s</i> */ 
    public SdpParser(String s)
-   {  super(s);
+   {  
+	   super(s);
    }
 
    /** Creates a SdpParser based on String <i>s</i> and starting from position <i>i</i> */ 
