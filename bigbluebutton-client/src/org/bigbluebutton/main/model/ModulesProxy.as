@@ -24,8 +24,7 @@ package org.bigbluebutton.main.model
 	import org.puremvc.as3.multicore.interfaces.IProxy;
 	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
 	
-	public class ModulesProxy extends Proxy implements IProxy
-	{
+	public class ModulesProxy extends Proxy implements IProxy {
 		public static const NAME:String = 'ModulesProxy';
 		
 		private var modulesManager:BbbModuleManager;
@@ -34,8 +33,7 @@ package org.bigbluebutton.main.model
 		private var _router:Router;
 		private var _mode:String;
 		
-		public function ModulesProxy(router:Router, mode:String)
-		{
+		public function ModulesProxy(router:Router, mode:String) {
 			super(NAME);
 			_router = router;
 			_mode = mode;
