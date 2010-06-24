@@ -178,7 +178,7 @@
 			effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}"
 			width="100%" height="100%">		
 			<mx:Label x="200" y="400" id="statusInfo" text="{ResourceUtil.getInstance().getString('bbb.mainshell.statusInfo',[numberOfModules])}"/>
-			<mx:Label x="200" y="420" id="statusInfo2"/>
+			<mx:Label x="200" y="420" id="statusInfo2" text="{ResourceUtil.getInstance().getString('bbb.mainshell.statusInfo2')}"/>
 			<mx:Label x="200" y="440" id="statusProgress" text="{ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loading')}"/>
 		</main:MainCanvas>	
 	 	<mx:ControlBar width="100%" height="20" paddingTop="0">		
