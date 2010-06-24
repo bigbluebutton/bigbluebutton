@@ -75,6 +75,9 @@ public class SipPeer implements SipRegisterAgentListener {
         registeredProfile.keepaliveTime=8000;
         registeredProfile.acceptTime=0;
         registeredProfile.hangupTime=20;   
+        
+        log.debug( "SIPUser register : {}", fromURL );
+        log.debug( "SIPUser register : {}", registeredProfile.contactUrl );
     }
     
 
