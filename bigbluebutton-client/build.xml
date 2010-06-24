@@ -96,7 +96,7 @@
 	</macrodef>
 		
 	<target name="build-bbb-main" description="Compile BigBlueButton Main">
-		<build-module src="${SRC_DIR}" target="${BBB_MAIN}" />
+		<build-main src="${SRC_DIR}" target="${BBB_MAIN}" />
 		
 		<echo message="Copying common assets for BBB Main" />
 		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/common/assets/images" >
@@ -168,13 +168,37 @@
 			description="Compile deskshare, phone, video, highlighter, dynamic info modules">
 	</target>
 	
+	<macrodef name="build-main">
+			<attribute name="target" description="Module to compile" />
+			<attribute name="flex" default="${FLEX_HOME}" description="Location of the Flex install." />
+			<attribute name="app" default="."/>
+			<attribute name="src" default="${SRC_DIR}" description="Path to the module to compile" />
+			<sequential>
+				<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="false" optimize="true" link-report="linker-report.xml">
+					<load-config filename="@{flex}/frameworks/flex-config.xml" />
+					<source-path path-element="@{flex}/frameworks" />
+					<compiler.library-path dir="@{flex}/frameworks" append="true">
+						<include name="libs" />
+						<include name="../bundles/{locale}" />
+					</compiler.library-path>
+
+					<compiler.library-path dir="@{app}" append="true">
+						<include name="libs" />
+						<include name="libs/generated" />
+					</compiler.library-path>
+
+					<default-size width="500" height="600" />
+				</mxmlc>
+			</sequential>
+		</macrodef>
+	
 	<macrodef name="build-module">
 		<attribute name="target" description="Module to compile" />
 		<attribute name="flex" default="${FLEX_HOME}" description="Location of the Flex install." />
 		<attribute name="app" default="."/>
 		<attribute name="src" default="${SRC_DIR}" description="Path to the module to compile" />
 		<sequential>
-			<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="false">
+			<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="false" optimize="true" load-externs="linker-report.xml">
 				<load-config filename="@{flex}/frameworks/flex-config.xml" />
 				<source-path path-element="@{flex}/frameworks" />
 				<compiler.library-path dir="@{flex}/frameworks" append="true">

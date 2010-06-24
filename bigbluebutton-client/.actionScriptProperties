@@ -20,7 +20,6 @@
     <sourceAttachmentPath>
       <sourceAttachmentPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/datavisualization.swc" sourcepath="${PROJECT_FRAMEWORKS}/source" useDefaultLinkType="false"/>
       <sourceAttachmentPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/framework.swc" sourcepath="${PROJECT_FRAMEWORKS}/source" useDefaultLinkType="true"/>
-      <sourceAttachmentPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/automation_flashflexkit.swc" sourcepath="${PROJECT_FBPRO}/projects/automation_flashflexkit/src" useDefaultLinkType="false"/>
     </sourceAttachmentPath>
   </compiler>
   <applications>
