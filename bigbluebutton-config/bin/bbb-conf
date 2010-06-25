@@ -30,6 +30,7 @@
 #       2010-03-02 JRT  Added trunk checkout options / fixed bbb-apps instructions
 #       2010-04-02 FFD  Updated for 0.64
 #	2010-06-21 SEB  Cleaned up some code / Updated for 0.70
+#	2010-06-25 SEB  Added ability to change the security salt
 
 #set -x
 
@@ -37,7 +38,7 @@
 # This ensures that we checkout the 0.63 release of BigBlueButton
 #   Note that this can be overridden with the --trunk option
 #
-RELEASE="-r 4126"
+RELEASE="-r 4130"
 
 #
 # SVNPROTO is http if read-only, or https if you specify a Google code username
@@ -142,6 +143,7 @@ usage() {
         echo "   --version                        Display BigBlueButton version (packages)"
         echo "   --setip <host>                   Set IP/hostname for BigBlueButton"
         echo "   --conference [konference|meetme] Switch conference module in Asterisk"
+	echo "   --salt <salt>		    Change the security salt in bigbluebutton.properties"
         echo
         echo "Monitoring:"
         echo "   --check                          Check configuration files and processes for problems"
@@ -184,6 +186,11 @@ check_and_backup () {
 change_var_value () {
 	check_and_backup $1
 	sed -i "s<^[[:blank:]#]*\(${2}\).*<\1=\"${3}\"<" $1
+}
+# same as change_var_value but without quotes
+change_var_salt() {
+	check_and_backup $1
+	sed -i "s<^[[:blank:]#]*\(${2}\).*<\1="${3}"<" $1
 }
 # comment lines matching $2 ($1 is the file)
 comment () {
@@ -339,7 +346,12 @@ while [ $# -gt 0 ]; do
 		shift; shift
 		continue
 	fi		
-
+	
+	if [ "$1" = "--salt" -o "$1" = "-salt" ]; then
+		SALT="${2}"
+		shift; shift
+		continue
+	fi
 
 	usage 
 	exit 1
@@ -365,6 +377,13 @@ fi
 #
 # Setup samba
 #
+
+if [ -n $SALT ]; then
+	need_root
+#	echo $SALT;
+	change_var_salt /var/lib/$TOMCAT/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties beans.dynamicConferenceService.securitySalt $SALT
+	echo "Changed the security salt to $SALT";
+fi
 
 if [ $SAMBA ]; then
 	check_root
