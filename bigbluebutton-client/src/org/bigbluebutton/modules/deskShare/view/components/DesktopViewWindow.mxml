@@ -140,7 +140,6 @@
 				
 				var manager:UserManager = UserManager.getInstance();
 				manager.registerListener(this);
-				this.title = manager.getPresenter().name + " is sharing their desktop with you";
 			}
 			
 			private function onResizeEndEvent(event:MDIWindowEvent):void {
@@ -179,6 +178,8 @@
 				video.attachNetStream(ns);
 				ns.play(stream);	
 				this.stream = stream;
+				
+				this.title = manager.getPresenter().name + " is sharing their desktop with you";
 			}
 			
 			public function stopViewing():void {
