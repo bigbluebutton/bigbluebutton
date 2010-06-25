@@ -21,28 +21,31 @@
 --> 
 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-    title="{ResourceUtil.getInstance().getString('bbb.oldlocalewindow.windowTitle')}" showCloseButton="false" creationComplete="init()"
+    title="{windowTitle}" showCloseButton="false" creationComplete="init()"
     x="168" y="86" layout="vertical" width="400" height="150" horizontalAlign="center">
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import mx.controls.Alert;
 			import mx.managers.PopUpManager; 
-			[Bindable] private var windowTitle:String="Warning: Old Language Version";
-			[Bindable] private var oldLocalesReminder1:String = "You have an old language translation of BigBlueButton.";
-			[Bindable] private var oldLocalesReminder2:String =	"Please clear your browser cache and try again.";
+			private const windowTitleDefault:String = "Warning: Old Language Version";
+			private const reminder1Default:String = "You have an old language translation of BigBlueButton.";
+			private const reminder2Default:String = "Please clear your browser cache and try again.";
+			[Bindable] private var windowTitle:String;
+			[Bindable] private var oldLocalesReminder1:String;
+			[Bindable] private var oldLocalesReminder2:String;
 
 			private function init():void {
 				addEventListener(Event.CLOSE, onUserLoggedOutWindowClose);
 				
 				var locWindowTitle:String = ResourceUtil.getInstance().getString('bbb.oldlocalewindow.windowTitle');
-				if ((locWindowTitle != null) && (locWindowTitle != "")) windowTitle = locWindowTitle;
+				if ((locWindowTitle != null) && (locWindowTitle != "")) windowTitle = windowTitleDefault;
 				
 				var reminder1:String = ResourceUtil.getInstance().getString('bbb.oldlocalewindow.reminder1');
-				if ((reminder1 != null) && (reminder1 != "")) oldLocalesReminder1 = reminder1;
+				if ((reminder1 != null) && (reminder1 != "")) oldLocalesReminder1 = reminder1Default;
 				
 				var reminder2:String = ResourceUtil.getInstance().getString('bbb.oldlocalewindow.reminder2');
-				if ((reminder2 != null) && (reminder2 != "")) oldLocalesReminder2 = reminder2;
+				if ((reminder2 != null) && (reminder2 != "")) oldLocalesReminder2 = reminder2Default;
 
 			}
 			
@@ -59,8 +62,8 @@
 			
 		]]>
 	</mx:Script>
-	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.oldlocalewindow.reminder1')}"/>
-	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.oldlocalewindow.reminder2')}"/>
+	<mx:Label text="{oldLocalesReminder1}"/>
+	<mx:Label text="{oldLocalesReminder2}"/>
 	<mx:Button id="okBtn" label="OK" click="redirect()"/>
 
 </mx:TitleWindow> 
