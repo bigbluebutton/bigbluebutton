@@ -170,19 +170,16 @@
 	   			mdiCanvas.addChild(e.component);
 	   		}
 	   		
-	   		public function checkLocaleVersion(localeVersion:String, versionCheckResultCallback:Function):void {	   			
+	   		public function checkLocaleVersion(localeVersion:String):void {	   			
 	   			Alert.okLabel ="OK";
 				var version:String = "old-locales";
-				LogUtil.debug("****** LOCALE VERSION ****" + localeVersion + " " + version);
 				version = ResourceUtil.getInstance().getString('bbb.mainshell.locale.version');
-				LogUtil.debug("****** LOCALE VERSION ****" + localeVersion + " " + version);
-//				versionCheckResultCallback(true);
+				LogUtil.debug("Locale from config=" + localeVersion + ", from locale file=" + version);
 
 				if ((version == "old-locales") || (version == "") || (version == null)) {
 					wrongLocaleVersion();
 				} else {
 					if (version != localeVersion) wrongLocaleVersion();
-					else versionCheckResultCallback(true);
 				}	   			
 	   		}
 	   		

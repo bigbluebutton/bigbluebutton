@@ -101,17 +101,12 @@ package org.bigbluebutton.main.view
 					MainApplicationConstants.MODULE_LOAD_PROGRESS
 					];
 		}
-		
-		private function checkLocaleVersionResultCallback(versionCurrent:Boolean):void {
-//			if (versionCurrent) testRTMPConnection();
-		}
-		
+			
 		override public function handleNotification(notification:INotification):void{
 			switch(notification.getName()){	
 				case MainApplicationConstants.APP_MODEL_INITIALIZED:
 					shell.appVersion = modulesProxy.getVersion();
 					shell.numberOfModules = modulesProxy.getNumberOfModules();	
-//					shell.checkLocaleVersion(modulesProxy.getLocaleVersion(), checkLocaleVersionResultCallback);
 					testRTMPConnection();									
 					break;
 				case MainApplicationConstants.PORT_TEST_FAILED:
@@ -137,7 +132,7 @@ package org.bigbluebutton.main.view
 					shell.statusInfo.text = "";
 					shell.statusProgress.text = "";
 					shell.statusInfo2.text = "";
-					shell.checkLocaleVersion(modulesProxy.getLocaleVersion(), checkLocaleVersionResultCallback);
+					shell.checkLocaleVersion(modulesProxy.getLocaleVersion());
 					break;
 				case MainApplicationConstants.USER_LOGGED_IN:
 					shell.statusInfo.text = "";

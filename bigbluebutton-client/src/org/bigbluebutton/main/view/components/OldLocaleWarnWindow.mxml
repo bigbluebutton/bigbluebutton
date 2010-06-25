@@ -40,13 +40,15 @@
 				
 				var locWindowTitle:String = ResourceUtil.getInstance().getString('bbb.oldlocalewindow.windowTitle');
 				if ((locWindowTitle == null) || (locWindowTitle == "")) windowTitle = windowTitleDefault;
+				else windowTitle = locWindowTitle;
 				
 				var reminder1:String = ResourceUtil.getInstance().getString('bbb.oldlocalewindow.reminder1');
 				if ((reminder1 == null) || (reminder1 == "")) oldLocalesReminder1 = reminder1Default;
+				else oldLocalesReminder1 = reminder1;
 				
 				var reminder2:String = ResourceUtil.getInstance().getString('bbb.oldlocalewindow.reminder2');
 				if ((reminder2 == null) || (reminder2 == "")) oldLocalesReminder2 = reminder2Default;
-
+				else oldLocalesReminder2 = reminder2;
 			}
 			
             private function redirect():void { 
