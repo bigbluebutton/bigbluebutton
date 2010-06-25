@@ -27,7 +27,7 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="600" height="400"
 	creationComplete="onCreationComplete()"
-	implements="org.bigbluebutton.common.IBbbModuleWindow, org.bigbluebutton.main.api.IUserListener"
+	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
 	title="{ResourceUtil.getInstance().getString('bbb.desktopView.title')}" 
 	showCloseButton="false"
@@ -137,9 +137,6 @@
 				videoHolder.addChild(cursor);
 				videoHolder.addChild(cursorImg);
 				cursor.visible = false;
-				
-				var manager:UserManager = UserManager.getInstance();
-				manager.registerListener(this);
 			}
 			
 			private function onResizeEndEvent(event:MDIWindowEvent):void {
@@ -179,7 +176,7 @@
 				ns.play(stream);	
 				this.stream = stream;
 				
-				this.title = manager.getPresenter().name + " is sharing their desktop with you";
+				this.title = UserManager.getInstance().getPresenter().name + " is sharing their desktop with you";
 			}
 			
 			public function stopViewing():void {
@@ -297,20 +294,6 @@
 			private function closeWindow():void {
 				dispatchEvent(new ViewWindowEvent(ViewWindowEvent.CLOSE));
 			}
-			
-			/** Inherited from IUserListener */
-			public function presenterChanged(newPresenter:User):void{
-				this.title = newPresenter.name + " is sharing their desktop with you";
-			}
-			
-			public function userJoined(user:User):void{
-				
-			}
-			
-			public function userLeft(user:User):void{
-				
-			}
-			/** End IUserListener implementation */
 			
 		]]>
 	</mx:Script>
