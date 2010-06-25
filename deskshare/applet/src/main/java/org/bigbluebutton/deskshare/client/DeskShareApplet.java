@@ -38,7 +38,7 @@ public class DeskShareApplet extends Applet implements ClientListener {
     Boolean aspectRatioValue = false;
     Integer xValue = new Integer(0);
     Integer yValue = new Integer(0);
-    Boolean tunnelValue = true;
+    Boolean tunnelValue = false;
     DeskshareClient client;
     Image icon;
     

@@ -25,8 +25,10 @@
 		xmlns:logModule="org.bigbluebutton.modules.log.view.components.*"
 		xmlns:main="org.bigbluebutton.main.view.components.*"
 		xmlns:mate="http://mate.asfusion.com/"
+		xmlns:maps="org.bigbluebutton.main.maps.*"
+		xmlns:api="org.bigbluebutton.main.api.*"
 		width="100%" height="100%"
-		creationComplete="initializeShell()" xmlns:maps="org.bigbluebutton.main.maps.*" xmlns:api="org.bigbluebutton.main.api.*">
+		creationComplete="initializeShell()">
 		
 	<mate:Listener type="{OpenWindowEvent.OPEN_WINDOW_EVENT}" method="handleOpenWindowEvent" />	
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="handleCloseWindowEvent"/>
@@ -38,6 +40,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.events.CloseEvent;
 			import org.bigbluebutton.main.events.AddUIComponentToMainCanvas;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.common.Images;
@@ -73,10 +76,8 @@
 			
 			// LIVE or PLAYBACK
 			private var _mode:String = 'LIVE';
-			[Bindable]
-			public var appVersion:String = '0.6';
-			[Bindable]
-			public var numberOfModules:int = 0;
+			[Bindable] public var appVersion:String = '0.6';
+			[Bindable] public var numberOfModules:int = 0;
 			
 			[Bindable] private var fullscreen_icon:Class = images.full_screen;
 			[Bindable] private var logs_icon:Class = images.table;
@@ -86,18 +87,16 @@
 				return _mode;
 			}
 			
-			protected function initializeShell():void
-			{			
+			protected function initializeShell():void {			
 				trace('Initializing');	
 				logWindow = new LogWindow();
 				logWindow.logs = logs;
 				
 				facade.startup(this);
-				globalDispatcher = new Dispatcher();
+				globalDispatcher = new Dispatcher();					
 			}
 
-			protected function initFullScreen():void
-			{				
+			protected function initFullScreen():void {				
 				/* Set up full screen handler. */
 				stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
 				dispState = stage.displayState;
@@ -170,23 +169,50 @@
 	   		private function addComponentToCanvas(e:AddUIComponentToMainCanvas):void{
 	   			mdiCanvas.addChild(e.component);
 	   		}
+	   		
+	   		public function checkLocaleVersion(localeVersion:String, versionCheckResultCallback:Function):void {	   			
+	   			Alert.okLabel ="OK";
+				var version:String = "old-locales";
+				LogUtil.debug("****** LOCALE VERSION ****" + localeVersion + " " + version);
+				version = ResourceUtil.getInstance().getString('bbb.mainshell.locale.version');
+				LogUtil.debug("****** LOCALE VERSION ****" + localeVersion + " " + version);
+//				versionCheckResultCallback(true);
+
+				if ((version == "old-locales") || (version == "") || (version == null)) {
+					wrongLocaleVersion();
+				} else {
+					if (version != localeVersion) wrongLocaleVersion();
+					else versionCheckResultCallback(true);
+				}	   			
+	   		}
+	   		
+	   		private function wrongLocaleVersion():void {
+				var localeWindow:OldLocaleWarnWindow = OldLocaleWarnWindow(PopUpManager.createPopUp(mdiCanvas, OldLocaleWarnWindow, false));
+
+				var point1:Point = new Point();
+	        	// Calculate position of TitleWindow in Application's coordinates. 
+	        	point1.x = 400;
+	        	point1.y = 300;                
+	        	point1 = mdiCanvas.localToGlobal(point1);
+				localeWindow.x = point1.x + 25;
+				localeWindow.y = point1.y + 25;	
+            }
 		]]>
 	</mx:Script>
 			
-		<main:MainToolbar id="toolbar" dock="true" width="100%" height="30" visible="false" verticalAlign="middle"/>
-		<main:MainCanvas id="mdiCanvas" horizontalScrollPolicy="off" verticalScrollPolicy="off"
-			effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}"
-			width="100%" height="100%">		
-			<mx:Label x="200" y="400" id="statusInfo" text="{ResourceUtil.getInstance().getString('bbb.mainshell.statusInfo',[numberOfModules])}"/>
-			<mx:Label x="200" y="420" id="statusInfo2" text="{ResourceUtil.getInstance().getString('bbb.mainshell.statusInfo2')}"/>
-			<mx:Label x="200" y="440" id="statusProgress" text="{ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loading')}"/>
-		</main:MainCanvas>	
-	 	<mx:ControlBar width="100%" height="20" paddingTop="0">		
-		  <mx:Label text="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}" id="copyrightLabel2"/>
-		  <mx:Spacer width="20"/>
-		  <mx:Spacer width="100%"/> 
-		  <mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}" id="logBtn" icon="{logs_icon}" click="openLogWindow()" />
-		  <mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.fullScreenBtn.toolTip')}" id="fullScreen" icon="{fullscreen_icon}" click="toggleFullScreen()" />
-		  <mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.resetLayoutBtn.toolTip')}" id="btnResetLayout" icon="{reset_layout_icon}" click="resetLayout()" />
-		</mx:ControlBar>
+	<main:MainToolbar id="toolbar" dock="true" width="100%" height="30" visible="false" verticalAlign="middle"/>
+	<main:MainCanvas id="mdiCanvas" horizontalScrollPolicy="off" verticalScrollPolicy="off"
+			effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}" width="100%" height="100%">	
+		<mx:Label x="200" y="400" id="statusInfo" text="{ResourceUtil.getInstance().getString('bbb.mainshell.statusInfo',[numberOfModules])}"/>
+		<mx:Label x="200" y="420" id="statusInfo2" text="{ResourceUtil.getInstance().getString('bbb.mainshell.statusInfo2')}" />
+		<mx:Label x="200" y="440" id="statusProgress" text="{ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loading')}"/>
+	</main:MainCanvas>	
+	<mx:ControlBar width="100%" height="20" paddingTop="0">		
+	  	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}" id="copyrightLabel2"/>
+	 	<mx:Spacer width="20"/>
+		<mx:Spacer width="100%"/> 
+		<mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}" id="logBtn" icon="{logs_icon}" click="openLogWindow()" />
+		<mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.fullScreenBtn.toolTip')}" id="fullScreen" icon="{fullscreen_icon}" click="toggleFullScreen()" />
+		<mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.resetLayoutBtn.toolTip')}" id="btnResetLayout" icon="{reset_layout_icon}" click="resetLayout()" />
+	</mx:ControlBar>
 </mx:VBox>

@@ -61,7 +61,7 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
 	
 	public void start() {	
 		System.out.println(LICENSE_HEADER);
-		System.out.println("Desktop Sharing v0.64");
+		System.out.println("Desktop Sharing v0.7");
 		System.out.println("Start");
 		System.out.println("Connecting to " + host + ":" + port + " room " + room);
 		System.out.println("Sharing " + captureWidth + "x" + captureHeight + " at " + x + "," + y);

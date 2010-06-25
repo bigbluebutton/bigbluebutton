@@ -25,7 +25,6 @@ package org.bigbluebutton.main.view
 	import flexlib.mdi.containers.MDIWindow;
 	
 	import mx.managers.PopUpManager;
-	import mx.managers.PopUpManagerChildList;
 	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.main.MainApplicationConstants;
@@ -103,14 +102,17 @@ package org.bigbluebutton.main.view
 					];
 		}
 		
-		private var red5phoneAdded:Boolean = false;
+		private function checkLocaleVersionResultCallback(versionCurrent:Boolean):void {
+//			if (versionCurrent) testRTMPConnection();
+		}
 		
 		override public function handleNotification(notification:INotification):void{
 			switch(notification.getName()){	
 				case MainApplicationConstants.APP_MODEL_INITIALIZED:
 					shell.appVersion = modulesProxy.getVersion();
-					shell.numberOfModules = modulesProxy.getNumberOfModules();					
-					testRTMPConnection();
+					shell.numberOfModules = modulesProxy.getNumberOfModules();	
+//					shell.checkLocaleVersion(modulesProxy.getLocaleVersion(), checkLocaleVersionResultCallback);
+					testRTMPConnection();									
 					break;
 				case MainApplicationConstants.PORT_TEST_FAILED:
 					var portTestResult:Object = notification.getBody();
@@ -126,34 +128,16 @@ package org.bigbluebutton.main.view
 					break;			
 				case MainApplicationConstants.REMOVE_WINDOW_MSG:
 					var rwin:IBbbModuleWindow = notification.getBody() as IBbbModuleWindow;
-					//LogUtil.debug(NAME + "::removing window " + (rwin as MDIWindow).name);
 					shell.mdiCanvas.windowManager.remove(rwin as MDIWindow);						
 					break;
 				case MainApplicationConstants.USER_LOGGED_OUT:
 					handleUserLoggedOut(notification.getBody() as String);
-//					if (red5phoneAdded) {
-//						red5phoneAdded = false;
-//						shell.mdiCanvas.windowManager.remove(red5PhoneWindow as MDIWindow);
-//					}
 					break;
 				case MainApplicationConstants.USER_JOINED:
-					/**
-			 		 * Workaround to pass in username for sip registration.
-			 		*/
-					//red5PhoneWindow.sipusername = modulesProxy.username;
 					shell.statusInfo.text = "";
 					shell.statusProgress.text = "";
 					shell.statusInfo2.text = "";
-					trace("User has joined");
-//					if (!red5phoneAdded) {
-//						red5phoneAdded = true;
-//						phoneButton = new ToolbarButton();			
-//						phoneButton.addEventListener(PhoneModuleConstants.START_PHONE_EVENT, onStartPhoneEvent);	
-//						trace("Adding red5phone button");
-//						var uid:String = String( Math.floor( new Date().getTime() ) );		
-//						red5Manager = new Red5Manager(uid, "Ricahrd ALam", '600', "rtmp://192.168.0.136/sip");
-//						sendNotification(MainApplicationConstants.ADD_BUTTON, phoneButton);						
-//					}
+					shell.checkLocaleVersion(modulesProxy.getLocaleVersion(), checkLocaleVersionResultCallback);
 					break;
 				case MainApplicationConstants.USER_LOGGED_IN:
 					shell.statusInfo.text = "";
@@ -162,21 +146,13 @@ package org.bigbluebutton.main.view
 					break;
 				case MainApplicationConstants.MODULE_STOPPED:
 					var info:Object = notification.getBody();
-				//	handleModuleStopped(info.moduleId, info.errors);
 					break;
 				case MainApplicationConstants.LOADED_MODULE:
 					shell.statusInfo.text += ResourceUtil.getInstance().getString('bbb.mainshell.statusInfo.loaded',[notification.getBody()]);
-					
-					// Should do this properly.
-					//if (notification.getBody() == "ViewersModule") {
-					//	shell.loadedModules.text = "";
-					//	shell.loadProgress.text = "";
-					//}
 					break;
 				case MainApplicationConstants.MODULE_LOAD_PROGRESS:
 					var mod:String = notification.getBody().name as String;
-					var prog:Number = notification.getBody().progress as Number;
-					
+					var prog:Number = notification.getBody().progress as Number;					
 					shell.statusProgress.text = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loaded',[mod, prog]);
 					break;
 			}
@@ -209,14 +185,7 @@ package org.bigbluebutton.main.view
         	point1 = shell.localToGlobal(point1);
 			logoutWindow.x = point1.x + 25;
 			logoutWindow.y = point1.y + 25;	
-			logoutWindow.setReason(reason);
-       
-/*     	
-        	var pageURL:String = mx.core.Application.application.url.split("/")[2];
-        	var url:URLRequest = new URLRequest("http://" + pageURL + "/bigbluebutton/conference-session/signOut");
-        	LogUtil.debug("Log out url: " + pageURL);
-			navigateToURL(url, '_self');
-*/			
+			logoutWindow.setReason(reason);		
 		}
 		
 		private function handleModuleStopped(moduleName:String, errors:Array):void {
