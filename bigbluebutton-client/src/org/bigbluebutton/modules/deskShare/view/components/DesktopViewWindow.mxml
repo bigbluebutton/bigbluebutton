@@ -175,8 +175,8 @@
 				video.attachNetStream(ns);
 				ns.play(stream);	
 				this.stream = stream;
-				
-				this.title = UserManager.getInstance().getPresenter().name + " is sharing their desktop with you";
+				this.title = "Blah";
+		//		this.title = UserManager.getInstance().getPresenter().name + " is sharing their desktop with you";
 			}
 			
 			public function stopViewing():void {
