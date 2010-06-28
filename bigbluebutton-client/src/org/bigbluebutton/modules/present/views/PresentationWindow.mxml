@@ -433,7 +433,7 @@
 			
 			private function clearPresentation(e:UploadEvent):void{
 				slideView.visible = false;		
-				slideView.swfSlideLoader.source = null; 
+				slideView.slideLoader.source = null; 
 				slideView.selectedSlide = 0;
 				btnSlideNum.label = "";
 				displaySlideNavigationControls(false);
