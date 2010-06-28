@@ -135,7 +135,7 @@ need_root() {
 }
 
 usage() {
-	echo "BigBlueButton Server Utility - Version 0.64"
+	echo "BigBlueButton Server Utility - Version 0.70"
         echo
         echo "$0 [options]"
         echo
@@ -158,11 +158,10 @@ usage() {
         if [ "$(is_vm)" ]; then
                 echo "Development:"
                 echo "   --setup-samba                    Setup samba share for development (VM only)"
-                echo "   --setup-dev [bbb-web|bbb-client|bbb-apps] "
+                echo "   --checkout                 	  Checkout BigBlueButton from github "
+                echo "   --setup-dev [client|web|apps]	  Setup development environment "
                 echo "   --reset-dev                      Reset environment back to using packages"
                 echo "   --trunk                          Checkout trunk instead of last release"
-                echo "   --svn-username [user]            Your Google code username if you want to "
-                echo "                                      commit from the checked out code"
         fi
         echo
 }
@@ -301,6 +300,13 @@ while [ $# -gt 0 ]; do
                 continue
         fi
 
+	if [ "$1" = "--checkout" -o "$1" = "-checkout" ]; then
+		echo "# Request to checkout BigBlueButton"
+		CHECKOUT="1"
+		shift; shift
+		continue
+	fi		
+
 	#
 	# all other parameters requires at least 1 argument
 	#
@@ -320,26 +326,11 @@ while [ $# -gt 0 ]; do
 		continue
 	fi		
 
-	if [ "$1" = "--setup-dev" -o "$1" = "-setup-dev" ]; then
-		SETUPDEV="${2}"
-		shift; shift
-		continue
-	fi		
-
-	if [ "$1" = "--svn-username" -o "$1" = "-svn-username" ]; then
-		SVNUSERNAME="--username ${2}"
-		SVNPROTO="https"
-		shift; shift
-		continue
-	fi		
-
-	if [ "$1" = "--trunk" -o "$1" = "-trunk" ]; then
-		# replace the value for for RELEASE because we don't want
-		#  a particular release
-		RELEASE=""
-		shift
-		continue
-	fi		
+        if [ "$1" = "--setup-dev" -o "$1" = "-setup-dev" ]; then
+                SETUPDEV="${2}"
+                shift; shift
+                continue
+        fi
 
 	if [ "$1" = "--conference" -o "$1" = "-conference" ]; then
 		CONFERENCE="${2}"
@@ -436,158 +427,208 @@ fi
 # Setup the development environemnt.
 #
 
-if [ $SETUPDEV ]; then
+if [ $CHECKOUT ]; then
 	check_root
 
 	# This is a step towards setting up a development environment on a non-BigBlueButton VM
-	which svn
+	which git
 	if [ $? != 0 ]; then
-		sudo apt-get install subversion ant -y --force-yes
+		echo "# Installing git and ant"
+		sudo apt-get install git ant -y --force-yes
 	fi
+        
+        BBBSRCGIT="~/dev/source/bigbluebutton"	
+	if [ -d $BBBSRCGIT ]; then
+		echo "# "
+                echo "**** ERROR: ${BBBSRCGIT} exists. ***"
+                echo "**** ERROR: You have already checked-out bigbluebutton. Please delete ${BBBSRCGIT} and try again. ***"
+		echo "# "
+		exit 1
+        fi
 
         if [ ! -d ~/dev ]; then
+		echo "# Creating dev directory"
 		mkdir ~/dev
 	fi
 
-	if [ $SETUPDEV == "bbb-web" ]; then
-            if [ ! -d ~/dev/bbb-web ]; then
+	echo "# Changing to the dev directory"
+	cd ~/dev
+	
+	if [ ! -d ~/dev/source ]; then
+                echo "# Creating source directory"
+                mkdir ~/dev/source
+        fi
 
-		echo "# Setting up ~/dev/bbb-web"
-                echo "  svn checkout ${SVNPROTO}://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-web bbb-web ${RELEASE} ${SVNUSERNAME}"
+	echo "# Changing to the dev directory"
+        cd ~/dev/source
 
-                cd ~/dev
-                svn checkout ${SVNPROTO}://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-web bbb-web $RELEASE $SVNUSERNAME
+	echo "#                                         "
+        echo "# Checking out READ-ONLY code from github."
+        echo "#                                         "
+        echo "# "
+        git clone git://github.com/bigbluebutton/bigbluebutton.git
+        echo "# "
+        echo "#                                         "
+        echo "# Checked out READ-ONLY code from github. "
+        echo "#                                         "
+	echo " You can now run 'bbb-conf --setup-dev [client|web|apps]' to setup dev environment "
+        echo "#                                         "
+fi
 
-		IP=$(ifconfig | grep -v '127.0.0.1' | grep -m 1 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
+if [ $SETUPDEV ]; then
+        check_root
 
-		echo "# Copying the bigbluebutton.properites in /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties to ~/.grails/bigbluebutton-config.properties"
-		mkdir -p ~/.grails
-		cp /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties ~/.grails/bigbluebutton-config.properties
+        if [ ! -d ~/dev/source/bigbluebutton ]; then
+                echo "# "
+                echo "*** ERROR: You haven't checked-out BigBlueButton source yet. Please run 'bbb-conf --checkout' first. "
+                echo "# "
+		exit 1
+        fi
 
-		echo "# Copying the bbb_api_conf.jsp into /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties to ~/dev/bbb-web/web-app/demo"
-		cp /var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp ~/dev/bbb-web/web-app/demo
 
-		echo "# Enabling $USER to write to /var/bigbluebutton to upload slides"
-		sudo chmod -R ugo+rwx /var/bigbluebutton
+        if [ $SETUPDEV == "web" ]; then
+	    	BBBWEBHOME=~/dev/source/bigbluebutton/bigbluebutton-web
+            	if [ ! -d $BBBWEBHOME ]; then
+			echo "# "
+			echo "*** ERROR: Cannot find ${BBBWEBHOME} "
+			echo "*** ERROR: You haven't checked-out BigBlueButton source yet. Please run 'bbb-conf --checkout' first. "
+			echo "# "
+			exit 1
+	 	fi
 
-		echo "# Enabling $USER to write to /var/log/bigbluebutton to write log files"
-		sudo chmod -R ugo+rwx /var/log/bigbluebutton
+                IP=$(ifconfig | grep -v '127.0.0.1' | grep -m 1 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
 
-		echo "# Copying bbb-common-message-0.64.jar into ~/dev/bbb-web/lib"
-		if [ -f $RED5_DIRECTORY/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.64.jar ]; then
-			cp /usr/share/red5/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.64.jar ~/dev/bbb-web/lib
-		fi
+                echo "# Copying the bigbluebutton.properites in /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties to ~/.grails/bigbluebutton-config.properties"
+                mkdir -p ~/.grails
+                cp /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties ~/.grails/bigbluebutton-config.properties
 
-		echo "
+                echo "# Copying the bbb_api_conf.jsp into /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties to ${BBBWEBHOME}/web-app/demo"
+                cp /var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp ${BBBWEBHOME}/web-app/demo
+
+                echo "# Enabling $USER to write to /var/bigbluebutton to upload slides"
+                sudo chmod -R ugo+rwx /var/bigbluebutton
+
+                echo "# Enabling $USER to write to /var/log/bigbluebutton to write log files"
+                sudo chmod -R ugo+rwx /var/log/bigbluebutton
+
+                echo "# Copying bbb-common-message-0.64.jar into ${BBBWEBHOME}/lib"
+                if [ -f $RED5_DIRECTORY/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.64.jar ]; then
+                        cp /usr/share/red5/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.64.jar ${BBBWEBHOME}/lib
+                fi
+
+                echo "
 # Done.  To run your local build of bbb-web:
 
-	sudo /etc/init.d/${TOMCAT} stop
-	cd ~/dev/bbb-web
-	ant
+        sudo /etc/init.d/${TOMCAT} stop
+        cd ${BBBWEBHOME}
+        ant
 "
-            fi
-	fi
+        fi
 
-	if [ $SETUPDEV == "bbb-client" ]; then
-            if [ ! -d ~/dev/bbb-client ]; then
 
-		echo "# Setting up ~/dev/bbb-client"
-                echo "  svn checkout ${SVNPROTO}://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-client bbb-client ${RELEASE} ${SVNUSERNAME}"
+        if [ $SETUPDEV == "client" ]; then
+		BBBCLIENTHOME=~/dev/source/bigbluebutton/bigbluebutton-client
+            	if [ ! -d $BBBCLIENTHOME ]; then
+                        echo "# "
+                        echo "*** ERROR: Cannot find ${BBBCLIENTHOME} "
+                        echo "*** ERROR: You haven't checked-out BigBlueButton source yet. Please run 'bbb-conf --checkout' first. "
+                        echo "# "
+                        exit 1
+                fi
 
-                cd ~/dev
-                svn checkout ${SVNPROTO}://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-client bbb-client $RELEASE $SVNUSERNAME
+                #
+                # Setup the directories so we can point /etc/nginx/sites-available/bigbluebutton to this
+                # local copy of the client
+                #
+                if [ ! -d $BBBCLIENTHOME/bin ]; then
+                        mkdir -p $BBBCLIENTHOME/bin
+                fi
 
-		#
-		# Setup the directories so we can point /etc/nginx/sites-available/bigbluebutton to this
-		# local copy of the client
-		#
-        	if [ ! -d ~/dev/bbb-client/bin ]; then
-			mkdir -p ~/dev/bbb-client/bin
-		fi
+                if [ ! -d $BBBCLIENTHOME/conf ]; then
+                        mkdir -p $BBBCLIENTHOME/bin/conf
+                fi
 
-        	if [ ! -d ~/dev/bbb-client/bin/conf ]; then
-			mkdir -p ~/dev/bbb-client/bin/conf
-		fi
+                if [ ! -h $BBBCLIENTHOME/client ]; then
+                        ln -s $BBBCLIENTHOME/bin $BBBCLIENTHOME/client
+                fi
 
-		if [ ! -h ~/dev/bbb-client/client ]; then
-			ln -s ~/dev/bbb-client/bin ~/dev/bbb-client/client
-		fi
+                echo "Modifying /etc/nginx/sites-available/bigbluebutton to point to your local copy of bbb-client"
+                sudo sed -i "s/\/var\/www\/bigbluebutton;/\/home\/firstuser\/dev\/source\/bigbluebutton\/bigbluebutton-client;/g" \
+                        /etc/nginx/sites-available/bigbluebutton
+                sudo /etc/init.d/nginx restart
 
-		echo "Modifying /etc/nginx/sites-available/bigbluebutton to point to your local copy of bbb-client"
-		sudo sed -i "s/\/var\/www\/bigbluebutton;/\/home\/firstuser\/dev\/bbb-client;/g" \
-			/etc/nginx/sites-available/bigbluebutton
-		sudo /etc/init.d/nginx restart	
+                echo "# Copying /var/www/bigbluebutton/client/conf/config.xml to ${BBBCLIENTHOME}/bin/conf/config.xml"
+                cp /var/www/bigbluebutton/client/conf/config.xml $BBBCLIENTHOME/bin/conf/config.xml
 
-		echo "# Copying /var/www/bigbluebutton/client/conf/config.xml to ~/dev/bbb-client/bin/conf/config.xml"
-		cp /var/www/bigbluebutton/client/conf/config.xml ~/dev/bbb-client/bin/conf/config.xml
+                cd $BBBCLIENTHOME
 
-		cd bbb-client
-
-		echo "
+                echo "
 # Done.  To build your local build of bbb-client:
 
-	cd ~/dev/bbb-client
-	ant
+        cd ${BBBCLIENTHOME}
+        ant
 
-# The nginx server now loads the BigBlueButton Flash client from 
-# /home/firstuser/dev/bbb-client.
+# The nginx server now loads the BigBlueButton Flash client from
+# ${BBBCLIENTHOME}.
 "
-	    fi
-	fi
+        fi
 
-	if [ $SETUPDEV == "bbb-apps" ]; then
-            if [ ! -d ~/dev/bbb-apps ]; then
+        if [ $SETUPDEV == "apps" ]; then
+	    	BBBAPPSHOME=~/dev/source/bigbluebutton/bigbluebutton-apps
+            	if [ ! -d $BBBAPPSHOME ]; then
+                        echo "# "
+                        echo "*** ERROR: Cannot find ${BBBAPPSHOME} "
+                        echo "*** ERROR: You haven't checked-out BigBlueButton source yet. Please run 'bbb-conf --checkout' first. "
+                        echo "# "
+                        exit 1
+                fi
 
-		echo "# Setting up ~/dev/bbb-apps:"
-  		echo "  svn checkout ${SVNPROTO}://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-apps bbb-apps ${RELEASE} ${SVNUSERNAME}"
-           
-                cd ~/dev
-                svn checkout ${SVNPROTO}://bigbluebutton.googlecode.com/svn/trunk/bigbluebutton-apps bbb-apps $RELEASE $SVNUSERNAME
- 
- 		echo "# Checking if ~/dev/repo/bbb-common-message-0.64.jar is present"
-		if [ ! -f ~/dev/repo/bbb-common-message-0.64.jar ]; then
-			echo "# Copying bbb-common-message-0.64.jar into ~/dev/repo/"
-			if [ -f $RED5_DIRECTORY/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.64.jar ]; then
-				cp /usr/share/red5/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.64.jar ~/dev/repo/
+                echo "# Checking if ~/dev/repo/bbb-common-message-0.64.jar is present"
+                if [ ! -f ~/dev/repo/bbb-common-message-0.64.jar ]; then
+                        echo "# Copying bbb-common-message-0.64.jar into ${BBBAPPSHOME}"
+                        if [ -f $RED5_DIRECTORY/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.64.jar ]; then
+				if [ ! -d ~/dev/repo ]; then
+                        		mkdir -p ~/dev/repo
+                		fi
+                                cp /usr/share/red5/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.64.jar ~/dev/repo/
                         else
                                 echo "# $RED5_DIRECTORY/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.64.jar does NOT exist!"
                         fi
                 fi
-             fi 
 
-		#
-		# We're going to make it easier to deploy by giving write access to others to 
-		# $RED5_DIRECTORY/webapps
-		#
-		sudo chmod o+w $RED5_DIRECTORY/webapps
+                #
+                # We're going to make it easier to deploy by giving write access to others to
+                # $RED5_DIRECTORY/webapps
+                #
+                sudo chmod o+w $RED5_DIRECTORY/webapps
 
-		#
-		# Let's remove the existing bbb-apps
-		#
-		if dpkg-query -s bbb-apps | grep "install ok installed" > /dev/null 2>&1; then
-        		sudo apt-get purge --yes bbb-apps
-		fi
+                #
+                # Let's remove the existing bbb-apps
+                #
+                if dpkg-query -s bbb-apps | grep "install ok installed" > /dev/null 2>&1; then
+                        sudo apt-get purge --yes bbb-apps
+                fi
 
-		if [ ! -f ~/.bbb-apps-build.properties ]; then
-			echo "#
+                if [ ! -f ~/.bbb-apps-build.properties ]; then
+                        echo "#
 # Override the default properties for bbb-apps
 #
 red5.home = $RED5_DIRECTORY
 " > ~/.bbb-apps-build.properties
-		fi
+                fi
 
-		#
-		# Setup the directories so we can point /etc/nginx/sites-available/bigbluebutton to this
-		# local copy of the client
-		#
-		echo "
+                #
+                # Setup the directories so we can point /etc/nginx/sites-available/bigbluebutton to this
+                # local copy of the client
+                #
+                echo "
 # Done.  To run your local build of bbb-apps:
 
     sudo /etc/init.d/red5 stop
-    cd ~/dev/bbb-apps
+    cd ${BBBAPPSHOME}
     gradle war deploy
-    cd $RED5_DIRECTORY			
-    sudo -u red5 ./red5.sh		
+    cd $RED5_DIRECTORY
+    sudo -u red5 ./red5.sh
 
 # To restore the packaged version of bbb-apps:
 
@@ -596,7 +637,7 @@ red5.home = $RED5_DIRECTORY
     sudo /etc/init.d/red5 start
 "
 
-	fi
+        fi
 fi
 
 if [ $RESET_DEV ]; then
