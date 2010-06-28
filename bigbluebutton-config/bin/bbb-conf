@@ -1060,18 +1060,18 @@ if [ $CONFERENCE ]; then
 
 		#
 		# update /etc/asterisk/bbb_extensions.conf
-		sudo sed -i "s/^exten => _XXXX.,n,Konference(\${EXTEN},H)/# exten => _XXXX.,n,Konference(\${EXTEN},H)/g" \
+		sudo sed -i "s/^exten => _XXXX.,n,Konference(\${EXTEN},H)/; exten => _XXXX.,n,Konference(\${EXTEN},H)/g" \
 			/etc/asterisk/bbb_extensions.conf
 
-		sudo sed -i "s/#[ ]*exten => _XXXX.,n,MeetMe(\${EXTEN},cdMsT)/exten => _XXXX.,n,MeetMe(\${EXTEN},cdMsT)/g" \
+		sudo sed -i "s/;[ ]*exten => _XXXX.,n,MeetMe(\${EXTEN},cdMsT)/exten => _XXXX.,n,MeetMe(\${EXTEN},cdMsT)/g" \
 			/etc/asterisk/bbb_extensions.conf
 
 		#
 		# update /etc/asterisk/bbb_extensions.conf
-		sudo sed -i "s/# exten => _XXXX.,n,MeetMe(\${CONFERENCE_FOUND},cdMsT)/exten => _XXXX.,n,MeetMe(\${CONFERENCE_FOUND},cdMsT)/g" \
+		sudo sed -i "s/; exten => _XXXX.,n,MeetMe(\${CONFERENCE_FOUND},cdMsT)/exten => _XXXX.,n,MeetMe(\${CONFERENCE_FOUND},cdMsT)/g" \
 			/etc/asterisk/bbb_extensions.conf
 
-		sudo sed -i "s/^exten => _XXXX.,n,Konference(\${CONFERENCE_FOUND},H)/# exten => _XXXX.,n,Konference(\${CONFERENCE_FOUND},H)/g" \
+		sudo sed -i "s/^exten => _XXXX.,n,Konference(\${CONFERENCE_FOUND},H)/; exten => _XXXX.,n,Konference(\${CONFERENCE_FOUND},H)/g" \
 			/etc/asterisk/bbb_extensions.conf
 	fi
  
@@ -1084,17 +1084,17 @@ if [ $CONFERENCE ]; then
 
 		#
 		# update /etc/asterisk/bbb_extensions.conf
-		sudo sed -i "s/#[ ]*exten => _XXXX.,n,Konference(\${EXTEN},H)/exten => _XXXX.,n,Konference(\${EXTEN},H)/g" \
+		sudo sed -i "s/;[ ]*exten => _XXXX.,n,Konference(\${EXTEN},H)/exten => _XXXX.,n,Konference(\${EXTEN},H)/g" \
 			/etc/asterisk/bbb_extensions.conf
 
-		sudo sed -i "s/^exten => _XXXX.,n,MeetMe(\${EXTEN},cdMsT)/# exten => _XXXX.,n,MeetMe(\${EXTEN},cdMsT)/g" \
+		sudo sed -i "s/^exten => _XXXX.,n,MeetMe(\${EXTEN},cdMsT)/; exten => _XXXX.,n,MeetMe(\${EXTEN},cdMsT)/g" \
 			/etc/asterisk/bbb_extensions.conf
 
 
-		sudo sed -i "s/^exten => _XXXX.,n,MeetMe(\${CONFERENCE_FOUND},cdMsT)/# exten => _XXXX.,n,MeetMe(\${CONFERENCE_FOUND},cdMsT)/g" \
+		sudo sed -i "s/^exten => _XXXX.,n,MeetMe(\${CONFERENCE_FOUND},cdMsT)/; exten => _XXXX.,n,MeetMe(\${CONFERENCE_FOUND},cdMsT)/g" \
 			/etc/asterisk/bbb_extensions.conf
 
-		sudo sed -i "s/# exten => _XXXX.,n,Konference(\${CONFERENCE_FOUND},H)/exten => _XXXX.,n,Konference(\${CONFERENCE_FOUND},H)/g" \
+		sudo sed -i "s/; exten => _XXXX.,n,Konference(\${CONFERENCE_FOUND},H)/exten => _XXXX.,n,Konference(\${CONFERENCE_FOUND},H)/g" \
 			/etc/asterisk/bbb_extensions.conf
 	fi
 
