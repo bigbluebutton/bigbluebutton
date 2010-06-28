@@ -378,7 +378,7 @@ fi
 # Setup samba
 #
 
-if [ -n $SALT ]; then
+if [ $SALT ]; then
 	need_root
 #	echo $SALT;
 	change_var_salt /var/lib/$TOMCAT/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties beans.dynamicConferenceService.securitySalt $SALT
