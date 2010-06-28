@@ -155,8 +155,8 @@
 				var deltaCanvasMouseX:Number = this.mouseX - canvasMouseXOnMouseDown;
 				var deltaCanvasMouseY:Number = this.mouseY - canvasMouseYOnMouseDown;
 
-				swfSlideLoader.x = loaderXOnMouseDown + deltaCanvasMouseX/2;
-				swfSlideLoader.y = loaderYOnMouseDown + deltaCanvasMouseY/2;
+				swfSlideLoader.x = loaderXOnMouseDown + deltaCanvasMouseX;
+				swfSlideLoader.y = loaderYOnMouseDown + deltaCanvasMouseY;
 				
 				fitSlideToLoader();				
 				notifyOtherParticipantsOfSlideMoving();
@@ -190,7 +190,7 @@
 				swfSlideLoader.height = this.height * presentersLoaderCanvasHeightRatio;
 				
 				swfSlideLoader.x = swfSlideLoader.width * presentersLoaderXOffsetFromCanvas;
-				swfSlideLoader.y = swfSlideLoader.width * presentersLoaderYOffsetFromCanvas;
+				swfSlideLoader.y = swfSlideLoader.height * presentersLoaderYOffsetFromCanvas;
 				
 				fitSlideToLoader();
 			}
