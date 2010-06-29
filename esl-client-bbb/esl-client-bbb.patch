@@ -1,0 +1,1041 @@
+diff --git a/dvarnes/java/esl-client/org.freeswitch.esl.client.example/pom.xml b/dvarnes/java/esl-client/org.freeswitch.esl.client.example/pom.xml
+index 56c8250..97f03db 100644
+--- a/dvarnes/java/esl-client/org.freeswitch.esl.client.example/pom.xml
++++ b/dvarnes/java/esl-client/org.freeswitch.esl.client.example/pom.xml
+@@ -19,7 +19,7 @@
+   <parent>
+     <groupId>org.freeswitch.esl.client</groupId>
+     <artifactId>esl-client-parent</artifactId>
+-    <version>0.0.1-SNAPSHOT</version>
++    <version>0.9.0-SNAPSHOT</version>
+   </parent>
+   <artifactId>org.freeswitch.esl.client.example</artifactId>
+   <name>FreeSWITCH Event Socket Library - Java Client example usage</name>
+@@ -27,7 +27,7 @@
+     <dependency>
+       <groupId>org.freeswitch.esl.client</groupId>
+       <artifactId>org.freeswitch.esl.client</artifactId>
+-      <version>0.0.1-SNAPSHOT</version>
++      <version>0.9.0-SNAPSHOT</version>
+     </dependency>
+   </dependencies>
+-</project>
+\ No newline at end of file
++</project>
+diff --git a/dvarnes/java/esl-client/org.freeswitch.esl.client.example/src/main/java/org/freeswitch/esl/client/example/EslEventListener.java b/dvarnes/java/esl-client/org.freeswitch.esl.client.example/src/main/java/org/freeswitch/esl/client/example/EslEventListener.java
+new file mode 100644
+index 0000000..e7b0edc
+--- /dev/null
++++ b/dvarnes/java/esl-client/org.freeswitch.esl.client.example/src/main/java/org/freeswitch/esl/client/example/EslEventListener.java
+@@ -0,0 +1,88 @@
++/*
++ * To change this template, choose Tools | Templates
++ * and open the template in the editor.
++ */
++
++package org.freeswitch.esl.client.example;
++
++import org.freeswitch.esl.client.IEslEventListener;
++import org.freeswitch.esl.client.transport.event.EslEvent;
++import org.jboss.netty.channel.ExceptionEvent;
++import org.slf4j.Logger;
++import org.slf4j.LoggerFactory;
++
++/**
++ *
++ * @author leif
++ */
++public class EslEventListener implements IEslEventListener {
++    private final Logger log = LoggerFactory.getLogger( this.getClass() );
++
++    public void eventReceived( EslEvent event )
++    {
++        log.info( "Event received [{}]", event );
++    }
++
++    public void backgroundJobResultReceived( EslEvent event )
++    {
++        log.info( "Background job result received [{}]", event );
++    }
++
++    public void conferenceEventJoin(String uniqueId, String confName, int confSize, EslEvent event) {
++        StringBuilder sb = new StringBuilder("");
++        sb.append(uniqueId);
++        Object[] args = new Object[3];
++        args[0] = confName;
++        args[1] = confSize;
++        args[2] = sb.toString();
++        log.info ("Conference [{}]({}) JOIN [{}]", args);
++    }
++
++    public void conferenceEventLeave(String uniqueId, String confName, int confSize, EslEvent event) {
++        StringBuilder sb = new StringBuilder("");
++        sb.append(uniqueId);
++        Object[] args = new Object[3];
++        args[0] = confName;
++        args[1] = confSize;
++        args[2] = sb.toString();
++        log.info ("Conference [{}]({}) LEAVE [{}]", args);
++    }
++
++    public void conferenceEventMute(String uniqueId, String confName, int confSize, EslEvent event) {
++        StringBuilder sb = new StringBuilder("");
++        sb.append(uniqueId);
++        log.info ("Conference [{}] MUTE [{}]", confName, sb.toString());
++    }
++
++    public void conferenceEventUnMute(String uniqueId, String confName, int confSize, EslEvent event) {
++        StringBuilder sb = new StringBuilder("");
++        sb.append(uniqueId);
++        log.info ("Conference [{}] UNMUTE [{}]", confName, sb.toString());
++    }
++
++    public void conferenceEventAction(String uniqueId, String confName, int confSize, String action, EslEvent event) {
++        StringBuilder sb = new StringBuilder("");
++        sb.append(uniqueId);
++        sb.append(" action=[");
++        sb.append(action);
++        sb.append("]");
++        log.info ("Conference [{}] Action [{}]", confName, sb.toString());
++    }
++
++    public void conferenceEventTransfer(String uniqueId, String confName, int confSize, EslEvent event) {
++        //Noop
++    }
++
++    public void conferenceEventThreadRun(String uniqueId, String confName, int confSize, EslEvent event) {
++        //Noop
++    }
++
++    public void conferenceEventPlayFile(String uniqueId, String confName, int confSize, EslEvent event) {
++        //Noop
++    }
++
++    public void exceptionCaught(ExceptionEvent e) {
++        //throw new UnsupportedOperationException("Not supported yet.");
++    }
++
++}
+diff --git a/dvarnes/java/esl-client/org.freeswitch.esl.client.example/src/main/java/org/freeswitch/esl/client/example/ExampleClient.java b/dvarnes/java/esl-client/org.freeswitch.esl.client.example/src/main/java/org/freeswitch/esl/client/example/ExampleClient.java
+new file mode 100644
+index 0000000..2e8408a
+--- /dev/null
++++ b/dvarnes/java/esl-client/org.freeswitch.esl.client.example/src/main/java/org/freeswitch/esl/client/example/ExampleClient.java
+@@ -0,0 +1,89 @@
++package org.freeswitch.esl.client.example;
++/*
++ * To change this template, choose Tools | Templates
++ * and open the template in the editor.
++ */
++import org.freeswitch.esl.client.inbound.Client;
++import org.freeswitch.esl.client.inbound.InboundConnectionFailure;
++import org.slf4j.Logger;
++import org.slf4j.LoggerFactory;
++import java.util.Scanner;
++
++/**
++ *
++ * @author leif
++ */
++public class ExampleClient {
++    private final Logger log = LoggerFactory.getLogger( this.getClass() );
++
++    private String host = "localhost";
++    private int port = 8021;
++    private String password = "ClueCon";
++    private Client client;
++    private HeartbeatThread hbThread;
++    
++    public void do_connect() throws InterruptedException
++    {
++        client = new Client();
++        client.addEventListener( new EslEventListener() );
++
++        log.info( "Client connecting .." );
++        try
++        {
++            client.connect( host, port, password, 2 );
++        }
++        catch ( InboundConnectionFailure e )
++        {
++            log.error( "Connect failed", e );
++            return;
++        }
++        log.info( "Client connected .." );
++
++        //client.setEventSubscriptions( "plain", "heartbeat BACKGROUND_JOB CUSTOM" );
++        client.setEventSubscriptions( "plain", "all" );
++        client.addEventFilter( "Event-Name", "heartbeat" );
++        client.addEventFilter( "Event-Name", "custom" );
++        client.addEventFilter( "Event-Name", "background_job" );
++
++    }
++
++    public void close_client() {
++        stopHeartBeatThread();
++        client.close();
++    }
++
++    public void startHeartBeatThread() {
++        hbThread = new HeartbeatThread(client);
++        new Thread(hbThread).start();
++    }
++
++    public void stopHeartBeatThread() {
++        hbThread.shutdown();
++    }
++    
++    /**
++     * @param args the command line arguments
++     */
++    public static void main(String[] args) {
++        ExampleClient test = new ExampleClient();
++        try {
++            test.do_connect();
++            //FIXME.. the reconnect code that this is intended to implement requires refactoring.
++            //test.startHeartBeatThread();
++            Scanner myInput = new Scanner(System.in);
++            boolean notDone = true;
++            while(notDone){
++                String Input1 = myInput.next();
++                if(Input1.equalsIgnoreCase("q")){
++                    notDone = false;
++                }
++                Thread.sleep( 25000 );
++            }
++            //test.stopHeartBeatThread();
++            test.close_client();
++        }catch(InterruptedException ie) {
++            return;
++        }
++    }
++
++}
+diff --git a/dvarnes/java/esl-client/org.freeswitch.esl.client.example/src/main/java/org/freeswitch/esl/client/example/HeartbeatThread.java b/dvarnes/java/esl-client/org.freeswitch.esl.client.example/src/main/java/org/freeswitch/esl/client/example/HeartbeatThread.java
+new file mode 100644
+index 0000000..17c70dd
+--- /dev/null
++++ b/dvarnes/java/esl-client/org.freeswitch.esl.client.example/src/main/java/org/freeswitch/esl/client/example/HeartbeatThread.java
+@@ -0,0 +1,74 @@
++/*
++ * To change this template, choose Tools | Templates
++ * and open the template in the editor.
++ */
++
++package org.freeswitch.esl.client.example;
++
++import java.util.logging.Level;
++import java.util.logging.Logger;
++import org.freeswitch.esl.client.inbound.Client;
++import org.freeswitch.esl.client.inbound.InboundConnectionFailure;
++import org.slf4j.LoggerFactory;
++
++/**
++ *
++ * @author leif
++ */
++public class HeartbeatThread implements Runnable {
++    private final org.slf4j.Logger log = LoggerFactory.getLogger( this.getClass() );
++    private Client client;
++    private boolean shutdown = false;
++    private String host = "localhost";
++    private int port = 8021;
++    private String password = "ClueCon";
++
++    HeartbeatThread(Client c) {
++        this.client = c;
++    }
++
++    HeartbeatThread(Client c, String h, int p, String pass) {
++        this.client = c;
++        this.host = h;
++        this.port = p;
++        this.password = pass;
++    }
++
++    public void shutdown() {
++        this.shutdown = true;
++    }
++
++    public void gotHeartbeatEvent() {
++
++    }
++    
++    public void run() {
++        while(!shutdown) {
++            try {
++                String jobId = client.sendAsyncApiCommand( "status", "" );
++                log.info( "Job id [{}] for [status]", jobId );
++                Thread.sleep(25000);
++            } catch (IllegalStateException is) {
++                log.warn( "ISE: [{}]", is.getMessage());
++                log.info( "Client connecting .." );
++                try
++                {
++                    client.connect( host, port, password, 2 );
++                    log.info( "Client connected .." );
++                }
++                catch ( InboundConnectionFailure e )
++                {
++                    log.warn( "Connect failed [{}]", e.getMessage() );
++                    try {
++                        Thread.sleep(25000);
++                    } catch (InterruptedException ex) {
++                        Logger.getLogger(HeartbeatThread.class.getName()).log(Level.SEVERE, null, ex);
++                    }
++                }
++            } catch (InterruptedException ex) {
++                Logger.getLogger(HeartbeatThread.class.getName()).log(Level.SEVERE, null, ex);
++            }
++        }
++    }
++
++}
+diff --git a/dvarnes/java/esl-client/org.freeswitch.esl.client.example/src/main/resources/log4j.properties b/dvarnes/java/esl-client/org.freeswitch.esl.client.example/src/main/resources/log4j.properties
+new file mode 100644
+index 0000000..51c2dcd
+--- /dev/null
++++ b/dvarnes/java/esl-client/org.freeswitch.esl.client.example/src/main/resources/log4j.properties
+@@ -0,0 +1,22 @@
++# Set root logger level to DEBUG and its only appender to A1.
++log4j.rootLogger=DEBUG, A1, A2
++
++# A1 is set to be a ConsoleAppender.
++log4j.appender.A1=org.apache.log4j.ConsoleAppender
++
++# A1 uses PatternLayout.
++log4j.appender.A1.layout=org.apache.log4j.PatternLayout
++log4j.appender.A1.layout.ConversionPattern=%-4r [%t] %-5p %c %x - %m%n
++
++log4j.appender.A2=org.apache.log4j.RollingFileAppender
++log4j.appender.A2.File=esl_client.log
++
++log4j.appender.A2.MaxFileSize=500KB
++# Keep 5 backup files
++log4j.appender.A2.MaxBackupIndex=5
++
++log4j.appender.A2.layout=org.apache.log4j.PatternLayout
++log4j.appender.A2.layout.ConversionPattern=%d [%t] %-5p %c - %m%n
++
++log4j.logger.org.freeswitch.esl.client.transport.message=INFO
++log4j.logger.org.freeswitch.esl.client.inbound=INFO
+\ No newline at end of file
+diff --git a/dvarnes/java/esl-client/org.freeswitch.esl.client/pom.xml b/dvarnes/java/esl-client/org.freeswitch.esl.client/pom.xml
+index cc9d9f1..8425503 100644
+--- a/dvarnes/java/esl-client/org.freeswitch.esl.client/pom.xml
++++ b/dvarnes/java/esl-client/org.freeswitch.esl.client/pom.xml
+@@ -19,15 +19,15 @@
+   <parent>
+     <groupId>org.freeswitch.esl.client</groupId>
+     <artifactId>esl-client-parent</artifactId>
+-    <version>0.0.1-SNAPSHOT</version>
++    <version>0.9.0-SNAPSHOT</version>
+   </parent>
+   <artifactId>org.freeswitch.esl.client</artifactId>
+   <name>FreeSWITCH Event Socket Library - Java Client</name>
+   <packaging>bundle</packaging>
+   <build>
+-  
++
+     <plugins>
+-    
++
+       <!--  this plugin will create the target jar as a correct OSGi bundle  -->
+       <plugin>
+         <groupId>org.apache.felix</groupId>
+@@ -43,8 +43,13 @@
+             <Import-Package>*</Import-Package>
+             <Export-Package>
+               org.freeswitch.esl.client,
++              org.freeswitch.esl.client.transport,
+               org.freeswitch.esl.client.transport.event,
+               org.freeswitch.esl.client.transport.message,
++              org.freeswitch.esl.client.inbound,
++              org.freeswitch.esl.client.internal.debug,
++              org.freeswitch.esl.client.manager,
++              org.freeswitch.esl.client.manager.internal,
+             </Export-Package>
+             <!--  the debug package is a temporary hack  -->
+             <Private-Package>
+@@ -54,19 +59,19 @@
+           </instructions>
+         </configuration>
+       </plugin>
+-      
++
+       <plugin>
+         <artifactId>maven-surefire-plugin</artifactId>
+         <configuration>
+-          <excludes> 
+-            <exclude>**/ClientTest.java</exclude>            
+-            <exclude>**/SocketClientTest.java</exclude>            
++          <excludes>
++            <exclude>**/ClientTest.java</exclude>
++            <exclude>**/SocketClientTest.java</exclude>
+           </excludes>
+         </configuration>
+       </plugin>
+-      
++
+     </plugins>
+-    
++
+   </build>
+   <dependencies>
+ 
+@@ -75,31 +80,37 @@
+       <artifactId>slf4j-api</artifactId>
+       <version>1.5.10</version>
+     </dependency>
+-    
++
++    <dependency>
++      <groupId>org.slf4j</groupId>
++      <artifactId>slf4j-log4j12</artifactId>
++      <version>1.5.8</version>
++    </dependency>
++
+     <dependency>
+       <groupId>org.jboss.netty</groupId>
+       <artifactId>netty</artifactId>
+       <version>3.1.5.GA</version>
+     </dependency>
+-    
++
+     <!--  test dependencies -->
+-    
++
+     <dependency>
+       <groupId>junit</groupId>
+       <artifactId>junit</artifactId>
+-      <version>4.7</version>
++      <version>4.8.2</version>
+       <scope>test</scope>
+     </dependency>
+-    
++
+     <dependency>
+       <groupId>ch.qos.logback</groupId>
+       <artifactId>logback-classic</artifactId>
+       <version>0.9.18</version>
+       <scope>test</scope>
+     </dependency>
+-    
++
+   </dependencies>
+-  
++
+   <repositories>
+     <!--  for netty dependency -->
+     <repository>
+@@ -110,5 +121,6 @@
+       </snapshots>
+     </repository>
+   </repositories>
+-   
+-</project>
+\ No newline at end of file
++
++</project>
++
+diff --git a/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/IEslEventListener.java b/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/IEslEventListener.java
+index df431ff..1df65f4 100644
+--- a/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/IEslEventListener.java
++++ b/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/IEslEventListener.java
+@@ -16,6 +16,7 @@
+ package org.freeswitch.esl.client;
+ 
+ import org.freeswitch.esl.client.transport.event.EslEvent;
++import org.jboss.netty.channel.ExceptionEvent;
+ 
+ /**
+  * Interface for observers wanting to be notified of incoming FreeSWITCH Event Socket events.
+@@ -42,7 +43,80 @@ public interface IEslEventListener
+      * @param event as an {@link EslEvent} 
+      */
+     void eventReceived( EslEvent event );
+-    
++
++    /**
++     *
++     * @param uniqueId
++     * @param confName
++     * @param confSize
++     * @param event as an {@link EslEvent}
++     */
++    void conferenceEventJoin(String uniqueId, String confName, int confSize, EslEvent event);
++
++    /**
++     *
++     * @param uniqueId
++     * @param confName
++     * @param confSize
++     * @param event as an {@link EslEvent}
++     */
++    void conferenceEventLeave(String uniqueId, String confName, int confSize, EslEvent event);
++
++    /**
++     *
++     * @param uniqueId
++     * @param confName
++     * @param confSize
++     * @param event as an {@link EslEvent}
++     */
++    void conferenceEventMute(String uniqueId, String confName, int confSize, EslEvent event);
++
++    /**
++     *
++     * @param uniqueId
++     * @param confName
++     * @param confSize
++     * @param event as an {@link EslEvent}
++     */
++    void conferenceEventUnMute(String uniqueId, String confName, int confSize, EslEvent event);
++
++    /**
++     *
++     * @param uniqueId
++     * @param confName
++     * @param confSize
++     * @param action
++     * @param event as an {@link EslEvent}
++     */
++    void conferenceEventAction(String uniqueId, String confName, int confSize, String action, EslEvent event);
++
++    /**
++     *
++     * @param uniqueId
++     * @param confName
++     * @param confSize
++     * @param event as an {@link EslEvent}
++     */
++    void conferenceEventTransfer(String uniqueId, String confName, int confSize, EslEvent event);
++
++    /**
++     *
++     * @param uniqueId
++     * @param confName
++     * @param confSize
++     * @param event as an {@link EslEvent}
++     */
++    void conferenceEventThreadRun(String uniqueId, String confName, int confSize, EslEvent event);
++
++    /**
++     *
++     * @param uniqueId
++     * @param confName
++     * @param confSize
++     * @param event as an {@link EslEvent}
++     */
++    void conferenceEventPlayFile(String uniqueId, String confName, int confSize, EslEvent event);
++
+     /**
+      * Signal of an event containing the result of a client requested background job.  The Job-UUID will
+      * be available as an event header of that name.
+@@ -50,4 +124,11 @@ public interface IEslEventListener
+      * @param event as an {@link EslEvent}
+      */
+     void backgroundJobResultReceived( EslEvent event );
++
++    /**
++     * 
++     * @param e as an {@link ExceptionEvent}
++     */
++    void exceptionCaught(ExceptionEvent e);
++
+ }
+diff --git a/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/inbound/Client.java b/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/inbound/Client.java
+index dfab48a..1a85f95 100644
+--- a/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/inbound/Client.java
++++ b/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/inbound/Client.java
+@@ -17,6 +17,7 @@ package org.freeswitch.esl.client.inbound;
+ 
+ import java.net.InetSocketAddress;
+ import java.util.List;
++import java.util.Map;
+ import java.util.concurrent.CopyOnWriteArrayList;
+ import java.util.concurrent.Executor;
+ import java.util.concurrent.Executors;
+@@ -34,6 +35,7 @@ import org.freeswitch.esl.client.transport.message.EslMessage;
+ import org.jboss.netty.bootstrap.ClientBootstrap;
+ import org.jboss.netty.channel.Channel;
+ import org.jboss.netty.channel.ChannelFuture;
++import org.jboss.netty.channel.ExceptionEvent;
+ import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
+ import org.slf4j.Logger;
+ import org.slf4j.LoggerFactory;
+@@ -463,6 +465,62 @@ public class Client
+                         {
+                             try
+                             {
++                                /**
++                                 * Custom extra parsing to get conference Events for BigBlueButton / FreeSwitch intergration
++                                 */
++                                //FIXME: make the conference headers constants
++                                if(event.getEventSubclass().equals("conference::maintenance")){
++                                    Map<String, String> eventHeaders = event.getEventHeaders();
++                                    String eventFunc = eventHeaders.get("Event-Calling-Function");
++                                    String uniqueId = eventHeaders.get("Caller-Unique-ID");
++                                    String confName = eventHeaders.get("Conference-Name");
++                                    int confSize = Integer.parseInt(eventHeaders.get("Conference-Size"));
++
++                                    //FIXME: all by Action eventHeader really.... maybe?
++                                    // But this way we filter whole sections of Action events
++                                    if(eventFunc == null) {
++                                        //Noop...
++                                    }else if(eventFunc.equals("conference_thread_run")) {
++                                        listener.conferenceEventThreadRun(uniqueId, confName, confSize, event);
++                                        return;
++                                    }else if(eventFunc.equals("member_add_file_data")) {
++                                        listener.conferenceEventPlayFile(uniqueId, confName, confSize, event);
++                                        return;
++                                    }else if(eventFunc.equals("conf_api_sub_transfer")) {
++                                        //Member transfered to another conf...
++                                        listener.conferenceEventTransfer(uniqueId, confName, confSize, event);
++                                        return;
++                                    }else if(eventFunc.equals("conference_add_member")) {
++                                        listener.conferenceEventJoin(uniqueId, confName, confSize, event);
++                                        return;
++                                    }else if(eventFunc.equals("conference_del_member")) {
++                                        listener.conferenceEventLeave(uniqueId, confName, confSize, event);
++                                        return;
++                                    }else if(eventFunc.equals("conf_api_sub_mute")) {
++                                        listener.conferenceEventMute(uniqueId, confName, confSize, event);
++                                        return;
++                                    }else if(eventFunc.equals("conf_api_sub_unmute")) {
++                                        listener.conferenceEventUnMute(uniqueId, confName, confSize, event);
++                                        return;
++                                    }else if(eventFunc.equals("conference_loop_input")) {
++                                        listener.conferenceEventAction(uniqueId, confName, confSize, eventHeaders.get("Action"), event);
++                                        return;
++                                    }else{
++                        /*              StringBuilder sb = new StringBuilder("");
++                                        sb.append("\n");
++                                        for (Iterator it=eventHeaders.entrySet().iterator(); it.hasNext(); ) {
++                                            Map.Entry entry = (Map.Entry)it.next();
++                                            sb.append(entry.getKey());
++                                            sb.append(" => '");
++                                            sb.append(entry.getValue());
++                                            sb.append("'\n");
++                                        }
++                                        log.info ("Unknown Conference Event [{}] [{}]", confName, sb.toString());
++                         */
++                                    }
++                                }
++
++
+                                 listener.eventReceived( event );
+                             }
+                             catch ( Throwable t )
+@@ -479,6 +537,29 @@ public class Client
+         {
+             log.info( "Disconnected .." );
+         }
++
++        public void exceptionCaught(final ExceptionEvent e) {
++            log.debug( "exceptionCaught [{}]", e );
++
++            for ( final IEslEventListener listener : eventListeners )
++                {
++                    eventListenerExecutor.execute( new Runnable()
++                    {
++                        public void run()
++                        {
++                            try
++                            {
++                                listener.exceptionCaught( e );
++                            }
++                            catch ( Throwable t )
++                            {
++                                log.error( "Error caught notifying listener of exception [" + e + ']', t );
++                            }
++                        }
++                    } );
++                }
++
++        }
+     };
+     
+     private void checkConnected()
+diff --git a/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/inbound/InboundClientHandler.java b/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/inbound/InboundClientHandler.java
+index 370cf58..028976c 100644
+--- a/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/inbound/InboundClientHandler.java
++++ b/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/inbound/InboundClientHandler.java
+@@ -23,6 +23,7 @@ import org.freeswitch.esl.client.transport.message.EslMessage;
+ import org.freeswitch.esl.client.transport.message.EslHeaders.Value;
+ import org.jboss.netty.channel.ChannelHandlerContext;
+ import org.jboss.netty.channel.ChannelPipelineCoverage;
++import org.jboss.netty.channel.ExceptionEvent;
+ import org.jboss.netty.handler.execution.ExecutionHandler;
+ 
+ /**
+@@ -60,6 +61,7 @@ public class InboundClientHandler extends AbstractEslClientHandler
+     {
+         log.debug( "Received event: [{}]", event );
+         listener.eventReceived( event );
++
+     }
+ 
+     protected void handleAuthRequest( ChannelHandlerContext ctx )
+@@ -85,5 +87,12 @@ public class InboundClientHandler extends AbstractEslClientHandler
+         log.debug( "Received disconnection notice" );
+         listener.disconnected();
+     }
++
++    @Override
++    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception
++    {
++        log.debug( "Received exception caught notice" );
++        listener.exceptionCaught(e);
++    }
+     
+ }
+diff --git a/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/internal/IEslProtocolListener.java b/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/internal/IEslProtocolListener.java
+index d9f2064..46a6b95 100644
+--- a/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/internal/IEslProtocolListener.java
++++ b/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/internal/IEslProtocolListener.java
+@@ -18,6 +18,7 @@ package org.freeswitch.esl.client.internal;
+ import org.freeswitch.esl.client.inbound.Client;
+ import org.freeswitch.esl.client.transport.CommandResponse;
+ import org.freeswitch.esl.client.transport.event.EslEvent;
++import org.jboss.netty.channel.ExceptionEvent;
+ 
+ /**
+  * End users of the {@link Client} should not need to use this class. 
+@@ -34,4 +35,7 @@ public interface IEslProtocolListener
+     void eventReceived( EslEvent event );
+     
+     void disconnected();
++
++    void exceptionCaught(ExceptionEvent e);
++
+ }
+diff --git a/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/manager/DefaultManagerConnection.java b/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/manager/DefaultManagerConnection.java
+new file mode 100644
+index 0000000..f10fd76
+--- /dev/null
++++ b/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/manager/DefaultManagerConnection.java
+@@ -0,0 +1,99 @@
++package org.freeswitch.esl.client.manager;
++
++import org.freeswitch.esl.client.inbound.Client;
++import org.freeswitch.esl.client.inbound.InboundConnectionFailure;
++import org.freeswitch.esl.client.manager.internal.ManagerConnectionImpl;
++
++public class DefaultManagerConnection implements ManagerConnection
++{
++    private ManagerConnectionImpl impl;
++
++    /**
++     * Creates a new instance.
++     */
++    public DefaultManagerConnection()
++    {
++        this.impl = new ManagerConnectionImpl();
++    }
++
++    public DefaultManagerConnection(String hostname, String password)
++    {
++        this();
++        impl.setHostname(hostname);
++        impl.setPassword(password);
++    }
++
++    public DefaultManagerConnection(String hostname, int port, String password)
++    {
++        this();
++        impl.setHostname(hostname);
++        impl.setPort(port);
++        impl.setPassword(password);
++    }
++
++    public DefaultManagerConnection(String hostname, int port, String password, int timeout)
++    {
++        this();
++        impl.setHostname(hostname);
++        impl.setPort(port);
++        impl.setPassword(password);
++        impl.setTimeout(timeout);
++    }
++
++    public void setHostname(String hostname)
++    {
++        impl.setHostname(hostname);
++    }
++
++    public void setPort(int port)
++    {
++        impl.setPort(port);
++    }
++
++    public void setTimeout(int timeout)
++    {
++        impl.setTimeout(timeout);
++    }
++
++    public void setPassword(String password)
++    {
++        impl.setPassword(password);
++    }
++
++    public String getHostname()
++    {
++        return impl.getHostname();
++    }
++
++    public int getPort()
++    {
++        return impl.getPort();
++    }
++
++    public String getPassword()
++    {
++        return impl.getPassword();
++    }
++
++    public Client getESLClient()
++    {
++	return impl.getESLClient();
++    }
++
++    @Override
++    public String toString()
++    {
++        final StringBuilder sb = new StringBuilder("DefaultManagerConnection[");
++        sb.append("hostname='").append(getHostname()).append("',");
++        sb.append("port=").append(getPort()).append("]");
++        return sb.toString();
++    }
++
++    public void connect() throws InboundConnectionFailure {
++        impl.connect();
++    }
++
++    public void disconnect() {
++        impl.disconnect();
++    }
++}
+diff --git a/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/manager/ManagerConnection.java b/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/manager/ManagerConnection.java
+new file mode 100644
+index 0000000..3878d55
+--- /dev/null
++++ b/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/manager/ManagerConnection.java
+@@ -0,0 +1,14 @@
++package org.freeswitch.esl.client.manager;
++
++import org.freeswitch.esl.client.inbound.Client;
++import org.freeswitch.esl.client.inbound.InboundConnectionFailure;
++
++public interface ManagerConnection
++{
++    String getHostname();
++    int getPort();
++    String getPassword();
++    Client getESLClient();
++    void connect() throws InboundConnectionFailure;
++    void disconnect();
++}
+diff --git a/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/manager/internal/ManagerConnectionImpl.java b/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/manager/internal/ManagerConnectionImpl.java
+new file mode 100644
+index 0000000..61e3c86
+--- /dev/null
++++ b/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/manager/internal/ManagerConnectionImpl.java
+@@ -0,0 +1,89 @@
++package org.freeswitch.esl.client.manager.internal;
++
++import java.util.logging.Level;
++import java.util.logging.Logger;
++import org.freeswitch.esl.client.inbound.Client;
++import org.freeswitch.esl.client.inbound.InboundConnectionFailure;
++import org.freeswitch.esl.client.manager.ManagerConnection;
++
++public class ManagerConnectionImpl implements ManagerConnection
++{
++    private static final String DEFAULT_HOSTNAME = "localhost";
++    private static final int DEFAULT_PORT = 8021;
++    private static final int DEFAULT_TIMEOUT = 2;
++    
++    private Client esl_client;
++    private String hostname = DEFAULT_HOSTNAME;
++    private int port = DEFAULT_PORT;
++    private int timeoutSeconds = DEFAULT_TIMEOUT;
++    protected String password;
++
++    public ManagerConnectionImpl()
++    {
++        esl_client = new Client();
++    }
++
++    public void setHostname(String hostname)
++    {
++        this.hostname = hostname;
++    }
++
++    public void setPort(int port)
++    {
++        if (port <= 0)
++        {
++            this.port = DEFAULT_PORT;
++        }
++        else
++        {
++            this.port = port;
++        }
++    }
++
++    public void setPassword(String password)
++    {
++        this.password = password;
++    }
++
++    public void setTimeout(int timeout)
++    {
++        this.timeoutSeconds = timeout;
++    }
++
++    public String getHostname()
++    {
++        return hostname;
++    }
++
++    public int getPort()
++    {
++        return port;
++    }
++
++    public String getPassword()
++    {
++        return password;
++    }
++
++    public Client getESLClient()
++    {
++        return esl_client;
++    }
++
++    public void connect() throws InboundConnectionFailure {
++        esl_client.connect(hostname, port, password, timeoutSeconds);
++        esl_client.setEventSubscriptions( "plain", "all" );
++        esl_client.addEventFilter( "Event-Name", "heartbeat" );
++        esl_client.addEventFilter( "Event-Name", "custom" );
++        esl_client.addEventFilter( "Event-Name", "background_job" );
++        try {
++            Thread.sleep(25000);
++        } catch (InterruptedException ex) {
++            Logger.getLogger(ManagerConnectionImpl.class.getName()).log(Level.SEVERE, null, ex);
++        }
++    }
++
++    public void disconnect() {
++        esl_client.close();
++    }
++}
+diff --git a/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/transport/event/EslEvent.java b/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/transport/event/EslEvent.java
+index 6a86440..df026cd 100644
+--- a/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/transport/event/EslEvent.java
++++ b/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/transport/event/EslEvent.java
+@@ -132,6 +132,20 @@ public class EslEvent
+     
+     /**
+      * Convenience method.
++     *
++     * @return the string value of the event header "Event-Subclass"
++     */
++    public String getEventSubclass()
++    {
++        String subClass = getEventHeaders().get( EslEventHeaderNames.EVENT_SUBCLASS );
++        if(subClass == null){
++            return "NONE";
++        }
++        return subClass;
++    }
++
++    /**
++     * Convenience method.
+      * 
+      * @return long value of the event header "Event-Date-Timestamp"
+      */
+@@ -221,6 +235,8 @@ public class EslEvent
+     {
+         StringBuilder sb = new StringBuilder( "EslEvent: name=[" );
+         sb.append( getEventName() );
++        sb.append( "] subclass=[");
++        sb.append( getEventSubclass() );
+         sb.append( "] headers=" );
+         sb.append( messageHeaders.size() );
+         sb.append( ", eventHeaders=" );
+diff --git a/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/transport/event/EslEventHeaderNames.java b/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/transport/event/EslEventHeaderNames.java
+index 7808000..48fff19 100644
+--- a/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/transport/event/EslEventHeaderNames.java
++++ b/dvarnes/java/esl-client/org.freeswitch.esl.client/src/main/java/org/freeswitch/esl/client/transport/event/EslEventHeaderNames.java
+@@ -28,6 +28,10 @@ public class EslEventHeaderNames
+      */
+     public static final String EVENT_NAME = "Event-Name";
+     /**
++     * {@code "Event-Subclass"}     *
++     */
++    public static final String EVENT_SUBCLASS = "Event-Subclass";
++    /**
+      * {@code "Event-Date-Local"}
+      */
+     public static final String EVENT_DATE_LOCAL = "Event-Date-Local";
+diff --git a/dvarnes/java/esl-client/org.freeswitch.esl.client/src/test/java/org/freeswitch/esl/client/inbound/ClientTest.java b/dvarnes/java/esl-client/org.freeswitch.esl.client/src/test/java/org/freeswitch/esl/client/inbound/ClientTest.java
+index 695004d..7c8cbe3 100644
+--- a/dvarnes/java/esl-client/org.freeswitch.esl.client/src/test/java/org/freeswitch/esl/client/inbound/ClientTest.java
++++ b/dvarnes/java/esl-client/org.freeswitch.esl.client/src/test/java/org/freeswitch/esl/client/inbound/ClientTest.java
+@@ -16,10 +16,9 @@
+ package org.freeswitch.esl.client.inbound;
+ 
+ import org.freeswitch.esl.client.IEslEventListener;
+-import org.freeswitch.esl.client.inbound.Client;
+-import org.freeswitch.esl.client.inbound.InboundConnectionFailure;
+ import org.freeswitch.esl.client.transport.event.EslEvent;
+ import org.freeswitch.esl.client.transport.message.EslMessage;
++import org.jboss.netty.channel.ExceptionEvent;
+ import org.junit.Test;
+ import org.slf4j.Logger;
+ import org.slf4j.LoggerFactory;
+@@ -47,6 +46,43 @@ public class ClientTest
+             {
+                 log.info( "Background job result received [{}]", event );
+             }
++
++            public void conferenceEventJoin(String uniqueId, String confName, int confSize, EslEvent event) {
++                log.info( "Event received [{}]", event );
++            }
++
++            public void conferenceEventLeave(String uniqueId, String confName, int confSize, EslEvent event) {
++                log.info( "Event received [{}]", event );
++            }
++
++            public void conferenceEventMute(String uniqueId, String confName, int confSize, EslEvent event) {
++                log.info( "Event received [{}]", event );
++            }
++
++            public void conferenceEventUnMute(String uniqueId, String confName, int confSize, EslEvent event) {
++                log.info( "Event received [{}]", event );
++            }
++
++            public void conferenceEventAction(String uniqueId, String confName, int confSize, String action, EslEvent event) {
++                log.info( "Event received [{}]", event );
++            }
++
++            public void conferenceEventTransfer(String uniqueId, String confName, int confSize, EslEvent event) {
++                log.info( "Event received [{}]", event );
++            }
++
++            public void conferenceEventThreadRun(String uniqueId, String confName, int confSize, EslEvent event) {
++                log.info( "Event received [{}]", event );
++            }
++
++            public void conferenceEventPlayFile(String uniqueId, String confName, int confSize, EslEvent event) {
++                log.info( "Event received [{}]", event );
++            }
++            
++            public void exceptionCaught(ExceptionEvent e) {
++                log.info( "exception received [{}]", e );
++            }
++
+             
+         } );
+         
