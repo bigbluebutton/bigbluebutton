@@ -24,6 +24,7 @@ package org.bigbluebutton.webconference.voice.freeswitch;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Level;
 import org.bigbluebutton.webconference.voice.ConferenceServiceProvider;
@@ -50,6 +51,7 @@ public class FreeswitchApplication implements ConferenceServiceProvider, IEslEve
 
     private ManagerConnection manager;
     private ConferenceEventListener conferenceEventListener;
+    private boolean debug = false;
 
     private final Integer USER = 0; /* not used for now */
 
@@ -121,7 +123,7 @@ public class FreeswitchApplication implements ConferenceServiceProvider, IEslEve
         Map<String, String> headers = event.getEventHeaders();
         String callerId = this.getCallerIdFromEvent(event);
         String callerIdName = this.getCallerIdNameFromEvent(event);
-        boolean muted = headers.get("Speak").equals("true") ? true : false;
+        boolean muted = headers.get("Speak").equals("true") ? false : true; //Was inverted which was causing a State issue
         boolean speeking = headers.get("Talking").equals("true") ? true : false;
 
         ParticipantJoinedEvent pj = new ParticipantJoinedEvent(memberId, confName,
@@ -155,17 +157,37 @@ public class FreeswitchApplication implements ConferenceServiceProvider, IEslEve
         Integer memberId = this.getMemeberIdFromEvent(event);
         ParticipantTalkingEvent pt;
 
-        switch(ESL_EVENT_ACTIONS_MAP.get(action)) {
-            case ESL_ACTION_START_TALKING:
-                pt = new ParticipantTalkingEvent(memberId, confName, true);
-                conferenceEventListener.handleConferenceEvent(pt);
-                break;
-            case ESL_ACTION_STOP_TALKING:
-                pt = new ParticipantTalkingEvent(memberId, confName, false);
-                conferenceEventListener.handleConferenceEvent(pt);
-                break;
-            default:
-                log.debug("Unknown conference Action [{}]", action);
+        if(action == null) {
+            if(debug) {
+                Map<String, String> eventHeaders = event.getEventHeaders();
+                StringBuilder sb = new StringBuilder("\n");
+                for (Iterator it=eventHeaders.entrySet().iterator(); it.hasNext(); ) {
+                    Map.Entry entry = (Map.Entry)it.next();
+                    sb.append(entry.getKey());
+                    sb.append(" => '");
+                    sb.append(entry.getValue());
+                    sb.append("'\n");
+                }
+                log.debug ("NULL Conference Action [{}] Headers:\n{}\nEND", confName, sb.toString());
+            }
+            return;
+        }
+
+        try {
+            switch(ESL_EVENT_ACTIONS_MAP.get(action)) {
+                case ESL_ACTION_START_TALKING:
+                    pt = new ParticipantTalkingEvent(memberId, confName, true);
+                    conferenceEventListener.handleConferenceEvent(pt);
+                    break;
+                case ESL_ACTION_STOP_TALKING:
+                    pt = new ParticipantTalkingEvent(memberId, confName, false);
+                    conferenceEventListener.handleConferenceEvent(pt);
+                    break;
+                default:
+                    log.debug("Unknown conference Action [{}]", action);
+            }
+        }catch(NullPointerException npe) {
+            log.debug("Unknown NPE conference Action [{}]", action);
         }
     }
 
@@ -202,6 +224,10 @@ public class FreeswitchApplication implements ConferenceServiceProvider, IEslEve
         this.conferenceEventListener = listener;
     }
 
+    public void setDebugNullConferenceAction(boolean enabled) {
+        this.debug = enabled;
+    }
+    
     private Integer getMemeberIdFromEvent(EslEvent e)
     {
         return new Integer(e.getEventHeaders().get("Member-ID"));

@@ -45,6 +45,7 @@
 	<beans:bean id="freeswitchApplication" class="org.bigbluebutton.webconference.voice.freeswitch.FreeswitchApplication">
 		<beans:property name="managerConnection" ref="eslConnection"/>
                 <beans:property name="conferenceEventListener" ref="voiceConferenceEventListener"/>
+                <beans:property name="DebugNullConferenceAction" value="true"/>
 	</beans:bean>
 
 	<beans:bean id="eslConnection" class="org.freeswitch.esl.client.manager.DefaultManagerConnection">
