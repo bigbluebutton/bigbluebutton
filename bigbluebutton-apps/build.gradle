@@ -3,7 +3,7 @@ usePlugin 'groovy'
 usePlugin 'war'
 usePlugin 'eclipse'
 
-version = '0.63'
+version = '0.70'
 jar.enabled = true
 
 def appName = 'bigbluebutton'
@@ -64,6 +64,10 @@ dependencies {
 	// Asterisk-Java
 	compile 'org.asteriskjava:asterisk-java:1.0.0.M3@jar'
 	
+    	// Freeswitch ESL Client
+    	compile 'org.freeswitch.esl.client:org.freeswitch.esl.client:0.9.0-SNAPSHOT@jar'
+    	compile 'org.jboss.netty:netty:3.1.5.GA@jar'
+
 	// Spring 
     providedCompile 'spring:spring-web:3.0.0@jar', 'aopalliance:aopalliance:1.0:@jar'    
     providedCompile  'spring:spring-beans:3.0.0@jar', 'spring:spring-aop:3.0.0@jar'
@@ -108,7 +112,8 @@ dependencies {
 
     // Libraries needed for scala api
     compile 'org.scala-lang:scala-library:2.7.7'   
-    compile 'org/bigbluebutton/common:bbb-common-message:0.64@jar' 
+    compile 'org/bigbluebutton/common:bbb-common-message:0.70@jar' 
+
 }
 
 test {

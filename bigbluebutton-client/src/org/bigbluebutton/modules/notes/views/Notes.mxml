@@ -14,6 +14,7 @@ Notes.mxml is the main view of the SharedNotes application
 			import org.bigbluebutton.common.mate.SharedObjectEvent;
 			import mx.controls.Alert;
 			import org.bigbluebutton.modules.notes.events.NotesUpdateEvent;
+			import org.bigbluebutton.main.view.components.MainCanvas;
 			
 			private var _xPosition:int;
 			private var _yPosition:int;
@@ -85,6 +86,9 @@ Notes.mxml is the main view of the SharedNotes application
 				this.height = _defaultHeight;
 			}
 			
+			public function getPrefferedPosition():String {
+				return MainCanvas.BOTTOM_LEFT;
+			}
 		]]>
 	</mx:Script>
 	

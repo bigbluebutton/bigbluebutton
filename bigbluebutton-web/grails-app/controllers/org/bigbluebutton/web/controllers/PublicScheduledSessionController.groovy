@@ -250,6 +250,10 @@ class PublicScheduledSessionController {
 				}
 			}
 	    } else {	
+		//FIXME: ljackson, wbv is null and that causes audio module to dial null rather than correct confrence.
+		if(!wbv) {
+			wbv = vb
+		}
 	    	response.addHeader("Cache-Control", "no-cache")
 	    	withFormat {				
 				xml {
