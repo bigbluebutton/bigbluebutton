@@ -27,6 +27,7 @@
     <application path="MessagingUnitTests.mxml"/>
     <application path="DeskshareStandalone.mxml"/>
     <application path="BigBlueButton.mxml"/>
+    <application path="BbbTestRunner.mxml"/>
   </applications>
   <modules>
     <module application="src/BigBlueButton.mxml" destPath="ChatModule.swf" optimize="true" sourcePath="src/ChatModule.mxml"/>
