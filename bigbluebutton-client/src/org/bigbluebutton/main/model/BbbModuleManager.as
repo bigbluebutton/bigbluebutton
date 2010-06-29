@@ -187,6 +187,10 @@ package org.bigbluebutton.main.model
 			if (m != null) {
 				LogUtil.debug('Starting ' + name);
 				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
+				if(bbb == null) {
+					LogUtil.debug('Module ' + name + ' was null skipping');
+					return;
+				}
 				bbb.acceptRouter(_router);
 				if (_user != null) {
 					m.addAttribute("conference", _user.conference);
@@ -221,7 +225,11 @@ package org.bigbluebutton.main.model
 			if (m != null) {
 				LogUtil.debug('Stopping ' + name);
 				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
-				bbb.stop();		
+				if(bbb == null) { //Still has null object refrence on logout sometimes.
+					LogUtil.debug('Module ' + name + ' was null skipping');
+					return;
+				}
+				bbb.stop();
 			}	
 		}
 						

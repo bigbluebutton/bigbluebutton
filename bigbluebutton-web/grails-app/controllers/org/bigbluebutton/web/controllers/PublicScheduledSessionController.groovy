@@ -106,7 +106,7 @@ class PublicScheduledSessionController {
 	}
 	
     def signIn = { 
-		if (params.fullname.trim() == "") {
+		if (params.fullname == null || params.fullname.trim() == "") {
 			log.debug "USer entered a blank name"
 			flash.message = "Please enter your name."
 			render(view:"joinIn", model: [id:params.id, fullname:params.fullname])
