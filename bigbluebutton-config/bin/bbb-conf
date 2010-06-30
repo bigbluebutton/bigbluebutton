@@ -644,7 +644,7 @@ if [ $RESET_DEV ]; then
 	check_root
 
         echo "Reseting /etc/nginx/sites-available/bigbluebutton to point to /var/www/bigbluebutton"
-        sudo sed -i "s/\/home\/firstuser\/dev\/bbb-client;/\/var\/www\/bigbluebutton;/g" \
+        sudo sed -i "s/\/home\/firstuser\/dev\/source\/bigbluebutton\/bigbluebutton-client;/\/var\/www\/bigbluebutton;/g" \
                         /etc/nginx/sites-available/bigbluebutton
         sudo /etc/init.d/nginx restart
 
