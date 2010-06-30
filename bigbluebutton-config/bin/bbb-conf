@@ -31,6 +31,7 @@
 #       2010-04-02 FFD  Updated for 0.64
 #	2010-06-21 SEB  Cleaned up some code / Updated for 0.70
 #	2010-06-25 SEB  Added ability to change the security salt
+#	2010-06-30 SEB	Added some extra errorchecking
 
 #set -x
 
@@ -742,6 +743,28 @@ $RED5_DIRECTORY/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
         		echo "            empty parameter(s) found: $(grep '^[^=]*=[ ]*$' $file | sed 's/=//g') ($file)"
 		fi
 	done
+
+	LOGG_FILES="$RED5_DIRECTORY/log/sip.log \
+$RED5_DIRECTORY/log/video.log \
+$RED5_DIRECTORY/log/bigbluebutton.log \
+$RED5_DIRECTORY/log/deskshare.log"
+
+	for file in $LOGG_FILES ; do
+		if [ -a $file ]; then
+			if cat $file | tail -n1 | grep -q "Starting up context"; then
+				echo "BigBlueButton did not start up correctly"
+			fi
+		else
+			echo "File" $file "not found"
+		fi
+		
+	done
+
+	# check if sip.log has warnings where the user is not registered
+	if cat /usr/share/red5/log/sip.log | tail -n1 | grep -q "Call request for default but not registered"; then
+		echo "The User is not registered in SIP. Audio might not be working correctly."
+	fi
+
 
 	#
 	# Check that tomcat6 started properly and has created log files
