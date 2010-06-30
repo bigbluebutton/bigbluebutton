@@ -125,8 +125,14 @@
 		<build-module src="${SRC_DIR}" target="${PRESENT}" />
 	</target>
 
-	<target name="build-deskshare-standalone" depends="build-deskshare" description="Compile Deskshare Standalone Module">
-		<build-module src="${SRC_DIR}" target="${DESKSHARE_SA}" />
+	<target name="build-deskshare-standalone" depends="build-deskshare-no-linker" description="Compile Deskshare Standalone Module">
+		<echo message="Compiling deskshare standalone without optimization." />
+		<build-module-no-link src="${SRC_DIR}" target="${DESKSHARE_SA}" />
+	</target>
+	
+	<target name="build-deskshare-no-linker" description="Compile Deskshare Module without the linker">
+		<echo message="Compiling deskshare without optimization." />
+		<build-module-no-link src="${SRC_DIR}" target="${DESKSHARE}" />	
 	</target>
 	
 	<target name="build-deskshare" description="Compile Deskshare Module">
@@ -164,7 +170,7 @@
 	
 	<!-- just a grouping of modules to compile -->
 	<target name="build-deskshare-phone-video-highlighter-dyn" 
-			depends="build-deskshare-standalone, build-phone, build-video, build-highlighter, build-dyn"
+			depends="build-deskshare, build-phone, build-video, build-highlighter, build-dyn"
 			description="Compile deskshare, phone, video, highlighter, dynamic info modules">
 	</target>
 	
@@ -192,6 +198,30 @@
 			</sequential>
 		</macrodef>
 	
+	<macrodef name="build-module-no-link">
+		<attribute name="target" description="Module to compile" />
+		<attribute name="flex" default="${FLEX_HOME}" description="Location of the Flex install." />
+		<attribute name="app" default="."/>
+		<attribute name="src" default="${SRC_DIR}" description="Path to the module to compile" />
+		<sequential>
+			<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="false">
+				<load-config filename="@{flex}/frameworks/flex-config.xml" />
+				<source-path path-element="@{flex}/frameworks" />
+				<compiler.library-path dir="@{flex}/frameworks" append="true">
+					<include name="libs" />
+					<include name="../bundles/{locale}" />
+				</compiler.library-path>
+
+				<compiler.library-path dir="@{app}" append="true">
+					<include name="libs" />
+					<include name="libs/generated" />
+				</compiler.library-path>
+
+				<default-size width="500" height="600" />
+			</mxmlc>
+		</sequential>
+	</macrodef>
+	
 	<macrodef name="build-module">
 		<attribute name="target" description="Module to compile" />
 		<attribute name="flex" default="${FLEX_HOME}" description="Location of the Flex install." />
@@ -215,9 +245,13 @@
 			</mxmlc>
 		</sequential>
 	</macrodef>
+	
+	<target name="compile-deskshare-standalone" depends="build-deskshare-standalone"
+			description="Compiling the BBB without copying config.xml">	
+			<echo message="Deskshare standalone built without optimization." />
+	</target>
 		
-	<target name="compile-bbb"
-			depends="build-main-chat-viewers-listeners-present, build-deskshare-phone-video-highlighter-dyn, copy-resource-files"
+	<target name="compile-bbb" depends="build-main-chat-viewers-listeners-present, build-deskshare-phone-video-highlighter-dyn, copy-resource-files"
 			description="Compiling the BBB without copying config.xml">	
 	</target>
 
@@ -267,9 +301,12 @@
 		<mkdir dir="${OUTPUT_DIR}"/>
 	</target>
 
-	<target name="clean-build-bbb" depends="clean, generate-html-wrapper, compile-bbb" description="Build BBB client skipping compiling of locales"/>
-	
-	<target name="clean-build-all" depends="clean, generate-html-wrapper, localization, compile-bbb" description="Build BBB client including locales"/>
+	<!-- NOTE: compile-deskshare-standalone MUST come first before compile-bbb as we need the deskshare-standalone
+				to be compiled withouth being optimized by using the linker -->
+	<target name="clean-build-bbb" depends="clean, generate-html-wrapper, compile-deskshare-standalone, compile-bbb" 
+			description="Build BBB client skipping compiling of locales"/>	
+	<target name="clean-build-all" depends="clean, generate-html-wrapper, localization, compile-deskshare-standalone, compile-bbb" 
+			description="Build BBB client including locales"/>
 		
 	<target name="cleanandmake" depends="clean-build-all" description="Build BBB client including locales"/>
 </project>
