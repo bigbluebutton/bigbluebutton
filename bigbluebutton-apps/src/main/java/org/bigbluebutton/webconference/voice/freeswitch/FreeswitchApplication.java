@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Observable;
 import java.util.logging.Level;
 import org.bigbluebutton.webconference.voice.ConferenceServiceProvider;
 import org.bigbluebutton.webconference.voice.events.ConferenceEventListener;
@@ -46,11 +47,12 @@ import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
 
-public class FreeswitchApplication implements ConferenceServiceProvider, IEslEventListener {
+public class FreeswitchApplication extends Observable implements ConferenceServiceProvider, IEslEventListener {
     private static Logger log = Red5LoggerFactory.getLogger(FreeswitchApplication.class, "bigbluebutton");
 
     private ManagerConnection manager;
     private ConferenceEventListener conferenceEventListener;
+    private FreeswitchHeartbeatMonitor heartbeatMonitor;
     private boolean debug = false;
 
     private final Integer USER = 0; /* not used for now */
@@ -83,11 +85,18 @@ public class FreeswitchApplication implements ConferenceServiceProvider, IEslEve
             java.util.logging.Logger.getLogger(FreeswitchApplication.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+
+        //Start Heartbeat and exception Event Observer Monitor
+        if(heartbeatMonitor == null) { //Only startup once. as startup will be called for reconnect.
+            heartbeatMonitor = new FreeswitchHeartbeatMonitor(manager, this);
+            this.addObserver(heartbeatMonitor);
+            heartbeatMonitor.start();
+        }
     }
 
     @Override
     public void shutdown() {
-        //Noop
+        heartbeatMonitor.stop();
     }
 
     @Override
@@ -113,8 +122,14 @@ public class FreeswitchApplication implements ConferenceServiceProvider, IEslEve
 
     @Override
     public void eventReceived(EslEvent event) {
-        //Ignored, Noop This is all the NON-Conference Events
+        if(event.getEventName().equals(FreeswitchHeartbeatMonitor.EVENT_HEARTBEAT)) {
+            setChanged();
+            notifyObservers(event);
+            return; //No need to log.debug or process further the Observer will act on this
+        }
+        //Ignored, Noop This is all the NON-Conference Events except Heartbeat
         log.debug( "eventReceived [{}]", event );
+
     }
 
     @Override
@@ -213,7 +228,9 @@ public class FreeswitchApplication implements ConferenceServiceProvider, IEslEve
 
     @Override
     public void exceptionCaught(ExceptionEvent e) {
-        log.error( "FreeSwitch ESL Exception.", e );
+        setChanged();
+        notifyObservers(e);
+        //log.error( "FreeSwitch ESL Exception.", e );
     }
 
     public void setManagerConnection(ManagerConnection manager) {
