@@ -67,8 +67,29 @@ public class SdpUtils {
                         "], videoCodecsNumber = [" + videoCodecsNumber + "].");                
                 return null;
             }
-            
-            initialDescriptor = new SessionDescriptor(userName, viaAddress);
+
+            //Bug Session descriptor cannot have spaces.. Username is not forced to be compliant with SIP Spec
+            /* RFC 2327 - page 8 of April 1998 Version,
+                Origin
+
+                   o=<username> <session id> <version> <network type> <address type>
+                   <address>
+
+                   The "o=" field gives the originator of the session (their username
+                   and the address of the user's host) plus a session id and session
+                   version number.
+
+                   <username> is the user's login on the originating host, or it is "-"
+                   if the originating host does not support the concept of user ids.
+                   <username> must not contain spaces.  <session id> is a numeric string
+                   such that the tuple of <username>, <session id>, <network type>,
+                   <address type> and <address> form a globally unique identifier for
+                   the session.
+             */
+
+            String owner = userName.replaceAll(" ", "_");
+
+            initialDescriptor = new SessionDescriptor(owner, viaAddress);
             
             if (initialDescriptor == null) {                
                 log.error("Error instantiating the initialDescriptor!");                 
@@ -77,7 +98,7 @@ public class SdpUtils {
             
             if (audioCodecsNumber > 0) {                
                 Codec[] audioCodecs;
-                Vector audioAttributes = new Vector();
+                Vector<AttributeField> audioAttributes = new Vector<AttributeField>();
                 
                 if (audioCodecsPrecedence.isEmpty()) {                    
                     audioCodecs = CodecFactory.getInstance().getAvailableAudioCodecs();
@@ -155,7 +176,7 @@ public class SdpUtils {
             
             if (videoCodecsNumber > 0) {                
                 Codec[] videoCodecs = CodecFactory.getInstance().getAvailableVideoCodecs();
-                Vector videoAttributes = new Vector();
+                Vector<AttributeField> videoAttributes = new Vector<AttributeField>();
                 
                 for (int videoIndex = 0; videoIndex < audioCodecsNumber; videoIndex++) {                    
                     String payloadId = String.valueOf(videoCodecs[videoIndex].getCodecId());
@@ -296,7 +317,7 @@ public class SdpUtils {
                 
                 if (localDescriptor != null) {                    
                     Vector remoteAttributes = remoteDescriptor.getAttributes(Codec.ATTRIBUTE_RTPMAP);
-                    Vector newSdpAttributes = new Vector();
+                    Vector<AttributeField> newSdpAttributes = new Vector<AttributeField>();
                     
                     for (Enumeration attributesEnum = remoteAttributes.elements(); attributesEnum.hasMoreElements();) {                        
                         AttributeField remoteAttribute = (AttributeField) attributesEnum.nextElement();
