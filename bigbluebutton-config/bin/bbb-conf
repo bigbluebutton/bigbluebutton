@@ -651,14 +651,6 @@ if [ $RESET_DEV ]; then
 
 fi
 
-getIPOfDomain() {
-	ipOfDomain=$(ifconfig | grep -v '127.0.0.1' | grep -m 1 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
-
-	if [ $ipOfDomain != "out;" ]; then
-		echo $ipOfDomain
-	fi
-}
-
 check_state() {
 
 	echo
@@ -785,14 +777,8 @@ $RED5_DIRECTORY/log/deskshare.log"
  	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
 
 	if [ "$HOST_IP" != "$NGINX_IP" ]; then
-		NGINX_DOMAIN_IP=$($getIPOfDomain $NGINX_IP)
-
-		if [ "$HOST_IP" != "$NGINX_DOMAIN_IP" ]; then
 			echo "Host IP does not match BigBlueButton: ${HOST_IP} != ${NGINX_IP}"
-		fi
 	fi
-
-x=$(host demo.bigbluebutton.org | cut -d\  -f 4)
 
 	echo
 	exit 0
