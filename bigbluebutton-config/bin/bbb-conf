@@ -136,7 +136,7 @@ need_root() {
 }
 
 usage() {
-	echo "BigBlueButton Server Utility - Version 0.70"
+	echo "BigBlueButton Configuration Utility - Version 0.70"
         echo
         echo "$0 [options]"
         echo
