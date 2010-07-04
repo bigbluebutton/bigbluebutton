@@ -247,7 +247,7 @@
 	</macrodef>
 	
 	<target name="compile-deskshare-standalone" depends="build-deskshare-standalone"
-			description="Compiling the BBB without copying config.xml">	
+			description="Compiling standalone desktop sharing">	
 			<echo message="Deskshare standalone built without optimization." />
 	</target>
 		
