@@ -6,6 +6,7 @@
     <property name="LOCALE_DIR" value="${FLEX_HOME}/frameworks/locale"/>
     <property name="BASE_DIR" value="${basedir}" />
 	<property name="RESOURCES_DIR" value="${BASE_DIR}/resources" />	
+	<property name="PROD_RESOURCES_DIR" value="${RESOURCES_DIR}/prod" />	
 	<property name="SRC_DIR" value="${BASE_DIR}/src" />
 		
 	<property name="OUTPUT_DIR" value="${BASE_DIR}/bin" />
@@ -263,9 +264,9 @@
 		<copy todir="${OUTPUT_DIR}/swfobject/" >
 			<fileset dir="${BASE_DIR}/src/swfobject/" />
 		</copy>	
-		<copy file="${RESOURCES_DIR}/BigBlueButton.html" todir="${OUTPUT_DIR}" overwrite="true"/>
-		<copy file="${RESOURCES_DIR}/DeskshareStandalone.html" todir="${OUTPUT_DIR}" overwrite="true"/>
-		<copy file="${RESOURCES_DIR}/bbb.gif" todir="${OUTPUT_DIR}" overwrite="true"/>		
+		<copy file="${PROD_RESOURCES_DIR}/BigBlueButton.html" todir="${OUTPUT_DIR}" overwrite="true"/>
+		<copy file="${PROD_RESOURCES_DIR}/DeskshareStandalone.html" todir="${OUTPUT_DIR}" overwrite="true"/>
+		<copy file="${PROD_RESOURCES_DIR}/bbb.gif" todir="${OUTPUT_DIR}" overwrite="true"/>		
 			
 	</target>
 	
