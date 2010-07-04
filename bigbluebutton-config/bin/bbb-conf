@@ -558,8 +558,19 @@ if [ $SETUPDEV ]; then
                         /etc/nginx/sites-available/bigbluebutton
                 sudo /etc/init.d/nginx restart
 
-                echo "# Copying /var/www/bigbluebutton/client/conf/config.xml to ${BBBCLIENTHOME}/bin/conf/config.xml"
-                cp /var/www/bigbluebutton/client/conf/config.xml $BBBCLIENTHOME/bin/conf/config.xml
+		if [ -f /var/www/bigbluebutton/client/conf/config.xml ]; then
+                	echo "# Copying /var/www/bigbluebutton/client/conf/config.xml to ${BBBCLIENTHOME}/src/conf/config.xml"
+                	cp /var/www/bigbluebutton/client/conf/config.xml $BBBCLIENTHOME/src/conf/config.xml
+		else
+                	echo "# Copying ${BBBCLIENTHOME}/resources/config.xml.template to ${BBBCLIENTHOME}/src/conf/config.xml.template"
+                	cp $BBBCLIENTHOME/resources/config.xml.template $BBBCLIENTHOME/src/conf/config.xml.template
+                	echo "# Generating ${BBBCLIENTHOME}/src/conf/config.xml"
+			cat $BBBCLIENTHOME/src/conf/config.xml.template | sed "s/VERSION/dev/" > $BBBCLIENTHOME/src/conf/config.xml
+			rm $BBBCLIENTHOME/src/conf/config.xml.template
+		fi
+
+                echo "# Copying ${BBBCLIENTHOME}/resources/dev/join-mock.xml to ${BBBCLIENTHOME}/src/conf/join-mock.xml"
+                cp $BBBCLIENTHOME/resources/dev/join-mock.xml $BBBCLIENTHOME/src/conf/config.xml
 
                 cd $BBBCLIENTHOME
 
