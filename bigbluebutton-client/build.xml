@@ -2,6 +2,7 @@
 <!-- BigBlueButton Client build.xml for use by Hudson builds.   -->
 <project name="BigBlueButton Client" basedir="." default="clean-build-all" >
     <property environment="env" />
+    <property name="BUILD_ENV" value="DEV" />
     <property name="FLEX_HOME" value="${env.FLEX_HOME}" />
     <property name="LOCALE_DIR" value="${FLEX_HOME}/frameworks/locale"/>
     <property name="BASE_DIR" value="${basedir}" />
@@ -139,7 +140,7 @@
 	<target name="build-deskshare" description="Compile Deskshare Module">
 		<build-module src="${SRC_DIR}" target="${DESKSHARE}" />
 		<echo message="Copying deskshare applet for Deskshare Module" />
-		<copy file="${RESOURCES_DIR}/bbb-deskshare-applet-0.64.jar" todir="${OUTPUT_DIR}"/>		
+		<copy file="${PROD_RESOURCES_DIR}/bbb-deskshare-applet-0.64.jar" todir="${OUTPUT_DIR}"/>		
 	</target>
 	
 	<target name="build-phone" description="Compile Phone Module">
@@ -257,17 +258,25 @@
 	</target>
 
 	<target name="copy-resource-files">
-		<copy todir="${OUTPUT_DIR}/conf" >
-			<fileset dir="${BASE_DIR}/src/conf" />
-		</copy>
-
 		<copy todir="${OUTPUT_DIR}/swfobject/" >
 			<fileset dir="${BASE_DIR}/src/swfobject/" />
 		</copy>	
 		<copy file="${PROD_RESOURCES_DIR}/BigBlueButton.html" todir="${OUTPUT_DIR}" overwrite="true"/>
 		<copy file="${PROD_RESOURCES_DIR}/DeskshareStandalone.html" todir="${OUTPUT_DIR}" overwrite="true"/>
 		<copy file="${PROD_RESOURCES_DIR}/bbb.gif" todir="${OUTPUT_DIR}" overwrite="true"/>		
-			
+		<copy file="${PROD_RESOURCES_DIR}/locales.xml" todir="${OUTPUT_DIR}/conf" overwrite="true"/>		
+		<copy file="${PROD_RESOURCES_DIR}/example-info-data.xml" todir="${OUTPUT_DIR}/conf" overwrite="true"/>		
+		<if>
+           		<equals arg1="${BUILD_ENV}" arg2="DEV"/>
+           		<then>
+              			<echo message="Copying config.xml for development environment"/>
+				<copy file="${BASE_DIR}/src/conf/config.xml" todir="${OUTPUT_DIR}/conf" overwrite="true"/>
+           		</then>
+           	<else>
+              		<echo message="Need to copy config.xml.template for production environment"/>
+			<copy file="${RESOURCES_DIR}/config.xml.template" todir="${OUTPUT_DIR}/conf" overwrite="true"/>		
+           	</else>
+        	</if>
 	</target>
 	
 	<target name="check-config-xml">
