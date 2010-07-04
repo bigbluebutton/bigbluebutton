@@ -6,21 +6,21 @@
     <porttest host="HOST" application="video"/>    
 	<modules>
 
-		<module name="ChatModule" url="ChatModule-VERSION.swf" 
+		<module name="ChatModule" url="ChatModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			loadNextModule="ListenersModule"	
 			onUserJoinedEvent="START"
 			onUserLogoutEvent="STOP"		 
 		/>
 		
-		<module name="ViewersModule" url="ViewersModule-VERSION.swf" 
+		<module name="ViewersModule" url="ViewersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST/bigbluebutton/conference-session/enter"
 			onAppInitEvent="LOAD" loadNextModule="ChatModule"
 			onAppStartEvent="START"
 			onUserLogoutEvent="STOP"
 		/>	
-		<module name="ListenersModule" url="ListenersModule-VERSION.swf" 
+		<module name="ListenersModule" url="ListenersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			recordingHost="http://HOST"
 			loadNextModule="DeskShareModule"
@@ -28,30 +28,30 @@
 			onUserLogoutEvent="STOP"
 		/>
 		
-		<module name="DeskShareModule" url="DeskShareModule-VERSION.swf" uri="rtmp://HOST/deskShare" onUserJoinedEvent="START" onUserLogoutEvent="STOP" loadNextModule="PhoneModule" />
+		<module name="DeskShareModule" url="DeskShareModule.swf?v=VERSION" uri="rtmp://HOST/deskShare" onUserJoinedEvent="START" onUserLogoutEvent="STOP" loadNextModule="PhoneModule" />
 		
-		<module name="PhoneModule" url="PhoneModule-VERSION.swf" 
+		<module name="PhoneModule" url="PhoneModule.swf?v=VERSION" 
 			uri="rtmp://HOST/sip" 
 			onUserJoinedEvent="START" 
 			onUserLogoutEvent="STOP"
 			loadNextModule="VideoconfModule"
 		/>
 		
-		<module name="VideoconfModule" url="VideoconfModule-VERSION.swf" 
+		<module name="VideoconfModule" url="VideoconfModule.swf?v=VERSION" 
 			uri="rtmp://HOST/video"
 			onUserJoinedEvent="START"
 			onUserLogoutEvent="STOP"	
 			loadNextModule="HighlighterModule"
 		/>
 		
-		<module name="HighlighterModule" url="HighlighterModule-VERSION.swf" 
+		<module name="HighlighterModule" url="HighlighterModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			onUserJoinedEvent="START" 
 			onUserLogoutEvent="STOP"
 			loadNextModule="PresentModule"
 		/>
 		
-		<module name="PresentModule" url="PresentModule-VERSION.swf" 
+		<module name="PresentModule" url="PresentModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST" 
 			onUserJoinedEvent="START" 
@@ -59,7 +59,7 @@
 		/>
 
 		<!-- new module in development: 
-		<module name="DynamicInfoModule" url="DynamicInfoModule-VERSION.swf" 
+		<module name="DynamicInfoModule" url="DynamicInfoModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST" 
 			infoURL="http://HOST/client/conf/example-info-data.xml?user={userID}&role={role}&meetingID={meetingID}"
