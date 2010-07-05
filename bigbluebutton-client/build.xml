@@ -2,10 +2,12 @@
 <!-- BigBlueButton Client build.xml for use by Hudson builds.   -->
 <project name="BigBlueButton Client" basedir="." default="clean-build-all" >
     <property environment="env" />
+    <property name="BUILD_ENV" value="DEV" />
     <property name="FLEX_HOME" value="${env.FLEX_HOME}" />
     <property name="LOCALE_DIR" value="${FLEX_HOME}/frameworks/locale"/>
     <property name="BASE_DIR" value="${basedir}" />
 	<property name="RESOURCES_DIR" value="${BASE_DIR}/resources" />	
+	<property name="PROD_RESOURCES_DIR" value="${RESOURCES_DIR}/prod" />	
 	<property name="SRC_DIR" value="${BASE_DIR}/src" />
 		
 	<property name="OUTPUT_DIR" value="${BASE_DIR}/bin" />
@@ -125,14 +127,20 @@
 		<build-module src="${SRC_DIR}" target="${PRESENT}" />
 	</target>
 
-	<target name="build-deskshare-standalone" depends="build-deskshare" description="Compile Deskshare Standalone Module">
-		<build-module src="${SRC_DIR}" target="${DESKSHARE_SA}" />
+	<target name="build-deskshare-standalone" depends="build-deskshare-no-linker" description="Compile Deskshare Standalone Module">
+		<echo message="Compiling deskshare standalone without optimization." />
+		<build-module-no-link src="${SRC_DIR}" target="${DESKSHARE_SA}" />
+	</target>
+	
+	<target name="build-deskshare-no-linker" description="Compile Deskshare Module without the linker">
+		<echo message="Compiling deskshare without optimization." />
+		<build-module-no-link src="${SRC_DIR}" target="${DESKSHARE}" />	
 	</target>
 	
 	<target name="build-deskshare" description="Compile Deskshare Module">
 		<build-module src="${SRC_DIR}" target="${DESKSHARE}" />
 		<echo message="Copying deskshare applet for Deskshare Module" />
-		<copy file="${RESOURCES_DIR}/bbb-deskshare-applet-0.64.jar" todir="${OUTPUT_DIR}"/>		
+		<copy file="${PROD_RESOURCES_DIR}/bbb-deskshare-applet-0.64.jar" todir="${OUTPUT_DIR}"/>		
 	</target>
 	
 	<target name="build-phone" description="Compile Phone Module">
@@ -164,7 +172,7 @@
 	
 	<!-- just a grouping of modules to compile -->
 	<target name="build-deskshare-phone-video-highlighter-dyn" 
-			depends="build-deskshare-standalone, build-phone, build-video, build-highlighter, build-dyn"
+			depends="build-deskshare, build-phone, build-video, build-highlighter, build-dyn"
 			description="Compile deskshare, phone, video, highlighter, dynamic info modules">
 	</target>
 	
@@ -192,6 +200,30 @@
 			</sequential>
 		</macrodef>
 	
+	<macrodef name="build-module-no-link">
+		<attribute name="target" description="Module to compile" />
+		<attribute name="flex" default="${FLEX_HOME}" description="Location of the Flex install." />
+		<attribute name="app" default="."/>
+		<attribute name="src" default="${SRC_DIR}" description="Path to the module to compile" />
+		<sequential>
+			<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="false">
+				<load-config filename="@{flex}/frameworks/flex-config.xml" />
+				<source-path path-element="@{flex}/frameworks" />
+				<compiler.library-path dir="@{flex}/frameworks" append="true">
+					<include name="libs" />
+					<include name="../bundles/{locale}" />
+				</compiler.library-path>
+
+				<compiler.library-path dir="@{app}" append="true">
+					<include name="libs" />
+					<include name="libs/generated" />
+				</compiler.library-path>
+
+				<default-size width="500" height="600" />
+			</mxmlc>
+		</sequential>
+	</macrodef>
+	
 	<macrodef name="build-module">
 		<attribute name="target" description="Module to compile" />
 		<attribute name="flex" default="${FLEX_HOME}" description="Location of the Flex install." />
@@ -215,24 +247,36 @@
 			</mxmlc>
 		</sequential>
 	</macrodef>
+	
+	<target name="compile-deskshare-standalone" depends="build-deskshare-standalone"
+			description="Compiling standalone desktop sharing">	
+			<echo message="Deskshare standalone built without optimization." />
+	</target>
 		
-	<target name="compile-bbb"
-			depends="build-main-chat-viewers-listeners-present, build-deskshare-phone-video-highlighter-dyn, copy-resource-files"
+	<target name="compile-bbb" depends="build-main-chat-viewers-listeners-present, build-deskshare-phone-video-highlighter-dyn, copy-resource-files"
 			description="Compiling the BBB without copying config.xml">	
 	</target>
 
 	<target name="copy-resource-files">
-		<copy todir="${OUTPUT_DIR}/conf" >
-			<fileset dir="${BASE_DIR}/src/conf" />
-		</copy>
-
 		<copy todir="${OUTPUT_DIR}/swfobject/" >
 			<fileset dir="${BASE_DIR}/src/swfobject/" />
 		</copy>	
-		<copy file="${RESOURCES_DIR}/BigBlueButton.html" todir="${OUTPUT_DIR}" overwrite="true"/>
-		<copy file="${RESOURCES_DIR}/DeskshareStandalone.html" todir="${OUTPUT_DIR}" overwrite="true"/>
-		<copy file="${RESOURCES_DIR}/bbb.gif" todir="${OUTPUT_DIR}" overwrite="true"/>		
-			
+		<copy file="${PROD_RESOURCES_DIR}/BigBlueButton.html" todir="${OUTPUT_DIR}" overwrite="true"/>
+		<copy file="${PROD_RESOURCES_DIR}/DeskshareStandalone.html" todir="${OUTPUT_DIR}" overwrite="true"/>
+		<copy file="${PROD_RESOURCES_DIR}/bbb.gif" todir="${OUTPUT_DIR}" overwrite="true"/>		
+		<copy file="${PROD_RESOURCES_DIR}/locales.xml" todir="${OUTPUT_DIR}/conf" overwrite="true"/>		
+		<copy file="${PROD_RESOURCES_DIR}/example-info-data.xml" todir="${OUTPUT_DIR}/conf" overwrite="true"/>		
+		<if>
+           		<equals arg1="${BUILD_ENV}" arg2="DEV"/>
+           		<then>
+              			<echo message="Copying config.xml for development environment"/>
+				<copy file="${BASE_DIR}/src/conf/config.xml" todir="${OUTPUT_DIR}/conf" overwrite="true"/>
+           		</then>
+           	<else>
+              		<echo message="Need to copy config.xml.template for production environment"/>
+			<copy file="${RESOURCES_DIR}/config.xml.template" todir="${OUTPUT_DIR}/conf" overwrite="true"/>		
+           	</else>
+        	</if>
 	</target>
 	
 	<target name="check-config-xml">
@@ -267,9 +311,12 @@
 		<mkdir dir="${OUTPUT_DIR}"/>
 	</target>
 
-	<target name="clean-build-bbb" depends="clean, generate-html-wrapper, compile-bbb" description="Build BBB client skipping compiling of locales"/>
-	
-	<target name="clean-build-all" depends="clean, generate-html-wrapper, localization, compile-bbb" description="Build BBB client including locales"/>
+	<!-- NOTE: compile-deskshare-standalone MUST come first before compile-bbb as we need the deskshare-standalone
+				to be compiled withouth being optimized by using the linker -->
+	<target name="clean-build-bbb" depends="clean, generate-html-wrapper, compile-deskshare-standalone, compile-bbb" 
+			description="Build BBB client skipping compiling of locales"/>	
+	<target name="clean-build-all" depends="clean, generate-html-wrapper, localization, compile-deskshare-standalone, compile-bbb" 
+			description="Build BBB client including locales"/>
 		
 	<target name="cleanandmake" depends="clean-build-all" description="Build BBB client including locales"/>
 </project>

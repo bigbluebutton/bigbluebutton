@@ -149,7 +149,7 @@
 					this.x = this.parent.width - this.width;
 				} else {
 					// Move window so that it won't overlap with Participant's window.
-					this.x = DEFAULT_X_POSITION;
+					this.x = ((Capabilities.screenResolutionX / 20) * 3) + 10;
 				}
 			}
 		
@@ -433,7 +433,7 @@
 			
 			private function clearPresentation(e:UploadEvent):void{
 				slideView.visible = false;		
-				slideView.swfSlideLoader.source = null; 
+				slideView.slideLoader.source = null; 
 				slideView.selectedSlide = 0;
 				btnSlideNum.label = "";
 				displaySlideNavigationControls(false);
