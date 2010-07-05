@@ -149,7 +149,7 @@
 					this.x = this.parent.width - this.width;
 				} else {
 					// Move window so that it won't overlap with Participant's window.
-					this.x = DEFAULT_X_POSITION;
+					this.x = ((Capabilities.screenResolutionX / 20) * 3) + 10;
 				}
 			}
 		
