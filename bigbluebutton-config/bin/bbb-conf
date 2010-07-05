@@ -137,6 +137,7 @@ need_root() {
 
 usage() {
 	echo "BigBlueButton Configuration Utility - Version 0.70"
+        echo "http://code.google.com/p/bigbluebutton/wiki/BBBConf"
         echo
         echo "$0 [options]"
         echo
@@ -159,10 +160,9 @@ usage() {
         if [ "$(is_vm)" ]; then
                 echo "Development:"
                 echo "   --setup-samba                    Setup samba share for development (VM only)"
-                echo "   --checkout                 	  Checkout BigBlueButton from github "
+                echo "   --checkout  <repo>               Checkout from github or passed in repository"
                 echo "   --setup-dev [client|web|apps]	  Setup development environment "
                 echo "   --reset-dev                      Reset environment back to using packages"
-                echo "   --trunk                          Checkout trunk instead of last release"
         fi
         echo
 }
@@ -236,11 +236,6 @@ fi
 
 # Parse the parameters
 while [ $# -gt 0 ]; do
-	if [ "$1" = "-h" -o "$1" = "-help" -o "$1" = "?" -o "$1" = "--help" ]; then
-		usage
-		exit 1
-	fi
-
 	if [ "$1" = "-check" -o "$1" = "--check" -o "$1" = "-c" ]; then
 		CHECK=1
 		shift 
@@ -303,7 +298,11 @@ while [ $# -gt 0 ]; do
 
 	if [ "$1" = "--checkout" -o "$1" = "-checkout" ]; then
 		echo "# Request to checkout BigBlueButton"
-		CHECKOUT="1"
+		if [ $# -lt 2 ]; then
+			CHECKOUT="git://github.com/bigbluebutton/bigbluebutton.git"
+		else
+			CHECKOUT="${2}"
+		fi	
 		shift; shift
 		continue
 	fi		
@@ -464,13 +463,13 @@ if [ $CHECKOUT ]; then
         cd ~/dev/source
 
 	echo "#                                         "
-        echo "# Checking out READ-ONLY code from github."
+        echo "# Checking out BigBlueButton."
         echo "#                                         "
         echo "# "
-        git clone git://github.com/bigbluebutton/bigbluebutton.git
+        git clone $CHECKOUT
         echo "# "
         echo "#                                         "
-        echo "# Checked out READ-ONLY code from github. "
+        echo "# Checked out BigBlueButton. "
         echo "#                                         "
 	echo " You can now run 'bbb-conf --setup-dev [client|web|apps]' to setup dev environment "
         echo "#                                         "
