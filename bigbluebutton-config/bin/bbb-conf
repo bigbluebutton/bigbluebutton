@@ -780,18 +780,18 @@ $RED5_DIRECTORY/log/deskshare.log"
 	fi
 
 	 VARFolder=$(cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep swfToolsDir | cut -d= -f2)
-        if [ -x $VARFolder/pdf2swf ] && [ -x $VARFolder/jpeg2swf ] && [ -x $VARFolder/png2swf ]; then
-                echo "pdf2swf, jpeg2swf and png2swf are installed in $VARFolder"
+        if [ ! -x $VARFolder/pdf2swf ] && [ ! -x $VARFolder/jpeg2swf ] && [ ! -x $VARFolder/png2swf ]; then
+                echo "pdf2swf, jpeg2swf and png2swf are not installed in $VARFolder"
         fi
 
         VARFolder=$(cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep imageMagickDir | cut -d= -f2)
-        if [ -x $VARFolder/convert ]; then
-                echo "imageMagick's convert is installed in $VARFolder"
+        if [ ! -x $VARFolder/convert ]; then
+                echo "imageMagick's convert is not installed in $VARFolder"
         fi
 
         VARFolder=$(cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep ghostScriptExec | cut -d= -f2)
-        if [ -x $VARFolder ]; then
-                echo "Ghostscript is installd in $VARFolder"
+        if [ ! -x $VARFolder ]; then
+                echo "Ghostscript is not installd in $VARFolder"
         fi
 
 	echo
