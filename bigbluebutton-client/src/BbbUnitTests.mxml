@@ -25,7 +25,6 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.listeners.ListenersTests;
 			import org.bigbluebutton.main.ModulesProxyTests;
 			import org.bigbluebutton.main.BbbModuleManagerTests;
 			import org.bigbluebutton.common.RouterTest;
@@ -45,7 +44,6 @@
  				ts.addTest( RouterTest.suite() );
  				ts.addTest( BbbModuleManagerTests.suite() );
 				ts.addTest( ModulesProxyTests.suite() );
-				ts.addTest( ListenersTests.suite() );
 				return ts;
 			}
 		]]>

@@ -37,8 +37,8 @@
 			import org.bigbluebutton.modules.videoconf.views.TiledVideoWindow;
 			import org.bigbluebutton.modules.videoconf.views.ToolbarButton;
 			import org.bigbluebutton.modules.videoconf.views.VideoWindow;
-			import org.bigbluebutton.modules.viewers.view.events.StreamStartedEvent;
-			import org.bigbluebutton.modules.viewers.view.events.ViewCameraEvent;
+			import org.bigbluebutton.modules.viewers2.view.events.StreamStartedEvent;
+			import org.bigbluebutton.modules.viewers2.view.events.ViewCameraEvent;
 			
 			public var module:VideoconfModule;
 			private var button:ToolbarButton;

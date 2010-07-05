@@ -22,13 +22,15 @@
 
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml"
 	implements="org.bigbluebutton.common.IBigBlueButtonModule"
-	creationComplete="onCreationComplete()" xmlns:maps="org.bigbluebutton.modules.viewers.maps.*">
+	creationComplete="onCreationComplete()" xmlns:maps="org.bigbluebutton.modules.viewers.maps.*" >
 	<mx:Script>
 		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
 			import mx.controls.Alert;
-			import org.bigbluebutton.modules.viewers.model.ViewersProxy;
-			import org.bigbluebutton.modules.viewers.ViewersFacade;
+			
 			import org.bigbluebutton.common.messaging.Router;
+			import org.bigbluebutton.modules.viewers.events.ViewersModuleStartedEvent;
 			
 			private var _router:Router;
 			
@@ -37,6 +39,8 @@
 			
 			private var _attributes:Object;
 			private var _playbackRoom:String;
+			
+			private var dispatcher:Dispatcher;
 			
 			private function onCreationComplete():void {
 				LogUtil.debug("ViewersModule Initialized");		
@@ -198,15 +202,19 @@
 				_playbackRoom = now.getTime().toString();
 				
 				LogUtil.debug('Passed ViewersModule mode: ' + _attributes.mode);
-				ViewersFacade.getInstance().startup(this);	
-				eventMap.proxy = ViewersFacade.getInstance().retrieveProxy(ViewersProxy.NAME) as ViewersProxy;
+				
+				dispatcher = new Dispatcher();
+				var e:ViewersModuleStartedEvent = new ViewersModuleStartedEvent(ViewersModuleStartedEvent.VIEWERS_MODULE_STARTED);
+				e.module = this;
+				dispatcher.dispatchEvent(e);
 			}
 		
 			public function stop():void {
-				ViewersFacade.getInstance().stop(this);
+				
 			}
 		]]>
 	</mx:Script>
+
+	<maps:ViewersEventMap />
 	
-	<maps:ViewersEventMap id="eventMap" />
 </mx:Module>

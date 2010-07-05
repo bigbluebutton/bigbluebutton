@@ -22,11 +22,17 @@
 
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" 
 	implements="org.bigbluebutton.common.IBigBlueButtonModule"
-	creationComplete="onModuleCreationComplete()">
+	creationComplete="onModuleCreationComplete()" xmlns:maps="org.bigbluebutton.modules.listeners.maps.*">
+	
+	<maps:ListenersEventMap id="listenersEventMap" />
+	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.listeners.ListenersModuleFacade;
+			import com.asfusion.mate.events.Dispatcher;
+			
 			import org.bigbluebutton.common.messaging.Router;
+			import org.bigbluebutton.modules.listeners.events.StartListenersModuleEvent;
+			import org.bigbluebutton.modules.listeners.events.StopListenersModuleEvent;
 			
 			private var _router:Router;
 			
@@ -36,6 +42,8 @@
 			private var _attributes:Object;
 			
 			public var recordedMP3Url:String;
+			
+			private var globalDispatcher:Dispatcher;
 			
 			private function onModuleCreationComplete():void {
 				LogUtil.debug("ListenersModule Initialized");			
@@ -114,12 +122,19 @@
 			}
 			public function start(attributes:Object):void {		
 				_attributes = attributes;	
-				ListenersModuleFacade.getInstance().startup(this);	
+				
+				globalDispatcher = new Dispatcher();
+				var startEvent:StartListenersModuleEvent = new StartListenersModuleEvent(StartListenersModuleEvent.START_LISTENERS_MODULE);
+				startEvent.module = this;
+				globalDispatcher.dispatchEvent(startEvent);
 			}
 		
 			public function stop():void {
 				LogUtil.debug("ListenersModule is stopping");
-				ListenersModuleFacade.getInstance().stop(this);
+				
+				var endEvent:StopListenersModuleEvent = new StopListenersModuleEvent(StopListenersModuleEvent.STOP_LISTENERS_MODULE);
+				globalDispatcher.dispatchEvent(endEvent);
+				
 			}
 		]]>
 	</mx:Script>

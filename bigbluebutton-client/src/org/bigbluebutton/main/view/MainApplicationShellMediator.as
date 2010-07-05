@@ -63,6 +63,7 @@ package org.bigbluebutton.main.view
 			super( NAME, viewComponent );	
 			viewComponent.toolbar.addEventListener(MainApplicationConstants.LOGOUT_EVENT, onLogoutEventHandler);
 			viewComponent.addEventListener(StartModuleEvent.START_MODULE_RETRY_EVENT, onRestartModuleEvent);
+			viewComponent.addEventListener("loginsuccess", loginSuccess);
 		}
 		
 		private function addWindowMessageHandler(event:OpenWindowEvent):void {
@@ -203,6 +204,11 @@ package org.bigbluebutton.main.view
 		
 		private function get portTestProxy():PortTestProxy {
 			return facade.retrieveProxy(PortTestProxy.NAME) as PortTestProxy;
+		}
+		
+		private function loginSuccess(e:Event):void{
+			modulesProxy.user = shell.user;
+			modulesProxy.moduleEventHandler(MainApplicationConstants.USER_JOINED);
 		}
 	}
 }

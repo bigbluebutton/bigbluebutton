@@ -120,7 +120,6 @@
 			}
 		]]>
 	</mx:Script>
-	<mate:Debugger level="{Debugger.ALL}" />
+	
 	<maps:HighlighterEventMap id="eventMap" />
-	<maps:HighlighterLocalEventMap dispatcher="{this}" id="highlighterLocalEventMap"/>
 </mx:Module>

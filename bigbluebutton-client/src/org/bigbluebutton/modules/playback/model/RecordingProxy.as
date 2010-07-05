@@ -28,8 +28,8 @@ package org.bigbluebutton.modules.playback.model
 	import org.bigbluebutton.common.Constants;
 	import org.bigbluebutton.common.red5.Connection;
 	import org.bigbluebutton.common.red5.ConnectionEvent;
-	import org.bigbluebutton.modules.viewers.ViewersFacade;
-	import org.bigbluebutton.modules.viewers.model.business.Conference;
+	import org.bigbluebutton.modules.viewers2.ViewersFacade;
+	import org.bigbluebutton.modules.viewers2.model.business.Conference;
 	import org.puremvc.as3.multicore.interfaces.IProxy;
 	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
 	

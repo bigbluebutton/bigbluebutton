@@ -196,5 +196,14 @@ package org.bigbluebutton.common
 		
 		[Embed(source="assets/images/whiteboard_thin.png")]
 		public var whiteboard_thin:Class;
+		
+		[Embed(source="assets/images/lock.png")]
+		public var locked:Class;
+		
+		[Embed(source="assets/images/unlock.png")]
+		public var unlocked:Class;
+		
+		[Embed(source="assets/images/presenter.png")]
+		public var presenter:Class;
 	}
 }

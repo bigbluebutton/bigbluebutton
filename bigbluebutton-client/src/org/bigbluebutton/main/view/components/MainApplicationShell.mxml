@@ -34,34 +34,41 @@
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="handleCloseWindowEvent"/>
 	<mate:Listener type="{JoinFailedEvent.JOIN_FAILED_EVENT}" method="handleJoinFailedEvent" />
 	<mate:Listener type="{AddUIComponentToMainCanvas.ADD_COMPONENT}" method="addComponentToCanvas" />
+	
+	<mate:Listener type="{LoginSuccessEvent.LOGIN_SUCCESS}" method="loginSuccess" />
 
 	<maps:CrossModuleEventMap />
 	<api:APIEventMap />
 	
 	<mx:Script>
 		<![CDATA[
-			import mx.events.CloseEvent;
-			import org.bigbluebutton.main.events.AddUIComponentToMainCanvas;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.modules.viewers.events.JoinFailedEvent;
 			import com.asfusion.mate.events.Dispatcher;
-			import org.bigbluebutton.main.events.OpenWindowEvent;
-			import org.bigbluebutton.main.events.CloseWindowEvent;
-			import org.bigbluebutton.common.IBbbModuleWindow;
-			import flexlib.mdi.containers.MDIWindow;
-			import org.bigbluebutton.util.logging.Logger;
-			import org.bigbluebutton.main.view.events.StartModuleEvent;
-			import mx.collections.ArrayCollection;
-			import mx.managers.PopUpManager;
-			import mx.containers.TitleWindow;
-			import mx.core.Application;
-			import mx.controls.Alert;
-			import org.bigbluebutton.common.Constants;
-			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
-			import org.bigbluebutton.main.MainApplicationFacade;
-			import org.bigbluebutton.main.view.MainApplicationShellMediator;
+			
 			import flash.events.MouseEvent;
+			
+			import flexlib.mdi.containers.MDIWindow;
+			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
+			
+			import mx.collections.ArrayCollection;
+			import mx.containers.TitleWindow;
+			import mx.controls.Alert;
+			import mx.core.Application;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			
+			import org.bigbluebutton.common.Constants;
+			import org.bigbluebutton.common.IBbbModuleWindow;
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.main.MainApplicationFacade;
+			import org.bigbluebutton.main.events.AddUIComponentToMainCanvas;
+			import org.bigbluebutton.main.events.CloseWindowEvent;
+			import org.bigbluebutton.main.events.OpenWindowEvent;
+			import org.bigbluebutton.main.view.MainApplicationShellMediator;
+			import org.bigbluebutton.main.view.events.StartModuleEvent;
+			import org.bigbluebutton.modules.viewers.events.LoginSuccessEvent;
+			import org.bigbluebutton.modules.viewers2.events.JoinFailedEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.util.logging.Logger;
 			
 			public static const NAME:String = 'MainApplicationShell';
 			protected var facade:MainApplicationFacade = MainApplicationFacade.getInstance();	
@@ -76,7 +83,7 @@
 			
 			// LIVE or PLAYBACK
 			private var _mode:String = 'LIVE';
-			[Bindable] public var appVersion:String = '0.6';
+			[Bindable] public var appVersion:String = '0.7';
 			[Bindable] public var numberOfModules:int = 0;
 			
 			[Bindable] private var fullscreen_icon:Class = images.full_screen;
@@ -194,6 +201,15 @@
 				localeWindow.x = point1.x + 25;
 				localeWindow.y = point1.y + 25;	
             }
+			
+			public var user:Object;
+			private function loginSuccess(e:LoginSuccessEvent):void{
+				statusInfo.text = "";
+				statusProgress.text = "";
+				statusInfo2.text = "";
+				user = e.user;
+				dispatchEvent(new Event("loginsuccess"));
+			}
 		]]>
 	</mx:Script>
 			
