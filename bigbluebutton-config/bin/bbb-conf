@@ -557,8 +557,8 @@ if [ $SETUPDEV ]; then
                         /etc/nginx/sites-available/bigbluebutton
                 sudo /etc/init.d/nginx restart
 
-                echo "# Copying /var/www/bigbluebutton/client/conf/config.xml to ${BBBCLIENTHOME}/bin/conf/config.xml"
-                cp /var/www/bigbluebutton/client/conf/config.xml $BBBCLIENTHOME/bin/conf/config.xml
+                echo "# Copying /var/www/bigbluebutton/client/conf/config.xml to ${BBBCLIENTHOME}/src/conf/config.xml"
+                cp /var/www/bigbluebutton/client/conf/config.xml $BBBCLIENTHOME/src/conf/config.xml
 
                 cd $BBBCLIENTHOME
 
