@@ -137,6 +137,7 @@ need_root() {
 
 usage() {
 	echo "BigBlueButton Configuration Utility - Version 0.70"
+        echo "http://code.google.com/p/bigbluebutton/wiki/BBBConf"
         echo
         echo "$0 [options]"
         echo
@@ -162,7 +163,6 @@ usage() {
                 echo "   --checkout                 	  Checkout BigBlueButton from github "
                 echo "   --setup-dev [client|web|apps]	  Setup development environment "
                 echo "   --reset-dev                      Reset environment back to using packages"
-                echo "   --trunk                          Checkout trunk instead of last release"
         fi
         echo
 }
@@ -236,11 +236,6 @@ fi
 
 # Parse the parameters
 while [ $# -gt 0 ]; do
-	if [ "$1" = "-h" -o "$1" = "-help" -o "$1" = "?" -o "$1" = "--help" ]; then
-		usage
-		exit 1
-	fi
-
 	if [ "$1" = "-check" -o "$1" = "--check" -o "$1" = "-c" ]; then
 		CHECK=1
 		shift 
