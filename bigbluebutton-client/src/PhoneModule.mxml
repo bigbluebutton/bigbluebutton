@@ -34,23 +34,13 @@
 			import mx.controls.Alert;
 			import org.bigbluebutton.modules.phone.events.StopPhoneModuleEvent;
 			import org.bigbluebutton.modules.phone.events.StartPhoneModuleEvent;
-			import org.bigbluebutton.common.messaging.Router;
-			
-			private var _router:Router;			
+		
 			private var _moduleId:String = "PhoneModule";
 			private var _moduleName:String = "Phone";			
 			private var _attributes:Object;
 			
 			private function onCreationComplete():void {
 				LogUtil.debug("PhoneModule Initialized");			
-			}
-			
-			public function acceptRouter(router:Router):void{
-				_router = router;
-			}
-		
-			public function get router():Router{
-				return _router;
 			}
 				
 			public function get moduleId():String {

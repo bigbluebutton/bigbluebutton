@@ -30,11 +30,8 @@
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
-			import org.bigbluebutton.common.messaging.Router;
 			import org.bigbluebutton.modules.listeners.events.StartListenersModuleEvent;
 			import org.bigbluebutton.modules.listeners.events.StopListenersModuleEvent;
-			
-			private var _router:Router;
 			
 			private var _moduleId:String = "ListenersModule";
 			private var _moduleName:String = "Listeners Module";
@@ -47,14 +44,6 @@
 			
 			private function onModuleCreationComplete():void {
 				LogUtil.debug("ListenersModule Initialized");			
-			}
-			
-			public function acceptRouter(router:Router):void{
-				_router = router;
-			}
-		
-			public function get router():Router{
-				return _router;
 			}
 				
 			public function get moduleId():String {

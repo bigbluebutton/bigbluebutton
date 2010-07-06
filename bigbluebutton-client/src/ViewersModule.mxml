@@ -29,11 +29,8 @@
 			
 			import mx.controls.Alert;
 			
-			import org.bigbluebutton.common.messaging.Router;
 			import org.bigbluebutton.modules.viewers.events.ViewersModuleEndEvent;
 			import org.bigbluebutton.modules.viewers.events.ViewersModuleStartedEvent;
-			
-			private var _router:Router;
 			
 			private var _moduleId:String = "ViewersModule";
 			private var _moduleName:String = "Viewers Module";
@@ -45,14 +42,6 @@
 			
 			private function onCreationComplete():void {
 				LogUtil.debug("ViewersModule Initialized");		
-			}
-			
-			public function acceptRouter(router:Router):void{
-				_router = router;
-			}
-		
-			public function get router():Router{
-				return _router;
 			}
 				
 			public function get moduleId():String {

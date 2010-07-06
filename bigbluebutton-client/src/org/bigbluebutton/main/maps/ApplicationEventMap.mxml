@@ -89,18 +89,6 @@
             <Properties participant="{event.participant}"/>
         </EventAnnouncer>
 	</EventHandlers>
-		
-	<Injectors target="{MainView}">
-		<!--
-		This creates the Presentation Model object for the MainView, notice the registerTarget
-		property, which makes it possible to use Injectors that target this object, something that
-		otherwise is only possible with view objects.
-		-->
-	    <ObjectBuilder generator="{MainViewModel}" registerTarget="true" />
-
-		<!-- This injects the MainModel instance created by the last tag into the MainView instance -->
-		<PropertyInjector targetKey="model" source="{lastReturn}" />
-	</Injectors>
 	
 	<Injectors target="{MainViewModel}">
 		<!--
@@ -139,7 +127,6 @@
 		import org.bigbluebutton.main.services.ConfigLoader;
 		import org.bigbluebutton.main.services.JoiningParticipant;
 		import org.bigbluebutton.main.services.ModeInitializer;
-		import org.bigbluebutton.main.views.components.MainView;
 		import org.bigbluebutton.main.views.model.MainViewModel;
 	]]>
 	</mx:Script>

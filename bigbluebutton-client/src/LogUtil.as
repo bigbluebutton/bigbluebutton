@@ -22,11 +22,9 @@ package
 	import mx.logging.ILogger;
 	import mx.logging.Log;
 	
-	import org.bigbluebutton.common.Constants;
-	
 	public class LogUtil
 	{
-		private static const LOGGER:String = "BBBLOGGER";
+		public static const LOGGER:String = "BBBLOGGER";
 		
 		public static function debug(message:String):void
 		{
@@ -54,7 +52,7 @@ package
 		}
 		
 		private static function get logger():ILogger {
-			return Log.getLogger(Constants.LOG_TARGET_NAME);
+			return Log.getLogger(LOGGER);
 		}
 	}
 }

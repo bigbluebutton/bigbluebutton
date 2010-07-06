@@ -40,24 +40,14 @@
 			import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
 			import com.asfusion.mate.events.Dispatcher;
 			import org.bigbluebutton.modules.chat.events.ChatEvent;
-			import org.bigbluebutton.common.messaging.Router;
 			import org.bigbluebutton.modules.chat.events.TranscriptLoadedEvent;
-			
-			private var _router:Router;			
+		
 			private var _moduleId:String = "ChatModule";
 			private var _moduleName:String = "Chat Module";			
 			private var _attributes:Object;
 			
 			private function onCreationComplete():void {
 				LogUtil.debug("ChatModule Initialized");			
-			}
-			
-			public function acceptRouter(router:Router):void{
-				_router = router;
-			}
-		
-			public function get router():Router{
-				return _router;
 			}
 				
 			public function get moduleId():String {

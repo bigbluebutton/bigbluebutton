@@ -56,7 +56,6 @@
 			import mx.events.CloseEvent;
 			import mx.managers.PopUpManager;
 			
-			import org.bigbluebutton.common.Constants;
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.main.MainApplicationFacade;

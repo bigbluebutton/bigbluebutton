@@ -30,7 +30,6 @@ package org.bigbluebutton.main.model
 	
 	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.common.Role;
-	import org.bigbluebutton.common.messaging.Router;
 	import org.bigbluebutton.main.MainApplicationConstants;
 	import org.bigbluebutton.main.events.ConfigurationEvent;
 	
@@ -44,7 +43,6 @@ package org.bigbluebutton.main.model
 		private var _numModules:int = 0;		
 		public var  _modules:Dictionary = new Dictionary();
 		private var _user:Object;
-		private var _router:Router;
 		private var _mode:String;
 		private var _version:String;
 		private var _localeVersion:String;
@@ -54,9 +52,8 @@ package org.bigbluebutton.main.model
 		private var _helpURL:String;
 		private var globalDispatcher:Dispatcher;
 		
-		public function BbbModuleManager(router:Router, mode:String)
+		public function BbbModuleManager(mode:String)
 		{
-			_router = router;
 			_mode = mode;
 			_urlLoader = new URLLoader();
 			_urlLoader.addEventListener(Event.COMPLETE, handleComplete);			
@@ -187,7 +184,6 @@ package org.bigbluebutton.main.model
 			if (m != null) {
 				LogUtil.debug('Starting ' + name);
 				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
-				bbb.acceptRouter(_router);
 				if (_user != null) {
 					m.addAttribute("conference", _user.conference);
 					m.addAttribute("username", _user.username);

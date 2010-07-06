@@ -19,7 +19,6 @@
  */
 package org.bigbluebutton.main.model
 {
-	import org.bigbluebutton.common.messaging.Router;
 	import org.bigbluebutton.main.MainApplicationConstants;
 	import org.puremvc.as3.multicore.interfaces.IProxy;
 	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
@@ -30,14 +29,12 @@ package org.bigbluebutton.main.model
 		private var modulesManager:BbbModuleManager;
 		
 		private var _user:Object;
-		private var _router:Router;
 		private var _mode:String;
 		
-		public function ModulesProxy(router:Router, mode:String) {
+		public function ModulesProxy(mode:String) {
 			super(NAME);
-			_router = router;
 			_mode = mode;
-			modulesManager = new BbbModuleManager(_router, _mode);
+			modulesManager = new BbbModuleManager(_mode);
 			modulesManager.addInitializedListener(onInitializeComplete);
 			modulesManager.addModuleLoadedListener(onModuleLoadedListener);
 			modulesManager.initialize();

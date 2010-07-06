@@ -28,17 +28,13 @@
 			
 			import mx.controls.Alert;
 			
-			import org.bigbluebutton.common.messaging.Endpoint;
-			import org.bigbluebutton.common.messaging.EndpointMessageConstants;
-			import org.bigbluebutton.common.messaging.Router;
 			import org.bigbluebutton.modules.highlighter.events.StartHighligtherModuleEvent;
 			import org.bigbluebutton.modules.highlighter.events.StopHighlighterModuleEvent;
 			import org.puremvc.as3.multicore.utilities.pipes.interfaces.IPipeMessage;
 			
 			private static const TO_HIGHLIGHTER_MODULE:String = "TO_HIGHLIGHTER_MODULE";
 			private static const FROM_HIGHLIGHTER_MODULE:String = "FROM_HIGHLIGHTER_MODULE";
-			
-			private var _router:Router;			
+					
 			private var _moduleId:String = "HighlighterModule";
 			private var _moduleName:String = "Highlighter Module";			
 			private var _attributes:Object;
@@ -49,16 +45,8 @@
 				LogUtil.debug("HighlighterModule::init");
 			}
 			
-			public function acceptRouter(router:Router):void{
-				_router = router;
-			}
-			
 			private function messageReceive(message : IPipeMessage):void{
 				
-			}
-		
-			public function get router():Router{
-				return _router;
 			}
 				
 			public function get moduleId():String {

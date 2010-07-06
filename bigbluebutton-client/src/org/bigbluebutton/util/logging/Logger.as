@@ -23,8 +23,6 @@ package org.bigbluebutton.util.logging
 	import mx.logging.Log;
 	import mx.logging.LogEventLevel;
 	
-	import org.bigbluebutton.common.Constants;
-	
 	public class Logger
 	{
 		private var target:ArrayCollectionLogTarget = new ArrayCollectionLogTarget();
@@ -64,7 +62,7 @@ package org.bigbluebutton.util.logging
 		}	
 		
 		private static function get logger():ILogger {
-			return Log.getLogger(Constants.LOG_TARGET_NAME);
+			return Log.getLogger(LogUtil.LOGGER);
 		}
 	}
 }

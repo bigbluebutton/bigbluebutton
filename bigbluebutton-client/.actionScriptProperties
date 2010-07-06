@@ -24,11 +24,10 @@
   </compiler>
   <applications>
     <application path="src/main.mxml"/>
-    <application path="MessagingUnitTests.mxml"/>
     <application path="BbbUnitTests.mxml"/>
-    <application path="src/TestRunners.mxml"/>
     <application path="BigBlueButton.mxml"/>
     <application path="DeskshareStandalone.mxml"/>
+    <application path="src/TestRunners.mxml"/>
   </applications>
   <modules>
     <module application="src/BigBlueButton.mxml" destPath="ChatModule.swf" optimize="true" sourcePath="src/ChatModule.mxml"/>

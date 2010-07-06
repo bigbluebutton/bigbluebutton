@@ -25,7 +25,7 @@ package org.bigbluebutton.main
 		}
 
 		override public function setUp():void { 
-			manager = new BbbModuleManager(null, null); 
+			manager = new BbbModuleManager(null); 
 		}  
 		
 		override public function tearDown():void {  } 
