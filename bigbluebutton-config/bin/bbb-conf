@@ -794,6 +794,11 @@ $RED5_DIRECTORY/log/deskshare.log"
                 echo "Ghostscript is not installd in $VARFolder"
         fi
 
+        if [ ! -f /var/www/bigbluebutton/client/DeskShareModule*.swf ]; then
+                echo "The DeskShare Module is not installed";
+        fi
+
+
 	echo
 	exit 0
 }
@@ -831,7 +836,7 @@ if [ $CHECK ]; then
         PORT=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/listen/{s/.*listen[ ]*//;s/;//;p}')
         echo "                                port: $PORT"
 
-	BBB_CLINET_DOC_ROOT=$(cat /etc/nginx/sites-available/bigbluebutton | grep \/client -A 1 | grep root  | sed -n '{s/[ ]*root[ ]*//;s/;//;p}') 
+	BBB_CLINET_DOC_ROOT=$(cat /etc/nginx/sites-available/bigbluebutton | grep \/client -A 1 | head -n 2 | grep root | sed -n '{s/[ ]*root[ ]*//;s/;//;p}')
         echo "                client document root: $BBB_CLINET_DOC_ROOT"
 
         HOST=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
