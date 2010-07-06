@@ -378,7 +378,6 @@ package org.bigbluebutton.modules.present.business {
 		 * Called by the server to assign a presenter
 		 */
 		public function assignPresenterCallback(userid:Number, name:String, assignedBy:Number):void {
-			Alert.show(name + " " + userid + " " + assignedBy);
 			LogUtil.debug("assignPresenterCallback " + userid + "," + name + "," + assignedBy);
 			if (this.userid == userid) {
 				var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE);

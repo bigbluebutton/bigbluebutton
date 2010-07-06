@@ -26,8 +26,10 @@ package org.bigbluebutton.modules.viewers.business
 	import mx.collections.ArrayCollection;
 	
 	import org.bigbluebutton.main.events.BBBEvent;
+	import org.bigbluebutton.modules.videoconf.events.BroadcastStartedEvent;
+	import org.bigbluebutton.modules.videoconf.events.BroadcastStoppedEvent;
 	import org.bigbluebutton.modules.viewers.events.ConferenceCreatedEvent;
-	import org.bigbluebutton.modules.viewers.events.LoginFailedEvent;
+	import org.bigbluebutton.modules.viewers.events.ConnectionFailedEvent;
 	import org.bigbluebutton.modules.viewers.events.LowerHandEvent;
 	import org.bigbluebutton.modules.viewers.events.RaiseHandEvent;
 	import org.bigbluebutton.modules.viewers.events.ViewersConnectionEvent;
@@ -102,12 +104,14 @@ package org.bigbluebutton.modules.viewers.business
 				connect();
 			} else {
 				LogUtil.debug(NAME + '::Sending ViewersModuleConstants.JOIN_FAILED');
-				dispatcher.dispatchEvent(new LoginFailedEvent(LoginFailedEvent.UNKNOWN_REASON));
+				var connectionEvent:ConnectionFailedEvent = new ConnectionFailedEvent();
+				connectionEvent.reason = ConnectionFailedEvent.UNKNOWN_REASON;
+				dispatcher.dispatchEvent(connectionEvent);
 			}
 		}
 		
 		public function connectSharedObjects(e:ViewersConnectionEvent):void{
-			_viewersService.join();
+			_viewersService.join(e.userid);
 		}
 		
 		public function stop(e:ViewersModuleEndEvent):void {
@@ -134,12 +138,12 @@ package org.bigbluebutton.modules.viewers.business
 			_viewersService.assignPresenter(assignTo, me.userid);
 		}
 		
-		public function addStream(userid:Number, streamName:String):void {
-			_viewersService.addStream(userid, streamName);
+		public function addStream(e:BroadcastStartedEvent):void {
+			_viewersService.addStream(e.userid, e.stream);
 		}
 		
-		public function removeStream(userid:Number, streamName:String):void {			
-			_viewersService.removeStream(userid, streamName);
+		public function removeStream(e:BroadcastStoppedEvent):void {			
+			_viewersService.removeStream(e.userid, e.stream);
 		}
 		
 		public function raiseHand(e:RaiseHandEvent):void {
@@ -164,34 +168,11 @@ package org.bigbluebutton.modules.viewers.business
 				//new Dispatcher().dispatchEvent(new BBBMessageEvent(BBBMessageEvent.MESSAGE_EVENT, "test"));
 			} else {
 				_participants = null;
-				dispatcher.dispatchEvent(new LoginFailedEvent(LoginFailedEvent.UNKNOWN_REASON));
+				var connectionEvent:ConnectionFailedEvent = new ConnectionFailedEvent();
+				connectionEvent.reason = ConnectionFailedEvent.UNKNOWN_REASON;
+				dispatcher.dispatchEvent(connectionEvent);
 			}
 		}
-		
-		/*private function messageSender(msg:String, body:Object=null):void {
-			switch (msg) {
-				case ViewersModuleConstants.ASSIGN_PRESENTER:
-					LogUtil.debug('Got ViewersModuleConstants.ASSIGN_PRESENTER ' + me.userid + " " + body.assignedTo);
-					if (me.userid == body.assignTo) {
-						// I've been assigned as presenter.
-						LogUtil.debug('I have become presenter');
-						isPresenter = true;
-						var newStatus:Status = new Status("presenter", body.assignedBy);
-						sendNotification(msg, body);
-					} else {
-						// Somebody else has become presenter.
-						if (isPresenter) {
-							LogUtil.debug('Somebody else has become presenter.');
-//							_viewersService.iAmPresenter(me.userid, false);
-						}
-						isPresenter = false;
-						sendNotification(ViewersModuleConstants.BECOME_VIEWER, body);					
-					}
-					break;
-				default:
-					sendNotification(msg, body);
-			} 
-		}*/	
 		
 		public function get connection():NetConnection
 		{

@@ -39,6 +39,7 @@
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.CloseWindowEvent;
 			import org.bigbluebutton.main.events.ConfigurationEvent;
+			import org.bigbluebutton.main.events.LogoutEvent;
 			import org.bigbluebutton.main.events.ToolbarButtonEvent;
 			import org.bigbluebutton.main.view.MainApplicationShellMediator;
 			import org.bigbluebutton.modules.viewers.events.LoginSuccessEvent;
@@ -76,6 +77,8 @@
 			
 			private function doLogout():void {
 				dispatchEvent(new Event(MainApplicationConstants.LOGOUT_EVENT));
+				this.visible = false;
+				dispatchEvent(new LogoutEvent(LogoutEvent.USER_LOGGED_OUT));
 			}
 			
 			private function handleAddToolbarButtonEvent(event:ToolbarButtonEvent):void {

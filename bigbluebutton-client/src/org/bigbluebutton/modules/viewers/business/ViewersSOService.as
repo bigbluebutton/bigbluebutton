@@ -31,7 +31,7 @@ package org.bigbluebutton.modules.viewers.business
 	import org.bigbluebutton.main.events.ParticipantJoinEvent;
 	import org.bigbluebutton.main.events.PresenterStatusEvent;
 	import org.bigbluebutton.main.model.User;
-	import org.bigbluebutton.modules.viewers.events.LoginFailedEvent;
+	import org.bigbluebutton.modules.viewers.events.ConnectionFailedEvent;
 	import org.bigbluebutton.modules.viewers.events.RoleChangeEvent;
 
 	public class ViewersSOService
@@ -72,7 +72,7 @@ package org.bigbluebutton.modules.viewers.business
 			netConnectionDelegate.disconnect();
 		}
 		
-	    public function join() : void
+	    public function join(userid:Number) : void
 		{
 			_participantsSO = SharedObject.getRemote(SO_NAME, _module.uri, false);
 			_participantsSO.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
@@ -85,6 +85,8 @@ package org.bigbluebutton.modules.viewers.business
 			} else {
 				queryForParticipants();
 			}			
+			
+			_participants.me.userid = userid;
 		}
 		
 		private function startPlayback():void {
@@ -136,7 +138,7 @@ package org.bigbluebutton.modules.viewers.business
 						for (var x:Object in status) { 
 							LogUtil.error(x + " : " + status[x]); 
 							} 
-						sendConnectionFailedEvent(LoginFailedEvent.UNKNOWN_REASON);
+						sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
 					}
 				)//new Responder
 			); //_netConnection.call
@@ -402,32 +404,32 @@ package org.bigbluebutton.modules.viewers.business
 			
 				case "NetConnection.Connect.Failed" :			
 					LogUtil.debug(LOGNAME + ":Connection to viewers application failed");
-					sendConnectionFailedEvent(LoginFailedEvent.CONNECTION_FAILED);
+					sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_FAILED);
 					break;
 					
 				case "NetConnection.Connect.Closed" :									
 					LogUtil.debug(LOGNAME + ":Connection to viewers application closed");
-					sendConnectionFailedEvent(LoginFailedEvent.CONNECTION_CLOSED);
+					sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_CLOSED);
 					break;
 					
 				case "NetConnection.Connect.InvalidApp" :				
 					LogUtil.debug(LOGNAME + ":Viewers application not found on server");
-					sendConnectionFailedEvent(LoginFailedEvent.INVALID_APP);
+					sendConnectionFailedEvent(ConnectionFailedEvent.INVALID_APP);
 					break;
 					
 				case "NetConnection.Connect.AppShutDown" :
 					LogUtil.debug(LOGNAME + ":Viewers application has been shutdown");
-					sendConnectionFailedEvent(LoginFailedEvent.APP_SHUTDOWN);
+					sendConnectionFailedEvent(ConnectionFailedEvent.APP_SHUTDOWN);
 					break;
 					
 				case "NetConnection.Connect.Rejected" :
 					LogUtil.debug(LOGNAME + ":No permissions to connect to the viewers application" );
-					sendConnectionFailedEvent(LoginFailedEvent.CONNECTION_REJECTED);
+					sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_REJECTED);
 					break;
 					
 				default :
 				   LogUtil.debug(LOGNAME + ":default - " + event.info.code );
-				   sendConnectionFailedEvent(LoginFailedEvent.UNKNOWN_REASON);
+				   sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
 				   break;
 			}
 		}
@@ -435,7 +437,7 @@ package org.bigbluebutton.modules.viewers.business
 		private function asyncErrorHandler ( event : AsyncErrorEvent ) : void
 		{
 			LogUtil.debug(LOGNAME + "participantsSO asyncErrorHandler " + event.error);
-			sendConnectionFailedEvent(LoginFailedEvent.ASYNC_ERROR);
+			sendConnectionFailedEvent(ConnectionFailedEvent.ASYNC_ERROR);
 		}
 		
 		public function get connection():NetConnection
@@ -444,7 +446,8 @@ package org.bigbluebutton.modules.viewers.business
 		}
 		
 		private function sendConnectionFailedEvent(reason:String):void{
-			var e:LoginFailedEvent = new LoginFailedEvent(reason);
+			var e:ConnectionFailedEvent = new ConnectionFailedEvent();
+			e.reason = reason;
 			dispatcher.dispatchEvent(e);
 		}
 		

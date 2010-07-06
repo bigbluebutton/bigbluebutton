@@ -32,10 +32,10 @@
 		
 	<mate:Listener type="{OpenWindowEvent.OPEN_WINDOW_EVENT}" method="handleOpenWindowEvent" />	
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="handleCloseWindowEvent"/>
-	<mate:Listener type="{JoinFailedEvent.JOIN_FAILED_EVENT}" method="handleJoinFailedEvent" />
 	<mate:Listener type="{AddUIComponentToMainCanvas.ADD_COMPONENT}" method="addComponentToCanvas" />
 	
 	<mate:Listener type="{LoginSuccessEvent.LOGIN_SUCCESS}" method="loginSuccess" />
+	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_LOST}" method="handleLogout" />
 
 	<maps:CrossModuleEventMap />
 	<api:APIEventMap />
@@ -62,11 +62,12 @@
 			import org.bigbluebutton.main.MainApplicationFacade;
 			import org.bigbluebutton.main.events.AddUIComponentToMainCanvas;
 			import org.bigbluebutton.main.events.CloseWindowEvent;
+			import org.bigbluebutton.main.events.LogoutEvent;
 			import org.bigbluebutton.main.events.OpenWindowEvent;
 			import org.bigbluebutton.main.view.MainApplicationShellMediator;
 			import org.bigbluebutton.main.view.events.StartModuleEvent;
+			import org.bigbluebutton.modules.viewers.events.ConnectionFailedEvent;
 			import org.bigbluebutton.modules.viewers.events.LoginSuccessEvent;
-			import org.bigbluebutton.modules.viewers2.events.JoinFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.util.logging.Logger;
 			
@@ -80,6 +81,8 @@
 			
 			private var logs:Logger = new Logger();
 			private var logWindow:LogWindow;
+			
+			private var logoutWindow:LoggedOutWindow;
 			
 			// LIVE or PLAYBACK
 			private var _mode:String = 'LIVE';
@@ -154,19 +157,6 @@
 	   		private function handleCloseWindowEvent(event:CloseWindowEvent):void {
 	   			var window:IBbbModuleWindow = event.window;
 				mdiCanvas.removeWindow(window);
-	   		}		
-	   		
-	   		private function handleJoinFailedEvent(event:JoinFailedEvent):void {
-	   			LogUtil.debug("GOT JOIN FAILED EVENT");
-				var t:JoinFailedWindow = JoinFailedWindow(PopUpManager.createPopUp( this, JoinFailedWindow, false));
-
-				var point1:Point = new Point();
-            	// Calculate position of TitleWindow in Application's coordinates. 
-            	point1.x = 200;
-            	point1.y = 400;                
-            	point1 = this.localToGlobal(point1);
-           	 	t.x = point1.x + 25;
-            	t.y = point1.y + 25;	
 	   		}
 	   		
 	   		private function resetLayout():void{
@@ -209,6 +199,20 @@
 				statusInfo2.text = "";
 				user = e.user;
 				dispatchEvent(new Event("loginsuccess"));
+			}
+			
+			private function handleLogout(e:ConnectionFailedEvent):void{
+				if (logoutWindow != null) return;
+				logoutWindow = LoggedOutWindow(PopUpManager.createPopUp( mdiCanvas, LoggedOutWindow, false));
+				
+				var point1:Point = new Point();
+				// Calculate position of TitleWindow in Application's coordinates. 
+				point1.x = 400;
+				point1.y = 300;                
+				point1 = localToGlobal(point1);
+				logoutWindow.x = point1.x + 25;
+				logoutWindow.y = point1.y + 25;	
+				logoutWindow.setReason(e.reason);	
 			}
 		]]>
 	</mx:Script>

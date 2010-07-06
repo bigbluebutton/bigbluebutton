@@ -30,6 +30,7 @@
 			import mx.controls.Alert;
 			
 			import org.bigbluebutton.common.messaging.Router;
+			import org.bigbluebutton.modules.viewers.events.ViewersModuleEndEvent;
 			import org.bigbluebutton.modules.viewers.events.ViewersModuleStartedEvent;
 			
 			private var _router:Router;
@@ -210,7 +211,7 @@
 			}
 		
 			public function stop():void {
-				
+				dispatcher.dispatchEvent(new ViewersModuleEndEvent(ViewersModuleEndEvent.VIEWERS_MODULE_ENDED));
 			}
 		]]>
 	</mx:Script>

@@ -2,6 +2,7 @@ package org.bigbluebutton.modules.listeners.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
+	import org.bigbluebutton.main.events.CloseWindowEvent;
 	import org.bigbluebutton.main.events.OpenWindowEvent;
 	import org.bigbluebutton.modules.listeners.events.StartListenersModuleEvent;
 	import org.bigbluebutton.modules.listeners.views.ListenersWindow;
@@ -26,7 +27,9 @@ package org.bigbluebutton.modules.listeners.managers
 		}
 		
 		public function moduleEnded():void{
-			
+			var event:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
+			event.window = listenersWindow;
+			dispatcher.dispatchEvent(event);
 		}
 	}
 }

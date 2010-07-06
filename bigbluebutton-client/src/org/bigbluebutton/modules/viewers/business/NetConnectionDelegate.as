@@ -28,7 +28,7 @@ package org.bigbluebutton.modules.viewers.business
 	
 	import mx.controls.Alert;
 	
-	import org.bigbluebutton.modules.viewers.events.LoginFailedEvent;
+	import org.bigbluebutton.modules.viewers.events.ConnectionFailedEvent;
 	import org.bigbluebutton.modules.viewers.events.ViewersConnectionEvent;
 		
 	public class NetConnectionDelegate
@@ -155,7 +155,7 @@ package org.bigbluebutton.modules.viewers.business
 				case CONNECT_FAILED :					
 					if (tried_tunneling) {
 						LogUtil.debug(NAME + ":Connection to viewers application failed...even when tunneling");
-						sendConnectionFailedEvent(LoginFailedEvent.CONNECTION_FAILED);
+						sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_FAILED);
 					} else {
 						disconnect();
 						_netConnection = null;
@@ -168,27 +168,27 @@ package org.bigbluebutton.modules.viewers.business
 					
 				case CONNECT_CLOSED :	
 					LogUtil.debug(NAME + ":Connection to viewers application closed");					
-					sendConnectionFailedEvent(LoginFailedEvent.CONNECTION_CLOSED);								
+					sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_CLOSED);								
 					break;
 					
 				case INVALID_APP :	
 					LogUtil.debug(NAME + ":viewers application not found on server");			
-					sendConnectionFailedEvent(LoginFailedEvent.INVALID_APP);				
+					sendConnectionFailedEvent(ConnectionFailedEvent.INVALID_APP);				
 					break;
 					
 				case APP_SHUTDOWN :
 					LogUtil.debug(NAME + ":viewers application has been shutdown");
-					sendConnectionFailedEvent(LoginFailedEvent.APP_SHUTDOWN);	
+					sendConnectionFailedEvent(ConnectionFailedEvent.APP_SHUTDOWN);	
 					break;
 					
 				case CONNECT_REJECTED :
 					LogUtil.debug(NAME + ":Connection to the server rejected. Uri: " + _module.uri + ". Check if the red5 specified in the uri exists and is running" );
-					sendConnectionFailedEvent(LoginFailedEvent.CONNECTION_REJECTED);		
+					sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_REJECTED);		
 					break;
 					
 				default :
 				   LogUtil.debug(NAME + ":Default status to the viewers application" );
-				   sendConnectionFailedEvent(LoginFailedEvent.UNKNOWN_REASON);
+				   sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
 				   break;
 			}
 		}
@@ -200,26 +200,28 @@ package org.bigbluebutton.modules.viewers.business
         
 		private function sendFailReason(reason:String):void{
 			//ViewersFacade.getInstance().sendNotification(ViewersModuleConstants.LOGIN_FAILED, reason);
-			dispatcher.dispatchEvent(new LoginFailedEvent(reason));
+			var e:ConnectionFailedEvent = new ConnectionFailedEvent();
+			e.reason = reason;
+			dispatcher.dispatchEvent(e);
 		}
 		
 			
 		protected function netSecurityError( event : SecurityErrorEvent ) : void 
 		{
 			LogUtil.debug("Security error - " + event.text);
-			sendConnectionFailedEvent(LoginFailedEvent.UNKNOWN_REASON);
+			sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
 		}
 		
 		protected function netIOError( event : IOErrorEvent ) : void 
 		{
 			LogUtil.debug("Input/output error - " + event.text);
-			sendConnectionFailedEvent(LoginFailedEvent.UNKNOWN_REASON);
+			sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
 		}
 			
 		protected function netASyncError( event : AsyncErrorEvent ) : void 
 		{
 			LogUtil.debug("Asynchronous code error - " + event.error );
-			sendConnectionFailedEvent(LoginFailedEvent.UNKNOWN_REASON);
+			sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
 		}	
 
 		/**
@@ -238,11 +240,13 @@ package org.bigbluebutton.modules.viewers.business
 		private function sendConnectionSuccessEvent(userid:int):void{
 			var e:ViewersConnectionEvent = new ViewersConnectionEvent(ViewersConnectionEvent.CONNECTION_SUCCESS);
 			e.connection = _netConnection;
+			e.userid = userid;
 			dispatcher.dispatchEvent(e);
 		}
 		
 		private function sendConnectionFailedEvent(reason:String):void{
-			var e:LoginFailedEvent = new LoginFailedEvent(reason);
+			var e:ConnectionFailedEvent = new ConnectionFailedEvent();
+			e.reason = reason;
 			dispatcher.dispatchEvent(e);
 		}
 	}

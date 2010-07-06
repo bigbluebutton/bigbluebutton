@@ -8,6 +8,7 @@ package org.bigbluebutton.modules.viewers.events
 		public static const CONNECTION_SUCCESS:String = "VIEWERS_CONNECTION_SUCCESS";
 		
 		public var connection:NetConnection;
+		public var userid:Number;
 		
 		public function ViewersConnectionEvent(type:String)
 		{

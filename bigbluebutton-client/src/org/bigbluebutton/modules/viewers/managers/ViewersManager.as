@@ -2,6 +2,9 @@ package org.bigbluebutton.modules.viewers.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
+	import mx.controls.Alert;
+	
+	import org.bigbluebutton.main.events.CloseWindowEvent;
 	import org.bigbluebutton.main.events.OpenWindowEvent;
 	import org.bigbluebutton.modules.viewers.events.LoginSuccessEvent;
 	import org.bigbluebutton.modules.viewers.events.ViewersConnectionEvent;
@@ -32,10 +35,13 @@ package org.bigbluebutton.modules.viewers.managers
 		}
 		
 		public function moduleEnded(e:ViewersModuleEndEvent):void{
-			
+			var event:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
+			event.window = viewersWindow;
+			dispatcher.dispatchEvent(event);
 		}
 		
 		public function loginSuccess(e:ViewersConnectionEvent):void{
+			_module.userid = e.userid;
 			var user:Object = {username:_module.username, conference:_module.conference, 
 				conferenceName:_module.conferenceName,
 				userrole:_module.role, room:_module.room, authToken:_module.authToken,

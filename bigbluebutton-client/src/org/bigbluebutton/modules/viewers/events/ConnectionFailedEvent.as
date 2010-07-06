@@ -2,7 +2,7 @@ package org.bigbluebutton.modules.viewers.events
 {
 	import flash.events.Event;
 
-	public class LoginFailedEvent extends Event
+	public class ConnectionFailedEvent extends Event
 	{
 		public static const UNKNOWN_REASON:String = "UNKNOWN_REASON";
 		public static const CONNECTION_FAILED:String = "CONNECTION_FAILED";
@@ -12,9 +12,13 @@ package org.bigbluebutton.modules.viewers.events
 		public static const CONNECTION_REJECTED:String = "CONNECTION_REJECTED";
 		public static const ASYNC_ERROR:String = "ASYNC_ERROR";
 		
-		public function LoginFailedEvent(type:String)
+		public static const CONNECTION_LOST:String = "CONNECTION_LOST";
+		
+		public var reason:String;
+		
+		public function ConnectionFailedEvent()
 		{
-			super(type, true, false);
+			super(CONNECTION_LOST, true, false);
 		}
 	}
 }

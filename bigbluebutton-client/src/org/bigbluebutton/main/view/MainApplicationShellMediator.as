@@ -55,8 +55,6 @@ package org.bigbluebutton.main.view
 		
 		private var phoneButton:ToolbarButton;
 		private var phoneRegistered:Boolean = false;
-		
-		private var logoutWindow:LoggedOutWindow;
 		      
 		public function MainApplicationShellMediator( viewComponent:MainApplicationShell )
 		{
@@ -171,7 +169,7 @@ package org.bigbluebutton.main.view
 		}
 		
 		private function handleUserLoggedOut(reason:String):void {
-			if (logoutWindow != null) return;
+			/*if (logoutWindow != null) return;
 			logoutWindow = LoggedOutWindow(PopUpManager.createPopUp( shell.mdiCanvas, LoggedOutWindow, false));
 
 			var point1:Point = new Point();
@@ -181,7 +179,7 @@ package org.bigbluebutton.main.view
         	point1 = shell.localToGlobal(point1);
 			logoutWindow.x = point1.x + 25;
 			logoutWindow.y = point1.y + 25;	
-			logoutWindow.setReason(reason);		
+			logoutWindow.setReason(reason);*/
 		}
 		
 		private function handleModuleStopped(moduleName:String, errors:Array):void {

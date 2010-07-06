@@ -4,6 +4,8 @@
 		<![CDATA[
 			import mx.events.FlexEvent;
 			
+			import org.bigbluebutton.modules.videoconf.events.BroadcastStartedEvent;
+			import org.bigbluebutton.modules.videoconf.events.BroadcastStoppedEvent;
 			import org.bigbluebutton.modules.viewers.business.ViewersProxy;
 			import org.bigbluebutton.modules.viewers.events.LowerHandEvent;
 			import org.bigbluebutton.modules.viewers.events.RaiseHandEvent;
@@ -40,6 +42,14 @@
 	
 	<EventHandlers type="{LowerHandEvent.LOWER_HAND_EVENT}" >
 		<MethodInvoker generator="{ViewersProxy}" method="lowerHand" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{BroadcastStartedEvent.BROADCAST_STARTED_EVENT}" >
+		<MethodInvoker generator="{ViewersProxy}" method="addStream" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{BroadcastStoppedEvent.BROADCAST_STOPPED}" >
+		<MethodInvoker generator="{ViewersProxy}" method="removeStream" arguments="{event}" />
 	</EventHandlers>
 	
 </EventMap>
