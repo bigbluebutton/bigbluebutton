@@ -32,6 +32,7 @@
 #	2010-06-21 SEB  Cleaned up some code / Updated for 0.70
 #	2010-06-25 SEB  Added ability to change the security salt
 #	2010-06-30 SEB	Added some extra errorchecking
+#	2010-07-06 SEB	Added more errorchecking and report messages
 
 #set -x
 
@@ -737,8 +738,7 @@ $RED5_DIRECTORY/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 
 	LOGG_FILES="$RED5_DIRECTORY/log/sip.log \
 $RED5_DIRECTORY/log/video.log \
-$RED5_DIRECTORY/log/bigbluebutton.log \
-$RED5_DIRECTORY/log/deskshare.log"
+$RED5_DIRECTORY/log/bigbluebutton.log"
 
 	for file in $LOGG_FILES ; do
 		if [ -a $file ]; then
@@ -794,9 +794,20 @@ $RED5_DIRECTORY/log/deskshare.log"
                 echo "Ghostscript is not installd in $VARFolder"
         fi
 
-        if [ ! -f /var/www/bigbluebutton/client/DeskShareModule*.swf ]; then
-                echo "The DeskShare Module is not installed";
+        if [[ ! -f /var/www/bigbluebutton/client/DeskShareModule*.swf && `grep -i '<!--[ ]*module name="DeskShareModule"' /var/www/bigbluebutton/client/conf/config.xml` ]]; then
+                echo "The DeskShare Module was not started because it is not uncommented in /var/www/bigbluebutton/client/con/config.xml";
+	else
+		#check for DeskShare.log
+		if [ -a $RED5_DIRECTORY/log/deskshare.log ]; then
+			if cat $RED5_DIRECTORY/log/deskshare.log | tail -n1 | grep -q "Starting up context"; then
+				echo "BigBlueButton did not start up corerctly"
+			fi
+		fi
         fi
+	
+
+
+	
 
 
 	echo
