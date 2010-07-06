@@ -794,8 +794,10 @@ $RED5_DIRECTORY/log/bigbluebutton.log"
                 echo "Ghostscript is not installd in $VARFolder"
         fi
 
-        if [[ ! -f /var/www/bigbluebutton/client/DeskShareModule*.swf && `grep -i '<!--[ ]*module name="DeskShareModule"' /var/www/bigbluebutton/client/conf/config.xml` ]]; then
-                echo "The DeskShare Module was not started because it is not uncommented in /var/www/bigbluebutton/client/con/config.xml";
+        if [ -f /usr/share/red5/log/deskshare.log ]; then
+		if [ `grep -i '<!--[ ]*module name="DeskShareModule"' /var/www/bigbluebutton/client/conf/config.xml` ]; then
+	                echo "The DeskShare Module is not uncommented.";
+		fi
 	else
 		#check for DeskShare.log
 		if [ -a $RED5_DIRECTORY/log/deskshare.log ]; then
