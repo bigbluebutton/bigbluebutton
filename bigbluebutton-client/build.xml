@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- BigBlueButton Client build.xml for use by Hudson builds.   -->
 <project name="BigBlueButton Client" basedir="." default="clean-build-all" >
-    <property environment="env" />
-    <property name="BUILD_ENV" value="DEV" />
-    <property name="FLEX_HOME" value="${env.FLEX_HOME}" />
-    <property name="LOCALE_DIR" value="${FLEX_HOME}/frameworks/locale"/>
-    <property name="BASE_DIR" value="${basedir}" />
+    	<property environment="env" />
+    	<property name="BUILD_ENV" value="DEV" />
+    	<property name="FLEX_HOME" value="${env.FLEX_HOME}" />
+    	<property name="LOCALE_DIR" value="${FLEX_HOME}/frameworks/locale"/>
+    	<property name="BASE_DIR" value="${basedir}" />
 	<property name="RESOURCES_DIR" value="${BASE_DIR}/resources" />	
 	<property name="PROD_RESOURCES_DIR" value="${RESOURCES_DIR}/prod" />	
 	<property name="SRC_DIR" value="${BASE_DIR}/src" />
@@ -46,19 +46,19 @@
 		<echo message="Building ${supportedlocale}"/>
 		<available file="${LOCALE_DIR}/${supportedlocale}" type="dir" property="locale.dir.present"/>
 		<if> 
-           <equals arg1="${locale.dir.present}" arg2="true"/> 
-           <then> 
-              <echo message="No need to copy ${LOCALE_DIR}/${supportedlocale}"/> 
-           </then> 
-           <else> 
-              <echo message="Need to copy ${LOCALE_DIR}/${supportedlocale}"/> 
-              <exec dir="${BASE_DIR}" vmlauncher="true" executable="copylocale">
+           		<equals arg1="${locale.dir.present}" arg2="true"/> 
+           	<then> 
+              		<echo message="No need to copy ${LOCALE_DIR}/${supportedlocale}"/> 
+           	</then> 
+           	<else> 
+              		<echo message="Need to copy ${LOCALE_DIR}/${supportedlocale}"/> 
+              		<exec dir="${BASE_DIR}" vmlauncher="true" executable="copylocale">
 				<arg value="en_US"/>
-    			<arg value="${supportedlocale}"/>
+    				<arg value="${supportedlocale}"/>
 			</exec>
-           </else> 
-        </if>
-        <compileLocale locale="${supportedlocale}" />        
+           	</else> 
+        	</if>
+        	<compileLocale locale="${supportedlocale}" />        
 	</target>
 		
 	<macrodef name="compileLocale" description="Compiles the Resource package for the given locale">
@@ -317,6 +317,7 @@
 			description="Build BBB client skipping compiling of locales"/>	
 	<target name="clean-build-all" depends="clean, generate-html-wrapper, localization, compile-deskshare-standalone, compile-bbb" 
 			description="Build BBB client including locales"/>
-		
+	<target name="build-bbb" depends="init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, compile-bbb"
+                        description="Build BBB client without locales"/>		
 	<target name="cleanandmake" depends="clean-build-all" description="Build BBB client including locales"/>
 </project>
