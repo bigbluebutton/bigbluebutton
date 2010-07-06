@@ -32,6 +32,7 @@ package org.bigbluebutton.modules.chat.services
 	import org.bigbluebutton.modules.chat.events.ConnectionEvent;
 	import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
 	import org.bigbluebutton.modules.chat.events.TranscriptLoadedEvent;
+	import org.bigbluebutton.common.LogUtil;
 
 	public class PublicChatSharedObjectService
 	{

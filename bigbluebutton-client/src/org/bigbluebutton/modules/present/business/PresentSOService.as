@@ -36,6 +36,7 @@ package org.bigbluebutton.modules.present.business {
 	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.events.ZoomEvent;
+	import org.bigbluebutton.common.LogUtil;
 	
 	public class PresentSOService {
 		public static const NAME:String = "PresentSOService";

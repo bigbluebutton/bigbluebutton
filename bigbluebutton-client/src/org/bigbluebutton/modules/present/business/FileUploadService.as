@@ -27,6 +27,7 @@ package org.bigbluebutton.modules.present.business
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;	
 	import org.bigbluebutton.modules.present.events.UploadEvent;
+	import org.bigbluebutton.common.LogUtil;
 	
 	public class FileUploadService {
 		public static const ID:String = "FileUploadService";

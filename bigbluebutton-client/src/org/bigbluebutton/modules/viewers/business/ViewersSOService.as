@@ -33,6 +33,7 @@ package org.bigbluebutton.modules.viewers.business
 	import org.bigbluebutton.main.model.User;
 	import org.bigbluebutton.modules.viewers.events.ConnectionFailedEvent;
 	import org.bigbluebutton.modules.viewers.events.RoleChangeEvent;
+	import org.bigbluebutton.common.LogUtil;
 
 	public class ViewersSOService
 	{

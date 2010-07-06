@@ -20,6 +20,7 @@
 package org.bigbluebutton.modules.listeners.business.vo
 {
 	import mx.collections.ArrayCollection;
+	import org.bigbluebutton.common.LogUtil;
 	
 	public class Listeners
 	{			

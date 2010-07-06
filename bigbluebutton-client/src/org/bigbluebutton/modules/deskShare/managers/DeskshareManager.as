@@ -33,6 +33,7 @@ package org.bigbluebutton.modules.deskShare.managers
 	import org.bigbluebutton.modules.deskShare.view.components.DesktopPublishWindow;
 	import org.bigbluebutton.modules.deskShare.view.components.DesktopViewWindow;
 	import org.bigbluebutton.modules.deskShare.view.components.ToolbarButton;
+	import org.bigbluebutton.common.LogUtil;
 			
 	public class DeskshareManager
 	{		

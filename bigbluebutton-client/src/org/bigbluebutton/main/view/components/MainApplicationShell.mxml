@@ -42,6 +42,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.common.LogUtil;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.events.MouseEvent;

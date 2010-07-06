@@ -29,6 +29,7 @@
 
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.modules.deskShare.events.ModuleEvent;
 			import org.bigbluebutton.modules.deskShare.maps.DeskshareEventMap;
 			import org.bigbluebutton.main.events.CloseWindowEvent;

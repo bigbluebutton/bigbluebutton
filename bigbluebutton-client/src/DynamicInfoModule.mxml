@@ -23,6 +23,7 @@
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="onCreationComplete()" implements="org.bigbluebutton.common.IBigBlueButtonModule" xmlns:maps="org.bigbluebutton.modules.dynamicinfo.maps.*" xmlns:views="org.bigbluebutton.modules.dynamicinfo.views.*">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.common.LogUtil;
 			import com.asfusion.mate.events.Dispatcher;
 			import org.bigbluebutton.main.events.CloseWindowEvent;
 			import org.bigbluebutton.main.events.OpenWindowEvent;

@@ -1,5 +1,7 @@
 package org.bigbluebutton.main.model
 {
+	import org.bigbluebutton.common.LogUtil;
+
 	public class ApplicationModel
 	{
 		private var _participant:User;

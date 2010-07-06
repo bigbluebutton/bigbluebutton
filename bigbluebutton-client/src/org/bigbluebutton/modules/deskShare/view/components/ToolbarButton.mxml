@@ -30,6 +30,7 @@
 	click="startDeskShare()">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.modules.deskShare.events.ShareEvent;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.main.events.MadePresenterEvent;

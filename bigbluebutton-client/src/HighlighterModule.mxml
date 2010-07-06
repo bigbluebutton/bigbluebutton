@@ -24,6 +24,7 @@
 	creationComplete="init()" xmlns:mate="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.common.LogUtil;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import mx.controls.Alert;

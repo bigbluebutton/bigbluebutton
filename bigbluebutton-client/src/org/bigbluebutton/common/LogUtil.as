@@ -17,7 +17,7 @@
  *
  * $Id: $
  */
-package
+package org.bigbluebutton.common
 {
 	import mx.logging.ILogger;
 	import mx.logging.Log;

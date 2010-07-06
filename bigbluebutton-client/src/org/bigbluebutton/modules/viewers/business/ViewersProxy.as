@@ -37,6 +37,7 @@ package org.bigbluebutton.modules.viewers.business
 	import org.bigbluebutton.modules.viewers.events.ViewersModuleStartedEvent;
 	import org.puremvc.as3.multicore.interfaces.IProxy;
 	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
+	import org.bigbluebutton.common.LogUtil;
 
 	public class ViewersProxy extends Proxy implements IProxy
 	{

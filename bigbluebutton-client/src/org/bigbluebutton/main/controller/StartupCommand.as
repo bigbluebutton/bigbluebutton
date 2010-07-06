@@ -28,6 +28,8 @@ package org.bigbluebutton.main.controller
 	import org.puremvc.as3.multicore.interfaces.ICommand;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.command.SimpleCommand;
+	import org.bigbluebutton.common.LogUtil;
+
 	/**
 	 * 
 	 * Registers the main mediator with the main facade

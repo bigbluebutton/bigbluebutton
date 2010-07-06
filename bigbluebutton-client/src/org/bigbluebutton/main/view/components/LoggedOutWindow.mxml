@@ -25,6 +25,7 @@
     x="168" y="86" layout="vertical" width="400" height="100" horizontalAlign="center">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.common.LogUtil;
 			import mx.controls.Alert;
 			import mx.managers.PopUpManager;
 			

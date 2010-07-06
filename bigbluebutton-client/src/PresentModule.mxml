@@ -24,6 +24,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.modules.present.events.PresentModuleEvent;
 			import mx.controls.Alert;
 			import org.bigbluebutton.modules.present.maps.PresentEventMap;

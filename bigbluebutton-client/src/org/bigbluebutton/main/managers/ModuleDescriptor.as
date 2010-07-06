@@ -8,6 +8,7 @@ package org.bigbluebutton.main.managers
 	
 	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.main.events.ModuleEvent;
+	import org.bigbluebutton.common.LogUtil;
 
 	public class ModuleDescriptor
 	{

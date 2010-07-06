@@ -22,6 +22,7 @@ package org.bigbluebutton.main {
 	import org.bigbluebutton.main.view.components.MainApplicationShell;
 	import org.puremvc.as3.multicore.interfaces.IFacade;
 	import org.puremvc.as3.multicore.patterns.facade.Facade;
+	import org.bigbluebutton.common.LogUtil;
 	
 	public class MainApplicationFacade extends Facade implements IFacade {
 		public static const NAME:String = "MainApplicationFacade";

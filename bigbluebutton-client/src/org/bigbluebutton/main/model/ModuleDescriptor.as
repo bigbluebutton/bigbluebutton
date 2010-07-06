@@ -26,6 +26,7 @@ package org.bigbluebutton.main.model
 	
 	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.main.MainApplicationConstants;
+	import org.bigbluebutton.common.LogUtil;
 	
 	public class ModuleDescriptor
 	{

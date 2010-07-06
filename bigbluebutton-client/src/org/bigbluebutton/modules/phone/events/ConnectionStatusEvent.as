@@ -1,4 +1,4 @@
-package org.bigbluebutton.core.events
+package org.bigbluebutton.modules.phone.events
 {
 	import flash.events.Event;
 

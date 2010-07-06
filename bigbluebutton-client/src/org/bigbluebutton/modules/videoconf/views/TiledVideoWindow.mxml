@@ -29,6 +29,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.common.LogUtil;
 			import flexlib.mdi.events.MDIWindowEvent;
 			
 			import mx.core.UIComponent;

@@ -32,6 +32,7 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.managers.PresentationSlides;
 	import org.bigbluebutton.modules.viewers.events.RoleChangeEvent;
+	import org.bigbluebutton.common.LogUtil;
 	
 	public class PresentProxy
 	{

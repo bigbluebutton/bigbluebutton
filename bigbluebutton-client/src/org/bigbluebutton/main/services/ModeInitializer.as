@@ -1,6 +1,7 @@
 package org.bigbluebutton.main.services
 {
 	import flash.external.ExternalInterface;
+	import org.bigbluebutton.common.LogUtil;
 	
 	public class ModeInitializer
 	{

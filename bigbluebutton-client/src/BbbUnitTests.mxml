@@ -25,6 +25,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.ModulesProxyTests;
 			import org.bigbluebutton.main.BbbModuleManagerTests;
 			

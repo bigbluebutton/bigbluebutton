@@ -22,6 +22,7 @@ package org.bigbluebutton.main.model
 	import org.bigbluebutton.main.MainApplicationConstants;
 	import org.puremvc.as3.multicore.interfaces.IProxy;
 	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
+	import org.bigbluebutton.common.LogUtil;
 	
 	public class ModulesProxy extends Proxy implements IProxy {
 		public static const NAME:String = 'ModulesProxy';

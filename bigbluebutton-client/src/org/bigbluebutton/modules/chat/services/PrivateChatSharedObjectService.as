@@ -31,6 +31,7 @@ package org.bigbluebutton.modules.chat.services
 	import org.bigbluebutton.main.model.User;
 	import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
 	import org.bigbluebutton.modules.chat.model.MessageVO;
+	import org.bigbluebutton.common.LogUtil;
 
 	public class PrivateChatSharedObjectService
 	{

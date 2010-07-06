@@ -32,6 +32,7 @@ package org.bigbluebutton.main.model
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.main.MainApplicationConstants;
 	import org.bigbluebutton.main.events.ConfigurationEvent;
+	import org.bigbluebutton.common.LogUtil;
 	
 	public class BbbModuleManager
 	{

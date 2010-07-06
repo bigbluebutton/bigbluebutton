@@ -4,6 +4,7 @@ package org.bigbluebutton.main.managers
 	import flash.utils.Dictionary;
 	
 	import org.bigbluebutton.main.events.ModuleEvent;
+	import org.bigbluebutton.common.LogUtil;
 	
 	public class ModulesManager
 	{

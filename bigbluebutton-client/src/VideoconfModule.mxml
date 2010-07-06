@@ -3,13 +3,13 @@
 	xmlns:maps="org.bigbluebutton.modules.videoconf.maps.*" implements="org.bigbluebutton.common.IBigBlueButtonModule">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
 			import org.bigbluebutton.modules.videoconf.business.VideoProxy;
 			import mx.controls.Alert;
 			import com.asfusion.mate.events.Dispatcher;
 			import org.bigbluebutton.main.events.CloseWindowEvent;
 			import org.bigbluebutton.main.events.OpenWindowEvent;
-			import org.bigbluebutton.modules.notes.views.Notes;
 			
 			private var _moduleId:String = "VideoconfModule";
 			private var _moduleName:String = "Videoconf Module";			

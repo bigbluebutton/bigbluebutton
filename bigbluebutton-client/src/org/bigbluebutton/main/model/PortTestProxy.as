@@ -22,10 +22,10 @@ package org.bigbluebutton.main.model
 	import flash.events.NetStatusEvent;
 	import flash.net.NetConnection;
 	
-	import org.bigbluebutton.core.porttester.PortTest;
 	import org.bigbluebutton.main.MainApplicationConstants;
 	import org.puremvc.as3.multicore.interfaces.IProxy;
 	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
+	import org.bigbluebutton.common.LogUtil;
 
 	public class PortTestProxy extends Proxy implements IProxy
 	{

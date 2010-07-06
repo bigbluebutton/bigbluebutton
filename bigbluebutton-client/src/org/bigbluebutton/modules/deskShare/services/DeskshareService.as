@@ -32,6 +32,7 @@ package org.bigbluebutton.modules.deskShare.services
 	import org.bigbluebutton.modules.deskShare.events.AppletStartedEvent;
 	import org.bigbluebutton.modules.deskShare.events.CursorEvent;
 	import org.bigbluebutton.modules.deskShare.events.ViewStreamEvent;
+	import org.bigbluebutton.common.LogUtil;
 	
 	/**
 	 * The DeskShareProxy communicates with the Red5 deskShare server application 

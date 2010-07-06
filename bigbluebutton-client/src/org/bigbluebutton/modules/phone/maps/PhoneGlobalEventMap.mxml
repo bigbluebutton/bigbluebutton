@@ -26,7 +26,7 @@
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.modules.phone.managers.PhoneManager;
-			import org.bigbluebutton.core.events.ConnectionStatusEvent;
+			import org.bigbluebutton.modules.phone.events.ConnectionStatusEvent;
 		]]>
 	</mx:Script>
 

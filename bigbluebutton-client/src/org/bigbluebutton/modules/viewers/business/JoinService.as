@@ -24,6 +24,7 @@ package org.bigbluebutton.modules.viewers.business
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
+	import org.bigbluebutton.common.LogUtil;
 	        	
 	public class JoinService
 	{  

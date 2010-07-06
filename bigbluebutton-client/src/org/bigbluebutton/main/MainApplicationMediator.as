@@ -23,6 +23,7 @@ package org.bigbluebutton.main
 	import org.puremvc.as3.multicore.interfaces.IMediator;
 	import org.puremvc.as3.multicore.interfaces.INotification;
 	import org.puremvc.as3.multicore.patterns.mediator.Mediator;
+	import org.bigbluebutton.common.LogUtil;
 
 	public class MainApplicationMediator extends Mediator implements IMediator
 	{

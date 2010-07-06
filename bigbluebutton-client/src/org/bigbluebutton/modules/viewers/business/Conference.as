@@ -22,6 +22,7 @@ package org.bigbluebutton.modules.viewers.business
 	import mx.collections.ArrayCollection;
 	
 	import org.bigbluebutton.common.Role;	
+	import org.bigbluebutton.common.LogUtil;
 
 	public class Conference
 	{		

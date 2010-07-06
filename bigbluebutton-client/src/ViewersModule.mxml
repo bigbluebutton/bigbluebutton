@@ -25,6 +25,7 @@
 	creationComplete="onCreationComplete()" xmlns:maps="org.bigbluebutton.modules.viewers.maps.*" >
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.common.LogUtil;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import mx.controls.Alert;
