@@ -70,7 +70,7 @@ public class RtpStreamReceiver {
         		packetReceivedCounter++;   
         		transcoder.transcode(rtpPacket.getPayload()); 
         	} catch (IOException e) {
-        		log.error("IOException while receiving rtp packets.");
+        		// We get this when the socket closes when the call hangs up.
         		receivePackets = false;
         	}
         }
