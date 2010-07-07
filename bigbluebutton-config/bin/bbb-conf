@@ -743,7 +743,7 @@ $RED5_DIRECTORY/log/bigbluebutton.log"
 	for file in $LOGG_FILES ; do
 		if [ -a $file ]; then
 			if cat $file | tail -n1 | grep -q "Starting up context"; then
-				echo "BigBlueButton did not start up correctly"
+				echo "                     did not start: $file"
 			fi
 		else
 			echo "File" $file "not found"
