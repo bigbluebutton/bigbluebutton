@@ -756,6 +756,10 @@ $RED5_DIRECTORY/log/bigbluebutton.log"
 		echo "The User is not registered in SIP. Audio might not be working correctly."
 	fi
 
+        if cat /usr/share/red5/log/sip.log | grep -q "Failed to register with Sip Server"; then
+                echo
+                echo "The voice application failed to register with the sip server. A suggestion is to run: bbb-conf --clean"
+        fi
 
 	#
 	# Check that tomcat6 started properly and has created log files
@@ -941,7 +945,7 @@ if [ $DEBUG ]; then
 	fi
 
 	rm -rf /tmp/t
-	sudo grep Exception $TOMCAT6_LOGS/* > /tmp/t 
+	sudo grep Exception $TOMCAT6_LOGS/* | grep -v CacheExceptionHandlerFactory > /tmp/t 
 	if [ -s /tmp/t ]; then
 		echo "   -- Exceptions found in $TOMCAT6_LOGS/ -- "
 		cat /tmp/t
