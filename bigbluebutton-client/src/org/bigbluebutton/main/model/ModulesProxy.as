@@ -25,8 +25,8 @@ package org.bigbluebutton.main.model
 	import mx.modules.ModuleManager;
 	
 	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.main.events.LoginEvent;
 	import org.bigbluebutton.main.events.PortTestEvent;
+	import org.bigbluebutton.modules.viewers.events.LoginSuccessEvent;
 	
 	public class ModulesProxy {
 		
@@ -96,7 +96,7 @@ package org.bigbluebutton.main.model
 			return modulesManager.portTestApplication;
 		}
 		
-		public function handleLogin(e:LoginEvent):void{
+		public function handleLogin(e:LoginSuccessEvent):void{
 			user = e.user;
 			modulesManager.handleUserJoined();
 		}

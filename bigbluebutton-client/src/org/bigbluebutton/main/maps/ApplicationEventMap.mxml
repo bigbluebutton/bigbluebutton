@@ -107,7 +107,7 @@
 		<MethodInvoker generator="{ModulesProxy}" method="handleLogout" />
 	</EventHandlers>
 	
-	<EventHandlers type="{LoginEvent.LOGIN_SUCCESS}" >
+	<EventHandlers type="{LoginSuccessEvent.LOGIN_SUCCESS}" >
 		<MethodInvoker generator="{ModulesProxy}" method="handleLogin" arguments="{event}" />
 	</EventHandlers>
 
@@ -118,7 +118,6 @@
 		import org.bigbluebutton.main.events.AppEvent;
 		import org.bigbluebutton.main.events.ConfigEvent;
 		import org.bigbluebutton.main.events.ConnectedEvent;
-		import org.bigbluebutton.main.events.LoginEvent;
 		import org.bigbluebutton.main.events.LogoutEvent;
 		import org.bigbluebutton.main.events.ModeEvent;
 		import org.bigbluebutton.main.events.ModuleEvent;
@@ -134,6 +133,7 @@
 		import org.bigbluebutton.main.services.ConfigLoader;
 		import org.bigbluebutton.main.services.JoiningParticipant;
 		import org.bigbluebutton.main.services.ModeInitializer;
+		import org.bigbluebutton.modules.viewers.events.LoginSuccessEvent;
 	]]>
 	</mx:Script>
 	

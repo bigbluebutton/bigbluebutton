@@ -65,7 +65,6 @@
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.AddUIComponentToMainCanvas;
 			import org.bigbluebutton.main.events.CloseWindowEvent;
-			import org.bigbluebutton.main.events.LoginEvent;
 			import org.bigbluebutton.main.events.LogoutEvent;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.main.events.OpenWindowEvent;
@@ -200,10 +199,6 @@
 				statusProgress.text = "";
 				statusInfo2.text = "";
 				user = e.user;
-				
-				var loginEvent:LoginEvent = new LoginEvent(LoginEvent.LOGIN_SUCCESS);
-				loginEvent.user = user;
-				dispatchEvent(loginEvent);
 			}
 			
 			private function handleLogout(e:ConnectionFailedEvent):void{
