@@ -53,7 +53,7 @@
 			private var windowTitle:String = ResourceUtil.getInstance().getString('bbb.viewers.title',["", ""]) ;
 			
 			[Bindable]
-			public var participants:ArrayCollection;
+			public var participants:ArrayCollection = new ArrayCollection();
   			
   			[Bindable]
   			public var isModerator:Boolean = false;

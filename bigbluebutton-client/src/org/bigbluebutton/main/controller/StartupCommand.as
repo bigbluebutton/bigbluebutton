@@ -23,7 +23,6 @@ package org.bigbluebutton.main.controller
 	import org.bigbluebutton.main.model.ModulesProxy;
 	import org.bigbluebutton.main.model.PortTestProxy;
 	import org.bigbluebutton.main.view.MainApplicationShellMediator;
-	import org.bigbluebutton.main.view.MainToolbarMediator;
 	import org.bigbluebutton.main.view.components.MainApplicationShell;
 	import org.puremvc.as3.multicore.interfaces.ICommand;
 	import org.puremvc.as3.multicore.interfaces.INotification;
@@ -41,7 +40,6 @@ package org.bigbluebutton.main.controller
 		{
 			var app:MainApplicationShell = note.getBody() as MainApplicationShell;
 			facade.registerMediator( new MainApplicationShellMediator( app ) );		
-			facade.registerMediator( new MainToolbarMediator(app.toolbar));	
 			facade.registerMediator(new MainApplicationMediator());
 			LogUtil.debug("StartupCommand mode=" + app.mode);
 			facade.registerProxy(new ModulesProxy(app.mode));

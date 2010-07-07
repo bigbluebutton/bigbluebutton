@@ -59,35 +59,35 @@ package org.bigbluebutton.main
 		{
 			switch(notification.getName()){
 				case MainApplicationConstants.PORT_TEST_SUCCESS:
-					var portTestResult:Object = notification.getBody();
+					/*var portTestResult:Object = notification.getBody();
 					if (portTestResult["protocol"] == "RTMP") {
 						proxy.useProtocol("RTMP");
 					} else {
 						proxy.useProtocol("RTMPT");
-					}
-					proxy.moduleEventHandler(MainApplicationConstants.APP_MODEL_INITIALIZED);
+					}*/
+					//proxy.moduleEventHandler(MainApplicationConstants.APP_MODEL_INITIALIZED);
 					break;
 				case MainApplicationConstants.ALL_MODULES_LOADED:
-					LogUtil.debug(NAME + "::Received ALL_MODULES_LOADED");
-					proxy.moduleEventHandler(MainApplicationConstants.APP_START);
+					//LogUtil.debug(NAME + "::Received ALL_MODULES_LOADED");
+					//proxy.moduleEventHandler(MainApplicationConstants.APP_START);
 					break;
-				case MainApplicationConstants.LOGOUT:
-					LogUtil.debug(NAME + '::Received LOGOUT');
-					proxy.moduleEventHandler(MainApplicationConstants.LOGOUT);		
+				case MainApplicationConstants.LOGOUT: 
+					//LogUtil.debug(NAME + '::Received LOGOUT');
+					//proxy.moduleEventHandler(MainApplicationConstants.LOGOUT);		
 					break;
 				case MainApplicationConstants.RESTART_MODULE:
-					LogUtil.debug(NAME + '::Received RESTART_MODULE for ' + notification.getBody() as String);
+					//LogUtil.debug(NAME + '::Received RESTART_MODULE for ' + notification.getBody() as String);
 //					proxy.stopModule(notification.getBody() as String);
-					facade.sendNotification(MainApplicationConstants.MODULE_START, notification.getBody());
+					//facade.sendNotification(MainApplicationConstants.MODULE_START, notification.getBody());
 					break;	
 				case MainApplicationConstants.USER_LOGGED_IN:
-					LogUtil.debug(NAME + '::Received USER_LOGGED_IN');
-					proxy.moduleEventHandler(MainApplicationConstants.USER_LOGGED_IN);
-					facade.sendNotification(MainApplicationConstants.MODULE_START, "WhiteboardModule");
+					//LogUtil.debug(NAME + '::Received USER_LOGGED_IN');
+					//proxy.moduleEventHandler(MainApplicationConstants.USER_LOGGED_IN);
+					//facade.sendNotification(MainApplicationConstants.MODULE_START, "WhiteboardModule");
 					break;
 				case MainApplicationConstants.USER_JOINED:
-					LogUtil.debug(NAME + '::Received USER_JOINED');
-					proxy.moduleEventHandler(MainApplicationConstants.USER_JOINED);
+					//LogUtil.debug(NAME + '::Received USER_JOINED');
+					//proxy.moduleEventHandler(MainApplicationConstants.USER_JOINED);
 					break;
 			}
 		}		

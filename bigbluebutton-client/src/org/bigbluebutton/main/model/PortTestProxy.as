@@ -19,13 +19,16 @@
  */
 package org.bigbluebutton.main.model
 {
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.NetStatusEvent;
 	import flash.net.NetConnection;
 	
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.MainApplicationConstants;
+	import org.bigbluebutton.main.events.PortTestEvent;
 	import org.puremvc.as3.multicore.interfaces.IProxy;
 	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
-	import org.bigbluebutton.common.LogUtil;
 
 	public class PortTestProxy extends Proxy implements IProxy
 	{
@@ -37,10 +40,12 @@ package org.bigbluebutton.main.model
 		private var hostname:String;
 		private var application:String;
 		private var uri:String;
+		private var dispatcher:Dispatcher;
 		
 		public function PortTestProxy()
 		{
 			super(NAME);
+			dispatcher = new Dispatcher();
 		}
 		
 		public function connect(protocol:String = "",
@@ -57,8 +62,14 @@ package org.bigbluebutton.main.model
 			uri = protocol + "://" + hostname + "/" + application;
 			if (status == "SUCCESS") {				
 				LogUtil.debug("Successfully connected to " + uri);
-				facade.sendNotification(MainApplicationConstants.PORT_TEST_SUCCESS, 
-				 		{protocol:protocol, hostname:hostname, port:port, application:application});				
+				
+				var portEvent:PortTestEvent = new PortTestEvent(PortTestEvent.PORT_TEST_SUCCESS);
+				portEvent.port = port;
+				portEvent.hostname = hostname;
+				portEvent.protocol = protocol;
+				portEvent.app = application;
+				dispatcher.dispatchEvent(portEvent);
+				
 			} else {
 				LogUtil.error("Failed to connect to " + uri);
 				facade.sendNotification(MainApplicationConstants.PORT_TEST_FAILED, 
@@ -108,8 +119,12 @@ package org.bigbluebutton.main.model
 			if ( statusCode == "NetConnection.Connect.Success" )
 			{
 				LogUtil.debug("Successfully connected to " + uri);
-				facade.sendNotification(MainApplicationConstants.PORT_TEST_SUCCESS, 
-				 		{protocol:protocol, hostname:hostname, port:port, application:application});
+				var portEvent:PortTestEvent = new PortTestEvent(PortTestEvent.PORT_TEST_SUCCESS);
+				portEvent.port = port;
+				portEvent.hostname = hostname;
+				portEvent.protocol = protocol;
+				portEvent.app = application;
+				dispatcher.dispatchEvent(portEvent);
 			}
 			else if ( statusCode == "NetConnection.Connect.Rejected" ||
 				 	  statusCode == "NetConnection.Connect.Failed" || 

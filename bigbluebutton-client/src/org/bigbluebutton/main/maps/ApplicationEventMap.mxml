@@ -33,6 +33,7 @@
 			<Properties dispatcher="{scope.dispatcher}"/>
 		</ObjectBuilder>
 		<ObjectBuilder generator="{ApplicationModel}"/>
+		<ObjectBuilder generator="{ModulesProxy}" cache="global" />
 	</EventHandlers>
 	
 	<EventHandlers type="{FlexEvent.CREATION_COMPLETE}">        
@@ -90,26 +91,14 @@
         </EventAnnouncer>
 	</EventHandlers>
 	
-	<Injectors target="{MainViewModel}">
-		<!--
-		MainModel is not a view class, but can be used as a target for injection because an instance
-		of the class was created with an ObjectBuilder that had the registerTarget property set to true,
-		see the Injectors for MainView.
-		-->
+	<EventHandlers type="{PortTestEvent.PORT_TEST_SUCCESS}" >
+		<MethodInvoker generator="{ModulesProxy}" method="useProtocol" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{LogoutEvent.USER_LOGGED_OUT}" >
+		<MethodInvoker generator="{ModulesProxy}" method="handleLogout" />
+	</EventHandlers>
 
-		<!--
-		"scope.dispatcher" refers to the event dispatcher used by the event map. Events dispatched using this
-		dispatcher will be heard by this event map. The reason why I inject this dispatcher into the MainModel
-		object is that since it's not a view class events that it dispatches don't bubble up, and so it needs
-		a way to dispatch events that can be heard by this event map.
-		-->
-		<PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>
-		
-		<ObjectBuilder generator="{StatusManager}" registerTarget="true" />
-
-		<!-- This injects the StatusManager instance created by the last tag into the MainModel instance -->
-		<PropertyInjector targetKey="status" source="{lastReturn}" />
-	</Injectors>
 	<mx:Script>
 	<![CDATA[
 		import mx.events.FlexEvent;
@@ -117,17 +106,20 @@
 		import org.bigbluebutton.main.events.AppEvent;
 		import org.bigbluebutton.main.events.ConfigEvent;
 		import org.bigbluebutton.main.events.ConnectedEvent;
+		import org.bigbluebutton.main.events.LogoutEvent;
 		import org.bigbluebutton.main.events.ModeEvent;
 		import org.bigbluebutton.main.events.ModuleEvent;
+		import org.bigbluebutton.main.events.ModuleLoadEvent;
 		import org.bigbluebutton.main.events.ParticipantJoinEvent;
+		import org.bigbluebutton.main.events.PortTestEvent;
 		import org.bigbluebutton.main.managers.LoadModuleManager;
 		import org.bigbluebutton.main.managers.ModulesManager;
 		import org.bigbluebutton.main.managers.StatusManager;
 		import org.bigbluebutton.main.model.ApplicationModel;
+		import org.bigbluebutton.main.model.ModulesProxy;
 		import org.bigbluebutton.main.services.ConfigLoader;
 		import org.bigbluebutton.main.services.JoiningParticipant;
 		import org.bigbluebutton.main.services.ModeInitializer;
-		import org.bigbluebutton.main.views.model.MainViewModel;
 	]]>
 	</mx:Script>
 	

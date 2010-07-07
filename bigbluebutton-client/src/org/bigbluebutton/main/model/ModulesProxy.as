@@ -19,10 +19,13 @@
  */
 package org.bigbluebutton.main.model
 {
+	import mx.modules.ModuleManager;
+	
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.MainApplicationConstants;
+	import org.bigbluebutton.main.events.PortTestEvent;
 	import org.puremvc.as3.multicore.interfaces.IProxy;
 	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
-	import org.bigbluebutton.common.LogUtil;
 	
 	public class ModulesProxy extends Proxy implements IProxy {
 		public static const NAME:String = 'ModulesProxy';
@@ -37,13 +40,13 @@ package org.bigbluebutton.main.model
 			_mode = mode;
 			modulesManager = new BbbModuleManager(_mode);
 			modulesManager.addInitializedListener(onInitializeComplete);
-			modulesManager.addModuleLoadedListener(onModuleLoadedListener);
+			//modulesManager.addModuleLoadedListener(onModuleLoadedListener);
 			modulesManager.initialize();
 		}
 
 		private function onInitializeComplete(initialized:Boolean):void {
 			if (initialized)
-			facade.sendNotification(MainApplicationConstants.APP_MODEL_INITIALIZED);
+			modulesManager.handleAppModelInitialized();
 		}
 			
 		public function initialize():void {
@@ -59,25 +62,16 @@ package org.bigbluebutton.main.model
 			return _user.username;
 		}
 
-		public function useProtocol(protocol:String):void {
-			modulesManager.useProtocol(protocol);
+		public function useProtocol(e:PortTestEvent):void {
+			modulesManager.useProtocol(e.protocol);
 		}
-
-//		public function startModule(name:String, router:Router):void {
-//			LogUtil.debug('Request to start module ' + name);
-//			modulesManager.startModule(name, router);
-//		}
-
-//		public function stopModule(name:String):void {
-//			modulesManager.stopModule(name);
-//		}
 						
 		public function loadModule(name:String):void {
 			LogUtil.debug('Loading ' + name);
 			modulesManager.loadModule(name);
 		}
 				
-		private function onModuleLoadedListener(event:String, name:String, progress:Number=0):void {
+		/*private function onModuleLoadedListener(event:String, name:String, progress:Number=0):void {
 			switch(event) {
 				case MainApplicationConstants.MODULE_LOAD_PROGRESS:
 					facade.sendNotification(MainApplicationConstants.MODULE_LOAD_PROGRESS, {name:name, progress:progress});
@@ -90,7 +84,7 @@ package org.bigbluebutton.main.model
 					facade.sendNotification(MainApplicationConstants.ALL_MODULES_LOADED);					
 				break;				
 			}			
-		}		
+		}*/	
 		
 		public function moduleEventHandler(event:String):void {
 			switch (event) {

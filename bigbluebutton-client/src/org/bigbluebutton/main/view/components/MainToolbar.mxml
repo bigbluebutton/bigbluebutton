@@ -76,7 +76,6 @@
 			}
 			
 			private function doLogout():void {
-				dispatchEvent(new Event(MainApplicationConstants.LOGOUT_EVENT));
 				this.visible = false;
 				dispatchEvent(new LogoutEvent(LogoutEvent.USER_LOGGED_OUT));
 			}

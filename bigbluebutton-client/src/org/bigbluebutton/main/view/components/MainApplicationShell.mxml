@@ -36,13 +36,14 @@
 	
 	<mate:Listener type="{LoginSuccessEvent.LOGIN_SUCCESS}" method="loginSuccess" />
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_LOST}" method="handleLogout" />
+	
+	<mate:Listener type="{ModuleLoadEvent.MODULE_LOAD_PROGRESS}" method="updateModuleLoadProgress" />
 
 	<maps:CrossModuleEventMap />
 	<api:APIEventMap />
 	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.common.LogUtil;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.events.MouseEvent;
@@ -59,10 +60,12 @@
 			
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.MainApplicationFacade;
 			import org.bigbluebutton.main.events.AddUIComponentToMainCanvas;
 			import org.bigbluebutton.main.events.CloseWindowEvent;
 			import org.bigbluebutton.main.events.LogoutEvent;
+			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.main.events.OpenWindowEvent;
 			import org.bigbluebutton.main.view.MainApplicationShellMediator;
 			import org.bigbluebutton.main.view.events.StartModuleEvent;
@@ -213,6 +216,10 @@
 				logoutWindow.x = point1.x + 25;
 				logoutWindow.y = point1.y + 25;	
 				logoutWindow.setReason(e.reason);	
+			}
+			
+			private function updateModuleLoadProgress(e:ModuleLoadEvent):void{				
+				statusProgress.text = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loaded',[e.moduleName, e.progress]);
 			}
 		]]>
 	</mx:Script>

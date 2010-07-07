@@ -29,17 +29,18 @@ package org.bigbluebutton.main.model
 	import mx.collections.ArrayCollection;
 	
 	import org.bigbluebutton.common.IBigBlueButtonModule;
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.main.MainApplicationConstants;
 	import org.bigbluebutton.main.events.ConfigurationEvent;
-	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.main.events.ModuleLoadEvent;
 	
 	public class BbbModuleManager
 	{
 		public static const FILE_PATH:String = "conf/config.xml";
 		private var _urlLoader:URLLoader;
 		private var _initializedListeners:ArrayCollection = new ArrayCollection();
-		private var _moduleLoadedListeners:ArrayCollection = new ArrayCollection();
+		//private var _moduleLoadedListeners:ArrayCollection = new ArrayCollection();
 		
 		private var _numModules:int = 0;		
 		public var  _modules:Dictionary = new Dictionary();
@@ -70,9 +71,9 @@ package org.bigbluebutton.main.model
 			_initializedListeners.addItem(initializedListener);
 		}
 		
-		public function addModuleLoadedListener(loadListener:Function):void {
+		/*public function addModuleLoadedListener(loadListener:Function):void {
 			_moduleLoadedListeners.addItem(loadListener);
-		}
+		}*/
 		
 		public function loadXmlFile(loader:URLLoader, file:String):void {
 			loader.load(new URLRequest(file));
@@ -94,12 +95,12 @@ package org.bigbluebutton.main.model
 			}
 		}
 
-		private function notifyModuleLoadedListeners(event:String, name:String, progress:Number=0):void {
+		/*private function notifyModuleLoadedListeners(event:String, name:String, progress:Number=0):void {
 			for (var i:int=0; i<_moduleLoadedListeners.length; i++) {
 				var listener:Function = _moduleLoadedListeners.getItemAt(i) as Function;
 				listener(event, name, progress);
 			}
-		}
+		}*/
 				
 		public function parse(xml:XML):void{
 			_portTestHost = xml.porttest.@host;
@@ -242,11 +243,18 @@ package org.bigbluebutton.main.model
 			if (m != null) {
 				switch(event) {
 					case MainApplicationConstants.MODULE_LOAD_PROGRESS:
-						notifyModuleLoadedListeners(MainApplicationConstants.MODULE_LOAD_PROGRESS, name, progress);
+						var loadEvent:ModuleLoadEvent = new ModuleLoadEvent(ModuleLoadEvent.MODULE_LOAD_PROGRESS);
+						loadEvent.moduleName = name;
+						loadEvent.progress = progress;
+						globalDispatcher.dispatchEvent(loadEvent);
 					break;	
 					case MainApplicationConstants.MODULE_LOAD_READY:
 						LogUtil.debug('Module ' + m.attributes.name + " has been loaded.");		
-						notifyModuleLoadedListeners(MainApplicationConstants.MODULE_LOAD_READY, name);
+						
+						var loadReadyEvent:ModuleLoadEvent = new ModuleLoadEvent(ModuleLoadEvent.MODULE_LOAD_READY);
+						loadReadyEvent.moduleName = name;
+						globalDispatcher.dispatchEvent(loadReadyEvent);
+						
 						loadNextModule(name);					
 					break;				
 				}
@@ -264,7 +272,7 @@ package org.bigbluebutton.main.model
 					loadModule(nextModule);
 				} else {
 					LogUtil.debug("All modules have been loaded - " + m.getAttribute("name") as String);
-					notifyModuleLoadedListeners(MainApplicationConstants.ALL_MODULES_LOADED, null);
+					handleAppStart();
 				}
 			}
 		}

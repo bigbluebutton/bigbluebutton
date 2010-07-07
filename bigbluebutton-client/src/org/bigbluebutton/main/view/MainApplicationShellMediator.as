@@ -125,7 +125,7 @@ package org.bigbluebutton.main.view
 					shell.mdiCanvas.windowManager.remove(rwin as MDIWindow);						
 					break;
 				case MainApplicationConstants.USER_LOGGED_OUT:
-					handleUserLoggedOut(notification.getBody() as String);
+					//handleUserLoggedOut(notification.getBody() as String);
 					break;
 				case MainApplicationConstants.USER_JOINED:
 					shell.statusInfo.text = "";
@@ -145,9 +145,9 @@ package org.bigbluebutton.main.view
 					shell.statusInfo.text += ResourceUtil.getInstance().getString('bbb.mainshell.statusInfo.loaded',[notification.getBody()]);
 					break;
 				case MainApplicationConstants.MODULE_LOAD_PROGRESS:
-					var mod:String = notification.getBody().name as String;
-					var prog:Number = notification.getBody().progress as Number;					
-					shell.statusProgress.text = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loaded',[mod, prog]);
+					//var mod:String = notification.getBody().name as String;
+					//var prog:Number = notification.getBody().progress as Number;					
+					//shell.statusProgress.text = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loaded',[mod, prog]);
 					break;
 			}
 		}
@@ -166,34 +166,6 @@ package org.bigbluebutton.main.view
 			var app:String = modulesProxy.getPortTestApplication();
 			shell.statusProgress.text = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.testRTMPTConnection', [host, app]);
 			portTestProxy.connect("RTMPT", host, "", "bigbluebutton");
-		}
-		
-		private function handleUserLoggedOut(reason:String):void {
-			/*if (logoutWindow != null) return;
-			logoutWindow = LoggedOutWindow(PopUpManager.createPopUp( shell.mdiCanvas, LoggedOutWindow, false));
-
-			var point1:Point = new Point();
-        	// Calculate position of TitleWindow in Application's coordinates. 
-        	point1.x = 400;
-        	point1.y = 300;                
-        	point1 = shell.localToGlobal(point1);
-			logoutWindow.x = point1.x + 25;
-			logoutWindow.y = point1.y + 25;	
-			logoutWindow.setReason(reason);*/
-		}
-		
-		private function handleModuleStopped(moduleName:String, errors:Array):void {
-				var t:ModuleStoppedWindow = ModuleStoppedWindow(PopUpManager.createPopUp( shell.mdiCanvas, ModuleStoppedWindow, false));
-				t.addEventListener(StartModuleEvent.START_MODULE_RETRY_EVENT, onRestartModuleEvent);								
-				t.displayErrors(moduleName, errors);
-				
-				var point1:Point = new Point();
-            	// Calculate position of TitleWindow in Application's coordinates. 
-            	point1.x = 200;
-            	point1.y = 400;                
-            	point1 = shell.localToGlobal(point1);
-           	 	t.x = point1.x + 25;
-            	t.y = point1.y + 25;				
 		}
 		
 		private function get modulesProxy():ModulesProxy {

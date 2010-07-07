@@ -59,7 +59,7 @@
 			[Bindable] private var unmuteAllIcon:Class = images.sound_none;
 			[Bindable] private var ejectIcon:Class = images.eject_user;
 
-			[Bindable] public var listeners:ArrayCollection;
+			[Bindable] public var listeners:ArrayCollection = new ArrayCollection();
 			[Bindable] public var moderator:Boolean;
 			[Bindable] private var windowTitle:String = ResourceUtil.getInstance().getString('bbb.listeners.title', ["",""]);
 			
