@@ -102,7 +102,7 @@ fi
 print_header() {
 	if [ ! $HEADER ]; then
 		echo
-		echo "** Potential Problems **"
+#		echo "** Potential Problems **"
 		HEADER=1
 	fi
 }
@@ -646,107 +646,166 @@ check_state() {
 	#
 	# Check for potential problems
 	#
+	echo "Checking running applications:"
+	RUNNING_APPS=""
+	NOT_RUNNING_APPS=""
 	if ! ps aux | grep "$ACTIVEMQ_DIR" > /dev/null; then
 		print_header
-        	echo "                            activeMQ: -- not running --"
+		NOT_RUNNING_APPS="ActiveMQ"
+	else
+		RUNNING_APPS="ActiveMQ"
 	fi	
 
 	if ! ps aux | grep 'org.red5.server.Bootstrap' > /dev/null; then
 		print_header
-        	echo "                                red5: -- not running --"
+		NOT_RUNNING_APPS="${NOT_RUNNING_APPS} Red5"
+	else
+		RUNNING_APPS="${RUNNING_APPS} Red5"
 	fi	
 
 	if ! ps aux | grep '[/]usr/sbin/asterisk' > /dev/null; then
 		print_header
-        	echo "                            asterisk: -- not running --"
+		NOT_RUNNING_APPS="${NOT_RUNNING_APPS} Asterisk"
+	else
+		RUNNING_APPS="${RUNNING_APPS} Asterisk"
 	fi	
 
 	if ! ps aux | grep '[/]usr/sbin/nginx' > /dev/null; then
 		print_header
-        	echo "                              ngingx: -- not running --"
+		NOT_RUNNING_APPS="${NOT_RUNNING_APPS} Nginx"
+	else
+		RUNNING_APPS="${RUNNING_APPS} Nginx"
 	fi	
 
 	if ! netstat -ant | grep '8080' > /dev/null; then
 		print_header
-        	echo "                   ${TOMCAT} or grails: -- not running --"
+		NOT_RUNNING_APPS="${NOT_RUNNING_APPS} ${TOMCAT} or grails"
 	else 
 		if ps aux |  ps -aef | grep grails | grep run-app > /dev/null; then
 			print_header
-        		echo "                             ${TOMCAT}: noticed you are running grails run-app instead of tomcat"
+			RUNNING_APPS="${RUNNING_APPS} Grails"
+        		echo "  ${TOMCAT}: 	noticed you are running grails run-app instead of tomcat"
+		else
+			RUNNING_APPS="${RUNNING_APPS} ${TOMCAT}"
 		fi
 	fi
 
+	if ! netstat -ant | grep '8100' > /dev/null; then
+                print_header
+		NOT_RUNNING_APPS="${NOT_RUNNING_APPS} OpenOffice"
+	else
+		RUNNING_APPS="${RUNNING_APPS} OpenOffice"
+        fi  
+	echo "  Running:     ${RUNNING_APPS}"
+	echo "  Not Running: ${NOT_RUNNING_APPS}"
+	echo
 	if [ ! -L /etc/nginx/sites-enabled/bigbluebutton ]; then
-		print_header
-        	echo "                        nginx (conf): no symbolic link in /etc/nginx/sites-enabled for bigbluebutton"
+        	echo "Nginx: bigbluebutton disabled"
+        	echo "         - no symbolic link in /etc/nginx/sites-enabled/bigbluebutton to /etc/nginx/sites-available/bigbluebutton "
+	else
+        	echo "Nginx: bigbluebutton enabled"
+        	echo "         - there is symbolic link in /etc/nginx/sites-enabled/bigbluebutton to /etc/nginx/sites-available/bigbluebutton"
 	fi	
-
-	if grep -v \# /etc/nginx/sites-available/bigbluebutton | grep /home/firstuser/dev/bbb-client > /dev/null; then
-		print_header
-        	echo "                        nginx (conf): noticed that location for cient is /home/firstuser/dev/bbb-client"
-        	echo "                                      instead of the usual /var/www/bigbluebutton"
+	echo
+	if grep -v \# /etc/nginx/sites-available/bigbluebutton | grep /home/firstuser/dev/source/bigbluebutton/bigbluebutton-client > /dev/null; then
+        	echo "Nginx: serving client from /home/firstuser/dev/source/bigbluebutton/bigbluebutton-client"
+        	echo "         instead of the usual /var/www/bigbluebutton"
+	else
+		echo "Nginx: serving client from /var/www/bigbluebutton"
 	fi
-
-	DIRECTORIES="bigbluebutton sip video"
+	echo
+	echo "Checking what BigBlueButton applications are available in $RED5_DIR/webapps"
+	AVAIL_RED5_APPS=""
+	UNAVAIL_RED5_APPS=""
+	DIRECTORIES="bigbluebutton deskshare sip video"
 	for dir in $DIRECTORIES ; do
 		if [ ! -d $RED5_DIR/webapps/$dir ]; then
-        		echo "                   missing red5 app: $RED5_DIR/webapps/$dir "
+			UNAVAIL_RED5_APPS="${UNAVAIL_RED5_APPS} $dir"
+		else
+			AVAIL_RED5_APPS="${AVAIL_RED5_APPS} $dir"
 		fi
 	done
-
-	RED5_LOG_FILES="bigbluebutton red5 sip video"
+	echo "  Available:   ${AVAIL_RED5_APPS}"
+	echo "  Unavailable: ${UNAVAIL_RED5_APPS}"
+	echo
+	RED5_LOG_FILES="bigbluebutton red5 sip video deskshare"
+	AVAIL_RED5_LOG=""
+	UNAVAIL_RED5_LOG=""
+	echo "Checking Red5 log files in $RED5_DIR/log"
 	for file in $RED5_LOG_FILES ; do
 		if [ ! -f $RED5_DIR/log/$file.log ]; then
-        		echo "                   missing red5 log: $RED5_DIR/log/$file.demo"
+			UNAVAIL_RED5_LOG="${UNAVAIL_RED5_LOG} $file.log"
+		else
+			AVAIL_RED5_LOG="${AVAIL_RED5_LOG} $file.log"
 		fi
 	done
-
+	echo "  Available:   $AVAIL_RED5_LOG"
+	echo "  Unavailable: $UNAVAIL_RED5_LOG"
 	#
 	# Make sure the salt for the API matches the server
 	#
 	SALT_PROPERTIES=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
 	SALT_DEMO=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp | tr -d '\r' | sed -n '/salt =/{s/.* = "//;s/".*//g;p}')
-
+	echo
+	echo "Checking security salt"
 	if [ "$SALT_PROPERTIES" != "$SALT_DEMO" ]; then
-        	echo "                       salt mismatch: salt in bigbluebutton.properties and bbb_api_conf.jsp do not match"
+        	echo " salt mismatch: salt in bigbluebutton.properties and bbb_api_conf.jsp do not match"
+		echo "    bigbluebutton.properties=$SALT_PROPERTIES 	vs.	bbb_api_conf.jsp=$SALT_DEMO"
+	else
+        	echo " salt match: salt in bigbluebutton.properties and bbb_api_conf.jsp matches"
 	fi
-
+	echo
 	#
 	# Look for properties with no values set
 	#
+	echo "Checking for BigBlueButton properties with no values"
 	CONFIG_FILES="$RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties \
 /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties \
 $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 
 	for file in $CONFIG_FILES ; do
-		if grep -q "^[^=]*=[ ]*$" $file; then
-        		echo "            empty parameter(s) found: $(grep '^[^=]*=[ ]*$' $file | sed 's/=//g') ($file)"
+	 	echo "  Checking properties file: $file"
+	 	if [ ! -f $file ]; then	
+		 	echo "     $file not found"
+		else
+			if grep -q "^[^=]*=[ ]*$" $file; then
+        			echo "     No value found: $(grep '^[^=]*=[ ]*$' $file | sed 's/=//g')"
+			fi
 		fi
 	done
 
-	LOGG_FILES="$RED5_DIR/log/sip.log \
+	echo 
+	echo "Checking if BigBlueButton applications has started from the log files"
+	BBB_APPS="sip video deskshare bigbluebutton"
+	LOG_FILES="$RED5_DIR/log/sip.log \
 $RED5_DIR/log/video.log \
+$RED5_DIR/log/deskshare.log \
 $RED5_DIR/log/bigbluebutton.log"
 
-	for file in $LOGG_FILES ; do
-		if [ -a $file ]; then
-			if cat $file | tail -n1 | grep -q "Starting up context"; then
-				echo "                     did not start: $file"
+	for bbb_app in $BBB_APPS ; do
+		echo "  Checking $RED5_DIR/log/$bbb_app.log"
+		if [ -a $RED5_DIR/log/$bbb_app.log ]; then
+			if cat $RED5_DIR/log/$bbb_app.log | tail -n1 | grep -q "Starting up context"; then
+				echo "    $bbb_app did not start properly"
+			else
+				echo "    $bbb_app started properly"
 			fi
 		else
-			echo "File" $file "not found"
+			echo "    " $RED5_DIR/log/$bbb_app.log "not found"
 		fi
-		
 	done
-
+	
+	echo
 	# check if sip.log has warnings where the user is not registered
 	if cat /usr/share/red5/log/sip.log | tail -n1 | grep -q "Call request for default but not registered"; then
 		echo "The User is not registered in SIP. Audio might not be working correctly."
 	fi
-
+	echo
+	echo "Checking if voice app registered with Asterisk successfully"
         if cat /usr/share/red5/log/sip.log | grep -q "Failed to register with Sip Server"; then
-                echo
-                echo "The voice application failed to register with the sip server. A suggestion is to run: bbb-conf --clean"
+                echo "  The voice application failed to register with the sip server. Try running bbb-conf --clean"
+	else
+                echo "  The voice application registered with the sip server."
         fi
 
 	#
@@ -817,27 +876,27 @@ if [ $CHECK ]; then
 		echo "The architecture is 32bit."
 	fi
 
-        IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/porttest /{s/.*host="//;s/".*//;p}')
         echo
-        echo "/var/www/bigbluebutton/client/conf/config.xml (bbb-client)"
-        echo "                 IP for tunnel check: $IP"
+        echo "/var/www/bigbluebutton/client/conf/config.xml:"
+        IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/porttest /{s/.*host="//;s/".*//;p}')
+        echo "  Port test (tunnel): $IP"
 
         IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/uri.*video/{s/.*rtmp:\/\///;s/\/.*//;p}')
-        echo "                  IP for rtmp (red5): $IP"
+        echo "  Red5: $IP"
 
-        HOST=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/recordingHost/{s/.*recordingHost="http:\/\///;s/"//;p}')
-        echo "          host for bbb-web interface: $HOST"
+#        HOST=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/recordingHost/{s/.*recordingHost="http:\/\///;s/"//;p}')
+#        echo "          host for bbb-web interface: $HOST"
 
-        IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
         echo
-        echo "/etc/nginx/sites-available/bigbluebutton (configuration file nginx)"
-        echo "                         server_name: $IP"
+        echo "/etc/nginx/sites-available/bigbluebutton"
+        IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
+        echo "  server name: $IP"
 
         PORT=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/listen/{s/.*listen[ ]*//;s/;//;p}')
-        echo "                                port: $PORT"
+        echo "  port: $PORT"
 
 	BBB_CLIENT_DOC_ROOT=$(cat /etc/nginx/sites-available/bigbluebutton | grep \/client -A 1 | head -n 2 | grep root | sed -n '{s/[ ]*root[ ]*//;s/;//;p}')
-        echo "                client document root: $BBB_CLIENT_DOC_ROOT"
+        echo "  bbb client dir: $BBB_CLIENT_DOC_ROOT"
 
         HOST=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
         echo
