@@ -35,13 +35,11 @@
 		<![CDATA[
 			import mx.controls.Alert;
 			
-			import org.bigbluebutton.main.MainApplicationConstants;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.CloseWindowEvent;
 			import org.bigbluebutton.main.events.ConfigurationEvent;
 			import org.bigbluebutton.main.events.LogoutEvent;
 			import org.bigbluebutton.main.events.ToolbarButtonEvent;
-			import org.bigbluebutton.main.view.MainApplicationShellMediator;
 			import org.bigbluebutton.modules.viewers.events.LoginSuccessEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 

@@ -31,10 +31,6 @@
 			
 			import org.bigbluebutton.modules.highlighter.events.StartHighligtherModuleEvent;
 			import org.bigbluebutton.modules.highlighter.events.StopHighlighterModuleEvent;
-			import org.puremvc.as3.multicore.utilities.pipes.interfaces.IPipeMessage;
-			
-			private static const TO_HIGHLIGHTER_MODULE:String = "TO_HIGHLIGHTER_MODULE";
-			private static const FROM_HIGHLIGHTER_MODULE:String = "FROM_HIGHLIGHTER_MODULE";
 					
 			private var _moduleId:String = "HighlighterModule";
 			private var _moduleName:String = "Highlighter Module";			
@@ -44,10 +40,6 @@
 			
 			private function init():void{
 				LogUtil.debug("HighlighterModule::init");
-			}
-			
-			private function messageReceive(message : IPipeMessage):void{
-				
 			}
 				
 			public function get moduleId():String {

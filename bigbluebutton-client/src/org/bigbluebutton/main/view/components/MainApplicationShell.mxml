@@ -36,7 +36,9 @@
 	
 	<mate:Listener type="{LoginSuccessEvent.LOGIN_SUCCESS}" method="loginSuccess" />
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_LOST}" method="handleLogout" />
-	
+	<mate:Listener type="{PortTestEvent.TEST_RTMP}" method="rtmpTest" />
+	<mate:Listener type="{PortTestEvent.PORT_TEST_FAILED}" method="rtmptTest" />
+	<mate:Listener type="{PortTestEvent.TUNNELING_FAILED}" method="rtmptFailed" />
 	<mate:Listener type="{ModuleLoadEvent.MODULE_LOAD_PROGRESS}" method="updateModuleLoadProgress" />
 
 	<maps:CrossModuleEventMap />
@@ -61,21 +63,19 @@
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.main.MainApplicationFacade;
 			import org.bigbluebutton.main.events.AddUIComponentToMainCanvas;
 			import org.bigbluebutton.main.events.CloseWindowEvent;
+			import org.bigbluebutton.main.events.LoginEvent;
 			import org.bigbluebutton.main.events.LogoutEvent;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.main.events.OpenWindowEvent;
-			import org.bigbluebutton.main.view.MainApplicationShellMediator;
+			import org.bigbluebutton.main.events.PortTestEvent;
 			import org.bigbluebutton.main.view.events.StartModuleEvent;
 			import org.bigbluebutton.modules.viewers.events.ConnectionFailedEvent;
 			import org.bigbluebutton.modules.viewers.events.LoginSuccessEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.util.logging.Logger;
 			
-			public static const NAME:String = 'MainApplicationShell';
-			protected var facade:MainApplicationFacade = MainApplicationFacade.getInstance();	
 			private var globalDispatcher:Dispatcher;
 			
 			private var dispState:String; //full-screen?
@@ -105,7 +105,6 @@
 				logWindow = new LogWindow();
 				logWindow.logs = logs;
 				
-				facade.startup(this);
 				globalDispatcher = new Dispatcher();					
 			}
 
@@ -201,7 +200,10 @@
 				statusProgress.text = "";
 				statusInfo2.text = "";
 				user = e.user;
-				dispatchEvent(new Event("loginsuccess"));
+				
+				var loginEvent:LoginEvent = new LoginEvent(LoginEvent.LOGIN_SUCCESS);
+				loginEvent.user = user;
+				dispatchEvent(loginEvent);
 			}
 			
 			private function handleLogout(e:ConnectionFailedEvent):void{
@@ -220,6 +222,21 @@
 			
 			private function updateModuleLoadProgress(e:ModuleLoadEvent):void{				
 				statusProgress.text = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loaded',[e.moduleName, e.progress]);
+			}
+			
+			private function rtmpTest(e:PortTestEvent):void{
+				//statusInfo.text = ResourceUtil.getInstance().getString('bbb.mainshell.statusInfo.testRTMPConnection');
+				//statusInfo.text = "Please wait while we test your connection to the server."
+				//statusInfo2.text =  ResourceUtil.getInstance().getString('bbb.mainshell.statusInfo2.testRTMPConnection');
+				//statusProgress.text = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.testRTMPConnection', [e.hostname, e.app]);
+			}
+			
+			private function rtmptTest(e:PortTestEvent):void{
+				statusProgress.text = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.testRTMPTConnection', [e.hostname, e.app]);
+			}
+			
+			private function rtmptFailed(e:PortTestEvent):void{
+				statusProgress.text = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.cannotConnectServer');
 			}
 		]]>
 	</mx:Script>

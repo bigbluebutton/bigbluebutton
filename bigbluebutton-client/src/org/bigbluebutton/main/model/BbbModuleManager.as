@@ -31,12 +31,14 @@ package org.bigbluebutton.main.model
 	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
-	import org.bigbluebutton.main.MainApplicationConstants;
 	import org.bigbluebutton.main.events.ConfigurationEvent;
 	import org.bigbluebutton.main.events.ModuleLoadEvent;
 	
 	public class BbbModuleManager
 	{
+		public static const MODULE_LOAD_READY:String = "MODULE_LOAD_READY";
+		public static const MODULE_LOAD_PROGRESS:String = "MODULE_LOAD_PROGRESS";
+		
 		public static const FILE_PATH:String = "conf/config.xml";
 		private var _urlLoader:URLLoader;
 		private var _initializedListeners:ArrayCollection = new ArrayCollection();
@@ -58,7 +60,8 @@ package org.bigbluebutton.main.model
 		{
 			_mode = mode;
 			_urlLoader = new URLLoader();
-			_urlLoader.addEventListener(Event.COMPLETE, handleComplete);			
+			_urlLoader.addEventListener(Event.COMPLETE, handleComplete);	
+			globalDispatcher = new Dispatcher();
 		}
 		
 		public function initialize():void {
@@ -228,7 +231,7 @@ package org.bigbluebutton.main.model
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
 				if (m.loaded) {
-					loadModuleResultHandler(MainApplicationConstants.MODULE_LOAD_READY, name);
+					loadModuleResultHandler(MODULE_LOAD_READY, name);
 				} else {
 					LogUtil.debug('Found module ' + m.attributes.name);
 					m.load(loadModuleResultHandler);
@@ -242,13 +245,13 @@ package org.bigbluebutton.main.model
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
 				switch(event) {
-					case MainApplicationConstants.MODULE_LOAD_PROGRESS:
+					case MODULE_LOAD_PROGRESS:
 						var loadEvent:ModuleLoadEvent = new ModuleLoadEvent(ModuleLoadEvent.MODULE_LOAD_PROGRESS);
 						loadEvent.moduleName = name;
 						loadEvent.progress = progress;
 						globalDispatcher.dispatchEvent(loadEvent);
 					break;	
-					case MainApplicationConstants.MODULE_LOAD_READY:
+					case MODULE_LOAD_READY:
 						LogUtil.debug('Module ' + m.attributes.name + " has been loaded.");		
 						
 						var loadReadyEvent:ModuleLoadEvent = new ModuleLoadEvent(ModuleLoadEvent.MODULE_LOAD_READY);
@@ -319,14 +322,14 @@ package org.bigbluebutton.main.model
 			}
 		}
 		
-		public function handleUserLoggedIn():void {
+		/*public function handleUserLoggedIn():void {
 			for (var key:Object in _modules) {				
 				var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
 				if (m.getAttribute("onUserLoggedInEvent") != null) {
 					startModule(m.getAttribute("name") as String);
 				}
 			}
-		}
+		}*/
 		
 		public function handleUserJoined():void {
 			for (var key:Object in _modules) {				
@@ -335,8 +338,7 @@ package org.bigbluebutton.main.model
 					startModule(m.getAttribute("name") as String);
 				}
 			}
-			
-			globalDispatcher  = new Dispatcher();
+
 			var event:ConfigurationEvent = new ConfigurationEvent(ConfigurationEvent.CONFIG_EVENT);
 			event.helpURL = _helpURL;
 			LogUtil.debug("Dispatching helpURL " + _helpURL);

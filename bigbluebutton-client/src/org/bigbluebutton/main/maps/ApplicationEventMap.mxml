@@ -91,12 +91,24 @@
         </EventAnnouncer>
 	</EventHandlers>
 	
+	<EventHandlers type="{PortTestEvent.TEST_RTMP}" >
+		<MethodInvoker generator="{ModulesProxy}" method="testRTMP" arguments="{event}" />
+	</EventHandlers>
+
 	<EventHandlers type="{PortTestEvent.PORT_TEST_SUCCESS}" >
-		<MethodInvoker generator="{ModulesProxy}" method="useProtocol" arguments="{event}" />
+		<MethodInvoker generator="{ModulesProxy}" method="portTestSuccess" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{PortTestEvent.PORT_TEST_FAILED}" >
+		<MethodInvoker generator="{ModulesProxy}" method="testRTMPT" arguments="{event}" />
 	</EventHandlers>
 	
 	<EventHandlers type="{LogoutEvent.USER_LOGGED_OUT}" >
 		<MethodInvoker generator="{ModulesProxy}" method="handleLogout" />
+	</EventHandlers>
+	
+	<EventHandlers type="{LoginEvent.LOGIN_SUCCESS}" >
+		<MethodInvoker generator="{ModulesProxy}" method="" arguments="{event}" />
 	</EventHandlers>
 
 	<mx:Script>
@@ -106,6 +118,7 @@
 		import org.bigbluebutton.main.events.AppEvent;
 		import org.bigbluebutton.main.events.ConfigEvent;
 		import org.bigbluebutton.main.events.ConnectedEvent;
+		import org.bigbluebutton.main.events.LoginEvent;
 		import org.bigbluebutton.main.events.LogoutEvent;
 		import org.bigbluebutton.main.events.ModeEvent;
 		import org.bigbluebutton.main.events.ModuleEvent;
@@ -117,6 +130,7 @@
 		import org.bigbluebutton.main.managers.StatusManager;
 		import org.bigbluebutton.main.model.ApplicationModel;
 		import org.bigbluebutton.main.model.ModulesProxy;
+		import org.bigbluebutton.main.model.PortTestProxy;
 		import org.bigbluebutton.main.services.ConfigLoader;
 		import org.bigbluebutton.main.services.JoiningParticipant;
 		import org.bigbluebutton.main.services.ModeInitializer;

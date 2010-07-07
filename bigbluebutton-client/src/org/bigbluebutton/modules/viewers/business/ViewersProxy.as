@@ -35,11 +35,9 @@ package org.bigbluebutton.modules.viewers.business
 	import org.bigbluebutton.modules.viewers.events.ViewersConnectionEvent;
 	import org.bigbluebutton.modules.viewers.events.ViewersModuleEndEvent;
 	import org.bigbluebutton.modules.viewers.events.ViewersModuleStartedEvent;
-	import org.puremvc.as3.multicore.interfaces.IProxy;
-	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
 	import org.bigbluebutton.common.LogUtil;
 
-	public class ViewersProxy extends Proxy implements IProxy
+	public class ViewersProxy
 	{
 		private var module:ViewersModule;		
 		private var _viewersService:ViewersSOService;
@@ -56,14 +54,14 @@ package org.bigbluebutton.modules.viewers.business
 		
 		public function connect():void {	
 			_viewersService = new ViewersSOService(module, _participants);
-			LogUtil.debug(NAME + '::' + module.username + "," + module.role);
+			LogUtil.debug("ViewersProxy" + '::' + module.username + "," + module.role);
 			_viewersService.connect(module.username, module.role, module.conference, module.mode, module.room, module.externUserID);		
 		}
 
 		public function join(e:ViewersModuleStartedEvent):void {
 			module = e.module;
 			
-			LogUtil.debug(NAME + "::joining in ");
+			LogUtil.debug("ViewersProxy" + "::joining in ");
 			joinService = new JoinService();
 			joinService.addJoinResultListener(joinListener);
 			joinService.load(module.host);
@@ -72,7 +70,7 @@ package org.bigbluebutton.modules.viewers.business
 		private function joinListener(success:Boolean, result:Object):void {
 			LogUtil.debug("Got join result");
 			if (success) {
-				LogUtil.debug(NAME + '::Sending ViewersModuleConstants.JOIN_SUCCESS' + result.role);
+				LogUtil.debug("ViewersProxy" + '::Sending ViewersModuleConstants.JOIN_SUCCESS' + result.role);
 				_participants = new Conference();
 				_participants.me.name = result.username;
 				_participants.me.role = result.role;
@@ -104,7 +102,7 @@ package org.bigbluebutton.modules.viewers.business
 				
 				connect();
 			} else {
-				LogUtil.debug(NAME + '::Sending ViewersModuleConstants.JOIN_FAILED');
+				LogUtil.debug("ViewersProxy" + '::Sending ViewersModuleConstants.JOIN_FAILED');
 				var connectionEvent:ConnectionFailedEvent = new ConnectionFailedEvent();
 				connectionEvent.reason = ConnectionFailedEvent.UNKNOWN_REASON;
 				dispatcher.dispatchEvent(connectionEvent);

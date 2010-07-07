@@ -25,14 +25,12 @@ package org.bigbluebutton.main.model
 	import flash.net.NetConnection;
 	
 	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.main.MainApplicationConstants;
 	import org.bigbluebutton.main.events.PortTestEvent;
 	import org.puremvc.as3.multicore.interfaces.IProxy;
 	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
 
-	public class PortTestProxy extends Proxy implements IProxy
+	public class PortTestProxy
 	{
-		public static const NAME:String = 'PortTestProxy';
 		
 		private var nc:NetConnection;
 		private var protocol:String;
@@ -44,7 +42,6 @@ package org.bigbluebutton.main.model
 		
 		public function PortTestProxy()
 		{
-			super(NAME);
 			dispatcher = new Dispatcher();
 		}
 		
@@ -72,8 +69,12 @@ package org.bigbluebutton.main.model
 				
 			} else {
 				LogUtil.error("Failed to connect to " + uri);
-				facade.sendNotification(MainApplicationConstants.PORT_TEST_FAILED, 
-				 		{protocol:protocol, hostname:hostname, port:port, application:application});
+				var portFailEvent:PortTestEvent = new PortTestEvent(PortTestEvent.PORT_TEST_FAILED);
+				portFailEvent.port = port;
+				portFailEvent.hostname = hostname;
+				portFailEvent.protocol = protocol;
+				portFailEvent.app = application;
+				dispatcher.dispatchEvent(portFailEvent);
 			}				 		
 		}
 		
@@ -100,8 +101,8 @@ package org.bigbluebutton.main.model
 			catch(e:ArgumentError) 
 			{
 				LogUtil.error("Incorrect arguments on connecting wiht port testing");
-				facade.sendNotification(MainApplicationConstants.PORT_TEST_FAILED, 
-				 		{protocol:protocol, hostname:hostname, port:port, application:application});
+				//facade.sendNotification(MainApplicationConstants.PORT_TEST_FAILED, 
+				// 		{protocol:protocol, hostname:hostname, port:port, application:application});
 			}	
 		}
 			
@@ -131,8 +132,14 @@ package org.bigbluebutton.main.model
 				 	  statusCode == "NetConnection.Connect.Closed" ) 
 			{
 				LogUtil.error("Failed to connect to " + uri);
-				facade.sendNotification(MainApplicationConstants.PORT_TEST_FAILED, 
-				 		{protocol:protocol, hostname:hostname, port:port, application:application});
+
+				var portFailEvent:PortTestEvent = new PortTestEvent(PortTestEvent.PORT_TEST_FAILED);
+				portFailEvent.port = port;
+				portFailEvent.hostname = hostname;
+				portFailEvent.protocol = protocol;
+				portFailEvent.app = application;
+				dispatcher.dispatchEvent(portFailEvent);
+				
 			} else {
 				LogUtil.error("Failed to connect to " + uri + " due to " + statusCode);
 			}
