@@ -26,8 +26,6 @@ package org.bigbluebutton.main.model
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.events.PortTestEvent;
-	import org.puremvc.as3.multicore.interfaces.IProxy;
-	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
 
 	public class PortTestProxy
 	{

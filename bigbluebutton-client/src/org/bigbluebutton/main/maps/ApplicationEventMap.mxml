@@ -108,7 +108,7 @@
 	</EventHandlers>
 	
 	<EventHandlers type="{LoginEvent.LOGIN_SUCCESS}" >
-		<MethodInvoker generator="{ModulesProxy}" method="" arguments="{event}" />
+		<MethodInvoker generator="{ModulesProxy}" method="handleLogin" arguments="{event}" />
 	</EventHandlers>
 
 	<mx:Script>

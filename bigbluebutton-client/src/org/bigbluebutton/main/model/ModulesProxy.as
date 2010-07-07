@@ -21,13 +21,12 @@ package org.bigbluebutton.main.model
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
+	import mx.controls.Alert;
 	import mx.modules.ModuleManager;
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.events.LoginEvent;
 	import org.bigbluebutton.main.events.PortTestEvent;
-	import org.puremvc.as3.multicore.interfaces.IProxy;
-	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
 	
 	public class ModulesProxy {
 		
@@ -35,14 +34,13 @@ package org.bigbluebutton.main.model
 		private var portTestProxy:PortTestProxy;
 		
 		private var _user:Object;
-		private var _mode:String;
 		
 		private var dispatcher:Dispatcher;
 		
 		public function ModulesProxy() {
 			dispatcher = new Dispatcher();
 			portTestProxy = new PortTestProxy();
-			modulesManager = new BbbModuleManager(_mode);
+			modulesManager = new BbbModuleManager();
 			modulesManager.addInitializedListener(onInitializeComplete);
 			modulesManager.initialize();
 		}
@@ -86,6 +84,7 @@ package org.bigbluebutton.main.model
 		}
 		
 		public function getNumberOfModules():int {
+			Alert.show("" + modulesManager.getNumberOfModules());
 			return modulesManager.getNumberOfModules();
 		}
 		

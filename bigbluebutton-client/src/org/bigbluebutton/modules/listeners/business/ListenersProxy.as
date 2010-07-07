@@ -29,8 +29,6 @@ package org.bigbluebutton.modules.listeners.business
 	import org.bigbluebutton.modules.listeners.events.ListenersEvent;
 	import org.bigbluebutton.modules.listeners.events.StartListenersModuleEvent;
 	import org.bigbluebutton.modules.listeners.events.StopListenersModuleEvent;
-	import org.puremvc.as3.multicore.interfaces.IProxy;
-	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
 
 	public class ListenersProxy
 	{		

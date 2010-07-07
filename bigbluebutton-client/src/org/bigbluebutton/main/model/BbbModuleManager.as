@@ -47,7 +47,6 @@ package org.bigbluebutton.main.model
 		private var _numModules:int = 0;		
 		public var  _modules:Dictionary = new Dictionary();
 		private var _user:Object;
-		private var _mode:String;
 		private var _version:String;
 		private var _localeVersion:String;
 		private var _protocol:String;
@@ -56,9 +55,8 @@ package org.bigbluebutton.main.model
 		private var _helpURL:String;
 		private var globalDispatcher:Dispatcher;
 		
-		public function BbbModuleManager(mode:String)
+		public function BbbModuleManager()
 		{
-			_mode = mode;
 			_urlLoader = new URLLoader();
 			_urlLoader.addEventListener(Event.COMPLETE, handleComplete);	
 			globalDispatcher = new Dispatcher();
@@ -208,7 +206,7 @@ package org.bigbluebutton.main.model
 					
 				} else {
 					// Pass the mode that we got from the URL query string.
-					m.addAttribute("mode", _mode);
+					m.addAttribute("mode", "LIVE");
 				}	
 				m.addAttribute("protocol", _protocol);
 				m.useProtocol(_protocol);				
