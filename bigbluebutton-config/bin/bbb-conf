@@ -82,18 +82,18 @@ is_vm() {
 if [ "$(is_redhat)" ]; then
 	TOMCAT="tomcat6"
 	RED5_DIR="/usr/share/red5"
-	ACTIVEMQ_DIRECTORY="/usr/share/activemq"
+	ACTIVEMQ_DIR="/usr/share/activemq"
 	TOMCAT6_LOGS="/var/log/${TOMCAT}"
 elif [ "$(is_gentoo)" ]; then
 	TOMCAT="tomcat-6"
 	RED5_DIR="/usr/share/red5"
-	ACTIVEMQ_DIRECTORY="/usr/share/activemq"
+	ACTIVEMQ_DIR="/usr/share/activemq"
 	TOMCAT6_LOGS="/var/lib/${TOMCAT}/logs"
 else 
 	if [ "$(is_ubuntu)" ]; then
 		TOMCAT="tomcat6"
 		RED5_DIR="/usr/share/red5"
-		ACTIVEMQ_DIRECTORY="/usr/share/activemq"
+		ACTIVEMQ_DIR="/usr/share/activemq"
 		TOMCAT6_LOGS="/var/lib/${TOMCAT}/logs"
 	fi
 fi
@@ -646,7 +646,7 @@ check_state() {
 	#
 	# Check for potential problems
 	#
-	if ! ps aux | grep "$ACTIVEMQ_DIRECTORY" > /dev/null; then
+	if ! ps aux | grep "$ACTIVEMQ_DIR" > /dev/null; then
 		print_header
         	echo "                            activeMQ: -- not running --"
 	fi	
