@@ -81,18 +81,18 @@ is_vm() {
 
 if [ "$(is_redhat)" ]; then
 	TOMCAT="tomcat6"
-	RED5_DIRECTORY="/usr/share/red5"
+	RED5_DIR="/usr/share/red5"
 	ACTIVEMQ_DIRECTORY="/usr/share/activemq"
 	TOMCAT6_LOGS="/var/log/${TOMCAT}"
 elif [ "$(is_gentoo)" ]; then
 	TOMCAT="tomcat-6"
-	RED5_DIRECTORY="/usr/share/red5"
+	RED5_DIR="/usr/share/red5"
 	ACTIVEMQ_DIRECTORY="/usr/share/activemq"
 	TOMCAT6_LOGS="/var/lib/${TOMCAT}/logs"
 else 
 	if [ "$(is_ubuntu)" ]; then
 		TOMCAT="tomcat6"
-		RED5_DIRECTORY="/usr/share/red5"
+		RED5_DIR="/usr/share/red5"
 		ACTIVEMQ_DIRECTORY="/usr/share/activemq"
 		TOMCAT6_LOGS="/var/lib/${TOMCAT}/logs"
 	fi
@@ -501,7 +501,7 @@ if [ $SETUPDEV ]; then
                 sudo chmod -R ugo+rwx /var/log/bigbluebutton
 
                 echo "# Copying bbb-common-message-0.64.jar into ${BBBWEBHOME}/lib"
-                if [ -f $RED5_DIRECTORY/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.64.jar ]; then
+                if [ -f $RED5_DIR/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.64.jar ]; then
                         cp /usr/share/red5/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.64.jar ${BBBWEBHOME}/lib
                 fi
 
@@ -575,21 +575,21 @@ if [ $SETUPDEV ]; then
                 echo "# Checking if ~/dev/repo/bbb-common-message-0.64.jar is present"
                 if [ ! -f ~/dev/repo/bbb-common-message-0.64.jar ]; then
                         echo "# Copying bbb-common-message-0.64.jar into ${BBBAPPSHOME}"
-                        if [ -f $RED5_DIRECTORY/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.64.jar ]; then
+                        if [ -f $RED5_DIR/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.64.jar ]; then
 				if [ ! -d ~/dev/repo ]; then
                         		mkdir -p ~/dev/repo
                 		fi
                                 cp /usr/share/red5/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.64.jar ~/dev/repo/
                         else
-                                echo "# $RED5_DIRECTORY/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.64.jar does NOT exist!"
+                                echo "# $RED5_DIR/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.64.jar does NOT exist!"
                         fi
                 fi
 
                 #
                 # We're going to make it easier to deploy by giving write access to others to
-                # $RED5_DIRECTORY/webapps
+                # $RED5_DIR/webapps
                 #
-                sudo chmod o+w $RED5_DIRECTORY/webapps
+                sudo chmod o+w $RED5_DIR/webapps
 
                 #
                 # Let's remove the existing bbb-apps
@@ -602,7 +602,7 @@ if [ $SETUPDEV ]; then
                         echo "#
 # Override the default properties for bbb-apps
 #
-red5.home = $RED5_DIRECTORY
+red5.home = $RED5_DIR
 " > ~/.bbb-apps-build.properties
                 fi
 
@@ -616,12 +616,12 @@ red5.home = $RED5_DIRECTORY
     sudo /etc/init.d/red5 stop
     cd ${BBBAPPSHOME}
     gradle war deploy
-    cd $RED5_DIRECTORY
+    cd $RED5_DIR
     sudo -u red5 ./red5.sh
 
 # To restore the packaged version of bbb-apps:
 
-    rm -rf $RED5_DIRECTORY/webapps/bigbluebutton
+    rm -rf $RED5_DIR/webapps/bigbluebutton
     sudo apt-get install bigbluebutton
     sudo /etc/init.d/red5 start
 "
@@ -689,15 +689,15 @@ check_state() {
 
 	DIRECTORIES="bigbluebutton sip video"
 	for dir in $DIRECTORIES ; do
-		if [ ! -d $RED5_DIRECTORY/webapps/$dir ]; then
-        		echo "                   missing red5 app: $RED5_DIRECTORY/webapps/$dir "
+		if [ ! -d $RED5_DIR/webapps/$dir ]; then
+        		echo "                   missing red5 app: $RED5_DIR/webapps/$dir "
 		fi
 	done
 
 	RED5_LOG_FILES="bigbluebutton red5 sip video"
 	for file in $RED5_LOG_FILES ; do
-		if [ ! -f $RED5_DIRECTORY/log/$file.log ]; then
-        		echo "                   missing red5 log: $RED5_DIRECTORY/log/$file.demo"
+		if [ ! -f $RED5_DIR/log/$file.log ]; then
+        		echo "                   missing red5 log: $RED5_DIR/log/$file.demo"
 		fi
 	done
 
@@ -714,9 +714,9 @@ check_state() {
 	#
 	# Look for properties with no values set
 	#
-	CONFIG_FILES="$RED5_DIRECTORY/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties \
+	CONFIG_FILES="$RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties \
 /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties \
-$RED5_DIRECTORY/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
+$RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 
 	for file in $CONFIG_FILES ; do
 		if grep -q "^[^=]*=[ ]*$" $file; then
@@ -724,9 +724,9 @@ $RED5_DIRECTORY/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 		fi
 	done
 
-	LOGG_FILES="$RED5_DIRECTORY/log/sip.log \
-$RED5_DIRECTORY/log/video.log \
-$RED5_DIRECTORY/log/bigbluebutton.log"
+	LOGG_FILES="$RED5_DIR/log/sip.log \
+$RED5_DIR/log/video.log \
+$RED5_DIR/log/bigbluebutton.log"
 
 	for file in $LOGG_FILES ; do
 		if [ -a $file ]; then
@@ -759,9 +759,9 @@ $RED5_DIRECTORY/log/bigbluebutton.log"
 	#
 	# Check that bigbluebutton in red5 has started propertly 
 	# 
-	BIGBLUEBUTTON_RED5_LOG=$(stat -c%s $RED5_DIRECTORY/log/bigbluebutton.log)
+	BIGBLUEBUTTON_RED5_LOG=$(stat -c%s $RED5_DIR/log/bigbluebutton.log)
 	if [ $BIGBLUEBUTTON_RED5_LOG -lt 100 ]; then
-        	echo "       bigbluebutton failed to start: $RED5_DIRECTORY/log/bigbluebutton.log (red5)"
+        	echo "       bigbluebutton failed to start: $RED5_DIR/log/bigbluebutton.log (red5)"
 	fi
 
 	HOST_IP=$(ifconfig | grep -v '127.0.0.1' | grep -m 1 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
@@ -792,8 +792,8 @@ $RED5_DIRECTORY/log/bigbluebutton.log"
 		fi
 	else
 		#check for DeskShare.log
-		if [ -a $RED5_DIRECTORY/log/deskshare.log ]; then
-			if cat $RED5_DIRECTORY/log/deskshare.log | tail -n1 | grep -q "Starting up context"; then
+		if [ -a $RED5_DIR/log/deskshare.log ]; then
+			if cat $RED5_DIR/log/deskshare.log | tail -n1 | grep -q "Starting up context"; then
 				echo "BigBlueButton did not start up corerctly"
 			fi
 		fi
@@ -852,7 +852,7 @@ if [ $CHECK ]; then
 	fi
 
         if  ps aux | grep '[/]usr/sbin/asterisk' > /dev/null; then
-        	CONFERENCING_MODULE=$(cat $RED5_DIRECTORY/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | sed -n '/asterisk.application/{s/.*=[ ]*//g;p}')
+        	CONFERENCING_MODULE=$(cat $RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | sed -n '/asterisk.application/{s/.*=[ ]*//g;p}')
         	echo
         	echo "/etc/asterisk/bbb_extensions.conf (asterisk)"
         	echo "                   conference module: $CONFERENCING_MODULE"
@@ -879,7 +879,7 @@ if [ $ZIP ]; then
 
 	touch /tmp/empty
 	tar cf /tmp/$LOG_FILE.tar /tmp/empty			> /dev/null 2>&1
-	tar rf /tmp/$LOG_FILE.tar $RED5_DIRECTORY/log		> /dev/null 2>&1
+	tar rf /tmp/$LOG_FILE.tar $RED5_DIR/log			> /dev/null 2>&1
 	tar rf /tmp/$LOG_FILE.tar $TOMCAT6_LOGS			> /dev/null 2>&1
 	tar rf /tmp/$LOG_FILE.tar /var/log/bigbluebutton/*	> /dev/null 2>&1
 	tar rf /tmp/$LOG_FILE.tar /var/log/nginx/error.log	> /dev/null 2>&1
@@ -903,18 +903,18 @@ if [ $DEBUG ]; then
 	#
 
 	rm -rf /tmp/t
-	grep ERROR $RED5_DIRECTORY/log/* > /tmp/t 
+	grep ERROR $RED5_DIR/log/* > /tmp/t 
 	if [ -s /tmp/t ]; then
-		echo "   -- ERRORS found in $RED5_DIRECTORY/log/* -- "
+		echo "   -- ERRORS found in $RED5_DIR/log/* -- "
 		cat /tmp/t
 		echo
 	fi
 
 
 	rm -rf /tmp/t
-	grep Exception $RED5_DIRECTORY/log/* > /tmp/t 
+	grep Exception $RED5_DIR/log/* > /tmp/t 
 	if [ -s /tmp/t ]; then
-		echo "   -- Exceptions found in $RED5_DIRECTORY/log/* -- "
+		echo "   -- Exceptions found in $RED5_DIR/log/* -- "
 		cat /tmp/t
 		echo
 	fi
@@ -1064,8 +1064,8 @@ fi
 if [ $CONFERENCE ]; then
 	need_root
 
-	if [ ! -f $RED5_DIRECTORY/webapps/bigbluebutton/WEB-INF/bbb-voice-app.xml ]; then
-		echo "Error: Unable to find $RED5_DIRECTORY/webapps/bigbluebutton/WEB-INF/bbb-voice-app.xml"
+	if [ ! -f $RED5_DIR/webapps/bigbluebutton/WEB-INF/bbb-voice-app.xml ]; then
+		echo "Error: Unable to find $RED5_DIR/webapps/bigbluebutton/WEB-INF/bbb-voice-app.xml"
 		exit 1
 	fi
 
@@ -1087,10 +1087,10 @@ if [ $CONFERENCE ]; then
 
         if [ $CONFERENCE = "meetme" ]; then
 		#
-		# update $RED5_DIRECTORY/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
+		# update $RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
 		#
 	        sudo sed -i "s/asterisk.application[ ]*=.*/asterisk.application=meetme/g" \
-			$RED5_DIRECTORY/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
+			$RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
 
 		#
 		# update /etc/asterisk/bbb_extensions.conf
@@ -1111,10 +1111,10 @@ if [ $CONFERENCE ]; then
  
         if [ $CONFERENCE = "app_konference" ]; then
 		#
-		# update $RED5_DIRECTORY/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
+		# update $RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
 		#
 	        sudo sed -i "s/asterisk.application[ ]*=.*/asterisk.application=konference/g" \
-			$RED5_DIRECTORY/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
+			$RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
 
 		#
 		# update /etc/asterisk/bbb_extensions.conf
@@ -1170,8 +1170,8 @@ if [ $CLEAN ]; then
 	rm -f /var/log/asterisk/messages* 
 	rm -f /var/log/asterisk/queue* 
 	
-	if [ $RED5_DIRECTORY ]; then
-		rm -rf $RED5_DIRECTORY/log/*
+	if [ $RED5_DIR ]; then
+		rm -rf $RED5_DIR/log/*
 	fi
 
 	if [ $TOMCAT6_LOGS ]; then
