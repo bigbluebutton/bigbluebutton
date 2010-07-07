@@ -646,14 +646,15 @@ if [ $RESET_DEV ]; then
 fi
 
 check_state() {
-
-	echo $CHECK_VERBOSE
+	echo 
 	print_header
 
 	#
 	# Check for potential problems
 	#
-#	echo "Checking running applications:"
+	if [ $CHECK_VERBOSE = 1 ]; then
+		echo "Checking running applications:"
+	fi
 	RUNNING_APPS=""
 	NOT_RUNNING_APPS=""
 	if ! ps aux | grep -v grep | grep "$ACTIVEMQ_DIR" > /dev/null; then
