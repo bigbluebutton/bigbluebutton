@@ -36,18 +36,6 @@
 
 #set -x
 
-#
-# This ensures that we checkout the 0.63 release of BigBlueButton
-#   Note that this can be overridden with the --trunk option
-#
-RELEASE="-r 4130"
-
-#
-# SVNPROTO is http if read-only, or https if you specify a Google code username
-# SVNUSERNAME is blank if read-only, or '--username ${arg}' if you specify a Google code username
-# 
-SVNPROTO="http"
-SVNUSERNAME=""
 GENTOO=$(uname -r | grep gentoo | cut -d- -f2);
 TOMCAT=""
 
@@ -811,11 +799,6 @@ $RED5_DIRECTORY/log/bigbluebutton.log"
 		fi
         fi
 	
-
-
-	
-
-
 	echo
 	exit 0
 }
@@ -853,8 +836,8 @@ if [ $CHECK ]; then
         PORT=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/listen/{s/.*listen[ ]*//;s/;//;p}')
         echo "                                port: $PORT"
 
-	BBB_CLINET_DOC_ROOT=$(cat /etc/nginx/sites-available/bigbluebutton | grep \/client -A 1 | head -n 2 | grep root | sed -n '{s/[ ]*root[ ]*//;s/;//;p}')
-        echo "                client document root: $BBB_CLINET_DOC_ROOT"
+	BBB_CLIENT_DOC_ROOT=$(cat /etc/nginx/sites-available/bigbluebutton | grep \/client -A 1 | head -n 2 | grep root | sed -n '{s/[ ]*root[ ]*//;s/;//;p}')
+        echo "                client document root: $BBB_CLIENT_DOC_ROOT"
 
         HOST=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
         echo
