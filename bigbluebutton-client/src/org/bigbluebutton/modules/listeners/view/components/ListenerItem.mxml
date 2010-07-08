@@ -110,7 +110,7 @@
    	<mx:Button id="muteBtn" width="18" height="16" visible="true" enabled="{data.moderator}" 
    		toolTip="{ResourceUtil.getInstance().getString('bbb.listenerItem.muteUnmute.toolTip')}"
    		icon="{data.muted ? muteIcon : unmuteIcon}" click="muteUser()"/>
-	<mx:Label id="nameLabel" textAlign="left" text="{data.callerName}" width="145" 
+	<mx:Label id="nameLabel" textAlign="left" text="{data.callerName}" width="120" 
 		toolTip="{ResourceUtil.getInstance().getString('bbb.listenerItem.nameLbl.toolTip')}"/>
 	<mx:Image id="talkImg" source="{talkIcon}" visible="{data.talking}" 
 		toolTip="{ResourceUtil.getInstance().getString('bbb.listenerItem.talkImg.toolTip')}"/>

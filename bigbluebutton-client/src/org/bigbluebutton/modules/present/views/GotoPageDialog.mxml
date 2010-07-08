@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="175" height="70" layout="horizontal" creationComplete="onCreationComplete()" keyDown="onKeyDown(event)">
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="195" height="70" layout="horizontal" creationComplete="onCreationComplete()" keyDown="onKeyDown(event)">
 	<mx:Script>
 		<![CDATA[
 			import mx.managers.PopUpManager;

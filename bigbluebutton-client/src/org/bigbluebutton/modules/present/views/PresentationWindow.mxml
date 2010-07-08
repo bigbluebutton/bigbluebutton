@@ -106,6 +106,7 @@
 			[Bindable] private var thumbY:Number;
 			public var uploadWindow:FileUploadWindow = null;
 			private var slideManager:SlideManager = new SlideManager();
+			private var pageDialog:GotoPageDialog;
 			
 			[Bindable] private var DEFAULT_X_POSITION:int = 237;
 			[Bindable] private var DEFAULT_Y_POSITION:int = 0;
@@ -376,7 +377,8 @@
 			}
 			
 			private function showPageDialog():void{
-				var pageDialog:GotoPageDialog = new GotoPageDialog();
+				if (pageDialog != null) PopUpManager.removePopUp(pageDialog);
+				pageDialog = new GotoPageDialog();
 				pageDialog.totalSlides = slideView.slides.length;
 				pageDialog.x = this.x + this.width/2 - pageDialog.width/2;
 				pageDialog.y = this.y + this.height/2 - pageDialog.height/2;
