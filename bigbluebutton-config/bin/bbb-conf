@@ -733,7 +733,7 @@ check_state() {
 #	echo "Checking what BigBlueButton applications are available in $RED5_DIR/webapps"
 	AVAIL_RED5_APPS=""
 	UNAVAIL_RED5_APPS=""
-	DIRECTORIES="bigbluebutton deskshare sip video"
+	DIRECTORIES="bigbluebutton sip video"
 	for dir in $DIRECTORIES ; do
 		if [ ! -d $RED5_DIR/webapps/$dir ]; then
 			UNAVAIL_RED5_APPS="${UNAVAIL_RED5_APPS} $dir"
@@ -779,7 +779,7 @@ check_state() {
 	#
 	# Look for properties with no values set
 	#
-	echo "Checking for BigBlueButton properties with no values"
+#	echo "Checking for BigBlueButton properties with no values"
 	CONFIG_FILES="$RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties \
 /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties \
 $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
@@ -790,7 +790,8 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 		 	echo "     $file not found"
 		else
 			if grep -q "^[^=]*=[ ]*$" $file; then
-        			echo "     No value found for $(grep '^[^=]*=[ ]*$' $file | sed 's/=//g') in $file"
+        			echo " The following properties in $file has no value."
+        			echo "     $(grep '^[^=]*=[ ]*$' $file | sed 's/=//g')"
 			fi
 		fi
 	done
@@ -913,25 +914,25 @@ if [ $CHECK ]; then
         echo "  port: $PORT"
 
 	BBB_CLIENT_DOC_ROOT=$(cat /etc/nginx/sites-available/bigbluebutton | grep \/client -A 1 | head -n 2 | grep root | sed -n '{s/[ ]*root[ ]*//;s/;//;p}')
-        echo "  bbb client dir: $BBB_CLIENT_DOC_ROOT"
+        echo "  bbb-client dir: $BBB_CLIENT_DOC_ROOT"
 
         HOST=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
         echo
         echo "/var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties (bbb-web)"
-        echo "                                host: $HOST"
+        echo "  bbb-web host: $HOST"
 
 	if [ -f /var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp ]; then
         	HOST=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp  | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}' | tr -d '\015')
         	echo
         	echo "/var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp (API demos)"
-        	echo "                                host: $HOST"
+        	echo "  bbb-web-api host: $HOST"
 	fi
 
         if  ps aux | grep '[/]usr/sbin/asterisk' > /dev/null; then
         	CONFERENCING_MODULE=$(cat $RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | sed -n '/asterisk.application/{s/.*=[ ]*//g;p}')
         	echo
         	echo "/etc/asterisk/bbb_extensions.conf (asterisk)"
-        	echo "                   conference module: $CONFERENCING_MODULE"
+        	echo "  voice conf application: $CONFERENCING_MODULE"
 	fi
 
 	check_state
