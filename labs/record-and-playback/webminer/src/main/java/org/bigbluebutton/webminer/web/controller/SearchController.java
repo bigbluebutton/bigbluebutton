@@ -19,11 +19,11 @@ import org.springframework.validation.BindException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.SimpleFormController;
 
-import edu.carleton.webminer.index.Index;
-import edu.carleton.webminer.search.Search;
-import edu.carleton.webminer.web.model.MatchVO;
-import edu.carleton.webminer.web.model.SearchCriteriaCommand;
-import edu.carleton.webminer.web.model.SessionHitsOrganizer;
+import org.bigbluebutton.webminer.index.Index;
+import org.bigbluebutton.webminer.search.Search;
+import org.bigbluebutton.webminer.web.model.MatchVO;
+import org.bigbluebutton.webminer.web.model.SearchCriteriaCommand;
+import org.bigbluebutton.webminer.web.model.SessionHitsOrganizer;
 
 public class SearchController extends SimpleFormController {
 

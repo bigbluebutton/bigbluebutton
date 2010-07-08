@@ -2,7 +2,7 @@ package org.bigbluebutton.webminer.swf;
 
 import org.apache.log4j.Logger;
 
-import edu.carleton.webminer.web.controller.CourseIndexingController;
+import org.bigbluebutton.webminer.web.controller.CourseIndexingController;
 
 public class PresentationMeta {
 	private static Logger logger = Logger.getLogger(CourseIndexingController.class);

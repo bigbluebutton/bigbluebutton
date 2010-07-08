@@ -16,8 +16,8 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.SimpleFormController;
 import org.w3c.dom.Node;
 
-import edu.carleton.webminer.index.Index;
-import edu.carleton.webminer.web.model.IndexingContentSource;
+import org.bigbluebutton.webminer.index.Index;
+import org.bigbluebutton.webminer.web.model.IndexingContentSource;
 
 public class CourseIndexingController extends SimpleFormController {
 

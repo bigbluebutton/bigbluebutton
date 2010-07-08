@@ -2,7 +2,7 @@ package org.bigbluebutton.webminer;
 
 import java.io.*;
 
-import edu.carleton.webminer.index.Index;
+import org.bigbluebutton.webminer.index.Index;
 
 /**
  * Reads and parses a SWF file and dumps a textual representation

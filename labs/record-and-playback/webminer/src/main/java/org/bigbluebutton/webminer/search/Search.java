@@ -37,7 +37,7 @@ import org.apache.lucene.search.TopFieldDocCollector;
 import org.apache.lucene.search.TopFieldDocs;
 import org.apache.lucene.store.FSDirectory;
 
-import edu.carleton.webminer.config.ConfigHandler;
+import org.bigbluebutton.webminer.config.ConfigHandler;
 
 /** Simple command-line based search demo. */
 public class Search {

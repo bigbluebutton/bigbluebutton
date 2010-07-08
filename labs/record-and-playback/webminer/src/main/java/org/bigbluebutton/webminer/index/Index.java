@@ -11,11 +11,11 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.LockObtainFailedException;
 
-import edu.carleton.webminer.Constants;
-import edu.carleton.webminer.config.ConfigHandler;
-import edu.carleton.webminer.swf.PresentationMeta;
-import edu.carleton.webminer.swf.SwfDocument;
-import edu.carleton.webminer.web.controller.CourseIndexingController;
+import org.bigbluebutton.webminer.Constants;
+import org.bigbluebutton.webminer.config.ConfigHandler;
+import org.bigbluebutton.webminer.swf.PresentationMeta;
+import org.bigbluebutton.webminer.swf.SwfDocument;
+import org.bigbluebutton.webminer.web.controller.CourseIndexingController;
 
 import java.io.File;
 import java.io.IOException;

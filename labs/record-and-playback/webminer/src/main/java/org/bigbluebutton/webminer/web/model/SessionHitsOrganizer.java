@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
-import edu.carleton.webminer.web.controller.SearchController;
+import org.bigbluebutton.webminer.web.controller.SearchController;
 
 public class SessionHitsOrganizer {
 	String sessionNum;

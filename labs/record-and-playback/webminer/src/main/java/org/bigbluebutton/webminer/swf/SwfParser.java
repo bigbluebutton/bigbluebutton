@@ -18,7 +18,7 @@ import com.flagstone.transform.FSMovie;
 import com.flagstone.transform.FSMovieObject;
 import com.flagstone.transform.FSText;
 
-import edu.carleton.webminer.index.Index;
+import org.bigbluebutton.webminer.index.Index;
 
 public class SwfParser {
 	
