@@ -32,7 +32,6 @@
 		<ObjectBuilder generator="{ModulesManager}">
 			<Properties dispatcher="{scope.dispatcher}"/>
 		</ObjectBuilder>
-		<ObjectBuilder generator="{ApplicationModel}"/>
 		<ObjectBuilder generator="{ModulesProxy}" cache="global" />
 	</EventHandlers>
 	
@@ -85,7 +84,6 @@
 	</EventHandlers>
 	
 	<EventHandlers type="{ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT}">
-		<MethodInvoker generator="{ApplicationModel}" method="setParticipant" arguments="{[event.participant]}"/>
 		<EventAnnouncer generator="{ConnectedEvent}" type="{ConnectedEvent.CONNECTED_EVENT}">
             <Properties participant="{event.participant}"/>
         </EventAnnouncer>
@@ -124,10 +122,8 @@
 		import org.bigbluebutton.main.events.ModuleLoadEvent;
 		import org.bigbluebutton.main.events.ParticipantJoinEvent;
 		import org.bigbluebutton.main.events.PortTestEvent;
-		import org.bigbluebutton.main.managers.LoadModuleManager;
 		import org.bigbluebutton.main.managers.ModulesManager;
 		import org.bigbluebutton.main.managers.StatusManager;
-		import org.bigbluebutton.main.model.ApplicationModel;
 		import org.bigbluebutton.main.model.ModulesProxy;
 		import org.bigbluebutton.main.model.PortTestProxy;
 		import org.bigbluebutton.main.services.ConfigLoader;
