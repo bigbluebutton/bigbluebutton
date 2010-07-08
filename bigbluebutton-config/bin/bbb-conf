@@ -612,6 +612,11 @@ red5.home = $RED5_DIR
 " > ~/.bbb-apps-build.properties
                 fi
 
+ 		if [ ! -L /etc/nginx/sites-enabled/bigbluebutton ]; then
+                	echo "  No symbolic link in /etc/nginx/sites-enabled/bigbluebutton to /etc/nginx/sites-available/bigbluebutton "
+			ln -s /etc/nginx/sites-available/bigbluebutton /etc/nginx/sites-enabled/bigbluebutton
+        	fi
+
                 #
                 # Setup the directories so we can point /etc/nginx/sites-available/bigbluebutton to this
                 # local copy of the client
@@ -829,8 +834,8 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 	#
 	# Check that bigbluebutton in red5 has started propertly 
 	# 
-	BIGBLUEBUTTON_RED5_LOG=$(stat -c%s $RED5_DIR/log/bigbluebutton.log)
-	if [ $BIGBLUEBUTTON_RED5_LOG -lt 100 ]; then
+	BBB_RED5_LOG=$(stat -c%s $RED5_DIR/log/bigbluebutton.log)
+	if [ $BBB_RED5_LOG -lt 100 ]; then
         	echo "       bigbluebutton failed to start: $RED5_DIR/log/bigbluebutton.log (red5)"
 	fi
 
@@ -838,7 +843,7 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
  	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
 
 	if [ "$HOST_IP" != "$NGINX_IP" ]; then
-			echo "Host IP does not match BigBlueButton: ${HOST_IP} != ${NGINX_IP}"
+		echo "Host IP does not match BigBlueButton: ${HOST_IP} != ${NGINX_IP}"
 	fi
 
 	 VARFolder=$(cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep swfToolsDir | cut -d= -f2)
