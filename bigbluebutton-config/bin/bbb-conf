@@ -198,7 +198,7 @@ stop_bigbluebutton () {
         /etc/init.d/nginx stop
         /etc/init.d/asterisk stop
         /etc/init.d/activemq stop
-
+	/etc/init.d/bbb-openoffice-headless stop
 }
 
 start_bigbluebutton () {
@@ -208,6 +208,7 @@ start_bigbluebutton () {
 	/etc/init.d/nginx start
 	/etc/init.d/red5 start
 	/etc/init.d/${TOMCAT} start
+	/etc/init.d/bbb-openoffice-headless start
 }
 
 display_bigbluebutton_status () {
