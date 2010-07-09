@@ -98,10 +98,8 @@
 			[Bindable] private var uploadIcon:Class = images.upload;
 			[Bindable] private var forwardIcon:Class = images.forward;
 			[Bindable] private var backwardIcon:Class = images.backward;
-			[Bindable] private var thumbnailIcon:Class = images.thumbnails;
 			[Bindable] private var magnifierIcon:Class = images.magnifier;
 			[Bindable] public var fitToWidthIcon:Class = images.magnifier;
-			[Bindable] public var fitToActualSizeIcon:Class = images.mag_reset;
 						
 			[Bindable] private var thumbY:Number;
 			public var uploadWindow:FileUploadWindow = null;

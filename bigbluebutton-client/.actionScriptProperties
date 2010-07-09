@@ -30,15 +30,22 @@
     <application path="src/TestRunners.mxml"/>
   </applications>
   <modules>
-    <module application="src/BigBlueButton.mxml" destPath="ChatModule.swf" optimize="true" sourcePath="src/ChatModule.mxml"/>
-    <module application="src/BigBlueButton.mxml" destPath="ViewersModule.swf" optimize="true" sourcePath="src/ViewersModule.mxml"/>
-    <module application="src/BigBlueButton.mxml" destPath="HighlighterModule.swf" optimize="true" sourcePath="src/HighlighterModule.mxml"/>
-    <module application="src/BigBlueButton.mxml" destPath="PresentModule.swf" optimize="true" sourcePath="src/PresentModule.mxml"/>
-    <module application="src/BigBlueButton.mxml" destPath="ListenersModule.swf" optimize="true" sourcePath="src/ListenersModule.mxml"/>
-    <module application="src/BigBlueButton.mxml" destPath="VideoconfModule.swf" optimize="true" sourcePath="src/VideoconfModule.mxml"/>
     <module application="src/BigBlueButton.mxml" destPath="DeskShareModule.swf" optimize="true" sourcePath="src/DeskShareModule.mxml"/>
-    <module application="src/BigBlueButton.mxml" destPath="DynamicInfoModule.swf" optimize="true" sourcePath="src/DynamicInfoModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="ListenersModule.swf" optimize="true" sourcePath="src/ListenersModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="ChatModule.swf" optimize="true" sourcePath="src/ChatModule.mxml"/>
     <module application="src/BigBlueButton.mxml" destPath="PhoneModule.swf" optimize="true" sourcePath="src/PhoneModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="VideoconfModule.swf" optimize="true" sourcePath="src/VideoconfModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="DynamicInfoModule.swf" optimize="true" sourcePath="src/DynamicInfoModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="ViewersModule.swf" optimize="true" sourcePath="src/ViewersModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="PresentModule.swf" optimize="true" sourcePath="src/PresentModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="HighlighterModule.swf" optimize="true" sourcePath="src/HighlighterModule.mxml"/>
   </modules>
-  <buildCSSFiles/>
+  <buildCSSFiles>
+    <buildCSSFileEntry destPath="bin" sourcePath="src/org/bigbluebutton/common/assets/css/BrushedMetal.css"/>
+    <buildCSSFileEntry destPath="bin" sourcePath="src/org/bigbluebutton/common/assets/css/MSWindows_default.css"/>
+    <buildCSSFileEntry destPath="bin" sourcePath="src/org/bigbluebutton/common/assets/css/WindowsXP_default.css"/>
+    <buildCSSFileEntry destPath="bin" sourcePath="src/org/bigbluebutton/common/assets/css/MacOS9.css"/>
+    <buildCSSFileEntry destPath="bin" sourcePath="src/com/blindside/branding/css/theme.css"/>
+    <buildCSSFileEntry destPath="bin" sourcePath="src/org/bigbluebutton/common/assets/css/Blue.css"/>
+  </buildCSSFiles>
 </actionScriptProperties>

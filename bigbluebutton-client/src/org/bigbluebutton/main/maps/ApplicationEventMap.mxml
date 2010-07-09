@@ -36,8 +36,6 @@
 	</EventHandlers>
 	
 	<EventHandlers type="{FlexEvent.CREATION_COMPLETE}">        
-        <MethodInvoker generator="{ModeInitializer}" method="getUrl" />
-        <MethodInvoker generator="{ModeInitializer}" method="queryMode" arguments="{lastReturn}" />
         <EventAnnouncer generator="{ModeEvent}" type="{ModeEvent.MODE_INIT_EVENT}">
             <Properties mode="{lastReturn}" />
         </EventAnnouncer>
@@ -46,8 +44,6 @@
 	<EventHandlers type="{ModeEvent.MODE_INIT_EVENT}">
         <HTTPServiceInvoker instance="{configService}">
 			<resultHandlers>
-				<MethodInvoker generator="{ConfigLoader}" method="setMode" arguments="{event.mode}"/>
-				<MethodInvoker generator="{ConfigLoader}" method="parse" arguments="{resultObject}" /> 
 				<EventAnnouncer generator="{ConfigEvent}" type="{ConfigEvent.CONFIG_LOADED_EVENT}">
             		<Properties numberOfModules="{lastReturn.numberOfModules}" moduleDescriptors="{lastReturn.moduleDescriptors}"/>
         		</EventAnnouncer>
@@ -75,7 +71,6 @@
 		<MethodInvoker generator="{StatusManager}" method="clear"/>		
 		<HTTPServiceInvoker instance="{joinService}">
 			<resultHandlers>
-				<MethodInvoker generator="{JoiningParticipant}" method="parse" arguments="{resultObject}" /> 
 				<EventAnnouncer generator="{ParticipantJoinEvent}" type="{ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT}">
             		<Properties participant="{lastReturn}"/>
         		</EventAnnouncer>
@@ -126,9 +121,6 @@
 		import org.bigbluebutton.main.managers.StatusManager;
 		import org.bigbluebutton.main.model.ModulesProxy;
 		import org.bigbluebutton.main.model.PortTestProxy;
-		import org.bigbluebutton.main.services.ConfigLoader;
-		import org.bigbluebutton.main.services.JoiningParticipant;
-		import org.bigbluebutton.main.services.ModeInitializer;
 		import org.bigbluebutton.modules.viewers.events.LoginSuccessEvent;
 	]]>
 	</mx:Script>

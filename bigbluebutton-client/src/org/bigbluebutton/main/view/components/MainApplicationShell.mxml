@@ -69,7 +69,6 @@
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.main.events.OpenWindowEvent;
 			import org.bigbluebutton.main.events.PortTestEvent;
-			import org.bigbluebutton.main.view.events.StartModuleEvent;
 			import org.bigbluebutton.modules.viewers.events.ConnectionFailedEvent;
 			import org.bigbluebutton.modules.viewers.events.LoginSuccessEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -104,7 +103,7 @@
 				logWindow = new LogWindow();
 				logWindow.logs = logs;
 				
-				globalDispatcher = new Dispatcher();					
+				globalDispatcher = new Dispatcher();
 			}
 
 			protected function initFullScreen():void {				
