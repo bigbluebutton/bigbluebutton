@@ -87,8 +87,29 @@ public class SdpUtils {
                 return null;
             }
             
-            initialDescriptor = new SessionDescriptor(userName, viaAddress);
-            
+            //Bug Session descriptor cannot have spaces.. Username is not forced to be compliant with SIP Spec
+            /* RFC 2327 - page 8 of April 1998 Version,
+                Origin
+
+                   o=<username> <session id> <version> <network type> <address type>
+                   <address>
+
+                   The "o=" field gives the originator of the session (their username
+                   and the address of the user's host) plus a session id and session
+                   version number.
+
+                   <username> is the user's login on the originating host, or it is "-"
+                   if the originating host does not support the concept of user ids.
+                   <username> must not contain spaces.  <session id> is a numeric string
+                   such that the tuple of <username>, <session id>, <network type>,
+                   <address type> and <address> form a globally unique identifier for
+                   the session.
+             */
+
+            String owner = userName.replaceAll(" ", "_");
+
+            initialDescriptor = new SessionDescriptor(owner, viaAddress);
+                        
             if (initialDescriptor == null) {                
                 log.error("Error instantiating the initialDescriptor!");                 
                 return null;
