@@ -1,3 +1,6 @@
+.classpath
+.project
+.settings
 build
 lib
 .scala_dependencies

@@ -31,21 +31,11 @@
 #       2010-04-02 FFD  Updated for 0.64
 #	2010-06-21 SEB  Cleaned up some code / Updated for 0.70
 #	2010-06-25 SEB  Added ability to change the security salt
+#	2010-06-30 SEB	Added some extra errorchecking
+#	2010-07-06 SEB	Added more errorchecking and report messages
 
 #set -x
 
-#
-# This ensures that we checkout the 0.63 release of BigBlueButton
-#   Note that this can be overridden with the --trunk option
-#
-RELEASE="-r 4130"
-
-#
-# SVNPROTO is http if read-only, or https if you specify a Google code username
-# SVNUSERNAME is blank if read-only, or '--username ${arg}' if you specify a Google code username
-# 
-SVNPROTO="http"
-SVNUSERNAME=""
 GENTOO=$(uname -r | grep gentoo | cut -d- -f2);
 TOMCAT=""
 
@@ -91,19 +81,19 @@ is_vm() {
 
 if [ "$(is_redhat)" ]; then
 	TOMCAT="tomcat6"
-	RED5_DIRECTORY="/usr/share/red5"
-	ACTIVEMQ_DIRECTORY="/usr/share/activemq"
+	RED5_DIR="/usr/share/red5"
+	ACTIVEMQ_DIR="/usr/share/activemq"
 	TOMCAT6_LOGS="/var/log/${TOMCAT}"
 elif [ "$(is_gentoo)" ]; then
 	TOMCAT="tomcat-6"
-	RED5_DIRECTORY="/usr/share/red5"
-	ACTIVEMQ_DIRECTORY="/usr/share/activemq"
+	RED5_DIR="/usr/share/red5"
+	ACTIVEMQ_DIR="/usr/share/activemq"
 	TOMCAT6_LOGS="/var/lib/${TOMCAT}/logs"
 else 
 	if [ "$(is_ubuntu)" ]; then
 		TOMCAT="tomcat6"
-		RED5_DIRECTORY="/usr/share/red5"
-		ACTIVEMQ_DIRECTORY="/usr/share/activemq"
+		RED5_DIR="/usr/share/red5"
+		ACTIVEMQ_DIR="/usr/share/activemq"
 		TOMCAT6_LOGS="/var/lib/${TOMCAT}/logs"
 	fi
 fi
@@ -135,7 +125,8 @@ need_root() {
 }
 
 usage() {
-	echo "BigBlueButton Server Utility - Version 0.70"
+	echo "BigBlueButton Configuration Utility - Version 0.70"
+        echo "http://code.google.com/p/bigbluebutton/wiki/BBBConf"
         echo
         echo "$0 [options]"
         echo
@@ -143,10 +134,10 @@ usage() {
         echo "   --version                        Display BigBlueButton version (packages)"
         echo "   --setip <host>                   Set IP/hostname for BigBlueButton"
         echo "   --conference [konference|meetme] Switch conference module in Asterisk"
-	echo "   --salt <salt>		    Change the security salt in bigbluebutton.properties"
+	echo "   --salt <salt>		    	  Change the security salt in bigbluebutton.properties"
         echo
         echo "Monitoring:"
-        echo "   --check                          Check configuration files and processes for problems"
+        echo "   --check <verbose>                Check configuration files and processes for problems"
         echo "   --debug                          Scan the log files for error messages"
         echo "   --watch                          Scan the log files for error messages every 2 seconds"
         echo
@@ -158,10 +149,9 @@ usage() {
         if [ "$(is_vm)" ]; then
                 echo "Development:"
                 echo "   --setup-samba                    Setup samba share for development (VM only)"
-                echo "   --checkout                 	  Checkout BigBlueButton from github "
+                echo "   --checkout  <repo>               Checkout from github or passed in repository"
                 echo "   --setup-dev [client|web|apps]	  Setup development environment "
                 echo "   --reset-dev                      Reset environment back to using packages"
-                echo "   --trunk                          Checkout trunk instead of last release"
         fi
         echo
 }
@@ -208,7 +198,7 @@ stop_bigbluebutton () {
         /etc/init.d/nginx stop
         /etc/init.d/asterisk stop
         /etc/init.d/activemq stop
-
+	/etc/init.d/bbb-openoffice-headless stop
 }
 
 start_bigbluebutton () {
@@ -218,6 +208,7 @@ start_bigbluebutton () {
 	/etc/init.d/nginx start
 	/etc/init.d/red5 start
 	/etc/init.d/${TOMCAT} start
+	/etc/init.d/bbb-openoffice-headless start
 }
 
 display_bigbluebutton_status () {
@@ -235,14 +226,15 @@ fi
 
 # Parse the parameters
 while [ $# -gt 0 ]; do
-	if [ "$1" = "-h" -o "$1" = "-help" -o "$1" = "?" -o "$1" = "--help" ]; then
-		usage
-		exit 1
-	fi
-
 	if [ "$1" = "-check" -o "$1" = "--check" -o "$1" = "-c" ]; then
+		if [ $# -lt 2 ]; then
+                        CHECK_VERBOSE=0
+                else
+                        CHECK_VERBOSE=1
+                fi
+
 		CHECK=1
-		shift 
+		shift;shift 
 		continue
 	fi
 
@@ -302,7 +294,11 @@ while [ $# -gt 0 ]; do
 
 	if [ "$1" = "--checkout" -o "$1" = "-checkout" ]; then
 		echo "# Request to checkout BigBlueButton"
-		CHECKOUT="1"
+		if [ $# -lt 2 ]; then
+			CHECKOUT="git://github.com/bigbluebutton/bigbluebutton.git"
+		else
+			CHECKOUT="${2}"
+		fi	
 		shift; shift
 		continue
 	fi		
@@ -463,13 +459,13 @@ if [ $CHECKOUT ]; then
         cd ~/dev/source
 
 	echo "#                                         "
-        echo "# Checking out READ-ONLY code from github."
+        echo "# Checking out BigBlueButton."
         echo "#                                         "
         echo "# "
-        git clone git://github.com/bigbluebutton/bigbluebutton.git
+        git clone $CHECKOUT
         echo "# "
         echo "#                                         "
-        echo "# Checked out READ-ONLY code from github. "
+        echo "# Checked out BigBlueButton. "
         echo "#                                         "
 	echo " You can now run 'bbb-conf --setup-dev [client|web|apps]' to setup dev environment "
         echo "#                                         "
@@ -512,7 +508,7 @@ if [ $SETUPDEV ]; then
                 sudo chmod -R ugo+rwx /var/log/bigbluebutton
 
                 echo "# Copying bbb-common-message-0.64.jar into ${BBBWEBHOME}/lib"
-                if [ -f $RED5_DIRECTORY/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.64.jar ]; then
+                if [ -f $RED5_DIR/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.64.jar ]; then
                         cp /usr/share/red5/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.64.jar ${BBBWEBHOME}/lib
                 fi
 
@@ -557,8 +553,8 @@ if [ $SETUPDEV ]; then
                         /etc/nginx/sites-available/bigbluebutton
                 sudo /etc/init.d/nginx restart
 
-                echo "# Copying /var/www/bigbluebutton/client/conf/config.xml to ${BBBCLIENTHOME}/bin/conf/config.xml"
-                cp /var/www/bigbluebutton/client/conf/config.xml $BBBCLIENTHOME/bin/conf/config.xml
+                echo "# Copying /var/www/bigbluebutton/client/conf/config.xml to ${BBBCLIENTHOME}/src/conf/config.xml"
+                cp /var/www/bigbluebutton/client/conf/config.xml $BBBCLIENTHOME/src/conf/config.xml
 
                 cd $BBBCLIENTHOME
 
@@ -586,21 +582,21 @@ if [ $SETUPDEV ]; then
                 echo "# Checking if ~/dev/repo/bbb-common-message-0.64.jar is present"
                 if [ ! -f ~/dev/repo/bbb-common-message-0.64.jar ]; then
                         echo "# Copying bbb-common-message-0.64.jar into ${BBBAPPSHOME}"
-                        if [ -f $RED5_DIRECTORY/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.64.jar ]; then
+                        if [ -f $RED5_DIR/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.64.jar ]; then
 				if [ ! -d ~/dev/repo ]; then
                         		mkdir -p ~/dev/repo
                 		fi
                                 cp /usr/share/red5/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.64.jar ~/dev/repo/
                         else
-                                echo "# $RED5_DIRECTORY/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.64.jar does NOT exist!"
+                                echo "# $RED5_DIR/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.64.jar does NOT exist!"
                         fi
                 fi
 
                 #
                 # We're going to make it easier to deploy by giving write access to others to
-                # $RED5_DIRECTORY/webapps
+                # $RED5_DIR/webapps
                 #
-                sudo chmod o+w $RED5_DIRECTORY/webapps
+                sudo chmod o+w $RED5_DIR/webapps
 
                 #
                 # Let's remove the existing bbb-apps
@@ -613,9 +609,14 @@ if [ $SETUPDEV ]; then
                         echo "#
 # Override the default properties for bbb-apps
 #
-red5.home = $RED5_DIRECTORY
+red5.home = $RED5_DIR
 " > ~/.bbb-apps-build.properties
                 fi
+
+ 		if [ ! -L /etc/nginx/sites-enabled/bigbluebutton ]; then
+                	echo "  No symbolic link in /etc/nginx/sites-enabled/bigbluebutton to /etc/nginx/sites-available/bigbluebutton "
+			ln -s /etc/nginx/sites-available/bigbluebutton /etc/nginx/sites-enabled/bigbluebutton
+        	fi
 
                 #
                 # Setup the directories so we can point /etc/nginx/sites-available/bigbluebutton to this
@@ -627,12 +628,12 @@ red5.home = $RED5_DIRECTORY
     sudo /etc/init.d/red5 stop
     cd ${BBBAPPSHOME}
     gradle war deploy
-    cd $RED5_DIRECTORY
+    cd $RED5_DIR
     sudo -u red5 ./red5.sh
 
 # To restore the packaged version of bbb-apps:
 
-    rm -rf $RED5_DIRECTORY/webapps/bigbluebutton
+    rm -rf $RED5_DIR/webapps/bigbluebutton
     sudo apt-get install bigbluebutton
     sudo /etc/init.d/red5 start
 "
@@ -644,104 +645,186 @@ if [ $RESET_DEV ]; then
 	check_root
 
         echo "Reseting /etc/nginx/sites-available/bigbluebutton to point to /var/www/bigbluebutton"
-        sudo sed -i "s/\/home\/firstuser\/dev\/bbb-client;/\/var\/www\/bigbluebutton;/g" \
+        sudo sed -i "s/\/home\/firstuser\/dev\/source\/bigbluebutton\/bigbluebutton-client;/\/var\/www\/bigbluebutton;/g" \
                         /etc/nginx/sites-available/bigbluebutton
         sudo /etc/init.d/nginx restart
 
 fi
 
-getIPOfDomain() {
-	ipOfDomain=$(ifconfig | grep -v '127.0.0.1' | grep -m 1 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
-
-	if [ $ipOfDomain != "out;" ]; then
-		echo $ipOfDomain
-	fi
-}
-
 check_state() {
-
-	echo
+	echo 
+	print_header
 
 	#
 	# Check for potential problems
 	#
-	if ! ps aux | grep "$ACTIVEMQ_DIRECTORY" > /dev/null; then
+	if [ $CHECK_VERBOSE = 1 ]; then
+		echo "Checking running applications:"
+	fi
+	RUNNING_APPS=""
+	NOT_RUNNING_APPS=""
+	if ! ps aux | grep -v grep | grep "$ACTIVEMQ_DIR" > /dev/null; then
 		print_header
-        	echo "                            activeMQ: -- not running --"
+		NOT_RUNNING_APPS="ActiveMQ"
+	else
+		RUNNING_APPS="ActiveMQ"
 	fi	
 
-	if ! ps aux | grep 'org.red5.server.Bootstrap' > /dev/null; then
+	if ! ps aux | grep -v grep | grep 'org.red5.server.Bootstrap' > /dev/null; then
 		print_header
-        	echo "                                red5: -- not running --"
+		NOT_RUNNING_APPS="${NOT_RUNNING_APPS} Red5"
+	else
+		RUNNING_APPS="${RUNNING_APPS} Red5"
 	fi	
 
-	if ! ps aux | grep '[/]usr/sbin/asterisk' > /dev/null; then
+	if ! ps aux | grep -v grep | grep '[/]usr/sbin/asterisk' > /dev/null; then
 		print_header
-        	echo "                            asterisk: -- not running --"
+		NOT_RUNNING_APPS="${NOT_RUNNING_APPS} Asterisk"
+	else
+		RUNNING_APPS="${RUNNING_APPS} Asterisk"
 	fi	
 
-	if ! ps aux | grep '[/]usr/sbin/nginx' > /dev/null; then
+	if ! ps aux | grep -v grep | grep '[/]usr/sbin/nginx' > /dev/null; then
 		print_header
-        	echo "                              ngingx: -- not running --"
+		NOT_RUNNING_APPS="${NOT_RUNNING_APPS} Nginx"
+	else
+		RUNNING_APPS="${RUNNING_APPS} Nginx"
 	fi	
 
 	if ! netstat -ant | grep '8080' > /dev/null; then
 		print_header
-        	echo "                   ${TOMCAT} or grails: -- not running --"
+		NOT_RUNNING_APPS="${NOT_RUNNING_APPS} ${TOMCAT} or grails"
 	else 
-		if ps aux |  ps -aef | grep grails | grep run-app > /dev/null; then
+		if ps aux |  ps -aef | grep -v grep | grep grails | grep run-app > /dev/null; then
 			print_header
-        		echo "                             ${TOMCAT}: noticed you are running grails run-app instead of tomcat"
+			RUNNING_APPS="${RUNNING_APPS} Grails"
+        		echo "  ${TOMCAT}: 	noticed you are running grails run-app instead of tomcat"
+		else
+			RUNNING_APPS="${RUNNING_APPS} ${TOMCAT}"
 		fi
 	fi
 
-	if [ ! -L /etc/nginx/sites-enabled/bigbluebutton ]; then
-		print_header
-        	echo "                        nginx (conf): no symbolic link in /etc/nginx/sites-enabled for bigbluebutton"
-	fi	
-
-	if grep -v \# /etc/nginx/sites-available/bigbluebutton | grep /home/firstuser/dev/bbb-client > /dev/null; then
-		print_header
-        	echo "                        nginx (conf): noticed that location for cient is /home/firstuser/dev/bbb-client"
-        	echo "                                      instead of the usual /var/www/bigbluebutton"
+	if ! netstat -ant | grep '8100' > /dev/null; then
+                print_header
+		NOT_RUNNING_APPS="${NOT_RUNNING_APPS} OpenOffice"
+	else
+		RUNNING_APPS="${RUNNING_APPS} OpenOffice"
+        fi  
+	#echo "  Running:     ${RUNNING_APPS}"
+	if [ "$NOT_RUNNING_APPS" != "" ]; then
+		echo "  Not Running: ${NOT_RUNNING_APPS}"
 	fi
-
+	echo
+	if [ ! -L /etc/nginx/sites-enabled/bigbluebutton ]; then
+        	echo "Nginx: bigbluebutton disabled"
+        	echo "         - no symbolic link in /etc/nginx/sites-enabled/bigbluebutton to /etc/nginx/sites-available/bigbluebutton "
+	#else
+        #	echo "Nginx: bigbluebutton enabled"
+        #	echo "         - there is symbolic link in /etc/nginx/sites-enabled/bigbluebutton to /etc/nginx/sites-available/bigbluebutton"
+	fi	
+	echo
+	if grep -v \# /etc/nginx/sites-available/bigbluebutton | grep /home/firstuser/dev/source/bigbluebutton/bigbluebutton-client > /dev/null; then
+        	echo "Nginx: serving client from /home/firstuser/dev/source/bigbluebutton/bigbluebutton-client"
+        	echo "         instead of the usual /var/www/bigbluebutton"
+#	else
+#		echo "Nginx: serving client from /var/www/bigbluebutton"
+	fi
+	echo
+#	echo "Checking what BigBlueButton applications are available in $RED5_DIR/webapps"
+	AVAIL_RED5_APPS=""
+	UNAVAIL_RED5_APPS=""
 	DIRECTORIES="bigbluebutton sip video"
 	for dir in $DIRECTORIES ; do
-		if [ ! -d $RED5_DIRECTORY/webapps/$dir ]; then
-        		echo "                   missing red5 app: $RED5_DIRECTORY/webapps/$dir "
+		if [ ! -d $RED5_DIR/webapps/$dir ]; then
+			UNAVAIL_RED5_APPS="${UNAVAIL_RED5_APPS} $dir"
+		else
+			AVAIL_RED5_APPS="${AVAIL_RED5_APPS} $dir"
 		fi
 	done
-
+	#echo "  Available:   ${AVAIL_RED5_APPS}"
+	if [ "$UNAVAIL_RED5_APPS" != "" ]; then
+		echo "Unavailable Red5 apps ($RED5_DIR/webapps/): ${UNAVAIL_RED5_APPS}"
+	fi
+	echo
 	RED5_LOG_FILES="bigbluebutton red5 sip video"
+	AVAIL_RED5_LOG=""
+	UNAVAIL_RED5_LOG=""
+#	echo "Checking Red5 log files in $RED5_DIR/log"
 	for file in $RED5_LOG_FILES ; do
-		if [ ! -f $RED5_DIRECTORY/log/$file.log ]; then
-        		echo "                   missing red5 log: $RED5_DIRECTORY/log/$file.demo"
+		if [ ! -f $RED5_DIR/log/$file.log ]; then
+			UNAVAIL_RED5_LOG="${UNAVAIL_RED5_LOG} $file.log"
+		else
+			AVAIL_RED5_LOG="${AVAIL_RED5_LOG} $file.log"
 		fi
 	done
-
+#	echo "  Available:   $AVAIL_RED5_LOG"
+	if [ "$UNAVAIL_RED5_LOG" != "" ]; then
+		echo "Unavailable Red5 logs ($RED5_DIR/log): $UNAVAIL_RED5_LOG"
+	fi
 	#
 	# Make sure the salt for the API matches the server
 	#
 	SALT_PROPERTIES=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
 	SALT_DEMO=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp | tr -d '\r' | sed -n '/salt =/{s/.* = "//;s/".*//g;p}')
-
+	echo
+#	echo "Checking security salt"
 	if [ "$SALT_PROPERTIES" != "$SALT_DEMO" ]; then
-        	echo "                       salt mismatch: salt in bigbluebutton.properties and bbb_api_conf.jsp do not match"
+        	echo "Salt mismatch: "
+		echo "  /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties=$SALT_PROPERTIES"
+		echo "  /var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp=$SALT_DEMO"
+#	else
+#        	echo " salt match: salt in bigbluebutton.properties and bbb_api_conf.jsp matches"
 	fi
-
+	echo
 	#
 	# Look for properties with no values set
 	#
-	CONFIG_FILES="$RED5_DIRECTORY/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties \
+#	echo "Checking for BigBlueButton properties with no values"
+	CONFIG_FILES="$RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties \
 /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties \
-$RED5_DIRECTORY/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
+$RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 
 	for file in $CONFIG_FILES ; do
-		if grep -q "^[^=]*=[ ]*$" $file; then
-        		echo "            empty parameter(s) found: $(grep '^[^=]*=[ ]*$' $file | sed 's/=//g') ($file)"
+#	 	echo "  Checking properties file: $file"
+	 	if [ ! -f $file ]; then	
+		 	echo "     $file not found"
+		else
+			if grep -q "^[^=]*=[ ]*$" $file; then
+        			echo " The following properties in $file has no value."
+        			echo "     $(grep '^[^=]*=[ ]*$' $file | sed 's/=//g')"
+			fi
 		fi
 	done
+
+	echo 
+#	echo "Checking if BigBlueButton applications has started from the log files"
+	BBB_APPS="sip video bigbluebutton"
+
+	for bbb_app in $BBB_APPS ; do
+#		echo "  Checking $RED5_DIR/log/$bbb_app.log"
+		if [ -a $RED5_DIR/log/$bbb_app.log ]; then
+			if cat $RED5_DIR/log/$bbb_app.log | tail -n1 | grep -q "Starting up context"; then
+				echo "    $bbb_app did not start properly"
+#			else
+#				echo "    $bbb_app started properly"
+			fi
+		else
+			echo "    " $RED5_DIR/log/$bbb_app.log "not found"
+		fi
+	done
+	
+	echo
+	# check if sip.log has warnings where the user is not registered
+	if cat /usr/share/red5/log/sip.log | tail -n1 | grep -q "Call request for default but not registered"; then
+		echo "The User is not registered in SIP. Audio might not be working correctly."
+	fi
+	echo
+#	echo "Checking if voice app registered with Asterisk successfully"
+        if cat /usr/share/red5/log/sip.log | grep -q "Failed to register with Sip Server"; then
+                echo "  The voice application failed to register with the sip server. Try running bbb-conf --clean"
+#	else
+#                echo "  The voice application registered with the sip server."
+        fi
 
 	#
 	# Check that tomcat6 started properly and has created log files
@@ -753,24 +836,46 @@ $RED5_DIRECTORY/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 	#
 	# Check that bigbluebutton in red5 has started propertly 
 	# 
-	BIGBLUEBUTTON_RED5_LOG=$(stat -c%s $RED5_DIRECTORY/log/bigbluebutton.log)
-	if [ $BIGBLUEBUTTON_RED5_LOG -lt 100 ]; then
-        	echo "       bigbluebutton failed to start: $RED5_DIRECTORY/log/bigbluebutton.log (red5)"
+	BBB_RED5_LOG=$(stat -c%s $RED5_DIR/log/bigbluebutton.log)
+	if [ $BBB_RED5_LOG -lt 100 ]; then
+        	echo "       bigbluebutton failed to start: $RED5_DIR/log/bigbluebutton.log (red5)"
 	fi
 
 	HOST_IP=$(ifconfig | grep -v '127.0.0.1' | grep -m 1 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
  	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
 
 	if [ "$HOST_IP" != "$NGINX_IP" ]; then
-		NGINX_DOMAIN_IP=$($getIPOfDomain $NGINX_IP)
-
-		if [ "$HOST_IP" != "$NGINX_DOMAIN_IP" ]; then
-			echo "Host IP does not match BigBlueButton: ${HOST_IP} != ${NGINX_IP}"
-		fi
+		echo "Host IP does not match BigBlueButton: ${HOST_IP} != ${NGINX_IP}"
 	fi
 
-x=$(host demo.bigbluebutton.org | cut -d\  -f 4)
+	 VARFolder=$(cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep swfToolsDir | cut -d= -f2)
+        if [ ! -x $VARFolder/pdf2swf ] && [ ! -x $VARFolder/jpeg2swf ] && [ ! -x $VARFolder/png2swf ]; then
+                echo "pdf2swf, jpeg2swf and png2swf are not installed in $VARFolder"
+        fi
 
+        VARFolder=$(cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep imageMagickDir | cut -d= -f2)
+        if [ ! -x $VARFolder/convert ]; then
+                echo "imageMagick's convert is not installed in $VARFolder"
+        fi
+
+        VARFolder=$(cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep ghostScriptExec | cut -d= -f2)
+        if [ ! -x $VARFolder ]; then
+                echo "Ghostscript is not installd in $VARFolder"
+        fi
+
+        if [ -f /usr/share/red5/log/deskshare.log ]; then
+		if [ `grep -i '<!--[ ]*module name="DeskShareModule"' /var/www/bigbluebutton/client/conf/config.xml` ]; then
+	                echo "The DeskShare Module is not uncommented.";
+		fi
+	else
+		#check for DeskShare.log
+		if [ -a $RED5_DIR/log/deskshare.log ]; then
+			if cat $RED5_DIR/log/deskshare.log | tail -n1 | grep -q "Starting up context"; then
+				echo "BigBlueButton did not start up corerctly"
+			fi
+		fi
+        fi
+	
 	echo
 	exit 0
 }
@@ -782,46 +887,52 @@ x=$(host demo.bigbluebutton.org | cut -d\  -f 4)
 if [ $CHECK ]; then
 
         echo "Current Configuration:"
+	echo "Kernel version: " `uname -r`
+	if [ `uname -m` == "x86_64" ]; then
+		echo "The architecture is 64bit."
+	elif [ `uname -m` == "x86" ]; then
+		echo "The architecture is 32bit."
+	fi
 
-        IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/porttest /{s/.*host="//;s/".*//;p}')
         echo
-        echo "/var/www/bigbluebutton/client/conf/config.xml (bbb-client)"
-        echo "                 IP for tunnel check: $IP"
+        echo "/var/www/bigbluebutton/client/conf/config.xml:"
+        IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/porttest /{s/.*host="//;s/".*//;p}')
+        echo "  Port test (tunnel): $IP"
 
         IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/uri.*video/{s/.*rtmp:\/\///;s/\/.*//;p}')
-        echo "                  IP for rtmp (red5): $IP"
+        echo "  Red5: $IP"
 
-        HOST=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/recordingHost/{s/.*recordingHost="http:\/\///;s/"//;p}')
-        echo "          host for bbb-web interface: $HOST"
+#        HOST=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/recordingHost/{s/.*recordingHost="http:\/\///;s/"//;p}')
+#        echo "          host for bbb-web interface: $HOST"
 
-        IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
         echo
-        echo "/etc/nginx/sites-available/bigbluebutton (configuration file nginx)"
-        echo "                         server_name: $IP"
+        echo "/etc/nginx/sites-available/bigbluebutton"
+        IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
+        echo "  server name: $IP"
 
         PORT=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/listen/{s/.*listen[ ]*//;s/;//;p}')
-        echo "                                port: $PORT"
+        echo "  port: $PORT"
 
-	BBB_CLINET_DOC_ROOT=$(cat /etc/nginx/sites-available/bigbluebutton | grep \/client -A 1 | grep root  | sed -n '{s/[ ]*root[ ]*//;s/;//;p}') 
-        echo "                client document root: $BBB_CLINET_DOC_ROOT"
+	BBB_CLIENT_DOC_ROOT=$(cat /etc/nginx/sites-available/bigbluebutton | grep \/client -A 1 | head -n 2 | grep root | sed -n '{s/[ ]*root[ ]*//;s/;//;p}')
+        echo "  bbb-client dir: $BBB_CLIENT_DOC_ROOT"
 
         HOST=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
         echo
         echo "/var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties (bbb-web)"
-        echo "                                host: $HOST"
+        echo "  bbb-web host: $HOST"
 
 	if [ -f /var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp ]; then
         	HOST=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp  | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}' | tr -d '\015')
         	echo
         	echo "/var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp (API demos)"
-        	echo "                                host: $HOST"
+        	echo "  bbb-web-api host: $HOST"
 	fi
 
         if  ps aux | grep '[/]usr/sbin/asterisk' > /dev/null; then
-        	CONFERENCING_MODULE=$(cat $RED5_DIRECTORY/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | sed -n '/asterisk.application/{s/.*=[ ]*//g;p}')
+        	CONFERENCING_MODULE=$(cat $RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | sed -n '/asterisk.application/{s/.*=[ ]*//g;p}')
         	echo
         	echo "/etc/asterisk/bbb_extensions.conf (asterisk)"
-        	echo "                   conference module: $CONFERENCING_MODULE"
+        	echo "  voice conf application: $CONFERENCING_MODULE"
 	fi
 
 	check_state
@@ -845,7 +956,7 @@ if [ $ZIP ]; then
 
 	touch /tmp/empty
 	tar cf /tmp/$LOG_FILE.tar /tmp/empty			> /dev/null 2>&1
-	tar rf /tmp/$LOG_FILE.tar $RED5_DIRECTORY/log		> /dev/null 2>&1
+	tar rf /tmp/$LOG_FILE.tar $RED5_DIR/log			> /dev/null 2>&1
 	tar rf /tmp/$LOG_FILE.tar $TOMCAT6_LOGS			> /dev/null 2>&1
 	tar rf /tmp/$LOG_FILE.tar /var/log/bigbluebutton/*	> /dev/null 2>&1
 	tar rf /tmp/$LOG_FILE.tar /var/log/nginx/error.log	> /dev/null 2>&1
@@ -869,18 +980,18 @@ if [ $DEBUG ]; then
 	#
 
 	rm -rf /tmp/t
-	grep ERROR $RED5_DIRECTORY/log/* > /tmp/t 
+	grep ERROR $RED5_DIR/log/* > /tmp/t 
 	if [ -s /tmp/t ]; then
-		echo "   -- ERRORS found in $RED5_DIRECTORY/log/* -- "
+		echo "   -- ERRORS found in $RED5_DIR/log/* -- "
 		cat /tmp/t
 		echo
 	fi
 
 
 	rm -rf /tmp/t
-	grep Exception $RED5_DIRECTORY/log/* > /tmp/t 
+	grep Exception $RED5_DIR/log/* > /tmp/t 
 	if [ -s /tmp/t ]; then
-		echo "   -- Exceptions found in $RED5_DIRECTORY/log/* -- "
+		echo "   -- Exceptions found in $RED5_DIR/log/* -- "
 		cat /tmp/t
 		echo
 	fi
@@ -894,7 +1005,7 @@ if [ $DEBUG ]; then
 	fi
 
 	rm -rf /tmp/t
-	sudo grep Exception $TOMCAT6_LOGS/* > /tmp/t 
+	sudo grep Exception $TOMCAT6_LOGS/* | grep -v CacheExceptionHandlerFactory > /tmp/t 
 	if [ -s /tmp/t ]; then
 		echo "   -- Exceptions found in $TOMCAT6_LOGS/ -- "
 		cat /tmp/t
@@ -1030,8 +1141,8 @@ fi
 if [ $CONFERENCE ]; then
 	need_root
 
-	if [ ! -f $RED5_DIRECTORY/webapps/bigbluebutton/WEB-INF/bbb-voice-app.xml ]; then
-		echo "Error: Unable to find $RED5_DIRECTORY/webapps/bigbluebutton/WEB-INF/bbb-voice-app.xml"
+	if [ ! -f $RED5_DIR/webapps/bigbluebutton/WEB-INF/bbb-voice-app.xml ]; then
+		echo "Error: Unable to find $RED5_DIR/webapps/bigbluebutton/WEB-INF/bbb-voice-app.xml"
 		exit 1
 	fi
 
@@ -1053,10 +1164,10 @@ if [ $CONFERENCE ]; then
 
         if [ $CONFERENCE = "meetme" ]; then
 		#
-		# update $RED5_DIRECTORY/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
+		# update $RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
 		#
 	        sudo sed -i "s/asterisk.application[ ]*=.*/asterisk.application=meetme/g" \
-			$RED5_DIRECTORY/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
+			$RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
 
 		#
 		# update /etc/asterisk/bbb_extensions.conf
@@ -1077,10 +1188,10 @@ if [ $CONFERENCE ]; then
  
         if [ $CONFERENCE = "app_konference" ]; then
 		#
-		# update $RED5_DIRECTORY/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
+		# update $RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
 		#
 	        sudo sed -i "s/asterisk.application[ ]*=.*/asterisk.application=konference/g" \
-			$RED5_DIRECTORY/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
+			$RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
 
 		#
 		# update /etc/asterisk/bbb_extensions.conf
@@ -1136,8 +1247,8 @@ if [ $CLEAN ]; then
 	rm -f /var/log/asterisk/messages* 
 	rm -f /var/log/asterisk/queue* 
 	
-	if [ $RED5_DIRECTORY ]; then
-		rm -rf $RED5_DIRECTORY/log/*
+	if [ $RED5_DIR ]; then
+		rm -rf $RED5_DIR/log/*
 	fi
 
 	if [ $TOMCAT6_LOGS ]; then

@@ -1,3 +1,22 @@
+/*
+ * BigBlueButton - http://www.bigbluebutton.org
+ * 
+ * Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
+ * 
+ * BigBlueButton is free software; you can redistribute it and/or modify it under the 
+ * terms of the GNU Lesser General Public License as published by the Free Software 
+ * Foundation; either version 3 of the License, or (at your option) any later 
+ * version. 
+ * 
+ * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+ * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License along 
+ * with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
+ *
+ * $Id: $
+ */
 package org.bigbluebutton.deskshare.client;
 
 import java.awt.Image;
@@ -16,18 +35,16 @@ import org.bigbluebutton.deskshare.client.net.ConnectionException;
 class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, SystemTrayListener, 
 			MouseLocationListener, NetworkConnectionListener {
 	private static final String LICENSE_HEADER = "This program is free software: you can redistribute it and/or modify\n" +
-	"it under the terms of the GNU AFFERO General Public License as published by\n" +
+	"it under the terms of the GNU Lesser General Public License as published by\n" +
 	"the Free Software Foundation, either version 3 of the License, or\n" +
 	"(at your option) any later version.\n\n" +
 	"This program is distributed in the hope that it will be useful,\n" +
 	"but WITHOUT ANY WARRANTY; without even the implied warranty of\n" +
 	"MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n" +
 	"GNU General Public License for more details.\n\n" +
-	"You should have received a copy of the GNU AFFERO General Public License\n" +
+	"You should have received a copy of the GNU Lesser General Public License\n" +
 	"along with this program.  If not, see <http://www.gnu.org/licenses/>.\n\n" +
-	"To download the source of this program, see. \n" +
-	"http://code.google.com/p/bigbluebutton/wiki/InstallingDesktopSharing\n\n" +
-	"Copyright 2010 Blindside Networks. All Rights Reserved.\n\n";
+	"Copyright 2010 BigBlueButton. All Rights Reserved.\n\n";
 	
 	private ScreenCaptureTaker captureTaker;
 	private ScreenCapture capture;
