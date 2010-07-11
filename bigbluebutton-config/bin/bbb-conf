@@ -615,7 +615,7 @@ red5.home = $RED5_DIR
 
  		if [ ! -L /etc/nginx/sites-enabled/bigbluebutton ]; then
                 	echo "  No symbolic link in /etc/nginx/sites-enabled/bigbluebutton to /etc/nginx/sites-available/bigbluebutton "
-			ln -s /etc/nginx/sites-available/bigbluebutton /etc/nginx/sites-enabled/bigbluebutton
+			sudo ln -s /etc/nginx/sites-available/bigbluebutton /etc/nginx/sites-enabled/bigbluebutton
         	fi
 
                 #
