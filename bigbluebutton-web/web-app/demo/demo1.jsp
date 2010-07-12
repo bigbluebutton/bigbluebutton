@@ -109,7 +109,7 @@ Error: getJoinURL() failed
 
 <% 
 	}
-} 
+}
 %>
 
 
