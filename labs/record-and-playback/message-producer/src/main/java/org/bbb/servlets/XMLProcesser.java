@@ -22,24 +22,25 @@ package org.bbb.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.xml.XMLSerializer;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import org.bbb.Event;
 import org.bbb.IEvent;
 import org.bbb.sender.IMessageGeneratorSender;
 import org.bbb.sender.MessageGeneratorSender;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  *
@@ -64,34 +65,73 @@ public class XMLProcesser extends HttpServlet {
             String xml_param=request.getParameter("url");
             String output="";
 
-            URL url=new URL(xml_param);
-            XMLSerializer xmlser=new XMLSerializer();
-            JSONObject json=(JSONObject) xmlser.readFromStream(url.openStream());
-            JSONObject jsonpar=json.getJSONObject("par");
-            JSONObject jsonseq=jsonpar.getJSONObject("seq");
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            Document dom = db.parse(xml_param);
 
-            ArrayList<String> listmessages= new ArrayList<String>();
-            listmessages.addAll(parseXMLtoJSON(jsonseq));
+            Element docEle = dom.getDocumentElement();
 
-            for(int i=0;i<listmessages.size();i++){
-                String message=(String) listmessages.get(i);
-                IEvent event = null;
-                event=new Event();
-                ((Event)event).setConferenceID(conferenceid);
-                ((Event)event).setMessage(message);
-                ((Event)event).setUUID(java.util.UUID.randomUUID().toString());
-                
-                sendMessagesToQueue(event);
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(XMLProcesser.class.getName()).log(Level.SEVERE, null, ex);
+            NodeList sequence_list=docEle.getElementsByTagName("seq").item(0).getChildNodes();
+            int total=0;
+            for(int i=0;i<sequence_list.getLength();i++){
+                Node node_event=sequence_list.item(i);
+                if(node_event.getNodeType()==Node.ELEMENT_NODE){
+                    String json_message="{";
+
+                    String activity=node_event.getNodeName();
+                    json_message=json_message+"\"event\":\""+activity+"\"";
+
+                    if(node_event.hasAttributes()){
+                        NamedNodeMap event_attribs=node_event.getAttributes();
+                        for(int j=0;j<event_attribs.getLength();j++){
+                            Node attrib=event_attribs.item(j);
+                            String attrib_name=attrib.getNodeName();
+                            String attrib_value=attrib.getNodeValue();
+                            json_message=json_message+",\""+attrib_name+"\":\""+attrib_value+"\"";
+                        }
+                    }
+                    if(node_event.hasChildNodes()){
+                        if(node_event.getFirstChild().getNodeType()==Node.TEXT_NODE){
+                            String text=node_event.getFirstChild().getNodeValue().trim();
+                            if(!text.equalsIgnoreCase("")){
+                                json_message=json_message+",\"text\":\""+text+"\"";
+                            }
+                        }
+                        NodeList subnodes=node_event.getChildNodes();
+                        if(subnodes.getLength()>1)
+                        {
+                            json_message=json_message+",\""+subnodes.item(1).getNodeName()+"\":[";
+                            for(int j=0;j<subnodes.getLength();j++){
+                                Node subnode=subnodes.item(j);
+
+                                if(subnode.getNodeType()==Node.ELEMENT_NODE){
+                                    json_message=json_message+"\""+subnode.getFirstChild().getNodeValue()+"\"";
+                                    json_message+=",";
+                                }
+                            }
+                            json_message=json_message.substring(0, json_message.length()-1);
+                            json_message+="]";
+                        }
+                    }
+
+                    json_message+="}";
+
+                    IEvent event =new Event();
+                    ((Event)event).setConferenceID(conferenceid);
+                    ((Event)event).setTimeStamp(System.currentTimeMillis());
+                    ((Event)event).setMessage(json_message);
+
+                    sendMessagesToQueue(event);
+                    total++;
+                    Thread.sleep(150);
                 }
             }
-
-            output="finish processing "+listmessages.size()+" objects";
+            
+            output="finish processing "+total+" objects";
             out.println("<message>"+output+"</message>");
-        } finally { 
+        }catch(Exception ex){
+            Logger.getLogger(XMLProcesser.class.getName()).log(Level.SEVERE, null, ex);
+        }finally {
             out.close();
         }
     } 
@@ -100,26 +140,6 @@ public class XMLProcesser extends HttpServlet {
         WebApplicationContext con = WebApplicationContextUtils.getRequiredWebApplicationContext(this.getServletContext());
         IMessageGeneratorSender sender=(MessageGeneratorSender) con.getBean("sender");
         sender.sendEvents(event);
-    }
-
-    private List<String> parseXMLtoJSON(JSONObject jsonseq){
-        List<String> resp=new ArrayList<String>();
-        ArrayList keys=new ArrayList(jsonseq.keySet());
-        for(int idx=0;idx<keys.size();idx++){
-            String type=(String) keys.get(idx);
-            JSONArray jsonjoin=jsonseq.getJSONArray(type);
-            Object[] array= jsonjoin.toArray();
-            for(int i=0;i<array.length;i++)
-            {
-                JSONObject jsonobj=(JSONObject) array[i];
-                jsonobj.put("event", type);
-                jsonobj.put("version", "1");
-                jsonobj.toString();
-                resp.add(jsonobj.toString());
-            }
-        }
-
-        return resp;
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

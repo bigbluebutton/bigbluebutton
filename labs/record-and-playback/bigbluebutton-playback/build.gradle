@@ -1,0 +1,18 @@
+ant.FLEX_HOME="/home/firstuser/dev/tools/flex3"
+
+ant.taskdef(resource: "flexTasks.tasks",classpath:"${ant.FLEX_HOME}/ant/lib/flexTasks.jar")
+
+task compile << {
+	ant.mxmlc(file: "src/PlaybackModule.mxml") {
+		'compiler.include-libraries'(dir:'libs', append:true){ 
+                include(name:"flexlib.swc")
+				include(name:"Mate_08_9.swc")
+        } 
+	}
+	ant.mxmlc(file: "src/Main.mxml") {
+		'compiler.include-libraries'(dir:'libs', append:true){ 
+                include(name:"flexlib.swc")
+				include(name:"Mate_08_9.swc")
+        }
+	}
+}

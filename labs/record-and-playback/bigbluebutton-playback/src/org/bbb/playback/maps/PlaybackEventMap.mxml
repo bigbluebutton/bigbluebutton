@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
+	<mx:Script>
+		<![CDATA[
+			import org.bbb.playback.events.ManifestEvent;
+			import org.bbb.playback.events.PlaybackEvent;
+			import org.bbb.playback.models.ManifestManager;
+			import org.bbb.playback.models.ManifestServiceParser;
+			import org.bbb.playback.views.components.PlaybackBar;
+			import org.bbb.playback.views.components.PlaybackChatWindow;
+			import org.bbb.playback.views.components.PlaybackHistoryWindow;
+		]]>
+	</mx:Script>
+	<Debugger level="{Debugger.ALL}" />
+	<EventHandlers type="{ManifestEvent.LOAD_MANIFEST_EVENT}" debug="true">
+		<HTTPServiceInvoker url="http://localhost:8080/playback/event/xml" resultFormat="e4x">
+			<Request confid="{event.conferenceid}" />
+			<resultHandlers>
+				<MethodInvoker generator="{ManifestServiceParser}" method="parseManifest" 
+							   arguments="{resultObject}" cache="none" />
+				<MethodInvoker generator="{ManifestManager}" method="loadTimeline" 
+							   arguments="{lastReturn}" />
+			</resultHandlers>
+		</HTTPServiceInvoker>
+	</EventHandlers>
+	<Injectors target="{PlaybackChatWindow}" debug="true">
+		<ListenerInjector  eventType="{PlaybackEvent.CHAT_EVENT}" method="updateChatMessages" />
+	</Injectors>
+	<Injectors target="{PlaybackHistoryWindow}">
+		<ListenerInjector eventType="{PlaybackEvent.HISTORY_EVENT}" method="updatePlaybackHistory" />
+	</Injectors>
+	<Injectors target="{PlaybackBar}" debug="true">
+		<ListenerInjector eventType="{ManifestEvent.LOADED_TIMELINE_EVENT}" method="updateTimeline" />
+	</Injectors>
+</EventMap>

@@ -1,0 +1,14 @@
+<sitemesh>
+    <page-parsers>
+        <parser content-type="text/html"
+            class="com.opensymphony.module.sitemesh.parser.HTMLPageParser" />
+        <parser content-type="text/html;charset=ISO-8859-1"
+            class="com.opensymphony.module.sitemesh.parser.HTMLPageParser" />
+        <parser content-type="text/html;charset=UTF-8"
+            class="com.opensymphony.module.sitemesh.parser.HTMLPageParser" />            
+    </page-parsers>
+
+    <decorator-mappers>
+        <mapper class="org.codehaus.groovy.grails.web.sitemesh.GrailsLayoutDecoratorMapper" />
+    </decorator-mappers>
+</sitemesh>

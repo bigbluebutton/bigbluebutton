@@ -13,7 +13,7 @@ import java.io.Serializable;
 public class Event implements IEvent,Serializable {
 
     private String conferenceID;
-    private String uuid;
+    private long tsevent;
     private String message;
 
     public Event() {
@@ -39,12 +39,13 @@ public class Event implements IEvent,Serializable {
         this.message = message;
     }
 
-    public String getUUID() {
-        return this.uuid;
+    public long getTimeStamp() {
+        return this.tsevent;
     }
 
-    public void setUUID(String uuid) {
-        this.uuid=uuid;
+    public void setTimeStamp(long tsevent) {
+        this.tsevent=tsevent;
     }
 
 }
+
