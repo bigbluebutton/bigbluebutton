@@ -596,7 +596,7 @@ if [ $SETUPDEV ]; then
                 # We're going to make it easier to deploy by giving write access to others to
                 # $RED5_DIR/webapps
                 #
-                sudo chmod o+w $RED5_DIR/webapps
+                sudo chmod -R o+w $RED5_DIR/webapps
 
                 #
                 # Let's remove the existing bbb-apps
