@@ -864,7 +864,7 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
         fi
 
         if [ -f /usr/share/red5/log/deskshare.log ]; then
-		if [ `grep -i '<!--[ ]*module name="DeskShareModule"' /var/www/bigbluebutton/client/conf/config.xml` ]; then
+		if grep -q -i '<!--[ ]*module name="DeskShareModule"' /var/www/bigbluebutton/client/conf/config.xml; then
 	                echo "The DeskShare Module is not uncommented.";
 		fi
 	else
