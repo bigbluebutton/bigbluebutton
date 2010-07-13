@@ -714,7 +714,7 @@ check_state() {
 	if [ "$NOT_RUNNING_APPS" != "" ]; then
 		echo "  Not Running: ${NOT_RUNNING_APPS}"
 	fi
-	echo
+#	echo
 	if [ ! -L /etc/nginx/sites-enabled/bigbluebutton ]; then
         	echo "Nginx: bigbluebutton disabled"
         	echo "         - no symbolic link in /etc/nginx/sites-enabled/bigbluebutton to /etc/nginx/sites-available/bigbluebutton "
@@ -729,7 +729,7 @@ check_state() {
 #	else
 #		echo "Nginx: serving client from /var/www/bigbluebutton"
 	fi
-	echo
+#	echo
 #	echo "Checking what BigBlueButton applications are available in $RED5_DIR/webapps"
 	AVAIL_RED5_APPS=""
 	UNAVAIL_RED5_APPS=""
@@ -766,7 +766,7 @@ check_state() {
 	#
 	SALT_PROPERTIES=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
 	SALT_DEMO=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp | tr -d '\r' | sed -n '/salt =/{s/.* = "//;s/".*//g;p}')
-	echo
+#	echo
 #	echo "Checking security salt"
 	if [ "$SALT_PROPERTIES" != "$SALT_DEMO" ]; then
         	echo "Salt mismatch: "
@@ -775,7 +775,7 @@ check_state() {
 #	else
 #        	echo " salt match: salt in bigbluebutton.properties and bbb_api_conf.jsp matches"
 	fi
-	echo
+#	echo
 	#
 	# Look for properties with no values set
 	#
@@ -796,7 +796,7 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 		fi
 	done
 
-	echo 
+#	echo 
 #	echo "Checking if BigBlueButton applications has started from the log files"
 	BBB_APPS="sip video bigbluebutton"
 
@@ -813,12 +813,12 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 		fi
 	done
 	
-	echo
+#	echo
 	# check if sip.log has warnings where the user is not registered
 	if cat /usr/share/red5/log/sip.log | tail -n1 | grep -q "Call request for default but not registered"; then
 		echo "The voice app is not registered with SIP server. Audio might not be working correctly."
 	fi
-	echo
+#	echo
 #	echo "Checking if voice app registered with Asterisk successfully"
         if cat /usr/share/red5/log/sip.log | grep -q "Failed to register with Sip Server"; then
                 echo "  The voice application failed to register with the sip server. Try running bbb-conf --clean"
@@ -980,6 +980,23 @@ if [ $DEBUG ]; then
 	#
 	# Check log files
 	#
+
+	rm -rf /tmp/t
+	grep ERROR /var/log/bigbluebutton/* > /tmp/t
+	if [ -s /tmp/t ]; then
+		echo "  -- ERRORS found in /var/log/bigbluebutton/* -- "
+		cat /tmp/t
+		echo
+	fi
+
+	rm -rf /tmp/t
+	grep Exception /var/log/bigbluebutton/* > /tmp/t
+        if [ -s /tmp/t ]; then
+                echo "  -- ERRORS found in /var/log/bigbluebutton/* -- "
+                cat /tmp/t
+                echo
+        fi
+
 
 	rm -rf /tmp/t
 	grep ERROR $RED5_DIR/log/* > /tmp/t 
@@ -1248,6 +1265,7 @@ if [ $CLEAN ]; then
 	rm -f /var/log/asterisk/event* 
 	rm -f /var/log/asterisk/messages* 
 	rm -f /var/log/asterisk/queue* 
+	rm -f /var/log/bigbluebutton/bbb-web.log
 	
 	if [ $RED5_DIR ]; then
 		rm -rf $RED5_DIR/log/*
