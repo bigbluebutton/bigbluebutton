@@ -402,7 +402,7 @@ if [ $SAMBA ]; then
    force user = $USER
 " | sudo tee -a /etc/samba/smb.conf > /dev/null 2>&1
 
-                sudo /etc/init.d/samba restart
+                sudo /etc/init.d/smbd restart
 
         echo "
 You can now access your development folder through:
@@ -885,7 +885,7 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 # Check current setup
 #
 if [ $CHECK ]; then
-
+	check_root
         echo "Current Configuration:"
 	echo "Kernel version: " `uname -r`
 	if [ `uname -m` == "x86_64" ]; then
