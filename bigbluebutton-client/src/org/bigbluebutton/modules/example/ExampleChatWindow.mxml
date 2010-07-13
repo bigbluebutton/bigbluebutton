@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Notes.mxml is the main view of the SharedNotes application
+-->
+<MDIWindow xmlns="flexlib.mdi.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="400" height="300" xmlns:mate="http://mate.asfusion.com/" 
+	implements="org.bigbluebutton.common.IBbbModuleWindow" creationComplete="onCreationComplete()"
+	label="Example Chat Window" layout="vertical">
+	
+	<mx:Script>
+		<![CDATA[
+			import flexlib.mdi.events.MDIWindowEvent;
+			
+			import org.bigbluebutton.main.view.components.MainCanvas;
+
+			private var proxy:ExampleChatProxy;
+			public var moduleAttributes:Object;
+			
+			private var userName:String;
+			
+			private function onCreationComplete():void{
+				proxy = new ExampleChatProxy(this, moduleAttributes);
+				userName = moduleAttributes.username;
+			}
+			
+			public function sendNewMessage():void{
+				proxy.sendMessage(userName + ":" + txtInput.text);
+			}
+			
+			public function displayNewMessage(message:String):void{
+				txtArea.text += "\n" + message;
+			}
+			
+			public function getPrefferedPosition():String{ 
+				return MainCanvas.POPUP;
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<!-- The text area where the notes get displayed -->
+	<mx:TextArea id="txtArea" width="100%" height="90%" />
+	<mx:HBox width="100%">
+		<mx:TextInput id="txtInput" width="90%" />
+		<mx:Button id="btnSendMessage" label="Send Message" click="sendNewMessage()" />
+	</mx:HBox>
+</MDIWindow>
