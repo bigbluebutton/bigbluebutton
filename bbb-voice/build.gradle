@@ -2,7 +2,7 @@ usePlugin 'java'
 usePlugin 'war'
 usePlugin 'eclipse'
 
-version = '0.64'
+version = '0.7'
 jar.enabled = true
 archivesBaseName = 'sip' 
 
