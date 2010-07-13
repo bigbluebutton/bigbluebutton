@@ -816,7 +816,7 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 	echo
 	# check if sip.log has warnings where the user is not registered
 	if cat /usr/share/red5/log/sip.log | tail -n1 | grep -q "Call request for default but not registered"; then
-		echo "The User is not registered in SIP. Audio might not be working correctly."
+		echo "The voice app is not registered with SIP server. Audio might not be working correctly."
 	fi
 	echo
 #	echo "Checking if voice app registered with Asterisk successfully"
@@ -845,7 +845,7 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
  	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
 
 	if [ "$HOST_IP" != "$NGINX_IP" ]; then
-		echo "IP does not match: ${HOST_IP} != ${NGINX_IP}"
+		echo "IP does not match:"
 		echo "                          IP from ifconfig: ${HOST_IP}"
 		echo "  /etc/nginx/sites-available/bigbluebutton: ${NGINX_IP}"
 	fi
@@ -857,7 +857,7 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 
         VARFolder=$(cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep imageMagickDir | cut -d= -f2)
         if [ ! -x $VARFolder/convert ]; then
-                echo "imageMagick's convert is not installed in $VARFolder"
+                echo "ImageMagick's convert is not installed in $VARFolder"
         fi
 
         VARFolder=$(cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep ghostScriptExec | cut -d= -f2)
@@ -873,7 +873,7 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 		#check for DeskShare.log
 		if [ -a $RED5_DIR/log/deskshare.log ]; then
 			if cat $RED5_DIR/log/deskshare.log | tail -n1 | grep -q "Starting up context"; then
-				echo "BigBlueButton did not start up corerctly"
+				echo "Deskshare did not start up correctly"
 			fi
 		fi
         fi
