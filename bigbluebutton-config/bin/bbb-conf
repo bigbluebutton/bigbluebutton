@@ -991,7 +991,7 @@ if [ $DEBUG ]; then
 	fi
 
 	rm -rf /tmp/t
-	grep Exception /var/log/bigbluebutton/* > /tmp/t
+	grep Exception /var/log/bigbluebutton/* | grep -v CacheExceptionHandlerFactory > /tmp/t
         if [ -s /tmp/t ]; then
                 echo "  -- ERRORS found in /var/log/bigbluebutton/* -- "
                 cat /tmp/t
