@@ -40,7 +40,7 @@
     <module application="src/BigBlueButton.mxml" destPath="DeskShareModule.swf" optimize="true" sourcePath="src/DeskShareModule.mxml"/>
     <module application="src/BigBlueButton.mxml" destPath="DynamicInfoModule.swf" optimize="true" sourcePath="src/DynamicInfoModule.mxml"/>
     <module application="src/BigBlueButton.mxml" destPath="PhoneModule.swf" optimize="true" sourcePath="src/PhoneModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="ExampleChatModule.swf" optimize="true" sourcePath="src/ExampleChatModule.mxml"/>
   </modules>
   <buildCSSFiles/>
 </actionScriptProperties>
-
