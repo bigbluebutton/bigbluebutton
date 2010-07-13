@@ -865,9 +865,9 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
                 echo "Ghostscript is not installd in $VARFolder"
         fi
 
-        if [ -f /usr/share/red5/log/deskshare.log ]; then
+        if dpkg -l | grep -q bbb-apps-deskshare; then
 		if grep -q -i '<!--[ ]*module name="DeskShareModule"' /var/www/bigbluebutton/client/conf/config.xml; then
-	                echo "The DeskShare Module is not uncommented.";
+	                echo "The DeskShare module is disabled in /var/www/bigbluebutton/client/conf/config.xml.";
 		fi
 	else
 		#check for DeskShare.log
@@ -887,7 +887,6 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 # Check current setup
 #
 if [ $CHECK ]; then
-	check_root
         echo "Current Configuration:"
 	echo "Kernel version: " `uname -r`
 	if [ `uname -m` == "x86_64" ]; then
@@ -895,14 +894,16 @@ if [ $CHECK ]; then
 	elif [ `uname -m` == "x86" ]; then
 		echo "The architecture is 32bit."
 	fi
+	MEM=`free -m | grep Mem | awk '{ print $2}'`
+	echo "Memory: $MEM MB"
 
         echo
         echo "/var/www/bigbluebutton/client/conf/config.xml:"
         IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/porttest /{s/.*host="//;s/".*//;p}')
-        echo "  Port test (tunnel): $IP"
+        echo "  		Port test (tunnel): $IP"
 
         IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/uri.*video/{s/.*rtmp:\/\///;s/\/.*//;p}')
-        echo "  Red5: $IP"
+        echo "                              Red5: $IP"
 
 #        HOST=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/recordingHost/{s/.*recordingHost="http:\/\///;s/"//;p}')
 #        echo "          host for bbb-web interface: $HOST"
@@ -910,31 +911,31 @@ if [ $CHECK ]; then
         echo
         echo "/etc/nginx/sites-available/bigbluebutton"
         IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
-        echo "  server name: $IP"
+        echo "                       server name: $IP"
 
         PORT=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/listen/{s/.*listen[ ]*//;s/;//;p}')
-        echo "  port: $PORT"
+        echo "                              port: $PORT"
 
 	BBB_CLIENT_DOC_ROOT=$(cat /etc/nginx/sites-available/bigbluebutton | grep \/client -A 1 | head -n 2 | grep root | sed -n '{s/[ ]*root[ ]*//;s/;//;p}')
-        echo "  bbb-client dir: $BBB_CLIENT_DOC_ROOT"
+        echo "                    bbb-client dir: $BBB_CLIENT_DOC_ROOT"
 
         HOST=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
         echo
         echo "/var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties (bbb-web)"
-        echo "  bbb-web host: $HOST"
+        echo "                      bbb-web host: $HOST"
 
 	if [ -f /var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp ]; then
         	HOST=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp  | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}' | tr -d '\015')
         	echo
         	echo "/var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp (API demos)"
-        	echo "  bbb-web-api host: $HOST"
+        	echo "                  bbb-web-api host: $HOST"
 	fi
 
         if  ps aux | grep '[/]usr/sbin/asterisk' > /dev/null; then
         	CONFERENCING_MODULE=$(cat $RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | sed -n '/asterisk.application/{s/.*=[ ]*//g;p}')
         	echo
         	echo "/etc/asterisk/bbb_extensions.conf (asterisk)"
-        	echo "  voice conf application: $CONFERENCING_MODULE"
+        	echo "            voice conf application: $CONFERENCING_MODULE"
 	fi
 
 	check_state
@@ -990,7 +991,7 @@ if [ $DEBUG ]; then
 	fi
 
 	rm -rf /tmp/t
-	grep Exception /var/log/bigbluebutton/* > /tmp/t
+	grep Exception /var/log/bigbluebutton/* | grep -v CacheExceptionHandlerFactory > /tmp/t
         if [ -s /tmp/t ]; then
                 echo "  -- ERRORS found in /var/log/bigbluebutton/* -- "
                 cat /tmp/t
