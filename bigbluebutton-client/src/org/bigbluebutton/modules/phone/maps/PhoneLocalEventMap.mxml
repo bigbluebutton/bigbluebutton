@@ -81,11 +81,13 @@
     </EventHandlers>
     
 	<EventHandlers type="{CallConnectedEvent.CALL_CONNECTED_EVENT}">     
+		<MethodInvoker generator="{PhoneLocalEventMapDelegate}" method="disableToolbarButton"/>
 		<MethodInvoker generator="{PhoneManager}" method="callConnected" arguments="{event}"/>
     </EventHandlers>
     
     <EventHandlers type="{CallDisconnectedEvent.CALL_DISCONNECTED_EVENT}">   
     	<MethodInvoker generator="{PhoneManager}" method="hangup"/> 
+		<MethodInvoker generator="{PhoneLocalEventMapDelegate}" method="enableToolbarButton"/>
     </EventHandlers>
         
     <EventHandlers type="{ConnectionStatusEvent.CONNECTION_STATUS_EVENT}">        
