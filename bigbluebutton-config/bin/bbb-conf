@@ -841,13 +841,22 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
         	echo "       bigbluebutton failed to start: $RED5_DIR/log/bigbluebutton.log (red5)"
 	fi
 
+
 	HOST_IP=$(ifconfig | grep -v '127.0.0.1' | grep -m 1 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
  	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
 
+	HOSTS=$(which host)
+
+	if [ $HOSTS ]; then
+		HOSTS=`$HOSTS $NGINX_IP | awk '{ print $4 }'`
+	fi
+
 	if [ "$HOST_IP" != "$NGINX_IP" ]; then
-		echo "IP does not match:"
-		echo "                          IP from ifconfig: ${HOST_IP}"
-		echo "  /etc/nginx/sites-available/bigbluebutton: ${NGINX_IP}"
+		if [ "$HOST_IP" != "$HOSTS" ]; then
+			echo "IP does not match:"
+			echo "                          IP from ifconfig: ${HOST_IP}"
+			echo "  /etc/nginx/sites-available/bigbluebutton: ${NGINX_IP}"
+		fi
 	fi
 
 	 VARFolder=$(cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep swfToolsDir | cut -d= -f2)
