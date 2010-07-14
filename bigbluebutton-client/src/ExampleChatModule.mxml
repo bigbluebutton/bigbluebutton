@@ -26,7 +26,7 @@
 			import com.asfusion.mate.events.Dispatcher;
 			import org.bigbluebutton.main.events.CloseWindowEvent;
 			import org.bigbluebutton.main.events.OpenWindowEvent;
-			import org.bigbluebutton.modules.notes.views.Notes;
+			import org.bigbluebutton.modules.example.ExampleChatWindow;
 			import org.bigbluebutton.common.messaging.Router;
 			
 			private var _router:Router;			
@@ -34,7 +34,7 @@
 			private var _moduleName:String = "Notes Module";			
 			private var _attributes:Object;
 			
-			public var notesWindow:Notes;
+			public var simpleChatWindow:ExampleChatWindow;
 			private var globalDispatcher:Dispatcher;
 			
 			private function onCreationComplete():void {
@@ -96,25 +96,21 @@
 			public function start(attributes:Object):void {	
 				LogUtil.debug("notes attr: " + attributes.username);
 				_attributes = attributes;
-				eventMap.startSOService(uri, connection);
 				
-				notesWindow = new Notes();
-				notesWindow.xPosition = 500;
-				notesWindow.yPosition = 500;
-				eventMap.notes = notesWindow;
+				simpleChatWindow = new ExampleChatWindow();
+				simpleChatWindow.moduleAttributes = _attributes;
 				
 				var event:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-				event.window = notesWindow;
+				event.window = simpleChatWindow;
 				globalDispatcher.dispatchEvent(event);
 			}
 		
 			public function stop():void {
 				var event:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
-				event.window = notesWindow;
+				event.window = simpleChatWindow;
 				globalDispatcher.dispatchEvent(event);
 			}
 		]]>
 	</mx:Script>
-	
-	<maps:NotesEventMap id="eventMap" />
+
 </mx:Module>

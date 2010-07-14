@@ -86,7 +86,7 @@ public class SdpUtils {
                         "], videoCodecsNumber = [" + videoCodecsNumber + "].");                
                 return null;
             }
-
+            
             //Bug Session descriptor cannot have spaces.. Username is not forced to be compliant with SIP Spec
             /* RFC 2327 - page 8 of April 1998 Version,
                 Origin
@@ -109,7 +109,7 @@ public class SdpUtils {
             String owner = userName.replaceAll(" ", "_");
 
             initialDescriptor = new SessionDescriptor(owner, viaAddress);
-            
+                        
             if (initialDescriptor == null) {                
                 log.error("Error instantiating the initialDescriptor!");                 
                 return null;

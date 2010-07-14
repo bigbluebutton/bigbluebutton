@@ -3,7 +3,7 @@ usePlugin 'groovy'
 usePlugin 'war'
 usePlugin 'eclipse'
 
-version = '0.70'
+version = '0.7'
 jar.enabled = true
 
 def appName = 'bigbluebutton'
@@ -112,8 +112,7 @@ dependencies {
 
     // Libraries needed for scala api
     compile 'org.scala-lang:scala-library:2.7.7'   
-    compile 'org/bigbluebutton/common:bbb-common-message:0.70@jar' 
-
+    compile 'org/bigbluebutton/common:bbb-common-message:0.7@jar' 
 }
 
 test {

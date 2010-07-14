@@ -31,21 +31,23 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
 			import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
+			import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
 			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceEvent;
+			import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceEvent;
 			import org.bigbluebutton.modules.phone.views.assets.Images;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
 			private var localDispatcher:IEventDispatcher;
+			
+			private var connected:Boolean = false;
 			 
 			[Bindable] public var phoneIcon:Class = images.headset_icon;
 			
 			private function startPhone():void {
-				//this.enabled = false;
+				this.enabled = false;
 				if (this.selected) {
 					LogUtil.debug("Joining voice conference");
 					localDispatcher.dispatchEvent(new JoinVoiceConferenceEvent());					
@@ -53,7 +55,14 @@
 					LogUtil.debug("Leaving voice conference");
 					localDispatcher.dispatchEvent(new LeaveVoiceConferenceEvent());
 				}
-					
+				
+				var t:Timer = new Timer(5000, 1);
+				t.addEventListener(TimerEvent.TIMER, checkConnection);
+				t.start();
+			}
+			
+			private function checkConnection(e:TimerEvent):void{
+				this.enabled = !this.connected;
 			}
 			
 			public function setLocalDispatcher(dispatcher:IEventDispatcher):void {
@@ -61,12 +70,14 @@
 			} 
 			
 			private function handleCallConnectedEvent(event:CallConnectedEvent):void {
-				//this.enabled = false;
+				this.enabled = false;
+				this.connected = true;
 			}
 			
 			private function handleCallDisconnectedEvent(event:CallConnectedEvent):void {
-				//this.enabled = true;
+				this.enabled = true;
 				this.selected = false;
+				this.connected = false;
 			}
 			
 			private function handleBBBJoinConferenceEvent(event:BBBEvent):void {
