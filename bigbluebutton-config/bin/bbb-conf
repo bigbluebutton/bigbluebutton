@@ -556,6 +556,16 @@ if [ $SETUPDEV ]; then
                 echo "# Copying /var/www/bigbluebutton/client/conf/config.xml to ${BBBCLIENTHOME}/src/conf/config.xml"
                 cp /var/www/bigbluebutton/client/conf/config.xml $BBBCLIENTHOME/src/conf/config.xml
 
+                echo "# Copying ${BBBCLIENTHOME}/resources/dev/join-mock.xml to ${BBBCLIENTHOME}/src/conf/join-mock.xml"
+                cp $BBBCLIENTHOME/resources/dev/join-mock.xml $BBBCLIENTHOME/src/conf/join-mock.xml
+
+		if [ ! -d /var/bigbluebutton/conference-mock-default/conference-mock-default/room-mock-default ]; then
+			echo "# Creating /var/bigbluebutton/conference-mock-default/conference-mock-default/room-mock-default"
+                        sudo mkdir -p /var/bigbluebutton/conference-mock-default/conference-mock-default/room-mock-default
+			echo "# chown /var/bigbluebutton/conference-mock-default to tomcat6"
+			sudo chown -R tomcat6.tomcat6 /var/bigbluebutton/conference-mock-default
+                fi
+
                 cd $BBBCLIENTHOME
 
                 echo "
