@@ -57,12 +57,12 @@
 				}
 				
 				var t:Timer = new Timer(5000, 1);
-				t.addEventListener(TimerEvent.TIMER, checkConnection);
+				t.addEventListener(TimerEvent.TIMER, reEnable);
 				t.start();
 			}
 			
-			private function checkConnection(e:TimerEvent):void{
-				this.enabled = !this.connected;
+			private function reEnable(e:TimerEvent):void{
+				this.enabled = true;
 			}
 			
 			public function setLocalDispatcher(dispatcher:IEventDispatcher):void {
@@ -70,12 +70,12 @@
 			} 
 			
 			private function handleCallConnectedEvent(event:CallConnectedEvent):void {
-				this.enabled = false;
+				//this.enabled = false;
 				this.connected = true;
 			}
 			
 			private function handleCallDisconnectedEvent(event:CallConnectedEvent):void {
-				this.enabled = true;
+				//this.enabled = true;
 				this.selected = false;
 				this.connected = false;
 			}
