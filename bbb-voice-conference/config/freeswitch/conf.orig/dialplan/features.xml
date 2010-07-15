@@ -1,0 +1,59 @@
+<!-- http://wiki.freeswitch.org/wiki/Dialplan_XML -->
+<include>
+  <context name="features">
+
+    <!-- In call Transfer for phones without a transfer button -->
+    <extension name="dx">
+      <condition field="destination_number" expression="^dx$">
+	<action application="answer"/>
+	<action application="read" data="11 11 'tone_stream://%(10000,0,350,440)' digits 5000 #"/>
+	<action application="execute_extension" data="is_transfer XML features"/>
+      </condition>
+    </extension>
+
+    <extension name="is_transfer">
+      <condition field="destination_number" expression="^is_transfer$"/>
+      <condition field="${digits}" expression="^(\d+)$">
+	<action application="transfer" data="-bleg ${digits} XML default"/>
+	<anti-action application="eval" data="cancel transfer"/>
+      </condition>
+    </extension>
+
+    <!-- Used to transfer both legs into a conference -->
+    <extension name="cf">
+      <condition field="destination_number" expression="^cf$">
+	<action application="answer"/>
+	<action application="transfer" data="-both 30${dialed_extension:2} XML default"/>
+      </condition>
+    </extension>
+
+    <extension name="please_hold">
+      <condition field="destination_number" expression="^(10[01][0-9])$">
+	<action application="set" data="transfer_ringback=$${hold_music}"/>
+	<action application="answer"/>
+	<action application="sleep" data="1500"/>
+	<action application="playback" data="ivr/ivr-hold_connect_call.wav"/>
+	<action application="transfer" data="$1 XML default"/>
+      </condition>
+    </extension>
+
+    <extension name="is_zrtp_secure" continue="true">
+      <condition field="${zrtp_secure_media_confirmed}" expression="^true$">
+	<action application="sleep" data="1000"/>
+	<action application="playback" data="misc/call_secured.wav"/>
+	<anti-action application="eval" data="not_secure"/>
+      </condition>
+    </extension>
+
+    <extension name="is_secure" continue="true">
+      <!-- Only Truly consider it secure if its TLS and SRTP --> 
+      <condition field="${sip_via_protocol}" expression="tls"/>
+      <condition field="${sip_secure_media_confirmed}" expression="^true$">
+	<action application="sleep" data="1000"/>
+	<action application="playback" data="misc/call_secured.wav"/>
+	<anti-action application="eval" data="not_secure"/>
+      </condition>
+    </extension>
+
+  </context>
+</include>

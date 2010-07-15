@@ -1,0 +1,34 @@
+<include>
+ <user id="SEP001120AABBCC">
+   <params>
+    <!-- for devices requesting firmware via SCCP, like ATA186
+    <param name="skinny-firmware-version" value="ATA030101SCCP04"
+    -->
+    <param name="foo" value="bar"/>
+   </params>
+   <skinny>
+    <buttons>
+      <!--
+      position: 1..
+      type: one of line, speed-dial
+      label: button label
+      -->
+      <!--
+      value is the directory number (or user)
+      caller-name is shown to the calling party during call
+      -->
+      <button position="1" type="Line" label="Line 1" value="2001" caller-name="Calling as 2001"/>
+      <button position="3" type="Line" label="Shared Line 10" value="2010" caller-name="Calling as 2010"/>
+      <!--
+      value is the directory number to call
+      -->
+      <button position="5" type="SpeedDial" label="Test" value="2011"/>
+      <!--
+      value is the URL
+      -->
+      <button position="6" type="ServiceUrl" label="Some URL" value="http://phone-xml.berbee.com/menu.xml"/>
+    </buttons>
+   </skinny>
+  </user>
+</include>
+

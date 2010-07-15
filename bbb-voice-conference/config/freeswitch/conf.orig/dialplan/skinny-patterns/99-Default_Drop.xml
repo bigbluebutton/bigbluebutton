@@ -1,0 +1,9 @@
+<include>
+  <!-- drop long dialed number -->
+  <extension name="Default_Drop">
+    <condition field="destination_number" expression="^(.{14,})$">
+      <action application="skinny-drop"/>
+    </condition>
+  </extension>
+</include>
+

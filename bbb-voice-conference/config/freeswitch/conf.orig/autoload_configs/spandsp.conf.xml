@@ -1,0 +1,73 @@
+<configuration name="spandsp.conf" description="Tone detector descriptors">
+   <descriptors>
+
+     <!-- These tones are defined in Annex to ITU Operational Bulletin No. 781 - 1.II.2003 -->
+     <!-- Various Tones Used in National Networks (According to ITU-T Recommendation E.180)(03/1998) -->
+
+     <!-- North America -->
+     <descriptor name="1">
+       <tone name="CED_TONE">
+         <element freq1="2100" freq2="0" min="500" max="0"/>
+       </tone>
+       <tone name="SIT">
+         <element freq1="950" freq2="0" min="256" max="400"/>
+         <element freq1="1400" freq2="0" min="256" max="400"/>
+         <element freq1="1800" freq2="0" min="256" max="400"/>
+       </tone>
+       <tone name="REORDER_TONE">
+         <element freq1="480" freq2="620" min="224" max="272"/>
+         <element freq1="0" freq2="0" min="224" max="272"/>
+       </tone>
+       <tone name="BUSY_TONE">
+         <element freq1="480" freq2="620" min="464" max="516"/>
+         <element freq1="0" freq2="0" min="464" max="516"/>
+       </tone>
+     </descriptor>
+
+     <!-- United Kingdom -->
+     <descriptor name="44">
+       <tone name="CED_TONE">
+         <element freq1="2100" freq2="0" min="500" max="0"/>
+       </tone>
+       <tone name="SIT">
+         <element freq1="950" freq2="0" min="256" max="400"/>
+         <element freq1="1400" freq2="0" min="256" max="400"/>
+         <element freq1="1800" freq2="0" min="256" max="400"/>
+       </tone>
+       <tone name="REORDER_TONE">
+         <element freq1="400" freq2="0" min="368" max="416"/>
+         <element freq1="0" freq2="0" min="336" max="368"/>
+         <element freq1="400" freq2="0" min="256" max="288"/>
+         <element freq1="0" freq2="0" min="512" max="544"/>
+       </tone>
+       <tone name="BUSY_TONE">
+         <element freq1="400" freq2="0" min="352" max="384"/>
+         <element freq1="0" freq2="0" min="352" max="384"/>
+         <element freq1="400" freq2="0" min="352" max="384"/>
+         <element freq1="0" freq2="0" min="352" max="384"/>
+       </tone>
+     </descriptor>
+
+     <!-- Germany -->
+     <descriptor name="49">
+       <tone name="CED_TONE">
+         <element freq1="2100" freq2="0" min="500" max="0"/>
+       </tone>
+       <tone name="SIT">
+         <element freq1="900" freq2="0" min="256" max="400"/>
+         <element freq1="1400" freq2="0" min="256" max="400"/>
+         <element freq1="1800" freq2="0" min="256" max="400"/>
+       </tone>
+       <tone name="REORDER_TONE">
+         <element freq1="425" freq2="0" min="224" max="272"/>
+         <element freq1="0" freq2="0" min="224" max="272"/>
+       </tone>
+       <tone name="BUSY_TONE">
+         <element freq1="425" freq2="0" min="464" max="516"/>
+         <element freq1="0" freq2="0" min="464" max="516"/>
+       </tone>
+     </descriptor>
+   </descriptors>
+
+</configuration>
+

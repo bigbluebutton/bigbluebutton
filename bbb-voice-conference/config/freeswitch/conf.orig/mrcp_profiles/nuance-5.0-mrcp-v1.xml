@@ -1,0 +1,39 @@
+<include>
+  <!-- Nuance Speech Server 5.0 MRCPv1 -->
+  <profile name="nuance5-mrcp1" version="1">
+    <param name="server-ip" value="10.5.5.152"/>
+    <param name="server-port" value="4900"/>
+    <param name="resource-location" value="media"/>
+    <param name="speechsynth" value="speechsynthesizer"/>
+    <param name="speechrecog" value="speechrecognizer"/>
+    <!--param name="rtp-ext-ip" value="auto"/-->
+    <param name="rtp-ip" value="auto"/>
+    <param name="rtp-port-min" value="4000"/>
+    <param name="rtp-port-max" value="5000"/>
+    <!-- enable/disable rtcp support -->
+    <param name="rtcp" value="1"/>
+    <!-- rtcp bye policies (rtcp must be enabled first)
+             0 - disable rtcp bye
+             1 - send rtcp bye at the end of session
+             2 - send rtcp bye also at the end of each talkspurt (input)
+      -->
+    <param name="rtcp-bye" value="2"/>
+    <!-- rtcp transmission interval in msec (set 0 to disable) -->
+    <param name="rtcp-tx-interval" value="5000"/>
+    <!-- period (timeout) to check for new rtcp messages in msec (set 0 to disable) -->
+    <param name="rtcp-rx-resolution" value="1000"/>
+    <!--param name="playout-delay" value="50"/-->
+    <!--param name="max-playout-delay" value="200"/-->
+    <!--param name="ptime" value="20"/-->
+    <param name="codecs" value="PCMU PCMA L16/96/8000"/>
+
+    <!-- Add any default MRCP params for SPEAK requests here -->
+    <synthparams>
+    </synthparams>
+
+    <!-- Add any default MRCP params for RECOGNIZE requests here -->
+    <recogparams>
+      <!--param name="start-input-timers" value="false"/-->
+    </recogparams>
+  </profile>
+</include>

@@ -1,0 +1,22 @@
+<configuration name="unimrcp.conf" description="UniMRCP Client">
+  <settings>
+    <!-- UniMRCP profile to use for TTS -->
+    <param name="default-tts-profile" value="voxeo-prophecy8.0-mrcp1"/>
+    <!-- UniMRCP profile to use for ASR -->
+    <param name="default-asr-profile" value="voxeo-prophecy8.0-mrcp1"/>
+    <!-- UniMRCP logging level to appear in freeswitch.log.  Options are:
+         EMERGENCY|ALERT|CRITICAL|ERROR|WARNING|NOTICE|INFO|DEBUG -->
+    <param name="log-level" value="DEBUG"/>
+    <!-- Enable events for profile creation, open, and close -->
+    <param name="enable-profile-events" value="false"/>
+
+    <param name="max-connection-count" value="100"/>
+    <param name="offer-new-connection" value="1"/>
+  </settings>
+
+  <profiles>
+    <X-PRE-PROCESS cmd="include" data="../mrcp_profiles/*.xml"/>
+  </profiles>
+
+</configuration>
+

@@ -1,0 +1,13 @@
+<configuration name="java.conf" description="Java Plug-Ins">
+  <!-- Path to the Java 1.6 virtual machine to use -->
+  <javavm path="/usr/java/jdk1.6.0/jre/lib/i386/client/libjvm.so"/>
+  <!-- Options to pass to Java -->
+  <options>
+    <!-- Your class path (make sure freeswitch.jar is on it) -->
+    <option value="-Djava.class.path=$${base_dir}/scripts/freeswitch.jar"/>
+    <!-- Enable remote debugging -->
+    <option value="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=127.0.0.1:8000"/>
+  </options>
+  <startup class="net/cog/fs/system/Control" method="startup" arg="start up arg"/>
+  <shutdown class="net/cog/fs/system/Control" method="shutdown" arg="shutdown arg"/>
+</configuration>

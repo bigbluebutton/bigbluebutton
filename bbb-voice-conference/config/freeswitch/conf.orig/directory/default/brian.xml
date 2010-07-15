@@ -1,0 +1,92 @@
+<include>
+  <!--
+      ipauth if you have an cidr= in the user attributes ie cidr="1.2.3.4/32"  
+      see <node type="allow" domain="$${domain}"/> in default acl.conf.xml 
+  -->
+  <user id="brian" cidr="192.0.2.0/24">
+    <!-- Outbound Registrations Related to this user -->
+    <gateways>
+      <!--<gateway name="asterlink.com">-->
+      <!--/// account username *required* ///-->
+      <!--<param name="username" value="cluecon"/>-->
+      <!--/// auth realm: *optional* same as gateway name, if blank ///-->
+      <!--<param name="realm" value="asterlink.com"/>-->
+      <!--/// username to use in from: *optional* same as  username, if blank ///-->
+      <!--<param name="from-user" value="cluecon"/>-->
+      <!--/// domain to use in from: *optional* same as  realm, if blank ///-->
+      <!--<param name="from-domain" value="asterlink.com"/>-->
+      <!--/// account password *required* ///-->
+      <!--<param name="password" value="2007"/>--> 
+      <!--/// replace the INVITE from user with the channel's caller-id ///-->
+      <!--<param name="caller-id-in-from" value="false"/>-->
+      <!--/// extension for inbound calls: *optional* same as username, if blank ///-->
+      <!--<param name="extension" value="cluecon"/>-->
+      <!--/// proxy host: *optional* same as realm, if blank ///-->
+      <!--<param name="proxy" value="asterlink.com"/>-->
+      <!--/// send register to this proxy: *optional* same as proxy, if blank ///-->
+      <!--<param name="register-proxy" value="mysbc.com"/>-->
+      <!--/// expire in seconds: *optional* 3600, if blank ///-->
+      <!--<param name="expire-seconds" value="60"/>-->
+      <!--/// do not register ///-->
+      <!--<param name="register" value="false"/>-->
+      <!-- which transport to use for register -->
+      <!--<param name="register-transport" value="udp"/>-->
+      <!--How many seconds before a retry when a failure or timeout occurs -->
+      <!--<param name="retry-seconds" value="30"/>-->
+      <!--Use the callerid of an inbound call in the from field on outbound calls via this gateway -->
+      <!--<param name="caller-id-in-from" value="false"/>-->
+      <!--extra sip params to send in the contact-->
+      <!--<param name="contact-params" value="tport=tcp"/>-->
+      <!--send an options ping every x seconds, failure will unregister and/or mark it down-->
+      <!--<param name="ping" value="25"/>-->
+      <!--</gateway>-->
+    </gateways>
+    <params>
+      <!-- omit password for authless registration -->
+      <param name="password" value="$${default_password}"/>
+      <param name="vm-password" value="9999"/><!--if vm-password is omitted password param is used-->
+      <!--<param name="email-addr" value="me@mydomain.com"/>-->
+      <!--<param name="vm-delete-file" value="true"/>-->
+      <!--<param name="vm-attach-file" value="true"/>-->
+      <!--<param name="vm-mailto" value="me@mydomain.com"/>-->
+      <!--<param name="vm-email-all-messages" value="true"/>-->
+      <!-- optionally use this instead if you want to store the hash of user:domain:pass-->
+      <!--<param name="a1-hash" value="c6440e5de50b403206989679159de89a"/>-->
+      <!-- What this user is allowed to acces --> 
+      <!--<param name="http-allowed-api" value="jsapi,voicemail,status"/> -->
+    </params>
+    <variables>
+      <!--all variables here will be set on all inbound calls that originate from this user -->
+      <variable name="user_context" value="default"/>
+      <variable name="effective_caller_id_name" value="Brian West"/>
+      <variable name="effective_caller_id_number" value="1000"/>
+      <!-- Don't write a CDR if this is false valid values are: true, false, a_leg and b_leg -->
+      <variable name="process_cdr" value="true"/>
+      <!-- sip_secure_media will offer mandatory SRTP on invite AES_CM_128_HMAC_SHA1_32, AES_CM_128_HMAC_SHA1_80 or true-->
+      <variable name="sip_secure_media" value="true"/>
+      <!-- limit the max number of outgoing calls for this user -->
+      <!--<variable name="max_calls" value="2"/>-->
+
+      <!-- send presence information if FS is configured to do so -->
+      <!--<variable name="presence_id" value="1000@$${domain}"/>-->
+
+      <!-- set these to take advantage of a dialplan localized to this user -->
+      <!--<variable name="numbering_plan" value="US"/>-->
+      <!--<variable name="default_area_code" value="434"/>-->
+      <!--<variable name="default_gateway" value="asterlink.com"/>-->
+      <!--  
+	   NDLB-connectile-dysfunction - Rewrite contact ip and port
+	   NDLB-tls-connectile-dysfunction - Rewrite contact port only.
+      -->
+      <!--<variable name="sip-force-contact" value="NDLB-connectile-dysfunction"/>-->
+      <!--<variable name="sip-force-expires" value="10"/>-->
+      <!--<variable name="sip-register-gateway" value="cluecon.com"/>-->
+      <!-- Set the file format for a specific user -->
+      <!--<variable name="vm_message_ext" value="mp3"/> -->
+    </variables>
+
+    <vcard>
+      <!-- insert optional compliant vcard xml here-->
+    </vcard>
+  </user>
+</include>

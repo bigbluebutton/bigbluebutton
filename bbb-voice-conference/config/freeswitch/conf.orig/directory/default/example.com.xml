@@ -1,0 +1,26 @@
+<!--
+    Shell provider account should work with most providers.
+
+-->
+<include>
+  <user id="$${default_provider}">
+    <gateways>
+      <gateway name="$${default_provider}">
+	<param name="username" value="$${default_provider_username}"/>
+	<param name="password" value="$${default_provider_password}"/>
+	<param name="from-user" value="$${default_provider_username}"/>
+	<param name="from-domain" value="$${default_provider_from_domain}"/>
+	<param name="expire-seconds" value="600"/>
+	<param name="register" value="$${default_provider_register}"/>
+	<param name="retry-seconds" value="30"/>
+	<param name="extension" value="$${default_provider_contact}"/>
+	<!--<param name="contact-params" value="domain_name=$${domain}"/>-->
+	<param name="context" value="public"/>
+      </gateway>
+    </gateways>
+    <params>
+      <param name="password" value="$${default_provider_password}"/>
+    </params>
+  </user>
+</include>
+
