@@ -24,20 +24,21 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.modules.present.events.PresentModuleEvent;
-			import mx.controls.Alert;
-			import org.bigbluebutton.modules.present.maps.PresentEventMap;
 			import com.asfusion.mate.events.Dispatcher;
 			
-			private var globalDispatcher:Dispatcher;
+			import mx.controls.Alert;
+			
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.modules.present.events.PresentModuleEvent;
+			import org.bigbluebutton.modules.present.maps.PresentEventMap;
+			
+			private var globalDispatcher:Dispatcher = new Dispatcher();
 			
 			private var _moduleId:String = "PresentModule";
 			private var _moduleName:String = "Presentation";
 			private var _attributes:Object;
 			
 			private function onCreationComplete():void{
-				globalDispatcher = new Dispatcher();
 			}
 			
 			public function get moduleId():String{

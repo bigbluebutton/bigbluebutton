@@ -48,6 +48,8 @@ package org.bigbluebutton.main.managers
 		
 		private var _numModules:int = 0;		
 		public var  _modules:Dictionary = new Dictionary();
+		private var sorted:ArrayCollection; //The array of modules sorted by dependencies, with least dependent first
+		
 		private var _user:Object;
 		private var _version:String;
 		private var _localeVersion:String;
@@ -260,7 +262,7 @@ package org.bigbluebutton.main.managers
 						loadReadyEvent.moduleName = name;
 						globalDispatcher.dispatchEvent(loadReadyEvent);
 						
-						loadNextModule(name);					
+						if (allModulesLoaded()) handleAppStart();				
 					break;				
 				}
 			} else {
@@ -307,31 +309,32 @@ package org.bigbluebutton.main.managers
 		}
 		
 		public function handleAppModelInitialized():void {
-			for (var key:Object in _modules) {				
+			/*for (var key:Object in _modules) {				
 				var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
 				if (m.getAttribute("onAppInitEvent") != null) {
 					loadModule(m.getAttribute("name") as String);
 				}
+			}*/
+			
+			for (var i:int = 0; i<sorted.length; i++){
+				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
+				loadModule(m.getAttribute("name") as String);
 			}
 		}
 		
 		public function handleAppStart():void {
-			for (var key:Object in _modules) {				
+			/*for (var key:Object in _modules) {				
 				var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
 				if (m.getAttribute("onAppStartEvent") != null) {
 					startModule(m.getAttribute("name") as String);
 				}
+			}*/
+			
+			for (var i:int = 0; i<sorted.length; i++){
+				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
+				startModule(m.getAttribute("name") as String);
 			}
 		}
-		
-		/*public function handleUserLoggedIn():void {
-			for (var key:Object in _modules) {				
-				var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
-				if (m.getAttribute("onUserLoggedInEvent") != null) {
-					startModule(m.getAttribute("name") as String);
-				}
-			}
-		}*/
 		
 		public function handleUserJoined():void {
 			for (var key:Object in _modules) {				
@@ -358,8 +361,11 @@ package org.bigbluebutton.main.managers
 			}
 		}
 		
-		public function buildDependencyTree():void{
-			var sorted:ArrayCollection = new ArrayCollection();
+		/**
+		 * Creates a dependency tree for modules using a topological sort algorithm (Khan, 1962, http://portal.acm.org/beta/citation.cfm?doid=368996.369025)
+		 */
+		private function buildDependencyTree():void{
+			sorted = new ArrayCollection();
 			var independent:ArrayCollection = getModulesWithNoDependencies();
 			
 			while(independent.length > 0){
@@ -398,6 +404,14 @@ package org.bigbluebutton.main.managers
 				}
 			}
 			return returnArray;
+		}
+		
+		private function allModulesLoaded():Boolean{
+			for (var i:int = 0; i<sorted.length; i++){
+				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
+				if (!m.loaded) return false;
+			}
+			return true;
 		}
 	}
 }

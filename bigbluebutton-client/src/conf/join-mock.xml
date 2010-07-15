@@ -5,6 +5,7 @@
 	<conference>conference-mock-default</conference>
 	<room>room-mock-default</room>
 	<voicebridge>85115</voicebridge>
+	<webvoiceconf>85115</webvoiceconf>
 	<mode>LIVE</mode>
 	<record>true</record>
 </join>

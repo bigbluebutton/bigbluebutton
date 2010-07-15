@@ -29,22 +29,22 @@
 
 	<mx:Script>
 		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
 			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.modules.deskShare.events.ModuleEvent;
-			import org.bigbluebutton.modules.deskShare.maps.DeskshareEventMap;
 			import org.bigbluebutton.main.events.CloseWindowEvent;
 			import org.bigbluebutton.main.events.OpenWindowEvent;
-			import com.asfusion.mate.events.Dispatcher;
+			import org.bigbluebutton.modules.deskShare.events.ModuleEvent;
+			import org.bigbluebutton.modules.deskShare.maps.DeskshareEventMap;
 			
 			private var _moduleId:String = "DeskShareModule";
 			private var _moduleName:String = "Desk Share";
 			private var _attributes:Object;
 			
-			private var globalDispatcher:Dispatcher;
+			private var globalDispatcher:Dispatcher = new Dispatcher();;
 			
 			private function onCreationComplete():void{
 				LogUtil.debug("DeskShareModule initialized");
-				globalDispatcher = new Dispatcher();
 			}
 			
 			public function get moduleId():String{
