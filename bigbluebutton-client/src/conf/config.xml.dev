@@ -7,55 +7,46 @@
 
 		<module name="ChatModule" url="ChatModule.swf" 
 			uri="rtmp://192.168.0.120/bigbluebutton" 
-			loadNextModule="ListenersModule"	
-			onUserJoinedEvent="START"
-			onUserLogoutEvent="STOP"		 
+			dependsOn="ViewersModule"
 		/>
-		<!--host="http://192.168.0.172/bigbluebutton/conference-session/enter"-->
+		<!--host="http://192.168.0.120/bigbluebutton/conference-session/enter"-->
 		<!--host="conf/join-mock.xml"-->
 		<module name="ViewersModule" url="ViewersModule.swf" 
 			uri="rtmp://192.168.0.120/bigbluebutton" 
 			host="conf/join-mock.xml"
-			onAppInitEvent="LOAD" loadNextModule="ChatModule"
-			onAppStartEvent="START"
-			onUserLogoutEvent="STOP"
+			onAppInitEvent="LOAD" 
 		/>	
 		<module name="ListenersModule" url="ListenersModule.swf" 
 			uri="rtmp://192.168.0.120/bigbluebutton" 
 			recordingHost="http://192.168.0.120"
-			loadNextModule="DeskShareModule"
-			onUserJoinedEvent="START"
-			onUserLogoutEvent="STOP"
+			dependsOn="ViewersModule"
 		/>
 		
-		<module name="DeskShareModule" url="DeskShareModule.swf" uri="rtmp://192.168.0.120/deskShare" onUserJoinedEvent="START" onUserLogoutEvent="STOP" loadNextModule="PhoneModule" />
+		<module name="DeskShareModule" 
+			url="DeskShareModule.swf" 
+			uri="rtmp://192.168.0.120/deskShare" 
+			dependsOn="ViewersModule" 
+		/>
 		
 		<module name="PhoneModule" url="PhoneModule.swf" 
 			uri="rtmp://192.168.0.120/sip" 
-			onUserJoinedEvent="START" 
-			onUserLogoutEvent="STOP"
-			loadNextModule="VideoconfModule"
+			dependsOn="ViewersModule"
 		/>
 		
 		<module name="VideoconfModule" url="VideoconfModule.swf" 
 			uri="rtmp://192.168.0.120/video"
-			onUserJoinedEvent="START"
-			onUserLogoutEvent="STOP"	
-			loadNextModule="HighlighterModule"
+			dependsOn="ViewersModule"
 		/>
 		
 		<module name="HighlighterModule" url="HighlighterModule.swf" 
 			uri="rtmp://192.168.0.120/bigbluebutton" 
-			onUserJoinedEvent="START" 
-			onUserLogoutEvent="STOP"
-			loadNextModule="PresentModule"
+			dependsOn="ViewersModule, PresentModule"
 		/>
 		
 		<module name="PresentModule" url="PresentModule.swf" 
 			uri="rtmp://192.168.0.120/bigbluebutton" 
 			host="http://192.168.0.120" 
-			onUserJoinedEvent="START" 
-			onUserLogoutEvent="STOP"
+			dependsOn="ViewersModule"
 		/>
 
 		<!-- new module in development: 
@@ -63,8 +54,7 @@
 			uri="rtmp://192.168.0.120/bigbluebutton" 
 			host="http://192.168.0.120" 
 			infoURL="http://192.168.0.120/client/conf/example-info-data.xml?user={userID}&role={role}&meetingID={meetingID}"
-			onUserJoinedEvent="START" 
-			onUserLogoutEvent="STOP"
+			dependsOn="ViewersModule"
 		/>
 		-->
 		

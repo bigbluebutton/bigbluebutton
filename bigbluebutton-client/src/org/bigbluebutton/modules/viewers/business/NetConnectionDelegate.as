@@ -28,9 +28,9 @@ package org.bigbluebutton.modules.viewers.business
 	
 	import mx.controls.Alert;
 	
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.viewers.events.ConnectionFailedEvent;
 	import org.bigbluebutton.modules.viewers.events.ViewersConnectionEvent;
-	import org.bigbluebutton.common.LogUtil;
 		
 	public class NetConnectionDelegate
 	{

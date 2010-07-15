@@ -27,13 +27,15 @@ package org.bigbluebutton.modules.viewers.business
 	import flash.net.Responder;
 	import flash.net.SharedObject;
 	
+	import mx.controls.Alert;
+	
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.ParticipantJoinEvent;
 	import org.bigbluebutton.main.events.PresenterStatusEvent;
 	import org.bigbluebutton.main.model.User;
 	import org.bigbluebutton.modules.viewers.events.ConnectionFailedEvent;
 	import org.bigbluebutton.modules.viewers.events.RoleChangeEvent;
-	import org.bigbluebutton.common.LogUtil;
 
 	public class ViewersSOService
 	{

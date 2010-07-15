@@ -47,7 +47,7 @@ package org.bigbluebutton.main.managers
 		//private var _moduleLoadedListeners:ArrayCollection = new ArrayCollection();
 		
 		private var _numModules:int = 0;		
-		public var  _modules:Dictionary = new Dictionary();
+		private var  _modules:Dictionary = new Dictionary();
 		private var sorted:ArrayCollection; //The array of modules sorted by dependencies, with least dependent first
 		
 		private var _user:Object;
@@ -270,20 +270,6 @@ package org.bigbluebutton.main.managers
 			}
 		}
 		
-		private function loadNextModule(curModule:String):void {
-			var m:ModuleDescriptor = getModule(curModule);
-			if (m != null) {
-				var nextModule:String = m.getAttribute("loadNextModule") as String;
-				if (nextModule != null) {
-					LogUtil.debug("Loading " + nextModule + " next.");
-					loadModule(nextModule);
-				} else {
-					LogUtil.debug("All modules have been loaded - " + m.getAttribute("name") as String);
-					handleAppStart();
-				}
-			}
-		}
-		
 		public function moduleStarted(name:String, started:Boolean):void {			
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
@@ -308,56 +294,46 @@ package org.bigbluebutton.main.managers
 			return _numModules;
 		}
 		
-		public function handleAppModelInitialized():void {
-			/*for (var key:Object in _modules) {				
-				var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
-				if (m.getAttribute("onAppInitEvent") != null) {
-					loadModule(m.getAttribute("name") as String);
-				}
-			}*/
-			
+		public function handleAppModelInitialized():void {			
 			for (var i:int = 0; i<sorted.length; i++){
 				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
 				loadModule(m.getAttribute("name") as String);
 			}
 		}
 		
-		public function handleAppStart():void {
-			/*for (var key:Object in _modules) {				
-				var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
-				if (m.getAttribute("onAppStartEvent") != null) {
+		//Start the first module (ViewersModule - still need to make this a bit more robust)
+		public function handleAppStart():void {		
+			for (var i:int = 0; i<sorted.length; i++){
+				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
+				if ((m.getAttribute("name") as String) == "ViewersModule") {
 					startModule(m.getAttribute("name") as String);
+					sorted.removeItemAt(i);
 				}
-			}*/
+			}
+		}
+		
+		public function handleUserJoined():void {
+			var event:ConfigurationEvent = new ConfigurationEvent(ConfigurationEvent.CONFIG_EVENT);
+			event.helpURL = _helpURL;
+			LogUtil.debug("Dispatching helpURL " + _helpURL);
 			
+			globalDispatcher.dispatchEvent(event);	
+			
+			startAllModules();
+			
+		}
+		
+		public function startAllModules():void{
 			for (var i:int = 0; i<sorted.length; i++){
 				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
 				startModule(m.getAttribute("name") as String);
 			}
 		}
 		
-		public function handleUserJoined():void {
-			for (var key:Object in _modules) {				
-				var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
-				if (m.getAttribute("onUserJoinedEvent") != null) {
-					startModule(m.getAttribute("name") as String);
-				}
-			}
-
-			var event:ConfigurationEvent = new ConfigurationEvent(ConfigurationEvent.CONFIG_EVENT);
-			event.helpURL = _helpURL;
-			LogUtil.debug("Dispatching helpURL " + _helpURL);
-			
-			globalDispatcher.dispatchEvent(event);			
-			
-		}
-		
 		public function handleLogout():void {
 			for (var key:Object in _modules) {				
 				var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
-				if (m.getAttribute("onUserLogoutEvent") != null) {
-					stopModule(m.getAttribute("name") as String);
-				}
+				stopModule(m.getAttribute("name") as String);
 			}
 		}
 		
@@ -371,6 +347,7 @@ package org.bigbluebutton.main.managers
 			while(independent.length > 0){
 				var n:ModuleDescriptor = independent.removeItemAt(0) as ModuleDescriptor;
 				sorted.addItem(n);
+				n.resolved = true;
 				
 				for (var key:Object in _modules) {
 					var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;

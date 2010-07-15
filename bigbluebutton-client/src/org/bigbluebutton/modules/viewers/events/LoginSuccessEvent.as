@@ -4,7 +4,7 @@ package org.bigbluebutton.modules.viewers.events
 
 	public class LoginSuccessEvent extends Event
 	{
-		public static const LOGIN_SUCCESS:String = "LOGIN_SUCCESS";
+		public static const LOGIN_SUCCESS:String = "LOGIN_SUCCESS_EVENT_RECEIVED";
 		
 		public var user:Object;
 		

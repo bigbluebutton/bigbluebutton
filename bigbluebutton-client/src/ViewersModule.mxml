@@ -25,11 +25,11 @@
 	creationComplete="onCreationComplete()" xmlns:maps="org.bigbluebutton.modules.viewers.maps.*" >
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.common.LogUtil;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import mx.controls.Alert;
 			
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.modules.viewers.events.ViewersModuleEndEvent;
 			import org.bigbluebutton.modules.viewers.events.ViewersModuleStartedEvent;
 			
@@ -187,7 +187,7 @@
 				return _attributes.externUserID;
 			}
 						
-			public function start(attributes:Object):void {		
+			public function start(attributes:Object):void {
 				_attributes = attributes;	
 				var now:Date = new Date();	
 				_playbackRoom = now.getTime().toString();

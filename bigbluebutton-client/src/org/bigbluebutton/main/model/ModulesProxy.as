@@ -26,8 +26,8 @@ package org.bigbluebutton.main.model
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.events.PortTestEvent;
-	import org.bigbluebutton.modules.viewers.events.LoginSuccessEvent;
 	import org.bigbluebutton.main.managers.ModuleManager;
+	import org.bigbluebutton.modules.viewers.events.LoginSuccessEvent;
 	
 	public class ModulesProxy {
 		
@@ -55,11 +55,6 @@ package org.bigbluebutton.main.model
 			
 		public function initialize():void {
 			modulesManager.initialize();			
-		}
-		
-		public function set user(loggedInUser:Object):void {
-			_user = loggedInUser;
-			modulesManager.loggedInUser(_user);
 		}
 		
 		public function get username():String {
@@ -100,6 +95,11 @@ package org.bigbluebutton.main.model
 		public function handleLogin(e:LoginSuccessEvent):void{
 			user = e.user;
 			modulesManager.handleUserJoined();
+		}
+		
+		public function set user(loggedInUser:Object):void {
+			_user = loggedInUser;
+			modulesManager.loggedInUser(_user);
 		}
 		
 		public function testRTMP(e:PortTestEvent):void{

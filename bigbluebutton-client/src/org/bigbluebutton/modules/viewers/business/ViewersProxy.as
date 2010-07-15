@@ -24,7 +24,9 @@ package org.bigbluebutton.modules.viewers.business
 	import flash.net.NetConnection;
 	
 	import mx.collections.ArrayCollection;
+	import mx.controls.Alert;
 	
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.videoconf.events.BroadcastStartedEvent;
 	import org.bigbluebutton.modules.videoconf.events.BroadcastStoppedEvent;
@@ -35,7 +37,6 @@ package org.bigbluebutton.modules.viewers.business
 	import org.bigbluebutton.modules.viewers.events.ViewersConnectionEvent;
 	import org.bigbluebutton.modules.viewers.events.ViewersModuleEndEvent;
 	import org.bigbluebutton.modules.viewers.events.ViewersModuleStartedEvent;
-	import org.bigbluebutton.common.LogUtil;
 
 	public class ViewersProxy
 	{
@@ -52,7 +53,7 @@ package org.bigbluebutton.modules.viewers.business
 			dispatcher = new Dispatcher();
 		}
 		
-		public function connect():void {	
+		public function connect():void {
 			_viewersService = new ViewersSOService(module, _participants);
 			LogUtil.debug("ViewersProxy" + '::' + module.username + "," + module.role);
 			_viewersService.connect(module.username, module.role, module.conference, module.mode, module.room, module.externUserID);		
