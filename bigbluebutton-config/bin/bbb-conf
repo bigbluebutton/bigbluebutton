@@ -102,7 +102,7 @@ fi
 print_header() {
 	if [ ! $HEADER ]; then
 		echo
-		echo "** Potential Problems **"
+		echo "** Potential problems described below **"
 		HEADER=1
 	fi
 }
