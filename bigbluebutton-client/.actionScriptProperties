@@ -49,3 +49,4 @@
     <buildCSSFileEntry destPath="bin" sourcePath="src/org/bigbluebutton/common/assets/css/Blue.css"/>
   </buildCSSFiles>
 </actionScriptProperties>
+

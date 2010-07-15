@@ -17,7 +17,7 @@
  *
  * $Id: $
  */
-package org.bigbluebutton.main.model
+package org.bigbluebutton.main.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
@@ -33,8 +33,9 @@ package org.bigbluebutton.main.model
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.main.events.ConfigurationEvent;
 	import org.bigbluebutton.main.events.ModuleLoadEvent;
+	import org.bigbluebutton.main.model.ModuleDescriptor;
 	
-	public class BbbModuleManager
+	public class ModuleManager
 	{
 		public static const MODULE_LOAD_READY:String = "MODULE_LOAD_READY";
 		public static const MODULE_LOAD_PROGRESS:String = "MODULE_LOAD_PROGRESS";
@@ -55,7 +56,7 @@ package org.bigbluebutton.main.model
 		private var _helpURL:String;
 		private var globalDispatcher:Dispatcher;
 		
-		public function BbbModuleManager()
+		public function ModuleManager()
 		{
 			_urlLoader = new URLLoader();
 			_urlLoader.addEventListener(Event.COMPLETE, handleComplete);	
@@ -81,12 +82,15 @@ package org.bigbluebutton.main.model
 		}
 				
 		private function handleComplete(e:Event):void{
+			//HERE
 			parse(new XML(e.target.data));	
 			if (_numModules > 0) {
 				notifyInitializedListeners(true);
 			} else {
 				notifyInitializedListeners(false);
-			}			
+			}		
+			
+			buildDependencyTree();
 		}
 		
 		private function notifyInitializedListeners(inited:Boolean):void {
@@ -352,6 +356,10 @@ package org.bigbluebutton.main.model
 					stopModule(m.getAttribute("name") as String);
 				}
 			}
+		}
+		
+		public function buildDependencyTree():void{
+			
 		}
 	}
 }

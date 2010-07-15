@@ -26,6 +26,7 @@ package org.bigbluebutton.main.model
 	
 	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.main.managers.ModuleManager;
 	
 	public class ModuleDescriptor
 	{
@@ -107,7 +108,7 @@ package org.bigbluebutton.main.model
 			if (_module != null) {
 				LogUtil.debug("Module " + _attributes.name + " has been loaded");
 				_loaded = true;
-				callbackHandler(BbbModuleManager.MODULE_LOAD_READY, _attributes.name);
+				callbackHandler(ModuleManager.MODULE_LOAD_READY, _attributes.name);
 			} else {
 				LogUtil.error("Module loaded is null.");
 			}
@@ -115,7 +116,7 @@ package org.bigbluebutton.main.model
 		}	
 
 		private function onLoadProgress(e:ProgressEvent):void {
-			callbackHandler(BbbModuleManager.MODULE_LOAD_PROGRESS, 
+			callbackHandler(ModuleManager.MODULE_LOAD_PROGRESS, 
 					_attributes.name, Math.round((e.bytesLoaded/e.bytesTotal) * 100));
 		}	
 		

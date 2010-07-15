@@ -29,9 +29,6 @@
 		<!--
 		The FlexEvent.PREINITIALIZE event is a good place for creating and initializing managers.
 		-->
-		<ObjectBuilder generator="{ModulesManager}">
-			<Properties dispatcher="{scope.dispatcher}"/>
-		</ObjectBuilder>
 		<ObjectBuilder generator="{ModulesProxy}" cache="global" />
 	</EventHandlers>
 	
@@ -50,25 +47,9 @@
 			</resultHandlers>
 		</HTTPServiceInvoker>   
     </EventHandlers>
-
-	<EventHandlers type="{ConfigEvent.CONFIG_LOADED_EVENT}">
-		<MethodInvoker generator="{ModulesManager}" method="numberOfModules" arguments="{event.numberOfModules}"/>
-		<MethodInvoker generator="{ModulesManager}" method="moduleDescriptors" arguments="{event.moduleDescriptors}"/>
-		<MethodInvoker generator="{ModulesManager}" method="loadFirstModule"/>
-	</EventHandlers>
-	
-	<EventHandlers type="{ModuleEvent.MODULE_LOADED_EVENT}">
-		<MethodInvoker generator="{StatusManager}" method="setLoadedModuleStatus" arguments="{[event.moduleName]}"/>
-		<MethodInvoker generator="{ModulesManager}" method="loadNextModule" arguments="{[event.moduleName]}"/>
-	</EventHandlers>
-	
-	<EventHandlers type="{ModuleEvent.MODULE_LOAD_PROGRESS_EVENT}">
-		<MethodInvoker generator="{StatusManager}" method="setLoadingStatus" arguments="{[event.moduleName,event.percentLoaded]}"/>
-	</EventHandlers>
 	
 	<!-- We set the priority to 20 so it gets executed before the other handlers (e.g. in AppEventMapMock)-->
-	<EventHandlers type="{ModuleEvent.ALL_MODULES_LOADED_EVENT}" priority="20">
-		<MethodInvoker generator="{StatusManager}" method="clear"/>		
+	<EventHandlers type="{ModuleEvent.ALL_MODULES_LOADED_EVENT}" priority="20">	
 		<HTTPServiceInvoker instance="{joinService}">
 			<resultHandlers>
 				<EventAnnouncer generator="{ParticipantJoinEvent}" type="{ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT}">
@@ -117,8 +98,6 @@
 		import org.bigbluebutton.main.events.ModuleLoadEvent;
 		import org.bigbluebutton.main.events.ParticipantJoinEvent;
 		import org.bigbluebutton.main.events.PortTestEvent;
-		import org.bigbluebutton.main.managers.ModulesManager;
-		import org.bigbluebutton.main.managers.StatusManager;
 		import org.bigbluebutton.main.model.ModulesProxy;
 		import org.bigbluebutton.main.model.PortTestProxy;
 		import org.bigbluebutton.modules.viewers.events.LoginSuccessEvent;

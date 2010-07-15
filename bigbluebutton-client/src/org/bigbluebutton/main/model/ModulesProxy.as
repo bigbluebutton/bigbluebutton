@@ -27,10 +27,11 @@ package org.bigbluebutton.main.model
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.events.PortTestEvent;
 	import org.bigbluebutton.modules.viewers.events.LoginSuccessEvent;
+	import org.bigbluebutton.main.managers.ModuleManager;
 	
 	public class ModulesProxy {
 		
-		private var modulesManager:BbbModuleManager;
+		private var modulesManager:org.bigbluebutton.main.managers.ModuleManager;
 		private var portTestProxy:PortTestProxy;
 		
 		private var _user:Object;
@@ -40,7 +41,7 @@ package org.bigbluebutton.main.model
 		public function ModulesProxy() {
 			dispatcher = new Dispatcher();
 			portTestProxy = new PortTestProxy();
-			modulesManager = new BbbModuleManager();
+			modulesManager = new org.bigbluebutton.main.managers.ModuleManager();
 			modulesManager.addInitializedListener(onInitializeComplete);
 			modulesManager.initialize();
 		}
