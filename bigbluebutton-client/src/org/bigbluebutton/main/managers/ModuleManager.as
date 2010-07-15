@@ -27,6 +27,7 @@ package org.bigbluebutton.main.managers
 	import flash.utils.Dictionary;
 	
 	import mx.collections.ArrayCollection;
+	import mx.controls.Alert;
 	
 	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.common.LogUtil;
@@ -82,7 +83,6 @@ package org.bigbluebutton.main.managers
 		}
 				
 		private function handleComplete(e:Event):void{
-			//HERE
 			parse(new XML(e.target.data));	
 			if (_numModules > 0) {
 				notifyInitializedListeners(true);
@@ -359,7 +359,45 @@ package org.bigbluebutton.main.managers
 		}
 		
 		public function buildDependencyTree():void{
+			var sorted:ArrayCollection = new ArrayCollection();
+			var independent:ArrayCollection = getModulesWithNoDependencies();
 			
+			while(independent.length > 0){
+				var n:ModuleDescriptor = independent.removeItemAt(0) as ModuleDescriptor;
+				sorted.addItem(n);
+				
+				for (var key:Object in _modules) {
+					var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
+					m.removeDependency(n.getAttribute("name") as String);
+					if ((m.unresolvedDependencies.length == 0) && (!m.resolved)){
+						independent.addItem(m);
+						m.resolved = true;
+					}
+				}
+			}
+			
+			//Debug Information
+			for (var key2:Object in _modules) {
+				var m2:ModuleDescriptor = _modules[key2] as ModuleDescriptor;
+				if (m2.unresolvedDependencies.length != 0){
+					LogUtil.error("Module " + (m2.getAttribute("name") as String) + " still has a dependency " + (m2.unresolvedDependencies.getItemAt(0) as String)); 
+				}
+			}
+			LogUtil.debug("Dependency Order: ");
+			for (var u:int = 0; u<sorted.length; u++){
+				LogUtil.debug(((sorted.getItemAt(u) as ModuleDescriptor).getAttribute("name") as String));
+			}
+		}
+		
+		private function getModulesWithNoDependencies():ArrayCollection{
+			var returnArray:ArrayCollection = new ArrayCollection();
+			for (var key:Object in _modules) {
+				var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
+				if (m.unresolvedDependencies.length == 0) {
+					returnArray.addItem(m);
+				}
+			}
+			return returnArray;
 		}
 	}
 }

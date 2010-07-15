@@ -22,6 +22,8 @@ package org.bigbluebutton.main.model
 	import flash.events.Event;
 	import flash.events.ProgressEvent;
 	
+	import mx.collections.ArrayCollection;
+	import mx.controls.Alert;
 	import mx.modules.ModuleLoader;
 	
 	import org.bigbluebutton.common.IBigBlueButtonModule;
@@ -39,8 +41,12 @@ package org.bigbluebutton.main.model
 				
 		private var callbackHandler:Function;
 		
+		public var unresolvedDependencies:ArrayCollection;
+		public var resolved:Boolean = false;
+		
 		public function ModuleDescriptor(attributes:XML)
 		{
+			unresolvedDependencies = new ArrayCollection();
 			_attributes = new Object();
 			_loader = new ModuleLoader();
 			
@@ -79,7 +85,9 @@ package org.bigbluebutton.main.model
 			    var attName:String = attNamesList[i].name();
 			    var attValue:String = item.attribute(attName);
 			    _attributes[attName] = attValue;
-			} 
+			}
+			
+			populateDependencies();
 		}
 		
 		
@@ -125,38 +133,26 @@ package org.bigbluebutton.main.model
 			LogUtil.debug(_attributes.name + " uri = " + _attributes.uri);
 		}
 		
-/*
-		private function onUrlChanged(event:Event):void {
-			LogUtil.debug("Module onUrlChanged Event");
-			callbackHandler(event);
+		public function hasUnresolvedDependency(module:String):Boolean{
+			return unresolvedDependencies.contains(module);
 		}
+		
+		public function removeDependency(module:String):void{
+			for (var i:int = 0; i<unresolvedDependencies.length; i++){
+				if (unresolvedDependencies[i] == module) unresolvedDependencies.removeItemAt(i);
+			}
+		}
+		
+		private function populateDependencies():void{
+			var dependString:String = _attributes["dependsOn"] as String;
+			if (dependString == null) return;
 			
-		private function onLoading(event:Event):void {
-			LogUtil.debug("Module onLoading Event");
-			callbackHandler(event);
-		}
+			var trimSpaces:String = dependString.replace(" ", "");
+			var dependencies:Array = trimSpaces.split(",");
 			
-		private function onProgress(event:Event):void {
-			LogUtil.debug("Module onProgress Event");
-			callbackHandler(event);
-		}			
-
-		private function onSetup(event:Event):void {
-			LogUtil.debug("Module onSetup Event");
-			callbackHandler(event);
-		}	
-
-
-
-		private function onError(event:Event):void {
-			LogUtil.debug("Module onError Event");
-			callbackHandler(event);
+			for (var i:int = 0; i<dependencies.length; i++){
+				unresolvedDependencies.addItem(dependencies[i]);
+			}
 		}
-
-		private function onUnload(event:Event):void {
-			LogUtil.debug("Module onUnload Event");
-			callbackHandler(event);
-		}		
-*/
 	}
 }
