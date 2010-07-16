@@ -22,15 +22,16 @@
 
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml"
 	implements="org.bigbluebutton.common.IBigBlueButtonModule"
-	creationComplete="onCreationComplete()" xmlns:maps="org.bigbluebutton.modules.viewers.maps.*">
+	creationComplete="onCreationComplete()" xmlns:maps="org.bigbluebutton.modules.viewers.maps.*" >
 	<mx:Script>
 		<![CDATA[
-			import mx.controls.Alert;
-			import org.bigbluebutton.modules.viewers.model.ViewersProxy;
-			import org.bigbluebutton.modules.viewers.ViewersFacade;
-			import org.bigbluebutton.common.messaging.Router;
+			import com.asfusion.mate.events.Dispatcher;
 			
-			private var _router:Router;
+			import mx.controls.Alert;
+			
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.modules.viewers.events.ViewersModuleEndEvent;
+			import org.bigbluebutton.modules.viewers.events.ViewersModuleStartedEvent;
 			
 			private var _moduleId:String = "ViewersModule";
 			private var _moduleName:String = "Viewers Module";
@@ -38,16 +39,10 @@
 			private var _attributes:Object;
 			private var _playbackRoom:String;
 			
+			private var dispatcher:Dispatcher;
+			
 			private function onCreationComplete():void {
 				LogUtil.debug("ViewersModule Initialized");		
-			}
-			
-			public function acceptRouter(router:Router):void{
-				_router = router;
-			}
-		
-			public function get router():Router{
-				return _router;
 			}
 				
 			public function get moduleId():String {
@@ -192,21 +187,25 @@
 				return _attributes.externUserID;
 			}
 						
-			public function start(attributes:Object):void {		
+			public function start(attributes:Object):void {
 				_attributes = attributes;	
 				var now:Date = new Date();	
 				_playbackRoom = now.getTime().toString();
 				
 				LogUtil.debug('Passed ViewersModule mode: ' + _attributes.mode);
-				ViewersFacade.getInstance().startup(this);	
-				eventMap.proxy = ViewersFacade.getInstance().retrieveProxy(ViewersProxy.NAME) as ViewersProxy;
+				
+				dispatcher = new Dispatcher();
+				var e:ViewersModuleStartedEvent = new ViewersModuleStartedEvent(ViewersModuleStartedEvent.VIEWERS_MODULE_STARTED);
+				e.module = this;
+				dispatcher.dispatchEvent(e);
 			}
 		
 			public function stop():void {
-				ViewersFacade.getInstance().stop(this);
+				dispatcher.dispatchEvent(new ViewersModuleEndEvent(ViewersModuleEndEvent.VIEWERS_MODULE_ENDED));
 			}
 		]]>
 	</mx:Script>
+
+	<maps:ViewersEventMap />
 	
-	<maps:ViewersEventMap id="eventMap" />
 </mx:Module>

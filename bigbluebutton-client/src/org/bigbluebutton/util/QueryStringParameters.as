@@ -1,6 +1,7 @@
 package org.bigbluebutton.util
 {
 	import flash.external.ExternalInterface;
+	import org.bigbluebutton.common.LogUtil;
 	
 	public class QueryStringParameters {
 		private var params:Array;

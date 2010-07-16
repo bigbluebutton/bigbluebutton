@@ -29,15 +29,18 @@
 	<mate:Listener type="EndMeetingKickAllEvent" method="handleEndMeetingEvent"/>
 	<mate:Listener type="{ConfigurationEvent.CONFIG_EVENT}" method="handleConfigurationEvent"/>
 	
+	<mate:Listener type="{LoginSuccessEvent.LOGIN_SUCCESS}" method="loginSuccess" />
+	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.main.events.ConfigurationEvent;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.ToolbarButtonEvent;
 			import mx.controls.Alert;
+			
+			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.CloseWindowEvent;
-			import org.bigbluebutton.main.MainApplicationConstants;
-			import org.bigbluebutton.main.view.MainApplicationShellMediator;
+			import org.bigbluebutton.main.events.ConfigurationEvent;
+			import org.bigbluebutton.main.events.LogoutEvent;
+			import org.bigbluebutton.main.events.ToolbarButtonEvent;
+			import org.bigbluebutton.modules.viewers.events.LoginSuccessEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";
@@ -71,7 +74,8 @@
 			}
 			
 			private function doLogout():void {
-				dispatchEvent(new Event(MainApplicationConstants.LOGOUT_EVENT));
+				this.visible = false;
+				dispatchEvent(new LogoutEvent(LogoutEvent.USER_LOGGED_OUT));
 			}
 			
 			private function handleAddToolbarButtonEvent(event:ToolbarButtonEvent):void {
@@ -80,6 +84,11 @@
 			
 			private function handleRemoveToolbarButtonEvent(event:ToolbarButtonEvent):void {
 				addedBtns.removeChild(event.button);
+			}
+			
+			private function loginSuccess(e:LoginSuccessEvent):void{
+				loggedIn(e.user.username, e.user.conferenceName, e.user.userrole);
+				visible = true;
 			}
 			
 		]]>

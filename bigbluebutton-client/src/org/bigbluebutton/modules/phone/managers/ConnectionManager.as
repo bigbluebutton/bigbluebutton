@@ -30,11 +30,12 @@ package org.bigbluebutton.modules.phone.managers {
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
 	
-	import org.bigbluebutton.core.events.ConnectionStatusEvent;
+	import org.bigbluebutton.modules.phone.events.ConnectionStatusEvent;
 	import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
 	import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
 	import org.bigbluebutton.modules.phone.events.RegistrationFailedEvent;
 	import org.bigbluebutton.modules.phone.events.RegistrationSuccessEvent;
+	import org.bigbluebutton.common.LogUtil;
 	
 	public class ConnectionManager {
 			

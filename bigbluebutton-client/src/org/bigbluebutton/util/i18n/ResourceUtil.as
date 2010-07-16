@@ -29,6 +29,7 @@ package org.bigbluebutton.util.i18n
 	import mx.events.ResourceEvent;
 	import mx.resources.IResourceManager;
 	import mx.resources.ResourceManager;
+	import org.bigbluebutton.common.LogUtil;
 
 	public class ResourceUtil extends EventDispatcher {
 		private static var instance:ResourceUtil = null;

@@ -14,14 +14,14 @@
 		<![CDATA[
 			import mx.controls.Image;
 
-			import org.bigbluebutton.modules.deskShare.events.CursorEvent;
-			import org.bigbluebutton.modules.deskShare.events.ViewStreamEvent;
+			import org.bigbluebutton.modules.deskshare.events.CursorEvent;
+			import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
 			import mx.controls.Button;
 			import mx.containers.Canvas;
-			import org.bigbluebutton.modules.deskShare.events.AppletStartedEvent;
+			import org.bigbluebutton.modules.deskshare.events.AppletStartedEvent;
 			import org.bigbluebutton.util.QueryStringParameters;
 			import mx.core.UIComponent;
-			import org.bigbluebutton.modules.deskShare.services.DeskshareService;
+			import org.bigbluebutton.modules.deskshare.services.DeskshareService;
 			import org.bigbluebutton.common.Images;
 			
 			private var videoHolder:UIComponent;
@@ -172,6 +172,6 @@
 			}			
 		]]>
 	</mx:Script>
-		<mx:Image id="cursorImg" visible="false" source="@Embed('org/bigbluebutton/modules/deskShare/assets/images/cursor4.png')"/>
+		<mx:Image id="cursorImg" visible="false" source="@Embed('org/bigbluebutton/modules/deskshare/assets/images/cursor4.png')"/>
 		<mx:Canvas id="vbox" width="100%" height="100%"/>	
 </mx:Application>

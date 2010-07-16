@@ -3,12 +3,12 @@ package org.bigbluebutton.main
 	import flexunit.framework.TestCase;
 	import flexunit.framework.TestSuite;
 	
-	import org.bigbluebutton.main.model.BbbModuleManager;
+	import org.bigbluebutton.main.managers.ModuleManager;
 	import org.bigbluebutton.main.model.ModuleDescriptor;
 
 	public class BbbModuleManagerTests extends TestCase
 	{
-		private var manager:BbbModuleManager;
+		private var manager:ModuleManager;
 		private var xmlString:String = 
 			'<modules>' + 
 			'<module name="ChatModule" url="ChatModule.swf" />' +
@@ -25,7 +25,7 @@ package org.bigbluebutton.main
 		}
 
 		override public function setUp():void { 
-			manager = new BbbModuleManager(null, null); 
+			manager = new ModuleManager(); 
 		}  
 		
 		override public function tearDown():void {  } 

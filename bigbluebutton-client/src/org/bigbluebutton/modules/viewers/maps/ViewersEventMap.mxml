@@ -1,25 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
-	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.videoconf.events.BroadcastStoppedEvent;
-			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			
 			import org.bigbluebutton.modules.videoconf.events.BroadcastStartedEvent;
-			import org.bigbluebutton.modules.viewers.model.ViewersProxy;
-			
-			public var proxy:ViewersProxy;
-			
-			private function streamIsBroadcasting(e:BroadcastStartedEvent):void{
-				proxy.addStream(e.userid, e.stream);
-			}
-			
-			private function streamHasStopped(e:BroadcastStoppedEvent):void{
-				proxy.removeStream(e.userid, e.stream);
-			}
+			import org.bigbluebutton.modules.videoconf.events.BroadcastStoppedEvent;
+			import org.bigbluebutton.modules.viewers.business.ViewersProxy;
+			import org.bigbluebutton.modules.viewers.events.LowerHandEvent;
+			import org.bigbluebutton.modules.viewers.events.RaiseHandEvent;
+			import org.bigbluebutton.modules.viewers.events.ViewersConnectionEvent;
+			import org.bigbluebutton.modules.viewers.events.ViewersModuleEndEvent;
+			import org.bigbluebutton.modules.viewers.events.ViewersModuleStartedEvent;
+			import org.bigbluebutton.modules.viewers.managers.ViewersManager;
 		]]>
 	</mx:Script>
 	
-	<Listener type="{BroadcastStartedEvent.BROADCAST_STARTED_EVENT}" method="streamIsBroadcasting" />
-	<Listener type="{BroadcastStoppedEvent.BROADCAST_STOPPED}" method="streamHasStopped" />
+	<EventHandlers type="{FlexEvent.PREINITIALIZE}" >
+		<ObjectBuilder generator="{ViewersProxy}" cache="global" />
+		<ObjectBuilder generator="{ViewersManager}" cache="global" />
+	</EventHandlers>
+	
+	<EventHandlers type="{ViewersModuleStartedEvent.VIEWERS_MODULE_STARTED}" >
+		<MethodInvoker generator="{ViewersManager}" method="moduleStarted" arguments="{event}" />
+		<MethodInvoker generator="{ViewersProxy}" method="join" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{ViewersModuleEndEvent.VIEWERS_MODULE_ENDED}" >
+		<MethodInvoker generator="{ViewersManager}" method="moduleEnded" arguments="{event}" />
+		<MethodInvoker generator="{ViewersProxy}" method="stop" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{ViewersConnectionEvent.CONNECTION_SUCCESS}" >
+		<MethodInvoker generator="{ViewersProxy}" method="connectSharedObjects" arguments="{event}" />
+		<MethodInvoker generator="{ViewersManager}" method="loginSuccess" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{RaiseHandEvent.RAISE_HAND}" >
+		<MethodInvoker generator="{ViewersProxy}" method="raiseHand" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{LowerHandEvent.LOWER_HAND_EVENT}" >
+		<MethodInvoker generator="{ViewersProxy}" method="lowerHand" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{BroadcastStartedEvent.BROADCAST_STARTED_EVENT}" >
+		<MethodInvoker generator="{ViewersProxy}" method="addStream" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{BroadcastStoppedEvent.BROADCAST_STOPPED}" >
+		<MethodInvoker generator="{ViewersProxy}" method="removeStream" arguments="{event}" />
+	</EventHandlers>
+	
 </EventMap>

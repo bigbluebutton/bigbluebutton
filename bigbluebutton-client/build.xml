@@ -116,11 +116,6 @@
 	
 	<target name="build-listeners" description="Compile Listeners Module">
 		<build-module src="${SRC_DIR}" target="${LISTENERS}" />
-		
-		<echo message="Copying common assets for Listeners Module" />
-		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/listeners/view/assets/images/" >
-			<fileset dir="${BASE_DIR}/src/org/bigbluebutton/modules/listeners/view/assets/images/" />
-		</copy>		
 	</target>
 	
 	<target name="build-present" description="Compile Present Module">
