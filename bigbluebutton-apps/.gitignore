@@ -5,3 +5,4 @@ build
 lib
 .scala_dependencies
 .manager
+.gradle

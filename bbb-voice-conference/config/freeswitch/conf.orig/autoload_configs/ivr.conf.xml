@@ -1,0 +1,5 @@
+<configuration name="ivr.conf" description="IVR menus">
+  <menus>
+    <X-PRE-PROCESS cmd="include" data="../ivr_menus/*.xml"/>
+  </menus>
+</configuration>

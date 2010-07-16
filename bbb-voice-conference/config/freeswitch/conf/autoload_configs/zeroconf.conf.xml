@@ -1,0 +1,6 @@
+<configuration name="zeroconf.conf" description="Zeroconf Event Handler">
+  <settings>
+    <param name="publish" value="yes"/>
+    <param name="browse" value="_sip._udp"/>
+  </settings>
+</configuration>

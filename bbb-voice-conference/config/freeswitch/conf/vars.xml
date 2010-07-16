@@ -1,0 +1,241 @@
+<include>
+  <!-- Preprocessor Variables
+       These are introduced when configuration strings must be consistent across modules. 
+       NOTICE: YOU CAN NOT COMMENT OUT AN X-PRE-PROCESS line, Remove the line instead.
+       
+       WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING 
+       
+       YOU SHOULD CHANGE THIS default_password value if you don't want to be subject to any
+       toll fraud in the future.  It's your responsibility to secure your own system.
+       
+       This default config is used to demonstrate the feature set of FreeSWITCH.
+       
+       WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING 
+  -->
+  <X-PRE-PROCESS cmd="set" data="default_password=1234"/>
+  <!-- Did you change it yet? -->
+
+  <X-PRE-PROCESS cmd="set" data="sound_prefix=$${sounds_dir}/en/us/callie"/>
+
+  <!--
+      This setting is what sets the default domain FreeSWITCH will use if all else fails.
+      
+      FreeSWICH will default to $${local_ip_v4} unless changed.  Changing this setting does 
+      affect the sip authentication.  Please review conf/directory/default.xml for more
+      information on this topic.
+  -->
+  <X-PRE-PROCESS cmd="set" data="domain=$${local_ip_v4}"/>
+  <X-PRE-PROCESS cmd="set" data="domain_name=$${domain}"/>
+  <X-PRE-PROCESS cmd="set" data="hold_music=local_stream://moh"/>
+  <X-PRE-PROCESS cmd="set" data="use_profile=internal"/>
+
+  <!--
+      Enable ZRTP globally you can override this on a per channel basis
+      
+      http://wiki.freeswitch.org/wiki/ZRTP (on how to enable zrtp)
+  -->
+  <X-PRE-PROCESS cmd="set" data="zrtp_secure_media=true"/>
+
+  <!-- 
+       Examples of codec options: (module must be compiled and loaded)
+       
+       codecname[@8000h|16000h|32000h[@XXi]]
+       
+       XX is the frame size must be multples allowed for the codec
+       FreeSWITCH can support 10-120ms on some codecs. 
+       We do not support exceeding the MTU of the RTP packet.
+
+
+       iLBC@30i         - iLBC using mode=30 which will win in all cases.
+       DVI4@8000h@20i   - IMA ADPCM 8kHz using 20ms ptime. (multiples of 10)
+       DVI4@16000h@40i  - IMA ADPCM 16kHz using 40ms ptime. (multiples of 10)
+       speex@8000h@20i  - Speex 8kHz using 20ms ptime.
+       speex@16000h@20i - Speex 16kHz using 20ms ptime.
+       speex@32000h@20i - Speex 32kHz using 20ms ptime.
+       BV16             - BroadVoice 16kb/s narrowband, 8kHz
+       BV32             - BroadVoice 32kb/s wideband, 16kHz
+       G7221@16000h     - G722.1 16kHz (aka Siren 7)
+       G7221@32000h     - G722.1C 32kHz (aka Siren 14)
+       CELT@32000h      - CELT 32kHz, only 10ms supported
+       CELT@48000h      - CELT 48kHz, only 10ms supported
+       GSM@40i          - GSM 8kHz using 40ms ptime. (GSM is done in multiples of 20, Default is 20ms)
+       G722             - G722 16kHz using default 20ms ptime. (multiples of 10)
+       PCMU             - G711 8kHz ulaw using default 20ms ptime. (multiples of 10)
+       PCMA             - G711 8kHz alaw using default 20ms ptime. (multiples of 10)
+       G726-16          - G726 16kbit adpcm using default 20ms ptime. (multiples of 10)
+       G726-24          - G726 24kbit adpcm using default 20ms ptime. (multiples of 10)
+       G726-32          - G726 32kbit adpcm using default 20ms ptime. (multiples of 10)
+       G726-40          - G726 40kbit adpcm using default 20ms ptime. (multiples of 10)
+       AAL2-G726-16     - Same as G726-16 but using AAL2 packing. (multiples of 10)
+       AAL2-G726-24     - Same as G726-24 but using AAL2 packing. (multiples of 10)
+       AAL2-G726-32     - Same as G726-32 but using AAL2 packing. (multiples of 10)
+       AAL2-G726-40     - Same as G726-40 but using AAL2 packing. (multiples of 10)
+       LPC              - LPC10 using 90ms ptime (only supports 90ms at this time in FreeSWITCH)
+       L16              - L16 isn't recommended for VoIP but you can do it. L16 can exceed the MTU rather quickly.
+       
+       These are the passthru audio codecs:
+       
+       G729             - G729 in passthru mode. (mod_g729)
+       G723             - G723.1 in passthru mode. (mod_g723_1)
+       AMR              - AMR in passthru mode. (mod_amr)
+       
+       These are the passthru video codecs: (mod_h26x)
+       
+       H261             - H.261 Video
+       H263             - H.263 Video
+       H263-1998        - H.263-1998 Video
+       H263-2000        - H.263-2000 Video
+       H264             - H.264 Video
+       
+       RTP Dynamic Payload Numbers currently used in FreeSWITCH and what for.
+
+       96  - AMR
+       97  - iLBC (30)
+       98  - iLBC (20)
+       99  - Speex 8kHz, 16kHz, 32kHz
+       100 -
+       101 - telephone-event
+       102 -
+       103 - 
+       104 - 
+       105 - 
+       106 - BV16
+       107 - G722.1 (16kHz)
+       108 -
+       109 -
+       110 -
+       111 -
+       112 -
+       113 -
+       114 - CELT 32kHz, 48kHz
+       115 - G722.1C (32kHz)
+       116 -
+       117 - SILK 8kHz
+       118 - SILK 12kHz
+       119 - SILK 16kHz
+       120 - SILK 24kHz
+       121 - AAL2-G726-40 && G726-40
+       122 - AAL2-G726-32 && G726-32
+       123 - AAL2-G726-24 && G726-24
+       124 - AAL2-G726-16 && G726-16
+       125 - 
+       126 -
+       127 - BV32
+
+  -->
+  <X-PRE-PROCESS cmd="set" data="global_codec_prefs=speex@16000h@20i,speex@8000h@20iG7221@32000h,G7221@16000h,G722,PCMU,PCMA,GSM"/>
+  <X-PRE-PROCESS cmd="set" data="outbound_codec_prefs=PCMU,PCMA,GSM"/>
+
+  <!--
+      xmpp_client_profile and xmpp_server_profile
+      xmpp_client_profile can be any string. 
+      xmpp_server_profile is appended to "dingaling_" to form the database name
+      containing the "subscriptions" table.
+      used by: dingaling.conf.xml enum.conf.xml 
+  --> 
+
+  <X-PRE-PROCESS cmd="set" data="xmpp_client_profile=xmppc"/>
+  <X-PRE-PROCESS cmd="set" data="xmpp_server_profile=xmpps"/>
+  <!-- 
+       THIS IS ONLY USED FOR DINGALING
+
+       bind_server_ip
+
+       Can be an ip address, a dns name, or "auto". 
+       This determines an ip address available on this host to bind.
+       If you are separating RTP and SIP traffic, you will want to have
+       use different addresses where this variable appears.
+       Used by: dingaling.conf.xml
+  -->
+  <X-PRE-PROCESS cmd="set" data="bind_server_ip=auto"/>
+
+  <!-- NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE
+       
+       If you're going to load test FreeSWITCH please input real IP addresses
+       for external_rtp_ip and external_sip_ip
+  -->
+
+  <!-- external_rtp_ip
+       Can be an one of:
+           ip address: "12.34.56.78"
+           a stun server lookup: "stun:stun.server.com"
+           a DNS name: "host:host.server.com"
+       where fs.mydomain.com is a DNS A record-useful when fs is on
+       a dynamic IP address, and uses a dynamic DNS updater.
+       If unspecified, the bind_server_ip value is used.
+       Used by: sofia.conf.xml dingaling.conf.xml
+  -->
+  <X-PRE-PROCESS cmd="set" data="external_rtp_ip=stun:stun.freeswitch.org"/>
+
+  <!-- external_sip_ip
+      Used as the public IP address for SDP.
+       Can be an one of:
+           ip address: "12.34.56.78"
+           a stun server lookup: "stun:stun.server.com"
+           a DNS name: "host:host.server.com"
+       where fs.mydomain.com is a DNS A record-useful when fs is on
+       a dynamic IP address, and uses a dynamic DNS updater.
+       If unspecified, the bind_server_ip value is used.
+       Used by: sofia.conf.xml dingaling.conf.xml
+  -->
+  <X-PRE-PROCESS cmd="set" data="external_sip_ip=stun:stun.freeswitch.org"/>
+
+  <!-- unroll-loops
+       Used to turn on sip loopback unrolling.
+  --> 
+  <X-PRE-PROCESS cmd="set" data="unroll_loops=true"/>
+
+  <!-- outbound_caller_id and outbound_caller_name
+       The caller ID telephone number we should use when calling out.
+       Used by: conference.conf.xml and user directory for default
+       outbound callerid name and number.
+  -->
+  <X-PRE-PROCESS cmd="set" data="outbound_caller_name=FreeSWITCH"/>
+  <X-PRE-PROCESS cmd="set" data="outbound_caller_id=0000000000"/>
+
+  <!-- various debug and defaults -->
+  <X-PRE-PROCESS cmd="set" data="call_debug=false"/>
+  <X-PRE-PROCESS cmd="set" data="console_loglevel=info"/>
+  <X-PRE-PROCESS cmd="set" data="default_areacode=918"/>
+  <X-PRE-PROCESS cmd="set" data="default_country=US"/>
+
+  <X-PRE-PROCESS cmd="set" data="uk-ring=%(400,200,400,450);%(400,2200,400,450)"/>
+  <X-PRE-PROCESS cmd="set" data="us-ring=%(2000,4000,440.0,480.0)"/>
+  <X-PRE-PROCESS cmd="set" data="fr-ring=%(1500,3500,440.0,0.0)"/>
+  <X-PRE-PROCESS cmd="set" data="rs-ring=%(1000,4000,425.0,0.0)"/>
+  <X-PRE-PROCESS cmd="set" data="ru-ring=%(800,3200,425,0)"/>
+  <X-PRE-PROCESS cmd="set" data="bong-ring=v=-7;%(100,0,941.0,1477.0);v=-7;>=2;+=.1;%(1400,0,350,440)"/>
+  <X-PRE-PROCESS cmd="set" data="sit=%(274,0,913.8);%(274,0,1370.6);%(380,0,1776.7)"/>
+  <!--
+      Setting up your default sip provider is easy.
+      Below are some values that should work in most cases.
+      
+      These are for conf/directory/default/example.com.xml
+  -->
+  <X-PRE-PROCESS cmd="set" data="default_provider=example.com"/>
+  <X-PRE-PROCESS cmd="set" data="default_provider_username=joeuser"/>
+  <X-PRE-PROCESS cmd="set" data="default_provider_password=password"/>
+  <X-PRE-PROCESS cmd="set" data="default_provider_from_domain=example.com"/>
+  <!-- true or false -->
+  <X-PRE-PROCESS cmd="set" data="default_provider_register=false"/>
+  <X-PRE-PROCESS cmd="set" data="default_provider_contact=5000"/>
+
+  <!--
+      SIP and TLS settings. http://wiki.freeswitch.org/wiki/Tls
+  -->
+  <X-PRE-PROCESS cmd="set" data="sip_tls_version=tlsv1"/>
+
+  <!-- Internal SIP Profile -->
+  <X-PRE-PROCESS cmd="set" data="internal_auth_calls=true"/>
+  <X-PRE-PROCESS cmd="set" data="internal_sip_port=5060"/>
+  <X-PRE-PROCESS cmd="set" data="internal_tls_port=5061"/>
+  <X-PRE-PROCESS cmd="set" data="internal_ssl_enable=false"/>
+  <X-PRE-PROCESS cmd="set" data="internal_ssl_dir=$${base_dir}/conf/ssl"/>
+
+  <!-- External SIP Profile -->
+  <X-PRE-PROCESS cmd="set" data="external_auth_calls=false"/>
+  <X-PRE-PROCESS cmd="set" data="external_sip_port=5080"/>
+  <X-PRE-PROCESS cmd="set" data="external_tls_port=5081"/>
+  <X-PRE-PROCESS cmd="set" data="external_ssl_enable=false"/>
+  <X-PRE-PROCESS cmd="set" data="external_ssl_dir=$${base_dir}/conf/ssl"/>
+</include>

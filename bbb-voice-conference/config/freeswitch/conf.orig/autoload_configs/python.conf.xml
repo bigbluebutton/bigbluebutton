@@ -1,0 +1,16 @@
+<configuration name="python.conf" description="PYTHON Configuration">
+  <settings>
+    <!--<param name="xml-handler-script" value="dp"/>-->
+    <!--<param name="xml-handler-bindings" value="dialplan"/>-->
+
+    <!--
+	The following options identifies a py module that is launched
+	at startup and may live forever in the background.
+	You can define multiple lines, one for each script you 
+	need to run.
+    -->
+    <!--<param name="startup-script" value="startup_script_1"/>-->
+    <!--<param name="startup-script" value="startup_script_2"/>-->
+
+  </settings>
+</configuration>

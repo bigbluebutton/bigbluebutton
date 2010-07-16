@@ -1,0 +1,16 @@
+<configuration name="perl.conf" description="PERL Configuration">
+  <settings>
+    <!--<param name="xml-handler-script" value="/tmp/xml.pl"/>-->
+    <!--<param name="xml-handler-bindings" value="dialplan"/>-->
+
+    <!--
+	The following options identifies a perl script that is launched	
+	at startup and may live forever in the background.
+	You can define multiple lines, one for each script you 
+	need to run.
+    -->
+    <!--param name="startup-script" value="startup_script_1.pl"/-->
+    <!--param name="startup-script" value="startup_script_2.pl"/-->
+
+  </settings>
+</configuration>

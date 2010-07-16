@@ -1,0 +1,773 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    NOTICE:
+    
+    This context is usually accessed via authenticated callers on the sip profile on port 5060 
+    or transfered callers from the public context which arrived via the sip profile on port 5080.
+    
+    Authenticated users will use the user_context variable on the user to determine what context
+    they can access.  You can also add a user in the directory with the cidr= attribute acl.conf.xml
+    will build the domains ACL using this value.
+-->
+<!-- http://wiki.freeswitch.org/wiki/Dialplan_XML -->
+<include>
+  <context name="default">
+
+    <extension name="unloop">
+      <condition field="${unroll_loops}" expression="^true$"/>
+      <condition field="${sip_looped_call}" expression="^true$">
+	<action application="deflect" data="${destination_number}"/>
+      </condition>
+    </extension>
+
+    <!-- Example of doing things based on time of day. 
+
+	 year = 4 digit year. Example year="2009"
+	 yday = 1-365
+	 mon = 1-12
+	 mday = 1-31
+	 week = 1-52
+	 mweek= 1-6
+	 wday = 1-7
+	 hour = 0-23
+	 minute = 0-59
+	 minute-of-day = 1-1440
+	 
+	 Example:
+	 <condition minute-of-day="540-1080"> (9am to 6pm EVERY day)
+	 do something ...
+	 </condition>
+    -->
+    <extension name="tod_example" continue="true">
+      <condition wday="2-6" hour="9-18">
+	<action application="set" data="open=true"/>
+      </condition>
+    </extension>
+
+    <!-- Example of routing based on holidays
+
+	This example covers all US Federal holidays except for inauguration day.
+    -->
+
+    <extension name="holiday_example" continue="true">
+      <condition mday="1" mon="1">
+	<!-- new year's day -->
+	<action application="set" data="open=false"/>
+      </condition>
+      <condition wday="2" mweek="3" mon="1">
+	<!-- martin luther king day is the 3rd monday in january -->
+	<action application="set" data="open=false"/>
+      </condition>
+      <condition wday="2" mweek="3" mon="2">
+	<!-- president's day is the 3rd monday in february -->
+	<action application="set" data="open=false"/>
+      </condition>
+      <condition wday="2" mon="5" mday="25-31">
+	<!-- memorial day is the last monday in may (the only monday between the 25th and the 31st) -->
+	<action application="set" data="open=false"/>
+      </condition>
+      <condition mday="4" mon="7">
+	<!-- independence day -->
+	<action application="set" data="open=false"/>
+      </condition>
+      <condition wday="2" mweek="1" mon="9">
+	<!-- labor day is the 1st monday in september -->
+	<action application="set" data="open=false"/>
+      </condition>
+      <condition wday="2" mweek="2" mon="10">
+	<!-- columbus day is the 2nd monday in october -->
+	<action application="set" data="open=false"/>
+      </condition>
+      <condition mday="11" mon="11">
+	<!-- veteran's day -->
+	<action application="set" data="open=false"/>
+      </condition>
+      <condition wday="5-6" mweek="4" mon="11">
+	<!-- thanksgiving is the 4th thursday in november and usually there's an extension for black friday -->
+	<action application="set" data="open=false"/>
+      </condition>
+      <condition mday="25" mon="12">
+	<!-- Christmas -->
+	<action application="set" data="open=false"/>
+      </condition>
+    </extension>
+
+    <extension name="global-intercept">
+      <condition field="destination_number" expression="^886$">
+	<action application="answer"/>
+	<action application="intercept" data="${hash(select/${domain_name}-last_dial/global)}"/>
+	<action application="sleep" data="2000"/>
+      </condition>
+    </extension>
+
+    <extension name="group-intercept">
+      <condition field="destination_number" expression="^\*8$">
+	<action application="answer"/>
+	<action application="intercept" data="${hash(select/${domain_name}-last_dial/${callgroup})}"/>
+	<action application="sleep" data="2000"/>
+      </condition>
+    </extension>
+
+    <extension name="intercept-ext">
+      <condition field="destination_number" expression="^\*\*(\d+)$">
+	<action application="answer"/>
+	<action application="intercept" data="${hash(select/${domain_name}-last_dial_ext/$1)}"/>
+	<action application="sleep" data="2000"/>
+      </condition>
+    </extension>
+
+    <extension name="redial">
+      <condition field="destination_number" expression="^(redial|870)$">
+	<action application="transfer" data="${hash(select/${domain_name}-last_dial/${caller_id_number})}"/>
+      </condition>
+    </extension>
+
+    <extension name="global" continue="true">
+      <condition field="${call_debug}" expression="^true$" break="never">
+	<action application="info"/>
+      </condition>
+      <!--
+	  This is an example of how to auto detect if telephone-event is missing and activate inband detection 
+      -->
+      <!--
+      <condition field="${switch_r_sdp}" expression="a=rtpmap:(\d+)\stelephone-event/8000" break="never">
+	<action application="set" data="rtp_payload_number=$1"/>
+	<anti-action application="start_dtmf"/>
+      </condition>
+      -->
+      <condition field="${sip_has_crypto}" expression="^(AES_CM_128_HMAC_SHA1_32|AES_CM_128_HMAC_SHA1_80)$" break="never">
+	<action application="set" data="sip_secure_media=true"/>
+	<!-- Offer SRTP on outbound legs if we have it on inbound. -->
+	<!-- <action application="export" data="sip_secure_media=true"/> -->
+      </condition>
+
+      <condition>
+	<action application="hash" data="insert/${domain_name}-spymap/${caller_id_number}/${uuid}"/>
+	<action application="hash" data="insert/${domain_name}-last_dial/${caller_id_number}/${destination_number}"/>
+	<action application="hash" data="insert/${domain_name}-last_dial/global/${uuid}"/>
+      </condition>
+    </extension>
+
+    <!-- If sip_req_host is not a local domain then this has to be an external sip uri -->
+    <!--
+    <extension name="external_sip_uri" continue="true">
+      <condition field="source" expression="mod_sofia"/>
+      <condition field="${outside_call}" expression="^$"/>
+      <condition field="${domain_exists(${sip_req_host})}" expression="true">
+	<anti-action application="bridge" data="sofia/${use_profile}/${sip_to_uri}"/>
+      </condition>
+    </extension>
+    -->
+    <!--
+	Snom button demo, call 9000 to make button 2 mapped to transfer the current call to a conference
+    -->
+
+    <extension name="snom-demo-2">
+      <condition field="destination_number" expression="^9001$">
+	<action application="eval" data="${snom_bind_key(2 off DND ${sip_from_user} ${sip_from_host} ${sofia_profile_name} message notused)}"/>
+	<action application="transfer" data="3000"/>
+      </condition>
+    </extension>
+    
+    <extension name="snom-demo-1">
+      <condition field="destination_number" expression="^9000$">
+	<!--<key> <light> <label> <user> <host> <profile> <action_name> <action>-->
+	<action application="eval" data="${snom_bind_key(2 on DND ${sip_from_user} ${sip_from_host} ${sofia_profile_name} message api+uuid_transfer ${uuid} 9001)}"/>
+	<action application="playback" data="$${hold_music}"/>
+      </condition>
+    </extension>
+
+    <extension name="eavesdrop">
+      <condition field="destination_number" expression="^88(\d{4})$|^\*0(.*)$">
+	<action application="answer"/>
+	<action application="eavesdrop" data="${hash(select/${domain_name}-spymap/$1)}"/>
+      </condition>
+    </extension>
+
+    <extension name="eavesdrop">
+      <condition field="destination_number" expression="^779$">
+	<action application="answer"/>
+	<action application="set" data="eavesdrop_indicate_failed=tone_stream://%(500, 0, 320)"/>
+	<action application="set" data="eavesdrop_indicate_new=tone_stream://%(500, 0, 620)"/>
+	<action application="set" data="eavesdrop_indicate_idle=tone_stream://%(250, 0, 920)"/>
+	<action application="eavesdrop" data="all"/>
+      </condition>
+    </extension>
+
+    <extension name="call_return">
+      <condition field="destination_number" expression="^\*69$|^869$|^lcr$">
+	<action application="transfer" data="${hash(select/${domain_name}-call_return/${caller_id_number})}"/>
+      </condition>
+    </extension>
+
+    <extension name="del-group">
+      <condition field="destination_number" expression="^80(\d{2})$">
+	<action application="answer"/>
+	<action application="group" data="delete:$1@${domain_name}:${sofia_contact(${sip_from_user}@${domain_name})}"/>
+	<action application="gentones" data="%(1000, 0, 320)"/>
+      </condition>
+    </extension>
+
+    <extension name="add-group">
+      <condition field="destination_number" expression="^81(\d{2})$">
+	<action application="answer"/>
+	<action application="group" data="insert:$1@${domain_name}:${sofia_contact(${sip_from_user}@${domain_name})}"/>
+	<action application="gentones" data="%(1000, 0, 640)"/>
+      </condition>
+    </extension>
+
+    <extension name="call-group-simo">
+      <condition field="destination_number" expression="^82(\d{2})$">
+	<action application="bridge" data="{leg_timeout=15,ignore_early_media=true}${group(call:$1@${domain_name})}"/>
+      </condition>
+    </extension>
+
+    <extension name="call-group-order">
+      <condition field="destination_number" expression="^83(\d{2})$">
+	<action application="bridge" data="{leg_timeout=15,ignore_early_media=true}${group(call:$1@${domain_name}:order)}"/>
+      </condition>
+    </extension>
+
+    <extension name="extension-intercom">
+      <condition field="destination_number" expression="^8(10[01][0-9])$">
+	<action application="set" data="dialed_extension=$1"/>
+	<action application="export" data="sip_auto_answer=true"/>
+	<action application="bridge" data="user/${dialed_extension}@${domain_name}"/>
+      </condition>
+    </extension>
+
+    <!-- 
+	 dial the extension (1000-1019) for 30 seconds and go to voicemail if the 
+	 call fails (continue_on_fail=true), otherwise hang up after a successful
+	 bridge (hangup_after-bridge=true) 
+    -->
+    <extension name="Local_Extension">
+      <condition field="destination_number" expression="^(10[01][0-9])$">
+	<action application="set" data="dialed_extension=$1"/>
+	<action application="export" data="dialed_extension=$1"/>
+	<!-- bind_meta_app can have these args <key> [a|b|ab] [a|b|o|s] <app> -->
+	<action application="bind_meta_app" data="1 b s execute_extension::dx XML features"/>
+	<action application="bind_meta_app" data="2 b s record_session::$${recordings_dir}/${caller_id_number}.${strftime(%Y-%m-%d-%H-%M-%S)}.wav"/>
+	<action application="bind_meta_app" data="3 b s execute_extension::cf XML features"/>
+	<action application="set" data="ringback=${us-ring}"/>
+	<action application="set" data="transfer_ringback=$${hold_music}"/>
+	<action application="set" data="call_timeout=30"/>
+	<!-- <action application="set" data="sip_exclude_contact=${network_addr}"/> -->
+	<action application="set" data="hangup_after_bridge=true"/>
+	<!--<action application="set" data="continue_on_fail=NORMAL_TEMPORARY_FAILURE,USER_BUSY,NO_ANSWER,TIMEOUT,NO_ROUTE_DESTINATION"/> -->
+	<action application="set" data="continue_on_fail=true"/>
+	<action application="hash" data="insert/${domain_name}-call_return/${dialed_extension}/${caller_id_number}"/>
+	<action application="hash" data="insert/${domain_name}-last_dial_ext/${dialed_extension}/${uuid}"/>
+	<action application="set" data="called_party_callgroup=${user_data(${dialed_extension}@${domain_name} var callgroup)}"/>
+	<!--<action application="export" data="nolocal:sip_secure_media=${user_data(${dialed_extension}@${domain_name} var sip_secure_media)}"/>-->
+	<action application="hash" data="insert/${domain_name}-last_dial/${called_party_callgroup}/${uuid}"/>
+	<action application="bridge" data="user/${dialed_extension}@${domain_name}"/>
+	<action application="answer"/>
+	<action application="sleep" data="1000"/>
+	<action application="bridge" data="loopback/app=voicemail:default ${domain_name} ${dialed_extension}"/>
+      </condition>
+    </extension>
+
+    <extension name="Local_Extension_Skinny">
+      <condition field="destination_number" expression="^(20[01][0-9])$">
+        <action application="bridge" data="skinny/internal/${destination_number}"/>
+      </condition>
+    </extension>
+
+    <extension name="group_dial_sales">
+      <condition field="destination_number" expression="^2000$">
+	<action application="bridge" data="${group_call(sales@${domain_name})}"/>
+      </condition>
+    </extension>
+
+    <extension name="group_dial_support">
+      <condition field="destination_number" expression="^2001$">
+	<action application="bridge" data="group/support@${domain_name}"/>
+      </condition>
+    </extension>
+
+    <extension name="group_dial_billing">
+      <condition field="destination_number" expression="^2002$">
+	<action application="bridge" data="group/billing@${domain_name}"/>
+      </condition>
+    </extension>
+
+    <!-- voicemail operator extension -->
+    <extension name="operator">
+      <condition field="destination_number" expression="^(operator|0)$">
+	<action application="set" data="transfer_ringback=$${hold_music}"/>
+	<action application="transfer" data="1000 XML features"/>
+      </condition>
+    </extension>
+
+    <!-- voicemail main extension -->
+    <extension name="vmain">
+      <condition field="destination_number" expression="^vmain$|^4000$|^\*98$">
+	<action application="answer"/>
+	<action application="sleep" data="1000"/>
+	<action application="voicemail" data="check default ${domain_name}"/>  
+      </condition>
+    </extension>
+
+    <!-- 
+	 This extension is used by mod_portaudio so you can pa call sip:someone@example.com
+	 mod_portaudio will pass the entire string to the dialplan for routing.
+    -->
+    <extension name="sip_uri">
+      <condition field="destination_number" expression="^sip:(.*)$">
+	<action application="bridge" data="sofia/${use_profile}/$1"/>
+      </condition>
+    </extension>
+
+    <!--
+	start a dynamic conference with the settings of the "default" conference profile in conference.conf.xml
+    -->            
+    <extension name="nb_conferences">
+      <condition field="destination_number" expression="^(30\d{2})$">
+	<action application="answer"/>
+	<action application="conference" data="$1-${domain_name}@default"/>
+      </condition>
+    </extension>
+
+    <!-- BBB testing -->
+
+    <extension name="bbb_conferences">
+      <condition field="destination_number" expression="^(85\d{3})$">
+	  <action application="answer"/>
+	  <action application="conference" data="$1@wideband"/>
+      </condition>
+    </extension>
+
+    <extension name="wb_conferences">
+      <condition field="destination_number" expression="^(31\d{2})$">
+	<action application="answer"/>
+	<action application="conference" data="$1-${domain_name}@wideband"/>
+      </condition>
+    </extension>
+
+    <extension name="uwb_conferences">
+      <condition field="destination_number" expression="^(32\d{2})$">
+	<action application="answer"/>
+	<action application="conference" data="$1-${domain_name}@ultrawideband"/>
+      </condition>
+    </extension>
+    <!-- MONO 48kHz conferences -->
+    <extension name="cdquality_conferences">
+      <condition field="destination_number" expression="^(33\d{2})$">
+	<action application="answer"/>
+	<action application="conference" data="$1-${domain_name}@cdquality"/>
+      </condition>
+    </extension>
+    
+    <!-- dial the FreeSWITCH conference via SIP-->
+    <extension name="freeswitch_public_conf_via_sip">
+      <condition field="destination_number" expression="^9(888|8888|1616|3232)$">
+	<action application="export" data="hold_music=silence"/>
+	<!-- 
+	     This will take the SAS from the b-leg and send it to the display on the a-leg phone.
+	     Known working with Polycom and Snom maybe others.
+	-->
+	<!--
+	<action application="set" data="exec_after_bridge_app=${sched_api(+4 zrtp expand uuid_display ${uuid} \${uuid_getvar(\${uuid_getvar(${uuid} signal_bond)} zrtp_sas1_string )}  \${uuid_getvar(\${uuid_getvar(${uuid} signal_bond)} zrtp_sas2_string )} )}"/>
+	<action application="export" data="nolocal:zrtp_secure_media=true"/>
+	-->
+	<action application="bridge" data="sofia/${use_profile}/$1@conference.freeswitch.org"/>
+      </condition>
+    </extension>
+
+    <!--
+	This extension will start a conference and invite a group.
+	At anytime the participant can dial *2 to bridge directly to the boss. 
+	All other callers are then hung up on.
+    -->
+    <extension name="mad_boss_intercom">
+      <condition field="destination_number" expression="^0911$">
+	<action application="set" data="conference_auto_outcall_caller_id_name=Mad Boss1"/>
+	<action application="set" data="conference_auto_outcall_caller_id_number=0911"/>
+	<action application="set" data="conference_auto_outcall_timeout=60"/>
+	<action application="set" data="conference_auto_outcall_flags=mute"/>
+	<action application="set" data="conference_auto_outcall_prefix={sip_auto_answer=true,execute_on_answer='bind_meta_app 2 a s1 transfer::intercept:${uuid} inline'}"/>
+	<action application="set" data="sip_exclude_contact=${network_addr}"/>
+	<action application="conference_set_auto_outcall" data="${group_call(sales)}"/>
+	<action application="conference" data="madboss_intercom1@default+flags{endconf|deaf}"/>
+      </condition>
+    </extension>
+
+    <!--
+	This extension will start a conference and invite a few of people.
+	At anytime the participant can dial *2 to bridge directly to the boss. 
+	All other callers are then hung up on.
+    -->
+    <extension name="mad_boss_intercom">
+      <condition field="destination_number" expression="^0912$">
+	<action application="set" data="conference_auto_outcall_caller_id_name=Mad Boss2"/>
+	<action application="set" data="conference_auto_outcall_caller_id_number=0912"/>
+	<action application="set" data="conference_auto_outcall_timeout=60"/>
+	<action application="set" data="conference_auto_outcall_flags=mute"/>
+	<action application="set" data="conference_auto_outcall_prefix={sip_auto_answer=true,execute_on_answer='bind_meta_app 2 a s1 transfer::intercept:${uuid} inline'}"/>
+	<action application="set" data="sip_exclude_contact=${network_addr}"/>
+	<action application="conference_set_auto_outcall" data="loopback/9999"/>
+	<action application="conference" data="madboss_intercom2@default+flags{endconf|deaf}"/>
+      </condition>
+    </extension>
+
+    <!--This extension will start a conference and invite several people upon entering -->
+    <extension name="mad_boss">
+      <condition field="destination_number" expression="^0913$">
+	<!--These params effect the outcalls made once you join-->
+	<action application="set" data="conference_auto_outcall_caller_id_name=Mad Boss"/>
+	<action application="set" data="conference_auto_outcall_caller_id_number=0911"/>
+	<action application="set" data="conference_auto_outcall_timeout=60"/>
+	<action application="set" data="conference_auto_outcall_flags=none"/>
+	<!--<action application="set" data="conference_auto_outcall_announce=say:You have been called into an emergency conference"/>-->
+	<!--Add as many of these as you need, These are the people you are going to call-->
+	<action application="conference_set_auto_outcall" data="loopback/9999"/>
+	<action application="conference" data="madboss3@default"/>
+      </condition>
+    </extension>
+
+    <!-- a sample IVR  -->
+    <extension name="ivr_demo">
+      <condition field="destination_number" expression="^5000$">
+        <action application="answer"/>
+        <action application="sleep" data="2000"/>
+	<action application="ivr" data="demo_ivr"/>
+      </condition>
+    </extension>
+
+    <!-- Create a conference on the fly and pull someone in at the same time. --> 
+    <extension name="dynamic_conference">
+      <condition field="destination_number" expression="^5001$">
+	<action application="conference" data="bridge:mydynaconf:sofia/${use_profile}/1234@conference.freeswitch.org"/>
+      </condition>
+    </extension>
+
+    <extension name="rtp_multicast_page">
+      <condition field="destination_number" expression="^pagegroup$|^7243$">
+	<action application="answer"/>
+	<action application="esf_page_group"/>
+      </condition>
+    </extension>
+
+    <!-- 
+	 Parking extensions... transferring calls to 5900 will park them in a queue.
+    -->
+    <extension name="park">
+      <condition field="destination_number" expression="^5900$">
+	<action application="set" data="fifo_music=$${hold_music}"/>
+	<action application="fifo" data="5900@${domain_name} in"/>
+      </condition>
+    </extension>
+
+    <!-- 
+	 Parking pickup extension.  Calling 5901 will pickup the call.
+    -->
+    <extension name="unpark">
+      <condition field="destination_number" expression="^5901$">
+	<action application="answer"/>
+	<action application="fifo" data="5900@${domain_name} out nowait"/>
+      </condition>
+    </extension>
+
+    <!-- 
+	 Valet park retrieval, works with valet_park extension below.
+	 Retrieve a valet parked call by dialing 6000 + park number + #
+    -->
+    <extension name="valet_park">
+      <condition field="destination_number" expression="^(6000)$">
+	<action application="answer"/>
+	<action application="valet_park" data="valet_parking_lot ask 1 11 10000 ivr/ivr-enter_ext_pound.wav"/>
+      </condition>
+    </extension>
+
+    <!-- 
+	 Valet park 6001-6099.  Blind x-fer to 6001, 6002, etc. to valet park the call.
+	 Dial 6001, 6002, etc. to retrieve a call that is already valet parked.
+	 After call is retrieved, park extension is free for another call.
+    -->
+    <extension name="valet_park">
+      <condition field="destination_number" expression="^(60\d[1-9])$">
+	<action application="answer"/>
+	<action application="valet_park" data="valet_parking_lot $1"/>
+      </condition>
+    </extension>
+
+
+    <!--
+	This extension is used with Snom phones.  
+	
+	Set a function key to park+lot (lot being a number or name.)
+	Set type to Park+Orbit.  You can then park and pickup using 
+	the softkey on the phone.  Should work with other phones.
+    -->
+    <extension name="park">
+      <condition field="source" expression="mod_sofia"/>
+      <condition field="destination_number" expression="park\+(\d+)">
+	<action application="fifo" data="$1@${domain_name} in undef $${hold_music}"/>
+      </condition>
+    </extension> 
+    <!--
+	The extension is parking pickup with a to param of the fifo we are calling 
+	Some phones send things like orbit= and you can extract that info.
+    -->
+    <extension name="unpark">
+      <condition field="source" expression="mod_sofia"/>
+      <condition field="destination_number" expression="^parking$"/>
+      <condition field="${sip_to_params}" expression="fifo\=(\d+)">
+	<action application="answer"/>
+	<action application="fifo" data="$1@${domain_name} out nowait"/>
+      </condition>
+    </extension>
+
+    <!--
+       This extension is used with Linksys phones.
+
+       Set a Phone tab option Call Park Serv to yes. You can park and
+       pickup using soft keys "park" and "unpark" found during
+       active call when moving navigation button. The other option
+       is to use phone's star codes (defaults to *38 and *39).
+    -->
+    <extension name="park">
+      <condition field="source" expression="mod_sofia"/>
+      <condition field="destination_number" expression="callpark"/>
+      <condition field="${sip_refer_to}">
+	<expression><![CDATA[<sip:callpark@${domain_name};orbit=(\d+)>]]></expression>
+	<action application="fifo" data="$1@${domain_name} in undef $${hold_music}"/>
+      </condition>
+    </extension>
+    
+    <!--
+       This extension is used with Linksys phones.
+
+       The extension is parking pickup with a to param of the fifo
+       we are calling. Linksys sends orbit=<parkingslotnumber>
+       and we extract that info.
+    -->
+    <extension name="unpark">
+      <condition field="source" expression="mod_sofia"/>
+      <condition field="destination_number" expression="pickup"/>
+      <condition field="${sip_to_params}" expression="orbit\=(\d+)">
+	<action application="answer"/>
+	<action application="fifo" data="$1@${domain_name} out nowait"/>
+       </condition>
+    </extension>
+
+    <!--
+	Here are some examples of how to override the ringback heard by the
+	far end.  You have two variables that you can use to override this.
+	
+	ringback          - used when a call isn't answered. (early media)
+	transfer_ringback - used when the call is already answered. (post answer)
+    -->
+
+    <!-- Demonstration of how to override the ringback in various situations -->
+    <extension name="wait">
+      <condition field="destination_number" expression="^wait$">
+	<action application="pre_answer"/>
+	<action application="sleep" data="20000"/>
+	<action application="answer"/>
+	<action application="sleep" data="1000"/>
+	<action application="playback" data="voicemail/vm-goodbye.wav"/>
+	<action application="hangup"/>
+      </condition>
+    </extension>
+    
+    <extension name="fax_receive">
+      <condition field="destination_number" expression="^9178$">
+	<action application="answer" />
+	<action application="playback" data="silence_stream://2000"/>
+	<action application="rxfax" data="/tmp/rxfax.tif"/>
+	<action application="hangup"/>
+      </condition>
+    </extension>
+
+    <extension name="fax_transmit">
+      <condition field="destination_number" expression="^9179$">
+	<action application="txfax" data="/tmp/txfax.tif"/>
+	<action application="hangup"/>
+      </condition>
+    </extension>
+
+    <!-- Send a 180 and let the far end generate ringback. -->
+    <extension name="ringback_180">
+      <condition field="destination_number" expression="^9180$">
+	<action application="ring_ready"/>
+	<action application="sleep" data="20000"/>
+	<action application="answer"/>
+	<action application="sleep" data="1000"/>
+	<action application="playback" data="voicemail/vm-goodbye.wav"/>
+	<action application="hangup"/>
+      </condition>
+    </extension>
+
+    <!-- Send a 183 and send uk-ring as the ringtone. (early media) -->
+    <extension name="ringback_183_uk_ring">
+      <condition field="destination_number" expression="^9181$">
+	<action application="set" data="ringback=$${uk-ring}"/>
+	<action application="bridge" data="loopback/wait"/>
+      </condition>
+    </extension>
+
+    <!-- Send a 183 and use music as the ringtone. (early media) -->
+    <extension name="ringback_183_music_ring">
+      <condition field="destination_number" expression="^9182$">
+	<action application="set" data="ringback=$${hold_music}"/>
+	<action application="bridge" data="loopback/wait"/>
+      </condition>
+    </extension>
+
+    <!-- Answer the call and use music as the ringtone. (post answer) -->
+    <extension name="ringback_post_answer_uk_ring">
+      <condition field="destination_number" expression="^9183$">
+	<action application="set" data="transfer_ringback=$${uk-ring}"/>
+	<action application="answer"/>
+	<action application="bridge" data="loopback/wait"/>
+      </condition>
+    </extension>
+
+    <!-- Answer the call and use music as the ringtone. (post answer) -->
+    <extension name="ringback_post_answer_music">
+      <condition field="destination_number" expression="^9184$">
+	<action application="set" data="transfer_ringback=$${hold_music}"/>
+	<action application="answer"/>
+	<action application="bridge" data="loopback/wait"/>
+      </condition>
+    </extension>
+
+    <extension name="ClueCon">
+      <condition field="destination_number" expression="^9191$">
+        <action application="set" data="effective_caller_id_name=ClueCon IVR"/>
+        <action application="bridge" data="sofia/$${domain}/2000@bkw.org"/>
+      </condition>
+    </extension>
+
+    <extension name="show_info">
+      <condition field="destination_number" expression="^9192$">
+	<action application="answer"/>
+	<action application="info"/>
+	<action application="sleep" data="250"/>
+	<action application="hangup"/>
+      </condition>
+    </extension>
+
+    <extension name="video_record">
+      <condition field="destination_number" expression="^9193$">
+	<action application="answer"/>
+	<action application="record_fsv" data="/tmp/testrecord.fsv"/>
+      </condition>
+    </extension>
+
+    <extension name="video_playback">
+      <condition field="destination_number" expression="^9194$">
+	<action application="answer"/>
+	<action application="play_fsv" data="/tmp/testrecord.fsv"/>
+      </condition>
+    </extension>
+
+    <extension name="delay_echo">
+      <condition field="destination_number" expression="^9195$">
+	<action application="answer"/>
+	<action application="delay_echo" data="5000"/>
+      </condition>
+    </extension>
+
+    <extension name="echo">
+      <condition field="destination_number" expression="^9196$">
+	<action application="answer"/>
+	<action application="echo"/>
+      </condition>
+    </extension>
+
+    <extension name="milliwatt">
+      <condition field="destination_number" expression="^9197$">
+	<action application="answer"/>
+	<action application="playback" data="tone_stream://%(251,0,1004);loops=-1"/>
+      </condition>
+    </extension>
+
+    <extension name="tone_stream">
+      <condition field="destination_number" expression="^9198$">
+	<action application="answer"/>
+	<action application="playback" data="tone_stream://path=${base_dir}/conf/tetris.ttml;loops=10"/>
+      </condition>
+    </extension>
+
+    <!-- install zrtp_agent.lua into scripts (ZRTP == 9787) -->
+    <extension name="zrtp_enrollement">
+      <condition field="destination_number" expression="^9787$">
+	<action application="answer"/>
+	<action application="lua" data="zrtp_agent.lua"/>
+      </condition>
+    </extension>
+
+    <!--
+	You will no longer hear the bong tone.  The wav file is playing stating the call is secure.
+	The file will not play unless you have both TLS and SRTP active.
+    -->
+
+    <extension name="hold_music">
+      <condition field="destination_number" expression="^9664$"/>
+      <condition field="${sip_has_crypto}" expression="^(AES_CM_128_HMAC_SHA1_32|AES_CM_128_HMAC_SHA1_80)$">
+	<action application="answer"/>
+	<action application="execute_extension" data="is_secure XML features"/>
+	<action application="playback" data="$${hold_music}"/>
+	<anti-action application="set" data="zrtp_secure_media=true"/>
+	<anti-action application="answer"/>
+	<anti-action application="playback" data="silence_stream://2000"/>
+	<anti-action application="execute_extension" data="is_zrtp_secure XML features"/>
+	<anti-action application="playback" data="$${hold_music}"/>
+      </condition>
+    </extension>
+
+    <!--
+	You can place files in the default directory to get included.
+    -->
+    <X-PRE-PROCESS cmd="include" data="default/*.xml"/>
+    
+    <!--
+	WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
+	
+	Anything you put below this line will usually get ignored due to the file in 
+	default/99999_enum.xml as it will transfer the call to the enum dialplan.
+
+	WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
+    -->
+
+    <!--
+    <extension name="refer">
+      <condition field="${sip_refer_to}">
+	<expression><![CDATA[<sip:${destination_number}@${domain_name}>]]></expression>
+      </condition>
+      <condition field="${sip_refer_to}">
+	<expression><![CDATA[<sip:(.*)@(.*)>]]></expression>
+	<action application="set" data="refer_user=$1"/>
+	<action application="set" data="refer_domain=$2"/>
+	<action application="info"/>
+	<action application="bridge" data="sofia/${use_profile}/${refer_user}@${refer_domain}"/>
+      </condition>
+    </extension>
+    -->
+    <!--
+	This is an example of how to override the RURI on an outgoing invite to a registered contact.
+    -->
+    <!--
+    <extension name="ruri">
+      <condition field="destination_number" expression="^ruri$">
+	<action application="bridge" data="sofia/${ruri_profile}/${ruri_user}${regex(${sofia_contact(${ruri_contact})}|^[^\@]+(.*)|%1)}"/>
+      </condition>
+    </extension>
+    
+    <extension name="7004">
+      <condition field="destination_number" expression="^7004$">
+	<action application="set" data="ruri_profile=default"/>
+	<action application="set" data="ruri_user=2000"/>
+	<action application="set" data="ruri_contact=1001@${domain_name}"/>
+	<action application="execute_extension" data="ruri"/>
+      </condition>
+    </extension>
+    -->
+
+    <!-- SEE WARNING ABOVE IF YOU ARE TRYING TO ADD EXTENSIONS HERE! -->
+
+  </context>
+</include>

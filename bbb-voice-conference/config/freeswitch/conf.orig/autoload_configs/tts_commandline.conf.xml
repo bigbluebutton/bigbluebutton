@@ -1,0 +1,15 @@
+<configuration name="tts_commandline.conf" description="TextToSpeech Commandline configuration">
+    <settings>
+	<!--
+	Some variables will be replaced :
+	${text}: input text (quoted)
+	${rate}: sample rate (example: 8000)
+	${voice}: voice_name passed to TTS(quoted)
+	${file}: output file (quoted, including .wav extension)
+    
+    Example commands can be found at:
+    http://wiki.freeswitch.org/wiki/Mod_tts_commandline#Example_commands
+	-->
+	<param name="command" value="echo ${text} | text2wave -f ${rate} > ${file}"/>
+    </settings>
+</configuration>

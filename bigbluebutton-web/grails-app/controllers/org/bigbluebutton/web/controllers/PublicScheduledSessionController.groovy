@@ -106,7 +106,7 @@ class PublicScheduledSessionController {
 	}
 	
     def signIn = { 
-		if (params.fullname.trim() == "") {
+		if (params.fullname == null || params.fullname.trim() == "") {
 			log.debug "USer entered a blank name"
 			flash.message = "Please enter your name."
 			render(view:"joinIn", model: [id:params.id, fullname:params.fullname])
@@ -250,6 +250,10 @@ class PublicScheduledSessionController {
 				}
 			}
 	    } else {	
+		//FIXME: ljackson, wbv is null and that causes audio module to dial null rather than correct confrence.
+		if(!wbv) {
+			wbv = vb
+		}
 	    	response.addHeader("Cache-Control", "no-cache")
 	    	withFormat {				
 				xml {

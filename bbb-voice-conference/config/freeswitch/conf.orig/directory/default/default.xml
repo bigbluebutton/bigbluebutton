@@ -1,0 +1,26 @@
+<include>
+  <user id="default"> <!--if id is numeric mailbox param is not necessary-->
+    <!--
+	ATTENTION PLEASE READ THIS... (I know you won't but you've been warrned)
+	
+	Let it be known that this user can register without a password but since we do not assign
+	this user a user_context and we don't authenticate this user they will be put in context 'public'.
+	
+	This isn't a security issue as the endpoint would be put into the same context 'public' as the 
+	sofia profile that starts on 5080 by default. If you're paranoid just remove this file and 
+	remove the external profile also.
+	
+	If you're this paranoid you might wanna go buy some more tinfoil and disconnect from the internets.
+	
+	Cuz we all know the internets is for pr0n anyway.
+
+    -->
+    <variables>
+      <!--all variables here will be set on all inbound calls that originate from this user -->
+      <!-- set these to take advantage of a dialplan localized to this user -->
+      <variable name="numbering_plan" value="$${default_country}"/>
+      <variable name="default_areacode" value="$${default_areacode}"/>
+      <variable name="default_gateway" value="$${default_provider}"/>
+    </variables>
+  </user>
+</include>
