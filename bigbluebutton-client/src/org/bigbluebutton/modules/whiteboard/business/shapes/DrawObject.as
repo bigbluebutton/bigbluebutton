@@ -17,7 +17,7 @@
  *
  * $Id: $
  */
-package org.bigbluebutton.modules.highlighter.business.shapes
+package org.bigbluebutton.modules.whiteboard.business.shapes
 {
 	/**
 	 * The DrawObject class provides an interface for other geometric representations.

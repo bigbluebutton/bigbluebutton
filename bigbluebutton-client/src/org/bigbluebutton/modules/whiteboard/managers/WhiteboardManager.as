@@ -1,4 +1,4 @@
-package org.bigbluebutton.modules.highlighter.managers
+package org.bigbluebutton.modules.whiteboard.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
@@ -6,30 +6,30 @@ package org.bigbluebutton.modules.highlighter.managers
 	import flash.utils.Timer;
 	
 	import org.bigbluebutton.main.events.AddUIComponentToMainCanvas;
-	import org.bigbluebutton.modules.highlighter.events.WhiteboardButtonEvent;
-	import org.bigbluebutton.modules.highlighter.views.HighlighterCanvas;
-	import org.bigbluebutton.modules.highlighter.views.HighlighterToolbar;
-	import org.bigbluebutton.modules.highlighter.views.WhiteboardButton;
+	import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
+	import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
+	import org.bigbluebutton.modules.whiteboard.views.WhiteboardToolbar;
+	import org.bigbluebutton.modules.whiteboard.views.WhiteboardButton;
 	import org.bigbluebutton.modules.present.events.AddButtonToPresentationEvent;
 	import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
 	
-	public class HighlighterManager
+	public class WhiteboardManager
 	{
 		private var globalDispatcher:Dispatcher;
-		private var highlighterCanvas:HighlighterCanvas;
-		private var highlighterToolbar:HighlighterToolbar;
+		private var highlighterCanvas:WhiteboardCanvas;
+		private var highlighterToolbar:WhiteboardToolbar;
 		private var whiteboardButton:WhiteboardButton;
 		
-		public function HighlighterManager()
+		public function WhiteboardManager()
 		{
 			globalDispatcher = new Dispatcher();
 		}
 		
 		public function handleStartModuleEvent():void{	
 			if (highlighterCanvas != null) return;
-			highlighterCanvas = new HighlighterCanvas();
+			highlighterCanvas = new WhiteboardCanvas();
 			if (highlighterToolbar != null) return;
-			highlighterToolbar = new HighlighterToolbar();
+			highlighterToolbar = new WhiteboardToolbar();
 			highlighterToolbar.canvas = highlighterCanvas;
 			if (whiteboardButton != null) return;
 			whiteboardButton = new WhiteboardButton();

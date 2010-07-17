@@ -7,7 +7,7 @@
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="viewerMode" />
 	<mate:Listener type="{WhiteboardButtonEvent.DISABLE_WHITEBOARD}" method="disableWhiteboard" />
 	<mate:Listener type="{WhiteboardButtonEvent.ENABLE_WHITEBOARD}" method="enableWhiteboard" />
-	<mate:Listener type="{StopHighlighterModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT}" method="closeToolbar" />
+	<mate:Listener type="{StopWhiteboardModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT}" method="closeToolbar" />
 	<mate:Listener type="{WhiteboardButtonEvent.CHANGE_TO_PENCIL}" method="setShapeToPencil" />
 	
 	<mx:Style>
@@ -37,11 +37,11 @@
 			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import org.bigbluebutton.modules.highlighter.business.shapes.DrawObject;
-			import org.bigbluebutton.modules.highlighter.events.HighlighterDrawEvent;
-			import org.bigbluebutton.modules.highlighter.events.HighlighterPresenterEvent;
-			import org.bigbluebutton.modules.highlighter.events.StopHighlighterModuleEvent;
-			import org.bigbluebutton.modules.highlighter.events.WhiteboardButtonEvent;
+			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
+			import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.modules.present.events.PresentationEvent;
 			import org.bigbluebutton.modules.present.views.PresentationWindow;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -55,7 +55,7 @@
 			[Bindable] private var thick_icon:Class = images.whiteboard_thick;
 			[Bindable] private var thin_icon:Class = images.whiteboard_thin;
 			
-			public var canvas:HighlighterCanvas;
+			public var canvas:WhiteboardCanvas;
 			private var presentationWindow:PresentationWindow;
 			
 			[Bindable] private var colorPickerColours:Array = ['0x000000', '0xFFFFFF' , '0xFF0000', '0xFF8800',
@@ -126,7 +126,7 @@
 			}
 			
 			private function sendUndoCommand():void{
-				if (!canvas.isPageEmpty()) dispatchEvent(new HighlighterDrawEvent(HighlighterDrawEvent.UNDO_SHAPE));
+				if (!canvas.isPageEmpty()) dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.UNDO_SHAPE));
 			}
 			
 			private function enableWhiteboard(event:WhiteboardButtonEvent = null):void{
@@ -159,7 +159,7 @@
 				parent.setChildIndex(this, parent.numChildren-1);
 			}
 			
-			private function closeToolbar(e:StopHighlighterModuleEvent):void{
+			private function closeToolbar(e:StopWhiteboardModuleEvent):void{
 				parent.removeChild(this);
 			}
 			
@@ -173,7 +173,7 @@
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.ellipse')}" toggle="true" />
 	
 	<mx:Spacer height="5" />
-	<mx:Button width="20" height="20" id="btnClear" click="dispatchEvent(new HighlighterDrawEvent(HighlighterDrawEvent.CLEAR_BOARD))" icon="{delete_icon}" 
+	<mx:Button width="20" height="20" id="btnClear" click="dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.CLEAR_BOARD))" icon="{delete_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.clear')}" />
 	<mx:Button width="20" height="20" id="btnUndo"  click="sendUndoCommand()" icon="{undo_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.undo')}" />

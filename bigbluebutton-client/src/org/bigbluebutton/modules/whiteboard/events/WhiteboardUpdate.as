@@ -1,10 +1,10 @@
-package org.bigbluebutton.modules.highlighter.events
+package org.bigbluebutton.modules.whiteboard.events
 {
 	import flash.events.Event;
 	
-	import org.bigbluebutton.modules.highlighter.business.shapes.DrawObject;
+	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 	
-	public class HighlighterUpdate extends Event
+	public class WhiteboardUpdate extends Event
 	{
 		public static const BOARD_UPDATED:String = "boardUpdated";
 		public static const BOARD_CLEARED:String = "boardClear";
@@ -14,7 +14,7 @@ package org.bigbluebutton.modules.highlighter.events
 		public var data:DrawObject;
 		public var boardEnabled:Boolean;
 		
-		public function HighlighterUpdate(type:String)
+		public function WhiteboardUpdate(type:String)
 		{
 			super(type, true, false);
 		}

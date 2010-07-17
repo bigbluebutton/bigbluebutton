@@ -38,7 +38,7 @@
 			dependsOn="ViewersModule"
 		/>
 		
-		<module name="HighlighterModule" url="HighlighterModule.swf?v=VERSION" 
+		<module name="WhiteboardModule" url="WhiteboardModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="ViewersModule, PresentModule"
 		/>

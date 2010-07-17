@@ -17,17 +17,17 @@
  *
  * $Id: $
  */
-package org.bigbluebutton.modules.highlighter.events
+package org.bigbluebutton.modules.whiteboard.events
 {
 	import flash.events.Event;
 
-	public class StartHighligtherModuleEvent extends Event
+	public class StartWhiteboardModuleEvent extends Event
 	{
 		public static const START_HIGHLIGHTER_MODULE_EVENT:String = 'START_HIGHLIGHTER_MODULE_EVENT';
 		
 		public var attributes:Object;
 		
-		public function StartHighligtherModuleEvent(bubbles:Boolean=true, cancelable:Boolean=false)
+		public function StartWhiteboardModuleEvent(bubbles:Boolean=true, cancelable:Boolean=false)
 		{
 			super(START_HIGHLIGHTER_MODULE_EVENT, bubbles, cancelable);
 		}

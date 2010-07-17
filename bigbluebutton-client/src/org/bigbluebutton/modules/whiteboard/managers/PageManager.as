@@ -1,4 +1,4 @@
-package org.bigbluebutton.modules.highlighter.managers
+package org.bigbluebutton.modules.whiteboard.managers
 {	
 	import com.asfusion.mate.events.Dispatcher;
 	
@@ -7,8 +7,8 @@ package org.bigbluebutton.modules.highlighter.managers
 	
 	import mx.collections.ArrayCollection;
 	
-	import org.bigbluebutton.modules.highlighter.events.HighlighterUpdate;
-	import org.bigbluebutton.modules.highlighter.events.PageEvent;
+	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
+	import org.bigbluebutton.modules.whiteboard.events.PageEvent;
 	import org.bigbluebutton.modules.present.events.NavigationEvent;
 	import org.bigbluebutton.modules.present.events.PresentationEvent;
 	
@@ -26,7 +26,7 @@ package org.bigbluebutton.modules.highlighter.managers
 			dispatcher = new Dispatcher();
 		}
 		
-		public function addShapeToPage(e:HighlighterUpdate):void{
+		public function addShapeToPage(e:WhiteboardUpdate):void{
 			(pages.getItemAt(pageNum) as ArrayCollection).addItem(e.data);
 		}
 		

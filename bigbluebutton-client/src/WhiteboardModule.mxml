@@ -20,7 +20,7 @@
   $Id: $
 --> 
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="400" height="300" 
-	implements="org.bigbluebutton.common.IBigBlueButtonModule" xmlns:maps="org.bigbluebutton.modules.highlighter.maps.*"
+	implements="org.bigbluebutton.common.IBigBlueButtonModule" xmlns:maps="org.bigbluebutton.modules.whiteboard.maps.*"
 	creationComplete="init()" xmlns:mate="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
@@ -29,8 +29,8 @@
 			
 			import mx.controls.Alert;
 			
-			import org.bigbluebutton.modules.highlighter.events.StartHighligtherModuleEvent;
-			import org.bigbluebutton.modules.highlighter.events.StopHighlighterModuleEvent;
+			import org.bigbluebutton.modules.whiteboard.events.StartWhiteboardModuleEvent;
+			import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
 					
 			private var _moduleId:String = "HighlighterModule";
 			private var _moduleName:String = "Highlighter Module";			
@@ -90,17 +90,17 @@
 				globalDispatcher = new Dispatcher();
 				//eventMap.createHighlighterCanvas();
 				
-				var startEvent:StartHighligtherModuleEvent = new StartHighligtherModuleEvent();
+				var startEvent:StartWhiteboardModuleEvent = new StartWhiteboardModuleEvent();
 				startEvent.attributes = attributes;
 				globalDispatcher.dispatchEvent(startEvent);
 								
 			}
 		
 			public function stop():void {
-				globalDispatcher.dispatchEvent(new StopHighlighterModuleEvent(StopHighlighterModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT));
+				globalDispatcher.dispatchEvent(new StopWhiteboardModuleEvent(StopWhiteboardModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT));
 			}
 		]]>
 	</mx:Script>
 	
-	<maps:HighlighterEventMap id="eventMap" />
+	<maps:WhiteboardEventMap id="eventMap" />
 </mx:Module>

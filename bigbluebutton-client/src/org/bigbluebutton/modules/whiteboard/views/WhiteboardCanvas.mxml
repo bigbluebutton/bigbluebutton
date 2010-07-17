@@ -12,15 +12,15 @@
 			
 			import org.bigbluebutton.common.IBbbCanvas;
 			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.modules.highlighter.business.shapes.DrawObject;
-			import org.bigbluebutton.modules.highlighter.business.shapes.DrawObjectFactory;
-			import org.bigbluebutton.modules.highlighter.business.shapes.ShapeFactory;
-			import org.bigbluebutton.modules.highlighter.events.HighlighterDrawEvent;
-			import org.bigbluebutton.modules.highlighter.events.HighlighterPresenterEvent;
-			import org.bigbluebutton.modules.highlighter.events.HighlighterUpdate;
-			import org.bigbluebutton.modules.highlighter.events.PageEvent;
-			import org.bigbluebutton.modules.highlighter.events.WhiteboardButtonEvent;
-			import org.bigbluebutton.modules.highlighter.maps.HighlighterEventMap;
+			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
+			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObjectFactory;
+			import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
+			import org.bigbluebutton.modules.whiteboard.events.PageEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
+			import org.bigbluebutton.modules.whiteboard.maps.WhiteboardEventMap;
 			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
 			
 			private var x1:int;
@@ -86,7 +86,7 @@
 				this.d = drawFactory.makeDrawObject(this.shapeStyle, segment, this.drawColor, this.thickness);
 				this.d.parentHeight = this.height;
 				this.d.parentWidth = this.width;
-				var event:HighlighterDrawEvent = new HighlighterDrawEvent(HighlighterDrawEvent.SEND_SHAPE);
+				var event:WhiteboardDrawEvent = new WhiteboardDrawEvent(WhiteboardDrawEvent.SEND_SHAPE);
 				event.message = d;
 				dispatchEvent(event);
 				if (rawChildren.contains(feedback)){
@@ -148,7 +148,7 @@
 			 * This method is executed by the BoardMediator upon reception of an Update request. The method
 			 * is executed on all clients, even the one which sent the update request.
 			 */
-			public function drawSegment(event:HighlighterUpdate):void{
+			public function drawSegment(event:WhiteboardUpdate):void{
 				var o:DrawObject = event.data;
 				draw(o);
 			}
@@ -193,7 +193,7 @@
 			/**
 			 * Clears the entire board
 			 */
-			public function clearBoard(event:HighlighterUpdate = null):void{
+			public function clearBoard(event:WhiteboardUpdate = null):void{
 				for (var i:Number = 0; i<this.shapeList.length; i++){
 					if (this.bbbCanvas.doesContain(this.shapeList[i])){
 						this.bbbCanvas.removeRawChild(this.shapeList[i]);	
@@ -202,7 +202,7 @@
 				this.shapeList = new Array();
 			}
 			
-			public function undoShape(event:HighlighterUpdate):void{
+			public function undoShape(event:WhiteboardUpdate):void{
 				if (this.shapeList.length > 0){
 					this.bbbCanvas.removeRawChild(this.shapeList[this.shapeList.length-1]);
 					shapeList.pop();
@@ -314,9 +314,9 @@
 	</mx:Script>
 	
 	<mate:Debugger level="{Debugger.ALL}" />
-	<mate:Listener type="{HighlighterUpdate.BOARD_CLEARED}" method="clearBoard" />
-	<mate:Listener type="{HighlighterUpdate.BOARD_UPDATED}" method="drawSegment" />
-	<mate:Listener type="{HighlighterUpdate.SHAPE_UNDONE}" method="undoShape" />
+	<mate:Listener type="{WhiteboardUpdate.BOARD_CLEARED}" method="clearBoard" />
+	<mate:Listener type="{WhiteboardUpdate.BOARD_UPDATED}" method="drawSegment" />
+	<mate:Listener type="{WhiteboardUpdate.SHAPE_UNDONE}" method="undoShape" />
 	<mate:Listener type="{WindowResizedEvent.PRESENTATION_WINDOW_RESIZED_EVENT}" method="scaleCanvas" />
 	<mate:Listener type="{PageEvent.CHANGE_PAGE}" method="changePage" />
 	<mate:Listener type="{WhiteboardButtonEvent.ENABLE_WHITEBOARD}" method="enableWhiteboard" />

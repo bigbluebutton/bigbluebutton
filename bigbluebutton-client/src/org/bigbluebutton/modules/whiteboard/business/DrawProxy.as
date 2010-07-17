@@ -17,7 +17,7 @@
  *
  * $Id: $
  */
-package org.bigbluebutton.modules.highlighter.business
+package org.bigbluebutton.modules.whiteboard.business
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
@@ -28,13 +28,13 @@ package org.bigbluebutton.modules.highlighter.business
 	import flash.net.Responder;
 	import flash.net.SharedObject;
 	
-	import org.bigbluebutton.modules.highlighter.business.shapes.DrawObject;
-	import org.bigbluebutton.modules.highlighter.business.shapes.DrawObjectFactory;
-	import org.bigbluebutton.modules.highlighter.events.HighlighterDrawEvent;
-	import org.bigbluebutton.modules.highlighter.events.HighlighterPresenterEvent;
-	import org.bigbluebutton.modules.highlighter.events.HighlighterUpdate;
-	import org.bigbluebutton.modules.highlighter.events.PageEvent;
-	import org.bigbluebutton.modules.highlighter.events.StartHighligtherModuleEvent;
+	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
+	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObjectFactory;
+	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
+	import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
+	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
+	import org.bigbluebutton.modules.whiteboard.events.PageEvent;
+	import org.bigbluebutton.modules.whiteboard.events.StartWhiteboardModuleEvent;
 	import org.bigbluebutton.modules.present.events.PresentationEvent;
 	import org.bigbluebutton.common.LogUtil;
 	
@@ -73,7 +73,7 @@ package org.bigbluebutton.modules.highlighter.business
 			dispatcher = new Dispatcher();
 		}
 		
-		public function connect(e:StartHighligtherModuleEvent):void{
+		public function connect(e:StartWhiteboardModuleEvent):void{
 			extractAttributes(e.attributes);
 			
 			drawSO = SharedObject.getRemote("drawSO", url, false);
@@ -183,7 +183,7 @@ package org.bigbluebutton.modules.highlighter.business
 		 * @param shape The shape sent to the SharedObject
 		 * 
 		 */		
-		public function sendShape(e:HighlighterDrawEvent):void{
+		public function sendShape(e:WhiteboardDrawEvent):void{
 			var shape:DrawObject = e.message;
 			
 			var nc:NetConnection = connection;
@@ -221,7 +221,7 @@ package org.bigbluebutton.modules.highlighter.business
 			var d:DrawObject = drawFactory.makeDrawObject(type,array,color,thickness);
 			d.parentWidth = parentWidth;
 			d.parentHeight = parentHeight;
-			var e:HighlighterUpdate = new HighlighterUpdate(HighlighterUpdate.BOARD_UPDATED);
+			var e:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.BOARD_UPDATED);
 			e.data = d;
 			dispatcher.dispatchEvent(e);
 		}
@@ -258,7 +258,7 @@ package org.bigbluebutton.modules.highlighter.business
 		 * 
 		 */		
 		public function clear():void{
-			dispatcher.dispatchEvent(new HighlighterUpdate(HighlighterUpdate.BOARD_CLEARED));
+			dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.BOARD_CLEARED));
 		}
 		
 		/**
@@ -293,10 +293,10 @@ package org.bigbluebutton.modules.highlighter.business
 		 * 
 		 */		
 		public function undo():void{
-			dispatcher.dispatchEvent(new HighlighterUpdate(HighlighterUpdate.SHAPE_UNDONE));
+			dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.SHAPE_UNDONE));
 		}
 		
-		public function modifyEnabled(e:HighlighterPresenterEvent):void{
+		public function modifyEnabled(e:WhiteboardPresenterEvent):void{
 			var nc:NetConnection = connection;
 			nc.call(
 				"whiteboard.enableWhiteboard",// Remote function name
@@ -318,7 +318,7 @@ package org.bigbluebutton.modules.highlighter.business
 		}
 		
 		public function modifyEnabledCallback(enabled:Boolean):void{
-			var e:HighlighterUpdate = new HighlighterUpdate(HighlighterUpdate.BOARD_ENABLED);
+			var e:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.BOARD_ENABLED);
 			e.boardEnabled = enabled;
 			dispatcher.dispatchEvent(e);
 		}

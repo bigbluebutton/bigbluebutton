@@ -1,4 +1,4 @@
-package org.bigbluebutton.modules.highlighter.events
+package org.bigbluebutton.modules.whiteboard.events
 {
 	import flash.events.Event;
 	

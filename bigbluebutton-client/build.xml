@@ -23,7 +23,7 @@
 	<property name="DESKSHARE_SA" value="DeskshareStandalone" />
 	<property name="PHONE" value="PhoneModule" />
 	<property name="VIDEO" value="VideoconfModule" />
-	<property name="HIGHLIGHTER" value="HighlighterModule" />
+	<property name="WHITEBOARD" value="WhiteboardModule" />
 	<property name="DYN_INFO" value="DynamicInfoModule" />
 	
 	<property name="AVAILABLE_LOCALES" value="az_AZ,de_DE,el_GR,en_US,es_ES,es_LA,fr_FR,fr_CA,hu_HU,it_IT,lt_LT,nb_NO,nl_NL,pl_PL,pt_BR,pt_PT,ro_RO,ru_RU,tr_TR,vi_VN,zh_CN,zh_TW"/>
@@ -151,8 +151,8 @@
 		<build-module src="${SRC_DIR}" target="${VIDEO}" />
 	</target>
 	
-	<target name="build-highlighter" description="Compile Highlighter Module">
-		<build-module src="${SRC_DIR}" target="${HIGHLIGHTER}" />
+	<target name="build-whiteboard" description="Compile Whiteboard Module">
+		<build-module src="${SRC_DIR}" target="${WHITEBOARD}" />
 	</target>
 	
 	<target name="build-dyn" description="Compile Dynamic Info Module">
@@ -166,9 +166,9 @@
 	</target>
 	
 	<!-- just a grouping of modules to compile -->
-	<target name="build-deskshare-phone-video-highlighter-dyn" 
-			depends="build-deskshare, build-phone, build-video, build-highlighter, build-dyn"
-			description="Compile deskshare, phone, video, highlighter, dynamic info modules">
+	<target name="build-deskshare-phone-video-whiteboard-dyn" 
+			depends="build-deskshare, build-phone, build-video, build-whiteboard, build-dyn"
+			description="Compile deskshare, phone, video, whiteboard, dynamic info modules">
 	</target>
 	
 	<macrodef name="build-main">
@@ -248,7 +248,7 @@
 			<echo message="Deskshare standalone built without optimization." />
 	</target>
 		
-	<target name="compile-bbb" depends="build-main-chat-viewers-listeners-present, build-deskshare-phone-video-highlighter-dyn, copy-resource-files"
+	<target name="compile-bbb" depends="build-main-chat-viewers-listeners-present, build-deskshare-phone-video-whiteboard-dyn, copy-resource-files"
 			description="Compiling the BBB without copying config.xml">	
 	</target>
 

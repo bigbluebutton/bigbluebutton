@@ -17,15 +17,15 @@
  *
  * $Id: $
  */
-package org.bigbluebutton.modules.highlighter.events
+package org.bigbluebutton.modules.whiteboard.events
 {
 	import flash.events.Event;
 
-	public class StopHighlighterModuleEvent extends Event
+	public class StopWhiteboardModuleEvent extends Event
 	{
 		public static const STOP_HIGHLIGHTER_MODULE_EVENT:String = 'STOP_HIGHLIGHTER_MODULE_EVENT';
 				
-		public function StopHighlighterModuleEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
+		public function StopWhiteboardModuleEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
 			super(type, bubbles, cancelable);
 		}

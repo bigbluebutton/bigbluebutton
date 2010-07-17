@@ -2,31 +2,31 @@
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/" xmlns:mate="org.bigbluebutton.common.mate.*">
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.highlighter.events.WhiteboardButtonEvent;
-			import org.bigbluebutton.modules.highlighter.events.PageEvent;
-			import org.bigbluebutton.modules.highlighter.events.HighlighterPresenterEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
+			import org.bigbluebutton.modules.whiteboard.events.PageEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
 			import mx.controls.Alert;
 			import org.bigbluebutton.modules.present.events.NavigationEvent;
-			import org.bigbluebutton.modules.highlighter.events.HighlighterUpdate;
-			import org.bigbluebutton.modules.highlighter.business.DrawProxy;
-			import org.bigbluebutton.modules.highlighter.events.StartHighligtherModuleEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
+			import org.bigbluebutton.modules.whiteboard.business.DrawProxy;
+			import org.bigbluebutton.modules.whiteboard.events.StartWhiteboardModuleEvent;
 			import mx.events.FlexEvent;
-			import org.bigbluebutton.modules.highlighter.managers.HighlighterManager;
+			import org.bigbluebutton.modules.whiteboard.managers.WhiteboardManager;
 			import org.bigbluebutton.main.events.ModuleStartedEvent;
-			import org.bigbluebutton.modules.highlighter.events.HighlighterDrawEvent;
-			import org.bigbluebutton.modules.highlighter.views.HighlighterCanvas;
-			import org.bigbluebutton.modules.highlighter.managers.PageManager;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
+			import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
+			import org.bigbluebutton.modules.whiteboard.managers.PageManager;
 			import org.bigbluebutton.modules.present.events.PresentationEvent;
 		]]>
 	</mx:Script>
 	
 	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
-		<ObjectBuilder generator="{HighlighterManager}" cache="global" />
+		<ObjectBuilder generator="{WhiteboardManager}" cache="global" />
 		<ObjectBuilder generator="{DrawProxy}" cache="global" />
 		<ObjectBuilder generator="{PageManager}" cache="global" />
 	</EventHandlers>
 	
-	<EventHandlers type="{HighlighterPresenterEvent.MODIFY_ENABLED}" >
+	<EventHandlers type="{WhiteboardPresenterEvent.MODIFY_ENABLED}" >
 		<MethodInvoker generator="{DrawProxy}" method="modifyEnabled" arguments="{event}" />
 	</EventHandlers>
 	
@@ -39,32 +39,32 @@
 		<MethodInvoker generator="{DrawProxy}" method="setActivePresentation" arguments="{event}" />
 	</EventHandlers>
 	
-	<EventHandlers type="{StartHighligtherModuleEvent.START_HIGHLIGHTER_MODULE_EVENT}">
-		<MethodInvoker generator="{HighlighterManager}" method="handleStartModuleEvent" />
+	<EventHandlers type="{StartWhiteboardModuleEvent.START_HIGHLIGHTER_MODULE_EVENT}">
+		<MethodInvoker generator="{WhiteboardManager}" method="handleStartModuleEvent" />
 		<MethodInvoker generator="{DrawProxy}" method="connect" arguments="{event}" />
 	</EventHandlers>
 	
-	<EventHandlers type="{HighlighterDrawEvent.CLEAR_BOARD}" >
+	<EventHandlers type="{WhiteboardDrawEvent.CLEAR_BOARD}" >
 		<MethodInvoker generator="{DrawProxy}" method="clearBoard" />
 	</EventHandlers>
 	
-	<EventHandlers type="{HighlighterDrawEvent.SEND_SHAPE}">
+	<EventHandlers type="{WhiteboardDrawEvent.SEND_SHAPE}">
 		<MethodInvoker generator="{DrawProxy}" method="sendShape" arguments="{event}" />
 	</EventHandlers>
 	
-	<EventHandlers type="{HighlighterDrawEvent.UNDO_SHAPE}" >
+	<EventHandlers type="{WhiteboardDrawEvent.UNDO_SHAPE}" >
 		<MethodInvoker generator="{DrawProxy}" method="undoShape" />
 	</EventHandlers>
 	
-	<EventHandlers type="{HighlighterUpdate.BOARD_UPDATED}">
+	<EventHandlers type="{WhiteboardUpdate.BOARD_UPDATED}">
 		<MethodInvoker generator="{PageManager}" method="addShapeToPage" arguments="{event}" />
 	</EventHandlers>
 	
-	<EventHandlers type="{HighlighterUpdate.SHAPE_UNDONE}" >
+	<EventHandlers type="{WhiteboardUpdate.SHAPE_UNDONE}" >
 		<MethodInvoker generator="{PageManager}" method="undoShapeFromPage" />
 	</EventHandlers>
 	
-	<EventHandlers type="{HighlighterUpdate.BOARD_CLEARED}" >
+	<EventHandlers type="{WhiteboardUpdate.BOARD_CLEARED}" >
 		<MethodInvoker generator="{PageManager}" method="clearPage" />
 	</EventHandlers>
 	
@@ -77,6 +77,6 @@
 	</EventHandlers>
 	
 	<EventHandlers type="{WhiteboardButtonEvent.WHITEBOARD_ADDED_TO_PRESENTATION}" >
-		<MethodInvoker generator="{HighlighterManager}" method="positionToolbar" arguments="{event}" />
+		<MethodInvoker generator="{WhiteboardManager}" method="positionToolbar" arguments="{event}" />
 	</EventHandlers>
 </EventMap>

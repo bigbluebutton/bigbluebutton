@@ -17,7 +17,7 @@
  *
  * $Id: $
  */
-package org.bigbluebutton.modules.highlighter.business.shapes
+package org.bigbluebutton.modules.whiteboard.business.shapes
 {
 	/**
 	 * The Rectangle class. Extends a DrawObject 

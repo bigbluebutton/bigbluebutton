@@ -17,7 +17,7 @@
  *
  * $Id: $
  */
-package org.bigbluebutton.modules.highlighter.business.shapes
+package org.bigbluebutton.modules.whiteboard.business.shapes
 {
 	/**
 	 * The DrawObjectFactory class receives a series of parameters and constructs an appropriate 
