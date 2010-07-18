@@ -30,6 +30,7 @@
 		The FlexEvent.PREINITIALIZE event is a good place for creating and initializing managers.
 		-->
 		<ObjectBuilder generator="{ModulesProxy}" cache="global" />
+		<ObjectBuilder generator="{UserService}" cache="global" />
 	</EventHandlers>
 	
 	<EventHandlers type="{FlexEvent.CREATION_COMPLETE}">        
@@ -84,22 +85,37 @@
 	<EventHandlers type="{LoginSuccessEvent.LOGIN_SUCCESS}" >
 		<MethodInvoker generator="{ModulesProxy}" method="handleLogin" arguments="{event}" />
 	</EventHandlers>
+	
+	<EventHandlers type="{UserServicesEvent.START_USER_SERVICES}" >
+		<MethodInvoker generator="{UserService}" method="startService" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{UsersConnectionEvent.CONNECTION_SUCCESS}" >
+		<MethodInvoker generator="{UserService}" method="userLoggedIn" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{LoadModulesCommand.LOAD_MODULES}" >
+		<MethodInvoker generator="{ModulesProxy}" method="startModulesLoading" arguments="{event}" />
+	</EventHandlers>
 
 	<mx:Script>
 	<![CDATA[
 		import mx.events.FlexEvent;
 		
-		import org.bigbluebutton.main.events.AppEvent;
 		import org.bigbluebutton.main.events.ConfigEvent;
 		import org.bigbluebutton.main.events.ConnectedEvent;
+		import org.bigbluebutton.main.events.LoadModulesCommand;
 		import org.bigbluebutton.main.events.LogoutEvent;
 		import org.bigbluebutton.main.events.ModeEvent;
 		import org.bigbluebutton.main.events.ModuleEvent;
 		import org.bigbluebutton.main.events.ModuleLoadEvent;
 		import org.bigbluebutton.main.events.ParticipantJoinEvent;
 		import org.bigbluebutton.main.events.PortTestEvent;
+		import org.bigbluebutton.main.events.UserServicesEvent;
 		import org.bigbluebutton.main.model.ModulesProxy;
 		import org.bigbluebutton.main.model.PortTestProxy;
+		import org.bigbluebutton.main.model.users.UserService;
+		import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
 		import org.bigbluebutton.modules.viewers.events.LoginSuccessEvent;
 	]]>
 	</mx:Script>

@@ -34,6 +34,7 @@ package org.bigbluebutton.main.managers
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.main.events.ConfigurationEvent;
 	import org.bigbluebutton.main.events.ModuleLoadEvent;
+	import org.bigbluebutton.main.events.UserServicesEvent;
 	import org.bigbluebutton.main.model.ModuleDescriptor;
 	
 	public class ModuleManager
@@ -57,6 +58,9 @@ package org.bigbluebutton.main.managers
 		private var _portTestHost:String;
 		private var _portTestApplication:String;
 		private var _helpURL:String;
+		private var _application:String;
+		private var _host:String;
+		
 		private var globalDispatcher:Dispatcher;
 		
 		public function ModuleManager()
@@ -101,17 +105,12 @@ package org.bigbluebutton.main.managers
 				listener(inited);
 			}
 		}
-
-		/*private function notifyModuleLoadedListeners(event:String, name:String, progress:Number=0):void {
-			for (var i:int=0; i<_moduleLoadedListeners.length; i++) {
-				var listener:Function = _moduleLoadedListeners.getItemAt(i) as Function;
-				listener(event, name, progress);
-			}
-		}*/
 				
 		public function parse(xml:XML):void{
 			_portTestHost = xml.porttest.@host;
 			_portTestApplication = xml.porttest.@application;
+			_application = xml.application.@uri;
+			_host = xml.application.@host;
 			
 			_helpURL = xml.help.@url;
 						
@@ -298,7 +297,14 @@ package org.bigbluebutton.main.managers
 			return _numModules;
 		}
 		
-		public function handleAppModelInitialized():void {			
+		public function startUserServices():void {
+			var e:UserServicesEvent = new UserServicesEvent(UserServicesEvent.START_USER_SERVICES);
+			e.applicationURI = _application;
+			e.hostURI = _host;
+			globalDispatcher.dispatchEvent(e);
+		}
+		
+		public function loadAllModules():void{
 			for (var i:int = 0; i<sorted.length; i++){
 				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
 				loadModule(m.getAttribute("name") as String);
@@ -394,5 +400,6 @@ package org.bigbluebutton.main.managers
 			}
 			return true;
 		}
+
 	}
 }

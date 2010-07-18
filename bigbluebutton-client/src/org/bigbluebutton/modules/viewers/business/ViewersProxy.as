@@ -52,12 +52,6 @@ package org.bigbluebutton.modules.viewers.business
 		public function ViewersProxy(){
 			dispatcher = new Dispatcher();
 		}
-		
-		public function connect():void {
-			_viewersService = new ViewersSOService(module, _participants);
-			LogUtil.debug("ViewersProxy" + '::' + module.username + "," + module.role);
-			_viewersService.connect(module.username, module.role, module.conference, module.mode, module.room, module.externUserID);		
-		}
 
 		public function join(e:ViewersModuleStartedEvent):void {
 			module = e.module;
@@ -108,6 +102,12 @@ package org.bigbluebutton.modules.viewers.business
 				connectionEvent.reason = ConnectionFailedEvent.UNKNOWN_REASON;
 				dispatcher.dispatchEvent(connectionEvent);
 			}
+		}
+		
+		public function connect():void {
+			_viewersService = new ViewersSOService(module, _participants);
+			LogUtil.debug("ViewersProxy" + '::' + module.username + "," + module.role);
+			_viewersService.connect(module.username, module.role, module.conference, module.mode, module.room, module.externUserID);		
 		}
 		
 		public function connectSharedObjects(e:ViewersConnectionEvent):void{

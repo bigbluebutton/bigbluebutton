@@ -1,0 +1,76 @@
+/*
+ * BigBlueButton - http://www.bigbluebutton.org
+ * 
+ * Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
+ * 
+ * BigBlueButton is free software; you can redistribute it and/or modify it under the 
+ * terms of the GNU Lesser General Public License as published by the Free Software 
+ * Foundation; either version 3 of the License, or (at your option) any later 
+ * version. 
+ * 
+ * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+ * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License along 
+ * with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
+ *
+ * $Id: $
+ */
+package org.bigbluebutton.main.model.users
+{
+	import flash.events.*;
+	import flash.net.URLLoader;
+	import flash.net.URLRequest;
+	import flash.net.URLRequestMethod;
+	import flash.net.URLVariables;
+	import org.bigbluebutton.common.LogUtil;
+	        	
+	public class JoinService
+	{  
+		private var request:URLRequest = new URLRequest();
+		private var vars:URLVariables = new URLVariables();
+		
+		private var urlLoader:URLLoader;
+		private var _resultListener:Function;
+		
+		public function JoinService()
+		{
+		}
+		
+		public function load(url:String) : void
+		{
+			LogUtil.debug("JoinService:load(...) " + url);
+			            
+            request = new URLRequest(url);
+            request.method = URLRequestMethod.GET;		
+            
+            urlLoader = new URLLoader();
+			urlLoader.addEventListener(Event.COMPLETE, handleComplete);	
+            urlLoader.load(request);	
+		}
+
+		public function addJoinResultListener(listener:Function):void {
+			_resultListener = listener;
+		}
+		
+		private function handleComplete(e:Event):void {			
+			var xml:XML = new XML(e.target.data)
+
+			var returncode:String = xml.returncode;
+			if (returncode == 'FAILED') {
+				LogUtil.debug("Join FAILED = " + xml);
+				_resultListener(false, {message:xml.message});
+			} else if (returncode == 'SUCCESS') {
+				LogUtil.debug("Join SUCESS = " + xml);
+				var user:Object = {username:xml.fullname, conference:xml.conference, conferenceName:xml.confname,
+										meetingID:xml.meetingID, externUserID:xml.externUserID,
+										role:xml.role, room:xml.room, authToken:xml.room, record:xml.record, 
+										webvoiceconf:xml.webvoiceconf,
+										voicebridge:xml.voicebridge, mode:xml.mode, welcome:xml.welcome};
+				_resultListener(true, user);
+			}
+				
+		}
+	}
+}

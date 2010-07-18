@@ -25,6 +25,7 @@ package org.bigbluebutton.main.model
 	import mx.modules.ModuleManager;
 	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.main.events.LoadModulesCommand;
 	import org.bigbluebutton.main.events.PortTestEvent;
 	import org.bigbluebutton.main.managers.ModuleManager;
 	import org.bigbluebutton.modules.viewers.events.LoginSuccessEvent;
@@ -63,7 +64,7 @@ package org.bigbluebutton.main.model
 
 		public function portTestSuccess(e:PortTestEvent):void {
 			modulesManager.useProtocol(e.protocol);
-			modulesManager.handleAppModelInitialized();
+			modulesManager.startUserServices();
 		}
 						
 		public function loadModule(name:String):void {
@@ -109,6 +110,10 @@ package org.bigbluebutton.main.model
 		public function testRTMPT(e:PortTestEvent):void{
 			if (e.protocol == "RTMP") portTestProxy.connect("RTMPT", getPortTestHost(), "", getPortTestApplication());
 			else dispatcher.dispatchEvent(new PortTestEvent(PortTestEvent.TUNNELING_FAILED));
+		}
+		
+		public function startModulesLoading(e:LoadModulesCommand):void{
+			modulesManager.loadAllModules();
 		}
 	}
 }
