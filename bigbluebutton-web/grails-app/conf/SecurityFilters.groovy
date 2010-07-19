@@ -28,37 +28,13 @@ class SecurityFilters {
 
                 switch (controllerName) {
 	            	case 'api':
-	            	case 'portal':
-            		case 'join':
-            		case 'adhoc':
                 	case 'presentation':
                 		return true
                 		break
-                	case 'publicScheduledSession':
-                		return true
                 }
                 // This just means that the user must be authenticated. He does
                 // not need any particular role or permission.
                 accessControl { true }
-            }
-        }
-        
-        // Creating, modifying, or deleting a user requires the "Administrator"
-        // role.
-        userEditing(controller: "user", action: "(create|edit|save|update|delete|list)") {
-            before = {
-                accessControl {
-                    role("Administrator")
-                }
-            }
-        }
-
-        // Showing a user requires the "Administrator" *or* the "User" roles.
-        userShow(controller: "user", action: "show") {
-            before = {
-                accessControl {
-                    role("Administrator") || role("User")
-                }
             }
         }
     }
