@@ -26,7 +26,6 @@ import org.asteriskjava.fastagi.AgiRequest
 import org.asteriskjava.fastagi.AgiScript
 
 import java.util.Calendar
-import org.bigbluebutton.web.domain.ScheduledSession
 import org.bigbluebutton.web.services.DynamicConferenceService
 
  
@@ -38,36 +37,6 @@ public class AsteriskAgiService implements AgiScript {
     public void service(AgiRequest request, AgiChannel channel)
             throws AgiException {
     	
-       	def number = request.getParameter("conference")
-		log.debug "Looking for conference $number"
-		def conf = ScheduledSession.findByVoiceConferenceBridge(number)
-				
-		if (conf) { 
-			log.debug("found conference " + conf.name)	
-			def startTime = conf.startDateTime.time - _10_minutes				
-			def endTime = conf.endDateTime.time + _10_minutes				
-			def now = new Date()
-					
-			log.debug("startTime " + new Date(startTime) + " endTime " + new Date(endTime) + " now " + now)
-					
-			if ((startTime < now.time) && (endTime > now.time)) {	
-				log.debug("Setting channel var CONFERENCE_FOUND to $number")
-				channel.setVariable("CONFERENCE_FOUND", number)
-			} else {
-				log.debug("The conference $number has no schedule at this moment")
-				setConferenceNotFound()
-			}
-		} else {
-			log.debug "Cannot find conference from database. Looking in Dynamic conference"
-			if (dynamicConferenceService == null) log.error "dynamicConferenceService is NULL"
-			if (dynamicConferenceService.isMeetingWithVoiceBridgeExist(number)) {
-				log.debug("Setting channel var CONFERENCE_FOUND to $number")
-				channel.setVariable("CONFERENCE_FOUND", number)
-			} else {
-				log.debug("Could not find conference $number")
-				setConferenceNotFound()				
-			}
-		}
     } 
     
     private void setConferenceNotFound() {
