@@ -63,7 +63,7 @@ public function __construct() {
 	$numargs = func_num_args();
 
 	if( $numargs == 0 ) {
-		echo "Constructor created";
+	#	echo "Constructor created";
 	}
 	// pass the information to the class variables
 	else if( $numargs >= 6 ) {
@@ -173,7 +173,7 @@ public function createMeeting( $username, $meetingID, $welcomeString, $mPW, $aPW
 	if( $xml && $xml->returncode == 'SUCCESS' ) {
 		$params = 'meetingID='.urlencode($meetingID).'&fullName='.urlencode($username).'&password='.$mPW;
 		// create the url
-		$this->sessionURL = $url_join.$params.'&checksum='.sha1("join".$params.$SALT);
+		#$this->sessionURL = $url_join.$params.'&checksum='.sha1("join".$params.$SALT);
 		$conferenceIsRunning = true;
 		return ($url_join.$params.'&checksum='.sha1("join".$params.$SALT) );
 	}	
@@ -186,25 +186,25 @@ public function createMeeting( $username, $meetingID, $welcomeString, $mPW, $aPW
 }
 
 // return the url to join a meeting as viewer
-public function joinAsViewer( $userName, $welcomeString = '', $aPW, $SALT, $URL ) {
+public function joinAsViewer( $meetingID, $userName, $welcomeString = '', $aPW, $SALT, $URL ) {
 	$url_join = $URL."api/join?";
 	$params = 'meetingID='.urlencode($meetingID).'&fullName='.urlencode($userName).'&password='.$aPW;
-	$this->userURL = $url_join.$params.'&checksum='.sha1("join".$params.$SALT);
+	$userURL = $url_join.$params.'&checksum='.sha1("join".$params.$SALT);
 	return ($url_join.$params.'&checksum='.sha1("join".$params.$SALT) );
 }
 
 // getURLisMeetingRunning() -- return an URL that the client can use to poll for whether the given meeting is running
 public function getUrlOfRunningMeeting( $meetingID, $URL, $SALT ) {
 	$base_url = $URL."api/isMeetingRunning?";
-	$params = '&meetingID='.urlencode($meetingID);
+	$params = 'meetingID='.urlencode($meetingID);
 	return ($base_url.$params.'&checksum='.sha1("isMeetingRunning".$params.$SALT) );	
 }
 
 // isMeetingRunning() -- check the BigBlueButton server to see if the meeting is running (i.e. there is someone in the meeting)
-public function isMeetingRunning( $meetingID, $meetingID, $URL ) {
-	$xml = bbb_wrap_simplexml_load_file( $this->getUrlOfRunningMeeting( $meetingID, $meetingID, $URL ) );
+public function isMeetingRunning( $meetingID, $URL, $SALT ) {
+	$xml = bbb_wrap_simplexml_load_file( BigBlueButton::getUrlOfRunningMeeting( $meetingID, $URL, $SALT ) );
 	if( $xml && $xml->returncode == 'SUCCESS' ) 
-		return ( ( $xml->running == 'TRUE' ) ? true : false);
+		return ( ( $xml->running == 'true' ) ? true : false);
 	else
 		return ( false );
 }
@@ -218,13 +218,13 @@ public function getUrlFromMeetingInfo( $meetingID, $modPW, $URL, $SALT ) {
 
  // getMeetingInfo() -- Calls getMeetingInfo to obtain information on a given meeting.
 public function getMeetingInfo( $meetingID, $modPW, $URL, $SALT ) {
-	$xml = bbb_wrap_simplexml_load_file( $this->getUrlFromMeetingInfo( $meetingID, $modPW, $URL, $SALT ) );
+	$xml = bbb_wrap_simplexml_load_file( BigBlueButton::getUrlFromMeetingInfo( $meetingID, $modPW, $URL, $SALT ) );
 	return ( str_replace('</response>', '', str_replace("<?xml version=\"1.0\"?>\n<response>", '', $xml->asXML())));
 }
 
  // getMeetingXML() --calls isMeetingRunning to obtain the xml values of the response of the returned URL
 public function getMeetingXML( $meetingID, $URL, $SALT ) {
-	$xml = bbb_wrap_simplexml_load_file( $this->getUrlOfRunningMeeting( $meetingID, $URL, $SALT ) );
+	$xml = bbb_wrap_simplexml_load_file( BigBlueButton::getUrlOfRunningMeeting( $meetingID, $URL, $SALT ) );
 	return ( str_replace('</response>', '', str_replace("<?xml version=\"1.0\"?>\n<response>", '', $xml->asXML())));
 }
 
@@ -282,7 +282,7 @@ public function getInformation( $IDENTIFIER, $meetingID, $modPW, $URL, $SALT ) {
 
 // return the users in the current conference
 public function getUsers( $meetingID, $modPW, $URL, $SALT ) {
-	$xml = bbb_wrap_simplexml_load_file( $this->getUrlFromMeetingInfo( $meetingID, $modPW, $URL, $SALT ) );
+	$xml = bbb_wrap_simplexml_load_file( BigBlueButton::getUrlFromMeetingInfo( $meetingID, $modPW, $URL, $SALT ) );
 	if( $xml && $xml->returncode == 'SUCCESS' ) {
 		ob_start();
 		if( count( $xml->attendees ) && count( $xml->attendees->attendee ) ) {
@@ -324,7 +324,7 @@ public function getUsersXML( $meetingID, $modPW, $URL, $SALT ) {
 
 // getMeetings() -- Calls getMeetings to obtain the list of meetings, then calls getMeetingInfo for each meeting and concatenates the result.
 public function getMeetings( $URL, $SALT ) {
-	$xml = bbb_wrap_simplexml_load_file(getUrlMeetings( $URL, $SALT ) );
+	$xml = bbb_wrap_simplexml_load_file( BigBlueButton::getUrlMeetings( $URL, $SALT ) );
 	if( $xml && $xml->returncode == 'SUCCESS' ) {
 		if( $xml->messageKey )
 			return ( $xml->message->asXML() );	
@@ -334,7 +334,7 @@ public function getMeetings( $URL, $SALT ) {
 			foreach ($xml->meetings->meeting as $meeting)
                         {
                                 echo '<meeting>';
-                                echo getMeetingInfo($meeting->meetingID, $meeting->moderatorPW, $URL, $SALT);
+                                echo BigBlueButton::getMeetingInfo($meeting->meetingID, $meeting->moderatorPW, $URL, $SALT);
                                 echo '</meeting>';
                         }
                 }

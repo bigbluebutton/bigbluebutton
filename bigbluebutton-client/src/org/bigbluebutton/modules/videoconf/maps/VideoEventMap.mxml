@@ -23,6 +23,7 @@
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.OpenWindowEvent;
 			import org.bigbluebutton.main.events.ToolbarButtonEvent;
@@ -37,8 +38,8 @@
 			import org.bigbluebutton.modules.videoconf.views.TiledVideoWindow;
 			import org.bigbluebutton.modules.videoconf.views.ToolbarButton;
 			import org.bigbluebutton.modules.videoconf.views.VideoWindow;
-			import org.bigbluebutton.modules.viewers.view.events.StreamStartedEvent;
-			import org.bigbluebutton.modules.viewers.view.events.ViewCameraEvent;
+			import org.bigbluebutton.modules.viewers.events.StreamStartedEvent;
+			import org.bigbluebutton.modules.viewers.events.ViewCameraEvent;
 			
 			public var module:VideoconfModule;
 			private var button:ToolbarButton;

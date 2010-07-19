@@ -4,6 +4,7 @@ package org.bigbluebutton.main
 	
 	import flexunit.framework.TestCase;
 	import flexunit.framework.TestSuite;
+	import org.bigbluebutton.common.LogUtil;
 
 	public class ModulesProxyTests extends TestCase
 	{

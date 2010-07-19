@@ -22,8 +22,7 @@ package org.bigbluebutton.util.logging
 	import mx.logging.ILogger;
 	import mx.logging.Log;
 	import mx.logging.LogEventLevel;
-	
-	import org.bigbluebutton.common.Constants;
+	import org.bigbluebutton.common.LogUtil;
 	
 	public class Logger
 	{
@@ -61,10 +60,10 @@ package org.bigbluebutton.util.logging
 		
 		public function get messages():String {
 			return target.messages;
-		}	
+		}
 		
 		private static function get logger():ILogger {
-			return Log.getLogger(Constants.LOG_TARGET_NAME);
+			return Log.getLogger(LogUtil.LOGGER);
 		}
 	}
 }

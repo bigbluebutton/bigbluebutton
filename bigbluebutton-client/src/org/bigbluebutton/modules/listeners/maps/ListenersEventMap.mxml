@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/" >
+	<mx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			import org.bigbluebutton.modules.listeners.business.ListenersProxy;
+			import org.bigbluebutton.modules.listeners.events.ListenersCommand;
+			import org.bigbluebutton.modules.listeners.events.StartListenersModuleEvent;
+			import org.bigbluebutton.modules.listeners.events.StopListenersModuleEvent;
+			import org.bigbluebutton.modules.listeners.managers.ListenersManager;
+		]]>
+	</mx:Script>
+	
+	
+	<EventHandlers type="{FlexEvent.PREINITIALIZE}" >
+		<ObjectBuilder cache="global" generator="{ListenersProxy}" />
+		<ObjectBuilder cache="global" generator="{ListenersManager}" /> 
+	</EventHandlers>
+	
+	<EventHandlers type="{StartListenersModuleEvent.START_LISTENERS_MODULE}" >
+		<MethodInvoker generator="{ListenersManager}" method="moduleStarted" arguments="{event}" />
+		<MethodInvoker generator="{ListenersProxy}" method="connect" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{StopListenersModuleEvent.STOP_LISTENERS_MODULE}" >
+		<MethodInvoker generator="{ListenersProxy}" method="disconnect" />
+		<MethodInvoker generator="{ListenersManager}" method="moduleEnded" />
+	</EventHandlers>
+	
+	<EventHandlers type="{ListenersCommand.EJECT_USER}" >
+		<MethodInvoker generator="{ListenersProxy}" method="ejectUser" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{ListenersCommand.MUTE_USER}" >
+		<MethodInvoker generator="{ListenersProxy}" method="muteUnmuteUser" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{ListenersCommand.LOCK_MUTE_USER}" >
+		<MethodInvoker generator="{ListenersProxy}" method="lockMuteUser" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{ListenersCommand.MUTE_ALL}" >
+		<MethodInvoker generator="{ListenersProxy}" method="muteAllUsers" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{ListenersCommand.UNMUTE_ALL}" >
+		<MethodInvoker generator="{ListenersProxy}" method="unmuteAllUsers" arguments="{event}" />
+	</EventHandlers>
+	
+</EventMap>

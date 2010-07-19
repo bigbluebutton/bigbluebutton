@@ -23,13 +23,16 @@ package org.bigbluebutton.modules.present.business
 	import flash.net.NetConnection;
 	import flash.utils.Timer;
 	
+	import mx.controls.Alert;
+	
 	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
 	import org.bigbluebutton.modules.present.events.PresenterCommands;
 	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 	import org.bigbluebutton.modules.present.events.SlideEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.managers.PresentationSlides;
-	import org.bigbluebutton.modules.viewers.events.UserStatusEvent;
+	import org.bigbluebutton.modules.viewers.events.RoleChangeEvent;
+	import org.bigbluebutton.common.LogUtil;
 	
 	public class PresentProxy
 	{
@@ -67,12 +70,12 @@ package org.bigbluebutton.modules.present.business
  		 * @param e
  		 * 
  		 */		
- 		public function assignPresenter(e:UserStatusEvent):void{
-			var p:Object = e.data;
-			var assignTo:Number = p["assignTo"];
-			var name:String = p["name"];
+ 		public function assignPresenter(e:RoleChangeEvent):void{
+			var assignTo:Number = e.userid;
+			var name:String = e.username;
 			soService.assignPresenter(assignTo, name, 1);
 			soService.setPresenterName(name);
+			//antAlert.show(e.username + " " + e.userid);
 		}
 		
 		/**

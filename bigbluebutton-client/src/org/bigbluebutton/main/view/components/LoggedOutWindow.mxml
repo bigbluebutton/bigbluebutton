@@ -25,8 +25,11 @@
     x="168" y="86" layout="vertical" width="400" height="100" horizontalAlign="center">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.common.LogUtil;
 			import mx.controls.Alert;
-			import mx.managers.PopUpManager; 
+			import mx.managers.PopUpManager;
+			
+			import org.bigbluebutton.modules.viewers.events.ConnectionFailedEvent; 
 			
 			[Bindable] private var message:String = "You have logged out of the conference";
 			
@@ -47,7 +50,32 @@
             }
 			
 			public function setReason(reason:String):void{
-				message = reason;
+				switch(reason){
+					case ConnectionFailedEvent.APP_SHUTDOWN:
+						message = "The red5 server app has been shut down";
+						break;
+					case ConnectionFailedEvent.ASYNC_ERROR:
+						message = "An Asyng Error occured";
+						break;
+					case ConnectionFailedEvent.CONNECTION_CLOSED:
+						message = "You have logged out";
+						break;
+					case ConnectionFailedEvent.CONNECTION_FAILED:
+						message = "The connection to the server has failed";
+						break;
+					case ConnectionFailedEvent.CONNECTION_LOST:
+						message = "The connection to the server has been lost";
+						break;
+					case ConnectionFailedEvent.CONNECTION_REJECTED:
+						message = "The connection to the server has been rejected";
+						break;
+					case ConnectionFailedEvent.INVALID_APP:
+						message = "The red5 app does not exist";
+						break;
+					case ConnectionFailedEvent.UNKNOWN_REASON:
+						message = "Disconnected from the server";
+						break;
+				}
 			}
 		]]>
 	</mx:Script>

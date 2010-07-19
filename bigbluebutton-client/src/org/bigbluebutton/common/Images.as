@@ -22,17 +22,18 @@ package org.bigbluebutton.common
 	[Bindable]
 	public class Images
 	{
-		[Embed(source="assets/images/Cursor.png")]
-		public var cursorIcon:Class;
 		
-		[Embed(source="assets/images/group.png")]
-		public var participants_img:Class;
-
         [Embed(source="assets/images/user_gray.png")]
-        public var user_gray:Class;
+        public var user_gray:Class; 
              
         [Embed(source="assets/images/user_green.png")]
         public var user_green:Class;
+		
+		[Embed(source="assets/images/Cursor.png")]
+		public var cursorIcon:Class;
+		
+		[Embed(source="assets/images/magnifier_reset.png")]
+		public var mag_reset:Class;
              
         [Embed(source="assets/images/user_orange.png")]
         public var user_orange:Class;
@@ -70,65 +71,8 @@ package org.bigbluebutton.common
         [Embed(source="assets/images/user_red.png")]
         public var eject_user:Class;  
 
-        [Embed(source="assets/images/bin.png")]
-        public var trash_bin:Class; 
-
-        [Embed(source="assets/images/bin_closed.png")]
-        public var bin_closed:Class; 
-
-        [Embed(source="assets/images/door_in.png")]
-        public var door_in:Class; 
-
-        [Embed(source="assets/images/door_open.png")]
-        public var door_open:Class;         
-
-        [Embed(source="assets/images/door_out.png")]
-        public var door_out:Class; 
-      
-        [Embed(source="assets/images/door.png")]
-        public var door:Class;     
-        
-        [Embed(source="assets/images/application_get.png")]
-        public var upload_file:Class;
-        
-        [Embed(source="assets/images/table_refresh.png")]
-        public var refresh_slides:Class;
-        
-        [Embed(source="assets/images/table.png")]
-        public var table:Class;
-
-        [Embed(source="assets/images/tfn.png")]
-        public var blindside:Class;    
-        
-        [Embed(source="assets/images/connect.png")]
-        public var connect:Class; 
-
-        [Embed(source="assets/images/disconnect.png")]
-        public var disconnect:Class; 
-
-        [Embed(source="assets/images/link.png")]
-        public var link:Class;    
-
         [Embed(source="assets/images/webcam.png")]
-        public var webcam:Class; 
-        
-        [Embed(source="assets/images/link_break.png")]
-        public var link_break:Class; 
-
-        [Embed(source="assets/images/page_white_powerpoint.png")]
-        public var powerpoint:Class;        
-        
-        [Embed(source="assets/images/pdf_icon.png")]
-        public var pdf:Class;
-        
-        [Embed(source="assets/images/comment.gif")]
-        public var chat_request:Class; 
-        
-        [Embed(source="assets/images/comment_yellow.gif")]
-        public var chat_request_new:Class;                                  
-
-        [Embed(source="assets/images/telephone.png")]
-        public var phone:Class;   
+        public var webcam:Class;                            
         
         [Embed(source="assets/images/pencil.png")]
         public var pencil_icon:Class;  
@@ -136,14 +80,11 @@ package org.bigbluebutton.common
         [Embed(source="assets/images/shape_square.png")]
         public var square_icon:Class;  
         
-        [Embed(source="assets/images/arrow_undo.png")]
+        [Embed(source="assets/images/arrow_undo.png")] 
         public var undo_icon:Class;  
         
         [Embed(source="assets/images/circle.png")]
-        public var circle_icon:Class;  
-        
-        [Embed(source="assets/images/delete.png")]
-        public var delete_icon:Class;  
+        public var circle_icon:Class; 
         
         [Embed(source="assets/images/arrow_out.png")]
         public var full_screen:Class; 
@@ -159,16 +100,12 @@ package org.bigbluebutton.common
 
         [Embed(source="assets/images/shape_move_front.png")]
         public var layout:Class; 
-        
-        [Embed(source="assets/images/arrow_inout.png")]
-        public var fit_to_width:Class; 
-        
-        [Embed(source="assets/images/magnifier_reset.png")]
-        public var mag_reset:Class;
-        
-        ///
-        [Embed(source="assets/images/thumbnails.png")]
-        public var thumbnails:Class;
+		
+		[Embed(source="assets/images/table.png")]
+		public var table:Class; 
+		
+		[Embed(source="assets/images/cancel.png")]
+		public var delete_icon:Class; 
 
         [Embed(source="assets/images/arrow_right.png")]
         public var forward:Class;
@@ -196,5 +133,14 @@ package org.bigbluebutton.common
 		
 		[Embed(source="assets/images/whiteboard_thin.png")]
 		public var whiteboard_thin:Class;
+		
+		[Embed(source="assets/images/lock.png")]
+		public var locked:Class;
+		
+		[Embed(source="assets/images/unlock.png")]
+		public var unlocked:Class;
+		
+		[Embed(source="assets/images/presenter.png")]
+		public var presenter:Class;
 	}
 }

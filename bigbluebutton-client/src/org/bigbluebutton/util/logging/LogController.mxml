@@ -23,6 +23,7 @@
 <mx:UIComponent xmlns:mx="http://www.adobe.com/2006/mxml">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.common.LogUtil;
 			import mx.logging.Log;
 			import mx.managers.PopUpManager;
 						

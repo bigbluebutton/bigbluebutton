@@ -29,6 +29,7 @@ package org.bigbluebutton.modules.present.managers
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.views.FileUploadWindow;
 	import org.bigbluebutton.modules.present.views.PresentationWindow;
+	import org.bigbluebutton.common.LogUtil;
 	
 	public class PresentManager
 	{

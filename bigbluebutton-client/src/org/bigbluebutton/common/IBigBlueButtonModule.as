@@ -19,12 +19,9 @@
 */
 package org.bigbluebutton.common
 {
-	import org.bigbluebutton.common.messaging.Router;
 
 	public interface IBigBlueButtonModule
 	{
-		function acceptRouter(router:Router):void;		
-		function get router():Router;		
 		function get moduleId():String;			
 		function get moduleName():String;	
 		function get username():String;

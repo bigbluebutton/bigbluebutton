@@ -19,99 +19,56 @@
  */
 package org.bigbluebutton.main.model
 {
-	import org.bigbluebutton.common.messaging.Router;
-	import org.bigbluebutton.main.MainApplicationConstants;
-	import org.puremvc.as3.multicore.interfaces.IProxy;
-	import org.puremvc.as3.multicore.patterns.proxy.Proxy;
+	import com.asfusion.mate.events.Dispatcher;
 	
-	public class ModulesProxy extends Proxy implements IProxy {
-		public static const NAME:String = 'ModulesProxy';
+	import mx.controls.Alert;
+	import mx.modules.ModuleManager;
+	
+	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.main.events.PortTestEvent;
+	import org.bigbluebutton.main.managers.ModuleManager;
+	import org.bigbluebutton.modules.viewers.events.LoginSuccessEvent;
+	
+	public class ModulesProxy {
 		
-		private var modulesManager:BbbModuleManager;
+		private var modulesManager:org.bigbluebutton.main.managers.ModuleManager;
+		private var portTestProxy:PortTestProxy;
 		
 		private var _user:Object;
-		private var _router:Router;
-		private var _mode:String;
 		
-		public function ModulesProxy(router:Router, mode:String) {
-			super(NAME);
-			_router = router;
-			_mode = mode;
-			modulesManager = new BbbModuleManager(_router, _mode);
+		private var dispatcher:Dispatcher;
+		
+		public function ModulesProxy() {
+			dispatcher = new Dispatcher();
+			portTestProxy = new PortTestProxy();
+			modulesManager = new org.bigbluebutton.main.managers.ModuleManager();
 			modulesManager.addInitializedListener(onInitializeComplete);
-			modulesManager.addModuleLoadedListener(onModuleLoadedListener);
 			modulesManager.initialize();
 		}
 
 		private function onInitializeComplete(initialized:Boolean):void {
-			if (initialized)
-			facade.sendNotification(MainApplicationConstants.APP_MODEL_INITIALIZED);
+			if (initialized){
+				var e:PortTestEvent = new PortTestEvent(PortTestEvent.TEST_RTMP);
+				dispatcher.dispatchEvent(e);
+			}
 		}
 			
 		public function initialize():void {
 			modulesManager.initialize();			
 		}
 		
-		public function set user(loggedInUser:Object):void {
-			_user = loggedInUser;
-			modulesManager.loggedInUser(_user);
-		}
-		
 		public function get username():String {
 			return _user.username;
 		}
 
-		public function useProtocol(protocol:String):void {
-			modulesManager.useProtocol(protocol);
+		public function portTestSuccess(e:PortTestEvent):void {
+			modulesManager.useProtocol(e.protocol);
+			modulesManager.handleAppModelInitialized();
 		}
-
-//		public function startModule(name:String, router:Router):void {
-//			LogUtil.debug('Request to start module ' + name);
-//			modulesManager.startModule(name, router);
-//		}
-
-//		public function stopModule(name:String):void {
-//			modulesManager.stopModule(name);
-//		}
 						
 		public function loadModule(name:String):void {
 			LogUtil.debug('Loading ' + name);
 			modulesManager.loadModule(name);
-		}
-				
-		private function onModuleLoadedListener(event:String, name:String, progress:Number=0):void {
-			switch(event) {
-				case MainApplicationConstants.MODULE_LOAD_PROGRESS:
-					facade.sendNotification(MainApplicationConstants.MODULE_LOAD_PROGRESS, {name:name, progress:progress});
-				break;	
-				case MainApplicationConstants.MODULE_LOAD_READY:
-					facade.sendNotification(MainApplicationConstants.LOADED_MODULE, name);
-				break;
-				case MainApplicationConstants.ALL_MODULES_LOADED:
-					LogUtil.debug(NAME + " All modules have been loaded.");
-					facade.sendNotification(MainApplicationConstants.ALL_MODULES_LOADED);					
-				break;				
-			}			
-		}		
-		
-		public function moduleEventHandler(event:String):void {
-			switch (event) {
-				case MainApplicationConstants.APP_MODEL_INITIALIZED:
-					modulesManager.handleAppModelInitialized();
-					break;
-				case MainApplicationConstants.APP_START:
-					modulesManager.handleAppStart();
-					break;
-				case MainApplicationConstants.USER_LOGGED_IN:
-					modulesManager.handleUserLoggedIn();
-					break;
-				case MainApplicationConstants.USER_JOINED:
-					modulesManager.handleUserJoined();
-					break;
-				case MainApplicationConstants.LOGOUT:
-					modulesManager.handleLogout();
-					break;
-			}
 		}
 		
 		public function getVersion():String {
@@ -123,6 +80,7 @@ package org.bigbluebutton.main.model
 		}
 		
 		public function getNumberOfModules():int {
+			Alert.show("" + modulesManager.getNumberOfModules());
 			return modulesManager.getNumberOfModules();
 		}
 		
@@ -132,6 +90,25 @@ package org.bigbluebutton.main.model
 		
 		public function getPortTestApplication():String {
 			return modulesManager.portTestApplication;
+		}
+		
+		public function handleLogin(e:LoginSuccessEvent):void{
+			user = e.user;
+			modulesManager.handleUserJoined();
+		}
+		
+		public function set user(loggedInUser:Object):void {
+			_user = loggedInUser;
+			modulesManager.loggedInUser(_user);
+		}
+		
+		public function testRTMP(e:PortTestEvent):void{
+			portTestProxy.connect("RTMP", getPortTestHost(), "1935", getPortTestApplication());
+		}
+		
+		public function testRTMPT(e:PortTestEvent):void{
+			if (e.protocol == "RTMP") portTestProxy.connect("RTMPT", getPortTestHost(), "", getPortTestApplication());
+			else dispatcher.dispatchEvent(new PortTestEvent(PortTestEvent.TUNNELING_FAILED));
 		}
 	}
 }

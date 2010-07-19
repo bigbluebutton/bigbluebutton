@@ -26,6 +26,8 @@ package org.bigbluebutton.modules.present.business {
 	import flash.net.Responder;
 	import flash.net.SharedObject;
 	
+	import mx.controls.Alert;
+	
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.modules.present.events.CursorEvent;
@@ -34,6 +36,7 @@ package org.bigbluebutton.modules.present.business {
 	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.events.ZoomEvent;
+	import org.bigbluebutton.common.LogUtil;
 	
 	public class PresentSOService {
 		public static const NAME:String = "PresentSOService";

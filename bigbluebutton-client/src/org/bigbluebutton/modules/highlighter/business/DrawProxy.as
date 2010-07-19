@@ -36,6 +36,7 @@ package org.bigbluebutton.modules.highlighter.business
 	import org.bigbluebutton.modules.highlighter.events.PageEvent;
 	import org.bigbluebutton.modules.highlighter.events.StartHighligtherModuleEvent;
 	import org.bigbluebutton.modules.present.events.PresentationEvent;
+	import org.bigbluebutton.common.LogUtil;
 	
 	/**
 	 * The DrawProxy class is a Delegate class for the Red5 Server. It communicates directly with the Red5

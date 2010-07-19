@@ -8,54 +8,45 @@
 
 		<module name="ChatModule" url="ChatModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
-			loadNextModule="ListenersModule"	
-			onUserJoinedEvent="START"
-			onUserLogoutEvent="STOP"		 
+			dependsOn="ViewersModule"		 
 		/>
 		
 		<module name="ViewersModule" url="ViewersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST/bigbluebutton/conference-session/enter"
-			onAppInitEvent="LOAD" loadNextModule="ChatModule"
-			onAppStartEvent="START"
-			onUserLogoutEvent="STOP"
+			onAppInitEvent="LOAD"
 		/>	
 		<module name="ListenersModule" url="ListenersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			recordingHost="http://HOST"
-			loadNextModule="DeskShareModule"
-			onUserJoinedEvent="START"
-			onUserLogoutEvent="STOP"
+			dependsOn="ViewersModule"
 		/>
 		
-		<module name="DeskShareModule" url="DeskShareModule.swf?v=VERSION" uri="rtmp://HOST/deskShare" onUserJoinedEvent="START" onUserLogoutEvent="STOP" loadNextModule="PhoneModule" />
+		<module name="DeskShareModule" 
+			url="DeskShareModule.swf?v=VERSION" 
+			uri="rtmp://HOST/deskShare"
+			dependsOn="ViewersModule" 
+		/>
 		
 		<module name="PhoneModule" url="PhoneModule.swf?v=VERSION" 
 			uri="rtmp://HOST/sip" 
-			onUserJoinedEvent="START" 
-			onUserLogoutEvent="STOP"
-			loadNextModule="VideoconfModule"
+			dependsOn="ViewersModule"
 		/>
 		
 		<module name="VideoconfModule" url="VideoconfModule.swf?v=VERSION" 
 			uri="rtmp://HOST/video"
-			onUserJoinedEvent="START"
-			onUserLogoutEvent="STOP"	
-			loadNextModule="HighlighterModule"
+			dependsOn="ViewersModule"
 		/>
 		
 		<module name="HighlighterModule" url="HighlighterModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
-			onUserJoinedEvent="START" 
-			onUserLogoutEvent="STOP"
-			loadNextModule="PresentModule"
+			dependsOn="ViewersModule, PresentModule"
 		/>
 		
 		<module name="PresentModule" url="PresentModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST" 
-			onUserJoinedEvent="START" 
-			onUserLogoutEvent="STOP"
+			dependsOn="ViewersModule"
 		/>
 
 		<!-- new module in development: 
@@ -63,8 +54,7 @@
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST" 
 			infoURL="http://HOST/client/conf/example-info-data.xml?user={userID}&role={role}&meetingID={meetingID}"
-			onUserJoinedEvent="START" 
-			onUserLogoutEvent="STOP"
+			dependsOn="ViewersModule"
 		/>
 		-->
 		

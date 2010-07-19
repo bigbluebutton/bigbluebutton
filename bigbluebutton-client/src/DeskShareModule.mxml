@@ -23,37 +23,28 @@
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:maps="org.bigbluebutton.modules.deskShare.maps.*"
 	implements="org.bigbluebutton.common.IBigBlueButtonModule"
-	creationComplete="onCreationComplete()">
+	creationComplete="onCreationComplete()" xmlns:maps1="org.bigbluebutton.modules.deskshare.maps.*">
 	
-	<maps:DeskshareEventMap id="deskshareGlobalEventMap" />
+	<maps1:DeskshareEventMap id="deskshareGlobalEventMap" />
 
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.deskShare.events.ModuleEvent;
-			import org.bigbluebutton.modules.deskShare.maps.DeskshareEventMap;
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.CloseWindowEvent;
 			import org.bigbluebutton.main.events.OpenWindowEvent;
-			import com.asfusion.mate.events.Dispatcher;
-			import org.bigbluebutton.common.messaging.Router;
+			import org.bigbluebutton.modules.deskshare.events.ModuleEvent;
+			import org.bigbluebutton.modules.deskshare.maps.DeskshareEventMap;
 			
-			private var _router:Router;
 			private var _moduleId:String = "DeskShareModule";
 			private var _moduleName:String = "Desk Share";
 			private var _attributes:Object;
 			
-			private var globalDispatcher:Dispatcher;
+			private var globalDispatcher:Dispatcher = new Dispatcher();;
 			
 			private function onCreationComplete():void{
 				LogUtil.debug("DeskShareModule initialized");
-				globalDispatcher = new Dispatcher();
-			}
-			
-			public function acceptRouter(router:Router):void{
-				_router = router;
-			}
-			
-			public function get router():Router{
-				return _router;
 			}
 			
 			public function get moduleId():String{
