@@ -32,39 +32,48 @@
 		
 	<mate:Listener type="{OpenWindowEvent.OPEN_WINDOW_EVENT}" method="handleOpenWindowEvent" />	
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="handleCloseWindowEvent"/>
-	<mate:Listener type="{JoinFailedEvent.JOIN_FAILED_EVENT}" method="handleJoinFailedEvent" />
 	<mate:Listener type="{AddUIComponentToMainCanvas.ADD_COMPONENT}" method="addComponentToCanvas" />
+	
+	<mate:Listener type="{LoginSuccessEvent.LOGIN_SUCCESS}" method="loginSuccess" />
+	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_LOST}" method="handleLogout" />
+	<mate:Listener type="{PortTestEvent.TEST_RTMP}" method="rtmpTest" />
+	<mate:Listener type="{PortTestEvent.PORT_TEST_FAILED}" method="rtmptTest" />
+	<mate:Listener type="{PortTestEvent.TUNNELING_FAILED}" method="rtmptFailed" />
+	<mate:Listener type="{ModuleLoadEvent.MODULE_LOAD_PROGRESS}" method="updateModuleLoadProgress" />
 
 	<maps:CrossModuleEventMap />
 	<api:APIEventMap />
 	
 	<mx:Script>
 		<![CDATA[
-			import mx.events.CloseEvent;
-			import org.bigbluebutton.main.events.AddUIComponentToMainCanvas;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.modules.viewers.events.JoinFailedEvent;
 			import com.asfusion.mate.events.Dispatcher;
-			import org.bigbluebutton.main.events.OpenWindowEvent;
-			import org.bigbluebutton.main.events.CloseWindowEvent;
-			import org.bigbluebutton.common.IBbbModuleWindow;
-			import flexlib.mdi.containers.MDIWindow;
-			import org.bigbluebutton.util.logging.Logger;
-			import org.bigbluebutton.main.view.events.StartModuleEvent;
-			import mx.collections.ArrayCollection;
-			import mx.managers.PopUpManager;
-			import mx.containers.TitleWindow;
-			import mx.core.Application;
-			import mx.controls.Alert;
-			import org.bigbluebutton.common.Constants;
-			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
-			import org.bigbluebutton.main.MainApplicationFacade;
-			import org.bigbluebutton.main.view.MainApplicationShellMediator;
+			
 			import flash.events.MouseEvent;
 			
-			public static const NAME:String = 'MainApplicationShell';
-			protected var facade:MainApplicationFacade = MainApplicationFacade.getInstance();	
+			import flexlib.mdi.containers.MDIWindow;
+			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
+			
+			import mx.collections.ArrayCollection;
+			import mx.containers.TitleWindow;
+			import mx.controls.Alert;
+			import mx.core.Application;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			
+			import org.bigbluebutton.common.IBbbModuleWindow;
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.main.events.AddUIComponentToMainCanvas;
+			import org.bigbluebutton.main.events.CloseWindowEvent;
+			import org.bigbluebutton.main.events.LogoutEvent;
+			import org.bigbluebutton.main.events.ModuleLoadEvent;
+			import org.bigbluebutton.main.events.OpenWindowEvent;
+			import org.bigbluebutton.main.events.PortTestEvent;
+			import org.bigbluebutton.modules.viewers.events.ConnectionFailedEvent;
+			import org.bigbluebutton.modules.viewers.events.LoginSuccessEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.util.logging.Logger;
+			
 			private var globalDispatcher:Dispatcher;
 			
 			private var dispState:String; //full-screen?
@@ -74,9 +83,11 @@
 			private var logs:Logger = new Logger();
 			private var logWindow:LogWindow;
 			
+			private var logoutWindow:LoggedOutWindow;
+			
 			// LIVE or PLAYBACK
 			private var _mode:String = 'LIVE';
-			[Bindable] public var appVersion:String = '0.6';
+			[Bindable] public var appVersion:String = '0.7';
 			[Bindable] public var numberOfModules:int = 0;
 			
 			[Bindable] private var fullscreen_icon:Class = images.full_screen;
@@ -92,8 +103,7 @@
 				logWindow = new LogWindow();
 				logWindow.logs = logs;
 				
-				facade.startup(this);
-				globalDispatcher = new Dispatcher();					
+				globalDispatcher = new Dispatcher();
 			}
 
 			protected function initFullScreen():void {				
@@ -147,19 +157,6 @@
 	   		private function handleCloseWindowEvent(event:CloseWindowEvent):void {
 	   			var window:IBbbModuleWindow = event.window;
 				mdiCanvas.removeWindow(window);
-	   		}		
-	   		
-	   		private function handleJoinFailedEvent(event:JoinFailedEvent):void {
-	   			LogUtil.debug("GOT JOIN FAILED EVENT");
-				var t:JoinFailedWindow = JoinFailedWindow(PopUpManager.createPopUp( this, JoinFailedWindow, false));
-
-				var point1:Point = new Point();
-            	// Calculate position of TitleWindow in Application's coordinates. 
-            	point1.x = 200;
-            	point1.y = 400;                
-            	point1 = this.localToGlobal(point1);
-           	 	t.x = point1.x + 25;
-            	t.y = point1.y + 25;	
 	   		}
 	   		
 	   		private function resetLayout():void{
@@ -194,6 +191,47 @@
 				localeWindow.x = point1.x + 25;
 				localeWindow.y = point1.y + 25;	
             }
+			
+			public var user:Object;
+			private function loginSuccess(e:LoginSuccessEvent):void{
+				statusInfo.text = "";
+				statusProgress.text = "";
+				statusInfo2.text = "";
+				user = e.user;
+			}
+			
+			private function handleLogout(e:ConnectionFailedEvent):void{
+				if (logoutWindow != null) return;
+				logoutWindow = LoggedOutWindow(PopUpManager.createPopUp( mdiCanvas, LoggedOutWindow, false));
+				
+				var point1:Point = new Point();
+				// Calculate position of TitleWindow in Application's coordinates. 
+				point1.x = 400;
+				point1.y = 300;                
+				point1 = localToGlobal(point1);
+				logoutWindow.x = point1.x + 25;
+				logoutWindow.y = point1.y + 25;	
+				logoutWindow.setReason(e.reason);	
+			}
+			
+			private function updateModuleLoadProgress(e:ModuleLoadEvent):void{				
+				statusProgress.text = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loaded',[e.moduleName, e.progress]);
+			}
+			
+			private function rtmpTest(e:PortTestEvent):void{
+				//statusInfo.text = ResourceUtil.getInstance().getString('bbb.mainshell.statusInfo.testRTMPConnection');
+				//statusInfo.text = "Please wait while we test your connection to the server."
+				//statusInfo2.text =  ResourceUtil.getInstance().getString('bbb.mainshell.statusInfo2.testRTMPConnection');
+				//statusProgress.text = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.testRTMPConnection', [e.hostname, e.app]);
+			}
+			
+			private function rtmptTest(e:PortTestEvent):void{
+				statusProgress.text = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.testRTMPTConnection', [e.hostname, e.app]);
+			}
+			
+			private function rtmptFailed(e:PortTestEvent):void{
+				statusProgress.text = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.cannotConnectServer');
+			}
 		]]>
 	</mx:Script>
 			

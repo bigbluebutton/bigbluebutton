@@ -1,6 +1,7 @@
 package org.bigbluebutton.modules.chat.managers
 {
 	import flash.events.IEventDispatcher;
+	import org.bigbluebutton.common.LogUtil;
 	
 	public class ChatManager
 	{

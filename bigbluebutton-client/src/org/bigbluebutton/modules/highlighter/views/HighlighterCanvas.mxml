@@ -4,6 +4,7 @@
 	mouseOver="setCursor()" mouseOut="removeCursor()" implements="org.bigbluebutton.common.IBbbCanvas">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.common.LogUtil;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.core.Application;
@@ -11,7 +12,6 @@
 			
 			import org.bigbluebutton.common.IBbbCanvas;
 			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.mate.SharedObjectEvent;
 			import org.bigbluebutton.modules.highlighter.business.shapes.DrawObject;
 			import org.bigbluebutton.modules.highlighter.business.shapes.DrawObjectFactory;
 			import org.bigbluebutton.modules.highlighter.business.shapes.ShapeFactory;

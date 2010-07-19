@@ -33,32 +33,32 @@ TypeError: Error #1034: Type Coercion failed: cannot convert org.bigbluebutton.m
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.present.events.AddButtonToPresentationEvent;
-			import org.bigbluebutton.modules.present.events.PresentationEvent;
-			import org.bigbluebutton.modules.present.events.NavigationEvent;
-			import org.bigbluebutton.modules.present.events.AddPresentationToolbarEvent;
-			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
-			import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import org.bigbluebutton.modules.viewers.events.UserStatusEvent;
-			import org.bigbluebutton.modules.viewers.view.events.StreamStartedEvent;
-			import org.bigbluebutton.modules.videoconf.events.BroadcastStoppedEvent;
+			import org.bigbluebutton.modules.present.events.AddButtonToPresentationEvent;
+			import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
+			import org.bigbluebutton.modules.present.events.AddPresentationToolbarEvent;
+			import org.bigbluebutton.modules.present.events.NavigationEvent;
+			import org.bigbluebutton.modules.present.events.PresentationEvent;
+			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
 			import org.bigbluebutton.modules.videoconf.events.BroadcastStartedEvent;
-			import org.bigbluebutton.modules.viewers.view.events.ViewCameraEvent;
+			import org.bigbluebutton.modules.videoconf.events.BroadcastStoppedEvent;
+			import org.bigbluebutton.modules.viewers.events.RoleChangeEvent;
+			import org.bigbluebutton.modules.viewers.events.StreamStartedEvent;
+			import org.bigbluebutton.modules.viewers.events.ViewCameraEvent;
 		]]>
 	</mx:Script>
 	
-	<Listener type="{ViewCameraEvent.VIEW_CAMERA_EVENT}" />
 	<Listener type="{BroadcastStartedEvent.BROADCAST_STARTED_EVENT}" />
 	<Listener type="{BroadcastStoppedEvent.BROADCAST_STOPPED}" />
-	<Listener type="{StreamStartedEvent.STREAM_STARTED}" />
 	<Listener type="{AddOverlayCanvasEvent}" />
 	<Listener type="{WindowResizedEvent}" />
-	<Listener type="{UserStatusEvent}" />
 	<Listener type="{MadePresenterEvent}" />
 	<Listener type="{AddPresentationToolbarEvent}" />
 	<Listener type="{NavigationEvent}" />
 	<Listener type="{PresentationEvent}" />
 	<Listener type="{AddButtonToPresentationEvent}" />
+	<Listener type="{RoleChangeEvent}" />
+	<Listener type="{StreamStartedEvent}" />
+	<Listener type="{ViewCameraEvent}" />
 	
 </EventMap>

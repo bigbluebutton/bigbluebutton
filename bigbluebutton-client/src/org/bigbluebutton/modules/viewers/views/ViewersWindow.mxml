@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  BigBlueButton - http://www.bigbluebutton.org
+  
+  Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
+  
+  BigBlueButton is free software; you can redistribute it and/or modify it under the 
+  terms of the GNU Lesser General Public License as published by the Free Software 
+  Foundation; either version 3 of the License, or (at your option) any later 
+  version. 
+  
+  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public License along 
+  with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
+ 
+  $Id: $
+--> 
+
+<viewer:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:viewer="flexlib.mdi.containers.*" 
+	implements="org.bigbluebutton.common.IBbbModuleWindow" 
+	xmlns:mate="http://mate.asfusion.com/"
+	title="{windowTitle}"
+	creationComplete="onCreationComplete()"
+	showCloseButton="false">
+
+	<mate:Listener type="{ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT}" method="conferenceStarted" />
+	
+    <mx:Script>
+        <![CDATA[
+			import flexlib.mdi.events.MDIWindowEvent;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.ListEvent;
+			
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.Role;
+			import org.bigbluebutton.main.events.ParticipantJoinEvent;
+			import org.bigbluebutton.main.view.components.MainCanvas;
+			import org.bigbluebutton.modules.viewers.events.ChangeStatusEvent;
+			import org.bigbluebutton.modules.viewers.events.ConferenceCreatedEvent;
+			import org.bigbluebutton.modules.viewers.events.RaiseHandEvent;
+			import org.bigbluebutton.modules.viewers.events.RoleChangeEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			[Bindable]
+			private var windowTitle:String = ResourceUtil.getInstance().getString('bbb.viewers.title',["", ""]) ;
+			
+			[Bindable]
+			public var participants:ArrayCollection = new ArrayCollection();
+  			
+  			[Bindable]
+  			public var isModerator:Boolean = false;
+  			
+          	public var images:Images = new Images();
+                      
+   			[Bindable]
+   			public var presenterIcon : Class = images.presenter;
+   			[Bindable] 
+   			public var handIcon:Class = images.raisehand;
+   			
+   			[Bindable] 
+   			public var toggleTooltip : String = "Click to raise hand.";
+			private var handRaised:Boolean = false;
+			
+			private function onCreationComplete():void {
+				BindingUtils.bindSetter(updateNumberOfViewers, participants, "length");				
+			}
+			
+			private function updateNumberOfViewers(numViewers:int):void {
+				if (numViewers > 4)
+					windowTitle = ResourceUtil.getInstance().getString('bbb.viewers.title', [":", numViewers]);
+				else 
+					windowTitle = ResourceUtil.getInstance().getString('bbb.viewers.title', ["", ""]);
+			}
+			
+			public function getPrefferedPosition():String{
+				return MainCanvas.TOP_LEFT;
+			}
+								
+			public function changeStatus(status:ArrayCollection):void {
+				dispatchEvent(new ChangeStatusEvent(status));
+			}
+				
+			private function viewerSelectEvent(event:ListEvent):void {
+				if (isModerator) {
+					presentBtn.enabled = true;
+					presentBtn.toolTip = "Make selected web participant the presenter.";
+				}
+				
+				if (viewersGrid.selectedItem.presenter) presentBtn.enabled = false;
+				else presentBtn.enabled = true; 
+        	}           
+        	
+        	private function assignPresenterClicked():void {
+        		// Ignore if the selected user is already the presenter.
+        		if (viewersGrid.selectedItem.presenter) return;
+        		
+				var e:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
+				e.userid = viewersGrid.selectedItem.userid;
+				e.username = viewersGrid.selectedItem.name;
+				dispatchEvent(e);
+				
+				presentBtn.enabled = false;
+        	}
+			
+			private function raiseHand():void{
+				handRaised = !handRaised;
+				var e:RaiseHandEvent = new RaiseHandEvent(RaiseHandEvent.RAISE_HAND);
+				e.raised = handRaised;
+				dispatchEvent(e);
+			}
+			
+			private function conferenceStarted(e:ConferenceCreatedEvent):void{
+				this.participants = e.conference.users;
+				this.isModerator = (e.conference.me.role == Role.MODERATOR);
+			}
+
+        ]]>
+    </mx:Script>
+
+    <mx:DataGrid id="viewersGrid" dataProvider="{participants}" editable="false"
+    	dragEnabled="false" itemClick="viewerSelectEvent(event);" width="100%" height="100%">
+    	<mx:columns>
+    		<mx:DataGridColumn dataField="role" headerText="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.roleItemRenderer')}" dataTipField="Role" editable="false" width="35"
+    			itemRenderer="org.bigbluebutton.modules.viewers.views.RoleItemRenderer" sortable="false"/>
+    		<mx:DataGridColumn dataField="name" headerText="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.nameItemRenderer')}" editable="true" width="100" sortable="false"
+    			itemRenderer="org.bigbluebutton.modules.viewers.views.NameItemRenderer"/>
+    		<mx:DataGridColumn dataField="status" headerText="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer')}" sortable="false"
+    			itemRenderer="org.bigbluebutton.modules.viewers.views.StatusItemRenderer"/>
+    	</mx:columns>
+    </mx:DataGrid>
+    
+   <mx:ControlBar width="100%"> 
+   		 <mx:Button id="presentBtn" label="{ResourceUtil.getInstance().getString('bbb.viewers.presentBtn.label')}" visible="{isModerator}"
+    	   			width="130" height="20"
+    	   			toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.presentBtn.toolTip')}"
+    	   			click="assignPresenterClicked()"/>
+     	 <mx:Spacer width="100%"/>
+    	 <mx:Button id="raiseHandImage" icon="{handIcon}" toggle="true" 
+    	   			width="20" height="20"
+    	   			toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.raiseHandBtn.toolTip')}" 
+    	   			click="raiseHand()"/>  			
+    </mx:ControlBar>  
+    
+</viewer:MDIWindow>

@@ -31,6 +31,7 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.events.PresentationEvent;
 	import org.bigbluebutton.modules.present.managers.PresentationSlides;
 	import org.bigbluebutton.modules.present.managers.Slide;
+	import org.bigbluebutton.common.LogUtil;
 	        	
 	/**
 	 * This class directly communicates with an HTTP service in order to send and recives files (slides

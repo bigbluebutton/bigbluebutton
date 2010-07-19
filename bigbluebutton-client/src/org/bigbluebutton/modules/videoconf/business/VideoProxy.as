@@ -28,6 +28,7 @@ package org.bigbluebutton.modules.videoconf.business
 	
 	import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
 	import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
+	import org.bigbluebutton.common.LogUtil;
 	
 	public class VideoProxy
 	{
