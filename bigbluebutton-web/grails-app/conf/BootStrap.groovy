@@ -17,13 +17,6 @@
  *
  * $Id: $
  */
-import org.jsecurity.crypto.hash.Sha1Hash
-import org.bigbluebutton.web.domain.Role
-import org.bigbluebutton.web.domain.User
-import org.bigbluebutton.web.domain.UserRoleRel
-import org.bigbluebutton.web.domain.ScheduledSession
-import org.bigbluebutton.web.domain.Conference
-import java.util.UUID
 
 class BootStrap {
 	def jmsContainer
