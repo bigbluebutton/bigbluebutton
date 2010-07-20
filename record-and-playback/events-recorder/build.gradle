@@ -5,7 +5,7 @@ usePlugin 'war'
 version=0.1
 
 task copyToLib(dependsOn: configurations.default.buildArtifacts, type: Copy) {
-    into('$buildDir/lib')
+    into('lib')
     from configurations.default
     from configurations.default.allArtifacts*.file
 }
