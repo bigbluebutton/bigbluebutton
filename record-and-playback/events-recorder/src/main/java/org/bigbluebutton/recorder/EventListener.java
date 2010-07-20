@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package org.bbb;
+package org.bigbluebutton.recorder;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
