@@ -24,10 +24,15 @@ import org.apache.commons.lang.RandomStringUtils;
 import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
-import org.bigbluebutton.web.domain.Conference;
 
-public class DynamicConference extends Conference {
-
+public class DynamicConference {
+	Date dateCreated
+	Date lastUpdated
+	String createdBy
+	String updatedBy
+	String name
+	Integer conferenceNumber
+	 
 	Date storedTime;
 	Date startTime;
 	Date endTime;

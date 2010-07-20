@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="100%" height="100%" creationComplete="onCreationComplete(event)" xmlns:components="org.bbb.playback.views.components.*" xmlns:code="http://code.google.com/p/flexlib/">
+	<mx:Script>
+		<![CDATA[
+			import org.bbb.playback.events.ManifestEvent;
+			
+			private var TEST:String="test1";
+			
+			protected function onCreationComplete(event:Event):void{
+				var loadevent:ManifestEvent=new ManifestEvent(ManifestEvent.LOAD_MANIFEST_EVENT);
+				loadevent.conferenceid=TEST;
+				dispatchEvent(loadevent);	
+			}
+			
+		]]>
+	</mx:Script>
+	<code:MDICanvas width="100%" height="100%">
+		<components:PlaybackChatWindow x="10" y="10" />
+		<components:PlaybackHistoryWindow x="450" y="10" />
+	</code:MDICanvas>
+	<components:PlaybackBar  x="10" y="559" width="98%"/>			
+	
+</mx:Module>

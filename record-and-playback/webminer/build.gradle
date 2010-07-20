@@ -1,0 +1,82 @@
+usePlugin 'java'
+usePlugin 'war'
+usePlugin 'eclipse'
+
+version = '0.64'
+jar.enabled = true
+archivesBaseName = 'sip' 
+
+task copyToLib(dependsOn: configurations.default.buildArtifacts, type: Copy) {
+    into('lib')
+    from configurations.default
+    from configurations.default.allArtifacts*.file
+}
+
+repositories {
+   	add(new org.apache.ivy.plugins.resolver.ChainResolver()) {
+       	name = 'remote'
+       	returnFirst = true
+       	add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+       		name = "googlecode"
+       		addArtifactPattern "http://red5.googlecode.com/svn/repository/[artifact](-[revision]).[ext]"
+       		addArtifactPattern "http://red5.googlecode.com/svn/repository/[organisation]/[artifact](-[revision]).[ext]"
+		}
+       	add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+       		name = "blindside-repos"
+       		addArtifactPattern "http://blindside.googlecode.com/svn/repository/[artifact](-[revision]).[ext]"
+       		addArtifactPattern "http://blindside.googlecode.com/svn/repository/[organisation]/[artifact](-[revision]).[ext]"
+		}			 
+       	add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+       		name = "maven2-central"
+       		m2compatible = true
+       		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision]).[ext]"
+       		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision]).[ext]"
+		}  
+       	add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+       		name = "testng_ibiblio_maven2"
+       		m2compatible = true
+       		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision])-jdk15.[ext]"
+       		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision])-jdk15.[ext]"
+		}  
+   	}
+}
+
+dependencies {	 
+	providedCompile 'javax.servlet:servlet-api:2.5@jar', 'org.apache.mina:mina-core:2.0.0-RC1@jar', 'com.flagstonesoftware:transform-swf:2.1.5@jar', 'org.apache.lucene:lucene-core:2.4.0@jar' 
+    providedCompile 'log4j:log4j:1.2.8@jar', 'commons-logging:commons-logging:1.1.1@jar', 'springframework:spring-webmvc:1.2.6@jar'
+	providedCompile 'spring:spring-web:3.0.0@jar', 'spring:spring-core:3.0.0@jar', 'org.springframework.ws:spring-xml:1.5.6@jar'
+    providedCompile 'spring:spring-aop:3.0.0@jar', 'spring:spring-beans:3.0.0@jar', 'spring:spring-context:3.0.0@jar'
+	providedCompile 'org/red5:red5:0.9@jar'
+    providedCompile ':log4j-over-slf4j:1.5.6@jar',':logback-core:0.9.14@jar', ':logback-classic:0.9.14@jar', ':slf4j-api:1.5.6@jar'
+    compile 'org.apache.mina:mina-integration-spring:1.1.7@jar'
+    compile 'javax/media:jmf:2.1.1e@jar'
+    providedCompile 'com/xuggle:xuggle-xuggler:3.4@jar'
+}
+
+war.doLast {
+  ant.unzip(src: war.archivePath, dest: "$buildDir/sip")
+  ant.copy(file: "$buildDir/sip/WEB-INF/logback-sip.xml", todir: "$buildDir/sip/WEB-INF/classes")
+}
+
+
+task deploy() << {
+	def red5AppsDir = '/usr/share/red5/webapps'
+	def sipDir = new File("${red5AppsDir}/sip")
+	println "Deleting $sipDir"
+	if (sipDir.exists()) ant.delete(dir: sipDir)
+	ant.mkdir(dir: sipDir)
+	ant.copy(todir: sipDir) {
+    	fileset(dir: "$buildDir/sip")
+    }
+} 
+
+/*
+task deploy(type:Copy) {
+	def red5AppsDir = '/usr/share/red5/webapps'
+	def sipDir = new File("${red5AppsDir}/sip")
+	println "Deleting $sipDir"
+	ant.delete(dir: sipDir)
+	into(sipDir)
+    from "$buildDir/sip"
+} 
+*/

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:ApplicationControlBar xmlns:mx="http://www.adobe.com/2006/mxml" >
+	<mx:Script>
+		<![CDATA[
+			import com.asfusion.mate.core.GlobalDispatcher;
+			
+			import flash.utils.setTimeout;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.sliderClasses.Slider;
+			import mx.core.Application;
+			import mx.events.SliderEvent;
+			
+			import org.bbb.playback.events.ManifestEvent;
+			import org.bbb.playback.events.PlaybackEvent;
+			import org.bbb.playback.models.PlaybackConstants;
+			
+			[Bindable] private var _timeline:ArrayCollection;
+			private var _isPlaying:Boolean = false;
+			[Bindable] private var _currentpos:Number=0;
+			
+			public function updateTimeline(event:ManifestEvent):void{
+				_timeline=event.timeline;
+				btnPlay.enabled=true;
+				btnStop.enabled=true;
+				labObjects.text="total events loaded: "+_timeline.length;
+			}
+			
+			protected function btnPlay_clickHandler(event:MouseEvent):void
+			{
+				if(!_isPlaying){
+					_isPlaying=true;
+					playTimeLine();
+				}					
+			}
+			
+			private function playTimeLine():void{
+				if(Math.round(sliderTL.value)<_timeline.length&&_isPlaying){
+					firePlaybackEvent(PlaybackConstants.PLAY_FORWARD);
+					_currentpos=_currentpos+1;
+					setTimeout(playTimeLine,1000);
+				}
+			}
+
+			protected function sliderTL_changeHandler(event:SliderEvent):void
+			{
+				var nextpos:Number=Math.round((event.currentTarget as Slider).value);
+				
+				if(nextpos>_currentpos){
+					while(_currentpos!=nextpos){
+						firePlaybackEvent(PlaybackConstants.PLAY_FORWARD);
+						_currentpos=_currentpos+1;
+					}
+				}else if(nextpos<_currentpos){
+					while(_currentpos!=nextpos){
+						firePlaybackEvent(PlaybackConstants.PLAY_REVERSE);
+						_currentpos=_currentpos-1;
+					}
+				}
+				//setTimeout(playTimeLine,5000);
+			}
+			
+			private function firePlaybackEvent(playtype:String):void{
+				var attribs:Object=_timeline.getItemAt(Math.round(_currentpos));
+				
+				var playbackevt:PlaybackEvent=new PlaybackEvent(getEventType(attribs));
+				playbackevt.attributes=attribs;
+				playbackevt.playtype=playtype;
+				var dispatcher:GlobalDispatcher=new GlobalDispatcher();
+				dispatcher.dispatchEvent(playbackevt);
+			}
+			private function getEventType(attribs:Object):String{
+				if((attribs as XML).name()==PlaybackConstants.PLAYBACK_CHAT)
+					return PlaybackEvent.CHAT_EVENT;
+				else
+					return PlaybackEvent.HISTORY_EVENT;	
+			}
+
+			protected function btnStop_clickHandler(event:MouseEvent):void{
+				_isPlaying=false;
+			}
+
+		]]>
+	</mx:Script>
+	
+	<mx:VBox width="100%">
+		<mx:HSlider id="sliderTL" tickInterval="1" value="{_currentpos}" width="100%" minimum="0" maximum="{_timeline.length}" dataTipPrecision="0" change="sliderTL_changeHandler(event)" />
+		<mx:HBox>
+			<mx:Button label="play" enabled="false" id="btnPlay" click="btnPlay_clickHandler(event)"/>
+			<mx:Button label="stop" enabled="false" id="btnStop" click="btnStop_clickHandler(event)" />
+			<mx:Label text="Loading Manifest File..." id="labObjects"/>		
+		</mx:HBox>
+	</mx:VBox>
+</mx:ApplicationControlBar>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MDIWindow xmlns="flexlib.mdi.containers.*" showCloseButton="false" xmlns:mx="http://www.adobe.com/2006/mxml" width="350" height="300" title="History Events">
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			
+			import org.bbb.playback.events.PlaybackEvent;
+			import org.bbb.playback.models.PlaybackConstants;
+			
+			[Bindable]
+			private var history:ArrayCollection=new ArrayCollection();
+			
+			public function updatePlaybackHistory(event:PlaybackEvent):void{
+				var xml:XML=event.attributes as XML;
+				var item:Object={
+					timestamp:xml.attribute("timestamp"),
+					eventtype:xml.name(),
+					message:xml.toXMLString()
+				};
+				if(event.playtype==PlaybackConstants.PLAY_FORWARD)
+					history.addItem(item);
+				else if(event.playtype==PlaybackConstants.PLAY_REVERSE){
+					var removed:Object=searchItemByTimestamp(item.timestamp);
+					if(removed!=null)
+						history.removeItemAt(history.getItemIndex(removed));
+				}
+				dgHistory.scrollToIndex(history.length-1);
+			}
+			private function searchItemByTimestamp(value:String):Object{
+				for (var i:int = 0; i < history.length; i++)
+				{
+					var obj:Object = history[i] as Object
+					if (obj.timestamp == value)
+						return history[i];
+				}
+				return null;
+			}
+		]]>
+	</mx:Script>
+	
+	<mx:VBox>
+		<mx:DataGrid id="dgHistory" dataProvider="{history}">
+			<mx:columns>
+				<mx:DataGridColumn headerText="Timestamp" dataField="timestamp"/>
+				<mx:DataGridColumn headerText="Event Type" dataField="eventtype"/>
+				<mx:DataGridColumn headerText="Message" dataField="message"/>
+			</mx:columns>
+		</mx:DataGrid>
+		<mx:Label id="labTotal" text="records: {history.length}" />
+	</mx:VBox>
+</MDIWindow>

@@ -181,6 +181,8 @@ class ApiController {
 	}
 
 	def join = {
+			
+		println "Entered Join"
 		log.debug CONTROLLER_NAME + "#join"
 
 		if (!doChecksumSecurity("join")) {
@@ -244,6 +246,8 @@ class ApiController {
     	def config = ConfigurationHolder.config
     	def hostURL = config.bigbluebutton.web.serverURL
     	redirect(url:"${hostURL}/client/BigBlueButton.html")
+		
+		println "Leaving Join"
 	}
 
 	def isMeetingRunning = {
@@ -388,6 +392,103 @@ class ApiController {
 				}
 			}
 		}
+	}
+
+	def enter = {
+		
+		println "Entered Enter"
+		
+		def fname = session["fullname"]
+	    def rl = session["role"]
+	    def cnf = session["conference"]
+	    def rm = session["room"]
+		def vb = session["voicebridge"] 
+		def wbv = session["webvoiceconf"]  
+	    def rec = session["record"]
+	    def md = session["mode"]
+	    def confName = session["conferencename"]
+	    def welcomeMsg = session['welcome']
+	    def meetID = session["meetingID"] 
+        def externUID = session["externUserID"] 
+        
+        println "After reading from cookie"
+        
+        
+	    if (!rm) {
+	    	println "Could not find conference"
+	    	response.addHeader("Cache-Control", "no-cache")
+	    	withFormat {				
+				xml {
+					render(contentType:"text/xml") {
+						response() {
+							returncode("FAILED")
+							message("Could not find conference ${params.conference}.")
+						}
+					}
+				}
+			}
+	    } else {	
+	    	println "Found conference"
+	    	response.addHeader("Cache-Control", "no-cache")
+	    	withFormat {				
+				xml {
+					render(contentType:"text/xml") {
+						response() {
+							returncode("SUCCESS")
+							fullname("$fname")
+							confname("$confName")
+							meetingID("$meetID")
+							externUserID("$externUID")
+	        				role("$rl")
+	        				conference("$cnf")
+	        				room("$rm")
+	        				voicebridge("${vb}")
+	        				webvoiceconf("${wbv}")
+	        				mode("$md")
+	        				record("$rec")
+	        				welcome("$welcomeMsg")
+						}
+					}
+				}
+			}
+	    }  
+		println "Leaving Enter"
+	}
+	
+	def signOut = {
+	    def config = ConfigurationHolder.config
+        def hostURL = config.bigbluebutton.web.logoutURL
+        
+        log.debug("LogoutURL=$hostURL")
+        
+        // For backward compatibility. We renamed "loggedOutUrl" to
+        // "logoutURL" in 0.64 to be consistent with the API. Remove this
+        // in later iterations (ralam mar 26, 2010)
+        //if ((hostURL == null) || (hostURL == "")) {
+        if (hostURL.isEmpty()) {
+            log.debug("No logoutURL property set. Checking for old loggedOutUrl.")
+            hostURL = config.bigbluebutton.web.loggedOutUrl
+            if (!hostURL.isEmpty()) 
+               log.debug("Old loggedOutUrl property set to $hostURL") 
+        }
+        
+	    def meetingToken = session["conference"]
+        DynamicConference conf = dynamicConferenceService.getConferenceByToken(meetingToken)
+        if (conf != null) {
+        	if ((conf.logoutUrl != null) && (conf.logoutUrl != "")) {
+        	   hostURL = conf.logoutUrl
+        	   log.debug("logoutURL has been set from API. Redirecting to server url $hostURL.")
+    		}
+        }
+	    	    
+        if (hostURL.isEmpty()) {           
+        	hostURL = config.bigbluebutton.web.serverURL
+        	log.debug("No logout url. Redirecting to server url $hostURL.")
+        }
+        // Log the user out of the application.
+	    session.invalidate()
+        println "serverURL $hostURL"	
+	    redirect(url: hostURL)
 	}
 	
 	/* helper methods */

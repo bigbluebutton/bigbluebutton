@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" minWidth="955" minHeight="600" xmlns:maps="org.bbb.playback.maps.*">
+	<maps:PlaybackEventMap />
+	<mx:ProgressBar id="loadingBar" x="343" y="300" indeterminate="true" visible="false"/>
+	<mx:ModuleLoader url="PlaybackModule.swf" width="100%" height="100%" />
+	
+</mx:Application>
