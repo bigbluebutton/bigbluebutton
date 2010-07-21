@@ -12,7 +12,7 @@ task dependencies(type: Copy) {
     from configurations.default.allArtifacts*.file
 }
 
-task copyToLib(dependsOn: configurations.default.buildArtifacts, type: Copy) {
+task resolveDeps(dependsOn: configurations.default.buildArtifacts, type: Copy) {
     into('lib')
     from configurations.default
     from configurations.default.allArtifacts*.file
