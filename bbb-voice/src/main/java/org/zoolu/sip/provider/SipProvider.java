@@ -287,19 +287,21 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
    {  
 	   if (!SipStack.isInit()) SipStack.init();
 	   via_addr = viaddr;
-	   if (via_addr==null || via_addr.equalsIgnoreCase(AUTO_CONFIGURATION)) via_addr=IpAddress.getLocalHostAddress().toString();
+	   if (via_addr == null || via_addr.equalsIgnoreCase(AUTO_CONFIGURATION)) via_addr = IpAddress.getLocalHostAddress().toString();
 	   host_port = port;
-	   if (host_port<=0) host_port=SipStack.default_port;
-	   host_ipaddr=null;
-	   if (ifaddr!=null && !ifaddr.equalsIgnoreCase(ALL_INTERFACES))
-	   {  
+	   if (host_port <= 0) host_port = SipStack.default_port;
+	   host_ipaddr = null;
+	   if (ifaddr != null && !ifaddr.equalsIgnoreCase(ALL_INTERFACES)) {  
 		   try {  
-			   host_ipaddr=IpAddress.getByName(ifaddr);  
+			   host_ipaddr = IpAddress.getByName(ifaddr);  
 		   } catch (IOException e) {  
-			   e.printStackTrace(); host_ipaddr=null;  
+			   e.printStackTrace(); 
+			   host_ipaddr = null;  
 		   }
       }
-      transport_protocols=protocols;
+	   
+      transport_protocols = protocols;
+      
       if (transport_protocols==null) transport_protocols=SipStack.default_transport_protocols;
       default_transport=transport_protocols[0];
       for (int i=0; i<transport_protocols.length; i++)

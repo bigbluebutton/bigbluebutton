@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--тестовые файлы Вы звуковые файлы можно взять тут svn co http://svn.freeswitch.ru/bbv/mod_say_ru/ru/  -->
+<include>
+  <language name="ru" sound-path="$${sounds_dir}/ru/RU/elena" tts-engine="cepstral" tts-voice="elena">
+    <X-PRE-PROCESS cmd="include" data="demo/*.xml"/> <!-- Note: this now grabs whole subdir, previously grabbed only demo.xml -->
+    <!--voicemail_en_tts is purely implemented with tts, we have the files based one that is the default. -->
+    <X-PRE-PROCESS cmd="include" data="vm/sounds.xml"/>  <!-- vm/tts.xml if you want to use tts and have cepstral -->
+  </language>
+</include>

@@ -1,0 +1,28 @@
+Version 1.0.6 of Freeswitch or greater tested on the git master 
+ commit 1eb4b79c15feb81e4eb5370c911267c4f11e3d52
+ Date:   Wed Jun 16 01:12:47 2010 +0200
+
+this conf dir is the freeswitch config setup for a bbbuser and 
+ auto created conferences dialed via sip from the regex ^8{4}$ 
+ meaning that you can use this for auto generated confrence 
+ handling for confrence ids between 80000 and 89999
+
+To install this config you would move /usr/local/freeswitch/conf to /usr/local/freeswitch/conf.dist
+mv /usr/local/freeswitch/conf /usr/local/freeswitch/conf.dist
+and 
+cp -a conf /usr/local/freeswitch/
+
+conf.orig dir is what was installed by freeswitch by default 
+ with my mods to support just 85{3} conf ids but also includes
+ all the extra demo and example stuff.
+
+NOTE: you must double check this config if you intend to have 
+ the freeswitch server on a public facing interface. 
+ It defaults to localhost for the event socket inteface.
+
+ I run my server in a test environment with 
+  /usr/local/freeswitch/bin/freeswitch -hp -nc
+ and then interact with it via
+  /usr/local/freeswitch/bin/fs_cli
+
+

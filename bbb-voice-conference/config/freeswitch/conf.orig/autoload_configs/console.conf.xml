@@ -1,0 +1,58 @@
+<configuration name="console.conf" description="Console Logger">
+  <!-- pick a file name, a function name or 'all' -->
+  <!-- map as many as you need for specific debugging -->
+  <mappings>
+    <!-- 
+      name can be a file name, function name or 'all' 
+      value is one or more of debug,info,notice,warning,err,crit,alert,all
+      See examples below
+
+
+      The following map is the default, which is all debug levels enabled:
+      <map name="all" value="debug,info,notice,warning,err,crit,alert"/>
+
+
+      Example: the following turns on debugging for error and critical levels only
+      <map name="all" value="err,crit"/>
+
+      NOTE: using map name="all" will override any other settings!  If you 
+            want a more specific set of console messages then you will need
+            to specify which files and/or functions you want to have debug
+            messages.  One option is to turn on just the more critical 
+            messages with map name="all", then specify the other types of 
+            console messages you want to see for various files and functions.
+
+      Example: turn on ERROR, CRIT, ALERT for all modules, then specify other
+               levels for various modules and functions
+
+        <map name="all" value="err,crit,alert"/>
+        <map name="switch_loadable_module_process" value="all"/>
+        <map name="mod_local_stream.c" value="warning,debug"/>
+        <map name="mod_sndfile.c" value="warning,info,debug"/>
+     -->
+    <map name="all" value="console,debug,info,notice,warning,err,crit,alert"/>
+    <map name="sofia.c"                     value="notice"/>
+    <map name="switch_core_state_machine.c" value="notice"/>      
+    
+    <!--
+      You can use or modify this sample set of mappings.  It turns on higher
+      level messages for all modules and then specifies extra lower level
+      messages for OpenZAP, Sofia, and switch core messages.
+      
+    <map name="all"                         value="warning,err,crit,alert"/>
+    <map name="zap_analog.c"                value="all"/>
+    <map name="zap_io.c"                    value="all"/>
+    <map name="zap_isdn.c"                  value="all"/>
+    <map name="zap_zt.c"                    value="all"/>
+    <map name="mod_openzap"                 value="all"/>
+    <map name="sofia.c"                     value="notice"/>
+    <map name="switch_core_state_machine.c" value="all"/>      
+    
+    -->
+  </mappings>
+  <settings>
+    <!-- comment or set to false for no color logging -->
+    <param name="colorize" value="true"/>
+    <param name="loglevel" value="$${console_loglevel}"/>
+  </settings>
+</configuration>

@@ -1,0 +1,8 @@
+<include>
+  <language name="fr" sound-path="/snds" tts-engine="cepstral" tts-voice="david">
+    <X-PRE-PROCESS cmd="include" data="demo/demo.xml"/>
+    <!--voicemail_fr_tts is purely implemented with tts, we need a files based implementation too -->
+	<X-PRE-PROCESS cmd="include" data="vm/sounds.xml"/>
+	<X-PRE-PROCESS cmd="include" data="dir/sounds.xml"/>  <!-- dir/tts.xml if you want to use tts and have cepstral -->
+  </language>
+</include>

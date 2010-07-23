@@ -41,6 +41,7 @@ package org.bigbluebutton.modules.phone.managers
 
 		public function setModuleAttributes(attributes:Object):void {
 			this.attributes = attributes;
+			LogUtil.debug("Attributes Set... webvoiceconf:" + attributes.webvoiceconf);
 		}
 				
 		private function setupMic(useMic:Boolean):void {

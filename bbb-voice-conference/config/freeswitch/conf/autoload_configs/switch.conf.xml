@@ -1,0 +1,85 @@
+<configuration name="switch.conf" description="Core Configuration">
+
+  <cli-keybindings>
+    <key name="1" value="help"/>
+    <key name="2" value="status"/>
+    <key name="3" value="show channels"/>
+    <key name="4" value="show calls"/>
+    <key name="5" value="sofia status"/>
+    <key name="6" value="reloadxml"/>
+    <key name="7" value="console loglevel 0"/>
+    <key name="8" value="console loglevel 7"/>
+    <key name="9" value="sofia status profile internal"/>
+    <key name="10" value="sofia profile internal siptrace on"/>
+    <key name="11" value="sofia profile internal siptrace off"/>
+    <key name="12" value="version"/>
+  </cli-keybindings> 
+  
+  <settings>
+    <!--Colorize the Console -->
+    <param name="colorize-console" value="true"/>
+    <!--Most channels to allow at once -->
+    <param name="max-sessions" value="1000"/>
+    <!--Most channels to create per second -->
+    <param name="sessions-per-second" value="30"/>
+    <!-- Default Global Log Level - value is one of debug,info,notice,warning,err,crit,alert -->
+    <param name="loglevel" value="debug"/>
+	<!-- The min-dtmf-duration specifies the minimum DTMF duration to use on 
+	     outgoing events. Events shorter than this will be increased in duration
+		 to match min_dtmf_duration. You cannot configure a dtmf duration on a 
+		 profile that is less than this setting. You may increase this value,
+		 but cannot set it lower than 400. This value cannot exceed 
+		 max-dtmf-duration. -->
+    <!--<param name="min-dtmf-duration" value="400"/>-->
+	<!-- The max-dtmf-duration caps the playout of a DTMF event at the specified
+	     duration. Events exceeding this duration will be truncated to this
+		 duration. You cannot configure a duration on a profile that exceeds
+		 this setting. This setting can be lowered, but cannot exceed 192000. 
+		 This setting cannot be set lower than min_dtmf_duration. -->
+    <!--<param name="max-dtmf-duration" value="192000"/>-->
+	<!-- The default_dtmf_duration specifies the DTMF duration to use on
+	     originated DTMF events or on events that are received without a
+		 duration specified. This value can be increased or lowered. This
+		 value is lower-bounded by min_dtmf_duration and upper-bounded by
+		 max-dtmf-duration\. -->
+    <!--<param name="default-dtmf-duration" value="2000"/>-->
+    <!--
+         If you want to send out voicemail notifications via Windows you'll need to change the mailer-app
+         variable to the setting below:
+     
+       <param name="mailer-app" value="msmtp"/>
+ 
+         Donot change mailer-app-args.
+         You will also need to download a sendmail clone for Windows (msmtp). This version works without issue:
+         http://msmtp.sourceforge.net/index.html. Download and copy the .exe to %winddir%\system32.
+         You'll need to create a small config file for smtp credentials (host name, authentication, tls, etc.) in
+         %USERPROFILE%\Application Data\ called "msmtprc.txt". Below is a sample copy of this file:
+ 
+         ###################################
+         # The SMTP server of the provider.
+         account provider
+         host smtp.myisp.com
+         from john@myisp.com
+         auth login
+         user johndoe
+         password mypassword
+ 
+         # Set a default account
+         account default : provider
+       ###################################
+         
+ -->    
+    <param name="mailer-app" value="sendmail"/>
+    <param name="mailer-app-args" value="-t"/>
+    <param name="dump-cores" value="yes"/>
+    <!-- enable verbose-channel-events to dump every detail about a channel on every event  -->
+    <!--<param name="verbose-channel-events" value="no"/>-->
+    <!--RTP port range -->
+    <!--<param name="rtp-start-port" value="16384"/>-->
+    <!--<param name="rtp-end-port" value="32768"/>-->
+    <param name="rtp-enable-zrtp" value="true"/>
+    <!-- <param name="core-db-dsn" value="dsn:username:password" /> -->
+  </settings>
+
+</configuration>
+

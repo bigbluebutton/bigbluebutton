@@ -1,0 +1,18 @@
+<include>
+  <extension name="public_did">
+    <condition field="destination_number" expression="^(5551212)$">
+      <!--
+	  If you're hosting multiple domains you will want to set the
+	  target_domain on these calls so they hit the proper domain after you
+	  transfer the caller into the default context. 
+	  
+	  $${domain} is the default domain set from vars.xml but you can set it
+	  to any domain you have setup in your user directory.
+
+      --> 
+      <action application="set" data="domain_name=$${domain}"/>
+      <!-- This example maps the DID 5551212 to ring 1000 in the default context -->
+      <action application="transfer" data="1000 XML default"/>
+    </condition>
+  </extension>
+</include>

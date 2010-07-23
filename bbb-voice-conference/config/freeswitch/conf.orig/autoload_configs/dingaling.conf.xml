@@ -1,0 +1,9 @@
+<configuration name="dingaling.conf" description="XMPP Jingle Endpoint">
+  <settings>
+    <param name="debug" value="0"/>
+    <param name="codec-prefs" value="PCMU"/>
+  </settings>
+
+  <X-PRE-PROCESS cmd="include" data="../jingle_profiles/*.xml"/>
+
+</configuration>

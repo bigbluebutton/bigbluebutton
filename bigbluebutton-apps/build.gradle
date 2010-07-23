@@ -10,7 +10,7 @@ def appName = 'bigbluebutton'
 
 archivesBaseName = appName 
 
-task copyToLib(dependsOn: configurations.default.buildArtifacts, type: Copy) {
+task resolveDeps(dependsOn: configurations.default.buildArtifacts, type: Copy) {
     into('lib')
     from configurations.default
     from configurations.default.allArtifacts*.file
@@ -42,11 +42,16 @@ repositories {
        		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision])-jdk15.[ext]"
        		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision])-jdk15.[ext]"
 		}  
+		add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+            name = "netty-dependency"
+            m2compatible = true
+            addArtifactPattern "http://repository.jboss.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision]).[ext]"
+            addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision]).[ext]"
+        }
    	}
    	mavenRepo urls: 'http://scala-tools.org/repo-releases/'
    	flatDir name: 'fileRepo', dirs: "/home/firstuser/dev/repo"
 }
-
 
 dependencies {	 
 	// JMS
@@ -64,6 +69,10 @@ dependencies {
 	// Asterisk-Java
 	compile 'org.asteriskjava:asterisk-java:1.0.0.M3@jar'
 	
+    // Freeswitch ESL Client
+    compile 'org/freeswitch:org.freeswitch.esl.client:0.9.0-SNAPSHOT@jar'
+    compile 'org.jboss.netty:netty:3.1.5.GA@jar'
+
 	// Spring 
     providedCompile 'spring:spring-web:3.0.0@jar', 'aopalliance:aopalliance:1.0:@jar'    
     providedCompile  'spring:spring-beans:3.0.0@jar', 'spring:spring-aop:3.0.0@jar'

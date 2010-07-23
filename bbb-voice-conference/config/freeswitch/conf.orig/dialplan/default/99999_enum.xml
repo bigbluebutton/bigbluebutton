@@ -1,0 +1,8 @@
+<include>
+  <extension name="enum">
+    <condition field="${module_exists(mod_enum)}" expression="true"/>
+    <condition field="destination_number" expression="^(.*)$">
+      <action application="transfer" data="$1 enum"/>
+    </condition>
+  </extension>
+</include>

@@ -1,0 +1,110 @@
+<configuration name="modules.conf" description="Modules">
+  <modules>
+    
+    <!-- Loggers (I'd load these first) -->
+    <load module="mod_console"/>
+    <load module="mod_logfile"/>
+    <!-- <load module="mod_syslog"/> -->
+
+    <!--<load module="mod_yaml"/>-->
+
+    <!-- Multi-Faceted -->
+    <!-- mod_enum is a dialplan interface, an application interface and an api command interface -->
+    <load module="mod_enum"/> 
+
+    <!-- XML Interfaces -->
+    <!-- <load module="mod_xml_rpc"/> -->
+    <!-- <load module="mod_xml_curl"/> -->
+    <!-- <load module="mod_xml_cdr"/> -->
+
+    <!-- Event Handlers -->
+    <load module="mod_cdr_csv"/>
+    <!-- <load module="mod_event_multicast"/> -->
+    <load module="mod_event_socket"/>
+    <!-- <load module="mod_zeroconf"/> -->
+
+    <!-- Directory Interfaces -->
+    <!-- <load module="mod_ldap"/> -->
+
+    <!-- Endpoints -->
+    <!-- <load module="mod_dingaling"/> -->
+    <!-- <load module="mod_portaudio"/> -->
+    <!-- <load module="mod_alsa"/> -->
+    <load module="mod_sofia"/>
+    <load module="mod_loopback"/>
+    <!-- <load module="mod_woomera"/> -->
+    <!-- <load module="mod_openzap"/> -->
+    <!-- <load module="mod_unicall"/> -->
+    <!-- <load module="mod_skinny"/> -->
+
+    <!-- Applications -->
+    <load module="mod_commands"/>
+    <load module="mod_conference"/>
+    <load module="mod_dptools"/>
+    <load module="mod_expr"/>
+    <!-- <load module="mod_fifo"/> -->
+    <!-- <load module="mod_voicemail"/> -->
+    <!--<load module="mod_directory"/>-->
+    <!--<load module="mod_lcr"/>-->
+    <!-- <load module="mod_limit"/>-->
+    <!-- <load module="mod_esf"/>-->
+    <!-- <load module="mod_fsv"/>-->
+    <!-- <load module="mod_cluechoo"/>-->
+    <!-- <load module="mod_valet_parking"/>-->
+    <!--<load module="mod_spy"/>-->
+
+    <!-- SNOM Module -->
+    <!--<load module="mod_snom"/>-->
+
+    <!-- Dialplan Interfaces -->
+    <!-- <load module="mod_dialplan_directory"/> -->
+    <load module="mod_dialplan_xml"/>
+    <load module="mod_dialplan_asterisk"/>
+
+    <!-- Codec Interfaces -->
+    <!-- <load module="mod_spandsp"/> -->
+    <load module="mod_g723_1"/>
+    <load module="mod_g729"/>
+    <load module="mod_amr"/>
+    <load module="mod_ilbc"/>
+    <load module="mod_speex"/>
+    <load module="mod_h26x"/>
+    <load module="mod_siren"/>
+    <!--<load module="mod_celt"/>-->
+
+    <!-- File Format Interfaces -->
+    <load module="mod_sndfile"/>
+    <load module="mod_native_file"/>
+    <!--For icecast/mp3 streams/files-->
+    <!--<load module="mod_shout"/>-->
+    <!--For local streams (play all the files in a directory)-->
+    <load module="mod_local_stream"/>
+    <load module="mod_tone_stream"/>
+    <load module="mod_file_string"/>
+
+    <!-- Timers -->
+
+    <!-- Languages -->
+    <load module="mod_spidermonkey"/>
+    <!-- <load module="mod_perl"/> -->
+    <!-- <load module="mod_python"/> -->
+    <!-- <load module="mod_java"/> -->
+    <!-- <load module="mod_lua"/> -->
+
+    <!-- ASR /TTS -->
+    <!-- <load module="mod_flite"/> -->
+    <!-- <load module="mod_pocketsphinx"/> -->
+    <!-- <load module="mod_cepstral"/> -->
+    <!-- <load module="mod_tts_commandline"/> -->
+    <!-- <load module="mod_rss"/> -->
+    
+    <!-- Say -->
+    <load module="mod_say_en"/>
+    <load module="mod_say_ru"/>
+    <!-- <load module="mod_say_zh"/> -->
+
+    <!-- Third party modules -->
+    <!--<load module="mod_nibblebill"/>-->
+
+  </modules>
+</configuration>

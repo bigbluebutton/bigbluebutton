@@ -1,0 +1,30 @@
+<include>
+
+  <extension name="local.example.com">
+    <condition field="${toll_allow}" expression="local"/>
+    <condition field="destination_number" expression="^(\d{7})$">
+      <action application="set" data="effective_caller_id_number=${outbound_caller_id_number}"/>
+      <action application="set" data="effective_caller_id_name=${outbound_caller_id_name}"/>
+      <action application="bridge" data="sofia/gateway/${default_gateway}/1${default_areacode}$1"/>
+    </condition>
+  </extension>
+
+  <extension name="domestic.example.com">
+    <condition field="${toll_allow}" expression="domestic"/>
+    <condition field="destination_number" expression="^(\d{11})$">
+      <action application="set" data="effective_caller_id_number=${outbound_caller_id_number}"/>
+      <action application="set" data="effective_caller_id_name=${outbound_caller_id_name}"/>
+      <action application="bridge" data="sofia/gateway/${default_gateway}/$1"/>
+    </condition>
+  </extension>
+
+  <extension name="international.example.com">
+    <condition field="${toll_allow}" expression="international"/>
+    <condition field="destination_number" expression="^(011\d+)$">
+      <action application="set" data="effective_caller_id_number=${outbound_caller_id_number}"/>
+      <action application="set" data="effective_caller_id_name=${outbound_caller_id_name}"/>
+      <action application="bridge" data="sofia/gateway/${default_gateway}/$1"/>
+    </condition>
+  </extension>
+
+</include>

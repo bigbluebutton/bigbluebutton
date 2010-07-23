@@ -1,0 +1,13 @@
+<configuration name="enum.conf" description="ENUM Module">
+  <settings>
+    <param name="default-root" value="e164.org"/>
+    <param name="default-isn-root" value="freenum.org"/>
+    <param name="query-timeout" value="10"/>
+    <param name="auto-reload" value="true"/>
+  </settings>
+
+  <routes>
+    <route service="E2U+SIP" regex="sip:(.*)" replace="sofia/${use_profile}/$1"/>
+    <!--<route service="E2U+XMPP" regex="XMPP:(.*)" replace="dingaling/$${xmpp_server_profile}/$1"/>-->
+  </routes>
+</configuration>

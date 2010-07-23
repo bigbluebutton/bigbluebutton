@@ -1,0 +1,47 @@
+Manifest-Version: 1.0
+Export-Package: org.freeswitch.esl.client;uses:="org.freeswitch.esl.cl
+ ient.transport.event,org.jboss.netty.channel",org.freeswitch.esl.clie
+ nt.transport;uses:="org.freeswitch.esl.client.transport.message",org.
+ freeswitch.esl.client.transport.event;uses:="org.freeswitch.esl.clien
+ t.transport.message,org.slf4j",org.freeswitch.esl.client.transport.me
+ ssage;uses:="org.slf4j,org.jboss.netty.channel",org.freeswitch.esl.cl
+ ient.inbound;uses:="org.freeswitch.esl.client.transport.event,org.fre
+ eswitch.esl.client,org.slf4j,org.jboss.netty.channel,org.freeswitch.e
+ sl.client.transport,org.freeswitch.esl.client.transport.message,org.j
+ boss.netty.channel.socket.nio,org.jboss.netty.bootstrap,org.jboss.net
+ ty.buffer,org.jboss.netty.handler.execution,org.jboss.netty.handler.c
+ odec.frame,org.jboss.netty.handler.codec.string,org.freeswitch.esl.cl
+ ient.internal.debug",org.freeswitch.esl.client.internal.debug;uses:="
+ org.jboss.netty.channel,org.jboss.netty.util,org.slf4j,org.jboss.nett
+ y.util.internal",org.freeswitch.esl.client.manager;uses:="org.freeswi
+ tch.esl.client.manager.internal,org.freeswitch.esl.client.inbound",or
+ g.freeswitch.esl.client.manager.internal;uses:="org.freeswitch.esl.cl
+ ient.transport,org.freeswitch.esl.client.inbound,org.freeswitch.esl.c
+ lient.manager"
+Built-By: leif
+Tool: Bnd-0.0.357
+Bundle-Name: FreeSWITCH Event Socket Library - Java Client
+Created-By: Apache Maven Bundle Plugin
+Bundle-Vendor: FreeSWITCH.org
+Build-Jdk: 1.6.0_20
+Bundle-Version: 0.9.0.SNAPSHOT
+Bnd-LastModified: 1277609270704
+Bundle-ManifestVersion: 2
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0
+Bundle-Description: The FreeSWITCH Event Socket Library provides a TCP
+  based control and/or    monitoring interface to a running switch.  T
+ his project provides a Java    client to the ESL.
+Import-Package: org.freeswitch.esl.client,org.freeswitch.esl.client.in
+ bound,org.freeswitch.esl.client.internal.debug,org.freeswitch.esl.cli
+ ent.manager,org.freeswitch.esl.client.manager.internal,org.freeswitch
+ .esl.client.transport,org.freeswitch.esl.client.transport.event,org.f
+ reeswitch.esl.client.transport.message,org.jboss.netty.bootstrap;vers
+ ion="3.1",org.jboss.netty.buffer;version="3.1",org.jboss.netty.channe
+ l;version="3.1",org.jboss.netty.channel.socket.nio;version="3.1",org.
+ jboss.netty.handler.codec.frame;version="3.1",org.jboss.netty.handler
+ .codec.string;version="3.1",org.jboss.netty.handler.execution;version
+ ="3.1",org.jboss.netty.util;version="3.1",org.jboss.netty.util.intern
+ al,org.slf4j;version="1.5"
+Bundle-SymbolicName: org.freeswitch.esl.client
+Bundle-DocURL: http://www.freeswitch.org
+
