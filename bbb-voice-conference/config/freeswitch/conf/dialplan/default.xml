@@ -55,7 +55,7 @@
     <!-- BBB testing -->
 
     <extension name="bbb_conferences">
-      <condition field="destination_number" expression="^(8\d{4})$">
+      <condition field="destination_number" expression="^(7\d{4})$">
 	  <action application="answer"/>
 	  <action application="conference" data="$1@wideband"/>
 	  <!-- <action application="conference" data="$1@wideband"/> -->
