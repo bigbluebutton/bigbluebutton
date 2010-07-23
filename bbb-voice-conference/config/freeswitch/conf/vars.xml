@@ -123,7 +123,7 @@
        127 - BV32
 
   -->
-  <X-PRE-PROCESS cmd="set" data="global_codec_prefs=speex@16000h@20i,speex@8000h@20iG7221@32000h,G7221@16000h,G722,PCMU,PCMA,GSM"/>
+  <X-PRE-PROCESS cmd="set" data="global_codec_prefs=speex@16000h@20i,speex@8000h@20i,G7221@32000h,G7221@16000h,G722,PCMU,PCMA,GSM"/>
   <X-PRE-PROCESS cmd="set" data="outbound_codec_prefs=PCMU,PCMA,GSM"/>
 
   <!--
