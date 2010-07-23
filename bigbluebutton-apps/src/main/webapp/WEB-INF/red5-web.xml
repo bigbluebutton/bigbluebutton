@@ -43,4 +43,9 @@
 	
 	<import resource="bbb-apps.xml" />
 	<import resource="bbb-voice-app.xml" />
+  
+    <import resource="bbb-voice-freeswitch.xml" />
+<!--   
+    <import resource="bbb-voice-asterisk.xml" />
+-->
 </beans>
