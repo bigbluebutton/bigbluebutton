@@ -9,6 +9,10 @@
 	 loopback.auto - ACL for your local lan.
     -->
 
+    <list name="localhost" default="allow">
+      <node type="allow" cidr="127.0.0.1/255"/>
+    </list>
+
     <list name="lan" default="allow">
       <node type="deny" cidr="192.168.42.0/24"/>
       <node type="allow" cidr="192.168.42.42/32"/>
