@@ -1,10 +1,30 @@
 <!-- saved from url=(0014)about:internet -->
 <html lang="en">
+
+<!-- 
+Smart developers always View Source. 
+
+This application was built using Adobe Flex, an open source framework
+for building rich Internet applications that get delivered via the
+Flash Player or to desktops via Adobe AIR. 
+
+Learn more about Flex at http://flex.org 
+// -->
+
 <head>
-<META HTTP-EQUIV="PRAGMA" CONTENT="NO-CACHE">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<!--  BEGIN Browser History required section -->
+<link rel="stylesheet" type="text/css" href="history/history.css" />
+<!--  END Browser History required section -->
+
 <title>${title}</title>
 <script src="AC_OETags.js" language="javascript"></script>
+
+<!--  BEGIN Browser History required section -->
+<script src="history/history.js" language="javascript"></script>
+<!--  END Browser History required section -->
+
 <style>
 body { margin: 0px; overflow:hidden }
 </style>
@@ -23,7 +43,7 @@ var requiredRevision = ${version_revision};
 </script>
 </head>
 
-<body scroll="no" onfocus="clearblink()">
+<body scroll="no">
 <script language="JavaScript" type="text/javascript">
 <!--
 // Version check for the Flash Player that has the ability to start Player Product Install (6.0r65)
@@ -32,10 +52,7 @@ var hasProductInstall = DetectFlashVer(6, 0, 65);
 // Version check based upon the values defined in globals
 var hasRequestedVersion = DetectFlashVer(requiredMajorVersion, requiredMinorVersion, requiredRevision);
 
-// Check to see if a player with Flash Product Install is available and the version does not meet the requirements for playback
 if ( hasProductInstall && !hasRequestedVersion ) {
-	// MMdoctitle is the stored document.title value used by the installation process to close the window that started the process
-	// This is necessary in order to close browser windows that are still utilizing the older version of the player after installation has completed
 	// DO NOT MODIFY THE FOLLOWING FOUR LINES
 	// Location visited after installation is complete if installation is required
 	var MMPlayerType = (isIE == true) ? "ActiveX" : "PlugIn";
@@ -54,17 +71,12 @@ if ( hasProductInstall && !hasRequestedVersion ) {
 		"bgcolor", "${bgcolor}",
 		"name", "${application}",
 		"allowScriptAccess","sameDomain",
-		"allowFullScreen","true",
 		"type", "application/x-shockwave-flash",
 		"pluginspage", "http://www.adobe.com/go/getflashplayer"
 	);
 } else if (hasRequestedVersion) {
 	// if we've detected an acceptable version
 	// embed the Flash Content SWF when all tests are passed
-	//
-	// NOTE: Don't use wmode=transparent because it messes up mouse wheel
-	// see. http://stackoverflow.com/questions/313966/mousewheel-not-working-when-published-movie-has-wmodetransparent
-	// ralam (mar 31, 2010)
 	AC_FL_RunContent(
 			"src", "${swf}",
 			"width", "${width}",
@@ -75,7 +87,6 @@ if ( hasProductInstall && !hasRequestedVersion ) {
 			"bgcolor", "${bgcolor}",
 			"name", "${application}",
 			"allowScriptAccess","sameDomain",
-			"allowFullScreen","true",
 			"type", "application/x-shockwave-flash",
 			"pluginspage", "http://www.adobe.com/go/getflashplayer"
 	);
@@ -86,97 +97,6 @@ if ( hasProductInstall && !hasRequestedVersion ) {
     document.write(alternateContent);  // insert non-flash content
   }
 // -->
-
-function startApplet(IP, roomNumber, captureX, captureY, captureWidth, captureHeight)
-{
-	var iframe = document.createElement("iframe");
-  	iframe.id = "iframe";
-   	document.body.appendChild(iframe);
-   	frames[frames.length - 1].document.write(
-   		"<applet code=\"org.bigbluebutton.deskshare.client.DeskShareApplet.class\"" +
-   			"id=\"DeskShareApplet\" width=\"0\" height=\"400\" archive=\"bbb-deskshare-applet-0.64.jar\">" +
-        	"<param name=\"ROOM\" value=\"" + roomNumber  + "\"/>" +
-        	"<param name=\"IP\" value=\"" + IP + "\"/>" +
-        	"<param name=\"CAPTURE_WIDTH\" value=\"" + captureWidth + "\"/>" +
-        	"<param name=\"CAPTURE_HEIGHT\" value=\"" + captureHeight + "\"/>" +
-        	"<param name=\"X\" value=\"" + captureX + "\"/>" +
-        	"<param name=\"Y\" value=\"" + captureY + "\"/>" +
-      	"</applet>"
-     );
-}
-
-function removeFrame () {
-    var iframe = document.getElementById("iframe");
-    iframe.parentNode.removeChild(iframe);
-}
-
-function setScreenCoordinates(x, y) {
-   return frames[frames.length - 1].document.DeskShareApplet.setScreenCoordinates(x,y);
-}
-
-function stopApplet(){
-	frames[frames.length - 1].document.DeskShareApplet.destroy();
-	removeFrame();
-}
-
-function checkForJava(){
-//	if (navigator.javaEnabled() || window.navigator.javaEnabled())
-		return 1;
-}
-
-var blinkTimer = false;
-var blinking = false;
-
-var startblink = function(message1, message2)
-{
-	if(!blinking)
-	{
-		document.title = (document.title == message2)?message1:message2;
-		blinkTimer = window.setTimeout("blinktitle('" + message1 + "', '" + message2 + "', 1)", 500);
-		blinking = true;
-	}
-}
-
-var blinktitle = function(message1, message2)
-{
-	document.title = (document.title == message2)?message1:message2;
-	blinkTimer = window.setTimeout("blinktitle('" + message1 + "', '" + message2 + "', 1)", 500);
-}
-
-var clearblink = function()
-{
-	blinking = false;
-	if(blinkTimer)
-	{
-		window.clearTimeout(blinkTimer);
-	}
-	document.title = 'BigBlueButton';
-}
-
-// Check locale
-var localeChain = "en_US";
-
-if (navigator.language)
-	localeChain = navigator.language;
-else if (navigator.browserLanguage)
-	localeChain = navigator.browserLanguage;
-
-if(/^([a-z]+)-([a-z]+)$/i.test(localeChain)){
-	var matches = /^([a-z]+)-([a-z]+)$/i.exec(localeChain);
-	localeChain = matches[1].toLowerCase() + "_" + matches[2].toUpperCase();
-}
-else if(/^([a-z]+)$/i.test(localeChain)){
-	var matches = /^([a-z]+)$/i.exec(localeChain);
-	localeChain = matches[1].toLowerCase();
-}
-else{
-	localeChain = "en_US";
-}
-
-function getLanguage(){
-	return localeChain;
-}
-
 </script>
 <noscript>
   	<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
@@ -186,14 +106,12 @@ function getLanguage(){
 			<param name="quality" value="high" />
 			<param name="bgcolor" value="${bgcolor}" />
 			<param name="allowScriptAccess" value="sameDomain" />
-			<param name="allowFullScreen" value="true" />
 			<embed src="${swf}.swf" quality="high" bgcolor="${bgcolor}"
 				width="${width}" height="${height}" name="${application}" align="middle"
 				play="true"
 				loop="false"
 				quality="high"
 				allowScriptAccess="sameDomain"
-				allowFullScreen="true"
 				type="application/x-shockwave-flash"
 				pluginspage="http://www.adobe.com/go/getflashplayer">
 			</embed>
