@@ -25,13 +25,14 @@ package org.bigbluebutton.modules.phone.managers
 	import flash.events.NetStatusEvent;
 	import flash.events.StatusEvent;
 	import flash.media.Microphone;
+	import flash.media.SoundCodec;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
 	
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.phone.events.MicMutedEvent;
 	import org.bigbluebutton.modules.phone.events.MicrophoneUnavailEvent;
 	import org.bigbluebutton.modules.phone.events.PlayStreamStatusEvent;
-	import org.bigbluebutton.common.LogUtil;
 	
 	public class StreamManager
 	{
@@ -62,8 +63,9 @@ package org.bigbluebutton.modules.phone.managers
 				mic.setUseEchoSuppression(true);
 				mic.setLoopBack(false);
 				mic.setSilenceLevel(0,20000);
+				mic.codec = SoundCodec.SPEEX;
 				mic.gain = 60;
-				mic.rate = 8;
+				mic.rate = 16; // use 8 for Nelly
 				mic.addEventListener(ActivityEvent.ACTIVITY, micActivityHandler);
 				mic.addEventListener(StatusEvent.STATUS, micStatusHandler);
 			}
