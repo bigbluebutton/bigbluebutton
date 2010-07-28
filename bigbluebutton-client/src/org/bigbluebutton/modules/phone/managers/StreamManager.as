@@ -65,6 +65,7 @@ package org.bigbluebutton.modules.phone.managers
 				mic.setSilenceLevel(0,20000);
 				mic.codec = SoundCodec.SPEEX;
 				mic.gain = 60;
+	//			mic.encodeQuality = 5;
 				mic.rate = 16; // use 8 for Nelly
 				mic.addEventListener(ActivityEvent.ACTIVITY, micActivityHandler);
 				mic.addEventListener(StatusEvent.STATUS, micStatusHandler);

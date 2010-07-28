@@ -62,6 +62,10 @@ public class CallStream implements StreamObserver {
 			rtmpToRtpTranscoder = new NellyToPcmTranscoder(sipCodec);
 			rtpToRtmpTranscoder = new PcmToNellyTranscoder(sipCodec);	
 		}
+		
+		System.out.println("Packetization [" + sipCodec.getIncomingPacketization() + "," + sipCodec.getOutgoingPacketization() + "]");
+		System.out.println("Outgoing Frame size [" + sipCodec.getOutgoingEncodedFrameSize() + ", " + sipCodec.getOutgoingDecodedFrameSize() + "]");
+		System.out.println("Incoming Frame size [" + sipCodec.getIncomingEncodedFrameSize() + ", " + sipCodec.getIncomingDecodedFrameSize() + "]");
 		userListenStream = new SipToFlashAudioStream(scope, rtpToRtmpTranscoder, connInfo.getSocket());
 		userListenStream.addListenStreamObserver(this);	
 		rtpToRtmpTranscoder.addTranscodedAudioDataListener(userListenStream);

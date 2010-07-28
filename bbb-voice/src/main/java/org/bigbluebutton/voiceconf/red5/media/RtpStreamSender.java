@@ -72,6 +72,10 @@ public class RtpStreamSender {
     }
     
     public void send(byte[] audioData, int offset, int num) {
+ //   	transcodedAudioDataBuffer = new byte[audioData.length - 1 + RTP_HEADER_SIZE];
+ //       rtpPacket = new RtpPacket(transcodedAudioDataBuffer, 0);
+ //       rtpPacket.setPayloadType(transcoder.getCodecId());
+    	System.out.println("Audio Data length = " + audioData.length + " buffer = " + transcoder.getOutgoingEncodedFrameSize());
     	transcoder.transcode(audioData, offset, num, transcodedAudioDataBuffer, RTP_HEADER_SIZE, this);
     }
     
