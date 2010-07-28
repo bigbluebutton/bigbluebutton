@@ -24,7 +24,7 @@ import org.bigbluebutton.voiceconf.red5.media.RtpStreamSender;
 public interface Transcoder {
 	void transcode(byte[] asaoBuffer, int offset, int num, byte[] transcodedData, int dataOffset, RtpStreamSender rtpSender);
 	void transcode(byte[] codedBuffer);
-	
+	void addTranscodedAudioDataListener(TranscodedAudioDataListener listener);
 	int getOutgoingEncodedFrameSize();
 
     int getCodecId();

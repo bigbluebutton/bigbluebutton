@@ -23,6 +23,8 @@ import java.net.DatagramSocket;
 import java.net.SocketException;
 import org.bigbluebutton.voiceconf.red5.media.transcoder.NellyToPcmTranscoder;
 import org.bigbluebutton.voiceconf.red5.media.transcoder.PcmToNellyTranscoder;
+import org.bigbluebutton.voiceconf.red5.media.transcoder.RtmpToRtpSpeexTranscoder;
+import org.bigbluebutton.voiceconf.red5.media.transcoder.RtpToRtmpSpeexTranscoder;
 import org.bigbluebutton.voiceconf.red5.media.transcoder.SpeexToSpeexTranscoder;
 import org.bigbluebutton.voiceconf.red5.media.transcoder.Transcoder;
 import org.bigbluebutton.voiceconf.sip.SipConnectInfo;
@@ -50,17 +52,19 @@ public class CallStream implements StreamObserver {
     
     public void start() {        
     	Transcoder rtmpToRtpTranscoder, rtpToRtmpTranscoder;
+    	System.out.println("Using codec " + sipCodec.getCodecId() + " " + sipCodec.getCodecName());
 		if (sipCodec.getCodecId() == SpeexCodec.codecId) {
-			rtmpToRtpTranscoder = new SpeexToSpeexTranscoder(sipCodec);
-			rtpToRtmpTranscoder = new SpeexToSpeexTranscoder(sipCodec, userListenStream);
+			System.out.println("Using SPEEX codec " + sipCodec.getCodecId() + " " + sipCodec.getCodecName());
+			rtmpToRtpTranscoder = new RtmpToRtpSpeexTranscoder(sipCodec);
+			rtpToRtmpTranscoder = new RtpToRtmpSpeexTranscoder(sipCodec);
+
 		} else {
 			rtmpToRtpTranscoder = new NellyToPcmTranscoder(sipCodec);
 			rtpToRtmpTranscoder = new PcmToNellyTranscoder(sipCodec);	
-			userListenStream = new SipToFlashAudioStream(scope, rtpToRtmpTranscoder, connInfo.getSocket());
-			userListenStream.addListenStreamObserver(this);	
-			((PcmToNellyTranscoder)rtpToRtmpTranscoder).addTranscodedAudioDataListener(userListenStream);
 		}
-
+		userListenStream = new SipToFlashAudioStream(scope, rtpToRtmpTranscoder, connInfo.getSocket());
+		userListenStream.addListenStreamObserver(this);	
+		rtpToRtmpTranscoder.addTranscodedAudioDataListener(userListenStream);
 		userTalkStream = new FlashToSipAudioStream(rtmpToRtpTranscoder, connInfo.getSocket(), connInfo); 
     }
     

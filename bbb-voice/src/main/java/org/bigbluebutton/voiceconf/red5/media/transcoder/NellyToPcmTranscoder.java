@@ -182,6 +182,13 @@ public class NellyToPcmTranscoder implements Transcoder {
     /**
      * Not implemented. Implemented by transcoders for voice conf server to Flash.
      */
+	public void addTranscodedAudioDataListener(TranscodedAudioDataListener listener) {
+		log.error("Not implemented.");
+    }
+	
+    /**
+     * Not implemented. Implemented by transcoders for voice conf server to Flash.
+     */
 	public void transcode(byte[] codedBuffer) {
 		log.error("Not implemented.");		
 	}

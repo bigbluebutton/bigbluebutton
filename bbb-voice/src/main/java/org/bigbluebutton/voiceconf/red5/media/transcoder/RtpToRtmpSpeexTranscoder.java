@@ -27,8 +27,8 @@ import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.net.rtmp.event.AudioData;
 import org.slf4j.Logger;
 
-public class SpeexToSpeexTranscoder implements Transcoder {
-	protected static Logger log = Red5LoggerFactory.getLogger(SpeexToSpeexTranscoder.class, "sip");
+public class RtpToRtmpSpeexTranscoder implements Transcoder {
+	protected static Logger log = Red5LoggerFactory.getLogger(RtpToRtmpSpeexTranscoder.class, "sip");
 	
 	private Codec audioCodec;
 	private TranscodedAudioDataListener listener;
@@ -37,15 +37,19 @@ public class SpeexToSpeexTranscoder implements Transcoder {
 	private static final int SPEEX_CODEC = 178; /* 1011 1111 (see flv spec) */
 	private long start = 0;
 	
-	public SpeexToSpeexTranscoder(Codec audioCodec, TranscodedAudioDataListener listener) {
+	public RtpToRtmpSpeexTranscoder(Codec audioCodec, TranscodedAudioDataListener listener) {
 		this.audioCodec = audioCodec;
 		this.listener = listener;
 		start = System.currentTimeMillis();
 	}
 	
-	public SpeexToSpeexTranscoder(Codec audioCodec) {
+	public RtpToRtmpSpeexTranscoder(Codec audioCodec) {
 		this.audioCodec = audioCodec;
 	}
+	
+	public void addTranscodedAudioDataListener(TranscodedAudioDataListener listener) {
+    	this.listener = listener;
+    }
 	
 	public void transcode(byte[] asaoBuffer, int offset, int num,
 			byte[] transcodedData, int dataOffset, RtpStreamSender rtpSender) {
@@ -98,12 +102,5 @@ public class SpeexToSpeexTranscoder implements Transcoder {
 
 	public int getIncomingEncodedFrameSize() {
 		return audioCodec.getIncomingEncodedFrameSize();
-	}
-
-	@Override
-	public void addTranscodedAudioDataListener(
-			TranscodedAudioDataListener listener) {
-		// TODO Auto-generated method stub
-		
 	}
 }

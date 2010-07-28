@@ -19,31 +19,18 @@
  */
 package org.bigbluebutton.voiceconf.red5.media.transcoder;
 
-import org.apache.mina.core.buffer.IoBuffer;
 import org.bigbluebutton.voiceconf.red5.media.RtpStreamSender;
 import org.bigbluebutton.voiceconf.red5.media.StreamException;
 import org.red5.app.sip.codecs.Codec;
 import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.net.rtmp.event.AudioData;
 import org.slf4j.Logger;
 
-public class SpeexToSpeexTranscoder implements Transcoder {
-	protected static Logger log = Red5LoggerFactory.getLogger(SpeexToSpeexTranscoder.class, "sip");
+public class RtmpToRtpSpeexTranscoder implements Transcoder {
+	protected static Logger log = Red5LoggerFactory.getLogger(RtmpToRtpSpeexTranscoder.class, "sip");
 	
 	private Codec audioCodec;
-	private TranscodedAudioDataListener listener;
-	private int timestamp = 0;
-	
-	private static final int SPEEX_CODEC = 178; /* 1011 1111 (see flv spec) */
-	private long start = 0;
-	
-	public SpeexToSpeexTranscoder(Codec audioCodec, TranscodedAudioDataListener listener) {
-		this.audioCodec = audioCodec;
-		this.listener = listener;
-		start = System.currentTimeMillis();
-	}
-	
-	public SpeexToSpeexTranscoder(Codec audioCodec) {
+
+	public RtmpToRtpSpeexTranscoder(Codec audioCodec) {
 		this.audioCodec = audioCodec;
 	}
 	
@@ -59,30 +46,27 @@ public class SpeexToSpeexTranscoder implements Transcoder {
 		}
 	}
 
+	/**
+     * Not implemented. Implemented by transcoders for voice conf server to Flash.
+     */
+	public void addTranscodedAudioDataListener(TranscodedAudioDataListener listener) {
+		log.error("Not implemented.");
+    }
+	
+	/**
+     * Not implemented. Implemented by transcoders for voice conf server to Flash.
+     */
 	public void transcode(byte[] codedBuffer) {
-		pushAudio(codedBuffer);
+		log.error("Not implemented.");		
 	}
 
-	private void pushAudio(byte[] audio) {
-    	timestamp = timestamp + audio.length;
-    	
-        IoBuffer buffer = IoBuffer.allocate(1024);
-        buffer.setAutoExpand(true);
-
-        buffer.clear();
-
-        buffer.put((byte) SPEEX_CODEC); 
-        byte[] copy = new byte[audio.length];
-	    System.arraycopy(audio, 0, copy, 0, audio.length );
-        
-        buffer.put(copy);        
-        buffer.flip();
-
-        AudioData audioData = new AudioData( buffer );
-        audioData.setTimestamp((int)(System.currentTimeMillis() - start) );
-
-        listener.handleTranscodedAudioData(audioData);
-    }
+    /**
+     * Not implemented. Implemented by transcoders for voice conf server to Flash.
+     */
+	public int getIncomingEncodedFrameSize() {
+		log.error("Not implemented.");	
+		return 0;
+	}
 
 	public int getCodecId() {
 		return audioCodec.getCodecId();
@@ -94,16 +78,5 @@ public class SpeexToSpeexTranscoder implements Transcoder {
 
 	public int getOutgoingPacketization() {
 		return audioCodec.getOutgoingPacketization();
-	}
-
-	public int getIncomingEncodedFrameSize() {
-		return audioCodec.getIncomingEncodedFrameSize();
-	}
-
-	@Override
-	public void addTranscodedAudioDataListener(
-			TranscodedAudioDataListener listener) {
-		// TODO Auto-generated method stub
-		
 	}
 }

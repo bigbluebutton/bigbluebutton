@@ -84,9 +84,11 @@ public class RtpStreamReceiver {
         while (receivePackets) {
         	try {
         		byte[] internalBuffer = new byte[internalBufferLength];
-        		RtpPacket rtpPacket = new RtpPacket(internalBuffer, 0);                	
+        		RtpPacket rtpPacket = new RtpPacket(internalBuffer, 0);      
+        		System.out.println("Waiting for RTP packet [" + rtpPacket.getLength() + "," + rtpPacket.getPayloadLength() + "," + internalBufferLength + "]");
         		rtpSocket.receive(rtpPacket);
         		packetReceivedCounter++;   
+        		System.out.println("Received RTP packet [" + rtpPacket.getLength() + "," + rtpPacket.getPayloadLength() + "]");
         		transcoder.transcode(rtpPacket.getPayload()); 
         	} catch (IOException e) {
         		// We get this when the socket closes when the call hangs up.

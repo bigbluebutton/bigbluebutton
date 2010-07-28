@@ -11,8 +11,8 @@ import local.media.G711;
 public class SpeexCodec implements Codec {
     private static final String codecName = "Speex";    
     
-    private static int defaultEncodedFrameSize = 160;
-    private static int defaultDecodedFrameSize = 160;        
+    private static int defaultEncodedFrameSize = 320;
+    private static int defaultDecodedFrameSize = 320;        
     private static int defaultSampleRate = 16000;
     private int outgoingPacketization = 0;
     private int incomingPacketization = 0;
