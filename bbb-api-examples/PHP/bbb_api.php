@@ -353,5 +353,21 @@ function getServerIP() {
          return $serverIP = 'http://'.$sIP.'/bigbluebutton/';
 }
 
+
+# function taken from http://www.php.net/manual/en/function.mt-rand.php
+# modified by Sebastian Schneider
+# credits go to www.mrnaz.com
+function rand_string($len, $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
+{
+    $string = '';
+    for ($i = 0; $i < $len; $i++)
+    {
+        $pos = rand(0, strlen($chars)-1);
+        $string .= $chars{$pos};
+    }
+    return (sha1($string));
+}
+
+
 }
 ?>
