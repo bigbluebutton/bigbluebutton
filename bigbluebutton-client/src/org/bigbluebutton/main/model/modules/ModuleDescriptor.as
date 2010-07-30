@@ -17,10 +17,11 @@
  *
  * $Id: $
  */
-package org.bigbluebutton.main.model
+package org.bigbluebutton.main.model.modules
 {
 	import flash.events.Event;
 	import flash.events.ProgressEvent;
+	import flash.system.ApplicationDomain;
 	import flash.utils.Dictionary;
 	
 	import mx.collections.ArrayCollection;
@@ -31,12 +32,11 @@ package org.bigbluebutton.main.model
 	
 	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.main.managers.ModuleManager;
 	
 	public class ModuleDescriptor
 	{
 		private var _attributes:Object;
-		private var _loader:ModuleLoader;
+		private var _loader:BigBlueButtonModuleLoader;
 		private var _module:IBigBlueButtonModule;
 		private var _loaded:Boolean = false;
 		private var _started:Boolean = false;
@@ -47,11 +47,12 @@ package org.bigbluebutton.main.model
 		public var unresolvedDependencies:ArrayCollection;
 		public var resolved:Boolean = false;
 		
-		public function ModuleDescriptor(attributes:XML)
+		public function ModuleDescriptor(attributes:XML, applicationDomain:ApplicationDomain)
 		{
 			unresolvedDependencies = new ArrayCollection();
 			_attributes = new Object();
-			_loader = new ModuleLoader();
+			_loader = new BigBlueButtonModuleLoader();
+			_loader.applicationDomain = applicationDomain;
 			
 			parseAttributes(attributes);			
 		}

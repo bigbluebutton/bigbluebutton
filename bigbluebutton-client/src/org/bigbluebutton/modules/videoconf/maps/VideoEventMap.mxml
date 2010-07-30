@@ -154,6 +154,12 @@
 		<InlineInvoker method="mockConnect" />
 	</EventHandlers>
 	
-	<Listener type="{ViewCameraEvent.VIEW_CAMERA_EVENT}" method="viewCamera" />
-	<Listener type="{StreamStartedEvent.STREAM_STARTED}" method="streamStarted" />
+	<EventHandlers type="{StreamStartedEvent.STREAM_STARTED}">
+		<InlineInvoker method="streamStarted" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{ViewCameraEvent.VIEW_CAMERA_EVENT}">
+		<InlineInvoker method="viewCamera" arguments="{event}" />
+	</EventHandlers>
+	
 </EventMap>

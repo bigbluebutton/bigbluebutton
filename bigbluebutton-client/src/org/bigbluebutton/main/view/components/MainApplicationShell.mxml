@@ -42,7 +42,6 @@
 	<mate:Listener type="{PortTestEvent.TUNNELING_FAILED}" method="rtmptFailed" />
 	<mate:Listener type="{ModuleLoadEvent.MODULE_LOAD_PROGRESS}" method="updateModuleLoadProgress" />
 
-	<maps:CrossModuleEventMap />
 	<api:APIEventMap />
 	
 	<mx:Script>

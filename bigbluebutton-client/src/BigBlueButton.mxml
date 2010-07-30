@@ -26,7 +26,7 @@
 	xmlns:mate="http://mate.asfusion.com/"
 	pageTitle="BigBlueButton"
 	layout="absolute"
-	preloader="org.bigbluebutton.main.managers.BigBlueButtonPreloader">
+	preloader="org.bigbluebutton.main.model.BigBlueButtonPreloader">
 	
 	<mx:Script>
 		<![CDATA[

@@ -93,7 +93,7 @@
 		import org.bigbluebutton.main.events.ParticipantJoinEvent;
 		import org.bigbluebutton.main.events.PortTestEvent;
 		import org.bigbluebutton.main.events.UserServicesEvent;
-		import org.bigbluebutton.main.model.ModulesProxy;
+		import org.bigbluebutton.main.model.modules.ModulesProxy;
 		import org.bigbluebutton.main.model.PortTestProxy;
 		import org.bigbluebutton.main.model.users.UserService; 
 		import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;

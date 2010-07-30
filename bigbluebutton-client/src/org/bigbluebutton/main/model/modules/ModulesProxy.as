@@ -17,7 +17,7 @@
  *
  * $Id: $
  */
-package org.bigbluebutton.main.model
+package org.bigbluebutton.main.model.modules
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
@@ -27,12 +27,12 @@ package org.bigbluebutton.main.model
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 	import org.bigbluebutton.main.events.PortTestEvent;
-	import org.bigbluebutton.main.managers.ModuleManager;
 	import org.bigbluebutton.modules.viewers.events.LoginSuccessEvent;
+	import org.bigbluebutton.main.model.PortTestProxy;
 	
 	public class ModulesProxy {
 		
-		private var modulesManager:org.bigbluebutton.main.managers.ModuleManager;
+		private var modulesManager:org.bigbluebutton.main.model.modules.ModuleManager;
 		private var portTestProxy:PortTestProxy;
 		
 		private var _user:Object;
@@ -42,7 +42,7 @@ package org.bigbluebutton.main.model
 		public function ModulesProxy() {
 			dispatcher = new Dispatcher();
 			portTestProxy = new PortTestProxy();
-			modulesManager = new org.bigbluebutton.main.managers.ModuleManager();
+			modulesManager = new org.bigbluebutton.main.model.modules.ModuleManager();
 			modulesManager.addInitializedListener(onInitializeComplete);
 			modulesManager.initialize();
 		}

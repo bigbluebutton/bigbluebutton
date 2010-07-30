@@ -17,13 +17,14 @@
  *
  * $Id: $
  */
-package org.bigbluebutton.main.managers
+package org.bigbluebutton.main.model.modules
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import flash.events.Event;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
+	import flash.system.ApplicationDomain;
 	import flash.utils.Dictionary;
 	
 	import mx.collections.ArrayCollection;
@@ -35,7 +36,6 @@ package org.bigbluebutton.main.managers
 	import org.bigbluebutton.main.events.ModuleLoadEvent;
 	import org.bigbluebutton.main.events.UserServicesEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
-	import org.bigbluebutton.main.model.ModuleDescriptor;
 	
 	public class ModuleManager
 	{
@@ -50,6 +50,7 @@ package org.bigbluebutton.main.managers
 		private var _numModules:int = 0;		
 		private var  _modules:Dictionary = new Dictionary();
 		private var sorted:ArrayCollection; //The array of modules sorted by dependencies, with least dependent first
+		private var _applicationDomain:ApplicationDomain;
 		
 		private var _parameters:ConferenceParameters;
 		private var _version:String;
@@ -65,6 +66,7 @@ package org.bigbluebutton.main.managers
 		
 		public function ModuleManager()
 		{
+			_applicationDomain = new ApplicationDomain(ApplicationDomain.currentDomain);
 			_urlLoader = new URLLoader();
 			_urlLoader.addEventListener(Event.COMPLETE, handleComplete);	
 			globalDispatcher = new Dispatcher();
@@ -121,7 +123,7 @@ package org.bigbluebutton.main.managers
 			var item:XML;
 						
 			for each(item in list){
-				var mod:ModuleDescriptor = new ModuleDescriptor(item);
+				var mod:ModuleDescriptor = new ModuleDescriptor(item, _applicationDomain);
 				_modules[item.@name] = mod;
 				_numModules++;
 			}					

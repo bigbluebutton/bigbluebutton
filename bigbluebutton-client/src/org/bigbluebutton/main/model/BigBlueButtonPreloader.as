@@ -1,4 +1,4 @@
-package org.bigbluebutton.main.managers
+package org.bigbluebutton.main.model
 {
 	import flash.display.Sprite;
 	
