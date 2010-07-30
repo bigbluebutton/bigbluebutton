@@ -7,6 +7,7 @@
 			
 			import org.bigbluebutton.main.events.ParticipantJoinEvent;
 			import org.bigbluebutton.main.events.PresenterStatusEvent;
+			import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
 			
 			private var userManager:UserManager = UserManager.getInstance();
 			
@@ -18,6 +19,10 @@
 			private function presenterChanged(event:PresenterStatusEvent):void{
 				userManager.presenterChanged(event.userid);
 			}
+			
+			private function conferenceCreated(e:ConferenceCreatedEvent):void{
+				userManager.conferenceCreated(e.conference);
+			}
 		]]>
 	</mx:Script>
 	
@@ -27,6 +32,10 @@
 	
 	<EventHandlers type="{PresenterStatusEvent.PRESENTER_NAME_CHANGE}" >
 		<InlineInvoker method="presenterChanged" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT}" >
+		<InlineInvoker method="conferenceCreated" arguments="{event}" />
 	</EventHandlers>
 	
 </EventMap>
