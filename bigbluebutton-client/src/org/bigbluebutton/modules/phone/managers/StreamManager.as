@@ -73,7 +73,7 @@ package org.bigbluebutton.modules.phone.managers
 			mic.codec = SoundCodec.SPEEX;
 			mic.gain = 60;
 //			mic.encodeQuality = 10;
-//			mic.framesPerPacket = 2;
+			mic.framesPerPacket = 1;
 			mic.rate = 16; // use 8 for Nelly
 			LogUtil.debug("codec=SPEEX,gain=60,encodeQuality=10,framesPerPacket=2,rate=16");
 		}
