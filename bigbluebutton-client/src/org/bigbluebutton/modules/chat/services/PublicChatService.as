@@ -7,8 +7,6 @@ package org.bigbluebutton.modules.chat.services
 	public class PublicChatService
 	{
 		private var attributes:Object;
-		/** This property is injected by the application. */
-		public var dispatcher:IEventDispatcher;
 		
 		private var chatSOService:PublicChatSharedObjectService;
 		
@@ -18,7 +16,7 @@ package org.bigbluebutton.modules.chat.services
 		}
 		
 		public function join():void {
-			chatSOService = new PublicChatSharedObjectService(attributes.connection, dispatcher);
+			chatSOService = new PublicChatSharedObjectService(attributes.connection);
 			chatSOService.join(attributes.uri + "/" + attributes.room);
 		}
 		

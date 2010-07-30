@@ -32,7 +32,6 @@ package org.bigbluebutton.main.managers
 	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
-	import org.bigbluebutton.main.events.ConfigurationEvent;
 	import org.bigbluebutton.main.events.ModuleLoadEvent;
 	import org.bigbluebutton.main.events.UserServicesEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
@@ -236,13 +235,16 @@ package org.bigbluebutton.main.managers
 						
 						var loadReadyEvent:ModuleLoadEvent = new ModuleLoadEvent(ModuleLoadEvent.MODULE_LOAD_READY);
 						loadReadyEvent.moduleName = name;
-						globalDispatcher.dispatchEvent(loadReadyEvent);
-						
-						if (allModulesLoaded()) startAllModules();				
+						globalDispatcher.dispatchEvent(loadReadyEvent);				
 					break;				
 				}
 			} else {
 				LogUtil.debug(name + " not found.");
+			}
+			
+			if (allModulesLoaded()) {
+				startAllModules();
+				globalDispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.ALL_MODULES_LOADED));		
 			}
 		}
 		

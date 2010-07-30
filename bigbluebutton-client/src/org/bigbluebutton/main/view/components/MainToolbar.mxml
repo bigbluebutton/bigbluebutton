@@ -27,7 +27,6 @@
 	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarButtonEvent" />	
 	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarButtonEvent"/>
 	<mate:Listener type="EndMeetingKickAllEvent" method="handleEndMeetingEvent"/>
-	<mate:Listener type="{ConfigurationEvent.CONFIG_EVENT}" method="handleConfigurationEvent"/>
 	
 	<mate:Listener type="{SuccessfulLoginEvent.USER_LOGGED_IN}" method="loginSuccess" />
 	
@@ -37,7 +36,6 @@
 			
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.CloseWindowEvent;
-			import org.bigbluebutton.main.events.ConfigurationEvent;
 			import org.bigbluebutton.main.events.LogoutEvent;
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 			import org.bigbluebutton.main.events.ToolbarButtonEvent;
@@ -58,11 +56,6 @@
 				this.addChild(btn);
 				
 				return btn;
-			}
-			
-			private function handleConfigurationEvent(event:ConfigurationEvent):void {
-				if (event.helpURL != null || event.helpURL != "")
-					DEFAULT_HELP_URL = event.helpURL;
 			}
 			
 			private function onHelpButtonClicked():void {

@@ -26,19 +26,23 @@
 	implements="org.bigbluebutton.common.IBigBlueButtonModule"
 	creationComplete="onCreationComplete()">
 	
-	<maps:PhoneLocalEventMap dispatcher="{this}" id="phoneLocalEventMap"/>
-	<maps:PhoneGlobalEventMap id="PhoneGlobalEventMap"/>
+	<maps:PhoneEventMap id="phoneLocalEventMap"/>
 	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.common.LogUtil;
+			import com.asfusion.mate.events.Dispatcher;
+			
 			import mx.controls.Alert;
-			import org.bigbluebutton.modules.phone.events.StopPhoneModuleEvent;
+			
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.modules.phone.events.StartPhoneModuleEvent;
+			import org.bigbluebutton.modules.phone.events.StopPhoneModuleEvent;
 		
 			private var _moduleId:String = "PhoneModule";
 			private var _moduleName:String = "Phone";			
 			private var _attributes:Object;
+			
+			private var dispatcher:Dispatcher = new Dispatcher();
 			
 			private function onCreationComplete():void {
 				LogUtil.debug("PhoneModule Initialized");			
@@ -94,13 +98,13 @@
 
 				var event:StartPhoneModuleEvent = new StartPhoneModuleEvent(StartPhoneModuleEvent.START_PHONE_MODULE_EVENT);
 				event.attributes = _attributes;
-				this.dispatchEvent(event);	
+				dispatcher.dispatchEvent(event);	
 			}
 			
 			public function stop():void {
 				trace("Stopping phone module");
 				var event:StopPhoneModuleEvent = new StopPhoneModuleEvent(StopPhoneModuleEvent.STOP_PHONE_MODULE_EVENT);
-				this.dispatchEvent(event);
+				dispatcher.dispatchEvent(event);
 			}
 		]]>
 	</mx:Script>

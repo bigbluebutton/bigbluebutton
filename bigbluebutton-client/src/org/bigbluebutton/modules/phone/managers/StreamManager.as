@@ -19,6 +19,8 @@
  */
 package org.bigbluebutton.modules.phone.managers
 {
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.ActivityEvent;
 	import flash.events.AsyncErrorEvent;
 	import flash.events.IEventDispatcher;
@@ -28,10 +30,10 @@ package org.bigbluebutton.modules.phone.managers
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
 	
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.phone.events.MicMutedEvent;
 	import org.bigbluebutton.modules.phone.events.MicrophoneUnavailEvent;
 	import org.bigbluebutton.modules.phone.events.PlayStreamStatusEvent;
-	import org.bigbluebutton.common.LogUtil;
 	
 	public class StreamManager
 	{
@@ -42,11 +44,11 @@ package org.bigbluebutton.modules.phone.managers
 		private var mic:Microphone 				= null;
 		private var isCallConnected:Boolean			= false;
 		private var muted:Boolean			    = false;
-		private var localDispatcher:IEventDispatcher;
+		private var dispatcher:Dispatcher;
 					
-		public function StreamManager(dispatcher:IEventDispatcher)
+		public function StreamManager()
 		{			
-			localDispatcher = dispatcher;
+			dispatcher = new Dispatcher();
 		}
 	
 		public function setConnection(connection:NetConnection):void {
@@ -72,7 +74,7 @@ package org.bigbluebutton.modules.phone.managers
 		public function initWithNoMicrophone(): void {
 			LogUtil.debug("No available microphone");
 			var event:MicrophoneUnavailEvent = new MicrophoneUnavailEvent();
-			localDispatcher.dispatchEvent(event);
+			dispatcher.dispatchEvent(event);
 		}
 						
 		private function micActivityHandler(event:ActivityEvent):void {}
@@ -83,12 +85,12 @@ package org.bigbluebutton.modules.phone.managers
 				case "Microphone.Muted":
 					var mutedEvent:MicMutedEvent = new MicMutedEvent();
 					mutedEvent.muted = true;
-					localDispatcher.dispatchEvent(mutedEvent);
+					dispatcher.dispatchEvent(mutedEvent);
 					break;
 				case "Microphone.Unmuted":
 					var unmutedEvent:MicMutedEvent = new MicMutedEvent();
 					unmutedEvent.muted = false;
-					localDispatcher.dispatchEvent(unmutedEvent);
+					dispatcher.dispatchEvent(unmutedEvent);
 					break;
 				default:
 				LogUtil.debug("unknown micStatusHandler event: " + event);
@@ -201,7 +203,7 @@ package org.bigbluebutton.modules.phone.managers
 				default:
 					
 			}	
-			localDispatcher.dispatchEvent(event);		 
+			dispatcher.dispatchEvent(event);		 
 		} 
 			
 		private function asyncErrorHandler(event:AsyncErrorEvent):void {

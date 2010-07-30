@@ -73,8 +73,6 @@
 			
 			private var focus:Boolean = true;
 			
-			public var localDispatcher:IEventDispatcher;
-			
 			private var globalDispatcher:Dispatcher = new Dispatcher();
 			
 			[Bindable]
@@ -207,13 +205,13 @@
 				publicEvent.message = parseURLs(cleanup(txtMsg.text));
 				publicEvent.color = cmpColorPicker.selectedColor.toString(16);
 				publicEvent.time = currentTime();
-				localDispatcher.dispatchEvent(publicEvent);
+				globalDispatcher.dispatchEvent(publicEvent);
 			}
 			
 			private function queryForParticipants():void {
 				trace("Sending query for participants message");
 				var event:QueryParticipantsEvent = new QueryParticipantsEvent(QueryParticipantsEvent.QUERY_PARTICIPANTS_EVENT);
-				localDispatcher.dispatchEvent(event);
+				globalDispatcher.dispatchEvent(event);
 			}
 			
 			private function sendPrivateChatMessage():void {
@@ -223,7 +221,7 @@
 				privateEvent.toUser = chatTabs.selectedChild.name;
 				privateEvent.color = cmpColorPicker.selectedColor.toString(16);
 				privateEvent.time = currentTime();
-				localDispatcher.dispatchEvent(privateEvent);
+				globalDispatcher.dispatchEvent(privateEvent);
 			}
 			
 			private function isChatBoxCurrentlySelected(id:String):Boolean {

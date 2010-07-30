@@ -39,6 +39,10 @@
 				windowManager.remove(window as MDIWindow);
 			}
 			
+			public function removeAllWindows():void{
+				this.windowManager.removeAll();
+			}
+			
 			public function resetWindowLayout():void{
 				var windows:Array = this.windowManager.getOpenWindowList();
 				for (var i:Number=0; i<windows.length; i++){
@@ -47,7 +51,7 @@
 				}
 			}
 			
-			public function positionWindow(window:IBbbModuleWindow):void{
+			private function positionWindow(window:IBbbModuleWindow):void{
 				leftWindowHeight = this.height/3;
 				leftWindowWidth = (this.width / 20) * 3;
 				rightWindowHeight = this.height * 0.6;

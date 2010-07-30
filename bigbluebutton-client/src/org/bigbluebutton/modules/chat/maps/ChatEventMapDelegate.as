@@ -9,7 +9,7 @@ package org.bigbluebutton.modules.chat.maps
 	import org.bigbluebutton.modules.chat.views.components.ChatWindow;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
-	public class ChatLocalEventMapDelegate
+	public class ChatEventMapDelegate
 	{
 		private var dispatcher:IEventDispatcher;
 
@@ -17,7 +17,7 @@ package org.bigbluebutton.modules.chat.maps
 		private var _chatWindowOpen:Boolean = false;
 		private var globalDispatcher:Dispatcher;
 				
-		public function ChatLocalEventMapDelegate(dispatcher:IEventDispatcher)
+		public function ChatEventMapDelegate()
 		{
 			this.dispatcher = dispatcher;
 			_chatWindow = new ChatWindow();
@@ -27,10 +27,6 @@ package org.bigbluebutton.modules.chat.maps
 		public function openChatWindow():void {
 		   	_chatWindow.title = ResourceUtil.getInstance().getString("bbb.chat.title");
 		   	_chatWindow.showCloseButton = false;
-		   	
-		   	// Set the local dispatcher for this window so that it can send messages
-		   	// that can be heard by the LocalEventMap.
-		   	_chatWindow.setLocalDispatcher(dispatcher);
 		   	
 		   	// Use the GLobal Dispatcher so that this message will be heard by the
 		   	// main application.		   	

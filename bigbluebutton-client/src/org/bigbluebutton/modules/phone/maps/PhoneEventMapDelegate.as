@@ -27,25 +27,19 @@ package org.bigbluebutton.modules.phone.maps
 	import org.bigbluebutton.main.events.ToolbarButtonEvent;
 	import org.bigbluebutton.modules.phone.views.components.ToolbarButton;
 	
-	public class PhoneLocalEventMapDelegate
+	public class PhoneEventMapDelegate
 	{
-		private var dispatcher:IEventDispatcher;
-
 		private var phoneButton:ToolbarButton;
 		private var buttonOpen:Boolean = false;
 		private var globalDispatcher:Dispatcher;
 				
-		public function PhoneLocalEventMapDelegate(dispatcher:IEventDispatcher)
+		public function PhoneEventMapDelegate()
 		{
-			this.dispatcher = dispatcher;
 			phoneButton = new ToolbarButton();
 			globalDispatcher = new Dispatcher();
 		}
 
 		public function addToolbarButton():void {
-		   	// Set the local dispatcher for this window so that it can send messages
-		   	// that can be heard by the LocalEventMap.
-		   	phoneButton.setLocalDispatcher(dispatcher);
 		   	phoneButton.toggle = true;
 		   	
 		   	// Use the GLobal Dispatcher so that this message will be heard by the

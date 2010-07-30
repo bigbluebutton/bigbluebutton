@@ -22,7 +22,7 @@
   $Id: $
 --> 
 
-<LocalEventMap xmlns="http://mate.asfusion.com/"
+<EventMap xmlns="http://mate.asfusion.com/"
 	xmlns:mx="http://www.adobe.com/2006/mxml">
 	<mx:Script>
 		<![CDATA[
@@ -58,17 +58,17 @@
 		<!--
 		The FlexEvent.PREINITIALIZE event is a good place for creating and initializing managers.
 		-->
-		<ObjectBuilder generator="{PhoneLocalEventMapDelegate}" constructorArguments="{scope.dispatcher}"/>
-		<ObjectBuilder generator="{PhoneManager}" constructorArguments="{scope.dispatcher}"/>
+		<ObjectBuilder generator="{PhoneEventMapDelegate}" />
+		<ObjectBuilder generator="{PhoneManager}" />
 	</EventHandlers>
 	
 	<EventHandlers type="{StartPhoneModuleEvent.START_PHONE_MODULE_EVENT}">        
 		<MethodInvoker generator="{PhoneManager}" method="setModuleAttributes" arguments="{event.attributes}" />
-		<MethodInvoker generator="{PhoneLocalEventMapDelegate}" method="addToolbarButton"/>
+		<MethodInvoker generator="{PhoneEventMapDelegate}" method="addToolbarButton"/>
     </EventHandlers>
     
     <EventHandlers type="{StopPhoneModuleEvent.STOP_PHONE_MODULE_EVENT}">       
-    	<MethodInvoker generator="{PhoneLocalEventMapDelegate}" method="removeToolbarButton"/> 
+    	<MethodInvoker generator="{PhoneEventMapDelegate}" method="removeToolbarButton"/> 
 		<MethodInvoker generator="{PhoneManager}" method="hangup"/>
     </EventHandlers>
     
@@ -81,17 +81,21 @@
     </EventHandlers>
     
 	<EventHandlers type="{CallConnectedEvent.CALL_CONNECTED_EVENT}">     
-		<MethodInvoker generator="{PhoneLocalEventMapDelegate}" method="disableToolbarButton"/>
+		<MethodInvoker generator="{PhoneEventMapDelegate}" method="disableToolbarButton"/>
 		<MethodInvoker generator="{PhoneManager}" method="callConnected" arguments="{event}"/>
     </EventHandlers>
     
     <EventHandlers type="{CallDisconnectedEvent.CALL_DISCONNECTED_EVENT}">   
-    	<MethodInvoker generator="{PhoneManager}" method="hangup"/> 
-		<MethodInvoker generator="{PhoneLocalEventMapDelegate}" method="enableToolbarButton"/>
+    	<MethodInvoker generator="{PhoneManager}" method="hangup" /> 
+		<MethodInvoker generator="{PhoneEventMapDelegate}" method="enableToolbarButton" /> 
     </EventHandlers>
         
     <EventHandlers type="{ConnectionStatusEvent.CONNECTION_STATUS_EVENT}">        
 		<MethodInvoker generator="{PhoneManager}" method="dialConference"/>
     </EventHandlers>
+	
+	<EventHandlers type="{ConnectionStatusEvent.SUCCESS}">        
+		<MethodInvoker generator="{PhoneManager}" method="calledFromGlobal" arguments="ConnectionStatusEvent.SUCCESS"/>
+	</EventHandlers>
     
-</LocalEventMap>
+</EventMap>

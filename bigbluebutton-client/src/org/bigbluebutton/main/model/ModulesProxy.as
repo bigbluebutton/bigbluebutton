@@ -105,5 +105,9 @@ package org.bigbluebutton.main.model
 		public function loadAllModules(e:SuccessfulLoginEvent):void{
 			modulesManager.loadAllModules(e.conferenceParameters);
 		}
+		
+		public function handleLogout():void{
+			//TODO
+		}
 	}
 }

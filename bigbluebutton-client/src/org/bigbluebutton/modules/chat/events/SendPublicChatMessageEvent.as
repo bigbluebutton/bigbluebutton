@@ -4,7 +4,7 @@ package org.bigbluebutton.modules.chat.events
 
 	public class SendPublicChatMessageEvent extends Event
 	{
-		public static const SEND_PUBLIC_CHAT_MESSAGE_EVENT:String = 'SEND_PUBLIC_CHAT_MESSAGE_EVENT';
+		public static const SEND_PUBLIC_CHAT_MESSAGE_EVENT:String = 'sendPublicChatMessageEvent';
 		
 		public var message:String;
 		public var time:String;
