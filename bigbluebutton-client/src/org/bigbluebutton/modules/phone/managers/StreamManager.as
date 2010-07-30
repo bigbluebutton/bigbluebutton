@@ -60,17 +60,23 @@ package org.bigbluebutton.modules.phone.managers
 			if(mic == null){
 				initWithNoMicrophone();
 			} else {
-				mic.setUseEchoSuppression(true);
-				mic.setLoopBack(false);
-				mic.setSilenceLevel(0,20000);
-				mic.codec = SoundCodec.SPEEX;
-				mic.gain = 60;
-	//			mic.encodeQuality = 5;
-				mic.rate = 16; // use 8 for Nelly
+				setupMicrophone();
 				mic.addEventListener(ActivityEvent.ACTIVITY, micActivityHandler);
 				mic.addEventListener(StatusEvent.STATUS, micStatusHandler);
 			}
 		}	
+		
+		private function setupMicrophone():void {
+			mic.setUseEchoSuppression(true);
+			mic.setLoopBack(false);
+			mic.setSilenceLevel(0,20000);
+			mic.codec = SoundCodec.SPEEX;
+			mic.gain = 60;
+//			mic.encodeQuality = 10;
+//			mic.framesPerPacket = 2;
+			mic.rate = 16; // use 8 for Nelly
+			LogUtil.debug("codec=SPEEX,gain=60,encodeQuality=10,framesPerPacket=2,rate=16");
+		}
 		
 		public function initWithNoMicrophone(): void {
 			LogUtil.debug("No available microphone");
@@ -113,6 +119,7 @@ package org.bigbluebutton.modules.phone.managers
 				outgoingStream = new NetStream(connection);
 				outgoingStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
 				outgoingStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);		
+				setupMicrophone();
 				outgoingStream.attachAudio(mic);
 				outgoingStream.publish(publishName, "live"); 
 			
@@ -153,6 +160,7 @@ package org.bigbluebutton.modules.phone.managers
 			outgoingStream = new NetStream(connection);
 			outgoingStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
 			outgoingStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);		
+			setupMicrophone();
 			outgoingStream.attachAudio(mic);
 		}
 		

@@ -75,8 +75,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 		
 		IProviderService providerService = (IProviderService) context.getBean(IProviderService.BEAN_NAME);
 		if (providerService.registerBroadcastStream(scope, listenStreamName, audioBroadcastStream)){
-			IBroadcastScope bScope = (BroadcastScope) providerService.getLiveProviderInput(scope, listenStreamName, true);
-			
+			IBroadcastScope bScope = (BroadcastScope) providerService.getLiveProviderInput(scope, listenStreamName, true);			
 			bScope.setAttribute(IBroadcastScope.STREAM_ATTRIBUTE, audioBroadcastStream);
 		} else{
 			log.error("could not register broadcast stream");

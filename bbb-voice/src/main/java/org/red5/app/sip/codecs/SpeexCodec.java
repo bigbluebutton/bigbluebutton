@@ -17,7 +17,7 @@ public class SpeexCodec implements Codec {
     private int outgoingPacketization = 0;
     private int incomingPacketization = 0;
 
-    public static final int codecId = 110;
+    public static final int codecId = 100;
     
     public SpeexCodec() {}
 

@@ -38,13 +38,15 @@ public class RtpStreamSender {
 	
     private static final int RTP_HEADER_SIZE = 12;
     private RtpSocket rtpSocket = null;
-    private byte[] transcodedAudioDataBuffer;
-    private RtpPacket rtpPacket;
+//    private byte[] transcodedAudioDataBuffer;
+//    private RtpPacket rtpPacket;
     private int sequenceNum = 0;
     private long timestamp = 0;
     private final Transcoder transcoder;
     private final DatagramSocket srcSocket;
     private final SipConnectInfo connInfo;
+    private long startTimestamp;
+    private boolean marked = false;
     
     public RtpStreamSender(Transcoder transcoder, DatagramSocket srcSocket, SipConnectInfo connInfo)  {
         this.transcoder = transcoder;        
@@ -64,33 +66,53 @@ public class RtpStreamSender {
     }
 
     private void init() {
-        transcodedAudioDataBuffer = new byte[transcoder.getOutgoingEncodedFrameSize() + RTP_HEADER_SIZE];
-        rtpPacket = new RtpPacket(transcodedAudioDataBuffer, 0);
-        rtpPacket.setPayloadType(transcoder.getCodecId());
+ //       transcodedAudioDataBuffer = new byte[transcoder.getOutgoingEncodedFrameSize() + RTP_HEADER_SIZE];
+ //       rtpPacket = new RtpPacket(transcodedAudioDataBuffer, 0);
+ //       rtpPacket.setPayloadType(transcoder.getCodecId());
         sequenceNum = 0;
         timestamp = 0;    	
+        startTimestamp = System.currentTimeMillis();
     }
     
     public void send(byte[] audioData, int offset, int num) {
- //   	transcodedAudioDataBuffer = new byte[audioData.length - 1 + RTP_HEADER_SIZE];
- //       rtpPacket = new RtpPacket(transcodedAudioDataBuffer, 0);
- //       rtpPacket.setPayloadType(transcoder.getCodecId());
-    	System.out.println("Audio Data length = " + audioData.length + " buffer = " + transcoder.getOutgoingEncodedFrameSize());
-    	transcoder.transcode(audioData, offset, num, transcodedAudioDataBuffer, RTP_HEADER_SIZE, this);
+    	byte[] transcodedAudioDataBuffer = new byte[audioData.length - 1 + RTP_HEADER_SIZE];
+    	System.arraycopy(audioData, offset, transcodedAudioDataBuffer, RTP_HEADER_SIZE, num);
+    	RtpPacket rtpPacket = new RtpPacket(transcodedAudioDataBuffer, 0);
+    	if (!marked) {
+    		rtpPacket.setMarker(true);
+    		marked = true;
+    	}
+    	rtpPacket.setPadding(false);
+    	rtpPacket.setExtension(false);
+        rtpPacket.setPayloadType(transcoder.getCodecId());
+    	System.out.println("Audio Data length = " + audioData.length + " buffer = " + transcodedAudioDataBuffer.length);
+    	//transcoder.transcode(audioData, offset, num, transcodedAudioDataBuffer, RTP_HEADER_SIZE, this);
+    	
+    	rtpPacket.setSequenceNumber(sequenceNum++);
+        timestamp += transcodedAudioDataBuffer.length;        
+        rtpPacket.setTimestamp((int)(System.currentTimeMillis() - startTimestamp));
+        rtpPacket.setPayloadLength(num);
+        try {
+			rtpSocketSend(rtpPacket);
+		} catch (StreamException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}  
     }
     
+    
     public void sendTranscodedData() throws StreamException {
-        rtpPacket.setSequenceNumber(sequenceNum++);
-        timestamp += transcoder.getOutgoingEncodedFrameSize();        
-        rtpPacket.setTimestamp(timestamp);
-        rtpPacket.setPayloadLength(transcoder.getOutgoingEncodedFrameSize());
-        rtpSocketSend(rtpPacket);    	
+//        rtpPacket.setSequenceNumber(sequenceNum++);
+ //       timestamp += transcoder.getOutgoingEncodedFrameSize();        
+ //       rtpPacket.setTimestamp(timestamp);
+ //       rtpPacket.setPayloadLength(transcoder.getOutgoingEncodedFrameSize());
+ //       rtpSocketSend(rtpPacket);    	
     }
     
     private synchronized void rtpSocketSend(RtpPacket rtpPacket) throws StreamException  {
     	try {
 			rtpSocket.send(rtpPacket);
-			timestamp += rtpPacket.getPayloadLength();
+//			timestamp += rtpPacket.getPayloadLength();
 		} catch (IOException e) {
 			log.error("Exception while trying to send rtp packet");
 			log.error(StackTraceUtil.getStackTrace(e));
