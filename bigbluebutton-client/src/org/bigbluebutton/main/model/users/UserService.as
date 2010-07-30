@@ -4,18 +4,23 @@ package org.bigbluebutton.main.model.users
 	
 	import flash.net.NetConnection;
 	
+	import mx.collections.ArrayCollection;
 	import mx.controls.Alert;
 	
-	import org.bigbluebutton.main.events.LoadModulesCommand;
+	import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 	import org.bigbluebutton.main.events.UserServicesEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
+	import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
+	import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
 	import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
+	import org.bigbluebutton.main.model.users.events.LowerHandEvent;
+	import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
 	import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
 
 	public class UserService
 	{
 		private var joinService:JoinService;
-		private var _participants:Conference;
+		private var _conference:Conference;
 		private var _userSOService:UsersSOService;
 		private var _conferenceParameters:ConferenceParameters;
 		
@@ -43,18 +48,18 @@ package org.bigbluebutton.main.model.users
 		
 		private function joinListener(success:Boolean, result:Object):void{
 			if (success) {
-				_participants = new Conference();
-				_participants.me.name = result.username;
-				_participants.me.role = result.role;
-				_participants.me.room = result.room;
-				_participants.me.authToken = result.authToken;
+				_conference = new Conference();
+				_conference.me.name = result.username;
+				_conference.me.role = result.role;
+				_conference.me.room = result.room;
+				_conference.me.authToken = result.authToken;
 				
 				_conferenceParameters = new ConferenceParameters();
 				_conferenceParameters.conference = result.conference;
-				_conferenceParameters.username = _participants.me.name;
-				_conferenceParameters.role = _participants.me.role;
-				_conferenceParameters.room = _participants.me.room;
-				_conferenceParameters.authToken = _participants.me.authToken;
+				_conferenceParameters.username = _conference.me.name;
+				_conferenceParameters.role = _conference.me.role;
+				_conferenceParameters.room = _conference.me.room;
+				_conferenceParameters.authToken = _conference.me.authToken;
 				_conferenceParameters.mode = result.mode;
 				_conferenceParameters.webvoiceconf = result.webvoiceconf;
 				_conferenceParameters.voicebridge = result.voicebridge;
@@ -64,7 +69,7 @@ package org.bigbluebutton.main.model.users
 				_conferenceParameters.externUserID = result.externUserID;
 				
 				var e:ConferenceCreatedEvent = new ConferenceCreatedEvent(ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT);
-				e.conference = _participants;
+				e.conference = _conference;
 				dispatcher.dispatchEvent(e);
 				
 				connect();
@@ -72,17 +77,61 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		private function connect():void{
-			_userSOService = new UsersSOService(applicationURI, _participants);
+			_userSOService = new UsersSOService(applicationURI, _conference);
 			_userSOService.connect(_conferenceParameters);	
 		}
 		
 		public function userLoggedIn(e:UsersConnectionEvent):void{
-			_participants.me.userid = e.userid;
+			_conference.me.userid = e.userid;
 			_conferenceParameters.connection = e.connection;
+			_conferenceParameters.userid = e.userid;
 			
-			var loadCommand:LoadModulesCommand = new LoadModulesCommand(LoadModulesCommand.LOAD_MODULES);
+			_userSOService.join(e.userid, _conferenceParameters.room);
+			
+			var loadCommand:SuccessfulLoginEvent = new SuccessfulLoginEvent(SuccessfulLoginEvent.USER_LOGGED_IN);
 			loadCommand.conferenceParameters = _conferenceParameters;
-			dispatcher.dispatchEvent(loadCommand);
+			dispatcher.dispatchEvent(loadCommand);		
+		}
+		
+		public function stop():void {
+			_userSOService.disconnect();
+		}
+		
+		public function get me():BBBUser {
+			return _conference.me;
+		}
+		
+		public function isModerator():Boolean {
+			if (me.role == "MODERATOR") {
+				return true;
+			}
+			
+			return false;
+		}
+		
+		public function get participants():ArrayCollection {
+			return _conference.users;
+		}
+		
+		public function assignPresenter(assignTo:Number):void {
+			_userSOService.assignPresenter(assignTo, me.userid);
+		}
+		
+		public function addStream(e:BroadcastStartedEvent):void {
+			_userSOService.addStream(e.userid, e.stream);
+		}
+		
+		public function removeStream(e:BroadcastStoppedEvent):void {			
+			_userSOService.removeStream(e.userid, e.stream);
+		}
+		
+		public function raiseHand(e:RaiseHandEvent):void {
+			var userid:Number = _conference.me.userid;
+			_userSOService.raiseHand(userid, e.raised);
+		}
+		
+		public function lowerHand(e:LowerHandEvent):void {
+			if (this.isModerator()) _userSOService.raiseHand(e.userid, false);
 		}
 	}
 }

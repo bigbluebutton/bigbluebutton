@@ -20,7 +20,7 @@
   $Id: $
 --> 
 
-<viewer:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+<viewer:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:viewer="flexlib.mdi.containers.*" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow" 
 	xmlns:mate="http://mate.asfusion.com/"
@@ -42,11 +42,11 @@
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.main.events.ParticipantJoinEvent;
+			import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
+			import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
+			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 			import org.bigbluebutton.main.view.components.MainCanvas;
 			import org.bigbluebutton.modules.viewers.events.ChangeStatusEvent;
-			import org.bigbluebutton.modules.viewers.events.ConferenceCreatedEvent;
-			import org.bigbluebutton.modules.viewers.events.RaiseHandEvent;
-			import org.bigbluebutton.modules.viewers.events.RoleChangeEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			[Bindable]

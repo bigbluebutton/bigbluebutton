@@ -76,9 +76,9 @@ package org.bigbluebutton.main.model.users
 			netConnectionDelegate.disconnect();
 		}
 		
-	    public function join(userid:Number) : void
+	    public function join(userid:Number, room:String) : void
 		{
-			_participantsSO = SharedObject.getRemote(SO_NAME, _applicationURI, false);
+			_participantsSO = SharedObject.getRemote(SO_NAME, _applicationURI + "/" + room, false);
 			_participantsSO.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
 			_participantsSO.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
 			_participantsSO.client = this;
@@ -234,15 +234,6 @@ package org.bigbluebutton.main.model.users
 				assignedBy
 			); //_netConnection.call
 		}
-/*		
-		public function assignPresenterCallback(userid:Number, assignedBy:Number):void {
-			sendMessage(ViewersModuleConstants.ASSIGN_PRESENTER, {assignedTo:userid, assignedBy:assignedBy});
-		}
-		
-		public function queryPresenter():void {
-		
-		}
-*/
 
 		public function raiseHand(userid:Number, raise:Boolean):void {
 			var nc:NetConnection = netConnectionDelegate.connection;			

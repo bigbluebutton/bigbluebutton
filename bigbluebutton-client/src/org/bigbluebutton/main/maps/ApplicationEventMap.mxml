@@ -94,9 +94,27 @@
 		<MethodInvoker generator="{UserService}" method="userLoggedIn" arguments="{event}" />
 	</EventHandlers>
 	
-	<EventHandlers type="{LoadModulesCommand.LOAD_MODULES}" >
-		<MethodInvoker generator="{ModulesProxy}" method="startModulesLoading" arguments="{event}" />
+	<EventHandlers type="{SuccessfulLoginEvent.USER_LOGGED_IN}" >
+		<MethodInvoker generator="{ModulesProxy}" method="loadAllModules" arguments="{event}" />
 	</EventHandlers>
+	
+	<!-- Viewers Stuff -->
+	<EventHandlers type="{RaiseHandEvent.RAISE_HAND}" >
+	<MethodInvoker generator="{UserService}" method="raiseHand" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{LowerHandEvent.LOWER_HAND_EVENT}" >
+	<MethodInvoker generator="{UserService}" method="lowerHand" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{BroadcastStartedEvent.BROADCAST_STARTED_EVENT}" >
+	<MethodInvoker generator="{UserService}" method="addStream" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{BroadcastStoppedEvent.BROADCAST_STOPPED}" >
+	<MethodInvoker generator="{UserService}" method="removeStream" arguments="{event}" />
+	</EventHandlers>
+	<!-- End Viewers Stuff -->
 
 	<mx:Script>
 	<![CDATA[
@@ -104,7 +122,7 @@
 		
 		import org.bigbluebutton.main.events.ConfigEvent;
 		import org.bigbluebutton.main.events.ConnectedEvent;
-		import org.bigbluebutton.main.events.LoadModulesCommand;
+		import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 		import org.bigbluebutton.main.events.LogoutEvent;
 		import org.bigbluebutton.main.events.ModeEvent;
 		import org.bigbluebutton.main.events.ModuleEvent;
@@ -115,6 +133,10 @@
 		import org.bigbluebutton.main.model.ModulesProxy;
 		import org.bigbluebutton.main.model.PortTestProxy;
 		import org.bigbluebutton.main.model.users.UserService;
+		import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
+		import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
+		import org.bigbluebutton.main.model.users.events.LowerHandEvent;
+		import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
 		import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
 		import org.bigbluebutton.modules.viewers.events.LoginSuccessEvent;
 	]]>

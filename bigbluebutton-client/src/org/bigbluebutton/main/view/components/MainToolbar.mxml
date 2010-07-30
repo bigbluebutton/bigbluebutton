@@ -29,7 +29,7 @@
 	<mate:Listener type="EndMeetingKickAllEvent" method="handleEndMeetingEvent"/>
 	<mate:Listener type="{ConfigurationEvent.CONFIG_EVENT}" method="handleConfigurationEvent"/>
 	
-	<mate:Listener type="{LoginSuccessEvent.LOGIN_SUCCESS}" method="loginSuccess" />
+	<mate:Listener type="{SuccessfulLoginEvent.USER_LOGGED_IN}" method="loginSuccess" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -39,8 +39,8 @@
 			import org.bigbluebutton.main.events.CloseWindowEvent;
 			import org.bigbluebutton.main.events.ConfigurationEvent;
 			import org.bigbluebutton.main.events.LogoutEvent;
+			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 			import org.bigbluebutton.main.events.ToolbarButtonEvent;
-			import org.bigbluebutton.modules.viewers.events.LoginSuccessEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";
@@ -86,8 +86,8 @@
 				addedBtns.removeChild(event.button);
 			}
 			
-			private function loginSuccess(e:LoginSuccessEvent):void{
-				loggedIn(e.user.username, e.user.conferenceName, e.user.userrole);
+			private function loginSuccess(e:SuccessfulLoginEvent):void{
+				loggedIn(e.conferenceParameters.username, e.conferenceParameters.room, e.conferenceParameters.role);
 				visible = true;
 			}
 			

@@ -25,14 +25,14 @@ package org.bigbluebutton.modules.present.business
 	
 	import mx.controls.Alert;
 	
+	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
 	import org.bigbluebutton.modules.present.events.PresenterCommands;
 	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 	import org.bigbluebutton.modules.present.events.SlideEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.managers.PresentationSlides;
-	import org.bigbluebutton.modules.viewers.events.RoleChangeEvent;
-	import org.bigbluebutton.common.LogUtil;
 	
 	public class PresentProxy
 	{

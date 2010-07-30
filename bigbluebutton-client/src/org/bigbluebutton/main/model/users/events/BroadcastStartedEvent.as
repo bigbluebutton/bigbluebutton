@@ -17,18 +17,18 @@
  *
  * $Id: $
  */
-package org.bigbluebutton.modules.videoconf.events
+ package org.bigbluebutton.main.model.users.events
 {
 	import flash.events.Event;
 	
-	public class BroadcastStoppedEvent extends Event
+	public class BroadcastStartedEvent extends Event
 	{
-		public static const BROADCAST_STOPPED:String = "BROADCAST_STOPPED";
+		public static const BROADCAST_STARTED_EVENT:String = "BROADCAST_STARTED_EVENT";
 		
 		public var stream:String;
 		public var userid:Number;
 		
-		public function BroadcastStoppedEvent(type:String = BROADCAST_STOPPED)
+		public function BroadcastStartedEvent(type:String = BROADCAST_STARTED_EVENT)
 		{
 			super(type, true, false);
 		}

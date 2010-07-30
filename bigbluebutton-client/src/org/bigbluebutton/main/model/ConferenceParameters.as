@@ -17,5 +17,6 @@ package org.bigbluebutton.main.model
 		public var meetingID:String;
 		public var externUserID:String;
 		public var connection:NetConnection;
+		public var userid:Number;
 	}
 }

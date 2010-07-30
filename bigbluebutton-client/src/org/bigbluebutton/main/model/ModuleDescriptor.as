@@ -21,9 +21,12 @@ package org.bigbluebutton.main.model
 {
 	import flash.events.Event;
 	import flash.events.ProgressEvent;
+	import flash.utils.Dictionary;
 	
 	import mx.collections.ArrayCollection;
 	import mx.controls.Alert;
+	import mx.core.IFlexModuleFactory;
+	import mx.events.ModuleEvent;
 	import mx.modules.ModuleLoader;
 	
 	import org.bigbluebutton.common.IBigBlueButtonModule;
@@ -94,11 +97,11 @@ package org.bigbluebutton.main.model
 		public function load(resultHandler:Function):void {
 			callbackHandler = resultHandler;
 //			loader.addEventListener("urlChanged", resultHandler);
-//			loader.addEventListener("loading", resultHandler);
+			_loader.addEventListener("loading", onLoading);
 			_loader.addEventListener("progress", onLoadProgress);
-//			loader.addEventListener("setup", resultHandler);
+			_loader.addEventListener("setup", onSetupInfo);
 			_loader.addEventListener("ready", onReady);
-//			loader.addEventListener("error", resultHandler);
+			_loader.addEventListener("error", onErrorLoading);
 //			loader.addEventListener("unload", resultHandler);
 			_loader.url = _attributes.url;
 			LogUtil.debug("Loading " + _attributes.url);
@@ -110,7 +113,7 @@ package org.bigbluebutton.main.model
 		}
 
 		private function onReady(event:Event):void {
-			LogUtil.debug("Module onReady Event");
+			LogUtil.debug((getAttribute("name") as String) + "finished loading");
 			var modLoader:ModuleLoader = event.target as ModuleLoader;
 			_module = modLoader.child as IBigBlueButtonModule;
 			if (_module != null) {
@@ -124,9 +127,22 @@ package org.bigbluebutton.main.model
 		}	
 
 		private function onLoadProgress(e:ProgressEvent):void {
+			if ((getAttribute("name") as String) == "PresentModule") LogUtil.debug("PresentModule " + Math.round((e.bytesLoaded/e.bytesTotal) * 100) + " loaded");
 			callbackHandler(ModuleManager.MODULE_LOAD_PROGRESS, 
 					_attributes.name, Math.round((e.bytesLoaded/e.bytesTotal) * 100));
 		}	
+		
+		private function onErrorLoading(e:ModuleEvent):void{
+			LogUtil.error("Error loading " + (getAttribute("name") as String) + e.errorText);
+		}
+		
+		private function onSetupInfo(e:ModuleEvent):void{
+			//var info:Object = _loader.moduleFactory.info();
+		}
+		
+		private function onLoading(e:Event):void{
+			LogUtil.debug((getAttribute("name") as String) + " is loading");
+		}
 		
 		public function useProtocol(protocol:String):void {
 			_attributes.uri = _attributes.uri.replace(/rtmp:/gi, protocol + ":");

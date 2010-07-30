@@ -3,14 +3,15 @@ package org.bigbluebutton.main.events
 	import flash.events.Event;
 	
 	import org.bigbluebutton.main.model.ConferenceParameters;
+	import org.bigbluebutton.main.model.users.BBBUser;
 
-	public class LoadModulesCommand extends Event
+	public class SuccessfulLoginEvent extends Event
 	{
-		public static const LOAD_MODULES:String = "LoadAllModules";
+		public static const USER_LOGGED_IN:String = "SuccessfullyLoggedIn";
 		
 		public var conferenceParameters:ConferenceParameters;
 		
-		public function LoadModulesCommand(type:String)
+		public function SuccessfulLoginEvent(type:String)
 		{
 			super(type, true, false);
 		}

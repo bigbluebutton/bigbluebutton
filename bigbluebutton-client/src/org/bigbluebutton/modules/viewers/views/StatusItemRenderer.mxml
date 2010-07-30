@@ -28,12 +28,12 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.common.LogUtil;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.modules.viewers.events.LowerHandEvent;
+			import org.bigbluebutton.main.model.users.events.LowerHandEvent;
 			import org.bigbluebutton.modules.viewers.events.ViewCameraEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			

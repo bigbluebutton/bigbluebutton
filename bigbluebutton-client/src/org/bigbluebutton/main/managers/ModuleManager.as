@@ -35,6 +35,7 @@ package org.bigbluebutton.main.managers
 	import org.bigbluebutton.main.events.ConfigurationEvent;
 	import org.bigbluebutton.main.events.ModuleLoadEvent;
 	import org.bigbluebutton.main.events.UserServicesEvent;
+	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.ModuleDescriptor;
 	
 	public class ModuleManager
@@ -51,7 +52,7 @@ package org.bigbluebutton.main.managers
 		private var  _modules:Dictionary = new Dictionary();
 		private var sorted:ArrayCollection; //The array of modules sorted by dependencies, with least dependent first
 		
-		private var _user:Object;
+		private var _parameters:ConferenceParameters;
 		private var _version:String;
 		private var _localeVersion:String;
 		private var _protocol:String;
@@ -131,33 +132,6 @@ package org.bigbluebutton.main.managers
 			_protocol = protocol;
 		}
 		
-		/**
-		 * Set the properties of the local user who logged in.
-		 * @param user - The properties object for the user that just logged in
-		 * 
-		 */		
-		public function loggedInUser(user:Object):void {
-			LogUtil.debug('loggedin user ' + user.webvoiceconf);
-			_user = new Object();
-			_user.conference = user.conference;
-			_user.username = user.username;
-			_user.userrole = user.userrole;
-			_user.room = user.room;
-			_user.authToken = user.authToken;
-			_user.userid = user.userid;
-			_user.mode = user.mode;
-			_user.voicebridge = user.voicebridge;
-			_user.webvoiceconf = user.webvoiceconf;
-			_user.connection = user.connection;
-			_user.playbackRoom = user.playbackRoom;
-			_user.record = user.record;
-			_user.welcome = user.welcome;
-			_user.meetingID = user.meetingID;
-			_user.externUserID = user.externUserID;
-			
-			Role.setRole(user.userrole);
-		}
-		
 		public function get portTestHost():String {
 			return _portTestHost;
 		}
@@ -192,22 +166,21 @@ package org.bigbluebutton.main.managers
 			if (m != null) {
 				LogUtil.debug('Starting ' + name);
 				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
-				if (_user != null) {
-					m.addAttribute("conference", _user.conference);
-					m.addAttribute("username", _user.username);
-					m.addAttribute("userrole", _user.userrole);
-					m.addAttribute("room", _user.room);
-					m.addAttribute("authToken", _user.authToken);
-					m.addAttribute("userid", _user.userid);
-					m.addAttribute("mode", _user.mode);
-					m.addAttribute("connection", _user.connection);
-					m.addAttribute("voicebridge", _user.voicebridge);
-					m.addAttribute("webvoiceconf", _user.webvoiceconf);
-					m.addAttribute("playbackRoom", _user.playbackRoom);
-					m.addAttribute("record", _user.record);
-					m.addAttribute("welcome", _user.welcome);
-					m.addAttribute("meetingID", _user.meetingID);
-					m.addAttribute("externUserID", _user.externUserID);
+				if (_parameters != null) {
+					LogUtil.debug("LOADING_ATTRIBUTES");
+					m.addAttribute("conference", _parameters.conference);
+					m.addAttribute("username", _parameters.username);
+					m.addAttribute("userrole", _parameters.role);
+					m.addAttribute("room", _parameters.room);
+					m.addAttribute("authToken", _parameters.authToken);
+					m.addAttribute("userid", _parameters.userid);
+					m.addAttribute("mode", _parameters.mode);
+					m.addAttribute("connection", _parameters.connection);
+					m.addAttribute("voicebridge", _parameters.voicebridge);
+					m.addAttribute("webvoiceconf", _parameters.webvoiceconf);
+					m.addAttribute("welcome", _parameters.welcome);
+					m.addAttribute("meetingID", _parameters.meetingID);
+					m.addAttribute("externUserID", _parameters.externUserID);
 					
 				} else {
 					// Pass the mode that we got from the URL query string.
@@ -238,7 +211,7 @@ package org.bigbluebutton.main.managers
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
 				if (m.loaded) {
-					loadModuleResultHandler(MODULE_LOAD_READY, name);
+					//loadModuleResultHandler(MODULE_LOAD_READY, name);
 				} else {
 					LogUtil.debug('Found module ' + m.attributes.name);
 					m.load(loadModuleResultHandler);
@@ -265,7 +238,7 @@ package org.bigbluebutton.main.managers
 						loadReadyEvent.moduleName = name;
 						globalDispatcher.dispatchEvent(loadReadyEvent);
 						
-						if (allModulesLoaded()) handleAppStart();				
+						if (allModulesLoaded()) startAllModules();				
 					break;				
 				}
 			} else {
@@ -304,33 +277,14 @@ package org.bigbluebutton.main.managers
 			globalDispatcher.dispatchEvent(e);
 		}
 		
-		public function loadAllModules():void{
+		public function loadAllModules(parameters:ConferenceParameters):void{
+			_parameters = parameters;
+			Role.setRole(parameters.role);
+			
 			for (var i:int = 0; i<sorted.length; i++){
 				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
 				loadModule(m.getAttribute("name") as String);
 			}
-		}
-		
-		//Start the first module (ViewersModule - still need to make this a bit more robust)
-		public function handleAppStart():void {		
-			for (var i:int = 0; i<sorted.length; i++){
-				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
-				if ((m.getAttribute("name") as String) == "ViewersModule") {
-					startModule(m.getAttribute("name") as String);
-					sorted.removeItemAt(i);
-				}
-			}
-		}
-		
-		public function handleUserJoined():void {
-			var event:ConfigurationEvent = new ConfigurationEvent(ConfigurationEvent.CONFIG_EVENT);
-			event.helpURL = _helpURL;
-			LogUtil.debug("Dispatching helpURL " + _helpURL);
-			
-			globalDispatcher.dispatchEvent(event);	
-			
-			startAllModules();
-			
 		}
 		
 		public function startAllModules():void{
@@ -396,7 +350,10 @@ package org.bigbluebutton.main.managers
 		private function allModulesLoaded():Boolean{
 			for (var i:int = 0; i<sorted.length; i++){
 				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
-				if (!m.loaded) return false;
+				if (!m.loaded){
+					LogUtil.debug("Module " + (m.getAttribute("name") as String) + " has not yet been loaded");
+					return false;
+				} 
 			}
 			return true;
 		}

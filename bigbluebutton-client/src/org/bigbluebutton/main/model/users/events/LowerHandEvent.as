@@ -17,18 +17,21 @@
  *
  * $Id: $
  */
-package org.bigbluebutton.modules.viewers.business
+package org.bigbluebutton.main.model.users.events
 {
-	public class Status
-	{
-		public var name:String;
-		public var value:Object;
-		
-		public function Status(name:String, value:Object)
-		{
-			this.name = name;
-			this.value = value;
-		}
+	import flash.events.Event;
 
+	public class LowerHandEvent extends Event
+	{
+		public static const LOWER_HAND_EVENT:String = "LOWER_HAND_EVENT";
+		
+		public var userid:Number;
+
+		public function LowerHandEvent(userid:Number)
+		{
+			super(LOWER_HAND_EVENT,true);
+			this.userid = userid;
+		}
+		
 	}
 }

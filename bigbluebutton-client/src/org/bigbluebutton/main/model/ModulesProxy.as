@@ -25,7 +25,7 @@ package org.bigbluebutton.main.model
 	import mx.modules.ModuleManager;
 	
 	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.main.events.LoadModulesCommand;
+	import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 	import org.bigbluebutton.main.events.PortTestEvent;
 	import org.bigbluebutton.main.managers.ModuleManager;
 	import org.bigbluebutton.modules.viewers.events.LoginSuccessEvent;
@@ -93,16 +93,6 @@ package org.bigbluebutton.main.model
 			return modulesManager.portTestApplication;
 		}
 		
-		public function handleLogin(e:LoginSuccessEvent):void{
-			user = e.user;
-			modulesManager.handleUserJoined();
-		}
-		
-		public function set user(loggedInUser:Object):void {
-			_user = loggedInUser;
-			modulesManager.loggedInUser(_user);
-		}
-		
 		public function testRTMP(e:PortTestEvent):void{
 			portTestProxy.connect("RTMP", getPortTestHost(), "1935", getPortTestApplication());
 		}
@@ -112,8 +102,8 @@ package org.bigbluebutton.main.model
 			else dispatcher.dispatchEvent(new PortTestEvent(PortTestEvent.TUNNELING_FAILED));
 		}
 		
-		public function startModulesLoading(e:LoadModulesCommand):void{
-			modulesManager.loadAllModules();
+		public function loadAllModules(e:SuccessfulLoginEvent):void{
+			modulesManager.loadAllModules(e.conferenceParameters);
 		}
 	}
 }
