@@ -13,6 +13,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
 	import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
 	import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
+	import org.bigbluebutton.main.model.users.events.KickUserEvent;
 	import org.bigbluebutton.main.model.users.events.LowerHandEvent;
 	import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
 	import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
@@ -132,6 +133,10 @@ package org.bigbluebutton.main.model.users
 		
 		public function lowerHand(e:LowerHandEvent):void {
 			if (this.isModerator()) _userSOService.raiseHand(e.userid, false);
+		}
+		
+		public function kickUser(e:KickUserEvent):void{
+			if (this.isModerator()) _userSOService.kickUser(e.userid);
 		}
 	}
 }

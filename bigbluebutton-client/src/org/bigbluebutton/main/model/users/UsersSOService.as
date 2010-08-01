@@ -31,6 +31,7 @@ package org.bigbluebutton.main.model.users
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.events.BBBEvent;
+	import org.bigbluebutton.main.events.LogoutEvent;
 	import org.bigbluebutton.main.events.ParticipantJoinEvent;
 	import org.bigbluebutton.main.events.PresenterStatusEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
@@ -121,6 +122,16 @@ package org.bigbluebutton.main.model.users
 			); //_netConnection.call
 		}
 		
+		public function kickUser(userid:Number):void{
+			_participantsSO.send("kickUserCallback", userid);
+		}
+		
+		public function kickUserCallback(userid:Number):void{
+			if (userid == _participants.me.userid){
+				dispatcher.dispatchEvent(new LogoutEvent(LogoutEvent.USER_LOGGED_OUT));
+			}
+		}
+		
 		private function becomePresenterIfLoneModerator():void {
 			if (_participants.hasOnlyOneModerator()) {
 				trace("There is only one moderator");
@@ -196,6 +207,10 @@ package org.bigbluebutton.main.model.users
 			dispatcher.dispatchEvent(endMeetingEvent);
 		}
 		
+		
+		/**
+		 * Callback from the server from many of the bellow nc.call methods
+		 */
 		public function participantStatusChange(userid:Number, status:String, value:Object):void {
 			LogUtil.debug("Received status change [" + userid + "," + status + "," + value + "]")
 			

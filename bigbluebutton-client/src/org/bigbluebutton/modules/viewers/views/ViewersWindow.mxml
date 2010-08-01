@@ -37,6 +37,7 @@
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
+			import mx.events.DataGridEvent;
 			import mx.events.ListEvent;
 			
 			import org.bigbluebutton.common.Images;
@@ -45,6 +46,7 @@
 			import org.bigbluebutton.main.events.ParticipantJoinEvent;
 			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
+			import org.bigbluebutton.main.model.users.events.KickUserEvent;
 			import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 			import org.bigbluebutton.main.view.components.MainCanvas;
@@ -63,13 +65,11 @@
   			
           	public var images:Images = new Images();
                       
-   			[Bindable]
-   			public var presenterIcon : Class = images.presenter;
-   			[Bindable] 
-   			public var handIcon:Class = images.raisehand;
+   			[Bindable] public var presenterIcon : Class = images.presenter;
+   			[Bindable] public var handIcon:Class = images.raisehand;
+			[Bindable] public var kickIcon:Class = images.delete_icon;
    			
-   			[Bindable] 
-   			public var toggleTooltip : String = "Click to raise hand.";
+   			[Bindable] public var toggleTooltip : String = "Click to raise hand.";
 			private var handRaised:Boolean = false;
 			
 			private function onCreationComplete():void {
@@ -127,6 +127,12 @@
 				this.participants = e.conference.users;
 				this.isModerator = (e.conference.me.role == Role.MODERATOR);
 			}
+			
+			private function kickUser():void{
+				if (isModerator && (viewersGrid.selectedItem != null)){
+					dispatchEvent(new KickUserEvent(viewersGrid.selectedItem.userid));
+				}
+			}
 
         ]]>
     </mx:Script>
@@ -149,6 +155,10 @@
     	   			toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.presentBtn.toolTip')}"
     	   			click="assignPresenterClicked()"/>
      	 <mx:Spacer width="100%"/>
+	   	 <mx:Button id="kickUserBtn" icon="{kickIcon}" visible="{isModerator}" 
+					width="20" height="20" 
+					toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.raiseHandBtn.toolTip')}"
+					click="kickUser()"/>
     	 <mx:Button id="raiseHandImage" icon="{handIcon}" toggle="true" 
     	   			width="20" height="20"
     	   			toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.raiseHandBtn.toolTip')}" 

@@ -27,7 +27,7 @@
 	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarButtonEvent" />	
 	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarButtonEvent"/>
 	<mate:Listener type="EndMeetingKickAllEvent" method="handleEndMeetingEvent"/>
-	
+	<mate:Listener type="{LogoutEvent.USER_LOGGED_OUT}" method="hideToolbar" />
 	<mate:Listener type="{SuccessfulLoginEvent.USER_LOGGED_IN}" method="loginSuccess" />
 	
 	<mx:Script>
@@ -67,8 +67,11 @@
 			}
 			
 			private function doLogout():void {
-				this.visible = false;
 				dispatchEvent(new LogoutEvent(LogoutEvent.USER_LOGGED_OUT));
+			}
+			
+			private function hideToolbar(e:LogoutEvent):void{
+				this.visible = false;
 			}
 			
 			private function handleAddToolbarButtonEvent(event:ToolbarButtonEvent):void {
@@ -90,6 +93,7 @@
 	</mx:HBox>		
 	<mx:Spacer width="100%"/>
 	<mx:LinkButton label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" click="onHelpButtonClicked()"/>
-	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn')}" id="btnLogout" toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="doLogout()"/>		
+	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn')}" id="btnLogout" 
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="doLogout()"/>		
 	
 </mx:ApplicationControlBar>
