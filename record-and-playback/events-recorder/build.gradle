@@ -3,6 +3,7 @@ usePlugin 'eclipse'
 usePlugin 'war'
 
 version=0.1
+def appName = 'events-recorder'
 
 task copyToLib(dependsOn: configurations.default.buildArtifacts, type: Copy) {
     into('lib')
@@ -16,7 +17,7 @@ repositories {
 		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision]).[ext]"
 		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision]).[ext]"
 	}
-	flatDir(name: 'fileRepo', dirs: "$projectDir/src/main/webapp/WEB-INF/lib")
+	flatDir(name: 'fileRepo', dirs: "/home/firstuser/dev/repo")
 }
 dependencies {
 	compile('org.apache.activemq:activemq-all:5.2.0') {
@@ -43,10 +44,20 @@ dependencies {
 	compile('mysql:mysql-connector-java:5.1.12') {
 		artifact { name='mysql-connector-java' ; type='jar' }
 	}
+	compile 'org/bigbluebutton/common:bbb-common-message:0.7@jar'
 }
-uploadArchives {
-    uploadDescriptor = false
-    repositories {
-        add project.repositories.fileRepo
+
+war.doLast {
+  ant.unzip(src: war.archivePath, dest: "$buildDir/$appName")
+}
+task deploy() << {
+	def tomcatAppsDir = '/var/lib/tomcat6/webapps'
+	def recorderDir = new File("${tomcatAppsDir}/$appName")
+	println "Deleting $recorderDir"
+	ant.delete(dir: recorderDir)
+	ant.mkdir(dir: recorderDir)
+	ant.copy(todir: recorderDir) {
+    	fileset(dir: "$buildDir/$appName")
     }
-}
+} 
+       

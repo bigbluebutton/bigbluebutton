@@ -17,21 +17,20 @@
  *
  * $Id: $
  */
+package org.bigbluebutton.conference.service.presentation;
 
-package org.bigbluebutton.conference
+import org.springframework.jms.core.JmsTemplate;
+import org.apache.activemq.command.ActiveMQQueue;
 
-import org.testng.annotations.BeforeMethodimport org.testng.annotations.Testimport org.testng.Assertpublic class BigBlueButtonSessionTest{
-	def session
+public interface ConversionUpdatesReceiver {
+
+	public void start();
+
+	public void stop();
 	
-	@BeforeMethod 
-	public void setUp() {
-		
-		session = new BigBlueButtonSession('test-session', 1L, 'test-user', 'MODERATOR', 'test-conference', 'LIVE', 'test-room')
-	}
-
-	@Test
-	public void shouldWeWriteAGetterTest() {	
-		Assert.assertEquals(session.userid, 1L, "Userid should be 1")
-		//Assert.assertFalse(session.playbackMode(), "Session is in LIVE mode")
-	}
+	public void setDestination(ActiveMQQueue destination);
+	
+	public void setJmsTemplate(JmsTemplate jmsTemplate);
+	
+	
 }

@@ -23,7 +23,7 @@
 			
 	<bean id="participantsHandler" class="org.bigbluebutton.conference.service.participants.ParticipantsHandler">
 		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
-		<property name="archiveApplication"> <ref local="archiveApplication"/></property>
+		<property name="recorderApplication"> <ref local="recorderApplication"/></property>
 	</bean>
 	
 	<bean id="participantsApplication" 
@@ -35,19 +35,23 @@
 		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
 	</bean>
 	
-	<!-- BEGIN ARCHIVE -->
-	<bean id="archiveApplication" class="org.bigbluebutton.conference.service.archive.ArchiveApplication">
-		<property name="recordingsDirectory" value="${recordingsDirectory}"/>
-		<property name="playbackJobScheduler"> <ref local="playbackJobScheduler"/></property>
+	<!-- BEGIN JMS EVENTS -->
+	<bean id="jmsRecorder" class="org.apache.activemq.command.ActiveMQQueue">
+	    <constructor-arg index="0">
+            <value>RecorderEventsQueue</value>
+        </constructor-arg>
 	</bean>
 	
-	<bean id="archive.service" class="org.bigbluebutton.conference.service.archive.ArchiveService">
-		<property name="archiveApplication"> <ref local="archiveApplication"/></property>
+	<bean id="templateEvent" class="org.springframework.jms.core.JmsTemplate">
+	    <property name="connectionFactory"><ref local="connectionFactory" /></property>
+	    <property name="defaultDestination"><ref local="jmsRecorder" /> </property>
 	</bean>
 	
-	<bean id="playbackJobScheduler" class="org.bigbluebutton.conference.service.archive.playback.PlaybackJobScheduler"/>
-	<!-- END ARCHIVE -->
+	<bean id="recorderApplication" class="org.bigbluebutton.conference.service.recorder.RecorderApplication">
+		<property name="jmsTemplate"><ref local="templateEvent" /> </property>
+	</bean>
 	
+	<!-- END JMS EVENTS -->
 	<!-- BEGIN PRESENTATION -->	
 	<bean id="presentationRoomsManager" class="org.bigbluebutton.conference.service.presentation.PresentationRoomsManager"/>
 			
@@ -55,8 +59,8 @@
 		<property name="presentationApplication"> 
 			<ref local="presentationApplication"/>
 		</property>
-		<property name="archiveApplication"> 
-			<ref local="archiveApplication"/>
+		<property name="recorderApplication"> 
+			<ref local="recorderApplication"/>
 		</property>
 		<property name="conversionUpdatesMessageListener"> 
 			<ref local="messageListener"/>
@@ -104,7 +108,7 @@
   	<!-- BEGIN CHAT -->
   	<bean id="chatHandler" class="org.bigbluebutton.conference.service.chat.ChatHandler">
 		<property name="chatApplication"> <ref local="chatApplication"/></property>
-		<property name="archiveApplication"> <ref local="archiveApplication"/></property>
+		<property name="recorderApplication"> <ref local="recorderApplication"/></property>
 	</bean>
 	
 	<bean id="chatApplication" 
@@ -170,4 +174,5 @@
 	<bean id="participantsUpdatedEvents" class="org.apache.activemq.command.ActiveMQQueue">
 		<constructor-arg value="participantsUpdatedEvents"/>
 	</bean>
+	
 </beans>

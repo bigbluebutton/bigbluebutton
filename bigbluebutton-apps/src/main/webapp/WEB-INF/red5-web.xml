@@ -37,7 +37,7 @@
 				<ref bean="whiteboardApplication" />
     		</set>
   		</property>	  
-  		<property name="archiveApplication"> <ref bean="archiveApplication"/></property>	
+  		<property name="recorderApplication"> <ref bean="recorderApplication"/></property>	
   		<property name="version" value="${version}"/>		
 	</bean>
 	

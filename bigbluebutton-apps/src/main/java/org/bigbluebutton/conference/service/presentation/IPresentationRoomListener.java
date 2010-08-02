@@ -18,20 +18,19 @@
  * $Id: $
  */
 
-package org.bigbluebutton.conference
+package org.bigbluebutton.conference.service.presentation;
 
-import org.testng.annotations.BeforeMethodimport org.testng.annotations.Testimport org.testng.Assertpublic class BigBlueButtonSessionTest{
-	def session
-	
-	@BeforeMethod 
-	public void setUp() {
-		
-		session = new BigBlueButtonSession('test-session', 1L, 'test-user', 'MODERATOR', 'test-conference', 'LIVE', 'test-room')
-	}
+import java.util.ArrayList;
+import java.util.Map;
 
-	@Test
-	public void shouldWeWriteAGetterTest() {	
-		Assert.assertEquals(session.userid, 1L, "Userid should be 1")
-		//Assert.assertFalse(session.playbackMode(), "Session is in LIVE mode")
-	}
+interface IPresentationRoomListener {
+	public String getName();
+	@SuppressWarnings("unchecked")
+	public void sendUpdateMessage(Map message);
+	@SuppressWarnings("unchecked")
+	public void assignPresenter(ArrayList presenter);
+	public void gotoSlide(int curslide);
+	public void resizeAndMoveSlide(Long xOffset,Long yOffset,Long widthRatio,Long heightRatio);
+	public void removePresentation(String name);
+	public void sharePresentation(String presentationName, Boolean share);
 }
