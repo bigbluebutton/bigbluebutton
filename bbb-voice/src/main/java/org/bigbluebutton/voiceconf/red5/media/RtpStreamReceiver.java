@@ -82,10 +82,8 @@ public class RtpStreamReceiver {
         	try {
         		byte[] internalBuffer = new byte[internalBufferLength];
         		RtpPacket rtpPacket = new RtpPacket(internalBuffer, 0);      
-        		System.out.println("Waiting for RTP packet [" + rtpPacket.getLength() + "," + rtpPacket.getPayloadLength() + "," + internalBufferLength + "]");
         		rtpSocket.receive(rtpPacket);
         		packetReceivedCounter++;   
-        		System.out.println("Received RTP packet [" + rtpPacket.getLength() + "," + rtpPacket.getPayloadLength() + "]");
         		if (listener != null) listener.onAudioDataReceived(rtpPacket.getPayload());
         		else log.debug("No listener for incoming audio packet");
         	} catch (IOException e) {

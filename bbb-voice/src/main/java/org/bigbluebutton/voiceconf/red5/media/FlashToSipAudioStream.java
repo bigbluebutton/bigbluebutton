@@ -68,7 +68,6 @@ public class FlashToSipAudioStream {
 		          
 		      if (packet instanceof AudioData) {
 		    	  byte[] data = SerializeUtils.ByteBufferToByteArray(buf);
-		    	  System.out.println("Speex header " + data[0] + " packet length " + (data.length -1));
 		    	  transcoder.transcodeAudio(data, 1, data.length-1, new TranscodedAudioListener());			    	  
 		      } 
 			}

@@ -14,10 +14,7 @@ public class CodecFactory {
     private static final int audioCodeciLBC = 111;
     
     private int[] availableAudioCodecsId = {audioCodecPCMU, audioCodecPCMA, audioCodecG729, audioCodecSpeex, audioCodeciLBC};
-   // private int[] availableAudioCodecsId = {audioCodecSpeex};
- 
-    private int[] availableVideoCodecsId = {};
-        
+    private int[] availableVideoCodecsId = {};        
     private static CodecFactory singletonSIPCodecFactory = new CodecFactory();
     
     private static String[] codecCommonAudioMediaAttributes = {"ptime:20"};
