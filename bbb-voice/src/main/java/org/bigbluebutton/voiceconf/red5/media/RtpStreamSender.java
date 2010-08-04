@@ -28,7 +28,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import org.slf4j.Logger;
-import org.bigbluebutton.voiceconf.red5.media.transcoder.Transcoder;
 import org.bigbluebutton.voiceconf.sip.SipConnectInfo;
 import org.bigbluebutton.voiceconf.util.StackTraceUtil;
 import org.red5.logging.Red5LoggerFactory;
@@ -39,7 +38,6 @@ public class RtpStreamSender {
     private static final int RTP_HEADER_SIZE = 12;
     private RtpSocket rtpSocket = null;
     private int sequenceNum = 0;
-//    private final Transcoder transcoder;
     private final DatagramSocket srcSocket;
     private final SipConnectInfo connInfo;
     private long startTimestamp;
@@ -53,46 +51,14 @@ public class RtpStreamSender {
     public void connect() throws StreamException {
     	try {
 			rtpSocket = new RtpSocket(srcSocket, InetAddress.getByName(connInfo.getRemoteAddr()), connInfo.getRemotePort());
-			init();
+	        sequenceNum = 0;  	
+	        startTimestamp = System.currentTimeMillis();
 		} catch (UnknownHostException e) {
 			log.error("Failed to connect to {}", connInfo.getRemoteAddr());
 			log.error(StackTraceUtil.getStackTrace(e));
 			throw new StreamException("Rtp sender failed to connect to " + connInfo.getRemoteAddr() + ".");
 		}    	
     }
-
-    private void init() {
- //       transcodedAudioDataBuffer = new byte[transcoder.getOutgoingEncodedFrameSize() + RTP_HEADER_SIZE];
- //       rtpPacket = new RtpPacket(transcodedAudioDataBuffer, 0);
- //       rtpPacket.setPayloadType(transcoder.getCodecId());
-        sequenceNum = 0;  	
-        startTimestamp = System.currentTimeMillis();
-    }
-    
-    public void send(byte[] audioData, int offset, int num) {
-/*    	byte[] transcodedAudioDataBuffer = new byte[audioData.length - 1 + RTP_HEADER_SIZE];
-    	System.arraycopy(audioData, offset, transcodedAudioDataBuffer, RTP_HEADER_SIZE, num);
-    	RtpPacket rtpPacket = new RtpPacket(transcodedAudioDataBuffer, 0);
-    	if (!marked) {
-    		rtpPacket.setMarker(true);
-    		marked = true;
-    	}
-    	rtpPacket.setPadding(false);
-    	rtpPacket.setExtension(false);
-        rtpPacket.setPayloadType(transcoder.getCodecId());
-    	System.out.println("Audio Data length = " + audioData.length + " buffer = " + transcodedAudioDataBuffer.length);
-    	//transcoder.transcode(audioData, offset, num, transcodedAudioDataBuffer, RTP_HEADER_SIZE, this);
-    	
-    	rtpPacket.setSequenceNumber(sequenceNum++);   
-        rtpPacket.setTimestamp((int)(System.currentTimeMillis() - startTimestamp));
-        rtpPacket.setPayloadLength(num);
-        try {
-			rtpSocketSend(rtpPacket);
-		} catch (StreamException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}  
-*/    }
     
     public void sendAudio(byte[] audioData, int codecId) {
     	byte[] transcodedAudioDataBuffer = new byte[audioData.length + RTP_HEADER_SIZE];
@@ -106,8 +72,7 @@ public class RtpStreamSender {
     	rtpPacket.setExtension(false);
         rtpPacket.setPayloadType(codecId);
     	System.out.println("Audio Data length = " + audioData.length + " buffer = " + transcodedAudioDataBuffer.length);
-    	//transcoder.transcode(audioData, offset, num, transcodedAudioDataBuffer, RTP_HEADER_SIZE, this);
-    	
+
     	rtpPacket.setSequenceNumber(sequenceNum++);       
         rtpPacket.setTimestamp((int)(System.currentTimeMillis() - startTimestamp));
         rtpPacket.setPayloadLength(audioData.length);
@@ -118,19 +83,10 @@ public class RtpStreamSender {
 			e.printStackTrace();
 		}  
     }
-    
-    public void sendTranscodedData() throws StreamException {
-//        rtpPacket.setSequenceNumber(sequenceNum++);
- //       timestamp += transcoder.getOutgoingEncodedFrameSize();        
- //       rtpPacket.setTimestamp(timestamp);
- //       rtpPacket.setPayloadLength(transcoder.getOutgoingEncodedFrameSize());
- //       rtpSocketSend(rtpPacket);    	
-    }
-    
+        
     private synchronized void rtpSocketSend(RtpPacket rtpPacket) throws StreamException  {
     	try {
 			rtpSocket.send(rtpPacket);
-//			timestamp += rtpPacket.getPayloadLength();
 		} catch (IOException e) {
 			log.error("Exception while trying to send rtp packet");
 			log.error(StackTraceUtil.getStackTrace(e));

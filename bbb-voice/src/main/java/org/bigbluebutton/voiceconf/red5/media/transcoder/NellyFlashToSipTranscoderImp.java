@@ -20,8 +20,6 @@
 package org.bigbluebutton.voiceconf.red5.media.transcoder;
 
 import org.slf4j.Logger;
-import org.bigbluebutton.voiceconf.red5.media.RtpStreamSender;
-import org.bigbluebutton.voiceconf.red5.media.StreamException;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.app.sip.codecs.Codec;
 import org.red5.app.sip.codecs.asao.ByteStream;

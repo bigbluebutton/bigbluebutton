@@ -26,7 +26,6 @@ import java.net.DatagramSocket;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import org.slf4j.Logger;
-import org.bigbluebutton.voiceconf.red5.media.transcoder.Transcoder;
 import org.red5.logging.Red5LoggerFactory;
 
 public class RtpStreamReceiver {
@@ -40,7 +39,6 @@ public class RtpStreamReceiver {
 	private Runnable rtpPacketReceiver;
 	private volatile boolean receivePackets = false;
 	private RtpStreamReceiverListener listener;
-//    private Transcoder transcoder;
     private final int payloadLength;
     
     public RtpStreamReceiver(DatagramSocket socket, int expectedPayloadLength) {
