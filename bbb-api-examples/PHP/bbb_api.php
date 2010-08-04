@@ -186,14 +186,14 @@ public function getMeetingInfo( $meetingID, $modPW, $URL, $SALT ) {
 public function getMeetingInfoArray( $meetingID, $modPW, $URL, $SALT ) {
 	$xml = bbb_wrap_simplexml_load_file( BigBlueButton::getUrlFromMeetingInfo( $meetingID, $modPW, $URL, $SALT ) );
 	if( $xml && $xml->returncode == 'SUCCESS' && $xml->messageKey == null){//The meetings were returned
-                return array('returncode' => $xml->returncode, 'message' => $xml->message);
+                return array('returncode' => $xml->returncode, 'message' => $xml->message, 'messageKey' => $xml->messageKey );
         }
         else if($xml && $xml->returncode == 'SUCCESS'){ //If there were meetings already created
 
           #      foreach ($xml->meetings->meeting as $meeting)
            #     {
 #                      $meetings[] = BigBlueButton::getMeetingInfo($meeting->meetingID, $meeting->moderatorPW, $URL, $SALT);
-        	       return array( 'meetingID' => $xml->meetingID, 'moderatorPassword' => $xml->moderatorPW, 'attendeePassword' => $xml->attendeePW, 'hasBeenForciblyEnded' => $xml->hasBeenForciblyEnded, 'running' => $xml->running, 'startTime' => $xml->startTime, 'endTime' => $xml->endTime, 'participantCount' => $xml->participantCount, 'moderatorCount' => $xml->moderatorCount, 'attendees' => $xml->attendees );
+        	       return array( 'meetingID' => $xml->meetingID, 'moderatorPW' => $xml->moderatorPW, 'attendeePW' => $xml->attendeePW, 'hasBeenForciblyEnded' => $xml->hasBeenForciblyEnded, 'running' => $xml->running, 'startTime' => $xml->startTime, 'endTime' => $xml->endTime, 'participantCount' => $xml->participantCount, 'moderatorCount' => $xml->moderatorCount, 'attendees' => $xml->attendees );
             #    }
         }
         else if( $xml ) { //If the xml packet returned failure it displays the message to the user
@@ -203,7 +203,7 @@ public function getMeetingInfoArray( $meetingID, $modPW, $URL, $SALT ) {
                 #else{
                 #       echo '<div class="updated"><p><strong>'.$xml->messageKey.' : '.$xml->message.'</strong></p></div>';
                 #}
-                return array('returncode' => $xml->returncode, 'message' => $xml->message);
+                return array('returncode' => $xml->returncode, 'message' => $xml->message, 'messageKey' => $xml->messageKey);
         }
         else { //If the server is unreachable, then prompts the user of the necessary action
                 return null;
@@ -234,7 +234,7 @@ public function endMeeting( $meetingID, $mPW, $URL, $SALT ) {
 	$xml = bbb_wrap_simplexml_load_file( BigBlueButton::getUrlEndMeeting( $meetingID, $mPW, $URL, $SALT ) );
 
         if( $xml ) { //If the xml packet returned failure it displays the message to the user
-                return array('returncode' => $xml->returncode, 'message' => $xml->message);
+                return array('returncode' => $xml->returncode, 'message' => $xml->message, 'messageKey' => $xml->messageKey);
         }
         else { //If the server is unreachable, then prompts the user of the necessary action
                 return null;
@@ -380,27 +380,21 @@ public function getMeetingsArray( $URL, $SALT ) {
 
 
 	if( $xml && $xml->returncode == 'SUCCESS' && $xml->messageKey ) {//The meetings were returned
-		return array('returncode' => $xml->returncode, 'message' => $xml->message);
+		return array('returncode' => $xml->returncode, 'message' => $xml->message, 'messageKey' => $xml->messageKey);
 	}
 	else if($xml && $xml->returncode == 'SUCCESS'){ //If there were meetings already created
 	
 	        foreach ($xml->meetings->meeting as $meeting)
 	        {
 #		       $meetings[] = BigBlueButton::getMeetingInfo($meeting->meetingID, $meeting->moderatorPW, $URL, $SALT);
-		        $meetings[] = array( 'meetingID' => $meeting->meetingID, 'moderatorPassword' => $meeting->moderatorPW, 'attendeePassword' => $meeting->attendeePW, 'hasBeenForciblyEnded' => $meeting->hasBeenForciblyEnded, 'running' => $meeting->running );
+		        $meetings[] = array( 'meetingID' => $meeting->meetingID, 'moderatorPW' => $meeting->moderatorPW, 'attendeePW' => $meeting->attendeePW, 'hasBeenForciblyEnded' => $meeting->hasBeenForciblyEnded, 'running' => $meeting->running );
          	}
 
 	        return $meetings;
 
 	}
 	else if( $xml ) { //If the xml packet returned failure it displays the message to the user
-		#if($xml->messageKey == 'checksumError'){
-		#	echo '<div class="updated"><p><strong>A checksum error occured. Make sure you entered the correct salt.</strong></p></div>';
-		#}
-		#else{
-		#	echo '<div class="updated"><p><strong>'.$xml->messageKey.' : '.$xml->message.'</strong></p></div>';
-		#}
-		return array('returncode' => $xml->returncode, 'message' => $xml->message);
+		return array('returncode' => $xml->returncode, 'message' => $xml->message, 'messageKey' => $xml->messageKey);
 	}
 	else { //If the server is unreachable, then prompts the user of the necessary action
 		return null;
