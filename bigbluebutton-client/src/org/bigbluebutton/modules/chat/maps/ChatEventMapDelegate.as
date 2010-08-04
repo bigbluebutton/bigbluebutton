@@ -4,8 +4,12 @@ package org.bigbluebutton.modules.chat.maps
 	
 	import flash.events.IEventDispatcher;
 	
+	import mx.controls.Alert;
+	
 	import org.bigbluebutton.main.events.CloseWindowEvent;
 	import org.bigbluebutton.main.events.OpenWindowEvent;
+	import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
+	import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
 	import org.bigbluebutton.modules.chat.views.components.ChatWindow;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
@@ -16,6 +20,9 @@ package org.bigbluebutton.modules.chat.maps
 		private var _chatWindow:ChatWindow;
 		private var _chatWindowOpen:Boolean = false;
 		private var globalDispatcher:Dispatcher;
+		
+		private var translationEnabled:Boolean;
+		private var translationOn:Boolean;
 				
 		public function ChatEventMapDelegate()
 		{
@@ -36,6 +43,8 @@ package org.bigbluebutton.modules.chat.maps
 			globalDispatcher.dispatchEvent(event);
 		   	
 		   	_chatWindowOpen = true;
+			
+			dispatchTranslationOptions();
 
 		}
 		
@@ -46,6 +55,18 @@ package org.bigbluebutton.modules.chat.maps
 			globalDispatcher.dispatchEvent(event);
 		   	
 		   	_chatWindowOpen = false;
+		}
+		
+		public function setTranslationOptions(e:StartChatModuleEvent):void{
+			translationEnabled = e.translationEnabled;
+			translationOn = e.translationOn;
+		}
+		
+		private function dispatchTranslationOptions():void{
+			var enableEvent:ChatOptionsEvent = new ChatOptionsEvent(ChatOptionsEvent.TRANSLATION_OPTION_ENABLED);
+			enableEvent.translationEnabled = translationEnabled;
+			enableEvent.translateOn = translationOn;
+			globalDispatcher.dispatchEvent(enableEvent);
 		}
 	}
 }

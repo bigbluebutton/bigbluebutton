@@ -34,11 +34,11 @@
 		]]>
 	</mx:Script>
 	
-	<mx:VBox width="15%" verticalGap="0" bottom="0" top="0" paddingBottom="0" paddingTop="0" rollOver="onRollOver()" rollOut="onRollOut()">
-		<mx:Label id="lblName" text="{data.name}" top="0" bottom="0" paddingBottom="0" paddingTop="0" />
+	<mx:VBox width="12%" verticalGap="0" bottom="0" top="0" paddingBottom="0" paddingTop="0" rollOver="onRollOver()" rollOut="onRollOut()">
+		<mx:Label id="lblName" text="{data.name}" top="0" bottom="0" paddingBottom="0" paddingTop="0" truncateToFit="true" />
 		<mx:Label id="lblTime" text="{rolledOver ? data.senderTime : data.time}" top="0" bottom="0" paddingBottom="0" paddingTop="0" />
 	</mx:VBox>
-	<mx:VRule height="30" />
-	<mx:Text id="txtMessage" width="85%" htmlText="{rolledOver ? data.senderText : data.text}" link="onLinkClick(event)" color="{data.color}"
+	<mx:VRule height="25" />
+	<mx:Text id="txtMessage" width="88%" htmlText="{rolledOver ? data.senderText : data.text}" link="onLinkClick(event)" color="{data.color}"
 			 rollOver="onRollOver()" rollOut="onRollOut()" />
 </mx:HBox>

@@ -42,6 +42,7 @@
    		<MethodInvoker generator="{PublicChatService}" method="join"/>
    		<MethodInvoker generator="{PrivateChatService}" method="setModuleAttributes" arguments="{event.attributes}" />
    		<MethodInvoker generator="{PrivateChatService}" method="join"/>
+		<MethodInvoker generator="{ChatEventMapDelegate}" method="setTranslationOptions" arguments="{event}" />
     </EventHandlers>
     
     <EventHandlers type="{StopChatModuleEvent.STOP_CHAT_MODULE_EVENT}">        

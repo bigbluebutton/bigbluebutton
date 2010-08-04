@@ -424,7 +424,7 @@
 			
 			private function toggleTranslation(e:ChatOptionsEvent):void
 			{
-				this.autoTranslation=!this.autoTranslation;
+				this.autoTranslation = e.translateOn;
 			}
 			
 			private function changeLanguage(e:ChatOptionsEvent):void
