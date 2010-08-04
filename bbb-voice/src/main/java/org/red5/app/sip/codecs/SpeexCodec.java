@@ -9,7 +9,7 @@ import local.media.G711;
  * between Flash Player and Asterisk.
  */
 public class SpeexCodec implements Codec {
-    private static final String codecName = "Speex";    
+    private static final String codecName = "SPEEX";    
     
     private static int defaultEncodedFrameSize = 120;
     private static int defaultDecodedFrameSize = 120;        

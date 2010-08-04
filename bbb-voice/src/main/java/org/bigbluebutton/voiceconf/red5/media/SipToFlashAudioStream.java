@@ -94,8 +94,8 @@ public class SipToFlashAudioStream implements RtpStreamReceiverListener {
 
 	@Override
 	public void onAudioDataReceived(byte[] audioData) {
-		if (audioData != null) {
-			byte[] transcodedAudio = transcoder.transcode(audioData);
+		byte[] transcodedAudio = transcoder.transcode(audioData);
+		if (transcodedAudio != null) {
 			pushAudio(transcodedAudio);
 		} else {
 			log.warn("Transcoded audio is null. Discarding.");

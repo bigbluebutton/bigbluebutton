@@ -303,7 +303,7 @@ public class CallAgent extends CallListenerAdapter  {
 
     private void notifyListenersOnCallConnected(String talkStream, String listenStream) {
     	log.debug("notifyListenersOnCallConnected for {}", clientId);
-    	clientConnManager.joinConferenceSuccess(clientId, talkStream, listenStream);
+    	clientConnManager.joinConferenceSuccess(clientId, talkStream, listenStream, sipCodec.getCodecName());
     }
   
     private void notifyListenersOnOutgoingCallFailed() {

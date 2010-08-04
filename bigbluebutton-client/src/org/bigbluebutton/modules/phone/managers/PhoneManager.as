@@ -69,7 +69,7 @@ package org.bigbluebutton.modules.phone.managers
 		public function callConnected(event:CallConnectedEvent):void {
 			LogUtil.debug("Call connected...");
 			setupConnection();
-			streamManager.callConnected(event.playStreamName, event.publishStreamName);
+			streamManager.callConnected(event.playStreamName, event.publishStreamName, event.codec);
 			onCall = true;
 		}
 		

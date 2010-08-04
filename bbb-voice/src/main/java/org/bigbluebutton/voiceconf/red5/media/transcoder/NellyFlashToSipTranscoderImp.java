@@ -116,10 +116,9 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
 
         	// Decode new asao packet.
         	asao_buffer_processed = true;
-        	ByteStream audioStream = new ByteStream(audioData, 1, NELLYMOSER_ENCODED_PACKET_SIZE);
-        	decoderMap = decoder.decode(decoderMap, audioStream.bytes, 1, tempBuffer, 0);
+        	ByteStream audioStream = new ByteStream(audioData, 0, NELLYMOSER_ENCODED_PACKET_SIZE);
+        	decoderMap = decoder.decode(decoderMap, audioStream.bytes, 0, tempBuffer, 0);
 
-        	//tempBuffer = ResampleUtils.normalize(tempBuffer, 256); 	// normalise volume
         	tempBufferRemaining = tempBuffer.length;
 
         	if (tempBuffer.length <= 0) {

@@ -44,6 +44,7 @@ package org.bigbluebutton.modules.phone.managers
 		private var isCallConnected:Boolean			= false;
 		private var muted:Boolean			    = false;
 		private var localDispatcher:IEventDispatcher;
+		private var audioCodec:String = "SPEEX";
 					
 		public function StreamManager(dispatcher:IEventDispatcher)
 		{			
@@ -70,12 +71,17 @@ package org.bigbluebutton.modules.phone.managers
 			mic.setUseEchoSuppression(true);
 			mic.setLoopBack(false);
 			mic.setSilenceLevel(0,20000);
-			mic.codec = SoundCodec.SPEEX;
-			mic.gain = 60;
-//			mic.encodeQuality = 10;
-			mic.framesPerPacket = 1;
-			mic.rate = 16; // use 8 for Nelly
-			LogUtil.debug("codec=SPEEX,gain=60,encodeQuality=10,framesPerPacket=2,rate=16");
+			if (audioCodec == "SPEEX") {
+				mic.codec = SoundCodec.SPEEX;
+				mic.framesPerPacket = 1;
+				mic.rate = 16; 
+				LogUtil.debug("codec=SPEEX,framesPerPacket=1,rate=16");
+			} else {
+				mic.codec = SoundCodec.NELLYMOSER;
+				mic.rate = 8;
+				LogUtil.debug("codec=NELLYMOSER,rate=8");
+			}			
+			mic.gain = 60;			
 		}
 		
 		public function initWithNoMicrophone(): void {
@@ -130,9 +136,9 @@ package org.bigbluebutton.modules.phone.managers
 			}
 		}
 								
-		public function callConnected(playStreamName:String, publishStreamName:String):void {
+		public function callConnected(playStreamName:String, publishStreamName:String, codec:String):void {
 			isCallConnected = true;
-
+			audioCodec = codec;
 			setupIncomingStream();
 			setupOutgoingStream();					
 			setupPlayStatusHandler();
