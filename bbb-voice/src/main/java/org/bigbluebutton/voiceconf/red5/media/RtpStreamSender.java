@@ -71,8 +71,6 @@ public class RtpStreamSender {
     	rtpPacket.setPadding(false);
     	rtpPacket.setExtension(false);
         rtpPacket.setPayloadType(codecId);
-    	System.out.println("Audio Data length = " + audioData.length + " buffer = " + transcodedAudioDataBuffer.length);
-
     	rtpPacket.setSequenceNumber(sequenceNum++);       
         rtpPacket.setTimestamp((int)(System.currentTimeMillis() - startTimestamp));
         rtpPacket.setPayloadLength(audioData.length);
