@@ -11,7 +11,6 @@
 			import org.bigbluebutton.main.events.OpenWindowEvent;
 			import org.bigbluebutton.modules.chat.events.ChatEvent;
 			import org.bigbluebutton.modules.chat.events.ConnectionEvent;
-			import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
 			import org.bigbluebutton.modules.chat.events.QueryParticipantsEvent;
 			import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
 			import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;

@@ -9,6 +9,7 @@ package org.bigbluebutton.modules.chat.events
 		public var toUser:String;
 		public var time:String;
 		public var color:String;
+		public var language:String;
 				
 		public function SendPrivateChatMessageEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false)
 		{

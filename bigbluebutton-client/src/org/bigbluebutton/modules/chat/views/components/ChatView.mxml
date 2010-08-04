@@ -10,6 +10,8 @@
 	<mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
 	<mate:Listener type="{BBBEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT}" method="sendMessageReceivedFromBBBEvent"/> 
 	<mate:Listener type="{ChatOptionsEvent.CHANGE_FONT_SIZE}" method="changeFontSize" />
+	<mate:Listener type="{ChatOptionsEvent.CHANGE_LANGUAGE}" method="changeLanguage" />
+	<mate:Listener type="{ChatOptionsEvent.TOGGLE_TRANSLATE}" method="toggleTranslation" />
 	
 	<mx:Style>
 		.colorPickerStyle {
@@ -32,7 +34,9 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.common.LogUtil;
+			import be.boulevart.google.ajaxapi.translation.GoogleTranslation;
+			import be.boulevart.google.events.GoogleApiEvent;
+			
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.external.ExternalInterface;
@@ -46,6 +50,7 @@
 			import mx.core.UIComponent;
 			import mx.events.IndexChangedEvent;
 			
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.api.IUserListener;
 			import org.bigbluebutton.main.api.UserManager;
 			import org.bigbluebutton.main.events.BBBEvent;
@@ -75,6 +80,9 @@
 			
 			private var globalDispatcher:Dispatcher = new Dispatcher();
 			
+			private var autoTranslation:Boolean=false;
+			private var currentLangCode:String="en";
+			
 			[Bindable]
 			public var participants:ArrayCollection = new ArrayCollection();
 			
@@ -89,6 +97,9 @@
 				systemManager.stage.addEventListener(Event.DEACTIVATE, deactivate);
 				
 				UserManager.getInstance().registerListener(this);
+				
+				//var g:GoogleTranslation = new GoogleTranslation();
+				//var e:GoogleApiEvent;
 				
 				//setColor(); //Uncomment this to automatically assign colors to chat participants
 			}       
@@ -148,9 +159,7 @@
 			
 			private function currentTime() : String
 			{
-				var date:Date = new Date();
-				var t:String = date.toLocaleTimeString();
-				return t;
+				return ChatBox.getHours() + ":" + ChatBox.getMinutes();
 			}
 			
 			private function sendMessages():void
@@ -203,8 +212,9 @@
 				trace("Sending public chat message");
 				var publicEvent:SendPublicChatMessageEvent = new SendPublicChatMessageEvent(SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT);
 				publicEvent.message = parseURLs(cleanup(txtMsg.text));
-				publicEvent.color = cmpColorPicker.selectedColor.toString(16);
+				publicEvent.color = cmpColorPicker.selectedColor.toString();
 				publicEvent.time = currentTime();
+				publicEvent.language = currentLangCode;
 				globalDispatcher.dispatchEvent(publicEvent);
 			}
 			
@@ -219,8 +229,9 @@
 				var privateEvent:SendPrivateChatMessageEvent = new SendPrivateChatMessageEvent(SendPrivateChatMessageEvent.SEND_PRIVATE_CHAT_MESSAGE_EVENT);
 				privateEvent.message = parseURLs(cleanup(txtMsg.text));
 				privateEvent.toUser = chatTabs.selectedChild.name;
-				privateEvent.color = cmpColorPicker.selectedColor.toString(16);
+				privateEvent.color = cmpColorPicker.selectedColor.toString();
 				privateEvent.time = currentTime();
+				privateEvent.language = currentLangCode;
 				globalDispatcher.dispatchEvent(privateEvent);
 			}
 			
@@ -369,7 +380,7 @@
 				}
 				
 				chatBox = getChatBoxForParticipant(sender);
-				chatBox.showNewMessage(message);
+				chatBox.showNewMessage(message, autoTranslation, currentLangCode);
 				
 				if (! isChatBoxCurrentlySelected(sender)) {
 					notifyParticipantOfUnreadMessageFrom(sender);
@@ -411,17 +422,26 @@
 			}
 			/** end IUserListener methods */
 			
+			private function toggleTranslation(e:ChatOptionsEvent):void
+			{
+				this.autoTranslation=!this.autoTranslation;
+			}
+			
+			private function changeLanguage(e:ChatOptionsEvent):void
+			{
+				this.currentLangCode=e.language;
+			}
+			
 		]]>
 	</mx:Script>
 	<containers:SuperTabNavigator id="chatTabs" width="100%" height="100%" change="onTabNavChange()" tabClose="onTabClose(event)" minTabWidth="20" 
 								  dragEnabled="false" popUpButtonPolicy="off"/>
 	
 	<mx:ApplicationControlBar id="chatCtrlBar" width="100%" height="10%">		
-		<mx:TextInput id="txtMsg" width="100%" enter="sendMessages()"/>
+		<mx:TextInput id="txtMsg" width="100%" enter="sendMessages()" color="{cmpColorPicker.selectedColor}"/>
 		<mx:ColorPicker id="cmpColorPicker" showTextField="false" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmpColorPicker.toolTip')}" 
 						selectedColor="0x000000" dataProvider="{colorPickerColours}" swatchPanelStyleName="colorPickerStyle"/>
 		<mx:Button label="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn')}" id="sendBtn" 
-				   toolTip="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.toolTip')}" click="sendMessages()"/>	
-		<!--<mx:ComboBox id="participantList" dataProvider="{participants}" close="onOpenChatBox()" />	-->	    
+				   toolTip="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.toolTip')}" click="sendMessages()"/> 
 	</mx:ApplicationControlBar>	
 </mx:VBox>

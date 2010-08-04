@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" borderStyle="solid" verticalAlign="middle" rollOver="onRollOver()" rollOut="onRollOut()">
+	
+	<mx:Script>
+		<![CDATA[
+			
+			[Bindable] private var rolledOver:Boolean = false;
+			
+			/**
+			 * Chat Message Dynamic Object Anatomy:
+			 * data.name - The name of the sender of the message
+			 * data.senderTime - Local time in the sender's time zone
+			 * data.time - Local time in recepient time zone
+			 * data.senderText - The text of the message as it appeared on the sender's end
+			 * data.text - The text contained in the message when translated to the recepient's language
+			 * data.color - The color of the text as choosen by the sender
+			 */
+			
+			private function onLinkClick(e:TextEvent):void{
+				var url:URLRequest = new URLRequest(e.text);
+				navigateToURL(url, '_blank');
+			}
+			
+			private function onRollOver():void{
+				//rolledOver = true;
+				txtMessage.htmlText = data.senderText;
+			}
+			
+			private function onRollOut():void{
+				//rolledOver = false;
+				txtMessage.htmlText = data.text;
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:VBox width="15%" verticalGap="0" bottom="0" top="0" paddingBottom="0" paddingTop="0">
+		<mx:Label id="lblName" text="{data.name}" top="0" bottom="0" paddingBottom="0" paddingTop="0" />
+		<mx:Label id="lblTime" text="{rolledOver ? data.senderTime : data.time}" top="0" bottom="0" paddingBottom="0" paddingTop="0" />
+	</mx:VBox>
+	<mx:VRule height="30" />
+	<mx:Text id="txtMessage" width="85%" htmlText="{rolledOver ? data.senderText : data.text}" link="onLinkClick(event)" color="{data.color}" />
+</mx:HBox>
