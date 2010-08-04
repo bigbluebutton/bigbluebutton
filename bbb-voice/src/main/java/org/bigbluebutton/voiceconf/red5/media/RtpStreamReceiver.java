@@ -40,12 +40,11 @@ public class RtpStreamReceiver {
 	private Runnable rtpPacketReceiver;
 	private volatile boolean receivePackets = false;
 	private RtpStreamReceiverListener listener;
-    private Transcoder transcoder;
+//    private Transcoder transcoder;
     private final int payloadLength;
     
-    public RtpStreamReceiver(Transcoder transcoder, DatagramSocket socket) {
-    	this.transcoder = transcoder;
-    	this.payloadLength = transcoder.getIncomingEncodedFrameSize();
+    public RtpStreamReceiver(DatagramSocket socket, int expectedPayloadLength) {
+    	this.payloadLength = expectedPayloadLength;
         rtpSocket = new RtpSocket(socket);
 
         initializeSocket();
@@ -89,7 +88,8 @@ public class RtpStreamReceiver {
         		rtpSocket.receive(rtpPacket);
         		packetReceivedCounter++;   
         		System.out.println("Received RTP packet [" + rtpPacket.getLength() + "," + rtpPacket.getPayloadLength() + "]");
-        		transcoder.transcode(rtpPacket.getPayload()); 
+        		if (listener != null) listener.onAudioDataReceived(rtpPacket.getPayload());
+        		else log.debug("No listener for incoming audio packet");
         	} catch (IOException e) {
         		// We get this when the socket closes when the call hangs up.
         		receivePackets = false;

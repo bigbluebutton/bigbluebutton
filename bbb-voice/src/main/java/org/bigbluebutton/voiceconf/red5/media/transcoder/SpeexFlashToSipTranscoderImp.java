@@ -19,17 +19,34 @@
  */
 package org.bigbluebutton.voiceconf.red5.media.transcoder;
 
-import org.bigbluebutton.voiceconf.red5.media.RtpStreamSender;
+import org.red5.app.sip.codecs.Codec;
+import org.red5.logging.Red5LoggerFactory;
+import org.slf4j.Logger;
 
-public interface Transcoder {
-	byte[] transcodeAudio(byte[] srcAudio, int startOffset, int length);
-	void transcode(byte[] asaoBuffer, int offset, int num, byte[] transcodedData, int dataOffset, RtpStreamSender rtpSender);
-	void transcode(byte[] codedBuffer);
-	void addTranscodedAudioDataListener(TranscodedAudioDataListener listener);
-	int getOutgoingEncodedFrameSize();
+public class SpeexFlashToSipTranscoderImp implements FlashToSipTranscoder {
+	protected static Logger log = Red5LoggerFactory.getLogger(SpeexFlashToSipTranscoderImp.class, "sip");
+	
+	private Codec audioCodec;
 
-    int getCodecId();
-    
-    int getOutgoingPacketization();
-    int getIncomingEncodedFrameSize();
+	public SpeexFlashToSipTranscoderImp(Codec audioCodec) {
+		this.audioCodec = audioCodec;
+	}
+	
+	public byte[] transcodeAudio(byte[] srcAudio, int startOffset, int length) {
+		byte[] transcodedAudio = new byte[length];
+		System.arraycopy(srcAudio, startOffset, transcodedAudio, 0, length);
+		return transcodedAudio;
+	}
+	
+	public int getCodecId() {
+		return audioCodec.getCodecId();
+	}
+
+	public int getOutgoingEncodedFrameSize() {
+		return audioCodec.getOutgoingEncodedFrameSize();
+	}
+
+	public int getOutgoingPacketization() {
+		return audioCodec.getOutgoingPacketization();
+	}
 }

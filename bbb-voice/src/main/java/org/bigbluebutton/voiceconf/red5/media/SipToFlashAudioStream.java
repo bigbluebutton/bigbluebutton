@@ -20,8 +20,8 @@
 package org.bigbluebutton.voiceconf.red5.media;
 
 import java.net.DatagramSocket;
-import org.bigbluebutton.voiceconf.red5.media.transcoder.TranscodedAudioDataListener;
-import org.bigbluebutton.voiceconf.red5.media.transcoder.Transcoder;
+import org.apache.mina.core.buffer.IoBuffer;
+import org.bigbluebutton.voiceconf.red5.media.transcoder.SipToFlashTranscoder;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IContext;
 import org.red5.server.api.IScope;
@@ -31,7 +31,7 @@ import org.red5.server.stream.IBroadcastScope;
 import org.red5.server.stream.IProviderService;
 import org.slf4j.Logger;
 
-public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpStreamReceiverListener {
+public class SipToFlashAudioStream implements RtpStreamReceiverListener {
 	final private Logger log = Red5LoggerFactory.getLogger(SipToFlashAudioStream.class, "sip");
 		
 	private AudioBroadcastStream audioBroadcastStream;
@@ -40,13 +40,14 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 	private RtpStreamReceiver rtpStreamReceiver;
 	private StreamObserver observer;
 	private long startTimestamp;
+	private SipToFlashTranscoder transcoder;
 	
-	public SipToFlashAudioStream(IScope scope, Transcoder transcoder, DatagramSocket socket) {
+	public SipToFlashAudioStream(IScope scope, SipToFlashTranscoder transcoder, DatagramSocket socket) {
 		this.scope = scope;
-		rtpStreamReceiver = new RtpStreamReceiver(transcoder, socket);
+		this.transcoder = transcoder;
+		rtpStreamReceiver = new RtpStreamReceiver(socket, transcoder.getIncomingEncodedFrameSize());
 		rtpStreamReceiver.setRtpStreamReceiverListener(this);
-		listenStreamName = "speaker_" + System.currentTimeMillis();
-		
+		listenStreamName = "speaker_" + System.currentTimeMillis();		
 		scope.setName(listenStreamName);	
 	}
 	
@@ -86,20 +87,37 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 	    rtpStreamReceiver.start();
 	}
 	
-	public void handleTranscodedAudioData(AudioData audioData) {
-		/* NOTE:
-		 * Don't set the timestamp as it results in choppy audio. Let the client
-		 * play the audio as soon as they receive the packets. (ralam dec 10, 2009)
-		 * 
-		 * Let's try this out...if connection to client is slow...audio should be dropped.
-		 */
-		audioData.setTimestamp((int)(System.currentTimeMillis() - startTimestamp));
-		audioBroadcastStream.dispatchEvent(audioData);
-		audioData.release();
-	}
-
 	@Override
 	public void onStoppedReceiving() {
 		if (observer != null) observer.onStreamStopped();
 	}
+
+	@Override
+	public void onAudioDataReceived(byte[] audioData) {
+		if (audioData != null) {
+			byte[] transcodedAudio = transcoder.transcode(audioData);
+			pushAudio(transcodedAudio);
+		} else {
+			log.warn("Transcoded audio is null. Discarding.");
+		}
+	}
+	
+	private void pushAudio(byte[] audio) {
+        IoBuffer buffer = IoBuffer.allocate(1024);
+        buffer.setAutoExpand(true);
+
+        buffer.clear();
+
+        buffer.put((byte) transcoder.getCodecId()); 
+        byte[] copy = new byte[audio.length];
+	    System.arraycopy(audio, 0, copy, 0, audio.length );
+        
+        buffer.put(copy);        
+        buffer.flip();
+
+        AudioData audioData = new AudioData(buffer);
+        audioData.setTimestamp((int)(System.currentTimeMillis() - startTimestamp));
+		audioBroadcastStream.dispatchEvent(audioData);
+		audioData.release();
+    }
 }
