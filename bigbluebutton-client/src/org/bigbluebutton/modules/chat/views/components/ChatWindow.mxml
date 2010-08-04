@@ -39,21 +39,14 @@
 			
 			private var _xPosition:int;
 			private var _yPosition:int;
-			private var localDispatcher:IEventDispatcher;
 			
 			private var dispState:String;
 			
 			public function getPrefferedPosition():String{
 				return MainCanvas.RIGHT;
-			}
-			
-			public function setLocalDispatcher(dispatcher:IEventDispatcher):void {
-				localDispatcher = dispatcher;
-			}   
+			} 
 			
 			private function onCreationComplete():void {
-				chatView.localDispatcher = localDispatcher;
-				
 				/* Set up full screen handler. */
 				Application.application.stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
 				dispState = Application.application.stage.displayState;

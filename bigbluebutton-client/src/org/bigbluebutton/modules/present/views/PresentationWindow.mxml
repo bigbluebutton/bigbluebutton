@@ -72,7 +72,6 @@
 			import org.bigbluebutton.modules.present.api.IPresentationButton;
 			import org.bigbluebutton.modules.present.events.AddButtonToPresentationEvent;
 			import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
-			import org.bigbluebutton.modules.present.events.AddPresentationToolbarEvent;
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 			import org.bigbluebutton.modules.present.events.MoveEvent;
 			import org.bigbluebutton.modules.present.events.NavigationEvent;

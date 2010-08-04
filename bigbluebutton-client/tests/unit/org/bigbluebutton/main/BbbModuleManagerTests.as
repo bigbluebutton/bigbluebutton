@@ -3,8 +3,8 @@ package org.bigbluebutton.main
 	import flexunit.framework.TestCase;
 	import flexunit.framework.TestSuite;
 	
-	import org.bigbluebutton.main.managers.ModuleManager;
-	import org.bigbluebutton.main.model.ModuleDescriptor;
+	import org.bigbluebutton.main.model.modules.ModuleManager;
+	import org.bigbluebutton.main.model.modules.ModuleDescriptor;
 
 	public class BbbModuleManagerTests extends TestCase
 	{

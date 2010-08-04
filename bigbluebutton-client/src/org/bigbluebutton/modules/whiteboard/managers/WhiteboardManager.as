@@ -6,12 +6,13 @@ package org.bigbluebutton.modules.whiteboard.managers
 	import flash.utils.Timer;
 	
 	import org.bigbluebutton.main.events.AddUIComponentToMainCanvas;
-	import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
-	import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
-	import org.bigbluebutton.modules.whiteboard.views.WhiteboardToolbar;
-	import org.bigbluebutton.modules.whiteboard.views.WhiteboardButton;
+	import org.bigbluebutton.modules.present.api.PresentationAPI;
 	import org.bigbluebutton.modules.present.events.AddButtonToPresentationEvent;
 	import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
+	import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
+	import org.bigbluebutton.modules.whiteboard.views.WhiteboardButton;
+	import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
+	import org.bigbluebutton.modules.whiteboard.views.WhiteboardToolbar;
 	
 	public class WhiteboardManager
 	{
@@ -42,15 +43,11 @@ package org.bigbluebutton.modules.whiteboard.managers
 		}
 		
 		private function addHighlighterCanvas(e:TimerEvent):void{
-			var overlayEvent:AddOverlayCanvasEvent = new AddOverlayCanvasEvent(AddOverlayCanvasEvent.ADD_OVERLAY_CANVAS);
-			overlayEvent.canvas = highlighterCanvas;
-			globalDispatcher.dispatchEvent(overlayEvent);
+			PresentationAPI.getInstance().addOverlayCanvas(highlighterCanvas);
 		}
 		
 		private function addHighlighterToolbar(e:TimerEvent):void{
-			var buttonEvent:AddButtonToPresentationEvent = new AddButtonToPresentationEvent(AddButtonToPresentationEvent.ADD_BUTTON);
-			buttonEvent.button = whiteboardButton;
-			globalDispatcher.dispatchEvent(buttonEvent);
+			PresentationAPI.getInstance().addButtonToToolbar(whiteboardButton);
 		}
 		
 		public function positionToolbar(e:WhiteboardButtonEvent):void{

@@ -30,12 +30,12 @@ package org.bigbluebutton.modules.phone.managers {
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
 	
-	import org.bigbluebutton.modules.phone.events.ConnectionStatusEvent;
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
 	import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
+	import org.bigbluebutton.modules.phone.events.ConnectionStatusEvent;
 	import org.bigbluebutton.modules.phone.events.RegistrationFailedEvent;
 	import org.bigbluebutton.modules.phone.events.RegistrationSuccessEvent;
-	import org.bigbluebutton.common.LogUtil;
 	
 	public class ConnectionManager {
 			
@@ -50,10 +50,10 @@ package org.bigbluebutton.modules.phone.managers {
 		private var isConnected:Boolean = false;
 		private var registered:Boolean = false;
 
-		private var localDispatcher:IEventDispatcher;
+		private var dispatcher:Dispatcher;
 		
-		public function ConnectionManager(dispatcher:IEventDispatcher):void {
-			localDispatcher = dispatcher;
+		public function ConnectionManager():void {
+			dispatcher = new Dispatcher();
 		}
 		
 		public function getConnection():NetConnection {
@@ -107,8 +107,9 @@ package org.bigbluebutton.modules.phone.managers {
 				default:					
 			}			
 			
+			LogUtil.debug("Phone Module Connection Status: " + event.status);
 			trace("Dispatching " + event.status);
-			localDispatcher.dispatchEvent(event); 
+			dispatcher.dispatchEvent(event); 
 		} 
 		
 		private function asyncErrorHandler(event:AsyncErrorEvent):void {
@@ -132,13 +133,13 @@ package org.bigbluebutton.modules.phone.managers {
 		public function failedToJoinVoiceConferenceCallback(msg:String):* {
 			LogUtil.debug("failedToJoinVoiceConferenceCallback " + msg);
 			var event:CallDisconnectedEvent = new CallDisconnectedEvent();
-			localDispatcher.dispatchEvent(event);				
+			dispatcher.dispatchEvent(event);				
 		}
 		
 		public function disconnectedFromJoinVoiceConferenceCallback(msg:String):* {
 			LogUtil.debug("disconnectedFromJoinVoiceConferenceCallback " + msg);
 			var event:CallDisconnectedEvent = new CallDisconnectedEvent();
-			localDispatcher.dispatchEvent(event);				
+			dispatcher.dispatchEvent(event);				
 		}	
 				
         public function successfullyJoinedVoiceConferenceCallback(publishName:String, playName:String, codec:String):* {
@@ -148,7 +149,7 @@ package org.bigbluebutton.modules.phone.managers {
 			event.publishStreamName = publishName;
 			event.playStreamName = playName;
 			event.codec = codec;
-			localDispatcher.dispatchEvent(event);
+			dispatcher.dispatchEvent(event);
 		}
 						
 		//********************************************************************************************

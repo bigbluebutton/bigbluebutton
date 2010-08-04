@@ -34,14 +34,14 @@
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="handleCloseWindowEvent"/>
 	<mate:Listener type="{AddUIComponentToMainCanvas.ADD_COMPONENT}" method="addComponentToCanvas" />
 	
-	<mate:Listener type="{LoginSuccessEvent.LOGIN_SUCCESS}" method="loginSuccess" />
+	<mate:Listener type="{ModuleLoadEvent.ALL_MODULES_LOADED}" method="removeLoadingInfo" />
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_LOST}" method="handleLogout" />
+	<mate:Listener type="{LogoutEvent.USER_LOGGED_OUT}" method="handleLogout" />
 	<mate:Listener type="{PortTestEvent.TEST_RTMP}" method="rtmpTest" />
 	<mate:Listener type="{PortTestEvent.PORT_TEST_FAILED}" method="rtmptTest" />
 	<mate:Listener type="{PortTestEvent.TUNNELING_FAILED}" method="rtmptFailed" />
 	<mate:Listener type="{ModuleLoadEvent.MODULE_LOAD_PROGRESS}" method="updateModuleLoadProgress" />
 
-	<maps:CrossModuleEventMap />
 	<api:APIEventMap />
 	
 	<mx:Script>
@@ -69,8 +69,8 @@
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.main.events.OpenWindowEvent;
 			import org.bigbluebutton.main.events.PortTestEvent;
-			import org.bigbluebutton.modules.viewers.events.ConnectionFailedEvent;
-			import org.bigbluebutton.modules.viewers.events.LoginSuccessEvent;
+			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
+			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.util.logging.Logger;
 			
@@ -98,7 +98,7 @@
 				return _mode;
 			}
 			
-			protected function initializeShell():void {			
+			protected function initializeShell():void {		
 				trace('Initializing');	
 				logWindow = new LogWindow();
 				logWindow.logs = logs;
@@ -192,15 +192,13 @@
 				localeWindow.y = point1.y + 25;	
             }
 			
-			public var user:Object;
-			private function loginSuccess(e:LoginSuccessEvent):void{
+			private function removeLoadingInfo(e:ModuleLoadEvent):void{
 				statusInfo.text = "";
 				statusProgress.text = "";
 				statusInfo2.text = "";
-				user = e.user;
 			}
 			
-			private function handleLogout(e:ConnectionFailedEvent):void{
+			private function handleLogout(e:Event):void{
 				if (logoutWindow != null) return;
 				logoutWindow = LoggedOutWindow(PopUpManager.createPopUp( mdiCanvas, LoggedOutWindow, false));
 				
@@ -211,7 +209,10 @@
 				point1 = localToGlobal(point1);
 				logoutWindow.x = point1.x + 25;
 				logoutWindow.y = point1.y + 25;	
-				logoutWindow.setReason(e.reason);	
+				if (e is ConnectionFailedEvent) logoutWindow.setReason((e as ConnectionFailedEvent).reason);
+				else logoutWindow.setReason("You have logged out of the conference");
+				
+				mdiCanvas.removeAllWindows(); 
 			}
 			
 			private function updateModuleLoadProgress(e:ModuleLoadEvent):void{				

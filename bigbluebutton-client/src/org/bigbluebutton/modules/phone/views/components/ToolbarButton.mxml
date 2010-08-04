@@ -31,17 +31,19 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
 			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
 			import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
+			import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
 			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceEvent;
+			import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceEvent;
 			import org.bigbluebutton.modules.phone.views.assets.Images;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
-			private var localDispatcher:IEventDispatcher;
+			private var dispatcher:Dispatcher = new Dispatcher();
 			 
 			[Bindable] public var phoneIcon:Class = images.headset_icon;
 			
@@ -49,23 +51,19 @@
 				//this.enabled = false;
 				if (this.selected) {
 					LogUtil.debug("Joining voice conference");
-					localDispatcher.dispatchEvent(new JoinVoiceConferenceEvent());					
+					dispatcher.dispatchEvent(new JoinVoiceConferenceEvent());					
 				} else {
 					LogUtil.debug("Leaving voice conference");
-					localDispatcher.dispatchEvent(new LeaveVoiceConferenceEvent());
+					dispatcher.dispatchEvent(new LeaveVoiceConferenceEvent());
 				}
 					
 			}
-			
-			public function setLocalDispatcher(dispatcher:IEventDispatcher):void {
-				localDispatcher = dispatcher;
-			} 
 			
 			private function handleCallConnectedEvent(event:CallConnectedEvent):void {
 				//this.enabled = false;
 			}
 			
-			private function handleCallDisconnectedEvent(event:CallConnectedEvent):void {
+			private function handleCallDisconnectedEvent(event:CallDisconnectedEvent):void {
 				//this.enabled = true;
 				this.selected = false;
 			}
@@ -73,7 +71,7 @@
 			private function handleBBBJoinConferenceEvent(event:BBBEvent):void {
 				var e:JoinVoiceConferenceEvent = new JoinVoiceConferenceEvent();
 				e.useMicrophone = false;
-				localDispatcher.dispatchEvent(e);
+				dispatcher.dispatchEvent(e);
 			}
 		]]>
 	</mx:Script>

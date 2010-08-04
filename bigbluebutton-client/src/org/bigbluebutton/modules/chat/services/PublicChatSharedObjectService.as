@@ -29,10 +29,10 @@ package org.bigbluebutton.modules.chat.services
 	import flash.net.Responder;
 	import flash.net.SharedObject;
 	
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.chat.events.ConnectionEvent;
 	import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
 	import org.bigbluebutton.modules.chat.events.TranscriptLoadedEvent;
-	import org.bigbluebutton.common.LogUtil;
 
 	public class PublicChatSharedObjectService
 	{
@@ -40,12 +40,12 @@ package org.bigbluebutton.modules.chat.services
 		
 		private var chatSO:SharedObject;
 		private var connection:NetConnection;
-		private var dispatcher:IEventDispatcher;
+		private var dispatcher:Dispatcher;
 		
-		public function PublicChatSharedObjectService(connection:NetConnection, dispatcher:IEventDispatcher)
+		public function PublicChatSharedObjectService(connection:NetConnection)
 		{			
 			this.connection = connection;
-			this.dispatcher = dispatcher;		
+			this.dispatcher = new Dispatcher();		
 		}
 						
 	    public function join(uri:String):void

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  BigBlueButton - http://www.bigbluebutton.org
+  
+  Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
+  
+  BigBlueButton is free software; you can redistribute it and/or modify it under the 
+  terms of the GNU Lesser General Public License as published by the Free Software 
+  Foundation; either version 3 of the License, or (at your option) any later 
+  version. 
+  
+  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public License along 
+  with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
+ 
+
+	
+  $Id: $
+--> 
+
+<EventMap xmlns="http://mate.asfusion.com/"
+	xmlns:mx="http://www.adobe.com/2006/mxml">
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceEvent;
+			import org.bigbluebutton.modules.phone.events.StopPhoneModuleEvent;
+			import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
+			import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
+			import org.bigbluebutton.modules.phone.events.RegistrationSuccessEvent;
+			import org.bigbluebutton.modules.phone.events.ConnectionStatusEvent;
+			import org.bigbluebutton.modules.phone.managers.PhoneManager;
+			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceEvent;
+			import org.bigbluebutton.modules.phone.managers.StreamManager;
+			import org.bigbluebutton.modules.phone.managers.ConnectionManager;
+			import org.bigbluebutton.modules.phone.events.StartPhoneModuleEvent;
+			import org.bigbluebutton.modules.chat.events.StopChatModuleEvent;
+			import org.bigbluebutton.modules.chat.events.QueryParticipantsEvent;
+			import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
+			import org.bigbluebutton.modules.chat.views.components.ChatView;
+			import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
+			import org.bigbluebutton.modules.chat.services.PrivateChatService;
+			import org.bigbluebutton.main.events.OpenWindowEvent;
+			import org.bigbluebutton.modules.chat.events.ConnectionEvent;
+			import org.bigbluebutton.modules.chat.services.PublicChatService;
+			import mx.events.FlexEvent;
+		]]>
+	</mx:Script>
+	
+	<!--
+	This is the main event map for the chat module, think of it as the application controller.
+	-->
+	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
+		<!--
+		The FlexEvent.PREINITIALIZE event is a good place for creating and initializing managers.
+		-->
+		<ObjectBuilder generator="{PhoneEventMapDelegate}" />
+		<ObjectBuilder generator="{PhoneManager}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{StartPhoneModuleEvent.START_PHONE_MODULE_EVENT}">        
+		<MethodInvoker generator="{PhoneManager}" method="setModuleAttributes" arguments="{event.attributes}" />
+		<MethodInvoker generator="{PhoneEventMapDelegate}" method="addToolbarButton"/>
+    </EventHandlers>
+    
+    <EventHandlers type="{StopPhoneModuleEvent.STOP_PHONE_MODULE_EVENT}">       
+    	<MethodInvoker generator="{PhoneEventMapDelegate}" method="removeToolbarButton"/> 
+		<MethodInvoker generator="{PhoneManager}" method="hangup"/>
+    </EventHandlers>
+    
+    <EventHandlers type="{LeaveVoiceConferenceEvent.LEAVE_VOICE_CONFERENCE_EVENT}">        
+		<MethodInvoker generator="{PhoneManager}" method="hangup"/>
+    </EventHandlers>
+    
+    <EventHandlers type="{JoinVoiceConferenceEvent.JOIN_VOICE_CONFERENCE_EVENT}">        
+		<MethodInvoker generator="{PhoneManager}" method="join" arguments="{event}"/>
+    </EventHandlers>
+    
+	<EventHandlers type="{CallConnectedEvent.CALL_CONNECTED_EVENT}">     
+		<MethodInvoker generator="{PhoneEventMapDelegate}" method="disableToolbarButton"/>
+		<MethodInvoker generator="{PhoneManager}" method="callConnected" arguments="{event}"/>
+    </EventHandlers>
+    
+    <EventHandlers type="{CallDisconnectedEvent.CALL_DISCONNECTED_EVENT}">   
+    	<MethodInvoker generator="{PhoneManager}" method="hangup" /> 
+		<MethodInvoker generator="{PhoneEventMapDelegate}" method="enableToolbarButton" /> 
+    </EventHandlers>
+        
+    <EventHandlers type="{ConnectionStatusEvent.CONNECTION_STATUS_EVENT}">        
+		<MethodInvoker generator="{PhoneManager}" method="dialConference"/>
+    </EventHandlers>
+	
+	<EventHandlers type="{ConnectionStatusEvent.SUCCESS}">        
+		<MethodInvoker generator="{PhoneManager}" method="calledFromGlobal" arguments="ConnectionStatusEvent.SUCCESS"/>
+	</EventHandlers>
+    
+</EventMap>

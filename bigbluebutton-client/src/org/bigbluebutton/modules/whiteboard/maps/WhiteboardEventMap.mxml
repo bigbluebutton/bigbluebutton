@@ -2,21 +2,29 @@
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/" xmlns:mate="org.bigbluebutton.common.mate.*">
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
-			import org.bigbluebutton.modules.whiteboard.events.PageEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
 			import mx.controls.Alert;
-			import org.bigbluebutton.modules.present.events.NavigationEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
-			import org.bigbluebutton.modules.whiteboard.business.DrawProxy;
-			import org.bigbluebutton.modules.whiteboard.events.StartWhiteboardModuleEvent;
 			import mx.events.FlexEvent;
-			import org.bigbluebutton.modules.whiteboard.managers.WhiteboardManager;
+			
 			import org.bigbluebutton.main.events.ModuleStartedEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-			import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
-			import org.bigbluebutton.modules.whiteboard.managers.PageManager;
+			import org.bigbluebutton.modules.present.events.AddButtonToPresentationEvent;
+			import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
+			import org.bigbluebutton.modules.present.events.NavigationEvent;
 			import org.bigbluebutton.modules.present.events.PresentationEvent;
+			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
+			import org.bigbluebutton.modules.whiteboard.business.DrawProxy;
+			import org.bigbluebutton.modules.whiteboard.events.PageEvent;
+			import org.bigbluebutton.modules.whiteboard.events.StartWhiteboardModuleEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
+			import org.bigbluebutton.modules.whiteboard.managers.PageManager;
+			import org.bigbluebutton.modules.whiteboard.managers.WhiteboardManager;
+			import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
+			
+			private function dummyMethod():void{
+				
+			}
 		]]>
 	</mx:Script>
 	
@@ -79,4 +87,25 @@
 	<EventHandlers type="{WhiteboardButtonEvent.WHITEBOARD_ADDED_TO_PRESENTATION}" >
 		<MethodInvoker generator="{WhiteboardManager}" method="positionToolbar" arguments="{event}" />
 	</EventHandlers>
+	
+	<EventHandlers type="{AddOverlayCanvasEvent.ADD_OVERLAY_CANVAS}" >
+		<InlineInvoker method="dummyMethod" />
+	</EventHandlers>
+	
+	<EventHandlers type="{WindowResizedEvent.PRESENTATION_WINDOW_RESIZED_EVENT}">
+		<InlineInvoker method="dummyMethod" />
+	</EventHandlers>
+	
+	<EventHandlers type="{AddButtonToPresentationEvent.ADD_BUTTON}">
+		<InlineInvoker method="dummyMethod" />
+	</EventHandlers>
+	
+	<EventHandlers type="{NavigationEvent.GOTO_PAGE}">
+		<InlineInvoker method="dummyMethod" />
+	</EventHandlers>
+	
+	<EventHandlers type="{PresentationEvent.PRESENTATION_LOADED}">
+		<InlineInvoker method="dummyMethod" />
+	</EventHandlers>
+	
 </EventMap>

@@ -26,14 +26,13 @@
 	xmlns:mate="http://mate.asfusion.com/"
 	pageTitle="BigBlueButton"
 	layout="absolute"
-	preloader="org.bigbluebutton.main.managers.BigBlueButtonPreloader">
+	preloader="org.bigbluebutton.main.model.BigBlueButtonPreloader">
 	
 	<mx:Script>
 		<![CDATA[
 		import org.bigbluebutton.util.i18n.ResourceUtil;
 		import org.bigbluebutton.main.view.components.MainApplicationShell;
 		
-		import org.bigbluebutton.main.events.ConfigEvent;
 		import mx.managers.HistoryManager;
 		
 		/**
@@ -46,11 +45,7 @@
 
 		/** another workaround - for this issue: https://bugs.adobe.com/jira/browse/SDK-13121*/
 		private var hist:HistoryManager
-				
-		private function handleConfigLoadedEvent(e:Event):void {
-			trace('Got CONFIG_LOADED_EVENT');
-			mainShell.visible = true;
-		}	
+
 		private function handleChatEvent(e:Event):void {
 			trace('Got CHAT_EVENT');
 		}
@@ -59,6 +54,5 @@
 	</mx:Script>		
 	<maps:ApplicationEventMap />	
 	
-	<mate:Listener type="{ConfigEvent.CONFIG_LOADED_EVENT}" method="handleConfigLoadedEvent" />
 	<mainView:MainApplicationShell id="mainShell"/>	
 </mx:Application>

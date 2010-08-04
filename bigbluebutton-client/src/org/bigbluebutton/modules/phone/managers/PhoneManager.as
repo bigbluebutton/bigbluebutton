@@ -21,22 +21,20 @@ package org.bigbluebutton.modules.phone.managers
 {
 	import flash.events.IEventDispatcher;
 	
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
 	import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceEvent;
-	import org.bigbluebutton.common.LogUtil;
 	
 	public class PhoneManager {
-		private var localDispatcher:IEventDispatcher;
 		
 		private var connectionManager:ConnectionManager;
 		private var streamManager:StreamManager;
 		private var onCall:Boolean = false;
 		private var attributes:Object;
 		
-		public function PhoneManager(dispatcher:IEventDispatcher) {
-			localDispatcher = dispatcher;
-			connectionManager = new ConnectionManager(dispatcher);
-			streamManager = new StreamManager(dispatcher);
+		public function PhoneManager() {
+			connectionManager = new ConnectionManager();
+			streamManager = new StreamManager();
 		}
 
 		public function setModuleAttributes(attributes:Object):void {

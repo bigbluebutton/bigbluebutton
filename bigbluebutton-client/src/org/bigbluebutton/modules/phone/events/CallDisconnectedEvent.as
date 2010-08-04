@@ -23,7 +23,7 @@ package org.bigbluebutton.modules.phone.events
 
 	public class CallDisconnectedEvent extends Event
 	{
-		public static const CALL_DISCONNECTED_EVENT:String = 'CALL_DISCONNECTED_EVENT';
+		public static const CALL_DISCONNECTED_EVENT:String = 'callDisconnectedEvent';
 		
 		public function CallDisconnectedEvent(bubbles:Boolean=true, cancelable:Boolean=false)
 		{
