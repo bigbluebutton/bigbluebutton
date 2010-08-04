@@ -27,6 +27,7 @@ package org.bigbluebutton.modules.phone.events
 		
 		public var publishStreamName:String;
 		public var playStreamName:String;
+		public var codec:String;
 		
 		public function CallConnectedEvent(bubbles:Boolean=true, cancelable:Boolean=false)
 		{

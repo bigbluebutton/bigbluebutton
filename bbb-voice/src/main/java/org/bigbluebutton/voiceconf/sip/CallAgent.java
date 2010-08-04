@@ -28,6 +28,7 @@ import org.bigbluebutton.voiceconf.red5.CallStreamFactory;
 import org.bigbluebutton.voiceconf.red5.ClientConnectionManager;
 import org.bigbluebutton.voiceconf.red5.media.CallStream;
 import org.bigbluebutton.voiceconf.red5.media.StreamException;
+import org.bigbluebutton.voiceconf.util.StackTraceUtil;
 import org.red5.app.sip.codecs.Codec;
 import org.red5.app.sip.codecs.CodecUtils;
 import org.slf4j.Logger;
@@ -181,6 +182,7 @@ public class CallAgent extends CallListenerAdapter  {
 					notifyListenersOnCallConnected(callStream.getTalkStreamName(), callStream.getListenStreamName());
 				} catch (Exception e) {
 					log.error("Failed to create Call Stream.");
+					System.out.println(StackTraceUtil.getStackTrace(e));
 				}                
             }
         }
@@ -301,7 +303,7 @@ public class CallAgent extends CallListenerAdapter  {
 
     private void notifyListenersOnCallConnected(String talkStream, String listenStream) {
     	log.debug("notifyListenersOnCallConnected for {}", clientId);
-    	clientConnManager.joinConferenceSuccess(clientId, talkStream, listenStream);
+    	clientConnManager.joinConferenceSuccess(clientId, talkStream, listenStream, sipCodec.getCodecName());
     }
   
     private void notifyListenersOnOutgoingCallFailed() {

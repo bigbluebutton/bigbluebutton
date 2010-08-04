@@ -38,9 +38,9 @@ private static Logger log = Red5LoggerFactory.getLogger(ClientConnection.class, 
 		return connId;
 	}
 	
-    public void onJoinConferenceSuccess(String publishName, String playName) {
+    public void onJoinConferenceSuccess(String publishName, String playName, String codec) {
     	log.debug( "SIP Call Connected" );
-        connection.invoke("successfullyJoinedVoiceConferenceCallback", new Object[] {publishName, playName});
+        connection.invoke("successfullyJoinedVoiceConferenceCallback", new Object[] {publishName, playName, codec});
     }
 
     public void onJoinConferenceFail() {

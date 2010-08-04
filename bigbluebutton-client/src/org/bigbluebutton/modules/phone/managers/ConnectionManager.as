@@ -142,12 +142,13 @@ package org.bigbluebutton.modules.phone.managers {
 			dispatcher.dispatchEvent(event);				
 		}	
 				
-        public function successfullyJoinedVoiceConferenceCallback(publishName:String, playName:String):* {
-        	LogUtil.debug("successfullyJoinedVoiceConferenceCallback " + publishName + " : " + playName);
+        public function successfullyJoinedVoiceConferenceCallback(publishName:String, playName:String, codec:String):* {
+        	LogUtil.debug("successfullyJoinedVoiceConferenceCallback " + publishName + " : " + playName + " : " + codec);
 			isConnected = true;
 			var event:CallConnectedEvent = new CallConnectedEvent();
 			event.publishStreamName = publishName;
 			event.playStreamName = playName;
+			event.codec = codec;
 			dispatcher.dispatchEvent(event);
 		}
 						

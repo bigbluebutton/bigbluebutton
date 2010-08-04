@@ -9,15 +9,15 @@ import local.media.G711;
  * between Flash Player and Asterisk.
  */
 public class SpeexCodec implements Codec {
-    private static final String codecName = "Speex";    
+    private static final String codecName = "SPEEX";    
     
-    private static int defaultEncodedFrameSize = 160;
-    private static int defaultDecodedFrameSize = 160;        
+    private static int defaultEncodedFrameSize = 120;
+    private static int defaultDecodedFrameSize = 120;        
     private static int defaultSampleRate = 16000;
     private int outgoingPacketization = 0;
     private int incomingPacketization = 0;
 
-    public static final int codecId = 110;
+    public static final int codecId = 100;
     
     public SpeexCodec() {}
 
@@ -25,12 +25,16 @@ public class SpeexCodec implements Codec {
         if ( this.outgoingPacketization == 0 ) {            
             this.outgoingPacketization = defaultEncodePacketization;
         }
+        
+        System.out.println("encodeInit " + outgoingPacketization);
     }
 
     public void decodeInit(int defaultDecodePacketization) {        
         if ( this.incomingPacketization == 0 ) {            
             this.incomingPacketization = defaultDecodePacketization;
         }
+        
+        System.out.println("decodeInit " + incomingPacketization);
     }
 
 
@@ -135,7 +139,6 @@ public class SpeexCodec implements Codec {
     public int getCodecId() {
         return codecId;
     }
-
 
     public String[] getCodecMediaAttributes() {
         // TODO Auto-generated method stub
