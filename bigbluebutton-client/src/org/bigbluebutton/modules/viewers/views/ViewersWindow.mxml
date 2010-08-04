@@ -72,11 +72,16 @@
    			[Bindable] public var toggleTooltip : String = "Click to raise hand.";
 			private var handRaised:Boolean = false;
 			
+			public var allowKickUser:Boolean = false;
+			
 			private function onCreationComplete():void {
 				conference = UserManager.getInstance().getConference();
 				participants = conference.users;
 				this.isModerator = (conference.me.role == Role.MODERATOR);
-				BindingUtils.bindSetter(updateNumberOfViewers, participants, "length");				
+				BindingUtils.bindSetter(updateNumberOfViewers, participants, "length");	
+				
+				if (this.isModerator && allowKickUser) kickUserBtn.visible = true;
+				else kickUserBtn.visible = false;
 			}
 			
 			private function updateNumberOfViewers(numViewers:int):void {
@@ -155,7 +160,7 @@
     	   			toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.presentBtn.toolTip')}"
     	   			click="assignPresenterClicked()"/>
      	 <mx:Spacer width="100%"/>
-	   	 <mx:Button id="kickUserBtn" icon="{kickIcon}" visible="{isModerator}" 
+	   	 <mx:Button id="kickUserBtn" icon="{kickIcon}"
 					width="20" height="20" 
 					toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.raiseHandBtn.toolTip')}"
 					click="kickUser()"/>

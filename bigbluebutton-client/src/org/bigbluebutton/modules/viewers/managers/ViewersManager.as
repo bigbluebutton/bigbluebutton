@@ -27,6 +27,7 @@ package org.bigbluebutton.modules.viewers.managers
 			
 			if (viewersWindow == null){
 				viewersWindow = new ViewersWindow();
+				viewersWindow.allowKickUser = e.allowKickUser;
 				var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 				windowEvent.window = viewersWindow;
 				dispatcher.dispatchEvent(windowEvent);

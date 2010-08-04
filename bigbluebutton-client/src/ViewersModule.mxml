@@ -186,6 +186,11 @@
 			public function get externUserID():String {
 				return _attributes.externUserID;
 			}
+			
+			public function get allowKickUser():Boolean{
+				if (_attributes.allowKickUser == "true") return true;
+				else return false;
+			}
 						
 			public function start(attributes:Object):void {
 				_attributes = attributes;	
@@ -197,6 +202,7 @@
 				dispatcher = new Dispatcher();
 				var e:ViewersModuleStartedEvent = new ViewersModuleStartedEvent(ViewersModuleStartedEvent.VIEWERS_MODULE_STARTED);
 				e.module = this;
+				e.allowKickUser = allowKickUser;
 				dispatcher.dispatchEvent(e);
 			}
 		
