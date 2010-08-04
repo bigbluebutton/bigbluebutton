@@ -54,16 +54,18 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
         decoderMap = null;
     }
 
+    @Override
     public int getOutgoingEncodedFrameSize() {
     	return sipCodec.getOutgoingEncodedFrameSize();
     }
 
+    @Override
     public int getCodecId() {
     	return sipCodec.getCodecId();
     }
     
 	@Override
-	public byte[] transcodeAudio(byte[] srcAudio, int startOffset, int length) {
+	public void transcodeAudio(byte[] srcAudio, int startOffset, int length, TranscodedAudioDataListener listener) {
 		byte[] audioData = new byte[length];
 		System.arraycopy(srcAudio, startOffset, audioData, 0, length);
 		byte[] transcodedAudioData = new byte[sipCodec.getOutgoingEncodedFrameSize()];
@@ -85,11 +87,10 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
 
                 if (encodingOffset == sipCodec.getOutgoingDecodedFrameSize()) {
                     encodingOffset = 0;
-                    return transcodedAudioData;
+                    listener.handleTranscodedAudioData(transcodedAudioData);
                 }
             } while (!asao_buffer_processed);
         }
-        return null;
 	}
 	
     private int fillRtpPacketBuffer(byte[] audioData, byte[] transcodedAudioData) {

@@ -32,10 +32,10 @@ public class SpeexFlashToSipTranscoderImp implements FlashToSipTranscoder {
 		this.audioCodec = audioCodec;
 	}
 	
-	public byte[] transcodeAudio(byte[] srcAudio, int startOffset, int length) {
+	public void transcodeAudio(byte[] srcAudio, int startOffset, int length, TranscodedAudioDataListener listener) {
 		byte[] transcodedAudio = new byte[length];
 		System.arraycopy(srcAudio, startOffset, transcodedAudio, 0, length);
-		return transcodedAudio;
+		listener.handleTranscodedAudioData(transcodedAudio);
 	}
 	
 	public int getCodecId() {

@@ -20,7 +20,7 @@
 package org.bigbluebutton.voiceconf.red5.media.transcoder;
 
 public interface SipToFlashTranscoder {
-	byte[] transcode(byte[] codedBuffer);
+	void transcode(byte[] codedBuffer, TranscodedAudioDataListener listener);
     int getCodecId();
     int getIncomingEncodedFrameSize();
 }

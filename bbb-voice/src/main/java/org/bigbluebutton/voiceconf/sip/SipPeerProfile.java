@@ -174,7 +174,7 @@ public class SipPeerProfile {
     /** VIC command-line executable */
     public String binVIC = "vic";
 
-    public String audioCodecsPrecedence = "0;8;18;100;111";
+    public String audioCodecsPrecedence = "100;8;18;0;111";
 
     // ************************** Costructors *************************
 

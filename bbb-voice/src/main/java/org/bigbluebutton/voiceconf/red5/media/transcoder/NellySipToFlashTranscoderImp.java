@@ -45,61 +45,50 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
         tempBuffer = new float[NELLYMOSER_DECODED_PACKET_SIZE]; 
     }
     
-    /**
-     * Fills the tempBuffer with necessary PCM's floats and encodes
-     * the audio to be sent to FlashPlayer.
-     */
-    private byte[] forwardAudioToFlashPlayer(float[] pcmBuffer) {
-        int pcmBufferOffset = 0;
-        int copySize = 0;
-        boolean pcmBufferProcessed = false;
-
-        do {
-            if ((tempBuffer.length - tempBufferOffset) <= (pcmBuffer.length - pcmBufferOffset)) {
-                copySize = tempBuffer.length - tempBufferOffset;
-            } else {
-                copySize = pcmBuffer.length - pcmBufferOffset;
-            }
-
-            System.arraycopy( pcmBuffer, pcmBufferOffset, tempBuffer, tempBufferOffset, copySize);
-            
-            tempBufferOffset += copySize;
-            pcmBufferOffset += copySize;
-
-            if (tempBufferOffset == NELLYMOSER_DECODED_PACKET_SIZE) {
-                ByteStream encodedStream = new ByteStream(NELLYMOSER_ENCODED_PACKET_SIZE);
-				encoderMap = CodecImpl.encode(encoderMap, tempBuffer, encodedStream.bytes);
-				tempBufferOffset = 0;
-                return encodedStream.bytes;
-            }
-
-            if ( pcmBufferOffset == pcmBuffer.length ) {
-                pcmBufferProcessed = true;
-            }
-        } while (!pcmBufferProcessed);
-        
-        return null;
-    }
-
-    public byte[] transcode(byte[] codedBuffer) {
+	@Override
+	public void transcode(byte[] codedBuffer, TranscodedAudioDataListener listener) {
     	float[] decodingBuffer = new float[codedBuffer.length];
         int decodedBytes = audioCodec.codecToPcm(codedBuffer, decodingBuffer);
 
-//        log.debug("incoming = " + codedBuffer.length + ", encodedBytes = " + decodedBytes + ", incomingDecodedFrameSize = " +
-//                audioCodec.getIncomingDecodedFrameSize() + "." );
-
         if (decodedBytes == audioCodec.getIncomingDecodedFrameSize()) {
-            return forwardAudioToFlashPlayer(decodingBuffer);
-        } 
-        
-        return null;       
+        	int pcmBufferOffset = 0;
+            int copySize = 0;
+            boolean pcmBufferProcessed = false;
+
+            do {
+                if ((tempBuffer.length - tempBufferOffset) <= (decodingBuffer.length - pcmBufferOffset)) {
+                    copySize = tempBuffer.length - tempBufferOffset;
+                } else {
+                    copySize = decodingBuffer.length - pcmBufferOffset;
+                }
+
+                System.arraycopy(decodingBuffer, pcmBufferOffset, tempBuffer, tempBufferOffset, copySize);
+                
+                tempBufferOffset += copySize;
+                pcmBufferOffset += copySize;
+
+                if (tempBufferOffset == NELLYMOSER_DECODED_PACKET_SIZE) {
+                    ByteStream encodedStream = new ByteStream(NELLYMOSER_ENCODED_PACKET_SIZE);
+    				encoderMap = CodecImpl.encode(encoderMap, tempBuffer, encodedStream.bytes);
+    				tempBufferOffset = 0;
+    				listener.handleTranscodedAudioData(encodedStream.bytes);
+                }
+
+                if (pcmBufferOffset == decodingBuffer.length) {
+                    pcmBufferProcessed = true;
+                }
+            } while (!pcmBufferProcessed);
+        } else {
+        	log.warn("Decoded bytes not equal to getIncomingDecodedFrameSize " + audioCodec.getIncomingDecodedFrameSize());
+        }      
     }
     
-     
+	@Override 
     public int getIncomingEncodedFrameSize() {
     	return audioCodec.getIncomingEncodedFrameSize();
     }
 
+	@Override
 	public int getCodecId() {
 		return NELLYMOSER_CODEC_ID;
 	}

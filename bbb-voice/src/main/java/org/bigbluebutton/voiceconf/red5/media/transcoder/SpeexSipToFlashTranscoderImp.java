@@ -32,11 +32,13 @@ public class SpeexSipToFlashTranscoderImp implements SipToFlashTranscoder {
 	public SpeexSipToFlashTranscoderImp(Codec codec) {
 		this.audioCodec = codec;
 	}
-	
-	public byte[] transcode(byte[] codedBuffer) {
-		return codedBuffer;
-	}
 
+	@Override
+	public void transcode(byte[] codedBuffer, TranscodedAudioDataListener listener) {
+		listener.handleTranscodedAudioData(codedBuffer);
+	}
+	
+	@Override
 	public int getCodecId() {
 		return SPEEX_CODEC;
 	}
@@ -45,4 +47,6 @@ public class SpeexSipToFlashTranscoderImp implements SipToFlashTranscoder {
 	public int getIncomingEncodedFrameSize() {
 		return audioCodec.getIncomingEncodedFrameSize();
 	}
+
+
 }

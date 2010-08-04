@@ -22,6 +22,7 @@ package org.bigbluebutton.voiceconf.red5.media;
 import java.net.DatagramSocket;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.bigbluebutton.voiceconf.red5.media.transcoder.SipToFlashTranscoder;
+import org.bigbluebutton.voiceconf.red5.media.transcoder.TranscodedAudioDataListener;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IContext;
 import org.red5.server.api.IScope;
@@ -31,7 +32,7 @@ import org.red5.server.stream.IBroadcastScope;
 import org.red5.server.stream.IProviderService;
 import org.slf4j.Logger;
 
-public class SipToFlashAudioStream implements RtpStreamReceiverListener {
+public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpStreamReceiverListener {
 	final private Logger log = Red5LoggerFactory.getLogger(SipToFlashAudioStream.class, "sip");
 		
 	private AudioBroadcastStream audioBroadcastStream;
@@ -94,9 +95,13 @@ public class SipToFlashAudioStream implements RtpStreamReceiverListener {
 
 	@Override
 	public void onAudioDataReceived(byte[] audioData) {
-		byte[] transcodedAudio = transcoder.transcode(audioData);
-		if (transcodedAudio != null) {
-			pushAudio(transcodedAudio);
+		transcoder.transcode(audioData, this);
+	}
+	
+	@Override
+	public void handleTranscodedAudioData(byte[] audioData) {
+		if (audioData != null) {
+			pushAudio(audioData);
 		} else {
 			log.warn("Transcoded audio is null. Discarding.");
 		}

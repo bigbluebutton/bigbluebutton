@@ -23,6 +23,7 @@ package org.bigbluebutton.voiceconf.red5.media;
 import java.net.DatagramSocket;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.bigbluebutton.voiceconf.red5.media.transcoder.FlashToSipTranscoder;
+import org.bigbluebutton.voiceconf.red5.media.transcoder.TranscodedAudioDataListener;
 import org.bigbluebutton.voiceconf.sip.SipConnectInfo;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IScope;
@@ -68,12 +69,7 @@ public class FlashToSipAudioStream {
 		      if (packet instanceof AudioData) {
 		    	  byte[] data = SerializeUtils.ByteBufferToByteArray(buf);
 		    	  System.out.println("Speex header " + data[0] + " packet length " + (data.length -1));
-		    	  byte[] audioData = transcoder.transcodeAudio(data, 1, data.length-1);	
-		    	  if (audioData != null) {
-		    		  rtpSender.sendAudio(audioData, transcoder.getCodecId());
-		    	  } else {
-		    		  log.warn("Transcodec audio is null. Discarding.");
-		    	  }
+		    	  transcoder.transcodeAudio(data, 1, data.length-1, new TranscodedAudioListener());			    	  
 		      } 
 			}
 		};
@@ -82,11 +78,24 @@ public class FlashToSipAudioStream {
 		rtpSender.connect();
 	}
 
+
+	
 	public void stop(IBroadcastStream broadcastStream, IScope scope) {
 		broadcastStream.removeStreamListener(mInputListener);
 	}
 
 	public String getStreamName() {
 		return talkStreamName;
+	}
+	
+	private class TranscodedAudioListener implements TranscodedAudioDataListener {
+		@Override
+		public void handleTranscodedAudioData(byte[] audioData) {
+			if (audioData != null) {
+	  		  rtpSender.sendAudio(audioData, transcoder.getCodecId());
+	  	  } else {
+	  		  log.warn("Transcodec audio is null. Discarding.");
+	  	  }
+		}		
 	}
 }
