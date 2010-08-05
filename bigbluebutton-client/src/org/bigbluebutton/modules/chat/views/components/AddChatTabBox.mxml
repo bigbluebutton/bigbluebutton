@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="init()">
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="init()" xmlns:mate="http://mate.asfusion.com/">
+	
+	<mate:Listener type="{ChatOptionsEvent.TRANSLATION_OPTION_ENABLED}" method="toggleTranslateEnabled" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -149,9 +151,20 @@
 			
 			private function toggleTranslation():void
 			{
-				
 				var e:ChatOptionsEvent=new ChatOptionsEvent(ChatOptionsEvent.TOGGLE_TRANSLATE);	
+				e.translateOn = autoTransCheckBox.selected;
 				dispatchEvent(e);
+			}
+			
+			private function toggleTranslateEnabled(e:ChatOptionsEvent):void{
+				if (e.translationEnabled){
+					langComboBox.visible = true;
+					autoTransCheckBox.visible = true;
+				} else {
+					langComboBox.visible = false;
+					autoTransCheckBox.visible = false;
+				}
+				autoTransCheckBox.selected = e.translateOn;
 			}
 
 		]]>
@@ -169,7 +182,7 @@
 				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.chat.fontSize')}" />
 				<mx:ComboBox width="60" id="cmbFontSize" dataProvider="{fontSizes}" close="changeFontSize()" selectedIndex="1" />
 			</mx:HBox>
-			<mx:ComboBox id="langComboBox" dataProvider="{this.langNames}" selectedIndex="12"  change="changeLanguage()"> </mx:ComboBox>
+			<mx:ComboBox id="langComboBox" dataProvider="{this.langNames}" selectedIndex="12"  change="changeLanguage()" />
 			<mx:CheckBox id="autoTransCheckBox" selected="false" label="AutoTranslate" toolTip="Auto detect language and translate" change="toggleTranslation()"/>
 		</mx:VBox>
 	</mx:HBox>

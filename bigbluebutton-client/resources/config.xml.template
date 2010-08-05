@@ -9,7 +9,9 @@
 
 		<module name="ChatModule" url="ChatModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
-			dependsOn="ViewersModule"		 
+			dependsOn="ViewersModule"	
+			translationOn="false"
+			translationEnabled="true"	 
 		/>
 		
 		<module name="ViewersModule" url="ViewersModule.swf?v=VERSION" 
