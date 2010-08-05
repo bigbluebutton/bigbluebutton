@@ -310,6 +310,34 @@ public function getUsers( $meetingID, $modPW, $URL, $SALT, $UNAME = false ) {
 }
 
 public function getUsersArray( $meetingID, $modPW, $URL, $SALT ) {
+
+
+        $xml = bbb_wrap_simplexml_load_file( BigBlueButton::getUrlFromMeetingInfo( $meetingID, $modPW, $URL, $SALT ) );
+
+        if( $xml && $xml->returncode == 'SUCCESS' && $xml->messageKey == null ) {//The meetings were returned
+                return array('returncode' => $xml->returncode, 'message' => $xml->message, 'messageKey' => $xml->messageKey);
+        }
+        else if($xml && $xml->returncode == 'SUCCESS'){ //If there were meetings already created
+
+                foreach ($xml->attendees->attendee as $attendee)
+                {
+			echo $attendee->fullName;
+                        $users[] = array( 'fullName' => $attendee->fullName );
+                }
+
+                return $users;
+
+        }
+        else if( $xml ) { //If the xml packet returned failure it displays the message to the user
+                return array('returncode' => $xml->returncode, 'message' => $xml->message, 'messageKey' => $xml->messageKey);
+        }
+        else { //If the server is unreachable, then prompts the user of the necessary action
+                return null;
+        }
+
+
+/*
+
         $xml = bbb_wrap_simplexml_load_file( BigBlueButton::getUrlFromMeetingInfo( $meetingID, $modPW, $URL, $SALT ) );
         if( $xml && $xml->returncode == 'SUCCESS' ) {
 		$user = array();
@@ -323,31 +351,9 @@ public function getUsersArray( $meetingID, $modPW, $URL, $SALT ) {
         else {
                 return (false);
         }
+*/
 }
 
-// following FUNCTION is for TESTING!!!
-public function getUsersXML( $meetingID, $modPW, $URL, $SALT ) {
-	$xml = bbb_wrap_simplexml_load_file( getUrlMeetingInfo( $meetingID, $modPW, $URL, $SALT ) );
-	if( $xml && $xml->returncode == 'SUCCESS' ) {
-		ob_start();
-		echo '<attendees>';		
-		if( count( $xml->attendees ) && count( $xml->attendees->attendee ) ) {
-			foreach ( $xml->attendees->attendee as $attendee ) {
-				echo '<attendee>';
-				echo $attendee->fullName.'<br />';
-				echo '</attendee>';
-			}
-		}
-		else {
-			echo '<br />'."There are currently no users in the session right now.".'<br />';
-		}
-		echo '</attendees>';
-			return (ob_end_flush());
-	}
-	else {
-		return (false);
-	}
-}
 
 // getMeetings() -- Calls getMeetings to obtain the list of meetings, then calls getMeetingInfo for each meeting and concatenates the result.
 public function getMeetings( $URL, $SALT ) {
@@ -376,8 +382,6 @@ public function getMeetings( $URL, $SALT ) {
 
 public function getMeetingsArray( $URL, $SALT ) {
         $xml = bbb_wrap_simplexml_load_file( BigBlueButton::getUrlMeetings( $URL, $SALT ) );
-
-
 
 	if( $xml && $xml->returncode == 'SUCCESS' && $xml->messageKey ) {//The meetings were returned
 		return array('returncode' => $xml->returncode, 'message' => $xml->message, 'messageKey' => $xml->messageKey);
