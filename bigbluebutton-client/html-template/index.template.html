@@ -43,7 +43,7 @@ var requiredRevision = ${version_revision};
 </script>
 </head>
 
-<body scroll="no">
+<body scroll="no" onfocus="clearblink()">
 <script language="JavaScript" type="text/javascript">
 <!--
 // Version check for the Flash Player that has the ability to start Player Product Install (6.0r65)
@@ -77,6 +77,10 @@ if ( hasProductInstall && !hasRequestedVersion ) {
 } else if (hasRequestedVersion) {
 	// if we've detected an acceptable version
 	// embed the Flash Content SWF when all tests are passed
+	//
+	// NOTE: Don't use wmode=transparent because it messes up mouse wheel
+	// see. http://stackoverflow.com/questions/313966/mousewheel-not-working-when-published-movie-has-wmodetransparent
+	// ralam (mar 31, 2010)
 	AC_FL_RunContent(
 			"src", "${swf}",
 			"width", "${width}",
@@ -97,6 +101,97 @@ if ( hasProductInstall && !hasRequestedVersion ) {
     document.write(alternateContent);  // insert non-flash content
   }
 // -->
+
+function startApplet(IP, roomNumber, captureX, captureY, captureWidth, captureHeight)
+{
+	var iframe = document.createElement("iframe");
+  	iframe.id = "iframe";
+   	document.body.appendChild(iframe);
+   	frames[frames.length - 1].document.write(
+   		"<applet code=\"org.bigbluebutton.deskshare.client.DeskShareApplet.class\"" +
+   			"id=\"DeskShareApplet\" width=\"0\" height=\"400\" archive=\"bbb-deskshare-applet-0.64.jar\">" +
+        	"<param name=\"ROOM\" value=\"" + roomNumber  + "\"/>" +
+        	"<param name=\"IP\" value=\"" + IP + "\"/>" +
+        	"<param name=\"CAPTURE_WIDTH\" value=\"" + captureWidth + "\"/>" +
+        	"<param name=\"CAPTURE_HEIGHT\" value=\"" + captureHeight + "\"/>" +
+        	"<param name=\"X\" value=\"" + captureX + "\"/>" +
+        	"<param name=\"Y\" value=\"" + captureY + "\"/>" +
+      	"</applet>"
+     );
+}
+
+function removeFrame () {
+    var iframe = document.getElementById("iframe");
+    iframe.parentNode.removeChild(iframe);
+}
+
+function setScreenCoordinates(x, y) {
+   return frames[frames.length - 1].document.DeskShareApplet.setScreenCoordinates(x,y);
+}
+
+function stopApplet(){
+	frames[frames.length - 1].document.DeskShareApplet.destroy();
+	removeFrame();
+}
+
+function checkForJava(){
+//	if (navigator.javaEnabled() || window.navigator.javaEnabled())
+		return 1;
+}
+
+var blinkTimer = false;
+var blinking = false;
+
+var startblink = function(message1, message2)
+{
+	if(!blinking)
+	{
+		document.title = (document.title == message2)?message1:message2;
+		blinkTimer = window.setTimeout("blinktitle('" + message1 + "', '" + message2 + "', 1)", 500);
+		blinking = true;
+	}
+}
+
+var blinktitle = function(message1, message2)
+{
+	document.title = (document.title == message2)?message1:message2;
+	blinkTimer = window.setTimeout("blinktitle('" + message1 + "', '" + message2 + "', 1)", 500);
+}
+
+var clearblink = function()
+{
+	blinking = false;
+	if(blinkTimer)
+	{
+		window.clearTimeout(blinkTimer);
+	}
+	document.title = 'BigBlueButton';
+}
+
+// Check locale
+var localeChain = "en_US";
+
+if (navigator.language)
+	localeChain = navigator.language;
+else if (navigator.browserLanguage)
+	localeChain = navigator.browserLanguage;
+
+if(/^([a-z]+)-([a-z]+)$/i.test(localeChain)){
+	var matches = /^([a-z]+)-([a-z]+)$/i.exec(localeChain);
+	localeChain = matches[1].toLowerCase() + "_" + matches[2].toUpperCase();
+}
+else if(/^([a-z]+)$/i.test(localeChain)){
+	var matches = /^([a-z]+)$/i.exec(localeChain);
+	localeChain = matches[1].toLowerCase();
+}
+else{
+	localeChain = "en_US";
+}
+
+function getLanguage(){
+	return localeChain;
+}
+
 </script>
 <noscript>
   	<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
