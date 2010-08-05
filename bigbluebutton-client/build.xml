@@ -90,6 +90,7 @@
 			<!-- Invoke MXMLC -->
 			<mxmlc output="${OUTPUT_DIR}/locale/@{locale}_resources.swf">
 				<locale>@{locale}</locale>
+				<target-player>10.0.0</target-player>
 				<source-path path-element="locale/{locale}"/>
 				<include-resource-bundles>bbbResources</include-resource-bundles>
 				<source-path path-element="${FLEX_HOME}/frameworks"/>
@@ -178,6 +179,7 @@
 			<attribute name="src" default="${SRC_DIR}" description="Path to the module to compile" />
 			<sequential>
 				<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="false" optimize="true" link-report="linker-report.xml">
+					<target-player>10.0.0</target-player>
 					<load-config filename="@{flex}/frameworks/flex-config.xml" />
 					<source-path path-element="@{flex}/frameworks" />
 					<compiler.library-path dir="@{flex}/frameworks" append="true">
@@ -202,6 +204,7 @@
 		<attribute name="src" default="${SRC_DIR}" description="Path to the module to compile" />
 		<sequential>
 			<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="false">
+				<target-player>10.0.0</target-player>
 				<load-config filename="@{flex}/frameworks/flex-config.xml" />
 				<source-path path-element="@{flex}/frameworks" />
 				<compiler.library-path dir="@{flex}/frameworks" append="true">
@@ -226,6 +229,7 @@
 		<attribute name="src" default="${SRC_DIR}" description="Path to the module to compile" />
 		<sequential>
 			<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="false" optimize="true" load-externs="linker-report.xml">
+				<target-player>10.0.0</target-player>
 				<load-config filename="@{flex}/frameworks/flex-config.xml" />
 				<source-path path-element="@{flex}/frameworks" />
 				<compiler.library-path dir="@{flex}/frameworks" append="true">
