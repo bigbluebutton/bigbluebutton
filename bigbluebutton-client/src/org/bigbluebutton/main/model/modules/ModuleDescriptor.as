@@ -97,13 +97,10 @@ package org.bigbluebutton.main.model.modules
 		
 		public function load(resultHandler:Function):void {
 			callbackHandler = resultHandler;
-//			loader.addEventListener("urlChanged", resultHandler);
 			_loader.addEventListener("loading", onLoading);
 			_loader.addEventListener("progress", onLoadProgress);
-			_loader.addEventListener("setup", onSetupInfo);
 			_loader.addEventListener("ready", onReady);
 			_loader.addEventListener("error", onErrorLoading);
-//			loader.addEventListener("unload", resultHandler);
 			_loader.url = _attributes.url;
 			LogUtil.debug("Loading " + _attributes.url);
 			_loader.loadModule();
@@ -135,10 +132,6 @@ package org.bigbluebutton.main.model.modules
 		
 		private function onErrorLoading(e:ModuleEvent):void{
 			LogUtil.error("Error loading " + (getAttribute("name") as String) + e.errorText);
-		}
-		
-		private function onSetupInfo(e:ModuleEvent):void{
-			//var info:Object = _loader.moduleFactory.info();
 		}
 		
 		private function onLoading(e:Event):void{
