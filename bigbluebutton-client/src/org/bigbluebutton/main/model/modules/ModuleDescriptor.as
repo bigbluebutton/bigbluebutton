@@ -40,10 +40,10 @@ package org.bigbluebutton.main.model.modules
 		private var _loader:BigBlueButtonModuleLoader;
 		private var _module:IBigBlueButtonModule;
 		private var _loaded:Boolean = false;
-		private var _started:Boolean = false;
 		private var _connected:Boolean = false;
 				
 		private var callbackHandler:Function;
+		private var applicationDomain:ApplicationDomain;
 		
 		public var unresolvedDependancies:ArrayCollection;
 		public var resolved:Boolean = false;
@@ -58,7 +58,7 @@ package org.bigbluebutton.main.model.modules
 		}
 		
 		public function setApplicationDomain(appDomain:ApplicationDomain):void{
-			_loader.applicationDomain = appDomain;
+			this.applicationDomain = appDomain;
 		}
 
 		public function addAttribute(attribute:String, value:Object):void {
@@ -85,8 +85,8 @@ package org.bigbluebutton.main.model.modules
 			return _loaded;
 		}
 		
-		public function set started(value:Boolean):void {
-			_started = value;
+		public function get loader():ModuleLoader{
+			return _loader;
 		}
 		
 		private function parseAttributes(item:XML):void {
@@ -99,11 +99,14 @@ package org.bigbluebutton.main.model.modules
 			    _attributes[attName] = attValue;
 			}
 			
-			populateDependencies();
+			populateDependancies();
 		}
 		
 		
 		public function load(resultHandler:Function):void {
+			if (this.applicationDomain == null) throw new Error("Common application domain not set for module. Make sure your module has the common BigBlueButton Application Domain");
+			
+			_loader.applicationDomain = this.applicationDomain;
 			callbackHandler = resultHandler;
 			_loader.addEventListener("loading", onLoading);
 			_loader.addEventListener("progress", onLoadProgress);
@@ -112,10 +115,6 @@ package org.bigbluebutton.main.model.modules
 			_loader.url = _attributes.url;
 			LogUtil.debug("Loading " + _attributes.url);
 			_loader.loadModule();
-		}
-		
-		public function unload():void {
-			_loader.url = "";
 		}
 
 		private function onReady(event:Event):void {
@@ -151,17 +150,13 @@ package org.bigbluebutton.main.model.modules
 			LogUtil.debug(_attributes.name + " uri = " + _attributes.uri);
 		}
 		
-		public function hasUnresolvedDependency(module:String):Boolean{
-			return unresolvedDependancies.contains(module);
-		}
-		
-		public function removeDependency(module:String):void{
+		public function removeDependancy(module:String):void{
 			for (var i:int = 0; i<unresolvedDependancies.length; i++){
 				if (unresolvedDependancies[i] == module) unresolvedDependancies.removeItemAt(i);
 			}
 		}
 		
-		private function populateDependencies():void{
+		private function populateDependancies():void{
 			var dependString:String = _attributes["dependsOn"] as String;
 			if (dependString == null) return;
 			

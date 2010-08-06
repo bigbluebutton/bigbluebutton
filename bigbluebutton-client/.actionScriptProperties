@@ -45,6 +45,7 @@
     <module application="src/BigBlueButton.mxml" destPath="ViewersModule.swf" optimize="true" sourcePath="src/ViewersModule.mxml"/>
     <module application="src/BigBlueButton.mxml" destPath="DynamicInfoModule.swf" optimize="true" sourcePath="src/DynamicInfoModule.mxml"/>
     <module application="src/BigBlueButton.mxml" destPath="PhoneModule.swf" optimize="true" sourcePath="src/PhoneModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="tests/main/modules/tests/DummyModule.swf" optimize="true" sourcePath="src/tests/main/modules/tests/DummyModule.mxml"/>
   </modules>
   <buildCSSFiles/>
 </actionScriptProperties>

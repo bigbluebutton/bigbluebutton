@@ -32,7 +32,7 @@ package org.bigbluebutton.main.model.modules
 				
 				for (var key:Object in _modules){
 					var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
-					m.removeDependency(n.getName());
+					m.removeDependancy(n.getName());
 					if ((m.unresolvedDependancies.length == 0) && (!m.resolved)){
 						independent.addItem(m);
 						m.resolved = true;

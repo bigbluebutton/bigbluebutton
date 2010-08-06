@@ -178,7 +178,6 @@ package org.bigbluebutton.main.model.modules
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
 				LogUtil.debug('Setting ' + name + ' started to ' + started);
-				m.started = started;
 			}	
 		}
 		

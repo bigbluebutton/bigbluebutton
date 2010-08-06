@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" 
+		   layout="absolute" width="400" height="300"
+		   implements="org.bigbluebutton.common.IBigBlueButtonModule">
+	
+	<mx:Script>
+		<![CDATA[
+			
+			
+			public function get moduleId():String{
+				return "DummyModule";
+			}		
+			
+			public function get moduleName():String{
+				return "DummyModule";
+			}	
+			
+			public function get username():String{
+				return "DummyModule";
+			}
+			
+			public function get userid():Number{
+				return 1;
+			}
+			
+			public function get uri():String{
+				return "DummyModule";
+			}	
+			
+			public function get role():String{
+				return "DummyModule";
+			}
+			
+			public function start(attributes:Object):void{
+				
+			}
+			
+			public function stop():void{
+				
+			}
+		]]>
+	</mx:Script>
+</mx:Module>

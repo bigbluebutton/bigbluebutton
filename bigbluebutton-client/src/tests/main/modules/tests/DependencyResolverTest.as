@@ -9,7 +9,7 @@ package tests.main.modules.tests
 	import org.bigbluebutton.main.model.modules.ModuleDescriptor;
 	import org.flexunit.Assert;
 
-	public class DependancyLoaderTest
+	public class DependencyResolverTest
 	{
 		private var resolver:DependancyResolver;
 		private var unsortedModules:Dictionary;
