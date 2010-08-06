@@ -45,7 +45,6 @@ package org.bigbluebutton.main.model.modules
 		
 		private var _initializedListeners:ArrayCollection = new ArrayCollection();
 			
-		private var  _modules:Dictionary = new Dictionary();
 		private var sorted:ArrayCollection; //The array of modules sorted by dependencies, with least dependent first
 		
 		private var _applicationDomain:ApplicationDomain;
@@ -64,20 +63,16 @@ package org.bigbluebutton.main.model.modules
 		}
 				
 		private function handleComplete():void{	
-			buildModuleDescriptors();
+			var modules:Dictionary = configParameters.getModules();
 			modulesDispatcher.sendPortTestEvent();
 			
+			for (var key:Object in modules) {
+				var m:ModuleDescriptor = modules[key] as ModuleDescriptor;
+				m.setApplicationDomain(_applicationDomain);
+			}
+			
 			var resolver:DependancyResolver = new DependancyResolver();
-			sorted = resolver.buildDependencyTree(_modules);
-		}
-		
-		private function buildModuleDescriptors():void{
-			var list:XMLList = configParameters.getModulesXML();
-			var item:XML;
-			for each(item in list){
-				var mod:ModuleDescriptor = new ModuleDescriptor(item, _applicationDomain);
-				_modules[item.@name] = mod;
-			}	
+			sorted = resolver.buildDependencyTree(modules);
 		}
 		
 		public function useProtocol(protocol:String):void {
@@ -93,13 +88,7 @@ package org.bigbluebutton.main.model.modules
 		}
 		
 		private function getModule(name:String):ModuleDescriptor {
-			for (var key:Object in _modules) {				
-				var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
-				if (m.getAttribute("name") == name) {
-					return m;
-				}
-			}		
-			return null;	
+			return configParameters.getModule(name);	
 		}
 
 		private function startModule(name:String):void {
@@ -203,21 +192,21 @@ package org.bigbluebutton.main.model.modules
 			
 			for (var i:int = 0; i<sorted.length; i++){
 				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
-				loadModule(m.getAttribute("name") as String);
+				loadModule(m.getName());
 			}
 		}
 		
 		public function startAllModules():void{
 			for (var i:int = 0; i<sorted.length; i++){
 				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
-				startModule(m.getAttribute("name") as String);
+				startModule(m.getName());
 			}
 		}
 		
 		public function handleLogout():void {
-			for (var key:Object in _modules) {				
-				var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
-				stopModule(m.getAttribute("name") as String);
+			for (var i:int = 0; i <sorted.length; i++) {				
+				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
+				stopModule(m.getName());
 			}
 		}
 		
@@ -225,7 +214,7 @@ package org.bigbluebutton.main.model.modules
 			for (var i:int = 0; i<sorted.length; i++){
 				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
 				if (!m.loaded){
-					LogUtil.debug("Module " + (m.getAttribute("name") as String) + " has not yet been loaded");
+					LogUtil.debug("Module " + m.getName() + " has not yet been loaded");
 					return false;
 				} 
 			}

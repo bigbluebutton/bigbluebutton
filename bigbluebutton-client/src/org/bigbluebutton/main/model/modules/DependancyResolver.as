@@ -3,6 +3,7 @@ package org.bigbluebutton.main.model.modules
 	import flash.utils.Dictionary;
 	
 	import mx.collections.ArrayCollection;
+	import mx.controls.Alert;
 	
 	import org.bigbluebutton.common.LogUtil;
 
@@ -23,15 +24,16 @@ package org.bigbluebutton.main.model.modules
 			var sorted:ArrayCollection = new ArrayCollection();
 			var independent:ArrayCollection = getModulesWithNoDependencies();
 			
+			for (var i:int = 0; i<independent.length; i++) (independent.getItemAt(i) as ModuleDescriptor).resolved = true;
+			
 			while(independent.length > 0){
 				var n:ModuleDescriptor = independent.removeItemAt(0) as ModuleDescriptor;
 				sorted.addItem(n);
-				n.resolved = true;
 				
-				for (var key:Object in _modules) {
+				for (var key:Object in _modules){
 					var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
-					m.removeDependency(n.getAttribute("name") as String);
-					if ((m.unresolvedDependencies.length == 0) && (!m.resolved)){
+					m.removeDependency(n.getName());
+					if ((m.unresolvedDependancies.length == 0) && (!m.resolved)){
 						independent.addItem(m);
 						m.resolved = true;
 					}
@@ -41,15 +43,17 @@ package org.bigbluebutton.main.model.modules
 			//Debug Information
 			for (var key2:Object in _modules) {
 				var m2:ModuleDescriptor = _modules[key2] as ModuleDescriptor;
-				if (m2.unresolvedDependencies.length != 0){
-					LogUtil.error("Module " + (m2.getAttribute("name") as String) + " still has a dependency " + (m2.unresolvedDependencies.getItemAt(0) as String)); 
+				if (m2.unresolvedDependancies.length != 0){
+					throw new Error("Modules have circular dependancies, please check your config file. Unresolved: " + 
+													m2.getName() + " depends on " + m2.unresolvedDependancies.toString());
 				}
 			}
 			LogUtil.debug("Dependency Order: ");
 			for (var u:int = 0; u<sorted.length; u++){
-				LogUtil.debug(((sorted.getItemAt(u) as ModuleDescriptor).getAttribute("name") as String));
+				LogUtil.debug(((sorted.getItemAt(u) as ModuleDescriptor).getName()));
+				//Alert.show((sorted.getItemAt(u) as ModuleDescriptor).getAttribute("name") as String);
 			}
-			
+
 			return sorted;
 		}
 		
@@ -57,7 +61,7 @@ package org.bigbluebutton.main.model.modules
 			var returnArray:ArrayCollection = new ArrayCollection();
 			for (var key:Object in _modules) {
 				var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
-				if (m.unresolvedDependencies.length == 0) {
+				if (m.unresolvedDependancies.length == 0) {
 					returnArray.addItem(m);
 				}
 			}

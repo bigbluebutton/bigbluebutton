@@ -6,16 +6,17 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import tests.main.SampleSuite;
 			import org.flexunit.listeners.UIListener;
 			import org.flexunit.runner.FlexUnitCore;
+			
+			import tests.main.modules.ModulesTestSuite;
 			
 			private var core:FlexUnitCore;
 			
 			public function runMe():void{
 				core = new FlexUnitCore();
 				core.addListener(new UIListener(uiListener));
-				core.run(SampleSuite);
+				core.run(ModulesTestSuite);
 			}
 		]]>
 	</mx:Script>
