@@ -97,8 +97,9 @@ package org.bigbluebutton.main.model.users
 				
 				LogUtil.debug(NAME + "::Connecting to " + uri + " [" + _conferenceParameters.username + "," + _conferenceParameters.role + "," + 
 					_conferenceParameters.conference + "," + _conferenceParameters.mode + "," + _conferenceParameters.room + "]");	
-				_netConnection.connect(uri, _conferenceParameters.username, _conferenceParameters.role, _conferenceParameters.conference, _conferenceParameters.mode, 
-										_conferenceParameters.room, _conferenceParameters.voicebridge, false, _conferenceParameters.externUserID);			
+				_netConnection.connect(uri, _conferenceParameters.username, _conferenceParameters.role, _conferenceParameters.conference, 
+											_conferenceParameters.mode, _conferenceParameters.room, _conferenceParameters.voicebridge, 
+											false, _conferenceParameters.externUserID);			
 				
 			} catch( e : ArgumentError ) {
 				// Invalid parameters.

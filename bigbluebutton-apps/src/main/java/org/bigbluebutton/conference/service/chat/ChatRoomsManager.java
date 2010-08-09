@@ -20,12 +20,8 @@
 package org.bigbluebutton.conference.service.chat;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.red5.logging.Red5LoggerFactory;
-
 import net.jcip.annotations.ThreadSafe;
-
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 /**
@@ -43,17 +39,17 @@ public class ChatRoomsManager {
 	}
 	
 	public void addRoom(ChatRoom room) {
-		log.debug("In ChatRoomsManager adding room ${room.name}");
+		log.debug("In ChatRoomsManager adding room {}", room.getName());
 		rooms.put(room.getName(), room);
 	}
 	
 	public void removeRoom(String name) {
-		log.debug("In ChatRoomsManager remove room ${name}");
+		log.debug("In ChatRoomsManager remove room {}", name);
 		rooms.remove(name);
 	}
 		
 	public boolean hasRoom(String name) {
-		log.debug("In ChatRoomsManager has Room ${name}");
+		log.debug("In ChatRoomsManager has Room {}", name);
 		return rooms.containsKey(name);
 	}
 	
@@ -62,7 +58,7 @@ public class ChatRoomsManager {
 	 * Keeping getRoom private so that all access to ChatRoom goes through here.
 	 */
 	private ChatRoom getRoom(String name) {
-		log.debug("In ChatRoomsManager get room ${name}");
+		log.debug("In ChatRoomsManager get room {}", name);
 		return rooms.get(name);
 	}
 	
@@ -71,7 +67,7 @@ public class ChatRoomsManager {
 		if (r != null) {
 			return r.getChatMessages();
 		}
-		log.warn("Getting messages from a non-existing room ${room}");
+		log.warn("Getting messages from a non-existing room {}", room);
 		return "";
 	}
 	
@@ -80,7 +76,7 @@ public class ChatRoomsManager {
 		if (r != null) {
 			r.sendMessage(message);
 		}
-		log.warn("Sending message to a non-existing room ${room}");
+		log.warn("Sending message to a non-existing room {}", room);
 	}
 	
 	public void addRoomListener(String roomName, IChatRoomListener listener) {
@@ -89,7 +85,7 @@ public class ChatRoomsManager {
 			r.addRoomListener(listener);
 			return;
 		}
-		log.warn("Adding listener to a non-existing room ${roomName}");
+		log.warn("Adding listener to a non-existing room {}", roomName);
 	}
 	
 	//TODO: roomName?	

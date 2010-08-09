@@ -20,13 +20,7 @@
 
 package org.bigbluebutton.conference;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.red5.logging.Red5LoggerFactory;
-
 public class BigBlueButtonSession {
-	private static Logger log = Red5LoggerFactory.getLogger(BigBlueButtonSession.class, "bigbluebutton");
-	
 	private final String username;
 	private final String role;
 	private final String conference;

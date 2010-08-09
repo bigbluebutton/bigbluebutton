@@ -25,16 +25,13 @@ import java.util.Set;
 import org.red5.server.api.Red5;import org.bigbluebutton.conference.service.participants.ParticipantsApplication;
 import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.adapter.ApplicationAdapter;
 import org.red5.server.adapter.IApplication;
-import org.red5.server.api.IClient;
+import org.red5.server.adapter.MultiThreadedApplicationAdapter;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.IScope;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.red5.server.api.so.ISharedObject;
 
-public class BigBlueButtonApplication extends ApplicationAdapter{
+public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 
 	private static Logger log = Red5LoggerFactory.getLogger(BigBlueButtonApplication.class, "bigbluebutton");
 	
@@ -44,94 +41,78 @@ public class BigBlueButtonApplication extends ApplicationAdapter{
 	
 	private String version;
 	
-    public boolean appStart (IScope app )
-    {
-        log.debug("Starting BigBlueButton version $version"); 
+    public boolean appStart(IScope app) {
+        log.debug("Starting BigBlueButton version {}", version); 
         return super.appStart(app);
     }
         
-    public void appStop (IScope app )
-    {
-        log.debug( "${APP} - appStop" );
+    public void appStop(IScope app) {
+        log.debug("Stopping BigBlueButton version {}", version);
         super.appStop(app);
     }
 
-    public boolean appConnect( IConnection conn , Object[] params )
-    {
-        log.debug( "${APP} - appConnect ");    	
+    public boolean appConnect(IConnection conn , Object[] params) {
+        log.debug("{} - appConnect", APP);    	
         return super.appConnect(conn, params);
     }
     
-    public void appDisconnect( IConnection conn)
-    {
-        log.debug( "${APP} - appDisconnect ");
+    public void appDisconnect(IConnection conn) {
+        log.debug("{} - appDisconnect", APP);
         super.appDisconnect(conn);
     }
     
     public boolean roomStart(IScope room) {
-    	log.debug( "${APP} - roomStart " );
+    	log.debug("{} - roomStart ", APP);
     	assert participantsApplication != null;
     	participantsApplication.createRoom(room.getName());
     	return super.roomStart(room);
     }	
 	
     public void roomStop(IScope room) {
-    	log.debug( "${APP} - roomStop " );
+    	log.debug("{} - roomStop", APP);
     	super.roomStop(room);
     	assert participantsApplication != null;
     	participantsApplication.destroyRoom(room.getName());
     	BigBlueButtonSession bbbSession = getBbbSession();
     	assert bbbSession != null;
-		log.debug( "${APP} - roomStop - destroying RecordSession ${bbbSession.sessionName}");
+		log.debug("{} - roomStop - destroying RecordSession {}", APP, bbbSession.getSessionName());
 		assert recorderApplication != null;
 		recorderApplication.destroyRecordSession(bbbSession.getSessionName());
-		log.debug( "${APP} - roomStop - destroyed RecordSession ${bbbSession.sessionName}");
+		log.debug("{} - roomStop - destroyed RecordSession {}", APP, bbbSession.getSessionName());
     }
     
 	public boolean roomConnect(IConnection connection, Object[] params) {
-    	log.debug( "${APP} - roomConnect - ");
-
+    	log.debug("{} - roomConnect - ", APP);
+    	
         String username = ((String) params[0]).toString();
-        log.debug( "${APP} - roomConnect - $username");
         String role = ((String) params[1]).toString();
-        log.debug( "${APP} - roomConnect - $role");
         String conference = ((String)params[2]).toString();
-        log.debug( "${APP} - roomConnect - $conference");
         String mode = ((String) params[3]).toString();
-        log.debug( "${APP} - roomConnect - $mode");
         /*
          * Convert the id to Long because it gets converted to ascii decimal
          * equivalent (i.e. zero (0) becomes 48) if we don't.
          */
         long userid = Long.parseLong(Red5.getConnectionLocal().getClient().getId());
-        log.debug( "${APP} - roomConnect - $userid");
         String sessionName = connection.getScope().getName();
-        log.debug( "${APP} - roomConnect - $sessionName");
-        
-        String room;   
+   
         String voiceBridge = ((String) params[5]).toString();
-		Boolean record;
-		String externUserID;
-		room = sessionName;
+		String room = sessionName;
 		assert recorderApplication != null;
-		voiceBridge = ((String) params[5]).toString();
-		record = Boolean.parseBoolean((String) params[6]);
-    	log.debug ("Got params $voiceBridge and $record");
-    	
-    	externUserID = ((String) params[7]).toString();
-    	log.debug ("Got params $externUserID");
-    	
+		boolean record = (Boolean)params[6];
+
+    	String externUserID = ((String) params[7]).toString();
+
 		if (record == true) {
-			log.debug( "${APP} - roomConnect - creating RecordSession $sessionName");
 			recorderApplication.createRecordSession(conference, room, sessionName);
 		}
 			
-    	log.debug( "${APP} - roomConnect - creating BigBlueButtonSession");
     	BigBlueButtonSession bbbSession = new BigBlueButtonSession(sessionName, userid,  username, role, 
     			conference, mode, room, voiceBridge, record, externUserID);
-    	log.debug( "${APP} - roomConnect - setting attribute BigBlueButtonSession");
         connection.setAttribute(Constants.SESSION, bbbSession);        
-		log.debug("${APP} - roomConnect - [${username},${role},${conference},${room}]"); 
+        
+        String debugInfo = "userid=" + userid + ",username=" + username + ",role=" +  role + ",conference=" + conference + "," + 
+        					"session=" + sessionName + ",voiceConf=" + voiceBridge + ",room=" + room + ",externsUserid=" + externUserID;
+		log.debug("roomConnect - [{}]", debugInfo); 
 
         super.roomConnect(connection, params);
     	return true;
@@ -154,12 +135,12 @@ public class BigBlueButtonApplication extends ApplicationAdapter{
 		recorderApplication = a;
 	}
 	
-	public void setApplicationListeners(Set listeners) {
+	public void setApplicationListeners(Set<IApplication> listeners) {
 		log.debug("Setting application listeners");
 		int count = 0;
-		Iterator iter = listeners.iterator();
+		Iterator<IApplication> iter = listeners.iterator();
 		while (iter.hasNext()) {
-			log.debug("Setting application listeners $count");
+			log.debug("Setting application listeners {}", count);
 			super.addListener((IApplication) iter.next());
 			count++;
 		}
