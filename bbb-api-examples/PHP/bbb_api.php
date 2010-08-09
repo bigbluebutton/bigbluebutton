@@ -143,6 +143,26 @@ public function createMeeting( $username, $meetingID, $welcomeString, $mPW, $aPW
 	}
 }
 
+public function createMeetingXML( $username, $meetingID, $welcomeString, $mPW, $aPW, $SALT, $URL, $logoutURL ) {
+	$url_create = $URL."api/create?";
+	$url_join = $URL."api/join?";
+	$voiceBridge = 70000 + rand(0, 9999);
+
+	$params = 'name='.urlencode($meetingID).'&meetingID='.urlencode($meetingID).'&attendeePW='.$aPW.'&moderatorPW='.$mPW.'&voiceBridge='.$voiceBridge.'&logoutURL='.urlencode($logoutURL);
+
+	if( trim( $welcomeString ) ) 
+		$params .= '&welcome='.urlencode($welcomeString);
+
+	$xml = bbb_wrap_simplexml_load_file($url_create.$params.'&checksum='.sha1("create".$params.$SALT) );
+	
+	if( $xml ) {
+		return array('returncode' => $xml->returncode, 'message' => $xml->message, 'messageKey' => $xml->messageKey );
+	}
+	else {
+		return null;
+	}
+}
+
 // return the url to join a meeting as viewer
 public function joinAsViewer( $meetingID, $userName, $welcomeString = '', $aPW, $SALT, $URL ) {
 	$url_join = $URL."api/join?";
