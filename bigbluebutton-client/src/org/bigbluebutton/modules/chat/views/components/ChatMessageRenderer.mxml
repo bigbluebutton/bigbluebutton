@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" borderStyle="solid" verticalAlign="middle" >
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" verticalAlign="middle" height="{txtMessage.height + 3}" >
 	
 	<mx:Script>
 		<![CDATA[
@@ -8,12 +8,16 @@
 			
 			/**
 			 * Chat Message Dynamic Object Anatomy:
+			 * data.senderID - The unique id of the sender of the message
+			 * data.lastSenderID - The ID of the person who sent the previous message
 			 * data.name - The name of the sender of the message
 			 * data.senderTime - Local time in the sender's time zone
 			 * data.time - Local time in recepient time zone
+			 * data.lastTime - The time of the previously sent message
 			 * data.senderText - The text of the message as it appeared on the sender's end
 			 * data.text - The text contained in the message when translated to the recepient's language
 			 * data.color - The color of the text as choosen by the sender
+			 * data.previousSender - The previous sender of the message
 			 */
 			
 			private function onLinkClick(e:TextEvent):void{
@@ -34,11 +38,8 @@
 		]]>
 	</mx:Script>
 	
-	<mx:VBox width="12%" verticalGap="0" bottom="0" top="0" paddingBottom="0" paddingTop="0" rollOver="onRollOver()" rollOut="onRollOut()">
-		<mx:Label id="lblName" text="{data.name}" top="0" bottom="0" paddingBottom="0" paddingTop="0" truncateToFit="true" />
-		<mx:Label id="lblTime" text="{rolledOver ? data.senderTime : data.time}" top="0" bottom="0" paddingBottom="0" paddingTop="0" />
-	</mx:VBox>
-	<mx:VRule height="25" />
-	<mx:Text id="txtMessage" width="88%" htmlText="{rolledOver ? data.senderText : data.text}" link="onLinkClick(event)" color="{data.color}"
-			 rollOver="onRollOver()" rollOut="onRollOut()" />
+	<mx:Label id="lblName" text="{data.name}" visible="{!(data.senderID == data.lastSenderID)}" truncateToFit="true" />
+	<mx:Text id="txtMessage" htmlText="{rolledOver ? data.senderText : data.text}" link="onLinkClick(event)" color="{data.color}"
+			 rollOver="onRollOver()" rollOut="onRollOut()" width="100%" />
+	<mx:Label id="lblTime" text="{rolledOver ? data.senderTime : data.time}" visible="{!(data.lastTime == data.time) || !(data.senderID == data.lastSenderID)}" />
 </mx:HBox>

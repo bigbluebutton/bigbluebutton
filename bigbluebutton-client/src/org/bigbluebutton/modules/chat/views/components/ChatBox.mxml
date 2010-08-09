@@ -24,6 +24,8 @@
 			
 			[Bindable]
 			private var backgroundColor:uint = 0x000000;
+			private var lastSenderID:String = "";
+			private var lastTime:String = "";
 			
 			[Bindable] private var messages:ArrayCollection = new ArrayCollection();
 			
@@ -31,12 +33,15 @@
 				chatMessagesList.verticalScrollPosition = chatMessagesList.maxVerticalScrollPosition;
 			}
 			
-			public function showNewMessage(message:String, translate:Boolean, language:String = null):void
+			public function showNewMessage(senderID:String, message:String, translate:Boolean, language:String = null):void
 			{	
 				var timeString:String = getHours() + ":" + getMinutes();
 				var components:Array = message.split("|");
 				
 				var msg:Object = new Object();
+				msg.senderID = senderID;
+				msg.lastSenderID = lastSenderID;
+				lastSenderID = senderID;
 				
 				if (translate && (language != null)){
 					translateMessage(components[0].toString(), components[4].toString(), language.toString());
@@ -48,8 +53,11 @@
 				
 				msg.name = components[1];
 				msg.color = uint(components[2]);
+				
 				msg.senderTime = components[3];			
 				msg.time = timeString;
+				msg.lastTime = lastTime;
+				lastTime = timeString;
 				
 				messages.addItem(msg);
 			}
@@ -104,6 +112,6 @@
 		]]>
 	</mx:Script>
 	
-	<mx:List width="100%" height="100%" id="chatMessagesList" updateComplete="updateScroll()"
+	<mx:List width="100%" height="100%" id="chatMessagesList" updateComplete="updateScroll()" selectable="false" variableRowHeight="true"
 			 itemRenderer="org.bigbluebutton.modules.chat.views.components.ChatMessageRenderer" dataProvider="{messages}" />
 </mx:VBox>

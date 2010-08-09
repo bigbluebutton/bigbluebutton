@@ -230,21 +230,7 @@ package org.bigbluebutton.main.model.users
 			var nc:NetConnection = netConnectionDelegate.connection;
 			nc.call(
 				"participants.assignPresenter",// Remote function name
-				new Responder(
-	        		// participants - On successful result
-					function(result:Boolean):void { 						 
-						if (result) {
-							LogUtil.debug("Successfully assigned presenter to: " + userid);							
-						}	
-					},	
-					// status - On error occurred
-					function(status:Object):void { 
-						LogUtil.error("Error occurred:"); 
-						for (var x:Object in status) { 
-							LogUtil.error(x + " : " + status[x]); 
-							} 
-					}
-				), //new Responder
+				responder,
 				userid,
 				assignedBy
 			); //_netConnection.call
@@ -254,22 +240,7 @@ package org.bigbluebutton.main.model.users
 			var nc:NetConnection = netConnectionDelegate.connection;			
 			nc.call(
 				"participants.setParticipantStatus",// Remote function name
-				new Responder(
-	        		// participants - On successful result
-					function(result:Boolean):void { 
-						 
-						if (result) {
-							LogUtil.debug("Successfully assigned raise hand to: " + userid);							
-						}	
-					},	
-					// status - On error occurred
-					function(status:Object):void { 
-						LogUtil.error("Error occurred:"); 
-						for (var x:Object in status) { 
-							LogUtil.error(x + " : " + status[x]); 
-							} 
-					}
-				), //new Responder
+				responder,
 				userid,
 				"raiseHand",
 				raise
@@ -280,22 +251,7 @@ package org.bigbluebutton.main.model.users
 			var nc:NetConnection = netConnectionDelegate.connection;
 			nc.call(
 				"participants.setParticipantStatus",// Remote function name
-				new Responder(
-	        		// participants - On successful result
-					function(result:Boolean):void { 
-						 
-						if (result) {
-							LogUtil.debug("Successfully assigned stream to: " + userid);							
-						}	
-					},	
-					// status - On error occurred
-					function(status:Object):void { 
-						LogUtil.error("Error occurred:"); 
-						for (var x:Object in status) {
-							LogUtil.error(x + " : " + status[x]);
-							}
-					}
-				), //new Responder
+				responder,
 				userid,
 				"streamName",
 				streamName
@@ -303,22 +259,7 @@ package org.bigbluebutton.main.model.users
 			
 			nc.call(
 				"participants.setParticipantStatus",// Remote function name
-				new Responder(
-	        		// participants - On successful result
-					function(result:Boolean):void { 
-						 
-						if (result) {
-							LogUtil.debug("Successfully assigned stream to: " + userid);							
-						}	
-					},	
-					// status - On error occurred
-					function(status:Object):void { 
-						LogUtil.error("Error occurred:"); 
-						for (var x:Object in status) { 
-							LogUtil.error(x + " : " + status[x]); 
-							} 
-					}
-				), //new Responder
+				responder,
 				userid,
 				"hasStream",
 				true
@@ -329,22 +270,7 @@ package org.bigbluebutton.main.model.users
 			var nc:NetConnection = netConnectionDelegate.connection;
 			nc.call(
 				"participants.setParticipantStatus",// Remote function name
-				new Responder(
-	        		// participants - On successful result
-					function(result:Boolean):void { 
-						 
-						if (result) {
-							LogUtil.debug("Successfully assigned stream to: " + userid);							
-						}	
-					},	
-					// status - On error occurred
-					function(status:Object):void { 
-						LogUtil.error("Error occurred:"); 
-						for (var x:Object in status) { 
-							LogUtil.error(x + " : " + status[x]); 
-							} 
-					}
-				), //new Responder
+				responder,
 				userid,
 				"streamName",
 				""
@@ -352,22 +278,7 @@ package org.bigbluebutton.main.model.users
 			
 			nc.call(
 				"participants.setParticipantStatus",// Remote function name
-				new Responder(
-	        		// participants - On successful result
-					function(result:Boolean):void { 
-						 
-						if (result) {
-							LogUtil.debug("Successfully removed stream to: " + userid);							
-						}	
-					},	
-					// status - On error occurred
-					function(status:Object):void { 
-						LogUtil.error("Error occurred:"); 
-						for (var x:Object in status) { 
-							LogUtil.error(x + " : " + status[x]); 
-							} 
-					}
-				), //new Responder
+				responder,
 				userid,
 				"hasStream",
 				false
@@ -437,5 +348,18 @@ package org.bigbluebutton.main.model.users
 		private function sendConnectionSuccessEvent():void{
 			//TODO
 		}
+		
+		private var responder:Responder = new Responder(
+			// On successful result
+			function(result:Boolean):void { 	
+			},	
+			// On error occurred
+			function(status:Object):void { 
+				LogUtil.error("Error occurred:"); 
+				for (var x:Object in status) { 
+					LogUtil.error(x + " : " + status[x]); 
+				} 
+			}
+		)
 	}
 }
