@@ -21,26 +21,25 @@ package org.bigbluebutton.modules.phone.managers
 {
 	import flash.events.IEventDispatcher;
 	
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
 	import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceEvent;
-	import org.bigbluebutton.common.LogUtil;
 	
 	public class PhoneManager {
-		private var localDispatcher:IEventDispatcher;
 		
 		private var connectionManager:ConnectionManager;
 		private var streamManager:StreamManager;
 		private var onCall:Boolean = false;
 		private var attributes:Object;
 		
-		public function PhoneManager(dispatcher:IEventDispatcher) {
-			localDispatcher = dispatcher;
-			connectionManager = new ConnectionManager(dispatcher);
-			streamManager = new StreamManager(dispatcher);
+		public function PhoneManager() {
+			connectionManager = new ConnectionManager();
+			streamManager = new StreamManager();
 		}
 
 		public function setModuleAttributes(attributes:Object):void {
 			this.attributes = attributes;
+			LogUtil.debug("Attributes Set... webvoiceconf:" + attributes.webvoiceconf);
 		}
 				
 		private function setupMic(useMic:Boolean):void {
@@ -68,7 +67,7 @@ package org.bigbluebutton.modules.phone.managers
 		public function callConnected(event:CallConnectedEvent):void {
 			LogUtil.debug("Call connected...");
 			setupConnection();
-			streamManager.callConnected(event.playStreamName, event.publishStreamName);
+			streamManager.callConnected(event.playStreamName, event.publishStreamName, event.codec);
 			onCall = true;
 		}
 		

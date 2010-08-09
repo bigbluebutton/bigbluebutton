@@ -1,0 +1,18 @@
+<configuration name="sofia.conf" description="sofia Endpoint">
+
+  <global_settings>
+    <param name="log-level" value="0"/>
+    <!-- <param name="auto-restart" value="false"/> -->
+    <param name="debug-presence" value="0"/>
+  </global_settings>
+
+  <!--
+      The rabbit hole goes deep.  This includes all the
+      profiles in the sip_profiles directory that is up
+      one level from this directory.
+  -->
+  <profiles>
+    <X-PRE-PROCESS cmd="include" data="../sip_profiles/*.xml"/>
+  </profiles>
+
+</configuration>

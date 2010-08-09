@@ -19,19 +19,22 @@
  */
 package org.bigbluebutton.modules.phone.managers
 {
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.ActivityEvent;
 	import flash.events.AsyncErrorEvent;
 	import flash.events.IEventDispatcher;
 	import flash.events.NetStatusEvent;
 	import flash.events.StatusEvent;
 	import flash.media.Microphone;
+	import flash.media.SoundCodec;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
 	
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.phone.events.MicMutedEvent;
 	import org.bigbluebutton.modules.phone.events.MicrophoneUnavailEvent;
 	import org.bigbluebutton.modules.phone.events.PlayStreamStatusEvent;
-	import org.bigbluebutton.common.LogUtil;
 	
 	public class StreamManager
 	{
@@ -42,11 +45,12 @@ package org.bigbluebutton.modules.phone.managers
 		private var mic:Microphone 				= null;
 		private var isCallConnected:Boolean			= false;
 		private var muted:Boolean			    = false;
-		private var localDispatcher:IEventDispatcher;
+		private var audioCodec:String = "SPEEX";
+		private var dispatcher:Dispatcher;
 					
-		public function StreamManager(dispatcher:IEventDispatcher)
+		public function StreamManager()
 		{			
-			localDispatcher = dispatcher;
+			dispatcher = new Dispatcher();
 		}
 	
 		public function setConnection(connection:NetConnection):void {
@@ -59,20 +63,33 @@ package org.bigbluebutton.modules.phone.managers
 			if(mic == null){
 				initWithNoMicrophone();
 			} else {
-				mic.setUseEchoSuppression(true);
-				mic.setLoopBack(false);
-				mic.setSilenceLevel(0,20000);
-				mic.gain = 60;
-				mic.rate = 8;
+				setupMicrophone();
 				mic.addEventListener(ActivityEvent.ACTIVITY, micActivityHandler);
 				mic.addEventListener(StatusEvent.STATUS, micStatusHandler);
 			}
 		}	
 		
+		private function setupMicrophone():void {
+			mic.setUseEchoSuppression(true);
+			mic.setLoopBack(false);
+			mic.setSilenceLevel(0,20000);
+			if (audioCodec == "SPEEX") {
+				mic.codec = SoundCodec.SPEEX;
+				mic.framesPerPacket = 1;
+				mic.rate = 16; 
+				LogUtil.debug("codec=SPEEX,framesPerPacket=1,rate=16");
+			} else {
+				mic.codec = SoundCodec.NELLYMOSER;
+				mic.rate = 8;
+				LogUtil.debug("codec=NELLYMOSER,rate=8");
+			}			
+			mic.gain = 60;			
+		}
+		
 		public function initWithNoMicrophone(): void {
 			LogUtil.debug("No available microphone");
 			var event:MicrophoneUnavailEvent = new MicrophoneUnavailEvent();
-			localDispatcher.dispatchEvent(event);
+			dispatcher.dispatchEvent(event);
 		}
 						
 		private function micActivityHandler(event:ActivityEvent):void {}
@@ -83,12 +100,12 @@ package org.bigbluebutton.modules.phone.managers
 				case "Microphone.Muted":
 					var mutedEvent:MicMutedEvent = new MicMutedEvent();
 					mutedEvent.muted = true;
-					localDispatcher.dispatchEvent(mutedEvent);
+					dispatcher.dispatchEvent(mutedEvent);
 					break;
 				case "Microphone.Unmuted":
 					var unmutedEvent:MicMutedEvent = new MicMutedEvent();
 					unmutedEvent.muted = false;
-					localDispatcher.dispatchEvent(unmutedEvent);
+					dispatcher.dispatchEvent(unmutedEvent);
 					break;
 				default:
 				LogUtil.debug("unknown micStatusHandler event: " + event);
@@ -110,6 +127,7 @@ package org.bigbluebutton.modules.phone.managers
 				outgoingStream = new NetStream(connection);
 				outgoingStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
 				outgoingStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);		
+				setupMicrophone();
 				outgoingStream.attachAudio(mic);
 				outgoingStream.publish(publishName, "live"); 
 			
@@ -120,9 +138,9 @@ package org.bigbluebutton.modules.phone.managers
 			}
 		}
 								
-		public function callConnected(playStreamName:String, publishStreamName:String):void {
+		public function callConnected(playStreamName:String, publishStreamName:String, codec:String):void {
 			isCallConnected = true;
-
+			audioCodec = codec;
 			setupIncomingStream();
 			setupOutgoingStream();					
 			setupPlayStatusHandler();
@@ -150,6 +168,7 @@ package org.bigbluebutton.modules.phone.managers
 			outgoingStream = new NetStream(connection);
 			outgoingStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
 			outgoingStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);		
+			setupMicrophone();
 			outgoingStream.attachAudio(mic);
 		}
 		
@@ -201,7 +220,7 @@ package org.bigbluebutton.modules.phone.managers
 				default:
 					
 			}	
-			localDispatcher.dispatchEvent(event);		 
+			dispatcher.dispatchEvent(event);		 
 		} 
 			
 		private function asyncErrorHandler(event:AsyncErrorEvent):void {

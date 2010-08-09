@@ -1,0 +1,10 @@
+<configuration name="xml_rpc.conf" description="XML RPC">
+  <settings>
+    <!-- The port where you want to run the http service (default 8080) -->
+    <param name="http-port" value="8080"/>
+    <!-- if all 3 of the following params exist all http traffic will require auth -->
+    <param name="auth-realm" value="freeswitch"/>
+    <param name="auth-user" value="freeswitch"/>
+    <param name="auth-pass" value="works"/>
+  </settings>
+</configuration>

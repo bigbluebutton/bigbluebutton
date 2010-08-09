@@ -1,10 +1,30 @@
 <!-- saved from url=(0014)about:internet -->
 <html lang="en">
+
+<!-- 
+Smart developers always View Source. 
+
+This application was built using Adobe Flex, an open source framework
+for building rich Internet applications that get delivered via the
+Flash Player or to desktops via Adobe AIR. 
+
+Learn more about Flex at http://flex.org 
+// -->
+
 <head>
-<META HTTP-EQUIV="PRAGMA" CONTENT="NO-CACHE">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<!--  BEGIN Browser History required section -->
+<link rel="stylesheet" type="text/css" href="history/history.css" />
+<!--  END Browser History required section -->
+
 <title>${title}</title>
 <script src="AC_OETags.js" language="javascript"></script>
+
+<!--  BEGIN Browser History required section -->
+<script src="history/history.js" language="javascript"></script>
+<!--  END Browser History required section -->
+
 <style>
 body { margin: 0px; overflow:hidden }
 </style>
@@ -32,10 +52,7 @@ var hasProductInstall = DetectFlashVer(6, 0, 65);
 // Version check based upon the values defined in globals
 var hasRequestedVersion = DetectFlashVer(requiredMajorVersion, requiredMinorVersion, requiredRevision);
 
-// Check to see if a player with Flash Product Install is available and the version does not meet the requirements for playback
 if ( hasProductInstall && !hasRequestedVersion ) {
-	// MMdoctitle is the stored document.title value used by the installation process to close the window that started the process
-	// This is necessary in order to close browser windows that are still utilizing the older version of the player after installation has completed
 	// DO NOT MODIFY THE FOLLOWING FOUR LINES
 	// Location visited after installation is complete if installation is required
 	var MMPlayerType = (isIE == true) ? "ActiveX" : "PlugIn";
@@ -54,7 +71,6 @@ if ( hasProductInstall && !hasRequestedVersion ) {
 		"bgcolor", "${bgcolor}",
 		"name", "${application}",
 		"allowScriptAccess","sameDomain",
-		"allowFullScreen","true",
 		"type", "application/x-shockwave-flash",
 		"pluginspage", "http://www.adobe.com/go/getflashplayer"
 	);
@@ -75,7 +91,6 @@ if ( hasProductInstall && !hasRequestedVersion ) {
 			"bgcolor", "${bgcolor}",
 			"name", "${application}",
 			"allowScriptAccess","sameDomain",
-			"allowFullScreen","true",
 			"type", "application/x-shockwave-flash",
 			"pluginspage", "http://www.adobe.com/go/getflashplayer"
 	);
@@ -186,14 +201,12 @@ function getLanguage(){
 			<param name="quality" value="high" />
 			<param name="bgcolor" value="${bgcolor}" />
 			<param name="allowScriptAccess" value="sameDomain" />
-			<param name="allowFullScreen" value="true" />
 			<embed src="${swf}.swf" quality="high" bgcolor="${bgcolor}"
 				width="${width}" height="${height}" name="${application}" align="middle"
 				play="true"
 				loop="false"
 				quality="high"
 				allowScriptAccess="sameDomain"
-				allowFullScreen="true"
 				type="application/x-shockwave-flash"
 				pluginspage="http://www.adobe.com/go/getflashplayer">
 			</embed>

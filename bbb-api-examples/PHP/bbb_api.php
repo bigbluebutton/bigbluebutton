@@ -5,8 +5,10 @@ if(function_exists("curl_init()"))
 	function bbb_wrap_simplexml_load_file($url)
 	{
 		$ch = curl_init() or die ( curl_error() );
+		$timeout = 10;
 		curl_setopt( $ch, CURLOPT_URL, $url );
 		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
 		$data = curl_exec( $ch );
 		curl_close( $ch );
 		return (new SimpleXMLElement($data));
@@ -117,54 +119,12 @@ else
 }
 }
 
-// a whole bunch of set and get functions for the variables
-// set the user name
-
-public function setUserName( $userName ) {
-	$this->userName = urlencode($userName);
-}
-
-public function getUserName() { return $this->userName; }
-
-// set the meetingID
-public function setMeetingID( $meetingID ) {
-	$this->meetingID = urlencode($meetingID);
-}
-
-public function getMeetingID() { return $this->meetingID; }
-
-// unsafe function, try not to use it
-public function setModeratorPW( $modPW ) {
-	$this->modPW = $modPW;
-}
-
-public function getModeratorPW() { return $this->modPW; }
-
-// same comment as for setModeratorPW
-public function setAttendeePW( $attPW ) {
-	$this->attPW = $attPW;
-}
-
-public function getAttendeePW() { $this->attPW; }
-
-public function setSecuritySalt( $salt ) {
-	$this->securitySalt = $salt;
-}
-
-public function getSecuritySalt() { return $this->securitySalt; }
-
-public function setURL( $URL ) {
-	$this->URL = $URL;
-}
-
-public function getURL() { return $this->URL; }
-	
-public function createMeeting( $username, $meetingID, $welcomeString, $mPW, $aPW, $SALT, $URL ) {
+public function createMeeting( $username, $meetingID, $welcomeString, $mPW, $aPW, $SALT, $URL, $logoutURL ) {
 	$url_create = $URL."api/create?";
 	$url_join = $URL."api/join?";
 	$voiceBridge = 70000 + rand(0, 9999);
 
-	$params = 'name='.urlencode($meetingID).'&meetingID='.urlencode($meetingID).'&attendeePW='.$aPW.'&moderatorPW='.$mPW.'&voiceBridge='.$voiceBridge;
+	$params = 'name='.urlencode($meetingID).'&meetingID='.urlencode($meetingID).'&attendeePW='.$aPW.'&moderatorPW='.$mPW.'&voiceBridge='.$voiceBridge.'&logoutURL='.urlencode($logoutURL);
 
 	if( trim( $welcomeString ) ) 
 		$params .= '&welcome='.urlencode($welcomeString);
@@ -172,7 +132,7 @@ public function createMeeting( $username, $meetingID, $welcomeString, $mPW, $aPW
 	$xml = bbb_wrap_simplexml_load_file($url_create.$params.'&checksum='.sha1("create".$params.$SALT) );
 	
 	if( $xml && $xml->returncode == 'SUCCESS' ) {
-		$params = 'meetingID='.urlencode($meetingID).'&fullName='.urlencode($username).'&password='.$mPW;
+		$params = 'meetingID='.urlencode($meetingID).'&fullName='.urlencode($username).'&password='.$mPW.'&logoutURL='.urlencode($logoutURL);
 		// create the url
 		#$this->sessionURL = $url_join.$params.'&checksum='.sha1("join".$params.$SALT);
 		$conferenceIsRunning = true;
@@ -223,6 +183,34 @@ public function getMeetingInfo( $meetingID, $modPW, $URL, $SALT ) {
 	return ( str_replace('</response>', '', str_replace("<?xml version=\"1.0\"?>\n<response>", '', $xml->asXML())));
 }
 
+public function getMeetingInfoArray( $meetingID, $modPW, $URL, $SALT ) {
+	$xml = bbb_wrap_simplexml_load_file( BigBlueButton::getUrlFromMeetingInfo( $meetingID, $modPW, $URL, $SALT ) );
+	if( $xml && $xml->returncode == 'SUCCESS' && $xml->messageKey == null){//The meetings were returned
+                return array('returncode' => $xml->returncode, 'message' => $xml->message, 'messageKey' => $xml->messageKey );
+        }
+        else if($xml && $xml->returncode == 'SUCCESS'){ //If there were meetings already created
+
+          #      foreach ($xml->meetings->meeting as $meeting)
+           #     {
+#                      $meetings[] = BigBlueButton::getMeetingInfo($meeting->meetingID, $meeting->moderatorPW, $URL, $SALT);
+        	       return array( 'meetingID' => $xml->meetingID, 'moderatorPW' => $xml->moderatorPW, 'attendeePW' => $xml->attendeePW, 'hasBeenForciblyEnded' => $xml->hasBeenForciblyEnded, 'running' => $xml->running, 'startTime' => $xml->startTime, 'endTime' => $xml->endTime, 'participantCount' => $xml->participantCount, 'moderatorCount' => $xml->moderatorCount, 'attendees' => $xml->attendees );
+            #    }
+        }
+        else if( $xml ) { //If the xml packet returned failure it displays the message to the user
+                #if($xml->messageKey == 'checksumError'){
+                #       echo '<div class="updated"><p><strong>A checksum error occured. Make sure you entered the correct salt.</strong></p></div>';
+                #}
+                #else{
+                #       echo '<div class="updated"><p><strong>'.$xml->messageKey.' : '.$xml->message.'</strong></p></div>';
+                #}
+                return array('returncode' => $xml->returncode, 'message' => $xml->message, 'messageKey' => $xml->messageKey);
+        }
+        else { //If the server is unreachable, then prompts the user of the necessary action
+                return null;
+        }
+
+}
+
  // getMeetingXML() --calls isMeetingRunning to obtain the xml values of the response of the returned URL
 public function getMeetingXML( $meetingID, $URL, $SALT ) {
 	$xml = bbb_wrap_simplexml_load_file( BigBlueButton::getUrlOfRunningMeeting( $meetingID, $URL, $SALT ) );
@@ -236,13 +224,23 @@ public function getUrlMeetings($URL, $SALT) {
 	return ( $base_url.$params.'&checksum='.sha1("getMeetings".$params.$SALT));
 }
 
-public function endMeeting( $meetingID, $mPW, $URL, $SALT ) {
+public function getUrlEndMeeting( $meetingID, $mPW, $URL, $SALT ) {
 	$base_url = $URL."api/end?";
 	$params = 'meetingID='.urlencode($meetingID).'&password='.$mPW;
 	return ( $base_url.$params.'&checksum='.sha1("end".$params.$SALT) );
 }
 
+public function endMeeting( $meetingID, $mPW, $URL, $SALT ) {
+	$xml = bbb_wrap_simplexml_load_file( BigBlueButton::getUrlEndMeeting( $meetingID, $mPW, $URL, $SALT ) );
 
+        if( $xml ) { //If the xml packet returned failure it displays the message to the user
+                return array('returncode' => $xml->returncode, 'message' => $xml->message, 'messageKey' => $xml->messageKey);
+        }
+        else { //If the server is unreachable, then prompts the user of the necessary action
+                return null;
+        }
+
+}
 
 // TODO: WRITE AN ITERATOR WHICH GOES OVER WHATEVER IT IS BEING TOLD IN THE API AND LIST INFORMATION
 /* we have to define at least 2 variable fields for getInformation to read out information at any position
@@ -267,11 +265,11 @@ public function getInformation( $IDENTIFIER, $meetingID, $modPW, $URL, $SALT ) {
 	}
 	// if the identifier is attendee, call getUsers
 	else if( $IDENTIFIER == 'attendee' ) {
-		return getUsers( $meetingID, $modPW, $URL, $SALT );
+		return BigBlueButton::getUsers( $meetingID, $modPW, $URL, $SALT );
 	}
 	// if the identifier is meetings, call getMeetings
 	else if( $IDENTIFIER == 'meetings' ) {
-		return getMeetings( $URL, $SALT );
+		return BigBlueButton::getMeetings( $URL, $SALT );
 	}
 	// return nothing
 	else {
@@ -282,14 +280,26 @@ public function getInformation( $IDENTIFIER, $meetingID, $modPW, $URL, $SALT ) {
 
 
 // return the users in the current conference
-public function getUsers( $meetingID, $modPW, $URL, $SALT ) {
+/*
+@param meetingID -- needs to be put in to identify the meeting
+@param modPW -- needs to be put in if the users are supposed to be shown or to retrieve information about the meetings
+@param URL -- needs to be put in the URL to the bigbluebutton server
+@param SALT -- needs to be put in for the security salt calculation
+@param UNAME -- if set to true, the parameter sets 'User name: ' in front of the username; the default value is false
+*/
+
+public function getUsers( $meetingID, $modPW, $URL, $SALT, $UNAME = false ) {
 	$xml = bbb_wrap_simplexml_load_file( BigBlueButton::getUrlFromMeetingInfo( $meetingID, $modPW, $URL, $SALT ) );
 	if( $xml && $xml->returncode == 'SUCCESS' ) {
 		ob_start();
 		if( count( $xml->attendees ) && count( $xml->attendees->attendee ) ) {
-
 			foreach ( $xml->attendees->attendee as $attendee ) {
-				echo $attendee->fullName.'<br />';
+				if( $UNAME  == true ) {
+					echo "User name: ".$attendee->fullName.'<br />';
+				}
+				else {
+					echo $attendee->fullName.'<br />';
+				}
 			}
 		}
 		return (ob_end_flush());
@@ -299,29 +309,51 @@ public function getUsers( $meetingID, $modPW, $URL, $SALT ) {
 	}
 }
 
-// following FUNCTION is for TESTING!!!
-public function getUsersXML( $meetingID, $modPW, $URL, $SALT ) {
-	$xml = bbb_wrap_simplexml_load_file( getUrlMeetingInfo( $meetingID, $modPW, $URL, $SALT ) );
-	if( $xml && $xml->returncode == 'SUCCESS' ) {
-		ob_start();
-		echo '<attendees>';		
-		if( count( $xml->attendees ) && count( $xml->attendees->attendee ) ) {
-			foreach ( $xml->attendees->attendee as $attendee ) {
-				echo '<attendee>';
-				echo $attendee->fullName.'<br />';
-				echo '</attendee>';
-			}
-		}
-		else {
-			echo '<br />'."There are currently no users in the session right now.".'<br />';
-		}
-		echo '</attendees>';
-			return (ob_end_flush());
-	}
-	else {
-		return (false);
-	}
+public function getUsersArray( $meetingID, $modPW, $URL, $SALT ) {
+
+
+        $xml = bbb_wrap_simplexml_load_file( BigBlueButton::getUrlFromMeetingInfo( $meetingID, $modPW, $URL, $SALT ) );
+
+        if( $xml && $xml->returncode == 'SUCCESS' && $xml->messageKey == null ) {//The meetings were returned
+                return array('returncode' => $xml->returncode, 'message' => $xml->message, 'messageKey' => $xml->messageKey);
+        }
+        else if($xml && $xml->returncode == 'SUCCESS'){ //If there were meetings already created
+
+                foreach ($xml->attendees->attendee as $attendee)
+                {
+			echo $attendee->fullName;
+                        $users[] = array( 'fullName' => $attendee->fullName );
+                }
+
+                return $users;
+
+        }
+        else if( $xml ) { //If the xml packet returned failure it displays the message to the user
+                return array('returncode' => $xml->returncode, 'message' => $xml->message, 'messageKey' => $xml->messageKey);
+        }
+        else { //If the server is unreachable, then prompts the user of the necessary action
+                return null;
+        }
+
+
+/*
+
+        $xml = bbb_wrap_simplexml_load_file( BigBlueButton::getUrlFromMeetingInfo( $meetingID, $modPW, $URL, $SALT ) );
+        if( $xml && $xml->returncode == 'SUCCESS' ) {
+		$user = array();
+                if( count( $xml->attendees ) && count( $xml->attendees->attendee ) ) {
+                        foreach ( $xml->attendees->attendee as $attendee ) {
+				$user = $attendee->fullName;
+                        }
+                }
+	return $user;
+        }
+        else {
+                return (false);
+        }
+*/
 }
+
 
 // getMeetings() -- Calls getMeetings to obtain the list of meetings, then calls getMeetingInfo for each meeting and concatenates the result.
 public function getMeetings( $URL, $SALT ) {
@@ -345,6 +377,32 @@ public function getMeetings( $URL, $SALT ) {
         else {
                 return (false);
         }
+}
+
+
+public function getMeetingsArray( $URL, $SALT ) {
+        $xml = bbb_wrap_simplexml_load_file( BigBlueButton::getUrlMeetings( $URL, $SALT ) );
+
+	if( $xml && $xml->returncode == 'SUCCESS' && $xml->messageKey ) {//The meetings were returned
+		return array('returncode' => $xml->returncode, 'message' => $xml->message, 'messageKey' => $xml->messageKey);
+	}
+	else if($xml && $xml->returncode == 'SUCCESS'){ //If there were meetings already created
+	
+	        foreach ($xml->meetings->meeting as $meeting)
+	        {
+#		       $meetings[] = BigBlueButton::getMeetingInfo($meeting->meetingID, $meeting->moderatorPW, $URL, $SALT);
+		        $meetings[] = array( 'meetingID' => $meeting->meetingID, 'moderatorPW' => $meeting->moderatorPW, 'attendeePW' => $meeting->attendeePW, 'hasBeenForciblyEnded' => $meeting->hasBeenForciblyEnded, 'running' => $meeting->running );
+         	}
+
+	        return $meetings;
+
+	}
+	else if( $xml ) { //If the xml packet returned failure it displays the message to the user
+		return array('returncode' => $xml->returncode, 'message' => $xml->message, 'messageKey' => $xml->messageKey);
+	}
+	else { //If the server is unreachable, then prompts the user of the necessary action
+		return null;
+	}
 }
 
 function getServerIP() {

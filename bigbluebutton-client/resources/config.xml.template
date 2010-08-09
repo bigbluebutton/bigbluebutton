@@ -4,28 +4,30 @@
     <version>VERSION</version>
     <help url="http://HOST/help.html"/>
     <porttest host="HOST" application="video"/>    
+    <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter" />
 	<modules>
 
 		<module name="ChatModule" url="ChatModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
-			dependsOn="ViewersModule"		 
+			dependsOn="ViewersModule"	
+			translationOn="false"
+			translationEnabled="true"	 
 		/>
 		
 		<module name="ViewersModule" url="ViewersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST/bigbluebutton/api/enter"
-			onAppInitEvent="LOAD"
-		/>	
+			allowKickUser="true"
+		/>
+			
 		<module name="ListenersModule" url="ListenersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			recordingHost="http://HOST"
-			dependsOn="ViewersModule"
 		/>
 		
 		<module name="DeskShareModule" 
 			url="DeskShareModule.swf?v=VERSION" 
 			uri="rtmp://HOST/deskShare"
-			dependsOn="ViewersModule" 
 		/>
 		
 		<module name="PhoneModule" url="PhoneModule.swf?v=VERSION" 
@@ -38,9 +40,9 @@
 			dependsOn="ViewersModule"
 		/>
 		
-		<module name="HighlighterModule" url="HighlighterModule.swf?v=VERSION" 
+		<module name="WhiteboardModule" url="WhiteboardModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
-			dependsOn="ViewersModule, PresentModule"
+			dependsOn="PresentModule"
 		/>
 		
 		<module name="PresentModule" url="PresentModule.swf?v=VERSION" 
@@ -54,7 +56,6 @@
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST" 
 			infoURL="http://HOST/client/conf/example-info-data.xml?user={userID}&role={role}&meetingID={meetingID}"
-			dependsOn="ViewersModule"
 		/>
 		-->
 		

@@ -1,0 +1,9 @@
+<include>
+  <extension name="pizza_demo">
+    <condition field="destination_number" expression="^(pizza|74992)$"/>
+    <condition field="${module_exists(mod_spidermonkey)}" expression="true"/>
+    <condition field="${module_exists(mod_pocketsphinx)}" expression="true">
+      <action application="javascript" data="ps_pizza.js"/>
+    </condition>
+  </extension>
+</include>

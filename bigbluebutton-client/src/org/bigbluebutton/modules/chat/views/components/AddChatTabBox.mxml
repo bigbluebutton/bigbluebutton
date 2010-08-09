@@ -1,18 +1,128 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="init()">
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="init()" xmlns:mate="http://mate.asfusion.com/">
+	
+	<mate:Listener type="{ChatOptionsEvent.TRANSLATION_OPTION_ENABLED}" method="toggleTranslateEnabled" />
 	
 	<mx:Script>
 		<![CDATA[
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.events.ListEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			[Bindable] public var participants:ArrayCollection;
 			[Bindable] public var chatView:ChatView;
 			[Bindable] private var fontSizes:Array = ['8', '10', '12', '14', '16', '18'];
+			
+			[Bindable] private var langNames:Array=[ 
+								'AFRIKAANS' , 
+								'ALBANIAN' , 
+								'ARABIC' , 
+								'BELARUSIAN' , 
+								'BULGARIAN' , 
+								'CATALAN' , 
+								'CHINESE' , 
+								'CHINESE_SIMPLIFIED' , 
+								'CHINESE_TRADITIONAL' , 
+								'CZECH' ,  
+								'DANISH' , 
+								'DUTCH',   
+								'ENGLISH' , 
+								'ESTONIAN' , 
+								'FILIPINO' , 
+								'FINNISH' , 
+								'FRENCH' ,  
+								'GALICIAN' , 
+								'GERMAN' , 
+								'GREEK' , 
+								'HEBREW' , 
+								'HINDI' , 
+								'HUNGARIAN' , 
+								'ICELANDIC' , 
+								'INDONESIAN' , 
+								'IRISH' , 
+								'ITALIAN' , 
+								'JAPANESE' , 
+								'KOREAN' , 
+								'LATVIAN' , 
+								'LITHUANIAN' , 
+								'MACEDONIAN' , 
+								'MALAY' , 
+								'MALTESE' , 
+								'NORWEGIAN' , 
+								'PERSIAN' , 
+								'POLISH' , 
+								'PORTUGUESE' , 
+								'ROMANIAN' , 
+								'RUSSIAN' , 
+								'SERBIAN' , 
+								'SLOVAK' , 
+								'SLOVENIAN' , 
+								'SPANISH' , 
+								'SWAHILI' , 
+								'SWEDISH' , 
+								'THAI' , 
+								'TURKISH' , 
+								'UKRAINIAN' , 
+								'VIETNAMESE' , 
+								'WELSH' ,  
+								'YIDDISH' ]  ;
+			
+			private var langCodes:Array=[
+									'af', 
+									'sq', 
+									'ar', 
+									'be', 
+									'bg', 
+									'ca', 
+									'zh', 
+									'zh-CN', 
+									'zh-TW', 
+									'cs', 
+									'da', 
+									'nl',   
+									'en', 
+									'et', 
+									'tl', 
+									'fi', 
+									'fr', 
+									'gl', 
+									'de', 
+									'el', 
+									'iw', 
+									'hi', 
+									'hu', 
+									'is', 
+									'id', 
+									'ga', 
+									'it', 
+									'ja', 
+									'ko', 
+									'lv', 
+									'lt', 
+									'mk', 
+									'ms', 
+									'mt', 
+									'no', 
+									'fa', 
+									'pl', 
+									'pt-PT', 
+									'ro', 
+									'ru', 
+									'sr', 
+									'sk', 
+									'sl', 
+									'es', 
+									'sw', 
+									'sv', 
+									'th', 
+									'tr', 
+									'uk', 
+									'vi', 
+									'cy', 
+									'yi']  ;
 			
 			private function init():void{
 				participants = new ArrayCollection();
@@ -31,6 +141,31 @@
 				e.fontSize = int(cmbFontSize.selectedItem);
 				dispatchEvent(e);
 			}
+			
+			private function changeLanguage():void
+			{
+				var e:ChatOptionsEvent = new ChatOptionsEvent(ChatOptionsEvent.CHANGE_LANGUAGE);
+				e.language=this.langCodes[this.langComboBox.selectedIndex];
+				dispatchEvent(e);
+			}
+			
+			private function toggleTranslation():void
+			{
+				var e:ChatOptionsEvent=new ChatOptionsEvent(ChatOptionsEvent.TOGGLE_TRANSLATE);	
+				e.translateOn = autoTransCheckBox.selected;
+				dispatchEvent(e);
+			}
+			
+			private function toggleTranslateEnabled(e:ChatOptionsEvent):void{
+				if (e.translationEnabled){
+					langComboBox.visible = true;
+					autoTransCheckBox.visible = true;
+				} else {
+					langComboBox.visible = false;
+					autoTransCheckBox.visible = false;
+				}
+				autoTransCheckBox.selected = e.translateOn;
+			}
 
 		]]>
 	</mx:Script>
@@ -47,6 +182,8 @@
 				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.chat.fontSize')}" />
 				<mx:ComboBox width="60" id="cmbFontSize" dataProvider="{fontSizes}" close="changeFontSize()" selectedIndex="1" />
 			</mx:HBox>
+			<mx:ComboBox id="langComboBox" dataProvider="{this.langNames}" selectedIndex="12"  change="changeLanguage()" />
+			<mx:CheckBox id="autoTransCheckBox" selected="false" label="AutoTranslate" toolTip="Auto detect language and translate" change="toggleTranslation()"/>
 		</mx:VBox>
 	</mx:HBox>
 	

@@ -7,6 +7,7 @@ package org.bigbluebutton.modules.viewers.events
 		public static const VIEWERS_MODULE_STARTED:String = "VIEWERS_MODULE_STARTED";
 		
 		public var module:ViewersModule;
+		public var allowKickUser:Boolean;
 		
 		public function ViewersModuleStartedEvent(type:String)
 		{

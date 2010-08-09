@@ -1,0 +1,101 @@
+<include><!--This line will be ignored it's here to validate the xml and is optional -->
+
+	<macro name="directory_intro">
+		<input pattern="^(last_name)" break_on_match="false">
+			<match>
+				<action function="speak-text" data="Veuillez entrer les premières lettres du nom de famille"/>
+			</match>
+		</input>
+		<input pattern="^(first_name)" break_on_match="false">
+			<match>
+				<action function="speak-text" data="Veuillez entrer les premières lettres du prénom"/>
+			</match>
+		</input>
+		<input pattern="^(last_name):([0-9#*])$" break_on_match="false">
+			<match>
+				<action function="speak-text" data="pour chercher par prénom, tapez $2"/>
+			</match>
+		</input>
+		<input pattern="^(first_name):([0-9#*])$" break_on_match="false">
+			<match>
+				<action function="speak-text" data="pour chercher par nom de famille, tapez $2"/>
+			</match>
+		</input>
+	</macro>
+
+	<macro name="directory_min_search_digits">
+		<input pattern="^(1)$">
+			<match>
+				<action function="speak-text" data="Vous devez entrer au minimum une lettre du nom de la personne, essayez encore"/>
+			</match>
+		</input>
+		<input pattern="^(.*)$">
+			<match>
+				<action function="speak-text" data="Vous devez entrer au minimum $1 lettres du nom de la personne, essayer encore"/>
+			</match>
+		</input>
+	</macro>
+
+	<macro name="directory_result_count">
+		<input pattern="^0$" break_on_match="true">
+			<match>
+				<action function="speak-text" data="Votre recherche n'a retournée aucun résultat, essayez encore"/>
+			</match>
+		</input>
+		<input pattern="^(.*)$">
+			<match>
+				<action function="speak-text" data="$1 résultats correspondent à votre recherche"/>
+			</match>
+		</input>
+	</macro>
+
+	<macro name="directory_result_count_too_large">
+		<input pattern="^(.*)$">
+			<match>
+				<action function="speak-text" data="Votre recherche retourne trop de résultats, essayer encore"/>
+			</match>
+		</input>
+
+	</macro>
+
+	<macro name="directory_result_last">
+		<input pattern="^(.*)$">
+			<match>
+				<action function="speak-text" data="Fin des résultats."/>
+			</match>
+		</input>
+
+	</macro>
+
+	<macro name="directory_result_item">
+		<input pattern="^(.*)$">
+			<match>
+				<action function="speak-text" data="Résultat numéro $1"/>
+			</match>
+		</input>
+	</macro>
+
+	<macro name="directory_result_menu">
+		<input pattern="^([0-9#*]),([0-9#*]),([0-9#*]),([0-9#*])$">
+			<match>
+				<action function="speak-text" data="Pour sélectionner ce nom, tapez $1, pour le nom suivant tapez $2, pour le nom précédent, tapez $3, pour faire une nouvelle recherche, tapez $4"/>
+			</match>
+		</input>
+	</macro>
+
+	<macro name="directory_result_at">
+		<input pattern="^(.*)$">
+			<match>
+				<action function="speak-text" data="au poste $1"/>
+			</match>
+		</input>
+	</macro>
+	<macro name="directory_result_say_name">
+		<input pattern="^(.*)$">
+			<match>
+				<action function="speak-text" data="$1"/>
+			</match>
+		</input>
+	</macro>
+
+</include><!--This line will be ignored it's here to validate the xml and is optional -->

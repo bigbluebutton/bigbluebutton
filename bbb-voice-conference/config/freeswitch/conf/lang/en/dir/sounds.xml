@@ -1,0 +1,121 @@
+<include><!--This line will be ignored it's here to validate the xml and is optional -->
+	<macro name="directory_intro">
+		<input pattern="^(last_name)" break_on_match="false">
+			<match>
+				<action function="play-file" data="directory/dir-enter-person.wav"/>
+				<action function="play-file" data="directory/dir-last_name.wav"/>
+			</match>
+		</input>
+		<input pattern="^(first_name)" break_on_match="false">
+			<match>
+                <action function="play-file" data="directory/dir-enter-person.wav"/>
+                <action function="play-file" data="directory/dir-first_name.wav"/>
+			</match>
+		</input>
+		<input pattern="^(last_name):([0-9#*])$" break_on_match="false">
+			<match>
+				<action function="play-file" data="directory/dir-to_search_by.wav"/>
+				<action function="play-file" data="directory/dir-first_name.wav"/>
+				<action function="play-file" data="directory/dir-press.wav"/>
+				<action function="say" data="$2" method="pronounced" type="name_spelled"/>
+			</match>
+		</input>
+		<input pattern="^(first_name):([0-9#*])$" break_on_match="false">
+			<match>
+				<action function="play-file" data="directory/dir-to_search_by.wav"/>
+				<action function="play-file" data="directory/dir-last_name.wav"/>
+				<action function="play-file" data="directory/dir-press.wav"/>
+				<action function="say" data="$2" method="pronounced" type="name_spelled"/>
+			</match>
+		</input>
+	</macro>
+
+	<macro name="directory_min_search_digits">
+		<input pattern="^(.*)$">
+			<match>
+				<action function="play-file" data="directory/dir-specify_mininum_first.wav"/>
+				<action function="say" data="$1" method="pronounced" type="items"/>
+				<action function="play-file" data="directory/dir-letters_of_person_name.wav"/>
+			</match>
+		</input>
+	</macro>
+
+	<macro name="directory_result_count">
+		<input pattern="^0$" break_on_match="true">
+			<match>
+				<action function="play-file" data="directory/dir-no_match_entry.wav"/>
+			</match>
+		</input>
+		<input pattern="^(.*)$">
+			<match>
+				<action function="say" data="$1" method="pronounced" type="items"/>
+				<action function="play-file" data="directory/dir-result_match.wav"/>
+			</match>
+		</input>
+	</macro>
+
+	<macro name="directory_result_count_too_large">
+		<input pattern="^(.*)$">
+			<match>
+				<action function="play-file" data="directory/dir-to_many_result.wav"/>
+			</match>
+		</input>
+
+	</macro>
+
+	<macro name="directory_result_last">
+		<input pattern="^(.*)$">
+			<match>
+				<action function="play-file" data="directory/dir-no_more_result.wav"/>
+			</match>
+		</input>
+
+	</macro>
+
+	<macro name="directory_result_item">
+		<input pattern="^(.*)$">
+			<match>
+				<action function="play-file" data="directory/dir-result_number.wav"/>
+				<action function="say" data="$1" method="pronounced" type="items"/>
+			</match>
+		</input>
+	</macro>
+
+	<macro name="directory_result_at">
+		<input pattern="^(.*)$">
+			<match>
+				<action function="play-file" data="directory/dir-at_extension.wav"/>
+				<action function="say" data="$1" method="pronounced" type="name_spelled"/>
+			</match>
+		</input>
+	</macro>
+
+	<macro name="directory_result_menu">
+		<input pattern="^([0-9#*]),([0-9#*]),([0-9#*]),([0-9#*])$">
+			<match>
+				<action function="play-file" data="directory/dir-to_select_entry.wav"/>
+				<action function="play-file" data="directory/dir-press.wav"/>
+				<action function="say" data="$1" method="pronounced" type="name_spelled"/>
+				<action function="play-file" data="directory/dir-for_next.wav"/>
+				<action function="play-file" data="directory/dir-press.wav"/>
+				<action function="say" data="$2" method="pronounced" type="name_spelled"/>
+				<action function="play-file" data="directory/dir-for_prev.wav"/>
+				<action function="play-file" data="directory/dir-press.wav"/>
+				<action function="say" data="$3" method="pronounced" type="name_spelled"/>
+				<action function="play-file" data="directory/dir-to_make_new_search.wav"/>
+				<action function="play-file" data="directory/dir-press.wav"/>
+				<action function="say" data="$4" method="pronounced" type="name_spelled"/>
+
+			</match>
+		</input>
+	</macro>
+
+	<macro name="directory_result_say_name">
+		<input pattern="^(.*)$">
+			<match>
+				<action function="say" data="$1" method="pronounced" type="name_spelled"/>
+			</match>
+		</input>
+	</macro>
+
+</include><!--This line will be ignored it's here to validate the xml and is optional -->

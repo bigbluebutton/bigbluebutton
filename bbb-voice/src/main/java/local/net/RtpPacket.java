@@ -21,14 +21,11 @@
 
 package local.net;
 
-
 import org.zoolu.tools.Random;
-
 
 /** RtpPacket implements a RTP packet. 
  */
-public class RtpPacket
-{
+public class RtpPacket {
    /* RTP packet buffer containing both the RTP header and payload */   
    byte[] packet;
 
@@ -39,30 +36,30 @@ public class RtpPacket
    //int header_len;
 
    /** Gets the RTP packet */
-   public byte[] getPacket()
-   {  return packet;
+   public byte[] getPacket() {  
+	   return packet;
    }
 
    /** Gets the RTP packet length */
-   public int getLength()
-   {  return packet_len;
+   public int getLength() {  
+	   return packet_len;
    }
 
    /** Gets the RTP header length */
-   public int getHeaderLength()
-   {  if (packet_len>=12) return 12+4*getCscrCount();
-      else return packet_len; // broken packet
+   public int getHeaderLength() {  
+	   if (packet_len >= 12) return 12 + 4 * getCscrCount();
+	   else return packet_len; // broken packet
    }
 
    /** Gets the RTP header length */
-   public int getPayloadLength()
-   {  if (packet_len>=12) return packet_len-getHeaderLength();
-      else return 0; // broken packet
+   public int getPayloadLength() {  
+	   if (packet_len >= 12) return packet_len - getHeaderLength();
+	   else return 0; // broken packet
    }
 
    /** Sets the RTP payload length */
-   public void setPayloadLength(int len)
-   {  packet_len=getHeaderLength()+len;
+   public void setPayloadLength(int len) {  
+	   packet_len = getHeaderLength()+len;
    }
 
    // version (V): 2 bits
@@ -78,36 +75,36 @@ public class RtpPacket
 
 
    /** Gets the version (V) */
-   public int getVersion()
-   {  if (packet_len>=12) return (packet[0]>>6 & 0x03);
-      else return 0; // broken packet 
+   public int getVersion() {  
+	   if (packet_len >= 12) return (packet[0] >> 6 & 0x03);
+	   else return 0; // broken packet 
    }
 
    /** Sets the version (V) */
-   public void setVersion(int v)
-   {  if (packet_len>=12) packet[0]=(byte)((packet[0] & 0x3F) | ((v & 0x03)<<6));
+   public void setVersion(int v) {  
+	   if (packet_len >= 12) packet[0] = (byte)((packet[0] & 0x3F) | ((v & 0x03) << 6));
    }
 
    /** Whether has padding (P) */
-   public boolean hasPadding()
-   {  if (packet_len>=12) return getBit(packet[0],5);
-      else return false; // broken packet 
+   public boolean hasPadding() {  
+	   if (packet_len >= 12) return getBit(packet[0],5);
+	   else return false; // broken packet 
    }
 
    /** Set padding (P) */
-   public void setPadding(boolean p)
-   {  if (packet_len>=12) setBit(p,packet[0],5);
+   public void setPadding(boolean p) {  
+	   if (packet_len >= 12) setBit(p,packet[0],5);
    }
 
    /** Whether has extension (X) */
-   public boolean hasExtension()
-   {  if (packet_len>=12) return getBit(packet[0],4);
-      else return false; // broken packet 
+   public boolean hasExtension() {  
+	   if (packet_len >= 12) return getBit(packet[0],4);
+	   else return false; // broken packet 
    }
 
    /** Set extension (X) */
-   public void setExtension(boolean x)
-   {  if (packet_len>=12) setBit(x,packet[0],4);
+   public void setExtension(boolean x) {  
+	   if (packet_len>=12) setBit(x,packet[0],4);
    }
 
    /** Gets the CSCR count (CC) */

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/integration"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:stream="http://www.springframework.org/schema/integration/stream"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/integration
+            http://www.springframework.org/schema/integration/spring-integration-1.0.xsd
+            http://www.springframework.org/schema/integration/stream
+            http://www.springframework.org/schema/integration/stream/spring-integration-stream-1.0.xsd">
+	
+
+	<beans:bean id="conferenceServiceProvider" class="org.bigbluebutton.webconference.voice.freeswitch.FreeswitchServiceProvider">
+		<beans:property name="managerConnection" ref="eslConnection"/>
+  		<beans:property name="freeswitchApplication" ref="freeswitchApplication"/>
+	</beans:bean>
+	
+	<beans:bean id="freeswitchApplication" class="org.bigbluebutton.webconference.voice.freeswitch.FreeswitchApplication">
+		<beans:property name="managerConnection" ref="eslConnection"/>
+                <beans:property name="conferenceEventListener" ref="voiceConferenceEventListener"/>
+                <beans:property name="DebugNullConferenceAction" value="true"/>
+	</beans:bean>
+
+	<beans:bean id="eslConnection" class="org.freeswitch.esl.client.manager.DefaultManagerConnection">
+		<beans:property name="hostname" value="${esl.host}"/>
+		<beans:property name="port" value="${esl.port}"/>
+		<beans:property name="password" value="${esl.password}"/>
+	</beans:bean>
+                       
+</beans:beans>

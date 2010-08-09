@@ -1,0 +1,32 @@
+<configuration name="sangoma_codec.conf" description="Sangoma Codec Configuration">
+
+	<settings>
+		<!--
+		Comma separated list of codecs to register with FreeSWITCH, 
+		by default (if this parameter is not set) all available codecs are registered.
+		Valid codec values are: PCMU,PCMA,L16,G729,G726-32,GSM
+		<param name="load" value="all"/>
+		-->
+
+		<!-- List of codecs to not register with FreeSWITCH, by default this is empty,
+	        but you may want to not load PCMU and PCMA or may be others to not use your 
+	        vocallo resources in codecs that are done well and fast in software.	
+		<param name="noload" value="PCMU,PCMA"/>
+		-->
+	</settings>
+
+	<vocallos> 
+
+		<!-- The name of the vocallo is the ethernet device name as displayed by ifconfig -->
+		<vocallo name="eth5">
+			<!-- Starting UDP port for the vocallo -->
+			<param name="baseudp" value="5000"/>
+			<!-- Starting IP address to use for the vocallo modules -->
+			<param name="vocalloaddr" value="10.1.1.100"/>
+		</vocallo>
+
+	</vocallos>
+
+
+</configuration>
+

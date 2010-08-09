@@ -4,6 +4,7 @@ package org.bigbluebutton.main.api
 	
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.main.model.User;
+	import org.bigbluebutton.main.model.users.Conference;
 
 	public class UserManager
 	{
@@ -12,6 +13,8 @@ package org.bigbluebutton.main.api
 		private var listeners:ArrayCollection;
 		
 		private var users:ArrayCollection;
+		
+		private var conference:Conference;
 		
 		public function UserManager(enforcer:SingletonEnforcer)
 		{
@@ -60,6 +63,14 @@ package org.bigbluebutton.main.api
 				if ((users.getItemAt(i) as User).isPresenter) u = users.getItemAt(i) as User;
 			}
 			return u;
+		}
+		
+		public function getConference():Conference{
+			return this.conference;
+		}
+		
+		internal function conferenceCreated(conference:Conference):void{
+			this.conference = conference;
 		}
 		
 		internal function participantJoined(participant:User):void{

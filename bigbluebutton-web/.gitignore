@@ -1,5 +1,5 @@
 .project
-bigbluebutton-0.63.war
+*.war
 stacktrace.log
 lib
 web-app/demo/bbb_api_conf.jsp

@@ -28,24 +28,28 @@
 	implements="org.bigbluebutton.common.IBigBlueButtonModule"
 	creationComplete="onCreationComplete()">
 	
-	<maps:ChatLocalEventMap dispatcher="{this}" id="chatLocalEventMap"/>
-	<maps:ChatEventMap id="ChatGlobalEventMap"/>
+	<maps:ChatEventMap id="chatLocalEventMap"/>
 	
 	<mate:Listener type="{TranscriptLoadedEvent.TRANSCRIPT_EVENT}" method="handleTranscriptLoadedEvent"/>
 	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
-			import org.bigbluebutton.modules.chat.events.StopChatModuleEvent;
-			import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
 			import com.asfusion.mate.events.Dispatcher;
+			
+			import mx.controls.Alert;
+			
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.modules.chat.events.ChatEvent;
+			import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
+			import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
+			import org.bigbluebutton.modules.chat.events.StopChatModuleEvent;
 			import org.bigbluebutton.modules.chat.events.TranscriptLoadedEvent;
 		
 			private var _moduleId:String = "ChatModule";
 			private var _moduleName:String = "Chat Module";			
 			private var _attributes:Object;
+			
+			private var dispatcher:Dispatcher = new Dispatcher();
 			
 			private function onCreationComplete():void {
 				LogUtil.debug("ChatModule Initialized");			
@@ -93,6 +97,16 @@
 				return _attributes.userrole as String;
 			}
 			
+			public function get traslationEnabled():Boolean{
+				if (_attributes.translationEnabled == "false") return false;
+				else return true;
+			}
+			
+			public function get translationOn():Boolean{
+				if (_attributes.translationOn == "false") return false;
+				else return true;
+			}
+			
 			public function start(attributes:Object):void {	
 				LogUtil.debug("chat attr: " + attributes.username);
 				_attributes = attributes;	
@@ -101,13 +115,15 @@
 				var event:StartChatModuleEvent = new StartChatModuleEvent(StartChatModuleEvent.START_CHAT_MODULE_EVENT)
 				event.start = true;
 				event.attributes = _attributes;
-				this.dispatchEvent(event);
+				event.translationOn = translationOn;
+				event.translationEnabled = traslationEnabled;
+				dispatcher.dispatchEvent(event);
 			}
 		
 			public function stop():void {
 				LogUtil.debug("Dispatching StopChatModuleEvent");
 				var event:StopChatModuleEvent = new StopChatModuleEvent(StopChatModuleEvent.STOP_CHAT_MODULE_EVENT);
-				this.dispatchEvent(event);
+				dispatcher.dispatchEvent(event);
 			}
 			
 			private function handlePrivateChatMessageEvent(event:Event):void {
@@ -117,10 +133,12 @@
 			private function handleTranscriptLoadedEvent(event:Event):void {
 				LogUtil.debug("Handling TranscriptLoadedEvent");
 				var welcome:String = _attributes.welcome as String;
-				var welcomeEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
-				welcomeEvent.message = welcome;
-				var globalDispatcher:Dispatcher = new Dispatcher();
-				globalDispatcher.dispatchEvent(welcomeEvent);
+				if (welcome != ""){
+					var welcomeEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
+					welcomeEvent.message = welcome;
+					var globalDispatcher:Dispatcher = new Dispatcher();
+					globalDispatcher.dispatchEvent(welcomeEvent);
+				}	
 			}
 		]]>
 	</mx:Script>

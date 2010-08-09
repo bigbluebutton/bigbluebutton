@@ -1,0 +1,129 @@
+<profile name="internal-ipv6">
+  <!--
+      This is an example of a sofia profile setup to listen on IPv6.
+  -->
+  <!-- http://wiki.freeswitch.org/wiki/Sofia_Configuration_Files -->
+  <!--aliases are other names that will work as a valid profile name for this profile-->
+  <settings>
+    <!-- <param name="user-agent-string" value="FreeSWITCH Rocks!"/> -->
+    <param name="debug" value="0"/>
+    <param name="sip-trace" value="no"/>
+    <param name="context" value="public"/>
+    <param name="rfc2833-pt" value="101"/>
+    <!-- port to bind to for sip traffic -->
+    <param name="sip-port" value="$${internal_sip_port}"/>
+    <param name="dialplan" value="XML"/>
+    <param name="dtmf-duration" value="2000"/>
+    <param name="inbound-codec-prefs" value="$${global_codec_prefs}"/>
+    <param name="outbound-codec-prefs" value="$${global_codec_prefs}"/>
+    <param name="use-rtp-timer" value="true"/>
+    <param name="rtp-timer-name" value="soft"/>
+    <!-- ip address to use for rtp -->
+    <param name="rtp-ip" value="$${local_ip_v6}"/>
+    <!-- ip address to bind to -->
+    <param name="sip-ip" value="$${local_ip_v6}"/>
+    <param name="hold-music" value="$${hold_music}"/>
+    <!--<param name="enable-100rel" value="false"/>-->
+    <param name="apply-inbound-acl" value="domains"/>
+    <!--<param name="apply-register-acl" value="domains"/>-->
+    <!--<param name="dtmf-type" value="info"/>-->
+    <param name="record-template" value="$${recordings_dir}/${caller_id_number}.${strftime(%Y-%m-%d-%H-%M-%S)}.wav"/>
+    <!--enable to use presence and mwi -->
+    <param name="manage-presence" value="true"/>
+    <!-- This setting is for AAL2 bitpacking on G726 -->
+    <!-- <param name="bitpacking" value="aal2"/> -->
+    <!--max number of open dialogs in proceeding -->
+    <!--<param name="max-proceeding" value="1000"/>-->
+    <!--session timers for all call to expire after the specified seconds -->
+    <!--<param name="session-timeout" value="1800"/>-->
+    <!--<param name="multiple-registrations" value="true"/>-->
+    <!--set to 'greedy' if you want your codec list to take precedence -->
+    <param name="inbound-codec-negotiation" value="generous"/>
+    <!-- if you want to send any special bind params of your own -->
+    <!--<param name="bind-params" value="transport=udp"/>-->
+    <!--<param name="unregister-on-options-fail" value="true"/>-->
+
+    <!-- TLS: disabled by default, set to "true" to enable -->
+    <param name="tls" value="$${internal_ssl_enable}"/>
+    <!-- additional bind parameters for TLS -->
+    <param name="tls-bind-params" value="transport=tls"/>
+    <!-- Port to listen on for TLS requests. (5061 will be used if unspecified) -->
+    <param name="tls-sip-port" value="$${internal_tls_port}"/>
+    <!-- Location of the agent.pem and cafile.pem ssl certificates (needed for TLS server) -->
+    <param name="tls-cert-dir" value="$${internal_ssl_dir}"/>
+    <!-- TLS version ("sslv23" (default), "tlsv1"). NOTE: Phones may not work with TLSv1 -->
+    <param name="tls-version" value="$${sip_tls_version}"/>
+    
+    <!--If you don't want to pass through timestampes from 1 RTP call to another (on a per call basis with rtp_rewrite_timestamps chanvar)-->
+    <!--<param name="rtp-rewrite-timestamps" value="true"/>-->
+    <!--<param name="pass-rfc2833" value="true"/>-->
+    <!--If you have ODBC support and a working dsn you can use it instead of SQLite-->
+    <!--<param name="odbc-dsn" value="dsn:user:pass"/>-->
+    
+    <!--Uncomment to set all inbound calls to no media mode-->
+    <!--<param name="inbound-bypass-media" value="true"/>-->
+
+    <!--Uncomment to set all inbound calls to proxy media mode-->
+    <!--<param name="inbound-proxy-media" value="true"/>-->
+    
+    <!--Uncomment to let calls hit the dialplan *before* you decide if the codec is ok-->
+    <!--<param name="inbound-late-negotiation" value="true"/>-->
+    
+    <!-- this lets anything register -->
+    <!--  comment the next line and uncomment one or both of the other 2 lines for call authentication -->
+    <!-- <param name="accept-blind-reg" value="true"/> -->
+
+    <!-- accept any authentication without actually checking (not a good feature for most people) -->
+    <!-- <param name="accept-blind-auth" value="true"/> -->
+    
+    <!-- suppress CNG on this profile or per call with the 'suppress_cng' variable -->
+    <!-- <param name="suppress-cng" value="true"/> -->
+    
+    <!--TTL for nonce in sip auth-->
+    <param name="nonce-ttl" value="60"/>
+    <!--Uncomment if you want to force the outbound leg of a bridge to only offer the codec 
+	that the originator is using-->
+    <!--<param name="disable-transcoding" value="true"/>-->
+    <!-- Used for when phones respond to a challenged ACK with method INVITE in the hash -->
+    <!--<param name="NDLB-broken-auth-hash" value="true"/>-->
+    <!-- add a ;received="<ip>:<port>" to the contact when replying to register for nat handling -->
+    <!--<param name="NDLB-received-in-nat-reg-contact" value="true"/>-->
+    <param name="auth-calls" value="$${internal_auth_calls}"/>
+    <!-- on authed calls, authenticate *all* the packets not just invite -->
+    <param name="auth-all-packets" value="false"/>
+    <!-- <param name="ext-rtp-ip" value="$${external_rtp_ip}"/> -->
+    <!-- <param name="ext-sip-ip" value="$${external_sip_ip}"/> -->
+    <!-- rtp inactivity timeout -->
+    <param name="rtp-timeout-sec" value="300"/>
+    <param name="rtp-hold-timeout-sec" value="1800"/>
+    <!-- VAD choose one (out is a good choice); -->
+    <!-- <param name="vad" value="in"/> -->
+    <!-- <param name="vad" value="out"/> -->
+    <!-- <param name="vad" value="both"/> -->
+    <!--<param name="alias" value="sip:10.0.1.251:5555"/>-->
+    <!--
+	These are enabled to make the default config work better out of the box.
+	If you need more than ONE domain you'll need to not use these options.
+
+    -->
+    <!--all inbound reg will look in this domain for the users -->
+    <param name="force-register-domain" value="$${domain}"/>
+    <!--all inbound reg will stored in the db using this domain -->
+    <param name="force-register-db-domain" value="$${domain}"/>
+    <!-- disable register and transfer which may be undesirable in a public switch -->
+    <!--<param name="disable-transfer" value="true"/>-->
+    <!--<param name="disable-register" value="true"/>-->
+    <!--<param name="enable-3pcc" value="true"/>-->
+    <!-- use stun when specified (default is true) -->
+    <!--<param name="stun-enabled" value="true"/>-->
+    <!-- use stun when specified (default is true) -->
+    <!-- set to true to have the profile determine stun is not useful and turn it off globally-->
+    <!--<param name="stun-auto-disable" value="true"/>-->
+
+	 <!-- the following can be used as workaround with bogus SRV/NAPTR records -->
+	 <!--<param name="disable-srv" value="false" />-->
+	 <!--<param name="disable-naptr" value="false" />-->
+
+  </settings>
+</profile>
+

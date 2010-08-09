@@ -27,9 +27,9 @@
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.OpenWindowEvent;
 			import org.bigbluebutton.main.events.ToolbarButtonEvent;
+			import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
+			import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
 			import org.bigbluebutton.modules.videoconf.business.VideoProxy;
-			import org.bigbluebutton.modules.videoconf.events.BroadcastStartedEvent;
-			import org.bigbluebutton.modules.videoconf.events.BroadcastStoppedEvent;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
 			import org.bigbluebutton.modules.videoconf.events.OpenPublishWindowEvent;
 			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
@@ -154,6 +154,12 @@
 		<InlineInvoker method="mockConnect" />
 	</EventHandlers>
 	
-	<Listener type="{ViewCameraEvent.VIEW_CAMERA_EVENT}" method="viewCamera" />
-	<Listener type="{StreamStartedEvent.STREAM_STARTED}" method="streamStarted" />
+	<EventHandlers type="{StreamStartedEvent.STREAM_STARTED}">
+		<InlineInvoker method="streamStarted" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{ViewCameraEvent.VIEW_CAMERA_EVENT}">
+		<InlineInvoker method="viewCamera" arguments="{event}" />
+	</EventHandlers>
+	
 </EventMap>

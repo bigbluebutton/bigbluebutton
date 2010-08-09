@@ -1,0 +1,18 @@
+<configuration name="opal.conf" description="Opal Endpoints">
+  <settings>
+    <param name="trace-level" value="4"/>
+    <param name="context" value="default"/>
+    <param name="dialplan" value="XML"/>
+    <param name="codec-prefs" value="PCMU"/>
+    <param name="gk-address" value=""/>    <!-- empty to disable, "*" to search LAN -->
+    <param name="gk-identifer" value=""/>  <!-- optional name of gk -->
+    <param name="gk-interface" value=""/>  <!-- optional listener interface name -->
+  </settings>
+  <listeners>
+    <listener name="default">
+      <param name="h323-ip" value="$${local_ip_v4}"/>
+      <param name="h323-port" value="1720"/>
+    </listener>
+  </listeners>
+</configuration>
+

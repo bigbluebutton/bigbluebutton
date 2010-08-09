@@ -117,7 +117,7 @@ public class SdpUtils {
             
             if (audioCodecsNumber > 0) {                
                 Codec[] audioCodecs;
-                Vector audioAttributes = new Vector();
+                Vector<AttributeField> audioAttributes = new Vector<AttributeField>();
                 
                 if (audioCodecsPrecedence.isEmpty()) {                    
                     audioCodecs = CodecFactory.getInstance().getAvailableAudioCodecs();
@@ -195,7 +195,7 @@ public class SdpUtils {
             
             if (videoCodecsNumber > 0) {                
                 Codec[] videoCodecs = CodecFactory.getInstance().getAvailableVideoCodecs();
-                Vector videoAttributes = new Vector();
+                Vector<AttributeField> videoAttributes = new Vector<AttributeField>();
                 
                 for (int videoIndex = 0; videoIndex < audioCodecsNumber; videoIndex++) {                    
                     String payloadId = String.valueOf(videoCodecs[videoIndex].getCodecId());
@@ -336,7 +336,7 @@ public class SdpUtils {
                 
                 if (localDescriptor != null) {                    
                     Vector remoteAttributes = remoteDescriptor.getAttributes(Codec.ATTRIBUTE_RTPMAP);
-                    Vector newSdpAttributes = new Vector();
+                    Vector<AttributeField> newSdpAttributes = new Vector<AttributeField>();
                     
                     for (Enumeration attributesEnum = remoteAttributes.elements(); attributesEnum.hasMoreElements();) {                        
                         AttributeField remoteAttribute = (AttributeField) attributesEnum.nextElement();

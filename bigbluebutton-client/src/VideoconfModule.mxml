@@ -13,7 +13,7 @@
 			
 			private var _moduleId:String = "VideoconfModule";
 			private var _moduleName:String = "Videoconf Module";			
-			private var _attributes:Object;
+			private var _attributes:Object; 
 			private var proxy:VideoProxy;
 			private var mockProxy:VideoProxy;
 			

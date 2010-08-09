@@ -6,8 +6,6 @@ package org.bigbluebutton.modules.viewers.managers
 	
 	import org.bigbluebutton.main.events.CloseWindowEvent;
 	import org.bigbluebutton.main.events.OpenWindowEvent;
-	import org.bigbluebutton.modules.viewers.events.LoginSuccessEvent;
-	import org.bigbluebutton.modules.viewers.events.ViewersConnectionEvent;
 	import org.bigbluebutton.modules.viewers.events.ViewersModuleEndEvent;
 	import org.bigbluebutton.modules.viewers.events.ViewersModuleStartedEvent;
 	import org.bigbluebutton.modules.viewers.views.ViewersWindow;
@@ -28,6 +26,7 @@ package org.bigbluebutton.modules.viewers.managers
 			
 			if (viewersWindow == null){
 				viewersWindow = new ViewersWindow();
+				viewersWindow.allowKickUser = e.allowKickUser;
 				var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 				windowEvent.window = viewersWindow;
 				dispatcher.dispatchEvent(windowEvent);
@@ -38,23 +37,6 @@ package org.bigbluebutton.modules.viewers.managers
 			var event:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
 			event.window = viewersWindow;
 			dispatcher.dispatchEvent(event);
-		}
-		
-		public function loginSuccess(e:ViewersConnectionEvent):void{
-			_module.userid = e.userid;
-			var user:Object = {username:_module.username, conference:_module.conference, 
-				conferenceName:_module.conferenceName,
-				userrole:_module.role, room:_module.room, authToken:_module.authToken,
-				userid:_module.userid, connection:e.connection,
-				mode:_module.mode, voicebridge:_module.voicebridge,
-				webvoiceconf:_module.webvoiceconf,
-				record:_module.record, welcome:_module.welcome,
-				meetingID:_module.meetingID, externUserID:_module.externUserID,
-				playbackRoom:_module.playbackRoom};
-			
-			var loginEvent:LoginSuccessEvent = new LoginSuccessEvent(LoginSuccessEvent.LOGIN_SUCCESS);
-			loginEvent.user = user;
-			dispatcher.dispatchEvent(loginEvent);
 		}
 	}
 }

@@ -26,6 +26,7 @@ package org.bigbluebutton.main.model
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.events.PortTestEvent;
+	import org.bigbluebutton.main.model.modules.ModulesDispatcher;
 
 	public class PortTestProxy
 	{
@@ -36,11 +37,11 @@ package org.bigbluebutton.main.model
 		private var hostname:String;
 		private var application:String;
 		private var uri:String;
-		private var dispatcher:Dispatcher;
+		private var modulesDispatcher:ModulesDispatcher;
 		
 		public function PortTestProxy()
 		{
-			dispatcher = new Dispatcher();
+			modulesDispatcher = new ModulesDispatcher();
 		}
 		
 		public function connect(protocol:String = "",
@@ -57,22 +58,12 @@ package org.bigbluebutton.main.model
 			uri = protocol + "://" + hostname + "/" + application;
 			if (status == "SUCCESS") {				
 				LogUtil.debug("Successfully connected to " + uri);
-				
-				var portEvent:PortTestEvent = new PortTestEvent(PortTestEvent.PORT_TEST_SUCCESS);
-				portEvent.port = port;
-				portEvent.hostname = hostname;
-				portEvent.protocol = protocol;
-				portEvent.app = application;
-				dispatcher.dispatchEvent(portEvent);
+				modulesDispatcher.sendPortTestSuccessEvent(port, hostname, protocol, application);
 				
 			} else {
 				LogUtil.error("Failed to connect to " + uri);
-				var portFailEvent:PortTestEvent = new PortTestEvent(PortTestEvent.PORT_TEST_FAILED);
-				portFailEvent.port = port;
-				portFailEvent.hostname = hostname;
-				portFailEvent.protocol = protocol;
-				portFailEvent.app = application;
-				dispatcher.dispatchEvent(portFailEvent);
+				
+				modulesDispatcher.sendPortTestFailedEvent(port, hostname, protocol, application);
 			}				 		
 		}
 		
@@ -118,12 +109,7 @@ package org.bigbluebutton.main.model
 			if ( statusCode == "NetConnection.Connect.Success" )
 			{
 				LogUtil.debug("Successfully connected to " + uri);
-				var portEvent:PortTestEvent = new PortTestEvent(PortTestEvent.PORT_TEST_SUCCESS);
-				portEvent.port = port;
-				portEvent.hostname = hostname;
-				portEvent.protocol = protocol;
-				portEvent.app = application;
-				dispatcher.dispatchEvent(portEvent);
+				modulesDispatcher.sendPortTestSuccessEvent(port, hostname, protocol, application);
 			}
 			else if ( statusCode == "NetConnection.Connect.Rejected" ||
 				 	  statusCode == "NetConnection.Connect.Failed" || 
@@ -131,12 +117,7 @@ package org.bigbluebutton.main.model
 			{
 				LogUtil.error("Failed to connect to " + uri);
 
-				var portFailEvent:PortTestEvent = new PortTestEvent(PortTestEvent.PORT_TEST_FAILED);
-				portFailEvent.port = port;
-				portFailEvent.hostname = hostname;
-				portFailEvent.protocol = protocol;
-				portFailEvent.app = application;
-				dispatcher.dispatchEvent(portFailEvent);
+				modulesDispatcher.sendPortTestFailedEvent(port, hostname, protocol, application);
 				
 			} else {
 				LogUtil.error("Failed to connect to " + uri + " due to " + statusCode);

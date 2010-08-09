@@ -41,10 +41,10 @@ public class ClientConnectionManager {
 		if (cc == null) log.warn("Failed to remove client {}.", id);
 	}
 	
-	public void joinConferenceSuccess(String clientId, String usertalkStream, String userListenStream) {
+	public void joinConferenceSuccess(String clientId, String usertalkStream, String userListenStream, String codec) {
 		ClientConnection cc = clients.get(clientId);
 		if (cc != null) {
-			cc.onJoinConferenceSuccess(usertalkStream, userListenStream);
+			cc.onJoinConferenceSuccess(usertalkStream, userListenStream, codec);
 		} else {
 			log.warn("Can't find connection {}", clientId);
 		}

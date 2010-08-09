@@ -19,12 +19,12 @@
  */
 package org.bigbluebutton.voiceconf.red5.media;
 
-import java.net.DatagramSocket;
-import java.net.SocketException;
-import org.bigbluebutton.voiceconf.red5.media.transcoder.NellyToPcmTranscoder;
-import org.bigbluebutton.voiceconf.red5.media.transcoder.PcmToNellyTranscoder;
-import org.bigbluebutton.voiceconf.red5.media.transcoder.SpeexToSpeexTranscoder;
-import org.bigbluebutton.voiceconf.red5.media.transcoder.Transcoder;
+import org.bigbluebutton.voiceconf.red5.media.transcoder.FlashToSipTranscoder;
+import org.bigbluebutton.voiceconf.red5.media.transcoder.NellyFlashToSipTranscoderImp;
+import org.bigbluebutton.voiceconf.red5.media.transcoder.NellySipToFlashTranscoderImp;
+import org.bigbluebutton.voiceconf.red5.media.transcoder.SipToFlashTranscoder;
+import org.bigbluebutton.voiceconf.red5.media.transcoder.SpeexFlashToSipTranscoderImp;
+import org.bigbluebutton.voiceconf.red5.media.transcoder.SpeexSipToFlashTranscoderImp;
 import org.bigbluebutton.voiceconf.sip.SipConnectInfo;
 import org.red5.app.sip.codecs.Codec;
 import org.red5.app.sip.codecs.SpeexCodec;
@@ -49,19 +49,22 @@ public class CallStream implements StreamObserver {
     }
     
     public void start() {        
-    	Transcoder rtmpToRtpTranscoder, rtpToRtmpTranscoder;
-		if (sipCodec.getCodecId() == SpeexCodec.codecId) {
-			rtmpToRtpTranscoder = new SpeexToSpeexTranscoder(sipCodec);
-			rtpToRtmpTranscoder = new SpeexToSpeexTranscoder(sipCodec, userListenStream);
-		} else {
-			rtmpToRtpTranscoder = new NellyToPcmTranscoder(sipCodec);
-			rtpToRtmpTranscoder = new PcmToNellyTranscoder(sipCodec);	
-			userListenStream = new SipToFlashAudioStream(scope, rtpToRtmpTranscoder, connInfo.getSocket());
-			userListenStream.addListenStreamObserver(this);	
-			((PcmToNellyTranscoder)rtpToRtmpTranscoder).addTranscodedAudioDataListener(userListenStream);
-		}
+    	SipToFlashTranscoder sipToFlashTranscoder = new SpeexSipToFlashTranscoderImp(sipCodec);
+    	FlashToSipTranscoder flashToSipTranscoder = new SpeexFlashToSipTranscoderImp(sipCodec);
 
-		userTalkStream = new FlashToSipAudioStream(rtmpToRtpTranscoder, connInfo.getSocket(), connInfo); 
+		if (sipCodec.getCodecId() != SpeexCodec.codecId) {			
+			flashToSipTranscoder = new NellyFlashToSipTranscoderImp(sipCodec);
+			sipToFlashTranscoder = new NellySipToFlashTranscoderImp(sipCodec);
+		} 
+		
+		log.info("Using codec=" + sipCodec.getCodecName() + " id=" + sipCodec.getCodecId());
+		log.debug("Packetization [" + sipCodec.getIncomingPacketization() + "," + sipCodec.getOutgoingPacketization() + "]");
+		log.debug("Outgoing Frame size [" + sipCodec.getOutgoingEncodedFrameSize() + ", " + sipCodec.getOutgoingDecodedFrameSize() + "]");
+		log.debug("Incoming Frame size [" + sipCodec.getIncomingEncodedFrameSize() + ", " + sipCodec.getIncomingDecodedFrameSize() + "]");
+
+		userListenStream = new SipToFlashAudioStream(scope, sipToFlashTranscoder, connInfo.getSocket());
+		userListenStream.addListenStreamObserver(this);	
+		userTalkStream = new FlashToSipAudioStream(flashToSipTranscoder, connInfo.getSocket(), connInfo); 
     }
     
     public String getTalkStreamName() {

@@ -26,7 +26,6 @@ import java.net.DatagramSocket;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import org.slf4j.Logger;
-import org.bigbluebutton.voiceconf.red5.media.transcoder.Transcoder;
 import org.red5.logging.Red5LoggerFactory;
 
 public class RtpStreamReceiver {
@@ -40,12 +39,10 @@ public class RtpStreamReceiver {
 	private Runnable rtpPacketReceiver;
 	private volatile boolean receivePackets = false;
 	private RtpStreamReceiverListener listener;
-    private Transcoder transcoder;
     private final int payloadLength;
     
-    public RtpStreamReceiver(Transcoder transcoder, DatagramSocket socket) {
-    	this.transcoder = transcoder;
-    	this.payloadLength = transcoder.getIncomingEncodedFrameSize();
+    public RtpStreamReceiver(DatagramSocket socket, int expectedPayloadLength) {
+    	this.payloadLength = expectedPayloadLength;
         rtpSocket = new RtpSocket(socket);
 
         initializeSocket();
@@ -84,10 +81,11 @@ public class RtpStreamReceiver {
         while (receivePackets) {
         	try {
         		byte[] internalBuffer = new byte[internalBufferLength];
-        		RtpPacket rtpPacket = new RtpPacket(internalBuffer, 0);                	
+        		RtpPacket rtpPacket = new RtpPacket(internalBuffer, 0);      
         		rtpSocket.receive(rtpPacket);
         		packetReceivedCounter++;   
-        		transcoder.transcode(rtpPacket.getPayload()); 
+        		if (listener != null) listener.onAudioDataReceived(rtpPacket.getPayload());
+        		else log.debug("No listener for incoming audio packet");
         	} catch (IOException e) {
         		// We get this when the socket closes when the call hangs up.
         		receivePackets = false;
