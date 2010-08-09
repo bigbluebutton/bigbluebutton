@@ -33,6 +33,7 @@ package org.bigbluebutton.main.model.modules
 	
 	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.main.model.ConferenceParameters;
 	
 	public class ModuleDescriptor
 	{
@@ -166,6 +167,25 @@ package org.bigbluebutton.main.model.modules
 			for (var i:int = 0; i<dependancies.length; i++){
 				unresolvedDependancies.addItem(dependancies[i]);
 			}
+		}
+		
+		public function loadConfigAttributes(conferenceParameters:ConferenceParameters, protocol:String):void{
+			addAttribute("conference", conferenceParameters.conference);
+			addAttribute("username", conferenceParameters.username);
+			addAttribute("userrole", conferenceParameters.role);
+			addAttribute("room", conferenceParameters.room);
+			addAttribute("authToken", conferenceParameters.authToken);
+			addAttribute("userid", conferenceParameters.userid);
+			addAttribute("mode", conferenceParameters.mode);
+			addAttribute("connection", conferenceParameters.connection);
+			addAttribute("voicebridge", conferenceParameters.voicebridge);
+			addAttribute("webvoiceconf", conferenceParameters.webvoiceconf);
+			addAttribute("welcome", conferenceParameters.welcome);
+			addAttribute("meetingID", conferenceParameters.meetingID);
+			addAttribute("externUserID", conferenceParameters.externUserID);
+			
+			addAttribute("protocol", protocol);
+			useProtocol(protocol);
 		}
 	}
 }

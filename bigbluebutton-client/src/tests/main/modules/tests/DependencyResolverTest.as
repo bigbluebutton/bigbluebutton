@@ -5,15 +5,18 @@ package tests.main.modules.tests
 	import mx.collections.ArrayCollection;
 	import mx.controls.Alert;
 	
+	import org.bigbluebutton.main.model.ConfigParameters;
 	import org.bigbluebutton.main.model.modules.DependancyResolver;
 	import org.bigbluebutton.main.model.modules.ModuleDescriptor;
 	import org.flexunit.Assert;
+	import org.flexunit.async.Async;
 
 	public class DependencyResolverTest
 	{
 		private var resolver:DependancyResolver;
 		private var unsortedModules:Dictionary;
 		private var sortedModules:ArrayCollection;
+		private var config:ConfigParameters;
 		
 		[Before]
 		public function setUp():void{
@@ -26,6 +29,7 @@ package tests.main.modules.tests
 			resolver = null;
 			unsortedModules = null;
 			sortedModules = null;
+			config = null;
 		}
 		
 		[Test(description="Testing No Dependancies between modules")]
@@ -155,6 +159,24 @@ package tests.main.modules.tests
 			}
 			sortedModules = resolver.buildDependencyTree(unsortedModules);
 			Assert.assertEquals((sortedModules.getItemAt(7) as ModuleDescriptor).getName(), "Module7");
+		}
+		
+		[Test(async, description="Testing the actual config.xml. Test passes when config.xml loaded properly and module tree successfully built")]
+		public function testActual():void{
+			var asyncHandler:Function = Async.asyncHandler(this, handleTimer, 500, null, handleTimeout);
+			config = new ConfigParameters(asyncHandler);
+		}
+		
+		protected function handleTimer(...args):void{
+			var modules:Dictionary = config.getModules();
+			sortedModules = resolver.buildDependencyTree(modules);
+			
+			Assert.assertNotNull(modules);
+			Assert.assertNotNull(sortedModules);
+		}
+		
+		protected function handleTimeout():void{
+			Assert.fail("config.xml did not load");
 		}
 	}
 }

@@ -97,28 +97,7 @@ package org.bigbluebutton.main.model.modules
 			if (m != null) {
 				LogUtil.debug('Starting ' + name);
 				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
-				if (conferenceParameters != null) {
-					LogUtil.debug("LOADING_ATTRIBUTES");
-					m.addAttribute("conference", conferenceParameters.conference);
-					m.addAttribute("username", conferenceParameters.username);
-					m.addAttribute("userrole", conferenceParameters.role);
-					m.addAttribute("room", conferenceParameters.room);
-					m.addAttribute("authToken", conferenceParameters.authToken);
-					m.addAttribute("userid", conferenceParameters.userid);
-					m.addAttribute("mode", conferenceParameters.mode);
-					m.addAttribute("connection", conferenceParameters.connection);
-					m.addAttribute("voicebridge", conferenceParameters.voicebridge);
-					m.addAttribute("webvoiceconf", conferenceParameters.webvoiceconf);
-					m.addAttribute("welcome", conferenceParameters.welcome);
-					m.addAttribute("meetingID", conferenceParameters.meetingID);
-					m.addAttribute("externUserID", conferenceParameters.externUserID);
-					
-				} else {
-					// Pass the mode that we got from the URL query string.
-					m.addAttribute("mode", "LIVE");
-				}	
-				m.addAttribute("protocol", _protocol);
-				m.useProtocol(_protocol);				
+				m.loadConfigAttributes(conferenceParameters, _protocol);
 				bbb.start(m.attributes);		
 			}	
 		}

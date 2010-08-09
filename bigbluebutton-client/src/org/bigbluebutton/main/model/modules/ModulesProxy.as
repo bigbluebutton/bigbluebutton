@@ -26,8 +26,8 @@ package org.bigbluebutton.main.model.modules
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.events.PortTestEvent;
 	import org.bigbluebutton.main.events.SuccessfulLoginEvent;
+	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.PortTestProxy;
-	import org.bigbluebutton.modules.viewers.events.LoginSuccessEvent;
 	
 	public class ModulesProxy {
 		
@@ -48,8 +48,8 @@ package org.bigbluebutton.main.model.modules
 			return _user.username;
 		}
 
-		public function portTestSuccess(e:PortTestEvent):void {
-			modulesManager.useProtocol(e.protocol);
+		public function portTestSuccess(protocol:String):void {
+			modulesManager.useProtocol(protocol);
 			modulesManager.startUserServices();
 		}
 						
@@ -66,17 +66,17 @@ package org.bigbluebutton.main.model.modules
 			return modulesManager.portTestApplication;
 		}
 		
-		public function testRTMP(e:PortTestEvent):void{
+		public function testRTMP():void{
 			portTestProxy.connect("RTMP", getPortTestHost(), "1935", getPortTestApplication());
 		}
 		
-		public function testRTMPT(e:PortTestEvent):void{
-			if (e.protocol == "RTMP") portTestProxy.connect("RTMPT", getPortTestHost(), "", getPortTestApplication());
+		public function testRTMPT(protocol:String):void{
+			if (protocol == "RTMP") portTestProxy.connect("RTMPT", getPortTestHost(), "", getPortTestApplication());
 			else modulesDispatcher.sendTunnelingFailedEvent();
 		}
 		
-		public function loadAllModules(e:SuccessfulLoginEvent):void{
-			modulesManager.loadAllModules(e.conferenceParameters);
+		public function loadAllModules(params:ConferenceParameters):void{
+			modulesManager.loadAllModules(params);
 		}
 	}
 }

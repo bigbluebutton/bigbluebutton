@@ -34,23 +34,19 @@
 	</EventHandlers>
 	
 	<EventHandlers type="{PortTestEvent.TEST_RTMP}" >
-		<MethodInvoker generator="{ModulesProxy}" method="testRTMP" arguments="{event}" />
+		<MethodInvoker generator="{ModulesProxy}" method="testRTMP" />
 	</EventHandlers>
 
 	<EventHandlers type="{PortTestEvent.PORT_TEST_SUCCESS}" >
-		<MethodInvoker generator="{ModulesProxy}" method="portTestSuccess" arguments="{event}" />
+		<MethodInvoker generator="{ModulesProxy}" method="portTestSuccess" arguments="{event.protocol}" />
 	</EventHandlers>
 	
 	<EventHandlers type="{PortTestEvent.PORT_TEST_FAILED}" >
-		<MethodInvoker generator="{ModulesProxy}" method="testRTMPT" arguments="{event}" />
+		<MethodInvoker generator="{ModulesProxy}" method="testRTMPT" arguments="{event.protocol}" />
 	</EventHandlers>
 	
 	<EventHandlers type="{LogoutEvent.USER_LOGGED_OUT}" >
 		<MethodInvoker generator="{ModulesProxy}" method="handleLogout" />
-	</EventHandlers>
-	
-	<EventHandlers type="{LoginSuccessEvent.LOGIN_SUCCESS}" >
-		<MethodInvoker generator="{ModulesProxy}" method="handleLogin" arguments="{event}" />
 	</EventHandlers>
 	
 	<EventHandlers type="{UserServicesEvent.START_USER_SERVICES}" >
@@ -62,7 +58,7 @@
 	</EventHandlers>
 	
 	<EventHandlers type="{SuccessfulLoginEvent.USER_LOGGED_IN}" >
-		<MethodInvoker generator="{ModulesProxy}" method="loadAllModules" arguments="{event}" />
+		<MethodInvoker generator="{ModulesProxy}" method="loadAllModules" arguments="{event.conferenceParameters}" />
 	</EventHandlers>
 	
 	<!-- Viewers Stuff -->
@@ -106,7 +102,6 @@
 		import org.bigbluebutton.main.model.users.events.LowerHandEvent;
 		import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
 		import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
-		import org.bigbluebutton.modules.viewers.events.LoginSuccessEvent;
 	]]>
 	</mx:Script>
 	

@@ -4,6 +4,7 @@ package tests.main.modules
 	import tests.main.modules.tests.DependencyResolverTest;
 	import tests.main.modules.tests.ModuleDescriptorTest;
 	import tests.main.modules.tests.ModuleManagerTest;
+	import tests.main.modules.tests.PortsProxyTest;
 
 	[Suite]
 	[RunWith("org.flexunit.runners.Suite")]
@@ -13,5 +14,6 @@ package tests.main.modules
 		public var dependancyTest:DependencyResolverTest;
 		public var moduleDescriptorTest:ModuleDescriptorTest;
 		public var moduleManagerTest:ModuleManagerTest;
+		public var portsTest:PortsProxyTest;
 	}
 }

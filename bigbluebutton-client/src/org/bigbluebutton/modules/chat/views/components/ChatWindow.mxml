@@ -57,9 +57,11 @@
 				if (evt.fullScreen) {
 					chatView.txtMsg.text = "Chat not enabled in full screen mode";
 					chatView.txtMsg.enabled = false;
+					chatView.sendBtn.enabled = false;
 				} else {
 					chatView.txtMsg.text = "";
 					chatView.txtMsg.enabled = true;
+					chatView.sendBtn.enabled = true;
 				}
 			}			  
 			
