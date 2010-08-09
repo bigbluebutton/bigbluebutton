@@ -124,7 +124,7 @@ public function createMeeting( $username, $meetingID, $welcomeString, $mPW, $aPW
 	$url_join = $URL."api/join?";
 	$voiceBridge = 70000 + rand(0, 9999);
 
-	$params = 'name='.urlencode($meetingID).'&meetingID='.urlencode($meetingID).'&attendeePW='.$aPW.'&moderatorPW='.$mPW.'&voiceBridge='.$voiceBridge.'&logoutURL='.urlencode($logoutURL);
+	$params = 'name='.urlencode($username).'&meetingID='.urlencode($meetingID).'&attendeePW='.$aPW.'&moderatorPW='.$mPW.'&voiceBridge='.$voiceBridge.'&logoutURL='.urlencode($logoutURL);
 
 	if( trim( $welcomeString ) ) 
 		$params .= '&welcome='.urlencode($welcomeString);
@@ -133,9 +133,6 @@ public function createMeeting( $username, $meetingID, $welcomeString, $mPW, $aPW
 	
 	if( $xml && $xml->returncode == 'SUCCESS' ) {
 		$params = 'meetingID='.urlencode($meetingID).'&fullName='.urlencode($username).'&password='.$mPW.'&logoutURL='.urlencode($logoutURL);
-		// create the url
-		#$this->sessionURL = $url_join.$params.'&checksum='.sha1("join".$params.$SALT);
-		$conferenceIsRunning = true;
 		return ($url_join.$params.'&checksum='.sha1("join".$params.$SALT) );
 	}	
 	else if( $xml ) {
@@ -150,7 +147,6 @@ public function createMeeting( $username, $meetingID, $welcomeString, $mPW, $aPW
 public function joinAsViewer( $meetingID, $userName, $welcomeString = '', $aPW, $SALT, $URL ) {
 	$url_join = $URL."api/join?";
 	$params = 'meetingID='.urlencode($meetingID).'&fullName='.urlencode($userName).'&password='.$aPW;
-	$userURL = $url_join.$params.'&checksum='.sha1("join".$params.$SALT);
 	return ($url_join.$params.'&checksum='.sha1("join".$params.$SALT) );
 }
 
@@ -189,20 +185,10 @@ public function getMeetingInfoArray( $meetingID, $modPW, $URL, $SALT ) {
                 return array('returncode' => $xml->returncode, 'message' => $xml->message, 'messageKey' => $xml->messageKey );
         }
         else if($xml && $xml->returncode == 'SUCCESS'){ //If there were meetings already created
-
-          #      foreach ($xml->meetings->meeting as $meeting)
-           #     {
-#                      $meetings[] = BigBlueButton::getMeetingInfo($meeting->meetingID, $meeting->moderatorPW, $URL, $SALT);
         	       return array( 'meetingID' => $xml->meetingID, 'moderatorPW' => $xml->moderatorPW, 'attendeePW' => $xml->attendeePW, 'hasBeenForciblyEnded' => $xml->hasBeenForciblyEnded, 'running' => $xml->running, 'startTime' => $xml->startTime, 'endTime' => $xml->endTime, 'participantCount' => $xml->participantCount, 'moderatorCount' => $xml->moderatorCount, 'attendees' => $xml->attendees );
-            #    }
         }
         else if( $xml ) { //If the xml packet returned failure it displays the message to the user
-                #if($xml->messageKey == 'checksumError'){
-                #       echo '<div class="updated"><p><strong>A checksum error occured. Make sure you entered the correct salt.</strong></p></div>';
-                #}
-                #else{
-                #       echo '<div class="updated"><p><strong>'.$xml->messageKey.' : '.$xml->message.'</strong></p></div>';
-                #}
+
                 return array('returncode' => $xml->returncode, 'message' => $xml->message, 'messageKey' => $xml->messageKey);
         }
         else { //If the server is unreachable, then prompts the user of the necessary action
@@ -321,8 +307,7 @@ public function getUsersArray( $meetingID, $modPW, $URL, $SALT ) {
 
                 foreach ($xml->attendees->attendee as $attendee)
                 {
-			echo $attendee->fullName;
-                        $users[] = array( 'fullName' => $attendee->fullName );
+                        $users[] = array(  'userID' => $attendee->userID, 'fullName' => $attendee->fullName, 'role' => $attendee->role );
                 }
 
                 return $users;
@@ -334,24 +319,6 @@ public function getUsersArray( $meetingID, $modPW, $URL, $SALT ) {
         else { //If the server is unreachable, then prompts the user of the necessary action
                 return null;
         }
-
-
-/*
-
-        $xml = bbb_wrap_simplexml_load_file( BigBlueButton::getUrlFromMeetingInfo( $meetingID, $modPW, $URL, $SALT ) );
-        if( $xml && $xml->returncode == 'SUCCESS' ) {
-		$user = array();
-                if( count( $xml->attendees ) && count( $xml->attendees->attendee ) ) {
-                        foreach ( $xml->attendees->attendee as $attendee ) {
-				$user = $attendee->fullName;
-                        }
-                }
-	return $user;
-        }
-        else {
-                return (false);
-        }
-*/
 }
 
 
