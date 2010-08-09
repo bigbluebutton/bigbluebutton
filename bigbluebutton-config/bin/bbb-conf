@@ -135,6 +135,7 @@ usage() {
         echo "   --setip <host>                   Set IP/hostname for BigBlueButton"
         echo "   --conference [konference|meetme] Switch conference module in Asterisk"
 	echo "   --salt <salt>		    	  Change the security salt in bigbluebutton.properties"
+	echo "   --set-salt <salt>		  Change the security salt in bigbluebutton.properties"
         echo
         echo "Monitoring:"
         echo "   --check <verbose>                Check configuration files and processes for problems"
@@ -335,7 +336,7 @@ while [ $# -gt 0 ]; do
 		continue
 	fi		
 	
-	if [ "$1" = "--salt" -o "$1" = "-salt" ]; then
+	if [ "$1" = "--salt" -o "$1" = "-salt" -o "$1" = "--set-salt" ]; then
 		SALT="${2}"
 		shift; shift
 		continue
