@@ -44,12 +44,7 @@
 	<import resource="bbb-apps.xml" />
 	<import resource="bbb-voice-app.xml" />
   
-    <!-- NOTE: Uncomment bbb-voice-freeswitch.xml if you want to use FreeSWITCH and comment bbb-voice-asterisk.xml -->
+    <!-- NOTE: Change bbb-voice-freeswitch.xml to bbb-voice-asterisk.xml if you want to use Asterisk -->
      
-   
     <import resource="bbb-voice-freeswitch.xml" />
- 
-<!-- 
-    <import resource="bbb-voice-asterisk.xml" />
--->
 </beans>
