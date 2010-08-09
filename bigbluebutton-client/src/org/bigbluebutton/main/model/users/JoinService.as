@@ -24,6 +24,7 @@ package org.bigbluebutton.main.model.users
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
+	
 	import org.bigbluebutton.common.LogUtil;
 	        	
 	public class JoinService
@@ -36,6 +37,7 @@ package org.bigbluebutton.main.model.users
 		
 		public function JoinService()
 		{
+			urlLoader = new URLLoader();
 		}
 		
 		public function load(url:String) : void
@@ -45,7 +47,6 @@ package org.bigbluebutton.main.model.users
             request = new URLRequest(url);
             request.method = URLRequestMethod.GET;		
             
-            urlLoader = new URLLoader();
 			urlLoader.addEventListener(Event.COMPLETE, handleComplete);	
             urlLoader.load(request);	
 		}
@@ -68,9 +69,14 @@ package org.bigbluebutton.main.model.users
 										role:xml.role, room:xml.room, authToken:xml.room, record:xml.record, 
 										webvoiceconf:xml.webvoiceconf,
 										voicebridge:xml.voicebridge, mode:xml.mode, welcome:xml.welcome};
-				_resultListener(true, user);
+				
+				if (_resultListener != null) _resultListener(true, user);
 			}
 				
+		}
+		
+		public function get loader():URLLoader{
+			return this.urlLoader;
 		}
 	}
 }

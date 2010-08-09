@@ -22,67 +22,40 @@ package org.bigbluebutton.main.model.modules
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import mx.controls.Alert;
-	import mx.modules.ModuleManager;
 	
 	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 	import org.bigbluebutton.main.events.PortTestEvent;
-	import org.bigbluebutton.modules.viewers.events.LoginSuccessEvent;
+	import org.bigbluebutton.main.events.SuccessfulLoginEvent;
+	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.PortTestProxy;
 	
 	public class ModulesProxy {
 		
-		private var modulesManager:org.bigbluebutton.main.model.modules.ModuleManager;
+		private var modulesManager:ModuleManager;
 		private var portTestProxy:PortTestProxy;
 		
 		private var _user:Object;
 		
-		private var dispatcher:Dispatcher;
+		private var modulesDispatcher:ModulesDispatcher;
 		
 		public function ModulesProxy() {
-			dispatcher = new Dispatcher();
+			modulesDispatcher = new ModulesDispatcher();
 			portTestProxy = new PortTestProxy();
-			modulesManager = new org.bigbluebutton.main.model.modules.ModuleManager();
-			modulesManager.addInitializedListener(onInitializeComplete);
-			modulesManager.initialize();
-		}
-
-		private function onInitializeComplete(initialized:Boolean):void {
-			if (initialized){
-				var e:PortTestEvent = new PortTestEvent(PortTestEvent.TEST_RTMP);
-				dispatcher.dispatchEvent(e);
-			}
-		}
-			
-		public function initialize():void {
-			modulesManager.initialize();			
+			modulesManager = new ModuleManager();
 		}
 		
 		public function get username():String {
 			return _user.username;
 		}
 
-		public function portTestSuccess(e:PortTestEvent):void {
-			modulesManager.useProtocol(e.protocol);
+		public function portTestSuccess(protocol:String):void {
+			modulesManager.useProtocol(protocol);
 			modulesManager.startUserServices();
 		}
 						
 		public function loadModule(name:String):void {
 			LogUtil.debug('Loading ' + name);
 			modulesManager.loadModule(name);
-		}
-		
-		public function getVersion():String {
-			return modulesManager.getAppVersion();
-		}
-		
-		public function getLocaleVersion():String {
-			return modulesManager.getLocaleVersion();
-		}
-		
-		public function getNumberOfModules():int {
-			Alert.show("" + modulesManager.getNumberOfModules());
-			return modulesManager.getNumberOfModules();
 		}
 		
 		public function getPortTestHost():String {
@@ -93,21 +66,17 @@ package org.bigbluebutton.main.model.modules
 			return modulesManager.portTestApplication;
 		}
 		
-		public function testRTMP(e:PortTestEvent):void{
+		public function testRTMP():void{
 			portTestProxy.connect("RTMP", getPortTestHost(), "1935", getPortTestApplication());
 		}
 		
-		public function testRTMPT(e:PortTestEvent):void{
-			if (e.protocol == "RTMP") portTestProxy.connect("RTMPT", getPortTestHost(), "", getPortTestApplication());
-			else dispatcher.dispatchEvent(new PortTestEvent(PortTestEvent.TUNNELING_FAILED));
+		public function testRTMPT(protocol:String):void{
+			if (protocol == "RTMP") portTestProxy.connect("RTMPT", getPortTestHost(), "", getPortTestApplication());
+			else modulesDispatcher.sendTunnelingFailedEvent();
 		}
 		
-		public function loadAllModules(e:SuccessfulLoginEvent):void{
-			modulesManager.loadAllModules(e.conferenceParameters);
-		}
-		
-		public function handleLogout():void{
-			//TODO
+		public function loadAllModules(params:ConferenceParameters):void{
+			modulesManager.loadAllModules(params);
 		}
 	}
 }

@@ -29,9 +29,11 @@ package org.bigbluebutton.main.model.modules
 	import mx.core.IFlexModuleFactory;
 	import mx.events.ModuleEvent;
 	import mx.modules.ModuleLoader;
+	import mx.utils.StringUtil;
 	
 	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.main.model.ConferenceParameters;
 	
 	public class ModuleDescriptor
 	{
@@ -39,26 +41,33 @@ package org.bigbluebutton.main.model.modules
 		private var _loader:BigBlueButtonModuleLoader;
 		private var _module:IBigBlueButtonModule;
 		private var _loaded:Boolean = false;
-		private var _started:Boolean = false;
 		private var _connected:Boolean = false;
 				
 		private var callbackHandler:Function;
+		private var applicationDomain:ApplicationDomain;
 		
-		public var unresolvedDependencies:ArrayCollection;
+		public var unresolvedDependancies:ArrayCollection;
 		public var resolved:Boolean = false;
 		
-		public function ModuleDescriptor(attributes:XML, applicationDomain:ApplicationDomain)
+		public function ModuleDescriptor(attributes:XML)
 		{
-			unresolvedDependencies = new ArrayCollection();
+			unresolvedDependancies = new ArrayCollection();
 			_attributes = new Object();
 			_loader = new BigBlueButtonModuleLoader();
-			_loader.applicationDomain = applicationDomain;
 			
 			parseAttributes(attributes);			
+		}
+		
+		public function setApplicationDomain(appDomain:ApplicationDomain):void{
+			this.applicationDomain = appDomain;
 		}
 
 		public function addAttribute(attribute:String, value:Object):void {
 			_attributes[attribute] = value;
+		}
+		
+		public function getName():String{
+			return _attributes["name"] as String;
 		}
 		
 		public function getAttribute(name:String):Object {
@@ -77,8 +86,8 @@ package org.bigbluebutton.main.model.modules
 			return _loaded;
 		}
 		
-		public function set started(value:Boolean):void {
-			_started = value;
+		public function get loader():ModuleLoader{
+			return _loader;
 		}
 		
 		private function parseAttributes(item:XML):void {
@@ -91,30 +100,26 @@ package org.bigbluebutton.main.model.modules
 			    _attributes[attName] = attValue;
 			}
 			
-			populateDependencies();
+			populateDependancies();
 		}
 		
 		
 		public function load(resultHandler:Function):void {
+			if (this.applicationDomain == null) throw new Error("Common application domain not set for module. Make sure your module has the common BigBlueButton Application Domain");
+			
+			_loader.applicationDomain = this.applicationDomain;
 			callbackHandler = resultHandler;
-//			loader.addEventListener("urlChanged", resultHandler);
 			_loader.addEventListener("loading", onLoading);
 			_loader.addEventListener("progress", onLoadProgress);
-			_loader.addEventListener("setup", onSetupInfo);
 			_loader.addEventListener("ready", onReady);
 			_loader.addEventListener("error", onErrorLoading);
-//			loader.addEventListener("unload", resultHandler);
 			_loader.url = _attributes.url;
 			LogUtil.debug("Loading " + _attributes.url);
 			_loader.loadModule();
 		}
-		
-		public function unload():void {
-			_loader.url = "";
-		}
 
 		private function onReady(event:Event):void {
-			LogUtil.debug((getAttribute("name") as String) + "finished loading");
+			LogUtil.debug(getName() + "finished loading");
 			var modLoader:ModuleLoader = event.target as ModuleLoader;
 			_module = modLoader.child as IBigBlueButtonModule;
 			if (_module != null) {
@@ -128,21 +133,17 @@ package org.bigbluebutton.main.model.modules
 		}	
 
 		private function onLoadProgress(e:ProgressEvent):void {
-			if ((getAttribute("name") as String) == "PresentModule") LogUtil.debug("PresentModule " + Math.round((e.bytesLoaded/e.bytesTotal) * 100) + " loaded");
+			if (getName() == "PresentModule") LogUtil.debug("PresentModule " + Math.round((e.bytesLoaded/e.bytesTotal) * 100) + " loaded");
 			callbackHandler(ModuleManager.MODULE_LOAD_PROGRESS, 
 					_attributes.name, Math.round((e.bytesLoaded/e.bytesTotal) * 100));
 		}	
 		
 		private function onErrorLoading(e:ModuleEvent):void{
-			LogUtil.error("Error loading " + (getAttribute("name") as String) + e.errorText);
-		}
-		
-		private function onSetupInfo(e:ModuleEvent):void{
-			//var info:Object = _loader.moduleFactory.info();
+			LogUtil.error("Error loading " + getName() + e.errorText);
 		}
 		
 		private function onLoading(e:Event):void{
-			LogUtil.debug((getAttribute("name") as String) + " is loading");
+			LogUtil.debug(getName() + " is loading");
 		}
 		
 		public function useProtocol(protocol:String):void {
@@ -150,26 +151,41 @@ package org.bigbluebutton.main.model.modules
 			LogUtil.debug(_attributes.name + " uri = " + _attributes.uri);
 		}
 		
-		public function hasUnresolvedDependency(module:String):Boolean{
-			return unresolvedDependencies.contains(module);
-		}
-		
-		public function removeDependency(module:String):void{
-			for (var i:int = 0; i<unresolvedDependencies.length; i++){
-				if (unresolvedDependencies[i] == module) unresolvedDependencies.removeItemAt(i);
+		public function removeDependancy(module:String):void{
+			for (var i:int = 0; i<unresolvedDependancies.length; i++){
+				if (unresolvedDependancies[i] == module) unresolvedDependancies.removeItemAt(i);
 			}
 		}
 		
-		private function populateDependencies():void{
+		private function populateDependancies():void{
 			var dependString:String = _attributes["dependsOn"] as String;
 			if (dependString == null) return;
 			
-			var trimSpaces:String = dependString.replace(" ", "");
-			var dependencies:Array = trimSpaces.split(",");
+			var trimmedString:String = StringUtil.trimArrayElements(dependString, ",");
+			var dependancies:Array = trimmedString.split(",");
 			
-			for (var i:int = 0; i<dependencies.length; i++){
-				unresolvedDependencies.addItem(dependencies[i]);
+			for (var i:int = 0; i<dependancies.length; i++){
+				unresolvedDependancies.addItem(dependancies[i]);
 			}
+		}
+		
+		public function loadConfigAttributes(conferenceParameters:ConferenceParameters, protocol:String):void{
+			addAttribute("conference", conferenceParameters.conference);
+			addAttribute("username", conferenceParameters.username);
+			addAttribute("userrole", conferenceParameters.role);
+			addAttribute("room", conferenceParameters.room);
+			addAttribute("authToken", conferenceParameters.authToken);
+			addAttribute("userid", conferenceParameters.userid);
+			addAttribute("mode", conferenceParameters.mode);
+			addAttribute("connection", conferenceParameters.connection);
+			addAttribute("voicebridge", conferenceParameters.voicebridge);
+			addAttribute("webvoiceconf", conferenceParameters.webvoiceconf);
+			addAttribute("welcome", conferenceParameters.welcome);
+			addAttribute("meetingID", conferenceParameters.meetingID);
+			addAttribute("externUserID", conferenceParameters.externUserID);
+			
+			addAttribute("protocol", protocol);
+			useProtocol(protocol);
 		}
 	}
 }

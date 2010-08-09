@@ -78,11 +78,18 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		private function makePencil(p:Pencil):Shape{
 			var newShape:Shape = new Shape();
 			newShape.graphics.lineStyle(p.getThickness(), p.getColor());
-            
-			newShape.graphics.moveTo(p.getShapeArray()[0], p.getShapeArray()[1]);
-            for (var c:Number = 2; c < p.getShapeArray().length ; c += 2){
-            	newShape.graphics.lineTo(p.getShapeArray()[c],p.getShapeArray()[c+1]);
-           	}
+			
+			var graphicsCommands:Vector.<int> = new Vector.<int>();
+			graphicsCommands.push(1);
+			var coordinates:Vector.<Number> = new Vector.<Number>();
+			coordinates.push(p.getShapeArray()[0], p.getShapeArray()[1]);
+			
+			for (var i:int = 2; i < p.getShapeArray().length; i += 2){
+				graphicsCommands.push(2);
+				coordinates.push(p.getShapeArray()[i], p.getShapeArray()[i+1]);
+			}
+
+			newShape.graphics.drawPath(graphicsCommands, coordinates);
 			
            	if (p.getColor() == 0x000000 || p.getColor() == 0xFFFFFF) newShape.alpha = 1;
            	else newShape.alpha = 0.6;

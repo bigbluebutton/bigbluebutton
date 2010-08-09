@@ -36,97 +36,43 @@ package org.bigbluebutton.main.model.modules
 	import org.bigbluebutton.main.events.ModuleLoadEvent;
 	import org.bigbluebutton.main.events.UserServicesEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
+	import org.bigbluebutton.main.model.ConfigParameters;
 	
 	public class ModuleManager
 	{
 		public static const MODULE_LOAD_READY:String = "MODULE_LOAD_READY";
 		public static const MODULE_LOAD_PROGRESS:String = "MODULE_LOAD_PROGRESS";
 		
-		public static const FILE_PATH:String = "conf/config.xml";
-		private var _urlLoader:URLLoader;
 		private var _initializedListeners:ArrayCollection = new ArrayCollection();
-		//private var _moduleLoadedListeners:ArrayCollection = new ArrayCollection();
-		
-		private var _numModules:int = 0;		
-		private var  _modules:Dictionary = new Dictionary();
+			
 		private var sorted:ArrayCollection; //The array of modules sorted by dependencies, with least dependent first
+		
 		private var _applicationDomain:ApplicationDomain;
+		private var configParameters:ConfigParameters;
+		private var conferenceParameters:ConferenceParameters;
 		
-		private var _parameters:ConferenceParameters;
-		private var _version:String;
-		private var _localeVersion:String;
 		private var _protocol:String;
-		private var _portTestHost:String;
-		private var _portTestApplication:String;
-		private var _helpURL:String;
-		private var _application:String;
-		private var _host:String;
 		
-		private var globalDispatcher:Dispatcher;
+		private var modulesDispatcher:ModulesDispatcher;
 		
 		public function ModuleManager()
 		{
-			_applicationDomain = new ApplicationDomain(ApplicationDomain.currentDomain);
-			_urlLoader = new URLLoader();
-			_urlLoader.addEventListener(Event.COMPLETE, handleComplete);	
-			globalDispatcher = new Dispatcher();
-		}
-		
-		public function initialize():void {
-			// Add a random string on the query so that we always get an up-to-date config.xml
-			var date:Date = new Date();
-			loadXmlFile(_urlLoader, FILE_PATH + "?a=" + date.time);
-		}
-		
-		public function addInitializedListener(initializedListener:Function):void {
-			_initializedListeners.addItem(initializedListener);
-		}
-		
-		/*public function addModuleLoadedListener(loadListener:Function):void {
-			_moduleLoadedListeners.addItem(loadListener);
-		}*/
-		
-		public function loadXmlFile(loader:URLLoader, file:String):void {
-			loader.load(new URLRequest(file));
+			_applicationDomain = new ApplicationDomain(ApplicationDomain.currentDomain);	
+			modulesDispatcher = new ModulesDispatcher();
+			configParameters = new ConfigParameters(handleComplete);
 		}
 				
-		private function handleComplete(e:Event):void{
-			parse(new XML(e.target.data));	
-			if (_numModules > 0) {
-				notifyInitializedListeners(true);
-			} else {
-				notifyInitializedListeners(false);
-			}		
+		private function handleComplete():void{	
+			var modules:Dictionary = configParameters.getModules();
+			modulesDispatcher.sendPortTestEvent();
 			
-			buildDependencyTree();
-		}
-		
-		private function notifyInitializedListeners(inited:Boolean):void {
-			for (var i:int=0; i<_initializedListeners.length; i++) {
-				var listener:Function = _initializedListeners.getItemAt(i) as Function;
-				listener(inited);
+			for (var key:Object in modules) {
+				var m:ModuleDescriptor = modules[key] as ModuleDescriptor;
+				m.setApplicationDomain(_applicationDomain);
 			}
-		}
-				
-		public function parse(xml:XML):void{
-			_portTestHost = xml.porttest.@host;
-			_portTestApplication = xml.porttest.@application;
-			_application = xml.application.@uri;
-			_host = xml.application.@host;
 			
-			_helpURL = xml.help.@url;
-						
-			var list:XMLList = xml.modules.module;
-			_version = xml.version;
-			_localeVersion = xml.localeversion;
-
-			var item:XML;
-						
-			for each(item in list){
-				var mod:ModuleDescriptor = new ModuleDescriptor(item, _applicationDomain);
-				_modules[item.@name] = mod;
-				_numModules++;
-			}					
+			var resolver:DependancyResolver = new DependancyResolver();
+			sorted = resolver.buildDependencyTree(modules);
 		}
 		
 		public function useProtocol(protocol:String):void {
@@ -134,31 +80,15 @@ package org.bigbluebutton.main.model.modules
 		}
 		
 		public function get portTestHost():String {
-			return _portTestHost;
+			return configParameters.portTestHost;
 		}
 		
 		public function get portTestApplication():String {
-			return _portTestApplication;
-		}
-				
-		public function get numberOfModules():int {
-			return _numModules;
-		}
-		
-		public function hasModule(name:String):Boolean {
-			var m:ModuleDescriptor = getModule(name);
-			if (m != null) return true;
-			return false;
+			return configParameters.portTestApplication;
 		}
 		
 		private function getModule(name:String):ModuleDescriptor {
-			for (var key:Object in _modules) {				
-				var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
-				if (m.getAttribute("name") == name) {
-					return m;
-				}
-			}		
-			return null;	
+			return configParameters.getModule(name);	
 		}
 
 		private function startModule(name:String):void {
@@ -167,28 +97,7 @@ package org.bigbluebutton.main.model.modules
 			if (m != null) {
 				LogUtil.debug('Starting ' + name);
 				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
-				if (_parameters != null) {
-					LogUtil.debug("LOADING_ATTRIBUTES");
-					m.addAttribute("conference", _parameters.conference);
-					m.addAttribute("username", _parameters.username);
-					m.addAttribute("userrole", _parameters.role);
-					m.addAttribute("room", _parameters.room);
-					m.addAttribute("authToken", _parameters.authToken);
-					m.addAttribute("userid", _parameters.userid);
-					m.addAttribute("mode", _parameters.mode);
-					m.addAttribute("connection", _parameters.connection);
-					m.addAttribute("voicebridge", _parameters.voicebridge);
-					m.addAttribute("webvoiceconf", _parameters.webvoiceconf);
-					m.addAttribute("welcome", _parameters.welcome);
-					m.addAttribute("meetingID", _parameters.meetingID);
-					m.addAttribute("externUserID", _parameters.externUserID);
-					
-				} else {
-					// Pass the mode that we got from the URL query string.
-					m.addAttribute("mode", "LIVE");
-				}	
-				m.addAttribute("protocol", _protocol);
-				m.useProtocol(_protocol);				
+				m.loadConfigAttributes(conferenceParameters, _protocol);
 				bbb.start(m.attributes);		
 			}	
 		}
@@ -227,17 +136,11 @@ package org.bigbluebutton.main.model.modules
 			if (m != null) {
 				switch(event) {
 					case MODULE_LOAD_PROGRESS:
-						var loadEvent:ModuleLoadEvent = new ModuleLoadEvent(ModuleLoadEvent.MODULE_LOAD_PROGRESS);
-						loadEvent.moduleName = name;
-						loadEvent.progress = progress;
-						globalDispatcher.dispatchEvent(loadEvent);
+						modulesDispatcher.sendLoadProgressEvent(name, progress);
 					break;	
 					case MODULE_LOAD_READY:
-						LogUtil.debug('Module ' + m.attributes.name + " has been loaded.");		
-						
-						var loadReadyEvent:ModuleLoadEvent = new ModuleLoadEvent(ModuleLoadEvent.MODULE_LOAD_READY);
-						loadReadyEvent.moduleName = name;
-						globalDispatcher.dispatchEvent(loadReadyEvent);				
+						LogUtil.debug('Module ' + name + " has been loaded.");		
+						modulesDispatcher.sendModuleLoadReadyEvent(name)	
 					break;				
 				}
 			} else {
@@ -246,7 +149,7 @@ package org.bigbluebutton.main.model.modules
 			
 			if (allModulesLoaded()) {
 				startAllModules();
-				globalDispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.ALL_MODULES_LOADED));		
+				modulesDispatcher.sendAllModulesLoadedEvent();	
 			}
 		}
 		
@@ -254,108 +157,42 @@ package org.bigbluebutton.main.model.modules
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
 				LogUtil.debug('Setting ' + name + ' started to ' + started);
-				m.started = started;
 			}	
-		}
-				
-		public function get modules():Dictionary {
-			return _modules;
-		}
-		
-		public function getAppVersion():String {
-			return _version;
-		}
-		
-		public function getLocaleVersion():String {
-			return _localeVersion;
-		}
-		
-		public function getNumberOfModules():int {
-			return _numModules;
 		}
 		
 		public function startUserServices():void {
-			var e:UserServicesEvent = new UserServicesEvent(UserServicesEvent.START_USER_SERVICES);
-			e.applicationURI = _application;
-			e.hostURI = _host;
-			globalDispatcher.dispatchEvent(e);
+			modulesDispatcher.sendStartUserServicesEvent(configParameters.application, configParameters.host);
 		}
 		
 		public function loadAllModules(parameters:ConferenceParameters):void{
-			_parameters = parameters;
+			conferenceParameters = parameters;
 			Role.setRole(parameters.role);
 			
 			for (var i:int = 0; i<sorted.length; i++){
 				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
-				loadModule(m.getAttribute("name") as String);
+				loadModule(m.getName());
 			}
 		}
 		
 		public function startAllModules():void{
 			for (var i:int = 0; i<sorted.length; i++){
 				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
-				startModule(m.getAttribute("name") as String);
+				startModule(m.getName());
 			}
 		}
 		
 		public function handleLogout():void {
-			for (var key:Object in _modules) {				
-				var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
-				stopModule(m.getAttribute("name") as String);
+			for (var i:int = 0; i <sorted.length; i++) {				
+				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
+				stopModule(m.getName());
 			}
-		}
-		
-		/**
-		 * Creates a dependency tree for modules using a topological sort algorithm (Khan, 1962, http://portal.acm.org/beta/citation.cfm?doid=368996.369025)
-		 */
-		private function buildDependencyTree():void{
-			sorted = new ArrayCollection();
-			var independent:ArrayCollection = getModulesWithNoDependencies();
-			
-			while(independent.length > 0){
-				var n:ModuleDescriptor = independent.removeItemAt(0) as ModuleDescriptor;
-				sorted.addItem(n);
-				n.resolved = true;
-				
-				for (var key:Object in _modules) {
-					var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
-					m.removeDependency(n.getAttribute("name") as String);
-					if ((m.unresolvedDependencies.length == 0) && (!m.resolved)){
-						independent.addItem(m);
-						m.resolved = true;
-					}
-				}
-			}
-			
-			//Debug Information
-			for (var key2:Object in _modules) {
-				var m2:ModuleDescriptor = _modules[key2] as ModuleDescriptor;
-				if (m2.unresolvedDependencies.length != 0){
-					LogUtil.error("Module " + (m2.getAttribute("name") as String) + " still has a dependency " + (m2.unresolvedDependencies.getItemAt(0) as String)); 
-				}
-			}
-			LogUtil.debug("Dependency Order: ");
-			for (var u:int = 0; u<sorted.length; u++){
-				LogUtil.debug(((sorted.getItemAt(u) as ModuleDescriptor).getAttribute("name") as String));
-			}
-		}
-		
-		private function getModulesWithNoDependencies():ArrayCollection{
-			var returnArray:ArrayCollection = new ArrayCollection();
-			for (var key:Object in _modules) {
-				var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
-				if (m.unresolvedDependencies.length == 0) {
-					returnArray.addItem(m);
-				}
-			}
-			return returnArray;
 		}
 		
 		private function allModulesLoaded():Boolean{
 			for (var i:int = 0; i<sorted.length; i++){
 				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
 				if (!m.loaded){
-					LogUtil.debug("Module " + (m.getAttribute("name") as String) + " has not yet been loaded");
+					LogUtil.debug("Module " + m.getName() + " has not yet been loaded");
 					return false;
 				} 
 			}

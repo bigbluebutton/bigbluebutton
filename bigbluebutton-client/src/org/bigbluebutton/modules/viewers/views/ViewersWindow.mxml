@@ -111,7 +111,7 @@
         	
         	private function assignPresenterClicked():void {
         		// Ignore if the selected user is already the presenter.
-        		if (viewersGrid.selectedItem.presenter) return;
+        		if (viewersGrid.selectedItem == null || viewersGrid.selectedItem.presenter) return;
         		
 				var e:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
 				e.userid = viewersGrid.selectedItem.userid;

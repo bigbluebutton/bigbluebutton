@@ -6,7 +6,6 @@ package org.bigbluebutton.modules.viewers.managers
 	
 	import org.bigbluebutton.main.events.CloseWindowEvent;
 	import org.bigbluebutton.main.events.OpenWindowEvent;
-	import org.bigbluebutton.modules.viewers.events.LoginSuccessEvent;
 	import org.bigbluebutton.modules.viewers.events.ViewersModuleEndEvent;
 	import org.bigbluebutton.modules.viewers.events.ViewersModuleStartedEvent;
 	import org.bigbluebutton.modules.viewers.views.ViewersWindow;
