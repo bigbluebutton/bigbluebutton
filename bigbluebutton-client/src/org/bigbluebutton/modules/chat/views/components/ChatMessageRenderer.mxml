@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" verticalAlign="middle" height="{txtMessage.height + 3}" >
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" verticalAlign="middle" height="{txtMessage.height + 3}" 
+		 verticalScrollPolicy="off" xmlns:common="org.bigbluebutton.common.*" dataChange="validateNow()">
 	
 	<mx:Script>
 		<![CDATA[
@@ -8,8 +9,7 @@
 			
 			/**
 			 * Chat Message Dynamic Object Anatomy:
-			 * data.senderID - The unique id of the sender of the message
-			 * data.lastSenderID - The ID of the person who sent the previous message
+			 * data.lastSenderName - The ID of the person who sent the previous message
 			 * data.name - The name of the sender of the message
 			 * data.senderTime - Local time in the sender's time zone
 			 * data.time - Local time in recepient time zone
@@ -38,8 +38,8 @@
 		]]>
 	</mx:Script>
 	
-	<mx:Label id="lblName" text="{data.name}" visible="{!(data.senderID == data.lastSenderID)}" truncateToFit="true" />
+	<common:LabelTruncate maxWidth="50" width="50" truncateToFit="false" id="lblName" text="{data.name}" visible="{!(data.name == data.lastSenderName)}" />
 	<mx:Text id="txtMessage" htmlText="{rolledOver ? data.senderText : data.text}" link="onLinkClick(event)" color="{data.color}"
 			 rollOver="onRollOver()" rollOut="onRollOut()" width="100%" />
-	<mx:Label id="lblTime" text="{rolledOver ? data.senderTime : data.time}" visible="{!(data.lastTime == data.time) || !(data.senderID == data.lastSenderID)}" />
+	<mx:Label id="lblTime" text="{rolledOver ? data.senderTime : data.time}" visible="{!(data.lastTime == data.time) || !(data.name == data.lastSenderName)}" />
 </mx:HBox>

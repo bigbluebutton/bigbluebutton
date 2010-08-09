@@ -380,7 +380,7 @@
 				}
 				
 				chatBox = getChatBoxForParticipant(sender);
-				chatBox.showNewMessage(sender, message, autoTranslation, currentLangCode);
+				chatBox.showNewMessage(message, autoTranslation, currentLangCode);
 				
 				if (! isChatBoxCurrentlySelected(sender)) {
 					notifyParticipantOfUnreadMessageFrom(sender);

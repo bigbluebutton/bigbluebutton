@@ -24,7 +24,7 @@
 			
 			[Bindable]
 			private var backgroundColor:uint = 0x000000;
-			private var lastSenderID:String = "";
+			private var lastSenderName:String = "";
 			private var lastTime:String = "";
 			
 			[Bindable] private var messages:ArrayCollection = new ArrayCollection();
@@ -33,15 +33,14 @@
 				chatMessagesList.verticalScrollPosition = chatMessagesList.maxVerticalScrollPosition;
 			}
 			
-			public function showNewMessage(senderID:String, message:String, translate:Boolean, language:String = null):void
+			public function showNewMessage(message:String, translate:Boolean, language:String = null):void
 			{	
 				var timeString:String = getHours() + ":" + getMinutes();
 				var components:Array = message.split("|");
 				
 				var msg:Object = new Object();
-				msg.senderID = senderID;
-				msg.lastSenderID = lastSenderID;
-				lastSenderID = senderID;
+				msg.lastSenderName = lastSenderName;
+				lastSenderName = components[1];
 				
 				if (translate && (language != null)){
 					translateMessage(components[0].toString(), components[4].toString(), language.toString());
@@ -60,6 +59,9 @@
 				lastTime = timeString;
 				
 				messages.addItem(msg);
+				
+				chatMessagesList.invalidateSize();
+				chatMessagesList.invalidateDisplayList();
 			}
 			
 			private function translateMessage(text:String, fromLang:String, toLang:String):void{
