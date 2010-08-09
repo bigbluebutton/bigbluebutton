@@ -80,7 +80,7 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
         c.addEventFilter( "Event-Name", "background_job" );
         
         try {
-            Thread.sleep(25000);
+            Thread.sleep(5000);
         } catch (InterruptedException ex) {
             java.util.logging.Logger.getLogger(FreeswitchApplication.class.getName()).log(Level.SEVERE, null, ex);
         }
