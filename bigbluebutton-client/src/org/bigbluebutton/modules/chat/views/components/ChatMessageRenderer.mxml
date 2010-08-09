@@ -26,20 +26,20 @@
 			}
 			
 			private function onRollOver():void{
-				//rolledOver = true;
-				txtMessage.htmlText = data.senderText;
+				rolledOver = true;
+				//txtMessage.htmlText = data.senderText;
 			}
 			
 			private function onRollOut():void{
-				//rolledOver = false;
-				txtMessage.htmlText = data.text;
+				rolledOver = false;
+				//txtMessage.htmlText = data.text;
 			}
 			
 		]]>
 	</mx:Script>
 	
-	<common:LabelTruncate maxWidth="50" width="50" truncateToFit="false" id="lblName" text="{data.name}" visible="{!(data.name == data.lastSenderName)}" />
+	<common:LabelTruncate maxWidth="50" width="50" truncateToFit="false" id="lblName" text="{data.name}" visible="{!(data.name == data.lastSenderName)}" color="gray" />
 	<mx:Text id="txtMessage" htmlText="{rolledOver ? data.senderText : data.text}" link="onLinkClick(event)" color="{data.color}"
 			 rollOver="onRollOver()" rollOut="onRollOut()" width="100%" />
-	<mx:Label id="lblTime" text="{rolledOver ? data.senderTime : data.time}" visible="{!(data.lastTime == data.time) || !(data.name == data.lastSenderName)}" />
+	<mx:Label id="lblTime" text="{rolledOver ? data.senderTime : data.time}" visible="{!(data.lastTime == data.time) || !(data.name == data.lastSenderName)}" color="gray" />
 </mx:HBox>
