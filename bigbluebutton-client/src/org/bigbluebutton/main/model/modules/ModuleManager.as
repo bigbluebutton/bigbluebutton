@@ -161,11 +161,11 @@ package org.bigbluebutton.main.model.modules
 		}
 		
 		public function startUserServices():void {
-			modulesDispatcher.sendModuleLoadingStartedEvent(configParameters.numModules);
 			modulesDispatcher.sendStartUserServicesEvent(configParameters.application, configParameters.host);
 		}
 		
 		public function loadAllModules(parameters:ConferenceParameters):void{
+			modulesDispatcher.sendModuleLoadingStartedEvent(configParameters.getModulesXML());
 			conferenceParameters = parameters;
 			Role.setRole(parameters.role);
 			

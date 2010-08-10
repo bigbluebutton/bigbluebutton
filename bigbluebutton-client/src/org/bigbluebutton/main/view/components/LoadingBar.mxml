@@ -1,62 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:ProgressBar xmlns:mate="http://mate.asfusion.com/" xmlns:mx="http://www.adobe.com/2006/mxml" labelPlacement="bottom" minimum="0" maximum="100" mode="manual" >
 	
-	<mate:Listener type="{ModuleLoadEvent.ALL_MODULES_LOADED}" method="removeLoadingInfo" />
-	<mate:Listener type="{ModuleLoadEvent.MODULE_LOAD_PROGRESS}" method="moduleLoadProgress" />
-	<mate:Listener type="{ModuleLoadEvent.MODULE_LOAD_READY}" method="moduleLoadReady" />
 	<mate:Listener type="{ModuleLoadEvent.MODULE_LOADING_STARTED}" method="moduleLoadingStarted" />
+	<mate:Listener type="{ModuleLoadEvent.MODULE_LOAD_PROGRESS}" method="moduleLoadProgress" />
+	<mate:Listener type="{ModuleLoadEvent.ALL_MODULES_LOADED}" method="allModulesLoaded" />
 	<mate:Listener type="{PortTestEvent.TEST_RTMP}" method="testRTMP" />
-	<mate:Listener type="{PortTestEvent.TEST_RTMPT}" method="testRTMPT" />
-	<mate:Listener type="{PortTestEvent.PORT_TEST_SUCCESS}" method="portTestSuccess" />
 	<mate:Listener type="{PortTestEvent.TUNNELING_FAILED}" method="tunnelingFailed" />
-	
+		
 	<mx:Script>
 		<![CDATA[
 			import mx.controls.Alert;
 			
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.main.events.PortTestEvent;
 			
-			private var numModules:int;
-			private var counter:int = 0;
-			private var progress:Number = 0;
+			private var modules:Dictionary = new Dictionary();
+			private var numModules:int = 0;
 			
-			private function removeLoadingInfo(e:ModuleLoadEvent):void{
-				this.visible = false;
+			private function moduleLoadingStarted(e:ModuleLoadEvent):void{
+				var list:XMLList = e.modules;
+				var item:XML;
+				for each(item in list){
+					modules[item.@name] = 0;
+					numModules++;
+				}
+				this.label = "Loading " + numModules + " modules";
 			}
 			
 			private function moduleLoadProgress(e:ModuleLoadEvent):void{
-				var incremental:Number = e.progress;
-				var currentProgress:Number = counter/numModules + incremental/numModules;
-				this.setProgress(currentProgress, 100);
+				modules[e.moduleName] = e.progress;
+				updateProgress();
 			}
 			
-			private function moduleLoadReady(e:ModuleLoadEvent):void{
-				counter ++;
-				this.setProgress(counter/numModules, 100)
+			private function updateProgress():void{
+				var totalProgress:Number = 0;
+				for (var key:Object in modules) {
+					var progress:Number = modules[key] as Number;
+					totalProgress += progress;
+				}
+				//LogUtil.debug("Progress: " + totalProgress);
+				this.setProgress(totalProgress/numModules, 100);
 			}
 			
-			private function moduleLoadingStarted(e:ModuleLoadEvent):void{
-				this.numModules = e.numModules;
-				this.label = "Loading " + this.numModules + " modules";
+			private function allModulesLoaded(e:ModuleLoadEvent):void{
+				parent.removeChild(this);
 			}
 			
 			private function testRTMP(e:PortTestEvent):void{
-				this.label = "Testing RTMP Connection";
-			}
-			
-			private function testRTMPT(e:PortTestEvent):void{
-				this.label = "RTMP Failed. Attempting tunneling through port 80";
-			}
-			
-			private function portTestSuccess(e:PortTestEvent):void{
-				this.label = "Port Test Success";
+				this.label = "Connecting to the server";
 			}
 			
 			private function tunnelingFailed(e:PortTestEvent):void{
-				this.label = "Tunneling Failed. Please contact the server administrator";
-				this.setStyle("barColor", "red");
+				this.label = "Could not connect to the server";
 			}
+			
+			
 		]]>
 	</mx:Script>
 </mx:ProgressBar>

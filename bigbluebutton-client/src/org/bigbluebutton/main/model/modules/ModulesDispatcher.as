@@ -66,9 +66,9 @@ package org.bigbluebutton.main.model.modules
 			dispatcher.dispatchEvent(portFailEvent);
 		}
 		
-		public function sendModuleLoadingStartedEvent(numModules:int):void{
+		public function sendModuleLoadingStartedEvent(modules:XMLList):void{
 			var event:ModuleLoadEvent = new ModuleLoadEvent(ModuleLoadEvent.MODULE_LOADING_STARTED);
-			event.numModules = numModules;
+			event.modules = modules;
 			dispatcher.dispatchEvent(event);
 		}
 	}

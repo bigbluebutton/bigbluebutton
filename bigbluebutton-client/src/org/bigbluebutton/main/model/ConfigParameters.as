@@ -57,7 +57,7 @@ package org.bigbluebutton.main.model
 			localeVersion = xml.localeversion;				
 		}
 		
-		private function getModulesXML():XMLList{
+		public function getModulesXML():XMLList{
 			return rawXML.modules.module;
 		}
 		
