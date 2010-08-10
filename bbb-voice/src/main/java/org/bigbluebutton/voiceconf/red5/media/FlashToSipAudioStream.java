@@ -19,8 +19,12 @@
  */
 package org.bigbluebutton.voiceconf.red5.media;
 
-
 import java.net.DatagramSocket;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+
 import org.apache.mina.core.buffer.IoBuffer;
 import org.bigbluebutton.voiceconf.red5.media.transcoder.FlashToSipTranscoder;
 import org.bigbluebutton.voiceconf.red5.media.transcoder.TranscodedAudioDataListener;
@@ -37,6 +41,11 @@ import org.slf4j.Logger;
 public class FlashToSipAudioStream {
 	private final static Logger log = Red5LoggerFactory.getLogger(FlashToSipAudioStream.class, "sip");
 
+	private final BlockingQueue<AudioByteData> audioDataQ = new LinkedBlockingQueue<AudioByteData>();
+	private final Executor exec = Executors.newSingleThreadExecutor();
+	private Runnable audioDataProcessor;
+	private volatile boolean processAudioData = false;
+	
 	private final FlashToSipTranscoder transcoder;	
 	private IStreamListener mInputListener;
 	private final DatagramSocket srcSocket;
@@ -68,19 +77,47 @@ public class FlashToSipAudioStream {
 		          
 		      if (packet instanceof AudioData) {
 		    	  byte[] data = SerializeUtils.ByteBufferToByteArray(buf);
-		    	  transcoder.transcodeAudio(data, 1, data.length-1, new TranscodedAudioListener());			    	  
+		    	  AudioByteData abd = new AudioByteData(data, System.currentTimeMillis());
+		    	  try {
+					audioDataQ.put(abd);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 		      } 
 			}
 		};
 	    broadcastStream.addStreamListener(mInputListener);    
 	    rtpSender = new RtpStreamSender(srcSocket, connInfo);
 		rtpSender.connect();
+		
+		processAudioData = true;
+	    
+	    audioDataProcessor = new Runnable() {
+    		public void run() {
+    			processAudioData();   			
+    		}
+    	};
+    	exec.execute(audioDataProcessor);
 	}
 
-
+	private void processAudioData() {
+		while (processAudioData) {
+			try {
+				AudioByteData abd = audioDataQ.take();
+				long delay = System.currentTimeMillis() - abd.getTimestamp();
+//				System.out.println("            F2S [" + audioDataQ.size() + "," + delay + "]");
+				transcoder.transcodeAudio(abd.getData(), 1, abd.getData().length-1, new TranscodedAudioListener());
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}        		
+		}	
+	}
 	
 	public void stop(IBroadcastStream broadcastStream, IScope scope) {
 		broadcastStream.removeStreamListener(mInputListener);
+		processAudioData = false;
 	}
 
 	public String getStreamName() {

@@ -20,6 +20,11 @@
 package org.bigbluebutton.voiceconf.red5.media;
 
 import java.net.DatagramSocket;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+
 import org.apache.mina.core.buffer.IoBuffer;
 import org.bigbluebutton.voiceconf.red5.media.transcoder.SipToFlashTranscoder;
 import org.bigbluebutton.voiceconf.red5.media.transcoder.TranscodedAudioDataListener;
@@ -34,7 +39,12 @@ import org.slf4j.Logger;
 
 public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpStreamReceiverListener {
 	final private Logger log = Red5LoggerFactory.getLogger(SipToFlashAudioStream.class, "sip");
-		
+	
+	private final BlockingQueue<AudioByteData> audioDataQ = new LinkedBlockingQueue<AudioByteData>();		
+	private final Executor exec = Executors.newSingleThreadExecutor();
+	private Runnable audioDataProcessor;
+	private volatile boolean processAudioData = false;
+	
 	private AudioBroadcastStream audioBroadcastStream;
 	private IScope scope;
 	private final String listenStreamName;
@@ -61,6 +71,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 	}
 	
 	public void stop() {
+		processAudioData = false;
 		rtpStreamReceiver.stop();
 		audioBroadcastStream.stop();
 	    audioBroadcastStream.close();
@@ -85,7 +96,31 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 		}
 	    startTimestamp = System.currentTimeMillis();
 	    audioBroadcastStream.start();
+	    
+	    processAudioData = true;
+	    
+	    audioDataProcessor = new Runnable() {
+    		public void run() {
+    			processAudioData();   			
+    		}
+    	};
+    	exec.execute(audioDataProcessor);
+    	
 	    rtpStreamReceiver.start();
+	}
+	
+	private void processAudioData() {
+		while (processAudioData) {
+			try {
+				AudioByteData abd = audioDataQ.take();
+				long delay = System.currentTimeMillis() - abd.getTimestamp();
+//				System.out.println("S2F [" + audioDataQ.size() + "," + delay + "]");
+				transcoder.transcode(abd.getData(), this);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}        		
+		}	
 	}
 	
 	@Override
@@ -95,7 +130,13 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 
 	@Override
 	public void onAudioDataReceived(byte[] audioData) {
-		transcoder.transcode(audioData, this);
+		AudioByteData abd = new AudioByteData(audioData, System.currentTimeMillis());
+		try {
+			audioDataQ.put(abd);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	@Override
