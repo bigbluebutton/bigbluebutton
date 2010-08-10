@@ -1146,6 +1146,9 @@ if [ -n "$HOST" ]; then
 	sudo sed -i "s/bigbluebutton.web.serverURL=http:\/\/.*/bigbluebutton.web.serverURL=http:\/\/$HOST/g" \
 				/var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
 
+# 3 paramenter: the file, the variable name, the new value
+	change_var_value /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties esl.host $HOST
+
 	# cat /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
 
 	#
