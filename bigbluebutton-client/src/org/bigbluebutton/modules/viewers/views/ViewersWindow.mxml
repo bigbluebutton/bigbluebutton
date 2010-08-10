@@ -162,7 +162,7 @@
      	 <mx:Spacer width="100%"/>
 	   	 <mx:Button id="kickUserBtn" icon="{kickIcon}"
 					width="20" height="20" 
-					toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.raiseHandBtn.toolTip')}"
+					toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.kickUserBtn.toolTip')}"
 					click="kickUser()"/>
     	 <mx:Button id="raiseHandImage" icon="{handIcon}" toggle="true" 
     	   			width="20" height="20"

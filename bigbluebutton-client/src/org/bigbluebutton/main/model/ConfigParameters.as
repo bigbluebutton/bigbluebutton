@@ -22,6 +22,7 @@ package org.bigbluebutton.main.model
 		public var helpURL:String;
 		public var application:String;
 		public var host:String;
+		public var numModules:int;
 		
 		private var loadedListener:Function;
 		
@@ -29,6 +30,8 @@ package org.bigbluebutton.main.model
 		
 		public function ConfigParameters(loadedListener:Function, file:String = FILE_PATH)
 		{
+			
+			this.numModules = 0;
 			this.loadedListener = loadedListener;
 			_urlLoader = new URLLoader();
 			_urlLoader.addEventListener(Event.COMPLETE, handleComplete);
@@ -65,6 +68,7 @@ package org.bigbluebutton.main.model
 			for each(item in list){
 				var mod:ModuleDescriptor = new ModuleDescriptor(item);
 				_modules[item.@name] = mod;
+				numModules++;
 			}
 			return _modules;
 		}
