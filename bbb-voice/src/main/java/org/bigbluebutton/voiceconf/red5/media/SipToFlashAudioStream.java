@@ -114,7 +114,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 			try {
 				AudioByteData abd = audioDataQ.take();
 				long delay = System.currentTimeMillis() - abd.getTimestamp();
-//				System.out.println("S2F [" + audioDataQ.size() + "," + delay + "]");
+				System.out.println("S2F [" + audioDataQ.size() + "," + delay + "]");
 				transcoder.transcode(abd.getData(), this);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
