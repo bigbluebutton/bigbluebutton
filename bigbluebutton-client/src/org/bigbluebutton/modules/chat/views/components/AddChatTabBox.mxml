@@ -5,9 +5,12 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import com.adobe.utils.StringUtil;
+			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.events.ListEvent;
+			import mx.utils.StringUtil;
 			
 			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -126,6 +129,12 @@
 			
 			private function init():void{
 				participants = new ArrayCollection();
+				
+				var language:String = (ExternalInterface.call('getLanguage') as String).split("_")[0];
+				if (langCodes.indexOf(language) != -1){
+					langComboBox.selectedIndex = langCodes.indexOf(language);
+					changeLanguage();
+				} 
 			}
 
 
@@ -165,6 +174,7 @@
 					autoTransCheckBox.visible = false;
 				}
 				autoTransCheckBox.selected = e.translateOn;
+				toggleTranslation();
 			}
 
 		]]>

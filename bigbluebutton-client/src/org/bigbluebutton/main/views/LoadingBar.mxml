@@ -14,6 +14,7 @@
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.main.events.PortTestEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var modules:Dictionary = new Dictionary();
 			private var numModules:int = 0;
@@ -25,7 +26,7 @@
 					modules[item.@name] = 0;
 					numModules++;
 				}
-				this.label = "Loading " + numModules + " modules";
+				this.label = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loading', [numModules]);
 			}
 			
 			private function moduleLoadProgress(e:ModuleLoadEvent):void{
@@ -48,11 +49,11 @@
 			}
 			
 			private function testRTMP(e:PortTestEvent):void{
-				this.label = "Connecting to the server";
+				this.label = 'Connecting to the server'; //ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.connecting');
 			}
 			
 			private function tunnelingFailed(e:PortTestEvent):void{
-				this.label = "Could not connect to the server";
+				this.label = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.cannotConnectServer');
 			}
 			
 			
