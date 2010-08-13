@@ -22,7 +22,7 @@
 
 <mx:ApplicationControlBar xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mate="http://mate.asfusion.com/"
-	enabled="true" >   
+	enabled="true" xmlns:views="org.bigbluebutton.main.views.*" >   
 	
 	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarButtonEvent" />	
 	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarButtonEvent"/>
@@ -92,6 +92,7 @@
 	<mx:HBox id="addedBtns">
 	</mx:HBox>		
 	<mx:Spacer width="100%"/>
+	<views:LanguageSelector id="langSelector" />
 	<mx:LinkButton label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" click="onHelpButtonClicked()"/>
 	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn')}" id="btnLogout" 
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="doLogout()"/>		
