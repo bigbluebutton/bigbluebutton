@@ -45,7 +45,7 @@
 			import mx.events.ListEvent;
 			
 			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.main.view.components.MainCanvas;
+			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.listeners.events.ListenersCommand;
 			import org.bigbluebutton.modules.listeners.events.ListenersEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;

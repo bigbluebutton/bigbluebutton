@@ -59,5 +59,10 @@
 		/>
 		-->
 		
+		<!--<module name="ExampleChatModule" url="ExampleChatModule.swf?v=56" 
+            uri="rtmp://HOST/bigbluebutton" 
+            host="http://HOST"
+		/>-->
+		
 	</modules>
 </config>

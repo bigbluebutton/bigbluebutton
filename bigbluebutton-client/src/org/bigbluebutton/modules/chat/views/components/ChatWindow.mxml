@@ -35,7 +35,7 @@
 			import mx.controls.Alert;
 			import mx.core.Application;
 			
-			import org.bigbluebutton.main.view.components.MainCanvas;
+			import org.bigbluebutton.main.views.MainCanvas;
 			
 			private var _xPosition:int;
 			private var _yPosition:int;
