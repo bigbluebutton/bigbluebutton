@@ -76,7 +76,7 @@ package org.bigbluebutton.modules.phone.managers
 			if (audioCodec == "SPEEX") {
 				mic.encodeQuality = 6;
 				mic.codec = SoundCodec.SPEEX;
-				mic.framesPerPacket = 2;
+				mic.framesPerPacket = 6;
 				mic.rate = 16; 
 				LogUtil.debug("codec=SPEEX,framesPerPacket=1,rate=16");
 			} else {

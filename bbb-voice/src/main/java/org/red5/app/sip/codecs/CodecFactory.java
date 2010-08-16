@@ -17,7 +17,7 @@ public class CodecFactory {
     private int[] availableVideoCodecsId = {};        
     private static CodecFactory singletonSIPCodecFactory = new CodecFactory();
     
-    private static String[] codecCommonAudioMediaAttributes = {"ptime:40"};
+    private static String[] codecCommonAudioMediaAttributes = {"ptime:120"};
             
     public static CodecFactory getInstance() {
         return singletonSIPCodecFactory;
