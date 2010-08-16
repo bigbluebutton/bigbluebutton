@@ -5,6 +5,8 @@ package org.bigbluebutton.main.model
 	import flash.net.URLRequest;
 	import flash.utils.Dictionary;
 	
+	import mx.controls.Alert;
+	
 	import org.bigbluebutton.main.model.modules.ModuleDescriptor;
 
 	public class ConfigParameters
@@ -23,6 +25,7 @@ package org.bigbluebutton.main.model
 		public var application:String;
 		public var host:String;
 		public var numModules:int;
+		public var languageEnabled:Boolean;
 		
 		private var loadedListener:Function;
 		
@@ -54,7 +57,9 @@ package org.bigbluebutton.main.model
 			host = xml.application.@host;
 			helpURL = xml.help.@url;
 			version = xml.version;
-			localeVersion = xml.localeversion;				
+			localeVersion = xml.localeversion;	
+			if (xml.language.@userSelectionEnabled == "true") languageEnabled = true;
+			else languageEnabled = false;
 		}
 		
 		public function getModulesXML():XMLList{

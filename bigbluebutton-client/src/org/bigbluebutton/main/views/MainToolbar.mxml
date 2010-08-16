@@ -29,6 +29,7 @@
 	<mate:Listener type="EndMeetingKickAllEvent" method="handleEndMeetingEvent"/>
 	<mate:Listener type="{LogoutEvent.USER_LOGGED_OUT}" method="hideToolbar" />
 	<mate:Listener type="{SuccessfulLoginEvent.USER_LOGGED_IN}" method="loginSuccess" />
+	<mate:Listener type="{ConfigEvent.CONFIG_EVENT}" method="gotConfigParameters" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -36,6 +37,7 @@
 			
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.CloseWindowEvent;
+			import org.bigbluebutton.main.events.ConfigEvent;
 			import org.bigbluebutton.main.events.LogoutEvent;
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 			import org.bigbluebutton.main.events.ToolbarButtonEvent;
@@ -87,12 +89,16 @@
 				visible = true;
 			}
 			
+			private function gotConfigParameters(e:ConfigEvent):void{
+				langSelector.visible = e.config.languageEnabled;
+			}
+			
 		]]>
 	</mx:Script>	
 	<mx:HBox id="addedBtns">
 	</mx:HBox>		
 	<mx:Spacer width="100%"/>
-	<views:LanguageSelector id="langSelector" />
+	<views:LanguageSelector id="langSelector" visible="false" />
 	<mx:LinkButton label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" click="onHelpButtonClicked()"/>
 	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn')}" id="btnLogout" 
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="doLogout()"/>		

@@ -73,6 +73,8 @@ package org.bigbluebutton.main.model.modules
 			
 			var resolver:DependancyResolver = new DependancyResolver();
 			sorted = resolver.buildDependencyTree(modules);
+			
+			modulesDispatcher.sendConfigParameters(configParameters);
 		}
 		
 		public function useProtocol(protocol:String):void {
