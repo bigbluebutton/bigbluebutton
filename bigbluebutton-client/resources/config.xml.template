@@ -5,6 +5,8 @@
     <help url="http://HOST/help.html"/>
     <porttest host="HOST" application="video"/>    
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter" />
+    <language default="en_US" userSelectionEnabled="true" />
+    
 	<modules>
 
 		<module name="ChatModule" url="ChatModule.swf?v=VERSION" 
@@ -58,6 +60,11 @@
 			infoURL="http://HOST/client/conf/example-info-data.xml?user={userID}&role={role}&meetingID={meetingID}"
 		/>
 		-->
+		
+		<!--<module name="ExampleChatModule" url="ExampleChatModule.swf?v=56" 
+            uri="rtmp://HOST/bigbluebutton" 
+            host="http://HOST"
+		/>-->
 		
 	</modules>
 </config>

@@ -52,7 +52,7 @@
 			import org.bigbluebutton.main.api.IUserListener;
 			import org.bigbluebutton.main.api.UserManager;
 			import org.bigbluebutton.main.model.User;
-			import org.bigbluebutton.main.view.components.MainCanvas;
+			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.deskshare.events.CursorEvent;
 			import org.bigbluebutton.modules.deskshare.events.StartedViewingEvent;
 			import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;

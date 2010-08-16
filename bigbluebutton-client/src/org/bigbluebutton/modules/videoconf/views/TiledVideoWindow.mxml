@@ -34,7 +34,7 @@
 			
 			import mx.core.UIComponent;
 			
-			import org.bigbluebutton.main.view.components.MainCanvas;
+			import org.bigbluebutton.main.views.MainCanvas;
 			
 			public static const TILE_WIDTH:Number = 128;
 			public static const TILE_HEIGHT:Number = 96;

@@ -9,7 +9,6 @@ package org.bigbluebutton.modules.example
 	public class ExampleChatProxy
 	{
 		private var url:String;
-		private var host:String;
 		private var conference:String;
 		private var room:String;
 		private var userid:Number;
@@ -32,7 +31,6 @@ package org.bigbluebutton.modules.example
 		}
 		
 		private function extractAttributes(a:Object):void{
-			host = a.host as String;
 			conference = a.conference as String;
 			room = a.room as String;
 			userid = a.userid as Number;

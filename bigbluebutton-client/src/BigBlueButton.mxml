@@ -21,7 +21,7 @@
 --> 
 
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
-	xmlns:mainView="org.bigbluebutton.main.view.components.*"
+	xmlns:views="org.bigbluebutton.main.views.*"
 	xmlns:maps="org.bigbluebutton.main.maps.*"
 	xmlns:mate="http://mate.asfusion.com/"
 	pageTitle="BigBlueButton"
@@ -30,11 +30,13 @@
 	
 	<mx:Script>
 		<![CDATA[
-		import org.bigbluebutton.util.i18n.ResourceUtil;
-		import org.bigbluebutton.main.view.components.MainApplicationShell;
-		
 		import mx.managers.HistoryManager;
 		
+		import org.bigbluebutton.main.views.MainApplicationShell;
+		import org.bigbluebutton.util.i18n.ResourceUtil;
+		
+		private var langResources:ResourceUtil = ResourceUtil.getInstance();
+			
 		/**
 		 * Thse two lines are workaround for this. (ralam - Nov 8, 2008)
 		 * http://gregjessup.com/flex-3-advanceddatagrid-cannot-convert-mxmanagersdragmanagerimpl-to-mxmanagersidragmanager/
@@ -54,5 +56,5 @@
 	</mx:Script>		
 	<maps:ApplicationEventMap />	
 	
-	<mainView:MainApplicationShell id="mainShell"/>	
+	<views:MainApplicationShell id="mainShell"/>	
 </mx:Application>

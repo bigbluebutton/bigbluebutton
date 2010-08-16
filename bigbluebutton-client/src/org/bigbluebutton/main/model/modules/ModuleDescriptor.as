@@ -121,6 +121,7 @@ package org.bigbluebutton.main.model.modules
 		private function onReady(event:Event):void {
 			LogUtil.debug(getName() + "finished loading");
 			var modLoader:ModuleLoader = event.target as ModuleLoader;
+			if (!(modLoader.child is IBigBlueButtonModule)) throw new Error(getName() + " is not a valid BigBlueButton module");
 			_module = modLoader.child as IBigBlueButtonModule;
 			if (_module != null) {
 				LogUtil.debug("Module " + _attributes.name + " has been loaded");

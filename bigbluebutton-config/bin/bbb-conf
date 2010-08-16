@@ -197,13 +197,13 @@ stop_bigbluebutton () {
         /etc/init.d/red5 stop
         /etc/init.d/${TOMCAT} stop
         /etc/init.d/nginx stop
-        /etc/init.d/asterisk stop
+        /etc/init.d/freeswitch stop
         /etc/init.d/activemq stop
 	/etc/init.d/bbb-openoffice-headless stop
 }
 
 start_bigbluebutton () {
-	/etc/init.d/asterisk start
+	/etc/init.d/freeswitch start
 	/etc/init.d/activemq start
 	sleep 5
 	/etc/init.d/nginx start
@@ -214,7 +214,7 @@ start_bigbluebutton () {
 }
 
 display_bigbluebutton_status () {
-	/etc/init.d/asterisk status
+#	/etc/init.d/freeswitch status
 	/etc/init.d/activemq status
 	/etc/init.d/nginx status
 	/etc/init.d/red5 status
@@ -907,6 +907,8 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 #
 # Check current setup
 #
+# TODO:
+# Check if asterisk and freeswitch are running
 if [ $CHECK ]; then
         echo "Current Configuration:"
 	echo "Kernel version: " `uname -r`
