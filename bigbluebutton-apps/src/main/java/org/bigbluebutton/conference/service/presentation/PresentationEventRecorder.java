@@ -47,6 +47,16 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 	
 	String APP_NAME = "PRESENTATION";
 	
+	private final String RECORD_EVENT_SHARE_PRESENTATION="share_presentation";
+	private final String RECORD_EVENT_ASSIGN_PRESENTER="assign_presenter";
+	private final String RECORD_EVENT_REMOVE_PRESENTATION="remove_presentation";
+	private final String RECORD_EVENT_RESIZE_MOVE_SLIDE="resize_move_slide";
+	private final String RECORD_EVENT_UPDATE_SLIDE="update_slide";
+	private final String RECORD_EVENT_CONVERSION_STATUS="conversion_status";
+	private final String RECORD_EVENT_PAGE_COUNT_EXCEEDED="page_count_exceeded";
+	private final String RECORD_EVENT_GENERATED_SLIDE="generated_slide";
+	private final String RECORD_EVENT_CONVERSION_COMPLETE="conversion_complete";
+	
 	public void acceptRecorder(IRecorder recorder){
 		log.debug("Accepting IRecorder");
 		this.recorder = recorder;
@@ -94,30 +104,30 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 				messageKey.equalsIgnoreCase(GENERATING_THUMBNAIL_KEY)||
 				messageKey.equalsIgnoreCase(GENERATED_THUMBNAIL_KEY)||
 				messageKey.equalsIgnoreCase(PAGE_COUNT_FAILED_KEY)){
-			log.debug("${messageKey}[$presentationName]");
+			log.debug("{}[{}]",messageKey,presentationName);
 			// no extra data to send
 			so.sendMessage("conversionUpdateMessageCallback", list);
-			//recordEvent(list.toString());
+			recordEvent(parsePresentationToJSON(list, this.RECORD_EVENT_CONVERSION_STATUS));
 		}
 		else if(messageKey.equalsIgnoreCase(PAGE_COUNT_EXCEEDED_KEY)){
-			log.debug("${messageKey}[$presentationName]");
+			log.debug("{}[{}]",messageKey,presentationName);
 			list.add(message.get("numberOfPages"));
 			list.add(message.get("maxNumberPages"));
 			so.sendMessage("pageCountExceededUpdateMessageCallback", list);
-			//recordEvent(list.toString());
+			recordEvent(parsePresentationToJSON(list, this.RECORD_EVENT_PAGE_COUNT_EXCEEDED));
 		}
 		else if(messageKey.equalsIgnoreCase(GENERATED_SLIDE_KEY)){
-			log.debug("${messageKey}[$presentationName]");
+			log.debug("{}[{}]",messageKey,presentationName);
 			list.add(message.get("numberOfPages"));
 			list.add(message.get("pagesCompleted"));
 			so.sendMessage("generatedSlideUpdateMessageCallback", list);
-			//recordEvent(list.toString());
+			recordEvent(parsePresentationToJSON(list, this.RECORD_EVENT_GENERATED_SLIDE));
 		}
 		else if(messageKey.equalsIgnoreCase(CONVERSION_COMPLETED_KEY)){
-			log.debug("${messageKey}[$presentationName]");
+			log.debug("{}[{}]",messageKey,presentationName);
 			list.add(message.get("slidesInfo"));								
 			so.sendMessage("conversionCompletedUpdateMessageCallback", list);
-			//recordEvent(list.toString());
+			recordEvent(parsePresentationToJSON(list, this.RECORD_EVENT_CONVERSION_COMPLETE));
 		}
 		else{
 			log.error("Cannot handle recieved message.");
@@ -127,57 +137,114 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 	
 	@SuppressWarnings("unchecked")
 	public void removePresentation(String name){
-	   log.debug("calling removePresentationCallback $name");
+	   log.debug("calling removePresentationCallback {}",name);
 	   ArrayList list=new ArrayList();
 	   list.add(name);
 	   so.sendMessage("removePresentationCallback", list);
-	   recordEvent(list.toString());
+	   recordEvent(parsePresentationToJSON(list, this.RECORD_EVENT_REMOVE_PRESENTATION));
 	}
 	
 	@SuppressWarnings("unchecked")
 	public void gotoSlide(int slide){
-		log.debug("calling gotoSlideCallback $slide");
+		log.debug("calling gotoSlideCallback {}",slide);
 		ArrayList list=new ArrayList();
 		list.add(slide);
 		so.sendMessage("gotoSlideCallback", list);	
-		recordEvent(list.toString());
+		recordEvent(parsePresentationToJSON(list, this.RECORD_EVENT_UPDATE_SLIDE));
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
 	public void sharePresentation(String presentationName, Boolean share){
-		log.debug("calling sharePresentationCallback $presentationName $share");
+		log.debug("calling sharePresentationCallback {} {}",presentationName,share);
 		ArrayList list=new ArrayList();
 		list.add(presentationName);
 		list.add(share);
 		so.sendMessage("sharePresentationCallback", list);
-		recordEvent(list.toString());
+		recordEvent(parsePresentationToJSON(list, this.RECORD_EVENT_SHARE_PRESENTATION));
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void assignPresenter(ArrayList presenter) {
-		log.debug("calling assignPresenterCallback $userid, $name $assignedBy");
+		log.debug("calling assignPresenterCallback "+presenter.get(0)+", "+presenter.get(1)+" "+presenter.get(2));
 		so.sendMessage("assignPresenterCallback", presenter);
-		recordEvent(presenter.toString());
+		recordEvent(parsePresentationToJSON(presenter, this.RECORD_EVENT_ASSIGN_PRESENTER));
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void resizeAndMoveSlide(Long xOffset, Long yOffset, Long widthRatio,
 			Long heightRatio) {
-		log.debug("calling moveCallback[$xOffset,$yOffset,$widthRatio,$heightRatio]");
+		log.debug("calling moveCallback["+xOffset+","+yOffset+","+widthRatio+","+heightRatio+"]");
 		ArrayList list=new ArrayList();
 		list.add(xOffset);
 		list.add(yOffset);
 		list.add(widthRatio);
 		list.add(heightRatio);
 		so.sendMessage("moveCallback", list);
-		recordEvent(list.toString());
+		recordEvent(parsePresentationToJSON(list, this.RECORD_EVENT_RESIZE_MOVE_SLIDE));
 	}
 	
 	private String parsePresentationToJSON(ArrayList list, String type){
 		String json="{ ";
+		json+="\"module\":\"presentation\", ";
+		
+		if(type.equalsIgnoreCase(this.RECORD_EVENT_ASSIGN_PRESENTER)){
+			json+="\"event\":\""+this.RECORD_EVENT_ASSIGN_PRESENTER+"\", ";
+			json+="\"userid\":\""+list.get(0)+"\", ";
+			json+="\"name\":\""+list.get(1)+"\", ";
+			json+="\"assignedBy\":\""+list.get(2)+"\" ";
+		}
+		else if(type.equalsIgnoreCase(this.RECORD_EVENT_REMOVE_PRESENTATION)){
+			json+="\"event\":\""+this.RECORD_EVENT_REMOVE_PRESENTATION+"\", ";
+			json+="\"presentationName\":\""+list.get(0)+"\" ";
+		}
+		else if(type.equalsIgnoreCase(this.RECORD_EVENT_RESIZE_MOVE_SLIDE)){
+			json+="\"event\":\""+this.RECORD_EVENT_RESIZE_MOVE_SLIDE+"\", ";
+			json+="\"xOffset\":\""+list.get(0)+"\", ";
+			json+="\"yOffset\":\""+list.get(1)+"\", ";
+			json+="\"widthRatio\":\""+list.get(2)+"\", ";
+			json+="\"heightRatio\":\""+list.get(3)+"\" ";
+		}
+		else if(type.equalsIgnoreCase(this.RECORD_EVENT_SHARE_PRESENTATION)){
+			json+="\"event\":\""+this.RECORD_EVENT_SHARE_PRESENTATION+"\", ";
+			json+="\"presentationName\":\""+list.get(0)+"\", ";
+			json+="\"share\":\""+list.get(1)+"\" ";
+		}
+		else if(type.equalsIgnoreCase(this.RECORD_EVENT_UPDATE_SLIDE)){
+			json+="\"event\":\""+this.RECORD_EVENT_UPDATE_SLIDE+"\", ";
+			json+="\"slide\":\""+list.get(0)+"\" ";
+		}
+		else if(type.equalsIgnoreCase(this.RECORD_EVENT_CONVERSION_STATUS)){
+			json+="\"event\":\""+this.RECORD_EVENT_CONVERSION_STATUS+"\", ";
+			json+="\"code\":\""+list.get(2)+"\", ";
+			json+="\"presentationName\":\""+list.get(3)+"\", ";
+			json+="\"messageKey\":\""+list.get(4)+"\" ";
+		}
+		else if(type.equalsIgnoreCase(this.RECORD_EVENT_PAGE_COUNT_EXCEEDED)){
+			json+="\"event\":\""+this.RECORD_EVENT_PAGE_COUNT_EXCEEDED+"\", ";
+			json+="\"code\":\""+list.get(2)+"\", ";
+			json+="\"presentationName\":\""+list.get(3)+"\", ";
+			json+="\"messageKey\":\""+list.get(4)+"\", ";
+			json+="\"numberOfPages\":\""+list.get(5)+"\", ";
+			json+="\"maxNumberPages\":\""+list.get(6)+"\" ";
+		}
+		else if(type.equalsIgnoreCase(this.RECORD_EVENT_GENERATED_SLIDE)){
+			json+="\"event\":\""+this.RECORD_EVENT_GENERATED_SLIDE+"\", ";
+			json+="\"code\":\""+list.get(2)+"\", ";
+			json+="\"presentationName\":\""+list.get(3)+"\", ";
+			json+="\"messageKey\":\""+list.get(4)+"\", ";
+			json+="\"numberOfPages\":\""+list.get(5)+"\", ";
+			json+="\"pagesCompleted\":\""+list.get(6)+"\" ";
+		}
+		else if(type.equalsIgnoreCase(this.RECORD_EVENT_CONVERSION_COMPLETE)){
+			json+="\"event\":\""+this.RECORD_EVENT_CONVERSION_COMPLETE+"\", ";
+			json+="\"code\":\""+list.get(2)+"\", ";
+			json+="\"presentationName\":\""+list.get(3)+"\", ";
+			json+="\"messageKey\":\""+list.get(4)+"\", ";
+			json+="\"slidesInfo\":\""+list.get(5)+"\" ";
+		}
 		
 		json+="}";
 		return json;

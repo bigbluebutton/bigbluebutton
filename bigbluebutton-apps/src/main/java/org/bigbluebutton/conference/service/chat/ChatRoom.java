@@ -72,7 +72,7 @@ public class ChatRoom {
 		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
 			log.debug("calling on listener");
 			IChatRoomListener listener = (IChatRoomListener) iter.next();
-			log.debug("calling newChatMessage on listener ${listener.getName()}");
+			log.debug("calling newChatMessage on listener {}",listener.getName());
 			listener.newChatMessage(msg);
 		}
 	}

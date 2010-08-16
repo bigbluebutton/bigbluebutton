@@ -114,7 +114,7 @@ public class ChatHandler extends ApplicationAdapter implements IApplication{
     			return true; 			
     		}    		
     	}  	
-		log.error("Failed to start room ", scope.getName());
+		log.error("Failed to start room {}", scope.getName());
     	return false;
 	}
 

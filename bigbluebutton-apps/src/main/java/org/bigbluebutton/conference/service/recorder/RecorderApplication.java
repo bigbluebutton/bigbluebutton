@@ -20,29 +20,43 @@ package org.bigbluebutton.conference.service.recorder;
  */
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.jms.core.JmsTemplate;
 import org.red5.logging.Red5LoggerFactory;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * 
+ * The RecorderApplication class is used for setting the record module 
+ * in BigBlueButton for send events messages to a JMS queue.
+ * The class follows the same standard as the others modules of BigBlueButton Apps.
+ */
 public class RecorderApplication {
+	
+	/** A log instance */
 	private static Logger log = Red5LoggerFactory.getLogger(RecorderApplication.class, "bigbluebutton");
 	
+	/** A JmsTemplate from the spring framework */
 	private JmsTemplate jmsTemplate;
+	
+	/** A Hashmap with all the BigBlueButton sessions */
 	private final Map<String, RecorderSession> recordSessions;
 	
-	
+	/** 
+	 * Default constructor for RecorderApplication
+	 * It sets the session hashmap.
+	 * @see RecorderSession 
+	 * */
 	public RecorderApplication() {
 		recordSessions = new ConcurrentHashMap<String, RecorderSession>();
 		log.debug("Instantiated ArchiveApplication");
 	}
 	
-	/*
-	 * Should be used?
-	 * 
-	 * */
+	/**
+	 * Destroy a Record Session
+	 * @param sessionName a bigbluebutton session 
+	 */
 	public void destroyRecordSession(String sessionName) {
 		RecorderSession s = recordSessions.remove(sessionName);
 		/*
@@ -51,18 +65,21 @@ public class RecorderApplication {
 		if (s != null) {
 			log.debug("Removed record session");
 		} else {
-			log.debug("Could not find record session $sessionName");
+			log.debug("Could not find record session {}",sessionName);
 		}
 	}
 	
 	/**
 	 * Creates a record session if there wasn't one created already.
+	 * @param conference name of a BigBlueButton conference
+	 * @param room name of a room
+	 * @param sessionName name of a session
 	 */
 	public void createRecordSession(String conference, String room, String sessionName) {
 		RecorderSession session;
 		RecorderEventDispatcher recorder=null;
 		boolean createdSession = false;
-		log.debug("Trying to create a record session for $sessionName");
+		log.debug("Trying to create a record session for {}",sessionName);
 		synchronized (this) {
 			log.debug("Checking if record session $sessionName is already present.");
 			if (recordSessions == null) {
@@ -72,16 +89,16 @@ public class RecorderApplication {
 			}
 			
 			if (! recordSessions.containsKey(sessionName)) {
-				log.debug("Creating jms recorder for $conference $room");
+				log.debug("Creating jms recorder for "+conference+" "+room);
 				recorder = new RecorderEventDispatcher(conference, room);
-				log.debug("Creating record session for $sessionName");
+				log.debug("Creating record session for {}",sessionName);
 				session = new RecorderSession(conference, room);
-				log.debug("Adding record session $sessionName to record sessions");
+				log.debug("Adding record session {} to record sessions",sessionName);
 				recordSessions.put(session.getName(), session);	
-				log.debug("Setting recorder to record session $sessionName");
+				log.debug("Setting recorder to record session {}",sessionName);
 				session.setRecorder(recorder);
 				createdSession = true;
-				log.debug("Created record session ${session.name}");
+				log.debug("Created record session {}",session.getName());
 			} else {
 				log.debug("Not creating record session");
 			}
@@ -91,16 +108,26 @@ public class RecorderApplication {
 		}		
 	}
 	
+	/**
+	 * Add a recorder type. this can be a chat, presentation, participants event recorder
+	 * @param sessionName session name
+	 * @param recorder a event recorder
+	 * @see IEventRecorder
+	 */
 	public void addEventRecorder(String sessionName, IEventRecorder recorder) {
 		if (recordSessions.containsKey(sessionName)) {
-			log.debug("Adding event recorder to session $sessionName.");
+			log.debug("Adding event recorder to session {}.",sessionName);
 			RecorderSession session = recordSessions.get(sessionName);
 			session.addEventRecorder(recorder);
 		} else {
-			log.debug("Not adding event recorder to session $sessionName.");
+			log.debug("Not adding event recorder to session {}.",sessionName);
 		}
 	}
 	
+	/**
+	 * Sets a jms template for the queue of events generated. This method is used in the bbb-apps.xml.
+	 * @param jmsTemplate the JMS Template
+	 */
 	public void setJmsTemplate(JmsTemplate jmsTemplate){
 		log.debug("Setting JmsTemplate");
 		this.jmsTemplate = jmsTemplate;

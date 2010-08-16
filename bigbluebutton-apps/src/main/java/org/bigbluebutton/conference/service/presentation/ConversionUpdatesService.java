@@ -52,12 +52,12 @@ public class ConversionUpdatesService {
 			
 			@Override
 			public void run() {
-				log.info("${APP} - Will wait for document conversion updates messages.");
+				log.info("{} - Will wait for document conversion updates messages.",APP);
 		        
 		        while (waitForMessage) {
 		        	Message jmsMessage = template.receive(destination);
 		        	
-		        	log.debug("${APP} - Got JMS message.");
+		        	log.debug("{} - Got JMS message.",APP);
 		        	
 		        	if (jmsMessage instanceof MapMessage) {
 		                try {
@@ -72,7 +72,7 @@ public class ConversionUpdatesService {
 							message.put("code", code);
 							message.put("presentationName", presentationName);
 							if(code.equalsIgnoreCase("SUCCESS")){
-								log.debug("JMS: SUCCESS[$presentationName]");
+								log.debug("JMS: SUCCESS[{}]",presentationName);
 								message.put("message", mapMessage.getStringProperty("message"));
 								presentationApplication.sendUpdateMessage(message);
 							}
@@ -85,12 +85,12 @@ public class ConversionUpdatesService {
 									code.equalsIgnoreCase("FAILED_CONVERT_SWF_IMAGE")||
 									code.equalsIgnoreCase("FAILED_CONVERT_SWF_PDF")||
 									code.equalsIgnoreCase("FAILED_CONVERT_THUMBNAIL")){
-								log.debug("JMS: ${code}[$presentationName]");
+								log.debug("JMS: {}[{}]",code,presentationName);
 								presentationApplication.sendUpdateMessage(message);
 							}
 							else if(code.equalsIgnoreCase("FAILED")||
 									code.equalsIgnoreCase("FAILED_CONVERT")){
-								log.debug("JMS: FAILED[$presentationName]");
+								log.debug("JMS: FAILED[{}]",presentationName);
 								message.put("message", mapMessage.getStringProperty("message"));
 								presentationApplication.sendUpdateMessage(message);
 							}
@@ -101,7 +101,7 @@ public class ConversionUpdatesService {
 								message.put("totalSlides", totalSlides);
 								message.put("completedSlides", completedSlides);
 								
-								log.debug("JMS: CONVERT[$presentationName, $completedSlides, $totalSlides]");
+								log.debug("JMS: CONVERT["+presentationName+", "+completedSlides+", "+totalSlides+"]");
 								presentationApplication.sendUpdateMessage(message);
 							}
 							else{

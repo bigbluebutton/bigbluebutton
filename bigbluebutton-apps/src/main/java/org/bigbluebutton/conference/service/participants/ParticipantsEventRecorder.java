@@ -41,6 +41,12 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 	
 	String name = "PARTICIPANT";
 	
+	private final String RECORD_EVENT_JOIN="join";
+	private final String RECORD_EVENT_LEAVE="leave";
+	private final String RECORD_EVENT_STATUS_CHANGE="status_change";
+	private final String RECORD_EVENT_LEAVE_ALL="leave_all";
+	
+	
 	public ParticipantsEventRecorder(ISharedObject so, Boolean record) {
 		this.so = so; 
 		this.record = record;
@@ -68,17 +74,18 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 	@Override
 	public void endAndKickAll() {
 		so.sendMessage("logout", new ArrayList());
+		recordEvent(parseParticipantsToJSON(new ArrayList(), this.RECORD_EVENT_LEAVE_ALL));
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void participantJoined(Participant p) {
-		log.debug("A participant has joined ${p.userid}.");
+		log.debug("A participant has joined {}.",p.getUserid());
 		ArrayList args = new ArrayList();
 		args.add(p.toMap());
-		log.debug("Sending participantJoined ${p.userid} to client.");
+		log.debug("Sending participantJoined {} to client.",p.getUserid());
 		so.sendMessage("participantJoined", args);
-		recordEvent(parseParticipantsToJSON(args, "JOIN"));
+		recordEvent(parseParticipantsToJSON(args, this.RECORD_EVENT_JOIN));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -87,40 +94,45 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 		ArrayList args = new ArrayList();
 		args.add(userid);
 		so.sendMessage("participantLeft", args);
-		recordEvent(parseParticipantsToJSON(args, "LEAVE"));
+		recordEvent(parseParticipantsToJSON(args, this.RECORD_EVENT_LEAVE));
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void participantStatusChange(Long userid, String status, Object value) {
-		log.debug("A participant's status has changed ${userid} $status $value.");
+		log.debug("A participant's status has changed "+userid+" "+status+" "+value);
 		ArrayList args = new ArrayList();
 		args.add(userid);
 		args.add(status);
 		args.add(value);
 		so.sendMessage("participantStatusChange", args);
-		recordEvent(parseParticipantsToJSON(args, "STATUS_CHANGE"));
+		recordEvent(parseParticipantsToJSON(args, this.RECORD_EVENT_STATUS_CHANGE));
 	}
 	
 	/****** parse method ********/
 	private String parseParticipantsToJSON(ArrayList list, String type){
 		String json="{ ";
-		if(type.equalsIgnoreCase("STATUS_CHANGE")){
-			json+="\"event\":\"STATUS_CHANGE\", ";
+		
+		json+="\"module\":\"participants\", ";
+		if(type.equalsIgnoreCase(this.RECORD_EVENT_STATUS_CHANGE)){
+			json+="\"event\":\""+this.RECORD_EVENT_STATUS_CHANGE+"\", ";
 			json+="\"userid\":\""+list.get(0)+"\", ";
 			json+="\"status\":\""+list.get(1)+"\", ";
 			json+="\"value\":\""+list.get(2)+"\" ";
 		}
-		else if(type.equalsIgnoreCase("JOIN")){
+		else if(type.equalsIgnoreCase(this.RECORD_EVENT_JOIN)){
 			Map map=(Map) list.get(0);
-			json+="\"event\":\"JOIN\", ";
+			json+="\"event\":\""+this.RECORD_EVENT_JOIN+"\", ";
 			json+="\"userid\":\""+map.get("userid")+"\", ";
 			json+="\"name\":\""+map.get("name")+"\", ";
 			json+="\"role\":\""+map.get("role")+"\" ";
 		}
-		else if(type.equalsIgnoreCase("LEAVE")){
-			json+="\"event\":\"LEAVE\", ";
+		else if(type.equalsIgnoreCase(this.RECORD_EVENT_LEAVE)){
+			json+="\"event\":\""+this.RECORD_EVENT_LEAVE+"\", ";
 			json+="\"userid\":\""+list.get(0)+"\" ";
+		}
+		else if(type.equalsIgnoreCase(this.RECORD_EVENT_LEAVE_ALL)){
+			json+="\"event\":\""+this.RECORD_EVENT_LEAVE_ALL+"\" ";			
 		}
 		json+="}";
 		return json;

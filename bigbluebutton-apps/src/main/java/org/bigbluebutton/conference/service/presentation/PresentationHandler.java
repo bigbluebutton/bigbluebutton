@@ -44,50 +44,50 @@ public class PresentationHandler extends ApplicationAdapter implements IApplicat
 	
 	@Override
 	public boolean appConnect(IConnection conn, Object[] params) {
-		log.debug("${APP}:appConnect");
+		log.debug("{}:appConnect",APP);
 		return true;
 	}
 
 	@Override
 	public void appDisconnect(IConnection conn) {
-		log.debug( "${APP}:appDisconnect");
+		log.debug( "{}:appDisconnect",APP);
 	}
 
 	@Override
 	public boolean appJoin(IClient client, IScope scope) {
-		log.debug( "${APP}:appJoin ${scope.name}");
+		log.debug( "{}:appJoin {}",APP,scope.getName());
 		return true;
 	}
 
 	@Override
 	public void appLeave(IClient client, IScope scope) {
-		log.debug("${APP}:appLeave ${scope.name}");
+		log.debug("{}:appLeave {}",APP,scope.getName());
 
 	}
 
 	@Override
 	public boolean appStart(IScope scope) {
-		log.debug("${APP}:appStart ${scope.name}");
+		log.debug("{}:appStart {}",APP,scope.getName());
 		conversionUpdatesMessageListener.start();
 		return true;
 	}
 
 	@Override
 	public void appStop(IScope scope) {
-		log.debug("${APP}:appStop ${scope.name}");
+		log.debug("{}:appStop {}",APP,scope.getName());
 		conversionUpdatesMessageListener.stop();
 	}
 
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
-		log.debug("${APP}:roomConnect");
+		log.debug("{}:roomConnect",APP);
 		
 		log.debug("In live mode");
 		ISharedObject so = getSharedObject(connection.getScope(), PRESENTATION_SO);
 		
 		log.debug("Setting up recorder");
 		PresentationEventRecorder recorder = new PresentationEventRecorder(so, getBbbSession().getRecord());
-		log.debug("adding event recorder to ${connection.scope.name}");
+		log.debug("adding event recorder to {}",connection.getScope().getName());
 		recorderApplication.addEventRecorder(connection.getScope().getName(), recorder);				
 		
 		log.debug("Adding room listener");
@@ -98,37 +98,37 @@ public class PresentationHandler extends ApplicationAdapter implements IApplicat
 
 	@Override
 	public void roomDisconnect(IConnection connection) {
-		log.debug("${APP}:roomDisconnect");
+		log.debug("{}:roomDisconnect",APP);
 
 	}
 
 	@Override
 	public boolean roomJoin(IClient client, IScope scope) {
-		log.debug("${APP}:roomJoin ${scope.name} - ${scope.parent.name}");
+		log.debug(APP+":roomJoin "+scope.getName()+" - "+scope.getParent().getName());
 		return true;
 	}
 
 	@Override
 	public void roomLeave(IClient client, IScope scope) {
-		log.debug("${APP}:roomLeave ${scope.name}");
+		log.debug("{}:roomLeave {}",APP,scope.getName());
 	}
 
 	@Override
 	public boolean roomStart(IScope scope) {
-		log.debug("${APP} - roomStart ${scope.name}");
+		log.debug("{} - roomStart {}",APP,scope.getName());
 		presentationApplication.createRoom(scope.getName());
     	if (!hasSharedObject(scope, PRESENTATION_SO)) {
     		if (createSharedObject(scope, PRESENTATION_SO, false)) {    			
     			return true; 			
     		}    		
     	}  	
-		log.error("Failed to start room ${scope.name}");
+		log.error("Failed to start room {}",scope.getName());
     	return false;
 	}
 
 	@Override
 	public void roomStop(IScope scope) {
-		log.debug("${APP}:roomStop ${scope.name}");
+		log.debug("{}:roomStop {}",APP,scope.getName());
 		presentationApplication.destroyRoom(scope.getName());
 		if (!hasSharedObject(scope, PRESENTATION_SO)) {
     		clearSharedObjects(scope, PRESENTATION_SO);

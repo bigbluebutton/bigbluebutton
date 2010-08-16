@@ -56,7 +56,7 @@ public class ParticipantsApplication {
 			roomsManager.addRoomListener(room, listener);
 			return true;
 		}
-		log.warn("Adding listener to a non-existant room ${room}");
+		log.warn("Adding listener to a non-existant room {}",room);
 		return false;
 	}
 	
@@ -65,9 +65,9 @@ public class ParticipantsApplication {
 	}
 	
 	public Map getParticipants(String roomName) {
-		log.debug("${APP}:getParticipants - ${roomName}");
+		log.debug(APP+":getParticipants - "+roomName);
 		if (! roomsManager.hasRoom(roomName)) {
-			log.warn("Could not find room ${roomName}");
+			log.warn("Could not find room "+roomName);
 			return null;
 		}
 
@@ -75,10 +75,10 @@ public class ParticipantsApplication {
 	}
 	
 	public boolean participantLeft(String roomName, Long userid) {
-		log.debug("Participant $userid leaving room $roomName");
+		log.debug("Participant "+userid+" leaving room "+roomName);
 		if (roomsManager.hasRoom(roomName)) {
 			Room room = roomsManager.getRoom(roomName);
-			log.debug("Removing $userid from room $roomName");
+			log.debug("Removing "+userid+" from room "+roomName);
 			room.removeParticipant(userid);
 			return true;
 		}
@@ -88,15 +88,15 @@ public class ParticipantsApplication {
 	
 	@SuppressWarnings("unchecked")
 	public boolean participantJoin(String roomName, Long userid, String username, String role, String externUserID, Map status) {
-		log.debug("${APP}:participant joining room ${roomName}");
+		log.debug(APP+":participant joining room "+roomName);
 		if (roomsManager.hasRoom(roomName)) {
 			Participant p = new Participant(userid, username, role, externUserID, status);			
 			Room room = roomsManager.getRoom(roomName);
 			room.addParticipant(p);
-			log.debug("${APP}:participant joined room ${roomName}");
+			log.debug(APP+":participant joined room "+roomName);
 			return true;
 		}
-		log.debug("${APP}:participant failed to join room ${roomName}");
+		log.debug(APP+":participant failed to join room"+roomName);
 		return false;
 	}
 	

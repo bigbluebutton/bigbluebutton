@@ -89,14 +89,14 @@ public class ConversionUpdatesReceiverImp implements ConversionUpdatesReceiver {
 		message.put("code", code);
 		message.put("presentationName", presentationName);
 		
-		log.debug("JMS: ${code}[$presentationName]");
+		log.debug("JMS: {}[{}]",code,presentationName);
 		if(code.equalsIgnoreCase("SUCCESS")){
-			log.debug("JMS: SUCCESS[$presentationName]");
+			log.debug("JMS: SUCCESS[{}]",presentationName);
 			message.put("message", mapMessage.getStringProperty("message"));
 			conversionUpdatesProcessor.process(message);
 		}
 		else if(code.equalsIgnoreCase("THUMBNAILS")){
-			log.debug("JMS: THUMBNAILS[$presentationName]");
+			log.debug("JMS: THUMBNAILS[{}]",presentationName);
 			conversionUpdatesProcessor.process(message);
 		}
 		else if(code.equalsIgnoreCase("FAILED_CONVERT_FORMAT")||
@@ -108,11 +108,11 @@ public class ConversionUpdatesReceiverImp implements ConversionUpdatesReceiver {
 				code.equalsIgnoreCase("FAILED_CONVERT_SWF_IMAGE")||
 				code.equalsIgnoreCase("FAILED_CONVERT_SWF_PDF")||
 				code.equalsIgnoreCase("FAILED_CONVERT_THUMBNAIL")){
-			log.debug("JMS: ${code}[$presentationName]");
+			log.debug("JMS: {}[{}]",code,presentationName);
 			conversionUpdatesProcessor.process(message);
 		}
 		else if(code.equalsIgnoreCase("FAILED_CONVERT")){
-			log.debug("JMS: FAILED_CONVERT[$presentationName]");
+			log.debug("JMS: FAILED_CONVERT[{}]",presentationName);
 			message.put("message", mapMessage.getStringProperty("message"));
 			conversionUpdatesProcessor.process(message);
 		}
@@ -122,7 +122,7 @@ public class ConversionUpdatesReceiverImp implements ConversionUpdatesReceiver {
 			message.put("totalSlides", totalSlides);
 			message.put("completedSlides", completedSlides);
 				
-			log.debug("JMS: CONVERT[$presentationName, $completedSlides, $totalSlides]");
+			log.debug("JMS: CONVERT["+presentationName+", "+completedSlides+", "+totalSlides+"]");
 			conversionUpdatesProcessor.process(message);
 		}
 		else{

@@ -77,22 +77,22 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatEventRecorder.class
 	private String parseChatToJSON(String message){
 		String json="{ ";
 		int idx_ini=message.indexOf("color=")+7;
-		int idx_end=message.indexOf("\">", idx_ini)-1;
+		int idx_end=message.indexOf("\">", idx_ini);
 		String color=message.substring(idx_ini, idx_end);
 		
 		idx_ini=message.indexOf("<b>")+4;
-		idx_end=message.indexOf("</b>", idx_ini)-14;
+		idx_end=message.indexOf("</b>", idx_ini)-13;
 		String user=message.substring(idx_ini,idx_end);
 		
 		idx_ini=message.indexOf("</b>")+4;
-		idx_end=message.indexOf("</font>", idx_ini)-1;
+		idx_end=message.indexOf("</font>", idx_ini);
 		String text=message.substring(idx_ini,idx_end);
 		
-		json+="\"event\":\"CHAT\" }";
-		json+="\"color\":\""+color+"\", ";
-		json+="\"user\":\""+user+"\", ";
-		json+="\"text\":\""+text+"\", ";
-		json+="\"version\":\"0.1\", ";
+		json+="\"module\":\"chat\", ";
+		json+="\"event\":\"new_message\", ";
+		json+="\"user\":\""+user.trim()+"\", ";
+		json+="\"text\":\""+text.trim()+"\", ";
+		json+="\"color\":\""+color.trim()+"\" }";
 		
 		return json;
 	}

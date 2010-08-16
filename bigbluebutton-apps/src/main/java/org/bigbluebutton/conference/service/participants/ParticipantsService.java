@@ -39,9 +39,9 @@ public class ParticipantsService {
 	@SuppressWarnings("unchecked")
 	public Map getParticipants() {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
-		log.debug("getting participants for ${roomName}");
+		log.debug("getting participants for {}",roomName);
 		Map p = application.getParticipants(roomName);
-		log.debug("getting participants for ${roomName}");
+		log.debug("getting participants for {}",roomName);
 		Map participants = new HashMap();
 		if (p == null) {
 			participants.put("count", 0);
@@ -67,7 +67,7 @@ public class ParticipantsService {
 	
 	public void setParticipantStatus(Long userid, String status, Object value) {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
-		log.debug("Setting participant status $roomName $userid $status $value");
+		log.debug("Setting participant status "+roomName+" "+userid+" "+status+" "+value);
 		application.setParticipantStatus(roomName, userid, status, value);
 	}
 	

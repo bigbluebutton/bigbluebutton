@@ -47,47 +47,47 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 	
 	@Override
 	public boolean appConnect(IConnection conn, Object[] params) {
-		log.debug("${APP}:appConnect");
+		log.debug(APP+":appConnect");
 		return true;
 	}
 
 	@Override
 	public void appDisconnect(IConnection conn) {
-		log.debug( "${APP}:appDisconnect");
+		log.debug( APP+":appDisconnect");
 	}
 
 	@Override
 	public boolean appJoin(IClient client, IScope scope) {
-		log.debug( "${APP}:appJoin ${scope.name}");
+		log.debug( APP+":appJoin "+scope.getName());
 		return true;
 	}
 
 	@Override
 	public void appLeave(IClient client, IScope scope) {
-		log.debug("${APP}:appLeave ${scope.name}");
+		log.debug(APP+":appLeave "+scope.getName());
 	}
 
 	@Override
 	public boolean appStart(IScope scope) {
-		log.debug("${APP}:appStart ${scope.name}");
+		log.debug(APP+":appStart "+scope.getName());
 		return true;
 	}
 
 	@Override
 	public void appStop(IScope scope) {
-		log.debug("${APP}:appStop ${scope.name}");
+		log.debug(APP+":appStop "+scope.getName());
 	}
 
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
-		log.debug("${APP}:roomConnect");
+		log.debug(APP+":roomConnect");
 		
 		log.debug("In live mode");
 		ISharedObject so = getSharedObject(connection.getScope(), PARTICIPANTS_SO);
 		
 		//log.debug("Setting up recorder with recording {}", getBbbSession().getRecord())
 		ParticipantsEventRecorder recorder = new ParticipantsEventRecorder(so, getBbbSession().getRecord());
-		log.debug("adding event recorder to ${connection.scope.name}");
+		log.debug("adding event recorder to {}",connection.getScope().getName());
 		recorderApplication.addEventRecorder(connection.getScope().getName(), recorder);				
 		
 		log.debug("Adding room listener");
@@ -98,19 +98,19 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 
 	@Override
 	public void roomDisconnect(IConnection connection) {
-		log.debug("${APP}:roomDisconnect");
+		log.debug(APP+":roomDisconnect");
 	}
 
 	@Override
 	public boolean roomJoin(IClient client, IScope scope) {
-		log.debug("${APP}:roomJoin ${scope.name} - ${scope.parent.name}");
+		log.debug(APP+":roomJoin "+scope.getName()+" - "+scope.getParent().getName());
 		participantJoin();
 		return true;
 	}
 
 	@Override
 	public void roomLeave(IClient client, IScope scope) {
-		log.debug("${APP}:roomLeave ${scope.name}");
+		log.debug(APP+":roomLeave "+scope.getName());
 		BigBlueButtonSession bbbSession = getBbbSession();
 		if (bbbSession == null) {
 			log.debug("roomLeave - session is null"); 
@@ -123,20 +123,20 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 
 	@Override
 	public boolean roomStart(IScope scope) {
-		log.debug("${APP} - roomStart ${scope.name}");
+		log.debug(APP+" - roomStart "+scope.getName());
     	// create ParticipantSO if it is not already created
     	if (!hasSharedObject(scope, PARTICIPANTS_SO)) {
     		if (createSharedObject(scope, PARTICIPANTS_SO, false)) {    			
     			return true; 			
     		}    		
     	}  	
-		log.error("Failed to start room ${scope.name}");
+		log.error("Failed to start room {}",scope.getName());
     	return false;
 	}
 
 	@Override
 	public void roomStop(IScope scope) {
-		log.debug("${APP}:roomStop ${scope.name}");
+		log.debug(APP+":roomStop "+scope.getName());
 		if (!hasSharedObject(scope, PARTICIPANTS_SO)) {
     		clearSharedObjects(scope, PARTICIPANTS_SO);
     	}
@@ -144,30 +144,30 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 	
 	@SuppressWarnings("unchecked")
 	public boolean participantJoin() {
-		log.debug("${APP}:participantJoin - getting userid");
+		log.debug(APP+":participantJoin - getting userid");
 		BigBlueButtonSession bbbSession = getBbbSession();
 		if (bbbSession == null) {
 			log.warn("bbb session is null");
 		}
 		
 		Long userid = bbbSession.getUserid();
-		log.debug("${APP}:participantJoin - userid $userid");
+		log.debug(APP+":participantJoin - userid "+userid);
 		String username = bbbSession.getUsername();
-		log.debug("${APP}:participantJoin - username $username");
+		log.debug(APP+":participantJoin - username "+username);
 		String role = bbbSession.getRole();
-		log.debug("${APP}:participantJoin - role $role");
+		log.debug(APP+":participantJoin - role "+role);
 		String room = bbbSession.getRoom();
-		log.debug("${APP}:participantJoin - room $room");
+		log.debug(APP+":participantJoin - room "+room);
 		
 		String externUserID = bbbSession.getExternUserID();
 		
-		log.debug("${APP}:participantJoin");
+		log.debug(APP+":participantJoin");
 		Map status = new HashMap();
 		status.put("raiseHand", false);
 		status.put("presenter", false);
 		status.put("hasStream", false);
 		
-		log.debug("${APP}:participantJoin setting status");		
+		log.debug(APP+":participantJoin setting status");		
 		return participantsApplication.participantJoin(room, userid, username, role, externUserID, status);
 	}
 	
@@ -177,7 +177,7 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 	}
 	
 	public void setRecorderApplication(RecorderApplication a) {
-		log.debug("Setting archive application");
+		log.debug("Setting recorder application");
 		recorderApplication = a;
 	}
 	
