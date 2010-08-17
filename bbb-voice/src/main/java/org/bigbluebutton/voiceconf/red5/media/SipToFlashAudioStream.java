@@ -98,14 +98,14 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 	    startTimestamp = System.currentTimeMillis();
 	    audioBroadcastStream.start();
 	    
-	    processAudioData = true;
-	    
-	    audioDataProcessor = new Runnable() {
-    		public void run() {
-    			processAudioData();       			
-    		}
-    	};
-    	exec.execute(audioDataProcessor);
+//	    processAudioData = true;
+//	    
+//	    audioDataProcessor = new Runnable() {
+ //   		public void run() {
+ //   			processAudioData();       			
+ //   		}
+ //   	};
+//    	exec.execute(audioDataProcessor);
     	
 	    rtpStreamReceiver.start();
 	}
@@ -129,12 +129,14 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 
 	@Override
 	public void onAudioDataReceived(AudioByteData audioData) {
-		try {
+/*		try {
 			audioDataQ.put(audioData);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		*/
+		transcoder.transcode(audioData, this);
 	}
 	
 	@Override
