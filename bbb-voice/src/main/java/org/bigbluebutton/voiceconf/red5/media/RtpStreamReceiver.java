@@ -77,14 +77,18 @@ public class RtpStreamReceiver {
     public void receiveRtpPackets() {    
         int packetReceivedCounter = 0;
         int internalBufferLength = payloadLength + RTP_HEADER_SIZE;
+        long lastPacketReceived = System.currentTimeMillis();
         
         while (receivePackets) {
         	try {
         		byte[] internalBuffer = new byte[internalBufferLength];
         		RtpPacket rtpPacket = new RtpPacket(internalBuffer, 0);      
         		rtpSocket.receive(rtpPacket);
-        		packetReceivedCounter++;   
-        		System.out.println("RTP data = [" + rtpPacket.getPayloadLength() + "," + rtpPacket.getTimestamp() + "]");
+        		packetReceivedCounter++;  
+        		long now = System.currentTimeMillis();
+        		long packetInterval =  now - lastPacketReceived;
+        		lastPacketReceived = now;
+        		System.out.println("RTP data = [" + rtpPacket.getPayloadLength() + "," + rtpPacket.getTimestamp() + "," + packetInterval + "]");
         		AudioByteData audioData = new AudioByteData(rtpPacket.getPayload(), rtpPacket.getTimestamp());
         		if (listener != null) listener.onAudioDataReceived(audioData);
         		else log.debug("No listener for incoming audio packet");

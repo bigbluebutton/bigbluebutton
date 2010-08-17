@@ -24,6 +24,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.bigbluebutton.voiceconf.red5.media.transcoder.SipToFlashTranscoder;
@@ -101,7 +102,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 	    
 	    audioDataProcessor = new Runnable() {
     		public void run() {
-    			processAudioData();   			
+    			processAudioData();       			
     		}
     	};
     	exec.execute(audioDataProcessor);
@@ -113,8 +114,6 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 		while (processAudioData) {
 			try {
 				AudioByteData abd = audioDataQ.take();
-//				long delay = System.currentTimeMillis() - abd.getTimestamp();
-//				log.debug("S2F [" + audioDataQ.size() + "," + delay + "]");
 				transcoder.transcode(abd, this);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -161,8 +160,10 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
         buffer.flip();
 
         AudioData audioData = new AudioData(buffer);
-        audioData.setTimestamp((int) (System.currentTimeMillis() - startTimestamp));
-        //audioData.setTimestamp((int)timestamp);
+        long ts = (System.currentTimeMillis() - startTimestamp);
+        System.out.println("Sending RTMP = " + ts);
+        audioData.setTimestamp((int) ts);
+       // audioData.setTimestamp((int)timestamp);
 		audioBroadcastStream.dispatchEvent(audioData);
 		audioData.release();
     }
