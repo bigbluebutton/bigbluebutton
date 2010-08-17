@@ -20,6 +20,7 @@
 package org.bigbluebutton.voiceconf.red5.media.transcoder;
 
 import org.slf4j.Logger;
+import org.bigbluebutton.voiceconf.red5.media.AudioByteData;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.app.sip.codecs.Codec;
 import org.red5.app.sip.codecs.asao.ByteStream;
@@ -46,7 +47,8 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
     }
     
 	@Override
-	public void transcode(byte[] codedBuffer, TranscodedAudioDataListener listener) {
+	public void transcode(AudioByteData audioData, TranscodedAudioDataListener listener) {
+		byte[] codedBuffer = audioData.getData();
     	float[] decodingBuffer = new float[codedBuffer.length];
         int decodedBytes = audioCodec.codecToPcm(codedBuffer, decodingBuffer);
 
@@ -71,7 +73,7 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
                     ByteStream encodedStream = new ByteStream(NELLYMOSER_ENCODED_PACKET_SIZE);
     				encoderMap = CodecImpl.encode(encoderMap, tempBuffer, encodedStream.bytes);
     				tempBufferOffset = 0;
-    				listener.handleTranscodedAudioData(encodedStream.bytes);
+    				listener.handleTranscodedAudioData(encodedStream.bytes, audioData.getTimestamp());
                 }
 
                 if (pcmBufferOffset == decodingBuffer.length) {

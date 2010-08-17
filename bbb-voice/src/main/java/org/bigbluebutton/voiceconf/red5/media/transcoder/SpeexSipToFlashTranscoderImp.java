@@ -19,6 +19,7 @@
  */
 package org.bigbluebutton.voiceconf.red5.media.transcoder;
 
+import org.bigbluebutton.voiceconf.red5.media.AudioByteData;
 import org.red5.app.sip.codecs.Codec;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
@@ -28,14 +29,42 @@ public class SpeexSipToFlashTranscoderImp implements SipToFlashTranscoder {
 	
 	private static final int SPEEX_CODEC = 178; /* 1011 1111 (see flv spec) */
 	private Codec audioCodec = null;
+	private byte[] buffer1;
+	private byte[] buffer2;
+	private byte[] buffer3;
+	private int freebuffer = 1;
 	
 	public SpeexSipToFlashTranscoderImp(Codec codec) {
 		this.audioCodec = codec;
 	}
 
 	@Override
-	public void transcode(byte[] codedBuffer, TranscodedAudioDataListener listener) {
-		listener.handleTranscodedAudioData(codedBuffer);
+	public void transcode(AudioByteData audioData, TranscodedAudioDataListener listener) {
+		byte[] codedBuffer = audioData.getData();
+/*
+		if (freebuffer == 1) {
+			buffer1 = new byte[codedBuffer.length];
+			System.arraycopy(codedBuffer, 0, buffer1, 0, codedBuffer.length);
+			freebuffer = 2;
+//			buffer3 = null;
+		} else if (freebuffer == 2) {
+			buffer2 = new byte[codedBuffer.length];
+			System.arraycopy(codedBuffer, 0, buffer2, 0, codedBuffer.length);
+			freebuffer = 3;
+		} else if (freebuffer == 3) {
+			buffer3 = new byte[buffer1.length + buffer2.length + codedBuffer.length];
+			System.arraycopy(buffer1, 0, buffer3, 0, buffer1.length);
+			System.arraycopy(buffer2, 0, buffer3, buffer1.length - 1, buffer2.length);
+			System.arraycopy(codedBuffer, 0, buffer3, buffer1.length + buffer2.length - 1, codedBuffer.length);
+			freebuffer = 1;
+			listener.handleTranscodedAudioData(buffer3);
+//			buffer1 = null;
+//			buffer2 = null;
+		} else {
+			log.warn("Illegal state for transcoding buffer: {}", freebuffer);
+		}
+*/
+		listener.handleTranscodedAudioData(codedBuffer, audioData.getTimestamp());
 	}
 	
 	@Override

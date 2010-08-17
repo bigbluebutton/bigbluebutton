@@ -19,6 +19,7 @@
  */
 package org.bigbluebutton.voiceconf.red5.media.transcoder;
 
+import org.bigbluebutton.voiceconf.red5.media.AudioByteData;
 import org.red5.app.sip.codecs.Codec;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
@@ -32,10 +33,10 @@ public class SpeexFlashToSipTranscoderImp implements FlashToSipTranscoder {
 		this.audioCodec = audioCodec;
 	}
 	
-	public void transcodeAudio(byte[] srcAudio, int startOffset, int length, TranscodedAudioDataListener listener) {
+	public void transcode(AudioByteData audioData, int startOffset, int length, TranscodedAudioDataListener listener) {
 		byte[] transcodedAudio = new byte[length];
-		System.arraycopy(srcAudio, startOffset, transcodedAudio, 0, length);
-		listener.handleTranscodedAudioData(transcodedAudio);
+		System.arraycopy(audioData.getData(), startOffset, transcodedAudio, 0, length);
+		listener.handleTranscodedAudioData(transcodedAudio, audioData.getTimestamp());
 	}
 	
 	public int getCodecId() {

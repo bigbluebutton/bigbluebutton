@@ -20,5 +20,5 @@
 package org.bigbluebutton.voiceconf.red5.media.transcoder;
 
 public interface TranscodedAudioDataListener {
-	void handleTranscodedAudioData(byte[] audioData);
+	void handleTranscodedAudioData(byte[] audioData, long timestamp);
 }

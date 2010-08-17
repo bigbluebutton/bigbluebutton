@@ -60,7 +60,7 @@ public class RtpStreamSender {
 		}    	
     }
     
-    public void sendAudio(byte[] audioData, int codecId) {
+    public void sendAudio(byte[] audioData, int codecId, long timestamp) {
     	byte[] transcodedAudioDataBuffer = new byte[audioData.length + RTP_HEADER_SIZE];
     	System.arraycopy(audioData, 0, transcodedAudioDataBuffer, RTP_HEADER_SIZE, audioData.length);
     	RtpPacket rtpPacket = new RtpPacket(transcodedAudioDataBuffer, 0);
@@ -71,8 +71,10 @@ public class RtpStreamSender {
     	rtpPacket.setPadding(false);
     	rtpPacket.setExtension(false);
         rtpPacket.setPayloadType(codecId);
-    	rtpPacket.setSequenceNumber(sequenceNum++);       
-        rtpPacket.setTimestamp((int)(System.currentTimeMillis() - startTimestamp));
+    	rtpPacket.setSequenceNumber(sequenceNum++);   
+    	
+        //rtpPacket.setTimestamp((int) (System.currentTimeMillis() - startTimestamp));
+    	rtpPacket.setTimestamp(timestamp);
         rtpPacket.setPayloadLength(audioData.length);
         try {
 			rtpSocketSend(rtpPacket);

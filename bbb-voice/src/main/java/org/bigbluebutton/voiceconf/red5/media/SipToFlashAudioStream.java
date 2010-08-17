@@ -113,9 +113,9 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 		while (processAudioData) {
 			try {
 				AudioByteData abd = audioDataQ.take();
-				long delay = System.currentTimeMillis() - abd.getTimestamp();
-				log.debug("S2F [" + audioDataQ.size() + "," + delay + "]");
-				transcoder.transcode(abd.getData(), this);
+//				long delay = System.currentTimeMillis() - abd.getTimestamp();
+//				log.debug("S2F [" + audioDataQ.size() + "," + delay + "]");
+				transcoder.transcode(abd, this);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -129,10 +129,9 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 	}
 
 	@Override
-	public void onAudioDataReceived(byte[] audioData) {
-		AudioByteData abd = new AudioByteData(audioData, System.currentTimeMillis());
+	public void onAudioDataReceived(AudioByteData audioData) {
 		try {
-			audioDataQ.put(abd);
+			audioDataQ.put(audioData);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -140,15 +139,15 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 	}
 	
 	@Override
-	public void handleTranscodedAudioData(byte[] audioData) {
+	public void handleTranscodedAudioData(byte[] audioData, long timestamp) {
 		if (audioData != null) {
-			pushAudio(audioData);
+			pushAudio(audioData, timestamp);
 		} else {
 			log.warn("Transcoded audio is null. Discarding.");
 		}
 	}
 	
-	private void pushAudio(byte[] audio) {
+	private void pushAudio(byte[] audio, long timestamp) {
         IoBuffer buffer = IoBuffer.allocate(1024);
         buffer.setAutoExpand(true);
 
@@ -162,7 +161,8 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
         buffer.flip();
 
         AudioData audioData = new AudioData(buffer);
-        audioData.setTimestamp((int)(System.currentTimeMillis() - startTimestamp));
+        audioData.setTimestamp((int) (System.currentTimeMillis() - startTimestamp));
+        //audioData.setTimestamp((int)timestamp);
 		audioBroadcastStream.dispatchEvent(audioData);
 		audioData.release();
     }

@@ -20,6 +20,7 @@
 package org.bigbluebutton.voiceconf.red5.media.transcoder;
 
 import org.slf4j.Logger;
+import org.bigbluebutton.voiceconf.red5.media.AudioByteData;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.app.sip.codecs.Codec;
 import org.red5.app.sip.codecs.asao.ByteStream;
@@ -65,9 +66,9 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
     }
     
 	@Override
-	public void transcodeAudio(byte[] srcAudio, int startOffset, int length, TranscodedAudioDataListener listener) {
-		byte[] audioData = new byte[length];
-		System.arraycopy(srcAudio, startOffset, audioData, 0, length);
+	public void transcode(AudioByteData audioData, int startOffset, int length, TranscodedAudioDataListener listener) {
+		byte[] codedBuffer = new byte[length];
+		System.arraycopy(audioData.getData(), startOffset, codedBuffer, 0, length);
 		byte[] transcodedAudioData = new byte[sipCodec.getOutgoingEncodedFrameSize()];
 		
         asao_buffer_processed = false;
@@ -80,14 +81,14 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
 
         if (length > 0) {
             do {
-                int encodedBytes = fillRtpPacketBuffer(audioData, transcodedAudioData);
+                int encodedBytes = fillRtpPacketBuffer(codedBuffer, transcodedAudioData);
                 if (encodedBytes == 0) {
                     break;
                 }
 
                 if (encodingOffset == sipCodec.getOutgoingDecodedFrameSize()) {
                     encodingOffset = 0;
-                    listener.handleTranscodedAudioData(transcodedAudioData);
+                    listener.handleTranscodedAudioData(transcodedAudioData, audioData.getTimestamp());
                 }
             } while (!asao_buffer_processed);
         }

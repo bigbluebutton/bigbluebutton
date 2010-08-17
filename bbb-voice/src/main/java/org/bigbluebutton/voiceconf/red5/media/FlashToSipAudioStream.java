@@ -77,13 +77,15 @@ public class FlashToSipAudioStream {
 		          
 		      if (packet instanceof AudioData) {
 		    	  byte[] data = SerializeUtils.ByteBufferToByteArray(buf);
-		    	  AudioByteData abd = new AudioByteData(data, System.currentTimeMillis());
+		    	  System.out.println("RTMP data = [" + data[0] + "," + data.length + "," + packet.getTimestamp() + "]");
+		    	  
+		    	  AudioByteData abd = new AudioByteData(data, packet.getTimestamp());
 		    	  try {
 					audioDataQ.put(abd);
-				} catch (InterruptedException e) {
+		    	  } catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}
+		    	  }
 		      } 
 			}
 		};
@@ -105,9 +107,9 @@ public class FlashToSipAudioStream {
 		while (processAudioData) {
 			try {
 				AudioByteData abd = audioDataQ.take();
-				long delay = System.currentTimeMillis() - abd.getTimestamp();
-				log.debug("            F2S [" + audioDataQ.size() + "," + delay + "]");
-				transcoder.transcodeAudio(abd.getData(), 1, abd.getData().length-1, new TranscodedAudioListener());
+//				long delay = System.currentTimeMillis() - abd.getTimestamp();
+//				log.debug("            F2S [" + audioDataQ.size() + "," + delay + "]");
+				transcoder.transcode(abd, 1, abd.getData().length-1, new TranscodedAudioListener());
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -126,9 +128,9 @@ public class FlashToSipAudioStream {
 	
 	private class TranscodedAudioListener implements TranscodedAudioDataListener {
 		@Override
-		public void handleTranscodedAudioData(byte[] audioData) {
+		public void handleTranscodedAudioData(byte[] audioData, long timestamp) {
 			if (audioData != null) {
-	  		  rtpSender.sendAudio(audioData, transcoder.getCodecId());
+	  		  rtpSender.sendAudio(audioData, transcoder.getCodecId(), timestamp);
 	  	  } else {
 	  		  log.warn("Transcodec audio is null. Discarding.");
 	  	  }

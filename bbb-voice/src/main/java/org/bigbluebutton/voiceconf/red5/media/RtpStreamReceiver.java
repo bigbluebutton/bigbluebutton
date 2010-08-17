@@ -84,7 +84,9 @@ public class RtpStreamReceiver {
         		RtpPacket rtpPacket = new RtpPacket(internalBuffer, 0);      
         		rtpSocket.receive(rtpPacket);
         		packetReceivedCounter++;   
-        		if (listener != null) listener.onAudioDataReceived(rtpPacket.getPayload());
+        		System.out.println("RTP data = [" + rtpPacket.getPayloadLength() + "," + rtpPacket.getTimestamp() + "]");
+        		AudioByteData audioData = new AudioByteData(rtpPacket.getPayload(), rtpPacket.getTimestamp());
+        		if (listener != null) listener.onAudioDataReceived(audioData);
         		else log.debug("No listener for incoming audio packet");
         	} catch (IOException e) {
         		// We get this when the socket closes when the call hangs up.
