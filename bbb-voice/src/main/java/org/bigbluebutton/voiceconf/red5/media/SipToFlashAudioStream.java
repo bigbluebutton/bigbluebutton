@@ -54,6 +54,14 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 	private long startTimestamp;
 	private SipToFlashTranscoder transcoder;
 	
+	private final byte[] speexSilence = new byte[] {
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0
+	};
+	
 	public SipToFlashAudioStream(IScope scope, SipToFlashTranscoder transcoder, DatagramSocket socket) {
 		this.scope = scope;
 		this.transcoder = transcoder;
@@ -95,17 +103,19 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 			log.error("could not register broadcast stream");
 			throw new RuntimeException("could not register broadcast stream");
 		}
-	    startTimestamp = System.currentTimeMillis();
+		
+	    startTimestamp = 0;
+	    //startTimestamp = System.currentTimeMillis();
 	    audioBroadcastStream.start();
 	    
-//	    processAudioData = true;
-//	    
-//	    audioDataProcessor = new Runnable() {
- //   		public void run() {
- //   			processAudioData();       			
- //   		}
- //   	};
-//    	exec.execute(audioDataProcessor);
+	    processAudioData = true;
+	    
+	    audioDataProcessor = new Runnable() {
+    		public void run() {
+    			processAudioData();       			
+    		}
+    	};
+    	exec.execute(audioDataProcessor);
     	
 	    rtpStreamReceiver.start();
 	}
@@ -129,14 +139,14 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 
 	@Override
 	public void onAudioDataReceived(AudioByteData audioData) {
-/*		try {
+		try {
 			audioDataQ.put(audioData);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		*/
-		transcoder.transcode(audioData, this);
+		
+//		transcoder.transcode(audioData, this);
 	}
 	
 	@Override
@@ -162,9 +172,9 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
         buffer.flip();
 
         AudioData audioData = new AudioData(buffer);
-        long ts = (System.currentTimeMillis() - startTimestamp);
-        System.out.println("Sending RTMP = " + ts);
-        audioData.setTimestamp((int) ts);
+        startTimestamp += 20;
+        System.out.println("Sending RTMP = " + startTimestamp);
+        audioData.setTimestamp((int) startTimestamp);
        // audioData.setTimestamp((int)timestamp);
 		audioBroadcastStream.dispatchEvent(audioData);
 		audioData.release();
