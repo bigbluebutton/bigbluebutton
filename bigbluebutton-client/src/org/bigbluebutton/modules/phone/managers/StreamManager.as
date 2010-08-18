@@ -162,7 +162,7 @@ package org.bigbluebutton.modules.phone.managers
 			incomingStream = new NetStream(connection);
 			incomingStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
 			incomingStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
-			incomingStream.bufferTime = 1;			
+			incomingStream.bufferTime = 0.180;			
 		}
 		
 		private function setupOutgoingStream():void {
