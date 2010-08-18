@@ -149,8 +149,7 @@ package org.bigbluebutton.modules.phone.managers
 			publish(publishStreamName);									
 		}
 		
-		private function play(playStreamName:String):void {
-			
+		private function play(playStreamName:String):void {			
 			incomingStream.play(playStreamName);
 		}
 		
@@ -162,7 +161,8 @@ package org.bigbluebutton.modules.phone.managers
 		private function setupIncomingStream():void {
 			incomingStream = new NetStream(connection);
 			incomingStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
-			incomingStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);			
+			incomingStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
+			incomingStream.bufferTime = 1;			
 		}
 		
 		private function setupOutgoingStream():void {
