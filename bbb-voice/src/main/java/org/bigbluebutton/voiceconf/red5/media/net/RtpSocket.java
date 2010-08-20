@@ -69,7 +69,7 @@ public class RtpSocket {
    
    /** Sends a RTP packet from this socket */      
    public void send(RtpPacket rtpp) throws IOException {  
-	   DatagramPacket datagram = new DatagramPacket(rtpp.getPacket(),rtpp.getLength());
+	   DatagramPacket datagram = new DatagramPacket(rtpp.getPacket(), rtpp.getLength());
 	   datagram.setAddress(r_addr);
 	   datagram.setPort(r_port);
 	   socket.send(datagram);

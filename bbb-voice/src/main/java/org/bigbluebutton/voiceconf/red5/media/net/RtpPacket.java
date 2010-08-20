@@ -22,7 +22,6 @@
 package org.bigbluebutton.voiceconf.red5.media.net;
 
 public class RtpPacket {
-	private static final int version = 2;
 	private static final int HEADER_LENGTH = 12;
 	
 	private byte[] packet;   
@@ -32,6 +31,7 @@ public class RtpPacket {
 	public RtpPacket(byte[] buffer, int packet_length) {  
 		packet = buffer;
 		packetLength = packet_length;
+		setVersion(2);
 		if (packetLength < HEADER_LENGTH) packetLength = HEADER_LENGTH;
 	}
 	   

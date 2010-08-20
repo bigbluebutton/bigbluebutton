@@ -14,8 +14,8 @@ public class SpeexCodec implements Codec {
     private static int defaultEncodedFrameSize = 120;
     private static int defaultDecodedFrameSize = 120;        
     private static int defaultSampleRate = 16000;
-    private int outgoingPacketization = 40;
-    private int incomingPacketization = 40;
+    private int outgoingPacketization = 0;
+    private int incomingPacketization = 0;
 
     public static final int codecId = 100;
     

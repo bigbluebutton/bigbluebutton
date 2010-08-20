@@ -5,7 +5,8 @@ public class AudioByteData {
 	private final long timestamp;
 	
 	public AudioByteData(byte[] data, long timestamp) {
-		this.data = data;
+		this.data = new byte[data.length];
+		System.arraycopy(data, 0, this.data, 0, data.length);
 		this.timestamp = timestamp;
 	}
 	
