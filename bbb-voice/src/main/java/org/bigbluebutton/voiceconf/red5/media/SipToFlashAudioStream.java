@@ -51,16 +51,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 	private final String listenStreamName;
 	private RtpStreamReceiver rtpStreamReceiver;
 	private StreamObserver observer;
-	private long startTimestamp;
 	private SipToFlashTranscoder transcoder;
-	
-	private final byte[] speexSilence = new byte[] {
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		0, 0
-	};
 	
 	public SipToFlashAudioStream(IScope scope, SipToFlashTranscoder transcoder, DatagramSocket socket) {
 		this.scope = scope;
@@ -104,10 +95,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 			throw new RuntimeException("could not register broadcast stream");
 		}
 		
-	    startTimestamp = 0;
-	    //startTimestamp = System.currentTimeMillis();
-	    audioBroadcastStream.start();
-	    
+	    audioBroadcastStream.start();	    
 	    processAudioData = true;
 	    
 	    audioDataProcessor = new Runnable() {
@@ -145,8 +133,6 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-//		transcoder.transcode(audioData, this);
 	}
 	
 	@Override
@@ -172,10 +158,8 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
         buffer.flip();
 
         AudioData audioData = new AudioData(buffer);
-        startTimestamp += 20;
-        System.out.println("Sending RTMP = " + startTimestamp);
-        audioData.setTimestamp((int) startTimestamp);
-       // audioData.setTimestamp((int)timestamp);
+        System.out.println("Sending RTMP = " + timestamp);
+        audioData.setTimestamp((int)timestamp);
 		audioBroadcastStream.dispatchEvent(audioData);
 		audioData.release();
     }
