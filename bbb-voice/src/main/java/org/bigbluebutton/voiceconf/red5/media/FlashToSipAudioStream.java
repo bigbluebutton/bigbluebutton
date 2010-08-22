@@ -107,8 +107,6 @@ public class FlashToSipAudioStream {
 		while (processAudioData) {
 			try {
 				AudioByteData abd = audioDataQ.take();
-//				long delay = System.currentTimeMillis() - abd.getTimestamp();
-//				log.debug("            F2S [" + audioDataQ.size() + "," + delay + "]");
 				transcoder.transcode(abd, 1, abd.getData().length-1, new TranscodedAudioListener());
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block

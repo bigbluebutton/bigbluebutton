@@ -28,7 +28,9 @@ public class SpeexFlashToSipTranscoderImp implements FlashToSipTranscoder {
 	protected static Logger log = Red5LoggerFactory.getLogger(SpeexFlashToSipTranscoderImp.class, "sip");
 	
 	private Codec audioCodec;
-
+	private long timestamp = 0;
+	private final static int TS_INCREMENT = 320;
+	
 	public SpeexFlashToSipTranscoderImp(Codec audioCodec) {
 		this.audioCodec = audioCodec;
 	}
@@ -36,7 +38,7 @@ public class SpeexFlashToSipTranscoderImp implements FlashToSipTranscoder {
 	public void transcode(AudioByteData audioData, int startOffset, int length, TranscodedAudioDataListener listener) {
 		byte[] transcodedAudio = new byte[length];
 		System.arraycopy(audioData.getData(), startOffset, transcodedAudio, 0, length);
-		listener.handleTranscodedAudioData(transcodedAudio, audioData.getTimestamp());
+		listener.handleTranscodedAudioData(transcodedAudio, timestamp += TS_INCREMENT);
 	}
 	
 	public int getCodecId() {
