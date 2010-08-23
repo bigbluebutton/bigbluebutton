@@ -79,7 +79,6 @@ public class RtpStreamReceiver {
     public void receiveRtpPackets() {    
         int packetReceivedCounter = 0;
         int internalBufferLength = payloadLength + RTP_HEADER_SIZE;
-        long lastPacketReceived = System.currentTimeMillis();
         byte[] internalBuffer = new byte[internalBufferLength];
 		RtpPacket rtpPacket = new RtpPacket(internalBuffer, internalBufferLength);
 		
@@ -87,21 +86,14 @@ public class RtpStreamReceiver {
         	try {        		      
         		rtpSocket.receive(rtpPacket);
         		packetReceivedCounter++;  
-        		long now = System.currentTimeMillis();
-        		long packetInterval =  now - lastPacketReceived;
-        		lastPacketReceived = now;
         		if (rtpPacket.getSeqNum() > lastSequenceNumber) {
         			lastSequenceNumber = rtpPacket.getSeqNum();
         			AudioByteData audioData = new AudioByteData(rtpPacket.getPayload());
             		if (listener != null) listener.onAudioDataReceived(audioData);
             		else log.debug("No listener for incoming audio packet");
         		} else {
-        			System.out.println("SequenceNumber < lastSequence (" + rtpPacket.getSeqNum() + " < " + lastSequenceNumber + ")");
+        			log.debug("SequenceNumber < lastSequence (" + rtpPacket.getSeqNum() + " < " + lastSequenceNumber + ")");
         		}
-        		long interpacketTimestampDiff = rtpPacket.getTimestamp() - lastPacketTimestamp;
-        		if (rtpPacket.getTimestamp() > lastPacketTimestamp) lastPacketTimestamp = rtpPacket.getTimestamp();
-        		System.out.println("RTP data = [" + rtpPacket.getPayload().length + "," + interpacketTimestampDiff + "," + packetInterval + "]");
-        		
         	} catch (IOException e) {
         		// We get this when the socket closes when the call hangs up.
         		receivePackets = false;

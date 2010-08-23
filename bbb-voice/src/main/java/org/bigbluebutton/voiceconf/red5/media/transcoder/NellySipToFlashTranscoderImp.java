@@ -19,6 +19,8 @@
  */
 package org.bigbluebutton.voiceconf.red5.media.transcoder;
 
+import java.util.Random;
+
 import org.slf4j.Logger;
 import org.bigbluebutton.voiceconf.red5.media.AudioByteData;
 import org.red5.logging.Red5LoggerFactory;
@@ -42,10 +44,12 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
     private final static int TS_INCREMENT = 20;
     
     public NellySipToFlashTranscoderImp(Codec audioCodec) {
-    	this.audioCodec = audioCodec;
-    	    	
+    	this.audioCodec = audioCodec;    	    	
       	encoderMap = new float[64];
-        tempBuffer = new float[NELLYMOSER_DECODED_PACKET_SIZE]; 
+        tempBuffer = new float[NELLYMOSER_DECODED_PACKET_SIZE];
+        
+        Random rgen = new Random();
+        timestamp = rgen.nextInt(1000);
     }
     
 	@Override
