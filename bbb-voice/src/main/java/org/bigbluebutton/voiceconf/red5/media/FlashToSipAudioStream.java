@@ -79,7 +79,7 @@ public class FlashToSipAudioStream {
 		    	  byte[] data = SerializeUtils.ByteBufferToByteArray(buf);
 		    	  System.out.println("RTMP data = [" + data[0] + "," + data.length + "," + packet.getTimestamp() + "]");
 		    	  
-		    	  AudioByteData abd = new AudioByteData(data, packet.getTimestamp());
+		    	  AudioByteData abd = new AudioByteData(data);
 		    	  try {
 					audioDataQ.put(abd);
 		    	  } catch (InterruptedException e) {

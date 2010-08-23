@@ -42,13 +42,16 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
     private Codec sipCodec = null;				// Sip codec to be used on audio session 
     private Decoder decoder;
     private DecoderMap decoderMap;    
-    float[] tempBuffer;							// Temporary buffer with received PCM audio from FlashPlayer.    
-    int tempBufferRemaining = 0; 				// Floats remaining on temporary buffer.
-    float[] encodingBuffer;						// Encoding buffer used to encode to final codec format;    
-    int encodingOffset = 0;						// Offset of encoding buffer.    
-    boolean asao_buffer_processed = false;		// Indicates whether the current asao buffer was processed.
-    boolean hasInitilializedBuffers = false;	// Indicates whether the handling buffers have already been initialized.
+    private float[] tempBuffer;							// Temporary buffer with received PCM audio from FlashPlayer.    
+    private int tempBufferRemaining = 0; 				// Floats remaining on temporary buffer.
+    private float[] encodingBuffer;						// Encoding buffer used to encode to final codec format;    
+    private int encodingOffset = 0;						// Offset of encoding buffer.    
+    private boolean asao_buffer_processed = false;		// Indicates whether the current asao buffer was processed.
+    private boolean hasInitilializedBuffers = false;	// Indicates whether the handling buffers have already been initialized.
 
+    private long timestamp = 0;
+    private final static int TS_INCREMENT = 180;
+    
     public NellyFlashToSipTranscoderImp(Codec sipCodec) {
     	this.sipCodec = sipCodec;
     	decoder = new Decoder();
@@ -88,7 +91,7 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
 
                 if (encodingOffset == sipCodec.getOutgoingDecodedFrameSize()) {
                     encodingOffset = 0;
-                    listener.handleTranscodedAudioData(transcodedAudioData, audioData.getTimestamp());
+                    listener.handleTranscodedAudioData(transcodedAudioData, timestamp += TS_INCREMENT);
                 }
             } while (!asao_buffer_processed);
         }

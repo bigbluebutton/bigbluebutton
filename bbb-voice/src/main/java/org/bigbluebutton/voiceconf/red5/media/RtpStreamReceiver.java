@@ -92,7 +92,7 @@ public class RtpStreamReceiver {
         		lastPacketReceived = now;
         		if (rtpPacket.getSeqNum() > lastSequenceNumber) {
         			lastSequenceNumber = rtpPacket.getSeqNum();
-        			AudioByteData audioData = new AudioByteData(rtpPacket.getPayload(), rtpPacket.getTimestamp());
+        			AudioByteData audioData = new AudioByteData(rtpPacket.getPayload());
             		if (listener != null) listener.onAudioDataReceived(audioData);
             		else log.debug("No listener for incoming audio packet");
         		} else {

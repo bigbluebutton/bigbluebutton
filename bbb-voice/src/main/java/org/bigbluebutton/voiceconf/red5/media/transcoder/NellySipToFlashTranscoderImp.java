@@ -38,6 +38,8 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
     private float[] tempBuffer; 		// Temporary buffer with PCM audio to be sent to FlashPlayer.
     private int tempBufferOffset = 0;
 
+    private long timestamp = 0;
+    private final static int TS_INCREMENT = 20;
     
     public NellySipToFlashTranscoderImp(Codec audioCodec) {
     	this.audioCodec = audioCodec;
@@ -73,7 +75,7 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
                     ByteStream encodedStream = new ByteStream(NELLYMOSER_ENCODED_PACKET_SIZE);
     				encoderMap = CodecImpl.encode(encoderMap, tempBuffer, encodedStream.bytes);
     				tempBufferOffset = 0;
-    				listener.handleTranscodedAudioData(encodedStream.bytes, audioData.getTimestamp());
+    				listener.handleTranscodedAudioData(encodedStream.bytes, timestamp += TS_INCREMENT);
                 }
 
                 if (pcmBufferOffset == decodingBuffer.length) {
