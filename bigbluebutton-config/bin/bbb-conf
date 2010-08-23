@@ -707,6 +707,20 @@ check_state() {
 		NOT_RUNNING_APPS="${NOT_RUNNING_APPS} Asterisk"
 	else
 		RUNNING_APPS="${RUNNING_APPS} Asterisk"
+	fi
+
+	if ! ps aux | grep -v grep | grep '[/]opt/freeswitch/bin/freeswitch' > /dev/null; then
+		print_header
+		NOT_RUNNING_APPS="${NOT_RUNNING_APPS} freeswitch"
+	else
+		RUNNING_APPS="${RUNNING_APPS} freeswitch"
+	fi
+
+	if ! ps aux | grep -v grep | grep '[/]/usr/lib/openoffice/program/soffice.bin' > /dev/null; then
+		print_header
+		NOT_RUNNING_APPS="${NOT_RUNNING_APPS} OpenOffice"
+	else
+		RUNNING_APPS="${RUNNING_APPS} OpenOffice"
 	fi	
 
 	if ! ps aux | grep -v grep | grep '[/]usr/sbin/nginx' > /dev/null; then
