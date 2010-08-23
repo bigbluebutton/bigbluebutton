@@ -133,7 +133,7 @@ usage() {
         echo "Configuration:"
         echo "   --version                        Display BigBlueButton version (packages)"
         echo "   --setip <host>                   Set IP/hostname for BigBlueButton"
-        echo "   --conference [konference|meetme] Switch conference module in Asterisk"
+        echo "   --conference [konference|meetme|freeswitch] Switch conference module in Asterisk"
 	echo "   --salt <salt>		    	  Change the security salt in bigbluebutton.properties"
 	echo "   --set-salt <salt>		  Change the security salt in bigbluebutton.properties"
         echo
@@ -197,13 +197,26 @@ stop_bigbluebutton () {
         /etc/init.d/red5 stop
         /etc/init.d/${TOMCAT} stop
         /etc/init.d/nginx stop
-        /etc/init.d/freeswitch stop
-        /etc/init.d/activemq stop
+        
+	if [ -a /opt/freeswitch/run/freeswitch.pid ]; then
+		/etc/init.d/freeswitch stop
+	fi
+	
+	if [ -a /var/run/asterisk/asterisk.pid ]; then
+		/etc/init.d/asterisk stop
+	fi
+        
+	/etc/init.d/activemq stop
 	/etc/init.d/bbb-openoffice-headless stop
 }
 
 start_bigbluebutton () {
-	/etc/init.d/freeswitch start
+	$freesw = `cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml | grep bbb-voice-freeswitch.xml | cut -d\" -f2 | awk '{ print $4 }'`;
+	if [ $freesw == "bbb-voice-freeswitch.xml" ]; then
+		/etc/init.d/freeswitch start
+	elif [ $freesw == "bbb-voice-asterisk.xml" ]; then
+		/etc/init.d/asterisk start
+	fi
 	/etc/init.d/activemq start
 	sleep 5
 	/etc/init.d/nginx start
@@ -1196,14 +1209,16 @@ if [ $CONFERENCE ]; then
 		echo "Error: Unable to find /etc/asterisk/bbb_extensions.conf"
 		exit 1
 	fi
-
-	if [ "$CONFERENCE" = "meetme" ]; then
+	
+	if [ "$CONFERENCE" = "freeswitch"] ; then
+		CONFERENCE=freeswitch
+	elif [ "$CONFERENCE" = "meetme" ]; then
 		CONFERENCE=meetme
-	else
+	else 
 		if [ "$CONFERENCE" = "konference" ]; then
 			CONFERENCE=app_konference
 		else
-			echo "Error: Valid options for --conference are: meetme, konference"
+			echo "Error: Valid options for --conference are: meetme, konference, freeswitch"
 			exit 1
 		fi
 	fi
@@ -1230,6 +1245,10 @@ if [ $CONFERENCE ]; then
 
 		sudo sed -i "s/^exten => _XXXX.,n,Konference(\${CONFERENCE_FOUND},H)/; exten => _XXXX.,n,Konference(\${CONFERENCE_FOUND},H)/g" \
 			/etc/asterisk/bbb_extensions.conf
+
+		echo "Switching to $CONFERENCE ... "
+		sudo /etc/init.d/asterisk restart
+		sudo /etc/init.d/red5 restart
 	fi
  
         if [ $CONFERENCE = "app_konference" ]; then
@@ -1253,11 +1272,46 @@ if [ $CONFERENCE ]; then
 
 		sudo sed -i "s/; exten => _XXXX.,n,Konference(\${CONFERENCE_FOUND},H)/exten => _XXXX.,n,Konference(\${CONFERENCE_FOUND},H)/g" \
 			/etc/asterisk/bbb_extensions.conf
+
+                if [ -f /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml ]; then
+                        sudo sed -i 's/<import resource="bbb-voice-freeswitch.xml"\(.*\)\/>/<import resource="bbb-voice-asterisk.xml"\1\/>/g' \
+                        /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml
+                fi
+
+		echo "Switching to $CONFERENCE ... "
+		sudo /etc/init.d/asterisk restart
+		sudo /etc/init.d/red5 restart
 	fi
 
-	echo "Switching to $CONFERENCE ... "
-	sudo /etc/init.d/asterisk restart
-	sudo /etc/init.d/red5 restart
+	if [ $CONFERENCE = "freeswitch" ]; then
+		# check if freeswitch is installed
+		if [ ! -d /opt/freeswitch ]; then
+			echo "Freeswitch is not installed";
+			exit 1;
+		fi
+		# switch the red5-web.xml from asterisk to freeswitch
+		if [ -f /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml ]; then
+			sudo sed -i 's/<import resource="bbb-voice-asterisk.xml"\(.*\)\/>/<import resource="bbb-voice-freeswitch.xml"\1\/>/g' \
+			/usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml
+		fi
+
+		if [ -f /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml ]; then
+        		IP=$(cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
+		        sed -i "s/$IP/$HOST/g" \
+        	        /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml
+		fi
+
+
+		echo "Switching to $CONFERENCE ... "
+		sudo /etc/init.d/asterisk stop
+		sudo /etc/init.d/freeswitch start
+		sudo /etc/init.d/red5 restart
+	fi
+
+
+#	echo "Switching to $CONFERENCE ... "
+#	sudo /etc/init.d/asterisk restart
+#	sudo /etc/init.d/red5 restart
 fi
 
 if [ $RESTART ]; then
