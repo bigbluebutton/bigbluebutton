@@ -82,11 +82,16 @@
 	<EventHandlers type="{KickUserEvent.KICK_USER}" >
 		<MethodInvoker generator="{UserService}" method="kickUser" arguments="{event}" />
 	</EventHandlers>
+	
+	<EventHandlers type="{ConfigEvent.CONFIG_EVENT}" >
+		<InlineInvoker method="loadSkins" arguments="{event}" />
+	</EventHandlers>
 
 	<mx:Script>
 	<![CDATA[
 		import mx.events.FlexEvent;
 		
+		import org.bigbluebutton.main.events.ConfigEvent;
 		import org.bigbluebutton.main.events.LogoutEvent;
 		import org.bigbluebutton.main.events.ModuleLoadEvent;
 		import org.bigbluebutton.main.events.ParticipantJoinEvent;
@@ -102,11 +107,14 @@
 		import org.bigbluebutton.main.model.users.events.LowerHandEvent;
 		import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
 		import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
+		
+		private function loadSkins(e:ConfigEvent):void{
+			if (e.config.skinning != "") StyleManager.loadStyleDeclarations(e.config.skinning); 
+		}
+		
 	]]>
 	</mx:Script>
 	
-	<Debugger level="{Debugger.ALL}"/>
-
     <!-- ======================================================================================== -->
     <!-- Services   Note: you can have an external file if you have more services -->
     <!-- _________________________________________________________________________________________ -->

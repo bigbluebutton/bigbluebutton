@@ -1,0 +1,143 @@
+/*
+Copyright (c) 2007 FlexLib Contributors.  See:
+    http://code.google.com/p/flexlib/wiki/ProjectContributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+Application
+{
+	background-image: Embed(source="assets/img/wallpaperWin.jpg");
+}
+
+MDIWindow
+{
+	titleStyleName: "winXPTitleStyle";
+	
+	minimizeBtnStyleNameNoFocus: "mdiWindowMinimizeBtnNoFocus";
+	maximizeBtnStyleNameNoFocus: "mdiWindowMaximizeBtnNoFocus";
+	restoreBtnStyleNameNoFocus: "mdiWindowRestoreBtnNoFocus";
+	closeBtnStyleNameNoFocus: "mdiWindowCloseBtnNoFocus";
+}
+
+.winXPTitleStyle
+{
+	fontFamily: Verdana;
+	fontSize: 12;
+	fontWeight: normal;
+	color: #FFFFFF;
+}
+
+.mdiWindowFocus
+{
+	borderColor: #0053E1;
+	borderAlpha: 1;
+	borderThicknessLeft: 2;
+	borderThicknessTop: 0;
+	borderThicknessBottom: 2;
+	borderThicknessRight: 2;
+	roundedBottomCorners: false;
+	cornerRadius: 5;
+	dropShadowEnabled: false;
+	headerHeight: 29;
+	backgroundAlpha: 1; 
+	backgroundColor: #FFFFFF;
+	titleBackgroundSkin: Embed(source="assets/swf/WindowsAssets.swf", symbol="headerBgDefault");
+}
+
+.mdiWindowNoFocus
+{
+	borderColor: #7B97E0;
+	borderAlpha: 1;
+	borderThicknessLeft: 2;
+	borderThicknessTop: 0;
+	borderThicknessBottom: 2;
+	borderThicknessRight: 2;
+	roundedBottomCorners: false;
+	cornerRadius: 5;
+	dropShadowEnabled: false;
+	headerHeight: 29;
+	backgroundAlpha: 1; 
+	backgroundColor: #FFFFFF;
+	titleBackgroundSkin: Embed(source="assets/swf/WindowsAssets.swf", symbol="headerBgDefaultNoFocus");
+	
+}
+
+.mdiWindowMinimizeBtn
+{
+	upSkin:        Embed(source="assets/swf/WindowsAssets.swf", symbol="minimizeBtnDefault_up");
+	overSkin:      Embed(source="assets/swf/WindowsAssets.swf", symbol="minimizeBtnDefault_over");
+	downSkin:      Embed(source="assets/swf/WindowsAssets.swf", symbol="minimizeBtnDefault_down");
+	disabledSkin:  Embed(source="assets/swf/WindowsAssets.swf", symbol="minimizeBtnDefaultNoFocus");
+}
+
+.mdiWindowMinimizeBtnNoFocus
+{
+	upSkin:        Embed(source="assets/swf/WindowsAssets.swf", symbol="minimizeBtnDefaultNoFocus");
+	overSkin:      Embed(source="assets/swf/WindowsAssets.swf", symbol="minimizeBtnDefaultNoFocus");
+	downSkin:      Embed(source="assets/swf/WindowsAssets.swf", symbol="minimizeBtnDefaultNoFocus");
+	disabledSkin:  Embed(source="assets/swf/WindowsAssets.swf", symbol="minimizeBtnDefaultNoFocus");
+}
+
+.mdiWindowMaximizeBtn
+{
+	upSkin:        Embed(source="assets/swf/WindowsAssets.swf", symbol="maximizeBtnDefault_up");
+	overSkin:      Embed(source="assets/swf/WindowsAssets.swf", symbol="maximizeBtnDefault_over");
+	downSkin:      Embed(source="assets/swf/WindowsAssets.swf", symbol="maximizeBtnDefault_down");
+	disabledSkin:  Embed(source="assets/swf/WindowsAssets.swf", symbol="maximizeBtnDefaultNoFocus");
+}
+
+.mdiWindowMaximizeBtnNoFocus
+{
+	upSkin:        Embed(source="assets/swf/WindowsAssets.swf", symbol="maximizeBtnDefaultNoFocus");
+	overSkin:      Embed(source="assets/swf/WindowsAssets.swf", symbol="maximizeBtnDefaultNoFocus");
+	downSkin:      Embed(source="assets/swf/WindowsAssets.swf", symbol="maximizeBtnDefaultNoFocus");
+	disabledSkin:  Embed(source="assets/swf/WindowsAssets.swf", symbol="maximizeBtnDefaultNoFocus");
+}
+
+.mdiWindowRestoreBtn
+{
+	upSkin:        Embed(source="assets/swf/WindowsAssets.swf", symbol="restoreBtnDefault_up");
+	overSkin:      Embed(source="assets/swf/WindowsAssets.swf", symbol="restoreBtnDefault_over");
+	downSkin:      Embed(source="assets/swf/WindowsAssets.swf", symbol="restoreBtnDefault_down");
+	disabledSkin:  Embed(source="assets/swf/WindowsAssets.swf", symbol="restoreBtnDefaultNoFocus");
+}
+
+.mdiWindowRestoreBtnNoFocus
+{
+	upSkin:        Embed(source="assets/swf/WindowsAssets.swf", symbol="restoreBtnDefaultNoFocus");
+	overSkin:      Embed(source="assets/swf/WindowsAssets.swf", symbol="restoreBtnDefaultNoFocus");
+	downSkin:      Embed(source="assets/swf/WindowsAssets.swf", symbol="restoreBtnDefaultNoFocus");
+	disabledSkin:  Embed(source="assets/swf/WindowsAssets.swf", symbol="restoreBtnDefaultNoFocus");
+}
+
+.mdiWindowCloseBtn
+{
+	upSkin:        Embed(source="assets/swf/WindowsAssets.swf", symbol="closeBtnDefault_up");
+	overSkin:      Embed(source="assets/swf/WindowsAssets.swf", symbol="closeBtnDefault_over");
+	downSkin:      Embed(source="assets/swf/WindowsAssets.swf", symbol="closeBtnDefault_down");
+	disabledSkin:  Embed(source="assets/swf/WindowsAssets.swf", symbol="closeBtnDefaultNoFocus");
+}
+
+.mdiWindowCloseBtnNoFocus
+{
+	upSkin:        Embed(source="assets/swf/WindowsAssets.swf", symbol="closeBtnDefaultNoFocus");
+	overSkin:      Embed(source="assets/swf/WindowsAssets.swf", symbol="closeBtnDefaultNoFocus");
+	downSkin:      Embed(source="assets/swf/WindowsAssets.swf", symbol="closeBtnDefaultNoFocus");
+	disabledSkin:  Embed(source="assets/swf/WindowsAssets.swf", symbol="closeBtnDefaultNoFocus");
+}

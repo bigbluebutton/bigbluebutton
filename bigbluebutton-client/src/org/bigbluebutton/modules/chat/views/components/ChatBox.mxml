@@ -41,8 +41,8 @@
 				var msg:Object = new Object();
 				msg.lastSenderName = lastSenderName;
 				lastSenderName = components[1];
-				
-				if (translate && (language != null)){
+
+				if (translate && (language != null) && (components[4] != null)){
 					translateMessage(components[0].toString(), components[4].toString(), language.toString());
 					msg.senderText = components[0];
 				} else{
