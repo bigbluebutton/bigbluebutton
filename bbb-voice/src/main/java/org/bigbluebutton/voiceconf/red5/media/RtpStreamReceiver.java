@@ -88,11 +88,12 @@ public class RtpStreamReceiver {
         		packetReceivedCounter++;  
         		if (rtpPacket.getSeqNum() > lastSequenceNumber) {
         			lastSequenceNumber = rtpPacket.getSeqNum();
+        			System.out.println("      RX RTP ts=" + rtpPacket.getTimestamp() + " length=" + rtpPacket.getPayload().length);
         			AudioByteData audioData = new AudioByteData(rtpPacket.getPayload());
             		if (listener != null) listener.onAudioDataReceived(audioData);
             		else log.debug("No listener for incoming audio packet");
         		} else {
-        			log.debug("SequenceNumber < lastSequence (" + rtpPacket.getSeqNum() + " < " + lastSequenceNumber + ")");
+        			System.out.println("SequenceNumber < lastSequence (" + rtpPacket.getSeqNum() + " < " + lastSequenceNumber + ")");
         		}
         	} catch (IOException e) {
         		// We get this when the socket closes when the call hangs up.

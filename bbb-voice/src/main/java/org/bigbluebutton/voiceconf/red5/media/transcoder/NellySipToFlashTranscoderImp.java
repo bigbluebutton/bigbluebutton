@@ -41,7 +41,7 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
     private int tempBufferOffset = 0;
 
     private long timestamp = 0;
-    private final static int TS_INCREMENT = 20;
+    private final static int TS_INCREMENT = 32;
     
     public NellySipToFlashTranscoderImp(Codec audioCodec) {
     	this.audioCodec = audioCodec;    	    	

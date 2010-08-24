@@ -176,6 +176,7 @@ package org.bigbluebutton.modules.phone.managers
 		private function setupPlayStatusHandler():void {
 			var custom_obj:Object = new Object();
 			custom_obj.onPlayStatus = playStatus;
+			custom_obj.onMetadata = onMetadata;
 			incomingStream.client = custom_obj;
 			outgoingStream.client = custom_obj;			
 		}
@@ -231,6 +232,9 @@ package org.bigbluebutton.modules.phone.managers
 	    private function playStatus(event:Object):void {
 	    	// do nothing
 	    }
-			
+		
+		private function onMetadata(event:Object):void {
+	    	LogUtil.debug("Recieve ON METADATA from SIP");
+	    }	
 	}
 }
