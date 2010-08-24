@@ -702,18 +702,26 @@ check_state() {
 		RUNNING_APPS="${RUNNING_APPS} Red5"
 	fi	
 
-	if ! ps aux | grep -v grep | grep '[/]usr/sbin/asterisk' > /dev/null; then
+	#check asterisk if asterisk has been started
+	#same for freeswitch	
+	if [ -a /var/run/asterisk/asterisk.pid ] && [ -a /opt/freeswitch/run/freeswitch.pid ]; then
 		print_header
-		NOT_RUNNING_APPS="${NOT_RUNNING_APPS} Asterisk"
-	else
-		RUNNING_APPS="${RUNNING_APPS} Asterisk"
-	fi
-
-	if ! ps aux | grep -v grep | grep '[/]opt/freeswitch/bin/freeswitch' > /dev/null; then
-		print_header
-		NOT_RUNNING_APPS="${NOT_RUNNING_APPS} freeswitch"
-	else
-		RUNNING_APPS="${RUNNING_APPS} freeswitch"
+		echo "Asterisk and Freeswitch are running parallel"
+		echo "Please run bbb-conf freeswitch or bbb-conf asterisk"
+	elif [ -a /var/run/asterisk/asterisk.pid ]; then 
+	        if ! ps aux | grep -v grep | grep '[/]usr/sbin/asterisk' > /dev/null; then
+        	        print_header
+                	NOT_RUNNING_APPS="${NOT_RUNNING_APPS} Asterisk"
+	        else
+        	        RUNNING_APPS="${RUNNING_APPS} Asterisk"
+	        fi
+	elif [ -a /opt/freeswitch/run/freeswitch.pid ]; then
+		if ! ps aux | grep -v grep | grep '[/]opt/freeswitch/bin/freeswitch' > /dev/null; then
+			print_header
+			NOT_RUNNING_APPS="${NOT_RUNNING_APPS} Freeswitch"
+		else
+			RUNNING_APPS="${RUNNING_APPS} Freeswitch"
+		fi
 	fi
 
 	if ! ps aux | grep -v grep | grep '[/]/usr/lib/openoffice/program/soffice.bin' > /dev/null; then
