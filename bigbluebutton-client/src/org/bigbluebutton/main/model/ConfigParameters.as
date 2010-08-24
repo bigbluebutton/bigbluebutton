@@ -26,6 +26,7 @@ package org.bigbluebutton.main.model
 		public var host:String;
 		public var numModules:int;
 		public var languageEnabled:Boolean;
+		public var skinning:String = "";
 		
 		private var loadedListener:Function;
 		
@@ -60,6 +61,7 @@ package org.bigbluebutton.main.model
 			localeVersion = xml.localeversion;	
 			if (xml.language.@userSelectionEnabled == "true") languageEnabled = true;
 			else languageEnabled = false;
+			if (xml.skinning.@enabled == "true") skinning = xml.skinning.@url;
 		}
 		
 		public function getModulesXML():XMLList{
