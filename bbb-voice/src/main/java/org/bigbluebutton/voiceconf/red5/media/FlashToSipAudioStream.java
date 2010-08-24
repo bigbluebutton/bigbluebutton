@@ -77,7 +77,7 @@ public class FlashToSipAudioStream {
 		          
 		      if (packet instanceof AudioData) {
 		    	  byte[] data = SerializeUtils.ByteBufferToByteArray(buf);
-		    	  System.out.println("RX RTMP: ts=" + packet.getTimestamp());
+//		    	  System.out.println("RX RTMP: ts=" + packet.getTimestamp());
 		    	  AudioByteData abd = new AudioByteData(data);
 		    	  try {
 					audioDataQ.put(abd);

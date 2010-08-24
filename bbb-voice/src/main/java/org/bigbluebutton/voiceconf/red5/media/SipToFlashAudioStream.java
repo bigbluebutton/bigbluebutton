@@ -171,7 +171,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 	        Notify notifyData = new Notify(mBuffer);
 	        long ts = (System.currentTimeMillis() - startTimestamp);
 	        
-	        System.out.println("Sending RTMP = " + ts);
+//	        System.out.println("Sending RTMP = " + ts);
 	        notifyData.setTimestamp((int)ts );
 			audioBroadcastStream.dispatchEvent(notifyData);
 			notifyData.release();
@@ -193,7 +193,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
         AudioData audioData = new AudioData(buffer);
         long ts = (System.currentTimeMillis() - startTimestamp);
         
-        System.out.println("Sending RTMP = " + ts);
+//        System.out.println("Sending RTMP = " + ts);
         audioData.setTimestamp((int)ts );
 		audioBroadcastStream.dispatchEvent(audioData);
 		audioData.release();
