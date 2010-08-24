@@ -31,7 +31,6 @@ public class SpeexSipToFlashTranscoderImp implements SipToFlashTranscoder {
 	
 	private static final int SPEEX_CODEC = 178; /* 1011 1111 (see flv spec) */
 	private Codec audioCodec = null;
-	
 	private long timestamp = 0;
 	private static final int TS_INCREMENT = 20;
 	

@@ -11,5 +11,4 @@ public class AudioByteData {
 	public byte[] getData() {
 		return data;
 	}
-	
 }

@@ -24,8 +24,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.mina.core.buffer.IoBuffer;
 import org.bigbluebutton.voiceconf.red5.media.transcoder.SipToFlashTranscoder;
 import org.bigbluebutton.voiceconf.red5.media.transcoder.TranscodedAudioDataListener;
@@ -33,6 +31,7 @@ import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IContext;
 import org.red5.server.api.IScope;
 import org.red5.server.net.rtmp.event.AudioData;
+import org.red5.server.net.rtmp.event.Notify;
 import org.red5.server.stream.BroadcastScope;
 import org.red5.server.stream.IBroadcastScope;
 import org.red5.server.stream.IProviderService;
@@ -52,6 +51,21 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 	private RtpStreamReceiver rtpStreamReceiver;
 	private StreamObserver observer;
 	private SipToFlashTranscoder transcoder;
+	
+	private long startTimestamp = 0;
+	private boolean sentMetadata = false;
+	
+	private final byte[] fakeMetadata = new byte[] {
+		0x02, 0x00, 0x0a, 0x6f, 0x6e, 0x4d, 0x65, 0x74, 0x61, 0x44, 0x61, 0x74, 0x61, 0x08, 0x00, 0x00,  
+		0x00, 0x06, 0x00, 0x08, 0x64, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x00, 0x40, 0x31, (byte)0xaf,  
+		0x5c, 0x28, (byte)0xf5, (byte)0xc2, (byte)0x8f, 0x00, 0x0f, 0x61, 0x75, 0x64, 0x69, 0x6f, 0x73, 0x61, 0x6d, 0x70, 
+		0x6c, 0x65, 0x72, 0x61, 0x74, 0x65, 0x00, 0x40, (byte)0xe5, (byte)0x88, (byte)0x80, 0x00, 0x00, 0x00, 0x00, 0x00,  
+		0x0f, 0x61, 0x75, 0x64, 0x69, 0x6f, 0x73, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x73, 0x69, 0x7a, 0x65,  
+		0x00, 0x40, 0x30, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x06, 0x73, 0x74, 0x65, 0x72, 0x65,  
+		0x6f, 0x01, 0x00, 0x00, 0x0c, 0x61, 0x75, 0x64, 0x69, 0x6f, 0x63, 0x6f, 0x64, 0x65, 0x63, 0x69,  
+		0x64, 0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x66, 0x69, 0x6c, 0x65,  
+		(byte)0xc8, 0x73, 0x69, 0x7a, 0x65, 0x00, 0x40, (byte)0xf3, (byte)0xf5, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00  
+	};
 	
 	public SipToFlashAudioStream(IScope scope, SipToFlashTranscoder transcoder, DatagramSocket socket) {
 		this.scope = scope;
@@ -97,6 +111,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 		
 	    audioBroadcastStream.start();	    
 	    processAudioData = true;
+	    startTimestamp = System.currentTimeMillis();
 	    
 	    audioDataProcessor = new Runnable() {
     		public void run() {
@@ -145,6 +160,24 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 	}
 	
 	private void pushAudio(byte[] audio, long timestamp) {
+		if (!sentMetadata) {
+			IoBuffer mBuffer = IoBuffer.allocate(1024);
+			mBuffer.setAutoExpand(true);
+
+			mBuffer.clear();	        
+		    mBuffer.put(fakeMetadata);        
+		    mBuffer.flip();
+
+	        Notify notifyData = new Notify(mBuffer);
+	        long ts = (System.currentTimeMillis() - startTimestamp);
+	        
+//	        System.out.println("Sending RTMP = " + ts);
+	        notifyData.setTimestamp((int)ts );
+			audioBroadcastStream.dispatchEvent(notifyData);
+			notifyData.release();
+			sentMetadata = true;
+		}
+		
         IoBuffer buffer = IoBuffer.allocate(1024);
         buffer.setAutoExpand(true);
 
@@ -158,8 +191,10 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
         buffer.flip();
 
         AudioData audioData = new AudioData(buffer);
-//        System.out.println("Sending RTMP = " + timestamp);
-        audioData.setTimestamp((int)timestamp);
+        long ts = (System.currentTimeMillis() - startTimestamp);
+        
+//        System.out.println("Sending RTMP = " + ts);
+        audioData.setTimestamp((int)ts );
 		audioBroadcastStream.dispatchEvent(audioData);
 		audioData.release();
     }
