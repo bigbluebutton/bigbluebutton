@@ -38,6 +38,9 @@
 
 GENTOO=$(uname -r | grep gentoo | cut -d- -f2);
 TOMCAT=""
+OLDEVENTIP=$(cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}');
+
+
 
 get_platform() {
 
@@ -1248,6 +1251,9 @@ if [ $CONFERENCE ]; then
 		#
 		# update $RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
 		#
+		# test this as a hack to check if the ip stays in listen-ip for event-conf.xml
+		EVENTIP=$(cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
+		
 	        sudo sed -i "s/asterisk.application[ ]*=.*/asterisk.application=meetme/g" \
 			$RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
 
@@ -1276,6 +1282,10 @@ if [ $CONFERENCE ]; then
 		#
 		# update $RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
 		#
+		EVENTIP=$(cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
+		sed -i 's/$EVENTIP/$HOST/g' \
+			/opt/freeswitch/conf/autoload_configs/event_socket.conf.xml
+
 	        sudo sed -i "s/asterisk.application[ ]*=.*/asterisk.application=konference/g" \
 			$RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
 
@@ -1317,9 +1327,10 @@ if [ $CONFERENCE ]; then
 			/usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml
 		fi
 
+		HOST=$(ifconfig | grep -v '127.0.0.1' | grep -m 1 'inet addr:' | cut -d: -f2 | awk '{ print $1}');
 		if [ -f /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml ]; then
-        		IP=$(cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
-		        sed -i "s/$IP/$HOST/g" \
+        		EVENTIP=$(cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
+		        sed -i "s/$EVENTIP/$HOST/g" \
         	        /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml
 		fi
 
