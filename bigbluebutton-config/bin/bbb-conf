@@ -1231,7 +1231,7 @@ if [ $CONFERENCE ]; then
 		exit 1
 	fi
 	
-	if [ "$CONFERENCE" = "freeswitch"] ; then
+	if [ "$CONFERENCE" = "freeswitch" ]; then
 		CONFERENCE=freeswitch
 	elif [ "$CONFERENCE" = "meetme" ]; then
 		CONFERENCE=meetme
