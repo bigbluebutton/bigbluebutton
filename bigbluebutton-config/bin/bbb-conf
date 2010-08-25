@@ -1300,6 +1300,7 @@ if [ $CONFERENCE ]; then
                 fi
 
 		echo "Switching to $CONFERENCE ... "
+		sudo /etc/init.d/freeswitch stop
 		sudo /etc/init.d/asterisk restart
 		sudo /etc/init.d/red5 restart
 	fi
