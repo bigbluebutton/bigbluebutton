@@ -42,6 +42,13 @@
 		<foreach list="${AVAILABLE_LOCALES}" target="build-locale" param="supportedlocale" delimiter=","/>
 	</target>
 	
+	<target name="branding" depends="init-ant-contrib">
+		<sequential>
+			<mxmlc file="${SRC_DIR}/branding/css/theme.css" output="${OUTPUT_DIR}/branding/css/theme.swf" debug="false" optimize="true">
+			</mxmlc>
+		</sequential>
+	</target>
+	
 	<target name="build-locale">
 		<echo message="Building ${supportedlocale}"/>
 		<available file="${LOCALE_DIR}/${supportedlocale}" type="dir" property="locale.dir.present"/>
