@@ -1213,6 +1213,18 @@ if [ -n "$HOST" ]; then
 				/var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp
         fi
 
+	#
+	# Update Freeswitch config
+	#
+	HOSTIP=$(ifconfig | grep -v '127.0.0.1' | grep -m 1 'inet addr:' | cut -d: -f2 | awk '{ print $1}');
+	if [ -f /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml ]; then
+		EVENTIP=$(cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
+			sed -i "s/$EVENTIP/$HOSTIP/g" \
+				/opt/freeswitch/conf/autoload_configs/event_socket.conf.xml
+	fi
+
+
+
 
 	echo "Restarting ${TOMCAT} and nginx ..."
 	sudo /etc/init.d/${TOMCAT} restart  > /tmp/result 2>&1;cat /tmp/result;rm /tmp/result
