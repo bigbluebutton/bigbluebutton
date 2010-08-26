@@ -180,6 +180,11 @@ change_var_value () {
 	check_and_backup $1
 	sed -i "s<^[[:blank:]#]*\(${2}\).*<\1=\"${3}\"<" $1
 }
+
+change_var_ip () {
+        check_and_backup $1
+        sed -i "s<^[[:blank:]#]*\(${2}\).*<\1=${3}<" $1
+}
 # same as change_var_value but without quotes
 change_var_salt() {
 	check_and_backup $1
@@ -1186,7 +1191,7 @@ if [ -n "$HOST" ]; then
 				/var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
 
 # 3 paramenter: the file, the variable name, the new value
-	change_var_value /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties esl.host $HOST
+	change_var_ip /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties esl.host $HOST
 
 	# cat /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
 
