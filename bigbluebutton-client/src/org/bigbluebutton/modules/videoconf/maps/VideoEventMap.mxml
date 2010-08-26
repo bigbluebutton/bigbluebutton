@@ -23,40 +23,42 @@
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
+			import mx.controls.Alert;
+			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.OpenWindowEvent;
 			import org.bigbluebutton.main.events.ToolbarButtonEvent;
 			import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
 			import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
+			import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
 			import org.bigbluebutton.modules.videoconf.business.VideoProxy;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
 			import org.bigbluebutton.modules.videoconf.events.OpenPublishWindowEvent;
 			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
 			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
 			import org.bigbluebutton.modules.videoconf.views.PublishWindow;
-			import org.bigbluebutton.modules.videoconf.views.TiledVideoWindow;
 			import org.bigbluebutton.modules.videoconf.views.ToolbarButton;
 			import org.bigbluebutton.modules.videoconf.views.VideoWindow;
-			import org.bigbluebutton.modules.viewers.events.StreamStartedEvent;
 			import org.bigbluebutton.modules.viewers.events.ViewCameraEvent;
 			
 			public var module:VideoconfModule;
 			private var button:ToolbarButton;
 			private var publishWindow:PublishWindow;
 			public var proxy:VideoProxy;
-			private var tiledWindow:TiledVideoWindow;
 			
-			private function viewCamera(e:ViewCameraEvent, mock:Boolean = false):void{
+			private function viewCamera(userid:Number, stream:String, name:String, mock:Boolean = false):void{
+				if (userid == module.userid) return;
+				
 				var window:VideoWindow = new VideoWindow();
 				
 				if (mock) {
-					window.startVideo(module.mockConnection, e.stream);
+					window.startVideo(module.mockConnection, stream);
 				}
 				else {
-					window.startVideo(module.connection, e.stream);
+					window.startVideo(module.connection, stream);
 				}
-				window.title = e.viewedName;
+				window.title = name;
 				
 				var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 				windowEvent.window = window;
@@ -64,7 +66,7 @@
 			}
 
 			private function viewVideoFile(e:BBBEvent):void {
-				viewCamera(new ViewCameraEvent(e.message, e.message), true);
+				viewCamera(1, e.message, e.message, true);
 			}
 			
 			private function mockConnect():void {
@@ -116,22 +118,7 @@
 				globalDispatcher.dispatchEvent(new CloseAllWindowsEvent());
 			}
 			
-			//Experimental, not used
-			public function addTiledWindow():void{
-				tiledWindow = new TiledVideoWindow();
-				tiledWindow.connection = module.connection;
-				
-				var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-				windowEvent.window = tiledWindow;
-				globalDispatcher.dispatchEvent(windowEvent);
-				
-			}
 			
-			//Experimental, not used
-			private function streamStarted(e:StreamStartedEvent):void{
-				if (tiledWindow == null) return;
-				tiledWindow.addStream(e.user, e.stream);
-			}
 		]]>
 	</mx:Script>
 	
@@ -156,11 +143,11 @@
 	</EventHandlers>
 	
 	<EventHandlers type="{StreamStartedEvent.STREAM_STARTED}">
-		<InlineInvoker method="streamStarted" arguments="{event}" />
+		<InlineInvoker method="viewCamera" arguments="{[event.userid, event.stream, event.user]}" />
 	</EventHandlers>
 	
 	<EventHandlers type="{ViewCameraEvent.VIEW_CAMERA_EVENT}">
-		<InlineInvoker method="viewCamera" arguments="{event}" />
+		<InlineInvoker method="viewCamera" arguments="{[event.userid, event.stream, event.viewedName]}" />
 	</EventHandlers>
 	
 </EventMap>
