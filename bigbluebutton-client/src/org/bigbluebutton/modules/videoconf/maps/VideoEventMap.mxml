@@ -82,6 +82,7 @@
 				publishWindow = new PublishWindow();
 				publishWindow.streamName = module.userid.toString();
 				publishWindow.userrole = module.role;
+				publishWindow.quality = module.quality;
 				
 				var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 				windowEvent.window = publishWindow;
