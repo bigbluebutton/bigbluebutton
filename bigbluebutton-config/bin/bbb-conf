@@ -1237,9 +1237,13 @@ if [ -n "$HOST" ]; then
 				/usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
 	fi
 
-	echo "Restarting ${TOMCAT} and nginx ..."
-	sudo /etc/init.d/${TOMCAT} restart  > /tmp/result 2>&1;cat /tmp/result;rm /tmp/result
-	sudo /etc/init.d/nginx restart
+	echo "Restarting the bigbluebutton server ..."
+	stop_bigbluebutton
+	echo
+	start_bigbluebutton
+#	echo "Restarting ${TOMCAT} and nginx ..."
+#	sudo /etc/init.d/${TOMCAT} restart  > /tmp/result 2>&1;cat /tmp/result;rm /tmp/result
+#	sudo /etc/init.d/nginx restart
 
 	exit 0
 fi
