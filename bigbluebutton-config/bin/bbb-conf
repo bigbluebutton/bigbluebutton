@@ -1228,8 +1228,14 @@ if [ -n "$HOST" ]; then
 				/opt/freeswitch/conf/autoload_configs/event_socket.conf.xml
 	fi
 
-
-
+	#
+	# Update bigbluebutton-sip.properties
+	#
+	SIPIP=$(cat /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties | grep 'sip.server.host' | cut -d= -f2)
+	if [ -f /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties ]; then
+		sed -i "s/$SIPIP/$HOSTIP/g" \
+				/usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
+	fi
 
 	echo "Restarting ${TOMCAT} and nginx ..."
 	sudo /etc/init.d/${TOMCAT} restart  > /tmp/result 2>&1;cat /tmp/result;rm /tmp/result
