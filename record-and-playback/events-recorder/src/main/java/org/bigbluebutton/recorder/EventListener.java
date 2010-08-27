@@ -28,8 +28,8 @@ public class EventListener implements MessageListener {
     public void onMessage(Message msg) {
         if(msg instanceof ObjectMessage){
             try{
-                IEvent objmsg=(IEvent)((ObjectMessage)msg).getObject();
-                if(objmsg instanceof IEvent){
+                IEventMessage objmsg=(IEventMessage)((ObjectMessage)msg).getObject();
+                if(objmsg instanceof IEventMessage){
                     if(!isDuplicated(objmsg)){
                         insertEvent(objmsg);
                     }
@@ -40,7 +40,7 @@ public class EventListener implements MessageListener {
         }
     }
 
-    public void insertEvent(IEvent event) {
+    public void insertEvent(IEventMessage event) {
         String sql = "INSERT INTO "+TABLE_EVENT;
         sql=sql+" ("+FIELD_CONFERENCEID+","+FIELD_TSEVENT+","+FIELD_MESSAGE+")";
         sql=sql+" VALUES (?, ?, ?)";
@@ -55,7 +55,7 @@ public class EventListener implements MessageListener {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    private boolean isDuplicated(IEvent objmsg) {
+    private boolean isDuplicated(IEventMessage objmsg) {
         String sql="SELECT COUNT(0) FROM "+TABLE_EVENT+" WHERE "+FIELD_CONFERENCEID+" = ? AND "+FIELD_TSEVENT+" = ?";
         int count=jdbcTemplate.queryForInt(sql, new Object[]{objmsg.getConferenceID(),objmsg.getTimeStamp()});
         if(count>0)

@@ -42,7 +42,7 @@ class EventController {
                 {
                     def json_data=evt.message //as JSON
                     JSONObject json_obj=JSON.parse(json_data)
-                    String event_str=json_obj.remove("event")
+                    String event_str=json_obj.remove("module")
                     "${evt.tsevent}"{
                         "${event_str}"(json_obj)
                     }
@@ -63,7 +63,7 @@ class EventController {
                         {
                             def json_data=evt.message //as JSON
                             JSONObject json_obj=JSON.parse(json_data)
-                            String event_str=json_obj.remove("event")
+                            String event_str=json_obj.remove("module")
                             json_obj.put("timestamp",evt.tsevent)
 
                             ArrayList attribs=new ArrayList(json_obj.keySet())

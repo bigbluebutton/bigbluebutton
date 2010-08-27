@@ -11,7 +11,7 @@
 				
 				public function updateChatMessages(event:PlaybackEvent):void{
 					var xmlobj:XML= event.attributes as XML;
-					var date:Date=new Date(xmlobj.attribute("time"));
+					var date:Date=new Date(xmlobj.attribute("timestamp"));
 					var message:String="("+date.toTimeString()+") "+xmlobj.attribute("user")+": "+xmlobj.text()+"\n";
 					if(event.playtype==PlaybackConstants.PLAY_FORWARD)
 						chat=chat+message;

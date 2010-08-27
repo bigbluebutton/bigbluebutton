@@ -1,8 +1,8 @@
 dataSource {
 	pooled = true
 	driverClassName = "com.mysql.jdbc.Driver"
-	username = "root"
-	password = "root"
+	username = "bbb"
+	password = "secret"
 }
 hibernate {
     cache.use_second_level_cache=true
@@ -14,19 +14,19 @@ environments {
 	development {
 		dataSource {
 			dbCreate = "update" // one of 'create', 'create-drop','update'
-			url = "jdbc:mysql://localhost:3306/BigBlueButtonDB"
+			url = "jdbc:mysql://localhost:3306/bigbluebutton_dev"
 		}
 	}
 	test {
 		dataSource {
                         dbCreate = "update"
-			url = "jdbc:mysql://localhost:3306/BigBlueButtonDB"
+			url = "jdbc:mysql://localhost:3306/bigbluebutton_dev"
 		}
 	}
 	production {
 		dataSource {
                         dbCreate = "update"
-			url = "jdbc:mysql://localhost:3306/BigBlueButtonDB"
+			url = "jdbc:mysql://localhost:3306/bigbluebutton_dev"
 		}
 	}
 }

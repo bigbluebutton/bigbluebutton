@@ -6,22 +6,22 @@
 
        <!-- ***************** JMS Configuration ****************** -->
        <!-- ActiveMQ Connection -->
-       <bean name="connectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+       <bean id="connectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
            <property name="brokerURL" value="tcp://localhost:61616" />
        </bean>
 
        <!-- Queue ActiveMQ -->
-       <bean name="jmsDest" class="org.apache.activemq.command.ActiveMQQueue">
-           <property name="physicalName" value="generator.queue" />
+       <bean id="jmsDest" class="org.apache.activemq.command.ActiveMQQueue">
+           <property name="physicalName" value="RecorderEventsQueue" />
        </bean>
-       <!--bean id="dataAccessProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+       <bean id="dataAccessProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
            <property name="location" value="/WEB-INF/application.properties"/>
-       </bean-->
+       </bean>
        <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-           <property name="driverClassName" value="com.mysql.jdbc.Driver" />
-           <property name="url" value="jdbc:mysql://localhost:3306/BigBlueButtonDB" />
-           <property name="username" value="root" />
-           <property name="password" value="root" />
+           <property name="driverClassName" value="${jdbc.driver}" />
+           <property name="url" value="${jdbc.url}" />
+           <property name="username" value="${jdbc.username}" />
+           <property name="password" value="${jdbc.password}" />
        </bean>
 
        <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
@@ -34,7 +34,7 @@
        </bean>
 
        <!-- Class MessageListener -->
-       <bean name="messageClient" class="org.bbb.EventListener">
+       <bean id="messageClient" class="org.bigbluebutton.recorder.EventListener">
            <property name="jdbcTemplate" ref="jdbcTemplate" />
        </bean>
 

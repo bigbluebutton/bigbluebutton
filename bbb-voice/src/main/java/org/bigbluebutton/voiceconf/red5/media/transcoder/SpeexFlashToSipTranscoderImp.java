@@ -31,7 +31,7 @@ public class SpeexFlashToSipTranscoderImp implements FlashToSipTranscoder {
 	
 	private Codec audioCodec;
 	private long timestamp = 0;
-	private final static int TS_INCREMENT = 320;
+	private final static int TS_INCREMENT = 320; // Determined from PCAP traces.
 	
 	public SpeexFlashToSipTranscoderImp(Codec audioCodec) {
 		this.audioCodec = audioCodec;
