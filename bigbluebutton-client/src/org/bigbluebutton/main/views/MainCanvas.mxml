@@ -97,8 +97,10 @@
 						win.height = rightWindowHeight;
 						break;
 					case POPUP:
-						x = 200;
-						y = 200;
+						x = (Math.random() * this.width) - 250;
+						y = (Math.random() * this.height) - 250;
+						if (x < 250) x = 1;
+						if (y < 250) y = 1;
 						break;
 					case DESKTOP_SHARING_VIEW:
 						x = 1;
