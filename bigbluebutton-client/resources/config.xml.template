@@ -42,6 +42,7 @@
 			uri="rtmp://HOST/video"
 			dependsOn="ViewersModule"
 			videoQuality="70"
+			presenterShareOnly="false"
 		/>
 		
 		<module name="WhiteboardModule" url="WhiteboardModule.swf?v=VERSION" 
