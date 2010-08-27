@@ -42,6 +42,17 @@
       </condition>
     </extension>
     
+
+    <!-- BBB testing -->
+
+    <extension name="bbb_conferences">
+      <condition field="destination_number" expression="^(7\d{4})$">
+          <action application="answer"/>
+          <action application="conference" data="$1@wideband"/>
+          <!-- <action application="conference" data="$1@wideband"/> -->
+      </condition>
+    </extension>
+
     <!--
 	You can place files in the public directory to get included.
     -->

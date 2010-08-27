@@ -37,7 +37,7 @@
 			import mx.core.UIComponent;
 			
 			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.view.components.MainCanvas;
+			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
 		
 			private var video:Video;

@@ -39,7 +39,7 @@
 			import mx.events.ResizeEvent;
 			
 			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.main.view.components.MainCanvas;
+			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
 			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
 			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;

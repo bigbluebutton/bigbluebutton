@@ -54,13 +54,12 @@
 
     <!-- BBB testing -->
 
-    <extension name="bbb_conferences">
+    <!--extension name="bbb_conferences">
       <condition field="destination_number" expression="^(7\d{4})$">
 	  <action application="answer"/>
 	  <action application="conference" data="$1@wideband"/>
-	  <!-- <action application="conference" data="$1@wideband"/> -->
       </condition>
-    </extension>
+    </extension>-->
 
     <extension name="echo">
       <condition field="destination_number" expression="^9196$">

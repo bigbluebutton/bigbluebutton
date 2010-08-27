@@ -5,6 +5,8 @@ package org.bigbluebutton.main.model
 	import flash.net.URLRequest;
 	import flash.utils.Dictionary;
 	
+	import mx.controls.Alert;
+	
 	import org.bigbluebutton.main.model.modules.ModuleDescriptor;
 
 	public class ConfigParameters
@@ -22,6 +24,9 @@ package org.bigbluebutton.main.model
 		public var helpURL:String;
 		public var application:String;
 		public var host:String;
+		public var numModules:int;
+		public var languageEnabled:Boolean;
+		public var skinning:String = "";
 		
 		private var loadedListener:Function;
 		
@@ -29,6 +34,8 @@ package org.bigbluebutton.main.model
 		
 		public function ConfigParameters(loadedListener:Function, file:String = FILE_PATH)
 		{
+			
+			this.numModules = 0;
 			this.loadedListener = loadedListener;
 			_urlLoader = new URLLoader();
 			_urlLoader.addEventListener(Event.COMPLETE, handleComplete);
@@ -51,10 +58,13 @@ package org.bigbluebutton.main.model
 			host = xml.application.@host;
 			helpURL = xml.help.@url;
 			version = xml.version;
-			localeVersion = xml.localeversion;				
+			localeVersion = xml.localeversion;	
+			if (xml.language.@userSelectionEnabled == "true") languageEnabled = true;
+			else languageEnabled = false;
+			if (xml.skinning.@enabled == "true") skinning = xml.skinning.@url;
 		}
 		
-		private function getModulesXML():XMLList{
+		public function getModulesXML():XMLList{
 			return rawXML.modules.module;
 		}
 		
@@ -65,6 +75,7 @@ package org.bigbluebutton.main.model
 			for each(item in list){
 				var mod:ModuleDescriptor = new ModuleDescriptor(item);
 				_modules[item.@name] = mod;
+				numModules++;
 			}
 			return _modules;
 		}

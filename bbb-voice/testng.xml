@@ -1,0 +1,14 @@
+<!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
+<suite name="BigBlueButton Voice Conference Test Suite">
+  <test name="Conference tests">
+	  <groups>
+	    <run> 
+	      <exclude name="broken"/>
+	    </run>
+	  </groups>
+  
+    <packages>
+    	<package name="org.bigbluebutton.voiceconf.red5.media.net"/>
+    </packages>
+  </test>
+</suite>

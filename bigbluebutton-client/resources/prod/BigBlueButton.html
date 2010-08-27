@@ -82,7 +82,7 @@ if ( hasProductInstall && !hasRequestedVersion ) {
 	// see. http://stackoverflow.com/questions/313966/mousewheel-not-working-when-published-movie-has-wmodetransparent
 	// ralam (mar 31, 2010)
 	AC_FL_RunContent(
-			"src", "BigBlueButton",
+			"src", "BigBlueButton.swf?v=VERSION",
 			"width", "100%",
 			"height", "100%",
 			"align", "middle",
@@ -197,7 +197,7 @@ function getLanguage(){
   	<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
 			id="BigBlueButton" width="100%" height="100%"
 			codebase="http://fpdownload.macromedia.com/get/flashplayer/current/swflash.cab">
-			<param name="movie" value="BigBlueButton.swf" />
+			<param name="movie" value="BigBlueButton.swf?v=VERSION" />
 			<param name="quality" value="high" />
 			<param name="bgcolor" value="#869ca7" />
 			<param name="allowScriptAccess" value="sameDomain" />

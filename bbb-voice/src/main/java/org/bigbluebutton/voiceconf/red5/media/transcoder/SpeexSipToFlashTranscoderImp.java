@@ -19,6 +19,9 @@
  */
 package org.bigbluebutton.voiceconf.red5.media.transcoder;
 
+import java.util.Random;
+
+import org.bigbluebutton.voiceconf.red5.media.AudioByteData;
 import org.red5.app.sip.codecs.Codec;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
@@ -28,14 +31,19 @@ public class SpeexSipToFlashTranscoderImp implements SipToFlashTranscoder {
 	
 	private static final int SPEEX_CODEC = 178; /* 1011 1111 (see flv spec) */
 	private Codec audioCodec = null;
+	private long timestamp = 0;
+	private static final int TS_INCREMENT = 20;
 	
 	public SpeexSipToFlashTranscoderImp(Codec codec) {
 		this.audioCodec = codec;
+        Random rgen = new Random();
+        timestamp = rgen.nextInt(1000);
 	}
 
 	@Override
-	public void transcode(byte[] codedBuffer, TranscodedAudioDataListener listener) {
-		listener.handleTranscodedAudioData(codedBuffer);
+	public void transcode(AudioByteData audioData, TranscodedAudioDataListener listener) {
+		byte[] codedBuffer = audioData.getData();
+		listener.handleTranscodedAudioData(codedBuffer, timestamp += TS_INCREMENT);
 	}
 	
 	@Override

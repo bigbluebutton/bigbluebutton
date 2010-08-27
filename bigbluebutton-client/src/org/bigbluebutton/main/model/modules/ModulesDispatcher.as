@@ -2,9 +2,11 @@ package org.bigbluebutton.main.model.modules
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
+	import org.bigbluebutton.main.events.ConfigEvent;
 	import org.bigbluebutton.main.events.ModuleLoadEvent;
 	import org.bigbluebutton.main.events.PortTestEvent;
 	import org.bigbluebutton.main.events.UserServicesEvent;
+	import org.bigbluebutton.main.model.ConfigParameters;
 
 	public class ModulesDispatcher
 	{
@@ -64,6 +66,18 @@ package org.bigbluebutton.main.model.modules
 			portFailEvent.protocol = protocol;
 			portFailEvent.app = app;
 			dispatcher.dispatchEvent(portFailEvent);
+		}
+		
+		public function sendModuleLoadingStartedEvent(modules:XMLList):void{
+			var event:ModuleLoadEvent = new ModuleLoadEvent(ModuleLoadEvent.MODULE_LOADING_STARTED);
+			event.modules = modules;
+			dispatcher.dispatchEvent(event);
+		}
+		
+		public function sendConfigParameters(config:ConfigParameters):void{
+			var event:ConfigEvent = new ConfigEvent(ConfigEvent.CONFIG_EVENT);
+			event.config = config;
+			dispatcher.dispatchEvent(event);
 		}
 	}
 }

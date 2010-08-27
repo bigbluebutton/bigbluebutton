@@ -74,6 +74,7 @@ package org.bigbluebutton.modules.phone.managers
 			mic.setLoopBack(false);
 			mic.setSilenceLevel(0,20000);
 			if (audioCodec == "SPEEX") {
+				mic.encodeQuality = 6;
 				mic.codec = SoundCodec.SPEEX;
 				mic.framesPerPacket = 1;
 				mic.rate = 16; 
@@ -148,8 +149,7 @@ package org.bigbluebutton.modules.phone.managers
 			publish(publishStreamName);									
 		}
 		
-		private function play(playStreamName:String):void {
-			
+		private function play(playStreamName:String):void {			
 			incomingStream.play(playStreamName);
 		}
 		
@@ -161,7 +161,8 @@ package org.bigbluebutton.modules.phone.managers
 		private function setupIncomingStream():void {
 			incomingStream = new NetStream(connection);
 			incomingStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
-			incomingStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);			
+			incomingStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
+			incomingStream.bufferTime = 0.180;			
 		}
 		
 		private function setupOutgoingStream():void {
@@ -175,6 +176,7 @@ package org.bigbluebutton.modules.phone.managers
 		private function setupPlayStatusHandler():void {
 			var custom_obj:Object = new Object();
 			custom_obj.onPlayStatus = playStatus;
+			custom_obj.onMetadata = onMetadata;
 			incomingStream.client = custom_obj;
 			outgoingStream.client = custom_obj;			
 		}
@@ -230,6 +232,9 @@ package org.bigbluebutton.modules.phone.managers
 	    private function playStatus(event:Object):void {
 	    	// do nothing
 	    }
-			
+		
+		private function onMetadata(event:Object):void {
+	    	LogUtil.debug("Recieve ON METADATA from SIP");
+	    }	
 	}
 }

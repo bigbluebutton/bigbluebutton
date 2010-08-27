@@ -74,9 +74,9 @@ public class SdpUtils {
         SessionDescriptor initialDescriptor = null;
                 
         try {            
-//            log.debug("userName = [" + userName + "], viaAddress = [" + viaAddress + 
-//                    "], audioPort = [" + audioPort + "], videoPort = [" + videoPort + 
-//                    "], audioCodecsPrecedence = [" + audioCodecsPrecedence + "]." );
+            log.debug("userName = [" + userName + "], viaAddress = [" + viaAddress + 
+                    "], audioPort = [" + audioPort + "], videoPort = [" + videoPort + 
+                    "], audioCodecsPrecedence = [" + audioCodecsPrecedence + "]." );
             
             int audioCodecsNumber = CodecFactory.getInstance().getAvailableAudioCodecsCount();
             int videoCodecsNumber = CodecFactory.getInstance().getAvailableVideoCodecsCount();
@@ -131,20 +131,20 @@ public class SdpUtils {
                     rtpmapParamValue += " " + audioCodecs[audioIndex].getCodecName();
                     rtpmapParamValue += "/" + audioCodecs[audioIndex].getSampleRate() + "/1";
                     
-//                    log.debug("Adding rtpmap for payload [" + payloadId + 
-//                            "] with value = [" + rtpmapParamValue + "]." );
+                    log.debug("Adding rtpmap for payload [" + payloadId + 
+                            "] with value = [" + rtpmapParamValue + "]." );
                     
                     audioAttributes.add(new AttributeField(Codec.ATTRIBUTE_RTPMAP, rtpmapParamValue));
                     
                     String[] codecMediaAttributes = audioCodecs[audioIndex].getCodecMediaAttributes();
                     
                     if (codecMediaAttributes != null) {                        
-//                        log.debug("Adding " + codecMediaAttributes.length + 
-//                                " audio codec media attributes." );
+                        log.debug("Adding " + codecMediaAttributes.length + 
+                                " audio codec media attributes." );
                         
                         for (int attribIndex = 0; attribIndex < codecMediaAttributes.length; attribIndex++) {                            
-//                            log.debug("Adding audio media attribute [" + 
-//                                    codecMediaAttributes[attribIndex] + "]." );
+                           log.debug("Adding audio media attribute [" + 
+                                    codecMediaAttributes[attribIndex] + "]." );
                             
                             AttributeField newAttribute = parseAttributeField(codecMediaAttributes[attribIndex]);
                             
@@ -164,12 +164,12 @@ public class SdpUtils {
                     AttributeField audioAttribute = (AttributeField) attributesEnum.nextElement();
                     
                     if (initialDescriptor.getMediaDescriptor(Codec.MEDIA_TYPE_AUDIO) == null) {                        
-//                        log.debug("Creating audio media descriptor." );
+                        log.debug("Creating audio media descriptor." );
                         
                     	MediaField mf = new MediaField(Codec.MEDIA_TYPE_AUDIO, audioPort, 0, "RTP/AVP", formatList);
                         initialDescriptor.addMedia(mf, audioAttribute);
                     } else {                        
-//                        log.debug("Just adding attribute.");
+                        log.debug("Just adding attribute.");
                         initialDescriptor.getMediaDescriptor(Codec.MEDIA_TYPE_AUDIO).addAttribute(audioAttribute);
                     }
                 }
@@ -177,10 +177,10 @@ public class SdpUtils {
                 String[] commonAudioMediaAttributes = CodecFactory.getInstance().getCommonAudioMediaAttributes();
                 
                 if (commonAudioMediaAttributes != null) {                    
-//                    log.debug("Adding " + commonAudioMediaAttributes.length + " common audio media attributes." );
+                    log.debug("Adding " + commonAudioMediaAttributes.length + " common audio media attributes." );
                     
                     for (int attribIndex = 0; attribIndex < commonAudioMediaAttributes.length; attribIndex++) {                        
-//                        log.debug("Adding common audio media attribute [" + commonAudioMediaAttributes[attribIndex] + "].");
+                        log.debug("Adding common audio media attribute [" + commonAudioMediaAttributes[attribIndex] + "].");
                         
                         AttributeField newAttribute = parseAttributeField(commonAudioMediaAttributes[attribIndex]);
                         
@@ -203,16 +203,16 @@ public class SdpUtils {
                     rtpmapParamValue += " " + videoCodecs[videoIndex].getCodecName();
                     rtpmapParamValue += "/" + videoCodecs[videoIndex].getSampleRate() + "/1";
                     
-//                    log.debug("Adding rtpmap for payload [" + payloadId + "] with value = [" + rtpmapParamValue + "].");
+                    log.debug("Adding rtpmap for payload [" + payloadId + "] with value = [" + rtpmapParamValue + "].");
                     
                     videoAttributes.add(new AttributeField(Codec.ATTRIBUTE_RTPMAP, rtpmapParamValue));                    
                     String[] codecMediaAttributes = videoCodecs[videoIndex].getCodecMediaAttributes();
                     
                     if (codecMediaAttributes != null) {                        
-//                        log.debug("Adding " + codecMediaAttributes.length + " video codec media attributes.");
+                        log.debug("Adding " + codecMediaAttributes.length + " video codec media attributes.");
                         
                         for (int attribIndex = 0; attribIndex < codecMediaAttributes.length; attribIndex++) {                            
-//                            log.debug("Adding video media attribute [" + codecMediaAttributes[attribIndex] + "].");
+                            log.debug("Adding video media attribute [" + codecMediaAttributes[attribIndex] + "].");
                             
                             AttributeField newAttribute = parseAttributeField(codecMediaAttributes[attribIndex]);
                             
@@ -242,10 +242,10 @@ public class SdpUtils {
                 String[] commonVideoMediaAttributes = CodecFactory.getInstance().getCommonAudioMediaAttributes();
                 
                 if (commonVideoMediaAttributes != null) {                    
-//                    log.debug("Adding " + commonVideoMediaAttributes.length + " common video media attributes.");
+                    log.debug("Adding " + commonVideoMediaAttributes.length + " common video media attributes.");
                     
                     for (int attribIndex = 0; attribIndex < commonVideoMediaAttributes.length; attribIndex++) {                        
-//                        log.debug("Adding common video media attribute [" + commonVideoMediaAttributes[attribIndex] + "]." );
+                        log.debug("Adding common video media attribute [" + commonVideoMediaAttributes[attribIndex] + "]." );
                         
                         AttributeField newAttribute = parseAttributeField(commonVideoMediaAttributes[attribIndex]);
                         
@@ -261,7 +261,7 @@ public class SdpUtils {
             log.error("Failure creating initial SDP: " + exception.toString());
         }
         
-//        log.debug("Created initial SDP");
+        log.debug("Created initial SDP");
         
         return initialDescriptor;
     }

@@ -19,15 +19,15 @@
  */
 package org.bigbluebutton.voiceconf.red5.media;
 
-import local.net.RtpPacket;
-import local.net.RtpSocket;
-
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Random;
 
 import org.slf4j.Logger;
+import org.bigbluebutton.voiceconf.red5.media.net.RtpPacket;
+import org.bigbluebutton.voiceconf.red5.media.net.RtpSocket;
 import org.bigbluebutton.voiceconf.sip.SipConnectInfo;
 import org.bigbluebutton.voiceconf.util.StackTraceUtil;
 import org.red5.logging.Red5LoggerFactory;
@@ -40,7 +40,6 @@ public class RtpStreamSender {
     private int sequenceNum = 0;
     private final DatagramSocket srcSocket;
     private final SipConnectInfo connInfo;
-    private long startTimestamp;
     private boolean marked = false;
     
     public RtpStreamSender(DatagramSocket srcSocket, SipConnectInfo connInfo)  {     
@@ -51,8 +50,8 @@ public class RtpStreamSender {
     public void connect() throws StreamException {
     	try {
 			rtpSocket = new RtpSocket(srcSocket, InetAddress.getByName(connInfo.getRemoteAddr()), connInfo.getRemotePort());
-	        sequenceNum = 0;  	
-	        startTimestamp = System.currentTimeMillis();
+	        Random rgen = new Random();
+			sequenceNum = rgen.nextInt(1000);  	
 		} catch (UnknownHostException e) {
 			log.error("Failed to connect to {}", connInfo.getRemoteAddr());
 			log.error(StackTraceUtil.getStackTrace(e));
@@ -60,10 +59,10 @@ public class RtpStreamSender {
 		}    	
     }
     
-    public void sendAudio(byte[] audioData, int codecId) {
+    public void sendAudio(byte[] audioData, int codecId, long timestamp) {
     	byte[] transcodedAudioDataBuffer = new byte[audioData.length + RTP_HEADER_SIZE];
     	System.arraycopy(audioData, 0, transcodedAudioDataBuffer, RTP_HEADER_SIZE, audioData.length);
-    	RtpPacket rtpPacket = new RtpPacket(transcodedAudioDataBuffer, 0);
+    	RtpPacket rtpPacket = new RtpPacket(transcodedAudioDataBuffer, transcodedAudioDataBuffer.length);
     	if (!marked) {
     		rtpPacket.setMarker(true);
     		marked = true;
@@ -71,8 +70,8 @@ public class RtpStreamSender {
     	rtpPacket.setPadding(false);
     	rtpPacket.setExtension(false);
         rtpPacket.setPayloadType(codecId);
-    	rtpPacket.setSequenceNumber(sequenceNum++);       
-        rtpPacket.setTimestamp((int)(System.currentTimeMillis() - startTimestamp));
+    	rtpPacket.setSeqNum(sequenceNum++);   
+    	rtpPacket.setTimestamp(timestamp);
         rtpPacket.setPayloadLength(audioData.length);
         try {
 			rtpSocketSend(rtpPacket);

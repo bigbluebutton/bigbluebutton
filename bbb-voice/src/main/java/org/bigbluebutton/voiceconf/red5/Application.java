@@ -32,6 +32,7 @@ import org.red5.server.api.IScope;
 import org.red5.server.api.Red5;
 import org.red5.server.api.service.IServiceCapableConnection;
 import org.red5.server.api.stream.IBroadcastStream;
+import org.red5.server.stream.ClientBroadcastStream;
 
 public class Application extends MultiThreadedApplicationAdapter {
     private static Logger log = Red5LoggerFactory.getLogger(Application.class, "sip");
@@ -104,7 +105,25 @@ public class Application extends MultiThreadedApplicationAdapter {
         	super.streamPublishStart(stream);	    	
 	    	String clientId = conn.getClient().getId();
 	    	sipPeerManager.startTalkStream(peerId, clientId, stream, conn.getScope());
+//	    	recordStream(stream);
         }
+    }
+    
+    /**
+     * A hook to record a sample stream. A file is written in webapps/sip/streams/
+     * @param stream
+     */
+    private void recordStream(IBroadcastStream stream) {
+    	IConnection conn = Red5.getConnectionLocal();     
+    	String streamName = stream.getPublishedName();
+     
+    	try {
+    		ClientBroadcastStream cstream = (ClientBroadcastStream) this.getBroadcastStream(conn.getScope(), stream.getPublishedName() );
+    		cstream.saveAs(streamName, false);
+    	} catch(Exception e) {
+    		System.out.println("ERROR while recording stream " + e.getMessage());
+    		e.printStackTrace();
+    	}    	
     }
     
     @Override

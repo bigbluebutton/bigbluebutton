@@ -5,19 +5,22 @@
     <help url="http://HOST/help.html"/>
     <porttest host="HOST" application="video"/>    
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter" />
+    <language userSelectionEnabled="true" />
+    <skinning enabled="false" url="branding/css/theme.swf" />
+    
 	<modules>
 
 		<module name="ChatModule" url="ChatModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="ViewersModule"	
-			translationOn="false"
+			translationOn="true"
 			translationEnabled="true"	 
 		/>
 		
 		<module name="ViewersModule" url="ViewersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST/bigbluebutton/api/enter"
-			allowKickUser="true"
+			allowKickUser="false"
 		/>
 			
 		<module name="ListenersModule" url="ListenersModule.swf?v=VERSION" 
@@ -58,6 +61,11 @@
 			infoURL="http://HOST/client/conf/example-info-data.xml?user={userID}&role={role}&meetingID={meetingID}"
 		/>
 		-->
+		
+		<!--<module name="ExampleChatModule" url="ExampleChatModule.swf?v=56" 
+            uri="rtmp://HOST/bigbluebutton" 
+            host="http://HOST"
+		/>-->
 		
 	</modules>
 </config>

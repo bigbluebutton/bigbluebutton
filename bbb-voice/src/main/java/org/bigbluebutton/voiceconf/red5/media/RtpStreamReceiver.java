@@ -19,13 +19,13 @@
  */
 package org.bigbluebutton.voiceconf.red5.media;
 
-import local.net.RtpPacket;
-import local.net.RtpSocket;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import org.slf4j.Logger;
+import org.bigbluebutton.voiceconf.red5.media.net.RtpPacket;
+import org.bigbluebutton.voiceconf.red5.media.net.RtpSocket;
 import org.red5.logging.Red5LoggerFactory;
 
 public class RtpStreamReceiver {
@@ -40,6 +40,8 @@ public class RtpStreamReceiver {
 	private volatile boolean receivePackets = false;
 	private RtpStreamReceiverListener listener;
     private final int payloadLength;
+    private int lastSequenceNumber = 0;
+    private long lastPacketTimestamp = 0;
     
     public RtpStreamReceiver(DatagramSocket socket, int expectedPayloadLength) {
     	this.payloadLength = expectedPayloadLength;
@@ -77,15 +79,22 @@ public class RtpStreamReceiver {
     public void receiveRtpPackets() {    
         int packetReceivedCounter = 0;
         int internalBufferLength = payloadLength + RTP_HEADER_SIZE;
-        
+        byte[] internalBuffer = new byte[internalBufferLength];
+		RtpPacket rtpPacket = new RtpPacket(internalBuffer, internalBufferLength);
+		
         while (receivePackets) {
-        	try {
-        		byte[] internalBuffer = new byte[internalBufferLength];
-        		RtpPacket rtpPacket = new RtpPacket(internalBuffer, 0);      
+        	try {        		      
         		rtpSocket.receive(rtpPacket);
-        		packetReceivedCounter++;   
-        		if (listener != null) listener.onAudioDataReceived(rtpPacket.getPayload());
-        		else log.debug("No listener for incoming audio packet");
+        		packetReceivedCounter++;  
+        		if (rtpPacket.getSeqNum() > lastSequenceNumber) {
+        			lastSequenceNumber = rtpPacket.getSeqNum();
+//        			System.out.println("      RX RTP ts=" + rtpPacket.getTimestamp() + " length=" + rtpPacket.getPayload().length);
+        			AudioByteData audioData = new AudioByteData(rtpPacket.getPayload());
+            		if (listener != null) listener.onAudioDataReceived(audioData);
+            		else log.debug("No listener for incoming audio packet");
+        		} else {
+//        			System.out.println("SequenceNumber < lastSequence (" + rtpPacket.getSeqNum() + " < " + lastSequenceNumber + ")");
+        		}
         	} catch (IOException e) {
         		// We get this when the socket closes when the call hangs up.
         		receivePackets = false;
