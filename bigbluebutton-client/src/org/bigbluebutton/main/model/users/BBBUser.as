@@ -21,11 +21,14 @@ package org.bigbluebutton.main.model.users
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
+	import flash.events.TimerEvent;
+	import flash.utils.Timer;
+	
 	import mx.collections.ArrayCollection;
 	import mx.controls.Alert;
 	
 	import org.bigbluebutton.common.Role;
-	import org.bigbluebutton.modules.viewers.events.StreamStartedEvent;
+	import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
 	
 	public class BBBUser
 	{
@@ -101,8 +104,14 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		private function sendStreamStartedEvent():void{
+			var t:Timer = new Timer(3000, 1);
+			t.addEventListener(TimerEvent.TIMER, dispatch);
+			t.start();
+		}
+		
+		private function dispatch(e:TimerEvent):void{
 			var dispatcher:Dispatcher = new Dispatcher();
-			dispatcher.dispatchEvent(new StreamStartedEvent(this.name, this.streamName));
+			dispatcher.dispatchEvent(new StreamStartedEvent(this.userid, this.name, this.streamName));
 		}
 	}
 }

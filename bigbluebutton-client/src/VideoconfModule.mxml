@@ -3,13 +3,15 @@
 	xmlns:maps="org.bigbluebutton.modules.videoconf.maps.*" implements="org.bigbluebutton.common.IBigBlueButtonModule">
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
-			import org.bigbluebutton.modules.videoconf.business.VideoProxy;
-			import mx.controls.Alert;
 			import com.asfusion.mate.events.Dispatcher;
+			
+			import mx.controls.Alert;
+			
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.CloseWindowEvent;
 			import org.bigbluebutton.main.events.OpenWindowEvent;
+			import org.bigbluebutton.modules.videoconf.business.VideoProxy;
+			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
 			
 			private var _moduleId:String = "VideoconfModule";
 			private var _moduleName:String = "Videoconf Module";			
@@ -65,6 +67,10 @@
 			
 			public function get role():String {
 				return _attributes.userrole as String;
+			}
+			
+			public function get quality():Number{
+				return Number(_attributes.videoQuality);
 			}
 			
 			public function start(attributes:Object):void {	
