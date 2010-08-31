@@ -38,9 +38,6 @@
 
 GENTOO=$(uname -r | grep gentoo | cut -d- -f2);
 TOMCAT=""
-OLDEVENTIP=$(cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}');
-
-
 
 get_platform() {
 
@@ -323,19 +320,24 @@ while [ $# -gt 0 ]; do
 		fi	
 		shift; shift
 		continue
-	fi		
+	fi
 
 	#
 	# all other parameters requires at least 1 argument
 	#
 	
-	if [ $# -lt 2 ]; then
-		usage
-		exit 1
-	fi
+	#if [ $# -lt 2 ]; then
+		#usage
+	#	exit 1
+	#fi
 
 	if [ "$1" = "-setip" -o "$1" = "--setip" ]; then
 		HOST="${2}"
+		if test -z "${2}"; then
+			echo "HOST IP=`ifconfig | grep -m 1 'inet addr:' | cut -d: -f2 | awk '{print $1}'`"
+			#echo "PORT=`echo ${2}|cut -d: -f2`"
+		fi
+
 		if echo $HOST|grep -q ":"; then
 			HOST=`echo ${2}|cut -d: -f1`
 			PORT=`echo ${2}|cut -d: -f2`
@@ -346,18 +348,36 @@ while [ $# -gt 0 ]; do
 
         if [ "$1" = "--setup-dev" -o "$1" = "-setup-dev" ]; then
                 SETUPDEV="${2}"
+		if test -z "${2}"; then
+			usage;
+		fi
                 shift; shift
                 continue
         fi
 
 	if [ "$1" = "--conference" -o "$1" = "-conference" ]; then
 		CONFERENCE="${2}"
+		confapp=`cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | grep 'asterisk.application' | cut -d= -f2`;
+		freeapp=`cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml | grep "<import resource" | cut -d\" -f2 | cut -d. -f1 | tail -n1`;
+		if test -z "${CONFERENCE}"; then
+			if [ $confapp == "meetme" ]; then
+				echo "Current conference application is $confapp";
+			elif [ $confapp == "konference" ] && [ $freeapp == "bbb-voice-asterisk" ]; then
+				echo "Current conference application is $confapp";
+			elif [ $freeapp == "bbb-voice-freeswitch" ]; then
+				echo "Current conference application is freeswitch";
+			fi
+		fi
 		shift; shift
 		continue
 	fi		
 	
 	if [ "$1" = "--salt" -o "$1" = "-salt" -o "$1" = "--set-salt" ]; then
 		SALT="${2}"
+		CSALT=`cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep securitySalt | cut -d= -f2`;
+		if test -z "${SALT}"; then
+			echo Current Salt retrieved from bigbluebutton.properties: $CSALT;
+		fi
 		shift; shift
 		continue
 	fi
@@ -962,6 +982,10 @@ if [ $CHECK ]; then
 	MEM=`free -m | grep Mem | awk '{ print $2}'`
 	echo "Memory: $MEM MB"
 
+	if [ -e /etc/lsb-release ]; then
+		cat /etc/lsb-release;
+	fi
+
         echo
         echo "/var/www/bigbluebutton/client/conf/config.xml:"
         IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/porttest /{s/.*host="//;s/".*//;p}')
@@ -1279,7 +1303,7 @@ if [ $CONFERENCE ]; then
 		# update $RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
 		#
 		# test this as a hack to check if the ip stays in listen-ip for event-conf.xml
-		EVENTIP=$(cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
+		EVENTIP=$(sudo cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
 		
 	        sudo sed -i "s/asterisk.application[ ]*=.*/asterisk.application=meetme/g" \
 			$RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
