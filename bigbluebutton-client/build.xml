@@ -25,6 +25,7 @@
 	<property name="VIDEO" value="VideoconfModule" />
 	<property name="WHITEBOARD" value="WhiteboardModule" />
 	<property name="DYN_INFO" value="DynamicInfoModule" />
+	<property name="BREAKOUT" value="BreakoutModule" />
 	
 	<property name="AVAILABLE_LOCALES" value="az_AZ,bg_BG,de_DE,el_GR,en_US,es_ES,es_LA,fr_FR,fr_CA,hu_HU,it_IT,lt_LT,nb_NO,nl_NL,pl_PL,pt_BR,pt_PT,ro_RO,ru_RU,tr_TR,vi_VN,zh_CN,zh_TW,sv_SE,fa_IR,ja_JP"/>
 	
@@ -114,6 +115,10 @@
 		</copy>		
 	</target>
 	
+	<target name="build-breakout" description="Compile Breakout Module" >
+		<build-module src="${SRC_DIR}" target="${BREAKOUT}" />
+	</target>
+	
 	<target name="build-chat" description="Compile Chat Module">
 		<build-module src="${SRC_DIR}" target="${CHAT}" />
 	</target>
@@ -169,8 +174,8 @@
 	
 	<!-- just a grouping of modules to compile -->
 	<target name="build-main-chat-viewers-listeners-present" 
-			depends="build-bbb-main, build-chat, build-viewers, build-listeners, build-present"
-			description="Compile main, chat, viewers, listeners, present modules">
+			depends="build-bbb-main, build-chat, build-viewers, build-listeners, build-present, build-breakout"
+			description="Compile main, chat, viewers, listeners, present, breakout modules">
 	</target>
 	
 	<!-- just a grouping of modules to compile -->
