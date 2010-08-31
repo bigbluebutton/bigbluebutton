@@ -238,10 +238,10 @@ display_bigbluebutton_status () {
 	/etc/init.d/${TOMCAT} status
 }
 
-#if [ $# -eq 0 ]; then
-#	usage
-#	exit 1
-#fi
+if [ $# -eq 0 ]; then
+	usage
+	exit 1
+fi
 
 # Parse the parameters
 while [ $# -gt 0 ]; do
@@ -320,7 +320,7 @@ while [ $# -gt 0 ]; do
 		fi	
 		shift; shift
 		continue
-	fi		
+	fi
 
 	#
 	# all other parameters requires at least 1 argument
@@ -981,6 +981,10 @@ if [ $CHECK ]; then
 	fi
 	MEM=`free -m | grep Mem | awk '{ print $2}'`
 	echo "Memory: $MEM MB"
+
+	if [ -e /etc/lsb-release ]; then
+		cat /etc/lsb-release;
+	fi
 
         echo
         echo "/var/www/bigbluebutton/client/conf/config.xml:"
