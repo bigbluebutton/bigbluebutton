@@ -16,10 +16,7 @@ package org.bigbluebutton.modules.breakout.business
 	import mx.events.CloseEvent;
 
 	public class BreakoutProxy
-	{
-		public static const API_URL:String = "http://192.168.0.225/bigbluebutton/api";
-		public static const API_SALT:String = "1708e5ecf25b7142b06f2338b4ea3cf1";
-		
+	{		
 		private var urlLoader:URLLoader;
 		private var request:URLRequest;
 		private var meetingName:String;
@@ -39,6 +36,9 @@ package org.bigbluebutton.modules.breakout.business
 		private var usersList:Array;
 		private var kickUsers:Boolean;
 		
+		private var api_url:String;
+		private var api_salt:String;
+		
 		private var completeJoinUrl:String;
 		private var newWindow:String;
 		
@@ -56,6 +56,9 @@ package org.bigbluebutton.modules.breakout.business
 			userrole = a.userrole as String;
 			connection = a.connection;
 			ncURL = connection.uri;
+			
+			api_url = host + "/bigbluebutton/api";
+			api_salt = a.salt;
 			
 			breakoutSO = SharedObject.getRemote("breakoutSO", ncURL, false);
 			breakoutSO.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);
@@ -77,10 +80,10 @@ package org.bigbluebutton.modules.breakout.business
 			this.kickUsers = kickUsers;
 			
 			meetingName = Math.random().toString();
-			var createString:String = "create" + "name=" + meetingName + "&meetingID=" + meetingName + API_SALT;
+			var createString:String = "create" + "name=" + meetingName + "&meetingID=" + meetingName + api_salt;
 			var hash:String = SHA1.hash(createString);
 			
-			var completeUrl:String = API_URL + "/create?" + "name=" + meetingName + "&meetingID=" + meetingName + "&checksum=" + hash;
+			var completeUrl:String = api_url + "/create?" + "name=" + meetingName + "&meetingID=" + meetingName + "&checksum=" + hash;
 			request = new URLRequest(completeUrl);
 			request.method = URLRequestMethod.GET;
 			urlLoader.addEventListener(Event.COMPLETE, handleMeetingCreated);
@@ -115,10 +118,10 @@ package org.bigbluebutton.modules.breakout.business
 			
 			var safeUsername:String = username.replace(" ", "+");
 			
-			var joinString:String = "join" + "fullName=" + safeUsername + "&meetingID=" + newMeetingName + "&password=" + password + "&userID=" + userid + API_SALT;
+			var joinString:String = "join" + "fullName=" + safeUsername + "&meetingID=" + newMeetingName + "&password=" + password + "&userID=" + userid + api_salt;
 			var hash:String = SHA1.hash(joinString);
 			
-			completeJoinUrl = API_URL + "/join?" + "fullName=" + safeUsername + "&meetingID=" + newMeetingName + 
+			completeJoinUrl = api_url + "/join?" + "fullName=" + safeUsername + "&meetingID=" + newMeetingName + 
 										"&password=" + password + "&userID=" + userid + "&checksum=" + hash;
 			
 			var logoutMessage:String;
