@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute"
+		   implements="org.bigbluebutton.common.IBigBlueButtonModule" xmlns:maps="org.bigbluebutton.modules.breakout.maps.*"
+		   >
+	
+	<mx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import org.bigbluebutton.modules.breakout.events.StartBreakoutModule;
+			
+			private var globalDispatcher:Dispatcher;
+			
+			private var _moduleId:String = "HighlighterModule";
+			private var _moduleName:String = "Highlighter Module";			
+			private var _attributes:Object;
+			
+			public function get moduleId():String {
+				return _moduleId;
+			}
+			
+			public function get moduleName():String {
+				return _moduleName;
+			}
+			
+			public function get uri():String {
+				return _attributes.uri + "/" + _attributes.room;
+			}
+			
+			public function get username():String {
+				return _attributes.username;
+			}
+			
+			public function get connection():NetConnection {
+				return _attributes.connection;
+			}
+			
+			public function get mode():String {
+				return _attributes.mode;
+			}
+			
+			public function get userid():Number {
+				return _attributes.userid as Number;
+			}
+			
+			public function get role():String {
+				return _attributes.userrole as String;
+			}
+			
+			public function start(attributes:Object):void {	
+				_attributes = attributes;
+				globalDispatcher = new Dispatcher();
+				
+				var e:StartBreakoutModule = new StartBreakoutModule(StartBreakoutModule.START_BREAKOUT);
+				e.attributes = attributes;
+				globalDispatcher.dispatchEvent(e);
+			}
+			
+			public function stop():void {
+				
+			}
+		]]>
+	</mx:Script>
+	
+	<maps:BreakoutMap id="breakoutMap"/>
+</mx:Module>
