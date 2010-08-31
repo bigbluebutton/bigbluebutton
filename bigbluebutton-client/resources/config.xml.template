@@ -69,5 +69,11 @@
             host="http://HOST"
 		/>-->
 		
+		<!--<module name="BreakoutModule" url="BreakoutModule.swf?v=VERSION" 
+			uri="rtmp://192.168.0.225/bigbluebutton" 
+			host="http://192.168.0.225" 
+			dependsOn="ViewersModule"
+		/>-->
+		
 	</modules>
 </config>

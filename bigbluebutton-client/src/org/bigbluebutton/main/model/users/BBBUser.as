@@ -43,6 +43,8 @@ package org.bigbluebutton.main.model.users
 		[Bindable] public var room:String = "";
 		[Bindable] public var authToken:String = "";
 		
+		[Bindable] public var selected:Boolean = false;
+		
 		private var _status:StatusCollection = new StatusCollection();
 				
 		public function get status():ArrayCollection {
