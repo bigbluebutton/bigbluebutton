@@ -14,6 +14,10 @@ package org.bigbluebutton.modules.breakout.business
 	
 	import mx.controls.Alert;
 	import mx.events.CloseEvent;
+	
+	import org.bigbluebutton.main.api.UserManager;
+	import org.bigbluebutton.main.model.users.BBBUser;
+	import org.bigbluebutton.main.model.users.Conference;
 
 	public class BreakoutProxy
 	{		
@@ -106,6 +110,7 @@ package org.bigbluebutton.modules.breakout.business
 		}
 		
 		private function startRoom():void{
+			if (! newRoomHasModerator(usersList)) attendeePW = moderatorPW; //If there is no moderator assigned in the new room, assign everyone as Moderator;
 			breakoutSO.send("redirectUser", meetingName, moderatorPW, attendeePW, kickUsers, usersList);
 		}
 		
@@ -147,6 +152,15 @@ package org.bigbluebutton.modules.breakout.business
 		private function checkIfUserInList(list:Array):Boolean{
 			for (var i:int = 0; i<list.length; i++){
 				if (list[i] == userid) return true;
+			}
+			return false;
+		}
+		
+		private function newRoomHasModerator(list:Array):Boolean{
+			var conference:Conference = UserManager.getInstance().getConference();
+			for (var i:int = 0; i<list.length; i++){
+				var user:BBBUser = conference.getParticipant(Number(list[i]));
+				if (user.role == BBBUser.MODERATOR) return true;
 			}
 			return false;
 		}

@@ -32,6 +32,10 @@ package org.bigbluebutton.main.model.users
 	
 	public class BBBUser
 	{
+		public static const MODERATOR:String = "MODERATOR";
+		public static const VIEWER:String = "VIEWER";
+		public static const PRESENTER:String = "PRESENTER";
+		
 		[Bindable] public var me:Boolean = false;
 		[Bindable] public var userid:Number;
 		[Bindable] public var name:String;
