@@ -101,6 +101,8 @@
 				<target-player>10.0.0</target-player>
 				<source-path path-element="locale/{locale}"/>
 				<include-resource-bundles>bbbResources</include-resource-bundles>
+				<include-resource-bundles>core</include-resource-bundles>
+				<include-resource-bundles>controls</include-resource-bundles>
 				<source-path path-element="${FLEX_HOME}/frameworks"/>
 			</mxmlc>
 		</sequential>

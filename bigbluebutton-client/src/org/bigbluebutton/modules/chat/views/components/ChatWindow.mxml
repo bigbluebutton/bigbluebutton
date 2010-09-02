@@ -34,6 +34,8 @@
 			
 			import mx.controls.Alert;
 			import mx.core.Application;
+			import mx.resources.ResourceBundle;
+			import mx.resources.ResourceManager;
 			
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -51,6 +53,11 @@
 				/* Set up full screen handler. */
 				Application.application.stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
 				dispState = Application.application.stage.displayState;
+				
+				/*var r:ResourceBundle = new ResourceBundle("fr_FR", "core");
+				r.content["truncationIndicator"] = '...';
+				resourceManager.addResourceBundle(r);
+				resourceManager.update();*/
 			}
 			
 			private function fullScreenHandler(evt:FullScreenEvent):void {
