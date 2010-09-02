@@ -93,5 +93,8 @@
 			
 		]]>
 	</mx:Script>
-	<components:ChatBox id="chatBox" label="Public Chat" name="All"  />
+	<containers:SuperTabNavigator id="chatTabs" width="100%" height="100%" minTabWidth="20" 
+								  dragEnabled="false" popUpButtonPolicy="off">
+		<components:ChatBox id="chatBox" label="Public Chat" name="All"  />
+	</containers:SuperTabNavigator>
 </mx:VBox>

@@ -2,7 +2,7 @@
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" minWidth="955" minHeight="600" 
 				xmlns:views="org.bigbluebutton.main.views.*" xmlns:maps="org.bigbluebutton.main.maps.*"
 				pageTitle="BigBlueButton Playback"
-				preloader="org.bigbluebutton.main.models.BigBlueButtonPreloader" xmlns:maps1="org.bigbluebutton.modules.chat.maps.*">
+				preloader="org.bigbluebutton.main.models.BigBlueButtonPreloader">
 	<mx:Script>
 		<![CDATA[
 			/*import mx.controls.Alert;
@@ -22,6 +22,5 @@
 	</mx:Script>
 	
 	<maps:MainEventMap />
-	<maps1:PlaybackChatEventMap />
 	<views:MainApplicationShell id="mainshell" />
 </mx:Application>

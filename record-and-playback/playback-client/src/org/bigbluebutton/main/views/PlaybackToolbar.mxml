@@ -78,7 +78,7 @@
 			
 			protected function onCreationCompleteHandler(event:FlexEvent):void
 			{
-				_timer=new Timer(1000,60);
+				_timer=new Timer(1000,420);
 				_timer.addEventListener(TimerEvent.TIMER,updateTimelineDisplay);
 				
 				/* end minute of the conference */
@@ -99,7 +99,6 @@
 					
 					if(minute_event==minute){
 						var attribs:Object=_timeline.getItemAt(i);
-						Alert.show("hola "+attribs);
 						dispatchPlaybackEvent(attribs);
 					}
 					else if(minute_event>minute){
@@ -136,7 +135,8 @@
 		<mx:HBox>
 			<mx:Button label="play" enabled="false" id="btnPlay" click="btnPlay_clickHandler(event)"/>
 			<mx:Button label="stop" enabled="false" id="btnStop" click="btnStop_clickHandler(event)" />
-			<mx:Label text="Loading Manifest File..." id="labObjects"/>		
+			<mx:Label text="Loading Manifest File..." id="labObjects"/>
+			<mx:Label text="seconds: {_minutetimeline}" id="labStatus"/>
 		</mx:HBox>
 	</mx:VBox>
 </mx:ApplicationControlBar>

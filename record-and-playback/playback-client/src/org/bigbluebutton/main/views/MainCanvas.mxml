@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<containers:MDICanvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:containers="flexlib.mdi.containers.*" xmlns:components="org.bigbluebutton.modules.chat.views.components.*" xmlns:views="org.bigbluebutton.main.views.*">
+<containers:MDICanvas xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="mdicanvas1_creationCompleteHandler(event)" xmlns:containers="flexlib.mdi.containers.*" xmlns:components="org.bigbluebutton.modules.chat.views.components.*" xmlns:views="org.bigbluebutton.main.views.*" xmlns:views1="org.bigbluebutton.modules.participants.views.*">
 	<mx:Script>
 		<![CDATA[
 			import flexlib.mdi.containers.MDIWindow;
 			
 			import mx.controls.Alert;
+			import mx.events.FlexEvent;
 			
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			public static const TOP_LEFT:String = "TOP_LEFT_WINDOW";
@@ -107,8 +108,15 @@
 				windowManager.absPos(win, x, y);
 			}
 			
+
+			protected function mdicanvas1_creationCompleteHandler(event:FlexEvent):void
+			{
+				addWindow(chattest);
+				addWindow(participantsview);
+			}
+
 		]]>
 	</mx:Script>
 	<components:ChatWindow id="chattest" />
-	<views:LogWindow id="logwin" x="200" />
+	<views1:ParticipantsWindow id="participantsview" />
 </containers:MDICanvas>
