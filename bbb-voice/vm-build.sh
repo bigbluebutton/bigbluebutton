@@ -1,1 +1,1 @@
-gradle copyToLib war deploy
+gradle resolveDependencies war deploy

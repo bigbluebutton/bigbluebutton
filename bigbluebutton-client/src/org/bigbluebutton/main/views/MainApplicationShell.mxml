@@ -23,7 +23,7 @@
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 
 		xmlns:flexmdi="flexlib.mdi.containers.*"
 		xmlns:logModule="org.bigbluebutton.modules.log.view.components.*"
-		xmlns:main="org.bigbluebutton.main.view.components.*"
+		xmlns:views="org.bigbluebutton.main.views.*"
 		xmlns:mate="http://mate.asfusion.com/"
 		xmlns:maps="org.bigbluebutton.main.maps.*"
 		xmlns:api="org.bigbluebutton.main.api.*"
@@ -34,13 +34,8 @@
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="handleCloseWindowEvent"/>
 	<mate:Listener type="{AddUIComponentToMainCanvas.ADD_COMPONENT}" method="addComponentToCanvas" />
 	
-	<mate:Listener type="{ModuleLoadEvent.ALL_MODULES_LOADED}" method="removeLoadingInfo" />
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_LOST}" method="handleLogout" />
 	<mate:Listener type="{LogoutEvent.USER_LOGGED_OUT}" method="handleLogout" />
-	<mate:Listener type="{PortTestEvent.TEST_RTMP}" method="rtmpTest" />
-	<mate:Listener type="{PortTestEvent.PORT_TEST_FAILED}" method="rtmptTest" />
-	<mate:Listener type="{PortTestEvent.TUNNELING_FAILED}" method="rtmptFailed" />
-	<mate:Listener type="{ModuleLoadEvent.MODULE_LOAD_PROGRESS}" method="updateModuleLoadProgress" />
 
 	<api:APIEventMap />
 	
@@ -192,12 +187,6 @@
 				localeWindow.y = point1.y + 25;	
             }
 			
-			private function removeLoadingInfo(e:ModuleLoadEvent):void{
-				statusInfo.text = "";
-				statusProgress.text = "";
-				statusInfo2.text = "";
-			}
-			
 			private function handleLogout(e:Event):void{
 				if (logoutWindow != null) return;
 				logoutWindow = LoggedOutWindow(PopUpManager.createPopUp( mdiCanvas, LoggedOutWindow, false));
@@ -215,34 +204,13 @@
 				mdiCanvas.removeAllWindows(); 
 			}
 			
-			private function updateModuleLoadProgress(e:ModuleLoadEvent):void{				
-				statusProgress.text = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loaded',[e.moduleName, e.progress]);
-			}
-			
-			private function rtmpTest(e:PortTestEvent):void{
-				//statusInfo.text = ResourceUtil.getInstance().getString('bbb.mainshell.statusInfo.testRTMPConnection');
-				//statusInfo.text = "Please wait while we test your connection to the server."
-				//statusInfo2.text =  ResourceUtil.getInstance().getString('bbb.mainshell.statusInfo2.testRTMPConnection');
-				//statusProgress.text = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.testRTMPConnection', [e.hostname, e.app]);
-			}
-			
-			private function rtmptTest(e:PortTestEvent):void{
-				statusProgress.text = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.testRTMPTConnection', [e.hostname, e.app]);
-			}
-			
-			private function rtmptFailed(e:PortTestEvent):void{
-				statusProgress.text = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.cannotConnectServer');
-			}
 		]]>
 	</mx:Script>
 			
-	<main:MainToolbar id="toolbar" dock="true" width="100%" height="30" visible="false" verticalAlign="middle"/>
-	<main:MainCanvas id="mdiCanvas" horizontalScrollPolicy="off" verticalScrollPolicy="off"
-			effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}" width="100%" height="100%">	
-		<mx:Label x="200" y="400" id="statusInfo" text="{ResourceUtil.getInstance().getString('bbb.mainshell.statusInfo',[numberOfModules])}"/>
-		<mx:Label x="200" y="420" id="statusInfo2" text="{ResourceUtil.getInstance().getString('bbb.mainshell.statusInfo2')}" />
-		<mx:Label x="200" y="440" id="statusProgress" text="{ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loading')}"/>
-	</main:MainCanvas>	
+	<views:MainToolbar id="toolbar" dock="true" width="100%" height="30" visible="false" verticalAlign="middle"/>
+	<views:MainCanvas id="mdiCanvas" horizontalScrollPolicy="off" verticalScrollPolicy="off" effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}" width="100%" height="100%">
+		<views:LoadingBar id="progressBar" x="{this.width/2 - progressBar.width/2}" y="{this.height/2 - progressBar.height/2}" width="{this.width/2}" />
+	</views:MainCanvas>	
 	<mx:ControlBar width="100%" height="20" paddingTop="0">		
 	  	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}" id="copyrightLabel2"/>
 	 	<mx:Spacer width="20"/>

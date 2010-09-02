@@ -38,6 +38,9 @@
 
 GENTOO=$(uname -r | grep gentoo | cut -d- -f2);
 TOMCAT=""
+OLDEVENTIP=$(cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}');
+
+
 
 get_platform() {
 
@@ -133,8 +136,9 @@ usage() {
         echo "Configuration:"
         echo "   --version                        Display BigBlueButton version (packages)"
         echo "   --setip <host>                   Set IP/hostname for BigBlueButton"
-        echo "   --conference [konference|meetme] Switch conference module in Asterisk"
+        echo "   --conference [konference|meetme|freeswitch] Switch conference module in Asterisk"
 	echo "   --salt <salt>		    	  Change the security salt in bigbluebutton.properties"
+	echo "   --set-salt <salt>		  Change the security salt in bigbluebutton.properties"
         echo
         echo "Monitoring:"
         echo "   --check <verbose>                Check configuration files and processes for problems"
@@ -176,6 +180,11 @@ change_var_value () {
 	check_and_backup $1
 	sed -i "s<^[[:blank:]#]*\(${2}\).*<\1=\"${3}\"<" $1
 }
+
+change_var_ip () {
+        check_and_backup $1
+        sed -i "s<^[[:blank:]#]*\(${2}\).*<\1=${3}<" $1
+}
 # same as change_var_value but without quotes
 change_var_salt() {
 	check_and_backup $1
@@ -196,13 +205,25 @@ stop_bigbluebutton () {
         /etc/init.d/red5 stop
         /etc/init.d/${TOMCAT} stop
         /etc/init.d/nginx stop
-        /etc/init.d/asterisk stop
-        /etc/init.d/activemq stop
+        
+	if [ -a /opt/freeswitch/run/freeswitch.pid ]; then
+		/etc/init.d/freeswitch stop
+	fi
+	
+	if [ -a /var/run/asterisk/asterisk.pid ]; then
+		/etc/init.d/asterisk stop
+	fi
+        
+	/etc/init.d/activemq stop
 	/etc/init.d/bbb-openoffice-headless stop
 }
-
+freesw=`cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml | grep bbb-voice-freeswitch.xml | cut -d\" -f2 | awk '{ print $4 }'`;
 start_bigbluebutton () {
-	/etc/init.d/asterisk start
+	if [ $freesw == 'bbb-voice-freeswitch.xml' ]; then
+		/etc/init.d/freeswitch start
+	elif [ $freesw == 'bbb-voice-asterisk.xml' ]; then
+		/etc/init.d/asterisk start
+	fi
 	/etc/init.d/activemq start
 	sleep 5
 	/etc/init.d/nginx start
@@ -213,7 +234,7 @@ start_bigbluebutton () {
 }
 
 display_bigbluebutton_status () {
-	/etc/init.d/asterisk status
+#	/etc/init.d/freeswitch status
 	/etc/init.d/activemq status
 	/etc/init.d/nginx status
 	/etc/init.d/red5 status
@@ -335,7 +356,7 @@ while [ $# -gt 0 ]; do
 		continue
 	fi		
 	
-	if [ "$1" = "--salt" -o "$1" = "-salt" ]; then
+	if [ "$1" = "--salt" -o "$1" = "-salt" -o "$1" = "--set-salt" ]; then
 		SALT="${2}"
 		shift; shift
 		continue
@@ -688,11 +709,33 @@ check_state() {
 		RUNNING_APPS="${RUNNING_APPS} Red5"
 	fi	
 
-	if ! ps aux | grep -v grep | grep '[/]usr/sbin/asterisk' > /dev/null; then
+	#check asterisk if asterisk has been started
+	#same for freeswitch	
+	if [ -a /var/run/asterisk/asterisk.pid ] && [ -a /opt/freeswitch/run/freeswitch.pid ]; then
 		print_header
-		NOT_RUNNING_APPS="${NOT_RUNNING_APPS} Asterisk"
+		echo "Asterisk and Freeswitch are running parallel"
+		echo "Please run bbb-conf freeswitch or bbb-conf asterisk"
+	elif [ -a /var/run/asterisk/asterisk.pid ]; then 
+	        if ! ps aux | grep -v grep | grep '[/]usr/sbin/asterisk' > /dev/null; then
+        	        print_header
+                	NOT_RUNNING_APPS="${NOT_RUNNING_APPS} Asterisk"
+	        else
+        	        RUNNING_APPS="${RUNNING_APPS} Asterisk"
+	        fi
+	elif [ -a /opt/freeswitch/run/freeswitch.pid ]; then
+		if ! ps aux | grep -v grep | grep '[/]opt/freeswitch/bin/freeswitch' > /dev/null; then
+			print_header
+			NOT_RUNNING_APPS="${NOT_RUNNING_APPS} Freeswitch"
+		else
+			RUNNING_APPS="${RUNNING_APPS} Freeswitch"
+		fi
+	fi
+
+	if ! ps aux | grep -v grep | grep '[/]/usr/lib/openoffice/program/soffice.bin' > /dev/null; then
+		print_header
+		NOT_RUNNING_APPS="${NOT_RUNNING_APPS} OpenOffice"
 	else
-		RUNNING_APPS="${RUNNING_APPS} Asterisk"
+		RUNNING_APPS="${RUNNING_APPS} OpenOffice"
 	fi	
 
 	if ! ps aux | grep -v grep | grep '[/]usr/sbin/nginx' > /dev/null; then
@@ -906,6 +949,8 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 #
 # Check current setup
 #
+# TODO:
+# Check if asterisk and freeswitch are running
 if [ $CHECK ]; then
         echo "Current Configuration:"
 	echo "Kernel version: " `uname -r`
@@ -1145,6 +1190,9 @@ if [ -n "$HOST" ]; then
 	sudo sed -i "s/bigbluebutton.web.serverURL=http:\/\/.*/bigbluebutton.web.serverURL=http:\/\/$HOST/g" \
 				/var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
 
+# 3 paramenter: the file, the variable name, the new value
+	change_var_ip /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties esl.host $HOST
+
 	# cat /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
 
 	#
@@ -1170,10 +1218,32 @@ if [ -n "$HOST" ]; then
 				/var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp
         fi
 
+	#
+	# Update Freeswitch config
+	#
+	HOSTIP=$(ifconfig | grep -v '127.0.0.1' | grep -m 1 'inet addr:' | cut -d: -f2 | awk '{ print $1}');
+	if [ -f /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml ]; then
+		EVENTIP=$(cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
+			sed -i "s/$EVENTIP/$HOSTIP/g" \
+				/opt/freeswitch/conf/autoload_configs/event_socket.conf.xml
+	fi
 
-	echo "Restarting ${TOMCAT} and nginx ..."
-	sudo /etc/init.d/${TOMCAT} restart  > /tmp/result 2>&1;cat /tmp/result;rm /tmp/result
-	sudo /etc/init.d/nginx restart
+	#
+	# Update bigbluebutton-sip.properties
+	#
+	SIPIP=$(cat /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties | grep 'sip.server.host' | cut -d= -f2)
+	if [ -f /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties ]; then
+		sed -i "s/$SIPIP/$HOSTIP/g" \
+				/usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
+	fi
+
+	echo "Restarting the bigbluebutton server ..."
+	stop_bigbluebutton
+	echo
+	start_bigbluebutton
+#	echo "Restarting ${TOMCAT} and nginx ..."
+#	sudo /etc/init.d/${TOMCAT} restart  > /tmp/result 2>&1;cat /tmp/result;rm /tmp/result
+#	sudo /etc/init.d/nginx restart
 
 	exit 0
 fi
@@ -1190,14 +1260,16 @@ if [ $CONFERENCE ]; then
 		echo "Error: Unable to find /etc/asterisk/bbb_extensions.conf"
 		exit 1
 	fi
-
-	if [ "$CONFERENCE" = "meetme" ]; then
+	
+	if [ "$CONFERENCE" = "freeswitch" ]; then
+		CONFERENCE=freeswitch
+	elif [ "$CONFERENCE" = "meetme" ]; then
 		CONFERENCE=meetme
-	else
+	else 
 		if [ "$CONFERENCE" = "konference" ]; then
 			CONFERENCE=app_konference
 		else
-			echo "Error: Valid options for --conference are: meetme, konference"
+			echo "Error: Valid options for --conference are: meetme, konference, freeswitch"
 			exit 1
 		fi
 	fi
@@ -1206,6 +1278,9 @@ if [ $CONFERENCE ]; then
 		#
 		# update $RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
 		#
+		# test this as a hack to check if the ip stays in listen-ip for event-conf.xml
+		EVENTIP=$(cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
+		
 	        sudo sed -i "s/asterisk.application[ ]*=.*/asterisk.application=meetme/g" \
 			$RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
 
@@ -1224,12 +1299,20 @@ if [ $CONFERENCE ]; then
 
 		sudo sed -i "s/^exten => _XXXX.,n,Konference(\${CONFERENCE_FOUND},H)/; exten => _XXXX.,n,Konference(\${CONFERENCE_FOUND},H)/g" \
 			/etc/asterisk/bbb_extensions.conf
+
+		echo "Switching to $CONFERENCE ... "
+		sudo /etc/init.d/asterisk restart
+		sudo /etc/init.d/red5 restart
 	fi
  
         if [ $CONFERENCE = "app_konference" ]; then
 		#
 		# update $RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
 		#
+		EVENTIP=$(cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
+		sed -i 's/$EVENTIP/$HOST/g' \
+			/opt/freeswitch/conf/autoload_configs/event_socket.conf.xml
+
 	        sudo sed -i "s/asterisk.application[ ]*=.*/asterisk.application=konference/g" \
 			$RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
 
@@ -1247,11 +1330,48 @@ if [ $CONFERENCE ]; then
 
 		sudo sed -i "s/; exten => _XXXX.,n,Konference(\${CONFERENCE_FOUND},H)/exten => _XXXX.,n,Konference(\${CONFERENCE_FOUND},H)/g" \
 			/etc/asterisk/bbb_extensions.conf
+
+                if [ -f /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml ]; then
+                        sudo sed -i 's/<import resource="bbb-voice-freeswitch.xml"\(.*\)\/>/<import resource="bbb-voice-asterisk.xml"\1\/>/g' \
+                        /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml
+                fi
+
+		echo "Switching to $CONFERENCE ... "
+		sudo /etc/init.d/freeswitch stop
+		sudo /etc/init.d/asterisk restart
+		sudo /etc/init.d/red5 restart
 	fi
 
-	echo "Switching to $CONFERENCE ... "
-	sudo /etc/init.d/asterisk restart
-	sudo /etc/init.d/red5 restart
+	if [ $CONFERENCE = "freeswitch" ]; then
+		# check if freeswitch is installed
+		if [ ! -d /opt/freeswitch ]; then
+			echo "Freeswitch is not installed";
+			exit 1;
+		fi
+		# switch the red5-web.xml from asterisk to freeswitch
+		if [ -f /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml ]; then
+			sudo sed -i 's/<import resource="bbb-voice-asterisk.xml"\(.*\)\/>/<import resource="bbb-voice-freeswitch.xml"\1\/>/g' \
+			/usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml
+		fi
+
+		HOST=$(ifconfig | grep -v '127.0.0.1' | grep -m 1 'inet addr:' | cut -d: -f2 | awk '{ print $1}');
+		if [ -f /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml ]; then
+        		EVENTIP=$(cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
+		        sed -i "s/$EVENTIP/$HOST/g" \
+        	        /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml
+		fi
+
+
+		echo "Switching to $CONFERENCE ... "
+		sudo /etc/init.d/asterisk stop
+		sudo /etc/init.d/freeswitch start
+		sudo /etc/init.d/red5 restart
+	fi
+
+
+#	echo "Switching to $CONFERENCE ... "
+#	sudo /etc/init.d/asterisk restart
+#	sudo /etc/init.d/red5 restart
 fi
 
 if [ $RESTART ]; then

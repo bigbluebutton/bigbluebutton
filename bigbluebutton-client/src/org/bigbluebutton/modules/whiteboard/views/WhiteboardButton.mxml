@@ -48,7 +48,7 @@
 			}
 			
 			private function checkWhiteboardKeyCombo(e:KeyboardEvent):void{
-				takeActionOnKeyPressed(e.keyCode);
+				if (this.visible) takeActionOnKeyPressed(e.keyCode);
 			}
 			
 			private function takeActionOnKeyPressed(key:int):void{

@@ -175,6 +175,8 @@ if (navigator.language)
 	localeChain = navigator.language;
 else if (navigator.browserLanguage)
 	localeChain = navigator.browserLanguage;
+else if (navigator.userLanguage)
+	localeChain = navigator.userLanguage;
 
 if(/^([a-z]+)-([a-z]+)$/i.test(localeChain)){
 	var matches = /^([a-z]+)-([a-z]+)$/i.exec(localeChain);

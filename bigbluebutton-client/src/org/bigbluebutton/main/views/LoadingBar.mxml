@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:ProgressBar xmlns:mate="http://mate.asfusion.com/" xmlns:mx="http://www.adobe.com/2006/mxml" labelPlacement="bottom" minimum="0" maximum="100" mode="manual" >
+	
+	<mate:Listener type="{ModuleLoadEvent.MODULE_LOADING_STARTED}" method="moduleLoadingStarted" />
+	<mate:Listener type="{ModuleLoadEvent.MODULE_LOAD_PROGRESS}" method="moduleLoadProgress" />
+	<mate:Listener type="{ModuleLoadEvent.ALL_MODULES_LOADED}" method="allModulesLoaded" />
+	<mate:Listener type="{PortTestEvent.TEST_RTMP}" method="testRTMP" />
+	<mate:Listener type="{PortTestEvent.TUNNELING_FAILED}" method="tunnelingFailed" />
+		
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.main.events.ModuleLoadEvent;
+			import org.bigbluebutton.main.events.PortTestEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			private var modules:Dictionary = new Dictionary();
+			private var numModules:int = 0;
+			
+			private function moduleLoadingStarted(e:ModuleLoadEvent):void{
+				var list:XMLList = e.modules;
+				var item:XML;
+				for each(item in list){
+					modules[item.@name] = 0;
+					numModules++;
+				}
+				this.label = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loading', [numModules]);
+			}
+			
+			private function moduleLoadProgress(e:ModuleLoadEvent):void{
+				modules[e.moduleName] = e.progress;
+				updateProgress();
+			}
+			
+			private function updateProgress():void{
+				var totalProgress:Number = 0;
+				for (var key:Object in modules) {
+					var progress:Number = modules[key] as Number;
+					totalProgress += progress;
+				}
+				//LogUtil.debug("Progress: " + totalProgress);
+				this.setProgress(totalProgress/numModules, 100);
+			}
+			
+			private function allModulesLoaded(e:ModuleLoadEvent):void{
+				parent.removeChild(this);
+			}
+			
+			private function testRTMP(e:PortTestEvent):void{
+				this.label = 'Connecting to the server'; //ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.connecting');
+			}
+			
+			private function tunnelingFailed(e:PortTestEvent):void{
+				this.label = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.cannotConnectServer');
+			}
+			
+			
+		]]>
+	</mx:Script>
+</mx:ProgressBar>

@@ -19,7 +19,10 @@
  */
 package org.bigbluebutton.voiceconf.red5.media.transcoder;
 
+import java.util.Random;
+
 import org.slf4j.Logger;
+import org.bigbluebutton.voiceconf.red5.media.AudioByteData;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.app.sip.codecs.Codec;
 import org.red5.app.sip.codecs.asao.ByteStream;
@@ -41,17 +44,22 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
     private Codec sipCodec = null;				// Sip codec to be used on audio session 
     private Decoder decoder;
     private DecoderMap decoderMap;    
-    float[] tempBuffer;							// Temporary buffer with received PCM audio from FlashPlayer.    
-    int tempBufferRemaining = 0; 				// Floats remaining on temporary buffer.
-    float[] encodingBuffer;						// Encoding buffer used to encode to final codec format;    
-    int encodingOffset = 0;						// Offset of encoding buffer.    
-    boolean asao_buffer_processed = false;		// Indicates whether the current asao buffer was processed.
-    boolean hasInitilializedBuffers = false;	// Indicates whether the handling buffers have already been initialized.
+    private float[] tempBuffer;							// Temporary buffer with received PCM audio from FlashPlayer.    
+    private int tempBufferRemaining = 0; 				// Floats remaining on temporary buffer.
+    private float[] encodingBuffer;						// Encoding buffer used to encode to final codec format;    
+    private int encodingOffset = 0;						// Offset of encoding buffer.    
+    private boolean asao_buffer_processed = false;		// Indicates whether the current asao buffer was processed.
+    private boolean hasInitilializedBuffers = false;	// Indicates whether the handling buffers have already been initialized.
 
+    private long timestamp = 0;
+    private final static int TS_INCREMENT = 180;
+    
     public NellyFlashToSipTranscoderImp(Codec sipCodec) {
     	this.sipCodec = sipCodec;
     	decoder = new Decoder();
         decoderMap = null;
+        Random rgen = new Random();
+        timestamp = rgen.nextInt(1000);
     }
 
     @Override
@@ -65,9 +73,9 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
     }
     
 	@Override
-	public void transcodeAudio(byte[] srcAudio, int startOffset, int length, TranscodedAudioDataListener listener) {
-		byte[] audioData = new byte[length];
-		System.arraycopy(srcAudio, startOffset, audioData, 0, length);
+	public void transcode(AudioByteData audioData, int startOffset, int length, TranscodedAudioDataListener listener) {
+		byte[] codedBuffer = new byte[length];
+		System.arraycopy(audioData.getData(), startOffset, codedBuffer, 0, length);
 		byte[] transcodedAudioData = new byte[sipCodec.getOutgoingEncodedFrameSize()];
 		
         asao_buffer_processed = false;
@@ -80,14 +88,14 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
 
         if (length > 0) {
             do {
-                int encodedBytes = fillRtpPacketBuffer(audioData, transcodedAudioData);
+                int encodedBytes = fillRtpPacketBuffer(codedBuffer, transcodedAudioData);
                 if (encodedBytes == 0) {
                     break;
                 }
 
                 if (encodingOffset == sipCodec.getOutgoingDecodedFrameSize()) {
                     encodingOffset = 0;
-                    listener.handleTranscodedAudioData(transcodedAudioData);
+                    listener.handleTranscodedAudioData(transcodedAudioData, timestamp += TS_INCREMENT);
                 }
             } while (!asao_buffer_processed);
         }

@@ -19,7 +19,10 @@
  */
 package org.bigbluebutton.voiceconf.red5.media.transcoder;
 
+import java.util.Random;
+
 import org.slf4j.Logger;
+import org.bigbluebutton.voiceconf.red5.media.AudioByteData;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.app.sip.codecs.Codec;
 import org.red5.app.sip.codecs.asao.ByteStream;
@@ -37,16 +40,21 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
     private float[] tempBuffer; 		// Temporary buffer with PCM audio to be sent to FlashPlayer.
     private int tempBufferOffset = 0;
 
+    private long timestamp = 0;
+    private final static int TS_INCREMENT = 32;
     
     public NellySipToFlashTranscoderImp(Codec audioCodec) {
-    	this.audioCodec = audioCodec;
-    	    	
+    	this.audioCodec = audioCodec;    	    	
       	encoderMap = new float[64];
-        tempBuffer = new float[NELLYMOSER_DECODED_PACKET_SIZE]; 
+        tempBuffer = new float[NELLYMOSER_DECODED_PACKET_SIZE];
+        
+        Random rgen = new Random();
+        timestamp = rgen.nextInt(1000);
     }
     
 	@Override
-	public void transcode(byte[] codedBuffer, TranscodedAudioDataListener listener) {
+	public void transcode(AudioByteData audioData, TranscodedAudioDataListener listener) {
+		byte[] codedBuffer = audioData.getData();
     	float[] decodingBuffer = new float[codedBuffer.length];
         int decodedBytes = audioCodec.codecToPcm(codedBuffer, decodingBuffer);
 
@@ -71,7 +79,7 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
                     ByteStream encodedStream = new ByteStream(NELLYMOSER_ENCODED_PACKET_SIZE);
     				encoderMap = CodecImpl.encode(encoderMap, tempBuffer, encodedStream.bytes);
     				tempBufferOffset = 0;
-    				listener.handleTranscodedAudioData(encodedStream.bytes);
+    				listener.handleTranscodedAudioData(encodedStream.bytes, timestamp += TS_INCREMENT);
                 }
 
                 if (pcmBufferOffset == decodingBuffer.length) {

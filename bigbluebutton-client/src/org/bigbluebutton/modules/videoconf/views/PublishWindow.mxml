@@ -34,12 +34,11 @@
 		<![CDATA[
 			import flexlib.mdi.events.MDIWindowEvent;
 			
-			import mx.controls.Alert;
 			import mx.core.UIComponent;
 			import mx.events.ResizeEvent;
 			
 			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.main.view.components.MainCanvas;
+			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
 			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
 			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
@@ -54,6 +53,7 @@
 			[Bindable] private var camWidth:Number = 320;
 			[Bindable] private var camHeight:Number = 240;
 			private var _userrole:String;
+			public var quality:Number = 0;
 			
 			private function init():void{
 				checkIfMacCamera();
@@ -75,7 +75,7 @@
 				
 				camera.setKeyFrameInterval(5);
 				camera.setMode(camWidth,camHeight,15);
-				camera.setQuality(0,0);
+				camera.setQuality(0,quality);
 				
 				video = new Video(camWidth, camHeight);
 				//Next two lines may seem redundant but they're not. Do not delete.

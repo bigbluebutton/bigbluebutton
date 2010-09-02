@@ -26,9 +26,7 @@
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-			
-			import mx.controls.Alert;
-			
+						
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.modules.viewers.events.ViewersModuleEndEvent;
 			import org.bigbluebutton.modules.viewers.events.ViewersModuleStartedEvent;

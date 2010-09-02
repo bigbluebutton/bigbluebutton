@@ -24,6 +24,8 @@
 			
 			[Bindable]
 			private var backgroundColor:uint = 0x000000;
+			private var lastSenderName:String = "";
+			private var lastTime:String = "";
 			
 			[Bindable] private var messages:ArrayCollection = new ArrayCollection();
 			
@@ -37,8 +39,10 @@
 				var components:Array = message.split("|");
 				
 				var msg:Object = new Object();
-				
-				if (translate && (language != null)){
+				msg.lastSenderName = lastSenderName;
+				lastSenderName = components[1];
+
+				if (translate && (language != null) && (components[4] != null)){
 					translateMessage(components[0].toString(), components[4].toString(), language.toString());
 					msg.senderText = components[0];
 				} else{
@@ -48,10 +52,16 @@
 				
 				msg.name = components[1];
 				msg.color = uint(components[2]);
+				
 				msg.senderTime = components[3];			
 				msg.time = timeString;
+				msg.lastTime = lastTime;
+				lastTime = timeString;
 				
 				messages.addItem(msg);
+				
+				chatMessagesList.invalidateSize();
+				chatMessagesList.invalidateDisplayList();
 			}
 			
 			private function translateMessage(text:String, fromLang:String, toLang:String):void{
@@ -104,6 +114,6 @@
 		]]>
 	</mx:Script>
 	
-	<mx:List width="100%" height="100%" id="chatMessagesList" updateComplete="updateScroll()"
+	<mx:List width="100%" height="100%" id="chatMessagesList" updateComplete="updateScroll()" selectable="false" variableRowHeight="true"
 			 itemRenderer="org.bigbluebutton.modules.chat.views.components.ChatMessageRenderer" dataProvider="{messages}" />
 </mx:VBox>

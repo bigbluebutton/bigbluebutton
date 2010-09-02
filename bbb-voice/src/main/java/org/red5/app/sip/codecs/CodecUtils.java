@@ -33,9 +33,7 @@ public class CodecUtils {
                 getAttribute( Codec.ATTRIBUTE_PTIME );
         
         if ( localPtimeAttribute != null ) {
-            
-            audioCodec.setLocalPtime( 
-                    Integer.valueOf( localPtimeAttribute.getAttributeValue() ) );
+            audioCodec.setLocalPtime(Integer.valueOf( localPtimeAttribute.getAttributeValue() ) );
         }
     
         printLog( "initSipAudioCodec", 

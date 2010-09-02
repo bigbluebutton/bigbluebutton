@@ -19,7 +19,6 @@
  */
 package org.bigbluebutton.voiceconf.sip;
 
-import local.net.KeepAliveSip;
 import org.zoolu.net.SocketAddress;
 import org.zoolu.sip.address.*;
 import org.zoolu.sip.provider.SipStack;

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml" dataProvider="{this.langNames}" selectedIndex="3" change="changeLanguage()">
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			[Bindable] private var langNames:Array=[ 
+				'Azeri' ,
+				'Bulgarian',
+				'Chinese Simplified',
+				'Chinese Traditional' , 
+				'English' , 
+				'French',
+				'French Canadian',
+				'German',
+				'Greek',
+				'Italian',
+				'Japanese',
+				'Lithuanian',
+				'Norwegian',
+				'Dutch',
+				'Persian',
+				'Portugese',
+				'Portugese (Brazil)',
+				'Polish',
+				'Romanian',
+				'Russian',
+				'Spanish',
+				'Spanish (Latin)',
+				'Swedish',
+				'Turkish',
+				'Vietnamese',]  ;
+			
+			private var langCodes:Array=[
+				'az_AZ',
+				'bg_BG',
+				'zh_CN',
+				'zh_TW',
+				'en_US',
+				'fr_FR',
+				'fr_CA',
+				'de_DE',
+				'el_GR',
+				'it_IT',
+				'ja_JP',
+				'lt_LT',
+				'nb_NO',
+				'nl_NL',
+				'fa_IR',
+				'pt_PT',
+				'pt_BR',
+				'pl_PL',
+				'ro_RO',
+				'ru_RU',
+				'es_ES',
+				'es_LA',
+				'sv_SE',
+				'tr_TR',
+				'vi_VN']  ;
+			
+			private function changeLanguage():void{
+				var lang:String = this.langCodes[this.selectedIndex];
+				ResourceUtil.getInstance().changeLocale([lang]);
+			}
+		]]>
+	</mx:Script>
+</mx:ComboBox>

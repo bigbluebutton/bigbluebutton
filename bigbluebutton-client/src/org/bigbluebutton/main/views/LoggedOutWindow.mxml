@@ -39,7 +39,7 @@
 			
             private function redirect():void { 
             	var pageURL:String = mx.core.Application.application.url.split("/")[2];
-            	var url:URLRequest = new URLRequest("http://" + pageURL + "/bigbluebutton/conference-session/signOut");
+            	var url:URLRequest = new URLRequest("http://" + pageURL + "/bigbluebutton/api/signOut");
             	LogUtil.debug("Log out url: " + pageURL);
 				navigateToURL(url, '_self');
             	PopUpManager.removePopUp(this);

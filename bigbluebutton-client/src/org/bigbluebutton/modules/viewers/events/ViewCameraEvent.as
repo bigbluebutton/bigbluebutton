@@ -27,10 +27,12 @@ package org.bigbluebutton.modules.viewers.events
 		
 		public var stream:String;
 		public var viewedName:String;
+		public var userid:Number;
 		
-		public function ViewCameraEvent(stream:String, viewedName:String)
+		public function ViewCameraEvent(userid:Number, stream:String, viewedName:String)
 		{
 			super(VIEW_CAMERA_EVENT,true);
+			this.userid = userid;
 			this.stream = stream;
 			this.viewedName = viewedName;
 		}
