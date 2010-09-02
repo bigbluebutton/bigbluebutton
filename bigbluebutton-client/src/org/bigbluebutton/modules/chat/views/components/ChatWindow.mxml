@@ -36,6 +36,7 @@
 			import mx.core.Application;
 			
 			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var _xPosition:int;
 			private var _yPosition:int;
@@ -63,7 +64,12 @@
 					chatView.txtMsg.enabled = true;
 					chatView.sendBtn.enabled = true;
 				}
-			}			  
+			}		
+			
+			override protected function resourcesChanged():void{
+				super.resourcesChanged();
+				this.title = ResourceUtil.getInstance().getString("bbb.chat.title");
+			}
 			
 		]]>
 	</mx:Script>

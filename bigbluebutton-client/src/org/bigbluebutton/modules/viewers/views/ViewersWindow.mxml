@@ -54,7 +54,7 @@
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			[Bindable]
-			private var windowTitle:String = ResourceUtil.getInstance().getString('bbb.viewers.title',["", ""]) ;
+			private var windowTitle:String = ResourceUtil.getInstance().getString('bbb.viewers.title',["", ""]);
 			
 			[Bindable]
 			public var participants:ArrayCollection = new ArrayCollection();
@@ -137,6 +137,11 @@
 				if (isModerator && (viewersGrid.selectedItem != null)){
 					dispatchEvent(new KickUserEvent(viewersGrid.selectedItem.userid));
 				}
+			}
+			
+			override protected function resourcesChanged():void{
+				super.resourcesChanged();
+				this.title = ResourceUtil.getInstance().getString('bbb.viewers.title',["", ""]);
 			}
 
         ]]>

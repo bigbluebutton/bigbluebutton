@@ -296,6 +296,11 @@
 				dispatchEvent(new ViewWindowEvent(ViewWindowEvent.CLOSE));
 			}
 			
+			override protected function resourcesChanged():void{
+				super.resourcesChanged();
+				this.title = ResourceUtil.getInstance().getString('bbb.desktopView.title');
+			}
+			
 		]]>
 	</mx:Script>
 	<mx:Move id="cursorMove" target="{cursorImg}"/>

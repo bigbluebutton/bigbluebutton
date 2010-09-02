@@ -160,6 +160,14 @@
 				moderator = e.moderator;
 				showCloseButton = false;
 			}
+			
+			override protected function resourcesChanged():void{
+				super.resourcesChanged();
+				if (listeners.length > 4)
+					windowTitle = ResourceUtil.getInstance().getString('bbb.listeners.title', [":", listeners.length]) ;
+				else 
+					windowTitle = ResourceUtil.getInstance().getString('bbb.listeners.title', ["", ""]) ;
+			}
 		]]>
 	</mx:Script>
     	<mx:TileList id="listenersList" height="100%" width="100%" itemClick="listenerSelectEvent(event);"

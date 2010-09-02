@@ -532,6 +532,11 @@
 			public function getSlideView():SlideView{
 				return this.slideView;
 			}
+			
+			override protected function resourcesChanged():void{
+				super.resourcesChanged();
+				if ((slideView != null) && (!slideView.visible)) this.title = ResourceUtil.getInstance().getString('bbb.presentation.title');
+			}
             
 		]]>
 	</mx:Script>
