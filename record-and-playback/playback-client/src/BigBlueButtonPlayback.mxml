@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" minWidth="955" minHeight="600" 
+				xmlns:views="org.bigbluebutton.main.views.*" xmlns:maps="org.bigbluebutton.main.maps.*"
+				pageTitle="BigBlueButton Playback"
+				preloader="org.bigbluebutton.main.models.BigBlueButtonPreloader" xmlns:maps1="org.bigbluebutton.modules.chat.maps.*">
+	<mx:Script>
+		<![CDATA[
+			/*import mx.controls.Alert;
+			import mx.managers.BrowserManager;
+			import mx.managers.IBrowserManager;
+			import mx.utils.URLUtil;
+			
+			private var bm:IBrowserManager;
+			
+			private function init(e:Event):void {
+				bm = BrowserManager.getInstance();                
+				bm.init("", "");
+				var o:Object = URLUtil.stringToObject(bm.fragment, "&");                
+				//Alert.show(o.conference);               
+			}*/
+		]]>
+	</mx:Script>
+	
+	<maps:MainEventMap />
+	<maps1:PlaybackChatEventMap />
+	<views:MainApplicationShell id="mainshell" />
+</mx:Application>
