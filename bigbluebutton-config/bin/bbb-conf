@@ -501,10 +501,13 @@ if [ $CHECKOUT ]; then
         cd ~/dev/source
 
 	echo "#                                         "
-        echo "# Checking out BigBlueButton."
+        echo "# Cloning BigBlueButton."
         echo "#                                         "
         echo "# "
         git clone $CHECKOUT
+	cd ~/dev/source/bigbluebutton
+	echo " Checking out version 0.7 "
+ 	git checkout -b 0.7-release-workspace v0.7	
         echo "# "
         echo "#                                         "
         echo "# Checked out BigBlueButton. "
