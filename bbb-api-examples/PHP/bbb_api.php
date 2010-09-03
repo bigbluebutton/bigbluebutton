@@ -1,9 +1,31 @@
 <?php
+/*
+Copyright 2010 Blindside Networks
 
-if(function_exists("curl_init()"))
-{
-	function bbb_wrap_simplexml_load_file($url)
-	{
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+Versions:
+   1.0  --  Initial version written by DJP
+                   (email: djp [a t ]  architectes DOT .org)
+   1.1  --  Updated by Omar Shammas and Sebastian Schneider
+                    (email : omar DOT shammas [a t ] g m ail DOT com)
+                    (email : seb DOT sschneider [ a t ] g m ail DOT com)
+*/
+
+function bbb_wrap_simplexml_load_file($url){
+	if(function_exists("curl_init()")){
 		$ch = curl_init() or die ( curl_error() );
 		$timeout = 10;
 		curl_setopt( $ch, CURLOPT_URL, $url );
@@ -12,18 +34,10 @@ if(function_exists("curl_init()"))
 		$data = curl_exec( $ch );
 		curl_close( $ch );
 		return (new SimpleXMLElement($data));
-	} 	
-}
-else
-{
-	/*
-	 * REQUIREMENT - PHP.INI
-	 * allow_url_fopen = On
-	*/
-	 function bbb_wrap_simplexml_load_file($url)
-	 {
-	 	return (simplexml_load_file($url));
-	 }
+	}
+	else{
+		return (simplexml_load_file($url));
+	}
 }
 
 /*
@@ -119,12 +133,12 @@ else
 }
 }
 
-public function createMeeting( $username, $meetingID, $welcomeString, $mPW, $aPW, $SALT, $URL, $logoutURL ) {
+public function createMeetingReturnJoinURL( $username, $meetingID, $meetingName, $welcomeString, $mPW, $aPW, $SALT, $URL, $logoutURL ) {
 	$url_create = $URL."api/create?";
 	$url_join = $URL."api/join?";
 	$voiceBridge = 70000 + rand(0, 9999);
 
-	$params = 'name='.urlencode($username).'&meetingID='.urlencode($meetingID).'&attendeePW='.$aPW.'&moderatorPW='.$mPW.'&voiceBridge='.$voiceBridge.'&logoutURL='.urlencode($logoutURL);
+	$params = 'name='.urlencode($meetingName).'&meetingID='.urlencode($meetingID).'&attendeePW='.$aPW.'&moderatorPW='.$mPW.'&voiceBridge='.$voiceBridge.'&logoutURL='.urlencode($logoutURL);
 
 	if( trim( $welcomeString ) ) 
 		$params .= '&welcome='.urlencode($welcomeString);
@@ -143,7 +157,7 @@ public function createMeeting( $username, $meetingID, $welcomeString, $mPW, $aPW
 	}
 }
 
-public function createMeetingXML( $username, $meetingID, $welcomeString, $mPW, $aPW, $SALT, $URL, $logoutURL ) {
+public function createMeetingArray( $username, $meetingID, $welcomeString, $mPW, $aPW, $SALT, $URL, $logoutURL ) {
 	$url_create = $URL."api/create?";
 	$url_join = $URL."api/join?";
 	$voiceBridge = 70000 + rand(0, 9999);
@@ -202,18 +216,17 @@ public function getMeetingInfo( $meetingID, $modPW, $URL, $SALT ) {
 public function getMeetingInfoArray( $meetingID, $modPW, $URL, $SALT ) {
 	$xml = bbb_wrap_simplexml_load_file( BigBlueButton::getUrlFromMeetingInfo( $meetingID, $modPW, $URL, $SALT ) );
 	if( $xml && $xml->returncode == 'SUCCESS' && $xml->messageKey == null){//The meetings were returned
-                return array('returncode' => $xml->returncode, 'message' => $xml->message, 'messageKey' => $xml->messageKey );
-        }
-        else if($xml && $xml->returncode == 'SUCCESS'){ //If there were meetings already created
-        	       return array( 'meetingID' => $xml->meetingID, 'moderatorPW' => $xml->moderatorPW, 'attendeePW' => $xml->attendeePW, 'hasBeenForciblyEnded' => $xml->hasBeenForciblyEnded, 'running' => $xml->running, 'startTime' => $xml->startTime, 'endTime' => $xml->endTime, 'participantCount' => $xml->participantCount, 'moderatorCount' => $xml->moderatorCount, 'attendees' => $xml->attendees );
-        }
-        else if( $xml ) { //If the xml packet returned failure it displays the message to the user
-
-                return array('returncode' => $xml->returncode, 'message' => $xml->message, 'messageKey' => $xml->messageKey);
-        }
-        else { //If the server is unreachable, then prompts the user of the necessary action
-                return null;
-        }
+		return array('returncode' => $xml->returncode, 'message' => $xml->message, 'messageKey' => $xml->messageKey );
+	}
+	else if($xml && $xml->returncode == 'SUCCESS'){ //If there were meetings already created
+		return array( 'meetingID' => $xml->meetingID, 'moderatorPW' => $xml->moderatorPW, 'attendeePW' => $xml->attendeePW, 'hasBeenForciblyEnded' => $xml->hasBeenForciblyEnded, 'running' => $xml->running, 'startTime' => $xml->startTime, 'endTime' => $xml->endTime, 'participantCount' => $xml->participantCount, 'moderatorCount' => $xml->moderatorCount, 'attendees' => $xml->attendees );
+	}
+	else if( $xml ) { //If the xml packet returned failure it displays the message to the user
+		return array('returncode' => $xml->returncode, 'message' => $xml->message, 'messageKey' => $xml->messageKey);
+	}
+	else { //If the server is unreachable, then prompts the user of the necessary action
+		return null;
+	}
 
 }
 

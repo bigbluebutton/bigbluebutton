@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" label="Breakout" click="openWindow()" >
+	<mx:Script>
+		<![CDATA[
+			import mx.core.Application;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			
+			private var window:BreakoutWindow;
+			
+			private function openWindow():void{
+				window = BreakoutWindow(PopUpManager.createPopUp(this, BreakoutWindow, true));
+				window.x = stage.width/2 - window.width/2;
+				window.y = stage.height/2 - window.height/2;
+				window.addEventListener(CloseEvent.CLOSE, onWindowClose);
+			}
+			
+			private function onWindowClose(e:CloseEvent):void{
+				PopUpManager.removePopUp(window);
+				window = null
+			}
+		]]>
+	</mx:Script>
+</mx:Button>

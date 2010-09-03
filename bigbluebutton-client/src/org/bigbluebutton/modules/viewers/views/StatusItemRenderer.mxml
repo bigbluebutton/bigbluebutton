@@ -22,14 +22,15 @@
 
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:mate="http://mate.asfusion.com/"
-	verticalScrollPolicy="off" horizontalScrollPolicy="off"
-	creationComplete="onCreationComplete()"> 
+	verticalScrollPolicy="off" horizontalScrollPolicy="off"> 
 	
 	<mate:Listener type="ViewVideoCloseEvent" method="onViewVideoCloseEvent"/>
 	
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
+			
+			import mx.controls.Alert;
 			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
@@ -39,11 +40,6 @@
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
-			private var streamName:String = "";
-				
-			private function onCreationComplete():void{
-				streamName = data.streamName;
-			}
 			
 			private function viewCamera():void {
    				LogUtil.debug("ViewersModule - sending camera view request for stream" + data.streamName);
@@ -54,9 +50,8 @@
    			
    			private function onViewVideoCloseEvent(event:BBBEvent):void {
    				LogUtil.debug("ViewWindoClosing event: " + event.message);
-   				if (streamName == event.message) {
+   				if (data.streamName == event.message) {
    					streamIcon.enabled = true;
-   					streamName = "";
    				}
    			}
    			

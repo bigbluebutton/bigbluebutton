@@ -42,6 +42,7 @@
 			uri="rtmp://HOST/video"
 			dependsOn="ViewersModule"
 			videoQuality="70"
+			presenterShareOnly="false"
 		/>
 		
 		<module name="WhiteboardModule" url="WhiteboardModule.swf?v=VERSION" 
@@ -66,6 +67,13 @@
 		<!--<module name="ExampleChatModule" url="ExampleChatModule.swf?v=56" 
             uri="rtmp://HOST/bigbluebutton" 
             host="http://HOST"
+		/>-->
+		
+		<!--<module name="BreakoutModule" url="BreakoutModule.swf?v=VERSION" 
+			uri="rtmp://192.168.0.225/bigbluebutton" 
+			host="http://192.168.0.225" 
+			dependsOn="ViewersModule"
+			salt="1708e5ecf25b7142b06f2338b4ea3cf1"
 		/>-->
 		
 	</modules>

@@ -25,7 +25,7 @@
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	creationComplete="init()"
 	width="{camWidth + 6}" height="{camHeight + 73}" 
-	title="Stream webcam" 
+	title="{ResourceUtil.getInstance().getString('bbb.publishVideo.title')}" 
 	backgroundImage="{bbbLogo}" 
 	resizable="false" 
 	xmlns:mate="http://mate.asfusion.com/">
@@ -42,6 +42,7 @@
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
 			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
 			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
 			[Bindable] public var camIcon:Class = images.control_play;
@@ -157,6 +158,11 @@
 						cmbCameraSelector.selectedIndex = i;
 					}
 				}
+			}
+			
+			override protected function resourcesChanged():void{
+				super.resourcesChanged();
+				this.title = ResourceUtil.getInstance().getString('bbb.publishVideo.title');
 			}
 			
 		]]>

@@ -236,6 +236,11 @@
 				closeWindow();
 			}		
 			
+			override protected function resourcesChanged():void{
+				super.resourcesChanged();
+				this.title = ResourceUtil.getInstance().getString('bbb.desktopPublish.title');
+			}
+			
 		]]>
 	</mx:Script>
 	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>

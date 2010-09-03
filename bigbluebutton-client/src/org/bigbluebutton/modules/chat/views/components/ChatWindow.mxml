@@ -34,8 +34,11 @@
 			
 			import mx.controls.Alert;
 			import mx.core.Application;
+			import mx.resources.ResourceBundle;
+			import mx.resources.ResourceManager;
 			
 			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var _xPosition:int;
 			private var _yPosition:int;
@@ -50,6 +53,11 @@
 				/* Set up full screen handler. */
 				Application.application.stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
 				dispState = Application.application.stage.displayState;
+				
+				/*var r:ResourceBundle = new ResourceBundle("fr_FR", "core");
+				r.content["truncationIndicator"] = '...';
+				resourceManager.addResourceBundle(r);
+				resourceManager.update();*/
 			}
 			
 			private function fullScreenHandler(evt:FullScreenEvent):void {
@@ -63,7 +71,12 @@
 					chatView.txtMsg.enabled = true;
 					chatView.sendBtn.enabled = true;
 				}
-			}			  
+			}		
+			
+			override protected function resourcesChanged():void{
+				super.resourcesChanged();
+				this.title = ResourceUtil.getInstance().getString("bbb.chat.title");
+			}
 			
 		]]>
 	</mx:Script>

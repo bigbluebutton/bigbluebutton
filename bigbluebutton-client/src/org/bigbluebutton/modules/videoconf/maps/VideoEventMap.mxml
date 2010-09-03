@@ -27,6 +27,7 @@
 			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.events.OpenWindowEvent;
 			import org.bigbluebutton.main.events.ToolbarButtonEvent;
 			import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
@@ -74,7 +75,8 @@
 			}
 			
 			public function addToolbarButton():void{
-				button = new ToolbarButton();	   	
+				button = new ToolbarButton();	  
+				button.isPresenter = !module.presenterShareOnly;
 				var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
 				event.button = button;
 				globalDispatcher.dispatchEvent(event);
@@ -101,21 +103,35 @@
 			}
 			
 			private function stopPublishing(e:StopBroadcastEvent):void{
-				proxy.stopBroadcasting(e);
+				proxy.stopBroadcasting();
 				proxy = null;
 				proxy = new VideoProxy(module.uri);
+				
 				var broadcastEvent:BroadcastStoppedEvent = new BroadcastStoppedEvent();
-				broadcastEvent.stream = e.stream;
+				broadcastEvent.stream = publishWindow.streamName;
 				broadcastEvent.userid = module.userid;
 				globalDispatcher.dispatchEvent(broadcastEvent);
 				
-				//Make toolbar button visible again
+				//Make toolbar button enabled again
 				button.show();
 			}
 			
 			public function closeAllWindows():void{
 				if (publishWindow != null) publishWindow.close();
 				globalDispatcher.dispatchEvent(new CloseAllWindowsEvent());
+			}
+			
+			private function switchToPresenter():void{
+				if (module.presenterShareOnly){
+					button.isPresenter = true;
+				}
+			}
+			
+			private function switchToViewer():void{
+				if (module.presenterShareOnly){
+					button.isPresenter = false;
+					if (publishWindow != null) publishWindow.close();
+				}
 			}
 			
 			
@@ -148,6 +164,14 @@
 	
 	<EventHandlers type="{ViewCameraEvent.VIEW_CAMERA_EVENT}">
 		<InlineInvoker method="viewCamera" arguments="{[event.userid, event.stream, event.viewedName]}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" >
+		<InlineInvoker method="switchToPresenter" />	
+	</EventHandlers>
+	
+	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">
+		<InlineInvoker method="switchToViewer" />
 	</EventHandlers>
 	
 </EventMap>
