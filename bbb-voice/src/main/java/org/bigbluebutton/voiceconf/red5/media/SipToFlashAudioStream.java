@@ -165,7 +165,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 			mBuffer.setAutoExpand(true);
 
 			mBuffer.clear();	        
-		    mBuffer.put(fakeMetadata);        
+		    mBuffer.put(fakeMetadata);         
 		    mBuffer.flip();
 
 	        Notify notifyData = new Notify(mBuffer);
