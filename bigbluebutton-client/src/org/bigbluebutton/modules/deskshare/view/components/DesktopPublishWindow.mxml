@@ -36,9 +36,10 @@
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="onChangedPresenter" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="onChangedPresenter" />	
 	<mate:Listener type="{CursorEvent.UPDATE_CURSOR_LOC_EVENT}" method="onUpdateCursorEvent" />
+	<mate:Listener type="{ViewStreamEvent.STOP}" method="closePublishWindow" />
+	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.common.LogUtil;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
@@ -46,6 +47,7 @@
 			import mx.core.UIComponent;
 			
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
@@ -53,6 +55,7 @@
 			import org.bigbluebutton.modules.deskshare.events.CursorEvent;
 			import org.bigbluebutton.modules.deskshare.events.ShareWindowEvent;
 			import org.bigbluebutton.modules.deskshare.events.StreamEvent;
+			import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			public static const SCALE:Number = 5;
@@ -159,7 +162,8 @@
 			private function onAppletStart(event:AppletStartedEvent):void{
 				LogUtil.debug("DeskShareWindow::onAppletStart");
 				startStream(connection, room);
-				
+				captureWidth = event.videoWidth;
+				captureHeight = event.videoHeight;
 				var streamEvent:StreamEvent = new StreamEvent(StreamEvent.START);
 				streamEvent.videoWidth = captureWidth;
 				streamEvent.videoHeight = captureHeight;
@@ -239,6 +243,10 @@
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
 				this.title = ResourceUtil.getInstance().getString('bbb.desktopPublish.title');
+			}
+			
+			private function closePublishWindow(event:ViewStreamEvent):void{
+				close();
 			}
 			
 		]]>

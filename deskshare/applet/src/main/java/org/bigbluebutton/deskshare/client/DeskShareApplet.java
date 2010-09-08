@@ -22,6 +22,8 @@ package org.bigbluebutton.deskshare.client;
 import java.applet.Applet;
 import java.awt.Image;
 
+import org.bigbluebutton.deskshare.client.frame.RecordingAppletFrame;
+
 public class DeskShareApplet extends Applet implements ClientListener {
 	private static final long serialVersionUID = 1L;
 
@@ -40,25 +42,38 @@ public class DeskShareApplet extends Applet implements ClientListener {
     DeskshareClient client;
     Image icon;
     
+    private RecordingAppletFrame raf;
+    public boolean isSharing = false;
+    
 	public void init() {
+		raf = new RecordingAppletFrame(5);
+		raf.setHeight(300);
+		raf.setWidth(600);
+		raf.centerOnScreen();
+		raf.setVisible(true);
+		raf.setApplet(this);
+		
 		hostValue = getParameter("IP");
 		String port = getParameter("PORT");
 		if (port != null) portValue = Integer.parseInt(port);
 		roomValue = getParameter("ROOM");
-		cWidthValue = Integer.parseInt(getParameter("CAPTURE_WIDTH"));
-		cHeightValue = Integer.parseInt(getParameter("CAPTURE_HEIGHT"));				
-		xValue = Integer.parseInt(getParameter("X"));
-		yValue = Integer.parseInt(getParameter("Y"));
+		//cWidthValue = Integer.parseInt(getParameter("CAPTURE_WIDTH"));
+		//cHeightValue = Integer.parseInt(getParameter("CAPTURE_HEIGHT"));				
+		//xValue = Integer.parseInt(getParameter("X"));
+		//yValue = Integer.parseInt(getParameter("Y"));
+		
+		cWidthValue = raf.getWidth();
+		cHeightValue = raf.getHeight();
+		xValue = raf.getX();
+		yValue = raf.getY();
 		
 		sWidthValue = cWidthValue;
-		String scaleWidth = getParameter("SCALE_WIDTH");
-		if (scaleWidth != null) {
-			sWidthValue = Integer.parseInt(scaleWidth);
-		} 
+		//String scaleWidth = getParameter("SCALE_WIDTH");
+		//if (scaleWidth != null) sWidthValue = Integer.parseInt(scaleWidth);
 		
 		sHeightValue = cHeightValue;
-		String scaleHeight = getParameter("SCALE_HEIGHT");
-		if (scaleHeight != null) sHeightValue = Integer.parseInt(scaleHeight);
+		//String scaleHeight = getParameter("SCALE_HEIGHT");
+		//if (scaleHeight != null) sHeightValue = Integer.parseInt(scaleHeight);
 		
 		String qualityCapture = getParameter("SCALE_WITH_QUALITY");
 		if (qualityCapture != null) qualityValue = Boolean.parseBoolean(qualityCapture);
@@ -72,14 +87,44 @@ public class DeskShareApplet extends Applet implements ClientListener {
 	}
 		
 	public void start() {		 
-		System.out.println("Start");	
+		/*System.out.println("Start");	
 		client = new DeskshareClient.Builder().host(hostValue).port(portValue)
 							.room(roomValue).captureWidth(cWidthValue)
 							.captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue)
 							.quality(qualityValue).aspectRatio(aspectRatioValue)
 							.x(xValue).y(yValue)
 							.httpTunnel(tunnelValue).trayIcon(icon).enableTrayIconActions(false).build();
+		client.start();*/
+		//raf.setDimensionsListener(client);
+	}
+	
+	public void setDimensions(int X, int Y, int width, int height){
+		cWidthValue = width;
+		cHeightValue = height;
+		xValue = X;
+		yValue = Y;
+		sWidthValue = width;
+		sHeightValue = height;
+	}
+	
+	public void setScreenCoordinates(int X, int Y){
+		if (client != null) client.setScreenCoordinates(X, Y);
+	}
+	
+	public void startSharing(){
+		System.out.println("Start Sharing");	
+		client = new DeskshareClient.Builder().host(hostValue).port(portValue)
+							.room(roomValue).captureWidth(cWidthValue)
+							.captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue)
+							.quality(qualityValue).aspectRatio(aspectRatioValue)
+							.x(xValue).y(yValue)
+							.httpTunnel(tunnelValue).trayIcon(icon).enableTrayIconActions(false).build();
+		raf.setDimensionsListener(this);
+		isSharing = true;
 		client.start();
+		
+		raf.btnStartStop.setLabel("Stop Sharing");
+		raf.removeResizeListeners();
 	}
 
 		
@@ -101,4 +146,5 @@ public class DeskShareApplet extends Applet implements ClientListener {
 	public void onClientStop(ExitCode reason) {
 		stop();
 	}
+	
 }

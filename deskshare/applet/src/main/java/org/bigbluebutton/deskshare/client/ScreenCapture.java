@@ -94,6 +94,16 @@ public class ScreenCapture {
 		updateBounds();
 	}
 	
+	public void setWidth(int width) {
+		this.captureWidth = width;
+		updateBounds();
+	}
+	
+	public void setHeight(int height) {
+		this.captureHeight = height;
+		updateBounds();
+	}
+	
 	public void updateBounds() {
 		this.screenBounds = new Rectangle(x, y, captureWidth, captureHeight);
 	}

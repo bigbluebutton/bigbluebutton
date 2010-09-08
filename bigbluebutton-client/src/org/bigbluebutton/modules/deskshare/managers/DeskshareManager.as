@@ -151,6 +151,7 @@ package org.bigbluebutton.modules.deskshare.managers
 			LogUtil.debug("opening desk share window");
 			shareWindow = new DesktopPublishWindow();
 			shareWindow.initWindow(service.getConnection(), module.getCaptureServerUri(), module.getRoom());
+			shareWindow.visible = false;
 			openWindow(shareWindow);
 		}
 		

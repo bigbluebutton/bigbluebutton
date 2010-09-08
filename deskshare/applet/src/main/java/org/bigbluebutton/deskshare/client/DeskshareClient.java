@@ -32,7 +32,7 @@ import org.bigbluebutton.deskshare.client.net.NetworkStreamSender;
 import org.bigbluebutton.deskshare.common.Dimension;
 import org.bigbluebutton.deskshare.client.net.ConnectionException;
 
-class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, SystemTrayListener, 
+public class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, SystemTrayListener, 
 			MouseLocationListener, NetworkConnectionListener {
 	private static final String LICENSE_HEADER = "This program is free software: you can redistribute it and/or modify\n" +
 	"it under the terms of the GNU Lesser General Public License as published by\n" +
@@ -99,7 +99,7 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
 		
 		capture = new ScreenCapture(x, y, captureWidth, captureHeight, scaleWidth, scaleHeight, quality);
 		captureTaker = new ScreenCaptureTaker(capture);
-		mTaker = new MouseLocationTaker(captureWidth, captureHeight, scaleWidth, scaleHeight);
+		mTaker = new MouseLocationTaker(captureWidth, captureHeight, scaleWidth, scaleHeight, x, y);
 		
 		// Use the scaleWidth and scaleHeight as the dimension we pass to the BlockManager.
 		// If there is no scaling required, the scaleWidth and scaleHeight will be the same as 
@@ -169,6 +169,12 @@ class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, 
 	public void setScreenCoordinates(int x, int y) {
 		capture.setX(x);
 		capture.setY(y);
+		mTaker.setCaptureCoordinates(x, y);
+	}
+	
+	public void setScreenDimensions(int width, int height){
+		capture.setWidth(width);
+		capture.setHeight(height);
 	}
 	
 	public void onScreenCaptured(BufferedImage screen) {

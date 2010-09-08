@@ -75,6 +75,7 @@ public class NetworkSocketStreamSender implements Runnable {
 		try {
 			ByteArrayOutputStream dataToSend = new ByteArrayOutputStream();
 			dataToSend.reset();
+			System.out.println("Screen Dimension " + screenDim.getWidth() + "," + screenDim.getHeight());
 			BlockStreamProtocolEncoder.encodeStartStreamMessage(room, screenDim, blockDim, dataToSend);
 			sendHeader(BlockStreamProtocolEncoder.encodeHeaderAndLength(dataToSend));
 			sendToStream(dataToSend);

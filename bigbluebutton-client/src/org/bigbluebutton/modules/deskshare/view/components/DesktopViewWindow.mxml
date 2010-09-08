@@ -38,7 +38,6 @@
 		
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.common.LogUtil;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.sampler.NewObjectSample;
@@ -49,6 +48,7 @@
 			import mx.core.UIComponent;
 			
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.api.IUserListener;
 			import org.bigbluebutton.main.api.UserManager;
 			import org.bigbluebutton.main.model.User;
@@ -159,6 +159,7 @@
 			}
 			
 			public function startVideo(connection:NetConnection, stream:String, width:Number, height:Number):void{
+				Alert.show("" + width + "x" + height);
 				this.videoWidth = width;
 				this.videoHeight = height;
 				

@@ -6,3 +6,4 @@ lib
 .scala_dependencies
 .manager
 .gradle
+bin

@@ -33,11 +33,17 @@ public class MouseLocationTaker implements Runnable {
 	private int scaleWidth;
 	private int scaleHeight;
 	
-	public MouseLocationTaker(int captureWidth, int captureHeight, int scaleWidth, int scaleHeight) {
+	private int captureX;
+	private int captureY;
+	
+	public MouseLocationTaker(int captureWidth, int captureHeight, int scaleWidth, int scaleHeight, int captureX, int captureY) {
 		this.captureWidth = captureWidth;
 		this.captureHeight = captureHeight;
 		this.scaleWidth = scaleWidth;
 		this.scaleHeight = scaleHeight;
+		
+		this.captureX = captureX;
+		this.captureY = captureY;
 	}
 	
 	public Point getMouseLocation() {
@@ -57,7 +63,8 @@ public class MouseLocationTaker implements Runnable {
 		if (adjustPointerLocationDueToScaling()) {			
 			pointerLocation = calculatePointerLocation(pInfo.getLocation());
 		} else {
-			pointerLocation = pInfo.getLocation();
+			//pointerLocation = pInfo.getLocation();
+			pointerLocation = calculatePointerLocation(pInfo.getLocation());
 		}
 		return pointerLocation;		
 	}
@@ -65,6 +72,10 @@ public class MouseLocationTaker implements Runnable {
 	private Point calculatePointerLocation(Point p) {
 		double mx = ((double)p.x/(double)captureWidth) * (double)scaleWidth;
 		double my = ((double)p.y/(double)captureHeight) * (double)scaleHeight;
+		
+		mx = mx - captureX;
+		my = my - captureY;
+		
 		return new Point((int)mx, (int)my);
 	}
 	
@@ -98,5 +109,10 @@ public class MouseLocationTaker implements Runnable {
 	
 	public void stop() {
 		trackMouseLocation = false;
+	}
+	
+	public void setCaptureCoordinates(int x, int y){
+		captureX = x;
+		captureY = y;
 	}
 }
