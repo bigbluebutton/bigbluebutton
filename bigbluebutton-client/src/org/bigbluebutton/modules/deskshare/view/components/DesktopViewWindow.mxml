@@ -159,7 +159,6 @@
 			}
 			
 			public function startVideo(connection:NetConnection, stream:String, width:Number, height:Number):void{
-				Alert.show("" + width + "x" + height);
 				this.videoWidth = width;
 				this.videoHeight = height;
 				
@@ -308,7 +307,7 @@
 	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
 		
 	<mx:ControlBar id="bottomBar" height="35" horizontalAlign="center">
-		<mx:Button id="btnActualSize" toggle="true" click="determineHowToDisplayVideo()" selected="true"
+		<mx:Button id="btnActualSize" toggle="true" click="determineHowToDisplayVideo()" selected="false"
 			height="90%" label="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}" 
 			toolTip="{ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow')}" />
 	</mx:ControlBar>
