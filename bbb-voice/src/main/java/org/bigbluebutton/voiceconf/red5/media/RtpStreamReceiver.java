@@ -42,6 +42,7 @@ public class RtpStreamReceiver {
     private final int payloadLength;
     private int lastSequenceNumber = 0;
     private long lastPacketTimestamp = 0;
+    private boolean firstPacket = true;
     
     public RtpStreamReceiver(DatagramSocket socket, int expectedPayloadLength) {
     	this.payloadLength = expectedPayloadLength;
@@ -87,12 +88,16 @@ public class RtpStreamReceiver {
         		rtpSocket.receive(rtpPacket);
         		packetReceivedCounter++;  
         		if (shouldHandlePacket(rtpPacket)) {        			
-        				processRtpPacket(rtpPacket);
+        			processRtpPacket(rtpPacket);
         		} else {
-        			if (isFirstPacket()) {
+        			if (firstPacket) {
+        				firstPacket = false;
+           				log.debug("First packet seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
+           						+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");       				
         				processRtpPacket(rtpPacket);
         			} else {
-           				log.info("Corrupt packet seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber +"][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "]");       				
+           				log.debug("Corrupt packet seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
+           						+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");       				
         			}
          		}
         	} catch (IOException e) {
