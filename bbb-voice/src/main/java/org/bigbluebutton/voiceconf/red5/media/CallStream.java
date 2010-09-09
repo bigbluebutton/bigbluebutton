@@ -95,7 +95,7 @@ public class CallStream implements StreamObserver {
 
 	@Override
 	public void onStreamStopped() {
-		log.error("ERRROOOOORRRRRR: STREAM HAS STOPPED " + connInfo.getSocket().getLocalPort());
+		log.debug("STREAM HAS STOPPED " + connInfo.getSocket().getLocalPort());
 		if (callStreamObserver != null) callStreamObserver.onCallStreamStopped();
 	}
 }
