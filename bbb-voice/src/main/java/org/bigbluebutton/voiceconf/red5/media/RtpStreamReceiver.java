@@ -116,7 +116,7 @@ public class RtpStreamReceiver {
 		 *  another "start" timestamp will be generated for the voice. (ralam, sept 7, 2010).
 		 *	&& packetIsNotCorrupt(rtpPacket)) {
 		**/
-    	 return validSeqNum(rtpPacket) || seqNumRollOver(rtpPacket);
+    	 return validSeqNum(rtpPacket) || seqNumRolledOver(rtpPacket);
     			
     }
     
@@ -127,14 +127,17 @@ public class RtpStreamReceiver {
     	return (rtpPacket.getSeqNum() > lastSequenceNumber && rtpPacket.getSeqNum() - lastSequenceNumber < 100);
     }
     
-    private boolean seqNumRollOver(RtpPacket rtpPacket) {
-    	boolean rolledOver = lastSequenceNumber - rtpPacket.getSeqNum() > 65000;
-    	
-    	if (rolledOver) {
-				log.debug("Packet rolling over seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
-   						+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");      		
+    private boolean seqNumRolledOver(RtpPacket rtpPacket) {
+    	/*
+    	 * Max sequence num is 65535 (16-bits). Let's use 65000 as check to take into account
+    	 * delayed packets.
+    	 */
+    	if (lastSequenceNumber - rtpPacket.getSeqNum() > 65000) {
+			log.debug("Packet rolling over seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
+   				+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");  
+			return true;	
     	}
-    	return rolledOver;
+    	return false;
     }
 
     private void processRtpPacket(RtpPacket rtpPacket) {
