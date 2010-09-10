@@ -90,23 +90,14 @@ public class RtpStreamReceiver {
         		if (shouldHandlePacket(rtpPacket)) {        			
         			processRtpPacket(rtpPacket);
         		} else {
-        			if (firstPacket) {
-        				firstPacket = false;
-           				log.debug("First packet seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
-           						+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");       				
-        				processRtpPacket(rtpPacket);
-        			} else {
-           				log.debug("Corrupt packet seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
-           						+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");       				
-        			}
+           			log.debug("Corrupt packet seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
+           					+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");       				
          		}
-        	} catch (IOException e) {
-        		// We get this when the socket closes when the call hangs up.
+        	} catch (IOException e) { // We get this when the socket closes when the call hangs up.        		
         		receivePackets = false;
         	}
         }
-        log.debug("Rtp Receiver stopped." );
-        log.debug("Packet Received = " + packetReceivedCounter + "." );
+        log.debug("Rtp Receiver stopped. Packet Received = " + packetReceivedCounter + "." );
         if (listener != null) listener.onStoppedReceiving();
     }
         
@@ -116,8 +107,17 @@ public class RtpStreamReceiver {
 		 *  another "start" timestamp will be generated for the voice. (ralam, sept 7, 2010).
 		 *	&& packetIsNotCorrupt(rtpPacket)) {
 		**/
-    	 return validSeqNum(rtpPacket) || seqNumRolledOver(rtpPacket);
-    			
+    	 return isFirstPacket(rtpPacket) || validSeqNum(rtpPacket) || seqNumRolledOver(rtpPacket);    			
+    }
+    
+    private boolean isFirstPacket(RtpPacket rtpPacket) {
+		if (firstPacket) {
+			firstPacket = false;
+			log.debug("First packet seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
+						+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");
+			return true;
+		}
+		return false;
     }
     
     private boolean validSeqNum(RtpPacket rtpPacket) {
