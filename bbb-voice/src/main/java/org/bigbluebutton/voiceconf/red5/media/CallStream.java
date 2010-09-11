@@ -41,11 +41,16 @@ public class CallStream implements StreamObserver {
     private final Codec sipCodec;
     private final SipConnectInfo connInfo;
     private final IScope scope;
+    private CallStreamObserver callStreamObserver;
     
     public CallStream(Codec sipCodec, SipConnectInfo connInfo, IScope scope) {        
     	this.sipCodec = sipCodec;
     	this.connInfo = connInfo;
     	this.scope = scope;
+    }
+    
+    public void addCallStreamObserver(CallStreamObserver observer) {
+    	callStreamObserver = observer;
     }
     
     public void start() {        
@@ -90,6 +95,7 @@ public class CallStream implements StreamObserver {
 
 	@Override
 	public void onStreamStopped() {
-
+		log.debug("STREAM HAS STOPPED " + connInfo.getSocket().getLocalPort());
+		if (callStreamObserver != null) callStreamObserver.onCallStreamStopped();
 	}
 }

@@ -27,6 +27,7 @@ import org.zoolu.sdp.*;
 import org.bigbluebutton.voiceconf.red5.CallStreamFactory;
 import org.bigbluebutton.voiceconf.red5.ClientConnectionManager;
 import org.bigbluebutton.voiceconf.red5.media.CallStream;
+import org.bigbluebutton.voiceconf.red5.media.CallStreamObserver;
 import org.bigbluebutton.voiceconf.red5.media.StreamException;
 import org.bigbluebutton.voiceconf.util.StackTraceUtil;
 import org.red5.app.sip.codecs.Codec;
@@ -42,7 +43,7 @@ import java.net.SocketException;
 import java.util.Enumeration;
 import java.util.Vector;
 
-public class CallAgent extends CallListenerAdapter  {
+public class CallAgent extends CallListenerAdapter implements CallStreamObserver  {
     private static Logger log = Red5LoggerFactory.getLogger(CallAgent.class, "sip");
     
     private final SipPeerProfile userProfile;
@@ -178,6 +179,7 @@ public class CallAgent extends CallListenerAdapter  {
             if ((callStream == null) && (sipCodec != null)) {               	
             	try {
 					callStream = callStreamFactory.createCallStream(sipCodec, connInfo);
+					callStream.addCallStreamObserver(this);
 					callStream.start();
 					notifyListenersOnCallConnected(callStream.getTalkStreamName(), callStream.getListenStreamName());
 				} catch (Exception e) {
@@ -372,6 +374,11 @@ public class CallAgent extends CallListenerAdapter  {
         notifyListenersOnOutgoingCallFailed();
     }
 
+    public void onCallStreamStopped() {
+    	log.info("Call stream has been stopped");
+    	notifyListenersOfOnCallClosed();
+    }
+    
     private boolean isCurrentCall(Call call) {
     	return this.call == call;
     }

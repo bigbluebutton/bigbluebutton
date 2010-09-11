@@ -42,6 +42,7 @@ public class RtpStreamReceiver {
     private final int payloadLength;
     private int lastSequenceNumber = 0;
     private long lastPacketTimestamp = 0;
+    private boolean firstPacket = true;
     
     public RtpStreamReceiver(DatagramSocket socket, int expectedPayloadLength) {
     	this.payloadLength = expectedPayloadLength;
@@ -87,40 +88,56 @@ public class RtpStreamReceiver {
         		rtpSocket.receive(rtpPacket);
         		packetReceivedCounter++;  
         		if (shouldHandlePacket(rtpPacket)) {        			
-        				processRtpPacket(rtpPacket);
+        			processRtpPacket(rtpPacket);
         		} else {
-        			if (isFirstPacket()) {
-        				processRtpPacket(rtpPacket);
-        			} else {
-           				log.info("Corrupt packet seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber +"][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "]");       				
-        			}
+           			log.debug("Corrupt packet seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
+           					+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");       				
          		}
-        	} catch (IOException e) {
-        		// We get this when the socket closes when the call hangs up.
+        	} catch (IOException e) { // We get this when the socket closes when the call hangs up.        		
         		receivePackets = false;
         	}
         }
-        log.debug("Rtp Receiver stopped." );
-        log.debug("Packet Received = " + packetReceivedCounter + "." );
+        log.debug("Rtp Receiver stopped. Packet Received = " + packetReceivedCounter + "." );
         if (listener != null) listener.onStoppedReceiving();
     }
-    
-    private boolean isFirstPacket() {
-    	return lastSequenceNumber == 0 && lastPacketTimestamp == 0;
-    }
-    
+        
     private boolean shouldHandlePacket(RtpPacket rtpPacket) {
 		/** Take seq number only into account and not timestamps. Seems like the timestamp sometimes change whenever the audio changes source.
 		 *  For example, in FreeSWITCH, the audio prompt will have it's own "start" timestamp and then
 		 *  another "start" timestamp will be generated for the voice. (ralam, sept 7, 2010).
 		 *	&& packetIsNotCorrupt(rtpPacket)) {
 		**/
+    	 return isFirstPacket(rtpPacket) || validSeqNum(rtpPacket) || seqNumRolledOver(rtpPacket);    			
+    }
+    
+    private boolean isFirstPacket(RtpPacket rtpPacket) {
+		if (firstPacket) {
+			firstPacket = false;
+			log.debug("First packet seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
+						+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");
+			return true;
+		}
+		return false;
+    }
+    
+    private boolean validSeqNum(RtpPacket rtpPacket) {
     	/*
     	 * Assume if the sequence number jumps by more that 100, that the sequence number is corrupt.
     	 */
-    	return rtpPacket.getSeqNum() > lastSequenceNumber && rtpPacket.getSeqNum() - lastSequenceNumber < 100;
-    	
-    	//rtpPacket.getTimestamp() > lastPacketTimestamp && rtpPacket.getTimestamp() - lastPacketTimestamp < 1000;
+    	return (rtpPacket.getSeqNum() > lastSequenceNumber && rtpPacket.getSeqNum() - lastSequenceNumber < 100);
+    }
+    
+    private boolean seqNumRolledOver(RtpPacket rtpPacket) {
+    	/*
+    	 * Max sequence num is 65535 (16-bits). Let's use 65000 as check to take into account
+    	 * delayed packets.
+    	 */
+    	if (lastSequenceNumber - rtpPacket.getSeqNum() > 65000) {
+			log.debug("Packet rolling over seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
+   				+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");  
+			return true;	
+    	}
+    	return false;
     }
 
     private void processRtpPacket(RtpPacket rtpPacket) {
