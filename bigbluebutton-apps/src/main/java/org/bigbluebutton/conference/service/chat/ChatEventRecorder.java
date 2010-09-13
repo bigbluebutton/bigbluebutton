@@ -21,11 +21,18 @@
 package org.bigbluebutton.conference.service.chat;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.bigbluebutton.conference.service.recorder.IEventRecorder;
 import org.bigbluebutton.conference.service.recorder.IRecorder;
 import org.bigbluebutton.conference.service.chat.IChatRoomListener;import org.red5.server.api.so.ISharedObject;
 import org.slf4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.red5.logging.Red5LoggerFactory;
 
 public class ChatEventRecorder implements IEventRecorder, IChatRoomListener {
@@ -58,7 +65,7 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatEventRecorder.class
 	@Override
 	public void recordEvent(String message) {
 		if(record)
-			recorder.recordEvent(parseChatToJSON(message));
+			recorder.recordEvent(parseChatToXML(message));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -96,5 +103,31 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatEventRecorder.class
 		
 		return json;
 	}
-
+	
+	/********************************
+	 *  Testing performance XML over the playback client
+	 * ****************************/
+	@SuppressWarnings("unchecked")
+	private String parseChatToXML(String message){
+		int idx_ini=message.indexOf("color=")+7;
+		int idx_end=message.indexOf("\">", idx_ini);
+		String color=message.substring(idx_ini, idx_end);
+		
+		idx_ini=message.indexOf("<b>")+4;
+		idx_end=message.indexOf("</b>", idx_ini)-13;
+		String user=message.substring(idx_ini,idx_end);
+		
+		idx_ini=message.indexOf("</b>")+4;
+		idx_end=message.indexOf("</font>", idx_ini);
+		String text=message.substring(idx_ini,idx_end);
+		
+		Hashtable keyvalues=new Hashtable();
+		keyvalues.put("event", "new_message");
+		keyvalues.put("user", user.trim());
+		keyvalues.put("message", text.trim());
+		keyvalues.put("color", color.trim());
+		
+		String xmlstr=recorder.parseEventsToXML("chat", keyvalues);
+		return xmlstr;
+	}
 }

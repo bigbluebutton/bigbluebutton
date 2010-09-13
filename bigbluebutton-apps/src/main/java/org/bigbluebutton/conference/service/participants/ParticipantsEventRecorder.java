@@ -21,6 +21,7 @@
 package org.bigbluebutton.conference.service.participants;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -74,7 +75,7 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 	@Override
 	public void endAndKickAll() {
 		so.sendMessage("logout", new ArrayList());
-		recordEvent(parseParticipantsToJSON(new ArrayList(), this.RECORD_EVENT_LEAVE_ALL));
+		recordEvent(parseParticipantsToXML(new ArrayList(), this.RECORD_EVENT_LEAVE_ALL));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -85,7 +86,7 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 		args.add(p.toMap());
 		log.debug("Sending participantJoined {} to client.",p.getUserid());
 		so.sendMessage("participantJoined", args);
-		recordEvent(parseParticipantsToJSON(args, this.RECORD_EVENT_JOIN));
+		recordEvent(parseParticipantsToXML(args, this.RECORD_EVENT_JOIN));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -94,7 +95,7 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 		ArrayList args = new ArrayList();
 		args.add(userid);
 		so.sendMessage("participantLeft", args);
-		recordEvent(parseParticipantsToJSON(args, this.RECORD_EVENT_LEAVE));
+		recordEvent(parseParticipantsToXML(args, this.RECORD_EVENT_LEAVE));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -106,7 +107,7 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 		args.add(status);
 		args.add(value);
 		so.sendMessage("participantStatusChange", args);
-		recordEvent(parseParticipantsToJSON(args, this.RECORD_EVENT_STATUS_CHANGE));
+		recordEvent(parseParticipantsToXML(args, this.RECORD_EVENT_STATUS_CHANGE));
 	}
 	
 	/****** parse method ********/
@@ -136,5 +137,35 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 		}
 		json+="}";
 		return json;
+	}
+	
+	/***********************************************************
+	 * Participants XML Test
+	 ***********************************************************/
+	@SuppressWarnings("unchecked")
+	private String parseParticipantsToXML(ArrayList list, String type){
+		Hashtable keyvalues=new Hashtable();
+		if(type.equalsIgnoreCase(this.RECORD_EVENT_STATUS_CHANGE)){
+			keyvalues.put("event", this.RECORD_EVENT_STATUS_CHANGE);
+			keyvalues.put("userid", list.get(0));
+			keyvalues.put("status", list.get(1));
+			keyvalues.put("value", list.get(2));
+			
+		}
+		else if(type.equalsIgnoreCase(this.RECORD_EVENT_JOIN)){
+			Map map=(Map) list.get(0);
+			keyvalues.put("event", this.RECORD_EVENT_JOIN);
+			keyvalues.put("userid", map.get("userid"));
+			keyvalues.put("status", map.get("name"));
+			keyvalues.put("value", map.get("role"));
+		}
+		else if(type.equalsIgnoreCase(this.RECORD_EVENT_LEAVE)){
+			keyvalues.put("event", this.RECORD_EVENT_LEAVE);
+			keyvalues.put("userid", list.get(0));
+		}
+		else if(type.equalsIgnoreCase(this.RECORD_EVENT_LEAVE_ALL)){
+			keyvalues.put("event", this.RECORD_EVENT_LEAVE_ALL);
+		}
+		return recorder.parseEventsToXML("participants", keyvalues);
 	}
 }
