@@ -218,9 +218,11 @@ stop_bigbluebutton () {
 start_bigbluebutton () {
  	freesw=`cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml | grep -v '<!--' | grep bbb-voice-asterisk.xml | cut -d\" -f2 | awk '{ print $0 }'`;
 
-	if [ $freesw == 'bbb-voice-freeswitch.xml' ]; then
+	if [ "$freesw" == "bbb-voice-freeswitch.xml" ]; then
+		echo "Starting Freeswitch"
 		/etc/init.d/freeswitch start
-	elif [ $freesw == 'bbb-voice-asterisk.xml' ]; then
+	elif [ "$freesw" == "bbb-voice-asterisk.xml" ] || [ "empty-$freesw" == "empty" ]; then
+		echo "Starting Asterisk"
 		/etc/init.d/asterisk start
 	fi
 	/etc/init.d/activemq start
