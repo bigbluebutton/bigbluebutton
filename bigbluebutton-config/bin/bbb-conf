@@ -214,8 +214,10 @@ stop_bigbluebutton () {
 	/etc/init.d/activemq stop
 	/etc/init.d/bbb-openoffice-headless stop
 }
-freesw=`cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml | grep bbb-voice-freeswitch.xml | cut -d\" -f2 | awk '{ print $4 }'`;
+
 start_bigbluebutton () {
+ 	freesw=`cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml | grep -v '<!--' | grep bbb-voice-asterisk.xml | cut -d\" -f2 | awk '{ print $0 }'`;
+
 	if [ $freesw == 'bbb-voice-freeswitch.xml' ]; then
 		/etc/init.d/freeswitch start
 	elif [ $freesw == 'bbb-voice-asterisk.xml' ]; then
