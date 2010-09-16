@@ -214,11 +214,15 @@ stop_bigbluebutton () {
 	/etc/init.d/activemq stop
 	/etc/init.d/bbb-openoffice-headless stop
 }
-freesw=`cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml | grep bbb-voice-freeswitch.xml | cut -d\" -f2 | awk '{ print $4 }'`;
+
 start_bigbluebutton () {
-	if [ $freesw == 'bbb-voice-freeswitch.xml' ]; then
+ 	freesw=`cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml | grep -v '<!--' | grep bbb-voice-asterisk.xml | cut -d\" -f2 | awk '{ print $0 }'`;
+
+	if [ "$freesw" == "bbb-voice-freeswitch.xml" ]; then
+		echo "Starting Freeswitch"
 		/etc/init.d/freeswitch start
-	elif [ $freesw == 'bbb-voice-asterisk.xml' ]; then
+	elif [ "$freesw" == "bbb-voice-asterisk.xml" ] || [ "empty-$freesw" == "empty" ]; then
+		echo "Starting Asterisk"
 		/etc/init.d/asterisk start
 	fi
 	/etc/init.d/activemq start
@@ -1433,7 +1437,7 @@ if [ $CLEAN ]; then
 	rm -f /var/log/asterisk/event* 
 	rm -f /var/log/asterisk/messages* 
 	rm -f /var/log/asterisk/queue* 
-	rm -f /var/log/bigbluebutton/bbb-web.log
+	rm -f /var/log/bigbluebutton/bbb-web.log*
 	
 	if [ $RED5_DIR ]; then
 		rm -rf $RED5_DIR/log/*
