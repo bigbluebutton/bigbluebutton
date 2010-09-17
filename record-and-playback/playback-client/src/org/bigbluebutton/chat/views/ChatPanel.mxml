@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="30%" height="100%" title="Chat" xmlns:views="org.bigbluebutton.chat.views.*" xmlns:mate="http://mate.asfusion.com/" >
+	
+	<mate:Listener type="{ChatMessageEvent.CHAT_MESSAGE_EVENT}" method="handleChatMessageEvent" />
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			
+			import org.bigbluebutton.chat.events.ChatMessageEvent;
+			
+			/**************************
+			 * This method is called for handle the event fired...
+			 * <font color="#0"><b>[markos - 12:06:38 PM]</b> heyyyyy </font><br/>
+			 **************************/
+			private function handleChatMessageEvent(event:ChatMessageEvent):void {
+				var new_message:String="<font color=\""+event.color+"\"><b>["+event.user+" - "+event.timestamp+"]</b> "+event.message+" </font><br/>";
+				chatBox.showMessage(event.message, uint(event.color), event.user, Number(event.timestamp));
+			}
+		]]>
+	</mx:Script>
+	
+	<views:ChatBox id="chatBox" width="100%" height="100%" />
+</mx:Panel>

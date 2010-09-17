@@ -1,0 +1,46 @@
+<lecture conference='a8745375-7e20-43cd-a1c1-3fd35b7d1267'>
+<par>
+<seq>
+<participants timestamp='1283404707289' event='join' name='markos' userid='2' role='MODERATOR'></participants>
+<participants timestamp='1283404717439' event='join' name='evelyta' userid='4' role='MODERATOR'></participants>
+<participants timestamp='1283404718078' event='leave' userid='2'></participants>
+<participants timestamp='1283404742227' event='join' name='markos' userid='8' role='MODERATOR'></participants>
+<chat timestamp='1283404754371' color='#0' event='new_message' user='evelyta -'>hiiiii</chat>
+<chat timestamp='1283404769900' color='#88ff' event='new_message' user='markos -'>heyyy!!!!</chat>
+<participants timestamp='1283404782193' status='presenter' event='status_change' value='true' userid='4'></participants>
+<presentation timestamp='1283404782253' event='assign_presenter' name='evelyta' userid='4' assignedBy='1'></presentation>
+<participants timestamp='1283404793836' status='presenter' event='status_change' value='true' userid='8'></participants>
+<participants timestamp='1283404793968' status='presenter' event='status_change' value='false' userid='4'></participants>
+<presentation timestamp='1283404794180' event='assign_presenter' name='markos' userid='8' assignedBy='1'></presentation>
+<presentation timestamp='1283404841247' event='conversion_status' code='null' messageKey='SUPPORTED_DOCUMENT' presentationName='01-01-b-Analogico_Vs_Digital'></presentation>
+<chat timestamp='1283404854351' color='#0' event='new_message' user='evelyta -'>are u uploading slides?</chat>
+<chat timestamp='1283404866461' color='#88ff' event='new_message' user='markos -'>yes, wait a second</chat>
+<presentation timestamp='1283404918496' event='conversion_status' code='null' messageKey='OFFICE_DOC_CONVERSION_SUCCESS' presentationName='01-01-b-Analogico_Vs_Digital'></presentation>
+<presentation timestamp='1283404918532' event='conversion_status' code='null' messageKey='SUPPORTED_DOCUMENT' presentationName='01-01-b-Analogico_Vs_Digital'></presentation>
+<presentation timestamp='1283404922982' pagesCompleted='1' event='generated_slide' numberOfPages='5' code='null' messageKey='GENERATED_SLIDE' presentationName='01-01-b-Analogico_Vs_Digital'></presentation>
+<presentation timestamp='1283404923591' pagesCompleted='2' event='generated_slide' numberOfPages='5' code='null' messageKey='GENERATED_SLIDE' presentationName='01-01-b-Analogico_Vs_Digital'></presentation>
+<presentation timestamp='1283404923699' pagesCompleted='3' event='generated_slide' numberOfPages='5' code='null' messageKey='GENERATED_SLIDE' presentationName='01-01-b-Analogico_Vs_Digital'></presentation>
+<presentation timestamp='1283404924146' pagesCompleted='4' event='generated_slide' numberOfPages='5' code='null' messageKey='GENERATED_SLIDE' presentationName='01-01-b-Analogico_Vs_Digital'></presentation>
+<presentation timestamp='1283404924575' pagesCompleted='5' event='generated_slide' numberOfPages='5' code='null' messageKey='GENERATED_SLIDE' presentationName='01-01-b-Analogico_Vs_Digital'></presentation>
+<presentation timestamp='1283404924682' event='conversion_status' code='null' messageKey='GENERATING_THUMBNAIL' presentationName='01-01-b-Analogico_Vs_Digital'></presentation>
+<presentation timestamp='1283404939932' share='true' event='share_presentation' presentationName='01-01-b-Analogico_Vs_Digital'></presentation>
+<presentation timestamp='1283404942952' event='update_slide' slide='0'></presentation>
+<chat timestamp='1283405013294' color='#88ff' event='new_message' user='markos -'>ok</chat>
+<presentation timestamp='1283405015736' event='update_slide' slide='1'></presentation>
+<chat timestamp='1283405028243' color='#0' event='new_message' user='evelyta -'>zoom that</chat>
+<chat timestamp='1283405059004' color='#88ff' event='new_message' user='markos -'>go ahead</chat>
+<presentation timestamp='1283405061107' event='update_slide' slide='2'></presentation>
+<participants timestamp='1283405070035' status='presenter' event='status_change' value='true' userid='4'></participants>
+<participants timestamp='1283405070081' status='presenter' event='status_change' value='false' userid='8'></participants>
+<presentation timestamp='1283405070146' event='assign_presenter' name='evelyta' userid='4' assignedBy='1'></presentation>
+<presentation timestamp='1283405075785' event='update_slide' slide='3'></presentation>
+<presentation timestamp='1283405077595' event='update_slide' slide='4'></presentation>
+<presentation timestamp='1283405082813' event='update_slide' slide='3'></presentation>
+<chat timestamp='1283405096966' color='#88ff' event='new_message' user='markos -'>I had to go</chat>
+<chat timestamp='1283405102143' color='#0' event='new_message' user='evelyta -'>ok</chat>
+<chat timestamp='1283405108473' color='#0' event='new_message' user='evelyta -'>leave</chat>
+<participants timestamp='1283405112388' event='leave' userid='8'></participants>
+<participants timestamp='1283405120291' event='leave' userid='4'></participants>
+</seq>
+</par>
+</lecture>

@@ -18,7 +18,7 @@ Learn more about Flex at http://flex.org
 <link rel="stylesheet" type="text/css" href="history/history.css" />
 <!--  END Browser History required section -->
 
-<title>${title}</title>
+<title></title>
 <script src="AC_OETags.js" language="javascript"></script>
 
 <!--  BEGIN Browser History required section -->
@@ -33,11 +33,11 @@ body { margin: 0px; overflow:hidden }
 // -----------------------------------------------------------------------------
 // Globals
 // Major version of Flash required
-var requiredMajorVersion = ${version_major};
+var requiredMajorVersion = 9;
 // Minor version of Flash required
-var requiredMinorVersion = ${version_minor};
+var requiredMinorVersion = 0;
 // Minor version of Flash required
-var requiredRevision = ${version_revision};
+var requiredRevision = 124;
 // -----------------------------------------------------------------------------
 // -->
 </script>
@@ -63,13 +63,13 @@ if ( hasProductInstall && !hasRequestedVersion ) {
 	AC_FL_RunContent(
 		"src", "playerProductInstall",
 		"FlashVars", "MMredirectURL="+MMredirectURL+'&MMplayerType='+MMPlayerType+'&MMdoctitle='+MMdoctitle+"",
-		"width", "${width}",
-		"height", "${height}",
+		"width", "100%",
+		"height", "100%",
 		"align", "middle",
-		"id", "${application}",
+		"id", "Main",
 		"quality", "high",
-		"bgcolor", "${bgcolor}",
-		"name", "${application}",
+		"bgcolor", "#869ca7",
+		"name", "Main",
 		"allowScriptAccess","sameDomain",
 		"type", "application/x-shockwave-flash",
 		"pluginspage", "http://www.adobe.com/go/getflashplayer"
@@ -78,14 +78,14 @@ if ( hasProductInstall && !hasRequestedVersion ) {
 	// if we've detected an acceptable version
 	// embed the Flash Content SWF when all tests are passed
 	AC_FL_RunContent(
-			"src", "${swf}",
-			"width", "${width}",
-			"height", "${height}",
+			"src", "Main",
+			"width", "100%",
+			"height", "100%",
 			"align", "middle",
-			"id", "${application}",
+			"id", "Main",
 			"quality", "high",
-			"bgcolor", "${bgcolor}",
-			"name", "${application}",
+			"bgcolor", "#869ca7",
+			"name", "Main",
 			"allowScriptAccess","sameDomain",
 			"type", "application/x-shockwave-flash",
 			"pluginspage", "http://www.adobe.com/go/getflashplayer"
@@ -100,14 +100,14 @@ if ( hasProductInstall && !hasRequestedVersion ) {
 </script>
 <noscript>
   	<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
-			id="${application}" width="${width}" height="${height}"
+			id="Main" width="100%" height="100%"
 			codebase="http://fpdownload.macromedia.com/get/flashplayer/current/swflash.cab">
-			<param name="movie" value="${swf}.swf" />
+			<param name="movie" value="Main.swf" />
 			<param name="quality" value="high" />
-			<param name="bgcolor" value="${bgcolor}" />
+			<param name="bgcolor" value="#869ca7" />
 			<param name="allowScriptAccess" value="sameDomain" />
-			<embed src="${swf}.swf" quality="high" bgcolor="${bgcolor}"
-				width="${width}" height="${height}" name="${application}" align="middle"
+			<embed src="Main.swf" quality="high" bgcolor="#869ca7"
+				width="100%" height="100%" name="Main" align="middle"
 				play="true"
 				loop="false"
 				quality="high"

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
+	<mx:Script>
+		<![CDATA[
+			import mx.core.Application;
+			import mx.events.FlexEvent;
+			
+			import org.bigbluebutton.playback.PlaybackToolbar;
+			import org.bigbluebutton.playback.business.ManifestService;
+			import org.bigbluebutton.playback.events.PlaybackEvent;
+			import org.bigbluebutton.playback.events.TimelineEvent;
+			
+		]]>
+	</mx:Script>
+	<EventHandlers type="{FlexEvent.CREATION_COMPLETE}">
+		<!--HTTPServiceInvoker url="http://localhost:8080/playback/event/xml" resultFormat="e4x">
+			<Request confid="{Application.application.parameters.conferenceid}" /-->
+		<!--<HTTPServiceInvoker url="http://192.168.0.167/manifest.xml" resultFormat="e4x">	
+			<resultHandlers>
+				<MethodInvoker generator="{ManifestService}" method="parseManifest" 
+							   arguments="{resultObject}" />
+			</resultHandlers>
+		</HTTPServiceInvoker>-->
+		<MethodInvoker generator="{ManifestService}" method="loadTestFile" />
+	</EventHandlers>
+	<EventHandlers type="{PlaybackEvent.PLAYBACK_EVENT}">
+		<MethodInvoker generator="{ManifestService}" method="dispatchPlaybackEvent" arguments="{event}" />
+	</EventHandlers>
+	
+	<Injectors target="{PlaybackToolbar}" debug="true">
+		<ListenerInjector eventType="{TimelineEvent.TIMELINE_EVENT}" method="updateTimeline" />
+	</Injectors>
+</EventMap>
