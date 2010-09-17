@@ -55,7 +55,7 @@ public final class Block {
             	System.out.println(e.toString());
         	}    	
             
-            if ((! checksumSame()) || sendKeepAliveBlock()) {
+            if ((! checksumSame(pixels)) || sendKeepAliveBlock()) {
             	if (sendFlag.compareAndSet(false, true)) {
 //            		System.out.println("Block " + position + " has changed. Need to send it.");
             		return true;
@@ -67,6 +67,24 @@ public final class Block {
     	}
     	
         return false;
+    }
+     
+    private byte[] convertIntPixelsToBytePixels(int[] pixels) {
+    	byte[] p = new byte[pixels.length * 3];
+    	int position = 0;
+		
+		for (int i = 0; i < pixels.length; i++) {
+			byte red = (byte) ((pixels[i] >> 16) & 0xff);
+			byte green = (byte) ((pixels[i] >> 8) & 0xff);
+			byte blue = (byte) (pixels[i] & 0xff);
+
+			// Sequence should be BGR
+			p[position++] = blue;
+			p[position++] = green;
+			p[position++] = red;
+		}
+		
+		return p;
     }
     
     private boolean isKeepAliveBlock() {
@@ -98,21 +116,16 @@ public final class Block {
         return new EncodedBlockData(position, encodedBlock);		
     }
     
-    private boolean checksumSame() {
+    private boolean checksumSame(int[] pixels) {
     	long oldsum;
         oldsum = checksum.getValue(); 
-        calcChecksum();  
+        calcChecksum(pixels);  
         return (oldsum == checksum.getValue());
     }
           
-    private void calcChecksum() {
-    	checksum.reset();   
-
-    	for (int i = 0; i < pixels.length; i++) {
-		    //if (i % 13 == 0) {
-		    	checksum.update(pixels[i]);
-		    //}
-		}	 
+    private void calcChecksum(int[] pixels) {
+    	checksum.reset();
+    	checksum.update(convertIntPixelsToBytePixels(pixels)); 
     }
 
     public int getWidth() {
