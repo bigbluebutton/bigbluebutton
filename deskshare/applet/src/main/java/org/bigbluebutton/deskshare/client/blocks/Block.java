@@ -109,7 +109,9 @@ public final class Block {
     	checksum.reset();   
 
     	for (int i = 0; i < pixels.length; i++) {
-		    if (i % 13 == 0) checksum.update(pixels[i]);
+		    //if (i % 13 == 0) {
+		    	checksum.update(pixels[i]);
+		    //}
 		}	 
     }
 
