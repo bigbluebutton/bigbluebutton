@@ -86,6 +86,8 @@ public class RtpStreamReceiver {
         while (receivePackets) {
         	try {        		      
         		rtpSocket.receive(rtpPacket);
+
+        		
         		packetReceivedCounter++;  
         		if (shouldHandlePacket(rtpPacket)) {        			
         			processRtpPacket(rtpPacket);
@@ -100,14 +102,24 @@ public class RtpStreamReceiver {
         log.debug("Rtp Receiver stopped. Packet Received = " + packetReceivedCounter + "." );
         if (listener != null) listener.onStoppedReceiving();
     }
-        
+    
+    private boolean isMarkerPacket(RtpPacket rtpPacket) {
+		if (rtpPacket.hasMarker()) {
+   			log.debug("Marked packet seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
+   					+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");       				        			
+   			return true;
+		}    	
+		
+		return false;
+    }
+    
     private boolean shouldHandlePacket(RtpPacket rtpPacket) {
 		/** Take seq number only into account and not timestamps. Seems like the timestamp sometimes change whenever the audio changes source.
 		 *  For example, in FreeSWITCH, the audio prompt will have it's own "start" timestamp and then
 		 *  another "start" timestamp will be generated for the voice. (ralam, sept 7, 2010).
 		 *	&& packetIsNotCorrupt(rtpPacket)) {
 		**/
-    	 return isFirstPacket(rtpPacket) || validSeqNum(rtpPacket) || seqNumRolledOver(rtpPacket);    			
+    	 return isFirstPacket(rtpPacket) || isMarkerPacket(rtpPacket) || validSeqNum(rtpPacket) || seqNumRolledOver(rtpPacket);    			
     }
     
     private boolean isFirstPacket(RtpPacket rtpPacket) {
