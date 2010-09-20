@@ -89,15 +89,14 @@ public class RtpStreamReceiver {
         	try {        		      
         		rtpSocket.receive(rtpPacket);        		
         		packetReceivedCounter++;  
-        		if (shouldHandlePacket(rtpPacket)) {        			
+//        		if (shouldHandlePacket(rtpPacket)) {        			
         			processRtpPacket(rtpPacket);
-        		} else {
-           			log.debug("Corrupt packet seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
-           					+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");  
-           			if (lastPacketDropped) successivePacketDroppedCount++;
-           			else lastPacketDropped = true;
-           			
-         		}
+//        		} else {
+//           			log.debug("Corrupt packet seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
+//           					+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");  
+//           			if (lastPacketDropped) successivePacketDroppedCount++;
+//           			else lastPacketDropped = true;           			
+//         		}
         	} catch (IOException e) { // We get this when the socket closes when the call hangs up.        		
         		receivePackets = false;
         	}
