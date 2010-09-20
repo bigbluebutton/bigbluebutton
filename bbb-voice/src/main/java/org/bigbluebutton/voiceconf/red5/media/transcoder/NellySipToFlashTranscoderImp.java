@@ -87,7 +87,7 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
                 }
             } while (!pcmBufferProcessed);
         } else {
-        	log.warn("Decoded bytes not equal to getIncomingDecodedFrameSize " + audioCodec.getIncomingDecodedFrameSize());
+        	log.warn("[Decoded bytes=" + decodedBytes +", IncomingDecodedFrameSize=" + audioCodec.getIncomingDecodedFrameSize() +"]");
         }      
     }
     
