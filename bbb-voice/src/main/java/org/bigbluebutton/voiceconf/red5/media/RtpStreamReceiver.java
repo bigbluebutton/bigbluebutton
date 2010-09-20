@@ -43,6 +43,8 @@ public class RtpStreamReceiver {
     private int lastSequenceNumber = 0;
     private long lastPacketTimestamp = 0;
     private boolean firstPacket = true;
+    private boolean lastPacketDropped = false;
+    private int successivePacketDroppedCount = 0;
     
     public RtpStreamReceiver(DatagramSocket socket, int expectedPayloadLength) {
     	this.payloadLength = expectedPayloadLength;
@@ -85,15 +87,16 @@ public class RtpStreamReceiver {
 		
         while (receivePackets) {
         	try {        		      
-        		rtpSocket.receive(rtpPacket);
-
-        		
+        		rtpSocket.receive(rtpPacket);        		
         		packetReceivedCounter++;  
         		if (shouldHandlePacket(rtpPacket)) {        			
         			processRtpPacket(rtpPacket);
         		} else {
            			log.debug("Corrupt packet seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
-           					+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");       				
+           					+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");  
+           			if (lastPacketDropped) successivePacketDroppedCount++;
+           			else lastPacketDropped = true;
+           			
          		}
         	} catch (IOException e) { // We get this when the socket closes when the call hangs up.        		
         		receivePackets = false;
@@ -104,6 +107,10 @@ public class RtpStreamReceiver {
     }
     
     private boolean isMarkerPacket(RtpPacket rtpPacket) {
+    	/*
+    	 * It looks like Asterisk and FreeSWITCH sends a marker packet at the beginning of the voice frame.
+    	 * If you stop talking and then start talking, a marker packet is received on start talking. (ralam sept 20, 2010).
+    	 */
 		if (rtpPacket.hasMarker()) {
    			log.debug("Marked packet seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
    					+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");       				        			
@@ -119,7 +126,23 @@ public class RtpStreamReceiver {
 		 *  another "start" timestamp will be generated for the voice. (ralam, sept 7, 2010).
 		 *	&& packetIsNotCorrupt(rtpPacket)) {
 		**/
-    	 return isFirstPacket(rtpPacket) || isMarkerPacket(rtpPacket) || validSeqNum(rtpPacket) || seqNumRolledOver(rtpPacket);    			
+    	 return isFirstPacket(rtpPacket) || isMarkerPacket(rtpPacket) || resetDueToSuccessiveDroppedPackets() || validSeqNum(rtpPacket) || seqNumRolledOver(rtpPacket);    			
+    }
+    
+    private boolean resetDueToSuccessiveDroppedPackets() {
+    	/*
+    	 * I notice that Asterisk (1.6.2.5) sets the rtp sequence number to 12 every time it sends a marked rtp packet. This screws up our
+    	 * way of determining which packet to drop. To get around this, we detect if consecutive packets have been dropped then reset
+    	 * the sequence number to handle the next incoming packets (ralam sept. 20, 2010).
+    	 */
+    	if (lastPacketDropped && successivePacketDroppedCount > 3) {
+   			log.debug("Resetting after successive dropped packets [successivePacketDroppedCount=" + successivePacketDroppedCount + 
+   					"][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");
+    		lastPacketDropped = false;
+    		successivePacketDroppedCount = 0;
+    		return true;
+    	}
+    	return false;
     }
     
     private boolean isFirstPacket(RtpPacket rtpPacket) {
