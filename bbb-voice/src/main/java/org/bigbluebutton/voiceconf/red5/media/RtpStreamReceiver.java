@@ -82,21 +82,33 @@ public class RtpStreamReceiver {
     public void receiveRtpPackets() {    
         int packetReceivedCounter = 0;
         int internalBufferLength = payloadLength + RTP_HEADER_SIZE;
-        byte[] internalBuffer = new byte[internalBufferLength];
-		RtpPacket rtpPacket = new RtpPacket(internalBuffer, internalBufferLength);
-		
+ //       byte[] internalBuffer = new byte[internalBufferLength];
+	
         while (receivePackets) {
-        	try {        		      
+        	try {
+        		byte[] internalBuffer = new byte[internalBufferLength];
+        		RtpPacket rtpPacket = new RtpPacket(internalBuffer, internalBufferLength);
         		rtpSocket.receive(rtpPacket);        		
         		packetReceivedCounter++;  
-//        		if (shouldHandlePacket(rtpPacket)) {        			
-        			processRtpPacket(rtpPacket);
-//        		} else {
-//           			log.debug("Corrupt packet seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
-//           					+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");  
-//           			if (lastPacketDropped) successivePacketDroppedCount++;
-//           			else lastPacketDropped = true;           			
-//         		}
+//    			log.debug("Received packet [" + rtpPacket.getRtcpPayloadType() + "," + rtpPacket.getPayloadType() + ", length=" + rtpPacket.getPayloadLength() + "] seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
+//    					+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");          			       			
+     
+        		if (rtpPacket.isRtcpPacket()) {
+        			log.debug("RTCP packet [" + rtpPacket.getRtcpPayloadType() + ", length=" + rtpPacket.getPayloadLength() + "] seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
+        					+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");          			
+        		} else {
+            		if (shouldHandlePacket(rtpPacket)) {        			            			
+//            			log.debug("Handling packet [" + rtpPacket.getRtcpPayloadType() + "," + rtpPacket.getPayloadType() + ", length=" + rtpPacket.getPayloadLength() + "] seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
+//            					+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");          			       			
+            			processRtpPacket(rtpPacket);
+            		} else {
+            			log.debug("Corrupt packet [" + rtpPacket.getRtcpPayloadType() + "," + rtpPacket.getPayloadType() + ", length=" + rtpPacket.getPayloadLength() + "] seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
+            					+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");          			       			
+
+            			if (lastPacketDropped) successivePacketDroppedCount++;
+            			else lastPacketDropped = true;           			
+            		}
+            	}
         	} catch (IOException e) { // We get this when the socket closes when the call hangs up.        		
         		receivePackets = false;
         	}
@@ -104,14 +116,14 @@ public class RtpStreamReceiver {
         log.debug("Rtp Receiver stopped. Packet Received = " + packetReceivedCounter + "." );
         if (listener != null) listener.onStoppedReceiving();
     }
-    
+        
     private boolean isMarkerPacket(RtpPacket rtpPacket) {
     	/*
     	 * It looks like Asterisk and FreeSWITCH sends a marker packet at the beginning of the voice frame.
     	 * If you stop talking and then start talking, a marker packet is received on start talking. (ralam sept 20, 2010).
     	 */
 		if (rtpPacket.hasMarker()) {
-   			log.debug("Marked packet seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
+   			log.debug("Marked packet [" + rtpPacket.getPayloadType() + ", length=" + rtpPacket.getPayloadLength() + "] seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
    					+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");       				        			
    			return true;
 		}    	
@@ -147,7 +159,7 @@ public class RtpStreamReceiver {
     private boolean isFirstPacket(RtpPacket rtpPacket) {
 		if (firstPacket) {
 			firstPacket = false;
-			log.debug("First packet seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
+			log.debug("First packet [" + rtpPacket.getPayloadType() + ", length=" + rtpPacket.getPayloadLength() + "] seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
 						+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");
 			return true;
 		}
