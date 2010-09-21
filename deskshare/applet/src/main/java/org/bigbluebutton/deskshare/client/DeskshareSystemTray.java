@@ -38,7 +38,7 @@ public class DeskshareSystemTray {
 					tray = SystemTray.getSystemTray();
 		          
 					PopupMenu popup = new PopupMenu();
-					trayIcon = new TrayIcon(image, "Sharing Deskstop", popup);		          
+					trayIcon = new TrayIcon(image, "Sharing Desktop", popup);		          
 
 					if (enableActions) {
 						MenuItem stopItem = new MenuItem("Stop Sharing");
@@ -50,7 +50,7 @@ public class DeskshareSystemTray {
 		          
 					try {
 						tray.add(trayIcon);
-						trayIcon.displayMessage("Sharing Desktop", "You are now sharing your dekstop", TrayIcon.MessageType.INFO);
+						trayIcon.displayMessage("Sharing Desktop", "You are now sharing your desktop", TrayIcon.MessageType.INFO);
 					} catch (AWTException e) {
 						System.err.println("Can't add to tray");
 					}
