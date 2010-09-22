@@ -22,7 +22,6 @@ package org.bigbluebutton.conference.service.participants;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 
 import org.bigbluebutton.conference.service.recorder.IEventRecorder;
@@ -75,7 +74,7 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 	@Override
 	public void endAndKickAll() {
 		so.sendMessage("logout", new ArrayList());
-		recordEvent(parseParticipantsToXML(new ArrayList(), this.RECORD_EVENT_LEAVE_ALL));
+		recordEvent(parseParticipantsToJSON(new ArrayList(), this.RECORD_EVENT_LEAVE_ALL));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -86,7 +85,7 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 		args.add(p.toMap());
 		log.debug("Sending participantJoined {} to client.",p.getUserid());
 		so.sendMessage("participantJoined", args);
-		recordEvent(parseParticipantsToXML(args, this.RECORD_EVENT_JOIN));
+		recordEvent(parseParticipantsToJSON(args, this.RECORD_EVENT_JOIN));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -95,7 +94,7 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 		ArrayList args = new ArrayList();
 		args.add(userid);
 		so.sendMessage("participantLeft", args);
-		recordEvent(parseParticipantsToXML(args, this.RECORD_EVENT_LEAVE));
+		recordEvent(parseParticipantsToJSON(args, this.RECORD_EVENT_LEAVE));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -107,10 +106,11 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 		args.add(status);
 		args.add(value);
 		so.sendMessage("participantStatusChange", args);
-		recordEvent(parseParticipantsToXML(args, this.RECORD_EVENT_STATUS_CHANGE));
+		recordEvent(parseParticipantsToJSON(args, this.RECORD_EVENT_STATUS_CHANGE));
 	}
 	
 	/****** parse method ********/
+	@SuppressWarnings("unchecked")
 	private String parseParticipantsToJSON(ArrayList list, String type){
 		String json="{ ";
 		
