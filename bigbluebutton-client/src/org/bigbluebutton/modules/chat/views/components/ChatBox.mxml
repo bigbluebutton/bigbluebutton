@@ -27,6 +27,7 @@
 			private var lastTime:String = "";
 			
 			[Bindable] private var messages:ArrayCollection = new ArrayCollection();
+			[Bindable] private var msg:Object;
 			
 			private function updateScroll():void{
 				chatMessagesList.verticalScrollPosition = chatMessagesList.maxVerticalScrollPosition;
@@ -37,7 +38,7 @@
 				var timeString:String = getHours() + ":" + getMinutes();
 				var components:Array = message.split("|");
 				
-				var msg:Object = new Object();
+				msg = new Object();
 				msg.lastSenderName = lastSenderName;
 				lastSenderName = components[1];
 

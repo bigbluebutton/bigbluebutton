@@ -349,7 +349,7 @@
 			
 			private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
 				LogUtil.debug("Got PublicChatMessageEvent");
-				showMessage(PUBLIC_CHAT_USERID, event.message);
+				showMessage(PUBLIC_CHAT_USERID, event.message, event.transcript);
 				if (!this.focus)
 					ExternalInterface.call("startblink", ResourceUtil.getInstance().getString('bbb.chat.publicMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.publicMsgAwaiting2'));
 				globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.RECEIVED_PUBLIC_CHAT_MESSAGE_EVENT, event.message));
@@ -372,14 +372,18 @@
 				return chatTabs.getChildByName(id) as ChatBox;
 			}
 			
-			private function showMessage(sender:String, message:String):void{
+			private function showMessage(sender:String, message:String, transcript:Boolean = false):void{
 				var chatBox:ChatBox;
 				if (! participantHasChatBox(sender)) {
 					chatBox = createChatBoxFor(sender);
 				}
 				
+				var translate:Boolean;
+				if (!transcript) translate = autoTranslation;
+				else translate = false;
+				
 				chatBox = getChatBoxForParticipant(sender);
-				chatBox.showNewMessage(message, autoTranslation, currentLangCode);
+				chatBox.showNewMessage(message, translate, currentLangCode);
 				
 				if (! isChatBoxCurrentlySelected(sender)) {
 					notifyParticipantOfUnreadMessageFrom(sender);
