@@ -46,6 +46,8 @@ public class RtpStreamReceiver {
     private boolean lastPacketDropped = false;
     private int successivePacketDroppedCount = 0;
     
+    private long lastPacketReceived = 0;
+    
     public RtpStreamReceiver(DatagramSocket socket, int expectedPayloadLength) {
     	this.payloadLength = expectedPayloadLength;
         rtpSocket = new RtpSocket(socket);
@@ -95,8 +97,15 @@ public class RtpStreamReceiver {
 //    			log.debug("Received packet [" + rtpPacket.getRtcpPayloadType() + "," + rtpPacket.getPayloadType() + ", length=" + rtpPacket.getPayloadLength() + "] seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
 //    					+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");          			       			
      
+        		if (shouldDropDelayedPacket(rtpPacket)) {
+        			continue;
+        		}
         		if (rtpPacket.isRtcpPacket()) {
-        			if (log.isDebugEnabled())
+        			/**
+        			 * Asterisk (1.6.2.5) send RTCP packets. We just ignore them (for now).
+        			 * It could be for KeepAlive (http://tools.ietf.org/html/draft-ietf-avt-app-rtp-keepalive-09)
+        			 */
+        			if (log.isDebugEnabled()) 
         				log.debug("RTCP packet [" + rtpPacket.getRtcpPayloadType() + ", length=" + rtpPacket.getPayloadLength() + "] seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
         					+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");          			
         		} else {
@@ -120,10 +129,23 @@ public class RtpStreamReceiver {
         log.debug("Rtp Receiver stopped. Packet Received = " + packetReceivedCounter + "." );
         if (listener != null) listener.onStoppedReceiving();
     }
-        
+    
+    private boolean shouldDropDelayedPacket(RtpPacket rtpPacket) {
+    	long now = System.currentTimeMillis();
+    	if (now - lastPacketReceived > 100) {
+    		if (log.isDebugEnabled())
+    			log.debug("Delayed packet [" + rtpPacket.getRtcpPayloadType() + "," + rtpPacket.getPayloadType() + ", length=" + rtpPacket.getPayloadLength() + "] seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
+					+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");          			       			
+			lastPacketReceived = now;
+    		return true;
+    	}
+    	lastPacketReceived = now;
+    	return false;
+    }
+    
     private boolean isMarkerPacket(RtpPacket rtpPacket) {
     	/*
-    	 * It looks like Asterisk and FreeSWITCH sends a marker packet at the beginning of the voice frame.
+    	 * FreeSWITCH sends a marker packet at the beginning of the voice frame.
     	 * If you stop talking and then start talking, a marker packet is received on start talking. (ralam sept 20, 2010).
     	 */
 		if (rtpPacket.hasMarker()) {
@@ -164,6 +186,7 @@ public class RtpStreamReceiver {
     
     private boolean isFirstPacket(RtpPacket rtpPacket) {
 		if (firstPacket) {
+			lastPacketReceived = System.currentTimeMillis();
 			firstPacket = false;
 			if (log.isDebugEnabled())
 				log.debug("First packet [" + rtpPacket.getPayloadType() + ", length=" + rtpPacket.getPayloadLength() + "] seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
