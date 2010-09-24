@@ -21,11 +21,12 @@ package org.bigbluebutton.modules.chat.events
 {
 	import flash.events.Event;
 
-	public class TranscriptLoadedEvent extends Event
+	public class TranscriptEvent extends Event
 	{
+		public static const LOAD_TRANSCRIPT:String = "LOAD_TRANSCRIPT";
 		public static const TRANSCRIPT_EVENT:String = 'TRANSCRIPT_EVENT';
 		
-		public function TranscriptLoadedEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
+		public function TranscriptEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
 			super(type, bubbles, cancelable);
 		}

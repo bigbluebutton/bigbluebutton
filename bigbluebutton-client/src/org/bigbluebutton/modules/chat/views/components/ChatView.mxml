@@ -45,7 +45,6 @@
 			import flexlib.events.SuperTabEvent;
 			
 			import mx.collections.ArrayCollection;
-			import mx.controls.Alert;
 			import mx.core.Container;
 			import mx.core.UIComponent;
 			import mx.events.IndexChangedEvent;

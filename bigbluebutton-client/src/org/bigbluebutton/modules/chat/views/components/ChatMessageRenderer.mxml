@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" verticalAlign="middle" height="{txtMessage.height + 3}" 
-		 verticalScrollPolicy="off" xmlns:common="org.bigbluebutton.common.*" dataChange="validateNow()">
+		 verticalScrollPolicy="off" xmlns:common="org.bigbluebutton.common.*" dataChange="validateNow()"
+		 creationComplete="onCreationComplete()">
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.binding.utils.ChangeWatcher;
 			
 			[Bindable] private var rolledOver:Boolean = false;
+			private var dataWatcher:ChangeWatcher;
 			
 			/**
 			 * Chat Message Dynamic Object Anatomy:
@@ -23,6 +26,14 @@
 			private function onLinkClick(e:TextEvent):void{
 				var url:URLRequest = new URLRequest(e.text);
 				navigateToURL(url, '_blank');
+			}
+			
+			private function onCreationComplete():void{
+				this.dataWatcher = ChangeWatcher.watch(this, "data", dataChangeHandler);
+			}
+			
+			private function dataChangeHandler(e:Event):void{
+				
 			}
 			
 			private function onRollOver():void{

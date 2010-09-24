@@ -12,7 +12,6 @@
 			import com.adobe.serialization.json.JSON;
 			
 			import mx.collections.ArrayCollection;
-			import mx.controls.Alert;
 			import mx.controls.Button;
 			import mx.core.ScrollPolicy;
 			

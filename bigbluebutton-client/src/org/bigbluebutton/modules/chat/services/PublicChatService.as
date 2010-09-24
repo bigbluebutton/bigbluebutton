@@ -24,6 +24,10 @@ package org.bigbluebutton.modules.chat.services
 			chatSOService.leave();
 		}
 		
+		public function loadTranscript():void{
+			chatSOService.getChatTranscript();
+		}
+		
 		public function sendChatMessageEvent(event:SendPublicChatMessageEvent):void {
 			trace("Receive receivedSendPublicChatMessageEvent");
 			var newMessage:String;			
