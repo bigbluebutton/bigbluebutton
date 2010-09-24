@@ -50,9 +50,11 @@ public class FlashToSipAudioStream {
 	private IStreamListener mInputListener;
 	private final DatagramSocket srcSocket;
 	private final SipConnectInfo connInfo;
-	private String talkStreamName;
-	
+	private String talkStreamName;	
 	private RtpStreamSender rtpSender;
+	
+	private long lastPacketTimeRx = 0;
+	private int lastTS = 0;
 	
 	public FlashToSipAudioStream(final FlashToSipTranscoder transcoder, DatagramSocket srcSocket, SipConnectInfo connInfo) {
 		this.transcoder = transcoder;
@@ -76,24 +78,53 @@ public class FlashToSipAudioStream {
 		      }
 		          
 		      if (packet instanceof AudioData) {
+		    	  long now = System.currentTimeMillis();
+		    	  
 		    	  byte[] data = SerializeUtils.ByteBufferToByteArray(buf);
-//		    	  System.out.println("RX RTMP: ts=" + packet.getTimestamp());
-		    	  AudioByteData abd = new AudioByteData(data);
-		    	  try {
-					audioDataQ.put(abd);
-		    	  } catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+
+		    	  if (packet.getTimestamp() - lastTS > 40) {
+		    		  System.out.println("   TS delay: [lastTS=" + lastTS + "[ts=" + packet.getTimestamp() + "][pit=" + (now - lastPacketTimeRx) + ", port=" + connInfo.getSocket().getLocalPort() + "]");
 		    	  }
+		    	  
+		    	  String codec = "UNKNOWN";
+		    	  int codecType = (int) (data[0] &0xFF);
+		    	  if (codecType == 178) {
+		    		  codec = "SPEEX";
+		    	  } else if (codecType == 82) {
+		    		  codec = "ULAW";
+		    	  }
+		    	  
+//		    	  if (now - lastPacketTimeRx > 100) {
+		    		  System.out.println("***PIT delay: [lastTS=" + lastTS + "[ts=" + packet.getTimestamp() + "][pit=" + (now - lastPacketTimeRx) + ", port=" + connInfo.getSocket().getLocalPort() + "][codec=" + codec + "," + codecType + "]");
+//		    	  } else {
+		    		  
+//		    		  if ((connInfo.getSocket().getLocalPort() == 34380) || (connInfo.getSocket().getLocalPort() == 34381)) {
+				    	  AudioByteData abd = new AudioByteData(data);
+				    	  try {
+							audioDataQ.put(abd);
+				    	  } catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+				    	  }		    			  
+//		    		  }
+
+//		    	  }
+		    	  
+		    	  lastPacketTimeRx = now;
+		    	  lastTS = packet.getTimestamp();
 		      } 
 			}
 		};
+		
+		lastPacketTimeRx = System.currentTimeMillis(); 
+		
 	    broadcastStream.addStreamListener(mInputListener);    
 	    rtpSender = new RtpStreamSender(srcSocket, connInfo);
 		rtpSender.connect();
 		
-		processAudioData = true;
-	    
+		
+		
+		processAudioData = true;	    
 	    audioDataProcessor = new Runnable() {
     		public void run() {
     			processAudioData();   			
