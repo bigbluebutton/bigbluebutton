@@ -114,11 +114,10 @@ package org.bigbluebutton.modules.chat.services
 		/**
 		 * Called by the server to deliver a new chat message.
 		 */	
-		public function newChatMessage(message:String, transcript:Boolean = false):void{
+		public function newChatMessage(message:String):void{
 			trace("Received New Chat Message " + message);	
 			var event:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
 			event.message = message;
-			event.transcript = transcript;
 			
 			var globalDispatcher:Dispatcher = new Dispatcher();
 			globalDispatcher.dispatchEvent(event);	   			
@@ -159,7 +158,7 @@ package org.bigbluebutton.modules.chat.services
 			
 			var messages:Array = result as Array;
 			for (var i:int=0; i<messages.length; i++){
-				newChatMessage(messages[i] as String, true);
+				newChatMessage(messages[i] as String);
 			}
 			
 			sendTranscriptLoadedEvent();
