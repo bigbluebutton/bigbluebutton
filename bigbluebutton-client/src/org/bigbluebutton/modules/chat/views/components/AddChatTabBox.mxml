@@ -176,6 +176,16 @@
 				autoTransCheckBox.selected = e.translateOn;
 				toggleTranslation();
 			}
+			
+			override protected function resourcesChanged():void{
+				super.resourcesChanged();
+				
+				var language:String = ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0];
+				if ((langCodes.indexOf(language) != -1) && (langComboBox != null)){
+					langComboBox.selectedIndex = langCodes.indexOf(language);
+					changeLanguage();
+				} 
+			}
 
 		]]>
 	</mx:Script>

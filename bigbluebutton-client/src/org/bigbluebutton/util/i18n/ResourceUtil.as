@@ -29,6 +29,7 @@ package org.bigbluebutton.util.i18n
 	import mx.events.ResourceEvent;
 	import mx.resources.IResourceManager;
 	import mx.resources.ResourceManager;
+	
 	import org.bigbluebutton.common.LogUtil;
 
 	public class ResourceUtil extends EventDispatcher {
@@ -38,6 +39,7 @@ package org.bigbluebutton.util.i18n
 		
 		private static var BBB_RESOURCE_BUNDLE:String = 'bbbResources';
 		public static var DEFAULT_LANGUAGE:String = "en_US";
+		private static var currentLanguage:String = DEFAULT_LANGUAGE;
 		private var eventDispatcher:IEventDispatcher;
 		
 		private var localeChain:Array = new Array();
@@ -107,6 +109,8 @@ package org.bigbluebutton.util.i18n
 				localeChain = [chain[0]];
 				eventDispatcher.addEventListener(ResourceEvent.COMPLETE, localeChangeComplete);
 				eventDispatcher.addEventListener(ResourceEvent.ERROR, handleResourceNotLoaded);
+				
+				currentLanguage = chain[0];
         	}
         }
         
@@ -131,6 +135,10 @@ package org.bigbluebutton.util.i18n
         [Bindable("change")]
         public function getString(resourceName:String, parameters:Array = null, locale:String = null):String{
 			return resourceManager.getString(BBB_RESOURCE_BUNDLE, resourceName, parameters, locale);
+		}
+		
+		public function getCurrentLanguageCode():String{
+			return currentLanguage;
 		}
 	}
 }

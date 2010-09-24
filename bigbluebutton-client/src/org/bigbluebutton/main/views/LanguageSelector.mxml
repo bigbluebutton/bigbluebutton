@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml" dataProvider="{this.langNames}" selectedIndex="3" change="changeLanguage()">
+<mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml" dataProvider="{this.langNames}" selectedIndex="4" change="changeLanguage()">
 	<mx:Script>
 		<![CDATA[
 			import mx.controls.Alert;
