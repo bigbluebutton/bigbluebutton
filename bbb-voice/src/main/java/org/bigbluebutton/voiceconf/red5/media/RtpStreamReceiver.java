@@ -103,6 +103,7 @@ public class RtpStreamReceiver {
         		if (rtpPacket.isRtcpPacket()) {
         			/**
         			 * Asterisk (1.6.2.5) send RTCP packets. We just ignore them (for now).
+        			 * It could be for KeepAlive (http://tools.ietf.org/html/draft-ietf-avt-app-rtp-keepalive-09)
         			 */
         			if (log.isDebugEnabled()) 
         				log.debug("RTCP packet [" + rtpPacket.getRtcpPayloadType() + ", length=" + rtpPacket.getPayloadLength() + "] seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
