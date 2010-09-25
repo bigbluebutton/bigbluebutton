@@ -30,6 +30,8 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
 			import flexlib.mdi.events.MDIWindowEvent;
 			
 			import mx.controls.Alert;
@@ -38,6 +40,7 @@
 			import mx.resources.ResourceManager;
 			
 			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.modules.chat.events.TranscriptEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var _xPosition:int;
@@ -53,6 +56,9 @@
 				/* Set up full screen handler. */
 				Application.application.stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
 				dispState = Application.application.stage.displayState;
+				
+				var disp:Dispatcher = new Dispatcher();
+				disp.dispatchEvent(new TranscriptEvent(TranscriptEvent.LOAD_TRANSCRIPT));
 			}
 			
 			private function fullScreenHandler(evt:FullScreenEvent):void {

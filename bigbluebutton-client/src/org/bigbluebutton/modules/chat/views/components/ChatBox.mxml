@@ -12,7 +12,6 @@
 			import com.adobe.serialization.json.JSON;
 			
 			import mx.collections.ArrayCollection;
-			import mx.controls.Alert;
 			import mx.controls.Button;
 			import mx.core.ScrollPolicy;
 			
@@ -28,6 +27,7 @@
 			private var lastTime:String = "";
 			
 			[Bindable] private var messages:ArrayCollection = new ArrayCollection();
+			[Bindable] private var msg:Object;
 			
 			private function updateScroll():void{
 				chatMessagesList.verticalScrollPosition = chatMessagesList.maxVerticalScrollPosition;
@@ -38,17 +38,16 @@
 				var timeString:String = getHours() + ":" + getMinutes();
 				var components:Array = message.split("|");
 				
-				var msg:Object = new Object();
+				msg = new Object();
 				msg.lastSenderName = lastSenderName;
 				lastSenderName = components[1];
+				
+				msg.senderLanguage = components[4].toString();
+				msg.recepientLanguage = language.toString();
+				msg.translate = translate;
 
-				if (translate && (language != null) && (components[4] != null)){
-					translateMessage(components[0].toString(), components[4].toString(), language.toString());
-					msg.senderText = components[0];
-				} else{
-					msg.text = components[0];
-					msg.senderText = components[0];
-				}
+				msg.text = components[0];
+				msg.senderText = components[0];
 				
 				msg.name = components[1];
 				msg.color = uint(components[2]);
@@ -62,17 +61,6 @@
 				
 				chatMessagesList.invalidateSize();
 				chatMessagesList.invalidateDisplayList();
-			}
-			
-			private function translateMessage(text:String, fromLang:String, toLang:String):void{
-				var g:GoogleTranslation = new GoogleTranslation();
-				g.addEventListener(GoogleApiEvent.TRANSLATION_RESULT, onTranslationDone);
-				g.translate(text, fromLang, toLang);
-			}
-			
-			private function onTranslationDone(e:GoogleApiEvent):void{
-				messages.getItemAt(messages.length - 1).text = (e.data as GoogleTranslationResult).result;
-				chatMessagesList.invalidateList();
 			}
 			
 			public static function getMinutes():String{

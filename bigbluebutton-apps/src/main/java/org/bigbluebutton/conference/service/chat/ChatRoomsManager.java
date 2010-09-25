@@ -22,6 +22,8 @@ package org.bigbluebutton.conference.service.chat;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 import net.jcip.annotations.ThreadSafe;
+
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 /**
@@ -62,13 +64,13 @@ public class ChatRoomsManager {
 		return rooms.get(name);
 	}
 	
-	public String getChatMessages(String room) {
+	public List<String> getChatMessages(String room) {
 		ChatRoom r = getRoom(room);
 		if (r != null) {
 			return r.getChatMessages();
 		}
 		log.warn("Getting messages from a non-existing room {}", room);
-		return "";
+		return null;
 	}
 	
 	public void sendMessage(String room, String message) {

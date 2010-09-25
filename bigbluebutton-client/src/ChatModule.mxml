@@ -30,7 +30,7 @@
 	
 	<maps:ChatEventMap id="chatLocalEventMap"/>
 	
-	<mate:Listener type="{TranscriptLoadedEvent.TRANSCRIPT_EVENT}" method="handleTranscriptLoadedEvent"/>
+	<mate:Listener type="{TranscriptEvent.TRANSCRIPT_EVENT}" method="handleTranscriptLoadedEvent"/>
 	
 	<mx:Script>
 		<![CDATA[
@@ -43,7 +43,7 @@
 			import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
 			import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
 			import org.bigbluebutton.modules.chat.events.StopChatModuleEvent;
-			import org.bigbluebutton.modules.chat.events.TranscriptLoadedEvent;
+			import org.bigbluebutton.modules.chat.events.TranscriptEvent;
 		
 			private var _moduleId:String = "ChatModule";
 			private var _moduleName:String = "Chat Module";			
@@ -133,12 +133,12 @@
 			private function handleTranscriptLoadedEvent(event:Event):void {
 				LogUtil.debug("Handling TranscriptLoadedEvent");
 				var welcome:String = _attributes.welcome as String;
-				if (welcome != ""){
+				/*if (welcome != ""){
 					var welcomeEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
-					welcomeEvent.message = welcome;
+					welcomeEvent.message = welcome + "|" + " " + "|" + "0" + "|" + "00:00" + "|" + "en";
 					var globalDispatcher:Dispatcher = new Dispatcher();
 					globalDispatcher.dispatchEvent(welcomeEvent);
-				}	
+				}	*/
 			}
 		]]>
 	</mx:Script>
