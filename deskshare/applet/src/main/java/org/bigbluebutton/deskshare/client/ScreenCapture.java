@@ -30,18 +30,9 @@ import java.awt.RenderingHints;
 import java.awt.Robot;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
-import java.awt.image.BufferedImageOp;
-import java.awt.image.ConvolveOp;
-import java.awt.image.Kernel;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
- * The Capture class uses the java Robot class to capture the screen
- * The image captured is scaled down. This is done because of bandwidth issues and because it
- * is unnecessary for the Flex Client to be able to see the full screen, in fact it is undesirable
- * to do so.
- * The image can then be sent for further processing
+ * The Capture class uses the java Robot class to capture the screen.
  * @author Snap
  *
  */
@@ -50,7 +41,7 @@ public class ScreenCapture {
 	private Rectangle screenBounds;	
 	private int scaleWidth, scaleHeight, x,y, captureWidth, captureHeight;
 	private boolean quality;
-	private GraphicsConfiguration jc;
+	private GraphicsConfiguration graphicsConfig;
 	
 	public ScreenCapture(int x, int y, int captureWidth, int captureHeight, int scaleWidth, int scaleHeight, boolean quality) {
 		this.captureWidth = captureWidth;
@@ -69,7 +60,7 @@ public class ScreenCapture {
 		GraphicsEnvironment je = GraphicsEnvironment.getLocalGraphicsEnvironment();
 	    GraphicsDevice js = je.getDefaultScreenDevice();
 
-	    jc = js.getDefaultConfiguration();
+	    graphicsConfig = js.getDefaultConfiguration();
 	}
 	
 	public BufferedImage takeSingleSnapshot() {
@@ -113,7 +104,7 @@ public class ScreenCapture {
 	}
 
 	private BufferedImage useQuality(BufferedImage image) {	    
-	    BufferedImage resultImage = jc.createCompatibleImage(scaleWidth, scaleHeight, image.getType());
+	    BufferedImage resultImage = graphicsConfig.createCompatibleImage(scaleWidth, scaleHeight, image.getType());
 	    resultImage.setAccelerationPriority(1);
 	    
 		Graphics2D g2 = resultImage.createGraphics();
@@ -124,6 +115,8 @@ public class ScreenCapture {
 	}
 		 
 	/**
+	 * See http://today.java.net/pub/a/today/2007/04/03/perils-of-image-getscaledinstance.html
+	 * 
      * Convenience method that returns a scaled instance of the
      * provided {@code BufferedImage}.
      *

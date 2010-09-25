@@ -69,6 +69,7 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
     	CmdLineParser.Option tryHttpTunnel = dsMain.addHelp(parser.addBooleanOption('n', "httptunnel"),"Http tunnel if direct connection fails");
     	CmdLineParser.Option icon = dsMain.addHelp(parser.addStringOption('i', "icon"),"Path to system tray icon file");
     	CmdLineParser.Option help = dsMain.addHelp(parser.addBooleanOption('h', "help"),"Show this help message");
+    	CmdLineParser.Option fullScreen = dsMain.addHelp(parser.addBooleanOption('f', "full-screen"),"Capture the full screen.");
         
         try {
             parser.parse(args);
@@ -96,23 +97,24 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
         Integer cHeightValue = (Integer)parser.getOptionValue(cHeight, new Integer((int)dim.getHeight()));
         Integer sWidthValue = (Integer)parser.getOptionValue(sWidth, new Integer((int)dim.getWidth()));
         Integer sHeightValue = (Integer)parser.getOptionValue(sHeight, new Integer((int)dim.getHeight()));
-        Boolean qualityValue = (Boolean)parser.getOptionValue(quality, false);
-        Boolean aspectValue = (Boolean)parser.getOptionValue(aspectRatio, false);
+        Boolean qualityValue = (Boolean)parser.getOptionValue(quality, new Boolean(false));
+        Boolean aspectValue = (Boolean)parser.getOptionValue(aspectRatio, new Boolean(false));
         Integer xValue = (Integer)parser.getOptionValue(xCoord, new Integer(0));
         Integer yValue = (Integer)parser.getOptionValue(yCoord, new Integer(0));
-        Boolean tunnelValue = (Boolean)parser.getOptionValue(tryHttpTunnel, false);
+        Boolean tunnelValue = (Boolean)parser.getOptionValue(tryHttpTunnel, new Boolean(false));
         String iconValue = (String)parser.getOptionValue(icon, "bbb.gif");
+        Boolean fullScreenValue = (Boolean)parser.getOptionValue(fullScreen, new Boolean(false));
         
         Image image = Toolkit.getDefaultToolkit().getImage(iconValue);
         
         lifeline = new LifeLine(listenPortValue.intValue(), dsMain);
         lifeline.listen();
         
-        client = new DeskshareClient.Builder().host(hostValue).port(portValue)
+        client = new DeskshareClient.ClientBuilder().host(hostValue).port(portValue)
         						.room(roomValue).captureWidth(cWidthValue)
         						.captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue)
         						.quality(qualityValue).aspectRatio(aspectValue)
-        						.x(xValue).y(yValue)
+        						.x(xValue).y(yValue).fullScreen(fullScreenValue)
         						.httpTunnel(tunnelValue).trayIcon(image).enableTrayIconActions(true).build();
         
         client.addClientListeners(dsMain);

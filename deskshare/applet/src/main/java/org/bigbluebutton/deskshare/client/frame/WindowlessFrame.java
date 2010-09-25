@@ -38,22 +38,18 @@ import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.bigbluebutton.deskshare.client.DeskShareApplet;
 import org.bigbluebutton.deskshare.client.DeskshareClient;
-
 
 public class WindowlessFrame implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private DeskShareApplet dimensionsListener;
+	private DeskshareClient dimensionsListener;
 	private MouseAdapter resizingAdapter;
 	private MouseAdapter movingAdapter;
 	
@@ -523,7 +519,7 @@ public class WindowlessFrame implements Serializable {
 		wf.setVisible(true);
 	}
 	
-	public void setDimensionsListener(DeskShareApplet applet){
+	public void setDimensionsListener(DeskshareClient applet){
 		this.dimensionsListener = applet;
 	}
 	

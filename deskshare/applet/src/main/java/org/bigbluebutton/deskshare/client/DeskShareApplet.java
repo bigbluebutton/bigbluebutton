@@ -19,12 +19,10 @@
  */
 package org.bigbluebutton.deskshare.client;
 
-import java.applet.Applet;
+import javax.swing.JApplet;
 import java.awt.Image;
 
-import org.bigbluebutton.deskshare.client.frame.RecordingAppletFrame;
-
-public class DeskShareApplet extends Applet implements ClientListener {
+public class DeskShareApplet extends JApplet implements ClientListener {
 	private static final long serialVersionUID = 1L;
 
 	String hostValue = "localhost";
@@ -39,20 +37,13 @@ public class DeskShareApplet extends Applet implements ClientListener {
     Integer xValue = new Integer(0);
     Integer yValue = new Integer(0);
     Boolean tunnelValue = true;
+    Boolean fullScreenValue = false;
     DeskshareClient client;
     Image icon;
     
-    private RecordingAppletFrame raf;
     public boolean isSharing = false;
     
-	public void init() {
-		raf = new RecordingAppletFrame(5);
-		raf.setHeight(300);
-		raf.setWidth(600);
-		raf.centerOnScreen();
-		raf.setVisible(true);
-		raf.setApplet(this);
-		
+	public void init() {		
 		hostValue = getParameter("IP");
 		String port = getParameter("PORT");
 		if (port != null) portValue = Integer.parseInt(port);
@@ -61,41 +52,37 @@ public class DeskShareApplet extends Applet implements ClientListener {
 		//cHeightValue = Integer.parseInt(getParameter("CAPTURE_HEIGHT"));				
 		//xValue = Integer.parseInt(getParameter("X"));
 		//yValue = Integer.parseInt(getParameter("Y"));
-		
-		cWidthValue = raf.getWidth();
-		cHeightValue = raf.getHeight();
-		xValue = raf.getX();
-		yValue = raf.getY();
-		
+				
 		sWidthValue = cWidthValue;
-		//String scaleWidth = getParameter("SCALE_WIDTH");
-		//if (scaleWidth != null) sWidthValue = Integer.parseInt(scaleWidth);
+		String scaleWidth = getParameter("SCALE_WIDTH");
+		if (scaleWidth != null) sWidthValue = Integer.parseInt(scaleWidth);
 		
 		sHeightValue = cHeightValue;
-		//String scaleHeight = getParameter("SCALE_HEIGHT");
-		//if (scaleHeight != null) sHeightValue = Integer.parseInt(scaleHeight);
+		String scaleHeight = getParameter("SCALE_HEIGHT");
+		if (scaleHeight != null) sHeightValue = Integer.parseInt(scaleHeight);
 		
 		String qualityCapture = getParameter("SCALE_WITH_QUALITY");
 		if (qualityCapture != null) qualityValue = Boolean.parseBoolean(qualityCapture);
 		
 		String aspectRatio = getParameter("MAINTAIN_ASPECT_RATIO");
 		if (aspectRatio != null) aspectRatioValue = Boolean.parseBoolean(aspectRatio);
+
+		String captureFullScreen = getParameter("CAPTURE_FULL_SCREEN");
+		if (captureFullScreen != null) fullScreenValue = Boolean.parseBoolean(captureFullScreen);
 		
 		String tunnel = getParameter("HTTP_TUNNEL");
 		if (tunnel != null) tunnelValue = Boolean.parseBoolean(tunnel);
 		icon = getImage(getCodeBase(), "bbb.gif");
 	}
 		
-	public void start() {		 
-		/*System.out.println("Start");	
-		client = new DeskshareClient.Builder().host(hostValue).port(portValue)
+	public void start() {		 	
+		client = new DeskshareClient.ClientBuilder().host(hostValue).port(portValue)
 							.room(roomValue).captureWidth(cWidthValue)
 							.captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue)
 							.quality(qualityValue).aspectRatio(aspectRatioValue)
-							.x(xValue).y(yValue)
+							.x(xValue).y(yValue).fullScreen(fullScreenValue)
 							.httpTunnel(tunnelValue).trayIcon(icon).enableTrayIconActions(false).build();
-		client.start();*/
-		//raf.setDimensionsListener(client);
+		client.start();
 	}
 	
 	public void setDimensions(int X, int Y, int width, int height){
@@ -110,24 +97,7 @@ public class DeskShareApplet extends Applet implements ClientListener {
 	public void setScreenCoordinates(int X, int Y){
 		if (client != null) client.setScreenCoordinates(X, Y);
 	}
-	
-	public void startSharing(){
-		System.out.println("Start Sharing");	
-		client = new DeskshareClient.Builder().host(hostValue).port(portValue)
-							.room(roomValue).captureWidth(cWidthValue)
-							.captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue)
-							.quality(qualityValue).aspectRatio(aspectRatioValue)
-							.x(xValue).y(yValue)
-							.httpTunnel(tunnelValue).trayIcon(icon).enableTrayIconActions(false).build();
-		raf.setDimensionsListener(this);
-		isSharing = true;
-		client.start();
-		
-		raf.btnStartStop.setLabel("Stop Sharing");
-		raf.removeResizeListeners();
-	}
-
-		
+			
 	/**
 	 * This method is called when the user closes the browser window containing the applet
 	 * It is very important that the connection to the server is closed at this point. That way the server knows to
