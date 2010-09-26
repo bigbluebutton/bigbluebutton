@@ -44,12 +44,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.bigbluebutton.deskshare.client.DeskshareClient;
-
-public class WindowlessFrame implements Serializable {
+class WindowlessFrame implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private DeskshareClient dimensionsListener;
+	private CaptureRegionListener captureRegionListener;
 	private MouseAdapter resizingAdapter;
 	private MouseAdapter movingAdapter;
 	
@@ -448,7 +446,7 @@ public class WindowlessFrame implements Serializable {
 		mTopLeft.y = y;
 		repaint();
 		
-		if (dimensionsListener != null) dimensionsListener.setScreenCoordinates(x, y);
+		if (captureRegionListener != null) captureRegionListener.onCaptureRegionMoved(x, y);
 	}
 	
 	public final int getX(){
@@ -519,8 +517,8 @@ public class WindowlessFrame implements Serializable {
 		wf.setVisible(true);
 	}
 	
-	public void setDimensionsListener(DeskshareClient applet){
-		this.dimensionsListener = applet;
+	public void setCaptureRegionListener(CaptureRegionListener listener){
+		this.captureRegionListener = listener;
 	}
 	
 	public void removeResizeListeners(){

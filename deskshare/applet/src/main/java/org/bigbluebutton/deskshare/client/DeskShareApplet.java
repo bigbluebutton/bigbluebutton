@@ -93,11 +93,7 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 		sWidthValue = width;
 		sHeightValue = height;
 	}
-	
-	public void setScreenCoordinates(int X, int Y){
-		if (client != null) client.setScreenCoordinates(X, Y);
-	}
-			
+				
 	/**
 	 * This method is called when the user closes the browser window containing the applet
 	 * It is very important that the connection to the server is closed at this point. That way the server knows to

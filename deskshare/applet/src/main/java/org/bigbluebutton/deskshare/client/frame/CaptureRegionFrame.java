@@ -26,29 +26,55 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JPanel;
 
-import org.bigbluebutton.deskshare.client.DeskshareClient;
-
-public class CaptureRegionFrame extends WindowlessFrame {
+public class CaptureRegionFrame {
 	private static final long serialVersionUID = 1L;
 
 	private Button btnStartStop;
-	private DeskshareClient client;
+	private CaptureRegionListener client;
+	private boolean capturing = false;
+	private WindowlessFrame frame;
 	
-	public CaptureRegionFrame(DeskshareClient client, int borderWidth) {
-		super(borderWidth);
+	public CaptureRegionFrame(CaptureRegionListener client, int borderWidth) {
+		frame = new WindowlessFrame(borderWidth);
 		this.client = client;
-		setToolbar(createToolbar());
+		frame.setCaptureRegionListener(client);
+		frame.setToolbar(createToolbar());
 	}
+	
+	public void setHeight(int h) {
+		frame.setHeight(h);
+	}
+	
+	public void setWidth(int w) {
+		frame.setWidth(w);
+	}
+	
+	public void setLocation(int x, int y) {
+		frame.setLocation(x, y);
+	}
+	
+	public void setVisible(boolean visible) {
+		frame.setVisible(visible);	
+	}
+	
 	
 	private JPanel createToolbar() {
 		final JPanel panel = new JPanel();
 		panel.setLayout(new FlowLayout());
+		capturing = false;
 		btnStartStop = new Button("Start Capture");
 		btnStartStop.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				panel.remove(btnStartStop);
-				startCapture();
+				if (capturing) {
+					capturing = false;
+					btnStartStop.setLabel("Start Capture");
+					stopCapture();
+				} else {
+					capturing = true;
+					btnStartStop.setLabel("Stop Capture");
+					startCapture();
+				}					
 			}
 		});
 		panel.add(btnStartStop);
@@ -56,6 +82,10 @@ public class CaptureRegionFrame extends WindowlessFrame {
 	}
 	
 	private void startCapture() {
-		client.start();
+		client.onStartCapture();
+	}
+	
+	private void stopCapture() {
+		client.onStopCapture();
 	}
 }

@@ -23,5 +23,5 @@ import java.awt.Point;
 
 public interface MouseLocationListener {
 
-	public void mouseLocation(Point loc);
+	public void onMouseLocationUpdate(Point loc);
 }

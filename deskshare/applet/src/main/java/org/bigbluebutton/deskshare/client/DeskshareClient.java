@@ -20,21 +20,17 @@
 package org.bigbluebutton.deskshare.client;
 
 import java.awt.Image;
-import java.awt.Point;
 import java.awt.Toolkit;
-import java.awt.image.BufferedImage;
-
 import org.bigbluebutton.deskshare.client.blocks.BlockManager;
 import org.bigbluebutton.deskshare.client.blocks.ChangedBlocksListener;
-import org.bigbluebutton.deskshare.client.net.BlockMessage;
-import org.bigbluebutton.deskshare.client.net.CursorMessage;
+import org.bigbluebutton.deskshare.client.frame.CaptureRegionFrame;
+import org.bigbluebutton.deskshare.client.frame.CaptureRegionListener;
 import org.bigbluebutton.deskshare.client.net.NetworkConnectionListener;
 import org.bigbluebutton.deskshare.client.net.NetworkStreamSender;
 import org.bigbluebutton.deskshare.common.Dimension;
 import org.bigbluebutton.deskshare.client.net.ConnectionException;
 
-public class DeskshareClient implements IScreenCaptureListener, ChangedBlocksListener, SystemTrayListener, 
-			MouseLocationListener, NetworkConnectionListener {
+public class DeskshareClient {
 	private static final String LICENSE_HEADER = "This program is free software: you can redistribute it and/or modify\n" +
 	"it under the terms of the GNU Lesser General Public License as published by\n" +
 	"the Free Software Foundation, either version 3 of the License, or\n" +
@@ -48,8 +44,7 @@ public class DeskshareClient implements IScreenCaptureListener, ChangedBlocksLis
 	"Copyright 2010 BigBlueButton. All Rights Reserved.\n\n";
 	
 	private ScreenCaptureTaker captureTaker;
-	private ScreenCapture capture;
-	private Thread captureTakerThread;
+//	private ScreenCapture capture;
 	private BlockManager blockManager;
 	private int blockWidth = 64;
 	private int blockHeight = 64;	
@@ -76,26 +71,35 @@ public class DeskshareClient implements IScreenCaptureListener, ChangedBlocksLis
 	private DeskshareSystemTray tray = new DeskshareSystemTray();
 	private ClientListener listener;
 	private MouseLocationTaker mouseLocTaker;
-	private Thread mouseLocationTakerThread;
-	
+
 	public void start() {	
 		System.out.println(LICENSE_HEADER);
-		System.out.println("Desktop Sharing v0.7");
+		System.out.println("Desktop Sharing v0.71-dev");
 		System.out.println("Start");
 		System.out.println("Connecting to " + host + ":" + port + " room " + room);
 		System.out.println("Sharing " + captureWidth + "x" + captureHeight + " at " + x + "," + y);
 		System.out.println("Scale to " + scaleWidth + "x" + scaleHeight + " with quality = " + quality);
 		System.out.println("Http Tunnel: " + httpTunnel);
-		tray.addSystemTrayListener(this);
-		tray.displayIconOnSystemTray(sysTrayIcon, enableTrayActions);
 		
-		startCapture();		
+		if (fullScreen) {
+			startCapture();
+		} else {
+			shareWithFrame();
+		}
 		started = true;
 	}
 
+	private void shareWithFrame() {
+		CaptureRegionListener crl = new CaptureRegionListenerImp(captureTaker, mouseLocTaker);
+		CaptureRegionFrame frame = new CaptureRegionFrame(crl, 3);
+		frame.setHeight(captureHeight);
+		frame.setWidth(captureWidth);
+		frame.setLocation(x, y);
+		frame.setVisible(true);		
+	}
+		
 	private void startCapture() {		
-		capture = new ScreenCapture(x, y, captureWidth, captureHeight, scaleWidth, scaleHeight, quality);
-		captureTaker = new ScreenCaptureTaker(capture);
+		captureTaker = new ScreenCaptureTaker(x, y, captureWidth, captureHeight, scaleWidth, scaleHeight, quality);
 		mouseLocTaker = new MouseLocationTaker(captureWidth, captureHeight, scaleWidth, scaleHeight, x, y);
 		
 		// Use the scaleWidth and scaleHeight as the dimension we pass to the BlockManager.
@@ -103,40 +107,26 @@ public class DeskshareClient implements IScreenCaptureListener, ChangedBlocksLis
 		// captureWidth and captureHeight (ritzalam 05/27/2010)
 		Dimension screenDim = new Dimension(scaleWidth, scaleHeight);
 		Dimension tileDim = new Dimension(blockWidth, blockHeight);
-		blockManager = new BlockManager();
-		blockManager.addListener(this);
+		blockManager = new BlockManager();		
 		blockManager.initialize(screenDim, tileDim);
 		
 		sender = new NetworkStreamSender(blockManager, host, port, room, screenDim, tileDim, httpTunnel);
 		connected = sender.connect();
 		if (connected) {
-			sender.addNetworkConnectionListener(this);
-			captureTaker.addListener(this);
-			captureTaker.start();
-			
-			captureTakerThread = new Thread(captureTaker, "ScreenCaptureTaker");
-			captureTakerThread.start();	
+			ChangedBlocksListener changedBlocksListener = new ChangedBlockListenerImp(sender);
+			blockManager.addListener(changedBlocksListener);
+			ScreenCaptureListener screenCapListener = new ScreenCaptureListenerImp(blockManager);
+			captureTaker.addListener(screenCapListener);
+			captureTaker.start();			
 			sender.start();
-			
-			mouseLocTaker.start();
-			mouseLocationTakerThread = new Thread(mouseLocTaker, "MouseLocationTakerThread");
-			mouseLocTaker.addListener(this);
-			mouseLocationTakerThread.start();			
+			MouseLocationListenerImp mouseLocListener = new MouseLocationListenerImp(sender, room);
+			mouseLocTaker.addListener(mouseLocListener);
+			mouseLocTaker.start();			
 		} else {
 			notifyListener(ExitCode.DESKSHARE_SERVICE_UNAVAILABLE);
 		}
 	}
 	
-	/**
-	 * This method is called when the user closes the browser window containing the applet
-	 * It is very important that the connection to the server is closed at this point. That way the server knows to
-	 * close the stream.
-	 */
-	public void destroy() {
-		System.out.println("Destroy");
-		stop();
-	}
-
 	public void stop() {
 		System.out.println("Stop");
 		captureTaker.stop();
@@ -152,40 +142,7 @@ public class DeskshareClient implements IScreenCaptureListener, ChangedBlocksLis
 		}		
 		tray.removeIconFromSystemTray();
 	}
-	
-	public void setScreenCoordinates(int x, int y) {
-		capture.setX(x);
-		capture.setY(y);
-		mouseLocTaker.setCaptureCoordinates(x, y);
-	}
-	
-	public void setScreenDimensions(int width, int height){
-		capture.setWidth(width);
-		capture.setHeight(height);
-	}
-	
-	public void onScreenCaptured(BufferedImage screen) {
-		blockManager.processCapturedScreen(screen);				
-	}
-	
-	public void mouseLocation(Point loc) {
-		CursorMessage msg = new CursorMessage(loc, room);
-		sender.send(msg);
-	}
-	
-	public void screenCaptureStopped() {
-		System.out.println("Screencapture stopped");
-		destroy();
-	}
-
-	public void onChangedBlock(BlockMessage message) {
-		sender.send(message);
-	}
-
-	public void onStopSharingSysTrayMenuClicked() {
-		notifyListener(ExitCode.NORMAL);
-	}
-
+			
 	private void notifyListener(ExitCode reason) {
 		if (listener != null) {
 			System.out.println("Notifying app of client stopping.");
@@ -195,14 +152,17 @@ public class DeskshareClient implements IScreenCaptureListener, ChangedBlocksLis
 	
 	public void addClientListeners(ClientListener l) {
 		listener = l;
+		SystemTrayListener systrayListener = new SystemTrayListenerImp(listener);
+		tray.addSystemTrayListener(systrayListener);
+		tray.displayIconOnSystemTray(sysTrayIcon, enableTrayActions);	
+		
+		NetworkConnectionListener netConnListener = new NetworkConnectionListenerImp(listener);
+		if (sender != null)
+			sender.addNetworkConnectionListener(netConnListener);
+		else
+			System.out.println("ERROR: Cannot add listener to network connection.");
 	}
 
-	@Override
-	public void networkConnectionException(ExitCode reason) {
-		System.out.println("Notifying client of network stopping.");
-		notifyListener(reason);
-	}	
-	
 	private DeskshareClient(ClientBuilder builder) {
        	room = builder.room;
        	host = builder.host;
