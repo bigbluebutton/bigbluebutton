@@ -16,7 +16,6 @@ public class ScreenRegionSharer implements ScreenSharer {
 	public void start() {
 		CaptureRegionListener crl = new CaptureRegionListenerImp(this);
 		frame = new CaptureRegionFrame(crl, 5);
-		System.out.println("Init [" + ssi.x + "," + ssi.y + "][" + ssi.captureWidth + "," + ssi.captureHeight + "]");
 		frame.setHeight(ssi.captureHeight);
 		frame.setWidth(ssi.captureWidth);
 		frame.setLocation(ssi.x, ssi.y);
@@ -44,7 +43,6 @@ public class ScreenRegionSharer implements ScreenSharer {
 		public void onCaptureRegionMoved(int x, int y) {
 			ssi.x = x;
 			ssi.y = y;
-			System.out.println("Moving [" + ssi.x + "," + ssi.y + "][" + ssi.captureWidth + "," + ssi.captureHeight + "]");
 			if (sharer != null)
 				sharer.setCaptureCoordinates(x, y);
 		}
@@ -57,7 +55,6 @@ public class ScreenRegionSharer implements ScreenSharer {
 			ssi.captureHeight = height;
 			ssi.scaleWidth = width;
 			ssi.scaleHeight = height;
-			System.out.println("Capturing [" + ssi.x + "," + ssi.y + "][" + ssi.captureWidth + "," + ssi.captureHeight + "]");
 			sharer = new ScreenSharerRunner(ssi);
 			sharer.addClientListener(listener);
 			sharer.startSharing();
