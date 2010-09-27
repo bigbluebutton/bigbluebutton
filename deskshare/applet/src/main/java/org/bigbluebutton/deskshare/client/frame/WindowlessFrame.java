@@ -461,11 +461,11 @@ class WindowlessFrame implements Serializable {
 	}
 	
 	public final int getWidth(){
-		return mOverallSize.width;
+		return mOverallSize.width - mBorderWidth;
 	}
 	
 	public final int getHeight(){
-		return mOverallSize.height;
+		return mOverallSize.height - mBorderWidth;
 	}
 	
 	public final void centerOnScreen() {
