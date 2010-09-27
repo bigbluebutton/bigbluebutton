@@ -76,7 +76,7 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 	}
 		
 	public void start() {		 	
-		client = new DeskshareClient.ClientBuilder().host(hostValue).port(portValue)
+		client = new DeskshareClient.NewBuilder().host(hostValue).port(portValue)
 							.room(roomValue).captureWidth(cWidthValue)
 							.captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue)
 							.quality(qualityValue).aspectRatio(aspectRatioValue)

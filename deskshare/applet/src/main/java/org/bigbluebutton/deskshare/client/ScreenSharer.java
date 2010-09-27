@@ -1,5 +1,7 @@
 package org.bigbluebutton.deskshare.client;
 
-public class ScreenSharer {
-
+public interface ScreenSharer {	
+	void start();	
+	void stop();
+	void addClientListener(ClientListener l);
 }

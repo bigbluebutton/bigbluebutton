@@ -446,7 +446,10 @@ class WindowlessFrame implements Serializable {
 		mTopLeft.y = y;
 		repaint();
 		
-		if (captureRegionListener != null) captureRegionListener.onCaptureRegionMoved(x, y);
+		if (captureRegionListener != null) {
+			Rectangle rect  = getFramedRectangle();
+			captureRegionListener.onCaptureRegionMoved(rect.x, rect.y);
+		}
 	}
 	
 	public final int getX(){
@@ -521,7 +524,7 @@ class WindowlessFrame implements Serializable {
 		this.captureRegionListener = listener;
 	}
 	
-	public void removeResizeListeners(){
+	public void removeResizeListeners() {
 		mRightBorder.removeMouseListener(resizingAdapter);
 		mRightBorder.removeMouseMotionListener(resizingAdapter);
 		mLeftBorder.removeMouseListener(resizingAdapter);

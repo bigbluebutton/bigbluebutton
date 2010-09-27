@@ -22,6 +22,7 @@ package org.bigbluebutton.deskshare.client.frame;
 
 import java.awt.Button;
 import java.awt.FlowLayout;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JPanel;
@@ -82,7 +83,8 @@ public class CaptureRegionFrame {
 	}
 	
 	private void startCapture() {
-		client.onStartCapture();
+		Rectangle rect = frame.getFramedRectangle();
+		client.onStartCapture(rect.x, rect.y, frame.getWidth(), frame.getHeight());
 	}
 	
 	private void stopCapture() {
