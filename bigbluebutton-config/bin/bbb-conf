@@ -138,7 +138,7 @@ need_root() {
 }
 
 usage() {
-	echo "BigBlueButton Configuration Utility - Version 0.71-dev"
+	echo "BigBlueButton Configuration Utility - Version 0.71-dev1"
         echo "http://code.google.com/p/bigbluebutton/wiki/BBBConf"
         echo
         echo "$0 [options]"
