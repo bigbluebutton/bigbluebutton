@@ -23,6 +23,8 @@ import javax.swing.JApplet;
 import java.awt.Image;
 
 public class DeskShareApplet extends JApplet implements ClientListener {
+	public static final String NAME = "DESKSHAREAPPLET: ";
+	
 	private static final long serialVersionUID = 1L;
 
 	String hostValue = "localhost";
@@ -48,26 +50,8 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 		String port = getParameter("PORT");
 		if (port != null) portValue = Integer.parseInt(port);
 		roomValue = getParameter("ROOM");
-		//cWidthValue = Integer.parseInt(getParameter("CAPTURE_WIDTH"));
-		//cHeightValue = Integer.parseInt(getParameter("CAPTURE_HEIGHT"));				
-		//xValue = Integer.parseInt(getParameter("X"));
-		//yValue = Integer.parseInt(getParameter("Y"));
-				
-		sWidthValue = cWidthValue;
-		String scaleWidth = getParameter("SCALE_WIDTH");
-		if (scaleWidth != null) sWidthValue = Integer.parseInt(scaleWidth);
-		
-		sHeightValue = cHeightValue;
-		String scaleHeight = getParameter("SCALE_HEIGHT");
-		if (scaleHeight != null) sHeightValue = Integer.parseInt(scaleHeight);
-		
-		String qualityCapture = getParameter("SCALE_WITH_QUALITY");
-		if (qualityCapture != null) qualityValue = Boolean.parseBoolean(qualityCapture);
-		
-		String aspectRatio = getParameter("MAINTAIN_ASPECT_RATIO");
-		if (aspectRatio != null) aspectRatioValue = Boolean.parseBoolean(aspectRatio);
 
-		String captureFullScreen = getParameter("CAPTURE_FULL_SCREEN");
+		String captureFullScreen = getParameter("FULL_SCREEN");
 		if (captureFullScreen != null) fullScreenValue = Boolean.parseBoolean(captureFullScreen);
 		
 		String tunnel = getParameter("HTTP_TUNNEL");
@@ -82,6 +66,7 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 							.quality(qualityValue).aspectRatio(aspectRatioValue)
 							.x(xValue).y(yValue).fullScreen(fullScreenValue)
 							.httpTunnel(tunnelValue).trayIcon(icon).enableTrayIconActions(false).build();
+		client.addClientListener(this);
 		client.start();
 	}
 	
@@ -100,12 +85,12 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 	 * close the stream.
 	 */
 	public void destroy() {
-		System.out.println("Destroy");
+		System.out.println(NAME + "Destroy");
 		stop();
 	}
 
 	public void stop() {
-		System.out.println("Stop");
+		System.out.println(NAME + "Stop");
 		client.stop();			
 	}
 	

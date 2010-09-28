@@ -8,6 +8,8 @@ import org.bigbluebutton.deskshare.client.net.NetworkStreamSender;
 import org.bigbluebutton.deskshare.common.Dimension;
 
 public class ScreenSharerRunner {
+	public static final String NAME = "SCREENSHARERUNNER: ";
+	
 	private ScreenCaptureTaker captureTaker;
 	private BlockManager blockManager;
 	private int blockWidth = 64;
@@ -24,11 +26,6 @@ public class ScreenSharerRunner {
 	
 	public ScreenSharerRunner(ScreenShareInfo ssi) {
 		this.ssi = ssi;
-	}
-	
-	public void startSharing() {	
-		printHeader();
-		
 		captureTaker = new ScreenCaptureTaker(ssi.x, ssi.y, ssi.captureWidth, ssi.captureHeight, ssi.scaleWidth, 
 				ssi.scaleHeight, ssi.quality);
 		mouseLocTaker = new MouseLocationTaker(ssi.captureWidth, ssi.captureHeight, ssi.scaleWidth, ssi.scaleHeight, ssi.x, ssi.y);
@@ -42,6 +39,11 @@ public class ScreenSharerRunner {
 		blockManager.initialize(screenDim, tileDim);
 		
 		sender = new NetworkStreamSender(blockManager, ssi.host, ssi.port, ssi.room, screenDim, tileDim, ssi.httpTunnel);
+	}
+	
+	public void startSharing() {	
+		printHeader();
+		
 		connected = sender.connect();
 		if (connected) {
 			ChangedBlocksListener changedBlocksListener = new ChangedBlockListenerImp(sender);
@@ -53,13 +55,14 @@ public class ScreenSharerRunner {
 			MouseLocationListenerImp mouseLocListener = new MouseLocationListenerImp(sender, ssi.room);
 			mouseLocTaker.addListener(mouseLocListener);
 			mouseLocTaker.start();			
+			started = true;
 		} else {
 			notifyListener(ExitCode.DESKSHARE_SERVICE_UNAVAILABLE);
 		}
 	}
 	
 	public void stopSharing() {
-		System.out.println("Stop");
+		System.out.println(NAME + "Stopping");
 		captureTaker.stop();
 		mouseLocTaker.stop();
 		if (connected && started) {
@@ -81,7 +84,7 @@ public class ScreenSharerRunner {
 	
 	private void notifyListener(ExitCode reason) {
 		if (listener != null) {
-			System.out.println("Notifying app of client stopping.");
+			System.out.println(NAME + "Notifying app of client stopping.");
 			listener.onClientStop(reason);
 		}
 	}
@@ -96,11 +99,13 @@ public class ScreenSharerRunner {
 		if (sender != null)
 			sender.addNetworkConnectionListener(netConnListener);
 		else
-			System.out.println("ERROR: Cannot add listener to network connection.");
+			System.out.println(NAME + "ERROR - Cannot add listener to network connection.");
 	}
 	
 	private void printHeader() {
+		System.out.println("-----------------------------------------------------------------------");
 		System.out.println(LICENSE_HEADER);
+		System.out.println("-----------------------------------------------------------------------\n\n");
 		System.out.println("Desktop Sharing v0.71-dev");
 		System.out.println("Start");
 		System.out.println("Connecting to " + ssi.host + ":" + ssi.port + " room " + ssi.room);

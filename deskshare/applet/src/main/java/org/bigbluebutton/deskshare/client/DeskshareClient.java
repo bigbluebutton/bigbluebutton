@@ -23,6 +23,8 @@ import java.awt.Image;
 import java.awt.Toolkit;
 
 public class DeskshareClient {	
+	public static final String NAME = "DESKSHARECLIENT: ";
+	
 	private ScreenShareInfo ssi;
 	private ClientListener listener;
 	private ScreenSharer screenSharer;
@@ -33,8 +35,10 @@ public class DeskshareClient {
 
 	public void start() {			
 		if (ssi.fullScreen) {
+			System.out.println(NAME + "Sharing full screen.");
 			shareFullScreen();
 		} else {
+			System.out.println(NAME + "Sharing region of screen.");
 			shareWithFrame();
 		}
 	}
@@ -52,7 +56,7 @@ public class DeskshareClient {
 	}
 	
 	public void stop() {
-		System.out.println("Stop");		
+		System.out.println(NAME + "Stop");		
 		screenSharer.stop();
 	}
 			
