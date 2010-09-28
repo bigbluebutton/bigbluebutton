@@ -56,7 +56,15 @@
 					LogUtil.debug("Leaving voice conference");
 					dispatcher.dispatchEvent(new LeaveVoiceConferenceEvent());
 				}
-					
+				
+				this.enabled = false;
+				var t:Timer = new Timer(3000, 1);
+				t.addEventListener(TimerEvent.TIMER, onTimer);
+				t.start();
+			}
+			
+			private function onTimer(e:TimerEvent):void{
+				this.enabled = true;
 			}
 			
 			private function handleCallConnectedEvent(event:CallConnectedEvent):void {
@@ -72,6 +80,11 @@
 				var e:JoinVoiceConferenceEvent = new JoinVoiceConferenceEvent();
 				e.useMicrophone = false;
 				dispatcher.dispatchEvent(e);
+			}
+			
+			//For whatever reason the tooltip does not update when localization is changed dynamically. Overrideing it here
+			override protected function resourcesChanged():void{
+				this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip');
 			}
 		]]>
 	</mx:Script>
