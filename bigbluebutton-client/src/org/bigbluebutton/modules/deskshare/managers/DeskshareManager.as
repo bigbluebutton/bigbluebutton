@@ -156,6 +156,7 @@ package org.bigbluebutton.modules.deskshare.managers
 		}
 		
 		public function handleShareWindowCloseEvent():void {
+			button.enabled = true;
 			closeWindow(shareWindow);
 		}
 		
