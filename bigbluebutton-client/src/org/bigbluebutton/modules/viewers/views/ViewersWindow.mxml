@@ -140,8 +140,11 @@
 			}
 			
 			override protected function resourcesChanged():void{
-				super.resourcesChanged();
-				this.title = ResourceUtil.getInstance().getString('bbb.viewers.title',["", ""]);
+				super.resourcesChanged();				
+				if (participants.length > 4)
+					windowTitle = ResourceUtil.getInstance().getString('bbb.viewers.title', [":", participants.length]);
+				else 
+					windowTitle = ResourceUtil.getInstance().getString('bbb.viewers.title', ["", ""]);
 			}
 
         ]]>
