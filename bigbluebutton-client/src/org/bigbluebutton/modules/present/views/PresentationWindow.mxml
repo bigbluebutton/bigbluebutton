@@ -280,11 +280,14 @@
 						
 			private function becomePresenter(e:MadePresenterEvent):void{
 				setupPresenter(true, e.presenterName);
+				addContextMenuItems();
 			}
 			
 			private function becomeViewer(e:MadePresenterEvent):void{
 				setupPresenter(false, e.presenterName);
 				dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
+				this.contextMenu = new ContextMenu();
+				this.contextMenu.hideBuiltInItems();
 			}
 						
 			private function setupPresenter(isPresenter:Boolean, presentersName:String):void {
@@ -330,7 +333,6 @@
 				onResetZoom();
 				reinitWindowToDefaultSize();
 				this.setFocus();
-				addContextMenuItems();
 			}
 			
 			private function displaySlideNavigationControls(show:Boolean):void {
