@@ -38,22 +38,16 @@ import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.bigbluebutton.deskshare.client.DeskShareApplet;
-import org.bigbluebutton.deskshare.client.DeskshareClient;
-
-
-public class WindowlessFrame implements Serializable {
+class WindowlessFrame implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private DeskShareApplet dimensionsListener;
+	private CaptureRegionListener captureRegionListener;
 	private MouseAdapter resizingAdapter;
 	private MouseAdapter movingAdapter;
 	
@@ -107,8 +101,11 @@ public class WindowlessFrame implements Serializable {
 
 	// properties initialized during construction
 	private final BasicStroke mBorderStroke = new BasicStroke(5, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 0, new float[] { 12, 12 }, 0);
-	private final GradientPaint mGradient = new GradientPaint(0.0f, 0.0f, Color.red, 1.0f, 1.0f, Color.white, true);
-
+	
+	private GradientPaint mGradient = new GradientPaint(0.0f, 0.0f, Color.red, 1.0f, 1.0f, Color.white, true);
+	private final GradientPaint blueGradient = new GradientPaint(0.0f, 0.0f, Color.blue, 1.0f, 1.0f, Color.white, true);
+	private final GradientPaint redGradient = new GradientPaint(0.0f, 0.0f, Color.red, 1.0f, 1.0f, Color.white, true);
+	
 	private final int mBorderWidth;
 	private final JFrame mWindowFrame;
 	private final BarFrame mTopBorder;
@@ -452,7 +449,10 @@ public class WindowlessFrame implements Serializable {
 		mTopLeft.y = y;
 		repaint();
 		
-		if (dimensionsListener != null) dimensionsListener.setScreenCoordinates(x, y);
+		if (captureRegionListener != null) {
+			Rectangle rect  = getFramedRectangle();
+			captureRegionListener.onCaptureRegionMoved(rect.x, rect.y);
+		}
 	}
 	
 	public final int getX(){
@@ -464,11 +464,11 @@ public class WindowlessFrame implements Serializable {
 	}
 	
 	public final int getWidth(){
-		return mOverallSize.width;
+		return mOverallSize.width - mBorderWidth;
 	}
 	
 	public final int getHeight(){
-		return mOverallSize.height;
+		return mOverallSize.height - mBorderWidth;
 	}
 	
 	public final void centerOnScreen() {
@@ -515,6 +515,16 @@ public class WindowlessFrame implements Serializable {
 		changeAll(REPAINTER, false);
 	}
 
+	public void changeBorderToBlue() {
+		mGradient = blueGradient;
+		repaint();
+	}
+	
+	public void changeBorderToRed() {
+		mGradient = redGradient;
+		repaint();
+	}
+	
 	public static void main(String[] args) {
 		final WindowlessFrame wf = new WindowlessFrame(5);
 		wf.setHeight(300);
@@ -523,11 +533,11 @@ public class WindowlessFrame implements Serializable {
 		wf.setVisible(true);
 	}
 	
-	public void setDimensionsListener(DeskShareApplet applet){
-		this.dimensionsListener = applet;
+	public void setCaptureRegionListener(CaptureRegionListener listener){
+		this.captureRegionListener = listener;
 	}
 	
-	public void removeResizeListeners(){
+	public void removeResizeListeners() {
 		mRightBorder.removeMouseListener(resizingAdapter);
 		mRightBorder.removeMouseMotionListener(resizingAdapter);
 		mLeftBorder.removeMouseListener(resizingAdapter);

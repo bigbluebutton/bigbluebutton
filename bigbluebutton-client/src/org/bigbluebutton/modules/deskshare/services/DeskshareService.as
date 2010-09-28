@@ -60,7 +60,6 @@ package org.bigbluebutton.modules.deskshare.services
 		public function connect(uri:String):void {
 			this.uri = uri;
 			LogUtil.debug("Deskshare Service connecting to " + uri);
-			trace("Deskshare Service connecting to " + uri);
 			conn = new Connection();
 			conn.addEventListener(Connection.SUCCESS, connectionSuccessHandler);
 			conn.addEventListener(Connection.FAILED, connectionFailedHandler);
@@ -74,19 +73,16 @@ package org.bigbluebutton.modules.deskshare.services
 									width = result.width as Number;
 									height = result.height as Number;
 									LogUtil.debug("Desk Share stream is streaming [" + width + "," + height + "]");
-									trace("Desk Share stream is streaming [" + width + "," + height + "]");
 									var event:ViewStreamEvent = new ViewStreamEvent(ViewStreamEvent.START);
 									event.videoWidth = width;
 									event.videoHeight = height;
 									dispatcher.dispatchEvent(event);
 								} else {
 									LogUtil.debug("No deskshare stream being published");
-									trace("No deskshare stream being published");
 								}
 							},
 							function(status:Object):void{
 								LogUtil.error("Error while trying to call remote mathod on server");
-								trace("Error while trying to call remote mathod on server");
 							}
 									);
 		}
@@ -110,12 +106,10 @@ package org.bigbluebutton.modules.deskshare.services
 			
 		public function connectionFailedHandler(e:ConnectionEvent):void{
 			LogUtil.error("connection failed to " + uri + " with message " + e.toString());
-			trace("connection failed to " + uri + " with message " + e.toString());
 		}
 			
 		public function connectionRejectedHandler(e:ConnectionEvent):void{
 			LogUtil.error("connection rejected " + uri + " with message " + e.toString());
-			trace("connection rejected " + uri + " with message " + e.toString());
 		}
 					
 		/**
@@ -131,7 +125,6 @@ package org.bigbluebutton.modules.deskshare.services
 		 */		
 		public function appletStarted(videoWidth:Number, videoHeight:Number):void{
 			LogUtil.debug("Got applet started");
-			trace("Got applet started");
 			var event:AppletStartedEvent = new AppletStartedEvent();
 			event.videoWidth = videoWidth;
 			event.videoHeight = videoHeight;
@@ -147,7 +140,6 @@ package org.bigbluebutton.modules.deskshare.services
 				deskSO.send("startViewing", captureWidth, captureHeight);
 			} catch(e:Error){
 				LogUtil.error("error while trying to send start viewing notification");
-				trace("error while trying to send start viewing notification");
 			}
 		}
 		
@@ -196,7 +188,7 @@ package org.bigbluebutton.modules.deskshare.services
 		 * 
 		 */		
 		public function stopViewing():void{
-			trace("Received dekskshareStreamStopped");
+			LogUtil.debug("Received dekskshareStreamStopped");
 			dispatcher.dispatchEvent(new ViewStreamEvent(ViewStreamEvent.STOP));
 		}
 		

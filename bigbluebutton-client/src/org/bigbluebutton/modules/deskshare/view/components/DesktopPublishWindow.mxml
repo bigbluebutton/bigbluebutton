@@ -23,12 +23,14 @@
   $Id: $
 --> 
 
-<MDIWindow xmlns="flexlib.mdi.containers.*" 
+<dspub:MDIWindow xmlns="flexlib.mdi.containers.*" 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
+	xmlns:dspub="flexlib.mdi.containers.*"
 	creationComplete="onCreationComplete()"
 	backgroundImage="{bbbLogo}"	
+	width="320" height="240"
 	title="{ResourceUtil.getInstance().getString('bbb.desktopPublish.title')}"
 	resizable="false">
 		
@@ -67,7 +69,8 @@
 			private var connection:NetConnection;
 			private var uri:String;
 			private var room:String;
-			private var sharing:Boolean = false;
+			private var sharingFullScreen:Boolean = false;
+			private var streaming:Boolean = false;
 			
 			private var video:Video;
 			private var ns:NetStream;
@@ -122,26 +125,32 @@
 			public function initWindow(connection:NetConnection, uri:String, room:String):void {
 				this.connection = connection;
 				this.uri = uri;
-				this.room = room;
-				startSharing(connection, uri, room);				
+				this.room = room;								
 			}
 			
-			private function startSharing(connection:NetConnection, uri:String, room:String):void {
+			private function shareScreen(fullScreen:Boolean):void {
+				startSharing(connection, uri, room, fullScreen);
+			}
+			
+			private function startSharing(connection:NetConnection, uri:String, room:String, fullScreen:Boolean):void {
 				var captureX:Number = 0;
 				var captureY:Number = 0;
 				
-				sharing = true;
-				
-				ExternalInterface.call("startApplet", uri, room, 
-										captureX, captureY, 
-										captureWidth, captureHeight);
+				sharingFullScreen = fullScreen;
+				btnFSPublish.enabled = false;
+				btnRegionPublish.enabled = false;
+				btnQuitPublish.enabled = true;
+				ExternalInterface.call("startApplet", uri, room, fullScreen);
 			}
 			
 			public function stopSharing():void{
-				sharing = false;
-				stopStream();
-				var streamEvent:StreamEvent = new StreamEvent(StreamEvent.STOP);
-				dispatchEvent(streamEvent);
+				if (streaming) {
+					stopStream();
+					var streamEvent:StreamEvent = new StreamEvent(StreamEvent.STOP);
+					dispatchEvent(streamEvent);					
+				}
+				sharingFullScreen = false;
+				streaming = false;
 					
 				ExternalInterface.call("stopApplet");
 				closeWindow();
@@ -149,9 +158,7 @@
 			
 			private function onUpdateCursorEvent(event:CursorEvent):void {	
 				cursor.x = ((event.x/captureWidth)) * videoHolder.width;
-				cursor.y = ((event.y/captureHeight)) * videoHolder.height;		
-//				cursor.visible = true;
-				
+				cursor.y = ((event.y/captureHeight)) * videoHolder.height;					
 				cursorImg.visible = true;
                 // DO NOT compute the x and y coordinate and assign directly to the cursorImg
                 // as it results in a flickering and jerky mouse pointer (ralam jun 10, 2010).
@@ -173,6 +180,7 @@
 			private function startStream(nc:NetConnection, streamName:String):void{
 				LogUtil.debug("DimensionsBox - Starting thumbnail view");
 				LogUtil.debug("connection:" + nc.uri + " stream:" + streamName);
+				streaming = true;
 				
 				videoHolder = new UIComponent();
 				video = new Video(captureWidth/SCALE, captureHeight/SCALE);
@@ -186,7 +194,7 @@
 				cursor.visible = false;
 				this.addChild(videoHolder);
 				this.width = video.width + 6;
-				this.height = video.height + 29;
+				this.height = video.height + 73;
 				
 				ns = new NetStream(nc);
 				ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
@@ -200,6 +208,7 @@
 			}
 			
 			private function stopStream():void{
+				streaming = false;
 				ns.close();
 			}
 			
@@ -251,5 +260,12 @@
 			
 		]]>
 	</mx:Script>
+		
 	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
-</MDIWindow>
+	
+	<mx:ControlBar id="bottomBar">
+		<mx:Button id="btnFSPublish" toolTip="Share your whole screen" label="Fullscreen" enabled="true" click="shareScreen(true)" />
+		<mx:Button id="btnRegionPublish" toolTip="Share a part of your screen" label="Region" enabled="true" click="shareScreen(false)" />
+		<mx:Button id="btnQuitPublish" toolTip="Quit screen share" label="Quit" enabled="false" click="stopSharing()" />
+	</mx:ControlBar>
+</dspub:MDIWindow>

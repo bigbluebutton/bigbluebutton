@@ -20,46 +20,63 @@
 package org.bigbluebutton.deskshare.client;
 
 import java.awt.image.BufferedImage;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
-public class ScreenCaptureTaker implements Runnable {	
+public class ScreenCaptureTaker {	
 	private ScreenCapture capture;
-	private IScreenCaptureListener listeners;
+	private ScreenCaptureListener listeners;
 	
 	private volatile boolean startCapture = false;
-		
-	public ScreenCaptureTaker(ScreenCapture capture){
-		this.capture = capture;
+	private final Executor screenCapTakerExec = Executors.newSingleThreadExecutor();
+	private Runnable screenCapRunner;
+	
+	public ScreenCaptureTaker(int x, int y, int captureWidth, int captureHeight, int scaleWidth, int scaleHeight, boolean quality){
+		capture = new ScreenCapture(x, y, captureWidth, captureHeight, scaleWidth, scaleHeight, quality);
+	}
+
+	public void setCaptureCoordinates(int x, int y){
+		capture.setX(x);
+		capture.setY(y);
 	}
 	
-	public void run(){		
-		while (startCapture){
-//			System.out.println("----- Taking screen capture -----");
-			long start = System.currentTimeMillis();
-			BufferedImage image = capture.takeSingleSnapshot();
-			long end = System.currentTimeMillis();
-//			System.out.println("Capture took " + (end - start) + " millis");
-			notifyListeners(image);
-			try{
-				Thread.sleep(200);
-			} catch (Exception e){
-				System.out.println("Exception sleeping.");
-			}
-		}
-		
-		System.out.println("Stopping screen capture.");		
-		listeners.screenCaptureStopped();
+	private void captureScreen() {		
+//		System.out.println("----- Taking screen capture -----");
+		long start = System.currentTimeMillis();
+		BufferedImage image = capture.takeSingleSnapshot();
+		long end = System.currentTimeMillis();
+//		System.out.println("Capture took " + (end - start) + " millis");
+		notifyListeners(image);
 	}
 	
 	private void notifyListeners(BufferedImage image) {
 		listeners.onScreenCaptured(image);
 	}
 		
-	public void addListener(IScreenCaptureListener listener) {
+	public void addListener(ScreenCaptureListener listener) {
 		listeners = listener;
+	}
+
+	private void pause(int dur) {
+		try{
+			Thread.sleep(dur);
+		} catch (Exception e){
+			System.out.println("Exception sleeping.");
+		}
 	}
 	
 	public void start() {
 		startCapture = true;
+		screenCapRunner =  new Runnable() {
+			public void run() {
+				while (startCapture){
+					captureScreen();
+					pause(200);
+				}
+				System.out.println("Stopping screen capture.");		
+			}
+		};
+		screenCapTakerExec.execute(screenCapRunner);	
 	}
 	
 	public void stop() {

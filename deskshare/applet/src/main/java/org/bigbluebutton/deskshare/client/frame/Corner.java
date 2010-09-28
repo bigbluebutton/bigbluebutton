@@ -20,6 +20,6 @@
  */
 package org.bigbluebutton.deskshare.client.frame;
 
-public enum Corner {
+enum Corner {
 	NORTHWEST, NORTHEAST, SOUTHEAST, SOUTHWEST
 }
