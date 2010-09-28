@@ -23,7 +23,7 @@
 <MDIWindow xmlns="flexlib.mdi.containers.*" 
 	       xmlns:mx="http://www.adobe.com/2006/mxml" 
 	       title="Log Window" creationComplete="displayLogMessages();"
-	       width="700" height="200" showCloseButton="true" xmlns:text="flash.text.*">
+	       showCloseButton="true" xmlns:text="flash.text.*">
 
 	<mx:Script>
 		<![CDATA[
