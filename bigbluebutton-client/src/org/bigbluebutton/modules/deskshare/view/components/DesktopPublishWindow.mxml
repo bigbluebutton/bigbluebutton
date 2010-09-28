@@ -132,9 +132,7 @@
 				
 				sharing = true;
 				
-				ExternalInterface.call("startApplet", uri, room, 
-										captureX, captureY, 
-										captureWidth, captureHeight);
+				ExternalInterface.call("startApplet", uri, room, true);
 			}
 			
 			public function stopSharing():void{
