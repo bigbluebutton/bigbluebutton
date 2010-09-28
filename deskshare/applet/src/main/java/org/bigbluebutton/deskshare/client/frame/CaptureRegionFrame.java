@@ -83,11 +83,13 @@ public class CaptureRegionFrame {
 	}
 	
 	private void startCapture() {
+		frame.changeBorderToBlue();
 		Rectangle rect = frame.getFramedRectangle();
 		client.onStartCapture(rect.x, rect.y, frame.getWidth(), frame.getHeight());
 	}
 	
 	private void stopCapture() {
+		frame.changeBorderToRed();
 		client.onStopCapture();
 	}
 }

@@ -101,8 +101,11 @@ class WindowlessFrame implements Serializable {
 
 	// properties initialized during construction
 	private final BasicStroke mBorderStroke = new BasicStroke(5, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 0, new float[] { 12, 12 }, 0);
-	private final GradientPaint mGradient = new GradientPaint(0.0f, 0.0f, Color.red, 1.0f, 1.0f, Color.white, true);
-
+	
+	private GradientPaint mGradient = new GradientPaint(0.0f, 0.0f, Color.red, 1.0f, 1.0f, Color.white, true);
+	private final GradientPaint blueGradient = new GradientPaint(0.0f, 0.0f, Color.blue, 1.0f, 1.0f, Color.white, true);
+	private final GradientPaint redGradient = new GradientPaint(0.0f, 0.0f, Color.red, 1.0f, 1.0f, Color.white, true);
+	
 	private final int mBorderWidth;
 	private final JFrame mWindowFrame;
 	private final BarFrame mTopBorder;
@@ -512,6 +515,16 @@ class WindowlessFrame implements Serializable {
 		changeAll(REPAINTER, false);
 	}
 
+	public void changeBorderToBlue() {
+		mGradient = blueGradient;
+		repaint();
+	}
+	
+	public void changeBorderToRed() {
+		mGradient = redGradient;
+		repaint();
+	}
+	
 	public static void main(String[] args) {
 		final WindowlessFrame wf = new WindowlessFrame(5);
 		wf.setHeight(300);
