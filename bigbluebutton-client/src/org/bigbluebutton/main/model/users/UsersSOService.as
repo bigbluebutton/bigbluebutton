@@ -53,7 +53,6 @@ package org.bigbluebutton.main.model.users
 		private var _participants:Conference;
 		private var _mode:String;
 		private var _room:String;
-		
 		private var _applicationURI:String;
 		
 		private var dispatcher:Dispatcher;
@@ -72,9 +71,9 @@ package org.bigbluebutton.main.model.users
 			netConnectionDelegate.connect(params);
 		}
 			
-		public function disconnect():void {
-			leave();
-			netConnectionDelegate.disconnect();
+		public function disconnect(onUserAction:Boolean):void {
+			if (_participantsSO != null) _participantsSO.close();
+			netConnectionDelegate.disconnect(onUserAction);
 		}
 		
 	    public function join(userid:Number, room:String) : void
@@ -150,11 +149,6 @@ package org.bigbluebutton.main.model.users
 			}
 			
 		}
-		
-	    private function leave():void
-	    {
-	    	if (_participantsSO != null) _participantsSO.close();
-	    }
 		
 		public function participantLeft(user:Object):void { 			
 			var participant:BBBUser = _participants.getParticipant(Number(user));
@@ -340,9 +334,9 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		private function sendConnectionFailedEvent(reason:String):void{
-			var e:ConnectionFailedEvent = new ConnectionFailedEvent();
+			/*var e:ConnectionFailedEvent = new ConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_LOST);
 			e.reason = reason;
-			dispatcher.dispatchEvent(e);
+			dispatcher.dispatchEvent(e);*/
 		}
 		
 		private function sendConnectionSuccessEvent():void{

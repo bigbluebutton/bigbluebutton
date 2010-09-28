@@ -11,14 +11,11 @@ package org.bigbluebutton.main.model.users.events
 		public static const APP_SHUTDOWN:String = "appShutdown";
 		public static const CONNECTION_REJECTED:String = "connectionRejected";
 		public static const ASYNC_ERROR:String = "asyncError";
-		
-		public static const CONNECTION_LOST:String = "connectionLost";
-		
-		public var reason:String;
-		
-		public function ConnectionFailedEvent()
+		public static const USER_LOGGED_OUT:String = "userHasLoggedOut";
+				
+		public function ConnectionFailedEvent(type:String)
 		{
-			super(CONNECTION_LOST, true, false);
+			super(type, true, false);
 		}
 	}
 }
