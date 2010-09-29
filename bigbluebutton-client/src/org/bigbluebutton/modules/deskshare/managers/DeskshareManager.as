@@ -108,7 +108,7 @@ package org.bigbluebutton.modules.deskshare.managers
 					
 		public function handleStreamStartEvent(videoWidth:Number, videoHeight:Number):void{
 			LogUtil.debug("Received start vieweing command");
-			viewWindowManager.handleStreamStartEvent(videoWidth, videoHeight);
+			viewWindowManager.startViewing(module.getRoom(), videoWidth, videoHeight);
 		}
 	}
 }

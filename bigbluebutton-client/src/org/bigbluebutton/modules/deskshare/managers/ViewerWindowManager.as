@@ -25,19 +25,14 @@ package org.bigbluebutton.modules.deskshare.managers
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import org.bigbluebutton.common.IBbbModuleWindow;
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.events.CloseWindowEvent;
 	import org.bigbluebutton.main.events.OpenWindowEvent;
-	import org.bigbluebutton.main.events.MadePresenterEvent;
-	import org.bigbluebutton.main.events.ToolbarButtonEvent;
 	import org.bigbluebutton.modules.deskshare.services.DeskshareService;
-	import org.bigbluebutton.modules.deskshare.view.components.DesktopPublishWindow;
 	import org.bigbluebutton.modules.deskshare.view.components.DesktopViewWindow;
-	import org.bigbluebutton.modules.deskshare.view.components.ToolbarButton;
-	import org.bigbluebutton.common.LogUtil;
 			
 	public class ViewerWindowManager {		
 		private var viewWindow:DesktopViewWindow;
-		private var module:DeskShareModule;
 		private var service:DeskshareService;
 		private var isViewing:Boolean = false;
 		private var globalDispatcher:Dispatcher;
@@ -46,12 +41,7 @@ package org.bigbluebutton.modules.deskshare.managers
 			this.service = service;
 			globalDispatcher = new Dispatcher();
 		}
-		
-		public function handleStartModuleEvent(module:DeskShareModule):void {
-			LogUtil.debug("ViewerWindowManager starting");
-			this.module = module;			
-		}
-			
+					
 		public function stopViewing():void {
 			if (isViewing) viewWindow.stopViewing();
 		}
@@ -79,10 +69,10 @@ package org.bigbluebutton.modules.deskshare.managers
 			globalDispatcher.dispatchEvent(event);
 		}
 			
-		public function handleStreamStartEvent(videoWidth:Number, videoHeight:Number):void{
+		public function startViewing(room:String, videoWidth:Number, videoHeight:Number):void{
 			LogUtil.debug("ViewerWindowManager::startViewing");
 			viewWindow = new DesktopViewWindow();
-			viewWindow.startVideo(service.getConnection(), module.getRoom(), videoWidth, videoHeight);
+			viewWindow.startVideo(service.getConnection(), room, videoWidth, videoHeight);
 			
 			openWindow(viewWindow);
 			isViewing = true;
