@@ -27,12 +27,12 @@ package org.bigbluebutton.modules.deskshare.services
 	import flash.net.Responder;
 	import flash.net.SharedObject;
 	
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.red5.Connection;
 	import org.bigbluebutton.common.red5.ConnectionEvent;
 	import org.bigbluebutton.modules.deskshare.events.AppletStartedEvent;
 	import org.bigbluebutton.modules.deskshare.events.CursorEvent;
 	import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
-	import org.bigbluebutton.common.LogUtil;
 	
 	/**
 	 * The DeskShareProxy communicates with the Red5 deskShare server application 
@@ -45,20 +45,24 @@ package org.bigbluebutton.modules.deskshare.services
 		private var nc:NetConnection;
 		private var deskSO:SharedObject;
 		private var responder:Responder;
-		
+		private var module:DeskShareModule;
 		private var dispatcher:Dispatcher;
 		
 		private var width:Number;
 		private var height:Number;
-		private var uri:String;
 		
 		public function DeskshareService()
 		{
 			this.dispatcher = new Dispatcher();			
 		}
 		
+		public function handleStartModuleEvent(module:DeskShareModule):void {
+			LogUtil.debug("Deskshare Module starting");
+			this.module = module;			
+			connect(module.uri);
+		}
+		
 		public function connect(uri:String):void {
-			this.uri = uri;
 			LogUtil.debug("Deskshare Service connecting to " + uri);
 			conn = new Connection();
 			conn.addEventListener(Connection.SUCCESS, connectionSuccessHandler);
@@ -92,8 +96,9 @@ package org.bigbluebutton.modules.deskshare.services
 		}
 		
 		private function connectionSuccessHandler(e:ConnectionEvent):void{
+			LogUtil.debug("Successully connection to " + module.uri);
 			nc = conn.getConnection();
-			deskSO = SharedObject.getRemote("deskSO", uri, false);
+			deskSO = SharedObject.getRemote("deskSO", module.uri, false);
             deskSO.client = this;
             deskSO.connect(nc);
             
@@ -105,11 +110,11 @@ package org.bigbluebutton.modules.deskshare.services
 		}
 			
 		public function connectionFailedHandler(e:ConnectionEvent):void{
-			LogUtil.error("connection failed to " + uri + " with message " + e.toString());
+			LogUtil.error("connection failed to " + module.uri + " with message " + e.toString());
 		}
 			
 		public function connectionRejectedHandler(e:ConnectionEvent):void{
-			LogUtil.error("connection rejected " + uri + " with message " + e.toString());
+			LogUtil.error("connection rejected " + module.uri + " with message " + e.toString());
 		}
 					
 		/**
