@@ -54,8 +54,8 @@
 	</EventHandlers>
 	
 	<EventHandlers type="{PresentModuleEvent.START_MODULE}" >
-		<MethodInvoker generator="{PresentManager}" method="handleStartModuleEvent" />
 		<MethodInvoker generator="{PresentProxy}" method="connect" arguments="{event}" />
+		<MethodInvoker generator="{PresentManager}" method="handleStartModuleEvent" />
 	</EventHandlers>
 	
 	<EventHandlers type="{PresentModuleEvent.STOP_MODULE}" >
