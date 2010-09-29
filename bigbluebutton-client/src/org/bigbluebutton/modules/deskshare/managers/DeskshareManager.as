@@ -41,8 +41,6 @@ package org.bigbluebutton.modules.deskshare.managers
 		private var service:DeskshareService;
 		private var globalDispatcher:Dispatcher;
 		
-		private var buttonShownOnToolbar:Boolean = false;
-		
 		public function DeskshareManager()
 		{
 			service = new DeskshareService();
@@ -79,34 +77,17 @@ package org.bigbluebutton.modules.deskshare.managers
 			notifyOthersToStopViewing();			
 		}
 
-		/*
-		 * Notify other participants to stop viewing this participant's stream.
-		 */	
 		private function notifyOthersToStopViewing():void {
-			LogUtil.debug("notifyOthersToStopViewing()");
-//			if (isSharing) {
-//				button.enabled = true;
-//				service.sendStopViewingNotification();
-//				isSharing = false;
-//			}			
+			LogUtil.debug("notifyOthersToStopViewing()");		
 		}
 										
-		/* 
-		 * Show the deskshare toolbar if this participant becomes the presenter.
-		 */	
 		public function handleMadePresenterEvent(e:MadePresenterEvent):void{
 			LogUtil.debug("Got MadePresenterEvent ");
 			toolbarButtonManager.addToolbarButton();
 		}
 		
-		/* 
-		 * Show the deskshare toolbar if this participant becomes a viewer.
-		 */	
 		public function handleMadeViewerEvent(e:MadePresenterEvent):void{
 			LogUtil.debug("Got MadeViewerEvent ");
-			// stop sharing
-			// close window
-			// remove toolbar
 			toolbarButtonManager.removeToolbarButton();
 		}
 		

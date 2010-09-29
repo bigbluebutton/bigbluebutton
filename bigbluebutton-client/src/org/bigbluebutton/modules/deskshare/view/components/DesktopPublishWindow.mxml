@@ -209,6 +209,9 @@
 			
 			private function stopStream():void{
 				streaming = false;
+				this.removeChild(videoHolder);
+				captureHeight = Capabilities.screenResolutionY;
+				captureWidth = Capabilities.screenResolutionX;
 				ns.close();
 			}
 			
@@ -255,7 +258,7 @@
 			}
 			
 			private function closePublishWindow(event:ViewStreamEvent):void{
-				close();
+				stopStream();
 			}
 			
 		]]>
