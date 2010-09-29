@@ -101,11 +101,7 @@ package org.bigbluebutton.main.model.users
 							for(var p:Object in result.participants) 
 							{
 								participantJoined(result.participants[p]);
-							}		
-							//notifyConnectionStatusListener(true, ViewersModuleConstants.QUERY_PARTICIPANTS_REPLY);
-							trace("Am I the only moderator?");
-							LogUtil.debug("Am I the only moderator?");
-							becomePresenterIfLoneModerator();				
+							}
 						}	
 						
 					},	
@@ -129,25 +125,6 @@ package org.bigbluebutton.main.model.users
 			if (userid == _participants.me.userid){
 				dispatcher.dispatchEvent(new LogoutEvent(LogoutEvent.USER_LOGGED_OUT));
 			}
-		}
-		
-		private function becomePresenterIfLoneModerator():void {
-			if (_participants.hasOnlyOneModerator()) {
-				trace("There is only one moderator");
-				var user:BBBUser = _participants.getTheOnlyModerator();
-				if (user.me) {
-					trace("I am the only moderator");
-					var presenterEvent:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
-					presenterEvent.userid = user.userid;
-					presenterEvent.username = user.name;
-					dispatcher.dispatchEvent(presenterEvent);
-				} else {
-					trace("The moderator is not me");
-				}
-			} else {
-				trace("I am not the only moderator");
-			}
-			
 		}
 		
 		public function participantLeft(user:Object):void { 			
