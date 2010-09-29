@@ -23,7 +23,7 @@
 			
 			[Bindable]
 			private var backgroundColor:uint = 0x000000;
-			private var lastSenderName:String = "";
+			private var lastSenderId:String = "";
 			private var lastTime:String = "";
 			
 			[Bindable] private var messages:ArrayCollection = new ArrayCollection();
@@ -39,8 +39,9 @@
 				var components:Array = message.split("|");
 				
 				msg = new Object();
-				msg.lastSenderName = lastSenderName;
-				lastSenderName = components[1];
+				msg.lastSenderId = lastSenderId;
+				lastSenderId = components[5];
+				msg.senderId = components[5];
 				
 				msg.senderLanguage = components[4].toString();
 				msg.recepientLanguage = language.toString();
