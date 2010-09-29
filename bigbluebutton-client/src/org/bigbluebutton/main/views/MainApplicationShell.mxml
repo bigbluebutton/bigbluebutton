@@ -33,7 +33,7 @@
 	<mate:Listener type="{OpenWindowEvent.OPEN_WINDOW_EVENT}" method="handleOpenWindowEvent" />	
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="handleCloseWindowEvent"/>
 	<mate:Listener type="{AddUIComponentToMainCanvas.ADD_COMPONENT}" method="addComponentToCanvas" />
-	
+	<mate:Listener type="{AppVersionEvent.APP_VERSION_EVENT}" method="handleApplicationVersionEvent" />
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_LOST}" method="handleLogout" />
 	<mate:Listener type="{LogoutEvent.USER_LOGGED_OUT}" method="handleLogout" />
 
@@ -41,6 +41,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.main.events.AppVersionEvent;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.events.MouseEvent;
@@ -106,6 +107,10 @@
 				stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
 				dispState = stage.displayState;
 			}					
+			
+			private function handleApplicationVersionEvent(event:AppVersionEvent):void {
+				appVersion = event.appVersion;
+			}
 			
 			private function fullScreenHandler(evt:FullScreenEvent):void {
 				dispState = stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
