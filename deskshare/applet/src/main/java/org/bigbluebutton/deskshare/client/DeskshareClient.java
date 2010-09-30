@@ -171,6 +171,9 @@ public class DeskshareClient {
     		} else {
     			setupCaptureRegion();
     		}
+    		
+//    		rescaleIfNeeded();
+    		
     		ScreenShareInfo ssi = new ScreenShareInfo();
     		ssi.host = host;
     		ssi.port = port;
@@ -190,6 +193,13 @@ public class DeskshareClient {
     		return new DeskshareClient(ssi);
     	}
     	
+    	private void rescaleIfNeeded() {
+    		if (captureWidth > 1280) {
+    			scaleWidth = 1280;
+    			
+    		}
+    	}
+    	
     	private void setupCaptureRegion() {
     		if (captureWidth > 0 && captureHeight > 0) {
     			if (x < 0 || y < 0) {
@@ -198,11 +208,11 @@ public class DeskshareClient {
         			y = ((int) fullScreenSize.getHeight() - captureHeight) / 2;    				
     			}
     			
-    			calculateDimensionsToMaintainAspectRation();
+    			calculateDimensionsToMaintainAspectRatio();
     		}
     	}
     	
-    	private void calculateDimensionsToMaintainAspectRation() {
+    	private void calculateDimensionsToMaintainAspectRatio() {
     		if (scaleWidth > 0 && scaleHeight > 0) {
     			if (aspectRatio) {
     				recalculateScaleDimensionsToMaintainAspectRatio();
@@ -220,7 +230,7 @@ public class DeskshareClient {
     		x = 0;
     		y = 0;
     		
-    		calculateDimensionsToMaintainAspectRation();
+    		calculateDimensionsToMaintainAspectRatio();
     	}
     	
     	private void recalculateScaleDimensionsToMaintainAspectRatio() {

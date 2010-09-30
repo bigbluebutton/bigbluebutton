@@ -45,7 +45,9 @@ public class DeskShareApplet extends JApplet implements ClientListener {
     
     public boolean isSharing = false;
     
+    @Override
 	public void init() {		
+    	System.out.println("Desktop Sharing Applet Initializing");
 		hostValue = getParameter("IP");
 		String port = getParameter("PORT");
 		if (port != null) portValue = Integer.parseInt(port);
@@ -53,49 +55,47 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 
 		String captureFullScreen = getParameter("FULL_SCREEN");
 		if (captureFullScreen != null) fullScreenValue = Boolean.parseBoolean(captureFullScreen);
-		
+
 		String tunnel = getParameter("HTTP_TUNNEL");
 		if (tunnel != null) tunnelValue = Boolean.parseBoolean(tunnel);
 		icon = getImage(getCodeBase(), "bbb.gif");
 	}
 		
+	@Override
 	public void start() {		 	
+		System.out.println("Desktop Sharing Applet Starting");
+		super.start();
 		client = new DeskshareClient.NewBuilder().host(hostValue).port(portValue)
-							.room(roomValue).captureWidth(cWidthValue)
-							.captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue)
-							.quality(qualityValue).aspectRatio(aspectRatioValue)
-							.x(xValue).y(yValue).fullScreen(fullScreenValue)
-							.httpTunnel(tunnelValue).trayIcon(icon).enableTrayIconActions(false).build();
+					.room(roomValue).captureWidth(cWidthValue)
+					.captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue)
+					.quality(qualityValue).aspectRatio(aspectRatioValue)
+					.x(xValue).y(yValue).fullScreen(fullScreenValue)
+					.httpTunnel(tunnelValue).trayIcon(icon).enableTrayIconActions(false).build();
 		client.addClientListener(this);
 		client.start();
 	}
 	
-	public void setDimensions(int X, int Y, int width, int height){
-		cWidthValue = width;
-		cHeightValue = height;
-		xValue = X;
-		yValue = Y;
-		sWidthValue = width;
-		sHeightValue = height;
+	public void stopDeskshareApplet() {
+		System.out.println("stopDeskshareApplet");
+		client.stop();
 	}
 				
-	/**
-	 * This method is called when the user closes the browser window containing the applet
-	 * It is very important that the connection to the server is closed at this point. That way the server knows to
-	 * close the stream.
-	 */
+	@Override
 	public void destroy() {
-		System.out.println(NAME + "Destroy");
-		stop();
+		System.out.println("Desktop Sharing Applet Destroy");
+		stopDeskshareApplet();
+//		super.destroy();
 	}
 
+	@Override
 	public void stop() {
-		System.out.println(NAME + "Stop");
-		client.stop();			
+		System.out.println("Desktop Sharing Applet Stopping");
+		stopDeskshareApplet();		
+//		super.stop();
 	}
 	
 	public void onClientStop(ExitCode reason) {
-		stop();
+		stopDeskshareApplet();
 	}
 	
 }

@@ -93,8 +93,7 @@
 				
 				cursor = new Sprite();
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
-				cursor.graphics.drawCircle(0,0,3);
-				
+				cursor.graphics.drawCircle(0,0,3);				
 			}
 			
 			public function get defaultWidth():int{
@@ -152,7 +151,7 @@
 				sharingFullScreen = false;
 				streaming = false;
 					
-				ExternalInterface.call("stopApplet");
+				
 				closeWindow();
 			}
 			
@@ -239,7 +238,8 @@
 				closeWindow();
 			}
 
-			private function closeWindow():void {				
+			private function closeWindow():void {			
+				ExternalInterface.call("stopApplet");	
 				dispatchEvent(new ShareWindowEvent(ShareWindowEvent.CLOSE));				
 			}		
 				

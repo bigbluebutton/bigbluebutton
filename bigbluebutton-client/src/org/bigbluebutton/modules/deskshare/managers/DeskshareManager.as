@@ -40,6 +40,7 @@ package org.bigbluebutton.modules.deskshare.managers
 		private var module:DeskShareModule;
 		private var service:DeskshareService;
 		private var globalDispatcher:Dispatcher;
+		private var sharing:Boolean = false;
 		
 		public function DeskshareManager()
 		{
@@ -84,21 +85,25 @@ package org.bigbluebutton.modules.deskshare.managers
 		public function handleMadePresenterEvent(e:MadePresenterEvent):void{
 			LogUtil.debug("Got MadePresenterEvent ");
 			toolbarButtonManager.addToolbarButton();
+			sharing = false;
 		}
 		
 		public function handleMadeViewerEvent(e:MadePresenterEvent):void{
 			LogUtil.debug("Got MadeViewerEvent ");
 			toolbarButtonManager.removeToolbarButton();
+			sharing = false;
 		}
 		
 		public function handleStartSharingEvent():void {
 			LogUtil.debug("DeskshareManager::handleStartSharingEvent");
 			publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom());
+			sharing = true;
 		}
 		
 		public function handleShareWindowCloseEvent():void {
 			toolbarButtonManager.enableToolbarButton();
 			publishWindowManager.handleShareWindowCloseEvent();
+			sharing = false;
 		}
 					
 		public function handleViewWindowCloseEvent():void {
@@ -107,6 +112,7 @@ package org.bigbluebutton.modules.deskshare.managers
 		}
 					
 		public function handleStreamStartEvent(videoWidth:Number, videoHeight:Number):void{
+			if (sharing) return;
 			LogUtil.debug("Received start vieweing command");
 			viewWindowManager.startViewing(module.getRoom(), videoWidth, videoHeight);
 		}
