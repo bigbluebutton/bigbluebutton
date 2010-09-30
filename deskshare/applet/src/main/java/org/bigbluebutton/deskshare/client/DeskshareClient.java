@@ -227,10 +227,10 @@ public class DeskshareClient {
     		java.awt.Dimension fullScreenSize = Toolkit.getDefaultToolkit().getScreenSize();
     		captureWidth = (int) fullScreenSize.getWidth();
     		captureHeight = (int) fullScreenSize.getHeight();
+    		scaleWidth = captureWidth;
+    		scaleHeight = captureHeight;
     		x = 0;
     		y = 0;
-    		
-    		calculateDimensionsToMaintainAspectRatio();
     	}
     	
     	private void recalculateScaleDimensionsToMaintainAspectRatio() {
