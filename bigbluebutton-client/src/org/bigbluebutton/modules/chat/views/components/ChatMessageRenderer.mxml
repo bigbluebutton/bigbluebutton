@@ -27,7 +27,8 @@
 			 * data.color - The color of the text as choosen by the sender
 			 */
 			
-			[Bindable] private var lastSenderName:String;
+			[Bindable] private var senderId:String;
+			[Bindable] private var lastSenderId:String;
 			[Bindable] private var senderName:String
 			[Bindable] private var senderTime:String;
 			[Bindable] private var time:String;
@@ -50,7 +51,8 @@
 			
 			private function dataChangeHandler(e:Event = null):void{
 				if (data == null) return;
-				lastSenderName = data.lastSenderName;
+				senderId = data.senderId;
+				lastSenderId = data.lastSenderId;
 				senderName = data.name;
 				senderTime = data.senderTime;
 				time = data.time;
@@ -90,8 +92,8 @@
 		]]>
 	</mx:Script>
 	
-	<mx:Label maxWidth="50" width="50" truncateToFit="true" id="lblName" text="{senderName}" visible="{!(senderName == lastSenderName)}" color="gray" />
+	<mx:Label maxWidth="50" width="50" truncateToFit="true" id="lblName" text="{senderName}" visible="{!(senderId == lastSenderId)}" color="gray" />
 	<mx:Text id="txtMessage" htmlText="{rolledOver ? senderText : text}" link="onLinkClick(event)" color="{data.color}"
 			 rollOver="onRollOver()" rollOut="onRollOut()" width="100%" />
-	<mx:Label id="lblTime" text="{rolledOver ? senderTime : time}" visible="{!(lastTime == time) || !(senderName == lastSenderName)}" color="gray" />
+	<mx:Label id="lblTime" text="{rolledOver ? senderTime : time}" visible="{!(lastTime == time) || !(senderId == lastSenderId)}" color="gray" />
 </mx:HBox>

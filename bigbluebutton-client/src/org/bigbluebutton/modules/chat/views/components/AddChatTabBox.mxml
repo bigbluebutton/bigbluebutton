@@ -130,7 +130,10 @@
 			private function init():void{
 				participants = new ArrayCollection();
 				
-				var language:String = (ExternalInterface.call('getLanguage') as String).split("_")[0];
+				var langCode:String = (ExternalInterface.call('getLanguage') as String);
+				if (langCode == null) return;
+				
+				var language:String = langCode.split("_")[0];
 				if (langCodes.indexOf(language) != -1){
 					langComboBox.selectedIndex = langCodes.indexOf(language);
 					changeLanguage();

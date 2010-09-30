@@ -27,12 +27,14 @@
 	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarButtonEvent" />	
 	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarButtonEvent"/>
 	<mate:Listener type="EndMeetingKickAllEvent" method="handleEndMeetingEvent"/>
-	<mate:Listener type="{LogoutEvent.USER_LOGGED_OUT}" method="hideToolbar" />
+	<mate:Listener type="{ConnectionFailedEvent.USER_LOGGED_OUT}" method="hideToolbar" />
 	<mate:Listener type="{SuccessfulLoginEvent.USER_LOGGED_IN}" method="loginSuccess" />
 	<mate:Listener type="{ConfigEvent.CONFIG_EVENT}" method="gotConfigParameters" />
 	
 	<mx:Script>
 		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
 			import mx.controls.Alert;
 			
 			import org.bigbluebutton.main.events.BBBEvent;
@@ -41,6 +43,7 @@
 			import org.bigbluebutton.main.events.LogoutEvent;
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 			import org.bigbluebutton.main.events.ToolbarButtonEvent;
+			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";
@@ -72,7 +75,7 @@
 				dispatchEvent(new LogoutEvent(LogoutEvent.USER_LOGGED_OUT));
 			}
 			
-			private function hideToolbar(e:LogoutEvent):void{
+			private function hideToolbar(e:ConnectionFailedEvent):void{
 				this.visible = false;
 			}
 			
@@ -93,6 +96,12 @@
 				langSelector.visible = e.config.languageEnabled;
 			}
 			
+			private function onDisconnectTest():void{
+				var d:Dispatcher = new Dispatcher();
+				var e:LogoutEvent = new LogoutEvent(LogoutEvent.DISCONNECT_TEST);
+				d.dispatchEvent(e);
+			}
+			
 		]]>
 	</mx:Script>	
 	<mx:HBox id="addedBtns">
@@ -101,6 +110,7 @@
 	<views:LanguageSelector id="langSelector" visible="false" />
 	<mx:LinkButton label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" click="onHelpButtonClicked()"/>
 	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn')}" id="btnLogout" 
-			   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="doLogout()"/>		
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="doLogout()"/>
+	<!--<mx:Button id="disconnectTest" label="Disconnect Test" click="onDisconnectTest()" />-->
 	
 </mx:ApplicationControlBar>

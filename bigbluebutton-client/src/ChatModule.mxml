@@ -133,12 +133,12 @@
 			private function handleTranscriptLoadedEvent(event:Event):void {
 				LogUtil.debug("Handling TranscriptLoadedEvent");
 				var welcome:String = _attributes.welcome as String;
-				/*if (welcome != ""){
+				if (welcome != ""){
 					var welcomeEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
 					welcomeEvent.message = welcome + "|" + " " + "|" + "0" + "|" + "00:00" + "|" + "en";
 					var globalDispatcher:Dispatcher = new Dispatcher();
 					globalDispatcher.dispatchEvent(welcomeEvent);
-				}	*/
+				}	
 			}
 		]]>
 	</mx:Script>
