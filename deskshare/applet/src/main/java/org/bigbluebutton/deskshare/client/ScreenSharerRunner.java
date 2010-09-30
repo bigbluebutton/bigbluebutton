@@ -12,8 +12,8 @@ public class ScreenSharerRunner {
 	
 	private ScreenCaptureTaker captureTaker;
 	private BlockManager blockManager;
-	private int blockWidth = 64;
-	private int blockHeight = 64;	
+	private int blockWidth = 32;
+	private int blockHeight = 32;	
 	boolean connected = false;
 	private boolean started = false;
 	private NetworkStreamSender sender;

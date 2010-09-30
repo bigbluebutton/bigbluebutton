@@ -404,9 +404,9 @@ class WindowlessFrame implements Serializable {
 				component.addMouseListener(movingAdapter);
 				component.addMouseMotionListener(movingAdapter);
 			}
-		}, false);
+		}, false);	
 	}
-	
+		
 	public final MouseAdapter createMovingMouseListener() {
 		return new WindowlessFrameMovingMouseListener();
 	}
@@ -507,7 +507,7 @@ class WindowlessFrame implements Serializable {
 	}
 
 	private void changeAll(PropertyChanger pc, boolean repaint) {
-		pc.changeOn(mToolbarFrame);
+		if (mToolbarFrame != null) pc.changeOn(mToolbarFrame);
 		changeBarFrames(pc, repaint);
 	}
 
@@ -538,7 +538,7 @@ class WindowlessFrame implements Serializable {
 	}
 	
 	public void removeResizeListeners() {
-		mRightBorder.removeMouseListener(resizingAdapter);
+/*		mRightBorder.removeMouseListener(resizingAdapter);
 		mRightBorder.removeMouseMotionListener(resizingAdapter);
 		mLeftBorder.removeMouseListener(resizingAdapter);
 		mLeftBorder.removeMouseMotionListener(resizingAdapter);
@@ -546,6 +546,14 @@ class WindowlessFrame implements Serializable {
 		mTopBorder.removeMouseMotionListener(resizingAdapter);
 		mBottomBorder.removeMouseListener(resizingAdapter);
 		mBottomBorder.removeMouseMotionListener(resizingAdapter);
+		repaint();
+*/		
+		System.out.println("Removing listeners......................");
+		mToolbarFrame.setVisible(false);
 	}
 
+	public void addResizeListeners() {
+		System.out.println("Adding listeners......................");
+		mWindowFrame.add(mToolbarFrame);
+	}
 }

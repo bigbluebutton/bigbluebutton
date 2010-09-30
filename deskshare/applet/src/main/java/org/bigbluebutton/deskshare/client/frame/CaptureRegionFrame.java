@@ -67,15 +67,15 @@ public class CaptureRegionFrame {
 		btnStartStop.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (capturing) {
-					capturing = false;
-					btnStartStop.setLabel("Start Capture");
-					stopCapture();
-				} else {
-					capturing = true;
-					btnStartStop.setLabel("Stop Capture");
+//				if (capturing) {
+//					capturing = false;
+//					btnStartStop.setLabel("Start Capture");
+//					stopCapture();
+//				} else {
+//					capturing = true;
+//					btnStartStop.setLabel("Stop Capture");
 					startCapture();
-				}					
+//				}					
 			}
 		});
 		panel.add(btnStartStop);
@@ -84,11 +84,12 @@ public class CaptureRegionFrame {
 	
 	private void startCapture() {
 		frame.changeBorderToBlue();
+		frame.removeResizeListeners();
 		Rectangle rect = frame.getFramedRectangle();
 		client.onStartCapture(rect.x, rect.y, frame.getWidth(), frame.getHeight());
 	}
 	
-	private void stopCapture() {
+	private void stopCapture() {		
 		frame.changeBorderToRed();
 		client.onStopCapture();
 	}
