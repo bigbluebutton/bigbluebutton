@@ -63,7 +63,7 @@ public class CaptureRegionFrame {
 		final JPanel panel = new JPanel();
 		panel.setLayout(new FlowLayout());
 		capturing = false;
-		btnStartStop = new Button("Start Capture");
+		btnStartStop = new Button("Start Sharing");
 		btnStartStop.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
