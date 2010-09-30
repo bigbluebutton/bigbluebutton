@@ -74,28 +74,23 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 		client.addClientListener(this);
 		client.start();
 	}
-	
-	public void stopDeskshareApplet() {
-		System.out.println("stopDeskshareApplet");
-		client.stop();
-	}
-				
+			
 	@Override
 	public void destroy() {
 		System.out.println("Desktop Sharing Applet Destroy");
-		stopDeskshareApplet();
-//		super.destroy();
+		client.stop();
+		super.destroy();
 	}
 
 	@Override
 	public void stop() {
 		System.out.println("Desktop Sharing Applet Stopping");
-		stopDeskshareApplet();		
-//		super.stop();
+		client.stop();	
+		super.stop();
 	}
 	
 	public void onClientStop(ExitCode reason) {
-		stopDeskshareApplet();
+		client.stop();	
 	}
 	
 }
