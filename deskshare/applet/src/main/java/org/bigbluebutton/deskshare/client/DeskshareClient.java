@@ -192,23 +192,15 @@ public class DeskshareClient {
     		ssi.enableTrayActions = enableTrayActions;
     		return new DeskshareClient(ssi);
     	}
-    	
-    	private void rescaleIfNeeded() {
-    		if (captureWidth > 1280) {
-    			scaleWidth = 1280;
-    			
-    		}
-    	}
-    	
+    	    	
     	private void setupCaptureRegion() {
     		if (captureWidth > 0 && captureHeight > 0) {
-    			if (x < 0 || y < 0) {
         			java.awt.Dimension fullScreenSize = Toolkit.getDefaultToolkit().getScreenSize();
         			x = ((int) fullScreenSize.getWidth() - captureWidth) / 2;
-        			y = ((int) fullScreenSize.getHeight() - captureHeight) / 2;    				
-    			}
-    			
-    			calculateDimensionsToMaintainAspectRatio();
+        			y = ((int) fullScreenSize.getHeight() - captureHeight) / 2;    
+        			System.out.println("Info[" + captureWidth + "," + captureHeight + "][" + x + "," + y +"]"
+        					+ "[" + fullScreenSize.getWidth() + "," + fullScreenSize.getHeight() + "]");
+//    			calculateDimensionsToMaintainAspectRatio();
     		}
     	}
     	
