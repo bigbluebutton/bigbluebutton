@@ -38,8 +38,9 @@
 			}
 			
             private function redirect():void { 
+            	var pageHost:String = mx.core.Application.application.url.split("/")[0];
             	var pageURL:String = mx.core.Application.application.url.split("/")[2];
-            	var url:URLRequest = new URLRequest("http://" + pageURL + "/bigbluebutton/api/signOut");
+            	var url:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
             	LogUtil.debug("Log out url: " + pageURL);
 				navigateToURL(url, '_self');
             	PopUpManager.removePopUp(this);
