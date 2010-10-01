@@ -30,6 +30,7 @@ public class ScreenRegionSharer implements ScreenSharer {
 	}
 	
 	public void stop() {
+		frame.setVisible(false);	
 		sharer.stopSharing();
 		System.out.println(NAME + "Closing Screen Capture Frame");
 	}
