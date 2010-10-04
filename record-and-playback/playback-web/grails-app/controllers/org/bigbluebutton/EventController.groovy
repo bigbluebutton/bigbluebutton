@@ -9,7 +9,7 @@ class EventController {
 
     def dataSource
 
-    def conferences = {
+    /*def conferences = {
         groovy.sql.Sql sql = new groovy.sql.Sql(dataSource)
 
         def conferenceNames = new ArrayList()
@@ -32,6 +32,29 @@ class EventController {
                 render conferenceNames as JSON
             }
         }
+    }*/
+    def conferences = {
+        String PATH_DIR="/var/bigbluebutton"
+        String MANIFEST="manifest.xml"
+        File f = new File(PATH_DIR)
+        String[] files=f.list()
+        Hashtable confs=new Hashtable()
+
+        for(String filename in files){
+            System.out.println(filename)
+            String filepath=PATH_DIR+"/"+filename+"/"+filename+"/"+MANIFEST
+            if((new File(filepath)).exists())
+                confs.put(filename,filepath)
+        }
+        withFormat{
+            xml{
+                render confs as XML
+            }
+            json{
+                render confs as JSON
+            }
+        }
+
     }
 
     def json = {

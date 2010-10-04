@@ -59,7 +59,8 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatEventRecorder.class
 	@Override
 	public void recordEvent(String message) {
 		if(record){
-			recorder.recordEvent(parseChatToJSON(message));
+			//recorder.recordEvent(parseChatToJSON(message));
+			recorder.recordEvent(parseChatToXML(message));
 		}
 	}
 

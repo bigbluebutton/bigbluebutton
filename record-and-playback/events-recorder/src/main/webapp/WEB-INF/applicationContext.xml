@@ -17,7 +17,7 @@
        <bean id="dataAccessProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
            <property name="location" value="/WEB-INF/application.properties"/>
        </bean>
-       <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+       <!--  bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
            <property name="driverClassName" value="${jdbc.driver}" />
            <property name="url" value="${jdbc.url}" />
            <property name="username" value="${jdbc.username}" />
@@ -31,11 +31,12 @@
 
        <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
            <constructor-arg ref="dataSource" />
-       </bean>
+       </bean-->
 
        <!-- Class MessageListener -->
        <bean id="messageClient" class="org.bigbluebutton.recorder.EventListener">
-           <property name="jdbcTemplate" ref="jdbcTemplate" />
+           <!--  property name="jdbcTemplate" ref="jdbcTemplate" /-->
+           <property name="pathConferences" value="${path.dir}" />
        </bean>
 
        <!-- Integration Connection, Queue, MessageListener -->
@@ -43,7 +44,7 @@
            <property name="connectionFactory" ref="connectionFactory" />
            <property name="destination" ref="jmsDest" />
            <property name="messageListener" ref="messageClient" />
-           <property name="transactionManager" ref="transactionManager"/>
+           <!--  property name="transactionManager" ref="transactionManager"/-->
        </bean>
 
 </beans>
