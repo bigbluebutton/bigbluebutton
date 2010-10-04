@@ -33,7 +33,7 @@
 #	2010-06-25 SEB  Added ability to change the security salt
 #	2010-06-30 SEB	Added some extra errorchecking
 #	2010-07-06 SEB	Added more errorchecking and report messages
-#	2010-09-15 FFD	Updates for 0.71
+#	2010-09-15 FFD	Updates for 0.71-dev
 
 #set -x
 
@@ -994,11 +994,32 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 	if ! wget http://$NGINX_IP/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then 
 		echo 
 		echo "  This server could not connect to BigBlueButton through http://$NGINX_IP/"
-		echo "  If you are setting up BigBlueButton behind a firewall, recommend you put"
-		echo "  Recommend you put an entry into /etc/hosts for:"
-		echo "  $IP   $NGINX_IP"
+		echo 
+		echo "  If you are setting up BigBlueButton behind a firewall, see the FAQ"
+		echo "  for steps to setup BigBlueButton behind a firewall."
+		echo "  	http://code.google.com/p/bigbluebutton/wiki/FAQ"
 		echo
 	fi
+
+	#
+	# Check that BigBlueButton can connect to port 80, 1935, and 9123
+	#
+
+	if ! nc -z -w 3 $NGINX_IP 80; then
+		echo 
+		echo "Unable to connect to port 80 on $NGINX_IP"
+	fi
+	
+	if ! nc -z -w 3 $NGINX_IP 1935; then
+		echo 
+		echo "Unable to connect to port 1935 (RTMP) on $NGINX_IP"
+	fi
+
+	if ! nc -z -w 3 $NGINX_IP 9123; then
+		echo 
+		echo "Unable to connect to port 9123 (desktop sharing) on $NGINX_IP"
+	fi
+
 
 	exit 0
 }
@@ -1010,22 +1031,25 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 # TODO:
 # Check if asterisk and freeswitch are running
 if [ $CHECK ]; then
-        echo "Current Configuration:"
-	echo "Kernel version: " `uname -r`
-	if [ `uname -m` == "x86_64" ]; then
-		echo "The architecture is 64bit."
-	elif [ `uname -m` == "x86" ]; then
-		echo "The architecture is 32bit."
-	fi
-	MEM=`free -m | grep Mem | awk '{ print $2}'`
-	echo "Memory: $MEM MB"
+	echo "Server"
+	echo "                    Kernel version:" `uname -r`
 
 	if [ -e /etc/lsb-release ]; then
-		cat /etc/lsb-release;
+		source /etc/lsb-release;
+		echo -n "                      Distribution: $DISTRIB_DESCRIPTION "
 	fi
 
+	if [ `uname -m` == "x86_64" ]; then
+		echo "64bit"
+	elif [ `uname -m` == "x86" ]; then
+		echo "32bit"
+	fi
+
+	MEM=`free -m | grep Mem | awk '{ print $2}'`
+	echo "                            Memory: $MEM MB"
+
         echo
-        echo "/var/www/bigbluebutton/client/conf/config.xml:"
+        echo "/var/www/bigbluebutton/client/conf/config.xml"
         IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/porttest /{s/.*host="//;s/".*//;p}')
         echo "  		Port test (tunnel): $IP"
 
@@ -1253,8 +1277,9 @@ if [ -n "$HOST" ]; then
 	sudo sed -i "s/bigbluebutton.web.serverURL=http:\/\/.*/bigbluebutton.web.serverURL=http:\/\/$HOST/g" \
 				/var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
 
-# 3 paramenter: the file, the variable name, the new value
-	change_var_ip /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties esl.host $HOST
+        # 3 paramenter: the file, the variable name, the new value
+	# echo "Assigning $HOST for FreeSWITCH Event Socket Layer URL in /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties"
+	# change_var_ip /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties esl.host $HOST
 
 	# cat /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
 
