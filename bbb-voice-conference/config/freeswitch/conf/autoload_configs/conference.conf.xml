@@ -106,7 +106,7 @@
       <param name="rate" value="16000"/>
       <param name="interval" value="20"/>
       <param name="energy-level" value="300"/>
-      <param name="member-flags" value="mute"/>
+      <param name="member-flags" value="waste"/>
       <param name="sound-prefix" value="$${sounds_dir}/en/us/callie"/>
       <param name="muted-sound" value="conference/conf-muted.wav"/>
       <param name="unmuted-sound" value="conference/conf-unmuted.wav"/>

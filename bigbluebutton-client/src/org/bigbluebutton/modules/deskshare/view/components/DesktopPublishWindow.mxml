@@ -136,9 +136,9 @@
 				var captureY:Number = 0;
 				
 				sharingFullScreen = fullScreen;
-				btnFSPublish.enabled = false;
-				btnRegionPublish.enabled = false;
-				btnQuitPublish.enabled = true;
+				btnFSPublish.visible = false;
+				btnRegionPublish.visible = false;
+				btnClosePublish.visible = true;
 				ExternalInterface.call("startApplet", uri, room, fullScreen);
 			}
 			
@@ -263,12 +263,15 @@
 			
 		]]>
 	</mx:Script>
-		
+			
 	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
 	
 	<mx:ControlBar id="bottomBar">
-		<mx:Button id="btnFSPublish" toolTip="Share your whole screen" label="Fullscreen" enabled="true" click="shareScreen(true)" />
-		<mx:Button id="btnRegionPublish" toolTip="Share a part of your screen" label="Region" enabled="true" click="shareScreen(false)" />
-		<mx:Button id="btnQuitPublish" toolTip="Quit screen share" label="Quit" enabled="false" click="stopSharing()" />
+		<mx:Button id="btnFSPublish" toolTip="Share your whole screen" label="Fullscreen" visible="true" click="shareScreen(true)" />
+		<mx:Spacer width="50%"/>
+		<mx:Button id="btnClosePublish" toolTip="Close screen share" label="Close" visible="false" click="stopSharing()" />
+		<mx:Spacer width="50%"/>
+		<mx:Button id="btnRegionPublish" toolTip="Share a part of your screen" label="Region" visible="true" click="shareScreen(false)" />
+		
 	</mx:ControlBar>
 </dspub:MDIWindow>
