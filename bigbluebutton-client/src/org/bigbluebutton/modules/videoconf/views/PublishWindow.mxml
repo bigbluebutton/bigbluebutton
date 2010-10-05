@@ -20,8 +20,9 @@
   $Id: $
 --> 
 
-<MDIWindow xmlns="flexlib.mdi.containers.*" 
+<pubVid:MDIWindow xmlns="flexlib.mdi.containers.*" 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:pubVid="flexlib.mdi.containers.*"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	creationComplete="init()"
 	width="{camWidth + 6}" height="{camHeight + 73}" 
@@ -57,11 +58,13 @@
 			public var quality:Number = 0;
 			
 			private function init():void{
+				currentState = "dispVideoOptionsControlBar";
 				checkIfMacCamera();
 				if (isPresenter()) showResControls(true);
 				if (Camera.names.length > 1) showVideoControls(true);
 				if (!isPresenter() && Camera.names.length == 1) startPublishing();
 				maximizeRestoreBtn.visible = false;
+				
 			}
 			
 			public function getPrefferedPosition():String{
@@ -133,13 +136,15 @@
 			
 			private function showVideoControls(show:Boolean):void{
 				if (show){
-					bottomBar.visible = true;
+					currentState = "dispVideoOptionsControlBar"
+					videoOptionsBar.visible = true;
 					btnStartPublish.visible = true;
 					cmbCameraSelector.visible = true;
-				} else{
-					bottomBar.visible = false;
-					btnStartPublish.visible = false;
+				} else{					
+					videoOptionsBar.visible = true;
+					btnStartPublish.visible = true;
 					cmbCameraSelector.visible = false;
+					currentState = "dispQuitControlBar";
 				}
 			}
 			
@@ -149,12 +154,19 @@
 			}
 			
 			private function closeWindow(e:CloseAllWindowsEvent):void{
+				closeThisWindow();
+			}
+			
+			private function closeThisWindow():void {
 				this.close();
 			}
 			
 			private function checkIfMacCamera():void{
 				for (var i:int = 0; i<Camera.names.length; i++){
 					if (Camera.names[i] == "USB Video Class Video") {
+						/**
+						 * Set as default for Macs
+						 */
 						cmbCameraSelector.selectedIndex = i;
 					}
 				}
@@ -167,13 +179,30 @@
 			
 		]]>
 	</mx:Script>
-	
+
+	<pubVid:states>
+	    <!--http://stackoverflow.com/questions/369120/why-does-mxstates-have-trouble-being-resolved-to-a-component-implementation-->
+        <mx:State name="dispQuitControlBar">   
+            <mx:AddChild>
+            	<mx:ControlBar id="quitOptionsBar">
+            		<mx:Spacer width="50%"/>
+					<mx:Button id="btnQuitPublish" toolTip="Stop streaming" label="Quit" visible="true" click="closeThisWindow()" />
+					<mx:Spacer width="50%"/>
+				</mx:ControlBar>	
+            </mx:AddChild>
+        </mx:State>		
+        <mx:State name="dispVideoOptionsControlBar">   
+            <mx:AddChild>
+				<mx:ControlBar id="videoOptionsBar">
+					<mx:Button id="btnStartPublish" toolTip="start streaming" icon="{camIcon}" click="startPublishing()" />
+					<mx:ComboBox id="cmbCameraSelector" dataProvider="{Camera.names}" width="150" visible="false" />
+					<mx:ComboBox id="cmbResolution" dataProvider="{resolutions}" width="20%" visible="false" />
+				</mx:ControlBar>
+            </mx:AddChild>
+        </mx:State>	
+	</pubVid:states>
+		
 	<mx:UIComponent id="videoHolder" width="{camWidth}" height="{camHeight}" />
-	<mx:ControlBar id="bottomBar">
-		<mx:Button id="btnStartPublish" toolTip="start streaming" icon="{camIcon}" click="startPublishing()" />
-		<mx:ComboBox id="cmbCameraSelector" dataProvider="{Camera.names}" width="150" visible="false" />
-		<mx:ComboBox id="cmbResolution" dataProvider="{resolutions}" width="20%" visible="false" />
-	</mx:ControlBar>
-	
+
 	<mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
-</MDIWindow>
+</pubVid:MDIWindow>
