@@ -100,10 +100,11 @@ class WindowlessFrame implements Serializable {
 	private Dimension mOverallSize = new Dimension();
 
 	// properties initialized during construction
-	private final BasicStroke mBorderStroke = new BasicStroke(5, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 0, new float[] { 12, 12 }, 0);
+	private BasicStroke mBorderStroke = new BasicStroke(5, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 0, new float[] { 12, 12 }, 0);
+	private final BasicStroke borderSolidStroke = new BasicStroke(5, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 0);
 	
 	private GradientPaint mGradient = new GradientPaint(0.0f, 0.0f, Color.red, 1.0f, 1.0f, Color.white, true);
-	private final GradientPaint blueGradient = new GradientPaint(0.0f, 0.0f, Color.blue, 1.0f, 1.0f, Color.white, true);
+	private final GradientPaint blueGradient = new GradientPaint(0.0f, 0.0f, Color.blue, 1.0f, 1.0f, Color.blue, true);
 	private final GradientPaint redGradient = new GradientPaint(0.0f, 0.0f, Color.red, 1.0f, 1.0f, Color.white, true);
 	
 	private final int mBorderWidth;
@@ -516,6 +517,7 @@ class WindowlessFrame implements Serializable {
 	}
 
 	public void changeBorderToBlue() {
+		mBorderStroke = borderSolidStroke;
 		mGradient = blueGradient;
 		repaint();
 	}
@@ -538,7 +540,7 @@ class WindowlessFrame implements Serializable {
 	}
 	
 	public void removeResizeListeners() {
-/*		mRightBorder.removeMouseListener(resizingAdapter);
+		mRightBorder.removeMouseListener(resizingAdapter);
 		mRightBorder.removeMouseMotionListener(resizingAdapter);
 		mLeftBorder.removeMouseListener(resizingAdapter);
 		mLeftBorder.removeMouseMotionListener(resizingAdapter);
@@ -547,7 +549,7 @@ class WindowlessFrame implements Serializable {
 		mBottomBorder.removeMouseListener(resizingAdapter);
 		mBottomBorder.removeMouseMotionListener(resizingAdapter);
 		repaint();
-*/		
+		
 		System.out.println("Removing listeners......................");
 		mToolbarFrame.setVisible(false);
 	}
