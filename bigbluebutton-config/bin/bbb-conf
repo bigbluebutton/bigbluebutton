@@ -1041,7 +1041,7 @@ if [ $CHECK ]; then
 
 	if [ `uname -m` == "x86_64" ]; then
 		echo "64bit"
-	elif [ `uname -m` == "x86" ]; then
+	elif [ `uname -m` == "i686" ]; then
 		echo "32bit"
 	fi
 
