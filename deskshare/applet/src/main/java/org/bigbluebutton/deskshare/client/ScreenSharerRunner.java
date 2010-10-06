@@ -63,6 +63,8 @@ public class ScreenSharerRunner {
 	
 	public void stopSharing() {
 		System.out.println(NAME + "Stopping");
+		System.out.println(NAME + "Removing icon from system tray.");
+		tray.removeIconFromSystemTray();
 		captureTaker.stop();
 		mouseLocTaker.stop();
 		if (connected && started) {
@@ -74,7 +76,6 @@ public class ScreenSharerRunner {
 				e.printStackTrace();
 			}
 		}		
-		tray.removeIconFromSystemTray();
 	}
 
 	public void setCaptureCoordinates(int x, int y) {
