@@ -43,8 +43,22 @@ class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dime
 	private var stream:Stream = null
 	private var lastUpdate:Long = System.currentTimeMillis()
 	private var stop = true
-	private var mouseLoc:Point = new Point(100,100);
- 
+	private var mouseLoc:Point = new Point(100,100)
+	private var pendingGenKeyFrameRequest = false
+	
+	/*
+	 * Schedule to generate a key frame after 30seconds of a request.
+	 * This prevents us from generating unnecessary key frames when
+	 * users join within seconds of each other.
+	 */
+	def scheduleGenerateKeyFrame() {
+		val mainActor = self
+		actor {
+			Thread.sleep(30000)
+			mainActor ! "GenerateAKeyFrame"
+		}
+	}
+	
 	def scheduleGenerateFrame() {
 		val mainActor = self
 		actor {
@@ -68,9 +82,16 @@ class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dime
 	            }
             }
           case GenerateKeyFrame => {
-        	  log.debug("Session: Generating Key Frame for room %s", room)
-        	  generateFrame(true)
+        	  if (!pendingGenKeyFrameRequest) {
+        	 	  pendingGenKeyFrameRequest = true
+        	 	  scheduleGenerateKeyFrame()
+        	  }        	  
             }
+          case "GenerateAKeyFrame" => {
+        	  pendingGenKeyFrameRequest = false
+         	  log.debug("Session: Generating Key Frame for room %s", room)
+        	  generateFrame(true)       	  
+          }
           case b: UpdateSessionBlock => updateBlock(b.position, b.blockData, b.keyframe)
           case m: Any => log.warning("Session: Unknown message [%s]", m)
         }
