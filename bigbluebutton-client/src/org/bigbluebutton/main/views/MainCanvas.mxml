@@ -15,7 +15,8 @@
 			public static const RIGHT:String = "RIGHT_WINDOW";
 			public static const POPUP:String = "POP_UP_WINDOW";
 			
-			public static const DESKTOP_SHARING_VIEW:String = "POP_UP_DESKSHARE";
+			public static const DESKTOP_SHARING_VIEW:String = "POP_UP_DESKSHARE_VIEW";
+			public static const DESKTOP_SHARING_PUBLISH:String = "POP_UP_DESKSHARE_PUBLISH";
 			
 			private var leftWindowWidth:Number;
 			private var leftWindowHeight:Number;
@@ -101,6 +102,10 @@
 						y = (Math.random() * this.height) - 250;
 						if (x < 250) x = 1;
 						if (y < 250) y = 1;
+						break;
+					case DESKTOP_SHARING_PUBLISH:
+						y = (this.height - win.height) / 2;
+						x = (this.width - win.width) / 2;
 						break;
 					case DESKTOP_SHARING_VIEW:
 						x = 1;
