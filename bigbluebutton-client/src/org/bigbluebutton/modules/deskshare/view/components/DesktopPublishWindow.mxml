@@ -113,7 +113,7 @@
 			}
 			
 			public function getPrefferedPosition():String{
-				return MainCanvas.POPUP;
+				return MainCanvas.DESKTOP_SHARING_PUBLISH;
 			}
 
 			/*
