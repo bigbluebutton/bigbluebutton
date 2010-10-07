@@ -54,18 +54,13 @@ public final class Block {
             } catch (PixelExtractException e) {
             	System.out.println(e.toString());
         	}    	
-            
-            if ((! checksumSame(pixels)) || sendKeepAliveBlock()) {
-            	if (sendFlag.compareAndSet(false, true)) {
-//            		System.out.println("Block " + position + " has changed. Need to send it.");
-            		return true;
-            	} else {
-//            		System.out.println("Block " + position + " has changed but is already queued for sending.");
-            		return false;
-            	}
-            }   		
+	            if ((! checksumSame(pixels)) || sendKeepAliveBlock()) {
+	               	if (sendFlag.compareAndSet(false, true)) {
+	               		return true;
+	               	} 
+	            } 
     	}
-    	
+    	 		    	
         return false;
     }
      
@@ -107,12 +102,18 @@ public final class Block {
     
     public EncodedBlockData encode() {   
     	int[] pixelsCopy = new int[pixels.length];
-    	synchronized (this) {           
+    	
+    	synchronized (this) { 
+    		/*
+    		 * Make sure we update here so that the screen capture thread will
+    		 * be able to mark the block if it has changed while we send the
+    		 * last captured block.
+    		 */
+    		sendFlag.compareAndSet(true, false);
             System.arraycopy(pixels, 0, pixelsCopy, 0, pixels.length);
 		}
     	
         byte[] encodedBlock = ScreenVideoEncoder.encodePixels(pixelsCopy, getWidth(), getHeight()); 	
-        sendFlag.compareAndSet(true, false);
         return new EncodedBlockData(position, encodedBlock);		
     }
     
