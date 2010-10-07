@@ -161,6 +161,10 @@
 				cursorImg.visible = true;
                 // DO NOT compute the x and y coordinate and assign directly to the cursorImg
                 // as it results in a flickering and jerky mouse pointer (ralam jun 10, 2010).
+                if (cursor.x < videoHolder.x) cursor.x = videoHolder.x;
+                if (cursor.y < videoHolder.y) cursor.y = videoHolder.y;
+                if (cursor.x > videoHolder.x + videoHolder.width) cursor.x = videoHolder.x + videoHolder.width;
+                if (cursor.y > videoHolder.y + videoHolder.height) cursor.y = videoHolder.y + videoHolder.height;
                 cursorImg.x = cursor.x;
                 cursorImg.y = cursor.y;
 			}
