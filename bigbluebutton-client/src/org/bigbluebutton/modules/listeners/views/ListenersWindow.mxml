@@ -58,7 +58,6 @@
 			[Bindable] private var muteAllIcon:Class = images.sound_mute; 
 			[Bindable] private var unmuteAllIcon:Class = images.sound_none;
 			[Bindable] private var kickIcon:Class = images.eject_user;
-			[Bindable] private var ejectIcon:Class = images.forward;
 			[Bindable] public var listeners:ArrayCollection = new ArrayCollection();
 			[Bindable] public var moderator:Boolean;
 			[Bindable] private var windowTitle:String = ResourceUtil.getInstance().getString('bbb.listeners.title', ["",""]);
@@ -184,8 +183,6 @@
     	   			toolTip="{ResourceUtil.getInstance().getString('bbb.listeners.ejectBtn.toolTip')}" 
     	   			click="handleEjectButtonClick()"
     	   			visible="{moderator}" enabled="false" width="18" height="18"/> 
-    	   <mx:Button id="ejectArrowBtn" icon="{ejectIcon}" 
-    	   			visible="{moderator}" enabled="false" width="18" height="18"/>
     	</mx:ControlBar>
 
 </MDIWindow>
