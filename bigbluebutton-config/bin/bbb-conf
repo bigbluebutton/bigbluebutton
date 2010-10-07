@@ -40,7 +40,12 @@
 #
 # Setup some global variables
 #
-VOICE_CONFERENCE=$(cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml | grep -v '<!--' | grep bbb-voice-freeswitch.xml |  sed -n '/import /{s/.*resource="//;s/".*//;p}')
+
+if cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml | grep -v '<!--' | grep -q 'bbb-voice-asterisk.xml'; then
+	VOICE_CONFERENCE="bbb-voice-asterisk.xml"
+elif cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml | grep -v '<!--' | grep -q 'bbb-voice-freeswitch.xml'; then
+	VOICE_CONFERENCE="bbb-voice-freeswitch.xml"
+fi
 
 IP=$(ifconfig | grep -m 1 'inet addr:' | cut -d: -f2 | awk '{print $1}')
 
@@ -138,7 +143,7 @@ need_root() {
 }
 
 usage() {
-	echo "BigBlueButton Configuration Utility - Version 0.71-dev1"
+	echo "BigBlueButton Configuration Utility - Version 0.71-dev2"
         echo "http://code.google.com/p/bigbluebutton/wiki/BBBConf"
         echo
         echo "$0 [options]"
@@ -373,9 +378,9 @@ while [ $# -gt 0 ]; do
 		if [ -z "$CONFERENCE" ] ; then
 			if [ $confapp == "meetme" ]; then
 				echo "Current conference application is $confapp"
-			elif [ $confapp == "konference" ] && [ $VOICE_CONFERENCE == "bbb-voice-asterisk.xml" ]; then
+			elif [ $confapp == "konference" ] && [ "$VOICE_CONFERENCE" == "bbb-voice-asterisk.xml" ]; then
 				echo "Current conference application is $confapp"
-			elif [ $VOICE_CONFERENCE == "bbb-voice-freeswitch.xml" ]; then
+			elif [ "$VOICE_CONFERENCE" == "bbb-voice-freeswitch.xml" ]; then
 				echo "Current conference application is freeswitch"
 			fi
 			exit 0
@@ -1021,6 +1026,16 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 	fi
 
 
+	#
+	# Check that freeswtich ESL matches the value in bigbluebutton.properties
+	#
+	FREESWITCH_ESL_IP=$(cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
+	ESL_HOST=$(cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | grep esl.host | sed 's/esl.host=//g')
+	if [ "$FREESWITCH_ESL_IP" != "$ESL_HOST" ]; then
+		echo 
+		echo "The values for event socket layers in /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml do not match the settings for esl.host in /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties"
+	fi
+
 	exit 0
 }
 
@@ -1083,13 +1098,17 @@ if [ $CHECK ]; then
 	fi
 
         if  ps aux | grep '[/]usr/sbin/asterisk' > /dev/null; then
-        	CONFERENCING_MODULE=$(cat $RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | sed -n '/asterisk.application/{s/.*=[ ]*//g;p}')
-        	echo
-        	echo "/etc/asterisk/bbb_extensions.conf (asterisk)"
-        	echo "            voice conf application: $CONFERENCING_MODULE"
+        	CONFERENCING_MODULE="$(cat $RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | sed -n '/asterisk.application/{s/.*=[ ]*//g;p}')"
+	else
+		CONFERENCING_MODULE="FreeSWITCH"
 	fi
 
+       	echo
+       	echo "/usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml"
+       	echo "                  voice conference: $CONFERENCING_MODULE"
+
 	check_state
+	echo ""
 
 	exit 0
 fi
@@ -1394,6 +1413,11 @@ if [ $CONFERENCE ]; then
 			/etc/asterisk/bbb_extensions.conf
 
 		echo "Switching to $CONFERENCE ... "
+		sudo /etc/init.d/freeswitch stop
+		sudo update-rc.d -f freeswitch remove >/dev/null
+
+		sudo update-rc.d asterisk defaults 21 > /dev/null
+
 		sudo /etc/init.d/asterisk restart
 		sudo /etc/init.d/red5 restart
 	fi
@@ -1431,11 +1455,12 @@ if [ $CONFERENCE ]; then
 
 		echo "Switching to $CONFERENCE ... "
 		sudo /etc/init.d/freeswitch stop
-		sudo update-rc.d freeswitch remove >/dev/null
+                sudo update-rc.d -f freeswitch remove >/dev/null
 
-		update-rc.d asterisk defaults >/dev/null
-		sudo /etc/init.d/asterisk restart
-		sudo /etc/init.d/red5 restart
+                sudo update-rc.d asterisk defaults 21 > /dev/null
+
+                sudo /etc/init.d/asterisk restart
+                sudo /etc/init.d/red5 restart
 	fi
 
 	if [ $CONFERENCE = "freeswitch" ]; then
@@ -1459,9 +1484,10 @@ if [ $CONFERENCE ]; then
 
 		echo "Switching to $CONFERENCE ... "
 		sudo /etc/init.d/asterisk stop
-		sudo update-rc.d asterisk remove >/dev/null
+		sudo update-rc.d -f asterisk remove >/dev/null
 
 		update-rc.d freeswitch defaults >/dev/null
+
 		sudo /etc/init.d/freeswitch start
 		sudo /etc/init.d/red5 restart
 	fi
@@ -1520,7 +1546,7 @@ if [ $CLEAN ]; then
 
 	display_bigbluebutton_status
 
-	echo
+	echo ""
 	start_bigbluebutton
 fi
 
