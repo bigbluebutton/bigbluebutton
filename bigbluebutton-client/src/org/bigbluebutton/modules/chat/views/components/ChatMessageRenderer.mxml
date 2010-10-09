@@ -10,7 +10,6 @@
 			import be.boulevart.google.events.GoogleApiEvent;
 			
 			import mx.binding.utils.ChangeWatcher;
-			import mx.controls.Alert;
 			
 			[Bindable] private var rolledOver:Boolean = false;
 			private var dataWatcher:ChangeWatcher;

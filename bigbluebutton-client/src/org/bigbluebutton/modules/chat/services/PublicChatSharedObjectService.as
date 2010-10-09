@@ -116,7 +116,7 @@ package org.bigbluebutton.modules.chat.services
 		 */	
 		public function newChatMessage(message:String):void{
 			trace("Received New Chat Message " + message);	
-			var event:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
+			var event:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.CHAT_TRANSCRIPT_EVENT);
 			event.message = message;
 			
 			var globalDispatcher:Dispatcher = new Dispatcher();
@@ -139,7 +139,7 @@ package org.bigbluebutton.modules.chat.services
 					function(result:Object):void { 
 						LogUtil.debug("Successfully sent message: "); 
 						if (result != null) {
-							receivedShapesHistory(result);
+							receivedChatHistory(result);
 						}
 					},	
 					// status - On error occurred
@@ -153,7 +153,7 @@ package org.bigbluebutton.modules.chat.services
 			); //_netConnection.call				
 		}
 		
-		private function receivedShapesHistory(result:Object):void{
+		private function receivedChatHistory(result:Object):void{
 			if (result == null) return;
 			
 			var messages:Array = result as Array;
