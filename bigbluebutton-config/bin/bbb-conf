@@ -276,6 +276,19 @@ start_bigbluebutton () {
 	/etc/init.d/nginx start
 	/etc/init.d/red5 start
 	/etc/init.d/${TOMCAT} start
+
+	#
+	# At this point the red5 and tomcat6 applications are starting up.
+	#
+	echo -n "Waiting for BigBlueButton to finish starting up: "
+
+	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
+        if ! wget http://$NGINX_IP/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then
+                echo "Startup unsuccessful"
+		exit 1
+	else
+		echo "... done"
+	fi
 }
 
 display_bigbluebutton_status () {
@@ -1037,10 +1050,10 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 	# Check that BigBlueButton can connect to port 80, 1935, and 9123
 	#
 
-	if ! nc -z -w 3 $NGINX_IP 80; then
-		echo 
-		echo "Unable to connect to port 80 on $NGINX_IP"
-	fi
+	#if ! nc -z -w 3 $NGINX_IP 80; then
+	#	echo 
+	#	echo "Unable to connect to port 80 on $NGINX_IP"
+	#fi
 	
 	if ! nc -z -w 3 $NGINX_IP 1935; then
 		echo 
