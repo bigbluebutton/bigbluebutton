@@ -17,32 +17,30 @@
  *
  * $Id: $
  */
-
 package org.bigbluebutton.conference.service.participants;
 
-
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.red5.logging.Red5LoggerFactory;
 import java.util.Map;import org.bigbluebutton.conference.RoomsManager;
 import org.bigbluebutton.conference.Room;import org.bigbluebutton.conference.Participant;import org.bigbluebutton.conference.IRoomListener;
 
 public class ParticipantsApplication {
-
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsApplication.class, "bigbluebutton" );	
 	
-	
-	private static final String APP = "PARTICIPANTS";
 	private RoomsManager roomsManager;
 	
 	public boolean createRoom(String name) {
+		log.info("Creating room {}", name);
 		roomsManager.addRoom(new Room(name));
 		return true;
 	}
 	
 	public boolean destroyRoom(String name) {
 		if (roomsManager.hasRoom(name)) {
+			log.info("Destroying room {}", name);
 			roomsManager.removeRoom(name);
+		} else {
+			log.warn("Destroying non-existing room {}", name);
 		}
 		return true;
 	}
@@ -65,7 +63,7 @@ public class ParticipantsApplication {
 	}
 	
 	public Map getParticipants(String roomName) {
-		log.debug(APP+":getParticipants - "+roomName);
+		log.debug("getParticipants - " + roomName);
 		if (! roomsManager.hasRoom(roomName)) {
 			log.warn("Could not find room "+roomName);
 			return null;
@@ -75,10 +73,10 @@ public class ParticipantsApplication {
 	}
 	
 	public boolean participantLeft(String roomName, Long userid) {
-		log.debug("Participant "+userid+" leaving room "+roomName);
+		log.debug("Participant "+ userid + " leaving room "+roomName);
 		if (roomsManager.hasRoom(roomName)) {
 			Room room = roomsManager.getRoom(roomName);
-			log.debug("Removing "+userid+" from room "+roomName);
+			log.debug("Removing "+ userid + " from room " + roomName);
 			room.removeParticipant(userid);
 			return true;
 		}
@@ -88,15 +86,15 @@ public class ParticipantsApplication {
 	
 	@SuppressWarnings("unchecked")
 	public boolean participantJoin(String roomName, Long userid, String username, String role, String externUserID, Map status) {
-		log.debug(APP+":participant joining room "+roomName);
+		log.debug("participant joining room " + roomName);
 		if (roomsManager.hasRoom(roomName)) {
 			Participant p = new Participant(userid, username, role, externUserID, status);			
 			Room room = roomsManager.getRoom(roomName);
 			room.addParticipant(p);
-			log.debug(APP+":participant joined room "+roomName);
+			log.debug(":participant joined room "+roomName);
 			return true;
 		}
-		log.debug(APP+":participant failed to join room"+roomName);
+		log.debug(":participant failed to join room"+roomName);
 		return false;
 	}
 	
