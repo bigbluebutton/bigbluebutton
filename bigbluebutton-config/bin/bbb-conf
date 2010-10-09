@@ -143,7 +143,7 @@ need_root() {
 }
 
 usage() {
-	echo "BigBlueButton Configuration Utility - Version 0.71-dev3"
+	echo "BigBlueButton Configuration Utility - Version 0.71-dev4"
         echo "http://code.google.com/p/bigbluebutton/wiki/BBBConf"
         echo
         echo "$0 [options]"
@@ -162,7 +162,9 @@ usage() {
         echo
         echo "Administration":
         echo "   --restart                        Restart BigBueButton"
-        echo "   --clean                          Clear all the log files and restart BigBlueButton"
+        echo "   --stop                           Stop BigBueButton"
+        echo "   --start                          Start BigBueButton"
+        echo "   --clean                          Restart and clean all log files"
         echo "   --zip                            Zip up log files for reporting an error"
         echo
         if [ "$(is_vm)" ]; then
@@ -245,12 +247,35 @@ start_bigbluebutton () {
 		/etc/init.d/asterisk start
 	fi
 	/etc/init.d/activemq start
+	
+	echo -n "Waiting for active MQ to start: "
+	while ! nc -z -w 1 127.0.0.1 61616; do
+		echo -n "."
+                sleep 1
+        done
+	echo
+
+	if [ "$VOICE_CONFERENCE" == "bbb-voice-freeswitch.xml" ]; then
+		echo -n "Waiting for FreeSwitch to start: "
+
+		while ! nc -z -w 1 127.0.0.1 8021; do
+			echo -n "."
+                	sleep 1
+        	done
+		echo
+	else
+		echo -n "Waiting for Asterisk to start: "
+
+		while ! nc -z -w 1 127.0.0.1 5038; do
+			echo -n "."
+                	sleep 1
+        	done
+	fi
+	
 	/etc/init.d/bbb-openoffice-headless start
-	sleep 5
 	/etc/init.d/nginx start
 	/etc/init.d/red5 start
 	/etc/init.d/${TOMCAT} start
-	sleep 5
 }
 
 display_bigbluebutton_status () {
@@ -267,6 +292,16 @@ fi
 
 # Parse the parameters
 while [ $# -gt 0 ]; do
+	if [ "$1" = "-stop" -o "$1" = "--stop" ]; then
+		stop_bigbluebutton
+		exit 0
+	fi
+
+	if [ "$1" = "-start" -o "$1" = "--start" ]; then
+		start_bigbluebutton
+		exit 0
+	fi
+
 	if [ "$1" = "-check" -o "$1" = "--check" -o "$1" = "-c" ]; then
 		CHECK=1
 		shift;shift 
