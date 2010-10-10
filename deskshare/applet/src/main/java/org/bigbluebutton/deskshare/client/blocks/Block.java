@@ -37,7 +37,7 @@ public final class Block {
     private final int position;
     private final Point location;    
     private int[] pixels;
-    private AtomicBoolean sendFlag = new AtomicBoolean(false);
+    private AtomicBoolean dirtyFlag = new AtomicBoolean(false);
     private long lastSent = System.currentTimeMillis();
     
     Block(Dimension dim, int position, Point location) {
@@ -53,35 +53,18 @@ public final class Block {
         		pixels = ScreenVideoEncoder.getPixels(capturedScreen, getX(), getY(), getWidth(), getHeight());
             } catch (PixelExtractException e) {
             	System.out.println(e.toString());
-        	}    	
-	            if ((! checksumSame(pixels)) || sendKeepAliveBlock()) {
-	               	if (sendFlag.compareAndSet(false, true)) {
-	               		return true;
-	               	} 
-	            } 
+        	}  
+            
+            if ((! checksumSame(pixels)) || sendKeepAliveBlock()) {
+            	if (dirtyFlag.compareAndSet(false, true)) {
+            		return true;
+            	} 
+            } 
     	}
     	 		    	
         return false;
     }
-     
-    private byte[] convertIntPixelsToBytePixels(int[] pixels) {
-    	byte[] p = new byte[pixels.length * 3];
-    	int position = 0;
-		
-		for (int i = 0; i < pixels.length; i++) {
-			byte red = (byte) ((pixels[i] >> 16) & 0xff);
-			byte green = (byte) ((pixels[i] >> 8) & 0xff);
-			byte blue = (byte) (pixels[i] & 0xff);
-
-			// Sequence should be BGR
-			p[position++] = blue;
-			p[position++] = green;
-			p[position++] = red;
-		}
-		
-		return p;
-    }
-    
+         
     private boolean isKeepAliveBlock() {
     	// Use block 1 as our keepalive block. The keepalive block is our audit so that the server knows
     	// that the applet is still connected to the server. So it there's no change in the desktop, the applet
@@ -109,7 +92,8 @@ public final class Block {
     		 * be able to mark the block if it has changed while we send the
     		 * last captured block.
     		 */
-    		sendFlag.compareAndSet(true, false);
+    		dirtyFlag.compareAndSet(true, false);
+    		checksum.update(0);
             System.arraycopy(pixels, 0, pixelsCopy, 0, pixels.length);
 		}
     	
@@ -118,17 +102,30 @@ public final class Block {
     }
     
     private boolean checksumSame(int[] pixels) {
-    	long oldsum;
-        oldsum = checksum.getValue(); 
-        calcChecksum(pixels);  
+    	long oldsum = checksum.getValue(); 
+    	checksum.reset();
+    	checksum.update(convertIntPixelsToBytePixels(pixels)); 
         return (oldsum == checksum.getValue());
     }
           
-    private void calcChecksum(int[] pixels) {
-    	checksum.reset();
-    	checksum.update(convertIntPixelsToBytePixels(pixels)); 
-    }
+    private byte[] convertIntPixelsToBytePixels(int[] pixels) {
+    	byte[] p = new byte[pixels.length * 3];
+    	int position = 0;
+		
+		for (int i = 0; i < pixels.length; i++) {
+			byte red = (byte) ((pixels[i] >> 16) & 0xff);
+			byte green = (byte) ((pixels[i] >> 8) & 0xff);
+			byte blue = (byte) (pixels[i] & 0xff);
 
+			// Sequence should be BGR
+			p[position++] = blue;
+			p[position++] = green;
+			p[position++] = red;
+		}
+		
+		return p;
+    }
+    
     public int getWidth() {
         return new Integer(dim.getWidth()).intValue();
     }
