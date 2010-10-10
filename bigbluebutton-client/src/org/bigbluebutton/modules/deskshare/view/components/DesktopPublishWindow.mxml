@@ -87,9 +87,9 @@
 			
 			private function onCreationComplete():void {
 				windowControls.maximizeRestoreBtn.enabled = false;
-				windowControls.maximizeRestoreBtn.toolTip = "You cannot maximize this window.";
-				windowControls.closeBtn.toolTip = "Stop sharing and close this window.";
-				windowControls.minimizeBtn.toolTip = "Minimize this window.";
+				windowControls.maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString('bbb.desktopPublish.maximizeRestoreBtn.toolTip');
+				windowControls.closeBtn.toolTip = ResourceUtil.getInstance().getString('bbb.desktopPublish.closeBtn.toolTip');
+				windowControls.minimizeBtn.toolTip = ResourceUtil.getInstance().getString('bbb.desktopPublish.minimizeBtn.toolTip');
 				
 				cursor = new Sprite();
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
@@ -271,11 +271,11 @@
 	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
 	
 	<mx:ControlBar id="bottomBar">
-		<mx:Button id="btnFSPublish" toolTip="Share your whole screen" label="Fullscreen" visible="true" click="shareScreen(true)" />
+		<mx:Button id="btnFSPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.tooltip')}" label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.label')}" visible="true" click="shareScreen(true)" />
 		<mx:Spacer width="50%"/>
-		<mx:Button id="btnClosePublish" toolTip="Close screen share" label="Close" visible="false" click="stopSharing()" />
+		<mx:Button id="btnClosePublish" toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.tooltip')}" label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.label')}" visible="false" click="stopSharing()" />
 		<mx:Spacer width="50%"/>
-		<mx:Button id="btnRegionPublish" toolTip="Share a part of your screen" label="Region" visible="true" click="shareScreen(false)" />
+		<mx:Button id="btnRegionPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.tooltip')}" label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.label')}" visible="true" click="shareScreen(false)" />
 		
 	</mx:ControlBar>
 </dspub:MDIWindow>
