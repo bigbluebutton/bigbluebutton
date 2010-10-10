@@ -23,8 +23,6 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.zip.Adler32;
-
 import org.bigbluebutton.deskshare.client.net.EncodedBlockData;
 import org.bigbluebutton.deskshare.common.PixelExtractException;
 import org.bigbluebutton.deskshare.common.ScreenVideoEncoder;
@@ -32,33 +30,32 @@ import org.bigbluebutton.deskshare.common.Dimension;
 
 public final class Block {   
 	Random random = new Random();
-    private final Adler32 checksum;
+    private final BlockChecksum checksum;
     private final Dimension dim;
     private final int position;
     private final Point location;    
-    private int[] pixels;
+    private int[] capturedPixels;
+    private final Object pixelsLock = new Object();
     private AtomicBoolean dirtyFlag = new AtomicBoolean(false);
     private long lastSent = System.currentTimeMillis();
     
     Block(Dimension dim, int position, Point location) {
-        checksum = new Adler32();
+        checksum = new BlockChecksum();
         this.dim = dim;
         this.position = position;
         this.location = location;
     }
     
     public boolean hasChanged(BufferedImage capturedScreen) {	 
-    	synchronized(this) {
+    	synchronized(pixelsLock) {
             try {
-        		pixels = ScreenVideoEncoder.getPixels(capturedScreen, getX(), getY(), getWidth(), getHeight());
+            	capturedPixels = ScreenVideoEncoder.getPixels(capturedScreen, getX(), getY(), getWidth(), getHeight());
             } catch (PixelExtractException e) {
             	System.out.println(e.toString());
         	}  
             
-            if ((! checksumSame(pixels)) || sendKeepAliveBlock()) {
-            	if (dirtyFlag.compareAndSet(false, true)) {
-            		return true;
-            	} 
+            if ((! checksumSame(capturedPixels)) || sendKeepAliveBlock()) {
+            	return dirtyFlag.compareAndSet(false, true);
             } 
     	}
     	 		    	
@@ -84,17 +81,11 @@ public final class Block {
     }
     
     public EncodedBlockData encode() {   
-    	int[] pixelsCopy = new int[pixels.length];
+    	int[] pixelsCopy = new int[capturedPixels.length];
     	
-    	synchronized (this) { 
-    		/*
-    		 * Make sure we update here so that the screen capture thread will
-    		 * be able to mark the block if it has changed while we send the
-    		 * last captured block.
-    		 */
-    		dirtyFlag.compareAndSet(true, false);
-    		checksum.update(0);
-            System.arraycopy(pixels, 0, pixelsCopy, 0, pixels.length);
+    	synchronized (pixelsLock) { 
+    		dirtyFlag.set(false);
+            System.arraycopy(capturedPixels, 0, pixelsCopy, 0, capturedPixels.length);
 		}
     	
         byte[] encodedBlock = ScreenVideoEncoder.encodePixels(pixelsCopy, getWidth(), getHeight()); 	
@@ -102,10 +93,7 @@ public final class Block {
     }
     
     private boolean checksumSame(int[] pixels) {
-    	long oldsum = checksum.getValue(); 
-    	checksum.reset();
-    	checksum.update(convertIntPixelsToBytePixels(pixels)); 
-        return (oldsum == checksum.getValue());
+    	return checksum.isChecksumSame(convertIntPixelsToBytePixels(pixels)); 
     }
           
     private byte[] convertIntPixelsToBytePixels(int[] pixels) {
