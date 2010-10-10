@@ -74,7 +74,6 @@ package org.bigbluebutton.main.model.users
 					break;
 				case "hasStream":
 					hasStream = status.value;
-					if (hasStream) sendStreamStartedEvent();
 					break;
 				case "streamName":
 					streamName = status.value as String;
@@ -107,17 +106,6 @@ package org.bigbluebutton.main.model.users
 			n.room = user.room;
 			
 			return n;		
-		}
-		
-		private function sendStreamStartedEvent():void{
-			var t:Timer = new Timer(3000, 1);
-			t.addEventListener(TimerEvent.TIMER, dispatch);
-			t.start();
-		}
-		
-		private function dispatch(e:TimerEvent):void{
-			var dispatcher:Dispatcher = new Dispatcher();
-			dispatcher.dispatchEvent(new StreamStartedEvent(this.userid, this.name, this.streamName));
 		}
 	}
 }

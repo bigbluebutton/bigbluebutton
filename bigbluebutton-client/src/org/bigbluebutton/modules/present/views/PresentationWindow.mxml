@@ -332,7 +332,7 @@
 				}
 				onResetZoom();
 				reinitWindowToDefaultSize();
-				this.setFocus();
+				//this.setFocus();
 			}
 			
 			private function displaySlideNavigationControls(show:Boolean):void {
