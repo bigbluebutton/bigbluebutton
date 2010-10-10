@@ -268,7 +268,7 @@ package org.bigbluebutton.main.model.users
 				connect(_conferenceParameters, tried_tunneling);
 			});
 			retryTimer.start();
-			backoff = backoff *2;
+			if (this.backoff < 16000) this.backoff = backoff *2;
 		}
 	}
 }

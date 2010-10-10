@@ -8,6 +8,7 @@
 	
 	<mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
 	<mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
+	<mate:Listener type="{PublicChatMessageEvent.CHAT_TRANSCRIPT_EVENT}" method="handleChatTranscriptEvent" />
 	<mate:Listener type="{BBBEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT}" method="sendMessageReceivedFromBBBEvent"/> 
 	<mate:Listener type="{ChatOptionsEvent.CHANGE_FONT_SIZE}" method="changeFontSize" />
 	<mate:Listener type="{ChatOptionsEvent.CHANGE_LANGUAGE}" method="changeLanguage" />
@@ -347,9 +348,13 @@
 				return tabBox;
 			}
 			
+			private function handleChatTranscriptEvent(event:PublicChatMessageEvent):void{
+				showMessage(PUBLIC_CHAT_USERID, event.message, false);
+			}
+			
 			private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
 				LogUtil.debug("Got PublicChatMessageEvent");
-				showMessage(PUBLIC_CHAT_USERID, event.message);
+				showMessage(PUBLIC_CHAT_USERID, event.message, autoTranslation);
 				if (!this.focus)
 					ExternalInterface.call("startblink", ResourceUtil.getInstance().getString('bbb.chat.publicMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.publicMsgAwaiting2'));
 				globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.RECEIVED_PUBLIC_CHAT_MESSAGE_EVENT, event.message));
@@ -359,7 +364,7 @@
 				LogUtil.debug("Got PrivateChatMessageEvent");
 				if (!this.focus)
 					ExternalInterface.call("startblink", ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting2'));
-				showMessage(event.message.sender, event.message.message);
+				showMessage(event.message.sender, event.message.message, autoTranslation);
 			}
 			
 			private function participantHasChatBox(id:String):Boolean {
@@ -372,14 +377,14 @@
 				return chatTabs.getChildByName(id) as ChatBox;
 			}
 			
-			private function showMessage(sender:String, message:String):void{
+			private function showMessage(sender:String, message:String, translate:Boolean):void{
 				var chatBox:ChatBox;
 				if (! participantHasChatBox(sender)) {
 					chatBox = createChatBoxFor(sender);
 				}
 				
 				chatBox = getChatBoxForParticipant(sender);
-				chatBox.showNewMessage(message, autoTranslation, currentLangCode);
+				chatBox.showNewMessage(message, translate, currentLangCode);
 				
 				if (! isChatBoxCurrentlySelected(sender)) {
 					notifyParticipantOfUnreadMessageFrom(sender);
