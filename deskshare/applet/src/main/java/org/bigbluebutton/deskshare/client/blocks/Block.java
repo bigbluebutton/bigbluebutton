@@ -36,7 +36,7 @@ public final class Block {
     private final Point location;    
     private int[] capturedPixels;
     private final Object pixelsLock = new Object();
-    private AtomicBoolean dirtyFlag = new AtomicBoolean(false);
+    private AtomicBoolean dirtyBlock = new AtomicBoolean(false);
     private long lastSent = System.currentTimeMillis();
     
     Block(Dimension dim, int position, Point location) {
@@ -54,8 +54,11 @@ public final class Block {
             	System.out.println(e.toString());
         	}  
             
-            if ((! checksumSame(capturedPixels)) || sendKeepAliveBlock()) {
-            	return dirtyFlag.compareAndSet(false, true);
+            if (! dirtyBlock.get()) {
+                if ((! checksumSame(capturedPixels)) || sendKeepAliveBlock()) {
+                	dirtyBlock.set(true);
+                	return true;
+                }            	
             } 
     	}
     	 		    	
@@ -84,7 +87,7 @@ public final class Block {
     	int[] pixelsCopy = new int[capturedPixels.length];
     	
     	synchronized (pixelsLock) { 
-    		dirtyFlag.set(false);
+    		dirtyBlock.set(false);
             System.arraycopy(capturedPixels, 0, pixelsCopy, 0, capturedPixels.length);
 		}
     	
