@@ -186,7 +186,7 @@
             <mx:AddChild>
             	<mx:ControlBar id="quitOptionsBar">
             		<mx:Spacer width="50%"/>
-					<mx:Button id="btnQuitPublish" toolTip="Stop streaming" label="Quit" visible="true" click="closeThisWindow()" />
+					<mx:Button id="btnQuitPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.video.publish.close.tooltip')}" label="{ResourceUtil.getInstance().getString('bbb.video.publish.close.label')}" visible="true" click="closeThisWindow()" />
 					<mx:Spacer width="50%"/>
 				</mx:ControlBar>	
             </mx:AddChild>
