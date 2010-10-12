@@ -68,7 +68,7 @@ public class BlockManager {
 		long end = System.currentTimeMillis();
 //		System.out.println("ProcessCapturedScreen took " + (end-start) + " ms.");
     }
-    
+        
     private void notifyChangedBlockListener(BlockMessage position) {
     	listeners.onChangedBlock(position);
     }
@@ -82,6 +82,11 @@ public class BlockManager {
 		listeners = null;
 	}
     
+	public void blockSent(int position) {
+		Block block = (Block) blocksMap.get(new Integer(position));
+		block.sent();
+	}
+	
 	public Block getBlock(int position) {
 		return (Block) blocksMap.get(new Integer(position));
 	}

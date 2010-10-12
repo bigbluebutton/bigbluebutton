@@ -192,6 +192,10 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
 		return false;
 	}
 	
+	public void blockSent(int position) {
+		blockManager.blockSent(position);
+	}
+	
 	public EncodedBlockData getBlockToSend(int position) {		
 		return blockManager.getBlock(position).encode();
 	}	
