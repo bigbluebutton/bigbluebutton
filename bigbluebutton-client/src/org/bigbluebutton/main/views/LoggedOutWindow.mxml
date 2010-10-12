@@ -71,7 +71,7 @@
 						message = "The red5 app does not exist";
 						break;
 					case ConnectionFailedEvent.UNKNOWN_REASON:
-						message = "Disconnected from the server";
+						message = "Your client has lost connection with the server";
 						break;
 					case ConnectionFailedEvent.USER_LOGGED_OUT:
 						message = "You have logged out";
