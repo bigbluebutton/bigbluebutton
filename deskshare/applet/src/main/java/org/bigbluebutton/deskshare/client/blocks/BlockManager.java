@@ -22,6 +22,7 @@ package org.bigbluebutton.deskshare.client.blocks;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
 import org.bigbluebutton.deskshare.client.net.BlockMessage;
 import org.bigbluebutton.deskshare.common.Dimension;
@@ -57,14 +58,29 @@ public class BlockManager {
     
     public void processCapturedScreen(BufferedImage capturedScreen) {    	
     	long start = System.currentTimeMillis();
+
+		Vector<Integer> changedBlocks = new Vector<Integer>();
+/*		
+		for (int row = 1; row <= numRows; row++) {
+			for (int col = 1; col <= numColumns; col++) {
+	        	Block block = blocksMap.get(new Integer(row * col));
+	        	if (block.hasChanged(capturedScreen)) {
+	        		changedBlocks.add(new Integer(row * col));        		
+	        	}				
+			}
+			if (changedBlocks.size() > 0)
+				notifyChangedBlockListener(new BlockMessage(changedBlocks));
+		}  
+*/
 		int numberOfBlocks = numColumns * numRows;
-        for (int position = 1; position <= numberOfBlocks; position++) {
-        	Block block = blocksMap.get(new Integer(position));
+		for (int position = 1; position <= numberOfBlocks; position++) {
+			Block block = blocksMap.get(new Integer(position));
         	if (block.hasChanged(capturedScreen)) {
-        		notifyChangedBlockListener(new BlockMessage(block.getPosition()));
+        		changedBlocks.add(new Integer(position));        		
         	}
-        }
-        
+		}
+		if (changedBlocks.size() > 0)
+			notifyChangedBlockListener(new BlockMessage(changedBlocks));
 		long end = System.currentTimeMillis();
 //		System.out.println("ProcessCapturedScreen took " + (end-start) + " ms.");
     }

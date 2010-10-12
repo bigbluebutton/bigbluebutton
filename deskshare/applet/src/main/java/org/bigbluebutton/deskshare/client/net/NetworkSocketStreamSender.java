@@ -25,6 +25,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Vector;
 
 import org.bigbluebutton.deskshare.client.ExitCode;
 import org.bigbluebutton.deskshare.common.Dimension;
@@ -131,10 +132,29 @@ public class NetworkSocketStreamSender implements Runnable {
 	
 	private void processNextMessageToSend(Message message) throws IOException {
 		if (message.getMessageType() == Message.MessageType.BLOCK) {
-			EncodedBlockData block = retriever.getBlockToSend(((BlockMessage)message).getPosition());
-			BlockVideoData	bv = new BlockVideoData(room, block.getPosition(), block.getVideoData(), false /* should remove later */);									
-			sendBlock(bv);
-			retriever.blockSent(block.getPosition());
+			ByteArrayOutputStream dataToSend = new ByteArrayOutputStream();
+			dataToSend.reset();
+			BlockStreamProtocolEncoder.encodeRoomAndSequenceNumber(room, seqNumGenerator.getNext(), dataToSend);
+			
+			Object[] changedBlocks = ((BlockMessage)message).getBlocks().toArray();
+
+			BlockStreamProtocolEncoder.numBlocksChanged(changedBlocks.length, dataToSend);
+//			System.out.println("Number of blocks changed: " + changedBlocks.length);
+			String blocksStr = "Encoding ";
+			for (int i = 0; i < changedBlocks.length; i++) {
+				blocksStr += " " + (Integer)changedBlocks[i];
+				EncodedBlockData block = retriever.getBlockToSend((Integer)changedBlocks[i]);
+				BlockVideoData	bv = new BlockVideoData(room, block.getPosition(), block.getVideoData(), false /* should remove later */);	
+				BlockStreamProtocolEncoder.encodeBlock(bv, dataToSend);
+			}
+			
+//			System.out.println(blocksStr);
+			
+			sendHeader(BlockStreamProtocolEncoder.encodeHeaderAndLength(dataToSend));
+			sendToStream(dataToSend);
+			for (int i = 0; i< changedBlocks.length; i++) {
+				retriever.blockSent((Integer)changedBlocks[i]);
+			}
 		} else if (message.getMessageType() == Message.MessageType.CURSOR) {
 			CursorMessage msg = (CursorMessage)message;
 			sendCursor(msg.getMouseLocation(), msg.getRoom());

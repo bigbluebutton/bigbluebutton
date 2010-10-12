@@ -156,12 +156,21 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
     private void decodeCaptureUpdateEvent(IoSession session, IoBuffer in, ProtocolDecoderOutput out) {
     	String room = decodeRoom(session, in);
     	int seqNum = in.getInt();
-    	int position = in.getShort();
-    	boolean isKeyFrame = (in.get() == 1) ? true : false;
-    	int length = in.getInt();
-    	byte[] data = new byte[length];
-    	in.get(data, 0, length);    	
-    	CaptureUpdateBlockEvent event = new CaptureUpdateBlockEvent(room, position, data, isKeyFrame, seqNum);
-    	out.write(event);
+    	int numBlocks = in.getShort();
+//    	System.out.println("Number of blocks changed " + numBlocks);
+    	String blocksStr = "Blocks changed ";
+    	
+    	for (int i = 0; i < numBlocks; i++) {
+        	int position = in.getShort();
+        	blocksStr += " " + position;
+        	
+        	boolean isKeyFrame = (in.get() == 1) ? true : false;
+        	int length = in.getInt();
+        	byte[] data = new byte[length];
+        	in.get(data, 0, length);    	
+        	CaptureUpdateBlockEvent event = new CaptureUpdateBlockEvent(room, position, data, isKeyFrame, seqNum);
+        	out.write(event);    		
+    	}
+//    	System.out.println(blocksStr);
     }
 }

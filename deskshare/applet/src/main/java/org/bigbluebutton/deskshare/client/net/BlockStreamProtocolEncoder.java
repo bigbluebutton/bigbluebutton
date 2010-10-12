@@ -64,7 +64,34 @@ public class BlockStreamProtocolEncoder {
 		data.write(intToBytes(length));			
 		data.write(block.getVideoData());		
 	}
-		
+
+	public static void numBlocksChanged(int numBlocks, ByteArrayOutputStream data) throws IOException{
+		byte[] nb = new byte[2];
+		nb[0] = (byte)((numBlocks >> 8) & 0xff);
+		nb[1] = (byte)(numBlocks & 0xff);
+		data.write(nb);
+	}
+	
+	public static void encodeRoomAndSequenceNumber(String room, int seqNum, ByteArrayOutputStream data) throws IOException{
+		data.write(CAPTURE_UPDATE_EVENT);
+		encodeRoom(data, room);		
+		encodeSequenceNumber(data, seqNum);		
+	}
+	
+	public static void encodeBlock(BlockVideoData block, ByteArrayOutputStream data) throws IOException {				
+		byte[] position = new byte[2];
+		int pos = block.getPosition();
+		position[0] = (byte)((pos >> 8) & 0xff);
+		position[1] = (byte)(pos & 0xff);
+			
+		data.write(position);
+		data.write(block.isKeyFrame() ? 1:0);
+			
+		int length = block.getVideoData().length;			
+		data.write(intToBytes(length));			
+		data.write(block.getVideoData());		
+	}
+	
 	public static byte[] encodeHeaderAndLength(ByteArrayOutputStream data) throws IOException {
 		ByteArrayOutputStream header = new ByteArrayOutputStream();
 		header.write(HEADER);
