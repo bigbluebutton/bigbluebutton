@@ -8,7 +8,7 @@ public class SequenceNumberGenerator {
 	private final AtomicInteger sequenceNum;
 	
 	public SequenceNumberGenerator() {
-		sequenceNum = new AtomicInteger();
+		sequenceNum = new AtomicInteger(0);
 	}
 	
 	public int getNext() {
