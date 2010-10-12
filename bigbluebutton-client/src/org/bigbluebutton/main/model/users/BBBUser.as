@@ -73,7 +73,7 @@ package org.bigbluebutton.main.model.users
 					break;
 				case "hasStream":
 					hasStream = status.value;
-					sendStreamStartedEvent();
+					if (hasStream) sendStreamStartedEvent();
 					break;
 				case "streamName":
 					streamName = status.value as String;
