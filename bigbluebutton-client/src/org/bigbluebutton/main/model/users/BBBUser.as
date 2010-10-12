@@ -46,7 +46,6 @@ package org.bigbluebutton.main.model.users
 		[Bindable] public var role:String = Role.VIEWER;	
 		[Bindable] public var room:String = "";
 		[Bindable] public var authToken:String = "";
-		
 		[Bindable] public var selected:Boolean = false;
 		
 		private var _status:StatusCollection = new StatusCollection();
@@ -74,6 +73,7 @@ package org.bigbluebutton.main.model.users
 					break;
 				case "hasStream":
 					hasStream = status.value;
+					sendStreamStartedEvent();
 					break;
 				case "streamName":
 					streamName = status.value as String;
@@ -106,6 +106,11 @@ package org.bigbluebutton.main.model.users
 			n.room = user.room;
 			
 			return n;		
+		}
+		
+		private function sendStreamStartedEvent():void{
+			var dispatcher:Dispatcher = new Dispatcher();
+			dispatcher.dispatchEvent(new StreamStartedEvent(userid, name, streamName));
 		}
 	}
 }

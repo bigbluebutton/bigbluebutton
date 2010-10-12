@@ -32,11 +32,14 @@
 	
     <mx:Script>
         <![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
 			import flexlib.mdi.events.MDIWindowEvent;
 			
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
+			import mx.controls.listClasses.IListItemRenderer;
 			import mx.events.DataGridEvent;
 			import mx.events.ListEvent;
 			
@@ -44,6 +47,7 @@
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.main.api.UserManager;
 			import org.bigbluebutton.main.events.ParticipantJoinEvent;
+			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
@@ -53,35 +57,25 @@
 			import org.bigbluebutton.modules.viewers.events.ChangeStatusEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
-			[Bindable]
-			private var windowTitle:String = ResourceUtil.getInstance().getString('bbb.viewers.title',["", ""]);
+			[Bindable] private var windowTitle:String = ResourceUtil.getInstance().getString('bbb.viewers.title',["", ""]);
 			
-			[Bindable]
-			public var participants:ArrayCollection = new ArrayCollection();
+			[Bindable] public var participants:ArrayCollection = new ArrayCollection();
 			private var conference:Conference;
-  			
-  			[Bindable]
-  			public var isModerator:Boolean = false;
+  			[Bindable] public var isModerator:Boolean = false;
+			private var handRaised:Boolean = false;
   			
           	public var images:Images = new Images();
-                      
-   			[Bindable] public var presenterIcon : Class = images.presenter;
+            [Bindable] public var presenterIcon : Class = images.presenter;
    			[Bindable] public var handIcon:Class = images.raisehand;
-			[Bindable] public var kickIcon:Class = images.delete_icon;
    			
-   			[Bindable] public var toggleTooltip : String = "Click to raise hand.";
-			private var handRaised:Boolean = false;
-			
-			public var allowKickUser:Boolean = false;
+			private var dispatcher:Dispatcher;
 			
 			private function onCreationComplete():void {
 				conference = UserManager.getInstance().getConference();
 				participants = conference.users;
 				this.isModerator = (conference.me.role == Role.MODERATOR);
 				BindingUtils.bindSetter(updateNumberOfViewers, participants, "length");	
-				
-				if (this.isModerator && allowKickUser) kickUserBtn.visible = true;
-				else kickUserBtn.visible = false;
+				dispatcher = new Dispatcher();
 			}
 			
 			private function updateNumberOfViewers(numViewers:int):void {
@@ -133,12 +127,6 @@
 				this.isModerator = (e.conference.me.role == Role.MODERATOR);
 			}
 			
-			private function kickUser():void{
-				if (isModerator && (viewersGrid.selectedItem != null)){
-					dispatchEvent(new KickUserEvent(viewersGrid.selectedItem.userid));
-				}
-			}
-			
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();				
 				if (participants.length > 4)
@@ -146,12 +134,30 @@
 				else 
 					windowTitle = ResourceUtil.getInstance().getString('bbb.viewers.title', ["", ""]);
 			}
+			
+			private function onItemRollOver(event:ListEvent):void{
+				var item:IListItemRenderer = event.itemRenderer;
+				var user:BBBUser = item.data as BBBUser;
+				var rollEvent:ViewersRollEvent = new ViewersRollEvent(ViewersRollEvent.VIEWERS_ROLL_OVER);
+				rollEvent.userid = user.userid;
+				dispatcher.dispatchEvent(rollEvent);
+			}
+			
+			private function onItemRollOut(event:ListEvent):void{
+				var item:IListItemRenderer = event.itemRenderer;
+				var user:BBBUser = item.data as BBBUser;
+				var rollEvent:ViewersRollEvent = new ViewersRollEvent(ViewersRollEvent.VIEWERS_ROLL_OUT);
+				rollEvent.userid = user.userid;
+				dispatcher.dispatchEvent(rollEvent);
+			}
 
         ]]>
     </mx:Script>
 
     <mx:DataGrid id="viewersGrid" dataProvider="{participants}" editable="false"
-    	dragEnabled="false" itemClick="viewerSelectEvent(event);" width="100%" height="100%">
+    	dragEnabled="false" itemClick="viewerSelectEvent(event);" width="100%" height="100%"
+		itemRollOver="onItemRollOver(event)"
+		itemRollOut="onItemRollOut(event)">
     	<mx:columns>
     		<mx:DataGridColumn dataField="role" headerText="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.roleItemRenderer')}" dataTipField="Role" editable="false" width="35"
     			itemRenderer="org.bigbluebutton.modules.viewers.views.RoleItemRenderer" sortable="false"/>
@@ -168,10 +174,6 @@
     	   			toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.presentBtn.toolTip')}"
     	   			click="assignPresenterClicked()"/>
      	 <mx:Spacer width="100%"/>
-	   	 <mx:Button id="kickUserBtn" icon="{kickIcon}"
-					width="20" height="20" 
-					toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.kickUserBtn.toolTip')}"
-					click="kickUser()"/>
     	 <mx:Button id="raiseHandImage" icon="{handIcon}" toggle="true" 
     	   			width="20" height="20"
     	   			toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.raiseHandBtn.toolTip')}" 
