@@ -95,9 +95,10 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
     
     private void decodeMouseLocationEvent(IoSession session, IoBuffer in, ProtocolDecoderOutput out) {
     	String room = decodeRoom(session, in);
+    	int seqNum = in.getInt();
     	int mouseX = in.getInt();
     	int mouseY = in.getInt();
-    	MouseLocationEvent event = new MouseLocationEvent(room, new Point(mouseX, mouseY));
+    	MouseLocationEvent event = new MouseLocationEvent(room, new Point(mouseX, mouseY), seqNum);
     	out.write(event);
     }
     
@@ -106,7 +107,8 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
     	
     	if (! "".equals(room)) {
     		log.info("CaptureEndEvent for " + room);
-    		CaptureEndBlockEvent event = new CaptureEndBlockEvent(room);
+    		int seqNum = in.getInt();
+    		CaptureEndBlockEvent event = new CaptureEndBlockEvent(room, seqNum);
     		out.write(event);
     	} else {
     		log.warn("Room is empty.");
@@ -116,13 +118,13 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
     private void decodeCaptureStartEvent(IoSession session, IoBuffer in, ProtocolDecoderOutput out) { 
     	String room = decodeRoom(session, in);
     	session.setAttribute(ROOM, room);
+    	int seqNum = in.getInt();
     	
 		Dimension blockDim = decodeDimension(in);
 		Dimension screenDim = decodeDimension(in);    	
-//	    System.out.println("Block dim [" + blockDim.getWidth() + "," + blockDim.getHeight() + "]");
-//	    System.out.println("Screen dim [" + screenDim.getWidth() + "," + screenDim.getHeight() + "]");
+
 	    log.info("CaptureStartEvent for " + room);
-	    CaptureStartBlockEvent event = new CaptureStartBlockEvent(room, screenDim, blockDim);	
+	    CaptureStartBlockEvent event = new CaptureStartBlockEvent(room, screenDim, blockDim, seqNum);	
 	    out.write(event);
     }
     
@@ -153,15 +155,13 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
     
     private void decodeCaptureUpdateEvent(IoSession session, IoBuffer in, ProtocolDecoderOutput out) {
     	String room = decodeRoom(session, in);
+    	int seqNum = in.getInt();
     	int position = in.getShort();
     	boolean isKeyFrame = (in.get() == 1) ? true : false;
     	int length = in.getInt();
     	byte[] data = new byte[length];
-    	in.get(data, 0, length);
-    	
-//    	System.out.println("position=[" + position + "] keyframe=" + isKeyFrame + " length= " + length);
-    	
-    	CaptureUpdateBlockEvent event = new CaptureUpdateBlockEvent(room, position, data, isKeyFrame);
+    	in.get(data, 0, length);    	
+    	CaptureUpdateBlockEvent event = new CaptureUpdateBlockEvent(room, position, data, isKeyFrame, seqNum);
     	out.write(event);
     }
 }

@@ -25,10 +25,12 @@ public class MouseLocationEvent {
 
 	private String room;
 	private Point loc;
+	private final int sequenceNum;
 	
-	public MouseLocationEvent(String room, Point loc) {
+	public MouseLocationEvent(String room, Point loc, int sequenceNum) {
 		this.room = room;
 		this.loc = loc;
+		this.sequenceNum = sequenceNum;
 	}
 	
 	public String getRoom() {
@@ -37,5 +39,9 @@ public class MouseLocationEvent {
 	
 	public Point getLoc() {
 		return loc;
+	}
+	
+	public int getSequenceNum() {
+		return sequenceNum;
 	}
 }

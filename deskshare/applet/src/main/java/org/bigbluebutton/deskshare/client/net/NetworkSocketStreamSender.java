@@ -40,13 +40,16 @@ public class NetworkSocketStreamSender implements Runnable {
 	private volatile boolean processMessages = false;
 	private final int id;
 	private NetworkStreamListener listener;
+	private final SequenceNumberGenerator seqNumGenerator;
 	
-	public NetworkSocketStreamSender(int id, NextBlockRetriever retriever, String room, Dimension screenDim, Dimension blockDim) {
+	public NetworkSocketStreamSender(int id, NextBlockRetriever retriever, String room, 
+			Dimension screenDim, Dimension blockDim, SequenceNumberGenerator seqNumGenerator) {
 		this.id = id;
 		this.retriever = retriever;
 		this.room = room;
 		this.screenDim = screenDim;
 		this.blockDim = blockDim;	
+		this.seqNumGenerator = seqNumGenerator;
 	}
 	
 	public void addListener(NetworkStreamListener listener) {
@@ -58,7 +61,7 @@ public class NetworkSocketStreamSender implements Runnable {
 	}
 	
 	public void connect(String host, int port) throws ConnectionException {
-		System.out.println("Starting NetworkSocketStreamSender ");
+		System.out.println("NetworkSocketStreamSender: connecting to " + host + ":" + port);
 		try {
 			socket = new Socket(host, port);
 			outstream = new DataOutputStream(socket.getOutputStream());
@@ -75,7 +78,7 @@ public class NetworkSocketStreamSender implements Runnable {
 		try {
 			ByteArrayOutputStream dataToSend = new ByteArrayOutputStream();
 			dataToSend.reset();
-			BlockStreamProtocolEncoder.encodeStartStreamMessage(room, screenDim, blockDim, dataToSend);
+			BlockStreamProtocolEncoder.encodeStartStreamMessage(room, screenDim, blockDim, dataToSend, seqNumGenerator.getNext());
 			sendHeader(BlockStreamProtocolEncoder.encodeHeaderAndLength(dataToSend));
 			sendToStream(dataToSend);
 		} catch (IOException e) {
@@ -87,7 +90,7 @@ public class NetworkSocketStreamSender implements Runnable {
 	private void sendCursor(Point mouseLoc, String room) throws IOException {
 		ByteArrayOutputStream dataToSend = new ByteArrayOutputStream();
 		dataToSend.reset();
-		BlockStreamProtocolEncoder.encodeMouseLocation(mouseLoc, room, dataToSend);
+		BlockStreamProtocolEncoder.encodeMouseLocation(mouseLoc, room, dataToSend, seqNumGenerator.getNext());
 		sendHeader(BlockStreamProtocolEncoder.encodeHeaderAndLength(dataToSend));
 		sendToStream(dataToSend);
 	}
@@ -95,7 +98,7 @@ public class NetworkSocketStreamSender implements Runnable {
 	private void sendBlock(BlockVideoData block) throws IOException {
 		ByteArrayOutputStream dataToSend = new ByteArrayOutputStream();
 		dataToSend.reset();
-		BlockStreamProtocolEncoder.encodeBlock(block, dataToSend);
+		BlockStreamProtocolEncoder.encodeBlock(block, dataToSend, seqNumGenerator.getNext());
 		sendHeader(BlockStreamProtocolEncoder.encodeHeaderAndLength(dataToSend));
 		sendToStream(dataToSend);
 	}
@@ -115,7 +118,7 @@ public class NetworkSocketStreamSender implements Runnable {
 		try {
 			ByteArrayOutputStream dataToSend = new ByteArrayOutputStream();
 			dataToSend.reset();
-			BlockStreamProtocolEncoder.encodeEndStreamMessage(room, dataToSend);
+			BlockStreamProtocolEncoder.encodeEndStreamMessage(room, dataToSend, seqNumGenerator.getNext());
 			sendHeader(BlockStreamProtocolEncoder.encodeHeaderAndLength(dataToSend));
 			sendToStream(dataToSend);
 		} catch (IOException e) {

@@ -48,14 +48,14 @@ class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension) exte
 				blankPixels(i) = 0xFFFF;
 			}
 			val encodedPixels = ScreenVideoEncoder.encodePixels(blankPixels, dim.width, dim.height)
-			block.update(encodedPixels, true)
+			block.update(encodedPixels, true, 0)
 			blocksMap.put(position, block)
 		}
 	}
 	
-	def updateBlock(position: Int, videoData: Array[Byte], keyFrame: Boolean): Unit = {
+	def updateBlock(position: Int, videoData: Array[Byte], keyFrame: Boolean, seqNum: Int): Unit = {
 		val block: Block = blocksMap.get(position)
-		block.update(videoData, keyFrame)
+		block.update(videoData, keyFrame, seqNum)
 	}
 	
 	def generateFrame(genKeyFrame: Boolean): Array[Byte] = {

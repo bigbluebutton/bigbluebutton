@@ -48,17 +48,17 @@ public class BlockStreamEventMessageHandler extends IoHandlerAdapter {
     	if (message instanceof CaptureStartBlockEvent) {
     		System.out.println("Got CaptureStartBlockEvent");
     		CaptureStartBlockEvent event = (CaptureStartBlockEvent) message;
-    		sessionManager.createSession(event.getRoom(), event.getScreenDimension(), event.getBlockDimension());
+    		sessionManager.createSession(event.getRoom(), event.getScreenDimension(), event.getBlockDimension(), event.getSequenceNum());
     	} else if (message instanceof CaptureUpdateBlockEvent) {
 //    		System.out.println("Got CaptureUpdateBlockEvent");
     		CaptureUpdateBlockEvent event = (CaptureUpdateBlockEvent) message;
-    		sessionManager.updateBlock(event.getRoom(), event.getPosition(), event.getVideoData(), event.isKeyFrame());
+    		sessionManager.updateBlock(event.getRoom(), event.getPosition(), event.getVideoData(), event.isKeyFrame(), event.getSequenceNum());
     	} else if (message instanceof CaptureEndBlockEvent) {
     		CaptureEndBlockEvent event = (CaptureEndBlockEvent) message;
-    		sessionManager.removeSession(event.getRoom());
+    		sessionManager.removeSession(event.getRoom(), event.getSequenceNum());
     	} else if (message instanceof MouseLocationEvent) {
     		MouseLocationEvent event = (MouseLocationEvent) message;
-    		sessionManager.updateMouseLocation(event.getRoom(), event.getLoc());
+    		sessionManager.updateMouseLocation(event.getRoom(), event.getLoc(), event.getSequenceNum());
     	}
     }
 
@@ -88,7 +88,7 @@ public class BlockStreamEventMessageHandler extends IoHandlerAdapter {
     	String room = (String) session.getAttribute("ROOM");
     	if (room != null) {
     		log.debug("Session Closed for room " + room);
-    		sessionManager.removeSession(room);
+    		sessionManager.removeSession(room, 0);
     	} else {
     		log.warn("Closing session for a NULL room");
     	}
