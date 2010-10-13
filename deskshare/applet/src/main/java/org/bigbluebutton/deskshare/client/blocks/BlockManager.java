@@ -60,7 +60,7 @@ public class BlockManager {
     	long start = System.currentTimeMillis();
 
     	Vector<Integer> changedBlocks = new Vector<Integer>();
-		
+/*		
 		int numberOfBlocks = numColumns * numRows;
 		for (int position = 1; position <= numberOfBlocks; position++) {
 			Block block = blocksMap.get(new Integer(position));
@@ -75,7 +75,8 @@ public class BlockManager {
 			changedBlocks.clear();
 			notifyChangedBlockListener(new BlockMessage(bc));
 		}
-/*		
+*/
+		
 		int numberOfBlocks = numColumns * numRows;
 		for (int position = 1; position <= numberOfBlocks; position++) {
 			Block block = blocksMap.get(new Integer(position));
@@ -90,7 +91,7 @@ public class BlockManager {
     			notifyChangedBlockListener(new BlockMessage(bc));
     		}
 		}
-*/
+
     }
         
     private void notifyChangedBlockListener(BlockMessage position) {
