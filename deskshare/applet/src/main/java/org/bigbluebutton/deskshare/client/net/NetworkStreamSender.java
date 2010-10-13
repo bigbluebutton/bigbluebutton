@@ -50,6 +50,7 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
 	private Dimension blockDim;
 	private BlockManager blockManager;
 	private NetworkConnectionListener listener;
+	private final SequenceNumberGenerator seqNumGenerator = new SequenceNumberGenerator();
 	
 	public NetworkStreamSender(BlockManager blockManager, String host, int port,
 			String room, Dimension screenDim, Dimension blockDim, boolean httpTunnel) {
@@ -126,13 +127,13 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
 	}
 	
 	private void createSender(int i) throws ConnectionException {
-		socketSenders[i] = new NetworkSocketStreamSender(i, this, room, screenDim, blockDim);
+		socketSenders[i] = new NetworkSocketStreamSender(i, this, room, screenDim, blockDim, seqNumGenerator);
 		socketSenders[i].addListener(this);
 		socketSenders[i].connect(host, port);		
 	}
 	
 	private void createHttpSender(int i) throws ConnectionException {
-		httpSenders[i] = new NetworkHttpStreamSender(i, this, room, screenDim, blockDim);
+		httpSenders[i] = new NetworkHttpStreamSender(i, this, room, screenDim, blockDim, seqNumGenerator);
 		httpSenders[i].addListener(this);
 		httpSenders[i].connect(host);
 	}
@@ -181,7 +182,7 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
 	}
 
 	private boolean tryHttpTunneling() {
-		NetworkHttpStreamSender httpSender = new NetworkHttpStreamSender(0, this, room, screenDim, blockDim);
+		NetworkHttpStreamSender httpSender = new NetworkHttpStreamSender(0, this, room, screenDim, blockDim, seqNumGenerator);
 		try {
 			httpSender.connect(host);
 			return true;
@@ -189,6 +190,10 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
 			System.out.println(NAME + "Problem connecting to " + host);
 		}
 		return false;
+	}
+	
+	public void blockSent(int position) {
+		blockManager.blockSent(position);
 	}
 	
 	public EncodedBlockData getBlockToSend(int position) {		
@@ -211,7 +216,10 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
 			numRunningThreads--;
 		
 			if (tunneling) {								
-				httpSenders[id].disconnect();				
+//				httpSenders[id].disconnect();
+				System.out.println(NAME + "Failed to use http tunneling. Stopping.");
+				stop();
+				notifyNetworkConnectionListener(reason);
 			} else {
 				socketSenders[id].disconnect();
 			}
@@ -225,6 +233,12 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
 		} catch (ConnectionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			if (numRunningThreads < 1) {
+				System.out.println(NAME + "No more sender threads. Stopping.");
+				notifyNetworkConnectionListener(reason);
+			} else {
+				System.out.println(NAME + "Sender thread stopped. " + numRunningThreads + " sender threads remaining.");
+			}
 		}		
 	}
 	

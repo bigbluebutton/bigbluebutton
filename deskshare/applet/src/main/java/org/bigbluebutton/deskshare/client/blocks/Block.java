@@ -83,11 +83,14 @@ public final class Block {
     	return false;
     }
     
+    public void sent() {
+    	dirtyBlock.set(false);
+    }
+    
     public EncodedBlockData encode() {   
     	int[] pixelsCopy = new int[capturedPixels.length];
     	
-    	synchronized (pixelsLock) { 
-    		dirtyBlock.set(false);
+    	synchronized (pixelsLock) {     		
             System.arraycopy(capturedPixels, 0, pixelsCopy, 0, capturedPixels.length);
 		}
     	

@@ -33,7 +33,18 @@ import org.bigbluebutton.deskshare.common.Dimension;
 
 import com.myjavatools.web.ClientHttpRequest;
 
-public class NetworkHttpStreamSender implements Runnable {
+public class NetworkHttpStreamSender implements Runnable {	
+	private static final String SEQ_NUM = "sequenceNumber";
+	private static final String ROOM = "room";
+	private static final String BLOCK = "blockInfo";
+	private static final String EVENT = "event";
+	private static final String SCREEN = "screenInfo";
+	private static final String POSITION = "position";
+	private static final String KEYFRAME = "keyframe";
+	private static final String BLOCKDATA = "blockdata";
+	private static final String MOUSEX = "mousex";
+	private static final String MOUSEY = "mousey";
+	
 	private String host = "localhost";
 	private static final String SCREEN_CAPTURE__URL = "/deskshare/tunnel/screenCapture";
 	private URL url;
@@ -45,13 +56,16 @@ public class NetworkHttpStreamSender implements Runnable {
 	private volatile boolean processBlocks = false;
 	private final int id;
 	private NetworkStreamListener listener;
+	private final SequenceNumberGenerator seqNumGenerator;
 	
-	public NetworkHttpStreamSender(int id, NextBlockRetriever retriever, String room, Dimension screenDim, Dimension blockDim) {
+	public NetworkHttpStreamSender(int id, NextBlockRetriever retriever, String room, 
+									Dimension screenDim, Dimension blockDim, SequenceNumberGenerator seqNumGenerator) {
 		this.id = id;
 		this.retriever = retriever;
 		this.room = room;
 		this.screenDim = screenDim;
 		this.blockDim = blockDim;
+		this.seqNumGenerator = seqNumGenerator;
 	}
 	
 	public void addListener(NetworkStreamListener listener) {
@@ -102,19 +116,18 @@ public class NetworkHttpStreamSender implements Runnable {
 		ClientHttpRequest chr;
 		try {
 			chr = new ClientHttpRequest(conn);
-			chr.setParameter("room", room);
+			chr.setParameter(ROOM, room);
 			
+			chr.setParameter(SEQ_NUM, seqNumGenerator.getNext());
 			String screenInfo = Integer.toString(screen.getWidth())
 								+ "x" + Integer.toString(screen.getHeight());
-
-			chr.setParameter("screenInfo", screenInfo);
+			chr.setParameter(SCREEN, screenInfo);
 			
 			String blockInfo = Integer.toString(block.getWidth())
 								+ "x" + Integer.toString(block.getHeight());
+			chr.setParameter(BLOCK, blockInfo);
 
-			chr.setParameter("blockInfo", blockInfo);
-
-			chr.setParameter("event", CaptureEvents.CAPTURE_START.getEvent());
+			chr.setParameter(EVENT, CaptureEvents.CAPTURE_START.getEvent());
 			chr.post();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -141,9 +154,9 @@ public class NetworkHttpStreamSender implements Runnable {
 		ClientHttpRequest chr;
 		try {
 			chr = new ClientHttpRequest(conn);
-			chr.setParameter("room", room);
-			
-			chr.setParameter("event", CaptureEvents.CAPTURE_END.getEvent());
+			chr.setParameter(ROOM, room);
+			chr.setParameter(SEQ_NUM, seqNumGenerator.getNext());
+			chr.setParameter(EVENT, CaptureEvents.CAPTURE_END.getEvent());
 			chr.post();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -153,9 +166,10 @@ public class NetworkHttpStreamSender implements Runnable {
 	
 	private void processNextMessageToSend(Message message) {
 		if (message.getMessageType() == Message.MessageType.BLOCK) {
-			EncodedBlockData block = retriever.getBlockToSend(((BlockMessage)message).getPosition());
-			BlockVideoData	bv = new BlockVideoData(room, block.getPosition(), block.getVideoData(), false /* should remove later */);									
-			sendBlockData(bv);
+//			EncodedBlockData block = retriever.getBlockToSend(((BlockMessage)message).getPosition());
+//			BlockVideoData	bv = new BlockVideoData(room, block.getPosition(), block.getVideoData(), false /* should remove later */);									
+//			sendBlockData(bv);
+//			retriever.blockSent(block.getPosition());
 		} else if (message.getMessageType() == Message.MessageType.CURSOR) {
 			CursorMessage msg = (CursorMessage)message;
 			sendCursor(msg.getMouseLocation(), msg.getRoom());
@@ -183,10 +197,11 @@ public class NetworkHttpStreamSender implements Runnable {
 		try {
 			openConnection();
 			chr = new ClientHttpRequest(conn);
-			chr.setParameter("room", room);
-			chr.setParameter("event", CaptureEvents.MOUSE_LOCATION_EVENT.getEvent());
-			chr.setParameter("mousex", mouseLoc.x);
-			chr.setParameter("mousey", mouseLoc.y);
+			chr.setParameter(ROOM, room);
+			chr.setParameter(SEQ_NUM, seqNumGenerator.getNext());
+			chr.setParameter(EVENT, CaptureEvents.MOUSE_LOCATION_EVENT.getEvent());
+			chr.setParameter(MOUSEX, mouseLoc.x);
+			chr.setParameter(MOUSEY, mouseLoc.y);
 			chr.post();		
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -200,12 +215,13 @@ public class NetworkHttpStreamSender implements Runnable {
 		try {
 			openConnection();
 			chr = new ClientHttpRequest(conn);
-		    chr.setParameter("room", blockData.getRoom());
-		    chr.setParameter("position", blockData.getPosition());
-		    chr.setParameter("keyframe", blockData.isKeyFrame());
-		    chr.setParameter("event", CaptureEvents.CAPTURE_UPDATE.getEvent());
+		    chr.setParameter(ROOM, blockData.getRoom());
+		    chr.setParameter(SEQ_NUM, seqNumGenerator.getNext());
+		    chr.setParameter(POSITION, blockData.getPosition());
+		    chr.setParameter(KEYFRAME, blockData.isKeyFrame());
+		    chr.setParameter(EVENT, CaptureEvents.CAPTURE_UPDATE.getEvent());
 			ByteArrayInputStream block = new ByteArrayInputStream(blockData.getVideoData());				
-			chr.setParameter("blockdata", "block", block);
+			chr.setParameter(BLOCKDATA, "block", block);
 			chr.post();		
 		} catch (IOException e) {
 			e.printStackTrace();
