@@ -21,7 +21,8 @@ $Id: $
 --> 
 
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" 
-		 horizontalScrollPolicy="off" creationComplete="onCreationComplete()">
+		 horizontalScrollPolicy="off" creationComplete="onCreationComplete()"
+		 horizontalAlign="left">
 	
 	<mx:Script>
 		<![CDATA[
@@ -116,15 +117,13 @@ $Id: $
 	<mx:Button id="muteBtn" width="20" height="20" visible="true" enabled="{data.moderator}" 
 			   toolTip="{data.moderator ? ResourceUtil.getInstance().getString('bbb.listenerItem.muteUnmute.toolTip') : ''}"
 			   icon="{data.muted ? muteIcon : unmuteIcon}" click="muteUser()"/>
-	<mx:Label id="nameLabel" textAlign="left" text="{data.callerName}" width="120" 
+	<mx:Label id="nameLabel" textAlign="left" text="{data.callerName}" minWidth="120"
 			  toolTip="{ResourceUtil.getInstance().getString('bbb.listenerItem.nameLbl.toolTip')}"/>
 	<mx:Button id="muteCB" width="20" height="20" visible="true" enabled="{data.moderator}" 
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.listenerItem.lockImg.toolTip')}"
 			   icon="{data.locked ? lockedIcon : unlockedIcon}" click="lockMuteUser()"/>
-	<mx:Spacer width="25%" />
 	<mx:Image id="talkImg" source="{talkIcon}" visible="{data.talking}" 
 			  toolTip="{ResourceUtil.getInstance().getString('bbb.listenerItem.talkImg.toolTip')}"/>
-	<mx:Spacer width="100%" />
 	<mx:Button id="kickUserBtn" icon="{ejectIcon}" width="20" height="20" visible="false"
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.listeners.ejectTooltip')}"
 			   click="handleEjectButtonClick()"/>

@@ -21,7 +21,8 @@
 --> 
 
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
-	verticalScrollPolicy="off" horizontalScrollPolicy="off">
+	verticalScrollPolicy="off" horizontalScrollPolicy="off"
+	horizontalAlign="center">
 	
 	<mx:Script>
 		<![CDATA[
