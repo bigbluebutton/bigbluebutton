@@ -59,9 +59,12 @@ public class BlockManager {
     public void processCapturedScreen(BufferedImage capturedScreen) {    	
     	long start = System.currentTimeMillis();
 
-		Vector<Integer> changedBlocks = new Vector<Integer>();
+    	Vector<Integer> changedBlocks = new Vector<Integer>();
 /*		
+		int rowCount = 0;
+		
 		for (int row = 1; row <= numRows; row++) {
+			changedBlocks = new Vector<Integer>();
 			for (int col = 1; col <= numColumns; col++) {
 	        	Block block = blocksMap.get(new Integer(row * col));
 	        	if (block.hasChanged(capturedScreen)) {
@@ -72,17 +75,24 @@ public class BlockManager {
 				notifyChangedBlockListener(new BlockMessage(changedBlocks));
 		}  
 */
+		
 		int numberOfBlocks = numColumns * numRows;
 		for (int position = 1; position <= numberOfBlocks; position++) {
 			Block block = blocksMap.get(new Integer(position));
         	if (block.hasChanged(capturedScreen)) {
         		changedBlocks.add(new Integer(position));        		
         	}
+        	
+    		if ((position % numColumns == 0) && (changedBlocks.size() > 0)) {
+    			Integer[] bc = new Integer[changedBlocks.size()];
+    			System.arraycopy(changedBlocks.toArray(), 0, bc, 0, bc.length);
+    			changedBlocks.clear();
+    			notifyChangedBlockListener(new BlockMessage(bc));
+    		}
 		}
-		if (changedBlocks.size() > 0)
-			notifyChangedBlockListener(new BlockMessage(changedBlocks));
+					
 		long end = System.currentTimeMillis();
-//		System.out.println("ProcessCapturedScreen took " + (end-start) + " ms.");
+
     }
         
     private void notifyChangedBlockListener(BlockMessage position) {

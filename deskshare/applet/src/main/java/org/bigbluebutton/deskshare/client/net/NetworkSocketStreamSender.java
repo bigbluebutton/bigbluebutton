@@ -136,7 +136,7 @@ public class NetworkSocketStreamSender implements Runnable {
 			dataToSend.reset();
 			BlockStreamProtocolEncoder.encodeRoomAndSequenceNumber(room, seqNumGenerator.getNext(), dataToSend);
 			
-			Object[] changedBlocks = ((BlockMessage)message).getBlocks().toArray();
+			Integer[] changedBlocks = ((BlockMessage)message).getBlocks();
 
 			BlockStreamProtocolEncoder.numBlocksChanged(changedBlocks.length, dataToSend);
 //			System.out.println("Number of blocks changed: " + changedBlocks.length);

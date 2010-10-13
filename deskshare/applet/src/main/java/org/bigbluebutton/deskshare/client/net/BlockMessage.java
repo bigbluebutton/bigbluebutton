@@ -19,13 +19,11 @@
  */
 package org.bigbluebutton.deskshare.client.net;
 
-import java.util.Vector;
-
 public class BlockMessage implements Message {
 
-	private Vector<Integer> blocks;
+	private Integer[] blocks;
 	
-	public BlockMessage(Vector<Integer> blocks) {
+	public BlockMessage(Integer[] blocks) {
 		this.blocks = blocks;
 	}
 	
@@ -34,7 +32,7 @@ public class BlockMessage implements Message {
 		return MessageType.BLOCK;
 	}
 
-	public Vector<Integer> getBlocks() {
+	public Integer[] getBlocks() {
 		return blocks;
 	}
 }
