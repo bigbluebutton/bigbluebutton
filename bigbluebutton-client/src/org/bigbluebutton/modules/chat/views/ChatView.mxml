@@ -429,7 +429,7 @@
 			
 			private function changeLanguage(e:ChatOptionsEvent):void
 			{
-				this.currentLangCode=e.language;
+				this.currentLangCode= e.language;
 			}
 			
 		]]>
