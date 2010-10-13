@@ -60,22 +60,22 @@ public class BlockManager {
     	long start = System.currentTimeMillis();
 
     	Vector<Integer> changedBlocks = new Vector<Integer>();
-/*		
-		int rowCount = 0;
 		
-		for (int row = 1; row <= numRows; row++) {
-			changedBlocks = new Vector<Integer>();
-			for (int col = 1; col <= numColumns; col++) {
-	        	Block block = blocksMap.get(new Integer(row * col));
-	        	if (block.hasChanged(capturedScreen)) {
-	        		changedBlocks.add(new Integer(row * col));        		
-	        	}				
-			}
-			if (changedBlocks.size() > 0)
-				notifyChangedBlockListener(new BlockMessage(changedBlocks));
+		int numberOfBlocks = numColumns * numRows;
+		for (int position = 1; position <= numberOfBlocks; position++) {
+			Block block = blocksMap.get(new Integer(position));
+        	if (block.hasChanged(capturedScreen)) {
+        		changedBlocks.add(new Integer(position));        		
+        	}
 		}  
-*/
-		
+    	
+		if (changedBlocks.size() > 0) {
+			Integer[] bc = new Integer[changedBlocks.size()];
+			System.arraycopy(changedBlocks.toArray(), 0, bc, 0, bc.length);
+			changedBlocks.clear();
+			notifyChangedBlockListener(new BlockMessage(bc));
+		}
+/*		
 		int numberOfBlocks = numColumns * numRows;
 		for (int position = 1; position <= numberOfBlocks; position++) {
 			Block block = blocksMap.get(new Integer(position));
@@ -90,9 +90,7 @@ public class BlockManager {
     			notifyChangedBlockListener(new BlockMessage(bc));
     		}
 		}
-					
-		long end = System.currentTimeMillis();
-
+*/
     }
         
     private void notifyChangedBlockListener(BlockMessage position) {
