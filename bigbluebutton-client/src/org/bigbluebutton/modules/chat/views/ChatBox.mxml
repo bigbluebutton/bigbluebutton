@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" click="setMessageRead()" xmlns:mate="http://mate.asfusion.com/" >
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" click="setMessageRead()" xmlns:mate="http://mate.asfusion.com/" creationComplete="onCreationComplete()" >
 	
 	<mate:Listener type="{ChatOptionsEvent.CHANGE_FONT_SIZE}" method="changeFontSize" />
 	
@@ -16,7 +16,9 @@
 			import mx.core.ScrollPolicy;
 			
 			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
-			import org.bigbluebutton.modules.chat.views.components.ChatMessageRenderer;
+			import org.bigbluebutton.modules.chat.views.ChatMessageRenderer;
+			
+			public static const COPY_ALL_BUTTON:String = "Copy All Text";
 			
 			public var read:Boolean = true;
 			public var participantLoggedOut:Boolean = false;
@@ -28,6 +30,10 @@
 			
 			[Bindable] private var messages:ArrayCollection = new ArrayCollection();
 			[Bindable] private var msg:Object;
+			
+			private function onCreationComplete():void{
+				addContextMenuItems();
+			}
 			
 			private function updateScroll():void{
 				chatMessagesList.verticalScrollPosition = chatMessagesList.maxVerticalScrollPosition;
@@ -98,11 +104,36 @@
 			private function changeFontSize(e:ChatOptionsEvent):void{
 				this.setStyle("fontSize", e.fontSize);
 			}
-		
+			
+			private function addContextMenuItems():void{
+				var contextMenu:ContextMenu = new ContextMenu();
+				contextMenu.hideBuiltInItems();
+				
+				var capyAllButton:ContextMenuItem = new ContextMenuItem(COPY_ALL_BUTTON);
+				capyAllButton.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, menuItemHandler);
+				contextMenu.customItems.push(capyAllButton);
+				
+				this.contextMenu = contextMenu;
+			}
+			
+			private function menuItemHandler(e:ContextMenuEvent):void{
+				if (e.target.caption == COPY_ALL_BUTTON){
+					System.setClipboard(getAllAsString());
+				}
+			}
+			
+			private function getAllAsString():String{
+				var allText:String = "";
+				for (var i:int = 0; i<messages.length; i++){
+					var item:Object = messages.getItemAt(i);
+					allText += "\n" + item.name + " - " + item.time + " : " + item.text;
+				}
+				return allText;
+			}
 			
 		]]>
 	</mx:Script>
 	
 	<mx:List width="100%" height="100%" id="chatMessagesList" updateComplete="updateScroll()" selectable="false" variableRowHeight="true"
-			 itemRenderer="org.bigbluebutton.modules.chat.views.components.ChatMessageRenderer" dataProvider="{messages}" />
+			 itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" dataProvider="{messages}" />
 </mx:VBox>
