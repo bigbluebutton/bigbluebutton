@@ -795,7 +795,7 @@ check_state() {
 	if [ -a /var/run/asterisk/asterisk.pid ] && [ -a /opt/freeswitch/run/freeswitch.pid ]; then
 		print_header
 		echo "Asterisk and Freeswitch are running parallel"
-		echo "Please run bbb-conf freeswitch or bbb-conf asterisk"
+		echo "Please run bbb-conf --conference with either freeswitch or asterisk"
 	elif [ -a /var/run/asterisk/asterisk.pid ]; then 
 		if ! ps aux | grep -v grep | grep '[/]usr/sbin/asterisk' > /dev/null; then
 				print_header
