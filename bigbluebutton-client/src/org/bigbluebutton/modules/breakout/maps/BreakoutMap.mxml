@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" 
+		   xmlns="http://mate.asfusion.com/">
+	<mx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			import org.bigbluebutton.modules.breakout.business.BreakoutProxy;
+			import org.bigbluebutton.modules.breakout.events.CreateRoomEvent;
+			import org.bigbluebutton.modules.breakout.events.StartBreakoutModule;
+			import org.bigbluebutton.modules.breakout.managers.BreakoutManager;
+		]]>
+	</mx:Script>
+	
+	<EventHandlers type="{FlexEvent.PREINITIALIZE}" >
+		<ObjectBuilder generator="{BreakoutProxy}" cache="global" />
+		<ObjectBuilder generator="{BreakoutManager}" cache="global" />
+	</EventHandlers>
+	
+	<EventHandlers type="{StartBreakoutModule.START_BREAKOUT}" >
+		<MethodInvoker generator="{BreakoutProxy}" method="connect" arguments="{event.attributes}" />
+		<MethodInvoker generator="{BreakoutManager}" method="addButton" arguments="{event.attributes}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{CreateRoomEvent.CREATE_ROOM}" >
+		<MethodInvoker generator="{BreakoutProxy}" method="createRoom" arguments="{[event.usersList, event.kickUsers]}" />
+	</EventHandlers>
+	
+</EventMap>

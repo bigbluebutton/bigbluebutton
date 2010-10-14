@@ -50,8 +50,7 @@ public class FlashToSipAudioStream {
 	private IStreamListener mInputListener;
 	private final DatagramSocket srcSocket;
 	private final SipConnectInfo connInfo;
-	private String talkStreamName;
-	
+	private String talkStreamName;	
 	private RtpStreamSender rtpSender;
 	
 	public FlashToSipAudioStream(final FlashToSipTranscoder transcoder, DatagramSocket srcSocket, SipConnectInfo connInfo) {
@@ -74,26 +73,26 @@ public class FlashToSipAudioStream {
 		    	  log.debug("skipping empty packet with no data");
 		    	  return;
 		      }
-		          
+		      		      
 		      if (packet instanceof AudioData) {
+		    	  System.out.println("Received RTMP Audio packet....");
 		    	  byte[] data = SerializeUtils.ByteBufferToByteArray(buf);
-//		    	  System.out.println("RX RTMP: ts=" + packet.getTimestamp());
-		    	  AudioByteData abd = new AudioByteData(data);
-		    	  try {
-					audioDataQ.put(abd);
-		    	  } catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-		    	  }
+				  AudioByteData abd = new AudioByteData(data);
+				  try {
+					  audioDataQ.put(abd);
+				  } catch (InterruptedException e) {
+					  // TODO Auto-generated catch block
+					  e.printStackTrace();
+				  }		    			  		    	  
 		      } 
 			}
 		};
+				
 	    broadcastStream.addStreamListener(mInputListener);    
 	    rtpSender = new RtpStreamSender(srcSocket, connInfo);
 		rtpSender.connect();
-		
-		processAudioData = true;
-	    
+				
+		processAudioData = true;	    
 	    audioDataProcessor = new Runnable() {
     		public void run() {
     			processAudioData();   			

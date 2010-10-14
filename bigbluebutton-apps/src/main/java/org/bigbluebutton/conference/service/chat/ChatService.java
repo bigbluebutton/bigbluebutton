@@ -19,6 +19,7 @@
  */
 package org.bigbluebutton.conference.service.chat;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
@@ -30,7 +31,7 @@ public class ChatService {
 	
 	private ChatApplication application;
 
-	public String getChatMessages() {
+	public List<String> getChatMessages() {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
 		return application.getChatMessages(roomName);
 	}

@@ -1,12 +1,13 @@
 package org.bigbluebutton.main.model
 {
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.Event;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.utils.Dictionary;
 	
-	import mx.controls.Alert;
-	
+	import org.bigbluebutton.main.events.AppVersionEvent;
 	import org.bigbluebutton.main.model.modules.ModuleDescriptor;
 
 	public class ConfigParameters
@@ -27,8 +28,10 @@ package org.bigbluebutton.main.model
 		public var numModules:int;
 		public var languageEnabled:Boolean;
 		public var skinning:String = "";
+		public var showDebug:Boolean = false;
 		
 		private var loadedListener:Function;
+		private var dispatcher:Dispatcher = new Dispatcher();
 		
 		private var _modules:Dictionary;
 		
@@ -62,6 +65,10 @@ package org.bigbluebutton.main.model
 			if (xml.language.@userSelectionEnabled == "true") languageEnabled = true;
 			else languageEnabled = false;
 			if (xml.skinning.@enabled == "true") skinning = xml.skinning.@url;
+			var versionEvent:AppVersionEvent = new AppVersionEvent();
+			versionEvent.appVersion = version;			
+			dispatcher.dispatchEvent(versionEvent);
+			if (xml.debug.@showDebugWindow == "true") showDebug = true;
 		}
 		
 		public function getModulesXML():XMLList{

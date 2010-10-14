@@ -29,10 +29,12 @@ package org.bigbluebutton.modules.chat.services
 	import flash.net.Responder;
 	import flash.net.SharedObject;
 	
+	import mx.controls.Alert;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.chat.events.ConnectionEvent;
 	import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
-	import org.bigbluebutton.modules.chat.events.TranscriptLoadedEvent;
+	import org.bigbluebutton.modules.chat.events.TranscriptEvent;
 
 	public class PublicChatSharedObjectService
 	{
@@ -118,12 +120,12 @@ package org.bigbluebutton.modules.chat.services
 			event.message = message;
 			
 			var globalDispatcher:Dispatcher = new Dispatcher();
-			globalDispatcher.dispatchEvent(event);	   
+			globalDispatcher.dispatchEvent(event);	   			
 		}
 
 		private function sendTranscriptLoadedEvent():void {
 			LogUtil.debug("Sending transcript loaded Event");
-			var event:TranscriptLoadedEvent = new TranscriptLoadedEvent(TranscriptLoadedEvent.TRANSCRIPT_EVENT);
+			var event:TranscriptEvent = new TranscriptEvent(TranscriptEvent.TRANSCRIPT_EVENT);
 			var globalDispatcher:Dispatcher = new Dispatcher();
 			globalDispatcher.dispatchEvent(event);	
 		}
@@ -137,9 +139,8 @@ package org.bigbluebutton.modules.chat.services
 					function(result:Object):void { 
 						LogUtil.debug("Successfully sent message: "); 
 						if (result != null) {
-							newChatMessage(result as String);
-						}	
-						sendTranscriptLoadedEvent();
+							receivedChatHistory(result);
+						}
 					},	
 					// status - On error occurred
 					function(status:Object):void { 
@@ -150,6 +151,17 @@ package org.bigbluebutton.modules.chat.services
 					}
 				)//new Responder
 			); //_netConnection.call				
+		}
+		
+		private function receivedChatHistory(result:Object):void{
+			if (result == null) return;
+			
+			var messages:Array = result as Array;
+			for (var i:int=0; i<messages.length; i++){
+				newChatMessage(messages[i] as String);
+			}
+			
+			sendTranscriptLoadedEvent();
 		}
 		
 		private function asyncErrorHandler(event:AsyncErrorEvent):void
@@ -163,8 +175,6 @@ package org.bigbluebutton.modules.chat.services
 			connEvent.success = true;		
 			trace("Dispatching NET CONNECTION SUCCESS");
 			dispatcher.dispatchEvent(connEvent);
-			
-			getChatTranscript();
 		}
 	}
 }

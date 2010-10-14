@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" borderStyle="solid" >
+	
+	<mx:Script>
+		<![CDATA[
+			private function onClick():void{
+				data.selected = checkUser.selected;
+			}
+		]]>
+	</mx:Script>
+	
+	<mx:Label id="lblName" width="100" text="{data.name}" />
+	<mx:CheckBox id="checkUser" click="onClick()" />
+</mx:HBox>

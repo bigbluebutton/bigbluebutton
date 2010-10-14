@@ -28,7 +28,6 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.common.LogUtil;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
@@ -36,6 +35,7 @@
 			import mx.controls.Alert;
 			import mx.core.UIComponent;
 			
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
@@ -71,12 +71,11 @@
 				globalDispatcher = new Dispatcher();
 			}
 			
-			private function onCloseEvent(event:MDIWindowEvent):void {
+			private function onCloseEvent(event:MDIWindowEvent = null):void {
 				LogUtil.debug("ViewWindow closing " + stream);
 				var bbbEvt:BBBEvent = new BBBEvent("ViewVideoCloseEvent");
 				bbbEvt.message = stream;
 				dispatchEvent(bbbEvt);
-				
 			}
 			
 			public function startVideo(connection:NetConnection, stream:String):void{
@@ -147,6 +146,7 @@
 			
 			override public function close(event:MouseEvent=null):void{
 				ns.close();
+				//onCloseEvent();
 				super.close(event);
 			}		
 			

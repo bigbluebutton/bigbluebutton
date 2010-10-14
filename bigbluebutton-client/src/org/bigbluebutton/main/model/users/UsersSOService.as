@@ -53,7 +53,6 @@ package org.bigbluebutton.main.model.users
 		private var _participants:Conference;
 		private var _mode:String;
 		private var _room:String;
-		
 		private var _applicationURI:String;
 		
 		private var dispatcher:Dispatcher;
@@ -72,9 +71,9 @@ package org.bigbluebutton.main.model.users
 			netConnectionDelegate.connect(params);
 		}
 			
-		public function disconnect():void {
-			leave();
-			netConnectionDelegate.disconnect();
+		public function disconnect(onUserAction:Boolean):void {
+			if (_participantsSO != null) _participantsSO.close();
+			netConnectionDelegate.disconnect(onUserAction);
 		}
 		
 	    public function join(userid:Number, room:String) : void
@@ -102,11 +101,7 @@ package org.bigbluebutton.main.model.users
 							for(var p:Object in result.participants) 
 							{
 								participantJoined(result.participants[p]);
-							}		
-							//notifyConnectionStatusListener(true, ViewersModuleConstants.QUERY_PARTICIPANTS_REPLY);
-							trace("Am I the only moderator?");
-							LogUtil.debug("Am I the only moderator?");
-							becomePresenterIfLoneModerator();				
+							}
 						}	
 						
 					},	
@@ -131,30 +126,6 @@ package org.bigbluebutton.main.model.users
 				dispatcher.dispatchEvent(new LogoutEvent(LogoutEvent.USER_LOGGED_OUT));
 			}
 		}
-		
-		private function becomePresenterIfLoneModerator():void {
-			if (_participants.hasOnlyOneModerator()) {
-				trace("There is only one moderator");
-				var user:BBBUser = _participants.getTheOnlyModerator();
-				if (user.me) {
-					trace("I am the only moderator");
-					var presenterEvent:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
-					presenterEvent.userid = user.userid;
-					presenterEvent.username = user.name;
-					dispatcher.dispatchEvent(presenterEvent);
-				} else {
-					trace("The moderator is not me");
-				}
-			} else {
-				trace("I am not the only moderator");
-			}
-			
-		}
-		
-	    private function leave():void
-	    {
-	    	if (_participantsSO != null) _participantsSO.close();
-	    }
 		
 		public function participantLeft(user:Object):void { 			
 			var participant:BBBUser = _participants.getParticipant(Number(user));
@@ -340,9 +311,9 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		private function sendConnectionFailedEvent(reason:String):void{
-			var e:ConnectionFailedEvent = new ConnectionFailedEvent();
+			/*var e:ConnectionFailedEvent = new ConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_LOST);
 			e.reason = reason;
-			dispatcher.dispatchEvent(e);
+			dispatcher.dispatchEvent(e);*/
 		}
 		
 		private function sendConnectionSuccessEvent():void{

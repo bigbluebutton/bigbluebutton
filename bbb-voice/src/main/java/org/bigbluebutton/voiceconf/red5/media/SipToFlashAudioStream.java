@@ -159,25 +159,32 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 		}
 	}
 	
-	private void pushAudio(byte[] audio, long timestamp) {
+	private void sendFakeMetadata(long timestamp) {
 		if (!sentMetadata) {
+			/*
+			 * Flash Player 10.1 requires us to send metadata for it to play audio.
+			 * We create a fake one here to get it going. Red5 should do this automatically
+			 * but for Red5 0.91, doesn't yet. (ralam Sept 24, 2010).
+			 */
 			IoBuffer mBuffer = IoBuffer.allocate(1024);
 			mBuffer.setAutoExpand(true);
 
 			mBuffer.clear();	        
-		    mBuffer.put(fakeMetadata);        
+		    mBuffer.put(fakeMetadata);         
 		    mBuffer.flip();
 
 	        Notify notifyData = new Notify(mBuffer);
-	        long ts = (System.currentTimeMillis() - startTimestamp);
-	        
-//	        System.out.println("Sending RTMP = " + ts);
-	        notifyData.setTimestamp((int)ts );
+	        notifyData.setTimestamp((int)timestamp );
 			audioBroadcastStream.dispatchEvent(notifyData);
 			notifyData.release();
 			sentMetadata = true;
-		}
+		}		
+	}
+	
+	private void pushAudio(byte[] audio, long timestamp) {
 		
+		sendFakeMetadata(timestamp);
+	
         IoBuffer buffer = IoBuffer.allocate(1024);
         buffer.setAutoExpand(true);
 
@@ -191,10 +198,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
         buffer.flip();
 
         AudioData audioData = new AudioData(buffer);
-        long ts = (System.currentTimeMillis() - startTimestamp);
-        
-//        System.out.println("Sending RTMP = " + ts);
-        audioData.setTimestamp((int)ts );
+        audioData.setTimestamp((int)timestamp );
 		audioBroadcastStream.dispatchEvent(audioData);
 		audioData.release();
     }

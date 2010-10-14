@@ -94,8 +94,12 @@ package org.bigbluebutton.main.model.users
 			dispatcher.dispatchEvent(loadCommand);		
 		}
 		
-		public function stop():void {
-			_userSOService.disconnect();
+		public function logoutUser():void {
+			_userSOService.disconnect(true);
+		}
+		
+		public function disconnectTest():void{
+			_userSOService.disconnect(false);
 		}
 		
 		public function get me():BBBUser {

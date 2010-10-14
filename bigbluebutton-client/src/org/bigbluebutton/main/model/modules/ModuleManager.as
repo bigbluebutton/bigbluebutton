@@ -34,7 +34,6 @@ package org.bigbluebutton.main.model.modules
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.main.events.ModuleLoadEvent;
-	import org.bigbluebutton.main.events.UserServicesEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.ConfigParameters;
 	

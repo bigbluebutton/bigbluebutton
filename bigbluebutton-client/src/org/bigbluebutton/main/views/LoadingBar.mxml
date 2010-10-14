@@ -49,6 +49,7 @@
 			}
 			
 			private function testRTMP(e:PortTestEvent):void{
+				//- Cannot get locale string this early in loading process
 				this.label = 'Connecting to the server'; //ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.connecting');
 			}
 			

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="400" height="100" title="Attempting to Reconnect" 
+				xmlns:mate="http://mate.asfusion.com/" verticalAlign="middle">
+	<mx:Script>
+		<![CDATA[
+			import flash.net.navigateToURL;
+			
+			import mx.managers.PopUpManager;
+			
+			import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
+			
+			private function connectionReestablished(e:UsersConnectionEvent):void{
+				var pageURL:String = mx.core.Application.application.url.split("/")[2];
+				var url:URLRequest = new URLRequest(mx.core.Application.application.url);
+				navigateToURL(url, '_self');
+				PopUpManager.removePopUp(this);
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mate:Listener type="{UsersConnectionEvent.CONNECTION_SUCCESS}" method="connectionReestablished" />
+	
+	<mx:VBox width="100%" height="100%" horizontalAlign="center">
+		<mx:ProgressBar indeterminate="true" width="100%" label="" />
+	</mx:VBox>
+	
+</mx:TitleWindow>

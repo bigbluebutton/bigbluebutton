@@ -23,7 +23,9 @@ package org.bigbluebutton.conference.service.chat;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 
-import net.jcip.annotations.ThreadSafe;import java.util.concurrent.ConcurrentHashMap;import java.util.Iterator;
+import net.jcip.annotations.ThreadSafe;import java.util.concurrent.ConcurrentHashMap;import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 /**
  * Contains information about a ChatRoom. 
@@ -34,11 +36,12 @@ public class ChatRoom {
 	
 	private final String name;
 	private final Map<String, IChatRoomListener> listeners;
-	String messages;
+	ArrayList<String> messages;
 	
 	public ChatRoom(String name) {
 		this.name = name;
 		listeners   = new ConcurrentHashMap<String, IChatRoomListener>();
+		this.messages = new ArrayList<String>();
 	}
 	
 	public String getName() {
@@ -57,17 +60,13 @@ public class ChatRoom {
 		listeners.remove(listener);		
 	}
 	
-	public String getChatMessages(){
+	public List<String> getChatMessages(){
 		return messages;
 	}
 	
 	@SuppressWarnings("unchecked")
 	public void sendMessage(String msg){
-		if (messages == null) {
-			messages = msg;
-		} else {
-			messages += msg; 
-		}
+		messages.add(msg);
 		
 		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
 			log.debug("calling on listener");

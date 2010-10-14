@@ -19,19 +19,19 @@
  */
 package org.bigbluebutton.deskshare.server.events;
 
-import java.awt.Point;
-
 public class CaptureUpdateBlockEvent {
 	private final String room;
 	private final int position;
 	private final byte[] videoData;
 	private final boolean isKeyFrame;
-
-	public CaptureUpdateBlockEvent(String room, int position, byte[] videoData, boolean isKeyFrame) {
+	private final int sequenceNum;
+	
+	public CaptureUpdateBlockEvent(String room, int position, byte[] videoData, boolean isKeyFrame, int sequenceNum) {
 		this.room = room;
 		this.position = position;
 		this.videoData = videoData;
 		this.isKeyFrame = isKeyFrame;
+		this.sequenceNum = sequenceNum;
 	}
 		
 	public String getRoom() {
@@ -48,5 +48,9 @@ public class CaptureUpdateBlockEvent {
 
 	public boolean isKeyFrame() {
 		return isKeyFrame;
+	}
+	
+	public int getSequenceNum() {
+		return sequenceNum;
 	}
 }

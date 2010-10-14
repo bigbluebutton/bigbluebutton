@@ -40,7 +40,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 class ApiController {
-
+    private static final Integer SESSION_TIMEOUT = 10800  // 3 hours
+    
 	private static final String CONTROLLER_NAME = 'ApiController'		
 	private static final String RESP_CODE_SUCCESS = 'SUCCESS'
 	private static final String RESP_CODE_FAILED = 'FAILED'
@@ -242,6 +243,8 @@ class ApiController {
 		session["mode"] = "LIVE"
 		session["record"] = false
 		session['welcome'] = conf.welcome
+		
+		session.setMaxInactiveInterval(SESSION_TIMEOUT);
 		
     	def config = ConfigurationHolder.config
     	def hostURL = config.bigbluebutton.web.serverURL

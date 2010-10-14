@@ -19,6 +19,8 @@
  */
 package org.bigbluebutton.modules.videoconf.business
 {
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.IOErrorEvent;
 	import flash.events.NetStatusEvent;
@@ -26,9 +28,14 @@ package org.bigbluebutton.modules.videoconf.business
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
 	
+	import mx.collections.ArrayCollection;
+	
+	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.main.api.UserManager;
+	import org.bigbluebutton.main.model.users.BBBUser;
+	import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
 	import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
 	import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
-	import org.bigbluebutton.common.LogUtil;
 	
 	public class VideoProxy
 	{
@@ -58,6 +65,7 @@ package org.bigbluebutton.modules.videoconf.business
 					break;
 				case "NetConnection.Connect.Success":
 					ns = new NetStream(nc);
+					openAvailableVideos();
 					break;
 				case "NetConnection.Connect.Rejected":
 					break;
@@ -114,7 +122,7 @@ package org.bigbluebutton.modules.videoconf.business
 			ns.publish(e.stream);
 		}
 		
-		public function stopBroadcasting(e:StopBroadcastEvent):void{
+		public function stopBroadcasting():void{
 			if (ns != null) {
 				ns.attachCamera(null);
 				ns.close();
@@ -124,6 +132,15 @@ package org.bigbluebutton.modules.videoconf.business
 		
 		public function onBWDone():void{
 			
+		}
+		
+		public function openAvailableVideos():void{
+			var dispatcher:Dispatcher = new Dispatcher();
+			var users:ArrayCollection = UserManager.getInstance().getConference().users;
+			for (var i:int=0; i<users.length; i++){
+				var user:BBBUser = (users.getItemAt(i) as BBBUser);
+				if (user.hasStream) dispatcher.dispatchEvent(new StreamStartedEvent(user.userid, user.name, user.streamName));
+			}
 		}
 
 	}

@@ -19,10 +19,12 @@
  */
 package org.bigbluebutton.deskshare.client;
 
-import java.applet.Applet;
+import javax.swing.JApplet;
 import java.awt.Image;
 
-public class DeskShareApplet extends Applet implements ClientListener {
+public class DeskShareApplet extends JApplet implements ClientListener {
+	public static final String NAME = "DESKSHAREAPPLET: ";
+	
 	private static final long serialVersionUID = 1L;
 
 	String hostValue = "localhost";
@@ -36,69 +38,59 @@ public class DeskShareApplet extends Applet implements ClientListener {
     Boolean aspectRatioValue = false;
     Integer xValue = new Integer(0);
     Integer yValue = new Integer(0);
-    Boolean tunnelValue = false;
+    Boolean tunnelValue = true;
+    Boolean fullScreenValue = false;
     DeskshareClient client;
     Image icon;
     
-	public void init() {
+    public boolean isSharing = false;
+    
+    @Override
+	public void init() {		
+    	System.out.println("Desktop Sharing Applet Initializing");
 		hostValue = getParameter("IP");
 		String port = getParameter("PORT");
 		if (port != null) portValue = Integer.parseInt(port);
 		roomValue = getParameter("ROOM");
-		cWidthValue = Integer.parseInt(getParameter("CAPTURE_WIDTH"));
-		cHeightValue = Integer.parseInt(getParameter("CAPTURE_HEIGHT"));				
-		xValue = Integer.parseInt(getParameter("X"));
-		yValue = Integer.parseInt(getParameter("Y"));
-		
-		sWidthValue = cWidthValue;
-		String scaleWidth = getParameter("SCALE_WIDTH");
-		if (scaleWidth != null) {
-			sWidthValue = Integer.parseInt(scaleWidth);
-		} 
-		
-		sHeightValue = cHeightValue;
-		String scaleHeight = getParameter("SCALE_HEIGHT");
-		if (scaleHeight != null) sHeightValue = Integer.parseInt(scaleHeight);
-		
-		String qualityCapture = getParameter("SCALE_WITH_QUALITY");
-		if (qualityCapture != null) qualityValue = Boolean.parseBoolean(qualityCapture);
-		
-		String aspectRatio = getParameter("MAINTAIN_ASPECT_RATIO");
-		if (aspectRatio != null) aspectRatioValue = Boolean.parseBoolean(aspectRatio);
-		
+
+		String captureFullScreen = getParameter("FULL_SCREEN");
+		if (captureFullScreen != null) fullScreenValue = Boolean.parseBoolean(captureFullScreen);
+
 		String tunnel = getParameter("HTTP_TUNNEL");
 		if (tunnel != null) tunnelValue = Boolean.parseBoolean(tunnel);
 		icon = getImage(getCodeBase(), "bbb.gif");
 	}
 		
-	public void start() {		 
-		System.out.println("Start");	
-		client = new DeskshareClient.Builder().host(hostValue).port(portValue)
-							.room(roomValue).captureWidth(cWidthValue)
-							.captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue)
-							.quality(qualityValue).aspectRatio(aspectRatioValue)
-							.x(xValue).y(yValue)
-							.httpTunnel(tunnelValue).trayIcon(icon).enableTrayIconActions(false).build();
+	@Override
+	public void start() {		 	
+		System.out.println("Desktop Sharing Applet Starting");
+		super.start();
+		client = new DeskshareClient.NewBuilder().host(hostValue).port(portValue)
+					.room(roomValue).captureWidth(cWidthValue)
+					.captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue)
+					.quality(qualityValue).aspectRatio(aspectRatioValue)
+					.x(xValue).y(yValue).fullScreen(fullScreenValue)
+					.httpTunnel(tunnelValue).trayIcon(icon).enableTrayIconActions(false).build();
+		client.addClientListener(this);
 		client.start();
 	}
-
-		
-	/**
-	 * This method is called when the user closes the browser window containing the applet
-	 * It is very important that the connection to the server is closed at this point. That way the server knows to
-	 * close the stream.
-	 */
+			
+	@Override
 	public void destroy() {
-		System.out.println("Destroy");
-		stop();
+		System.out.println("Desktop Sharing Applet Destroy");
+		client.stop();
+		super.destroy();
 	}
 
+	@Override
 	public void stop() {
-		System.out.println("Stop");
-		client.stop();			
+		System.out.println("Desktop Sharing Applet Stopping");
+		client.stop();	
+		super.stop();
 	}
 	
 	public void onClientStop(ExitCode reason) {
-		stop();
+		client.stop();	
 	}
+	
 }

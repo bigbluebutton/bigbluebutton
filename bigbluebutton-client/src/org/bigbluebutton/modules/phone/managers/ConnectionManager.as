@@ -61,6 +61,9 @@ package org.bigbluebutton.modules.phone.managers {
 		}
 		
 		public function connect(uid:String, username:String, room:String, uri:String):void {
+			if (isConnected) return;
+			isConnected = true;
+			
 			this.uid = uid;	
 			this.username  = username;
 			this.room = room;
@@ -133,13 +136,15 @@ package org.bigbluebutton.modules.phone.managers {
 		public function failedToJoinVoiceConferenceCallback(msg:String):* {
 			LogUtil.debug("failedToJoinVoiceConferenceCallback " + msg);
 			var event:CallDisconnectedEvent = new CallDisconnectedEvent();
-			dispatcher.dispatchEvent(event);				
+			dispatcher.dispatchEvent(event);	
+			isConnected = false;
 		}
 		
 		public function disconnectedFromJoinVoiceConferenceCallback(msg:String):* {
 			LogUtil.debug("disconnectedFromJoinVoiceConferenceCallback " + msg);
 			var event:CallDisconnectedEvent = new CallDisconnectedEvent();
-			dispatcher.dispatchEvent(event);				
+			dispatcher.dispatchEvent(event);	
+			isConnected = false;
 		}	
 				
         public function successfullyJoinedVoiceConferenceCallback(publishName:String, playName:String, codec:String):* {

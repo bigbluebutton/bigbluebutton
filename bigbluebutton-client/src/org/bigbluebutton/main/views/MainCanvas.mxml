@@ -15,7 +15,8 @@
 			public static const RIGHT:String = "RIGHT_WINDOW";
 			public static const POPUP:String = "POP_UP_WINDOW";
 			
-			public static const DESKTOP_SHARING_VIEW:String = "POP_UP_DESKSHARE";
+			public static const DESKTOP_SHARING_VIEW:String = "POP_UP_DESKSHARE_VIEW";
+			public static const DESKTOP_SHARING_PUBLISH:String = "POP_UP_DESKSHARE_PUBLISH";
 			
 			private var leftWindowWidth:Number;
 			private var leftWindowHeight:Number;
@@ -53,13 +54,11 @@
 			
 			private function positionWindow(window:IBbbModuleWindow):void{
 				leftWindowHeight = this.height/3;
-				leftWindowWidth = (this.width / 20) * 3;
+				leftWindowWidth = 245;
 				rightWindowHeight = this.height * 0.6;
 				rightWindowWidth = (this.width / 20) * 6;
 				centerWindowHeight = this.height - 10;
 				centerWindowWidth = this.width / 2;
-				
-				if (leftWindowWidth < 225) leftWindowWidth = 225;
 				
 				var position:String = window.getPrefferedPosition();
 				var win:MDIWindow = window as MDIWindow;
@@ -97,8 +96,14 @@
 						win.height = rightWindowHeight;
 						break;
 					case POPUP:
-						x = 200;
-						y = 200;
+						x = (Math.random() * this.width) - 640;
+						y = (Math.random() * this.height) - 520;
+						if (x < 0) x = 1;
+						if (y < 0) y = 1;
+						break;
+					case DESKTOP_SHARING_PUBLISH:
+						y = (this.height - win.height) / 2;
+						x = (this.width - win.width) / 2;
 						break;
 					case DESKTOP_SHARING_VIEW:
 						x = 1;

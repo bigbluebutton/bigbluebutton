@@ -20,6 +20,7 @@
 package org.bigbluebutton.deskshare.client.net;
 
 public interface NextBlockRetriever {
+	public void blockSent(int position);
 	public EncodedBlockData getBlockToSend(int position);
 	public Message getNextMessageToSend() throws InterruptedException;
 }

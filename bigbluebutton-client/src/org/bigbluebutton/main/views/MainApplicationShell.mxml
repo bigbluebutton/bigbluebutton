@@ -30,17 +30,22 @@
 		width="100%" height="100%"
 		creationComplete="initializeShell()">
 		
+	<mate:Listener type="{ConfigEvent.CONFIG_EVENT}" method="setLogVisibility" />
 	<mate:Listener type="{OpenWindowEvent.OPEN_WINDOW_EVENT}" method="handleOpenWindowEvent" />	
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="handleCloseWindowEvent"/>
 	<mate:Listener type="{AddUIComponentToMainCanvas.ADD_COMPONENT}" method="addComponentToCanvas" />
-	
-	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_LOST}" method="handleLogout" />
-	<mate:Listener type="{LogoutEvent.USER_LOGGED_OUT}" method="handleLogout" />
+	<mate:Listener type="{AppVersionEvent.APP_VERSION_EVENT}" method="handleApplicationVersionEvent" />	
+	<mate:Listener type="{ConnectionFailedEvent.USER_LOGGED_OUT}" method="handleLogout" />
+	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_FAILED}" method="attemptReconnect" />
+	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_CLOSED}" method="attemptReconnect"  />
+	<mate:Listener type="{ConnectionFailedEvent.UNKNOWN_REASON}" method="attemptReconnect"  />
+	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_REJECTED}" method="attemptReconnect"  />
 
 	<api:APIEventMap />
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.main.events.AppVersionEvent;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.events.MouseEvent;
@@ -60,7 +65,7 @@
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.AddUIComponentToMainCanvas;
 			import org.bigbluebutton.main.events.CloseWindowEvent;
-			import org.bigbluebutton.main.events.LogoutEvent;
+			import org.bigbluebutton.main.events.ConfigEvent;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.main.events.OpenWindowEvent;
 			import org.bigbluebutton.main.events.PortTestEvent;
@@ -79,6 +84,7 @@
 			private var logWindow:LogWindow;
 			
 			private var logoutWindow:LoggedOutWindow;
+			private var connectionLostWindow:ConnectionLostWindow;
 			
 			// LIVE or PLAYBACK
 			private var _mode:String = 'LIVE';
@@ -95,9 +101,6 @@
 			
 			protected function initializeShell():void {		
 				trace('Initializing');	
-				logWindow = new LogWindow();
-				logWindow.logs = logs;
-				
 				globalDispatcher = new Dispatcher();
 			}
 
@@ -106,6 +109,10 @@
 				stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
 				dispState = stage.displayState;
 			}					
+			
+			private function handleApplicationVersionEvent(event:AppVersionEvent):void {
+				appVersion = event.appVersion;
+			}
 			
 			private function fullScreenHandler(evt:FullScreenEvent):void {
 				dispState = stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
@@ -120,8 +127,14 @@
 			}			
 			
 			private function openLogWindow():void {
+				if (logWindow == null){
+					logWindow = new LogWindow();
+					logWindow.logs = logs;
+				}
 				mdiCanvas.windowManager.add(logWindow);
-				mdiCanvas.windowManager.absPos(logWindow, 100, 100);
+				mdiCanvas.windowManager.absPos(logWindow, 50, 50);
+				logWindow.width = mdiCanvas.width - 100;
+				logWindow.height = mdiCanvas.height - 100;
 			}
 			
 			private function toggleFullScreen():void{
@@ -187,7 +200,7 @@
 				localeWindow.y = point1.y + 25;	
             }
 			
-			private function handleLogout(e:Event):void{
+			private function handleLogout(e:ConnectionFailedEvent):void{
 				if (logoutWindow != null) return;
 				logoutWindow = LoggedOutWindow(PopUpManager.createPopUp( mdiCanvas, LoggedOutWindow, false));
 				
@@ -198,10 +211,21 @@
 				point1 = localToGlobal(point1);
 				logoutWindow.x = point1.x + 25;
 				logoutWindow.y = point1.y + 25;	
-				if (e is ConnectionFailedEvent) logoutWindow.setReason((e as ConnectionFailedEvent).reason);
+				if (e is ConnectionFailedEvent) logoutWindow.setReason((e as ConnectionFailedEvent).type);
 				else logoutWindow.setReason("You have logged out of the conference");
 				
 				mdiCanvas.removeAllWindows(); 
+			}
+			
+			private function attemptReconnect(e:ConnectionFailedEvent):void{
+				if (connectionLostWindow != null) return;
+				connectionLostWindow = ConnectionLostWindow(PopUpManager.createPopUp( mdiCanvas, ConnectionLostWindow, true));
+				connectionLostWindow.x = mdiCanvas.width/2 - connectionLostWindow.width/2;
+				connectionLostWindow.y = mdiCanvas.height/2 - connectionLostWindow.height/2;
+			}
+			
+			private function setLogVisibility(e:ConfigEvent):void{
+				logBtn.visible = e.config.showDebug;
 			}
 			
 		]]>
@@ -216,7 +240,6 @@
 	 	<mx:Spacer width="20"/>
 		<mx:Spacer width="100%"/> 
 		<mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}" id="logBtn" icon="{logs_icon}" click="openLogWindow()" />
-		<mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.fullScreenBtn.toolTip')}" id="fullScreen" icon="{fullscreen_icon}" click="toggleFullScreen()" />
 		<mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.resetLayoutBtn.toolTip')}" id="btnResetLayout" icon="{reset_layout_icon}" click="resetLayout()" />
 	</mx:ControlBar>
 </mx:VBox>

@@ -1,263 +1,144 @@
-<?
+<?php
 /*
-BigBlueButton - http://www.bigbluebutton.org
+Copyright 2010 BigBlueButton 
 
-Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
 
-BigBlueButton is free software; you can redistribute it and/or modify it under the
-terms of the GNU Lesser General Public License as published by the Free Software
-Foundation; either version 3 of the License, or (at your option) any later
-version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-You should have received a copy of the GNU Lesser General Public License along
-with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
-
-Author: DJP <DJP@architectes.org>
+Versions:
+   1.0  --  Initial version written by DJP
+                   (email: djp [a t ]  architectes DOT .org)
+   1.1  --  Updated by Omar Shammas
+                    (email : omar DOT shammas [a t ] g m ail DOT .com)
 
 */
+require('bbb_api.php');
+require('bbb_api_conf.php'); //enter the salt, and url in this file
 
-require('bbb_api.inc.php');
+$meetings['ENGL-2013'] =  		array('meetingID' => 'ENGL-2013',		'display' => 'ENGL-2013: Research Methods in English', 	'moderatorPW' => "prof123", 'attendeePW' => 'student123');
+$meetings['ENGL-2213'] =  		array('meetingID' => 'ENGL-2213', 		'display' => 'ENGL-2213: Drama Production I',			'moderatorPW' => "prof123", 'attendeePW' => 'student123');
+$meetings['ENGL-2023'] =  		array('meetingID' => 'ENGL-2023', 		'display' => 'ENGL-2023: Survey of English Literature',	'moderatorPW' => "prof123", 'attendeePW' => 'student123');
+$meetings['LAW-1323'] =  		array('meetingID' => 'LAW-1323', 		'display' => 'LAW-1323: Fundamentals of Advocacy', 		'moderatorPW' => "prof123", 'attendeePW' => 'student123');
+$meetings['LAW-2273'] =  		array('meetingID' => 'LAW-2273', 		'display' => 'LAW-2273: Business Organizations', 		'moderatorPW' => "prof123", 'attendeePW' => 'student123');
+$meetings['LAW-3113'] =  		array('meetingID' => 'LAW-3113', 		'display' => 'LAW-3113: Corporate Finance',				'moderatorPW' => "prof123", 'attendeePW' => 'student123');
+$meetings['VOH-SteveStoyan'] =  array('meetingID' => 'VOH-SteveStoyan', 'display' => 'Virtual Office Hours - Steve Stoyan',		'moderatorPW' => "prof123", 'attendeePW' => 'student123');
+$meetings['VOH-MikeSmith'] =  	array('meetingID' => 'VOH-MikeSmith',	'display' => 'Virtual Office Hours - Mike Smith',		'moderatorPW' => "prof123", 'attendeePW' => 'student123');
+$meetings['VOH-TonyRomo'] =  	array('meetingID' => 'VOH-TonyRomo', 	'display' => 'Virtual Office Hours - Tony Romo', 		'moderatorPW' => "prof123", 'attendeePW' => 'student123');
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
-<title>Create Your Own Meeting</title>
-
-<script type="text/javascript"
-	src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
-<script type="text/javascript" src="heartbeat.js"></script>
+<title>Join a Selected Course</title>
 </head>
 <body>
 <br />
-<?
-$step = 1;
-switch ($_REQUEST['action'])
-{
-	case 'create':
-		if (trim($_REQUEST['username']))
-		{
-			/*
-			 * This is the URL for to join the meeting as moderator
-			 */
-			$meetingID = $_REQUEST['username']."'s meeting";
-			$joinURL = getJoinURL($_REQUEST['username'], $meetingID, "<br>Welcome to %%CONFNAME%%.<br>");
+<?php
+if ( $_REQUEST['action'] == 'Join' && trim($_REQUEST['username']) && trim($_REQUEST['meetingID']) && trim($_REQUEST['password']) ){
 
-			/*
-			 * We're going to extract the meetingToken to enable others to join as viewers
-			 */
-			$p = '|meetingToken=[^&]*|';
-			preg_match_all($p, $joinURL, $matches);
-			if ($matches[0] && $matches[0][0])
-			{
-				$meetingToken = $matches[0][0];
-				$inviteURL = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME'].'?action=invite&meetingID='.urlencode($meetingID).'&'.$meetingToken;
-				$step = 2;
-			}
-			else
-			 	echo 'Error: Did not find meeting token.';
+	$meetingID = trim($_REQUEST['meetingID']);
+	$username = trim($_REQUEST['username']);
+	$password = trim($_REQUEST['password']);
+
+	$meeting = $meetings[$meetingID];
+	if($password == $meeting['moderatorPW'] || $password == $meeting['attendeePW']){
+		$response = BigBlueButton::createMeetingArray($_REQUEST['username'], $meetingID, null, $meeting['moderatorPW'], $meeting['attendeePW'], $salt, $url, "http://bigbluebutton.org");
+
+		//Analyzes the bigbluebutton server's response
+		if(!$response){//If the server is unreachable
+			$msg = 'Unable to join the meeting. Please check the url of the bigbluebutton server AND check to see if the bigbluebutton server is running.';
 		}
-		break;
-	case 'invite':
-		/*
-		 * We have an invite to an active meeting. Ask the person for their name so they can join.
-		 */
-		if (trim($_REQUEST['meetingID']) && trim($_REQUEST['meetingToken']))
-		{
-			$step = 3;
-		}
-		break;
-	case 'enter':
-		/*
-		 * The user is now attempting to join the meeting
-		 */
-		if (trim($_REQUEST['username']) && trim($_REQUEST['meetingToken']) && trim($_REQUEST['meetingID']))
-		{
-			$joinURL = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME'].'?action=join&username='.urlencode($_REQUEST['username']).'&meetingToken='.urlencode($_REQUEST['meetingToken']);
-
-			if (isMeetingRunning($_REQUEST['meetingToken'], $_REQUEST['meetingID']) === true)
-			{
-			?>
-			<script language="javascript" type="text/javascript">
-			  window.location.href="<?=$joinURL?>";
-			</script>
-			<?
+		else if( $response['returncode'] == 'FAILED' ) { //The meeting was not created
+			if($response['messageKey'] == 'checksumError'){
+				$msg =  'A checksum error occured. Make sure you entered the correct salt.';
 			}
-			else
-			{
-				/*
-				 * The meeting has not yet started, so check until we get back the status that the meeting is running
-				 */
-				$step = 4;
-
-				$checkMeetingStatus = "?action=isMeetingRunning&meetingToken=".urlencode($_REQUEST['meetingToken']).'&meetingID='.urlencode($_REQUEST['meetingID']);
+			else{
+				$msg = $response['message'];
 			}
 		}
-		break;
-	case 'isMeetingRunning':
-		/*
-		 * This function proxy the request "isMeetingRunning" through PHP Script to BBB Server so we don't have any AJAX security issue
-		 */
-		ob_clean();
-		$checkMeetingStatus = getURLisMeetingRunning($_REQUEST['meetingToken'], $_REQUEST['meetingID']);
-		echo file_get_contents($checkMeetingStatus);
-		die;
-		break;
-	case 'join':
-		/*
-		 * We have an invite request to join an existing meeting and the meeting is running
-		 * We don't need to pass a meeting description as it's already been set by the first time the meeting was created.
-		 */
-		$joinURL = getJoinURLViewer($_REQUEST['username'], $_REQUEST['meetingToken']);
-		if (substr($joinURL, 0, 7) == 'http://')
-		{
-			?>
-	<script language="javascript" type="text/javascript">
-	  window.location.href="<?=$joinURL?>";
-	</script>
-			<?
+		else{ //The meeting was created, and the user will now be joined
+			$bbb_joinURL = BigBlueButton::joinURL($meetingID, $_REQUEST['username'],$password, $salt, $url);
+			?><script type="text/javascript"> window.location = "<?php echo $bbb_joinURL; ?>";</script><?php
+			return;
 		}
-		else
-		{
-			?>
-	Error: getJoinURLViewer() failed
-	<p><?=$joinURL?></p>
-			<?
-		}
-		break;
-	default:
-		break;
+	}
+	else{
+		$msg = 'Incorrect Password';
+	}
+}
+else if($_REQUEST['action'] == 'Join'){
+	$msg = "All fields need to be filled";
 }
 
-switch ($step)
-{
-	case '1':
-		include('demo_header.php');
-		?>
-		<h2>Demo #3: Create Your Own Meeting</h2>
+include('demo_header.php');
+?>
+<h2>Demo #3: Join a Selected Course (Password Required)</h2>
+<?php
+	if($msg) echo '<p style="color:red;"><strong>'.$msg.'</strong></p>';
+?>
+<form name="form1" method="get">
+	<table cellspacing="7" cellpadding="7">
+		<tr>
+			<td>
+				Enter your name: 
+			</td>
+			<td>
+				<input type="text"	name="username" />
+			</td>
+		</tr>
+		<tr>
+			<td>
+				Select a Course: 
+			</td>
+			<td>
+				<select name="meetingID">
+					<?php 
+						foreach($meetings as $meeting){
+							echo "<option value='".$meeting['meetingID']."'>".$meeting['display']."</option>";
+						}
+					?>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				Password: 
+			</td>
+			<td>
+				<input type="text"	name="password" />
+			</td>
+		</tr>
+		<tr> 
+			<td />
+			<td>
+				<input type="submit" name="action" value="Join" />
+			</td>
+		</tr>
+	</table>
+</form>
 
-		<form name="form1" method="get">
-			<table width="600" cellspacing="20" cellpadding="20" style="border-collapse: collapse; border-right-color: rgb(136, 136, 136);" border="3">
-				<tr>
-					<td width="50%">Create your own meeting.</td>
-					<td width="50%">
-						Step 1. Enter your name: <input type="text"	name="username" /><br />
-						<input type="hidden" name="action" value="create"><br />
-						<input id="submit-button" type="submit" value="Create meeting" />
-					</td>
-				</tr>
-			</table>
-		</form>
-		<script>
-		//
-		// We could have asked the user for both their name and a meeting title, but we'll just use their name to create a title
-		// We'll use JQuery to dynamically update the button
-		//
-		$(document).ready(function(){
-			$("input[name='username']").keyup(function() {
-				if ($("input[name='username']").val() == "") {
-					$("#submit-button").attr('value',"Create meeting" );
-				} else {
-			   $("#submit-button").attr('value',"Create " +$("input[name='username']").val()+ "'s meeting" );
-				}
-			});
-		});
-		</script>
-		<?
-		break;
-	case '2':
-		?>
-		<hr />
-		<h2>Meeting Created</h2>
-		<hr />
-
-		<table width="800" cellspacing="20" cellpadding="20" style="border-collapse: collapse; border-right-color: rgb(136, 136, 136);" border="3">
-				<tr>
-					<td width="50%" align="center"><strong><?=$meetingID?></strong> has been created.</td>
-					<td width="50%">
-						Step 2. Invite others using the following <a href="<?=$inviteURL?>">link</a> (shown below):
-						<textarea cols="62" rows="5" name="myname" style="overflow: hidden"><?=$inviteURL?></textarea>
-						Step 3. Click the following link to start your meeting:
-						<p align="center"><a href="<?=$joinURL?>">Start Meeting</a></p>
-					</td>
-				</tr>
-		</table>
-		<?
-		break;
-	case '3':
-		?>
-		<hr />
-		<h2>Invite</h2>
-		<hr />
-
-		<form name="form3" method="get">
-			<table width="600" cellspacing="20" cellpadding="20" style="border-collapse: collapse; border-right-color: rgb(136, 136, 136);"	border="3">
-				<tr>
-					<td width="50%">You have been invited to join<br /><strong><?=$_REQUEST['meetingID']?></strong>.</td>
-					<td width="50%">
-						Enter your name: <input type="text" name="username" /><br />
-						<input type="hidden" name="meetingID" value="<?=$_REQUEST['meetingID']?>" />
-						<input type="hidden" name="meetingToken" value="<?=$_REQUEST['meetingToken']?>" />
-						<input type="hidden" name="action" value="enter" />
-						<input type="submit" value="Join" />
-					</td>
-				</tr>
-			</table>
-		</form>
-		<?
-		break;
-	case '4':
-		?>
-		<script type="text/javascript">
-		$(document).ready(function(){
-				$.jheartbeat.set({
-				   url: "<?=$checkMeetingStatus?>",
-				   delay: 5000
-				}, function () {
-					mycallback();
-				});
-				});
-
-
-		function mycallback() {
-			// Not elegant, but works around a bug in IE8
-			var isMeetingRunning = ($("#HeartBeatDIV").text().search("true") > 0 );
-
-			if ( isMeetingRunning) {
-				window.location = "<?=$joinURL?>";
-			}
-		}
-		</script>
-
-		<hr />
-		<h2><strong><?=$_REQUEST['meetingID']?></strong> has not yet started.</h2>
-		<hr />
-
-
-		<table width=600 cellspacing="20" cellpadding="20"
-			style="border-collapse: collapse; border-right-color: rgb(136, 136, 136);"
-			border=3>
-			<tbody>
-				<tr>
-					<td width="50%">
-						<p>Hi <?=$_REQUEST['username']?>,</p>
-						<p>Now waiting for the moderator to start <strong><?=$_REQUEST['meetingID']?></strong>.</p>
-						<br />
-						<p>(Your browser will automatically refresh and join the meeting when it starts.)</p>
-					</td>
-					<td width="50%" align="center"><img src="polling.gif"></img></td>
-				</tr>
-			</tbody>
-		</table>
-		<?
-		break;
-}
-
+Passwords:
+<ul>
+	<li>
+		prof123 - login as a professor (moderator privileges)
+	</li>
+	<li>
+		student123 - login as a student (attendee privileges)
+	</li>
+</ul>
+<?php
 include('demo_footer.php');
 ?>
 </body>

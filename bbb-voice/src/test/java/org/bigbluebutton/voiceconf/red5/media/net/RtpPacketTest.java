@@ -19,11 +19,11 @@ public class RtpPacketTest {
 		Assert.assertEquals(rtpPacket.getVersion(), 2, "Expect version = 2");
 	}
 	
-	@Test
-	public void testSetVersionIs0() {
-		rtpPacket.setVersion(0);
-		Assert.assertEquals(rtpPacket.getVersion(), 0, "Expect version = 0");
-	}
+//	@Test
+//	public void testSetVersionIs0() {
+//		rtpPacket.setVersion(0);
+//		Assert.assertEquals(rtpPacket.getVersion(), 0, "Expect version = 0");
+//	}
 	
 	@Test
 	public void testSetVersionIs3() {

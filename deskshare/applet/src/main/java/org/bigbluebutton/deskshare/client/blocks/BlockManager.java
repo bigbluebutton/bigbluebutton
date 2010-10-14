@@ -22,6 +22,7 @@ package org.bigbluebutton.deskshare.client.blocks;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
 import org.bigbluebutton.deskshare.client.net.BlockMessage;
 import org.bigbluebutton.deskshare.common.Dimension;
@@ -57,18 +58,42 @@ public class BlockManager {
     
     public void processCapturedScreen(BufferedImage capturedScreen) {    	
     	long start = System.currentTimeMillis();
+
+    	Vector<Integer> changedBlocks = new Vector<Integer>();
+/*		
 		int numberOfBlocks = numColumns * numRows;
-        for (int position = 1; position <= numberOfBlocks; position++) {
-        	Block block = blocksMap.get(new Integer(position));
+		for (int position = 1; position <= numberOfBlocks; position++) {
+			Block block = blocksMap.get(new Integer(position));
         	if (block.hasChanged(capturedScreen)) {
-        		notifyChangedBlockListener(new BlockMessage(block.getPosition()));
+        		changedBlocks.add(new Integer(position));        		
         	}
-        }
-        
-		long end = System.currentTimeMillis();
-//		System.out.println("ProcessCapturedScreen took " + (end-start) + " ms.");
+		}  
+    	
+		if (changedBlocks.size() > 0) {
+			Integer[] bc = new Integer[changedBlocks.size()];
+			System.arraycopy(changedBlocks.toArray(), 0, bc, 0, bc.length);
+			changedBlocks.clear();
+			notifyChangedBlockListener(new BlockMessage(bc));
+		}
+*/
+		
+		int numberOfBlocks = numColumns * numRows;
+		for (int position = 1; position <= numberOfBlocks; position++) {
+			Block block = blocksMap.get(new Integer(position));
+        	if (block.hasChanged(capturedScreen)) {
+        		changedBlocks.add(new Integer(position));        		
+        	}
+        	
+    		if ((position % numColumns == 0) && (changedBlocks.size() > 0)) {
+    			Integer[] bc = new Integer[changedBlocks.size()];
+    			System.arraycopy(changedBlocks.toArray(), 0, bc, 0, bc.length);
+    			changedBlocks.clear();
+    			notifyChangedBlockListener(new BlockMessage(bc));
+    		}
+		}
+
     }
-    
+        
     private void notifyChangedBlockListener(BlockMessage position) {
     	listeners.onChangedBlock(position);
     }
@@ -82,6 +107,11 @@ public class BlockManager {
 		listeners = null;
 	}
     
+	public void blockSent(int position) {
+		Block block = (Block) blocksMap.get(new Integer(position));
+		block.sent();
+	}
+	
 	public Block getBlock(int position) {
 		return (Block) blocksMap.get(new Integer(position));
 	}

@@ -69,6 +69,7 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
     	CmdLineParser.Option tryHttpTunnel = dsMain.addHelp(parser.addBooleanOption('n', "httptunnel"),"Http tunnel if direct connection fails");
     	CmdLineParser.Option icon = dsMain.addHelp(parser.addStringOption('i', "icon"),"Path to system tray icon file");
     	CmdLineParser.Option help = dsMain.addHelp(parser.addBooleanOption('h', "help"),"Show this help message");
+    	CmdLineParser.Option fullScreen = dsMain.addHelp(parser.addBooleanOption('f', "full-screen"),"Capture the full screen.");
         
         try {
             parser.parse(args);
@@ -83,7 +84,7 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
             System.exit(0);
         }
         
-        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+//        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 
         // Extract the values entered for the various options -- if the
         // options were not specified, the corresponding values will be
@@ -92,30 +93,35 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
         Integer portValue = (Integer)parser.getOptionValue(port, new Integer(9123));
         Integer listenPortValue = (Integer)parser.getOptionValue(listenPort, new Integer(9125));
         String roomValue = (String)parser.getOptionValue(room, "85115");
-        Integer cWidthValue = (Integer)parser.getOptionValue(cWidth, new Integer((int)dim.getWidth()));
-        Integer cHeightValue = (Integer)parser.getOptionValue(cHeight, new Integer((int)dim.getHeight()));
-        Integer sWidthValue = (Integer)parser.getOptionValue(sWidth, new Integer((int)dim.getWidth()));
-        Integer sHeightValue = (Integer)parser.getOptionValue(sHeight, new Integer((int)dim.getHeight()));
-        Boolean qualityValue = (Boolean)parser.getOptionValue(quality, false);
-        Boolean aspectValue = (Boolean)parser.getOptionValue(aspectRatio, false);
+//        Integer cWidthValue = (Integer)parser.getOptionValue(cWidth, new Integer((int)dim.getWidth()));
+//        Integer cHeightValue = (Integer)parser.getOptionValue(cHeight, new Integer((int)dim.getHeight()));
+//        Integer sWidthValue = (Integer)parser.getOptionValue(sWidth, new Integer((int)dim.getWidth()));
+//        Integer sHeightValue = (Integer)parser.getOptionValue(sHeight, new Integer((int)dim.getHeight()));
+      Integer cWidthValue = (Integer)parser.getOptionValue(cWidth, new Integer(800));
+      Integer cHeightValue = (Integer)parser.getOptionValue(cHeight, new Integer(600));
+      Integer sWidthValue = (Integer)parser.getOptionValue(sWidth, new Integer(800));
+      Integer sHeightValue = (Integer)parser.getOptionValue(sHeight, new Integer(600));
+        Boolean qualityValue = (Boolean)parser.getOptionValue(quality, new Boolean(false));
+        Boolean aspectValue = (Boolean)parser.getOptionValue(aspectRatio, new Boolean(false));
         Integer xValue = (Integer)parser.getOptionValue(xCoord, new Integer(0));
         Integer yValue = (Integer)parser.getOptionValue(yCoord, new Integer(0));
-        Boolean tunnelValue = (Boolean)parser.getOptionValue(tryHttpTunnel, false);
+        Boolean tunnelValue = (Boolean)parser.getOptionValue(tryHttpTunnel, new Boolean(false));
         String iconValue = (String)parser.getOptionValue(icon, "bbb.gif");
+        Boolean fullScreenValue = (Boolean)parser.getOptionValue(fullScreen, new Boolean(false));
         
         Image image = Toolkit.getDefaultToolkit().getImage(iconValue);
         
         lifeline = new LifeLine(listenPortValue.intValue(), dsMain);
         lifeline.listen();
         
-        client = new DeskshareClient.Builder().host(hostValue).port(portValue)
+        client = new DeskshareClient.NewBuilder().host(hostValue).port(portValue)
         						.room(roomValue).captureWidth(cWidthValue)
         						.captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue)
         						.quality(qualityValue).aspectRatio(aspectValue)
-        						.x(xValue).y(yValue)
+        						.x(xValue).y(yValue).fullScreen(fullScreenValue)
         						.httpTunnel(tunnelValue).trayIcon(image).enableTrayIconActions(true).build();
         
-        client.addClientListeners(dsMain);
+        client.addClientListener(dsMain);
         client.start();
         
         try {

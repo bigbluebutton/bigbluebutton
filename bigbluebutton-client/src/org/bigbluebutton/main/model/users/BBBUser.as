@@ -32,6 +32,10 @@ package org.bigbluebutton.main.model.users
 	
 	public class BBBUser
 	{
+		public static const MODERATOR:String = "MODERATOR";
+		public static const VIEWER:String = "VIEWER";
+		public static const PRESENTER:String = "PRESENTER";
+		
 		[Bindable] public var me:Boolean = false;
 		[Bindable] public var userid:Number;
 		[Bindable] public var name:String;
@@ -42,6 +46,7 @@ package org.bigbluebutton.main.model.users
 		[Bindable] public var role:String = Role.VIEWER;	
 		[Bindable] public var room:String = "";
 		[Bindable] public var authToken:String = "";
+		[Bindable] public var selected:Boolean = false;
 		
 		private var _status:StatusCollection = new StatusCollection();
 				
@@ -104,14 +109,8 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		private function sendStreamStartedEvent():void{
-			var t:Timer = new Timer(3000, 1);
-			t.addEventListener(TimerEvent.TIMER, dispatch);
-			t.start();
-		}
-		
-		private function dispatch(e:TimerEvent):void{
 			var dispatcher:Dispatcher = new Dispatcher();
-			dispatcher.dispatchEvent(new StreamStartedEvent(this.userid, this.name, this.streamName));
+			dispatcher.dispatchEvent(new StreamStartedEvent(userid, name, streamName));
 		}
 	}
 }

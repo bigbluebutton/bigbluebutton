@@ -57,8 +57,7 @@
  			  			
 			[Bindable] private var muteAllIcon:Class = images.sound_mute; 
 			[Bindable] private var unmuteAllIcon:Class = images.sound_none;
-			[Bindable] private var ejectIcon:Class = images.eject_user;
-
+			[Bindable] private var kickIcon:Class = images.eject_user;
 			[Bindable] public var listeners:ArrayCollection = new ArrayCollection();
 			[Bindable] public var moderator:Boolean;
 			[Bindable] private var windowTitle:String = ResourceUtil.getInstance().getString('bbb.listeners.title', ["",""]);
@@ -102,21 +101,6 @@
 			public function getPrefferedPosition():String{
 				return MainCanvas.BOTTOM_LEFT;
 			}
- 
- 			private function listenerSelectEvent(event:ListEvent):void {
-				ejectBtn.enabled = true;
-				ejectBtn.toolTip = ResourceUtil.getInstance().getString('bbb.listeners.ejectTooltip');
-        	}   		
-        	
-        	private function handleEjectButtonClick():void {
-        		if ((listeners != null) && (listeners.length > 0)) {
-					//proxy.ejectUser(listenersList.selectedItem.userid);
-					var ejectCommand:ListenersCommand = new ListenersCommand(ListenersCommand.EJECT_USER);
-					ejectCommand.userid = listenersList.selectedItem.userid;
-					dispatchEvent(ejectCommand);
-        			ejectBtn.enabled = false;
-        		}
-        	}	  
 			
 			public function setMuteState(mute:Boolean):void{
 				if (mute){
@@ -160,22 +144,38 @@
 				moderator = e.moderator;
 				showCloseButton = false;
 			}
+			
+			override protected function resourcesChanged():void{
+				super.resourcesChanged();
+				if (listeners.length > 4)
+					windowTitle = ResourceUtil.getInstance().getString('bbb.listeners.title', [":", listeners.length]) ;
+				else 
+					windowTitle = ResourceUtil.getInstance().getString('bbb.listeners.title', ["", ""]) ;
+			}
+			
+			private function onItemRollOver(e:ListEvent):void{
+				var item:ListenerItem = e.itemRenderer as ListenerItem;
+				item.onRollOver();
+			}
+			
+			private function onItemRollOut(e:ListEvent):void{
+				var item:ListenerItem = e.itemRenderer as ListenerItem;
+				item.onRollOut();
+			}
 		]]>
 	</mx:Script>
-    	<mx:TileList id="listenersList" height="100%" width="100%" itemClick="listenerSelectEvent(event);"
+    	<mx:List id="listenersList" height="100%" width="100%"
  			itemRenderer="org.bigbluebutton.modules.listeners.views.ListenerItem" 
-            maxColumns="1" rowHeight="25"  dragEnabled="false" dataProvider="{listeners}">          
-    	</mx:TileList>				
+            dragEnabled="false" dataProvider="{listeners}"
+			itemRollOver="onItemRollOver(event)"
+			itemRollOut="onItemRollOut(event)">          
+    	</mx:List>				
     	    	
     	<mx:ControlBar width="100%">
     	    <mx:Button id="muteAllBtn" icon="{muteAllIcon}" visible="{moderator}" toggle="true" selected="false"
     	   			toolTip="{ResourceUtil.getInstance().getString('bbb.listeners.muteAllBtn.toolTip')}" 
     	   			click="toggleMuteState()" width="18" height="18"/>         	   
-     	   <mx:Spacer width="100%"/>		
-			<mx:Button id="ejectBtn" icon="{ejectIcon}" 
-    	   			toolTip="{ResourceUtil.getInstance().getString('bbb.listeners.ejectBtn.toolTip')}" 
-    	   			click="handleEjectButtonClick()"
-    	   			visible="{moderator}" enabled="false" width="18" height="18"/> 
+     	   <mx:Spacer width="100%"/>
     	</mx:ControlBar>
 
 </MDIWindow>

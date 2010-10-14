@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" verticalAlign="middle" height="{txtMessage.height + 3}" 
+		 verticalScrollPolicy="off" xmlns:common="org.bigbluebutton.common.*" dataChange="validateNow()"
+		 creationComplete="onCreationComplete()">
+	
+	<mx:Script>
+		<![CDATA[
+			import be.boulevart.google.ajaxapi.translation.GoogleTranslation;
+			import be.boulevart.google.ajaxapi.translation.data.GoogleTranslationResult;
+			import be.boulevart.google.events.GoogleApiEvent;
+			
+			import mx.binding.utils.ChangeWatcher;
+			
+			[Bindable] private var rolledOver:Boolean = false;
+			private var dataWatcher:ChangeWatcher;
+			
+			/**
+			 * Chat Message Dynamic Object Anatomy:
+			 * data.lastSenderName - The ID of the person who sent the previous message
+			 * data.name - The name of the sender of the message
+			 * data.senderTime - Local time in the sender's time zone
+			 * data.time - Local time in recepient time zone
+			 * data.lastTime - The time of the previously sent message
+			 * data.senderText - The text of the message as it appeared on the sender's end
+			 * data.text - The text contained in the message when translated to the recepient's language
+			 * data.color - The color of the text as choosen by the sender
+			 */
+			
+			[Bindable] private var senderId:String;
+			[Bindable] private var lastSenderId:String;
+			[Bindable] private var senderName:String
+			[Bindable] private var senderTime:String;
+			[Bindable] private var time:String;
+			[Bindable] private var lastTime:String;
+			[Bindable] private var senderText:String;
+			[Bindable] private var text:String;
+			[Bindable] private var color:String;
+			
+			private var translated:Boolean = false;
+			
+			private function onLinkClick(e:TextEvent):void{
+				var url:URLRequest = new URLRequest(e.text);
+				navigateToURL(url, '_blank');
+			}
+			
+			private function onCreationComplete():void{
+				this.dataWatcher = ChangeWatcher.watch(this, "data", dataChangeHandler);
+				dataChangeHandler();
+			}
+			
+			private function dataChangeHandler(e:Event = null):void{
+				if (data == null) return;
+				senderId = data.senderId;
+				lastSenderId = data.lastSenderId;
+				senderName = data.name;
+				senderTime = data.senderTime;
+				time = data.time;
+				lastTime = data.lastTime;
+				text = data.text;
+				senderText = data.senderText;
+				color = data.color;
+				
+				if (data.translate && !translated && (data.senderLanguage != data.recepientLanguage)){
+					translateMessage(text, data.senderLanguage, data.recepientLanguage);
+					translated = true;
+				} 
+			}
+			
+			private function onRollOver():void{
+				rolledOver = true;
+				//txtMessage.htmlText = data.senderText;
+			}
+			
+			private function onRollOut():void{
+				rolledOver = false;
+				//txtMessage.htmlText = data.text;
+			}
+			
+			private function translateMessage(text:String, fromLang:String, toLang:String):void{
+				var g:GoogleTranslation = new GoogleTranslation();
+				g.addEventListener(GoogleApiEvent.TRANSLATION_RESULT, onTranslationDone);
+				g.translate(text, fromLang, toLang);
+			}
+			
+			private function onTranslationDone(e:GoogleApiEvent):void{
+				data.text = (e.data as GoogleTranslationResult).result;
+				dataChangeHandler();
+				//chatMessagesList.invalidateList();
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:Label maxWidth="50" width="50" truncateToFit="true" id="lblName" text="{senderName}" visible="{!(senderId == lastSenderId)}" color="gray" />
+	<mx:Text id="txtMessage" htmlText="{rolledOver ? senderText : text}" link="onLinkClick(event)" color="{data.color}"
+			 rollOver="onRollOver()" rollOut="onRollOut()" width="100%" />
+	<mx:Label id="lblTime" text="{rolledOver ? senderTime : time}" visible="{!(lastTime == time) || !(senderId == lastSenderId)}" color="gray" />
+</mx:HBox>

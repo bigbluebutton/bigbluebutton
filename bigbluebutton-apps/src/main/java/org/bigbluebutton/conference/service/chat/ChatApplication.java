@@ -20,6 +20,8 @@
 
 package org.bigbluebutton.conference.service.chat;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 import org.bigbluebutton.conference.service.chat.ChatRoomsManager;
@@ -58,7 +60,7 @@ public class ChatApplication {
 		return false;
 	}
 	
-	public String getChatMessages(String room) {
+	public List<String> getChatMessages(String room) {
 		return roomsManager.getChatMessages(room);
 	}
 	

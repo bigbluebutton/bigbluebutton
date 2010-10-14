@@ -23,12 +23,14 @@
   $Id: $
 --> 
 
-<MDIWindow xmlns="flexlib.mdi.containers.*" 
+<dspub:MDIWindow xmlns="flexlib.mdi.containers.*" 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
+	xmlns:dspub="flexlib.mdi.containers.*"
 	creationComplete="onCreationComplete()"
 	backgroundImage="{bbbLogo}"	
+	width="320" height="240"
 	title="{ResourceUtil.getInstance().getString('bbb.desktopPublish.title')}"
 	resizable="false">
 		
@@ -36,9 +38,10 @@
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="onChangedPresenter" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="onChangedPresenter" />	
 	<mate:Listener type="{CursorEvent.UPDATE_CURSOR_LOC_EVENT}" method="onUpdateCursorEvent" />
+	<mate:Listener type="{ViewStreamEvent.STOP}" method="closePublishWindow" />
+	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.common.LogUtil;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
@@ -46,6 +49,7 @@
 			import mx.core.UIComponent;
 			
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
@@ -53,6 +57,7 @@
 			import org.bigbluebutton.modules.deskshare.events.CursorEvent;
 			import org.bigbluebutton.modules.deskshare.events.ShareWindowEvent;
 			import org.bigbluebutton.modules.deskshare.events.StreamEvent;
+			import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			public static const SCALE:Number = 5;
@@ -64,7 +69,8 @@
 			private var connection:NetConnection;
 			private var uri:String;
 			private var room:String;
-			private var sharing:Boolean = false;
+			private var sharingFullScreen:Boolean = false;
+			private var streaming:Boolean = false;
 			
 			private var video:Video;
 			private var ns:NetStream;
@@ -81,14 +87,13 @@
 			
 			private function onCreationComplete():void {
 				windowControls.maximizeRestoreBtn.enabled = false;
-				windowControls.maximizeRestoreBtn.toolTip = "You cannot maximize this window.";
-				windowControls.closeBtn.toolTip = "Stop sharing and close this window.";
-				windowControls.minimizeBtn.toolTip = "Minimize this window.";
+				windowControls.maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString('bbb.desktopPublish.maximizeRestoreBtn.toolTip');
+				windowControls.closeBtn.toolTip = ResourceUtil.getInstance().getString('bbb.desktopPublish.closeBtn.toolTip');
+				windowControls.minimizeBtn.toolTip = ResourceUtil.getInstance().getString('bbb.desktopPublish.minimizeBtn.toolTip');
 				
 				cursor = new Sprite();
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
-				cursor.graphics.drawCircle(0,0,3);
-				
+				cursor.graphics.drawCircle(0,0,3);				
 			}
 			
 			public function get defaultWidth():int{
@@ -108,7 +113,7 @@
 			}
 			
 			public function getPrefferedPosition():String{
-				return MainCanvas.POPUP;
+				return MainCanvas.DESKTOP_SHARING_PUBLISH;
 			}
 
 			/*
@@ -119,39 +124,47 @@
 			public function initWindow(connection:NetConnection, uri:String, room:String):void {
 				this.connection = connection;
 				this.uri = uri;
-				this.room = room;
-				startSharing(connection, uri, room);				
+				this.room = room;								
 			}
 			
-			private function startSharing(connection:NetConnection, uri:String, room:String):void {
+			private function shareScreen(fullScreen:Boolean):void {
+				startSharing(connection, uri, room, fullScreen);
+			}
+			
+			private function startSharing(connection:NetConnection, uri:String, room:String, fullScreen:Boolean):void {
 				var captureX:Number = 0;
 				var captureY:Number = 0;
 				
-				sharing = true;
-				
-				ExternalInterface.call("startApplet", uri, room, 
-										captureX, captureY, 
-										captureWidth, captureHeight);
+				sharingFullScreen = fullScreen;
+				btnFSPublish.visible = false;
+				btnRegionPublish.visible = false;
+				btnClosePublish.visible = true;
+				ExternalInterface.call("startApplet", uri, room, fullScreen);
 			}
 			
 			public function stopSharing():void{
-				sharing = false;
-				stopStream();
-				var streamEvent:StreamEvent = new StreamEvent(StreamEvent.STOP);
-				dispatchEvent(streamEvent);
+				if (streaming) {
+					stopStream();
+					var streamEvent:StreamEvent = new StreamEvent(StreamEvent.STOP);
+					dispatchEvent(streamEvent);					
+				}
+				sharingFullScreen = false;
+				streaming = false;
 					
-				ExternalInterface.call("stopApplet");
+				
 				closeWindow();
 			}
 			
 			private function onUpdateCursorEvent(event:CursorEvent):void {	
 				cursor.x = ((event.x/captureWidth)) * videoHolder.width;
-				cursor.y = ((event.y/captureHeight)) * videoHolder.height;		
-//				cursor.visible = true;
-				
+				cursor.y = ((event.y/captureHeight)) * videoHolder.height;					
 				cursorImg.visible = true;
                 // DO NOT compute the x and y coordinate and assign directly to the cursorImg
                 // as it results in a flickering and jerky mouse pointer (ralam jun 10, 2010).
+                if (cursor.x < videoHolder.x) cursor.x = videoHolder.x;
+                if (cursor.y < videoHolder.y) cursor.y = videoHolder.y;
+                if (cursor.x > videoHolder.x + videoHolder.width) cursor.x = videoHolder.x + videoHolder.width;
+                if (cursor.y > videoHolder.y + videoHolder.height) cursor.y = videoHolder.y + videoHolder.height;
                 cursorImg.x = cursor.x;
                 cursorImg.y = cursor.y;
 			}
@@ -159,7 +172,8 @@
 			private function onAppletStart(event:AppletStartedEvent):void{
 				LogUtil.debug("DeskShareWindow::onAppletStart");
 				startStream(connection, room);
-				
+				captureWidth = event.videoWidth;
+				captureHeight = event.videoHeight;
 				var streamEvent:StreamEvent = new StreamEvent(StreamEvent.START);
 				streamEvent.videoWidth = captureWidth;
 				streamEvent.videoHeight = captureHeight;
@@ -169,6 +183,7 @@
 			private function startStream(nc:NetConnection, streamName:String):void{
 				LogUtil.debug("DimensionsBox - Starting thumbnail view");
 				LogUtil.debug("connection:" + nc.uri + " stream:" + streamName);
+				streaming = true;
 				
 				videoHolder = new UIComponent();
 				video = new Video(captureWidth/SCALE, captureHeight/SCALE);
@@ -182,7 +197,7 @@
 				cursor.visible = false;
 				this.addChild(videoHolder);
 				this.width = video.width + 6;
-				this.height = video.height + 29;
+				this.height = video.height + 73;
 				
 				ns = new NetStream(nc);
 				ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
@@ -196,6 +211,10 @@
 			}
 			
 			private function stopStream():void{
+				streaming = false;
+				this.removeChild(videoHolder);
+				captureHeight = Capabilities.screenResolutionY;
+				captureWidth = Capabilities.screenResolutionX;
 				ns.close();
 			}
 			
@@ -223,7 +242,8 @@
 				closeWindow();
 			}
 
-			private function closeWindow():void {				
+			private function closeWindow():void {			
+				ExternalInterface.call("stopApplet");	
 				dispatchEvent(new ShareWindowEvent(ShareWindowEvent.CLOSE));				
 			}		
 				
@@ -236,7 +256,26 @@
 				closeWindow();
 			}		
 			
+			override protected function resourcesChanged():void{
+				super.resourcesChanged();
+				this.title = ResourceUtil.getInstance().getString('bbb.desktopPublish.title');
+			}
+			
+			private function closePublishWindow(event:ViewStreamEvent):void{
+				stopStream();
+			}
+			
 		]]>
 	</mx:Script>
+			
 	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
-</MDIWindow>
+	
+	<mx:ControlBar id="bottomBar">
+		<mx:Button id="btnFSPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.tooltip')}" label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.label')}" visible="true" click="shareScreen(true)" />
+		<mx:Spacer width="50%"/>
+		<mx:Button id="btnClosePublish" toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.tooltip')}" label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.label')}" visible="false" click="stopSharing()" />
+		<mx:Spacer width="50%"/>
+		<mx:Button id="btnRegionPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.tooltip')}" label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.label')}" visible="true" click="shareScreen(false)" />
+		
+	</mx:ControlBar>
+</dspub:MDIWindow>

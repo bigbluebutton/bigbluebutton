@@ -52,7 +52,7 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
     private boolean hasInitilializedBuffers = false;	// Indicates whether the handling buffers have already been initialized.
 
     private long timestamp = 0;
-    private final static int TS_INCREMENT = 180;
+    private final static int TS_INCREMENT = 180;		// Determined from PCAP traces.
     
     public NellyFlashToSipTranscoderImp(Codec sipCodec) {
     	this.sipCodec = sipCodec;

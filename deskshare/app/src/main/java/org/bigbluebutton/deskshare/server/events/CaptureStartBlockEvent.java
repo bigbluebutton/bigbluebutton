@@ -26,11 +26,13 @@ public class CaptureStartBlockEvent {
 	private final String room;
 	private final Dimension screenDim;
 	private final Dimension blockDim;
+	private final int sequenceNum;
 	
-	public CaptureStartBlockEvent(String room, Dimension screen, Dimension block) {
+	public CaptureStartBlockEvent(String room, Dimension screen, Dimension block, int sequenceNum) {
 		this.room = room;
 		screenDim = screen;
 		blockDim = block;
+		this.sequenceNum = sequenceNum;
 	}
 	
 	public Dimension getScreenDimension() {
@@ -43,5 +45,9 @@ public class CaptureStartBlockEvent {
 	
 	public String getRoom() {
 		return room;
+	}
+	
+	public int getSequenceNum() {
+		return sequenceNum;
 	}
 }

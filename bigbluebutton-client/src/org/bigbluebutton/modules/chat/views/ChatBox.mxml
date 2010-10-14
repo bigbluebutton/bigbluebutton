@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" click="setMessageRead()" xmlns:mate="http://mate.asfusion.com/" creationComplete="onCreationComplete()" >
+	
+	<mate:Listener type="{ChatOptionsEvent.CHANGE_FONT_SIZE}" method="changeFontSize" />
+	
+	<mx:Script>
+		<![CDATA[
+			import be.boulevart.google.ajaxapi.translation.GoogleTranslation;
+			import be.boulevart.google.ajaxapi.translation.data.GoogleTranslationResult;
+			import be.boulevart.google.events.GoogleApiEvent;
+			
+			import com.adobe.serialization.json.JSON;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Button;
+			import mx.core.ScrollPolicy;
+			
+			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
+			import org.bigbluebutton.modules.chat.views.ChatMessageRenderer;
+			
+			public static const COPY_ALL_BUTTON:String = "Copy All Text";
+			
+			public var read:Boolean = true;
+			public var participantLoggedOut:Boolean = false;
+			
+			[Bindable]
+			private var backgroundColor:uint = 0x000000;
+			private var lastSenderId:String = "";
+			private var lastTime:String = "";
+			
+			[Bindable] private var messages:ArrayCollection = new ArrayCollection();
+			[Bindable] private var msg:Object;
+			
+			private function onCreationComplete():void{
+				addContextMenuItems();
+			}
+			
+			private function updateScroll():void{
+				chatMessagesList.verticalScrollPosition = chatMessagesList.maxVerticalScrollPosition;
+			}
+			
+			public function showNewMessage(message:String, translate:Boolean, language:String = null):void
+			{	
+				var timeString:String = getHours() + ":" + getMinutes();
+				var components:Array = message.split("|");
+				
+				msg = new Object();
+				msg.lastSenderId = lastSenderId;
+				lastSenderId = components[5];
+				msg.senderId = components[5];
+				
+				msg.senderLanguage = components[4].toString();
+				msg.recepientLanguage = language.toString();
+				msg.translate = translate;
+
+				msg.text = components[0];
+				msg.senderText = components[0];
+				
+				msg.name = components[1];
+				msg.color = uint(components[2]);
+				
+				msg.senderTime = components[3];			
+				msg.time = timeString;
+				msg.lastTime = lastTime;
+				lastTime = timeString;
+				
+				messages.addItem(msg);
+				
+				chatMessagesList.invalidateSize();
+				chatMessagesList.invalidateDisplayList();
+			}
+			
+			public static function getMinutes():String{
+				var time:Date = new Date();
+				var minutes:String;
+				if (time.minutes < 10) minutes = "0" + time.minutes;
+				else minutes = "" + time.minutes;
+				return minutes;
+			}
+			
+			public static function getHours():String{
+				var time:Date = new Date();
+				var hours:String;
+				if (time.hours < 10) hours = "0" + time.hours;
+				else hours = "" + time.hours;
+				return hours
+			}
+			
+			public function setMessageUnread():void{
+				this.read = false;
+				backgroundColor = 0xFFFF00;
+			}
+			
+			public function setMessageRead():void{
+				this.read = true;
+				backgroundColor = 0x000000;
+			}
+			
+			private function onLinkClick(e:TextEvent):void{
+				var url:URLRequest = new URLRequest(e.text);
+				navigateToURL(url, '_blank');
+			}
+			
+			private function changeFontSize(e:ChatOptionsEvent):void{
+				this.setStyle("fontSize", e.fontSize);
+			}
+			
+			private function addContextMenuItems():void{
+				var contextMenu:ContextMenu = new ContextMenu();
+				contextMenu.hideBuiltInItems();
+				
+				var capyAllButton:ContextMenuItem = new ContextMenuItem(COPY_ALL_BUTTON);
+				capyAllButton.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, menuItemHandler);
+				contextMenu.customItems.push(capyAllButton);
+				
+				this.contextMenu = contextMenu;
+			}
+			
+			private function menuItemHandler(e:ContextMenuEvent):void{
+				if (e.target.caption == COPY_ALL_BUTTON){
+					System.setClipboard(getAllAsString());
+				}
+			}
+			
+			private function getAllAsString():String{
+				var allText:String = "";
+				for (var i:int = 0; i<messages.length; i++){
+					var item:Object = messages.getItemAt(i);
+					allText += "\n" + item.name + " - " + item.time + " : " + item.text;
+				}
+				return allText;
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:List width="100%" height="100%" id="chatMessagesList" updateComplete="updateScroll()" selectable="false" variableRowHeight="true"
+			 itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" dataProvider="{messages}" />
+</mx:VBox>

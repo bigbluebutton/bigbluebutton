@@ -28,11 +28,11 @@ import org.bigbluebutton.deskshare.server.svc1.Dimension
 import org.bigbluebutton.deskshare.server.stream.StreamManager
 import java.awt.Point
 
-case class CreateSession(room: String, screenDim: Dimension, blockDim: Dimension)
+case class CreateSession(room: String, screenDim: Dimension, blockDim: Dimension, seqNum: Int)
 case class RemoveSession(room: String)
 case class SendKeyFrame(room: String)
-case class UpdateBlock(room: String, position: Int, blockData: Array[Byte], keyframe: Boolean)
-case class UpdateMouseLocation(room: String, mouseLoc:Point)
+case class UpdateBlock(room: String, position: Int, blockData: Array[Byte], keyframe: Boolean, seqNum: Int)
+case class UpdateMouseLocation(room: String, mouseLoc:Point, seqNum: Int)
 
 class SessionManagerSVC(streamManager: StreamManager) extends Actor {
 	private val log = Logger.get 
@@ -45,8 +45,8 @@ class SessionManagerSVC(streamManager: StreamManager) extends Actor {
 	      case c: CreateSession => createSession(c); printMailbox("CreateSession") 
 	      case r: RemoveSession => removeSession(r.room); printMailbox("RemoveSession")
 	      case k: SendKeyFrame => sendKeyFrame(k.room); printMailbox("SendKeyFrame")
-	      case ub: UpdateBlock => updateBlock(ub.room, ub.position, ub.blockData, ub.keyframe)
-	      case ml: UpdateMouseLocation => updateMouseLocation(ml.room, ml.mouseLoc)
+	      case ub: UpdateBlock => updateBlock(ub.room, ub.position, ub.blockData, ub.keyframe, ub.seqNum)
+	      case ml: UpdateMouseLocation => updateMouseLocation(ml.room, ml.mouseLoc, ml.seqNum)
 	      case m: Any => log.warning("SessionManager: Unknown message " + m); printMailbox("Any")
 	    }
 	  }
@@ -98,16 +98,16 @@ class SessionManagerSVC(streamManager: StreamManager) extends Actor {
     	}
 	}
 	
-	private def updateMouseLocation(room: String, mouseLoc: Point): Unit = {
+	private def updateMouseLocation(room: String, mouseLoc: Point, seqNum: Int): Unit = {
 		sessions.get(room) match {
-		  case Some(s) => s ! new UpdateSessionMouseLocation(mouseLoc)
+		  case Some(s) => s ! new UpdateSessionMouseLocation(mouseLoc, seqNum)
 		  case None => log.warning("SessionManager: Could not update mouse loc for session %s. Does not exist.", room)
 		}
 	}
 	
-	private def updateBlock(room: String, position: Int, blockData: Array[Byte], keyframe: Boolean): Unit = {
+	private def updateBlock(room: String, position: Int, blockData: Array[Byte], keyframe: Boolean, seqNum: Int): Unit = {
 		sessions.get(room) match {
-		  case Some(s) => s ! new UpdateSessionBlock(position, blockData, keyframe)
+		  case Some(s) => s ! new UpdateSessionBlock(position, blockData, keyframe, seqNum)
 		  case None => log.warning("SessionManager: Could not update session %s. Does not exist.", room)
 		}
 	}

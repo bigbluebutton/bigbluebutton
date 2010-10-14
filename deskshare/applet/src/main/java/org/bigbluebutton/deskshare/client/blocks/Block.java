@@ -23,8 +23,6 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.zip.Adler32;
-
 import org.bigbluebutton.deskshare.client.net.EncodedBlockData;
 import org.bigbluebutton.deskshare.common.PixelExtractException;
 import org.bigbluebutton.deskshare.common.ScreenVideoEncoder;
@@ -32,43 +30,41 @@ import org.bigbluebutton.deskshare.common.Dimension;
 
 public final class Block {   
 	Random random = new Random();
-    private final Adler32 checksum;
+    private final BlockChecksum checksum;
     private final Dimension dim;
     private final int position;
     private final Point location;    
-    private int[] pixels;
-    private AtomicBoolean sendFlag = new AtomicBoolean(false);
+    private int[] capturedPixels;
+    private final Object pixelsLock = new Object();
+    private AtomicBoolean dirtyBlock = new AtomicBoolean(false);
     private long lastSent = System.currentTimeMillis();
     
     Block(Dimension dim, int position, Point location) {
-        checksum = new Adler32();
+        checksum = new BlockChecksum();
         this.dim = dim;
         this.position = position;
         this.location = location;
     }
     
     public boolean hasChanged(BufferedImage capturedScreen) {	 
-    	synchronized(this) {
+    	synchronized(pixelsLock) {
             try {
-        		pixels = ScreenVideoEncoder.getPixels(capturedScreen, getX(), getY(), getWidth(), getHeight());
+            	capturedPixels = ScreenVideoEncoder.getPixels(capturedScreen, getX(), getY(), getWidth(), getHeight());
             } catch (PixelExtractException e) {
             	System.out.println(e.toString());
-        	}    	
+        	}  
             
-            if ((! checksumSame()) || sendKeepAliveBlock()) {
-            	if (sendFlag.compareAndSet(false, true)) {
-//            		System.out.println("Block " + position + " has changed. Need to send it.");
-            		return true;
-            	} else {
-//            		System.out.println("Block " + position + " has changed but is already queued for sending.");
-            		return false;
-            	}
-            }   		
+            if (! dirtyBlock.get()) {
+                if ((! checksumSame(capturedPixels)) || sendKeepAliveBlock()) {
+                	dirtyBlock.set(true);
+                	return true;
+                }            	
+            } 
     	}
-    	
+    	 		    	
         return false;
     }
-    
+         
     private boolean isKeepAliveBlock() {
     	// Use block 1 as our keepalive block. The keepalive block is our audit so that the server knows
     	// that the applet is still connected to the server. So it there's no change in the desktop, the applet
@@ -87,32 +83,43 @@ public final class Block {
     	return false;
     }
     
+    public void sent() {
+    	dirtyBlock.set(false);
+    }
+    
     public EncodedBlockData encode() {   
-    	int[] pixelsCopy = new int[pixels.length];
-    	synchronized (this) {           
-            System.arraycopy(pixels, 0, pixelsCopy, 0, pixels.length);
+    	int[] pixelsCopy = new int[capturedPixels.length];
+    	
+    	synchronized (pixelsLock) {     		
+            System.arraycopy(capturedPixels, 0, pixelsCopy, 0, capturedPixels.length);
 		}
     	
         byte[] encodedBlock = ScreenVideoEncoder.encodePixels(pixelsCopy, getWidth(), getHeight()); 	
-        sendFlag.compareAndSet(true, false);
         return new EncodedBlockData(position, encodedBlock);		
     }
     
-    private boolean checksumSame() {
-    	long oldsum;
-        oldsum = checksum.getValue(); 
-        calcChecksum();  
-        return (oldsum == checksum.getValue());
+    private boolean checksumSame(int[] pixels) {
+    	return checksum.isChecksumSame(convertIntPixelsToBytePixels(pixels)); 
     }
           
-    private void calcChecksum() {
-    	checksum.reset();   
+    private byte[] convertIntPixelsToBytePixels(int[] pixels) {
+    	byte[] p = new byte[pixels.length * 3];
+    	int position = 0;
+		
+		for (int i = 0; i < pixels.length; i++) {
+			byte red = (byte) ((pixels[i] >> 16) & 0xff);
+			byte green = (byte) ((pixels[i] >> 8) & 0xff);
+			byte blue = (byte) (pixels[i] & 0xff);
 
-    	for (int i = 0; i < pixels.length; i++) {
-		    if (i % 13 == 0) checksum.update(pixels[i]);
-		}	 
+			// Sequence should be BGR
+			p[position++] = blue;
+			p[position++] = green;
+			p[position++] = red;
+		}
+		
+		return p;
     }
-
+    
     public int getWidth() {
         return new Integer(dim.getWidth()).intValue();
     }

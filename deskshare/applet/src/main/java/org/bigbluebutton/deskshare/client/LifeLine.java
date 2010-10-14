@@ -58,7 +58,8 @@ public class LifeLine {
 		@Override
 		public void run() {
 			 try {
-		            serverSocket = new ServerSocket(port);
+		            serverSocket = new ServerSocket();
+		            serverSocket.bind(new InetSocketAddress(InetAddress.getLocalHost(), port));
 		        } catch (IOException e) {
 		            System.err.println("Could not listen on port: " + port);
 		            notifyListener(ExitCode.CANNOT_BIND_TO_LIFELINE_PORT);

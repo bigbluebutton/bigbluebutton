@@ -56,7 +56,7 @@ if ( hasProductInstall && !hasRequestedVersion ) {
 	// DO NOT MODIFY THE FOLLOWING FOUR LINES
 	// Location visited after installation is complete if installation is required
 	var MMPlayerType = (isIE == true) ? "ActiveX" : "PlugIn";
-	var MMredirectURL = window.location;
+	var MMredirectURL = encodeURI(window.location);
     document.title = document.title.slice(0, 47) + " - Flash Player Installation";
     var MMdoctitle = document.title;
 

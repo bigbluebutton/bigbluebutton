@@ -232,7 +232,17 @@ public class RtpPacket {
 	   return payload;
    }
 
-
+   public boolean isRtcpPacket() {
+	   int payloadType = (packet[1] & 0xFF);
+	   if ((payloadType >= 200) && (payloadType <= 204)) return true;
+	   
+	   return false;
+   }
+   
+   public int getRtcpPayloadType() {
+	   return (packet[1] & 0xFF);
+   }
+   
    // *********************** Private and Static ***********************
 
    /** Gets int value */

@@ -27,8 +27,8 @@
 
 	<mx:Script>
 		<![CDATA[
-			import mx.events.FlexEvent;
-			
+			import org.bigbluebutton.modules.deskshare.managers.DeskshareManager;
+			import mx.events.FlexEvent;			
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.modules.deskshare.events.ModuleEvent;
@@ -38,14 +38,13 @@
 			import org.bigbluebutton.modules.deskshare.events.StreamEvent;
 			import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
 			import org.bigbluebutton.modules.deskshare.events.ViewWindowEvent;
-			import org.bigbluebutton.modules.deskshare.managers.DeskshareManager;
 		]]>
 	</mx:Script>
 	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
 		<!--
 		The FlexEvent.PREINITIALIZE event is a good place for creating and initializing managers.
 		-->
-		<ObjectBuilder generator="{DeskshareManager}"/>
+		<ObjectBuilder generator="{DeskshareManager}"/>		
 	</EventHandlers>
 		
 	<EventHandlers type="{ShareEvent.START_SHARING}">
@@ -53,7 +52,7 @@
 	</EventHandlers>
 	
 	<EventHandlers type="{BBBEvent.START_DESKSHARE}">
-		<MethodInvoker generator="{DeskshareManager}" method="handleStartSharingEvent"/>
+		<MethodInvoker generator="{DeskshareManager}" method="handleStartSharingEvent" />
 	</EventHandlers>
 	
 	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}">
@@ -63,11 +62,7 @@
 	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">
 		<MethodInvoker generator="{DeskshareManager}" method="handleMadeViewerEvent" arguments="{event}"/>
 	</EventHandlers>
-		
-	<!--EventHandlers type="{MadePresenterEvent.BECOME_PRESENTER}">
-		<MethodInvoker generator="{DeskshareManager}" method="handleMadePresenterEvent" arguments="{event}"/>
-	</EventHandlers-->
-	
+			
 	<EventHandlers type="{StreamEvent.START}">
 		<MethodInvoker generator="{DeskshareManager}" 
 			method="handleStreamStartedEvent" arguments="{[event.videoWidth, event.videoHeight]}"/>

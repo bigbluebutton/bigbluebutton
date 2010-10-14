@@ -267,7 +267,7 @@
 				progressBar.setStyle("color", 0xFF0000);
 				progressLbl.setStyle("color", 0xFF0000);
         		progressBar.label = error + message;
-				progressLbl.text = "Click OK to close the window";
+				progressLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.uploadwindow.closeLabel');
 				okCancelBtn.label = "Ok";
 
         	}

@@ -25,6 +25,7 @@
 	<property name="VIDEO" value="VideoconfModule" />
 	<property name="WHITEBOARD" value="WhiteboardModule" />
 	<property name="DYN_INFO" value="DynamicInfoModule" />
+	<property name="BREAKOUT" value="BreakoutModule" />
 	
 	<property name="AVAILABLE_LOCALES" value="az_AZ,bg_BG,de_DE,el_GR,en_US,es_ES,es_LA,fr_FR,fr_CA,hu_HU,it_IT,lt_LT,nb_NO,nl_NL,pl_PL,pt_BR,pt_PT,ro_RO,ru_RU,tr_TR,vi_VN,zh_CN,zh_TW,sv_SE,fa_IR,ja_JP"/>
 	
@@ -100,6 +101,8 @@
 				<target-player>10.0.0</target-player>
 				<source-path path-element="locale/{locale}"/>
 				<include-resource-bundles>bbbResources</include-resource-bundles>
+				<include-resource-bundles>core</include-resource-bundles>
+				<include-resource-bundles>controls</include-resource-bundles>
 				<source-path path-element="${FLEX_HOME}/frameworks"/>
 			</mxmlc>
 		</sequential>
@@ -112,6 +115,10 @@
 		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/common/assets/images" >
 			<fileset dir="${BASE_DIR}/src/org/bigbluebutton/common/assets/images/" />
 		</copy>		
+	</target>
+	
+	<target name="build-breakout" description="Compile Breakout Module" >
+		<build-module src="${SRC_DIR}" target="${BREAKOUT}" />
 	</target>
 	
 	<target name="build-chat" description="Compile Chat Module">
@@ -169,8 +176,8 @@
 	
 	<!-- just a grouping of modules to compile -->
 	<target name="build-main-chat-viewers-listeners-present" 
-			depends="build-bbb-main, build-chat, build-viewers, build-listeners, build-present"
-			description="Compile main, chat, viewers, listeners, present modules">
+			depends="build-bbb-main, build-chat, build-viewers, build-listeners, build-present, build-breakout"
+			description="Compile main, chat, viewers, listeners, present, breakout modules">
 	</target>
 	
 	<!-- just a grouping of modules to compile -->
@@ -277,6 +284,10 @@
            		<then>
               			<echo message="Copying config.xml for development environment"/>
 				<copy file="${BASE_DIR}/src/conf/config.xml" todir="${OUTPUT_DIR}/conf" /> 
+              			<echo message="Copying join-mock.xml for development environment"/>
+				<copy file="${BASE_DIR}/src/conf/join-mock.xml" todir="${OUTPUT_DIR}/conf" /> 
+              			<echo message="Copying locales.xml for development environment"/>
+				<copy file="${BASE_DIR}/src/conf/locales.xml" todir="${OUTPUT_DIR}/conf" /> 
            		</then>
            	<else>
               		<echo message="Need to copy config.xml.template for production environment"/>
@@ -323,7 +334,7 @@
 			description="Build BBB client skipping compiling of locales"/>	
 	<target name="clean-build-all" depends="clean, generate-html-wrapper, localization, compile-deskshare-standalone, compile-bbb" 
 			description="Build BBB client including locales"/>
-	<target name="build-bbb" depends="init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, compile-bbb"
+	<target name="modules" depends="init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, compile-bbb"
                         description="Build BBB client without locales"/>		
 	<target name="cleanandmake" depends="clean-build-all" description="Build BBB client including locales"/>
 </project>

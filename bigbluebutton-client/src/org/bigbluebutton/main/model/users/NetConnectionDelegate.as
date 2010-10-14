@@ -58,6 +58,8 @@ package org.bigbluebutton.main.model.users
 		private var _authToken:String = "AUTHORIZED";
 		private var _room:String;
 		private var tried_tunneling:Boolean = false;
+		private var logoutOnUserCommand:Boolean = false;
+		private var backoff:Number = 2000;
 		
 		private var dispatcher:Dispatcher;
 				
@@ -65,6 +67,13 @@ package org.bigbluebutton.main.model.users
 		{
 			_applicationURI = uri;
 			dispatcher = new Dispatcher();
+			
+			_netConnection = new NetConnection();				
+			_netConnection.client = this;
+			_netConnection.addEventListener( NetStatusEvent.NET_STATUS, netStatus );
+			_netConnection.addEventListener( AsyncErrorEvent.ASYNC_ERROR, netASyncError );
+			_netConnection.addEventListener( SecurityErrorEvent.SECURITY_ERROR, netSecurityError );
+			_netConnection.addEventListener( IOErrorEvent.IO_ERROR, netIOError );
 		}
 		
 		public function get connection():NetConnection {
@@ -85,12 +94,6 @@ package org.bigbluebutton.main.model.users
 			_conferenceParameters = params;
 			
 			tried_tunneling = tunnel;	
-			_netConnection = new NetConnection();				
-			_netConnection.client = this;
-			_netConnection.addEventListener( NetStatusEvent.NET_STATUS, netStatus );
-			_netConnection.addEventListener( AsyncErrorEvent.ASYNC_ERROR, netASyncError );
-			_netConnection.addEventListener( SecurityErrorEvent.SECURITY_ERROR, netSecurityError );
-			_netConnection.addEventListener( IOErrorEvent.IO_ERROR, netIOError );
 			
 			try {	
 				var uri:String = _applicationURI + "/" + _conferenceParameters.room;
@@ -115,8 +118,9 @@ package org.bigbluebutton.main.model.users
 			}	
 		}
 			
-		public function disconnect() : void
+		public function disconnect(logoutOnUserCommand:Boolean) : void
 		{
+			this.logoutOnUserCommand = logoutOnUserCommand;
 			_netConnection.close();
 		}
 					
@@ -158,8 +162,7 @@ package org.bigbluebutton.main.model.users
 						LogUtil.debug(NAME + ":Connection to viewers application failed...even when tunneling");
 						sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_FAILED);
 					} else {
-						disconnect();
-						_netConnection = null;
+						disconnect(false);
 						LogUtil.debug(NAME + ":Connection to viewers application failed...try tunneling");
 						var rtmptRetryTimer:Timer = new Timer(1000, 1);
             			rtmptRetryTimer.addEventListener("timer", rtmptRetryTimerHandler);
@@ -198,14 +201,6 @@ package org.bigbluebutton.main.model.users
             LogUtil.debug(NAME + "rtmptRetryTimerHandler: " + event);
             connect(_conferenceParameters, true);
         }
-        
-		private function sendFailReason(reason:String):void{
-			//ViewersFacade.getInstance().sendNotification(ViewersModuleConstants.LOGIN_FAILED, reason);
-			var e:ConnectionFailedEvent = new ConnectionFailedEvent();
-			e.reason = reason;
-			dispatcher.dispatchEvent(e);
-		}
-		
 			
 		protected function netSecurityError( event : SecurityErrorEvent ) : void 
 		{
@@ -246,12 +241,34 @@ package org.bigbluebutton.main.model.users
 			e.connection = _netConnection;
 			e.userid = n;
 			dispatcher.dispatchEvent(e);
+			
+			backoff = 2000;
 		}
 		
 		private function sendConnectionFailedEvent(reason:String):void{
-			var e:ConnectionFailedEvent = new ConnectionFailedEvent();
-			e.reason = reason;
+			if (this.logoutOnUserCommand){
+				sendUserLoggedOutEvent();
+				return;
+			}
+			
+			var e:ConnectionFailedEvent = new ConnectionFailedEvent(reason);
 			dispatcher.dispatchEvent(e);
+			
+			attemptReconnect(backoff);
+		}
+		
+		private function sendUserLoggedOutEvent():void{
+			var e:ConnectionFailedEvent = new ConnectionFailedEvent(ConnectionFailedEvent.USER_LOGGED_OUT);
+			dispatcher.dispatchEvent(e);
+		}
+		
+		private function attemptReconnect(backoff:Number):void{
+			var retryTimer:Timer = new Timer(backoff, 1);
+			retryTimer.addEventListener(TimerEvent.TIMER, function():void{
+				connect(_conferenceParameters, tried_tunneling);
+			});
+			retryTimer.start();
+			if (this.backoff < 16000) this.backoff = backoff *2;
 		}
 	}
 }
