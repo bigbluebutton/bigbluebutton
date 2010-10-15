@@ -24,12 +24,8 @@ package org.bigbluebutton.modules.deskshare.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
-	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.main.events.CloseWindowEvent;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
-	import org.bigbluebutton.main.events.OpenWindowEvent;
-	import org.bigbluebutton.main.events.ToolbarButtonEvent;
 	import org.bigbluebutton.modules.deskshare.services.DeskshareService;
 			
 	public class DeskshareManager
@@ -94,9 +90,9 @@ package org.bigbluebutton.modules.deskshare.managers
 			sharing = false;
 		}
 		
-		public function handleStartSharingEvent():void {
+		public function handleStartSharingEvent(autoStart:Boolean):void {
 			LogUtil.debug("DeskshareManager::handleStartSharingEvent");
-			publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom());
+			publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom(), autoStart);
 			sharing = true;
 		}
 		
