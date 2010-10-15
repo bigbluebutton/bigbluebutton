@@ -35,6 +35,8 @@
 			// Video test
 			private static var didVideoStart:Boolean = false;
 			
+			private static var deskshareStarted:Boolean = false;
+			
 			private function init():void {
 				ExternalInterface.addCallback("checkLogin", checkLogin);
 				ExternalInterface.addCallback("sendRandomChatMessage", sendRandomChatMessage);
@@ -45,7 +47,7 @@
 				ExternalInterface.addCallback("startVideoConnection", startVideoConnection);
 				ExternalInterface.addCallback("playVideo", playVideo);
 				ExternalInterface.addCallback("checkVideo", checkVideo);
-
+				ExternalInterface.addCallback("checkDeskshare", checkDeskshare);
 				ExternalInterface.addCallback("startDeskshare", startDeskshare);
 				
 				LogUtil.debug("Monitoring Module initialized");			
@@ -204,6 +206,14 @@
 		private static function startDeskshare():String {
 			globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.START_DESKSHARE));
 			return "true";
+		}
+		
+		public static function handleStreamEventStarted():void {
+			deskshareStarted = true;
+		}
+		
+		public static function checkDeskshare():String {
+			return deskshareStarted.toString();
 		}
 
 		]]>
