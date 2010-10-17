@@ -256,9 +256,11 @@ start_bigbluebutton () {
 	echo
 
 	if [ "$VOICE_CONFERENCE" == "bbb-voice-freeswitch.xml" ]; then
+		FREESWITCH_ESL_IP=$(cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
+
 		echo -n "Waiting for FreeSwitch to start: "
 
-		while ! nc -z -w 1 127.0.0.1 8021; do
+		while ! nc -z -w 1 FREESWITCH_ESL_IP 8021; do
 			echo -n "."
                 	sleep 1
         	done
@@ -1069,14 +1071,25 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 	#
 	# Check that freeswtich ESL matches the value in bigbluebutton.properties
 	#
-	FREESWITCH_ESL_IP=$(cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
-	ESL_HOST=$(cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | grep esl.host | sed 's/esl.host=//g')
-	if [ "$FREESWITCH_ESL_IP" != "$ESL_HOST" ]; then
-		echo 
-		echo "   The values for event socket layers in   "
-		echo "       /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml"
-		echo "   do not match the settings for esl.host in"
-		echo "       /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties"
+	if [ -f /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml ]; then 
+		FREESWITCH_ESL_IP=$(cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
+		ESL_HOST=$(cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | grep esl.host | sed 's/esl.host=//g')
+		if [ "$FREESWITCH_ESL_IP" != "$ESL_HOST" ]; then
+			echo 
+			echo "   The values for event socket layers in   "
+			echo "       /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml"
+			echo "   do not match the settings for esl.host in"
+			echo "       /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties"
+		fi
+	fi
+
+	if ! dpkg -l | grep -q bbb-freeswitch-config; then
+		if ! dpkg -l | grep -q bbb-voice-conference; then
+			echo 
+			echo "    You don't have either bbb-freeswitch-config or bbb-voice-conference"
+			echo "    installed.  Install one of these packages, then run sudo bbb-conf --clean"
+			echo
+		fi
 	fi
 
 	exit 0
