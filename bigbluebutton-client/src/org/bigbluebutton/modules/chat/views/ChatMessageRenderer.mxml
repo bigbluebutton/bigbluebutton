@@ -10,9 +10,11 @@
 			import be.boulevart.google.events.GoogleApiEvent;
 			
 			import mx.binding.utils.ChangeWatcher;
+			import mx.controls.Alert;
 			
 			[Bindable] private var rolledOver:Boolean = false;
 			private var dataWatcher:ChangeWatcher;
+			private var g:GoogleTranslation;
 			
 			/**
 			 * Chat Message Dynamic Object Anatomy:
@@ -77,15 +79,22 @@
 			}
 			
 			private function translateMessage(text:String, fromLang:String, toLang:String):void{
-				var g:GoogleTranslation = new GoogleTranslation();
+				g = new GoogleTranslation();
 				g.addEventListener(GoogleApiEvent.TRANSLATION_RESULT, onTranslationDone);
 				g.translate(text, fromLang, toLang);
 			}
 			
 			private function onTranslationDone(e:GoogleApiEvent):void{
-				data.text = (e.data as GoogleTranslationResult).result;
+				var result:GoogleTranslationResult = e.data as GoogleTranslationResult;
+				if (result.orig != senderText) return;
+				
+				data.text = result.result;
 				dataChangeHandler();
-				//chatMessagesList.invalidateList();
+				g.removeEventListener(GoogleApiEvent.TRANSLATION_RESULT, onTranslationDone);
+			}
+			
+			private function showDebug():void{
+				Alert.show("sender: " + senderText + ", translated: " + text);
 			}
 			
 		]]>

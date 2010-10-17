@@ -34,7 +34,7 @@ package org.bigbluebutton.modules.chat.services
 			var newMessage:String;			
 			/*newMessage = "<font color=\"#" + event.color + "\"><b>[" + 
 						attributes.username +" - "+ event.time + "]</b> " + event.message + "</font><br/>";*/
-			newMessage = event.message + "|" + attributes.username + "|" + event.color + "|" + event.time + "|" + event.language;
+			newMessage = event.message + "|" + attributes.username + "|" + event.color + "|" + event.time + "|" + event.language + "|" + attributes.userid;
 			var messageVO:MessageVO = new MessageVO(newMessage, attributes.userid, event.toUser);
 			chatSOService.sendMessage(messageVO);
 		}

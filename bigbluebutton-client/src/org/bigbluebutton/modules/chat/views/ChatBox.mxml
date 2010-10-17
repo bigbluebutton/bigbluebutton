@@ -30,12 +30,14 @@
 			
 			[Bindable] private var messages:ArrayCollection = new ArrayCollection();
 			[Bindable] private var msg:Object;
+			private var lastCount:Number = 0;
 			
 			private function onCreationComplete():void{
 				addContextMenuItems();
 			}
 			
-			private function updateScroll():void{
+			private function updateScroll(e:Event = null):void{
+				chatMessagesList.verticalScrollPosition = chatMessagesList.maxVerticalScrollPosition;
 				chatMessagesList.verticalScrollPosition = chatMessagesList.maxVerticalScrollPosition;
 			}
 			
@@ -68,6 +70,15 @@
 				
 				chatMessagesList.invalidateSize();
 				chatMessagesList.invalidateDisplayList();
+				
+
+				var scrollTimer:Timer = new Timer(750, 1);
+				scrollTimer.addEventListener(TimerEvent.TIMER, onScrollTimer);
+				scrollTimer.start();
+			}
+			
+			private function onScrollTimer(e:TimerEvent):void{
+				updateScroll();
 			}
 			
 			public static function getMinutes():String{
@@ -134,6 +145,6 @@
 		]]>
 	</mx:Script>
 	
-	<mx:List width="100%" height="100%" id="chatMessagesList" updateComplete="updateScroll()" selectable="false" variableRowHeight="true"
+	<mx:List width="100%" height="100%" id="chatMessagesList" selectable="false" variableRowHeight="true"
 			 itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" dataProvider="{messages}" />
 </mx:VBox>
