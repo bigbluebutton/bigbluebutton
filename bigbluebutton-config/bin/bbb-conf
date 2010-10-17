@@ -29,11 +29,12 @@
 #   2010-01-18 FFD  Added resetting of environment back to using packages   
 #   2010-03-02 JRT  Added trunk checkout options / fixed bbb-apps instructions   
 #   2010-04-02 FFD  Updated for 0.64   
-#	2010-06-21 SEB  Cleaned up some code / Updated for 0.70
-#	2010-06-25 SEB  Added ability to change the security salt
-#	2010-06-30 SEB	Added some extra errorchecking
-#	2010-07-06 SEB	Added more errorchecking and report messages
-#	2010-09-15 FFD	Updates for 0.71-dev
+#   2010-06-21 SEB  Cleaned up some code / Updated for 0.70
+#   2010-06-25 SEB  Added ability to change the security salt
+#   2010-06-30 SEB  Added some extra errorchecking
+#   2010-07-06 SEB  Added more errorchecking and report messages
+#   2010-09-15 FFD  Updates for 0.71-dev
+#   2010-10-16 FFD  Updates for 0.71-beta
 
 #set -x
 
@@ -951,18 +952,24 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 		fi
 	done
 
-	#	
-	# check if sip.log has warnings where the user is not registered.  
-	#
-	if cat /usr/share/red5/log/sip.log | tail -n1 | grep -q "Call request for default but not registered"; then
-		echo "The voice app is not registered with SIP server. Audio might not be working correctly."
-	fi
 
-	#
-	# Checking if voice app registered with Asterisk successfully
-	#
-        if cat /usr/share/red5/log/sip.log | grep -q "Failed to register with Sip Server"; then
-                echo "  The voice application failed to register with the sip server. Try running: sudo bbb-conf --clean"
+	if [ -f /usr/share/red5/log/sip.log ]; then
+		#
+		# Checking if voice app registered with Asterisk successfully
+		#
+        	if cat /usr/share/red5/log/sip.log | grep -q "Failed to register with Sip Server"; then
+                	echo "  The voice application failed to register with the sip server. Try running: sudo bbb-conf --clean"
+		fi
+
+		#	
+		# check if sip.log has warnings where the user is not registered.  
+		#
+
+		if cat /usr/share/red5/log/sip.log | tail -n1 | grep -q "Call request for default but not registered"; then
+			echo "The voice app is not registered with SIP server. Audio might not be working correctly."
+		fi
+	else
+		echo "      No /usr/share/red5/log/sip.log"
         fi
 
 	#
@@ -976,9 +983,13 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 	# Check that bigbluebutton in red5 has started propertly (less than 100 lines indicates that it
 	# didn't start)
 	# 
-	BBB_RED5_LOG=$(stat -c%s $RED5_DIR/log/bigbluebutton.log)
-	if [ $BBB_RED5_LOG -lt 100 ]; then
-        	echo "       bigbluebutton failed to start: $RED5_DIR/log/bigbluebutton.log (red5)"
+	if [ -f $RED5_DIR/log/bigbluebutton.log ]; then
+		BBB_RED5_LOG=$(stat -c%s $RED5_DIR/log/bigbluebutton.log)
+		if [ $BBB_RED5_LOG -lt 100 ]; then
+        		echo "       bigbluebutton failed to start: $RED5_DIR/log/bigbluebutton.log (red5)"
+		fi
+	else
+		echo "      No $RED5_DIR/log/bigbluebutton.log"
 	fi
 
 
@@ -1088,6 +1099,29 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 			echo 
 			echo "    You don't have either bbb-freeswitch-config or bbb-voice-conference"
 			echo "    installed.  Install one of these packages, then run sudo bbb-conf --clean"
+			echo
+		fi
+	fi
+
+
+	if dpkg -l | grep -q bbb-freeswitch-config; then
+		if [ "$VOICE_CONFERENCE" == "bbb-voice-asterisk.xml" ]; then
+			echo 
+			echo "    You have freeswitch installed, but the current voice conference set"
+			echo "    to asterisk.  To switch to freeswitch, enter"
+			echo 
+			echo "       sudo bbb-conf --conference freeswitch"
+			echo
+		fi
+	fi
+
+	if dpkg -l | grep -q bbb-voice-conference; then
+		if [ "$VOICE_CONFERENCE" == "bbb-voice-freeswitch.xml" ]; then
+			echo 
+			echo "    You have asterisk installed, but the current voice conference set"
+			echo "    to freeswitch.  To switch to asterisk, enter"
+			echo 
+			echo "       sudo bbb-conf --conference konference"
 			echo
 		fi
 	fi
