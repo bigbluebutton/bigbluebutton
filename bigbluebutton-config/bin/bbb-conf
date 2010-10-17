@@ -256,11 +256,11 @@ start_bigbluebutton () {
 	echo
 
 	if [ "$VOICE_CONFERENCE" == "bbb-voice-freeswitch.xml" ]; then
-		FREESWITCH_ESL_IP=$(cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
+		FREESWITCH_ESL_IP=$(sudo cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
 
 		echo -n "Waiting for FreeSwitch to start: "
 
-		while ! nc -z -w 1 FREESWITCH_ESL_IP 8021; do
+		while ! nc -z -w 1 $FREESWITCH_ESL_IP 8021; do
 			echo -n "."
                 	sleep 1
         	done
@@ -1072,7 +1072,7 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 	# Check that freeswtich ESL matches the value in bigbluebutton.properties
 	#
 	if [ -f /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml ]; then 
-		FREESWITCH_ESL_IP=$(cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
+		FREESWITCH_ESL_IP=$(sudo cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
 		ESL_HOST=$(cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | grep esl.host | sed 's/esl.host=//g')
 		if [ "$FREESWITCH_ESL_IP" != "$ESL_HOST" ]; then
 			echo 
@@ -1241,11 +1241,13 @@ if [ $DEBUG ]; then
 	fi
 
 	rm -rf /tmp/t
-	find /var/log/asterisk -exec grep -H -i "Unable to register" '{}' \; > /tmp/t
-	if [ -s /tmp/t ]; then
-		echo "   -- Registration errors found in /var/log/asterisk/ -- "
-		echo "Found $(cat /tmp/t | wc -l) errors in /var/log/asterisk/* containing string \"Unable to register\""
-		echo
+	if [ -f /var/log/asterisk ]; then 
+		find /var/log/asterisk -exec grep -H -i "Unable to register" '{}' \; > /tmp/t
+		if [ -s /tmp/t ]; then
+			echo "   -- Registration errors found in /var/log/asterisk/ -- "
+			echo "Found $(cat /tmp/t | wc -l) errors in /var/log/asterisk/* containing string \"Unable to register\""
+			echo
+		fi
 	fi
 
 	rm -rf /tmp/t
@@ -1417,11 +1419,6 @@ if [ $CONFERENCE ]; then
 		exit 1
 	fi
 
-	if [ ! -f /etc/asterisk/bbb_extensions.conf ]; then
-		echo "Error: Unable to find /etc/asterisk/bbb_extensions.conf"
-		exit 1
-	fi
-	
 	if [ "$CONFERENCE" = "freeswitch" ]; then
 		CONFERENCE=freeswitch
 	elif [ "$CONFERENCE" = "meetme" ]; then
@@ -1436,6 +1433,11 @@ if [ $CONFERENCE ]; then
 	fi
 
 	if [ $CONFERENCE = "meetme" ]; then
+	        if [ ! -f /etc/asterisk/bbb_extensions.conf ]; then
+                	echo "Error: Unable to find /etc/asterisk/bbb_extensions.conf"
+                	exit 1
+        	fi
+
 		#
 		# update $RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
 		#
@@ -1463,8 +1465,10 @@ if [ $CONFERENCE ]; then
 			/etc/asterisk/bbb_extensions.conf
 
 		echo "Switching to $CONFERENCE ... "
-		sudo /etc/init.d/freeswitch stop
-		sudo update-rc.d -f freeswitch remove >/dev/null
+		if [ -f /etc/init.d/freeswitch ]; then
+			sudo /etc/init.d/freeswitch stop
+			sudo update-rc.d -f freeswitch remove >/dev/null
+		fi
 
 		sudo update-rc.d asterisk defaults 21 > /dev/null
 
@@ -1473,6 +1477,11 @@ if [ $CONFERENCE ]; then
 	fi
  
 	if [ $CONFERENCE = "app_konference" ]; then
+	        if [ ! -f /etc/asterisk/bbb_extensions.conf ]; then
+                	echo "Error: Unable to find /etc/asterisk/bbb_extensions.conf"
+                	exit 1
+        	fi
+
 		#
 		# update $RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
 		#
@@ -1504,8 +1513,10 @@ if [ $CONFERENCE ]; then
                 fi
 
 		echo "Switching to $CONFERENCE ... "
-		sudo /etc/init.d/freeswitch stop
-		sudo update-rc.d -f freeswitch remove >/dev/null
+		if [ -f /etc/init.d/freeswitch ]; then
+			sudo /etc/init.d/freeswitch stop
+			sudo update-rc.d -f freeswitch remove >/dev/null
+		fi
 
 		sudo update-rc.d asterisk defaults 21 > /dev/null
 
@@ -1525,16 +1536,18 @@ if [ $CONFERENCE ]; then
 			/usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml
 		fi
 
-		if [ -f /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml ]; then
-        		EVENTIP=$(cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
-		        sed -i "s/$EVENTIP/$IP/g" \
-        	        /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml
-		fi
+		#if [ -f /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml ]; then
+        	#	EVENTIP=$(sudo cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
+		#        sed -i "s/$EVENTIP/$IP/g" \
+        	#       /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml
+		#fi
 
 
 		echo "Switching to $CONFERENCE ... "
-		sudo /etc/init.d/asterisk stop
-		sudo update-rc.d -f asterisk remove >/dev/null
+		if [ -f /etc/init.d/asterisk ]; then
+			sudo /etc/init.d/asterisk stop
+			sudo update-rc.d -f asterisk remove >/dev/null
+		fi
 
 		update-rc.d freeswitch defaults >/dev/null
 
