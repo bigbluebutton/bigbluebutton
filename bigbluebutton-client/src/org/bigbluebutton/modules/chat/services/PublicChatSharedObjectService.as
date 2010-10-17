@@ -156,14 +156,9 @@ package org.bigbluebutton.modules.chat.services
 		private function receivedChatHistory(result:Object):void{
 			if (result == null) return;
 			
-			/*var messages:Array = result as Array;
+			var messages:Array = result as Array;
 			for (var i:int=0; i<messages.length; i++){
 				newChatMessage(messages[i] as String);
-			}*/
-			
-			//Test
-			for (var i:int=0; i<testTranscript.length; i++){
-				newChatMessage(testTranscript[i] as String);
 			}
 			
 			sendTranscriptLoadedEvent();
@@ -181,34 +176,5 @@ package org.bigbluebutton.modules.chat.services
 			trace("Dispatching NET CONNECTION SUCCESS");
 			dispatcher.dispatchEvent(connEvent);
 		}
-		
-		private var testTranscript:Array = new Array("zdravo|Denis|0|15:56|sr|513",
-											"kako ste|Joe|0|15:56|sr|514",
-											"ja ovde pokusavam da popravim razgovor|Joe|0|15:56|sr|514",
-											"ovo su neke poruke koje ja koristim za testiranje|Test User|0|15:56|sr|515",
-											"dobar dan|Denis|0|15:56|sr|513",
-											"jedan|Denis|0|15:56|sr|513",
-											"dva|Denis|0|15:56|sr|513",
-											"ten|Joe|0|15:56|en|514",
-											"twenty|Joe|0|15:56|en|514",
-											"thirty|Joe|0|15:56|en|514",
-											"forty|Joe|0|15:56|en|514",
-											"fifty|Joe|0|15:56|en|514",
-											"sixty|Joe|0|15:56|en|514",
-											"seventy|Joe|0|15:56|en|514",
-											"eighty|Joe|0|15:56|en|514",
-											"ninety|Joe|0|15:56|en|514",
-											"one hundred|Joe|0|15:56|en|514",
-											"one thousand|Joe|0|15:56|en|514",
-											"hello fuckers|Test User|0|15:56|en|515",
-											"hello fuckers|Test User|0|15:56|en|515",
-											"hello fuckers|Test User|0|15:56|en|515",
-											"hello fuckers|Test User|0|15:56|en|515",
-											"hello fuckers|Test User|0|15:56|en|515",
-											"hello fuckers|Test User|0|15:56|en|515",
-											"hello fuckers|Test User|0|15:56|en|515",
-											"hello fuckers|Test User|0|15:56|en|515",
-											"hello fuckers|Test User|0|15:56|en|515",
-											"hello fuckers|Test User|0|15:56|en|515");
 	}
 }
