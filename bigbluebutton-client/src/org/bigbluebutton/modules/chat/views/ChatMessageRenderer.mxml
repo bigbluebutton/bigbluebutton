@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" verticalAlign="middle" height="{txtMessage.height + 3}" 
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" verticalAlign="top" height="{txtMessage.height + 3}" 
 		 verticalScrollPolicy="off" xmlns:common="org.bigbluebutton.common.*" dataChange="validateNow()"
 		 creationComplete="onCreationComplete()">
 	
@@ -8,6 +8,8 @@
 			import be.boulevart.google.ajaxapi.translation.GoogleTranslation;
 			import be.boulevart.google.ajaxapi.translation.data.GoogleTranslationResult;
 			import be.boulevart.google.events.GoogleApiEvent;
+			
+			import flexlib.scheduling.Timeline;
 			
 			import mx.binding.utils.ChangeWatcher;
 			import mx.controls.Alert;
@@ -47,6 +49,13 @@
 			
 			private function onCreationComplete():void{
 				this.dataWatcher = ChangeWatcher.watch(this, "data", dataChangeHandler);
+				
+				var t:Timer = new Timer(200, 1);
+				t.addEventListener(TimerEvent.TIMER, changeData);
+				t.start();
+			}
+			
+			private function changeData(e:TimerEvent):void{
 				dataChangeHandler();
 			}
 			
@@ -62,9 +71,9 @@
 				senderText = data.senderText;
 				color = data.color;
 				
-				if (data.translate && !translated && (data.senderLanguage != data.recepientLanguage)){
-					translateMessage(text, data.senderLanguage, data.recepientLanguage);
+				if (!translated){
 					translated = true;
+					translateMessage(text, data.senderLanguage, data.recepientLanguage);		
 				} 
 			}
 			
@@ -79,6 +88,12 @@
 			}
 			
 			private function translateMessage(text:String, fromLang:String, toLang:String):void{
+				if (fromLang == toLang){
+					data.text = text;
+					dataChangeHandler();
+					return;
+				}
+				
 				g = new GoogleTranslation();
 				g.addEventListener(GoogleApiEvent.TRANSLATION_RESULT, onTranslationDone);
 				g.translate(text, fromLang, toLang);
