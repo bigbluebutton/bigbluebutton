@@ -56,11 +56,19 @@ public class RoomsManager {
 		log.debug("Remove room {}", name);
 		Room room = rooms.remove(name);
 		if (checkEvtListener() && room != null) {
+			room.endAndKickAll();
 			conferenceEventListener.ended(room);
 			log.debug("Notified event listener of conference end");
 		}
 	}
 
+	public void destroyAllRooms() {
+		for (Map.Entry<String,Room> entry : rooms.entrySet()) {
+		    Room room = entry.getValue();
+		    room.endAndKickAll();
+		}
+	}
+	
 	private boolean checkEvtListener() {
 		return conferenceEventListener != null;
 	}
