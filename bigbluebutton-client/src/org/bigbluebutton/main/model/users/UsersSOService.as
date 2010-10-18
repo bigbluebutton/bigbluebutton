@@ -27,8 +27,6 @@ package org.bigbluebutton.main.model.users
 	import flash.net.Responder;
 	import flash.net.SharedObject;
 	
-	import mx.controls.Alert;
-	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.LogoutEvent;
@@ -37,7 +35,6 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.User;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
-	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 
 	public class UsersSOService
 	{
@@ -172,9 +169,12 @@ package org.bigbluebutton.main.model.users
 			dispatcher.dispatchEvent(joinEvent);				
 		}
 		
+		/**
+		 * Called by the server to tell the client that the meeting has ended.
+		 */
 		public function logout():void {
 			var dispatcher:Dispatcher = new Dispatcher();
-			var endMeetingEvent:BBBEvent = new BBBEvent("EndMeetingKickAllEvent");
+			var endMeetingEvent:BBBEvent = new BBBEvent(BBBEvent.END_MEETING_EVENT);
 			dispatcher.dispatchEvent(endMeetingEvent);
 		}
 		
