@@ -25,6 +25,7 @@
     x="168" y="86" layout="vertical" width="400" height="150" horizontalAlign="center">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import mx.controls.Alert;
 			import mx.managers.PopUpManager; 
@@ -52,8 +53,10 @@
 			}
 			
             private function redirect():void { 
+            	var pageHost:String = mx.core.Application.application.url.split("/")[0];
             	var pageURL:String = mx.core.Application.application.url.split("/")[2];
-            	var url:URLRequest = new URLRequest("http://" + pageURL + "/bigbluebutton/conference-session/signOut");
+            	var url:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
+            	LogUtil.debug("Log out url: " + pageURL);
 				navigateToURL(url, '_self');
             	PopUpManager.removePopUp(this);
             }

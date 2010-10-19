@@ -21,19 +21,15 @@ package org.bigbluebutton.main.model.modules
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
-	import flash.events.Event;
-	import flash.net.URLLoader;
-	import flash.net.URLRequest;
 	import flash.system.ApplicationDomain;
 	import flash.utils.Dictionary;
 	
 	import mx.collections.ArrayCollection;
-	import mx.controls.Alert;
 	
 	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
-	import org.bigbluebutton.main.events.ModuleLoadEvent;
+	import org.bigbluebutton.main.events.AppVersionEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.ConfigParameters;
 	
@@ -145,9 +141,18 @@ package org.bigbluebutton.main.model.modules
 			}
 			
 			if (allModulesLoaded()) {
+				sendAppAndLocaleVersions();
 				startAllModules();
 				modulesDispatcher.sendAllModulesLoadedEvent();	
 			}
+		}
+		
+		private function sendAppAndLocaleVersions():void {
+			var dispatcher:Dispatcher = new Dispatcher();
+			var versionEvent:AppVersionEvent = new AppVersionEvent();
+			versionEvent.appVersion = configParameters.version;	
+			versionEvent.localVersion = configParameters.localeVersion; 		
+			dispatcher.dispatchEvent(versionEvent);			
 		}
 		
 		public function moduleStarted(name:String, started:Boolean):void {			

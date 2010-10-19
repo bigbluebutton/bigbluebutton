@@ -45,6 +45,10 @@ public class ParticipantsApplication {
 		return true;
 	}
 	
+	public void destroyAllRooms() {
+		roomsManager.destroyAllRooms();
+	}
+	
 	public boolean hasRoom(String name) {
 		return roomsManager.hasRoom(name);
 	}
