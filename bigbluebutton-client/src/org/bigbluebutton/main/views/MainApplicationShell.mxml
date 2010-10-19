@@ -89,6 +89,7 @@
 			// LIVE or PLAYBACK
 			private var _mode:String = 'LIVE';
 			[Bindable] public var appVersion:String = '0.7';
+			private var localeVersion:String = 'old';
 			[Bindable] public var numberOfModules:int = 0;
 			
 			[Bindable] private var fullscreen_icon:Class = images.full_screen;
@@ -112,6 +113,8 @@
 			
 			private function handleApplicationVersionEvent(event:AppVersionEvent):void {
 				appVersion = event.appVersion;
+				localeVersion = event.localVersion;
+				checkLocaleVersion(localeVersion);
 			}
 			
 			private function fullScreenHandler(evt:FullScreenEvent):void {
@@ -158,6 +161,7 @@
 	   		}	
 	   		
 	   		private function handleOpenWindowEvent(event:OpenWindowEvent):void {
+	   			
 	   			var window:IBbbModuleWindow = event.window;
 	   			mdiCanvas.addWindow(window);
 	   		}
