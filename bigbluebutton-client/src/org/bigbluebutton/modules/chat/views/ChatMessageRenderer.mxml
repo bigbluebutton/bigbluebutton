@@ -49,6 +49,8 @@
 			
 			private function onCreationComplete():void{
 				this.dataWatcher = ChangeWatcher.watch(this, "data", dataChangeHandler);
+				g = new GoogleTranslation();
+				g.addEventListener(GoogleApiEvent.TRANSLATION_RESULT, onTranslationDone);
 				
 				var t:Timer = new Timer(200, 1);
 				t.addEventListener(TimerEvent.TIMER, changeData);
@@ -71,8 +73,8 @@
 				senderText = data.senderText;
 				color = data.color;
 				
-				if (!translated){
-					translated = true;
+				if (!data.translated){
+					data.translated = true;
 					translateMessage(text, data.senderLanguage, data.recepientLanguage);		
 				} 
 			}
@@ -94,8 +96,6 @@
 					return;
 				}
 				
-				g = new GoogleTranslation();
-				g.addEventListener(GoogleApiEvent.TRANSLATION_RESULT, onTranslationDone);
 				g.translate(text, fromLang, toLang);
 			}
 			
@@ -105,7 +105,7 @@
 				
 				data.text = result.result;
 				dataChangeHandler();
-				g.removeEventListener(GoogleApiEvent.TRANSLATION_RESULT, onTranslationDone);
+
 			}
 			
 			private function showDebug():void{
