@@ -127,6 +127,7 @@ package org.bigbluebutton.modules.videoconf.business
 				ns.attachCamera(null);
 				ns.close();
 				ns = null;
+				ns = new NetStream(nc);
 			}
 		}
 		

@@ -124,7 +124,6 @@ package org.bigbluebutton.main.model.modules
 			if (!(modLoader.child is IBigBlueButtonModule)) throw new Error(getName() + " is not a valid BigBlueButton module");
 			_module = modLoader.child as IBigBlueButtonModule;
 			if (_module != null) {
-				LogUtil.debug("Module " + _attributes.name + " has been loaded");
 				_loaded = true;
 				callbackHandler(ModuleManager.MODULE_LOAD_READY, _attributes.name);
 			} else {
@@ -134,7 +133,6 @@ package org.bigbluebutton.main.model.modules
 		}	
 
 		private function onLoadProgress(e:ProgressEvent):void {
-			if (getName() == "PresentModule") LogUtil.debug("PresentModule " + Math.round((e.bytesLoaded/e.bytesTotal) * 100) + " loaded");
 			callbackHandler(ModuleManager.MODULE_LOAD_PROGRESS, 
 					_attributes.name, Math.round((e.bytesLoaded/e.bytesTotal) * 100));
 		}	
@@ -144,7 +142,7 @@ package org.bigbluebutton.main.model.modules
 		}
 		
 		private function onLoading(e:Event):void{
-			LogUtil.debug(getName() + " is loading");
+//			LogUtil.debug(getName() + " is loading");
 		}
 		
 		public function useProtocol(protocol:String):void {

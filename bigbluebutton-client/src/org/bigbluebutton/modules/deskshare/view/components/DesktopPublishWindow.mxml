@@ -80,7 +80,7 @@
 			private var videoWidth:Number;
 			private var captureHeight:Number = Capabilities.screenResolutionY;
 			private var captureWidth:Number = Capabilities.screenResolutionX;
-			
+			private var autoStart:Boolean = false;
 			private var globalDispatcher:Dispatcher = new Dispatcher();
 			
 			[Bindable] private var cursor:Sprite;
@@ -93,7 +93,11 @@
 				
 				cursor = new Sprite();
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
-				cursor.graphics.drawCircle(0,0,3);				
+				cursor.graphics.drawCircle(0,0,3);		
+				
+				if (autoStart) {
+					shareScreen(true);	
+				}		
 			}
 			
 			public function get defaultWidth():int{
@@ -121,10 +125,11 @@
 			 */			
 			public function resetWidthAndHeight():void{/* do nothing */}
 			
-			public function initWindow(connection:NetConnection, uri:String, room:String):void {
+			public function initWindow(connection:NetConnection, uri:String, room:String, autoStart:Boolean):void {
 				this.connection = connection;
 				this.uri = uri;
-				this.room = room;								
+				this.room = room;				
+				this.autoStart = autoStart;		
 			}
 			
 			private function shareScreen(fullScreen:Boolean):void {

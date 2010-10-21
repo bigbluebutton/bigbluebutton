@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" verticalAlign="middle" height="{txtMessage.height + 3}" 
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" verticalAlign="top" height="{txtMessage.height + 3}" 
 		 verticalScrollPolicy="off" xmlns:common="org.bigbluebutton.common.*" dataChange="validateNow()"
 		 creationComplete="onCreationComplete()">
 	
@@ -9,10 +9,14 @@
 			import be.boulevart.google.ajaxapi.translation.data.GoogleTranslationResult;
 			import be.boulevart.google.events.GoogleApiEvent;
 			
+			import flexlib.scheduling.Timeline;
+			
 			import mx.binding.utils.ChangeWatcher;
+			import mx.controls.Alert;
 			
 			[Bindable] private var rolledOver:Boolean = false;
 			private var dataWatcher:ChangeWatcher;
+			private var g:GoogleTranslation;
 			
 			/**
 			 * Chat Message Dynamic Object Anatomy:
@@ -45,6 +49,15 @@
 			
 			private function onCreationComplete():void{
 				this.dataWatcher = ChangeWatcher.watch(this, "data", dataChangeHandler);
+				g = new GoogleTranslation();
+				g.addEventListener(GoogleApiEvent.TRANSLATION_RESULT, onTranslationDone);
+				
+				var t:Timer = new Timer(200, 1);
+				t.addEventListener(TimerEvent.TIMER, changeData);
+				t.start();
+			}
+			
+			private function changeData(e:TimerEvent):void{
 				dataChangeHandler();
 			}
 			
@@ -60,9 +73,9 @@
 				senderText = data.senderText;
 				color = data.color;
 				
-				if (data.translate && !translated && (data.senderLanguage != data.recepientLanguage)){
-					translateMessage(text, data.senderLanguage, data.recepientLanguage);
-					translated = true;
+				if (!data.translated){
+					data.translated = true;
+					translateMessage(text, data.senderLanguage, data.recepientLanguage);		
 				} 
 			}
 			
@@ -77,15 +90,26 @@
 			}
 			
 			private function translateMessage(text:String, fromLang:String, toLang:String):void{
-				var g:GoogleTranslation = new GoogleTranslation();
-				g.addEventListener(GoogleApiEvent.TRANSLATION_RESULT, onTranslationDone);
+				if (fromLang == toLang){
+					data.text = text;
+					dataChangeHandler();
+					return;
+				}
+				
 				g.translate(text, fromLang, toLang);
 			}
 			
 			private function onTranslationDone(e:GoogleApiEvent):void{
-				data.text = (e.data as GoogleTranslationResult).result;
+				var result:GoogleTranslationResult = e.data as GoogleTranslationResult;
+				if (result.orig != senderText) return;
+				
+				data.text = result.result;
 				dataChangeHandler();
-				//chatMessagesList.invalidateList();
+
+			}
+			
+			private function showDebug():void{
+				Alert.show("sender: " + senderText + ", translated: " + text);
 			}
 			
 		]]>

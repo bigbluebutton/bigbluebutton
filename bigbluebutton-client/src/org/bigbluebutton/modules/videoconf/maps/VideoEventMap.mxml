@@ -108,8 +108,6 @@
 			
 			private function stopPublishing(e:StopBroadcastEvent):void{
 				proxy.stopBroadcasting();
-				proxy = null;
-				proxy = new VideoProxy(module.uri);
 				
 				var broadcastEvent:BroadcastStoppedEvent = new BroadcastStoppedEvent();
 				broadcastEvent.stream = publishWindow.streamName;

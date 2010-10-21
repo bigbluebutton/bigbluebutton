@@ -431,7 +431,7 @@
 			}
 			
 			private function displaySlideNumber(currentSlide:int):void {
-				btnSlideNum.label = ResourceUtil.getInstance().getString('bbb.presentation.pages', [currentSlide, slideView.slides.length]);
+				btnSlideNum.label = "" + currentSlide + '/' + slideView.slides.length;
 			}
 			
 			private function clearPresentation(e:UploadEvent):void{

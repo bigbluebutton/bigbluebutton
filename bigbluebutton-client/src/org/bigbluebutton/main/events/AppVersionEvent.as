@@ -4,8 +4,10 @@ package org.bigbluebutton.main.events
 
 	public class AppVersionEvent extends Event
 	{
-		public var appVersion:String;
+		
 		public static const APP_VERSION_EVENT:String = "APP VERSION EVENT";
+		public var appVersion:String;
+		public var localVersion:String;
 		
 		public function AppVersionEvent()
 		{

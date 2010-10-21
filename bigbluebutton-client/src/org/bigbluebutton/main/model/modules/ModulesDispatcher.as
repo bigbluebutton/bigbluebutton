@@ -2,6 +2,7 @@ package org.bigbluebutton.main.model.modules
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
+	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.ConfigEvent;
 	import org.bigbluebutton.main.events.ModuleLoadEvent;
 	import org.bigbluebutton.main.events.PortTestEvent;
@@ -32,6 +33,9 @@ package org.bigbluebutton.main.model.modules
 		
 		public function sendAllModulesLoadedEvent():void{
 			dispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.ALL_MODULES_LOADED));
+			
+			var loginEvent:BBBEvent = new BBBEvent(BBBEvent.LOGIN_EVENT);
+			dispatcher.dispatchEvent(loginEvent);	
 		}
 		
 		public function sendStartUserServicesEvent(application:String, host:String):void{

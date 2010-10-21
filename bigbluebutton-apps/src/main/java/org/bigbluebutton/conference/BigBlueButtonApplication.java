@@ -28,8 +28,12 @@ import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.IApplication;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
 import org.red5.server.api.IConnection;
+import org.red5.server.api.IContext;
 import org.red5.server.api.IScope;
 import org.slf4j.Logger;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.support.AbstractApplicationContext;
 
 public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 
@@ -38,12 +42,17 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	private static final String APP = "BigBlueButtonApplication";
 	private ParticipantsApplication participantsApplication;
 	private RecorderApplication recorderApplication;
+	private AbstractApplicationContext appCtx;
 	
 	private String version;
 	
 	@Override
     public boolean appStart(IScope app) {
         log.debug("Starting BigBlueButton version {}", version); 
+        IContext context = app.getContext();
+        appCtx = (AbstractApplicationContext) context.getApplicationContext();
+        appCtx.addApplicationListener(new ShutdownHookListener());
+        appCtx.registerShutdownHook();
         return super.appStart(app);
     }
     
@@ -156,5 +165,17 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	
 	private BigBlueButtonSession getBbbSession() {
 		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
+	}
+	
+	private class ShutdownHookListener implements ApplicationListener<ApplicationEvent> {
+
+		@Override
+		public void onApplicationEvent(ApplicationEvent event) {
+			if (event instanceof org.springframework.context.event.ContextStoppedEvent) {
+				log.info("Received shutdown event. Destroying all rooms.");
+				participantsApplication.destroyAllRooms();
+			}			
+		}
+		
 	}
 }

@@ -48,11 +48,11 @@
 	</EventHandlers>
 		
 	<EventHandlers type="{ShareEvent.START_SHARING}">
-		<MethodInvoker generator="{DeskshareManager}" method="handleStartSharingEvent"/>
+		<MethodInvoker generator="{DeskshareManager}" method="handleStartSharingEvent" arguments="false"/>
 	</EventHandlers>
 	
 	<EventHandlers type="{BBBEvent.START_DESKSHARE}">
-		<MethodInvoker generator="{DeskshareManager}" method="handleStartSharingEvent" />
+		<MethodInvoker generator="{DeskshareManager}" method="handleStartSharingEvent" arguments="true"/>
 	</EventHandlers>
 	
 	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}">
