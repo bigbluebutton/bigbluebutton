@@ -307,14 +307,17 @@ BrowserHistory = (function() {
             // For Safari, we have to check to see if history.length changed.
             if (currentHistoryLength >= 0 && history.length != currentHistoryLength) {
                 //alert("did change: " + history.length + ", " + historyHash.length + "|" + historyHash[history.length] + "|>" + historyHash.join("|"));
-                // If it did change, then we have to look the old state up
-                // in our hand-maintained array since document.location.hash
-                // won't have changed, then call back into BrowserManager.
-                currentHistoryLength = history.length;
-                var flexAppUrl = historyHash[currentHistoryLength];
-                if (flexAppUrl == '') {
-                    //flexAppUrl = defaultHash;
+                var flexAppUrl = getHash();
+                if (browser.version < 528.16 /* Anything earlier than Safari 4.0 */)
+                {    
+                    // If it did change and we're running Safari 3.x or earlier, 
+                    // then we have to look the old state up in our hand-maintained 
+                    // array since document.location.hash won't have changed, 
+                    // then call back into BrowserManager.
+                    currentHistoryLength = history.length;
+                    flexAppUrl = historyHash[currentHistoryLength];
                 }
+
                 //ADR: to fix multiple
                 if (typeof BrowserHistory_multiple != "undefined" && BrowserHistory_multiple == true) {
                     var pl = getPlayers();

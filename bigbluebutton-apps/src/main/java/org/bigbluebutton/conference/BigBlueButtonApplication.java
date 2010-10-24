@@ -102,7 +102,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
         String voiceBridge = ((String) params[5]).toString();
 		String room = sessionName;
 		assert recorderApplication != null;
-		boolean record = (Boolean)params[6];
+		boolean record = true;//(Boolean)params[6];
 
     	String externUserID = ((String) params[7]).toString();
 

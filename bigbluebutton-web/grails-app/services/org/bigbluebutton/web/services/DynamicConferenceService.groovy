@@ -96,6 +96,9 @@ public class DynamicConferenceService {
 		conf.setStoredTime(new Date());
 		confsByMtgID.put(conf.getMeetingID(), conf);
 		tokenMap.put(conf.getMeetingToken(), conf.getMeetingID());
+		println "next step -> createRecordFile"
+		conf.createRecordFile();
+		println "end step -> createRecordFile"
 	}
 	
 	public Room getRoomByMeetingID(String meetingID) {

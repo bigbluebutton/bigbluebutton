@@ -24,6 +24,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
+import java.io.File;
 
 public class DynamicConference {
 	Date dateCreated
@@ -48,6 +49,8 @@ public class DynamicConference {
 	String welcome
 	String logoutUrl
 	int maxParticipants
+	/* record development */
+	boolean record
 
 	public DynamicConference() {}
 	
@@ -72,6 +75,26 @@ public class DynamicConference {
 		boolean running = startTime != null && endTime == null;
 		//println "running: ${running}; startTime: ${startTime}; endTime: ${endTime}"; 
 		return running;
+	}
+	
+	public void createRecordFile(){
+		String dirpath="/var/bigbluebutton"+"/"+this.meetingToken+"/"+this.meetingToken+"/"
+		String filename=dirpath+"manifest.xml"
+		println "filename: "+dirpath+" ";
+		if(!new File(dirpath).exists()){
+			boolean success = (new File(dirpath)).mkdirs()
+		}
+		
+		def mb = new groovy.xml.StreamingMarkupBuilder()
+		mb.encoding = "UTF-8"
+		new OutputStreamWriter(new FileOutputStream(filename),'utf-8') << mb.bind {
+			mkp.xmlDeclaration()
+			events(token:this.meetingToken,name:this.name){
+				seq{
+				}
+			}
+		}
+		
 	}
 
 	String toString() {"DynamicConference: ${this.meetingToken} [${this.meetingID}|${this.voiceBridge}]:${this.name}"}
