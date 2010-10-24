@@ -22,12 +22,18 @@ package org.bigbluebutton.deskshare.server.events;
 public class CaptureEndBlockEvent {
 
 	private final String room;
+	private final int sequenceNum;
 	
-	public CaptureEndBlockEvent(String room) {
+	public CaptureEndBlockEvent(String room, int sequenceNum) {
 		this.room = room;
+		this.sequenceNum = sequenceNum;
 	}
 		
 	public String getRoom() {
 		return room;
+	}
+	
+	public int getSequenceNum() {
+		return sequenceNum;
 	}
 }

@@ -40,7 +40,7 @@
 			import org.bigbluebutton.modules.chat.events.StopChatModuleEvent;
 			import org.bigbluebutton.modules.chat.events.QueryParticipantsEvent;
 			import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
-			import org.bigbluebutton.modules.chat.views.components.ChatView;
+			import org.bigbluebutton.modules.chat.views.ChatView;
 			import org.bigbluebutton.modules.chat.services.PrivateChatService;
 			import org.bigbluebutton.main.events.OpenWindowEvent;
 			import org.bigbluebutton.modules.chat.events.ConnectionEvent;

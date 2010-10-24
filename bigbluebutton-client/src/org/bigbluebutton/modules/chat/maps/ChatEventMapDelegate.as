@@ -10,7 +10,7 @@ package org.bigbluebutton.modules.chat.maps
 	import org.bigbluebutton.main.events.OpenWindowEvent;
 	import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
 	import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
-	import org.bigbluebutton.modules.chat.views.components.ChatWindow;
+	import org.bigbluebutton.modules.chat.views.ChatWindow;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 	public class ChatEventMapDelegate

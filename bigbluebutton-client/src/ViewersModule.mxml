@@ -26,7 +26,7 @@
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-						
+			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.modules.viewers.events.ViewersModuleEndEvent;
 			import org.bigbluebutton.modules.viewers.events.ViewersModuleStartedEvent;
@@ -38,6 +38,8 @@
 			private var _playbackRoom:String;
 			
 			private var dispatcher:Dispatcher;
+			
+			public static var allowKickUser:Boolean = false;
 			
 			private function onCreationComplete():void {
 				LogUtil.debug("ViewersModule Initialized");		
@@ -185,7 +187,7 @@
 				return _attributes.externUserID;
 			}
 			
-			public function get allowKickUser():Boolean{
+			private function getAllowKickUser():Boolean{
 				if (_attributes.allowKickUser == "true") return true;
 				else return false;
 			}
@@ -197,10 +199,11 @@
 				
 				LogUtil.debug('Passed ViewersModule mode: ' + _attributes.mode);
 				
+				ViewersModule.allowKickUser = getAllowKickUser();
+				
 				dispatcher = new Dispatcher();
 				var e:ViewersModuleStartedEvent = new ViewersModuleStartedEvent(ViewersModuleStartedEvent.VIEWERS_MODULE_STARTED);
 				e.module = this;
-				e.allowKickUser = allowKickUser;
 				dispatcher.dispatchEvent(e);
 			}
 		

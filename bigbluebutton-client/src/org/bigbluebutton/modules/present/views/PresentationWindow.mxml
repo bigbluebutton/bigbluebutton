@@ -431,7 +431,7 @@
 			}
 			
 			private function displaySlideNumber(currentSlide:int):void {
-				btnSlideNum.label = ResourceUtil.getInstance().getString('bbb.presentation.pages', [currentSlide, slideView.slides.length]);
+				btnSlideNum.label = "" + currentSlide + '/' + slideView.slides.length;
 			}
 			
 			private function clearPresentation(e:UploadEvent):void{
@@ -561,14 +561,15 @@
 		    
     <mx:ApplicationControlBar id="presCtrlBar" width="100%" height="{CONTROL_BAR_HEIGHT}">
     	  <mx:Button id="uploadPres" icon="{uploadIcon}" visible="false" width="20" height="20"
-    	   		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.uploadPresBtn')}" 
+    	   		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.uploadPresBtn.toolTip')}" 
     	   		click="dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW))"/>        	  
     	  <mx:Spacer width="50%" id="spacer1"/>
     	  <mx:Button id="backButton" icon="{backwardIcon}" visible="false" width="30" height="20"
-    	   		toolTip="Previous slide." click="gotoPreviousSlide()"/>
-    	  <mx:Button id="btnSlideNum" visible="false" label="" click="showThumbnails()" doubleClick="showPageDialog()"/>
+    	   		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.backBtn.toolTip')}" click="gotoPreviousSlide()"/>
+    	  <mx:Button id="btnSlideNum" visible="false" label="" click="showThumbnails()" doubleClick="showPageDialog()" 
+					 toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.slideNumLbl.toolTip')}"/>
     	  <mx:Button id="forwardButton" icon="{forwardIcon}" visible="false" width="30" height="20"
-    	   		toolTip="Next slide" click="gotoNextSlide()"/>    				
+    	   		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.forwardBtn.toolTip')}" click="gotoNextSlide()"/>    				
 		<mx:Spacer width="10%" id="spacer2"/>
     	<mx:HSlider id="zoomSlider" visible="false"
     		minimum="100" maximum="400" value="100" dataTipPlacement="top" labels="['100%','400%']" 
@@ -577,8 +578,7 @@
     	<mx:Spacer width="50%" id="spacer3"/>
     	<!--containers:Docker id="toolbarDocker" height="100%" width="250" visible="{isPresenter}" /-->
     	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="false" width="20" height="20" 
-    		toolTip="Reset Zoom" click="onResetZoom()"/>
+    		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.resetZoomBtn.toolTip')}" click="onResetZoom()"/>
     	<mx:Spacer width="5" id="spacer4"/>
-    	<!--<mx:Button id="btnSelection" click="enableTextSelection()" />-->
     </mx:ApplicationControlBar>
 </pres:MDIWindow>

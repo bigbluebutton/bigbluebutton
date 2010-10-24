@@ -29,8 +29,8 @@ import net.lag.logging.Logger
 import java.awt.Point
 
 case object StartSession
-case class UpdateSessionBlock(position: Int, blockData: Array[Byte], keyframe: Boolean)
-case class UpdateSessionMouseLocation(loc: Point)
+case class UpdateSessionBlock(position: Int, blockData: Array[Byte], keyframe: Boolean, seqNum: Int)
+case class UpdateSessionMouseLocation(loc: Point, seqNum: Int)
                                       
 case object StopSession
 case object GenerateKeyFrame
@@ -92,7 +92,7 @@ class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dime
          	  log.debug("Session: Generating Key Frame for room %s", room)
         	  generateFrame(true)       	  
           }
-          case b: UpdateSessionBlock => updateBlock(b.position, b.blockData, b.keyframe)
+          case b: UpdateSessionBlock => updateBlock(b.position, b.blockData, b.keyframe, b.seqNum)
           case m: Any => log.warning("Session: Unknown message [%s]", m)
         }
       }
@@ -121,9 +121,9 @@ class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dime
 		streamManager.destroyStream(room)
 	}
 	
-	private def updateBlock(position: Int, videoData: Array[Byte], keyFrame: Boolean): Unit = {
+	private def updateBlock(position: Int, videoData: Array[Byte], keyFrame: Boolean, seqNum: Int): Unit = {
 		lastUpdate = System.currentTimeMillis()
-		blockManager.updateBlock(position, videoData, keyFrame)	
+		blockManager.updateBlock(position, videoData, keyFrame, seqNum)	
 	}
 	
 	private def generateFrame(keyframe:Boolean) {				  

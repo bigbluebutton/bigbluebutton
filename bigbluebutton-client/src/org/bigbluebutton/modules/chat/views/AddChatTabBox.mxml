@@ -111,7 +111,7 @@
 									'no', 
 									'fa', 
 									'pl', 
-									'pt-PT', 
+									'pt', 
 									'ro', 
 									'ru', 
 									'sr', 
@@ -156,8 +156,9 @@
 			
 			private function changeLanguage():void
 			{
+				var lang:String = this.langCodes[this.langComboBox.selectedIndex];
 				var e:ChatOptionsEvent = new ChatOptionsEvent(ChatOptionsEvent.CHANGE_LANGUAGE);
-				e.language=this.langCodes[this.langComboBox.selectedIndex];
+				e.language= lang;
 				dispatchEvent(e);
 			}
 			
@@ -183,11 +184,17 @@
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
 				
-				var language:String = ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0];
+				var language:String = overrideNorwegian(ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0]);
 				if ((langCodes.indexOf(language) != -1) && (langComboBox != null)){
 					langComboBox.selectedIndex = langCodes.indexOf(language);
 					changeLanguage();
 				} 
+			}
+			
+			private function overrideNorwegian(lang:String):String{
+				var code:String = lang;
+				if (lang == "nb") code = "no"; //Code for norwegian in the google api is different than in bbb localization (ours is nb, google is no)
+				return code;
 			}
 
 		]]>
@@ -205,7 +212,7 @@
 				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.chat.fontSize')}" />
 				<mx:ComboBox width="60" id="cmbFontSize" dataProvider="{fontSizes}" close="changeFontSize()" selectedIndex="1" />
 			</mx:HBox>
-			<mx:ComboBox id="langComboBox" dataProvider="{this.langNames}" selectedIndex="12"  change="changeLanguage()" />
+			<mx:ComboBox id="langComboBox" dataProvider="{this.langNames}" selectedIndex="12"  change="changeLanguage()" rowCount="15" />
 			<mx:CheckBox id="autoTransCheckBox" selected="false" label="AutoTranslate" toolTip="Auto detect language and translate" change="toggleTranslation()"/>
 		</mx:VBox>
 	</mx:HBox>

@@ -29,11 +29,11 @@ import org.bigbluebutton.deskshare.common.Dimension;
  *
  */
 public interface ISessionManagerGateway {
-	public void createSession(String room, Dimension screenDim, Dimension blockDim);
+	public void createSession(String room, Dimension screenDim, Dimension blockDim, int seqNum);
 
-	public void removeSession(String room);
+	public void removeSession(String room, int seqNum);
 
-	public void updateBlock(String room, int position, byte[] blockData, boolean keyframe);
+	public void updateBlock(String room, int position, byte[] blockData, boolean keyframe, int seqNum);
 	
-	public void updateMouseLocation(String room, Point loc);
+	public void updateMouseLocation(String room, Point loc, int seqNum);
 }

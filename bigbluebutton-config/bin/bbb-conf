@@ -29,11 +29,12 @@
 #   2010-01-18 FFD  Added resetting of environment back to using packages   
 #   2010-03-02 JRT  Added trunk checkout options / fixed bbb-apps instructions   
 #   2010-04-02 FFD  Updated for 0.64   
-#	2010-06-21 SEB  Cleaned up some code / Updated for 0.70
-#	2010-06-25 SEB  Added ability to change the security salt
-#	2010-06-30 SEB	Added some extra errorchecking
-#	2010-07-06 SEB	Added more errorchecking and report messages
-#	2010-09-15 FFD	Updates for 0.71-dev
+#   2010-06-21 SEB  Cleaned up some code / Updated for 0.70
+#   2010-06-25 SEB  Added ability to change the security salt
+#   2010-06-30 SEB  Added some extra errorchecking
+#   2010-07-06 SEB  Added more errorchecking and report messages
+#   2010-09-15 FFD  Updates for 0.71-dev
+#   2010-10-16 FFD  Updates for 0.71-beta
 
 #set -x
 
@@ -256,9 +257,11 @@ start_bigbluebutton () {
 	echo
 
 	if [ "$VOICE_CONFERENCE" == "bbb-voice-freeswitch.xml" ]; then
+		FREESWITCH_ESL_IP=$(sudo cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
+
 		echo -n "Waiting for FreeSwitch to start: "
 
-		while ! nc -z -w 1 127.0.0.1 8021; do
+		while ! nc -z -w 1 $FREESWITCH_ESL_IP 8021; do
 			echo -n "."
                 	sleep 1
         	done
@@ -795,7 +798,7 @@ check_state() {
 	if [ -a /var/run/asterisk/asterisk.pid ] && [ -a /opt/freeswitch/run/freeswitch.pid ]; then
 		print_header
 		echo "Asterisk and Freeswitch are running parallel"
-		echo "Please run bbb-conf freeswitch or bbb-conf asterisk"
+		echo "Please run bbb-conf --conference with either freeswitch or asterisk"
 	elif [ -a /var/run/asterisk/asterisk.pid ]; then 
 		if ! ps aux | grep -v grep | grep '[/]usr/sbin/asterisk' > /dev/null; then
 				print_header
@@ -949,18 +952,24 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 		fi
 	done
 
-	#	
-	# check if sip.log has warnings where the user is not registered.  
-	#
-	if cat /usr/share/red5/log/sip.log | tail -n1 | grep -q "Call request for default but not registered"; then
-		echo "The voice app is not registered with SIP server. Audio might not be working correctly."
-	fi
 
-	#
-	# Checking if voice app registered with Asterisk successfully
-	#
-        if cat /usr/share/red5/log/sip.log | grep -q "Failed to register with Sip Server"; then
-                echo "  The voice application failed to register with the sip server. Try running: sudo bbb-conf --clean"
+	if [ -f /usr/share/red5/log/sip.log ]; then
+		#
+		# Checking if voice app registered with Asterisk successfully
+		#
+        	if cat /usr/share/red5/log/sip.log | grep -q "Failed to register with Sip Server"; then
+                	echo "  The voice application failed to register with the sip server. Try running: sudo bbb-conf --clean"
+		fi
+
+		#	
+		# check if sip.log has warnings where the user is not registered.  
+		#
+
+		if cat /usr/share/red5/log/sip.log | tail -n1 | grep -q "Call request for default but not registered"; then
+			echo "The voice app is not registered with SIP server. Audio might not be working correctly."
+		fi
+	else
+		echo "      No /usr/share/red5/log/sip.log"
         fi
 
 	#
@@ -974,9 +983,13 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 	# Check that bigbluebutton in red5 has started propertly (less than 100 lines indicates that it
 	# didn't start)
 	# 
-	BBB_RED5_LOG=$(stat -c%s $RED5_DIR/log/bigbluebutton.log)
-	if [ $BBB_RED5_LOG -lt 100 ]; then
-        	echo "       bigbluebutton failed to start: $RED5_DIR/log/bigbluebutton.log (red5)"
+	if [ -f $RED5_DIR/log/bigbluebutton.log ]; then
+		BBB_RED5_LOG=$(stat -c%s $RED5_DIR/log/bigbluebutton.log)
+		if [ $BBB_RED5_LOG -lt 100 ]; then
+        		echo "       bigbluebutton failed to start: $RED5_DIR/log/bigbluebutton.log (red5)"
+		fi
+	else
+		echo "      No $RED5_DIR/log/bigbluebutton.log"
 	fi
 
 
@@ -1069,14 +1082,48 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 	#
 	# Check that freeswtich ESL matches the value in bigbluebutton.properties
 	#
-	FREESWITCH_ESL_IP=$(cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
-	ESL_HOST=$(cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | grep esl.host | sed 's/esl.host=//g')
-	if [ "$FREESWITCH_ESL_IP" != "$ESL_HOST" ]; then
-		echo 
-		echo "   The values for event socket layers in   "
-		echo "       /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml"
-		echo "   do not match the settings for esl.host in"
-		echo "       /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties"
+	if [ -f /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml ]; then 
+		FREESWITCH_ESL_IP=$(sudo cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
+		ESL_HOST=$(cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | grep esl.host | sed 's/esl.host=//g')
+		if [ "$FREESWITCH_ESL_IP" != "$ESL_HOST" ]; then
+			echo 
+			echo "   The values for event socket layers in   "
+			echo "       /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml"
+			echo "   do not match the settings for esl.host in"
+			echo "       /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties"
+		fi
+	fi
+
+	if ! dpkg -l | grep -q bbb-freeswitch-config; then
+		if ! dpkg -l | grep -q bbb-voice-conference; then
+			echo 
+			echo "    You don't have either bbb-freeswitch-config or bbb-voice-conference"
+			echo "    installed.  Install one of these packages, then run sudo bbb-conf --clean"
+			echo
+		fi
+	fi
+
+
+	if dpkg -l | grep -q bbb-freeswitch-config; then
+		if [ "$VOICE_CONFERENCE" == "bbb-voice-asterisk.xml" ]; then
+			echo 
+			echo "    You have freeswitch installed, but the current voice conference set"
+			echo "    to asterisk.  To switch to freeswitch, enter"
+			echo 
+			echo "       sudo bbb-conf --conference freeswitch"
+			echo
+		fi
+	fi
+
+	if dpkg -l | grep -q bbb-voice-conference; then
+		if [ "$VOICE_CONFERENCE" == "bbb-voice-freeswitch.xml" ]; then
+			echo 
+			echo "    You have asterisk installed, but the current voice conference set"
+			echo "    to freeswitch.  To switch to asterisk, enter"
+			echo 
+			echo "       sudo bbb-conf --conference konference"
+			echo
+		fi
 	fi
 
 	exit 0
@@ -1228,11 +1275,13 @@ if [ $DEBUG ]; then
 	fi
 
 	rm -rf /tmp/t
-	find /var/log/asterisk -exec grep -H -i "Unable to register" '{}' \; > /tmp/t
-	if [ -s /tmp/t ]; then
-		echo "   -- Registration errors found in /var/log/asterisk/ -- "
-		echo "Found $(cat /tmp/t | wc -l) errors in /var/log/asterisk/* containing string \"Unable to register\""
-		echo
+	if [ -f /var/log/asterisk ]; then 
+		find /var/log/asterisk -exec grep -H -i "Unable to register" '{}' \; > /tmp/t
+		if [ -s /tmp/t ]; then
+			echo "   -- Registration errors found in /var/log/asterisk/ -- "
+			echo "Found $(cat /tmp/t | wc -l) errors in /var/log/asterisk/* containing string \"Unable to register\""
+			echo
+		fi
 	fi
 
 	rm -rf /tmp/t
@@ -1404,11 +1453,6 @@ if [ $CONFERENCE ]; then
 		exit 1
 	fi
 
-	if [ ! -f /etc/asterisk/bbb_extensions.conf ]; then
-		echo "Error: Unable to find /etc/asterisk/bbb_extensions.conf"
-		exit 1
-	fi
-	
 	if [ "$CONFERENCE" = "freeswitch" ]; then
 		CONFERENCE=freeswitch
 	elif [ "$CONFERENCE" = "meetme" ]; then
@@ -1423,6 +1467,11 @@ if [ $CONFERENCE ]; then
 	fi
 
 	if [ $CONFERENCE = "meetme" ]; then
+	        if [ ! -f /etc/asterisk/bbb_extensions.conf ]; then
+                	echo "Error: Unable to find /etc/asterisk/bbb_extensions.conf"
+                	exit 1
+        	fi
+
 		#
 		# update $RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
 		#
@@ -1450,8 +1499,10 @@ if [ $CONFERENCE ]; then
 			/etc/asterisk/bbb_extensions.conf
 
 		echo "Switching to $CONFERENCE ... "
-		sudo /etc/init.d/freeswitch stop
-		sudo update-rc.d -f freeswitch remove >/dev/null
+		if [ -f /etc/init.d/freeswitch ]; then
+			sudo /etc/init.d/freeswitch stop
+			sudo update-rc.d -f freeswitch remove >/dev/null
+		fi
 
 		sudo update-rc.d asterisk defaults 21 > /dev/null
 
@@ -1460,6 +1511,11 @@ if [ $CONFERENCE ]; then
 	fi
  
 	if [ $CONFERENCE = "app_konference" ]; then
+	        if [ ! -f /etc/asterisk/bbb_extensions.conf ]; then
+                	echo "Error: Unable to find /etc/asterisk/bbb_extensions.conf"
+                	exit 1
+        	fi
+
 		#
 		# update $RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
 		#
@@ -1491,8 +1547,10 @@ if [ $CONFERENCE ]; then
                 fi
 
 		echo "Switching to $CONFERENCE ... "
-		sudo /etc/init.d/freeswitch stop
-		sudo update-rc.d -f freeswitch remove >/dev/null
+		if [ -f /etc/init.d/freeswitch ]; then
+			sudo /etc/init.d/freeswitch stop
+			sudo update-rc.d -f freeswitch remove >/dev/null
+		fi
 
 		sudo update-rc.d asterisk defaults 21 > /dev/null
 
@@ -1512,16 +1570,18 @@ if [ $CONFERENCE ]; then
 			/usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml
 		fi
 
-		if [ -f /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml ]; then
-        		EVENTIP=$(cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
-		        sed -i "s/$EVENTIP/$IP/g" \
-        	        /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml
-		fi
+		#if [ -f /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml ]; then
+        	#	EVENTIP=$(sudo cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
+		#        sed -i "s/$EVENTIP/$IP/g" \
+        	#       /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml
+		#fi
 
 
 		echo "Switching to $CONFERENCE ... "
-		sudo /etc/init.d/asterisk stop
-		sudo update-rc.d -f asterisk remove >/dev/null
+		if [ -f /etc/init.d/asterisk ]; then
+			sudo /etc/init.d/asterisk stop
+			sudo update-rc.d -f asterisk remove >/dev/null
+		fi
 
 		update-rc.d freeswitch defaults >/dev/null
 

@@ -20,8 +20,10 @@
 package org.bigbluebutton.deskshare.server.svc1
 
 import java.util.Random
+import net.lag.logging.Logger
 
 class Block(val dim: Dimension, val position: Int) {
+	private val log = Logger.get
 
     val nextForceUpdate = 10000
     val MIN_DURATION = 5000
@@ -33,11 +35,17 @@ class Block(val dim: Dimension, val position: Int) {
     var encodedBlock: Array[Byte] = null
     
     val random: Random = new Random();
+    private var sequenceNumber = 0;
     
-    def update(videoData: Array[Byte], isKeyFrame: Boolean): Unit =  {	
-    	this.isKeyFrame = isKeyFrame;
-    	encodedBlock = videoData;
-    	hasChanged = true;
+    def update(videoData: Array[Byte], isKeyFrame: Boolean, seqNum: Int): Unit =  {	
+    	if (seqNum >= sequenceNumber) {
+			sequenceNumber = seqNum				
+	    	this.isKeyFrame = isKeyFrame;
+	    	encodedBlock = videoData;
+	    	hasChanged = true;
+    	} else {
+			log.warning("Block[" + position + "[: Delayed sequence number [%s < %s]", seqNum, sequenceNumber)
+		}
     }
  
     def getEncodedBlock(): Array[Byte] = {

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml" dataProvider="{this.langNames}" selectedIndex="4" change="changeLanguage()">
+<mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml" dataProvider="{this.langNames}" selectedIndex="5" change="changeLanguage()" rowCount="15">
 	<mx:Script>
 		<![CDATA[
 			import mx.controls.Alert;
@@ -8,6 +8,7 @@
 			[Bindable] private var langNames:Array=[ 
 				'Azeri' ,
 				'Bulgarian',
+				'Czech',
 				'Chinese Simplified',
 				'Chinese Traditional' , 
 				'English' , 
@@ -35,6 +36,7 @@
 			private var langCodes:Array=[
 				'az_AZ',
 				'bg_BG',
+				'cs_CZ',
 				'zh_CN',
 				'zh_TW',
 				'en_US',

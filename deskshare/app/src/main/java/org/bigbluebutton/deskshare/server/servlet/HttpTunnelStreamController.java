@@ -60,19 +60,20 @@ public class HttpTunnelStreamController extends MultiActionController {
 	private void handleUpdateMouseLocationRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {		
 		String room = request.getParameterValues("room")[0];
 		String mouseX = request.getParameterValues("mousex")[0];
-		String mouseY = request.getParameterValues("mousey")[0];
-		
+		String mouseY = request.getParameterValues("mousey")[0];		
+		String seqNum = request.getParameterValues("sequenceNumber")[0];
 		Point loc = new Point(Integer.parseInt(mouseX), Integer.parseInt(mouseY));
 
 		if (! hasSessionManager) {
 			sessionManager = getSessionManager();
 			hasSessionManager = true;
 		}
-		sessionManager.updateMouseLocation(room, loc);		
+		sessionManager.updateMouseLocation(room, loc, Integer.parseInt(seqNum));		
 	}
 	
 	private void handleCaptureStartRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {		
 		String room = request.getParameterValues("room")[0];
+		String seqNum = request.getParameterValues("sequenceNumber")[0];
 		String screenInfo = request.getParameterValues("screenInfo")[0];
 		String blockInfo = request.getParameterValues("blockInfo")[0];
 		
@@ -87,7 +88,7 @@ public class HttpTunnelStreamController extends MultiActionController {
 			sessionManager = getSessionManager();
 			hasSessionManager = true;
 		}
-		sessionManager.createSession(room, screenDim, blockDim);		
+		sessionManager.createSession(room, screenDim, blockDim, Integer.parseInt(seqNum));		
 	}	
 	
 	private void handleCaptureUpdateRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -99,6 +100,7 @@ public class HttpTunnelStreamController extends MultiActionController {
 		
 		byte[] blockData = multipartFile.getBytes();
 		String room = request.getParameterValues("room")[0];
+		String seqNum = request.getParameterValues("sequenceNumber")[0];
 		String keyframe = request.getParameterValues("keyframe")[0];
 		String position = request.getParameterValues("position")[0];
 				
@@ -107,17 +109,18 @@ public class HttpTunnelStreamController extends MultiActionController {
 			hasSessionManager = true;
 		}
 			
-		sessionManager.updateBlock(room, Integer.valueOf(position), blockData, Boolean.parseBoolean(keyframe));
+		sessionManager.updateBlock(room, Integer.valueOf(position), blockData, Boolean.parseBoolean(keyframe), Integer.parseInt(seqNum));
 	}
 	
 	private void handleCaptureEndRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {	
 		String room = request.getParameterValues("room")[0];
+		String seqNum = request.getParameterValues("sequenceNumber")[0];
 		if (! hasSessionManager) {
 			sessionManager = getSessionManager();
 			hasSessionManager = true;
 		}
 		System.out.println("HttpTunnel: Received Capture Enfd Event.");
-    	sessionManager.removeSession(room);
+    	sessionManager.removeSession(room, Integer.parseInt(seqNum));
 	}
 	    
 	private ISessionManagerGateway getSessionManager() {

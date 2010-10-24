@@ -21,19 +21,15 @@ package org.bigbluebutton.main.model.modules
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
-	import flash.events.Event;
-	import flash.net.URLLoader;
-	import flash.net.URLRequest;
 	import flash.system.ApplicationDomain;
 	import flash.utils.Dictionary;
 	
 	import mx.collections.ArrayCollection;
-	import mx.controls.Alert;
 	
 	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
-	import org.bigbluebutton.main.events.ModuleLoadEvent;
+	import org.bigbluebutton.main.events.AppVersionEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.ConfigParameters;
 	
@@ -93,10 +89,9 @@ package org.bigbluebutton.main.model.modules
 		}
 
 		private function startModule(name:String):void {
-			LogUtil.debug('Request to start module ' + name);
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
-				LogUtil.debug('Starting ' + name);
+				LogUtil.debug('Starting module' + name);
 				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
 				m.loadConfigAttributes(conferenceParameters, _protocol);
 				bbb.start(m.attributes);		
@@ -104,7 +99,7 @@ package org.bigbluebutton.main.model.modules
 		}
 
 		private function stopModule(name:String):void {
-			LogUtil.debug('Request to stop module ' + name);
+			LogUtil.debug('Stopping module ' + name);
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
 				LogUtil.debug('Stopping ' + name);
@@ -121,10 +116,7 @@ package org.bigbluebutton.main.model.modules
 			LogUtil.debug('BBBManager Loading ' + name);
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
-				if (m.loaded) {
-					//loadModuleResultHandler(MODULE_LOAD_READY, name);
-				} else {
-					LogUtil.debug('Found module ' + m.attributes.name);
+				if (!m.loaded) {
 					m.load(loadModuleResultHandler);
 				}
 			} else {
@@ -140,7 +132,7 @@ package org.bigbluebutton.main.model.modules
 						modulesDispatcher.sendLoadProgressEvent(name, progress);
 					break;	
 					case MODULE_LOAD_READY:
-						LogUtil.debug('Module ' + name + " has been loaded.");		
+						LogUtil.debug('Module ' + name + " loaded.");		
 						modulesDispatcher.sendModuleLoadReadyEvent(name)	
 					break;				
 				}
@@ -149,9 +141,18 @@ package org.bigbluebutton.main.model.modules
 			}
 			
 			if (allModulesLoaded()) {
+				sendAppAndLocaleVersions();
 				startAllModules();
 				modulesDispatcher.sendAllModulesLoadedEvent();	
 			}
+		}
+		
+		private function sendAppAndLocaleVersions():void {
+			var dispatcher:Dispatcher = new Dispatcher();
+			var versionEvent:AppVersionEvent = new AppVersionEvent();
+			versionEvent.appVersion = configParameters.version;	
+			versionEvent.localVersion = configParameters.localeVersion; 		
+			dispatcher.dispatchEvent(versionEvent);			
 		}
 		
 		public function moduleStarted(name:String, started:Boolean):void {			
@@ -194,7 +195,6 @@ package org.bigbluebutton.main.model.modules
 			for (var i:int = 0; i<sorted.length; i++){
 				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
 				if (!m.loaded){
-					LogUtil.debug("Module " + m.getName() + " has not yet been loaded");
 					return false;
 				} 
 			}

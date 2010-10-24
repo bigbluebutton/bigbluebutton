@@ -21,10 +21,10 @@ package org.bigbluebutton.deskshare.client.net;
 
 public class BlockMessage implements Message {
 
-	private int position;
+	private Integer[] blocks;
 	
-	public BlockMessage(int position) {
-		this.position = position;
+	public BlockMessage(Integer[] blocks) {
+		this.blocks = blocks;
 	}
 	
 	@Override
@@ -32,7 +32,7 @@ public class BlockMessage implements Message {
 		return MessageType.BLOCK;
 	}
 
-	public int getPosition() {
-		return position;
+	public Integer[] getBlocks() {
+		return blocks;
 	}
 }
