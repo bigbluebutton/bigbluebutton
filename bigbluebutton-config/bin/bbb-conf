@@ -144,7 +144,7 @@ need_root() {
 }
 
 usage() {
-	echo "BigBlueButton Configuration Utility - Version 0.71-dev4"
+	echo "BigBlueButton Configuration Utility - Version 0.71-dev5"
         echo "http://code.google.com/p/bigbluebutton/wiki/BBBConf"
         echo
         echo "$0 [options]"
@@ -1143,9 +1143,9 @@ if [ $CHECK ]; then
 	fi
 
 	if [ `uname -m` == "x86_64" ]; then
-		echo "64bit"
+		echo "64-bit"
 	elif [ `uname -m` == "i686" ]; then
-		echo "32bit"
+		echo "32-bit"
 	fi
 
 	MEM=`free -m | grep Mem | awk '{ print $2}'`
