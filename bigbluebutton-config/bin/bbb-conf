@@ -52,7 +52,7 @@ IP=$(ifconfig | grep -v '127.0.0.1' | egrep -m 1 'inet (.*):' | cut -d: -f2 | aw
 
 GENTOO=$(uname -r | grep gentoo | cut -d- -f2);
 TOMCAT=""
-
+BBB_VERSION="0.71-beta"
 
 # 
 # Helper functions
@@ -144,7 +144,7 @@ need_root() {
 }
 
 usage() {
-	echo "BigBlueButton Configuration Utility - Version 0.71-dev4"
+	echo "BigBlueButton Configuration Utility - Version $BBB_VERSION-dev5"
         echo "http://code.google.com/p/bigbluebutton/wiki/BBBConf"
         echo
         echo "$0 [options]"
@@ -283,7 +283,7 @@ start_bigbluebutton () {
 	#
 	# At this point the red5 and tomcat6 applications are starting up.
 	#
-	echo -n "Waiting for BigBlueButton to finish starting up: "
+	echo -n "Waiting for BigBlueButton to finish starting up (this may take a minute): "
 
 	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
         if ! wget http://$NGINX_IP/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then
@@ -571,7 +571,7 @@ if [ $CHECKOUT ]; then
         echo "# "
         git clone $CHECKOUT
 	cd ~/dev/source/bigbluebutton
-	echo " Checking out version 0.7 "
+	echo " Checking out version $BBB_VERSION (Not implemented yet)"
  	git checkout -b 0.7-release-workspace v0.7	
         echo "# "
         echo "#                                         "
@@ -1134,7 +1134,7 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 # Print out the status of the current setup and look for bugs.
 #
 if [ $CHECK ]; then
-	echo "Server"
+	echo "BigBlueButton Server $BBB_VERSION"
 	echo "                    Kernel version:" `uname -r`
 
 	if [ -e /etc/lsb-release ]; then
@@ -1143,9 +1143,9 @@ if [ $CHECK ]; then
 	fi
 
 	if [ `uname -m` == "x86_64" ]; then
-		echo "64bit"
+		echo "64-bit"
 	elif [ `uname -m` == "i686" ]; then
-		echo "32bit"
+		echo "32-bit"
 	fi
 
 	MEM=`free -m | grep Mem | awk '{ print $2}'`
