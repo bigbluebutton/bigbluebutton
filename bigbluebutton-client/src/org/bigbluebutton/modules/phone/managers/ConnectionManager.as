@@ -89,42 +89,42 @@ package org.bigbluebutton.modules.phone.managers {
 			
 			switch(evt.info.code) {				
 				case "NetConnection.Connect.Success":
-					trace("Successfully connected to SIP application.");
+					LogUtil.debug("Successfully connected to SIP application.");
 					event.status = ConnectionStatusEvent.SUCCESS;								
 					break;
 		
 				case "NetConnection.Connect.Failed":
-					trace("Failed to connect to SIP application.");
+					LogUtil.debug("Failed to connect to SIP application.");
 					event.status = ConnectionStatusEvent.FAILED;
 					break;
 					
 				case "NetConnection.Connect.Closed":
-					trace("Connection to SIP application has closed.");
+					LogUtil.debug("Connection to SIP application has closed.");
 					event.status = ConnectionStatusEvent.CLOSED;
 				break;
 		
 				case "NetConnection.Connect.Rejected":
-					trace("Connection to SIP application was rejected.");
+					LogUtil.debug("Connection to SIP application was rejected.");
 					event.status = ConnectionStatusEvent.REJECTED;
 					break;					
 				default:					
 			}			
 			
 			LogUtil.debug("Phone Module Connection Status: " + event.status);
-			trace("Dispatching " + event.status);
+			LogUtil.debug("Dispatching " + event.status);
 			dispatcher.dispatchEvent(event); 
 		} 
 		
 		private function asyncErrorHandler(event:AsyncErrorEvent):void {
-           trace("AsyncErrorEvent: " + event);
+           LogUtil.debug("AsyncErrorEvent: " + event);
         }
 		
 		private function securityErrorHandler(event:SecurityErrorEvent):void {
-            trace("securityErrorHandler: " + event);
+            LogUtil.debug("securityErrorHandler: " + event);
         }
         
      	public function call():void {
-     		trace("Calling " + room);
+     		LogUtil.debug("Calling " + room);
 			doCall(room);
      	}
         
