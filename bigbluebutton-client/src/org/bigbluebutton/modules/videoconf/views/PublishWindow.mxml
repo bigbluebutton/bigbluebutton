@@ -194,7 +194,7 @@
         <mx:State name="dispVideoOptionsControlBar">   
             <mx:AddChild>
 				<mx:ControlBar id="videoOptionsBar">
-					<mx:Button id="btnStartPublish" toolTip="{{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" icon="{camIcon}" click="startPublishing()" />
+					<mx:Button id="btnStartPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" icon="{camIcon}" click="startPublishing()" />
 					<mx:ComboBox id="cmbCameraSelector" dataProvider="{Camera.names}" width="150" visible="false" />
 					<mx:ComboBox id="cmbResolution" dataProvider="{resolutions}" width="20%" visible="false" />
 				</mx:ControlBar>
