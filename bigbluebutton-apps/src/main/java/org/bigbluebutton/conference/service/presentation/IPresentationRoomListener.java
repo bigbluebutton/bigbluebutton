@@ -30,7 +30,7 @@ interface IPresentationRoomListener {
 	@SuppressWarnings("unchecked")
 	public void assignPresenter(ArrayList presenter);
 	public void gotoSlide(int curslide);
-	public void resizeAndMoveSlide(Long xOffset,Long yOffset,Long widthRatio,Long heightRatio);
+	public void resizeAndMoveSlide(Double xOffset, Double yOffset, Double widthRatio, Double heightRatio);
 	public void removePresentation(String name);
 	public void sharePresentation(String presentationName, Boolean share);
 }

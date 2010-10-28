@@ -124,7 +124,7 @@ public class PresentationApplication {
 		return null;
 	}
 	
-	public void resizeAndMoveSlide(String room, Long xOffset,Long yOffset,Long widthRatio,Long heightRatio) {
+	public void resizeAndMoveSlide(String room, Double xOffset, Double yOffset, Double widthRatio, Double heightRatio) {
 		if (roomsManager.hasRoom(room)){
 			log.debug("Request to resize and move slide["+xOffset+","+yOffset+","+widthRatio+","+heightRatio+"]");
 			roomsManager.resizeAndMoveSlide(room, xOffset, yOffset, widthRatio, heightRatio);
