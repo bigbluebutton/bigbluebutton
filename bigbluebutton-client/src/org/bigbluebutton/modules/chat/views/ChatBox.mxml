@@ -5,6 +5,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.chat.model.ChatMessage;
 			import be.boulevart.google.ajaxapi.translation.GoogleTranslation;
 			import be.boulevart.google.ajaxapi.translation.data.GoogleTranslationResult;
 			import be.boulevart.google.events.GoogleApiEvent;
@@ -29,7 +30,6 @@
 			private var lastTime:String = "";
 			
 			[Bindable] private var messages:ArrayCollection = new ArrayCollection();
-			[Bindable] private var msg:Object;
 			private var lastCount:Number = 0;
 			
 			private function onCreationComplete():void{
@@ -46,7 +46,7 @@
 				var timeString:String = getHours() + ":" + getMinutes();
 				var components:Array = message.split("|");
 				
-				msg = new Object();
+				var msg:ChatMessage = new ChatMessage();
 				msg.lastSenderId = lastSenderId;
 				lastSenderId = components[5];
 				msg.senderId = components[5];
@@ -55,7 +55,7 @@
 				msg.recepientLanguage = language.toString();
 				msg.translate = translate;
 
-				msg.text = components[0];
+				msg.translatedText = components[0];
 				msg.senderText = components[0];
 				
 				msg.name = components[1];
@@ -71,7 +71,6 @@
 				chatMessagesList.invalidateSize();
 				chatMessagesList.invalidateDisplayList();
 				
-
 				var scrollTimer:Timer = new Timer(750, 1);
 				scrollTimer.addEventListener(TimerEvent.TIMER, onScrollTimer);
 				scrollTimer.start();
@@ -136,8 +135,8 @@
 			private function getAllAsString():String{
 				var allText:String = "";
 				for (var i:int = 0; i<messages.length; i++){
-					var item:Object = messages.getItemAt(i);
-					allText += "\n" + item.name + " - " + item.time + " : " + item.text;
+					var item:ChatMessage = messages.getItemAt(i) as ChatMessage;
+					allText += "\n" + item.name + " - " + item.time + " : " + item.translatedText;
 				}
 				return allText;
 			}
