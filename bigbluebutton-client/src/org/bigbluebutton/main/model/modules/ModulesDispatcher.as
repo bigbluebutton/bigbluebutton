@@ -2,6 +2,8 @@ package org.bigbluebutton.main.model.modules
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
+	import org.bigbluebutton.core.vo.Config;
+	import org.bigbluebutton.core.vo.ConfigBuilder;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.ConfigEvent;
 	import org.bigbluebutton.main.events.ModuleLoadEvent;
@@ -78,8 +80,20 @@ package org.bigbluebutton.main.model.modules
 			dispatcher.dispatchEvent(event);
 		}
 		
-		public function sendConfigParameters(config:ConfigParameters):void{
+		public function sendConfigParameters(c:ConfigParameters):void{
 			var event:ConfigEvent = new ConfigEvent(ConfigEvent.CONFIG_EVENT);
+			var config:Config;
+			config = new ConfigBuilder(c.version, c.localeVersion)
+						.withApplication(c.application)
+						.withHelpUrl(c.helpURL)
+						.withHost(c.host)
+						.withLanguageEnabled(c.languageEnabled)
+						.withNumModule(c.numModules)
+						.withPortTestApplication(c.portTestApplication)
+						.withPortTestHost(c.portTestHost)
+						.withShowDebug(c.showDebug)
+						.withSkinning(c.skinning)
+						.build()
 			event.config = config;
 			dispatcher.dispatchEvent(event);
 		}
