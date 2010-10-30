@@ -58,6 +58,27 @@ BBB_VERSION="0.71-beta"
 # Helper functions
 #
 
+
+#
+# $1 -- name of value
+# $2 -- loctation of value
+# $3 -- value to check
+#
+check_no_value() {
+	if [ -z $3 ]; then
+		echo "# Tried to check $1 in"
+		echo "#    $2"
+		echo "# but value is empty."
+		exit 1
+	fi
+}
+
+check_file() {
+	if [ ! -f $1 ]; then
+		echo "# Error: File does not exist: $1"
+	fi
+}
+
 get_platform() {
 
 	if [ -f /etc/lsb-release ]; then
@@ -286,12 +307,14 @@ start_bigbluebutton () {
 	echo -n "Waiting for BigBlueButton to finish starting up (this may take a minute): "
 
 	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
+	check_no_value server_name /etc/nginx/sites-available/bigbluebutton $NGINX_IP
+
         if ! wget http://$NGINX_IP/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then
                 echo "Startup unsuccessful"
-		exit 1
-	else
-		echo "... done"
-	fi
+                exit 1
+        else
+                echo "... done"
+        fi
 }
 
 display_bigbluebutton_status () {
@@ -768,9 +791,143 @@ if [ $RESET_DEV ]; then
 	sudo /etc/init.d/nginx restart
 fi
 
+check_configuration() {
+	#
+	# Check if we've got the voice conference servers properly installed and configured
+	#
+        if [ "$VOICE_CONFERENCE" == "bbb-voice-freeswitch.xml" ]; then
+		check_file /opt/freeswitch/conf.dist/vars.xml
+		
+		if ! sudo cat /opt/freeswitch/conf/vars.xml | grep --quiet BigBlueButton; then
+			echo 
+			echo "# Did not detect a valid BigBlueButton configuration for FreeSWITCH. The file"
+			echo "#   /opt/freeswitch/conf.dist/vars.xml" 
+			echo "# appears to be the original FreeSWITCH configuration file."
+			echo "#   Try running: sudo apt-get install bbb-freeswitch-config"
+			echo 
+		fi
+		
+		#
+		# Check that freeswtich ESL matches the value in bigbluebutton.properties
+		#
+		if [ -f /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml ]; then 
+			FREESWITCH_ESL_IP=$(sudo cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
+			check_no_value event_socket /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml $FREESWITCH_ESL_IP
+			
+			ESL_HOST=$(cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | grep esl.host | sed 's/esl.host=//g')
+			check_no_value esl.host /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties $ESL_HOST
+
+			if [ "$FREESWITCH_ESL_IP" != "$ESL_HOST" ]; then
+				echo 
+				echo "# The values for listen-ip in   "
+				echo "#     /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml"
+				echo "# do not match the settings for esl.host in"
+				echo "#     /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties"
+				echo 
+			fi
+		fi
+
+        else
+        	if [ ! -x /usr/sbin/asterisk ]; then
+				echo 
+				echo "# BigBlueButton is configured to use asterisk but could not find   "
+				echo "#     /usr/sbin/asterisk"
+				echo         	
+        	fi
+
+		if [ ! -f /usr/lib/asterisk/modules/app_konference.so ]; then
+			echo 
+			echo "# Did not detect the BigBlueButton configuration setup for asterisk.  Missing"
+			echo "#   /usr/lib/asterisk/modules/app_konference.so" 
+			echo "# Try running: sudo apt-get install bbb-voice-conference"
+			echo 
+		fi
+	fi
+
+	#
+	# Check if BigBlueButto is defined in Nginx
+	#
+	if [ ! -L /etc/nginx/sites-enabled/bigbluebutton ]; then
+        	echo "# Nginx: BigBlueButton appears to be disabled"
+        	echo "         - no symbolic link in /etc/nginx/sites-enabled/bigbluebutton to /etc/nginx/sites-available/bigbluebutton "
+	fi	
+	
+	
+	#
+	# Make sure the salt for the API matches the server
+	#
+	SALT_PROPERTIES=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
+	SALT_DEMO=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp | tr -d '\r' | sed -n '/salt =/{s/.* = "//;s/".*//g;p}')
+
+	if [ "$SALT_PROPERTIES" != "$SALT_DEMO" ]; then
+		echo "# Salt mismatch: "
+		echo "#  /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties=$SALT_PROPERTIES"
+		echo "#  /var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp=$SALT_DEMO"
+	fi
+
+
+	#
+	# Look for properties with no values set
+	#
+	CONFIG_FILES="$RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties \
+/var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties \
+$RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
+
+	for file in $CONFIG_FILES ; do
+	 	if [ ! -f $file ]; then	
+		 	echo "# Error: File not found: $file"
+		else
+			if grep -q "^[^=]*=[ ]*$" $file; then
+        			echo "# The following properties in $file has no value."
+        			echo "#     $(grep '^[^=]*=[ ]*$' $file | sed 's/=//g')"
+			fi
+		fi
+	done
+
+	#
+	# Check that the supporting applications are installed
+	#
+	VARFolder=$(cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep swfToolsDir | cut -d= -f2)
+	if [ ! -x $VARFolder/pdf2swf ] && [ ! -x $VARFolder/jpeg2swf ] && [ ! -x $VARFolder/png2swf ]; then
+			echo "# pdf2swf, jpeg2swf and png2swf are not installed in $VARFolder"
+	fi
+
+	VARFolder=$(cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep imageMagickDir | cut -d= -f2)
+	if [ ! -x $VARFolder/convert ]; then
+			echo "# ImageMagick's convert is not installed in $VARFolder"
+	fi
+
+	VARFolder=$(cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep ghostScriptExec | cut -d= -f2)
+	if [ ! -x $VARFolder ]; then
+			echo "# Ghostscript is not installd in $VARFolder"
+	fi
+
+	#
+	# Check if the IP resolves to a different host
+	#
+ 	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
+ 	check_no_value server_name /etc/nginx/sites-available/bigbluebutton $NGINX_IP
+ 	
+	HOSTS=$(which host)
+	if [ $HOSTS ]; then
+		HOSTS=`$HOSTS $NGINX_IP | awk '{ print $4 }'`
+	fi
+
+	if [ "$IP" != "$NGINX_IP" ]; then
+		if [ "$IP" != "$HOSTS" ]; then
+			echo "# IP does not match:"
+			echo "#                           IP from ifconfig: $IP"
+			echo "#   /etc/nginx/sites-available/bigbluebutton: $NGINX_IP"
+		fi
+	fi
+
+}
+
+
 check_state() {
 	echo 
 	print_header
+	check_configuration
 
 	#
 	# Check for potential problems in the BigBlueButton configuration
@@ -797,8 +954,9 @@ check_state() {
 	# same for freeswitch	
 	if [ -a /var/run/asterisk/asterisk.pid ] && [ -a /opt/freeswitch/run/freeswitch.pid ]; then
 		print_header
-		echo "Asterisk and Freeswitch are running parallel"
-		echo "Please run bbb-conf --conference with either freeswitch or asterisk"
+		echo "# Asterisk and Freeswitch are running parallel"
+		echo "# Please run bbb-conf --conference with either freeswitch or asterisk and"
+		echo "# Uninstall on or the other."
 	elif [ -a /var/run/asterisk/asterisk.pid ]; then 
 		if ! ps aux | grep -v grep | grep '[/]usr/sbin/asterisk' > /dev/null; then
 				print_header
@@ -836,7 +994,7 @@ check_state() {
 		if ps aux |  ps -aef | grep -v grep | grep grails | grep run-app > /dev/null; then
 			print_header
 			RUNNING_APPS="${RUNNING_APPS} Grails"
-        		echo "  ${TOMCAT}: 	noticed you are running grails run-app instead of tomcat"
+        		echo "#   ${TOMCAT}: 	noticed you are running grails run-app instead of tomcat"
 		else
 			RUNNING_APPS="${RUNNING_APPS} ${TOMCAT}"
 		fi
@@ -851,21 +1009,16 @@ check_state() {
 
 	#echo "  Running:     ${RUNNING_APPS}"
 	if [ "$NOT_RUNNING_APPS" != "" ]; then
-		echo "  Not Running: ${NOT_RUNNING_APPS}"
+		echo "# Not Running: ${NOT_RUNNING_APPS}"
 	fi
 
 
 	#
-	# Check if bigbluebutton is definied in nginx
+	# Check if running development environment
 	#
-	if [ ! -L /etc/nginx/sites-enabled/bigbluebutton ]; then
-        	echo "Nginx: bigbluebutton disabled"
-        	echo "         - no symbolic link in /etc/nginx/sites-enabled/bigbluebutton to /etc/nginx/sites-available/bigbluebutton "
-	fi	
-
 	if grep -v \# /etc/nginx/sites-available/bigbluebutton | grep /home/firstuser/dev/source/bigbluebutton/bigbluebutton-client > /dev/null; then
-        	echo "Nginx: serving client from /home/firstuser/dev/source/bigbluebutton/bigbluebutton-client"
-        	echo "         instead of the usual /var/www/bigbluebutton"
+        	echo "# Nginx: serving client from /home/firstuser/dev/source/bigbluebutton/bigbluebutton-client"
+        	echo "#          instead of the usual /var/www/bigbluebutton"
 	fi
 
 
@@ -884,7 +1037,7 @@ check_state() {
 	done
 
 	if [ "$UNAVAIL_RED5_APPS" != "" ]; then
-		echo "Unavailable Red5 apps ($RED5_DIR/webapps/): ${UNAVAIL_RED5_APPS}"
+		echo "# Unavailable Red5 apps ($RED5_DIR/webapps/): ${UNAVAIL_RED5_APPS}"
 	fi
 
 
@@ -903,52 +1056,21 @@ check_state() {
 	done
 
 	if [ "$UNAVAIL_RED5_LOG" != "" ]; then
-		echo "Unavailable Red5 logs ($RED5_DIR/log): $UNAVAIL_RED5_LOG"
+		echo "# Unavailable Red5 logs ($RED5_DIR/log): $UNAVAIL_RED5_LOG"
 	fi
 
-
-	#
-	# Make sure the salt for the API matches the server
-	#
-	SALT_PROPERTIES=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
-	SALT_DEMO=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp | tr -d '\r' | sed -n '/salt =/{s/.* = "//;s/".*//g;p}')
-
-	if [ "$SALT_PROPERTIES" != "$SALT_DEMO" ]; then
-		echo "Salt mismatch: "
-		echo "  /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties=$SALT_PROPERTIES"
-		echo "  /var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp=$SALT_DEMO"
-	fi
-
-
-	#
-	# Look for properties with no values set
-	#
-	CONFIG_FILES="$RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties \
-/var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties \
-$RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
-
-	for file in $CONFIG_FILES ; do
-	 	if [ ! -f $file ]; then	
-		 	echo "     $file not found"
-		else
-			if grep -q "^[^=]*=[ ]*$" $file; then
-        			echo " The following properties in $file has no value."
-        			echo "     $(grep '^[^=]*=[ ]*$' $file | sed 's/=//g')"
-			fi
-		fi
-	done
 
 	#
 	# Check if any of the red5 BigBlueButton applications did not start propery
 	#
-	BBB_APPS="sip video bigbluebutton"
+	BBB_APPS="sip video bigbluebutton deskshare"
 	for bbb_app in $BBB_APPS ; do
 		if [ -a $RED5_DIR/log/$bbb_app.log ]; then
 			if cat $RED5_DIR/log/$bbb_app.log | tail -n1 | grep -q "Starting up context"; then
-				echo "    $bbb_app did not start properly"
+				echo "#    $bbb_app did not start properly"
 			fi
 		else
-			echo "    $RED5_DIR/log/$bbb_app.log not found"
+			echo "#    $RED5_DIR/log/$bbb_app.log not found"
 		fi
 	done
 
@@ -958,7 +1080,9 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 		# Checking if voice app registered with Asterisk successfully
 		#
         	if cat /usr/share/red5/log/sip.log | grep -q "Failed to register with Sip Server"; then
-                	echo "  The voice application failed to register with the sip server. Try running: sudo bbb-conf --clean"
+        		echo 
+                	echo "# The voice application failed to register with the sip server."
+                	echo "#   Try running: sudo bbb-conf --clean"
 		fi
 
 		#	
@@ -966,17 +1090,17 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 		#
 
 		if cat /usr/share/red5/log/sip.log | tail -n1 | grep -q "Call request for default but not registered"; then
-			echo "The voice app is not registered with SIP server. Audio might not be working correctly."
+			echo "# The voice app is not registered with SIP server. Audio might not be working correctly."
 		fi
 	else
-		echo "      No /usr/share/red5/log/sip.log"
+		echo "#      No /usr/share/red5/log/sip.log"
         fi
 
 	#
 	# Check that tomcat6 started properly and has created log files
 	#
 	if [ -z "$(ls -A $TOMCAT6_LOGS)" ]; then
-        	echo "                     empty directory: $TOMCAT6_LOGS contains no logs"
+        	echo "#                     empty directory: $TOMCAT6_LOGS contains no logs"
 	fi
 
 	#
@@ -986,113 +1110,43 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 	if [ -f $RED5_DIR/log/bigbluebutton.log ]; then
 		BBB_RED5_LOG=$(stat -c%s $RED5_DIR/log/bigbluebutton.log)
 		if [ $BBB_RED5_LOG -lt 100 ]; then
-        		echo "       bigbluebutton failed to start: $RED5_DIR/log/bigbluebutton.log (red5)"
+        		echo "#       bigbluebutton failed to start: $RED5_DIR/log/bigbluebutton.log (red5)"
 		fi
 	else
-		echo "      No $RED5_DIR/log/bigbluebutton.log"
+		echo "#      No $RED5_DIR/log/bigbluebutton.log"
 	fi
 
-
-	#
-	# Check if the IP resolves to a different host
-	#
- 	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
-	HOSTS=$(which host)
-	if [ $HOSTS ]; then
-		HOSTS=`$HOSTS $NGINX_IP | awk '{ print $4 }'`
-	fi
-
-	if [ "$IP" != "$NGINX_IP" ]; then
-		if [ "$IP" != "$HOSTS" ]; then
-			echo "IP does not match:"
-			echo "                          IP from ifconfig: $IP"
-			echo "  /etc/nginx/sites-available/bigbluebutton: $NGINX_IP"
-		fi
-	fi
-
-
-	#
-	# Check that the supporting applications are installed
-	#
-	VARFolder=$(cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep swfToolsDir | cut -d= -f2)
-	if [ ! -x $VARFolder/pdf2swf ] && [ ! -x $VARFolder/jpeg2swf ] && [ ! -x $VARFolder/png2swf ]; then
-			echo "pdf2swf, jpeg2swf and png2swf are not installed in $VARFolder"
-	fi
-
-	VARFolder=$(cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep imageMagickDir | cut -d= -f2)
-	if [ ! -x $VARFolder/convert ]; then
-			echo "ImageMagick's convert is not installed in $VARFolder"
-	fi
-
-	VARFolder=$(cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep ghostScriptExec | cut -d= -f2)
-	if [ ! -x $VARFolder ]; then
-			echo "Ghostscript is not installd in $VARFolder"
-	fi
-
-	#
-	# Check if the deskshare module is installed but disalbed
-	#
-	if dpkg -l | grep -q bbb-apps-deskshare; then
-		if grep -q -i '<!--[ ]*module name="DeskShareModule"' /var/www/bigbluebutton/client/conf/config.xml; then
-	                echo "The DeskShare module is disabled in /var/www/bigbluebutton/client/conf/config.xml."
-		fi
-	else
-		#check for DeskShare.log
-		if [ -a $RED5_DIR/log/deskshare.log ]; then
-			if cat $RED5_DIR/log/deskshare.log | tail -n1 | grep -q "Starting up context"; then
-				echo "Deskshare did not start up correctly"
-			fi
-		fi
-	fi
 
 	#
 	# Check if the local server can access the API.  This is a common problem when setting up BigBlueButton behind
 	# a firewall
 	#
+ 	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
+ 	check_no_value server_name /etc/nginx/sites-available/bigbluebutton $NGINX_IP
 	if ! wget http://$NGINX_IP/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then 
 		echo 
-		echo "  This server could not connect to BigBlueButton through http://$NGINX_IP/"
-		echo 
-		echo "  If you are setting up BigBlueButton behind a firewall, see the FAQ"
-		echo "  for steps to setup BigBlueButton behind a firewall."
-		echo "  	http://code.google.com/p/bigbluebutton/wiki/FAQ"
+		echo "#  This server could not connect to BigBlueButton through http://$NGINX_IP/"
+		echo "#"
+		echo "#  If you are setting up BigBlueButton behind a firewall, see the FAQ"
+		echo "#  for steps to setup BigBlueButton behind a firewall."
+		echo "#  	http://code.google.com/p/bigbluebutton/wiki/FAQ"
 		echo
 	fi
 
 	#
 	# Check that BigBlueButton can connect to port 80, 1935, and 9123
 	#
-
-	#if ! nc -z -w 3 $NGINX_IP 80; then
-	#	echo 
-	#	echo "Unable to connect to port 80 on $NGINX_IP"
-	#fi
 	
 	if ! nc -z -w 3 $NGINX_IP 1935; then
 		echo 
-		echo "Unable to connect to port 1935 (RTMP) on $NGINX_IP"
+		echo "# Unable to connect to port 1935 (RTMP) on $NGINX_IP"
 	fi
 
 	if ! nc -z -w 3 $NGINX_IP 9123; then
 		echo 
-		echo "Unable to connect to port 9123 (desktop sharing) on $NGINX_IP"
+		echo "# Unable to connect to port 9123 (desktop sharing) on $NGINX_IP"
 	fi
 
-
-	#
-	# Check that freeswtich ESL matches the value in bigbluebutton.properties
-	#
-	if [ -f /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml ]; then 
-		FREESWITCH_ESL_IP=$(sudo cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
-		ESL_HOST=$(cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | grep esl.host | sed 's/esl.host=//g')
-		if [ "$FREESWITCH_ESL_IP" != "$ESL_HOST" ]; then
-			echo 
-			echo "   The values for event socket layers in   "
-			echo "       /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml"
-			echo "   do not match the settings for esl.host in"
-			echo "       /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties"
-		fi
-	fi
 
 	if ! dpkg -l | grep -q bbb-freeswitch-config; then
 		if ! dpkg -l | grep -q bbb-voice-conference; then
@@ -1134,6 +1188,8 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 # Print out the status of the current setup and look for bugs.
 #
 if [ $CHECK ]; then
+	need_root
+	
 	echo "BigBlueButton Server $BBB_VERSION"
 	echo "                    Kernel version:" `uname -r`
 
@@ -1449,7 +1505,7 @@ if [ $CONFERENCE ]; then
 	need_root
 
 	if [ ! -f $RED5_DIR/webapps/bigbluebutton/WEB-INF/bbb-voice-app.xml ]; then
-		echo "Error: Unable to find $RED5_DIR/webapps/bigbluebutton/WEB-INF/bbb-voice-app.xml"
+		echo "# Unable to find $RED5_DIR/webapps/bigbluebutton/WEB-INF/bbb-voice-app.xml"
 		exit 1
 	fi
 
@@ -1592,6 +1648,8 @@ fi
 
 if [ $RESTART ]; then
 	need_root
+	check_configuration
+	
 	echo "Restarting BigBlueButton ..."
 
 	stop_bigbluebutton
@@ -1599,10 +1657,12 @@ if [ $RESTART ]; then
 	display_bigbluebutton_status
 	echo
 	start_bigbluebutton
+	check_state
 fi
 
 if [ $CLEAN ]; then
 	need_root
+	check_configuration
 	
 	echo "Doing a clean restart of BigBlueButton ..."
 
@@ -1635,6 +1695,7 @@ if [ $CLEAN ]; then
 
 	echo ""
 	start_bigbluebutton
+	check_state
 fi
 
 if [ $NETWORK ]; then
