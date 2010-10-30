@@ -75,7 +75,7 @@ check_no_value() {
 
 check_file() {
 	if [ ! -f $1 ]; then
-		echo "# Error: File does not exist: $1"
+		echo "# File does not exist: $1"
 	fi
 }
 
@@ -797,14 +797,16 @@ check_configuration() {
 	#
         if [ "$VOICE_CONFERENCE" == "bbb-voice-freeswitch.xml" ]; then
 		check_file /opt/freeswitch/conf.dist/vars.xml
-		
-		if ! sudo cat /opt/freeswitch/conf/vars.xml | grep --quiet BigBlueButton; then
-			echo 
-			echo "# Did not detect a valid BigBlueButton configuration for FreeSWITCH. The file"
-			echo "#   /opt/freeswitch/conf.dist/vars.xml" 
-			echo "# appears to be the original FreeSWITCH configuration file."
-			echo "#   Try running: sudo apt-get install bbb-freeswitch-config"
-			echo 
+	
+		if [ -f /opt/freeswitch/conf.dist/vars.xml ]; then	
+			if ! sudo cat /opt/freeswitch/conf/vars.xml | grep --quiet BigBlueButton; then
+				echo 
+				echo "# Did not detect a valid BigBlueButton configuration for FreeSWITCH. The file"
+				echo "#   /opt/freeswitch/conf.dist/vars.xml" 
+				echo "# appears to be the original FreeSWITCH configuration file."
+				echo "#   Try running: sudo apt-get install bbb-freeswitch-config"
+				echo 
+			fi
 		fi
 		
 		#
@@ -954,9 +956,11 @@ check_state() {
 	# same for freeswitch	
 	if [ -a /var/run/asterisk/asterisk.pid ] && [ -a /opt/freeswitch/run/freeswitch.pid ]; then
 		print_header
+		echo
 		echo "# Asterisk and Freeswitch are running parallel"
 		echo "# Please run bbb-conf --conference with either freeswitch or asterisk and"
 		echo "# Uninstall on or the other."
+		echo
 	elif [ -a /var/run/asterisk/asterisk.pid ]; then 
 		if ! ps aux | grep -v grep | grep '[/]usr/sbin/asterisk' > /dev/null; then
 				print_header
@@ -1151,8 +1155,8 @@ check_state() {
 	if ! dpkg -l | grep -q bbb-freeswitch-config; then
 		if ! dpkg -l | grep -q bbb-voice-conference; then
 			echo 
-			echo "    You don't have either bbb-freeswitch-config or bbb-voice-conference"
-			echo "    installed.  Install one of these packages, then run sudo bbb-conf --clean"
+			echo "# You don't have either bbb-freeswitch-config or bbb-voice-conference"
+			echo "# installed.  Install one of these packages, then run sudo bbb-conf --clean"
 			echo
 		fi
 	fi
@@ -1161,10 +1165,10 @@ check_state() {
 	if dpkg -l | grep -q bbb-freeswitch-config; then
 		if [ "$VOICE_CONFERENCE" == "bbb-voice-asterisk.xml" ]; then
 			echo 
-			echo "    You have freeswitch installed, but the current voice conference set"
-			echo "    to asterisk.  To switch to freeswitch, enter"
-			echo 
-			echo "       sudo bbb-conf --conference freeswitch"
+			echo "# You have freeswitch installed, but the current voice conference set"
+			echo "# to asterisk.  To switch to freeswitch, enter"
+			echo "#"
+			echo "#   sudo bbb-conf --conference freeswitch"
 			echo
 		fi
 	fi
@@ -1172,10 +1176,10 @@ check_state() {
 	if dpkg -l | grep -q bbb-voice-conference; then
 		if [ "$VOICE_CONFERENCE" == "bbb-voice-freeswitch.xml" ]; then
 			echo 
-			echo "    You have asterisk installed, but the current voice conference set"
-			echo "    to freeswitch.  To switch to asterisk, enter"
-			echo 
-			echo "       sudo bbb-conf --conference konference"
+			echo "# You have asterisk installed, but the current voice conference set"
+			echo "# to freeswitch.  To switch to asterisk, enter"
+			echo "#"
+			echo "#   sudo bbb-conf --conference konference"
 			echo
 		fi
 	fi
@@ -1241,10 +1245,10 @@ if [ $CHECK ]; then
 		echo "                  bbb-web-api host: $IP"
 	fi
 
-	if  ps aux | grep '[/]usr/sbin/asterisk' > /dev/null; then
-		CONFERENCING_MODULE="$(cat $RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | sed -n '/asterisk.application/{s/.*=[ ]*//g;p}')"
-	else
+	if [ $VOICE_CONFERENCE == "bbb-voice-freeswitch.xml" ]; then
 		CONFERENCING_MODULE="FreeSWITCH"
+	else
+		CONFERENCING_MODULE="$(cat $RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | sed -n '/asterisk.application/{s/.*=[ ]*//g;p}')"
 	fi
 
 	echo
@@ -1505,6 +1509,7 @@ if [ $CONFERENCE ]; then
 	need_root
 
 	if [ ! -f $RED5_DIR/webapps/bigbluebutton/WEB-INF/bbb-voice-app.xml ]; then
+		echo 
 		echo "# Unable to find $RED5_DIR/webapps/bigbluebutton/WEB-INF/bbb-voice-app.xml"
 		exit 1
 	fi
@@ -1517,6 +1522,7 @@ if [ $CONFERENCE ]; then
 		if [ "$CONFERENCE" = "konference" ]; then
 			CONFERENCE=app_konference
 		else
+			echo
 			echo "Error: Valid options for --conference are: meetme, konference, freeswitch"
 			exit 1
 		fi
@@ -1524,7 +1530,8 @@ if [ $CONFERENCE ]; then
 
 	if [ $CONFERENCE = "meetme" ]; then
 	        if [ ! -f /etc/asterisk/bbb_extensions.conf ]; then
-                	echo "Error: Unable to find /etc/asterisk/bbb_extensions.conf"
+			echo
+                	echo "# Unable to find /etc/asterisk/bbb_extensions.conf"
                 	exit 1
         	fi
 
@@ -1568,7 +1575,10 @@ if [ $CONFERENCE ]; then
  
 	if [ $CONFERENCE = "app_konference" ]; then
 	        if [ ! -f /etc/asterisk/bbb_extensions.conf ]; then
-                	echo "Error: Unable to find /etc/asterisk/bbb_extensions.conf"
+			echo
+                	echo "# Unable to find /etc/asterisk/bbb_extensions.conf"
+                	echo "# To install asterisk for BigBlueButton, try"
+                	echo "#   sudo apt-get install bbb-voice-conference"
                 	exit 1
         	fi
 
@@ -1617,7 +1627,11 @@ if [ $CONFERENCE ]; then
 	if [ $CONFERENCE = "freeswitch" ]; then
 		# check if freeswitch is installed
 		if [ ! -d /opt/freeswitch ]; then
-			echo "Freeswitch is not installed"
+			echo
+			echo "# Unable to switch to FreeSWTICH as it does not appear to be installed."
+			echo "# Try"
+			echo "#   sudo apt-get install bbb-freeswitch-config"
+			echo
 			exit 1;
 		fi
 		# switch the red5-web.xml from asterisk to freeswitch
