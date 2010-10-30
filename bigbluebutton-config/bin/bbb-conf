@@ -279,13 +279,16 @@ start_bigbluebutton () {
 
 	if [ "$VOICE_CONFERENCE" == "bbb-voice-freeswitch.xml" ]; then
 		FREESWITCH_ESL_IP=$(sudo cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
+		check_no_value listen-ip /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml $FREESWITCH_ESL_IP
 
 		echo -n "Waiting for FreeSwitch to start: "
 
-		while ! nc -z -w 1 $FREESWITCH_ESL_IP 8021; do
-			echo -n "."
-                	sleep 1
-        	done
+		if [ ! -z $FREESWITCH_ESL_IP ]; 
+			while ! nc -z -w 1 $FREESWITCH_ESL_IP 8021; do
+				echo -n "."
+                		sleep 1
+        		done
+		fi
 		echo
 	else
 		echo -n "Waiting for Asterisk to start: "
@@ -1140,15 +1143,16 @@ check_state() {
 	#
 	# Check that BigBlueButton can connect to port 80, 1935, and 9123
 	#
-	
-	if ! nc -z -w 3 $NGINX_IP 1935; then
-		echo 
-		echo "# Unable to connect to port 1935 (RTMP) on $NGINX_IP"
-	fi
+	if [ ! -z $NGINX_IP ]; then
+		if ! nc -z -w 3 $NGINX_IP 1935; then
+			echo 
+			echo "# Unable to connect to port 1935 (RTMP) on $NGINX_IP"
+		fi
 
-	if ! nc -z -w 3 $NGINX_IP 9123; then
-		echo 
-		echo "# Unable to connect to port 9123 (desktop sharing) on $NGINX_IP"
+		if ! nc -z -w 3 $NGINX_IP 9123; then
+			echo 
+			echo "# Unable to connect to port 9123 (desktop sharing) on $NGINX_IP"
+		fi
 	fi
 
 
