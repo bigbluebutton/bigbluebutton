@@ -41,6 +41,8 @@ public class DynamicConferenceService {
 	def defaultDialAccessNumber
 	def testVoiceBridge
 	def testConferenceMock
+        def recordingDir
+	def recordingFile
 	
 	// TODO: need to remove use of DynamicConference and make it use "Room.groovy" instead
 	//				so that both apps and web are using common domain objects and we don't map between them
@@ -96,9 +98,27 @@ public class DynamicConferenceService {
 		conf.setStoredTime(new Date());
 		confsByMtgID.put(conf.getMeetingID(), conf);
 		tokenMap.put(conf.getMeetingToken(), conf.getMeetingID());
-		println "next step -> createRecordFile"
-		conf.createRecordFile();
-		println "end step -> createRecordFile"
+                if(conf.record)
+			createConferenceRecord(conf);
+	}
+
+        public void createConferenceRecord(DynamicConference conf) {
+		String dirpath=recordingDir+File.separatorChar+conf.meetingToken+File.separatorChar+conf.meetingToken+File.separatorChar
+		String filename=dirpath+recordingFile
+		if(!new File(dirpath).exists()){
+			boolean success = (new File(dirpath)).mkdirs()
+		}
+
+		def mb = new groovy.xml.StreamingMarkupBuilder()
+		mb.encoding = "UTF-8"
+		new OutputStreamWriter(new FileOutputStream(filename),'utf-8') << mb.bind {
+			mkp.xmlDeclaration()
+			events(token:conf.meetingToken,name:conf.name){
+				seq{
+				}
+			}
+		}
+
 	}
 	
 	public Room getRoomByMeetingID(String meetingID) {

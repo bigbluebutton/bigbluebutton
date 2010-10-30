@@ -103,10 +103,10 @@ class ApiController {
 		String logoutUrl = params.logoutURL
 		/* record development */
 		boolean record = false
-		try{
+                try{
 			record=Boolean.parseBoolean(params.record)
 		}catch(Exception ex){ }
-		
+
 		Integer maxParts = -1;
 		try {
 			maxParts = Integer.parseInt(params.maxParticipants);
@@ -136,10 +136,10 @@ class ApiController {
 		}
 		DynamicConference conf = new DynamicConference(name, mtgID, attPW, modPW, maxParts)
 		conf.setVoiceBridge(voiceBr == null || voiceBr == "" ? mtgID : voiceBr)
-		
-		/* record development */
+
+                /* record development */
 		conf.record = record
-		
+                
 		if ((dynamicConferenceService.testVoiceBridge != null) && (conf.voiceBridge == dynamicConferenceService.testVoiceBridge)) {
 			if (dynamicConferenceService.testConferenceMock != null) 
 				conf.meetingToken = dynamicConferenceService.testConferenceMock
