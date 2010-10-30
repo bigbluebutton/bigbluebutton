@@ -29,8 +29,21 @@
 			[Bindable] private var messages:ArrayCollection = new ArrayCollection();
 			private var lastCount:Number = 0;
 			
+			private var scrollTimer:Timer;
+			
+			private var scrollBarWorkaround:Boolean = false;
+			
 			private function onCreationComplete():void {
 				addContextMenuItems();
+				scrollTimer = new Timer(750, 2);
+				scrollTimer.addEventListener(TimerEvent.TIMER, onScrollTimer);
+				
+				/**
+				 * The next two lines will force the scrollbar to the end of the message when displaying the
+				 * chat history.
+				 */
+				callLater(scrollToBottom);	
+				scrollTimer.start();			
 			}
 
 			public function showNewMessage(message:String, translate:Boolean, language:String = null):void {	
@@ -43,22 +56,72 @@
 				msg.senderId = components[5];
 				
 				msg.senderLanguage = components[4].toString();
-				msg.recepientLanguage = language.toString();
+				msg.receiverLanguage = language.toString();
 				msg.translate = translate;
 
 				msg.translatedText = components[0];
 				msg.senderText = components[0];
 				
 				msg.name = components[1];
-				msg.color = uint(components[2]);
-				
+				msg.senderColor = uint(components[2]);
+				msg.translatedColor = msg.senderColor;
 				msg.senderTime = components[3];			
 				msg.time = timeString;
 				msg.lastTime = lastTime;
 				lastTime = timeString;
 				
-				messages.addItem(msg);
-				chatMessagesList.verticalScrollPosition = chatMessagesList.maxVerticalScrollPosition + 5;
+				/*********************************
+				 * We put a blank message at the end to force the scrollbar to display the
+				 * REAL last message.
+				 */
+				if (!scrollBarWorkaround) {
+					scrollBarWorkaround = true;
+					var blankStr:String = "                 \n";
+					var shimMsg:ChatMessage = new ChatMessage();
+					shimMsg.lastSenderId = blankStr;
+					shimMsg.senderId = blankStr;					
+					shimMsg.senderLanguage = blankStr;
+					shimMsg.receiverLanguage = blankStr;
+					shimMsg.translate = false;	
+					shimMsg.translatedText = blankStr;
+					shimMsg.senderText = blankStr;					
+					shimMsg.name = blankStr;
+					shimMsg.senderColor = msg.senderColor;
+					shimMsg.translatedColor = 0xCECECE;
+					shimMsg.senderTime = blankStr;			
+					shimMsg.time = blankStr;
+					shimMsg.lastTime = blankStr;
+
+					messages.addItem(shimMsg);
+				}
+				
+				/**
+				 * Add the REAL message before the shim message above. 
+				 */				 
+				messages.addItemAt(msg, messages.length - 1);
+					
+				/**
+				 * Trigger to force the scrollbar to show the last message.
+				 */	
+				 if (scrollTimer != null) scrollTimer.start();
+			}
+			
+			/**
+			 * Magic sauce to force scrollbar to the bottom message. This took a lot
+			 * of trial and error. If you change this, make sure you know what you are
+			 * doing as I don't know why it works, but it does. (ralam Nov 3, 2010)
+			 */
+			private function scrollToBottom():void {
+				chatMessagesList.invalidateSize();
+				chatMessagesList.invalidateDisplayList();
+				chatMessagesList.scrollToIndex(messages.length);
+				chatMessagesList.verticalScrollPosition = chatMessagesList.maxVerticalScrollPosition;		
+				chatMessagesList.validateDisplayList();
+				chatMessagesList.validateNow();		
+			}
+			
+			private function onScrollTimer(event:TimerEvent):void {
+				scrollToBottom();
 			}
 			
 			public static function getMinutes():String {
@@ -115,7 +178,7 @@
 			
 			private function getAllAsString():String{
 				var allText:String = "";
-				for (var i:int = 0; i< messages.length; i++){
+				for (var i:int = 0; i < messages.length; i++){
 					var item:ChatMessage = messages.getItemAt(i) as ChatMessage;
 					allText += "\n" + item.name + " - " + item.time + " : " + item.translatedText;
 				}
