@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" click="setMessageRead()" xmlns:mate="http://mate.asfusion.com/" creationComplete="onCreationComplete()" >
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:mate="http://mate.asfusion.com/"
+	click="setMessageRead()" 
+	creationComplete="onCreationComplete()" >
 	
 	<mate:Listener type="{ChatOptionsEvent.CHANGE_FONT_SIZE}" method="changeFontSize" />
 	
 	<mx:Script>
 		<![CDATA[
-			import be.boulevart.google.ajaxapi.translation.GoogleTranslation;
-			import be.boulevart.google.ajaxapi.translation.data.GoogleTranslationResult;
-			import be.boulevart.google.events.GoogleApiEvent;
-			
-			import com.adobe.serialization.json.JSON;
-			
+			import org.bigbluebutton.modules.chat.model.ChatMessage;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Button;
 			import mx.core.ScrollPolicy;
@@ -29,24 +27,17 @@
 			private var lastTime:String = "";
 			
 			[Bindable] private var messages:ArrayCollection = new ArrayCollection();
-			[Bindable] private var msg:Object;
 			private var lastCount:Number = 0;
 			
-			private function onCreationComplete():void{
+			private function onCreationComplete():void {
 				addContextMenuItems();
 			}
-			
-			private function updateScroll(e:Event = null):void{
-				chatMessagesList.verticalScrollPosition = chatMessagesList.maxVerticalScrollPosition;
-				chatMessagesList.verticalScrollPosition = chatMessagesList.maxVerticalScrollPosition;
-			}
-			
-			public function showNewMessage(message:String, translate:Boolean, language:String = null):void
-			{	
+
+			public function showNewMessage(message:String, translate:Boolean, language:String = null):void {	
 				var timeString:String = getHours() + ":" + getMinutes();
 				var components:Array = message.split("|");
 				
-				msg = new Object();
+				var msg:ChatMessage = new ChatMessage();
 				msg.lastSenderId = lastSenderId;
 				lastSenderId = components[5];
 				msg.senderId = components[5];
@@ -55,7 +46,7 @@
 				msg.recepientLanguage = language.toString();
 				msg.translate = translate;
 
-				msg.text = components[0];
+				msg.translatedText = components[0];
 				msg.senderText = components[0];
 				
 				msg.name = components[1];
@@ -67,21 +58,10 @@
 				lastTime = timeString;
 				
 				messages.addItem(msg);
-				
-				chatMessagesList.invalidateSize();
-				chatMessagesList.invalidateDisplayList();
-				
-
-				var scrollTimer:Timer = new Timer(750, 1);
-				scrollTimer.addEventListener(TimerEvent.TIMER, onScrollTimer);
-				scrollTimer.start();
+				chatMessagesList.verticalScrollPosition = chatMessagesList.maxVerticalScrollPosition + 5;
 			}
 			
-			private function onScrollTimer(e:TimerEvent):void{
-				updateScroll();
-			}
-			
-			public static function getMinutes():String{
+			public static function getMinutes():String {
 				var time:Date = new Date();
 				var minutes:String;
 				if (time.minutes < 10) minutes = "0" + time.minutes;
@@ -89,7 +69,7 @@
 				return minutes;
 			}
 			
-			public static function getHours():String{
+			public static function getHours():String {
 				var time:Date = new Date();
 				var hours:String;
 				if (time.hours < 10) hours = "0" + time.hours;
@@ -120,9 +100,9 @@
 				var contextMenu:ContextMenu = new ContextMenu();
 				contextMenu.hideBuiltInItems();
 				
-				var capyAllButton:ContextMenuItem = new ContextMenuItem(COPY_ALL_BUTTON);
-				capyAllButton.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, menuItemHandler);
-				contextMenu.customItems.push(capyAllButton);
+				var copyAllButton:ContextMenuItem = new ContextMenuItem(COPY_ALL_BUTTON);
+				copyAllButton.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, menuItemHandler);
+				contextMenu.customItems.push(copyAllButton);
 				
 				this.contextMenu = contextMenu;
 			}
@@ -135,9 +115,9 @@
 			
 			private function getAllAsString():String{
 				var allText:String = "";
-				for (var i:int = 0; i<messages.length; i++){
-					var item:Object = messages.getItemAt(i);
-					allText += "\n" + item.name + " - " + item.time + " : " + item.text;
+				for (var i:int = 0; i< messages.length; i++){
+					var item:ChatMessage = messages.getItemAt(i) as ChatMessage;
+					allText += "\n" + item.name + " - " + item.time + " : " + item.translatedText;
 				}
 				return allText;
 			}

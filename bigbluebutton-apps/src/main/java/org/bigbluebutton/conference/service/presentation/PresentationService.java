@@ -120,7 +120,7 @@ public class PresentationService {
 		presentationApplication.sharePresentation(scope.getName(), presentationName, share);
 	}
 	
-	public void resizeAndMoveSlide(Long xOffset,Long yOffset,Long widthRatio,Long heightRatio) {
+	public void resizeAndMoveSlide(Double xOffset,Double yOffset,Double widthRatio,Double heightRatio) {
 		log.debug("Request to resize and move slide["+xOffset+","+yOffset+","+widthRatio+","+heightRatio);
 		IScope scope = Red5.getConnectionLocal().getScope();
 		presentationApplication.resizeAndMoveSlide(scope.getName(), xOffset, yOffset, widthRatio, heightRatio);

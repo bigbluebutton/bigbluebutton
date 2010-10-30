@@ -97,11 +97,6 @@
 				systemManager.stage.addEventListener(Event.DEACTIVATE, deactivate);
 				
 				UserManager.getInstance().registerListener(this);
-				
-				//var g:GoogleTranslation = new GoogleTranslation();
-				//var e:GoogleApiEvent;
-				
-				//setColor(); //Uncomment this to automatically assign colors to chat participants
 			}       
 			
 			private function setColor():void{

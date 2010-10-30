@@ -76,16 +76,13 @@ package org.bigbluebutton.modules.chat.services
 			
 			switch ( statusCode ) 
 			{
-				case "NetConnection.Connect.Success":			
-					trace("Connection success");		
+				case "NetConnection.Connect.Success":				
 					connEvent.success = true;					
 					break;
 				default:
-					trace("Connection failed");
 					connEvent.success = false;
 				   break;
 			}
-			trace("Dispatching NET CONNECTION SUCCESS");
 			dispatcher.dispatchEvent(connEvent);
 		}
 		
@@ -115,7 +112,6 @@ package org.bigbluebutton.modules.chat.services
 		 * Called by the server to deliver a new chat message.
 		 */	
 		public function newChatMessage(message:String):void{
-			trace("Received New Chat Message " + message);	
 			var event:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
 			event.message = message;
 			

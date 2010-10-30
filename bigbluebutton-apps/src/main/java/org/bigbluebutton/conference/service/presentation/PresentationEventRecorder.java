@@ -175,8 +175,7 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void resizeAndMoveSlide(Long xOffset, Long yOffset, Long widthRatio,
-			Long heightRatio) {
+	public void resizeAndMoveSlide(Double xOffset, Double yOffset, Double widthRatio, Double heightRatio) {
 		log.debug("calling moveCallback["+xOffset+","+yOffset+","+widthRatio+","+heightRatio+"]");
 		ArrayList list=new ArrayList();
 		list.add(xOffset);

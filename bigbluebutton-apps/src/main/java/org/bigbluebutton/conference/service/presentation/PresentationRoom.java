@@ -44,10 +44,10 @@ public class PresentationRoom {
 	int currentSlide = 0;
 	Boolean sharing = false;
 	String currentPresentation = "";
-	long xOffset = 0;
-	long yOffset = 0;
-	long widthRatio = 0;
-	long heightRatio = 0;
+	Double xOffset = 0D;
+	Double yOffset = 0D;
+	Double widthRatio = 0D;
+	Double heightRatio = 0D;
 	ArrayList<String> presentationNames = new ArrayList<String>();
 	
 	public PresentationRoom(String name) {
@@ -94,7 +94,7 @@ public class PresentationRoom {
         }           
     }
 	
-	public void resizeAndMoveSlide(Long xOffset, Long yOffset, Long widthRatio, Long heightRatio) {
+	public void resizeAndMoveSlide(Double xOffset, Double yOffset, Double widthRatio, Double heightRatio) {
 		this.xOffset = xOffset;
 		this.yOffset = yOffset;
 		this.widthRatio = widthRatio;
@@ -191,19 +191,19 @@ public class PresentationRoom {
 		return currentPresenter;
 	}
 
-	public long getxOffset() {
+	public Double getxOffset() {
 		return xOffset;
 	}
 
-	public long getyOffset() {
+	public Double getyOffset() {
 		return yOffset;
 	}
 
-	public long getWidthRatio() {
+	public Double getWidthRatio() {
 		return widthRatio;
 	}
 
-	public long getHeightRatio() {
+	public Double getHeightRatio() {
 		return heightRatio;
 	}
 }
