@@ -283,7 +283,7 @@ start_bigbluebutton () {
 
 		echo -n "Waiting for FreeSwitch to start: "
 
-		if [ ! -z $FREESWITCH_ESL_IP ]; 
+		if [ ! -z $FREESWITCH_ESL_IP ]; then
 			while ! nc -z -w 1 $FREESWITCH_ESL_IP 8021; do
 				echo -n "."
                 		sleep 1
@@ -1735,6 +1735,10 @@ fi
 if [ $WATCH ]; then
 	need_root
 
-	watch -n 2 "top -n 1 -b | head -n 5; echo; asterisk -r -x \"core show channels\"; echo; bbb-conf --network; bbb-conf --debug"
+	if [ $VOICE_CONFERENCE == "bbb-voice-asterisk.xml" ]; then
+		watch -n 2 "top -n 1 -b | head -n 5; echo; asterisk -r -x \"core show channels\"; echo; bbb-conf --network; bbb-conf --debug"
+	else
+		watch -n 2 "top -n 1 -b | head -n 5; echo; bbb-conf --network; bbb-conf --debug"
+	fi
 fi
 
