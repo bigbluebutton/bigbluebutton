@@ -1252,7 +1252,7 @@ if [ $CHECK ]; then
 	if [ $VOICE_CONFERENCE == "bbb-voice-freeswitch.xml" ]; then
 		CONFERENCING_MODULE="FreeSWITCH"
 	else
-		CONFERENCING_MODULE="$(cat $RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | sed -n '/asterisk.application/{s/.*=[ ]*//g;p}')"
+		CONFERENCING_MODULE="$(cat $RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | sed -n '/asterisk.application/{s/.*=[ ]*//g;p}') (asterisk)"
 	fi
 
 	echo
