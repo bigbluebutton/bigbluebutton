@@ -6,14 +6,9 @@
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.modules.chat.model.ChatMessage;
-			import org.bigbluebutton.common.LogUtil;
-			import be.boulevart.google.ajaxapi.translation.GoogleTranslation;
-			import be.boulevart.google.ajaxapi.translation.data.GoogleTranslationResult;
-			import be.boulevart.google.events.GoogleApiEvent;			
-			import flexlib.scheduling.Timeline;			
+			import org.bigbluebutton.common.LogUtil;		
 			import mx.binding.utils.ChangeWatcher;
-			import mx.controls.Alert;
-			
+
 			[Bindable] private var rolledOver:Boolean = false;					
 			[Bindable] private var chatMsg:ChatMessage;
 			

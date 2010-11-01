@@ -40,10 +40,12 @@ package org.bigbluebutton.modules.chat.model {
 			
 		private function onTranslationDone(e:GoogleApiEvent):void{
 			var result:GoogleTranslationResult = e.data as GoogleTranslationResult;
-			translated = true;
-			if (result.orig != senderText) return;
 			
-			translatedText = result.result;
+			if (result.result != senderText) {
+				translated = true;
+				color = 0xCF4C5C;
+				translatedText = result.result;
+			}			
 		}
 	}
 }
