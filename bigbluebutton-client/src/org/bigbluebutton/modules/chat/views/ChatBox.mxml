@@ -35,12 +35,7 @@
 			private function onCreationComplete():void{
 				addContextMenuItems();
 			}
-			
-			private function updateScroll(e:Event = null):void{
-				chatMessagesList.verticalScrollPosition = chatMessagesList.maxVerticalScrollPosition;
-				chatMessagesList.verticalScrollPosition = chatMessagesList.maxVerticalScrollPosition;
-			}
-			
+
 			public function showNewMessage(message:String, translate:Boolean, language:String = null):void
 			{	
 				var timeString:String = getHours() + ":" + getMinutes();
@@ -67,17 +62,7 @@
 				lastTime = timeString;
 				
 				messages.addItem(msg);
-				
-				chatMessagesList.invalidateSize();
-				chatMessagesList.invalidateDisplayList();
-				
-				var scrollTimer:Timer = new Timer(750, 1);
-				scrollTimer.addEventListener(TimerEvent.TIMER, onScrollTimer);
-				scrollTimer.start();
-			}
-			
-			private function onScrollTimer(e:TimerEvent):void{
-				updateScroll();
+				chatMessagesList.verticalScrollPosition = chatMessagesList.maxVerticalScrollPosition + 5;
 			}
 			
 			public static function getMinutes():String{
@@ -119,9 +104,9 @@
 				var contextMenu:ContextMenu = new ContextMenu();
 				contextMenu.hideBuiltInItems();
 				
-				var capyAllButton:ContextMenuItem = new ContextMenuItem(COPY_ALL_BUTTON);
-				capyAllButton.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, menuItemHandler);
-				contextMenu.customItems.push(capyAllButton);
+				var copyAllButton:ContextMenuItem = new ContextMenuItem(COPY_ALL_BUTTON);
+				copyAllButton.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, menuItemHandler);
+				contextMenu.customItems.push(copyAllButton);
 				
 				this.contextMenu = contextMenu;
 			}
