@@ -29,7 +29,9 @@ package org.bigbluebutton.modules.chat.model {
 			g.addEventListener(GoogleApiEvent.TRANSLATION_RESULT, onTranslationDone);
 		}
 
-		public function translateMessage():void{			
+		public function translateMessage():void{		
+			if (!translate) return;
+				
 			if ((senderLanguage != recepientLanguage) && !translated) {
 //				LogUtil.debug("Translating " + senderText + " from " + senderLanguage + " to " + recepientLanguage + ".");
 				g.translate(senderText, senderLanguage, recepientLanguage);
