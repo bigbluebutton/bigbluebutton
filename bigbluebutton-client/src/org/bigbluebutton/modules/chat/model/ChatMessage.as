@@ -1,8 +1,7 @@
 package org.bigbluebutton.modules.chat.model {
 	import be.boulevart.google.ajaxapi.translation.GoogleTranslation;
 	import be.boulevart.google.ajaxapi.translation.data.GoogleTranslationResult;
-	import be.boulevart.google.events.GoogleApiEvent;
-	
+	import be.boulevart.google.events.GoogleApiEvent;	
 	import org.bigbluebutton.common.LogUtil;
 	
 	public class ChatMessage {

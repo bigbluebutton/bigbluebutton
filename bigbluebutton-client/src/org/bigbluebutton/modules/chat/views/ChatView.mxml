@@ -112,6 +112,7 @@
 				ExternalInterface.call("clearblink");
 				this.focus = true;
 			}
+			
 			private function deactivate(event:Event):void{
 				this.focus = false;
 			}
@@ -134,33 +135,26 @@
 				chatTabs.setClosePolicyForTab(chatTabs.getChildIndex(tabBox), SuperTab.CLOSE_NEVER);
 			}
 			
-			public function setFocusOn(component:UIComponent):void
-			{
+			public function setFocusOn(component:UIComponent):void {
 				if (component.id == "txtMsg") {
 					component.setFocus();
 					component.drawFocus(true);
 				}
-				else
-				{
+				else {
 					this.txtMsg.setFocus();
 					this.txtMsg.drawFocus(true);
 				}
 			}
 			
-			public function setFocusOff():void
-			{
+			public function setFocusOff():void {
 				this.txtMsg.drawFocus(false);
 			}
 			
-			private function currentTime() : String
-			{
+			private function currentTime() : String {
 				return ChatBox.getHours() + ":" + ChatBox.getMinutes();
 			}
 			
-			private function sendMessages():void
-			{
-				trace("Sending message");
-				
+			private function sendMessages():void {
 				if (hasMessageToSend()){				
 					if (isChatBoxCurrentlySelected(PUBLIC_CHAT_USERID)) {						
 						sendPublicChatMessage();
@@ -204,7 +198,6 @@
 			}
 			
 			private function sendPublicChatMessage():void {
-				trace("Sending public chat message");
 				var publicEvent:SendPublicChatMessageEvent = new SendPublicChatMessageEvent(SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT);
 				publicEvent.message = parseURLs(cleanup(txtMsg.text));
 				publicEvent.color = cmpColorPicker.selectedColor.toString();
@@ -214,13 +207,11 @@
 			}
 			
 			private function queryForParticipants():void {
-				trace("Sending query for participants message");
 				var event:QueryParticipantsEvent = new QueryParticipantsEvent(QueryParticipantsEvent.QUERY_PARTICIPANTS_EVENT);
 				globalDispatcher.dispatchEvent(event);
 			}
 			
 			private function sendPrivateChatMessage():void {
-				trace("Sending private chat message");
 				var privateEvent:SendPrivateChatMessageEvent = new SendPrivateChatMessageEvent(SendPrivateChatMessageEvent.SEND_PRIVATE_CHAT_MESSAGE_EVENT);
 				privateEvent.message = parseURLs(cleanup(txtMsg.text));
 				privateEvent.toUser = chatTabs.selectedChild.name;
@@ -257,7 +248,6 @@
 			private function updateChatBoxThatParticipantHasLeft(userid:String):void {
 				if (participantHasChatBox(userid)) {
 					var chatBox:ChatBox = getChatBoxForParticipant(userid);
-					trace("Setting participantLoggedOut to true");
 					chatBox.participantLoggedOut = true;
 					
 					if (isChatBoxCurrentlySelected(userid)) {
@@ -290,10 +280,8 @@
 				txtMsg.enabled = true;
 				var chatBox:ChatBox = chatTabs.getChildAt(chatTabs.selectedIndex) as ChatBox;
 				if (chatBox.participantLoggedOut) {
-					trace("Disabling message box");
 					disableMessageEntryTextBox();
 				} else {
-					trace("Enabling message box");
 					enableMessageEntryTextBox();
 				}				
 			}

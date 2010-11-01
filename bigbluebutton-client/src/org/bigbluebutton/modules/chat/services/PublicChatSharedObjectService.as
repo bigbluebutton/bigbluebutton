@@ -57,8 +57,6 @@ package org.bigbluebutton.modules.chat.services
 			chatSO.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
 			chatSO.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);	
 			chatSO.client = this;
-			if (connection == null) trace("Joininh ChatSharedObject");
-			trace("Chat connection = " + connection.uri);
 			chatSO.connect(connection);					
 		}
 		
