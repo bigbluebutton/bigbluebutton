@@ -31,7 +31,7 @@
 					return;
 				}				
 				chatMsg = data as ChatMessage;
-				chatMsg.translateMessage();		
+				chatMsg.translateMessage();	
 			}
 			
 			private function onRollOver():void{
@@ -46,7 +46,7 @@
 	</mx:Script>
 	
 	<mx:Label maxWidth="50" width="50" truncateToFit="true" id="lblName" text="{chatMsg.name}" visible="{!(chatMsg.senderId == chatMsg.lastSenderId)}" color="gray" />
-	<mx:Text id="txtMessage" htmlText="{rolledOver ? chatMsg.senderText : chatMsg.translatedText}" link="onLinkClick(event)" color="{chatMsg.color}"
+	<mx:Text id="txtMessage" htmlText="{rolledOver ? chatMsg.senderText : chatMsg.translatedText}" link="onLinkClick(event)" color="{rolledOver ? chatMsg.senderColor : chatMsg.translatedColor}"
 			 rollOver="onRollOver()" rollOut="onRollOut()" width="100%" />
 	<mx:Label id="lblTime" text="{rolledOver ? chatMsg.senderTime : chatMsg.time}" visible="{!(chatMsg.lastTime == chatMsg.time) || !(chatMsg.senderId == chatMsg.lastSenderId)}" color="gray" />
 </mx:HBox>

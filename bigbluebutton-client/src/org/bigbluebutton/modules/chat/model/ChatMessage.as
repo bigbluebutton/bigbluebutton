@@ -10,7 +10,7 @@ package org.bigbluebutton.modules.chat.model {
 		[Bindable] public var senderLanguage:String;
 		[Bindable] public var recepientLanguage:String;
 		[Bindable] public var translate:Boolean;
-		[Bindable] public var color:uint;
+		[Bindable] public var senderColor:uint;
 			 
 			 
 		[Bindable] public var name:String;
@@ -20,6 +20,7 @@ package org.bigbluebutton.modules.chat.model {
 		[Bindable] public var senderText:String;
 		[Bindable] public var translatedText:String;
 		[Bindable] public var translated:Boolean = false;
+		[Bindable] public var translatedColor:uint;
 		
 		private var g:GoogleTranslation;	 
 			 
@@ -28,7 +29,7 @@ package org.bigbluebutton.modules.chat.model {
 			g.addEventListener(GoogleApiEvent.TRANSLATION_RESULT, onTranslationDone);
 		}
 
-		public function translateMessage():void{		
+		public function translateMessage():void {		
 			if (!translate) return;
 				
 			if ((senderLanguage != recepientLanguage) && !translated) {
@@ -41,12 +42,12 @@ package org.bigbluebutton.modules.chat.model {
 			
 		private function onTranslationDone(e:GoogleApiEvent):void{
 			var result:GoogleTranslationResult = e.data as GoogleTranslationResult;
-			
+
 			if (result.result != senderText) {
 				translated = true;
-				color = 0xCF4C5C;
 				translatedText = result.result;
-			}			
+				translatedColor = 0xCF4C5C;
+			} 
 		}
 	}
 }

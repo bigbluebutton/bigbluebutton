@@ -50,8 +50,8 @@
 				msg.senderText = components[0];
 				
 				msg.name = components[1];
-				msg.color = uint(components[2]);
-				
+				msg.senderColor = uint(components[2]);
+				msg.translatedColor = msg.senderColor;
 				msg.senderTime = components[3];			
 				msg.time = timeString;
 				msg.lastTime = lastTime;
