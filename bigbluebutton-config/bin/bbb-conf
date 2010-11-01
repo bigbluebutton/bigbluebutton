@@ -1501,6 +1501,14 @@ if [ -n "$HOST" ]; then
 	#			/usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
 	#fi
 
+        if [ $VOICE_CONFERENCE == "bbb-voice-freeswitch.xml" ]; then
+                if [ -f /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties ]; then
+                        echo "Assigning $HOST for sip.server.host in /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
+                        sudo sed -i "s/sip.server.host=.*/sip.server.host=$HOST/g" \
+                                /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
+                fi
+        fi
+
 	echo "Restarting the bigbluebutton server ..."
 	stop_bigbluebutton
 	echo
