@@ -29,8 +29,14 @@
 			[Bindable] private var messages:ArrayCollection = new ArrayCollection();
 			private var lastCount:Number = 0;
 			
+			private var scrollTimer:Timer;
+			
+			private var scrollBarWorkaround:Boolean = false;
+			
 			private function onCreationComplete():void {
 				addContextMenuItems();
+				scrollTimer = new Timer(750, 2);
+				scrollTimer.addEventListener(TimerEvent.TIMER, onScrollTimer);
 			}
 
 			public function showNewMessage(message:String, translate:Boolean, language:String = null):void {	
@@ -57,8 +63,34 @@
 				msg.lastTime = lastTime;
 				lastTime = timeString;
 				
-				messages.addItem(msg);
-				chatMessagesList.verticalScrollPosition = chatMessagesList.maxVerticalScrollPosition + 5;
+				if (!scrollBarWorkaround) {
+					scrollBarWorkaround = true;
+					var blankStr:String = "\n";
+					var shimMsg:ChatMessage = new ChatMessage();
+					shimMsg.lastSenderId = blankStr;
+					shimMsg.senderId = blankStr;					
+					shimMsg.senderLanguage = blankStr;
+					shimMsg.receiverLanguage = blankStr;
+					shimMsg.translate = false;	
+					shimMsg.translatedText = blankStr;
+					shimMsg.senderText = blankStr;					
+					shimMsg.name = blankStr;
+					shimMsg.senderColor = msg.senderColor;
+					shimMsg.translatedColor = 0xCECECE;
+					shimMsg.senderTime = blankStr;			
+					shimMsg.time = blankStr;
+					shimMsg.lastTime = blankStr;
+
+					messages.addItem(shimMsg);
+					messages.addItem(shimMsg);
+				}
+				
+				messages.addItemAt(msg, messages.length - 2);
+				scrollTimer.start();
+			}
+			
+			public function onScrollTimer(event:TimerEvent):void {
+				chatMessagesList.scrollToIndex(messages.length);
 			}
 			
 			public static function getMinutes():String {
