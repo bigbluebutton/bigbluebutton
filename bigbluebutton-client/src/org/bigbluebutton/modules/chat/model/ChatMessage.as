@@ -8,7 +8,7 @@ package org.bigbluebutton.modules.chat.model {
 		[Bindable] public var lastSenderId:String;
 		[Bindable] public var senderId:String;
 		[Bindable] public var senderLanguage:String;
-		[Bindable] public var recepientLanguage:String;
+		[Bindable] public var receiverLanguage:String;
 		[Bindable] public var translate:Boolean;
 		[Bindable] public var senderColor:uint;
 			 
@@ -32,11 +32,11 @@ package org.bigbluebutton.modules.chat.model {
 		public function translateMessage():void {		
 			if (!translate) return;
 				
-			if ((senderLanguage != recepientLanguage) && !translated) {
-//				LogUtil.debug("Translating " + senderText + " from " + senderLanguage + " to " + recepientLanguage + ".");
-				g.translate(senderText, senderLanguage, recepientLanguage);
+			if ((senderLanguage != receiverLanguage) && !translated) {
+//				LogUtil.debug("Translating " + senderText + " from " + senderLanguage + " to " + receiverLanguage + ".");
+				g.translate(senderText, senderLanguage, receiverLanguage);
 			} else {
-//				LogUtil.debug("NOT Translating " + senderText + " from " + senderLanguage + " to " + recepientLanguage + ".");
+//				LogUtil.debug("NOT Translating " + senderText + " from " + senderLanguage + " to " + receiverLanguage + ".");
 			}			
 		}
 			
