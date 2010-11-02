@@ -43,7 +43,7 @@
 				msg.senderId = components[5];
 				
 				msg.senderLanguage = components[4].toString();
-				msg.recepientLanguage = language.toString();
+				msg.receiverLanguage = language.toString();
 				msg.translate = translate;
 
 				msg.translatedText = components[0];
