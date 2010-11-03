@@ -11,6 +11,7 @@
 
 			[Bindable] private var rolledOver:Boolean = false;					
 			[Bindable] private var chatMsg:ChatMessage;
+			[Bindable] private var chatTime:String;
 			
 			private function onLinkClick(e:TextEvent):void{
 				var url:URLRequest = new URLRequest(e.text);
@@ -52,12 +53,14 @@
 			private function onRollOut():void{
 				rolledOver = false;
 			}
-			
+						
 		]]>
 	</mx:Script>
 	
-	<mx:Label maxWidth="50" width="50" truncateToFit="true" id="lblName" text="{chatMsg.name}" visible="{!(chatMsg.senderId == chatMsg.lastSenderId)}" color="gray" />
-	<mx:Text id="txtMessage" htmlText="{rolledOver ? chatMsg.senderText : chatMsg.translatedText}" link="onLinkClick(event)" color="{rolledOver ? chatMsg.senderColor : chatMsg.translatedColor}"
+	<mx:Label maxWidth="50" width="50" truncateToFit="true" id="lblName" text="{chatMsg.name} " visible="{!(chatMsg.senderId == chatMsg.lastSenderId)}" color="gray" />
+	<mx:Text id="txtMessage" htmlText="{rolledOver ? chatMsg.senderText : chatMsg.translatedText}" link="onLinkClick(event)" color="{chatMsg.senderColor}"
 			 rollOver="onRollOver()" rollOut="onRollOut()" width="100%" />
-	<mx:Label id="lblTime" text="{rolledOver ? chatMsg.senderTime : chatMsg.time}" visible="{!(chatMsg.lastTime == chatMsg.time) || !(chatMsg.senderId == chatMsg.lastSenderId)}" color="gray" />
+	<mx:Label id="lblTime" text="{rolledOver ? chatMsg.senderTime : chatMsg.time} {chatMsg.translateLocale}" 
+				visible="{!(chatMsg.lastTime == chatMsg.time) || !(chatMsg.senderId == chatMsg.lastSenderId)}" 
+				toolTip="Translated from {chatMsg.senderLanguage} to {chatMsg.receiverLanguage}" color="gray" />
 </mx:HBox>

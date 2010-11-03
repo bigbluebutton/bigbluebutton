@@ -1,8 +1,7 @@
 package org.bigbluebutton.modules.chat.model {
 	import be.boulevart.google.ajaxapi.translation.GoogleTranslation;
 	import be.boulevart.google.ajaxapi.translation.data.GoogleTranslationResult;
-	import be.boulevart.google.events.GoogleApiEvent;	
-	import org.bigbluebutton.common.LogUtil;
+	import be.boulevart.google.events.GoogleApiEvent;
 	
 	public class ChatMessage {
 		[Bindable] public var lastSenderId:String;
@@ -11,7 +10,7 @@ package org.bigbluebutton.modules.chat.model {
 		[Bindable] public var receiverLanguage:String;
 		[Bindable] public var translate:Boolean;
 		[Bindable] public var senderColor:uint;
-			 
+		[Bindable] public var translateLocale:String = "";	 
 			 
 		[Bindable] public var name:String;
 		[Bindable] public var senderTime:String;
@@ -45,7 +44,8 @@ package org.bigbluebutton.modules.chat.model {
 
 			if (result.result != senderText) {
 				translated = true;
-				translatedText = result.result;
+				translatedText = result.result ;
+				translateLocale = "[" + senderLanguage + "->" + receiverLanguage + "]";
 				translatedColor = 0xCF4C5C;
 			} 
 		}
