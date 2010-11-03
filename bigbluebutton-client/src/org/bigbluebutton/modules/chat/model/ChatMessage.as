@@ -3,6 +3,8 @@ package org.bigbluebutton.modules.chat.model {
 	import be.boulevart.google.ajaxapi.translation.data.GoogleTranslationResult;
 	import be.boulevart.google.events.GoogleApiEvent;
 	
+	import org.bigbluebutton.util.i18n.ResourceUtil;
+	
 	public class ChatMessage {
 		[Bindable] public var lastSenderId:String;
 		[Bindable] public var senderId:String;
@@ -11,6 +13,7 @@ package org.bigbluebutton.modules.chat.model {
 		[Bindable] public var translate:Boolean;
 		[Bindable] public var senderColor:uint;
 		[Bindable] public var translateLocale:String = "";	 
+		[Bindable] public var translatedLocaleTooltip:String = "";
 			 
 		[Bindable] public var name:String;
 		[Bindable] public var senderTime:String;
@@ -39,13 +42,23 @@ package org.bigbluebutton.modules.chat.model {
 			}			
 		}
 			
-		private function onTranslationDone(e:GoogleApiEvent):void{
+		private function onTranslationDone(e:GoogleApiEvent):void {
 			var result:GoogleTranslationResult = e.data as GoogleTranslationResult;
 
 			if (result.result != senderText) {
 				translated = true;
-				translatedText = result.result ;
-				translateLocale = "[" + senderLanguage + "->" + receiverLanguage + "]";
+				
+				/**
+				 * These next few lines adjust the chat message to display properly with the translation.
+				 */
+				translatedText = result.result + "<br/>";
+				senderText += "<br/>";
+				if (senderId != lastSenderId) {
+					translatedText += "<br/>";
+					senderText += "<br/>";
+				}
+				
+				translateLocale = "<br/><i>" + senderLanguage + "->" + receiverLanguage + "</i>";
 				translatedColor = 0xCF4C5C;
 			} 
 		}
