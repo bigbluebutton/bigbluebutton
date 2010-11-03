@@ -151,7 +151,7 @@ package org.bigbluebutton.modules.chat.services
 			if (result == null) return;
 			
 			var messages:Array = result as Array;
-			for (var i:int=0; i<messages.length; i++){
+			for (var i:int = 0; i < messages.length; i++){
 				newChatMessage(messages[i] as String);
 			}
 			
