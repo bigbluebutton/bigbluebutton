@@ -107,7 +107,7 @@ public class ScreenSharerRunner {
 		System.out.println("-----------------------------------------------------------------------");
 		System.out.println(LICENSE_HEADER);
 		System.out.println("-----------------------------------------------------------------------\n\n");
-		System.out.println("Desktop Sharing v0.71-dev");
+		System.out.println("Desktop Sharing v0.71");
 		System.out.println("Start");
 		System.out.println("Connecting to " + ssi.host + ":" + ssi.port + " room " + ssi.room);
 		System.out.println("Sharing " + ssi.captureWidth + "x" + ssi.captureHeight + " at " + ssi.x + "," + ssi.y);
