@@ -53,67 +53,67 @@ var hasProductInstall = DetectFlashVer(6, 0, 65);
 var hasRequestedVersion = DetectFlashVer(requiredMajorVersion, requiredMinorVersion, requiredRevision);
 
 if ( hasProductInstall && !hasRequestedVersion ) {
-	// DO NOT MODIFY THE FOLLOWING FOUR LINES
-	// Location visited after installation is complete if installation is required
-	var MMPlayerType = (isIE == true) ? "ActiveX" : "PlugIn";
-	var MMredirectURL = window.location;
+        // DO NOT MODIFY THE FOLLOWING FOUR LINES
+        // Location visited after installation is complete if installation is required
+        var MMPlayerType = (isIE == true) ? "ActiveX" : "PlugIn";
+        var MMredirectURL = window.location;
     document.title = document.title.slice(0, 47) + " - Flash Player Installation";
     var MMdoctitle = document.title;
 
-	AC_FL_RunContent(
-		"src", "playerProductInstall",
-		"FlashVars", "MMredirectURL="+MMredirectURL+'&MMplayerType='+MMPlayerType+'&MMdoctitle='+MMdoctitle+"",
-		"width", "${width}",
-		"height", "${height}",
-		"align", "middle",
-		"id", "${application}",
-		"quality", "high",
-		"bgcolor", "${bgcolor}",
-		"name", "${application}",
-		"allowScriptAccess","sameDomain",
-		"type", "application/x-shockwave-flash",
-		"pluginspage", "http://www.adobe.com/go/getflashplayer"
-	);
+        AC_FL_RunContent(
+                "src", "playerProductInstall",
+                "FlashVars", "MMredirectURL="+MMredirectURL+'&MMplayerType='+MMPlayerType+'&MMdoctitle='+MMdoctitle+"",
+                "width", "${width}",
+                "height", "${height}",
+                "align", "middle",
+                "id", "${application}",
+                "quality", "high",
+                "bgcolor", "${bgcolor}",
+                "name", "${application}",
+                "allowScriptAccess","sameDomain",
+                "type", "application/x-shockwave-flash",
+                "pluginspage", "http://www.adobe.com/go/getflashplayer"
+        );
 } else if (hasRequestedVersion) {
-	// if we've detected an acceptable version
-	// embed the Flash Content SWF when all tests are passed
-	//
-	// NOTE: Don't use wmode=transparent because it messes up mouse wheel
-	// see. http://stackoverflow.com/questions/313966/mousewheel-not-working-when-published-movie-has-wmodetransparent
-	// ralam (mar 31, 2010)
-	AC_FL_RunContent(
-			"src", "${swf}",
-			"width", "${width}",
-			"height", "${height}",
-			"align", "middle",
-			"id", "${application}",
-			"quality", "high",
-			"bgcolor", "${bgcolor}",
-			"name", "${application}",
-			"allowScriptAccess","sameDomain",
-			"type", "application/x-shockwave-flash",
-			"pluginspage", "http://www.adobe.com/go/getflashplayer"
-	);
+        // if we've detected an acceptable version
+        // embed the Flash Content SWF when all tests are passed
+        //
+        // NOTE: Don't use wmode=transparent because it messes up mouse wheel
+        // see. http://stackoverflow.com/questions/313966/mousewheel-not-working-when-published-movie-has-wmodetransparent
+        // ralam (mar 31, 2010)
+        AC_FL_RunContent(
+                        "src", "${swf}",
+                        "width", "${width}",
+                        "height", "${height}",
+                        "align", "middle",
+                        "id", "${application}",
+                        "quality", "high",
+                        "bgcolor", "${bgcolor}",
+                        "name", "${application}",
+                        "allowScriptAccess","sameDomain",
+                        "type", "application/x-shockwave-flash",
+                        "pluginspage", "http://www.adobe.com/go/getflashplayer"
+        );
   } else {  // flash is too old or we can't detect the plugin
     var alternateContent = 'Alternate HTML content should be placed here. '
-  	+ 'This content requires the Adobe Flash Player. '
-   	+ '<a href=http://www.adobe.com/go/getflash/>Get Flash</a>';
+        + 'This content requires the Adobe Flash Player. '
+        + '<a href=http://www.adobe.com/go/getflash/>Get Flash</a>';
     document.write(alternateContent);  // insert non-flash content
   }
 // -->
 
 function startApplet(IP, roomNumber, fullScreen)
 {
-	var iframe = document.createElement("iframe");
-  	iframe.id = "iframe";
-   	document.body.appendChild(iframe);
-   	frames[frames.length - 1].document.write(
-   		"<applet code=\"org.bigbluebutton.deskshare.client.DeskShareApplet.class\"" +
-   			"id=\"DeskShareApplet\" width=\"0\" height=\"400\" archive=\"bbb-deskshare-applet-0.64.jar\">" +
-        	"<param name=\"ROOM\" value=\"" + roomNumber  + "\"/>" +
-        	"<param name=\"IP\" value=\"" + IP + "\"/>" +
-        	"<param name=\"FULL_SCREEN\" value=\"" + fullScreen + "\"/>" +
-      	"</applet>"
+        var iframe = document.createElement("iframe");
+        iframe.id = "iframe";
+        document.body.appendChild(iframe);
+        frames[frames.length - 1].document.write(
+                "<applet code=\"org.bigbluebutton.deskshare.client.DeskShareApplet.class\"" +
+                        "id=\"DeskShareApplet\" width=\"0\" height=\"400\" archive=\"bbb-deskshare-applet-0.64.jar\">" +
+                "<param name=\"ROOM\" value=\"" + roomNumber  + "\"/>" +
+                "<param name=\"IP\" value=\"" + IP + "\"/>" +
+                "<param name=\"FULL_SCREEN\" value=\"" + fullScreen + "\"/>" +          
+        "</applet>"
      );
 }
 
@@ -127,13 +127,13 @@ function setScreenCoordinates(x, y) {
 }
 
 function stopApplet(){
-	frames[frames.length - 1].document.DeskShareApplet.destroy();
-	removeFrame();
+        frames[frames.length - 1].document.DeskShareApplet.destroy();
+        removeFrame();
 }
 
 function checkForJava(){
-//	if (navigator.javaEnabled() || window.navigator.javaEnabled())
-		return 1;
+//      if (navigator.javaEnabled() || window.navigator.javaEnabled())
+                return 1;
 }
 
 var blinkTimer = false;
@@ -141,75 +141,76 @@ var blinking = false;
 
 var startblink = function(message1, message2)
 {
-	if(!blinking)
-	{
-		document.title = (document.title == message2)?message1:message2;
-		blinkTimer = window.setTimeout("blinktitle('" + message1 + "', '" + message2 + "', 1)", 500);
-		blinking = true;
-	}
+        if(!blinking)
+        {
+                document.title = (document.title == message2)?message1:message2;
+                blinkTimer = window.setTimeout("blinktitle('" + message1 + "', '" + message2 + "', 1)", 500);
+                blinking = true;
+        }
 }
 
 var blinktitle = function(message1, message2)
 {
-	document.title = (document.title == message2)?message1:message2;
-	blinkTimer = window.setTimeout("blinktitle('" + message1 + "', '" + message2 + "', 1)", 500);
+        document.title = (document.title == message2)?message1:message2;
+        blinkTimer = window.setTimeout("blinktitle('" + message1 + "', '" + message2 + "', 1)", 500);
 }
 
 var clearblink = function()
 {
-	blinking = false;
-	if(blinkTimer)
-	{
-		window.clearTimeout(blinkTimer);
-	}
-	document.title = 'BigBlueButton';
+        blinking = false;
+        if(blinkTimer)
+        {
+                window.clearTimeout(blinkTimer);
+        }
+        document.title = 'BigBlueButton';
 }
 
 // Check locale
 var localeChain = "en_US";
 
 if (navigator.language)
-	localeChain = navigator.language;
+        localeChain = navigator.language;
 else if (navigator.browserLanguage)
-	localeChain = navigator.browserLanguage;
-else if (navigator.userLanguage)
-	localeChain = navigator.userLanguage;
+        localeChain = navigator.browserLanguage;
 
 if(/^([a-z]+)-([a-z]+)$/i.test(localeChain)){
-	var matches = /^([a-z]+)-([a-z]+)$/i.exec(localeChain);
-	localeChain = matches[1].toLowerCase() + "_" + matches[2].toUpperCase();
+        var matches = /^([a-z]+)-([a-z]+)$/i.exec(localeChain);
+        localeChain = matches[1].toLowerCase() + "_" + matches[2].toUpperCase();
+}
+else if(/^en$/i.test(localeChain)){
+        localeChain = "en_US";
 }
 else if(/^([a-z]+)$/i.test(localeChain)){
-	var matches = /^([a-z]+)$/i.exec(localeChain);
-	localeChain = matches[1].toLowerCase();
+        var matches = /^([a-z]+)$/i.exec(localeChain);
+        localeChain = matches[1].toLowerCase() + "_" + matches[1].toUpperCase();
 }
 else{
-	localeChain = "en_US";
+        localeChain = "en_US";
 }
 
 function getLanguage(){
-	return localeChain;
+        return localeChain;
 }
 
 </script>
 <noscript>
-  	<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
-			id="${application}" width="${width}" height="${height}"
-			codebase="http://fpdownload.macromedia.com/get/flashplayer/current/swflash.cab">
-			<param name="movie" value="${swf}.swf" />
-			<param name="quality" value="high" />
-			<param name="bgcolor" value="${bgcolor}" />
-			<param name="allowScriptAccess" value="sameDomain" />
-			<embed src="${swf}.swf" quality="high" bgcolor="${bgcolor}"
-				width="${width}" height="${height}" name="${application}" align="middle"
-				play="true"
-				loop="false"
-				quality="high"
-				allowScriptAccess="sameDomain"
-				type="application/x-shockwave-flash"
-				pluginspage="http://www.adobe.com/go/getflashplayer">
-			</embed>
-	</object>
+        <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
+                        id="${application}" width="${width}" height="${height}"
+                        codebase="http://fpdownload.macromedia.com/get/flashplayer/current/swflash.cab">
+                        <param name="movie" value="${swf}.swf" />
+                        <param name="quality" value="high" />
+                        <param name="bgcolor" value="${bgcolor}" />
+                        <param name="allowScriptAccess" value="sameDomain" />
+                        <embed src="${swf}.swf" quality="high" bgcolor="${bgcolor}"
+                                width="${width}" height="${height}" name="${application}" align="middle"
+                                play="true"
+                                loop="false"
+                                quality="high"
+                                allowScriptAccess="sameDomain"
+                                type="application/x-shockwave-flash"
+                                pluginspage="http://www.adobe.com/go/getflashplayer">
+                        </embed>
+        </object>
 </noscript>
 </body>
 </html>
