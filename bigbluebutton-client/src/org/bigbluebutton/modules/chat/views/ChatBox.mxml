@@ -102,8 +102,8 @@
 					
 				/**
 				 * Trigger to force the scrollbar to show the last message.
-				 */				
-				scrollTimer.start();
+				 */	
+				 if (scrollTimer != null) scrollTimer.start();
 			}
 			
 			/**

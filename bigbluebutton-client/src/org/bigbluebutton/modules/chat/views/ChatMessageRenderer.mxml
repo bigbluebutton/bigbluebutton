@@ -23,8 +23,10 @@
 				 * message repeatedly. (ralam Nov 1, 2010)
 				 */
 				ChangeWatcher.watch(this, "data", dataChangeHandler);
-				chatMsg = data as ChatMessage;
-				chatMsg.translateMessage();
+				if (data != null) {
+					chatMsg = data as ChatMessage;
+					chatMsg.translateMessage();					
+				}
 				
 				/**
 				 * The next line will refresh the display so that chat history don't show up as
