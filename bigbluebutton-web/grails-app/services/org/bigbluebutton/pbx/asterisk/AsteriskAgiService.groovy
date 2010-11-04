@@ -36,10 +36,12 @@ public class AsteriskAgiService implements AgiScript {
     
     public void service(AgiRequest request, AgiChannel channel)
             throws AgiException {
-    	
-    } 
-    
-    private void setConferenceNotFound() {
-    	channel.setVariable("CONFERENCE_FOUND", "0")
+        
+        def number = request.getParameter("conference")
+        if (dynamicConferenceService.isMeetingWithVoiceBridgeExist(number)) {
+            channel.setVariable("CONFERENCE_FOUND", number)
+        } else {
+            channel.setVariable("CONFERENCE_FOUND", "0")
+        }    	
     }
 }

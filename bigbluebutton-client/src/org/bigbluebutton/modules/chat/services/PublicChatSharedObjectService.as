@@ -57,8 +57,6 @@ package org.bigbluebutton.modules.chat.services
 			chatSO.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
 			chatSO.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);	
 			chatSO.client = this;
-			if (connection == null) trace("Joininh ChatSharedObject");
-			trace("Chat connection = " + connection.uri);
 			chatSO.connect(connection);					
 		}
 		
@@ -153,7 +151,7 @@ package org.bigbluebutton.modules.chat.services
 			if (result == null) return;
 			
 			var messages:Array = result as Array;
-			for (var i:int=0; i<messages.length; i++){
+			for (var i:int = 0; i < messages.length; i++){
 				newChatMessage(messages[i] as String);
 			}
 			

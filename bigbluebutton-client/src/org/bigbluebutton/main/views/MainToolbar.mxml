@@ -96,6 +96,7 @@
 			
 			private function gotConfigParameters(e:ConfigEvent):void{
 				langSelector.visible = e.config.languageEnabled;
+				DEFAULT_HELP_URL = e.config.helpURL;
 			}
 			
 			private function onDisconnectTest():void{

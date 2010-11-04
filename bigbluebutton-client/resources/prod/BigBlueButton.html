@@ -109,7 +109,7 @@ function startApplet(IP, roomNumber, fullScreen)
    	document.body.appendChild(iframe);
    	frames[frames.length - 1].document.write(
    		"<applet code=\"org.bigbluebutton.deskshare.client.DeskShareApplet.class\"" +
-   			"id=\"DeskShareApplet\" width=\"0\" height=\"400\" archive=\"bbb-deskshare-applet-0.64.jar\">" +
+   			"id=\"DeskShareApplet\" width=\"0\" height=\"400\" archive=\"bbb-deskshare-applet-0.71.jar\">" +
         	"<param name=\"ROOM\" value=\"" + roomNumber  + "\"/>" +
         	"<param name=\"IP\" value=\"" + IP + "\"/>" +
         	"<param name=\"FULL_SCREEN\" value=\"" + fullScreen + "\"/>" +       	
@@ -169,20 +169,23 @@ var clearblink = function()
 var localeChain = "en_US";
 
 if (navigator.language)
-	localeChain = navigator.language;
+        localeChain = navigator.language;
 else if (navigator.browserLanguage)
-	localeChain = navigator.browserLanguage;
+        localeChain = navigator.browserLanguage;
 
 if(/^([a-z]+)-([a-z]+)$/i.test(localeChain)){
-	var matches = /^([a-z]+)-([a-z]+)$/i.exec(localeChain);
-	localeChain = matches[1].toLowerCase() + "_" + matches[2].toUpperCase();
+        var matches = /^([a-z]+)-([a-z]+)$/i.exec(localeChain);
+        localeChain = matches[1].toLowerCase() + "_" + matches[2].toUpperCase();
+}
+else if(/^en$/i.test(localeChain)){
+        localeChain = "en_US";
 }
 else if(/^([a-z]+)$/i.test(localeChain)){
-	var matches = /^([a-z]+)$/i.exec(localeChain);
-	localeChain = matches[1].toLowerCase();
+        var matches = /^([a-z]+)$/i.exec(localeChain);
+        localeChain = matches[1].toLowerCase() + "_" + matches[1].toUpperCase();
 }
 else{
-	localeChain = "en_US";
+        localeChain = "en_US";
 }
 
 function getLanguage(){
