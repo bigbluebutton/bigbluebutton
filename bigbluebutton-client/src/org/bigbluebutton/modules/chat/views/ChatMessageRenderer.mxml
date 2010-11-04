@@ -60,7 +60,7 @@
 	<mx:Label maxWidth="50" width="50" truncateToFit="true" id="lblName" text="{chatMsg.name} " visible="{!(chatMsg.senderId == chatMsg.lastSenderId)}" color="gray" />
 	<mx:Text id="txtMessage" htmlText="{rolledOver ? chatMsg.senderText : chatMsg.translatedText}" link="onLinkClick(event)" color="{chatMsg.senderColor}"
 			 rollOver="onRollOver()" rollOut="onRollOut()" width="100%" />
-	<mx:Text id="lblTime" htmlText="{rolledOver ? chatMsg.senderTime : chatMsg.time}{chatMsg.translateLocale}" 
+	<mx:Text id="lblTime" htmlText="{chatMsg.translateLocale} {rolledOver ? chatMsg.senderTime : chatMsg.time}" 
 				visible="{!(chatMsg.lastTime == chatMsg.time) || !(chatMsg.senderId == chatMsg.lastSenderId)}" 
 				color="gray" />
 </mx:HBox>

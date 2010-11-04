@@ -3,7 +3,7 @@ package org.bigbluebutton.modules.chat.model {
 	import be.boulevart.google.ajaxapi.translation.data.GoogleTranslationResult;
 	import be.boulevart.google.events.GoogleApiEvent;
 	
-	import org.bigbluebutton.util.i18n.ResourceUtil;
+	import org.bigbluebutton.common.LogUtil;
 	
 	public class ChatMessage {
 		[Bindable] public var lastSenderId:String;
@@ -47,18 +47,12 @@ package org.bigbluebutton.modules.chat.model {
 
 			if (result.result != senderText) {
 				translated = true;
-				
-				/**
-				 * These next few lines adjust the chat message to display properly with the translation.
-				 */
-				translatedText = result.result + "<br/>";
-				senderText += "<br/>";
-				if (senderId != lastSenderId) {
-					translatedText += "<br/>";
-					senderText += "<br/>";
-				}
-				
-				translateLocale = "<br/><i>" + senderLanguage + "->" + receiverLanguage + "</i>";
+//				LogUtil.debug("Translated " + senderText + "to " + result.result + ".");
+
+				translatedText = result.result;
+
+				if (lastSenderId != senderId)
+					translateLocale = "<i>" + senderLanguage + "->" + receiverLanguage + "</i>";
 				translatedColor = 0xCF4C5C;
 			} 
 		}
