@@ -1505,6 +1505,12 @@ if [ -n "$HOST" ]; then
 
         if [ $VOICE_CONFERENCE == "bbb-voice-freeswitch.xml" ]; then
                 if [ -f /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties ]; then
+			if echo "$HOST" | grep -q -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*"; then 
+				IP=$HOST
+			else
+				IP=$(host $HOST | head -n 1 | sed "s/[^0-9]*\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\)/\1/g")
+			fi
+
                         echo "Assigning $IP for sip.server.host in /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
                         sudo sed -i "s/sip.server.host=.*/sip.server.host=$IP/g" \
                                 /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
