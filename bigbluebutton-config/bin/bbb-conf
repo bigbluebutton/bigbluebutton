@@ -462,9 +462,11 @@ while [ $# -gt 0 ]; do
 	
 	if [ "$1" = "--salt" -o "$1" = "-salt" -o "$1" = "--set-salt" ]; then
 		SALT="${2}"
-		CSALT=`cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep securitySalt | cut -d= -f2`;
 		if [ -z "$SALT" ]; then
-			echo "Current Salt retrieved from bigbluebutton.properties: $CSALT"
+			IP=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+			SALT=`cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep securitySalt | cut -d= -f2`;
+			echo "BigBlueButton Server URL: $SALT"
+			echo "            BigBlueButton Salt: $SALT"
 		fi
 		shift; shift
 		continue
@@ -1501,6 +1503,20 @@ if [ -n "$HOST" ]; then
 	#			/usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
 	#fi
 
+        if [ $VOICE_CONFERENCE == "bbb-voice-freeswitch.xml" ]; then
+                if [ -f /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties ]; then
+			if echo "$HOST" | grep -q -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*"; then 
+				IP=$HOST
+			else
+				IP=$(host $HOST | head -n 1 | sed "s/[^0-9]*\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\)/\1/g")
+			fi
+
+                        echo "Assigning $IP for sip.server.host in /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
+                        sudo sed -i "s/sip.server.host=.*/sip.server.host=$IP/g" \
+                                /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
+                fi
+        fi
+
 	echo "Restarting the bigbluebutton server ..."
 	stop_bigbluebutton
 	echo
@@ -1571,6 +1587,8 @@ if [ $CONFERENCE ]; then
 			sudo update-rc.d -f freeswitch remove >/dev/null
 		fi
 
+	        change_var_ip /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties sip.server.host 127.0.0.1
+
 		sudo update-rc.d asterisk defaults 21 > /dev/null
 
 		sudo /etc/init.d/asterisk restart
@@ -1616,6 +1634,8 @@ if [ $CONFERENCE ]; then
                         /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml
                 fi
 
+	        change_var_ip /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties sip.server.host 127.0.0.1
+
 		echo "Switching to $CONFERENCE ... "
 		if [ -f /etc/init.d/freeswitch ]; then
 			sudo /etc/init.d/freeswitch stop
@@ -1650,6 +1670,7 @@ if [ $CONFERENCE ]; then
         	#       /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml
 		#fi
 
+	        change_var_ip /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties sip.server.host $IP
 
 		echo "Switching to $CONFERENCE ... "
 		if [ -f /etc/init.d/asterisk ]; then
