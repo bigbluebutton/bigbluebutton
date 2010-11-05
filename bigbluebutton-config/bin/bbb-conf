@@ -165,7 +165,7 @@ need_root() {
 }
 
 usage() {
-	echo "BigBlueButton Configuration Utility - Version $BBB_VERSION-dev5"
+	echo "BigBlueButton Configuration Utility - Version $BBB_VERSION-dev6"
         echo "http://code.google.com/p/bigbluebutton/wiki/BBBConf"
         echo
         echo "$0 [options]"
@@ -175,12 +175,13 @@ usage() {
         echo "   --setip <host>                   Set IP/hostname for BigBlueButton"
         echo "   --conference [konference|meetme|freeswitch]"
         echo "                                    Switch conference module"
-	echo "   --salt <salt>		    	  Change the security salt in bigbluebutton.properties"
+	echo "   --saltset <salt>		  Change the security salt in bigbluebutton.properties"
         echo
         echo "Monitoring:"
         echo "   --check <verbose>                Check configuration files and processes for problems"
         echo "   --debug                          Scan the log files for error messages"
         echo "   --watch                          Scan the log files for error messages every 2 seconds"
+        echo "   --salt                           View the URL and security salt for the server"
         echo
         echo "Administration":
         echo "   --restart                        Restart BigBueButton"
@@ -262,7 +263,7 @@ stop_bigbluebutton () {
 
 start_bigbluebutton () {
 	if [ "$VOICE_CONFERENCE" == "bbb-voice-freeswitch.xml" ]; then
-		echo "Starting Freeswitch"
+		echo "Starting FreeSWITCH"
 		/etc/init.d/freeswitch start
 	else
 		echo "Starting Asterisk"
@@ -270,7 +271,7 @@ start_bigbluebutton () {
 	fi
 	/etc/init.d/activemq start
 	
-	echo -n "Waiting for active MQ to start: "
+	echo -n "Waiting for ActiveMQ to start: "
 	while ! nc -z -w 1 127.0.0.1 61616; do
 		echo -n "."
                 sleep 1
@@ -281,7 +282,7 @@ start_bigbluebutton () {
 		FREESWITCH_ESL_IP=$(sudo cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
 		check_no_value listen-ip /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml $FREESWITCH_ESL_IP
 
-		echo -n "Waiting for FreeSwitch to start: "
+		echo -n "Waiting for FreeSWITCH to start: "
 
 		if [ ! -z $FREESWITCH_ESL_IP ]; then
 			while ! nc -z -w 1 $FREESWITCH_ESL_IP 8021; do
@@ -460,13 +461,16 @@ while [ $# -gt 0 ]; do
 		continue
 	fi		
 	
-	if [ "$1" = "--salt" -o "$1" = "-salt" -o "$1" = "--set-salt" ]; then
+	if [ "$1" = "--salt" -o "$1" = "-salt" -o "$1" = "--setsalt" ]; then
 		SALT="${2}"
 		if [ -z "$SALT" ]; then
 			IP=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
 			SALT=`cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep securitySalt | cut -d= -f2`;
-			echo "BigBlueButton Server URL: $SALT"
-			echo "            BigBlueButton Salt: $SALT"
+			echo
+			echo "       URL: http://$IP/bigbluebutton/"
+			echo "      Salt: $SALT"
+			echo
+			exit 0
 		fi
 		shift; shift
 		continue
@@ -600,7 +604,8 @@ if [ $CHECKOUT ]; then
         git clone $CHECKOUT
 	cd ~/dev/source/bigbluebutton
 	echo " Checking out version $BBB_VERSION (Not implemented yet)"
- 	git checkout -b 0.7-release-workspace v0.7	
+ 	#git checkout -b 0.7-release-workspace v0.7	
+ 	#git checkout -b 0.7-release-workspace v0.7	
         echo "# "
         echo "#                                         "
         echo "# Checked out BigBlueButton. "
@@ -945,16 +950,16 @@ check_state() {
 
 	if ! ps aux | grep -v grep | grep "$ACTIVEMQ_DIR" > /dev/null; then
 		print_header
-		NOT_RUNNING_APPS="ActiveMQ"
+		NOT_RUNNING_APPS="activemq"
 	else
-		RUNNING_APPS="ActiveMQ"
+		RUNNING_APPS="activemq"
 	fi	
 
 	if ! ps aux | grep -v grep | grep 'org.red5.server.Bootstrap' > /dev/null; then
 		print_header
-		NOT_RUNNING_APPS="${NOT_RUNNING_APPS} Red5"
+		NOT_RUNNING_APPS="${NOT_RUNNING_APPS} red5"
 	else
-		RUNNING_APPS="${RUNNING_APPS} Red5"
+		RUNNING_APPS="${RUNNING_APPS} red5"
 	fi	
 
 	# Check asterisk if asterisk has been started
@@ -962,23 +967,23 @@ check_state() {
 	if [ -a /var/run/asterisk/asterisk.pid ] && [ -a /opt/freeswitch/run/freeswitch.pid ]; then
 		print_header
 		echo
-		echo "# Asterisk and Freeswitch are running parallel"
+		echo "# Asterisk and FreeSWITCH are running parallel"
 		echo "# Please run bbb-conf --conference with either freeswitch or asterisk and"
 		echo "# Uninstall on or the other."
 		echo
 	elif [ -a /var/run/asterisk/asterisk.pid ]; then 
 		if ! ps aux | grep -v grep | grep '[/]usr/sbin/asterisk' > /dev/null; then
 				print_header
-				NOT_RUNNING_APPS="${NOT_RUNNING_APPS} Asterisk"
+				NOT_RUNNING_APPS="${NOT_RUNNING_APPS} asterisk"
 		else
-				RUNNING_APPS="${RUNNING_APPS} Asterisk"
+				RUNNING_APPS="${RUNNING_APPS} asterisk"
 		fi
 	elif [ -a /opt/freeswitch/run/freeswitch.pid ]; then
 		if ! ps aux | grep -v grep | grep '[/]opt/freeswitch/bin/freeswitch' > /dev/null; then
 			print_header
-			NOT_RUNNING_APPS="${NOT_RUNNING_APPS} Freeswitch"
+			NOT_RUNNING_APPS="${NOT_RUNNING_APPS} freeswitch"
 		else
-			RUNNING_APPS="${RUNNING_APPS} Freeswitch"
+			RUNNING_APPS="${RUNNING_APPS} freeswitch"
 		fi
 	fi
 
@@ -1200,6 +1205,7 @@ check_state() {
 if [ $CHECK ]; then
 	need_root
 	
+	echo 
 	echo "BigBlueButton Server $BBB_VERSION"
 	echo "                    Kernel version:" `uname -r`
 
@@ -1209,9 +1215,9 @@ if [ $CHECK ]; then
 	fi
 
 	if [ `uname -m` == "x86_64" ]; then
-		echo "64-bit"
+		echo "(64-bit)"
 	elif [ `uname -m` == "i686" ]; then
-		echo "32-bit"
+		echo "(32-bit)"
 	fi
 
 	MEM=`free -m | grep Mem | awk '{ print $2}'`
@@ -1261,6 +1267,10 @@ if [ $CHECK ]; then
 	echo "/usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml"
 	echo "                  voice conference: $CONFERENCING_MODULE"
 
+	SIP_SERVER_HOST=$(cat /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties | sed -n '/sip.server.host=/{s/.*=//;s/;//;p}')
+	echo
+	echo "/usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
+	echo "                   SIP server host: $SIP_SERVER_HOST"
 	check_state
 	echo ""
 
@@ -1507,8 +1517,6 @@ if [ -n "$HOST" ]; then
                 if [ -f /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties ]; then
 			if echo "$HOST" | grep -q -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*"; then 
 				IP=$HOST
-			else
-				IP=$(host $HOST | head -n 1 | sed "s/[^0-9]*\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\)/\1/g")
 			fi
 
                         echo "Assigning $IP for sip.server.host in /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
