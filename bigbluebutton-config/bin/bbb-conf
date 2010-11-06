@@ -32,9 +32,10 @@
 #   2010-06-21 SEB  Cleaned up some code / Updated for 0.70
 #   2010-06-25 SEB  Added ability to change the security salt
 #   2010-06-30 SEB  Added some extra errorchecking
-#   2010-07-06 SEB  Added more errorchecking and report messages
+#   2010-07-06 SEB  Added more error checking and report messages
 #   2010-09-15 FFD  Updates for 0.71-dev
 #   2010-10-16 FFD  Updates for 0.71-beta
+#   2010-11-06 FFD  Added logic to ensure red5 shuts down
 
 #set -x
 
@@ -48,7 +49,7 @@ elif cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml | grep -v '<
 	VOICE_CONFERENCE="bbb-voice-freeswitch.xml"
 fi
 
-IP=$(ifconfig | grep -v '127.0.0.1' | egrep -m 1 'inet (.*):' | cut -d: -f2 | awk '{ print $1}')
+IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | cut -d: -f2 | awk '{ print $1}')
 
 GENTOO=$(uname -r | grep gentoo | cut -d- -f2);
 TOMCAT=""
@@ -313,12 +314,22 @@ start_bigbluebutton () {
 	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
 	check_no_value server_name /etc/nginx/sites-available/bigbluebutton $NGINX_IP
 
+        if ! nc -z -w 1 127.0.0.1 9123; then
+                echo -n "   Waiting for BigBlueButton to finish starting up before shutting down: "
+                while ! nc -z -w 1 127.0.0.1 9123; do
+                        echo -n "."
+                        sleep 1
+                done
+                echo
+        fi
+
         if ! wget http://$NGINX_IP/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then
                 echo "Startup unsuccessful"
                 exit 1
-        else
-                echo "... done"
-        fi
+	fi
+
+
+        echo "... done"
 }
 
 display_bigbluebutton_status () {
@@ -1172,7 +1183,6 @@ check_state() {
 		fi
 	fi
 
-
 	if dpkg -l | grep -q bbb-freeswitch-config; then
 		if [ "$VOICE_CONFERENCE" == "bbb-voice-asterisk.xml" ]; then
 			echo 
@@ -1181,6 +1191,15 @@ check_state() {
 			echo "#"
 			echo "#   sudo bbb-conf --conference freeswitch"
 			echo
+		fi
+
+		SIP_SERVER_HOST=$(cat /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties | sed -n '/sip.server.host=/{s/.*=//;s/;//;p}')
+		if [ $SIP_SERVER_HOST != $IP ]; then
+			echo 
+			echo "# The IP address ($SIP_SERVER_HOST) set for sip.server.host in"
+			echo "#    /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
+			echo "# does not match the local IP address ($IP)."
+			echo 
 		fi
 	fi
 
@@ -1192,6 +1211,15 @@ check_state() {
 			echo "#"
 			echo "#   sudo bbb-conf --conference konference"
 			echo
+		fi
+
+		SIP_SERVER_HOST=$(cat /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties | sed -n '/sip.server.host=/{s/.*=//;s/;//;p}')
+		if [ $SIP_SERVER_HOST != "127.0.0.1" ]; then
+			echo 
+			echo "# The IP address ($SIP_SERVER_HOST) set for sip.server.host in"
+			echo "#    /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
+			echo "# should be 127.0.0.1 for Asterisk."
+			echo 
 		fi
 	fi
 
@@ -1267,10 +1295,10 @@ if [ $CHECK ]; then
 	echo "/usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml"
 	echo "                  voice conference: $CONFERENCING_MODULE"
 
-	SIP_SERVER_HOST=$(cat /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties | sed -n '/sip.server.host=/{s/.*=//;s/;//;p}')
-	echo
-	echo "/usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
-	echo "                   SIP server host: $SIP_SERVER_HOST"
+	#SIP_SERVER_HOST=$(cat /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties | sed -n '/sip.server.host=/{s/.*=//;s/;//;p}')
+	#echo
+	#echo "/usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
+	#echo "                   SIP server host: $SIP_SERVER_HOST"
 	check_state
 	echo ""
 
@@ -1513,17 +1541,18 @@ if [ -n "$HOST" ]; then
 	#			/usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
 	#fi
 
-        if [ $VOICE_CONFERENCE == "bbb-voice-freeswitch.xml" ]; then
-                if [ -f /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties ]; then
-			if echo "$HOST" | grep -q -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*"; then 
-				IP=$HOST
-			fi
-
-                        echo "Assigning $IP for sip.server.host in /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
-                        sudo sed -i "s/sip.server.host=.*/sip.server.host=$IP/g" \
-                                /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
-                fi
-        fi
+	#
+        #if [ $VOICE_CONFERENCE == "bbb-voice-freeswitch.xml" ]; then
+        #        if [ -f /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties ]; then
+	#		if echo "$HOST" | grep -q -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*"; then 
+	#			IP=$HOST
+	#		fi
+        #
+        #                echo "Assigning $IP for sip.server.host in /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
+        #                sudo sed -i "s/sip.server.host=.*/sip.server.host=$IP/g" \
+        #                        /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
+        #        fi
+        #fi
 
 	echo "Restarting the bigbluebutton server ..."
 	stop_bigbluebutton
