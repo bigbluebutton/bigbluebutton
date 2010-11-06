@@ -48,6 +48,7 @@
 	
 	<EventHandlers type="{LogoutEvent.USER_LOGGED_OUT}" >
 		<MethodInvoker generator="{UserService}" method="logoutUser" />
+		<MethodInvoker generator="{ModulesProxy}" method="handleLogout" />
 	</EventHandlers>
 	
 	<EventHandlers type="{LogoutEvent.DISCONNECT_TEST}" >

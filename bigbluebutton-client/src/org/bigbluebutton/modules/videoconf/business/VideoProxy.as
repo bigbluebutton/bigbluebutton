@@ -127,7 +127,11 @@ package org.bigbluebutton.modules.videoconf.business
 				ns.close();
 				ns = null;
 				ns = new NetStream(nc);
-			}
+			}			
+		}
+		
+		public function disconnect():void {
+			if (nc != null) nc.close();
 		}
 		
 		public function onBWDone():void{

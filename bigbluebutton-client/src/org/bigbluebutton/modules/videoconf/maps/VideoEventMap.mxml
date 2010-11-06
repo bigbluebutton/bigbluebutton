@@ -118,8 +118,16 @@
 				button.show();
 			}
 			
+			public function stopModule():void {
+				closeAllWindows();
+				proxy.disconnect();
+			}
+			
 			public function closeAllWindows():void{
-				if (publishWindow != null) publishWindow.close();
+				if (publishWindow != null) {
+					proxy.stopBroadcasting();
+					publishWindow.close();
+				}
 				globalDispatcher.dispatchEvent(new CloseAllWindowsEvent());
 			}
 			
