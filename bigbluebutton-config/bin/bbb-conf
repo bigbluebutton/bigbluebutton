@@ -1193,6 +1193,7 @@ check_state() {
 		fi
 
 		SIP_SERVER_HOST=$(cat /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties | sed -n '/sip.server.host=/{s/.*=//;s/;//;p}')
+		IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | cut -d: -f2 | awk '{ print $1}')
 		if [ $SIP_SERVER_HOST != $IP ]; then
 			echo 
 			echo "# The IP address ($SIP_SERVER_HOST) set for sip.server.host in"
