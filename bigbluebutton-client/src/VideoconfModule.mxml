@@ -86,13 +86,10 @@
 				eventMap.module = this;
 				eventMap.proxy = proxy;
 				eventMap.addToolbarButton();
-				
-				//experimantal
-				//eventMap.addTiledWindow();
 			}
 		
 			public function stop():void {
-				eventMap.closeAllWindows();
+				eventMap.stopModule();
 			}
 			
 			public function mockConnect():void {
