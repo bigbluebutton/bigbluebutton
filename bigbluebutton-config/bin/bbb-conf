@@ -315,7 +315,6 @@ start_bigbluebutton () {
 	check_no_value server_name /etc/nginx/sites-available/bigbluebutton $NGINX_IP
 
         if ! nc -z -w 1 127.0.0.1 9123; then
-                echo -n "   Waiting for BigBlueButton to finish starting up before shutting down: "
                 while ! nc -z -w 1 127.0.0.1 9123; do
                         echo -n "."
                         sleep 1
@@ -329,7 +328,7 @@ start_bigbluebutton () {
 	fi
 
 
-        echo "... done"
+        echo " done"
 }
 
 display_bigbluebutton_status () {
