@@ -21,7 +21,7 @@
 		<module name="ViewersModule" url="ViewersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST/bigbluebutton/api/enter"
-			allowKickUser="true"
+			allowKickUser="false"
 		/>
 			
 		<module name="ListenersModule" url="ListenersModule.swf?v=VERSION" 
