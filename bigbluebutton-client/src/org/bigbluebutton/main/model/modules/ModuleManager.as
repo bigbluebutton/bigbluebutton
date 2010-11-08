@@ -72,7 +72,7 @@ package org.bigbluebutton.main.model.modules
 		}
 		
 		public function useProtocol(protocol:String):void {
-			_protocol = protocol;
+			_protocol = protocol;			
 		}
 		
 		public function get portTestHost():String {
@@ -162,6 +162,8 @@ package org.bigbluebutton.main.model.modules
 		}
 		
 		public function startUserServices():void {
+			configParameters.application = configParameters.application.replace(/rtmp:/gi, _protocol + ":");
+			LogUtil.debug("**** Using " + _protocol + " to connect to " + configParameters.application + "******");
 			modulesDispatcher.sendStartUserServicesEvent(configParameters.application, configParameters.host);
 		}
 		
