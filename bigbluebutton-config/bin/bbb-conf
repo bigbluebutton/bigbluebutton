@@ -53,7 +53,7 @@ IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" |
 
 GENTOO=$(uname -r | grep gentoo | cut -d- -f2);
 TOMCAT=""
-BBB_VERSION="0.71-beta"
+BBB_VERSION="0.71"
 
 # 
 # Helper functions
@@ -166,7 +166,7 @@ need_root() {
 }
 
 usage() {
-	echo "BigBlueButton Configuration Utility - Version $BBB_VERSION-dev6"
+	echo "BigBlueButton Configuration Utility - Version $BBB_VERSION"
         echo "http://code.google.com/p/bigbluebutton/wiki/BBBConf"
         echo
         echo "$0 [options]"
@@ -613,9 +613,8 @@ if [ $CHECKOUT ]; then
         echo "# "
         git clone $CHECKOUT
 	cd ~/dev/source/bigbluebutton
-	echo " Checking out version $BBB_VERSION (Not implemented yet)"
- 	#git checkout -b 0.7-release-workspace v0.7	
- 	#git checkout -b 0.7-release-workspace v0.7	
+	echo " Checking out release version $BBB_VERSION"
+ 	git checkout -b 0.71-release v0.71	
         echo "# "
         echo "#                                         "
         echo "# Checked out BigBlueButton. "
