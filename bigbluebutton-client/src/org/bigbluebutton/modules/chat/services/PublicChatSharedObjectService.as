@@ -1,20 +1,19 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 *
-* Copyright (c) 2008 by respective authors (see below).
+* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
 * Foundation; either version 2.1 of the License, or (at your option) any later
 * version.
 *
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
-* with this program; if not, write to the Free Software Foundation, Inc.,
-* 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 * 
 */
 package org.bigbluebutton.modules.chat.services
@@ -57,8 +56,6 @@ package org.bigbluebutton.modules.chat.services
 			chatSO.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
 			chatSO.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);	
 			chatSO.client = this;
-			if (connection == null) trace("Joininh ChatSharedObject");
-			trace("Chat connection = " + connection.uri);
 			chatSO.connect(connection);					
 		}
 		
@@ -76,16 +73,13 @@ package org.bigbluebutton.modules.chat.services
 			
 			switch ( statusCode ) 
 			{
-				case "NetConnection.Connect.Success":			
-					trace("Connection success");		
+				case "NetConnection.Connect.Success":				
 					connEvent.success = true;					
 					break;
 				default:
-					trace("Connection failed");
 					connEvent.success = false;
 				   break;
 			}
-			trace("Dispatching NET CONNECTION SUCCESS");
 			dispatcher.dispatchEvent(connEvent);
 		}
 		
@@ -115,7 +109,6 @@ package org.bigbluebutton.modules.chat.services
 		 * Called by the server to deliver a new chat message.
 		 */	
 		public function newChatMessage(message:String):void{
-			trace("Received New Chat Message " + message);	
 			var event:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
 			event.message = message;
 			
@@ -157,7 +150,7 @@ package org.bigbluebutton.modules.chat.services
 			if (result == null) return;
 			
 			var messages:Array = result as Array;
-			for (var i:int=0; i<messages.length; i++){
+			for (var i:int = 0; i < messages.length; i++){
 				newChatMessage(messages[i] as String);
 			}
 			

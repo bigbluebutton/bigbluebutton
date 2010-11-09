@@ -1,8 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+  
+  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+  
+  BigBlueButton is free software; you can redistribute it and/or modify it under the 
+  terms of the GNU Lesser General Public License as published by the Free Software 
+  Foundation; either version 2.1 of the License, or (at your option) any later 
+  version. 
+  
+  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public License along 
+  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ 
+  $Id: $
+-->
+
 <EventMap xmlns="http://mate.asfusion.com/"
 	xmlns:mx="http://www.adobe.com/2006/mxml">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.chat.views.ChatWindow;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import mx.events.FlexEvent;
@@ -24,17 +46,12 @@
 		]]>
 	</mx:Script>
 	
-	<!--
-	This is the main event map for the chat module, think of it as the application controller.
-	-->
 	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
-		<!--
-		The FlexEvent.PREINITIALIZE event is a good place for creating and initializing managers.
-		-->
 		<ObjectBuilder generator="{ChatEventMapDelegate}" constructorArguments="{scope.dispatcher}"/>
 		<ObjectBuilder generator="{ChatManager}" />
 		<ObjectBuilder generator="{PublicChatService}" />
 		<ObjectBuilder generator="{PrivateChatService}" />
+		
 	</EventHandlers>
 	
 	<EventHandlers type="{StartChatModuleEvent.START_CHAT_MODULE_EVENT}">        
@@ -53,7 +70,7 @@
     </EventHandlers>
         
     <EventHandlers type="{ConnectionEvent.CONNECT_EVENT}">        
- 		<MethodInvoker generator="{ChatEventMapDelegate}" method="openChatWindow" />
+ 		<MethodInvoker generator="{ChatEventMapDelegate}" method="openChatWindow"/>
  		<MethodInvoker generator="{PrivateChatService}" method="queryForParticipants"/>		
     </EventHandlers>
     
@@ -75,16 +92,5 @@
 	
 	<EventHandlers type="{TranscriptEvent.LOAD_TRANSCRIPT}" >
 		<MethodInvoker generator="{PublicChatService}" method="loadTranscript" />
-	</EventHandlers>
-    
-	<!--EventHandlers type="{ConnectionEvent.CONNECT_EVENT}">        
- 		<MethodInvoker generator="{ChatManager}" method="receivedMessage" />
-		<EventAnnouncer dispatcherType="inherit"
-   				generator="{ChatEvent}" bubbles="true"
-   				type="{ChatEvent.PRIVATE_CHAT_MESSAGE_EVENT}" /> 
-   		<EventAnnouncer dispatcherType="global"
-   				generator="{ChatEvent}" bubbles="true"
-   				type="{ChatEvent.PRIVATE_CHAT_MESSAGE_EVENT}" /> 
-    </EventHandlers-->	
-    
+	</EventHandlers>    
 </EventMap>

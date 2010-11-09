@@ -150,7 +150,7 @@
 	<target name="build-deskshare" description="Compile Deskshare Module">
 		<build-module src="${SRC_DIR}" target="${DESKSHARE}" />
 		<echo message="Copying deskshare applet for Deskshare Module" />
-		<copy file="${PROD_RESOURCES_DIR}/bbb-deskshare-applet-0.64.jar" todir="${OUTPUT_DIR}"/>		
+		<copy file="${PROD_RESOURCES_DIR}/bbb-deskshare-applet-0.71.jar" todir="${OUTPUT_DIR}"/>		
 	</target>
 	
 	<target name="build-phone" description="Compile Phone Module">
@@ -286,8 +286,6 @@
 				<copy file="${BASE_DIR}/src/conf/config.xml" todir="${OUTPUT_DIR}/conf" /> 
               			<echo message="Copying join-mock.xml for development environment"/>
 				<copy file="${BASE_DIR}/src/conf/join-mock.xml" todir="${OUTPUT_DIR}/conf" /> 
-              			<echo message="Copying locales.xml for development environment"/>
-				<copy file="${BASE_DIR}/src/conf/locales.xml" todir="${OUTPUT_DIR}/conf" /> 
            		</then>
            	<else>
               		<echo message="Need to copy config.xml.template for production environment"/>

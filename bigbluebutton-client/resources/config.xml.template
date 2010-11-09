@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <config>
-    <localeversion>0.7</localeversion>
+    <localeversion>0.71</localeversion>
     <version>VERSION</version>
     <help url="http://HOST/help.html"/>
     <porttest host="HOST" application="video"/>    
@@ -21,7 +21,7 @@
 		<module name="ViewersModule" url="ViewersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST/bigbluebutton/api/enter"
-			allowKickUser="true"
+			allowKickUser="false"
 		/>
 			
 		<module name="ListenersModule" url="ListenersModule.swf?v=VERSION" 

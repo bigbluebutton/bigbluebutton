@@ -29,7 +29,7 @@
 	</target>
 	
 	<target name="signJar" depends="getPassword">
-		<signjar jar="build/libs/bbb-deskshare-applet-0.64.jar"
+		<signjar jar="build/libs/bbb-deskshare-applet-0.71.jar"
 			alias="${keystore.alias}"
 			keystore="${keystore}"
 			storepass="${keystore.password}" />
@@ -64,7 +64,7 @@
 	</target>
 	
 	<target name="sign-jar" depends="get-password">
-		<signjar jar="build/libs/bbb-deskshare-applet-0.64.jar"
+		<signjar jar="build/libs/bbb-deskshare-applet-0.71.jar"
 			alias="${keystore.alias}"
 			keystore="${keystore}"
 			storepass="${keystore.password}" />

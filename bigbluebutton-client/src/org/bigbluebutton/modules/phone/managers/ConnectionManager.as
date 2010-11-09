@@ -1,22 +1,22 @@
-/*
- * BigBlueButton - http://www.bigbluebutton.org
- * 
- * Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
- * 
- * BigBlueButton is free software; you can redistribute it and/or modify it under the 
- * terms of the GNU Lesser General Public License as published by the Free Software 
- * Foundation; either version 3 of the License, or (at your option) any later 
- * version. 
- * 
- * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License along 
- * with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
- *
- * $Id: $
- */
+/**
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+*
+* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 2.1 of the License, or (at your option) any later
+* version.
+*
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+* 
+*/
+
 package org.bigbluebutton.modules.phone.managers {
 	
 	import com.asfusion.mate.events.Dispatcher;
@@ -89,42 +89,42 @@ package org.bigbluebutton.modules.phone.managers {
 			
 			switch(evt.info.code) {				
 				case "NetConnection.Connect.Success":
-					trace("Successfully connected to SIP application.");
+					LogUtil.debug("Successfully connected to SIP application.");
 					event.status = ConnectionStatusEvent.SUCCESS;								
 					break;
 		
 				case "NetConnection.Connect.Failed":
-					trace("Failed to connect to SIP application.");
+					LogUtil.debug("Failed to connect to SIP application.");
 					event.status = ConnectionStatusEvent.FAILED;
 					break;
 					
 				case "NetConnection.Connect.Closed":
-					trace("Connection to SIP application has closed.");
+					LogUtil.debug("Connection to SIP application has closed.");
 					event.status = ConnectionStatusEvent.CLOSED;
 				break;
 		
 				case "NetConnection.Connect.Rejected":
-					trace("Connection to SIP application was rejected.");
+					LogUtil.debug("Connection to SIP application was rejected.");
 					event.status = ConnectionStatusEvent.REJECTED;
 					break;					
 				default:					
 			}			
 			
 			LogUtil.debug("Phone Module Connection Status: " + event.status);
-			trace("Dispatching " + event.status);
+			LogUtil.debug("Dispatching " + event.status);
 			dispatcher.dispatchEvent(event); 
 		} 
 		
 		private function asyncErrorHandler(event:AsyncErrorEvent):void {
-           trace("AsyncErrorEvent: " + event);
+           LogUtil.debug("AsyncErrorEvent: " + event);
         }
 		
 		private function securityErrorHandler(event:SecurityErrorEvent):void {
-            trace("securityErrorHandler: " + event);
+            LogUtil.debug("securityErrorHandler: " + event);
         }
         
      	public function call():void {
-     		trace("Calling " + room);
+     		LogUtil.debug("Calling " + room);
 			doCall(room);
      	}
         
