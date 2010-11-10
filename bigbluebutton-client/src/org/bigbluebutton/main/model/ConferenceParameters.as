@@ -36,5 +36,6 @@ package org.bigbluebutton.main.model
 		public var externUserID:String;
 		public var connection:NetConnection;
 		public var userid:Number;
+		public var record:Boolean;
 	}
 }

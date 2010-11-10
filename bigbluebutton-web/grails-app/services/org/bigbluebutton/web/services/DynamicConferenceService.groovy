@@ -113,7 +113,7 @@ public class DynamicConferenceService {
 		mb.encoding = "UTF-8"
 		new OutputStreamWriter(new FileOutputStream(filename),'utf-8') << mb.bind {
 			mkp.xmlDeclaration()
-			events(token:conf.meetingToken,name:conf.name){
+			events(token:conf.meetingToken,name:conf.name,date:conf.storedTime){
 				seq{
 				}
 			}

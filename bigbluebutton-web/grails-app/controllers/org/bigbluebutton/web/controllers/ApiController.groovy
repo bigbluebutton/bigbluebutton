@@ -249,7 +249,7 @@ class ApiController {
 		session["voicebridge"] = conf.getVoiceBridge()
 		session["webvoiceconf"] = conf.getWebVoiceConf()
 		session["mode"] = "LIVE"
-		session["record"] = false
+		session["record"] = conf.record
 		session['welcome'] = conf.welcome
 		
 		session.setMaxInactiveInterval(SESSION_TIMEOUT);
