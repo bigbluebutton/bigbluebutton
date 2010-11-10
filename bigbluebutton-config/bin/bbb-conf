@@ -49,7 +49,7 @@ elif cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml | grep -v '<
 	VOICE_CONFERENCE="bbb-voice-freeswitch.xml"
 fi
 
-IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | cut -d: -f2 | awk '{ print $1}')
+IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | head -1 | cut -d: -f2 | awk '{ print $1}')
 
 GENTOO=$(uname -r | grep gentoo | cut -d- -f2);
 TOMCAT=""
@@ -319,7 +319,6 @@ start_bigbluebutton () {
                         echo -n "."
                         sleep 1
                 done
-                echo
         fi
 
         if ! wget http://$NGINX_IP/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then
@@ -1192,7 +1191,7 @@ check_state() {
 		fi
 
 		SIP_SERVER_HOST=$(cat /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties | sed -n '/sip.server.host=/{s/.*=//;s/;//;p}')
-		IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | cut -d: -f2 | awk '{ print $1}')
+		IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | head -1 | cut -d: -f2 | awk '{ print $1}')
 		if [ $SIP_SERVER_HOST != $IP ]; then
 			echo 
 			echo "# The IP address ($SIP_SERVER_HOST) set for sip.server.host in"

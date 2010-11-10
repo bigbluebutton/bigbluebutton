@@ -42,7 +42,7 @@
 		<module name="VideoconfModule" url="VideoconfModule.swf?v=VERSION" 
 			uri="rtmp://HOST/video"
 			dependsOn="ViewersModule"
-			videoQuality="100"
+			videoQuality="70"
 			presenterShareOnly="false"
 		/>
 		
