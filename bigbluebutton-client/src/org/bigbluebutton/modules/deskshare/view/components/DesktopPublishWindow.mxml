@@ -26,7 +26,7 @@
 	xmlns:mate="http://mate.asfusion.com/"
 	xmlns:dspub="flexlib.mdi.containers.*"
 	creationComplete="onCreationComplete()"
-	backgroundImage="{bbbLogo}"	
+	verticalScrollPolicy="off" horizontalScrollPolicy="off"
 	width="320" height="240"
 	title="{ResourceUtil.getInstance().getString('bbb.desktopPublish.title')}"
 	resizable="false">
@@ -39,6 +39,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import flexlib.scheduling.scheduleClasses.BackgroundItem;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
@@ -193,12 +194,12 @@
 				var vidW:Number = captureWidth;
 				var vidH:Number = captureHeight;
 				
-				// Don't scale is capture dimension is smaller than window.
+				// Don't scale if capture dimension is smaller than window.
 				if ((captureWidth > this.width - VID_WIDTH_PAD) && (captureHeight > this.height - VID_HEIGHT_PAD)) {
-					vidW = this.width - VID_WIDTH_PAD;
-					vidH = this.height - VID_HEIGHT_PAD;
-				}
-				
+					vidW = this.width - VID_WIDTH_PAD;	
+					vidH = this.height - VID_HEIGHT_PAD;					
+				} 
+
 				LogUtil.debug("deskshare preview[" + captureWidth + "," + captureHeight + "][" + vidW + "," + vidH + "]");
 				video = new Video(vidW, vidH);
 				video.width = vidW;
@@ -210,9 +211,7 @@
 				videoHolder.addChild(cursorImg);
 				cursor.visible = false;
 				this.addChild(videoHolder);
-				this.width = video.width + VID_WIDTH_PAD;
-				this.height = video.height + VID_HEIGHT_PAD;
-				
+											
 				ns = new NetStream(nc);
 				ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
 				ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );
