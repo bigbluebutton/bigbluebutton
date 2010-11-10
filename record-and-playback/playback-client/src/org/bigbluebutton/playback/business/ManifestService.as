@@ -4,32 +4,77 @@ package org.bigbluebutton.playback.business
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import flash.events.Event;
+	import flash.external.ExternalInterface;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	
 	import mx.collections.ArrayCollection;
-	import mx.controls.Alert;
+	import mx.core.Application;
 	
 	import org.bigbluebutton.chat.events.ChatMessageEvent;
 	import org.bigbluebutton.participants.events.ParticipantsEvent;
+	import org.bigbluebutton.playback.events.ConfigEvent;
 	import org.bigbluebutton.playback.events.PlaybackEvent;
 	import org.bigbluebutton.playback.events.TimelineEvent;
 	import org.bigbluebutton.presentation.events.PresentationEvent;
 	
 	public class ManifestService
 	{
-		public static const TEST_FILE:String = "manifest.xml";
+		public static const CONFIG_FILE:String = "assets/config.xml";
 		
 		private var dispatcher:Dispatcher;
+		private var recording_dir:String;
 		
 		public function ManifestService(){
 			dispatcher = new Dispatcher();
 		}
 		
-		public function loadTestFile():void{
+		public function loadConfigFile():void{
 			var _urlLoader:URLLoader = new URLLoader();
-			_urlLoader.addEventListener(Event.COMPLETE, handleComplete);
-			_urlLoader.load(new URLRequest(TEST_FILE));
+			_urlLoader.addEventListener(Event.COMPLETE, handleConfigComplete);
+			_urlLoader.load(new URLRequest(CONFIG_FILE));
+		}
+		
+		private function handleConfigComplete(e:Event):void{
+			var config:ConfigEvent=new ConfigEvent(ConfigEvent.CONFIG_EVENT);
+			var xml:XML = new XML(e.target.data);
+			
+			config.directory=xml.recording.dir;
+			config.file=xml.recording.file;
+			
+			dispatcher.dispatchEvent(config);
+		}
+		//TODO: should be only one folder with the meeting token (conference)
+		public function loadManifestFile(evt:ConfigEvent):void{
+			var conference:String=getConferenceParamater();
+			if(conference!=null){
+				recording_dir=evt.directory+"/"+conference+"/"+conference;
+				var _urlLoader:URLLoader = new URLLoader();
+				_urlLoader.addEventListener(Event.COMPLETE, handleManifestComplete);
+				_urlLoader.load(new URLRequest(recording_dir+"/"+evt.file)); //comment this line if it's testing purpose and uncomment the line below
+				//_urlLoader.load(new URLRequest(urlstr));
+			}
+		}
+		
+		private function handleManifestComplete(e:Event):void{
+			parseManifest(e.target.data);
+		}
+		
+		private function getConferenceParamater():String
+		{
+			var fullUrl:String = ExternalInterface.call('eval','document.location.href'); 
+			var paramStr:String = fullUrl.split('?')[1];
+			if (paramStr != null)
+			{
+				var params:Array = paramStr.split('&');
+				for (var i:int = 0; i < params.length; i++)
+				{
+					var kv:Array = params[i].split('=');
+					if(kv[0]=="conference")
+						return kv[1];
+				}
+			} 
+			return null;
 		}
 		
 		private function handleComplete(e:Event):void{
@@ -43,8 +88,9 @@ package org.bigbluebutton.playback.business
 			
 			var xml:XML = new XML(filestr);
 			
-			for each(var item:XML in xml.par.seq.children()){
+			for each(var item:XML in xml.seq.children()){
 				timeline.addItem(item);
+				trace("item");
 			} 
 			
 			evt.timeline=timeline;
@@ -66,9 +112,9 @@ package org.bigbluebutton.playback.business
 			var participant_event:ParticipantsEvent;
 			if(xmlobj.attribute("event")=="join"){
 				participant_event=new ParticipantsEvent(ParticipantsEvent.JOIN_EVENT);
-				participant_event.name=xmlobj.attribute("name");
+				participant_event.name=xmlobj.attribute("status");
 				participant_event.userid=xmlobj.attribute("userid");
-				participant_event.role=xmlobj.attribute("role");
+				participant_event.role=xmlobj.attribute("value");
 			}
 			else if(xmlobj.attribute("event")=="leave"){
 				participant_event=new ParticipantsEvent(ParticipantsEvent.LEAVE_EVENT);
@@ -92,7 +138,7 @@ package org.bigbluebutton.playback.business
 			chat_event.timestamp=xmlobj.attribute("timestamp");
 			chat_event.user=xmlobj.attribute("user");
 			chat_event.color=xmlobj.attribute("color");
-			chat_event.message=xmlobj.text();
+			chat_event.message=xmlobj.attribute("message");
 			
 			dispatcher.dispatchEvent(chat_event);	
 		}
@@ -102,7 +148,8 @@ package org.bigbluebutton.playback.business
 			var present_event:PresentationEvent;
 			if (xmlobj.attribute("event") == "share_presentation"){
 				present_event = new PresentationEvent(PresentationEvent.SHARE_PRESENTATION);
-				present_event.presentationName = xmlobj.attribute("presentationName");
+				//present_event.presentationName = xmlobj.attribute("presentationName");
+				present_event.presentationName = recording_dir+"/"+xmlobj.attribute("presentationName");
 				present_event.share = xmlobj.attribute("share") as Boolean;
 			} else if (xmlobj.attribute("event") == "update_slide"){
 				present_event = new PresentationEvent(PresentationEvent.UPDATE_SLIDE);

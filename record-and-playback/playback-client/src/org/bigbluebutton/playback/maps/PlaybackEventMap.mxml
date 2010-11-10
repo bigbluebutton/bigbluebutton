@@ -7,21 +7,17 @@
 			
 			import org.bigbluebutton.playback.PlaybackToolbar;
 			import org.bigbluebutton.playback.business.ManifestService;
+			import org.bigbluebutton.playback.events.ConfigEvent;
 			import org.bigbluebutton.playback.events.PlaybackEvent;
 			import org.bigbluebutton.playback.events.TimelineEvent;
 			
 		]]>
 	</mx:Script>
 	<EventHandlers type="{FlexEvent.CREATION_COMPLETE}">
-		<!--HTTPServiceInvoker url="http://localhost:8080/playback/event/xml" resultFormat="e4x">
-			<Request confid="{Application.application.parameters.conferenceid}" /-->
-		<!--<HTTPServiceInvoker url="http://192.168.0.167/manifest.xml" resultFormat="e4x">	
-			<resultHandlers>
-				<MethodInvoker generator="{ManifestService}" method="parseManifest" 
-							   arguments="{resultObject}" />
-			</resultHandlers>
-		</HTTPServiceInvoker>-->
-		<MethodInvoker generator="{ManifestService}" method="loadTestFile" />
+		<MethodInvoker generator="{ManifestService}" method="loadConfigFile" />
+	</EventHandlers>
+	<EventHandlers type="{ConfigEvent.CONFIG_EVENT}">
+		<MethodInvoker generator="{ManifestService}" method="loadManifestFile" arguments="{event}" />
 	</EventHandlers>
 	<EventHandlers type="{PlaybackEvent.PLAYBACK_EVENT}">
 		<MethodInvoker generator="{ManifestService}" method="dispatchPlaybackEvent" arguments="{event}" />

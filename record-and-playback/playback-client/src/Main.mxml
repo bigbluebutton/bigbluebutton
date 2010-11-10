@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" minWidth="955" minHeight="600" xmlns:chat="org.bigbluebutton.chat.*" xmlns:presentation="org.bigbluebutton.presentation.*" xmlns:playback="org.bigbluebutton.playback.*" xmlns:maps="org.bigbluebutton.playback.maps.*" xmlns:views="org.bigbluebutton.chat.views.*" xmlns:views1="org.bigbluebutton.participants.views.*" xmlns:views2="org.bigbluebutton.presentation.views.*">
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" minWidth="955" minHeight="600" 
+				xmlns:chat="org.bigbluebutton.chat.views.*" xmlns:presentation="org.bigbluebutton.presentation.views.*"
+				xmlns:participants="org.bigbluebutton.participants.views.*"
+				xmlns:playback="org.bigbluebutton.playback.*" xmlns:maps="org.bigbluebutton.playback.maps.*">
 
 	<mx:VBox width="100%" height="100%">
 		<mx:HBox width="100%" height="90%">
-			<views1:ParticipantsWindow width="20%" height="50%" />
-			<views2:PresentationPanel width="50%" height="100%" />
-			<views:ChatPanel width="30%" height="100%" />
+			<participants:ParticipantsWindow width="20%" height="50%" />
+			<presentation:PresentationPanel width="50%" height="100%" />
+			<chat:ChatPanel width="30%" height="100%" />
 		</mx:HBox>
 		<playback:PlaybackToolbar width="100%" />
 	</mx:VBox>
-	
+
 	<maps:PlaybackEventMap />
 	
 </mx:Application>

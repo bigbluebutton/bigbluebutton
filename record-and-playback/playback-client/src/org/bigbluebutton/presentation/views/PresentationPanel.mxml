@@ -20,7 +20,8 @@
 			private function handleUpdateSlide(e:PresentationEvent):void{
 				pageNum = e.pageNum;
 
-				slide.source = presentationName + "/" + pageNum + ".png" //For local testing. For remote files, just replace with http url
+				//TODO: pageNum begins in 0. it should be from 1
+				slide.source = presentationName + "/" + "slide-" + (pageNum+1) + ".swf" //For local testing. For remote files, just replace with http url
 			}
 		]]>
 	</mx:Script>

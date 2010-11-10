@@ -29,8 +29,17 @@
 				btnPlay.enabled=true;
 				btnStop.enabled=true;
 				labObjects.text="total events loaded: "+_timeline.length;
+				end_playback=calculateMeetingDuration(_timeline);
+				_timer=new Timer(1000,end_playback);
+				_timer.addEventListener(TimerEvent.TIMER,updateTimelineDisplay);
+				
 			}
 			
+			private function calculateMeetingDuration(timeline:ArrayCollection):int{
+				Alert.show(timeline.getItemAt(timeline.length-1).attribute("timestamp")+"");
+				Alert.show(timeline.getItemAt(0).attribute("timestamp")+"");
+				return (Math.round(timeline.getItemAt(timeline.length-1).attribute("timestamp")-timeline.getItemAt(0).attribute("timestamp"))/1000)+1;
+			}
 			
 			protected function sliderTL_changeHandler(event:SliderEvent):void
 			{
@@ -77,19 +86,18 @@
 			
 			protected function onCreationCompleteHandler(event:FlexEvent):void
 			{
-				_timer=new Timer(1000,420);
-				_timer.addEventListener(TimerEvent.TIMER,updateTimelineDisplay);
 				
 				/* end minute of the conference */
-				end_playback=420;
+				end_playback=0;
 				_arraypos=0;
 				_minutetimeline=0;
 			}
 			
 			private function updateTimelineDisplay(evt:TimerEvent):void{
+				firePlaybackEvent(_minutetimeline);
 				_minutetimeline=_minutetimeline+1;
 				sliderTL.value=_minutetimeline;
-				firePlaybackEvent(_minutetimeline);
+				
 			}
 			private function firePlaybackEvent(minute:int):void{
 				//there is a for loop for check all the events that happen in the same minute
