@@ -4,10 +4,11 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.groovy.grails.web.json.JSONArray
 import grails.converters.*
 import groovy.sql.Sql
+import org.bigbluebutton.web.services.PlaybackService;
 
 class EventController {
 
-    def dataSource
+    //def dataSource
 
     /*def conferences = {
         groovy.sql.Sql sql = new groovy.sql.Sql(dataSource)
@@ -32,30 +33,8 @@ class EventController {
                 render conferenceNames as JSON
             }
         }
-    }*/
-    def conferences = {
-        String PATH_DIR="/var/bigbluebutton"
-        String MANIFEST="manifest.xml"
-        File f = new File(PATH_DIR)
-        String[] files=f.list()
-        Hashtable confs=new Hashtable()
-
-        for(String filename in files){
-            System.out.println(filename)
-            String filepath=PATH_DIR+"/"+filename+"/"+filename+"/"+MANIFEST
-            if((new File(filepath)).exists())
-                confs.put(filename,filepath)
-        }
-        withFormat{
-            xml{
-                render confs as XML
-            }
-            json{
-                render confs as JSON
-            }
-        }
-
     }
+    
 
     def json = {
         List list_events=Event.findAllByConferenceid(params.confid)
@@ -119,5 +98,24 @@ class EventController {
                 }
             }
         }
+    }*/
+
+    PlaybackService playbackService;
+
+    def conferences = {
+        ArrayList confs=playbackService.getConferences()
+        withFormat{
+            xml{
+                render confs as XML
+            }
+            json{
+                render confs as JSON
+            }
+        }
+
+    }
+
+    def xml = {
+        List list_events=Event.findAllByConferenceid(params.conference)
     }
 }

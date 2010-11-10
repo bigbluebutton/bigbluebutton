@@ -7,40 +7,79 @@ and open the template in the editor.
   <head>
     <title>Playback BigBlueButton Conference Demo</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <link rel="stylesheet" type="text/css" media="screen" href="css/redmond/jquery-ui-1.8.6.custom.css" />
-    <link rel="stylesheet" type="text/css" media="screen" href="css/ui.jqgrid.css" />
-    <script src="js/jquery-1.4.2.min.js" type="text/javascript"></script>
-    <script src="js/grid.locale-en.js" type="text/javascript"></script>
-    <script src="js/jquery.jqGrid.min.js" type="text/javascript"></script>
+    <link rel="stylesheet" type="text/css" media="screen" href="../css/redmond/jquery-ui-1.8.6.custom.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="../css/ui.jqgrid.css" />
+    <script src="../js/jquery-1.4.2.min.js" type="text/javascript"></script>
+    <script src="../js/grid.locale-en.js" type="text/javascript"></script>
+    <script src="../js/jquery.jqGrid.min.js" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+          text-align: center;
+          background-color: #EAF4FD;
+          }
+
+        #wrapper {
+          margin: 0 auto;
+          width: 800px;
+          height: 100%;
+          background-color: white;
+        }
+        #main{
+            padding-left: 15px;
+            padding-right: 15px;
+            padding-top: 15px;
+        }
+        #main h1{
+            text-align: left;
+        }
+    </style>
   </head>
   <body>
-    <table id="list1"></table>
-    <div id="pager1"></div>
+      <div id="wrapper">
+          <div id="header">
+              <img src="../images/banner.png" alt="bigbluebutton" height="220" />
+          </div>
+          <div id="main">
+              <h1>List of recorded sessions</h1>
+              <p>In the following table, it's listed all the stored conferences, double click for launch the playback client. </p>
+              <table id="list1"></table>
+              <div id="pager1"></div>
+          </div>
+      </div>
+
 
     <script type="text/javascript">
-    jQuery().ready(function (){
-    jQuery("#list1").jqGrid({
+
+       jQuery().ready(function (){
+       jQuery("#list1").jqGrid({
             url:'http://192.168.1.41:8080/playback-web/event/conferences.xml',
             datatype: "xml",
-            colNames:['Inv No','Date', 'Client', 'Amount','Tax','Total','Notes'],
+            xmlReader: {
+                  root:"list",
+                  row:"conference",
+                  repeatitems:false,
+                  id : "meetingToken"
+              },
+            colNames:['Conference Name','Date', 'Meeting Token'],
             colModel:[
-                    {name:'id',index:'id', width:75},
-                    {name:'invdate',index:'invdate', width:90},
-                    {name:'name',index:'name', width:100},
-                    {name:'amount',index:'amount', width:80, align:"right"},
-                    {name:'tax',index:'tax', width:80, align:"right"},
-                    {name:'total',index:'total', width:80,align:"right"},
-                    {name:'note',index:'note', width:150, sortable:false}
+                    {name:'name',index:'name', width:100, xmlmap:"meetingName"},
+                    {name:'date',index:'date', width:75, xmlmap:"date"},
+                    {name:'token',index:'token', width:90, xmlmap:"meetingToken"}
             ],
             rowNum:10,
             autowidth: true,
-            rowList:[10,20,30],
             pager: jQuery('#pager1'),
-            sortname: 'id',
-        viewrecords: true,
-        sortorder: "desc",
-        caption:"XML Example"
-    }).navGrid('#pager1',{edit:false,add:false,del:false});
+            sortname: 'date',
+            viewrecords: true,
+            sortorder: "desc",
+            ondblClickRow: function(id){
+                var newWindow = window.open('http://192.168.1.41:8080/playback-web/client/Main.html?conference='+id);
+                newWindow.focus();
+                return false;
+            },
+            caption:"BigBlueButton Recorded Conferences"
+        }).navGrid('#pager1',{edit:false,add:false,del:false});
+       });
     </script>
   </body>
 </html>
