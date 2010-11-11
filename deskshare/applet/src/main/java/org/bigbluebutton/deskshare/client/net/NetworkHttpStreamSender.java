@@ -165,11 +165,16 @@ public class NetworkHttpStreamSender implements Runnable {
 	}
 	
 	private void processNextMessageToSend(Message message) {
-		if (message.getMessageType() == Message.MessageType.BLOCK) {
-//			EncodedBlockData block = retriever.getBlockToSend(((BlockMessage)message).getPosition());
-//			BlockVideoData	bv = new BlockVideoData(room, block.getPosition(), block.getVideoData(), false /* should remove later */);									
-//			sendBlockData(bv);
-//			retriever.blockSent(block.getPosition());
+		if (message.getMessageType() == Message.MessageType.BLOCK) {		
+			Integer[] changedBlocks = ((BlockMessage)message).getBlocks();
+			for (int i = 0; i < changedBlocks.length; i++) {
+				EncodedBlockData block = retriever.getBlockToSend((Integer)changedBlocks[i]);
+				BlockVideoData	bv = new BlockVideoData(room, block.getPosition(), block.getVideoData(), false /* should remove later */);	
+				sendBlockData(bv);
+			}
+			for (int i = 0; i< changedBlocks.length; i++) {
+				retriever.blockSent((Integer)changedBlocks[i]);
+			}
 		} else if (message.getMessageType() == Message.MessageType.CURSOR) {
 			CursorMessage msg = (CursorMessage)message;
 			sendCursor(msg.getMouseLocation(), msg.getRoom());
