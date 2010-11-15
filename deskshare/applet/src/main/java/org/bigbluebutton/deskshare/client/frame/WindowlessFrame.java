@@ -1,24 +1,24 @@
-/** 
-* ===License Header===
-*
-* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
-*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
-* version.
-*
-* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
-* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-*
-* You should have received a copy of the GNU Lesser General Public License along
-* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-* ===License Header===
-*/
+/*
+ * BigBlueButton - http://www.bigbluebutton.org
+ * 
+ * Copyright (c) 2008-2010 by respective authors (see below). All rights reserved.
+ * 
+ * BigBlueButton is free software; you can redistribute it and/or modify it under the 
+ * terms of the GNU Lesser General Public License as published by the Free Software 
+ * Foundation; either version 3 of the License, or (at your option) any later 
+ * version. 
+ * 
+ * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+ * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License along 
+ * with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Jeremy Thomerson <jthomerson@genericconf.com>
+ * $Id: $
+ */
+
 package org.bigbluebutton.deskshare.client.frame;
 
 import java.awt.BasicStroke;
@@ -43,6 +43,7 @@ import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 class WindowlessFrame implements Serializable {
@@ -149,8 +150,44 @@ class WindowlessFrame implements Serializable {
 
 		@Override
 		public void mouseDragged(MouseEvent e) {
+			/*
+			 * <REALWAT>
+			 * Comment old source code
+			 */
+			/*
 			final int changeInX = e.getLocationOnScreen().x - mActionOffset.x - mTopLeft.x;
 			final int changeInY = e.getLocationOnScreen().y - mActionOffset.y - mTopLeft.y;
+			*/
+			/*
+			 * </REALWAT>
+			 */
+			/*
+			 * <REALWAT>
+			 * Handling edge detection of the desktop sharing to resolve issue 647 
+			 */
+			int changeInX = e.getLocationOnScreen().x - mActionOffset.x - mTopLeft.x;
+			int changeInY = e.getLocationOnScreen().y - mActionOffset.y - mTopLeft.y;
+			Toolkit tk 	= Toolkit.getDefaultToolkit();
+			Dimension d = tk.getScreenSize();
+			if (mTopLeft.x < 1 && changeInX < 0) {
+				mTopLeft.x = 0;
+				changeInX = 0;
+			}
+			if (mTopLeft.y < 1 && changeInY < 0) {
+				mTopLeft.y = 0;
+				changeInY = 0;
+			}
+			if (mTopLeft.x + mOverallSize.width > (d.width-6) && changeInX > 0) {
+				mTopLeft.x = d.width - mOverallSize.width-5;
+				changeInX = 0;
+			}
+			if (mTopLeft.y + mOverallSize.height > (d.height-6) && changeInY > 0) {
+				mTopLeft.y = d.height - mOverallSize.height-5;
+				changeInY = 0;
+			}
+			/*
+			 * </REALWAT>
+			 */
 			if (mMoving.get() && !e.isConsumed()) {
 				WindowlessFrame.this.setLocation(changeInX + mTopLeft.x, changeInY + mTopLeft.y);
 			}
@@ -174,9 +211,15 @@ class WindowlessFrame implements Serializable {
 	}
 	
 	private class WindowlessFrameResizingMouseListener extends MouseAdapter {
-		
-		private static final int CORNER_SIZE = 15;
-		
+		/*
+		 * <REALWAT>
+		 * Enlarge resize area of the desktop sharing frame:
+		 * - update CORNER_SIZE value from 15 to 150
+	 */
+		private static final int CORNER_SIZE = 150;
+		/*
+		 * </REALWAT>
+		 */
 		private AtomicBoolean mResizing = new AtomicBoolean(false);
 		
 		private Point mActionOffset = null;
@@ -187,12 +230,44 @@ class WindowlessFrame implements Serializable {
 		public void mouseDragged(MouseEvent e) {
 			final int changeInX = e.getLocationOnScreen().x - mActionOffset.x - mTopLeft.x;
 			final int changeInY = e.getLocationOnScreen().y - mActionOffset.y - mTopLeft.y;
+			//<REALWAT>
+			Toolkit tk = Toolkit.getDefaultToolkit();
+			Dimension d = tk.getScreenSize();
+			//</REALWAT>
 			if (mResizing.get()) {
 				int newH = mOriginalSize.height;
 				int newW = mOriginalSize.width;
-				if (mCorner == Corner.SOUTHEAST) {
+				if (Corner.SOUTHEAST == mCorner) {
+					/*
+					 * <REALWAT>
+					 * Handling when resizing the desktop sharing frame: 
+					 * - The border-right can not drag pass through the border-left
+					 * - The border-bottom can not drag pass through the border-top
+					 */
+					if (e.getLocationOnScreen().x < mTopLeft.x+5) {
+						newW = 5;
+					} else {
+						newW += changeInX;				
+					}
+					if (e.getLocationOnScreen().y < mTopLeft.y+5) {
+						newH = 5;
+					} else {
+						newH += changeInY;
+					}
+					/*
+					 * </REALWAT>
+					 */
+					/* 
+					 * <REALWAT>
+					 * Comment old source code
+					 */
+					/*
 					newH += changeInY;
 					newW += changeInX;
+					*/
+					/*
+					 * </REALWAT>
+					 */
 				} else if (mCorner == Corner.NORTHEAST) {
 					mTopLeft.y = mTopLeft.y + changeInY;
 					newH = mOverallSize.height + -changeInY;
@@ -208,6 +283,21 @@ class WindowlessFrame implements Serializable {
 					newW = mOverallSize.width + -changeInX;
 				}
 				//System.out.println("orig size: " + mOriginalSize + ", newH: " + newH + ", newW: " + newW + ", X: " + changeInX + ", Y: " + changeInY);
+				/*
+				 * <REALWAT>
+				 * Handling when resizing the desktop sharing frame: 
+				 * - Detect the edge of the desktop sharing frame to 
+				 * 	 prevent resizing frame out of screen
+				 */
+				if (newH + mTopLeft.y > d.height-5){
+					newH = d.height - mTopLeft.y-5;
+				}
+				if (newW + mTopLeft.x > d.width-5){
+					newW = d.width - mTopLeft.x-5;
+				}
+				/*
+				 * </REALWAT>
+				 */
 				WindowlessFrame.this.setSize(newH, newW);
 				e.consume();
 			}
@@ -235,13 +325,23 @@ class WindowlessFrame implements Serializable {
 		private Corner nearCorner(Point mouse) {
 			if (isNearBottomRightCorner(mouse)) {
 				return Corner.SOUTHEAST;
-			} else if (isNearTopRightCorner(mouse)) {
+			} 
+			/*
+			 * <REALWAT>
+			 * Comment old source code:
+			 * - Remove checking 3 corner when the mouse pointer move over.
+			 */
+			/*  else if (isNearTopRightCorner(mouse)) {
 				return Corner.NORTHEAST;
 			} else if (isNearTopLeftCorner(mouse)) {
 				return Corner.NORTHWEST;
 			} else if (isNearBottomLeftCorner(mouse)) {
 				return Corner.SOUTHWEST;
 			}
+			*/
+			/*
+			 * </REALWAT>
+			 */
 			return null;
 		}
 
@@ -251,7 +351,13 @@ class WindowlessFrame implements Serializable {
 			return xToBotLeft < CORNER_SIZE && yToBotLeft < CORNER_SIZE;
 		}
 
-		private boolean isNearTopRightCorner(Point mouse) {
+		/*
+		 * <REALWAT>
+		 * Comment old source code:
+		 * - Removing 3 function that detect the mouse pointer when
+		 *   move over 3 corner of the desktop sharing frame.
+		 */
+		 /* private boolean isNearTopRightCorner(Point mouse) {
 			int xToTopRight = Math.abs(mTopLeft.x + (int) mOverallSize.getWidth() - mouse.x);
 			int yToTopRight = Math.abs(mTopLeft.y - mouse.y);
 			return xToTopRight < CORNER_SIZE && yToTopRight < CORNER_SIZE;
@@ -268,17 +374,33 @@ class WindowlessFrame implements Serializable {
 			int yToTopLeft = Math.abs(mTopLeft.y - mouse.y);
 			return xToTopLeft < CORNER_SIZE && yToTopLeft < CORNER_SIZE;
 		}
+		*/
+		/*
+		 * </REALWAT>
+		 */
 
 		@Override
 		public void mouseMoved(MouseEvent e) {
 			final Point mouse = e.getLocationOnScreen();
+			/*
+			 * <REALWAT>
+			 * Comment old source code:
+			 * - Remove the (drag resize) mouse icon when moving mouse pointer
+			 *   over the 3 corner of the desktop sharing frame.
+			 */ 
+			/*
 			if (isNearTopLeftCorner(mouse)) {
 				e.getComponent().setCursor(Cursor.getPredefinedCursor(Cursor.NW_RESIZE_CURSOR));
 			} else if (isNearBottomLeftCorner(mouse)) {
 				e.getComponent().setCursor(Cursor.getPredefinedCursor(Cursor.SW_RESIZE_CURSOR));
 			} else if (isNearTopRightCorner(mouse)) {
 				e.getComponent().setCursor(Cursor.getPredefinedCursor(Cursor.NE_RESIZE_CURSOR));
-			} else if (isNearBottomRightCorner(mouse)) {
+			} else 
+			*/
+			/*</REALWAT>
+			 * 
+			 */
+			if (isNearBottomRightCorner(mouse)) {
 				e.getComponent().setCursor(Cursor.getPredefinedCursor(Cursor.SE_RESIZE_CURSOR));
 			} else {
 				e.getComponent().setCursor(Cursor.getDefaultCursor());
