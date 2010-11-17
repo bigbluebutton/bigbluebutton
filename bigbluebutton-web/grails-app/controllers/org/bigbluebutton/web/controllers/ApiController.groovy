@@ -102,10 +102,15 @@ class ApiController {
 		String dialNumber = params.dialNumber
 		String logoutUrl = params.logoutURL
 		/* record development */
-		boolean record = false
-                try{
+                boolean record = false
+                log.debug "Recording parameter is: "+params.record
+                if(!StringUtils.isEmpty(params.record)){
+                    try{
 			record=Boolean.parseBoolean(params.record)
-		}catch(Exception ex){ }
+                    }catch(Exception ex){ }
+                }
+
+                
 
 		Integer maxParts = -1;
 		try {

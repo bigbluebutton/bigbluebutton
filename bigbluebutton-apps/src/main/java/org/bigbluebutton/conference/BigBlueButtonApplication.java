@@ -102,6 +102,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		String room = sessionName;
 		assert recorderApplication != null;
 		boolean record = (Boolean)params[6];
+		log.debug("record value - [{}]", record); 
 
     	String externUserID = ((String) params[7]).toString();
 

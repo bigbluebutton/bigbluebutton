@@ -25,7 +25,8 @@ import java.util.Map;
 
 import org.bigbluebutton.conference.service.recorder.IEventRecorder;
 import org.bigbluebutton.conference.service.recorder.IRecorder;
-import org.bigbluebutton.conference.IRoomListener;import org.red5.server.api.so.ISharedObject;
+import org.bigbluebutton.conference.IRoomListener;
+import org.bigbluebutton.conference.BigBlueButtonUtils;import org.red5.server.api.so.ISharedObject;
 import org.bigbluebutton.conference.Participant;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
@@ -69,14 +70,14 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes" })
 	@Override
 	public void endAndKickAll() {
 		so.sendMessage("logout", new ArrayList());
 		recordEvent(parseParticipantsToXML(new ArrayList(), this.RECORD_EVENT_LEAVE_ALL));
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void participantJoined(Participant p) {
 		log.debug("A participant has joined {}.",p.getUserid());
@@ -87,7 +88,7 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 		recordEvent(parseParticipantsToXML(args, this.RECORD_EVENT_JOIN));
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void participantLeft(Long userid) {
 		ArrayList args = new ArrayList();
@@ -96,7 +97,7 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 		recordEvent(parseParticipantsToXML(args, this.RECORD_EVENT_LEAVE));
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void participantStatusChange(Long userid, String status, Object value) {
 		log.debug("A participant's status has changed "+userid+" "+status+" "+value);
@@ -141,7 +142,7 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 	/***********************************************************
 	 * Participants XML Test
 	 ***********************************************************/
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private String parseParticipantsToXML(ArrayList list, String type){
 		Hashtable keyvalues=new Hashtable();
 		if(type.equalsIgnoreCase(this.RECORD_EVENT_STATUS_CHANGE)){
@@ -165,6 +166,6 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 		else if(type.equalsIgnoreCase(this.RECORD_EVENT_LEAVE_ALL)){
 			keyvalues.put("event", this.RECORD_EVENT_LEAVE_ALL);
 		}
-		return recorder.parseEventsToXML("participants", keyvalues);
+		return BigBlueButtonUtils.parseEventsToXML("participants", keyvalues);
 	}
 }

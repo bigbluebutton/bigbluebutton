@@ -22,6 +22,8 @@ package org.bigbluebutton.conference.service.chat;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+
+import org.bigbluebutton.conference.BigBlueButtonUtils;
 import org.bigbluebutton.conference.service.recorder.IEventRecorder;
 import org.bigbluebutton.conference.service.recorder.IRecorder;
 import org.bigbluebutton.conference.service.chat.IChatRoomListener;import org.red5.server.api.so.ISharedObject;
@@ -63,7 +65,7 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatEventRecorder.class
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void newChatMessage(String message) {
 		log.debug("New chat message...");
@@ -94,7 +96,7 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatEventRecorder.class
 	 *  Testing performance XML over the playback client
 	 *  chat message format: <message>|<user>|<color>|<time>|<language>
 	 * ****************************/
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private String parseChatToXML(String message){
 		String[] chat_attribs=message.trim().split("\\|",-1);
 		
@@ -105,7 +107,7 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatEventRecorder.class
 		keyvalues.put("color", chat_attribs[2]);
 		keyvalues.put("language", chat_attribs[4]);
 		
-		String xmlstr=recorder.parseEventsToXML("chat", keyvalues);
+		String xmlstr=BigBlueButtonUtils.parseEventsToXML("chat", keyvalues);
 		return xmlstr;
 	}
 }

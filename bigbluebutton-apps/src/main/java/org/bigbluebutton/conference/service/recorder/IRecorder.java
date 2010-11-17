@@ -21,8 +21,6 @@
 */
 package org.bigbluebutton.conference.service.recorder;
 
-import java.util.Hashtable;
-
 /** 
  * 
  * The IRecorder interface define all the neccesary methods to implement for 
@@ -36,13 +34,5 @@ public interface IRecorder {
      * @param message a JSON String message with the attributes of an event 
      */
 	public void recordEvent(String message);
-	
-	/*************************************************
-	 * XML Test Performance
-	 *******************************************/
-	@SuppressWarnings("unchecked")
-	public String parseEventsToXML(String module, Hashtable keyvalues);
-	
-	public String appendXMLToEvent(String xmlevents,String xmlappended,String fromtag);
 	
 }

@@ -25,6 +25,8 @@ package org.bigbluebutton.conference.service.presentation;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Map;
+
+import org.bigbluebutton.conference.BigBlueButtonUtils;
 import org.bigbluebutton.conference.service.recorder.IEventRecorder;
 import org.bigbluebutton.conference.service.recorder.IRecorder;import org.red5.server.api.so.ISharedObject;
 import org.slf4j.Logger;
@@ -310,9 +312,9 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 			keyvalues.put("messageKey", list.get(4));
 			//keyvalues.put("slidesInfo", list.get(5));
 		}
-		String xml=recorder.parseEventsToXML("presentation", keyvalues);
+		String xml=BigBlueButtonUtils.parseEventsToXML("presentation", keyvalues);
 		if(type.equalsIgnoreCase(this.RECORD_EVENT_CONVERSION_COMPLETE)){
-			xml=recorder.appendXMLToEvent(xml, (String) list.get(5), "slides");
+			xml=BigBlueButtonUtils.appendXMLToEvent(xml, (String) list.get(5), "slides");
 		}
 		return xml;
 	}
