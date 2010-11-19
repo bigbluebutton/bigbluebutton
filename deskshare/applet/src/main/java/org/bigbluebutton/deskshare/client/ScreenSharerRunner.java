@@ -82,6 +82,36 @@ public class ScreenSharerRunner {
 		}
 	}
 	
+	/*****************************************************************************
+    ;  disconnectSharing
+    ;----------------------------------------------------------------------------
+	; DESCRIPTION
+	;   This routine is used to stop the screen capture, change desktop 
+	;   sharing system icon tray message.
+	;
+	; RETURNS : N/A
+	;
+	; INTERFACE NOTES
+	; 
+	;       INPUT : N/A
+	; 
+	;       OUTPUT : N/A
+	; 
+	; IMPLEMENTATION
+	;
+	; HISTORY
+	; __date__ :        PTS:  
+	; 2010.11.19		problem 272
+	;
+	******************************************************************************/
+	public void disconnectSharing(){
+		System.out.println(NAME + "Disconneted");
+		System.out.println(NAME + "Change system tray icon message");
+		tray.disconnectIconSystemTrayMessage();
+		captureTaker.stop();
+		mouseLocTaker.stop();
+	} // END FUNCTION disconnectSharing
+	
 	public void stopSharing() {
 		System.out.println(NAME + "Stopping");
 		System.out.println(NAME + "Removing icon from system tray.");

@@ -23,6 +23,7 @@ package org.bigbluebutton.deskshare.client;
 
 public interface ScreenSharer {	
 	void start();	
+	void disconnected(); // 2010.11.19 _PTS_272_
 	void stop();
 	void addClientListener(ClientListener l);
 }
