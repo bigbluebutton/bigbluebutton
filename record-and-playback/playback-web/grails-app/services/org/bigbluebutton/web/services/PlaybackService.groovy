@@ -32,12 +32,16 @@ class PlaybackService {
         return confs;
     }
 
-    public void getManifestFile(String conference){
+    public StringWriter getManifestFile(String conference){
         String filepath=recordingDir+File.separatorChar+conference+File.separatorChar+conference+File.separatorChar+recordingFile
         File manifest=new File(filepath)
         if(manifest.exists()){
             XmlParser parser = new XmlParser()
             def xmldata = parser.parse(manifest)
+            def writer = new StringWriter()
+            new XmlNodePrinter(new PrintWriter(writer)).print(xmldata)
+            return writer;
         }
+        return null;
     }
 }

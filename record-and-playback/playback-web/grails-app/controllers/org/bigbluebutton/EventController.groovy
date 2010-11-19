@@ -116,6 +116,7 @@ class EventController {
     }
 
     def xml = {
-        List list_events=Event.findAllByConferenceid(params.conference)
+        StringWriter sw=playbackService.getManifestFile(params.conference)
+        render(text:sw.toString(),contentType:"text/xml",encoding:"UTF-8")
     }
 }
