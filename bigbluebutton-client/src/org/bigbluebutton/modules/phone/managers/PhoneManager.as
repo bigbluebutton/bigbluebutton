@@ -19,8 +19,6 @@
 
 package org.bigbluebutton.modules.phone.managers
 {
-	import flash.events.IEventDispatcher;
-	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
 	import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceEvent;
@@ -40,6 +38,8 @@ package org.bigbluebutton.modules.phone.managers
 		public function setModuleAttributes(attributes:Object):void {
 			this.attributes = attributes;
 			LogUtil.debug("Attributes Set... webvoiceconf:" + attributes.webvoiceconf);
+
+			if (attributes.autoJoin == "true") joinVoice(true);
 		}
 				
 		private function setupMic(useMic:Boolean):void {
@@ -54,10 +54,14 @@ package org.bigbluebutton.modules.phone.managers
 		}
 		
 		public function join(e:JoinVoiceConferenceEvent):void {
-			setupMic(e.useMicrophone);
+			joinVoice(e.useMicrophone);
+		}
+		
+		public function joinVoice(autoJoin:Boolean):void {
+			setupMic(autoJoin);
 			var uid:String = String( Math.floor( new Date().getTime() ) );
 			connectionManager.connect(uid, attributes.username, attributes.room, attributes.uri);
-		}
+		}		
 				
 		public function dialConference():void {
 			LogUtil.debug("Dialing...." + attributes.webvoiceconf);
