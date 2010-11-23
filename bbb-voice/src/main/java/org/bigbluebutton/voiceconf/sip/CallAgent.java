@@ -85,11 +85,12 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     }
 
     public void call(String callerName, String destination) {    	
-    	log.debug("call {}", destination);  
+    	log.debug("{} making a call to {}", callerName, destination);  
     	try {
 			localSocket = getLocalAudioSocket();
 			userProfile.audioPort = localSocket.getLocalPort();	    	
 		} catch (Exception e) {
+			log.debug("{} failed to allocate local port for call to {}. Notifying client that call failed.", callerName, destination); 
 			notifyListenersOnOutgoingCallFailed();
 			return;
 		}    	
