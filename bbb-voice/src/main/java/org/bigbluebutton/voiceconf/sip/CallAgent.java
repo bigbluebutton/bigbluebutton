@@ -139,20 +139,22 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     private DatagramSocket getLocalAudioSocket() throws Exception {
     	DatagramSocket socket = null;
     	boolean failedToGetSocket = true;
+    	StringBuilder failedPorts = new StringBuilder("Failed ports: ");
     	
     	for (int i = portProvider.getStartAudioPort(); i <= portProvider.getStopAudioPort(); i++) {
     		int freePort = portProvider.getFreeAudioPort();
     		try {    			
         		socket = new DatagramSocket(freePort);
         		failedToGetSocket = false;
-        		log.info("Successfully setup local audio port {}.", freePort);
+        		log.info("Successfully setup local audio port {}. {}", freePort, failedPorts);
         		break;
     		} catch (SocketException e) {
-    			log.warn("Failed to setup local audio port {}.", freePort);    			
+    			failedPorts.append(freePort + ", ");   			
     		}
     	}
     	
     	if (failedToGetSocket) {
+			log.warn("Failed to setup local audio port {}.", failedPorts); 
     		throw new Exception("Exception while initializing CallStream");
     	}
     	
