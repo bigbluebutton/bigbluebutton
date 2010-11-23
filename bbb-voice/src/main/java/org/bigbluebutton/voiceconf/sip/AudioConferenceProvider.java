@@ -50,4 +50,8 @@ public class AudioConferenceProvider {
 	public int getStartAudioPort() {
 		return startAudioPort;
 	}
+	
+	public int getStopAudioPort() {
+		return stopAudioPort;
+	}
 }
