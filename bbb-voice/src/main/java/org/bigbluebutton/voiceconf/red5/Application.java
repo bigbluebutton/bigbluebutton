@@ -154,7 +154,7 @@ public class Application extends MultiThreadedApplicationAdapter {
     	String userid = getUserId();
     	String username = getUsername();
     	
-    	log.debug("{} has stopped publishing stream [{}]", username + "uid=" + userid + "][clientid=" + clientId + "]", stream.getPublishedName());
+    	log.debug("{} has stopped publishing stream [{}]", username + "[uid=" + userid + "][clientid=" + clientId + "]", stream.getPublishedName());
     	IConnection conn = Red5.getConnectionLocal();
     	String peerId = (String) conn.getAttribute("VOICE_CONF_PEER");
         if (peerId != null) {
