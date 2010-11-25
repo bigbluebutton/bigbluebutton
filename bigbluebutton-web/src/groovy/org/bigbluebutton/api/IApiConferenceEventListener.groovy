@@ -27,5 +27,8 @@ public interface IApiConferenceEventListener {
 
 	@Gateway(requestChannel="endMeetingRequest")
 	void endMeetingRequest(Room room);
+	
+	@Gateway(requestChannel="clientCommand")
+	void clientCommand(String cmd);
 
 }

@@ -44,6 +44,7 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 
 	private ParticipantsApplication participantsApplication;
 	private RecorderApplication recorderApplication;
+	private IScope scope;
 	
 	@Override
 	public boolean appConnect(IConnection conn, Object[] params) {
@@ -69,6 +70,7 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 
 	@Override
 	public boolean appStart(IScope scope) {
+		this.scope = scope;
 		log.debug(APP+":appStart "+scope.getName());
 		return true;
 	}
@@ -183,5 +185,5 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 	
 	private BigBlueButtonSession getBbbSession() {
 		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
-	}
+	}	
 }

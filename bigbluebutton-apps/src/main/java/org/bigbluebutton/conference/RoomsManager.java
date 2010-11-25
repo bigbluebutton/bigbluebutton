@@ -87,14 +87,19 @@ public class RoomsManager {
 		room = getRoom(room.getName()); // must do this because the room coming in is serialized (no transient values are present)
 		log.debug("End meeting request for room: {} ", room.getName());
 		room.endAndKickAll();
-	}
+	}	
+	
 	
 	/**
 	 * Keeping getRoom private so that all access to Room goes through here.
 	 */
 	//TODO: this method becomes public for ParticipantsApplication, ask if it's right? 
-	public Room getRoom(String name) {
+	public Room getRoom(String name)
+	{
 		log.debug("Get room {}", name);
+		if(rooms == null)
+			log.debug("problem room {}", name);
+		
 		return rooms.get(name);
 	}
 	
@@ -173,5 +178,24 @@ public class RoomsManager {
 
 	public IConferenceEventListener getConferenceEventListener() {
 		return conferenceEventListener;
+	}
+	
+	
+	// this method is called by incoming JMS requests (Spring integration)
+	public void clientCommandTest(String cmd)
+	{		
+		log.debug("Client Command: " + cmd);
+		String[] arr = cmd.split("\t");		
+		String room = arr[0].trim();
+		
+		Room r = getRoom(room);
+		if (r == null)
+		{
+			log.warn("Could not find room " + room);
+			return;
+		}		
+	
+		log.debug("sending Command to room: " + arr[1]);
+		r.sendClientCommand(log, arr[1]);		
 	}
 }

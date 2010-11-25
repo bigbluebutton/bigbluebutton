@@ -20,7 +20,12 @@
 
 package org.bigbluebutton.conference;
 
+import org.red5.logging.Red5LoggerFactory;
+import org.slf4j.Logger;
+
 public class ParticipantUpdatingRoomListener implements IRoomListener{
+	
+	private static Logger log = Red5LoggerFactory.getLogger( ParticipantUpdatingRoomListener.class, "bigbluebutton" );
 
 	private IConferenceEventListener conferenceEventListener;
 	private Room room;
@@ -55,4 +60,9 @@ public class ParticipantUpdatingRoomListener implements IRoomListener{
 	public void endAndKickAll() {
 		// no-op
 	}	
+	
+	public void clientCommand(String cmd)
+	{
+		log.error("ParticipantUpdatingRoomListener - client command " + cmd);
+	}
 }

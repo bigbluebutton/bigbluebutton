@@ -35,6 +35,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.User;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+	import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
 
 	public class UsersSOService
 	{
@@ -194,6 +195,21 @@ package org.bigbluebutton.main.model.users
 				dispatcher.dispatchEvent(e);
 			}
 			
+		}
+		
+		/**
+		 * Callback from the server from many of the bellow nc.call methods
+		 */
+		public function clientCommand(cmd:String):void
+		{
+			LogUtil.error("Received clientCommand [" + cmd + "]");			
+			/*
+			var event:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
+			event.message = cmd + " --- " + "|TEST|0|14:00|en|3";
+			
+			var globalDispatcher:Dispatcher = new Dispatcher();
+			globalDispatcher.dispatchEvent(event);
+			*/
 		}
 					
 		public function assignPresenter(userid:Number, assignedBy:Number):void {

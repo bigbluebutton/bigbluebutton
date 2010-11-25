@@ -117,7 +117,7 @@ package org.bigbluebutton.modules.chat.services
 		public function newChatMessage(message:String):void{
 			trace("Received New Chat Message " + message);	
 			var event:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
-			event.message = message;
+			event.message = "TEST " + message;
 			
 			var globalDispatcher:Dispatcher = new Dispatcher();
 			globalDispatcher.dispatchEvent(event);	   			

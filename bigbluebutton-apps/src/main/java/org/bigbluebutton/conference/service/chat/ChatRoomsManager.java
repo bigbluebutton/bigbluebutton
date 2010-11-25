@@ -73,12 +73,17 @@ public class ChatRoomsManager {
 		return null;
 	}
 	
-	public void sendMessage(String room, String message) {
+	public void sendMessage(String room, String message)
+	{	
 		ChatRoom r = getRoom(room);
-		if (r != null) {
+		if (r != null)
+		{
 			r.sendMessage(message);
 		}
-		log.warn("Sending message to a non-existing room {}", room);
+		else
+		{		
+			log.warn("Sending message to a non-existing room {}", room);
+		}
 	}
 	
 	public void addRoomListener(String roomName, IChatRoomListener listener) {

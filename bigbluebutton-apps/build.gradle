@@ -3,7 +3,7 @@ usePlugin 'groovy'
 usePlugin 'war'
 usePlugin 'eclipse'
 
-version = '0.7'
+version = '0.71'
 jar.enabled = true
 
 def appName = 'bigbluebutton'
@@ -50,7 +50,7 @@ repositories {
         }
    	}
    	mavenRepo urls: 'http://scala-tools.org/repo-releases/'
-   	flatDir name: 'fileRepo', dirs: "/home/firstuser/dev/repo"
+   	flatDir name: 'fileRepo', dirs: "/home/user/dev/repo"
 }
 
 dependencies {	 

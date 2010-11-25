@@ -77,6 +77,7 @@ class ApiController {
 
 	/* interface (API) methods */
 	def create = {
+
 		log.debug CONTROLLER_NAME + "#create"
 
 		if (!doChecksumSecurity("create")) {
@@ -313,6 +314,58 @@ class ApiController {
 						returncode(RESP_CODE_SUCCESS)
 						messageKey("sentEndMeetingRequest")
 						message("A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.")
+					}
+				}
+			}
+		}
+	}
+	
+	def command = {
+	
+		println "Received Command - " + params.test
+		
+		// check for existing:
+		DynamicConference conf2 = dynamicConferenceService.getConferenceByMeetingID(params.meetingID);
+		Room room2 = dynamicConferenceService.getRoomByMeetingID(params.meetingID);
+		
+		conferenceEventListener.clientCommand(room2.getName() + "\t" + params.message);	
+	
+		log.debug CONTROLLER_NAME + "#command"
+
+/*
+		if (!doChecksumSecurity("command"))
+		{
+			invalidChecksum(); return;
+		}
+
+		String mtgID = params.meetingID
+		String callPW = params.password
+
+		// check for existing:
+		DynamicConference conf = dynamicConferenceService.getConferenceByMeetingID(mtgID);
+		Room room = dynamicConferenceService.getRoomByMeetingID(mtgID);
+		
+		if (conf == null || room == null)
+		{
+			invalid("notFound", "We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?");
+			return;
+		}
+		
+		if (conf.getModeratorPassword().equals(callPW) == false)
+		{
+			invalidPassword("You must supply the moderator password for this call."); return;
+		}
+		
+		conferenceEventListener.clientCommand(room.getName() + "\t" + params.message);
+*/		
+		response.addHeader("Cache-Control", "no-cache")
+		withFormat {	
+			xml {
+				render(contentType:"text/xml") {
+					response() {
+						returncode(RESP_CODE_SUCCESS)
+						messageKey("sentClientCommand")
+						message("Client command was sent")
 					}
 				}
 			}

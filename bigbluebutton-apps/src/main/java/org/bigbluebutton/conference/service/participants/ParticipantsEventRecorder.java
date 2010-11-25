@@ -76,6 +76,16 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 		so.sendMessage("logout", new ArrayList());
 		recordEvent(parseParticipantsToJSON(new ArrayList(), this.RECORD_EVENT_LEAVE_ALL));
 	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public void clientCommand(String cmd)
+	{
+		log.debug("clientCommand received: " + cmd);
+		ArrayList args = new ArrayList();
+		args.add(cmd);
+		so.sendMessage("clientCommand", args);
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override

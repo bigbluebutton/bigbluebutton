@@ -27,4 +27,6 @@ public interface IRoomListener {
 	public void participantLeft(Long userid);
 	
 	public void endAndKickAll();
+	
+	public void clientCommand(String cmd);
 }
