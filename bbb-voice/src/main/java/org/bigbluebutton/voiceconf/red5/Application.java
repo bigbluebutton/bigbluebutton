@@ -74,12 +74,17 @@ public class Application extends MultiThreadedApplicationAdapter {
     	String userid = ((String) params[0]).toString();
         String username = ((String) params[1]).toString();
         String clientId = Red5.getConnectionLocal().getClient().getId();
+        String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
+        int remotePort = Red5.getConnectionLocal().getRemotePort();
+        
         if ((userid == null) || ("".equals(userid))) userid = "unknown-userid";
         if ((username == null) || ("".equals(username))) username = "UNKNOWN-CALLER";
         Red5.getConnectionLocal().setAttribute("USERID", userid);
         Red5.getConnectionLocal().setAttribute("USERNAME", username);
         
         log.info("{} [clientid={}] has connected to the voice conf app.", username + "[uid=" + userid + "]", clientId);
+        log.info("[clientid={}] connected from {}.", clientId, remoteHost + ":" + remotePort);
+        
         clientConnManager.createClient(clientId, userid, username, (IServiceCapableConnection) Red5.getConnectionLocal());
         return true;
     }
@@ -90,8 +95,12 @@ public class Application extends MultiThreadedApplicationAdapter {
     	String userid = getUserId();
     	String username = getUsername();
     	
+        String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
+        int remotePort = Red5.getConnectionLocal().getRemotePort();    	
+    	log.info("[clientid={}] disconnnected from {}.", clientId, remoteHost + ":" + remotePort);
         log.debug("{} [clientid={}] is leaving the voice conf app. Removing from ConnectionManager.", username + "[uid=" + userid + "]", clientId);
-    	clientConnManager.removeClient(clientId);
+    	
+        clientConnManager.removeClient(clientId);
 
         String peerId = (String) Red5.getConnectionLocal().getAttribute("VOICE_CONF_PEER");
         if (peerId != null) {
