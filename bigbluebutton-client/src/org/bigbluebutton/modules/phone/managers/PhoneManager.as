@@ -60,11 +60,11 @@ package org.bigbluebutton.modules.phone.managers
 		public function joinVoice(autoJoin:Boolean):void {
 			setupMic(autoJoin);
 			var uid:String = String( Math.floor( new Date().getTime() ) );
-			connectionManager.connect(uid, attributes.username, attributes.room, attributes.uri);
+			connectionManager.connect(uid, attributes.externUserID, attributes.username, attributes.room, attributes.uri);
 		}		
 				
 		public function dialConference():void {
-			LogUtil.debug("Dialing...." + attributes.webvoiceconf);
+			LogUtil.debug("Dialing...." + attributes.webvoiceconf + "...." + attributes.externUserID);
 			connectionManager.doCall(attributes.webvoiceconf);
 		}
 		

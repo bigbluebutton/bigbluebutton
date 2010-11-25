@@ -28,10 +28,14 @@ private static Logger log = Red5LoggerFactory.getLogger(ClientConnection.class, 
 	
 	private final IServiceCapableConnection connection;
 	private final String connId;
+	private final String userid;
+	private final String username;
 	
-	public ClientConnection(String connId, IServiceCapableConnection connection) {
+	public ClientConnection(String connId, String userid, String username, IServiceCapableConnection connection) {
 		this.connection = connection;
 		this.connId = connId;
+		this.userid = userid;
+		this.username = username;
 	}
 	
 	public String getConnId() {
@@ -39,17 +43,17 @@ private static Logger log = Red5LoggerFactory.getLogger(ClientConnection.class, 
 	}
 	
     public void onJoinConferenceSuccess(String publishName, String playName, String codec) {
-    	log.debug( "SIP Call Connected" );
+    	log.debug("Notify client that {} [{}] has joined the conference.", username, userid);
         connection.invoke("successfullyJoinedVoiceConferenceCallback", new Object[] {publishName, playName, codec});
     }
 
     public void onJoinConferenceFail() {
-        log.debug("onOutgoingCallFailed");
+    	log.debug("Notify client that {} [{}] failed to join the conference.", username, userid);
         connection.invoke("failedToJoinVoiceConferenceCallback", new Object[] {"onUaCallFailed"});
     }
 
     public void onLeaveConference() {
-    	log.debug("onCallClosed");
+    	log.debug("Notify client that {} [{}] left the conference.", username, userid);
         connection.invoke("disconnectedFromJoinVoiceConferenceCallback", new Object[] {"onUaCallClosed"});
     }
 }

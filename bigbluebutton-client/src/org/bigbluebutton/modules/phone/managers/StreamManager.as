@@ -115,7 +115,9 @@ package org.bigbluebutton.modules.phone.managers
 		
 		public function mute():void {
 			if(!muted) {
+				
 				if(outgoingStream != null) {
+					LogUtil.debug("***** Muting the mic.");
 					outgoingStream.close();
 					outgoingStream = null;
 					muted = true;
@@ -125,6 +127,7 @@ package org.bigbluebutton.modules.phone.managers
 		
 		public function unmute():void {
 			if (muted) {
+				LogUtil.debug("***** UNMuting the mic.");
 				outgoingStream = new NetStream(connection);
 				outgoingStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
 				outgoingStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);		

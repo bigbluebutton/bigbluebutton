@@ -73,8 +73,9 @@ public class FlashToSipAudioStream {
 		    	  log.debug("skipping empty packet with no data");
 		    	  return;
 		      }
-		      		      
+		      System.out.println("Receive RTMP packet."); 		      
 		      if (packet instanceof AudioData) {
+		    	  System.out.println("**** Receive RTMP audio packet.");
 		    	  byte[] data = SerializeUtils.ByteBufferToByteArray(buf);
 				  AudioByteData abd = new AudioByteData(data);
 				  try {

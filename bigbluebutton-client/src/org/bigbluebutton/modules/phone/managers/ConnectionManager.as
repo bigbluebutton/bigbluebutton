@@ -60,7 +60,7 @@ package org.bigbluebutton.modules.phone.managers {
 			return netConnection;
 		}
 		
-		public function connect(uid:String, username:String, room:String, uri:String):void {
+		public function connect(uid:String, externUID:String, username:String, room:String, uri:String):void {
 			if (isConnected) return;
 			isConnected = true;
 			
@@ -68,16 +68,16 @@ package org.bigbluebutton.modules.phone.managers {
 			this.username  = username;
 			this.room = room;
 			this.uri   = uri;
-			connectToServer();
+			connectToServer(externUID, username);
 		}
 		
-		private function connectToServer():void {			
+		private function connectToServer(externUID:String, username:String):void {			
 			NetConnection.defaultObjectEncoding = flash.net.ObjectEncoding.AMF0;	
 			netConnection = new NetConnection();
 			netConnection.client = this;
 			netConnection.addEventListener( NetStatusEvent.NET_STATUS , netStatus );
 			netConnection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
-			netConnection.connect(uri);
+			netConnection.connect(uri, externUID, username);
 		}
 
 		public function disconnect():void {
