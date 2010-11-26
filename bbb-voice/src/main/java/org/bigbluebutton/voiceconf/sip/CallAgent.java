@@ -209,8 +209,7 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     }
     
     private void closeVoiceStreams() {        
-    	log.debug("closeMediaApplication" );
-        
+    	log.debug("Shutting down the voice streams.");         
         if (callStream != null) {
         	callStream.stop();
         	callStream = null;
@@ -333,14 +332,10 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     
     /** Callback function called when arriving a BYE request */
     public void onCallClosing(Call call, Message bye) {
-    	log.debug("onCallClosing");
+    	log.info("Received a BYE from the other end telling us to hangup.");
         
-    	if (!isCurrentCall(call)) return;
-
-        log.debug("CLOSE.");
-        
+    	if (!isCurrentCall(call)) return;               
         closeVoiceStreams();
-
         notifyListenersOfOnCallClosed();
         callState = CallState.UA_IDLE;
 
