@@ -38,7 +38,7 @@ public class Service {
     	String clientId = Red5.getConnectionLocal().getClient().getId();
     	String userid = getUserId();
     	String username = getUsername();		
-    	log.debug("{} is calling into conference {}", username + "[uid=" + userid + "][clientid=" + clientId + "]", destination);
+    	log.debug("{} is requesting to join into the conference {}", username + "[uid=" + userid + "][clientid=" + clientId + "]", destination);
 		
 		String extension = callExtensionPattern.format(new String[] { destination });
 		try {
@@ -55,7 +55,7 @@ public class Service {
     	String clientId = Red5.getConnectionLocal().getClient().getId();
     	String userid = getUserId();
     	String username = getUsername();		
-    	log.debug("{} is hanging up from the conference.", username + "[uid=" + userid + "][clientid=" + clientId + "]");
+    	log.debug("{} is requesting to hang up from the conference.", username + "[uid=" + userid + "][clientid=" + clientId + "]");
 		try {
 			sipPeerManager.hangup(peerId, getClientId());
 			return true;

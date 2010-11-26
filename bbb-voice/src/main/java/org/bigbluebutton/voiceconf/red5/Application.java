@@ -105,7 +105,7 @@ public class Application extends MultiThreadedApplicationAdapter {
         String peerId = (String) Red5.getConnectionLocal().getAttribute("VOICE_CONF_PEER");
         if (peerId != null) {
 			try {
-				log.debug("Hanging up {} [clientid={}] in case the user is still in the conference.", username + "[uid=" + userid + "]", clientId);
+				log.debug("Forcing hang up {} [clientid={}] in case the user is still in the conference.", username + "[uid=" + userid + "]", clientId);
 				sipPeerManager.hangup(peerId, clientId);
 			} catch (PeerNotFoundException e) {
 				// TODO Auto-generated catch block
