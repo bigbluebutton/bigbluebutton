@@ -63,7 +63,36 @@ public class DeskshareSystemTray {
 		};
 		EventQueue.invokeLater(runner);
 	}
-
+	
+	/*****************************************************************************
+    ;  disconnectIconSystemTrayMessage
+    ;----------------------------------------------------------------------------
+	; DESCRIPTION
+	;   This routine is used to change icon system tray message string 
+	;   to disconnect.
+	;
+	; RETURNS : N/A
+	;
+	; INTERFACE NOTES
+	; 
+	;       INPUT : N/A
+	; 
+	;       OUTPUT : N/A
+	; 
+	; IMPLEMENTATION
+	;
+	; HISTORY
+	; __date__ :        PTS:  
+	; 2010.11.19		problem 272
+	;
+	******************************************************************************/
+	public void disconnectIconSystemTrayMessage(){
+		trayIcon.setToolTip("Disconnected");
+		trayIcon.displayMessage("Deskshare Disconnected" , 
+				                "You're disconnected from desktop sharing", 
+				                TrayIcon.MessageType.ERROR);
+	} // END FUNCTION disconnectIconSystemTrayMessage
+	
     public void removeIconFromSystemTray() {
     	if (tray != null && trayIcon != null) {
     		tray.remove(trayIcon);
