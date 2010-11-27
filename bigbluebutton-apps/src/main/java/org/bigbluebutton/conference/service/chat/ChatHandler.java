@@ -39,7 +39,6 @@ public class ChatHandler extends ApplicationAdapter implements IApplication{
 
 	private RecorderApplication recorderApplication;
 	private ChatApplication chatApplication;
-	private IScope scope;
 	
 	@Override
 	public boolean appConnect(IConnection conn, Object[] params) {
@@ -65,7 +64,6 @@ public class ChatHandler extends ApplicationAdapter implements IApplication{
 
 	@Override
 	public boolean appStart(IScope scope) {
-		this.scope = scope;
 		log.debug("appStart: {}", scope.getName());
 		return true;
 	}
@@ -76,11 +74,12 @@ public class ChatHandler extends ApplicationAdapter implements IApplication{
 	}
 
 	@Override
-	public boolean roomConnect(IConnection connection, Object[] params) {
+	public boolean roomConnect(IConnection connection, Object[] params)
+	{
 		log.debug("roomConnect");
 		ISharedObject so = getSharedObject(connection.getScope(), CHAT_SO);
 		log.debug("Setting up recorder");
-		ChatEventRecorder recorder = new ChatEventRecorder(so, getBbbSession().getRecord());
+		ChatEventRecorder recorder = new ChatEventRecorder(chatApplication, so, getBbbSession().getRecord());
 		log.debug("adding event recorder to {}", connection.getScope().getName());
 		recorderApplication.addEventRecorder(connection.getScope().getName(), recorder);
 		log.debug("Adding room listener");
@@ -90,7 +89,8 @@ public class ChatHandler extends ApplicationAdapter implements IApplication{
 	}
 
 	@Override
-	public void roomDisconnect(IConnection connection) {
+	public void roomDisconnect(IConnection connection)
+	{
 		log.debug("roomDisconnect");
 	}
 
@@ -119,10 +119,12 @@ public class ChatHandler extends ApplicationAdapter implements IApplication{
 	}
 
 	@Override
-	public void roomStop(IScope scope) {
+	public void roomStop(IScope scope)
+	{
 		log.debug("roomStop ", scope.getName());
 		chatApplication.destroyRoom(scope.getName());
-		if (!hasSharedObject(scope, CHAT_SO)) {
+		if (!hasSharedObject(scope, CHAT_SO))
+		{
     		clearSharedObjects(scope, CHAT_SO);
     	}
 	}

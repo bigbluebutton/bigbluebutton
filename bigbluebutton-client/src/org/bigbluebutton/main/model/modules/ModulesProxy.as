@@ -28,6 +28,10 @@ package org.bigbluebutton.main.model.modules
 	import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.PortTestProxy;
+	import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
+	import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
+	import org.bigbluebutton.modules.chat.events.StopChatModuleEvent;
+	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
 	
 	public class ModulesProxy {
 		
@@ -75,8 +79,61 @@ package org.bigbluebutton.main.model.modules
 			else modulesDispatcher.sendTunnelingFailedEvent();
 		}
 		
-		public function loadAllModules(params:ConferenceParameters):void{
+		public function loadAllModules(params:ConferenceParameters):void
+		{
 			modulesManager.loadAllModules(params);
+		}
+		
+		public function commandReceived(params:String):void
+		{
+			//modulesManager.loadAllModules(params);
+			if(params == "CHAT_START")
+			{
+				modulesManager.startModule("ChatModule");
+				/*
+				var event1:StartChatModuleEvent = new StartChatModuleEvent(StartChatModuleEvent.START_CHAT_MODULE_EVENT);		
+				
+				
+				var globalDispatcher:Dispatcher = new Dispatcher();
+				globalDispatcher.dispatchEvent(event1);
+				*/
+			}
+			else if(params == "CHAT_STOP")
+			{
+				/*			
+				var event2:StopChatModuleEvent = new StopChatModuleEvent(StopChatModuleEvent.STOP_CHAT_MODULE_EVENT);
+				
+				event.message = params;			*/			
+				
+				
+				//var globalDispatcher:Dispatcher = new Dispatcher();
+				//globalDispatcher.dispatchEvent(event2);
+				modulesManager.stopModule("ChatModule");
+			}
+			else if(params == "PRESENT_START")
+			{
+				modulesManager.startModule("PresentModule");
+				/*
+				var event3:PresentModuleEvent = new PresentModuleEvent(PresentModuleEvent.STOP_MODULE);							
+				event.message = params;
+				
+				
+				var globalDispatcher:Dispatcher = new Dispatcher();
+				globalDispatcher.dispatchEvent(event3);
+				*/
+			}
+			else if(params == "PRESENT_STOP")
+			{
+				modulesManager.stopModule("PresentModule");
+				/*
+				var event3:PresentModuleEvent = new PresentModuleEvent(PresentModuleEvent.STOP_MODULE);							
+				event.message = params;
+				
+				
+				var globalDispatcher:Dispatcher = new Dispatcher();
+				globalDispatcher.dispatchEvent(event3);
+				*/
+			}
 		}
 	}
 }

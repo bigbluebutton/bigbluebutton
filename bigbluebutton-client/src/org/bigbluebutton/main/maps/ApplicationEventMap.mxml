@@ -65,6 +65,10 @@
 		<MethodInvoker generator="{ModulesProxy}" method="loadAllModules" arguments="{event.conferenceParameters}" />
 	</EventHandlers>
 	
+	<EventHandlers type="{ClientCommand.COMMAND_RECEIVED}" >
+		<MethodInvoker generator="{ModulesProxy}" method="commandReceived" arguments="{event.command}" />
+	</EventHandlers>
+	
 	<!-- Viewers Stuff -->
 	<EventHandlers type="{RaiseHandEvent.RAISE_HAND}" >
 		<MethodInvoker generator="{UserService}" method="raiseHand" arguments="{event}" />
@@ -95,6 +99,7 @@
 	<![CDATA[
 		import mx.events.FlexEvent;
 		
+		import org.bigbluebutton.main.events.ClientCommand;
 		import org.bigbluebutton.main.events.ConfigEvent;
 		import org.bigbluebutton.main.events.LogoutEvent;
 		import org.bigbluebutton.main.events.ModuleLoadEvent;

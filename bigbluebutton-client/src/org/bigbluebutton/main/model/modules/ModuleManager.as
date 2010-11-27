@@ -33,6 +33,7 @@ package org.bigbluebutton.main.model.modules
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.ConfigParameters;
 	
+	
 	public class ModuleManager
 	{
 		public static const MODULE_LOAD_READY:String = "MODULE_LOAD_READY";
@@ -88,9 +89,11 @@ package org.bigbluebutton.main.model.modules
 			return configParameters.getModule(name);	
 		}
 
-		private function startModule(name:String):void {
+		public function startModule(name:String):void
+		{
 			var m:ModuleDescriptor = getModule(name);
-			if (m != null) {
+			if (m != null)
+			{
 				LogUtil.debug('Starting module' + name);
 				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
 				m.loadConfigAttributes(conferenceParameters, _protocol);
@@ -98,13 +101,15 @@ package org.bigbluebutton.main.model.modules
 			}	
 		}
 
-		private function stopModule(name:String):void {
+		public function stopModule(name:String):void {
 			LogUtil.debug('Stopping module ' + name);
 			var m:ModuleDescriptor = getModule(name);
-			if (m != null) {
+			if (m != null)
+			{
 				LogUtil.debug('Stopping ' + name);
 				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
-				if(bbb == null) { //Still has null object refrence on logout sometimes.
+				if(bbb == null)
+				{ //Still has null object refrence on logout sometimes.
 					LogUtil.debug('Module ' + name + ' was null skipping');
 					return;
 				}

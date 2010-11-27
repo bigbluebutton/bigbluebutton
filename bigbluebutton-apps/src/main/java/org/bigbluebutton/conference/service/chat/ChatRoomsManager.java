@@ -78,6 +78,7 @@ public class ChatRoomsManager {
 		ChatRoom r = getRoom(room);
 		if (r != null)
 		{
+			log.debug("Sending message to room: " + room + ", message: " + message, room);
 			r.sendMessage(message);
 		}
 		else
@@ -86,9 +87,11 @@ public class ChatRoomsManager {
 		}
 	}
 	
-	public void addRoomListener(String roomName, IChatRoomListener listener) {
+	public void addRoomListener(String roomName, IChatRoomListener listener)
+	{
 		ChatRoom r = getRoom(roomName);
-		if (r != null) {
+		if (r != null)
+		{
 			r.addRoomListener(listener);
 			return;
 		}

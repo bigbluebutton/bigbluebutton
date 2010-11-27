@@ -29,11 +29,13 @@ package org.bigbluebutton.main.model.users
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.events.BBBEvent;
+	import org.bigbluebutton.main.events.ClientCommand;
 	import org.bigbluebutton.main.events.LogoutEvent;
 	import org.bigbluebutton.main.events.ParticipantJoinEvent;
 	import org.bigbluebutton.main.events.PresenterStatusEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.User;
+	import org.bigbluebutton.main.model.modules.ModuleManager;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 	import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
 
@@ -202,7 +204,19 @@ package org.bigbluebutton.main.model.users
 		 */
 		public function clientCommand(cmd:String):void
 		{
-			LogUtil.error("Received clientCommand [" + cmd + "]");			
+			LogUtil.error("Received clientCommand [" + cmd + "]");
+			
+			/*
+			var moduleManager:ModuleManager = new ModuleManager();
+			moduleManager.stopModule("chat");
+			*/
+			
+			var event:ClientCommand = new ClientCommand(ClientCommand.COMMAND_RECEIVED);
+			event.command = cmd;
+			
+			var globalDispatcher:Dispatcher = new Dispatcher();
+			globalDispatcher.dispatchEvent(event);
+			
 			/*
 			var event:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
 			event.message = cmd + " --- " + "|TEST|0|14:00|en|3";

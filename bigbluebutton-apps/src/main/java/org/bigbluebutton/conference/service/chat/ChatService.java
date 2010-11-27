@@ -25,27 +25,40 @@ import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.so.ISharedObject;import org.red5.server.api.Red5;
 
-public class ChatService {
+public class ChatService
+{
 	
 	private static Logger log = Red5LoggerFactory.getLogger( ChatService.class, "bigbluebutton" );
 	
-	private ChatApplication application;
+	private ChatApplication application;	
 
-	public List<String> getChatMessages() {
+	public List<String> getChatMessages()
+	{
+		log.debug("getChatMessages was called");
 		String roomName = Red5.getConnectionLocal().getScope().getName();
 		return application.getChatMessages(roomName);
 	}
 	
-	public void sendMessage(String message) {
+	public void sendMessage(String message)
+	{
+		/*
+		ISharedObject sharedObject = application.handler.getSharedObject(Red5.getConnectionLocal().getScope(), "chatSO");
+		ArrayList<String> list=new ArrayList<String>();
+		list.add(message);
+		sharedObject.sendMessage("newChatMessage", list);
+		*/
+		
 		String roomName = Red5.getConnectionLocal().getScope().getName();
 		application.sendMessage(roomName, message);
 	}
-	public void setChatApplication(ChatApplication a) {
+	public void setChatApplication(ChatApplication a)
+	{
 		log.debug("Setting Chat Applications");
 		application = a;
 	}
 	
-	public void privateMessage(String message, String sender, String recepient){
+	public void privateMessage(String message, String sender, String recepient)
+	{
 		log.debug("Received private message: " + message + " from " + sender + " to " + recepient + " The client scope is: " + Red5.getConnectionLocal().getScope().getName());
 		ISharedObject sharedObject = application.handler.getSharedObject(Red5.getConnectionLocal().getScope(), recepient);
 		ArrayList<String> arguments = new ArrayList<String>();
