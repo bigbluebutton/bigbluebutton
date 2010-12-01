@@ -140,11 +140,11 @@ public class AudioBroadcastStream implements IBroadcastStream, IProvider, IPipeC
 	}
 
 	public void start() {
-		log.trace("start()");
+		log.debug("Starting AudioBroadcastStream()");
 	}
 
 	public void stop() {
-		log.trace("stop");
+		log.debug("Stopping AudioBroadcastStream");
 	}
 
 	public void onOOBControlMessage(IMessageComponent source, IPipe pipe, OOBControlMessage oobCtrlMsg) {
