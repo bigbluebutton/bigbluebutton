@@ -220,7 +220,7 @@ public class RtpStreamReceiver {
     private void processRtpPacket(RtpPacket rtpPacket) {
 		lastSequenceNumber = rtpPacket.getSeqNum();
 		lastPacketTimestamp = rtpPacket.getTimestamp();
-		AudioByteData audioData = new AudioByteData(rtpPacket.getPayload());
+		AudioByteData audioData = new AudioByteData(rtpPacket.getPayload(), false);
 		if (listener != null) listener.onAudioDataReceived(audioData);
 		else log.debug("No listener for incoming audio packet");    	
     }

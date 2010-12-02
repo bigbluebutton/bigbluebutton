@@ -77,7 +77,7 @@ public class FlashToSipAudioStream {
 		      if (packet instanceof AudioData) {
 		    	  System.out.println("**** Receive RTMP audio packet.");
 		    	  byte[] data = SerializeUtils.ByteBufferToByteArray(buf);
-				  AudioByteData abd = new AudioByteData(data);
+				  AudioByteData abd = new AudioByteData(data, false);
 				  try {
 					  audioDataQ.put(abd);
 				  } catch (InterruptedException e) {
@@ -105,7 +105,11 @@ public class FlashToSipAudioStream {
 		while (processAudioData) {
 			try {
 				AudioByteData abd = audioDataQ.take();
-				transcoder.transcode(abd, 1, abd.getData().length-1, new TranscodedAudioListener());
+				if (abd.status()) {
+					log.debug("Flash Queue Poisoned - Dieing");
+					break;
+				}
+					transcoder.transcode(abd, 1, abd.getData().length-1, new TranscodedAudioListener());
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -116,6 +120,14 @@ public class FlashToSipAudioStream {
 	public void stop(IBroadcastStream broadcastStream, IScope scope) {
 		broadcastStream.removeStreamListener(mInputListener);
 		processAudioData = false;
+		try {
+			log.debug("Posioning Flash Queue");
+			audioDataQ.put(new AudioByteData(new byte[] {0}, true));
+			log.debug("Posioned Flash Queue");
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public String getStreamName() {

@@ -86,6 +86,12 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 	
 	public void stop() {
 		processAudioData = false;
+		try {
+			audioDataQ.put(new AudioByteData(new byte[] {0}, true));
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		rtpStreamReceiver.stop();
 		audioBroadcastStream.stop();
 	    audioBroadcastStream.close();
@@ -127,6 +133,8 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 		while (processAudioData) {
 			try {
 				AudioByteData abd = audioDataQ.take();
+				if (abd.status())
+					break;
 				transcoder.transcode(abd, this);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
