@@ -59,7 +59,7 @@ package org.bigbluebutton.modules.phone.managers
 		
 		public function initMicrophone():void {
 			mic = Microphone.getMicrophone();
-		
+
 			if(mic == null){
 				initWithNoMicrophone();
 			} else {
@@ -191,6 +191,7 @@ package org.bigbluebutton.modules.phone.managers
 			
 			if(outgoingStream != null) {
 				outgoingStream.attachAudio(null);
+				outgoingStream.close();
 			}
 				
 			isCallConnected = false;
