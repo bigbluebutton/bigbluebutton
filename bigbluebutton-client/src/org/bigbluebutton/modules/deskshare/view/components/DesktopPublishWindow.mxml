@@ -29,7 +29,7 @@
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
 	width="320" height="240"
 	title="{ResourceUtil.getInstance().getString('bbb.desktopPublish.title')}"
-	resizable="false">
+	resizable="true" initialize="allowCallBack()">
 		
 	<mate:Listener type="{AppletStartedEvent.APPLET_STARTED}" method="onAppletStart" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="onChangedPresenter" />
@@ -45,6 +45,10 @@
 			import flexlib.mdi.events.MDIWindowEvent;
 			
 			import mx.core.UIComponent;
+			
+			//PTS_312
+			import mx.controls.Alert;
+			import flash.external.*;			
 			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
@@ -280,6 +284,71 @@
 				stopStream();
 			}
 			
+            /*****************************************************************************
+            ;  allowCallBack
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ;   This routine is use to add function that will be call from javascript.
+            ;
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ; 
+            ;       INPUT : N/A
+            ;
+            ; 
+            ; IMPLEMENTATION
+            ;  
+            ; HISTORY
+            ; __date__ :        PTS:  
+            ; 2010.11.24        problem 312
+            ;
+            ******************************************************************************/
+            public function allowCallBack():void
+            {
+                if (true == ExternalInterface.available)
+                {
+                    // add function that can call back from javascript
+                    ExternalInterface.addCallback("callBack", showDeniedMsg);
+                }
+            }
+            /*
+             * END: allowCalBack
+             */
+            /*****************************************************************************
+            ;  showDeniedMsg
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ;   This routine is use to call by javascript when user denied
+            ;   applet permission.
+            ;
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ; 
+            ;       INPUT : N/A
+            ;
+            ;
+            ; IMPLEMENTATION
+            ;  
+            ; HISTORY
+            ; __date__ :        PTS:  
+            ; 2010.11.24        problem 312
+            ;
+            ******************************************************************************/
+            public function showDeniedMsg():void
+            {
+                // close deskshare publish window.
+                closeWindow();
+                Alert.show(
+                            'Applet permission has been denied.\nTo re-share the desktop, you'
+                            + ' need to "restart your browser" or kill "java.exe" process.',
+                            'Destop sharing infomation', mx.controls.Alert.OK
+                            );
+            }
+            /*
+             * END showDeniedMsg
+             */
 		]]>
 	</mx:Script>
 

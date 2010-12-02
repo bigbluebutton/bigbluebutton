@@ -27,6 +27,9 @@ import javax.swing.JOptionPane;
 
 import java.awt.Image;
 
+//PTS_312: to access JSObject
+import netscape.javascript.*;
+
 public class DeskShareApplet extends JApplet implements ClientListener {
 	public static final String NAME = "DESKSHAREAPPLET: ";
 	
@@ -67,19 +70,41 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 	}
 		
 	@Override
-	public void start() {		 	
-		System.out.println("Desktop Sharing Applet Starting");
-		super.start();
-		client = new DeskshareClient.NewBuilder().host(hostValue).port(portValue)
-					.room(roomValue).captureWidth(cWidthValue)
-					.captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue)
-					.quality(qualityValue).aspectRatio(aspectRatioValue)
-					.x(xValue).y(yValue).fullScreen(fullScreenValue)
-					.httpTunnel(tunnelValue).trayIcon(icon).enableTrayIconActions(false).build();
-		client.addClientListener(this);
-		client.start();
-	}
-			
+    public void start() {
+        System.out.println("Desktop Sharing Applet Starting");
+        super.start();
+        client = new DeskshareClient.NewBuilder().host(hostValue).port(portValue)
+                    .room(roomValue).captureWidth(cWidthValue)
+                    .captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue)
+                    .quality(qualityValue).aspectRatio(aspectRatioValue)
+                    .x(xValue).y(yValue).fullScreen(fullScreenValue)
+                    .httpTunnel(tunnelValue).trayIcon(icon).enableTrayIconActions(false).build();
+        client.addClientListener(this);
+
+        try{
+            // applet permission allowed. PTS_312
+            client.start();
+        }catch(Exception e){
+            // applet permission denied. PTS_312
+            JSObject win =(JSObject) JSObject.getWindow(this);
+            if( null != win )
+            {
+                try {
+                    // execute javascript to call "callBack" function
+                    // from flex. PTS_312
+                    win.eval("BigBlueButton.callBack();stopApplet()");
+                }
+                catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+            else
+            {
+                System.out.println("Can not create JSObject for accessing javascript.");
+            }
+        }
+    }
+	
 	@Override
 	public void destroy() {
 		System.out.println("Desktop Sharing Applet Destroy");

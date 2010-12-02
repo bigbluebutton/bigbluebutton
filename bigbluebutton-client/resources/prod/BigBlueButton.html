@@ -101,33 +101,57 @@ if ( hasProductInstall && !hasRequestedVersion ) {
     document.write(alternateContent);  // insert non-flash content
   }
 // -->
-
+/*****************************************************************************
+;  startApplet
+;----------------------------------------------------------------------------
+; DESCRIPTION
+;   This routine is use to execute java applet for share the desktop.
+;
+; RETURNS : N/A
+;
+; INTERFACE NOTES
+;
+; IMPLEMENTATION
+;  
+; HISTORY
+; __date__ :        PTS:  			Description
+; 2010.11.24		problem 312     replace "iframe" to "div" element
+;
+******************************************************************************/
 function startApplet(IP, roomNumber, fullScreen)
 {
-	var iframe = document.createElement("iframe");
-  	iframe.id = "iframe";
-   	document.body.appendChild(iframe);
-   	frames[frames.length - 1].document.write(
-   		"<applet code=\"org.bigbluebutton.deskshare.client.DeskShareApplet.class\"" +
+	 // PTS_312: replace "iframe" to "div" element to allow javascript
+	 // call form applet to access flash object.
+     var iframe = document.createElement("div");
+     iframe.id = "iframe";
+     iframe.innerHTML = "<applet code=\"org.bigbluebutton.deskshare.client.DeskShareApplet.class\"" +
    			"id=\"DeskShareApplet\" width=\"0\" height=\"400\" archive=\"bbb-deskshare-applet-0.71.jar\">" +
         	"<param name=\"ROOM\" value=\"" + roomNumber  + "\"/>" +
         	"<param name=\"IP\" value=\"" + IP + "\"/>" +
         	"<param name=\"FULL_SCREEN\" value=\"" + fullScreen + "\"/>" +       	
       	"</applet>"
-     );
+     document.body.appendChild(iframe);
 }
-
+/*
+ * END: startApplet
+ */
 function removeFrame () {
     var iframe = document.getElementById("iframe");
     iframe.parentNode.removeChild(iframe);
 }
 
 function setScreenCoordinates(x, y) {
-   return frames[frames.length - 1].document.DeskShareApplet.setScreenCoordinates(x,y);
+    return document.DeskShareApplet.setScreenCoordinates(x,y);
 }
 
 function stopApplet(){
-	frames[frames.length - 1].document.DeskShareApplet.destroy();
+	try{
+		// destroy java applet
+		document.DeskShareApplet.destroy();
+	}catch(e){
+		// remove applet
+		removeFrame();
+	}
 	removeFrame();
 }
 
