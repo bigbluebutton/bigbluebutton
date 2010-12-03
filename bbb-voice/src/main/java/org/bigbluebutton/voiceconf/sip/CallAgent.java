@@ -37,7 +37,9 @@ import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IScope;
 import org.red5.server.api.stream.IBroadcastStream;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.Vector;
 
 public class CallAgent extends CallListenerAdapter implements CallStreamObserver  {
@@ -174,22 +176,26 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
         int localAudioPort = SessionDescriptorUtil.getLocalAudioPort(localSdp);
     	
     	SipConnectInfo connInfo = new SipConnectInfo(localSocket, remoteMediaAddress, remoteAudioPort);
-        
-        log.debug("[localAudioPort=" + localAudioPort + ",remoteAudioPort=" + remoteAudioPort + "]");
+        try {
+			localSocket.connect(InetAddress.getByName(remoteMediaAddress), remoteAudioPort);
+	        log.debug("[localAudioPort=" + localAudioPort + ",remoteAudioPort=" + remoteAudioPort + "]");
 
-        if (userProfile.audio && localAudioPort != 0 && remoteAudioPort != 0) {
-            if ((callStream == null) && (sipCodec != null)) {               	
-            	try {
-					callStream = callStreamFactory.createCallStream(sipCodec, connInfo);
-					callStream.addCallStreamObserver(this);
-					callStream.start();
-					notifyListenersOnCallConnected(callStream.getTalkStreamName(), callStream.getListenStreamName());
-				} catch (Exception e) {
-					log.error("Failed to create Call Stream.");
-					System.out.println(StackTraceUtil.getStackTrace(e));
-				}                
-            }
-        }
+	        if (userProfile.audio && localAudioPort != 0 && remoteAudioPort != 0) {
+	            if ((callStream == null) && (sipCodec != null)) {               	
+	            	try {
+						callStream = callStreamFactory.createCallStream(sipCodec, connInfo);
+						callStream.addCallStreamObserver(this);
+						callStream.start();
+						notifyListenersOnCallConnected(callStream.getTalkStreamName(), callStream.getListenStreamName());
+					} catch (Exception e) {
+						log.error("Failed to create Call Stream.");
+						System.out.println(StackTraceUtil.getStackTrace(e));
+					}                
+	            }
+	        }
+		} catch (UnknownHostException e1) {
+			log.error(StackTraceUtil.getStackTrace(e1));
+		}
     }
 
         
