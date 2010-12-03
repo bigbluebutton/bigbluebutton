@@ -59,6 +59,7 @@ package org.bigbluebutton.modules.phone.managers
 		
 		public function initMicrophone():void {
 			mic = Microphone.getMicrophone();
+
 			if(mic == null){
 				initWithNoMicrophone();
 			} else {
@@ -197,7 +198,7 @@ package org.bigbluebutton.modules.phone.managers
 		}
 			
 		public function stopStreams():void {
-			LogUtil.debug("Stoping Streams");
+			LogUtil.debug("Stopping Stream(s)");
 			if(incomingStream != null) {
 				LogUtil.debug("--Stopping Incoming Stream");
 				incomingStream.play(false); 
@@ -214,6 +215,7 @@ package org.bigbluebutton.modules.phone.managers
 			}
 				
 			isCallConnected = false;
+			LogUtil.debug("Stopped Stream(s)");
 		}
 
 		private function netStatus (evt:NetStatusEvent ):void {		 
