@@ -132,7 +132,7 @@ public class RtpStreamReceiver {
     
     private boolean shouldDropDelayedPacket(RtpPacket rtpPacket) {
     	long now = System.currentTimeMillis();
-    	if (now - lastPacketReceived > 100) {
+    	if (now - lastPacketReceived > 200) {
     		if (log.isDebugEnabled())
     			log.debug("Delayed packet [" + rtpPacket.getRtcpPayloadType() + "," + rtpPacket.getPayloadType() + ", length=" + rtpPacket.getPayloadLength() + "] seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
 					+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");          			       			

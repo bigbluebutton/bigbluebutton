@@ -213,6 +213,8 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
         if (callStream != null) {
         	callStream.stop();
         	callStream = null;
+        } else {
+        	log.debug("Can't shutdown voice stream. callstream is NULL");
         }
     }
 
@@ -327,7 +329,12 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     }
     
     private void cleanup() {
-    	localSocket.close();
+    	log.debug("Closing local audio port {}", localSocket.getLocalPort());
+    	if (localSocket != null) {
+    		localSocket.close();
+    	} else {
+    		log.debug("Trying to close un-allocated port {}", localSocket.getLocalPort());
+    	}
     }
     
     /** Callback function called when arriving a BYE request */
