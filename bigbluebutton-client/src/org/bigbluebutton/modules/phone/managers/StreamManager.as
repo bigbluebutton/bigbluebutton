@@ -59,7 +59,7 @@ package org.bigbluebutton.modules.phone.managers
 		
 		public function initMicrophone():void {
 			mic = Microphone.getMicrophone();
-
+			mic = null;
 			if(mic == null){
 				initWithNoMicrophone();
 			} else {
@@ -143,13 +143,22 @@ package org.bigbluebutton.modules.phone.managers
 		}
 								
 		public function callConnected(playStreamName:String, publishStreamName:String, codec:String):void {
+			LogUtil.debug("SM callConnected");
 			isCallConnected = true;
 			audioCodec = codec;
 			setupIncomingStream();
-			setupOutgoingStream();					
+			LogUtil.debug("SM callConnected: Incoming Stream Setup");
+			if (mic != null) {
+				setupOutgoingStream();
+				LogUtil.debug("SM callConnected: Setup Outgoing Stream");
+			}
+			LogUtil.debug("SM callConnected: Setup Stream(s)");
 			setupPlayStatusHandler();
-			play(playStreamName);				
-			publish(publishStreamName);									
+			LogUtil.debug("SM callConnected: After setupPlayStatusHandler");
+			play(playStreamName);
+			LogUtil.debug("SM callConnected: After play");
+			publish(publishStreamName);
+			LogUtil.debug("SM callConnected: Published Stream"); 
 		}
 		
 		private function play(playStreamName:String):void {			
@@ -158,7 +167,10 @@ package org.bigbluebutton.modules.phone.managers
 		
 		private function publish(publishStreamName:String):void {
 			LogUtil.debug("Publishing stream " + publishStreamName);
-			outgoingStream.publish(publishStreamName, "live");
+			if (mic != null)
+				outgoingStream.publish(publishStreamName, "live");
+			else
+				LogUtil.debug("SM publish: No Microphone to publish");
 		}
 		
 		private function setupIncomingStream():void {
@@ -181,17 +193,25 @@ package org.bigbluebutton.modules.phone.managers
 			custom_obj.onPlayStatus = playStatus;
 			custom_obj.onMetadata = onMetadata;
 			incomingStream.client = custom_obj;
-			outgoingStream.client = custom_obj;			
+			if (mic != null)
+				outgoingStream.client = custom_obj;			
 		}
 			
 		public function stopStreams():void {
+			LogUtil.debug("Stoping Streams");
 			if(incomingStream != null) {
+				LogUtil.debug("--Stopping Incoming Stream");
 				incomingStream.play(false); 
+			} else {
+				LogUtil.debug("--Incoming Stream Null");
 			}
 			
 			if(outgoingStream != null) {
+				LogUtil.debug("--Stopping Outgoing Stream");
 				outgoingStream.attachAudio(null);
 				outgoingStream.close();
+			} else {
+				LogUtil.debug("--Outgoing Stream Null");
 			}
 				
 			isCallConnected = false;

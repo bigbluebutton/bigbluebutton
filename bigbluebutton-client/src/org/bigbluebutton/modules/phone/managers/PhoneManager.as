@@ -71,15 +71,19 @@ package org.bigbluebutton.modules.phone.managers
 		public function callConnected(event:CallConnectedEvent):void {
 			LogUtil.debug("Call connected...");
 			setupConnection();
+			LogUtil.debug("callConnected: Connection Setup");
 			streamManager.callConnected(event.playStreamName, event.publishStreamName, event.codec);
+			LogUtil.debug("callConnected::onCall set");
 			onCall = true;
 		}
 		
 		public function hangup():void {
 			LogUtil.debug("PhoneManager hangup");
 			if (onCall) {
+				LogUtil.debug("PM OnCall");
 				streamManager.stopStreams();
 				connectionManager.doHangUp();
+				LogUtil.debug("PM hangup::doHangUp");
 				onCall = false;
 			}			
 		}
