@@ -84,44 +84,35 @@ public class RtpStreamReceiver {
     public void receiveRtpPackets() {    
         int packetReceivedCounter = 0;
         int internalBufferLength = payloadLength + RTP_HEADER_SIZE;
-        byte[] internalBuffer; 
-        RtpPacket rtpPacket;
         
         while (receivePackets) {
         	try {
+                byte[] internalBuffer; 
+                RtpPacket rtpPacket;
         		internalBuffer = new byte[internalBufferLength];
             	rtpPacket = new RtpPacket(internalBuffer, internalBufferLength);        			
-
-        		rtpSocket.receive(rtpPacket);        		
-        		packetReceivedCounter++;  
-//    			log.debug("Received packet [" + rtpPacket.getRtcpPayloadType() + "," + rtpPacket.getPayloadType() + ", length=" + rtpPacket.getPayloadLength() + "] seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
-//    					+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");          			       			
-     
-        		if (shouldDropDelayedPacket(rtpPacket)) {
-        			continue;
-        		}
-        		if (rtpPacket.isRtcpPacket()) {
-        			/**
-        			 * Asterisk (1.6.2.5) send RTCP packets. We just ignore them (for now).
-        			 * It could be for KeepAlive (http://tools.ietf.org/html/draft-ietf-avt-app-rtp-keepalive-09)
-        			 */
-        			if (log.isDebugEnabled()) 
-        				log.debug("RTCP packet [" + rtpPacket.getRtcpPayloadType() + ", length=" + rtpPacket.getPayloadLength() + "] seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
-        					+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");          			
-        		} else {
-            		if (shouldHandlePacket(rtpPacket)) {        			            			
-//            			log.debug("Handling packet [" + rtpPacket.getRtcpPayloadType() + "," + rtpPacket.getPayloadType() + ", length=" + rtpPacket.getPayloadLength() + "] seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
-//            					+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");          			       			
-            			processRtpPacket(rtpPacket);
-            		} else {
-            			if (log.isDebugEnabled())
-            				log.debug("Corrupt packet [" + rtpPacket.getRtcpPayloadType() + "," + rtpPacket.getPayloadType() + ", length=" + rtpPacket.getPayloadLength() + "] seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
-            					+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");          			       			
-
-            			if (lastPacketDropped) successivePacketDroppedCount++;
-            			else lastPacketDropped = true;           			
-            		}
+            	rtpSocket.receive(rtpPacket); 
+            	
+            	
+            	byte[] pb = rtpPacket.getPacket();
+            	StringBuilder p = new StringBuilder("Rx [");
+            	for (int i = 0; i < pb.length; i++) {
+            		p.append(Integer.toHexString(pb[i]  & 0xFF) + ",");            		
             	}
+            	p.append("] " + pb.length + " " + internalBufferLength);
+            	log.debug(p.toString());
+            	
+        		       		
+        		packetReceivedCounter++;  
+    			log.debug("Received packet [" + rtpPacket.getRtcpPayloadType() + "," + rtpPacket.getPayloadType() + ", length=" + rtpPacket.getPayloadLength() + "] seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
+    					+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");          			       			
+        		processRtpPacket(rtpPacket);
+        		
+        		/**
+        		 * Null this to see if the memory gets garbage collected quickly.
+        		 * ralam (dec 3, 2010)
+        		 */
+        		rtpPacket = null;
         	} catch (IOException e) { // We get this when the socket closes when the call hangs up.        		
         		receivePackets = false;
         	}
