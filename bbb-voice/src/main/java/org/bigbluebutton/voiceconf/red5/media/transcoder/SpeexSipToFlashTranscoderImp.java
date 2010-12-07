@@ -41,8 +41,8 @@ public class SpeexSipToFlashTranscoderImp implements SipToFlashTranscoder {
 	}
 
 	@Override
-	public void transcode(AudioByteData audioData, TranscodedAudioDataListener listener) {
-		byte[] codedBuffer = audioData.getData();
+	public void transcode(byte[] audioData, TranscodedAudioDataListener listener) {
+		byte[] codedBuffer = audioData;
 		listener.handleTranscodedAudioData(codedBuffer, timestamp += TS_INCREMENT);
 	}
 	

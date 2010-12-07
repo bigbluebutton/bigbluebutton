@@ -73,9 +73,9 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
     }
     
 	@Override
-	public void transcode(AudioByteData audioData, int startOffset, int length, TranscodedAudioDataListener listener) {
+	public void transcode(byte[] audioData, int startOffset, int length, TranscodedAudioDataListener listener) {
 		byte[] codedBuffer = new byte[length];
-		System.arraycopy(audioData.getData(), startOffset, codedBuffer, 0, length);
+		System.arraycopy(audioData, startOffset, codedBuffer, 0, length);
 		byte[] transcodedAudioData = new byte[sipCodec.getOutgoingEncodedFrameSize()];
 		
         asao_buffer_processed = false;

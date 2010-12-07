@@ -19,6 +19,9 @@
 **/
 package org.bigbluebutton.voiceconf.red5.media;
 
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.net.DatagramSocket;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
@@ -42,6 +45,9 @@ public class FlashToSipAudioStream {
 	private final static Logger log = Red5LoggerFactory.getLogger(FlashToSipAudioStream.class, "sip");
 
 	private final BlockingQueue<AudioByteData> audioDataQ = new LinkedBlockingQueue<AudioByteData>();
+	private final PipedOutputStream streamFromFlash;
+	private PipedInputStream streamToSip;
+	
 	private final Executor exec = Executors.newSingleThreadExecutor();
 	private Runnable audioDataProcessor;
 	private volatile boolean processAudioData = false;
@@ -58,6 +64,13 @@ public class FlashToSipAudioStream {
 		this.srcSocket = srcSocket;
 		this.connInfo = connInfo;		
 		talkStreamName = "microphone_" + System.currentTimeMillis();
+		streamFromFlash = new PipedOutputStream();
+		try {
+			streamToSip = new PipedInputStream(streamFromFlash);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public void start(IBroadcastStream broadcastStream, IScope scope) throws StreamException {
@@ -73,17 +86,16 @@ public class FlashToSipAudioStream {
 		    	  log.debug("skipping empty packet with no data");
 		    	  return;
 		      }
-		      System.out.println("Receive RTMP packet."); 		      
+		      	      
 		      if (packet instanceof AudioData) {
-		    	  System.out.println("**** Receive RTMP audio packet.");
 		    	  byte[] data = SerializeUtils.ByteBufferToByteArray(buf);
-				  AudioByteData abd = new AudioByteData(data, false);
-				  try {
-					  audioDataQ.put(abd);
-				  } catch (InterruptedException e) {
-					  // TODO Auto-generated catch block
-					  e.printStackTrace();
-				  }		    			  		    	  
+//		    	  System.out.println("RTMP data lenght = " + data.length);
+		    	  try {
+					streamFromFlash.write(data, 1, data.length-1);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}	    			  		    	  
 		      } 
 			}
 		};
@@ -102,15 +114,26 @@ public class FlashToSipAudioStream {
 	}
 
 	private void processAudioData() {
-		while (processAudioData) {
+		int len = 64;
+		byte[] nellyAudio = new byte[len];		
+		int remaining = len;
+		int offset = 0;
+		while (processAudioData) {			
 			try {
-				AudioByteData abd = audioDataQ.take();
-				if (abd.status()) {
-					log.debug("Flash Queue Poisoned - Dieing");
-					break;
+				if (streamToSip.available() > 1000) {
+					long skipped = streamToSip.skip(1000L);
+					System.out.println("   Skipping RTMP audio bytes[" + skipped + "]");
 				}
-					transcoder.transcode(abd, 1, abd.getData().length-1, new TranscodedAudioListener());
-			} catch (InterruptedException e) {
+				int bytesRead =  streamToSip.read(nellyAudio, offset, remaining);
+				remaining -= bytesRead;
+				if (remaining == 0) {
+					remaining = len;
+					offset = 0;
+					transcoder.transcode(nellyAudio, 0, nellyAudio.length, new TranscodedAudioListener());
+				} else {
+					offset += bytesRead; 
+				}
+			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}        		
