@@ -44,7 +44,6 @@ import org.slf4j.Logger;
 public class FlashToSipAudioStream {
 	private final static Logger log = Red5LoggerFactory.getLogger(FlashToSipAudioStream.class, "sip");
 
-	private final BlockingQueue<AudioByteData> audioDataQ = new LinkedBlockingQueue<AudioByteData>();
 	private final PipedOutputStream streamFromFlash;
 	private PipedInputStream streamToSip;
 	
@@ -118,11 +117,14 @@ public class FlashToSipAudioStream {
 		byte[] nellyAudio = new byte[len];		
 		int remaining = len;
 		int offset = 0;
+		long startProc;
+		boolean transcoded = false;
 		while (processAudioData) {			
 			try {
+				startProc = System.currentTimeMillis();
 				if (streamToSip.available() > 1000) {
 					long skipped = streamToSip.skip(1000L);
-					System.out.println("   Skipping RTMP audio bytes[" + skipped + "]");
+	//				System.out.println("   Skipping RTMP audio bytes[" + skipped + "]");
 				}
 				int bytesRead =  streamToSip.read(nellyAudio, offset, remaining);
 				remaining -= bytesRead;
@@ -130,9 +132,12 @@ public class FlashToSipAudioStream {
 					remaining = len;
 					offset = 0;
 					transcoder.transcode(nellyAudio, 0, nellyAudio.length, new TranscodedAudioListener());
+					transcoded = true;
 				} else {
 					offset += bytesRead; 
 				}
+	//			System.out.println("F2S transcode ms=" + (System.currentTimeMillis()-startProc) + " coded " + transcoded);
+				transcoded = false;
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -143,14 +148,7 @@ public class FlashToSipAudioStream {
 	public void stop(IBroadcastStream broadcastStream, IScope scope) {
 		broadcastStream.removeStreamListener(mInputListener);
 		processAudioData = false;
-		try {
-			log.debug("Posioning Flash Queue");
-			audioDataQ.put(new AudioByteData(new byte[] {0}, true));
-			log.debug("Posioned Flash Queue");
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
 	}
 
 	public String getStreamName() {

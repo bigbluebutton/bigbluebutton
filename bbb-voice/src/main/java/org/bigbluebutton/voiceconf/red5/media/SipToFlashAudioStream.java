@@ -35,6 +35,7 @@ import org.red5.server.api.IContext;
 import org.red5.server.api.IScope;
 import org.red5.server.net.rtmp.event.AudioData;
 import org.red5.server.net.rtmp.event.Notify;
+import org.red5.server.net.rtmp.message.Constants;
 import org.red5.server.stream.BroadcastScope;
 import org.red5.server.stream.IBroadcastScope;
 import org.red5.server.stream.IProviderService;
@@ -157,12 +158,15 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 		byte[] pcmAudio = new byte[len];		
 		int remaining = len;
 		int offset = 0;
+	//	long startProc;
+	//	boolean transcoded = false;
 		while (processAudioData) {
 			try {
+	//			startProc = System.currentTimeMillis();
 	//			System.out.println("** Remaining[" + remaining + "," + offset + "] " + streamToFlash.available());	
 				if (streamToFlash.available() > 1000) {
 					long skipped = streamToFlash.skip(1000L);
-					System.out.println("** Skipping audio bytes[" + skipped + "]");
+	//				System.out.println("** Skipping audio bytes[" + skipped + "]");
 				}
 				int bytesRead =  streamToFlash.read(pcmAudio, offset, remaining);		
 				remaining -= bytesRead;
@@ -170,9 +174,12 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 					remaining = len;
 					offset = 0;
 					transcoder.transcode(pcmAudio, this);
+	//				transcoded = true;
 				} else {
 					offset += bytesRead; 
 				}
+	//			System.out.println("S2F transcode ms=" + (System.currentTimeMillis()-startProc) + " coded " + transcoded);
+	//			transcoded = false;
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -219,6 +226,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 
 	        Notify notifyData = new Notify(mBuffer);
 	        notifyData.setTimestamp((int)startTimestamp);
+	        notifyData.setSourceType(Constants.SOURCE_TYPE_LIVE);
 			audioBroadcastStream.dispatchEvent(notifyData);
 			notifyData.release();
 			sentMetadata = true;
@@ -233,7 +241,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
         mBuffer.put((byte) transcoder.getCodecId()); 
 	    mBuffer.put(audio);        
 	    mBuffer.flip();
-	    
+	    audioData.setSourceType(Constants.SOURCE_TYPE_LIVE);
         audioData.setTimestamp((int)(System.currentTimeMillis() - startTimestamp));
         audioData.setData(mBuffer);
 		audioBroadcastStream.dispatchEvent(audioData);
