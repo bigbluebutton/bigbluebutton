@@ -81,6 +81,14 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 	@Override
 	public void clientCommand(String cmd)
 	{
+		if(cmd.equals("CHAT_START"))
+		{
+			
+		}
+		else if(cmd.equals("PRESENT_START"))
+		{
+		}
+		
 		log.debug("clientCommand received: " + cmd);
 		ArrayList args = new ArrayList();
 		args.add(cmd);

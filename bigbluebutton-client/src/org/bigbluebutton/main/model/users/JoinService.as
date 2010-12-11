@@ -59,18 +59,22 @@ package org.bigbluebutton.main.model.users
 			var xml:XML = new XML(e.target.data)
 
 			var returncode:String = xml.returncode;
-			if (returncode == 'FAILED') {
+			if (returncode == 'FAILED')
+			{
 				LogUtil.debug("Join FAILED = " + xml);
 				_resultListener(false, {message:xml.message});
-			} else if (returncode == 'SUCCESS') {
+			}
+			else if (returncode == 'SUCCESS')
+			{
 				LogUtil.debug("Join SUCESS = " + xml);
 				var user:Object = {username:xml.fullname, conference:xml.conference, conferenceName:xml.confname,
 										meetingID:xml.meetingID, externUserID:xml.externUserID,
 										role:xml.role, room:xml.room, authToken:xml.room, record:xml.record, 
 										webvoiceconf:xml.webvoiceconf,
-										voicebridge:xml.voicebridge, mode:xml.mode, welcome:xml.welcome};
+										voicebridge:xml.voicebridge, mode:xml.mode, welcome:xml.welcome, loadedModules:xml.loadedModules};
 				
-				if (_resultListener != null) _resultListener(true, user);
+				if (_resultListener != null)
+					_resultListener(true, user);
 			}
 				
 		}

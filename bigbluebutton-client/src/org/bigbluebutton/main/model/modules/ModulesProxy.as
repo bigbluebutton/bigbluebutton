@@ -32,6 +32,7 @@ package org.bigbluebutton.main.model.modules
 	import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
 	import org.bigbluebutton.modules.chat.events.StopChatModuleEvent;
 	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
+	import org.bigbluebutton.modules.videoconf.events.OpenPublishWindowEvent;
 	
 	public class ModulesProxy {
 		
@@ -86,53 +87,54 @@ package org.bigbluebutton.main.model.modules
 		
 		public function commandReceived(params:String):void
 		{
-			//modulesManager.loadAllModules(params);
 			if(params == "CHAT_START")
 			{
 				modulesManager.startModule("ChatModule");
-				/*
-				var event1:StartChatModuleEvent = new StartChatModuleEvent(StartChatModuleEvent.START_CHAT_MODULE_EVENT);		
-				
-				
-				var globalDispatcher:Dispatcher = new Dispatcher();
-				globalDispatcher.dispatchEvent(event1);
-				*/
 			}
 			else if(params == "CHAT_STOP")
 			{
-				/*			
-				var event2:StopChatModuleEvent = new StopChatModuleEvent(StopChatModuleEvent.STOP_CHAT_MODULE_EVENT);
-				
-				event.message = params;			*/			
-				
-				
-				//var globalDispatcher:Dispatcher = new Dispatcher();
-				//globalDispatcher.dispatchEvent(event2);
 				modulesManager.stopModule("ChatModule");
 			}
 			else if(params == "PRESENT_START")
 			{
 				modulesManager.startModule("PresentModule");
-				/*
-				var event3:PresentModuleEvent = new PresentModuleEvent(PresentModuleEvent.STOP_MODULE);							
-				event.message = params;
-				
-				
-				var globalDispatcher:Dispatcher = new Dispatcher();
-				globalDispatcher.dispatchEvent(event3);
-				*/
 			}
 			else if(params == "PRESENT_STOP")
 			{
 				modulesManager.stopModule("PresentModule");
-				/*
-				var event3:PresentModuleEvent = new PresentModuleEvent(PresentModuleEvent.STOP_MODULE);							
-				event.message = params;
-				
-				
+			}
+			else if(params == "VIDEO_START")
+			{
+				modulesManager.startModule("VideoconfModule");
+			}
+			else if(params == "VIDEO_STOP")
+			{
+				modulesManager.stopModule("VideoconfModule");
+			}
+			else if(params == "VIDEO1_START")
+			{
 				var globalDispatcher:Dispatcher = new Dispatcher();
-				globalDispatcher.dispatchEvent(event3);
-				*/
+				globalDispatcher.dispatchEvent(new OpenPublishWindowEvent());
+			}
+			else if(params == "VIDEO1_STOP")
+			{
+				modulesManager.stopModule("VideoconfModule");
+			}
+			else if(params == "PHONE_START")
+			{
+				modulesManager.startModule("PhoneModule");
+			}
+			else if(params == "PHONE_STOP")
+			{
+				modulesManager.stopModule("PhoneModule");
+			}
+			else if(params == "VIEWERS_START")
+			{
+				modulesManager.startModule("ViewersModule");
+			}
+			else if(params == "VIEWERS_STOP")
+			{
+				modulesManager.stopModule("ViewersModule");
 			}
 		}
 	}

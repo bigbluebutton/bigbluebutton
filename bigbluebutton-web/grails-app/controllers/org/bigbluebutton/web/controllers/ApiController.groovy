@@ -503,6 +503,7 @@ class ApiController {
 	        				mode("$md")
 	        				record("$rec")
 	        				welcome("$welcomeMsg")
+	        				loadedModules("chatModule")
 						}
 					}
 				}

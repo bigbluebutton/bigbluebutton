@@ -109,9 +109,11 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		if (record == true) {
 			recorderApplication.createRecordSession(conference, room, sessionName);
 		}
-			
-    	BigBlueButtonSession bbbSession = new BigBlueButtonSession(sessionName, userid,  username, role, 
-    			conference, mode, room, voiceBridge, record, externUserID);
+		
+		String loadedModules = "";
+		
+		BigBlueButtonSession bbbSession = new BigBlueButtonSession(sessionName, userid,  username, role, 
+    			conference, mode, room, voiceBridge, record, externUserID, loadedModules);
         connection.setAttribute(Constants.SESSION, bbbSession);        
         
         String debugInfo = "userid=" + userid + ",username=" + username + ",role=" +  role + ",conference=" + conference + "," + 
