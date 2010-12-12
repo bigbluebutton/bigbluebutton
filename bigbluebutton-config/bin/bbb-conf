@@ -36,6 +36,7 @@
 #   2010-09-15 FFD  Updates for 0.71-dev
 #   2010-10-16 FFD  Updates for 0.71-beta
 #   2010-11-06 FFD  Added logic to ensure red5 shuts down
+#   2010-12-12 FFD  Fixed bug #778
 
 #set -x
 
@@ -53,7 +54,7 @@ IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" |
 
 GENTOO=$(uname -r | grep gentoo | cut -d- -f2);
 TOMCAT=""
-BBB_VERSION="0.71"
+BBB_VERSION="0.71a-dev"
 
 # 
 # Helper functions
@@ -166,7 +167,7 @@ need_root() {
 }
 
 usage() {
-	echo "BigBlueButton Configuration Utility - Version $BBB_VERSION"
+	echo "BigBlueButton Configuration Utility - Version $BBB_VERSION-dev6"
         echo "http://code.google.com/p/bigbluebutton/wiki/BBBConf"
         echo
         echo "$0 [options]"
@@ -321,8 +322,9 @@ start_bigbluebutton () {
                 done
         fi
 
-        if ! wget http://$NGINX_IP/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then
-                echo "Startup unsuccessful"
+	BBB_WEB=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+        if ! wget http://$BBB_WEB/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then
+                echo "Startup unsuccessful: could not connect to http://$BBB_WEB/bigbluebutton/api"
                 exit 1
 	fi
 
@@ -473,10 +475,10 @@ while [ $# -gt 0 ]; do
 	if [ "$1" = "--salt" -o "$1" = "-salt" -o "$1" = "--setsalt" ]; then
 		SALT="${2}"
 		if [ -z "$SALT" ]; then
-			IP=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+			BBB_WEB=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
 			SALT=`cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep securitySalt | cut -d= -f2`;
 			echo
-			echo "       URL: http://$IP/bigbluebutton/"
+			echo "       URL: http://$BBB_WEB/bigbluebutton/"
 			echo "      Salt: $SALT"
 			echo
 			exit 0
@@ -612,8 +614,9 @@ if [ $CHECKOUT ]; then
         echo "# "
         git clone $CHECKOUT
 	cd ~/dev/source/bigbluebutton
-	echo " Checking out release version $BBB_VERSION"
- 	git checkout -b 0.71-release v0.71	
+	echo " Checking out version $BBB_VERSION (Not implemented yet)"
+ 	#git checkout -b 0.7-release-workspace v0.7	
+ 	#git checkout -b 0.7-release-workspace v0.7	
         echo "# "
         echo "#                                         "
         echo "# Checked out BigBlueButton. "
@@ -1143,11 +1146,11 @@ check_state() {
 	# Check if the local server can access the API.  This is a common problem when setting up BigBlueButton behind
 	# a firewall
 	#
- 	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
- 	check_no_value server_name /etc/nginx/sites-available/bigbluebutton $NGINX_IP
-	if ! wget http://$NGINX_IP/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then 
+        BBB_WEB=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+ 	check_no_value server_name /etc/nginx/sites-available/bigbluebutton $BBB_WEB
+	if ! wget http://$BBB_WEB/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then 
 		echo 
-		echo "#  This server could not connect to BigBlueButton through http://$NGINX_IP/"
+		echo "#  This server could not connect to BigBlueButton through http://$BBB_WEB/"
 		echo "#"
 		echo "#  If you are setting up BigBlueButton behind a firewall, see the FAQ"
 		echo "#  for steps to setup BigBlueButton behind a firewall."
@@ -1191,7 +1194,7 @@ check_state() {
 		fi
 
 		SIP_SERVER_HOST=$(cat /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties | sed -n '/sip.server.host=/{s/.*=//;s/;//;p}')
-		IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | head -1 | cut -d: -f2 | awk '{ print $1}')
+		#IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | head -1 | cut -d: -f2 | awk '{ print $1}')
 		if [ $SIP_SERVER_HOST != $IP ]; then
 			echo 
 			echo "# The IP address ($SIP_SERVER_HOST) set for sip.server.host in"
@@ -1251,19 +1254,19 @@ if [ $CHECK ]; then
 
 	echo
 	echo "/var/www/bigbluebutton/client/conf/config.xml"
-	IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/porttest /{s/.*host="//;s/".*//;p}')
-	echo "  		Port test (tunnel): $IP"
+	PORT_IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/porttest /{s/.*host="//;s/".*//;p}')
+	echo "  		Port test (tunnel): $PORT_IP"
 
-	IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/uri.*video/{s/.*rtmp:\/\///;s/\/.*//;p}')
-	echo "                              Red5: $IP"
+	RED5_IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/uri.*video/{s/.*rtmp:\/\///;s/\/.*//;p}')
+	echo "                              Red5: $RED5_IP"
 
 #        HOST=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/recordingHost/{s/.*recordingHost="http:\/\///;s/"//;p}')
 #        echo "          host for bbb-web interface: $HOST"
 
 	echo
 	echo "/etc/nginx/sites-available/bigbluebutton"
-	IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
-	echo "                       server name: $IP"
+	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
+	echo "                       server name: $NGINX_IP"
 
 	PORT=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/listen/{s/.*listen[ ]*//;s/;//;p}')
 	echo "                              port: $PORT"
@@ -1271,16 +1274,16 @@ if [ $CHECK ]; then
 	BBB_CLIENT_DOC_ROOT=$(cat /etc/nginx/sites-available/bigbluebutton | grep \/client -A 1 | head -n 2 | grep root | sed -n '{s/[ ]*root[ ]*//;s/;//;p}')
 	echo "                    bbb-client dir: $BBB_CLIENT_DOC_ROOT"
 
-	IP=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+	BBB_WEB_IP=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
 	echo
 	echo "/var/lib/${TOMCAT}/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties (bbb-web)"
-	echo "                      bbb-web host: $IP"
+	echo "                      bbb-web host: $BBB_WEB_IP"
 
 	if [ -f /var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp ]; then
-		IP=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp  | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}' | tr -d '\015')
+		API_IP=$(cat /var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp  | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}' | tr -d '\015')
 		echo
 		echo "/var/lib/${TOMCAT}/webapps/bigbluebutton/demo/bbb_api_conf.jsp (API demos)"
-		echo "                  bbb-web-api host: $IP"
+		echo "                  bbb-web-api host: $API_IP"
 	fi
 
 	if [ $VOICE_CONFERENCE == "bbb-voice-freeswitch.xml" ]; then
