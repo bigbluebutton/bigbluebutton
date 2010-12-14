@@ -44,6 +44,13 @@
 
 BBB_VERSION="0.71a-dev"
 
+if [ ! -f /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml ]; then
+	echo "#"
+	echo "# BigBlueButton does not appear to be installed ... exiting"
+	echo "#"
+	exit 1
+fi
+
 #
 # Figure out if we're using Asterisk or FreeSWITCH
 #
@@ -79,7 +86,7 @@ if [ -f /etc/lsb-release ]; then
 			#
 			# Support configuration on Intalio Cloud VM
 			#
-			PLATFORM=ubuntu-jetty
+			PLATFORM=ubuntu-jetty-intalio
 			SERVLET_CONTAINER=cloud
 			SERVLET_LOGS=/var/www/cloud/jetty/logs
 			SERVLET_DIR=/var/www/cloud/webappsviacontext
@@ -162,7 +169,7 @@ usage() {
 	echo "BigBlueButton Configuration Utility - Version $BBB_VERSION"
         echo "http://code.google.com/p/bigbluebutton/wiki/BBBConf"
         echo
-        echo "$0 [options]"
+        echo "   bbb-conf [options]"
         echo
         echo "Configuration:"
         echo "   --version                        Display BigBlueButton version (packages)"
@@ -177,7 +184,7 @@ usage() {
         echo "   --watch                          Scan the log files for error messages every 2 seconds"
         echo "   --salt                           View the URL and security salt for the server"
         echo
-        echo "Administration":
+        echo "Administration:"
         echo "   --restart                        Restart BigBueButton"
         echo "   --stop                           Stop BigBueButton"
         echo "   --start                          Start BigBueButton"
@@ -319,7 +326,7 @@ start_bigbluebutton () {
                 done
         fi
 
-        if [ $PLATFORM == "ubuntu-jetty" ]; then
+        if [ $PLATFORM == "ubuntu-jetty-intalio" ]; then
                 #
                 # Wait until jetty has finished starting before checking for bbb-web
                 #
@@ -880,9 +887,11 @@ check_configuration() {
 	#
 	# Check if BigBlueButto is defined in Nginx
 	#
-	if [ ! -L /etc/nginx/sites-enabled/bigbluebutton ]; then
-        	echo "# Nginx: BigBlueButton appears to be disabled"
-        	echo "         - no symbolic link in /etc/nginx/sites-enabled/bigbluebutton to /etc/nginx/sites-available/bigbluebutton "
+	if [ $PLATFORM != "ubuntu-jetty-intalio" ]; then
+		if [ ! -L /etc/nginx/sites-enabled/bigbluebutton ]; then
+        		echo "# Nginx: BigBlueButton appears to be disabled"
+        		echo "         - no symbolic link in /etc/nginx/sites-enabled/bigbluebutton to /etc/nginx/sites-available/bigbluebutton "
+		fi
 	fi	
 	
 	
