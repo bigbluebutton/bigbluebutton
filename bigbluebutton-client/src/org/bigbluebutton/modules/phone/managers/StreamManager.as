@@ -177,7 +177,15 @@ package org.bigbluebutton.modules.phone.managers
 			incomingStream = new NetStream(connection);
 			incomingStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
 			incomingStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
-			incomingStream.bufferTime = 0.180;			
+			/*
+			 * Set the bufferTime to 0 (zero) for live stream as suggested in the doc.
+			 * http://help.adobe.com/en_US/FlashPlatform/beta/reference/actionscript/3/flash/net/NetStream.html#bufferTime
+			 * If we don't, we'll have a long audio delay when a momentary network congestion occurs. When the congestion
+			 * disappears, a flood of audio packets will arrive at the client and Flash will buffer them all and play them.
+			 * http://stackoverflow.com/questions/1079935/actionscript-netstream-stutters-after-buffering
+			 * ralam (Dec 13, 2010)
+			 */
+			incomingStream.bufferTime = 0;			
 		}
 		
 		private function setupOutgoingStream():void {
