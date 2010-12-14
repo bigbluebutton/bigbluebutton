@@ -57,8 +57,6 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 	private RtpStreamReceiver rtpStreamReceiver;
 	private StreamObserver observer;
 	private SipToFlashTranscoder transcoder;
-	
-	private long startTimestamp = 0;
 	private boolean sentMetadata = false;
 	private IoBuffer mBuffer;
 	private AudioData audioData;
@@ -141,8 +139,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 		
 	    audioBroadcastStream.start();	    
 	    processAudioData = true;
-	    
-	    
+	    	    
 	    audioDataProcessor = new Runnable() {
     		public void run() {
     			processAudioData();       			
@@ -158,15 +155,11 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 		byte[] pcmAudio = new byte[len];		
 		int remaining = len;
 		int offset = 0;
-	//	long startProc;
-	//	boolean transcoded = false;
+
 		while (processAudioData) {
 			try {
-	//			startProc = System.currentTimeMillis();
-	//			System.out.println("** Remaining[" + remaining + "," + offset + "] " + streamToFlash.available());	
 				if (streamToFlash.available() > 1000) {
 					long skipped = streamToFlash.skip(1000L);
-	//				System.out.println("** Skipping audio bytes[" + skipped + "]");
 				}
 				int bytesRead =  streamToFlash.read(pcmAudio, offset, remaining);		
 				remaining -= bytesRead;
@@ -174,12 +167,9 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 					remaining = len;
 					offset = 0;
 					transcoder.transcode(pcmAudio, this);
-	//				transcoded = true;
 				} else {
 					offset += bytesRead; 
 				}
-	//			System.out.println("S2F transcode ms=" + (System.currentTimeMillis()-startProc) + " coded " + transcoded);
-	//			transcoded = false;
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -195,7 +185,6 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 	@Override
 	public void onAudioDataReceived(byte[] audioData, int offset, int len) {
 		try {
-	//		System.out.println("** Received[" + audioData.length + "]");
 			streamFromSip.write(audioData, offset, len);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -214,7 +203,6 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 	
 	private void sendFakeMetadata(long timestamp) {
 		if (!sentMetadata) {
-			startTimestamp = System.currentTimeMillis();
 			/*
 			 * Flash Player 10.1 requires us to send metadata for it to play audio.
 			 * We create a fake one here to get it going. Red5 should do this automatically
@@ -225,7 +213,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 		    mBuffer.flip();
 
 	        Notify notifyData = new Notify(mBuffer);
-	        notifyData.setTimestamp((int)startTimestamp);
+	        notifyData.setTimestamp((int)timestamp);
 	        notifyData.setSourceType(Constants.SOURCE_TYPE_LIVE);
 			audioBroadcastStream.dispatchEvent(notifyData);
 			notifyData.release();
@@ -233,16 +221,20 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 		}		
 	}
 	
-	private void pushAudio(byte[] audio, long timestamp) {
-		
+	private void pushAudio(byte[] audio, long timestamp) {		
 		sendFakeMetadata(timestamp);
-	
         mBuffer.clear();
-        mBuffer.put((byte) transcoder.getCodecId()); 
+        mBuffer.put((byte) transcoder.getCodecId());
 	    mBuffer.put(audio);        
 	    mBuffer.flip();
 	    audioData.setSourceType(Constants.SOURCE_TYPE_LIVE);
-        audioData.setTimestamp((int)(System.currentTimeMillis() - startTimestamp));
+	    /*
+	     * Use timestamp increments passed in by codecs (i.e. 32 for nelly). This will force
+	     * Flash Player to playback audio at proper timestamp. If we calculate timestamp using
+	     * System.currentTimeMillis() - startTimestamp, the audio has tendency to drift and
+	     * introduce delay. (ralam dec 14, 2010)
+	     */
+        audioData.setTimestamp((int)(timestamp));
         audioData.setData(mBuffer);
 		audioBroadcastStream.dispatchEvent(audioData);
 		audioData.release();
