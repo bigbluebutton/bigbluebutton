@@ -29,8 +29,8 @@ package org.bigbluebutton.main.model.users
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.events.BBBEvent;
-	import org.bigbluebutton.main.events.ClientCommand;
 	import org.bigbluebutton.main.events.LogoutEvent;
+	import org.bigbluebutton.main.events.ModuleCommand;
 	import org.bigbluebutton.main.events.ParticipantJoinEvent;
 	import org.bigbluebutton.main.events.PresenterStatusEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
@@ -202,28 +202,24 @@ package org.bigbluebutton.main.model.users
 		/**
 		 * Callback from the server from many of the bellow nc.call methods
 		 */
-		public function clientCommand(cmd:String):void
+		public function moduleCommand(cmd:String):void
 		{
-			LogUtil.error("Received clientCommand [" + cmd + "]");
+			LogUtil.debug("Received moduleCommand [" + cmd + "]");
 			
-			/*
-			var moduleManager:ModuleManager = new ModuleManager();
-			moduleManager.stopModule("chat");
-			*/
-			
-			var event:ClientCommand = new ClientCommand(ClientCommand.COMMAND_RECEIVED);
-			event.command = cmd;
-			
-			var globalDispatcher:Dispatcher = new Dispatcher();
-			globalDispatcher.dispatchEvent(event);
-			
-			/*
-			var event:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
-			event.message = cmd + " --- " + "|TEST|0|14:00|en|3";
+			var pos:int = cmd.indexOf("\t");
+			if(pos <=0 )
+			{
+				LogUtil.error("Wrong format moduleCommand [" + cmd + "]");
+				return;
+			}
+				
+			var event:ModuleCommand = new ModuleCommand(ModuleCommand.NEW_COMMAND);
+			event.module = cmd.substring(0, pos);
+			event.command = cmd.substring(pos+1);
+			LogUtil.debug("moduleCommand [" + event.module + "][" + event.command + "]");
 			
 			var globalDispatcher:Dispatcher = new Dispatcher();
 			globalDispatcher.dispatchEvent(event);
-			*/
 		}
 					
 		public function assignPresenter(userid:Number, assignedBy:Number):void {

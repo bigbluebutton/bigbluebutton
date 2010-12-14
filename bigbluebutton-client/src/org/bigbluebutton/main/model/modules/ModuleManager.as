@@ -196,14 +196,14 @@ package org.bigbluebutton.main.model.modules
 		
 		public function startAllModules():void
 		{
-			var modules:String = 'ChatModule,ListenersModule,VideoconfModule,PhoneModule,ViewersModule';
-			//var modules:String = conferenceParameters.loadedModules;			
+			//var modules:String = 'ChatModule,ListenersModule,VideoconfModule,PhoneModule,ViewersModule';
+			var modules:String = conferenceParameters.loadedModules;
 			
 			for (var i:int = 0; i<sorted.length; i++)
 			{
 				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
 				var name:String = m.getName();
-				if(modules.indexOf(name) < 0)
+				if(modules.length > 0 && modules.indexOf(name) < 0)
 				{
 					LogUtil.debug('No Need to start module ' + name);
 					continue;

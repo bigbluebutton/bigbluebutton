@@ -97,11 +97,11 @@
 		<constructor-arg value="endMeetingRequestEvents"/>
     </bean>
     
-        <!-- clientCommand -->
-	<integration:channel id="clientCommand" />
-	<jms:outbound-channel-adapter id="clientCommandJmsOut" destination="clientCommandEvents" channel="clientCommand" />
-    <bean id="clientCommandEvents" class="org.apache.activemq.command.ActiveMQQueue">
-		<constructor-arg value="clientCommandEvents"/>
+        <!-- moduleCommand -->
+	<integration:channel id="moduleCommand" />
+	<jms:outbound-channel-adapter id="moduleCommandJmsOut" destination="moduleCommandEvents" channel="moduleCommand" />
+    <bean id="moduleCommandEvents" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg value="moduleCommandEvents"/>
     </bean>
 
 	<import resource="doc-conversion.xml" />

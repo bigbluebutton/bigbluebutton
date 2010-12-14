@@ -152,17 +152,16 @@
 	<integration:service-activator input-channel="endMeetingRequest" ref="roomsManager" method="endMeetingRequest" />
 	
 	<!-- Command -->
-	<jms:inbound-channel-adapter id="jmsInClientCommand"
-		destination-name="clientCommandEvents"
-        channel="clientCommand"
+	<jms:inbound-channel-adapter id="jmsInModuleCommand"
+		destination-name="moduleCommandEvents"
+        channel="moduleCommand"
         extract-payload="true">
 		<integration:poller>
 			<integration:interval-trigger interval="5" time-unit="SECONDS"/>
 		</integration:poller>
 	</jms:inbound-channel-adapter>
-	<integration:channel id="clientCommand"/>
-	<integration:service-activator input-channel="clientCommand" ref="roomsManager" method="clientCommandTest" />
-	<!-- <integration:service-activator input-channel="clientCommand" ref="chatHandler" method="clientCommand" /> -->
+	<integration:channel id="moduleCommand"/>
+	<integration:service-activator input-channel="moduleCommand" ref="roomsManager" method="moduleCommand" />
 
 	<!-- OUTGOING MESSAGES -->
 	<integration:gateway id="conferenceEventListener" service-interface="org.bigbluebutton.conference.IConferenceEventListener" />

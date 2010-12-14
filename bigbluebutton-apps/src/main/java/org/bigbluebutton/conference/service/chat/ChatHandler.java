@@ -143,17 +143,4 @@ public class ChatHandler extends ApplicationAdapter implements IApplication{
 	private BigBlueButtonSession getBbbSession() {
 		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 	}
-	
-	
-	// this method is called by incoming JMS requests (Spring integration)
-	public void clientCommand(String cmd)
-	{		
-		log.debug("Client Command: " + cmd);
-		
-		String[] arr = cmd.split("\t");		
-		String room = arr[0].trim();
-		
-		chatApplication.sendMessage(room, arr[1] + "|clientCommand|0|14:00|en|3");
-	}
-	
 }

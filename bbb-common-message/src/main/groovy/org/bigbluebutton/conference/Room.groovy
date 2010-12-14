@@ -157,16 +157,16 @@ public class Room implements Serializable {
 	}
 	
 	
-	public void sendClientCommand(Logger l, String cmd)	
+	public void sendModuleCommand(String cmd)	
 	{
-		l.debug("Send client command was called: groovy");
+		log.debug("Send module command was called: " + cmd);
 	
 		for (Iterator it = listeners.values().iterator(); it.hasNext();)
 		{
 			IRoomListener listener = (IRoomListener) it.next();
 			
-			l.debug("calling sendClientCommand on listener ${listener.getName()}");			
-			listener.clientCommand(cmd);
+			log.debug("calling sendModuleCommand on listener ${listener.getName()}");			
+			listener.moduleCommand(cmd);
 		}
 	}
 }

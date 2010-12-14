@@ -27,6 +27,7 @@ package org.bigbluebutton.main.model.modules
 	import org.bigbluebutton.main.events.PortTestEvent;
 	import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
+	import org.bigbluebutton.main.events.ModuleCommand;
 	import org.bigbluebutton.main.model.PortTestProxy;
 	import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
 	import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
@@ -85,32 +86,15 @@ package org.bigbluebutton.main.model.modules
 			modulesManager.loadAllModules(params);
 		}
 		
-		public function commandReceived(params:String):void
+		public function moduleCommand(params:ModuleCommand):void
 		{
-			if(params == "CHAT_START")
-			{
-				modulesManager.startModule("ChatModule");
-			}
-			else if(params == "CHAT_STOP")
-			{
-				modulesManager.stopModule("ChatModule");
-			}
-			else if(params == "PRESENT_START")
-			{
-				modulesManager.startModule("PresentModule");
-			}
-			else if(params == "PRESENT_STOP")
-			{
-				modulesManager.stopModule("PresentModule");
-			}
-			else if(params == "VIDEO_START")
-			{
-				modulesManager.startModule("VideoconfModule");
-			}
-			else if(params == "VIDEO_STOP")
-			{
-				modulesManager.stopModule("VideoconfModule");
-			}
+			LogUtil.error("moduleCommand [" + params.module + "][" + params.command + "]");
+			
+			if(params.command == "start")
+				modulesManager.startModule(params.module);
+			else
+				modulesManager.stopModule(params.module);
+			/*			
 			else if(params == "VIDEO1_START")
 			{
 				var globalDispatcher:Dispatcher = new Dispatcher();
@@ -136,6 +120,7 @@ package org.bigbluebutton.main.model.modules
 			{
 				modulesManager.stopModule("ViewersModule");
 			}
+			*/
 		}
 	}
 }

@@ -20,7 +20,8 @@
 
 package org.bigbluebutton.conference
 
-public interface IRoomListener {
+public interface IRoomListener
+{
 	def getName()
 	public void participantStatusChange(Long userid, String status, Object value);
 	public void participantJoined(Participant participant);
@@ -28,5 +29,5 @@ public interface IRoomListener {
 	
 	public void endAndKickAll();
 	
-	public void clientCommand(String cmd);
+	public void moduleCommand(String cmd);
 }

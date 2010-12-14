@@ -72,12 +72,8 @@ public class RoomListener implements IRoomListener{
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void clientCommand(String cmd)
+	public void moduleCommand(String cmd)
 	{
-		log.error("clientCommand " + cmd);
-		
-		List args = new ArrayList();
-		args.add(cmd);
-		so.sendMessage("clientCommand", args);
+		log.debug("ignored moduleCommand " + cmd);
 	}
 }

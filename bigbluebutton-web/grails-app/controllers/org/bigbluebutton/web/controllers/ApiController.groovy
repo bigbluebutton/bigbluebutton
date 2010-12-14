@@ -320,17 +320,18 @@ class ApiController {
 		}
 	}
 	
-	def command = {
+	def moduleCmd =
+	{
 	
-		println "Received Command - " + params.test
+		println "Received module Command - " + params.module + "." + params.cmd
 		
 		// check for existing:
 		DynamicConference conf2 = dynamicConferenceService.getConferenceByMeetingID(params.meetingID);
 		Room room2 = dynamicConferenceService.getRoomByMeetingID(params.meetingID);
 		
-		conferenceEventListener.clientCommand(room2.getName() + "\t" + params.message);	
+		conferenceEventListener.moduleCommand(room2.getName() + "\t" + params.module + "\t" + params.cmd);	
 	
-		log.debug CONTROLLER_NAME + "#command"
+		log.debug CONTROLLER_NAME + "#moduleCmd";
 
 /*
 		if (!doChecksumSecurity("command"))
@@ -356,7 +357,7 @@ class ApiController {
 			invalidPassword("You must supply the moderator password for this call."); return;
 		}
 		
-		conferenceEventListener.clientCommand(room.getName() + "\t" + params.message);
+		conferenceEventListener.moduleCommand(room.getName() + "\t" + params.message);
 */		
 		response.addHeader("Cache-Control", "no-cache")
 		withFormat {	
@@ -364,8 +365,8 @@ class ApiController {
 				render(contentType:"text/xml") {
 					response() {
 						returncode(RESP_CODE_SUCCESS)
-						messageKey("sentClientCommand")
-						message("Client command was sent")
+						messageKey("sentModuleCommand")
+						message("Module command was sent")
 					}
 				}
 			}
@@ -503,13 +504,15 @@ class ApiController {
 	        				mode("$md")
 	        				record("$rec")
 	        				welcome("$welcomeMsg")
-	        				loadedModules("chatModule")
+	        				loadedModules("ListenersModule,VideoconfModule,PhoneModule,ViewersModule")
 						}
 					}
 				}
 			}
 	    }  
 		println "Leaving Enter"
+		
+		//ChatModule,ListenersModule,VideoconfModule,PhoneModule,ViewersModule,PresentModule
 	}
 	
 	def signOut = {

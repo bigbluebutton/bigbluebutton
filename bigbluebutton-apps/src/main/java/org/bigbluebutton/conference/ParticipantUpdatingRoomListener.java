@@ -61,8 +61,8 @@ public class ParticipantUpdatingRoomListener implements IRoomListener{
 		// no-op
 	}	
 	
-	public void clientCommand(String cmd)
+	public void moduleCommand(String cmd)
 	{
-		log.error("ParticipantUpdatingRoomListener - client command " + cmd);
+		log.debug("ParticipantUpdatingRoomListener - module command " + cmd);
 	}
 }

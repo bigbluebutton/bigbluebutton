@@ -79,20 +79,12 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public void clientCommand(String cmd)
+	public void moduleCommand(String cmd)
 	{
-		if(cmd.equals("CHAT_START"))
-		{
-			
-		}
-		else if(cmd.equals("PRESENT_START"))
-		{
-		}
-		
-		log.debug("clientCommand received: " + cmd);
+		log.debug("moduleCommand received: " + cmd);
 		ArrayList args = new ArrayList();
 		args.add(cmd);
-		so.sendMessage("clientCommand", args);
+		so.sendMessage("moduleCommand", args);
 	}
 
 	@SuppressWarnings("unchecked")

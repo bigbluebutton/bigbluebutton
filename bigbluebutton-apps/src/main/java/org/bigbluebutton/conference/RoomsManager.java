@@ -182,20 +182,26 @@ public class RoomsManager {
 	
 	
 	// this method is called by incoming JMS requests (Spring integration)
-	public void clientCommandTest(String cmd)
+	public void moduleCommand(String cmd)
 	{		
-		log.debug("Client Command: " + cmd);
-		String[] arr = cmd.split("\t");		
-		String room = arr[0].trim();
+		log.debug("module Command: " + cmd);
+		int pos = cmd.indexOf("\t");
+		if(pos < 0)
+		{
+			log.error("Incorrect format of moduleCommand " + cmd);
+			return;
+		}		
+		String room = cmd.substring(0, pos);
+		String realCmd = cmd.substring(pos+1);
 		
 		Room r = getRoom(room);
 		if (r == null)
 		{
 			log.warn("Could not find room " + room);
 			return;
-		}		
-	
-		log.debug("sending Command to room: " + arr[1]);
-		r.sendClientCommand(log, arr[1]);		
+		}
+		
+		log.debug("sending Command to room: " + realCmd);
+		r.sendModuleCommand(realCmd);		
 	}
 }
