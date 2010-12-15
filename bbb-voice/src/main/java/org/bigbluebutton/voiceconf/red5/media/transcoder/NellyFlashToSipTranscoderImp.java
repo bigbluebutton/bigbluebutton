@@ -22,7 +22,6 @@ package org.bigbluebutton.voiceconf.red5.media.transcoder;
 import java.util.Random;
 
 import org.slf4j.Logger;
-import org.bigbluebutton.voiceconf.red5.media.AudioByteData;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.app.sip.codecs.Codec;
 import org.red5.app.sip.codecs.asao.ByteStream;
