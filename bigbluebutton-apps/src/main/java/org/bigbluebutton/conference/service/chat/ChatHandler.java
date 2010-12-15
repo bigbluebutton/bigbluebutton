@@ -28,6 +28,7 @@ import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.so.ISharedObject;
 import org.red5.server.adapter.ApplicationAdapter;
 import org.red5.server.api.Red5;import org.bigbluebutton.conference.BigBlueButtonSession;import org.bigbluebutton.conference.Constants;import org.bigbluebutton.conference.service.recorder.RecorderApplication;
+import org.bigbluebutton.conference.service.recorder.chat.ChatEventRecorder;
 
 public class ChatHandler extends ApplicationAdapter implements IApplication{
 	private static Logger log = Red5LoggerFactory.getLogger( ChatHandler.class, "bigbluebutton" );
@@ -79,11 +80,13 @@ public class ChatHandler extends ApplicationAdapter implements IApplication{
 		log.debug("roomConnect");
 		ISharedObject so = getSharedObject(connection.getScope(), CHAT_SO);
 		log.debug("Setting up recorder");
-		ChatEventRecorder recorder = new ChatEventRecorder(so, getBbbSession().getRecord());
+		ChatMessageSender messageSender = new ChatMessageSender(so);
+		ChatEventRecorder recorder = new ChatEventRecorder(getBbbSession().getRecord());
 		log.debug("adding event recorder to {}", connection.getScope().getName());
 		recorderApplication.addEventRecorder(connection.getScope().getName(), recorder);
 		log.debug("Adding room listener");
 		chatApplication.addRoomListener(connection.getScope().getName(), recorder);
+		chatApplication.addRoomListener(connection.getScope().getName(), messageSender);
 		log.debug("Done setting up recorder and listener");
 		return true;
 	}

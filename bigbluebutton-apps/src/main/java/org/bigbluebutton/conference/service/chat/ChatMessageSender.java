@@ -19,7 +19,37 @@
 
 package org.bigbluebutton.conference.service.chat;
 
-public interface IChatRoomListener {
-	public String getName();
-	public void newChatMessage(String message);
+import java.util.ArrayList;
+import java.util.List;
+
+import org.bigbluebutton.conference.service.chat.IChatRoomListener;import org.red5.server.api.so.ISharedObject;
+import org.slf4j.Logger;
+import org.red5.logging.Red5LoggerFactory;
+
+public class ChatMessageSender implements IChatRoomListener {
+
+private static Logger log = Red5LoggerFactory.getLogger( ChatMessageSender.class, "bigbluebutton" );
+	
+	private ISharedObject so;
+	
+	String name = "CHAT";
+	
+	public ChatMessageSender(ISharedObject so) {
+		this.so = so; 
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	public void newChatMessage(String message) {
+		log.debug("New chat message...");
+		List list=new ArrayList();
+		list.add(message);
+		so.sendMessage("newChatMessage", list);
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return name;
+	}
 }
