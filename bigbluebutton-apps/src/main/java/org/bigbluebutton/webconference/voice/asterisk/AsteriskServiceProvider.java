@@ -116,4 +116,10 @@ public class AsteriskServiceProvider implements ConferenceServiceProvider {
 	public void setManagerConnection(ManagerConnection c) {
 		connection = c;
 	}
+
+	@Override
+	public void record(String room, String meetingid) {
+		// TODO Auto-generated method stub
+		
+	}
 }

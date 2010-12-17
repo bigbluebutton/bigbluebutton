@@ -44,10 +44,12 @@ public class ConferenceService implements ConferenceEventListener {
 		roomMgr = null;
 	}
 	
-	public void createConference(String room) {
+	public void createConference(String room, boolean record, String meetingid) {
+		if(record) confProvider.record(room, meetingid);
 		if (roomMgr.hasRoom(room)) return;
 		roomMgr.createRoom(room);
 		confProvider.populateRoom(room);
+		
 	}
 	
 	public void destroyConference(String room) {

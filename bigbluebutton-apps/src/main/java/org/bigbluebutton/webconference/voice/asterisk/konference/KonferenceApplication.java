@@ -67,4 +67,10 @@ public class KonferenceApplication implements ConferenceServiceProvider {
 	public void setKonferenceManager(KonferenceManager km) {
 		konfMgr = km;
 	}
+
+	@Override
+	public void record(String room, String meetingid) {
+		// TODO Auto-generated method stub
+		
+	}
 }

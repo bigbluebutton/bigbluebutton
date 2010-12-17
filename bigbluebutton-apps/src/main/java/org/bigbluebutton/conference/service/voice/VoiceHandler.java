@@ -84,10 +84,14 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 		log.debug("In live mode");
 		ISharedObject so = getSharedObject(connection.getScope(), VOICE_SO);
 		    		
-		String voiceBridge = getBbbSession().getVoiceBridge();    		
+		String voiceBridge = getBbbSession().getVoiceBridge();  
+		boolean record=getBbbSession().getRecord();
+		String meetingid=getBbbSession().getConference();
+		
 		log.debug("Setting up voiceBridge $voiceBridge");
 		clientManager.addSharedObject(connection.getScope().getName(), voiceBridge, so);
-		conferenceService.createConference(voiceBridge);    		
+		log.debug("Creating record session for "+voiceBridge);
+		conferenceService.createConference(voiceBridge,record,meetingid); 		
 		return true;
 	}
 
@@ -128,6 +132,7 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 		if (!hasSharedObject(scope, VOICE_SO)) {
     		clearSharedObjects(scope, VOICE_SO);
     	}
+		log.debug("I think for stop record, it will be here...");
 	}
 	
 	public void setClientNotifier(ClientNotifier c) {

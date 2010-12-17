@@ -55,4 +55,10 @@ public class MeetMeApplication implements ConferenceServiceProvider {
 	public void setMeetMeApplicationAdapter(MeetMeApplicationAdapter meetme) {
 		this.meetme = meetme;
 	}
+
+	@Override
+	public void record(String room, String meetingid) {
+		// TODO Auto-generated method stub
+		
+	}
 }

@@ -21,6 +21,9 @@
 */
 package org.bigbluebutton.webconference.voice.freeswitch;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -36,6 +39,7 @@ import org.bigbluebutton.webconference.voice.events.ParticipantTalkingEvent;
 import org.bigbluebutton.webconference.voice.freeswitch.actions.EjectParticipantCommand;
 import org.bigbluebutton.webconference.voice.freeswitch.actions.PopulateRoomCommand;
 import org.bigbluebutton.webconference.voice.freeswitch.actions.MuteParticipantCommand;
+import org.bigbluebutton.webconference.voice.freeswitch.actions.RecordConferenceCommand;
 import org.freeswitch.esl.client.IEslEventListener;
 import org.freeswitch.esl.client.inbound.Client;
 import org.freeswitch.esl.client.manager.ManagerConnection;
@@ -117,6 +121,23 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
         EjectParticipantCommand mpc = new EjectParticipantCommand(room, participant, USER);
         String jobId = manager.getESLClient().sendAsyncApiCommand( mpc.getCommand(), mpc.getCommandArgs());
         log.debug("eject/kick called for room [{}] jobid [{}]", room, jobId);
+    }
+    
+    @Override
+    public void record(String room, String meetingid){
+    	String RECORD_DIR="/tmp";
+    	String DATE_FORMAT = "yyyyMMdd-hhmmss";
+    	
+    	Calendar cal=Calendar.getInstance();
+    	SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
+        
+    	String voice_path=RECORD_DIR+File.separatorChar+meetingid+"-"+sdf.format(cal.getTime())+".wav";
+    	log.debug("freeswitch is going to record in "+voice_path);
+    	RecordConferenceCommand rcc=new RecordConferenceCommand(room, USER, true, voice_path);
+    	log.debug(rcc.getCommand()+rcc.getCommandArgs());
+    	EslMessage response = manager.getESLClient().sendSyncApiCommand(rcc.getCommand(), rcc.getCommandArgs());
+        rcc.handleResponse(response, conferenceEventListener);
+    	
     }
 
     @Override
