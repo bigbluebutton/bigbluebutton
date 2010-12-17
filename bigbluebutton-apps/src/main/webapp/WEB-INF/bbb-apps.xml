@@ -127,6 +127,7 @@
 	<bean id="whiteboardApplication" 
 	    class="org.bigbluebutton.conference.service.whiteboard.WhiteboardApplication">
 	    <property name="roomManager"> <ref local="whiteboardRoomManager"/></property>
+	    <property name="recorderApplication"> <ref local="recorderApplication"/></property>
 	</bean>
 	
 	<bean id="whiteboard.service" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardService">
