@@ -19,6 +19,7 @@
 * 
 * ===License Header===
 */
+
 package org.bigbluebutton.deskshare.client.frame;
 
 import java.awt.BasicStroke;
@@ -30,6 +31,7 @@ import java.awt.Frame;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
@@ -95,7 +97,7 @@ class WindowlessFrame implements Serializable {
 		}
 	};
 	
-	
+
 	// properties that change during use
 	private Point mTopLeft = new Point();
 	private Dimension mOverallSize = new Dimension();
@@ -115,7 +117,105 @@ class WindowlessFrame implements Serializable {
 	private final BarFrame mBottomBorder;
 	private final BarFrame mLeftBorder;
 	private ToolbarFrame mToolbarFrame;
-
+	
+	private MultiScreen mScreen = new MultiScreen();
+	
+	/*****************************************************************************
+    ;  Class MultiScreen
+    ;----------------------------------------------------------------------------
+	; DESCRIPTION
+	;   This class is used to detect if the system has more than one screen.
+	******************************************************************************/
+	private class MultiScreen {
+		private int                 minX=0 ;              //minimum of x position
+		private int                 totalWidth=0 ;        // total screen resolution
+		private int                 curWidth=0 ;          // primary screen width
+		private GraphicsEnvironment ge ;
+		private GraphicsDevice[]    screenDevice ;
+		private boolean             ismultiscreen=false ;
+		
+		/*****************************************************************************
+	    ;  MultiScreen
+	    ;----------------------------------------------------------------------------
+		; DESCRIPTION
+		;   This is the class constructor.
+		;
+		; RETURNS : N/A
+		;
+		; INTERFACE NOTES
+		; 
+		;       INPUT : N/A
+		; 
+		;       OUTPUT : N/A
+		; 
+		; IMPLEMENTATION
+		;
+		; HISTORY
+		; __date__ :        PTS:  
+		; 2010.11.16		problem 644 and 647
+		;
+		******************************************************************************/
+		private MultiScreen(){
+			int i ;
+			
+			ge = GraphicsEnvironment.getLocalGraphicsEnvironment() ;
+			screenDevice = ge.getScreenDevices() ;
+			
+			if ( 1 < screenDevice.length ){
+				// this is the case for multiple devices.
+				// set the flag to indicate multiple devices on the system.
+				ismultiscreen=true ;
+				for ( i=0; i<screenDevice.length; i++){
+					GraphicsConfiguration[] gc = screenDevice[i].getConfigurations() ;
+					
+					// determine the minimum x position for the main screen
+					if ( gc[0].getBounds().x <= minX ){
+						minX = gc[0].getBounds().x;
+					}
+					
+					// determine the total screen size
+					if ( gc[0].getBounds().x >= 0){
+						totalWidth = totalWidth + gc[0].getBounds().width;
+					}	
+					
+				}
+			}else{
+				// this is the case for one screen only.
+				ismultiscreen = false ;
+			}
+			
+			// set the main screen width
+			curWidth = screenDevice[0].getConfigurations()[0].getBounds().width ;
+			
+		} // END FUNCTION MultiScreen
+		
+		/*****************************************************************************
+	    ;  isMultiScreen
+	    ;----------------------------------------------------------------------------
+		; DESCRIPTION
+		;   This routine returns if the system is multi-screen or not.
+		;
+		; RETURNS : true/false
+		;
+		; INTERFACE NOTES
+		; 
+		;       INPUT : N/A
+		;
+		; 
+		; IMPLEMENTATION
+		;  
+		; HISTORY
+		; __date__ :        PTS:  
+		; 2010.11.16		problem 644 and 647
+		;
+		******************************************************************************/
+		public boolean isMultiScreen(){
+			
+			return ismultiscreen ;
+		} // END FUNCTION isMultiScreen 
+		
+	} // END CLASS MultiScreen 
+	
 	private class ToolbarFrame extends Window implements LocationAndSizeUpdateable {
 		private static final long serialVersionUID = 1L;
 
@@ -149,8 +249,51 @@ class WindowlessFrame implements Serializable {
 
 		@Override
 		public void mouseDragged(MouseEvent e) {
-			final int changeInX = e.getLocationOnScreen().x - mActionOffset.x - mTopLeft.x;
-			final int changeInY = e.getLocationOnScreen().y - mActionOffset.y - mTopLeft.y;
+			int changeInX = e.getLocationOnScreen().x - mActionOffset.x - mTopLeft.x;
+			int changeInY = e.getLocationOnScreen().y - mActionOffset.y - mTopLeft.y;
+			Toolkit tk 	= Toolkit.getDefaultToolkit();
+			Dimension d = tk.getScreenSize();
+			
+			// check if multiscreen
+			if ( false == mScreen.isMultiScreen() ){
+				// case one screen only
+				if (mTopLeft.x < 1 && changeInX < 0) {
+					mTopLeft.x = 0;
+					changeInX = 0;				
+				}
+				if (mTopLeft.y < 1 && changeInY < 0) {
+					mTopLeft.y = 0;
+					changeInY = 0;
+				}
+				if (mTopLeft.x + mOverallSize.width > (d.width-6) && changeInX > 0) {
+					mTopLeft.x = d.width - mOverallSize.width-5;
+					changeInX = 0;
+					
+				}
+				if (mTopLeft.y + mOverallSize.height > (d.height-6) && changeInY > 0) {
+					mTopLeft.y = d.height - mOverallSize.height-5;
+					changeInY = 0;
+				}
+			}else{
+				// case multiple screen
+				if (mTopLeft.x < mScreen.minX+1 && changeInX < 0) {
+					mTopLeft.x = mScreen.minX;
+					changeInX = 0;				
+				}
+				if (mTopLeft.y < 1 && changeInY < 0) {
+					mTopLeft.y = 0;
+					changeInY = 0;
+				}
+			
+				if (mTopLeft.x + mOverallSize.width > (mScreen.totalWidth-6) && changeInX > 0) {
+					mTopLeft.x = mScreen.totalWidth - mOverallSize.width-5;
+					changeInX = 0;
+				}
+				if (mTopLeft.y + mOverallSize.height > (d.height-6) && changeInY > 0) {
+					mTopLeft.y = d.height - mOverallSize.height-5;
+					changeInY = 0;
+				}
+			}
 			if (mMoving.get() && !e.isConsumed()) {
 				WindowlessFrame.this.setLocation(changeInX + mTopLeft.x, changeInY + mTopLeft.y);
 			}
@@ -175,8 +318,8 @@ class WindowlessFrame implements Serializable {
 	
 	private class WindowlessFrameResizingMouseListener extends MouseAdapter {
 		
-		private static final int CORNER_SIZE = 15;
-		
+		private static final int CORNER_SIZE = 150;
+
 		private AtomicBoolean mResizing = new AtomicBoolean(false);
 		
 		private Point mActionOffset = null;
@@ -185,15 +328,28 @@ class WindowlessFrame implements Serializable {
 
 		@Override
 		public void mouseDragged(MouseEvent e) {
-			final int changeInX = e.getLocationOnScreen().x - mActionOffset.x - mTopLeft.x;
+		    int changeInX = e.getLocationOnScreen().x - mActionOffset.x - mTopLeft.x;
 			final int changeInY = e.getLocationOnScreen().y - mActionOffset.y - mTopLeft.y;
+			
+			Toolkit tk = Toolkit.getDefaultToolkit();
+			Dimension d = tk.getScreenSize();
+
 			if (mResizing.get()) {
 				int newH = mOriginalSize.height;
 				int newW = mOriginalSize.width;
-				if (mCorner == Corner.SOUTHEAST) {
-					newH += changeInY;
-					newW += changeInX;
-				} else if (mCorner == Corner.NORTHEAST) {
+				if (Corner.SOUTHEAST == mCorner) {
+
+					if (e.getLocationOnScreen().x < mTopLeft.x+5) {
+						newW = 5;
+					} else {
+						newW += changeInX;				
+					}
+					if (e.getLocationOnScreen().y < mTopLeft.y+5) {
+						newH = 5;
+					} else {
+						newH += changeInY;
+					}
+				} /*else if (mCorner == Corner.NORTHEAST) {
 					mTopLeft.y = mTopLeft.y + changeInY;
 					newH = mOverallSize.height + -changeInY;
 					newW += changeInX;
@@ -206,8 +362,33 @@ class WindowlessFrame implements Serializable {
 					newH += changeInY;
 					mTopLeft.x = mTopLeft.x + changeInX;
 					newW = mOverallSize.width + -changeInX;
-				}
+				}*/
 				//System.out.println("orig size: " + mOriginalSize + ", newH: " + newH + ", newW: " + newW + ", X: " + changeInX + ", Y: " + changeInY);
+
+				if (newH + mTopLeft.y > d.height-5){
+					newH = d.height - mTopLeft.y-5;
+				}
+
+				// check if multiple screen _PTS_644_   _PTS_647_
+				if ( false == mScreen.isMultiScreen() ){
+					// one screen only
+					if (newW + mTopLeft.x > d.width-5){
+						newW = d.width - mTopLeft.x-5;
+					}
+				}else{
+					int mWidth=0 ;
+					if ( mTopLeft.x > mScreen.curWidth ){
+						mWidth = mScreen.totalWidth ;
+					}else{
+						mWidth = d.width ;
+					}
+					if (newW + mTopLeft.x > mWidth-5 && mTopLeft.x >= 0){
+						newW = mWidth - mTopLeft.x-5;
+					}else if (mTopLeft.x<0 && mTopLeft.x + newW > -5){
+						 newW = - mTopLeft.x-5;
+					}
+				}
+				
 				WindowlessFrame.this.setSize(newH, newW);
 				e.consume();
 			}
@@ -235,13 +416,14 @@ class WindowlessFrame implements Serializable {
 		private Corner nearCorner(Point mouse) {
 			if (isNearBottomRightCorner(mouse)) {
 				return Corner.SOUTHEAST;
-			} else if (isNearTopRightCorner(mouse)) {
+			} /*  else if (isNearTopRightCorner(mouse)) {
 				return Corner.NORTHEAST;
 			} else if (isNearTopLeftCorner(mouse)) {
 				return Corner.NORTHWEST;
 			} else if (isNearBottomLeftCorner(mouse)) {
 				return Corner.SOUTHWEST;
 			}
+			*/
 			return null;
 		}
 
@@ -251,7 +433,7 @@ class WindowlessFrame implements Serializable {
 			return xToBotLeft < CORNER_SIZE && yToBotLeft < CORNER_SIZE;
 		}
 
-		private boolean isNearTopRightCorner(Point mouse) {
+		/* private boolean isNearTopRightCorner(Point mouse) {
 			int xToTopRight = Math.abs(mTopLeft.x + (int) mOverallSize.getWidth() - mouse.x);
 			int yToTopRight = Math.abs(mTopLeft.y - mouse.y);
 			return xToTopRight < CORNER_SIZE && yToTopRight < CORNER_SIZE;
@@ -268,17 +450,22 @@ class WindowlessFrame implements Serializable {
 			int yToTopLeft = Math.abs(mTopLeft.y - mouse.y);
 			return xToTopLeft < CORNER_SIZE && yToTopLeft < CORNER_SIZE;
 		}
+		*/
 
 		@Override
 		public void mouseMoved(MouseEvent e) {
 			final Point mouse = e.getLocationOnScreen();
+			
+			/*
 			if (isNearTopLeftCorner(mouse)) {
 				e.getComponent().setCursor(Cursor.getPredefinedCursor(Cursor.NW_RESIZE_CURSOR));
 			} else if (isNearBottomLeftCorner(mouse)) {
 				e.getComponent().setCursor(Cursor.getPredefinedCursor(Cursor.SW_RESIZE_CURSOR));
 			} else if (isNearTopRightCorner(mouse)) {
 				e.getComponent().setCursor(Cursor.getPredefinedCursor(Cursor.NE_RESIZE_CURSOR));
-			} else if (isNearBottomRightCorner(mouse)) {
+			} else 
+			*/
+			if (isNearBottomRightCorner(mouse)) {
 				e.getComponent().setCursor(Cursor.getPredefinedCursor(Cursor.SE_RESIZE_CURSOR));
 			} else {
 				e.getComponent().setCursor(Cursor.getDefaultCursor());

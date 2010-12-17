@@ -238,7 +238,9 @@
 	<views:MainToolbar id="toolbar" dock="true" width="100%" height="30" visible="false" verticalAlign="middle"/>
 	<views:MainCanvas id="mdiCanvas" horizontalScrollPolicy="off" verticalScrollPolicy="off" effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}" width="100%" height="100%">
 		<views:LoadingBar id="progressBar" x="{this.width/2 - progressBar.width/2}" y="{this.height/2 - progressBar.height/2}" width="{this.width/2}" />
+		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />
 	</views:MainCanvas>	
+	
 	<mx:ControlBar width="100%" height="20" paddingTop="0">		
 	  	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}" id="copyrightLabel2"/>
 	 	<mx:Spacer width="20"/>

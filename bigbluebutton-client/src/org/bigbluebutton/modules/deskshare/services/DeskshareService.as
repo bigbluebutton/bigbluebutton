@@ -47,6 +47,7 @@ package org.bigbluebutton.modules.deskshare.services
 		
 		private var width:Number;
 		private var height:Number;
+		private var uri:String;
 		
 		public function DeskshareService()
 		{
@@ -60,6 +61,7 @@ package org.bigbluebutton.modules.deskshare.services
 		}
 		
 		public function connect(uri:String):void {
+			this.uri = uri;
 			LogUtil.debug("Deskshare Service connecting to " + uri);
 			conn = new Connection();
 			conn.addEventListener(Connection.SUCCESS, connectionSuccessHandler);
@@ -93,9 +95,9 @@ package org.bigbluebutton.modules.deskshare.services
 		}
 		
 		private function connectionSuccessHandler(e:ConnectionEvent):void{
-			LogUtil.debug("Successully connection to " + module.uri);
+			LogUtil.debug("Successully connection to " + uri);
 			nc = conn.getConnection();
-			deskSO = SharedObject.getRemote("deskSO", module.uri, false);
+			deskSO = SharedObject.getRemote("deskSO", uri, false);
             deskSO.client = this;
             deskSO.connect(nc);
             
@@ -107,11 +109,11 @@ package org.bigbluebutton.modules.deskshare.services
 		}
 			
 		public function connectionFailedHandler(e:ConnectionEvent):void{
-			LogUtil.error("connection failed to " + module.uri + " with message " + e.toString());
+			LogUtil.error("connection failed to " + uri + " with message " + e.toString());
 		}
 			
 		public function connectionRejectedHandler(e:ConnectionEvent):void{
-			LogUtil.error("connection rejected " + module.uri + " with message " + e.toString());
+			LogUtil.error("connection rejected " + uri + " with message " + e.toString());
 		}
 					
 		/**

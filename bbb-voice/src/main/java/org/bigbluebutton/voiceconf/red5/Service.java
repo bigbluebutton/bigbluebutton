@@ -35,7 +35,11 @@ public class Service {
 	private MessageFormat callExtensionPattern = new MessageFormat("{0}");
     	
 	public Boolean call(String peerId, String callerName, String destination) {
-		log.debug("Joining voice conference " + destination);
+    	String clientId = Red5.getConnectionLocal().getClient().getId();
+    	String userid = getUserId();
+    	String username = getUsername();		
+    	log.debug("{} is requesting to join into the conference {}", username + "[uid=" + userid + "][clientid=" + clientId + "]", destination);
+		
 		String extension = callExtensionPattern.format(new String[] { destination });
 		try {
 			sipPeerManager.call(peerId, getClientId(), callerName, extension);
@@ -48,7 +52,10 @@ public class Service {
 	}
 
 	public Boolean hangup(String peerId) {
-		log.debug("Red5SIP Hangup");
+    	String clientId = Red5.getConnectionLocal().getClient().getId();
+    	String userid = getUserId();
+    	String username = getUsername();		
+    	log.debug("{} is requesting to hang up from the conference.", username + "[uid=" + userid + "][clientid=" + clientId + "]");
 		try {
 			sipPeerManager.hangup(peerId, getClientId());
 			return true;
@@ -69,5 +76,17 @@ public class Service {
 	
 	public void setSipPeerManager(SipPeerManager sum) {
 		sipPeerManager = sum;
+	}
+	
+	private String getUserId() {
+		String userid = (String) Red5.getConnectionLocal().getAttribute("USERID");
+		if ((userid == null) || ("".equals(userid))) userid = "unknown-userid";
+		return userid;
+	}
+	
+	private String getUsername() {
+		String username = (String) Red5.getConnectionLocal().getAttribute("USERNAME");
+		if ((username == null) || ("".equals(username))) username = "UNKNOWN-CALLER";
+		return username;
 	}
 }

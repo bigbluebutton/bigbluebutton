@@ -37,7 +37,9 @@ import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IScope;
 import org.red5.server.api.stream.IBroadcastStream;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.Vector;
 
 public class CallAgent extends CallListenerAdapter implements CallStreamObserver  {
@@ -85,11 +87,12 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     }
 
     public void call(String callerName, String destination) {    	
-    	log.debug("call {}", destination);  
+    	log.debug("{} making a call to {}", callerName, destination);  
     	try {
 			localSocket = getLocalAudioSocket();
 			userProfile.audioPort = localSocket.getLocalPort();	    	
 		} catch (Exception e) {
+			log.debug("{} failed to allocate local port for call to {}. Notifying client that call failed.", callerName, destination); 
 			notifyListenersOnOutgoingCallFailed();
 			return;
 		}    	
@@ -138,18 +141,22 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     private DatagramSocket getLocalAudioSocket() throws Exception {
     	DatagramSocket socket = null;
     	boolean failedToGetSocket = true;
+    	StringBuilder failedPorts = new StringBuilder("Failed ports: ");
     	
-    	for (int i = 0; i < 3; i++) {
-    		try {
-        		socket = new DatagramSocket(portProvider.getFreeAudioPort());
+    	for (int i = portProvider.getStartAudioPort(); i <= portProvider.getStopAudioPort(); i++) {
+    		int freePort = portProvider.getFreeAudioPort();
+    		try {    			
+        		socket = new DatagramSocket(freePort);
         		failedToGetSocket = false;
+        		log.info("Successfully setup local audio port {}. {}", freePort, failedPorts);
         		break;
     		} catch (SocketException e) {
-    			log.error("Failed to setup local audio socket.");    			
+    			failedPorts.append(freePort + ", ");   			
     		}
     	}
     	
     	if (failedToGetSocket) {
+			log.warn("Failed to setup local audio port {}.", failedPorts); 
     		throw new Exception("Exception while initializing CallStream");
     	}
     	
@@ -169,22 +176,26 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
         int localAudioPort = SessionDescriptorUtil.getLocalAudioPort(localSdp);
     	
     	SipConnectInfo connInfo = new SipConnectInfo(localSocket, remoteMediaAddress, remoteAudioPort);
-        
-        log.debug("[localAudioPort=" + localAudioPort + ",remoteAudioPort=" + remoteAudioPort + "]");
+        try {
+			localSocket.connect(InetAddress.getByName(remoteMediaAddress), remoteAudioPort);
+	        log.debug("[localAudioPort=" + localAudioPort + ",remoteAudioPort=" + remoteAudioPort + "]");
 
-        if (userProfile.audio && localAudioPort != 0 && remoteAudioPort != 0) {
-            if ((callStream == null) && (sipCodec != null)) {               	
-            	try {
-					callStream = callStreamFactory.createCallStream(sipCodec, connInfo);
-					callStream.addCallStreamObserver(this);
-					callStream.start();
-					notifyListenersOnCallConnected(callStream.getTalkStreamName(), callStream.getListenStreamName());
-				} catch (Exception e) {
-					log.error("Failed to create Call Stream.");
-					System.out.println(StackTraceUtil.getStackTrace(e));
-				}                
-            }
-        }
+	        if (userProfile.audio && localAudioPort != 0 && remoteAudioPort != 0) {
+	            if ((callStream == null) && (sipCodec != null)) {               	
+	            	try {
+						callStream = callStreamFactory.createCallStream(sipCodec, connInfo);
+						callStream.addCallStreamObserver(this);
+						callStream.start();
+						notifyListenersOnCallConnected(callStream.getTalkStreamName(), callStream.getListenStreamName());
+					} catch (Exception e) {
+						log.error("Failed to create Call Stream.");
+						System.out.println(StackTraceUtil.getStackTrace(e));
+					}                
+	            }
+	        }
+		} catch (UnknownHostException e1) {
+			log.error(StackTraceUtil.getStackTrace(e1));
+		}
     }
 
         
@@ -204,11 +215,12 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     }
     
     private void closeVoiceStreams() {        
-    	log.debug("closeMediaApplication" );
-        
+    	log.debug("Shutting down the voice streams.");         
         if (callStream != null) {
         	callStream.stop();
         	callStream = null;
+        } else {
+        	log.debug("Can't shutdown voice stream. callstream is NULL");
         }
     }
 
@@ -323,19 +335,20 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     }
     
     private void cleanup() {
-    	localSocket.close();
+    	log.debug("Closing local audio port {}", localSocket.getLocalPort());
+    	if (localSocket != null) {
+    		localSocket.close();
+    	} else {
+    		log.debug("Trying to close un-allocated port {}", localSocket.getLocalPort());
+    	}
     }
     
     /** Callback function called when arriving a BYE request */
     public void onCallClosing(Call call, Message bye) {
-    	log.debug("onCallClosing");
+    	log.info("Received a BYE from the other end telling us to hangup.");
         
-    	if (!isCurrentCall(call)) return;
-
-        log.debug("CLOSE.");
-        
+    	if (!isCurrentCall(call)) return;               
         closeVoiceStreams();
-
         notifyListenersOfOnCallClosed();
         callState = CallState.UA_IDLE;
 

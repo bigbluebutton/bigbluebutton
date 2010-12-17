@@ -19,8 +19,6 @@
 
 package org.bigbluebutton.modules.phone.managers
 {
-	import flash.events.IEventDispatcher;
-	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
 	import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceEvent;
@@ -40,6 +38,8 @@ package org.bigbluebutton.modules.phone.managers
 		public function setModuleAttributes(attributes:Object):void {
 			this.attributes = attributes;
 			LogUtil.debug("Attributes Set... webvoiceconf:" + attributes.webvoiceconf);
+
+			if (attributes.autoJoin == "true") joinVoice(true);
 		}
 				
 		private function setupMic(useMic:Boolean):void {
@@ -54,28 +54,36 @@ package org.bigbluebutton.modules.phone.managers
 		}
 		
 		public function join(e:JoinVoiceConferenceEvent):void {
-			setupMic(e.useMicrophone);
-			var uid:String = String( Math.floor( new Date().getTime() ) );
-			connectionManager.connect(uid, attributes.username, attributes.room, attributes.uri);
+			joinVoice(e.useMicrophone);
 		}
+		
+		public function joinVoice(autoJoin:Boolean):void {
+			setupMic(autoJoin);
+			var uid:String = String( Math.floor( new Date().getTime() ) );
+			connectionManager.connect(uid, attributes.externUserID, attributes.username, attributes.room, attributes.uri);
+		}		
 				
 		public function dialConference():void {
-			LogUtil.debug("Dialing...." + attributes.webvoiceconf);
+			LogUtil.debug("Dialing...." + attributes.webvoiceconf + "...." + attributes.externUserID);
 			connectionManager.doCall(attributes.webvoiceconf);
 		}
 		
 		public function callConnected(event:CallConnectedEvent):void {
 			LogUtil.debug("Call connected...");
 			setupConnection();
+			LogUtil.debug("callConnected: Connection Setup");
 			streamManager.callConnected(event.playStreamName, event.publishStreamName, event.codec);
+			LogUtil.debug("callConnected::onCall set");
 			onCall = true;
 		}
 		
 		public function hangup():void {
 			LogUtil.debug("PhoneManager hangup");
 			if (onCall) {
+				LogUtil.debug("PM OnCall");
 				streamManager.stopStreams();
 				connectionManager.doHangUp();
+				LogUtil.debug("PM hangup::doHangUp");
 				onCall = false;
 			}			
 		}

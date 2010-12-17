@@ -22,6 +22,9 @@
 package org.bigbluebutton.deskshare.client;
 
 import javax.swing.JApplet;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
 import java.awt.Image;
 
 public class DeskShareApplet extends JApplet implements ClientListener {
@@ -92,7 +95,20 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 	}
 	
 	public void onClientStop(ExitCode reason) {
-		client.stop();	
+		// determine if client is disconnected _PTS_272_
+		if ( ExitCode.CONNECTION_TO_DESKSHARE_SERVER_DROPPED == reason ){
+			JFrame pframe = new JFrame("Desktop Sharing Disconneted");
+			if ( null != pframe ){
+				client.disconnected();
+				JOptionPane.showMessageDialog(pframe,
+					"Disconnected. Reason: Lost connection to the server." + reason ,
+					"Disconnected" ,JOptionPane.ERROR_MESSAGE );
+			}else{
+				System.out.println("Desktop sharing allocate memory failed.");
+			}
+		}else{
+			client.stop();
+		}	
 	}
 	
 }

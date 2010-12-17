@@ -63,7 +63,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
     
 	@Override
     public boolean roomStart(IScope room) {
-    	log.debug("{} - roomStart ", APP);
+    	log.debug("Starting room [{}].", room.getName());
     	assert participantsApplication != null;
     	participantsApplication.createRoom(room.getName());
     	return super.roomStart(room);
@@ -71,21 +71,28 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	
 	@Override
     public void roomStop(IScope room) {
-    	log.debug("{} - roomStop", APP);
+    	log.debug("Stopping room [{}]", room.getName());
     	super.roomStop(room);
     	assert participantsApplication != null;
     	participantsApplication.destroyRoom(room.getName());
     	BigBlueButtonSession bbbSession = getBbbSession();
     	assert bbbSession != null;
-		log.debug("{} - roomStop - destroying RecordSession {}", APP, bbbSession.getSessionName());
+
+    	/**
+    	 * Need to figure out if the next 2 lines should be removed. (ralam nov 25, 2010).
+    	 */
 		assert recorderApplication != null;
 		recorderApplication.destroyRecordSession(bbbSession.getSessionName());
-		log.debug("{} - roomStop - destroyed RecordSession {}", APP, bbbSession.getSessionName());
+		
+		log.debug("Stopped room [{}]", room.getName());
     }
     
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
-    	log.debug("{} - roomConnect - ", APP);
+        String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
+        int remotePort = Red5.getConnectionLocal().getRemotePort();
+        String clientId = Red5.getConnectionLocal().getClient().getId();
+        log.info("[clientid={}] connected from {}.", clientId, remoteHost + ":" + remotePort);
     	
         String username = ((String) params[0]).toString();
         String role = ((String) params[1]).toString();
@@ -116,47 +123,44 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
         
         String debugInfo = "userid=" + userid + ",username=" + username + ",role=" +  role + ",conference=" + conference + "," + 
         					"session=" + sessionName + ",voiceConf=" + voiceBridge + ",room=" + room + ",externsUserid=" + externUserID;
-		log.debug("roomConnect - [{}]", debugInfo); 
-
-		log.info("User Joined [{}, {}]", username, room);
+		log.debug("User [{}] connected to room [{}]", debugInfo, room); 
         super.roomConnect(connection, params);
     	return true;
 	}
 
 	@Override
 	public void roomDisconnect(IConnection conn) {
+        String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
+        int remotePort = Red5.getConnectionLocal().getRemotePort();    	
+        String clientId = Red5.getConnectionLocal().getClient().getId();
+    	log.info("[clientid={}] disconnnected from {}.", clientId, remoteHost + ":" + remotePort);
+    	
 		BigBlueButtonSession bbbSession = (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
-		log.info("User Left [{}, {}]", bbbSession.getUsername(), bbbSession.getRoom());
+		log.info("User [{}] disconnected from room [{}]", bbbSession.getUsername(), bbbSession.getRoom());
 		super.roomDisconnect(conn);
 	}
 	
 	public String getMyUserId() {
-		log.debug("Getting userid for connection.");
 		BigBlueButtonSession bbbSession = (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 		assert bbbSession != null;
 		return bbbSession.getUserid()+"";
 	}
 	
 	public void setParticipantsApplication(ParticipantsApplication a) {
-		log.debug("Setting participants application");
 		participantsApplication = a;
 	}
 	
 	public void setRecorderApplication(RecorderApplication a) {
-		log.debug("Setting recorder application");
 		recorderApplication = a;
 	}
 	
 	public void setApplicationListeners(Set<IApplication> listeners) {
-		log.debug("Setting application listeners");
 		int count = 0;
 		Iterator<IApplication> iter = listeners.iterator();
 		while (iter.hasNext()) {
-			log.debug("Setting application listeners {}", count);
 			super.addListener((IApplication) iter.next());
 			count++;
 		}
-		log.debug("Finished Setting application listeners");
 	}
 	
 	public void setVersion(String v) {
@@ -172,7 +176,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		@Override
 		public void onApplicationEvent(ApplicationEvent event) {
 			if (event instanceof org.springframework.context.event.ContextStoppedEvent) {
-				log.info("Received shutdown event. Destroying all rooms.");
+				log.info("Received shutdown event. Red5 is shutting down. Destroying all rooms.");
 				participantsApplication.destroyAllRooms();
 			}			
 		}

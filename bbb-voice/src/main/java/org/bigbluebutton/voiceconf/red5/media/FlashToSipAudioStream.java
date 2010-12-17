@@ -19,12 +19,12 @@
 **/
 package org.bigbluebutton.voiceconf.red5.media;
 
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.net.DatagramSocket;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-
 import org.apache.mina.core.buffer.IoBuffer;
 import org.bigbluebutton.voiceconf.red5.media.transcoder.FlashToSipTranscoder;
 import org.bigbluebutton.voiceconf.red5.media.transcoder.TranscodedAudioDataListener;
@@ -41,7 +41,9 @@ import org.slf4j.Logger;
 public class FlashToSipAudioStream {
 	private final static Logger log = Red5LoggerFactory.getLogger(FlashToSipAudioStream.class, "sip");
 
-	private final BlockingQueue<AudioByteData> audioDataQ = new LinkedBlockingQueue<AudioByteData>();
+	private final PipedOutputStream streamFromFlash;
+	private PipedInputStream streamToSip;
+	
 	private final Executor exec = Executors.newSingleThreadExecutor();
 	private Runnable audioDataProcessor;
 	private volatile boolean processAudioData = false;
@@ -58,6 +60,13 @@ public class FlashToSipAudioStream {
 		this.srcSocket = srcSocket;
 		this.connInfo = connInfo;		
 		talkStreamName = "microphone_" + System.currentTimeMillis();
+		streamFromFlash = new PipedOutputStream();
+		try {
+			streamToSip = new PipedInputStream(streamFromFlash);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public void start(IBroadcastStream broadcastStream, IScope scope) throws StreamException {
@@ -73,16 +82,15 @@ public class FlashToSipAudioStream {
 		    	  log.debug("skipping empty packet with no data");
 		    	  return;
 		      }
-		      		      
+		      	      
 		      if (packet instanceof AudioData) {
 		    	  byte[] data = SerializeUtils.ByteBufferToByteArray(buf);
-				  AudioByteData abd = new AudioByteData(data);
-				  try {
-					  audioDataQ.put(abd);
-				  } catch (InterruptedException e) {
-					  // TODO Auto-generated catch block
-					  e.printStackTrace();
-				  }		    			  		    	  
+		    	  try {
+					streamFromFlash.write(data, 1, data.length-1);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}	    			  		    	  
 		      } 
 			}
 		};
@@ -101,11 +109,23 @@ public class FlashToSipAudioStream {
 	}
 
 	private void processAudioData() {
-		while (processAudioData) {
+		int len = 64;
+		byte[] nellyAudio = new byte[len];		
+		int remaining = len;
+		int offset = 0;
+		TranscodedAudioListener transcodedAudioListener = new TranscodedAudioListener();
+		while (processAudioData) {			
 			try {
-				AudioByteData abd = audioDataQ.take();
-				transcoder.transcode(abd, 1, abd.getData().length-1, new TranscodedAudioListener());
-			} catch (InterruptedException e) {
+				int bytesRead =  streamToSip.read(nellyAudio, offset, remaining);
+				remaining -= bytesRead;
+				if (remaining == 0) {
+					remaining = len;
+					offset = 0;
+					transcoder.transcode(nellyAudio, 0, nellyAudio.length, transcodedAudioListener);
+				} else {
+					offset += bytesRead; 
+				}
+			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}        		
@@ -114,7 +134,12 @@ public class FlashToSipAudioStream {
 	
 	public void stop(IBroadcastStream broadcastStream, IScope scope) {
 		broadcastStream.removeStreamListener(mInputListener);
-		processAudioData = false;
+		if (broadcastStream != null) {
+			broadcastStream.stop();
+			broadcastStream.close();
+		} 
+	    processAudioData = false;
+	    srcSocket.close();		
 	}
 
 	public String getStreamName() {
@@ -124,7 +149,7 @@ public class FlashToSipAudioStream {
 	private class TranscodedAudioListener implements TranscodedAudioDataListener {
 		@Override
 		public void handleTranscodedAudioData(byte[] audioData, long timestamp) {
-			if (audioData != null) {
+			if (audioData != null && processAudioData) {
 	  		  rtpSender.sendAudio(audioData, transcoder.getCodecId(), timestamp);
 	  	  } else {
 	  		  log.warn("Transcodec audio is null. Discarding.");

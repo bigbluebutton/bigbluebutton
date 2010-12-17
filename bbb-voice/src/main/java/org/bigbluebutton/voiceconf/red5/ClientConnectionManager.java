@@ -31,14 +31,18 @@ public class ClientConnectionManager {
 	
 	private Map<String, ClientConnection> clients = new ConcurrentHashMap<String, ClientConnection>();
 	
-	public void createClient(String id, IServiceCapableConnection connection) {
-		ClientConnection cc = new ClientConnection(id, connection);
+	public void createClient(String id, String userid, String username, IServiceCapableConnection connection) {
+		ClientConnection cc = new ClientConnection(id, userid, username, connection);
 		clients.put(id, cc);
 	}
 	
 	public void removeClient(String id) {
 		ClientConnection cc = clients.remove(id);
-		if (cc == null) log.warn("Failed to remove client {}.", id);
+		if (cc == null) {
+			log.warn("Failed to remove client {}.", id);
+		} else {
+			log.debug("Removed client {} from ConnectionManager.", id);
+		}
 	}
 	
 	public void joinConferenceSuccess(String clientId, String usertalkStream, String userListenStream, String codec) {
@@ -46,7 +50,7 @@ public class ClientConnectionManager {
 		if (cc != null) {
 			cc.onJoinConferenceSuccess(usertalkStream, userListenStream, codec);
 		} else {
-			log.warn("Can't find connection {}", clientId);
+			log.warn("Can't find client {} to inform user that she has joined the conference.", clientId);
 		}
 	}
 	
@@ -55,7 +59,7 @@ public class ClientConnectionManager {
 		if (cc != null) {
 			cc.onJoinConferenceFail();
 		} else {
-			log.warn("Can't find connection {}", clientId);
+			log.warn("Can't find client {} to inform user that she failed to join conference.", clientId);
 		}
 	}
 	
@@ -64,7 +68,7 @@ public class ClientConnectionManager {
 		if (cc != null) {
 			cc.onLeaveConference();
 		} else {
-			log.warn("Can't find connection {}", clientId);
+			log.warn("Can't find client {} to inform user that she has left the conference.", clientId);
 		}
 	}
 }

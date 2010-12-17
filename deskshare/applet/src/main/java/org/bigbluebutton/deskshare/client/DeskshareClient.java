@@ -57,6 +57,32 @@ public class DeskshareClient {
 		screenSharer.start();
 	}
 	
+	/*****************************************************************************
+    ;  disconnected
+    ;----------------------------------------------------------------------------
+	; DESCRIPTION
+	;   This routine is used to set the desktop sharing string to disconnected.
+	;
+	; RETURNS : N/A
+	;
+	; INTERFACE NOTES
+	; 
+	;       INPUT : N/A
+	; 
+	;       OUTPUT : N/A
+	; 
+	; IMPLEMENTATION
+	;
+	; HISTORY
+	; __date__ :        PTS:  
+	; 2010.11.19		problem 272
+	;
+	******************************************************************************/
+	public void disconnected(){
+		System.out.println(NAME + "Disconneted");
+		screenSharer.disconnected();
+	} // END FUNCTION disconnected
+	
 	public void stop() {
 		System.out.println(NAME + "Stop");		
 		screenSharer.stop();

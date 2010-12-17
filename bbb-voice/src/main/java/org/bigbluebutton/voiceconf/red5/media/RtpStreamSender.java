@@ -41,6 +41,7 @@ public class RtpStreamSender {
     private final DatagramSocket srcSocket;
     private final SipConnectInfo connInfo;
     private boolean marked = false;
+    private long startTimestamp;
     
     public RtpStreamSender(DatagramSocket srcSocket, SipConnectInfo connInfo)  {     
         this.srcSocket = srcSocket;
@@ -66,6 +67,7 @@ public class RtpStreamSender {
     	if (!marked) {
     		rtpPacket.setMarker(true);
     		marked = true;
+    		startTimestamp = System.currentTimeMillis();
     	}
     	rtpPacket.setPadding(false);
     	rtpPacket.setExtension(false);
