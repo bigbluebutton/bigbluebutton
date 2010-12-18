@@ -76,6 +76,10 @@
 				this.isModerator = (conference.me.role == Role.MODERATOR);
 				BindingUtils.bindSetter(updateNumberOfViewers, participants, "length");	
 				dispatcher = new Dispatcher();
+				
+				// set status to conference
+				conference.setJoinedStatus(true);
+				
 			}
 			
 			private function updateNumberOfViewers(numViewers:int):void {

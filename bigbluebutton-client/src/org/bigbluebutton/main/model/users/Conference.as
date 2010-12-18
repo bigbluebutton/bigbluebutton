@@ -22,10 +22,15 @@ package org.bigbluebutton.main.model.users
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
+    
+    import flash.external.*;
 
 	public class Conference
 	{		
 		private var _myUserid : Number;
+        
+        // user join status, "true" after joined
+        private var joinedStatus:Boolean   = false;
 		
 		[Bindable] public var me:BBBUser = null;		
 		[Bindable] public var users:ArrayCollection = null;			
@@ -41,6 +46,57 @@ package org.bigbluebutton.main.model.users
 		 * @param newuser
 		 * 
 		 */		
+         
+         /*****************************************************************************
+        ;  setJoinedStatus
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   This routine is use to set value to 'joinedStatus' after new user
+        ;   join success.
+        ;
+        ; RETURNS : N/A
+        ;
+        ; INTERFACE NOTES
+        ;       INPUT 
+        ;           status: join status, it's 'true' when join success.
+        ; 
+        ; IMPLEMENTATION
+        ;  
+        ; HISTORY
+        ; __date__ :        PTS:    Description  
+        ; 2010.12.16                new user notification
+        ;
+        ******************************************************************************/
+		public function setJoinedStatus(status:Boolean) : void{
+		  joinedStatus = status;
+		}
+        /*
+         * END: setJoinedStatus
+         */
+             
+		/**
+		 * Adds a user to this conference 
+		 * @param newuser
+		 * 
+		 */		
+		 
+		/*****************************************************************************
+        ;  addUser
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   This routine is use to add user to users list.
+        ;
+        ; RETURNS : N/A
+        ;
+        ; INTERFACE NOTES
+        ; 
+        ; IMPLEMENTATION
+        ;  
+        ; HISTORY
+        ; __date__ :        PTS:    Description  
+        ; 2010.12.16                new user notification
+        ;
+        ******************************************************************************/
 		public function addUser(newuser:BBBUser) : void
 		{				
 			if (! hasParticipant(newuser.userid)) {
@@ -48,11 +104,23 @@ package org.bigbluebutton.main.model.users
 				if (newuser.userid == me.userid) {
 					newuser.me = true;
 				}						
+                
+                if ( true == joinedStatus ){
+                    // user joined
+                    if (true == ExternalInterface.available) 
+                    {
+                        // call external javascript 'handleNewUser'
+                        ExternalInterface.call("handleNewUser", newuser.name);
+                    }
+                }
 				
 				users.addItem(newuser);
 				sort();
 			}					
 		}
+        /*
+         * END: addUser
+         */
 
 		/**
 		 * Check if the user with the specified id exists 

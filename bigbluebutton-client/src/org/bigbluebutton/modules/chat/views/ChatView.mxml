@@ -353,6 +353,11 @@
 			}
 			
 			private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
+			    if (true == ExternalInterface.available) 
+                {
+                    // call javascript "handleChat" function. _PTS_731_
+                    ExternalInterface.call("handleChat", String(event.message));
+                }
 				LogUtil.debug("Got PublicChatMessageEvent");
 				showMessage(PUBLIC_CHAT_USERID, event.message, autoTranslation);
 				if (!this.focus)
@@ -361,6 +366,12 @@
 			}
 			
 			private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
+
+                if (true == ExternalInterface.available) 
+                {
+                    // call javascript "handleChat" function. _PTS_731_
+                    ExternalInterface.call("handleChat", event.message);
+                } 
 				LogUtil.debug("Got PrivateChatMessageEvent");
 				if (!this.focus)
 					ExternalInterface.call("startblink", ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting2'));

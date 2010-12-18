@@ -101,6 +101,115 @@ if ( hasProductInstall && !hasRequestedVersion ) {
     document.write(alternateContent);  // insert non-flash content
   }
 // -->
+
+/*****************************************************************************
+;  showButton
+;----------------------------------------------------------------------------
+; DESCRIPTION
+;   This routine is use to call flex fucntion to show or hide
+;   "enable or disable" chat notification button.
+;
+; RETURNS : N/A
+;
+; INTERFACE NOTES
+;   INPUT
+;       bln: pass from flex when maximize or minimize presentation window.
+;            
+; IMPLEMENTATION  
+;
+; HISTORY
+; __date__ :        PTS:       
+; 2010.12.06        problem 731
+;
+******************************************************************************/
+function showButton(bln){
+        BigBlueButton.showButtonCallBack(bln);
+}
+/*
+ * END: showButton function
+ */
+
+/*****************************************************************************
+;  raiseHand
+;----------------------------------------------------------------------------
+; DESCRIPTION
+;   This routine is use to call flex function when participant raise hand
+;   while presentation window in full screen mode.
+;
+; RETURNS : N/A
+;
+; INTERFACE NOTES
+;   INPUT
+;       name: the name of participant that raised hand.
+;
+; IMPLEMENTATION  
+;
+; HISTORY
+; __date__ :        PTS:       
+; 2010.12.06        problem 731
+;
+******************************************************************************/
+function raiseHand(name){
+    BigBlueButton.raiseHandCallback(name);
+}
+/*
+ * END: raiseHand function
+ */
+
+/*****************************************************************************
+;  handleNewUser
+;----------------------------------------------------------------------------
+; DESCRIPTION
+;   This routine is use to call flex function when new participant joined.
+;
+; RETURNS : N/A
+;
+; INTERFACE NOTES
+;   INPUT
+;       name: the name of participant that joined.
+;
+; IMPLEMENTATION  
+;
+; HISTORY
+; __date__ :        PTS:        Description
+; 2010.12.16                    new participant joined notification
+;
+******************************************************************************/
+function handleNewUser(name){
+    BigBlueButton.handleNewUserCallback(name);
+}
+/*
+ * END: handleNewUser function
+ */
+
+
+/*****************************************************************************
+;  handleChat
+;----------------------------------------------------------------------------
+; DESCRIPTION
+;   This routine is use to call and pass new message to flex function.
+;
+; RETURNS : N/A
+;
+; INTERFACE NOTES
+;   INPUT
+;       msg: new chat message
+;
+; IMPLEMENTATION  
+;
+; HISTORY
+; __date__ :        PTS:       
+; 2010.12.06        problem 731
+;
+******************************************************************************/
+function handleChat(msg){
+    var messages = msg.split("|", 2);
+    BigBlueButton.newChatCallback(messages[1], messages[0]);
+}
+/*
+ * END: handleChat function
+ */
+
 /*****************************************************************************
 ;  startApplet
 ;----------------------------------------------------------------------------

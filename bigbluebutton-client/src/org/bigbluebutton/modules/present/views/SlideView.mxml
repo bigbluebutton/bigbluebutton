@@ -120,7 +120,7 @@
 				this.addChild(overlayChildrenHolder);
 				overlayChildrenHolder.x = 0;
 				overlayChildrenHolder.y = 0;
-				
+
 				this.setChildIndex(thumbnailView, this.numChildren - 1);
 			}
 						
@@ -539,6 +539,6 @@
     		scaleContent="false" maintainAspectRatio="true" showBusyCursor="true" completeEffect="Fade"/>   
     		
     <mx:HorizontalList id="thumbnailView" itemRenderer="org.bigbluebutton.modules.present.views.Thumbnail" itemRollOver="changeIndex(event)" 
-    	visible="false" width="100%" height="100" y="{this.height - 100}" change="changeSlide()" />
+    	visible="false" width="100%" height="100" y="{this.parent.height+150}" change="changeSlide()" /><!--_PTS_731_-->
 		      		 
 </mx:Canvas>

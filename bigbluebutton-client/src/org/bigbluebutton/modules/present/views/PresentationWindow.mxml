@@ -85,6 +85,9 @@
 			import org.bigbluebutton.modules.present.managers.Slide;
 			import org.bigbluebutton.modules.present.managers.SlideManager;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+            
+            // _PTS_731_
+            import flash.external.*;
              			
             public static const TITLE:String = "Presentation";
 			private var presenterName:String = "";
@@ -126,17 +129,53 @@
 			
 			private var externalButtons:ArrayCollection = new ArrayCollection();
 			
+            /*****************************************************************************
+            ;  maximizeHandler
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ;   This routine is use to handle maximize and minimize presentation window.
+            ;
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ;
+            ; IMPLEMENTATION
+            ;  
+            ; HISTORY
+            ; __date__ :        PTS:  			Description
+            ; 2010.12.06		problem 731     handle minimize and maximize presentation
+            ;                                   window to show and hide chat notification
+            ;                                   button.
+            ;
+            ******************************************************************************/
 			private function maximizeHandler():void {
 				// When the window is maximized, we want to resize the slide maintaining the aspect ratio.			
 				fitSlideToWindowMaintainingAspectRatio();
 				
 				this.y = 0;
 				if (this.maximized) {
-					callLater(restore);
+					//callLater(restore);
+                    if (true == ExternalInterface.available) 
+                    {
+                       // call javascript function 'showButton to
+                       // display enable or disable chat notificaiton
+                       //   _PTS_731_
+                       ExternalInterface.call("showButton", true);
+                    } 
 					var timer:Timer = new Timer(500, 1);
 					timer.addEventListener(TimerEvent.TIMER, adjustPosition);
 					timer.start();
 				}
+                else
+                {
+                    if (true == ExternalInterface.available) 
+                     {
+                       // call javascript function 'showButton to
+                       // display enable or disable chat notificaiton
+                       //   _PTS_731_
+                       ExternalInterface.call("showButton", false);
+                     }
+                }
 				stage.focus = this; //Remove focus from the maximize button in case the user presses the space bar, the window doesn't get maximized again.
 				
 			}
@@ -167,6 +206,25 @@
 				}
 			}
 			
+			 /*****************************************************************************
+            ;  fitSlideToWindowMaintainingAspectRatio
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ;   This routine is used to fit the slide in loader.
+            ;
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ; 
+            ;       INPUT : N/A
+            ; 
+            ; IMPLEMENTATION
+            ;  
+            ; HISTORY
+            ; __date__ :        PTS:  
+            ; 2010.12.01        problem 731
+            ;
+            ******************************************************************************/
 			private function fitSlideToWindowMaintainingAspectRatio():void {
 				if (this.minimized) return;
 				
@@ -176,16 +234,16 @@
 				
 				// If the height is smaller than the width, we use the height as the 
 				// base to determine the size of the slide.
-				if (this.height < this.width) {					
+				/*if (this.height < this.width) {					
 					slideHeight = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
 					slideWidth = ((currentSlideWidth * slideHeight)/currentSlideHeight);
 				} else {
 					slideWidth = this.width - WIDTH_PADDING;
 					slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
-				}
+				}*/
 				
-				this.width = slideWidth + WIDTH_PADDING;
-				this.height = slideHeight + CONTROL_BAR_HEIGHT + TOP_WINDOW_BORDER;
+				//this.width = slideWidth + WIDTH_PADDING;
+				//this.height = slideHeight + CONTROL_BAR_HEIGHT + TOP_WINDOW_BORDER;
 
 				// Test if the height and width are bigger than it's parent. If so, resize
 				// to make it fit inside so that the controls will still be visible.
@@ -200,6 +258,22 @@
 					slideWidth = this.width - WIDTH_PADDING;
 					slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
 				}
+				
+				//_PTS_731_
+				//Test if the currentSlideWidth small than window's width, fit the slide's 
+				//width the same as window's width
+				if ( currentSlideWidth < this.width ){
+					slideWidth = this.width - WIDTH_PADDING;
+					slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
+				}
+				//Test if the current slide height is smaller than window's height,
+				//fit the slide height to window's height
+				if ( (currentSlideHeight < this.height) && (this.width != this.parent.width)){
+					slideWidth = this.width + (this.height - currentSlideHeight) ;
+					slideHeight = this.height ;
+					slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
+				}
+				
 				sendWindowResizedEvent(slideWidth, slideHeight);
 			}
 			

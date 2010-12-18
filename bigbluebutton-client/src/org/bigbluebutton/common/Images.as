@@ -141,5 +141,12 @@ package org.bigbluebutton.common
 		
 		[Embed(source="assets/images/presenter.png")]
 		public var presenter:Class;
+        
+        //_PTS_731_
+		[Embed(source="assets/images/disable_chat_notify.png")]
+		public var disable_chat_notify:Class;
+		
+		[Embed(source="assets/images/enable_chat_notify.png")]
+        public var enable_chat_notify:Class;
 	}
 }

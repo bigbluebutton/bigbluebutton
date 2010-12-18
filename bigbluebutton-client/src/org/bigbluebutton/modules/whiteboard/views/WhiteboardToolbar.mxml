@@ -169,13 +169,13 @@
 				presentationWindow.addEventListener(MoveEvent.MOVE, setPositionAndDepth);
 				presentationWindow.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);
 				presentationWindow.addEventListener(MouseEvent.CLICK, setPositionAndDepth);
-				this.x = presentationWindow.x + presentationWindow.width + 3;
+				this.x = presentationWindow.x + presentationWindow.width - 30; //_PTS_731_
 				this.y = presentationWindow.y + 30;
 				parent.setChildIndex(this, parent.numChildren-1);
 			}
 			
 			private function setPositionAndDepth(e:Event = null):void{
-				this.x = presentationWindow.x + presentationWindow.width + 3;
+				this.x = presentationWindow.x + presentationWindow.width - 30;//_PTS_731_
 				this.y = presentationWindow.y + 30;
 				parent.setChildIndex(this, parent.numChildren-1);
 			}

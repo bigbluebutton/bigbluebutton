@@ -28,7 +28,7 @@
 		xmlns:maps="org.bigbluebutton.main.maps.*"
 		xmlns:api="org.bigbluebutton.main.api.*"
 		width="100%" height="100%"
-		creationComplete="initializeShell()">
+		creationComplete="initializeShell()" initialize="allowCallBack()">
 		
 	<mate:Listener type="{ConfigEvent.CONFIG_EVENT}" method="setLogVisibility" />
 	<mate:Listener type="{OpenWindowEvent.OPEN_WINDOW_EVENT}" method="handleOpenWindowEvent" />	
@@ -74,6 +74,30 @@
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.util.logging.Logger;
 			
+			// _PTS_731_
+            import flash.external.*;
+            import flash.utils.Timer;
+            import flash.events.TimerEvent;
+            import mx.events.CloseEvent;
+            import mx.managers.PopUpManager;
+            import mx.containers.TitleWindow;
+           
+            import mx.containers.HBox;
+            import mx.controls.Image;
+            
+            // _PST_731_
+            private var _window:TitleWindow;
+            private var tRaisHand:Timer;
+            private var tChat:Timer;
+            private const TIMER_INTERVAL:int    = 1000;
+            private const NOTIFY_DURATION:int   = 20;
+            private var notifyChatNum:Number    = 0;
+            private var notifyRaiseNum:Number   = 0;
+            private var blnPresentationFullScr:Boolean      = false;
+            private var blnEnableChatNotification:Boolean   = true;
+            private var notifyNewUserNum:Number = 0;
+            private var tNewUser:Timer;
+			
 			private var globalDispatcher:Dispatcher;
 			
 			private var dispState:String; //full-screen?
@@ -95,6 +119,14 @@
 			[Bindable] private var fullscreen_icon:Class = images.full_screen;
 			[Bindable] private var logs_icon:Class = images.table;
 			[Bindable] private var reset_layout_icon:Class = images.layout;
+			
+            // _PTS_731_
+			[Bindable] private var handIcon:Class    = images.raisehand;
+			[Bindable] private var disable_chat_notify:Class = images.disable_chat_notify;
+			[Bindable] private var enable_chat_notify:Class  = images.enable_chat_notify;
+			
+			// icon for new user notification box
+			[Bindable] private var userIcon:Class    = images.user;
 			
 			public function get mode():String {
 				return _mode;
@@ -232,6 +264,484 @@
 				logBtn.visible = e.config.showDebug;
 			}
 			
+            /*****************************************************************************
+            ;  changeChatNotificationStatus
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ;   This routine is use to switch enable or disable of chat notification
+            ;   while presentation in fullscreen mode.
+            ;
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ; 
+            ;       INPUT : N/A
+            ; 
+            ; IMPLEMENTATION
+            ;  
+            ; HISTORY
+            ; __date__ :        PTS:  
+            ; 2010.12.06        problem 731
+            ;
+            ******************************************************************************/
+			private function changeChatNotificationStatus():void{
+			     if( true == blnEnableChatNotification)
+			     {
+			         btnEnbChatAlert.toolTip     = ResourceUtil.getInstance().getString('bbb.mainshell.enabelChatNotification');
+			         blnEnableChatNotification   = false;
+			         btnEnbChatAlert.setStyle("icon",enable_chat_notify); 
+			     }
+			     else{
+			         btnEnbChatAlert.toolTip     = ResourceUtil.getInstance().getString('bbb.mainshell.disableChatNotification');
+			         blnEnableChatNotification   = true;
+			         btnEnbChatAlert.setStyle("icon",disable_chat_notify); 
+			     }
+			}
+            /*
+             * END: changeChatNotificationStatus
+             */
+			
+            /*****************************************************************************
+            ; allowCallBack
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ;   This routine is use to add function that will be call from javascript.
+            ;
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ; 
+            ;       INPUT : N/A
+            ;
+            ; 
+            ; IMPLEMENTATION
+            ;  
+            ; HISTORY
+            ; __date__ :        PTS:  
+            ; 2010.12.06        problem 731
+            ;
+            ******************************************************************************/
+			public function allowCallBack():void
+            {
+                if (true == ExternalInterface.available)
+                {
+                    // add function that can call back from javascript
+                    ExternalInterface.addCallback("showButtonCallBack", showHideButton);
+                    ExternalInterface.addCallback("raiseHandCallback", participantRaisedHand);
+                    ExternalInterface.addCallback("newChatCallback", hadleNewChat);
+                    ExternalInterface.addCallback("handleNewUserCallback", handleNewUser);
+                }
+            }
+            /***
+            ; END: allowCalBack
+            ****/
+             
+            /*****************************************************************************
+            ;  showHideButton
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ;   This routine is use to display enable or disable chat notification button.
+            ;
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ; 
+            ;       INPUT
+            ;           blnVisible: status of presentation window "if in full screen mode
+            ;                       the status is blnVisible".
+            ; 
+            ; IMPLEMENTATION
+            ;  
+            ; HISTORY
+            ; __date__ :        PTS:  
+            ; 2010.12.06        problem 731
+            ;
+            ******************************************************************************/
+            public function showHideButton(blnVisible:Boolean):void
+            {
+                blnPresentationFullScr       = blnVisible;
+                btnEnbChatAlert.visible      = blnVisible;
+            }
+            /*
+             * END: showHideButton
+             */
+            
+            /*****************************************************************************
+            ;  participantRaisedHand
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ;   This routine is use to call when participant raise hand to notify 
+            ;   raise hand event while presentation window in full screen mode.
+            ;
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ;   INPUT
+            ;       name: the name of participant that raised hand.
+            ; 
+            ; IMPLEMENTATION
+            ;   use Timer to display blink message and hand icon
+            ;
+            ; HISTORY
+            ; __date__ :        PTS:  
+            ; 2010.12.06        problem 731
+            ;
+            ******************************************************************************/
+            public function participantRaisedHand(name:String):void
+            {
+                if ( false == blnPresentationFullScr)
+                {
+                    return;
+                }
+                if (null != tRaisHand)
+                {
+                    tRaisHand.stop();
+                    notifyRaiseNum = 0
+                }
+                lblNotification.text         = name;
+                lblNotification.visible      = false;
+                btnEnbRaiseHandAlert.visible = false;
+                tRaisHand = new Timer(TIMER_INTERVAL);
+                tRaisHand.addEventListener(TimerEvent.TIMER, updateTimer);
+                tRaisHand.start();
+            }
+            /*
+             *  END: participantRaisedHand
+             */
+             
+            /*****************************************************************************
+            ;  updateTimer
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ;   This routine is use to call by Timer display blink message 
+            ;   with hand icon. 
+            ;
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ; 
+            ; IMPLEMENTATION
+            ;
+            ; HISTORY
+            ; __date__ :        PTS:  
+            ; 2010.12.06        problem 731
+            ;
+            ******************************************************************************/
+            private function updateTimer(evt:TimerEvent):void
+            {
+                if (NOTIFY_DURATION == notifyRaiseNum)
+                {
+                    lblNotification.visible = false;
+                    btnEnbRaiseHandAlert.visible = false;
+                    tRaisHand.stop();
+                    notifyRaiseNum = 0;
+                    return;
+                } 
+                lblNotification.visible      = !lblNotification.visible;
+                btnEnbRaiseHandAlert.visible = !btnEnbRaiseHandAlert.visible;
+                notifyRaiseNum += 1;
+            }
+            /*
+             *  END: updateTimer
+             */
+             
+            /*****************************************************************************
+            ;  hadleNewChat
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ;   This routine is use to call when participant raise hand to notify 
+            ;   new chat event while presentation window in full screen mode. 
+            ;
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES    
+            ; 
+            ; IMPLEMENTATION
+            ;
+            ; HISTORY
+            ; __date__ :        PTS:  
+            ; 2010.12.06        problem 731
+            ;
+            ******************************************************************************/
+            private function hadleNewChat(sender:String,message:String):void
+            {
+                if ( false == blnPresentationFullScr
+                        ||
+                     false == blnEnableChatNotification
+                     )
+                {
+                    // check presentation window if not full screen
+                    // or chat notification not enable, function return
+                    return;
+                }
+                if (null != tChat)
+                {
+                    // check 'tChat' Timer and stop if it's starting.
+                    tChat.stop();
+                    PopUpManager.removePopUp(_window);
+                    notifyChatNum = 0;
+                }
+                if ( null != tNewUser )
+                {
+                    // new user notification running, stop it.
+                    tNewUser.stop();
+                    PopUpManager.removePopUp(_window);
+                    notifyNewUserNum = 0;
+                }
+                if ( null != _window )
+                {
+                    // check chat notification window
+                    _window.visible = false;
+                    _window = null;
+                }
+                // initialize chat notification window
+                showWindow(sender,message);
+                _window.visible = false;
+                
+                // initialize Timer and start to blink chat notification
+                tChat = new Timer(TIMER_INTERVAL);
+                tChat.addEventListener(TimerEvent.TIMER, blinkChatNotification);
+                tChat.start();
+                
+            }
+            /*
+             *  END: hadleNewChat
+             */
+
+            /*****************************************************************************
+            ;  blinkChatNotification
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ;   This routine is use to call by Timer to display chat notification. 
+            ;
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ; 
+            ; IMPLEMENTATION
+            ;
+            ; HISTORY
+            ; __date__ :        PTS:  
+            ; 2010.12.06        problem 731
+            ;
+            ******************************************************************************/
+            private function blinkChatNotification(evt:TimerEvent):void
+            {
+                if (NOTIFY_DURATION == notifyChatNum)
+                {
+                    _window.visible = false;
+                    tChat.stop();
+                    notifyChatNum = 0;
+                    return;
+                } 
+                _window.visible = !_window.visible;
+                notifyChatNum += 1;
+            }
+            /*
+             *  END: blinkChatNotification
+             */
+            
+            /*****************************************************************************
+            ;  showWindow
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ;   This routine is use to initialize chat notification window. 
+            ;
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ; 
+            ; IMPLEMENTATION
+            ;   use PopupManager to create popup chat notification window
+            ;
+            ; HISTORY
+            ; __date__ :        PTS:  
+            ; 2010.12.06        problem 731
+            ;
+            ******************************************************************************/
+            private function showWindow(name:String,message:String):void{
+                if (!_window || !_window.isPopUp){
+                    var lblChatNotificaton:Label    = new Label;
+                    var notificationMsg:String      = name + " : " + message;
+                    if ( 25 < notificationMsg.length )
+                    {
+                        notificationMsg     = notificationMsg.substring(0,25) + "....";
+                    }
+                    lblChatNotificaton.text = notificationMsg;     
+                    _window         = TitleWindow(PopUpManager.createPopUp(this, TitleWindow));
+                    _window.addChild(lblChatNotificaton);
+                    _window.width   = 200;
+                    _window.horizontalScrollPolicy="off";
+                    
+                    // set position
+                    _window.x   = mdiCanvas.width  - _window.width;
+                    _window.y   = mdiCanvas.height - _window.height + 15; 
+                    _window.showCloseButton = true;
+                    _window.addEventListener(CloseEvent.CLOSE, closeHandler);
+                }
+            }
+            /*
+             *  END: showWindow
+             */
+
+            /*****************************************************************************
+            ;  createNewUserNotificationWindow
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ;   This routine is use to initialize new participant joined 
+            ;   notification window. 
+            ;
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ;   INPUT
+            ;       uname: the name of new participant.
+            ;
+            ; IMPLEMENTATION
+            ;   use PopupManager to create popup notification window
+            ;
+            ; HISTORY
+            ; __date__ :        PTS:    Description
+            ; 2010.12.16                new participant joined notification
+            ;
+            ******************************************************************************/
+            private function createNewUserNotificationWindow(uname:String) : void{
+            
+                var imgUserIcon:Image   = new Image;
+                var lblNotificationText:Label = new Label;
+                var hBox:HBox   = new HBox;
+                
+                imgUserIcon.source      = userIcon;
+                lblNotificationText.text= uname + " : joined";
+                lblNotificationText.width   = 150;
+                
+                hBox.addChild(imgUserIcon);
+                hBox.addChild(lblNotificationText);
+                
+                _window = TitleWindow(PopUpManager.createPopUp(this, TitleWindow));
+                _window.addChild(hBox);
+                _window.width   = 200;
+                _window.horizontalScrollPolicy="off";
+                    
+                // set position
+                _window.x   = mdiCanvas.width  - _window.width;
+                _window.y   = mdiCanvas.height - _window.height + 15; 
+                _window.showCloseButton = true;
+                _window.addEventListener(CloseEvent.CLOSE, closeHandler); 
+            }
+            /*
+             *  END: createNewUserNotificationWindow
+             */
+
+             
+            /*****************************************************************************
+            ;  closeHandler
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ;   This routine is use to handle close button event of chat
+            ;   notification widnow. 
+            ;
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ; 
+            ; IMPLEMENTATION
+            ;   
+            ; HISTORY
+            ; __date__ :        PTS:  
+            ; 2010.12.06        problem 731
+            ;
+            ******************************************************************************/
+            private function closeHandler(event:CloseEvent):void{
+                PopUpManager.removePopUp(_window);
+            }
+            /*
+             *  END: closeHandler
+             */
+             
+            /*****************************************************************************
+            ;  handleNewUser
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ;   This routine is use to call when new participant joined to notify 
+            ;   other participant while presentation window in full screen mode. 
+            ;
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES    
+            ;   INPUT
+            ;       uname: the name of new participant.
+            ;
+            ; IMPLEMENTATION
+            ;
+            ; HISTORY
+            ; __date__ :        PTS:    Description
+            ; 2010.12.16                new participant joined notification
+            ;
+            ******************************************************************************/
+            private function handleNewUser(uname:String) : void{
+                if ( false == blnPresentationFullScr ){
+                    return;
+                }
+                if ( null != tChat ){
+                    // stop 'tChat' timer.
+                    tChat.stop();
+                    notifyChatNum = 0;
+                    PopUpManager.removePopUp(_window);
+                }
+                if ( null != tNewUser ){
+                    // timer already running
+                    tNewUser.stop();
+                    notifyNewUserNum = 0;
+                    PopUpManager.removePopUp(_window);
+                }
+                createNewUserNotificationWindow(uname);
+                tNewUser = new Timer(TIMER_INTERVAL);
+                tNewUser.addEventListener(TimerEvent.TIMER, blinkNewUserNotification);
+                tNewUser.start();
+            }
+            /*
+             *  END: handleNewUser
+             */
+             
+            /*****************************************************************************
+            ;  blinkNewUserNotification
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ;   This routine is use to call by Timer to display new participant
+            ;   joined notification while presentation window in full screen mode. 
+            ;
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ; 
+            ; IMPLEMENTATION
+            ;
+            ; HISTORY
+            ; __date__ :        PTS:    Description  
+            ; 2010.12.16                new participant joined notification
+            ;
+            ******************************************************************************/
+            private function blinkNewUserNotification(evt:TimerEvent) : void{
+                if (NOTIFY_DURATION == notifyNewUserNum)
+                {
+                    _window.visible = false;
+                    
+                    //  remove notification window
+                    PopUpManager.removePopUp(_window);
+                    
+                    // stop timer
+                    tNewUser.stop();
+                    notifyNewUserNum = 0;
+                    return;
+                } 
+                _window.visible   = !_window.visible;
+                notifyNewUserNum += 1;
+            }
+            /*
+             *  END: blinkNewUserNotification
+             */
+			
 		]]>
 	</mx:Script>
 			
@@ -243,6 +753,13 @@
 	  	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}" id="copyrightLabel2"/>
 	 	<mx:Spacer width="20"/>
 		<mx:Spacer width="100%"/> 
+        
+        <!-- _PTS_731_ -->
+		<mx:Label text="" visible="false" id="lblNotification" color="#FFFFFF"/>
+		<mx:Button width="20" height="20" toolTip="" visible="false" id="btnEnbRaiseHandAlert" icon="{handIcon}" />
+		<mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.disableChatNotification')}" visible="false" id="btnEnbChatAlert" icon="{disable_chat_notify}" click="changeChatNotificationStatus()" />
+	    <!--===========-->
+	    
 		<mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}" id="logBtn" icon="{logs_icon}" click="openLogWindow()" />
 		<mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.resetLayoutBtn.toolTip')}" id="btnResetLayout" icon="{reset_layout_icon}" click="resetLayout()" />
 	</mx:ControlBar>
