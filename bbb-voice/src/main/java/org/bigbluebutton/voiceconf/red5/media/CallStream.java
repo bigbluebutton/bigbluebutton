@@ -81,8 +81,11 @@ public class CallStream implements StreamObserver {
     }
     
     public void startTalkStream(IBroadcastStream broadcastStream, IScope scope) throws StreamException {
+    	log.debug("Starting userListenSteam");
     	userListenStream.start();
+    	log.debug("userTalkStream setup");
     	userTalkStream.start(broadcastStream, scope);
+    	log.debug("userTalkStream Started");
     }
     
     public void stopTalkStream(IBroadcastStream broadcastStream, IScope scope) {
@@ -90,6 +93,7 @@ public class CallStream implements StreamObserver {
     }
 
     public void stop() {
+    	log.debug("Stopping call stream");
         userListenStream.stop();
     }
 

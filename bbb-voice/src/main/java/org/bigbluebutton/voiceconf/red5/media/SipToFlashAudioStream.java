@@ -19,6 +19,9 @@
 **/
 package org.bigbluebutton.voiceconf.red5.media;
 
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.net.DatagramSocket;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
@@ -32,6 +35,7 @@ import org.red5.server.api.IContext;
 import org.red5.server.api.IScope;
 import org.red5.server.net.rtmp.event.AudioData;
 import org.red5.server.net.rtmp.event.Notify;
+import org.red5.server.net.rtmp.message.Constants;
 import org.red5.server.stream.BroadcastScope;
 import org.red5.server.stream.IBroadcastScope;
 import org.red5.server.stream.IProviderService;
@@ -40,7 +44,9 @@ import org.slf4j.Logger;
 public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpStreamReceiverListener {
 	final private Logger log = Red5LoggerFactory.getLogger(SipToFlashAudioStream.class, "sip");
 	
-	private final BlockingQueue<AudioByteData> audioDataQ = new LinkedBlockingQueue<AudioByteData>();		
+	private final PipedOutputStream streamFromSip;
+	private PipedInputStream streamToFlash;
+	
 	private final Executor exec = Executors.newSingleThreadExecutor();
 	private Runnable audioDataProcessor;
 	private volatile boolean processAudioData = false;
@@ -51,9 +57,9 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 	private RtpStreamReceiver rtpStreamReceiver;
 	private StreamObserver observer;
 	private SipToFlashTranscoder transcoder;
-	
-	private long startTimestamp = 0;
 	private boolean sentMetadata = false;
+	private IoBuffer mBuffer;
+	private AudioData audioData;
 	
 	private final byte[] fakeMetadata = new byte[] {
 		0x02, 0x00, 0x0a, 0x6f, 0x6e, 0x4d, 0x65, 0x74, 0x61, 0x44, 0x61, 0x74, 0x61, 0x08, 0x00, 0x00,  
@@ -74,6 +80,17 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 		rtpStreamReceiver.setRtpStreamReceiverListener(this);
 		listenStreamName = "speaker_" + System.currentTimeMillis();		
 		scope.setName(listenStreamName);	
+		streamFromSip = new PipedOutputStream();
+		try {
+			streamToFlash = new PipedInputStream(streamFromSip);
+			startNow();
+			mBuffer = IoBuffer.allocate(1024);
+			mBuffer = mBuffer.setAutoExpand(true);
+	        audioData = new AudioData();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public String getStreamName() {
@@ -85,14 +102,25 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 	}
 	
 	public void stop() {
+		log.debug("Stopping stream for {}", listenStreamName);
 		processAudioData = false;
 		rtpStreamReceiver.stop();
-		audioBroadcastStream.stop();
-	    audioBroadcastStream.close();
-	    log.debug("stopping and closing stream {}", listenStreamName);
+		log.debug("Stopped RTP Stream Receiver for {}", listenStreamName);
+		if (audioBroadcastStream != null) {
+			audioBroadcastStream.stop();
+			log.debug("Stopped audioBroadcastStream for {}", listenStreamName);
+			audioBroadcastStream.close();
+		    log.debug("Closed audioBroadcastStream for {}", listenStreamName);
+		} else
+			log.debug("audioBroadcastStream is null, couldn't stop");
+	    log.debug("Stream(s) stopped");
 	}
 	
 	public void start() {
+		
+	}
+	
+	private void startNow() {
 		log.debug("started publishing stream in " + scope.getName());
 		audioBroadcastStream = new AudioBroadcastStream(listenStreamName);
 		audioBroadcastStream.setPublishedName(listenStreamName);
@@ -111,8 +139,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 		
 	    audioBroadcastStream.start();	    
 	    processAudioData = true;
-	    startTimestamp = System.currentTimeMillis();
-	    
+	    	    
 	    audioDataProcessor = new Runnable() {
     		public void run() {
     			processAudioData();       			
@@ -124,11 +151,26 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 	}
 	
 	private void processAudioData() {
+		int len = 160;
+		byte[] pcmAudio = new byte[len];		
+		int remaining = len;
+		int offset = 0;
+
 		while (processAudioData) {
 			try {
-				AudioByteData abd = audioDataQ.take();
-				transcoder.transcode(abd, this);
-			} catch (InterruptedException e) {
+				if (streamToFlash.available() > 1000) {
+					long skipped = streamToFlash.skip(1000L);
+				}
+				int bytesRead =  streamToFlash.read(pcmAudio, offset, remaining);		
+				remaining -= bytesRead;
+				if (remaining == 0) {
+					remaining = len;
+					offset = 0;
+					transcoder.transcode(pcmAudio, this);
+				} else {
+					offset += bytesRead; 
+				}
+			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}        		
@@ -141,10 +183,10 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 	}
 
 	@Override
-	public void onAudioDataReceived(AudioByteData audioData) {
+	public void onAudioDataReceived(byte[] audioData, int offset, int len) {
 		try {
-			audioDataQ.put(audioData);
-		} catch (InterruptedException e) {
+			streamFromSip.write(audioData, offset, len);
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -166,39 +208,34 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 			 * We create a fake one here to get it going. Red5 should do this automatically
 			 * but for Red5 0.91, doesn't yet. (ralam Sept 24, 2010).
 			 */
-			IoBuffer mBuffer = IoBuffer.allocate(1024);
-			mBuffer.setAutoExpand(true);
-
 			mBuffer.clear();	        
 		    mBuffer.put(fakeMetadata);         
 		    mBuffer.flip();
 
 	        Notify notifyData = new Notify(mBuffer);
-	        notifyData.setTimestamp((int)timestamp );
+	        notifyData.setTimestamp((int)timestamp);
+	        notifyData.setSourceType(Constants.SOURCE_TYPE_LIVE);
 			audioBroadcastStream.dispatchEvent(notifyData);
 			notifyData.release();
 			sentMetadata = true;
 		}		
 	}
 	
-	private void pushAudio(byte[] audio, long timestamp) {
-		
+	private void pushAudio(byte[] audio, long timestamp) {		
 		sendFakeMetadata(timestamp);
-	
-        IoBuffer buffer = IoBuffer.allocate(1024);
-        buffer.setAutoExpand(true);
-
-        buffer.clear();
-
-        buffer.put((byte) transcoder.getCodecId()); 
-        byte[] copy = new byte[audio.length];
-	    System.arraycopy(audio, 0, copy, 0, audio.length );
-        
-        buffer.put(copy);        
-        buffer.flip();
-
-        AudioData audioData = new AudioData(buffer);
-        audioData.setTimestamp((int)timestamp );
+        mBuffer.clear();
+        mBuffer.put((byte) transcoder.getCodecId());
+	    mBuffer.put(audio);        
+	    mBuffer.flip();
+	    audioData.setSourceType(Constants.SOURCE_TYPE_LIVE);
+	    /*
+	     * Use timestamp increments passed in by codecs (i.e. 32 for nelly). This will force
+	     * Flash Player to playback audio at proper timestamp. If we calculate timestamp using
+	     * System.currentTimeMillis() - startTimestamp, the audio has tendency to drift and
+	     * introduce delay. (ralam dec 14, 2010)
+	     */
+        audioData.setTimestamp((int)(timestamp));
+        audioData.setData(mBuffer);
 		audioBroadcastStream.dispatchEvent(audioData);
 		audioData.release();
     }

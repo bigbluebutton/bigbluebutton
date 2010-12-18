@@ -19,16 +19,8 @@
 **/
 package org.bigbluebutton.voiceconf.red5.media.transcoder;
 
-import java.io.IOException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.util.Random;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-
 import org.slf4j.Logger;
-import org.bigbluebutton.voiceconf.red5.media.AudioByteData;
-import org.bigbluebutton.voiceconf.util.StackTraceUtil;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.app.sip.codecs.Codec;
 import org.red5.app.sip.codecs.asao.ByteStream;
@@ -96,8 +88,8 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
     }
 
 	@Override
-	public void transcode(AudioByteData audioData, TranscodedAudioDataListener listener) {
-		transcodePcmToNellymoser(audioData.getData(), listener);     
+	public void transcode(byte[] audioData, TranscodedAudioDataListener listener) {
+		transcodePcmToNellymoser(audioData, listener);     
     }
 
 	
