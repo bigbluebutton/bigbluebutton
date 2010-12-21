@@ -353,9 +353,12 @@
 			}
 			
 			private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
+			
+			    // external interface supported
 			    if (true == ExternalInterface.available) 
                 {
-                    // call javascript "handleChat" function. _PTS_731_
+                    // call javascript "handleChat" function to notify
+                    // public chat message. _PTS_731_
                     ExternalInterface.call("handleChat", String(event.message));
                 }
 				LogUtil.debug("Got PublicChatMessageEvent");
@@ -366,10 +369,12 @@
 			}
 			
 			private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
-
+                
+                // external interface supported
                 if (true == ExternalInterface.available) 
                 {
-                    // call javascript "handleChat" function. _PTS_731_
+                    // call javascript "handleChat" function to notify
+                    // private chat message. _PTS_731_
                     ExternalInterface.call("handleChat", event.message);
                 } 
 				LogUtil.debug("Got PrivateChatMessageEvent");

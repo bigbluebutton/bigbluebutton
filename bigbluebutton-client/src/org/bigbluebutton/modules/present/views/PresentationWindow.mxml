@@ -265,13 +265,15 @@
 				if ( currentSlideWidth < this.width ){
 					slideWidth = this.width - WIDTH_PADDING;
 					slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
-				}
+				}else{
+                    slideWidth = currentSlideWidth ;
+                    slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
+                }
 				//Test if the current slide height is smaller than window's height,
 				//fit the slide height to window's height
 				if ( (currentSlideHeight < this.height) && (this.width != this.parent.width)){
 					slideWidth = this.width + (this.height - currentSlideHeight) ;
 					slideHeight = this.height ;
-					slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
 				}
 				
 				sendWindowResizedEvent(slideWidth, slideHeight);

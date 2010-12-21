@@ -77,7 +77,8 @@
 				BindingUtils.bindSetter(updateNumberOfViewers, participants, "length");	
 				dispatcher = new Dispatcher();
 				
-				// set status to conference
+				// set status to conference 'true' mean user joined.
+				// 'false' user joining.
 				conference.setJoinedStatus(true);
 				
 			}

@@ -23,6 +23,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
     
+    // new user notification
     import flash.external.*;
 
 	public class Conference
