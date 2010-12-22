@@ -127,4 +127,25 @@ public class Shape {
 		//System.out.println(Math.abs(Math.toDegrees(differenceInRad)));
 		return Math.abs(Math.toDegrees(differenceInRad));
 	}
+	
+	public String getShape(){
+		String dataToString = "";
+		for (int i=0; i<shape.length - 1; i++){
+			dataToString += shape[i] + ",";
+		}
+		dataToString += shape[shape.length-1]; //We don't want a trailing comma
+		return dataToString;
+	}
+	
+	public String getType(){
+		return type;
+	}
+	
+	public int getColor(){
+		return color;
+	}
+	
+	public int getThickness(){
+		return thickness;
+	}
 }
