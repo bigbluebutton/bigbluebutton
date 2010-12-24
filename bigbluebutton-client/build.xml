@@ -45,7 +45,7 @@
 	
 	<target name="branding" depends="init-ant-contrib">
 		<sequential>
-			<mxmlc file="${SRC_DIR}/branding/css/theme.css" output="${OUTPUT_DIR}/branding/css/theme.swf" debug="false" optimize="true">
+			<mxmlc file="${SRC_DIR}/branding/css/${themeFile}" output="${OUTPUT_DIR}/branding/css/${themeFile}.swf" debug="false" optimize="true">
 			</mxmlc>
 		</sequential>
 	</target>
