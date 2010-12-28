@@ -1,0 +1,43 @@
+#!/usr/bin/perl
+
+# use module
+use XML::Simple;
+use Data::Dumper;
+
+# create object
+$xml = new XML::Simple;
+
+# read XML file
+$data = $xml->XMLin("manifest.xml");
+
+# print output
+#print Dumper($data);
+
+$numParticipantEvents = @{$data->{seq}->{participants}} - 1;
+
+$firstJoin = $data->{seq}->{participants}->[0]->{timestamp};
+
+$lastLeave = $data->{seq}->{participants}->[$numParticipantEvents]->{timestamp};
+
+print "First Join: $firstJoin \n";
+print "Last Leave: $lastLeave \n";
+
+$totalAudioTime = $lastLeave - $firstJoin;
+
+$file = "audioFile.wav";
+print "Total Audio Time to generate : $totalAudioTime \n";
+
+open (OUT, ">/tmp/$$.dat");
+print OUT "; SampleRate 8000\n";
+$samples = $totalAudioTime * 8;
+for ($i = 0; ($i < $samples); $i++){
+	print OUT $i / 8000, "\t0\n";
+}
+close(OUT);
+
+print "Generating .wav";
+system("sox /tmp/$$.dat $file");
+unlink("/tmp/$$.dat");
+
+print "Converting .wav to .mp3";
+system("ffmpeg -i $file  audioFile.mp3");
