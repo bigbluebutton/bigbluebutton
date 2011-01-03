@@ -91,7 +91,7 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
         	encodedBytes = sipCodec.pcmToCodec(encodingBuffer, codedBuffer);
 
         	if (encodedBytes == sipCodec.getOutgoingEncodedFrameSize()) {
-        		listener.handleTranscodedAudioData(codedBuffer, timestamp += TS_INCREMENT);
+        		listener.handleTranscodedAudioData(codedBuffer, timestamp);
         	} else {
         		log.error("Failure encoding buffer." );
         	}
@@ -99,7 +99,7 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
         	encodedBytes = sipCodec.pcmToCodec(encodingBuffer, codedBuffer);
 
         	if (encodedBytes == sipCodec.getOutgoingEncodedFrameSize()) {
-        		listener.handleTranscodedAudioData(codedBuffer, timestamp += TS_INCREMENT);
+        		listener.handleTranscodedAudioData(codedBuffer, timestamp);
         	} else {
         		log.error("Failure encoding buffer." );
         	}
