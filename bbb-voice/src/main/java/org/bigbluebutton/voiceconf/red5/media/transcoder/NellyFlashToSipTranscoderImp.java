@@ -19,12 +19,12 @@
 **/
 package org.bigbluebutton.voiceconf.red5.media.transcoder;
 
+import java.nio.FloatBuffer;
 import java.util.Random;
 
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.app.sip.codecs.Codec;
-import org.red5.app.sip.codecs.asao.ByteStream;
 import org.red5.app.sip.codecs.asao.Decoder;
 import org.red5.app.sip.codecs.asao.DecoderMap;
 
@@ -39,26 +39,27 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
 
     private static final int NELLYMOSER_DECODED_PACKET_SIZE = 256;
     private static final int NELLYMOSER_ENCODED_PACKET_SIZE = 64;
+    private static final int MAX_BYTE = 1280;
+    private final FloatBuffer nellyAudio = FloatBuffer.allocate(1280);
+    private FloatBuffer ulawAudio;
     
-    private Codec sipCodec = null;				// Sip codec to be used on audio session 
+    private Codec sipCodec = null;						// Sip codec to be used on audio session 
     private Decoder decoder;
     private DecoderMap decoderMap;    
-    private float[] tempBuffer;							// Temporary buffer with received PCM audio from FlashPlayer.    
-    private int tempBufferRemaining = 0; 				// Floats remaining on temporary buffer.
+    private float[] tempBuffer = new float[NELLYMOSER_DECODED_PACKET_SIZE];							// Temporary buffer with received PCM audio from FlashPlayer.    
     private float[] encodingBuffer;						// Encoding buffer used to encode to final codec format;    
-    private int encodingOffset = 0;						// Offset of encoding buffer.    
-    private boolean asao_buffer_processed = false;		// Indicates whether the current asao buffer was processed.
-    private boolean hasInitilializedBuffers = false;	// Indicates whether the handling buffers have already been initialized.
 
     private long timestamp = 0;
     private final static int TS_INCREMENT = 180;		// Determined from PCAP traces.
     
     public NellyFlashToSipTranscoderImp(Codec sipCodec) {
     	this.sipCodec = sipCodec;
+    	encodingBuffer = new float[sipCodec.getOutgoingDecodedFrameSize()];
     	decoder = new Decoder();
         decoderMap = null;
         Random rgen = new Random();
         timestamp = rgen.nextInt(1000);
+        ulawAudio = nellyAudio.asReadOnlyBuffer();
     }
 
     @Override
@@ -73,90 +74,37 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
     
 	@Override
 	public void transcode(byte[] audioData, int startOffset, int length, TranscodedAudioDataListener listener) {
-		byte[] codedBuffer = new byte[length];
-		System.arraycopy(audioData, startOffset, codedBuffer, 0, length);
-		byte[] transcodedAudioData = new byte[sipCodec.getOutgoingEncodedFrameSize()];
-		
-        asao_buffer_processed = false;
+		byte[] codedBuffer = new byte[160];
+    	decoderMap = decoder.decode(decoderMap, audioData, 0, tempBuffer, 0);
+    	nellyAudio.put(tempBuffer);
+    	ulawAudio.get(encodingBuffer);
+    	int encodedBytes = sipCodec.pcmToCodec(encodingBuffer, codedBuffer);
 
-        if (!hasInitilializedBuffers) {
-            tempBuffer = new float[NELLYMOSER_DECODED_PACKET_SIZE];
-            encodingBuffer = new float[sipCodec.getOutgoingDecodedFrameSize()];
-            hasInitilializedBuffers = true;
-        }
-
-        if (length > 0) {
-            do {
-                int encodedBytes = fillRtpPacketBuffer(codedBuffer, transcodedAudioData);
-                if (encodedBytes == 0) {
-                    break;
-                }
-
-                if (encodingOffset == sipCodec.getOutgoingDecodedFrameSize()) {
-                    encodingOffset = 0;
-                    listener.handleTranscodedAudioData(transcodedAudioData, timestamp += TS_INCREMENT);
-                }
-            } while (!asao_buffer_processed);
-        }
-	}
-	
-    private int fillRtpPacketBuffer(byte[] audioData, byte[] transcodedAudioData) {
-        int copyingSize = 0;
-        int finalCopySize = 0;
-        byte[] codedBuffer = new byte[sipCodec.getOutgoingEncodedFrameSize()];
-
-        if ((tempBufferRemaining + encodingOffset) >= sipCodec.getOutgoingDecodedFrameSize()) {
-        	copyingSize = encodingBuffer.length - encodingOffset;
-                
-        	System.arraycopy(tempBuffer, tempBuffer.length-tempBufferRemaining, encodingBuffer, encodingOffset, copyingSize);
-
-        	encodingOffset = sipCodec.getOutgoingDecodedFrameSize();
-        	tempBufferRemaining -= copyingSize;
-        	finalCopySize = sipCodec.getOutgoingDecodedFrameSize();
-        } else {
-        	if (tempBufferRemaining > 0) {
-        		System.arraycopy(tempBuffer, tempBuffer.length - tempBufferRemaining, encodingBuffer, encodingOffset, tempBufferRemaining);
-                    		
-        		encodingOffset += tempBufferRemaining;
-        		finalCopySize += tempBufferRemaining;
-        		tempBufferRemaining = 0;
-        	}
-
-        	// Decode new asao packet.
-        	asao_buffer_processed = true;
-        	ByteStream audioStream = new ByteStream(audioData, 0, NELLYMOSER_ENCODED_PACKET_SIZE);
-        	decoderMap = decoder.decode(decoderMap, audioStream.bytes, 0, tempBuffer, 0);
-
-        	tempBufferRemaining = tempBuffer.length;
-
-        	if (tempBuffer.length <= 0) {
-        		log.error("Asao decoder Error." );
-        	}
-
-        	// Try to complete the encodingBuffer with necessary data.
-        	if ((encodingOffset + tempBufferRemaining) > sipCodec.getOutgoingDecodedFrameSize()) {
-        		copyingSize = encodingBuffer.length - encodingOffset;
-        	} else {
-        		copyingSize = tempBufferRemaining;
-        	}
-
-        	System.arraycopy(tempBuffer, 0, encodingBuffer, encodingOffset, copyingSize);
-
-        	encodingOffset += copyingSize;
-        	tempBufferRemaining -= copyingSize;
-        	finalCopySize += copyingSize;
-        }
-
-        if (encodingOffset == encodingBuffer.length) {
-        	int encodedBytes = sipCodec.pcmToCodec(encodingBuffer, codedBuffer);
+    	if (encodedBytes == sipCodec.getOutgoingEncodedFrameSize()) {
+    		listener.handleTranscodedAudioData(codedBuffer, timestamp += TS_INCREMENT);
+    	} else {
+    		log.error("Failure encoding buffer." );
+    	}
+    	
+    	if (nellyAudio.position() == nellyAudio.capacity()) {
+        	ulawAudio.get(encodingBuffer);
+        	encodedBytes = sipCodec.pcmToCodec(encodingBuffer, codedBuffer);
 
         	if (encodedBytes == sipCodec.getOutgoingEncodedFrameSize()) {
-        		System.arraycopy(codedBuffer, 0, transcodedAudioData, 0, codedBuffer.length);
+        		listener.handleTranscodedAudioData(codedBuffer, timestamp += TS_INCREMENT);
         	} else {
         		log.error("Failure encoding buffer." );
         	}
-        }
+        	ulawAudio.get(encodingBuffer);
+        	encodedBytes = sipCodec.pcmToCodec(encodingBuffer, codedBuffer);
 
-        return finalCopySize;
-    }
+        	if (encodedBytes == sipCodec.getOutgoingEncodedFrameSize()) {
+        		listener.handleTranscodedAudioData(codedBuffer, timestamp += TS_INCREMENT);
+        	} else {
+        		log.error("Failure encoding buffer." );
+        	}
+    		nellyAudio.clear();
+    		ulawAudio.clear();
+    	}
+	}	
 }
