@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <config>
-    <localeversion>0.71</localeversion>
+    <localeversion suppressWarning="false">0.71</localeversion>
     <version>VERSION</version>
     <help url="http://HOST/help.html"/>
     <porttest host="HOST" application="video"/>    
@@ -76,6 +76,11 @@
 			host="http://192.168.0.225" 
 			dependsOn="ViewersModule"
 			salt="1708e5ecf25b7142b06f2338b4ea3cf1"
+		/>-->
+		
+		<!--<module name="SharedNotesModule" url="SharedNotesModule.swf?v=VERSION" 
+			uri="http://192.168.0.225/bigbluebutton" 
+			dependsOn="ViewersModule"
 		/>-->
 		
 	</modules>

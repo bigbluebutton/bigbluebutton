@@ -1,0 +1,88 @@
+#!/bin/bash
+#
+# Copyright (c) 2008-2011 by BigBlueButton Inc.
+#
+# Documentation: 
+#   http://code.google.com/p/bigbluebutton/wiki/Testing
+#
+# This file is part of BigBlueButton - http://www.bigbluebutton.org
+#
+# BigBlueButton is free software; you can redistribute it and/or modify it under the
+# terms of the GNU Lesser General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License along
+# with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+#
+# Author(s):
+#       Fred Dixon <ffdixon@bigbluebutton.org>
+#
+# Changelog:
+#   2011-01-22 FFD  Inital Version
+
+VERSION=0.1
+IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | head -1 | cut -d: -f2 | awk '{ print $1}')
+
+
+while [ $# -gt 0 ]; do
+        case $1 in
+                --h|-h)		HOST=$2;		shift 2 ;;
+                --n|-n)		NUMBER=$2;		shift 2 ;;
+                *)		echo "$0: Unrecognized option: $1" >&2; exit 1;
+        esac
+done
+
+if [ -z "$HOST" ] || [ -z "$NUMBER" ]; then
+        echo "BigBlueButton Testing Utility - Version $VERSION"
+        echo
+        echo "$0 [options]"
+        echo
+        echo "To launch BigBlueButton clients that connect to remote server:"
+        echo "   -h remote_bigbluebutton_host"
+	echo "   -n number_of_clients"
+        echo
+        echo "Example:"
+        echo "   $0 -h 192.168.0.104 -n 10"
+        exit 1
+fi
+
+#
+# We'll use a get request to demo1.jsp to create clients
+#
+# http://192.168.0.104/bigbluebutton/demo/demo1.jsp?username=Fred2&action=create
+
+# HOST="http://$HOST/bigbluebutton/demo/demo1.jsp?action=create&username=user"
+HOST="http://$HOST/bigbluebutton"
+
+
+if ! wget $HOST/api -O - --quiet | grep -q SUCCESS; then
+	echo "Startup unsuccessful: could not connect to $HOST/api"
+        exit 1
+fi
+
+if ! which firefox >/dev/null 2>&1; then
+	echo "Unable to locate firefox"
+        exit 1
+fi
+
+firefox &
+sleep 3
+
+i=0
+while [ $i != "$NUMBER" ]; do
+	echo "Connecting user $IP-$i"
+	firefox -a firefox -remote "openURL($HOST/demo/demo1.jsp?action=create&username=$IP-$i,new-tab)" &
+	
+	# We'll give BigBlueButton a moment to process the incoming request from this IP.  
+	# If we try to open 10 clients at the same time, the session IDs for each client will
+	# likely not go to the specific tab (as thay all share the same IP address)
+	sleep 5
+
+	i=$[$i+1]
+done
+echo
