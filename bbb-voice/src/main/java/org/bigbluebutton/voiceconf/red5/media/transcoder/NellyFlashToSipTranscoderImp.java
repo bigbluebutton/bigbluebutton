@@ -80,18 +80,14 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
     	ulawAudio.get(encodingBuffer);
     	int encodedBytes = sipCodec.pcmToCodec(encodingBuffer, codedBuffer);
 
-    	if (encodedBytes == sipCodec.getOutgoingEncodedFrameSize()) {
-    		listener.handleTranscodedAudioData(codedBuffer, timestamp += TS_INCREMENT);
-    	} else {
-    		log.error("Failure encoding buffer." );
-    	}
-    	
+    	listener.handleTranscodedAudioData(codedBuffer, timestamp += TS_INCREMENT);
+     	
     	if (nellyAudio.position() == nellyAudio.capacity()) {
         	ulawAudio.get(encodingBuffer);
         	encodedBytes = sipCodec.pcmToCodec(encodingBuffer, codedBuffer);
 
         	if (encodedBytes == sipCodec.getOutgoingEncodedFrameSize()) {
-        		listener.handleTranscodedAudioData(codedBuffer, timestamp);
+        		listener.handleTranscodedAudioData(codedBuffer, timestamp += TS_INCREMENT);
         	} else {
         		log.error("Failure encoding buffer." );
         	}
@@ -99,7 +95,13 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
         	encodedBytes = sipCodec.pcmToCodec(encodingBuffer, codedBuffer);
 
         	if (encodedBytes == sipCodec.getOutgoingEncodedFrameSize()) {
-        		listener.handleTranscodedAudioData(codedBuffer, timestamp);
+        		listener.handleTranscodedAudioData(codedBuffer, timestamp += TS_INCREMENT);
+        	} else {
+        		log.error("Failure encoding buffer." );
+        	}
+        	
+        	if (encodedBytes == sipCodec.getOutgoingEncodedFrameSize()) {
+        		listener.handleTranscodedAudioData(codedBuffer, timestamp += TS_INCREMENT);
         	} else {
         		log.error("Failure encoding buffer." );
         	}

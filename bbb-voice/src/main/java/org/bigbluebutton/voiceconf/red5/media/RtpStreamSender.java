@@ -73,7 +73,7 @@ public class RtpStreamSender {
     	rtpPacket.setExtension(false);
         rtpPacket.setPayloadType(codecId);
     	rtpPacket.setSeqNum(sequenceNum++);   
-    	rtpPacket.setTimestamp(System.currentTimeMillis() - startTimestamp);
+    	rtpPacket.setTimestamp(timestamp);
         rtpPacket.setPayloadLength(audioData.length);
         try {
 			rtpSocketSend(rtpPacket);

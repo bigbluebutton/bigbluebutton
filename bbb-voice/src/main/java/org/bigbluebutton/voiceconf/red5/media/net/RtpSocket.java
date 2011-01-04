@@ -71,7 +71,8 @@ public class RtpSocket {
 	   DatagramPacket datagram = new DatagramPacket(rtpp.getPacket(), rtpp.getLength());
 	   datagram.setAddress(r_addr);
 	   datagram.setPort(r_port);
-	   socket.send(datagram);
+	   if (!socket.isClosed())
+		   socket.send(datagram);
    }
 
    /** Closes this socket */      

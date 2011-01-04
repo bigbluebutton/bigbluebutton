@@ -85,7 +85,6 @@ public class FlashToSipAudioStream {
 		      	      
 		      if (packet instanceof AudioData) {
 		    	  byte[] data = SerializeUtils.ByteBufferToByteArray(buf);
-//		    	  System.out.println("RTMP data lenght = " + data.length);
 		    	  try {
 					streamFromFlash.write(data, 1, data.length-1);
 				} catch (IOException e) {
@@ -114,27 +113,18 @@ public class FlashToSipAudioStream {
 		byte[] nellyAudio = new byte[len];		
 		int remaining = len;
 		int offset = 0;
-		long startProc;
-		boolean transcoded = false;
+		TranscodedAudioListener transcodedAudioListener = new TranscodedAudioListener();
 		while (processAudioData) {			
 			try {
-				startProc = System.currentTimeMillis();
-				if (streamToSip.available() > 1000) {
-					long skipped = streamToSip.skip(1000L);
-	//				System.out.println("   Skipping RTMP audio bytes[" + skipped + "]");
-				}
 				int bytesRead =  streamToSip.read(nellyAudio, offset, remaining);
 				remaining -= bytesRead;
 				if (remaining == 0) {
 					remaining = len;
 					offset = 0;
-					transcoder.transcode(nellyAudio, 0, nellyAudio.length, new TranscodedAudioListener());
-					transcoded = true;
+					transcoder.transcode(nellyAudio, 0, nellyAudio.length, transcodedAudioListener);
 				} else {
 					offset += bytesRead; 
 				}
-	//			System.out.println("F2S transcode ms=" + (System.currentTimeMillis()-startProc) + " coded " + transcoded);
-				transcoded = false;
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -144,8 +134,12 @@ public class FlashToSipAudioStream {
 	
 	public void stop(IBroadcastStream broadcastStream, IScope scope) {
 		broadcastStream.removeStreamListener(mInputListener);
-		processAudioData = false;
-		
+		if (broadcastStream != null) {
+			broadcastStream.stop();
+			broadcastStream.close();
+		} 
+	    processAudioData = false;
+	    srcSocket.close();		
 	}
 
 	public String getStreamName() {
@@ -155,7 +149,7 @@ public class FlashToSipAudioStream {
 	private class TranscodedAudioListener implements TranscodedAudioDataListener {
 		@Override
 		public void handleTranscodedAudioData(byte[] audioData, long timestamp) {
-			if (audioData != null) {
+			if (audioData != null && processAudioData) {
 	  		  rtpSender.sendAudio(audioData, transcoder.getCodecId(), timestamp);
 	  	  } else {
 	  		  log.warn("Transcodec audio is null. Discarding.");

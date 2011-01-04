@@ -22,6 +22,9 @@ package org.bigbluebutton.voiceconf.red5.media.transcoder;
 import java.util.Random;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
+import org.red5.server.api.IConnection;
+import org.red5.server.api.Red5;
+import org.red5.server.net.rtmp.RTMPMinaConnection;
 import org.red5.app.sip.codecs.Codec;
 import org.red5.app.sip.codecs.asao.ByteStream;
 import org.red5.app.sip.codecs.asao.CodecImpl;
@@ -35,11 +38,11 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
     	
    	private float[] encoderMap;
     private Codec audioCodec = null;    
-    private float[] tempBuffer; 		// Temporary buffer with PCM audio to be sent to FlashPlayer.
+    private float[] tempBuffer; 					// Temporary buffer with PCM audio to be sent to FlashPlayer.
     private int tempBufferOffset = 0;
 
     private long timestamp = 0;
-    private final static int TS_INCREMENT = 32; // Determined from PCAP traces.
+    private final static int TS_INCREMENT = 32; 	// Determined from PCAP traces.
     
     public NellySipToFlashTranscoderImp(Codec audioCodec) {
     	this.audioCodec = audioCodec;    	    	
@@ -75,7 +78,20 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
                     ByteStream encodedStream = new ByteStream(NELLYMOSER_ENCODED_PACKET_SIZE);
     				encoderMap = CodecImpl.encode(encoderMap, tempBuffer, encodedStream.bytes);
     				tempBufferOffset = 0;
-    				listener.handleTranscodedAudioData(encodedStream.bytes, timestamp += TS_INCREMENT);
+    				boolean sendPacket = true;
+    				
+    				IConnection conn = Red5.getConnectionLocal();
+    				if (conn instanceof RTMPMinaConnection) {
+    					long pendingMessages = ((RTMPMinaConnection)conn).getPendingMessages();
+    					if (pendingMessages > 25) {   
+    						sendPacket = false;
+    						// Message backed up probably due to slow connection to client (10 message * 20ms ptime = 200 audio) 
+        					log.info("Dropping packet. Connection {} congested with {} pending messages (~500ms worth of audio) .", conn.getClient().getId(), pendingMessages);
+    					}    					
+    				} 
+    					
+    				if (sendPacket) listener.handleTranscodedAudioData(encodedStream.bytes, timestamp += TS_INCREMENT);
+    				
                 }
 
                 if (pcmBufferOffset == decodingBuffer.length) {
@@ -103,3 +119,4 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
 		return NELLYMOSER_CODEC_ID;
 	}
 }
+
