@@ -40,6 +40,8 @@ public class RtpSocket {
    /** Remote port */
    int r_port;
 
+   private final byte[] payload = new byte[10];
+   
    /** Creates a new RTP socket (only receiver) */ 
    public RtpSocket(DatagramSocket datagram_socket) {  
 	   socket=datagram_socket;
@@ -59,20 +61,24 @@ public class RtpSocket {
 	   return socket;
    }
 
+   private final DatagramPacket rxDatagram = new DatagramPacket(payload, payload.length);
+   
    /** Receives a RTP packet from this socket */
    public void receive(RtpPacket rtpp) throws IOException {  
-	   DatagramPacket datagram = new DatagramPacket(rtpp.getPacket(), rtpp.getLength());
-	   socket.receive(datagram);
-	   rtpp.setPacketLength(datagram.getLength());     
+	   rxDatagram.setData(rtpp.getPacket());
+	   socket.receive(rxDatagram);
+	   rtpp.setPacketLength(rxDatagram.getLength());     
    }
+   
+   private final DatagramPacket txDatagram = new DatagramPacket(payload, payload.length);
    
    /** Sends a RTP packet from this socket */      
    public void send(RtpPacket rtpp) throws IOException {  
-	   DatagramPacket datagram = new DatagramPacket(rtpp.getPacket(), rtpp.getLength());
-	   datagram.setAddress(r_addr);
-	   datagram.setPort(r_port);
+	   txDatagram.setData(rtpp.getPacket());
+	   txDatagram.setAddress(r_addr);
+	   txDatagram.setPort(r_port);
 	   if (!socket.isClosed())
-		   socket.send(datagram);
+		   socket.send(txDatagram);
    }
 
    /** Closes this socket */      

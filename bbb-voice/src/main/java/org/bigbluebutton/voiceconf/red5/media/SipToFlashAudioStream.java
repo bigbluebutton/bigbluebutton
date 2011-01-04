@@ -156,9 +156,6 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 
 		while (processAudioData) {
 			try {
-				if (streamToFlash.available() > 1000) {
-					long skipped = streamToFlash.skip(1000L);
-				}
 				int bytesRead =  streamToFlash.read(pcmAudio, offset, remaining);		
 				remaining -= bytesRead;
 				if (remaining == 0) {
