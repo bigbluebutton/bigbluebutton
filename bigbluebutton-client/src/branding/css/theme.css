@@ -11,7 +11,7 @@ Application
 /*The image for your logo is 200x200 pixels. No other size is currently supported so resize your logo accordingly. The logo will always appear in the lower right corner. */
 BrandingLogo
 {
-	backgroundImage: Embed(source="assets/img/BBBlogo.png");
+	backgroundImage: Embed(source="assets/img/BBBLogo.png");
 	backgroundSize: "100%";
 }
 

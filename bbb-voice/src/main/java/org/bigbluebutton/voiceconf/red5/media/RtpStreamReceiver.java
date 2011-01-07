@@ -217,7 +217,6 @@ public class RtpStreamReceiver {
     }
 
     private void processRtpPacket(byte[] rtpAudio, int offset, int len) {
-
 		if (listener != null) listener.onAudioDataReceived(rtpAudio, offset, len);
 		else log.debug("No listener for incoming audio packet");    	
     }

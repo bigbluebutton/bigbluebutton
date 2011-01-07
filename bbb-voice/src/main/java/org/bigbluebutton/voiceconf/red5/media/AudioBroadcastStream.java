@@ -25,7 +25,9 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.red5.logging.Red5LoggerFactory;
+import org.red5.server.api.IConnection;
 import org.red5.server.api.IScope;
+import org.red5.server.api.Red5;
 import org.red5.server.api.event.IEvent;
 import org.red5.server.api.stream.IBroadcastStream;
 import org.red5.server.api.stream.IStreamCodecInfo;
@@ -183,18 +185,21 @@ public class AudioBroadcastStream implements IBroadcastStream, IProvider, IPipeC
 		}
 	}
 
+	private final RTMPMessage msg = new RTMPMessage();
+	
 	public void dispatchEvent(IEvent event) {
 //		log.trace("dispatchEvent(event:{})", event);
 		if (event instanceof IRTMPEvent) {
 			IRTMPEvent rtmpEvent = (IRTMPEvent) event;
 			if (livePipe != null) {
-				RTMPMessage msg = new RTMPMessage();
+				
 				msg.setBody(rtmpEvent);
           
 				if (creationTime == null)
 					creationTime = (long)rtmpEvent.getTimestamp();
           
 				try {
+
 //					log.debug("dispatchEvent(event:)" + event);
 					livePipe.pushMessage(msg);
 
