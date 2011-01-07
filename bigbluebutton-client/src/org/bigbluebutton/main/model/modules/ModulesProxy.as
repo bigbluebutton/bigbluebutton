@@ -34,6 +34,7 @@ package org.bigbluebutton.main.model.modules
 	import org.bigbluebutton.modules.chat.events.StopChatModuleEvent;
 	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
 	import org.bigbluebutton.modules.videoconf.events.OpenPublishWindowEvent;
+	import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceEvent;
 	
 	public class ModulesProxy {
 		
@@ -90,10 +91,24 @@ package org.bigbluebutton.main.model.modules
 		{
 			LogUtil.error("moduleCommand [" + params.module + "][" + params.command + "]");
 			
-			if(params.command == "start")
+			if(params.command == "init_video")
+			{
+				var globalDispatcher:Dispatcher = new Dispatcher();
+				globalDispatcher.dispatchEvent(new OpenPublishWindowEvent());
+			}
+			else if(params.command == "init_voice")
+			{
+				var globalDispatcher:Dispatcher = new Dispatcher();
+				globalDispatcher.dispatchEvent(new JoinVoiceConferenceEvent());
+			}
+			else if(params.command == "start")
+			{
 				modulesManager.startModule(params.module);
-			else
+			}
+			else if(params.command == "stop")
+			{
 				modulesManager.stopModule(params.module);
+			}
 			/*			
 			else if(params == "VIDEO1_START")
 			{
