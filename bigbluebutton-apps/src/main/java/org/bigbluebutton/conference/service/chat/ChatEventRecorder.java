@@ -69,6 +69,12 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatEventRecorder.class
 		so.sendMessage("newChatMessage", list);
 		recordEvent(message);
 	}
+    
+    @SuppressWarnings("unchecked")
+	@Override
+	public void setRecordStatus(Boolean status){
+        log.debug("set status {}",status);
+    }
 	/*
 	 * <font color="#0"><b>[markos - 12:06:38 PM]</b> heyyyyy </font><br/>
 	 * 
