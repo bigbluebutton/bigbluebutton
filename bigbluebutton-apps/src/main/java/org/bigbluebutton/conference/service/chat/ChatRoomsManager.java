@@ -80,6 +80,31 @@ public class ChatRoomsManager {
 		log.warn("Sending message to a non-existing room {}", room);
 	}
 	
+    /*****************************************************************************
+    ;  setRecordStatus
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ; 
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 
+    ******************************************************************************/
+    public void setRecordStatus(String room,Boolean isRecording){
+        ChatRoom r = getRoom(room) ;
+        if ( null != r){
+            r.setRecordStatus(isRecording);
+        }
+    }
+    /**
+    * END FUNCTION 'setRecordStatus'
+    **/
 	public void addRoomListener(String roomName, IChatRoomListener listener) {
 		ChatRoom r = getRoom(roomName);
 		if (r != null) {

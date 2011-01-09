@@ -27,14 +27,15 @@
 		 width="100%" height="100%" xmlns:containers="flexlib.containers.*"
 		 implements="org.bigbluebutton.main.api.IUserListener"
 		 verticalScrollPolicy="off">
-	
-	<mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
+    
+    <mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
 	<mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
 	<mate:Listener type="{BBBEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT}" method="sendMessageReceivedFromBBBEvent"/> 
 	<mate:Listener type="{ChatOptionsEvent.CHANGE_FONT_SIZE}" method="changeFontSize" />
 	<mate:Listener type="{ChatOptionsEvent.CHANGE_LANGUAGE}" method="changeLanguage" />
 	<mate:Listener type="{ChatOptionsEvent.TOGGLE_TRANSLATE}" method="toggleTranslation" />
-	
+    <mate:Listener type="{ChatHistoryEvent.CLOSE_HISTORY_WINDOW}" method="handleCloseHistoryWindow" />
+    
 	<mx:Style>
 		.colorPickerStyle {
 			backgroundColor:#E5E6E7;
@@ -80,12 +81,21 @@
 			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
 			import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
 			import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
+            import org.bigbluebutton.modules.chat.events.RecordChatMessageEvent;
+            import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
 			import org.bigbluebutton.modules.chat.events.QueryParticipantsEvent;
 			import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
 			import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
 			import org.bigbluebutton.modules.chat.model.MessageVO;
 			import org.bigbluebutton.modules.chat.model.business.UserVO;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+            
+            import org.bigbluebutton.main.model.users.Conference;
+            import org.bigbluebutton.common.Role;
+            import org.bigbluebutton.common.Images;
+            import mx.managers.PopUpManager;
+
+            
 			
 			[Bindable] private var colorPickerColours:Array = ['0x000000', '0x7A7A7A' ,'0xFF0000', '0xFF8800',
 				'0x88FF00', '0x00FF00', '0x00FF88', '0x00FFFF', 
@@ -103,6 +113,16 @@
 			
 			private var autoTranslation:Boolean=false;
 			private var currentLangCode:String="en";
+            
+            
+            private var conference:Conference;
+            private var isRecord:Boolean = false ;
+            private var images:Images = new Images();
+            [Bindable] public var startRecordChat:Class = images.startRecordChat;
+            [Bindable] public var stopRecordChat:Class = images.stopRecordChat;
+            private var openFileWindow:OpenFileWindow;
+            [Bindable] private var isModerator:Boolean=false ;
+            
 			
 			[Bindable]
 			public var participants:ArrayCollection = new ArrayCollection();
@@ -112,6 +132,7 @@
 				openChatBoxFor(PUBLIC_CHAT_USERID);
 				createAddTabBox();
 				makePublicChatUncloseable();
+                checkModerator();
 				addEventListener(SuperTabEvent.TAB_CLOSE, onUserClosedTab);
 				systemManager.stage.addEventListener(Event.MOUSE_LEAVE, mouseLeave);
 				systemManager.stage.addEventListener(Event.ACTIVATE, activate);
@@ -119,7 +140,32 @@
 				
 				UserManager.getInstance().registerListener(this);
 			}       
-			
+            
+/*****************************************************************************
+;  checkModerator
+;----------------------------------------------------------------------------
+; DESCRIPTION
+;
+; RETURNS : N/A
+;
+; INTERFACE NOTES
+;   INPUT
+; 
+; IMPLEMENTATION
+;  
+; HISTORY
+; __date__ :        PTS:            Description
+; 
+******************************************************************************/
+            private function checkModerator():void{
+                conference = UserManager.getInstance().getConference();
+                if ( conference.me.role == Role.MODERATOR ){
+                    this.isModerator = true ;
+                }else{
+                    this.isModerator = false ;
+                }
+            }
+            
 			private function setColor():void{
 				var r:int = Math.round(Math.random()*12);
 				cmpColorPicker.selectedIndex = r;
@@ -254,7 +300,7 @@
 				item.label = name;
 				item.userid = userid;
 				item.role = role;
-				participants.addItem(item);
+                participants.addItem(item);
 			}
 			
 			private function removeParticipantFromList(userid:String):void {
@@ -429,7 +475,6 @@
 			
 			/** Inherited from IUserListener */
 			public function presenterChanged(newPresenter:User):void{
-				
 			}
 			
 			public function userJoined(user:User):void{
@@ -451,7 +496,81 @@
 			{
 				this.currentLangCode= e.language;
 			}
-			
+/*****************************************************************************
+;  recordChat
+;----------------------------------------------------------------------------
+; DESCRIPTION
+;
+; RETURNS : N/A
+;
+; INTERFACE NOTES
+;   INPUT
+; 
+; IMPLEMENTATION
+;  
+; HISTORY
+; __date__ :        PTS:            Description
+; 
+******************************************************************************/            
+            private function recordChat():void{
+                this.isRecord = ! this.isRecord ;
+                var recEvent:RecordChatMessageEvent = new RecordChatMessageEvent(RecordChatMessageEvent.RECORD_CHAT_MESSAGE_EVENT);
+                
+                if ( true == this.isRecord ){
+                    this.recordBtn.setStyle('icon',stopRecordChat);
+                    this.recordBtn.toolTip = ResourceUtil.getInstance().getString('bbb.chat.stopRecordChat.toolTip');  
+                    
+                    //dispatchEvent(new StartRecordChatMessageEvent(StartRecordChatMessageEvent.START_RECORD_CHAT_MESSAGE_EVENT)) ;
+                }else{
+                    this.recordBtn.setStyle('icon',startRecordChat);
+                    this.recordBtn.toolTip = ResourceUtil.getInstance().getString('bbb.chat.startRecordChat.toolTip');
+                    //dispatchEvent(new StopRecordChatMessageEvent(StopRecordChatMessageEvent.STOP_RECORD_CHAT_MESSAGE_EVENT)); 
+                }
+                recEvent.isRecording = this.isRecord ;
+                globalDispatcher.dispatchEvent(recEvent);
+            }
+/*****************************************************************************
+;  handleCloseHistoryWindow
+;----------------------------------------------------------------------------
+; DESCRIPTION
+;
+; RETURNS : N/A
+;
+; INTERFACE NOTES
+;   INPUT
+; 
+; IMPLEMENTATION
+;  
+; HISTORY
+; __date__ :        PTS:            Description
+; 
+******************************************************************************/
+            private function handleCloseHistoryWindow(e:ChatHistoryEvent):void{
+                PopUpManager.removePopUp(openFileWindow);
+                openFileWindow = null ;
+            }
+/*****************************************************************************
+;  handleOpenHistoryFile
+;----------------------------------------------------------------------------
+; DESCRIPTION
+;
+; RETURNS : N/A
+;
+; INTERFACE NOTES
+;   INPUT
+; 
+; IMPLEMENTATION
+;  
+; HISTORY
+; __date__ :        PTS:            Description
+; 
+******************************************************************************/
+            private function handleOpenHistoryFile():void{
+                if ( null != openFileWindow ) return ;
+                openFileWindow = PopUpManager.createPopUp(this, OpenFileWindow , false) as OpenFileWindow;
+                PopUpManager.centerPopUp(openFileWindow);
+                globalDispatcher.dispatchEvent(new ChatHistoryEvent(ChatHistoryEvent.LOAD_FILE)) ;
+            }
 		]]>
 	</mx:Script>
 	<containers:SuperTabNavigator id="chatTabs" width="100%" height="100%" change="onTabNavChange()" tabClose="onTabClose(event)" minTabWidth="20" 
@@ -463,5 +582,11 @@
 						selectedColor="0x000000" dataProvider="{colorPickerColours}" swatchPanelStyleName="colorPickerStyle"/>
 		<mx:Button label="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn')}" id="sendBtn" 
 				   toolTip="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.toolTip')}" click="sendMessages()"/> 
+        <mx:Button icon="{startRecordChat}" id="recordBtn" visible="{isModerator}"
+               toolTip="{ResourceUtil.getInstance().getString('bbb.chat.startRecordChat.toolTip')}" 
+               click="recordChat()"/>
+        <mx:Button label="Open" id="openBtn" visible="{isModerator}"
+               toolTip="{ResourceUtil.getInstance().getString('bbb.chat.openfile.toolTip')}" 
+               click="handleOpenHistoryFile()"/>
 	</mx:ApplicationControlBar>	
 </mx:VBox>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+  
+  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+  
+  BigBlueButton is free software; you can redistribute it and/or modify it under the 
+  terms of the GNU Lesser General Public License as published by the Free Software 
+  Foundation; either version 2.1 of the License, or (at your option) any later 
+  version. 
+  
+  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public License along 
+  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ 
+  $Id: $
+-->
+
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:mate="http://mate.asfusion.com/"
+    	title="{ResourceUtil.getInstance().getString('bbb.chat.openfile.title')}"
+    	x="168" y="86" layout="absolute" width="300" height="500" creationComplete="initData()">
+    
+    
+    <mate:Listener type="{ChatHistoryEvent.DISPLAY_FILE}" method="handleDisplayFile" />
+    <mx:Script>
+		<![CDATA[
+        
+        import com.asfusion.mate.events.Dispatcher;
+        
+        import flash.events.IEventDispatcher;
+        import mx.collections.ArrayCollection;
+        import mx.events.ListEvent;
+        
+        import org.bigbluebutton.modules.chat.events.ChatHistoryEvent ;
+        import org.bigbluebutton.util.i18n.ResourceUtil;
+        import mx.controls.Alert ;
+        
+        [Bindable] public var files:ArrayCollection = new ArrayCollection();
+        [Bindable] private var isSelected:Boolean = false ;
+        private var fileName:String ;
+        
+        private function initData():void{
+        
+        }
+            
+        
+        private function onItemRollOver(event:ListEvent):void{
+			
+        }
+        
+        private function onItemRollOut(event:ListEvent):void{
+			
+		}
+        
+        private function loadFileContent():void{
+            var event:ChatHistoryEvent = new ChatHistoryEvent(ChatHistoryEvent.OPEN_FILE) ;
+            event.fileName = this.fileName ;
+            this.dispatchEvent(event) ;
+            this.dispatchEvent(new ChatHistoryEvent(ChatHistoryEvent.CLOSE_HISTORY_WINDOW));
+        }
+        
+        private function closeHistoryWindow():void{
+            this.dispatchEvent(new ChatHistoryEvent(ChatHistoryEvent.CLOSE_HISTORY_WINDOW));
+        }
+        
+        private function handleLoadFile(e:ChatHistoryEvent):void{
+        
+        }
+        
+        private function handleDisplayFile(e:ChatHistoryEvent):void{
+            var i:int = 0 ;
+            if ( null == e.fileList ) return ;
+            
+            var fileList:Array = e.fileList as Array ;
+            for ( i=0 ; i < fileList.length ; i++ ){
+                files.addItem(fileList[i]) ;
+            }
+        }
+        
+        private function fileSelectEvent(event:ListEvent):void {
+            this.isSelected = true ;
+            this.fileName = String(historyFilesGrid.selectedItem) ;
+        } 
+	]]>
+		
+	</mx:Script>
+    <mx:DataGrid id="historyFilesGrid" dataProvider="{files}" editable="false"
+        dragEnabled="false" itemClick="fileSelectEvent(event);" width="100%" height="100%"
+        itemRollOver="onItemRollOver(event)"
+        itemRollOut="onItemRollOut(event)">
+        <mx:columns>
+            <mx:DataGridColumn dataField="History File Name" headerText="{ResourceUtil.getInstance().getString('bbb.chat.viewersGrid.FileName')}" dataTipField="History File Name" editable="false" width="35"
+                sortable="true" id="fileField"/>
+        </mx:columns>
+    </mx:DataGrid>
+    <mx:ControlBar width="100%"> 
+   		 <mx:Button id="openBtn" label="{ResourceUtil.getInstance().getString('bbb.chat.openBtn.label')}" visible="{isSelected}"
+    	   			toolTip="{ResourceUtil.getInstance().getString('bbb.chat.openfile.toolTip')}"
+    	   			click="loadFileContent()"/>
+     	 <mx:Spacer width="100%"/>
+    	 <mx:Button id="cancelBtn" label="{ResourceUtil.getInstance().getString('bbb.chat.cancelBtn.label')}" 
+    	   			toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cancelBtn.toolTip')}" 
+    	   			click="closeHistoryWindow()"/>  			
+    </mx:ControlBar>  
+</mx:TitleWindow> 

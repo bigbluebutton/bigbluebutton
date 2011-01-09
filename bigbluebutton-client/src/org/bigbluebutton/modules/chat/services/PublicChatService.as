@@ -21,7 +21,9 @@ package org.bigbluebutton.modules.chat.services
 	import flash.events.IEventDispatcher;
 	
 	import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
-	
+	import org.bigbluebutton.modules.chat.events.RecordChatMessageEvent;
+    import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
+    
 	public class PublicChatService
 	{
 		private var attributes:Object;
@@ -54,5 +56,64 @@ package org.bigbluebutton.modules.chat.services
 			newMessage = event.message + "|" + attributes.username + "|" + event.color + "|" + event.time + "|" + event.language + "|" + attributes.userid;
 			chatSOService.sendMessage(newMessage);
 		}
+/*****************************************************************************
+;  recordMessageEvent
+;----------------------------------------------------------------------------
+; DESCRIPTION
+;
+; RETURNS : N/A
+;
+; INTERFACE NOTES
+;   INPUT
+; 
+; IMPLEMENTATION
+;  
+; HISTORY
+; __date__ :        PTS:            Description
+; 
+******************************************************************************/        
+        public function recordMessageEvent(e:RecordChatMessageEvent):void {
+            chatSOService.RecordMessageEvent(e.isRecording);
+        }
+
+/*****************************************************************************
+;  loadFileList
+;----------------------------------------------------------------------------
+; DESCRIPTION
+;
+; RETURNS : N/A
+;
+; INTERFACE NOTES
+;   INPUT
+; 
+; IMPLEMENTATION
+;  
+; HISTORY
+; __date__ :        PTS:            Description
+; 
+******************************************************************************/
+        public function loadFileList():void{
+            chatSOService.loadFileList();
+        }
+
+/*****************************************************************************
+;  loadFileContent
+;----------------------------------------------------------------------------
+; DESCRIPTION
+;
+; RETURNS : N/A
+;
+; INTERFACE NOTES
+;   INPUT
+; 
+; IMPLEMENTATION
+;  
+; HISTORY
+; __date__ :        PTS:            Description
+; 
+******************************************************************************/
+        public function loadFileContent(e:ChatHistoryEvent):void{
+            chatSOService.loadFileContent(e.fileName);
+        }
 	}
 }

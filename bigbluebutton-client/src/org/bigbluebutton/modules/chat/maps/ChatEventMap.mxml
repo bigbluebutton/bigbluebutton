@@ -43,6 +43,9 @@
 			import org.bigbluebutton.modules.chat.services.PrivateChatService;
 			import org.bigbluebutton.modules.chat.services.PublicChatService;
 			import org.bigbluebutton.modules.chat.views.ChatView;
+            
+            import org.bigbluebutton.modules.chat.events.RecordChatMessageEvent;
+            import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
 		]]>
 	</mx:Script>
 	
@@ -81,6 +84,18 @@
     <EventHandlers type="{SendPrivateChatMessageEvent.SEND_PRIVATE_CHAT_MESSAGE_EVENT}">        
  		<MethodInvoker generator="{PrivateChatService}" method="sendChatMessageEvent" arguments="{event}"/>		
     </EventHandlers>
+    
+    <EventHandlers type="{RecordChatMessageEvent.RECORD_CHAT_MESSAGE_EVENT}">        
+ 		<MethodInvoker generator="{PublicChatService}" method="recordMessageEvent" arguments="{event}"/>		
+    </EventHandlers>
+    
+    <EventHandlers type="{ChatHistoryEvent.LOAD_FILE}">        
+ 		<MethodInvoker generator="{PublicChatService}" method="loadFileList"/>		
+    </EventHandlers>
+    
+    <EventHandlers type="{ChatHistoryEvent.OPEN_FILE}">        
+ 		<MethodInvoker generator="{PublicChatService}" method="loadFileContent" arguments="{event}"/>		
+    </EventHandlers>    
     
     <EventHandlers type="{QueryParticipantsEvent.QUERY_PARTICIPANTS_EVENT}">        
  		<MethodInvoker generator="{PrivateChatService}" method="queryForParticipants"/>		

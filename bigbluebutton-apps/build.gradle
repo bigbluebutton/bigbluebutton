@@ -118,6 +118,9 @@ dependencies {
     // Libraries needed for scala api
     compile 'org.scala-lang:scala-library:2.7.7'   
     compile 'org/bigbluebutton/common:bbb-common-message:0.7@jar' 
+    
+    // Libraries needed for DOM
+    compile 'org.jdom:jdom:1.1@jar'
 }
 
 test {

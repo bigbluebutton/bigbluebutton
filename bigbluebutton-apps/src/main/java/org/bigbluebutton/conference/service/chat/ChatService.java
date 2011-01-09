@@ -17,26 +17,30 @@
 * 
 */
 package org.bigbluebutton.conference.service.chat;
-import java.util.ArrayList;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.api.so.ISharedObject;import org.red5.server.api.Red5;
+import org.red5.server.api.so.ISharedObject;
+
+import org.red5.server.api.Red5;
 
 public class ChatService {
 	
 	private static Logger log = Red5LoggerFactory.getLogger( ChatService.class, "bigbluebutton" );
 	
-	private ChatApplication application;
-
+	private ChatApplication application;    
+    
+    
 	public List<String> getChatMessages() {
-		String roomName = Red5.getConnectionLocal().getScope().getName();
+        String roomName = Red5.getConnectionLocal().getScope().getName();
 		return application.getChatMessages(roomName);
 	}
 	
 	public void sendMessage(String message) {
-		String roomName = Red5.getConnectionLocal().getScope().getName();
+        String roomName = Red5.getConnectionLocal().getScope().getName();
 		application.sendMessage(roomName, message);
 	}
 	public void setChatApplication(ChatApplication a) {
@@ -44,7 +48,80 @@ public class ChatService {
 		application = a;
 	}
 	
-	public void privateMessage(String message, String sender, String recepient){
+    /*****************************************************************************
+    ;  setRecordStatus
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ; 
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 
+    ******************************************************************************/
+    public void setRecordStatus(Boolean isRecording){
+        //String roomName = Red5.getConnectionLocal().getScope().getName();
+        log.debug("Setting Chat Recording Status {}",isRecording);
+        String roomName = Red5.getConnectionLocal().getScope().getName();
+        application.setRecordStatus(roomName,isRecording);
+    }
+    /**
+    * END FUNCTION 'setRecordStatus'
+    **/
+    
+	/*****************************************************************************
+    ;  getChatMessageFileList
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ; 
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 
+    ******************************************************************************/
+    public List<String> getChatMessagesFileList(){
+        log.debug("Get Chat Message Files List");
+        String roomName = Red5.getConnectionLocal().getScope().getName();
+        ChatRoomHistoryFileManager historyManager = new ChatRoomHistoryFileManager(roomName);
+        return historyManager.getFilesList() ;
+
+    }
+    
+	/*****************************************************************************
+    ;  getHistoryChatMessages
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ; 
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 
+    ******************************************************************************/
+    public List<String> getHistoryChatMessages(String fileName){
+        log.debug("Get History File Content {}", fileName);
+        String roomName = Red5.getConnectionLocal().getScope().getName();
+        ChatRoomHistoryFileManager historyManager = new ChatRoomHistoryFileManager(roomName);
+        return historyManager.getHistoryFileContent(fileName);
+    }
+    
+    public void privateMessage(String message, String sender, String recepient){
 		log.debug("Received private message: " + message + " from " + sender + " to " + recepient + " The client scope is: " + Red5.getConnectionLocal().getScope().getName());
 		ISharedObject sharedObject = application.handler.getSharedObject(Red5.getConnectionLocal().getScope(), recepient);
 		ArrayList<String> arguments = new ArrayList<String>();

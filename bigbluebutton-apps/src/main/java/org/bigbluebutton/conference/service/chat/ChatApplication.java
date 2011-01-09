@@ -23,8 +23,10 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
-import org.bigbluebutton.conference.service.chat.ChatRoomsManager;
-import org.bigbluebutton.conference.service.chat.ChatRoom;import org.bigbluebutton.conference.service.chat.IChatRoomListener;
+
+import org.bigbluebutton.conference.service.chat.ChatRoomsManager;
+import org.bigbluebutton.conference.service.chat.ChatRoom;
+import org.bigbluebutton.conference.service.chat.IChatRoomListener;
 
 public class ChatApplication {
 
@@ -66,7 +68,30 @@ public class ChatApplication {
 	public void sendMessage(String room, String message) {
 		roomsManager.sendMessage(room, message);
 	}
-	
+    
+    /*****************************************************************************
+    ;  setRecordStatus
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ; 
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 
+    ******************************************************************************/
+    public void setRecordStatus(String room, Boolean isRecording){
+        roomsManager.setRecordStatus(room,isRecording) ;
+    }
+    /**
+    * END FUNCTION 'setRecordStatus'
+    **/
+    
 	public void setRoomsManager(ChatRoomsManager r) {
 		log.debug("Setting room manager");
 		roomsManager = r;

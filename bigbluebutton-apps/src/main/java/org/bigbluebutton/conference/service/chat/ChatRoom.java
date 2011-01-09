@@ -22,7 +22,9 @@ package org.bigbluebutton.conference.service.chat;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 
-import net.jcip.annotations.ThreadSafe;import java.util.concurrent.ConcurrentHashMap;import java.util.ArrayList;
+import net.jcip.annotations.ThreadSafe;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -35,12 +37,14 @@ public class ChatRoom {
 	
 	private final String name;
 	private final Map<String, IChatRoomListener> listeners;
+    private Boolean record ;
 	ArrayList<String> messages;
 	
 	public ChatRoom(String name) {
 		this.name = name;
 		listeners   = new ConcurrentHashMap<String, IChatRoomListener>();
 		this.messages = new ArrayList<String>();
+        this.record = record ;
 	}
 	
 	public String getName() {
@@ -65,7 +69,7 @@ public class ChatRoom {
 	
 	@SuppressWarnings("unchecked")
 	public void sendMessage(String msg){
-		messages.add(msg);
+		//messages.add(msg);
 		
 		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
 			log.debug("calling on listener");
@@ -74,5 +78,34 @@ public class ChatRoom {
 			listener.newChatMessage(msg);
 		}
 	}
-		
+    
+    /*****************************************************************************
+    ;  setRecordStatus
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ; 
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 
+    ******************************************************************************/
+    @SuppressWarnings("unchecked")
+    public void setRecordStatus(Boolean record){
+        this.record = record ;
+        for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
+            log.debug("calling on listener");
+            IChatRoomListener listener = (IChatRoomListener) iter.next();
+            log.debug("calling newChatMessage on listener {}",listener.getName());
+            listener.setRecordStatus(record) ;
+        }
+    }
+    /**
+    * END FUNCTION 'setRecordStatus'
+    **/
 }

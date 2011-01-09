@@ -148,5 +148,12 @@ package org.bigbluebutton.common
 		
 		[Embed(source="assets/images/enable_chat_notify.png")]
         public var enable_chat_notify:Class;
+        
+        //_ChatRecording_
+        [Embed(source="assets/images/start_record_chat.png")]
+		public var startRecordChat:Class;
+        
+        [Embed(source="assets/images/stop_record_chat.png")]
+		public var stopRecordChat:Class;
 	}
 }

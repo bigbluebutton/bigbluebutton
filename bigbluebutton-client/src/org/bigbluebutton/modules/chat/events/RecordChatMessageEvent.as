@@ -16,12 +16,23 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 * 
 */
-
-package org.bigbluebutton.conference.service.chat;
-
-interface IChatRoomListener {
-	public String getName();
-	public void newChatMessage(String message);
-    // save chat history feature.
-    public void setRecordStatus(Boolean status);
+package org.bigbluebutton.modules.chat.events
+{
+	import flash.events.Event;
+    import com.asfusion.mate.events.Dispatcher;
+    
+	public class RecordChatMessageEvent extends Event
+	{
+		public static const RECORD_CHAT_MESSAGE_EVENT:String = 'RECORD_CHAT_MESSAGE_EVENT';
+		
+		public var message:String;
+        public var name:String;
+        public var isRecording:Boolean ;
+		
+		public function RecordChatMessageEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
+		{           
+			super(type, bubbles, cancelable);
+		}
+		
+	}
 }

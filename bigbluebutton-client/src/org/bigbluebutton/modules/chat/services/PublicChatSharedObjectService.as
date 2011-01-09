@@ -34,6 +34,7 @@ package org.bigbluebutton.modules.chat.services
 	import org.bigbluebutton.modules.chat.events.ConnectionEvent;
 	import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
 	import org.bigbluebutton.modules.chat.events.TranscriptEvent;
+    import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
 
 	public class PublicChatSharedObjectService
 	{
@@ -65,7 +66,7 @@ package org.bigbluebutton.modules.chat.services
 	    		chatSO.close();
 	    	}
 	    }
-
+        
 		private function netStatusHandler(event:NetStatusEvent):void
 		{
 			var statusCode:String = event.info.code;
@@ -105,6 +106,129 @@ package org.bigbluebutton.modules.chat.services
 			); //_netConnection.call
 		}
 		
+/*****************************************************************************
+;  RecordMessageEvent
+;----------------------------------------------------------------------------
+; DESCRIPTION
+;
+; RETURNS : N/A
+;
+; INTERFACE NOTES
+;   INPUT
+; 
+; IMPLEMENTATION
+;  
+; HISTORY
+; __date__ :        PTS:            Description
+; 
+******************************************************************************/
+        public function RecordMessageEvent(isRecord:Boolean):void{
+            var nc:NetConnection = connection ;
+            nc.call(
+                "chat.setRecordStatus",
+                new Responder(
+                    function(result:Object):void{
+                        LogUtil.debug("Successfully sent message: "); 
+                    },
+                    function(status:Object):void{
+                        LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+                    }
+                ),
+                isRecord
+            );
+        }
+
+/*****************************************************************************
+;  loadFileList
+;----------------------------------------------------------------------------
+; DESCRIPTION
+;
+; RETURNS : N/A
+;
+; INTERFACE NOTES
+;   INPUT
+; 
+; IMPLEMENTATION
+;  
+; HISTORY
+; __date__ :        PTS:            Description
+; 
+******************************************************************************/
+        public function loadFileList():void{
+            var nc:NetConnection = connection;
+			nc.call(
+				"chat.getChatMessagesFileList",// Remote function name
+				new Responder(
+	        		// On successful result
+					function(result:Object):void { 
+						LogUtil.debug("Successfully sent message: "); 
+						if (result != null) {
+
+							var event:ChatHistoryEvent = new ChatHistoryEvent(ChatHistoryEvent.DISPLAY_FILE);
+                            event.fileList = result ;
+                            
+                            var globalDispatcher:Dispatcher = new Dispatcher();
+                            globalDispatcher.dispatchEvent(event) ;
+                            
+                            
+						}
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				)//new Responder
+			); //_netConnection.call	
+        }
+        
+/*****************************************************************************
+;  loadFileContent
+;----------------------------------------------------------------------------
+; DESCRIPTION
+;
+; RETURNS : N/A
+;
+; INTERFACE NOTES
+;   INPUT
+; 
+; IMPLEMENTATION
+;  
+; HISTORY
+; __date__ :        PTS:            Description
+; 
+******************************************************************************/
+        public function loadFileContent(fileName:String):void{
+            var nc:NetConnection = connection;
+			nc.call(
+				"chat.getHistoryChatMessages",// Remote function name
+				new Responder(
+	        		// On successful result
+					function(result:Object):void { 
+						LogUtil.debug("Successfully sent message: "); 
+						if (result != null) {
+							var message:Array = result as Array ;
+                            for(var i:int=0; i<result.length; i++){
+                                sendMessage(message[i]);
+                            }
+						}
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				),//new Responder
+                fileName
+			); //_netConnection.call	
+        }
 		/**
 		 * Called by the server to deliver a new chat message.
 		 */	
