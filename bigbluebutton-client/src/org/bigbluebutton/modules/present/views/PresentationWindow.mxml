@@ -102,6 +102,10 @@
 			[Bindable] private var backwardIcon:Class = images.backward;
 			[Bindable] private var magnifierIcon:Class = images.magnifier;
 			[Bindable] public var fitToWidthIcon:Class = images.magnifier;
+
+            // lock and unlock icon
+			[Bindable] private var lockedIcon:Class      = images.locked;
+			[Bindable] private var unlockedIcon:Class    = images.unlocked;
 						
 			[Bindable] private var thumbY:Number;
 			public var uploadWindow:FileUploadWindow = null;
@@ -147,12 +151,41 @@
             ;                                   window to show and hide chat notification
             ;                                   button.
             ;
+            ; 2010.12.28                        maximize presentation window
+            ;
             ******************************************************************************/
 			private function maximizeHandler():void {
 				// When the window is maximized, we want to resize the slide maintaining the aspect ratio.			
 				fitSlideToWindowMaintainingAspectRatio();
 				
 				this.y = 0;
+				// fixing: maximize presentation window 
+				// get width and height of presentation window during startup
+				// because of this function double execute at the startup
+				// the first execute set value '2' and the second set
+				// the width and height of presentation window.
+				if (2 == slideView.getDefaultWidth()){
+                    slideView.setDefaultWidth(this.width);
+                }
+                // the second execute
+                if (2 == slideView.getDefaultHeight()){
+                    slideView.setDefaultHeight(this.height);
+                    
+                    // set the thumbnail position
+                    slideView.thumbnailView.y = this.height-170;
+                }
+                // determine the first execute, the default value of
+                // getDefaultWidth() is 1
+				if (1 == slideView.getDefaultWidth()){
+				    slideView.setDefaultWidth(2);
+				    
+				}
+				// determine the first execute, the default value of
+                // getDefaultHeight() is 1
+				if (1 == slideView.getDefaultHeight()){
+				    slideView.setDefaultHeight(2)
+				}
+
 				if (this.maximized) {
 					//callLater(restore);
                     if (true == ExternalInterface.available) 
@@ -221,8 +254,9 @@
             ; IMPLEMENTATION
             ;  
             ; HISTORY
-            ; __date__ :        PTS:  
+            ; __date__ :        PTS:            Description
             ; 2010.12.01        problem 731
+            ; 2010.12.28                        maximize presentation window
             ;
             ******************************************************************************/
 			private function fitSlideToWindowMaintainingAspectRatio():void {
@@ -275,8 +309,18 @@
 					slideWidth = this.width + (this.height - currentSlideHeight) ;
 					slideHeight = this.height ;
 				}
-				
-				sendWindowResizedEvent(slideWidth, slideHeight);
+                
+				//sendWindowResizedEvent(slideWidth, slideHeight);// fix: maximize presentation window 
+
+				// fix: maximize presentation window
+				// set the slide status
+				// slide is loading.
+				if ( true == slideView.getIsLoadedComplete() ){
+                    slideView.setIsLoading(false);
+                }else{
+                    // slide load complete
+                    slideView.setIsLoading(true);
+                }
 			}
 			
 			/*
@@ -294,8 +338,19 @@
 			
 			private function handleDisplaySlideEvent(event:DisplaySlideEvent):void {				
 				currentSlideWidth = event.slideWidth;
-				currentSlideHeight = event.slideHeight;
-				fitSlideToWindowMaintainingAspectRatio();			
+				currentSlideHeight = event.slideHeight;				
+				fitSlideToWindowMaintainingAspectRatio();
+				
+				// fix: maximize presentation window
+				// set current slide width and height to slideView object
+				slideView.setCurrentSlideWidth(currentSlideWidth);
+				slideView.setCurrentSlideHeight(currentSlideHeight);
+                
+                // zoom slide after loaded.
+                if (true == isPresenter){
+                    slideView.zoomLoaderBy(zoomSlider.value);
+                }
+					
 			}
 			
 			private function onKeyUp(event:KeyboardEvent):void{
@@ -369,6 +424,9 @@
 			private function setupPresenter(isPresenter:Boolean, presentersName:String):void {
 				this.isPresenter = isPresenter;
 				uploadPres.visible = isPresenter;
+
+                // show or hide 'lock follow presenter slide' button
+                lockButton.visible   = !isPresenter;
 				
 				if (presentationLoaded) {
 	            	displaySlideNumber(slideView.selectedSlide + 1);	
@@ -406,7 +464,7 @@
 				} else {
 					dispatchEvent(new SlideEvent(SlideEvent.LOAD_CURRENT_SLIDE));
 				}
-				onResetZoom();
+				//onResetZoom();// fix: maximize presentation window
 				reinitWindowToDefaultSize();
 				//this.setFocus();
 			}
@@ -616,6 +674,48 @@
 				if ((slideView != null) && (!slideView.visible)) this.title = ResourceUtil.getInstance().getString('bbb.presentation.title');
 			}
             
+            /*****************************************************************************
+            ;  switchFollowPreseterSlide
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ;   This routine is use to switch view slide to follow presenter slide or not.
+            ;
+            ; RETURNS
+            ;
+            ; INTERFACE NOTES
+            ;
+            ; IMPLEMENTATION
+            ;       - change 'lock following presenter slide' status
+            ;       - check 'lock following presenter slide' status to 
+            ;         display or hide zoom slider and change button icon.
+            ; HISTORY
+            ; __date__ :        PTS:            Description
+            ; 2011.01.04                        lock and unlock presentation slide
+            ;                                   from presenter
+            ;
+            ******************************************************************************/
+            private function switchFollowPreseterSlide() : void {
+                slideView.switchFollowPreseterSlide();
+                //check 'lock following presenter slide' status
+                if (true == slideView.getFollowPresenterStatus()){
+                    // change button icon and toolTip
+                    lockButton.setStyle('icon',unlockedIcon);
+                    lockButton.toolTip = ResourceUtil.getInstance().getString('bbb.presentation.unlockSlideWithPresenter');
+                    // hide zoom slider and reset zoom button
+                    zoomSlider.visible      = false;
+                    btnResetZoom.visible    = false;
+                }else{
+                    // change button icon and toolTip
+                    lockButton.setStyle('icon',lockedIcon);
+                    lockButton.toolTip = ResourceUtil.getInstance().getString('bbb.presentation.lockSlideWithPresenter');
+                    // show zoom slider and reset zoom button
+                    zoomSlider.visible      = true;
+                    btnResetZoom.visible    = true;
+                }
+            }
+            /**
+             * END FUNCTION 'switchFollowPreseterSlide'
+             **/
 		]]>
 	</mx:Script>
 
@@ -638,7 +738,9 @@
     <mx:ApplicationControlBar id="presCtrlBar" width="100%" height="{CONTROL_BAR_HEIGHT}">
     	  <mx:Button id="uploadPres" icon="{uploadIcon}" visible="false" width="20" height="20"
     	   		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.uploadPresBtn.toolTip')}" 
-    	   		click="dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW))"/>        	  
+    	   		click="dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW))"/>     
+          <mx:Button id="lockButton" icon="{unlockedIcon}" visible="false" width="30" height="20"
+                  toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.unlockSlideWithPresenter')}" click="switchFollowPreseterSlide()"/>
     	  <mx:Spacer width="50%" id="spacer1"/>
     	  <mx:Button id="backButton" icon="{backwardIcon}" visible="false" width="30" height="20"
     	   		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.backBtn.toolTip')}" click="gotoPreviousSlide()"/>
