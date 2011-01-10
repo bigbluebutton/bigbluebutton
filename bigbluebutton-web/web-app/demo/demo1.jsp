@@ -62,7 +62,16 @@ if (request.getParameterMap().isEmpty()) {
 			<td style="text-align: left ">
 				<input type="text" name="username" /></td>
 		</tr>
-		
+		<tr>
+			<td>
+				&nbsp;</td>
+			<td style="text-align: right; ">
+				Record:</td>
+			<td style="width: 5px; ">
+				&nbsp;</td>
+			<td style="text-align: left ">
+				<input type="text" name="username" /></td>
+		</tr>
 		<tr>
 			<td>
 				&nbsp;</td>
@@ -89,8 +98,9 @@ if (request.getParameterMap().isEmpty()) {
 	//
     // Request a URL to join a meeting called "Demo Meeting"
     // Pass null for welcome message to use the default message (see defaultWelcomeMessage in bigbluebutton.properties)
+    // Update: Added record parameter, default: false 
     //
-	String joinURL = getJoinURL(request.getParameter("username"), "Demo Meeting", null );
+	String joinURL = getJoinURL(request.getParameter("username"), "Demo Meeting", "false", null );
 
 	if (joinURL.startsWith("http://")) { 
 %>

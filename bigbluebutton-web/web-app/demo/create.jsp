@@ -68,6 +68,11 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 			</td>
 			<td width="50%">Step 1. Enter your name: <input type="text"
 				name="username1" /> <br />
+			<label for="crecord">record? </label>
+			<select id="crecord" name="record1">
+				<option value="true">yes</option>
+				<option value="false" selected>no</option>
+			</select>
 			<INPUT TYPE=hidden NAME=action VALUE="create"> <br />
 			<input id="submit-button" type="submit" value="Create meeting" /></td>
 		</tr>
@@ -100,13 +105,14 @@ $(document).ready(function(){
 
 		String username = request.getParameter("username1");
 		String meetingID = username + "'s meeting";
+		String record = request.getParameter("record1");
 
 		String meeting_ID = "";
 
 		//
 		// This is the URL for to join the meeting as moderator
 		//
-		String joinURL = getJoinURL(username, meetingID, "<br>Welcome to %%CONFNAME%%.<br>");
+		String joinURL = getJoinURL(username, meetingID, record, "<br>Welcome to %%CONFNAME%%.<br>");
 
 		
 		String inviteURL = BigBlueButtonURL	+ "demo/create.jsp?action=invite&meetingID=" + URLEncoder.encode(meetingID, "UTF-8");
