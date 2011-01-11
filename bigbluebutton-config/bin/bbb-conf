@@ -42,7 +42,7 @@
 #set -x
 
 
-BBB_VERSION="0.71a-dev"
+BBB_VERSION="0.71a"
 
 if [ ! -f /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml ]; then
 	echo "#"
@@ -631,7 +631,7 @@ if [ $CHECKOUT ]; then
         echo "# "
         git clone $CHECKOUT
 	cd ~/dev/source/bigbluebutton
-	echo " Checking out version $BBB_VERSION (Not implemented yet)"
+	echo " Checking out version $BBB_VERSION "
  	#git checkout -b 0.7-release-workspace v0.7	
  	#git checkout -b 0.7-release-workspace v0.7	
         echo "# "

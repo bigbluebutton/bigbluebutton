@@ -6,7 +6,7 @@
     <porttest host="HOST" application="video"/>    
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter" />
     <language userSelectionEnabled="true" />
-    <skinning enabled="false" url="branding/css/theme.swf" />
+    <skinning enabled="false" url="branding/css/theme.css.swf" />
     <debug showDebugWindow="false" />
     
 	<modules>
