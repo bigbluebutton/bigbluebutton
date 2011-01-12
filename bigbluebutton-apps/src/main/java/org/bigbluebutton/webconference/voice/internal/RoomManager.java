@@ -24,6 +24,8 @@ package org.bigbluebutton.webconference.voice.internal;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.bigbluebutton.conference.BigBlueButtonSession;
+import org.bigbluebutton.conference.Constants;
 import org.bigbluebutton.webconference.voice.ConferenceService;
 import org.bigbluebutton.webconference.voice.Participant;
 import org.bigbluebutton.webconference.voice.events.ConferenceEvent;
@@ -33,7 +35,9 @@ import org.bigbluebutton.webconference.voice.events.ParticipantLockedEvent;
 import org.bigbluebutton.webconference.voice.events.ParticipantMutedEvent;
 import org.bigbluebutton.webconference.voice.events.ParticipantTalkingEvent;
 import org.red5.logging.Red5LoggerFactory;
+import org.red5.server.api.Red5;
 import org.slf4j.Logger;
+
 
 import net.jcip.annotations.ThreadSafe;
 
@@ -49,9 +53,9 @@ public class RoomManager {
 		confService = service;
 	}
 	
-	public void createRoom(String name) {
+	public void createRoom(String name,boolean record, String meetingid) {
 		log.debug("Creating room: " + name);
-		RoomImp r = new RoomImp(name);
+		RoomImp r = new RoomImp(name,record,meetingid);
 		rooms.putIfAbsent(name, r);
 	}
 	
@@ -124,7 +128,13 @@ public class RoomManager {
 			p.setMuted(pje.getMuted());
 			p.setTalking(pje.getSpeaking());
 			log.debug("Joined [" + p.getId() + "," + p.getName() + "," + p.isMuted() + "," + p.isTalking() + "] to room " + rm.getName());
+			
 			rm.add(p);
+			
+			
+			if(rm.isRecorded())
+				confService.recordSession(event.getRoom(),rm.getMeeting());
+			
 			if (rm.isMuted() && !p.isMuted()) {
 				confService.mute(p.getId(), event.getRoom(), true);
 			}
@@ -148,4 +158,5 @@ public class RoomManager {
 			log.debug("Processing UnknowEvent " + event.getClass().getName() + " for room: " + event.getRoom() );
 		}
 	}
+
 }

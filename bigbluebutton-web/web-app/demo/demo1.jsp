@@ -65,16 +65,6 @@ if (request.getParameterMap().isEmpty()) {
 		<tr>
 			<td>
 				&nbsp;</td>
-			<td style="text-align: right; ">
-				Record:</td>
-			<td style="width: 5px; ">
-				&nbsp;</td>
-			<td style="text-align: left ">
-				<input type="text" name="username" /></td>
-		</tr>
-		<tr>
-			<td>
-				&nbsp;</td>
 			<td>
 				&nbsp;</td>
 			<td>

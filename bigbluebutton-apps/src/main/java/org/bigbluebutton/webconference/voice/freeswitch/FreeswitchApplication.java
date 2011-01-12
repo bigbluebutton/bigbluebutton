@@ -64,6 +64,9 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
     private static final int ESL_ACTION_START_TALKING = 1;
     private static final int ESL_ACTION_STOP_TALKING = 2;
     
+    /* this must be replaced for a method which will check if the file exists */
+    private boolean recording = false;
+    
     private static Map<String, Integer> createMap() {
         Map<String,Integer> result = new HashMap<String,Integer>();
         result.put("start-talking", ESL_ACTION_START_TALKING);
@@ -125,7 +128,10 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
     
     @Override
     public void record(String room, String meetingid){
-    	String RECORD_DIR="/tmp";
+    	if(recording)
+    		return;
+    	
+    	String RECORD_DIR="/var/freeswitch/meetings";
     	String DATE_FORMAT = "yyyyMMdd-hhmmss";
     	
     	Calendar cal=Calendar.getInstance();
@@ -137,7 +143,7 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
     	log.debug(rcc.getCommand()+rcc.getCommandArgs());
     	EslMessage response = manager.getESLClient().sendSyncApiCommand(rcc.getCommand(), rcc.getCommandArgs());
         rcc.handleResponse(response, conferenceEventListener);
-    	
+    	recording=true;
     }
 
     @Override

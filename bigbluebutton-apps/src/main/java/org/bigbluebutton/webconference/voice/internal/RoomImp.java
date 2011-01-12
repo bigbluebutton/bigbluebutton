@@ -35,12 +35,17 @@ import net.jcip.annotations.ThreadSafe;
 @ThreadSafe
 public class RoomImp implements Room {
 	private final String name;
+	
 	private final ConcurrentMap<Integer, Participant> participants;
 	
 	private boolean muted = false;
+	private boolean record =false;
+	private String meetingid;
 	
-	public RoomImp(String name) {
+	public RoomImp(String name,boolean record, String meetingid) {
 		this.name = name;
+		this.record=record;
+		this.meetingid=meetingid;
 		participants = new ConcurrentHashMap<Integer, Participant>();
 	}
 	
@@ -76,6 +81,23 @@ public class RoomImp implements Room {
 	public boolean isMuted() {
 		return muted;
 	}
+	
+	public void record(boolean record){
+		this.record=record;
+	}
+	
+	public boolean isRecorded(){
+		return record;
+	}
+	
+	public String getMeeting() {
+		return meetingid;
+	}
+
+	public void setMeeting(String meetingid) {
+		this.meetingid = meetingid;
+	}
+	
 	
 	public ArrayList<Participant> getParticipants() {
 		Map<Integer, Participant> p = Collections.unmodifiableMap(participants);
