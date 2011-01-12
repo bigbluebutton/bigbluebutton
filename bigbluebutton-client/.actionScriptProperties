@@ -45,8 +45,7 @@
     <module application="src/BigBlueButton.mxml" destPath="BreakoutModule.swf" optimize="true" sourcePath="src/BreakoutModule.mxml"/>
   </modules>
   <buildCSSFiles>
+    <buildCSSFileEntry destPath="bin" sourcePath="src/branding/css/logo_basic.css"/>
     <buildCSSFileEntry destPath="bin" sourcePath="src/branding/css/theme.css"/>
   </buildCSSFiles>
 </actionScriptProperties>
-
-
