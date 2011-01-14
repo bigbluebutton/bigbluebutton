@@ -111,6 +111,8 @@ dependencies {
     // Testing
     testRuntime 'org/testng:testng:5.8@jar', 'org/fitnesse:fitnesse:20090214@jar', 'org.easymock:easymock:2.4@jar'
 
+    compile 'redis.clients:jedis:1.5.0@jar'
+    
 	// Libraries needed to run the scala tools
     scalaTools 'org.scala-lang:scala-compiler:2.7.7'
     scalaTools 'org.scala-lang:scala-library:2.7.7'
