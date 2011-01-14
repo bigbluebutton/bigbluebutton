@@ -44,7 +44,7 @@ dependencies {
 	compile('mysql:mysql-connector-java:5.1.12') {
 		artifact { name='mysql-connector-java' ; type='jar' }
 	}
-	compile 'org/bigbluebutton/common:bbb-common-message:0.7@jar'
+	compile 'org/bigbluebutton/common:bbb-common-message:0.8@jar'
 }
 
 war.doLast {
