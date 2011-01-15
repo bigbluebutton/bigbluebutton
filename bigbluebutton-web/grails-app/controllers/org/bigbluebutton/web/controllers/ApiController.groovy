@@ -41,6 +41,8 @@ import org.codehaus.groovy.grails.commons.ConfigurationHolder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import grails.converters.XML;
+
 class ApiController {
     private static final Integer SESSION_TIMEOUT = 10800  // 3 hours
     
@@ -188,7 +190,26 @@ class ApiController {
 
 	def uploadDocuments(conf) { 
 		log.debug("ApiController#uploadDocuments(${conf.meetingID})");
+
+		String requestBody = request.inputStream == null ? null : request.inputStream.text;
+		requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
+
+		println "Request body: \n" + requestBody;
+
+		def xml = XML.parse(requestBody);
+		xml.children().each { module ->
+			if ("presentation".equals(module.@name)) {
+				// we're in the create meeting config for the presentation module - need to iterate over presentation files and process them
+				module.children().each { document -> 
+					if (!StringUtils.isEmpty(document.@url)) {
+						// download file from internet and process it
+					}
+				}
+			}
+		}
 		
+		
+/*
 		// temporary file to test passing file to pres svc:
 		String path = "/tmp/testupload.pdf";
 		File file = new File(path);
@@ -216,6 +237,7 @@ class ApiController {
 		UploadedPresentation uploadedPres = new UploadedPresentation(conf.getMeetingToken(), conf.getMeetingToken(), name);
 		uploadedPres.setUploadedFile(pres);
 		presentationService.processUploadedPresentation(uploadedPres);
+*/
 	}
 
 	def join = {
