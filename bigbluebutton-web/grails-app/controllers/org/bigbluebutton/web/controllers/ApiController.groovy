@@ -33,6 +33,8 @@ import org.bigbluebutton.web.services.DynamicConferenceService;
 import org.bigbluebutton.api.domain.DynamicConference;
 import org.bigbluebutton.conference.Room
 import org.bigbluebutton.api.IApiConferenceEventListener;
+import org.bigbluebutton.web.services.PresentationService
+import org.bigbluebutton.presentation.UploadedPresentation
 
 import org.codehaus.groovy.grails.commons.ConfigurationHolder;
 
@@ -57,6 +59,7 @@ class ApiController {
 	def keywordList = [DIAL_NUM, CONF_NUM, CONF_NAME];
 		
 	DynamicConferenceService dynamicConferenceService;
+	PresentationService presentationService
 	IApiConferenceEventListener conferenceEventListener;
 
 	/* general methods */
@@ -116,6 +119,7 @@ class ApiController {
 			if (existing.getAttendeePassword().equals(attPW) && existing.getModeratorPassword().equals(modPW)) {
 				// trying to create a conference a second time
 				// return success, but give extra info
+				uploadDocuments(existing);
 				respondWithConference(existing, "duplicateWarning", "This conference was already in existence and may currently be in progress.");
 			} else {
 				// enforce meetingID unique-ness
@@ -177,8 +181,41 @@ class ApiController {
 		// TODO: support voiceBridge and voiceServer
 
 		// success!
+		uploadDocuments(conf);
 		dynamicConferenceService.storeConference(conf);
 		respondWithConference(conf, null, null)
+	}
+
+	def uploadDocuments(conf) { 
+		log.debug("ApiController#uploadDocuments(${conf.meetingID})");
+		
+		// temporary file to test passing file to pres svc:
+		String path = "/tmp/testupload.pdf";
+		File file = new File(path);
+		String name = "testupload.pdf";
+		def notValidCharsRegExp = /[^0-9a-zA-Z_\.]/
+		name = name.replaceAll(notValidCharsRegExp, '-')
+		
+		log.debug("Uploading presentation: ${name}");
+		
+		File uploadDir = presentationService.uploadedPresentationDirectory(conf.getMeetingToken(), conf.getMeetingToken(), name);
+		def pres = new File(uploadDir.absolutePath + File.separatorChar + name);
+		boolean renamed = false; // TODO: unrem this to try renames after accepting uploaded files: file.renameTo(pres);
+		if (!renamed) {
+			log.debug("could not rename to ${file.absolutePath} - must copy");
+			println "pres exists: " + pres.exists();
+			println "pres length: " + pres.length();
+
+			log.debug("${pres.absolutePath} << ${file.absolutePath}");
+			( new AntBuilder ( ) ).copy ( file : file , tofile : pres )
+
+			println "pres exists: " + pres.exists();
+			println "pres length: " + pres.length();
+		}
+
+		UploadedPresentation uploadedPres = new UploadedPresentation(conf.getMeetingToken(), conf.getMeetingToken(), name);
+		uploadedPres.setUploadedFile(pres);
+		presentationService.processUploadedPresentation(uploadedPres);
 	}
 
 	def join = {
