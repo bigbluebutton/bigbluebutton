@@ -92,7 +92,7 @@ public class PopulateRoomCommand extends FreeswitchCommand {
                 log.debug("conf list member [{}] for room [{}].", member.getId(), confXML.getConferenceRoom());
                 //Foreach found member in conference create a JoinedEvent
                 pj = new ParticipantJoinedEvent(member.getId(), confXML.getConferenceRoom(),
-                                member.getCallerId(), member.getCallerIdName(), member.getMuted(), member.getSpeeking());
+                                member.getCallerId(), member.getCallerIdName(), member.getMuted(), member.getSpeaking());
                 eventListener.handleConferenceEvent(pj);
             }
 

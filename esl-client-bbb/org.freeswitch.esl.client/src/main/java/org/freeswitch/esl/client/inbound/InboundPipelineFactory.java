@@ -16,33 +16,24 @@
 package org.freeswitch.esl.client.inbound;
 
 import org.freeswitch.esl.client.internal.debug.ExecutionHandler;
-import org.freeswitch.esl.client.transport.message.EslMessageDecoder;
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
+import org.freeswitch.esl.client.transport.message.EslFrameDecoder;
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
-import org.jboss.netty.handler.codec.frame.DelimiterBasedFrameDecoder;
-import org.jboss.netty.handler.codec.string.StringDecoder;
 import org.jboss.netty.handler.codec.string.StringEncoder;
 import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
 
 /**
  * End users of the {@link Client} should not need to use this class. 
- * </p>
+ * <p>
  * Convenience factory to assemble a Netty processing pipeline for inbound clients.
  * 
  * @author  david varnes
- * @version $Id$
  */
 public class InboundPipelineFactory implements ChannelPipelineFactory
 {
     private final ChannelHandler handler;
-    
-    private final ChannelBuffer[] delimiters = 
-        new ChannelBuffer[] { ChannelBuffers.wrappedBuffer( new byte[] { '\n' } ),
-                              ChannelBuffers.wrappedBuffer( new byte[] { '\n', '\n' } ) };
     
     public InboundPipelineFactory( ChannelHandler handler )
     {
@@ -52,11 +43,8 @@ public class InboundPipelineFactory implements ChannelPipelineFactory
     public ChannelPipeline getPipeline() throws Exception
     {
         ChannelPipeline pipeline = Channels.pipeline(); 
-        // Add the text line codec combination first
-        pipeline.addLast( "framer", new DelimiterBasedFrameDecoder( 8192, delimiters ) );  
-        pipeline.addLast( "stringDecoder", new StringDecoder() );
         pipeline.addLast( "encoder", new StringEncoder() );
-        pipeline.addLast( "eslMessageDecoder", new EslMessageDecoder() );
+        pipeline.addLast( "decoder", new EslFrameDecoder( 8192 ) );
         // Add an executor to ensure separate thread for each upstream message from here
         pipeline.addLast( "executor", new ExecutionHandler( 
             new OrderedMemoryAwareThreadPoolExecutor( 16, 1048576, 1048576 ) ) );
@@ -66,5 +54,4 @@ public class InboundPipelineFactory implements ChannelPipelineFactory
         
         return pipeline;
     }
-
 }

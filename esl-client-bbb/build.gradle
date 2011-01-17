@@ -1,7 +1,7 @@
 usePlugin 'eclipse'
 usePlugin 'java'
 
-version = '0.7'
+version = '0.8'
 jar.enabled = true
 
 def appName = 'fs-esl-client'
@@ -35,7 +35,7 @@ repositories {
         add(new org.apache.ivy.plugins.resolver.URLResolver()) {
                 name = "netty-dependency"
                 m2compatible = true
-                addArtifactPattern "http://repository.jboss.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision]).[ext]"
+                addArtifactPattern "http://repository.jboss.org/nexus/content/groups/public-jboss/[organisation]/[module]/[revision]/[artifact](-[revision]).[ext]"
                 addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision]).[ext]"
                 }
         }
@@ -45,13 +45,13 @@ repositories {
 dependencies {
 
     // Logging
-    compile ':slf4j-api:1.5.10@jar'
+    compile ':slf4j-api:1.6.1@jar'
     compile ':logback-core:0.9.18@jar'
     compile ':logback-classic:0.9.18@jar'
     compile ':jcl-over-slf4j:1.5.10@jar'
     compile ':log4j-over-slf4j:1.5.10@jar'
-
-    compile 'org.jboss.netty:netty:3.1.5.GA@jar'
+    testRuntime 'junit:junit:4.8.1.@jar'
+    compile 'org.jboss.netty:netty:3.2.1.Final@jar'
 }
 
 

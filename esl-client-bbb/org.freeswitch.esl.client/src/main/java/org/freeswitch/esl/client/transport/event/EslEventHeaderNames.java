@@ -16,10 +16,12 @@
 package org.freeswitch.esl.client.transport.event;
 
 /**
- * Container class for some commonly used ESL event header names (note there are many more!).
+ * Convenience container class for some commonly used ESL event header names (note there are many more!).
+ * <p>
+ * These names are stored as strings (rather than an Enum) so that there is no necessity to keep up to
+ * date with changes or additions to event header names.
  * 
  * @author  david varnes
- * @version $Id$
  */
 public class EslEventHeaderNames
 {

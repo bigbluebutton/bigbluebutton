@@ -19,26 +19,23 @@ import org.freeswitch.esl.client.internal.AbstractEslClientHandler;
 import org.freeswitch.esl.client.transport.event.EslEvent;
 import org.freeswitch.esl.client.transport.message.EslMessage;
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelPipelineCoverage;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.handler.execution.ExecutionHandler;
 
 /**
  * Specialised {@link AbstractEslClientHandler} that implements the base connecction logic for an 
  * 'Outbound' FreeSWITCH Event Socket connection.  The responsibilities for this class are:
- * </p>
- * * To send a 'connect' command when the FreeSWITCH server first establishes a new connection with
+ * <ul><li>
+ * To send a 'connect' command when the FreeSWITCH server first establishes a new connection with
  * the socket client in Outbound mode.  This will result in an incoming {@link EslMessage} that is
  * transformed into an {@link EslEvent} that sub classes can handle.
- * </p>
+ * </ul>
  * Note: implementation requirement is that an {@link ExecutionHandler} is placed in the processing 
  * pipeline prior to this handler. This will ensure that each incoming message is processed in its
  * own thread (although still guaranteed to be processed in the order of receipt).
  * 
  * @author  david varnes
- * @version $Id$
  */
-@ChannelPipelineCoverage( "one" )
 public abstract class AbstractOutboundClientHandler extends AbstractEslClientHandler
 {
 
@@ -49,7 +46,8 @@ public abstract class AbstractOutboundClientHandler extends AbstractEslClientHan
         log.debug( "Received new connection from server, sending connect message" );
         
         EslMessage response = sendSyncSingleLineCommand( ctx.getChannel(), "connect" );
-        // A hack in the message decoder treats most of this incoming message as an event so parse now
+        // The message decoder for outbound, treats most of this incoming message as an 'event' in 
+        // message body, so it parse now
         EslEvent channelDataEvent = new EslEvent( response, true );
         // Let implementing sub classes choose what to do next
         handleConnectResponse( ctx, channelDataEvent );

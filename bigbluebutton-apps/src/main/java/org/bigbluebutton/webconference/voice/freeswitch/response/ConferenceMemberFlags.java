@@ -35,7 +35,7 @@ public class ConferenceMemberFlags {
     //private boolean isModerator = false;
     //private boolean endConference = false;
 
-    boolean getIsSpeeking() {
+    boolean getIsSpeaking() {
         return talking;
     }
 

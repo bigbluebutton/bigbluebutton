@@ -22,7 +22,6 @@ import org.freeswitch.esl.client.outbound.AbstractOutboundPipelineFactory;
  * Factory for the simple hangup handler
  * 
  * @author  david varnes
- * @version $Id$
  */
 public class SimpleHangupPipelineFactory extends AbstractOutboundPipelineFactory
 {

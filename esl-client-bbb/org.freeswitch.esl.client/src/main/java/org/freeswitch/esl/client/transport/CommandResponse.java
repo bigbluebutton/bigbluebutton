@@ -22,7 +22,6 @@ import org.freeswitch.esl.client.transport.message.EslHeaders.Name;
  * Result object to carry the results of a command sent to the FreeSWITCH Event Socket.
  * 
  * @author  david varnes
- * @version $Id$
  */
 public class CommandResponse
 {

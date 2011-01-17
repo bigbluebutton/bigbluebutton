@@ -19,7 +19,6 @@ package org.freeswitch.esl.client.inbound;
  * Checked exception to handle connection failures.
  * 
  * @author  david varnes
- * @version $Id$
  */
 public class InboundConnectionFailure extends Exception
 {

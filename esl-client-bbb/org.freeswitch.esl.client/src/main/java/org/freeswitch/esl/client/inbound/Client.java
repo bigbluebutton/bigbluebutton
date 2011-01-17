@@ -42,15 +42,14 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Entry point to connect to a running FreeSWITCH Event Socket Library module, as a client.
- * </p>
+ * <p>
  * This class provides what the FreeSWITCH documentation refers to as an 'Inbound' connection
  * to the Event Socket module. That is, with reference to the socket listening on the FreeSWITCH
  * server, this client occurs as an inbound connection to the server.
- * </p>
- * See http://wiki.freeswitch.org/wiki/Mod_event_socket
+ * <p>
+ * See <a href="http://wiki.freeswitch.org/wiki/Mod_event_socket">http://wiki.freeswitch.org/wiki/Mod_event_socket</a>
  * 
  * @author  david varnes
- * @version $Id$
  */
 public class Client
 {

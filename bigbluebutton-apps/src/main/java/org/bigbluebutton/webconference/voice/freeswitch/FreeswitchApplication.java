@@ -63,6 +63,8 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
     private static final Map<String, Integer> ESL_EVENT_ACTIONS_MAP = createMap();
     private static final int ESL_ACTION_START_TALKING = 1;
     private static final int ESL_ACTION_STOP_TALKING = 2;
+    private static final int ESL_ACTION_START_RECORDING = 3;
+    private static final int ESL_ACTION_STOP_RECORDING = 4;
     
     /* this must be replaced for a method which will check if the file exists */
     private boolean recording = false;
@@ -71,6 +73,8 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
         Map<String,Integer> result = new HashMap<String,Integer>();
         result.put("start-talking", ESL_ACTION_START_TALKING);
         result.put("stop-talking", ESL_ACTION_STOP_TALKING);
+        result.put("start-recording", ESL_ACTION_START_RECORDING);
+        result.put("stop-recording", ESL_ACTION_STOP_RECORDING);
         return Collections.unmodifiableMap(result);
     }
     
