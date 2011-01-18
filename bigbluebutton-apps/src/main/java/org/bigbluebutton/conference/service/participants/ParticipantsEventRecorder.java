@@ -24,7 +24,7 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import org.bigbluebutton.conference.service.recorder.IEventRecorder;
-import org.bigbluebutton.conference.service.recorder.IRecorder;
+import org.bigbluebutton.conference.service.recorder.IRecordDispatcher;
 import org.bigbluebutton.conference.IRoomListener;
 import org.bigbluebutton.conference.BigBlueButtonUtils;import org.red5.server.api.so.ISharedObject;
 import org.bigbluebutton.conference.Participant;
@@ -35,7 +35,7 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsEventRecorder.class, "bigbluebutton" );
 	
-	IRecorder recorder;
+	IRecordDispatcher recorder;
 	private ISharedObject so;
 	private final Boolean record;
 	
@@ -53,7 +53,7 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 	}
 	
 	@Override
-	public void acceptRecorder(IRecorder recorder) {
+	public void acceptRecorder(IRecordDispatcher recorder) {
 		log.debug("Accepting IRecorder");
 		this.recorder = recorder;
 	}
@@ -66,7 +66,7 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 	@Override
 	public void recordEvent(String message) {
 		if (record) {
-			recorder.recordEvent(message);
+			//recorder.record(message);
 		}
 	}
 

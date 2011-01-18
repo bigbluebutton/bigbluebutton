@@ -5,7 +5,7 @@ import java.util.Hashtable;
 import org.bigbluebutton.conference.BigBlueButtonUtils;
 import org.bigbluebutton.conference.service.chat.IChatRoomListener;
 import org.bigbluebutton.conference.service.recorder.IEventRecorder;
-import org.bigbluebutton.conference.service.recorder.IRecorder;
+import org.bigbluebutton.conference.service.recorder.IRecordDispatcher;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
@@ -13,7 +13,7 @@ public class ChatEventRecorder implements IEventRecorder, IChatRoomListener {
 
 	private static Logger log = Red5LoggerFactory.getLogger( ChatEventRecorder.class, "bigbluebutton" );
 	
-	IRecorder recorder;
+	IRecordDispatcher recorder;
 	private final Boolean record;
 	
 	String name = "RECORDER:CHAT";
@@ -23,7 +23,7 @@ public class ChatEventRecorder implements IEventRecorder, IChatRoomListener {
 	}
 	
 	@Override
-	public void acceptRecorder(IRecorder recorder) {
+	public void acceptRecorder(IRecordDispatcher recorder) {
 		log.debug("Accepting IRecorder");
 		this.recorder = recorder;
 	}
@@ -36,8 +36,8 @@ public class ChatEventRecorder implements IEventRecorder, IChatRoomListener {
 	@Override
 	public void recordEvent(String message) {
 		if(record){
-			//recorder.recordEvent(parseChatToJSON(message));
-			recorder.recordEvent(parseChatToXML(message));
+			//recorder.record(parseChatToJSON(message));
+			recorder.record(parseChatToXML(message));
 		}
 	}
 
@@ -46,6 +46,7 @@ public class ChatEventRecorder implements IEventRecorder, IChatRoomListener {
 		recordEvent(message);
 		
 	}
+	
 	
 	/*
 	 * <font color="#0"><b>[markos - 12:06:38 PM]</b> heyyyyy </font><br/>

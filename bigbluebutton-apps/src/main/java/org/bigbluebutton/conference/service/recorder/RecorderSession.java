@@ -44,7 +44,7 @@ public class RecorderSession {
 	private final String conference;
 	
 	/** A IRecorder instance */
-	private IRecorder recorder;
+	private IRecordDispatcher recorder;
 	
 	/** A hashmap with the recorders of all modules */
 	private Map<String, IEventRecorder> recorders;
@@ -73,7 +73,7 @@ public class RecorderSession {
 	 * The method adds an instance of a RecorderEventDispatcher to each module through the acceptRecorder method.
 	 * @param r a IEventRecorder from each module to record. 
 	 * @see IEventRecorder
-	 * @see IRecorder
+	 * @see IRecordDispatcher
 	 * @see RecorderEventDispatcher 
 	 */
 	public void addEventRecorder(IEventRecorder r) {
@@ -91,10 +91,10 @@ public class RecorderSession {
 	/**
 	 * Sets a recorder event dispatcher to the BigBlueButton Session.
 	 * @param recorder an interface of a IRecorder. 
-	 * @see IRecorder
+	 * @see IRecordDispatcher
 	 * @see RecorderEventDispatcher
 	 */
-	public void setRecorder(IRecorder recorder) {
+	public void setRecorder(IRecordDispatcher recorder) {
 		this.recorder = recorder;
 	}
 }

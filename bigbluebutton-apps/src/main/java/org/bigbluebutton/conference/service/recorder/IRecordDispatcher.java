@@ -21,18 +21,21 @@
 */
 package org.bigbluebutton.conference.service.recorder;
 
+import java.util.HashMap;
+
+
 /** 
  * 
  * The IRecorder interface define all the neccesary methods to implement for 
  * dispatch events to a JMS queue
  * 
  * */
-public interface IRecorder {
+public interface IRecordDispatcher {
 	/** 
      * Receive the messages from the bigbluebutton modules and send 
      * them to a JMS queue. These messages are the events generated in a conference.
      * @param message a JSON String message with the attributes of an event 
      */
-	public void recordEvent(String message);
+	public void record(String message);
 	
 }

@@ -28,7 +28,7 @@ import java.util.Map;
 
 import org.bigbluebutton.conference.BigBlueButtonUtils;
 import org.bigbluebutton.conference.service.recorder.IEventRecorder;
-import org.bigbluebutton.conference.service.recorder.IRecorder;import org.red5.server.api.so.ISharedObject;
+import org.bigbluebutton.conference.service.recorder.IRecordDispatcher;import org.red5.server.api.so.ISharedObject;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 
@@ -46,7 +46,7 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
     private static final String GENERATED_THUMBNAIL_KEY = "GENERATED_THUMBNAIL";
     private static final String CONVERSION_COMPLETED_KEY = "CONVERSION_COMPLETED";
     
-	IRecorder recorder;
+	IRecordDispatcher recorder;
 	private ISharedObject so;
 	private final Boolean record;
 	
@@ -62,7 +62,7 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 	private final String RECORD_EVENT_GENERATED_SLIDE="generated_slide";
 	private final String RECORD_EVENT_CONVERSION_COMPLETE="conversion_complete";
 	
-	public void acceptRecorder(IRecorder recorder){
+	public void acceptRecorder(IRecordDispatcher recorder){
 		log.debug("Accepting IRecorder");
 		this.recorder = recorder;
 	}
@@ -73,7 +73,7 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 	
 	public void recordEvent(String message){
 		if (record) {
-			recorder.recordEvent(message);
+			recorder.record(message);
 		}
 	}
 	

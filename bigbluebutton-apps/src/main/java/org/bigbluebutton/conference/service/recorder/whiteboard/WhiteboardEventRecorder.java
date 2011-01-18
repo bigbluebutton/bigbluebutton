@@ -4,7 +4,7 @@ import java.util.Hashtable;
 
 import org.bigbluebutton.conference.BigBlueButtonUtils;
 import org.bigbluebutton.conference.service.recorder.IEventRecorder;
-import org.bigbluebutton.conference.service.recorder.IRecorder;
+import org.bigbluebutton.conference.service.recorder.IRecordDispatcher;
 import org.bigbluebutton.conference.service.recorder.chat.ChatEventRecorder;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
@@ -16,7 +16,7 @@ public class WhiteboardEventRecorder implements IEventRecorder, IWhiteboardRoomL
 
 	private static Logger log = Red5LoggerFactory.getLogger( WhiteboardEventRecorder.class, "bigbluebutton" );
 
-	IRecorder recorder;
+	IRecordDispatcher recorder;
 
 	String name = "RECORDER:WHITEBOARD";
 
@@ -24,7 +24,7 @@ public class WhiteboardEventRecorder implements IEventRecorder, IWhiteboardRoomL
 	}
 
 	@Override
-	public void acceptRecorder(IRecorder recorder) {
+	public void acceptRecorder(IRecordDispatcher recorder) {
 		this.recorder = recorder;
 	}
 
@@ -35,7 +35,7 @@ public class WhiteboardEventRecorder implements IEventRecorder, IWhiteboardRoomL
 
 	@Override
 	public void recordEvent(String message) {
-		recorder.recordEvent(message);
+		recorder.record(message);
 	}
 
 	@Override

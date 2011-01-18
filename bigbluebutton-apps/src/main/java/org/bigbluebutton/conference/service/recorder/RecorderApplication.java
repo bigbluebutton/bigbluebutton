@@ -79,7 +79,8 @@ public class RecorderApplication {
 	 */
 	public void createRecordSession(String conference, String room, String sessionName) {
 		RecorderSession session;
-		RecorderEventDispatcher recorder=null;
+		//RecorderEventDispatcher recorder=null;
+		RedisDispatcher recorder=null;
 		boolean createdSession = false;
 		log.debug("Trying to create a record session for {}",sessionName);
 		synchronized (this) {
@@ -91,8 +92,11 @@ public class RecorderApplication {
 			}
 			
 			if (! recordSessions.containsKey(sessionName)) {
-				log.debug("Creating jms recorder for "+conference+" "+room);
-				recorder = new RecorderEventDispatcher(conference, room);
+				//log.debug("Creating jms recorder for "+conference+" "+room);
+				//recorder = new RecorderEventDispatcher(conference, room);
+				log.debug("Creating redis dispatcher for "+conference+" "+room);
+				recorder = new RedisDispatcher(room);
+				
 				log.debug("Creating record session for {}",sessionName);
 				session = new RecorderSession(conference, room);
 				log.debug("Adding record session {} to record sessions",sessionName);
@@ -106,7 +110,7 @@ public class RecorderApplication {
 			}
 		}
 		if (createdSession) {			
-			recorder.setJmsTemplate(jmsTemplate);
+			//recorder.setJmsTemplate(jmsTemplate);
 		}		
 	}
 	

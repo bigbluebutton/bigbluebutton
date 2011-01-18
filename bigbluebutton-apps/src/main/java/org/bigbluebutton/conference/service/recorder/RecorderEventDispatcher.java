@@ -24,6 +24,7 @@ package org.bigbluebutton.conference.service.recorder;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 
 import javax.jms.JMSException;
@@ -56,7 +57,7 @@ import org.xml.sax.InputSource;
  * the sender method for sending events to the JMS queue
  *
  **/
-public class RecorderEventDispatcher implements IRecorder {
+public class RecorderEventDispatcher implements IRecordDispatcher {
 
 	/** A log instance */
 	private static Logger log = Red5LoggerFactory.getLogger( RecorderEventDispatcher.class, "bigbluebutton" );
@@ -100,10 +101,10 @@ public class RecorderEventDispatcher implements IRecorder {
 	 * The method implements recordEvent from IRecoder. It sets the EventMessage 
 	 * from bbb-common-messages with the room name, timestamp and message-event.
 	 * @param message this is a event-message sent by the BigBlueButton modules. 
-	 * @see IRecorder 
+	 * @see IRecordDispatcher 
 	 */
 	@Override
-	public void recordEvent(String message) {
+	public void record(String message) {
 		EventMessage event=new EventMessage();
 		event.setConferenceID(room);
 		event.setMessage(message);

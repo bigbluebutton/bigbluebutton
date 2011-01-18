@@ -31,9 +31,9 @@ public interface IEventRecorder {
 	/** 
      * Sets a RecorderEventDispatcher to the modules.
      * @param recorder a recorder dispatcher
-     * @see IRecorder
+     * @see IRecordDispatcher
      */
-	public void acceptRecorder(IRecorder recorder);
+	public void acceptRecorder(IRecordDispatcher recorder);
 	
 	/** 
      * Receive a event message and send to a RecorderEventDispatcher. 
