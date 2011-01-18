@@ -84,17 +84,20 @@ public class ChatRoomsManager {
     ;  setRecordStatus
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
-    ;
+    ;  this routine is used to set the status of recording to the room
     ; RETURNS : N/A
     ;
     ; INTERFACE NOTES
     ;   INPUT
+    ;   room        :   String,  room name
+    ;   isRecording :   Boolean, status of recording
     ; 
     ; IMPLEMENTATION
-    ;  
+    ;  get chat room from name
+    ;  set the record status to chat room
     ; HISTORY
     ; __date__ :        PTS:            Description
-    ; 
+    ; 12-27-2010
     ******************************************************************************/
     public void setRecordStatus(String room,Boolean isRecording){
         ChatRoom r = getRoom(room) ;

@@ -70,6 +70,26 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatEventRecorder.class
 		recordEvent(message);
 	}
     
+    /*****************************************************************************
+    ;  setRecordStatus
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is implemented from IChatRoomListener
+    ;
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT 
+    ;   status : chat room message is recording or not
+    ;   
+    ; 
+    ; IMPLEMENTATION
+    ;   set the recording status to room
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 12-27-2010                        
+    ******************************************************************************/
     @SuppressWarnings("unchecked")
 	@Override
 	public void setRecordStatus(Boolean status){

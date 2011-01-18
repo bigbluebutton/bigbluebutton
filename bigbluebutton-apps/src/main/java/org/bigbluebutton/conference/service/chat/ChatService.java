@@ -52,20 +52,22 @@ public class ChatService {
     ;  setRecordStatus
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
+    ; this routine is used to set the record status to room
     ;
     ; RETURNS : N/A
     ;
     ; INTERFACE NOTES
     ;   INPUT
+    ;   isRecording : Boolean, status of recording
     ; 
     ; IMPLEMENTATION
-    ;  
+    ;   call chat application to set the record status to the room  
+    ;
     ; HISTORY
     ; __date__ :        PTS:            Description
-    ; 
+    ; 12-27-2010
     ******************************************************************************/
     public void setRecordStatus(Boolean isRecording){
-        //String roomName = Red5.getConnectionLocal().getScope().getName();
         log.debug("Setting Chat Recording Status {}",isRecording);
         String roomName = Red5.getConnectionLocal().getScope().getName();
         application.setRecordStatus(roomName,isRecording);
@@ -78,22 +80,28 @@ public class ChatService {
     ;  getChatMessageFileList
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
+    ;   this routine is used to get the file list from the room
     ;
-    ; RETURNS : N/A
+    ; RETURNS : List
     ;
     ; INTERFACE NOTES
-    ;   INPUT
+    ;   N/A
     ; 
     ; IMPLEMENTATION
-    ;  
+    ;  initialize the ChatRoomHistoryFileManager
+    ;  call getFileList to get the file list
+    ;
     ; HISTORY
     ; __date__ :        PTS:            Description
-    ; 
+    ; 12-27-2010
     ******************************************************************************/
     public List<String> getChatMessagesFileList(){
         log.debug("Get Chat Message Files List");
         String roomName = Red5.getConnectionLocal().getScope().getName();
         ChatRoomHistoryFileManager historyManager = new ChatRoomHistoryFileManager(roomName);
+        if ( null == historyManager ){
+            log.debug("ERROR INITIALIZE ChatRoomHistoryFileManager");
+        }
         return historyManager.getFilesList() ;
 
     }
@@ -102,22 +110,29 @@ public class ChatService {
     ;  getHistoryChatMessages
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
+    ; this routine is used to get the message list from a file in the room
     ;
-    ; RETURNS : N/A
+    ; RETURNS : List
     ;
     ; INTERFACE NOTES
     ;   INPUT
+    ;   fileName : String , Name of a file in the room
     ; 
     ; IMPLEMENTATION
-    ;  
+    ;  initialize the ChatRoomHistoryFileManager
+    ;  call getHistoryFileContent to get the content of a file in the room
+    ;
     ; HISTORY
     ; __date__ :        PTS:            Description
-    ; 
+    ; 12-27-2010
     ******************************************************************************/
     public List<String> getHistoryChatMessages(String fileName){
         log.debug("Get History File Content {}", fileName);
         String roomName = Red5.getConnectionLocal().getScope().getName();
         ChatRoomHistoryFileManager historyManager = new ChatRoomHistoryFileManager(roomName);
+        if ( null == historyManager ){
+            log.debug("ERROR INITIALIZE ChatRoomHistoryFileManager");
+        }
         return historyManager.getHistoryFileContent(fileName);
     }
     

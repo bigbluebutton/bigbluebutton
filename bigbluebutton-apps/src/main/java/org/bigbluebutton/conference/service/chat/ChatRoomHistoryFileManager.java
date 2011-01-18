@@ -41,17 +41,11 @@ import java.util.List;
 ;  ChatRoomHistoryFileManager
 ;----------------------------------------------------------------------------
 ; DESCRIPTION
+;   this class is used to manage the file history chat message
 ;
-; RETURNS : N/A
-;
-; INTERFACE NOTES
-;   INPUT
-; 
-; IMPLEMENTATION
-;  
 ; HISTORY
 ; __date__ :        PTS:            Description
-; 
+; 12-27-2010
 ******************************************************************************/
 public class ChatRoomHistoryFileManager{
     private String gDir ;
@@ -68,23 +62,35 @@ public class ChatRoomHistoryFileManager{
     ;  ChatRoomHistoryFileManager
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
-    ;
+    ;   this routine is the constructor of the ChatRoomHistoryFileManager
     ; RETURNS : N/A
     ;
     ; INTERFACE NOTES
     ;   INPUT
+    ;   lDir    :   String, Directory of file
     ; 
     ; IMPLEMENTATION
-    ;  
+    ;   initialize the directory
+    ;   read file name from the directory
+    ;
     ; HISTORY
     ; __date__ :        PTS:            Description
-    ; 
+    ; 12-27-2010 
     ******************************************************************************/
     public ChatRoomHistoryFileManager(String lDir ){
+        if ( null == lDir ){
+            log.debug ("ERROR INPUT PARAMETER lDir");
+        }
         
         files = new ArrayList<String>() ;
+        if ( null == files ){
+            log.debug ("ERROR INITIALIZE ArrayList File");
+        }
         this.gDir = "/tmp/" + lDir ;
         File tempDir = new File(this.gDir);
+        if ( null == tempDir ){
+            log.debug ("ERROR INITIALIZE tempDir File");
+        }
         String[] fileName = tempDir.list();
         for( int i=0; i<fileName.length; i++ ){
             log.debug("File List {} ",fileName[i]);
@@ -99,24 +105,26 @@ public class ChatRoomHistoryFileManager{
     ;  loadHistoryFileContent
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
+    ;   this routine is used to load the content from an xml file
     ;
-    ; RETURNS : N/A
+    ; RETURNS : ArrayList
     ;
     ; INTERFACE NOTES
     ;   INPUT
+    ;   fileName    :   String, name of file
     ; 
     ; IMPLEMENTATION
-    ;  
+    ;  initialize builder to build the xml file content from the file name
+    ;  load the xml content to gXmlDoc
+    ;
     ; HISTORY
     ; __date__ :        PTS:            Description
-    ; 
+    ; 12-27-2010
     ******************************************************************************/
     public ArrayList<String> getHistoryFileContent(String fileName){
         try{
             try{
                 SAXBuilder builder = new SAXBuilder();
-                //builder.setValidation(true);
-                //builder.setIgnoringElementContentWhitespace(true);
                 gHistoryFile = new File( gDir, fileName );
                 if ( true == gHistoryFile.exists() ){
                     gXmlDoc = builder.build(gHistoryFile) ;
@@ -140,17 +148,19 @@ public class ChatRoomHistoryFileManager{
     ;  getChatMessages
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
+    ;   this routine is used to get the message from gXmlDoc
     ;
-    ; RETURNS : N/A
+    ; RETURNS : ArrayList
     ;
     ; INTERFACE NOTES
-    ;   INPUT
+    ;   N/A
     ; 
     ; IMPLEMENTATION
-    ;  
+    ;  get the message list from gXmlDoc
+    ;
     ; HISTORY
     ; __date__ :        PTS:            Description
-    ; 
+    ; 12-27-2010
     ******************************************************************************/
     private ArrayList<String> getChatMessages(){
         List<Element> rows = gXmlDoc.getRootElement().getChild("Public").getChildren("Message");
@@ -166,20 +176,22 @@ public class ChatRoomHistoryFileManager{
     **/
     
     /*****************************************************************************
-    ;  saveHistoryFile
+    ;  getFilesList
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
+    ;   this routine is used to get the file list from a room
     ;
-    ; RETURNS : N/A
+    ; RETURNS : ArrayList
     ;
     ; INTERFACE NOTES
-    ;   INPUT
+    ;   N/A
     ; 
     ; IMPLEMENTATION
-    ;  
+    ;  return file list
+    ;
     ; HISTORY
     ; __date__ :        PTS:            Description
-    ; 
+    ; 12-27-2010
     ******************************************************************************/
     public ArrayList<String> getFilesList(){
         return files ;
@@ -188,4 +200,6 @@ public class ChatRoomHistoryFileManager{
     * END FUNCTION 'saveHistoryFile'
     **/
     
-}
+}   /**
+    * END CLASS 'ChatRoomHistoryFileManager'
+    **/

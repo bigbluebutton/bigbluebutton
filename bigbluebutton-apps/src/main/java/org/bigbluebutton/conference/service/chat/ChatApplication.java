@@ -73,17 +73,22 @@ public class ChatApplication {
     ;  setRecordStatus
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
+    ;   this routine is used to set the status whether the chat is recording or not
     ;
     ; RETURNS : N/A
     ;
     ; INTERFACE NOTES
-    ;   INPUT
+    ;   INPUT 
+    ;   room : room name
+    ;   isRecording : status whether user is recording chat message or not 
+    ;   
     ; 
     ; IMPLEMENTATION
+    ;   set the recording status to room
     ;  
     ; HISTORY
     ; __date__ :        PTS:            Description
-    ; 
+    ; 12-27-2010                        
     ******************************************************************************/
     public void setRecordStatus(String room, Boolean isRecording){
         roomsManager.setRecordStatus(room,isRecording) ;

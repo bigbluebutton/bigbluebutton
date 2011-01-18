@@ -83,17 +83,20 @@ public class ChatRoom {
     ;  setRecordStatus
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
+    ; this routine is used to set record status to the room
     ;
     ; RETURNS : N/A
     ;
     ; INTERFACE NOTES
     ;   INPUT
+    ;   record : Boolean,  status of recording
     ; 
     ; IMPLEMENTATION
-    ;  
+    ; set the status of recording to the room 
+    ;
     ; HISTORY
     ; __date__ :        PTS:            Description
-    ; 
+    ; 12-27-2010 
     ******************************************************************************/
     @SuppressWarnings("unchecked")
     public void setRecordStatus(Boolean record){

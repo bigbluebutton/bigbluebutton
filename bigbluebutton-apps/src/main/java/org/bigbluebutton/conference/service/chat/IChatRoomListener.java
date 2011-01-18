@@ -22,6 +22,25 @@ package org.bigbluebutton.conference.service.chat;
 interface IChatRoomListener {
 	public String getName();
 	public void newChatMessage(String message);
-    // save chat history feature.
+    
+    /*****************************************************************************
+    ;  setRecordStatus
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is the interface method. It is used to set the status of 
+    ;   recording to the room
+    ;
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   status : status of recording
+    ; 
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 12-27-2010
+    ******************************************************************************/
     public void setRecordStatus(Boolean status);
 }
