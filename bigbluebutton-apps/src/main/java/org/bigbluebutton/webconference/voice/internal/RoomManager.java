@@ -1,5 +1,4 @@
 /** 
-* ===License Header===
 *
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 *
@@ -17,15 +16,11 @@
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 * 
-* ===License Header===
 */
 package org.bigbluebutton.webconference.voice.internal;
 
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.bigbluebutton.conference.BigBlueButtonSession;
-import org.bigbluebutton.conference.Constants;
 import org.bigbluebutton.webconference.voice.ConferenceService;
 import org.bigbluebutton.webconference.voice.Participant;
 import org.bigbluebutton.webconference.voice.events.ConferenceEvent;
@@ -35,10 +30,7 @@ import org.bigbluebutton.webconference.voice.events.ParticipantLockedEvent;
 import org.bigbluebutton.webconference.voice.events.ParticipantMutedEvent;
 import org.bigbluebutton.webconference.voice.events.ParticipantTalkingEvent;
 import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.api.Red5;
 import org.slf4j.Logger;
-
-
 import net.jcip.annotations.ThreadSafe;
 
 @ThreadSafe
@@ -131,16 +123,24 @@ public class RoomManager {
 			
 			rm.add(p);
 			
-			
-			if(rm.isRecorded())
-				confService.recordSession(event.getRoom(),rm.getMeeting());
+			if ((rm.numParticipants() == 1) && (rm.record())) {
+				rm.recording(true);
+				log.debug("Starting recording of voice conference");
+				confService.recordSession(event.getRoom(), rm.getMeeting());
+			}
 			
 			if (rm.isMuted() && !p.isMuted()) {
 				confService.mute(p.getId(), event.getRoom(), true);
 			}
 		} else if (event instanceof ParticipantLeftEvent) {		
 			log.debug("Processing ParticipantLeftEvent for room: " + event.getRoom());
-			rm.remove(event.getParticipantId());		
+			rm.remove(event.getParticipantId());	
+			
+			if ((rm.numParticipants() == 0) && (rm.record())) {
+				log.debug("Stopping recording of voice conference");
+				rm.recording(false);
+			}			
+			
 		} else if (event instanceof ParticipantMutedEvent) {
 			log.debug("Processing ParticipantMutedEvent for room: " + event.getRoom());
 			ParticipantMutedEvent pme = (ParticipantMutedEvent) event;

@@ -66,9 +66,6 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
     private static final int ESL_ACTION_START_RECORDING = 3;
     private static final int ESL_ACTION_STOP_RECORDING = 4;
     
-    /* this must be replaced for a method which will check if the file exists */
-    private boolean recording = false;
-    
     private static Map<String, Integer> createMap() {
         Map<String,Integer> result = new HashMap<String,Integer>();
         result.put("start-talking", ESL_ACTION_START_TALKING);
@@ -132,22 +129,18 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
     
     @Override
     public void record(String room, String meetingid){
-    	if(recording)
-    		return;
-    	
-    	String RECORD_DIR="/var/freeswitch/meetings";
+    	String RECORD_DIR = "/var/freeswitch/meetings";
     	String DATE_FORMAT = "yyyyMMdd-hhmmss";
     	
-    	Calendar cal=Calendar.getInstance();
+    	Calendar cal = Calendar.getInstance();
     	SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
         
-    	String voice_path=RECORD_DIR+File.separatorChar+meetingid+"-"+sdf.format(cal.getTime())+".wav";
-    	log.debug("freeswitch is going to record in "+voice_path);
-    	RecordConferenceCommand rcc=new RecordConferenceCommand(room, USER, true, voice_path);
-    	log.debug(rcc.getCommand()+rcc.getCommandArgs());
+    	String voice_path = RECORD_DIR + File.separatorChar + meetingid + "-" + sdf.format(cal.getTime()) + ".wav";
+    	log.debug("freeswitch is going to record in " + voice_path);
+    	RecordConferenceCommand rcc = new RecordConferenceCommand(room, USER, true, voice_path);
+    	log.debug(rcc.getCommand() + rcc.getCommandArgs());
     	EslMessage response = manager.getESLClient().sendSyncApiCommand(rcc.getCommand(), rcc.getCommandArgs());
         rcc.handleResponse(response, conferenceEventListener);
-    	recording=true;
     }
 
     @Override
