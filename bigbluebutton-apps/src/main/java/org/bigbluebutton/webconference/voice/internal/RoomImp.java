@@ -39,8 +39,9 @@ public class RoomImp implements Room {
 	private final ConcurrentMap<Integer, Participant> participants;
 	
 	private boolean muted = false;
-	private boolean record =false;
+	private boolean record = false;
 	private String meetingid;
+	private boolean recording = false;
 	
 	public RoomImp(String name,boolean record, String meetingid) {
 		this.name = name;
@@ -53,7 +54,7 @@ public class RoomImp implements Room {
 		return name;
 	}
 	
-	public int countParticipants() {
+	public int numParticipants() {
 		return participants.size();
 	}
 	
@@ -83,11 +84,19 @@ public class RoomImp implements Room {
 	}
 	
 	public void record(boolean record){
-		this.record=record;
+		this.record = record;
 	}
 	
-	public boolean isRecorded(){
+	public boolean record() {
 		return record;
+	}
+	
+	public void recording(boolean rec) {
+		recording = rec;
+	}
+	
+	public boolean isRecording(){
+		return recording;
 	}
 	
 	public String getMeeting() {

@@ -18,21 +18,21 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.freeswitch.esl.client</groupId>
-    <artifactId>esl-client-parent</artifactId>
-    <version>0.9.0-SNAPSHOT</version>
+    <artifactId>java-esl-client</artifactId>
+    <version>0.9.3-SNAPSHOT</version>
   </parent>
   <artifactId>org.freeswitch.esl.client</artifactId>
   <name>FreeSWITCH Event Socket Library - Java Client</name>
   <packaging>bundle</packaging>
   <build>
-
+  
     <plugins>
-
+    
       <!--  this plugin will create the target jar as a correct OSGi bundle  -->
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
-        <version>2.0.1</version>
+        <version>2.1.0</version>
         <extensions>true</extensions>
         <configuration>
           <unpackBundle>true</unpackBundle>
@@ -40,87 +40,76 @@
             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
             <Bundle-Version>${project.version}</Bundle-Version>
             <Bundle-DocURL>http://www.freeswitch.org</Bundle-DocURL>
-            <Import-Package>*</Import-Package>
             <Export-Package>
-              org.freeswitch.esl.client,
-              org.freeswitch.esl.client.transport,
-              org.freeswitch.esl.client.transport.event,
-              org.freeswitch.esl.client.transport.message,
-              org.freeswitch.esl.client.inbound,
-              org.freeswitch.esl.client.internal.debug,
-              org.freeswitch.esl.client.manager,
-              org.freeswitch.esl.client.manager.internal,
+              !org.freeswitch.esl.client.internal,
+              !org.freeswitch.esl.client.internal.debug,
+              org.freeswitch.esl.client.*
             </Export-Package>
-            <!--  the debug package is a temporary hack  -->
-            <Private-Package>
-              org.freeswitch.esl.client.internal,
-              org.freeswitch.esl.client.debug
-            </Private-Package>
           </instructions>
         </configuration>
       </plugin>
-
+      
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <excludes>
-            <exclude>**/ClientTest.java</exclude>
-            <exclude>**/SocketClientTest.java</exclude>
+          <excludes> 
+            <exclude>**/ClientTest.java</exclude>            
+            <exclude>**/SocketClientTest.java</exclude>            
           </excludes>
         </configuration>
       </plugin>
-
+      
     </plugins>
-
+    
   </build>
   <dependencies>
 
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>1.5.10</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>1.5.8</version>
-    </dependency>
-
+    <!--  tcp socket and codec library see   http://jboss.org/netty  -->
     <dependency>
       <groupId>org.jboss.netty</groupId>
       <artifactId>netty</artifactId>
-      <version>3.1.5.GA</version>
+      <version>3.2.1.Final</version>
     </dependency>
 
+    <!--  logging library see   http://slf4j.org  -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.6.1</version>
+    </dependency>
+    
     <!--  test dependencies -->
-
+    
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.8.2</version>
+      <version>4.8.1</version>
       <scope>test</scope>
     </dependency>
-
+    
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>0.9.18</version>
+      <version>0.9.24</version>
       <scope>test</scope>
     </dependency>
-
+    
   </dependencies>
 
-  <repositories>
-    <!--  for netty dependency -->
-    <repository>
-      <id>repository.jboss.org</id>
-      <url>http://repository.jboss.org/maven2</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
+  <profiles>
+    <profile>
+      <id>jboss-public-repository</id>
+      <!-- for netty dependency -->
+      <repositories>
+        <repository>
+          <id>jboss-public-repository-group</id>
+          <url>http://repository.jboss.org/nexus/content/groups/public-jboss</url>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+        </repository>
+      </repositories>
+    </profile>
+  </profiles>
 
 </project>
-

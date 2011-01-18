@@ -40,22 +40,21 @@ import org.slf4j.LoggerFactory;
  * is common to both inbound and outbound clients. This 
  * handler expects to receive decoded {@link EslMessage} or {@link EslEvent} objects. The key 
  * responsibilities for this class are:
- * </p>
- * * To synthesise a synchronous command/response api.  All IO operations using the underlying Netty 
+ * <ul><li>
+ * To synthesise a synchronous command/response api.  All IO operations using the underlying Netty 
  * library are intrinsically asynchronous which provides for excellent response and scalability.  This 
  * class provides for a blocking wait mechanism for responses to commands issued to the server.  A 
  * key assumption here is that the FreeSWITCH server will process synchronous requests in the order they
  * are received.
- * </p>
- * * Concrete sub classes are expected to 'terminate' the Netty IO processing pipeline (ie be the 'last'
+ * </li><li>
+ * Concrete sub classes are expected to 'terminate' the Netty IO processing pipeline (ie be the 'last'
  * handler). 
- * </p>
+ * </li></ul>
  * Note: implementation requirement is that an {@link ExecutionHandler} is placed in the processing 
  * pipeline prior to this handler. This will ensure that each incoming message is processed in its
  * own thread (although still guaranteed to be processed in the order of receipt).
  * 
  * @author  david varnes
- * @version $Id$
  */
 public abstract class AbstractEslClientHandler extends SimpleChannelUpstreamHandler
 {

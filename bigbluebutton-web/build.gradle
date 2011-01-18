@@ -38,5 +38,5 @@ repositories {
 }
 
 dependencies {   
-    compile 'org/bigbluebutton/common:bbb-common-message:0.7@jar' 
+    compile 'org/bigbluebutton/common:bbb-common-message:0.8@jar' 
 }

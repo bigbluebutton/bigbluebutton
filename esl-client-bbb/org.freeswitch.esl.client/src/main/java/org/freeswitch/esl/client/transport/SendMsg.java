@@ -21,7 +21,6 @@ import java.util.List;
 /**
  * 
  * @author  david varnes
- * @version $Id$
  */
 public class SendMsg
 {

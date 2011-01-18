@@ -93,9 +93,9 @@ public class EventListener implements MessageListener {
      *****************************************/
     public void writeXMLFile(IEventMessage event){
 		try {
-			Document manifest=parseManifestXML(event.getConferenceID(), true);
+			Document manifest = parseManifestXML(event.getConferenceID(), true);
 	        
-	        Node sequence=manifest.getElementsByTagName("seq").item(0);
+	        Node sequence = manifest.getElementsByTagName("seq").item(0);
 	        
 			// Event Message to XML
 			InputSource is = new InputSource();
@@ -117,7 +117,7 @@ public class EventListener implements MessageListener {
 	        DOMSource source = new DOMSource(manifest);
 	        
 	        // Prepare the output file
-	        File file = new File(pathConferences+"/"+event.getConferenceID()+"/"+event.getConferenceID()+"/"+FILENAME);
+	        File file = new File(pathConferences + "/" + event.getConferenceID() + "/" + event.getConferenceID() + "/" + FILENAME);
 	        StreamResult result = new StreamResult(file);
 	        
 	        //Writing the file
@@ -180,6 +180,7 @@ public class EventListener implements MessageListener {
 		}
         return manifest;
     }
+    
     private DocumentBuilder createDocBuilder(){
     	DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder=null;
@@ -190,6 +191,7 @@ public class EventListener implements MessageListener {
 		}
 		return docBuilder;
     }
+    
     private boolean isFileExists(String fileName) {
     	File file = new File(fileName);
     	return file.exists();

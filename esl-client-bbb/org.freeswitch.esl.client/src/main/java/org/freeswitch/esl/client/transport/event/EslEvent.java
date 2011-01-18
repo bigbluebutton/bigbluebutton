@@ -31,20 +31,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * FreeSWITCH Event Socket events are decoded into this data object.
- * </p>
+ * FreeSWITCH Event Socket <strong>events</strong> are decoded into this data object.
+ * <p>
  * An ESL event is modelled as a collection of text lines. An event always has several eventHeader
  * lines, and optionally may have some eventBody lines.  In addition the messageHeaders of the 
  * original containing {@link EslMessage} which carried the event are also available. 
- * </p>
+ * <p>
  * The eventHeader lines are parsed and cached in a map keyed by the eventHeader name string. An event
  * is always expected to have an "Event-Name" eventHeader. Commonly used eventHeader names are coded
- * in {@link EslEventHeaderNames}</br>
- * Any eventBody lines are cached in a list.</br>
+ * in {@link EslEventHeaderNames}
+ * <p>
+ * Any eventBody lines are cached in a list.
+ * <p>
  * The messageHeader lines from the original message are cached in a map keyed by {@link EslHeaders.Name}.
- *  
+ * 
  * @author  david varnes
- * @version $Id$
  * @see EslEventHeaderNames
  */
 public class EslEvent 
