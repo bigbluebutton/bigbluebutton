@@ -16,30 +16,7 @@
 			http://www.springframework.org/schema/integration/file
 			http://www.springframework.org/schema/integration/file/spring-integration-file-1.0.xsd
 			">
-	
-   <bean class="org.asteriskjava.fastagi.AgiServerThread"
-      init-method="startup" destroy-method="shutdown">
-      <property name="agiServer" ref="agiServer"/>
-   </bean>   
-   
-   <bean id="agiServer" class="org.asteriskjava.fastagi.DefaultAgiServer">
-      <property name="bindPort" value="4573"/>
-      <property name="mappingStrategy" ref="mappingStrategy" />
-   </bean>
-   
-	<bean id="mappingStrategy" class="org.asteriskjava.fastagi.SimpleMappingStrategy">
-		<property name="mappings">
-			<map>
-				<entry key="meetme.groovy" value-ref="asteriskAgi" />
-				<entry key="findConference" value-ref="asteriskAgi" />
-			</map>
-		</property>
-	</bean>
-			
-	<bean id="asteriskAgi" class="org.bigbluebutton.pbx.asterisk.AsteriskAgiService">
-		<property name="dynamicConferenceService" ref="dynamicConferenceService"/>
-	</bean>
-	
+	 				
 	<!-- Spring Integration / JMS gateways -->
     <bean id="connectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
         <property name="brokerURL">
