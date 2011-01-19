@@ -104,10 +104,10 @@ public class RecorderEventDispatcher implements IRecordDispatcher {
 	 * @see IRecordDispatcher 
 	 */
 	@Override
-	public void record(String message) {
+	public void record(HashMap<String,String> message) {
 		EventMessage event=new EventMessage();
 		event.setConferenceID(room);
-		event.setMessage(message);
+		//event.setMessage(message);
 		event.setTimeStamp(System.currentTimeMillis());
 		sendEvents(event);
 		log.debug("event-message: {}",message);

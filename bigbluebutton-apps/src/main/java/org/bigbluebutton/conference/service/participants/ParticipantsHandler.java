@@ -33,6 +33,7 @@ import org.red5.server.api.Red5;
 import java.util.HashMap;
 import java.util.Map;import org.bigbluebutton.conference.RoomsManager;
 import org.bigbluebutton.conference.Room;import org.bigbluebutton.conference.Participant;import org.bigbluebutton.conference.RoomListener;import org.bigbluebutton.conference.BigBlueButtonSession;import org.bigbluebutton.conference.Constants;import org.bigbluebutton.conference.service.recorder.RecorderApplication;
+import org.bigbluebutton.conference.service.recorder.participants.ParticipantsEventRecorder;
 
 public class ParticipantsHandler extends ApplicationAdapter implements IApplication{
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsHandler.class, "bigbluebutton" );
@@ -85,12 +86,15 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 		ISharedObject so = getSharedObject(connection.getScope(), PARTICIPANTS_SO);
 		
 		//log.debug("Setting up recorder with recording {}", getBbbSession().getRecord())
-		ParticipantsEventRecorder recorder = new ParticipantsEventRecorder(so, getBbbSession().getRecord());
+		ParticipantsEventSender sender = new ParticipantsEventSender(so, getBbbSession().getRecord());
+		ParticipantsEventRecorder recorder = new ParticipantsEventRecorder(getBbbSession().getRecord());
+		
 		log.debug("adding event recorder to {}",connection.getScope().getName());
 		recorderApplication.addEventRecorder(connection.getScope().getName(), recorder);				
 		
 		log.debug("Adding room listener");
 		participantsApplication.addRoomListener(connection.getScope().getName(), recorder);
+		participantsApplication.addRoomListener(connection.getScope().getName(), sender);
 		log.debug("Done setting up recorder and listener");
 		return true;
 	}

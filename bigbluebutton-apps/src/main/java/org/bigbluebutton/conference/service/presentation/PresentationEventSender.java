@@ -23,6 +23,7 @@
 package org.bigbluebutton.conference.service.presentation;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -32,8 +33,8 @@ import org.bigbluebutton.conference.service.recorder.IRecordDispatcher;import o
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 
-public class PresentationEventRecorder implements IEventRecorder, IPresentationRoomListener {
-	private static Logger log = Red5LoggerFactory.getLogger( PresentationEventRecorder.class, "bigbluebutton" );
+public class PresentationEventSender implements IEventRecorder, IPresentationRoomListener {
+	private static Logger log = Red5LoggerFactory.getLogger( PresentationEventSender.class, "bigbluebutton" );
 
 	private static final String OFFICE_DOC_CONVERSION_SUCCESS_KEY = "OFFICE_DOC_CONVERSION_SUCCESS";
     private static final String OFFICE_DOC_CONVERSION_FAILED_KEY = "OFFICE_DOC_CONVERSION_FAILED";
@@ -52,15 +53,15 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 	
 	String APP_NAME = "PRESENTATION";
 	
-	private final String RECORD_EVENT_SHARE_PRESENTATION="share_presentation";
+	/*private final String RECORD_EVENT_SHARE_PRESENTATION="share_presentation";
 	private final String RECORD_EVENT_ASSIGN_PRESENTER="assign_presenter";
 	private final String RECORD_EVENT_REMOVE_PRESENTATION="remove_presentation";
 	private final String RECORD_EVENT_RESIZE_MOVE_SLIDE="resize_move_slide";
 	private final String RECORD_EVENT_UPDATE_SLIDE="update_slide";
-	private final String RECORD_EVENT_CONVERSION_STATUS="conversion_status";
-	private final String RECORD_EVENT_PAGE_COUNT_EXCEEDED="page_count_exceeded";
+	//private final String RECORD_EVENT_CONVERSION_STATUS="conversion_status";
+	//private final String RECORD_EVENT_PAGE_COUNT_EXCEEDED="page_count_exceeded";
 	private final String RECORD_EVENT_GENERATED_SLIDE="generated_slide";
-	private final String RECORD_EVENT_CONVERSION_COMPLETE="conversion_complete";
+	private final String RECORD_EVENT_CONVERSION_COMPLETE="conversion_complete";*/
 	
 	public void acceptRecorder(IRecordDispatcher recorder){
 		log.debug("Accepting IRecorder");
@@ -71,13 +72,13 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 		return APP_NAME;
 	}
 	
-	public void recordEvent(String message){
+	public void recordEvent(HashMap<String,String> message){
 		if (record) {
 			recorder.record(message);
 		}
 	}
 	
-	public PresentationEventRecorder(ISharedObject so, Boolean record) {
+	public PresentationEventSender(ISharedObject so, Boolean record) {
 		this.so = so; 
 		this.record = record;
 	}
@@ -112,27 +113,24 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 			log.debug("{}[{}]",messageKey,presentationName);
 			// no extra data to send
 			so.sendMessage("conversionUpdateMessageCallback", list);
-			//recordEvent(parsePresentationToXML(list, this.RECORD_EVENT_CONVERSION_STATUS));
 		}
 		else if(messageKey.equalsIgnoreCase(PAGE_COUNT_EXCEEDED_KEY)){
 			log.debug("{}[{}]",messageKey,presentationName);
 			list.add(message.get("numberOfPages"));
 			list.add(message.get("maxNumberPages"));
 			so.sendMessage("pageCountExceededUpdateMessageCallback", list);
-			recordEvent(parsePresentationToXML(list, this.RECORD_EVENT_PAGE_COUNT_EXCEEDED));
 		}
 		else if(messageKey.equalsIgnoreCase(GENERATED_SLIDE_KEY)){
 			log.debug("{}[{}]",messageKey,presentationName);
 			list.add(message.get("numberOfPages"));
 			list.add(message.get("pagesCompleted"));
 			so.sendMessage("generatedSlideUpdateMessageCallback", list);
-			recordEvent(parsePresentationToXML(list, this.RECORD_EVENT_GENERATED_SLIDE));
+			//recordEvent(parsePresentationToXML(list, this.RECORD_EVENT_GENERATED_SLIDE));
 		}
 		else if(messageKey.equalsIgnoreCase(CONVERSION_COMPLETED_KEY)){
 			log.debug("{}[{}]",messageKey,presentationName);
 			list.add(message.get("slidesInfo"));								
 			so.sendMessage("conversionCompletedUpdateMessageCallback", list);
-			recordEvent(parsePresentationToXML(list, this.RECORD_EVENT_CONVERSION_COMPLETE));
 		}
 		else{
 			log.error("Cannot handle recieved message.");
@@ -146,7 +144,7 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 	   ArrayList list=new ArrayList();
 	   list.add(name);
 	   so.sendMessage("removePresentationCallback", list);
-	   recordEvent(parsePresentationToXML(list, this.RECORD_EVENT_REMOVE_PRESENTATION));
+	   //recordEvent(parsePresentationToXML(list, this.RECORD_EVENT_REMOVE_PRESENTATION));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -155,7 +153,7 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 		ArrayList list=new ArrayList();
 		list.add(slide);
 		so.sendMessage("gotoSlideCallback", list);	
-		recordEvent(parsePresentationToXML(list, this.RECORD_EVENT_UPDATE_SLIDE));
+		//recordEvent(parsePresentationToXML(list, this.RECORD_EVENT_UPDATE_SLIDE));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -166,7 +164,7 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 		list.add(presentationName);
 		list.add(share);
 		so.sendMessage("sharePresentationCallback", list);
-		recordEvent(parsePresentationToXML(list, this.RECORD_EVENT_SHARE_PRESENTATION));
+		//recordEvent(parsePresentationToXML(list, this.RECORD_EVENT_SHARE_PRESENTATION));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -174,7 +172,7 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 	public void assignPresenter(ArrayList presenter) {
 		log.debug("calling assignPresenterCallback "+presenter.get(0)+", "+presenter.get(1)+" "+presenter.get(2));
 		so.sendMessage("assignPresenterCallback", presenter);
-		recordEvent(parsePresentationToXML(presenter, this.RECORD_EVENT_ASSIGN_PRESENTER));
+		//recordEvent(parsePresentationToXML(presenter, this.RECORD_EVENT_ASSIGN_PRESENTER));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -187,10 +185,10 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 		list.add(widthRatio);
 		list.add(heightRatio);
 		so.sendMessage("moveCallback", list);
-		recordEvent(parsePresentationToXML(list, this.RECORD_EVENT_RESIZE_MOVE_SLIDE));
+		//recordEvent(parsePresentationToXML(list, this.RECORD_EVENT_RESIZE_MOVE_SLIDE));
 	}
 	
-	private String parsePresentationToJSON(ArrayList list, String type){
+	/*private String parsePresentationToJSON(ArrayList list, String type){
 		String json="{ ";
 		json+="\"module\":\"presentation\", ";
 		
@@ -220,20 +218,6 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 			json+="\"event\":\""+this.RECORD_EVENT_UPDATE_SLIDE+"\", ";
 			json+="\"slide\":\""+list.get(0)+"\" ";
 		}
-		else if(type.equalsIgnoreCase(this.RECORD_EVENT_CONVERSION_STATUS)){
-			json+="\"event\":\""+this.RECORD_EVENT_CONVERSION_STATUS+"\", ";
-			json+="\"code\":\""+list.get(2)+"\", ";
-			json+="\"presentationName\":\""+list.get(3)+"\", ";
-			json+="\"messageKey\":\""+list.get(4)+"\" ";
-		}
-		else if(type.equalsIgnoreCase(this.RECORD_EVENT_PAGE_COUNT_EXCEEDED)){
-			json+="\"event\":\""+this.RECORD_EVENT_PAGE_COUNT_EXCEEDED+"\", ";
-			json+="\"code\":\""+list.get(2)+"\", ";
-			json+="\"presentationName\":\""+list.get(3)+"\", ";
-			json+="\"messageKey\":\""+list.get(4)+"\", ";
-			json+="\"numberOfPages\":\""+list.get(5)+"\", ";
-			json+="\"maxNumberPages\":\""+list.get(6)+"\" ";
-		}
 		else if(type.equalsIgnoreCase(this.RECORD_EVENT_GENERATED_SLIDE)){
 			json+="\"event\":\""+this.RECORD_EVENT_GENERATED_SLIDE+"\", ";
 			json+="\"code\":\""+list.get(2)+"\", ";
@@ -241,13 +225,6 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 			json+="\"messageKey\":\""+list.get(4)+"\", ";
 			json+="\"numberOfPages\":\""+list.get(5)+"\", ";
 			json+="\"pagesCompleted\":\""+list.get(6)+"\" ";
-		}
-		else if(type.equalsIgnoreCase(this.RECORD_EVENT_CONVERSION_COMPLETE)){
-			json+="\"event\":\""+this.RECORD_EVENT_CONVERSION_COMPLETE+"\", ";
-			json+="\"code\":\""+list.get(2)+"\", ";
-			json+="\"presentationName\":\""+list.get(3)+"\", ";
-			json+="\"messageKey\":\""+list.get(4)+"\", ";
-			//json+="\"slidesInfo\":\""+list.get(5)+"\" ";
 		}
 		
 		json+="}";
@@ -283,20 +260,7 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 			keyvalues.put("event", this.RECORD_EVENT_UPDATE_SLIDE);
 			keyvalues.put("slide", list.get(0));
 		}
-		else if(type.equalsIgnoreCase(this.RECORD_EVENT_CONVERSION_STATUS)){
-			keyvalues.put("event", this.RECORD_EVENT_CONVERSION_STATUS);
-			//keyvalues.put("code", list.get(2));
-			keyvalues.put("presentationName", list.get(3));
-			keyvalues.put("messageKey", list.get(4));
-		}
-		else if(type.equalsIgnoreCase(this.RECORD_EVENT_PAGE_COUNT_EXCEEDED)){
-			keyvalues.put("event", this.RECORD_EVENT_PAGE_COUNT_EXCEEDED);
-			//keyvalues.put("code", list.get(2));
-			keyvalues.put("presentationName", list.get(3));
-			keyvalues.put("messageKey", list.get(4));
-			keyvalues.put("numberOfPages", list.get(5));
-			keyvalues.put("maxNumberPages", list.get(6));
-		}
+		
 		else if(type.equalsIgnoreCase(this.RECORD_EVENT_GENERATED_SLIDE)){
 			keyvalues.put("event", this.RECORD_EVENT_GENERATED_SLIDE);
 			//keyvalues.put("code", list.get(2));
@@ -305,17 +269,10 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 			keyvalues.put("numberOfPages", list.get(5));
 			keyvalues.put("pagesCompleted", list.get(6));
 		}
-		else if(type.equalsIgnoreCase(this.RECORD_EVENT_CONVERSION_COMPLETE)){
-			keyvalues.put("event", this.RECORD_EVENT_CONVERSION_COMPLETE);
-			//keyvalues.put("code", list.get(2));
-			keyvalues.put("presentationName", list.get(3));
-			keyvalues.put("messageKey", list.get(4));
-			//keyvalues.put("slidesInfo", list.get(5));
-		}
 		String xml=BigBlueButtonUtils.parseEventsToXML("presentation", keyvalues);
 		if(type.equalsIgnoreCase(this.RECORD_EVENT_CONVERSION_COMPLETE)){
 			xml=BigBlueButtonUtils.appendXMLToEvent(xml, (String) list.get(5), "slides");
 		}
 		return xml;
-	}
+	}*/
 }

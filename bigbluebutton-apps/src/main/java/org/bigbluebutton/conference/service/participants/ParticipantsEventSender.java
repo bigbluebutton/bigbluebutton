@@ -20,6 +20,7 @@
 package org.bigbluebutton.conference.service.participants;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -31,9 +32,9 @@ import org.bigbluebutton.conference.Participant;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 
-public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener {
+public class ParticipantsEventSender implements IEventRecorder, IRoomListener {
 
-	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsEventRecorder.class, "bigbluebutton" );
+	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsEventSender.class, "bigbluebutton" );
 	
 	IRecordDispatcher recorder;
 	private ISharedObject so;
@@ -47,7 +48,7 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 	private final String RECORD_EVENT_LEAVE_ALL="leave_all";
 	
 	
-	public ParticipantsEventRecorder(ISharedObject so, Boolean record) {
+	public ParticipantsEventSender(ISharedObject so, Boolean record) {
 		this.so = so; 
 		this.record = record;
 	}
@@ -64,7 +65,7 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 	}
 
 	@Override
-	public void recordEvent(String message) {
+	public void recordEvent(HashMap<String, String> message) {
 		if (record) {
 			//recorder.record(message);
 		}
@@ -74,7 +75,7 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 	@Override
 	public void endAndKickAll() {
 		so.sendMessage("logout", new ArrayList());
-		recordEvent(parseParticipantsToXML(new ArrayList(), this.RECORD_EVENT_LEAVE_ALL));
+		//recordEvent(parseParticipantsToXML(new ArrayList(), this.RECORD_EVENT_LEAVE_ALL));
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -85,7 +86,7 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 		args.add(p.toMap());
 		log.debug("Sending participantJoined {} to client.",p.getUserid());
 		so.sendMessage("participantJoined", args);
-		recordEvent(parseParticipantsToXML(args, this.RECORD_EVENT_JOIN));
+		//recordEvent(parseParticipantsToXML(args, this.RECORD_EVENT_JOIN));
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -94,7 +95,7 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 		ArrayList args = new ArrayList();
 		args.add(userid);
 		so.sendMessage("participantLeft", args);
-		recordEvent(parseParticipantsToXML(args, this.RECORD_EVENT_LEAVE));
+		//recordEvent(parseParticipantsToXML(args, this.RECORD_EVENT_LEAVE));
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -106,7 +107,7 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 		args.add(status);
 		args.add(value);
 		so.sendMessage("participantStatusChange", args);
-		recordEvent(parseParticipantsToXML(args, this.RECORD_EVENT_STATUS_CHANGE));
+		//recordEvent(parseParticipantsToXML(args, this.RECORD_EVENT_STATUS_CHANGE));
 	}
 	
 	/****** parse method ********/

@@ -1,5 +1,6 @@
 package org.bigbluebutton.conference.service.recorder.chat;
 
+import java.util.HashMap;
 import java.util.Hashtable;
 
 import org.bigbluebutton.conference.BigBlueButtonUtils;
@@ -34,19 +35,32 @@ public class ChatEventRecorder implements IEventRecorder, IChatRoomListener {
 	}
 
 	@Override
-	public void recordEvent(String message) {
+	public void recordEvent(HashMap<String,String> message) {
 		if(record){
-			//recorder.record(parseChatToJSON(message));
-			recorder.record(parseChatToXML(message));
+			recorder.record(message);
+			//recorder.record(parseChatToXML(message));
 		}
 	}
 
 	@Override
 	public void newChatMessage(String message) {
-		recordEvent(message);
+		recordEvent(getMapAttributes(message));
 		
 	}
 	
+	private HashMap<String,String> getMapAttributes(String message){
+		HashMap<String,String> map=new HashMap<String, String>();
+		String[] chat_attribs=message.trim().split("\\|",-1);
+		
+		map.put("module", "chat");
+		map.put("event", "new_message");
+		map.put("user", chat_attribs[1]);
+		map.put("text", chat_attribs[0]);
+		map.put("language", chat_attribs[4]);
+		map.put("color", chat_attribs[2]);
+		
+		return map;
+	}
 	
 	/*
 	 * <font color="#0"><b>[markos - 12:06:38 PM]</b> heyyyyy </font><br/>

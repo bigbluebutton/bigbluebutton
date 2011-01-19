@@ -36,6 +36,6 @@ public interface IRecordDispatcher {
      * them to a JMS queue. These messages are the events generated in a conference.
      * @param message a JSON String message with the attributes of an event 
      */
-	public void record(String message);
+	public void record(HashMap<String,String> message);
 	
 }

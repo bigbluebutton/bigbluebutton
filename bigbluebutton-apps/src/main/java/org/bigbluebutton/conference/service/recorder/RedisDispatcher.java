@@ -17,11 +17,13 @@ public class RedisDispatcher implements IRecordDispatcher {
 		//JedisPool jpool=new JedisPool("localhost", 6379);
 		jedis=new Jedis("localhost", 6379);
 		this.meeting=conference;
+		jedis.lpush("global"+SEPARATOR_CHAR+"recordedMeetings", conference);
+		
 	}
 	@Override
-	public void record(String message) {
+	public void record(HashMap<String,String> message) {
 		Long msgid=jedis.incr("global:nextRecordedMsgId");
-		jedis.set("recording"+SEPARATOR_CHAR+msgid, message);
+		jedis.hmset("recording"+SEPARATOR_CHAR+msgid, message);
 		jedis.lpush("meeting"+SEPARATOR_CHAR+this.meeting+SEPARATOR_CHAR+"recordings", msgid.toString());
 	}
 
