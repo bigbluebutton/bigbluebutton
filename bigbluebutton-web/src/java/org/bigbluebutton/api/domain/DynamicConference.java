@@ -73,6 +73,166 @@ public class DynamicConference {
 		return running;
 	}
 
+	public Date getDateCreated() {
+		return dateCreated;
+	}
+
+	public void setDateCreated(Date dateCreated) {
+		this.dateCreated = dateCreated;
+	}
+
+	public Date getLastUpdated() {
+		return lastUpdated;
+	}
+
+	public void setLastUpdated(Date lastUpdated) {
+		this.lastUpdated = lastUpdated;
+	}
+
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public String getUpdatedBy() {
+		return updatedBy;
+	}
+
+	public void setUpdatedBy(String updatedBy) {
+		this.updatedBy = updatedBy;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Integer getConferenceNumber() {
+		return conferenceNumber;
+	}
+
+	public void setConferenceNumber(Integer conferenceNumber) {
+		this.conferenceNumber = conferenceNumber;
+	}
+
+	public Date getStoredTime() {
+		return storedTime;
+	}
+
+	public void setStoredTime(Date storedTime) {
+		this.storedTime = storedTime;
+	}
+
+	public Date getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
+	}
+
+	public Date getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
+	}
+
+	public boolean isForciblyEnded() {
+		return forciblyEnded;
+	}
+
+	public void setForciblyEnded(boolean forciblyEnded) {
+		this.forciblyEnded = forciblyEnded;
+	}
+
+	public String getMeetingID() {
+		return meetingID;
+	}
+
+	public void setMeetingID(String meetingID) {
+		this.meetingID = meetingID;
+	}
+
+	public String getMeetingToken() {
+		return meetingToken;
+	}
+
+	public void setMeetingToken(String meetingToken) {
+		this.meetingToken = meetingToken;
+	}
+
+	public String getVoiceBridge() {
+		return voiceBridge;
+	}
+
+	public void setVoiceBridge(String voiceBridge) {
+		this.voiceBridge = voiceBridge;
+	}
+
+	public String getWebVoiceConf() {
+		return webVoiceConf;
+	}
+
+	public void setWebVoiceConf(String webVoiceConf) {
+		this.webVoiceConf = webVoiceConf;
+	}
+
+	public String getModeratorPassword() {
+		return moderatorPassword;
+	}
+
+	public void setModeratorPassword(String moderatorPassword) {
+		this.moderatorPassword = moderatorPassword;
+	}
+
+	public String getAttendeePassword() {
+		return attendeePassword;
+	}
+
+	public void setAttendeePassword(String attendeePassword) {
+		this.attendeePassword = attendeePassword;
+	}
+
+	public String getWelcome() {
+		return welcome;
+	}
+
+	public void setWelcome(String welcome) {
+		this.welcome = welcome;
+	}
+
+	public String getLogoutUrl() {
+		return logoutUrl;
+	}
+
+	public void setLogoutUrl(String logoutUrl) {
+		this.logoutUrl = logoutUrl;
+	}
+
+	public int getMaxParticipants() {
+		return maxParticipants;
+	}
+
+	public void setMaxParticipants(int maxParticipants) {
+		this.maxParticipants = maxParticipants;
+	}
+
+	public boolean isRecord() {
+		return record;
+	}
+
+	public void setRecord(boolean record) {
+		this.record = record;
+	}
+	
 	@Override
 	public String toString() {
 		return "DynamicConference: " + this.meetingToken + "[" + this.meetingID + "|" + this.voiceBridge + "]:" + this.name;
