@@ -418,10 +418,8 @@ public String endMeeting(String meetingID, String moderatorPassword) {
 //
 // parseXml() -- return a DOM of the XML
 //
-public static Document parseXml(String xml)
-		throws ParserConfigurationException, IOException, SAXException {
-	DocumentBuilderFactory docFactory = DocumentBuilderFactory
-			.newInstance();
+public static Document parseXml(String xml) throws ParserConfigurationException, IOException, SAXException {
+	DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 	DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 	Document doc = docBuilder.parse(new InputSource(new StringReader(xml)));
 	return doc;

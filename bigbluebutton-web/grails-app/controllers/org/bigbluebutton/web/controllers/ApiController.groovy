@@ -94,6 +94,7 @@ class ApiController {
 			invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
 			return
 		}
+		
 		log.debug("passed parameter validation - creating conference");
 		String attPW = params.attendeePW
 		String modPW = params.moderatorPW
@@ -102,20 +103,21 @@ class ApiController {
 		String dialNumber = params.dialNumber
 		String logoutUrl = params.logoutURL
 		/* record development */
-                boolean record = false
-                log.debug "Recording parameter is: "+params.record
-                if(!StringUtils.isEmpty(params.record)){
-                    try{
-			record=Boolean.parseBoolean(params.record)
-                    }catch(Exception ex){ }
-                }
-
-                
+		boolean record = false
+		log.debug "Recording parameter is: " + params.record
+		
+		if(!StringUtils.isEmpty(params.record)){
+			try {
+				record = Boolean.parseBoolean(params.record)
+			} catch(Exception ex){ }
+		}
 
 		Integer maxParts = -1;
+		
 		try {
 			maxParts = Integer.parseInt(params.maxParticipants);
 		} catch(Exception ex) { /* do nothing */ }
+		
 		String mmRoom = params.meetmeRoom
 		String mmServer = params.meetmeServer
 

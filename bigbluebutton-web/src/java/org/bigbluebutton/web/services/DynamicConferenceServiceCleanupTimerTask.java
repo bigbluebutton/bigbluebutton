@@ -4,9 +4,9 @@ import java.util.TimerTask;
 
 public class DynamicConferenceServiceCleanupTimerTask extends TimerTask {
 
-	private final DynamicConferenceService service;
+	private final IDynamicConferenceService service;
 	
-	public DynamicConferenceServiceCleanupTimerTask(DynamicConferenceService svc) {
+	public DynamicConferenceServiceCleanupTimerTask(IDynamicConferenceService svc) {
 		this.service = svc;
 	}
 	

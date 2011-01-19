@@ -28,10 +28,9 @@ import java.util.Collections
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import org.bigbluebutton.api.domain.DynamicConference;
  
-public class DynamicConferenceService {	
+public class DynamicConferenceService implements IDynamicConferenceService {	
 	static transactional = false
 	def serviceEnabled = false
 	def apiVersion;
