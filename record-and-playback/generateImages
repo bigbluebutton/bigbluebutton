@@ -1,0 +1,30 @@
+#!/usr/bin/perl
+
+$OPTIONS = "-sDEVICE=pdfwrite -dNOPAUSE -dQUIET -dBATCH";
+$FIRST_PAGE = "-dFirstPage=";
+$LAST_PAGE = "-dLastPage=";
+$noPdfMarkWorkaround = "/etc/bigbluebutton/nopdfmark.ps";
+$OUTPUT_FILE = "-sOutputFile=slide-";
+
+opendir(DIR, '.');
+
+@files = grep {/.swf/} readdir(DIR);
+
+$numFiles = @files;
+for ($i = 1; ($i <= $numFiles); $i++){
+	$fileToConvert = "slide-$i.swf";
+	print "Converting $fileToConvert with ghostcript\n";
+	
+	system("ghostscript $OPTIONS $FIRST_PAGE$i $LAST_PAGE$i $OUTPUT_FILE$i.pdf $noPdfMarkWorkaround ecosystem.pdf");
+}
+
+for ($j = 1; ($j <= $numFiles); $j++){
+	$fileToPng = "slide-$j.pdf";
+	$outputPngFile = "slide-$j.png";
+	print "Converting $fileToPng with image magick\n";
+
+	system("convert -depth 8 $fileToPng $outputPngFile");
+}
+
+closedir(DIR);
+exit(0);
