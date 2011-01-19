@@ -21,6 +21,8 @@
 */
 package org.bigbluebutton.conference.service.recorder;
 
+import java.util.HashMap;
+
 /** 
  * 
  * The IEventRecorder interface define all the methods for set a recorder
@@ -39,7 +41,7 @@ public interface IEventRecorder {
      * Receive a event message and send to a RecorderEventDispatcher. 
      * @param message a JSON String message with the attributes of an event 
      */
-	public void recordEvent(String message);
+	public void recordEvent(HashMap<String,String> message);
 	
 	/** 
      * Return the name.

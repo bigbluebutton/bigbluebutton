@@ -1,5 +1,6 @@
 package org.bigbluebutton.conference.service.recorder.whiteboard;
 
+import java.util.HashMap;
 import java.util.Hashtable;
 
 import org.bigbluebutton.conference.BigBlueButtonUtils;
@@ -34,46 +35,48 @@ public class WhiteboardEventRecorder implements IEventRecorder, IWhiteboardRoomL
 	}
 
 	@Override
-	public void recordEvent(String message) {
+	public void recordEvent(HashMap<String,String> message) {
 		recorder.record(message);
 	}
 
 	@Override
 	public void addShape(Shape shape, Presentation presentation) {
-		Hashtable keyvalues=new Hashtable();
-		keyvalues.put("event", "addShape");
-		keyvalues.put("presentation", presentation.getName());
-		keyvalues.put("pageNum", presentation.getActivePage().getPageIndex());
-		keyvalues.put("dataPoints", shape.getShape());
-		keyvalues.put("type", shape.getType());
-		keyvalues.put("color", shape.getColor());
-		keyvalues.put("thickness", shape.getThickness());
-
-		String xmlstr=BigBlueButtonUtils.parseEventsToXML("whiteboard", keyvalues);
-		recordEvent(xmlstr);	
+		HashMap<String,String> map=new HashMap<String, String>();
 		
+		map.put("module", "whiteboard");
+		map.put("event", "addShape");
+		map.put("presetation", presentation.getName());
+		map.put("pageNum", Integer.toString(presentation.getActivePage().getPageIndex()));
+		map.put("dataPoints", shape.getShape());
+		map.put("type", shape.getType());
+		map.put("color", Integer.toString(shape.getColor()));
+		map.put("thickness", Integer.toString(shape.getThickness()));
+
+		recordEvent(map);	
 	}
 
 	@Override
 	public void clearPage(Presentation presentation) {
-		Hashtable keyvalues=new Hashtable();
-		keyvalues.put("event", "clearPage");
-		keyvalues.put("presentation", presentation.getName());
-		keyvalues.put("pageNum", presentation.getActivePage().getPageIndex());
-
-		String xmlstr=BigBlueButtonUtils.parseEventsToXML("whiteboard", keyvalues);
-		recordEvent(xmlstr);		
+		HashMap<String,String> map=new HashMap<String, String>();
+		
+		map.put("module", "whiteboard");
+		map.put("event", "clearPage");
+		map.put("presetation", presentation.getName());
+		map.put("pageNum", Integer.toString(presentation.getActivePage().getPageIndex()));
+		
+		recordEvent(map);		
 	}
 
 	@Override
 	public void undoShape(Presentation presentation) {
-		Hashtable keyvalues=new Hashtable();
-		keyvalues.put("event", "undoShape");
-		keyvalues.put("presentation", presentation.getName());
-		keyvalues.put("pageNum", presentation.getActivePage().getPageIndex());
-
-		String xmlstr=BigBlueButtonUtils.parseEventsToXML("whiteboard", keyvalues);
-		recordEvent(xmlstr);
+		HashMap<String,String> map=new HashMap<String, String>();
+		
+		map.put("module", "whiteboard");
+		map.put("event", "undoShape");
+		map.put("presetation", presentation.getName());
+		map.put("pageNum", Integer.toString(presentation.getActivePage().getPageIndex()));
+		
+		recordEvent(map);
 	}
 
 }

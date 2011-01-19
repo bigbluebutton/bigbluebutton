@@ -25,7 +25,7 @@ package org.bigbluebutton.conference.service.presentation;
 import java.util.ArrayList;
 import java.util.Map;
 
-interface IPresentationRoomListener {
+public interface IPresentationRoomListener {
 	public String getName();
 	@SuppressWarnings("unchecked")
 	public void sendUpdateMessage(Map message);
