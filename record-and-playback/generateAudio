@@ -8,7 +8,7 @@ use Data::Dumper;
 $xml = new XML::Simple;
 
 # read XML file
-$data = $xml->XMLin("manifest.xml");
+$data = $xml->XMLin($ARGV[0]);
 
 # print output
 #print Dumper($data);
@@ -39,5 +39,6 @@ print "Generating .wav";
 system("sox /tmp/$$.dat $file");
 unlink("/tmp/$$.dat");
 
-print "Converting .wav to .mp3";
-system("ffmpeg -i $file  audioFile.mp3");
+$outputFile = $ARGV[1];
+print "Converting audio file into $outputFile \n";
+system("ffmpeg -i $file  $outputFile");
