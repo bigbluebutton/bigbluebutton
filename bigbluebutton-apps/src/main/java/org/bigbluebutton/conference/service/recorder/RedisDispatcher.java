@@ -24,7 +24,7 @@ public class RedisDispatcher implements IRecordDispatcher {
 	public void record(HashMap<String,String> message) {
 		Long msgid=jedis.incr("global:nextRecordedMsgId");
 		jedis.hmset("recording"+SEPARATOR_CHAR+msgid, message);
-		jedis.lpush("meeting"+SEPARATOR_CHAR+this.meeting+SEPARATOR_CHAR+"recordings", msgid.toString());
+		jedis.rpush("meeting"+SEPARATOR_CHAR+this.meeting+SEPARATOR_CHAR+"recordings", msgid.toString());
 	}
 
 	/*public String getServer() {

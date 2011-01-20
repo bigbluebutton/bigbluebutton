@@ -51,7 +51,7 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
     	String messageKey = (String) message.get("messageKey");
     	
     	HashMap<String,String> map = new HashMap<String, String>();
-		
+    	map.put("timestamp", Long.toString(System.currentTimeMillis()));
     	map.put("presentationName", presentationName);
     	
 		if(messageKey.equalsIgnoreCase(GENERATED_SLIDE_KEY)){
@@ -77,7 +77,7 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 	public void assignPresenter(ArrayList presenter) {
 		log.debug("RECORD module:presentation event:assign_presenter");
 		HashMap<String, String> map= new HashMap<String, String>();
-		
+		map.put("timestamp", Long.toString(System.currentTimeMillis()));
 		map.put("module", "presentation");
 		map.put("event", "assign_presenter");
 		map.put("userid", presenter.get(0).toString());
@@ -91,7 +91,7 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 	public void gotoSlide(int curslide) {
 		log.debug("RECORD module:presentation event:update_slide");
 		HashMap<String, String> map= new HashMap<String, String>();
-		
+		map.put("timestamp", Long.toString(System.currentTimeMillis()));
 		map.put("module", "presentation");
 		map.put("event", "update_slide");
 		map.put("slide", Integer.toString(curslide));
@@ -104,7 +104,7 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 			Double widthRatio, Double heightRatio) {
 		log.debug("RECORD module:presentation event:resize_move_slide");
 		HashMap<String, String> map= new HashMap<String, String>();
-		
+		map.put("timestamp", Long.toString(System.currentTimeMillis()));
 		map.put("module", "presentation");
 		map.put("event", "resize_move_slide");
 		map.put("xOffset", Double.toString(xOffset));
@@ -119,7 +119,7 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 	public void removePresentation(String name) {
 		log.debug("RECORD module:presentation event:remove_presentation");
 		HashMap<String, String> map= new HashMap<String, String>();
-		
+		map.put("timestamp", Long.toString(System.currentTimeMillis()));
 		map.put("module", "presentation");
 		map.put("event", "remove_presentation");
 		map.put("presentationName", name);
@@ -131,7 +131,7 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 	public void sharePresentation(String presentationName, Boolean share) {
 		log.debug("RECORD module:presentation event:share_presentation");
 		HashMap<String, String> map= new HashMap<String, String>();
-		
+		map.put("timestamp", Long.toString(System.currentTimeMillis()));
 		map.put("module", "presentation");
 		map.put("event", "share_presentation");
 		map.put("presentationName", presentationName);
