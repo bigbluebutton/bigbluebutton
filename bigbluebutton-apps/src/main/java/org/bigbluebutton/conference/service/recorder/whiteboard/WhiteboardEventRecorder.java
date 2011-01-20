@@ -42,7 +42,7 @@ public class WhiteboardEventRecorder implements IEventRecorder, IWhiteboardRoomL
 	@Override
 	public void addShape(Shape shape, Presentation presentation) {
 		HashMap<String,String> map=new HashMap<String, String>();
-		
+		map.put("timestamp", Long.toString(System.currentTimeMillis()));
 		map.put("module", "whiteboard");
 		map.put("event", "addShape");
 		map.put("presetation", presentation.getName());
@@ -58,7 +58,7 @@ public class WhiteboardEventRecorder implements IEventRecorder, IWhiteboardRoomL
 	@Override
 	public void clearPage(Presentation presentation) {
 		HashMap<String,String> map=new HashMap<String, String>();
-		
+		map.put("timestamp", Long.toString(System.currentTimeMillis()));
 		map.put("module", "whiteboard");
 		map.put("event", "clearPage");
 		map.put("presetation", presentation.getName());
@@ -70,7 +70,7 @@ public class WhiteboardEventRecorder implements IEventRecorder, IWhiteboardRoomL
 	@Override
 	public void undoShape(Presentation presentation) {
 		HashMap<String,String> map=new HashMap<String, String>();
-		
+		map.put("timestamp", Long.toString(System.currentTimeMillis()));
 		map.put("module", "whiteboard");
 		map.put("event", "undoShape");
 		map.put("presetation", presentation.getName());

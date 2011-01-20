@@ -49,9 +49,9 @@ public class ChatEventRecorder implements IEventRecorder, IChatRoomListener {
 	}
 	
 	private HashMap<String,String> getMapAttributes(String message){
-		HashMap<String,String> map=new HashMap<String, String>();
-		String[] chat_attribs=message.trim().split("\\|",-1);
-		
+		HashMap<String,String> map = new HashMap<String, String>();
+		String[] chat_attribs = message.trim().split("\\|",-1);
+		map.put("timestamp", Long.toString(System.currentTimeMillis()));
 		map.put("module", "chat");
 		map.put("event", "new_message");
 		map.put("user", chat_attribs[1]);

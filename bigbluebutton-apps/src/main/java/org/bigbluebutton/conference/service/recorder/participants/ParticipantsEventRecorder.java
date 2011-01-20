@@ -27,7 +27,7 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 	@Override
 	public void endAndKickAll() {
 		HashMap<String, String> map=new HashMap<String, String>();
-		
+		map.put("timestamp", Long.toString(System.currentTimeMillis()));
 		map.put("module", "participants");
 		map.put("event", "leave_all");
 		
@@ -37,7 +37,7 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 	@Override
 	public void participantJoined(Participant arg0) {
 		HashMap<String, String> map=new HashMap<String, String>();
-		
+		map.put("timestamp", Long.toString(System.currentTimeMillis()));
 		map.put("module", "participants");
 		map.put("event", "join");
 		map.put("userid", arg0.getUserid().toString());
@@ -50,7 +50,7 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 	@Override
 	public void participantLeft(Long userid) {
 		HashMap<String, String> map=new HashMap<String, String>();
-		
+		map.put("timestamp", Long.toString(System.currentTimeMillis()));
 		map.put("module", "participants");
 		map.put("event", "leave");
 		map.put("userid", userid.toString());
@@ -61,7 +61,7 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 	@Override
 	public void participantStatusChange(Long userid, String status, Object value) {
 		HashMap<String, String> map=new HashMap<String, String>();
-		
+		map.put("timestamp", Long.toString(System.currentTimeMillis()));
 		map.put("module", "participants");
 		map.put("event", "status_change");
 		map.put("userid", userid.toString());
