@@ -23,7 +23,7 @@ print "First Join: $firstJoin \n";
 print "Last Leave: $lastLeave \n";
 
 $totalAudioTime = $lastLeave - $firstJoin;
-
+$fileMono = "audioFileMono.wav";
 $file = "audioFile.wav";
 print "Total Audio Time to generate : $totalAudioTime \n";
 
@@ -36,9 +36,11 @@ for ($i = 0; ($i < $samples); $i++){
 close(OUT);
 
 print "Generating .wav";
-system("sox /tmp/$$.dat $file");
+system("sox /tmp/$$.dat $fileMono");
 unlink("/tmp/$$.dat");
+print "Splitting $fileMono into 2 channels and saving to $file \n";
+system("sox $fileMono -c 2 $file");
 
 $outputFile = $ARGV[1];
 print "Converting audio file into $outputFile \n";
-system("ffmpeg -i $file  $outputFile");
+system("ffmpeg -i $file -acodec vorbis  $outputFile");
