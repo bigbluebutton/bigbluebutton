@@ -20,27 +20,22 @@
 package org.bigbluebutton.conference.service.participants;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
-
-import org.bigbluebutton.conference.service.recorder.IEventRecorder;
-import org.bigbluebutton.conference.service.recorder.IRecordDispatcher;
+import org.bigbluebutton.conference.service.recorder.Recorder;
 import org.bigbluebutton.conference.IRoomListener;
 import org.bigbluebutton.conference.BigBlueButtonUtils;import org.red5.server.api.so.ISharedObject;
 import org.bigbluebutton.conference.Participant;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 
-public class ParticipantsEventSender implements IEventRecorder, IRoomListener {
+public class ParticipantsEventSender implements IRoomListener {
 
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsEventSender.class, "bigbluebutton" );
 	
-	IRecordDispatcher recorder;
-	private ISharedObject so;
-	private final Boolean record;
-	
-	String name = "PARTICIPANT";
+	Recorder recorder;
+	private ISharedObject so;	
+	String name = "PARTICIPANT_EVENT_SENDER";
 	
 	private final String RECORD_EVENT_JOIN="join";
 	private final String RECORD_EVENT_LEAVE="leave";
@@ -48,29 +43,10 @@ public class ParticipantsEventSender implements IEventRecorder, IRoomListener {
 	private final String RECORD_EVENT_LEAVE_ALL="leave_all";
 	
 	
-	public ParticipantsEventSender(ISharedObject so, Boolean record) {
+	public ParticipantsEventSender(ISharedObject so) {
 		this.so = so; 
-		this.record = record;
 	}
 	
-	@Override
-	public void acceptRecorder(IRecordDispatcher recorder) {
-		log.debug("Accepting IRecorder");
-		this.recorder = recorder;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void recordEvent(HashMap<String, String> message) {
-		if (record) {
-			//recorder.record(message);
-		}
-	}
-
 	@SuppressWarnings({ "rawtypes" })
 	@Override
 	public void endAndKickAll() {
@@ -168,5 +144,11 @@ public class ParticipantsEventSender implements IEventRecorder, IRoomListener {
 			keyvalues.put("event", this.RECORD_EVENT_LEAVE_ALL);
 		}
 		return BigBlueButtonUtils.parseEventsToXML("participants", keyvalues);
+	}
+
+	@Override
+	public Object getName() {
+		// TODO Auto-generated method stub
+		return name;
 	}
 }

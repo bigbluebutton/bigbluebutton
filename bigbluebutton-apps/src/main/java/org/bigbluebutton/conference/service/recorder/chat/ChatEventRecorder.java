@@ -5,47 +5,30 @@ import java.util.Hashtable;
 
 import org.bigbluebutton.conference.BigBlueButtonUtils;
 import org.bigbluebutton.conference.service.chat.IChatRoomListener;
-import org.bigbluebutton.conference.service.recorder.IEventRecorder;
-import org.bigbluebutton.conference.service.recorder.IRecordDispatcher;
+import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
-public class ChatEventRecorder implements IEventRecorder, IChatRoomListener {
-
+public class ChatEventRecorder implements IChatRoomListener {
 	private static Logger log = Red5LoggerFactory.getLogger( ChatEventRecorder.class, "bigbluebutton" );
 	
-	IRecordDispatcher recorder;
-	private final Boolean record;
+	private final RecorderApplication recorder;
+	private final String session;
 	
 	String name = "RECORDER:CHAT";
 	
-	public ChatEventRecorder(Boolean record){
-		this.record = record;
+	public ChatEventRecorder(String session, RecorderApplication recorder){
+		this.recorder = recorder;
+		this.session = session;
 	}
 	
-	@Override
-	public void acceptRecorder(IRecordDispatcher recorder) {
-		log.debug("Accepting IRecorder");
-		this.recorder = recorder;
-	}
-
-	@Override
 	public String getName() {
 		return name;
 	}
 
 	@Override
-	public void recordEvent(HashMap<String,String> message) {
-		if(record){
-			recorder.record(message);
-			//recorder.record(parseChatToXML(message));
-		}
-	}
-
-	@Override
 	public void newChatMessage(String message) {
-		recordEvent(getMapAttributes(message));
-		
+		recorder.record(session, getMapAttributes(message));		
 	}
 	
 	private HashMap<String,String> getMapAttributes(String message){

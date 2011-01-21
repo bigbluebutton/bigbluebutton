@@ -1,32 +1,23 @@
 package org.bigbluebutton.conference.service.recorder.whiteboard;
 
 import java.util.HashMap;
-import java.util.Hashtable;
-
-import org.bigbluebutton.conference.BigBlueButtonUtils;
-import org.bigbluebutton.conference.service.recorder.IEventRecorder;
-import org.bigbluebutton.conference.service.recorder.IRecordDispatcher;
-import org.bigbluebutton.conference.service.recorder.chat.ChatEventRecorder;
+import org.bigbluebutton.conference.service.recorder.Recorder;
+import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 import org.bigbluebutton.conference.service.whiteboard.IWhiteboardRoomListener;
 import org.bigbluebutton.conference.service.whiteboard.Presentation;
 import org.bigbluebutton.conference.service.whiteboard.Shape;
 
-public class WhiteboardEventRecorder implements IEventRecorder, IWhiteboardRoomListener{
-
+public class WhiteboardEventRecorder implements IWhiteboardRoomListener{
 	private static Logger log = Red5LoggerFactory.getLogger( WhiteboardEventRecorder.class, "bigbluebutton" );
-
-	IRecordDispatcher recorder;
-
+	private final RecorderApplication recorder;;
+	private final String session;
 	String name = "RECORDER:WHITEBOARD";
 
-	public WhiteboardEventRecorder(){
-	}
-
-	@Override
-	public void acceptRecorder(IRecordDispatcher recorder) {
+	public WhiteboardEventRecorder(String session, RecorderApplication recorder){
 		this.recorder = recorder;
+		this.session = session;
 	}
 
 	@Override
@@ -34,9 +25,8 @@ public class WhiteboardEventRecorder implements IEventRecorder, IWhiteboardRoomL
 		return name;
 	}
 
-	@Override
-	public void recordEvent(HashMap<String,String> message) {
-		recorder.record(message);
+	private void recordEvent(HashMap<String,String> message) {
+		recorder.record(session, message);
 	}
 
 	@Override

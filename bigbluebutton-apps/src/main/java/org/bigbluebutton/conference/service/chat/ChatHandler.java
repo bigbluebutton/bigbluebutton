@@ -81,9 +81,8 @@ public class ChatHandler extends ApplicationAdapter implements IApplication{
 		ISharedObject so = getSharedObject(connection.getScope(), CHAT_SO);
 		log.debug("Setting up recorder");
 		ChatMessageSender messageSender = new ChatMessageSender(so);
-		ChatEventRecorder recorder = new ChatEventRecorder(getBbbSession().getRecord());
+		ChatEventRecorder recorder = new ChatEventRecorder(connection.getScope().getName(), recorderApplication);
 		log.debug("adding event recorder to {}", connection.getScope().getName());
-		recorderApplication.addEventRecorder(connection.getScope().getName(), recorder);
 		log.debug("Adding room listener");
 		chatApplication.addRoomListener(connection.getScope().getName(), recorder);
 		chatApplication.addRoomListener(connection.getScope().getName(), messageSender);

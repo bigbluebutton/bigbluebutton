@@ -48,9 +48,18 @@
 	</bean>
 	
 	<bean id="recorderApplication" class="org.bigbluebutton.conference.service.recorder.RecorderApplication">
-		<property name="jmsTemplate"><ref local="templateEvent" /> </property>
+		<property name="recorder"><ref local="redisRecorder" /> </property>
 	</bean>
 	
+	<bean id="redisRecorder" class="org.bigbluebutton.conference.service.recorder.RedisDispatcher">
+        <constructor-arg index="0">
+            <value>"localhost"</value>
+        </constructor-arg>
+        <constructor-arg index="1">
+            <value>6379</value>
+        </constructor-arg>
+    </bean>
+    
 	<!-- END JMS EVENTS -->
 	<!-- BEGIN PRESENTATION -->	
 	<bean id="presentationRoomsManager" class="org.bigbluebutton.conference.service.presentation.PresentationRoomsManager"/>

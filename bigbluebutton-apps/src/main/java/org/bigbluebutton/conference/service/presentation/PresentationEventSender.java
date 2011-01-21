@@ -23,17 +23,12 @@
 package org.bigbluebutton.conference.service.presentation;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Map;
-
-import org.bigbluebutton.conference.BigBlueButtonUtils;
-import org.bigbluebutton.conference.service.recorder.IEventRecorder;
-import org.bigbluebutton.conference.service.recorder.IRecordDispatcher;import org.red5.server.api.so.ISharedObject;
+import org.bigbluebutton.conference.service.recorder.Recorder;import org.red5.server.api.so.ISharedObject;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 
-public class PresentationEventSender implements IEventRecorder, IPresentationRoomListener {
+public class PresentationEventSender implements IPresentationRoomListener {
 	private static Logger log = Red5LoggerFactory.getLogger( PresentationEventSender.class, "bigbluebutton" );
 
 	private static final String OFFICE_DOC_CONVERSION_SUCCESS_KEY = "OFFICE_DOC_CONVERSION_SUCCESS";
@@ -47,7 +42,7 @@ public class PresentationEventSender implements IEventRecorder, IPresentationRoo
     private static final String GENERATED_THUMBNAIL_KEY = "GENERATED_THUMBNAIL";
     private static final String CONVERSION_COMPLETED_KEY = "CONVERSION_COMPLETED";
     
-	IRecordDispatcher recorder;
+	Recorder recorder;
 	private ISharedObject so;
 	private final Boolean record;
 	
@@ -63,7 +58,7 @@ public class PresentationEventSender implements IEventRecorder, IPresentationRoo
 	private final String RECORD_EVENT_GENERATED_SLIDE="generated_slide";
 	private final String RECORD_EVENT_CONVERSION_COMPLETE="conversion_complete";*/
 	
-	public void acceptRecorder(IRecordDispatcher recorder){
+	public void acceptRecorder(Recorder recorder){
 		log.debug("Accepting IRecorder");
 		this.recorder = recorder;
 	}
@@ -72,12 +67,7 @@ public class PresentationEventSender implements IEventRecorder, IPresentationRoo
 		return APP_NAME;
 	}
 	
-	public void recordEvent(HashMap<String,String> message){
-		if (record) {
-			recorder.record(message);
-		}
-	}
-	
+
 	public PresentationEventSender(ISharedObject so, Boolean record) {
 		this.so = so; 
 		this.record = record;

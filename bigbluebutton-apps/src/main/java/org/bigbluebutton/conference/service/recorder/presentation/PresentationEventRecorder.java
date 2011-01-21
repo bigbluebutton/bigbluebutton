@@ -3,40 +3,27 @@ package org.bigbluebutton.conference.service.recorder.presentation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.bigbluebutton.conference.service.recorder.IEventRecorder;
-import org.bigbluebutton.conference.service.recorder.IRecordDispatcher;
+import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 import org.bigbluebutton.conference.service.presentation.IPresentationRoomListener;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
-public class PresentationEventRecorder implements IEventRecorder, IPresentationRoomListener {
-
-	private static Logger log = Red5LoggerFactory.getLogger( PresentationEventRecorder.class, "bigbluebutton" );
-	
+public class PresentationEventRecorder implements IPresentationRoomListener {
+	private static Logger log = Red5LoggerFactory.getLogger( PresentationEventRecorder.class, "bigbluebutton" );	
 	private static final String GENERATED_SLIDE_KEY = "GENERATED_SLIDE";
 	private static final String CONVERSION_COMPLETED_KEY = "CONVERSION_COMPLETED";
 	
-	IRecordDispatcher recorder;
 	String APP_NAME = "RECORDER:PRESENTATION";
-	private final Boolean record;
+	private final RecorderApplication recorder;
+	private final String session;
 	
-	
-	public PresentationEventRecorder(Boolean record) {
-		this.record = record;
-	}
-
-	@Override
-	public void acceptRecorder(IRecordDispatcher recorder) {
-		log.debug("Accepting IRecorder");
+	public PresentationEventRecorder(String session, RecorderApplication recorder) {
 		this.recorder = recorder;
+		this.session = session;
 	}
 
-	@Override
-	public void recordEvent(HashMap<String, String> message) {
-		if (record) {
-			recorder.record(message);
-		}
+	private void recordEvent(HashMap<String, String> message) {
+		recorder.record(session, message);
 	}
 
 	@Override

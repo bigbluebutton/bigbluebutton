@@ -82,20 +82,15 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 	public boolean roomConnect(IConnection connection, Object[] params) {
 		log.debug(APP+":roomConnect");
 		
-		log.debug("In live mode");
 		ISharedObject so = getSharedObject(connection.getScope(), PARTICIPANTS_SO);
+		ParticipantsEventSender sender = new ParticipantsEventSender(so);
+		ParticipantsEventRecorder recorder = new ParticipantsEventRecorder(connection.getScope().getName(), recorderApplication);
 		
-		//log.debug("Setting up recorder with recording {}", getBbbSession().getRecord())
-		ParticipantsEventSender sender = new ParticipantsEventSender(so, getBbbSession().getRecord());
-		ParticipantsEventRecorder recorder = new ParticipantsEventRecorder(getBbbSession().getRecord());
-		
-		log.debug("adding event recorder to {}",connection.getScope().getName());
-		recorderApplication.addEventRecorder(connection.getScope().getName(), recorder);				
-		
-		log.debug("Adding room listener");
+		log.debug("Adding room listener {}", connection.getScope().getName());
 		participantsApplication.addRoomListener(connection.getScope().getName(), recorder);
 		participantsApplication.addRoomListener(connection.getScope().getName(), sender);
 		log.debug("Done setting up recorder and listener");
+		
 		return true;
 	}
 
@@ -124,12 +119,25 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 		participantsApplication.participantLeft(bbbSession.getSessionName(), userid);
 	}
 
+	private void setupRoom(IScope scope) {
+		ISharedObject so = getSharedObject(scope, PARTICIPANTS_SO);
+		if (so == null) log.debug("SHARED OBJECT is NULL!!!!");
+		if (getBbbSession().getRecord() == null) log.debug("SESSION is NULL!!!!");
+		ParticipantsEventSender sender = new ParticipantsEventSender(so);
+		ParticipantsEventRecorder recorder = new ParticipantsEventRecorder(scope.getName(), recorderApplication);
+		
+		log.debug("Adding room listener {}", scope.getName());
+		participantsApplication.addRoomListener(scope.getName(), recorder);
+		participantsApplication.addRoomListener(scope.getName(), sender);
+		log.debug("Done setting up recorder and listener");
+	}
+	
 	@Override
 	public boolean roomStart(IScope scope) {
 		log.debug(APP+" - roomStart "+scope.getName());
     	// create ParticipantSO if it is not already created
     	if (!hasSharedObject(scope, PARTICIPANTS_SO)) {
-    		if (createSharedObject(scope, PARTICIPANTS_SO, false)) {    			
+    		if (createSharedObject(scope, PARTICIPANTS_SO, false)) {   
     			return true; 			
     		}    		
     	}  	

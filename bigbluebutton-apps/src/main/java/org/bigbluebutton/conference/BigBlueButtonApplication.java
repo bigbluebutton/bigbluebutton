@@ -65,7 +65,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
     public boolean roomStart(IScope room) {
     	log.debug("Starting room [{}].", room.getName());
     	assert participantsApplication != null;
-    	participantsApplication.createRoom(room.getName());
+    	
     	return super.roomStart(room);
     }	
 	
@@ -114,7 +114,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
     	String externUserID = ((String) params[7]).toString();
 
 		if (record == true) {
-			recorderApplication.createRecordSession(conference, room, sessionName);
+			recorderApplication.createRecordSession(sessionName);
 		}
 			
     	BigBlueButtonSession bbbSession = new BigBlueButtonSession(sessionName, userid,  username, role, 
@@ -124,6 +124,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
         String debugInfo = "userid=" + userid + ",username=" + username + ",role=" +  role + ",conference=" + conference + "," + 
         					"session=" + sessionName + ",voiceConf=" + voiceBridge + ",room=" + room + ",externsUserid=" + externUserID;
 		log.debug("User [{}] connected to room [{}]", debugInfo, room); 
+		participantsApplication.createRoom(room);
         super.roomConnect(connection, params);
     	return true;
 	}

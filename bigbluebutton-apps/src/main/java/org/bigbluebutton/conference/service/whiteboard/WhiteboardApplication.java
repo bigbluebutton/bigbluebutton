@@ -145,9 +145,8 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 		log.debug("WHITEBOARD - getting record parameters");
 		if (getBbbSession().getRecord()){
 			log.debug("WHITEBOARD - recording : true");
-			WhiteboardEventRecorder recorder = new WhiteboardEventRecorder();
+			WhiteboardEventRecorder recorder = new WhiteboardEventRecorder(getLocalScope().getName(), recorderApplication);
 			roomManager.getRoom(getLocalScope().getName()).addRoomListener(recorder);
-			recorderApplication.addEventRecorder(getLocalScope().getName(), recorder);
 			log.debug("event session is " + getLocalScope().getName());
 		}
     	return true;

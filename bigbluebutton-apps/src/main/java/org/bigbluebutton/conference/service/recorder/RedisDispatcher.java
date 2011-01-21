@@ -5,39 +5,22 @@ import java.util.HashMap;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
-public class RedisDispatcher implements IRecordDispatcher {
+public class RedisDispatcher implements Recorder {
 
 	//private String server;
 	//private int port;
-	private static final String SEPARATOR_CHAR=":";
+	private static final String COLON=":";
 	Jedis jedis;
-	String meeting;
 	
-	public RedisDispatcher(String conference){
+	public RedisDispatcher(String host, int port){
 		//JedisPool jpool=new JedisPool("localhost", 6379);
-		jedis=new Jedis("localhost", 6379);
-		this.meeting=conference;
-		jedis.lpush("global"+SEPARATOR_CHAR+"recordedMeetings", conference);
-		
-	}
-	@Override
-	public void record(HashMap<String,String> message) {
-		Long msgid=jedis.incr("global:nextRecordedMsgId");
-		jedis.hmset("recording"+SEPARATOR_CHAR+msgid, message);
-		jedis.rpush("meeting"+SEPARATOR_CHAR+this.meeting+SEPARATOR_CHAR+"recordings", msgid.toString());
-	}
-
-	/*public String getServer() {
-		return server;
-	}
-	public void setServer(String server) {
-		this.server = server;
+		jedis = new Jedis(host, port);		
 	}
 	
-	public int getPort() {
-		return port;
+	@Override
+	public void record(String session, HashMap<String,String> message) {
+		Long msgid = jedis.incr("global:nextRecordedMsgId");
+		jedis.hmset("recording" + COLON + session + COLON + msgid, message);
+		jedis.rpush("meeting" + COLON + session + COLON + "recordings", msgid.toString());
 	}
-	public void setPort(int port) {
-		this.port = port;
-	}*/
 }

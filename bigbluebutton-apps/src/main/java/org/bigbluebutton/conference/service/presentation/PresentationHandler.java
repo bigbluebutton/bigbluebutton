@@ -90,10 +90,8 @@ public class PresentationHandler extends ApplicationAdapter implements IApplicat
 		
 		log.debug("Setting up recorder");
 		PresentationEventSender sender = new PresentationEventSender(so, getBbbSession().getRecord());
-		PresentationEventRecorder recorder = new PresentationEventRecorder(getBbbSession().getRecord());
-		log.debug("adding event recorder to {}",connection.getScope().getName());
-		recorderApplication.addEventRecorder(connection.getScope().getName(), recorder);				
-		
+		PresentationEventRecorder recorder = new PresentationEventRecorder(connection.getScope().getName(), recorderApplication);
+						
 		log.debug("Adding room listener");
 		presentationApplication.addRoomListener(connection.getScope().getName(), recorder);
 		presentationApplication.addRoomListener(connection.getScope().getName(), sender);

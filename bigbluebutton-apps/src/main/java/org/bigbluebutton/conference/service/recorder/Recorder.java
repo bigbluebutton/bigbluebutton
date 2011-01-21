@@ -30,12 +30,12 @@ import java.util.HashMap;
  * dispatch events to a JMS queue
  * 
  * */
-public interface IRecordDispatcher {
+public interface Recorder {
 	/** 
      * Receive the messages from the bigbluebutton modules and send 
      * them to a JMS queue. These messages are the events generated in a conference.
      * @param message a JSON String message with the attributes of an event 
      */
-	public void record(HashMap<String,String> message);
+	public void record(String session, HashMap<String,String> message);
 	
 }

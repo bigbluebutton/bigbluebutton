@@ -4,24 +4,20 @@ import java.util.HashMap;
 
 import org.bigbluebutton.conference.IRoomListener;
 import org.bigbluebutton.conference.Participant;
-import org.bigbluebutton.conference.service.recorder.IEventRecorder;
-import org.bigbluebutton.conference.service.recorder.IRecordDispatcher;
+import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
-public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener {
-
+public class ParticipantsEventRecorder implements IRoomListener {
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsEventRecorder.class, "bigbluebutton" );
-	
-	IRecordDispatcher recorder;
-	private final Boolean record;
+	private final RecorderApplication recorder;
+	private final String session;
 	
 	String name = "RECORDER:PARTICIPANT";
-	
-	
-	
-	public ParticipantsEventRecorder(Boolean record) {
-		this.record = record;
+		
+	public ParticipantsEventRecorder(String session, RecorderApplication recorder) {
+		this.recorder = recorder;
+		this.session = session;
 	}
 
 	@Override
@@ -71,16 +67,8 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 		recordEvent(map);
 	}
 
-	@Override
-	public void acceptRecorder(IRecordDispatcher recorder) {
-		log.debug("Accepting IRecorder");
-		this.recorder=recorder;
-	}
-
-	@Override
-	public void recordEvent(HashMap<String, String> message) {
-		if(record)
-			recorder.record(message);
+	private void recordEvent(HashMap<String, String> message) {
+			recorder.record(session, message);
 	}
 
 	@Override

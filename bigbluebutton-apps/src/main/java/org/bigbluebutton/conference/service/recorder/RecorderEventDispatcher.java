@@ -21,35 +21,16 @@
 */
 package org.bigbluebutton.conference.service.recorder;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
-
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Session;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
 import org.bigbluebutton.recorder.EventMessage;
 import org.bigbluebutton.recorder.IEventMessage;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 /** 
  * 
@@ -57,18 +38,9 @@ import org.xml.sax.InputSource;
  * the sender method for sending events to the JMS queue
  *
  **/
-public class RecorderEventDispatcher implements IRecordDispatcher {
-
-	/** A log instance */
+public class RecorderEventDispatcher implements Recorder {
 	private static Logger log = Red5LoggerFactory.getLogger( RecorderEventDispatcher.class, "bigbluebutton" );
 	
-	/** TODO conference attribute is unused */
-	private final String conference;
-	
-	/** Conference Name */
-	private final String room;
-	
-	/** A JmsTemplate instance */
 	private JmsTemplate jmsTemplate;
 	
 	/**
@@ -77,9 +49,7 @@ public class RecorderEventDispatcher implements IRecordDispatcher {
 	 * @param room the room name
 	 * @return RecorderEventDispatcher
 	 */
-	public RecorderEventDispatcher(String conference, String room) {
-		this.conference = conference;
-		this.room = room;
+	public RecorderEventDispatcher() {
 		log.debug("create an instance of RecorderEventDispatcher");
 	}
 	
@@ -90,7 +60,7 @@ public class RecorderEventDispatcher implements IRecordDispatcher {
 	public void sendEvents(final IEventMessage event) {
 		jmsTemplate.send(new MessageCreator() {
             public Message createMessage(Session sn) throws JMSException {
-                Message msg=sn.createObjectMessage(event);
+                Message msg = sn.createObjectMessage(event);
                 return msg;
             }
         });
@@ -101,12 +71,12 @@ public class RecorderEventDispatcher implements IRecordDispatcher {
 	 * The method implements recordEvent from IRecoder. It sets the EventMessage 
 	 * from bbb-common-messages with the room name, timestamp and message-event.
 	 * @param message this is a event-message sent by the BigBlueButton modules. 
-	 * @see IRecordDispatcher 
+	 * @see Recorder 
 	 */
 	@Override
-	public void record(HashMap<String,String> message) {
-		EventMessage event=new EventMessage();
-		event.setConferenceID(room);
+	public void record(String session, HashMap<String,String> message) {
+		EventMessage event = new EventMessage();
+		event.setConferenceID(session);
 		//event.setMessage(message);
 		event.setTimeStamp(System.currentTimeMillis());
 		sendEvents(event);
