@@ -50,7 +50,7 @@ repositories {
         }
    	}
    	mavenRepo urls: 'http://scala-tools.org/repo-releases/'
-   	flatDir name: 'fileRepo', dirs: "/home/user/dev/repo"
+   	flatDir name: 'fileRepo', dirs: "/home/firstuser/dev/repo"
 }
 
 dependencies {	 

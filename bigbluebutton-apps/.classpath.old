@@ -1,43 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
+	 	
 <classpath>
   <classpathentry kind="src" path="src/main/java"/>
-  <classpathentry kind="output" path="build/classes/main"/>
+  <classpathentry kind="src" path="test/commandline"/>
   <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/aopalliance/aopalliance/jars/aopalliance-1.0.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/javax.servlet/servlet-api/jars/servlet-api-2.5.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/jcl-over-slf4j/jars/jcl-over-slf4j-1.5.10.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/log4j-over-slf4j/jars/log4j-over-slf4j-1.5.10.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/logback-classic/jars/logback-classic-0.9.18.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/logback-core/jars/logback-core-0.9.18.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/net.jcip/jcip-annotations/jars/jcip-annotations-1.0.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/org.apache.activemq/activemq-core/jars/activemq-core-5.1.0.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/org.apache.mina/mina-core/jars/mina-core-2.0.0-RC1.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/org.apache.mina/mina-integration-spring/jars/mina-integration-spring-1.1.7.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/org.asteriskjava/asterisk-java/jars/asterisk-java-1.0.0.M3.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/org.codehaus.groovy/groovy-all/jars/groovy-all-1.6.4.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/org.easymock/easymock/jars/easymock-2.4.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/org.jboss.netty/netty/jars/netty-3.1.5.GA.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/org.scala-lang/scala-library/jars/scala-library-2.7.7.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/org/apache/geronimo/geronimo-j2ee-management_1.0_spec/jars/geronimo-j2ee-management_1.0_spec-1.0.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/org/apache/geronimo/geronimo-jms_1.1_spec/jars/geronimo-jms_1.1_spec-1.0.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/org/fitnesse/fitnesse/jars/fitnesse-20090214.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/org/freeswitch/org.freeswitch.esl.client/jars/org.freeswitch.esl.client-0.9.0-SNAPSHOT.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/org/ho/jyaml/jars/jyaml-1.3.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/org/red5/red5/jars/red5-0.91.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/org/spring/integration/spring-integration-adapter/jars/spring-integration-adapter-2.0.0.M2.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/org/spring/integration/spring-integration-core/jars/spring-integration-core-2.0.0.M2.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/org/spring/integration/spring-integration-file/jars/spring-integration-file-2.0.0.M2.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/org/spring/integration/spring-integration-jms/jars/spring-integration-jms-2.0.0.M2.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/org/spring/integration/spring-integration-stream/jars/spring-integration-stream-2.0.0.M2.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/org/testng/testng/jars/testng-5.8.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/slf4j-api/jars/slf4j-api-1.5.10.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/spring/spring-aop/jars/spring-aop-3.0.0.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/spring/spring-beans/jars/spring-beans-3.0.0.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/spring/spring-context/jars/spring-context-3.0.0.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/spring/spring-core/jars/spring-core-3.0.0.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/spring/spring-jms/jars/spring-jms-3.0.0.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/spring/spring-tx/jars/spring-tx-2.5.6.jar"/>
-  <classpathentry kind="lib" path="/home/user/.gradle/cache/spring/spring-web/jars/spring-web-3.0.0.jar"/>
-  <classpathentry kind="lib" path="/home/user/dev/repo/bbb-common-message-0.7.jar"/>
+  <classpathentry kind="output" path="bin"/>
 </classpath>
