@@ -29,6 +29,7 @@ public interface IApiConferenceEventListener
 	@Gateway(requestChannel="endMeetingRequest")
 	void endMeetingRequest(Room room);
 	
+	/* Add the API call moduleCmd handler method moduleCommand(cmd) */
 	@Gateway(requestChannel="moduleCommand")
 	void moduleCommand(String cmd);
 
