@@ -151,7 +151,7 @@
 	<integration:channel id="endMeetingRequest"/>
 	<integration:service-activator input-channel="endMeetingRequest" ref="roomsManager" method="endMeetingRequest" />
 	
-	<!-- Command -->
+	<!-- Command - modualCommand- API method handler for and JMS message id-->
 	<jms:inbound-channel-adapter id="jmsInoduleCommand"
 		destination-name="moduleCommandEvents"
         channel="moduleCommand"
