@@ -532,7 +532,7 @@ fi
 
 if [ $SALT ]; then
 	need_root
-	change_var_salt /var/lib/$TOMCAT/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties beans.dynamicConferenceService.securitySalt $SALT
+	change_var_salt ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties beans.dynamicConferenceService.securitySalt $SALT
 	echo "Changed the security salt to $SALT"
 fi
 

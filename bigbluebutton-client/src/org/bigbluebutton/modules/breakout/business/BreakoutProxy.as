@@ -102,7 +102,7 @@ package org.bigbluebutton.modules.breakout.business
 			this.usersList = usersList;
 			this.kickUsers = kickUsers;
 			
-			meetingName = Math.random().toString();
+			meetingName = (Math.round(Math.random()*(9999))+70000).toString();
 			var createString:String = "create" + "name=" + meetingName + "&meetingID=" + meetingName + api_salt;
 			var hash:String = SHA1.hash(createString);
 			
