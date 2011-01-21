@@ -26,8 +26,9 @@ public interface IRoomListener
 	public void participantStatusChange(Long userid, String status, Object value);
 	public void participantJoined(Participant participant);
 	public void participantLeft(Long userid);
-	
 	public void endAndKickAll();
-	
+	/*Add the new API call moudleCommand to the Interface class
+	* input parameters: a string that represents the command we want 	* to apss to the BBB client (i.e. start, stop, etc). For more 	* details see documentaion.
+	*/
 	public void moduleCommand(String cmd);
 }
