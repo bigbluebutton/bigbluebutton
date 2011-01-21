@@ -196,13 +196,21 @@ package org.bigbluebutton.main.model.modules
 		
 		public function startAllModules():void
 		{
-			//var modules:String = 'ChatModule,ListenersModule,VideoconfModule,PhoneModule,ViewersModule';
-			var modules:String = conferenceParameters.loadedModules;
+		
+		/*
+		* Start the modules the loaded modules 
+		* that are stored conferenceParameters
+		* NOTE: will need to make chnages to inclide a choice of 		* starting ALL modules or Start modules called by the API 
+		*/	
+
+		var modules:String = conferenceParameters.loadedModules;
 			
 			for (var i:int = 0; i<sorted.length; i++)
 			{
 				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
 				var name:String = m.getName();
+				
+				//Check for the modules required to start when a client starts
 				if(modules.length > 0 && modules.indexOf(name) < 0)
 				{
 					LogUtil.debug('No Need to start module ' + name);
