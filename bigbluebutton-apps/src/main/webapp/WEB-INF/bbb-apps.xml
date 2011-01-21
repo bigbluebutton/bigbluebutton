@@ -152,7 +152,7 @@
 	<integration:service-activator input-channel="endMeetingRequest" ref="roomsManager" method="endMeetingRequest" />
 	
 	<!-- Command -->
-	<jms:inbound-channel-adapter id="jmsInModuleCommand"
+	<jms:inbound-channel-adapter id="jmsInoduleCommand"
 		destination-name="moduleCommandEvents"
         channel="moduleCommand"
         extract-payload="true">
