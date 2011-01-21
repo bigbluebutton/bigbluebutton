@@ -21,8 +21,8 @@ package org.bigbluebutton.conference;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.red5.server.api.so.ISharedObject;
+
 public class RoomListener implements IRoomListener{
 
 	private ISharedObject so;
@@ -37,7 +37,7 @@ public class RoomListener implements IRoomListener{
 	
 	@SuppressWarnings("unchecked")
 	public void participantStatusChange(Long userid, String status, Object value){
-		List list=new ArrayList();
+		List list = new ArrayList();
 		list.add(userid);
 		list.add(status);
 		list.add(value);

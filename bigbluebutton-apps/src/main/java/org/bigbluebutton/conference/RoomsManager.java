@@ -20,7 +20,6 @@ package org.bigbluebutton.conference;
 
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
-
 import net.jcip.annotations.ThreadSafe;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

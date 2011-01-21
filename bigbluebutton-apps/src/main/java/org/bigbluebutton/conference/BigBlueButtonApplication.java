@@ -35,10 +35,8 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.support.AbstractApplicationContext;
 
 public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
-
 	private static Logger log = Red5LoggerFactory.getLogger(BigBlueButtonApplication.class, "bigbluebutton");
-	
-	private static final String APP = "BigBlueButtonApplication";
+
 	private ParticipantsApplication participantsApplication;
 	private RecorderApplication recorderApplication;
 	private AbstractApplicationContext appCtx;

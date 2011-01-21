@@ -45,8 +45,8 @@ public class RoomImp implements Room {
 	
 	public RoomImp(String name,boolean record, String meetingid) {
 		this.name = name;
-		this.record=record;
-		this.meetingid=meetingid;
+		this.record = record;
+		this.meetingid = meetingid;
 		participants = new ConcurrentHashMap<Integer, Participant>();
 	}
 	

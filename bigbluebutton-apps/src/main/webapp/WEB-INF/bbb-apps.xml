@@ -52,12 +52,8 @@
 	</bean>
 	
 	<bean id="redisRecorder" class="org.bigbluebutton.conference.service.recorder.RedisDispatcher">
-        <constructor-arg index="0">
-            <value>"localhost"</value>
-        </constructor-arg>
-        <constructor-arg index="1">
-            <value>6379</value>
-        </constructor-arg>
+        <constructor-arg index="0" value="${redis.host}"/>
+        <constructor-arg index="1" value="${redis.port}"/>
     </bean>
     
 	<!-- END JMS EVENTS -->

@@ -35,7 +35,6 @@ public class ConferenceService implements ConferenceEventListener {
 	private ConferenceEventListener conferenceEventListener;
 	
 	public void startup() {
-		roomMgr = new RoomManager(this);
 		confProvider.startup();
 	}
 	
@@ -46,7 +45,7 @@ public class ConferenceService implements ConferenceEventListener {
 	
 	public void createConference(String room, String meetingid, boolean record) {
 		if (roomMgr.hasRoom(room)) return;
-		roomMgr.createRoom(room,record,meetingid);
+		roomMgr.createRoom(room, record, meetingid);
 		confProvider.populateRoom(room);
 		
 	}
@@ -127,5 +126,10 @@ public class ConferenceService implements ConferenceEventListener {
 	
 	public void setConferenceEventListener(ConferenceEventListener l) {
 		conferenceEventListener = l;
+	}
+	
+	public void setRoomManager(RoomManager roomManager) {
+		this.roomMgr = roomManager;
+		roomManager.setConferenceService(this);
 	}
 }

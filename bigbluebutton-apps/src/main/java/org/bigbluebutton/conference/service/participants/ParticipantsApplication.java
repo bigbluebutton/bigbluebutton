@@ -76,7 +76,7 @@ public class ParticipantsApplication {
 	}
 	
 	public boolean participantLeft(String roomName, Long userid) {
-		log.debug("Participant "+ userid + " leaving room "+roomName);
+		log.debug("Participant " + userid + " leaving room " + roomName);
 		if (roomsManager.hasRoom(roomName)) {
 			Room room = roomsManager.getRoom(roomName);
 			log.debug("Removing "+ userid + " from room " + roomName);

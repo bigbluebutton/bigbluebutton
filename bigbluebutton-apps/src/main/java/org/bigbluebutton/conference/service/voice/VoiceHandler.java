@@ -90,7 +90,7 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 		
 		log.debug("Setting up voiceBridge $voiceBridge");
 		clientManager.addSharedObject(connection.getScope().getName(), voiceBridge, so);
-		conferenceService.createConference(voiceBridge,meetingid,record); 		
+		conferenceService.createConference(voiceBridge, meetingid, record); 		
 		return true;
 	}
 

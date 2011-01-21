@@ -9,7 +9,7 @@ import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
 public class ParticipantsEventRecorder implements IRoomListener {
-	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsEventRecorder.class, "bigbluebutton" );
+	private static Logger log = Red5LoggerFactory.getLogger(ParticipantsEventRecorder.class, "bigbluebutton");
 	private final RecorderApplication recorder;
 	private final String session;
 	
