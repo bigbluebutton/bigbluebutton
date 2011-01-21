@@ -180,8 +180,13 @@ public class RoomsManager {
 		return conferenceEventListener;
 	}
 	
-	
-	// this method is called by incoming JMS requests (Spring integration)
+	/* 
+	* Pass the "cmd" of the "moduleCommand" API call method 
+	* to the Bigbluebutton server
+	* this method is called by incoming JMS requests
+	* input parameters: a string that represents the command we 	* want to pass to the Bigbluebutton client (i.e. start, stop, 	* etc). For more details see documentaion.
+	*/
+
 	public void moduleCommand(String cmd)
 	{		
 		log.debug("module Command: " + cmd);
@@ -191,13 +196,15 @@ public class RoomsManager {
 			log.error("Incorrect format of moduleCommand " + cmd);
 			return;
 		}		
+		
 		String room = cmd.substring(0, pos);
-		String realCmd = cmd.substring(pos+1);
+		//Extract the API command (i.e. start, stop, or init)
+ 		String realCmd = cmd.substring(pos+1);
 		
 		Room r = getRoom(room);
 		if (r == null)
 		{
-			log.warn("Could not find room " + room);
+			log.error("Could not find room::Room " + room + " does not exist");
 			return;
 		}
 		
