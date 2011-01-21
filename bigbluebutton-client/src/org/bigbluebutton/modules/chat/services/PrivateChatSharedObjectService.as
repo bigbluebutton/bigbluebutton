@@ -25,12 +25,19 @@ package org.bigbluebutton.modules.chat.services
 	import flash.net.NetConnection;
 	import flash.net.Responder;
 	import flash.net.SharedObject;
+    import mx.collections.ArrayCollection;
 	
 	import org.bigbluebutton.main.events.ParticipantJoinEvent;
 	import org.bigbluebutton.main.model.User;
 	import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
+    import org.bigbluebutton.modules.chat.events.RecordPrivateChatMessageEvent;
+    import org.bigbluebutton.modules.chat.events.ChatHistoryFileListEvent;
+    import org.bigbluebutton.modules.chat.events.ChatHistoryCommandEvent;
+    import org.bigbluebutton.modules.chat.events.ChatButtonEvent;
+    import org.bigbluebutton.modules.chat.events.AddRecordUserEvent;
 	import org.bigbluebutton.modules.chat.model.MessageVO;
 	import org.bigbluebutton.common.LogUtil;
+    import mx.controls.Alert ;
 
 	public class PrivateChatSharedObjectService
 	{
@@ -42,6 +49,13 @@ package org.bigbluebutton.modules.chat.services
 		
 		private var privateResponder:Responder;
 		private var participantsResponder:Responder;
+        private var record:Boolean = false ;
+        private var _suffix:int=1   ;
+        private var fileName:String ;
+        //private var partner:String='0' ;
+        private var partner:ArrayCollection = new ArrayCollection() ;
+        private var curPartner:Object ;
+        
 		
 		// This participant's userid
 		private var userid:String;
@@ -103,6 +117,7 @@ package org.bigbluebutton.modules.chat.services
 			connection.call("chat.privateMessage", privateResponder, message.message, message.sender , message.recepient);
 			
 			sendMessageToSelf(message);
+            
 		}
 		
 		private function sendMessageToSelf(message:MessageVO):void {
@@ -115,8 +130,216 @@ package org.bigbluebutton.modules.chat.services
 			trace("Sending private message " + message);
 			var globalDispatcher:Dispatcher = new Dispatcher();
 			globalDispatcher.dispatchEvent(event);	 
+            recordChatMessage(from,message);
+            
 		}
 		
+        /*****************************************************************************
+        ;  recordChatMessage
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   this routine is used to record private chat
+        ; RETURNS : N/A
+        ;
+        ; INTERFACE NOTES
+        ;   INPUT
+        ;   from :  String
+        ;   message : String
+        ;
+        ; IMPLEMENTATION
+        ;  
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 16-01-2010
+        ******************************************************************************/  
+        private function recordChatMessage(from:String,message:String):void{
+            connection.call("chat.recordChatMessage", new Responder(
+                        function(result:Object):void{
+                            LogUtil.debug("Successfully called chat server private message");
+                        },
+                        function(status:Object):void{
+                            LogUtil.error("Error while trying to call privateMessage on server");
+                        }
+                    ), 
+                this.userid,
+                from,
+                message
+            ) ;
+        }//** END FUNCTION 'recordChatMessage' **/
+        
+        /*****************************************************************************
+        ;  recordMessageEvent
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   this routine is used to handle the record event
+        ; RETURNS : N/A
+        ;
+        ; INTERFACE NOTES
+        ;   INPUT
+        ;   e: RecordPrivateChatMessageEvent
+        ;
+        ; IMPLEMENTATION
+        ;  
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 16-01-2010
+        ******************************************************************************/ 
+        public function recordMessageEvent(e:RecordPrivateChatMessageEvent,username:String):void{
+            connection.call("chat.setRecordStatus", new Responder(
+                        function(result:Object):void{
+                            LogUtil.debug("Successfully called chat server private message");
+                        },
+                        function(status:Object):void{
+                            LogUtil.error("Error while trying to call privateMessage on server");
+                        }
+                    ), 
+                e.receiver,
+                e.isRecording
+            ) ;
+        }//** END FUNCTION 'recordMessageEvent' **/
+        
+        /*****************************************************************************
+        ;  addUserToList
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   this routine is used to add record user to list
+        ; RETURNS : N/A
+        ;
+        ; INTERFACE NOTES
+        ;   INPUT
+        ;   e: AddRecordUserEvent
+        ;
+        ; IMPLEMENTATION
+        ;  
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 16-01-2010
+        ******************************************************************************/
+        public function addUserToList(e:AddRecordUserEvent):void{
+            connection.call("chat.addUserToList", new Responder(
+                        function(result:Object):void{
+                            LogUtil.debug("Successfully called chat server private message");
+                        },
+                        function(status:Object):void{
+                            LogUtil.error("Error while trying to call privateMessage on server");
+                        }
+                    ), 
+                e.userid,
+                e.username,
+                e.record
+            )
+        }//** END FUNCTION 'addUserToList' **/
+        
+        /*****************************************************************************
+        ;  removeUserFromList
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   this routine is used to remove user from the list
+        ; RETURNS : N/A
+        ;
+        ; INTERFACE NOTES
+        ;   INPUT
+        ;   e: AddRecordUserEvent
+        ;
+        ; IMPLEMENTATION
+        ;  
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 16-01-2010
+        ******************************************************************************/
+        public function removeUserFromList(e:AddRecordUserEvent):void{
+            connection.call("chat.removeUserFromList", new Responder(
+                        function(result:Object):void{
+                            LogUtil.debug("Successfully called chat server private message");
+                        },
+                        function(status:Object):void{
+                            LogUtil.error("Error while trying to call privateMessage on server");
+                        }
+                    ), 
+                e.userid
+            )
+        }//** END FUNCTION 'removeUserFromList' **/
+        
+        /*****************************************************************************
+        ;  loadFileList
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   this routine is used to load the file list from server
+        ; RETURNS : N/A
+        ;
+        ; INTERFACE NOTES
+        ;   INPUT
+        ;   e: ChatHistoryFileListEvent
+        ;
+        ; IMPLEMENTATION
+        ;  
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 16-01-2010
+        ******************************************************************************/
+        public function loadFileList(e:ChatHistoryFileListEvent):void{
+            connection.call("chat.getPrivateFileList", new Responder(
+                        function(result:Object):void{
+                            LogUtil.debug("Successfully called chat server private message");
+                            if (result != null) {
+
+                                var event:ChatHistoryFileListEvent = new ChatHistoryFileListEvent(ChatHistoryFileListEvent.DISPLAY_FILE_LIST);
+                                event.fileList = result ;
+                            
+                                var globalDispatcher:Dispatcher = new Dispatcher();
+                                globalDispatcher.dispatchEvent(event) ;
+                            
+                            
+                            };
+                        },
+                        function(status:Object):void{
+                            LogUtil.error("Error while trying to call privateMessage on server");
+                        }
+                    ), 
+                e.sender
+            )
+        }//** END FUNCTION 'loadFileList' **/
+        
+        /*****************************************************************************
+        ;  loadFileContent
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   this routine is used to load the file content from server
+        ; RETURNS : N/A
+        ;
+        ; INTERFACE NOTES
+        ;   INPUT
+        ;   e: ChatHistoryFileListEvent
+        ;
+        ; IMPLEMENTATION
+        ;  
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 16-01-2010
+        ******************************************************************************/
+        public function loadFileContent(e:ChatHistoryCommandEvent):void{
+            connection.call("chat.getPrivateChatMessages", new Responder(
+                        function(result:Object):void{
+                            LogUtil.debug("Successfully called chat server private message");
+                            if (result != null) {
+                                var event:ChatHistoryCommandEvent = new ChatHistoryCommandEvent(ChatHistoryCommandEvent.SAVE_FILE);
+                                event.message = result;
+                                event.fileName = e.fileName ;
+			
+                                var globalDispatcher:Dispatcher = new Dispatcher();
+                                globalDispatcher.dispatchEvent(event);	   			
+                            }
+                        },
+                        function(status:Object):void{
+                            LogUtil.error("Error while trying to call privateMessage on server");
+                        }
+                    ), 
+                e.userid,
+                e.fileName
+                
+            )
+        }//** END FUNCTION 'loadFileContent' **/
+        
 		private function sharedObjectSyncHandler(event:SyncEvent) : void
 		{	
 			trace("Connection to private shared object successful.");

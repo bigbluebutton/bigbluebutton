@@ -32,6 +32,9 @@ public class ChatService {
 	private static Logger log = Red5LoggerFactory.getLogger( ChatService.class, "bigbluebutton" );
 	
 	private ChatApplication application;    
+    private boolean isRecord ;
+    private PrivateChatMessageRecorder priRecorder ;
+    private ArrayList<String> messages ;
     
     
 	public List<String> getChatMessages() {
@@ -71,13 +74,10 @@ public class ChatService {
         log.debug("Setting Chat Recording Status {}",isRecording);
         String roomName = Red5.getConnectionLocal().getScope().getName();
         application.setRecordStatus(roomName,isRecording);
-    }
-    /**
-    * END FUNCTION 'setRecordStatus'
-    **/
+    }/** END FUNCTION 'setRecordStatus' **/
     
 	/*****************************************************************************
-    ;  getChatMessageFileList
+    ;  getChatMessagesFileList
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
     ;   this routine is used to get the file list from the room
@@ -89,7 +89,7 @@ public class ChatService {
     ; 
     ; IMPLEMENTATION
     ;  initialize the ChatRoomHistoryFileManager
-    ;  call getFileList to get the file list
+    ;  call getFilesList to get the file list
     ;
     ; HISTORY
     ; __date__ :        PTS:            Description
@@ -104,13 +104,13 @@ public class ChatService {
         }
         return historyManager.getFilesList() ;
 
-    }
+    }/** END FUNCTION 'getChatMessagesFileList' **/
     
 	/*****************************************************************************
     ;  getHistoryChatMessages
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
-    ; this routine is used to get the message list from a file in the room
+    ; this routine is used to get the message content from a file in the room
     ;
     ; RETURNS : List
     ;
@@ -133,8 +133,11 @@ public class ChatService {
         if ( null == historyManager ){
             log.debug("ERROR INITIALIZE ChatRoomHistoryFileManager");
         }
+        
+        log.debug("getHistoryFileChatMessage {}" , historyManager.getHistoryFileContent(fileName));
         return historyManager.getHistoryFileContent(fileName);
-    }
+    }/** END FUNCTION 'getHistoryChatMessages' **/
+    
     
     public void privateMessage(String message, String sender, String recepient){
 		log.debug("Received private message: " + message + " from " + sender + " to " + recepient + " The client scope is: " + Red5.getConnectionLocal().getScope().getName());
@@ -144,4 +147,200 @@ public class ChatService {
 		arguments.add(message);
 		sharedObject.sendMessage("messageReceived", arguments);
 	}
+    
+    /*****************************************************************************
+    ;  recordChatMessage
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to record messages
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   userid `: id of user
+    ;   toUser  :   to user
+    ;   message :   message
+    ; 
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 16-01-2011
+    ******************************************************************************/
+    public void recordChatMessage(String userid, String toUser, String message){
+        log.debug("isRecord private message from : " + userid + " to " + toUser + " " + message );
+        if ( null == priRecorder ){
+            initializePrivateChatRecorder() ;
+        }
+
+        priRecorder.addChatHistory(userid,toUser,message);
+        
+    }/** END FUNCTION 'recordChatMessage' **/
+    
+    /*****************************************************************************
+    ;  setRecordStatus
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to set record status
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   toUser `: to user
+    ;   record  : status record
+    ; 
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 16-01-2011
+    ******************************************************************************/
+    public void setRecordStatus(String toUser, boolean record){
+        log.debug("Set Record Status : " + toUser + " " + record );
+        if ( null == priRecorder ){
+            initializePrivateChatRecorder() ;
+            
+        }
+
+        priRecorder.setRecordStatusToUser(toUser,record);
+    }/** END FUNCTION 'setRecordStatus' **/
+    
+    /*****************************************************************************
+    ;  addUserToList
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to add user to list
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   userid  : id of user
+    ;   username `: user name
+    ;   record  : status record
+    ; 
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 16-01-2011
+    ******************************************************************************/
+    public void addUserToList(String userid, String username, boolean record){
+        log.debug("addUserToList: " + userid + " " + username + " " +  record);
+        if ( null == priRecorder ){
+            initializePrivateChatRecorder() ;
+            
+        }
+        priRecorder.addUserToList(userid,username,record) ;
+    }/** END FUNCTION 'addUserToList' **/
+    
+    /*****************************************************************************
+    ;  removeUserFromList
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to remove user from list
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   userid  : id of user
+    ; 
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 16-01-2011
+    ******************************************************************************/
+    public void removeUserFromList(String userid){
+        if ( null == priRecorder ){
+            initializePrivateChatRecorder() ;
+            
+        }
+        priRecorder.removeUserFromList(userid) ;
+    }/** END FUNCTION 'removeUserFromList' **/
+    
+    /*****************************************************************************
+    ;  getPrivateFileList
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to get private file list
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   userid  : id of user
+    ; 
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 16-01-2011
+    ******************************************************************************/
+    public List<String> getPrivateFileList(String userid){
+        
+        String roomName = Red5.getConnectionLocal().getScope().getName();
+        ChatRoomHistoryFileManager historyManager = new ChatRoomHistoryFileManager(roomName + "/" + userid);
+        if ( null == historyManager ){
+            log.debug("ERROR INITIALIZE ChatRoomHistoryFileManager");
+            return null ;
+        }
+        return historyManager.getFilesList() ;
+        
+    }/** END FUNCTION 'getPrivateFileList' **/
+    
+    /*****************************************************************************
+    ;  getPrivateChatMessages
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to get private file content
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   userid  : id of user
+    ;   fileName : file name
+    ; 
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 16-01-2011
+    ******************************************************************************/
+    public List<String> getPrivateChatMessages(String userid,String fileName){
+        log.debug("Get Private History File Content {}", fileName);
+        String roomName = Red5.getConnectionLocal().getScope().getName();
+        ChatRoomHistoryFileManager historyManager = new ChatRoomHistoryFileManager(roomName + "/" + userid);
+        if ( null == historyManager ){
+            log.debug("ERROR INITIALIZE ChatRoomHistoryFileManager");
+            return null ;
+        }
+        
+        log.debug("getPrivateChatMessages {}" , historyManager.getHistoryFileContent(fileName));
+        return historyManager.getHistoryFileContent(fileName);
+    }/** END FUNCTION 'getPrivateChatMessages' **/
+    
+    /*****************************************************************************
+    ;  initializePrivateChatRecorder
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to initialize PrivateChatMessageRecorder Class
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ; 
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 16-01-2011
+    ******************************************************************************/
+    public void initializePrivateChatRecorder() {
+        String roomName = Red5.getConnectionLocal().getScope().getName();
+        priRecorder = new PrivateChatMessageRecorder(roomName) ;
+        if ( null == priRecorder ){
+            log.debug("Initialize failed" );
+            return ;
+        }
+    }/** END FUNCTION 'initializePrivateChatRecorder' **/
+    
 }

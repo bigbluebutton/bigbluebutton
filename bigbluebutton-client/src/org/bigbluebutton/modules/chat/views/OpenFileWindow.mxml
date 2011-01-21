@@ -23,69 +23,258 @@
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mate="http://mate.asfusion.com/"
     	title="{ResourceUtil.getInstance().getString('bbb.chat.openfile.title')}"
-    	x="168" y="86" layout="absolute" width="300" height="500" creationComplete="initData()">
+    	x="168" y="86" layout="absolute" width="300" height="500" initialize="initData()"
+        >
     
     
-    <mate:Listener type="{ChatHistoryEvent.DISPLAY_FILE}" method="handleDisplayFile" />
+    <mate:Listener type="{ChatHistoryFileListEvent.DISPLAY_FILE_LIST}" method="handleDisplayFile" />
+    <mate:Listener type="{ChatHistoryCommandEvent.SAVE_FILE}" method="handleSaveFile" />
     <mx:Script>
 		<![CDATA[
         
         import com.asfusion.mate.events.Dispatcher;
         
         import flash.events.IEventDispatcher;
+        import flash.net.FileReference;
+        import flash.events.MouseEvent;
+
+
         import mx.collections.ArrayCollection;
         import mx.events.ListEvent;
+        import org.bigbluebutton.main.api.UserManager;
+        import org.bigbluebutton.main.model.users.Conference;
         
-        import org.bigbluebutton.modules.chat.events.ChatHistoryEvent ;
+        import org.bigbluebutton.modules.chat.events.ChatHistoryFileListEvent ;
+        import org.bigbluebutton.modules.chat.events.ChatHistoryCommandEvent ;
+        import org.bigbluebutton.modules.chat.events.ChatHistoryWindowEvent ;
+        
         import org.bigbluebutton.util.i18n.ResourceUtil;
         import mx.controls.Alert ;
+        import mx.managers.PopUpManager;
         
+        private var conference:Conference = UserManager.getInstance().getConference();
         [Bindable] public var files:ArrayCollection = new ArrayCollection();
         [Bindable] private var isSelected:Boolean = false ;
         private var fileName:String ;
-        
+        private var msg:String ;
+        public var isPrivate:Boolean = false ;
+        private var file:FileReference = new FileReference();
+        private var globalDispatcher:Dispatcher = new Dispatcher();
+
+        /*****************************************************************************
+        ;  initData
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   this routine is used to initialize when the file load, add listener 
+        ;   to button
+        ; RETURNS : N/A
+        ;
+        ; INTERFACE NOTES
+        ;   INPUT
+        ; 
+        ; IMPLEMENTATION
+        ;  add event listener to dowloadBtn
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 13-01-2011
+        ******************************************************************************/
         private function initData():void{
-        
-        }
+            this.downloadBtn.addEventListener(MouseEvent.MOUSE_OVER,doMouseOver);
+            this.downloadBtn.addEventListener(MouseEvent.CLICK,doMouseClick);
+        }/** END FUNCTION 'initData' **/
             
-        
-        private function onItemRollOver(event:ListEvent):void{
-			
-        }
-        
-        private function onItemRollOut(event:ListEvent):void{
-			
-		}
-        
-        private function loadFileContent():void{
-            var event:ChatHistoryEvent = new ChatHistoryEvent(ChatHistoryEvent.OPEN_FILE) ;
+        /*****************************************************************************
+        ;  doMouseOver
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   this routine is used handle mouse over event
+        ;   
+        ; RETURNS : N/A
+        ;
+        ; INTERFACE NOTES
+        ;   INPUT
+        ;   e:  MouseEvent
+        ; IMPLEMENTATION
+        ;  dispatch event to load the file content
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 13-01-2011
+        ******************************************************************************/
+        private function doMouseOver(e:MouseEvent):void{
+            var event:ChatHistoryCommandEvent ;
+            
+            if ( false == isPrivate){
+                event  = new ChatHistoryCommandEvent(ChatHistoryCommandEvent.OPEN_FILE) ;
+            }else{
+                event  = new ChatHistoryCommandEvent(ChatHistoryCommandEvent.OPEN_PRIVATE_FILE) ;
+                event.userid = String(conference.me.userid) ;
+            }
             event.fileName = this.fileName ;
-            this.dispatchEvent(event) ;
-            this.dispatchEvent(new ChatHistoryEvent(ChatHistoryEvent.CLOSE_HISTORY_WINDOW));
-        }
+            globalDispatcher.dispatchEvent(event) ;
+        }/** END FUNCTION 'doMouseOver' **/
         
-        private function closeHistoryWindow():void{
-            this.dispatchEvent(new ChatHistoryEvent(ChatHistoryEvent.CLOSE_HISTORY_WINDOW));
-        }
+        /*****************************************************************************
+        ;  doMouseClick
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   this routine is used handle mouse click event
+        ;   
+        ; RETURNS : N/A
+        ;
+        ; INTERFACE NOTES
+        ;   INPUT
+        ;   e:  MouseEvent
+        ; IMPLEMENTATION
+        ;  open save dialog window
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 13-01-2011
+        ******************************************************************************/
+        private function doMouseClick(e:MouseEvent):void{
+            file.save(this.msg,this.fileName);
+        }/** END FUNCTION 'doMouseClick' **/
         
-        private function handleLoadFile(e:ChatHistoryEvent):void{
+        /*****************************************************************************
+        ;  onItemRollOver
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ; 
+        ;   
+        ; RETURNS : N/A
+        ;
+        ; INTERFACE NOTES
+        ;   INPUT
+        ; 
+        ; IMPLEMENTATION
+        ; 
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 13-01-2011
+        ******************************************************************************/
+        private function onItemRollOver(event:ListEvent):void{
+			/* Do something */
+        }/** END FUNCTION 'onItemRollOver' **/
         
-        }
+        /*****************************************************************************
+        ;  onItemRollOut
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   
+        ;   
+        ; RETURNS : N/A
+        ;
+        ; INTERFACE NOTES
+        ;   INPUT
+        ;   
+        ; IMPLEMENTATION
+        ;  
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 13-01-2011
+        ******************************************************************************/
+        private function onItemRollOut(event:ListEvent):void{
+			/* Do something */
+		} /** END FUNCTION 'onItemRollOut' **/
+              
+        /*****************************************************************************
+        ;  closeHistoryWindow
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   this routine is used close the dialog of list file
+        ;   
+        ; RETURNS : N/A
+        ;
+        ; INTERFACE NOTES
+        ;   INPUT
+        ;   
+        ; IMPLEMENTATION
+        ;  remove pop up window
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 13-01-2011
+        ******************************************************************************/
+        private function closeHistoryWindow():void{    
+            PopUpManager.removePopUp(this);
+        } /** END FUNCTION 'closeHistoryWindow' **/
         
-        private function handleDisplayFile(e:ChatHistoryEvent):void{
+        /*****************************************************************************
+        ;  handleDisplayFile
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   this routine is used handle the event from chatView, load the file list 
+        ;   and display in DataGrid
+        ;   
+        ; RETURNS : N/A
+        ;
+        ; INTERFACE NOTES
+        ;   INPUT
+        ;   e:  ChatHistoryFileListEvent
+        ; IMPLEMENTATION
+        ;  get data from ChatHistoryFileListEvent and add to DataGrid
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 13-01-2011
+        ******************************************************************************/
+        private function handleDisplayFile(e:ChatHistoryFileListEvent):void{
             var i:int = 0 ;
             if ( null == e.fileList ) return ;
+            //files = null ;
             
             var fileList:Array = e.fileList as Array ;
             for ( i=0 ; i < fileList.length ; i++ ){
                 files.addItem(fileList[i]) ;
             }
-        }
+        } /** END FUNCTION 'handleDisplayFile' **/
         
+        
+        /*****************************************************************************
+        ;  handleSaveFile
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   this routine is used handle mouse click event
+        ;   
+        ; RETURNS : N/A
+        ;
+        ; INTERFACE NOTES
+        ;   INPUT
+        ;   e:  ChatHistoryCommandEvent
+        ; IMPLEMENTATION
+        ;  get data from ChatHistoryCommandEvent and pass it to msg variable
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 13-01-2011
+        ******************************************************************************/
+        private function handleSaveFile(e:ChatHistoryCommandEvent):void{
+            var messages:Array = e.message as Array;
+            this.fileName = e.fileName ;
+           
+            msg = "###  Chat History ### \n" ;
+            for( var i:int=0; i<messages.length; i++ ){
+                this.msg = this.msg + messages[i] + "\n" ;
+            }
+        } /** END FUNCTION 'handleSaveFile' **/
+        
+        /*****************************************************************************
+        ;  fileSelectEvent
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   this routine is used handle the select event from DataGrid
+        ;   
+        ; RETURNS : N/A
+        ;
+        ; INTERFACE NOTES
+        ;   INPUT
+        ;   event:  ListEvent
+        ; IMPLEMENTATION
+        ;  open save dialog window
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 13-01-2011
+        ******************************************************************************/
         private function fileSelectEvent(event:ListEvent):void {
             this.isSelected = true ;
             this.fileName = String(historyFilesGrid.selectedItem) ;
-        } 
+        } /** END FUNCTION 'fileSelectEvent' **/
 	]]>
 		
 	</mx:Script>
@@ -99,9 +288,8 @@
         </mx:columns>
     </mx:DataGrid>
     <mx:ControlBar width="100%"> 
-   		 <mx:Button id="openBtn" label="{ResourceUtil.getInstance().getString('bbb.chat.openBtn.label')}" visible="{isSelected}"
-    	   			toolTip="{ResourceUtil.getInstance().getString('bbb.chat.openfile.toolTip')}"
-    	   			click="loadFileContent()"/>
+   		 <mx:Button id="downloadBtn" label="{ResourceUtil.getInstance().getString('bbb.chat.downloadBtn.label')}" enabled="{isSelected}"
+    	   			toolTip="{ResourceUtil.getInstance().getString('bbb.chat.downloadfile.toolTip')}" />
      	 <mx:Spacer width="100%"/>
     	 <mx:Button id="cancelBtn" label="{ResourceUtil.getInstance().getString('bbb.chat.cancelBtn.label')}" 
     	   			toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cancelBtn.toolTip')}" 

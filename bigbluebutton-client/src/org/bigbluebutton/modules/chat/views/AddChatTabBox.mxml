@@ -167,6 +167,7 @@
 				var id:String = participantsList.selectedItem.userid;
 				participantsList.selectedIndex = -1;
 				chatView.openChatBoxFor(id);
+                chatView.addButtonFor(id);
 			}
 			
 			private function changeFontSize():void{

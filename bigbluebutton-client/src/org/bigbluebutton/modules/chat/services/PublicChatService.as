@@ -22,7 +22,8 @@ package org.bigbluebutton.modules.chat.services
 	
 	import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
 	import org.bigbluebutton.modules.chat.events.RecordChatMessageEvent;
-    import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
+    import org.bigbluebutton.modules.chat.events.ChatHistoryCommandEvent;
+    import mx.controls.Alert;
     
 	public class PublicChatService
 	{
@@ -56,64 +57,65 @@ package org.bigbluebutton.modules.chat.services
 			newMessage = event.message + "|" + attributes.username + "|" + event.color + "|" + event.time + "|" + event.language + "|" + attributes.userid;
 			chatSOService.sendMessage(newMessage);
 		}
-/*****************************************************************************
-;  recordMessageEvent
-;----------------------------------------------------------------------------
-; DESCRIPTION
-;
-; RETURNS : N/A
-;
-; INTERFACE NOTES
-;   INPUT
-; 
-; IMPLEMENTATION
-;  
-; HISTORY
-; __date__ :        PTS:            Description
-; 
-******************************************************************************/        
+        /*****************************************************************************
+        ;  recordMessageEvent
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   this routine is used to send the record status to chatSO
+        ; RETURNS : N/A
+        ;
+        ; INTERFACE NOTES
+        ;   INPUT
+        ;   e :  RecordChatMessageEvent , Event
+        ; IMPLEMENTATION
+        ;  send record status to chatSO
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 12-27-2010
+        ******************************************************************************/        
         public function recordMessageEvent(e:RecordChatMessageEvent):void {
-            chatSOService.RecordMessageEvent(e.isRecording);
-        }
+            chatSOService.recordMessageEvent(e.isRecording);
+        } /** END FUNCTION 'recordMessageEvent' **/
 
-/*****************************************************************************
-;  loadFileList
-;----------------------------------------------------------------------------
-; DESCRIPTION
-;
-; RETURNS : N/A
-;
-; INTERFACE NOTES
-;   INPUT
-; 
-; IMPLEMENTATION
-;  
-; HISTORY
-; __date__ :        PTS:            Description
-; 
-******************************************************************************/
+        /*****************************************************************************
+        ;  loadFileList
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   this routine is used to call the ChatSO to load file list from server
+        ; RETURNS : N/A
+        ;
+        ; INTERFACE NOTES
+        ;   N/A
+        ; 
+        ; IMPLEMENTATION
+        ;  call function loadFileList of chatSOService to load file list from server
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 12-27-2010
+        ******************************************************************************/
         public function loadFileList():void{
             chatSOService.loadFileList();
-        }
+        }/** END FUNCTION 'loadFileList' **/
 
-/*****************************************************************************
-;  loadFileContent
-;----------------------------------------------------------------------------
-; DESCRIPTION
-;
-; RETURNS : N/A
-;
-; INTERFACE NOTES
-;   INPUT
-; 
-; IMPLEMENTATION
-;  
-; HISTORY
-; __date__ :        PTS:            Description
-; 
-******************************************************************************/
-        public function loadFileContent(e:ChatHistoryEvent):void{
+        /*****************************************************************************
+        ;  loadFileContent
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   this routine is used to call load file content is chatSO from the server
+        ; RETURNS : N/A
+        ;
+        ; INTERFACE NOTES
+        ;   INPUT
+        ;   e : ChatHistoryCommandEvent, Event
+        ; IMPLEMENTATION
+        ;  call function loadFileContent from chatSOService to load the file content 
+        ;  from server
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 12-27-2010
+        ******************************************************************************/
+        public function loadFileContent(e:ChatHistoryCommandEvent):void{
             chatSOService.loadFileContent(e.fileName);
-        }
+        }/** END FUNCTION 'loadFileContent' **/
 	}
 }

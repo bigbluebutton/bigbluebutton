@@ -69,7 +69,7 @@ public class ChatRoom {
 	
 	@SuppressWarnings("unchecked")
 	public void sendMessage(String msg){
-		//messages.add(msg);
+		messages.add(msg);
 		
 		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
 			log.debug("calling on listener");

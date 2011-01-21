@@ -21,20 +21,15 @@ package org.bigbluebutton.conference.service.chat;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.bigbluebutton.conference.service.chat.IChatRoomListener;
 import org.red5.server.api.so.ISharedObject;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 
-import org.jdom.Document;
-import org.jdom.DocType;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.XMLOutputter;
-
 import java.io.File;
 import java.io.FileWriter;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Iterator;
@@ -57,11 +52,10 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
     private ISharedObject so;
     
     private File gHistoryFile = null ;
-    private Document gXmlDoc = null ;
-    private DocType  gXmlDocType = null ;
     private String gFileName = "ChatMessageRecorded-" ; ;
     private String gDir ;
     private Integer _suffix=1 ;
+
     
     String name = "CHATRECORDER";
 
@@ -90,8 +84,10 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
             log.debug("The SO parameter is null");
         }
         
+        
+        boolean success = false ;
+        
         this.so = so; 
-        boolean success ;
         this.gDir = "/tmp/" + lDir ;
         
         success = (new File(gDir)).mkdir() ;
@@ -101,17 +97,15 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
         }else{
             log.debug("Directory {} was not created",gDir);
         }
-    }
-    /**
-    * END FUNCTION 'ChatMessageRecorder'
-    **/
+        
+    }/** END FUNCTION 'ChatMessageRecorder' **/
 
     /*****************************************************************************
     ;  getName
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
     ;   This routine is implemented from IChatRoomListener.
-    ; RETURNS : N/A
+    ; RETURNS : name
     ;
     ; INTERFACE NOTES
     ;   N/A
@@ -126,10 +120,7 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
     public String getName() {
         log.debug("ChatMessageRecorder getName {}" , name);
         return name;
-    }
-    /**
-    * END FUNCTION 'getName'
-    **/
+    }/** END FUNCTION 'getName' **/
     
     /*****************************************************************************
     ;  newChatMessage
@@ -162,10 +153,7 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
         if ( true == this.record ){
             addChatHistory(message);
         }
-    }
-    /**
-    * END FUNCTION 'newChatMessage'
-    **/
+    }/** END FUNCTION 'newChatMessage' **/
     
     /*****************************************************************************
     ;  setRecordStatus
@@ -190,54 +178,23 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
         // check input parameter
         if ( null == status ){
             log.debug("Record Status Parameter is null");
+            return ;
         }
         
+        boolean success = false ;
         this.record = status ;
         log.debug("setRecordStatus Setting {}",this.record);
         
         // create file when moderator click record button
         if ( true == this.record ){
-            createHistoryFile();
-        }
-        
-    }
-    /**
-    * END FUNCTION 'setRecordStatus'
-    **/
-    
-    /*****************************************************************************
-    ;  loadHistoryFileContent
-    ;----------------------------------------------------------------------------
-    ; DESCRIPTION
-    ;   this routine is used to read the content of xml file
-    ; RETURNS : N/A
-    ;
-    ; INTERFACE NOTES
-    ;   N/A
-    ; 
-    ; IMPLEMENTATION
-    ;  load content of a file to store in gXmlDoc
-    ; HISTORY
-    ; __date__ :        PTS:            Description
-    ; 12-27-2010
-    ******************************************************************************/
-    private boolean loadHistoryFileContent() throws IOException{
-        try{
-            SAXBuilder builder = new SAXBuilder();
-            if ( null == builder ){
-                log.debug("ERROR INITIALIZE SAXBuilder");
-                return false ;
+            success = createHistoryFile() ;
+            if ( false == success ){
+                return ;
             }
-            gXmlDoc = builder.build(gHistoryFile) ;
-        }catch(JDOMException e){
-            e.printStackTrace(System.err);
         }
-        return true ;
-    }
-    /**
-    * END FUNCTION 'loadHistoryFileContent'
-    **/
         
+    }/** END FUNCTION 'setRecordStatus' **/
+    
     /*****************************************************************************
     ;  createUniqueFile
     ;----------------------------------------------------------------------------
@@ -261,21 +218,33 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
         gHistoryFile = new File( gDir, gFileName + _suffix );
         if ( null == gHistoryFile ){
             log.debug ("ERROR INITIALIZE gHistoryFile");
+            return false ;
         }
+        
+        boolean success = true ;
+        
         while(gHistoryFile.exists()){
             _suffix = _suffix + 1 ;
             gHistoryFile = new File( gDir, gFileName + _suffix );
             if ( null == gHistoryFile ){
                 log.debug ("ERROR INITIALIZE gHistoryFile");
+                success = false ;
+                break ;
             }
+        }
+        if ( false == success ){
+            return false ;
+        }
+        
+        try{
+            gHistoryFile.createNewFile();
+        }catch(IOException e){
+            log.debug ("ERROR: {}",e.getMessage());
         }
         log.debug("Current Used File {}", gHistoryFile);
         return true ;
         
-    }
-    /**
-    * END FUNCTION 'createUniqueFile'
-    **/
+    }/** END FUNCTION 'createUniqueFile' **/
     
     /*****************************************************************************
     ;  createHistoryFile
@@ -298,74 +267,10 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
     ; 12-27-2010 
     ******************************************************************************/
     private boolean createHistoryFile(){
-        createUniqueFile();
-        Element root = new Element("ChatHistory");
-        if ( null == root ){
-            log.debug("ERROR INITIALIZE root Element");
-        }
-        Element pubChat = new Element("Public") ;
-        if ( null == pubChat ){
-            log.debug("ERROR INITIALIZE public tag Element");
-        }
-        Element priChat = new Element("Private") ;
-        if ( null == priChat ){
-            log.debug("ERROR INITIALIZE private tag Element");
-        }
-        gXmlDocType = new DocType("BigBlueButton") ;
-        if ( null == gXmlDocType ){
-            log.debug("ERROR INITIALIZE DocType Element");
-        }
-        gXmlDoc = new Document(root,gXmlDocType);
-        if ( null == root ){
-            log.debug("ERROR INITIALIZE gXmlDoc Element");
-        }
-        root.addContent(pubChat) ;
-        root.addContent(priChat) ;
-        try{
-            saveHistoryFile() ;
-        }catch(IOException e){
-            e.printStackTrace(System.err);
-        }
-        
-        return true ;
-    }
-    /**
-    * END FUNCTION 'createHistoryFile'
-    **/
-    
-    /*****************************************************************************
-    ;  saveHistoryFile
-    ;----------------------------------------------------------------------------
-    ; DESCRIPTION
-    ; this routine is used to save the content of xml to a file
-    ;
-    ; RETURNS : N/A
-    ;
-    ; INTERFACE NOTES
-    ;   N/A
-    ; 
-    ; IMPLEMENTATION
-    ;  get the output of xml content then write to file
-    ;
-    ; HISTORY
-    ; __date__ :        PTS:            Description
-    ; 12-27-2010 
-    ******************************************************************************/
-    private void saveHistoryFile() throws IOException {
-        XMLOutputter outputter = new XMLOutputter();
-        if ( null == outputter ) {
-            log.debug("ERROR INITIALIZE Xml Output");
-        }
-        FileWriter writer = new FileWriter(gHistoryFile);
-        if ( null == writer ) {
-            log.debug("ERROR INITIALIZE File Writer Output");
-        }
-        outputter.output(gXmlDoc,writer);
-        writer.close();
-    }
-    /**
-    * END FUNCTION 'saveHistoryFile'
-    **/
+        boolean success = false ;
+        success = createUniqueFile();        
+        return success ;
+    }/** END FUNCTION 'createHistoryFile' **/
     
     /*****************************************************************************
     ;  addChatHistory
@@ -387,23 +292,27 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
     ; 12-27-2010 
     ******************************************************************************/
     public boolean addChatHistory(String lMessage){
-        Element element = new Element("Message");
-        if ( null == element ) {
-            log.debug("ERROR INITIALIZE Element Message");
+        
+        if ( null == lMessage ){
+            log.debug("error input parameter");
+            return false ;
         }
-        element.setText(lMessage);
-        element.setAttribute("name", getUserName(lMessage));
-        gXmlDoc.getRootElement().getChild("Public").addContent(element) ;
+        
+        String name = this.getUserName(lMessage) ;
+        String msg  = this.getMessage(lMessage)  ;
+        String time = this.getTime(lMessage)     ;
+        
         try{
-            saveHistoryFile() ;
+            BufferedWriter out = new BufferedWriter(new FileWriter(gHistoryFile, true));
+            out.write("[" + name + "]" + " : " + time + " : " + msg + "\n" ) ;
+            log.debug("Append Message to {} ",gHistoryFile);
+            log.debug("Message to {} ",name + " : " + time + " : " + msg + "\n" );
+            out.close();
         }catch(IOException e){
-            e.printStackTrace(System.err);
+            log.debug("error {}",e.getMessage());
         }
         return true ;
-    }
-    /**
-    * END FUNCTION 'addChatHistory'
-    **/
+    }/** END FUNCTION 'addChatHistory' **/
     
     /*****************************************************************************
     ;  getUserName
@@ -428,10 +337,56 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
         String[] lMsgTemp ;
         lMsgTemp = lMessage.split("\\|") ;
         return lMsgTemp[1] ;
-    }
-    /**
-    * END FUNCTION 'getUserName'
-    **/
-}/**
-    * END CLASS 'ChatMessageRecorder'
-    **/
+    }/** END FUNCTION 'getUserName' **/
+    
+    /*****************************************************************************
+    ;  getMessage
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ; this routine is used to get the message from lMessage
+    ;
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   lMessage : String 
+    ; 
+    ; IMPLEMENTATION
+    ;  split string to get the message
+    ;
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 01-12-2011 
+    ******************************************************************************/
+    public String getMessage(String lMessage){
+        String[] lMsgTemp ;
+        lMsgTemp = lMessage.split("\\|") ;
+        return lMsgTemp[0] ;
+    }/** END FUNCTION 'getMessage' **/
+    
+    /*****************************************************************************
+    ;  getTime
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ; this routine is used to get the time from lMessage
+    ;
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   lMessage : String 
+    ; 
+    ; IMPLEMENTATION
+    ;  split string to get the time
+    ;
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 01-12-2011 
+    ******************************************************************************/
+    public String getTime(String lMessage){
+        String[] lMsgTemp ;
+        lMsgTemp = lMessage.split("\\|") ;
+        return lMsgTemp[3] ;
+    }/** END FUNCTION 'getTime' **/
+
+}/** END CLASS 'ChatMessageRecorder' **/

@@ -34,7 +34,8 @@ package org.bigbluebutton.modules.chat.services
 	import org.bigbluebutton.modules.chat.events.ConnectionEvent;
 	import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
 	import org.bigbluebutton.modules.chat.events.TranscriptEvent;
-    import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
+    import org.bigbluebutton.modules.chat.events.ChatHistoryCommandEvent;
+    import org.bigbluebutton.modules.chat.events.ChatHistoryFileListEvent;
 
 	public class PublicChatSharedObjectService
 	{
@@ -106,23 +107,24 @@ package org.bigbluebutton.modules.chat.services
 			); //_netConnection.call
 		}
 		
-/*****************************************************************************
-;  RecordMessageEvent
-;----------------------------------------------------------------------------
-; DESCRIPTION
-;
-; RETURNS : N/A
-;
-; INTERFACE NOTES
-;   INPUT
-; 
-; IMPLEMENTATION
-;  
-; HISTORY
-; __date__ :        PTS:            Description
-; 
-******************************************************************************/
-        public function RecordMessageEvent(isRecord:Boolean):void{
+    /*****************************************************************************
+    ;  recordMessageEvent
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to set the record status
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   isRecord : Boolean , record status
+    ;
+    ; IMPLEMENTATION
+    ;   send the record status to server  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 12-27-2010
+    ******************************************************************************/
+        public function recordMessageEvent(isRecord:Boolean):void{
             var nc:NetConnection = connection ;
             nc.call(
                 "chat.setRecordStatus",
@@ -139,24 +141,24 @@ package org.bigbluebutton.modules.chat.services
                 ),
                 isRecord
             );
-        }
+        }/** END FUNCTION 'RecordMessageEvent' **/
 
-/*****************************************************************************
-;  loadFileList
-;----------------------------------------------------------------------------
-; DESCRIPTION
-;
-; RETURNS : N/A
-;
-; INTERFACE NOTES
-;   INPUT
-; 
-; IMPLEMENTATION
-;  
-; HISTORY
-; __date__ :        PTS:            Description
-; 
-******************************************************************************/
+    /*****************************************************************************
+    ;  loadFileList
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to load the file list from the server
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ; 
+    ; IMPLEMENTATION
+    ;  load file list from server
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 12-27-2010
+    ******************************************************************************/
         public function loadFileList():void{
             var nc:NetConnection = connection;
 			nc.call(
@@ -165,9 +167,9 @@ package org.bigbluebutton.modules.chat.services
 	        		// On successful result
 					function(result:Object):void { 
 						LogUtil.debug("Successfully sent message: "); 
-						if (result != null) {
+						if (null != result) {
 
-							var event:ChatHistoryEvent = new ChatHistoryEvent(ChatHistoryEvent.DISPLAY_FILE);
+							var event:ChatHistoryFileListEvent = new ChatHistoryFileListEvent(ChatHistoryFileListEvent.DISPLAY_FILE_LIST);
                             event.fileList = result ;
                             
                             var globalDispatcher:Dispatcher = new Dispatcher();
@@ -185,24 +187,26 @@ package org.bigbluebutton.modules.chat.services
 					}
 				)//new Responder
 			); //_netConnection.call	
-        }
+        }/** END FUNCTION 'loadFileList' **/
         
-/*****************************************************************************
-;  loadFileContent
-;----------------------------------------------------------------------------
-; DESCRIPTION
-;
-; RETURNS : N/A
-;
-; INTERFACE NOTES
-;   INPUT
-; 
-; IMPLEMENTATION
-;  
-; HISTORY
-; __date__ :        PTS:            Description
-; 
-******************************************************************************/
+    /*****************************************************************************
+    ;  loadFileContent
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to load the content of file from server
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   fileName : String , file name
+    ;   
+    ; IMPLEMENTATION
+    ;   load content of file from server
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 12-27-2010
+    ******************************************************************************/
         public function loadFileContent(fileName:String):void{
             var nc:NetConnection = connection;
 			nc.call(
@@ -211,11 +215,13 @@ package org.bigbluebutton.modules.chat.services
 	        		// On successful result
 					function(result:Object):void { 
 						LogUtil.debug("Successfully sent message: "); 
-						if (result != null) {
-							var message:Array = result as Array ;
-                            for(var i:int=0; i<result.length; i++){
-                                sendMessage(message[i]);
-                            }
+						if (null != result) {
+							var event:ChatHistoryCommandEvent = new ChatHistoryCommandEvent(ChatHistoryCommandEvent.SAVE_FILE);
+                            event.message = result;
+                            event.fileName = fileName ;
+			
+                            var globalDispatcher:Dispatcher = new Dispatcher();
+                            globalDispatcher.dispatchEvent(event);	   			
 						}
 					},	
 					// status - On error occurred
@@ -228,7 +234,8 @@ package org.bigbluebutton.modules.chat.services
 				),//new Responder
                 fileName
 			); //_netConnection.call	
-        }
+        } /** END FUNCTION 'loadFileContent' **/
+        
 		/**
 		 * Called by the server to deliver a new chat message.
 		 */	

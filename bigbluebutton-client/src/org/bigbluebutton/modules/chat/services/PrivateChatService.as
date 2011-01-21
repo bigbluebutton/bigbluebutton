@@ -21,7 +21,13 @@ package org.bigbluebutton.modules.chat.services
 	import flash.events.IEventDispatcher;
 	
 	import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
+    import org.bigbluebutton.modules.chat.events.RecordPrivateChatMessageEvent;
+    import org.bigbluebutton.modules.chat.events.ChatHistoryFileListEvent;
+    import org.bigbluebutton.modules.chat.events.AddRecordUserEvent;
+    import org.bigbluebutton.modules.chat.events.ChatButtonEvent;
+    import org.bigbluebutton.modules.chat.events.ChatHistoryCommandEvent;
 	import org.bigbluebutton.modules.chat.model.MessageVO;
+    import mx.controls.Alert; 
 	
 
 	public class PrivateChatService
@@ -56,7 +62,113 @@ package org.bigbluebutton.modules.chat.services
 			var messageVO:MessageVO = new MessageVO(newMessage, attributes.userid, event.toUser);
 			chatSOService.sendMessage(messageVO);
 		}
-		
+        
+        /*****************************************************************************
+        ;  recordMessageEvent
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   this routine is used to handle the event from private record chat
+        ; RETURNS : N/A
+        ;
+        ; INTERFACE NOTES
+        ;   INPUT
+        ;   e: RecordPrivateChatMessageEvent
+        ; 
+        ; IMPLEMENTATION
+        ;  
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 01-16-2010
+        ******************************************************************************/
+        public function recordMessageEvent(e:RecordPrivateChatMessageEvent):void{
+            chatSOService.recordMessageEvent(e,attributes.username);
+        }/** END OF 'recordMessageEvent'**/
+        
+        /*****************************************************************************
+        ;  addUserToList
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   this routine is used add record user to list
+        ; RETURNS : N/A
+        ;
+        ; INTERFACE NOTES
+        ;   INPUT
+        ;   e: AddRecordUserEvent
+        ; 
+        ; IMPLEMENTATION
+        ;  
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 01-16-2010
+        ******************************************************************************/
+        public function addUserToList(e:AddRecordUserEvent):void{
+            chatSOService.addUserToList(e);
+        }/** END OF 'addUserToList'**/
+        
+        /*****************************************************************************
+        ;  removeUserFromList
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   this routine is used to remove user from list
+        ; RETURNS : N/A
+        ;
+        ; INTERFACE NOTES
+        ;   INPUT
+        ;   e: AddRecordUserEvent
+        ; 
+        ; IMPLEMENTATION
+        ;  
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 01-16-2010
+        ******************************************************************************/
+        public function removeUserFromList(e:AddRecordUserEvent):void{
+            chatSOService.removeUserFromList(e);
+        }/** END OF 'removeUserFromList'**/
+        
+        
+        /*****************************************************************************
+        ;  loadFileList
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   this routine is used to load the file list from server
+        ; RETURNS : N/A
+        ;
+        ; INTERFACE NOTES
+        ;   INPUT
+        ;   e: ChatHistoryFileListEvent
+        ; 
+        ; IMPLEMENTATION
+        ;  
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 01-16-2010
+        ******************************************************************************/
+        public function loadFileList(e:ChatHistoryFileListEvent):void{
+            chatSOService.loadFileList(e);
+        }/** END OF 'loadFileList'**/
+        
+        /*****************************************************************************
+        ;  loadFileContent
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   this routine is used to load the file content from server
+        ; RETURNS : N/A
+        ;
+        ; INTERFACE NOTES
+        ;   INPUT
+        ;   e: ChatHistoryCommandEvent
+        ; 
+        ; IMPLEMENTATION
+        ;  
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 01-16-2010
+        ******************************************************************************/
+        public function loadFileContent(e:ChatHistoryCommandEvent):void{
+            chatSOService.loadFileContent(e);
+        }/** END OF 'loadFileContent'**/
+        
 		public function queryForParticipants():void {
 			chatSOService.queryForParticipants();
 		}

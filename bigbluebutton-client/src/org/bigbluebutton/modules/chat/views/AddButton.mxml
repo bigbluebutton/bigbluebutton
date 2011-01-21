@@ -1,0 +1,582 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+  
+  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+  
+  BigBlueButton is free software; you can redistribute it and/or modify it under the 
+  terms of the GNU Lesser General Public License as published by the Free Software 
+  Foundation; either version 2.1 of the License, or (at your option) any later 
+  version. 
+  
+  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public License along 
+  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ 
+  $Id: $
+-->
+
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="init()" xmlns:mate="http://mate.asfusion.com/">
+	
+	<mate:Listener type="{ChatButtonEvent.NEW_BUTTON}" method="handleNewButton" />
+    <mate:Listener type="{ChatButtonEvent.SWITCH_BUTTON}" method="handleSwitchButton" />
+    <mate:Listener type="{ChatButtonEvent.CLOSE_BUTTON}" method="handleCloseButton" />
+	
+	<mx:Script>
+		<![CDATA[
+        
+            import com.asfusion.mate.events.Dispatcher;
+            
+            import org.bigbluebutton.util.i18n.ResourceUtil;
+            
+            import org.bigbluebutton.modules.chat.events.RecordChatMessageEvent;
+            import org.bigbluebutton.modules.chat.events.ChatButtonEvent;
+            import org.bigbluebutton.modules.chat.events.RecordPrivateChatMessageEvent;
+            import org.bigbluebutton.modules.chat.events.ChatHistoryCommandEvent;
+            import org.bigbluebutton.modules.chat.events.ChatHistoryWindowEvent;
+            import org.bigbluebutton.modules.chat.events.ChatHistoryFileListEvent ;
+            
+            import org.bigbluebutton.main.api.UserManager;
+            import org.bigbluebutton.main.model.users.Conference;
+            import org.bigbluebutton.common.Role;
+            import org.bigbluebutton.common.Images;
+            import mx.managers.PopUpManager;
+            import mx.collections.ArrayCollection;
+            import flash.utils.Timer ;
+            import flash.events.TimerEvent ;
+            import mx.controls.Alert ;
+            
+            private var conference:Conference = UserManager.getInstance().getConference();
+            private var openFileWindow:OpenFileWindow;
+            private var isRecord:Boolean = false ;
+            private var images:Images = new Images();
+            private var blinkRecord:Timer = new Timer(1000); ;
+            private var isBlink:Boolean = false ;
+            private var objRecord:Object ;
+            private static const PUBLIC_CHAT_USERID:String = '0';
+            
+            public var chatView:ChatView;
+            public var acRecordChatButton:ArrayCollection = new ArrayCollection();
+            
+            [Bindable]
+			public var participants:ArrayCollection = new ArrayCollection();
+            
+            
+            [Bindable] public var startRecordChat:Class = images.startRecordChat;
+            [Bindable] public var stopRecordChat:Class = images.stopRecordChat;
+            [Bindable] private var isModerator:Boolean=false ;
+            [Bindable] private var isButtonVisible:Boolean=false ;
+            [Bindable] private var isPrivateRecord:Boolean=false ;
+            [Bindable] private var sender:String = String(conference.me.userid);
+            [Bindable] private var receiver:String = PUBLIC_CHAT_USERID;
+            [Bindable] private var receiverName:String;
+            
+            /*****************************************************************************
+            ;  init
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ;   this routine is the initialization when file load
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ;   INPUT
+            ; 
+            ; IMPLEMENTATION
+            ;  
+            ; HISTORY
+            ; __date__ :        PTS:            Description
+            ; 16-01-2011
+            ******************************************************************************/
+            private function init():void{
+                blinkRecord.addEventListener(TimerEvent.TIMER , blinkButton);
+                checkModerator();
+                setButtonVisible(PUBLIC_CHAT_USERID) ;
+                setPrivateRecordChat(PUBLIC_CHAT_USERID);
+            }/** END FUNCTION 'init' **/
+            
+            /*****************************************************************************
+            ;  setButtonVisible
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ;   this routine is used to set the visible to button
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ;   INPUT
+            ; 
+            ; IMPLEMENTATION
+            ;  
+            ; HISTORY
+            ; __date__ :        PTS:            Description
+            ; 16-01-2011
+            ******************************************************************************/
+            private function setButtonVisible(userid:String):void{
+                if ( (true == isModerator) || (PUBLIC_CHAT_USERID != userid) ){
+                    this.isButtonVisible = true ;
+                }else{
+                    this.isButtonVisible = false ;
+                }
+            }/** END FUNCTION 'setButtonVisible' **/
+            
+            /*****************************************************************************
+            ;  setPrivateRecordChat
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ;   this routine is used to set the private or public chat
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ;   INPUT
+            ; 
+            ; IMPLEMENTATION
+            ;  
+            ; HISTORY
+            ; __date__ :        PTS:            Description
+            ; 16-01-2011
+            ******************************************************************************/
+            private function setPrivateRecordChat(userid:String):void{
+                if ( null == userid ){
+                    return ;
+                }
+                
+                if ( (PUBLIC_CHAT_USERID != userid) ){
+                    
+                    this.isPrivateRecord = true ;
+                }else{
+                    
+                    this.isPrivateRecord = false ;
+                }
+            }/** END FUNCTION 'setPrivateRecordChat' **/
+            
+            /*****************************************************************************
+            ;  checkModerator
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ; this routine is used to check whether current user is moderator
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ;   INPUT
+            ; 
+            ; IMPLEMENTATION
+            ;  
+            ; HISTORY
+            ; __date__ :        PTS:            Description
+            ; 16-01-2011
+            ******************************************************************************/
+            private function checkModerator():void{
+                if ( conference.me.role == Role.MODERATOR ){
+                    this.isModerator = true ;
+                }else{
+                    this.isModerator = false ;
+                }
+            }/** END FUNCTION 'checkModerator' **/
+            
+            /*****************************************************************************
+            ;  handleNewButton
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ; this routine is used to handle when new button are added
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ;   INPUT
+            ;   e ChatButtonEvent
+            ; IMPLEMENTATION
+            ;  
+            ; HISTORY
+            ; __date__ :        PTS:            Description
+            ; 16-01-2011
+            ******************************************************************************/
+            private function handleNewButton(e:ChatButtonEvent):void{
+            
+                if ( null == e ){
+                    return ;
+                }
+                
+                if ( false == isRecordButtonExists(e.receiver) ){
+                    objRecord = new Object() ;
+                    objRecord.sender = this.sender ;
+                    objRecord.receiver = e.receiver ;
+                    objRecord.name = getUserName(e.receiver);
+                    objRecord.isRecord = false ;
+                    acRecordChatButton.addItem(objRecord) ;
+                }else{
+                    objRecord = getObject(e.receiver) ;
+                }
+                this.receiver = objRecord.receiver ;
+                this.receiverName = objRecord.name ;
+                setButtonVisible(e.receiver) ;
+                setPrivateRecordChat(e.receiver);
+            }/** END FUNCTION 'handleNewButton' **/
+            
+            /*****************************************************************************
+            ;  getRecordStatus
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ; this routine is used to get the record status
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ;   INPUT
+            ;   userid : id of user
+            ; IMPLEMENTATION
+            ;  
+            ; HISTORY
+            ; __date__ :        PTS:            Description
+            ; 16-01-2011
+            ******************************************************************************/
+            private function getRecordStatus(userid:String):Boolean {
+                var isRecord:Boolean = false ;
+                for( var i:int = 0 ; i<acRecordChatButton.length; i++ ){
+                    if ( acRecordChatButton.getItemAt(i).receiver == userid ){
+                        isRecord = acRecordChatButton.getItemAt(i).isRecord ;
+                        break ;
+                    }
+                }
+                return isRecord ;
+            }/** END FUNCTION 'getRecordStatus' **/
+            
+            /*****************************************************************************
+            ;  getObject
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ; this routine is used to get user object
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ;   INPUT
+            ;   userid id of user
+            ; IMPLEMENTATION
+            ;  
+            ; HISTORY
+            ; __date__ :        PTS:            Description
+            ; 16-01-2011
+            ******************************************************************************/
+            private function getObject(userid:String):Object {
+                
+                var obj:Object = null ;
+                for(var i:int=0; i<acRecordChatButton.length; i++ ){
+                    if ( acRecordChatButton.getItemAt(i).receiver == userid ){
+                        obj = acRecordChatButton.getItemAt(i) ;
+                        break ;
+                    }
+                }
+                return obj ;
+            }/** END FUNCTION 'getObject' **/
+            
+            /*****************************************************************************
+            ;  isRecordButtonExists
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ; this routine is used to check whether the button are added
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ;   INPUT
+            ;   userid id of user
+            ; IMPLEMENTATION
+            ;  
+            ; HISTORY
+            ; __date__ :        PTS:            Description
+            ; 16-01-2011
+            ******************************************************************************/
+            private function isRecordButtonExists(userid:String):Boolean {
+                if ( null == userid ){
+                    return false;
+                }
+                var isExist:Boolean = false ;
+                for( var i:int = 0 ; i<acRecordChatButton.length; i++ ){
+                    if ( acRecordChatButton.getItemAt(i).receiver == userid ){
+                        isExist = true ;
+                        break ;
+                    }
+                }
+                return isExist ;
+            }/** END FUNCTION 'isRecordButtonExists' **/
+            
+            /*****************************************************************************
+            ;  getUserName
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ; this routine is used to get user name from object
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ;   INPUT
+            ;  userid : id of user
+            ; IMPLEMENTATION
+            ;  
+            ; HISTORY
+            ; __date__ :        PTS:            Description
+            ; 16-01-2011
+            ******************************************************************************/
+            private function getUserName(userid:String):String{
+                
+                if ( null == userid ){
+                    return null;
+                }
+                
+                var uname:String = "unknown user";
+                for(var i:int=0; i<participants.length; i++ ){
+                    if ( participants.getItemAt(i).userid == userid ){
+                        uname = participants.getItemAt(i).label;
+                        break ;
+                    }
+                }
+                
+                return uname ;
+            }/** END FUNCTION 'getUserName' **/
+            
+            /*****************************************************************************
+            ;  getRecordReceiver
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ; this routine is used to get record status from user object
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ;   INPUT
+            ;  userid : id of user
+            ; IMPLEMENTATION
+            ;  
+            ; HISTORY
+            ; __date__ :        PTS:            Description
+            ; 16-01-2011
+            ******************************************************************************/
+            private function getRecordReceiver(userid:String):String{
+            
+                if ( null == userid ){
+                    return null ;
+                }
+                var lReceiver:String ;
+                for( var i:int = 0 ; i<acRecordChatButton.length; i++ ){
+                    if ( acRecordChatButton.getItemAt(i).receiver == userid ){
+                        lReceiver = acRecordChatButton.getItemAt(i).receiver ;
+                        break ;
+                    }
+                }
+                return lReceiver ;
+            }/** END FUNCTION 'getRecordReceiver' **/
+            
+            /*****************************************************************************
+            ;  handleSwitchButton
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ; this routine is used to handle when user change tab
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ;   INPUT
+            ;  e : ChatButtonEvent
+            ; IMPLEMENTATION
+            ;  
+            ; HISTORY
+            ; __date__ :        PTS:            Description
+            ; 16-01-2011
+            ******************************************************************************/
+            private function handleSwitchButton(e:ChatButtonEvent):void{
+            
+                if ( null == e ){
+                    return ;
+                }
+                this.receiver = e.receiver ;
+                this.receiverName = e.name ;
+                this.isRecord = getRecordStatus(e.receiver)  ;
+                
+                if ( true == this.isRecord ){
+                    this.recordBtn.setStyle('icon',stopRecordChat);
+                    this.recordBtn.toolTip = ResourceUtil.getInstance().getString('bbb.chat.stopRecordChat.toolTip');  
+                    blinkRecord.start();
+                    
+                }else{
+                    this.recordBtn.setStyle('icon',startRecordChat);
+                    this.recordBtn.toolTip = ResourceUtil.getInstance().getString('bbb.chat.startRecordChat.toolTip');
+
+                    blinkRecord.stop();
+                }
+                
+                setButtonVisible(this.receiver) ;
+                setPrivateRecordChat(this.receiver);
+                
+            }/** END FUNCTION 'handleSwitchButton' **/
+            
+            /*****************************************************************************
+            ;  handleCloseButton
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ; this routine is used to handle when user close button
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ;   INPUT
+            ;  e : ChatButtonEvent
+            ; IMPLEMENTATION
+            ;  
+            ; HISTORY
+            ; __date__ :        PTS:            Description
+            ; 16-01-2011
+            ******************************************************************************/
+            private function handleCloseButton(e:ChatButtonEvent):void{
+                if ( null == e ){
+                    return ;
+                }
+                setButtonVisible(this.receiver) ;
+                setPrivateRecordChat(this.receiver);
+            }/** END FUNCTION 'handleCloseButton' **/
+            
+             /*****************************************************************************
+            ;  setRecordStatus
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ; this routine is used to handle when user close button
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ;   INPUT
+            ;   userid : id of user
+            ;   isRecord : record status
+            ; IMPLEMENTATION
+            ;  
+            ; HISTORY
+            ; __date__ :        PTS:            Description
+            ; 16-01-2011
+            ******************************************************************************/
+            private function setRecordStatus(userid:String, isRecord:Boolean):void{
+                if ( null == userid ){
+                    return ;
+                }
+                for( var i:int = 0 ; i<acRecordChatButton.length; i++ ){
+                    if ( acRecordChatButton.getItemAt(i).receiver == userid ){
+                        acRecordChatButton.getItemAt(i).isRecord = isRecord ;
+                        break ;
+                    }
+                }
+            }/** END FUNCTION 'setRecordStatus' **/
+            
+            /*****************************************************************************
+            ;  recordChat
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ;   this routine is used to handle when user click on record button
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ;   INPUT
+            ;   sender  :       sender user id
+            ;   receiver    :   receiver user id
+            ; IMPLEMENTATION
+            ;  
+            ; HISTORY
+            ; __date__ :        PTS:            Description
+            ; 16-01-2011
+            ******************************************************************************/            
+            private function recordChat(sender:String,receiver:String):void{
+
+                if ( null == sender || null == receiver ){
+                    return ;
+                }
+                
+                this.isRecord = ! this.isRecord ;
+                setRecordStatus( receiver, this.isRecord ) ;
+                
+                if ( true == this.isRecord ){
+                    this.recordBtn.setStyle('icon',stopRecordChat);
+                    this.recordBtn.toolTip = ResourceUtil.getInstance().getString('bbb.chat.stopRecordChat.toolTip');  
+                    blinkRecord.start();
+                    
+                }else{
+                    this.recordBtn.setStyle('icon',startRecordChat);
+                    this.recordBtn.toolTip = ResourceUtil.getInstance().getString('bbb.chat.startRecordChat.toolTip');
+
+                    blinkRecord.stop();
+                }
+                
+                if ( true == isPrivateRecord ){
+                    var priEvent:RecordPrivateChatMessageEvent = new RecordPrivateChatMessageEvent(RecordPrivateChatMessageEvent.RECORD_PRIVATE_CHAT_MESSAGE_EVENT) ;
+                    priEvent.sender = this.sender ;
+                    priEvent.receiver = receiver ;
+                    priEvent.receiverName = this.receiverName ;
+                    priEvent.isRecording = this.isRecord ;
+                    this.dispatchEvent(priEvent) ;
+                }else{
+                    var recEvent:RecordChatMessageEvent = new RecordChatMessageEvent(RecordChatMessageEvent.RECORD_CHAT_MESSAGE_EVENT);  
+                    recEvent.isRecording = this.isRecord ;
+                    this.dispatchEvent(recEvent);
+                }
+    
+            }/** END FUNCTION 'recordChat' **/ 
+            
+            /*****************************************************************************
+            ;  blinkButton
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ;   this routine is used to blink the record button
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ;   INPUT
+            ;   e   :   TimeEvent
+            ; IMPLEMENTATION
+            ;  
+            ; HISTORY
+            ; __date__ :        PTS:            Description
+            ; 16-01-2011
+            ******************************************************************************/
+            private function blinkButton(e:TimerEvent):void{
+                isBlink = ! isBlink ;
+                if ( false == isBlink ) this.recordBtn.setStyle('icon',stopRecordChat);
+                else this.recordBtn.setStyle('icon',startRecordChat);
+            }/** END FUNCTION 'blinkButton' **/
+        
+            /*****************************************************************************
+            ;  handleOpenHistoryFile
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ;   this routine is used to handle when user open history window
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ;   INPUT
+            ; 
+            ; IMPLEMENTATION
+            ;  
+            ; HISTORY
+            ; __date__ :        PTS:            Description
+            ; 16-01-2011
+            ******************************************************************************/
+            private function handleOpenHistoryWindow():void{
+
+                if ( null != openFileWindow ){
+                    PopUpManager.removePopUp(openFileWindow);
+                    openFileWindow = null ;
+                }
+                
+                openFileWindow = PopUpManager.createPopUp(chatView, OpenFileWindow , false) as OpenFileWindow;
+                openFileWindow.isPrivate = isPrivateRecord ;
+                PopUpManager.centerPopUp(openFileWindow);
+                var e:ChatHistoryFileListEvent ;
+                
+                if ( PUBLIC_CHAT_USERID == this.receiver ){
+                    e = new ChatHistoryFileListEvent(ChatHistoryFileListEvent.LOAD_FILE_LIST) ;                    
+                }else{
+                    e = new ChatHistoryFileListEvent(ChatHistoryFileListEvent.LOAD_PRIVATE_FILE_LIST) ;
+                    e.sender = String(conference.me.userid) ;
+                }
+                this.dispatchEvent(e) ;
+    
+            }/** END FUNCTION 'handleOpenHistoryWindow' **/
+            
+		]]>
+	</mx:Script>
+	<mx:Button icon="{startRecordChat}" id="recordBtn" visible="{isButtonVisible}" name="{sender}"
+               toolTip="{ResourceUtil.getInstance().getString('bbb.chat.startRecordChat.toolTip')}" 
+               click="recordChat(sender,receiver)"/>
+    <mx:Button label="Open" id="openBtn" visible="{isButtonVisible}" name="{sender}"
+               toolTip="{ResourceUtil.getInstance().getString('bbb.chat.downloadfile.toolTip')}" 
+               click="handleOpenHistoryWindow()"/>
+</mx:HBox>

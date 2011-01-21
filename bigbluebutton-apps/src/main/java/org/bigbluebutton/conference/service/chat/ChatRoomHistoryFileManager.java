@@ -23,15 +23,9 @@ import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 import java.util.ArrayList;
 
-import org.jdom.Document;
-import org.jdom.DocType;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.XMLOutputter;
-
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileReader;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Iterator;
@@ -49,9 +43,7 @@ import java.util.List;
 ******************************************************************************/
 public class ChatRoomHistoryFileManager{
     private String gDir ;
-    private File gHistoryFile ;
-    private Document gXmlDoc ;
-    
+    private File gHistoryFile ;   
     
     private ArrayList<String> files;
     private ArrayList<String> messages;
@@ -92,17 +84,18 @@ public class ChatRoomHistoryFileManager{
             log.debug ("ERROR INITIALIZE tempDir File");
         }
         String[] fileName = tempDir.list();
+        File f ;
         for( int i=0; i<fileName.length; i++ ){
             log.debug("File List {} ",fileName[i]);
-            files.add(fileName[i]);
+            f = new File (this.gDir,fileName[i]) ;
+            if ( true == f.isFile() ){
+                files.add(fileName[i]);
+            }
         }
-    }
-    /**
-    * END FUNCTION 'ChatRoomHistoryFileManager'
-    **/
+    }/** END FUNCTION 'ChatRoomHistoryFileManager' **/
        
     /*****************************************************************************
-    ;  loadHistoryFileContent
+    ;  getHistoryFileContent
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
     ;   this routine is used to load the content from an xml file
@@ -122,59 +115,28 @@ public class ChatRoomHistoryFileManager{
     ; 12-27-2010
     ******************************************************************************/
     public ArrayList<String> getHistoryFileContent(String fileName){
-        try{
-            try{
-                SAXBuilder builder = new SAXBuilder();
-                gHistoryFile = new File( gDir, fileName );
-                if ( true == gHistoryFile.exists() ){
-                    gXmlDoc = builder.build(gHistoryFile) ;
-                    log.debug("XML FILE = {} ",gXmlDoc) ;
-                }else{
-            
-                }
-            }catch(JDOMException e){
-            
-            }
-        }catch(IOException e){
-            
+    
+        if ( null == fileName ){
+            log.debug("Error: input parameter");
+            return null ;
         }
-        return getChatMessages() ;
-    }
-    /**
-    * END FUNCTION 'loadHistoryFileContent'
-    **/
-    
-    /*****************************************************************************
-    ;  getChatMessages
-    ;----------------------------------------------------------------------------
-    ; DESCRIPTION
-    ;   this routine is used to get the message from gXmlDoc
-    ;
-    ; RETURNS : ArrayList
-    ;
-    ; INTERFACE NOTES
-    ;   N/A
-    ; 
-    ; IMPLEMENTATION
-    ;  get the message list from gXmlDoc
-    ;
-    ; HISTORY
-    ; __date__ :        PTS:            Description
-    ; 12-27-2010
-    ******************************************************************************/
-    private ArrayList<String> getChatMessages(){
-        List<Element> rows = gXmlDoc.getRootElement().getChild("Public").getChildren("Message");
-        messages=new ArrayList<String>() ;
-        for ( int i=0 ; i<rows.size(); i++ ){
-            log.debug("ChatMessageRecorder getMessage {}" ,rows.get(i).getText());
-            messages.add(rows.get(i).getText());
-        }      
-		return messages;
-	}
-    /**
-    * END FUNCTION 'getChatMessages'
-    **/
-    
+        try{
+            BufferedReader br = new BufferedReader(new FileReader(new File(this.gDir,fileName)));
+            messages=new ArrayList<String>() ;
+        
+            String msg ;
+        
+            while( null != (msg = br.readLine())  ){
+                messages.add(msg);
+            }
+            br.close();
+            
+        }catch(IOException e){
+            log.debug("Error: {}",e.getMessage());
+        }
+        return messages ;
+    }/** END FUNCTION 'getHistoryFileContent' **/
+        
     /*****************************************************************************
     ;  getFilesList
     ;----------------------------------------------------------------------------
@@ -195,10 +157,7 @@ public class ChatRoomHistoryFileManager{
     ******************************************************************************/
     public ArrayList<String> getFilesList(){
         return files ;
-    }
-    /**
-    * END FUNCTION 'saveHistoryFile'
-    **/
+    } /** END FUNCTION 'saveHistoryFile' **/
     
 }   /**
     * END CLASS 'ChatRoomHistoryFileManager'
