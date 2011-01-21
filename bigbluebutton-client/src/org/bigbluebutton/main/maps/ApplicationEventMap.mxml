@@ -64,7 +64,8 @@
 	<EventHandlers type="{SuccessfulLoginEvent.USER_LOGGED_IN}" >
 		<MethodInvoker generator="{ModulesProxy}" method="loadAllModules" arguments="{event.conferenceParameters}" />
 	</EventHandlers>
-	
+
+	<!-- Add the ModuleCommand to the event map -->
 	<EventHandlers type="{ModuleCommand.NEW_COMMAND}" >
 		<MethodInvoker generator="{ModulesProxy}" method="moduleCommand" arguments="{event}" />
 	</EventHandlers>
