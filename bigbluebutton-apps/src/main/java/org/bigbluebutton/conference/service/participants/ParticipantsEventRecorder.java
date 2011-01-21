@@ -26,7 +26,8 @@ import java.util.Map;
 
 import org.bigbluebutton.conference.service.recorder.IEventRecorder;
 import org.bigbluebutton.conference.service.recorder.IRecorder;
-import org.bigbluebutton.conference.IRoomListener;import org.red5.server.api.so.ISharedObject;
+import org.bigbluebutton.conference.IRoomListener;
+import org.red5.server.api.so.ISharedObject;
 import org.bigbluebutton.conference.Participant;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
@@ -77,11 +78,18 @@ public class ParticipantsEventRecorder implements IEventRecorder, IRoomListener 
 		recordEvent(parseParticipantsToJSON(new ArrayList(), this.RECORD_EVENT_LEAVE_ALL));
 	}
 	
+	/* 
+	* Pass the "cmd" of the "moduleCommand" API call method 
+	* to the Bigbluebutton CLient through the participants SO
+	* this method is called by incoming JMS requests
+	* input parameters: a string that represents the command we 	* want to pass to the Bigbluebutton client (i.e. start, stop, 	* etc). For more details see documentaion.
+	*/
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public void moduleCommand(String cmd)
 	{
-		log.debug("moduleCommand received: " + cmd);
+		log.debug("moduleCommand received & pass to Client through SO: " + cmd);
 		ArrayList args = new ArrayList();
 		args.add(cmd);
 		so.sendMessage("moduleCommand", args);
