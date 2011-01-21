@@ -87,55 +87,35 @@ package org.bigbluebutton.main.model.modules
 			modulesManager.loadAllModules(params);
 		}
 		
+		/*
+		* Implementation of the moduleCommand method where we 
+		* process the commands for API call and dispatch required 
+		* events 
+		*/
+
 		public function moduleCommand(params:ModuleCommand):void
 		{
 			LogUtil.error("moduleCommand [" + params.module + "][" + params.command + "]");
 			
-			if(params.command == "init_video")
+			if(params.command == "init_video")/*Start the VIDEO conf module by diapatching a publishwindow event */
 			{
 				var globalDispatcher:Dispatcher = new Dispatcher();
 				globalDispatcher.dispatchEvent(new OpenPublishWindowEvent());
 			}
-			else if(params.command == "init_voice")
+			else if(params.command == "init_voice") /*Start the VOICE conf (phone) module by dispatching a joinconf event */
 			{
 				var globalDispatcher:Dispatcher = new Dispatcher();
 				globalDispatcher.dispatchEvent(new JoinVoiceConferenceEvent());
 			}
-			else if(params.command == "start")
+			else if(params.command == "start") /* Start CHAT or PRESENATION module */
 			{
 				modulesManager.startModule(params.module);
 			}
-			else if(params.command == "stop")
+			else if(params.command == "stop")/* Stop CHAT or PRESENATION module */
+
 			{
 				modulesManager.stopModule(params.module);
-			}
-			/*			
-			else if(params == "VIDEO1_START")
-			{
-				var globalDispatcher:Dispatcher = new Dispatcher();
-				globalDispatcher.dispatchEvent(new OpenPublishWindowEvent());
-			}
-			else if(params == "VIDEO1_STOP")
-			{
-				modulesManager.stopModule("VideoconfModule");
-			}
-			else if(params == "PHONE_START")
-			{
-				modulesManager.startModule("PhoneModule");
-			}
-			else if(params == "PHONE_STOP")
-			{
-				modulesManager.stopModule("PhoneModule");
-			}
-			else if(params == "VIEWERS_START")
-			{
-				modulesManager.startModule("ViewersModule");
-			}
-			else if(params == "VIEWERS_STOP")
-			{
-				modulesManager.stopModule("ViewersModule");
-			}
-			*/
+			}			
 		}
 	}
 }
