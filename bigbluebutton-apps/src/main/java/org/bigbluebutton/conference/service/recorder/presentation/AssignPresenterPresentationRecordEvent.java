@@ -4,12 +4,9 @@ package org.bigbluebutton.conference.service.recorder.presentation;
 public class AssignPresenterPresentationRecordEvent extends
 		AbstractPresentationRecordEvent {
 	
-	/**
-	 * Hardcodes the Event Name to "AssignPresenterEvent"
-	 */
-	@Override
-	public void setEvent(String event) {
-		eventMap.put(EVENT, "AssignPresenterEvent");
+	public AssignPresenterPresentationRecordEvent() {
+		super();
+		setEvent("AssignPresenterEvent");
 	}
 	
 	public void setUserId(String userid) {

@@ -1,14 +1,12 @@
 package org.bigbluebutton.webconference.voice;
 
 public class ParticipantLockedVoiceRecordEvent extends AbstractVoiceRecordEvent {
-	/**
-	 * Hardcodes the Event Name to "ParticipantLockedEvent"
-	 */
-	@Override
-	public void setEvent(String event) {
-		eventMap.put(EVENT, "ParticipantLockedEvent");
-	}
 	
+	public ParticipantLockedVoiceRecordEvent() {
+		super();
+		setEvent("ParticipantLockedEvent");
+	}
+		
 	public void setParticipant(String p) {
 		eventMap.put("participant", p);
 	}

@@ -21,9 +21,6 @@
 */
 package org.bigbluebutton.conference.service.recorder;
 
-import java.util.HashMap;
-
-
 /** 
  * 
  * The IRecorder interface define all the neccesary methods to implement for 

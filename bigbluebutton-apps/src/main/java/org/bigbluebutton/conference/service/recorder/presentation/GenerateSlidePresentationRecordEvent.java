@@ -2,12 +2,10 @@ package org.bigbluebutton.conference.service.recorder.presentation;
 
 public class GenerateSlidePresentationRecordEvent extends
 		AbstractPresentationRecordEvent {
-	/**
-	 * Hardcodes the Event Name to "GenerateSlideEvent"
-	 */
-	@Override
-	public void setEvent(String event) {
-		eventMap.put(EVENT, "GenerateSlideEvent");
+	
+	public GenerateSlidePresentationRecordEvent() {
+		super();
+		setEvent("GenerateSlideEvent");
 	}
 	
 	public void setPresentationName(String name) {

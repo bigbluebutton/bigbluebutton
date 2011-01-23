@@ -1,6 +1,5 @@
 package org.bigbluebutton.conference.service.recorder.chat;
 
-import java.util.HashMap;
 import java.util.Hashtable;
 
 import org.bigbluebutton.conference.BigBlueButtonUtils;
@@ -40,7 +39,6 @@ public class ChatEventRecorder implements IChatRoomListener {
 		ev.setMessage(chatAttribs[0]);
 		ev.setLocale(chatAttribs[4]);
 		ev.setColor(chatAttribs[2]);
-
 		return ev;
 	}
 	

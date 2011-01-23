@@ -8,7 +8,7 @@ import java.util.HashMap;
  *
  */
 public abstract class RecordEvent {
-	protected final HashMap<String,String> eventMap = new HashMap<String, String>();
+	protected final HashMap<String, String> eventMap = new HashMap<String, String>();
 	
 	protected final static String MODULE = "module";
 	protected final static String TIMESTAMP = "timestamp";
@@ -19,7 +19,7 @@ public abstract class RecordEvent {
 	 * Set the module that generated the event.
 	 * @param module
 	 */
-	public void setModule(String module) {
+	public final void setModule(String module) {
 		eventMap.put(MODULE, module);
 	}
 	
@@ -43,17 +43,21 @@ public abstract class RecordEvent {
 	 * Set the name of the event.
 	 * @param event
 	 */
-	public void setEvent(String event) {
+	public final void setEvent(String event) {
 		eventMap.put(EVENT, event);
 	}
 	
-	
-	
+		
 	/**
 	 * Convert the event into a Map to be recorded.
 	 * @return
 	 */
 	public final HashMap<String, String> toMap() {
 		return eventMap;
+	}
+	
+	@Override
+	public String toString() {
+		return eventMap.get(MODULE) + " " + eventMap.get(EVENT);
 	}
 }

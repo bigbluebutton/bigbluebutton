@@ -2,14 +2,11 @@ package org.bigbluebutton.conference.service.recorder.participants;
 
 public class ParticipantJoinRecordEvent extends AbstractParticipantRecordEvent {
 
-	/**
-	 * Hardcodes the Event Name to "ParticipantJoinEvent"
-	 */
-	@Override
-	public void setEvent(String event) {
-		eventMap.put(EVENT, "ParticipantJoinEvent");
+	public ParticipantJoinRecordEvent() {
+		super();
+		setEvent("ParticipantJoinEvent");
 	}
-	
+		
 	public void setUserId(String userId) {
 		eventMap.put("userId", userId);
 	}

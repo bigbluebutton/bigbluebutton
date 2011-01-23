@@ -7,15 +7,11 @@ public class PublicChatRecordEvent extends AbstractChatRecordEvent {
 	private static final String LOCALE = "locale";
 	private static final String COLOR = "color";
 	
-	
-	/**
-	 * Hardcodes the Event Name to "PublicChatEvent"
-	 */
-	@Override
-	public void setEvent(String event) {
-		eventMap.put(EVENT, "PublicChatEvent");
+	public PublicChatRecordEvent() {
+		super();
+		setEvent("PublicChatEvent");
 	}
-	
+		
 	public void setSender(String sender) {
 		eventMap.put(SENDER, sender);
 	}
