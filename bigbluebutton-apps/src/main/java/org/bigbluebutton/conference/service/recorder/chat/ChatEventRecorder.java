@@ -34,7 +34,7 @@ public class ChatEventRecorder implements IChatRoomListener {
 	private PublicChatRecordEvent buildEvent(String message) {
 		PublicChatRecordEvent ev = new PublicChatRecordEvent();
 		ev.setTimestamp(System.currentTimeMillis());
-
+		ev.setMeetingId(session);
 		String[] chatAttribs = message.trim().split("\\|",-1);
 		ev.setSender(chatAttribs[1]);
 		ev.setMessage(chatAttribs[0]);
