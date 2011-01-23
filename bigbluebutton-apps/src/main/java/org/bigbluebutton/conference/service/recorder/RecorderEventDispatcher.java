@@ -74,7 +74,7 @@ public class RecorderEventDispatcher implements Recorder {
 	 * @see Recorder 
 	 */
 	@Override
-	public void record(String session, HashMap<String,String> message) {
+	public void record(String session, RecordEvent message) {
 		EventMessage event = new EventMessage();
 		event.setConferenceID(session);
 		//event.setMessage(message);

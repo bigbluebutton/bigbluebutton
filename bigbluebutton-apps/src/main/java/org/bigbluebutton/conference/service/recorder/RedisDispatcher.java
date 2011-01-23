@@ -1,7 +1,5 @@
 package org.bigbluebutton.conference.service.recorder;
 
-import java.util.HashMap;
-
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
@@ -18,9 +16,9 @@ public class RedisDispatcher implements Recorder {
 	}
 	
 	@Override
-	public void record(String session, HashMap<String,String> message) {
+	public void record(String session, RecordEvent message) {
 		Long msgid = jedis.incr("global:nextRecordedMsgId");
-		jedis.hmset("recording" + COLON + session + COLON + msgid, message);
+		jedis.hmset("recording" + COLON + session + COLON + msgid, message.toMap());
 		jedis.rpush("meeting" + COLON + session + COLON + "recordings", msgid.toString());
 	}
 }

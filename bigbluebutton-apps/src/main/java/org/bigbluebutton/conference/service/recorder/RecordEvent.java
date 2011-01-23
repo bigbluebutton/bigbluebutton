@@ -1,5 +1,59 @@
 package org.bigbluebutton.conference.service.recorder;
 
-public abstract class RecordEvent {
+import java.util.HashMap;
 
+/**
+ * Abstract class for all events that need to be recorded.
+ * @author Richard Alam
+ *
+ */
+public abstract class RecordEvent {
+	protected final HashMap<String,String> eventMap = new HashMap<String, String>();
+	
+	protected final static String MODULE = "module";
+	protected final static String TIMESTAMP = "timestamp";
+	protected final static String MEETING = "meetingId";
+	protected final static String EVENT = "eventName";
+	
+	/**
+	 * Set the module that generated the event.
+	 * @param module
+	 */
+	public void setModule(String module) {
+		eventMap.put(MODULE, module);
+	}
+	
+	/**
+	 * Set the timestamp of the event.
+	 * @param timestamp
+	 */
+	public final void setTimestamp(long timestamp) {
+		eventMap.put(TIMESTAMP, Long.toString(timestamp));
+	}
+	
+	/**
+	 * Set the meetingId for this particular event.
+	 * @param meetingId
+	 */
+	public final void setMeetingId(String meetingId) {
+		eventMap.put(MEETING, meetingId);
+	}
+	
+	/**
+	 * Set the name of the event.
+	 * @param event
+	 */
+	public void setEvent(String event) {
+		eventMap.put(EVENT, event);
+	}
+	
+	
+	
+	/**
+	 * Convert the event into a Map to be recorded.
+	 * @return
+	 */
+	public final HashMap<String, String> toMap() {
+		return eventMap;
+	}
 }

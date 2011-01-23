@@ -25,48 +25,41 @@ public class WhiteboardEventRecorder implements IWhiteboardRoomListener{
 		return name;
 	}
 
-	private void recordEvent(HashMap<String,String> message) {
-		recorder.record(session, message);
-	}
-
 	@Override
 	public void addShape(Shape shape, Presentation presentation) {
-		HashMap<String,String> map=new HashMap<String, String>();
-		map.put("timestamp", Long.toString(System.currentTimeMillis()));
-		map.put("module", "whiteboard");
-		map.put("event", "addShape");
-		map.put("presetation", presentation.getName());
-		map.put("pageNum", Integer.toString(presentation.getActivePage().getPageIndex()));
-		map.put("dataPoints", shape.getShape());
-		map.put("type", shape.getType());
-		map.put("color", Integer.toString(shape.getColor()));
-		map.put("thickness", Integer.toString(shape.getThickness()));
-
-		recordEvent(map);	
+		AddShapeWhiteboardRecordEvent event = new AddShapeWhiteboardRecordEvent();
+		event.setMeetingId(session);
+		event.setTimestamp(System.currentTimeMillis());
+		event.setPresentation(presentation.getName());
+		event.setPageNumber(presentation.getActivePage().getPageIndex());
+		event.setDataPoints(shape.getShape());
+		event.setType(shape.getType());
+		event.setColor(shape.getColor());
+		event.setThickness(shape.getThickness());
+		
+		recorder.record(session, event);	
 	}
 
 	@Override
 	public void clearPage(Presentation presentation) {
-		HashMap<String,String> map=new HashMap<String, String>();
-		map.put("timestamp", Long.toString(System.currentTimeMillis()));
-		map.put("module", "whiteboard");
-		map.put("event", "clearPage");
-		map.put("presetation", presentation.getName());
-		map.put("pageNum", Integer.toString(presentation.getActivePage().getPageIndex()));
+		ClearPageWhiteboardRecordEvent event = new ClearPageWhiteboardRecordEvent();
+		event.setMeetingId(session);
+		event.setTimestamp(System.currentTimeMillis());		
+		event.setPresentation(presentation.getName());
+		event.setPageNumber(presentation.getActivePage().getPageIndex());
 		
-		recordEvent(map);		
+		recorder.record(session, event);		
 	}
 
 	@Override
 	public void undoShape(Presentation presentation) {
-		HashMap<String,String> map=new HashMap<String, String>();
-		map.put("timestamp", Long.toString(System.currentTimeMillis()));
-		map.put("module", "whiteboard");
-		map.put("event", "undoShape");
-		map.put("presetation", presentation.getName());
-		map.put("pageNum", Integer.toString(presentation.getActivePage().getPageIndex()));
+		UndoShapeWhiteboardRecordEvent event = new UndoShapeWhiteboardRecordEvent();
+		event.setMeetingId(session);
+		event.setTimestamp(System.currentTimeMillis());		
+		event.setPresentation(presentation.getName());
+		event.setPageNumber(presentation.getActivePage().getPageIndex());
 		
-		recordEvent(map);
+		recorder.record(session, event);			
 	}
 
 }

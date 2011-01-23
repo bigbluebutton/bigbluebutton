@@ -22,10 +22,6 @@ public class PresentationEventRecorder implements IPresentationRoomListener {
 		this.session = session;
 	}
 
-	private void recordEvent(HashMap<String, String> message) {
-		recorder.record(session, message);
-	}
-
 	@Override
 	public String getName() {
 		return APP_NAME;
@@ -33,98 +29,102 @@ public class PresentationEventRecorder implements IPresentationRoomListener {
 
 	@SuppressWarnings("rawtypes")
 	@Override
-	public void sendUpdateMessage(Map message) {
-    	String presentationName = (String) message.get("presentationName");
+	public void sendUpdateMessage(Map<String, Object> message) {
     	String messageKey = (String) message.get("messageKey");
-    	
-    	HashMap<String,String> map = new HashMap<String, String>();
-    	map.put("timestamp", Long.toString(System.currentTimeMillis()));
-    	map.put("presentationName", presentationName);
-    	
+
 		if(messageKey.equalsIgnoreCase(GENERATED_SLIDE_KEY)){
-			log.debug("{}[{}]",messageKey,presentationName);
-			map.put("event", "generated_slide");
-			map.put("numberOfPages", message.get("numberOfPages").toString());
-			map.put("pagesCompleted", message.get("pagesCompleted").toString());
+			handleGeneratedSlideEvent(message);
 		}
 		else if(messageKey.equalsIgnoreCase(CONVERSION_COMPLETED_KEY)){
-			log.debug("{}[{}]",messageKey,presentationName);
-			map.put("event", "generated_slide");
-			map.put("slidesInfo", message.get("slidesInfo").toString());
+			handleConversionCompletedEvent(message);
 		}
 		else{
 			log.error("NOT recording received message {}",messageKey);
 		}
+	}
+	
+	private void handleGeneratedSlideEvent(Map<String, Object> message) {
+		log.debug("Generated Slide Event [{}]", (String)message.get("presentationName"));
 		
-		recordEvent(map);
+		GenerateSlidePresentationRecordEvent event = new GenerateSlidePresentationRecordEvent();
+		event.setMeetingId(session);
+		event.setTimestamp(System.currentTimeMillis());
+		event.setPresentationName((String)message.get("presentationName"));
+		event.setNumberOfPages((Integer)message.get("numberOfPages"));
+		event.setPagesCompleted((Integer)message.get("pagesCompleted"));
+		recorder.record(session, event);
 	}
 
+	private void handleConversionCompletedEvent(Map<String, Object> message) {
+		log.debug("Conversion Completed Event [{}]", (String)message.get("presentationName"));
+		
+		ConversionCompletedPresentationRecordEvent event = new ConversionCompletedPresentationRecordEvent();
+		event.setMeetingId(session);
+		event.setTimestamp(System.currentTimeMillis());
+		event.setPresentationName((String)message.get("presentationName"));
+		event.setSlidesInfo((String)message.get("slidesInfo"));
+		recorder.record(session, event);
+	}
+	
 	@SuppressWarnings("rawtypes")
 	@Override
 	public void assignPresenter(ArrayList presenter) {
 		log.debug("RECORD module:presentation event:assign_presenter");
-		HashMap<String, String> map= new HashMap<String, String>();
-		map.put("timestamp", Long.toString(System.currentTimeMillis()));
-		map.put("module", "presentation");
-		map.put("event", "assign_presenter");
-		map.put("userid", presenter.get(0).toString());
-		map.put("name", presenter.get(1).toString());
-		map.put("assignedBy", presenter.get(2).toString());
+		AssignPresenterPresentationRecordEvent event = new AssignPresenterPresentationRecordEvent();
+		event.setMeetingId(session);
+		event.setTimestamp(System.currentTimeMillis());
+		event.setUserId(presenter.get(0).toString());
+		event.setName(presenter.get(1).toString());
+		event.setAssignedBy(presenter.get(2).toString());
 		
-		recordEvent(map);
+		recorder.record(session, event);
 	}
 
 	@Override
 	public void gotoSlide(int curslide) {
 		log.debug("RECORD module:presentation event:update_slide");
-		HashMap<String, String> map= new HashMap<String, String>();
-		map.put("timestamp", Long.toString(System.currentTimeMillis()));
-		map.put("module", "presentation");
-		map.put("event", "update_slide");
-		map.put("slide", Integer.toString(curslide));
-		
-		recordEvent(map);
+		GotoSlidePresentationRecordEvent event = new GotoSlidePresentationRecordEvent();
+		event.setMeetingId(session);
+		event.setTimestamp(System.currentTimeMillis());
+		event.setSlide(curslide);
+		recorder.record(session, event);
 	}
 
 	@Override
-	public void resizeAndMoveSlide(Double xOffset, Double yOffset,
-			Double widthRatio, Double heightRatio) {
+	public void resizeAndMoveSlide(Double xOffset, Double yOffset, Double widthRatio, Double heightRatio) {
 		log.debug("RECORD module:presentation event:resize_move_slide");
-		HashMap<String, String> map= new HashMap<String, String>();
-		map.put("timestamp", Long.toString(System.currentTimeMillis()));
-		map.put("module", "presentation");
-		map.put("event", "resize_move_slide");
-		map.put("xOffset", Double.toString(xOffset));
-		map.put("yOffset", Double.toString(yOffset));
-		map.put("widthRatio", Double.toString(widthRatio));
-		map.put("heightRatio", Double.toString(heightRatio));
+
+		ResizeAndMoveSlidePresentationRecordEvent event = new ResizeAndMoveSlidePresentationRecordEvent();
+		event.setMeetingId(session);
+		event.setTimestamp(System.currentTimeMillis());
+		event.setXOffset(xOffset.doubleValue());
+		event.setYOffset(yOffset.doubleValue());
+		event.setWidthRatio(widthRatio.doubleValue());
+		event.setHeightRatio(heightRatio.doubleValue());
 		
-		recordEvent(map);
+		recorder.record(session, event);
 	}
 
 	@Override
 	public void removePresentation(String name) {
-		log.debug("RECORD module:presentation event:remove_presentation");
-		HashMap<String, String> map= new HashMap<String, String>();
-		map.put("timestamp", Long.toString(System.currentTimeMillis()));
-		map.put("module", "presentation");
-		map.put("event", "remove_presentation");
-		map.put("presentationName", name);
+		log.debug("RECORD module:presentation event:remove_presentation");		
+		RemovePresentationPresentationRecordEvent event = new RemovePresentationPresentationRecordEvent();
+		event.setMeetingId(session);
+		event.setTimestamp(System.currentTimeMillis());
+		event.setPresentationName(name);
 		
-		recordEvent(map);
+		recorder.record(session, event);
 	}
 
 	@Override
 	public void sharePresentation(String presentationName, Boolean share) {
-		log.debug("RECORD module:presentation event:share_presentation");
-		HashMap<String, String> map= new HashMap<String, String>();
-		map.put("timestamp", Long.toString(System.currentTimeMillis()));
-		map.put("module", "presentation");
-		map.put("event", "share_presentation");
-		map.put("presentationName", presentationName);
-		map.put("share", share.toString());
-		
-		recordEvent(map);
+		log.debug("RECORD module:presentation event:share_presentation");		
+		SharePresentationPresentationRecordEvent event = new SharePresentationPresentationRecordEvent();
+		event.setMeetingId(session);
+		event.setTimestamp(System.currentTimeMillis());
+		event.setPresentationName(presentationName);
+		event.setShare(share.booleanValue());
+		recorder.record(session, event);
 	}
 
 }

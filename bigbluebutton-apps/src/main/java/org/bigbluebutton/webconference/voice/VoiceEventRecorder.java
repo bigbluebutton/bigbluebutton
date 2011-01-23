@@ -34,78 +34,68 @@ public class VoiceEventRecorder {
 	
 	private void recordParticipantJoinedEvent(ConferenceEvent event, String room) {
 		ParticipantJoinedEvent pje = (ParticipantJoinedEvent) event;
+
+		ParticipantJoinedVoiceRecordEvent evt = new ParticipantJoinedVoiceRecordEvent();
+		evt.setMeetingId(room);
+		evt.setTimestamp(System.currentTimeMillis());
+		evt.setBridge(event.getRoom());
+		evt.setParticipant(pje.getParticipantId().toString());
+		evt.setCallerName(pje.getCallerIdName());
+		evt.setCallerNumber(pje.getCallerIdName());
+		evt.setMuted(pje.getMuted());
+		evt.setTalking(pje.getSpeaking());
+		evt.setLocked(pje.isLocked());
 		
-		HashMap<String,String> map = new HashMap<String, String>();
-		map.put("timestamp", Long.toString(System.currentTimeMillis()));
-		map.put("meeting", room);
-		map.put("bridge", event.getRoom());
-		map.put("module", "voice");
-		map.put("event", "userJoin");
-		map.put("participant", pje.getParticipantId().toString());
-		map.put("callername", pje.getCallerIdName());
-		map.put("callernumber", pje.getCallerIdName());
-		map.put("muted", pje.getMuted().toString());
-		map.put("talking", pje.getSpeaking().toString());
-		map.put("locked", pje.isLocked().toString());	
-		
-		recorder.record(room, map);
+		recorder.record(room, evt);
 	}
 
 	private void recordParticipantLeftEvent(ConferenceEvent event, String room) {
-		HashMap<String,String> map = new HashMap<String, String>();
-		map.put("timestamp", Long.toString(System.currentTimeMillis()));
-		map.put("meeting", room);
-		map.put("bridge", event.getRoom());
-		map.put("module", "voice");
-		map.put("event", "userLeft");
-		map.put("participant", event.getParticipantId().toString());
-			
-		recorder.record(room, map);
+		ParticipantLeftVoiceRecordEvent evt = new ParticipantLeftVoiceRecordEvent();
+		evt.setMeetingId(room);
+		evt.setTimestamp(System.currentTimeMillis());
+		evt.setBridge(event.getRoom());
+		evt.setParticipant(event.getParticipantId().toString());
+		
+		recorder.record(room, evt);
 	}
 	
 	private void recordParticipantMutedEvent(ConferenceEvent event, String room) {
 		ParticipantMutedEvent pme = (ParticipantMutedEvent) event;
 		
-		HashMap<String,String> map = new HashMap<String, String>();
-		map.put("timestamp", Long.toString(System.currentTimeMillis()));
-		map.put("meeting", room);
-		map.put("bridge", event.getRoom());
-		map.put("module", "voice");
-		map.put("event", "userMuted");
-		map.put("participant", event.getParticipantId().toString());
-		map.put("muted", Boolean.toString(pme.isMuted()));		
+		ParticipantMutedVoiceRecordEvent evt = new ParticipantMutedVoiceRecordEvent();
+		evt.setMeetingId(room);
+		evt.setTimestamp(System.currentTimeMillis());
+		evt.setBridge(event.getRoom());
+		evt.setParticipant(event.getParticipantId().toString());
+		evt.setMuted(pme.isMuted());
 		
-		recorder.record(room, map);
+		recorder.record(room, evt);
 	}
 	
 	private void recordParticipantTalkingEvent(ConferenceEvent event, String room) {
 		ParticipantTalkingEvent pte = (ParticipantTalkingEvent) event;
 	
-		HashMap<String,String> map = new HashMap<String, String>();
-		map.put("timestamp", Long.toString(System.currentTimeMillis()));
-		map.put("meeting", room);
-		map.put("bridge", event.getRoom());
-		map.put("module", "voice");
-		map.put("event", "userTalking");
-		map.put("participant", event.getParticipantId().toString());
-		map.put("talking", Boolean.toString(pte.isTalking()));
+		ParticipantTalkingVoiceRecordEvent evt = new ParticipantTalkingVoiceRecordEvent();
+		evt.setMeetingId(room);
+		evt.setTimestamp(System.currentTimeMillis());
+		evt.setBridge(event.getRoom());
+		evt.setParticipant(event.getParticipantId().toString());
+		evt.setTalking(pte.isTalking());
 		
-		recorder.record(room, map);
+		recorder.record(room, evt);
 	}
 	
 	private void recordParticipantLockedEvent(ConferenceEvent event, String room) {
 		ParticipantLockedEvent ple = (ParticipantLockedEvent) event;
 
-		HashMap<String,String> map = new HashMap<String, String>();
-		map.put("timestamp", Long.toString(System.currentTimeMillis()));
-		map.put("meeting", room);
-		map.put("bridge", event.getRoom());
-		map.put("module", "voice");
-		map.put("event", "userLocked");
-		map.put("participant", event.getParticipantId().toString());
-		map.put("locked", Boolean.toString(ple.isLocked()));
+		ParticipantLockedVoiceRecordEvent evt = new ParticipantLockedVoiceRecordEvent();
+		evt.setMeetingId(room);
+		evt.setTimestamp(System.currentTimeMillis());
+		evt.setBridge(event.getRoom());
+		evt.setParticipant(event.getParticipantId().toString());
+		evt.setLocked(ple.isLocked());
 		
-		recorder.record(room, map);
+		recorder.record(room, evt);
 	}
 	
 	public void setRecorderApplication(RecorderApplication recorder) {

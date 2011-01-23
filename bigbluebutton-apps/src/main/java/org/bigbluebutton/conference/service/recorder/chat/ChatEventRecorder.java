@@ -28,21 +28,20 @@ public class ChatEventRecorder implements IChatRoomListener {
 
 	@Override
 	public void newChatMessage(String message) {
-		recorder.record(session, getMapAttributes(message));		
+		recorder.record(session, buildEvent(message));		
 	}
 	
-	private HashMap<String,String> getMapAttributes(String message){
-		HashMap<String,String> map = new HashMap<String, String>();
-		String[] chat_attribs = message.trim().split("\\|",-1);
-		map.put("timestamp", Long.toString(System.currentTimeMillis()));
-		map.put("module", "chat");
-		map.put("event", "new_message");
-		map.put("user", chat_attribs[1]);
-		map.put("text", chat_attribs[0]);
-		map.put("language", chat_attribs[4]);
-		map.put("color", chat_attribs[2]);
-		
-		return map;
+	private PublicChatRecordEvent buildEvent(String message) {
+		PublicChatRecordEvent ev = new PublicChatRecordEvent();
+		ev.setTimestamp(System.currentTimeMillis());
+
+		String[] chatAttribs = message.trim().split("\\|",-1);
+		ev.setSender(chatAttribs[1]);
+		ev.setMessage(chatAttribs[0]);
+		ev.setLocale(chatAttribs[4]);
+		ev.setColor(chatAttribs[2]);
+
+		return ev;
 	}
 	
 	/*

@@ -22,53 +22,44 @@ public class ParticipantsEventRecorder implements IRoomListener {
 
 	@Override
 	public void endAndKickAll() {
-		HashMap<String, String> map=new HashMap<String, String>();
-		map.put("timestamp", Long.toString(System.currentTimeMillis()));
-		map.put("module", "participants");
-		map.put("event", "leave_all");
-		
-		recordEvent(map);
+		ParticipantEndAndKickAllRecordEvent ev = new ParticipantEndAndKickAllRecordEvent();
+		ev.setTimestamp(System.currentTimeMillis());
+		ev.setMeetingId(session);
+		recorder.record(session, ev);		
 	}
 
 	@Override
-	public void participantJoined(Participant arg0) {
-		HashMap<String, String> map=new HashMap<String, String>();
-		map.put("timestamp", Long.toString(System.currentTimeMillis()));
-		map.put("module", "participants");
-		map.put("event", "join");
-		map.put("userid", arg0.getUserid().toString());
-		map.put("status", arg0.getStatus().toString());
-		map.put("role", arg0.getRole());
-		
-		recordEvent(map);
+	public void participantJoined(Participant p) {
+		ParticipantJoinRecordEvent ev = new ParticipantJoinRecordEvent();
+		ev.setTimestamp(System.currentTimeMillis());
+		ev.setUserId(p.getUserid().toString());
+		ev.setMeetingId(session);
+		ev.setStatus(p.getStatus().toString());
+		ev.setRole(p.getRole());
+
+		recorder.record(session, ev);
 	}
 
 	@Override
 	public void participantLeft(Long userid) {
-		HashMap<String, String> map=new HashMap<String, String>();
-		map.put("timestamp", Long.toString(System.currentTimeMillis()));
-		map.put("module", "participants");
-		map.put("event", "leave");
-		map.put("userid", userid.toString());
+		ParticipantLeftRecordEvent ev = new ParticipantLeftRecordEvent();
+		ev.setTimestamp(System.currentTimeMillis());
+		ev.setUserId(userid.toString());
+		ev.setMeetingId(session);
 		
-		recordEvent(map);
+		recorder.record(session, ev);
 	}
 
 	@Override
 	public void participantStatusChange(Long userid, String status, Object value) {
-		HashMap<String, String> map=new HashMap<String, String>();
-		map.put("timestamp", Long.toString(System.currentTimeMillis()));
-		map.put("module", "participants");
-		map.put("event", "status_change");
-		map.put("userid", userid.toString());
-		map.put("status", status);
-		map.put("value", value.toString());
+		ParticipantStatusChangeRecordEvent ev = new ParticipantStatusChangeRecordEvent();
+		ev.setTimestamp(System.currentTimeMillis());
+		ev.setUserId(userid.toString());
+		ev.setMeetingId(session);
+		ev.setStatus(status);
+		ev.setValue(value.toString());
 		
-		recordEvent(map);
-	}
-
-	private void recordEvent(HashMap<String, String> message) {
-			recorder.record(session, message);
+		recorder.record(session, ev);
 	}
 
 	@Override

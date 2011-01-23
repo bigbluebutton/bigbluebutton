@@ -63,7 +63,7 @@ public class RecorderApplication {
 		recordingSessions.put(sessionName, sessionName);
 	}
 	
-	public void record(String session, HashMap<String,String> message) {
+	public void record(String session, RecordEvent message) {
 		if (recordingSessions.containsKey(session)) {
 			recorder.record(session, message);
 		}
