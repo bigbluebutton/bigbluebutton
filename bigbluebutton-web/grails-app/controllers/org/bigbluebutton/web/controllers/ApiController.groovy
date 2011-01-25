@@ -26,6 +26,7 @@ import java.util.Collections;
 import org.apache.commons.codec.binary.Hex;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -194,55 +195,82 @@ class ApiController {
 		String requestBody = request.inputStream == null ? null : request.inputStream.text;
 		requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
 
-		println "Request body: \n" + requestBody;
+		if (requestBody == null) {
+			return;
+		}
+				
+		log.debug "Request body: \n" + requestBody;
 
 		def xml = XML.parse(requestBody);
 		xml.children().each { module ->
-			if ("presentation".equals(module.@name)) {
-				// we're in the create meeting config for the presentation module - need to iterate over presentation files and process them
+			log.debug("module config found: [${module.@name}]");
+			if ("presentation".equals(module.@name.toString())) {
+				// need to iterate over presentation files and process them
 				module.children().each { document -> 
-					if (!StringUtils.isEmpty(document.@url)) {
-						// download file from internet and process it
+					if (!StringUtils.isEmpty(document.@url.toString())) {
+						downloadAndProcessDocument(document.@url.toString(), conf);
+					} else if (!StringUtils.isEmpty(document.@name.toString())) {
+						def b64 = new Base64()
+						def decodedBytes = b64.decode(document.text().getBytes())
+						processDocumentFromRawBytes(decodedBytes, document.@name.toString(), conf);
+					} else {
+						log.debug("presentation module config found, but it did not contain url or name attributes");
 					}
 				}
 			}
 		}
-		
-		
-/*
-		// temporary file to test passing file to pres svc:
-		String path = "/tmp/testupload.pdf";
-		File file = new File(path);
-		String name = "testupload.pdf";
+	}
+
+
+	def cleanFilename(filename) {
 		def notValidCharsRegExp = /[^0-9a-zA-Z_\.]/
-		name = name.replaceAll(notValidCharsRegExp, '-')
-		
-		log.debug("Uploading presentation: ${name}");
-		
-		File uploadDir = presentationService.uploadedPresentationDirectory(conf.getMeetingToken(), conf.getMeetingToken(), name);
-		def pres = new File(uploadDir.absolutePath + File.separatorChar + name);
-		boolean renamed = false; // TODO: unrem this to try renames after accepting uploaded files: file.renameTo(pres);
-		if (!renamed) {
-			log.debug("could not rename to ${file.absolutePath} - must copy");
-			println "pres exists: " + pres.exists();
-			println "pres length: " + pres.length();
+		return filename.replaceAll(notValidCharsRegExp, '-')
+	}
+	
+	def processDocumentFromRawBytes(bytes, filename, conf) {
+		def cleanName = cleanFilename(filename);
 
-			log.debug("${pres.absolutePath} << ${file.absolutePath}");
-			( new AntBuilder ( ) ).copy ( file : file , tofile : pres )
-
-			println "pres exists: " + pres.exists();
-			println "pres length: " + pres.length();
+		File uploadDir = presentationService.uploadedPresentationDirectory(conf.getMeetingToken(), conf.getMeetingToken(), cleanName);
+		def pres = new File(uploadDir.absolutePath + File.separatorChar + cleanName);
+		
+		FileOutputStream fos = new java.io.FileOutputStream(pres)
+		fos.write(bytes)
+		fos.flush()
+		fos.close()
+		
+		processUploadedFile(cleanName, pres, conf);
+	}
+		
+	def downloadAndProcessDocument(address, conf) {
+		log.debug("ApiController#downloadAndProcessDocument({$address}, ${conf.meetingID})");
+		String name = cleanFilename(address.tokenize("/")[-1]);
+		log.debug("Uploading presentation: ${name} from ${address} [starting download]");
+		
+		def out;
+		def pres;
+		try {
+			File uploadDir = presentationService.uploadedPresentationDirectory(conf.getMeetingToken(), conf.getMeetingToken(), name);
+			pres = new File(uploadDir.absolutePath + File.separatorChar + name);
+			out = new BufferedOutputStream(new FileOutputStream(pres))
+			out << new URL(address).openStream()
+		} finally {
+			if (out != null) {
+				out.close()
+			}
 		}
 
+		processUploadedFile(name, pres, conf);
+	}
+	
+	def processUploadedFile(name, pres, conf) {
 		UploadedPresentation uploadedPres = new UploadedPresentation(conf.getMeetingToken(), conf.getMeetingToken(), name);
 		uploadedPres.setUploadedFile(pres);
 		presentationService.processUploadedPresentation(uploadedPres);
-*/
+
+		// TODO: it is successfully uploaded and converted - now how do we automatically show it?		
 	}
 
 	def join = {
-			
-		println "Entered Join"
 		log.debug CONTROLLER_NAME + "#join"
 
 		if (!doChecksumSecurity("join")) {
@@ -307,9 +335,9 @@ class ApiController {
 		
     	def config = ConfigurationHolder.config
     	def hostURL = config.bigbluebutton.web.serverURL
-    	redirect(url:"${hostURL}/client/BigBlueButton.html")
-		
-		println "Leaving Join"
+		def redirectUrl = "${hostURL}/client/BigBlueButton.html";
+		log.debug("join done, redirecting to ${redirectUrl}"); 		
+		redirect(url:redirectUrl)
 	}
 
 	def isMeetingRunning = {
