@@ -6,6 +6,7 @@
 	
 	var RECORDING = 'testmeeting'
 	var PRESENTATION = 'testmeeting/ecosystem'
+	var LOGO = 'logo.png';
 	
 	//$.fn.bbb.playback = function(){
 	//	
@@ -68,6 +69,12 @@
 	
 	function onTimeUpdate(){
 		var now = audio.currentTime;
+		
+		var firstTransition = slideTransitions[0].time;
+		if (firstTransition > now){
+			$('#imgSlide').attr('src', LOGO);
+			return;
+		}
 		
 		$.each(slideTransitions, function(index, value){
 			var time = value.time;
