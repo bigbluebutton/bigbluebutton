@@ -12,6 +12,7 @@
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
+			import mx.controls.Alert;
 			import mx.core.Application;
 			
 			import org.bigbluebutton.main.events.MadePresenterEvent;
