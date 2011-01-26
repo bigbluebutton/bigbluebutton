@@ -1,6 +1,5 @@
 package org.bigbluebutton.webconference.voice;
 
-import java.util.HashMap;
 import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 import org.bigbluebutton.webconference.voice.events.ConferenceEvent;
 import org.bigbluebutton.webconference.voice.events.ParticipantJoinedEvent;
@@ -8,6 +7,7 @@ import org.bigbluebutton.webconference.voice.events.ParticipantLeftEvent;
 import org.bigbluebutton.webconference.voice.events.ParticipantLockedEvent;
 import org.bigbluebutton.webconference.voice.events.ParticipantMutedEvent;
 import org.bigbluebutton.webconference.voice.events.ParticipantTalkingEvent;
+import org.bigbluebutton.webconference.voice.events.StartRecordingEvent;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
@@ -27,9 +27,23 @@ public class VoiceEventRecorder {
 			recordParticipantTalkingEvent(event, room);
 		} else if (event instanceof ParticipantLockedEvent) {
 			recordParticipantLockedEvent(event, room);
+		} else if (event instanceof StartRecordingEvent) {
+			recordStartRecordingEvent(event, room);
 		} else {
 			log.debug("Processing UnknownEvent " + event.getClass().getName() + " for room: " + event.getRoom() );
 		}		
+	}
+	
+	private void recordStartRecordingEvent(ConferenceEvent event, String room) {
+		StartRecordingEvent sre = (StartRecordingEvent) event;
+		StartRecordingVoiceRecordEvent evt = new StartRecordingVoiceRecordEvent(sre.startRecord());
+		evt.setMeetingId(room);
+		evt.setTimestamp(System.currentTimeMillis());
+		evt.setBridge(event.getRoom());
+		evt.setRecordingTimestamp(sre.getTimestamp());
+		evt.setFilename(sre.getRecordingFilename());
+		System.out.println("*** Recording voice " + sre.startRecord() + " timestamp: " + evt.toMap().get("recordingTimestamp") + " file: " + evt.toMap().get("filename"));
+		recorder.record(room, evt);
 	}
 	
 	private void recordParticipantJoinedEvent(ConferenceEvent event, String room) {

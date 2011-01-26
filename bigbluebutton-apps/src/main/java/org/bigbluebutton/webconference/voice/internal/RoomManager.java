@@ -30,6 +30,7 @@ import org.bigbluebutton.webconference.voice.events.ParticipantLeftEvent;
 import org.bigbluebutton.webconference.voice.events.ParticipantLockedEvent;
 import org.bigbluebutton.webconference.voice.events.ParticipantMutedEvent;
 import org.bigbluebutton.webconference.voice.events.ParticipantTalkingEvent;
+import org.bigbluebutton.webconference.voice.events.StartRecordingEvent;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 import net.jcip.annotations.ThreadSafe;
@@ -128,6 +129,9 @@ public class RoomManager {
 			handleParticipantTalkingEvent(event, rm);
 		} else if (event instanceof ParticipantLockedEvent) {
 			handleParticipantLockedEvent(event, rm);
+		} else if (event instanceof StartRecordingEvent) {
+			// do nothing but let it through.
+			// later on we need to dispatch an event to the client that the voice recording has started.
 		} else {
 			log.debug("Processing UnknownEvent " + event.getClass().getName() + " for room: " + event.getRoom() );
 			return;

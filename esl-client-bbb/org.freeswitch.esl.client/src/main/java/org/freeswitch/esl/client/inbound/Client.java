@@ -480,9 +480,11 @@ public class Client
                                     if(eventFunc == null) {
                                         //Noop...
                                     }else if(eventFunc.equals("conference_thread_run")) {
+                                    	System.out.println("##### Client conference_thread_run");
                                         listener.conferenceEventThreadRun(uniqueId, confName, confSize, event);
                                         return;
                                     }else if(eventFunc.equals("member_add_file_data")) {
+                                    	System.out.println("##### Client member_add_file_data");
                                         listener.conferenceEventPlayFile(uniqueId, confName, confSize, event);
                                         return;
                                     }else if(eventFunc.equals("conf_api_sub_transfer")) {
@@ -490,9 +492,11 @@ public class Client
                                         listener.conferenceEventTransfer(uniqueId, confName, confSize, event);
                                         return;
                                     }else if(eventFunc.equals("conference_add_member")) {
+                                    	System.out.println("##### Client conference_add_member");
                                         listener.conferenceEventJoin(uniqueId, confName, confSize, event);
                                         return;
                                     }else if(eventFunc.equals("conference_del_member")) {
+                                    	System.out.println("##### Client conference_del_member");
                                         listener.conferenceEventLeave(uniqueId, confName, confSize, event);
                                         return;
                                     }else if(eventFunc.equals("conf_api_sub_mute")) {
@@ -500,6 +504,10 @@ public class Client
                                         return;
                                     }else if(eventFunc.equals("conf_api_sub_unmute")) {
                                         listener.conferenceEventUnMute(uniqueId, confName, confSize, event);
+                                        return;
+                                    }else if(eventFunc.equals("conference_record_thread_run")) {
+                                    	System.out.println("##### Client conference_record_thread_run");
+                                        listener.conferenceEventRecord(uniqueId, confName, confSize, event);
                                         return;
                                     }else if(eventFunc.equals("conference_loop_input")) {
                                         listener.conferenceEventAction(uniqueId, confName, confSize, eventHeaders.get("Action"), event);

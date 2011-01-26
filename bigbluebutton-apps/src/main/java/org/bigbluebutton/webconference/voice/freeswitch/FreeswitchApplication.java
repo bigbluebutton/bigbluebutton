@@ -36,6 +36,7 @@ import org.bigbluebutton.webconference.voice.events.ParticipantJoinedEvent;
 import org.bigbluebutton.webconference.voice.events.ParticipantLeftEvent;
 import org.bigbluebutton.webconference.voice.events.ParticipantMutedEvent;
 import org.bigbluebutton.webconference.voice.events.ParticipantTalkingEvent;
+import org.bigbluebutton.webconference.voice.events.StartRecordingEvent;
 import org.bigbluebutton.webconference.voice.freeswitch.actions.EjectParticipantCommand;
 import org.bigbluebutton.webconference.voice.freeswitch.actions.PopulateRoomCommand;
 import org.bigbluebutton.webconference.voice.freeswitch.actions.MuteParticipantCommand;
@@ -157,7 +158,7 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
 
     @Override
     public void conferenceEventJoin(String uniqueId, String confName, int confSize, EslEvent event) {
-        Integer memberId = this.getMemeberIdFromEvent(event);
+        Integer memberId = this.getMemberIdFromEvent(event);
         Map<String, String> headers = event.getEventHeaders();
         String callerId = this.getCallerIdFromEvent(event);
         String callerIdName = this.getCallerIdNameFromEvent(event);
@@ -171,28 +172,28 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
 
     @Override
     public void conferenceEventLeave(String uniqueId, String confName, int confSize, EslEvent event) {
-        Integer memberId = this.getMemeberIdFromEvent(event);
+        Integer memberId = this.getMemberIdFromEvent(event);
         ParticipantLeftEvent pl = new ParticipantLeftEvent(memberId, confName);
         conferenceEventListener.handleConferenceEvent(pl);
     }
 
     @Override
     public void conferenceEventMute(String uniqueId, String confName, int confSize, EslEvent event) {
-        Integer memberId = this.getMemeberIdFromEvent(event);
+        Integer memberId = this.getMemberIdFromEvent(event);
         ParticipantMutedEvent pm = new ParticipantMutedEvent(memberId, confName, true);
         conferenceEventListener.handleConferenceEvent(pm);
     }
 
     @Override
     public void conferenceEventUnMute(String uniqueId, String confName, int confSize, EslEvent event) {
-        Integer memberId = this.getMemeberIdFromEvent(event);
+        Integer memberId = this.getMemberIdFromEvent(event);
         ParticipantMutedEvent pm = new ParticipantMutedEvent(memberId, confName, false);
         conferenceEventListener.handleConferenceEvent(pm);
     }
 
     @Override
     public void conferenceEventAction(String uniqueId, String confName, int confSize, String action, EslEvent event) {
-        Integer memberId = this.getMemeberIdFromEvent(event);
+        Integer memberId = this.getMemberIdFromEvent(event);
         ParticipantTalkingEvent pt;
 
         if(action == null) {
@@ -236,7 +237,54 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
 
     @Override
     public void conferenceEventThreadRun(String uniqueId, String confName, int confSize, EslEvent event) {
-        //Ignored, Noop
+    	
+    }
+    
+    @Override
+    public void conferenceEventRecord(String uniqueId, String confName, int confSize, EslEvent event) {
+    	String action = event.getEventHeaders().get("Action");
+    	System.out.println("#### conferenceEventRecord " + action);
+    	
+        if(action == null) {
+            if(debug) {
+                Map<String, String> eventHeaders = event.getEventHeaders();
+                StringBuilder sb = new StringBuilder("\n");
+                for (Iterator it=eventHeaders.entrySet().iterator(); it.hasNext(); ) {
+                    Map.Entry entry = (Map.Entry)it.next();
+                    sb.append(entry.getKey());
+                    sb.append(" => '");
+                    sb.append(entry.getValue());
+                    sb.append("'\n");
+                }
+                log.debug ("NULL Conference Action [{}] Headers:\n{}\nEND", confName, sb.toString());
+            }
+            return;
+        }
+
+        try {
+            switch(ESL_EVENT_ACTIONS_MAP.get(action)) {
+                case ESL_ACTION_START_RECORDING:
+                	
+                    StartRecordingEvent sre = new StartRecordingEvent(123, confName, true);
+                    sre.setRecordingFilename(getRecordFilenameFromEvent(event));
+                    sre.setTimestamp(getRecordTimestampFromEvent(event));
+                    System.out.println("#### processing conferenceEventRecord " + action + " time: " + sre.getTimestamp() + " file: " + sre.getRecordingFilename());
+                    conferenceEventListener.handleConferenceEvent(sre);
+                    break;
+                case ESL_ACTION_STOP_RECORDING:
+                	StartRecordingEvent srev = new StartRecordingEvent(123, confName, false);
+                    srev.setRecordingFilename(getRecordFilenameFromEvent(event));
+                    srev.setTimestamp(getRecordTimestampFromEvent(event));
+                    System.out.println("#### processing conferenceEventRecord " + action + " time: " + srev.getTimestamp() + " file: " + srev.getRecordingFilename());
+                    conferenceEventListener.handleConferenceEvent(srev);
+                    break;
+                default:
+                    log.debug("Unknown conference Action [{}]", action);
+                    System.out.println("#### processing conferenceEventRecord Unknown conference Action " + action);
+            }
+        }catch(NullPointerException npe) {
+            log.debug("Unknown NPE conference Action [{}]", action);
+        }
     }
 
     @Override
@@ -268,7 +316,7 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
         this.debug = enabled;
     }
     
-    private Integer getMemeberIdFromEvent(EslEvent e)
+    private Integer getMemberIdFromEvent(EslEvent e)
     {
         return new Integer(e.getEventHeaders().get("Member-ID"));
     }
@@ -281,5 +329,13 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
     private String getCallerIdNameFromEvent(EslEvent e)
     {
         return e.getEventHeaders().get("Caller-Caller-ID-Name");
+    }
+    
+    private String getRecordFilenameFromEvent(EslEvent e) {
+    	return e.getEventHeaders().get("Path");
+    }
+    
+    private String getRecordTimestampFromEvent(EslEvent e) {
+    	return e.getEventHeaders().get("Event-Date-Timestamp");
     }
 }

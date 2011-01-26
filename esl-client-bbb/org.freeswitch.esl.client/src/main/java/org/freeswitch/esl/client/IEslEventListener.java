@@ -108,6 +108,15 @@ public interface IEslEventListener
     void conferenceEventThreadRun(String uniqueId, String confName, int confSize, EslEvent event);
 
     /**
+    *
+    * @param uniqueId
+    * @param confName
+    * @param confSize
+    * @param event as an {@link EslEvent}
+    */
+   void conferenceEventRecord(String uniqueId, String confName, int confSize, EslEvent event);
+   
+    /**
      *
      * @param uniqueId
      * @param confName

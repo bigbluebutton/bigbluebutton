@@ -23,8 +23,6 @@ package org.bigbluebutton.conference.service.recorder;
 
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
-
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
