@@ -130,15 +130,13 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
     
     @Override
     public void record(String room, String meetingid){
-    	String RECORD_DIR = "/var/freeswitch/meetings";
-    	String DATE_FORMAT = "yyyyMMdd-hhmmss";
+    	String RECORD_DIR = "/var/freeswitch/meetings";        
+    	String voicePath = RECORD_DIR + File.separatorChar + meetingid + "-" + System.currentTimeMillis() + ".wav";
     	
-    	Calendar cal = Calendar.getInstance();
-    	SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
-        
-    	String voice_path = RECORD_DIR + File.separatorChar + meetingid + "-" + sdf.format(cal.getTime()) + ".wav";
-    	log.debug("freeswitch is going to record in " + voice_path);
-    	RecordConferenceCommand rcc = new RecordConferenceCommand(room, USER, true, voice_path);
+    	if (log.isDebugEnabled())
+    		log.debug("Asking Freeswitch to start recording in {}", voicePath);
+    	
+    	RecordConferenceCommand rcc = new RecordConferenceCommand(room, USER, true, voicePath);
     	log.debug(rcc.getCommand() + rcc.getCommandArgs());
     	EslMessage response = manager.getESLClient().sendSyncApiCommand(rcc.getCommand(), rcc.getCommandArgs());
         rcc.handleResponse(response, conferenceEventListener);
@@ -243,7 +241,6 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
     @Override
     public void conferenceEventRecord(String uniqueId, String confName, int confSize, EslEvent event) {
     	String action = event.getEventHeaders().get("Action");
-    	System.out.println("#### conferenceEventRecord " + action);
     	
         if(action == null) {
             if(debug) {
@@ -260,30 +257,38 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
             }
             return;
         }
-
+        
+    	if (log.isDebugEnabled())
+    		log.debug("Handling conferenceEventRecord " + action);
+    	
         try {
             switch(ESL_EVENT_ACTIONS_MAP.get(action)) {
-                case ESL_ACTION_START_RECORDING:
-                	
+                case ESL_ACTION_START_RECORDING:                	
                     StartRecordingEvent sre = new StartRecordingEvent(123, confName, true);
                     sre.setRecordingFilename(getRecordFilenameFromEvent(event));
                     sre.setTimestamp(getRecordTimestampFromEvent(event));
-                    System.out.println("#### processing conferenceEventRecord " + action + " time: " + sre.getTimestamp() + " file: " + sre.getRecordingFilename());
+                    
+                    if (log.isDebugEnabled())
+                    	log.debug("Processing conference event - action: {} time: {} file: {}", new Object[] {action,  sre.getTimestamp(), sre.getRecordingFilename()});
+                    
                     conferenceEventListener.handleConferenceEvent(sre);
                     break;
                 case ESL_ACTION_STOP_RECORDING:
                 	StartRecordingEvent srev = new StartRecordingEvent(123, confName, false);
                     srev.setRecordingFilename(getRecordFilenameFromEvent(event));
                     srev.setTimestamp(getRecordTimestampFromEvent(event));
-                    System.out.println("#### processing conferenceEventRecord " + action + " time: " + srev.getTimestamp() + " file: " + srev.getRecordingFilename());
+                    
+                    if (log.isDebugEnabled())
+                    	log.debug("Processing conference event - action: {} time: {} file: {}", new Object[] {action,  srev.getTimestamp(), srev.getRecordingFilename()});
+                    
                     conferenceEventListener.handleConferenceEvent(srev);
                     break;
                 default:
-                    log.debug("Unknown conference Action [{}]", action);
-                    System.out.println("#### processing conferenceEventRecord Unknown conference Action " + action);
+                	if (log.isDebugEnabled())
+                		log.warn("Processing UNKNOWN conference Action {}", action);
             }
         }catch(NullPointerException npe) {
-            log.debug("Unknown NPE conference Action [{}]", action);
+            log.warn("Unknown NPE conference Action [{}]", action);
         }
     }
 
