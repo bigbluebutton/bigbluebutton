@@ -34,7 +34,7 @@
 	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
 	x="{DEFAULT_X_POSITION}" y="{DEFAULT_Y_POSITION}"
 	title="{currentPresentation}" keyUp="onKeyUp(event)"
-	resize="maximizeHandler()" backgroundColor="0xDDDDDD">
+	resize="maximizeHandler()" backgroundColor="0xDDDDDD" initialize="allowCallBack()">
 	
 	<mate:Dispatcher id="globalDispatcher" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="becomePresenter" />
@@ -85,9 +85,19 @@
 			import org.bigbluebutton.modules.present.managers.Slide;
 			import org.bigbluebutton.modules.present.managers.SlideManager;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-            
-            // _PTS_731_
+			
+			// _PTS_731_
             import flash.external.*;
+			import org.bigbluebutton.modules.present.events.CenterSlideEvent;
+
+            //<REALWAT>
+            import org.bigbluebutton.main.model.ConfigParameters;
+            import org.bigbluebutton.modules.present.events.PresenterViewEvent;
+            
+            private var configParameters:ConfigParameters;
+            private var gConfEnableFullScreen:Boolean       = false;
+            private var gConfEnableViwerLockOrUnlockSlide:Boolean   = false;
+            //</REALWAT>
              			
             public static const TITLE:String = "Presentation";
 			private var presenterName:String = "";
@@ -133,6 +143,76 @@
 			
 			private var externalButtons:ArrayCollection = new ArrayCollection();
 			
+			//<REALWAT>
+			private var isMinimized:Boolean  = false;
+			private var tMinimize:Timer  = null;
+			private var gCount:int   = 0;
+			
+			private function setStatusToNormal(t:TimerEvent) : void {
+			     if (2 == gCount){
+			         tMinimize.stop();
+			         gCount      = 0;
+			         tMinimize   = null;
+			         isMinimized = false;   
+			     }
+			     gCount++;
+			}
+			
+            /*****************************************************************************
+            ; allowCallBack
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ;   This routine is use to add function that will be call from javascript.
+            ;
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ; 
+            ;       INPUT : N/A
+            ;
+            ; 
+            ; IMPLEMENTATION
+            ;  
+            ; HISTORY
+            ; __date__ :        PTS:  
+            ; 2010.12.06        problem 731
+            ;
+            ******************************************************************************/
+            public function allowCallBack():void
+            {
+                // determine that ExternalInterface object supported.
+                if (true == ExternalInterface.available)
+                {
+                    // add function that can call back from javascript
+                    ExternalInterface.addCallback("shareViewPortToNewUser", shareViewPortToNewUserCallBack);
+                }
+            }
+            /***
+            ; END: allowCallBack
+            ****/
+            
+            private function shareViewPortToNewUserCallBack() : void 
+            {
+                //Alert.show('shareViewPortToNewUserCallBack');
+                if ( true == isPresenter && true == this.maximized )
+                {
+                    var lTimer:Timer = new Timer(3000,1);
+                    lTimer.addEventListener(TimerEvent.TIMER,doShareViewPort);
+                    lTimer.start();
+                }
+            }
+            
+            private function doShareViewPort(e:TimerEvent) : void {
+                    var event:PresenterViewEvent = new PresenterViewEvent(PresenterViewEvent.UPDATE_PRESENTER_VIEW_DIMENSION);
+                    event.topLeftX  = currentSlideWidth;
+                    event.topLeftY  = currentSlideHeight;
+                    event.bottomRightX  = this.width - WIDTH_PADDING;
+                    event.bottomRightY  = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
+                    dispatchEvent(event);
+            }
+            
+			//</REALWAT>
+			
             /*****************************************************************************
             ;  maximizeHandler
             ;----------------------------------------------------------------------------
@@ -155,37 +235,28 @@
             ;
             ******************************************************************************/
 			private function maximizeHandler():void {
+			    if ( true == isMinimized && false == this.minimized ){
+			         //Alert.show('isMinimized: ' + isMinimized);
+			         //isMinimized = false;
+			         if(null == tMinimize){
+			             tMinimize   = new Timer(1000);
+			             tMinimize.addEventListener(TimerEvent.TIMER, setStatusToNormal);
+			             tMinimize.start();
+			         }
+			         return;
+			    }
+			    if ( true == this.minimized && true == this.slideView.gIsViewerFullScreen ) {
+			         if ( null != tMinimize ){
+			             tMinimize.stop();
+			             tMinimize = null;
+			         }
+			         isMinimized = true;
+			         return;
+			    }
 				// When the window is maximized, we want to resize the slide maintaining the aspect ratio.			
 				fitSlideToWindowMaintainingAspectRatio();
-				
+                //if (false == isPresenter)Alert.show('resize(oldWidth): '+slideView.gOldWidth);
 				this.y = 0;
-				// fixing: maximize presentation window 
-				// get width and height of presentation window during startup
-				// because of this function double execute at the startup
-				// the first execute set value '2' and the second set
-				// the width and height of presentation window.
-				if (2 == slideView.getDefaultWidth()){
-                    slideView.setDefaultWidth(this.width);
-                }
-                // the second execute
-                if (2 == slideView.getDefaultHeight()){
-                    slideView.setDefaultHeight(this.height);
-                    
-                    // set the thumbnail position
-                    slideView.thumbnailView.y = this.height-170;
-                }
-                // determine the first execute, the default value of
-                // getDefaultWidth() is 1
-				if (1 == slideView.getDefaultWidth()){
-				    slideView.setDefaultWidth(2);
-				    
-				}
-				// determine the first execute, the default value of
-                // getDefaultHeight() is 1
-				if (1 == slideView.getDefaultHeight()){
-				    slideView.setDefaultHeight(2)
-				}
-
 				if (this.maximized) {
 					//callLater(restore);
                     if (true == ExternalInterface.available) 
@@ -195,9 +266,19 @@
                        //   _PTS_731_
                        ExternalInterface.call("showButton", true);
                     } 
+					/*
 					var timer:Timer = new Timer(500, 1);
 					timer.addEventListener(TimerEvent.TIMER, adjustPosition);
 					timer.start();
+					*/
+					// maximize and center slide
+                    //<REALWAT>
+                    this.slideView.gIsViewerFullScreen  = true;
+					dispatchEvent(new CenterSlideEvent(CenterSlideEvent.CENTER_SLIDE));
+					if ( true == isPresenter ){
+					   updateDimension();
+					}
+                    //</REALWAT>
 				}
                 else
                 {
@@ -208,11 +289,35 @@
                        //   _PTS_731_
                        ExternalInterface.call("showButton", false);
                      }
+                     //<REALWAT>
+                     if ( true == slideView.gIsViewerFullScreen ){
+                        this.slideView.gIsViewerFullScreen  = false;
+                        /*if ( 0 != slideView.gViewPortWidth ){
+                            slideView.displayViewPort();
+                        }*/
+                     }
+                    if ( true == isPresenter && true == slideView.gIsFullScreen){
+                        updateDimension();
+                    }
+                    
+                    if ( false == slideView.gIsPresenterFullScreen ) {
+                        slideView.gIsFullScreen = false;
+                     }
+                    //</REALWAT>
                 }
 				stage.focus = this; //Remove focus from the maximize button in case the user presses the space bar, the window doesn't get maximized again.
 				
 			}
 			
+            private function updateDimension():void{
+                var presentEvent:PresenterViewEvent = new PresenterViewEvent(PresenterViewEvent.UPDATE_PRESENTER_VIEW_DIMENSION);
+                presentEvent.topLeftX  = currentSlideWidth;
+                presentEvent.topLeftY  = currentSlideHeight;
+                presentEvent.bottomRightX  = this.width - WIDTH_PADDING;
+                presentEvent.bottomRightY  = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
+                dispatchEvent(presentEvent);
+            }
+            
 			private function adjustPosition(t:TimerEvent):void{
 				if ((DEFAULT_X_POSITION + this.width) > this.parent.width) {
 					// Adjust presentation window so that it doesn't go over the side of the browser window
@@ -227,8 +332,41 @@
 				thumbY = this.height - 160;
 				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
 				slideView.addEventListener(ListEvent.ITEM_ROLL_OVER, onItemRollOver);
+				
+				//<REALWAT>
+                configParameters = new ConfigParameters(handleComplete);
+                //</REALWAT>
 			}
 			
+            //<REALWAT>
+            private function handleComplete():void{  
+                 var xmlModules:XMLList  =   configParameters.getModulesXML();
+                 var item:XML;
+                 for each(item in xmlModules){
+                    var attNamesList:XMLList = item.@*;
+                    var name:String = item.attribute(attNamesList[0].name());
+                    if ('PresentModule' == name){  
+                        var attName:String = attNamesList[5].name();
+                        var attValue:String = item.attribute(attName);                        
+                        if('false' == attValue){
+                            gConfEnableFullScreen   = false;
+                        } else {
+                            gConfEnableFullScreen   = true;
+                        }
+
+                        var attNameLock:String     = attNamesList[6].name();
+                        var attValueLock:String    = item.attribute(attNameLock);
+                        if('false' == attValueLock){
+                            gConfEnableViwerLockOrUnlockSlide   = false;
+                        } else {
+                            gConfEnableViwerLockOrUnlockSlide   = true;
+                        }
+                    }
+                 }
+                 //Alert.show('Full: '+gConfEnableFullScreen+', Lock: '+gConfEnableViwerLockOrUnlockSlide);
+            }
+            //</REALWAT>
+            
 			private function onItemRollOver(e:ListEvent):void{
 				this.displaySlideNumber(e.columnIndex + 1);
 			}
@@ -268,16 +406,25 @@
 				
 				// If the height is smaller than the width, we use the height as the 
 				// base to determine the size of the slide.
-				/*if (this.height < this.width) {					
+				if (this.height < this.width) {					
 					slideHeight = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
 					slideWidth = ((currentSlideWidth * slideHeight)/currentSlideHeight);
 				} else {
 					slideWidth = this.width - WIDTH_PADDING;
 					slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
-				}*/
-				
-				//this.width = slideWidth + WIDTH_PADDING;
-				//this.height = slideHeight + CONTROL_BAR_HEIGHT + TOP_WINDOW_BORDER;
+				}
+				//<REALWAT>
+				if (true == slideView.gIsPresenterFullScreen){
+				    slideHeight = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
+				    slideWidth = ((currentSlideWidth * slideHeight)/currentSlideHeight);
+				}
+				//</REALWAT>
+				// check the window status, if it is not maximize fit the window to 
+				// the slide
+				if ( false == this.maximized ) {
+				    this.width = slideWidth + WIDTH_PADDING;
+				    this.height = slideHeight + CONTROL_BAR_HEIGHT + TOP_WINDOW_BORDER;
+				}
 
 				// Test if the height and width are bigger than it's parent. If so, resize
 				// to make it fit inside so that the controls will still be visible.
@@ -292,35 +439,7 @@
 					slideWidth = this.width - WIDTH_PADDING;
 					slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
 				}
-				
-				//_PTS_731_
-				//Test if the currentSlideWidth small than window's width, fit the slide's 
-				//width the same as window's width
-				if ( currentSlideWidth < this.width ){
-					slideWidth = this.width - WIDTH_PADDING;
-					slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
-				}else{
-                    slideWidth = currentSlideWidth ;
-                    slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
-                }
-				//Test if the current slide height is smaller than window's height,
-				//fit the slide height to window's height
-				if ( (currentSlideHeight < this.height) && (this.width != this.parent.width)){
-					slideWidth = this.width + (this.height - currentSlideHeight) ;
-					slideHeight = this.height ;
-				}
-                
-				//sendWindowResizedEvent(slideWidth, slideHeight);// fix: maximize presentation window 
-
-				// fix: maximize presentation window
-				// set the slide status
-				// slide is loading.
-				if ( true == slideView.getIsLoadedComplete() ){
-                    slideView.setIsLoading(false);
-                }else{
-                    // slide load complete
-                    slideView.setIsLoading(true);
-                }
+				sendWindowResizedEvent(slideWidth, slideHeight);
 			}
 			
 			/*
@@ -338,20 +457,38 @@
 			
 			private function handleDisplaySlideEvent(event:DisplaySlideEvent):void {				
 				currentSlideWidth = event.slideWidth;
-				currentSlideHeight = event.slideHeight;				
+				currentSlideHeight = event.slideHeight;
 				fitSlideToWindowMaintainingAspectRatio();
 				
-				// fix: maximize presentation window
-				// set current slide width and height to slideView object
-				slideView.setCurrentSlideWidth(currentSlideWidth);
-				slideView.setCurrentSlideHeight(currentSlideHeight);
-                
-                // zoom slide after loaded.
-                if (true == isPresenter){
-                    slideView.zoomLoaderBy(zoomSlider.value);
-                }
-					
+				// to center slide when the slide display
+				//if ( true == this.maximized ) {
+				    //if (true == isPresenter)
+				    //{
+				    
+				    //}
+				    //<REALWAT>
+				    if ( true == slideView.gIsFullScreen && true == isPresenter ){
+				        if (true == isPresenter){
+				            var lTimer:Timer    = new Timer(50,1);
+				            lTimer.addEventListener(TimerEvent.TIMER, doSendPresenterDimension)
+				            lTimer.start();
+				        }
+                    }
+                    dispatchEvent(new CenterSlideEvent(CenterSlideEvent.CENTER_SLIDE));
+                    //</REALWAT>
+				//}	
 			}
+			
+			//<REALWAT>
+			private function doSendPresenterDimension (e:TimerEvent) : void {
+			     var pEvent:PresenterViewEvent = new PresenterViewEvent(PresenterViewEvent.UPDATE_PRESENTER_VIEW_DIMENSION);
+                 pEvent.topLeftX  = currentSlideWidth;
+                 pEvent.topLeftY  = currentSlideHeight;
+                 pEvent.bottomRightX  = this.width - WIDTH_PADDING;
+                 pEvent.bottomRightY  = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
+                 dispatchEvent(pEvent);
+            }
+			//</REALWAT>
 			
 			private function onKeyUp(event:KeyboardEvent):void{
 				switch (event.keyCode) {
@@ -464,7 +601,7 @@
 				} else {
 					dispatchEvent(new SlideEvent(SlideEvent.LOAD_CURRENT_SLIDE));
 				}
-				//onResetZoom();// fix: maximize presentation window
+				onResetZoom();
 				reinitWindowToDefaultSize();
 				//this.setFocus();
 			}
@@ -699,14 +836,14 @@
                 //check 'lock following presenter slide' status
                 if (true == slideView.getFollowPresenterStatus()){
                     // change button icon and toolTip
-                    lockButton.setStyle('icon',unlockedIcon);
+                    lockButton.setStyle('icon',lockedIcon);
                     lockButton.toolTip = ResourceUtil.getInstance().getString('bbb.presentation.unlockSlideWithPresenter');
                     // hide zoom slider and reset zoom button
                     zoomSlider.visible      = false;
                     btnResetZoom.visible    = false;
                 }else{
                     // change button icon and toolTip
-                    lockButton.setStyle('icon',lockedIcon);
+                    lockButton.setStyle('icon',unlockedIcon);
                     lockButton.toolTip = ResourceUtil.getInstance().getString('bbb.presentation.lockSlideWithPresenter');
                     // show zoom slider and reset zoom button
                     zoomSlider.visible      = true;
@@ -739,7 +876,7 @@
     	  <mx:Button id="uploadPres" icon="{uploadIcon}" visible="false" width="20" height="20"
     	   		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.uploadPresBtn.toolTip')}" 
     	   		click="dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW))"/>     
-          <mx:Button id="lockButton" icon="{unlockedIcon}" visible="false" width="30" height="20"
+          <mx:Button id="lockButton" icon="{lockedIcon}" visible="false" width="30" height="20"
                   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.unlockSlideWithPresenter')}" click="switchFollowPreseterSlide()"/>
     	  <mx:Spacer width="50%" id="spacer1"/>
     	  <mx:Button id="backButton" icon="{backwardIcon}" visible="false" width="30" height="20"

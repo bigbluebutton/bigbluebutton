@@ -25,7 +25,8 @@ package org.bigbluebutton.conference.service.presentation;
 import java.util.ArrayList;
 import java.util.Map;
 import org.bigbluebutton.conference.service.recorder.IEventRecorder;
-import org.bigbluebutton.conference.service.recorder.IRecorder;import org.red5.server.api.so.ISharedObject;
+import org.bigbluebutton.conference.service.recorder.IRecorder;
+import org.red5.server.api.so.ISharedObject;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 
@@ -186,6 +187,72 @@ public class PresentationEventRecorder implements IEventRecorder, IPresentationR
 		so.sendMessage("moveCallback", list);
 		recordEvent(parsePresentationToJSON(list, this.RECORD_EVENT_RESIZE_MOVE_SLIDE));
 	}
+	
+        /*****************************************************************************
+        ;  shareUpdatePresenterViewDimension
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   This routine is use to call back 'shareUpdatePresenterViewDimensionCallback' in flex application.
+        ;
+        ; RETURNS
+        ;
+        ; INTERFACE NOTES
+        ;   INPUT
+        ;       curSlideWidth   : the current slide width
+        ;       curSlideHeight  : the current slide height
+        ;       viewPortWidth   : the view port width
+        ;       viewPortHeight  : the view port height
+        ;
+        ; IMPLEMENTATION
+        ;
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 2011.01.27                        Full Screen Presenation widnow
+        ;
+        ******************************************************************************/
+    @SuppressWarnings("unchecked")
+    @Override
+    public void shareUpdatePresenterViewDimension(Double curSlideWidth, Double curSlideHeight, Double viewPortWidth, Double viewPortHeight) {
+        log.debug("calling shareUpdatePresenterViewDimensionCallback["+curSlideWidth+","+curSlideHeight+","+viewPortWidth+","+viewPortHeight+"]");
+        ArrayList list=new ArrayList();
+        list.add(curSlideWidth);
+        list.add(curSlideHeight);
+        list.add(viewPortWidth);
+        list.add(viewPortHeight);
+        so.sendMessage("shareUpdatePresenterViewDimensionCallback", list);
+        recordEvent(parsePresentationToJSON(list, this.RECORD_EVENT_RESIZE_MOVE_SLIDE));
+    }
+    /** END Function : shareUpdatePresenterViewDimension */
+    
+        /*****************************************************************************
+        ;  setFullScreen
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   This routine is use to call back 'sendFullScreenUpdateCommandCallback' in flex application.
+        ;
+        ; RETURNS
+        ;
+        ; INTERFACE NOTES
+        ;   INPUT
+        ;       status  : the presenter full screen presentation window status
+        ;
+        ; IMPLEMENTATION
+        ;
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 2011.01.27                        Full Screen Presenation widnow
+        ;
+        ******************************************************************************/
+    @SuppressWarnings("unchecked")
+    @Override
+    public void setFullScreen(boolean status){
+        log.debug("calling setFullScreen {}",status);
+        ArrayList list=new ArrayList();
+        list.add(status);
+        so.sendMessage("sendFullScreenUpdateCommandCallback",list);
+        //recordEvent(parsePresentationToJSON(list, this.RECORD_EVENT_RESIZE_MOVE_SLIDE));
+    }
+    /** END Function : setFullScreen */
 	
 	private String parsePresentationToJSON(ArrayList list, String type){
 		String json="{ ";

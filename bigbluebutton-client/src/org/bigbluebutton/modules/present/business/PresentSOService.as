@@ -36,6 +36,8 @@ package org.bigbluebutton.modules.present.business {
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.events.ZoomEvent;
 	import org.bigbluebutton.common.LogUtil;
+    import org.bigbluebutton.modules.present.events.PresenterViewEvent
+    import org.bigbluebutton.modules.present.events.PresenterFullScreenCommands ;
 	
 	public class PresentSOService {
 		public static const NAME:String = "PresentSOService";
@@ -600,5 +602,230 @@ package org.bigbluebutton.modules.present.business {
 			}
 			_soErrors.push(error);
 		}
+		
+        /*****************************************************************************
+        ;  shareUpdatePresenterViewDimension
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   This routine is use to call remote function 'shareUpdatePresenterViewDimension'.
+        ;
+        ; RETURNS
+        ;
+        ; INTERFACE NOTES
+        ;   INPUT
+        ;       curSlideWidth   : the current slide width
+        ;       curSlideHeight  : the current slide height
+        ;       viewPortWidth   : the view port width
+        ;       viewPortHeight  : the view port height
+        ;
+        ; IMPLEMENTATION
+        ;
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 2011.01.27                        Full Screen Presenation widnow
+        ;
+        ******************************************************************************/
+        public function shareUpdatePresenterViewDimension(curSlideWidth:Number,curSlideHeight:Number,viewPortWidth:Number,viewPortHeight:Number) : void {
+            LogUtil.debug("PresentationSOService::sendUpdatePresenterViewDimension()");
+            nc.call("presentation.shareUpdatePresenterViewDimension",// Remote function name
+                new Responder(
+                    // On successful result
+                    function(result:Boolean):void { 
+                        if (result) {
+                            LogUtil.debug("Successfully send update presenter view dimension");                          
+                        }
+                    },  
+                    // status - On error occurred
+                    function(status:Object):void { 
+                        LogUtil.error("Error occurred:"); 
+                        for (var x:Object in status) { 
+                            LogUtil.error(x + " : " + status[x]); 
+                            } 
+                    }
+                ), //new Responder
+                curSlideWidth,
+                curSlideHeight,
+                viewPortWidth,
+                viewPortHeight
+            ); //_netConnection.call
+        }
+        /** END Function : shareUpdatePresenterViewDimension */
+
+        /*****************************************************************************
+        ;  shareUpdatePresenterViewDimensionCallback
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   This routine is use to handle the presenter share the view port
+        ;   dimension
+        ;
+        ; RETURNS
+        ;
+        ; INTERFACE NOTES
+        ;   INPUT
+        ;       curSlideWidth   : the current slide width
+        ;       curSlideHeight  : the current slide height
+        ;       viewPortWidth   : the view port width
+        ;       viewPortHeight  : the view port height
+        ;
+        ; IMPLEMENTATION
+        ;
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 2011.01.27                        Full Screen Presenation widnow
+        ;
+        ******************************************************************************/
+        public function shareUpdatePresenterViewDimensionCallback(curSlideWidth:Number,curSlideHeight:Number,viewPortWidth:Number,viewPortHeight:Number) : void {
+            var presentViewEvent:PresenterViewEvent = new PresenterViewEvent(PresenterViewEvent.SHARE_PRESENTER_VIEW_DIMENSION);
+            presentViewEvent.topLeftX   = curSlideWidth;
+            presentViewEvent.topLeftY   = curSlideHeight;
+            presentViewEvent.bottomRightX   = viewPortWidth;
+            presentViewEvent.bottomRightY   = viewPortHeight;
+            dispatcher.dispatchEvent(presentViewEvent);
+        }
+        /** END Function : shareUpdatePresenterViewDimensionCallback **/
+        
+        /*****************************************************************************
+        ;  getUpdatePresenterViewDimension
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   This routine is use to get the view port dimension form the server
+        ;
+        ; RETURNS
+        ;
+        ; INTERFACE NOTES
+        ;
+        ; IMPLEMENTATION
+        ;
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 2011.01.27                        Full Screen Presenation widnow
+        ;
+        ******************************************************************************/
+        public function getUpdatePresenterViewDimension():void{
+            LogUtil.debug("PresentationSOService::getUpdatePresenterViewDimension()");
+            nc.call("presentation.getCurrentPresenterPosition",// Remote function name
+                new Responder(
+                    // On successful result
+                    function(result:Object):void { 
+                            if ( null != result ){
+                                var curPos:Array = result as Array ;
+                                if ( 0 != curPos[0] || 0 != curPos[1] || 0 != curPos[2] || 0 != curPos[3] ){
+                                    shareUpdatePresenterViewDimensionCallback(curPos[0],curPos[1],curPos[2],curPos[3]) ;
+                                }
+                            }
+                           
+                    },  
+                    // status - On error occurred
+                    function(status:Object):void { 
+                        LogUtil.error("Error occurred:"); 
+                        for (var x:Object in status) { 
+                            LogUtil.error(x + " : " + status[x]); 
+                        } 
+                    }
+                ) //new Responder
+            ); //_netConnection.call
+        }
+        /** END Function : getUpdatePresenterViewDimension **/
+        
+        /*****************************************************************************
+        ;  sendFullScreenUpdateStatus
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   This routine is use to send the presenter full screen status to the server
+        ;
+        ; RETURNS
+        ;
+        ; INTERFACE NOTES
+        ;
+        ; IMPLEMENTATION
+        ;       
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 2011.01.27                        Full Screen Presenation widnow
+        ;
+        ******************************************************************************/
+        public function sendFullScreenUpdateStatus(isFullScreen:Boolean):void{
+            LogUtil.debug("PresentationSOService::sendFullScreenUpdateStatus()");
+            nc.call("presentation.setFullScreen",// Remote function name
+                new Responder(
+                    // On successful result
+                    function(result:Object):void { 
+                            //Alert.show(String(isFullScreen));
+                           sendFullScreenUpdateCommandCallback(isFullScreen);
+                    },  
+                    // status - On error occurred
+                    function(status:Object):void { 
+                        LogUtil.error("Error occurred:"); 
+                        for (var x:Object in status) { 
+                            LogUtil.error(x + " : " + status[x]); 
+                        } 
+                    }
+                ), //new Responder
+                isFullScreen
+            ); //_netConnection.call
+        }
+        /** END Function : sendFullScreenUpdateStatus **/
+        
+        /*****************************************************************************
+        ;  getFullScreenStatus
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   This routine is use to get the presenter full screen status from the server
+        ;
+        ; RETURNS
+        ;
+        ; INTERFACE NOTES
+        ;
+        ; IMPLEMENTATION
+        ;       
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 2011.01.27                        Full Screen Presenation widnow
+        ;
+        ******************************************************************************/
+        public function getFullScreenStatus():void{
+            LogUtil.debug("PresentationSOService::getFullScreenStatus()");
+            nc.call("presentation.getFullScreenStatus",// Remote function name
+                new Responder(
+                    // On successful result
+                    function(result:Boolean):void { 
+                            //Alert.show(String(isFullScreen));
+                            sendFullScreenUpdateCommandCallback(result);
+                    },  
+                    // status - On error occurred
+                    function(status:Object):void { 
+                        LogUtil.error("Error occurred:"); 
+                        for (var x:Object in status) { 
+                            LogUtil.error(x + " : " + status[x]); 
+                        } 
+                    }
+                )
+            ); //_netConnection.call
+        }
+        /** END Function : getFullScreenStatus **/
+        
+        /*****************************************************************************
+        ;  sendFullScreenUpdateCommandCallback
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   This routine is use to handle the presenter full screen status.
+        ;
+        ; RETURNS
+        ;
+        ; INTERFACE NOTES
+        ;
+        ; IMPLEMENTATION
+        ;       
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 2011.01.27                        Full Screen Presenation widnow
+        ;
+        ******************************************************************************/
+        private function sendFullScreenUpdateCommandCallback(isFullScreen:Boolean):void{
+            var e:PresenterFullScreenCommands = new PresenterFullScreenCommands(PresenterFullScreenCommands.SET_FULLSCREEN_STATUS) ;
+            e.isFullScreen = isFullScreen ;
+            dispatcher.dispatchEvent(e) ;
+        }
+        /** END Function : sendFullScreenUpdateCommandCallback **/
 	}
 }

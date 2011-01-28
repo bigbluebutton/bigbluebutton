@@ -70,10 +70,9 @@ public class ChatService {
     ; __date__ :        PTS:            Description
     ; 12-27-2010
     ******************************************************************************/
-    public void setRecordStatus(Boolean isRecording){
-        log.debug("Setting Chat Recording Status {}",isRecording);
+    public void setRecordStatus(String userid, String username, Boolean isRecording){
         String roomName = Red5.getConnectionLocal().getScope().getName();
-        application.setRecordStatus(roomName,isRecording);
+        application.setRecordStatus(roomName,userid,username,isRecording);
     }/** END FUNCTION 'setRecordStatus' **/
     
 	/*****************************************************************************
@@ -178,7 +177,7 @@ public class ChatService {
     }/** END FUNCTION 'recordChatMessage' **/
     
     /*****************************************************************************
-    ;  setRecordStatus
+    ;  setPrivateRecordStatus
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
     ;   this routine is used to set record status
@@ -195,7 +194,7 @@ public class ChatService {
     ; __date__ :        PTS:            Description
     ; 16-01-2011
     ******************************************************************************/
-    public void setRecordStatus(String toUser, boolean record){
+    public void setPrivateRecordStatus(String toUser, boolean record){
         log.debug("Set Record Status : " + toUser + " " + record );
         if ( null == priRecorder ){
             initializePrivateChatRecorder() ;
@@ -203,7 +202,7 @@ public class ChatService {
         }
 
         priRecorder.setRecordStatusToUser(toUser,record);
-    }/** END FUNCTION 'setRecordStatus' **/
+    }/** END FUNCTION 'setPrivateRecordStatus' **/
     
     /*****************************************************************************
     ;  addUserToList

@@ -74,7 +74,7 @@ package org.bigbluebutton.modules.chat.services
         ; 12-27-2010
         ******************************************************************************/        
         public function recordMessageEvent(e:RecordChatMessageEvent):void {
-            chatSOService.recordMessageEvent(e.isRecording);
+            chatSOService.recordMessageEvent(attributes.userid,attributes.username,e.isRecording);
         } /** END FUNCTION 'recordMessageEvent' **/
 
         /*****************************************************************************

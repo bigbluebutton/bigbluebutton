@@ -36,6 +36,8 @@
 			import org.bigbluebutton.modules.present.events.UploadEvent;
 			import org.bigbluebutton.modules.present.managers.PresentManager;
 			import org.bigbluebutton.modules.present.views.PresentationWindow;
+			import org.bigbluebutton.modules.present.events.PresenterViewEvent ;
+            import org.bigbluebutton.modules.present.events.PresenterFullScreenCommands ;
 
 			private var apiInstance:PresentationAPI;
 			
@@ -44,6 +46,25 @@
 			}
 		]]>
 	</mx:Script>
+	
+	<!-- enable full screen presentation window -->
+    <EventHandlers type="{PresenterViewEvent.UPDATE_PRESENTER_VIEW_DIMENSION}" >
+        <MethodInvoker generator="{PresentProxy}" method="sendUpdatePresenterViewDimension" arguments="{event}" />
+    </EventHandlers>
+    
+    <EventHandlers type="{PresenterViewEvent.GET_PRESENTER_VIEW_DIMENSION}" >
+        <MethodInvoker generator="{PresentProxy}" method="getUpdatePresenterViewDimension"/>
+    </EventHandlers>
+    
+    <EventHandlers type="{PresenterFullScreenCommands.SEND_FULLSCREEN_STATUS}" >
+        <MethodInvoker generator="{PresentProxy}" method="sendFullScreenUpdateStatus" arguments="{event}" />
+    </EventHandlers>
+    
+    <EventHandlers type="{PresenterFullScreenCommands.GET_FULLSCREEN_STATUS}" >
+        <MethodInvoker generator="{PresentProxy}" method="getFullScreenStatus"/>
+    </EventHandlers>
+	
+	<!-- / -->
 	
 	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
 		<ObjectBuilder generator="{PresentManager}" cache="global" />

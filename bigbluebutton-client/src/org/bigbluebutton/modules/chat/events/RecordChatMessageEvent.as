@@ -35,8 +35,8 @@ package org.bigbluebutton.modules.chat.events
 		public static const RECORD_CHAT_MESSAGE_EVENT:String = 'RECORD_CHAT_MESSAGE_EVENT';
 		
 		public var message:String       ;
-        public var name:String          ;
-        public var uid:String           ;
+        public var username:String          ;
+        public var userid:String           ;
         public var isRecording:Boolean  ;
 		
         /*****************************************************************************

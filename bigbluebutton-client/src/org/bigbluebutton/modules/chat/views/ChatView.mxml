@@ -366,6 +366,7 @@
 				if (chatTabs.numChildren >= 2) chatTabs.addChildAt(chatBox, chatTabs.numChildren - 1);
 				else chatTabs.addChild(chatBox);
 				
+                addButtonFor(userid);
 				return chatBox;
 			}
 			

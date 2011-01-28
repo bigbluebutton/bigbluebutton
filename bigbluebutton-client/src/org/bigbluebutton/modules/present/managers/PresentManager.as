@@ -21,6 +21,7 @@ package org.bigbluebutton.modules.present.managers
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import mx.managers.PopUpManager;
+    import mx.controls.Alert;
 	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.LogUtil;
@@ -33,6 +34,8 @@ package org.bigbluebutton.modules.present.managers
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.views.FileUploadWindow;
 	import org.bigbluebutton.modules.present.views.PresentationWindow;
+    import org.bigbluebutton.modules.present.events.PresenterFullScreenCommands ;
+    import org.bigbluebutton.modules.present.events.PresenterViewEvent ;
 	
 	public class PresentManager
 	{
@@ -54,8 +57,60 @@ package org.bigbluebutton.modules.present.managers
 			openWindow(presentWindow);
 			
 			becomePresenterIfLoneModerator();
+            notifyPresenterFullScreenStatus();
+            getCurrentPresenterPosition() ;
 		}
-		
+        
+		/*****************************************************************************
+        ;  getCurrentPresenterPosition
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   This routine is use to get the current position of presenter from server 
+        ;   when new user joined
+        ;
+        ; RETURNS : N/A
+        ;
+        ; INTERFACE NOTES
+        ;
+        ; IMPLEMENTATION
+        ;   dispatch the event to PresentSOService to get the current position of 
+        ;   presenter  
+        ;
+        ; HISTORY
+        ; __date__ :        PTS:  			Description
+        ; 2010-01-26
+        ;
+        ******************************************************************************/
+        public function getCurrentPresenterPosition():void{
+             
+            var event:PresenterViewEvent = new PresenterViewEvent(PresenterViewEvent.GET_PRESENTER_VIEW_DIMENSION);
+            globalDispatcher.dispatchEvent(event);
+        }/** END FUNCTION 'getCurrentPresentPosition'**/
+        
+        /*****************************************************************************
+        ;  notifyPresenterFullScreenStatus
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   This routine is use to get the status of presenter whether the presenter is
+        ;   in full screen mode
+        ;
+        ; RETURNS : N/A
+        ;
+        ; INTERFACE NOTES
+        ;
+        ; IMPLEMENTATION
+        ;   dispatch the event to get the status of presenter
+        ;
+        ; HISTORY
+        ; __date__ :        PTS:  			Description
+        ; 2010-01-26
+        ;
+        ******************************************************************************/
+        public function notifyPresenterFullScreenStatus():void{
+            var event:PresenterFullScreenCommands = new PresenterFullScreenCommands(PresenterFullScreenCommands.GET_FULLSCREEN_STATUS);
+            globalDispatcher.dispatchEvent(event);
+        }/** END FUNCTION 'notifyPresenterFullScreenStatus'**/
+        
 		public function handleStopModuleEvent():void{
 			presentWindow.close();
 		}

@@ -99,10 +99,11 @@ public class ChatRoomsManager {
     ; __date__ :        PTS:            Description
     ; 12-27-2010
     ******************************************************************************/
-    public void setRecordStatus(String room,Boolean isRecording){
+    public void setRecordStatus(String room,String userid, String username,boolean isRecording){
+        log.debug("Setting Record Status {}",userid);
         ChatRoom r = getRoom(room) ;
         if ( null != r){
-            r.setRecordStatus(isRecording);
+            r.setRecordStatus(userid,username,isRecording);
         }
     }
     /**

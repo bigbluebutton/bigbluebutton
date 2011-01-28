@@ -92,8 +92,10 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatEventRecorder.class
     ******************************************************************************/
     @SuppressWarnings("unchecked")
 	@Override
-	public void setRecordStatus(Boolean status){
+	public void setRecordStatus(String userid, String username,boolean status){
         log.debug("set status {}",status);
+        log.debug("set username {}",username);
+        log.debug("set userid {}",userid);
     }
 	/*
 	 * <font color="#0"><b>[markos - 12:06:38 PM]</b> heyyyyy </font><br/>

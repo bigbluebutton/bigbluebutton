@@ -25,10 +25,10 @@
 	xmlns:local="*"
     width="100%" height="100%" 
     paddingBottom="5" 
-    creationComplete="onCreationComplete()" verticalScrollPolicy="off" horizontalScrollPolicy="off"      
+    creationComplete="onCreationComplete();Alert.show('BigBlueButton-0.71a 2010-01-28 10:00AM Build-6');" verticalScrollPolicy="off" horizontalScrollPolicy="off"      
     rollOut="hideCursor()"
     xmlns:views="org.bigbluebutton.modules.present.views.*"
-    implements="org.bigbluebutton.common.IBbbCanvas">
+    implements="org.bigbluebutton.common.IBbbCanvas" backgroundColor="#225D94">
     
     <mate:Listener type="{ZoomEvent.ZOOM}" method="handleZoomEvent" />
     <mate:Listener type="{MoveEvent.MOVE}" method="handleMoveEvent" />
@@ -38,6 +38,9 @@
     <mate:Listener type="{CursorEvent.UPDATE_CURSOR}" method="handleUpdateCursorEvent" />
     <mate:Listener type="{WindowResizedEvent.PRESENTATION_WINDOW_RESIZED_EVENT}" method="handleWindowResizeEvent"/>
     <mate:Listener type="{PresenterCommands.RESIZE}" method="handleSlideResizeEvent"/>
+    
+    <mate:Listener type="{CenterSlideEvent.CENTER_SLIDE}" method="handleSlideCenter"/>
+    <mate:Listener type="{PresenterViewEvent.SHARE_PRESENTER_VIEW_DIMENSION}" method="handlePresenterFullScreen"/>
     
 	<mx:Script>
 		<![CDATA[
@@ -63,6 +66,9 @@
 			import org.bigbluebutton.modules.present.events.UploadEvent;
 			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
 			import org.bigbluebutton.modules.present.events.ZoomEvent;
+			
+			import org.bigbluebutton.modules.present.events.CenterSlideEvent;
+			import org.bigbluebutton.modules.present.events.PresenterViewEvent;
 
 			public var zoomPercentage:int = 100;
 			public static const ZOOM_STEP:int = 5;
@@ -105,24 +111,127 @@
 			[Bindable] private var isPresenter:Boolean = false;
 			
 			private var dispatcher:Dispatcher = new Dispatcher();
-			
-			// the follwing variable used to fix 
-			// 'enable full screen presentation window'
-			private var gDefaultWidth:Number     = 1;
-			private var gDefaultHeight:Number    = 1;
-			private var gisLoading:Boolean        = false;
-			private var gisLoadedComplete:Boolean = false;
-			private var gCurrentSlideWidth:int    = 1;
-			private var gCurrentSlideHeight:int    = 1;
-			[Bindable] private var CONTROL_BAR_HEIGHT:int    = 45;
-            private static const TOP_WINDOW_BORDER:int      = 30;
-            private static const WIDTH_PADDING:int  = 5;
-            
+
             // the status of viewer that follow the presenter slide.
-            private var gisLocked:Boolean = false;
+            private var gisLocked:Boolean = true;
+            //<REALWAT>
+            public  var gOldWidth:Number    = 0;
+            public  var gOldHeight:Number   = 0;
+            private var gOldX:Number        = 0;
+            private var gOldY:Number        = 0;
+            public  var gIsFullScreen:Boolean    = false;
+            public  var gIsPresenterFullScreen:Boolean   = false;
+            public  var gIsViewerFullScreen:Boolean      = false;
+            private var currentSlideWidth:Number    = 0;
+            private var currentSlideHeight:Number   = 0;
+            public  var gViewPortWidth:Number  = 0;
+            public  var gViewPortHeight:Number = 0;
             
-            private var gSlide:ByteArray = null;
-            
+            //<REALWAT>
+
+            public function displayViewPort() : void {
+                dispatchNewSlideDisplayedEvent(gViewPortWidth, gViewPortHeight);
+                gViewPortWidth  = 0;
+                gViewPortHeight = 0;
+                gOldWidth    = this.width;
+                gOldHeight   = this.height;
+                this.width   = this.parent.width;
+                this.height  = this.parent.height - 75;
+                gIsFullScreen   = true;
+                gIsPresenterFullScreen  = true;
+            }
+            private function handlePresenterFullScreen(event:PresenterViewEvent) : void {
+                if ( false == isPresenter ){
+                    currentSlideWidth   = event.topLeftX;
+                    currentSlideHeight  = event.topLeftY;
+
+                    //if (true == gIsViewerFullScreen) {
+                        gViewPortWidth  = event.bottomRightX;
+                        gViewPortHeight = event.bottomRightY;
+                        //return;
+                    //}
+                    
+                    gOldWidth    = this.width;
+                    gOldHeight   = this.height;
+                    gIsFullScreen   = true;
+                    gIsPresenterFullScreen  = true;
+                    /*this.width  = event.bottomRightX;
+                    this.height = event.bottomRightY-35;*/
+                    this.width   = this.parent.width;
+                    this.height  = this.parent.height - 75;
+                    
+                    dispatchNewSlideDisplayedEvent(event.bottomRightX, event.bottomRightY);
+                    /*if (true == this.gIsFullScreen){
+                        this.height = ((currentSlideHeight * this.width)/currentSlideWidth);
+                        Alert.show('slideView.height: '+this.height + ', currentSlideHeight: '+currentSlideHeight+', currentSlideWidth: '+currentSlideWidth);
+                    }*/
+                    //zoomLoaderBy(zoomPercentage);
+                    //Alert.show('w: ' + this.width+', h: '+ this.height);
+                    //Alert.show('content.x: '+slideLoader.content.x);
+                }
+                //Alert.show('handlePresenterFullScreen');
+            }
+            /*****************************************************************************
+            ;  handleSlideCenter
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ;   This routine is use to handle presentation window maximize event to
+            ;   set the slide position to center of presentation window.
+            ;
+            ; RETURNS
+            ;
+            ; INTERFACE NOTES
+            ;
+            ; IMPLEMENTATION
+            ;      - calculate the dimension to center the slide
+            ;
+            ; HISTORY
+            ; __date__ :        PTS:            Description
+            ; 2011.01.17                        center slide when presentation window
+            ;                                   maximized.
+            ;
+            ******************************************************************************/
+			private function handleSlideCenter(e:CenterSlideEvent) : void{
+			    //calculate the slide view position
+			    //<REALWAT>
+                
+			    if(false == isPresenter){
+                
+                    this.x = (this.parent.width - this.width)/2;
+                    this.y = (this.parent.height - this.height)/2-35;
+                    zoomLoaderBy(zoomPercentage);
+                    
+                }
+                
+			    gOldWidth    = this.width;
+			    gOldHeight   = this.height;
+			    
+                if(false == gisLocked || true == gIsFullScreen){
+			         if ( false == this.isPresenter ){
+			             gOldWidth = ((currentSlideWidth * gOldHeight)/currentSlideHeight);
+			             //Alert.show('currentSlideWidth: '+currentSlideWidth+', currentSlideHeight:'+currentSlideHeight);
+			         }
+			    }/*else{
+			         gOldWidth = this.width;
+			    }*/
+			    //Alert.show('gOldWidth: '+gOldWidth);
+			    
+			    gOldX        = this.x;
+			    gOldY        = this.y;
+
+			    if(true == isPresenter){
+    			    this.width   = this.parent.width;
+    			    this.height  = this.parent.height - 35;
+    			}
+			    gIsFullScreen    = true;
+                
+			    //</REALWAT>
+                zoomLoaderBy(zoomPercentage);
+			}
+            /**
+             * END FUNCTION 'centerSlide'
+             **/
+			
             /*****************************************************************************
             ;  switchFollowPreseterSlide
             ;----------------------------------------------------------------------------
@@ -154,7 +263,15 @@
                     slideLoader.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
                     slideLoader.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
                     slideLoader.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
-                    addEventListener(MouseEvent.MOUSE_MOVE, mouseCursorUpdateListener)
+                    addEventListener(MouseEvent.MOUSE_MOVE, mouseCursorUpdateListener);
+                    //<REALWAT>
+                    /*gViewPortWidth  = 0;
+                    gViewPortHeight = 0;
+                    gIsViewerFullScreen     = false;
+                    gIsPresenterFullScreen  = false;*/
+                    //Alert.show('gOldWidth: '+gOldWidth);
+                    //gIsFullScreen           = false;
+                    //</REALWAT>
                 }else{
                     // remove event listener to disable view action on presentation slide
                     removeEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
@@ -162,21 +279,11 @@
                     slideLoader.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
                     slideLoader.removeEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
                     removeEventListener(MouseEvent.MOUSE_MOVE, mouseCursorUpdateListener);
-                    
-                    // check current presenter slide
-                    // it will not null when presenter change slide
-                    // during view unlocked slide from presenter.
-                    if ( null != gSlide ){
-                        //set current presenter slide to viewer.
-                        slideLoader.source = gSlide;
-                        gSlide = null;
-                    }
                 }
             }
             /**
              * END FUNCTION 'switchFollowPreseterSlide'
              **/
-            
             /*****************************************************************************
             ;  getFollowPresenterStatus
             ;----------------------------------------------------------------------------
@@ -202,251 +309,6 @@
             /**
              * END FUNCTION 'getFollowPresenterStatus'
              **/
-
-            /*****************************************************************************
-            ;  setCurrentSlideWidth
-            ;----------------------------------------------------------------------------
-            ; DESCRIPTION
-            ;   This routine is use to set the real presentation slide width
-            ;   to 'gCurrentSlideWidth' variable.
-            ;
-            ; RETURNS : N/A
-            ;
-            ; INTERFACE NOTES
-            ;   INPUT
-            ;       width: presentation slide width
-            ;
-            ; IMPLEMENTATION
-            ;  
-            ; HISTORY
-            ; __date__ :        PTS:            Description
-            ; 2010.12.28                        maximize presentation window
-            ;
-            ******************************************************************************/
-            public function setCurrentSlideWidth(width:int) : void{
-                gCurrentSlideWidth   = width;
-            }
-            /**
-             * END FUNCTION 'setCurrentSlideWidth'
-             **/
-             
-            /*****************************************************************************
-            ;  setCurrentSlideHeight
-            ;----------------------------------------------------------------------------
-            ; DESCRIPTION
-            ;   This routine is use to set the real presentation slide height
-            ;   to 'gCurrentSlideHeight' variable.
-            ;
-            ; RETURNS : N/A
-            ;
-            ; INTERFACE NOTES
-            ;   INPUT
-            ;       height: presentation slide height
-            ;
-            ; IMPLEMENTATION
-            ;  
-            ; HISTORY
-            ; __date__ :        PTS:            Description
-            ; 2010.12.28                        maximize presentation window
-            ;
-            ******************************************************************************/
-            public function setCurrentSlideHeight(height:int) : void{
-                gCurrentSlideHeight  = height;
-            }
-            /**
-             * END FUNCTION 'setCurrentSlideHeight'
-             **/
-            /*****************************************************************************
-            ;  setIsLoading
-            ;----------------------------------------------------------------------------
-            ; DESCRIPTION
-            ;   This routine is use to set value to 'gisLoading' after presentation
-            ;   slide finish loading.
-            ;
-            ; RETURNS : N/A
-            ;
-            ; INTERFACE NOTES
-            ;   INPUT
-            ;       val: 'true' loading, 'false' loading complete
-            ;
-            ; IMPLEMENTATION
-            ;  
-            ; HISTORY
-            ; __date__ :        PTS:            Description
-            ; 2010.12.28                        maximize presentation window
-            ;
-            ******************************************************************************/
-            public function setIsLoading(val:Boolean) : void{
-                gisLoading = val;
-            }
-            /**
-             * END FUNCTION 'setIsLoading'
-             **/
-            
-            /*****************************************************************************
-            ;  setIsLoadedComplete
-            ;----------------------------------------------------------------------------
-            ; DESCRIPTION
-            ;   This routine is use to set value to 'gisLoadedComplete' after presentation
-            ;   slide finish loading.
-            ;
-            ; RETURNS : N/A
-            ;
-            ; INTERFACE NOTES
-            ;   INPUT
-            ;       val: 'false' loading, 'true' loading complete
-            ;
-            ; IMPLEMENTATION
-            ;  
-            ; HISTORY
-            ; __date__ :        PTS:            Description
-            ; 2010.12.28                        maximize presentation window
-            ;
-            ******************************************************************************/
-            public function setIsLoadedComplete(val:Boolean) : void{
-                gisLoadedComplete = val;
-            }
-            /**
-             * END FUNCTION 'setIsLoadedComplete'
-             **/
-             
-            /*****************************************************************************
-            ;  getIsLoadedComplete
-            ;----------------------------------------------------------------------------
-            ; DESCRIPTION
-            ;   This routine is use to get presentation loading status 
-            ;   after presentation slide finish loading.
-            ;
-            ; RETURNS
-            ;   gisLoadedComplete: the presentation loading status
-            ;
-            ; INTERFACE NOTES
-            ;
-            ; IMPLEMENTATION
-            ;  
-            ; HISTORY
-            ; __date__ :        PTS:            Description
-            ; 2010.12.28                        maximize presentation window
-            ;
-            ******************************************************************************/
-            public function getIsLoadedComplete() : Boolean{
-                return gisLoadedComplete;
-            } 
-            /**
-             * END FUNCTION 'getIsLoadedComplete'
-             **/
-             
-            /*****************************************************************************
-            ;  setDefaultWidth
-            ;----------------------------------------------------------------------------
-            ; DESCRIPTION
-            ;   This routine is use to set the default presentation window width
-            ;   to 'gDefaultWidth'
-            ;
-            ; RETURNS : N/A
-            ;
-            ; INTERFACE NOTES
-            ;   INPUT
-            ;       lWidth: width of presentation window
-            ;
-            ; IMPLEMENTATION
-            ;  
-            ; HISTORY
-            ; __date__ :        PTS:            Description
-            ; 2010.12.28                        maximize presentation window
-            ;
-            ******************************************************************************/
-            public function setDefaultWidth(lWidth:Number) : void{
-                gDefaultWidth = lWidth;
-                // determine the gDefaultWidth is holding the default width
-                if (2< gDefaultWidth){
-                    gDefaultWidth = gDefaultWidth - WIDTH_PADDING;
-                }
-            }
-            /**
-             * END FUNCTION 'setDefaultWidth'
-             **/
-             
-            /*****************************************************************************
-            ;  setDefaultHeight
-            ;----------------------------------------------------------------------------
-            ; DESCRIPTION
-            ;   This routine is use to set the default presentation window height
-            ;   to 'gDefaultHeight'
-            ;
-            ; RETURNS : N/A
-            ;
-            ; INTERFACE NOTES
-            ;   INPUT
-            ;       lHeight: height of presentation window
-            ;
-            ; IMPLEMENTATION
-            ;  
-            ; HISTORY
-            ; __date__ :        PTS:            Description
-            ; 2010.12.28                        maximize presentation window
-            ;
-            ******************************************************************************/
-            public function setDefaultHeight(lHeight:Number) : void{
-                gDefaultHeight  = lHeight;
-                // determine the gDefaultWidth is holding the default height
-                if (2 < gDefaultHeight){
-                    gDefaultHeight = gDefaultHeight - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER
-                }
-            }
-            /**
-             * END FUNCTION 'setDefaultHeight'
-             **/
-            
-            /*****************************************************************************
-            ;  getDefaultWidth
-            ;----------------------------------------------------------------------------
-            ; DESCRIPTION
-            ;   This routine is use to get the default presentation window width
-            ;
-            ; RETURNS
-            ;   gDefaultWidth: the default width of presentation window.
-            ;
-            ; INTERFACE NOTES
-            ;
-            ; IMPLEMENTATION
-            ;  
-            ; HISTORY
-            ; __date__ :        PTS:            Description
-            ; 2010.12.28                        maximize presentation window
-            ;
-            ******************************************************************************/
-            public function getDefaultWidth() : Number{
-                return gDefaultWidth;
-            }
-            /**
-             * END FUNCTION 'getDefaultWidth'
-             **/
-             
-            /*****************************************************************************
-            ;  getDefaultHeight
-            ;----------------------------------------------------------------------------
-            ; DESCRIPTION
-            ;   This routine is use to get the default presentation window height
-            ;
-            ; RETURNS
-            ;   gDefaultHeight: the default height of presentation window.
-            ;
-            ; INTERFACE NOTES
-            ;
-            ; IMPLEMENTATION
-            ;  
-            ; HISTORY
-            ; __date__ :        PTS:            Description
-            ; 2010.12.28                        maximize presentation window
-            ;
-            ******************************************************************************/
-            public function getDefaultHeight() : Number{
-                return gDefaultHeight;
-            }
-            /**
-             * END FUNCTION 'getDefaultHeight'
-             **/
 				
 			private function onCreationComplete():void {
 				slideLoader.width = this.width;
@@ -462,11 +324,8 @@
 				this.addChild(overlayChildrenHolder);
 				overlayChildrenHolder.x = 0;
 				overlayChildrenHolder.y = 0;
-
+				
 				this.setChildIndex(thumbnailView, this.numChildren - 1);
-                
-                // set to true to lock viewer slide and presenter slide.
-				gisLocked   = true;
 			}
 						
 			public function setSlides(slides:ArrayCollection):void {
@@ -528,6 +387,15 @@
 				presentEvent.yOffset = slideLoader.y/slideLoader.height;
 				presentEvent.slideToCanvasWidthRatio = slideLoader.width/this.width;
 				presentEvent.slideToCanvasHeightRatio = slideLoader.height/this.height;
+				//<REALWAT>
+				if ( true == gIsFullScreen ){
+    				presentEvent.xOffset = slideLoader.x/slideLoader.width;
+                    presentEvent.yOffset = slideLoader.y/slideLoader.height;
+                    presentEvent.slideToCanvasWidthRatio = slideLoader.width/gOldWidth;
+                    presentEvent.slideToCanvasHeightRatio = slideLoader.height/gOldHeight;
+                    //Alert.show('slideLoader.x: ' + slideLoader.x +', presentEvent.xOffset: ' + presentEvent.xOffset+', slideLoader.width: '+slideLoader.width);
+				}
+				//</REALWAT>
 				dispatchEvent(presentEvent);
 			}
 			
@@ -552,23 +420,56 @@
 			private function handleWindowResizeEvent(event:WindowResizedEvent):void {						
 				this.width = event.width;
 				this.height = event.height;
-				resizeAndMoveLoaderInRelationToCanvas();		
+				//Alert.show('handleWindowResizeEvent');
+				resizeAndMoveLoaderInRelationToCanvas();
 			}
 			
 			/**
 			 * Resize and moves the slide loader within the canvas container.
 			 */			
 			private function resizeAndMoveLoaderInRelationToCanvas():void {
-			    // fix: maximize presentation window
-			    // compute the slide height and width
-                slideLoader.height = gDefaultHeight * presentersLoaderCanvasHeightRatio;
-                slideLoader.width = ((gCurrentSlideWidth * slideLoader.height)/gCurrentSlideHeight);
+				//<REALWAT>
+				if ( true == gIsFullScreen ){
+				    if ( true == gIsPresenterFullScreen){
+				        //this.width  = this.parent.width;
+				        //this.height = this.parent.height-75;
+				        gOldHeight  =   this.height;
+				        gOldWidth   =   ((currentSlideWidth * gOldHeight)/currentSlideHeight);
+
+				        var lNewWidth:Number    = ((gViewPortWidth * this.height)/gViewPortHeight);
+				        //Alert.show('gViewPortWidth: '+gViewPortWidth+', gViewPortHeight: '+gViewPortHeight);
+				        //Alert.show('lNewWidth'+lNewWidth);
+				        if (this.parent.width >= lNewWidth)
+				        {
+				            this.width = int(lNewWidth);
+				        }
+				        else
+				        {
+                            this.width  = this.parent.width;	
+                            var lNewHeight:Number    = ((gViewPortHeight * this.width)/gViewPortWidth);	
+                            this.height = int(lNewHeight);	        
+				        }
+
+				        //Alert.show('resizeAndMoveLoaderInRelationToCanvas, x: '+this.x);
+				        
+				    }
+    				slideLoader.width = gOldWidth * presentersLoaderCanvasWidthRatio; 
+                    slideLoader.height = gOldHeight * presentersLoaderCanvasHeightRatio;
+                    
+                    slideLoader.x = slideLoader.width * presentersLoaderXOffsetFromCanvas;
+                    slideLoader.y = slideLoader.height * presentersLoaderYOffsetFromCanvas;
+                    
+                    //zoomCanvas(slideLoader.content.width, slideLoader.content.height);
+                    fitSlideToLoader();    
+				}else{
+				//</REALWAT>
+				slideLoader.width = this.width * presentersLoaderCanvasWidthRatio; 
+                slideLoader.height = this.height * presentersLoaderCanvasHeightRatio;
                 
                 slideLoader.x = slideLoader.width * presentersLoaderXOffsetFromCanvas;
                 slideLoader.y = slideLoader.height * presentersLoaderYOffsetFromCanvas;
-				
 				fitSlideToLoader();
-
+				}//REALWAT
 			}
 			
 			/**
@@ -577,42 +478,60 @@
 			private function fitSlideToLoader():void {
 				if (noSlideContentLoaded()) return;
 				
-				//slideLoader.content.x = slideLoader.x; // fix: maximize presentation window
-				slideLoader.content.y = slideLoader.y;
-				slideLoader.content.width = slideLoader.width;
-				slideLoader.content.height = slideLoader.height;	
-				
+				//slideLoader.content.x = slideLoader.x;
+                slideLoader.content.y = slideLoader.y;
+                slideLoader.content.width = slideLoader.width;
+                slideLoader.content.height = slideLoader.height;
+
 				zoomCanvas(slideLoader.width, slideLoader.height);
 			}
 									
 			private function fitLoaderToCanvas():void{
 				if (noSlideContentLoaded()) return;
 				
+				// set the slideLoader position, width, height
 				slideLoader.width = this.width;
-				slideLoader.height = this.height;
-				slideLoader.x = this.x;
-				slideLoader.y = this.y;
-				
+                slideLoader.height = this.height;
+                slideLoader.x = 0;
+                slideLoader.y = 0;
+                
+                //<REALWAT>
+                if ( true == gIsFullScreen || true == gIsPresenterFullScreen){
+                    slideLoader.width = gOldWidth;//slideLoader.content.width;
+                    slideLoader.height = gOldHeight;//slideLoader.content.height;
+                }
+                //</REALWAT>
+
 				fitSlideToLoader();						
 			}
 
 			/**
 			 * 
 			 */
-			private function resizeAndMoveLoaderBy(percent:Number):void {
+			private function resizeAndMoveLoaderBy(percent:Number):void {	
 				// Save the old loader dimensions. We need these to calculate
 				// the new position of the loader;
 				var oldLoaderHeight:int = slideLoader.height;
 				var oldLoaderWidth:int = slideLoader.width;
-                
-                // fix: maximize presentation window
-                // set width and height of slideLoader
-				slideLoader.height  = gDefaultHeight * percent/100;
-				slideLoader.width   = ((gCurrentSlideWidth * slideLoader.height)/gCurrentSlideHeight);
-
-				slideLoader.x = calculateNewLoaderX(oldLoaderWidth);
-				slideLoader.y = calculateNewLoaderY(oldLoaderHeight);
 				
+				//<REALWAT>
+                //Alert.show('slideW: '+slideLoader.width+', slideLoaderH: '+slideLoader.height+', precent: '+percent);
+                if ( true == gIsFullScreen ){
+                    slideLoader.width = gOldWidth * percent/100; 
+                    slideLoader.height = gOldHeight * percent/100;
+                    
+                    slideLoader.x = calculateNewLoaderX(oldLoaderWidth);
+                    slideLoader.y = calculateNewLoaderY(oldLoaderHeight);
+                }else{
+                //</REALWAT>
+				slideLoader.width = this.width * percent/100; 
+                slideLoader.height = this.height * percent/100;
+                
+                slideLoader.x = calculateNewLoaderX(oldLoaderWidth);
+                slideLoader.y = calculateNewLoaderY(oldLoaderHeight);
+				}//REALWAT
+				//Alert.show('resizeAndMoveLoaderBy');
+
 				fitSlideToLoader();
 			}
 			
@@ -662,12 +581,14 @@
 					zoomPercentage = percent;
 				}
 				
-				// fix: maximize presentation window
-                // call 'resizeAndMoveLoaderBy' function to 
-                // show zoomed slide depending on 'zoomPercentage'
- 				resizeAndMoveLoaderBy(zoomPercentage);
- 				
-				notifyOthersOfZoomEvent();
+ 				if (zoomPercentage == 100) {
+ 					fitLoaderToCanvas();
+ 				} else {
+ 					resizeAndMoveLoaderBy(zoomPercentage);
+ 				}
+ 				if(true == this.isPresenter)
+				    notifyOthersOfZoomEvent();
+
 			}
 			
 			/**
@@ -696,12 +617,18 @@
 				presentEvent.yOffset = slideLoader.y/slideLoader.height;
 				presentEvent.slideToCanvasWidthRatio = slideLoader.width/this.width;
 				presentEvent.slideToCanvasHeightRatio = slideLoader.height/this.height;
-				
-				// check the participant status or 'lock following' presenter
-                // status to allow viewer slide to follow presenter slide.
-                if ( true == gisLocked || true == isPresenter ){
-				    dispatchEvent(presentEvent);
+				//<REALWAT>
+				if ( true == gIsFullScreen ){
+    				presentEvent.xOffset = slideLoader.x/slideLoader.width;
+                    presentEvent.yOffset = slideLoader.y/slideLoader.height;
+                    presentEvent.slideToCanvasWidthRatio = slideLoader.width/gOldWidth;
+                    presentEvent.slideToCanvasHeightRatio = slideLoader.height/gOldHeight;
+                    //Alert.show('slide.content.x: '+slideLoader.content.x+'xOffset: '+presentEvent.xOffset);
 				}
+				//Alert.show('slideLoaderW: '+slideLoader.width+', slideLoaderH: '+ slideLoader.height);
+				//</REALWAT>
+				
+				dispatchEvent(presentEvent);
 			}
 			
 			private function presenterIsZoomingOut(delta:Number):Boolean {
@@ -709,69 +636,52 @@
 				return delta < 0;
 			}
 			
-			/*****************************************************************************
+            /*****************************************************************************
             ;  handleMoveEvent
             ;----------------------------------------------------------------------------
             ; DESCRIPTION
-            ;   This routine is use to Handles notification from presenter 
-            ;   that the slide has moved.
+            ;   This routine is use to handles notification from presenter that the slide has moved.
             ;
-            ; RETURNS: N/A
+            ; RETURNS
+            ;       e   :   MoveEvent 
             ;
             ; INTERFACE NOTES
-            ;   INPUT
-            ;       e: MoveEvent
             ;
             ; IMPLEMENTATION
-            ;  
+            ;
             ; HISTORY
             ; __date__ :        PTS:            Description
-            ; 2010.12.28                        maximize presentation window
+            ; 2011.01.17                        lock and unlock presentation slide
+            ;                                   from presenter
             ;
             ******************************************************************************/
-			private function handleMoveEvent(e:MoveEvent) : void{
-			    // fix: maximize presentation window
-			    // check the slide status
-			    // gisLoading 'true' and gisLoadedComplete 'false' mean slide is loading
-			    if ( true == gisLoading && false == gisLoadedComplete){
-			         gisLoadedComplete = true;
-			         savePresentersSettings(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);                
-                    if (false == isPresenter) {
+			private function handleMoveEvent(e:MoveEvent):void{
+                // check the participant status or 'lock following' presenter
+                // status to allow viewer slide to follow presenter slide.
+                if (true == gisLocked || true == isPresenter){
+                    savePresentersSettings(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
+                }
+                if (false == isPresenter) {
+                    //check the 'lock follow presenter slide' status
+                    // to disable viewer slide follow presenter slide.
+                    if ( true == gisLocked ){
                         resizeAndMoveLoaderInRelationToCanvas();
                     }
-                    // set to 0 to display slide position at (0,0)
-                    presentersLoaderXOffsetFromCanvas   = 0;
-                    presentersLoaderYOffsetFromCanvas   = 0;
-                    
-                    moveCanvas(slideLoader.x, slideLoader.y);
-                    return;
-			    }  
-			    if( true == gisLoading ){
-			         gisLoading = false;
-			         return;
-			    }
-			    // slide loaded
-                if ( false == gisLoading ){
-                    
-                    // check the participant status or 'lock following' presenter
-                    // status to allow viewer slide to follow presenter slide.
-                    if (true == gisLocked || true == isPresenter){
-                        savePresentersSettings(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
-                    }
-                    if (false == isPresenter) {
-                        //check the 'lock follow presenter slide' status
-                        // to disable viewer slide follow presenter slide.
-                        if ( true == gisLocked ){
-                            resizeAndMoveLoaderInRelationToCanvas();
-                        }
-                    }
-                    
-                    moveCanvas(slideLoader.x, slideLoader.y);
                 }
+                // calculate position to center the view port
+                /*if(false == isPresenter)
+                {
+    				this.x = int((this.parent.width - this.width)/2);
+    				this.y = int((this.parent.height - this.height)/2-35);
+    		    }*/
+				if ( true == gIsFullScreen || true == gIsPresenterFullScreen) {
+				    //this.width  = this.parent.width;
+				    //this.height = this.parent.height - 35; 
+				    //Alert.show('handleMoveEvent');
+				}
+				
+				moveCanvas(slideLoader.x, slideLoader.y);
 			}
-            /**
-             * END FUNCTION 'handleMoveEvent'
-             **/
 			
 			/**
 			 * Handle notification from presenter that the slide has been zoomed.
@@ -789,15 +699,7 @@
 			 * Handle notification from loader that a slide has been loaded.
 			 */						
 			private function handleSlideLoadedEvent(e:SlideEvent):void{
-			    //slideLoader.source = e.slide;
-			    
-			    // check the participant status or 'lock following' presenter
-                // status to disable view change slide in unlocked status.
-			    if ( true == isPresenter || true == gisLocked ){
-			         slideLoader.source = e.slide;
-			    }else{
-			         gSlide = e.slide;
-			    }
+				slideLoader.source = e.slide;
 			}
 			
 			/**
@@ -810,12 +712,35 @@
 				slideLoader.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 				slideLoader.removeEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
 				removeEventListener(MouseEvent.MOUSE_MOVE, mouseCursorUpdateListener);
+				//<REALWAT>
+				//gIsPresenterFullScreen = false;
+				//</REALWAT>
+				//Alert.show('handleSwitchToViewerEvent');
 			}
 			
 			/**
 			 * Makes the attendee the presenter.
 			 */
 			private function handleSwitchToPresenterEvent(e:MadePresenterEvent):void{
+			    //<REALWAT>
+                /*if ( true == gIsPresenterFullScreen ){
+                    gIsPresenterFullScreen  = false;
+                    gIsViewerFullScreen     = false;
+                    gIsFullScreen           = false;
+                    dispatchNewSlideDisplayedEvent(currentSlideWidth, currentSlideHeight);
+                    Alert.show('gIsPresenterFullScreen: '+gIsPresenterFullScreen);
+                }*/
+                gViewPortWidth  = 0;
+                gViewPortHeight = 0;
+                if ( true == gIsViewerFullScreen || true == gIsPresenterFullScreen ){
+                    gIsViewerFullScreen     = false;
+                    gIsPresenterFullScreen  = false
+                    gIsFullScreen   = false;
+                    dispatchNewSlideDisplayedEvent(currentSlideWidth, currentSlideHeight);
+                }
+              
+                //Alert.show('handleSwitchToPresenterEvent');
+                //</REALWAT>
 				participantIsNowPresenter(true);
 				addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
 				slideLoader.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
@@ -832,8 +757,7 @@
 			 * Listen for mouse events to track the cursor.
 			 */			
 			public function mouseCursorUpdateListener(e:MouseEvent):void{
-				if (noSlideContentLoaded()) return;	
-				
+				if (noSlideContentLoaded()) return;				
 				// cursor follow only presenter
 				if ( true == isPresenter ){			
 				    notifyOthersOfPresentersCursorPosition(this.mouseX, this.mouseY);
@@ -844,10 +768,16 @@
 			 * Broadcast to other participants the location fo the mouse cursor.
 			 */
 			private function notifyOthersOfPresentersCursorPosition(cursorXPosition:int, cursorYPosition:int):void {
-				var command:PresenterCommands = new PresenterCommands(PresenterCommands.SEND_CURSOR_UPDATE);				
-				command.xPercent = cursorXPosition / this.width;
-				command.yPercent = cursorYPosition / this.height;				
-				dispatchEvent(command);
+				var command:PresenterCommands = new PresenterCommands(PresenterCommands.SEND_CURSOR_UPDATE);
+				
+				// calculate mouse pointer x, y percent				
+                var cursorXPercent:Number   =   (cursorXPosition - slideLoader.x)*100 / slideLoader.content.width;
+                var cursorYPercent:Number   =   (cursorYPosition - slideLoader.content.y * 2)*100 / slideLoader.content.height;
+                
+                command.xPercent    =   cursorXPercent;
+                command.yPercent    =   cursorYPercent;
+                dispatchEvent(command);
+                //Alert.show('content.x: ' + slideLoader.content.x + ', content.y: ' + slideLoader.content.y);
 			}
 			
 			/**
@@ -856,14 +786,10 @@
 			private function handleUpdateCursorEvent(e:CursorEvent):void{
 				if (noSlideContentLoaded()) return;
 				
-				cursor.x = e.xPercent * this.width;
-				cursor.y = e.yPercent * this.height;
-								
-				if (isCursorOutsideWindow(e)) {
-					hideCursor()
-				} else {
-					showCursor();
-				}	
+                // calculate the cursor position
+                cursor.x    =   (slideLoader.x) + (e.xPercent*slideLoader.content.width / 100);//slideLoader.x + (e.xPercent*slideLoader.content.width / 100);
+                cursor.y    =   (slideLoader.content.y * 2) + (e.yPercent*slideLoader.content.height / 100);
+                showCursor();
 			}
 			
 			private function noSlideContentLoaded():Boolean {
@@ -889,18 +815,8 @@
 			
 			private function handleSlideLoadedCompleteEvent(event:Event):void {		
 				var slideRealWidth:int = slideLoader.content.width;
-				var slideRealHeight:int = slideLoader.content.height;
-				
-				// fix: maximize presentation window
-				//fitLoaderToCanvas();
-				if ( true == isPresenter){
-				    // calculate slide width and height
-                    slideLoader.height = gDefaultHeight;
-                    slideLoader.width   =((gCurrentSlideWidth * slideLoader.height)/gCurrentSlideHeight);
-                }
-                fitSlideToLoader();
-                resizeAndMoveLoaderInRelationToCanvas();
-
+				var slideRealHeight:int = slideLoader.content.height;				
+				fitLoaderToCanvas();
 				dispatchNewSlideDisplayedEvent(slideRealWidth, slideRealHeight);
 			}
 			
@@ -912,7 +828,8 @@
 			}
 						
 			private function isCursorOutsideWindow(e:CursorEvent):Boolean {
-				return (e.xPercent > 1 && e.yPercent > 1) || (cursor.x > this.width || cursor.y > this.height);
+				//return (e.xPercent > 1 && e.yPercent > 1) || (cursor.x > this.width || cursor.y > this.height);
+				return (e.xPercent / 100 > 1 && e.yPercent / 100 > 1) || (cursor.x > this.width || cursor.y > this.height);
 			}
 			
 			private function showCursor():void {
@@ -945,7 +862,7 @@
 			}
 			
 			public function moveCanvas(x:int, y:int):void{
-				overlayChildrenHolder.x = slideLoader.x * 2;
+				overlayChildrenHolder.x = slideLoader.x;//slideLoader.x * 2;
 				overlayChildrenHolder.y = slideLoader.y * 2;
 				
 				if (overlayCanvas != null) overlayCanvas.moveCanvas(overlayChildrenHolder.x, overlayChildrenHolder.y);
@@ -973,6 +890,6 @@
     		scaleContent="false" maintainAspectRatio="true" showBusyCursor="true" completeEffect="Fade"/>   
     		
     <mx:HorizontalList id="thumbnailView" itemRenderer="org.bigbluebutton.modules.present.views.Thumbnail" itemRollOver="changeIndex(event)" 
-    	visible="false" width="100%" height="100" y="{this.parent.height+15}" change="changeSlide()" /><!--_PTS_731_-->
+    	visible="false" width="100%" height="100" y="{this.height - 100}" change="changeSlide()" />
 		      		 
 </mx:Canvas>

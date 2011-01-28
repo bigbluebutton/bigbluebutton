@@ -37,14 +37,12 @@ public class ChatRoom {
 	
 	private final String name;
 	private final Map<String, IChatRoomListener> listeners;
-    private Boolean record ;
 	ArrayList<String> messages;
 	
 	public ChatRoom(String name) {
 		this.name = name;
 		listeners   = new ConcurrentHashMap<String, IChatRoomListener>();
 		this.messages = new ArrayList<String>();
-        this.record = record ;
 	}
 	
 	public String getName() {
@@ -99,13 +97,13 @@ public class ChatRoom {
     ; 12-27-2010 
     ******************************************************************************/
     @SuppressWarnings("unchecked")
-    public void setRecordStatus(Boolean record){
-        this.record = record ;
+    public void setRecordStatus(String userid, String username, boolean record){
+        log.debug("Setting Record Status {}",userid);
         for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
             log.debug("calling on listener");
             IChatRoomListener listener = (IChatRoomListener) iter.next();
             log.debug("calling newChatMessage on listener {}",listener.getName());
-            listener.setRecordStatus(record) ;
+            listener.setRecordStatus(userid,username,record) ;
         }
     }
     /**

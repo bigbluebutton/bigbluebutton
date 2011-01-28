@@ -124,7 +124,7 @@ package org.bigbluebutton.modules.chat.services
     ; __date__ :        PTS:            Description
     ; 12-27-2010
     ******************************************************************************/
-        public function recordMessageEvent(isRecord:Boolean):void{
+        public function recordMessageEvent(userid:String,username:String,isRecord:Boolean):void{
             var nc:NetConnection = connection ;
             nc.call(
                 "chat.setRecordStatus",
@@ -139,6 +139,8 @@ package org.bigbluebutton.modules.chat.services
 						} 
                     }
                 ),
+                userid,
+                username,
                 isRecord
             );
         }/** END FUNCTION 'RecordMessageEvent' **/

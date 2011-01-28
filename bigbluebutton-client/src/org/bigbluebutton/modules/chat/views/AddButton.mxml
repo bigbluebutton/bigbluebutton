@@ -54,7 +54,7 @@
             private var openFileWindow:OpenFileWindow;
             private var isRecord:Boolean = false ;
             private var images:Images = new Images();
-            private var blinkRecord:Timer = new Timer(1000); ;
+            private var blinkRecord:Timer = new Timer(500); ;
             private var isBlink:Boolean = false ;
             private var objRecord:Object ;
             private static const PUBLIC_CHAT_USERID:String = '0';
@@ -92,7 +92,7 @@
             ; 16-01-2011
             ******************************************************************************/
             private function init():void{
-                blinkRecord.addEventListener(TimerEvent.TIMER , blinkButton);
+                blinkRecord.addEventListener(TimerEvent.TIMER , doBlinkButton);
                 checkModerator();
                 setButtonVisible(PUBLIC_CHAT_USERID) ;
                 setPrivateRecordChat(PUBLIC_CHAT_USERID);
@@ -384,21 +384,11 @@
                 if ( null == e ){
                     return ;
                 }
+
                 this.receiver = e.receiver ;
                 this.receiverName = e.name ;
-                this.isRecord = getRecordStatus(e.receiver)  ;
                 
-                if ( true == this.isRecord ){
-                    this.recordBtn.setStyle('icon',stopRecordChat);
-                    this.recordBtn.toolTip = ResourceUtil.getInstance().getString('bbb.chat.stopRecordChat.toolTip');  
-                    blinkRecord.start();
-                    
-                }else{
-                    this.recordBtn.setStyle('icon',startRecordChat);
-                    this.recordBtn.toolTip = ResourceUtil.getInstance().getString('bbb.chat.startRecordChat.toolTip');
-
-                    blinkRecord.stop();
-                }
+                changeButtonStyle(getRecordStatus(e.receiver)) ;
                 
                 setButtonVisible(this.receiver) ;
                 setPrivateRecordChat(this.receiver);
@@ -482,9 +472,44 @@
                 }
                 
                 this.isRecord = ! this.isRecord ;
+                
                 setRecordStatus( receiver, this.isRecord ) ;
                 
-                if ( true == this.isRecord ){
+                changeButtonStyle(getRecordStatus(receiver)) ;
+                
+                if ( true == isPrivateRecord ){
+                    var priEvent:RecordPrivateChatMessageEvent = new RecordPrivateChatMessageEvent(RecordPrivateChatMessageEvent.RECORD_PRIVATE_CHAT_MESSAGE_EVENT) ;
+                    priEvent.sender = this.sender ;
+                    priEvent.receiver = receiver ;
+                    priEvent.receiverName = this.receiverName ;
+                    priEvent.isRecording = getRecordStatus(receiver) ;
+                    this.dispatchEvent(priEvent) ;
+                }else{
+                    var recEvent:RecordChatMessageEvent = new RecordChatMessageEvent(RecordChatMessageEvent.RECORD_CHAT_MESSAGE_EVENT);  
+                    recEvent.isRecording = getRecordStatus(receiver) ;
+                    this.dispatchEvent(recEvent);
+                }
+    
+            }/** END FUNCTION 'recordChat' **/ 
+            
+            /*****************************************************************************
+            ;  changeButtonStyle
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ;   this routine is used to handle button style
+            ; RETURNS : N/A
+            ;
+            ; INTERFACE NOTES
+            ;   INPUT
+            ;   status    :   record status
+            ; IMPLEMENTATION
+            ;  
+            ; HISTORY
+            ; __date__ :        PTS:            Description
+            ; 16-01-2011
+            ******************************************************************************/            
+            private function changeButtonStyle(status:Boolean):void{
+                if ( true == status ){
                     this.recordBtn.setStyle('icon',stopRecordChat);
                     this.recordBtn.toolTip = ResourceUtil.getInstance().getString('bbb.chat.stopRecordChat.toolTip');  
                     blinkRecord.start();
@@ -495,21 +520,7 @@
 
                     blinkRecord.stop();
                 }
-                
-                if ( true == isPrivateRecord ){
-                    var priEvent:RecordPrivateChatMessageEvent = new RecordPrivateChatMessageEvent(RecordPrivateChatMessageEvent.RECORD_PRIVATE_CHAT_MESSAGE_EVENT) ;
-                    priEvent.sender = this.sender ;
-                    priEvent.receiver = receiver ;
-                    priEvent.receiverName = this.receiverName ;
-                    priEvent.isRecording = this.isRecord ;
-                    this.dispatchEvent(priEvent) ;
-                }else{
-                    var recEvent:RecordChatMessageEvent = new RecordChatMessageEvent(RecordChatMessageEvent.RECORD_CHAT_MESSAGE_EVENT);  
-                    recEvent.isRecording = this.isRecord ;
-                    this.dispatchEvent(recEvent);
-                }
-    
-            }/** END FUNCTION 'recordChat' **/ 
+            }/** END FUNCTION 'changeButtonStyle' **/
             
             /*****************************************************************************
             ;  blinkButton
@@ -527,10 +538,13 @@
             ; __date__ :        PTS:            Description
             ; 16-01-2011
             ******************************************************************************/
-            private function blinkButton(e:TimerEvent):void{
+            private function doBlinkButton(e:TimerEvent):void{
                 isBlink = ! isBlink ;
-                if ( false == isBlink ) this.recordBtn.setStyle('icon',stopRecordChat);
-                else this.recordBtn.setStyle('icon',startRecordChat);
+                if ( false == isBlink ){
+                    this.recordBtn.setStyle('icon',stopRecordChat);
+                }else{
+                    this.recordBtn.setStyle('icon',startRecordChat);
+                }
             }/** END FUNCTION 'blinkButton' **/
         
             /*****************************************************************************

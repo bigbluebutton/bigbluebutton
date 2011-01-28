@@ -90,8 +90,9 @@ public class ChatApplication {
     ; __date__ :        PTS:            Description
     ; 12-27-2010                        
     ******************************************************************************/
-    public void setRecordStatus(String room, Boolean isRecording){
-        roomsManager.setRecordStatus(room,isRecording) ;
+    public void setRecordStatus(String room, String userid, String username, boolean isRecording){
+        log.debug("Setting Record Status {}",userid);
+        roomsManager.setRecordStatus(room,userid,username,isRecording) ;
     }
     /**
     * END FUNCTION 'setRecordStatus'

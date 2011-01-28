@@ -42,5 +42,5 @@ interface IChatRoomListener {
     ; __date__ :        PTS:            Description
     ; 12-27-2010
     ******************************************************************************/
-    public void setRecordStatus(Boolean status);
+    public void setRecordStatus(String userid, String username, boolean status);
 }

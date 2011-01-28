@@ -185,7 +185,7 @@ package org.bigbluebutton.modules.chat.services
         ; 16-01-2010
         ******************************************************************************/ 
         public function recordMessageEvent(e:RecordPrivateChatMessageEvent,username:String):void{
-            connection.call("chat.setRecordStatus", new Responder(
+            connection.call("chat.setPrivateRecordStatus", new Responder(
                         function(result:Object):void{
                             LogUtil.debug("Successfully called chat server private message");
                         },
@@ -282,7 +282,7 @@ package org.bigbluebutton.modules.chat.services
                         function(result:Object):void{
                             LogUtil.debug("Successfully called chat server private message");
                             if (result != null) {
-
+                                
                                 var event:ChatHistoryFileListEvent = new ChatHistoryFileListEvent(ChatHistoryFileListEvent.DISPLAY_FILE_LIST);
                                 event.fileList = result ;
                             

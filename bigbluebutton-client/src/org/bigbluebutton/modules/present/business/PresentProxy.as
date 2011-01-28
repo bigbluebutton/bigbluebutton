@@ -32,6 +32,8 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.events.SlideEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.managers.PresentationSlides;
+    import org.bigbluebutton.modules.present.events.PresenterViewEvent ;
+    import org.bigbluebutton.modules.present.events.PresenterFullScreenCommands ;
 	
 	public class PresentProxy
 	{
@@ -187,6 +189,96 @@ package org.bigbluebutton.modules.present.business
 		public function resizeSlide(e:PresenterCommands):void{
 			soService.resizeSlide(e.newSizeInPercent);
 		}
+		
+            /*****************************************************************************
+            ;  sendUpdatePresenterViewDimension
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ;   This routine is use to call shareUpdatePresenterViewDimension from soService object
+            ;   to send the view port dimension.
+            ;
+            ; RETURNS
+            ;
+            ; INTERFACE NOTES
+            ;
+            ; IMPLEMENTATION
+            ;
+            ; HISTORY
+            ; __date__ :        PTS:            Description
+            ; 2011.01.27                            Full Screen Presntation
+            ;
+            ******************************************************************************/
+        public function sendUpdatePresenterViewDimension(e:PresenterViewEvent) : void {
+            soService.shareUpdatePresenterViewDimension(e.topLeftX,e.topLeftY,e.bottomRightX,e.bottomRightY);
+        }
+        /** END Function : sendUpdatePresenterViewDimension **/
+        
+            /*****************************************************************************
+            ;  sendFullScreenUpdateStatus
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ;   This routine is use to call sendFullScreenUpdateStatus from soService object
+            ;
+            ; RETURNS
+            ;
+            ; INTERFACE NOTES
+            ;
+            ; IMPLEMENTATION
+            ;
+            ; HISTORY
+            ; __date__ :        PTS:            Description
+            ; 2011.01.27                            Full Screen Presntation
+            ;
+            ******************************************************************************/
+        public function sendFullScreenUpdateStatus(e:PresenterFullScreenCommands):void{
+            soService.sendFullScreenUpdateStatus(e.isFullScreen);
+        }
+        /** END Function : sendFullScreenUpdateStatus */
+        
+        /*****************************************************************************
+            ;  getFullScreenStatus
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ;   This routine is use to call getFullScreenStatus from soService object
+            ;
+            ; RETURNS
+            ;
+            ; INTERFACE NOTES
+            ;
+            ; IMPLEMENTATION
+            ;
+            ; HISTORY
+            ; __date__ :        PTS:            Description
+            ; 2011.01.27                            Full Screen Presntation
+            ;
+            ******************************************************************************/
+        public function getFullScreenStatus():void{
+            soService.getFullScreenStatus();
+        }
+        /** END Function getFullScreenStatus **/
+        
+                /*****************************************************************************
+            ;  getUpdatePresenterViewDimension
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ;   This routine is use to call getUpdatePresenterViewDimension from soService object
+            ;
+            ; RETURNS
+            ;
+            ; INTERFACE NOTES
+            ;
+            ; IMPLEMENTATION
+            ;
+            ; HISTORY
+            ; __date__ :        PTS:            Description
+            ; 2011.01.27                            Full Screen Presntation
+            ;
+            ******************************************************************************/
+        public function getUpdatePresenterViewDimension():void{
+            
+            soService.getUpdatePresenterViewDimension() ;
+        }
+        /** END Function : getUpdatePresenterViewDimension **/
 
 	}
 }
