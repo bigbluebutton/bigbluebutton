@@ -114,7 +114,8 @@
 			private function handleApplicationVersionEvent(event:AppVersionEvent):void {
 				appVersion = event.appVersion;
 				localeVersion = event.localVersion;
-				checkLocaleVersion(localeVersion);
+				
+				if (!event.suppressLocaleWarning) checkLocaleVersion(localeVersion);
 			}
 			
 			private function fullScreenHandler(evt:FullScreenEvent):void {
