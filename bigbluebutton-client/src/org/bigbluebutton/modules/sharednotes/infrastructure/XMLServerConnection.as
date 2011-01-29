@@ -29,7 +29,7 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 	
 	public class XMLServerConnection extends ServerConnection
 	{
-		public static var serverURL:String = "192.168.0.238";
+		public static var serverURL:String = "192.168.0.104";
 		public static const XML_CONNECTION_FAILED:String = "XML_CONNECTION_FAILED";
 		private static const MAXIMUM_CONNECTION_ATTEMPTS:int = 5;
 		
