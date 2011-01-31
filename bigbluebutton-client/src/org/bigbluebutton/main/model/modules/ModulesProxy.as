@@ -95,15 +95,14 @@ package org.bigbluebutton.main.model.modules
 		public function moduleCommand(params:ModuleCommand):void
 		{
 			LogUtil.error("moduleCommand [" + params.module + "][" + params.command + "]");
-			
+			var globalDispatcher:Dispatcher = new Dispatcher();
+            
 			if(params.command == "init_video")/*Start the VIDEO conf module by diapatching a publishwindow event */
 			{
-				var globalDispatcher:Dispatcher = new Dispatcher();
 				globalDispatcher.dispatchEvent(new OpenPublishWindowEvent());
 			}
 			else if(params.command == "init_voice") /*Start the VOICE conf (phone) module by dispatching a joinconf event */
-			{
-				var globalDispatcher:Dispatcher = new Dispatcher();
+			{				
 				globalDispatcher.dispatchEvent(new JoinVoiceConferenceEvent());
 			}
 			else if(params.command == "start") /* Start CHAT or PRESENATION module */

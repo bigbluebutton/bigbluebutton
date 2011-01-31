@@ -21,23 +21,27 @@ package org.bigbluebutton.modules.present.business {
 	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
+	import flash.events.TimerEvent;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
 	import flash.net.SharedObject;
+	import flash.utils.Timer;
 	
 	import mx.controls.Alert;
 	
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.modules.present.events.CursorEvent;
 	import org.bigbluebutton.modules.present.events.MoveEvent;
 	import org.bigbluebutton.modules.present.events.NavigationEvent;
+	import org.bigbluebutton.modules.present.events.PresenterFullScreenCommands;
+	import org.bigbluebutton.modules.present.events.PresenterViewEvent;
 	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.events.ZoomEvent;
-	import org.bigbluebutton.common.LogUtil;
-    import org.bigbluebutton.modules.present.events.PresenterViewEvent
-    import org.bigbluebutton.modules.present.events.PresenterFullScreenCommands ;
+
+;
 	
 	public class PresentSOService {
 		public static const NAME:String = "PresentSOService";
@@ -709,14 +713,13 @@ package org.bigbluebutton.modules.present.business {
                     function(result:Object):void { 
                             if ( null != result ){
                                 var curPos:Array = result as Array ;
-                                if ( 0 != curPos[0] || 0 != curPos[1] || 0 != curPos[2] || 0 != curPos[3] ){
-                                    shareUpdatePresenterViewDimensionCallback(curPos[0],curPos[1],curPos[2],curPos[3]) ;
-                                }
+								handleGetPresenterDimension(curPos[0],curPos[1],curPos[2],curPos[3]) ;
                             }
                            
                     },  
                     // status - On error occurred
-                    function(status:Object):void { 
+                    function(status:Object):void {
+                        Alert.show('getUpdatePresenterViewDimension: fail'); 
                         LogUtil.error("Error occurred:"); 
                         for (var x:Object in status) { 
                             LogUtil.error(x + " : " + status[x]); 
@@ -726,6 +729,42 @@ package org.bigbluebutton.modules.present.business {
             ); //_netConnection.call
         }
         /** END Function : getUpdatePresenterViewDimension **/
+
+		/*****************************************************************************
+		 ;  handleGetPresenterDimension
+		 ;----------------------------------------------------------------------------
+		 ; DESCRIPTION
+		 ;   This routine is use handle get the presenter dimension when the
+		 ;	 the new user login and call shareUpdatePresenterViewDimensionCallback
+		 ;	 to display presenter view port on the viewer after 1000ms.
+		 ;
+		 ; RETURNS
+		 ;
+		 ; INTERFACE NOTES
+         ;   INPUT
+         ;       curSlideWidth   : the current slide width
+         ;       curSlideHeight  : the current slide height
+         ;       viewPortWidth   : the view port width
+         ;       viewPortHeight  : the view port height
+		 ;
+		 ; IMPLEMENTATION
+		 ;
+		 ; HISTORY
+		 ; __date__ :        PTS:            Description
+		 ; 2011.01.31                        Full Screen Presenation widnow
+		 ;
+		 ******************************************************************************/
+		private function handleGetPresenterDimension(currentSlideWidth:Number, currentSlideHeight:Number, viewPortWidth:Number, viewPortHeight:Number) : void {
+			if ( 0 == viewPortWidth ) {
+				return;	
+			}
+			var lTimer:Timer = new Timer(1000,1);
+			lTimer.addEventListener(TimerEvent.TIMER,function(evt:TimerEvent):void{
+				shareUpdatePresenterViewDimensionCallback(currentSlideWidth,currentSlideHeight,viewPortWidth,viewPortHeight);
+			});
+			lTimer.start();
+		}
+		/** END Function : handleGetPresenterDimension **/
         
         /*****************************************************************************
         ;  sendFullScreenUpdateStatus

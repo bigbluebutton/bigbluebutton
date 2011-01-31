@@ -34,7 +34,7 @@
 	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
 	x="{DEFAULT_X_POSITION}" y="{DEFAULT_Y_POSITION}"
 	title="{currentPresentation}" keyUp="onKeyUp(event)"
-	resize="maximizeHandler()" backgroundColor="0xDDDDDD" initialize="allowCallBack()">
+	resize="maximizeHandler()" backgroundColor="0xDDDDDD">
 	
 	<mate:Dispatcher id="globalDispatcher" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="becomePresenter" />
@@ -49,6 +49,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import flash.external.*;
 			import flash.geom.Point;
 			
 			import flexlib.containers.DockableToolBar;
@@ -72,11 +73,13 @@
 			import org.bigbluebutton.modules.present.api.IPresentationButton;
 			import org.bigbluebutton.modules.present.events.AddButtonToPresentationEvent;
 			import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
+			import org.bigbluebutton.modules.present.events.CenterSlideEvent;
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 			import org.bigbluebutton.modules.present.events.MoveEvent;
 			import org.bigbluebutton.modules.present.events.NavigationEvent;
 			import org.bigbluebutton.modules.present.events.PresentationEvent;
 			import org.bigbluebutton.modules.present.events.PresenterCommands;
+			import org.bigbluebutton.modules.present.events.PresenterViewEvent;
 			import org.bigbluebutton.modules.present.events.SlideEvent;
 			import org.bigbluebutton.modules.present.events.SlideResizedEvent;
 			import org.bigbluebutton.modules.present.events.UploadEvent;
@@ -85,20 +88,7 @@
 			import org.bigbluebutton.modules.present.managers.Slide;
 			import org.bigbluebutton.modules.present.managers.SlideManager;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			
-			// _PTS_731_
-            import flash.external.*;
-			import org.bigbluebutton.modules.present.events.CenterSlideEvent;
 
-            //<REALWAT>
-            import org.bigbluebutton.main.model.ConfigParameters;
-            import org.bigbluebutton.modules.present.events.PresenterViewEvent;
-            
-            private var configParameters:ConfigParameters;
-            private var gConfEnableFullScreen:Boolean       = false;
-            private var gConfEnableViwerLockOrUnlockSlide:Boolean   = false;
-            //</REALWAT>
-             			
             public static const TITLE:String = "Presentation";
 			private var presenterName:String = "";
 			private static const NEXT_BUTTON:String = "Next";
@@ -143,76 +133,43 @@
 			
 			private var externalButtons:ArrayCollection = new ArrayCollection();
 			
-			//<REALWAT>
-			private var isMinimized:Boolean  = false;
-			private var tMinimize:Timer  = null;
-			private var gCount:int   = 0;
-			
-			private function setStatusToNormal(t:TimerEvent) : void {
-			     if (2 == gCount){
-			         tMinimize.stop();
-			         gCount      = 0;
-			         tMinimize   = null;
-			         isMinimized = false;   
-			     }
-			     gCount++;
-			}
-			
+            //the variable that hold the value for fixing the problem when enable the
+            // the presentation window full screen
+            private var isMinimized:Boolean  = false;
+            private var tMinimize:Timer  = null;
+            private var gCount:int   = 0;
+
             /*****************************************************************************
-            ; allowCallBack
+            ;  setStatusToNormal
             ;----------------------------------------------------------------------------
             ; DESCRIPTION
-            ;   This routine is use to add function that will be call from javascript.
+            ;   This routine is use to set the window status when the presenation window switch 
+            ;   from minimize to full screen
             ;
-            ; RETURNS : N/A
+            ; RETURNS
             ;
             ; INTERFACE NOTES
-            ; 
-            ;       INPUT : N/A
+            ;       INPUT
+            ;           t   : TimerEvent
             ;
-            ; 
             ; IMPLEMENTATION
-            ;  
+            ;
             ; HISTORY
-            ; __date__ :        PTS:  
-            ; 2010.12.06        problem 731
+            ; __date__ :        PTS:            Description
+            ; 2011.01.27                            Full screen Presentation
             ;
             ******************************************************************************/
-            public function allowCallBack():void
-            {
-                // determine that ExternalInterface object supported.
-                if (true == ExternalInterface.available)
-                {
-                    // add function that can call back from javascript
-                    ExternalInterface.addCallback("shareViewPortToNewUser", shareViewPortToNewUserCallBack);
+            private function setStatusToNormal(t:TimerEvent) : void {
+                if (2 == gCount){
+                    tMinimize.stop();
+                    gCount      = 0;
+                    tMinimize   = null;
+                    isMinimized = false;   
                 }
+                gCount++;
             }
-            /***
-            ; END: allowCallBack
-            ****/
-            
-            private function shareViewPortToNewUserCallBack() : void 
-            {
-                //Alert.show('shareViewPortToNewUserCallBack');
-                if ( true == isPresenter && true == this.maximized )
-                {
-                    var lTimer:Timer = new Timer(3000,1);
-                    lTimer.addEventListener(TimerEvent.TIMER,doShareViewPort);
-                    lTimer.start();
-                }
-            }
-            
-            private function doShareViewPort(e:TimerEvent) : void {
-                    var event:PresenterViewEvent = new PresenterViewEvent(PresenterViewEvent.UPDATE_PRESENTER_VIEW_DIMENSION);
-                    event.topLeftX  = currentSlideWidth;
-                    event.topLeftY  = currentSlideHeight;
-                    event.bottomRightX  = this.width - WIDTH_PADDING;
-                    event.bottomRightY  = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
-                    dispatchEvent(event);
-            }
-            
-			//</REALWAT>
-			
+            /** END Function  setStatusToNormal */
+
             /*****************************************************************************
             ;  maximizeHandler
             ;----------------------------------------------------------------------------
@@ -232,33 +189,35 @@
             ;                                   button.
             ;
             ; 2010.12.28                        maximize presentation window
+            ; 2011.01.27                        Funll screen presenation window
             ;
             ******************************************************************************/
-			private function maximizeHandler():void {
-			    if ( true == isMinimized && false == this.minimized ){
-			         //Alert.show('isMinimized: ' + isMinimized);
-			         //isMinimized = false;
-			         if(null == tMinimize){
-			             tMinimize   = new Timer(1000);
-			             tMinimize.addEventListener(TimerEvent.TIMER, setStatusToNormal);
-			             tMinimize.start();
-			         }
-			         return;
-			    }
-			    if ( true == this.minimized && true == this.slideView.gIsViewerFullScreen ) {
-			         if ( null != tMinimize ){
-			             tMinimize.stop();
-			             tMinimize = null;
-			         }
-			         isMinimized = true;
-			         return;
-			    }
+            private function maximizeHandler():void {
+                
+                // check the status when the window switch from minimize to normal.
+                if ( true == isMinimized && false == this.minimized ){
+                    if(null == tMinimize){
+                        tMinimize   = new Timer(1000);
+                        tMinimize.addEventListener(TimerEvent.TIMER, setStatusToNormal);
+                        tMinimize.start();
+                    }
+                    return;
+                }
+                // check the status when the window switch from minimize to maximize.
+                if ( true == this.minimized && true == this.slideView.gIsViewerFullScreen ) {
+                    if ( null != tMinimize ){
+                        tMinimize.stop();
+                        tMinimize = null;
+                    }
+                    isMinimized = true;
+                    return;
+                }
 				// When the window is maximized, we want to resize the slide maintaining the aspect ratio.			
 				fitSlideToWindowMaintainingAspectRatio();
-                //if (false == isPresenter)Alert.show('resize(oldWidth): '+slideView.gOldWidth);
-				this.y = 0;
-				if (this.maximized) {
-					//callLater(restore);
+
+                this.y = 0;
+                if (this.maximized) {
+                    //callLater(restore);
                     if (true == ExternalInterface.available) 
                     {
                        // call javascript function 'showButton to
@@ -266,20 +225,20 @@
                        //   _PTS_731_
                        ExternalInterface.call("showButton", true);
                     } 
-					/*
-					var timer:Timer = new Timer(500, 1);
-					timer.addEventListener(TimerEvent.TIMER, adjustPosition);
-					timer.start();
-					*/
-					// maximize and center slide
-                    //<REALWAT>
+                    
+                    // set the viewer presentation window status
                     this.slideView.gIsViewerFullScreen  = true;
-					dispatchEvent(new CenterSlideEvent(CenterSlideEvent.CENTER_SLIDE));
-					if ( true == isPresenter ){
-					   updateDimension();
-					}
-                    //</REALWAT>
-				}
+                    dispatchEvent(new CenterSlideEvent(CenterSlideEvent.CENTER_SLIDE));
+                    // share the view port the the viewer if is presenter.
+                    if ( true == isPresenter ){
+                        var event:PresenterViewEvent = new PresenterViewEvent(PresenterViewEvent.UPDATE_PRESENTER_VIEW_DIMENSION);
+                        event.topLeftX  = currentSlideWidth;
+                        event.topLeftY  = currentSlideHeight;
+                        event.bottomRightX  = this.width - WIDTH_PADDING;
+                        event.bottomRightY  = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
+                        dispatchEvent(event);
+                    }
+                }
                 else
                 {
                     if (true == ExternalInterface.available) 
@@ -289,35 +248,29 @@
                        //   _PTS_731_
                        ExternalInterface.call("showButton", false);
                      }
-                     //<REALWAT>
+                     
                      if ( true == slideView.gIsViewerFullScreen ){
                         this.slideView.gIsViewerFullScreen  = false;
-                        /*if ( 0 != slideView.gViewPortWidth ){
-                            slideView.displayViewPort();
-                        }*/
                      }
+                    
+                    // share view port the the viewer if is presenter
                     if ( true == isPresenter && true == slideView.gIsFullScreen){
-                        updateDimension();
+                       var presentEvent:PresenterViewEvent = new PresenterViewEvent(PresenterViewEvent.UPDATE_PRESENTER_VIEW_DIMENSION);
+                       presentEvent.topLeftX  = currentSlideWidth;
+                       presentEvent.topLeftY  = currentSlideHeight;
+                       presentEvent.bottomRightX  = this.width - WIDTH_PADDING;
+                       presentEvent.bottomRightY  = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
+                       dispatchEvent(presentEvent);
                     }
                     
                     if ( false == slideView.gIsPresenterFullScreen ) {
                         slideView.gIsFullScreen = false;
                      }
-                    //</REALWAT>
                 }
 				stage.focus = this; //Remove focus from the maximize button in case the user presses the space bar, the window doesn't get maximized again.
 				
 			}
 			
-            private function updateDimension():void{
-                var presentEvent:PresenterViewEvent = new PresenterViewEvent(PresenterViewEvent.UPDATE_PRESENTER_VIEW_DIMENSION);
-                presentEvent.topLeftX  = currentSlideWidth;
-                presentEvent.topLeftY  = currentSlideHeight;
-                presentEvent.bottomRightX  = this.width - WIDTH_PADDING;
-                presentEvent.bottomRightY  = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
-                dispatchEvent(presentEvent);
-            }
-            
 			private function adjustPosition(t:TimerEvent):void{
 				if ((DEFAULT_X_POSITION + this.width) > this.parent.width) {
 					// Adjust presentation window so that it doesn't go over the side of the browser window
@@ -332,41 +285,8 @@
 				thumbY = this.height - 160;
 				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
 				slideView.addEventListener(ListEvent.ITEM_ROLL_OVER, onItemRollOver);
-				
-				//<REALWAT>
-                configParameters = new ConfigParameters(handleComplete);
-                //</REALWAT>
 			}
 			
-            //<REALWAT>
-            private function handleComplete():void{  
-                 var xmlModules:XMLList  =   configParameters.getModulesXML();
-                 var item:XML;
-                 for each(item in xmlModules){
-                    var attNamesList:XMLList = item.@*;
-                    var name:String = item.attribute(attNamesList[0].name());
-                    if ('PresentModule' == name){  
-                        var attName:String = attNamesList[5].name();
-                        var attValue:String = item.attribute(attName);                        
-                        if('false' == attValue){
-                            gConfEnableFullScreen   = false;
-                        } else {
-                            gConfEnableFullScreen   = true;
-                        }
-
-                        var attNameLock:String     = attNamesList[6].name();
-                        var attValueLock:String    = item.attribute(attNameLock);
-                        if('false' == attValueLock){
-                            gConfEnableViwerLockOrUnlockSlide   = false;
-                        } else {
-                            gConfEnableViwerLockOrUnlockSlide   = true;
-                        }
-                    }
-                 }
-                 //Alert.show('Full: '+gConfEnableFullScreen+', Lock: '+gConfEnableViwerLockOrUnlockSlide);
-            }
-            //</REALWAT>
-            
 			private function onItemRollOver(e:ListEvent):void{
 				this.displaySlideNumber(e.columnIndex + 1);
 			}
@@ -460,35 +380,45 @@
 				currentSlideHeight = event.slideHeight;
 				fitSlideToWindowMaintainingAspectRatio();
 				
-				// to center slide when the slide display
-				//if ( true == this.maximized ) {
-				    //if (true == isPresenter)
-				    //{
-				    
-				    //}
-				    //<REALWAT>
-				    if ( true == slideView.gIsFullScreen && true == isPresenter ){
-				        if (true == isPresenter){
-				            var lTimer:Timer    = new Timer(50,1);
-				            lTimer.addEventListener(TimerEvent.TIMER, doSendPresenterDimension)
-				            lTimer.start();
-				        }
+                dispatchEvent(new CenterSlideEvent(CenterSlideEvent.CENTER_SLIDE));
+                // send the view port to the viewer after the slide loaded.
+                if ( true == slideView.gIsFullScreen && true == isPresenter ){
+                    if (true == isPresenter){
+                        var lTimer:Timer    = new Timer(300,1);
+                        lTimer.addEventListener(TimerEvent.TIMER, doSendPresenterDimension)
+                        lTimer.start();
                     }
-                    dispatchEvent(new CenterSlideEvent(CenterSlideEvent.CENTER_SLIDE));
-                    //</REALWAT>
-				//}	
+                }
 			}
 			
-			//<REALWAT>
-			private function doSendPresenterDimension (e:TimerEvent) : void {
-			     var pEvent:PresenterViewEvent = new PresenterViewEvent(PresenterViewEvent.UPDATE_PRESENTER_VIEW_DIMENSION);
+            /*****************************************************************************
+            ;  doSendPresenterDimension
+            ;----------------------------------------------------------------------------
+            ; DESCRIPTION
+            ;   This routine is use to send the presenter view port to the viewer
+            ;
+            ; RETURNS
+            ;
+            ; INTERFACE NOTES
+            ;       INPUT
+            ;           e   : TimerEvent
+            ;
+            ; IMPLEMENTATION
+            ;
+            ; HISTORY
+            ; __date__ :        PTS:            Description
+            ; 2011.01.27                            Full screen presentation window
+            ;
+            ******************************************************************************/
+            private function doSendPresenterDimension (e:TimerEvent) : void {
+                var pEvent:PresenterViewEvent = new PresenterViewEvent(PresenterViewEvent.UPDATE_PRESENTER_VIEW_DIMENSION);
                  pEvent.topLeftX  = currentSlideWidth;
                  pEvent.topLeftY  = currentSlideHeight;
                  pEvent.bottomRightX  = this.width - WIDTH_PADDING;
                  pEvent.bottomRightY  = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
                  dispatchEvent(pEvent);
             }
-			//</REALWAT>
+            /** END Function : doSendPresenterDimension */
 			
 			private function onKeyUp(event:KeyboardEvent):void{
 				switch (event.keyCode) {
@@ -547,6 +477,7 @@
 			}
 						
 			private function becomePresenter(e:MadePresenterEvent):void{
+                Alert.show(String(e.presenterName),'Switch Presenter');
 				setupPresenter(true, e.presenterName);
 				addContextMenuItems();
 			}
@@ -604,6 +535,9 @@
 				onResetZoom();
 				reinitWindowToDefaultSize();
 				//this.setFocus();
+				//<REALWAT>
+				dispatchEvent(new PresenterViewEvent(PresenterViewEvent.GET_PRESENTER_VIEW_DIMENSION));
+				//</REALWAT>
 			}
 			
 			private function displaySlideNavigationControls(show:Boolean):void {
