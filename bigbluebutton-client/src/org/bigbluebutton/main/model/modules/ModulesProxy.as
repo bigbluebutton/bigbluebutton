@@ -26,7 +26,14 @@ package org.bigbluebutton.main.model.modules
 	import org.bigbluebutton.main.events.PortTestEvent;
 	import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
+	import org.bigbluebutton.main.events.ModuleCommand;
 	import org.bigbluebutton.main.model.PortTestProxy;
+	import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
+	import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
+	import org.bigbluebutton.modules.chat.events.StopChatModuleEvent;
+	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
+	import org.bigbluebutton.modules.videoconf.events.OpenPublishWindowEvent;
+	import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceEvent;
 	
 	public class ModulesProxy {
 		
@@ -74,12 +81,40 @@ package org.bigbluebutton.main.model.modules
 			else modulesDispatcher.sendTunnelingFailedEvent();
 		}
 		
-		public function loadAllModules(params:ConferenceParameters):void{
+		public function loadAllModules(params:ConferenceParameters):void
+		{
 			modulesManager.loadAllModules(params);
 		}
 		
-		public function handleLogout():void {
-			modulesManager.handleLogout();
+		/*
+		* Implementation of the moduleCommand method where we 
+		* process the commands for API call and dispatch required 
+		* events 
+		*/
+
+		public function moduleCommand(params:ModuleCommand):void
+		{
+			LogUtil.error("moduleCommand [" + params.module + "][" + params.command + "]");
+			
+			if(params.command == "init_video")/*Start the VIDEO conf module by diapatching a publishwindow event */
+			{
+				var globalDispatcher:Dispatcher = new Dispatcher();
+				globalDispatcher.dispatchEvent(new OpenPublishWindowEvent());
+			}
+			else if(params.command == "init_voice") /*Start the VOICE conf (phone) module by dispatching a joinconf event */
+			{
+				var globalDispatcher:Dispatcher = new Dispatcher();
+				globalDispatcher.dispatchEvent(new JoinVoiceConferenceEvent());
+			}
+			else if(params.command == "start") /* Start CHAT or PRESENATION module */
+			{
+				modulesManager.startModule(params.module);
+			}
+			else if(params.command == "stop")/* Stop CHAT or PRESENATION module */
+
+			{
+				modulesManager.stopModule(params.module);
+			}			
 		}
 	}
 }

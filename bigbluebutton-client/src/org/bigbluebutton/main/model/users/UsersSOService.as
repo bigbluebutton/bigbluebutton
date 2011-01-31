@@ -29,11 +29,14 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.LogoutEvent;
+	import org.bigbluebutton.main.events.ModuleCommand;
 	import org.bigbluebutton.main.events.ParticipantJoinEvent;
 	import org.bigbluebutton.main.events.PresenterStatusEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.User;
+	import org.bigbluebutton.main.model.modules.ModuleManager;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+	import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
 
 	public class UsersSOService
 	{
@@ -193,6 +196,29 @@ package org.bigbluebutton.main.model.users
 				dispatcher.dispatchEvent(e);
 			}
 			
+		}
+		
+		/**
+		 * Callback from the server from many of the bellow nc.call methods
+		 */
+		public function moduleCommand(cmd:String):void
+		{
+			LogUtil.debug("Received moduleCommand [" + cmd + "]");
+			
+			var pos:int = cmd.indexOf("\t");
+			if(pos <=0 )
+			{
+				LogUtil.error("Wrong format moduleCommand [" + cmd + "]");
+				return;
+			}
+				
+			var event:ModuleCommand = new ModuleCommand(ModuleCommand.NEW_COMMAND);
+			event.module = cmd.substring(0, pos);
+			event.command = cmd.substring(pos+1);
+			LogUtil.debug("moduleCommand [" + event.module + "][" + event.command + "]");
+			
+			var globalDispatcher:Dispatcher = new Dispatcher();
+			globalDispatcher.dispatchEvent(event);
 		}
 					
 		public function assignPresenter(userid:Number, assignedBy:Number):void {

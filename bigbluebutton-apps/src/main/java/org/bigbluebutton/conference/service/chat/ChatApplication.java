@@ -52,8 +52,11 @@ public class ChatApplication {
 		return roomsManager.hasRoom(name);
 	}
 	
-	public boolean addRoomListener(String room, IChatRoomListener listener) {
-		if (roomsManager.hasRoom(room)){
+	public boolean addRoomListener(String room, IChatRoomListener listener)
+	{
+		if (roomsManager.hasRoom(room))
+		{
+			log.debug("Adding listener to a room {}", room);
 			roomsManager.addRoomListener(room, listener);
 			return true;
 		}

@@ -33,7 +33,8 @@ public class BigBlueButtonSession {
 	
 	public BigBlueButtonSession(String sessionName, long userid, String username, 
 				String role, String conference, String mode, String room, String voiceBridge, Boolean record, 
-				String externUserID){
+				String externUserID)
+	{
 		this.userid = userid;
 		this.sessionName = sessionName;
 		this.username = username;

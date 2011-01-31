@@ -47,6 +47,7 @@ package org.bigbluebutton.modules.chat.services
 		
 		public function PublicChatSharedObjectService(connection:NetConnection)
 		{			
+			this.chatSO = null;
 			this.connection = connection;
 			this.dispatcher = new Dispatcher();		
 		}
@@ -63,8 +64,14 @@ package org.bigbluebutton.modules.chat.services
 		
 	    public function leave():void
 	    {
-	    	if (chatSO != null) {
+	    	if (chatSO != null)
+			{
+				chatSO.removeEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
+				chatSO.removeEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
+				chatSO.removeEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);
 	    		chatSO.close();
+				
+				chatSO = null;
 	    	}
 	    }
         

@@ -86,14 +86,19 @@ public class RoomsManager {
 		room = getRoom(room.getName()); // must do this because the room coming in is serialized (no transient values are present)
 		log.debug("End meeting request for room: {} ", room.getName());
 		room.endAndKickAll();
-	}
+	}	
+	
 	
 	/**
 	 * Keeping getRoom private so that all access to Room goes through here.
 	 */
 	//TODO: this method becomes public for ParticipantsApplication, ask if it's right? 
-	public Room getRoom(String name) {
+	public Room getRoom(String name)
+	{
 		log.debug("Get room {}", name);
+		if(rooms == null)
+			log.debug("problem room {}", name);
+		
 		return rooms.get(name);
 	}
 	
@@ -172,5 +177,37 @@ public class RoomsManager {
 
 	public IConferenceEventListener getConferenceEventListener() {
 		return conferenceEventListener;
+	}
+	
+	/* 
+	* Pass the "cmd" of the "moduleCommand" API call method 
+	* to the Bigbluebutton server
+	* this method is called by incoming JMS requests
+	* input parameters: a string that represents the command we 	* want to pass to the Bigbluebutton client (i.e. start, stop, 	* etc). For more details see documentaion.
+	*/
+
+	public void moduleCommand(String cmd)
+	{		
+		log.debug("module Command: " + cmd);
+		int pos = cmd.indexOf("\t");
+		if(pos < 0)
+		{
+			log.error("Incorrect format of moduleCommand " + cmd);
+			return;
+		}		
+		
+		String room = cmd.substring(0, pos);
+		//Extract the API command (i.e. start, stop, or init)
+ 		String realCmd = cmd.substring(pos+1);
+		
+		Room r = getRoom(room);
+		if (r == null)
+		{
+			log.error("Could not find room::Room " + room + " does not exist");
+			return;
+		}
+		
+		log.debug("sending Command to room: " + realCmd);
+		r.sendModuleCommand(realCmd);		
 	}
 }

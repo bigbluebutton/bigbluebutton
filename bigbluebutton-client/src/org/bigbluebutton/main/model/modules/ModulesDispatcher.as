@@ -98,7 +98,8 @@ package org.bigbluebutton.main.model.modules
 			dispatcher.dispatchEvent(event);
 		}
 		
-		public function sendConfigParameters(c:ConfigParameters):void{
+		public function sendConfigParameters(config:ConfigParameters):void
+		{
 			var event:ConfigEvent = new ConfigEvent(ConfigEvent.CONFIG_EVENT);
 			var config:Config;
 			config = new ConfigBuilder(c.version, c.localeVersion)

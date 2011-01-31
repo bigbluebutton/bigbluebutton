@@ -21,7 +21,6 @@ package org.bigbluebutton.conference
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 import net.jcip.annotations.ThreadSafe
 import java.io.Serializable;
 import java.util.concurrent.ConcurrentHashMap
@@ -34,14 +33,16 @@ import java.util.Iterator
  */
 @ThreadSafe
 public class Room implements Serializable {
-	private static Logger log = LoggerFactory.getLogger(Room.class)
 	
+	private static Logger log = LoggerFactory.getLogger(Room.class)
 	private final String name
 	private final Map <Long, Participant> participants
 	
 	// these should stay transient so they're not serialized in ActiveMQ messages:	
+	
 	private transient final Map <Long, Participant> unmodifiableMap
 	private transient final Map<String, IRoomListener> listeners
+
 
 	public Room(String name) {
 		this.name = name
@@ -155,4 +156,21 @@ public class Room implements Serializable {
 		return sum;
 	}
 	
+	/* 
+	* Store loaded module(s)of "moduleCommand" API call method 
+	* input parameters: a string that represents the command we 	* want to pass to the Bigbluebutton client (i.e. start, stop, 	* etc). 
+	*/
+
+	
+	public void sendModuleCommand(String cmd)	
+	{
+		log.debug("Send moduleCommand was called: " + cmd);
+	
+		for (Iterator it = listeners.values().iterator(); it.hasNext();)
+		{
+			IRoomListener listener = (IRoomListener) it.next();
+			log.debug("calling sendModuleCommand on listener ${listener.getName()}");			
+			listener.moduleCommand(cmd);
+		}
+	}
 }

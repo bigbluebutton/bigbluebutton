@@ -66,6 +66,11 @@
 	<EventHandlers type="{SuccessfulLoginEvent.USER_LOGGED_IN}" >
 		<MethodInvoker generator="{ModulesProxy}" method="loadAllModules" arguments="{event.conferenceParameters}" />
 	</EventHandlers>
+
+	<!-- Add the ModuleCommand to the event map -->
+	<EventHandlers type="{ModuleCommand.NEW_COMMAND}" >
+		<MethodInvoker generator="{ModulesProxy}" method="moduleCommand" arguments="{event}" />
+	</EventHandlers>
 	
 	<!-- Viewers Stuff -->
 	<EventHandlers type="{RaiseHandEvent.RAISE_HAND}" >
@@ -100,6 +105,7 @@
 		import org.bigbluebutton.core.managers.ConfigManager;
 		import mx.events.FlexEvent;
 		
+		import org.bigbluebutton.main.events.ModuleCommand;
 		import org.bigbluebutton.main.events.ConfigEvent;
 		import org.bigbluebutton.main.events.LogoutEvent;
 		import org.bigbluebutton.main.events.ModuleLoadEvent;

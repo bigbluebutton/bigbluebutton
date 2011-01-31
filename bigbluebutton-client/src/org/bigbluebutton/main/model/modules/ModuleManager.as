@@ -32,6 +32,7 @@ package org.bigbluebutton.main.model.modules
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.ConfigParameters;
 	
+	
 	public class ModuleManager
 	{
 		public static const MODULE_LOAD_READY:String = "MODULE_LOAD_READY";
@@ -56,11 +57,13 @@ package org.bigbluebutton.main.model.modules
 			configParameters = new ConfigParameters(handleComplete);
 		}
 				
-		private function handleComplete():void{	
+		private function handleComplete():void
+		{	
 			var modules:Dictionary = configParameters.getModules();
 			modulesDispatcher.sendPortTestEvent();
 			
-			for (var key:Object in modules) {
+			for (var key:Object in modules)
+			{
 				var m:ModuleDescriptor = modules[key] as ModuleDescriptor;
 				m.setApplicationDomain(_applicationDomain);
 			}
@@ -71,11 +74,13 @@ package org.bigbluebutton.main.model.modules
 			modulesDispatcher.sendConfigParameters(configParameters);
 		}
 		
-		public function useProtocol(protocol:String):void {
+		public function useProtocol(protocol:String):void
+		{
 			_protocol = protocol;			
 		}
 		
-		public function get portTestHost():String {
+		public function get portTestHost():String
+		{
 			return configParameters.portTestHost;
 		}
 		
@@ -87,23 +92,28 @@ package org.bigbluebutton.main.model.modules
 			return configParameters.getModule(name);	
 		}
 
-		private function startModule(name:String):void {
+		public function startModule(name:String):void
+		{
 			var m:ModuleDescriptor = getModule(name);
-			if (m != null) {
-				LogUtil.debug('Starting module' + name);
+			if (m != null)
+			{
+				LogUtil.debug('Starting module ' + name);
 				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
 				m.loadConfigAttributes(conferenceParameters, _protocol);
 				bbb.start(m.attributes);		
 			}	
 		}
 
-		private function stopModule(name:String):void {
+		public function stopModule(name:String):void
+		{
 			LogUtil.debug('Stopping module ' + name);
 			var m:ModuleDescriptor = getModule(name);
-			if (m != null) {
+			if (m != null)
+			{
 				LogUtil.debug('Stopping ' + name);
 				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
-				if(bbb == null) { //Still has null object refrence on logout sometimes.
+				if(bbb == null)
+				{ //Still has null object refrence on logout sometimes.
 					LogUtil.debug('Module ' + name + ' was null skipping');
 					return;
 				}
@@ -111,7 +121,8 @@ package org.bigbluebutton.main.model.modules
 			}	
 		}
 						
-		public function loadModule(name:String):void {
+		public function loadModule(name:String):void
+		{
 			LogUtil.debug('BBBManager Loading ' + name);
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
@@ -139,14 +150,16 @@ package org.bigbluebutton.main.model.modules
 				LogUtil.debug(name + " not found.");
 			}
 			
-			if (allModulesLoaded()) {
+			if (allModulesLoaded())
+			{
 				sendAppAndLocaleVersions();
 				startAllModules();
 				modulesDispatcher.sendAllModulesLoadedEvent();	
 			}
 		}
 		
-		private function sendAppAndLocaleVersions():void {
+		private function sendAppAndLocaleVersions():void
+		{
 			var dispatcher:Dispatcher = new Dispatcher();
 			var versionEvent:AppVersionEvent = new AppVersionEvent();
 			versionEvent.appVersion = configParameters.version;	
@@ -154,9 +167,11 @@ package org.bigbluebutton.main.model.modules
 			dispatcher.dispatchEvent(versionEvent);			
 		}
 		
-		public function moduleStarted(name:String, started:Boolean):void {			
+		public function moduleStarted(name:String, started:Boolean):void
+		{			
 			var m:ModuleDescriptor = getModule(name);
-			if (m != null) {
+			if (m != null)
+			{
 				LogUtil.debug('Setting ' + name + ' started to ' + started);
 			}	
 		}
@@ -167,21 +182,42 @@ package org.bigbluebutton.main.model.modules
 			modulesDispatcher.sendStartUserServicesEvent(configParameters.application, configParameters.host);
 		}
 		
-		public function loadAllModules(parameters:ConferenceParameters):void{
+		public function loadAllModules(parameters:ConferenceParameters):void
+		{
 			modulesDispatcher.sendModuleLoadingStartedEvent(configParameters.getModulesXML());
 			conferenceParameters = parameters;
 			Role.setRole(parameters.role);
 			
-			for (var i:int = 0; i<sorted.length; i++){
+			for (var i:int = 0; i<sorted.length; i++)
+			{
 				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
 				loadModule(m.getName());
 			}
 		}
 		
-		public function startAllModules():void{
-			for (var i:int = 0; i<sorted.length; i++){
+		public function startAllModules():void
+		{
+		
+		/*
+		* Start the modules the loaded modules 
+		* that are stored conferenceParameters
+		* NOTE: will need to make chnages to inclide a choice of 		* starting ALL modules or Start modules called by the API 
+		*/	
+
+		var modules:String = conferenceParameters.loadedModules;
+			
+			for (var i:int = 0; i<sorted.length; i++)
+			{
 				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
-				startModule(m.getName());
+				var name:String = m.getName();
+				
+				//Check for the modules required to start when a client starts
+				if(modules.length > 0 && modules.indexOf(name) < 0)
+				{
+					LogUtil.debug('No Need to start module ' + name);
+					continue;
+				}
+				startModule(name);
 			}
 		}
 		

@@ -77,6 +77,7 @@ class ApiController {
 
 	/* interface (API) methods */
 	def create = {
+
 		log.debug CONTROLLER_NAME + "#create"
 
 		if (!doChecksumSecurity("create")) {
@@ -318,6 +319,63 @@ class ApiController {
 			}
 		}
 	}
+	// The moduleComand API call format definition
+	// API call= moduleCmd, param:: module and cmd 
+	def moduleCmd =
+	{
+	
+		println "Received module Command - " + params.module + "." + params.cmd
+		
+		//Check if the conference room is created
+		DynamicConference conf2 = dynamicConferenceService.getConferenceByMeetingID(params.meetingID);
+		//Get the conference room ID
+		Room room2 = dynamicConferenceService.getRoomByMeetingID(params.meetingID);
+		
+		conferenceEventListener.moduleCommand(room2.getName() + "\t" + params.module + "\t" + params.cmd);	
+	
+		log.debug CONTROLLER_NAME + "#moduleCmd";
+
+/* NOTE - NNOORI:: NEED TO PUT THE SALT-CHECKSUM BACK FOR THE FINAL RELEASE! 
+
+		if (!doChecksumSecurity("command"))
+		{
+			invalidChecksum(); return;
+		}
+
+		String mtgID = params.meetingID
+		String callPW = params.password
+
+		// check for existing:
+		DynamicConference conf = dynamicConferenceService.getConferenceByMeetingID(mtgID);
+		Room room = dynamicConferenceService.getRoomByMeetingID(mtgID);
+		
+		if (conf == null || room == null)
+		{
+			invalid("notFound", "We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?");
+			return;
+		}
+		
+		if (conf.getModeratorPassword().equals(callPW) == false)
+		{
+			invalidPassword("You must supply the moderator password for this call."); return;
+		}
+		
+		conferenceEventListener.moduleCommand(room.getName() + "\t" + params.message);
+*/		
+		response.addHeader("Cache-Control", "no-cache")
+		withFormat {	
+			xml {
+				render(contentType:"text/xml") {
+					response() {
+						returncode(RESP_CODE_SUCCESS)
+						//Call the sentModuleCommand method in bigbluebutton-common-message
+						messageKey("sentModuleCommand")
+						message("Module command was sent")
+					}
+				}
+			}
+		}
+	}
 
 	def getMeetingInfo = {
 		log.debug CONTROLLER_NAME + "#getMeetingInfo"
@@ -450,12 +508,16 @@ class ApiController {
 	        				mode("$md")
 	        				record("$rec")
 	        				welcome("$welcomeMsg")
+						//Call for loading the default modules for the API mode!
+	        				loadedModules("ListenersModule,VideoconfModule,PhoneModule,ViewersModule")
 						}
 					}
 				}
 			}
 	    }  
 		println "Leaving Enter"
+		
+		//CLIENT MODULES ARE:: ChatModule,ListenersModule,VideoconfModule,PhoneModule,ViewersModule,PresentModule
 	}
 	
 	def signOut = {

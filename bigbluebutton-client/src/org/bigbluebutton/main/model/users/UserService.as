@@ -56,7 +56,8 @@ package org.bigbluebutton.main.model.users
 			dispatcher = new Dispatcher();
 		}
 		
-		public function startService(e:UserServicesEvent):void{
+		public function startService(e:UserServicesEvent):void
+		{
 			applicationURI = e.applicationURI;
 			hostURI = e.hostURI;
 			
@@ -65,8 +66,10 @@ package org.bigbluebutton.main.model.users
 			joinService.load(e.hostURI);
 		}
 		
-		private function joinListener(success:Boolean, result:Object):void{
-			if (success) {
+		private function joinListener(success:Boolean, result:Object):void
+		{
+			if (success)
+			{
 				_conference = new Conference();
 				_conference.me.name = result.username;
 				_conference.me.role = result.role;
@@ -86,6 +89,7 @@ package org.bigbluebutton.main.model.users
 				_conferenceParameters.welcome = result.welcome;
 				_conferenceParameters.meetingID = result.meetingID;
 				_conferenceParameters.externUserID = result.externUserID;
+				_conferenceParameters.loadedModules = result.loadedModules;
 				
 				var e:ConferenceCreatedEvent = new ConferenceCreatedEvent(ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT);
 				e.conference = _conference;
@@ -95,12 +99,14 @@ package org.bigbluebutton.main.model.users
 			}
 		}
 		
-		private function connect():void{
+		private function connect():void
+		{
 			_userSOService = new UsersSOService(applicationURI, _conference);
 			_userSOService.connect(_conferenceParameters);	
 		}
 		
-		public function userLoggedIn(e:UsersConnectionEvent):void{
+		public function userLoggedIn(e:UsersConnectionEvent):void
+		{
 			_conference.me.userid = e.userid;
 			_conferenceParameters.connection = e.connection;
 			_conferenceParameters.userid = e.userid;

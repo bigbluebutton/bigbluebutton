@@ -115,8 +115,8 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		if (record == true) {
 			recorderApplication.createRecordSession(conference, room, sessionName);
 		}
-			
-    	BigBlueButtonSession bbbSession = new BigBlueButtonSession(sessionName, userid,  username, role, 
+		
+		BigBlueButtonSession bbbSession = new BigBlueButtonSession(sessionName, userid,  username, role, 
     			conference, mode, room, voiceBridge, record, externUserID);
         connection.setAttribute(Constants.SESSION, bbbSession);        
         

@@ -150,6 +150,18 @@
 	</jms:inbound-channel-adapter>
 	<integration:channel id="endMeetingRequest"/>
 	<integration:service-activator input-channel="endMeetingRequest" ref="roomsManager" method="endMeetingRequest" />
+	
+	<!-- Command - modualCommand- API method handler for and JMS message id-->
+	<jms:inbound-channel-adapter id="jmsInoduleCommand"
+		destination-name="moduleCommandEvents"
+        channel="moduleCommand"
+        extract-payload="true">
+		<integration:poller>
+			<integration:interval-trigger interval="5" time-unit="SECONDS"/>
+		</integration:poller>
+	</jms:inbound-channel-adapter>
+	<integration:channel id="moduleCommand"/>
+	<integration:service-activator input-channel="moduleCommand" ref="roomsManager" method="moduleCommand" />
 
 	<!-- OUTGOING MESSAGES -->
 	<integration:gateway id="conferenceEventListener" service-interface="org.bigbluebutton.conference.IConferenceEventListener" />

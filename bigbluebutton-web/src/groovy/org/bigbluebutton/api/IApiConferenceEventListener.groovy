@@ -23,9 +23,14 @@ package org.bigbluebutton.api;
 import org.bigbluebutton.conference.Room;
 import org.springframework.integration.annotation.Gateway;
 
-public interface IApiConferenceEventListener {
+public interface IApiConferenceEventListener
+{
 
 	@Gateway(requestChannel="endMeetingRequest")
 	void endMeetingRequest(Room room);
+	
+	/* Add the API call moduleCmd handler method moduleCommand(cmd) */
+	@Gateway(requestChannel="moduleCommand")
+	void moduleCommand(String cmd);
 
 }

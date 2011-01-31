@@ -23,7 +23,13 @@ import java.util.ArrayList;
 import java.util.List;
 import org.bigbluebutton.conference.service.recorder.IEventRecorder;
 import org.bigbluebutton.conference.service.recorder.IRecorder;
-import org.bigbluebutton.conference.service.chat.IChatRoomListener;import org.red5.server.api.so.ISharedObject;
+import org.bigbluebutton.conference.service.chat.IChatRoomListener;import org.red5.server.api.Red5;
+import org.red5.server.adapter.IApplication;
+import org.red5.server.api.IClient;
+import org.red5.server.api.IConnection;
+import org.red5.server.api.IScope;
+import org.red5.server.api.so.ISharedObject;
+import org.red5.server.adapter.ApplicationAdapter;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 
@@ -34,17 +40,21 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatEventRecorder.class
 	IRecorder recorder;
 	private ISharedObject so;
 	private final Boolean record;
+	private ChatApplication application;
 	
 	String name = "CHAT";
 	
-	public ChatEventRecorder(ISharedObject so, Boolean record) {
+	public ChatEventRecorder(ChatApplication app, ISharedObject so, Boolean record)
+	{
+		this.application = app;
 		this.so = so; 
 		this.record = record;
 	}
 	
 	
 	@Override
-	public void acceptRecorder(IRecorder recorder) {
+	public void acceptRecorder(IRecorder recorder)
+	{
 		log.debug("Accepting IRecorder");
 		this.recorder = recorder;
 	}
@@ -62,11 +72,20 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatEventRecorder.class
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void newChatMessage(String message) {
+	public void newChatMessage(String message)
+	{
 		log.debug("New chat message...");
 		List list=new ArrayList();
 		list.add(message);
-		so.sendMessage("newChatMessage", list);
+		//so.sendMessage("newChatMessage", list);
+		
+		//IScope scope = Red5.getConnectionLocal().getScope();
+		
+		ISharedObject sharedObject = application.handler.getSharedObject(Red5.getConnectionLocal().getScope(), "chatSO");
+		sharedObject.sendMessage("newChatMessage", list);
+		
+		
+		
 		recordEvent(message);
 	}
     

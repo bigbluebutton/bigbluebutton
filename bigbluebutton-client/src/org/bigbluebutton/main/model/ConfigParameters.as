@@ -55,7 +55,6 @@ package org.bigbluebutton.main.model
 		
 		public function ConfigParameters(loadedListener:Function, file:String = FILE_PATH)
 		{
-			
 			this.numModules = 0;
 			this.loadedListener = loadedListener;
 			_urlLoader = new URLLoader();
@@ -64,13 +63,15 @@ package org.bigbluebutton.main.model
 			_urlLoader.load(new URLRequest(file + "?a=" + date.time));
 		}
 		
-		private function handleComplete(e:Event):void{
+		private function handleComplete(e:Event):void
+		{
 			parse(new XML(e.target.data));	
 			buildModuleDescriptors();
 			this.loadedListener();
 		}
 		
-		private function parse(xml:XML):void{
+		private function parse(xml:XML):void
+		{
 			rawXML = xml;
 			
 			portTestHost = xml.porttest.@host;

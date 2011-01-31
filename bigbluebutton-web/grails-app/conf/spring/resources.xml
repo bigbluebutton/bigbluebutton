@@ -96,6 +96,13 @@
     <bean id="endMeetingRequestEvents" class="org.apache.activemq.command.ActiveMQQueue">
 		<constructor-arg value="endMeetingRequestEvents"/>
     </bean>
+    
+        <!-- moduleCommand **Add the JMX message associated with the API call -->
+	<integration:channel id="moduleCommand" />
+	<jms:outbound-channel-adapter id="moduleCommandJmsOut" destination="moduleCommandEvents" channel="moduleCommand" />
+    <bean id="moduleCommandEvents" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg value="moduleCommandEvents"/>
+    </bean>
 
 	<import resource="doc-conversion.xml" />
 

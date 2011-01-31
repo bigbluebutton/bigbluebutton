@@ -3,7 +3,7 @@ usePlugin 'groovy'
 usePlugin 'war'
 usePlugin 'eclipse'
 
-version = '0.7'
+version = '0.71'
 jar.enabled = true
 
 def appName = 'bigbluebutton'

@@ -51,8 +51,10 @@ package org.bigbluebutton.modules.present.managers
 			globalDispatcher = new Dispatcher();
 		}
 		
-		public function handleStartModuleEvent():void{
+		public function handleStartModuleEvent():void
+		{
 			if (presentWindow != null) return;
+			
 			presentWindow = new PresentationWindow();
 			openWindow(presentWindow);
 			
@@ -111,8 +113,10 @@ package org.bigbluebutton.modules.present.managers
             globalDispatcher.dispatchEvent(event);
         }/** END FUNCTION 'notifyPresenterFullScreenStatus'**/
         
-		public function handleStopModuleEvent():void{
+		public function handleStopModuleEvent():void
+		{
 			presentWindow.close();
+			presentWindow = null;
 		}
 		
 		private function openWindow(window:IBbbModuleWindow):void{				

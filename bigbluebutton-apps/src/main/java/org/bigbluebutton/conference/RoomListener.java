@@ -22,13 +22,21 @@ package org.bigbluebutton.conference;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bigbluebutton.conference.service.participants.ParticipantsHandler;
+import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.so.ISharedObject;
+import org.slf4j.Logger;
 public class RoomListener implements IRoomListener{
+	
+	private static Logger log = Red5LoggerFactory.getLogger( RoomListener.class, "bigbluebutton" );
 
 	private ISharedObject so;
 
-	public RoomListener(ISharedObject so) {
-		this.so = so; 
+	public RoomListener(ISharedObject so)
+	{
+		this.so = so;
+		
+		log.error("RoomListener created ----");
 	}
 	
 	public String getName() {
@@ -60,5 +68,11 @@ public class RoomListener implements IRoomListener{
 
 	public void endAndKickAll() {
 		// no-op
-	}	
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void moduleCommand(String cmd)
+	{
+		log.debug("ignored moduleCommand " + cmd);
+	}
 }

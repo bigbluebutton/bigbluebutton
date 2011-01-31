@@ -27,7 +27,8 @@ import org.red5.server.api.so.ISharedObject;
 
 import org.red5.server.api.Red5;
 
-public class ChatService {
+public class ChatService
+{
 	
 	private static Logger log = Red5LoggerFactory.getLogger( ChatService.class, "bigbluebutton" );
 	
@@ -37,16 +38,27 @@ public class ChatService {
     private ArrayList<String> messages ;
     
     
-	public List<String> getChatMessages() {
+	public List<String> getChatMessages()
+	{
+		log.debug("getChatMessages was called");
         String roomName = Red5.getConnectionLocal().getScope().getName();
 		return application.getChatMessages(roomName);
 	}
 	
-	public void sendMessage(String message) {
+	public void sendMessage(String message)
+	{
+		/*
+		ISharedObject sharedObject = application.handler.getSharedObject(Red5.getConnectionLocal().getScope(), "chatSO");
+		ArrayList<String> list=new ArrayList<String>();
+		list.add(message);
+		sharedObject.sendMessage("newChatMessage", list);
+		*/
+		
         String roomName = Red5.getConnectionLocal().getScope().getName();
 		application.sendMessage(roomName, message);
 	}
-	public void setChatApplication(ChatApplication a) {
+	public void setChatApplication(ChatApplication a)
+	{
 		log.debug("Setting Chat Applications");
 		application = a;
 	}
