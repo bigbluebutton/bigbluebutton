@@ -26,6 +26,7 @@
 	<property name="WHITEBOARD" value="WhiteboardModule" />
 	<property name="DYN_INFO" value="DynamicInfoModule" />
 	<property name="BREAKOUT" value="BreakoutModule" />
+	<property name="SHAREDNOTES" value="SharedNotesModule" />
 	
 	<property name="AVAILABLE_LOCALES" value="az_AZ,bg_BG,cs_CZ,de_DE,el_GR,en_US,es_ES,es_LA,fr_FR,fr_CA,hu_HU,it_IT,lv_LV,lt_LT,nb_NO,nl_NL,pl_PL,pt_BR,pt_PT,ro_RO,ru_RU,tr_TR,vi_VN,uk_UA,zh_CN,zh_TW,sv_SE,fa_IR,ja_JP"/>
 	
@@ -173,10 +174,21 @@
 	<target name="build-dyn" description="Compile Dynamic Info Module">
 		<build-module src="${SRC_DIR}" target="${DYN_INFO}" />
 	</target>
+
+	<target name="build-sharednotes" description="Compile SharedNotes Module">
+                <build-module src="${SRC_DIR}" target="${SHAREDNOTES}" />
+
+		<echo message="Copying assets for Phone Module" />
+                <copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/sharednotes/images/" >
+                        <fileset dir="${BASE_DIR}/src/org/bigbluebutton/modules/sharednotes/images/" />
+                </copy>
+
+        </target>
+
 	
 	<!-- just a grouping of modules to compile -->
 	<target name="build-main-chat-viewers-listeners-present" 
-			depends="build-bbb-main, build-chat, build-viewers, build-listeners, build-present, build-breakout"
+			depends="build-bbb-main, build-chat, build-viewers, build-listeners, build-present, build-breakout, build-sharednotes"
 			description="Compile main, chat, viewers, listeners, present, breakout modules">
 	</target>
 	
