@@ -333,12 +333,12 @@
 					slideWidth = this.width - WIDTH_PADDING;
 					slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
 				}
-				//<REALWAT>
+				// check the presenter presentation window status
 				if (true == slideView.gIsPresenterFullScreen){
 				    slideHeight = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
 				    slideWidth = ((currentSlideWidth * slideHeight)/currentSlideHeight);
 				}
-				//</REALWAT>
+				
 				// check the window status, if it is not maximize fit the window to 
 				// the slide
 				if ( false == this.maximized ) {
@@ -477,7 +477,6 @@
 			}
 						
 			private function becomePresenter(e:MadePresenterEvent):void{
-                Alert.show(String(e.presenterName),'Switch Presenter');
 				setupPresenter(true, e.presenterName);
 				addContextMenuItems();
 			}
@@ -535,9 +534,9 @@
 				onResetZoom();
 				reinitWindowToDefaultSize();
 				//this.setFocus();
-				//<REALWAT>
+				// dispatch event to display the presenter presentation view port in the viewer presentation window
 				dispatchEvent(new PresenterViewEvent(PresenterViewEvent.GET_PRESENTER_VIEW_DIMENSION));
-				//</REALWAT>
+				
 			}
 			
 			private function displaySlideNavigationControls(show:Boolean):void {
