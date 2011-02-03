@@ -48,6 +48,7 @@ private static Logger log = Red5LoggerFactory.getLogger( PrivateChatMessageRecor
     private String curDir ;
     //private ArrayList<UserMessageRecorder> objUser = new ArrayList<UserMessageRecorder>() ;
     private UserMessageRecorder objUser = new UserMessageRecorder() ;
+    private String dPath = "/tmp/" ;
     
 
 
@@ -72,7 +73,7 @@ private static Logger log = Red5LoggerFactory.getLogger( PrivateChatMessageRecor
     public PrivateChatMessageRecorder(String room) {
         log.debug("PrivateChatMessageRecorder Constructor...");
         
-        this.curDir = "/tmp/" + room  ;
+        this.curDir = this.dPath + room  ;
         
     }/** END FUNCTION 'PrivateChatMessageRecorder' **/
     

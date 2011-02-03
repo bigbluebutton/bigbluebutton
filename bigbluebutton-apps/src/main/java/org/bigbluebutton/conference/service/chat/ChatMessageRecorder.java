@@ -56,6 +56,7 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
     private String curFileName = "PublicChatMessageRecorded-" ;
     private String curDir ;
     private UserMessageRecorder objUser ;
+    private String dPath = "/tmp/" ;
 
     
     String name = "CHATRECORDER";
@@ -78,10 +79,10 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
     ; __date__ :        PTS:            Description
     ; 
     ******************************************************************************/
-    public ChatMessageRecorder(ISharedObject so, String lDir) {
+    public ChatMessageRecorder(ISharedObject so, String dir) {
         log.debug("ChatMessageRecorder Constructor...");
         // check whether the input parameter is null or not
-        if ( (null == so) || (null == lDir) ){
+        if ( (null == so) || (null == dir) ){
             log.debug("The SO parameter is null");
         }
         
@@ -89,7 +90,7 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
         boolean success = false ;
         
         this.so = so; 
-        this.curDir = "/tmp/" + lDir ;
+        this.curDir = this.dPath + dir ;
         
         success = (new File(curDir)).mkdir() ;
         
@@ -246,11 +247,7 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
             log.debug("Null parameter");
             return ;
         }        
-        
-        log.debug("setRecordStatus Setting record {}",status);
-        log.debug("setRecordStatus Setting username {}",username);
-        log.debug("setRecordStatus Setting userid {}",userid);
-        
+                
         if ( null != objUser ){
             log.debug("Object Null");
         }

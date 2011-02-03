@@ -108,6 +108,9 @@
         	[Bindable] public var slides:ArrayCollection;
 			[Bindable] public var selectedSlide:int=0;
 			[Bindable] private var isPresenter:Boolean = false;
+			[Bindable] private var CONTROL_BAR_HEIGHT:int = 45;
+			private static const TOP_WINDOW_BORDER:int = 30;
+			private static const MINIMUM_HEIGHT:int = 100;
 			
 			private var dispatcher:Dispatcher = new Dispatcher();
 
@@ -142,10 +145,15 @@
             ;
             ; HISTORY
             ; __date__ :        PTS:  			Description
-            ; 2011-01-27                                          Presenation Full Screen View
+            ; 2011-01-27                        Presenation Full Screen View
             ;
             ******************************************************************************/
             private function handlePresenterFullScreen(event:PresenterViewEvent) : void {
+				if ((gViewPortWidth/gViewPortHeight)==(event.bottomRightX/event.bottomRightY)
+					&& true == gIsViewerFullScreen)
+				{
+					return;
+				}
                 if ( false == isPresenter ){
                     currentSlideWidth   = event.topLeftX;
                     currentSlideHeight  = event.topLeftY;
@@ -161,11 +169,14 @@
                     gIsPresenterFullScreen  = true;
 
                     this.width   = this.parent.width;
-                    this.height  = this.parent.height - 75;
-                }
+                    this.height  = this.parent.height - TOP_WINDOW_BORDER - CONTROL_BAR_HEIGHT;
+                }else{
+					centerViewPort();
+				}
             }
             /** END Function: handlePresenterFullScreen */
-             /*****************************************************************************
+			
+            /*****************************************************************************
             ;  centerSlide
             ;----------------------------------------------------------------------------
             ; DESCRIPTION
@@ -177,7 +188,6 @@
             ; INTERFACE NOTES
             ;
             ; IMPLEMENTATION
-            ;      - calculate the dimension to center the slide
             ;
             ; HISTORY
             ; __date__ :        PTS:            Description
@@ -187,12 +197,6 @@
             ******************************************************************************/
             private function centerSlide(e:CenterSlideEvent) : void{
 
-                if(false == isPresenter)
-                {
-                    //calculate the slide view position
-                    this.x = (this.parent.width - this.width)/2;
-                    this.y = (this.parent.height - this.height)/2-35;
-                }
                 gOldWidth    = this.width;
                 gOldHeight   = this.height;
                 if(false == gisLocked || true == gIsFullScreen){
@@ -203,14 +207,88 @@
 
                 if(true == isPresenter){
                     this.width   = this.parent.width;
-                    this.height  = this.parent.height - 35;
+                    this.height  = this.parent.height - TOP_WINDOW_BORDER - CONTROL_BAR_HEIGHT;
                 }
                 gIsFullScreen    = true;
-                zoomLoaderBy(zoomPercentage);
+
+				//center the presenter view port in the viewer presentation window
+				centerViewPort();
+				zoomLoaderBy(zoomPercentage);
+
             }
             /**
              * END FUNCTION 'centerSlide'
              **/
+			
+			 /*****************************************************************************
+			 ;  centerViewPort
+			 ;----------------------------------------------------------------------------
+			 ; DESCRIPTION
+			 ;   This routine is use to center the view port when the viewer presentation
+			 ;	 window in full screen.
+			 ;
+			 ; RETURNS
+			 ;
+			 ; INTERFACE NOTES
+			 ;
+			 ; IMPLEMENTATION
+			 ;
+			 ; HISTORY
+			 ; __date__ :        PTS:            Description
+			 ; 2011.02.01                        center the view port when presentation window
+			 ;                                   maximized.
+			 ;
+			 ******************************************************************************/
+			public function centerViewPort() : void {
+				if ( false == isPresenter && true == gIsViewerFullScreen )
+				{
+					var lTimer:Timer = new Timer(100,1);
+					lTimer.addEventListener(TimerEvent.TIMER,
+						function(evt:TimerEvent) : void {
+							resizeAndMoveLoaderInRelationToCanvas();
+						}
+					);
+					lTimer.start();
+				}				
+				
+				if ( true == isPresenter ) 
+				{
+					// calucate the x position to center the slide
+					slideLoader.x = (this.width - slideLoader.width) / 2 ;
+					slideLoader.y = 0;
+					
+					notifyOtherParticipantsOfSlideMoving();
+				}
+			}
+			/**
+			 * END FUNCTION 'centerViewPort'
+			 **/
+			
+			 /*****************************************************************************
+			 ;  showViewPort
+			 ;----------------------------------------------------------------------------
+			 ; DESCRIPTION
+			 ;   This routine is use to display the presenter view port in the viewer
+			 ;	 presentation window.
+			 ;
+			 ; RETURNS
+			 ;
+			 ; INTERFACE NOTES
+			 ;
+			 ; IMPLEMENTATION
+			 ;
+			 ; HISTORY
+			 ; __date__ :        PTS:            Description
+			 ; 2011.02.01                        center the view port when presentation window
+			 ;                                   maximized.
+			 ;
+			 ******************************************************************************/
+			public function showViewPort() : void {
+				dispatchNewSlideDisplayedEvent(gViewPortWidth, gViewPortHeight);
+			}
+			/**
+			 * END FUNCTION 'showViewPort'
+			 **/
 			
             /*****************************************************************************
             ;  switchFollowPreseterSlide
@@ -417,7 +495,11 @@
             ;
             ******************************************************************************/
             private function resizeAndMoveLoaderInRelationToCanvas():void {
-
+				
+				// determine the position to center the view port
+				this.x	= (this.parent.width  - this.width) / 2;
+				this.y	= (this.parent.height- TOP_WINDOW_BORDER - CONTROL_BAR_HEIGHT - this.height) / 2;
+				
                 if ( true == gIsFullScreen ){
                 
                     if ( true == gIsPresenterFullScreen){
@@ -426,19 +508,21 @@
                         gOldWidth   =   ((currentSlideWidth * gOldHeight)/currentSlideHeight);
 
                         var lNewWidth:Number    = ((gViewPortWidth * this.height)/gViewPortHeight);
-						//this.width = int(lNewWidth);
+
 						if (true == gIsViewerFullScreen){
-                        if (this.parent.width >= lNewWidth)
-                        {
-                            this.width = int(lNewWidth);
-                        }
-                        else
-                        {
-                            this.width  = this.parent.width;
-                            var lNewHeight:Number    = ((gViewPortHeight * this.width)/gViewPortWidth);	
-                            this.height = int(lNewHeight);
-                        }
-						}else{this.width = lNewWidth;}
+	                        if (this.parent.width >= lNewWidth)
+	                        {
+	                            this.width = int(lNewWidth);
+	                        }
+	                        else
+	                        {
+	                            this.width  = this.parent.width;
+	                            var lNewHeight:Number    = ((gViewPortHeight * this.width)/gViewPortWidth);	
+	                            this.height = int(lNewHeight);
+	                        }
+						}else{
+							this.width = lNewWidth;
+						}
                     }
                     slideLoader.width = gOldWidth * presentersLoaderCanvasWidthRatio; 
                     slideLoader.height = gOldHeight * presentersLoaderCanvasHeightRatio;
@@ -581,14 +665,18 @@
 				} else {
 					zoomPercentage = percent;
 				}
-				
- 				if (zoomPercentage == 100) {
- 					fitLoaderToCanvas();
- 				} else {
- 					resizeAndMoveLoaderBy(zoomPercentage);
- 				}
- 				if(true == this.isPresenter)
+				resizeAndMoveLoaderBy(zoomPercentage);
+				// calculate the center position for slide loader
+				// if the zoom percentage is 100
+				if (100 == zoomPercentage) {
+					slideLoader.x = (this.width  - slideLoader.width) / 2 ;
+					slideLoader.y = 0 ;
+					resizeAndMoveLoaderBy(zoomPercentage);
+				}
+
+ 				if(true == this.isPresenter) {
 				    notifyOthersOfZoomEvent();
+				}
 
 			}
 			
@@ -660,6 +748,12 @@
                     savePresentersSettings(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
                 }
                 if (false == isPresenter) {
+
+					// check the viewer presentation window height
+					if (MINIMUM_HEIGHT > this.parent.height){
+						return;
+					}
+
                     //check the 'lock follow presenter slide' status
                     // to disable viewer slide follow presenter slide.
                     if ( true == gisLocked ){
@@ -764,7 +858,7 @@
 				if (noSlideContentLoaded()) return;
 				
                 // calculate the cursor position
-                cursor.x    =   (slideLoader.x) + (e.xPercent*slideLoader.content.width / 100);//slideLoader.x + (e.xPercent*slideLoader.content.width / 100);
+                cursor.x    =   (slideLoader.x) + (e.xPercent*slideLoader.content.width / 100);
                 cursor.y    =   (slideLoader.content.y * 2) + (e.yPercent*slideLoader.content.height / 100);
                 showCursor();
 			}
@@ -795,6 +889,19 @@
 				var slideRealHeight:int = slideLoader.content.height;				
 				fitLoaderToCanvas();
 				dispatchNewSlideDisplayedEvent(slideRealWidth, slideRealHeight);
+
+				// notify the slide moving to re-center the view port
+				// after the new slide load complete
+				if ( true == isPresenter )
+				{
+					var lTimer:Timer	= new Timer(300,1);
+					lTimer.addEventListener(TimerEvent.TIMER,
+						function(evt:TimerEvent) : void {
+							notifyOtherParticipantsOfSlideMoving();	
+						}
+					);
+					lTimer.start();
+				}
 			}
 			
 			private function dispatchNewSlideDisplayedEvent(slideRealWidth:int, slideRealHeight:int):void {
@@ -839,7 +946,7 @@
 			}
 			
 			public function moveCanvas(x:int, y:int):void{
-				overlayChildrenHolder.x = slideLoader.x;//slideLoader.x * 2;
+				overlayChildrenHolder.x = slideLoader.x;
 				overlayChildrenHolder.y = slideLoader.y * 2;
 				
 				if (overlayCanvas != null) overlayCanvas.moveCanvas(overlayChildrenHolder.x, overlayChildrenHolder.y);

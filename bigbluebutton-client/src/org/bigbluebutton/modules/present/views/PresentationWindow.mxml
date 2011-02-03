@@ -136,39 +136,6 @@
             //the variable that hold the value for fixing the problem when enable the
             // the presentation window full screen
             private var isMinimized:Boolean  = false;
-            private var tMinimize:Timer  = null;
-            private var gCount:int   = 0;
-
-            /*****************************************************************************
-            ;  setStatusToNormal
-            ;----------------------------------------------------------------------------
-            ; DESCRIPTION
-            ;   This routine is use to set the window status when the presenation window switch 
-            ;   from minimize to full screen
-            ;
-            ; RETURNS
-            ;
-            ; INTERFACE NOTES
-            ;       INPUT
-            ;           t   : TimerEvent
-            ;
-            ; IMPLEMENTATION
-            ;
-            ; HISTORY
-            ; __date__ :        PTS:            Description
-            ; 2011.01.27                            Full screen Presentation
-            ;
-            ******************************************************************************/
-            private function setStatusToNormal(t:TimerEvent) : void {
-                if (2 == gCount){
-                    tMinimize.stop();
-                    gCount      = 0;
-                    tMinimize   = null;
-                    isMinimized = false;   
-                }
-                gCount++;
-            }
-            /** END Function  setStatusToNormal */
 
             /*****************************************************************************
             ;  maximizeHandler
@@ -197,8 +164,15 @@
                 // check the status when the window switch from minimize to normal.
                 if ( true == isMinimized && false == this.minimized ){
                     if(null == tMinimize){
-                        tMinimize   = new Timer(1000);
-                        tMinimize.addEventListener(TimerEvent.TIMER, setStatusToNormal);
+						var tMinimize:Timer = new Timer(2000, 1);
+                        tMinimize.addEventListener(TimerEvent.TIMER, 
+							function(evt:TimerEvent):void{
+								isMinimized = false;
+								if(false == isPresenter){
+									dispatchEvent(new CenterSlideEvent(CenterSlideEvent.CENTER_SLIDE));	
+								}
+							}
+						);
                         tMinimize.start();
                     }
                     return;
@@ -229,6 +203,7 @@
                     // set the viewer presentation window status
                     this.slideView.gIsViewerFullScreen  = true;
                     dispatchEvent(new CenterSlideEvent(CenterSlideEvent.CENTER_SLIDE));
+
                     // share the view port the the viewer if is presenter.
                     if ( true == isPresenter ){
                         var event:PresenterViewEvent = new PresenterViewEvent(PresenterViewEvent.UPDATE_PRESENTER_VIEW_DIMENSION);
@@ -248,8 +223,14 @@
                        //   _PTS_731_
                        ExternalInterface.call("showButton", false);
                      }
-                     
-                     if ( true == slideView.gIsViewerFullScreen ){
+
+					// show view port when switch widnow form maximize
+					if ( false == isPresenter && true == this.slideView.gIsViewerFullScreen)
+					{
+						this.slideView.showViewPort();
+					}
+
+                     if ( true == slideView.gIsViewerFullScreen){
                         this.slideView.gIsViewerFullScreen  = false;
                      }
                     
@@ -262,7 +243,6 @@
                        presentEvent.bottomRightY  = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
                        dispatchEvent(presentEvent);
                     }
-                    
                     if ( false == slideView.gIsPresenterFullScreen ) {
                         slideView.gIsFullScreen = false;
                      }
@@ -333,7 +313,9 @@
 					slideWidth = this.width - WIDTH_PADDING;
 					slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
 				}
-				// check the presenter presentation window status
+				
+				// set the viewer slide height to fit to the window when the presenter
+				// in full screen
 				if (true == slideView.gIsPresenterFullScreen){
 				    slideHeight = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
 				    slideWidth = ((currentSlideWidth * slideHeight)/currentSlideHeight);
@@ -421,6 +403,13 @@
             /** END Function : doSendPresenterDimension */
 			
 			private function onKeyUp(event:KeyboardEvent):void{
+				
+				// only presenter can presss key to change slide
+				if ( false == isPresenter )
+				{
+					return;
+				}
+				
 				switch (event.keyCode) {
 				case Keyboard.LEFT:
 				case Keyboard.UP:
@@ -534,9 +523,10 @@
 				onResetZoom();
 				reinitWindowToDefaultSize();
 				//this.setFocus();
-				// dispatch event to display the presenter presentation view port in the viewer presentation window
-				dispatchEvent(new PresenterViewEvent(PresenterViewEvent.GET_PRESENTER_VIEW_DIMENSION));
 				
+				// display the view port when the viewer login while the presenter in full screen.
+				dispatchEvent(new PresenterViewEvent(PresenterViewEvent.GET_PRESENTER_VIEW_DIMENSION));
+
 			}
 			
 			private function displaySlideNavigationControls(show:Boolean):void {

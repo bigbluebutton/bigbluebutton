@@ -719,7 +719,6 @@ package org.bigbluebutton.modules.present.business {
                     },  
                     // status - On error occurred
                     function(status:Object):void {
-                        Alert.show('getUpdatePresenterViewDimension: fail'); 
                         LogUtil.error("Error occurred:"); 
                         for (var x:Object in status) { 
                             LogUtil.error(x + " : " + status[x]); 
@@ -789,7 +788,6 @@ package org.bigbluebutton.modules.present.business {
                 new Responder(
                     // On successful result
                     function(result:Object):void { 
-                            //Alert.show(String(isFullScreen));
                            sendFullScreenUpdateCommandCallback(isFullScreen);
                     },  
                     // status - On error occurred
@@ -828,7 +826,6 @@ package org.bigbluebutton.modules.present.business {
                 new Responder(
                     // On successful result
                     function(result:Boolean):void { 
-                            //Alert.show(String(isFullScreen));
                             sendFullScreenUpdateCommandCallback(result);
                     },  
                     // status - On error occurred

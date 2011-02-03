@@ -462,7 +462,6 @@
 			
 			public function userJoined(user:User):void{
 				addParticipantToList(user.userid, user.name, user.role);
-                // realwat
                 var e:AddRecordUserEvent = new AddRecordUserEvent(AddRecordUserEvent.NEW_USER);
                 e.userid = user.userid ;
                 e.username = user.name ;
@@ -472,7 +471,6 @@
 			
 			public function userLeft(user:User):void{
 				removeParticipantFromList(user.userid);
-                //realwat
                 var e:AddRecordUserEvent = new AddRecordUserEvent(AddRecordUserEvent.DEL_USER);
                 e.userid = user.userid;
                 globalDispatcher.dispatchEvent(e);

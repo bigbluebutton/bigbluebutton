@@ -326,12 +326,22 @@ class ApiController {
 	
 		println "Received module Command - " + params.module + "." + params.cmd
 		
+        String returnCode = RESP_CODE_SUCCESS ;
+        String msgKey = "sentModuleCommand";
+        String msg ;
 		//Check if the conference room is created
 		DynamicConference conf2 = dynamicConferenceService.getConferenceByMeetingID(params.meetingID);
 		//Get the conference room ID
 		Room room2 = dynamicConferenceService.getRoomByMeetingID(params.meetingID);
 		
-		conferenceEventListener.moduleCommand(room2.getName() + "\t" + params.module + "\t" + params.cmd);	
+        if ( null == room2 ){
+            returnCode = RESP_CODE_FAILED ;
+            msg = "Module command was not sent";
+        }else{
+            returnCode = RESP_CODE_SUCCESS ;
+            msg = "Module command was sent";
+        	conferenceEventListener.moduleCommand(room2.getName() + "\t" + params.module + "\t" + params.cmd);	
+        }
 	
 		log.debug CONTROLLER_NAME + "#moduleCmd";
 
@@ -367,10 +377,10 @@ class ApiController {
 			xml {
 				render(contentType:"text/xml") {
 					response() {
-						returncode(RESP_CODE_SUCCESS)
+						returncode(returnCode)
 						//Call the sentModuleCommand method in bigbluebutton-common-message
-						messageKey("sentModuleCommand")
-						message("Module command was sent")
+						messageKey(msgKey)
+						message(msg)
 					}
 				}
 			}
