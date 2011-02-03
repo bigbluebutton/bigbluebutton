@@ -71,13 +71,13 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
     ; INTERFACE NOTES
     ;   INPUT
     ;   so      :   ShareObject of the chat
-    ;   lDir    :   Directory to store the record message file
+    ;   dir    :   Directory to store the record message file
     ; 
     ; IMPLEMENTATION
     ;  
     ; HISTORY
     ; __date__ :        PTS:            Description
-    ; 
+    ; 12-27-2010
     ******************************************************************************/
     public ChatMessageRecorder(ISharedObject so, String dir) {
         log.debug("ChatMessageRecorder Constructor...");
@@ -169,10 +169,10 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
     ;
     ; INTERFACE NOTES
     ;   INPUT
-    ;   status  :   true/false
+    ;   message  :   new chat message
     ; 
     ; IMPLEMENTATION
-    ;  set the recording status
+    ;  add new message to user 
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 12-27-2010
@@ -199,14 +199,14 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
     ; DESCRIPTION
     ;   this routine is implemented from IChatRoomListener. It is used to set up
     ;   recording status
-    ; RETURNS : N/A
+    ; RETURNS : true/false
     ;
     ; INTERFACE NOTES
     ;   INPUT
-    ;   status  :   true/false
+    ;   fileName : file name to save chat message
     ; 
     ; IMPLEMENTATION
-    ;  set the recording status
+    ;  check whether the file exist
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 12-27-2010
@@ -234,6 +234,8 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
     ; INTERFACE NOTES
     ;   INPUT
     ;   status  :   true/false
+    ;   userid  :   id of user
+    ;   username:   name of user
     ; 
     ; IMPLEMENTATION
     ;  set the recording status
@@ -277,10 +279,11 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
     ; DESCRIPTION
     ;   this routine is used to create a unique file name
     ;
-    ; RETURNS : N/A
+    ; RETURNS : true/false
     ;
     ; INTERFACE NOTES
-    ;   N/A
+    ;   INPUT
+    ;   userid : id of user
     ; 
     ; IMPLEMENTATION
     ;  initialize new file in gDir
@@ -288,7 +291,7 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
     ;
     ; HISTORY
     ; __date__ :        PTS:            Description
-    ; 
+    ; 12-27-2010
     ******************************************************************************/
     private boolean createUniqueFile(String userid){
     
@@ -324,17 +327,17 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
     ;  createHistoryFile
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
-    ; this routine is used to write the xml file doc to xml file name
+    ; this routine is used to create a text file
     ;
-    ; RETURNS : N/A
+    ; RETURNS : true/false
     ;
     ; INTERFACE NOTES
-    ;   N/A
+    ;   INPUT
+    ;   userid  :   id of user
     ; 
     ; IMPLEMENTATION
     ;  create a unique file name
-    ;  create xml element 
-    ;  save to file
+    ;  
     ;
     ; HISTORY
     ; __date__ :        PTS:            Description
@@ -350,31 +353,32 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
     ;  addChatHistory
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
-    ; this routine is used to write the message to xml content
+    ; this routine is used to write the message to text file
     ;
     ; RETURNS : N/A
     ;
     ; INTERFACE NOTES
     ;   INPUT
-    ;   lMessage : String
+    ;   message : String
+    ;   fileName:   name of file
     ; 
     ; IMPLEMENTATION
-    ;  write lMessage to xml content and save content to file
+    ;  write message to fileName 
     ;
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 12-27-2010 
     ******************************************************************************/
-    public boolean addChatHistory(String message,String fileName){
+    public void addChatHistory(String message,String fileName){
         
         if ( null == message ){
             log.debug("error input parameter");
-            return false ;
+            return  ;
         }
                 
         File file = new File(curDir,fileName);
         if ( null == file ){
-            return false ;
+            return ;
         }
         
         String name = objUser.getUserName(message) ;
@@ -383,14 +387,14 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
         
         try{
             BufferedWriter out = new BufferedWriter(new FileWriter(file, true));
+            if ( null == out ){
+                return ;
+            }
             out.write("[" + name + "]" + " : " + time + " : " + msg + "\n" ) ;
-            log.debug("Append Message to {} ",file);
-            log.debug("Message to {} ",name + " : " + time + " : " + msg + "\n" );
             out.close();
         }catch(IOException e){
             log.debug("error {}",e.getMessage());
         }
-        return true ;
     }/** END FUNCTION 'addChatHistory' **/
 
 }/** END CLASS 'ChatMessageRecorder' **/

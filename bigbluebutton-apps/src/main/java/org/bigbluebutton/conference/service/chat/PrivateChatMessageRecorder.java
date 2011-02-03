@@ -89,6 +89,7 @@ private static Logger log = Red5LoggerFactory.getLogger( PrivateChatMessageRecor
     ;   userid : String , id of user
     ; 
     ; IMPLEMENTATION
+    ;   create the folder to store the file
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 01-16-2011
@@ -110,7 +111,7 @@ private static Logger log = Red5LoggerFactory.getLogger( PrivateChatMessageRecor
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
     ;   this routine is used to create file
-    ; RETURNS : N/A
+    ; RETURNS : true/false
     ;
     ; INTERFACE NOTES
     ;   INPUT
@@ -118,7 +119,7 @@ private static Logger log = Red5LoggerFactory.getLogger( PrivateChatMessageRecor
     ;   fileName    :   file name
     ; 
     ; IMPLEMENTATION
-    ;  
+    ;  create a text file
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 01-16-2011
@@ -142,7 +143,7 @@ private static Logger log = Red5LoggerFactory.getLogger( PrivateChatMessageRecor
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
     ;   this routine is used to check whether file exists
-    ; RETURNS : N/A
+    ; RETURNS : true/false
     ;
     ; INTERFACE NOTES
     ;   INPUT
@@ -150,7 +151,7 @@ private static Logger log = Red5LoggerFactory.getLogger( PrivateChatMessageRecor
     ;   fileName    :   file name
     ; 
     ; IMPLEMENTATION
-    ;  
+    ;  check file exist or not
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 01-16-2011
@@ -170,7 +171,7 @@ private static Logger log = Red5LoggerFactory.getLogger( PrivateChatMessageRecor
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
     ;   this routine is used to add user to the list
-    ; RETURNS : N/A
+    ; RETURNS : true/false
     ;
     ; INTERFACE NOTES
     ;   INPUT
@@ -179,7 +180,7 @@ private static Logger log = Red5LoggerFactory.getLogger( PrivateChatMessageRecor
     ;   record      :   record status
     ; 
     ; IMPLEMENTATION
-    ;  
+    ;  add user to a list object
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 01-16-2011
@@ -206,14 +207,14 @@ private static Logger log = Red5LoggerFactory.getLogger( PrivateChatMessageRecor
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
     ;   this routine is used to get user from the list
-    ; RETURNS : N/A
+    ; RETURNS : UserMessageRecorder
     ;
     ; INTERFACE NOTES
     ;   INPUT
     ;   userid      :   id of user
     ; 
     ; IMPLEMENTATION
-    ;  
+    ;  get user object from list
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 01-16-2011
@@ -240,7 +241,7 @@ private static Logger log = Red5LoggerFactory.getLogger( PrivateChatMessageRecor
     ;   record      :   record status
     ; 
     ; IMPLEMENTATION
-    ;  
+    ;  set record status to user in a list
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 01-16-2011
@@ -259,14 +260,14 @@ private static Logger log = Red5LoggerFactory.getLogger( PrivateChatMessageRecor
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
     ;   this routine is used to get record status to user
-    ; RETURNS : N/A
+    ; RETURNS : true/false
     ;
     ; INTERFACE NOTES
     ;   INPUT
     ;   userid      :   id of user
     ; 
     ; IMPLEMENTATION
-    ;  
+    ;  get record status from user in a list
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 01-16-2011
@@ -292,15 +293,14 @@ private static Logger log = Red5LoggerFactory.getLogger( PrivateChatMessageRecor
     ;   userid      :   id of user
     ; 
     ; IMPLEMENTATION
-    ;  
+    ;  remove user from a list
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 01-16-2011
     ******************************************************************************/
-    public boolean removeUserFromList(String userid){
+    public void removeUserFromList(String userid){
         
         objUser.removeUserFromList(userid) ;
-        return true ;
         
     }/** END FUNCTION 'removeUserFromList' **/
     
@@ -315,7 +315,9 @@ private static Logger log = Red5LoggerFactory.getLogger( PrivateChatMessageRecor
     ;
     ; INTERFACE NOTES
     ;   INPUT
-    ;   lMessage : String
+    ;   message : new message
+    ;   userid  :   id of user
+    ;   toUser  :   to user id
     ; 
     ; IMPLEMENTATION
     ;  write lMessage to xml content and save content to file
@@ -324,7 +326,7 @@ private static Logger log = Red5LoggerFactory.getLogger( PrivateChatMessageRecor
     ; __date__ :        PTS:            Description
     ; 12-27-2011 
     ******************************************************************************/
-    public boolean addChatHistory(String userid, String toUser,  String message){
+    public void addChatHistory(String userid, String toUser,  String message){
    
         String name = objUser.getUserName(message) ;
         String msg  = objUser.getMessage(message)  ;
@@ -345,17 +347,16 @@ private static Logger log = Red5LoggerFactory.getLogger( PrivateChatMessageRecor
             curHistoryFile = new File(this.curDir + "/" + userid , fileName) ;
             try{
                 BufferedWriter out = new BufferedWriter(new FileWriter(curHistoryFile, true));
+                if ( null == out ){
+                    return ;
+                }
                 out.write("[" + name + "]" + " : " + time + " : " + msg + "\n" ) ;
-                log.debug("Append Message to {} ",curHistoryFile);
-                log.debug("Message to {} ",name + " : " + time + " : " + msg + "\n" );
                 out.close();
             }catch(IOException e){
                 log.debug("error {}",e.getMessage());
             }
         }
         
-        
-        return true ;
     }/** END FUNCTION 'addChatHistory' **/
     
     

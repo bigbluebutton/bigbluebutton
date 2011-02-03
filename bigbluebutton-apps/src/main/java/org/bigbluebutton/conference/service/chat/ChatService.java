@@ -173,7 +173,7 @@ public class ChatService
     ;   message :   message
     ; 
     ; IMPLEMENTATION
-    ;  
+    ;  add new chat message to text file
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 16-01-2011
@@ -197,11 +197,11 @@ public class ChatService
     ;
     ; INTERFACE NOTES
     ;   INPUT
-    ;   toUser `: to user
+    ;   toUser  : to user
     ;   record  : status record
     ; 
     ; IMPLEMENTATION
-    ;  
+    ;  set record status of private user to user object
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 16-01-2011
@@ -230,7 +230,7 @@ public class ChatService
     ;   record  : status record
     ; 
     ; IMPLEMENTATION
-    ;  
+    ;  add user to a list
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 16-01-2011
@@ -256,7 +256,7 @@ public class ChatService
     ;   userid  : id of user
     ; 
     ; IMPLEMENTATION
-    ;  
+    ;  remove user from a list
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 16-01-2011
@@ -274,14 +274,14 @@ public class ChatService
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
     ;   this routine is used to get private file list
-    ; RETURNS : N/A
+    ; RETURNS : List
     ;
     ; INTERFACE NOTES
     ;   INPUT
     ;   userid  : id of user
     ; 
     ; IMPLEMENTATION
-    ;  
+    ;  get recorded file list of private user
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 16-01-2011
@@ -303,7 +303,7 @@ public class ChatService
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
     ;   this routine is used to get private file content
-    ; RETURNS : N/A
+    ; RETURNS : List
     ;
     ; INTERFACE NOTES
     ;   INPUT
@@ -311,7 +311,7 @@ public class ChatService
     ;   fileName : file name
     ; 
     ; IMPLEMENTATION
-    ;  
+    ;  get recorded file content of private user
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 16-01-2011
@@ -340,7 +340,7 @@ public class ChatService
     ;   INPUT
     ; 
     ; IMPLEMENTATION
-    ;  
+    ;  initialize priRecorder
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 16-01-2011
