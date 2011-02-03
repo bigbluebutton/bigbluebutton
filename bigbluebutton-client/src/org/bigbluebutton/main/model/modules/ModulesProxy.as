@@ -107,12 +107,18 @@ package org.bigbluebutton.main.model.modules
 			}
 			else if(params.command == "start") /* Start CHAT or PRESENATION module */
 			{
-				modulesManager.startModule(params.module);
+				if (params.module == "All")
+					modulesManager.startAllModules();
+				else
+					modulesManager.startModule(params.module);
 			}
 			else if(params.command == "stop")/* Stop CHAT or PRESENATION module */
-
 			{
-				modulesManager.stopModule(params.module);
+				if (params.module == "All")
+					//modulesManager.stopAllModules();
+					modulesManager.stopNotRequiredModules();
+				else
+					modulesManager.stopModule(params.module);
 			}			
 		}
 	}

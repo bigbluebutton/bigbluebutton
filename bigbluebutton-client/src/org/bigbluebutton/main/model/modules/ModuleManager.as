@@ -153,7 +153,10 @@ package org.bigbluebutton.main.model.modules
 			if (allModulesLoaded())
 			{
 				sendAppAndLocaleVersions();
-				startAllModules();
+				if (conferenceParameters.conferenceName == "Demo Meeting")
+					startAllModules();
+				else
+					startRequiredModules();
 				modulesDispatcher.sendAllModulesLoadedEvent();	
 			}
 		}
@@ -195,16 +198,9 @@ package org.bigbluebutton.main.model.modules
 			}
 		}
 		
-		public function startAllModules():void
+		public function startRequiredModules():void
 		{
-		
-		/*
-		* Start the modules the loaded modules 
-		* that are stored conferenceParameters
-		* NOTE: will need to make chnages to inclide a choice of 		* starting ALL modules or Start modules called by the API 
-		*/	
-
-		var modules:String = conferenceParameters.loadedModules;
+			var modules:String = conferenceParameters.loadedModules;
 			
 			for (var i:int = 0; i<sorted.length; i++)
 			{
@@ -221,11 +217,42 @@ package org.bigbluebutton.main.model.modules
 			}
 		}
 		
-		public function handleLogout():void {
-			for (var i:int = 0; i <sorted.length; i++) {				
+		public function startAllModules():void
+		{
+			for (var i:int = 0; i<sorted.length; i++)
+			{
+				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
+				startModule(m.getName());
+			}
+		}
+		
+		public function stopNotRequiredModules():void
+		{
+			var modules:String = conferenceParameters.loadedModules;
+			
+			for (var i:int = 0; i<sorted.length; i++){
+				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
+				var name:String = m.getName();
+				
+				//Check for the modules not required to stop
+				if(modules.length > 0 && modules.indexOf(name) < 0)
+				{
+					LogUtil.debug('No Need to start module ' + name);
+					stopModule(name);
+				}
+			}
+		}
+		
+		public function stopAllModules():void
+		{
+			for (var i:int = 0; i<sorted.length; i++){
 				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
 				stopModule(m.getName());
 			}
+		}
+		
+		public function handleLogout():void {
+			stopAllModules();
 		}
 		
 		private function allModulesLoaded():Boolean{
