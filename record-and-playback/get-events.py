@@ -33,13 +33,6 @@ def MODULE(*args):
 def EVENTNAME(*args): 
     return {"name":' '.join(args)}
 
-def KEYVALS(res):
-    result = ""
-    for key, value in res.items():
-        result += "<" + key + ">" + value + "</" + key + ">"
-        
-    return result
-
 def generate_events_xml(redisHost, redisPort, meetingId, archiveDir):
     r = redis.Redis(host=redisHost, port=redisPort, db=0)
 
@@ -72,7 +65,7 @@ def generate_events_xml(redisHost, redisPort, meetingId, archiveDir):
             
         page.append(ev)
                     
-    print(etree.tostring(page, pretty_print=True))
+#    print(etree.tostring(page, pretty_print=True))
 
     targetFile = archiveDir + "/" + meetingId + "/events.xml"
     f = open(targetFile, 'w')

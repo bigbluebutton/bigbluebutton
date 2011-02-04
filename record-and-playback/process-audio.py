@@ -183,8 +183,9 @@ def main():
     concat_cmd = 'sox '
     for ar in audio_filenames:
         concat_cmd += " " + ar
-        
-    concat_cmd += " recording.wav"
+    
+    outputWavFile = meetingArchiveDir + "/recording.wav"
+    concat_cmd += " " + outputWavFile
     logging.info("Creating recorded audio file")
     proc = subprocess.Popen(concat_cmd, shell=True)
     # Wait for the process to finish before removing the temp file
@@ -192,13 +193,12 @@ def main():
 
     ogg_file = meetingArchiveDir + '/recording.ogg'
     logging.info("Convert wav file to ogg")
-    proc = subprocess.Popen('oggenc -a "Budka Suflera" -l "Za Ostatni Grosz" -N 1 -t "Za Ostatni Grosz" -d "1981-05-01" -c "composer=Romuald Lipko, Marek Dutkiewicz" -o ' + ogg_file + " recording.wav",
-        shell=True)
+    proc = subprocess.Popen('oggenc -a "Budka Suflera" -l "Za Ostatni Grosz" -N 1 -t "Za Ostatni Grosz" -d "1981-05-01" -c "composer=Romuald Lipko, Marek Dutkiewicz" -o ' 
+            + ogg_file + " " + outputWavFile, shell=True)
     proc.wait()    
         
     proc = subprocess.Popen('sox recording.wav -n stat', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     print proc.stdout.read()
-    print proc.stderr.read()
     
 if __name__ == "__main__":
     main()
