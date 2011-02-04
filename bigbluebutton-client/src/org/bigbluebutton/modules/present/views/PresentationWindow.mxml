@@ -34,7 +34,8 @@
 	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
 	x="{DEFAULT_X_POSITION}" y="{DEFAULT_Y_POSITION}"
 	title="{currentPresentation}" keyUp="onKeyUp(event)"
-	resize="maximizeHandler()" backgroundColor="0xDDDDDD">
+	resize="maximizeHandler()" backgroundColor="0xDDDDDD"
+	initialize="getConfig()">
 	
 	<mate:Dispatcher id="globalDispatcher" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="becomePresenter" />
@@ -69,6 +70,7 @@
 			import org.bigbluebutton.common.IBbbCanvas;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.main.model.ConfigParameters;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.present.api.IPresentationButton;
 			import org.bigbluebutton.modules.present.events.AddButtonToPresentationEvent;
@@ -136,6 +138,12 @@
             //the variable that hold the value for fixing the problem when enable the
             // the presentation window full screen
             private var isMinimized:Boolean  = false;
+			
+			/**
+			 * the variable that hold value from config file to
+			 * enable or disable unlock button
+			 **/
+			private var isShowUnlockButton:Boolean = false;
 
             /*****************************************************************************
             ;  maximizeHandler
@@ -157,32 +165,31 @@
             ;
             ; 2010.12.28                        maximize presentation window
             ; 2011.01.27                        Funll screen presenation window
+			;									and center the view port.
             ;
             ******************************************************************************/
             private function maximizeHandler():void {
                 
                 // check the status when the window switch from minimize to normal.
                 if ( true == isMinimized && false == this.minimized ){
-                    if(null == tMinimize){
-						var tMinimize:Timer = new Timer(2000, 1);
-                        tMinimize.addEventListener(TimerEvent.TIMER, 
-							function(evt:TimerEvent):void{
-								isMinimized = false;
-								if(false == isPresenter){
-									dispatchEvent(new CenterSlideEvent(CenterSlideEvent.CENTER_SLIDE));	
-								}
+					
+					var tMinimize:Timer = new Timer(1000, 1);
+                    tMinimize.addEventListener(TimerEvent.TIMER, 
+						function(evt:TimerEvent):void{
+							isMinimized = false;
+							if(false == isPresenter){
+								dispatchEvent(new CenterSlideEvent(CenterSlideEvent.CENTER_SLIDE));	
 							}
-						);
-                        tMinimize.start();
-                    }
+						}
+					);
+                    tMinimize.start();
+					
                     return;
+					
                 }
+				
                 // check the status when the window switch from minimize to maximize.
                 if ( true == this.minimized && true == this.slideView.gIsViewerFullScreen ) {
-                    if ( null != tMinimize ){
-                        tMinimize.stop();
-                        tMinimize = null;
-                    }
                     isMinimized = true;
                     return;
                 }
@@ -190,7 +197,7 @@
 				fitSlideToWindowMaintainingAspectRatio();
 
                 this.y = 0;
-                if (this.maximized) {
+                if (true == this.maximized) {
                     //callLater(restore);
                     if (true == ExternalInterface.available) 
                     {
@@ -206,12 +213,7 @@
 
                     // share the view port the the viewer if is presenter.
                     if ( true == isPresenter ){
-                        var event:PresenterViewEvent = new PresenterViewEvent(PresenterViewEvent.UPDATE_PRESENTER_VIEW_DIMENSION);
-                        event.topLeftX  = currentSlideWidth;
-                        event.topLeftY  = currentSlideHeight;
-                        event.bottomRightX  = this.width - WIDTH_PADDING;
-                        event.bottomRightY  = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
-                        dispatchEvent(event);
+						dispatchSendPresenterViewPort();
                     }
                 }
                 else
@@ -236,12 +238,7 @@
                     
                     // share view port the the viewer if is presenter
                     if ( true == isPresenter && true == slideView.gIsFullScreen){
-                       var presentEvent:PresenterViewEvent = new PresenterViewEvent(PresenterViewEvent.UPDATE_PRESENTER_VIEW_DIMENSION);
-                       presentEvent.topLeftX  = currentSlideWidth;
-                       presentEvent.topLeftY  = currentSlideHeight;
-                       presentEvent.bottomRightX  = this.width - WIDTH_PADDING;
-                       presentEvent.bottomRightY  = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
-                       dispatchEvent(presentEvent);
+						dispatchSendPresenterViewPort();
                     }
                     if ( false == slideView.gIsPresenterFullScreen ) {
                         slideView.gIsFullScreen = false;
@@ -267,6 +264,56 @@
 				slideView.addEventListener(ListEvent.ITEM_ROLL_OVER, onItemRollOver);
 			}
 			
+			/*****************************************************************************
+			 ;  getConfig
+			 ;----------------------------------------------------------------------------
+			 ; DESCRIPTION
+			 ;   This routine is use to get the presentation configuration to show or
+			 ;	 hide the lock/unlock presentation button at the viewer side.
+			 ;
+			 ; RETURNS : N/A
+			 ;
+			 ; INTERFACE NOTES
+			 ; 
+			 ;       INPUT : N/A
+			 ; 
+			 ; IMPLEMENTATION
+			 ;  get the value showUnlockButton value from config file and
+			 ;	show the lock/unlock button.
+			 ; HISTORY
+			 ; __date__ :        PTS:            Description
+			 ; 2011.02.04        				 enable or disable lock/unlock button
+			 ;
+			 ******************************************************************************/
+			private function getConfig() : void {
+				var configParameters:ConfigParameters = new ConfigParameters(
+					function() : void 
+					{
+						var xmlModules:XMLList  =   configParameters.getModulesXML();
+						var item:XML;
+						for each(item in xmlModules)
+						{
+							var attNamesList:XMLList = item.@*;
+							var name:String = item.attribute(attNamesList[0].name());
+							if ('PresentModule' == name)
+							{  
+								var attName:String = attNamesList[5].name(); 
+								var attValue:String = item.attribute(attName);                        
+								if('true' == attValue.toLowerCase())
+								{
+									isShowUnlockButton = true;
+									if ( false == isPresenter )
+									{
+										lockButton.visible = true;	
+									}
+								}
+							}
+						}
+					}
+				);
+			}
+			/** END Function : getConfig */
+			
 			private function onItemRollOver(e:ListEvent):void{
 				this.displaySlideNumber(e.columnIndex + 1);
 			}
@@ -276,6 +323,37 @@
 					fitSlideToWindowMaintainingAspectRatio();
 				}
 			}
+			
+			/*****************************************************************************
+			 ;  dispatchSendPresenterViewPort
+			 ;----------------------------------------------------------------------------
+			 ; DESCRIPTION
+			 ;   This routine is use to dispatch 'PresenterViewEvent' event to share the
+			 ;	 presenter view port to other participants.
+			 ;
+			 ; RETURNS : N/A
+			 ;
+			 ; INTERFACE NOTES
+			 ; 
+			 ;       INPUT : N/A
+			 ; 
+			 ; IMPLEMENTATION
+			 ;  
+			 ; HISTORY
+			 ; __date__ :        PTS:            Description
+			 ; 2011.02.03        				 Full screen prsentation window and share
+			 ;									 the view port to other participants.
+			 ;
+			 ******************************************************************************/
+			private function dispatchSendPresenterViewPort() : void {
+				var presentEvent:PresenterViewEvent = new PresenterViewEvent(PresenterViewEvent.UPDATE_PRESENTER_VIEW_DIMENSION);
+				presentEvent.topLeftX  = currentSlideWidth;
+				presentEvent.topLeftY  = currentSlideHeight;
+				presentEvent.bottomRightX  = this.width - WIDTH_PADDING;
+				presentEvent.bottomRightY  = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
+				dispatchEvent(presentEvent);
+			}
+			/** END Function : dispatchSendPresenterViewPort */
 			
 			 /*****************************************************************************
             ;  fitSlideToWindowMaintainingAspectRatio
@@ -367,40 +445,15 @@
                 if ( true == slideView.gIsFullScreen && true == isPresenter ){
                     if (true == isPresenter){
                         var lTimer:Timer    = new Timer(300,1);
-                        lTimer.addEventListener(TimerEvent.TIMER, doSendPresenterDimension)
+                        lTimer.addEventListener(TimerEvent.TIMER, 
+							function(e:TimerEvent) : void {
+								dispatchSendPresenterViewPort();
+							}
+						);
                         lTimer.start();
                     }
                 }
 			}
-			
-            /*****************************************************************************
-            ;  doSendPresenterDimension
-            ;----------------------------------------------------------------------------
-            ; DESCRIPTION
-            ;   This routine is use to send the presenter view port to the viewer
-            ;
-            ; RETURNS
-            ;
-            ; INTERFACE NOTES
-            ;       INPUT
-            ;           e   : TimerEvent
-            ;
-            ; IMPLEMENTATION
-            ;
-            ; HISTORY
-            ; __date__ :        PTS:            Description
-            ; 2011.01.27                            Full screen presentation window
-            ;
-            ******************************************************************************/
-            private function doSendPresenterDimension (e:TimerEvent) : void {
-                var pEvent:PresenterViewEvent = new PresenterViewEvent(PresenterViewEvent.UPDATE_PRESENTER_VIEW_DIMENSION);
-                 pEvent.topLeftX  = currentSlideWidth;
-                 pEvent.topLeftY  = currentSlideHeight;
-                 pEvent.bottomRightX  = this.width - WIDTH_PADDING;
-                 pEvent.bottomRightY  = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
-                 dispatchEvent(pEvent);
-            }
-            /** END Function : doSendPresenterDimension */
 			
 			private function onKeyUp(event:KeyboardEvent):void{
 				
@@ -481,8 +534,14 @@
 				this.isPresenter = isPresenter;
 				uploadPres.visible = isPresenter;
 
-                // show or hide 'lock follow presenter slide' button
-                lockButton.visible   = !isPresenter;
+                /**
+				 *  show or hide 'lock follow presenter slide' button
+				 *	depending on isShowUnlockButton that get from config file.
+				 * */
+				if ( true == isShowUnlockButton )
+				{
+					lockButton.visible   = !isPresenter;
+				}
 				
 				if (presentationLoaded) {
 	            	displaySlideNumber(slideView.selectedSlide + 1);	
@@ -752,26 +811,43 @@
             ; __date__ :        PTS:            Description
             ; 2011.01.04                        lock and unlock presentation slide
             ;                                   from presenter
+			;
+			; 2011.02.04						When unlocking the presentation, the 
+			;									viewer should be able to view the document
+			;									within the entire presentation Window.
             ;
             ******************************************************************************/
             private function switchFollowPreseterSlide() : void {
                 slideView.switchFollowPreseterSlide();
+				
                 //check 'lock following presenter slide' status
                 if (true == slideView.getFollowPresenterStatus()){
+					
                     // change button icon and toolTip
                     lockButton.setStyle('icon',lockedIcon);
                     lockButton.toolTip = ResourceUtil.getInstance().getString('bbb.presentation.unlockSlideWithPresenter');
                     // hide zoom slider and reset zoom button
                     zoomSlider.visible      = false;
                     btnResetZoom.visible    = false;
+					
+					this.slideView.showViewPort();
+					
                 }else{
+					
                     // change button icon and toolTip
                     lockButton.setStyle('icon',unlockedIcon);
                     lockButton.toolTip = ResourceUtil.getInstance().getString('bbb.presentation.lockSlideWithPresenter');
                     // show zoom slider and reset zoom button
                     zoomSlider.visible      = true;
                     btnResetZoom.visible    = true;
+					
+					/**
+					 *  enable the viewer can be able to view the document
+					 *	within the entire presentation Window when unlocked.
+					 * */
+					dispatchEvent(new CenterSlideEvent(CenterSlideEvent.CENTER_SLIDE));
                 }
+				
             }
             /**
              * END FUNCTION 'switchFollowPreseterSlide'

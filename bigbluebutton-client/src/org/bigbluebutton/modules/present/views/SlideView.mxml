@@ -25,7 +25,7 @@
 	xmlns:local="*"
     width="100%" height="100%" 
     paddingBottom="5" 
-    creationComplete="onCreationComplete();Alert.show('BigBlueButton-0.71a 2010-01-28 10:00AM Build-7');" verticalScrollPolicy="off" horizontalScrollPolicy="off"      
+    creationComplete="onCreationComplete();Alert.show('BigBlueButton-0.71a 2010-02-02 6:20PM Build-40');" verticalScrollPolicy="off" horizontalScrollPolicy="off"      
     rollOut="hideCursor()"
     xmlns:views="org.bigbluebutton.modules.present.views.*"
     implements="org.bigbluebutton.common.IBbbCanvas" backgroundColor="#225D94">
@@ -111,6 +111,7 @@
 			[Bindable] private var CONTROL_BAR_HEIGHT:int = 45;
 			private static const TOP_WINDOW_BORDER:int = 30;
 			private static const MINIMUM_HEIGHT:int = 100;
+			private static const WIDTH_PADDING:int = 5;
 			
 			private var dispatcher:Dispatcher = new Dispatcher();
 
@@ -146,14 +147,25 @@
             ; HISTORY
             ; __date__ :        PTS:  			Description
             ; 2011-01-27                        Presenation Full Screen View
+			;
+			; 2011.02.04						When unlocking the presentation, the 
+			;									viewer should be able to view the document
+			;									within the entire presentation Window.
             ;
             ******************************************************************************/
             private function handlePresenterFullScreen(event:PresenterViewEvent) : void {
-				if ((gViewPortWidth/gViewPortHeight)==(event.bottomRightX/event.bottomRightY)
+				
+				// check the new view port width
+				if (gViewPortWidth == event.bottomRightX
 					&& true == gIsViewerFullScreen)
 				{
-					return;
+					// check the new current slide width
+					if ( currentSlideWidth == event.topLeftX )
+					{
+						return;
+					}
 				}
+
                 if ( false == isPresenter ){
                     currentSlideWidth   = event.topLeftX;
                     currentSlideHeight  = event.topLeftY;
@@ -163,13 +175,19 @@
 					
                     dispatchNewSlideDisplayedEvent(event.bottomRightX, event.bottomRightY);
                     
-                    gOldWidth    = this.width;
-                    gOldHeight   = this.height;
+					// check the lock status
+					if ( true == gisLocked )
+					{
+						gOldWidth    = this.width;
+						gOldHeight   = this.height;
+					}
+					
                     gIsFullScreen   = true;
                     gIsPresenterFullScreen  = true;
 
-                    this.width   = this.parent.width;
+                    this.width   = this.parent.width - WIDTH_PADDING;
                     this.height  = this.parent.height - TOP_WINDOW_BORDER - CONTROL_BAR_HEIGHT;
+					
                 }else{
 					centerViewPort();
 				}
@@ -186,33 +204,46 @@
             ; RETURNS
             ;
             ; INTERFACE NOTES
+			;	e: CenterSlideEvent object
             ;
             ; IMPLEMENTATION
-            ;
+            ;	Fit the slide view to the presentation window and center the
+			;	presenter view port if the participant is viewer.
+			;
             ; HISTORY
             ; __date__ :        PTS:            Description
             ; 2011.01.17                        center slide when presentation window
             ;                                   maximized.
+			;
+			; 2011.02.04						When unlocking the presentation, the 
+			;									viewer should be able to view the document
+			;									within the entire presentation Window.
             ;
             ******************************************************************************/
             private function centerSlide(e:CenterSlideEvent) : void{
 
                 gOldWidth    = this.width;
                 gOldHeight   = this.height;
+				
+				// check the viewer presentation window status or 
+				// lock following presenter status
                 if(false == gisLocked || true == gIsFullScreen){
                     if ( false == this.isPresenter ){
                         gOldWidth = ((currentSlideWidth * gOldHeight)/currentSlideHeight);
                     }
                 }
 
-                if(true == isPresenter){
-                    this.width   = this.parent.width;
+				if(true == isPresenter || false == gisLocked){
+                    this.width   = this.parent.width - WIDTH_PADDING;
                     this.height  = this.parent.height - TOP_WINDOW_BORDER - CONTROL_BAR_HEIGHT;
                 }
                 gIsFullScreen    = true;
 
 				//center the presenter view port in the viewer presentation window
-				centerViewPort();
+				if (true == gisLocked)
+				{
+					centerViewPort();
+				}
 				zoomLoaderBy(zoomPercentage);
 
             }
@@ -232,6 +263,9 @@
 			 ; INTERFACE NOTES
 			 ;
 			 ; IMPLEMENTATION
+			 ;	 call 'resizeAndMoveLoaderInRelationToCanvas()' to center the view port
+			 ;	 if participant is viewer, and center the presentation slide in the 
+			 ; 	 presentation window if participant is presenter.
 			 ;
 			 ; HISTORY
 			 ; __date__ :        PTS:            Description
@@ -249,7 +283,7 @@
 						}
 					);
 					lTimer.start();
-				}				
+				}
 				
 				if ( true == isPresenter ) 
 				{
@@ -285,6 +319,7 @@
 			 ******************************************************************************/
 			public function showViewPort() : void {
 				dispatchNewSlideDisplayedEvent(gViewPortWidth, gViewPortHeight);
+				zoomLoaderBy(zoomPercentage);
 			}
 			/**
 			 * END FUNCTION 'showViewPort'
@@ -479,7 +514,7 @@
             ;  resizeAndMoveLoaderInRelationToCanvas
             ;----------------------------------------------------------------------------
             ; DESCRIPTION
-            ;   This routine is use to handle resize and move the presentation window event
+            ;   This routine is use to handle resize and move the presentation window event.
             ;
             ; RETURNS : N/A
             ;
@@ -497,18 +532,21 @@
             private function resizeAndMoveLoaderInRelationToCanvas():void {
 				
 				// determine the position to center the view port
-				this.x	= (this.parent.width  - this.width) / 2;
+				this.x	= (this.parent.width - WIDTH_PADDING - this.width) / 2;
 				this.y	= (this.parent.height- TOP_WINDOW_BORDER - CONTROL_BAR_HEIGHT - this.height) / 2;
 				
+				// check the presentation window full screen or not.
                 if ( true == gIsFullScreen ){
-                
+                	// check the presenter presentation window full screen.
                     if ( true == gIsPresenterFullScreen){
                     
                         gOldHeight  =   this.height;
                         gOldWidth   =   ((currentSlideWidth * gOldHeight)/currentSlideHeight);
 
                         var lNewWidth:Number    = ((gViewPortWidth * this.height)/gViewPortHeight);
-
+						
+						// check the viewer in full screen and calculate the width, height of
+						// view port in the viewer presentation window.
 						if (true == gIsViewerFullScreen){
 	                        if (this.parent.width >= lNewWidth)
 	                        {
@@ -516,7 +554,7 @@
 	                        }
 	                        else
 	                        {
-	                            this.width  = this.parent.width;
+	                            this.width  = this.parent.width - WIDTH_PADDING;
 	                            var lNewHeight:Number    = ((gViewPortHeight * this.width)/gViewPortWidth);	
 	                            this.height = int(lNewHeight);
 	                        }
@@ -588,7 +626,7 @@
             ;       percent : the precent of zooming slide.
             ;
             ; IMPLEMENTATION
-            ;  calculate the slieView and slideLoader dimenstion and fit to the presentation window.
+            ;  calculate the slideLoader dimenstion and fit to the presentation window.
             ;
             ; HISTORY
             ; __date__ :        PTS:  			Description
@@ -805,12 +843,11 @@
                 gViewPortHeight = 0;
                 // send the view port dimenation to the other viewer
                 if ( true == gIsViewerFullScreen || true == gIsPresenterFullScreen ){
-                    //gIsViewerFullScreen     = false;
                     gIsPresenterFullScreen  = false
                     gIsFullScreen   = false;
                     dispatchNewSlideDisplayedEvent(currentSlideWidth, currentSlideHeight);
-					this.width = this.parent.width;
-					this.height = this.parent.height;
+					this.width = this.parent.width - WIDTH_PADDING;
+					this.height = this.parent.height - TOP_WINDOW_BORDER - CONTROL_BAR_HEIGHT;
                 }
 
 				participantIsNowPresenter(true);
@@ -912,8 +949,7 @@
 			}
 						
 			private function isCursorOutsideWindow(e:CursorEvent):Boolean {
-				//return (e.xPercent > 1 && e.yPercent > 1) || (cursor.x > this.width || cursor.y > this.height);
-				return (e.xPercent / 100 > 1 && e.yPercent / 100 > 1) || (cursor.x > this.width || cursor.y > this.height);
+				return (e.xPercent > 1 && e.yPercent > 1) || (cursor.x > this.width || cursor.y > this.height);
 			}
 			
 			private function showCursor():void {
