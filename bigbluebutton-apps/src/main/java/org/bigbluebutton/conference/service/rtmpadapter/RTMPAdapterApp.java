@@ -19,7 +19,7 @@
 * 
 * ===License Header===
 */
-package org.bigbluebutton.conference.service.whiteboard;
+package org.bigbluebutton.conference.service.rtmpadapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ import redis.clients.jedis.Jedis;
 
 public class RTMPAdapterApp extends MultiThreadedApplicationAdapter implements IApplication {
 	
-	private static Logger log = Red5LoggerFactory.getLogger(WhiteboardApplication.class, "bigbluebutton");
+	private static Logger log = Red5LoggerFactory.getLogger(RTMPAdapterApp.class, "bigbluebutton");
 	private static final String APP = "RTMPAdapter";
 	private Jedis jedis;	
 
