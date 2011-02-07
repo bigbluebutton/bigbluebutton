@@ -37,5 +37,9 @@ public class RTMPAdapterService {
 		log.debug("Setting RTMPAdapter application instance");
 		this.application = a;
 	}
+
+	public void publish(String appName, String method, String data){
+		application.publish(appName, method, data);
+	}
 	
 }

@@ -21,9 +21,6 @@
 */
 package org.bigbluebutton.conference.service.rtmpadapter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.red5.compatibility.flex.messaging.io.ArrayCollection;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.IApplication;
@@ -35,84 +32,36 @@ import org.red5.server.api.Red5;
 import org.red5.server.api.so.ISharedObject;
 import org.slf4j.Logger;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPubSub;
 
-public class RTMPAdapterApp extends MultiThreadedApplicationAdapter implements IApplication {
+public class PubSubListener extends JedisPubSub {
 	
 	private static Logger log = Red5LoggerFactory.getLogger(RTMPAdapterApp.class, "bigbluebutton");
 	private static final String APP = "RTMPAdapter";
-
+	private Jedis jedis;	
 	private ChannelManager channelManager;
 
-	@Override
-	public boolean appStart(IScope app){
-		log.info("Starting RTMPAdapterApp");
-		this.scope = app;
-		channelManager = new ChannelManager(this);
-		return true;
-	}
-	
-	@Override
-	public void appStop(IScope scope){
-	}
-	
-	public void publish(String appName, String method, String data){
-		String clientScope = getLocalScope().getName();
-		channelManager.sendData(appName, clientScope, method, data);
+	public PubSubListener(ChannelManager channelManager){
+		this.channelManager = channelManager;
 	}
 
-	public void message(String channel, String message){
-		log.info("got message from redis on channel: " + channel + " - " + message);
+        public void onMessage(String channel, String message) {
+		channelManager.receivedMessage(channel, message);
 	}
 
-	@Override
-	public boolean appConnect(IConnection conn, Object[] params) {
-		return true;
-	}
+        public void onSubscribe(String channel, int subscribedChannels) {
+        }
 
-	@Override
-	public void appDisconnect(IConnection conn) {
-	}
+        public void onUnsubscribe(String channel, int subscribedChannels) {
+        }
 
-	@Override
-	public boolean appJoin(IClient client, IScope scope) {
-		return true;
-	}
+        public void onPSubscribe(String pattern, int subscribedChannels) {
+        }
 
-	@Override
-	public void appLeave(IClient client, IScope scope) {
+        public void onPUnsubscribe(String pattern, int subscribedChannels) {
+        }
 
-	}
-
-	@Override
-	public boolean roomConnect(IConnection connection, Object[] params) {
-    	return true;
-	}
-
-	@Override
-	public void roomDisconnect(IConnection connection) {
-
-	}
-
-	@Override
-	public boolean roomJoin(IClient client, IScope scope) {
-		return true;
-	}
-
-	@Override
-	public void roomLeave(IClient client, IScope scope) {
-	}
-
-	@Override
-	public boolean roomStart(IScope scope) {
-    		return true;
-	}
-
-	@Override
-	public void roomStop(IScope scope) {
-	}
-	
-	private IScope getLocalScope(){
-		return Red5.getConnectionLocal().getScope();
-	}
-	
+        public void onPMessage(String pattern, String channel,
+            String message) {
+        }
 }
