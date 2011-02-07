@@ -1,5 +1,5 @@
 from lxml import etree
-import logging, os, getopt, sys, subprocess
+import logging, os, getopt, sys, subprocess, re
 
 logFile = 'process-audio.log'
 audioSamplingRate = 16000
@@ -30,11 +30,12 @@ def printUsageHelp():
 
 class AudioRecording:
     filename = None
-    startEventTimestamp = None
-    startTimestamp = None
-    stopTimestamp = None
-    stopEventTimestamp = None
-    lengthFromFile = None
+    fileFound = False
+    startEventTimestamp = 0
+    startTimestamp = 0
+    stopTimestamp = 0
+    stopEventTimestamp = 0
+    lengthFromFile = 0
     gapFile = False
     position = 0
     lengthOfGap = 0
@@ -87,21 +88,29 @@ def get_start_audio_recording_events(tree):
 def get_stop_audio_recording_events(tree):
     return tree.xpath("//event[@name='StopRecordingEvent']")
 
-def create_audio_recordings_for_events(startRecEvents, audioRecordings, audioRecsDict):
-    for evt in startRecEvents:
-        e = AudioRecording()
-        e.filename = evt.find('filename').text
-        e.startTimestamp = evt.find('recordingTimestamp').text
-        e.startEventTimestamp = evt.get('timestamp')
-        audioRecordings.append(e)
-        audioRecsDict[e.filename] = e
+def create_audio_recording_for_event(event):
+    ar = AudioRecording()
+    ar.filename = evt.find('filename').text
+    ar.startTimestamp = evt.find('recordingTimestamp').text
+    ar.startEventTimestamp = evt.get('timestamp')
+    return ar
+    
+def create_audio_recordings_for_events(startRecEvents):
+    audioRecordings = []    
+    for evt in startRecEvents:        
+        audioRecordings.append(create_audio_recording_for_event(evt))
+        
+    return audioRecordings
 
-def get_stop_recording_events_info(stopRecEvents, audioRecsDict):
-        for evt in stopRecEvents:
-            rec = audioRecsDict[evt.find('filename').text]
+def insert_stop_event_info(evt, audioRecordings): 
+    for rec in audioRecordings:
+        if (rec.filename == evt.find('filename').text):
             rec.stopTimestamp = evt.find('recordingTimestamp').text
             rec.stopEventTimestamp = evt.get('timestamp')
+            return True
 
+    return False
+    
 def pad_beginning_of_audio_if_needed(audioRecording, firstEventTimestamp, meetingAudio):            
     lengthOfGap = long(audioRecording.startEventTimestamp) - long(firstEventTimestamp)
     if (lengthOfGap > 0):
@@ -164,8 +173,28 @@ def create_ogg_from_wav(meetingArchiveDir, outputWavFile):
     proc = subprocess.Popen('oggenc -a "Budka Suflera" -l "Za Ostatni Grosz" -N 1 -t "Za Ostatni Grosz" -d "1981-05-01" -c "composer=Romuald Lipko, Marek Dutkiewicz" -o ' 
             + ogg_file + " " + outputWavFile, shell=True)
     proc.wait() 
-    
-    
+
+def determine_if_file_is_present(audioFileDir, audioRecordings):
+    audioFileList = os.listdir(audioFileDir)
+    for ar in audioRecordings:
+        ar.filename = ar.filename.split('/')[-1]
+        ar.fileFound = True
+        
+def determine_length_of_audio_from_file(audioFileDir, audioRecordings):
+    audioFileList = os.listdir(audioFileDir)
+    for ar in audioRecordings:
+        print "Determining length of " + audioFileDir + "/" + ar.filename
+        if ar.fileFound:            
+            proc = subprocess.Popen('sox ' + audioFileDir + "/" + ar.filename + ' -n stat 2>&1', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            proc.wait()
+            result = proc.stdout.read()
+            rc = proc.wait()
+            if rc == 0:
+                regex = re.compile("Length \(seconds\):(.+)")
+                length = float(regex.findall(result)[0].strip()) * 1000
+                ar.lengthFromFile = int(length)
+                print ar.lengthFromFile
+        
 def main():
     meetingId = ""
     archiveDir = ""
@@ -198,37 +227,54 @@ def main():
     logging.basicConfig(level=logging.INFO, filename=logFile)
     logging.info('Starting ingest process')
 
+    audioRecordings = []    
+    meetingAudio = []
+    
     tree = etree.parse(meetingArchiveDir + '/events.xml')
     r = tree.xpath('/events/event')
 
     firstEventTimestamp = get_first_timestamp_of_session(r)
     lastEventTimestamp = get_last_timestamp_of_session(r)
- 
-    audioRecordings = []    
-    audioRecordingsDict = {}
 
-    meetingAudio = []
-    
-    startRecordingEvents = get_start_audio_recording_events(tree)
-    create_audio_recordings_for_events(startRecordingEvents, audioRecordings, audioRecordingsDict)
-          
+    startRecordingEvents = get_start_audio_recording_events(tree)          
     stopRecordingEvents = get_stop_audio_recording_events(tree)
-    get_stop_recording_events_info(stopRecordingEvents, audioRecordingsDict)
-            
-    pad_beginning_of_audio_if_needed(audioRecordings[0], firstEventTimestamp, meetingAudio)
-    pad_between_recorded_audio_files_if_needed(audioRecordings, meetingAudio)
-    pad_end_of_audio_if_needed(audioRecordings[-1], lastEventTimestamp, meetingAudio)
     
-    create_gap_audio_files(meetingArchiveDir, meetingAudio, audioSamplingRate)    
-    audio_filenames = get_audio_filenames(meetingAudio)
-
-    outputWavFile = concatenate_all_audio_files(meetingArchiveDir, audio_filenames)
+    if (len(startRecordingEvents) == len(stopRecordingEvents)):
+        logging.warn("Number of start events [%s] does not match stop events [%s]" % (len(startRecordingEvents), len(stopRecordingEvents)))
+        print("Number of start events [%s] does not match stop events [%s]" % (len(startRecordingEvents), len(stopRecordingEvents)))
     
-    create_ogg_from_wav(meetingArchiveDir, outputWavFile)     
+    for evt in startRecordingEvents:
+        ar = AudioRecording()
+        ar.filename = evt.find('filename').text
+        ar.startTimestamp = evt.find('recordingTimestamp').text
+        ar.startEventTimestamp = evt.get('timestamp')
+        audioRecordings.append(ar)
         
-    proc = subprocess.Popen('sox recording.wav -n stat', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    print proc.stdout.read()
+    for evt in stopRecordingEvents:
+        if (not insert_stop_event_info(evt, audioRecordings)):
+            # Oohh, we got more work to do. This means that a stop event doesn't have a matching start event.
+            # Create an audio recording and let's figure out the start timestamp later
+            ar = AudioRecording()
+            ar.filename = evt.find('filename').text
+            ar.stopTimestamp = evt.find('recordingTimestamp').text
+            ar.stopEventTimestamp = evt.get('timestamp')
+            audioRecordings.append(ar)
+
+    determine_if_file_is_present(meetingArchiveDir + "/" + AUDIO_DIR, audioRecordings)
+    determine_length_of_audio_from_file(meetingArchiveDir + "/" + AUDIO_DIR, audioRecordings)
     
+
+               
+#    pad_beginning_of_audio_if_needed(audioRecordings[0], firstEventTimestamp, meetingAudio)
+#    pad_between_recorded_audio_files_if_needed(audioRecordings, meetingAudio)
+#    pad_end_of_audio_if_needed(audioRecordings[-1], lastEventTimestamp, meetingAudio)
+    
+#    create_gap_audio_files(meetingArchiveDir, meetingAudio, audioSamplingRate)    
+#    audio_filenames = get_audio_filenames(meetingAudio)
+
+#    outputWavFile = concatenate_all_audio_files(meetingArchiveDir, audio_filenames)    
+#    create_ogg_from_wav(meetingArchiveDir, outputWavFile)     
+                
 if __name__ == "__main__":
     main()
     
