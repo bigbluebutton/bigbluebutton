@@ -1,9 +1,16 @@
 from lxml import etree
 import logging, os, getopt, sys, subprocess
 
+logFile = 'process-audio.log'
+audioSamplingRate = 16000
+AUDIO_DIR = "audio"
+AUDIO_RECORDING_WAV = "recording.wav"
+AUDIO_RECORDING_OGG = "recording.ogg"
+
+audio_recordings = []
+    
 def usage():
     print ' -------------------------------------------------------------------------'
-    print ' (c) Blindside Networks Inc. 2010'
     print ' '
     print ' Ingest and process BigBlueButton Recordings'
     print ' '
@@ -21,35 +28,37 @@ def printUsageHelp():
     usage()
     sys.exit(2)    
 
-
-logFile = 'ingest.log'
-
-meeting_id = '1b199e88-7df7-4842-a5f1-0e84b781c5c8'
-audio_sampling_rate = 16000
-src_dir = 'playback-client-js' + "/" + meeting_id
-audio_recordings = []
-
 class AudioRecording:
     filename = None
-    start_event_timestamp = None
-    start_timestamp = None
-    stop_timestamp = None
-    stop_event_timestamp = None
-    length_from_file = None
-    gap_file = False
+    startEventTimestamp = None
+    startTimestamp = None
+    stopTimestamp = None
+    stopEventTimestamp = None
+    lengthFromFile = None
+    gapFile = False
     position = 0
-    length_of_gap = 0
+    lengthOfGap = 0
 
-def add_audio_recording(start_timestamp, stop_timestamp, is_gap, length_of_gap):
-    audio_gap = AudioRecording()
-    audio_gap.start_event_timestamp = long(start_timestamp)
-    audio_gap.stop_event_timestamp = long(stop_timestamp)
-    audio_gap.gap_file = is_gap
-    audio_gap.length_of_gap = length_of_gap
-    audio_gap.filename = 'gap-' + str(length_of_gap)
-    audio_recordings.append(audio_gap)
+def create_audio_gap_recording(startTimestamp, stopTimestamp, isGap, lengthOfGap):
+    '''
+        
+    '''
+    audioGap = AudioRecording()
+    audioGap.startEventTimestamp = long(startTimestamp)
+    audioGap.stopEventTimestamp = long(stopTimestamp)
+    audioGap.gapFile = isGap
+    audioGap.lengthOfGap = lengthOfGap    
+    audioGap.filename = 'gap-' + str(lengthOfGap) + ".wav"
+    return audioGap
     
 def create_audio_gap_file(length_in_msec, filename, sampling_rate):
+    '''
+        Creates a raw audio file
+        length_in_msec:     The length of the audio in milliseconds
+        filename:           The absolute filename of the audio resulting .wav file
+        sampling_rate:      The sampling rate of the audio (e.g. 16000)
+    '''
+    
     rate_in_ms = sampling_rate / 1000
     f = open(filename + '.dat', "wb")
     samples = length_in_msec * rate_in_ms
@@ -60,15 +69,109 @@ def create_audio_gap_file(length_in_msec, filename, sampling_rate):
         f.write(str(x / rate_in_ms) + "\t0\n");
         x += 1
     f.close();
-    proc = subprocess.Popen("sox " + filename + ".dat -b 16 -r 16000 -c 1 -s " + filename + ".wav", shell=True)
+    proc = subprocess.Popen("sox " + filename + ".dat -b 16 -r 16000 -c 1 -s " + filename, shell=True)
     # Wait for the process to finish before removing the temp file
     proc.wait()
+    # Delete the temporary raw audio file
     os.remove(filename + ".dat")
 
+def get_first_timestamp_of_session(events): 
+    return events[0].get('timestamp')
+
+def get_last_timestamp_of_session(events):
+    return events[len(events)-1].get('timestamp')
+
+def get_start_audio_recording_events(tree):
+    return tree.xpath("//event[@name='StartRecordingEvent']")
+
+def get_stop_audio_recording_events(tree):
+    return tree.xpath("//event[@name='StopRecordingEvent']")
+
+def create_audio_recordings_for_events(startRecEvents, audioRecordings, audioRecsDict):
+    for evt in startRecEvents:
+        e = AudioRecording()
+        e.filename = evt.find('filename').text
+        e.startTimestamp = evt.find('recordingTimestamp').text
+        e.startEventTimestamp = evt.get('timestamp')
+        audioRecordings.append(e)
+        audioRecsDict[e.filename] = e
+
+def get_stop_recording_events_info(stopRecEvents, audioRecsDict):
+        for evt in stopRecEvents:
+            rec = audioRecsDict[evt.find('filename').text]
+            rec.stopTimestamp = evt.find('recordingTimestamp').text
+            rec.stopEventTimestamp = evt.get('timestamp')
+
+def pad_beginning_of_audio_if_needed(audioRecording, firstEventTimestamp, meetingAudio):            
+    lengthOfGap = long(audioRecording.startEventTimestamp) - long(firstEventTimestamp)
+    if (lengthOfGap > 0):
+        audioGap = create_audio_gap_recording(long(firstEventTimestamp), long(audioRecording.startEventTimestamp), True, lengthOfGap)
+        meetingAudio.append(audioGap)
+        
+def pad_between_recorded_audio_files_if_needed(audioRecordings, meetingAudio):          
+    numAudioRecs = len(audioRecordings)
+    i = 0
+    while i < numAudioRecs-1:
+        arPrev = audioRecordings[i]
+        arNext = audioRecordings[i+1]
+        lengthOfGap = long(arNext.startEventTimestamp) - long(arPrev.stopEventTimestamp)
+        meetingAudio.append(arPrev)
+        if (lengthOfGap > 0):   
+            audioGap = create_audio_gap_recording(long(arPrev.stopEventTimestamp), long(arNext.startEventTimestamp), True, lengthOfGap)      
+            meetingAudio.append(audioGap)
+        i += 1
+
+def pad_end_of_audio_if_needed(audioRecording, lastEventTimestamp, meetingAudio):
+    lengthOfGap = long(lastEventTimestamp) - long(audioRecording.stopEventTimestamp)
+    meetingAudio.append(audioRecording)
+    if (lengthOfGap > 0):    
+        audioGap = create_audio_gap_recording(long(audioRecording.stopEventTimestamp), long(lastEventTimestamp), True, lengthOfGap) 
+        meetingAudio.append(audioGap)
+
+def create_gap_audio_files(meetingArchiveDir, audioRecordings, audioSamplingRate):
+    for ar in audioRecordings:    
+        if (ar.gapFile):
+            ar.filename = meetingArchiveDir + "/audio/" + ar.filename
+            lsec = long(ar.lengthOfGap)
+            create_audio_gap_file(lsec, ar.filename, audioSamplingRate)
+
+def get_audio_filenames(audioRecordings):
+    audioFilenames = []
+    for ar in audioRecordings:    
+        audioFilenames.append(ar.filename)
+    
+    return audioFilenames
+
+def concatenate_all_audio_files(meetingArchiveDir, audioFilenames):
+    concatCmd = 'sox '
+    for ar in audioFilenames:
+        concatCmd += " " + ar
+    
+    outputWavFile = meetingArchiveDir + "/" + AUDIO_RECORDING_WAV
+    concatCmd += " " + outputWavFile
+    logging.info("Creating recorded audio file")
+    print "Concat " + concatCmd
+    
+    proc = subprocess.Popen(concatCmd, shell=True)
+    # Wait for the process to finish before removing the temp file
+    proc.wait()
+    
+    return outputWavFile
+
+def create_ogg_from_wav(meetingArchiveDir, outputWavFile):
+    ogg_file = meetingArchiveDir + '/' + AUDIO_RECORDING_OGG
+    logging.info("Convert wav file to ogg")
+    proc = subprocess.Popen('oggenc -a "Budka Suflera" -l "Za Ostatni Grosz" -N 1 -t "Za Ostatni Grosz" -d "1981-05-01" -c "composer=Romuald Lipko, Marek Dutkiewicz" -o ' 
+            + ogg_file + " " + outputWavFile, shell=True)
+    proc.wait() 
+    
+    
 def main():
     meetingId = ""
     archiveDir = ""
     logFile = ""
+    
+    # Get all the passed in options
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hm:a:l", ["help", "meeting-id=", "archive-dir="])
     except getopt.GetoptError, err:
@@ -90,112 +193,38 @@ def main():
             assert False, "unhandled option"
     
     meetingArchiveDir = archiveDir + "/" + meetingId
+    
     logFile = meetingArchiveDir + "/process-audio.log"
     logging.basicConfig(level=logging.INFO, filename=logFile)
     logging.info('Starting ingest process')
-    logging.info('Loading workspace/events.xml')
+
     tree = etree.parse(meetingArchiveDir + '/events.xml')
     r = tree.xpath('/events/event')
 
-    logging.info('Determining start and stop timestamp for session')
-    # Get the first event of the session
-    begin = r[0].get('timestamp')
-    # Get the last event of the session
-    end = r[len(r)-1].get('timestamp')
-    # Determine the length of the session  
-    length = long(end) - long(begin)  
+    firstEventTimestamp = get_first_timestamp_of_session(r)
+    lastEventTimestamp = get_last_timestamp_of_session(r)
+ 
+    audioRecordings = []    
+    audioRecordingsDict = {}
 
-    logging.info('Count how many audio files')
-    # Count how many wave files
-    proc = subprocess.Popen('ls ' + meetingArchiveDir + '/audio/*.wav | wc -l', shell=True, stdout=subprocess.PIPE)
-    num_files = proc.communicate()[0]
-
-    # Store a list of the audio recordings    
-    audio_recs = []    
-    # A dictionary of the audio recording with filename as key.
-    # This will be used to access the audio recording to update the stop
-    # recording timestamp.
-    audio_recs_dict = {}
-
-    # Get the start recording events    
-    start_rec_events = tree.xpath("//event[@name='StartRecordingEvent']")
-    for evt in start_rec_events:
-        e = AudioRecording()
-        e.filename = evt.find('filename').text
-        e.start_timestamp = evt.find('recordingTimestamp').text
-        e.start_event_timestamp = evt.get('timestamp')
-        audio_recs.append(e)
-        audio_recs_dict[e.filename] = e
-        
-    # Get the stop recording events     
-    stop_rec_events = tree.xpath("//event[@name='StopRecordingEvent']")
-    num_stop_rec = len(stop_rec_events)
-    print num_stop_rec
-    for evt in stop_rec_events:
-        rec = audio_recs_dict[evt.find('filename').text]
-        rec.stop_timestamp = evt.find('recordingTimestamp').text
-        rec.stop_event_timestamp = evt.get('timestamp')
-            
-
-    # Determine if we need to pad the beginning of the audio
-    length_of_gap = long(audio_recs[0].start_event_timestamp) - long(begin)
-    print "l gap " + str(length_of_gap)
-    if (length_of_gap > 0):
-        add_audio_recording(long(begin), long(audio_recs[0].start_event_timestamp), True, length_of_gap)
-
-    # Now go through all the recorded audio files and fill in the gaps in between them.    
-    num_audio_recs = len(audio_recs)
-    i = 0
-    while i < num_audio_recs-1:
-        ar_prev = audio_recs[i]
-        ar_next = audio_recs[i+1]
-        length_of_gap = long(ar_next.start_event_timestamp) - long(ar_prev.stop_event_timestamp)
-        audio_recordings.append(ar_prev)
-        if (length_of_gap > 0):
-            print "l gap " + str(length_of_gap)     
-            add_audio_recording(long(ar_prev.stop_event_timestamp), long(ar_next.start_event_timestamp), True, length_of_gap)      
-        i += 1
-
-    # Determine if we need the end of the audio file.
-    ai = 0
-    if (len(audio_recs) > 1):
-        ai = -1
-    length_of_gap = long(end) - long(audio_recs[ai].stop_event_timestamp)
-    print "l gap " + str(length_of_gap)
-    audio_recordings.append(audio_recs[ai])
-    if (length_of_gap > 0):    
-        add_audio_recording(long(audio_recs[ai].stop_event_timestamp), long(end), True, length_of_gap)  
-        
-    print len(audio_recordings)
-
-    audio_filenames = []
-    # Now we got all the audio information we need. We will create the files for the audio gaps.
-    for ar in audio_recordings:    
-        if (ar.gap_file):
-            ar.filename = meetingArchiveDir + "/audio/" + ar.filename
-            audio_filenames.append((ar.filename + ".wav"))
-            lsec = long(ar.length_of_gap)
-            print "gap = " + str(lsec) + " " + ar.filename
-            create_audio_gap_file(lsec, ar.filename, audio_sampling_rate)
-        else:
-            audio_filenames.append(ar.filename)
-
-    concat_cmd = 'sox '
-    for ar in audio_filenames:
-        concat_cmd += " " + ar
+    meetingAudio = []
     
-    outputWavFile = meetingArchiveDir + "/recording.wav"
-    concat_cmd += " " + outputWavFile
-    logging.info("Creating recorded audio file")
-    proc = subprocess.Popen(concat_cmd, shell=True)
-    # Wait for the process to finish before removing the temp file
-    proc.wait()    
+    startRecordingEvents = get_start_audio_recording_events(tree)
+    create_audio_recordings_for_events(startRecordingEvents, audioRecordings, audioRecordingsDict)
+          
+    stopRecordingEvents = get_stop_audio_recording_events(tree)
+    get_stop_recording_events_info(stopRecordingEvents, audioRecordingsDict)
+            
+    pad_beginning_of_audio_if_needed(audioRecordings[0], firstEventTimestamp, meetingAudio)
+    pad_between_recorded_audio_files_if_needed(audioRecordings, meetingAudio)
+    pad_end_of_audio_if_needed(audioRecordings[-1], lastEventTimestamp, meetingAudio)
+    
+    create_gap_audio_files(meetingArchiveDir, meetingAudio, audioSamplingRate)    
+    audio_filenames = get_audio_filenames(meetingAudio)
 
-    ogg_file = meetingArchiveDir + '/recording.ogg'
-    logging.info("Convert wav file to ogg")
-    proc = subprocess.Popen('oggenc -a "Budka Suflera" -l "Za Ostatni Grosz" -N 1 -t "Za Ostatni Grosz" -d "1981-05-01" -c "composer=Romuald Lipko, Marek Dutkiewicz" -o ' 
-            + ogg_file + " " + outputWavFile, shell=True)
-    proc.wait()    
+    outputWavFile = concatenate_all_audio_files(meetingArchiveDir, audio_filenames)
+    
+    create_ogg_from_wav(meetingArchiveDir, outputWavFile)     
         
     proc = subprocess.Popen('sox recording.wav -n stat', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     print proc.stdout.read()
@@ -203,3 +232,4 @@ def main():
 if __name__ == "__main__":
     main()
     
+
