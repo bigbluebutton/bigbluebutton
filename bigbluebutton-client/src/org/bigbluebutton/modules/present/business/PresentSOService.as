@@ -40,8 +40,6 @@ package org.bigbluebutton.modules.present.business {
 	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.events.ZoomEvent;
-
-;
 	
 	public class PresentSOService {
 		public static const NAME:String = "PresentSOService";
@@ -305,15 +303,50 @@ package org.bigbluebutton.modules.present.business {
 			_presentationSO.setProperty(PRESENTER, presenterName);
 		}
 		
+		/*****************************************************************************
+		 ;  getPresentationInfo
+		 ;----------------------------------------------------------------------------
+		 ; DESCRIPTION
+		 ;   This routine is use to get the presenter information from the bbb server
+		 ;	 and setting up the presentation.
+		 ;
+		 ; RETURNS
+		 ;
+		 ; INTERFACE NOTES
+		 ;
+		 ; IMPLEMENTATION
+		 ;
+		 ; HISTORY
+		 ; __date__ :        PTS:            Description
+		 ; 2011.02.07                        Presenter option is gone when making 
+		 ;									 calls to the APIs
+		 ;
+		 ******************************************************************************/
 		public function getPresentationInfo():void {
 			nc.call( "presentation.getPresentationInfo",// Remote function name
 				new Responder(
 	        		// participants - On successful result
-					function(result:Object):void { 	
-						LogUtil.debug("Successfully querried for presentation information.");					 
+					function(result:Object):void {
+						LogUtil.debug("Successfully querried for presentation information.");
 						if (result.presenter.hasPresenter) {
-							dispatcher.dispatchEvent(new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE));						
-						}	
+							/**
+							 * check userid to make sure user is not presenter to fix the
+							 * problem after calling the api to re-open the presentation
+							 * window then lost the presenter
+							 **/
+							if ( result.presenter.user != userid){
+								dispatcher.dispatchEvent(new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE));
+							}else{
+								// user is presenter
+								if ( userid == result.presenter.user ){
+									var evt:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE);
+									evt.userid = result.presenter.user;
+									evt.presenterName = result.presenter.name;
+									evt.assignerBy = result.presenter.assignedBy;
+									dispatcher.dispatchEvent(evt);
+								}
+							}
+						}
 						
 						if (result.presentation.sharing) {							
 							currentSlide = Number(result.presentation.slide);
@@ -349,6 +382,7 @@ package org.bigbluebutton.modules.present.business {
 				) //new Responder
 			); //_netConnection.call
 		}
+		/** END Function : getPresentationInfo **/
 		
 		private function sendPresentationName(presentationName:String):void {
 			var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_SUCCESS);
@@ -360,14 +394,13 @@ package org.bigbluebutton.modules.present.business {
 			nc.call("presentation.assignPresenter",// Remote function name
 				new Responder(
 	        		// On successful result
-					function(result:Boolean):void { 
-						 
+					function(result:Boolean):void {
 						if (result) {
 							LogUtil.debug("Successfully assigned presenter to: " + userid);							
 						}	
 					},	
 					// status - On error occurred
-					function(status:Object):void { 
+					function(status:Object):void {
 						LogUtil.error("Error occurred:"); 
 						for (var x:Object in status) { 
 							LogUtil.error(x + " : " + status[x]); 

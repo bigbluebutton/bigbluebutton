@@ -25,7 +25,7 @@
 	xmlns:local="*"
     width="100%" height="100%" 
     paddingBottom="5" 
-    creationComplete="onCreationComplete();Alert.show('BigBlueButton-0.71a 2010-02-02 6:20PM Build-40');" verticalScrollPolicy="off" horizontalScrollPolicy="off"      
+    creationComplete="onCreationComplete()" verticalScrollPolicy="off" horizontalScrollPolicy="off"      
     rollOut="hideCursor()"
     xmlns:views="org.bigbluebutton.modules.present.views.*"
     implements="org.bigbluebutton.common.IBbbCanvas" backgroundColor="#225D94">
@@ -187,7 +187,6 @@
 
                     this.width   = this.parent.width - WIDTH_PADDING;
                     this.height  = this.parent.height - TOP_WINDOW_BORDER - CONTROL_BAR_HEIGHT;
-					
                 }else{
 					centerViewPort();
 				}
@@ -568,7 +567,7 @@
                     slideLoader.x = slideLoader.width * presentersLoaderXOffsetFromCanvas;
                     slideLoader.y = slideLoader.height * presentersLoaderYOffsetFromCanvas;
                     
-                    fitSlideToLoader();    
+                    fitSlideToLoader();
                 }else{
                     slideLoader.width = this.width * presentersLoaderCanvasWidthRatio; 
                     slideLoader.height = this.height * presentersLoaderCanvasHeightRatio;
@@ -586,7 +585,6 @@
 			private function fitSlideToLoader():void {
 				if (noSlideContentLoaded()) return;
 				
-                slideLoader.content.y = slideLoader.y;
                 slideLoader.content.width = slideLoader.width;
                 slideLoader.content.height = slideLoader.height;
 
@@ -881,7 +879,7 @@
 				
                 // calculate mouse pointer x, y percent
                 var cursorXPercent:Number   =   (cursorXPosition - slideLoader.x)*100 / slideLoader.content.width;
-                var cursorYPercent:Number   =   (cursorYPosition - slideLoader.content.y * 2)*100 / slideLoader.content.height;
+				var cursorYPercent:Number   =   (cursorYPosition - slideLoader.y)*100 / slideLoader.content.height;
                 
                 command.xPercent    =   cursorXPercent;
                 command.yPercent    =   cursorYPercent;
@@ -896,7 +894,7 @@
 				
                 // calculate the cursor position
                 cursor.x    =   (slideLoader.x) + (e.xPercent*slideLoader.content.width / 100);
-                cursor.y    =   (slideLoader.content.y * 2) + (e.yPercent*slideLoader.content.height / 100);
+				cursor.y    =   (slideLoader.y) + (e.yPercent*slideLoader.content.height / 100);
                 showCursor();
 			}
 			
@@ -983,7 +981,7 @@
 			
 			public function moveCanvas(x:int, y:int):void{
 				overlayChildrenHolder.x = slideLoader.x;
-				overlayChildrenHolder.y = slideLoader.y * 2;
+				overlayChildrenHolder.y = slideLoader.y;
 				
 				if (overlayCanvas != null) overlayCanvas.moveCanvas(overlayChildrenHolder.x, overlayChildrenHolder.y);
 			}

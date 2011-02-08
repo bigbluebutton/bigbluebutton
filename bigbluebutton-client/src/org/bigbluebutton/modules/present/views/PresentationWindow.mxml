@@ -563,7 +563,7 @@
 			}
 			
 			private function handlePresentationLoadedEvent(e:PresentationEvent):void {	
-				if (e.presentationName == currentPresentation) return;			
+				if (e.presentationName == currentPresentation) return;
 				currentPresentation = e.presentationName;
 				presentationLoaded = true;
 				slideView.setSlides(e.slides.slides);    		            		
@@ -585,7 +585,6 @@
 				
 				// display the view port when the viewer login while the presenter in full screen.
 				dispatchEvent(new PresenterViewEvent(PresenterViewEvent.GET_PRESENTER_VIEW_DIMENSION));
-
 			}
 			
 			private function displaySlideNavigationControls(show:Boolean):void {
