@@ -34,12 +34,12 @@ public class RTMPAdapterService {
 	private RTMPAdapterApp application;
 	
 	public void setRTMPAdapterApp(RTMPAdapterApp a){
-		log.debug("Setting RTMPAdapter application instance");
+		log.info("Setting RTMPAdapter application instance");
 		this.application = a;
 	}
 
-	public void publish(String appName, String method, String data){
-		application.publish(appName, method, data);
+	public void sendData(String appName, String method, String data){
+		application.sendData(appName, method, data);
 	}
 	
 }

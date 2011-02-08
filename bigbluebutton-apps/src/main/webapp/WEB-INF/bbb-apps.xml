@@ -139,11 +139,15 @@
 	<!-- BEGIN RTMPAdapter -->
 	<bean id="rtmpAdapter" 
             class="org.bigbluebutton.conference.service.rtmpadapter.RTMPAdapterApp">
+	    <property name="channelManager"> <ref local="channelManager"/></property>
         </bean>
 
-	<bean id="rtmpAdapter.service" class="org.bigbluebutton.conference.service.rtmpadapter.RTMPAdapterService">
+	<bean id="rtmpadapter.service" class="org.bigbluebutton.conference.service.rtmpadapter.RTMPAdapterService">
                 <property name="RTMPAdapterApp"> <ref local="rtmpAdapter"/></property>
         </bean>
+
+	<bean id="channelManager" class="org.bigbluebutton.conference.service.rtmpadapter.ChannelManager"/>
+
 
 	<!-- END RTMPAdapter -->
 

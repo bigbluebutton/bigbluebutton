@@ -43,29 +43,30 @@ public class ChannelManager {
 	private static Logger log = Red5LoggerFactory.getLogger(RTMPAdapterApp.class, "bigbluebutton");
 
 	private ArrayList<ISharedObject> channels;
-	private RTMPAdapterApp application;
+	public RTMPAdapterApp application;
 	private PubSubListener pubSubListener;
 	private Jedis jedis;
 
-	public ChannelManager(RTMPAdapterApp application){
-		this.application = application;
+	public ChannelManager(){
 		channels = new ArrayList<ISharedObject>();
 
-		jedis = new Jedis("localhost:6379");
-                pubSubListener = new PubSubListener(this);
-                jedis.psubscribe(pubSubListener, "bigbluebutton:");
+		jedis = new Jedis("localhost", 6379);
+	}
 
+	public void subscribe(){
+		System.out.println("Subscribing to Redis");
 		pubSubListener = new PubSubListener(this);
+                jedis.psubscribe(pubSubListener, "bigbluebutton:*");
 	}
 
 	public void sendData(String appName, String clientScope, String method, String data){
-		log.info("RTMPAdapter sending: bigbluebutton:" + appName + ":" + clientScope + ":" + method + ", data: " + data);
+		System.out.println("RTMPAdapter sending: bigbluebutton:" + appName + ":" + clientScope + ":" + method + ", data: " + data);
 		String channel = "bigbluebutton:" + appName + ":" + clientScope + ":" + method;
 		jedis.publish(channel, data);
 	}
 
 	public void receivedMessage(String channel, String message){
-		log.info("RTMPAdapter received: " + channel + ", data: " + message);
+		System.out.println("RTMPAdapter received: " + channel + ", data: " + message);
 	}
 	
 	public void addChannel(String appName, IScope scope){
