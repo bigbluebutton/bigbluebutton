@@ -3,9 +3,6 @@ import shutil
 
 def usage():
     print ' -------------------------------------------------------------------------'
-    print ' (c) Blindside Networks Inc. 2010'
-    print ' '
-    print ' Ingest and process BigBlueButton Recordings'
     print ' '
     print ' Usage:'
     print ' archive.py -m test123 -a /var/freeswitch/meetings -p /var/bigbluebutton -r /var/bigbluebutton/archive'
@@ -22,7 +19,9 @@ def printUsageHelp():
     sys.exit(2)
 
 def copy_files_to_archive(meetingId, audioSrcDir, presentationSrcDir, archiveDir):   
-    print "Listing " + audioSrcDir
+    '''
+        Copy all audio recordings and presentations into the archive directory.
+    '''
     dirList = os.listdir(audioSrcDir)
     for fname in dirList:
         if (fname.find(meetingId) == 0):
@@ -88,3 +87,4 @@ def main():
    
 if __name__ == "__main__":
     main()
+

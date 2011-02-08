@@ -13,7 +13,8 @@ audio_recordings = []
 def usage():
     print ' -------------------------------------------------------------------------'
     print ' '
-    print ' Ingest and process BigBlueButton Recordings'
+    print ' Create an audio file in ogg format by combining all audio recordings and '
+    print ' filling the gaps between recordings with silence '
     print ' '
     print ' Usage:'
     print ' process-audio.py -m [meetingid] -a [audio-recording-directory] -p [presentation directory] -r [archive directory]'
@@ -190,8 +191,7 @@ def concatenate_all_audio_files(meetingArchiveDir, audioFilenames):
     outputWavFile = meetingArchiveDir + "/" + AUDIO_RECORDING_WAV
     concatCmd += " " + outputWavFile
     logging.info("Creating recorded audio file")
-    print "Concat " + concatCmd
-    
+
     proc = subprocess.Popen(concatCmd, shell=True)
     # Wait for the process to finish before removing the temp file
     proc.wait()
@@ -350,9 +350,8 @@ def main():
     startRecordingEvents = get_start_audio_recording_events(tree)          
     stopRecordingEvents = get_stop_audio_recording_events(tree)
     
-    if (len(startRecordingEvents) == len(stopRecordingEvents)):
-        logging.warn("Number of start events [%s] does not match stop events [%s]" % (len(startRecordingEvents), len(stopRecordingEvents)))
-        print("Number of start events [%s] does not match stop events [%s]" % (len(startRecordingEvents), len(stopRecordingEvents)))
+    if (len(startRecordingEvents) != len(stopRecordingEvents)):
+        logging.warn("Number of start events [%s] does not match stop events [%s]" % (len(startRecordingEvents), len(stopRecordingEvents)))        
     
     for evt in startRecordingEvents:
         ar = AudioRecording()

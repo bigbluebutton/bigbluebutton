@@ -34,6 +34,9 @@ def EVENTNAME(*args):
     return {"name":' '.join(args)}
 
 def generate_events_xml(redisHost, redisPort, meetingId, archiveDir):
+    '''
+        Pull events from Redis and store them into an xml file.
+    '''
     r = redis.Redis(host=redisHost, port=redisPort, db=0)
 
     count = r.llen("meeting:" + meetingId + ":recordings")
@@ -125,3 +128,4 @@ def main():
     
 if __name__ == "__main__":
     main()     
+

@@ -9,18 +9,13 @@ OUTPUTFILE = "-sOutputFile=";
 
 def usage():
     print ' -------------------------------------------------------------------------'
-    print ' (c) Blindside Networks Inc. 2010'
-    print ' '
-    print ' Ingest and process BigBlueButton Recordings'
-    print ' '
+    print ' Generates PNG files from each page of the PDF file.'
     print ' Usage:'
-    print ' archive.py -m test123 -a /var/freeswitch/meetings -p /var/bigbluebutton -r /var/bigbluebutton/archive'
+    print ' gen-slides.py -p [presentation dir] -f [filename]'
     print ' '
     print ' h, --help                   Print this'
-    print ' m, --meeting-id             The id of the meeting'
-    print ' a, --audio-dir              The location of the audio recording'
-    print ' p, --presentation-dir       The location of the presentations'
-    print ' r, --archive-dir            The directory where the audio and presentation will be archived'
+    print ' p, --presentation-dir       The location of the presentation'
+    print ' f, --pdf-filename           The filename of the PDF presentation.'
     print ' -------------------------------------------------------------------------'
 
 def printUsageHelp():
@@ -28,6 +23,10 @@ def printUsageHelp():
     sys.exit(2)
 
 def determine_number_of_pages(presentationDir):
+    '''
+        Determine the number pages in a presentation by looking at the number of
+        swf files in a directory.
+    '''
     dirList = os.listdir(presentationDir)
     numFiles = 0
     for fname in dirList:
@@ -37,6 +36,9 @@ def determine_number_of_pages(presentationDir):
     return numFiles
             
 def extract_page_from_pdf(page, pdfFile, presentationDir):
+    '''
+        Extract a page from the pdf file.
+    '''
     command = "ghostscript " + OPTIONS + " " + FIRSTPAGE + str(page) + " " + LASTPAGE + str(page) + " " + OUTPUTFILE + presentationDir + "/slide-" + str(page) + ".pdf" + " " + NO_PDF_MARK_WORKAROUND + " " + pdfFile
     print command
     proc = subprocess.Popen(command, shell=True)
@@ -44,8 +46,10 @@ def extract_page_from_pdf(page, pdfFile, presentationDir):
     proc.wait()
 
 def convert_pdf_to_png(pdfPage, pngOut):
+    '''
+        Convert a pdf page to a png.
+    '''
     command = "convert -depth 8 " + pdfPage + " " + pngOut
-    print command
     proc = subprocess.Popen(command, shell=True)
     # Wait for the process to finish
     proc.wait()    
@@ -81,16 +85,11 @@ def main():
     
     if (printUsage):
         printUsageHelp()
-
-    print presentationSrcDir
-    print pdfFilename
     
     numPages = determine_number_of_pages(presentationSrcDir)
-    print "num pages = " + str(numPages)
     if (numPages > 0):
         i = 1
         while i <= numPages:
-            print "Processing page " + str(i)
             extract_page_from_pdf(i, presentationSrcDir + "/" + pdfFilename, presentationSrcDir)
             fileToConvert = presentationSrcDir + "/slide-" + str(i)
             convert_pdf_to_png(fileToConvert + ".pdf", fileToConvert + ".png")
@@ -99,6 +98,7 @@ def main():
 if __name__ == "__main__":
     main()
     
+
 
 
 
