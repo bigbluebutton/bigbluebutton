@@ -20,13 +20,14 @@ package org.bigbluebutton.modules.chat.services
 {
 	import flash.events.IEventDispatcher;
 	
-	import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
-    import org.bigbluebutton.modules.chat.events.RecordPrivateChatMessageEvent;
-    import org.bigbluebutton.modules.chat.events.ChatHistoryFileListEvent;
-    import org.bigbluebutton.modules.chat.events.AddRecordUserEvent;
-    import org.bigbluebutton.modules.chat.events.ChatButtonEvent;
-    import org.bigbluebutton.modules.chat.events.ChatHistoryCommandEvent;
-	import org.bigbluebutton.modules.chat.model.MessageVO;
+    import org.bigbluebutton.modules.chat.events.cCHAT_RecordPrivateMessageEvent;
+    import org.bigbluebutton.modules.chat.events.cCHAT_HistoryFileListEvent;
+    import org.bigbluebutton.modules.chat.events.cCHAT_AddRecordUserEvent;
+    import org.bigbluebutton.modules.chat.events.cCHAT_ButtonEvent;
+    import org.bigbluebutton.modules.chat.events.cCHAT_HistoryCommandEvent;
+		
+    import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
+    import org.bigbluebutton.modules.chat.model.MessageVO;
     import mx.controls.Alert; 
 	
 
@@ -63,6 +64,10 @@ package org.bigbluebutton.modules.chat.services
 			chatSOService.sendMessage(messageVO);
 		}
         
+		public function queryForParticipants():void {
+			chatSOService.queryForParticipants();
+		}
+        
         /*****************************************************************************
         ;  recordMessageEvent
         ;----------------------------------------------------------------------------
@@ -72,15 +77,15 @@ package org.bigbluebutton.modules.chat.services
         ;
         ; INTERFACE NOTES
         ;   INPUT
-        ;   e: RecordPrivateChatMessageEvent
+        ;   e: cCHAT_RecordPrivateMessageEvent
         ; 
         ; IMPLEMENTATION
-        ;  
+        ;  call function from chatSOService to record message
         ; HISTORY
         ; __date__ :        PTS:            Description
         ; 01-16-2010
         ******************************************************************************/
-        public function recordMessageEvent(e:RecordPrivateChatMessageEvent):void{
+        public function recordMessageEvent(e:cCHAT_RecordPrivateMessageEvent):void{
             chatSOService.recordMessageEvent(e,attributes.username);
         }/** END OF 'recordMessageEvent'**/
         
@@ -93,15 +98,15 @@ package org.bigbluebutton.modules.chat.services
         ;
         ; INTERFACE NOTES
         ;   INPUT
-        ;   e: AddRecordUserEvent
+        ;   e: cCHAT_AddRecordUserEvent
         ; 
         ; IMPLEMENTATION
-        ;  
+        ;  call function from chatSOService to add user to list
         ; HISTORY
         ; __date__ :        PTS:            Description
         ; 01-16-2010
         ******************************************************************************/
-        public function addUserToList(e:AddRecordUserEvent):void{
+        public function addUserToList(e:cCHAT_AddRecordUserEvent):void{
             chatSOService.addUserToList(e);
         }/** END OF 'addUserToList'**/
         
@@ -114,15 +119,16 @@ package org.bigbluebutton.modules.chat.services
         ;
         ; INTERFACE NOTES
         ;   INPUT
-        ;   e: AddRecordUserEvent
+        ;   e: cCHAT_AddRecordUserEvent
         ; 
         ; IMPLEMENTATION
-        ;  
+        ;  call function from chatSOService to remove user from list
+        ;
         ; HISTORY
         ; __date__ :        PTS:            Description
         ; 01-16-2010
         ******************************************************************************/
-        public function removeUserFromList(e:AddRecordUserEvent):void{
+        public function removeUserFromList(e:cCHAT_AddRecordUserEvent):void{
             chatSOService.removeUserFromList(e);
         }/** END OF 'removeUserFromList'**/
         
@@ -136,15 +142,15 @@ package org.bigbluebutton.modules.chat.services
         ;
         ; INTERFACE NOTES
         ;   INPUT
-        ;   e: ChatHistoryFileListEvent
+        ;   e: cCHAT_HistoryFileListEvent
         ; 
         ; IMPLEMENTATION
-        ;  
+        ;  call function from chatSOService to load file list
         ; HISTORY
         ; __date__ :        PTS:            Description
         ; 01-16-2010
         ******************************************************************************/
-        public function loadFileList(e:ChatHistoryFileListEvent):void{
+        public function loadFileList(e:cCHAT_HistoryFileListEvent):void{
             chatSOService.loadFileList(e);
         }/** END OF 'loadFileList'**/
         
@@ -157,20 +163,16 @@ package org.bigbluebutton.modules.chat.services
         ;
         ; INTERFACE NOTES
         ;   INPUT
-        ;   e: ChatHistoryCommandEvent
+        ;   e: cCHAT_HistoryCommandEvent
         ; 
         ; IMPLEMENTATION
-        ;  
+        ;  call function from chatSOService to load file content
         ; HISTORY
         ; __date__ :        PTS:            Description
         ; 01-16-2010
         ******************************************************************************/
-        public function loadFileContent(e:ChatHistoryCommandEvent):void{
+        public function loadFileContent(e:cCHAT_HistoryCommandEvent):void{
             chatSOService.loadFileContent(e);
         }/** END OF 'loadFileContent'**/
-        
-		public function queryForParticipants():void {
-			chatSOService.queryForParticipants();
-		}
 	}
 }

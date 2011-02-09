@@ -27,8 +27,8 @@
         >
     
     
-    <mate:Listener type="{ChatHistoryFileListEvent.DISPLAY_FILE_LIST}" method="handleDisplayFile" />
-    <mate:Listener type="{ChatHistoryCommandEvent.SAVE_FILE}" method="handleSaveFile" />
+    <mate:Listener type="{cCHAT_HistoryFileListEvent.DISPLAY_FILE_LIST}" method="handleDisplayFile" />
+    <mate:Listener type="{cCHAT_HistoryCommandEvent.SAVE_FILE}" method="handleSaveFile" />
     <mx:Script>
 		<![CDATA[
         
@@ -44,23 +44,26 @@
         import org.bigbluebutton.main.api.UserManager;
         import org.bigbluebutton.main.model.users.Conference;
         
-        import org.bigbluebutton.modules.chat.events.ChatHistoryFileListEvent ;
-        import org.bigbluebutton.modules.chat.events.ChatHistoryCommandEvent ;
-        import org.bigbluebutton.modules.chat.events.ChatHistoryWindowEvent ;
+        import org.bigbluebutton.modules.chat.events.cCHAT_HistoryFileListEvent ;
+        import org.bigbluebutton.modules.chat.events.cCHAT_HistoryCommandEvent ;
+        import org.bigbluebutton.modules.chat.events.cCHAT_HistoryWindowEvent ;
         
         import org.bigbluebutton.util.i18n.ResourceUtil;
         import mx.controls.Alert ;
         import mx.managers.PopUpManager;
         
         private var conference:Conference = UserManager.getInstance().getConference();
-        [Bindable] public var files:ArrayCollection = new ArrayCollection();
-        [Bindable] private var isSelected:Boolean = false ;
         private var fileName:String ;
         private var msg:String ;
-        public var isPrivate:Boolean = false ;
         private var file:FileReference = new FileReference();
         private var globalDispatcher:Dispatcher = new Dispatcher();
+        
+        public var isPrivate:Boolean = false ;
+        
+        [Bindable] public var files:ArrayCollection = new ArrayCollection();
+        [Bindable] private var isSelected:Boolean = false ;
 
+        
         /*****************************************************************************
         ;  initData
         ;----------------------------------------------------------------------------
@@ -101,12 +104,12 @@
         ; 13-01-2011
         ******************************************************************************/
         private function doMouseOver(e:MouseEvent):void{
-            var event:ChatHistoryCommandEvent ;
+            var event:cCHAT_HistoryCommandEvent ;
             
             if ( false == isPrivate){
-                event  = new ChatHistoryCommandEvent(ChatHistoryCommandEvent.OPEN_FILE) ;
+                event  = new cCHAT_HistoryCommandEvent(cCHAT_HistoryCommandEvent.OPEN_FILE) ;
             }else{
-                event  = new ChatHistoryCommandEvent(ChatHistoryCommandEvent.OPEN_PRIVATE_FILE) ;
+                event  = new cCHAT_HistoryCommandEvent(cCHAT_HistoryCommandEvent.OPEN_PRIVATE_FILE) ;
                 event.userid = String(conference.me.userid) ;
             }
             event.fileName = this.fileName ;
@@ -208,14 +211,14 @@
         ;
         ; INTERFACE NOTES
         ;   INPUT
-        ;   e:  ChatHistoryFileListEvent
+        ;   e:  cCHAT_HistoryFileListEvent
         ; IMPLEMENTATION
         ;  get data from ChatHistoryFileListEvent and add to DataGrid
         ; HISTORY
         ; __date__ :        PTS:            Description
         ; 13-01-2011
         ******************************************************************************/
-        private function handleDisplayFile(e:ChatHistoryFileListEvent):void{
+        private function handleDisplayFile(e:cCHAT_HistoryFileListEvent):void{
             var i:int = 0 ;
             if ( null == e.fileList ) return ;
             //files = null ;
@@ -237,14 +240,14 @@
         ;
         ; INTERFACE NOTES
         ;   INPUT
-        ;   e:  ChatHistoryCommandEvent
+        ;   e:  cCHAT_HistoryCommandEvent
         ; IMPLEMENTATION
         ;  get data from ChatHistoryCommandEvent and pass it to msg variable
         ; HISTORY
         ; __date__ :        PTS:            Description
         ; 13-01-2011
         ******************************************************************************/
-        private function handleSaveFile(e:ChatHistoryCommandEvent):void{
+        private function handleSaveFile(e:cCHAT_HistoryCommandEvent):void{
             var messages:Array = e.message as Array;
             this.fileName = e.fileName ;
            

@@ -21,8 +21,10 @@ package org.bigbluebutton.modules.chat.services
 	import flash.events.IEventDispatcher;
 	
 	import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
-	import org.bigbluebutton.modules.chat.events.RecordChatMessageEvent;
-    import org.bigbluebutton.modules.chat.events.ChatHistoryCommandEvent;
+	
+    import org.bigbluebutton.modules.chat.events.cCHAT_RecordMessageEvent;
+    import org.bigbluebutton.modules.chat.events.cCHAT_HistoryCommandEvent;
+    
     import mx.controls.Alert;
     
 	public class PublicChatService
@@ -57,6 +59,7 @@ package org.bigbluebutton.modules.chat.services
 			newMessage = event.message + "|" + attributes.username + "|" + event.color + "|" + event.time + "|" + event.language + "|" + attributes.userid;
 			chatSOService.sendMessage(newMessage);
 		}
+        
         /*****************************************************************************
         ;  recordMessageEvent
         ;----------------------------------------------------------------------------
@@ -66,14 +69,15 @@ package org.bigbluebutton.modules.chat.services
         ;
         ; INTERFACE NOTES
         ;   INPUT
-        ;   e :  RecordChatMessageEvent , Event
+        ;   e :  cCHAT_RecordChatMessageEvent
+        ;
         ; IMPLEMENTATION
         ;  send record status to chatSO
         ; HISTORY
         ; __date__ :        PTS:            Description
         ; 12-27-2010
         ******************************************************************************/        
-        public function recordMessageEvent(e:RecordChatMessageEvent):void {
+        public function recordMessageEvent(e:cCHAT_RecordMessageEvent):void {
             chatSOService.recordMessageEvent(attributes.userid,attributes.username,e.isRecording);
         } /** END FUNCTION 'recordMessageEvent' **/
 
@@ -106,7 +110,8 @@ package org.bigbluebutton.modules.chat.services
         ;
         ; INTERFACE NOTES
         ;   INPUT
-        ;   e : ChatHistoryCommandEvent, Event
+        ;   e : cCHAT_HistoryCommandEvent
+        ;
         ; IMPLEMENTATION
         ;  call function loadFileContent from chatSOService to load the file content 
         ;  from server
@@ -114,7 +119,7 @@ package org.bigbluebutton.modules.chat.services
         ; __date__ :        PTS:            Description
         ; 12-27-2010
         ******************************************************************************/
-        public function loadFileContent(e:ChatHistoryCommandEvent):void{
+        public function loadFileContent(e:cCHAT_HistoryCommandEvent):void{
             chatSOService.loadFileContent(e.fileName);
         }/** END FUNCTION 'loadFileContent' **/
 	}

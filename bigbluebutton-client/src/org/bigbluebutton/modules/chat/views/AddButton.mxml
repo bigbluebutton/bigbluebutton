@@ -22,9 +22,9 @@
 
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="init()" xmlns:mate="http://mate.asfusion.com/">
 	
-	<mate:Listener type="{ChatButtonEvent.NEW_BUTTON}" method="handleNewButton" />
-    <mate:Listener type="{ChatButtonEvent.SWITCH_BUTTON}" method="handleSwitchButton" />
-    <mate:Listener type="{ChatButtonEvent.CLOSE_BUTTON}" method="handleCloseButton" />
+	<mate:Listener type="{cCHAT_ButtonEvent.NEW_BUTTON}" method="handleNewButton" />
+    <mate:Listener type="{cCHAT_ButtonEvent.SWITCH_BUTTON}" method="handleSwitchButton" />
+    <mate:Listener type="{cCHAT_ButtonEvent.CLOSE_BUTTON}" method="handleCloseButton" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -33,12 +33,12 @@
             
             import org.bigbluebutton.util.i18n.ResourceUtil;
             
-            import org.bigbluebutton.modules.chat.events.RecordChatMessageEvent;
-            import org.bigbluebutton.modules.chat.events.ChatButtonEvent;
-            import org.bigbluebutton.modules.chat.events.RecordPrivateChatMessageEvent;
-            import org.bigbluebutton.modules.chat.events.ChatHistoryCommandEvent;
-            import org.bigbluebutton.modules.chat.events.ChatHistoryWindowEvent;
-            import org.bigbluebutton.modules.chat.events.ChatHistoryFileListEvent ;
+            import org.bigbluebutton.modules.chat.events.cCHAT_RecordMessageEvent;
+            import org.bigbluebutton.modules.chat.events.cCHAT_ButtonEvent;
+            import org.bigbluebutton.modules.chat.events.cCHAT_RecordPrivateMessageEvent;
+            import org.bigbluebutton.modules.chat.events.cCHAT_HistoryCommandEvent;
+            import org.bigbluebutton.modules.chat.events.cCHAT_HistoryWindowEvent;
+            import org.bigbluebutton.modules.chat.events.cCHAT_HistoryFileListEvent ;
             
             import org.bigbluebutton.main.api.UserManager;
             import org.bigbluebutton.main.model.users.Conference;
@@ -51,7 +51,7 @@
             import mx.controls.Alert ;
             
             private var conference:Conference = UserManager.getInstance().getConference();
-            private var openFileWindow:OpenFileWindow;
+            private var historyWindow:ChatHistoryFileWindow;
             private var isRecord:Boolean = false ;
             private var images:Images = new Images();
             private var blinkRecord:Timer = new Timer(500); ;
@@ -60,7 +60,7 @@
             private static const PUBLIC_CHAT_USERID:String = '0';
             
             public var chatView:ChatView;
-            public var acRecordChatButton:ArrayCollection = new ArrayCollection();
+            public var recordUserList:ArrayCollection = new ArrayCollection();
             
             [Bindable]
 			public var participants:ArrayCollection = new ArrayCollection();
@@ -86,7 +86,10 @@
             ;   INPUT
             ; 
             ; IMPLEMENTATION
-            ;  
+            ;   add listener to timer
+            ;   set button visible
+            ;   set private or public chat
+            ;
             ; HISTORY
             ; __date__ :        PTS:            Description
             ; 16-01-2011
@@ -107,14 +110,20 @@
             ;
             ; INTERFACE NOTES
             ;   INPUT
-            ; 
+            ;   userid  :   id of user
+            ;
             ; IMPLEMENTATION
-            ;  
+            ;   set visible record and download button to true or false
+            ;
             ; HISTORY
             ; __date__ :        PTS:            Description
             ; 16-01-2011
             ******************************************************************************/
             private function setButtonVisible(userid:String):void{
+                if ( null == userid ){
+                    return ;
+                }
+                
                 if ( (true == isModerator) || (PUBLIC_CHAT_USERID != userid) ){
                     this.isButtonVisible = true ;
                 }else{
@@ -131,9 +140,10 @@
             ;
             ; INTERFACE NOTES
             ;   INPUT
-            ; 
+            ;   userid  :   id of user
+            ;
             ; IMPLEMENTATION
-            ;  
+            ;   set user is record private or public chat  
             ; HISTORY
             ; __date__ :        PTS:            Description
             ; 16-01-2011
@@ -163,7 +173,8 @@
             ;   INPUT
             ; 
             ; IMPLEMENTATION
-            ;  
+            ;  set status whether the current user is moderator
+            ;
             ; HISTORY
             ; __date__ :        PTS:            Description
             ; 16-01-2011
@@ -185,28 +196,29 @@
             ;
             ; INTERFACE NOTES
             ;   INPUT
-            ;   e ChatButtonEvent
+            ;   e   :   cCHAT_ButtonEvent
             ; IMPLEMENTATION
-            ;  
+            ;  add user to list when new button was add to the user
+            ;
             ; HISTORY
             ; __date__ :        PTS:            Description
             ; 16-01-2011
             ******************************************************************************/
-            private function handleNewButton(e:ChatButtonEvent):void{
+            private function handleNewButton(e:cCHAT_ButtonEvent):void{
             
                 if ( null == e ){
                     return ;
                 }
                 
-                if ( false == isRecordButtonExists(e.receiver) ){
+                if ( false == isUserExists(e.receiver) ){
                     objRecord = new Object() ;
                     objRecord.sender = this.sender ;
                     objRecord.receiver = e.receiver ;
                     objRecord.name = getUserName(e.receiver);
                     objRecord.isRecord = false ;
-                    acRecordChatButton.addItem(objRecord) ;
+                    recordUserList.addItem(objRecord) ;
                 }else{
-                    objRecord = getObject(e.receiver) ;
+                    objRecord = getUser(e.receiver) ;
                 }
                 this.receiver = objRecord.receiver ;
                 this.receiverName = objRecord.name ;
@@ -224,25 +236,31 @@
             ; INTERFACE NOTES
             ;   INPUT
             ;   userid : id of user
+            ;
             ; IMPLEMENTATION
-            ;  
+            ;  get recording status from user in the list
+            ;
             ; HISTORY
             ; __date__ :        PTS:            Description
             ; 16-01-2011
             ******************************************************************************/
             private function getRecordStatus(userid:String):Boolean {
-                var isRecord:Boolean = false ;
-                for( var i:int = 0 ; i<acRecordChatButton.length; i++ ){
-                    if ( acRecordChatButton.getItemAt(i).receiver == userid ){
-                        isRecord = acRecordChatButton.getItemAt(i).isRecord ;
+                if ( null == userid ){
+                    return false ;
+                }
+                
+                var record:Boolean = false ;
+                for( var i:int = 0 ; i<recordUserList.length; i++ ){
+                    if ( recordUserList.getItemAt(i).receiver == userid ){
+                        record = recordUserList.getItemAt(i).isRecord ;
                         break ;
                     }
                 }
-                return isRecord ;
+                return record ;
             }/** END FUNCTION 'getRecordStatus' **/
             
             /*****************************************************************************
-            ;  getObject
+            ;  getUser
             ;----------------------------------------------------------------------------
             ; DESCRIPTION
             ; this routine is used to get user object
@@ -252,25 +270,25 @@
             ;   INPUT
             ;   userid id of user
             ; IMPLEMENTATION
-            ;  
+            ;  get user from user list
             ; HISTORY
             ; __date__ :        PTS:            Description
             ; 16-01-2011
             ******************************************************************************/
-            private function getObject(userid:String):Object {
+            private function getUser(userid:String):Object {
                 
-                var obj:Object = null ;
-                for(var i:int=0; i<acRecordChatButton.length; i++ ){
-                    if ( acRecordChatButton.getItemAt(i).receiver == userid ){
-                        obj = acRecordChatButton.getItemAt(i) ;
+                var user:Object = null ;
+                for(var i:int=0; i<recordUserList.length; i++ ){
+                    if ( recordUserList.getItemAt(i).receiver == userid ){
+                        user = recordUserList.getItemAt(i) ;
                         break ;
                     }
                 }
-                return obj ;
-            }/** END FUNCTION 'getObject' **/
+                return user;
+            }/** END FUNCTION 'getUser' **/
             
             /*****************************************************************************
-            ;  isRecordButtonExists
+            ;  isUserExists
             ;----------------------------------------------------------------------------
             ; DESCRIPTION
             ; this routine is used to check whether the button are added
@@ -280,24 +298,24 @@
             ;   INPUT
             ;   userid id of user
             ; IMPLEMENTATION
-            ;  
+            ;  check whether user is already in the list
             ; HISTORY
             ; __date__ :        PTS:            Description
             ; 16-01-2011
             ******************************************************************************/
-            private function isRecordButtonExists(userid:String):Boolean {
+            private function isUserExists(userid:String):Boolean {
                 if ( null == userid ){
                     return false;
                 }
                 var isExist:Boolean = false ;
-                for( var i:int = 0 ; i<acRecordChatButton.length; i++ ){
-                    if ( acRecordChatButton.getItemAt(i).receiver == userid ){
+                for( var i:int = 0 ; i<recordUserList.length; i++ ){
+                    if ( recordUserList.getItemAt(i).receiver == userid ){
                         isExist = true ;
                         break ;
                     }
                 }
                 return isExist ;
-            }/** END FUNCTION 'isRecordButtonExists' **/
+            }/** END FUNCTION 'isUserExists' **/
             
             /*****************************************************************************
             ;  getUserName
@@ -310,7 +328,7 @@
             ;   INPUT
             ;  userid : id of user
             ; IMPLEMENTATION
-            ;  
+            ;  get user name by user id
             ; HISTORY
             ; __date__ :        PTS:            Description
             ; 16-01-2011
@@ -331,38 +349,7 @@
                 
                 return uname ;
             }/** END FUNCTION 'getUserName' **/
-            
-            /*****************************************************************************
-            ;  getRecordReceiver
-            ;----------------------------------------------------------------------------
-            ; DESCRIPTION
-            ; this routine is used to get record status from user object
-            ; RETURNS : N/A
-            ;
-            ; INTERFACE NOTES
-            ;   INPUT
-            ;  userid : id of user
-            ; IMPLEMENTATION
-            ;  
-            ; HISTORY
-            ; __date__ :        PTS:            Description
-            ; 16-01-2011
-            ******************************************************************************/
-            private function getRecordReceiver(userid:String):String{
-            
-                if ( null == userid ){
-                    return null ;
-                }
-                var lReceiver:String ;
-                for( var i:int = 0 ; i<acRecordChatButton.length; i++ ){
-                    if ( acRecordChatButton.getItemAt(i).receiver == userid ){
-                        lReceiver = acRecordChatButton.getItemAt(i).receiver ;
-                        break ;
-                    }
-                }
-                return lReceiver ;
-            }/** END FUNCTION 'getRecordReceiver' **/
-            
+                       
             /*****************************************************************************
             ;  handleSwitchButton
             ;----------------------------------------------------------------------------
@@ -372,14 +359,14 @@
             ;
             ; INTERFACE NOTES
             ;   INPUT
-            ;  e : ChatButtonEvent
+            ;  e : cCHAT_ButtonEvent
             ; IMPLEMENTATION
-            ;  
+            ;  handle when user tab was changed
             ; HISTORY
             ; __date__ :        PTS:            Description
             ; 16-01-2011
             ******************************************************************************/
-            private function handleSwitchButton(e:ChatButtonEvent):void{
+            private function handleSwitchButton(e:cCHAT_ButtonEvent):void{
             
                 if ( null == e ){
                     return ;
@@ -404,14 +391,14 @@
             ;
             ; INTERFACE NOTES
             ;   INPUT
-            ;  e : ChatButtonEvent
+            ;  e : cCHAT_ButtonEvent
             ; IMPLEMENTATION
-            ;  
+            ;  handle when user tab was closed
             ; HISTORY
             ; __date__ :        PTS:            Description
             ; 16-01-2011
             ******************************************************************************/
-            private function handleCloseButton(e:ChatButtonEvent):void{
+            private function handleCloseButton(e:cCHAT_ButtonEvent):void{
                 if ( null == e ){
                     return ;
                 }
@@ -431,7 +418,7 @@
             ;   userid : id of user
             ;   isRecord : record status
             ; IMPLEMENTATION
-            ;  
+            ;  set record status to user list
             ; HISTORY
             ; __date__ :        PTS:            Description
             ; 16-01-2011
@@ -440,9 +427,9 @@
                 if ( null == userid ){
                     return ;
                 }
-                for( var i:int = 0 ; i<acRecordChatButton.length; i++ ){
-                    if ( acRecordChatButton.getItemAt(i).receiver == userid ){
-                        acRecordChatButton.getItemAt(i).isRecord = isRecord ;
+                for( var i:int = 0 ; i<recordUserList.length; i++ ){
+                    if ( recordUserList.getItemAt(i).receiver == userid ){
+                        recordUserList.getItemAt(i).isRecord = isRecord ;
                         break ;
                     }
                 }
@@ -460,7 +447,9 @@
             ;   sender  :       sender user id
             ;   receiver    :   receiver user id
             ; IMPLEMENTATION
-            ;  
+            ;   set status to a user in the list
+            ;   blink button
+            ;
             ; HISTORY
             ; __date__ :        PTS:            Description
             ; 16-01-2011
@@ -478,14 +467,14 @@
                 changeButtonStyle(getRecordStatus(receiver)) ;
                 
                 if ( true == isPrivateRecord ){
-                    var priEvent:RecordPrivateChatMessageEvent = new RecordPrivateChatMessageEvent(RecordPrivateChatMessageEvent.RECORD_PRIVATE_CHAT_MESSAGE_EVENT) ;
+                    var priEvent:cCHAT_RecordPrivateMessageEvent = new cCHAT_RecordPrivateMessageEvent(cCHAT_RecordPrivateMessageEvent.RECORD_PRIVATE_CHAT_MESSAGE_EVENT) ;
                     priEvent.sender = this.sender ;
                     priEvent.receiver = receiver ;
                     priEvent.receiverName = this.receiverName ;
                     priEvent.isRecording = getRecordStatus(receiver) ;
                     this.dispatchEvent(priEvent) ;
                 }else{
-                    var recEvent:RecordChatMessageEvent = new RecordChatMessageEvent(RecordChatMessageEvent.RECORD_CHAT_MESSAGE_EVENT);  
+                    var recEvent:cCHAT_RecordMessageEvent = new cCHAT_RecordMessageEvent(cCHAT_RecordMessageEvent.RECORD_CHAT_MESSAGE_EVENT);  
                     recEvent.isRecording = getRecordStatus(receiver) ;
                     this.dispatchEvent(recEvent);
                 }
@@ -503,7 +492,7 @@
             ;   INPUT
             ;   status    :   record status
             ; IMPLEMENTATION
-            ;  
+            ;  change button icon
             ; HISTORY
             ; __date__ :        PTS:            Description
             ; 16-01-2011
@@ -533,7 +522,7 @@
             ;   INPUT
             ;   e   :   TimeEvent
             ; IMPLEMENTATION
-            ;  
+            ;  blink button
             ; HISTORY
             ; __date__ :        PTS:            Description
             ; 16-01-2011
@@ -558,27 +547,27 @@
             ;   INPUT
             ; 
             ; IMPLEMENTATION
-            ;  
+            ;  open history window
             ; HISTORY
             ; __date__ :        PTS:            Description
             ; 16-01-2011
             ******************************************************************************/
             private function handleOpenHistoryWindow():void{
 
-                if ( null != openFileWindow ){
-                    PopUpManager.removePopUp(openFileWindow);
-                    openFileWindow = null ;
+                if ( null != historyWindow ){
+                    PopUpManager.removePopUp(historyWindow);
+                    historyWindow = null ;
                 }
                 
-                openFileWindow = PopUpManager.createPopUp(chatView, OpenFileWindow , false) as OpenFileWindow;
-                openFileWindow.isPrivate = isPrivateRecord ;
-                PopUpManager.centerPopUp(openFileWindow);
-                var e:ChatHistoryFileListEvent ;
+                historyWindow = PopUpManager.createPopUp(chatView, ChatHistoryFileWindow , false) as ChatHistoryFileWindow;
+                historyWindow.isPrivate = isPrivateRecord ;
+                PopUpManager.centerPopUp(historyWindow);
+                var e:cCHAT_HistoryFileListEvent ;
                 
                 if ( PUBLIC_CHAT_USERID == this.receiver ){
-                    e = new ChatHistoryFileListEvent(ChatHistoryFileListEvent.LOAD_FILE_LIST) ;                    
+                    e = new cCHAT_HistoryFileListEvent(cCHAT_HistoryFileListEvent.LOAD_FILE_LIST) ;                    
                 }else{
-                    e = new ChatHistoryFileListEvent(ChatHistoryFileListEvent.LOAD_PRIVATE_FILE_LIST) ;
+                    e = new cCHAT_HistoryFileListEvent(cCHAT_HistoryFileListEvent.LOAD_PRIVATE_FILE_LIST) ;
                     e.sender = String(conference.me.userid) ;
                 }
                 this.dispatchEvent(e) ;

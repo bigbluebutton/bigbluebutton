@@ -21,30 +21,29 @@ package org.bigbluebutton.modules.chat.events
 {
 	import flash.events.Event;
 	import flash.utils.Dictionary;
-    
     /*****************************************************************************
-    ;  ChatButtonEvent
+    ;  cCHAT_HistoryCommandEvent
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
-    ;   this class is used to add chat button event
+    ;   this class is used to add command to chat event
     ;  
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 12-27-2010
     ******************************************************************************/
-	public class ChatButtonEvent extends Event
+	public class cCHAT_HistoryCommandEvent extends Event
 	{
-		public static const NEW_BUTTON:String = 'NEW_BUTTON';
-        public static const CLOSE_BUTTON:String = 'CLOSE_BUTTON';
-        public static const SWITCH_BUTTON:String = 'SWITCH_BUTTON';
+		public static const OPEN_FILE:String = 'OPEN_FILE';
+        public static const DOWNLOAD_FILE:String = 'DOWNLOAD_FILE';
+        public static const SAVE_FILE:String = 'SAVE_FILE';
+        public static const OPEN_PRIVATE_FILE:String = 'OPEN_PRIVATE_FILE';
         
-        public var sender:String ;
-        public var name:String ;
-        public var isRecording:Boolean ;
-        public var receiver:String ;
-        
-		/*****************************************************************************
-        ;  ChatButtonEvent
+        public var fileName:String ;
+        public var message:Object ;
+        public var userid:String ;
+		
+        /*****************************************************************************
+        ;  cCHAT_HistoryCommandEvent
         ;----------------------------------------------------------------------------
         ; DESCRIPTION
         ;   this routine is the constructor of the class
@@ -60,10 +59,10 @@ package org.bigbluebutton.modules.chat.events
         ; __date__ :        PTS:            Description
         ; 12-27-2010
         ******************************************************************************/
-		public function ChatButtonEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
+		public function cCHAT_HistoryCommandEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
 			super(type, bubbles, cancelable);
-		}/** END FUNCTION 'ChatButtonEvent' **/
+		}/** END FUNCTION 'cCHAT_HistoryCommandEvent' **/
 		
-	}/** END CLASS 'ChatButtonEvent' **/
+	}/** END CLASS 'cCHAT_HistoryCommandEvent' **/
 }

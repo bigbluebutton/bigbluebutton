@@ -22,7 +22,7 @@ package org.bigbluebutton.modules.chat.events
 	import flash.events.Event;
 	import flash.utils.Dictionary;
     /*****************************************************************************
-    ;  AddRecordUserEvent
+    ;  cCHAT_AddRecordUserEvent
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
     ;   this class is used to add record user event
@@ -31,7 +31,7 @@ package org.bigbluebutton.modules.chat.events
     ; __date__ :        PTS:            Description
     ; 12-27-2010
     ******************************************************************************/
-	public class AddRecordUserEvent extends Event
+	public class cCHAT_AddRecordUserEvent extends Event
 	{
 		
         public static const NEW_USER:String = 'NEW_USER';
@@ -42,7 +42,7 @@ package org.bigbluebutton.modules.chat.events
         public var record:Boolean ;        
 		
         /*****************************************************************************
-        ;  AddRecordUserEvent
+        ;  cCHAT_AddRecordUserEvent
         ;----------------------------------------------------------------------------
         ; DESCRIPTION
         ;   this routine is the constructor of the class
@@ -58,10 +58,10 @@ package org.bigbluebutton.modules.chat.events
         ; __date__ :        PTS:            Description
         ; 12-27-2010
         ******************************************************************************/
-		public function AddRecordUserEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
+		public function cCHAT_AddRecordUserEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
 			super(type, bubbles, cancelable);
-		}/** END FUNCTION 'AddRecordUserEvent' **/
+		}/** END FUNCTION 'cCHAT_AddRecordUserEvent' **/
 		
-	}/** END CLASS 'ChatButtonEvent' **/
+	}/** END CLASS 'cCHAT_AddRecordUserEvent' **/
 }

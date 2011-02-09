@@ -20,27 +20,31 @@ package org.bigbluebutton.modules.chat.events
 {
 	import flash.events.Event;
     import com.asfusion.mate.events.Dispatcher;
+    
     /*****************************************************************************
-    ;  RecordChatMessageEvent
+    ;  cCHAT_RecordPrivateMessageEvent
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
-    ;   this class is used to send command to record public chat
+    ;   this class is used to send command to record private chat
     ;  
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 12-27-2010
     ******************************************************************************/
-	public class RecordChatMessageEvent extends Event
+	public class cCHAT_RecordPrivateMessageEvent extends Event
 	{
-		public static const RECORD_CHAT_MESSAGE_EVENT:String = 'RECORD_CHAT_MESSAGE_EVENT';
+		public static const RECORD_PRIVATE_CHAT_MESSAGE_EVENT:String = 'RECORD_PRIVATE_CHAT_MESSAGE_EVENT';
+        public static const ADD_MESSAGE:String = 'ADD_MESSAGE';
+        public static const SAVE_MESSAGE:String = 'SAVE_MESSAGE';
 		
-		public var message:String       ;
-        public var username:String          ;
-        public var userid:String           ;
+		public var message:Object       ;
+        public var sender:String          ;
+        public var receiverName:String          ;
         public var isRecording:Boolean  ;
+        public var receiver:String      ;
 		
         /*****************************************************************************
-        ;  RecordChatMessageEvent
+        ;  cCHAT_RecordPrivateMessageEvent
         ;----------------------------------------------------------------------------
         ; DESCRIPTION
         ;   this routine is the constructor of the class
@@ -56,10 +60,10 @@ package org.bigbluebutton.modules.chat.events
         ; __date__ :        PTS:            Description
         ; 12-27-2010
         ******************************************************************************/
-		public function RecordChatMessageEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
+		public function cCHAT_RecordPrivateMessageEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{           
 			super(type, bubbles, cancelable);
-		}/** END FUNCTION 'RecordChatMessageEvent' **/
+		}/** END FUNCTION 'cCHAT_RecordPrivateMessageEvent' **/
 		
-	}/** END CLASS 'RecordChatMessageEvent' **/
+	}/** END CLASS 'cCHAT_RecordPrivateMessageEvent' **/
 }

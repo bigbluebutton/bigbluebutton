@@ -23,26 +23,22 @@ package org.bigbluebutton.modules.chat.events
 	import flash.utils.Dictionary;
     
     /*****************************************************************************
-    ;  ChatHistoryFileListEvent
+    ;  cCHAT_HistoryWindowEvent
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
-    ;   this class is used to load the file list event
+    ;   this class is used to open and close window command
     ;  
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 12-27-2010
     ******************************************************************************/
-	public class ChatHistoryFileListEvent extends Event
+	public class cCHAT_HistoryWindowEvent extends Event
 	{
-		public static const LOAD_FILE_LIST:String = 'LOAD_FILE_LIST';
-        public static const DISPLAY_FILE_LIST:String = 'DISPLAY_FILE_LIST';
-        public static const LOAD_PRIVATE_FILE_LIST:String = 'LOAD_PRIVATE_FILE_LIST' ;
-        
-        public var sender:String ;
-        public var fileList:Object ;
+		public static const OPEN_HISTORY_WINDOW:String = 'OPEN_HISTORY_WINDOW';
+		public static const CLOSE_HISTORY_WINDOW:String = 'CLOSE_HISTORY_WINDOW';       
 		
         /*****************************************************************************
-        ;  ChatHistoryFileListEvent
+        ;  cCHAT_HistoryWindowEvent
         ;----------------------------------------------------------------------------
         ; DESCRIPTION
         ;   this routine is the constructor of the class
@@ -56,12 +52,12 @@ package org.bigbluebutton.modules.chat.events
         ;
         ; HISTORY
         ; __date__ :        PTS:            Description
-        ; 12-27-2010
+        ;12-27-2010
         ******************************************************************************/
-		public function ChatHistoryFileListEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
+		public function cCHAT_HistoryWindowEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
 			super(type, bubbles, cancelable);
-		}/** END FUNCTION 'ChatHistoryFileListEvent' **/
+		}/** END FUNCTION 'cCHAT_HistoryWindowEvent' **/
 		
-	}/** END CLASS 'ChatHistoryFileListEvent' **/
+	}/** END CLASS 'cCHAT_HistoryWindowEvent' **/
 }

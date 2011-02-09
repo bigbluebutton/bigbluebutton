@@ -34,8 +34,9 @@ package org.bigbluebutton.modules.chat.services
 	import org.bigbluebutton.modules.chat.events.ConnectionEvent;
 	import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
 	import org.bigbluebutton.modules.chat.events.TranscriptEvent;
-    import org.bigbluebutton.modules.chat.events.ChatHistoryCommandEvent;
-    import org.bigbluebutton.modules.chat.events.ChatHistoryFileListEvent;
+    
+    import org.bigbluebutton.modules.chat.events.cCHAT_HistoryCommandEvent;
+    import org.bigbluebutton.modules.chat.events.cCHAT_HistoryFileListEvent;
 
 	public class PublicChatSharedObjectService
 	{
@@ -113,138 +114,7 @@ package org.bigbluebutton.modules.chat.services
 				message
 			); //_netConnection.call
 		}
-		
-    /*****************************************************************************
-    ;  recordMessageEvent
-    ;----------------------------------------------------------------------------
-    ; DESCRIPTION
-    ;   this routine is used to set the record status
-    ; RETURNS : N/A
-    ;
-    ; INTERFACE NOTES
-    ;   INPUT
-    ;   isRecord : Boolean , record status
-    ;
-    ; IMPLEMENTATION
-    ;   send the record status to server  
-    ; HISTORY
-    ; __date__ :        PTS:            Description
-    ; 12-27-2010
-    ******************************************************************************/
-        public function recordMessageEvent(userid:String,username:String,isRecord:Boolean):void{
-            var nc:NetConnection = connection ;
-            nc.call(
-                "chat.setRecordStatus",
-                new Responder(
-                    function(result:Object):void{
-                        LogUtil.debug("Successfully sent message: "); 
-                    },
-                    function(status:Object):void{
-                        LogUtil.error("Error occurred:"); 
-						for (var x:Object in status) { 
-							LogUtil.error(x + " : " + status[x]); 
-						} 
-                    }
-                ),
-                userid,
-                username,
-                isRecord
-            );
-        }/** END FUNCTION 'RecordMessageEvent' **/
-
-    /*****************************************************************************
-    ;  loadFileList
-    ;----------------------------------------------------------------------------
-    ; DESCRIPTION
-    ;   this routine is used to load the file list from the server
-    ; RETURNS : N/A
-    ;
-    ; INTERFACE NOTES
-    ;   INPUT
-    ; 
-    ; IMPLEMENTATION
-    ;  load file list from server
-    ; HISTORY
-    ; __date__ :        PTS:            Description
-    ; 12-27-2010
-    ******************************************************************************/
-        public function loadFileList():void{
-            var nc:NetConnection = connection;
-			nc.call(
-				"chat.getChatMessagesFileList",// Remote function name
-				new Responder(
-	        		// On successful result
-					function(result:Object):void { 
-						LogUtil.debug("Successfully sent message: "); 
-						if (null != result) {
-
-							var event:ChatHistoryFileListEvent = new ChatHistoryFileListEvent(ChatHistoryFileListEvent.DISPLAY_FILE_LIST);
-                            event.fileList = result ;
-                            
-                            var globalDispatcher:Dispatcher = new Dispatcher();
-                            globalDispatcher.dispatchEvent(event) ;
-                            
-                            
-						}
-					},	
-					// status - On error occurred
-					function(status:Object):void { 
-						LogUtil.error("Error occurred:"); 
-						for (var x:Object in status) { 
-							LogUtil.error(x + " : " + status[x]); 
-						} 
-					}
-				)//new Responder
-			); //_netConnection.call	
-        }/** END FUNCTION 'loadFileList' **/
-        
-    /*****************************************************************************
-    ;  loadFileContent
-    ;----------------------------------------------------------------------------
-    ; DESCRIPTION
-    ;   this routine is used to load the content of file from server
-    ; RETURNS : N/A
-    ;
-    ; INTERFACE NOTES
-    ;   INPUT
-    ;   fileName : String , file name
-    ;   
-    ; IMPLEMENTATION
-    ;   load content of file from server
-    ;  
-    ; HISTORY
-    ; __date__ :        PTS:            Description
-    ; 12-27-2010
-    ******************************************************************************/
-        public function loadFileContent(fileName:String):void{
-            var nc:NetConnection = connection;
-			nc.call(
-				"chat.getHistoryChatMessages",// Remote function name
-				new Responder(
-	        		// On successful result
-					function(result:Object):void { 
-						LogUtil.debug("Successfully sent message: "); 
-						if (null != result) {
-							var event:ChatHistoryCommandEvent = new ChatHistoryCommandEvent(ChatHistoryCommandEvent.SAVE_FILE);
-                            event.message = result;
-                            event.fileName = fileName ;
-			
-                            var globalDispatcher:Dispatcher = new Dispatcher();
-                            globalDispatcher.dispatchEvent(event);	   			
-						}
-					},	
-					// status - On error occurred
-					function(status:Object):void { 
-						LogUtil.error("Error occurred:"); 
-						for (var x:Object in status) { 
-							LogUtil.error(x + " : " + status[x]); 
-						} 
-					}
-				),//new Responder
-                fileName
-			); //_netConnection.call	
-        } /** END FUNCTION 'loadFileContent' **/
-        
+    
 		/**
 		 * Called by the server to deliver a new chat message.
 		 */	
@@ -309,5 +179,139 @@ package org.bigbluebutton.modules.chat.services
 			trace("Dispatching NET CONNECTION SUCCESS");
 			dispatcher.dispatchEvent(connEvent);
 		}
+        
+        /*****************************************************************************
+        ;  recordMessageEvent
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   this routine is used to set the record status
+        ; RETURNS : N/A
+        ;
+        ; INTERFACE NOTES
+        ;   INPUT
+        ;   userid      :   id of user
+        ;   username    :   user name
+        ;   isRecord    :   record status
+        ;
+        ; IMPLEMENTATION
+        ;   send the record status to server  
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 12-27-2010
+        ******************************************************************************/
+        public function recordMessageEvent(userid:String,username:String,isRecord:Boolean):void{
+            var nc:NetConnection = connection ;
+            nc.call(
+                "chat.setRecordStatus",
+                new Responder(
+                    function(result:Object):void{
+                        LogUtil.debug("Successfully sent message: "); 
+                    },
+                    function(status:Object):void{
+                        LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+                    }
+                ),
+                userid,
+                username,
+                isRecord
+            );
+        }/** END FUNCTION 'RecordMessageEvent' **/
+
+        /*****************************************************************************
+        ;  loadFileList
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   this routine is used to load the file list from the server
+        ; RETURNS : N/A
+        ;
+        ; INTERFACE NOTES
+        ;   INPUT
+        ; 
+        ; IMPLEMENTATION
+        ;  load file list from server
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 12-27-2010
+        ******************************************************************************/
+        public function loadFileList():void{
+            var nc:NetConnection = connection;
+			nc.call(
+				"chat.getChatMessagesFileList",// Remote function name
+				new Responder(
+	        		// On successful result
+					function(result:Object):void { 
+						LogUtil.debug("Successfully sent message: "); 
+						if (null != result) {
+
+							var event:cCHAT_HistoryFileListEvent = new cCHAT_HistoryFileListEvent(cCHAT_HistoryFileListEvent.DISPLAY_FILE_LIST);
+                            event.fileList = result ;
+                            
+                            var globalDispatcher:Dispatcher = new Dispatcher();
+                            globalDispatcher.dispatchEvent(event) ;
+                            
+                            
+						}
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				)//new Responder
+			); //_netConnection.call	
+        }/** END FUNCTION 'loadFileList' **/
+        
+        /*****************************************************************************
+        ;  loadFileContent
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   this routine is used to load the content of file from server
+        ; RETURNS : N/A
+        ;
+        ; INTERFACE NOTES
+        ;   INPUT
+        ;   fileName : String , file name
+        ;   
+        ; IMPLEMENTATION
+        ;   load content of file from server
+        ;  
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 12-27-2010
+        ******************************************************************************/
+        public function loadFileContent(fileName:String):void{
+            var nc:NetConnection = connection;
+			nc.call(
+				"chat.getHistoryChatMessages",// Remote function name
+				new Responder(
+	        		// On successful result
+					function(result:Object):void { 
+						LogUtil.debug("Successfully sent message: "); 
+						if (null != result) {
+							var event:cCHAT_HistoryCommandEvent = new cCHAT_HistoryCommandEvent(cCHAT_HistoryCommandEvent.SAVE_FILE);
+                            event.message = result;
+                            event.fileName = fileName ;
+			
+                            var globalDispatcher:Dispatcher = new Dispatcher();
+                            globalDispatcher.dispatchEvent(event);	   			
+						}
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				),//new Responder
+                fileName
+			); //_netConnection.call	
+        } /** END FUNCTION 'loadFileContent' **/
+    
 	}
 }

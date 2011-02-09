@@ -30,14 +30,16 @@ package org.bigbluebutton.modules.chat.services
 	import org.bigbluebutton.main.events.ParticipantJoinEvent;
 	import org.bigbluebutton.main.model.User;
 	import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
-    import org.bigbluebutton.modules.chat.events.RecordPrivateChatMessageEvent;
-    import org.bigbluebutton.modules.chat.events.ChatHistoryFileListEvent;
-    import org.bigbluebutton.modules.chat.events.ChatHistoryCommandEvent;
-    import org.bigbluebutton.modules.chat.events.ChatButtonEvent;
-    import org.bigbluebutton.modules.chat.events.AddRecordUserEvent;
-	import org.bigbluebutton.modules.chat.model.MessageVO;
+    import org.bigbluebutton.modules.chat.model.MessageVO;
 	import org.bigbluebutton.common.LogUtil;
     import mx.controls.Alert ;
+    
+    import org.bigbluebutton.modules.chat.events.cCHAT_RecordPrivateMessageEvent;
+    import org.bigbluebutton.modules.chat.events.cCHAT_HistoryFileListEvent;
+    import org.bigbluebutton.modules.chat.events.cCHAT_HistoryCommandEvent;
+    import org.bigbluebutton.modules.chat.events.cCHAT_ButtonEvent;
+    import org.bigbluebutton.modules.chat.events.cCHAT_AddRecordUserEvent;
+	
 
 	public class PrivateChatSharedObjectService
 	{
@@ -48,15 +50,7 @@ package org.bigbluebutton.modules.chat.services
 		private var dispatcher:IEventDispatcher;
 		
 		private var privateResponder:Responder;
-		private var participantsResponder:Responder;
-        private var record:Boolean = false ;
-        private var _suffix:int=1   ;
-        private var fileName:String ;
-        //private var partner:String='0' ;
-        private var partner:ArrayCollection = new ArrayCollection() ;
-        private var curPartner:Object ;
-        
-		
+		private var participantsResponder:Responder;  
 		// This participant's userid
 		private var userid:String;
 		
@@ -133,7 +127,32 @@ package org.bigbluebutton.modules.chat.services
             recordChatMessage(from,message);
             
 		}
+        
+		private function sharedObjectSyncHandler(event:SyncEvent) : void
+		{	
+			trace("Connection to private shared object successful.");
+		}
+
+		public function participantJoined(joinedUser:Object):void { 
+			var participant:User = new User();
+			participant.userid = joinedUser.userid;
+			participant.name = joinedUser.name;
+			trace("ParticipantJoined " + joinedUser.name + "[" + joinedUser.userid + "]");
+			
+			if (joinedUser.userid == userid) return;
+			
+			var globalDispatcher:Dispatcher = new Dispatcher();
+			var joinEvent:ParticipantJoinEvent = new ParticipantJoinEvent(ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT);
+			joinEvent.participant = participant;
+			joinEvent.join = true;
+			globalDispatcher.dispatchEvent(joinEvent);
+		}
 		
+		public function queryForParticipants():void {
+			trace("Querying for participants.");
+			connection.call("participants.getParticipants",participantsResponder);
+		}
+        
         /*****************************************************************************
         ;  recordChatMessage
         ;----------------------------------------------------------------------------
@@ -147,7 +166,7 @@ package org.bigbluebutton.modules.chat.services
         ;   message : String
         ;
         ; IMPLEMENTATION
-        ;  
+        ;  call recordChatMessage via SO to record message
         ; HISTORY
         ; __date__ :        PTS:            Description
         ; 16-01-2010
@@ -176,15 +195,15 @@ package org.bigbluebutton.modules.chat.services
         ;
         ; INTERFACE NOTES
         ;   INPUT
-        ;   e: RecordPrivateChatMessageEvent
+        ;   e: cCHAT_RecordPrivateMessageEvent
         ;
         ; IMPLEMENTATION
-        ;  
+        ;  set record message event status to server
         ; HISTORY
         ; __date__ :        PTS:            Description
         ; 16-01-2010
         ******************************************************************************/ 
-        public function recordMessageEvent(e:RecordPrivateChatMessageEvent,username:String):void{
+        public function recordMessageEvent(e:cCHAT_RecordPrivateMessageEvent,username:String):void{
             connection.call("chat.setPrivateRecordStatus", new Responder(
                         function(result:Object):void{
                             LogUtil.debug("Successfully called chat server private message");
@@ -207,15 +226,15 @@ package org.bigbluebutton.modules.chat.services
         ;
         ; INTERFACE NOTES
         ;   INPUT
-        ;   e: AddRecordUserEvent
+        ;   e: cCHAT_AddRecordUserEvent
         ;
         ; IMPLEMENTATION
-        ;  
+        ;  add user to list on server via SO
         ; HISTORY
         ; __date__ :        PTS:            Description
         ; 16-01-2010
         ******************************************************************************/
-        public function addUserToList(e:AddRecordUserEvent):void{
+        public function addUserToList(e:cCHAT_AddRecordUserEvent):void{
             connection.call("chat.addUserToList", new Responder(
                         function(result:Object):void{
                             LogUtil.debug("Successfully called chat server private message");
@@ -239,15 +258,15 @@ package org.bigbluebutton.modules.chat.services
         ;
         ; INTERFACE NOTES
         ;   INPUT
-        ;   e: AddRecordUserEvent
+        ;   e: cCHAT_AddRecordUserEvent
         ;
         ; IMPLEMENTATION
-        ;  
+        ;  remove user from user list via SO
         ; HISTORY
         ; __date__ :        PTS:            Description
         ; 16-01-2010
         ******************************************************************************/
-        public function removeUserFromList(e:AddRecordUserEvent):void{
+        public function removeUserFromList(e:cCHAT_AddRecordUserEvent):void{
             connection.call("chat.removeUserFromList", new Responder(
                         function(result:Object):void{
                             LogUtil.debug("Successfully called chat server private message");
@@ -269,21 +288,21 @@ package org.bigbluebutton.modules.chat.services
         ;
         ; INTERFACE NOTES
         ;   INPUT
-        ;   e: ChatHistoryFileListEvent
+        ;   e: cCHAT_HistoryFileListEvent
         ;
         ; IMPLEMENTATION
-        ;  
+        ;  load file list from server via SO
         ; HISTORY
         ; __date__ :        PTS:            Description
         ; 16-01-2010
         ******************************************************************************/
-        public function loadFileList(e:ChatHistoryFileListEvent):void{
+        public function loadFileList(e:cCHAT_HistoryFileListEvent):void{
             connection.call("chat.getPrivateFileList", new Responder(
                         function(result:Object):void{
                             LogUtil.debug("Successfully called chat server private message");
                             if (result != null) {
                                 
-                                var event:ChatHistoryFileListEvent = new ChatHistoryFileListEvent(ChatHistoryFileListEvent.DISPLAY_FILE_LIST);
+                                var event:cCHAT_HistoryFileListEvent = new cCHAT_HistoryFileListEvent(cCHAT_HistoryFileListEvent.DISPLAY_FILE_LIST);
                                 event.fileList = result ;
                             
                                 var globalDispatcher:Dispatcher = new Dispatcher();
@@ -309,20 +328,20 @@ package org.bigbluebutton.modules.chat.services
         ;
         ; INTERFACE NOTES
         ;   INPUT
-        ;   e: ChatHistoryFileListEvent
+        ;   e: cCHAT_HistoryFileListEvent
         ;
         ; IMPLEMENTATION
-        ;  
+        ;  load file content from server via SO
         ; HISTORY
         ; __date__ :        PTS:            Description
         ; 16-01-2010
         ******************************************************************************/
-        public function loadFileContent(e:ChatHistoryCommandEvent):void{
+        public function loadFileContent(e:cCHAT_HistoryCommandEvent):void{
             connection.call("chat.getPrivateChatMessages", new Responder(
                         function(result:Object):void{
                             LogUtil.debug("Successfully called chat server private message");
                             if (result != null) {
-                                var event:ChatHistoryCommandEvent = new ChatHistoryCommandEvent(ChatHistoryCommandEvent.SAVE_FILE);
+                                var event:cCHAT_HistoryCommandEvent = new cCHAT_HistoryCommandEvent(cCHAT_HistoryCommandEvent.SAVE_FILE);
                                 event.message = result;
                                 event.fileName = e.fileName ;
 			
@@ -339,30 +358,5 @@ package org.bigbluebutton.modules.chat.services
                 
             )
         }//** END FUNCTION 'loadFileContent' **/
-        
-		private function sharedObjectSyncHandler(event:SyncEvent) : void
-		{	
-			trace("Connection to private shared object successful.");
-		}
-
-		public function participantJoined(joinedUser:Object):void { 
-			var participant:User = new User();
-			participant.userid = joinedUser.userid;
-			participant.name = joinedUser.name;
-			trace("ParticipantJoined " + joinedUser.name + "[" + joinedUser.userid + "]");
-			
-			if (joinedUser.userid == userid) return;
-			
-			var globalDispatcher:Dispatcher = new Dispatcher();
-			var joinEvent:ParticipantJoinEvent = new ParticipantJoinEvent(ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT);
-			joinEvent.participant = participant;
-			joinEvent.join = true;
-			globalDispatcher.dispatchEvent(joinEvent);
-		}
-		
-		public function queryForParticipants():void {
-			trace("Querying for participants.");
-			connection.call("participants.getParticipants",participantsResponder);
-		}
 	}
 }
