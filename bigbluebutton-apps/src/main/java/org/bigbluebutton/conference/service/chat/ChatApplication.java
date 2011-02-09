@@ -82,8 +82,10 @@ public class ChatApplication {
     ;
     ; INTERFACE NOTES
     ;   INPUT 
-    ;   room : room name
-    ;   isRecording : status whether user is recording chat message or not 
+    ;   room        :   room name
+    ;   userid      :   id of user
+    ;   username    :   user name
+    ;   isRecording :   status whether user is recording chat message or not 
     ;   
     ; 
     ; IMPLEMENTATION
@@ -94,7 +96,6 @@ public class ChatApplication {
     ; 12-27-2010                        
     ******************************************************************************/
     public void setRecordStatus(String room, String userid, String username, boolean isRecording){
-        log.debug("Setting Record Status {}",userid);
         roomsManager.setRecordStatus(room,userid,username,isRecording) ;
     }
     /**

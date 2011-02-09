@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bigbluebutton.conference.service.chat.IChatRoomListener;
-import org.bigbluebutton.conference.service.chat.UserMessageRecorder;
+import org.bigbluebutton.conference.service.chat.cCHAT_UserMessageRecorder;
 import org.red5.server.api.so.ISharedObject;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
@@ -36,7 +36,7 @@ import java.io.PrintStream;
 import java.util.Iterator;
 
 /*****************************************************************************
-;  ChatMessageRecorder
+;  cCHAT_MessageRecorder
 ;----------------------------------------------------------------------------
 ; DESCRIPTION
 ;   this class is used to record the chat message
@@ -45,27 +45,27 @@ import java.util.Iterator;
 ; __date__ :        PTS:            Description
 ; 12-27-2010
 ******************************************************************************/
-public class ChatMessageRecorder implements IChatRoomListener {
+public class cCHAT_MessageRecorder implements IChatRoomListener {
 
-private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.class, "bigbluebutton" );
+private static Logger log = Red5LoggerFactory.getLogger( cCHAT_MessageRecorder.class, "bigbluebutton" );
 
     private boolean record;
     private ISharedObject so;
     
     private File curHistoryFile = null ;
-    private String curFileName = "PublicChatMessageRecorded-" ;
+    private static final String prefixFileName = "PublicChatMessageRecorded-" ;
     private String curDir ;
-    private UserMessageRecorder objUser ;
+    private cCHAT_UserMessageRecorder objUser ;
     private String dPath = "/tmp/" ;
 
     
-    String name = "CHATRECORDER";
+    private static final String name = "CHATRECORDER";
 
     /*****************************************************************************
-    ;  ChatMessageRecorder
+    ;  cCHAT_MessageRecorder
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
-    ;   this routine is the constructor of ChatMessageRecorder Class
+    ;   this routine is the constructor of cCHAT_MessageRecorder Class
     ; RETURNS : N/A
     ;
     ; INTERFACE NOTES
@@ -79,39 +79,36 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
     ; __date__ :        PTS:            Description
     ; 12-27-2010
     ******************************************************************************/
-    public ChatMessageRecorder(ISharedObject so, String dir) {
-        log.debug("ChatMessageRecorder Constructor...");
-        // check whether the input parameter is null or not
-        if ( (null == so) || (null == dir) ){
-            log.debug("The SO parameter is null");
-        }
-        
+    public cCHAT_MessageRecorder(ISharedObject so, String dir) {
+        log.debug("cCHAT_MessageRecorder Constructor...");      
         
         boolean success = false ;
         
         this.so = so; 
-        this.curDir = this.dPath + dir ;
+        this.curDir = dPath + dir  ;
+        objUser = new cCHAT_UserMessageRecorder() ;
         
-        success = (new File(curDir)).mkdir() ;
-        
-        log.debug("Initialize ObjUser");
-        objUser = new UserMessageRecorder() ;
-        log.debug("objUser {}",objUser);
-        
-        if ( true == success ){
-            log.debug("Directory {} was created",curDir);
-        }else{
-            log.debug("Directory {} was not created",curDir);
+        File f = new File(curDir) ;
+        if ( null != f ){
+            if ( false == f.exists() ){
+                success = f.mkdir() ;
+                if ( true == success ){
+                    log.error("Directory {} was created",curDir);
+                }else{
+                    log.error("Directory {} was not created",curDir);
+                }
+            }
         }
         
-    }/** END FUNCTION 'ChatMessageRecorder' **/
+        
+    }/** END FUNCTION 'cCHAT_MessageRecorder' **/
         
     /*****************************************************************************
     ;  getName
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
     ;   This routine is implemented from IChatRoomListener.
-    ; RETURNS : name
+    ; RETURNS : String
     ;
     ; INTERFACE NOTES
     ;   N/A
@@ -124,7 +121,6 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
     ******************************************************************************/
     @Override
     public String getName() {
-        log.debug("ChatMessageRecorder getName {}" , name);
         return name;
     }/** END FUNCTION 'getName' **/
     
@@ -148,11 +144,10 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
     ******************************************************************************/
     @Override
     public void newChatMessage(String message) {
-        log.debug("ChatMessageRecorder newChatMessage {}" , message);
-        
+               
         //check whether the input parameter is null or not
         if ( null == message ){
-            log.debug("ChatMessageRecorder newChatMessage null");
+            log.debug("ChatMessageRecorder ERROR INPUT PARAMETER");
             return ;
         }
         
@@ -169,10 +164,10 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
     ;
     ; INTERFACE NOTES
     ;   INPUT
-    ;   message  :   new chat message
+    ;   message  :   new message
     ; 
     ; IMPLEMENTATION
-    ;  add new message to user 
+    ;  add new message to record user file
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 12-27-2010
@@ -180,18 +175,21 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
     private void addMessageToRecordUser(String message){
         
         if ( null == message ){
+            log.error("addMessageToRecordUser ERROR INPUT PARAMETER");
             return ;
         }
         
-        ArrayList<UserMessageRecorder> userList = objUser.getUserList() ;
+        ArrayList<cCHAT_UserMessageRecorder> userList = objUser.getUserList() ;
         int i=0 ;
-        for(i=0; i<userList.size(); i++){
-            if ( true == userList.get(i).record ){
-                addChatHistory(message,userList.get(i).curFile) ;
+        if ( null != userList ){
+            for(i=0; i<userList.size(); i++){
+                if ( true == userList.get(i).record ){
+                    addChatHistory(message,userList.get(i).curFile) ;
+                }
             }
         }
         
-    }
+    }/** END FUNCTION 'addMessageToRecordUser' **/
     
     /*****************************************************************************
     ;  isFileExist
@@ -199,30 +197,37 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
     ; DESCRIPTION
     ;   this routine is implemented from IChatRoomListener. It is used to set up
     ;   recording status
-    ; RETURNS : true/false
+    ; RETURNS : boolean
     ;
     ; INTERFACE NOTES
     ;   INPUT
-    ;   fileName : file name to save chat message
+    ;   fileName  :   name of file
     ; 
     ; IMPLEMENTATION
-    ;  check whether the file exist
+    ;  detect whether the file exists or not
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 12-27-2010
     ******************************************************************************/
     private boolean isFileExist(String fileName){
         if ( null == fileName ){
+            log.error("isFileExist ERROR INPUT PARAMETER");
             return false ;
         }   
         
         File f = new File(this.curDir,fileName) ;
-        if ( false == f.exists() ){
-            return false ;
+        if ( null != f ){
+            if ( false == f.exists() ){
+                return false ;
+            }else{
+                return true ;
+            }
         }else{
-            return true ;
+            log.error("Failed to initialize file");
+            return false ;
         }
-    }
+    }/** END FUNCTION 'isFileExist' **/
+    
     /*****************************************************************************
     ;  setRecordStatus
     ;----------------------------------------------------------------------------
@@ -233,40 +238,40 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
     ;
     ; INTERFACE NOTES
     ;   INPUT
-    ;   status  :   true/false
     ;   userid  :   id of user
-    ;   username:   name of user
+    ;   username:   user name
+    ;   status  :   true/false
     ; 
     ; IMPLEMENTATION
-    ;  set the recording status
+    ;  set the recording status to a user in the list
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 12-27-2010
     ******************************************************************************/
     @Override
     public void setRecordStatus(String userid, String username, boolean status){
+        
+        log.debug("setRecordStatus Entry");
+        
         if ( null == userid || null == username ){
-            log.debug("Null parameter");
+            log.debug("setRecordStatus ERROR INPUT PARAMETER");
             return ;
-        }        
-                
-        if ( null != objUser ){
-            log.debug("Object Null");
         }
         
-        objUser.addUserToList(userid,username,status) ;
-        
-        objUser.setRecordStatusToUser(userid,status) ;
-        
-        
         boolean success = false ;
-                
-        log.debug("setRecordStatus Setting {}",status);
+        
+        if ( null != objUser ){       
+            success = objUser.addUserToList(userid,username,status) ;
+            if ( true == success ){        
+                objUser.setRecordStatusToUser(userid,status) ;
+            }
+        }        
         
         // create file when moderator click record button
         if ( true == status ){
             success = createHistoryFile(userid) ;
             if ( false == success ){
+                log.error("Failed to create file");
                 return ;
             }
         }
@@ -277,48 +282,48 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
     ;  createUniqueFile
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
-    ;   this routine is used to create a unique file name
+    ;   this routine is used to create a unique file
     ;
-    ; RETURNS : true/false
+    ; RETURNS : boolean
     ;
     ; INTERFACE NOTES
     ;   INPUT
-    ;   userid : id of user
+    ;   userid  :   id of user
     ; 
     ; IMPLEMENTATION
-    ;  initialize new file in gDir
-    ;  if file exists, initialize another new file name
+    ;  update user file name
+    ;  initialize current file name
+    ;  create new file
     ;
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 12-27-2010
     ******************************************************************************/
     private boolean createUniqueFile(String userid){
-    
-        String fileName = objUser.getCurrentFileFromUser(userid) ;
-        if ( null == fileName ) {
-            log.debug ("Failed to get file name");
+            
+        if ( null == userid ){
+            log.error("createUniqueFile ERROR INPUT PARAMETER");
             return false ;
         }
         
-        boolean fUpdate= false ;
-        fUpdate = objUser.updateFileName(userid,curFileName + fileName);
-        if ( false == fUpdate ){
+        boolean success= false ;
+        success = objUser.updateFileName(userid,prefixFileName);
+        if ( false == success ){
             return false ;
         }
         
         curHistoryFile = new File( curDir, objUser.getCurrentFileFromUser(userid) );
         if ( null == curHistoryFile ){
-            log.debug ("ERROR INITIALIZE gHistoryFile");
+            log.error ("Failed to initialize curHistoryFile");
             return false ;
-        }       
+        }
+       
         try{
             curHistoryFile.createNewFile();
         }catch(IOException e){
             log.debug ("ERROR: {}",e.getMessage());
         }
         
-        log.debug("Current Used File {}", curHistoryFile);
         return true ;
         
     }/** END FUNCTION 'createUniqueFile' **/
@@ -327,43 +332,41 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
     ;  createHistoryFile
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
-    ; this routine is used to create a text file
+    ; this routine is used to create file
     ;
-    ; RETURNS : true/false
+    ; RETURNS : boolean
     ;
     ; INTERFACE NOTES
     ;   INPUT
     ;   userid  :   id of user
     ; 
     ; IMPLEMENTATION
-    ;  create a unique file name
-    ;  
+    ; create file
     ;
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 12-27-2010 
     ******************************************************************************/
     private boolean createHistoryFile(String userid){
-        boolean success = false ;
-        success = createUniqueFile(userid);        
-        return success ;
+        return createUniqueFile(userid);        
     }/** END FUNCTION 'createHistoryFile' **/
     
     /*****************************************************************************
     ;  addChatHistory
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
-    ; this routine is used to write the message to text file
+    ; this routine is used to write the message to xml content
     ;
     ; RETURNS : N/A
     ;
     ; INTERFACE NOTES
     ;   INPUT
-    ;   message : String
-    ;   fileName:   name of file
-    ; 
+    ;   message     :   new message
+    ;   fileName    :   file name
+    ;
     ; IMPLEMENTATION
-    ;  write message to fileName 
+    ;   get message info
+    ;   append message to file
     ;
     ; HISTORY
     ; __date__ :        PTS:            Description
@@ -371,14 +374,15 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
     ******************************************************************************/
     public void addChatHistory(String message,String fileName){
         
-        if ( null == message ){
-            log.debug("error input parameter");
+        if ( (null == message) || (null == fileName) ){
+            log.error("addChatHistory ERROR INPUT PARAMETER");
             return  ;
         }
                 
         File file = new File(curDir,fileName);
         if ( null == file ){
-            return ;
+            log.error("Failed to initialize file");
+            return  ;
         }
         
         String name = objUser.getUserName(message) ;
@@ -386,15 +390,25 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageRecorder.cla
         String time = objUser.getTime(message)     ;
         
         try{
-            BufferedWriter out = new BufferedWriter(new FileWriter(file, true));
-            if ( null == out ){
+            FileWriter fr = new FileWriter(file, true) ;
+            if ( null == fr ){
+                log.error("Failed to initialize file writer");
+                return  ;
+            }
+            
+            BufferedWriter bw = new BufferedWriter(fr);
+            if ( null == bw ){
+                log.error("Failed to initialize buffer");
                 return ;
             }
-            out.write("[" + name + "]" + " : " + time + " : " + msg + "\n" ) ;
-            out.close();
+            
+            bw.write("[" + name + "]" + " : " + time + " : " + msg + "\n" ) ;
+            log.debug("Append Message to {} ",file);
+            log.debug("Message to {} ",name + " : " + time + " : " + msg + "\n" );
+            bw.close();
         }catch(IOException e){
             log.debug("error {}",e.getMessage());
         }
     }/** END FUNCTION 'addChatHistory' **/
 
-}/** END CLASS 'ChatMessageRecorder' **/
+}/** END CLASS 'cCHAT_MessageRecorder' **/

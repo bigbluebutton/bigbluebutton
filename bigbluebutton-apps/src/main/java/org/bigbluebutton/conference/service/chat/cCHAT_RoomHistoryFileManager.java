@@ -32,7 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /*****************************************************************************
-;  ChatRoomHistoryFileManager
+;  cCHAT_RoomHistoryFileManager
 ;----------------------------------------------------------------------------
 ; DESCRIPTION
 ;   this class is used to manage the file history chat message
@@ -41,25 +41,24 @@ import java.util.List;
 ; __date__ :        PTS:            Description
 ; 12-27-2010
 ******************************************************************************/
-public class ChatRoomHistoryFileManager{
-    private String gDir ;
-    private File gHistoryFile ;   
+public class cCHAT_RoomHistoryFileManager{
+    private String curDir ;
     
     private ArrayList<String> files;
     private ArrayList<String> messages;
     
-    private static Logger log = Red5LoggerFactory.getLogger( ChatRoomHistoryFileManager.class, "bigbluebutton" );
+    private static Logger log = Red5LoggerFactory.getLogger( cCHAT_RoomHistoryFileManager.class, "bigbluebutton" );
     
     /*****************************************************************************
-    ;  ChatRoomHistoryFileManager
+    ;  cCHAT_RoomHistoryFileManager
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
-    ;   this routine is the constructor of the ChatRoomHistoryFileManager
+    ;   this routine is the constructor of the cCHAT_RoomHistoryFileManager
     ; RETURNS : N/A
     ;
     ; INTERFACE NOTES
     ;   INPUT
-    ;   lDir    :   String, Directory of file
+    ;   dir    :   String, Directory of file
     ; 
     ; IMPLEMENTATION
     ;   initialize the directory
@@ -69,17 +68,17 @@ public class ChatRoomHistoryFileManager{
     ; __date__ :        PTS:            Description
     ; 12-27-2010 
     ******************************************************************************/
-    public ChatRoomHistoryFileManager(String lDir ){
-        if ( null == lDir ){
-            log.debug ("ERROR INPUT PARAMETER lDir");
+    public cCHAT_RoomHistoryFileManager(String dir ){
+        if ( null == dir ){
+            log.debug ("ERROR INPUT PARAMETER dir");
         }
         
         files = new ArrayList<String>() ;
         if ( null == files ){
             log.debug ("ERROR INITIALIZE ArrayList File");
         }
-        this.gDir = "/tmp/" + lDir ;
-        File tempDir = new File(this.gDir);
+        this.curDir = "/tmp/" + dir ;
+        File tempDir = new File(this.curDir);
         if ( null == tempDir ){
             log.debug ("ERROR INITIALIZE tempDir File");
         }
@@ -87,12 +86,12 @@ public class ChatRoomHistoryFileManager{
         File f ;
         for( int i=0; i<fileName.length; i++ ){
             log.debug("File List {} ",fileName[i]);
-            f = new File (this.gDir,fileName[i]) ;
+            f = new File (this.curDir,fileName[i]) ;
             if ( true == f.isFile() ){
                 files.add(fileName[i]);
             }
         }
-    }/** END FUNCTION 'ChatRoomHistoryFileManager' **/
+    }/** END FUNCTION 'cCHAT_RoomHistoryFileManager' **/
        
     /*****************************************************************************
     ;  getHistoryFileContent
@@ -121,10 +120,28 @@ public class ChatRoomHistoryFileManager{
             return null ;
         }
         try{
-            BufferedReader br = new BufferedReader(new FileReader(new File(this.gDir,fileName)));
-            messages=new ArrayList<String>() ;
-        
+            
             String msg ;
+            
+            File f = new File(this.curDir,fileName) ;
+            if ( null == f ){
+                return null ;
+            }
+            
+            FileReader fr = new FileReader(f) ;
+            if ( null == fr ){
+                return null ;
+            }
+            
+            BufferedReader br = new BufferedReader(fr);
+            if ( null == br ){
+                return null ;
+            }
+            
+            messages=new ArrayList<String>() ;
+            if ( null == messages ){
+                return null ;
+            }
         
             while( null != (msg = br.readLine())  ){
                 messages.add(msg);
@@ -157,8 +174,8 @@ public class ChatRoomHistoryFileManager{
     ******************************************************************************/
     public ArrayList<String> getFilesList(){
         return files ;
-    } /** END FUNCTION 'saveHistoryFile' **/
+    } /** END FUNCTION 'getFilesList' **/
     
 }   /**
-    * END CLASS 'ChatRoomHistoryFileManager'
+    * END CLASS 'cCHAT_RoomHistoryFileManager'
     **/

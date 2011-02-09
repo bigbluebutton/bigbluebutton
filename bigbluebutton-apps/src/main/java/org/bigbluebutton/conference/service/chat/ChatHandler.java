@@ -84,7 +84,7 @@ public class ChatHandler extends ApplicationAdapter implements IApplication{
 		ChatEventRecorder recorder = new ChatEventRecorder(chatApplication, so, getBbbSession().getRecord());
         
         //Initialize the chat message recorder
-        ChatMessageRecorder msgRecorder = new ChatMessageRecorder(so,connection.getScope().getName());
+        cCHAT_MessageRecorder msgRecorder = new cCHAT_MessageRecorder(so,connection.getScope().getName());
         
         //check whether the new object is null or not
         if ( null == msgRecorder ){

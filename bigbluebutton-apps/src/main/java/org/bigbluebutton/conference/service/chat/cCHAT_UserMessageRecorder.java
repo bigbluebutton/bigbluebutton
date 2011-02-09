@@ -33,23 +33,24 @@ import org.red5.logging.Red5LoggerFactory;
 ; __date__ :        PTS:            Description
 ; 12-27-2010
 ******************************************************************************/
-public class UserMessageRecorder{
+public class cCHAT_UserMessageRecorder{
 
     public String toUser ;
     public String username ;
     public boolean record ;
-    public int suffix = 1  ;
     public String curFile ;
-    private ArrayList<UserMessageRecorder> objUser = new ArrayList<UserMessageRecorder>() ;
+    public int suffix = 0 ;
     
-    private static Logger log = Red5LoggerFactory.getLogger( UserMessageRecorder.class, "bigbluebutton" );
+    private ArrayList<cCHAT_UserMessageRecorder> objUser = new ArrayList<cCHAT_UserMessageRecorder>() ;
+    
+    private static Logger log = Red5LoggerFactory.getLogger( cCHAT_UserMessageRecorder.class, "bigbluebutton" );
     
     /*****************************************************************************
     ;  addUserToList
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
     ;   this routine is used to add user to the list
-    ; RETURNS : N/A
+    ; RETURNS : boolean
     ;
     ; INTERFACE NOTES
     ;   INPUT
@@ -58,15 +59,22 @@ public class UserMessageRecorder{
     ;   record      :   record status
     ; 
     ; IMPLEMENTATION
-    ;  
+    ;   initialize user object
+    ;   add user information to objUser
+    ;
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 01-16-2011
     ******************************************************************************/
     public boolean addUserToList(String userid, String username, boolean record){
         log.debug("Add User Entry" );
-        log.debug("user : " + userid + " " + username + " " + record + " ");
-        UserMessageRecorder user = new UserMessageRecorder() ;
+        if ( (null == userid) || (null == username) ){
+            log.error("addUserToList ERROR INPUT PARAMETER ");
+            return false;
+        }
+        
+        boolean success = false ;
+        cCHAT_UserMessageRecorder user = new cCHAT_UserMessageRecorder() ;
         if ( null == user ){
             log.debug("Initialize Failed" );
             return false ;
@@ -79,12 +87,14 @@ public class UserMessageRecorder{
             user.toUser = userid ;
             user.username = username ;
             user.record = record ;
-            user.suffix = 1 ;
+            user.suffix = 0 ;
             user.curFile = user.username + "-" + user.suffix ;
-            objUser.add(user) ;
+            success = objUser.add(user) ;
+        }else{
+            success = true ;
         }
         
-        return true ;
+        return success ;
     }/** END FUNCTION 'addUserToList' **/
     
     /*****************************************************************************
@@ -92,32 +102,35 @@ public class UserMessageRecorder{
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
     ;   this routine is used to get user from the list
-    ; RETURNS : N/A
+    ; RETURNS : cCHAT_UserMessageRecorder
     ;
     ; INTERFACE NOTES
     ;   INPUT
     ;   userid      :   id of user
     ; 
     ; IMPLEMENTATION
-    ;  
+    ;  get user information from objUser
+    ;
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 01-16-2011
     ******************************************************************************/
-    public UserMessageRecorder getUserFromList(String userid){
+    public cCHAT_UserMessageRecorder getUserFromList(String userid){
         if ( null == userid ){
-            log.debug("Input parameter NULL" );
+            log.error("getUserFromList ERROR INPUT PARAMETER" );
+            return null;
         }
         
-        UserMessageRecorder user = null ;
+        cCHAT_UserMessageRecorder user = null ;
         
         int i=0 ;
-        for(i=0; i<objUser.size(); i++){
-            log.debug(" getUserFromList user : " + objUser.get(i).toUser + " " + objUser.get(i).username + " " + objUser.get(i).record + " ");
-            if ( 0 == userid.compareTo(objUser.get(i).toUser) ){
-                log.debug(" getUserFromList user : " + objUser.get(i).toUser + " " + objUser.get(i).username + " " + objUser.get(i).record + " ");
-                user = objUser.get(i) ;
-                break ;
+        
+        if ( null != objUser ){
+            for(i=0; i<objUser.size(); i++){
+                if ( 0 == userid.compareTo(objUser.get(i).toUser) ){
+                    user = objUser.get(i) ;
+                    break ;
+                }
             }
         }
         
@@ -137,6 +150,7 @@ public class UserMessageRecorder{
     ;   record      :   record status
     ; 
     ; IMPLEMENTATION
+    ;   assign recording status to a user in objUser
     ;  
     ; HISTORY
     ; __date__ :        PTS:            Description
@@ -145,18 +159,17 @@ public class UserMessageRecorder{
     public void setRecordStatusToUser(String userid,boolean record){
     
         if ( null == userid ){
-            log.debug("Input parameter NULL" );
+            log.error("setRecordStatusToUser ERROR INPUT PARAMETER" );
+            return ;
         }
-        
-        if ( false == record ){
-            updateFileName(userid,"") ;
-        }
-        
+      
         int i=0 ;
-        for(i=0; i<objUser.size(); i++){
-            if ( 0 == userid.compareTo(objUser.get(i).toUser) ){
-                objUser.get(i).record = record ;
-                break ;
+        if ( null != objUser ){
+            for(i=0; i<objUser.size(); i++){
+                if ( 0 == userid.compareTo(objUser.get(i).toUser) ){
+                    objUser.get(i).record = record ;
+                    break ;
+                }
             }
         }
     }/** END FUNCTION 'setRecordStatusToUser' **/
@@ -166,29 +179,34 @@ public class UserMessageRecorder{
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
     ;   this routine is used to get record status to user
-    ; RETURNS : N/A
+    ; RETURNS : boolean
     ;
     ; INTERFACE NOTES
     ;   INPUT
     ;   userid      :   id of user
     ; 
     ; IMPLEMENTATION
-    ;  
+    ;   get the recording of a user from objUser  
+    ;
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 01-16-2011
     ******************************************************************************/
     public boolean getRecordStatusFromUser(String userid){
+        
         if ( null == userid ){
-            log.debug("Input parameter NULL" );
+            log.error("getRecordStatusFromUser ERROR INPUT PARAMETER" );
+            return false;
         }
         
         int i=0 ;
         boolean record = false ;
-        for(i=0; i<objUser.size(); i++){
-            if (  0 == userid.compareTo(objUser.get(i).toUser ) ){
-                record = objUser.get(i).record ;
-                break ;
+        if ( null != objUser ){
+            for(i=0; i<objUser.size(); i++){
+                if (  0 == userid.compareTo(objUser.get(i).toUser ) ){
+                    record = objUser.get(i).record ;
+                    break ;
+                }
             }
         }
         
@@ -200,30 +218,33 @@ public class UserMessageRecorder{
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
     ;   this routine is used to get record status to user
-    ; RETURNS : N/A
+    ; RETURNS : String
     ;
     ; INTERFACE NOTES
     ;   INPUT
     ;   userid      :   id of user
     ; 
     ; IMPLEMENTATION
-    ;  
+    ;  get the current recording file from a user in objUser
+    ;
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 01-16-2011
     ******************************************************************************/
     public String getCurrentFileFromUser(String userid){
         if ( null == userid ){
-            log.debug("Input parameter NULL" );
+            log.error("getCurrentFileFromUser ERROR INPUT PARAMETER" );
             return null;
         }
         
         int i=0 ;
         String file = null ;
-        for(i=0; i<objUser.size(); i++){
-            if (  0 == userid.compareTo(objUser.get(i).toUser ) ){
-                file = objUser.get(i).curFile ;
-                break ;
+        if ( null != objUser ){
+            for(i=0; i<objUser.size(); i++){
+                if (  0 == userid.compareTo(objUser.get(i).toUser ) ){
+                    file = objUser.get(i).curFile ;
+                    break ;
+                }
             }
         }
         
@@ -234,19 +255,20 @@ public class UserMessageRecorder{
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
     ;   this routine is used to update the saved file name
-    ; RETURNS : N/A
+    ; RETURNS : ArrayList
     ;
     ; INTERFACE NOTES
     ;   INPUT
-    ;   userid      :   id of user
+    ;   N/A
     ; 
     ; IMPLEMENTATION
-    ;  
+    ;  get the list of user
+    ;
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 01-16-2011
     ******************************************************************************/
-    public ArrayList<UserMessageRecorder> getUserList(){
+    public ArrayList<cCHAT_UserMessageRecorder> getUserList(){
         return objUser ;
     }
     /*****************************************************************************
@@ -254,14 +276,16 @@ public class UserMessageRecorder{
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
     ;   this routine is used to update the saved file name
-    ; RETURNS : N/A
+    ; RETURNS : boolean
     ;
     ; INTERFACE NOTES
     ;   INPUT
     ;   userid      :   id of user
+    ;   fileName    :   name of file
     ; 
     ; IMPLEMENTATION
-    ;  
+    ;   update the current file name of a user  
+    ;
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 01-16-2011
@@ -273,16 +297,17 @@ public class UserMessageRecorder{
         }
         
         int i=0 ;
-        for(i=0; i<objUser.size(); i++){
-            if ( 0 == userid.compareTo(objUser.get(i).toUser ) ){
-                if ( "" == fileName ){
+        if ( null != objUser ){
+            for(i=0; i<objUser.size(); i++){
+                if ( 0 == userid.compareTo(objUser.get(i).toUser ) ){
                     objUser.get(i).suffix = objUser.get(i).suffix + 1 ;
-                    objUser.get(i).curFile = objUser.get(i).username + "-" + objUser.get(i).suffix ;    
-                }else{
-                    objUser.get(i).suffix = objUser.get(i).suffix + 1 ;
-                    objUser.get(i).curFile = fileName + "-" + userid + "-" + objUser.get(i).suffix ;    
+                    if ( "" == fileName ){                   
+                        objUser.get(i).curFile = objUser.get(i).username + "-" + objUser.get(i).suffix ;    
+                    }else{
+                        objUser.get(i).curFile = fileName + objUser.get(i).username + "-" + userid + "-" + objUser.get(i).suffix ;    
+                    }
+                    break ;
                 }
-                break ;
             }
         }
         
@@ -294,14 +319,14 @@ public class UserMessageRecorder{
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
     ;   this routine is used to check whether user is already exist in the list
-    ; RETURNS : N/A
+    ; RETURNS : boolean
     ;
     ; INTERFACE NOTES
     ;   INPUT
     ;   userid      :   id of user
     ; 
     ; IMPLEMENTATION
-    ;  
+    ;  check whether user exists in the list or not
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 01-16-2011
@@ -309,15 +334,18 @@ public class UserMessageRecorder{
     public boolean isUserExist(String userid){
     
         if ( null == userid ){
-            log.debug("Input parameter NULL" );
+            log.debug("isUserExist ERROR INPUT PARAMETER" );
+            return false ;
         }
         
         int i=0 ;
         boolean exist = false ;
-        for(i=0; i<objUser.size(); i++){
-            if (  0 == userid.compareTo(objUser.get(i).toUser ) ){
-                exist = true ;
-                break ;
+        if ( null != objUser ){
+            for(i=0; i<objUser.size(); i++){
+                if (  0 == userid.compareTo(objUser.get(i).toUser ) ){
+                    exist = true ;
+                    break ;
+                }
             }
         }
         
@@ -329,28 +357,34 @@ public class UserMessageRecorder{
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
     ;   this routine is used to remove user from the list
-    ; RETURNS : N/A
+    ; RETURNS : boolean
     ;
     ; INTERFACE NOTES
     ;   INPUT
     ;   userid      :   id of user
     ; 
     ; IMPLEMENTATION
-    ;  
+    ;  remove a user from the list
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 01-16-2011
     ******************************************************************************/
     public boolean removeUserFromList(String userid){
         
-        int i=0 ;
-        for(i=0; i<objUser.size(); i++){
-            if (  0 == userid.compareTo(objUser.get(i).toUser ) ){
-                objUser.remove(i) ;
-                break ;
-            }
+        if ( null == userid ){
+            log.debug("removeUserFromList ERROR INPUT PARAMETER" );
+            return false ;
         }
         
+        int i=0 ;
+        if ( null != objUser ){
+            for(i=0; i<objUser.size(); i++){
+                if (  0 == userid.compareTo(objUser.get(i).toUser ) ){
+                    objUser.remove(i) ;
+                    break ;
+                }
+            }
+        }
         return true ;
     }/** END FUNCTION 'removeUserFromList' **/
     
@@ -358,13 +392,13 @@ public class UserMessageRecorder{
     ;  getUserName
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
-    ; this routine is used to get the user name from lMessage
+    ; this routine is used to get the user name from message
     ;
-    ; RETURNS : N/A
+    ; RETURNS : String
     ;
     ; INTERFACE NOTES
     ;   INPUT
-    ;   lMessage : String 
+    ;   message : String 
     ; 
     ; IMPLEMENTATION
     ;  split string to get the user name
@@ -383,13 +417,13 @@ public class UserMessageRecorder{
     ;  getMessage
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
-    ; this routine is used to get the message from lMessage
+    ; this routine is used to get the message from message
     ;
-    ; RETURNS : N/A
+    ; RETURNS : String
     ;
     ; INTERFACE NOTES
     ;   INPUT
-    ;   lMessage : String 
+    ;   message : String 
     ; 
     ; IMPLEMENTATION
     ;  split string to get the message
@@ -408,13 +442,13 @@ public class UserMessageRecorder{
     ;  getTime
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
-    ; this routine is used to get the time from lMessage
+    ; this routine is used to get the time from message
     ;
-    ; RETURNS : N/A
+    ; RETURNS : String
     ;
     ; INTERFACE NOTES
     ;   INPUT
-    ;   lMessage : String 
+    ;   message : String 
     ; 
     ; IMPLEMENTATION
     ;  split string to get the time
@@ -435,11 +469,11 @@ public class UserMessageRecorder{
     ; DESCRIPTION
     ; this routine is used to get the userid from message
     ;
-    ; RETURNS : N/A
+    ; RETURNS : String
     ;
     ; INTERFACE NOTES
     ;   INPUT
-    ;   lMessage : String 
+    ;   message : String 
     ; 
     ; IMPLEMENTATION
     ;  split string to get the time
@@ -452,6 +486,6 @@ public class UserMessageRecorder{
         String[] msgTemp ;
         msgTemp = message.split("\\|") ;
         return msgTemp[5] ;
-    }/** END FUNCTION 'getTime' **/
+    }/** END FUNCTION 'getUserId' **/
     
-}/** END CLASS 'UserVO' **/
+}/** END CLASS 'cCHAT_UserMessageRecorder' **/

@@ -34,7 +34,7 @@ public class ChatService
 	
 	private ChatApplication application;    
     private boolean isRecord ;
-    private PrivateChatMessageRecorder priRecorder ;
+    private cCHAT_PrivateMessageRecorder priRecorder ;
     private ArrayList<String> messages ;
     
     
@@ -47,22 +47,25 @@ public class ChatService
 	
 	public void sendMessage(String message)
 	{
-		/*
-		ISharedObject sharedObject = application.handler.getSharedObject(Red5.getConnectionLocal().getScope(), "chatSO");
-		ArrayList<String> list=new ArrayList<String>();
-		list.add(message);
-		sharedObject.sendMessage("newChatMessage", list);
-		*/
-		
         String roomName = Red5.getConnectionLocal().getScope().getName();
 		application.sendMessage(roomName, message);
 	}
+    
 	public void setChatApplication(ChatApplication a)
 	{
 		log.debug("Setting Chat Applications");
 		application = a;
 	}
-	
+    
+	public void privateMessage(String message, String sender, String recepient){
+		log.debug("Received private message: " + message + " from " + sender + " to " + recepient + " The client scope is: " + Red5.getConnectionLocal().getScope().getName());
+		ISharedObject sharedObject = application.handler.getSharedObject(Red5.getConnectionLocal().getScope(), recepient);
+		ArrayList<String> arguments = new ArrayList<String>();
+		arguments.add(sender);
+		arguments.add(message);
+		sharedObject.sendMessage("messageReceived", arguments);
+	}
+    
     /*****************************************************************************
     ;  setRecordStatus
     ;----------------------------------------------------------------------------
@@ -73,7 +76,9 @@ public class ChatService
     ;
     ; INTERFACE NOTES
     ;   INPUT
-    ;   isRecording : Boolean, status of recording
+    ;   userid      :   id of user
+    ;   username    :   user name
+    ;   isRecording :   status of recording
     ; 
     ; IMPLEMENTATION
     ;   call chat application to set the record status to the room  
@@ -109,9 +114,10 @@ public class ChatService
     public List<String> getChatMessagesFileList(){
         log.debug("Get Chat Message Files List");
         String roomName = Red5.getConnectionLocal().getScope().getName();
-        ChatRoomHistoryFileManager historyManager = new ChatRoomHistoryFileManager(roomName);
+        cCHAT_RoomHistoryFileManager historyManager = new cCHAT_RoomHistoryFileManager(roomName);
         if ( null == historyManager ){
             log.debug("ERROR INITIALIZE ChatRoomHistoryFileManager");
+            return null ;
         }
         return historyManager.getFilesList() ;
 
@@ -138,26 +144,19 @@ public class ChatService
     ; 12-27-2010
     ******************************************************************************/
     public List<String> getHistoryChatMessages(String fileName){
-        log.debug("Get History File Content {}", fileName);
+        
         String roomName = Red5.getConnectionLocal().getScope().getName();
-        ChatRoomHistoryFileManager historyManager = new ChatRoomHistoryFileManager(roomName);
+        
+        cCHAT_RoomHistoryFileManager historyManager = new cCHAT_RoomHistoryFileManager(roomName);
         if ( null == historyManager ){
-            log.debug("ERROR INITIALIZE ChatRoomHistoryFileManager");
+            log.error("Failed to initialize historyManager");
+            return null ;
         }
         
         log.debug("getHistoryFileChatMessage {}" , historyManager.getHistoryFileContent(fileName));
         return historyManager.getHistoryFileContent(fileName);
     }/** END FUNCTION 'getHistoryChatMessages' **/
     
-    
-    public void privateMessage(String message, String sender, String recepient){
-		log.debug("Received private message: " + message + " from " + sender + " to " + recepient + " The client scope is: " + Red5.getConnectionLocal().getScope().getName());
-		ISharedObject sharedObject = application.handler.getSharedObject(Red5.getConnectionLocal().getScope(), recepient);
-		ArrayList<String> arguments = new ArrayList<String>();
-		arguments.add(sender);
-		arguments.add(message);
-		sharedObject.sendMessage("messageReceived", arguments);
-	}
     
     /*****************************************************************************
     ;  recordChatMessage
@@ -173,17 +172,25 @@ public class ChatService
     ;   message :   message
     ; 
     ; IMPLEMENTATION
-    ;  add new chat message to text file
+    ;   initialize priRecorder object if it is not initialized
+    ;   write message to file
+    ;
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 16-01-2011
     ******************************************************************************/
     public void recordChatMessage(String userid, String toUser, String message){
-        log.debug("isRecord private message from : " + userid + " to " + toUser + " " + message );
+        
+        if ( (null == userid) || (null == toUser) || (null == message) ){
+            log.error("recordChatMessage ERROR INPUT PARAMETER");
+            return ;
+        }
+        
         if ( null == priRecorder ){
+            log.debug("null object");
             initializePrivateChatRecorder() ;
         }
-
+        log.debug("add to chat");
         priRecorder.addChatHistory(userid,toUser,message);
         
     }/** END FUNCTION 'recordChatMessage' **/
@@ -197,17 +204,22 @@ public class ChatService
     ;
     ; INTERFACE NOTES
     ;   INPUT
-    ;   toUser  : to user
+    ;   toUser `: to user
     ;   record  : status record
     ; 
     ; IMPLEMENTATION
-    ;  set record status of private user to user object
+    ;  set recording status to a user
+    ;
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 16-01-2011
     ******************************************************************************/
     public void setPrivateRecordStatus(String toUser, boolean record){
-        log.debug("Set Record Status : " + toUser + " " + record );
+        if ( null == toUser ){
+            log.error("setPrivateRecordStatus ERROR INPUT PARAMETER");
+            return ;
+        }
+        
         if ( null == priRecorder ){
             initializePrivateChatRecorder() ;
             
@@ -230,17 +242,22 @@ public class ChatService
     ;   record  : status record
     ; 
     ; IMPLEMENTATION
-    ;  add user to a list
+    ;  add user information to user list
+    ;
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 16-01-2011
     ******************************************************************************/
     public void addUserToList(String userid, String username, boolean record){
-        log.debug("addUserToList: " + userid + " " + username + " " +  record);
+        
+        if ( (null == userid) || (null == username) ){
+            log.error("addUserToList ERROR INPUT PARAMETER");
+            return ;
+        }
         if ( null == priRecorder ){
             initializePrivateChatRecorder() ;
-            
         }
+        
         priRecorder.addUserToList(userid,username,record) ;
     }/** END FUNCTION 'addUserToList' **/
     
@@ -256,16 +273,22 @@ public class ChatService
     ;   userid  : id of user
     ; 
     ; IMPLEMENTATION
-    ;  remove user from a list
+    ;  remove a user from the list
+    ;
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 16-01-2011
     ******************************************************************************/
     public void removeUserFromList(String userid){
+        if ( null == userid ){
+            log.error ("removeUserFromList ERROR INPUT PARAMETER");
+            return ;
+        }
+        
         if ( null == priRecorder ){
             initializePrivateChatRecorder() ;
-            
         }
+        
         priRecorder.removeUserFromList(userid) ;
     }/** END FUNCTION 'removeUserFromList' **/
     
@@ -274,26 +297,34 @@ public class ChatService
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
     ;   this routine is used to get private file list
-    ; RETURNS : List
+    ; RETURNS : N/A
     ;
     ; INTERFACE NOTES
     ;   INPUT
     ;   userid  : id of user
     ; 
     ; IMPLEMENTATION
-    ;  get recorded file list of private user
+    ;  get user recorded file list
+    ;
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 16-01-2011
     ******************************************************************************/
     public List<String> getPrivateFileList(String userid){
         
+        if ( null == userid ){
+            log.error ("getPrivateFileList ERROR INPUT PARAMETER");
+            return null ;
+        }
+        
         String roomName = Red5.getConnectionLocal().getScope().getName();
-        ChatRoomHistoryFileManager historyManager = new ChatRoomHistoryFileManager(roomName + "/" + userid);
+        
+        cCHAT_RoomHistoryFileManager historyManager = new cCHAT_RoomHistoryFileManager(roomName + "/" + userid);
         if ( null == historyManager ){
             log.debug("ERROR INITIALIZE ChatRoomHistoryFileManager");
             return null ;
         }
+        
         return historyManager.getFilesList() ;
         
     }/** END FUNCTION 'getPrivateFileList' **/
@@ -303,7 +334,7 @@ public class ChatService
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
     ;   this routine is used to get private file content
-    ; RETURNS : List
+    ; RETURNS : N/A
     ;
     ; INTERFACE NOTES
     ;   INPUT
@@ -311,21 +342,27 @@ public class ChatService
     ;   fileName : file name
     ; 
     ; IMPLEMENTATION
-    ;  get recorded file content of private user
+    ;  get user recorded file content
+    ;
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 16-01-2011
     ******************************************************************************/
     public List<String> getPrivateChatMessages(String userid,String fileName){
-        log.debug("Get Private History File Content {}", fileName);
+        
+        if ( (null == userid) || (null == fileName) ){
+            log.error("getPrivateChatMessages ERROR INPUT PARAMETER");
+            return null ;
+        }
+        
         String roomName = Red5.getConnectionLocal().getScope().getName();
-        ChatRoomHistoryFileManager historyManager = new ChatRoomHistoryFileManager(roomName + "/" + userid);
+        
+        cCHAT_RoomHistoryFileManager historyManager = new cCHAT_RoomHistoryFileManager(roomName + "/" + userid);
         if ( null == historyManager ){
             log.debug("ERROR INITIALIZE ChatRoomHistoryFileManager");
             return null ;
         }
         
-        log.debug("getPrivateChatMessages {}" , historyManager.getHistoryFileContent(fileName));
         return historyManager.getHistoryFileContent(fileName);
     }/** END FUNCTION 'getPrivateChatMessages' **/
     
@@ -340,18 +377,20 @@ public class ChatService
     ;   INPUT
     ; 
     ; IMPLEMENTATION
-    ;  initialize priRecorder
+    ;  initialize priRecorder object
+    ;
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 16-01-2011
     ******************************************************************************/
     public void initializePrivateChatRecorder() {
         String roomName = Red5.getConnectionLocal().getScope().getName();
-        priRecorder = new PrivateChatMessageRecorder(roomName) ;
+        priRecorder = new cCHAT_PrivateMessageRecorder(roomName) ;
         if ( null == priRecorder ){
             log.debug("Initialize failed" );
             return ;
         }
     }/** END FUNCTION 'initializePrivateChatRecorder' **/
     
+   
 }

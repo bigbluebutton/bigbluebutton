@@ -89,7 +89,9 @@ public class ChatRoom {
     ;
     ; INTERFACE NOTES
     ;   INPUT
-    ;   record : Boolean,  status of recording
+    ;   userid  :   id of user
+    ;   username:   user name
+    ;   record  :   status of recording
     ; 
     ; IMPLEMENTATION
     ; set the status of recording to the room 

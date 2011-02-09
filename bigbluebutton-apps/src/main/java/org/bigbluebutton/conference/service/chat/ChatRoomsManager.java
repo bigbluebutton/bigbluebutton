@@ -95,8 +95,10 @@ public class ChatRoomsManager {
     ;
     ; INTERFACE NOTES
     ;   INPUT
-    ;   room        :   String,  room name
-    ;   isRecording :   Boolean, status of recording
+    ;   room        :   room name
+    ;   userid      :   id of user
+    ;   username    :   user name
+    ;   isRecording :   status of recording
     ; 
     ; IMPLEMENTATION
     ;  get chat room from name

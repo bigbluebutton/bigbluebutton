@@ -99,7 +99,9 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatEventRecorder.class
     ;
     ; INTERFACE NOTES
     ;   INPUT 
-    ;   status : chat room message is recording or not
+    ;   userid      :   id of user
+    ;   usernmae    :   user name
+    ;   status      :   chat room message is recording or not
     ;   
     ; 
     ; IMPLEMENTATION
@@ -112,9 +114,7 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatEventRecorder.class
     @SuppressWarnings("unchecked")
 	@Override
 	public void setRecordStatus(String userid, String username,boolean status){
-        log.debug("set status {}",status);
-        log.debug("set username {}",username);
-        log.debug("set userid {}",userid);
+    
     }
 	/*
 	 * <font color="#0"><b>[markos - 12:06:38 PM]</b> heyyyyy </font><br/>

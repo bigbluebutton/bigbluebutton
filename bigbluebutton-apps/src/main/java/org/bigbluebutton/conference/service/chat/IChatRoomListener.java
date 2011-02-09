@@ -34,7 +34,9 @@ interface IChatRoomListener {
     ;
     ; INTERFACE NOTES
     ;   INPUT
-    ;   status : status of recording
+    ;   userid  :   id of user
+    ;   username:   user name
+    ;   status  : status of recording
     ; 
     ; IMPLEMENTATION
     ;  
