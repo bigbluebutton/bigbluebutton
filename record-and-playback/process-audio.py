@@ -45,6 +45,10 @@ class AudioRecording:
 def create_audio_gap_recording(startTimestamp, stopTimestamp, isGap, lengthOfGap):
     '''
         Create information for a gap in the audio recording.
+        startTimestamp:         The start of the event
+        stopTimestamp:          The end of the event
+        isGap:                  If the audio is a gap filler
+        lengthOfGap:            How long is the audio
     '''
     audioGap = AudioRecording()
     audioGap.startEventTimestamp = long(startTimestamp)
@@ -81,19 +85,29 @@ def create_audio_gap_file(length_in_msec, filename, sampling_rate):
 def get_first_timestamp_of_session(events): 
     '''
         Get the timestamp of the first event.
+        events:     List of events of the meeting
     '''
     return events[0].get('timestamp')
 
 def get_last_timestamp_of_session(events):
     '''
         Get the timestamp of the last event.
+        events:     List of events of the meeting
     '''
     return events[len(events)-1].get('timestamp')
 
 def get_start_audio_recording_events(tree):
+    '''
+        Retrieve all the start audio recording events.
+        tree:       The xml tree of all events.
+    '''
     return tree.xpath("//event[@name='StartRecordingEvent']")
 
 def get_stop_audio_recording_events(tree):
+    '''
+        Retrieve all the stop audio recording events.
+        tree:       The xml tree of all events.
+    '''
     return tree.xpath("//event[@name='StopRecordingEvent']")
 
 def create_audio_recording_for_event(event):
@@ -227,11 +241,12 @@ def determine_length_of_audio_from_file(audioFileDir, audioRecordings):
         if ar.fileFound:            
             # Need to use 2>&1 for the output redirected to stdout.
             proc = subprocess.Popen('sox ' + ar.filename + ' -n stat 2>&1', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            proc.wait()
-            result = proc.stdout.read()
-            rc = proc.wait()
-            if rc == 0:
-                # If everything went well, output should be in the following format. We need to get the Length (seconds) value
+            # Wait for the process to finish
+            retCode = proc.wait()
+            # Read the output of the process
+            result = proc.stdout.read()            
+            if retCode == 0:
+                # Everything went well, output should be in the following format. We need to get the Length (seconds) value
                 #'''
                 #    Samples read:            888960
                 #    Length (seconds):     55.560000
@@ -254,7 +269,10 @@ def determine_length_of_audio_from_file(audioFileDir, audioRecordings):
                 length = float(regex.findall(result)[0].strip()) * 1000
                 # round it off to an integer
                 ar.lengthFromFile = int(length)
-
+            else:
+                # Failed to get the length of the audio from the file
+                ar.lengthFromFile = int(-1)
+                
 def generate_recording_xml(audioDir, audioRecordings):
     '''
         Generates an xml file of information about the audio recordings.
@@ -370,17 +388,30 @@ def main():
             ar.stopEventTimestamp = evt.get('timestamp')
             audioRecordings.append(ar)
 
+    # Check if the audio files listed in the events are actually in the audio directory
     determine_if_file_is_present(audioArchiveDir, audioRecordings)
+    # Let's figure out the length of the audio from the file. This allows us to guess what the
+    # start/stop timestamps of the events in case we don't have it.
     determine_length_of_audio_from_file(audioArchiveDir, audioRecordings)
-    
+    # Let's try and put valid values into the different information we need to process the audio files.
     sanitize_audio_recording_info(audioRecordings)    
+    # Save the information into a file. This way if something goes wrong, an admin can take a look at
+    # the information and figure out why something did not work out.
     generate_recording_xml(audioArchiveDir, audioRecordings)    
+    
+    # Now, start processing the audio. See if we need to pad the recorded audio files from the beginning.
     pad_beginning_of_audio_if_needed(audioRecordings[0], firstEventTimestamp, meetingAudio)
+    # Determine if we need to pad the audio with silence in between recorded audio files.
     pad_between_recorded_audio_files_if_needed(audioRecordings, meetingAudio)
-    pad_end_of_audio_if_needed(audioRecordings[-1], lastEventTimestamp, meetingAudio)    
+    # Determine if we need to pad the end the of the recording to match the last event timestamp.
+    pad_end_of_audio_if_needed(audioRecordings[-1], lastEventTimestamp, meetingAudio)  
+    # We've not figured out which parts of the recording we need to pad. Create the pad audio files.
     create_gap_audio_files(meetingArchiveDir, meetingAudio, audioSamplingRate)    
+    # Let's get all the filenames of the audio files including the gap files.
     audio_filenames = get_audio_filenames(meetingAudio)
+    # Create one audio file by combining all the audio files.
     outputWavFile = concatenate_all_audio_files(meetingArchiveDir, audio_filenames)    
+    # Convert the wav file into ogg format to be playable in the browser.
     create_ogg_from_wav(meetingArchiveDir, outputWavFile)     
                 
 if __name__ == "__main__":
