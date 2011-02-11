@@ -19,7 +19,7 @@
 * 
 * ===License Header===
 */
-package org.bigbluebutton.conference.service.whiteboard;
+package org.bigbluebutton.conference.service.rtmpadapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,23 +38,37 @@ import redis.clients.jedis.Jedis;
 
 public class RTMPAdapterApp extends MultiThreadedApplicationAdapter implements IApplication {
 	
-	private static Logger log = Red5LoggerFactory.getLogger(WhiteboardApplication.class, "bigbluebutton");
+	private static Logger log = Red5LoggerFactory.getLogger(RTMPAdapterApp.class, "bigbluebutton");
 	private static final String APP = "RTMPAdapter";
-	private Jedis jedis;	
+
+	private ChannelManager channelManager;
 
 	@Override
 	public boolean appStart(IScope app){
-		log.info("Starting RTMPAdapterApp");
+		System.out.println("Starting RTMPAdapterApp");
 		this.scope = app;
-	
-		jedis = new Jedis("localhost:6379");
+		channelManager.application = this;
+                channelManager.subscribe();
 		return true;
+	}
+
+	public void setChannelManager(ChannelManager channelManager){
+		this.channelManager = channelManager;
 	}
 	
 	@Override
 	public void appStop(IScope scope){
 	}
 	
+	public void sendData(String appName, String method, String data){
+		String clientScope = getLocalScope().getName();
+		channelManager.sendData(appName, clientScope, method, data);
+	}
+
+	public void message(String channel, String message){
+		log.info("got message from redis on channel: " + channel + " - " + message);
+	}
+
 	@Override
 	public boolean appConnect(IConnection conn, Object[] params) {
 		return true;
