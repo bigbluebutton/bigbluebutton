@@ -23,11 +23,8 @@ package org.bigbluebutton.web.services
 import org.bigbluebutton.conference.Room
 import java.util.concurrent.ConcurrentHashMap
 import org.apache.commons.collections.bidimap.DualHashBidiMap
-import java.util.Collection
-import java.util.Collections
-import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
+import java.util.concurrent.*;
 import org.bigbluebutton.api.domain.DynamicConference;
  
 public class DynamicConferenceService implements IDynamicConferenceService {	
@@ -188,5 +185,46 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 		roomsByToken.put(room.getName(), room);
 	}
 	// end of spring integration-called methods
+	
+	public void processRecording(String meetingId) {
+		// Run conversion on another thread.
+		new Timer().runAfter(1000) 
+		{
+			startIngestAndProcessing(meetingId)
+		}
+	}
+	
+	private void startIngestAndProcessing(meetingId) {
+				
+		String COMMAND = "python /home/firstuser/python/src/ingestandproc.py -m" + meetingId + " -a /var/freeswitch/meetings -p /var/bigbluebutton -r /var/bigbluebutton/archive -e 192.168.0.166 -o 6379 -i /var/bigbluebutton/ingest -b /var/bigbluebutton/recordings"; 
+		
+		try {
+			Process p = Runtime.getRuntime().exec(COMMAND);            
+        	
+			BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+			String info;
+
+			while ((info = stdInput.readLine()) != null) {
+				System.out.println(info)
+			}
+			while ((info = stdError.readLine()) != null) {
+				log.error(info);
+			}
+			stdInput.close();
+			stdError.close();
+
+			// Wait for the process to finish.
+        	int exitValue = p.waitFor();
+        	if (exitValue != 0) {
+		    	log.warn("Exit Value != 0 while for " + COMMAND);
+		    }
+		} catch (IOException e) {
+			log.error("IOException while processing " + COMMAND);
+		} catch (InterruptedException e) {
+			log.error("InterruptedException while processing " + COMMAND);
+		}
+	}
+	
 	
 }

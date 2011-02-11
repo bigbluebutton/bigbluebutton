@@ -505,6 +505,12 @@ class ApiController {
         }
         // Log the user out of the application.
 	    session.invalidate()
+	    /**
+	     * Temporary way to trigger ingest and processing. For demo purposes only. (richard)
+	    **/
+	    if (conf.isRecord())
+	    	dynamicConferenceService.processRecording(meetingToken)
+	    
         println "serverURL $hostURL"	
 	    redirect(url: hostURL)
 	}
