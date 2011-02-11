@@ -317,20 +317,20 @@ def sanitize_audio_recording_info(audioRecordings):
             
         if (ar.startRecordingTimestamp == 0 and ar.startEventTimestamp == 0):
             if (ar.fileFound and ar.stopEventTimestamp > 0):
-                ar.startRecordingTimestamp = ar.startEventTimestamp = ar.stopEventTimestamp - ar.lengthFromFile
+                ar.startRecordingTimestamp = ar.startEventTimestamp = long(ar.stopEventTimestamp) - ar.lengthFromFile
         
         if (ar.stopRecordingTimestamp == 0 and ar.stopEventTimestamp == 0):
             if (ar.fileFound and ar.startEventTimestamp > 0):
-                ar.stopRecordingTimestamp = ar.stopEventTimestamp = ar.startEventTimestamp + ar.lengthFromFile
+                ar.stopRecordingTimestamp = ar.stopEventTimestamp = long(ar.startEventTimestamp) + ar.lengthFromFile
     
 def main():
     meetingId = ""
-    archiveDir = ""
+    ingestDir = ""
     logFile = ""
     
     # Get all the passed in options
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hm:a:l", ["help", "meeting-id=", "archive-dir="])
+        opts, args = getopt.getopt(sys.argv[1:], "hm:i:", ["help", "meeting-id=", "ingest-dir="])
     except getopt.GetoptError, err:
         # print help information and exit:
         print str(err) # will print something like "option -a not recognized"
@@ -344,12 +344,12 @@ def main():
             sys.exit()
         elif o in ("-m", "--meeting-id"):
             meetingId = a
-        elif o in ("-a", "--archive-dir"):
-            archiveDir = a
+        elif o in ("-i", "--ingest-dir"):
+            ingestDir = a
         else:
             assert False, "unhandled option"
     
-    meetingArchiveDir = archiveDir + "/" + meetingId
+    meetingArchiveDir = ingestDir + "/" + meetingId
     audioArchiveDir = meetingArchiveDir + "/" + AUDIO_DIR
     
     logFile = meetingArchiveDir + "/process-audio.log"
@@ -417,4 +417,3 @@ def main():
 if __name__ == "__main__":
     main()
     
-

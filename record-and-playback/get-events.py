@@ -15,9 +15,9 @@ def usage():
     print ' '
     print ' h, --help                   Print this'
     print ' m, --meeting-id             The id of the meeting'
-    print ' a, --audio-dir              The location of the audio recording'
-    print ' p, --presentation-dir       The location of the presentations'
-    print ' r, --archive-dir            The directory where the audio and presentation will be archived'
+    print ' r, --redis-host             The host for redis'
+    print ' p, --redis-port             The port redis is listening on'
+    print ' a, --archive-dir            The archive directory'
     print ' -------------------------------------------------------------------------'
 
 def printUsageHelp():
@@ -128,4 +128,3 @@ def main():
     
 if __name__ == "__main__":
     main()     
-

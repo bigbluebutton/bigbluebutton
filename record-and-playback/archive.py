@@ -27,6 +27,7 @@ def copy_files_to_archive(meetingId, audioSrcDir, presentationSrcDir, archiveDir
         if (fname.find(meetingId) == 0):
             if (os.path.isdir(archiveDir + "/" + meetingId) is False):
                 os.makedirs(archiveDir + "/" + meetingId + "/audio")
+            # Use copy2 to copy including the stats (modified, access, creation times of the audio files.
             shutil.copy2(audioSrcDir + "/" + fname, archiveDir + "/" + meetingId + "/audio")
     
     source = presentationSrcDir + "/" + meetingId + "/" + meetingId
@@ -87,4 +88,3 @@ def main():
    
 if __name__ == "__main__":
     main()
-
