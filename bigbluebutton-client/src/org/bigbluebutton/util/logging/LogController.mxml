@@ -23,22 +23,23 @@
 <mx:UIComponent xmlns:mx="http://www.adobe.com/2006/mxml">
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.common.LogUtil;
 			import mx.logging.Log;
 			import mx.managers.PopUpManager;
+			
+			import org.bigbluebutton.common.LogUtil;
 						
 			public function openLogWindow():void {
 				Log.getLogger("LogController").info("CTRL-SHIFT-L has been pushed!");
 				if (!LogUtil.debugPanel) {
 					LogUtil.debugPanel = new LogUtil.debugPanel();
 				}
-				viewLogUtil.debugPanel();
+				viewLogUtildebugPanel();
 			}
 				
 			[Bindable]
-			public var LogUtil.debugPanel:LogUtil.debugPanel;
+			public static var debugPanel:Object;
 			
-			private function viewLogUtil.debugPanel():void {
+			private function viewLogUtildebugPanel():void {
 				Log.getLogger("LogController").debug("LogUtil.debug panel is added to popup manager.");
 				LogUtil.debugPanel.isOpen = true;
 				PopUpManager.addPopUp(LogUtil.debugPanel, DisplayObject(this.parentApplication));
