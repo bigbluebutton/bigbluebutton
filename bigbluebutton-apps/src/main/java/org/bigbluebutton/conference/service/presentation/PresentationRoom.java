@@ -56,10 +56,10 @@ public class PresentationRoom {
 	Double heightRatio = 0D;
 	ArrayList<String> presentationNames = new ArrayList<String>();
     private boolean _isFullScreen = false ;
-    private Double topLeftX = 0D;
-	private Double topLeftY = 0D;
-    private Double bottomRightX = 0D; 
-    private Double bottomRightY = 0D;
+    private Double curSlideWidth = 0D;
+	private Double curSlideHeight = 0D;
+    private Double viewPortWidth = 0D; 
+    private Double viewPortHeight = 0D;
     
 	public PresentationRoom(String name) {
 		this.name = name;
@@ -330,25 +330,25 @@ public class PresentationRoom {
         ;
         ******************************************************************************/
     public void setCurrentPresentationPosition(Double curSlideWidth, Double curSlideHeight, Double viewPortWidth, Double viewPortHeight){
-        this.topLeftX = curSlideWidth ;
-        this.topLeftY = curSlideHeight ;
-        this.bottomRightX = viewPortWidth ;
-        this.bottomRightY = viewPortHeight ;
+        this.curSlideWidth = curSlideWidth ;
+        this.curSlideHeight = curSlideHeight ;
+        this.viewPortWidth = viewPortWidth ;
+        this.viewPortHeight = viewPortHeight ;
         
         log.debug("Update Dimension");
-        log.debug("topLeftX {}",curSlideWidth);
-        log.debug("topLeftY {}",curSlideHeight);
-        log.debug("bottomRightX {}",viewPortWidth);
-        log.debug("bottomRightY {}",viewPortHeight);
+        log.debug("curSlideWidth {}",curSlideWidth);
+        log.debug("curSlideHeight {}",curSlideHeight);
+        log.debug("viewPortWidth {}",viewPortWidth);
+        log.debug("viewPortHeight {}",viewPortHeight);
     }
     /** END Function : setCurrentPresentationPosition **/
     
     public ArrayList<Double> getCurrentPresenterPosition(){
         ArrayList<Double> curDimension = new ArrayList<Double>();
-        curDimension.add(this.topLeftX) ;
-        curDimension.add(this.topLeftY) ;
-        curDimension.add(this.bottomRightX) ;
-        curDimension.add(this.bottomRightY) ;
+        curDimension.add(this.curSlideWidth) ;
+        curDimension.add(this.curSlideHeight) ;
+        curDimension.add(this.viewPortWidth) ;
+        curDimension.add(this.viewPortHeight) ;
         
         return curDimension ;
         

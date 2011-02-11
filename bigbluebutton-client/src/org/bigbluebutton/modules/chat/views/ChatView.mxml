@@ -83,13 +83,11 @@
 			import org.bigbluebutton.modules.chat.events.QueryParticipantsEvent;
 			import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
 			import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
-            import org.bigbluebutton.modules.chat.model.MessageVO;
+            import org.bigbluebutton.modules.chat.events.AddRecordUserEvent;
+            import org.bigbluebutton.modules.chat.events.ChatButtonEvent;
+			import org.bigbluebutton.modules.chat.model.MessageVO;
 			import org.bigbluebutton.modules.chat.model.business.UserVO;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-            
-            import org.bigbluebutton.modules.chat.events.cCHAT_AddRecordUserEvent;
-            import org.bigbluebutton.modules.chat.events.cCHAT_ButtonEvent;
-			
             
             import mx.controls.Alert ;
             
@@ -295,7 +293,7 @@
 					if (isChatBoxCurrentlySelected(userid)) {
 						disableMessageEntryTextBox();
                         disableChatButton() ;
-                        globalDispatcher.dispatchEvent(new cCHAT_ButtonEvent(cCHAT_ButtonEvent.CLOSE_BUTTON));
+                        globalDispatcher.dispatchEvent(new ChatButtonEvent(ChatButtonEvent.CLOSE_BUTTON));
 					}
 				}
 			}
@@ -390,7 +388,7 @@
                 {
                     // call javascript "handleChat" function to notify
                     // public chat message. _PTS_731_
-                    ExternalInterface.call("handleChat", String(event.message));
+                    ExternalInterface.call("handleChat", event.message);
                 }
 				LogUtil.debug("Got PublicChatMessageEvent");
 				showMessage(PUBLIC_CHAT_USERID, event.message, autoTranslation);
@@ -406,7 +404,7 @@
                 {
                     // call javascript "handleChat" function to notify
                     // private chat message. _PTS_731_
-                    ExternalInterface.call("handleChat", event.message);
+                    ExternalInterface.call("handleChat", event.message.message);
                 } 
 				LogUtil.debug("Got PrivateChatMessageEvent");
 				if (!this.focus)
@@ -464,7 +462,7 @@
 			
 			public function userJoined(user:User):void{
 				addParticipantToList(user.userid, user.name, user.role);
-                var e:cCHAT_AddRecordUserEvent = new cCHAT_AddRecordUserEvent(cCHAT_AddRecordUserEvent.NEW_USER);
+                var e:AddRecordUserEvent = new AddRecordUserEvent(AddRecordUserEvent.NEW_USER);
                 e.userid = user.userid ;
                 e.username = user.name ;
                 e.record = false ;
@@ -473,7 +471,7 @@
 			
 			public function userLeft(user:User):void{
 				removeParticipantFromList(user.userid);
-                var e:cCHAT_AddRecordUserEvent = new cCHAT_AddRecordUserEvent(cCHAT_AddRecordUserEvent.DEL_USER);
+                var e:AddRecordUserEvent = new AddRecordUserEvent(AddRecordUserEvent.DEL_USER);
                 e.userid = user.userid;
                 globalDispatcher.dispatchEvent(e);
 				//showMessage(PUBLIC_CHAT_USERID, "<b>" +  event.participant.name + " has left the conference </b>");
@@ -502,15 +500,12 @@
         ;   userid  :   id of user
         ; 
         ; IMPLEMENTATION
-        ;  add record button and download button to a user
+        ;  
         ; HISTORY
         ; __date__ :        PTS:            Description
         ; 16-01-2011
         ******************************************************************************/       
         private function createChatButtonFor(userid:String):void{
-            if ( null == userid ){
-                return ;
-            }
             chatButton.chatView = this ;
             this.chatCtrlBar.addChild(chatButton) ;
             addButtonFor(userid);
@@ -536,7 +531,7 @@
             if ( null == receiver ){
                 return ;
             }
-            var e:cCHAT_ButtonEvent = new cCHAT_ButtonEvent(cCHAT_ButtonEvent.SWITCH_BUTTON) ;
+            var e:ChatButtonEvent = new ChatButtonEvent(ChatButtonEvent.SWITCH_BUTTON) ;
             e.receiver = receiver ;
             e.name = getParticipantName(receiver) ;
             globalDispatcher.dispatchEvent(e);
@@ -553,7 +548,7 @@
         ;   INPUT
         ; 
         ; IMPLEMENTATION
-        ;  disable record button and download button
+        ;  
         ; HISTORY
         ; __date__ :        PTS:            Description
         ; 16-01-2011
@@ -573,7 +568,7 @@
         ;   INPUT
         ; 
         ; IMPLEMENTATION
-        ;  enable record button and download button
+        ;  
         ; HISTORY
         ; __date__ :        PTS:            Description
         ; 16-01-2011
@@ -593,8 +588,7 @@
         ;   INPUT
         ;   userid  :   id of user
         ; IMPLEMENTATION
-        ;  add record and download button for a userid
-        ;
+        ;  
         ; HISTORY
         ; __date__ :        PTS:            Description
         ; 16-01-2011
@@ -603,7 +597,7 @@
             if ( null == userid ){
                 return ;
             }
-            var evt:cCHAT_ButtonEvent = new cCHAT_ButtonEvent(cCHAT_ButtonEvent.NEW_BUTTON);
+            var evt:ChatButtonEvent = new ChatButtonEvent(ChatButtonEvent.NEW_BUTTON);
             evt.receiver = userid ;
             evt.name = getParticipantName(userid) ;
             globalDispatcher.dispatchEvent(evt) ;

@@ -67,8 +67,8 @@ package org.bigbluebutton.modules.present.managers
         ;  getCurrentPresenterPosition
         ;----------------------------------------------------------------------------
         ; DESCRIPTION
-        ;   This routine is use to get the current position of presenter from server 
-        ;   when new user joined
+        ;   This routine is use to get the current position of presenter view port
+		;	from server when new user joined.
         ;
         ; RETURNS : N/A
         ;
@@ -94,7 +94,7 @@ package org.bigbluebutton.modules.present.managers
         ;----------------------------------------------------------------------------
         ; DESCRIPTION
         ;   This routine is use to get the status of presenter whether the presenter is
-        ;   in full screen mode
+        ;   in full screen mode.
         ;
         ; RETURNS : N/A
         ;

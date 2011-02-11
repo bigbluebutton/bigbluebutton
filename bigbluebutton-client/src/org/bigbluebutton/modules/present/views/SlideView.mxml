@@ -156,24 +156,24 @@
             private function handlePresenterFullScreen(event:PresenterViewEvent) : void {
 				
 				// check the new view port width
-				if (gViewPortWidth == event.bottomRightX
+				if (gViewPortWidth == event.viewPortWidth
 					&& true == gIsViewerFullScreen)
 				{
 					// check the new current slide width
-					if ( currentSlideWidth == event.topLeftX )
+					if ( currentSlideWidth == event.curSlideWidth )
 					{
 						return;
 					}
 				}
 
                 if ( false == isPresenter ){
-                    currentSlideWidth   = event.topLeftX;
-                    currentSlideHeight  = event.topLeftY;
+                    currentSlideWidth   = event.curSlideWidth;
+                    currentSlideHeight  = event.curSlideHeight;
                     
-                    gViewPortWidth  = event.bottomRightX;
-                    gViewPortHeight = event.bottomRightY;
+                    gViewPortWidth  = event.viewPortWidth;
+                    gViewPortHeight = event.viewPortHeight;
 					
-                    dispatchNewSlideDisplayedEvent(event.bottomRightX, event.bottomRightY);
+                    dispatchNewSlideDisplayedEvent(event.viewPortWidth, event.viewPortHeight);
                     
 					// check the lock status
 					if ( true == gisLocked )
@@ -318,7 +318,11 @@
 			 ******************************************************************************/
 			public function showViewPort() : void {
 				dispatchNewSlideDisplayedEvent(gViewPortWidth, gViewPortHeight);
-				zoomLoaderBy(zoomPercentage);
+				if (true == isPresenter){
+					zoomLoaderBy(zoomPercentage);
+				}else{
+					resizeAndMoveLoaderInRelationToCanvas()
+				}
 			}
 			/**
 			 * END FUNCTION 'showViewPort'
@@ -328,7 +332,8 @@
             ;  switchFollowPreseterSlide
             ;----------------------------------------------------------------------------
             ; DESCRIPTION
-            ;   This routine is use to switch to follow presenter slide or not.
+            ;   This routine is use to switch to follow presenter slide when viewer click
+			;	Lock/Unlock button.
             ;
             ; RETURNS
             ;
@@ -372,7 +377,7 @@
             ;  getFollowPresenterStatus
             ;----------------------------------------------------------------------------
             ; DESCRIPTION
-            ;   This routine is use to get the following presenter slide status.
+            ;   This routine is use to get the following presenter slide (Lock/UnLock) status.
             ;
             ; RETURNS
             ;       gisLocke: the status of following presenter slide.
@@ -564,18 +569,14 @@
                     slideLoader.width = gOldWidth * presentersLoaderCanvasWidthRatio; 
                     slideLoader.height = gOldHeight * presentersLoaderCanvasHeightRatio;
                     
-                    slideLoader.x = slideLoader.width * presentersLoaderXOffsetFromCanvas;
-                    slideLoader.y = slideLoader.height * presentersLoaderYOffsetFromCanvas;
-                    
-                    fitSlideToLoader();
                 }else{
                     slideLoader.width = this.width * presentersLoaderCanvasWidthRatio; 
                     slideLoader.height = this.height * presentersLoaderCanvasHeightRatio;
-                    
-                    slideLoader.x = slideLoader.width * presentersLoaderXOffsetFromCanvas;
-                    slideLoader.y = slideLoader.height * presentersLoaderYOffsetFromCanvas;
-                    fitSlideToLoader();
                 }
+				slideLoader.x = slideLoader.width * presentersLoaderXOffsetFromCanvas;
+				slideLoader.y = slideLoader.height * presentersLoaderYOffsetFromCanvas;
+				
+				fitSlideToLoader();
             }
             /** END Function : resizeAndMoveLoaderInRelationToCanvas */
 			
@@ -780,9 +781,7 @@
 			private function handleMoveEvent(e:MoveEvent):void{
                 // check the participant status or 'lock following' presenter
                 // status to allow viewer slide to follow presenter slide.
-                if (true == gisLocked || true == isPresenter){
-                    savePresentersSettings(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
-                }
+                savePresentersSettings(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
                 if (false == isPresenter) {
 
 					// check the viewer presentation window height

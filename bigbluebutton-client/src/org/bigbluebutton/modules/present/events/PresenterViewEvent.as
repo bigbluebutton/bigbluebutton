@@ -26,10 +26,10 @@ package org.bigbluebutton.modules.present.events
         public static const SHARE_PRESENTER_VIEW_DIMENSION:String   = "SHARE_PRESENTER_VIEW_DIMENSION";
         public static const GET_PRESENTER_VIEW_DIMENSION:String     = "GET_PRESENTER_VIEW_DIMENSION";
         
-        public var topLeftX:Number;
-        public var topLeftY:Number;
-        public var bottomRightX:Number;
-        public var bottomRightY:Number;
+        public var curSlideWidth:Number;
+        public var curSlideHeight:Number;
+        public var viewPortWidth:Number;
+        public var viewPortHeight:Number;
         
         public function PresenterViewEvent(type:String)
         {

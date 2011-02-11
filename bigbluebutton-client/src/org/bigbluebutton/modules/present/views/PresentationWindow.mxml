@@ -297,14 +297,20 @@
 							var name:String = item.attribute(attNamesList[0].name());
 							if ('PresentModule' == name)
 							{  
-								var attName:String = attNamesList[5].name(); 
-								var attValue:String = item.attribute(attName);                        
-								if('true' == attValue.toLowerCase())
+								var attName:XML;
+								for each(attName in attNamesList)
 								{
-									isShowUnlockButton = true;
-									if ( false == isPresenter )
+									if ('showUnlockButton' == attName.name())
 									{
-										lockButton.visible = true;	
+										// compare the showUnlockButton value
+										if('true' == item.attribute(attName.name()).toLowerCase())
+										{
+											isShowUnlockButton = true;
+											if (false == isPresenter)
+											{
+												lockButton.visible = true;
+											}
+										}
 									}
 								}
 							}
@@ -347,10 +353,10 @@
 			 ******************************************************************************/
 			private function dispatchSendPresenterViewPort() : void {
 				var presentEvent:PresenterViewEvent = new PresenterViewEvent(PresenterViewEvent.UPDATE_PRESENTER_VIEW_DIMENSION);
-				presentEvent.topLeftX  = currentSlideWidth;
-				presentEvent.topLeftY  = currentSlideHeight;
-				presentEvent.bottomRightX  = this.width - WIDTH_PADDING;
-				presentEvent.bottomRightY  = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
+				presentEvent.curSlideWidth  = currentSlideWidth;
+				presentEvent.curSlideHeight  = currentSlideHeight;
+				presentEvent.viewPortWidth  = this.width - WIDTH_PADDING;
+				presentEvent.viewPortHeight  = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
 				dispatchEvent(presentEvent);
 			}
 			/** END Function : dispatchSendPresenterViewPort */
@@ -796,7 +802,8 @@
             ;  switchFollowPreseterSlide
             ;----------------------------------------------------------------------------
             ; DESCRIPTION
-            ;   This routine is use to switch view slide to follow presenter slide or not.
+            ;   This routine is use to switch viewer slide to follow presenter slide or not
+			;	(Lock/Unlock).
             ;
             ; RETURNS
             ;

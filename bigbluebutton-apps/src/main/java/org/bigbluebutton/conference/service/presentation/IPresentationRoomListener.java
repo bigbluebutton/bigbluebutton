@@ -37,7 +37,7 @@ interface IPresentationRoomListener {
 	public void sharePresentation(String presentationName, Boolean share);
 	
     // use to share the presenter view port to fix the problem with enabling presentation window full screen
-    public void shareUpdatePresenterViewDimension(Double topLeftX, Double topLeftY, Double bottomRightx, Double bottomRightY);
+    public void shareUpdatePresenterViewDimension(Double curSlideWidth, Double curSlideHeight, Double viewPortWidth, Double viewPortHeight);
     public void setFullScreen(boolean status);
 
 }

@@ -209,7 +209,7 @@ package org.bigbluebutton.modules.present.business
             ;
             ******************************************************************************/
         public function sendUpdatePresenterViewDimension(e:PresenterViewEvent) : void {
-            soService.shareUpdatePresenterViewDimension(e.topLeftX,e.topLeftY,e.bottomRightX,e.bottomRightY);
+            soService.shareUpdatePresenterViewDimension(e.curSlideWidth,e.curSlideHeight,e.viewPortWidth,e.viewPortHeight);
         }
         /** END Function : sendUpdatePresenterViewDimension **/
         
@@ -218,6 +218,7 @@ package org.bigbluebutton.modules.present.business
             ;----------------------------------------------------------------------------
             ; DESCRIPTION
             ;   This routine is use to call sendFullScreenUpdateStatus from soService object
+			;	to send the presentation status.
             ;
             ; RETURNS
             ;
@@ -240,6 +241,7 @@ package org.bigbluebutton.modules.present.business
             ;----------------------------------------------------------------------------
             ; DESCRIPTION
             ;   This routine is use to call getFullScreenStatus from soService object
+			;	to get the presenter full screen status.
             ;
             ; RETURNS
             ;
@@ -262,6 +264,7 @@ package org.bigbluebutton.modules.present.business
             ;----------------------------------------------------------------------------
             ; DESCRIPTION
             ;   This routine is use to call getUpdatePresenterViewDimension from soService object
+			;	to get the presenter view port information.
             ;
             ; RETURNS
             ;

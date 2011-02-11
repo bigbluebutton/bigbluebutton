@@ -89,14 +89,13 @@
             private var _gWindow:TitleWindow;
             private var gTimRaiseHand:Timer;
             private var gTimChat:Timer;
+			private var gTimNewUser:Timer;
             private const TIMER_INTERVAL:int    = 1000;
             private const NOTIFY_DURATION:int   = 20;
-            private var gNotifyChatNum:Number    = 0;
             private var gNotifyRaiseNum:Number   = 0;
             private var gIsPresentationFullScr:Boolean      = false;
             private var gIsEnableChatNotification:Boolean   = true;
-            private var gNotifyNewUserNum:Number = 0;
-            private var gTimNewUser:Timer;
+            private var gHBoxNotification:HBox;
 			
 			private var globalDispatcher:Dispatcher;
 			
@@ -500,23 +499,23 @@
                     // check 'gTimChat' Timer and stop if it's starting.
                     gTimChat.stop();
                     PopUpManager.removePopUp(_gWindow);
-                    gNotifyChatNum = 0;
                 }
                 if ( null != gTimNewUser )
                 {
                     // new user notification running, stop it.
                     gTimNewUser.stop();
                     PopUpManager.removePopUp(_gWindow);
-                    gNotifyNewUserNum = 0;
                 }
                 
                 // initialize chat notification window
                 showWindow(lSender,lMessage);
-                _gWindow.visible = false;
                 
                 // initialize Timer and start to blink chat notification
-                gTimChat = new Timer(TIMER_INTERVAL);
-                gTimChat.addEventListener(TimerEvent.TIMER, blinkChatNotification);
+                gTimChat = new Timer(TIMER_INTERVAL, NOTIFY_DURATION);
+				gTimChat.addEventListener(TimerEvent.TIMER, function(evt:TimerEvent):void{
+					gHBoxNotification.visible    = !gHBoxNotification.visible;
+					}
+				);
                 gTimChat.start();
                 
             }
@@ -524,45 +523,6 @@
              *  END: handleNewChat
              */
 
-            /*****************************************************************************
-            ;  blinkChatNotification
-            ;----------------------------------------------------------------------------
-            ; DESCRIPTION
-            ;   This routine is use to call by Timer to display chat notification. 
-            ;
-            ; RETURNS : N/A
-            ;
-            ; INTERFACE NOTES
-            ;   INPUT
-            ;       evt :   TimerEvent object.
-            ;
-            ; IMPLEMENTATION
-            ;
-            ; HISTORY
-            ; __date__ :        PTS:  
-            ; 2010.12.06        problem 731
-            ;
-            ******************************************************************************/
-            private function blinkChatNotification(evt:TimerEvent):void
-            {
-                // determine the timer step 'equal to NOTIFY_DURATION'
-                if (NOTIFY_DURATION == gNotifyChatNum)
-                {
-                    // hide notification window.
-                    _gWindow.visible = false;
-                    if ( null != gTimChat ){
-                        gTimChat.stop();
-                    }
-                    gNotifyChatNum = 0;
-                    return;
-                }
-                _gWindow.visible = !_gWindow.visible;
-                gNotifyChatNum += 1;
-            }
-            /*
-             *  END: blinkChatNotification
-             */
-            
             /*****************************************************************************
             ;  showWindow
             ;----------------------------------------------------------------------------
@@ -588,6 +548,7 @@
                 
                 var lblChatNotificaton:Label    = new Label;
                 var lNotificationMsg:String      = lName + " : " + lMessage;
+                gHBoxNotification    = new HBox;
                    
                 // determine the message length is > 25 character
                 if ( 25 < lNotificationMsg.length )
@@ -596,18 +557,23 @@
                     lNotificationMsg     = lNotificationMsg.substring(0,25) + "....";
                 }
                 lblChatNotificaton.text = lNotificationMsg;
+                gHBoxNotification.addChild(lblChatNotificaton);
                 
                 // initialize and add message to notification window.
                 _gWindow         = TitleWindow(PopUpManager.createPopUp(this, TitleWindow));
-                _gWindow.addChild(lblChatNotificaton);
-                _gWindow.width   = 200;
+                _gWindow.title  = 'New Chat';
+                _gWindow.addChild(gHBoxNotification); 
+                _gWindow.width  = 200;
                 _gWindow.horizontalScrollPolicy="off";
                 
                 // set position
                 _gWindow.x   = mdiCanvas.width  - _gWindow.width;
                 _gWindow.y   = mdiCanvas.height - _gWindow.height + 15; 
                 _gWindow.showCloseButton = true;
-                _gWindow.addEventListener(CloseEvent.CLOSE, closeHandler);
+                _gWindow.addEventListener(CloseEvent.CLOSE, function(evt:CloseEvent):void{
+					PopUpManager.removePopUp(_gWindow);
+					}
+				);
             }
             /*
              *  END: showWindow
@@ -639,18 +605,19 @@
                 // initialize controls to add to notification window
                 var imgUserIcon:Image   = new Image;
                 var lblNotificationText:Label = new Label;
-                var hBox:HBox   = new HBox;
+                gHBoxNotification    = new HBox;
                 
                 imgUserIcon.source      = userIcon;
                 lblNotificationText.text= lUname + " : joined";
                 lblNotificationText.width   = 150;
                 
-                hBox.addChild(imgUserIcon);
-                hBox.addChild(lblNotificationText);
+                gHBoxNotification.addChild(imgUserIcon);
+                gHBoxNotification.addChild(lblNotificationText);
                 
                 // initialize and add controls to notification window.
                 _gWindow = TitleWindow(PopUpManager.createPopUp(this, TitleWindow));
-                _gWindow.addChild(hBox);
+                _gWindow.title = 'Notification';
+                _gWindow.addChild(gHBoxNotification);
                 _gWindow.width   = 200;
                 _gWindow.horizontalScrollPolicy="off";
                     
@@ -658,7 +625,10 @@
                 _gWindow.x   = mdiCanvas.width  - _gWindow.width;
                 _gWindow.y   = mdiCanvas.height - _gWindow.height + 15; 
                 _gWindow.showCloseButton = true;
-                _gWindow.addEventListener(CloseEvent.CLOSE, closeHandler); 
+                _gWindow.addEventListener(CloseEvent.CLOSE, function(evt:CloseEvent):void{
+					PopUpManager.removePopUp(_gWindow);
+					}
+				); 
             }
             /*
              *  END: createNewUserNotificationWindow
@@ -721,69 +691,28 @@
                 if ( null != gTimChat ){
                     // stop 'gTimChat' timer.
                     gTimChat.stop();
-                    gNotifyChatNum = 0;
                     PopUpManager.removePopUp(_gWindow);
                 }
                 if ( null != gTimNewUser ){
                     // timer already running
                     gTimNewUser.stop();
-                    gNotifyNewUserNum = 0;
                     PopUpManager.removePopUp(_gWindow);
                 }
                 // create notification window
                 createNewUserNotificationWindow(lUname);
                 
                 // initialize and start time
-                gTimNewUser = new Timer(TIMER_INTERVAL);
-                gTimNewUser.addEventListener(TimerEvent.TIMER, blinkNewUserNotification);
+                gTimNewUser = new Timer(TIMER_INTERVAL, NOTIFY_DURATION);
+				gTimNewUser.addEventListener(TimerEvent.TIMER, function(evt:TimerEvent):void{
+					gHBoxNotification.visible = !gHBoxNotification.visible;
+					}
+				);
                 gTimNewUser.start();
             }
             /*
              *  END: handleNewUser
              */
              
-            /*****************************************************************************
-            ;  blinkNewUserNotification
-            ;----------------------------------------------------------------------------
-            ; DESCRIPTION
-            ;   This routine is use to call by Timer to display new participant
-            ;   joined notification while presentation window in full screen mode. 
-            ;
-            ; RETURNS : N/A
-            ;
-            ; INTERFACE NOTES
-            ;   INPUT
-            ;       evt:    TimerEvent object
-            ; IMPLEMENTATION
-            ;
-            ; HISTORY
-            ; __date__ :        PTS:    Description  
-            ; 2010.12.16                new participant joined notification
-            ;
-            ******************************************************************************/
-            private function blinkNewUserNotification(evt:TimerEvent) : void{
-                // Determine the timer step
-                if (NOTIFY_DURATION == gNotifyNewUserNum)
-                {
-                    _gWindow.visible = false;
-                    
-                    //  remove notification window
-                    PopUpManager.removePopUp(_gWindow);
-                    
-                    // stop timer
-                    if ( null != gTimNewUser ){
-                        gTimNewUser.stop();
-                    }
-                    gNotifyNewUserNum = 0;
-                    return;
-                } 
-                _gWindow.visible   = !_gWindow.visible;
-                gNotifyNewUserNum += 1;
-            }
-            /*
-             *  END: blinkNewUserNotification
-             */
-			
 		]]>
 	</mx:Script>
 			

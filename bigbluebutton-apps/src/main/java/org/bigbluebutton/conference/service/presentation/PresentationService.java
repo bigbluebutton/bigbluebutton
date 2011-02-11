@@ -178,13 +178,13 @@ public class PresentationService {
         ;----------------------------------------------------------------------------
         ; DESCRIPTION
         ;   This routine is use to call the 'setFullScreen' from the presentationApplication
-        ;   to set the presener's presentation window status.
+        ;   to set the presenter's presentation window status.
         ;
         ; RETURNS
         ;
         ; INTERFACE NOTES
         ;   INPUT
-        ;       isFullScreen    : the presener's presentation window status.
+        ;       isFullScreen    : the presenter's presentation window status.
         ;
         ; IMPLEMENTATION
         ;
@@ -205,14 +205,14 @@ public class PresentationService {
         ;----------------------------------------------------------------------------
         ; DESCRIPTION
         ;   This routine is use to call the 'getFullScreenStatus' from the presentationApplication
-        ;   to get the presener's presentation window status.
+        ;   to get the presenter's presentation window status.
         ;
         ; RETURNS
-        ;       the presener's presentation window status
+        ;       the presenter's presentation window status
         ;
         ; INTERFACE NOTES
         ;   INPUT
-        ;       isFullScreen    : the presener's presentation window status.
+        ;       isFullScreen    : the presenter's presentation window status.
         ;
         ; IMPLEMENTATION
         ;
@@ -233,10 +233,10 @@ public class PresentationService {
         ;----------------------------------------------------------------------------
         ; DESCRIPTION
         ;   This routine is use to call the 'setCurrentPresentationPosition' from the presentationApplication
-        ;   to set the presener's view port information.
+        ;   to set the presenter's view port information.
         ;
         ; RETURNS
-        ;       the presener's view port information
+        ;       the presenter's view port information
         ;
         ; INTERFACE NOTES
         ;   INPUT
@@ -269,10 +269,10 @@ public class PresentationService {
         ;----------------------------------------------------------------------------
         ; DESCRIPTION
         ;   This routine is use to call the 'getCurrentPresenterPosition' from the presentationApplication
-        ;   to get the presener's view port information.
+        ;   to get the presenter's view port information.
         ;
         ; RETURNS
-        ;       the presener's view port information
+        ;       the presenter's view port information
         ;
         ; INTERFACE NOTES
         ;   INPUT

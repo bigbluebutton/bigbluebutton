@@ -644,7 +644,8 @@ package org.bigbluebutton.modules.present.business {
         ;  shareUpdatePresenterViewDimension
         ;----------------------------------------------------------------------------
         ; DESCRIPTION
-        ;   This routine is use to call remote function 'shareUpdatePresenterViewDimension'.
+        ;   This routine is use to call remote function 'shareUpdatePresenterViewDimension'
+		;	to share presenter view port information.
         ;
         ; RETURNS
         ;
@@ -692,8 +693,7 @@ package org.bigbluebutton.modules.present.business {
         ;  shareUpdatePresenterViewDimensionCallback
         ;----------------------------------------------------------------------------
         ; DESCRIPTION
-        ;   This routine is use to handle the presenter share the view port
-        ;   dimension
+        ;   This routine is use to handle when the presenter share view port.
         ;
         ; RETURNS
         ;
@@ -713,10 +713,10 @@ package org.bigbluebutton.modules.present.business {
         ******************************************************************************/
         public function shareUpdatePresenterViewDimensionCallback(curSlideWidth:Number,curSlideHeight:Number,viewPortWidth:Number,viewPortHeight:Number) : void {
             var presentViewEvent:PresenterViewEvent = new PresenterViewEvent(PresenterViewEvent.SHARE_PRESENTER_VIEW_DIMENSION);
-            presentViewEvent.topLeftX   = curSlideWidth;
-            presentViewEvent.topLeftY   = curSlideHeight;
-            presentViewEvent.bottomRightX   = viewPortWidth;
-            presentViewEvent.bottomRightY   = viewPortHeight;
+            presentViewEvent.curSlideWidth   = curSlideWidth;
+            presentViewEvent.curSlideHeight   = curSlideHeight;
+            presentViewEvent.viewPortWidth   = viewPortWidth;
+            presentViewEvent.viewPortHeight   = viewPortHeight;
             dispatcher.dispatchEvent(presentViewEvent);
         }
         /** END Function : shareUpdatePresenterViewDimensionCallback **/
@@ -877,7 +877,8 @@ package org.bigbluebutton.modules.present.business {
         ;  sendFullScreenUpdateCommandCallback
         ;----------------------------------------------------------------------------
         ; DESCRIPTION
-        ;   This routine is use to handle the presenter full screen status.
+        ;   This routine is use to handle the presenter send full screen status
+		;	to the server.
         ;
         ; RETURNS
         ;

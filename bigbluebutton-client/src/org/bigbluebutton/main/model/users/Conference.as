@@ -106,6 +106,7 @@ package org.bigbluebutton.main.model.users
 					newuser.me = true;
 				}						
                 
+				//check the join status, only joined user can see notification
                 if ( true == joinedStatus ){
                     // user joined
                     if (true == ExternalInterface.available) 
