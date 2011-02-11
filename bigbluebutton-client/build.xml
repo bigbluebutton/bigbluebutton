@@ -321,6 +321,28 @@
 		/>
 	</target>
 
+	<target name="asdoc">
+		<echo message="Generating ASDocs"/>
+		<delete dir="${BASE_DIR}/asdoc" />
+                <mkdir dir="${BASE_DIR}/asdoc" />
+		<!-- asdoc task not natively supported for ant flexTasks.jar for flex3. It is supported for flex 4, so it should be enabled here
+		when bbb-client is moved to Flex 4 -->
+		<!--<asdoc output="${BASE_DIR}/asdoc" 
+			external-library-path="{BASE_DIR}/libs" 
+			lenient="true" 
+			failonerror="true"
+			source-path="${SRC_DIR}"
+			doc-sources="${SRC_DIR}"
+		/> -->
+		<exec executable="${FLEX_HOME}/bin/asdoc" failonerror="true">
+			<arg line="-source-path ${SRC_DIR}/ "/>
+			<arg line="-doc-sources ${SRC_DIR}/ "/>
+			<arg line="-external-library-path '${BASE_DIR}/libs/' "/>
+			<arg line="-output '${BASE_DIR}/asdoc' "/>
+		</exec>
+		<echo message="Done Generating ASDocs" />
+	</target>
+
 	<target name="clean">
 		<delete dir="${OUTPUT_DIR}" />
 		<mkdir dir="${OUTPUT_DIR}"/>
