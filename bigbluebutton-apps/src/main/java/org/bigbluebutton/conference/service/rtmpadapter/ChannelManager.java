@@ -54,12 +54,12 @@ public class ChannelManager implements Runnable {
 	public ChannelManager(RTMPAdapterApp application){
 		this.application = application;
 		sharedObjects = new HashMap<String, HashMap<String,ISharedObject>>();
-		jedisPub = new Jedis("localhost", 6379);
+		jedisPub = new Jedis("localhost", 6379, 0);
 		jedisPub.set("fooPub", "barPub");
 	}
 
 	public void run(){
-                jedisSub = new Jedis("localhost", 6379);
+                jedisSub = new Jedis("localhost", 6379, 0);
                 jedisSub.set("fooSub", "barSub");
                 System.out.println("Subscribing to Redis");
                 pubSubListener = new PubSubListener(this);
