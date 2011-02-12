@@ -45,7 +45,7 @@ public class ChannelManager implements Runnable {
 
 	private static Logger log = Red5LoggerFactory.getLogger(RTMPAdapterApp.class, "bigbluebutton");
 
-	private HashMap<String,ISharedObject> sharedObjects;
+	private HashMap<String,HashMap<String,ISharedObject>> sharedObjects;
 	private RTMPAdapterApp application;
 	private PubSubListener pubSubListener;
 	private Jedis jedisSub;
@@ -53,7 +53,7 @@ public class ChannelManager implements Runnable {
 	
 	public ChannelManager(RTMPAdapterApp application){
 		this.application = application;
-		sharedObjects = new HashMap<String,ISharedObject>();
+		sharedObjects = new HashMap<String, HashMap<String,ISharedObject>>();
 		jedisPub = new Jedis("localhost", 6379);
 		jedisPub.set("fooPub", "barPub");
 	}
@@ -71,15 +71,34 @@ public class ChannelManager implements Runnable {
 		t.start();
 	}
 
-	public boolean hasSharedObject(String sharedObjectId){
-		if (sharedObjects.containsKey(sharedObjectId)) return true;
-		else return false;
+	public boolean hasSharedObject(String sharedObjectScope, String appName){
+		boolean contains = false;
+		if (sharedObjects.containsKey(sharedObjectScope)){
+			HashMap<String, ISharedObject> map = sharedObjects.get(sharedObjectScope);
+			if (map.containsKey(appName)){
+				contains = true;
+			}
+		}
+		return contains;
 	}
 
-	public void registerSharedObject(String sharedObjectId, ISharedObject sharedObject){
-		if (sharedObjects.containsKey(sharedObjectId)) return;
+	public void registerRoom(String sharedObjectScope){
+		System.out.println("RTMPAdapter ChannelManager creating room for scope " + sharedObjectScope);
+		sharedObjects.put(sharedObjectScope, new HashMap<String,ISharedObject>());
+	}
 
-		sharedObjects.put(sharedObjectId, sharedObject);
+	public void removeRoom(String sharedObjectScope){
+		System.out.println("RTMPAdapter ChannelManager destroying room for scope " + sharedObjectScope);
+		sharedObjects.remove(sharedObjectScope);
+	}
+
+	public void registerSharedObject(String sharedObjectScope, String appName, ISharedObject sharedObject){
+		if (hasSharedObject(sharedObjectScope, appName)) return;
+
+		System.out.println("RTMPAdapter ChannelManager requesting room for scope: " + sharedObjectScope);
+		HashMap<String, ISharedObject> map = sharedObjects.get(sharedObjectScope);
+
+		map.put(appName, sharedObject);
 	}
 
 	public void sendData(String appName, String clientScope, String method, String data){
@@ -92,10 +111,11 @@ public class ChannelManager implements Runnable {
 		System.out.println("RTMPAdapter received: " + channel + ", data: " + message);
 
 		String[] parts = channel.split(":");
-		String sharedObjectId = parts[1] + ":" + parts[2];
+		String appName = parts[1];
+		String sharedObjectScope = parts[2];
 		String method = parts[3];
-		if (hasSharedObject(sharedObjectId)){
-			ISharedObject sharedObject = sharedObjects.get(sharedObjectId);
+		if (hasSharedObject(sharedObjectScope, appName)){
+			ISharedObject sharedObject = sharedObjects.get(sharedObjectScope).get(appName);
 			List<String> args = new ArrayList<String>();
 			args.add(message);
 			sharedObject.sendMessage(method, args);
