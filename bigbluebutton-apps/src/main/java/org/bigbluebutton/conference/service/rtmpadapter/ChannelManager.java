@@ -22,6 +22,8 @@
 package org.bigbluebutton.conference.service.rtmpadapter;
 
 import org.red5.server.api.so.ISharedObject;
+import java.util.HashMap;
+import java.util.List;
 import java.util.ArrayList;
 import redis.clients.jedis.Jedis;
 
@@ -43,7 +45,7 @@ public class ChannelManager implements Runnable {
 
 	private static Logger log = Red5LoggerFactory.getLogger(RTMPAdapterApp.class, "bigbluebutton");
 
-	private ArrayList<ISharedObject> channels;
+	private HashMap<String,ISharedObject> sharedObjects;
 	private RTMPAdapterApp application;
 	private PubSubListener pubSubListener;
 	private Jedis jedisSub;
@@ -51,7 +53,7 @@ public class ChannelManager implements Runnable {
 	
 	public ChannelManager(RTMPAdapterApp application){
 		this.application = application;
-		channels = new ArrayList<ISharedObject>();
+		sharedObjects = new HashMap<String,ISharedObject>();
 		jedisPub = new Jedis("localhost", 6379);
 		jedisPub.set("fooPub", "barPub");
 	}
@@ -69,6 +71,17 @@ public class ChannelManager implements Runnable {
 		t.start();
 	}
 
+	public boolean hasSharedObject(String sharedObjectId){
+		if (sharedObjects.containsKey(sharedObjectId)) return true;
+		else return false;
+	}
+
+	public void registerSharedObject(String sharedObjectId, ISharedObject sharedObject){
+		if (sharedObjects.containsKey(sharedObjectId)) return;
+
+		sharedObjects.put(sharedObjectId, sharedObject);
+	}
+
 	public void sendData(String appName, String clientScope, String method, String data){
 		System.out.println("RTMPAdapter sending: bigbluebutton:" + appName + ":" + clientScope + ":" + method + ", data: " + data);
 		String channel = "bigbluebutton:" + appName + ":" + clientScope + ":" + method;
@@ -77,6 +90,16 @@ public class ChannelManager implements Runnable {
 
 	public void receivedMessage(String channel, String message){
 		System.out.println("RTMPAdapter received: " + channel + ", data: " + message);
+
+		String[] parts = channel.split(":");
+		String sharedObjectId = parts[1] + ":" + parts[2];
+		String method = parts[3];
+		if (hasSharedObject(sharedObjectId)){
+			ISharedObject sharedObject = sharedObjects.get(sharedObjectId);
+			List<String> args = new ArrayList<String>();
+			args.add(message);
+			sharedObject.sendMessage(method, args);
+		}
 	}
 	
 	public void addChannel(String appName, IScope scope){

@@ -58,8 +58,12 @@ public class RTMPAdapterApp extends MultiThreadedApplicationAdapter implements I
 	}
 	
 	public void sendData(String appName, String method, String data){
-		String clientScope = getLocalScope().getName();
-		channelManager.sendData(appName, clientScope, method, data);
+		IScope clientScope = getLocalScope();
+		String clientScopeId = clientScope.getName();
+		ISharedObject sharedObject = getSharedObject(clientScope, appName);
+		if (!channelManager.hasSharedObject(appName + ":" + clientScopeId) && (sharedObject != null)) channelManager.registerSharedObject(appName + ":" + clientScopeId, sharedObject);
+
+		channelManager.sendData(appName, clientScopeId, method, data);
 	}
 
 	public void message(String channel, String message){
