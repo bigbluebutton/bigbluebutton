@@ -22,6 +22,8 @@
 package org.bigbluebutton.conference.service.rtmpadapter;
 
 import org.red5.server.api.so.ISharedObject;
+import java.util.HashMap;
+import java.util.List;
 import java.util.ArrayList;
 import redis.clients.jedis.Jedis;
 
@@ -37,36 +39,87 @@ import org.red5.server.api.so.ISharedObject;
 import org.slf4j.Logger;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
+import java.lang.Runnable;
 
-public class ChannelManager {
+public class ChannelManager implements Runnable {
 
 	private static Logger log = Red5LoggerFactory.getLogger(RTMPAdapterApp.class, "bigbluebutton");
 
-	private ArrayList<ISharedObject> channels;
-	public RTMPAdapterApp application;
+	private HashMap<String,HashMap<String,ISharedObject>> sharedObjects;
+	private RTMPAdapterApp application;
 	private PubSubListener pubSubListener;
-	private Jedis jedis;
+	private Jedis jedisSub;
+	private Jedis jedisPub;
+	
+	public ChannelManager(RTMPAdapterApp application){
+		this.application = application;
+		sharedObjects = new HashMap<String, HashMap<String,ISharedObject>>();
+		jedisPub = new Jedis("localhost", 6379);
+		jedisPub.set("fooPub", "barPub");
+	}
 
-	public ChannelManager(){
-		channels = new ArrayList<ISharedObject>();
-
-		jedis = new Jedis("localhost", 6379);
+	public void run(){
+                jedisSub = new Jedis("localhost", 6379);
+                jedisSub.set("fooSub", "barSub");
+                System.out.println("Subscribing to Redis");
+                pubSubListener = new PubSubListener(this);
+                jedisSub.psubscribe(pubSubListener, "bigbluebutton:*");
 	}
 
 	public void subscribe(){
-		System.out.println("Subscribing to Redis");
-		pubSubListener = new PubSubListener(this);
-                jedis.psubscribe(pubSubListener, "bigbluebutton:*");
+		Thread t = new Thread(this);
+		t.start();
+	}
+
+	public boolean hasSharedObject(String sharedObjectScope, String appName){
+		boolean contains = false;
+		if (sharedObjects.containsKey(sharedObjectScope)){
+			HashMap<String, ISharedObject> map = sharedObjects.get(sharedObjectScope);
+			if (map.containsKey(appName)){
+				contains = true;
+			}
+		}
+		return contains;
+	}
+
+	public void registerRoom(String sharedObjectScope){
+		System.out.println("RTMPAdapter ChannelManager creating room for scope " + sharedObjectScope);
+		sharedObjects.put(sharedObjectScope, new HashMap<String,ISharedObject>());
+	}
+
+	public void removeRoom(String sharedObjectScope){
+		System.out.println("RTMPAdapter ChannelManager destroying room for scope " + sharedObjectScope);
+		sharedObjects.remove(sharedObjectScope);
+	}
+
+	public void registerSharedObject(String sharedObjectScope, String appName, ISharedObject sharedObject){
+		if (hasSharedObject(sharedObjectScope, appName)) return;
+
+		System.out.println("RTMPAdapter ChannelManager requesting room for scope: " + sharedObjectScope);
+		HashMap<String, ISharedObject> map = sharedObjects.get(sharedObjectScope);
+
+		map.put(appName, sharedObject);
 	}
 
 	public void sendData(String appName, String clientScope, String method, String data){
 		System.out.println("RTMPAdapter sending: bigbluebutton:" + appName + ":" + clientScope + ":" + method + ", data: " + data);
 		String channel = "bigbluebutton:" + appName + ":" + clientScope + ":" + method;
-		jedis.publish(channel, data);
+		jedisPub.publish(channel, data);
 	}
 
 	public void receivedMessage(String channel, String message){
 		System.out.println("RTMPAdapter received: " + channel + ", data: " + message);
+
+		String[] parts = channel.split(":");
+		String appName = parts[1];
+		String sharedObjectScope = parts[2];
+		String method = parts[3];
+		if (hasSharedObject(sharedObjectScope, appName)){
+			ISharedObject sharedObject = sharedObjects.get(sharedObjectScope).get(appName);
+			List<String> args = new ArrayList<String>();
+			args.add(message);
+			sharedObject.sendMessage(method, args);
+		}
 	}
 	
 	public void addChannel(String appName, IScope scope){

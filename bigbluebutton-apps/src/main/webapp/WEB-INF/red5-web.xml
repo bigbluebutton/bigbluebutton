@@ -35,7 +35,7 @@
 				<ref bean="presentationHandler" />
 				<ref bean="voiceHandler" />
 				<ref bean="whiteboardApplication" />
-				<ref bean="rtmpAdapter" />
+				<ref bean="RTMPAdapter" />
     		</set>
   		</property>	  
   		<property name="recorderApplication"> <ref bean="recorderApplication"/></property>	

@@ -47,22 +47,23 @@ public class RTMPAdapterApp extends MultiThreadedApplicationAdapter implements I
 	public boolean appStart(IScope app){
 		System.out.println("Starting RTMPAdapterApp");
 		this.scope = app;
-		channelManager.application = this;
+		
+		channelManager = new ChannelManager(this);
                 channelManager.subscribe();
 		return true;
 	}
 
-	public void setChannelManager(ChannelManager channelManager){
-		this.channelManager = channelManager;
-	}
-	
 	@Override
 	public void appStop(IScope scope){
 	}
 	
 	public void sendData(String appName, String method, String data){
-		String clientScope = getLocalScope().getName();
-		channelManager.sendData(appName, clientScope, method, data);
+		IScope clientScope = getLocalScope();
+		String clientScopeId = clientScope.getName();
+		ISharedObject sharedObject = getSharedObject(clientScope, appName);
+		if (!channelManager.hasSharedObject(clientScopeId, appName) && (sharedObject != null)) channelManager.registerSharedObject(clientScopeId, appName, sharedObject);
+
+		channelManager.sendData(appName, clientScopeId, method, data);
 	}
 
 	public void message(String channel, String message){
@@ -109,11 +110,15 @@ public class RTMPAdapterApp extends MultiThreadedApplicationAdapter implements I
 
 	@Override
 	public boolean roomStart(IScope scope) {
+		channelManager.registerRoom(scope.getName());
+		System.out.println("RTMPAdapter room started:  " + scope.getName());
     		return true;
 	}
 
 	@Override
 	public void roomStop(IScope scope) {
+		channelManager.removeRoom(scope.getName());
+		System.out.println("RTMPAdapter room ended:  " + scope.getName());
 	}
 	
 	private IScope getLocalScope(){
