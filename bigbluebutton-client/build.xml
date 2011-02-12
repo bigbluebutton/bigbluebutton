@@ -27,7 +27,8 @@
 	<property name="DYN_INFO" value="DynamicInfoModule" />
 	<property name="BREAKOUT" value="BreakoutModule" />
 	<property name="SHAREDNOTES" value="SharedNotesModule" />
-	
+	<property name="EXAMPLE" value="ExampleChatModule" />	
+
 	<property name="AVAILABLE_LOCALES" value="az_AZ,bg_BG,cs_CZ,de_DE,el_GR,en_US,es_ES,es_LA,fr_FR,fr_CA,hu_HU,it_IT,lv_LV,lt_LT,nb_NO,nl_NL,pl_PL,pt_BR,pt_PT,ro_RO,ru_RU,tr_TR,vi_VN,uk_UA,zh_CN,zh_TW,sv_SE,fa_IR,ja_JP"/>
 	
 	<xmlproperty file="${SRC_DIR}/conf/locales.xml" collapseAttributes="true"/>
@@ -125,6 +126,10 @@
 	<target name="build-chat" description="Compile Chat Module">
 		<build-module src="${SRC_DIR}" target="${CHAT}" />
 	</target>
+
+	<target name="build-example" description="Compile Example Module">
+                <build-module src="${SRC_DIR}" target="${EXAMPLE}" />
+        </target>
 	
 	<target name="build-viewers" description="Compile Viewers Module">
 		<build-module src="${SRC_DIR}" target="${VIEWERS}" />
