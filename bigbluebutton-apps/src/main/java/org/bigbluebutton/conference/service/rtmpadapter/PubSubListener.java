@@ -50,14 +50,14 @@ public class PubSubListener extends JedisPubSub {
 	}
 
         public void onSubscribe(String channel, int subscribedChannels) {
-        	System.out.println("PubSubListener subscribing to channel: " + channel + " num channels: " + subscribedChannels);
+        	log.info("PubSubListener subscribing to channel: " + channel + " num channels: " + subscribedChannels);
 	}
 
         public void onUnsubscribe(String channel, int subscribedChannels) {
         }
 
         public void onPSubscribe(String pattern, int subscribedChannels) {
-		System.out.println("PubSubListener subscribing to: " + pattern + " num channels: " + subscribedChannels);
+		log.info("PubSubListener subscribing to: " + pattern + " num channels: " + subscribedChannels);
         }
 
         public void onPUnsubscribe(String pattern, int subscribedChannels) {

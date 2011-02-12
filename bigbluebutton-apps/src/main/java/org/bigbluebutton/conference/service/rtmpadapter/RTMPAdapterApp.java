@@ -45,7 +45,7 @@ public class RTMPAdapterApp extends MultiThreadedApplicationAdapter implements I
 
 	@Override
 	public boolean appStart(IScope app){
-		System.out.println("Starting RTMPAdapterApp");
+		log.info("Starting RTMPAdapterApp");
 		this.scope = app;
 		
 		channelManager = new ChannelManager(this);
@@ -111,14 +111,14 @@ public class RTMPAdapterApp extends MultiThreadedApplicationAdapter implements I
 	@Override
 	public boolean roomStart(IScope scope) {
 		channelManager.registerRoom(scope.getName());
-		System.out.println("RTMPAdapter room started:  " + scope.getName());
+		log.info("RTMPAdapter room started:  " + scope.getName());
     		return true;
 	}
 
 	@Override
 	public void roomStop(IScope scope) {
 		channelManager.removeRoom(scope.getName());
-		System.out.println("RTMPAdapter room ended:  " + scope.getName());
+		log.info("RTMPAdapter room ended:  " + scope.getName());
 	}
 	
 	private IScope getLocalScope(){
