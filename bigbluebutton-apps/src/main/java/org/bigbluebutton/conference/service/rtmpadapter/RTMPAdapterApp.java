@@ -47,15 +47,12 @@ public class RTMPAdapterApp extends MultiThreadedApplicationAdapter implements I
 	public boolean appStart(IScope app){
 		System.out.println("Starting RTMPAdapterApp");
 		this.scope = app;
-		channelManager.application = this;
+		
+		channelManager = new ChannelManager(this);
                 channelManager.subscribe();
 		return true;
 	}
 
-	public void setChannelManager(ChannelManager channelManager){
-		this.channelManager = channelManager;
-	}
-	
 	@Override
 	public void appStop(IScope scope){
 	}

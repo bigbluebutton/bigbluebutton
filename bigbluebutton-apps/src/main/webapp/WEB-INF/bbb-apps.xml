@@ -137,18 +137,16 @@
 	<!-- END WHITEBOARD -->
 	
 	<!-- BEGIN RTMPAdapter -->
-	<bean id="rtmpAdapter" 
+	<bean id="RTMPAdapter" 
             class="org.bigbluebutton.conference.service.rtmpadapter.RTMPAdapterApp">
-	    <property name="channelManager"> <ref local="channelManager"/></property>
+	    <!--<property name="channelManager"> <ref local="channelManager"/></property>-->
         </bean>
 
 	<bean id="rtmpadapter.service" class="org.bigbluebutton.conference.service.rtmpadapter.RTMPAdapterService">
-                <property name="RTMPAdapterApp"> <ref local="rtmpAdapter"/></property>
+                <property name="RTMPAdapter"> <ref local="RTMPAdapter"/></property>
         </bean>
 
-	<bean id="channelManager" class="org.bigbluebutton.conference.service.rtmpadapter.ChannelManager"/>
-
-
+	<!--<bean id="channelManager" class="org.bigbluebutton.conference.service.rtmpadapter.ChannelManager"/>-->
 	<!-- END RTMPAdapter -->
 
 	

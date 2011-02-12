@@ -37,32 +37,42 @@ import org.red5.server.api.so.ISharedObject;
 import org.slf4j.Logger;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
+import java.lang.Runnable;
 
-public class ChannelManager {
+public class ChannelManager implements Runnable {
 
 	private static Logger log = Red5LoggerFactory.getLogger(RTMPAdapterApp.class, "bigbluebutton");
 
 	private ArrayList<ISharedObject> channels;
-	public RTMPAdapterApp application;
+	private RTMPAdapterApp application;
 	private PubSubListener pubSubListener;
-	private Jedis jedis;
-
-	public ChannelManager(){
+	private Jedis jedisSub;
+	private Jedis jedisPub;
+	
+	public ChannelManager(RTMPAdapterApp application){
+		this.application = application;
 		channels = new ArrayList<ISharedObject>();
+		jedisPub = new Jedis("localhost", 6379);
+		jedisPub.set("fooPub", "barPub");
+	}
 
-		jedis = new Jedis("localhost", 6379);
+	public void run(){
+                jedisSub = new Jedis("localhost", 6379);
+                jedisSub.set("fooSub", "barSub");
+                System.out.println("Subscribing to Redis");
+                pubSubListener = new PubSubListener(this);
+                jedisSub.psubscribe(pubSubListener, "bigbluebutton:*");
 	}
 
 	public void subscribe(){
-		System.out.println("Subscribing to Redis");
-		pubSubListener = new PubSubListener(this);
-                jedis.psubscribe(pubSubListener, "bigbluebutton:*");
+		Thread t = new Thread(this);
+		t.start();
 	}
 
 	public void sendData(String appName, String clientScope, String method, String data){
 		System.out.println("RTMPAdapter sending: bigbluebutton:" + appName + ":" + clientScope + ":" + method + ", data: " + data);
 		String channel = "bigbluebutton:" + appName + ":" + clientScope + ":" + method;
-		jedis.publish(channel, data);
+		jedisPub.publish(channel, data);
 	}
 
 	public void receivedMessage(String channel, String message){
