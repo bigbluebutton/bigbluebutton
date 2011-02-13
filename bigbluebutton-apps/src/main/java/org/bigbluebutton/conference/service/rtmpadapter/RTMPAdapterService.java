@@ -34,7 +34,7 @@ public class RTMPAdapterService {
 	private RTMPAdapterApp application;
 	
 	public void setRTMPAdapter(RTMPAdapterApp a){
-		System.out.println("RTMPAdapterService: setting application instance");
+		log.info("RTMPAdapterService: setting application instance");
 		this.application = a;
 	}
 

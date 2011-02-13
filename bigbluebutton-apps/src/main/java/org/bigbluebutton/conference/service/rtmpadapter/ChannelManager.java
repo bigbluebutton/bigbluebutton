@@ -54,14 +54,14 @@ public class ChannelManager implements Runnable {
 	public ChannelManager(RTMPAdapterApp application){
 		this.application = application;
 		sharedObjects = new HashMap<String, HashMap<String,ISharedObject>>();
-		jedisPub = new Jedis("localhost", 6379);
+		jedisPub = new Jedis("localhost", 6379, 0);
 		jedisPub.set("fooPub", "barPub");
 	}
 
 	public void run(){
-                jedisSub = new Jedis("localhost", 6379);
+                jedisSub = new Jedis("localhost", 6379, 0);
                 jedisSub.set("fooSub", "barSub");
-                System.out.println("Subscribing to Redis");
+                log.info("Subscribing to Redis");
                 pubSubListener = new PubSubListener(this);
                 jedisSub.psubscribe(pubSubListener, "bigbluebutton:*");
 	}
@@ -83,32 +83,32 @@ public class ChannelManager implements Runnable {
 	}
 
 	public void registerRoom(String sharedObjectScope){
-		System.out.println("RTMPAdapter ChannelManager creating room for scope " + sharedObjectScope);
+		log.info("RTMPAdapter ChannelManager creating room for scope " + sharedObjectScope);
 		sharedObjects.put(sharedObjectScope, new HashMap<String,ISharedObject>());
 	}
 
 	public void removeRoom(String sharedObjectScope){
-		System.out.println("RTMPAdapter ChannelManager destroying room for scope " + sharedObjectScope);
+		log.info("RTMPAdapter ChannelManager destroying room for scope " + sharedObjectScope);
 		sharedObjects.remove(sharedObjectScope);
 	}
 
 	public void registerSharedObject(String sharedObjectScope, String appName, ISharedObject sharedObject){
 		if (hasSharedObject(sharedObjectScope, appName)) return;
 
-		System.out.println("RTMPAdapter ChannelManager requesting room for scope: " + sharedObjectScope);
+		log.info("RTMPAdapter ChannelManager requesting room for scope: " + sharedObjectScope);
 		HashMap<String, ISharedObject> map = sharedObjects.get(sharedObjectScope);
 
 		map.put(appName, sharedObject);
 	}
 
 	public void sendData(String appName, String clientScope, String method, String data){
-		System.out.println("RTMPAdapter sending: bigbluebutton:" + appName + ":" + clientScope + ":" + method + ", data: " + data);
+		log.info("RTMPAdapter sending: bigbluebutton:" + appName + ":" + clientScope + ":" + method + ", data: " + data);
 		String channel = "bigbluebutton:" + appName + ":" + clientScope + ":" + method;
 		jedisPub.publish(channel, data);
 	}
 
 	public void receivedMessage(String channel, String message){
-		System.out.println("RTMPAdapter received: " + channel + ", data: " + message);
+		log.info("RTMPAdapter received: " + channel + ", data: " + message);
 
 		String[] parts = channel.split(":");
 		String appName = parts[1];

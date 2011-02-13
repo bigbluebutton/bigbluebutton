@@ -67,8 +67,8 @@
 		-->
 		
 		<!--<module name="ExampleChatModule" url="ExampleChatModule.swf?v=56" 
-            uri="rtmp://HOST/bigbluebutton" 
-            host="http://HOST"
+            		uri="rtmp://HOST/bigbluebutton" 
+            		host="http://HOST"
 		/>-->
 		
 		<!--<module name="BreakoutModule" url="BreakoutModule.swf?v=VERSION" 
@@ -78,10 +78,10 @@
 			salt="1708e5ecf25b7142b06f2338b4ea3cf1"
 		/>-->
 		
-		<!--<module name="SharedNotesModule" url="SharedNotesModule.swf?v=VERSION" 
-			uri="http://192.168.0.225/bigbluebutton" 
+		<module name="SharedNotesModule" url="SharedNotesModule.swf?v=VERSION" 
+			uri="http://HOST/bigbluebutton" 
 			dependsOn="ViewersModule"
-		/>-->
+		/>
 		
 	</modules>
 </config>
