@@ -61,10 +61,6 @@ package org.bigbluebutton.modules.example
 			Alert.show(event.info.status);
 		}
 		
-		//public function sendMessage(message:String):void{
-		//	simpleChatSO.send("serverCallback", message);
-		//}
-		
 		public function sendMessage(message:String):void{
 			connection.call("rtmpadapter.sendData", new Responder(
 				function(result:Object):void{
@@ -80,8 +76,5 @@ package org.bigbluebutton.modules.example
 			window.displayNewMessage(data);
 		}
 		
-		public function serverCallback(message:String):void{
-			window.displayNewMessage(message);
-		}
 	}
 }
