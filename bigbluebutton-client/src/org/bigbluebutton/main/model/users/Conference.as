@@ -90,6 +90,7 @@ package org.bigbluebutton.main.model.users
         ; RETURNS : N/A
         ;
         ; INTERFACE NOTES
+		;	BBBUser object
         ; 
         ; IMPLEMENTATION
         ;  

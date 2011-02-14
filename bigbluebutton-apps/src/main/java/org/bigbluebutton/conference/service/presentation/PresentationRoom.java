@@ -55,11 +55,10 @@ public class PresentationRoom {
 	Double widthRatio = 0D;
 	Double heightRatio = 0D;
 	ArrayList<String> presentationNames = new ArrayList<String>();
-    private boolean _isFullScreen = false ;
-    private Double curSlideWidth = 0D;
-	private Double curSlideHeight = 0D;
-    private Double viewPortWidth = 0D; 
-    private Double viewPortHeight = 0D;
+    private Double _curSlideWidth = 0D;
+	private Double _curSlideHeight = 0D;
+    private Double _viewPortWidth = 0D; 
+    private Double _viewPortHeight = 0D;
     
 	public PresentationRoom(String name) {
 		this.name = name;
@@ -119,94 +118,49 @@ public class PresentationRoom {
 		}		
 	}
 	
-        /*****************************************************************************
-        ;  shareUpdatePresenterViewDimension
-        ;----------------------------------------------------------------------------
-        ; DESCRIPTION
-        ;   This routine is use to call back 'shareUpdatePresenterViewDimension' from IPresentationRoomListener 
-        ;
-        ; RETURNS
-        ;
-        ; INTERFACE NOTES
-        ;   INPUT
-        ;       curSlideWidth   : the current slide width
-        ;       curSlideHeight  : the current slide height
-        ;       viewPortWidth   : the view port width
-        ;       viewPortHeight  : the view port height
-        ;
-        ; IMPLEMENTATION
-        ;
-        ; HISTORY
-        ; __date__ :        PTS:            Description
-        ; 2011.01.27                        Full Screen Presenation widnow
-        ;
-        ******************************************************************************/
+    /*****************************************************************************
+    ;  shareUpdatePresenterViewDimension
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   This routine is use to call back 'shareUpdatePresenterViewDimension' from 
+    ;	IPresentationRoomListener to share the presenter view port information. 
+    ;
+    ; RETURNS: N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;       curSlideWidth   : the current slide width
+    ;       curSlideHeight  : the current slide height
+    ;       viewPortWidth   : the view port width
+    ;       viewPortHeight  : the view port height
+    ;
+    ; IMPLEMENTATION
+    ;	- call 'shareUpdatePresenterViewDimension' from IPresentationRoomListener
+    ;	to share the presenter view port information.
+    ;	- call 'setCurrentPresentationPosition' to set the view port information.
+    ;	
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 2011.01.27                        Full Screen Presentation window
+    ;
+    *****************************************************************************/
     @SuppressWarnings("unchecked")
-    public void shareUpdatePresenterViewDimension(Double curSlideWidth, Double curSlideHeight, Double viewPortWidth, Double viewPortHeight) {
+    public void shareUpdatePresenterViewDimension(
+						    		Double curSlideWidth, Double curSlideHeight, 
+						    		Double viewPortWidth, Double viewPortHeight
+						    		) {
         for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
             log.debug("calling on listener");
             IPresentationRoomListener listener = (IPresentationRoomListener) iter.next();
             log.debug("calling sendUpdateMessage on listener {}",listener.getName());
-            listener.shareUpdatePresenterViewDimension(curSlideWidth,curSlideHeight,viewPortWidth,viewPortHeight);
+            listener.shareUpdatePresenterViewDimension(
+									            		curSlideWidth,curSlideHeight,
+									            		viewPortWidth,viewPortHeight
+									            		);
         }
         setCurrentPresentationPosition(curSlideWidth,curSlideHeight,viewPortWidth,viewPortHeight);
     }
     /** END Function : shareUpdatePresenterViewDimension **/
-    
-        /*****************************************************************************
-        ;  setFullScreen
-        ;----------------------------------------------------------------------------
-        ; DESCRIPTION
-        ;   This routine is use to call back 'setFullScreen' from IPresentationRoomListener 
-        ;
-        ; RETURNS
-        ;
-        ; INTERFACE NOTES
-        ;   INPUT
-        ;       status  : the presenter full screen presentation window status
-        ;
-        ; IMPLEMENTATION
-        ;
-        ; HISTORY
-        ; __date__ :        PTS:            Description
-        ; 2011.01.27                        Full Screen Presenation widnow
-        ;
-        ******************************************************************************/
-    @SuppressWarnings("unchecked")
-    public void setFullScreen(boolean isFullScreen) {
-        this._isFullScreen = isFullScreen ;
-        for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
-            log.debug("calling on listener");
-            IPresentationRoomListener listener = (IPresentationRoomListener) iter.next();
-            log.debug("calling sendUpdateMessage on listener {}",listener.getName());
-            listener.setFullScreen(isFullScreen);
-        }
-    }
-    /** END Function : setFullScreen **/
-    
-        /*****************************************************************************
-        ;  getFullScreenStatus
-        ;----------------------------------------------------------------------------
-        ; DESCRIPTION
-        ;   This routine is use to get the '_isFullScreen' the presenter full screen status
-        ;
-        ; RETURNS
-        ;
-        ; INTERFACE NOTES
-        ;   INPUT
-        ;       status  : the presenter full screen presentation window status
-        ;
-        ; IMPLEMENTATION
-        ;
-        ; HISTORY
-        ; __date__ :        PTS:            Description
-        ; 2011.01.27                        Full Screen Presenation widnow
-        ;
-        ******************************************************************************/
-    public boolean getFullScreenStatus(){
-        return this._isFullScreen ;
-    }
-    /** END Function : getFullScreenStatus **/
 	
 	public void assignPresenter(ArrayList presenter){
 		currentPresenter = presenter;
@@ -307,33 +261,37 @@ public class PresentationRoom {
 		return heightRatio;
 	}
     
-        /*****************************************************************************
-        ;  setCurrentPresentationPosition
-        ;----------------------------------------------------------------------------
-        ; DESCRIPTION
-        ;   This routine is use to set the value of presenter view port information.
-        ;
-        ; RETURNS
-        ;
-        ; INTERFACE NOTES
-        ;   INPUT
-        ;       curSlideWidth   : the current slide width
-        ;       curSlideHeight  : the current slide height
-        ;       viewPortWidth   : the view port width
-        ;       viewPortHeight  : the view port height
-        ;
-        ; IMPLEMENTATION
-        ;
-        ; HISTORY
-        ; __date__ :        PTS:            Description
-        ; 2011.01.27                        Full Screen Presenation widnow
-        ;
-        ******************************************************************************/
-    public void setCurrentPresentationPosition(Double curSlideWidth, Double curSlideHeight, Double viewPortWidth, Double viewPortHeight){
-        this.curSlideWidth = curSlideWidth ;
-        this.curSlideHeight = curSlideHeight ;
-        this.viewPortWidth = viewPortWidth ;
-        this.viewPortHeight = viewPortHeight ;
+    /*****************************************************************************
+    ;  setCurrentPresentationPosition
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   This routine is use to set the value of presenter view port information.
+    ;
+    ; RETURNS: N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;       curSlideWidth   : the current slide width
+    ;       curSlideHeight  : the current slide height
+    ;       viewPortWidth   : the view port width
+    ;       viewPortHeight  : the view port height
+    ;
+    ; IMPLEMENTATION
+    ;	set the presenter view port information to the members of 
+    ;	PresentatiionRoom.
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 2011.01.27                        Full Screen Presentation window
+    ;
+    *****************************************************************************/
+    public void setCurrentPresentationPosition(
+				    		Double curSlideWidth, Double curSlideHeight, 
+				    		Double viewPortWidth, Double viewPortHeight
+				    		){
+        this._curSlideWidth = curSlideWidth ;
+        this._curSlideHeight = curSlideHeight ;
+        this._viewPortWidth = viewPortWidth ;
+        this._viewPortHeight = viewPortHeight ;
         
         log.debug("Update Dimension");
         log.debug("curSlideWidth {}",curSlideWidth);
@@ -343,14 +301,39 @@ public class PresentationRoom {
     }
     /** END Function : setCurrentPresentationPosition **/
     
+    /*****************************************************************************
+    ;  getCurrentPresenterPosition
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   This routine is use to get the value of presenter view port information.
+    ;
+    ; RETURNS
+    ;   curDimension:   The array list of presenter view port information
+    ;
+    ; INTERFACE NOTES
+    ;	N/A
+    ;
+    ; IMPLEMENTATION
+    ;	set presenter view port information into an ArrayList then return.
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 2011.01.27                        Full Screen Presentation window
+    ;
+    ******************************************************************************/
     public ArrayList<Double> getCurrentPresenterPosition(){
+    	log.debug("Getting presenter view port information");
         ArrayList<Double> curDimension = new ArrayList<Double>();
-        curDimension.add(this.curSlideWidth) ;
-        curDimension.add(this.curSlideHeight) ;
-        curDimension.add(this.viewPortWidth) ;
-        curDimension.add(this.viewPortHeight) ;
+        if(null == curDimension){
+        	log.error("Can not create ArrayList object(curDimension)");
+        	return null;
+        }
+        curDimension.add(this._curSlideWidth) ;
+        curDimension.add(this._curSlideHeight) ;
+        curDimension.add(this._viewPortWidth) ;
+        curDimension.add(this._viewPortHeight) ;
         
         return curDimension ;
         
     }
+    /** END Function : getCurrentPresenterPosition **/
 }

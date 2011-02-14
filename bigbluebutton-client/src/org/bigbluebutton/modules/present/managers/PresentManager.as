@@ -20,8 +20,8 @@ package org.bigbluebutton.modules.present.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
+	import mx.controls.Alert;
 	import mx.managers.PopUpManager;
-    import mx.controls.Alert;
 	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.LogUtil;
@@ -32,10 +32,9 @@ package org.bigbluebutton.modules.present.managers
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
+	import org.bigbluebutton.modules.present.events.cPPRESENT_PresenterViewEvent;
 	import org.bigbluebutton.modules.present.views.FileUploadWindow;
 	import org.bigbluebutton.modules.present.views.PresentationWindow;
-    import org.bigbluebutton.modules.present.events.PresenterFullScreenCommands ;
-    import org.bigbluebutton.modules.present.events.PresenterViewEvent ;
 	
 	public class PresentManager
 	{
@@ -59,7 +58,6 @@ package org.bigbluebutton.modules.present.managers
 			openWindow(presentWindow);
 			
 			becomePresenterIfLoneModerator();
-            notifyPresenterFullScreenStatus();
             getCurrentPresenterPosition() ;
 		}
         
@@ -72,8 +70,8 @@ package org.bigbluebutton.modules.present.managers
         ;
         ; RETURNS : N/A
         ;
-        ; INTERFACE NOTES
-        ;
+        ; INTERFACE NOTES : N/A
+        ;	
         ; IMPLEMENTATION
         ;   dispatch the event to PresentSOService to get the current position of 
         ;   presenter  
@@ -85,33 +83,17 @@ package org.bigbluebutton.modules.present.managers
         ******************************************************************************/
         public function getCurrentPresenterPosition():void{
              
-            var event:PresenterViewEvent = new PresenterViewEvent(PresenterViewEvent.GET_PRESENTER_VIEW_DIMENSION);
+            var event:cPPRESENT_PresenterViewEvent = new cPPRESENT_PresenterViewEvent(
+							cPPRESENT_PresenterViewEvent.GET_PRESENTER_VIEW_DIMENSION
+							);
+			if ( null == event ){
+				LogUtil.error("Creating cPPRESENT_PresenterViewEvent object is NULL" +
+								" in getCurrentPresenterPosition"
+								);
+				return;
+			}
             globalDispatcher.dispatchEvent(event);
         }/** END FUNCTION 'getCurrentPresentPosition'**/
-        
-        /*****************************************************************************
-        ;  notifyPresenterFullScreenStatus
-        ;----------------------------------------------------------------------------
-        ; DESCRIPTION
-        ;   This routine is use to get the status of presenter whether the presenter is
-        ;   in full screen mode.
-        ;
-        ; RETURNS : N/A
-        ;
-        ; INTERFACE NOTES
-        ;
-        ; IMPLEMENTATION
-        ;   dispatch the event to get the status of presenter
-        ;
-        ; HISTORY
-        ; __date__ :        PTS:  			Description
-        ; 2010-01-26
-        ;
-        ******************************************************************************/
-        public function notifyPresenterFullScreenStatus():void{
-            var event:PresenterFullScreenCommands = new PresenterFullScreenCommands(PresenterFullScreenCommands.GET_FULLSCREEN_STATUS);
-            globalDispatcher.dispatchEvent(event);
-        }/** END FUNCTION 'notifyPresenterFullScreenStatus'**/
         
 		public function handleStopModuleEvent():void
 		{

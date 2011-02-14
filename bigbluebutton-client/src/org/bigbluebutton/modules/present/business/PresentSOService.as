@@ -35,11 +35,10 @@ package org.bigbluebutton.modules.present.business {
 	import org.bigbluebutton.modules.present.events.CursorEvent;
 	import org.bigbluebutton.modules.present.events.MoveEvent;
 	import org.bigbluebutton.modules.present.events.NavigationEvent;
-	import org.bigbluebutton.modules.present.events.PresenterFullScreenCommands;
-	import org.bigbluebutton.modules.present.events.PresenterViewEvent;
 	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.events.ZoomEvent;
+	import org.bigbluebutton.modules.present.events.cPPRESENT_PresenterViewEvent;
 	
 	public class PresentSOService {
 		public static const NAME:String = "PresentSOService";
@@ -315,7 +314,8 @@ package org.bigbluebutton.modules.present.business {
 		 ; INTERFACE NOTES
 		 ;
 		 ; IMPLEMENTATION
-		 ;
+		 ;		calling remote function to get presentation information and setting
+		 ;		up presentation
 		 ; HISTORY
 		 ; __date__ :        PTS:            Description
 		 ; 2011.02.07                        Presenter option is gone when making 
@@ -328,18 +328,28 @@ package org.bigbluebutton.modules.present.business {
 	        		// participants - On successful result
 					function(result:Object):void {
 						LogUtil.debug("Successfully querried for presentation information.");
-						if (result.presenter.hasPresenter) {
+						if (true == result.presenter.hasPresenter) {
 							/**
 							 * check userid to make sure user is not presenter to fix the
 							 * problem after calling the api to re-open the presentation
 							 * window then lost the presenter
 							 **/
 							if ( result.presenter.user != userid){
-								dispatcher.dispatchEvent(new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE));
+								var madePresenterEvent:MadePresenterEvent = new MadePresenterEvent
+														(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
+								if ( null == madePresenterEvent ){
+									LogUtil.error("Creating MadePresenterEvent object is NULL");
+									return;
+								}
+								dispatcher.dispatchEvent(madePresenterEvent);
 							}else{
 								// user is presenter
 								if ( userid == result.presenter.user ){
 									var evt:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE);
+									if ( null == evt ){
+										LogUtil.error("Creating MadePresenterEvent object is NULL");
+										return;
+									}
 									evt.userid = result.presenter.user;
 									evt.presenterName = result.presenter.name;
 									evt.assignerBy = result.presenter.assignedBy;
@@ -657,19 +667,23 @@ package org.bigbluebutton.modules.present.business {
         ;       viewPortHeight  : the view port height
         ;
         ; IMPLEMENTATION
-        ;
+        ;	call remote function from the server.
+		;
         ; HISTORY
         ; __date__ :        PTS:            Description
         ; 2011.01.27                        Full Screen Presenation widnow
         ;
         ******************************************************************************/
-        public function shareUpdatePresenterViewDimension(curSlideWidth:Number,curSlideHeight:Number,viewPortWidth:Number,viewPortHeight:Number) : void {
+        public function shareUpdatePresenterViewDimension(
+											curSlideWidth:Number,curSlideHeight:Number,
+											viewPortWidth:Number,viewPortHeight:Number
+											) : void {
             LogUtil.debug("PresentationSOService::sendUpdatePresenterViewDimension()");
             nc.call("presentation.shareUpdatePresenterViewDimension",// Remote function name
                 new Responder(
                     // On successful result
                     function(result:Boolean):void { 
-                        if (result) {
+                        if (true == result) {
                             LogUtil.debug("Successfully send update presenter view dimension");                          
                         }
                     },  
@@ -705,14 +719,24 @@ package org.bigbluebutton.modules.present.business {
         ;       viewPortHeight  : the view port height
         ;
         ; IMPLEMENTATION
-        ;
+        ;		dispatch the presenter's view port information to
+		;		the slide view to displayer the presenter view port.
+		;
         ; HISTORY
         ; __date__ :        PTS:            Description
         ; 2011.01.27                        Full Screen Presenation widnow
         ;
         ******************************************************************************/
-        public function shareUpdatePresenterViewDimensionCallback(curSlideWidth:Number,curSlideHeight:Number,viewPortWidth:Number,viewPortHeight:Number) : void {
-            var presentViewEvent:PresenterViewEvent = new PresenterViewEvent(PresenterViewEvent.SHARE_PRESENTER_VIEW_DIMENSION);
+        public function shareUpdatePresenterViewDimensionCallback(
+											curSlideWidth:Number,curSlideHeight:Number,
+											viewPortWidth:Number,viewPortHeight:Number
+											) : void {
+            var presentViewEvent:cPPRESENT_PresenterViewEvent = new cPPRESENT_PresenterViewEvent(
+										cPPRESENT_PresenterViewEvent.SHARE_PRESENTER_VIEW_DIMENSION
+										);
+			if ( null == presentViewEvent ){
+				LogUtil.error("Creating cPPRESENT_PresenterViewEvent object is NULL");
+			}
             presentViewEvent.curSlideWidth   = curSlideWidth;
             presentViewEvent.curSlideHeight   = curSlideHeight;
             presentViewEvent.viewPortWidth   = viewPortWidth;
@@ -732,6 +756,7 @@ package org.bigbluebutton.modules.present.business {
         ; INTERFACE NOTES
         ;
         ; IMPLEMENTATION
+		;	call remote function from the server.
         ;
         ; HISTORY
         ; __date__ :        PTS:            Description
@@ -768,7 +793,7 @@ package org.bigbluebutton.modules.present.business {
 		 ; DESCRIPTION
 		 ;   This routine is use handle get the presenter dimension when the
 		 ;	 the new user login and call shareUpdatePresenterViewDimensionCallback
-		 ;	 to display presenter view port on the viewer after 1000ms.
+		 ;	 to display presenter view port.
 		 ;
 		 ; RETURNS
 		 ;
@@ -780,6 +805,8 @@ package org.bigbluebutton.modules.present.business {
          ;       viewPortHeight  : the view port height
 		 ;
 		 ; IMPLEMENTATION
+		 ;		call shareUpdatePresenterViewDimensionCallback
+		 ;	 	to display presenter view port on the viewer after 1000ms.
 		 ;
 		 ; HISTORY
 		 ; __date__ :        PTS:            Description
@@ -790,112 +817,16 @@ package org.bigbluebutton.modules.present.business {
 			if ( 0 == viewPortWidth ) {
 				return;	
 			}
-			var lTimer:Timer = new Timer(1000,1);
+			var lTimer:Timer = new Timer(2000,1);
+			if ( null == lTimer ){
+				LogUtil.error("Creating Timer object is NULL");
+				return;
+			}
 			lTimer.addEventListener(TimerEvent.TIMER,function(evt:TimerEvent):void{
 				shareUpdatePresenterViewDimensionCallback(currentSlideWidth,currentSlideHeight,viewPortWidth,viewPortHeight);
 			});
 			lTimer.start();
 		}
 		/** END Function : handleGetPresenterDimension **/
-        
-        /*****************************************************************************
-        ;  sendFullScreenUpdateStatus
-        ;----------------------------------------------------------------------------
-        ; DESCRIPTION
-        ;   This routine is use to send the presenter full screen status to the server
-        ;
-        ; RETURNS
-        ;
-        ; INTERFACE NOTES
-        ;
-        ; IMPLEMENTATION
-        ;       
-        ; HISTORY
-        ; __date__ :        PTS:            Description
-        ; 2011.01.27                        Full Screen Presenation widnow
-        ;
-        ******************************************************************************/
-        public function sendFullScreenUpdateStatus(isFullScreen:Boolean):void{
-            LogUtil.debug("PresentationSOService::sendFullScreenUpdateStatus()");
-            nc.call("presentation.setFullScreen",// Remote function name
-                new Responder(
-                    // On successful result
-                    function(result:Object):void { 
-                           sendFullScreenUpdateCommandCallback(isFullScreen);
-                    },  
-                    // status - On error occurred
-                    function(status:Object):void { 
-                        LogUtil.error("Error occurred:"); 
-                        for (var x:Object in status) { 
-                            LogUtil.error(x + " : " + status[x]); 
-                        } 
-                    }
-                ), //new Responder
-                isFullScreen
-            ); //_netConnection.call
-        }
-        /** END Function : sendFullScreenUpdateStatus **/
-        
-        /*****************************************************************************
-        ;  getFullScreenStatus
-        ;----------------------------------------------------------------------------
-        ; DESCRIPTION
-        ;   This routine is use to get the presenter full screen status from the server
-        ;
-        ; RETURNS
-        ;
-        ; INTERFACE NOTES
-        ;
-        ; IMPLEMENTATION
-        ;       
-        ; HISTORY
-        ; __date__ :        PTS:            Description
-        ; 2011.01.27                        Full Screen Presenation widnow
-        ;
-        ******************************************************************************/
-        public function getFullScreenStatus():void{
-            LogUtil.debug("PresentationSOService::getFullScreenStatus()");
-            nc.call("presentation.getFullScreenStatus",// Remote function name
-                new Responder(
-                    // On successful result
-                    function(result:Boolean):void { 
-                            sendFullScreenUpdateCommandCallback(result);
-                    },  
-                    // status - On error occurred
-                    function(status:Object):void { 
-                        LogUtil.error("Error occurred:"); 
-                        for (var x:Object in status) { 
-                            LogUtil.error(x + " : " + status[x]); 
-                        } 
-                    }
-                )
-            ); //_netConnection.call
-        }
-        /** END Function : getFullScreenStatus **/
-        
-        /*****************************************************************************
-        ;  sendFullScreenUpdateCommandCallback
-        ;----------------------------------------------------------------------------
-        ; DESCRIPTION
-        ;   This routine is use to handle the presenter send full screen status
-		;	to the server.
-        ;
-        ; RETURNS
-        ;
-        ; INTERFACE NOTES
-        ;
-        ; IMPLEMENTATION
-        ;       
-        ; HISTORY
-        ; __date__ :        PTS:            Description
-        ; 2011.01.27                        Full Screen Presenation widnow
-        ;
-        ******************************************************************************/
-        private function sendFullScreenUpdateCommandCallback(isFullScreen:Boolean):void{
-            var e:PresenterFullScreenCommands = new PresenterFullScreenCommands(PresenterFullScreenCommands.SET_FULLSCREEN_STATUS) ;
-            e.isFullScreen = isFullScreen ;
-            dispatcher.dispatchEvent(e) ;
-        }
-        /** END Function : sendFullScreenUpdateCommandCallback **/
 	}
 }

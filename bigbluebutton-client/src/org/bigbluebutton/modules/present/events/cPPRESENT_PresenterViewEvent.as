@@ -20,7 +20,17 @@ package org.bigbluebutton.modules.present.events
 {
     import flash.events.Event;
     
-    public class PresenterViewEvent extends Event
+	/*****************************************************************************
+	;  cPPRESENT_PresenterViewEvent
+	;----------------------------------------------------------------------------
+	; DESCRIPTION
+	;   this class is used to send the presenter's veiw port information
+	;  
+	; HISTORY
+	; __date__ :        PTS:            Description
+	; 2011.01.27
+	******************************************************************************/
+    public class cPPRESENT_PresenterViewEvent extends Event
     {
         public static const UPDATE_PRESENTER_VIEW_DIMENSION:String  = "UPDATE_PRESENTER_VIEW_DIMENSION";
         public static const SHARE_PRESENTER_VIEW_DIMENSION:String   = "SHARE_PRESENTER_VIEW_DIMENSION";
@@ -31,9 +41,26 @@ package org.bigbluebutton.modules.present.events
         public var viewPortWidth:Number;
         public var viewPortHeight:Number;
         
-        public function PresenterViewEvent(type:String)
+		/*****************************************************************************
+		;  cPPRESENT_PresenterViewEvent
+		;----------------------------------------------------------------------------
+		; DESCRIPTION
+		;   this routine is the constructor of the class
+		;   
+		; RETURNS : N/A
+		;
+		; INTERFACE NOTES
+		;   INPUT
+		;
+		; IMPLEMENTATION
+		;
+		; HISTORY
+		; __date__ :        PTS:            Description
+		; 2011.01.27
+		******************************************************************************/
+        public function cPPRESENT_PresenterViewEvent(type:String)
         {
             super(type, true, false);
-        }
-    }
+        }/** END FUNCTION 'cPPRESENT_PresenterViewEvent' **/
+    }/** END CLASS 'cPPRESENT_PresenterViewEvent' **/
 }

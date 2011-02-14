@@ -168,128 +168,121 @@ public class PresentationApplication {
 		log.debug("Done setting room manager");
 	}
 	
-        /*****************************************************************************
-        ;  shareUpdatePresenterViewDimension
-        ;----------------------------------------------------------------------------
-        ; DESCRIPTION
-        ;   This routine is use to call 'shareUpdatePresenterViewDimension' from roomManager object.
-        ;
-        ; RETURNS
-        ;
-        ; INTERFACE NOTES
-        ;   INPUT
-        ;       curSlideWidth   : the current slide width
-        ;       curSlideHeight  : the current slide height
-        ;       viewPortWidth   : the view port width
-        ;       viewPortHeight  : the view port height
-        ;
-        ; IMPLEMENTATION
-        ;
-        ; HISTORY
-        ; __date__ :        PTS:            Description
-        ; 2011.01.27                        Full Screen Presenation widnow
-        ;
-        ******************************************************************************/
-    public void shareUpdatePresenterViewDimension(String room, Double curSlideWidth , Double curSlideHeight, Double viewPortWidth, Double viewPortHeight) {
-        roomsManager.shareUpdatePresenterViewDimension(room,curSlideWidth ,curSlideHeight,viewPortWidth,viewPortHeight);
+    /*****************************************************************************
+    ;  shareUpdatePresenterViewDimension
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   This routine is use to call 'shareUpdatePresenterViewDimension' from 
+    ;	roomManager object.
+    ;
+    ; RETURNS
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;       curSlideWidth   : the current slide width
+    ;       curSlideHeight  : the current slide height
+    ;       viewPortWidth   : the view port width
+    ;       viewPortHeight  : the view port height
+    ;
+    ; IMPLEMENTATION
+    ;	call 'shareUpdatePresenterViewDimension' from RoomManger to share the 
+    ;	presenter view port information. 
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 2011.01.27                        Full Screen Presentation window
+    ;
+    ******************************************************************************/
+    public void shareUpdatePresenterViewDimension(
+    								String room, Double curSlideWidth ,
+    								Double curSlideHeight, Double viewPortWidth,
+    								Double viewPortHeight
+    								) {
+    	log.debug("Share presenter view port information");
+    	if (null == room)
+    	{
+    		log.error("The parameter room is null");
+    		return;
+    	}
+        roomsManager.shareUpdatePresenterViewDimension(
+        									room,curSlideWidth ,curSlideHeight,
+        									viewPortWidth,viewPortHeight
+        									);
     }
     /** END Function : shareUpdatePresenterViewDimension */
     
-        /*****************************************************************************
-        ;  setFullScreen
-        ;----------------------------------------------------------------------------
-        ; DESCRIPTION
-        ;   This routine is use to call 'setFullScreen' from roomManager object.
-        ;
-        ; RETURNS
-        ;
-        ; INTERFACE NOTES
-        ;   INPUT
-        ;       room                :  room name
-        ;       isFullScreen    : the presenter presentation window status
-        ;
-        ; IMPLEMENTATION
-        ;
-        ; HISTORY
-        ; __date__ :        PTS:            Description
-        ; 2011.01.27                        Full Screen Presenation widnow
-        ;
-        ******************************************************************************/
-    public void setFullScreen(String room,boolean isFullScreen){
-        roomsManager.setFullScreen(room,isFullScreen) ;
-    }
-    /** END Function : setFullScreen */
-    
-        /*****************************************************************************
-        ;  getFullScreenStatus
-        ;----------------------------------------------------------------------------
-        ; DESCRIPTION
-        ;   This routine is use to call 'getFullScreenStatus' from roomManager object.
-        ;
-        ; RETURNS
-        ;
-        ; INTERFACE NOTES
-        ;   INPUT
-        ;      room : room name
-        ; IMPLEMENTATION
-        ;
-        ; HISTORY
-        ; __date__ :        PTS:            Description
-        ; 2011.01.27                        Full Screen Presenation widnow
-        ;
-        ******************************************************************************/
-    public boolean getFullScreenStatus(String room){
-        return roomsManager.getFullScreenStatus(room) ;
-    }
-    /** END Function : getFullScreenStatus */
-    
-        /*****************************************************************************
-        ;  setCurrentPresentationPosition
-        ;----------------------------------------------------------------------------
-        ; DESCRIPTION
-        ;   This routine is use to call 'setCurrentPresentationPosition' from roomManager object.
-        ;
-        ; RETURNS
-        ;
-        ; INTERFACE NOTES
-        ;   INPUT
-        ;       curSlideWidth   : the current slide width
-        ;       curSlideHeight  : the current slide height
-        ;       viewPortWidth   : the view port width
-        ;       viewPortHeight  : the view port height
-        ;
-        ; IMPLEMENTATION
-        ;
-        ; HISTORY
-        ; __date__ :        PTS:            Description
-        ; 2011.01.27                        Full Screen Presenation widnow
-        ;
-        ******************************************************************************/
-    public void setCurrentPresentationPosition(String room, Double curSlideWidth, Double curSlideHeight, Double viewPortWidth,Double viewPortHeight){
-        roomsManager.setCurrentPresentationPosition(room,curSlideWidth,curSlideHeight,viewPortWidth,viewPortHeight) ;
+    /*****************************************************************************
+    ;  setCurrentPresentationPosition
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   This routine is use to call 'setCurrentPresentationPosition' from 
+    ;	roomManager object to set the view port information.
+    ;
+    ; RETURNS:	N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;       curSlideWidth   : the current slide width
+    ;       curSlideHeight  : the current slide height
+    ;       viewPortWidth   : the view port width
+    ;       viewPortHeight  : the view port height
+    ;
+    ; IMPLEMENTATION
+    ;	- check the parameter
+    ;	- call 'setCurrentPresentationPosition' from RoomManager
+    ;	to set the presenter view port information.
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 2011.01.27                        Full Screen Presentation window
+    ;
+    *****************************************************************************/
+    public void setCurrentPresentationPosition(
+    								String room, Double curSlideWidth, 
+    								Double curSlideHeight, Double viewPortWidth,
+    								Double viewPortHeight
+    								){
+    	log.debug("Setting presenter view port information");
+    	if (null == room)
+    	{
+    		log.error("The parameter room is null");
+    		return;
+    	}
+        roomsManager.setCurrentPresentationPosition(
+        							room,curSlideWidth,curSlideHeight,
+        							viewPortWidth,viewPortHeight
+        							) ;
     }
     /** END Function : setCurrentPresentationPosition */
     
-        /*****************************************************************************
-        ;  getCurrentPresenterPosition
-        ;----------------------------------------------------------------------------
-        ; DESCRIPTION
-        ;   This routine is use to call 'getCurrentPresenterPosition' from roomManager object.
-        ;
-        ; RETURNS
-        ;
-        ; INTERFACE NOTES
-        ;   INPUT
-        ;       room    : room name
-        ;
-        ; IMPLEMENTATION
-        ;
-        ; HISTORY
-        ; __date__ :        PTS:            Description
-        ; 2011.01.27                        Full Screen Presenation widnow
-        ;
-        ******************************************************************************/
+    /*****************************************************************************
+    ;  getCurrentPresenterPosition
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   This routine is use to call 'getCurrentPresenterPosition' from 
+    ;	roomManager object to get the presenter view port information.
+    ;
+    ; RETURNS
+    ;	return ArrayList of the presenter view port information
+    ;	or null if the parameter room is null.
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;       room    : room name
+    ;
+    ; IMPLEMENTATION
+    ;	- check the parameter room
+    ;	- call 'getCurrentPresenterPosition' from RoomManager to get
+    ;	the presenter view port information.
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 2011.01.27                        Full Screen Presentation window
+    ;
+    *****************************************************************************/
     public ArrayList<Double> getCurrentPresenterPosition(String room){
+    	log.debug("Getting presenter view port information");
+    	if (null == room)
+    	{
+    		log.error("The parameter room is null");
+    		return null;
+    	}
         return roomsManager.getCurrentPresenterPosition(room) ;
     }
     /** END Function : getCurrentPresenterPosition */

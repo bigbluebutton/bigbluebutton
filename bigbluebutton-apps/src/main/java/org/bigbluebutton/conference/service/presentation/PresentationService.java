@@ -142,117 +142,84 @@ public class PresentationService {
 		presentationApplication = a;
 	}
 	
-        /*****************************************************************************
-        ;  shareUpdatePresenterViewDimension
-        ;----------------------------------------------------------------------------
-        ; DESCRIPTION
-        ;   This routine is use to call the 'shareUpdatePresenterViewDimension' from the presentationApplication
-        ;   to share the presenter view port information.
-        ;
-        ; RETURNS
-        ;
-        ; INTERFACE NOTES
-        ;   INPUT
-        ;       curSlideWidth   : the current slide width
-        ;       curSlideHeight  : the current slide height
-        ;       viewPortWidth   : the view port width
-        ;       viewPortHeight  : the view port height
-        ;
-        ; IMPLEMENTATION
-        ;
-        ; HISTORY
-        ; __date__ :        PTS:            Description
-        ; 2011.01.27                        Full Screen Presenation widnow
-        ;
-        ******************************************************************************/
-    public void shareUpdatePresenterViewDimension(Double curSlideWidth,Double curSlideHeight,Double viewPortWidth,Double viewPortHeight) {
+    /*****************************************************************************
+    ;  shareUpdatePresenterViewDimension
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   This routine is use to call the 'shareUpdatePresenterViewDimension' from 
+    ;	the presentationApplication to share the presenter view port information.
+    ;
+    ; RETURNS: N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;       curSlideWidth   : the current slide width
+    ;       curSlideHeight  : the current slide height
+    ;       viewPortWidth   : the view port width
+    ;       viewPortHeight  : the view port height
+    ;
+    ; IMPLEMENTATION
+    ;	- call 'shareUpdatePresenterViewDimension' from PresentationApplication
+    ;	- set the presenter view port information
+    ;	
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 2011.01.27                        Full Screen Presentation window
+    ;
+    *****************************************************************************/
+    public void shareUpdatePresenterViewDimension(
+						    		Double curSlideWidth,Double curSlideHeight,
+						    		Double viewPortWidth,Double viewPortHeight
+						    		) {
         log.debug("Request to go to shareUpdatePresenterViewDimension");
+        log.debug("curSlideWidth {}",curSlideWidth);
+        log.debug("curSlideHeight {}",curSlideHeight);
+        log.debug("viewPortWidth {}",viewPortWidth);
+        log.debug("viewPortHeight {}",viewPortHeight);
         IScope scope = Red5.getConnectionLocal().getScope();
-        presentationApplication.shareUpdatePresenterViewDimension(scope.getName(), curSlideWidth, curSlideHeight, viewPortWidth, viewPortHeight);
-        setCurrentPresentationPosition(curSlideWidth,curSlideHeight,viewPortWidth,viewPortHeight) ;
+        if (null == scope){
+        	log.error("Getting the scope is null");
+        	return;
+        }
+        presentationApplication.shareUpdatePresenterViewDimension(
+									        		scope.getName(), curSlideWidth, 
+									        		curSlideHeight, viewPortWidth, 
+									        		viewPortHeight
+									        		);
+        setCurrentPresentationPosition(curSlideWidth,curSlideHeight,
+        								viewPortWidth,viewPortHeight
+        								) ;
     }
     /** END Function : shareUpdatePresenterViewDimension **/
     
-        /*****************************************************************************
-        ;  setFullScreen
-        ;----------------------------------------------------------------------------
-        ; DESCRIPTION
-        ;   This routine is use to call the 'setFullScreen' from the presentationApplication
-        ;   to set the presenter's presentation window status.
-        ;
-        ; RETURNS
-        ;
-        ; INTERFACE NOTES
-        ;   INPUT
-        ;       isFullScreen    : the presenter's presentation window status.
-        ;
-        ; IMPLEMENTATION
-        ;
-        ; HISTORY
-        ; __date__ :        PTS:            Description
-        ; 2011.01.27                        Full Screen Presenation widnow
-        ;
-        ******************************************************************************/
-    public void setFullScreen(boolean isFullScreen){
-        log.debug("Set the full screen status {}",isFullScreen);
-        IScope scope = Red5.getConnectionLocal().getScope();
-        presentationApplication.setFullScreen(scope.getName(),isFullScreen) ;
-    }
-    /** END Function : setFullScreen **/
-    
-        /*****************************************************************************
-        ;  getFullScreenStatus
-        ;----------------------------------------------------------------------------
-        ; DESCRIPTION
-        ;   This routine is use to call the 'getFullScreenStatus' from the presentationApplication
-        ;   to get the presenter's presentation window status.
-        ;
-        ; RETURNS
-        ;       the presenter's presentation window status
-        ;
-        ; INTERFACE NOTES
-        ;   INPUT
-        ;       isFullScreen    : the presenter's presentation window status.
-        ;
-        ; IMPLEMENTATION
-        ;
-        ; HISTORY
-        ; __date__ :        PTS:            Description
-        ; 2011.01.27                        Full Screen Presenation widnow
-        ;
-        ******************************************************************************/
-    public boolean getFullScreenStatus(){
-        log.debug("get the full screen status");
-        IScope scope = Red5.getConnectionLocal().getScope();
-        return presentationApplication.getFullScreenStatus(scope.getName()) ;
-    }
-    /** END Function : getFullScreenStatus **/
-    
-        /*****************************************************************************
-        ;  setCurrentPresentationPosition
-        ;----------------------------------------------------------------------------
-        ; DESCRIPTION
-        ;   This routine is use to call the 'setCurrentPresentationPosition' from the presentationApplication
-        ;   to set the presenter's view port information.
-        ;
-        ; RETURNS
-        ;       the presenter's view port information
-        ;
-        ; INTERFACE NOTES
-        ;   INPUT
-        ;       curSlideWidth   : the current slide width
-        ;       curSlideHeight  : the current slide height
-        ;       viewPortWidth   : the view port width
-        ;       viewPortHeight  : the view port height
-        ;
-        ; IMPLEMENTATION
-        ;
-        ; HISTORY
-        ; __date__ :        PTS:            Description
-        ; 2011.01.27                        Full Screen Presenation widnow
-        ;
-        ******************************************************************************/
-    public void setCurrentPresentationPosition(Double curSlideWidth, Double curSlideHeight, Double viewPortWidth, Double viewPortHeight){
+    /*****************************************************************************
+    ;  setCurrentPresentationPosition
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   This routine is use to call the 'setCurrentPresentationPosition' from 
+    ;	the presentationApplication to set the presenter's view port information.
+    ;
+    ; RETURNS: N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;       curSlideWidth   : the current slide width
+    ;       curSlideHeight  : the current slide height
+    ;       viewPortWidth   : the view port width
+    ;       viewPortHeight  : the view port height
+    ;
+    ; IMPLEMENTATION
+    ;	call 'setCurrentPresentationPosition' from PresentatoinApplication
+    ;
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 2011.01.27                        Full Screen Presentation window
+    ;
+    *****************************************************************************/
+    public void setCurrentPresentationPosition(
+						    		Double curSlideWidth, Double curSlideHeight, 
+						    		Double viewPortWidth, Double viewPortHeight
+						    		){
         log.debug("Update Dimension");
         log.debug("curSlideWidth {}",curSlideWidth);
         log.debug("curSlideHeight {}",curSlideHeight);
@@ -260,33 +227,45 @@ public class PresentationService {
         log.debug("viewPortHeight {}",viewPortHeight);
         
         IScope scope = Red5.getConnectionLocal().getScope();
-        presentationApplication.setCurrentPresentationPosition(scope.getName(),curSlideWidth,curSlideHeight,viewPortWidth,viewPortHeight) ;
+        if (null == scope){
+        	log.error("Getting the scope is null");
+        	return;
+        }
+        presentationApplication.setCurrentPresentationPosition(
+					        		scope.getName(),curSlideWidth,curSlideHeight,
+					        		viewPortWidth,viewPortHeight
+					        		) ;
     }
     /** END Function : setCurrentPresentationPosition **/
     
-        /*****************************************************************************
-        ;  getCurrentPresenterPosition
-        ;----------------------------------------------------------------------------
-        ; DESCRIPTION
-        ;   This routine is use to call the 'getCurrentPresenterPosition' from the presentationApplication
-        ;   to get the presenter's view port information.
-        ;
-        ; RETURNS
-        ;       the presenter's view port information
-        ;
-        ; INTERFACE NOTES
-        ;   INPUT
-        ;
-        ; IMPLEMENTATION
-        ;
-        ; HISTORY
-        ; __date__ :        PTS:            Description
-        ; 2011.01.27                        Full Screen Presenation widnow
-        ;
-        ******************************************************************************/
+    /*****************************************************************************
+    ;  getCurrentPresenterPosition
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   This routine is use to call the 'getCurrentPresenterPosition' 
+    ;	from the presentationApplication to get the presenter's view port information.
+    ;
+    ; RETURNS
+    ;       ArrayList of the presenter's view port information
+    ;
+    ; INTERFACE NOTES
+    ;   N/A
+    ;
+    ; IMPLEMENTATION
+    ;	call 'getCurrentPresenterPosition' from PresentationApplication
+    ;
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 2011.01.27                        Full Screen Presentation window
+    ;
+    *****************************************************************************/
     public ArrayList<Double> getCurrentPresenterPosition(){
         log.debug("Get current presenter position");
         IScope scope = Red5.getConnectionLocal().getScope();
+        if (null == scope){
+        	log.error("Getting the scope is null");
+        	return null;
+        }
         return presentationApplication.getCurrentPresenterPosition(scope.getName()) ;
     }
     /** END Function : getCurrentPresenterPosition **/

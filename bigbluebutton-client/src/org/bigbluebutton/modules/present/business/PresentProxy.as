@@ -31,9 +31,8 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 	import org.bigbluebutton.modules.present.events.SlideEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
+	import org.bigbluebutton.modules.present.events.cPPRESENT_PresenterViewEvent;
 	import org.bigbluebutton.modules.present.managers.PresentationSlides;
-    import org.bigbluebutton.modules.present.events.PresenterViewEvent ;
-    import org.bigbluebutton.modules.present.events.PresenterFullScreenCommands ;
 	
 	public class PresentProxy
 	{
@@ -197,67 +196,29 @@ package org.bigbluebutton.modules.present.business
             ;   This routine is use to call shareUpdatePresenterViewDimension from soService object
             ;   to send the view port dimension.
             ;
-            ; RETURNS
+            ; RETURNS : N/A
             ;
             ; INTERFACE NOTES
+			;	INPUT
+			;		cPPRESENT_PresenterViewEvent object that hole the presenter's 
+			;		view port information
             ;
             ; IMPLEMENTATION
-            ;
+            ;	call shareUpdatePresenterViewDimension from soService object
+            ;   to send the view port dimension.
             ; HISTORY
             ; __date__ :        PTS:            Description
             ; 2011.01.27                            Full Screen Presntation
             ;
             ******************************************************************************/
-        public function sendUpdatePresenterViewDimension(e:PresenterViewEvent) : void {
+        public function sendUpdatePresenterViewDimension(e:cPPRESENT_PresenterViewEvent) : void {
+			if ( null == e ){
+				LogUtil.error("The parameter cPPRESENT_PresenterViewEvent is NULL");
+				return;
+			}
             soService.shareUpdatePresenterViewDimension(e.curSlideWidth,e.curSlideHeight,e.viewPortWidth,e.viewPortHeight);
         }
         /** END Function : sendUpdatePresenterViewDimension **/
-        
-            /*****************************************************************************
-            ;  sendFullScreenUpdateStatus
-            ;----------------------------------------------------------------------------
-            ; DESCRIPTION
-            ;   This routine is use to call sendFullScreenUpdateStatus from soService object
-			;	to send the presentation status.
-            ;
-            ; RETURNS
-            ;
-            ; INTERFACE NOTES
-            ;
-            ; IMPLEMENTATION
-            ;
-            ; HISTORY
-            ; __date__ :        PTS:            Description
-            ; 2011.01.27                            Full Screen Presntation
-            ;
-            ******************************************************************************/
-        public function sendFullScreenUpdateStatus(e:PresenterFullScreenCommands):void{
-            soService.sendFullScreenUpdateStatus(e.isFullScreen);
-        }
-        /** END Function : sendFullScreenUpdateStatus */
-        
-        /*****************************************************************************
-            ;  getFullScreenStatus
-            ;----------------------------------------------------------------------------
-            ; DESCRIPTION
-            ;   This routine is use to call getFullScreenStatus from soService object
-			;	to get the presenter full screen status.
-            ;
-            ; RETURNS
-            ;
-            ; INTERFACE NOTES
-            ;
-            ; IMPLEMENTATION
-            ;
-            ; HISTORY
-            ; __date__ :        PTS:            Description
-            ; 2011.01.27                            Full Screen Presntation
-            ;
-            ******************************************************************************/
-        public function getFullScreenStatus():void{
-            soService.getFullScreenStatus();
-        }
-        /** END Function getFullScreenStatus **/
         
                 /*****************************************************************************
             ;  getUpdatePresenterViewDimension
@@ -266,11 +227,13 @@ package org.bigbluebutton.modules.present.business
             ;   This routine is use to call getUpdatePresenterViewDimension from soService object
 			;	to get the presenter view port information.
             ;
-            ; RETURNS
+            ; RETURNS : N/A
             ;
-            ; INTERFACE NOTES
+            ; INTERFACE NOTES : N/A
             ;
             ; IMPLEMENTATION
+			;	call getUpdatePresenterViewDimension from soService object
+			;	to get the presenter view port information.
             ;
             ; HISTORY
             ; __date__ :        PTS:            Description
