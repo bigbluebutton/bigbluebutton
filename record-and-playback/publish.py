@@ -1,5 +1,8 @@
 import os, getopt, sys
 import shutil
+from lxml.builder import E
+from lxml import etree
+import time
 
 def usage():
     print ' -------------------------------------------------------------------------'
@@ -25,6 +28,48 @@ def copy_files_to_publish_dir(meetingId, ingestDir, publishDir):
         os.makedirs(publishDir)                
     shutil.copytree(ingestDir + "/" + meetingId, publishDir + "/" + meetingId)
 
+def generate_index_html(publishDir):   
+    '''
+        Copy all audio recordings and presentations into the archive directory.
+    '''
+    html = page = (
+        E.html(
+            E.head(
+                E.title("List of recordings"),
+                    E.body(
+                        E.h1('List of recordings!')
+                    )
+                )
+            )
+        )
+    
+            
+    dirList = os.listdir(publishDir)
+    ctimeDict = {}
+    ctimes = []
+    for fname in dirList:
+        if (os.path.isdir(publishDir + "/" + fname)):
+            ctime = os.path.getctime(publishDir + "/" + fname)
+            ctimes.append(ctime)
+            link = "http://192.168.0.166/playback/playback.html?meetingId=" + fname
+            ctimeDict[ctime] = fname, link
+            
+    ctimes.sort()
+    ctimes.reverse()
+    
+    for c in ctimes:
+        lnk = ctimeDict[c]
+        ev = E.p(time.ctime(c) + " ", E.a(lnk[0], href=lnk[1]))
+        page.append(ev)
+                            
+    #print(etree.tostring(page, pretty_print=True))
+
+    targetFile = publishDir + "/index.html"
+    f = open(targetFile, 'w')
+    f.write(etree.tostring(page, pretty_print=True))
+    f.close() 
+    
+    
 def main():
     meetingId = ""
     ingestDir = ""
@@ -65,6 +110,8 @@ def main():
         printUsageHelp()
     
     copy_files_to_publish_dir(meetingId, ingestDir, publishDir)
-           
+    
+    generate_index_html(publishDir)
+    
 if __name__ == "__main__":
     main()
