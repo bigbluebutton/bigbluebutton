@@ -37,7 +37,7 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 	def defaultDialAccessNumber
 	def testVoiceBridge
 	def testConferenceMock
-        def recordingDir
+	def recordingDir
 	def recordingFile
 	
 	// TODO: need to remove use of DynamicConference and make it use "Room.groovy" instead
@@ -78,6 +78,7 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 			}
 			
 			if (remove) {
+				println "Removing meeting [" + conf.getMeetingToken() + "]"
 				confsByMtgID.remove(conf.getMeetingID());
 				roomsByToken.remove(conf.getMeetingToken());
 				tokenMap.remove(conf.getMeetingToken());
@@ -86,6 +87,7 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 			}
 		}
 	}
+	
 	public Collection<DynamicConference> getAllConferences() {
 		return confsByMtgID.isEmpty() ? Collections.emptySet() : Collections.unmodifiableCollection(confsByMtgID.values());
 	}
@@ -94,11 +96,11 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 		conf.setStoredTime(new Date());
 		confsByMtgID.put(conf.getMeetingID(), conf);
 		tokenMap.put(conf.getMeetingToken(), conf.getMeetingID());
-                if(conf.record)
+		if(conf.record)
 			createConferenceRecord(conf);
 	}
 
-        public void createConferenceRecord(DynamicConference conf) {
+	public void createConferenceRecord(DynamicConference conf) {
 		String dirpath=recordingDir+File.separatorChar+conf.meetingToken+File.separatorChar+conf.meetingToken+File.separatorChar
 		String filename=dirpath+recordingFile
 		if(!new File(dirpath).exists()){
@@ -123,6 +125,7 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 		}
 		String token = tokenMap.getKey(meetingID);
 		if (token == null) {
+			System.out.println("Cannot find token for meetingId " + meetingID)
 			return null;
 		}
 		return roomsByToken.get(token);
@@ -157,8 +160,7 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 		log.debug "could not find voice bridge $voiceBridge"
 		return false
 	}
-	
-	
+		
 	// these methods called by spring integration:
 	public void conferenceStarted(Room room) {
 		log.debug "conference started: " + room.getName();
@@ -182,20 +184,32 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 	
 	public void participantsUpdated(Room room) {
 		log.debug "participants updated: " + room.getName();
+		System.out.println("participants updated: " + room.getName())
 		roomsByToken.put(room.getName(), room);
 	}
 	// end of spring integration-called methods
 	
 	public void processRecording(String meetingId) {
-		// Run conversion on another thread.
-		new Timer().runAfter(1000) 
-		{
-			startIngestAndProcessing(meetingId)
+		System.out.println("enter processRecording " + meetingId)
+		Room room = roomsByToken.get(meetingId)
+		if (room != null) {
+			System.out.println("Number of participants in room " + room.getNumberOfParticipants())
+			if (room.getNumberOfParticipants() == 0) {
+				System.out.println("starting processRecording " + meetingId)
+				// Run conversion on another thread.
+				new Timer().runAfter(1000) {
+					startIngestAndProcessing(meetingId)
+				}		
+			} else {
+				System.out.println("Someone still in the room...not processRecording " + meetingId)
+			}
+		} else {
+			System.out.println("Could not find room " + meetingId + " ... Not processing recording")
 		}
+
 	}
 	
-	private void startIngestAndProcessing(meetingId) {
-				
+	private void startIngestAndProcessing(meetingId) {				
 		String COMMAND = "python /home/firstuser/python/src/ingestandproc.py -m" + meetingId + " -a /var/freeswitch/meetings -p /var/bigbluebutton -r /var/bigbluebutton/archive -e 192.168.0.166 -o 6379 -i /var/bigbluebutton/ingest -b /var/bigbluebutton/recordings"; 
 		
 		try {
