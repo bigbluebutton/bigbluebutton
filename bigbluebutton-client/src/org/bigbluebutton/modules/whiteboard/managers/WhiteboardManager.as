@@ -23,7 +23,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
 	
-	import org.bigbluebutton.main.events.AddUIComponentToMainCanvas;
+	import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
 	import org.bigbluebutton.modules.present.api.PresentationAPI;
 	import org.bigbluebutton.modules.present.events.AddButtonToPresentationEvent;
 	import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;

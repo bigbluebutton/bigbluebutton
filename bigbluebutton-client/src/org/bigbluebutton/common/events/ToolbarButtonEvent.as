@@ -16,26 +16,28 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 * 
 */
-package org.bigbluebutton.main.events
+package org.bigbluebutton.common.events
 {
 	import flash.events.Event;
 	
-	import org.bigbluebutton.common.IBbbModuleWindow;
-	
+	import mx.core.UIComponent;
+
 	/**
-	 * Dispatch this event with your IBbbModuleWindow instance attached to add the MDIWindow to the main canvas area of bbb-client.
+	 * Allows you to add a button to the top toolbar of bbb-client. Dispatch an instance of ToolbarButtonEvent with the
+	 * reference to the button attached.
 	 * 
 	 */	
-	public class OpenWindowEvent extends Event
+	public class ToolbarButtonEvent extends Event
 	{
+		public static const ADD:String = "Add Toolbar Button Event";
+		public static const REMOVE:String = "Remove Toolbar Button Event";
+		
 		/**
-		 * The MDIWindow instance to show on the main canvas 
+		 * The button to add to the toolbar. 
 		 */		
-		public var window:IBbbModuleWindow;
+		public var button:UIComponent;
 		
-		public static const OPEN_WINDOW_EVENT:String = 'OPEN_WINDOW_EVENT';
-		
-		public function OpenWindowEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
+		public function ToolbarButtonEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
 			super(type, bubbles, cancelable);
 		}

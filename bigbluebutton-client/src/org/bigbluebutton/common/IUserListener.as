@@ -16,23 +16,29 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 * 
 */
-package org.bigbluebutton.main.events
+package org.bigbluebutton.common
 {
-	import flash.events.Event;
-	
-	import mx.core.UIComponent;
+	import org.bigbluebutton.main.model.User;
 
-	public class ToolbarButtonEvent extends Event
+	/**
+	 * Register your implementation of IUserListener with the UserManager to receive updates on user's status.
+	 * 
+	 */	
+	public interface IUserListener
 	{
-		public static const ADD:String = "Add Toolbar Button Event";
-		public static const REMOVE:String = "Remove Toolbar Button Event";
+		/**
+		 * Called when a new user has joined
+		 */
+		function userJoined(user:User):void;
 		
-		public var button:UIComponent;
+		/**
+		 * Called when a user has left
+		 */
+		function userLeft(user:User):void;
 		
-		public function ToolbarButtonEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
-		{
-			super(type, bubbles, cancelable);
-		}
-		
+		/**
+		 * Called when the presenter has changed
+		 */
+		function presenterChanged(newPresenter:User):void;
 	}
 }

@@ -25,8 +25,8 @@ package org.bigbluebutton.modules.deskshare.services
 	import flash.net.SharedObject;
 	
 	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.common.red5.Connection;
-	import org.bigbluebutton.common.red5.ConnectionEvent;
+	import org.bigbluebutton.modules.deskshare.services.red5.Connection;
+	import org.bigbluebutton.modules.deskshare.services.red5.ConnectionEvent;
 	import org.bigbluebutton.modules.deskshare.events.AppletStartedEvent;
 	import org.bigbluebutton.modules.deskshare.events.CursorEvent;
 	import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;

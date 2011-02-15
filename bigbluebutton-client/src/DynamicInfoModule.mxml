@@ -25,9 +25,9 @@
 		<![CDATA[
 			import org.bigbluebutton.common.LogUtil;
 			import com.asfusion.mate.events.Dispatcher;
-			import org.bigbluebutton.main.events.CloseWindowEvent;
-			import org.bigbluebutton.main.events.OpenWindowEvent;
-			import org.bigbluebutton.main.events.ToolbarButtonEvent;
+			import org.bigbluebutton.common.events.CloseWindowEvent;
+			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import mx.controls.Button;
 			import mx.controls.ComboBox;
 			import mx.controls.Label;

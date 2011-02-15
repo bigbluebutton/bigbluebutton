@@ -46,8 +46,8 @@
 			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.main.api.IUserListener;
-			import org.bigbluebutton.main.api.UserManager;
+			import org.bigbluebutton.common.IUserListener;
+			import org.bigbluebutton.common.UserManager;
 			import org.bigbluebutton.main.model.User;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.deskshare.events.CursorEvent;

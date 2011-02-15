@@ -18,7 +18,7 @@
 */
 //written by John Grden...
 
-package org.bigbluebutton.common.red5
+package org.bigbluebutton.modules.deskshare.services.red5
 {
 	import flash.events.EventDispatcher;
 	import mx.events.MetadataEvent;

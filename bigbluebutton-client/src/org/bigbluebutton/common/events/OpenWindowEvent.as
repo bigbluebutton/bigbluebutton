@@ -16,29 +16,29 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 * 
 */
-package org.bigbluebutton.main.api
+package org.bigbluebutton.common.events
 {
-	import org.bigbluebutton.main.model.User;
-
+	import flash.events.Event;
+	
+	import org.bigbluebutton.common.IBbbModuleWindow;
+	
 	/**
-	 * Register your implementation of IUserListener with the UserManager to receive updates on user's status.
+	 * Dispatch this event with your IBbbModuleWindow instance attached to add the MDIWindow to the main canvas area of bbb-client.
 	 * 
 	 */	
-	public interface IUserListener
+	public class OpenWindowEvent extends Event
 	{
 		/**
-		 * Called when a new user has joined
-		 */
-		function userJoined(user:User):void;
+		 * The MDIWindow instance to show on the main canvas 
+		 */		
+		public var window:IBbbModuleWindow;
 		
-		/**
-		 * Called when a user has left
-		 */
-		function userLeft(user:User):void;
+		public static const OPEN_WINDOW_EVENT:String = 'OPEN_WINDOW_EVENT';
 		
-		/**
-		 * Called when the presenter has changed
-		 */
-		function presenterChanged(newPresenter:User):void;
+		public function OpenWindowEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
+		{
+			super(type, bubbles, cancelable);
+		}
+		
 	}
 }

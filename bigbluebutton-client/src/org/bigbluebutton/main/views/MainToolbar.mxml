@@ -39,11 +39,11 @@
 			import mx.controls.Alert;
 			
 			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.CloseWindowEvent;
+			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.main.events.ConfigEvent;
 			import org.bigbluebutton.main.events.LogoutEvent;
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
-			import org.bigbluebutton.main.events.ToolbarButtonEvent;
+			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 

@@ -24,8 +24,8 @@ package org.bigbluebutton.modules.present.managers
 	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.main.api.UserManager;
-	import org.bigbluebutton.main.events.OpenWindowEvent;
+	import org.bigbluebutton.common.UserManager;
+	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.main.model.users.Conference;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;

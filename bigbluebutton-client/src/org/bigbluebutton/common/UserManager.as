@@ -16,11 +16,10 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 * 
 */
-package org.bigbluebutton.main.api
+package org.bigbluebutton.common
 {
 	import mx.collections.ArrayCollection;
 	
-	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.main.model.User;
 	import org.bigbluebutton.main.model.users.Conference;
 

@@ -8,8 +8,8 @@
 			import mx.controls.Alert;
 			
 			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.main.events.CloseWindowEvent;
-			import org.bigbluebutton.main.events.OpenWindowEvent;
+			import org.bigbluebutton.common.events.CloseWindowEvent;
+			import org.bigbluebutton.common.events.OpenWindowEvent;
 			import org.bigbluebutton.modules.videoconf.business.VideoProxy;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
 			
