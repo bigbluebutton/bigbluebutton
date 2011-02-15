@@ -1,4 +1,5 @@
 usePlugin 'java'
+usePlugin 'eclipse'
 
 task resolveDeps(dependsOn: configurations.default.buildArtifacts, type: Copy) {
     into('lib')
