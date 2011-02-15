@@ -39,6 +39,17 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 	def testConferenceMock
 	def recordingDir
 	def recordingFile
+
+	/** For record and playback **/
+	def scriptsHome
+	def audioRecDir
+	def presentationDir
+	def archiveDir
+	def redisHost
+	def redisPort
+	def ingestDir
+	def publishDir
+	def playbackHost
 	
 	// TODO: need to remove use of DynamicConference and make it use "Room.groovy" instead
 	//				so that both apps and web are using common domain objects and we don't map between them
@@ -209,8 +220,8 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 
 	}
 	
-	private void startIngestAndProcessing(meetingId) {				
-		String COMMAND = "python /home/firstuser/python/src/ingestandproc.py -m" + meetingId + " -a /var/freeswitch/meetings -p /var/bigbluebutton -r /var/bigbluebutton/archive -e 192.168.0.166 -o 6379 -i /var/bigbluebutton/ingest -b /var/bigbluebutton/recordings"; 
+	private void startIngestAndProcessing(meetingId) {					
+		String COMMAND = "python ${scriptsHome}/ingestandproc.py -m ${meetingId} -a ${audioRecDir} -p ${presentationDir} -r ${archiveDir} -e ${redisHost} -o ${redisPort} -i ${ingestDir} -b ${publishDir} -s ${scriptsHome} -k ${playbackHost}" 
 		
 		try {
 			Process p = Runtime.getRuntime().exec(COMMAND);            
