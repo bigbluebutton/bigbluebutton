@@ -21,9 +21,16 @@ package org.bigbluebutton.main.events
 	import flash.events.Event;
 	
 	import org.bigbluebutton.common.IBbbModuleWindow;
-
+	
+	/**
+	 * Dispatch this event with your IBbbModuleWindow instance attached to add the MDIWindow to the main canvas area of bbb-client.
+	 * 
+	 */	
 	public class OpenWindowEvent extends Event
 	{
+		/**
+		 * The MDIWindow instance to show on the main canvas 
+		 */		
 		public var window:IBbbModuleWindow;
 		
 		public static const OPEN_WINDOW_EVENT:String = 'OPEN_WINDOW_EVENT';

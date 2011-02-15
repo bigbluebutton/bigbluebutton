@@ -43,7 +43,6 @@
 			import org.bigbluebutton.modules.chat.events.StopChatModuleEvent;
 			import org.bigbluebutton.modules.chat.events.TranscriptEvent;
 		
-			private var _moduleId:String = "ChatModule";
 			private var _moduleName:String = "Chat Module";			
 			private var _attributes:Object;
 			
@@ -51,10 +50,6 @@
 			
 			private function onCreationComplete():void {
 				LogUtil.debug("ChatModule Initialized");			
-			}
-				
-			public function get moduleId():String {
-				return _moduleId;
 			}
 			
 			public function get moduleName():String {

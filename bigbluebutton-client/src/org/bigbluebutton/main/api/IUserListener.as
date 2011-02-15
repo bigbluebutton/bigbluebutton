@@ -20,6 +20,10 @@ package org.bigbluebutton.main.api
 {
 	import org.bigbluebutton.main.model.User;
 
+	/**
+	 * Register your implementation of IUserListener with the UserManager to receive updates on user's status.
+	 * 
+	 */	
 	public interface IUserListener
 	{
 		/**

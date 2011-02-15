@@ -38,7 +38,6 @@
 			import org.bigbluebutton.modules.sharednotes.infrastructure.Client;
 			import org.bigbluebutton.modules.sharednotes.infrastructure.HTTPServerConnection;
 			
-			private var _moduleId:String = "NotesModule";
 			private var _moduleName:String = "Notes Module";			
 			private var _attributes:Object;
 			
@@ -47,10 +46,6 @@
 			private function onCreationComplete():void {
 				LogUtil.debug("NotesModule Initialized");	
 				globalDispatcher = new Dispatcher();
-			}
-			
-			public function get moduleId():String {
-				return _moduleId;
 			}
 			
 			public function get moduleName():String {

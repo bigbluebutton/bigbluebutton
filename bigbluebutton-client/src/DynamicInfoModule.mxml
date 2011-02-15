@@ -33,7 +33,6 @@
 			import mx.controls.Label;
 			import mx.core.UIComponent;
 			
-			private var _moduleId:String = "DynamicInfoModule";
 			private var _moduleName:String = "Dynamic Info Module";			
 			private var _attributes:Object;
 			
@@ -42,10 +41,6 @@
 			private function onCreationComplete():void {
 				LogUtil.debug("DynamicInfoModule Initialized");	
 				globalDispatcher = new Dispatcher();
-			}
-				
-			public function get moduleId():String {
-				return _moduleId;
 			}
 			
 			public function get moduleName():String {

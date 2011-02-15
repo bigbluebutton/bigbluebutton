@@ -37,7 +37,6 @@
 			import org.bigbluebutton.modules.deskshare.events.ModuleEvent;
 			import org.bigbluebutton.modules.deskshare.maps.DeskshareEventMap;
 			
-			private var _moduleId:String = "DeskShareModule";
 			private var _moduleName:String = "Desk Share";
 			private var _attributes:Object;
 			
@@ -45,10 +44,6 @@
 			
 			private function onCreationComplete():void{
 				LogUtil.debug("DeskShareModule initialized");
-			}
-			
-			public function get moduleId():String{
-				return _moduleId;
 			}
 			
 			public function get moduleName():String{

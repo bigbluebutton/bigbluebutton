@@ -31,7 +31,6 @@
 			import org.bigbluebutton.modules.viewers.events.ViewersModuleEndEvent;
 			import org.bigbluebutton.modules.viewers.events.ViewersModuleStartedEvent;
 			
-			private var _moduleId:String = "ViewersModule";
 			private var _moduleName:String = "Viewers Module";
 			
 			private var _attributes:Object;
@@ -43,10 +42,6 @@
 			
 			private function onCreationComplete():void {
 				LogUtil.debug("ViewersModule Initialized");		
-			}
-				
-			public function get moduleId():String {
-				return _moduleId;
 			}
 			
 			public function get moduleName():String {

@@ -24,6 +24,10 @@ package org.bigbluebutton.main.api
 	import org.bigbluebutton.main.model.User;
 	import org.bigbluebutton.main.model.users.Conference;
 
+	/**
+	 * The UserManager allows you to interact with the user data of those currently logged in to the conference.
+	 * 
+	 */	
 	public class UserManager
 	{
 		private static var instance:UserManager = null;
@@ -34,6 +38,10 @@ package org.bigbluebutton.main.api
 		
 		private var conference:Conference;
 		
+		/**
+		 * This class is a singleton. Please initialize it using the getInstance() method.
+		 * 
+		 */		
 		public function UserManager(enforcer:SingletonEnforcer)
 		{
 			if (enforcer == null){
@@ -48,7 +56,7 @@ package org.bigbluebutton.main.api
 		}
 		
 		/**
-		 * Return the single instance of the UserManager class, which is a singleton
+		 * Return the single instance of the UserManager class
 		 */
 		public static function getInstance():UserManager{
 			if (instance == null){

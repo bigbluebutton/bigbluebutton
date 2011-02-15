@@ -23,8 +23,15 @@ package org.bigbluebutton.main.events
 	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 
+	/**
+	 * Allows you to remove an MDIWindow from the main canvas. You must pass in a reference to the window you'd like removed.
+	 * 
+	 */	
 	public class CloseWindowEvent extends Event
 	{
+		/**
+		 * The window to be removed. 
+		 */		
 		public var window:IBbbModuleWindow;
 		
 		public static const CLOSE_WINDOW_EVENT:String = 'CLOSE_WINDOW_EVENT';
