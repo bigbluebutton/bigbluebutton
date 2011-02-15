@@ -1,6 +1,6 @@
 usePlugin 'java'
 
-task copyToLib(dependsOn: configurations.default.buildArtifacts, type: Copy) {
+task resolveDeps(dependsOn: configurations.default.buildArtifacts, type: Copy) {
     into('lib')
     from configurations.default
     from configurations.default.allArtifacts*.file
@@ -39,4 +39,8 @@ repositories {
 
 dependencies {   
     compile 'org/bigbluebutton/common:bbb-common-message:0.8@jar' 
+    
+    	//redis
+	compile 'redis.clients:jedis:1.5.1'
+	compile 'commons-pool:commons-pool:1.5.5'
 }
