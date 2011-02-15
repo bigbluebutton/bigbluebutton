@@ -26,6 +26,7 @@ import org.apache.commons.collections.bidimap.DualHashBidiMap
 import java.util.*;
 import java.util.concurrent.*;
 import org.bigbluebutton.api.domain.DynamicConference;
+import redis.clients.jedis.Jedis;
  
 public class DynamicConferenceService implements IDynamicConferenceService {	
 	static transactional = false
@@ -112,21 +113,10 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 	}
 
 	public void createConferenceRecord(DynamicConference conf) {
-		String dirpath=recordingDir+File.separatorChar+conf.meetingToken+File.separatorChar+conf.meetingToken+File.separatorChar
-		String filename=dirpath+recordingFile
-		if(!new File(dirpath).exists()){
-			boolean success = (new File(dirpath)).mkdirs()
-		}
-
-		def mb = new groovy.xml.StreamingMarkupBuilder()
-		mb.encoding = "UTF-8"
-		new OutputStreamWriter(new FileOutputStream(filename),'utf-8') << mb.bind {
-			mkp.xmlDeclaration()
-			events(token:conf.meetingToken,name:conf.name,date:conf.storedTime){
-				seq{
-				}
-			}
-		}
+		Jedis jedis = new Jedis(redisHost, redisPort);
+		Long msgid = jedis.incr("global:nextRecordedMsgId");
+		jedis.hmset("recording" + COLON + session + COLON + msgid, message.toMap());
+		jedis.rpush("meeting" + COLON + session + COLON + "recordings", msgid.toString());	
 
 	}
 	
@@ -217,7 +207,6 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 		} else {
 			System.out.println("Could not find room " + meetingId + " ... Not processing recording")
 		}
-
 	}
 	
 	private void startIngestAndProcessing(meetingId) {					
