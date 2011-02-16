@@ -26,11 +26,13 @@ import org.apache.commons.collections.bidimap.DualHashBidiMap
 import java.util.*;
 import java.util.concurrent.*;
 import org.bigbluebutton.api.domain.DynamicConference;
-import redis.clients.jedis.Jedis;
- 
+import org.bigbluebutton.api.IRedisDispatcher
+import org.bigbluebutton.api.RedisDispatcherImp;
+
 public class DynamicConferenceService implements IDynamicConferenceService {	
 	static transactional = false
 	def serviceEnabled = false
+	
 	def apiVersion;
 	def securitySalt
 	int minutesElapsedBeforeMeetingExpiration = 60
@@ -52,6 +54,8 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 	def publishDir
 	def playbackHost
 	
+	IRedisDispatcher redisDispatcher
+	
 	// TODO: need to remove use of DynamicConference and make it use "Room.groovy" instead
 	//				so that both apps and web are using common domain objects and we don't map between them
 	private final Map<String, Room> roomsByToken
@@ -62,6 +66,7 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 		confsByMtgID = new ConcurrentHashMap<String, DynamicConference>()
 		tokenMap = new DualHashBidiMap<String, String>()
 		roomsByToken = new ConcurrentHashMap<String, Room>()
+		redisDispatcher = new RedisDispatcherImp();
 		
 		// wait one minute to run, and run every five minutes:
 		TimerTask task = new DynamicConferenceServiceCleanupTimerTask(this);
@@ -108,16 +113,25 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 		conf.setStoredTime(new Date());
 		confsByMtgID.put(conf.getMeetingID(), conf);
 		tokenMap.put(conf.getMeetingToken(), conf.getMeetingID());
-		if(conf.record)
+		if (conf.isRecord()) {
 			createConferenceRecord(conf);
+		}
 	}
 
 	public void createConferenceRecord(DynamicConference conf) {
-		Jedis jedis = new Jedis(redisHost, redisPort);
-		Long msgid = jedis.incr("global:nextRecordedMsgId");
-		jedis.hmset("recording" + COLON + session + COLON + msgid, message.toMap());
-		jedis.rpush("meeting" + COLON + session + COLON + "recordings", msgid.toString());	
-
+		String COLON = ":";
+		println("Putting meeting info to redis for " + conf.getMeetingID() + " " + redisHost + ":" + redisPort);
+		println("Conf name " + conf.getName() + " token " + conf.getMeetingToken());
+		if (redisDispatcher == null) {
+			println "Redis Dispatcher is NULL!!"
+		} else {
+			println "Redis Dispatcher is NOT NULL!!"
+			if (redisHost == null) println "redisHost is null"
+			else println redisHost
+			if (redisPort == null) println "redisPort is null"
+			else println redisPort
+			redisDispatcher.createConferenceRecord(conf, redisHost, Integer.parseInt(redisPort))
+		}
 	}
 	
 	public Room getRoomByMeetingID(String meetingID) {

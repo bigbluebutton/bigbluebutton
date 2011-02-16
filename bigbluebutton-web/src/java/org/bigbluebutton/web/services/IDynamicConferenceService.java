@@ -9,8 +9,6 @@ public interface IDynamicConferenceService {
 	public Collection<DynamicConference> getAllConferences();
 	
 	public void storeConference(DynamicConference conf);
-
-    public void createConferenceRecord(DynamicConference conf);
 	
 	public Room getRoomByMeetingID(String meetingID);
 	
