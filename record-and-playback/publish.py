@@ -28,7 +28,7 @@ def copy_files_to_publish_dir(meetingId, ingestDir, publishDir):
         os.makedirs(publishDir)                
     shutil.copytree(ingestDir + "/" + meetingId, publishDir + "/" + meetingId)
 
-def generate_index_html(publishDir):   
+def generate_index_html(publishDir, playbackHost):   
     '''
         Copy all audio recordings and presentations into the archive directory.
     '''
@@ -49,20 +49,24 @@ def generate_index_html(publishDir):
     ctimes = []
     for fname in dirList:
         if (os.path.isdir(publishDir + "/" + fname)):
+            tree = etree.parse(publishDir + "/" + fname + '/events.xml')
+            r = tree.xpath('/events/head/title')
+            title = r[0].text
+            print r[0].text
             ctime = os.path.getctime(publishDir + "/" + fname)
             ctimes.append(ctime)
-            link = "http://192.168.0.166/playback/playback.html?meetingId=" + fname
-            ctimeDict[ctime] = fname, link
+            link = "http://" + playbackHost + "/playback/playback.html?meetingId=" + fname
+            ctimeDict[ctime] = title, fname, link
             
     ctimes.sort()
     ctimes.reverse()
     
     for c in ctimes:
         lnk = ctimeDict[c]
-        ev = E.p(time.ctime(c) + " ", E.a(lnk[0], href=lnk[1]))
+        ev = E.p(time.ctime(c), E.a(lnk[0], href=lnk[2]))
         page.append(ev)
                             
-    #print(etree.tostring(page, pretty_print=True))
+    print(etree.tostring(page, pretty_print=True))
 
     targetFile = publishDir + "/index.html"
     f = open(targetFile, 'w')
@@ -74,9 +78,10 @@ def main():
     meetingId = ""
     ingestDir = ""
     publishDir = ""
+    playbackHost = ""
     
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hm:i:p:", ["help", "meeting-id=", "ingest-dir=", "publish-dir="])
+        opts, args = getopt.getopt(sys.argv[1:], "hm:i:p:k:", ["help", "meeting-id=", "ingest-dir=", "publish-dir=", "playback-host="])
     except getopt.GetoptError, err:
         # print help information and exit:
         print str(err)
@@ -92,6 +97,8 @@ def main():
             ingestDir = a
         elif o in ("-p", "--publish-dir"):
             publishDir = a
+        elif o in ("-k", "--playback-host"):
+            playbackHost = a
         else:
             assert False, "unhandled option"
     
@@ -105,13 +112,15 @@ def main():
     if (publishDir == ""):
         print "Missing publish dir."
         printUsage = True
-        
+    if (playbackHost == ""):
+        print "Missing playback host."
+        printUsage = True        
     if (printUsage):
         printUsageHelp()
     
     copy_files_to_publish_dir(meetingId, ingestDir, publishDir)
     
-    generate_index_html(publishDir)
+    generate_index_html(publishDir, playbackHost)
     
 if __name__ == "__main__":
     main()
