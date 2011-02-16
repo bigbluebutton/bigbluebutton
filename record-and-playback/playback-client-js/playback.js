@@ -1,3 +1,11 @@
+function getUrlParameters() {
+    var map = {};
+    var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+    map[key] = value;
+    });
+    return map; 
+}
+
 (function($){
 	
 	var slideTransitions = new Array();
@@ -6,27 +14,26 @@
 	var audio;
 	var meetingTime;
 	
-	var RECORDING = 'workspace'
-	var PRESENTATION = 'workspace/presentations/'
+    var params = getUrlParameters();
+	var MEETINGID = params['meetingId']
+    var HOST = window.location.hostname
+    var RECORDINGS = "http://" + HOST + "/recordings/" + MEETINGID
+	var PRESENTATION = RECORDINGS + '/presentations/'
 	var LOGO = 'logo.png';
-	
-	//$.fn.bbb.playback = function(){
-	//	
-	//};
-	
+		
 	$(document).ready(function(){
 		$.ajax({
 			type: "GET",
-			url: "workspace/event.xml",
+			url: RECORDINGS + "/events.xml",
 			dataType: "xml",
 			success: parseXml
 		});
-		
 	});
 	
 	window.addEventListener('load', function(){
 		audio = document.getElementById('audioRecording');
-		audio.setAttribute('src', RECORDING + '/recording.ogg');
+		audio.setAttribute('src', RECORDINGS + '/recording.ogg');
+		audio.setAttribute('type','audio/ogg')
 		audio.load();
 		
 		audio.addEventListener('load', function(){
@@ -59,11 +66,9 @@
 			var event = $(this);
 			if (event.attr('name') === 'SharePresentationEvent'){
 				var sharePresentationEvent = {
-
 					name : event.find('presentationName').text(),                    
 					time : (event.attr('timestamp') - start) / 1000
 				};
-                alert('presentationName=' + event.find('presentationName').text());
 				presentations[p] = sharePresentationEvent;
                 p++;
 			}
@@ -81,17 +86,28 @@
 				i++;
 			}
 		});
+        
+        alert("num slides " + slideTransitions.length);
 	}
 	
 	function onTimeUpdate(){
 		var now = audio.currentTime;
-		
+		sinfo = document.getElementById('slideinfo');
+        
 		var firstTransition = slideTransitions[0].time;
 		if (firstTransition > now){
 			$('#imgSlide').attr('src', LOGO);
 			return;
 		}
 		
+        var lastTransition = slideTransitions[slideTransitions.length-1].time;
+        if (lastTransition < now) {
+				var slideIndex = parseInt(slideTransitions[slideTransitions.length-1].slide) + 1; 
+				var slideToShow = PRESENTATION + presentationName + '/slide-' + slideIndex + '.png';
+				$('#imgSlide').attr('src', slideToShow);      
+            return;                
+        }
+        
 		$.each(presentations, function(index, value){
 			var time = value.time;
 			
@@ -105,11 +121,10 @@
 			
 			if (slideTransitions[index + 1] == null) return; //Break for last slide, to avoid null reference error
 			
-			if (time < now && slideTransitions[index + 1].time > now){
-				var slideIndex = parseInt(value.slide) + 1; //A workaround for Issue 821
+			if ((time < now && slideTransitions[index + 1].time > now)) {
+				var slideIndex = parseInt(value.slide) + 1; 
 				var slideToShow = PRESENTATION + presentationName + '/slide-' + slideIndex + '.png';
 				$('#imgSlide').attr('src', slideToShow);
-                $('#slide').text = slideToShow;
 			} 
 		});
         
@@ -117,4 +132,3 @@
 	}
 	
 })(jQuery);
-
