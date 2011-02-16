@@ -38,7 +38,12 @@ def generate_events_xml(redisHost, redisPort, meetingId, archiveDir):
         Pull events from Redis and store them into an xml file.
     '''
     r = redis.Redis(host=redisHost, port=redisPort, db=0)
-
+    
+    meetingInfo = r.hgetall("meeting.info:" + meetingId)
+    meetingTitle = "No meeting title."
+    if (meetingInfo):
+        meetingTitle = meetingInfo.get('name')
+        
     count = r.llen("meeting:" + meetingId + ":recordings")
     print count
     msgs = r.lrange("meeting:" + meetingId + ":recordings", 0, count)
@@ -46,7 +51,7 @@ def generate_events_xml(redisHost, redisPort, meetingId, archiveDir):
     html = page = (
         E.events(
             E.head(
-                E.title("This is a sample document")
+                E.title(meetingTitle)
             )
         )
     )
@@ -68,7 +73,7 @@ def generate_events_xml(redisHost, redisPort, meetingId, archiveDir):
             
         page.append(ev)
                     
-#    print(etree.tostring(page, pretty_print=True))
+    #print(etree.tostring(page, pretty_print=True))
 
     targetFile = archiveDir + "/" + meetingId + "/events.xml"
     f = open(targetFile, 'w')
