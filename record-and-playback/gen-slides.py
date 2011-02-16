@@ -49,7 +49,7 @@ def convert_pdf_to_png(pdfPage, pngOut):
     '''
         Convert a pdf page to a png.
     '''
-    command = "convert -depth 8 " + pdfPage + " " + pngOut
+    command = "convert -density 600x600 -resize 800x560 -quality 90 " + pdfPage + " " + pngOut 
     proc = subprocess.Popen(command, shell=True)
     # Wait for the process to finish
     proc.wait()    
