@@ -31,8 +31,7 @@
 			import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
 			
 			private function connectionReestablished(e:UsersConnectionEvent):void{
-				var pageURL:String = mx.core.Application.application.url.split("/")[2];
-				var url:URLRequest = new URLRequest(mx.core.Application.application.url);
+				var url:URLRequest = new URLRequest(ExternalInterface.call("window.location.href.toString"));
 				navigateToURL(url, '_self');
 				PopUpManager.removePopUp(this);
 			}
