@@ -33,6 +33,7 @@
 				'Chinese Simplified',
 				'Chinese Traditional' , 
 				'English' , 
+				'Farsi',
 				'French',
 				'French Canadian',
 				'German',
@@ -52,6 +53,7 @@
 				'Spanish',
 				'Spanish (Latin)',
 				'Swedish',
+				'Thai',
 				'Turkish',
 				'Ukrainian',
 				'Vietnamese',]  ;
@@ -63,6 +65,7 @@
 				'zh_CN',
 				'zh_TW',
 				'en_US',
+				'fa_IR',
 				'fr_FR',
 				'fr_CA',
 				'de_DE',
@@ -82,6 +85,7 @@
 				'es_ES',
 				'es_LA',
 				'sv_SE',
+				'th_TH',
 				'tr_TR',
 				'uk_UA',
 				'vi_VN']  ;
