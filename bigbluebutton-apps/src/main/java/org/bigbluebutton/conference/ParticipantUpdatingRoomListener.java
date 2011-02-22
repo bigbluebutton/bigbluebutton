@@ -19,11 +19,12 @@
 
 package org.bigbluebutton.conference;
 
+
 public class ParticipantUpdatingRoomListener implements IRoomListener{
 
 	private IConferenceEventListener conferenceEventListener;
 	private Room room;
-
+	
 	public ParticipantUpdatingRoomListener(IConferenceEventListener lstnr, Room room) {
 		this.conferenceEventListener = lstnr;
 		this.room = room;
@@ -36,18 +37,21 @@ public class ParticipantUpdatingRoomListener implements IRoomListener{
 	public void participantStatusChange(Long userid, String status, Object value){
 		if (conferenceEventListener != null) {
 			conferenceEventListener.participantsUpdated(room);
+			//redis pubsub
 		}
 	}
 	
 	public void participantJoined(Participant p) {
 		if (conferenceEventListener != null) {
 			conferenceEventListener.participantsUpdated(room);
+			//redis pubsub
 		}
 	}
 	
 	public void participantLeft(Long userid) {		
 		if (conferenceEventListener != null) {
 			conferenceEventListener.participantsUpdated(room);
+			//redis pubsub
 		}
 	}
 

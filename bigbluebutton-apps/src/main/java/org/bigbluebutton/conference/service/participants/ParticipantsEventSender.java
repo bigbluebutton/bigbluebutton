@@ -147,7 +147,7 @@ public class ParticipantsEventSender implements IRoomListener {
 	}
 
 	@Override
-	public Object getName() {
+	public String getName() {
 		// TODO Auto-generated method stub
 		return name;
 	}

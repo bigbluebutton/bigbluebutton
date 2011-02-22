@@ -19,6 +19,7 @@
 package org.bigbluebutton.conference;
 
 import org.slf4j.Logger;
+import org.bigbluebutton.conference.service.recorder.RedisDispatcher;
 import org.red5.logging.Red5LoggerFactory;
 import net.jcip.annotations.ThreadSafe;
 import java.util.Map;
@@ -35,8 +36,15 @@ public class RoomsManager {
 
 	private IConferenceEventListener conferenceEventListener;
 	
+	 
+	
+	/*redis pubsub*/
+	private RedisDispatcher redisDispatcher;
+	public static final String CHANNEL_NAME="bbbConferenceEvents";
+	
 	public RoomsManager() {
 		rooms = new ConcurrentHashMap<String, Room>();
+		
 	}
 	
 	public void addRoom(final Room room) {
@@ -45,6 +53,7 @@ public class RoomsManager {
 		
 		if (checkEvtListener()) {
 			conferenceEventListener.started(room);
+			redisDispatcher.getJedis().publish(CHANNEL_NAME, "conferenceStarted");
 			log.debug("Notified event listener of conference start");
 		}
 		rooms.put(room.getName(), room);
@@ -171,5 +180,13 @@ public class RoomsManager {
 
 	public IConferenceEventListener getConferenceEventListener() {
 		return conferenceEventListener;
+	}
+	
+	public void setRedisDispatcher(RedisDispatcher redisDispatcher){
+		this.redisDispatcher=redisDispatcher;
+	}
+	
+	public RedisDispatcher getRedisDispatcher(){
+		return redisDispatcher;
 	}
 }
