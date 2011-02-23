@@ -1,6 +1,7 @@
 <?xml version="1.0" ?>
 <locales>
 	<locale code="az_AZ" name="Azerbaijani"/>
+	<locale code="da_DK" name="Danish" />
 	<locale code="de_DE" name="German"/>
 	<locale code="el_GR" name="Greek"/>
 	<locale code="en_US" name="English"/>

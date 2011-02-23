@@ -20,7 +20,7 @@
   $Id: $
 -->
 
-<mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml" dataProvider="{this.langNames}" selectedIndex="5" change="changeLanguage()" rowCount="15">
+<mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml" dataProvider="{this.langNames}" selectedIndex="6" change="changeLanguage()" rowCount="15">
 	<mx:Script>
 		<![CDATA[
 			import mx.controls.Alert;
@@ -31,7 +31,8 @@
 				'Bulgarian',
 				'Czech',
 				'Chinese Simplified',
-				'Chinese Traditional' , 
+				'Chinese Traditional' ,
+				'Danish' , 
 				'English' , 
 				'Farsi',
 				'French',
@@ -64,6 +65,7 @@
 				'cs_CZ',
 				'zh_CN',
 				'zh_TW',
+				'da_DK',
 				'en_US',
 				'fa_IR',
 				'fr_FR',
