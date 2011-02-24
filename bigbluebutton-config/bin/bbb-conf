@@ -38,6 +38,7 @@
 #   2010-11-06 FFD  Added logic to ensure red5 shuts down
 #   2010-12-12 FFD  Fixed bug #778
 #   2010-12-12 FFD  Added support for Intalio VM
+#   2010-02-28 FFD  Fixed #834 
 
 #set -x
 
@@ -89,7 +90,7 @@ if [ -f /etc/lsb-release ]; then
 			PLATFORM=ubuntu-jetty-intalio
 			SERVLET_CONTAINER=cloud
 			SERVLET_LOGS=/var/www/cloud/jetty/logs
-			SERVLET_DIR=/var/www/cloud/webappsviacontext
+			SERVLET_DIR=/var/www/cloud/webapps
 		fi
 	fi
 fi
@@ -176,7 +177,7 @@ usage() {
         echo "   --setip <host>                   Set IP/hostname for BigBlueButton"
         echo "   --conference [konference|meetme|freeswitch]"
         echo "                                    Switch conference module"
-	echo "   --saltset <salt>		  Change the security salt in bigbluebutton.properties"
+	echo "   --setsalt <salt>		  Change the security salt in bigbluebutton.properties"
         echo
         echo "Monitoring:"
         echo "   --check <verbose>                Check configuration files and processes for problems"
@@ -513,14 +514,8 @@ done
 # Version 
 #
 if [ $VERSION ]; then
-	if [ "$(is_redhat)" ]; then
-		echo "$(yum list installed | grep bbb-conf)"
-	else 
-		if [ "$(is_ubuntu)" ]; then
-			echo 
-			dpkg -l | grep bbb
-		fi
-	fi
+	echo 
+	dpkg -l | grep bbb
 	exit 0
 fi
 
@@ -899,7 +894,7 @@ check_configuration() {
 	# Make sure the salt for the API matches the server
 	#
 	SALT_PROPERTIES=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
-	SALT_DEMO=$(cat ${SERVLET_DIR}/bigbluebutton/demo/bbb_api_conf.jsp | tr -d '\r' | sed -n '/salt =/{s/.* = "//;s/".*//g;p}')
+	SALT_DEMO=$(cat ${SERVLET_DIR}/bigbluebutton/demo/bbb_api_conf.jsp | tr -d '\r' | sed -n '/salt[ ]*=/{s/.*=[ ]*"//;s/".*//g;p}')
 
 	if [ "$SALT_PROPERTIES" != "$SALT_DEMO" ]; then
 		echo "# Salt mismatch: "

@@ -19,9 +19,16 @@
 **/
 package org.bigbluebutton.voiceconf.red5.media.transcoder;
 
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.nio.FloatBuffer;
 import java.util.Random;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
 import org.slf4j.Logger;
+import org.bigbluebutton.voiceconf.red5.media.SipToFlashAudioStream;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.Red5;
@@ -70,6 +77,14 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
     private long timestamp = 0;
     private final static int TS_INCREMENT = 32; 	// Determined from PCAP traces.
     
+	private final PipedOutputStream streamFromSip;
+	private PipedInputStream streamToFlash;
+
+	private TranscodedAudioDataListener transcodedAudioListener;
+	private boolean processAudioData;
+
+	private final Executor exec = Executors.newSingleThreadExecutor();
+	private Runnable audioDataProcessor;
     /**
      * The transcode takes a 160-byte Ulaw audio and converts it to a 160-float L16 audio. Whenever there is an
      * available 256-float L16 audio, that gets converted into a 64-byte Nelly audio. Therefore, 8 Ulaw packets
@@ -82,17 +97,23 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
         Random rgen = new Random();
         timestamp = rgen.nextInt(1000);
         viewBuffer = l16Audio.asReadOnlyBuffer();
+		streamFromSip = new PipedOutputStream();
+		try {
+			streamToFlash = new PipedInputStream(streamFromSip);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
     }
 
 	@Override
-	public void transcode(byte[] audioData, TranscodedAudioDataListener listener) { 
+	public void transcode(byte[] audioData) { 
 		if (audioData.length != ULAW_AUDIO_LENGTH) {
-			log.warn("Received corrupt audio. Got {}, expected {}.", audioData.length, ULAW_AUDIO_LENGTH);
+			if (log.isWarnEnabled()) log.warn("Received corrupt audio. Got {}, expected {}.", audioData.length, ULAW_AUDIO_LENGTH);
 			return;
 		}
 		
 		// Convert Ulaw to L16
-        int decodedBytes = audioCodec.codecToPcm(audioData, tempL16Buffer);
+        audioCodec.codecToPcm(audioData, tempL16Buffer);
 
         // Store into the buffer
         l16Audio.put(tempL16Buffer);
@@ -114,11 +135,12 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
 				if (pendingMessages > 25) {   
 					// Message backed up probably due to slow connection to client (25 messages * 20ms ptime = 500ms audio)
 					sendPacket = false;
-					log.info("Dropping packet. Connection {} congested with {} pending messages (~500ms worth of audio) .", conn.getClient().getId(), pendingMessages);
+					if (log.isInfoEnabled())
+						log.info("Dropping packet. Connection {} congested with {} pending messages (~500ms worth of audio) .", conn.getClient().getId(), pendingMessages);
 				}    					
 			} 
 				
-			if (sendPacket) listener.handleTranscodedAudioData(nellyBytes, timestamp += TS_INCREMENT);			
+			if (sendPacket) transcodedAudioListener.handleTranscodedAudioData(nellyBytes, timestamp += TS_INCREMENT);			
         }
         
         if (l16Audio.position() == l16Audio.capacity()) {
@@ -137,5 +159,63 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
 	public int getCodecId() {
 		return NELLYMOSER_CODEC_ID;
 	}
+
+	@Override
+	public void handleData(byte[] audioData, int offset, int len) {
+		try {
+			streamFromSip.write(audioData, offset, len);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	
+	}
+	
+	private void processAudioData() {
+		int len = 160;
+		byte[] pcmAudio = new byte[len];		
+		int remaining = len;
+		int offset = 0;
+
+		while (processAudioData) {
+			try {
+				int bytesRead =  streamToFlash.read(pcmAudio, offset, remaining);	
+				remaining -= bytesRead;
+				if (remaining == 0) {
+					remaining = len;
+					offset = 0;
+					transcode(pcmAudio);
+				} else {
+					offset += bytesRead; 
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}        		
+		}	
+	}
+	
+	@Override
+    public void start(){
+    	processAudioData = true;
+    	
+    	audioDataProcessor = new Runnable() {
+    		public void run() {
+    			processAudioData();       			
+    		}
+    	};
+    	exec.execute(audioDataProcessor);
+	}
+	
+	@Override
+	public void stop() {
+		processAudioData = false;
+	}
+
+	@Override
+	public void setTranscodedAudioListener(SipToFlashAudioStream sipToFlashAudioStream) {
+		this.transcodedAudioListener = sipToFlashAudioStream;		
+	}
+
+	
+	
 }
 

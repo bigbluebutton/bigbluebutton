@@ -60,12 +60,7 @@ public class RtpStreamReceiver {
     }
     
     private void initializeSocket() {
-/*    	try {
-			rtpSocket.getDatagramSocket().setSoTimeout(SO_TIMEOUT);
-		} catch (SocketException e1) {
-			log.warn("SocketException while setting socket block time.");
-		}
-*/    }
+    }
     
     public void start() {
     	receivePackets = true;
@@ -91,9 +86,6 @@ public class RtpStreamReceiver {
         	try {       			
         		rtpSocket.receive(rtpPacket);        		
         		packetReceivedCounter++;  
-//    			log.debug("Received packet [" + rtpPacket.getRtcpPayloadType() + "," + rtpPacket.getPayloadType() + ", length=" + rtpPacket.getPayloadLength() + "] seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
-//    					+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");          			       			
-     
         		if (shouldDropDelayedPacket(rtpPacket)) {
         			continue;
         		}
@@ -107,11 +99,9 @@ public class RtpStreamReceiver {
         					+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");          			
         		} else {
             		if (shouldHandlePacket(rtpPacket)) {        			            			
-//            			log.debug("Handling packet [" + rtpPacket.getRtcpPayloadType() + "," + rtpPacket.getPayloadType() + ", length=" + rtpPacket.getPayloadLength() + "] seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
-//            					+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");          			       			
             			lastSequenceNumber = rtpPacket.getSeqNum();
             			lastPacketTimestamp = rtpPacket.getTimestamp();
-            			processRtpPacket(internalBuffer, RTP_HEADER_SIZE, payloadLength);
+            			processRtpPacket(internalBuffer, RTP_HEADER_SIZE, rtpPacket.getPayloadLength());
             		} else {
             			if (log.isDebugEnabled())
             				log.debug("Corrupt packet [" + rtpPacket.getRtcpPayloadType() + "," + rtpPacket.getPayloadType() + ", length=" + rtpPacket.getPayloadLength() + "] seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 

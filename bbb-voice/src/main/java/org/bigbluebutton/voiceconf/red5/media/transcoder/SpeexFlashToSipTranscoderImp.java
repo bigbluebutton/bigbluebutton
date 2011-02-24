@@ -20,16 +20,24 @@
 package org.bigbluebutton.voiceconf.red5.media.transcoder;
 
 import java.util.Random;
+
+import org.bigbluebutton.voiceconf.red5.media.FlashToSipAudioStream.TranscodedAudioListener;
 import org.red5.app.sip.codecs.Codec;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
+/**
+ * Speex wideband to Speex wideband Flash to SIP transcoder.
+ * This class is just a passthrough transcoder.
+ *
+ */
 public class SpeexFlashToSipTranscoderImp implements FlashToSipTranscoder {
 	protected static Logger log = Red5LoggerFactory.getLogger(SpeexFlashToSipTranscoderImp.class, "sip");
 	
 	private Codec audioCodec;
 	private long timestamp = 0;
 	private final static int TS_INCREMENT = 320; // Determined from PCAP traces.
+	private TranscodedAudioListener transcodedAudioListener;
 	
 	public SpeexFlashToSipTranscoderImp(Codec audioCodec) {
 		this.audioCodec = audioCodec;
@@ -37,10 +45,12 @@ public class SpeexFlashToSipTranscoderImp implements FlashToSipTranscoder {
         timestamp = rgen.nextInt(1000);
 	}
 	
-	public void transcode(byte[] audioData, int startOffset, int length, TranscodedAudioDataListener listener) {
+	public void transcode(byte[] audioData, int startOffset, int length) {
 		byte[] transcodedAudio = new byte[length];
+		// Just copy the audio data removing the codec id which is the first-byte
+		// represented by the startOffset var.
 		System.arraycopy(audioData, startOffset, transcodedAudio, 0, length);
-		listener.handleTranscodedAudioData(transcodedAudio, timestamp += TS_INCREMENT);
+		transcodedAudioListener.handleTranscodedAudioData(transcodedAudio, timestamp += TS_INCREMENT);
 	}
 	
 	public int getCodecId() {
@@ -53,5 +63,25 @@ public class SpeexFlashToSipTranscoderImp implements FlashToSipTranscoder {
 
 	public int getOutgoingPacketization() {
 		return audioCodec.getOutgoingPacketization();
+	}
+
+	@Override
+	public void handlePacket(byte[] data, int begin, int end) {
+		transcode(data, begin, end);		
+	}
+
+	@Override
+	public void setTranscodedAudioListener(TranscodedAudioListener transcodedAudioListener) {
+		this.transcodedAudioListener = transcodedAudioListener;		
+	}
+
+	@Override
+	public void start() {
+		// do nothing. just implement the interface.
+	}
+	
+	@Override
+	public void stop() {
+		// do nothing. just implement the interface.
 	}
 }

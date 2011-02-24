@@ -19,12 +19,7 @@
 **/
 package org.bigbluebutton.voiceconf.red5.media;
 
-import java.io.IOException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.net.DatagramSocket;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.bigbluebutton.voiceconf.red5.media.transcoder.SipToFlashTranscoder;
 import org.bigbluebutton.voiceconf.red5.media.transcoder.TranscodedAudioDataListener;
@@ -38,16 +33,8 @@ import org.red5.server.stream.BroadcastScope;
 import org.red5.server.stream.IBroadcastScope;
 import org.red5.server.stream.IProviderService;
 import org.slf4j.Logger;
-
 public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpStreamReceiverListener {
-	final private Logger log = Red5LoggerFactory.getLogger(SipToFlashAudioStream.class, "sip");
-	
-	private final PipedOutputStream streamFromSip;
-	private PipedInputStream streamToFlash;
-	
-	private final Executor exec = Executors.newSingleThreadExecutor();
-	private Runnable audioDataProcessor;
-	private volatile boolean processAudioData = false;
+	private static final Logger log = Red5LoggerFactory.getLogger(SipToFlashAudioStream.class, "sip");
 	
 	private AudioBroadcastStream audioBroadcastStream;
 	private IScope scope;
@@ -78,17 +65,10 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 		rtpStreamReceiver.setRtpStreamReceiverListener(this);
 		listenStreamName = "speaker_" + System.currentTimeMillis();		
 		scope.setName(listenStreamName);	
-		streamFromSip = new PipedOutputStream();
-		try {
-			streamToFlash = new PipedInputStream(streamFromSip);
-			startNow();
-			mBuffer = IoBuffer.allocate(1024);
-			mBuffer = mBuffer.setAutoExpand(true);
-	        audioData = new AudioData();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		mBuffer = IoBuffer.allocate(1024);
+		mBuffer = mBuffer.setAutoExpand(true);
+        audioData = new AudioData();
+		transcoder.setTranscodedAudioListener(this);
 	}
 	
 	public String getStreamName() {
@@ -100,26 +80,22 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 	}
 	
 	public void stop() {
-		log.debug("Stopping stream for {}", listenStreamName);
-		processAudioData = false;
+		if (log.isDebugEnabled()) log.debug("Stopping stream for {}", listenStreamName);
+		transcoder.stop();
 		rtpStreamReceiver.stop();
-		log.debug("Stopped RTP Stream Receiver for {}", listenStreamName);
+		if (log.isDebugEnabled()) log.debug("Stopped RTP Stream Receiver for {}", listenStreamName);
 		if (audioBroadcastStream != null) {
 			audioBroadcastStream.stop();
-			log.debug("Stopped audioBroadcastStream for {}", listenStreamName);
+			if (log.isDebugEnabled()) log.debug("Stopped audioBroadcastStream for {}", listenStreamName);
 			audioBroadcastStream.close();
-		    log.debug("Closed audioBroadcastStream for {}", listenStreamName);
+		    if (log.isDebugEnabled()) log.debug("Closed audioBroadcastStream for {}", listenStreamName);
 		} else
-			log.debug("audioBroadcastStream is null, couldn't stop");
-	    log.debug("Stream(s) stopped");
+			if (log.isDebugEnabled()) log.debug("audioBroadcastStream is null, couldn't stop");
+	    if (log.isDebugEnabled()) log.debug("Stream(s) stopped");
 	}
 	
 	public void start() {
-		
-	}
-	
-	private void startNow() {
-		log.debug("started publishing stream in " + scope.getName());
+		if (log.isDebugEnabled()) log.debug("started publishing stream in " + scope.getName());
 		audioBroadcastStream = new AudioBroadcastStream(listenStreamName);
 		audioBroadcastStream.setPublishedName(listenStreamName);
 		audioBroadcastStream.setScope(scope);
@@ -136,40 +112,8 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 		}
 		
 	    audioBroadcastStream.start();	    
-	    processAudioData = true;
-	    	    
-	    audioDataProcessor = new Runnable() {
-    		public void run() {
-    			processAudioData();       			
-    		}
-    	};
-    	exec.execute(audioDataProcessor);
-    	
+		transcoder.start();   	
 	    rtpStreamReceiver.start();
-	}
-	
-	private void processAudioData() {
-		int len = 160;
-		byte[] pcmAudio = new byte[len];		
-		int remaining = len;
-		int offset = 0;
-
-		while (processAudioData) {
-			try {
-				int bytesRead =  streamToFlash.read(pcmAudio, offset, remaining);		
-				remaining -= bytesRead;
-				if (remaining == 0) {
-					remaining = len;
-					offset = 0;
-					transcoder.transcode(pcmAudio, this);
-				} else {
-					offset += bytesRead; 
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}        		
-		}	
 	}
 	
 	@Override
@@ -179,12 +123,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 
 	@Override
 	public void onAudioDataReceived(byte[] audioData, int offset, int len) {
-		try {
-			streamFromSip.write(audioData, offset, len);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		transcoder.handleData(audioData, offset, len);
 	}
 	
 	@Override
