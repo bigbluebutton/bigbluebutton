@@ -20,6 +20,8 @@
 package org.bigbluebutton.voiceconf.red5.media.transcoder;
 
 import java.util.Random;
+
+import org.bigbluebutton.voiceconf.red5.media.SipToFlashAudioStream;
 import org.red5.app.sip.codecs.Codec;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
@@ -31,7 +33,8 @@ public class SpeexSipToFlashTranscoderImp implements SipToFlashTranscoder {
 	private Codec audioCodec = null;
 	private long timestamp = 0;
 	private static final int TS_INCREMENT = 20; // Determined from PCAP traces.
-	
+	private TranscodedAudioDataListener transcodedAudioListener;
+
 	public SpeexSipToFlashTranscoderImp(Codec codec) {
 		this.audioCodec = codec;
         Random rgen = new Random();
@@ -39,9 +42,10 @@ public class SpeexSipToFlashTranscoderImp implements SipToFlashTranscoder {
 	}
 
 	@Override
-	public void transcode(byte[] audioData, TranscodedAudioDataListener listener) {
+	public void transcode(byte[] audioData ) {
 		byte[] codedBuffer = audioData;
-		listener.handleTranscodedAudioData(codedBuffer, timestamp += TS_INCREMENT);
+//		System.out.println("Speex transcode:"+audioData.length);
+		transcodedAudioListener.handleTranscodedAudioData(codedBuffer, timestamp += TS_INCREMENT);
 	}
 	
 	@Override
@@ -52,6 +56,26 @@ public class SpeexSipToFlashTranscoderImp implements SipToFlashTranscoder {
 	@Override
 	public int getIncomingEncodedFrameSize() {
 		return audioCodec.getIncomingEncodedFrameSize();
+	}
+
+	@Override
+	public void handleData(byte[] audioData, int offset, int len) {
+		byte[] data = new byte[len];
+		System.arraycopy(audioData, offset, data, 0, len);
+		transcode(data);
+		
+	}
+
+	@Override
+	public void setTranscodedAudioListener(
+			SipToFlashAudioStream sipToFlashAudioStream) {
+		this.transcodedAudioListener = sipToFlashAudioStream;
+		
+	}
+
+	@Override
+	public void setProcessAudioData(boolean isProcessing) {
+		
 	}
 
 
