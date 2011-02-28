@@ -1,6 +1,7 @@
 GEM
   remote: http://rubygems.org/
   specs:
+    SystemTimer (1.2.2)
     builder (2.1.2)
     cucumber (0.9.2)
       builder (~> 2.1.2)
@@ -9,11 +10,11 @@ GEM
       json (~> 1.4.6)
       term-ansicolor (~> 1.0.5)
     diff-lcs (1.1.2)
-    fakefs (0.3.1)
     gherkin (2.2.9)
       json (~> 1.4.6)
       term-ansicolor (~> 1.0.5)
     json (1.4.6)
+    redis (2.1.1)
     rspec (2.0.0)
       rspec-core (= 2.0.0)
       rspec-expectations (= 2.0.0)
@@ -30,6 +31,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  SystemTimer (= 1.2.2)
   cucumber (= 0.9.2)
-  fakefs
+  redis (= 2.1.1)
   rspec (= 2.0.0)
