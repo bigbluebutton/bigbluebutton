@@ -19,12 +19,7 @@
 **/
 package org.bigbluebutton.voiceconf.red5.media;
 
-import java.io.IOException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.net.DatagramSocket;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.bigbluebutton.voiceconf.red5.media.transcoder.SipToFlashTranscoder;
 import org.bigbluebutton.voiceconf.red5.media.transcoder.TranscodedAudioDataListener;
@@ -38,15 +33,11 @@ import org.red5.server.stream.BroadcastScope;
 import org.red5.server.stream.IBroadcastScope;
 import org.red5.server.stream.IProviderService;
 import org.slf4j.Logger;
-
 public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpStreamReceiverListener {
 	final private Logger log = Red5LoggerFactory.getLogger(SipToFlashAudioStream.class, "sip");
 	
-	private final PipedOutputStream streamFromSip;
-	private PipedInputStream streamToFlash;
 	
-	private final Executor exec = Executors.newSingleThreadExecutor();
-	private Runnable audioDataProcessor;
+//	private Runnable audioDataProcessor;
 	private volatile boolean processAudioData = false;
 	
 	private AudioBroadcastStream audioBroadcastStream;
@@ -72,23 +63,26 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 	};
 	
 	public SipToFlashAudioStream(IScope scope, SipToFlashTranscoder transcoder, DatagramSocket socket) {
+		processAudioData = true;
+		transcoder.setProcessAudioData(processAudioData);
 		this.scope = scope;
 		this.transcoder = transcoder;
 		rtpStreamReceiver = new RtpStreamReceiver(socket, transcoder.getIncomingEncodedFrameSize());
 		rtpStreamReceiver.setRtpStreamReceiverListener(this);
 		listenStreamName = "speaker_" + System.currentTimeMillis();		
 		scope.setName(listenStreamName);	
-		streamFromSip = new PipedOutputStream();
-		try {
-			streamToFlash = new PipedInputStream(streamFromSip);
+//		streamFromSip = new PipedOutputStream();
+//		try {
+//			streamToFlash = new PipedInputStream(streamFromSip);
 			startNow();
 			mBuffer = IoBuffer.allocate(1024);
 			mBuffer = mBuffer.setAutoExpand(true);
 	        audioData = new AudioData();
-		} catch (IOException e) {
+//		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//			e.printStackTrace();
+//		}
+		transcoder.setTranscodedAudioListener(this);  //
 	}
 	
 	public String getStreamName() {
@@ -102,6 +96,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 	public void stop() {
 		log.debug("Stopping stream for {}", listenStreamName);
 		processAudioData = false;
+		transcoder.setProcessAudioData(processAudioData);
 		rtpStreamReceiver.stop();
 		log.debug("Stopped RTP Stream Receiver for {}", listenStreamName);
 		if (audioBroadcastStream != null) {
@@ -137,18 +132,19 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 		
 	    audioBroadcastStream.start();	    
 	    processAudioData = true;
+		transcoder.setProcessAudioData(processAudioData);
 	    	    
-	    audioDataProcessor = new Runnable() {
+/*	    audioDataProcessor = new Runnable() {
     		public void run() {
     			processAudioData();       			
     		}
     	};
     	exec.execute(audioDataProcessor);
-    	
+*/    	
 	    rtpStreamReceiver.start();
 	}
 	
-	private void processAudioData() {
+/*	private void processAudioData() {
 		int len = 160;
 		byte[] pcmAudio = new byte[len];		
 		int remaining = len;
@@ -171,7 +167,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 			}        		
 		}	
 	}
-	
+*/	
 	@Override
 	public void onStoppedReceiving() {
 		if (observer != null) observer.onStreamStopped();
@@ -179,12 +175,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 
 	@Override
 	public void onAudioDataReceived(byte[] audioData, int offset, int len) {
-		try {
-			streamFromSip.write(audioData, offset, len);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		transcoder.handleData(audioData, offset, len);
 	}
 	
 	@Override
