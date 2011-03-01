@@ -35,8 +35,6 @@ import org.slf4j.Logger;
 
 public class FlashToSipAudioStream {
 	private final static Logger log = Red5LoggerFactory.getLogger(FlashToSipAudioStream.class, "sip");
-
-
 	
 	private final FlashToSipTranscoder transcoder;	
 	private IStreamListener mInputListener;
@@ -45,22 +43,20 @@ public class FlashToSipAudioStream {
 	private String talkStreamName;	
 	private RtpStreamSender rtpSender;
 	private TranscodedAudioListener transcodedAudioListener;
-	private volatile boolean processAudioData = false;
 
-	public FlashToSipAudioStream(final FlashToSipTranscoder transcoder, DatagramSocket srcSocket, SipConnectInfo connInfo) {
+	public FlashToSipAudioStream(final FlashToSipTranscoder transcoder, DatagramSocket srcSocket, 
+									SipConnectInfo connInfo) {
 		this.transcoder = transcoder;
 		this.srcSocket = srcSocket;
 		this.connInfo = connInfo;		
 		talkStreamName = "microphone_" + System.currentTimeMillis();
 		transcodedAudioListener = new TranscodedAudioListener();
 		transcoder.setTranscodedAudioListener(transcodedAudioListener);
-	    transcoder.setProcessAudioData(processAudioData);
 }
 	
 	public void start(IBroadcastStream broadcastStream, IScope scope) throws StreamException {
-	    log.debug("startTranscodingStream({},{})", broadcastStream.getPublishedName(), scope.getName());
-	    processAudioData = true;
-	    transcoder.setProcessAudioData(processAudioData);
+		if (log.isDebugEnabled())
+			log.debug("startTranscodingStream({},{})", broadcastStream.getPublishedName(), scope.getName());
 		mInputListener = new IStreamListener() {
 			public void packetReceived(IBroadcastStream broadcastStream, IStreamPacket packet) {
 		      IoBuffer buf = packet.getData();
@@ -74,8 +70,8 @@ public class FlashToSipAudioStream {
 		      	      
 		      if (packet instanceof AudioData) {
 		    	  byte[] data = SerializeUtils.ByteBufferToByteArray(buf);
-		    	  if (data.length > 20)                //==Don't send silence data whose data length is 11
-		    		  transcoder.handlePacket(data, 1, data.length-1);   
+		    	  // Remove the first byte as it is the codec id.
+		    	  transcoder.handlePacket(data, 1, data.length-1);   
 		      } 
 			}
 		};
@@ -83,8 +79,7 @@ public class FlashToSipAudioStream {
 	    broadcastStream.addStreamListener(mInputListener);    
 	    rtpSender = new RtpStreamSender(srcSocket, connInfo);
 		rtpSender.connect();
-				
-
+		transcoder.start();
 	}
 
 	public void stop(IBroadcastStream broadcastStream, IScope scope) {
@@ -93,8 +88,7 @@ public class FlashToSipAudioStream {
 			broadcastStream.stop();
 			broadcastStream.close();
 		} 
-	    processAudioData = false;
-	    transcoder.setProcessAudioData(processAudioData);
+	    transcoder.stop();
 	    srcSocket.close();		
 	}
 
@@ -105,7 +99,7 @@ public class FlashToSipAudioStream {
 	public class TranscodedAudioListener implements TranscodedAudioDataListener {
 		@Override
 		public void handleTranscodedAudioData(byte[] audioData, long timestamp) {
-			if (audioData != null && processAudioData) {
+			if (audioData != null) {
 	  		  rtpSender.sendAudio(audioData, transcoder.getCodecId(), timestamp);
 	  	  } else {
 	  		  log.warn("Transcodec audio is null. Discarding.");

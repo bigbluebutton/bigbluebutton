@@ -26,6 +26,11 @@ import org.red5.app.sip.codecs.Codec;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
+/**
+ * Speex wideband to Speex wideband Flash to SIP transcoder.
+ * This class is just a passthrough transcoder.
+ *
+ */
 public class SpeexFlashToSipTranscoderImp implements FlashToSipTranscoder {
 	protected static Logger log = Red5LoggerFactory.getLogger(SpeexFlashToSipTranscoderImp.class, "sip");
 	
@@ -38,11 +43,12 @@ public class SpeexFlashToSipTranscoderImp implements FlashToSipTranscoder {
 		this.audioCodec = audioCodec;
         Random rgen = new Random();
         timestamp = rgen.nextInt(1000);
-	    System.out.println("Speex start!");
 	}
 	
 	public void transcode(byte[] audioData, int startOffset, int length) {
 		byte[] transcodedAudio = new byte[length];
+		// Just copy the audio data removing the codec id which is the first-byte
+		// represented by the startOffset var.
 		System.arraycopy(audioData, startOffset, transcodedAudio, 0, length);
 		transcodedAudioListener.handleTranscodedAudioData(transcodedAudio, timestamp += TS_INCREMENT);
 	}
@@ -61,20 +67,21 @@ public class SpeexFlashToSipTranscoderImp implements FlashToSipTranscoder {
 
 	@Override
 	public void handlePacket(byte[] data, int begin, int end) {
-		transcode(data, begin, end);
-		
+		transcode(data, begin, end);		
 	}
 
 	@Override
-	public void setTranscodedAudioListener(
-			TranscodedAudioListener transcodedAudioListener) {
-		this.transcodedAudioListener = transcodedAudioListener;
-		
+	public void setTranscodedAudioListener(TranscodedAudioListener transcodedAudioListener) {
+		this.transcodedAudioListener = transcodedAudioListener;		
 	}
 
 	@Override
-	public void setProcessAudioData(boolean isProcessing) {
-		// TODO  do nothing here;
-		
+	public void start() {
+		// do nothing. just implement the interface.
+	}
+	
+	@Override
+	public void stop() {
+		// do nothing. just implement the interface.
 	}
 }

@@ -80,8 +80,6 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
 	private final PipedOutputStream streamFromSip;
 	private PipedInputStream streamToFlash;
 
-//	private NellySipToFlashTranscoderImp transcoder;
-
 	private TranscodedAudioDataListener transcodedAudioListener;
 	private boolean processAudioData;
 
@@ -105,7 +103,6 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		startNow();
     }
 
 	@Override
@@ -172,17 +169,6 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
 	
 	}
 	
-	private void startNow() {
-	    	    
-	    audioDataProcessor = new Runnable() {
-    		public void run() {
-    			processAudioData();       			
-    		}
-    	};
-    	exec.execute(audioDataProcessor);
-   	
-	}
-	
 	private void processAudioData() {
 		int len = 160;
 		byte[] pcmAudio = new byte[len];		
@@ -207,15 +193,25 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
 	}
 	
 	@Override
-    public void setProcessAudioData(boolean isProcessing){
-    	processAudioData = isProcessing;
-   }
+    public void start(){
+    	processAudioData = true;
+    	
+    	audioDataProcessor = new Runnable() {
+    		public void run() {
+    			processAudioData();       			
+    		}
+    	};
+    	exec.execute(audioDataProcessor);
+	}
+	
+	@Override
+	public void stop() {
+		processAudioData = false;
+	}
 
 	@Override
-	public void setTranscodedAudioListener(
-			SipToFlashAudioStream sipToFlashAudioStream) {
-		this.transcodedAudioListener = sipToFlashAudioStream;
-		
+	public void setTranscodedAudioListener(SipToFlashAudioStream sipToFlashAudioStream) {
+		this.transcodedAudioListener = sipToFlashAudioStream;		
 	}
 
 	

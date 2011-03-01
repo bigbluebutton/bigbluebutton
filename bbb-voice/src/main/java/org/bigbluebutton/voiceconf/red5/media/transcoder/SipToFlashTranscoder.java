@@ -27,6 +27,6 @@ public interface SipToFlashTranscoder {
     int getIncomingEncodedFrameSize();
     void handleData(byte[] audioData, int offset, int len);
     void setTranscodedAudioListener(SipToFlashAudioStream sipToFlashAudioStream);
-    void setProcessAudioData(boolean isProcessing);
-
+    void start();
+    void stop();
 }

@@ -26,6 +26,11 @@ import org.red5.app.sip.codecs.Codec;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
+/**
+ * Speex wideband to speex wideband Sip to Flash Transcoder.
+ * This is just a passthrough transcoder.
+ *
+ */
 public class SpeexSipToFlashTranscoderImp implements SipToFlashTranscoder {
 	protected static Logger log = Red5LoggerFactory.getLogger(SpeexSipToFlashTranscoderImp.class, "sip");
 	
@@ -43,9 +48,7 @@ public class SpeexSipToFlashTranscoderImp implements SipToFlashTranscoder {
 
 	@Override
 	public void transcode(byte[] audioData ) {
-		byte[] codedBuffer = audioData;
-//		System.out.println("Speex transcode:"+audioData.length);
-		transcodedAudioListener.handleTranscodedAudioData(codedBuffer, timestamp += TS_INCREMENT);
+		transcodedAudioListener.handleTranscodedAudioData(audioData, timestamp += TS_INCREMENT);
 	}
 	
 	@Override
@@ -62,13 +65,11 @@ public class SpeexSipToFlashTranscoderImp implements SipToFlashTranscoder {
 	public void handleData(byte[] audioData, int offset, int len) {
 		byte[] data = new byte[len];
 		System.arraycopy(audioData, offset, data, 0, len);
-		transcode(data);
-		
+		transcode(data);		
 	}
 
 	@Override
-	public void setTranscodedAudioListener(
-			SipToFlashAudioStream sipToFlashAudioStream) {
+	public void setTranscodedAudioListener(SipToFlashAudioStream sipToFlashAudioStream) {
 		this.transcodedAudioListener = sipToFlashAudioStream;
 		
 	}

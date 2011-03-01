@@ -76,7 +76,7 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
 	
 	private final Executor exec = Executors.newSingleThreadExecutor();
 	private Runnable audioDataProcessor;
-	private boolean processAudioData = false;
+	private volatile boolean processAudioData = false;
 	private TranscodedAudioListener transcodedAudioListener;
 	
 	/**
@@ -101,8 +101,11 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		processAudioData = true;	 
+    }
+    
+    @Override
+    public void start() {
+    	processAudioData = true;	 
 	    audioDataProcessor = new Runnable() {
     		public void run() {
     			processAudioData();   			
@@ -221,9 +224,10 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
 	public void setTranscodedAudioListener(TranscodedAudioListener transcodedAudioListener) {
 		this.transcodedAudioListener = transcodedAudioListener;
 	}
+	
 	@Override
-    public void setProcessAudioData(boolean isProcessing){
-    	processAudioData = isProcessing;
+    public void stop() {
+    	processAudioData = false;
     }
 
 }
