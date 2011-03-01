@@ -20,6 +20,7 @@
 	<locale code="ro_RO" name="Romanian"/>
 	<locale code="ru_RU" name="Russian"/>
 	<locale code="tr_TR" name="Turkish"/>
+	<locale code="uk_UA" name="Ukrainian"/>
 	<locale code="vi_VN" name="Vietnamese"/>
 	<locale code="zh_CN" name="Chinese (Simplified)"/>
 	<locale code="zh_TW" name="Chinese (Traditional)"/>
