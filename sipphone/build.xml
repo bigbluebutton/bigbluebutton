@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- WARNING: Eclipse auto-generated file.
+              Any modifications will be overwritten.
+              To include a user specific buildfile here, simply create one in the same
+              directory with the processing instruction <?eclipse.ant.import?>
+              as the first entry and export the buildfile again. -->
+<project name="bbb-sip-applet" basedir=".">
+
+    <!-- name of the output .jar file -->
+    <property name="jar.name" value="sip.jar" />
+ 
+    <!-- base directory for distribution target -->
+    <property name="dist.home" value="dist" />
+ 
+    <!-- base directory for compilation targets -->
+    <property name="build.home" value="target" />
+ 
+    <!-- The base directory for all libraries (jar) files -->
+    <property name="lib.dir" value="libs" />
+	
+    <path id="classpath">
+        <fileset dir="${lib.dir}" includes="**/*.jar"/>
+    </path>
+
+    <target name="init">
+		<mkdir dir="dist" />
+        <mkdir dir="build/classes" />
+	</target>
+	
+	<target name="compile" depends="init">
+        <javac srcdir="src" destdir="build/classes" classpathref="classpath"/>
+    </target>
+	
+    <target name="build" depends="compile">
+	        <jar destfile="dist/sip.jar" basedir="build/classes" />
+	</target>
+    
+    <target name="get-password" depends="init-security" description="Prompts for password for keystore">
+		<input addproperty="keystore.password" >password for keystore:</input>
+		<echo level="verbose">password = ${keystore.password}</echo>
+	</target>
+	
+	<target name="init-security">
+		<property name="keystore.dir" location="${user.home}/.secret" />
+		<mkdir dir="${keystore.dir}" />
+		<chmod file="${keystore.dir}" perm="700"/>
+		<property name="keystore"
+			location="${keystore.dir}/local.keystore" />
+		<property file="${keystore.dir}/keystore.properties" />
+		<property name="keystore.alias" value="code.signer"/>
+	</target>
+	
+	<target name="create-signing-key" depends="get-password">
+		<genkey	alias="${keystore.alias}" keystore="${keystore}" storepass="${keystore.password}" validity="366" >
+			<dname>
+				<param name="CN" value="BigBlueButton"/>
+				<param name="OU" value="BigBlueButton Project"/>
+				<param name="O" value="BigBlueButton"/>
+				<param name="C" value="CA"/>
+			</dname>
+		</genkey>
+	</target>
+	
+	<target name="sign-jar" depends="get-password">
+		<signjar jar="dist/sip.jar"
+			alias="${keystore.alias}"
+			keystore="${keystore}"
+			storepass="${keystore.password}" />
+	</target>
+	
+</project>
