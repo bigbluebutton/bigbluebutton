@@ -160,6 +160,7 @@
 		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/phone/views/assets/images/" >
 			<fileset dir="${BASE_DIR}/src/org/bigbluebutton/modules/phone/views/assets/images/" />
 		</copy>		
+        <copy file="${PROD_RESOURCES_DIR}/sip.jar" todir="${OUTPUT_DIR}"/>
 	</target>
 	
 	<target name="build-video" description="Compile Video Module">
