@@ -16,7 +16,7 @@
     <property name="build.home" value="target" />
  
     <!-- The base directory for all libraries (jar) files -->
-    <property name="lib.dir" value="libs" />
+    <property name="lib.dir" value="lib" />
 	
     <path id="classpath">
         <fileset dir="${lib.dir}" includes="**/*.jar"/>
