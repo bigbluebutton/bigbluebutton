@@ -242,9 +242,9 @@ public class UserAgent extends CallListenerAdapter
       if (!user_profile.use_rat)
       {  try
          {  String jar_file=user_profile.ua_jar;
-            clip_on=new AudioClipPlayer(Archive.getAudioInputStream(Archive.getJarURL(jar_file,CLIP_ON)),null);
-            clip_off=new AudioClipPlayer(Archive.getAudioInputStream(Archive.getJarURL(jar_file,CLIP_OFF)),null);
-            clip_ring=new AudioClipPlayer(Archive.getAudioInputStream(Archive.getJarURL(jar_file,CLIP_RING)),null);
+            //clip_on=new AudioClipPlayer(Archive.getAudioInputStream(Archive.getJarURL(jar_file,CLIP_ON)),null);
+            //clip_off=new AudioClipPlayer(Archive.getAudioInputStream(Archive.getJarURL(jar_file,CLIP_OFF)),null);
+            //clip_ring=new AudioClipPlayer(Archive.getAudioInputStream(Archive.getJarURL(jar_file,CLIP_RING)),null);
          }
          catch (Exception e)
          {  printException(e,LogLevel.HIGH);

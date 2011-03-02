@@ -39,6 +39,7 @@ import local.ua.UserAgent;
 import local.ua.UserAgentProfile;
 
 import org.zoolu.sip.provider.SipProvider;
+import org.zoolu.sip.provider.SipStack;
 
 /*****************************************************************************
 ;  cSIP_Applet
@@ -165,10 +166,10 @@ public class cSIP_Applet extends JApplet{
 		/** mock up **/
 		/*this.bbb_domain = "bbb.titook.org" ;
 		this.bbb_room = "12345";
-		this.bbb_name = "sokoun" ;*/
+		this.bbb_name = "test" ;*/
 		/** end **/
 		
-		
+		SipStack.debug_level = 0 ;
 		initializeProfile(this.bbb_domain,this.bbb_room,this.bbb_name);
 		doCall(this.bbb_domain,this.bbb_room);
 	}
@@ -195,6 +196,8 @@ public class cSIP_Applet extends JApplet{
 		userProfile.call_to = cSIP_Applet.BBB_PROTOCOL + room + "@" + domain  ;
 		userProfile.passwd   = cSIP_Applet.BBB_PASSWORD ;
 		userProfile.realm    = domain ;
+		userProfile.use_rat  = false ;
+		//userProfile.ua_jar   = "ua.jar" ;
 		
 		if ( null == provider ){
 			provider = new SipProvider(domain,cSIP_Applet.BBB_PORT);
