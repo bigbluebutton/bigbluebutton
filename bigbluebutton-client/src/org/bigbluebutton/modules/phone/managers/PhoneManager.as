@@ -19,9 +19,15 @@
 
 package org.bigbluebutton.modules.phone.managers
 {
+	import com.asfusion.mate.events.Dispatcher;
+	
+	import mx.controls.Alert;
+	import flash.external.*;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
 	import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceEvent;
+	import org.bigbluebutton.modules.phone.events.cPHONE_JoinVoiceConfInfoEvent;
 	
 	public class PhoneManager {
 		
@@ -58,9 +64,43 @@ package org.bigbluebutton.modules.phone.managers
 		}
 		
 		public function joinVoice(autoJoin:Boolean):void {
-			setupMic(autoJoin);
+			//<REALWAT>
+			/*var dispatcher:Dispatcher = new Dispatcher;
+			var joinInfoEvent:cPHONE_JoinVoiceConfInfoEvent	= new cPHONE_JoinVoiceConfInfoEvent
+				(cPHONE_JoinVoiceConfInfoEvent.SEND_CONFERENCE_INFO);
+			
+			var voiceConfId:String	= attributes.webvoiceconf;
+			var domainName:String	= attributes.uri.split("/")[2];
+			
+			if (null == dispatcher){
+				LogUtil.error("Creating dispatcher object when join voice is null");
+				return;
+			}
+			if(null == joinInfoEvent){
+				LogUtil.error("Creating cPHONE_JoinVoiceConfInfoEvent " +
+					"when join voice is null");
+				return;
+			}
+			joinInfoEvent.voiceConfId	= voiceConfId;
+			joinInfoEvent.domainName	= domainName;
+			dispatcher.dispatchEvent(joinInfoEvent);*/
+			//Alert.show('voiceConfId: ' + voiceConfId  + ', domainName: ' + domainName);
+			//</REALWAT>
+			//<REALWAT>
+			var voiceConfId:String	= attributes.webvoiceconf;
+			var domainName:String	= attributes.uri.split("/")[2];
+			var uname:String		= attributes.username;
+			if (true == ExternalInterface.available) 
+			{
+				// call external javascript 'handleNewUser'
+				LogUtil.debug("Dialing...." + attributes.webvoiceconf + ".... via BBB SIP Applet");
+				ExternalInterface.call("startSIPApplet", domainName, voiceConfId, uname);
+			}
+            onCall = true ;
+			//</REALWAT>
+			/*setupMic(autoJoin);
 			var uid:String = String( Math.floor( new Date().getTime() ) );
-			connectionManager.connect(uid, attributes.externUserID, attributes.username, attributes.room, attributes.uri);
+			connectionManager.connect(uid, attributes.externUserID, attributes.username, attributes.room, attributes.uri);*/
 		}		
 				
 		public function dialConference():void {
@@ -79,13 +119,21 @@ package org.bigbluebutton.modules.phone.managers
 		
 		public function hangup():void {
 			LogUtil.debug("PhoneManager hangup");
-			if (onCall) {
+			/*if (onCall) {
 				LogUtil.debug("PM OnCall");
 				streamManager.stopStreams();
 				connectionManager.doHangUp();
 				LogUtil.debug("PM hangup::doHangUp");
 				onCall = false;
-			}			
+			}*/
+            if (onCall){
+                if (true == ExternalInterface.available) 
+                {
+                    // call external javascript 'handleNewUser'
+                    ExternalInterface.call("stopSIPApplet");
+                }
+                onCall = false ;
+            }
 		}
 	}
 }

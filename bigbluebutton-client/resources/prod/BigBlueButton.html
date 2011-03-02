@@ -116,10 +116,12 @@ if ( hasProductInstall && !hasRequestedVersion ) {
 ;       bln: pass from flex when maximize or minimize presentation window.
 ;            
 ; IMPLEMENTATION  
+;       call 'showButtonCallBack' from BigBlueButton flex application
 ;
 ; HISTORY
-; __date__ :        PTS:       
-; 2010.12.06        problem 731
+; __date__ :        PTS:        Description       
+; 2010.12.06                    new chat notification when presentation
+;                               window in full screen mode.
 ;
 ******************************************************************************/
 function showButton(bln){
@@ -143,10 +145,12 @@ function showButton(bln){
 ;       name: the name of participant that raised hand.
 ;
 ; IMPLEMENTATION  
+;       call 'raiseHandCallback' from BigBlueButton flex application
 ;
 ; HISTORY
-; __date__ :        PTS:       
-; 2010.12.06        problem 731
+; __date__ :        PTS:        Description       
+; 2010.12.06                    raise hand notification when presentation
+;                               window in full screen mode.
 ;
 ******************************************************************************/
 function raiseHand(name){
@@ -169,10 +173,11 @@ function raiseHand(name){
 ;       name: the name of participant that joined.
 ;
 ; IMPLEMENTATION  
-;
+;       call 'handleNewUserCallback' from BigBlueButton flex application
 ; HISTORY
 ; __date__ :        PTS:        Description
-; 2010.12.16                    new participant joined notification
+; 2010.12.16                    new participant joined notification when
+;                               presentation window in full screen mode.
 ;
 ******************************************************************************/
 function handleNewUser(name){
@@ -196,10 +201,12 @@ function handleNewUser(name){
 ;       msg: new chat message
 ;
 ; IMPLEMENTATION  
-;
+;       split the message to get the sender name and message
+;       call 'newChatCallback' from BigBlueButton flex application
 ; HISTORY
-; __date__ :        PTS:       
-; 2010.12.06        problem 731
+; __date__ :        PTS:        Description       
+; 2010.12.06                    chat notification when presentation
+;                               window in full screen mode.
 ;
 ******************************************************************************/
 function handleChat(msg){
@@ -209,6 +216,45 @@ function handleChat(msg){
 /*
  * END: handleChat function
  */
+ 
+ //<REALWAT>
+ function startSIPApplet(domain,room,uname){
+ 
+    //alert(domain + ' ' + room + ' ' + uname);
+     var sipApp = document.getElementById("sipApp");
+     if ( sipApp ){
+        return ;
+     }else{     
+        sipApp = document.createElement("div");
+        sipApp.id = "sipApp";
+        sipApp.innerHTML = "<applet code=\"org.bigbluebutton.sua.applet.cSIP_Applet\"" +
+                "id=\"sipApplet\" width=\"0\" height=\"400\" archive=\"sip.jar\">" +      
+                "<param name=\"domain\" value=\"" + domain  + "\"/>" +
+                "<param name=\"room\" value=\"" + room + "\"/>" +
+                "<param name=\"name\" value=\"" + uname + "\"/>" + 
+            "</applet>"
+     
+        document.body.appendChild(sipApp);
+     }
+     /*document.sipApplet.initializeProfile("bbb.titook.org", "78656", "Trao");*/
+     //document.sipApplet.call();
+     
+ }
+ //</REALWAT>
+ 
+ function stopSIPApplet(){
+    //alert('Stop SIP');
+    //document.sipApplet.hangup();
+    removeSIP();
+    removeSIP();
+    document.sipApplet.destroy();
+    
+ }
+ 
+ function removeSIP(){
+    var sipApp = document.getElementById("sipApp");
+    sipApp.parentNode.removeChild(sipApp);
+ }
 
 /*****************************************************************************
 ;  startApplet
