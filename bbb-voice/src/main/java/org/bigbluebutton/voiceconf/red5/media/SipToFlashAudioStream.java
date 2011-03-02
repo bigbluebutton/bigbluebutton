@@ -59,19 +59,16 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 	};
 	
 	public SipToFlashAudioStream(IScope scope, SipToFlashTranscoder transcoder, DatagramSocket socket) {
-		transcoder.setProcessAudioData(processAudioData);
 		this.scope = scope;
 		this.transcoder = transcoder;
 		rtpStreamReceiver = new RtpStreamReceiver(socket, transcoder.getIncomingEncodedFrameSize());
 		rtpStreamReceiver.setRtpStreamReceiverListener(this);
 		listenStreamName = "speaker_" + System.currentTimeMillis();		
 		scope.setName(listenStreamName);	
-		startNow();
 		mBuffer = IoBuffer.allocate(1024);
 		mBuffer = mBuffer.setAutoExpand(true);
         audioData = new AudioData();
 		transcoder.setTranscodedAudioListener(this);
-		start();
 	}
 	
 	public String getStreamName() {
@@ -97,7 +94,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 	    log.debug("Stream(s) stopped");
 	}
 	
-	private void start() {
+	public void start() {
 		log.debug("started publishing stream in " + scope.getName());
 		audioBroadcastStream = new AudioBroadcastStream(listenStreamName);
 		audioBroadcastStream.setPublishedName(listenStreamName);

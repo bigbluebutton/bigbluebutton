@@ -75,9 +75,12 @@ public class SpeexSipToFlashTranscoderImp implements SipToFlashTranscoder {
 	}
 
 	@Override
-	public void setProcessAudioData(boolean isProcessing) {
-		
+	public void start() {
+		// do nothing
 	}
 
-
+	@Override
+	public void stop() {
+		// do nothing
+	}
 }
