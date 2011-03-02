@@ -161,7 +161,7 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
 	@Override
 	public void transcode(byte[] audioData, int startOffset, int length) {
 		if (audioData.length != NELLY_AUDIO_LENGTH) {
-			log.warn("Receiving bad nelly audio. Expecting {}, got {}.", NELLY_AUDIO_LENGTH, audioData.length);
+			if (log.isWarnEnabled()) log.warn("Receiving bad nelly audio. Expecting {}, got {}.", NELLY_AUDIO_LENGTH, audioData.length);
 			return;
 		}
 				

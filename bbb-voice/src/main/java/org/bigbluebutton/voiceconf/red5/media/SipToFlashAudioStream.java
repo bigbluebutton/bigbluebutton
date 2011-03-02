@@ -80,22 +80,22 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 	}
 	
 	public void stop() {
-		log.debug("Stopping stream for {}", listenStreamName);
+		if (log.isDebugEnabled()) log.debug("Stopping stream for {}", listenStreamName);
 		transcoder.stop();
 		rtpStreamReceiver.stop();
-		log.debug("Stopped RTP Stream Receiver for {}", listenStreamName);
+		if (log.isDebugEnabled()) log.debug("Stopped RTP Stream Receiver for {}", listenStreamName);
 		if (audioBroadcastStream != null) {
 			audioBroadcastStream.stop();
-			log.debug("Stopped audioBroadcastStream for {}", listenStreamName);
+			if (log.isDebugEnabled()) log.debug("Stopped audioBroadcastStream for {}", listenStreamName);
 			audioBroadcastStream.close();
-		    log.debug("Closed audioBroadcastStream for {}", listenStreamName);
+		    if (log.isDebugEnabled()) log.debug("Closed audioBroadcastStream for {}", listenStreamName);
 		} else
-			log.debug("audioBroadcastStream is null, couldn't stop");
-	    log.debug("Stream(s) stopped");
+			if (log.isDebugEnabled()) log.debug("audioBroadcastStream is null, couldn't stop");
+	    if (log.isDebugEnabled()) log.debug("Stream(s) stopped");
 	}
 	
 	public void start() {
-		log.debug("started publishing stream in " + scope.getName());
+		if (log.isDebugEnabled()) log.debug("started publishing stream in " + scope.getName());
 		audioBroadcastStream = new AudioBroadcastStream(listenStreamName);
 		audioBroadcastStream.setPublishedName(listenStreamName);
 		audioBroadcastStream.setScope(scope);

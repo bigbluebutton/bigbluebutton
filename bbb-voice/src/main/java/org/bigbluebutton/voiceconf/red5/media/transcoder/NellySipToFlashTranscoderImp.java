@@ -108,7 +108,7 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
 	@Override
 	public void transcode(byte[] audioData) { 
 		if (audioData.length != ULAW_AUDIO_LENGTH) {
-			log.warn("Received corrupt audio. Got {}, expected {}.", audioData.length, ULAW_AUDIO_LENGTH);
+			if (log.isWarnEnabled()) log.warn("Received corrupt audio. Got {}, expected {}.", audioData.length, ULAW_AUDIO_LENGTH);
 			return;
 		}
 		
@@ -135,7 +135,8 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
 				if (pendingMessages > 25) {   
 					// Message backed up probably due to slow connection to client (25 messages * 20ms ptime = 500ms audio)
 					sendPacket = false;
-					log.info("Dropping packet. Connection {} congested with {} pending messages (~500ms worth of audio) .", conn.getClient().getId(), pendingMessages);
+					if (log.isInfoEnabled())
+						log.info("Dropping packet. Connection {} congested with {} pending messages (~500ms worth of audio) .", conn.getClient().getId(), pendingMessages);
 				}    					
 			} 
 				
