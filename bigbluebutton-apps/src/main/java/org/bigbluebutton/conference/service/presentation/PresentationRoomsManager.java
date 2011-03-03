@@ -320,7 +320,9 @@ public class PresentationRoomsManager {
     ;       viewPortHeight  : the view port height
     ;
     ; IMPLEMENTATION
-    ;
+    ;		call 'getCurrentPresenterPosition' from PresentationRoom
+    ;		to get presenter's view port information then return the 
+    ;		ArrayList of presenter's view port information.  
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 2011.01.27                        Full Screen Presentation window

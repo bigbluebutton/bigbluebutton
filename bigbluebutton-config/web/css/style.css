@@ -1,5 +1,19 @@
 @charset "UTF-8";
 
+#coralcea{
+    float: left;
+    margin-left: 20px;
+}
+#carleton{
+    float: left;
+}
+#_logo{
+    float: left;
+    height: 415px;
+    margin-left: 20px;
+    width: 230px;
+}
+
 body {
 	margin: 0;
 	padding: 0;
@@ -214,13 +228,14 @@ a:active{
 	margin: 0 auto;
 }
 #content {
-	width: 800px;
 	height:auto;
 	min-height: 400px;
 	margin: 0 auto;
 	/*padding: 20px 20px;*/
 	margin-top:32px;
 	/*border:solid #FF0000 1px;*/
+    min-height: 400px;
+    width: 1280px;
 }
 
 #content_api {
@@ -247,6 +262,8 @@ a:active{
 	height:200px;
 	/*border:solid #666 1px;*/
 	float:right;
+    margin-right: 220px;
+    
 }
 
 #about{
@@ -265,6 +282,7 @@ a:active{
 	/*border:solid #666 1px;*/
 	margin-top:15px;
 	float:right;
+    margin-right: 220px;
 	
 }
 

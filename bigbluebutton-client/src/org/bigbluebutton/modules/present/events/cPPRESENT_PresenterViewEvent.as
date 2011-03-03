@@ -35,6 +35,8 @@ package org.bigbluebutton.modules.present.events
         public static const UPDATE_PRESENTER_VIEW_DIMENSION:String  = "UPDATE_PRESENTER_VIEW_DIMENSION";
         public static const SHARE_PRESENTER_VIEW_DIMENSION:String   = "SHARE_PRESENTER_VIEW_DIMENSION";
         public static const GET_PRESENTER_VIEW_DIMENSION:String     = "GET_PRESENTER_VIEW_DIMENSION";
+		public static const NEW_PRESENTATION_LOAD:String     = "NEW_PRESENTATION_LOAD";
+		public static const REFRESH_SLIDE:String     = "REFRESH_SLIDE";
         
         public var curSlideWidth:Number;
         public var curSlideHeight:Number;

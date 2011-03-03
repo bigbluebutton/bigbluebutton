@@ -63,30 +63,27 @@ package org.bigbluebutton.modules.phone.managers
 			joinVoice(e.useMicrophone);
 		}
 		
+		/*****************************************************************************
+		 ;  joinVoice
+		 ;----------------------------------------------------------------------------
+		 ; DESCRIPTION
+		 ;   This routine is use to handle participant join the voice conferece.
+		 ;
+		 ; RETURNS : N/A
+		 ;
+		 ; INTERFACE NOTES
+		 ;   INPUT
+		 ;           - autoJoint : Boolean the status
+		 ;
+		 ; IMPLEMENTATION
+		 ;  	call startSIPApplet to execute bbb SIP applet
+		 ;
+		 ; HISTORY
+		 ; __date__ :        PTS:  			Description
+		 ; 2011-3-02                       Improve VoIP
+		 ;
+		 ******************************************************************************/
 		public function joinVoice(autoJoin:Boolean):void {
-			//<REALWAT>
-			/*var dispatcher:Dispatcher = new Dispatcher;
-			var joinInfoEvent:cPHONE_JoinVoiceConfInfoEvent	= new cPHONE_JoinVoiceConfInfoEvent
-				(cPHONE_JoinVoiceConfInfoEvent.SEND_CONFERENCE_INFO);
-			
-			var voiceConfId:String	= attributes.webvoiceconf;
-			var domainName:String	= attributes.uri.split("/")[2];
-			
-			if (null == dispatcher){
-				LogUtil.error("Creating dispatcher object when join voice is null");
-				return;
-			}
-			if(null == joinInfoEvent){
-				LogUtil.error("Creating cPHONE_JoinVoiceConfInfoEvent " +
-					"when join voice is null");
-				return;
-			}
-			joinInfoEvent.voiceConfId	= voiceConfId;
-			joinInfoEvent.domainName	= domainName;
-			dispatcher.dispatchEvent(joinInfoEvent);*/
-			//Alert.show('voiceConfId: ' + voiceConfId  + ', domainName: ' + domainName);
-			//</REALWAT>
-			//<REALWAT>
 			var voiceConfId:String	= attributes.webvoiceconf;
 			var domainName:String	= attributes.uri.split("/")[2];
 			var uname:String		= attributes.username;
@@ -97,11 +94,7 @@ package org.bigbluebutton.modules.phone.managers
 				ExternalInterface.call("startSIPApplet", domainName, voiceConfId, uname);
 			}
             onCall = true ;
-			//</REALWAT>
-			/*setupMic(autoJoin);
-			var uid:String = String( Math.floor( new Date().getTime() ) );
-			connectionManager.connect(uid, attributes.externUserID, attributes.username, attributes.room, attributes.uri);*/
-		}		
+		}/** END Function: joinVoice */
 				
 		public function dialConference():void {
 			LogUtil.debug("Dialing...." + attributes.webvoiceconf + "...." + attributes.externUserID);
@@ -117,16 +110,27 @@ package org.bigbluebutton.modules.phone.managers
 			onCall = true;
 		}
 		
+		/*****************************************************************************
+		 ;  hangup
+		 ;----------------------------------------------------------------------------
+		 ; DESCRIPTION
+		 ;   This routine is use to handle participant hangup the vice conference
+		 ;
+		 ; RETURNS : N/A
+		 ;
+		 ; INTERFACE NOTES : N/A
+		 ;
+		 ; IMPLEMENTATION
+		 ;  	call startSIPApplet to stop bbb SIP applet
+		 ;
+		 ; HISTORY
+		 ; __date__ :        PTS:  			Description
+		 ; 2011-3-02                       Improve VoIP
+		 ;
+		 ******************************************************************************/
 		public function hangup():void {
 			LogUtil.debug("PhoneManager hangup");
-			/*if (onCall) {
-				LogUtil.debug("PM OnCall");
-				streamManager.stopStreams();
-				connectionManager.doHangUp();
-				LogUtil.debug("PM hangup::doHangUp");
-				onCall = false;
-			}*/
-            if (onCall){
+            if (true == onCall){
                 if (true == ExternalInterface.available) 
                 {
                     // call external javascript 'handleNewUser'
@@ -134,6 +138,6 @@ package org.bigbluebutton.modules.phone.managers
                 }
                 onCall = false ;
             }
-		}
+		}/** END Function: hangup */
 	}
 }
