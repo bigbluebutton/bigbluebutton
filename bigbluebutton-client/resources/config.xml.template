@@ -45,6 +45,7 @@
 			dependsOn="ViewersModule"
 			videoQuality="70"
 			presenterShareOnly="false"
+			resolutions="160x120,320x240,640x480,1280x720"
 		/>
 		
 		<module name="WhiteboardModule" url="WhiteboardModule.swf?v=VERSION" 

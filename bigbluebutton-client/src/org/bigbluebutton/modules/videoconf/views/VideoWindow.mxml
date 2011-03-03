@@ -40,6 +40,8 @@
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
 		
+			public var resolutions:Array = new Array("320x240", "640x480");
+			
 			private var video:Video;
 			private var ns:NetStream;
 			private var videoHolder:UIComponent;
@@ -47,12 +49,10 @@
 			private var videoHeight:Number;
 			private var videoWidth:Number;
 
-			private var _maxWidth:int = 800;
-			private var _maxHeight:int = 800;
-			private var _minWidth:int = 60;
-			private var _minHeight:int = 60;
 			private var _bResizePossible:Boolean = true;
 			private var _nAspectRatio:Number = 1;
+			private var _nSavedVideoWidth:Number;
+			private var _nSavedVideoHeight:Number;
 							
 			private var _xPosition:int;
 			private var _yPosition:int;
@@ -63,12 +63,19 @@
 				videoHolder = new UIComponent();
 				videoHolder.addChild(video);
 				this.addChild(videoHolder);
-				maximizeRestoreBtn.visible = false;
-				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
+				maximizeRestoreBtn.visible = true;
+				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEvent);
 				addEventListener(MDIWindowEvent.RESIZE, onResizeEvent);
+				addEventListener(MDIWindowEvent.MAXIMIZE, onMaximize);
+				addEventListener(MDIWindowEvent.RESTORE, onRestore);
 				addEventListener(MDIWindowEvent.CLOSE, onCloseEvent);
 				
 				globalDispatcher = new Dispatcher();
+
+				this.minWidth = 166;
+				this.minHeight = 149;
+				maximizeRestoreBtn.visible = true;
+				this.resizable = true;
 			}
 			
 			private function onCloseEvent(event:MDIWindowEvent = null):void {
@@ -100,29 +107,28 @@
 			}
 			
 			private function setVideoResolution(stream:String):void{
-				var resString:String = stream.substr(0, 7);
-				switch(resString){
-					case "320x240":
-						this.width = 320;
-						this.height = 240;
-						_nAspectRatio = (this.width/this.height)
-						break;
-					case "640x480":
-						this.width = 640;
-						this.height = 480;
+				for each (var resStr:String in resolutions){
+					LogUtil.debug("VideoWindow::setVideoResolution testing " + resStr);
+					if (resStr == stream.substr(0, resStr.length)) {
+						var res:Array = resStr.split( "x" );
+						this.width = Number(res[0]);
+						this.height = Number(res[1]);
+						LogUtil.debug("VideoWindow::setVideoResolution width=" + this.width + " height=" + this.height);
 						_nAspectRatio = (this.width/this.height);
 						break;
+					}
 				}
 			}
 			
 			private function onAsyncError(e:AsyncErrorEvent):void{
-				LogUtil.debug("VIdeoWindow::asyncerror " + e.toString());
+				LogUtil.debug("VideoWindow::asyncerror " + e.toString());
 			}
 			
 			public function onMetaData(info:Object):void{
 				LogUtil.debug("metadata: width=" + info.width + " height=" + info.height);
-				videoHolder.width = info.width;
-				videoHolder.height = info.height;
+				video.width = info.width;
+				video.height = info.height;
+				adjustWindowSize();
 			}
 			
 			public function getPrefferedPosition():String{
@@ -154,41 +160,75 @@
 				this.close();
 			}
 			
-			public function onResizeEndEvent(event:MDIWindowEvent):void {
-				// make sure the height of the window is correct
-				if ( video.height + 29 > this.height) {
-					this.height = video.height + 29;
-				} 
-			}
-					
-			public function onResizeEvent(event:Event):void {
-				// test if we are already resizing
-				if (_bResizePossible) {
-					_bResizePossible = false;
+			private function adjustWindowSize():void{
+				videoHolder.width = video.width;
+				videoHolder.height = video.height;
+				this.width = video.width + 6;
+				this.height = video.height + 29; 
+			}			
+			
+			public function onResizeEvent(event:MDIWindowEvent):void {
+				if (event.type == MDIWindowEvent.RESIZE) {
+					// test if we are already resizing
+					if (_bResizePossible) {
+						_bResizePossible = false;
+						resizeWindow();
+						_bResizePossible = true;
+					}
+				} else if (event.type == MDIWindowEvent.RESIZE_END) {
+					if (this.width > this.parent.width) {
+						this.width = this.parent.width;
+						this.height = Math.floor((this.width - 6) / _nAspectRatio) + 29;
+					}
+					if (this.height > this.parent.height) {
+						this.height = this.parent.height;
+						this.width = (this.height - 29) * _nAspectRatio + 6;
+					}
+	
+					// make sure the size of the window is correct
 					resizeWindow();
-					_bResizePossible = true;
 				}
 			}
-
-			private function resizeWindow():void {
-				if (this.width > _maxWidth) {
-					this.width = _maxWidth;
-				}
-				if (this.height > _maxHeight) {
-					this.height = _maxHeight;
-				}
-				if (this.height < _minHeight) {
-					this.height = _minHeight;
-				}
-				if (this.width < _minWidth) {
-					this.width = _minWidth;
-				}
+			
+			private function resizeWindow():void {			
 				// recalc size of video based on the width and height of the window
-				video.width = this.width - 6;
-				// make sure the video has a correct aspectratio to avoid tall or flat faces
-				video.height  = Math.floor (video.width / _nAspectRatio);
-				this.height = video.height + 29;
+				// make sure the video has a correct aspect ratio to avoid tall or flat faces
+				if (this.width == video.width + 6) {
+					video.height = this.height - 29;
+					video.width = video.height * _nAspectRatio;
+				} else {
+					video.width = this.width - 6;
+					video.height  = Math.floor (video.width / _nAspectRatio);
+				}			
+				adjustWindowSize();
+			}
+			
+			public function onMaximize(event:MDIWindowEvent):void {
+				_nSavedVideoWidth = video.width;
+				_nSavedVideoHeight = video.height;
+			
+			
+				var tmpWidth:Number = this.parent.width - 6;
+				var tmpHeight:Number = this.parent.height - 29;
+
+				if (tmpWidth > tmpHeight * _nAspectRatio)
+					tmpWidth = tmpHeight * _nAspectRatio;
+				if (tmpHeight > Math.floor(tmpWidth / _nAspectRatio))
+					tmpHeight = Math.floor(tmpWidth / _nAspectRatio);
 				
+				video.width = tmpWidth;
+				video.height = tmpHeight;
+				
+				video.x = Math.floor ((this.parent.width - 6 - video.width) / 2);
+				video.y = Math.floor ((this.parent.height - 29 - video.height) / 2);
+			}
+			
+			public function onRestore(event:MDIWindowEvent):void {
+				video.x = 0;
+				video.y = 0;
+				video.width = _nSavedVideoWidth;
+				video.height = _nSavedVideoHeight;
+				adjustWindowSize();
 			}
 			
 		]]>
