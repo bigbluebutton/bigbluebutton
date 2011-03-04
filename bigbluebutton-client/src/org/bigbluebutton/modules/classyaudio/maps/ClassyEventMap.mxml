@@ -8,6 +8,7 @@
 			import org.bigbluebutton.modules.classyaudio.events.CallConnectedEvent;
 			import org.bigbluebutton.modules.classyaudio.events.CallDisconnectedEvent;
 			import org.bigbluebutton.modules.classyaudio.events.ConnectionStatusEvent;
+			import org.bigbluebutton.modules.classyaudio.events.PushToTalkEvent;
 			import org.bigbluebutton.modules.classyaudio.events.StartClassAudioEvent;
 			import org.bigbluebutton.modules.classyaudio.events.StopClassAudioEvent;
 			import org.bigbluebutton.modules.classyaudio.managers.ClassyAudioManager;
@@ -40,11 +41,19 @@
 	</EventHandlers>
 	
 	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" >
-		<MethodInvoker generator="{ClassyAudioManager}" method="switchToPresenter" arguments="{MadePresenterEvent}" />	
+		<MethodInvoker generator="{ClassyAudioManager}" method="switchToPresenter" arguments="{event}" />	
 	</EventHandlers>
 	
 	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">
-		<MethodInvoker generator="{ClassyAudioManager}" method="switchToViewer" arguments="{MadePresenterEvent}" />
+		<MethodInvoker generator="{ClassyAudioManager}" method="switchToViewer" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{PushToTalkEvent.BUTTON_PUSHED}" >
+		<MethodInvoker generator="{ClassyAudioManager}" method="buttonPushed" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{PushToTalkEvent.BUTTON_RELEASED}" >
+		<MethodInvoker generator="{ClassyAudioManager}" method="buttonReleased" arguments="{event}" />
 	</EventHandlers>
 	
 </EventMap>

@@ -81,7 +81,12 @@ $Id: $
 				return _attributes.voicebridge;
 			}
 			
-			public function start(attributes:Object):void {	
+			public function get pushToTalkEnabled():Boolean{
+				if (_attributes.pushToTalkEnabled == "true") return true;
+				else return false;
+			}
+			
+			public function start(attributes:Object):void {
 				_attributes = attributes;	
 				
 				var startEvent:StartClassAudioEvent = new StartClassAudioEvent();

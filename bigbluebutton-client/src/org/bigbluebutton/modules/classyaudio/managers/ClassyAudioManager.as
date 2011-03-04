@@ -1,8 +1,13 @@
 package org.bigbluebutton.modules.classyaudio.managers
 {
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.common.events.ToolbarButtonEvent;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.modules.classyaudio.events.CallConnectedEvent;
+	import org.bigbluebutton.modules.classyaudio.events.PushToTalkEvent;
+	import org.bigbluebutton.modules.classyaudio.views.PushToTalkButton;
 
 	public class ClassyAudioManager
 	{
@@ -11,8 +16,11 @@ package org.bigbluebutton.modules.classyaudio.managers
 		private var onCall:Boolean = false;
 		private var attributes:Object;
 		
+		private var dispatcher:Dispatcher;
+		
 		public function ClassyAudioManager()
 		{
+			dispatcher = new Dispatcher();
 			connectionManager = new ConnectionManager();
 			streamManager = new StreamManager();
 		}
@@ -20,6 +28,8 @@ package org.bigbluebutton.modules.classyaudio.managers
 		public function setAttributes(attributes:Object):void{
 			this.attributes = attributes;
 			joinVoice();
+			
+			if (attributes.pushToTalkEnabled == "true") enablePushToTalkButton();
 		}
 		
 		public function stopModule():void{
@@ -65,11 +75,25 @@ package org.bigbluebutton.modules.classyaudio.managers
 		}
 	
 		public function switchToPresenter(e:MadePresenterEvent):void{
-			streamManager.mute();
+			streamManager.unmute();
 		}
 		
 		public function switchToViewer(e:MadePresenterEvent):void{
+			streamManager.mute();
+		}
+		
+		public function buttonPushed(e:PushToTalkEvent):void{
 			streamManager.unmute();
+		}
+		
+		public function buttonReleased(e:PushToTalkEvent):void{
+			streamManager.mute();
+		}
+		
+		private function enablePushToTalkButton():void{
+			var e:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
+			e.button = new PushToTalkButton();
+			dispatcher.dispatchEvent(e);
 		}
 	}
 }
