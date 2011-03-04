@@ -115,9 +115,12 @@ package org.bigbluebutton.modules.classyaudio.managers
 				
 				if(outgoingStream != null) {
 					LogUtil.debug("***** Muting the mic.");
-					outgoingStream.close();
-					outgoingStream = null;
+					//outgoingStream.close();
+					//outgoingStream = null;
+					//outgoingStream.attachAudio(null);
 					muted = true;
+					
+					mic.setSilenceLevel(100, 20000);
 				}
 			}
 		}
@@ -125,17 +128,19 @@ package org.bigbluebutton.modules.classyaudio.managers
 		public function unmute():void {
 			if (muted) {
 				LogUtil.debug("***** UNMuting the mic.");
-				outgoingStream = new NetStream(connection);
-				outgoingStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
-				outgoingStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);		
-				setupMicrophone();
-				outgoingStream.attachAudio(mic);
-				outgoingStream.publish(publishName, "live"); 
+				//outgoingStream = new NetStream(connection);
+				//outgoingStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
+				//outgoingStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);		
+				//setupMicrophone();
+				//outgoingStream.attachAudio(mic);
+				//outgoingStream.publish(publishName, "live"); 
 			
-				var custom_obj:Object = new Object();
-				custom_obj.onPlayStatus = playStatus;
-				outgoingStream.client = custom_obj;
+				//var custom_obj:Object = new Object();
+				//custom_obj.onPlayStatus = playStatus;
+				//outgoingStream.client = custom_obj;
 				muted = false;				
+				
+				mic.setSilenceLevel(0, 20000);
 			}
 		}
 								
