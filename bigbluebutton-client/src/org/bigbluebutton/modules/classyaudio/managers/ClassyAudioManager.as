@@ -1,6 +1,7 @@
 package org.bigbluebutton.modules.classyaudio.managers
 {
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.modules.classyaudio.events.CallConnectedEvent;
 
 	public class ClassyAudioManager
@@ -61,6 +62,14 @@ package org.bigbluebutton.modules.classyaudio.managers
 		
 		private function setupConnection():void {
 			streamManager.setConnection(connectionManager.getConnection());
+		}
+	
+		public function switchToPresenter(e:MadePresenterEvent):void{
+			streamManager.mute();
+		}
+		
+		public function switchToViewer(e:MadePresenterEvent):void{
+			streamManager.unmute();
 		}
 	}
 }
