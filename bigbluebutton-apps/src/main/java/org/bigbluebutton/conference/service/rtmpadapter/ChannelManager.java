@@ -66,7 +66,7 @@ public class ChannelManager implements Runnable {
 	public void run(){
 		while(true){
                 	jedisSub = new Jedis("localhost", 6379, 0);
-                	jedisSub.set("fooSub", "barSub");
+                	jedisSub.set("fooSub", "barSub"); //If I remove this before pubsub, jedis will throw an exception.
                 	log.info("Subscribing to Redis");
                 	pubSubListener = new PubSubListener(this);
                 	jedisSub.psubscribe(pubSubListener, "bigbluebutton:*");
