@@ -44,6 +44,7 @@
     <module application="src/BigBlueButton.mxml" destPath="WhiteboardModule.swf" optimize="true" sourcePath="src/WhiteboardModule.mxml"/>
     <module application="src/BigBlueButton.mxml" destPath="BreakoutModule.swf" optimize="true" sourcePath="src/BreakoutModule.mxml"/>
     <module application="src/BigBlueButton.mxml" destPath="SharedNotesModule.swf" optimize="true" sourcePath="src/SharedNotesModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="ClassroomAudioModule.swf" optimize="true" sourcePath="src/ClassroomAudioModule.mxml"/>
   </modules>
   <buildCSSFiles>
     <buildCSSFileEntry destPath="bin" sourcePath="src/branding/css/logo_basic.css"/>
