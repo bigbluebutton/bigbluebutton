@@ -46,6 +46,8 @@ package org.bigbluebutton.modules.classyaudio.managers
 		private var muted:Boolean			    = false;
 		private var audioCodec:String = "SPEEX";
 		private var dispatcher:Dispatcher;
+		
+		private var gain:Number = 60; //default gain for bbb
 					
 		public function StreamManager()
 		{			
@@ -121,6 +123,9 @@ package org.bigbluebutton.modules.classyaudio.managers
 					muted = true;
 					
 					mic.setSilenceLevel(100, 0);
+					//Save the gain for when the user becomes unmuted
+					this.gain = mic.gain;
+					mic.gain = 0;
 				}
 			}
 		}
@@ -141,6 +146,8 @@ package org.bigbluebutton.modules.classyaudio.managers
 				muted = false;				
 				
 				mic.setSilenceLevel(0, 20000);
+				//Load the saved gain.
+				mic.gain = this.gain;
 			}
 		}
 								
