@@ -2,7 +2,8 @@
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="init()" 
 		   xmlns:mate="http://mate.asfusion.com/"
 		   mouseDown="onMouseDown(event)"
-		   label="Push To Talk" emphasized="true">
+		   label="Push To Talk" emphasized="true"
+		   implements="org.bigbluebutton.common.IBbbToolbarComponent">
 	
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="switchToPresenter" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="switchToViewer" />
@@ -14,6 +15,7 @@
 			import mx.core.Application;
 			
 			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.main.views.MainToolbar;
 			import org.bigbluebutton.modules.classyaudio.events.PushToTalkEvent;
 			
 			private var dispatcher:Dispatcher;
@@ -38,6 +40,10 @@
 			private function onMouseUp(e:MouseEvent):void{
 				Application.application.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 				dispatcher.dispatchEvent(new PushToTalkEvent(PushToTalkEvent.BUTTON_RELEASED));
+			}
+			
+			public function getAlignment():String{
+				return MainToolbar.ALIGN_RIGHT;
 			}
 		]]>
 	</mx:Script>

@@ -23,15 +23,21 @@
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="onCreationComplete()" implements="org.bigbluebutton.common.IBigBlueButtonModule" xmlns:maps="org.bigbluebutton.modules.dynamicinfo.maps.*" xmlns:views="org.bigbluebutton.modules.dynamicinfo.views.*">
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.common.LogUtil;
 			import com.asfusion.mate.events.Dispatcher;
-			import org.bigbluebutton.common.events.CloseWindowEvent;
-			import org.bigbluebutton.common.events.OpenWindowEvent;
-			import org.bigbluebutton.common.events.ToolbarButtonEvent;
+			
 			import mx.controls.Button;
 			import mx.controls.ComboBox;
 			import mx.controls.Label;
 			import mx.core.UIComponent;
+			
+			import org.bigbluebutton.common.IBbbToolbarComponent;
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.events.CloseWindowEvent;
+			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.common.events.ToolbarButtonEvent;
+			import org.bigbluebutton.modules.dynamicinfo.DynamicInfoButton;
+			import org.bigbluebutton.modules.dynamicinfo.DynamicInfoComboBox;
+			import org.bigbluebutton.modules.dynamicinfo.DynamicInfoLabel;
 			
 			private var _moduleName:String = "Dynamic Info Module";			
 			private var _attributes:Object;
@@ -135,7 +141,7 @@
 					if (cmp != null) {
 						cmp.height = 22;
 						var evt:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
-						evt.button = cmp;
+						evt.button = cmp as IBbbToolbarComponent;
 						globalDispatcher.dispatchEvent(evt);
 					}
 				}
@@ -143,7 +149,7 @@
 
 			private function createButton(compXML:XML):UIComponent {
 				var txt:String = compXML.@label;
-				var btn:Button = new Button();
+				var btn:Button = new DynamicInfoButton();
 				btn.id = txt;
 				btn.label = txt;
 				btn.visible = true;
@@ -157,13 +163,13 @@
 				for each(var value:XML in values) {
 					strings.push(value);
 				}
-				var cmb:ComboBox = new ComboBox();
+				var cmb:ComboBox = new DynamicInfoComboBox();
 				cmb.dataProvider = strings;
 				return cmb;
 			}
 
 			private function createLabel(compXML:XML):UIComponent {
-				var label:Label = new Label();
+				var label:Label = new DynamicInfoLabel();
 				if (compXML.child("htmlLabel").length() == 1) {
 					label.htmlText = compXML.htmlLabel;
 				} else if (compXML.@label != null) {

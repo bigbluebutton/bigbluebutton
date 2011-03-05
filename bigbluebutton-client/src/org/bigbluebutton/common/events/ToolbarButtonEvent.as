@@ -20,8 +20,8 @@ package org.bigbluebutton.common.events
 {
 	import flash.events.Event;
 	
-	import mx.core.UIComponent;
-
+	import org.bigbluebutton.common.IBbbToolbarComponent;
+	
 	/**
 	 * Allows you to add a button to the top toolbar of bbb-client. Dispatch an instance of ToolbarButtonEvent with the
 	 * reference to the button attached.
@@ -33,9 +33,9 @@ package org.bigbluebutton.common.events
 		public static const REMOVE:String = "Remove Toolbar Button Event";
 		
 		/**
-		 * The button to add to the toolbar. 
+		 * The ui component to add to the toolbar. 
 		 */		
-		public var button:UIComponent;
+		public var button:IBbbToolbarComponent;
 		
 		public function ToolbarButtonEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
