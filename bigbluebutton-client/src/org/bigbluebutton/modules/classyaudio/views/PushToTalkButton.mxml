@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="init()" 
-		   xmlns:mate="http://mate.asfusion.com/" toggle="true" 
-		   click="onClick(event)"
+		   xmlns:mate="http://mate.asfusion.com/"
+		   mouseDown="onMouseDown(event)"
 		   label="Push To Talk" emphasized="true">
 	
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="switchToPresenter" />
@@ -10,6 +10,8 @@
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
+			
+			import mx.core.Application;
 			
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.modules.classyaudio.events.PushToTalkEvent;
@@ -21,19 +23,21 @@
 			}
 			
 			private function switchToPresenter(e:MadePresenterEvent):void{
-				this.visible = false;
+				//this.visible = false;
 			}
 			
 			private function switchToViewer(e:MadePresenterEvent):void{
 				this.visible = true;
 			}
 			
-			private function onClick(e:MouseEvent):void{
-				if (this.selected){
-					dispatcher.dispatchEvent(new PushToTalkEvent(PushToTalkEvent.BUTTON_PUSHED));
-				} else{
-					dispatcher.dispatchEvent(new PushToTalkEvent(PushToTalkEvent.BUTTON_RELEASED));
-				}
+			private function onMouseDown(e:MouseEvent):void{
+				dispatcher.dispatchEvent(new PushToTalkEvent(PushToTalkEvent.BUTTON_PUSHED));
+				Application.application.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+			}
+			
+			private function onMouseUp(e:MouseEvent):void{
+				Application.application.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+				dispatcher.dispatchEvent(new PushToTalkEvent(PushToTalkEvent.BUTTON_RELEASED));
 			}
 		]]>
 	</mx:Script>
