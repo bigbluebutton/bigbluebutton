@@ -72,7 +72,7 @@ package org.bigbluebutton.modules.classyaudio.managers
 		private function setupMicrophone():void {
 			mic.setUseEchoSuppression(true);
 			mic.setLoopBack(false);
-			mic.setSilenceLevel(0,20000);
+			//mic.setSilenceLevel(0,20000);
 			if (audioCodec == "SPEEX") {
 				mic.encodeQuality = 6;
 				mic.codec = SoundCodec.SPEEX;
@@ -84,7 +84,7 @@ package org.bigbluebutton.modules.classyaudio.managers
 				mic.rate = 8;
 				LogUtil.debug("codec=NELLYMOSER,rate=8");
 			}			
-			mic.gain = 60;			
+			//mic.gain = 60;			
 		}
 		
 		public function initWithNoMicrophone(): void {
