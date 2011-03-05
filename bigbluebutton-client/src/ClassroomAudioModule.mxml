@@ -24,6 +24,19 @@ $Id: $
 		   xmlns:maps="org.bigbluebutton.modules.classyaudio.maps.*"
 		   implements="org.bigbluebutton.common.IBigBlueButtonModule">
 	
+	<mx:Style>
+		PushToTalkButton {
+			skin: ClassReference("org.bigbluebutton.modules.classyaudio.views.PushButtonSkin");
+			upSkin: ClassReference("mx.skins.halo.ButtonSkin");
+			overSkin: ClassReference("mx.skins.halo.ButtonSkin");
+			disabledSkin: ClassReference("mx.skins.halo.ButtonSkin");
+			selectedUpSkin: ClassReference("mx.skins.halo.ButtonSkin");
+			selectedOverSkin: ClassReference("mx.skins.halo.ButtonSkin");
+			selectedDownSkin: ClassReference("mx.skins.halo.ButtonSkin");
+			selectedDisabledSkin: ClassReference("mx.skins.halo.ButtonSkin");
+		}
+	</mx:Style> 
+	
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;

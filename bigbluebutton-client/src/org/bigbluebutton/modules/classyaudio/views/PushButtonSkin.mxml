@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:UIComponent xmlns:mx="http://www.adobe.com/2006/mxml">
+	
+	<mx:Script>
+		<![CDATA[      
+			import flash.filters.DropShadowFilter;
+			
+			// Define a drop shadow for the over and down states.
+			[Bindable]
+			private var myFilter:DropShadowFilter = new DropShadowFilter(0);
+			
+			// Define a private var for line weight.
+			private var _lineWeight:Number = 1;
+			
+			// Define public setter and getter for line weight.
+			public function get lineWeight():Number
+			{
+				return _lineWeight;
+			}
+			
+			public function set lineWeight(value:Number):void
+			{
+				_lineWeight = value;
+				invalidateDisplayList();
+			}
+			
+			// Define a private var for the fill color.
+			private var _rectFill:uint = 0xE6EEEE;
+			
+			// Define public setter and getter for fill color.
+			public function get rectFill():uint
+			{
+				return _rectFill;
+			}
+			
+			public function set rectFill(value:uint):void
+			{
+				_rectFill = value;
+				invalidateDisplayList();
+			}
+			
+			override protected function updateDisplayList(unscaledWidth:Number, 
+														  unscaledHeight:Number):void
+			{
+				graphics.lineStyle(lineWeight, 0x0066FF);
+				graphics.beginFill(rectFill, 0.50);
+				graphics.drawRoundRect(0, 0, unscaledWidth, unscaledHeight, 10, 10);
+				filters = [myFilter];
+			}                      
+		]]>
+	</mx:Script>
+	
+	<mx:states>
+		<mx:State name="down">
+			<mx:SetProperty target="{myFilter}" 
+							name="inner" value="true"/>
+			<mx:SetProperty target="{myFilter}" 
+							name="distance" value="2"/>
+		</mx:State>
+	</mx:states>    
+	
+</mx:UIComponent>
