@@ -41,7 +41,7 @@ package org.bigbluebutton.modules.classyaudio.managers
 		public function joinVoice():void {
 			//Start listening
 			//streamManager.initWithNoMicrophone();
-			streamManager.initMicrophone();
+			//streamManager.initMicrophone();
 			
 			var uid:String = String( Math.floor( new Date().getTime() ) );
 			connectionManager.connect(uid, attributes.externUserID, attributes.username, attributes.room, attributes.uri);
@@ -61,7 +61,7 @@ package org.bigbluebutton.modules.classyaudio.managers
 			onCall = true;
 			
 			//Mute if the user is not the presenter at start
-			muteIfNotPresenter();
+			//muteIfNotPresenter();
 		}
 		
 		public function hangup():void {
