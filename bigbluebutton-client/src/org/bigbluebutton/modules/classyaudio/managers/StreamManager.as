@@ -114,20 +114,18 @@ package org.bigbluebutton.modules.classyaudio.managers
 		
 		public function mute():void {
 			if(!muted) {
-				
-				if(outgoingStream != null) {
+				/*if(outgoingStream != null) {
 					LogUtil.debug("***** Muting the mic.");
 					//outgoingStream.close();
 					//outgoingStream = null;
 					//outgoingStream.attachAudio(null);
-					muted = true;
-					
-					mic.setSilenceLevel(100, 0);
-					//Save the gain for when the user becomes unmuted
-					this.gain = mic.gain;
-					mic.gain = 0;
-					outgoingStream.attachAudio(null);
-				}
+				}*/
+				
+				muted = true;
+				mic.setSilenceLevel(100, 0);
+				//Save the gain for when the user becomes unmuted
+				this.gain = mic.gain;
+				mic.gain = 0;
 			}
 		}
 		
@@ -149,7 +147,6 @@ package org.bigbluebutton.modules.classyaudio.managers
 				mic.setSilenceLevel(0, 20000);
 				//Load the saved gain.
 				mic.gain = this.gain;
-				outgoingStream.attachAudio(mic);
 			}
 		}
 								
