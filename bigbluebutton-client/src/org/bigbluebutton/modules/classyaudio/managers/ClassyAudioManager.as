@@ -106,6 +106,8 @@ package org.bigbluebutton.modules.classyaudio.managers
 			if (presenter != null){
 				if (presenter.userid != attributes.userid){
 					streamManager.mute();
+				} else if (presenter.userid == attributes.userid){
+					streamManager.unmute();
 				}
 			}
 		}

@@ -43,7 +43,6 @@ package org.bigbluebutton.modules.classyaudio.managers
 		private var publishName:String          = null;
 		private var mic:Microphone 				= null;
 		private var isCallConnected:Boolean			= false;
-		private var muted:Boolean			    = false;
 		private var audioCodec:String = "SPEEX";
 		private var dispatcher:Dispatcher;
 		
@@ -113,41 +112,36 @@ package org.bigbluebutton.modules.classyaudio.managers
 		}
 		
 		public function mute():void {
-			if(!muted) {
-				/*if(outgoingStream != null) {
-					LogUtil.debug("***** Muting the mic.");
-					//outgoingStream.close();
-					//outgoingStream = null;
-					//outgoingStream.attachAudio(null);
-				}*/
-				
-				muted = true;
-				mic.setSilenceLevel(100, 0);
-				//Save the gain for when the user becomes unmuted
-				this.gain = mic.gain;
-				mic.gain = 0;
-			}
+			/*if(outgoingStream != null) {
+				LogUtil.debug("***** Muting the mic.");
+				//outgoingStream.close();
+				//outgoingStream = null;
+				//outgoingStream.attachAudio(null);
+			}*/
+			
+			LogUtil.debug("***** Muting the mic.");
+			mic.setSilenceLevel(100, 0);
+			//Save the gain for when the user becomes unmuted
+			this.gain = mic.gain;
+			mic.gain = 0;
 		}
 		
 		public function unmute():void {
-			if (muted) {
-				LogUtil.debug("***** UNMuting the mic.");
-				//outgoingStream = new NetStream(connection);
-				//outgoingStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
-				//outgoingStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);		
-				//setupMicrophone();
-				//outgoingStream.attachAudio(mic);
-				//outgoingStream.publish(publishName, "live"); 
+			LogUtil.debug("***** UNMuting the mic.");
+			//outgoingStream = new NetStream(connection);
+			//outgoingStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
+			//outgoingStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);		
+			//setupMicrophone();
+			//outgoingStream.attachAudio(mic);
+			//outgoingStream.publish(publishName, "live"); 
 			
-				//var custom_obj:Object = new Object();
-				//custom_obj.onPlayStatus = playStatus;
-				//outgoingStream.client = custom_obj;
-				muted = false;				
+			//var custom_obj:Object = new Object();
+			//custom_obj.onPlayStatus = playStatus;
+			//outgoingStream.client = custom_obj;
 				
-				mic.setSilenceLevel(0, 20000);
-				//Load the saved gain.
-				mic.gain = this.gain;
-			}
+			mic.setSilenceLevel(0, 20000);
+			//Load the saved gain.
+			mic.gain = this.gain;
 		}
 								
 		public function callConnected(playStreamName:String, publishStreamName:String, codec:String):void {
