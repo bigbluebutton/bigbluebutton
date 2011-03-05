@@ -3,8 +3,10 @@ package org.bigbluebutton.modules.classyaudio.managers
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.common.UserManager;
 	import org.bigbluebutton.common.events.ToolbarButtonEvent;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
+	import org.bigbluebutton.main.model.User;
 	import org.bigbluebutton.modules.classyaudio.events.CallConnectedEvent;
 	import org.bigbluebutton.modules.classyaudio.events.PushToTalkEvent;
 	import org.bigbluebutton.modules.classyaudio.views.PushToTalkButton;
@@ -57,6 +59,9 @@ package org.bigbluebutton.modules.classyaudio.managers
 			streamManager.callConnected(event.playStreamName, event.publishStreamName, event.codec);
 			LogUtil.debug("callConnected::onCall set");
 			onCall = true;
+			
+			//Mute if the user is not the presenter at start
+			muteIfNotPresenter();
 		}
 		
 		public function hangup():void {
@@ -94,6 +99,15 @@ package org.bigbluebutton.modules.classyaudio.managers
 			var e:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
 			e.button = new PushToTalkButton();
 			dispatcher.dispatchEvent(e);
+		}
+		
+		private function muteIfNotPresenter():void{
+			var presenter:User = UserManager.getInstance().getPresenter();
+			if (presenter == null){
+				streamManager.mute();
+			} else if (presenter.userid != attributes.userid){
+				streamManager.mute();
+			}
 		}
 	}
 }
