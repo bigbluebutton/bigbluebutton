@@ -23,7 +23,7 @@
 			}
 			
 			private function switchToPresenter(e:MadePresenterEvent):void{
-				//this.visible = false;
+				this.visible = false;
 			}
 			
 			private function switchToViewer(e:MadePresenterEvent):void{
