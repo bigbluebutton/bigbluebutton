@@ -362,4 +362,6 @@
 	<target name="modules" depends="init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, compile-bbb"
                         description="Build BBB client without locales"/>		
 	<target name="cleanandmake" depends="clean-build-all" description="Build BBB client including locales"/>
+
+	<target name="build-custom" depends="init-ant-contrib, build-classroom-audio" description="Build a custom defined module only, to save time as each build takes several minutes" />
 </project>
