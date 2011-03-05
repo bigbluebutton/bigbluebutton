@@ -103,10 +103,10 @@ package org.bigbluebutton.modules.classyaudio.managers
 		
 		private function muteIfNotPresenter():void{
 			var presenter:User = UserManager.getInstance().getPresenter();
-			if (presenter == null){
-				streamManager.mute();
-			} else if (presenter.userid != attributes.userid){
-				streamManager.mute();
+			if (presenter != null){
+				if (presenter.userid != attributes.userid){
+					streamManager.mute();
+				}
 			}
 		}
 	}

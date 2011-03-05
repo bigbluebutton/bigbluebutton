@@ -120,7 +120,7 @@ package org.bigbluebutton.modules.classyaudio.managers
 					//outgoingStream.attachAudio(null);
 					muted = true;
 					
-					mic.setSilenceLevel(100, 20000);
+					mic.setSilenceLevel(100, 0);
 				}
 			}
 		}
