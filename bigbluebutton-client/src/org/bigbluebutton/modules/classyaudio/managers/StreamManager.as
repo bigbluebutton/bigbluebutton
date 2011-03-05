@@ -126,6 +126,7 @@ package org.bigbluebutton.modules.classyaudio.managers
 					//Save the gain for when the user becomes unmuted
 					this.gain = mic.gain;
 					mic.gain = 0;
+					outgoingStream.attachAudio(null);
 				}
 			}
 		}
@@ -148,6 +149,7 @@ package org.bigbluebutton.modules.classyaudio.managers
 				mic.setSilenceLevel(0, 20000);
 				//Load the saved gain.
 				mic.gain = this.gain;
+				outgoingStream.attachAudio(mic);
 			}
 		}
 								
