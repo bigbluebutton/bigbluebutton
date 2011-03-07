@@ -2,6 +2,10 @@ package org.bigbluebutton.modules.classyaudio.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
+	import flash.events.Event;
+	import flash.events.TimerEvent;
+	import flash.utils.Timer;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.UserManager;
 	import org.bigbluebutton.common.events.ToolbarButtonEvent;
@@ -61,7 +65,9 @@ package org.bigbluebutton.modules.classyaudio.managers
 			onCall = true;
 			
 			//Mute if the user is not the presenter at start
-			//muteIfNotPresenter();
+			var t:Timer = new Timer(500, 1);
+			t.addEventListener(TimerEvent.TIMER, muteIfNotPresenter);
+			t.start();
 		}
 		
 		public function hangup():void {
@@ -101,7 +107,7 @@ package org.bigbluebutton.modules.classyaudio.managers
 			dispatcher.dispatchEvent(e);
 		}
 		
-		private function muteIfNotPresenter():void{
+		private function muteIfNotPresenter(e:Event = null):void{
 			var presenter:User = UserManager.getInstance().getPresenter();
 			if (presenter != null){
 				if (presenter.userid != attributes.userid){
