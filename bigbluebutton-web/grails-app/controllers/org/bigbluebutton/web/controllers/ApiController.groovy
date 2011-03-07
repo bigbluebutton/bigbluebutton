@@ -167,7 +167,6 @@ class ApiController {
     	return
     }
 
-    String createTime = params.createTime
 //    if (StringUtils.isEmpty(createTime)) {
 //      errors.missingParamError("createTime");
 //    }
@@ -182,6 +181,23 @@ class ApiController {
 	   respondWithErrors(errors)
 	   return;
     }
+
+	// the createTime mismatch with meeting's createTime, complain
+	// In the future, the createTime param will be required
+	if(params.createTime!=null){
+		long createTime = 0;
+		try{
+			createTime=Long.parseLong(params.createTime);
+		}catch(Exception e){
+			log.warn("could not parse createTime param");
+			createTime = -1;
+		}
+		if(createTime != meeting.getCreateTime()){
+			errors.mismatchCreateTimeParam();
+			respondWithErrors(errors);
+			return;
+		}
+	}
     
     // Is this user joining a meeting that has been ended. If so, complain.
     if (meeting.isForciblyEnded()) {
@@ -472,6 +488,8 @@ class ApiController {
               mtgs.each { m ->
                 meeting() {
                   meetingID(m.getExternalId())
+				  meetingName(m.getName())
+				  createTime(m.getCreateTime())
                   attendeePW(m.getViewerPassword())
                   moderatorPW(m.getModeratorPassword())
                   hasBeenForciblyEnded(m.isForciblyEnded() ? "true" : "false")
@@ -752,7 +770,9 @@ class ApiController {
         render(contentType:"text/xml") {
           response() {
             returncode(RESP_CODE_SUCCESS)
+			meetingName(meeting.getName())
             meetingID(meeting.getExternalId())
+			createTime(meeting.getCreateTime())
             attendeePW(meeting.getViewerPassword())
             moderatorPW(meeting.getModeratorPassword())
             running(meeting.isRunning() ? "true" : "false")
