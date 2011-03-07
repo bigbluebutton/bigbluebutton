@@ -93,9 +93,7 @@ public class RedisMessagingService implements MessagingService {
 			    }
 			};
 			exec.execute(pubsubListener);
-		} catch (UnknownHostException e) {
-			log.error("Unknown host[" + host + "]");
-		} catch (IOException e) {
+		} catch (Exception e) {
 			log.error("Cannot connect to [" + host + ":" + port + "]");
 		}
 	}
