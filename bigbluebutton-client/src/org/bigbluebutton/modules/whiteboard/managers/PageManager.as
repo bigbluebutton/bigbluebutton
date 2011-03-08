@@ -30,9 +30,6 @@ package org.bigbluebutton.modules.whiteboard.managers
 	import org.bigbluebutton.modules.present.events.NavigationEvent;
 	import org.bigbluebutton.modules.present.events.PresentationEvent;
 	
-	import org.bigbluebutton.modules.present.events.cPPRESENT_PresenterViewEvent;
-	import org.bigbluebutton.common.LogUtil;
-	
 	public class PageManager
 	{
 		private var pageNum:int;
@@ -47,43 +44,9 @@ package org.bigbluebutton.modules.whiteboard.managers
 			dispatcher = new Dispatcher();
 		}
 		
-		/*****************************************************************************
-		 ;  addShapeToPage
-		 ;----------------------------------------------------------------------------
-		 ; DESCRIPTION
-		 ;   This routine is use to handle the whiteboard updated data from the server
-		 ;
-		 ; RETURNS : N/A
-		 ;
-		 ; INTERFACE NOTES
-		 ;       INPUT
-		 ;           e: WhiteboardUpdate Event
-		 ;
-		 ; IMPLEMENTATION
-		 ;		add shape data to ArrayCollection and dispatch event
-		 ;		to draw to display the shape in the right postion while
-		 ;		the presenter in full screen mode
-		 ;
-		 ; HISTORY
-		 ; __date__ :        PTS:            Description
-		 ; 2011.3.02                        Enable full screen presentation
-		 ;
-		 ******************************************************************************/
 		public function addShapeToPage(e:WhiteboardUpdate):void{
 			(pages.getItemAt(pageNum) as ArrayCollection).addItem(e.data);
-			
-			/*
-			 * dispatch to add shape to the right position when the viewer
-			 * displaying the presenter view port
-			 */
-			var presentEvent:cPPRESENT_PresenterViewEvent = new cPPRESENT_PresenterViewEvent(cPPRESENT_PresenterViewEvent.REFRESH_SLIDE);
-			if (null == presentEvent){
-				LogUtil.error("Creating cPPRESENT_PresenterViewEvent object is NULL");
-				return;
-			}
-			dispatcher.dispatchEvent(presentEvent);
-			
-		}/** END Function : addShapeToPage */
+		}
 		
 		public function undoShapeFromPage():void{
 			var page:ArrayCollection = pages.getItemAt(pageNum) as ArrayCollection;

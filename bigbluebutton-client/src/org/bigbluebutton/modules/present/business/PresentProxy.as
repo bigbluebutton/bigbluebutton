@@ -193,8 +193,8 @@ package org.bigbluebutton.modules.present.business
             ;  sendUpdatePresenterViewDimension
             ;----------------------------------------------------------------------------
             ; DESCRIPTION
-            ;   This routine is use to call shareUpdatePresenterViewDimension 
-			;	from soService object to send the view port dimension.
+            ;   This routine is use to call shareUpdatePresenterViewDimension from soService object
+            ;   to send the view port dimension.
             ;
             ; RETURNS : N/A
             ;
@@ -216,10 +216,7 @@ package org.bigbluebutton.modules.present.business
 				LogUtil.error("The parameter cPPRESENT_PresenterViewEvent is NULL");
 				return;
 			}
-            soService.shareUpdatePresenterViewDimension(
-														e.curSlideWidth,e.curSlideHeight,
-														e.viewPortWidth,e.viewPortHeight
-														);
+            soService.shareUpdatePresenterViewDimension(e.curSlideWidth,e.curSlideHeight,e.viewPortWidth,e.viewPortHeight);
         }
         /** END Function : sendUpdatePresenterViewDimension **/
         
@@ -227,8 +224,8 @@ package org.bigbluebutton.modules.present.business
             ;  getUpdatePresenterViewDimension
             ;----------------------------------------------------------------------------
             ; DESCRIPTION
-            ;   This routine is use to call getUpdatePresenterViewDimension 
-			;	from soService object to get the presenter view port information.
+            ;   This routine is use to call getUpdatePresenterViewDimension from soService object
+			;	to get the presenter view port information.
             ;
             ; RETURNS : N/A
             ;

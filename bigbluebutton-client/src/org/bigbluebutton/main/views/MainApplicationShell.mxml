@@ -79,6 +79,7 @@
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.util.logging.Logger;
             
+            // _PST_731_
             private var _gWindow:TitleWindow;
             private var _timRaiseHand:Timer;
             private var _timChat:Timer;
@@ -116,6 +117,7 @@
 			[Bindable] private var logs_icon:Class = images.table;
 			[Bindable] private var reset_layout_icon:Class = images.layout;
 			
+            // _PTS_731_
 			[Bindable] private var _handIcon:Class    = images.raisehand;
 			[Bindable] private var _disable_chat_notify:Class = images.disable_chat_notify;
 			[Bindable] private var _enable_chat_notify:Class  = images.enable_chat_notify;
@@ -276,9 +278,8 @@
             ;  		check the current enable or disable chat notification and
 			;		change the status
             ; HISTORY
-            ; __date__ :        PTS:  		Description
-            ; 2010.12.06       				notity chat message when presentation
-			;								window in full screen mode
+            ; __date__ :        PTS:  
+            ; 2010.12.06        problem 731
             ;
             ******************************************************************************/
             private function changeChatNotificationStatus():void{
@@ -318,10 +319,8 @@
             ; IMPLEMENTATION
             ;  	adding call back function to ExternalInterface
             ; HISTORY
-            ; __date__ :        PTS:		Description  
-            ; 2010.12.06        			new chat, new user, raise hand
-			;								notification when the presenation
-			;								window in full screen mode.
+            ; __date__ :        PTS:  
+            ; 2010.12.06        problem 731
             ;
             ******************************************************************************/
             public function allowCallBack():void
@@ -357,9 +356,8 @@
             ; IMPLEMENTATION
             ;  	show or hide enable chat notification depending on the status.
             ; HISTORY
-            ; __date__ :        PTS:		Description  
-            ; 2010.12.06        			new chat notification when presentation
-			;								window in full screen mode.
+            ; __date__ :        PTS:  
+            ; 2010.12.06        problem 731
             ;
             ******************************************************************************/
             public function showHideButton(isVisible:Boolean):void
@@ -388,9 +386,8 @@
             ;   use Timer to display blink message and hand icon
             ;
             ; HISTORY
-            ; __date__ :        PTS:  		Description
-            ; 2010.12.06        			raise hand notificatin when presentation
-			;								window in full screen mode.
+            ; __date__ :        PTS:  
+            ; 2010.12.06        problem 731
             ;
             ******************************************************************************/
             public function participantRaisedHand(name:String):void
@@ -445,9 +442,8 @@
             ; IMPLEMENTATION
             ;		blink raise hand notification message
             ; HISTORY
-            ; __date__ :        PTS:		Description  
-            ; 2010.12.06        			raise hand notificatin when presentation
-			;								window in full screen mode.
+            ; __date__ :        PTS:  
+            ; 2010.12.06        problem 731
             ;
             ******************************************************************************/
             private function updateTimer(evt:TimerEvent):void
@@ -492,9 +488,8 @@
             ;		stop the other notification and start to blink the 
 			;		new chat notification
             ; HISTORY
-            ; __date__ :        PTS:		Description  
-            ; 2010.12.06        			new chat notification when presentation
-			;								window in full screen mode.
+            ; __date__ :        PTS:  
+            ; 2010.12.06        problem 731
             ;
             ******************************************************************************/
             private function handleNewChat(sender:String,message:String):void
@@ -568,10 +563,8 @@
             ;   use PopupManager to create popup chat notification window
             ;
             ; HISTORY
-            ; __date__ :        PTS:		Description  
-            ; 2010.12.06        			new chat notification when presentation
-			;								window in full screen mode.
-            ;
+            ; __date__ :        PTS:  
+            ; 2010.12.06        problem 731
             ;
             ******************************************************************************/
             private function showWindow(name:String,message:String):void{
@@ -640,8 +633,7 @@
             ;
             ; HISTORY
             ; __date__ :        PTS:    Description
-            ; 2010.12.16                new participant joined notification when
-			;							presentatin window in full screen mode.
+            ; 2010.12.16                new participant joined notification
             ;
             ******************************************************************************/
             private function createNewUserNotificationWindow(uname:String) : void{
@@ -762,9 +754,11 @@
 	 	<mx:Spacer width="20"/>
 		<mx:Spacer width="100%"/> 
         
+        <!-- _PTS_731_ -->
 		<mx:Label text="" visible="false" id="lblNotification" color="#FFFFFF"/>
 		<mx:Button width="20" height="20" toolTip="" visible="false" id="btnEnbRaiseHandAlert" icon="{_handIcon}" />
 		<mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.disableChatNotification')}" visible="false" id="btnEnbChatAlert" icon="{_disable_chat_notify}" click="changeChatNotificationStatus()" />
+	    <!--===========-->
 	    
 		<mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}" id="logBtn" icon="{logs_icon}" click="openLogWindow()" />
 		<mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.resetLayoutBtn.toolTip')}" id="btnResetLayout" icon="{reset_layout_icon}" click="resetLayout()" />

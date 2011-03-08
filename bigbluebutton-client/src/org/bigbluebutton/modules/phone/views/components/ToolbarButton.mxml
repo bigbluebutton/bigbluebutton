@@ -28,10 +28,19 @@
 	<mate:Listener type="{CallConnectedEvent.CALL_CONNECTED_EVENT}" method="handleCallConnectedEvent"/>
 	<mate:Listener type="{CallDisconnectedEvent.CALL_DISCONNECTED_EVENT}" method="handleCallDisconnectedEvent"/>
 	<mate:Listener type="{BBBEvent.JOIN_VOICE_CONFERENCE}" method="handleBBBJoinConferenceEvent"/>
+	<!--<mate:Listener type="{cPHONE_JoinVoiceConfInfoEvent.SEND_CONFERENCE_INFO}" method="handleJoinVoiceConfInfo"/>-->
 	
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
+			
+			import mx.containers.HBox;
+			import mx.containers.TitleWindow;
+			import mx.containers.VBox;
+			import mx.controls.Alert;
+			import mx.controls.Label;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
 			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.BBBEvent;
@@ -47,35 +56,37 @@
 			 
 			[Bindable] public var phoneIcon:Class = images.headset_icon;
 			
-			/*****************************************************************************
-			 ;  startPhone
-			 ;----------------------------------------------------------------------------
-			 ; DESCRIPTION
-			 ;   This routine is use to handle participant join the voice conferece.
-			 ;
-			 ; RETURNS : N/A
-			 ;
-			 ; INTERFACE NOTES : N/A
-			 ;
-			 ; IMPLEMENTATION
-			 ;  	dispatch evet to call function in PhoneManager
-			 ;
-			 ; HISTORY
-			 ; __date__ :        PTS:  			Description
-			 ; 2011-3-02                       Improve VoIP
-			 ;
-			 ******************************************************************************/
+			//<REALWAT>
+			//private var voiceConfoInfWindow:VoiceConferenceInfoWindow;
+			//</REALWAT>
+			
 			private function startPhone():void {
 				//this.enabled = false;
 				if (this.selected) {
 					LogUtil.debug("Display voice conference information");
 					dispatcher.dispatchEvent(new JoinVoiceConferenceEvent());
+					//<REALWAT>
+						/*if (true == ExternalInterface.available) 
+						{
+							// call external javascript 'handleNewUser'
+							ExternalInterface.call("startSIPApplet", "admin");
+						}*/
+					//</REALWAT>
 				} else {
 
 					LogUtil.debug("Leaving voice conference");
 					dispatcher.dispatchEvent(new LeaveVoiceConferenceEvent());
+
+					//<REALWAT>
+					
+					//</REALWAT>
 				}
-			}/** END Function: startPhone */
+				
+				/*this.enabled = false;
+				var t:Timer = new Timer(3000, 1);
+				t.addEventListener(TimerEvent.TIMER, onTimer);
+				t.start();*/
+			}
 			
 			private function onTimer(e:TimerEvent):void{
 				this.enabled = true;
@@ -100,6 +111,33 @@
 			override protected function resourcesChanged():void{
 				this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip');
 			}
+			
+			//<REALWAT>
+			/*private function handleJoinVoiceConfInfo(event:cPHONE_JoinVoiceConfInfoEvent) : void {
+				
+				if ( null == event ){
+					LogUtil.error("The parameter cPHONE_JoinVoiceConfInfoEvent" +
+						" object when handleJoinVoiceConfInfo is null");	
+					return;
+				}
+				if (null == voiceConfoInfWindow){
+					showInfo(event.domainName, event.voiceConfId);
+				}
+			}
+			
+			private function showInfo(domainName:String,voiceConfId:String):void{
+				voiceConfoInfWindow	= PopUpManager.createPopUp(this,VoiceConferenceInfoWindow,false) as VoiceConferenceInfoWindow;
+				voiceConfoInfWindow.addEventListener(CloseEvent.CLOSE,function():void{
+						PopUpManager.removePopUp(voiceConfoInfWindow);
+						voiceConfoInfWindow = null;
+					}
+				);
+				var e:cPHONE_JoinVoiceConfInfoEvent = new cPHONE_JoinVoiceConfInfoEvent(cPHONE_JoinVoiceConfInfoEvent.DISPLAY_CONFERENCE_INFO);
+				e.domainName  = domainName;
+				e.voiceConfId = voiceConfId;
+				dispatchEvent(e);
+			}*/
+			//</REALWAT>
 			
 		]]>
 	</mx:Script>

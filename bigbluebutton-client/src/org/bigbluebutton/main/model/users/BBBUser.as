@@ -29,6 +29,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
     
+    // _PTS_731_ 
     import flash.external.*;
 	
 	public class BBBUser
@@ -84,7 +85,7 @@ package org.bigbluebutton.main.model.users
                     /*
 					 * Call javascript function "raiseHand" to handle
 					 * raise hand event while presentation window in
-					 * full screen mode.
+					 * full screen mode. _PTS_731_
 					 */
 					if (true == raiseHand){
 						if (true == ExternalInterface.available) 

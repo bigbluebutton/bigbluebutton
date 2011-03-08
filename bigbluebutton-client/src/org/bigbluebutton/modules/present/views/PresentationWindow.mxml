@@ -48,10 +48,6 @@
 	<mate:Listener type="{AddOverlayCanvasEvent.ADD_OVERLAY_CANVAS}" method="addOverlayCanvas" />
 	<mate:Listener type="{AddButtonToPresentationEvent.ADD_BUTTON}" method="addButton" />
 	
-	
-	<mate:Listener type="{cPPRESENT_PresenterViewEvent.NEW_PRESENTATION_LOAD}" method="handleNewPresentation" />	
-	
-	
 	<mx:Script>
 		<![CDATA[
 			import flash.external.*;
@@ -143,8 +139,6 @@
             //the variable that hold the value for fixing the problem when enable the
             // the presentation window full screen
             private var _isMinimized:Boolean  = false;
-			private static const TIMER_INTERVAL:int = 1000;
-			public var _isPresentationLoaded:Boolean = false;
 			
 			/**
 			 * the variable that hold value from config file to
@@ -170,6 +164,11 @@
 			;
             ; HISTORY
             ; __date__ :        PTS:  			Description
+            ; 2010.12.06		problem 731     handle minimize and maximize presentation
+            ;                                   window to show and hide chat notification
+            ;                                   button.
+            ;
+            ; 2010.12.28                        maximize presentation window
             ; 2011.01.27                        Funll screen presenation window
 			;									and center the view port.
             ;
@@ -186,7 +185,7 @@
                 // check the status when the window switch from minimize to normal.
                 if ( true == _isMinimized && false == this.minimized ){
 					
-					var tMinimize:Timer = new Timer(TIMER_INTERVAL, 1);
+					var tMinimize:Timer = new Timer(1000, 1);
 					if (null == tMinimize){
 						LogUtil.error("Creating Timer object is NULL");
 						return;	
@@ -220,6 +219,7 @@
                     {
                        // call javascript function 'showButton to
                        // display enable or disable chat notificaiton
+                       //   _PTS_731_
                        ExternalInterface.call("showButton", true);
                     } 
                     
@@ -238,16 +238,10 @@
                      {
                        // call javascript function 'showButton to
                        // display enable or disable chat notificaiton
+                       //   _PTS_731_
                        ExternalInterface.call("showButton", false);
                      }
-					
-					var presentEvent:cPPRESENT_PresenterViewEvent = new cPPRESENT_PresenterViewEvent(cPPRESENT_PresenterViewEvent.REFRESH_SLIDE);
-					if (null == presentEvent){
-						LogUtil.error("Creating cPPRESENT_PresenterViewEvent object is NULL");
-						return;
-					}
-					dispatchEvent(presentEvent);
-					
+
 					// show view port when switch widnow form maximize
 					if ( false == isPresenter && true == this.slideView._isViewerFullScreen)
 					{
@@ -265,7 +259,6 @@
                     if ( false == slideView._isPresenterFullScreen ) {
                         slideView._isFullScreen = false;
                      }
-
                 }
 				stage.focus = this; //Remove focus from the maximize button in case the user presses the space bar, the window doesn't get maximized again.
 				
@@ -510,22 +503,22 @@
 				fitSlideToWindowMaintainingAspectRatio();
 				
                 dispatchEvent(centerSlideEvent);
-				// send the view port to the viewer after the slide loaded.
-				if ( true == slideView._isFullScreen && true == isPresenter ){
-					if (true == isPresenter){
-						var lTimer:Timer    = new Timer(TIMER_INTERVAL,1);
+                // send the view port to the viewer after the slide loaded.
+                if ( true == slideView._isFullScreen && true == isPresenter ){
+                    if (true == isPresenter){
+                        var lTimer:Timer    = new Timer(300,1);
 						if (null == lTimer){
 							LogUtil.error("Creating Timer object is NULL");
 							return;	
 						}
-						lTimer.addEventListener(TimerEvent.TIMER, 
+                        lTimer.addEventListener(TimerEvent.TIMER, 
 							function(e:TimerEvent) : void {
 								dispatchSendPresenterViewPort();
 							}
 						);
-						lTimer.start();
-					}
-				}
+                        lTimer.start();
+                    }
+                }
 			}/** END FUNCTION 'handleDisplaySlideEvent' **/
 			
 			private function onKeyUp(event:KeyboardEvent):void{
@@ -663,7 +656,8 @@
 				reinitWindowToDefaultSize();
 				//this.setFocus();
 				
-				_isPresentationLoaded = true;
+				// display the view port when the viewer login while the presenter in full screen.
+				dispatchEvent(presenterViewEvent);
 			}
 			
 			private function displaySlideNavigationControls(show:Boolean):void {
@@ -938,44 +932,6 @@
             /**
              * END FUNCTION 'switchFollowPreseterSlide'
              **/
-			
-		    /*****************************************************************************
-			;  handleNewPresentation
-			;----------------------------------------------------------------------------
-			; DESCRIPTION
-			;   This routine is use to handle the new presentation window loaded
-			;
-			; RETURNS : N/A
-			;
-			; INTERFACE NOTES
-			;       INPUT
-			;           evt: cPPRESENT_PresenterViewEvent Event
-			;
-			; IMPLEMENTATION
-			;		dispatch event to get presenter view port from the server
-			;
-			; HISTORY
-			; __date__ :        PTS:            Description
-			; 2011.3.02                        Enable full screen presentation
-			;
-			******************************************************************************/
-			private function handleNewPresentation(evt:cPPRESENT_PresenterViewEvent) : void {
-				if (true == this.maximized){
-					return;
-				}
-				var presenterViewEvent:cPPRESENT_PresenterViewEvent = new cPPRESENT_PresenterViewEvent(
-					cPPRESENT_PresenterViewEvent.GET_PRESENTER_VIEW_DIMENSION
-				);
-				if ( null == presenterViewEvent ){
-					LogUtil.error("Creating cPPRESENT_PresenterViewEvent object is NULL");
-					return;
-				}
-				if (true == _isPresentationLoaded){
-					_isPresentationLoaded = false;
-					dispatchEvent(presenterViewEvent);
-				}
-			}/** END Function : handleNewPresentation */
-			
 		]]>
 	</mx:Script>
 
