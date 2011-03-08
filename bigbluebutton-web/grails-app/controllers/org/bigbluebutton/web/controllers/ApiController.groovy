@@ -33,10 +33,10 @@ import org.bigbluebutton.api.MeetingService;
 import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.web.services.PresentationService
 import org.bigbluebutton.presentation.UploadedPresentation
-import org.codehaus.groovy.grails.commons.ConfigurationHolder;
+//import org.codehaus.groovy.grails.commons.ConfigurationHolder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import grails.converters.XML;
+//import grails.converters.XML;
 import org.bigbluebutton.api.ApiErrors;
 import org.bigbluebutton.api.ParamsProcessorUtil;
 import java.util.Iterator;
@@ -621,7 +621,7 @@ class ApiController {
     // Everything is good so far. Translate the external meeting id to an internal meeting id. If
     // we can't find the meeting, complain.                 
     String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId);
-            
+    log.debug("get Recording: Internal meetingid "+internalMeetingId);        
     ArrayList<Recording> recs = meetingService.getRecordings(internalMeetingId);
     if (recs.isEmpty()) {
       response.addHeader("Cache-Control", "no-cache")
@@ -658,11 +658,11 @@ class ApiController {
                     format(r.getPlaybackFormat())
                     link(r.getPlaybackLink())
                   }
-                  meta() {
-                    r.getMetadata().each {m ->
-                      "$m.key"("$m.value")
-                    }
-                  }
+                  //meta() {
+					//r.getMetadata().each { k,v -> 
+						//"$k"("$v")
+					//}
+                  //}
                 }
               }
             }

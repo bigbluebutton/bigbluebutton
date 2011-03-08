@@ -55,8 +55,10 @@ public class RecordingService {
 		
 		String[] format = getPlaybackFormats(path);
 		for (int i = 0; i < format.length; i++) {
-			File[] recordings = getDirectories(path + File.pathSeparatorChar + format[i]);
+			File[] recordings = getDirectories(path + File.separatorChar + format[i]);
+			log.debug("number of recording dirs: "+recordings.length);
 			for (int f = 0; f < recordings.length; f++) {
+				log.debug("recording dir: "+recordings[f].getName()+" meetingid:"+meetingId);
 				if (recordings[f].getName().startsWith(meetingId)) {
 					Recording r = getRecordingInfo(path, recordings[f].getName(), format[i]);
 					if (r != null) recs.add(r);
@@ -141,6 +143,7 @@ public class RecordingService {
 	}
 	
 	private File[] getDirectories(String path) {
+		
 		File dir = new File(path);
 		FileFilter fileFilter = new FileFilter() {
 		    public boolean accept(File file) {

@@ -19,7 +19,6 @@
  */
 package org.bigbluebutton.web.controllers
 
-import org.springframework.util.FileCopyUtils
 import grails.converters.*
 import org.bigbluebutton.web.services.PresentationService
 import org.bigbluebutton.presentation.UploadedPresentation

@@ -3,7 +3,7 @@ import java.io.File;
 
 import org.bigbluebutton.api.domain.Recording;
 
-class RecordingServiceHelperImp extends GroovyTestCase {
+class RecordingServiceHelperImpTest extends GroovyTestCase {
 	
 	def recordedXmlText = '''
 			<?xml version="1.0" encoding="UTF-8"?>
@@ -31,7 +31,7 @@ class RecordingServiceHelperImp extends GroovyTestCase {
 	}
 	
 	void testGetRecordingInfo() {
-		RecordingServiceHelperImp rshi = new RecordingServiceHelperImp()
+		RecordingServiceHelperImpTest rshi = new RecordingServiceHelperImpTest()
 		Recording recording = rshi.getInfo(new XmlSlurper().parseText(recordedXmlText))
 		String[] meetings = recordings.getRecordings("/var/bigbluebutton/recordings")
 		for (int i = 0; i < meetings.length; i++) {
