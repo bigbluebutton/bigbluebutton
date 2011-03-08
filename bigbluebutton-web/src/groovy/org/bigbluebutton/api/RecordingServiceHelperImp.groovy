@@ -73,7 +73,8 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
 		r.setPublished(Boolean.parseBoolean(rec.published.text()));
 		r.setStartTime(rec.start_time.text());
 		r.setEndTime(rec.end_time.text());
-		r.setPlaybackLink(rec.playback.text());
+		r.setPlaybackFormat(rec.playback.format.text());
+		r.setPlaybackLink(rec.playback.link.text());
 		
 		Map<String, String> meta = new HashMap<String, String>();		
 		rec.meta.children().each { anode ->

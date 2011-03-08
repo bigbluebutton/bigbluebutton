@@ -597,19 +597,16 @@ class ApiController {
         
     // Do we have a checksum? If none, complain.
     if (StringUtils.isEmpty(params.checksum)) {
-      errors.missingParamError("checksum");       
+      errors.missingParamError("checksum");
+	  respondWithErrors(errors)
+	  return
     }
 
     // Do we have a meeting id? If none, complain.
-    String externalMeetingId = params.meetingID
-    if (StringUtils.isEmpty(externalMeetingId)) {
-      errors.missingParamError("meetingID");
-    }
-
-    if (errors.hasErrors()) {
-      respondWithErrors(errors)
-      return
-    }
+    //String externalMeetingId = params.meetingID
+    //if (StringUtils.isEmpty(externalMeetingId)) {
+      //errors.missingParamError("meetingID");
+    //}
 
     // Do we agree on the checksum? If not, complain.   
     if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
@@ -617,12 +614,15 @@ class ApiController {
       respondWithErrors(errors)
       return
     }
+	
+	ArrayList<String> externalMeetingIds = new ArrayList<String>();
+	if (!StringUtils.isEmpty(params.meetingID)) {
+		externalMeetingIds=paramsProcessorUtil.processMeetingIds(params.meetingID);
+	}
     
-    // Everything is good so far. Translate the external meeting id to an internal meeting id. If
-    // we can't find the meeting, complain.                 
-    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId);
-    log.debug("get Recording: Internal meetingid "+internalMeetingId);        
-    ArrayList<Recording> recs = meetingService.getRecordings(internalMeetingId);
+    // Everything is good so far. Translate the external meeting ids to an internal meeting ids.             
+    ArrayList<String> internalMeetingIds = paramsProcessorUtil.convertToInternalMeetingIds(externalMeetingIds);        
+    ArrayList<Recording> recs = meetingService.getRecordings(internalMeetingIds);
     if (recs.isEmpty()) {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {  
@@ -645,10 +645,10 @@ class ApiController {
       xml {
         render(contentType:"text/xml") {
           response() {
-            returncode(RESP_CODE_SUCCESS)
+           returncode(RESP_CODE_SUCCESS)
             recordings() {
               recs.each { r ->
-                recording() {
+				  recording() {
                   id(r.getId())
                   state(r.getState())
                   published(r.isPublished())
@@ -658,11 +658,11 @@ class ApiController {
                     format(r.getPlaybackFormat())
                     link(r.getPlaybackLink())
                   }
-                  //meta() {
-					//r.getMetadata().each { k,v -> 
-						//"$k"("$v")
-					//}
-                  //}
+                  metadata() {
+					r.getMetadata().each { k,v -> 
+						"$k"("$v")
+					}
+                  }
                 }
               }
             }

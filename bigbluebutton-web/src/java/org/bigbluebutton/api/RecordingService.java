@@ -34,20 +34,40 @@ public class RecordingService {
 		}
 	}
 	
-	public ArrayList<Recording> getRecordings(String meetingId) {
+	public ArrayList<Recording> getRecordings(ArrayList<String> meetingIds) {
 		ArrayList<Recording> recs = new ArrayList<Recording>();
 		
-		ArrayList<Recording> published = getRecordingsForPath(meetingId, publishedDir);
-		if (!published.isEmpty()) {
-			recs.addAll(published);
+		if(meetingIds.isEmpty()){
+			meetingIds.addAll(getAllRecordingIds(publishedDir));
+			meetingIds.addAll(getAllRecordingIds(unpublishedDir));
 		}
 		
-		ArrayList<Recording> unpublished = getRecordingsForPath(meetingId, unpublishedDir);
-		if (!unpublished.isEmpty()) {
-			recs.addAll(unpublished);
+		for(String meetingId : meetingIds){
+			ArrayList<Recording> published = getRecordingsForPath(meetingId, publishedDir);
+			if (!published.isEmpty()) {
+				recs.addAll(published);
+			}
+			
+			ArrayList<Recording> unpublished = getRecordingsForPath(meetingId, unpublishedDir);
+			if (!unpublished.isEmpty()) {
+				recs.addAll(unpublished);
+			}	
 		}
 		
 		return recs;
+	}
+	
+	private ArrayList<String> getAllRecordingIds(String path){
+		ArrayList<String> ids=new ArrayList<String>();
+		
+		String[] format = getPlaybackFormats(path);
+		for (int i = 0; i < format.length; i++) {
+			File[] recordings = getDirectories(path + File.separatorChar + format[i]);
+			for (int f = 0; f < recordings.length; f++) {
+				ids.add(recordings[f].getName());				
+			}
+		}
+		return ids;
 	}
 	
 	private ArrayList<Recording> getRecordingsForPath(String meetingId, String path) {
