@@ -220,7 +220,7 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
    /** Creates a new SipProvider. */ 
    public SipProvider(String via_addr, int port)
    {  init(via_addr,port,null,null);
-      //initlog();
+      initlog();
       startTrasport();
    }
 

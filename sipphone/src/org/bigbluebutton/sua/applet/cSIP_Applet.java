@@ -18,29 +18,8 @@
 */
 package org.bigbluebutton.sua.applet;
 
-import java.awt.BorderLayout;
-import java.awt.Button;
-import java.awt.Frame;
-import java.awt.GridLayout;
-import java.awt.Label;
-import java.awt.Panel;
-import java.awt.TextField;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-
 import javax.swing.JApplet;
-
-import local.ua.RegisterAgent;
-import local.ua.UserAgent;
-import local.ua.UserAgentProfile;
-
-import org.zoolu.sip.provider.SipProvider;
-import org.zoolu.sip.provider.SipStack;
-
+import org.bigbluebutton.sua.applet.cSIP_Call;
 /*****************************************************************************
 ;  cSIP_Applet
 ;----------------------------------------------------------------------------
@@ -53,84 +32,15 @@ import org.zoolu.sip.provider.SipStack;
 ******************************************************************************/
 @SuppressWarnings("serial")
 public class cSIP_Applet extends JApplet{
-	
-	private static final String BBB_USERNAME = "bbbuser" ;
-	private static final String BBB_PASSWORD = "secret"  ;
-	private static final int   BBB_PORT     = 5070 ;
-	private static final String BBB_PROTOCOL =  "sip:" ;
-	
-	private UserAgentProfile userProfile ;
-	private SipProvider provider ;
-	private UserAgent ua ;
-	private RegisterAgent ra ; 
-	private String bbb_domain = null ;
-	private String bbb_room   = null ;
-	private String bbb_name   = null ;
-	
-	private static boolean connected = false ;
-	
-	Panel p = new Panel();
-    Panel p1 = new Panel();
-    Label l_domain = new Label("Domain : ");
-    final TextField t_domain = new TextField(20);
-    
-    Label l_room =new Label("Room : ");
-    final TextField t_room=new TextField(20);
-    
-    Label l_name =new Label("Name : ");
-    final TextField t_name=new TextField(20);
-    
-    final Button b_connect=new Button("  Connect  ");
-    
-    Frame frm=new Frame("BigBlueButton SIP Applet");
+		
+	//private AudioGUI audiogui = new AudioGUI();
     
     protected boolean onCall = false ;
+	private String bbb_domain ;
+	private String bbb_room   ;
+	private String bbb_name   ;
 	
-	public void loadUI(){
-			
-			frm.setSize(500, 200);
-		    frm.setVisible(true);
-		    frm.addWindowListener(new WindowAdapter(){
-		      public void windowClosing(WindowEvent e){
-		    	hangup();
-		        System.exit(0);
-		      }
-		    });
-		    
-		    p.setLayout(new GridLayout(4,1));
-		    
-		    p.add(l_domain);
-		    p.add(t_domain);
-		    
-		    p.add(l_room);
-		    p.add(t_room);
-		    
-		    p.add(l_name);
-		    p.add(t_name);
-		    
-		    
-		    p.add(b_connect);
-		    p1.add(p);
-		    frm.add(p1,BorderLayout.NORTH);
-		    b_connect.addActionListener(new ActionListener(){
-
-				public void actionPerformed(ActionEvent arg0) {
-					// TODO Auto-generated method stub
-					connected = ! connected ;
-					if ( true == connected ){
-						initializeProfile(t_domain.getText(),t_room.getText(), t_name.getText());
-						doCall(t_domain.getText(), t_room.getText()) ;
-						b_connect.setLabel("Disconnect") ;
-					}else{
-						hangup();
-						b_connect.setLabel("  Connect  ");
-					}
-					
-				}
-		    	
-		    });		    
-
-	}
+	private cSIP_Call sip_call ;
 	/*****************************************************************************
     ;  init
     ;----------------------------------------------------------------------------
@@ -148,16 +58,6 @@ public class cSIP_Applet extends JApplet{
     ; 02-24-2011
     ******************************************************************************/
 	public void init(){
-		
-		//loadUI();
-		/*frm.setVisible(false);
-	    frm.addWindowListener(new WindowAdapter(){
-	      public void windowClosing(WindowEvent e){
-	    	hangup();
-	        System.exit(0);
-	      }
-	    });
-	    p.add(frm);*/
 	    
 		this.bbb_domain = getParameter("domain");
 		this.bbb_room   = getParameter("room") ;
@@ -169,93 +69,46 @@ public class cSIP_Applet extends JApplet{
 		this.bbb_name = "test" ;*/
 		/** end **/
 		
-		SipStack.debug_level = 0 ;
-		initializeProfile(this.bbb_domain,this.bbb_room,this.bbb_name);
-		doCall(this.bbb_domain,this.bbb_room);
+		//new cSIP_AudioGUI();
+		
+		sip_call = new cSIP_Call(this.bbb_domain,this.bbb_room,this.bbb_name);
+		//initializeProfile(this.bbb_domain,this.bbb_room,this.bbb_name);
+		//doCall(this.bbb_domain,this.bbb_room);
 	}
 	
-	public void initializeProfile(String domain, String room, String name){
-		if ( (true == domain.equals("")) || (true==room.equals("")) ){
-			return ;
+	public void endCall(){
+		if ( null != sip_call ){
+			sip_call.endCall() ;
 		}
-		
-		if ( null == userProfile ){
-			userProfile = new UserAgentProfile();
-		}
-		
-		this.bbb_domain = domain ;
-		this.bbb_room = room ;
-		this.bbb_name = name ;
-		
-		userProfile.contact_url = cSIP_Applet.BBB_USERNAME + "@" + domain ;
-		userProfile.username = cSIP_Applet.BBB_USERNAME ;
-		userProfile.use_jmf = false ;
-		userProfile.audio = true;
-		userProfile.from_url = "\""+ name +"\"" + "<"+cSIP_Applet.BBB_PROTOCOL + cSIP_Applet.BBB_USERNAME + 
-								"@" + domain ;
-		userProfile.call_to = cSIP_Applet.BBB_PROTOCOL + room + "@" + domain  ;
-		userProfile.passwd   = cSIP_Applet.BBB_PASSWORD ;
-		userProfile.realm    = domain ;
-		userProfile.use_rat  = false ;
-		//userProfile.ua_jar   = "ua.jar" ;
-		
-		if ( null == provider ){
-			provider = new SipProvider(domain,cSIP_Applet.BBB_PORT);
-		}
-		
-		if ( null == ua ){
-			ua = new UserAgent(provider,userProfile,null) ;
-		}
-		
-		if ( null == ra ){
-			ra = new RegisterAgent(provider,userProfile.call_to,userProfile.from_url,userProfile.username,userProfile.realm,userProfile.passwd,null);
-		}
-		
-		ra.register(120);
-		
+		sip_call = null ;
+        System.exit(0);
 	}
 	
-	public void doCall(String domain, String room){
-		System.out.print("Call to " + room + "@" + domain);
-		if ( null != ua ){
-			ua.call(room + "@" + domain);
-		}
-		onCall = true ;
-	}
-	
-	public void hangup(){
-		/*if ( true == ra.isRegistering()){
-			ra.unregister();
-		}*/
-		System.out.print("Stop UA") ;		
-		if ( null != ua ){
-			ua.hangup() ;
-		}else{
-			System.out.print("UA is null") ;
-		}
-		
-		if ( true == onCall ){
-			System.exit(0);
-		}
-		
-		/*ua=null ;
-		ra=null ;
-		provider=null ;*/
-	}
-	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
 	public void destroy(){
-		System.out.print("Destroy Applet") ;
-		AccessController.doPrivileged(new PrivilegedAction() 
-		   {
-		        public Void run() {
-		            // kill the JVM
-		        	hangup();
-		        	onCall = false ;
-		            System.exit(0);
-		            return null;
-		        }
-		    });
-
+		System.out.print("Destroy SIP Phone...") ;
+		//onCall = false ;
+		endCall();
+		super.destroy() ;
 	}
+	
+	@Override
+	public void start(){
+		System.out.print("Starting SIP Phone...") ;
+		
+		if ( null == sip_call ){
+			sip_call = new cSIP_Call(this.bbb_domain,this.bbb_room,this.bbb_name);
+		}
+		
+		sip_call.doCall(this.bbb_domain, this.bbb_room);
+		
+		super.start();
+	}
+	
+	@Override
+	public void stop(){
+		System.out.print("Stopping SIP Phone...") ;		
+		super.stop();
+	}
+	
 }

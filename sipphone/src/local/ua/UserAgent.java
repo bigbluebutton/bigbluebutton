@@ -294,7 +294,7 @@ public class UserAgent extends CallListenerAdapter
 
    /** Closes an ongoing, incoming, or pending call */
    public void hangup()
-   {  if (clip_ring!=null) clip_ring.stop();      
+   {  if (clip_ring!=null) {}//clip_ring.stop();      
       closeMediaApplication();
       if (call!=null) call.hangup();
       changeStatus(UA_IDLE);

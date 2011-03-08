@@ -71,7 +71,9 @@ public class AudioOutput
       {  System.err.println("ERROR: AudioLine not supported by this System.");
       }
       try
-      {  source_line=(SourceDataLine)AudioSystem.getLine(lineInfo);
+      {  
+    	 source_line = null ; 
+    	 source_line=(SourceDataLine)AudioSystem.getLine(lineInfo);    	  
          if (DEBUG) println("SourceDataLine: "+source_line);
          source_line.open(format,INTERNAL_BUFFER_SIZE);
       }
@@ -83,7 +85,8 @@ public class AudioOutput
 
    /** Closes the static system audio output line */
    static public void closeAudioLine()
-   {  source_line.close();
+   {
+	   source_line.close();
    }
 
 
@@ -155,6 +158,12 @@ public class AudioOutput
       else
       {  System.err.print("WARNING: Audio stop error: source line is not open.");
       }
+   	  if ( null != source_line ){
+   		  source_line = null ;
+   	  }
+   	  if ( null != audio_output_stream ){
+   		audio_output_stream = null ;
+   	  }
       //source_line.close();
    }
 
