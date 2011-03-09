@@ -62,7 +62,7 @@ package org.bigbluebutton.main.model.users
         ;           status: join status, it's 'true' when join success.
         ; 
         ; IMPLEMENTATION
-        ;  
+        ;  	assign the status to the conference
         ; HISTORY
         ; __date__ :        PTS:    Description  
         ; 2010.12.16                new user notification
