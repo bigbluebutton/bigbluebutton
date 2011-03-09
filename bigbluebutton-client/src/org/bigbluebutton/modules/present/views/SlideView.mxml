@@ -1135,7 +1135,8 @@
 			 ******************************************************************************/
 			private function handleSlideLoadedCompleteEvent(event:Event):void {		
 				var slideRealWidth:int = slideLoader.content.width;
-				var slideRealHeight:int = slideLoader.content.height;				
+				var slideRealHeight:int = slideLoader.content.height;
+				var centerEvent:cPPRESENT_CenterSlideEvent;
 				fitLoaderToCanvas();
 				
 				if(false == isPresenter){
@@ -1152,6 +1153,21 @@
 						return;
 					}
 					dispatchEvent(presentEvent);
+					
+					/*
+					 * check the lock slide status to allow the viewer can move and zoom slide
+					 * within entire presentation window while ulock from presenter action.
+					 */
+					if (false == this._isLocked){
+						centerEvent = new cPPRESENT_CenterSlideEvent(cPPRESENT_CenterSlideEvent.CENTER_SLIDE);
+						if (null == centerEvent){
+							LogUtil.error("Creating cPPRESENT_CenterSlideEvent object is NULL");
+							return;
+						}
+						handleCenterSlide(centerEvent);
+						this.slideLoader.x = (this.width - this.slideLoader.width)/2 
+					}
+					
 				}
 
 				if ( true == isPresenter)
