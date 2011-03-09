@@ -813,19 +813,17 @@ package org.bigbluebutton.modules.present.business {
 		 ; 2011.01.31                        Full Screen Presenation widnow
 		 ;
 		 ******************************************************************************/
-		private function handleGetPresenterDimension(currentSlideWidth:Number, currentSlideHeight:Number, viewPortWidth:Number, viewPortHeight:Number) : void {
+		private function handleGetPresenterDimension(
+								currentSlideWidth:Number, currentSlideHeight:Number, 
+								viewPortWidth:Number, viewPortHeight:Number
+								) : void {
 			if ( 0 == viewPortWidth ) {
 				return;	
 			}
-			var lTimer:Timer = new Timer(2000,1);
-			if ( null == lTimer ){
-				LogUtil.error("Creating Timer object is NULL");
-				return;
-			}
-			lTimer.addEventListener(TimerEvent.TIMER,function(evt:TimerEvent):void{
-				shareUpdatePresenterViewDimensionCallback(currentSlideWidth,currentSlideHeight,viewPortWidth,viewPortHeight);
-			});
-			lTimer.start();
+			shareUpdatePresenterViewDimensionCallback(
+											currentSlideWidth,currentSlideHeight,
+											viewPortWidth,viewPortHeight
+											);
 		}
 		/** END Function : handleGetPresenterDimension **/
 	}
