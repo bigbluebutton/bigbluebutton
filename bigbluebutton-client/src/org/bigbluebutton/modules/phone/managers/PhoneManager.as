@@ -27,7 +27,6 @@ package org.bigbluebutton.modules.phone.managers
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
 	import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceEvent;
-	import org.bigbluebutton.modules.phone.events.cPHONE_JoinVoiceConfInfoEvent;
 	
 	public class PhoneManager {
 		
