@@ -100,6 +100,7 @@ private static Logger log = Red5LoggerFactory.getLogger( cCHAT_PrivateMessageRec
         
         File dir = new File(this.curDir + userid);
         if ( null == dir ){
+            log.error ("createRecordFolder Failed to initialize directory");
             return false ;
         }
         
@@ -134,12 +135,13 @@ private static Logger log = Red5LoggerFactory.getLogger( cCHAT_PrivateMessageRec
     private boolean createRecordFile(String userid, String fileName){
         
         if ( (null == userid) || (null == fileName) ){
-            log.error("createRecordFile ERROR INPUT PARAMETER");
+            log.error("createRecordFile ERROR INPUT PARAMETER " + userid + " " + fileName);
             return false ;
         }
         
         File f = new File(this.curDir + userid, fileName);
         if ( null == f ){
+            log.error("createRecordFile Initialize file");
             return false ;
         }
         
@@ -177,12 +179,13 @@ private static Logger log = Red5LoggerFactory.getLogger( cCHAT_PrivateMessageRec
     private boolean recordFileExists(String userid,String fileName){
         
         if ( (null == userid) || (null == fileName) ){
-            log.error("recordFileExists ERROR INPUT PARAMETER");
+            log.error("recordFileExists ERROR INPUT PARAMETER " + userid + " " + fileName);
             return false ;
         }
         
         File fName = new File(this.curDir + userid, fileName) ;
         if ( null == fName ){
+            log.error("recordFileExists initialize file " + userid + " " + fileName);
             return false ;
         }
         
@@ -213,27 +216,24 @@ private static Logger log = Red5LoggerFactory.getLogger( cCHAT_PrivateMessageRec
     ; __date__ :        PTS:            Description
     ; 01-16-2011
     ******************************************************************************/
-    public void addUserToList(String userid, String username, boolean record){
+    public void addUserToList(String room,String userid, String username, boolean record){
         log.debug("Add User Entry" );
         
         if ( (null == userid) || (null == username) ){
-            log.error("addUserToList ERROR INPUT PARAMETER");
+            log.error("addUserToList ERROR INPUT PARAMETER " + userid + " " + username + " " + room);
             return ;
         }
-        if ( null == userid || null == username ){
-            log.debug("Initialize Failed" );
-            return ;
-        }
+
         if ( null == objUser ){
-            log.debug("Initialize Failed" );
+            log.error("addUserToList Initialize Failed" );
             return ;
         }
         
         boolean success = false ;
         
-        success = objUser.addUserToList(userid,username,record) ;
+        success = objUser.addUserToList(room,userid,username,record) ;
         if ( false == success ){
-            log.error("Failed to add user to list");
+            log.error("addUserToList Failed to add user to list " + userid + " " + username + " " + record);
             return ;
         }
     }/** END FUNCTION 'addUserToList' **/
@@ -258,7 +258,7 @@ private static Logger log = Red5LoggerFactory.getLogger( cCHAT_PrivateMessageRec
     ******************************************************************************/
     private cCHAT_UserMessageRecorder getUserFromList(String userid){
         if ( null == userid ){
-            log.debug("getUserFromList ERROR INPUT PARAMETER" );
+            log.error("getUserFromList ERROR INPUT PARAMETER" );
             return null ;
         }
         
@@ -285,11 +285,11 @@ private static Logger log = Red5LoggerFactory.getLogger( cCHAT_PrivateMessageRec
     ; __date__ :        PTS:            Description
     ; 01-16-2011
     ******************************************************************************/
-    public void setRecordStatusToUser(String userid,boolean record){
+    public String setRecordStatusToUser(String userid,boolean record){
     
         if ( null == userid ){
-            log.debug("setRecordStatusToUser ERROR INPUT PARAMETER" );
-            return ;
+            log.error("setRecordStatusToUser ERROR INPUT PARAMETER" );
+            return "setRecordStatusToUser ERROR INPUT PARAMETER" ;
         }
         
         boolean success = false ;
@@ -297,11 +297,18 @@ private static Logger log = Red5LoggerFactory.getLogger( cCHAT_PrivateMessageRec
             
             success = objUser.updateFileName(userid,"") ;
             if ( false == success ){
-                log.error ("Failed to update file name");
+                log.error ("setRecordStatusToUser Failed to update file name");
             }
         }
         
+        if ( null == objUser ){
+            log.error("setRecordStatusToUser ObjUser Null" );
+            return "setRecordStatusToUser ObjUser Null"  ;
+        }
+        
         objUser.setRecordStatusToUser(userid,record) ;
+        return "success" ;
+        
     }/** END FUNCTION 'setRecordStatusToUser' **/
     
     /*****************************************************************************
@@ -352,10 +359,41 @@ private static Logger log = Red5LoggerFactory.getLogger( cCHAT_PrivateMessageRec
         boolean success = false ;
         success = objUser.removeUserFromList(userid) ;
         if ( false == success ){
-            log.error("Failed to remove user from list");
+            log.error("removeUserFromList Failed to remove user from list " + userid);
             return ;
         }
     }/** END FUNCTION 'removeUserFromList' **/
+    /*****************************************************************************
+    ;  removeUserFromList
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to remove user from the list
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   userid      :   id of user
+    ; 
+    ; IMPLEMENTATION
+    ;  remove a user from the list
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 01-16-2011
+    ******************************************************************************/
+    public String getCurrentRoomFromUser(String userid){
+        if ( null == userid ){
+            log.error("getCurrentRoomFromUser ERROR INPUT PARAMETER"  );
+            return null;
+        }
+        
+        if ( null == objUser ){
+            log.error("getCurrentRoomFromUser objUser is empty");
+            return null ;
+        }
+        
+        log.info("getCurrentRoomFromUser userid : " + userid );
+        return objUser.getCurrentRoomFromUser(userid);
+    }
     
     /*****************************************************************************
     ;  addChatHistory
@@ -381,12 +419,16 @@ private static Logger log = Red5LoggerFactory.getLogger( cCHAT_PrivateMessageRec
     ; __date__ :        PTS:            Description
     ; 12-27-2011 
     ******************************************************************************/
-    public void addChatHistory(String userid, String toUser,  String message){
+    public String addChatHistory(String userid, String toUser,  String message){
    
-        log.debug("addChatHistory Entry");
+        String errMsg = "success" ;
+        
+        log.debug("-_>addChatHistory Entry");
         if ( (null == userid) || (null == toUser) || (null == message) ){
+            errMsg = "addChatHistory ERROR INPUT PARAMETER";
             log.error("addChatHistory ERROR INPUT PARAMETER");
-            return ;
+            log.error("addChatHistory Exit 1");
+            return errMsg;
         }
         
         String name = objUser.getUserName(message) ;
@@ -395,50 +437,71 @@ private static Logger log = Red5LoggerFactory.getLogger( cCHAT_PrivateMessageRec
         
         cCHAT_UserMessageRecorder user = getUserFromList(toUser);
         if ( null == user ){
-            return ;
+            errMsg = "No User in the list";
+            log.error("addChatHistory No User in the list");
+            log.error("addChatHistory Exit 2");
+            return errMsg ;
         }
         
         String fileName = user.curFile ;
 
         if ( true == user.record ){
-            
+            log.error("Recording Entry");
             if ( false == recordFileExists(userid,fileName) ){
-                
+                log.error("addChatHistory Create Record File userid: " + userid);
                 boolean success = false ;
                 
                 success = createRecordFolder(userid);
                 if ( false == success ){
-                    log.error("Failed to create folder");
-                    return  ;
+                    errMsg = "Failed to create folder";
+                    log.error("addChatHistory Failed to create folder");
+                    log.error("addChatHistory Exit 3");
+                    return  errMsg ;
                 }
               
+                log.error("Create File filename : " + fileName + " userid: " + userid);
                 success = createRecordFile(userid,fileName);
                 if ( false == success ){
-                    log.error("Failed to create file");
-                    return ;
+                    errMsg = "Failed to create file";
+                    log.error("addChatHistory Failed to create file " + fileName);
+                    log.error("addChatHistory Exit 4");
+                    return errMsg ;
                 }
             }
                
+            log.error("Initialize curHistoryFile userid: " + userid + 
+            " curDir : " + this.curDir  + " fileName : " + fileName);
+            
             curHistoryFile = new File(this.curDir + userid , fileName) ;
             if ( null == curHistoryFile ){
-                log.error("Failed to initialize curHistoryFile");
-                return ;
+                errMsg = "Failed to initialize curHistoryFile";
+                log.error("addChatHistory Failed to initialize curHistoryFile " + curHistoryFile);
+                log.error("addChatHistory Exit 5");
+                return errMsg ;
             }
             
             try{
+                log.error("Write message to Buffer userid: " + userid + 
+                    " curDir : " + this.curDir  + " fileName : " + fileName);
+                    
                 BufferedWriter bw = new BufferedWriter(new FileWriter(curHistoryFile, true));
                 if ( null == bw ){
-                    log.error("Failed to initialize buffer");
-                    return  ;
+                    errMsg = "Failed to initialize buffer";
+                    log.error(" addChatHistory Failed to initialize buffer");
+                    log.error("addChatHistory Exit 6");
+                    return  errMsg;
                 }
                 bw.write("[" + name + "]" + " : " + time + " : " + msg + "\n" ) ;
-                log.debug("Append Message to {} ",curHistoryFile);
-                log.debug("Message to {} ",name + " : " + time + " : " + msg + "\n" );
+                log.error("Append Message to {} ",curHistoryFile);
+                log.error("Message to {} ",name + " : " + time + " : " + msg + "\n" );
                 bw.close();
             }catch(IOException e){
-                log.debug("error {}",e.getMessage());
+                log.error("error {}",e.getMessage());
+                errMsg = e.getMessage() ;
             }
         }
+        log.error("addChatHistory Exit final");
+        return errMsg ;
         
     }/** END FUNCTION 'addChatHistory' **/
     

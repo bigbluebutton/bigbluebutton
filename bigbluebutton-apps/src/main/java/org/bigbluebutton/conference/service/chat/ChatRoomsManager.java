@@ -111,7 +111,7 @@ public class ChatRoomsManager {
         log.debug("Setting Record Status {}",userid);
         ChatRoom r = getRoom(room) ;
         if ( null != r){
-            r.setRecordStatus(userid,username,isRecording);
+            r.setRecordStatus(room,userid,username,isRecording);
         }
     }
     /**

@@ -42,10 +42,12 @@ import java.util.List;
 ; 12-27-2010
 ******************************************************************************/
 public class cCHAT_RoomHistoryFileManager{
+
     private String curDir ;
     
     private ArrayList<String> files;
     private ArrayList<String> messages;
+    private String dPath = "/tmp/" ;
     
     private static Logger log = Red5LoggerFactory.getLogger( cCHAT_RoomHistoryFileManager.class, "bigbluebutton" );
     
@@ -54,6 +56,30 @@ public class cCHAT_RoomHistoryFileManager{
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
     ;   this routine is the constructor of the cCHAT_RoomHistoryFileManager
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   
+    ; 
+    ; IMPLEMENTATION
+    ;  
+    ;  
+    ;
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 12-27-2010 
+    ******************************************************************************/
+    public cCHAT_RoomHistoryFileManager(){
+            log.debug ("cCHAT_RoomHistoryFileManager Constructor...");
+        
+    }/** END FUNCTION 'cCHAT_RoomHistoryFileManager' **/
+    
+    /*****************************************************************************
+    ;  initializeDirectory
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to initialize the directory
     ; RETURNS : N/A
     ;
     ; INTERFACE NOTES
@@ -68,30 +94,40 @@ public class cCHAT_RoomHistoryFileManager{
     ; __date__ :        PTS:            Description
     ; 12-27-2010 
     ******************************************************************************/
-    public cCHAT_RoomHistoryFileManager(String dir ){
+    public void initializeDirectory(String dir){
         if ( null == dir ){
-            log.debug ("ERROR INPUT PARAMETER dir");
+            log.error ("ERROR INPUT PARAMETER dir");
+            return ;
         }
         
         files = new ArrayList<String>() ;
         if ( null == files ){
-            log.debug ("ERROR INITIALIZE ArrayList File");
+            log.error ("initializeDirectory ERROR INITIALIZE ArrayList File");
+            return ;
         }
-        this.curDir = "/tmp/" + dir ;
+        
+        this.curDir = this.dPath + dir ;
         File tempDir = new File(this.curDir);
         if ( null == tempDir ){
-            log.debug ("ERROR INITIALIZE tempDir File");
+            log.error ("initializeDirectory ERROR INITIALIZE tempDir File");
+            return ;
         }
+        
+        if ( false == tempDir.exists()){
+            log.error ("initializeDirectory File doesn't exist " + this.curDir );
+            return ;
+        }
+        
         String[] fileName = tempDir.list();
         File f ;
         for( int i=0; i<fileName.length; i++ ){
-            log.debug("File List {} ",fileName[i]);
+            log.error("File List {} ",fileName[i]);
             f = new File (this.curDir,fileName[i]) ;
             if ( true == f.isFile() ){
                 files.add(fileName[i]);
             }
         }
-    }/** END FUNCTION 'cCHAT_RoomHistoryFileManager' **/
+    }
        
     /*****************************************************************************
     ;  getHistoryFileContent
@@ -116,7 +152,7 @@ public class cCHAT_RoomHistoryFileManager{
     public ArrayList<String> getHistoryFileContent(String fileName){
     
         if ( null == fileName ){
-            log.debug("Error: input parameter");
+            log.error("getHistoryFileContent input parameter null");
             return null ;
         }
         try{
@@ -125,21 +161,29 @@ public class cCHAT_RoomHistoryFileManager{
             
             File f = new File(this.curDir,fileName) ;
             if ( null == f ){
+                log.error("getHistoryFileContent Initialize file failed");
+                return null ;
+            }
+            if ( false == f.exists()){
+                log.error ("getHistoryFileContent File doesn't exists");
                 return null ;
             }
             
             FileReader fr = new FileReader(f) ;
             if ( null == fr ){
+                log.error("getHistoryFileContent Initialize fileReader failed");
                 return null ;
             }
             
             BufferedReader br = new BufferedReader(fr);
             if ( null == br ){
+                log.error("getHistoryFileContent Initialize bufferedReader failed");
                 return null ;
             }
             
             messages=new ArrayList<String>() ;
             if ( null == messages ){
+                log.error("getHistoryFileContent Initialize messages");
                 return null ;
             }
         
@@ -149,7 +193,7 @@ public class cCHAT_RoomHistoryFileManager{
             br.close();
             
         }catch(IOException e){
-            log.debug("Error: {}",e.getMessage());
+            log.error("getHistoryFileContent ",e.getMessage());
         }
         return messages ;
     }/** END FUNCTION 'getHistoryFileContent' **/

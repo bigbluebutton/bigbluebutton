@@ -93,7 +93,7 @@ private static Logger log = Red5LoggerFactory.getLogger( cCHAT_MessageRecorder.c
             if ( false == f.exists() ){
                 success = f.mkdir() ;
                 if ( true == success ){
-                    log.error("Directory {} was created",curDir);
+                    log.info("Directory {} was created",curDir);
                 }else{
                     log.error("Directory {} was not created",curDir);
                 }
@@ -249,7 +249,7 @@ private static Logger log = Red5LoggerFactory.getLogger( cCHAT_MessageRecorder.c
     ; 12-27-2010
     ******************************************************************************/
     @Override
-    public void setRecordStatus(String userid, String username, boolean status){
+    public void setRecordStatus(String room, String userid, String username, boolean status){
         
         log.debug("setRecordStatus Entry");
         
@@ -261,7 +261,7 @@ private static Logger log = Red5LoggerFactory.getLogger( cCHAT_MessageRecorder.c
         boolean success = false ;
         
         if ( null != objUser ){       
-            success = objUser.addUserToList(userid,username,status) ;
+            success = objUser.addUserToList(room,userid,username,status) ;
             if ( true == success ){        
                 objUser.setRecordStatusToUser(userid,status) ;
             }

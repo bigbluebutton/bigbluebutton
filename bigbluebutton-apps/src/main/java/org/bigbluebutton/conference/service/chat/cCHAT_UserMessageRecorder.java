@@ -38,6 +38,7 @@ public class cCHAT_UserMessageRecorder{
     public String toUser ;
     public String username ;
     public boolean record ;
+    public String room ;
     public String curFile ;
     public int suffix = 0 ;
     
@@ -66,7 +67,7 @@ public class cCHAT_UserMessageRecorder{
     ; __date__ :        PTS:            Description
     ; 01-16-2011
     ******************************************************************************/
-    public boolean addUserToList(String userid, String username, boolean record){
+    public boolean addUserToList(String room, String userid, String username, boolean record){
         log.debug("Add User Entry" );
         if ( (null == userid) || (null == username) ){
             log.error("addUserToList ERROR INPUT PARAMETER ");
@@ -76,19 +77,25 @@ public class cCHAT_UserMessageRecorder{
         boolean success = false ;
         cCHAT_UserMessageRecorder user = new cCHAT_UserMessageRecorder() ;
         if ( null == user ){
-            log.debug("Initialize Failed" );
+            log.error("addUserToList Initialize user Failed" );
             return false ;
         }
         if ( null == objUser ){
-            log.debug("Initialize Failed" );
+            log.error("addUserToList Initialize objUser Failed" );
             return false ;
         }
+
+        log.info("addUserToList userid : " + userid + 
+                 " username : " + username + " record : " + record +
+                 " room : " + room ) ;
+                 
         if ( false == isUserExist(userid) ){
             user.toUser = userid ;
             user.username = username ;
             user.record = record ;
             user.suffix = 0 ;
             user.curFile = user.username + "-" + user.suffix ;
+            user.room = room ;
             success = objUser.add(user) ;
         }else{
             success = true ;
@@ -212,6 +219,44 @@ public class cCHAT_UserMessageRecorder{
         
         return record ;
     }/** END FUNCTION 'getRecordStatusFromUser' **/
+    /*****************************************************************************
+    ;  getCurrentRoomFromUser
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to get record status to user
+    ; RETURNS : String
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   userid      :   id of user
+    ; 
+    ; IMPLEMENTATION
+    ;  get the current recording file from a user in objUser
+    ;
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 01-16-2011
+    ******************************************************************************/
+    public String getCurrentRoomFromUser(String userid){
+        if ( null == userid ){
+            log.error("getCurrentRoomFromUser ERROR INPUT PARAMETER" );
+            return null;
+        }
+        
+        int i=0 ;
+        String room = null ;
+        if ( null != objUser ){
+            for(i=0; i<objUser.size(); i++){
+                if (  0 == userid.compareTo(objUser.get(i).toUser ) ){
+                    room = objUser.get(i).room ;
+                    break ;
+                }
+            }
+        }
+        
+        log.info("getCurrentRoomFromUser room : " + room );
+        return room ;
+    }/** END FUNCTION 'getCurrentFileFromUser' **/
     
     /*****************************************************************************
     ;  getCurrentFileFromUser
@@ -292,7 +337,7 @@ public class cCHAT_UserMessageRecorder{
     ******************************************************************************/
     public boolean updateFileName(String userid,String fileName){
         if ( null == userid ){
-            log.debug("Input parameter NULL" );
+            log.error("updateFileName Input parameter NULL" );
             return false ;
         }
         
@@ -334,7 +379,7 @@ public class cCHAT_UserMessageRecorder{
     public boolean isUserExist(String userid){
     
         if ( null == userid ){
-            log.debug("isUserExist ERROR INPUT PARAMETER" );
+            log.error("isUserExist ERROR INPUT PARAMETER" );
             return false ;
         }
         
@@ -372,7 +417,7 @@ public class cCHAT_UserMessageRecorder{
     public boolean removeUserFromList(String userid){
         
         if ( null == userid ){
-            log.debug("removeUserFromList ERROR INPUT PARAMETER" );
+            log.error("removeUserFromList ERROR INPUT PARAMETER" );
             return false ;
         }
         

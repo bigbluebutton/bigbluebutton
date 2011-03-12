@@ -101,13 +101,13 @@ public class ChatRoom {
     ; 12-27-2010 
     ******************************************************************************/
     @SuppressWarnings("unchecked")
-    public void setRecordStatus(String userid, String username, boolean record){
+    public void setRecordStatus(String room, String userid, String username, boolean record){
         log.debug("Setting Record Status {}",userid);
         for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
             log.debug("calling on listener");
             IChatRoomListener listener = (IChatRoomListener) iter.next();
             log.debug("calling newChatMessage on listener {}",listener.getName());
-            listener.setRecordStatus(userid,username,record) ;
+            listener.setRecordStatus(room,userid,username,record) ;
         }
     }
     /**
