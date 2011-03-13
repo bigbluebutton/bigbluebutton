@@ -22,15 +22,21 @@ import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.IScope;
+import org.red5.server.api.Red5;
+import org.red5.server.api.stream.IBroadcastStream;
 import org.red5.server.api.stream.IServerStream;
+import org.red5.server.stream.ClientBroadcastStream;
 import org.slf4j.Logger;
+import org.red5.server.api.stream.IBroadcastStream;
+import org.red5.server.stream.ClientBroadcastStream;
 
 public class VideoApplication extends MultiThreadedApplicationAdapter {
 	private static Logger log = Red5LoggerFactory.getLogger(VideoApplication.class, "video");
 	
 	private IScope appScope;
-
 	private IServerStream serverStream;
+	
+	private boolean recordVideoStream = false;
 	
     @Override
 	public boolean appStart(IScope app) {
@@ -54,5 +60,33 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 			serverStream.close();
 		}
 		super.appDisconnect(conn);
+	}
+    
+    @Override
+    public void streamPublishStart(IBroadcastStream stream) {
+        if (recordVideoStream) {
+	    	recordStream(stream);
+        }
+    }
+    
+    /**
+     * A hook to record a sample stream. A file is written in webapps/sip/streams/
+     * @param stream
+     */
+    private void recordStream(IBroadcastStream stream) {
+    	IConnection conn = Red5.getConnectionLocal();     
+    	String streamName = stream.getPublishedName();
+     
+    	try {
+    		ClientBroadcastStream cstream = (ClientBroadcastStream) this.getBroadcastStream(conn.getScope(), stream.getPublishedName() );
+    		cstream.saveAs(streamName, false);
+    	} catch(Exception e) {
+    		System.out.println("ERROR while recording stream " + e.getMessage());
+    		e.printStackTrace();
+    	}    	
+    }
+
+	public void setRecordVideoStream(boolean recordVideoStream) {
+		this.recordVideoStream = recordVideoStream;
 	}
 }

@@ -12,8 +12,7 @@
 	<bean id="web.context" class="org.red5.server.Context"
 		autowire="byType" />
 
-	<bean id="web.scope" class="org.red5.server.WebScope"
-		 init-method="register">
+	<bean id="web.scope" class="org.red5.server.WebScope" init-method="register">
 		<property name="server" ref="red5.server" />
 		<property name="parent" ref="global.scope" />
 		<property name="context" ref="web.context" />
@@ -22,5 +21,7 @@
 		<property name="virtualHosts" value="${webapp.virtualHosts}" />
 	</bean>
 
-	<bean id="web.handler" class="org.bigbluebutton.app.video.VideoApplication" />
+	<bean id="web.handler" class="org.bigbluebutton.app.video.VideoApplication">
+		<property name="recordVideoStream" value="true"/>
+	</bean>
 </beans>
