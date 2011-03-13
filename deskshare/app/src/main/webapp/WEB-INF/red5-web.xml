@@ -45,5 +45,7 @@
         <constructor-arg ref="streamManager"/>
     </bean>
             
-    <bean id="streamManager" class="org.bigbluebutton.deskshare.server.stream.StreamManager"/>    
+    <bean id="streamManager" class="org.bigbluebutton.deskshare.server.stream.StreamManager">
+    	<constructor-arg index="0" value="true"/>
+    </bean>    
 </beans>

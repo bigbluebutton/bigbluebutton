@@ -36,7 +36,7 @@ import net.lag.logging.Logger
 case class IsStreamPublishing(room: String)
 case class StreamPublishingReply(publishing: Boolean, width: Int, height: Int)
 
-class StreamManager extends Actor {
+class StreamManager(record:Boolean) extends Actor {
 	private val log = Logger.get
  
 	var app: DeskshareApplication = null
@@ -76,7 +76,7 @@ class StreamManager extends Actor {
  
 	def createStream(room: String, width: Int, height: Int): Option[DeskshareStream] = {	  	  
 	  try {                                                                       
-		val stream = new DeskshareStream(app, room, width, height)
+		val stream = new DeskshareStream(app, room, width, height, record)
 		if (stream.initializeStream) {
 		  stream.start
 		  this ! new AddStream(room, stream)

@@ -21,6 +21,7 @@
 */
 package org.bigbluebutton.deskshare.server.stream
 
+import org.bigbluebutton.deskshare.server.recorder.FileRecorder
 import org.bigbluebutton.deskshare.server.red5.DeskshareApplication
 import org.bigbluebutton.deskshare.server.ScreenVideoBroadcastStream
 import org.red5.server.api.{IContext, IScope}
@@ -34,10 +35,12 @@ import scala.actors.Actor._
 
 import net.lag.logging.Logger
 
-class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, val height: Int) extends Stream {
+class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, val height: Int, record: Boolean) extends Stream {
 	private val log = Logger.get
 	private var broadcastStream:ScreenVideoBroadcastStream = null 
-
+	
+	private val flvRecorder:FileRecorder = new FileRecorder()
+		
 	var startTimestamp: Long = System.currentTimeMillis()
  
 	def act() = {
@@ -64,6 +67,9 @@ class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, v
 	private def stopStream() = {
 		log.debug("DeskShareStream: Stopping stream %s", name)
 		log.info("DeskShareStream: Sending deskshareStreamStopped for %s", name)
+		if (record) {
+	  		flvRecorder.stop()
+	  	}
 		broadcastStream.sendDeskshareStreamStopped(new ArrayList[Object]())
 		broadcastStream.stop()
 	    broadcastStream.close()	  
@@ -72,7 +78,9 @@ class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, v
 	
 	private def startStream() = {
 	  log.debug("DeskShareStream: Starting stream %s", name)
-	  
+	  if (record) {
+	  	flvRecorder.start()
+	  }
    	  broadcastStream.sendDeskshareStreamStarted(width, height)
 	}
 	
@@ -87,13 +95,25 @@ class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, v
 		/* Set the marker back to zero position so that "gets" start from the beginning.
 		 * Otherwise, you get BufferUnderFlowException.
 		 */		
-		buffer.rewind();	
+		buffer.rewind();
+		
+		if (record) {
+			System.out.println("Recording")
+			flvRecorder.accept(buffer)
+		} else {
+			System.out.println("Not Recording")
+		}	
 
 		val data: VideoData = new VideoData(buffer)
 		data.setTimestamp((System.currentTimeMillis() - startTimestamp).toInt)
 		broadcastStream.dispatchEvent(data)
 		data.release()
 		
+		if (record) {
+			System.out.println("Recording")
+		} else {
+			System.out.println("Not Recording")
+		}
 	}
  
 	override def  exit() : Nothing = {
