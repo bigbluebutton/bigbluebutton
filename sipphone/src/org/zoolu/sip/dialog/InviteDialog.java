@@ -416,7 +416,15 @@ public class InviteDialog extends Dialog implements TransactionClientListener, I
          //dialog_state.incLocalCSeq(); // done by MessageFactory.createRequest()
          TransactionClient tc=new TransactionClient(sip_provider,bye,this);
          tc.request();
-         //listener.onDlgByeing(this);         
+         //listener.onDlgByeing(this);
+         //<REALWAT>
+         invite_req	= null;
+         ack_req	= null;
+         invite_ts  = null;
+         ack_ts		= null;
+         bye_ts		= null;
+         listener	= null;
+         //</REALWAT>
       }
    }
 

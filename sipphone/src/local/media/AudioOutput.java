@@ -154,6 +154,10 @@ public class AudioOutput
    {  if (source_line.isOpen())
       {  source_line.drain();
          source_line.stop();
+         //<REALWAT>
+         source_line.close();
+         //source_line = null;
+         //</REALWAT>
       }
       else
       {  System.err.print("WARNING: Audio stop error: source line is not open.");

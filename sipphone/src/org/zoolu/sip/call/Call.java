@@ -214,6 +214,9 @@ public class Call implements InviteDialogListener
          dialog.cancel();
          dialog.bye();
       }
+      //<REALWAT>
+      sip_provider.halt();
+   	  //</REALWAT>
    }    
    
 

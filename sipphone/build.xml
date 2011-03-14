@@ -23,6 +23,8 @@
     </path>
 
     <target name="init">
+        <delete dir="dist"/>
+        <delete dir="build/classes"/>
 		<mkdir dir="dist" />
         <mkdir dir="build/classes" />
 	</target>

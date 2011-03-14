@@ -42,6 +42,8 @@ import org.zoolu.tools.Parser;
 import org.zoolu.tools.Archive;
 
 //import java.util.Iterator;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Enumeration;
 import java.util.Vector;
 import java.io.*;
@@ -227,7 +229,7 @@ public class UserAgent extends CallListenerAdapter
       this.user_profile=user_profile;
       // if no contact_url and/or from_url has been set, create it now
       user_profile.initContactAddress(sip_provider);
-
+      
       // load sounds  
 
       // ################# patch to make audio working with javax.sound.. #################
@@ -257,7 +259,7 @@ public class UserAgent extends CallListenerAdapter
       // set local sdp
       initSessionDescriptor();
       if (user_profile.audio || !user_profile.video) addMediaDescriptor("audio",user_profile.audio_port,user_profile.audio_avp,user_profile.audio_codec,user_profile.audio_sample_rate);
-      if (user_profile.video) addMediaDescriptor("video",user_profile.video_port,user_profile.video_avp,null,0);     
+      if (user_profile.video) addMediaDescriptor("video",user_profile.video_port,user_profile.video_avp,null,0);
    } 
    
 
@@ -275,10 +277,24 @@ public class UserAgent extends CallListenerAdapter
    
    /** Makes a new call (acting as UAC). */
    public void call(String target_url)
-   {  changeStatus(UA_OUTGOING_CALL);
+   {  
+	   //<REALWAT>
+	   if (null == call)System.out.println("\ncall object is null ===============================realwat");
+	   System.out.println("UserAgent: call() =================================realwat");
+	   //</REALWAT>
+	   changeStatus(UA_OUTGOING_CALL);
       call=new ExtendedCall(sip_provider,user_profile.from_url,user_profile.contact_url,user_profile.username,user_profile.realm,user_profile.passwd,this);      
       // in case of incomplete url (e.g. only 'user' is present), try to complete it
       target_url=sip_provider.completeNameAddress(target_url).toString();
+      //<REALWAT>
+      System.out.println("target_url:"+target_url+", user_profile.from_url:"+user_profile.from_url+", user_profile.contact_url:"+user_profile.contact_url+
+    		  "\nuser_profile.call_to: "+user_profile.call_to 
+    		  +"\nlocal_session:"+local_session
+    		  +"\nuser_profile.realm:"+user_profile.realm
+    		  +"\nuser_profile.do_register: "+user_profile.do_register
+    		  +"\ncall to: "+user_profile.call_to
+    		  +"==========================================================realwat");
+      //</REALWAT>
       if (user_profile.no_offer) call.call(target_url);
       else call.call(target_url,local_session);
    }   
@@ -288,16 +304,19 @@ public class UserAgent extends CallListenerAdapter
    public void listen()
    {  changeStatus(UA_IDLE);
       call=new ExtendedCall(sip_provider,user_profile.from_url,user_profile.contact_url,user_profile.username,user_profile.realm,user_profile.passwd,this);      
-      call.listen();  
+      call.listen();
    } 
 
 
    /** Closes an ongoing, incoming, or pending call */
    public void hangup()
    {  if (clip_ring!=null) {}//clip_ring.stop();      
-      closeMediaApplication();
+   	  closeMediaApplication();
       if (call!=null) call.hangup();
       changeStatus(UA_IDLE);
+      //<REALWAT>
+      
+      //</REALWAT>
    } 
 
 
@@ -419,13 +438,51 @@ public class UserAgent extends CallListenerAdapter
    
    /** Close the Media Application  */
    protected void closeMediaApplication()
-   {  if (audio_app!=null)
-      {  audio_app.stopMedia();
+   {  
+	   //<REALWAT>
+	   	  System.out.println("\ncloseMediaApplication");
+	      /*call.cancel();
+	      call = null;*/
+	   //</REALWAT>
+	   if (audio_app!=null)
+      {  
+	   //<REALWAT>
+		 AccessController.doPrivileged(new PrivilegedAction() 
+		   {
+
+		        public Void run() {
+		            // kill the JVM
+		            //System.exit(0);
+		        	audio_app.stopMedia();
+		            //audio_app=null;
+		            return null;
+		        }
+		    });
+		 //</REALWAT>
+		 /*
+	     audio_app.stopMedia();
          audio_app=null;
+         */
       }
       if (video_app!=null)
-      {  video_app.stopMedia();
+      {  
+   	   //<REALWAT>
+ 		 AccessController.doPrivileged(new PrivilegedAction() 
+ 		   {
+
+ 		        public Void run() {
+ 		            // kill the JVM
+ 		            //System.exit(0);
+ 		        	video_app.stopMedia();
+ 		           //video_app=null;
+ 		            return null;
+ 		        }
+ 		    });
+ 		 //</REALWAT>
+    	 /*
+    	 video_app.stopMedia();
          video_app=null;
+         */
       }
    }
 

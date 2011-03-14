@@ -101,7 +101,9 @@ public class cSIP_Call {
 		if ( null != ua ){
 			ua.hangup();
 		}
+		//<REALWAT>
+		ua 			= null;
+		//</REALWAT>
 	}
-	
 	
 }

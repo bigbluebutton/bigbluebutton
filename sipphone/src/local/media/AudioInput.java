@@ -45,6 +45,9 @@ public class AudioInput
    /** Inits the static system audio input line */
    public static void initAudioLine()
    {
+	   //<REALWAT>
+	   System.out.println("UserAgent: initAudioLine============================================realwat");
+	   //</REALWAT>
       /*println("Available Mixers:");
       Mixer.Info[] aInfos=AudioSystem.getMixerInfo();
       for (int i=0; i < aInfos.length; i++) print("   "+i+") "+aInfos[i].getName()+"\n");      
@@ -154,6 +157,12 @@ public class AudioInput
    public void stop()
    {  if (target_line.isOpen()){
 	   	  target_line.stop();
+	   	  //<REALWAT>
+	   	  
+	   	  target_line.close();
+	   	  System.out.println("target_line.stop()=========================================realwat1");
+	   	  //target_line = null;
+	   	  //</REALWAT>
    	  }else{ 
    		  System.err.print("WARNING: Audio stop error: target line is not open.");
       }

@@ -18,6 +18,9 @@
 */
 package org.bigbluebutton.sua.applet;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+
 import javax.swing.JApplet;
 import org.bigbluebutton.sua.applet.cSIP_Call;
 /*****************************************************************************
@@ -74,16 +77,44 @@ public class cSIP_Applet extends JApplet{
 		sip_call = new cSIP_Call(this.bbb_domain,this.bbb_room,this.bbb_name);
 		//initializeProfile(this.bbb_domain,this.bbb_room,this.bbb_name);
 		//doCall(this.bbb_domain,this.bbb_room);
+		//<REALWAT>
+		System.out.println("cSIP_Applet: init() ==============================================realwat1\n sip_call:"+sip_call.toString());
+		//</REALWAT>
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void endCall(){
 		if ( null != sip_call ){
 			sip_call.endCall() ;
 		}
 		sip_call = null ;
-        System.exit(0);
+        //System.exit(0);
+		 AccessController.doPrivileged(new PrivilegedAction() 
+		   {
+
+		        public Void run() {
+		            // kill the JVM
+		            //System.exit(0);
+		            return null;
+		        }
+		    });
+
 	}
-	
+	//<REALWAT>
+	public void stopCall(){
+		System.out.println("\n\nStop call\n\n");
+		sip_call.endCall();
+		//sip_call = null;
+	}
+	public void startCall(){
+		System.out.println("\n\nstartCall\n\n");
+		if (null == sip_call){
+			System.out.println("sip_call is NULL");
+			sip_call = new cSIP_Call(this.bbb_domain,this.bbb_room,this.bbb_name);
+		}
+		sip_call.doCall(bbb_domain, bbb_room);
+	}
+	//</REALWAT>
 	@Override
 	public void destroy(){
 		System.out.print("Destroy SIP Phone...") ;
