@@ -233,6 +233,21 @@
 				logBtn.visible = e.config.showDebug;
 			}
 			
+			private function changeLayout():void{
+				switch (cmbLayout.selectedIndex) {
+					case 0:
+						mdiCanvas.layoutSmallVideos();
+						break;
+					case 1:
+						mdiCanvas.layoutPresenter();
+						break;
+					case 2:
+						mdiCanvas.layoutMeeting();
+						break;
+				}
+				cmbLayout.selectedIndex = -1;
+			}
+			
 		]]>
 	</mx:Script>
 			
@@ -246,6 +261,15 @@
 	  	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}" id="copyrightLabel2"/>
 	 	<mx:Spacer width="20"/>
 		<mx:Spacer width="100%"/> 
+		<mx:ComboBox width="150" height="20" id="cmbLayout" change="changeLayout()" prompt="Layout" selectedItem="-1">
+           <mx:dataProvider>
+              <mx:Array>
+			      <mx:String>Small videos</mx:String>
+			      <!--mx:String>Presenter + presentation</mx:String>
+			      <mx:String>Meeting</mx:String-->
+              </mx:Array>
+           </mx:dataProvider>
+      	</mx:ComboBox>
 		<mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}" id="logBtn" icon="{logs_icon}" click="openLogWindow()" />
 		<mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.resetLayoutBtn.toolTip')}" id="btnResetLayout" icon="{reset_layout_icon}" click="resetLayout()" />
 	</mx:ControlBar>
