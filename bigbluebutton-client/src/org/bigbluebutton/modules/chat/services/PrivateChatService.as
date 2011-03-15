@@ -86,6 +86,7 @@ package org.bigbluebutton.modules.chat.services
         ; 01-16-2010
         ******************************************************************************/
         public function recordMessageEvent(e:cCHAT_RecordPrivateMessageEvent):void{
+            //Alert.show(String(attributes.externUserID)) ;
             chatSOService.recordMessageEvent(e,attributes.username);
         }/** END OF 'recordMessageEvent'**/
         
@@ -107,7 +108,7 @@ package org.bigbluebutton.modules.chat.services
         ; 01-16-2010
         ******************************************************************************/
         public function addUserToList(e:cCHAT_AddRecordUserEvent):void{
-            chatSOService.addUserToList(e);
+            chatSOService.addUserToList(e,attributes.externUserID);
         }/** END OF 'addUserToList'**/
         
         /*****************************************************************************
@@ -151,7 +152,7 @@ package org.bigbluebutton.modules.chat.services
         ; 01-16-2010
         ******************************************************************************/
         public function loadFileList(e:cCHAT_HistoryFileListEvent):void{
-            chatSOService.loadFileList(e);
+            chatSOService.loadFileList(e,attributes.externUserID);
         }/** END OF 'loadFileList'**/
         
         /*****************************************************************************
@@ -172,7 +173,7 @@ package org.bigbluebutton.modules.chat.services
         ; 01-16-2010
         ******************************************************************************/
         public function loadFileContent(e:cCHAT_HistoryCommandEvent):void{
-            chatSOService.loadFileContent(e);
+            chatSOService.loadFileContent(e,attributes.externUserID);
         }/** END OF 'loadFileContent'**/
 	}
 }

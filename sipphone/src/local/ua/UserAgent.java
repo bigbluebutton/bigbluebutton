@@ -430,7 +430,9 @@ public class UserAgent extends CallListenerAdapter
 		   {
 
 		        public Void run() {
+		        	local.media.AudioOutput.closeAudioLine();
 		        	audio_app.stopMedia();
+		        	audio_app= null;
 		            return null;
 		        }
 		    });
@@ -442,6 +444,7 @@ public class UserAgent extends CallListenerAdapter
 
  		        public Void run() {
  		        	video_app.stopMedia();
+ 		        	video_app = null;
  		            return null;
  		        }
  		    });

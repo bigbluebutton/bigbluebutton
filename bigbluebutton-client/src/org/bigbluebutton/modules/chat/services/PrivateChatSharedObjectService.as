@@ -56,6 +56,8 @@ package org.bigbluebutton.modules.chat.services
 		
 		public function PrivateChatSharedObjectService(connection:NetConnection, dispatcher:IEventDispatcher)
 		{			
+        
+            LogUtil.debug("Call PrivateChatSharedObjectService Constructor ...");
 			this.connection = connection;
 			this.dispatcher = dispatcher;		
 			
@@ -69,30 +71,33 @@ package org.bigbluebutton.modules.chat.services
 			);
 
 			participantsResponder = new Responder(
-	        		// participants - On successful result
-					function(result:Object):void { 
-						trace("Successfully queried participants: " + result.count); 
-						if (result.count > 0) {
-							for(var p:Object in result.participants) 
-							{
-								participantJoined(result.participants[p]);
-							}							
-						}	
-					},	
-					// status - On error occurred
-					function(status:Object):void { 
-						trace("Error occurred:"); 
-						for (var x:Object in status) { 
-							LogUtil.error(x + " : " + status[x]); 
-							} 
-						trace("Error in participantsResponder call");
-					}
-				);				
+	        	// participants - On successful result
+				function(result:Object):void { 
+					trace("Successfully queried participants: " + result.count); 
+					if (result.count > 0) {
+						for(var p:Object in result.participants) 
+						{
+							participantJoined(result.participants[p]);
+						}							
+					}	
+				},	
+				// status - On error occurred
+				function(status:Object):void { 
+					trace("Error occurred:"); 
+					for (var x:Object in status) { 
+						LogUtil.error(x + " : " + status[x]); 
+					} 
+					trace("Error in participantsResponder call");
+				}
+			);				
 		}
 						
 	    public function join(userid:String, uri:String):void
 		{
-			this.userid = userid;
+        
+            LogUtil.debug("Call join ... userid " + userid + " uri " + uri );
+		
+            this.userid = userid;
 			chatSO = SharedObject.getRemote(userid, uri, false);
 			chatSO.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);
 			chatSO.client = this;
@@ -102,12 +107,15 @@ package org.bigbluebutton.modules.chat.services
 		
 	    public function leave():void
 	    {
+            LogUtil.debug("Call leave ...");
 	    	if (chatSO != null) {
 	    		chatSO.close();
 	    	}
 	    }
 		
 		public function sendMessage(message:MessageVO):void{
+            
+            LogUtil.debug("Call sendMessage ... message : " + message);
 			connection.call("chat.privateMessage", privateResponder, message.message, message.sender , message.recepient);
 			
 			sendMessageToSelf(message);
@@ -115,10 +123,13 @@ package org.bigbluebutton.modules.chat.services
 		}
 		
 		private function sendMessageToSelf(message:MessageVO):void {
+            LogUtil.debug("Call sendMessageToSelf ... message : " + message );
 			messageReceived(message.recepient, message.message);
 		}
 		
 		public function messageReceived(from:String, message:String):void {
+            
+            LogUtil.debug("Call messageReceived ... from : " + from + " message " + message );
 			var event:PrivateChatMessageEvent = new PrivateChatMessageEvent(PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT);
 			event.message = new MessageVO(message, from, userid);
 			trace("Sending private message " + message);
@@ -134,6 +145,8 @@ package org.bigbluebutton.modules.chat.services
 		}
 
 		public function participantJoined(joinedUser:Object):void { 
+        
+            LogUtil.debug("Call participantJoined ... userid : " + joinedUser.userid + " username : " + joinedUser.name);
 			var participant:User = new User();
 			participant.userid = joinedUser.userid;
 			participant.name = joinedUser.name;
@@ -172,9 +185,11 @@ package org.bigbluebutton.modules.chat.services
         ; 16-01-2010
         ******************************************************************************/  
         private function recordChatMessage(from:String,message:String):void{
+            LogUtil.debug("Call recordChatMessage ... from : " + from + " to : " + this.userid + " message : " + message );
             connection.call("chat.recordChatMessage", new Responder(
                         function(result:Object):void{
                             LogUtil.debug("Successfully called chat server private message");
+                            LogUtil.debug("Error Message ..." + String(result) );
                         },
                         function(status:Object):void{
                             LogUtil.error("Error while trying to call privateMessage on server");
@@ -204,6 +219,9 @@ package org.bigbluebutton.modules.chat.services
         ; 16-01-2010
         ******************************************************************************/ 
         public function recordMessageEvent(e:cCHAT_RecordPrivateMessageEvent,username:String):void{
+            
+            LogUtil.debug("Call recordMessageEvent ... userid : " + e.receiver + " record : " + e.isRecording );
+            
             connection.call("chat.setPrivateRecordStatus", new Responder(
                         function(result:Object):void{
                             LogUtil.debug("Successfully called chat server private message");
@@ -234,7 +252,8 @@ package org.bigbluebutton.modules.chat.services
         ; __date__ :        PTS:            Description
         ; 16-01-2010
         ******************************************************************************/
-        public function addUserToList(e:cCHAT_AddRecordUserEvent):void{
+        public function addUserToList(e:cCHAT_AddRecordUserEvent,externUserId:String):void{
+            LogUtil.debug("Call addUserToList ... userid : " + e.userid + " username : " + e.username + " record : " + e.record );
             connection.call("chat.addUserToList", new Responder(
                         function(result:Object):void{
                             LogUtil.debug("Successfully called chat server private message");
@@ -245,7 +264,8 @@ package org.bigbluebutton.modules.chat.services
                     ), 
                 e.userid,
                 e.username,
-                e.record
+                e.record  ,
+                externUserId
             )
         }//** END FUNCTION 'addUserToList' **/
         
@@ -267,6 +287,7 @@ package org.bigbluebutton.modules.chat.services
         ; 16-01-2010
         ******************************************************************************/
         public function removeUserFromList(e:cCHAT_AddRecordUserEvent):void{
+            LogUtil.debug("Call removeUserFromList ... userid : " + e.userid );
             connection.call("chat.removeUserFromList", new Responder(
                         function(result:Object):void{
                             LogUtil.debug("Successfully called chat server private message");
@@ -296,7 +317,9 @@ package org.bigbluebutton.modules.chat.services
         ; __date__ :        PTS:            Description
         ; 16-01-2010
         ******************************************************************************/
-        public function loadFileList(e:cCHAT_HistoryFileListEvent):void{
+        public function loadFileList(e:cCHAT_HistoryFileListEvent,exterUserId:String):void{
+        
+            LogUtil.debug("Call loadFileList ... userid : " + e.sender );
             connection.call("chat.getPrivateFileList", new Responder(
                         function(result:Object):void{
                             LogUtil.debug("Successfully called chat server private message");
@@ -336,7 +359,8 @@ package org.bigbluebutton.modules.chat.services
         ; __date__ :        PTS:            Description
         ; 16-01-2010
         ******************************************************************************/
-        public function loadFileContent(e:cCHAT_HistoryCommandEvent):void{
+        public function loadFileContent(e:cCHAT_HistoryCommandEvent,exterUserId:String):void{
+            LogUtil.debug("Call loadFileContent ... userid : " + e.userid + " fileName : " + e.fileName);
             connection.call("chat.getPrivateChatMessages", new Responder(
                         function(result:Object):void{
                             LogUtil.debug("Successfully called chat server private message");
