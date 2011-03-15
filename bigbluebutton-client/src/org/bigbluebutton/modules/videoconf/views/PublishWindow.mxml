@@ -33,6 +33,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.common.LogUtil;
 			import flexlib.mdi.events.MDIWindowEvent;
 			
 			import mx.core.UIComponent;
@@ -63,8 +64,7 @@
 				if (isPresenter()) showResControls(true);
 				if (Camera.names.length > 1) showVideoControls(true);
 				if (!isPresenter() && Camera.names.length == 1) startPublishing();
-				maximizeRestoreBtn.visible = false;
-				
+				maximizeRestoreBtn.visible = false;				
 			}
 			
 			public function getPrefferedPosition():String{
@@ -122,7 +122,12 @@
 					camHeight = 480;
 					camWidth = 640;
 				}
-				this.streamName = cmbResolution.selectedLabel.concat(this.streamName);
+				/**
+				 * Add timestamp to create a unique stream name. This way we can record
+				 * stream without overwriting previously recorded streams.
+				 */
+				var curTime:Number = new Date().getTime();
+				this.streamName = cmbResolution.selectedLabel.concat(this.streamName) + "-" + curTime;
 			}
 			
 			public function set userrole(role:String):void{
