@@ -214,9 +214,9 @@ public class Call implements InviteDialogListener
          dialog.cancel();
          dialog.bye();
       }
-      //<REALWAT>
+   	  // halt target_line to enable re-call after hangup
+   	  System.out.println("org.zoolu.sip.Call: halt the sip_provider");
       sip_provider.halt();
-   	  //</REALWAT>
    }    
    
 

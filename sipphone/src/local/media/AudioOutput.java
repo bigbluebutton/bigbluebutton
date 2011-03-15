@@ -154,10 +154,9 @@ public class AudioOutput
    {  if (source_line.isOpen())
       {  source_line.drain();
          source_line.stop();
-         //<REALWAT>
+         // close source_line to enable re-call after hangup
+         System.out.println("local.media.AudioOuput: close source_line");
          source_line.close();
-         //source_line = null;
-         //</REALWAT>
       }
       else
       {  System.err.print("WARNING: Audio stop error: source line is not open.");

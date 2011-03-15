@@ -86,6 +86,7 @@ private static Logger log = Red5LoggerFactory.getLogger( cCHAT_MessageRecorder.c
         
         this.so = so; 
         this.curDir = dPath + dir  ;
+        log.info("Constructor scope : " + dir );
         objUser = new cCHAT_UserMessageRecorder() ;
         
         File f = new File(curDir) ;
@@ -261,7 +262,7 @@ private static Logger log = Red5LoggerFactory.getLogger( cCHAT_MessageRecorder.c
         boolean success = false ;
         
         if ( null != objUser ){       
-            success = objUser.addUserToList(room,userid,username,status) ;
+            success = objUser.addUserToList(room,userid,username,status,null) ;
             if ( true == success ){        
                 objUser.setRecordStatusToUser(userid,status) ;
             }

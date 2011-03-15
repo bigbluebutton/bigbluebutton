@@ -277,24 +277,10 @@ public class UserAgent extends CallListenerAdapter
    
    /** Makes a new call (acting as UAC). */
    public void call(String target_url)
-   {  
-	   //<REALWAT>
-	   if (null == call)System.out.println("\ncall object is null ===============================realwat");
-	   System.out.println("UserAgent: call() =================================realwat");
-	   //</REALWAT>
-	   changeStatus(UA_OUTGOING_CALL);
+   {  changeStatus(UA_OUTGOING_CALL);
       call=new ExtendedCall(sip_provider,user_profile.from_url,user_profile.contact_url,user_profile.username,user_profile.realm,user_profile.passwd,this);      
       // in case of incomplete url (e.g. only 'user' is present), try to complete it
       target_url=sip_provider.completeNameAddress(target_url).toString();
-      //<REALWAT>
-      System.out.println("target_url:"+target_url+", user_profile.from_url:"+user_profile.from_url+", user_profile.contact_url:"+user_profile.contact_url+
-    		  "\nuser_profile.call_to: "+user_profile.call_to 
-    		  +"\nlocal_session:"+local_session
-    		  +"\nuser_profile.realm:"+user_profile.realm
-    		  +"\nuser_profile.do_register: "+user_profile.do_register
-    		  +"\ncall to: "+user_profile.call_to
-    		  +"==========================================================realwat");
-      //</REALWAT>
       if (user_profile.no_offer) call.call(target_url);
       else call.call(target_url,local_session);
    }   
@@ -314,9 +300,6 @@ public class UserAgent extends CallListenerAdapter
    	  closeMediaApplication();
       if (call!=null) call.hangup();
       changeStatus(UA_IDLE);
-      //<REALWAT>
-      
-      //</REALWAT>
    } 
 
 
@@ -437,52 +420,31 @@ public class UserAgent extends CallListenerAdapter
  
    
    /** Close the Media Application  */
+   @SuppressWarnings("unchecked")
    protected void closeMediaApplication()
    {  
-	   //<REALWAT>
-	   	  System.out.println("\ncloseMediaApplication");
-	      /*call.cancel();
-	      call = null;*/
-	   //</REALWAT>
+	   System.out.println("\nUserAgent: closeMediaApplication()");
 	   if (audio_app!=null)
-      {  
-	   //<REALWAT>
+       {  
 		 AccessController.doPrivileged(new PrivilegedAction() 
 		   {
 
 		        public Void run() {
-		            // kill the JVM
-		            //System.exit(0);
 		        	audio_app.stopMedia();
-		            //audio_app=null;
 		            return null;
 		        }
 		    });
-		 //</REALWAT>
-		 /*
-	     audio_app.stopMedia();
-         audio_app=null;
-         */
       }
       if (video_app!=null)
       {  
-   	   //<REALWAT>
  		 AccessController.doPrivileged(new PrivilegedAction() 
- 		   {
+ 		 {
 
  		        public Void run() {
- 		            // kill the JVM
- 		            //System.exit(0);
  		        	video_app.stopMedia();
- 		           //video_app=null;
  		            return null;
  		        }
  		    });
- 		 //</REALWAT>
-    	 /*
-    	 video_app.stopMedia();
-         video_app=null;
-         */
       }
    }
 

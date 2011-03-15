@@ -96,14 +96,10 @@ public class cSIP_Call {
 	}
 	
 	public void endCall(){
-		
 		System.out.print("End Call");
 		if ( null != ua ){
 			ua.hangup();
 		}
-		//<REALWAT>
-		ua 			= null;
-		//</REALWAT>
 	}
 	
 }

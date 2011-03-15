@@ -39,6 +39,7 @@ public class cCHAT_UserMessageRecorder{
     public String username ;
     public boolean record ;
     public String room ;
+    public String externUserID ;
     public String curFile ;
     public int suffix = 0 ;
     
@@ -67,7 +68,7 @@ public class cCHAT_UserMessageRecorder{
     ; __date__ :        PTS:            Description
     ; 01-16-2011
     ******************************************************************************/
-    public boolean addUserToList(String room, String userid, String username, boolean record){
+    public boolean addUserToList(String room, String userid, String username, boolean record,String externUserID){
         log.debug("Add User Entry" );
         if ( (null == userid) || (null == username) ){
             log.error("addUserToList ERROR INPUT PARAMETER ");
@@ -87,13 +88,14 @@ public class cCHAT_UserMessageRecorder{
 
         log.info("addUserToList userid : " + userid + 
                  " username : " + username + " record : " + record +
-                 " room : " + room ) ;
+                 " room : " + room + " externUserID : " + externUserID ) ;
                  
         if ( false == isUserExist(userid) ){
             user.toUser = userid ;
             user.username = username ;
             user.record = record ;
             user.suffix = 0 ;
+            user.externUserID = externUserID ;
             user.curFile = user.username + "-" + user.suffix ;
             user.room = room ;
             success = objUser.add(user) ;
@@ -256,7 +258,46 @@ public class cCHAT_UserMessageRecorder{
         
         log.info("getCurrentRoomFromUser room : " + room );
         return room ;
-    }/** END FUNCTION 'getCurrentFileFromUser' **/
+    }/** END FUNCTION 'getCurrentRoomFromUser' **/
+    
+    /*****************************************************************************
+    ;  getExternUserID
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to get record status to user
+    ; RETURNS : String
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   userid      :   id of user
+    ; 
+    ; IMPLEMENTATION
+    ;  get the current recording file from a user in objUser
+    ;
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 01-16-2011
+    ******************************************************************************/
+    public String getExternUserID(String userid){
+        if ( null == userid ){
+            log.error("getExternUserID ERROR INPUT PARAMETER" );
+            return null;
+        }
+        
+        int i=0 ;
+        String externUserId = null ;
+        if ( null != objUser ){
+            for(i=0; i<objUser.size(); i++){
+                if (  0 == userid.compareTo(objUser.get(i).toUser ) ){
+                    externUserId = objUser.get(i).externUserID ;
+                    break ;
+                }
+            }
+        }
+        
+        log.info("getExternUserID externUserId : " + externUserId );
+        return externUserId ;
+    }/** END FUNCTION 'getExternUserID' **/
     
     /*****************************************************************************
     ;  getCurrentFileFromUser

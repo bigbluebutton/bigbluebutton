@@ -87,7 +87,7 @@ public class ChatService
     ; __date__ :        PTS:            Description
     ; 12-27-2010
     ******************************************************************************/
-    public void setRecordStatus(String userid, String username, Boolean isRecording){
+    public void setRecordStatus(String userid, String username, boolean isRecording){
         String roomName = Red5.getConnectionLocal().getScope().getName();
         application.setRecordStatus(roomName,userid,username,isRecording);
     }/** END FUNCTION 'setRecordStatus' **/
@@ -184,6 +184,8 @@ public class ChatService
     ******************************************************************************/
     public String recordChatMessage(String userid, String toUser, String message){
         
+        String roomName = Red5.getConnectionLocal().getScope().getName();
+        
         if ( (null == userid) || (null == toUser) || (null == message) ){
             log.error("recordChatMessage ERROR INPUT PARAMETER " + userid + " " + toUser + " " + message);
             return "error input param";
@@ -193,8 +195,8 @@ public class ChatService
             log.error("recordChatMessage null object");
             initializePrivateChatRecorder() ;
         }
-        log.debug("add to chat");
-        return priRecorder.addChatHistory(userid,toUser,message);
+        log.debug("recordChatMessage room : " + roomName + " userid : " + userid );
+        return priRecorder.addChatHistory(roomName,userid,toUser,message);
         
     }/** END FUNCTION 'recordChatMessage' **/
     
@@ -251,12 +253,13 @@ public class ChatService
     ; __date__ :        PTS:            Description
     ; 16-01-2011
     ******************************************************************************/
-    public void addUserToList(String userid, String username, boolean record){
+    public void addUserToList(String userid, String username, boolean record,String externUserID){
         
         String roomName = Red5.getConnectionLocal().getScope().getName();
         
         if ( (null == userid) || (null == username) ){
-            log.error("addUserToList ERROR INPUT PARAMETER " + userid + " " + username + " " + record);
+            log.error("addUserToList ERROR INPUT PARAMETER " + userid + " " + username + " " + 
+                        record + " " + externUserID);
             return ;
         }
         if ( null == priRecorder ){
@@ -264,7 +267,7 @@ public class ChatService
             initializePrivateChatRecorder() ;
         }
         
-        priRecorder.addUserToList(roomName,userid,username,record) ;
+        priRecorder.addUserToList(roomName,userid,username,record,externUserID) ;
     }/** END FUNCTION 'addUserToList' **/
     
     /*****************************************************************************
@@ -339,7 +342,7 @@ public class ChatService
             log.info("getPrivateFileList current room : " + room );
         }
         
-        historyManager.initializeDirectory(room + "/" + userid);
+        historyManager.initializeDirectory(roomName + "/" + userid);
         return historyManager.getFilesList() ;
         
     }/** END FUNCTION 'getPrivateFileList' **/
@@ -400,8 +403,7 @@ public class ChatService
     ; 16-01-2011
     ******************************************************************************/
     public void initializePrivateChatRecorder() {
-        String roomName = Red5.getConnectionLocal().getScope().getName();
-        priRecorder = new cCHAT_PrivateMessageRecorder(roomName) ;
+        priRecorder = new cCHAT_PrivateMessageRecorder() ;
         if ( null == priRecorder ){
             log.error("initializePrivateChatRecorder Initialize failed" );
             return ;
