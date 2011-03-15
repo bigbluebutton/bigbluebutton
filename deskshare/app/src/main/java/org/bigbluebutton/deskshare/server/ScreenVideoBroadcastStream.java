@@ -154,8 +154,7 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 		log.trace("stop");
 	}
 
-	public void onOOBControlMessage(IMessageComponent source, IPipe pipe,
-			OOBControlMessage oobCtrlMsg) {
+	public void onOOBControlMessage(IMessageComponent source, IPipe pipe, OOBControlMessage oobCtrlMsg) {
 		log.trace("onOOBControlMessage");
 	}
 

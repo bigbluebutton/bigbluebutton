@@ -39,7 +39,7 @@ class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, v
 	private val log = Logger.get
 	private var broadcastStream:ScreenVideoBroadcastStream = null 
 	
-	private val flvRecorder:FileRecorder = new FileRecorder()
+	private val flvRecorder:FileRecorder = new FileRecorder(name, record)
 		
 	var startTimestamp: Long = System.currentTimeMillis()
  
