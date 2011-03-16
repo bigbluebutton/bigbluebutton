@@ -21,12 +21,14 @@ package org.bigbluebutton.modules.phone.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
-	import mx.controls.Alert;
 	import flash.external.*;
+	
+	import mx.controls.Alert;
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
 	import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceEvent;
+	import org.bigbluebutton.modules.phone.events.cPHONE_JoinVoiceBySIPAppletEvent;
 	
 	public class PhoneManager {
 		
@@ -34,6 +36,10 @@ package org.bigbluebutton.modules.phone.managers
 		private var streamManager:StreamManager;
 		private var onCall:Boolean = false;
 		private var attributes:Object;
+		
+		//<REALWAT>
+		private var _isUsingSipApplet:Boolean = false;
+		//</REALWAT>
 		
 		public function PhoneManager() {
 			connectionManager = new ConnectionManager();
@@ -61,7 +67,22 @@ package org.bigbluebutton.modules.phone.managers
 		public function join(e:JoinVoiceConferenceEvent):void {
 			joinVoice(e.useMicrophone);
 		}
-		
+		//<REALWAT>
+		public function joinVoiceBySipApplet(evt:cPHONE_JoinVoiceBySIPAppletEvent) : void {
+			LogUtil.debug("PhoneManager: joinVoiceBySipApplet");
+			this._isUsingSipApplet = true;
+			var voiceConfId:String	= attributes.webvoiceconf;
+			var domainName:String	= attributes.uri.split("/")[2];
+			var uname:String		= attributes.username;
+			if (true == ExternalInterface.available) 
+			{
+				// call external javascript 'handleNewUser'
+				LogUtil.debug("Dialing...." + attributes.webvoiceconf + ".... via BBB SIP Applet");
+				ExternalInterface.call("startSIPApplet", domainName, voiceConfId, uname);
+			}
+			onCall = true ;
+		}
+		//</REALWAT>
 		/*****************************************************************************
 		 ;  joinVoice
 		 ;----------------------------------------------------------------------------
@@ -83,16 +104,11 @@ package org.bigbluebutton.modules.phone.managers
 		 ;
 		 ******************************************************************************/
 		public function joinVoice(autoJoin:Boolean):void {
-			var voiceConfId:String	= attributes.webvoiceconf;
-			var domainName:String	= attributes.uri.split("/")[2];
-			var uname:String		= attributes.username;
-			if (true == ExternalInterface.available) 
-			{
-				// call external javascript 'handleNewUser'
-				LogUtil.debug("Dialing...." + attributes.webvoiceconf + ".... via BBB SIP Applet");
-				ExternalInterface.call("startSIPApplet", domainName, voiceConfId, uname);
-			}
-            onCall = true ;
+			LogUtil.debug("PhoneManager: joinVoice by flash sip phone");
+			setupMic(autoJoin);
+			var uid:String = String( Math.floor( new Date().getTime() ) );
+			connectionManager.connect(uid, attributes.externUserID, attributes.username,
+											attributes.room, attributes.uri);
 		}/** END Function: joinVoice */
 				
 		public function dialConference():void {
@@ -129,14 +145,25 @@ package org.bigbluebutton.modules.phone.managers
 		 ******************************************************************************/
 		public function hangup():void {
 			LogUtil.debug("PhoneManager hangup");
-            if (true == onCall){
-                if (true == ExternalInterface.available) 
-                {
-                    // call external javascript 'handleNewUser'
-                    ExternalInterface.call("stopSIPApplet");
-                }
-                onCall = false ;
-            }
+			if(true == this._isUsingSipApplet){
+	            if (true == onCall){
+	                if (true == ExternalInterface.available) 
+	                {
+	                    // call external javascript 'handleNewUser'
+	                    ExternalInterface.call("stopSIPApplet");
+	                }
+	                onCall = false ;
+	            }
+				this._isUsingSipApplet = false;
+			}else{
+				if (onCall) {
+					LogUtil.debug("PM OnCall");
+					streamManager.stopStreams();
+					connectionManager.doHangUp();
+					LogUtil.debug("PM hangup::doHangUp");
+					onCall = false;
+				}		
+			}
 		}/** END Function: hangup */
 	}
 }

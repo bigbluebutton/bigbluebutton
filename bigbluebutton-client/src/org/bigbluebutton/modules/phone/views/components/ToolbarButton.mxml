@@ -23,15 +23,21 @@
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
 	icon="{phoneIcon}" click="startPhone()"
 	xmlns:mate="http://mate.asfusion.com/"
-	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip')}+'_Test3'">
+	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip')}">
 	
 	<mate:Listener type="{CallConnectedEvent.CALL_CONNECTED_EVENT}" method="handleCallConnectedEvent"/>
 	<mate:Listener type="{CallDisconnectedEvent.CALL_DISCONNECTED_EVENT}" method="handleCallDisconnectedEvent"/>
 	<mate:Listener type="{BBBEvent.JOIN_VOICE_CONFERENCE}" method="handleBBBJoinConferenceEvent"/>
 	
+	<mate:Listener type="{cPHONE_JoinVoiceBySIPAppletEvent.CLOSE_POP_UP}" method="removeSelectSipwindow"/>
+	
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
+			
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
 			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.BBBEvent;
@@ -39,8 +45,14 @@
 			import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
 			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceEvent;
 			import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceEvent;
+			import org.bigbluebutton.modules.phone.events.cPHONE_JoinVoiceBySIPAppletEvent;
 			import org.bigbluebutton.modules.phone.views.assets.Images;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			//import org.bigbluebutton.modules.phone.views.components.SipSelectingWindow;
+			//<REALWAT>
+			private var selectionWindow:SipSelectingWindow;
+			//</REALWAT>
 			
 			private var images:Images = new Images();
 			private var dispatcher:Dispatcher = new Dispatcher();
@@ -67,15 +79,36 @@
 			 ******************************************************************************/
 			private function startPhone():void {
 				//this.enabled = false;
+				
 				if (this.selected) {
-					LogUtil.debug("Display voice conference information");
-					dispatcher.dispatchEvent(new JoinVoiceConferenceEvent());
+					//<REALWAT>
+					
+					selectionWindow = PopUpManager.createPopUp(
+						this, SipSelectingWindow , false) as SipSelectingWindow;
+					selectionWindow.centerWindow();
+					selectionWindow.addEventListener(CloseEvent.CLOSE,function(evt:CloseEvent):void{
+						removeSelectSipwindow(new cPHONE_JoinVoiceBySIPAppletEvent(cPHONE_JoinVoiceBySIPAppletEvent.CLOSE_POP_UP));
+					}
+					);
+					//</REALWAT>
+					//dispatcher.dispatchEvent(new JoinVoiceConferenceEvent());
 				} else {
 
 					LogUtil.debug("Leaving voice conference");
 					dispatcher.dispatchEvent(new LeaveVoiceConferenceEvent());
 				}
+				this.enabled = false;
+				var t:Timer = new Timer(3000, 1);
+				t.addEventListener(TimerEvent.TIMER, onTimer);
+				t.start();
 			}/** END Function: startPhone */
+			
+			//<REALWAT>
+			private function removeSelectSipwindow(evet:cPHONE_JoinVoiceBySIPAppletEvent) : void {
+				LogUtil.debug("removePopup");
+				PopUpManager.removePopUp(selectionWindow);
+			}
+			//</REALWAT>
 			
 			private function onTimer(e:TimerEvent):void{
 				this.enabled = true;
