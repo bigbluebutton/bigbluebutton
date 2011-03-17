@@ -29,7 +29,7 @@
 	<mate:Listener type="{CallDisconnectedEvent.CALL_DISCONNECTED_EVENT}" method="handleCallDisconnectedEvent"/>
 	<mate:Listener type="{BBBEvent.JOIN_VOICE_CONFERENCE}" method="handleBBBJoinConferenceEvent"/>
 	
-	<mate:Listener type="{cPHONE_JoinVoiceBySIPAppletEvent.CLOSE_POP_UP}" method="removeSelectSipwindow"/>
+	<mate:Listener type="{cPHONE_ConfigSipPhoneEvent.UPDATE_CONFIG}" method="handleConfigWebPhone"/>
 	
 	<mx:Script>
 		<![CDATA[
@@ -45,13 +45,14 @@
 			import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
 			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceEvent;
 			import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceEvent;
-			import org.bigbluebutton.modules.phone.events.cPHONE_JoinVoiceBySIPAppletEvent;
+			import org.bigbluebutton.modules.phone.events.cPHONE_ConfigSipPhoneEvent;
 			import org.bigbluebutton.modules.phone.views.assets.Images;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			//import org.bigbluebutton.modules.phone.views.components.SipSelectingWindow;
 			//<REALWAT>
-			private var selectionWindow:SipSelectingWindow;
+			//private var selectionWindow:SipSelectingWindow;
+			private var _isUseSipApplet:Boolean = true;
 			//</REALWAT>
 			
 			private var images:Images = new Images();
@@ -83,13 +84,23 @@
 				if (this.selected) {
 					//<REALWAT>
 					
-					selectionWindow = PopUpManager.createPopUp(
+					/*selectionWindow = PopUpManager.createPopUp(
 						this, SipSelectingWindow , false) as SipSelectingWindow;
 					selectionWindow.centerWindow();
 					selectionWindow.addEventListener(CloseEvent.CLOSE,function(evt:CloseEvent):void{
-						removeSelectSipwindow(new cPHONE_JoinVoiceBySIPAppletEvent(cPHONE_JoinVoiceBySIPAppletEvent.CLOSE_POP_UP));
+						removeSelectSipwindow(new cPHONE_ConfigSipPhoneEvent(cPHONE_ConfigSipPhoneEvent.CLOSE_POP_UP));
 					}
-					);
+					);*/
+					if(false == this._isUseSipApplet){
+						LogUtil.debug("Starting flash sip phone");
+						var joinVoiceEvent:JoinVoiceConferenceEvent = new JoinVoiceConferenceEvent();
+						dispatcher.dispatchEvent(joinVoiceEvent);
+					}else{
+						LogUtil.debug("Starting applet sip phone");
+						var joinVoiceBySipAppletEvent:cPHONE_ConfigSipPhoneEvent = new cPHONE_ConfigSipPhoneEvent(
+							cPHONE_ConfigSipPhoneEvent.JOIN_VIOCE_BY_SIP_APPLET);
+						dispatcher.dispatchEvent(joinVoiceBySipAppletEvent);
+					}
 					//</REALWAT>
 					//dispatcher.dispatchEvent(new JoinVoiceConferenceEvent());
 				} else {
@@ -104,9 +115,13 @@
 			}/** END Function: startPhone */
 			
 			//<REALWAT>
-			private function removeSelectSipwindow(evet:cPHONE_JoinVoiceBySIPAppletEvent) : void {
+			/*private function removeSelectSipwindow(evet:cPHONE_ConfigSipPhoneEvent) : void {
 				LogUtil.debug("removePopup");
 				PopUpManager.removePopUp(selectionWindow);
+			}*/
+			
+			private function handleConfigWebPhone(e:cPHONE_ConfigSipPhoneEvent) : void {
+				this._isUseSipApplet = e._isAppletConf;
 			}
 			//</REALWAT>
 			

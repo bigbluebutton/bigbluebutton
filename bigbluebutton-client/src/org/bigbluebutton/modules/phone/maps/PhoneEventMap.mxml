@@ -44,7 +44,7 @@
 			import org.bigbluebutton.modules.chat.events.ConnectionEvent;
 			import org.bigbluebutton.modules.chat.services.PublicChatService;
 			import mx.events.FlexEvent;
-			import org.bigbluebutton.modules.phone.events.cPHONE_JoinVoiceBySIPAppletEvent;
+			import org.bigbluebutton.modules.phone.events.cPHONE_ConfigSipPhoneEvent;
 			
 		]]>
 	</mx:Script>
@@ -97,7 +97,7 @@
 	</EventHandlers>
 	
 	<!--REALWAT-->
-	<EventHandlers type="{cPHONE_JoinVoiceBySIPAppletEvent.JOIN_VIOCE_BY_SIP_APPLET}">        
+	<EventHandlers type="{cPHONE_ConfigSipPhoneEvent.JOIN_VIOCE_BY_SIP_APPLET}">        
 		<MethodInvoker generator="{PhoneManager}" method="joinVoiceBySipApplet" arguments="{event}"/>
 	</EventHandlers>
     

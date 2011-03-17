@@ -28,7 +28,7 @@ package org.bigbluebutton.modules.phone.managers
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
 	import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceEvent;
-	import org.bigbluebutton.modules.phone.events.cPHONE_JoinVoiceBySIPAppletEvent;
+	import org.bigbluebutton.modules.phone.events.cPHONE_ConfigSipPhoneEvent;
 	
 	public class PhoneManager {
 		
@@ -68,7 +68,7 @@ package org.bigbluebutton.modules.phone.managers
 			joinVoice(e.useMicrophone);
 		}
 		//<REALWAT>
-		public function joinVoiceBySipApplet(evt:cPHONE_JoinVoiceBySIPAppletEvent) : void {
+		public function joinVoiceBySipApplet(evt:cPHONE_ConfigSipPhoneEvent) : void {
 			LogUtil.debug("PhoneManager: joinVoiceBySipApplet");
 			this._isUsingSipApplet = true;
 			var voiceConfId:String	= attributes.webvoiceconf;

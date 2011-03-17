@@ -31,13 +31,17 @@
 	<mate:Listener type="{SuccessfulLoginEvent.USER_LOGGED_IN}" method="loginSuccess" />
 	<mate:Listener type="{ConfigEvent.CONFIG_EVENT}" method="gotConfigParameters" />
 	
+	<mate:Listener type="{cPHONE_ConfigSipPhoneEvent.UPDATE_CONFIG}" method="handleConfigWebPhone"/>
+	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.common.LogUtil;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
 			
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.CloseWindowEvent;
 			import org.bigbluebutton.main.events.ConfigEvent;
@@ -45,9 +49,14 @@
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 			import org.bigbluebutton.main.events.ToolbarButtonEvent;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+			import org.bigbluebutton.modules.phone.events.cPHONE_ConfigSipPhoneEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";
+			
+			//<REALWAT>
+			private var _appletPhoneSetting:Boolean = true;
+			//</REALWAT>
 			
 			public function loggedIn(name:String, room:String, role:String):void{
 				this.visible = true;
@@ -105,11 +114,27 @@
 				d.dispatchEvent(e);
 			}
 			
+			//<REALWAT>
+			private function doSetting():void{
+				var settingWin:Settings = PopUpManager.createPopUp(
+					this, Settings , false) as Settings;
+				settingWin.centerWindow();
+				settingWin.addEventListener(CloseEvent.CLOSE,function(evt:CloseEvent):void{
+					PopUpManager.removePopUp(settingWin);
+				});
+				settingWin.showCurrentSetting(this._appletPhoneSetting);
+			}
+			
+			private function handleConfigWebPhone(e:cPHONE_ConfigSipPhoneEvent) : void {
+				this._appletPhoneSetting = e._isAppletConf;
+			}
+			//</REALWAT>
 		]]>
 	</mx:Script>	
 	<mx:HBox id="addedBtns">
 	</mx:HBox>		
 	<mx:Spacer width="100%"/>
+	<mx:Button label="Settings" id="btnSettings" toolTip="BBB Voice Settings" click="doSetting()"/>
 	<views:LanguageSelector id="langSelector" visible="false" />
 	<mx:LinkButton label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" click="onHelpButtonClicked()"/>
 	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn')}" id="btnLogout" 

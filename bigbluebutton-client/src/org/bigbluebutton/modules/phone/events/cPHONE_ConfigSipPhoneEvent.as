@@ -21,13 +21,16 @@ package org.bigbluebutton.modules.phone.events
 {
 	import flash.events.Event;
 	
-	public class cPHONE_JoinVoiceBySIPAppletEvent extends Event
+	public class cPHONE_ConfigSipPhoneEvent extends Event
 	{
 		
 		public static const JOIN_VIOCE_BY_SIP_APPLET:String 	= "JOIN_VIOCE_BY_SIP_APPLET";
 		public static const CLOSE_POP_UP:String 				= "CLOSE_POP_UP";
+		public static const UPDATE_CONFIG:String				= "UPDATE_CONFIG";
 		
-		public function cPHONE_JoinVoiceBySIPAppletEvent(type:String)
+		public var _isAppletConf:Boolean = true;
+		
+		public function cPHONE_ConfigSipPhoneEvent(type:String)
 		{
 			super(type, true, false);
 		}

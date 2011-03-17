@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+				xmlns:mate="http://mate.asfusion.com/"
+				title="BigBlueButton Voice Settings"
+				x="168" y="86" layout="absolute" initialize="init()"
+				showCloseButton="true"
+				>
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.modules.phone.events.cPHONE_ConfigSipPhoneEvent;
+			
+			private function init():void{
+				lbTestApplet.htmlText	= "<u><a href='#'>Test applet on your browser</a></u>";
+				lbDownloadJVM.htmlText	= "<u><a href='#'>Download JRE</a></u>";
+			}
+			
+			private function onLinkClick(urlText:String):void{
+				var url:URLRequest = new URLRequest(urlText);
+				navigateToURL(url, '_blank');
+			}
+			
+			private function closeWindow() : void {
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function updateConfig() : void {
+				var configEvent:cPHONE_ConfigSipPhoneEvent;
+				configEvent = new cPHONE_ConfigSipPhoneEvent(cPHONE_ConfigSipPhoneEvent.UPDATE_CONFIG);
+				if(null == configEvent)
+				{
+					LogUtil.error("Creating cPHONE_ConfigSipPhoneEvent is NULL");
+					return;
+				}
+				if( 1 == comboWebPhone.selectedIndex){
+					configEvent._isAppletConf = false;
+				}else{
+					configEvent._isAppletConf = true;
+				}
+				dispatchEvent(configEvent);
+				closeWindow();
+			}
+			
+			public function centerWindow() : void {
+				this.x = (this.parent.width - this.width) / 2;
+				this.y = (this.parent.height - this.height) / 2;
+			}
+			
+			public function showCurrentSetting(isUseApplet:Boolean) : void {
+				if(false == isUseApplet){
+					comboWebPhone.selectedIndex = 1;
+				}
+			}
+			]]>
+	</mx:Script>
+	
+	<mx:VBox width="100%" paddingLeft="20" paddingTop="20" paddingBottom="20" paddingRight="20">
+		<mx:HBox>
+			<mx:Label text="Choose web phone : "></mx:Label>
+			<mx:ComboBox id="comboWebPhone">
+				<mx:ArrayCollection>
+					<mx:String>Applet Phone</mx:String>
+					<mx:String>Flash Phone</mx:String>
+				</mx:ArrayCollection>
+			</mx:ComboBox>
+		</mx:HBox>
+		<mx:Spacer width="100%"></mx:Spacer>
+		<mx:Spacer width="100%"></mx:Spacer>
+		<mx:Spacer width="100%"></mx:Spacer>
+		<mx:HBox>
+			<mx:Label id="lbTestApplet" click="onLinkClick('http://java.sun.com/applets/jdk/1.4/index.html')"></mx:Label>
+			<mx:Label id="lbDownloadJVM" click="onLinkClick('http://www.java.com/en/download/manual.jsp')"></mx:Label>
+		</mx:HBox>
+		<mx:Spacer width="100%"></mx:Spacer>
+		<mx:Spacer width="100%"></mx:Spacer>
+		<mx:Spacer width="100%"></mx:Spacer>
+		<mx:HBox>
+			<mx:Spacer width="140"></mx:Spacer>
+			<mx:Button label="OK" click="updateConfig()"></mx:Button>
+			<mx:Button label="Cancel" click="closeWindow()"></mx:Button>
+		</mx:HBox>
+	</mx:VBox>
+</mx:TitleWindow>
