@@ -80,6 +80,12 @@ subprojects {
         		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision]).[ext]"
         		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision]).[ext]"
 			}   
+			add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+	       		name = "testng_ibiblio_maven2"
+	       		m2compatible = true
+	       		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision])-jdk15.[ext]"
+	       		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision])-jdk15.[ext]"
+			} 
     	}
     }
         

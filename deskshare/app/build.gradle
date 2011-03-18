@@ -25,6 +25,14 @@ dependencies {
     // Libraries needed for scala api
     compile 'org.scala-lang:scala-library:2.7.7'   
     compile 'net/lag/configgy:configgy:1.5@jar'
+    
+        // Testing
+    compile 'org.testng:testng:5.8@jar' 
+    compile 'org.easymock:easymock:2.4@jar'
+}
+
+test {
+	useTestNG() 
 }
 
 war.doLast {
@@ -42,13 +50,3 @@ task deploy() << {
     	fileset(dir: "$buildDir/deskshare")
     }
 } 
-/*   
-task deploy(type:Copy) {
-	def red5AppsDir = '/usr/share/red5/webapps'
-	def deskshareDir = new File("${red5AppsDir}/deskshare")
-	println "Deleting $deskshareDir"
-	ant.delete(dir: deskshareDir)
-	into(deskshareDir)
-    from "$buildDir/deskshare"
-} 
-*/
