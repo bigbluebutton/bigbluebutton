@@ -12,6 +12,8 @@
 			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.modules.phone.events.cPHONE_ConfigSipPhoneEvent;
+            
+            public var _confId:String ;
 			
 			private function init():void{
 				lbTestApplet.htmlText	= "<u><a href='#'>Test applet on your browser</a></u>";
@@ -53,11 +55,22 @@
 				if(false == isUseApplet){
 					comboWebPhone.selectedIndex = 1;
 				}
+                
 			}
+            
+            public function setCurrentVoiceBridge(confId:String):void{
+                this._confId = confId ;
+                lbShowVoiceBridge.htmlText = "Current Voice Bridge Number is <b>" + this._confId + "</b>" ;
+            }
 			]]>
 	</mx:Script>
 	
 	<mx:VBox width="100%" paddingLeft="20" paddingTop="20" paddingBottom="20" paddingRight="20">
+        <mx:HBox>
+            <mx:Label id="lbShowVoiceBridge"/>
+        </mx:HBox>
+        <mx:Spacer width="100%"></mx:Spacer>
+		<mx:Spacer width="100%"></mx:Spacer>
 		<mx:HBox>
 			<mx:Label text="Choose web phone : "></mx:Label>
 			<mx:ComboBox id="comboWebPhone">

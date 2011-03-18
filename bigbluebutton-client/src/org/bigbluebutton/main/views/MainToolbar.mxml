@@ -56,6 +56,7 @@
 			
 			//<REALWAT>
 			private var _appletPhoneSetting:Boolean = true;
+            private var _confId:String ;
 			//</REALWAT>
 			
 			public function loggedIn(name:String, room:String, role:String):void{
@@ -100,6 +101,7 @@
 			
 			private function loginSuccess(e:SuccessfulLoginEvent):void{
 				loggedIn(e.conferenceParameters.username, e.conferenceParameters.room, e.conferenceParameters.role);
+                _confId = e.conferenceParameters.voicebridge ;
 				visible = true;
 			}
 			
@@ -116,13 +118,21 @@
 			
 			//<REALWAT>
 			private function doSetting():void{
-				var settingWin:Settings = PopUpManager.createPopUp(
-					this, Settings , false) as Settings;
+                
+                var settingWin:Settings ;
+                
+                
+                settingWin = PopUpManager.createPopUp(
+                        this, Settings , false) as Settings;
+                
+                
 				settingWin.centerWindow();
 				settingWin.addEventListener(CloseEvent.CLOSE,function(evt:CloseEvent):void{
 					PopUpManager.removePopUp(settingWin);
 				});
 				settingWin.showCurrentSetting(this._appletPhoneSetting);
+                settingWin.setCurrentVoiceBridge(this._confId) ;
+                
 			}
 			
 			private function handleConfigWebPhone(e:cPHONE_ConfigSipPhoneEvent) : void {
