@@ -1,11 +1,11 @@
 <!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
 <suite name="BigBlueButton Test Suite">
   <test name="Conference tests">
-	  <groups>
+	  <!--groups>
 	    <run> 
 	      <exclude name="broken"/>
 	    </run>
-	  </groups>
+	  </groups-->
   
     <packages>
     	<package name="org.bigbluebutton.conference"/>
