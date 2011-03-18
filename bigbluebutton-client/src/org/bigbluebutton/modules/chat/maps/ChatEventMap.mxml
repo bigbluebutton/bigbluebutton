@@ -30,7 +30,7 @@
 			import mx.events.FlexEvent;
 			
 			import org.bigbluebutton.main.events.ModuleStartedEvent;
-			import org.bigbluebutton.main.events.OpenWindowEvent;
+			import org.bigbluebutton.common.events.OpenWindowEvent;
 			import org.bigbluebutton.modules.chat.events.ChatEvent;
 			import org.bigbluebutton.modules.chat.events.ConnectionEvent;
 			import org.bigbluebutton.modules.chat.events.QueryParticipantsEvent;

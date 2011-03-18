@@ -30,15 +30,14 @@
 			
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.main.events.CloseWindowEvent;
-			import org.bigbluebutton.main.events.OpenWindowEvent;
-			import org.bigbluebutton.main.events.ToolbarButtonEvent;
+			import org.bigbluebutton.common.events.CloseWindowEvent;
+			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.modules.sharednotes.SharedNotesWindow;
 			import org.bigbluebutton.modules.sharednotes.ToolbarButton;
 			import org.bigbluebutton.modules.sharednotes.infrastructure.Client;
 			import org.bigbluebutton.modules.sharednotes.infrastructure.HTTPServerConnection;
 			
-			private var _moduleId:String = "NotesModule";
 			private var _moduleName:String = "Notes Module";			
 			private var _attributes:Object;
 			
@@ -47,10 +46,6 @@
 			private function onCreationComplete():void {
 				LogUtil.debug("NotesModule Initialized");	
 				globalDispatcher = new Dispatcher();
-			}
-			
-			public function get moduleId():String {
-				return _moduleId;
 			}
 			
 			public function get moduleName():String {

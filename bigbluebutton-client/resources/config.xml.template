@@ -39,6 +39,17 @@
 			autoJoin="false"
 			dependsOn="ViewersModule"
 		/>
+
+		<!--<module name="ClassroomAudioModule" url="ClassroomAudioModule.swf?v=VERSION" 
+                        uri="rtmp://HOST/sip" 
+                        dependsOn="ViewersModule"
+                />-->
+		
+		<!--<module name="ClassroomAudioModule" url="ClassroomAudioModule.swf?v=VERSION" 
+			uri="rtmp://HOST/sip" 
+			pushToTalkEnabled="true"
+			dependsOn="ViewersModule"
+		/>-->
 		
 		<module name="VideoconfModule" url="VideoconfModule.swf?v=VERSION" 
 			uri="rtmp://HOST/video"

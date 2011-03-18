@@ -20,8 +20,8 @@ package org.bigbluebutton.modules.listeners.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
-	import org.bigbluebutton.main.events.CloseWindowEvent;
-	import org.bigbluebutton.main.events.OpenWindowEvent;
+	import org.bigbluebutton.common.events.CloseWindowEvent;
+	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.modules.listeners.events.StartListenersModuleEvent;
 	import org.bigbluebutton.modules.listeners.views.ListenersWindow;
 

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+
+Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+
+BigBlueButton is free software; you can redistribute it and/or modify it under the 
+terms of the GNU Lesser General Public License as published by the Free Software 
+Foundation; either version 2.1 of the License, or (at your option) any later 
+version. 
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along 
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+$Id: $
+-->
+
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" 
+		   xmlns:maps="org.bigbluebutton.modules.classyaudio.maps.*"
+		   implements="org.bigbluebutton.common.IBigBlueButtonModule">
+	
+	<mx:Style>
+		PushToTalkButton {
+			skin: ClassReference("org.bigbluebutton.modules.classyaudio.views.PushButtonSkin");
+			upSkin: ClassReference("mx.skins.halo.ButtonSkin");
+			overSkin: ClassReference("mx.skins.halo.ButtonSkin");
+			disabledSkin: ClassReference("mx.skins.halo.ButtonSkin");
+			selectedUpSkin: ClassReference("mx.skins.halo.ButtonSkin");
+			selectedOverSkin: ClassReference("mx.skins.halo.ButtonSkin");
+			selectedDownSkin: ClassReference("mx.skins.halo.ButtonSkin");
+			selectedDisabledSkin: ClassReference("mx.skins.halo.ButtonSkin");
+		}
+	</mx:Style> 
+	
+	<mx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.modules.classyaudio.events.StartClassAudioEvent;
+			import org.bigbluebutton.modules.classyaudio.events.StopClassAudioEvent;
+			
+			private var _moduleName:String = "ClassroomAudioModule";			
+			private var _attributes:Object;
+			
+			private var dispatcher:Dispatcher = new Dispatcher();
+			
+			private function onCreationComplete():void {
+				LogUtil.debug("ClassroomAudioModule Initialized");			
+			}
+			
+			public function get moduleName():String {
+				return _moduleName;
+			}
+			
+			public function get uri():String {
+				return _attributes.uri;
+			}
+			
+			public function get username():String {
+				return _attributes.username;
+			}
+			
+			public function get userid():Number {
+				return _attributes.userid as Number;
+			}
+			
+			public function get sipusername():String {
+				return _attributes.sipusername;
+			}
+			
+			public function get sippassword():String {
+				return _attributes.sippassword;
+			}
+			
+			public function get sipserver():String {
+				return _attributes.sipserver;
+			}
+			
+			public function get siprealm():String {
+				return _attributes.siprealm;
+			}
+			
+			public function get role():String {
+				return _attributes.userrole as String;
+			}
+			
+			public function get voicebridge():String {
+				return _attributes.voicebridge;
+			}
+			
+			public function get pushToTalkEnabled():Boolean{
+				if (_attributes.pushToTalkEnabled == "true") return true;
+				else return false;
+			}
+			
+			public function start(attributes:Object):void {
+				_attributes = attributes;	
+				
+				var startEvent:StartClassAudioEvent = new StartClassAudioEvent();
+				startEvent.attributes = _attributes;
+				dispatcher.dispatchEvent(startEvent);
+			}
+			
+			public function stop():void {
+				var stopEvent:StopClassAudioEvent = new StopClassAudioEvent();
+				dispatcher.dispatchEvent(stopEvent);
+			}
+		]]>
+	</mx:Script>
+	
+	<maps:ClassyEventMap />
+</mx:Module>

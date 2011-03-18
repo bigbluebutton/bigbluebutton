@@ -22,10 +22,10 @@ package org.bigbluebutton.modules.deskshare.managers
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import org.bigbluebutton.common.IBbbModuleWindow;
-	import org.bigbluebutton.main.events.CloseWindowEvent;
-	import org.bigbluebutton.main.events.OpenWindowEvent;
+	import org.bigbluebutton.common.events.CloseWindowEvent;
+	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
-	import org.bigbluebutton.main.events.ToolbarButtonEvent;
+	import org.bigbluebutton.common.events.ToolbarButtonEvent;
 	import org.bigbluebutton.modules.deskshare.view.components.DesktopPublishWindow;
 	import org.bigbluebutton.modules.deskshare.view.components.DesktopViewWindow;
 	import org.bigbluebutton.modules.deskshare.view.components.ToolbarButton;

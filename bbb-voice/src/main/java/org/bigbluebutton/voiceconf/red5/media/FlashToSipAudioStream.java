@@ -19,12 +19,7 @@
 **/
 package org.bigbluebutton.voiceconf.red5.media;
 
-import java.io.IOException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.net.DatagramSocket;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.bigbluebutton.voiceconf.red5.media.transcoder.FlashToSipTranscoder;
 import org.bigbluebutton.voiceconf.red5.media.transcoder.TranscodedAudioDataListener;
@@ -40,13 +35,6 @@ import org.slf4j.Logger;
 
 public class FlashToSipAudioStream {
 	private final static Logger log = Red5LoggerFactory.getLogger(FlashToSipAudioStream.class, "sip");
-
-	private final PipedOutputStream streamFromFlash;
-	private PipedInputStream streamToSip;
-	
-	private final Executor exec = Executors.newSingleThreadExecutor();
-	private Runnable audioDataProcessor;
-	private volatile boolean processAudioData = false;
 	
 	private final FlashToSipTranscoder transcoder;	
 	private IStreamListener mInputListener;
@@ -54,24 +42,21 @@ public class FlashToSipAudioStream {
 	private final SipConnectInfo connInfo;
 	private String talkStreamName;	
 	private RtpStreamSender rtpSender;
-	
-	public FlashToSipAudioStream(final FlashToSipTranscoder transcoder, DatagramSocket srcSocket, SipConnectInfo connInfo) {
+	private TranscodedAudioListener transcodedAudioListener;
+
+	public FlashToSipAudioStream(final FlashToSipTranscoder transcoder, DatagramSocket srcSocket, 
+									SipConnectInfo connInfo) {
 		this.transcoder = transcoder;
 		this.srcSocket = srcSocket;
 		this.connInfo = connInfo;		
 		talkStreamName = "microphone_" + System.currentTimeMillis();
-		streamFromFlash = new PipedOutputStream();
-		try {
-			streamToSip = new PipedInputStream(streamFromFlash);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+		transcodedAudioListener = new TranscodedAudioListener();
+		transcoder.setTranscodedAudioListener(transcodedAudioListener);
+}
 	
 	public void start(IBroadcastStream broadcastStream, IScope scope) throws StreamException {
-	    log.debug("startTranscodingStream({},{})", broadcastStream.getPublishedName(), scope.getName());
-	
+		if (log.isDebugEnabled())
+			log.debug("startTranscodingStream({},{})", broadcastStream.getPublishedName(), scope.getName());
 		mInputListener = new IStreamListener() {
 			public void packetReceived(IBroadcastStream broadcastStream, IStreamPacket packet) {
 		      IoBuffer buf = packet.getData();
@@ -85,12 +70,8 @@ public class FlashToSipAudioStream {
 		      	      
 		      if (packet instanceof AudioData) {
 		    	  byte[] data = SerializeUtils.ByteBufferToByteArray(buf);
-		    	  try {
-					streamFromFlash.write(data, 1, data.length-1);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}	    			  		    	  
+		    	  // Remove the first byte as it is the codec id.
+		    	  transcoder.handlePacket(data, 1, data.length-1);   
 		      } 
 			}
 		};
@@ -98,47 +79,16 @@ public class FlashToSipAudioStream {
 	    broadcastStream.addStreamListener(mInputListener);    
 	    rtpSender = new RtpStreamSender(srcSocket, connInfo);
 		rtpSender.connect();
-				
-		processAudioData = true;	    
-	    audioDataProcessor = new Runnable() {
-    		public void run() {
-    			processAudioData();   			
-    		}
-    	};
-    	exec.execute(audioDataProcessor);
+		transcoder.start();
 	}
 
-	private void processAudioData() {
-		int len = 64;
-		byte[] nellyAudio = new byte[len];		
-		int remaining = len;
-		int offset = 0;
-		TranscodedAudioListener transcodedAudioListener = new TranscodedAudioListener();
-		while (processAudioData) {			
-			try {
-				int bytesRead =  streamToSip.read(nellyAudio, offset, remaining);
-				remaining -= bytesRead;
-				if (remaining == 0) {
-					remaining = len;
-					offset = 0;
-					transcoder.transcode(nellyAudio, 0, nellyAudio.length, transcodedAudioListener);
-				} else {
-					offset += bytesRead; 
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}        		
-		}	
-	}
-	
 	public void stop(IBroadcastStream broadcastStream, IScope scope) {
 		broadcastStream.removeStreamListener(mInputListener);
 		if (broadcastStream != null) {
 			broadcastStream.stop();
 			broadcastStream.close();
 		} 
-	    processAudioData = false;
+	    transcoder.stop();
 	    srcSocket.close();		
 	}
 
@@ -146,10 +96,10 @@ public class FlashToSipAudioStream {
 		return talkStreamName;
 	}
 	
-	private class TranscodedAudioListener implements TranscodedAudioDataListener {
+	public class TranscodedAudioListener implements TranscodedAudioDataListener {
 		@Override
 		public void handleTranscodedAudioData(byte[] audioData, long timestamp) {
-			if (audioData != null && processAudioData) {
+			if (audioData != null) {
 	  		  rtpSender.sendAudio(audioData, transcoder.getCodecId(), timestamp);
 	  	  } else {
 	  		  log.warn("Transcodec audio is null. Discarding.");

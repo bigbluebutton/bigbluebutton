@@ -24,7 +24,7 @@ package org.bigbluebutton.modules.phone.maps
 	
 	import flash.events.IEventDispatcher;
 	
-	import org.bigbluebutton.main.events.ToolbarButtonEvent;
+	import org.bigbluebutton.common.events.ToolbarButtonEvent;
 	import org.bigbluebutton.modules.phone.views.components.ToolbarButton;
 	
 	public class PhoneEventMapDelegate

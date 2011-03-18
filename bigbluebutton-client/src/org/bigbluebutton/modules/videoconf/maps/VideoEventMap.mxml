@@ -27,11 +27,11 @@
 			import mx.controls.Alert;
 			
 			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.main.api.UserManager;
+			import org.bigbluebutton.common.UserManager;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import org.bigbluebutton.main.events.OpenWindowEvent;
-			import org.bigbluebutton.main.events.ToolbarButtonEvent;
+			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
 			import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;

@@ -20,7 +20,7 @@ package org.bigbluebutton.modules.breakout.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
-	import org.bigbluebutton.main.events.ToolbarButtonEvent;
+	import org.bigbluebutton.common.events.ToolbarButtonEvent;
 	import org.bigbluebutton.modules.breakout.views.BreakoutButton;
 
 	public class BreakoutManager

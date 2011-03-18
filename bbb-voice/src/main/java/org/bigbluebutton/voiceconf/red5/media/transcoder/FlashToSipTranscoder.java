@@ -19,9 +19,14 @@
 **/
 package org.bigbluebutton.voiceconf.red5.media.transcoder;
 
-public interface FlashToSipTranscoder {
-	void transcode(byte[] audioData, int startOffset, int length, TranscodedAudioDataListener listener);
+import org.bigbluebutton.voiceconf.red5.media.FlashToSipAudioStream.TranscodedAudioListener;
 
+public interface FlashToSipTranscoder {
+	void transcode(byte[] audioData, int startOffset, int length);
+	void handlePacket(byte[] data, int begin, int end);
 	int getOutgoingEncodedFrameSize();
     int getCodecId();
+    void setTranscodedAudioListener(TranscodedAudioListener transcodedAudioListener);
+    void start();
+    void stop();
 }

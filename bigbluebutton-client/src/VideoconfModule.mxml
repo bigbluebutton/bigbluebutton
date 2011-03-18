@@ -8,12 +8,11 @@
 			import mx.controls.Alert;
 			
 			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.main.events.CloseWindowEvent;
-			import org.bigbluebutton.main.events.OpenWindowEvent;
+			import org.bigbluebutton.common.events.CloseWindowEvent;
+			import org.bigbluebutton.common.events.OpenWindowEvent;
 			import org.bigbluebutton.modules.videoconf.business.VideoProxy;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
 			
-			private var _moduleId:String = "VideoconfModule";
 			private var _moduleName:String = "Videoconf Module";			
 			private var _attributes:Object; 
 			private var proxy:VideoProxy;
@@ -21,10 +20,6 @@
 			
 			private function onCreationComplete():void {
 				LogUtil.debug("VideoconfModule initialized");	
-			}
-				
-			public function get moduleId():String {
-				return _moduleId;
 			}
 			
 			public function get moduleName():String {

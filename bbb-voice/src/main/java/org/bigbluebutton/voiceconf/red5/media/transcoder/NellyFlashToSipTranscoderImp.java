@@ -19,10 +19,16 @@
 **/
 package org.bigbluebutton.voiceconf.red5.media.transcoder;
 
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.nio.FloatBuffer;
 import java.util.Random;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
+import org.bigbluebutton.voiceconf.red5.media.FlashToSipAudioStream.TranscodedAudioListener;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.app.sip.codecs.Codec;
 import org.red5.app.sip.codecs.asao.Decoder;
@@ -65,6 +71,14 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
     private long timestamp = 0;
     private final static int TS_INCREMENT = 180;		// Determined from PCAP traces.
 
+	private final PipedOutputStream streamFromFlash;
+	private PipedInputStream streamToSip;
+	
+	private final Executor exec = Executors.newSingleThreadExecutor();
+	private Runnable audioDataProcessor;
+	private volatile boolean processAudioData = false;
+	private TranscodedAudioListener transcodedAudioListener;
+	
 	/**
 	 * The transcode process works by taking a 64-byte-array Nelly audio and converting it into a 256-float-array L16 audio. From the 
 	 * 256-float-array L16 audio, we take 160-float-array and convert it to a 160-byte-array Ulaw audio. The remaining 96-float-array
@@ -79,6 +93,25 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
         Random rgen = new Random();
         timestamp = rgen.nextInt(1000);
         viewBuffer = l16Audio.asReadOnlyBuffer();
+        
+		streamFromFlash = new PipedOutputStream();
+		try {
+			streamToSip = new PipedInputStream(streamFromFlash);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+    
+    @Override
+    public void start() {
+    	processAudioData = true;	 
+	    audioDataProcessor = new Runnable() {
+    		public void run() {
+    			processAudioData();   			
+    		}
+    	};
+    	exec.execute(audioDataProcessor);
     }
 
     @Override
@@ -91,10 +124,44 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
     	return sipCodec.getCodecId();
     }
     
+    @Override
+    public void handlePacket(byte[] data, int begin, int end) {
+		try {
+			streamFromFlash.write(data, begin, end);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}    	
+    }
+
+	private void processAudioData() {
+		int len = 64;
+		byte[] nellyAudio = new byte[len];		
+		int remaining = len;
+		int offset = 0;
+		
+		while (processAudioData) {			
+			try {
+				int bytesRead =  streamToSip.read(nellyAudio, offset, remaining);
+				remaining -= bytesRead;
+				if (remaining == 0) {
+					remaining = len;
+					offset = 0;
+					transcode(nellyAudio, 0, nellyAudio.length);
+				} else {
+					offset += bytesRead; 
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}        		
+		}	
+	}
+	
 	@Override
-	public void transcode(byte[] audioData, int startOffset, int length, TranscodedAudioDataListener listener) {
+	public void transcode(byte[] audioData, int startOffset, int length) {
 		if (audioData.length != NELLY_AUDIO_LENGTH) {
-			log.warn("Receiving bad nelly audio. Expecting {}, got {}.", NELLY_AUDIO_LENGTH, audioData.length);
+			if (log.isWarnEnabled()) log.warn("Receiving bad nelly audio. Expecting {}, got {}.", NELLY_AUDIO_LENGTH, audioData.length);
 			return;
 		}
 				
@@ -111,7 +178,7 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
     	int encodedBytes = sipCodec.pcmToCodec(tempUlawBuffer, ulawEncodedBuffer);
 
     	// Send it to the server
-    	listener.handleTranscodedAudioData(ulawEncodedBuffer, timestamp += TS_INCREMENT);
+    	transcodedAudioListener.handleTranscodedAudioData(ulawEncodedBuffer, timestamp += TS_INCREMENT);
      	
     	if (l16Audio.position() == l16Audio.capacity()) {
     		/**
@@ -125,7 +192,7 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
     		viewBuffer.get(tempUlawBuffer);
         	encodedBytes = sipCodec.pcmToCodec(tempUlawBuffer, ulawEncodedBuffer);
         	if (encodedBytes == sipCodec.getOutgoingEncodedFrameSize()) {
-        		listener.handleTranscodedAudioData(ulawEncodedBuffer, timestamp += TS_INCREMENT);
+        		transcodedAudioListener.handleTranscodedAudioData(ulawEncodedBuffer, timestamp += TS_INCREMENT);
         	} else {
         		log.error("Failure encoding buffer." );
         	}
@@ -134,7 +201,7 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
         	viewBuffer.get(tempUlawBuffer);
         	encodedBytes = sipCodec.pcmToCodec(tempUlawBuffer, ulawEncodedBuffer);
         	if (encodedBytes == sipCodec.getOutgoingEncodedFrameSize()) {
-        		listener.handleTranscodedAudioData(ulawEncodedBuffer, timestamp += TS_INCREMENT);
+        		transcodedAudioListener.handleTranscodedAudioData(ulawEncodedBuffer, timestamp += TS_INCREMENT);
         	} else {
         		log.error("Failure encoding buffer." );
         	}
@@ -143,7 +210,7 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
         	viewBuffer.get(tempUlawBuffer);
         	encodedBytes = sipCodec.pcmToCodec(tempUlawBuffer, ulawEncodedBuffer);
         	if (encodedBytes == sipCodec.getOutgoingEncodedFrameSize()) {
-        		listener.handleTranscodedAudioData(ulawEncodedBuffer, timestamp += TS_INCREMENT);
+        		transcodedAudioListener.handleTranscodedAudioData(ulawEncodedBuffer, timestamp += TS_INCREMENT);
         	} else {
         		log.error("Failure encoding buffer." );
         	}
@@ -153,4 +220,14 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
     		viewBuffer.clear();
     	}
 	}	
+	
+	public void setTranscodedAudioListener(TranscodedAudioListener transcodedAudioListener) {
+		this.transcodedAudioListener = transcodedAudioListener;
+	}
+	
+	@Override
+    public void stop() {
+    	processAudioData = false;
+    }
+
 }

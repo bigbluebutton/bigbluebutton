@@ -22,8 +22,8 @@ package org.bigbluebutton.modules.viewers.managers
 	
 	import mx.controls.Alert;
 	
-	import org.bigbluebutton.main.events.CloseWindowEvent;
-	import org.bigbluebutton.main.events.OpenWindowEvent;
+	import org.bigbluebutton.common.events.CloseWindowEvent;
+	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.modules.viewers.events.ViewersModuleEndEvent;
 	import org.bigbluebutton.modules.viewers.events.ViewersModuleStartedEvent;
 	import org.bigbluebutton.modules.viewers.views.ViewersWindow;

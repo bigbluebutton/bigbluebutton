@@ -18,8 +18,24 @@
 */
 package org.bigbluebutton.common
 {
+	/**
+	 * IBBBModuleWindow should be implemented by any MDIWindow class that you wish to display on the main canvas of the client.
+	 * Dispatch an org.bigbluebutton.main.events.OpenWindowEvent, passing in your MDIWindow instance that implements this interface.
+	 * The window will be added to the main canvas area.
+	 */	
 	public interface IBbbModuleWindow
 	{	
+		/**
+		 * Specifies the default position you'd like your window to appear in. Possible values are: 
+		 * <code>MainCanvas.TOP_LEFT</code>
+		 * <code>MainCanvas.BOTTOM_LEFT</code>
+		 * <code>MainCanvas.MIDDLE</code>
+		 * <code>MainCanvas.BOTTOM</code>
+		 * <code>MainCanvas.RIGHT</code>
+		 * <code>MainCanvas.POPUP</code>
+		 * @return the preffered position of the window.
+		 * 
+		 */		
 		function getPrefferedPosition():String;
 	}
 }
