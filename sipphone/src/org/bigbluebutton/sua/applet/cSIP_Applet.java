@@ -42,6 +42,9 @@ public class cSIP_Applet extends JApplet{
 	private String bbb_domain ;
 	private String bbb_room   ;
 	private String bbb_name   ;
+	private String bbb_username;
+	private String bbb_password;
+	private int bbb_port; 
 	
 	private cSIP_Call sip_call ;
 	/*****************************************************************************
@@ -61,10 +64,19 @@ public class cSIP_Applet extends JApplet{
     ; 02-24-2011
     ******************************************************************************/
 	public void init(){
-	    
-		this.bbb_domain = getParameter("domain");
+	    System.out.println("Initialize applet.........");
+		
+	    this.bbb_domain = getParameter("domain");
 		this.bbb_room   = getParameter("room") ;
 		this.bbb_name   = getParameter("name") ;
+		this.bbb_username = getParameter("bbbUserName");
+		this.bbb_password = getParameter("bbbPassword");
+		this.bbb_port	  = Integer.parseInt(getParameter("bbbPort"));
+		
+		System.out.println("bbb_domain: " + this.bbb_domain + ", bbb_room: " + this.bbb_room
+				+ ", bbb_name: " + this.bbb_name + ", bbb_username: " + this.bbb_username
+				+ ", bbb_password: " + this.bbb_password + ", bbb_port: " + this.bbb_port
+				);
 		
 		/** mock up **/
 		/*this.bbb_domain = "bbb.titook.org" ;
@@ -74,7 +86,9 @@ public class cSIP_Applet extends JApplet{
 		
 		//new cSIP_AudioGUI();
 		
-		sip_call = new cSIP_Call(this.bbb_domain,this.bbb_room,this.bbb_name);
+		sip_call = new cSIP_Call(this.bbb_domain,this.bbb_room,this.bbb_name,
+							this.bbb_username,this.bbb_password,this.bbb_port
+							);
 		//initializeProfile(this.bbb_domain,this.bbb_room,this.bbb_name);
 		//doCall(this.bbb_domain,this.bbb_room);
 	}
@@ -99,7 +113,9 @@ public class cSIP_Applet extends JApplet{
 		System.out.print("Starting SIP Phone...") ;
 		
 		if ( null == sip_call ){
-			sip_call = new cSIP_Call(this.bbb_domain,this.bbb_room,this.bbb_name);
+			sip_call = new cSIP_Call(this.bbb_domain,this.bbb_room,this.bbb_name,
+								this.bbb_username,this.bbb_password,this.bbb_port
+								);
 		}
 		
 		sip_call.doCall(this.bbb_domain, this.bbb_room);

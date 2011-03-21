@@ -37,9 +37,7 @@ package org.bigbluebutton.modules.phone.managers
 		private var onCall:Boolean = false;
 		private var attributes:Object;
 		
-		//<REALWAT>
 		private var _isUsingSipApplet:Boolean = false;
-		//</REALWAT>
 		
 		public function PhoneManager() {
 			connectionManager = new ConnectionManager();
@@ -67,22 +65,46 @@ package org.bigbluebutton.modules.phone.managers
 		public function join(e:JoinVoiceConferenceEvent):void {
 			joinVoice(e.useMicrophone);
 		}
-		//<REALWAT>
+		
+		/*****************************************************************************
+		 ;  joinVoiceBySipApplet
+		 ;----------------------------------------------------------------------------
+		 ; DESCRIPTION
+		 ;   This routine is use to handle join voice conference by applet Sip Phone
+		 ;
+		 ; RETURNS : N/A
+		 ;
+		 ; INTERFACE NOTES
+		 ;		INPUT: 
+		 ;			evt: cPHONE_ConfigSipPhoneEvent
+		 ;
+		 ; IMPLEMENTATION
+		 ;  	calling external javascript 'startSIPApplet' function to start 
+		 ;		applet Sip Phone
+		 ;
+		 ; HISTORY
+		 ; __date__ :        PTS:  			Description
+		 ; 2011-3-17                        Swiching web phone(applet or flash)
+		 ;
+		 ******************************************************************************/
 		public function joinVoiceBySipApplet(evt:cPHONE_ConfigSipPhoneEvent) : void {
 			LogUtil.debug("PhoneManager: joinVoiceBySipApplet");
 			this._isUsingSipApplet = true;
 			var voiceConfId:String	= attributes.webvoiceconf;
 			var domainName:String	= attributes.uri.split("/")[2];
 			var uname:String		= attributes.username;
+			var bbbUserName:String		= attributes.bbbUserName;
+			var bbbPassword:String		= attributes.bbbPassword;
+			var bbbPort:String			= attributes.bbbPort;
 			if (true == ExternalInterface.available) 
 			{
 				// call external javascript 'handleNewUser'
 				LogUtil.debug("Dialing...." + attributes.webvoiceconf + ".... via BBB SIP Applet");
-				ExternalInterface.call("startSIPApplet", domainName, voiceConfId, uname);
+				ExternalInterface.call("startSIPApplet", domainName, voiceConfId, uname,bbbUserName,bbbPassword,bbbPort);
 			}
 			onCall = true ;
-		}
-		//</REALWAT>
+		}/** END Function: joinVoiceBySipApplet */
+
 		/*****************************************************************************
 		 ;  joinVoice
 		 ;----------------------------------------------------------------------------
@@ -93,18 +115,18 @@ package org.bigbluebutton.modules.phone.managers
 		 ;
 		 ; INTERFACE NOTES
 		 ;   INPUT
-		 ;           - autoJoint : Boolean the status
+		 ;           - autoJoin : Boolean the status
 		 ;
 		 ; IMPLEMENTATION
 		 ;  	call startSIPApplet to execute bbb SIP applet
 		 ;
 		 ; HISTORY
 		 ; __date__ :        PTS:  			Description
-		 ; 2011-3-02                       Improve VoIP
+		 ; 2011-3-17                        Swiching web phone(applet or flash)
 		 ;
 		 ******************************************************************************/
 		public function joinVoice(autoJoin:Boolean):void {
-			LogUtil.debug("PhoneManager: joinVoice by flash sip phone");
+			LogUtil.debug("PhoneManager: joinVoice by flash phone");
 			setupMic(autoJoin);
 			var uid:String = String( Math.floor( new Date().getTime() ) );
 			connectionManager.connect(uid, attributes.externUserID, attributes.username,
@@ -136,11 +158,11 @@ package org.bigbluebutton.modules.phone.managers
 		 ; INTERFACE NOTES : N/A
 		 ;
 		 ; IMPLEMENTATION
-		 ;  	call startSIPApplet to stop bbb SIP applet
+		 ;  	hangup web phone (flash or applet)
 		 ;
 		 ; HISTORY
 		 ; __date__ :        PTS:  			Description
-		 ; 2011-3-02                       Improve VoIP
+		 ; 2011-3-02                        Swiching web phone(applet or flash)
 		 ;
 		 ******************************************************************************/
 		public function hangup():void {

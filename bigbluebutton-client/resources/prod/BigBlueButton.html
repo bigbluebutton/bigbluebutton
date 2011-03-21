@@ -218,7 +218,7 @@ function handleChat(msg){
  */
  
  //<REALWAT>
- function startSIPApplet(domain,room,uname){
+ function startSIPApplet(domain,room,uname,bbbUserName,bbbPassword,bbbPort){
  
     //alert(domain + ' ' + room + ' ' + uname);
      var sipApp = document.getElementById("sipApp");
@@ -232,6 +232,9 @@ function handleChat(msg){
                 "<param name=\"domain\" value=\"" + domain  + "\"/>" +
                 "<param name=\"room\" value=\"" + room + "\"/>" +
                 "<param name=\"name\" value=\"" + uname + "\"/>" + 
+                "<param name=\"bbbUserName\" value=\"" + bbbUserName  + "\"/>" +
+                "<param name=\"bbbPassword\" value=\"" + bbbPassword + "\"/>" +
+                "<param name=\"bbbPort\" value=\"" + bbbPort + "\"/>" + 
             "</applet>"
      
         document.body.appendChild(sipApp);

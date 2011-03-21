@@ -14,12 +14,20 @@ public class cSIP_Call {
 	private UserAgent ua ;
 	private RegisterAgent ra ; 
 	
-	public cSIP_Call(String domain, String room, String name){
+	public cSIP_Call(
+						String domain, String room, String name,
+						String bbbUserName,String bbbPassword,
+						int bbbPort
+					){
 		System.out.print("Initialize cSIP_Call") ;
-		cSIP_Initialize(domain,room,name) ;
+		cSIP_Initialize(domain,room,name,bbbUserName,bbbPassword,bbbPort) ;
 	}
 	
-	private void cSIP_Initialize(String domain, String room, String name){
+	private void cSIP_Initialize(
+						String domain, String room, String name,
+						String bbbUserName,String bbbPassword,
+						int bbbPort
+						){
 		
 		if ( true == domain.equals("") || 
 			 true == room.equals("") ){
@@ -37,19 +45,19 @@ public class cSIP_Call {
 		}
 		
 		/** assign value to user profile **/
-		userProfile.contact_url = cSIP_Constant.BBB_USERNAME + "@" + domain ;
-		userProfile.username = cSIP_Constant.BBB_USERNAME ;
+		userProfile.contact_url = bbbUserName + "@" + domain ;
+		userProfile.username = bbbUserName ;
 		userProfile.use_jmf = false ;
 		userProfile.audio = true;
-		userProfile.from_url = "\""+ name +"\"" + "<"+cSIP_Constant.BBB_PROTOCOL + cSIP_Constant.BBB_USERNAME + 
+		userProfile.from_url = "\""+ name +"\"" + "<"+cSIP_Constant.BBB_PROTOCOL + bbbUserName + 
 								"@" + domain ;
 		userProfile.call_to = cSIP_Constant.BBB_PROTOCOL + room + "@" + domain  ;
-		userProfile.passwd   = cSIP_Constant.BBB_PASSWORD ;
+		userProfile.passwd   = bbbPassword ;
 		userProfile.realm    = domain ;
 		userProfile.use_rat  = false ;
 		
 		/** Initialize Provider **/
-		provider = new SipProvider(domain,cSIP_Constant.BBB_PORT);
+		provider = new SipProvider(domain,bbbPort);
 		if ( null == provider ){
 			System.out.print("Failed to initialize provider");
 			return ;

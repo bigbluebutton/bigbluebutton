@@ -38,6 +38,9 @@
 			uri="rtmp://HOST/sip" 
 			autoJoin="false"
 			dependsOn="ViewersModule"
+            bbbUserName="bbbuser"
+            bbbPassword="secret"
+            bbbPort="5070"
 		/>
 		
 		<module name="VideoconfModule" url="VideoconfModule.swf?v=VERSION" 
