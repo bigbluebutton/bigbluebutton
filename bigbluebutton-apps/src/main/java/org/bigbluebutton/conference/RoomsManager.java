@@ -39,7 +39,7 @@ public class RoomsManager {
 	 
 	
 	/*redis pubsub*/
-	private RedisDispatcher redisDispatcher;
+//	private RedisDispatcher redisDispatcher;
 	public static final String CHANNEL_NAME="bbbConferenceEvents";
 	
 	public RoomsManager() {
@@ -53,7 +53,7 @@ public class RoomsManager {
 		
 		if (checkEvtListener()) {
 			conferenceEventListener.started(room);
-			redisDispatcher.getJedis().publish(CHANNEL_NAME, "conferenceStarted");
+//			redisDispatcher.getJedis().publish(CHANNEL_NAME, "conferenceStarted");
 			log.debug("Notified event listener of conference start");
 		}
 		rooms.put(room.getName(), room);
@@ -182,11 +182,11 @@ public class RoomsManager {
 		return conferenceEventListener;
 	}
 	
-	public void setRedisDispatcher(RedisDispatcher redisDispatcher){
-		this.redisDispatcher=redisDispatcher;
-	}
+//	public void setRedisDispatcher(RedisDispatcher redisDispatcher){
+//		this.redisDispatcher=redisDispatcher;
+//	}
 	
-	public RedisDispatcher getRedisDispatcher(){
-		return redisDispatcher;
-	}
+//	public RedisDispatcher getRedisDispatcher(){
+//		return redisDispatcher;
+//	}
 }

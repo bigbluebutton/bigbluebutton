@@ -8,7 +8,7 @@ public class BigBlueButtonSessionTest {
 		
 		@BeforeMethod 
 		public void setUp() {			
-			session = new BigBlueButtonSession("test-session", 1L, "test-user", "MODERATOR", "test-conference", "LIVE", "test-room", "87115", false, "1233");
+			session = new BigBlueButtonSession("test-session", 1L, "test-user", "MODERATOR", "test-conference", "test-room", "87115", false, "1233");
 		}
 
 		@Test

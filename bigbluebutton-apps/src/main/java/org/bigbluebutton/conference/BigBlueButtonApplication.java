@@ -95,7 +95,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
         String username = ((String) params[0]).toString();
         String role = ((String) params[1]).toString();
         String conference = ((String)params[2]).toString();
-        String mode = ((String) params[3]).toString();
+
         /*
          * Convert the id to Long because it gets converted to ascii decimal
          * equivalent (i.e. zero (0) becomes 48) if we don't.
@@ -103,20 +103,20 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
         long userid = Long.parseLong(Red5.getConnectionLocal().getClient().getId());
         String sessionName = connection.getScope().getName();
    
-        String voiceBridge = ((String) params[5]).toString();
+        String voiceBridge = ((String) params[4]).toString();
 		String room = sessionName;
 		assert recorderApplication != null;
-		boolean record = (Boolean)params[6];
+		boolean record = (Boolean)params[5];
 		log.debug("record value - [{}]", record); 
 
-    	String externUserID = ((String) params[7]).toString();
+    	String externUserID = ((String) params[6]).toString();
 
 		if (record == true) {
 			recorderApplication.createRecordSession(sessionName);
 		}
 			
     	BigBlueButtonSession bbbSession = new BigBlueButtonSession(sessionName, userid,  username, role, 
-    			conference, mode, room, voiceBridge, record, externUserID);
+    			conference, room, voiceBridge, record, externUserID);
         connection.setAttribute(Constants.SESSION, bbbSession);        
         
         String debugInfo = "userid=" + userid + ",username=" + username + ",role=" +  role + ",conference=" + conference + "," + 
