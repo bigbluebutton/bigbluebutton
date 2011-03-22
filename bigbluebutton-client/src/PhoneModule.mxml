@@ -38,7 +38,6 @@
 			import org.bigbluebutton.modules.phone.events.StartPhoneModuleEvent;
 			import org.bigbluebutton.modules.phone.events.StopPhoneModuleEvent;
 		
-			private var _moduleId:String = "PhoneModule";
 			private var _moduleName:String = "Phone";			
 			private var _attributes:Object;
 			
@@ -46,10 +45,6 @@
 			
 			private function onCreationComplete():void {
 				LogUtil.debug("PhoneModule Initialized");			
-			}
-				
-			public function get moduleId():String {
-				return _moduleId;
 			}
 			
 			public function get moduleName():String {

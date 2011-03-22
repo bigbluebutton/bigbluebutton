@@ -16,21 +16,18 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 * 
 */
-package org.bigbluebutton.main.events
+
+package org.bigbluebutton.modules.classyaudio.events
 {
 	import flash.events.Event;
-	
-	import org.bigbluebutton.common.IBbbModuleWindow;
 
-	public class OpenWindowEvent extends Event
+	public class RegistrationSuccessEvent extends Event
 	{
-		public var window:IBbbModuleWindow;
+		public static const REGISTRATION_SUCCESS_EVENT:String = 'REGISTRATION_SUCCESS_EVENT';
 		
-		public static const OPEN_WINDOW_EVENT:String = 'OPEN_WINDOW_EVENT';
-		
-		public function OpenWindowEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
+		public function RegistrationSuccessEvent(bubbles:Boolean=false, cancelable:Boolean=false)
 		{
-			super(type, bubbles, cancelable);
+			super(REGISTRATION_SUCCESS_EVENT, bubbles, cancelable);
 		}
 		
 	}

@@ -45,7 +45,7 @@
 			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.Role;
-			import org.bigbluebutton.main.api.UserManager;
+			import org.bigbluebutton.common.UserManager;
 			import org.bigbluebutton.main.events.ParticipantJoinEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.Conference;

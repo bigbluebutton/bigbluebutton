@@ -36,15 +36,10 @@
 			
 			private var globalDispatcher:Dispatcher = new Dispatcher();
 			
-			private var _moduleId:String = "PresentModule";
 			private var _moduleName:String = "Presentation";
 			private var _attributes:Object;
 			
 			private function onCreationComplete():void{
-			}
-			
-			public function get moduleId():String{
-				return _moduleId;
 			}
 			
 			public function get moduleName():String{

@@ -18,16 +18,26 @@
 */
 package org.bigbluebutton.common
 {
-
+	
+	/**
+	 * The main interface for a BigBlueButton Module. Implement this interface if you would like to your module to be loaded
+	 * by BigBlueButton. The module provides methods for passing in important parameters to your module. It also serves as a
+	 * security restriction. Only modules implementing this interface will be loaded by the main application.
+	 */
 	public interface IBigBlueButtonModule
 	{
-		function get moduleId():String;			
-		function get moduleName():String;	
-		function get username():String;
-		function get userid():Number;
-		function get uri():String;	
-		function get role():String;
+		/**
+		 * Returns the name of your module. The name should be unique, but there is no hard requirement for that yet.
+		 */
+		function get moduleName():String;
 	
+		/**
+		 * This method will be called once your module has been loaded by the main application. 
+		 * @param attributes - the object that will be passed to your module containing important attributes. The attributes
+		 * are specified in org.bigbluebutton.main.model.ConferenceParameters . In addition, any attributes you specified in
+		 * the client's config.xml file for your module will be passed to the module as well. The attributes object is dynamic
+		 * however and should not be cast into any other class.
+		 */		
 		function start(attributes:Object):void;
 		function stop():void;
 	}

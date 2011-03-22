@@ -20,21 +20,62 @@ package org.bigbluebutton.main.model
 {
 	import flash.net.NetConnection;
 
+	/**
+	 * The ConferenceParameters class holds attributes that define the conference. You can access them in your module through the
+	 * attributes property that is passed to your IBigBlueButtonModule instance on startup.
+	 * 
+	 */	
 	public class ConferenceParameters
 	{
+		/**
+		 * The name of the conference
+		 */		
 		public var conference:String;
+		
+		/**
+		 * The username of the local user
+		 */		
 		public var username:String;
+		
+		/**
+		 * The role of the local user. Could be MODERATOR or VIEWER 
+		 */		
 		public var role:String;
+		
+		/**
+		 * The room unique id, as specified in the API /create call.
+		 */		
 		public var room:String;
-		public var authToken:String;
-		public var mode:String;
+		
+		/**
+		 * Voice conference bridge for the client
+		 */		
 		public var webvoiceconf:String;
+		
+		/**
+		 * Voice conference bridge that external SIP clients use. Usually the same as webvoiceconf 
+		 */		
 		public var voicebridge:String;
-		public var conferenceName:String;
+		
+		/**
+		 *  The welcome string, as passed in through the API /create call.
+		 */		
 		public var welcome:String;
-		public var meetingID:String;
+		
+		/**
+		 * External unique user id.
+		 */		
 		public var externUserID:String;
+		
+		/**
+		 * A flash.net.NetConnection object that bbb-client connects to on startup. This connection reference is 
+		 * passed to your module as an already open connection. Use it to talk to the bigbluebutton server.
+		 */		
 		public var connection:NetConnection;
+		
+		/**
+		 * The unique userid internal to bbb-client.
+		 */		
 		public var userid:Number;
 	}
 }

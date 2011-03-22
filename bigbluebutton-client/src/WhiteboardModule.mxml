@@ -26,13 +26,10 @@
 		<![CDATA[
 			import org.bigbluebutton.common.LogUtil;
 			import com.asfusion.mate.events.Dispatcher;
-			
-			import mx.controls.Alert;
-			
+						
 			import org.bigbluebutton.modules.whiteboard.events.StartWhiteboardModuleEvent;
 			import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
 					
-			private var _moduleId:String = "HighlighterModule";
 			private var _moduleName:String = "Highlighter Module";			
 			private var _attributes:Object;
 			
@@ -40,10 +37,6 @@
 			
 			private function init():void{
 				LogUtil.debug("HighlighterModule::init");
-			}
-				
-			public function get moduleId():String {
-				return _moduleId;
 			}
 			
 			public function get moduleName():String {

@@ -17,21 +17,21 @@
  *
  * $Id: $
  */
-package org.bigbluebutton.main.events
+package org.bigbluebutton.modules.classyaudio.events
 {
 	import flash.events.Event;
-	
-	import org.bigbluebutton.common.IBbbModuleWindow;
 
-	public class CloseWindowEvent extends Event
+	public class CallConnectedEvent extends Event
 	{
-		public var window:IBbbModuleWindow;
+		public static const CALL_CONNECTED_EVENT:String = 'CALL_CONNECTED_EVENT';
 		
-		public static const CLOSE_WINDOW_EVENT:String = 'CLOSE_WINDOW_EVENT';
+		public var publishStreamName:String;
+		public var playStreamName:String;
+		public var codec:String;
 		
-		public function CloseWindowEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
+		public function CallConnectedEvent(bubbles:Boolean=true, cancelable:Boolean=false)
 		{
-			super(type, bubbles, cancelable);
+			super(CALL_CONNECTED_EVENT, bubbles, cancelable);
 		}
 		
 	}

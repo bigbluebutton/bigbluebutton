@@ -78,13 +78,9 @@ package org.bigbluebutton.main.model.users
 				_conferenceParameters.username = _conference.me.name;
 				_conferenceParameters.role = _conference.me.role;
 				_conferenceParameters.room = _conference.me.room;
-				_conferenceParameters.authToken = _conference.me.authToken;
-				_conferenceParameters.mode = result.mode;
 				_conferenceParameters.webvoiceconf = result.webvoiceconf;
 				_conferenceParameters.voicebridge = result.voicebridge;
-				_conferenceParameters.conferenceName = result.conferenceName;
 				_conferenceParameters.welcome = result.welcome;
-				_conferenceParameters.meetingID = result.meetingID;
 				_conferenceParameters.externUserID = result.externUserID;
 				
 				var e:ConferenceCreatedEvent = new ConferenceCreatedEvent(ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT);

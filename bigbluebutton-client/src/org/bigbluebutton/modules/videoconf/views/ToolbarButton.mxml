@@ -23,12 +23,15 @@
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" icon="{camIcon}" 
 		   click="openPublishWindow()" creationComplete="init()" 
 		   toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip')}"
-		   visible="{isPresenter}">
+		   visible="{isPresenter}"
+		   implements="org.bigbluebutton.common.IBbbToolbarComponent">
+	
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.main.views.MainToolbar;
 			import org.bigbluebutton.modules.videoconf.events.OpenPublishWindowEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
@@ -50,6 +53,10 @@
 			
 			public function show():void{
 				this.enabled = true;
+			}
+			
+			public function getAlignment():String{
+				return MainToolbar.ALIGN_LEFT;
 			}
 		]]>
 	</mx:Script>

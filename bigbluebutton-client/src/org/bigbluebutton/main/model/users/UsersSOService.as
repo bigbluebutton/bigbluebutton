@@ -47,7 +47,6 @@ package org.bigbluebutton.main.model.users
 		private var netConnectionDelegate: NetConnectionDelegate;
 		
 		private var _participants:Conference;
-		private var _mode:String;
 		private var _room:String;
 		private var _applicationURI:String;
 		
@@ -62,7 +61,6 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		public function connect(params:ConferenceParameters):void {
-			_mode = params.mode;
 			_room = params.room;
 			netConnectionDelegate.connect(params);
 		}

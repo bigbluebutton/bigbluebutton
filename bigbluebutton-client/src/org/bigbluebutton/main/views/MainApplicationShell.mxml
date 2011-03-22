@@ -28,7 +28,7 @@
 		xmlns:maps="org.bigbluebutton.main.maps.*"
 		xmlns:api="org.bigbluebutton.main.api.*"
 		width="100%" height="100%"
-		creationComplete="initializeShell()">
+		creationComplete="initializeShell()" xmlns:common="org.bigbluebutton.common.*">
 		
 	<mate:Listener type="{ConfigEvent.CONFIG_EVENT}" method="setLogVisibility" />
 	<mate:Listener type="{OpenWindowEvent.OPEN_WINDOW_EVENT}" method="handleOpenWindowEvent" />	
@@ -41,7 +41,7 @@
 	<mate:Listener type="{ConnectionFailedEvent.UNKNOWN_REASON}" method="attemptReconnect"  />
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_REJECTED}" method="attemptReconnect"  />
 
-	<api:APIEventMap />
+	<common:APIEventMap />
 	
 	<mx:Script>
 		<![CDATA[
@@ -63,11 +63,11 @@
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.main.events.AddUIComponentToMainCanvas;
-			import org.bigbluebutton.main.events.CloseWindowEvent;
+			import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
+			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.main.events.ConfigEvent;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
-			import org.bigbluebutton.main.events.OpenWindowEvent;
+			import org.bigbluebutton.common.events.OpenWindowEvent;
 			import org.bigbluebutton.main.events.PortTestEvent;
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
@@ -114,7 +114,8 @@
 			private function handleApplicationVersionEvent(event:AppVersionEvent):void {
 				appVersion = event.appVersion;
 				localeVersion = event.localVersion;
-				checkLocaleVersion(localeVersion);
+				
+				if (!event.suppressLocaleWarning) checkLocaleVersion(localeVersion);
 			}
 			
 			private function fullScreenHandler(evt:FullScreenEvent):void {

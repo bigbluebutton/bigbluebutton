@@ -172,14 +172,11 @@ package org.bigbluebutton.main.model.modules
 			addAttribute("username", conferenceParameters.username);
 			addAttribute("userrole", conferenceParameters.role);
 			addAttribute("room", conferenceParameters.room);
-			addAttribute("authToken", conferenceParameters.authToken);
 			addAttribute("userid", conferenceParameters.userid);
-			addAttribute("mode", conferenceParameters.mode);
 			addAttribute("connection", conferenceParameters.connection);
 			addAttribute("voicebridge", conferenceParameters.voicebridge);
 			addAttribute("webvoiceconf", conferenceParameters.webvoiceconf);
 			addAttribute("welcome", conferenceParameters.welcome);
-			addAttribute("meetingID", conferenceParameters.meetingID);
 			addAttribute("externUserID", conferenceParameters.externUserID);
 			
 			addAttribute("protocol", protocol);

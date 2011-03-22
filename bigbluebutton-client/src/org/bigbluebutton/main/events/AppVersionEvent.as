@@ -8,6 +8,7 @@ package org.bigbluebutton.main.events
 		public static const APP_VERSION_EVENT:String = "APP VERSION EVENT";
 		public var appVersion:String;
 		public var localVersion:String;
+		public var suppressLocaleWarning:Boolean;
 		
 		public function AppVersionEvent()
 		{

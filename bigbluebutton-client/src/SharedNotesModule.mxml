@@ -1,0 +1,108 @@
+<!--
+	This file is part of BBB-Notes.
+	
+	Copyright (c) Islam El-Ashi. All rights reserved.
+	
+	BBB-Notes is free software: you can redistribute it and/or modify
+	it under the terms of the Lesser GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or 
+	any later version.
+	
+	BBB-Notes is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	Lesser GNU General Public License for more details.
+	
+	You should have received a copy of the Lesser GNU General Public License
+	along with BBB-Notes.  If not, see <http://www.gnu.org/licenses/>.
+	
+	Author: Islam El-Ashi <ielashi@gmail.com>, <http://www.ielashi.com>
+-->
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" 
+		   layout="absolute" 
+		   implements="org.bigbluebutton.common.IBigBlueButtonModule" 
+		   creationComplete="onCreationComplete()" >
+	<mx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import flexlib.mdi.containers.MDIWindow;
+			
+			import org.bigbluebutton.common.IBbbModuleWindow;
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.events.CloseWindowEvent;
+			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.common.events.ToolbarButtonEvent;
+			import org.bigbluebutton.modules.sharednotes.SharedNotesWindow;
+			import org.bigbluebutton.modules.sharednotes.ToolbarButton;
+			import org.bigbluebutton.modules.sharednotes.infrastructure.Client;
+			import org.bigbluebutton.modules.sharednotes.infrastructure.HTTPServerConnection;
+			
+			private var _moduleName:String = "Notes Module";			
+			private var _attributes:Object;
+			
+			private var globalDispatcher:Dispatcher = new Dispatcher();
+			
+			private function onCreationComplete():void {
+				LogUtil.debug("NotesModule Initialized");	
+				globalDispatcher = new Dispatcher();
+			}
+			
+			public function get moduleName():String {
+				return _moduleName;
+			}
+			
+			public function get uri():String {
+				if (_attributes.mode == "PLAYBACK") {										
+					return _attributes.uri + "/" + _attributes.playbackRoom;
+				} 
+				
+				return _attributes.uri + "/" + _attributes.room;
+			}
+			
+			public function get username():String {
+				return _attributes.username;
+			}
+			
+			public function get connection():NetConnection {
+				return _attributes.connection;
+			}
+			
+			public function get mode():String {
+				if (_attributes.mode == null) {					
+					_attributes.mode = "LIVE"
+					LogUtil.debug('Setting NotesModule mode: ' + _attributes.mode);
+				}
+				LogUtil.debug('NotesModule mode: ' + _attributes.mode);
+				return _attributes.mode;
+			}
+			
+			public function get userid():Number {
+				return _attributes.userid as Number;
+			}
+			
+			public function get role():String {
+				return _attributes.userrole as String;
+			}
+			
+			public function start(attributes:Object):void {	
+				LogUtil.debug("notes attr: " + attributes.username);
+				_attributes = attributes;
+				SharedNotesWindow.document = _attributes.room;
+				// The following line has been removed, as the uri should be in 
+				// the URI property in the config.xml file of the client
+					HTTPServerConnection.syncURL = (_attributes.uri as String).replace("RTMP", "http") + "/notes/notes.jsp";
+				addToolbarButton();
+			}
+			
+			public function addToolbarButton():void{
+				var button:ToolbarButton = new ToolbarButton();	   	
+				var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
+				event.button = button;
+				globalDispatcher.dispatchEvent(event);
+			}
+			
+			public function stop():void {}
+		]]>
+	</mx:Script>
+</mx:Module>

@@ -34,7 +34,7 @@ package org.bigbluebutton.modules.breakout.business
 	import mx.controls.Alert;
 	import mx.events.CloseEvent;
 	
-	import org.bigbluebutton.main.api.UserManager;
+	import org.bigbluebutton.common.UserManager;
 	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.main.model.users.Conference;
 

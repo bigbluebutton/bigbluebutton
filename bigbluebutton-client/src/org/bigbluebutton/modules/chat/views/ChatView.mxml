@@ -25,7 +25,7 @@
 		 creationComplete="onCreationComplete()"
 		 xmlns:flexlib="http://code.google.com/p/flexlib/"
 		 width="100%" height="100%" xmlns:containers="flexlib.containers.*"
-		 implements="org.bigbluebutton.main.api.IUserListener"
+		 implements="org.bigbluebutton.common.IUserListener"
 		 verticalScrollPolicy="off">
 	
 	<mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
@@ -72,8 +72,8 @@
 			import mx.events.IndexChangedEvent;
 			
 			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.main.api.IUserListener;
-			import org.bigbluebutton.main.api.UserManager;
+			import org.bigbluebutton.common.IUserListener;
+			import org.bigbluebutton.common.UserManager;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ParticipantJoinEvent;
 			import org.bigbluebutton.main.model.User;

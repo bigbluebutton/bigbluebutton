@@ -22,8 +22,8 @@ package org.bigbluebutton.modules.chat.maps {
 	import flash.events.IEventDispatcher;
 	
 	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.main.events.CloseWindowEvent;
-	import org.bigbluebutton.main.events.OpenWindowEvent;
+	import org.bigbluebutton.common.events.CloseWindowEvent;
+	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
 	import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
 	import org.bigbluebutton.modules.chat.views.ChatWindow;

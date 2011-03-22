@@ -51,7 +51,7 @@
 			private function displayLogMessages():void {
 				this.textField = this.getTextField(this.txtOutput);
 				highlighter = new Highlighter(this.textField);
-				txtOutput.text = logs.messages
+				txtOutput.text = logs.messages;
 			}
 			
 			private function filter():void{

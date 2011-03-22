@@ -34,7 +34,6 @@
 			import org.bigbluebutton.modules.listeners.events.StartListenersModuleEvent;
 			import org.bigbluebutton.modules.listeners.events.StopListenersModuleEvent;
 			
-			private var _moduleId:String = "ListenersModule";
 			private var _moduleName:String = "Listeners Module";
 			
 			private var _attributes:Object;
@@ -45,10 +44,6 @@
 			
 			private function onModuleCreationComplete():void {
 				LogUtil.debug("ListenersModule Initialized");			
-			}
-				
-			public function get moduleId():String {
-				return _moduleId;
 			}
 			
 			public function get moduleName():String {

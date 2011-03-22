@@ -16,7 +16,7 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 * 
 */
-package org.bigbluebutton.common.red5
+package org.bigbluebutton.modules.deskshare.services.red5
 {
 	import flash.events.Event;
 	
