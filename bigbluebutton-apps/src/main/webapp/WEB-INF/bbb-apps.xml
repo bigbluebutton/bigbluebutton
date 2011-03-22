@@ -19,7 +19,6 @@
 	
 	<bean id="roomsManager" class="org.bigbluebutton.conference.RoomsManager">
 		<property name="conferenceEventListener" ref="conferenceEventListener" />
-		<property name="redisDispatcher" ref="redisRecorder" />
 	</bean>
 			
 	<bean id="participantsHandler" class="org.bigbluebutton.conference.service.participants.ParticipantsHandler">

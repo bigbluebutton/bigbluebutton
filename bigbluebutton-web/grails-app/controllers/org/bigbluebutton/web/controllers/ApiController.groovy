@@ -58,7 +58,7 @@ class ApiController {
 		
 	DynamicConferenceService dynamicConferenceService;
 	IApiConferenceEventListener conferenceEventListener;
-	org.bigbluebutton.redis.RedisDispatcher redisDispatcher;
+	org.bigbluebutton.api.IRedisDispatcher redisDispatcher;
 
 	/* general methods */
 	def index = {
@@ -78,7 +78,7 @@ class ApiController {
 
 	/* interface (API) methods */
 	def create = {
-		redisDispatcher.publish("bu","bu");
+//		redisDispatcher.publish("bu","bu");
 		log.debug CONTROLLER_NAME + "#create"
 
 		if (!doChecksumSecurity("create")) {
@@ -321,7 +321,7 @@ class ApiController {
 		conf.setForciblyEnded(true);
 		
 		conferenceEventListener.endMeetingRequest(room);
-		redisDispatcher.publish();
+//		redisDispatcher.publish();
 		
 		response.addHeader("Cache-Control", "no-cache")
 		withFormat {	
