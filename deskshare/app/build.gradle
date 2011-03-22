@@ -29,6 +29,10 @@ dependencies {
         // Testing
     compile 'org.testng:testng:5.8@jar' 
     compile 'org.easymock:easymock:2.4@jar'
+    
+        //redis
+	compile 'redis.clients:jedis:1.5.1'
+	compile 'commons-pool:commons-pool:1.5.5'
 }
 
 test {
