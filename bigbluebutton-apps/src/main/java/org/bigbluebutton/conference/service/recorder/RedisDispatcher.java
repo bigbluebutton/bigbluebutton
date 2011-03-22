@@ -20,14 +20,14 @@ public class RedisDispatcher implements Recorder {
 		this.host = host;
 		this.port = port;
 		
-		jedis = new Jedis(host, port);		
+//		jedis = new Jedis(host, port);		
 //		Config poolConfig = new Config();
 //		jpool = new JedisPool(poolConfig, host, port);
 	}
 	
 	@Override
 	public void record(String session, RecordEvent message) {
-		//Jedis jedis = new Jedis(host, port);
+		Jedis jedis = new Jedis(host, port);
 		Long msgid = jedis.incr("global:nextRecordedMsgId");
 		jedis.hmset("recording" + COLON + session + COLON + msgid, message.toMap());
 		jedis.rpush("meeting" + COLON + session + COLON + "recordings", msgid.toString());						
