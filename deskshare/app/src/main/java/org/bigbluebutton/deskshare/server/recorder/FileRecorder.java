@@ -12,7 +12,7 @@ import org.apache.mina.core.buffer.IoBuffer;
 import org.bigbluebutton.deskshare.server.session.FlvEncodeException;
 import org.bigbluebutton.deskshare.server.session.ScreenVideoFlvEncoder;
 
-public class FileRecorder {
+public class FileRecorder implements Recorder {
 	private BlockingQueue<IoBuffer> screenQueue = new LinkedBlockingQueue<IoBuffer>();
 	private final Executor exec = Executors.newSingleThreadExecutor();
 	private Runnable capturedScreenSender;
@@ -23,13 +23,11 @@ public class FileRecorder {
 	
 	private String flvFilename = "/tmp/screenvideostream.flv";
 	
-	public FileRecorder(String name, boolean record) {
-		if (record) {
-			flvFilename = "/tmp/" + name + "-" + System.currentTimeMillis() + ".flv";
-		}
+	public FileRecorder(String name, String recordingPath) {
+		flvFilename = recordingPath + "/" + name + "-" + System.currentTimeMillis() + ".flv";
 	}
 	
-	public void accept(IoBuffer frame) {
+	public void record(IoBuffer frame) {
 		try {
 			screenQueue.put(frame);
 		} catch (InterruptedException e) {
@@ -56,8 +54,8 @@ public class FileRecorder {
 				while (sendCapturedScreen) {
 					try {
 						System.out.println("ScreenQueue size " + screenQueue.size());
-						IoBuffer newScreen = screenQueue.take();
-						sendCapturedScreen(newScreen);
+						IoBuffer frame = screenQueue.take();
+						recordFrameToFile(frame);
 					} catch (InterruptedException e) {
 						System.out.println("InterruptedExeption while taking event.");
 					}
@@ -67,13 +65,9 @@ public class FileRecorder {
 		exec.execute(capturedScreenSender);
 	}
 
-	private void sendCapturedScreen(IoBuffer event) {
-//	System.out.println("ENABLE FlvStreamToFile:sendCapturedScreen");
-			
+	private void recordFrameToFile(IoBuffer frame) {	
 		try {
-			byte[] data = svf.encodeFlvData(event.array());
-			System.out.println("Saving video data with length " + data.length);
-			fo.write(data);
+			fo.write(svf.encodeFlvData(frame.array()));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -92,9 +86,5 @@ public class FileRecorder {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-
-	public void setFlvFilename(String filename) {
-		flvFilename = filename;
 	}
 }

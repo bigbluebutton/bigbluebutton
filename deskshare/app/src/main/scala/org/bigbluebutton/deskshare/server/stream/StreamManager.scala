@@ -30,17 +30,18 @@ import java.util.ArrayList
 import scala.actors.Actor
 import scala.actors.Actor._
 import scala.collection.mutable.HashMap
+import org.bigbluebutton.deskshare.server.recorder._
 
 import net.lag.logging.Logger
 
 case class IsStreamPublishing(room: String)
 case class StreamPublishingReply(publishing: Boolean, width: Int, height: Int)
 
-class StreamManager(record:Boolean) extends Actor {
+class StreamManager(record:Boolean, recordingService:RecordingService) extends Actor {
 	private val log = Logger.get
  
 	var app: DeskshareApplication = null
- 
+ 	
 	def setDeskshareApplication(a: DeskshareApplication) {
 	  app = a
 	}
@@ -76,7 +77,7 @@ class StreamManager(record:Boolean) extends Actor {
  
 	def createStream(room: String, width: Int, height: Int): Option[DeskshareStream] = {	  	  
 	  try {                                                                       
-		val stream = new DeskshareStream(app, room, width, height, record)
+		val stream = new DeskshareStream(app, room, width, height, record, recordingService.getRecorderFor(room))
 		if (stream.initializeStream) {
 		  stream.start
 		  this ! new AddStream(room, stream)
@@ -97,7 +98,7 @@ class StreamManager(record:Boolean) extends Actor {
   		this ! new RemoveStream(room)
   	}  	
    
-  	override def  exit() : Nothing = {
+  	override def exit() : Nothing = {
 	  log.warning("StreamManager: **** Exiting  Actor")
 	  super.exit()
 	}

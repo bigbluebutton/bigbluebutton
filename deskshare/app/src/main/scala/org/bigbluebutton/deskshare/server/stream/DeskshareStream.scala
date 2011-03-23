@@ -21,7 +21,7 @@
 */
 package org.bigbluebutton.deskshare.server.stream
 
-import org.bigbluebutton.deskshare.server.recorder.FileRecorder
+import org.bigbluebutton.deskshare.server.recorder.Recorder
 import org.bigbluebutton.deskshare.server.red5.DeskshareApplication
 import org.bigbluebutton.deskshare.server.ScreenVideoBroadcastStream
 import org.red5.server.api.{IContext, IScope}
@@ -35,11 +35,9 @@ import scala.actors.Actor._
 
 import net.lag.logging.Logger
 
-class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, val height: Int, record: Boolean) extends Stream {
+class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, val height: Int, record: Boolean, recorder: Recorder) extends Stream {
 	private val log = Logger.get
 	private var broadcastStream:ScreenVideoBroadcastStream = null 
-	
-	private val flvRecorder:FileRecorder = new FileRecorder(name, record)
 		
 	var startTimestamp: Long = System.currentTimeMillis()
  
@@ -68,7 +66,7 @@ class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, v
 		log.debug("DeskShareStream: Stopping stream %s", name)
 		log.info("DeskShareStream: Sending deskshareStreamStopped for %s", name)
 		if (record) {
-	  		flvRecorder.stop()
+	  		recorder.stop()
 	  	}
 		broadcastStream.sendDeskshareStreamStopped(new ArrayList[Object]())
 		broadcastStream.stop()
@@ -79,7 +77,7 @@ class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, v
 	private def startStream() = {
 	  log.debug("DeskShareStream: Starting stream %s", name)
 	  if (record) {
-	  	flvRecorder.start()
+	  	recorder.start()
 	  }
    	  broadcastStream.sendDeskshareStreamStarted(width, height)
 	}
@@ -99,7 +97,7 @@ class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, v
 		
 		if (record) {
 			System.out.println("Recording")
-			flvRecorder.accept(buffer)
+			recorder.record(buffer)
 		} else {
 			System.out.println("Not Recording")
 		}	

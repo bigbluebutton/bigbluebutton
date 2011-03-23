@@ -243,7 +243,6 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 	}
 	
 	public void sendDeskshareStreamStopped(ArrayList<Object> msg) {
-
 		deskSO.sendMessage("deskshareStreamStopped" , msg);
 	}
 	
