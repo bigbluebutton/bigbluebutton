@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.classyaudio.managers
 	
 	import flash.events.ActivityEvent;
 	import flash.events.AsyncErrorEvent;
+	import flash.events.Event;
 	import flash.events.IEventDispatcher;
 	import flash.events.NetStatusEvent;
 	import flash.events.StatusEvent;
@@ -31,7 +32,11 @@ package org.bigbluebutton.modules.classyaudio.managers
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
 	
+	import mx.controls.Alert;
+	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.common.UserManager;
+	import org.bigbluebutton.main.model.User;
 	import org.bigbluebutton.modules.classyaudio.events.MicMutedEvent;
 	import org.bigbluebutton.modules.classyaudio.events.PlayStreamStatusEvent;
 	
@@ -57,19 +62,17 @@ package org.bigbluebutton.modules.classyaudio.managers
 			this.connection = connection;
 		}
 		
-		public function initMicrophone():void {
-			mic = Microphone.getMicrophone();
-
-			if(mic == null){
-				initWithNoMicrophone();
-			} else {
-				setupMicrophone();
-				mic.addEventListener(ActivityEvent.ACTIVITY, micActivityHandler);
-				mic.addEventListener(StatusEvent.STATUS, micStatusHandler);
-			}
-		}	
-		
 		private function setupMicrophone():void {
+			mic = Microphone.getMicrophone();
+			
+			if(mic == null){
+				LogUtil.debug("No available microphone");
+				return;
+			}
+			
+			mic.addEventListener(ActivityEvent.ACTIVITY, micActivityHandler);
+			mic.addEventListener(StatusEvent.STATUS, micStatusHandler);
+			
 			mic.setUseEchoSuppression(true);
 			mic.setLoopBack(false);
 			//mic.setSilenceLevel(0,20000);
@@ -78,6 +81,7 @@ package org.bigbluebutton.modules.classyaudio.managers
 				mic.codec = SoundCodec.SPEEX;
 				mic.framesPerPacket = 1;
 				mic.rate = 16; 
+				//mic.enableVAD = true;
 				LogUtil.debug("codec=SPEEX,framesPerPacket=1,rate=16");
 			} else {
 				mic.codec = SoundCodec.NELLYMOSER;
@@ -85,10 +89,6 @@ package org.bigbluebutton.modules.classyaudio.managers
 				LogUtil.debug("codec=NELLYMOSER,rate=8");
 			}			
 			//mic.gain = 60;			
-		}
-		
-		public function initWithNoMicrophone(): void {
-			LogUtil.debug("No available microphone");
 		}
 						
 		private function micActivityHandler(event:ActivityEvent):void {}
@@ -119,11 +119,14 @@ package org.bigbluebutton.modules.classyaudio.managers
 				//outgoingStream.attachAudio(null);
 			}*/
 			
-			LogUtil.debug("***** Muting the mic.");
-			mic.setSilenceLevel(100, 0);
-			//Save the gain for when the user becomes unmuted
-			this.gain = mic.gain;
-			mic.gain = 0;
+			if (mic != null){
+				LogUtil.debug("***** Muting the mic.");
+				mic.setSilenceLevel(100, 0);
+				//Save the gain for when the user becomes unmuted
+				//this.gain = mic.gain;
+				mic.gain = 0;
+			}
+			
 		}
 		
 		public function unmute():void {
@@ -139,9 +142,12 @@ package org.bigbluebutton.modules.classyaudio.managers
 			//custom_obj.onPlayStatus = playStatus;
 			//outgoingStream.client = custom_obj;
 				
-			mic.setSilenceLevel(0, 20000);
-			//Load the saved gain.
-			mic.gain = this.gain;
+			if (mic != null){
+				mic.setSilenceLevel(0, 20000);
+				//Load the saved gain.
+				mic.gain = this.gain;
+			}
+			
 		}
 								
 		public function callConnected(playStreamName:String, publishStreamName:String, codec:String):void {
@@ -150,10 +156,8 @@ package org.bigbluebutton.modules.classyaudio.managers
 			audioCodec = codec;
 			setupIncomingStream();
 			LogUtil.debug("SM callConnected: Incoming Stream Setup");
-			if (mic != null) {
-				setupOutgoingStream();
-				LogUtil.debug("SM callConnected: Setup Outgoing Stream");
-			}
+			setupOutgoingStream();
+			LogUtil.debug("SM callConnected: Setup Outgoing Stream");
 			LogUtil.debug("SM callConnected: Setup Stream(s)");
 			setupPlayStatusHandler();
 			LogUtil.debug("SM callConnected: After setupPlayStatusHandler");
@@ -177,7 +181,7 @@ package org.bigbluebutton.modules.classyaudio.managers
 		
 		private function setupIncomingStream():void {
 			incomingStream = new NetStream(connection);
-			incomingStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
+			incomingStream.addEventListener(NetStatusEvent.NET_STATUS, netStatusIncoming);
 			incomingStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
 			/*
 			 * Set the bufferTime to 0 (zero) for live stream as suggested in the doc.
@@ -192,10 +196,11 @@ package org.bigbluebutton.modules.classyaudio.managers
 		
 		private function setupOutgoingStream():void {
 			outgoingStream = new NetStream(connection);
-			outgoingStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
+			outgoingStream.addEventListener(NetStatusEvent.NET_STATUS, netStatusOutgoing);
 			outgoingStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);		
 			setupMicrophone();
 			outgoingStream.attachAudio(mic);
+			unmute();
 		}
 		
 		private function setupPlayStatusHandler():void {
@@ -228,9 +233,10 @@ package org.bigbluebutton.modules.classyaudio.managers
 			LogUtil.debug("Stopped Stream(s)");
 		}
 
-		private function netStatus (evt:NetStatusEvent ):void {		 
+		private function netStatusIncoming (evt:NetStatusEvent ):void {		 
 
 			var event:PlayStreamStatusEvent = new PlayStreamStatusEvent();
+			LogUtil.debug("StreamManager:NetStream: " + evt.info.code);
 			
 			switch(evt.info.code) {
 			
@@ -257,11 +263,44 @@ package org.bigbluebutton.modules.classyaudio.managers
 				default:
 					
 			}	
+			dispatcher.dispatchEvent(event);	
+		} 
+		
+		private function netStatusOutgoing (evt:NetStatusEvent ):void {		 
+			
+			var event:PlayStreamStatusEvent = new PlayStreamStatusEvent();
+			LogUtil.debug("StreamManager: NetStream: " + evt.info.code);
+			
+			switch(evt.info.code) {
+				
+				case "NetStream.Play.StreamNotFound":
+					event.status = PlayStreamStatusEvent.PLAY_STREAM_STATUS_EVENT;
+					break;
+				
+				case "NetStream.Play.Failed":
+					event.status = PlayStreamStatusEvent.FAILED;
+					break;
+				
+				case "NetStream.Play.Start":	
+					event.status = PlayStreamStatusEvent.START;
+					break;
+				
+				case "NetStream.Play.Stop":			
+					event.status = PlayStreamStatusEvent.STOP;
+					break;
+				
+				case "NetStream.Buffer.Full":
+					event.status = PlayStreamStatusEvent.BUFFER_FULL;
+					break;
+				
+				default:
+					
+			}	
 			dispatcher.dispatchEvent(event);		 
 		} 
 			
 		private function asyncErrorHandler(event:AsyncErrorEvent):void {
-	           trace("AsyncErrorEvent: " + event);
+	    	LogUtil.debug("StreamManager: AsyncErrorEvent: " + event);
 	    }
 	        
 	    private function playStatus(event:Object):void {

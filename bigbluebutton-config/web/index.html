@@ -10,6 +10,18 @@
         function autoFocus() {
                 document.getElementById("username").focus();
         }
+
+	function checkform(f) {
+	    if (f.username.value==''){
+		alert("Please enter your username");
+		f.username.focus();
+		f.username.style.border='1px solid #ff0000';
+		return false;
+	    } else {
+		return true;
+	    }
+	}
+
 </script>
 
 <body onload="autoFocus();">
@@ -47,7 +59,7 @@
         <div id="join">
             <h2>Join a Demo Meeting</h2>
             <p/>&nbsp;<p/>
-            <FORM NAME="form1" METHOD="GET" action="/bigbluebutton/demo/demo1.jsp">
+            <FORM NAME="form1" METHOD="GET" onSubmit="return checkform(this);" action="/bigbluebutton/demo/demo1.jsp">
 
                         <p class="content">Enter your name:</p>
                         <input type="text" id="username"  name="username" size="29" /><input type="submit" value="Join"/> <br />

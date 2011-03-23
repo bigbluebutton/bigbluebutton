@@ -71,8 +71,8 @@
 			import mx.core.UIComponent;
 			import mx.events.IndexChangedEvent;
 			
-			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.IUserListener;
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.UserManager;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ParticipantJoinEvent;
@@ -118,7 +118,17 @@
 				systemManager.stage.addEventListener(Event.DEACTIVATE, deactivate);
 				
 				UserManager.getInstance().registerListener(this);
+				
+				registerExternalListener();
 			}       
+			
+			private function registerExternalListener():void{
+				ExternalInterface.addCallback('sendChatMessage', setChatMessage);
+			}
+			
+			private function setChatMessage(message:String):void{
+				txtMsg.text += message;
+			}
 			
 			private function setColor():void{
 				var r:int = Math.round(Math.random()*12);
@@ -178,7 +188,7 @@
 			private function sendMessages():void {
 				if (hasMessageToSend()){				
 					if (isChatBoxCurrentlySelected(PUBLIC_CHAT_USERID)) {						
-						sendPublicChatMessage();
+						sendPublicChatMessage(txtMsg.text);
 					} else{						
 						sendPrivateChatMessage();
 					}
@@ -218,9 +228,9 @@
 				return parsedString;
 			}
 			
-			private function sendPublicChatMessage():void {
+			private function sendPublicChatMessage(message:String):void {
 				var publicEvent:SendPublicChatMessageEvent = new SendPublicChatMessageEvent(SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT);
-				publicEvent.message = parseURLs(cleanup(txtMsg.text));
+				publicEvent.message = parseURLs(cleanup(message));
 				publicEvent.color = cmpColorPicker.selectedColor.toString();
 				publicEvent.time = currentTime();
 				publicEvent.language = currentLangCode;
