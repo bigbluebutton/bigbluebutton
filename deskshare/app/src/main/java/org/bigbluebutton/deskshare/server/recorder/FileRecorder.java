@@ -11,8 +11,13 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.bigbluebutton.deskshare.server.session.FlvEncodeException;
 import org.bigbluebutton.deskshare.server.session.ScreenVideoFlvEncoder;
+import org.bigbluebutton.deskshare.server.util.StackTraceUtil;
+import org.red5.logging.Red5LoggerFactory;
+import org.slf4j.Logger;
 
 public class FileRecorder implements Recorder {
+	final private Logger log = Red5LoggerFactory.getLogger(FileRecorder.class, "deskshare");
+	
 	private BlockingQueue<IoBuffer> screenQueue = new LinkedBlockingQueue<IoBuffer>();
 	private final Executor exec = Executors.newSingleThreadExecutor();
 	private Runnable capturedScreenSender;
@@ -31,7 +36,7 @@ public class FileRecorder implements Recorder {
 		try {
 			screenQueue.put(frame);
 		} catch (InterruptedException e) {
-			System.out.println("InterruptedException while putting event into queue.");
+			log.info("InterruptedException while putting event into queue.");
 		}
 	}
 
@@ -40,24 +45,21 @@ public class FileRecorder implements Recorder {
 			fo = new FileOutputStream(flvFilename);
 			fo.write(svf.encodeHeader());
 		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			log.error(StackTraceUtil.getStackTrace(e1));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(StackTraceUtil.getStackTrace(e));
 		}
 		
 		sendCapturedScreen = true;
-		System.out.println("Starting stream");
+		log.info("Starting stream");
 		capturedScreenSender = new Runnable() {
 			public void run() {
 				while (sendCapturedScreen) {
 					try {
-						System.out.println("ScreenQueue size " + screenQueue.size());
 						IoBuffer frame = screenQueue.take();
 						recordFrameToFile(frame);
 					} catch (InterruptedException e) {
-						System.out.println("InterruptedExeption while taking event.");
+						log.info("InterruptedExeption while taking event.");
 					}
 				}
 			}
@@ -69,22 +71,18 @@ public class FileRecorder implements Recorder {
 		try {
 			fo.write(svf.encodeFlvData(frame.array()));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(StackTraceUtil.getStackTrace(e));
 		} catch (FlvEncodeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(StackTraceUtil.getStackTrace(e));
 		}		
-
 	}
 	
 	public void stop() {
     	try {
-    		System.out.println("Closing stream");
+    		log.info("Closing stream");
 			fo.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(StackTraceUtil.getStackTrace(e));
 		}
 	}
 }

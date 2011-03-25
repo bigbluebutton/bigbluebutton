@@ -60,11 +60,11 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 
 	private String publishedStreamName;
 	private IPipe livePipe;
-	private IScope mScope;
+	private IScope scope;
 
 	// Codec handling stuff for frame dropping
 	private StreamCodecInfo streamCodecInfo;
-	private Long mCreationTime;
+	private Long creationTime;
 	private ISharedObject deskSO;
 	
 	public ScreenVideoBroadcastStream(String name, ISharedObject deskSO) {
@@ -77,7 +77,7 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 		// we want to create a video codec when we get our
 		// first video packet.
 		streamCodecInfo = new StreamCodecInfo();
-		mCreationTime = null;
+		creationTime = null;
 	}
 
 	public IProvider getProvider() {
@@ -138,12 +138,12 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 	}
 
 	public void setScope(IScope scope) {
-		mScope = scope;
+		this.scope = scope;
 	}
 
 	public IScope getScope() {
-		log.trace("getScope(): {}", mScope);
-		return mScope;
+		log.trace("getScope(): {}", scope);
+		return scope;
 	}
 
 	public void start() {
@@ -203,8 +203,8 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 					RTMPMessage msg = new RTMPMessage();
 					msg.setBody(rtmpEvent);
           
-					if (mCreationTime == null)
-						mCreationTime = (long)rtmpEvent.getTimestamp();
+					if (creationTime == null)
+						creationTime = (long)rtmpEvent.getTimestamp();
           
 					try {
 						IVideoStreamCodec videoStreamCodec = new ScreenVideo();
@@ -234,7 +234,7 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 	}
 
 	public long getCreationTime() {
-		return mCreationTime != null ? mCreationTime : 0L;
+		return creationTime != null ? creationTime : 0L;
 	}
   
 	public Notify getMetaData() {
