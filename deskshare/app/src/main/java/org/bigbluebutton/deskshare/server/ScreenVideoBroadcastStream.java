@@ -21,9 +21,7 @@
 */
 package org.bigbluebutton.deskshare.server;
 
-import java.awt.Point;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -31,7 +29,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IScope;
 import org.red5.server.api.event.IEvent;
-import org.red5.server.api.so.ISharedObject;
 import org.red5.server.api.stream.IBroadcastStream;
 import org.red5.server.api.stream.IStreamCodecInfo;
 import org.red5.server.api.stream.IStreamListener;
@@ -65,11 +62,8 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 	// Codec handling stuff for frame dropping
 	private StreamCodecInfo streamCodecInfo;
 	private Long creationTime;
-	private ISharedObject deskSO;
 	
-	public ScreenVideoBroadcastStream(String name, ISharedObject deskSO) {
-		this.deskSO = deskSO;
-		
+	public ScreenVideoBroadcastStream(String name) {	
 		publishedStreamName = name;
 		livePipe = null;
 		log.trace("name: {}", name);
@@ -240,23 +234,5 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 	public Notify getMetaData() {
 	  System.out.println("**** GETTING METADATA ******");
 	  return null;
-	}
-	
-	public void sendDeskshareStreamStopped(ArrayList<Object> msg) {
-		deskSO.sendMessage("deskshareStreamStopped" , msg);
-	}
-	
-	public void sendDeskshareStreamStarted(int width, int height) {
-		ArrayList<Object> msg = new ArrayList<Object>();
-		msg.add(new Integer(width));
-		msg.add(new Integer(height));
-		deskSO.sendMessage("appletStarted" , msg);
-	}
-	
-	public void sendMouseLocation(Point mouseLoc) {
-		ArrayList<Object> msg = new ArrayList<Object>();
-		msg.add(new Integer(mouseLoc.x));
-		msg.add(new Integer(mouseLoc.y));
-		deskSO.sendMessage("mouseLocationCallback", msg);
 	}
 }

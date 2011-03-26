@@ -9,6 +9,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.mina.core.buffer.IoBuffer;
+import org.bigbluebutton.deskshare.server.recorder.event.RecordErrorEvent;
+import org.bigbluebutton.deskshare.server.recorder.event.RecordStartedEvent;
+import org.bigbluebutton.deskshare.server.recorder.event.RecordStoppedEvent;
+import org.bigbluebutton.deskshare.server.recorder.event.RecordUpdateEvent;
 import org.bigbluebutton.deskshare.server.session.FlvEncodeException;
 import org.bigbluebutton.deskshare.server.session.ScreenVideoFlvEncoder;
 import org.bigbluebutton.deskshare.server.util.StackTraceUtil;
@@ -25,11 +29,22 @@ public class FileRecorder implements Recorder {
 
 	private FileOutputStream fo;
 	private ScreenVideoFlvEncoder svf = new ScreenVideoFlvEncoder();
-	
 	private String flvFilename = "/tmp/screenvideostream.flv";
+	private final String session;
+	
+	private final RecordStatusListeners listeners = new RecordStatusListeners();
 	
 	public FileRecorder(String name, String recordingPath) {
+		session = name;
 		flvFilename = recordingPath + "/" + name + "-" + System.currentTimeMillis() + ".flv";
+	}
+	
+	public void addListener(RecordStatusListener l) {
+		listeners.addListener(l);
+	}
+	
+	public void removeListener(RecordStatusListener l) {
+		listeners.removeListener(l);
 	}
 	
 	public void record(IoBuffer frame) {
@@ -46,8 +61,14 @@ public class FileRecorder implements Recorder {
 			fo.write(svf.encodeHeader());
 		} catch (FileNotFoundException e1) {
 			log.error(StackTraceUtil.getStackTrace(e1));
+			RecordErrorEvent event = new RecordErrorEvent(session);
+			event.setReason("Failed to create recording output.");
+			listeners.notifyListeners(event);
 		} catch (IOException e) {
 			log.error(StackTraceUtil.getStackTrace(e));
+			RecordErrorEvent event = new RecordErrorEvent(session);
+			event.setReason("Cannot record to recording output.");
+			listeners.notifyListeners(event);
 		}
 		
 		sendCapturedScreen = true;
@@ -59,21 +80,34 @@ public class FileRecorder implements Recorder {
 						IoBuffer frame = screenQueue.take();
 						recordFrameToFile(frame);
 					} catch (InterruptedException e) {
-						log.info("InterruptedExeption while taking event.");
+						log.error("InterruptedExeption while taking event.");
+						RecordErrorEvent event = new RecordErrorEvent(session);
+						event.setReason("Cannot record to recording output.");
+						listeners.notifyListeners(event);
 					}
 				}
 			}
 		};
 		exec.execute(capturedScreenSender);
+		RecordStartedEvent event = new RecordStartedEvent(session);
+		listeners.notifyListeners(event);
 	}
 
 	private void recordFrameToFile(IoBuffer frame) {	
 		try {
 			fo.write(svf.encodeFlvData(frame.array()));
+			RecordUpdateEvent event = new RecordUpdateEvent(session);
+			listeners.notifyListeners(event);
 		} catch (IOException e) {
 			log.error(StackTraceUtil.getStackTrace(e));
+			RecordErrorEvent event = new RecordErrorEvent(session);
+			event.setReason("Cannot record to recording output.");
+			listeners.notifyListeners(event);
 		} catch (FlvEncodeException e) {
 			log.error(StackTraceUtil.getStackTrace(e));
+			RecordErrorEvent event = new RecordErrorEvent(session);
+			event.setReason("Cannot record to recording output.");
+			listeners.notifyListeners(event);
 		}		
 	}
 	
@@ -83,6 +117,11 @@ public class FileRecorder implements Recorder {
 			fo.close();
 		} catch (IOException e) {
 			log.error(StackTraceUtil.getStackTrace(e));
+			RecordErrorEvent event = new RecordErrorEvent(session);
+			event.setReason("Cannot record to recording output.");
+			listeners.notifyListeners(event);
 		}
+		RecordStoppedEvent event = new RecordStoppedEvent(session);
+		listeners.notifyListeners(event);
 	}
 }

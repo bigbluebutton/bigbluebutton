@@ -6,5 +6,6 @@ public interface Recorder {
 	public void record(IoBuffer frame);
 	public void start();
 	public void stop();
-	
+	public void addListener(RecordStatusListener l);
+	public void removeListener(RecordStatusListener l);
 }

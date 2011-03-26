@@ -56,7 +56,6 @@ public class RedisDispatcher implements Recorder {
 			
 		}
 	}
-<<<<<<< Updated upstream
 */
 
 	public Jedis getJedis(){

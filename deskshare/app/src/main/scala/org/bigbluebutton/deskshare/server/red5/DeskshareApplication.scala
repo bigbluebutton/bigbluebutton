@@ -141,31 +141,46 @@ class DeskshareApplication(streamManager: StreamManager, deskShareServer: DeskSh
 		return Some(deskSO)
 	}
  
-	def createScreenVideoBroadcastStream(name: String): Option[ScreenVideoBroadcastStream] = {
-	  
-	   getRoomScope(name) match {
+ 	def createDeskshareClient(name: String): Option[RtmpClientAdapter] = {
+ 		getRoomScope(name) match {
 	     case None => logger.error("Failed to get room scope %s", name)
 	     case Some(roomScope) => {
 	    	 getRoomSharedObject(roomScope) match {
 	    	   case None => logger.error("Failed to get shared object for room %s",name)
 	    	   case Some(deskSO) => {
-	    		   return createBroadcastStream(name, deskSO, roomScope)
+	    		   return Some(new RtmpClientAdapter(deskSO))
 	    	   }
 	    	 }
 	       }
 	   }
 	   
 	   return None
+ 	
+ 	}
+ 	
+	def createScreenVideoBroadcastStream(name: String): Option[ScreenVideoBroadcastStream] = {	  
+	   getRoomScope(name) match {
+	     case None => logger.error("Failed to get room scope %s", name)
+	     case Some(roomScope) => {
+	    	 getRoomSharedObject(roomScope) match {
+	    	   case None => logger.error("Failed to get shared object for room %s",name)
+	    	   case Some(deskSO) => {
+	    		   return createBroadcastStream(name, roomScope)
+	    	   }
+	    	 }
+	       }
+	   }
 	   
+	   return None	   
 	}
  
-	private def createBroadcastStream(name:String, deskSO:ISharedObject, roomScope:IScope):Option[ScreenVideoBroadcastStream] = {
-		if (name == null || deskSO == null || roomScope == null) {
+	private def createBroadcastStream(name:String, roomScope:IScope):Option[ScreenVideoBroadcastStream] = {
+		if (name == null || roomScope == null) {
 		   logger.error("Cannot create broadcast stream. Invalid parameter")
 		   return None
 		}
   
-		var broadcastStream = new ScreenVideoBroadcastStream(name, deskSO)
+		var broadcastStream = new ScreenVideoBroadcastStream(name)
 		broadcastStream.setPublishedName(name)
 		broadcastStream.setScope(roomScope)
     

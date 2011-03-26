@@ -38,6 +38,7 @@ import net.lag.logging.Logger
 class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, val height: Int, record: Boolean, recorder: Recorder) extends Stream {
 	private val log = Logger.get
 	private var broadcastStream:ScreenVideoBroadcastStream = null 
+	private var dsClient:RtmpClientAdapter = null
 		
 	var startTimestamp: Long = System.currentTimeMillis()
  
@@ -56,9 +57,18 @@ class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, v
 	def initializeStream():Boolean = {
 	   app.createScreenVideoBroadcastStream(name) match {
 	     case None => return false
-	     case Some(bs) => broadcastStream = bs; return true
+	     case Some(bs) => {
+	     		broadcastStream = bs; 
+		       	app.createDeskshareClient(name) match {
+				     case None => return false
+				     case Some(dsc) => {
+				     		dsClient = dsc; 
+				     		recorder.addListener(dsClient)
+				     		return true
+				     }       
+		       }	
+	       }     	
 	   } 
-    
 	   return false
 	}
  
@@ -68,7 +78,7 @@ class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, v
 		if (record) {
 	  		recorder.stop()
 	  	}
-		broadcastStream.sendDeskshareStreamStopped(new ArrayList[Object]())
+		dsClient.sendDeskshareStreamStopped(new ArrayList[Object]())
 		broadcastStream.stop()
 	    broadcastStream.close()	  
 	    exit()
@@ -79,11 +89,11 @@ class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, v
 	  if (record) {
 	  	recorder.start()
 	  }
-   	  broadcastStream.sendDeskshareStreamStarted(width, height)
+   	  dsClient.sendDeskshareStreamStarted(width, height)
 	}
 	
 	private def updateStreamMouseLocation(ml: UpdateStreamMouseLocation) = {
-		broadcastStream.sendMouseLocation(ml.loc)
+		dsClient.sendMouseLocation(ml.loc)
 	}
  
 	private def updateStream(us: UpdateStream) {
