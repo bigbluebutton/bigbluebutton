@@ -39,7 +39,6 @@ import org.zoolu.tools.LogLevel;
 
 import java.util.Hashtable;
 
-
 /** Class ExtendedInviteDialog can be used to manage extended invite dialogs.
   * <p>
   * An ExtendedInviteDialog allows the user:
@@ -228,7 +227,7 @@ public class ExtendedInviteDialog extends org.zoolu.sip.dialog.InviteDialog
       String reason=status_line.getReason();
 
       // AUTHENTICATION-BEGIN
-      if ((code==401 && attempts<MAX_ATTEMPTS && msg.hasWwwAuthenticateHeader() && msg.getWwwAuthenticateHeader().getRealmParam().equalsIgnoreCase(realm))
+      if ((code==401 && attempts<MAX_ATTEMPTS && msg.hasWwwAuthenticateHeader())// && msg.getWwwAuthenticateHeader().getRealmParam().equalsIgnoreCase(realm))
        || (code==407 && attempts<MAX_ATTEMPTS && msg.hasProxyAuthenticateHeader() && msg.getProxyAuthenticateHeader().getRealmParam().equalsIgnoreCase(realm)))
       {  attempts++;
 

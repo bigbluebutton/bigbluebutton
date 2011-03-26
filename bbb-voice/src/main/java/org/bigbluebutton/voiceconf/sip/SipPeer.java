@@ -78,7 +78,7 @@ public class SipPeer implements SipRegisterAgentListener {
         }                              
     }
     
-    private void createRegisterUserProfile(String username, String password) {    	    	
+    private void createRegisterUserProfile(String username, String password) {
     	registeredProfile = new SipPeerProfile();
     	registeredProfile.audioPort = audioconfProvider.getStartAudioPort();
             	
@@ -106,7 +106,7 @@ public class SipPeer implements SipRegisterAgentListener {
     		return;
     	}
     	
-    	SipPeerProfile callerProfile = SipPeerProfile.copy(registeredProfile);    	
+    	SipPeerProfile callerProfile = SipPeerProfile.copy(registeredProfile);    
     	CallAgent ca = new CallAgent(sipProvider, callerProfile, audioconfProvider, clientId);
     	ca.setClientConnectionManager(clientConnManager);
     	ca.setCallStreamFactory(callStreamFactory);
@@ -166,7 +166,7 @@ public class SipPeer implements SipRegisterAgentListener {
 
 	@Override
 	public void onRegistrationFailure(String result) {
-		log.error("Failed to register with Sip Server.");
+		log.error("Failed to register with Sip Server."+result);
 		registered = false;
 	}
 

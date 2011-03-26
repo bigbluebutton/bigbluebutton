@@ -87,7 +87,7 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     }
 
     public void call(String callerName, String destination) {    	
-    	log.debug("{} making a call to {}", callerName, destination);  
+    	log.debug("{} making a call to {} Username: "+ userProfile.username +" password :"+userProfile.passwd, callerName, destination);  
     	try {
 			localSocket = getLocalAudioSocket();
 			userProfile.audioPort = localSocket.getLocalPort();	    	
@@ -102,7 +102,7 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
         initSessionDescriptor();
         
     	callState = CallState.UA_OUTGOING_CALL;
-    	
+
         call = new ExtendedCall(sipProvider, userProfile.fromUrl, 
                 userProfile.contactUrl, userProfile.username,
                 userProfile.realm, userProfile.passwd, this);  
@@ -120,7 +120,7 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
 
     private void setupCallerDisplayName(String callerName, String destination) {
     	String fromURL = "\"" + callerName + "\" <sip:" + destination + "@" + portProvider.getHost() + ">";
-    	userProfile.username = callerName;
+    	//userProfile.username = callerName;
     	userProfile.fromUrl = fromURL;
 		userProfile.contactUrl = "sip:" + destination + "@" + sipProvider.getViaAddress();
         if (sipProvider.getPort() != SipStack.default_port) {
@@ -284,7 +284,7 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
 
     /** Callback function called when arriving a 4xx (call failure) */
     public void onCallRefused(Call call, String reason, Message resp) {        
-    	log.debug("Call has been refused.");        
+    	log.debug("Call has been refused. reason: "+ reason + ", message : "+ resp.toString());        
     	if (!isCurrentCall(call)) return;
         callState = CallState.UA_IDLE;
         notifyListenersOnOutgoingCallFailed();

@@ -225,7 +225,8 @@ public class ExtendedInviteDialog extends org.zoolu.sip.dialog.InviteDialog
       String reason=status_line.getReason();
       
       // AUTHENTICATION-BEGIN
-      if ((code==401 && attempts<MAX_ATTEMPTS && msg.hasWwwAuthenticateHeader() && msg.getWwwAuthenticateHeader().getRealmParam().equalsIgnoreCase(realm))
+      //<REALWAT>
+      if ((code==401 && attempts<MAX_ATTEMPTS && msg.hasWwwAuthenticateHeader())// && msg.getWwwAuthenticateHeader().getRealmParam().equalsIgnoreCase(realm))
        || (code==407 && attempts<MAX_ATTEMPTS && msg.hasProxyAuthenticateHeader() && msg.getProxyAuthenticateHeader().getRealmParam().equalsIgnoreCase(realm)))  
       {  attempts++;
          Message req=tc.getRequestMessage();

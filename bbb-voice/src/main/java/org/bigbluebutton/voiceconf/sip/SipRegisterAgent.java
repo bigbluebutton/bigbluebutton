@@ -394,7 +394,7 @@ public class SipRegisterAgent implements TransactionClientListener {
 			StatusLine status = resp.getStatusLine();
 			int code = status.getCode();
 			if ((code == 401 && attempts < MAX_ATTEMPTS && resp.hasWwwAuthenticateHeader() 
-					&& resp.getWwwAuthenticateHeader().getRealmParam().equalsIgnoreCase(realm))
+					)//&& resp.getWwwAuthenticateHeader().getRealmParam().equalsIgnoreCase(realm))
 				|| (code == 407 && attempts < MAX_ATTEMPTS && resp.hasProxyAuthenticateHeader() 
 					&& resp.getProxyAuthenticateHeader().getRealmParam().equalsIgnoreCase(realm)))
 			{
