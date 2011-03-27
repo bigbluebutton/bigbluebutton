@@ -5,6 +5,7 @@ For run the application:
 	sudo apt-get install libxml2
 	sudo apt-get install libxml2-dev
 	sudo apt-get install libxslt-dev
+	sudo apt-get install thin
 
 2) Install the following gems:
 	sudo gem install sinatra
@@ -14,16 +15,25 @@ For run the application:
 	sudo gem install rack --version '1.2.0'
 	sudo gem install nokogiri
 	sudo gem install SystemTimer
+	sudo gem install thin
 
 3) clone and install bigbluebutton-api-ruby
 	git clone git://github.com/mconf/bigbluebutton-api-ruby.git
 	sudo gem build bigbluebutton-api-ruby.gemspec
 	sudo gem install bigbluebutton-api-ruby-x.x.x.gem
 
-4) Run:
-	ruby main.rb
-5) check:
-	http://<yourip>:4567/login
+4) For deploy, change the settings that you want in matterhorn_thin.yml, then run:
+	thin -C matterhorn_thin.yml start
+	
+5) And check:
+	http://<yourip>:3000/login
+
+6) Proxy pass with nginx:
+	replace the bigbluebutton file in the nginx sites-enabled directory:
+	cp bigbluebutton /etc/nginx/sites-enabled/bigbluebutton
+	
+7) Go to:
+	http://<yourip>/matterhorn
 
 
 ===========

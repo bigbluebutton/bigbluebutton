@@ -1,0 +1,14 @@
+environment: development
+chdir: /home/firstuser/dev/source/bigbluebutton/record-and-playback/rap/matterhorn
+address: 0.0.0.0
+user: root
+group: root
+port: 3000
+pid: /home/firstuser/dev/source/bigbluebutton/record-and-playback/rap/matterhorn/thin.pid
+rackup: /home/firstuser/dev/source/bigbluebutton/record-and-playback/rap/matterhorn/config.ru
+log: /home/firstuser/dev/source/bigbluebutton/record-and-playback/rap/matterhorn/thin.log
+max_conns: 1024
+timeout: 30
+servers: 1
+max_persistent_conns: 512
+daemonize: true

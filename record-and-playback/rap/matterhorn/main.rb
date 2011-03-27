@@ -67,7 +67,7 @@ class Main < Sinatra::Base
 	
 	before do
 		unless session['user']
-			halt "Access denied, please <a href='/login'>login</a>."
+			redirect "/login"
 		end
     end
     
@@ -109,7 +109,6 @@ class Main < Sinatra::Base
 		redis.quit
 	end
 end
-Main.run!
 
 	
 
