@@ -1,4 +1,4 @@
-require 'lib/recordandplayback/generators/audio'
+require 'lib/recordandplayback'
 
 s1 = "/tmp/audio1.wav"
 s2 = "/tmp/audio2.wav"

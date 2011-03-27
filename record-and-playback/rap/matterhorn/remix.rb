@@ -17,16 +17,10 @@ def executeCommand(command)
         raise MediaFormatException if $?.exitstatus != 0
 end
 
-
-
-
-
-
-
 def createManifestXml()
-        vpresenter = FFMPEG::Movie.new("justvideopresenter.flv")
-        apresenter = FFMPEG::Movie.new("audiopresenter.ogg")
-        vpresentation = FFMPEG::Movie.new("justvideopresentation.flv")
+  vpresenter = FFMPEG::Movie.new("justvideopresenter.flv")
+  apresenter = FFMPEG::Movie.new("audiopresenter.ogg")
+  vpresentation = FFMPEG::Movie.new("justvideopresentation.flv")
 
         puts "Creating manifest.xml ..."
 
@@ -102,6 +96,7 @@ def createManifestXml()
         aFile.close
 
 end
+
 def executeScript(args)
         args.each do|a|
                 if(a.include? ".wav")
