@@ -6,18 +6,14 @@ require 'redis'
 require 'bigbluebutton-api'
 
 #TODO:  manage exceptions
-#		yaml for bigbluebutton gem
-#		yaml for redis connection
-#		support of multiple conferences?
-#		messages format in redis
-#		student redirect to bigbluebutton
-#		login validation message
-#		bigbluebutton session
+#		support of multiple conferences
+#		wait student for meeting to start
+#		logout
 
 class LoginScreen < Sinatra::Base
     use Rack::Session::Pool, :expire_after => 2592000
     
-    get('/login') { 
+    get('/login/?') { 
 		haml :login 
 	}
     
@@ -33,7 +29,7 @@ class LoginScreen < Sinatra::Base
 		
 		if username==INST and password==PASS_INST
 			session["user"]=username
-			session["role"]="instructor"			
+			session["role"]="instructor"
 		elsif username==STUD and password==PASS_STUD
 			session["user"]=username
 			session["role"]="student"
@@ -46,37 +42,46 @@ class Main < Sinatra::Base
     # middleware will run before filters
     use LoginScreen
 	
-	#trying to add a logger
+	#enable logger
 	set :logging, true
 	
-    #Redis is running with the default values
-	@redis 
-    @bigbluebutton
-	
-	log = File.new("sinatra.log", "a")
-	STDOUT.reopen(log)
-	STDERR.reopen(log)
+	configure do
+		#setting up logger
+		log = File.new("sinatra.log", "a")
+		STDOUT.reopen(log)
+		STDERR.reopen(log)
+		
+		#loading config YAML file
+		config_file = 'config.yml'
+		unless File.exist? config_file
+			puts config_file + " does not exists..."
+		end
+		puts "loading config file..."
+		$config = YAML.load_file(config_file)
+		
+		#setting bigbluebutton object
+		puts "setting bigbluebutton session" + $config['bbb_url']
+		$bbb_api = BigBlueButton::BigBlueButtonApi.new($config['bbb_url'], $config['bbb_salt'], $config['bbb_version'], true)
+		
+	end
 	
 	before do
 		unless session['user']
-			puts "testing logger"
 			halt "Access denied, please <a href='/login'>login</a>."
 		end
     end
     
-    get('/') { 
+    get('/?') { 
 		
 		if session['role'] == "instructor"
 			redirect "/metadata"
 		elsif session['role'] == "student"
-			"Welcome student"
+			redirect $bbb_api.join_meeting_url("bbb-matter", "student", "student")
 		else
 			redirect "/login"
 		end
-		
-		@redis = Redis.new
-		@bigbluebutton = BigBlueButton::BigBlueButtonApi.new("http://192.168.1.38/bigbluebutton/api", "e49e0123e531d0816abaf4bc1b1d7f11", "0.7", true)
 	}
+	
 	
 	get '/metadata' do
 		haml :metadata
@@ -87,21 +92,21 @@ class Main < Sinatra::Base
 		series=params[:txtseries]
 		instructor=params[:txtinstructor]
 		
+		storeMatterhornInfo(title,series,instructor)
 		
+		$bbb_api.create_meeting("Matterhorn BigBlueButton Session", "bbb-matter", "instructor", "student")
+		
+		redirect $bbb_api.join_meeting_url("bbb-matter", instructor, "instructor")
+	end
+	
+	def storeMatterhornInfo(title,series,instructor)
+		redis = Redis.new(:host => $config['redis_server'], :port => $config['redis_port'])
 		sessionid = redis.incr "global:nextMatterhornSession"
-		@redis.set "matterhorn:#{sessionid}:title", title
-		@redis.set "matterhorn:#{sessionid}:series", series
-		@redis.set "matterhorn:#{sessionid}:instructor", instructor
-		@redis.rpush "matterhorn:sessions", "#{sessionid}"
-		
-		#if @api.test_connection
-			#"ok"
-		#else
-		#	"not ok"
-		#end
-		@api.create_meeting("matterhorn test", "bbb-matter", "instructor", "student")
-		
-		redirect @api.join_meeting_url("bbb-matter", instructor, "instructor")
+		redis.set "matterhorn:#{sessionid}:title", title
+		redis.set "matterhorn:#{sessionid}:series", series
+		redis.set "matterhorn:#{sessionid}:instructor", instructor
+		redis.rpush "matterhorn:sessions", "#{sessionid}"
+		redis.quit
 	end
 end
 Main.run!

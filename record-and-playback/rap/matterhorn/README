@@ -23,7 +23,7 @@ For run the application:
 4) Run:
 	ruby main.rb
 5) check:
-	http://<yourip>:4567
+	http://<yourip>:4567/login
 
 
 ===========
