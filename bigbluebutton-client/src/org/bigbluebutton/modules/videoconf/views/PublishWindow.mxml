@@ -25,10 +25,9 @@
 	xmlns:pubVid="flexlib.mdi.containers.*"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	creationComplete="init()"
-	width="{camWidth + 6}" height="{camHeight + 73}" 
+	width="{camWidth + 6}" height="{camHeight + 75}" 
 	title="{ResourceUtil.getInstance().getString('bbb.publishVideo.title')}" 
 	backgroundImage="{bbbLogo}" 
-	resizable="false" 
 	xmlns:mate="http://mate.asfusion.com/">
 	
 	<mx:Script>
@@ -39,6 +38,7 @@
 			import mx.events.ResizeEvent;
 			
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
 			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
@@ -48,7 +48,7 @@
 			private var images:Images = new Images();
 			[Bindable] public var camIcon:Class = images.control_play;
 			[Bindable] public var bbbLogo:Class = images.bbb_logo;
-			[Bindable] private var resolutions:Array = new Array("320x240", "640x480");
+			[Bindable] public var resolutions:Array = new Array("320x240", "640x480");
 			
 			private var video:Video;
 			public var streamName:String;
@@ -57,14 +57,33 @@
 			private var _userrole:String;
 			public var quality:Number = 0;
 			
+			private var _bResizePossible:Boolean = true;
+			private var _nAspectRatio:Number = 1;
+			
+			private var _minWidth:int = 166;
+			private var _minHeight:int = 149;
+
+			private var _nSavedVideoWidth:Number = 0;
+			private var _nSavedVideoHeight:Number = 0;
+			private var _nOldWindowWidth:Number = 0;
+			private var _nOldWindowHeight:Number = 0;
+			
 			private function init():void{
 				currentState = "dispVideoOptionsControlBar";
 				checkIfMacCamera();
 				if (isPresenter()) showResControls(true);
 				if (Camera.names.length > 1) showVideoControls(true);
 				if (!isPresenter() && Camera.names.length == 1) startPublishing();
+
+				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEvent);
+				addEventListener(MDIWindowEvent.RESIZE, onResizeEvent);
+				addEventListener(MDIWindowEvent.MAXIMIZE, onMaximize);
+				addEventListener(MDIWindowEvent.RESTORE, onRestore);
+
+				this.minWidth = _minWidth;
+				this.minHeight = _minHeight;
 				maximizeRestoreBtn.visible = false;
-				
+				this.resizable = false;
 			}
 			
 			public function getPrefferedPosition():String{
@@ -85,6 +104,7 @@
 				//Next two lines may seem redundant but they're not. Do not delete.
 				video.width = camWidth;
 				video.height = camHeight;
+				adjustWindowSize();
 				video.attachCamera(camera);
 				videoHolder.addChild(video);
 //				addChild(videoHolder);
@@ -96,6 +116,9 @@
 				
 				showVideoControls(false);
 				showResControls(false);
+
+				maximizeRestoreBtn.visible = true;
+				this.resizable = true;
 			}
 			
 			override public function close(event:MouseEvent=null):void{
@@ -115,13 +138,10 @@
 			}
 			
 			private function setResolution():void{
-				if (cmbResolution.selectedLabel == "320x240"){
-					camHeight = 240;
-					camWidth = 320;
-				} else if (cmbResolution.selectedLabel == "640x480"){
-					camHeight = 480;
-					camWidth = 640;
-				}
+				var res:Array = cmbResolution.selectedLabel.split( "x" );
+				camWidth = Number(res[0]);
+				camHeight = Number(res[1]);
+				_nAspectRatio = (camWidth/camHeight);
 				this.streamName = cmbResolution.selectedLabel.concat(this.streamName);
 			}
 			
@@ -144,7 +164,7 @@
 					videoOptionsBar.visible = true;
 					btnStartPublish.visible = true;
 					cmbCameraSelector.visible = false;
-					currentState = "dispQuitControlBar";
+					currentState = "dispVideo";
 				}
 			}
 			
@@ -172,6 +192,98 @@
 				}
 			}
 			
+			private function adjustWindowSize():void{
+				videoHolder.width = video.width;
+				videoHolder.height = video.height;
+				this.width = video.width + 6;
+				this.height = video.height + 29;
+				
+				// prevent to show a video window bigger than the parent window
+				if (this.width > this.parent.width) {
+					video.width = this.parent.width - 6;
+					video.height = Math.floor(video.width / _nAspectRatio);
+					adjustWindowSize();
+				}
+				if (this.height > this.parent.height) {
+					video.height = this.parent.height - 29;
+					video.width = Math.floor(video.height * _nAspectRatio);
+					adjustWindowSize();
+				}
+				if (this.width < _minWidth) {
+					video.width = _minWidth - 6;
+					video.height = Math.floor(video.width / _nAspectRatio);
+					adjustWindowSize();
+				}
+				if (this.height < _minHeight) {
+					video.height = _minHeight - 29;
+					video.width = Math.floor(video.height * _nAspectRatio);
+					adjustWindowSize();
+				}
+			}			
+			
+			public function onResizeEvent(event:MDIWindowEvent):void {
+				if (event.type == MDIWindowEvent.RESIZE) {
+					// test if we are already resizing
+					if (_bResizePossible) {
+						_bResizePossible = false;
+						resizeWindow();
+						_bResizePossible = true;
+					}
+				} else if (event.type == MDIWindowEvent.RESIZE_END) {
+					adjustWindowSize();
+				}
+			}
+			
+			private function resizeWindow():void {
+				// prevent the window for blinking
+				if (this.width == _nOldWindowWidth && this.height == _nOldWindowHeight) {
+					adjustWindowSize();
+					return;
+				}
+
+				_nOldWindowWidth = this.width;
+				_nOldWindowHeight = this.height;
+
+				if (this.width == video.width + 6) {
+					// if it's a vertical resizing
+					video.height = this.height - 29;
+					video.width = video.height * _nAspectRatio;
+				} else {
+					// if it's a horizontal resizing
+					video.width = this.width - 6;
+					video.height  = Math.floor (video.width / _nAspectRatio);
+				}
+				adjustWindowSize();
+			}
+			
+			public function onMaximize(event:MDIWindowEvent):void {
+				_nSavedVideoWidth = video.width;
+				_nSavedVideoHeight = video.height;
+			
+			
+				var tmpWidth:Number = this.parent.width - 6;
+				var tmpHeight:Number = this.parent.height - 29;
+
+				if (tmpWidth > tmpHeight * _nAspectRatio)
+					tmpWidth = tmpHeight * _nAspectRatio;
+				if (tmpHeight > Math.floor(tmpWidth / _nAspectRatio))
+					tmpHeight = Math.floor(tmpWidth / _nAspectRatio);
+				
+				video.width = tmpWidth;
+				video.height = tmpHeight;
+				
+				video.x = Math.floor ((this.parent.width - 6 - video.width) / 2);
+				video.y = Math.floor ((this.parent.height - 29 - video.height) / 2);
+			}
+			
+			public function onRestore(event:MDIWindowEvent):void {
+				video.x = 0;
+				video.y = 0;
+				video.width = _nSavedVideoWidth;
+				video.height = _nSavedVideoHeight;
+				adjustWindowSize();
+			}
+
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
 				this.title = ResourceUtil.getInstance().getString('bbb.publishVideo.title');
@@ -182,7 +294,9 @@
 
 	<pubVid:states>
 	    <!--http://stackoverflow.com/questions/369120/why-does-mxstates-have-trouble-being-resolved-to-a-component-implementation-->
-        <mx:State name="dispQuitControlBar">   
+	    <mx:State name="dispVideo">
+	    </mx:State>
+        <!--mx:State name="dispQuitControlBar">   
             <mx:AddChild>
             	<mx:ControlBar id="quitOptionsBar">
             		<mx:Spacer width="50%"/>
@@ -190,7 +304,7 @@
 					<mx:Spacer width="50%"/>
 				</mx:ControlBar>	
             </mx:AddChild>
-        </mx:State>		
+        </mx:State-->		
         <mx:State name="dispVideoOptionsControlBar">   
             <mx:AddChild>
 				<mx:ControlBar id="videoOptionsBar">
