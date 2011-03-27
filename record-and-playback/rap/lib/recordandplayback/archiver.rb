@@ -25,8 +25,11 @@ module BigBlueButton
   end
   
   class EventsArchiver
-    def self.archive(meeting_id)
-      true
+    def self.archive(archive_dir, meeting_id)
+      redis = BigBlueButton::RedisWrapper.new("192.168.0.166", 6379)
+      events_archiver = BigBlueButton::RedisEventsArchiver.new redis
+      
+      events_archiver.save_events_to_file("#{archive_dir}/#{meeting_id}", events_archiver.store_events(meeting_id))
     end
   end
   

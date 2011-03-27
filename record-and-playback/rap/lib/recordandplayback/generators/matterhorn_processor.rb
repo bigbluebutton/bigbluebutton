@@ -34,7 +34,7 @@ module BigBlueButton
     
     def self.process_video(archive_dir, meeting_id, matterhorn_dir)
       FileUtils.cp_r("#{archive_dir}/video", matterhorn_dir)
-      video_dir = "#{matterhorn_dir}/video/#{meeting_id}"
+      video_dir = "#{matterhorn_dir}/video"
       
       begin
         Dir.glob("#{video_dir}/*.flv").each do |file|
@@ -181,12 +181,21 @@ module BigBlueButton
   
     end
     
-    def upload_to_matterhorn
-      puts "Compiling java ..."
-      executeCommand("javac SendToMatterhorn.java")
+    def upload_to_matterhorn(host, username, password, file)
+      puts "Sending zipped package..."
+      c = Curl::Easy.new("#{host}/ingest/rest/addZippedMediaPackage")
+      c.http_auth_types = :digest
+      c.username = username
+      c.password = password
+      c.headers["X-Requested-Auth"] = "Digest"
+      c.multipart_form_post = true
+      c.http_post(Curl::PostField.file('upload', file))
+      c.verbose = true
 
-      puts "Executing java class"
-      executeCommand("java SendToMatterhorn")
-    end        
+      begin
+        c.perform
+      rescue Exception=>e	
+      end
+    end    
   end
 end

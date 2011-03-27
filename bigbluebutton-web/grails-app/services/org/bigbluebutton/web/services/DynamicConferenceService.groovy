@@ -224,8 +224,8 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 	}
 	
 	private void startIngestAndProcessing(meetingId) {					
-		String COMMAND = "python ${scriptsHome}/ingestandproc.py -m ${meetingId} -a ${audioRecDir} -p ${presentationDir} -r ${archiveDir} -e ${redisHost} -o ${redisPort} -i ${ingestDir} -b ${publishDir} -s ${scriptsHome} -k ${playbackHost}" 
-		
+//		String COMMAND = "python ${scriptsHome}/ingestandproc.py -m ${meetingId} -a ${audioRecDir} -p ${presentationDir} -r ${archiveDir} -e ${redisHost} -o ${redisPort} -i ${ingestDir} -b ${publishDir} -s ${scriptsHome} -k ${playbackHost}" 
+		String COMMAND = "ruby ${scriptsHome}/archive_recording.rb -m ${meetingId}" 
 		try {
 			Process p = Runtime.getRuntime().exec(COMMAND);            
         	

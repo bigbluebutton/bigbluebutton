@@ -125,7 +125,7 @@ module Collector
         raise NoDeskshareException, "No video recording for #{meeting_id} in #{from_dir}"
       end
                        
-      Dir.glob("#{from_dir}/*.flv").each { |file|
+      Dir.glob("#{from_dir}/#{meeting_id}-*.flv").each { |file|
         FileUtils.cp(file, to_dir)
       }         
     end        
