@@ -1,6 +1,8 @@
+require 'rubygems'
 require 'sinatra'
 require 'haml'
 require 'redis'
+require 'bigbluebutton-api'
 
 use Rack::Session::Pool, :expire_after => 2592000
 
@@ -24,11 +26,11 @@ post '/login' do
 		session["role"]="instructor"
 		redirect "/metadata"
 	elsif username==STUD && password==PASS_STUD
-		"Welcome student"
+		"Welcome student, this hasn't been yet implemented ;)"
 		session["user"]=username
 		session["role"]="student"
 	else
-		"you are a stranger!!!"
+		redirect "/"
 	end
 	
 end
@@ -42,14 +44,24 @@ post '/metadata/process' do
 	series=params[:txtseries]
 	instructor=params[:txtinstructor]
 	
-	redis = Redis.new
-	sessionid = redis.incr "global:nextMatterhornSession"
-	redis.set "matterhorn:#{sessionid}:title", title
-	redis.set "matterhorn:#{sessionid}:series", series
-	redis.set "matterhorn:#{sessionid}:instructor", instructor
-	redis.rpush "matterhorn:sessions", "#{sessionid}"
+	#Redis is running with the default values
+	#redis = Redis.new
+	#sessionid = redis.incr "global:nextMatterhornSession"
+	#redis.set "matterhorn:#{sessionid}:title", title
+	#redis.set "matterhorn:#{sessionid}:series", series
+	#redis.set "matterhorn:#{sessionid}:instructor", instructor
+	#redis.rpush "matterhorn:sessions", "#{sessionid}"
+	#"testing"
+	#bigbluebutton session
+	@api = BigBlueButton::BigBlueButtonApi.new("http://192.168.1.38/bigbluebutton/api", "e49e0123e531d0816abaf4bc1b1d7f11", "0.7", true)
+	#if @api.test_connection
+		#"ok"
+	#else
+	#	"not ok"
+	#end
+	@api.create_meeting("matterhorn test", "bbb-matter", "instructor", "student")
 	
-	redirect "/metadata/success"
+	"url: "+@api.join_meeting_url("bbb-matter", instructor, "instructor")
 end
 
 get '/metadata/success' do

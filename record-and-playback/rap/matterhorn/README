@@ -1,16 +1,28 @@
 For run the application:
-1) Install ruby and rubygems
-2) Add the sinatra gem
-	gem install sinatra
-3) Add the haml gem
-	gem install haml
-4) gem install thin 
-5) gem install hiredis
-6) download redis-rb, untar, cd, gem install redis
-7) gem install SystemTimer
-8) Run:
-	ruby -rubygems main.rb
-and check:
+1) Install the following packages:
+	sudo apt-get install ruby1.8-dev 
+	sudo apt-get install rubygems
+	sudo apt-get install libxml2
+	sudo apt-get install libxml2-dev
+	sudo apt-get install libxslt-dev
+
+2) Install the following gems:
+	sudo gem install sinatra
+	sudo gem install haml
+	sudo gem install redis
+	sudo gem uninstall rake
+	sudo gem install rack --version '1.2.0'
+	sudo gem install nokogiri
+	sudo gem install SystemTimer
+
+3) clone and install bigbluebutton-api-ruby
+	git clone git://github.com/mconf/bigbluebutton-api-ruby.git
+	sudo gem build bigbluebutton-api-ruby.gemspec
+	sudo gem install bigbluebutton-api-ruby-x.x.x.gem
+
+4) Run:
+	ruby main.rb
+5) check:
 	http://<yourip>:4567
 
 
