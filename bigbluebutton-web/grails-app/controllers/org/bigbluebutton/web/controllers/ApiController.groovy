@@ -112,7 +112,6 @@ class ApiController {
 		String logoutUrl = params.logoutURL
 		/* record development */
 		boolean record = false
-		log.debug "Recording parameter is: " + params.record
 		
 		if(!StringUtils.isEmpty(params.record)){
 			try {
@@ -155,6 +154,19 @@ class ApiController {
 
                 /* record development */
 		conf.record = record
+		
+		log.debug("Adding metadata values")
+		params.keySet().each{ metadata ->
+			if(metadata.contains("meta")){
+				String[] meta=metadata.split("_")
+				if(meta.length==2){
+					conf.addMetadataValue(meta[1],params.get(metadata))
+					log.debug(meta[1]+":"+params.get(metadata))
+				}
+				
+			}
+		}
+		
                 
 		if ((dynamicConferenceService.testVoiceBridge != null) && (conf.voiceBridge == dynamicConferenceService.testVoiceBridge)) {
 			if (dynamicConferenceService.testConferenceMock != null) 
@@ -447,8 +459,9 @@ class ApiController {
 			invalidPassword("You must supply the moderator password for this call."); return;
 		}
 
-		//respondWithConferenceDetails(conf, room, null, null);
-		respondWithConferenceDetails2(conf, room, null, null);
+		respondWithConferenceDetails(conf, room, null, null);
+		//just for redis testing purpose 
+		//respondWithConferenceDetails2(conf, room, null, null);
 	}
 	
 	def getMeetings = {

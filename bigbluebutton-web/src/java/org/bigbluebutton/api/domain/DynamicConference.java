@@ -24,6 +24,7 @@ import org.apache.commons.lang.RandomStringUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Hashtable;
 import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
 
@@ -50,7 +51,10 @@ public class DynamicConference {
 	private String welcome;
 	private String logoutUrl;
 	private int maxParticipants;
+	
+	/*record and playback development*/
 	private boolean record;
+	private Hashtable<String,String> metadata;
 	
 	/*removing bbb-commons*/
 	private ArrayList<DynamicConferenceParticipant> participants; 
@@ -64,6 +68,7 @@ public class DynamicConference {
 		this.meetingToken = createMeetingToken();
 		//remove bbb-commons
 		this.participants = new ArrayList<DynamicConferenceParticipant>();
+		this.metadata= new Hashtable<String, String>();
 	}
 
 	public static String createMeetingToken() {
@@ -273,6 +278,14 @@ public class DynamicConference {
 	
 	public ArrayList<DynamicConferenceParticipant> getParticipants(){
 		return this.participants;
+	}
+	
+	public void addMetadataValue(String key, String value){
+		this.metadata.put(key, value);
+	}
+	
+	public Hashtable<String,String> getMetadata(){
+		return this.metadata;
 	}
 	
 	@Override
