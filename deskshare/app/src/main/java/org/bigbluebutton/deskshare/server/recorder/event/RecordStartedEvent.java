@@ -1,13 +1,12 @@
 package org.bigbluebutton.deskshare.server.recorder.event;
 
-public class RecordStartedEvent extends RecordStatusEvent {
-	private final String session;
+public class RecordStartedEvent extends AbstractDeskshareRecordEvent {
 
 	public RecordStartedEvent(String session) {
-		this.session = session;
+		super(session);
 	}
 	
-	public String getSession() {
-		return session;
+	public void setFile(String path) {
+		eventMap.put("file", path);
 	}
 }

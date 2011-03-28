@@ -1,20 +1,15 @@
 package org.bigbluebutton.deskshare.server.recorder.event;
 
-public class RecordErrorEvent extends RecordStatusEvent {
+public class RecordErrorEvent extends AbstractDeskshareRecordEvent {
 
-	private final String session;
 	private String reason;
 	
 	public RecordErrorEvent(String session) {
-		this.session = session;
+		super(session);
 	}
 	
 	public void setReason(String reason) {
 		this.reason = reason;
-	}
-	
-	public String getSession() {
-		return session;
 	}
 	
 	public String getReason() {

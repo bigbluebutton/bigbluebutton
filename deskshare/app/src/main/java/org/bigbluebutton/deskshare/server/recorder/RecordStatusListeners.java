@@ -3,7 +3,7 @@ package org.bigbluebutton.deskshare.server.recorder;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.bigbluebutton.deskshare.server.recorder.event.RecordStatusEvent;
+import org.bigbluebutton.deskshare.server.recorder.event.RecordEvent;
 
 public class RecordStatusListeners {
 	private final Set<RecordStatusListener> listeners = new HashSet<RecordStatusListener>();
@@ -16,7 +16,7 @@ public class RecordStatusListeners {
 		listeners.remove(l);
 	}
 	
-	public void notifyListeners(RecordStatusEvent event) {
+	public void notifyListeners(RecordEvent event) {
 		for (RecordStatusListener listener: listeners) {
 			listener.notify(event);
 		}

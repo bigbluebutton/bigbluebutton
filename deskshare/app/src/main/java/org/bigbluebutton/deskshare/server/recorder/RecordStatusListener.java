@@ -1,7 +1,7 @@
 package org.bigbluebutton.deskshare.server.recorder;
 
-import org.bigbluebutton.deskshare.server.recorder.event.RecordStatusEvent;
+import org.bigbluebutton.deskshare.server.recorder.event.RecordEvent;
 
 public interface RecordStatusListener {
-	void notify(RecordStatusEvent event);
+	void notify(RecordEvent event);
 }

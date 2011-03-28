@@ -90,6 +90,7 @@ public class FileRecorder implements Recorder {
 		};
 		exec.execute(capturedScreenSender);
 		RecordStartedEvent event = new RecordStartedEvent(session);
+		event.setFile(flvFilename);
 		listeners.notifyListeners(event);
 	}
 
@@ -122,6 +123,7 @@ public class FileRecorder implements Recorder {
 			listeners.notifyListeners(event);
 		}
 		RecordStoppedEvent event = new RecordStoppedEvent(session);
+		event.setFile(flvFilename);
 		listeners.notifyListeners(event);
 	}
 }

@@ -57,5 +57,11 @@
     
     <bean id="recordingService" class="org.bigbluebutton.deskshare.server.recorder.FileRecordingServiceImp" >
 		<property name="recordingDirectory" value="${recordingDirectory}"/>
+		<property name="redisDispatcher" ref="redisRecorder"/>
 	</bean>
+	
+	<bean id="redisRecorder" class="org.bigbluebutton.deskshare.server.recorder.EventRecorder">
+        <constructor-arg index="0" value="${redis.host}"/>
+        <constructor-arg index="1" value="${redis.port}"/>
+    </bean>
 </beans>

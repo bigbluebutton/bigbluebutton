@@ -7,11 +7,14 @@ import org.slf4j.Logger;
 public class FileRecordingServiceImp implements RecordingService {
 	final private Logger log = Red5LoggerFactory.getLogger(FileRecordingServiceImp.class, "deskshare");
 	
-	String recordingDir;
+	private String recordingDir;
+	private EventRecorder redisDispatcher;
 	
 	@Override
 	public Recorder getRecorderFor(String name) {
-		return new FileRecorder(name, recordingDir);
+		FileRecorder r = new FileRecorder(name, recordingDir);
+		r.addListener(redisDispatcher);
+		return r;
 	}
 
 	/**
@@ -33,4 +36,7 @@ public class FileRecordingServiceImp implements RecordingService {
 		recordingDir = path;
 	}
 
+	public void setRedisDispatcher(EventRecorder d) {
+		redisDispatcher = d;
+	}
 }
