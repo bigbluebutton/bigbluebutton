@@ -14,7 +14,7 @@ g.recording_events.each do |ev|
 end
 
 af = "/var/freeswitch/meetings/1b199e88-7df7-4842-a5f1-0e84b781c5c8-20110202-041415.wav"
-g.determine_length_of_audio_from_file(af)
+Generator::Audio.determine_length_of_audio_from_file(af)
 
 #sd = g.get_start_audio_recording_events(e)
 
