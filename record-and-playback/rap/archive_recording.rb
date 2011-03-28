@@ -50,3 +50,4 @@ Dir.chdir(scripts_home) do
 
 end
   puts Dir.pwd
+  
