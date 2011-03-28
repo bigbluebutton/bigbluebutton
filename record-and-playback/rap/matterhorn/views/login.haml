@@ -1,0 +1,19 @@
+!!!
+%html
+	%head
+		%title Matterhorn - BigBlueButton Integration
+	%body
+		#header
+			%h1 Personal Capture Using BigBlueButton
+		#content
+			%form{:action => "/auth", :method => "post"} 
+				%legend
+					Login into the Application
+				%p
+					%label{:for => "txtusername"} Username:
+					%input{:name => "txtusername" , :type => "text", :id => "txtusername"}
+				%p
+					%label{:for => "txtpassword"} Password:
+					%input{:name => "txtpassword" , :type => "password", :id => "txtpassword"}
+				%p
+					%input{:type => "submit", :value=>"Submit"}
