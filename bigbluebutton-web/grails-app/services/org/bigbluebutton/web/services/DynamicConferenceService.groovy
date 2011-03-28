@@ -26,6 +26,7 @@ import org.apache.commons.collections.bidimap.DualHashBidiMap
 import java.util.*;
 import java.util.concurrent.*;
 import org.bigbluebutton.api.domain.DynamicConference;
+import org.bigbluebutton.api.domain.DynamicConferenceParticipant;
 import org.bigbluebutton.api.IRedisDispatcher
 import org.bigbluebutton.api.RedisDispatcherImp;
 
@@ -203,6 +204,44 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 		roomsByToken.put(room.getName(), room);
 	}
 	// end of spring integration-called methods
+	
+	//these methods are without using bbb-commons
+	public void conferenceStarted2(String roomname){
+		DynamicConference conf = getConferenceByToken(roomname);
+		if (conf != null) {
+			conf.setStartTime(new Date());
+			conf.setEndTime(null);
+			log.debug "redis: found conference and set start date"
+		}
+	}
+	public void conferenceEnded2(String roomname) {
+		log.debug "redis: conference ended: " + roomname;
+		DynamicConference conf = getConferenceByToken(roomname);
+		if (conf != null) {
+			conf.setEndTime(new Date());
+			log.debug "redis: found conference and set end date"
+		}
+	}
+	
+	public void participantsUpdatedJoin(String roomname, String userid, String fullname, String role) {
+		log.debug "redis: participants updated join: " + roomname;
+		DynamicConferenceParticipant dcp=new DynamicConferenceParticipant(userid,fullname,role);
+		DynamicConference conf = getConferenceByToken(roomname);
+		if(conf!=null){
+			conf.addParticipant(dcp);
+			log.debug "redis: added participant"
+		}
+	}
+	
+	public void participantsUpdatedRemove(String roomname, String userid) {
+		log.debug "redis: participants updated remove: " + roomname;
+		System.out.println("participants updated: " + roomname);
+		DynamicConference conf = getConferenceByToken(roomname);
+		if(conf!=null){
+			conf.removeParticipant(userid);
+			log.debug "redis: removed participant"
+		}
+	}
 	
 	public void processRecording(String meetingId) {
 		System.out.println("enter processRecording " + meetingId)

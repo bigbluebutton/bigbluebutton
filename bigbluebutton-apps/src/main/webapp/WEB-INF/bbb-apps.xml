@@ -19,7 +19,13 @@
 	
 	<bean id="roomsManager" class="org.bigbluebutton.conference.RoomsManager">
 		<property name="conferenceEventListener" ref="conferenceEventListener" />
+		<property name="publisher" ref="redisPublisher"></property>
 	</bean>
+	
+	<bean id="redisPublisher" class="org.bigbluebutton.conference.service.recorder.pubsub.RedisPublisher">
+        <constructor-arg index="0" value="${redis.host}"/>
+        <constructor-arg index="1" value="${redis.port}"/>
+    </bean>
 			
 	<bean id="participantsHandler" class="org.bigbluebutton.conference.service.participants.ParticipantsHandler">
 		<property name="participantsApplication"> <ref local="participantsApplication"/></property>

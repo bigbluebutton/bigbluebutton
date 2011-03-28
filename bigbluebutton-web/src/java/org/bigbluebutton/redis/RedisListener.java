@@ -34,7 +34,7 @@ public class RedisListener extends RedisServer implements Runnable{
 
 	@Override
 	public void run() {
-		jedis.subscribe(pubsubListener, "bbbConferenceEvents");
+		jedis.psubscribe(pubsubListener, "bigbluebutton:conference:*");
 	}
 	
 }

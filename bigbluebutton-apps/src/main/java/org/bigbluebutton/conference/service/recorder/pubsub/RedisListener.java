@@ -1,4 +1,6 @@
-package org.bigbluebutton.conference.service.recorder;
+package org.bigbluebutton.conference.service.recorder.pubsub;
+
+import org.bigbluebutton.conference.service.recorder.RedisServer;
 
 
 public class RedisListener extends RedisServer implements Runnable {
