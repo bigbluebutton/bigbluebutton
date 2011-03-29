@@ -217,10 +217,8 @@ function handleChat(msg){
  * END: handleChat function
  */
  
- //<REALWAT>
  function startSIPApplet(domain,room,uname,bbbUserName,bbbPassword,bbbPort){
  
-    //alert(domain + ' ' + room + ' ' + uname);
      var sipApp = document.getElementById("sipApp");
      if ( sipApp ){
         return ;
@@ -239,15 +237,10 @@ function handleChat(msg){
      
         document.body.appendChild(sipApp);
      }
-     /*document.sipApplet.initializeProfile("bbb.titook.org", "78656", "Trao");*/
-     //document.sipApplet.call();
      
  }
- //</REALWAT>
  
  function stopSIPApplet(){
-    //alert('Stop SIP');
-    //document.sipApplet.hangup();
     removeSIP();
     removeSIP();
     document.sipApplet.destroy();
@@ -278,7 +271,7 @@ function handleChat(msg){
 ******************************************************************************/
 function startApplet(IP, roomNumber, fullScreen)
 {
-	 // PTS_312: replace "iframe" to "div" element to allow javascript
+	 // replace "iframe" to "div" element to allow javascript
 	 // call form applet to access flash object.
      var iframe = document.createElement("div");
      iframe.id = "iframe";

@@ -54,10 +54,10 @@
 
 			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";
 			
-			//<REALWAT>
+			
 			private var _appletPhoneSetting:Boolean = true;
             private var _confId:String ;
-			//</REALWAT>
+			
 			
 			public function loggedIn(name:String, room:String, role:String):void{
 				this.visible = true;
@@ -116,7 +116,7 @@
 				d.dispatchEvent(e);
 			}
 			
-			//<REALWAT>
+			
 			private function doSetting():void{
                 
                 var settingWin:Settings ;
@@ -138,7 +138,7 @@
 			private function handleConfigWebPhone(e:cPHONE_ConfigSipPhoneEvent) : void {
 				this._appletPhoneSetting = e._isAppletConf;
 			}
-			//</REALWAT>
+			
 		]]>
 	</mx:Script>	
 	<mx:HBox id="addedBtns">
