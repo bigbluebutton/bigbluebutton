@@ -40,11 +40,13 @@
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_CLOSED}" method="attemptReconnect"  />
 	<mate:Listener type="{ConnectionFailedEvent.UNKNOWN_REASON}" method="attemptReconnect"  />
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_REJECTED}" method="attemptReconnect"  />
-
+	<mate:Listener type="{RecordStatusEvent.RECORD_STATUS_EVENT}" method="handleRecordStatusEvent"  />
+	
 	<common:APIEventMap />
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.main.events.RecordStatusEvent;
 			import org.bigbluebutton.main.events.AppVersionEvent;
 			import com.asfusion.mate.events.Dispatcher;
 			
@@ -227,6 +229,10 @@
 				connectionLostWindow = ConnectionLostWindow(PopUpManager.createPopUp( mdiCanvas, ConnectionLostWindow, true));
 				connectionLostWindow.x = mdiCanvas.width/2 - connectionLostWindow.width/2;
 				connectionLostWindow.y = mdiCanvas.height/2 - connectionLostWindow.height/2;
+			}
+			
+			private function handleRecordStatusEvent(evt:RecordStatusEvent):void {
+				Alert.show(evt.status, evt.module);
 			}
 			
 			private function setLogVisibility(e:ConfigEvent):void{
