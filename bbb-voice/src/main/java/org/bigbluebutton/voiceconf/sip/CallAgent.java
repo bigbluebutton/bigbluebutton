@@ -102,7 +102,13 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
         initSessionDescriptor();
         
     	callState = CallState.UA_OUTGOING_CALL;
-
+    	
+    	//<REALWAT>
+    	log.debug("sipProvider : "+ sipProvider + ", userProfile.fromUrl: "+userProfile.fromUrl + 
+                ", userProfile.contactUrl: "+userProfile.contactUrl+", userProfile.username: "+userProfile.username +
+                ", userProfile.realm: "+userProfile.realm+", userProfile.passwd: "+userProfile.passwd);
+    	//</REALWAT>
+    	
         call = new ExtendedCall(sipProvider, userProfile.fromUrl, 
                 userProfile.contactUrl, userProfile.username,
                 userProfile.realm, userProfile.passwd, this);  
