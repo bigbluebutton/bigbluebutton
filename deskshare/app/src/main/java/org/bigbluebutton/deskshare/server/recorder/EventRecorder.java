@@ -27,6 +27,8 @@ public class EventRecorder implements RecordStatusListener {
 	@Override
 	public void notify(RecordEvent event) {
 		if ((event instanceof RecordStoppedEvent) || (event instanceof RecordStartedEvent)) {
+			event.setTimestamp(System.currentTimeMillis());
+			event.setMeetingId(((AbstractDeskshareRecordEvent)event).getSession());
 			record(((AbstractDeskshareRecordEvent)event).getSession(), event);
 		}
 	}

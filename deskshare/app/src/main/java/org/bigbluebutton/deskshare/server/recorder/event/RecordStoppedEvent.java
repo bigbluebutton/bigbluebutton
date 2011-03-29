@@ -4,6 +4,7 @@ public class RecordStoppedEvent extends AbstractDeskshareRecordEvent {
 
 	public RecordStoppedEvent(String session) {
 		super(session);
+		setEvent("DeskshareStoppedEvent");
 	}
 
 	public void setFile(String path) {

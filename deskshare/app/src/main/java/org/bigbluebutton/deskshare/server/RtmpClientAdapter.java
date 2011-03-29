@@ -4,7 +4,7 @@ import java.awt.Point;
 import java.util.ArrayList;
 
 import org.bigbluebutton.deskshare.server.recorder.RecordStatusListener;
-import org.bigbluebutton.deskshare.server.recorder.event.RecordStatusEvent;
+import org.bigbluebutton.deskshare.server.recorder.event.RecordEvent;
 import org.red5.server.api.so.ISharedObject;
 
 public class RtmpClientAdapter implements DeskshareClient, RecordStatusListener {
@@ -34,7 +34,7 @@ public class RtmpClientAdapter implements DeskshareClient, RecordStatusListener 
 	}
 
 	@Override
-	public void notify(RecordStatusEvent event) {
+	public void notify(RecordEvent event) {
 		// TODO Auto-generated method stub
 		System.out.println("RtmpClientAdapter: TODO Notify client of recording status");
 	}
