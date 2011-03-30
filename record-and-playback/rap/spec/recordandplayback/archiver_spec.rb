@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'fileutils'
   
-module Archiver
+module Collector
     describe Audio do
         context "#success" do
             it "directory is present" do

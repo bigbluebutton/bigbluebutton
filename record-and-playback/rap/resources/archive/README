@@ -1,0 +1,2 @@
+This directory where collected raw recordings will be archived. This directory is only used for
+testing purposes. All files (except this README) MUST be added to .gitignore.

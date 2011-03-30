@@ -17,7 +17,7 @@ def output
 end
 
 Given /^the meeting has ended$/ do
-    @audioArchiver = Archiver::Audio.new(output)
+    @audioArchiver = Collector::Audio.new(output)
 end
 
 Given /^the audio has been recorded$/ do

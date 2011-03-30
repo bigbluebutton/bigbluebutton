@@ -1,1 +1,1 @@
-require 'recordandplayback/archiver'
+require 'recordandplayback/collectors/audio'
