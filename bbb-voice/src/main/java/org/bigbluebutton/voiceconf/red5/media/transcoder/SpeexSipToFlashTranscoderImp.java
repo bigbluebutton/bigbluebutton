@@ -57,7 +57,7 @@ public class SpeexSipToFlashTranscoderImp implements SipToFlashTranscoder {
     ;   codec   :   type of codec
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  generate random
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -88,7 +88,7 @@ public class SpeexSipToFlashTranscoderImp implements SipToFlashTranscoder {
     ;   audioData   :   audion data
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  handle audio data
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -112,7 +112,7 @@ public class SpeexSipToFlashTranscoderImp implements SipToFlashTranscoder {
     ;   N/A
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  return the speex codec id
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -134,7 +134,7 @@ public class SpeexSipToFlashTranscoderImp implements SipToFlashTranscoder {
     ;   N/A
     ;   
     ; IMPLEMENTATION
-    ;  get incoming encoded frame size
+    ;  return incoming encoded frame size
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -158,7 +158,8 @@ public class SpeexSipToFlashTranscoderImp implements SipToFlashTranscoder {
     ;   len         :   length of data
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  copy audio data to array
+    ;  transcode data
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -183,7 +184,7 @@ public class SpeexSipToFlashTranscoderImp implements SipToFlashTranscoder {
     ;   sipToFlashAudioStream   :   audio stream   
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  assign transcode audio listener
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011

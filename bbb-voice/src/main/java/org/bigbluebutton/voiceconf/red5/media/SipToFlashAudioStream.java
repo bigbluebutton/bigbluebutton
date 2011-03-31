@@ -88,7 +88,10 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
     ;   socket      :   DatagramSocket
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  set rtp stream receiver
+    ;  allocate buffer
+    ;  set listener
+    ;
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -145,7 +148,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
     ;   INPUT
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  get stream name
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -166,7 +169,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
     ;   INPUT
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  add stream observer
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -187,7 +190,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
     ;   INPUT
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  stop rtp stream receiver
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -241,7 +244,8 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
     ;   INPUT
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  start broadcast audio stream
+    ;  set process data
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -343,7 +347,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
     ;   len         :   int
     ;
     ; IMPLEMENTATION
-    ;  
+    ;  handle audio data
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -367,7 +371,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
     ;   timestamp   :   long
     ;
     ; IMPLEMENTATION
-    ;  
+    ;  handle transcode audio data
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -394,6 +398,8 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
     ;   timestamp   :   long
     ;
     ; IMPLEMENTATION
+    ;  clear buffer
+    ;  put fake meta data
     ;  
     ; HISTORY
     ; __date__ :        PTS:            Description
@@ -437,7 +443,8 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
     ;   timestamp   :   long
     ;
     ; IMPLEMENTATION
-    ;  
+    ;  clear buffer
+    ;  put audio data to meta data
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011

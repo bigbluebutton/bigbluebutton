@@ -56,7 +56,8 @@ public class SpeexFlashToSipTranscoderImp implements FlashToSipTranscoder {
     ;   audioCodec   :   type of codec
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  assign audio codec
+    ;  generate random number
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -90,7 +91,8 @@ public class SpeexFlashToSipTranscoderImp implements FlashToSipTranscoder {
     ;   length      :   length of data
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  copy array of audio data
+    ;  handle transcode audio data
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -113,7 +115,7 @@ public class SpeexFlashToSipTranscoderImp implements FlashToSipTranscoder {
     ;   N/A
     ;
     ; IMPLEMENTATION
-    ;  
+    ;  return codec id
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011

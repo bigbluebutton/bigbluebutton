@@ -108,7 +108,11 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
     ;   sipCodec   :   Codec
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  assign codec
+    ;  initialize decoder
+    ;  generate random number
+    ;  read stream from flash
+    ;  process data
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -168,7 +172,7 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
     ;   
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  return outgoing encoded frame size
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -189,7 +193,7 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
     ;   INPUT
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  return codec id
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -213,7 +217,7 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
     ;   end     :   int
     ;
     ; IMPLEMENTATION
-    ;  
+    ;  write stream from flash
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -239,7 +243,7 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
     ;   INPUT
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  read stream audio data
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -279,7 +283,8 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
     ;   INPUT
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  convert nelly audio to L16
+    ;  handle transcode audio data
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -358,7 +363,7 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
     ;   INPUT
     ;   transcodedAudioListener :   TranscodedAudioListener
     ; IMPLEMENTATION
-    ;  
+    ;  assign listener
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -378,7 +383,7 @@ public class NellyFlashToSipTranscoderImp implements FlashToSipTranscoder {
     ;   INPUT
     ;   isProcessing    :   boolean
     ; IMPLEMENTATION
-    ;  
+    ;  assign processAudioData
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011

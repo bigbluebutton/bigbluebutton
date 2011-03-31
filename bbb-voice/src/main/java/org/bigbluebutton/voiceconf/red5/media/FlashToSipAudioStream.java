@@ -72,7 +72,8 @@ public class FlashToSipAudioStream {
     ;   connInfo    :   SipConnectInfo
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  assign transcoder, socket, connection info
+    ;  set listener
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -111,7 +112,9 @@ public class FlashToSipAudioStream {
     ;   scope            :   IScope
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  set process data
+    ;  get data from buffer
+    ;  add stream listener
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -171,7 +174,8 @@ public class FlashToSipAudioStream {
     ;   scope            :   IScope
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  remove listener
+    ;  stop process data
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -206,7 +210,7 @@ public class FlashToSipAudioStream {
     ;   INPUT
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  get stream name
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -241,7 +245,7 @@ public class FlashToSipAudioStream {
         ;   timestamp   :   long
         '
         ; IMPLEMENTATION
-        ;  
+        ;  send audio data
         ; HISTORY
         ; __date__ :        PTS:            Description
         ; 03-30-2011

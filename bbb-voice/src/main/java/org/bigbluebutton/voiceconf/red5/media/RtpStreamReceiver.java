@@ -72,7 +72,7 @@ public class RtpStreamReceiver {
     ;   expectedPayloadLength   :   int
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  initialize socket
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -104,7 +104,7 @@ public class RtpStreamReceiver {
     ;   listener    :   RtpStreamReceiverListener
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  assign listener
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -145,7 +145,7 @@ public class RtpStreamReceiver {
     ;   INPUT
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  start receive rtp packet
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -172,7 +172,7 @@ public class RtpStreamReceiver {
     ;   INPUT
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  stop receive rtp packet
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -193,7 +193,8 @@ public class RtpStreamReceiver {
     ;   INPUT
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  initialize buffer
+    ;  receive rtp packets
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -258,7 +259,7 @@ public class RtpStreamReceiver {
     ;   rtpPacket   :   RtpPacket
     ;
     ; IMPLEMENTATION
-    ;  
+    ;  check the drop packets
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -295,7 +296,7 @@ public class RtpStreamReceiver {
     ;   rtpPacket   :   RtpPacket
     ;
     ; IMPLEMENTATION
-    ;  
+    ;  check whether packet is marker
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -334,7 +335,7 @@ public class RtpStreamReceiver {
     ;   rtpPacket   :   RtpPacket
     ;
     ; IMPLEMENTATION
-    ;  
+    ;  check if packet should handle
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -366,7 +367,7 @@ public class RtpStreamReceiver {
     ;
     ;
     ; IMPLEMENTATION
-    ;  
+    ;  check if packets have to reset
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -401,7 +402,7 @@ public class RtpStreamReceiver {
     ;   rtpPacket   :   RtpPacket
     ;
     ; IMPLEMENTATION
-    ;  
+    ;  check if the packets is the first one
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -437,7 +438,7 @@ public class RtpStreamReceiver {
     ;   rtpPacket   :   RtpPacket
     ;
     ; IMPLEMENTATION
-    ;  
+    ;  check valid seqment number
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -467,7 +468,7 @@ public class RtpStreamReceiver {
     ;   rtpPacket   :   RtpPacket
     ;
     ; IMPLEMENTATION
-    ;  
+    ;  check if seqment number is roll over
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -506,7 +507,7 @@ public class RtpStreamReceiver {
     ;   len         :   int
     ;
     ; IMPLEMENTATION
-    ;  
+    ;  process rtp packets
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011

@@ -115,7 +115,9 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
     ;   audioCodec   :   Codec
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  generate random number
+    ;  initialize input stream and output stream
+    ;  start process data
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -158,7 +160,8 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
     ;   audioData   :   byte[]
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  convert ulaw to L16
+    ;  handle transcode audio data
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -219,7 +222,7 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
     ;   
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  get incoming frame size
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -241,7 +244,7 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
     ;   
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  get nelly codec id
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -265,7 +268,7 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
     ;   len         :   int
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  write stream from sip
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -291,7 +294,7 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
     ;   INPUT
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  process audio data
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -318,7 +321,7 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
     ;   INPUT
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  read audio data from stream
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -358,7 +361,7 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
     ;   isProcessing    :   boolean
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  assign processAudioData
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -380,7 +383,7 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
     ;   sipToFlashAudioStream    :   SipToFlashAudioStream
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;  assign transcode listener
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 03-30-2011
@@ -390,7 +393,7 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
 			SipToFlashAudioStream sipToFlashAudioStream) {
         
         if ( null == sipToFlashAudioStream){
-            log.error("error initialize sipToFlashAudioStream");
+            log.error("error input parameter");
             return ;
         }
 		this.transcodedAudioListener = sipToFlashAudioStream;
