@@ -6,35 +6,33 @@ module Collector
     class NoAudioFileException < RuntimeError
     end
     
-    class Audio        
-        def initialize(log=nil)
-            @log = log
-        end
-        
+    class Audio             
         def location_exist?(location)
-            if not FileTest.directory?(location)
-                @log.error "FAILED!: #{location} directory does not exist!"
-                raise NoSuchDirectoryException, location
-            end
+            FileTest.directory?(location)
         end
         
-        def audio_is_present?(meeting_id, location)
-            if Dir.glob("#{location}/#{meeting_id}*.wav").empty?
-                @log.error "FAILED!: No audio recordings for meeting #{meeting_id}"
-                raise NoAudioFileException, "No audio recording for #{meeting_id}"
-            end
+        def audio_present?(meeting_id, location)
+            Dir.glob("#{location}/#{meeting_id}*.wav").empty?
         end
         
-        def archive_audio_recording(meeting_id, from, to)
-            if (location_exist? from) and (location_exist? to)
-                if (audio_is_present? meeting_id, from)
-                    Dir.glob("#{from}/#{meeting_id}*.wav").each { |file|
-                        #@log.info "Archiving #{file}"
-                        FileUtils.mv(file, to)
-                    }
-                    #@log.info "Archiving done."
-                end
-            end            
+        
+        def collect_audio(meeting_id, from_dir, to_dir)         
+            if not location_exist?(from_dir) 
+                raise NoSuchDirectoryException, "Directory not found #{from_dir}"
+            end
+            
+            if not location_exist?(to_dir)
+                raise NoSuchDirectoryException, "Directory not found #{to_dir}"
+            end
+            
+            if (audio_present?(meeting_id, from_dir))
+                raise NoAudioFileException, "No audio recording for #{meeting_id} in #{from_dir}"
+            end
+                       
+            Dir.glob("#{from_dir}/#{meeting_id}*.wav").each { |file|
+                FileUtils.cp(file, to_dir)
+            }         
         end
+        
     end
 end

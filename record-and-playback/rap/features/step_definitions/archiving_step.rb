@@ -21,7 +21,7 @@ Given /^the meeting has ended$/ do
 end
 
 Given /^the audio has been recorded$/ do
-    @audioArchiver.location_exist? '/var/freeswitch/meetings'
+    @audioArchiver.location_exist? '/home/firstuser/dev/source/bigbluebutton/record-and-playback/rap/resources'
 end
 
 When /^the audio is archived$/ do

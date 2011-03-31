@@ -1,41 +1,45 @@
 require 'spec_helper'
 require 'fileutils'
+require 'logger'
   
 module Collector
-    describe Audio do
+    describe Audio do     
         context "#success" do
-            it "directory is present" do
-                output = mock('output')
-                output.stub(:error)
-                archiver = Audio.new 
-                FileTest.stub(:directory?).and_return(true)
-                expect { archiver.location_exist?('/from') }.to_not raise_error
-
-            end
-            it "recorded audio is/are present" do
-                output = mock('output')
-                output.stub(:error)
-                archiver = Audio.new output      
-                Dir.stub(:glob).and_return(['file1'])
-                expect { archiver.audio_is_present?('meeting-id', 'location') }.to_not raise_error                
-            end
-            it "should move audio recording to archive" do
-                output = mock('output')
-                output.stub(:error)
-                archiver = Audio.new output
-                FileTest.stub(:directory?).and_return(true)
-                Dir.stub(:glob).and_return(['file1.wav', 'file2.wav'])
-                FileUtils.stub(:mv)
-                expect { archiver.archive_audio_recording( 'meeting-id', '/from', '/to' ) }.should_not raise_error
-            end                  
-            it "should move audio recording to archive real" do
-                output = mock('output')
-                output.stub(:error)
-                output.stub(:info)
-                archiver = Audio.new output
+            it "should copy audio recording to archive" do
+                from_dir = 'resources/raw/audio'
+                to_dir = 'resources/archive'
+                meeting_id = 'meeting-id'
+                audio_dir = "#{to_dir}/#{meeting_id}/audio"
+                FileUtils.mkdir_p audio_dir
+                archiver = Collector::Audio.new
                 expect {
-                    archiver.archive_audio_recording( 'meeting-id', '/from', '/to' ).should raise_error
-                }
+                    archiver.collect_audio( meeting_id, from_dir, audio_dir )
+                    }.to_not raise_error
+                
+                FileUtils.remove_dir "#{to_dir}/#{meeting_id}"
+            end
+        end
+        
+        context "#fail" do
+            it "should raise from directory not found exception" do
+                from_dir = '/from-dir-not-found'
+                to_dir = 'resources/archive'
+                meeting_id = 'meeting-id'
+                archiver = Collector::Audio.new
+                expect {
+                    archiver.collect_audio( meeting_id, from_dir, to_dir )
+                    }.to raise_error(NoSuchDirectoryException)
+            end
+            it "should raise to directory not found exception" do
+                from_dir = 'resources/raw/audio'
+                to_dir = '/to-dir-not-found'
+                meeting_id = 'meeting-id'
+                audio_dir = "#{to_dir}/#{meeting_id}/audio"
+
+                archiver = Collector::Audio.new
+                expect {
+                    archiver.collect_audio( meeting_id, from_dir, to_dir )
+                    }.to raise_error(NoSuchDirectoryException)
             end
         end
     end
