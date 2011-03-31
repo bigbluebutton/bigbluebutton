@@ -33,6 +33,16 @@ import org.red5.server.net.rtmp.event.AudioData;
 import org.red5.server.net.rtmp.event.SerializeUtils;
 import org.slf4j.Logger;
 
+/*****************************************************************************
+;  FlashToSipAudioStream
+;----------------------------------------------------------------------------
+; DESCRIPTION
+;   this class is used to flash to sip audio stream
+;
+; HISTORY
+; __date__ :        PTS:            Description
+; 03-30-2011
+******************************************************************************/
 public class FlashToSipAudioStream {
 	private final static Logger log = Red5LoggerFactory.getLogger(FlashToSipAudioStream.class, "sip");
 
@@ -47,17 +57,73 @@ public class FlashToSipAudioStream {
 	private TranscodedAudioListener transcodedAudioListener;
 	private volatile boolean processAudioData = false;
 
+    /*****************************************************************************
+    ;  FlashToSipAudioStream
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this is the class constructor.
+    ;
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   transcoder  :   FlashToSipTranscoder
+    ;   srcSocket   :   DatagramSocket
+    ;   connInfo    :   SipConnectInfo
+    ;   
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
 	public FlashToSipAudioStream(final FlashToSipTranscoder transcoder, DatagramSocket srcSocket, SipConnectInfo connInfo) {
+    
+        if ( (null == transcoder)   ||
+             (null == srcSocket)    ||
+             (null == connInfo)     ){
+             
+            log.error("error input parameter");
+        }
 		this.transcoder = transcoder;
 		this.srcSocket = srcSocket;
 		this.connInfo = connInfo;		
 		talkStreamName = "microphone_" + System.currentTimeMillis();
 		transcodedAudioListener = new TranscodedAudioListener();
+        if ( null == transcodedAudioListener ){
+            log.error("error initialize transcodedAudioListener");
+        }
 		transcoder.setTranscodedAudioListener(transcodedAudioListener);
 	    transcoder.setProcessAudioData(processAudioData);
-}
-
+    }/**END FUNCTION FlashToSipAudioStream**/
+    
+    /*****************************************************************************
+    ;  start
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to start to receive the audio stream.
+    ;
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   broadcastStream  :   IBroadcastStream
+    ;   scope            :   IScope
+    ;   
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
 	public void start(IBroadcastStream broadcastStream, IScope scope) throws StreamException {
+    
+        if ( (null == broadcastStream)  ||
+             (null == scope)    ){
+             
+            log.error("error input parameter");
+            return ;
+        }
 	    log.debug("startTranscodingStream({},{})", broadcastStream.getPublishedName(), scope.getName());
 	    processAudioData = true;
 	    transcoder.setProcessAudioData(processAudioData);
@@ -82,12 +148,42 @@ public class FlashToSipAudioStream {
 
 	    broadcastStream.addStreamListener(mInputListener);    
 	    rtpSender = new RtpStreamSender(srcSocket, connInfo);
+        if ( null == rtpSender ){
+            log.error("error initialize rtpSender");
+            return ;
+        }
 		rtpSender.connect();
 
 
-	}
-
+	}/**END FUNCTION start**/
+    
+    /*****************************************************************************
+    ;  stop
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to stop receiving the audio stream.
+    ;
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   broadcastStream  :   IBroadcastStream
+    ;   scope            :   IScope
+    ;   
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
 	public void stop(IBroadcastStream broadcastStream, IScope scope) {
+    
+        if ( (null == broadcastStream)  ||
+             (null == scope)    ){
+             
+            log.error("error input parameter");
+            return ;
+        }
 		broadcastStream.removeStreamListener(mInputListener);
 		if (broadcastStream != null) {
 			broadcastStream.stop();
@@ -96,13 +192,60 @@ public class FlashToSipAudioStream {
 	    processAudioData = false;
 	    transcoder.setProcessAudioData(processAudioData);
 	    srcSocket.close();		
-	}
+	}/**END FUNCTION stop**/
 
+    /*****************************************************************************
+    ;  getStreamName
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to get the stream name.
+    ;
+    ; RETURNS : String
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
 	public String getStreamName() {
 		return talkStreamName;
-	}
+	}/**END FUNCTION getStreamName**/
 
+    /*****************************************************************************
+    ;  TranscodedAudioListener
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this class is the transcode audion listener class
+    ;
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
 	public class TranscodedAudioListener implements TranscodedAudioDataListener {
+    
+        /*****************************************************************************
+        ;  handleTranscodedAudioData
+        ;----------------------------------------------------------------------------
+        ; DESCRIPTION
+        ;   this routine is used to handle the audio data.
+        ;
+        ; RETURNS : N/A
+        ;
+        ; INTERFACE NOTES
+        ;   INPUT
+        ;   audioData   :   byte[]
+        ;   timestamp   :   long
+        '
+        ; IMPLEMENTATION
+        ;  
+        ; HISTORY
+        ; __date__ :        PTS:            Description
+        ; 03-30-2011
+        ******************************************************************************/
 		@Override
 		public void handleTranscodedAudioData(byte[] audioData, long timestamp) {
 			if (audioData != null && processAudioData) {
@@ -110,6 +253,6 @@ public class FlashToSipAudioStream {
 	  	  } else {
 	  		  log.warn("Transcodec audio is null. Discarding.");
 	  	  }
-		}		
-	}
-}
+		}/**END FUNCTION handleTranscodedAudioData**/		
+	}/**END CLASS TranscodedAudioListener**/
+}/**END CLASS FlashToSipAudioStream**/

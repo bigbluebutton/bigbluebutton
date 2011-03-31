@@ -21,12 +21,132 @@ package org.bigbluebutton.voiceconf.red5.media.transcoder;
 
 import org.bigbluebutton.voiceconf.red5.media.SipToFlashAudioStream;
 
+/*****************************************************************************
+;  SipToFlashTranscoder
+;----------------------------------------------------------------------------
+; DESCRIPTION
+;   this class is used to trancode the speex codec from flash to sip server
+;  
+; HISTORY
+; __date__ :        PTS:            Description
+; 03-30-2011
+******************************************************************************/
 public interface SipToFlashTranscoder {
+    
+    /*****************************************************************************
+    ;  transcode
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   audioCodec   :   byte[]
+    ;   
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
 	void transcode(byte[] audioData);
+    
+    /*****************************************************************************
+    ;  getCodecId
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   
+    ; RETURNS : int
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   
+    ;   
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
     int getCodecId();
+    
+    /*****************************************************************************
+    ;  getIncomingEncodedFrameSize
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   
+    ; RETURNS : int
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   
+    ;   
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
     int getIncomingEncodedFrameSize();
+    
+    /*****************************************************************************
+    ;  handleData
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   audioCodec   :   byte[]
+    ;   offset       :   int
+    ;   len          :   int
+    ;   
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
     void handleData(byte[] audioData, int offset, int len);
+    
+    /*****************************************************************************
+    ;  setTranscodedAudioListener
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   sipToFlashAudioStream   :   SipToFlashAudioStream
+    ;   
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
     void setTranscodedAudioListener(SipToFlashAudioStream sipToFlashAudioStream);
+    
+    /*****************************************************************************
+    ;  setProcessAudioData
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   isProcessing   :   boolean
+    ;   
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
     void setProcessAudioData(boolean isProcessing);
 
-}
+}/**END CLASS SipToFlashTranscoder**/

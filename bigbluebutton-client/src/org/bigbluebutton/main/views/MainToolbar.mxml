@@ -116,7 +116,24 @@
 				d.dispatchEvent(e);
 			}
 			
-			
+			/*****************************************************************************
+			 ;  doSetting
+			 ;----------------------------------------------------------------------------
+			 ; DESCRIPTION
+			 ;   This routine is use to handle setting button event to configure web phone
+			 ;
+			 ; RETURNS : N/A
+			 ;
+			 ; INTERFACE NOTES : N/A
+			 ;
+			 ; IMPLEMENTATION
+			 ;  	display setting popup window
+			 ;
+			 ; HISTORY
+			 ; __date__ :        PTS:  			Description
+			 ; 2011-3-17                        Switching web phone(applet or flash)
+			 ;
+			 ******************************************************************************/
 			private function doSetting():void{
                 
                 var settingWin:Settings ;
@@ -125,7 +142,10 @@
                 settingWin = PopUpManager.createPopUp(
                         this, Settings , false) as Settings;
                 
-                
+                if ( null == settingWin ){
+					LogUtil.error("MainToolbar: Creating setting popup window is NULL");
+					return;
+				}
 				settingWin.centerWindow();
 				settingWin.addEventListener(CloseEvent.CLOSE,function(evt:CloseEvent):void{
 					PopUpManager.removePopUp(settingWin);
@@ -133,18 +153,38 @@
 				settingWin.showCurrentSetting(this._appletPhoneSetting);
                 settingWin.setCurrentVoiceBridge(this._confId) ;
                 
-			}
+			}/** END Function: doSetting */
 			
+			/*****************************************************************************
+			 ;  handleConfigWebPhone
+			 ;----------------------------------------------------------------------------
+			 ; DESCRIPTION
+			 ;   This routine is use to handle webphone configuration.
+			 ;
+			 ; RETURNS : N/A
+			 ;
+			 ; INTERFACE NOTES
+			 ;		INPUT: 
+			 ;			e:cPHONE_ConfigSipPhoneEvent
+			 ;
+			 ; IMPLEMENTATION
+			 ;  	set the configuration parameter to _appletPhoneSetting
+			 ;
+			 ; HISTORY
+			 ; __date__ :        PTS:  			Description
+			 ; 2011-3-17                        Switching web phone(applet or flash)
+			 ;
+			 ******************************************************************************/
 			private function handleConfigWebPhone(e:cPHONE_ConfigSipPhoneEvent) : void {
 				this._appletPhoneSetting = e._isAppletConf;
-			}
+			}/** END Function: handleConfigWebPhone */
 			
 		]]>
 	</mx:Script>	
 	<mx:HBox id="addedBtns">
 	</mx:HBox>		
 	<mx:Spacer width="100%"/>
-	<mx:Button label="Settings" id="btnSettings" toolTip="BBB Voice Settings" click="doSetting()"/>
+	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.settingsBtn')}" id="settingsBtn" toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.settingsBtn.toolTip')}" click="doSetting()"/>
 	<views:LanguageSelector id="langSelector" visible="false" />
 	<mx:LinkButton label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" click="onHelpButtonClicked()"/>
 	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn')}" id="btnLogout" 

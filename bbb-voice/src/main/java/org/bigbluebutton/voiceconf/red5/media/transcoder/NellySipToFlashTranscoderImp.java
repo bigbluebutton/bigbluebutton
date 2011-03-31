@@ -36,6 +36,16 @@ import org.red5.server.net.rtmp.RTMPMinaConnection;
 import org.red5.app.sip.codecs.Codec;
 import org.red5.app.sip.codecs.asao.CodecImpl;
 
+/*****************************************************************************
+;  NellySipToFlashTranscoderImp
+;----------------------------------------------------------------------------
+; DESCRIPTION
+;   this class is used to trancode the Nelly codec from sip server to flash
+;  
+; HISTORY
+; __date__ :        PTS:            Description
+; 03-30-2011
+******************************************************************************/
 public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
     protected static Logger log = Red5LoggerFactory.getLogger(NellySipToFlashTranscoderImp.class, "sip");
 
@@ -87,27 +97,72 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
 
 	private final Executor exec = Executors.newSingleThreadExecutor();
 	private Runnable audioDataProcessor;
-    /**
-     * The transcode takes a 160-byte Ulaw audio and converts it to a 160-float L16 audio. Whenever there is an
-     * available 256-float L16 audio, that gets converted into a 64-byte Nelly audio. Therefore, 8 Ulaw packets
-     * are needed to generate 5 Nelly packets.
-     * @param audioCodec
-     */
+    
+    /*****************************************************************************
+    ;  NellySipToFlashTranscoderImp
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is class constructor.
+    ;   The transcode takes a 160-byte Ulaw audio and converts it to a 
+    ;   160-float L16 audio. Whenever there is an available 256-float L16 audio, 
+    ;   that gets converted into a 64-byte Nelly audio. Therefore, 8 Ulaw packets
+    ;   are needed to generate 5 Nelly packets.
+    ;
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   audioCodec   :   Codec
+    ;   
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
     public NellySipToFlashTranscoderImp(Codec audioCodec) {
+        
+        if ( null == audioCodec ){
+            log.error("error input parameter");
+        }
+        
     	this.audioCodec = audioCodec;    	    	
       	encoderMap = new float[64];
         Random rgen = new Random();
+        if ( null == rgen ){
+            log.error("error initialize rgen");
+        }
         timestamp = rgen.nextInt(1000);
         viewBuffer = l16Audio.asReadOnlyBuffer();
 		streamFromSip = new PipedOutputStream();
+        if ( null == streamFromSip ){
+            log.error("error initialize streamFromSip");
+        }
 		try {
 			streamToFlash = new PipedInputStream(streamFromSip);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		startNow();
-    }
+    }/** END FUNCTION NellySipToFlashTranscoderImp**/
 
+    /*****************************************************************************
+    ;  transcode
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to transcode the audio data
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   audioData   :   byte[]
+    ;   
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
 	@Override
 	public void transcode(byte[] audioData) { 
 		if (audioData.length != ULAW_AUDIO_LENGTH) {
@@ -150,18 +205,71 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
         	l16Audio.clear();
         	viewBuffer.clear();
         }
-    }
+    }/**END FUNCTION transcode**/
 
+    /*****************************************************************************
+    ;  getIncomingEncodedFrameSize
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to get the incoming encoded frame size
+    ; RETURNS : int
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   
+    ;   
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
 	@Override 
     public int getIncomingEncodedFrameSize() {
     	return audioCodec.getIncomingEncodedFrameSize();
-    }
+    }/**END FUNCTION getIncomingEncodedFrameSize**/
 
+    /*****************************************************************************
+    ;  getCodecId
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to get codec id
+    ; RETURNS : int
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   
+    ;   
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
 	@Override
 	public int getCodecId() {
 		return NELLYMOSER_CODEC_ID;
-	}
+	}/**END FUNCTION getCodecId**/
 
+    /*****************************************************************************
+    ;  handleData
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to handle data
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   audioData   :   byte[]
+    ;   offset      :   int
+    ;   len         :   int
+    ;   
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
 	@Override
 	public void handleData(byte[] audioData, int offset, int len) {
 		try {
@@ -170,8 +278,24 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
 			e.printStackTrace();
 		}
 
-	}
+	}/**END FUNCTION handleData**/
 
+    /*****************************************************************************
+    ;  startNow
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to process audio data
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
 	private void startNow() {
 
 	    audioDataProcessor = new Runnable() {
@@ -181,8 +305,24 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
     	};
     	exec.execute(audioDataProcessor);
    	
-	}
+	}/**END FUNCTION startNow**/
 
+    /*****************************************************************************
+    ;  processAudioData
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to read/transcode audio byte
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
 	private void processAudioData() {
 		int len = 160;
 		byte[] pcmAudio = new byte[len];		
@@ -204,21 +344,60 @@ public class NellySipToFlashTranscoderImp implements SipToFlashTranscoder {
 				e.printStackTrace();
 			}        		
 		}	
-	}
+	}/**END FUNCTION processAudioData**/
 
+    /*****************************************************************************
+    ;  setProcessAudioData
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to set whether audio data is processing
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   isProcessing    :   boolean
+    ;   
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
 	@Override
     public void setProcessAudioData(boolean isProcessing){
     	processAudioData = isProcessing;
-   }
+    }/**END FUNCTION setProcessAudioData**/
 
+   /*****************************************************************************
+    ;  setTranscodedAudioListener
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to set the transcode audio listener
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   sipToFlashAudioStream    :   SipToFlashAudioStream
+    ;   
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
 	@Override
 	public void setTranscodedAudioListener(
 			SipToFlashAudioStream sipToFlashAudioStream) {
+        
+        if ( null == sipToFlashAudioStream){
+            log.error("error initialize sipToFlashAudioStream");
+            return ;
+        }
 		this.transcodedAudioListener = sipToFlashAudioStream;
 
-	}
+	}/**END FUNCTION setTranscodedAudioListener**/
 
 
 
-}
+}/**END CLASS NellySipToFlashTranscoderImp**/
 

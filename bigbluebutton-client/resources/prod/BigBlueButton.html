@@ -217,6 +217,31 @@ function handleChat(msg){
  * END: handleChat function
  */
  
+/*****************************************************************************
+;  startSIPApplet
+;----------------------------------------------------------------------------
+; DESCRIPTION
+;   This routine is use to start the applet sip phone
+;
+; RETURNS : N/A
+;
+; INTERFACE NOTES
+;   INPUT
+;       domain: domain name or IP
+;       room: the voice conference room number
+;       uname: the caller name
+;       bbbUserName: the user name to connect to conference servers
+;       bbbPassword: the password to connect to conference servers
+;       bbbPort: port
+;
+; IMPLEMENTATION  
+;       adding applet sip phone to the page
+;
+; HISTORY
+; __date__ :        PTS:        Description       
+; 2011-3-02                     Switching web phone(applet or flash)
+;
+******************************************************************************/
  function startSIPApplet(domain,room,uname,bbbUserName,bbbPassword,bbbPort){
  
      var sipApp = document.getElementById("sipApp");
@@ -238,19 +263,54 @@ function handleChat(msg){
         document.body.appendChild(sipApp);
      }
      
- }
+ }/** END Function: startSIPApplet */
  
+ /*****************************************************************************
+;  stopSIPApplet
+;----------------------------------------------------------------------------
+; DESCRIPTION
+;   This routine is use to stop applet sip phone
+;
+; RETURNS : N/A
+;
+; INTERFACE NOTES : N/A
+;
+; IMPLEMENTATION  
+;   remove the sip applet from the page
+;
+; HISTORY
+; __date__ :        PTS:        Description       
+; 2011-3-02                     Switching web phone(applet or flash)
+;
+******************************************************************************/
  function stopSIPApplet(){
-    removeSIP();
     removeSIP();
     document.sipApplet.destroy();
     
- }
+ }/** END Function: stopSIPApplet */
  
+  /*****************************************************************************
+;  removeSIP
+;----------------------------------------------------------------------------
+; DESCRIPTION
+;   This routine is use to remove the applet sip phone from the page
+;
+; RETURNS : N/A
+;
+; INTERFACE NOTES : N/A
+;
+; IMPLEMENTATION  
+;   remove the sipApp tag from the page
+;
+; HISTORY
+; __date__ :        PTS:        Description       
+; 2011-3-02                     Switching web phone(applet or flash)
+;
+******************************************************************************/
  function removeSIP(){
     var sipApp = document.getElementById("sipApp");
     sipApp.parentNode.removeChild(sipApp);
- }
+ }/** END Function: removeSIP */
 
 /*****************************************************************************
 ;  startApplet

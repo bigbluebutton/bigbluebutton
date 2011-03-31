@@ -51,14 +51,14 @@ public class cSIP_Applet extends JApplet{
     ;  init
     ;----------------------------------------------------------------------------
     ; DESCRIPTION
-    ;   this routine is used to load when applet was called
+    ;   this routine is used to load when applet was initialize
     ; RETURNS : N/A
     ;
-    ; INTERFACE NOTES
-    ;   INPUT
+    ; INTERFACE NOTES : N/A
     ;   
     ; IMPLEMENTATION
-    ;  
+    ;	get the parameter and set to the member then create the cSIP_Call object
+    ;	
     ; HISTORY
     ; __date__ :        PTS:            Description
     ; 02-24-2011
@@ -78,55 +78,112 @@ public class cSIP_Applet extends JApplet{
 				+ ", bbb_password: " + this.bbb_password + ", bbb_port: " + this.bbb_port
 				);
 		
-		/** mock up **/
-		/*this.bbb_domain = "bbb.titook.org" ;
-		this.bbb_room = "12345";
-		this.bbb_name = "test" ;*/
-		/** end **/
-		
-		//new cSIP_AudioGUI();
-		
 		sip_call = new cSIP_Call(this.bbb_domain,this.bbb_room,this.bbb_name,
 							this.bbb_username,this.bbb_password,this.bbb_port
 							);
-		//initializeProfile(this.bbb_domain,this.bbb_room,this.bbb_name);
-		//doCall(this.bbb_domain,this.bbb_room);
-	}
+	}/** END Function: init */
 	
+	/*****************************************************************************
+    ;  endCall
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to end calling.
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES : N/A
+    ;   
+    ; IMPLEMENTATION
+    ;	call enCall() to end the call
+    ;	
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 02-24-2011
+    ******************************************************************************/
 	public void endCall(){
 		if ( null != sip_call ){
 			sip_call.endCall() ;
 		}
 		sip_call = null ;
-	}
+	}/** END Function: endCall */
 
+	/*****************************************************************************
+    ;  destroy
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to call when the applet has been kill to ending the
+   	; 	call
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES : N/A
+    ;   
+    ; IMPLEMENTATION
+    ;	call endCall() to disconnect calling.
+    ;	
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 02-24-2011
+    ******************************************************************************/
 	@Override
 	public void destroy(){
-		System.out.print("Destroy SIP Phone...") ;
+		System.out.println("Destroy SIP Phone...") ;
 		//onCall = false ;
 		endCall();
 		super.destroy() ;
-	}
+	}/** END Function: destroy */
 	
+	/*****************************************************************************
+    ;  start
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used call when applet started.
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES : N/A
+    ;   
+    ; IMPLEMENTATION
+    ;	initialize and start calling
+    ;	
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 02-24-2011
+    ******************************************************************************/
 	@Override
 	public void start(){
-		System.out.print("Starting SIP Phone...") ;
+		System.out.println("Starting SIP Phone...") ;
 		
 		if ( null == sip_call ){
 			sip_call = new cSIP_Call(this.bbb_domain,this.bbb_room,this.bbb_name,
 								this.bbb_username,this.bbb_password,this.bbb_port
 								);
 		}
-		
+		if ( null == sip_call ){
+			System.out.println("cSIP_Applet : Creating cSIP_Call object is NULL");
+			return;
+		}
 		sip_call.doCall(this.bbb_domain, this.bbb_room);
 		
 		super.start();
-	}
+	}/** END Function: start */
 	
+	/*****************************************************************************
+    ;  stop
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to load when applet stopped
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES : N/A
+    ;   
+    ; IMPLEMENTATION
+    ;	stop the JApplet
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 02-24-2011
+    ******************************************************************************/
 	@Override
 	public void stop(){
 		System.out.print("Stopping SIP Phone...") ;		
 		super.stop();
-	}
+	}/** END Function: stop */
 	
 }

@@ -49,11 +49,7 @@
 			import org.bigbluebutton.modules.phone.views.assets.Images;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
-			//import org.bigbluebutton.modules.phone.views.components.SipSelectingWindow;
-			//<REALWAT>
-			//private var selectionWindow:SipSelectingWindow;
 			private var _isUseSipApplet:Boolean = true;
-			//</REALWAT>
 			
 			private var images:Images = new Images();
 			private var dispatcher:Dispatcher = new Dispatcher();
@@ -81,32 +77,38 @@
 			private function startPhone():void {
 				//this.enabled = false;
 				
-				if (this.selected) {
-					//<REALWAT>
-					
-					/*selectionWindow = PopUpManager.createPopUp(
-						this, SipSelectingWindow , false) as SipSelectingWindow;
-					selectionWindow.centerWindow();
-					selectionWindow.addEventListener(CloseEvent.CLOSE,function(evt:CloseEvent):void{
-						removeSelectSipwindow(new cPHONE_ConfigSipPhoneEvent(cPHONE_ConfigSipPhoneEvent.CLOSE_POP_UP));
-					}
-					);*/
-					if(false == this._isUseSipApplet){
-						LogUtil.debug("Starting flash sip phone");
+				if (true == this.selected) {
+					if( false == this._isUseSipApplet ){
+						LogUtil.debug("ToolbarButton: Starting flash sip phone");
 						var joinVoiceEvent:JoinVoiceConferenceEvent = new JoinVoiceConferenceEvent();
+						
+						if (null == joinVoiceEvent){
+							LogUtil.error("ToolbarButton: Creating JoinVoiceConferenceEvent object is NULL");
+							return;
+						}
+						
 						dispatcher.dispatchEvent(joinVoiceEvent);
 					}else{
-						LogUtil.debug("Starting applet sip phone");
+						LogUtil.debug("ToolbarButton: Starting applet sip phone");
 						var joinVoiceBySipAppletEvent:cPHONE_ConfigSipPhoneEvent = new cPHONE_ConfigSipPhoneEvent(
 							cPHONE_ConfigSipPhoneEvent.JOIN_VIOCE_BY_SIP_APPLET);
+						
+						if( null == joinVoiceBySipAppletEvent ){
+							LogUtil.error("ToolbarButton: Creating joinVoiceBySipAppletEvent object is NULL");
+							return;
+						}
+						
 						dispatcher.dispatchEvent(joinVoiceBySipAppletEvent);
 					}
-					//</REALWAT>
-					//dispatcher.dispatchEvent(new JoinVoiceConferenceEvent());
 				} else {
 
-					LogUtil.debug("Leaving voice conference");
-					dispatcher.dispatchEvent(new LeaveVoiceConferenceEvent());
+					LogUtil.debug("ToolbarButton: Leaving voice conference");
+					var leaveVoiceConfEvent:LeaveVoiceConferenceEvent = new LeaveVoiceConferenceEvent();
+					if ( null == leaveVoiceConfEvent ){
+						LogUtil.error("ToolbarButton: Creating LeaveVoiceConferenceEvent object is NULL");
+						return;
+					}
+					dispatcher.dispatchEvent(leaveVoiceConfEvent);
 				}
 				this.enabled = false;
 				var t:Timer = new Timer(3000, 1);
@@ -114,16 +116,35 @@
 				t.start();
 			}/** END Function: startPhone */
 			
-			//<REALWAT>
-			/*private function removeSelectSipwindow(evet:cPHONE_ConfigSipPhoneEvent) : void {
-				LogUtil.debug("removePopup");
-				PopUpManager.removePopUp(selectionWindow);
-			}*/
-			
+			/*****************************************************************************
+			 ;  handleConfigWebPhone
+			 ;----------------------------------------------------------------------------
+			 ; DESCRIPTION
+			 ;   This routine is use to handle webphone configuration.
+			 ;
+			 ; RETURNS : N/A
+			 ;
+			 ; INTERFACE NOTES
+			 ;		INPUT
+			 ;			e:cPHONE_ConfigSipPhoneEvent
+			 ;
+			 ; IMPLEMENTATION
+			 ;  	set the configuration parameter to _isUseSipApplet
+			 ;
+			 ; HISTORY
+			 ; __date__ :        PTS:  			Description
+			 ; 2011-3-02                       Improve VoIP
+			 ;
+			 ******************************************************************************/
 			private function handleConfigWebPhone(e:cPHONE_ConfigSipPhoneEvent) : void {
-				this._isUseSipApplet = e._isAppletConf;
+				if( null != e){
+					this._isUseSipApplet = e._isAppletConf;
+				}else{
+					LogUtil.error("The parameter cPHONE_ConfigSipPhoneEvent for " +
+						"handling configuration web phone event is NULL");
+				}
 			}
-			//</REALWAT>
+			/** END Function: handleConfigWebPhone */
 			
 			private function onTimer(e:TimerEvent):void{
 				this.enabled = true;

@@ -1,7 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!--
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+
+Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+
+BigBlueButton is free software; you can redistribute it and/or modify it under the 
+terms of the GNU Lesser General Public License as published by the Free Software 
+Foundation; either version 2.1 of the License, or (at your option) any later 
+version. 
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along 
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+$Id: $
+-->
+
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 				xmlns:mate="http://mate.asfusion.com/"
-				title="BigBlueButton Voice Settings"
+				title="{ResourceUtil.getInstance().getString('bbb.settings.title')}"
 				x="168" y="86" layout="absolute" initialize="init()"
 				showCloseButton="true"
 				>
@@ -12,23 +33,103 @@
 			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.modules.phone.events.cPHONE_ConfigSipPhoneEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
             
             public var _confId:String ;
+			private var TEST_APPLET_URL:String  = "http://java.sun.com/applets/jdk/1.4/index.html";
+			private var DOWNLOAD_JVM_URL:String = "http://www.java.com/en/download/manual.jsp";
 			
+			/*****************************************************************************
+			 ;  init
+			 ;----------------------------------------------------------------------------
+			 ; DESCRIPTION
+			 ;   This routine is use when initialize setting window
+			 ;
+			 ; RETURNS : N/A
+			 ;
+			 ; INTERFACE NOTES : N/A
+			 ;
+			 ; IMPLEMENTATION
+			 ;  	assign html text to label
+			 ;
+			 ; HISTORY
+			 ; __date__ :        PTS:  			Description
+			 ; 2011-3-17                        Switching web phone(applet or flash)
+			 ;
+			 ******************************************************************************/
 			private function init():void{
-				lbTestApplet.htmlText	= "<u><a href='#'>Test applet on your browser</a></u>";
-				lbDownloadJVM.htmlText	= "<u><a href='#'>Download JRE</a></u>";
-			}
+				lbTestApplet.htmlText	= "<u><a href='#'>" + ResourceUtil.getInstance().getString('bbb.settings.lbTestApplet') + "</a></u>";
+				lbDownloadJVM.htmlText	= "<u><a href='#'>" + ResourceUtil.getInstance().getString('bbb.settings.lbDownloadJVM') + "</a></u>";
+			}/** END Function: init */
 			
+			/*****************************************************************************
+			 ;  onLinkClick
+			 ;----------------------------------------------------------------------------
+			 ; DESCRIPTION
+			 ;   This routine is use to handle clicking on the link label
+			 ;
+			 ; RETURNS : N/A
+			 ;
+			 ; INTERFACE NOTES
+			 ;		INPUT
+			 ;			urlText:String
+			 ;
+			 ; IMPLEMENTATION
+			 ;  	open the target url in new tab
+			 ;
+			 ; HISTORY
+			 ; __date__ :        PTS:  			Description
+			 ; 2011-3-17                        Switching web phone(applet or flash)
+			 ;
+			 ******************************************************************************/
 			private function onLinkClick(urlText:String):void{
+				if ( null == urlText ){
+					LogUtil.error("Setting: The parameter urlText is NULL");
+				}
 				var url:URLRequest = new URLRequest(urlText);
 				navigateToURL(url, '_blank');
-			}
+			}/** END Function: onLinkClick */
 			
+			/*****************************************************************************
+			 ;  closeWindow
+			 ;----------------------------------------------------------------------------
+			 ; DESCRIPTION
+			 ;   This routine is use to handle closing setting window
+			 ;
+			 ; RETURNS : N/A
+			 ;
+			 ; INTERFACE NOTES : N/A
+			 ;
+			 ; IMPLEMENTATION
+			 ;  	close the setting popup window
+			 ;
+			 ; HISTORY
+			 ; __date__ :        PTS:  			Description
+			 ; 2011-3-17                        Switching web phone(applet or flash)
+			 ;
+			 ******************************************************************************/
 			private function closeWindow() : void {
 				PopUpManager.removePopUp(this);
-			}
+			}/** END Function: closeWindow */
 			
+			/*****************************************************************************
+			 ;  updateConfig
+			 ;----------------------------------------------------------------------------
+			 ; DESCRIPTION
+			 ;   This routine is use to handle updating web phone setting event
+			 ;
+			 ; RETURNS : N/A
+			 ;
+			 ; INTERFACE NOTES : N/A
+			 ;
+			 ; IMPLEMENTATION
+			 ;  	dispatch event to update web phone configuration
+			 ;
+			 ; HISTORY
+			 ; __date__ :        PTS:  			Description
+			 ; 2011-3-17                        Switching web phone(applet or flash)
+			 ;
+			 ******************************************************************************/
 			private function updateConfig() : void {
 				var configEvent:cPHONE_ConfigSipPhoneEvent;
 				configEvent = new cPHONE_ConfigSipPhoneEvent(cPHONE_ConfigSipPhoneEvent.UPDATE_CONFIG);
@@ -44,24 +145,83 @@
 				}
 				dispatchEvent(configEvent);
 				closeWindow();
-			}
+			}/** END Function: updateConfig */
 			
+			/*****************************************************************************
+			 ;  centerWindow
+			 ;----------------------------------------------------------------------------
+			 ; DESCRIPTION
+			 ;   This routine is use to center the setting popup window
+			 ;
+			 ; RETURNS : N/A
+			 ;
+			 ; INTERFACE NOTES : N/A
+			 ;
+			 ; IMPLEMENTATION
+			 ;  	set the window position
+			 ;
+			 ; HISTORY
+			 ; __date__ :        PTS:  			Description
+			 ; 2011-3-17                        Switching web phone(applet or flash)
+			 ;
+			 ******************************************************************************/
 			public function centerWindow() : void {
 				this.x = (this.parent.width - this.width) / 2;
 				this.y = (this.parent.height - this.height) / 2;
-			}
+			}/** END Function: centerWindow */
 			
+			/*****************************************************************************
+			 ;  showCurrentSetting
+			 ;----------------------------------------------------------------------------
+			 ; DESCRIPTION
+			 ;   This routine is use to display the current web phone configuration
+			 ;
+			 ; RETURNS : N/A
+			 ;
+			 ; INTERFACE NOTES
+			 ;		INPUT
+			 ;			isUseApplet:Boolean
+			 ;
+			 ; IMPLEMENTATION
+			 ;  	select the current web phone in use
+			 ;
+			 ; HISTORY
+			 ; __date__ :        PTS:  			Description
+			 ; 2011-3-17                        Switching web phone(applet or flash)
+			 ;
+			 ******************************************************************************/
 			public function showCurrentSetting(isUseApplet:Boolean) : void {
 				if(false == isUseApplet){
 					comboWebPhone.selectedIndex = 1;
 				}
                 
-			}
+			}/** END Function: showCurrentSetting */
             
+			/*****************************************************************************
+			 ;  setCurrentVoiceBridge
+			 ;----------------------------------------------------------------------------
+			 ; DESCRIPTION
+			 ;   This routine is use to display the current voice bridge
+			 ;
+			 ; RETURNS : N/A
+			 ;
+			 ; INTERFACE NOTES
+			 ;		INPUT
+			 ;			confId: String
+			 ;
+			 ; IMPLEMENTATION
+			 ;  	display current voice bridge
+			 ;
+			 ; HISTORY
+			 ; __date__ :        PTS:  			Description
+			 ; 2011-3-17                        Switching web phone(applet or flash)
+			 ;
+			 ******************************************************************************/
             public function setCurrentVoiceBridge(confId:String):void{
                 this._confId = confId ;
-                lbShowVoiceBridge.htmlText = "Current Voice Bridge Number is <b>" + this._confId + "</b>" ;
+                lbShowVoiceBridge.htmlText = ResourceUtil.getInstance().getString('bbb.settings.lbShowVoiceBridge') + " <b> " + this._confId + "</b>" ;
             }
+			/** END Function: setCurrentVoiceBridge */
 			]]>
 	</mx:Script>
 	
@@ -72,11 +232,11 @@
         <mx:Spacer width="100%"></mx:Spacer>
 		<mx:Spacer width="100%"></mx:Spacer>
 		<mx:HBox>
-			<mx:Label text="Choose web phone : "></mx:Label>
+			<mx:Label id = "lbSelectPhone" text="{ResourceUtil.getInstance().getString('bbb.settings.lbSelectPhone')} : "></mx:Label>
 			<mx:ComboBox id="comboWebPhone">
 				<mx:ArrayCollection>
-					<mx:String>Applet Phone</mx:String>
-					<mx:String>Flash Phone</mx:String>
+					<mx:String>{ResourceUtil.getInstance().getString('bbb.settings.comboWebPhone.item0')}</mx:String>
+					<mx:String>{ResourceUtil.getInstance().getString('bbb.settings.comboWebPhone.item1')}</mx:String>
 				</mx:ArrayCollection>
 			</mx:ComboBox>
 		</mx:HBox>
@@ -84,16 +244,16 @@
 		<mx:Spacer width="100%"></mx:Spacer>
 		<mx:Spacer width="100%"></mx:Spacer>
 		<mx:HBox>
-			<mx:Label id="lbTestApplet" click="onLinkClick('http://java.sun.com/applets/jdk/1.4/index.html')"></mx:Label>
-			<mx:Label id="lbDownloadJVM" click="onLinkClick('http://www.java.com/en/download/manual.jsp')"></mx:Label>
+			<mx:Label id="lbTestApplet" click="onLinkClick(TEST_APPLET_URL)"></mx:Label>
+			<mx:Label id="lbDownloadJVM" click="onLinkClick(DOWNLOAD_JVM_URL)"></mx:Label>
 		</mx:HBox>
 		<mx:Spacer width="100%"></mx:Spacer>
 		<mx:Spacer width="100%"></mx:Spacer>
 		<mx:Spacer width="100%"></mx:Spacer>
 		<mx:HBox>
 			<mx:Spacer width="140"></mx:Spacer>
-			<mx:Button label="OK" click="updateConfig()"></mx:Button>
-			<mx:Button label="Cancel" click="closeWindow()"></mx:Button>
+			<mx:Button id="okBtn" label="{ResourceUtil.getInstance().getString('bbb.settings.okBtn')}" click="updateConfig()"></mx:Button>
+			<mx:Button id="cancelBtn" label="{ResourceUtil.getInstance().getString('bbb.settings.cancelBtn')}" click="closeWindow()"></mx:Button>
 		</mx:HBox>
 	</mx:VBox>
 </mx:TitleWindow>

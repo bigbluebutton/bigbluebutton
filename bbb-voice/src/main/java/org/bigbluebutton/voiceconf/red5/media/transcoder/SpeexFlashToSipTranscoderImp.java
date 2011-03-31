@@ -26,6 +26,16 @@ import org.red5.app.sip.codecs.Codec;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
+/*****************************************************************************
+;  SpeexFlashToSipTranscoderImp
+;----------------------------------------------------------------------------
+; DESCRIPTION
+;   this class is used to trancode the speex codec from flash to sip server
+;  
+; HISTORY
+; __date__ :        PTS:            Description
+; 03-30-2011
+******************************************************************************/
 public class SpeexFlashToSipTranscoderImp implements FlashToSipTranscoder {
 	protected static Logger log = Red5LoggerFactory.getLogger(SpeexFlashToSipTranscoderImp.class, "sip");
 
@@ -34,47 +44,203 @@ public class SpeexFlashToSipTranscoderImp implements FlashToSipTranscoder {
 	private final static int TS_INCREMENT = 320; // Determined from PCAP traces.
 	private TranscodedAudioListener transcodedAudioListener;
 
+    /*****************************************************************************
+    ;  SpeexFlashToSipTranscoderImp
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is the constructor of the class
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   audioCodec   :   type of codec
+    ;   
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
 	public SpeexFlashToSipTranscoderImp(Codec audioCodec) {
-		this.audioCodec = audioCodec;
+        if ( null == audioCodec ){
+            log.error("error input parameter");
+        }
+		
+        this.audioCodec = audioCodec;
         Random rgen = new Random();
+        if ( null == rgen ){
+            log.error("error failed to initialize rgen");
+        }
+        
         timestamp = rgen.nextInt(1000);
 	    System.out.println("Speex start!");
-	}
+	} /** END FUNCTION SpeexFlashToSipTranscoderImp **/
 
+    /*****************************************************************************
+    ;  transcode
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to transcode the audio data
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   audioData   :   audio data
+    ;   startOffset :   off set
+    ;   length      :   length of data
+    ;   
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
 	public void transcode(byte[] audioData, int startOffset, int length) {
 		byte[] transcodedAudio = new byte[length];
 		System.arraycopy(audioData, startOffset, transcodedAudio, 0, length);
 		transcodedAudioListener.handleTranscodedAudioData(transcodedAudio, timestamp += TS_INCREMENT);
-	}
+	}/** END FUNCTION transcode **/
 
+    /*****************************************************************************
+    ;  getCodecId
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to get the codec id
+    ; RETURNS : int
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   N/A
+    ;
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
 	public int getCodecId() {
 		return audioCodec.getCodecId();
-	}
+	}/** END FUNCTION getCodecId **/
 
+    /*****************************************************************************
+    ;  getOutgoingEncodedFrameSize
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to get the encoded frame size
+    ; RETURNS : int
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   N/A
+    ;
+    ; IMPLEMENTATION
+    ;  get the outgoin frame size
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
 	public int getOutgoingEncodedFrameSize() {
 		return audioCodec.getOutgoingEncodedFrameSize();
-	}
+	}/** END FUNCTION getOutgoingEncodedFrameSize **/
 
+    /*****************************************************************************
+    ;  getOutgoingPacketization
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to get the outgoin packet
+    ; RETURNS : int
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   N/A
+    ;
+    ; IMPLEMENTATION
+    ;  get the outgoin packet
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
 	public int getOutgoingPacketization() {
 		return audioCodec.getOutgoingPacketization();
-	}
+	}/** END FUNCTION getOutgoingPacketization **/
 
+    /*****************************************************************************
+    ;  handlePacket
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to handle the packet of data
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   data    :   data
+    ;   begin   :   begin packet
+    ;   end     :   end packet
+    ;
+    ; IMPLEMENTATION
+    ;  transcode the data
+    ;
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
 	@Override
 	public void handlePacket(byte[] data, int begin, int end) {
 		transcode(data, begin, end);
 
-	}
+	}/** END FUNCTION handlePacket **/
 
+    /*****************************************************************************
+    ;  setTranscodedAudioListener
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   this routine is used to handle the packet of data
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   transcodedAudioListener :   TranscodedAudioListener
+    ;
+    ; IMPLEMENTATION
+    ;  add listener
+    ;
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
 	@Override
 	public void setTranscodedAudioListener(
 			TranscodedAudioListener transcodedAudioListener) {
+            
+        if ( null == transcodedAudioListener ){
+            log.error("error input parameter");
+            return ;
+        }
 		this.transcodedAudioListener = transcodedAudioListener;
 
-	}
+	}/** END FUNCTION TranscodedAudioListener **/
 
+    /*****************************************************************************
+    ;  setProcessAudioData
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   isProcessing    :   boolean
+    ;
+    ; IMPLEMENTATION
+    ;  
+    ;
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
 	@Override
 	public void setProcessAudioData(boolean isProcessing) {
 		// TODO  do nothing here;
 
-	}
-}
+	}/** END FUNCTION setProcessAudioData **/
+}/**END CLASS SpeexFlashToSipTranscoderImp**/

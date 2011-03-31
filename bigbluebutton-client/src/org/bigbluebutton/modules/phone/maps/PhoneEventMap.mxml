@@ -96,7 +96,6 @@
 		<MethodInvoker generator="{PhoneManager}" method="calledFromGlobal" arguments="ConnectionStatusEvent.SUCCESS"/>
 	</EventHandlers>
 	
-	<!--REALWAT-->
 	<EventHandlers type="{cPHONE_ConfigSipPhoneEvent.JOIN_VIOCE_BY_SIP_APPLET}">        
 		<MethodInvoker generator="{PhoneManager}" method="joinVoiceBySipApplet" arguments="{event}"/>
 	</EventHandlers>

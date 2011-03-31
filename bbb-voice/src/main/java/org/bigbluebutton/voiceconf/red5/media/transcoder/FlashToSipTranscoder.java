@@ -21,11 +21,132 @@ package org.bigbluebutton.voiceconf.red5.media.transcoder;
 
 import org.bigbluebutton.voiceconf.red5.media.FlashToSipAudioStream.TranscodedAudioListener;
 
+/*****************************************************************************
+;  FlashToSipTranscoder
+;----------------------------------------------------------------------------
+; DESCRIPTION
+;   this class is the interface class
+;
+; HISTORY
+; __date__ :        PTS:            Description
+; 03-30-2011
+******************************************************************************/
 public interface FlashToSipTranscoder {
+
+    /*****************************************************************************
+    ;  transcode
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   audioData   :   byte[]
+    ;   startOffset :   int
+    ;   length      :   int
+    ;   
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
 	void transcode(byte[] audioData, int startOffset, int length);
+    
+    /*****************************************************************************
+    ;  handlePacket
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   data        :   byte[]
+    ;   begin       :   int
+    ;   end         :   int
+    ;   
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
 	void handlePacket(byte[] data, int begin, int end);
+    
+    /*****************************************************************************
+    ;  getOutgoingEncodedFrameSize
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
 	int getOutgoingEncodedFrameSize();
+    
+    /*****************************************************************************
+    ;  getCodecId
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   
+    ; RETURNS : int
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
     int getCodecId();
+    
+    /*****************************************************************************
+    ;  setTranscodedAudioListener
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   transcodedAudioListener :   TranscodedAudioListener
+    ;
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
     void setTranscodedAudioListener(TranscodedAudioListener transcodedAudioListener);
+    
+    /*****************************************************************************
+    ;  setProcessAudioData
+    ;----------------------------------------------------------------------------
+    ; DESCRIPTION
+    ;   
+    ; RETURNS : N/A
+    ;
+    ; INTERFACE NOTES
+    ;   INPUT
+    ;   isProcessing :   boolean
+    ;
+    ; IMPLEMENTATION
+    ;  
+    ; HISTORY
+    ; __date__ :        PTS:            Description
+    ; 03-30-2011
+    ******************************************************************************/
     void setProcessAudioData(boolean isProcessing);
-}
+    
+}/**END CLASS FlashToSipTranscoder**/

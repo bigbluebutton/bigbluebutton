@@ -84,7 +84,7 @@ package org.bigbluebutton.modules.phone.managers
 		 ;
 		 ; HISTORY
 		 ; __date__ :        PTS:  			Description
-		 ; 2011-3-17                        Swiching web phone(applet or flash)
+		 ; 2011-3-17                        Switching web phone(applet or flash)
 		 ;
 		 ******************************************************************************/
 		public function joinVoiceBySipApplet(evt:cPHONE_ConfigSipPhoneEvent) : void {
@@ -99,8 +99,10 @@ package org.bigbluebutton.modules.phone.managers
 			if (true == ExternalInterface.available) 
 			{
 				// call external javascript 'handleNewUser'
-				LogUtil.debug("Dialing...." + attributes.webvoiceconf + ".... via BBB SIP Applet");
-				ExternalInterface.call("startSIPApplet", domainName, voiceConfId, uname,bbbUserName,bbbPassword,bbbPort);
+				LogUtil.debug("PhoneManager: Dialing...." + attributes.webvoiceconf + 
+								".... via BBB SIP Applet");
+				ExternalInterface.call("startSIPApplet", domainName, voiceConfId, uname
+														,bbbUserName,bbbPassword,bbbPort);
 			}
 			onCall = true ;
 		}/** END Function: joinVoiceBySipApplet */
@@ -115,14 +117,14 @@ package org.bigbluebutton.modules.phone.managers
 		 ;
 		 ; INTERFACE NOTES
 		 ;   INPUT
-		 ;           - autoJoin : Boolean the status
+		 ;           - autoJoin : Boolean (status)
 		 ;
 		 ; IMPLEMENTATION
-		 ;  	call startSIPApplet to execute bbb SIP applet
+		 ;  	setting up mic and call connect function to connect to server.
 		 ;
 		 ; HISTORY
 		 ; __date__ :        PTS:  			Description
-		 ; 2011-3-17                        Swiching web phone(applet or flash)
+		 ; 2011-3-17                        Switching web phone(applet or flash)
 		 ;
 		 ******************************************************************************/
 		public function joinVoice(autoJoin:Boolean):void {
@@ -162,16 +164,17 @@ package org.bigbluebutton.modules.phone.managers
 		 ;
 		 ; HISTORY
 		 ; __date__ :        PTS:  			Description
-		 ; 2011-3-02                        Swiching web phone(applet or flash)
+		 ; 2011-3-02                        Switching web phone(applet or flash)
 		 ;
 		 ******************************************************************************/
 		public function hangup():void {
-			LogUtil.debug("PhoneManager hangup");
+			LogUtil.debug("PhoneManager: hangup");
 			if(true == this._isUsingSipApplet){
 	            if (true == onCall){
 	                if (true == ExternalInterface.available) 
 	                {
 	                    // call external javascript 'handleNewUser'
+						LogUtil.debug("PhoneManager: stopSIPApplet");
 	                    ExternalInterface.call("stopSIPApplet");
 	                }
 	                onCall = false ;
@@ -179,10 +182,10 @@ package org.bigbluebutton.modules.phone.managers
 				this._isUsingSipApplet = false;
 			}else{
 				if (onCall) {
-					LogUtil.debug("PM OnCall");
+					LogUtil.debug("PhoneManager: PM OnCall");
 					streamManager.stopStreams();
 					connectionManager.doHangUp();
-					LogUtil.debug("PM hangup::doHangUp");
+					LogUtil.debug("PhoneManager: PM hangup::doHangUp");
 					onCall = false;
 				}		
 			}

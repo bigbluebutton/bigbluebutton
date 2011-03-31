@@ -21,19 +21,45 @@ package org.bigbluebutton.modules.phone.events
 {
 	import flash.events.Event;
 	
+	/*****************************************************************************
+	 ;  cPHONE_ConfigSipPhoneEvent
+	 ;----------------------------------------------------------------------------
+	 ; DESCRIPTION
+	 ;   this class is used to send command to configure web phone
+	 ;  
+	 ; HISTORY
+	 ; __date__ :        PTS:            Description
+	 ; 2011-3-02						 Switching web phone(applet or flash)
+	 ******************************************************************************/
 	public class cPHONE_ConfigSipPhoneEvent extends Event
 	{
 		
 		public static const JOIN_VIOCE_BY_SIP_APPLET:String 	= "JOIN_VIOCE_BY_SIP_APPLET";
-		public static const CLOSE_POP_UP:String 				= "CLOSE_POP_UP";
 		public static const UPDATE_CONFIG:String				= "UPDATE_CONFIG";
 		
 		public var _isAppletConf:Boolean = true;
 		
+		/*****************************************************************************
+		 ;  cPHONE_ConfigSipPhoneEvent
+		 ;----------------------------------------------------------------------------
+		 ; DESCRIPTION
+		 ;   this routine is the constructor of the class
+		 ;   
+		 ; RETURNS : N/A
+		 ;
+		 ; INTERFACE NOTES
+		 ;   type:	(String)event type
+		 ;
+		 ; IMPLEMENTATION
+		 ;
+		 ; HISTORY
+		 ; __date__ :        PTS:            Description
+		 ; 2011-3-02						 Switching web phone(applet or flash)
+		 ******************************************************************************/
 		public function cPHONE_ConfigSipPhoneEvent(type:String)
 		{
 			super(type, true, false);
-		}
+		}/** END FUNCTION 'cPHONE_ConfigSipPhoneEvent' **/
 		
 	}
 }
