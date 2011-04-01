@@ -1,7 +1,6 @@
 require 'spec_helper'
 require 'fileutils'
-require 'logger'
-  
+
 module Collector
     describe Audio do     
         context "#success" do
