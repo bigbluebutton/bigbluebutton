@@ -24,7 +24,9 @@ module Collector
     def audio_present?(meeting_id, location)
       Dir.glob("#{location}/#{meeting_id}*.wav").empty?
     end
-                
+    
+    # Copies the audio recordings specified by meeting_id
+    # from a directory to a target directory.
     def collect_audio(meeting_id, from_dir, to_dir)         
       if not location_exist?(from_dir) 
         raise NoSuchDirectoryException, "Directory not found #{from_dir}"
