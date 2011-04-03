@@ -1,4 +1,6 @@
 require 'fileutils'
+require 'rubygems'
+require 'nokogiri'
 
 module Generator
   class Audio
@@ -41,11 +43,41 @@ module Generator
       Process.wait()    
     end
     
-    def wav_to_ogg(wav_file, atts, ogg_file)
-    
+    def wav_to_ogg(wav_file, atts, ogg_file)    
       proc = IO.popen("oggenc -o #{ogg_file} #{wav_file}", "w+")
       Process.wait() 
+    end    
+  end
+  
+  class AudioEvents	
+    def get_first_timestamp_of_session(events)
+      @doc = Nokogiri::XML(File.open(events))
+      @doc.xpath("events/event").first["timestamp"].to_s
     end
     
-  end
+    def get_last_timestamp_of_session(events)
+      @doc = Nokogiri::XML(File.open(events))
+      @doc.xpath("events/event").last["timestamp"].to_s
+    end
+    
+    def get_start_audio_recording_events(events)
+      @doc = Nokogiri::XML(File.open(events))
+      start_events = []
+      @doc.xpath("//event[@name='StartRecordingEvent']").each do |e|
+        start_events << {:start_event_timestamp => e["timestamp"], :bridge => e.xpath("bridge").text, 
+              :file => e.xpath("filename").text, :start_record_timestamp => e.xpath("recordingTimestamp").text}
+      end
+      return start_events
+    end
+    
+    def get_stop_audio_recording_events(events)
+      @doc = Nokogiri::XML(File.open(events))
+      stop_events = []
+      @doc.xpath("//event[@name='StopRecordingEvent']").each do |e|
+        stop_events << {:stop_event_timestamp => e["timestamp"], :bridge => e.xpath("bridge").text, 
+              :file => e.xpath("filename").text, :stop_record_timestamp => e.xpath("recordingTimestamp").text} 
+      end
+      return stop_events
+    end
+	end
 end
