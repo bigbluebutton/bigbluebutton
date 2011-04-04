@@ -67,7 +67,7 @@ module Generator
         start_events << {:start_event_timestamp => e["timestamp"], :bridge => e.xpath("bridge").text, 
               :file => e.xpath("filename").text, :start_record_timestamp => e.xpath("recordingTimestamp").text}
       end
-      return start_events
+      return start_events.sort {|a,b| a[:start_event_timestamp] <=> b[:start_event_timestamp]}
     end
     
     def get_stop_audio_recording_events(events)
@@ -77,7 +77,19 @@ module Generator
         stop_events << {:stop_event_timestamp => e["timestamp"], :bridge => e.xpath("bridge").text, 
               :file => e.xpath("filename").text, :stop_record_timestamp => e.xpath("recordingTimestamp").text} 
       end
-      return stop_events
+      return stop_events.sort {|a,b| a[:stop_event_timestamp] <=> b[:stop_event_timestamp]}
+    end
+    
+    def match_start_and_stop_events(start_events, stop_events)
+      audio_events = []
+      start_events.each { |saev|
+        stop_events.each { |soev|
+          if (soev[:file] == saev[:file]) 
+            puts soev[:file]
+          end
+        }
+      }
+      
     end
 	end
 end
