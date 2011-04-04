@@ -24,7 +24,7 @@ package org.bigbluebutton.conference.service.presentation;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
 import org.red5.server.api.IScope;import org.bigbluebutton.conference.service.participants.ParticipantsApplication;

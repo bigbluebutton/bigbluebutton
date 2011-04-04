@@ -22,6 +22,9 @@
 
 package org.bigbluebutton.conference.service.presentation;
 
+import java.io.File;
+import java.io.FileFilter;
+
 import org.red5.server.adapter.IApplication;
 import org.red5.server.api.IClient;
 import org.red5.server.api.IConnection;
