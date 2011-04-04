@@ -22,7 +22,7 @@ module Generator
       end
       
       f.close();
-      proc = IO.popen("sox #{temp_file} -b 16 -r 16000 -c 1 -s #{filename}", "w+")
+      proc = IO.popen("sox #{temp_file} -b 16 -r #{sampling_rate} -c 1 -s #{filename}", "w+")
       # Wait for the process to finish before removing the temp file
       Process.wait()
       # Delete the temporary raw audio file
@@ -88,8 +88,7 @@ module Generator
             puts soev[:file]
           end
         }
-      }
-      
+      }      
     end
 	end
 end
