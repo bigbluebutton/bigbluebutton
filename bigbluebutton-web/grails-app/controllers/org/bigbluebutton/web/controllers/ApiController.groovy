@@ -26,6 +26,7 @@ import java.util.Collections;
 import org.apache.commons.codec.binary.Hex;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -33,11 +34,15 @@ import org.bigbluebutton.web.services.DynamicConferenceService;
 import org.bigbluebutton.api.domain.DynamicConference;
 import org.bigbluebutton.conference.Room
 import org.bigbluebutton.api.IApiConferenceEventListener;
+import org.bigbluebutton.web.services.PresentationService
+import org.bigbluebutton.presentation.UploadedPresentation
 
 import org.codehaus.groovy.grails.commons.ConfigurationHolder;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
+import grails.converters.XML;
 
 class ApiController {
     private static final Integer SESSION_TIMEOUT = 10800  // 3 hours
@@ -57,6 +62,7 @@ class ApiController {
 	def keywordList = [DIAL_NUM, CONF_NUM, CONF_NAME];
 		
 	DynamicConferenceService dynamicConferenceService;
+	PresentationService presentationService
 	IApiConferenceEventListener conferenceEventListener;
 	org.bigbluebutton.api.IRedisDispatcher redisDispatcher;
 
@@ -130,6 +136,7 @@ class ApiController {
 			if (existing.getAttendeePassword().equals(attPW) && existing.getModeratorPassword().equals(modPW)) {
 				// trying to create a conference a second time
 				// return success, but give extra info
+				uploadDocuments(existing);
 				respondWithConference(existing, "duplicateWarning", "This conference was already in existence and may currently be in progress.");
 			} else {
 				// enforce meetingID unique-ness
@@ -194,13 +201,93 @@ class ApiController {
 		// TODO: support voiceBridge and voiceServer
 
 		// success!
+		uploadDocuments(conf);
 		dynamicConferenceService.storeConference(conf);
 		respondWithConference(conf, null, null)
 	}
 
+	def uploadDocuments(conf) { 
+		log.debug("ApiController#uploadDocuments(${conf.meetingID})");
+
+		String requestBody = request.inputStream == null ? null : request.inputStream.text;
+		requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
+
+		if (requestBody == null) {
+			return;
+		}
+				
+		log.debug "Request body: \n" + requestBody;
+
+		def xml = XML.parse(requestBody);
+		xml.children().each { module ->
+			log.debug("module config found: [${module.@name}]");
+			if ("presentation".equals(module.@name.toString())) {
+				// need to iterate over presentation files and process them
+				module.children().each { document -> 
+					if (!StringUtils.isEmpty(document.@url.toString())) {
+						downloadAndProcessDocument(document.@url.toString(), conf);
+					} else if (!StringUtils.isEmpty(document.@name.toString())) {
+						def b64 = new Base64()
+						def decodedBytes = b64.decode(document.text().getBytes())
+						processDocumentFromRawBytes(decodedBytes, document.@name.toString(), conf);
+					} else {
+						log.debug("presentation module config found, but it did not contain url or name attributes");
+					}
+				}
+			}
+		}
+	}
+
+
+	def cleanFilename(filename) {
+		def notValidCharsRegExp = /[^0-9a-zA-Z_\.]/
+		return filename.replaceAll(notValidCharsRegExp, '-')
+	}
+	
+	def processDocumentFromRawBytes(bytes, filename, conf) {
+		def cleanName = cleanFilename(filename);
+
+		File uploadDir = presentationService.uploadedPresentationDirectory(conf.getMeetingToken(), conf.getMeetingToken(), cleanName);
+		def pres = new File(uploadDir.absolutePath + File.separatorChar + cleanName);
+		
+		FileOutputStream fos = new java.io.FileOutputStream(pres)
+		fos.write(bytes)
+		fos.flush()
+		fos.close()
+		
+		processUploadedFile(cleanName, pres, conf);
+	}
+		
+	def downloadAndProcessDocument(address, conf) {
+		log.debug("ApiController#downloadAndProcessDocument({$address}, ${conf.meetingID})");
+		String name = cleanFilename(address.tokenize("/")[-1]);
+		log.debug("Uploading presentation: ${name} from ${address} [starting download]");
+		
+		def out;
+		def pres;
+		try {
+			File uploadDir = presentationService.uploadedPresentationDirectory(conf.getMeetingToken(), conf.getMeetingToken(), name);
+			pres = new File(uploadDir.absolutePath + File.separatorChar + name);
+			out = new BufferedOutputStream(new FileOutputStream(pres))
+			out << new URL(address).openStream()
+		} finally {
+			if (out != null) {
+				out.close()
+			}
+		}
+
+		processUploadedFile(name, pres, conf);
+	}
+	
+	def processUploadedFile(name, pres, conf) {
+		UploadedPresentation uploadedPres = new UploadedPresentation(conf.getMeetingToken(), conf.getMeetingToken(), name);
+		uploadedPres.setUploadedFile(pres);
+		presentationService.processUploadedPresentation(uploadedPres);
+
+		// TODO: it is successfully uploaded and converted - now how do we automatically show it?		
+	}
+
 	def join = {
-			
-		println "Entered Join"
 		log.debug CONTROLLER_NAME + "#join"
 
 		if (!doChecksumSecurity("join")) {
@@ -265,9 +352,9 @@ class ApiController {
 		
     	def config = ConfigurationHolder.config
     	def hostURL = config.bigbluebutton.web.serverURL
-    	redirect(url:"${hostURL}/client/BigBlueButton.html")
-		
-		println "Leaving Join"
+		def redirectUrl = "${hostURL}/client/BigBlueButton.html";
+		log.debug("join done, redirecting to ${redirectUrl}"); 		
+		redirect(url:redirectUrl)
 	}
 
 	def isMeetingRunning = {

@@ -31,7 +31,10 @@ import org.red5.logging.Red5LoggerFactory;
 
 import org.red5.server.api.so.ISharedObject;
 import org.red5.server.adapter.ApplicationAdapter;
-import org.red5.server.api.Red5;import org.bigbluebutton.conference.BigBlueButtonSession;import org.bigbluebutton.conference.Constants;import org.bigbluebutton.conference.service.recorder.RecorderApplication;
+import org.red5.server.api.Red5;
+import org.bigbluebutton.conference.BigBlueButtonSession;
+import org.bigbluebutton.conference.Constants;
+import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 import org.bigbluebutton.conference.service.recorder.presentation.PresentationEventRecorder;
 
 public class PresentationHandler extends ApplicationAdapter implements IApplication{
@@ -122,6 +125,27 @@ public class PresentationHandler extends ApplicationAdapter implements IApplicat
 		presentationApplication.createRoom(scope.getName());
     	if (!hasSharedObject(scope, PRESENTATION_SO)) {
     		if (createSharedObject(scope, PRESENTATION_SO, false)) {    			
+				log.debug("{} - scanning for presentations - ", APP, scope.getName());
+				try {
+					// TODO: this is hard-coded, and not really a great abstraction.  need to fix this up later
+					String folderPath = "/var/bigbluebutton/" + scope.getName() + "/" + scope.getName();
+					File folder = new File(folderPath);
+					//log.debug("folder: {} - exists: {} - isDir: {}", folder.getAbsolutePath(), folder.exists(), folder.isDirectory());
+					if (folder.exists() && folder.isDirectory()) {
+						File[] presentations = folder.listFiles(new FileFilter() {
+							public boolean accept(File path) {
+								log.debug("\tfound: {}", path.getAbsolutePath());
+								return path.isDirectory();
+							}
+						});
+						for (File presFile : presentations) {
+							log.debug("\tshare: {}", presFile.getName());
+							presentationApplication.sharePresentation(scope.getName(), presFile.getName(), true);
+						}
+					}
+				} catch (Exception ex) {
+					log.error(scope.getName() + ": error scanning for existing presentations [" + ex.getMessage() + "]", ex);
+				}
     			return true; 			
     		}    		
     	}  	
