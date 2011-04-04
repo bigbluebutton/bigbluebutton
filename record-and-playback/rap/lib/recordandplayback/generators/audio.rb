@@ -50,45 +50,104 @@ module Generator
   end
   
   class AudioEvents	
-    def get_first_timestamp_of_session(events)
+    attr_reader :audio_events
+    
+    def initialize(events)
+      @audio_events = []
       @doc = Nokogiri::XML(File.open(events))
+    end
+    
+    def first_event_timestamp
       @doc.xpath("events/event").first["timestamp"].to_s
     end
     
-    def get_last_timestamp_of_session(events)
-      @doc = Nokogiri::XML(File.open(events))
+    def last_event_timestamp
       @doc.xpath("events/event").last["timestamp"].to_s
     end
     
-    def get_start_audio_recording_events(events)
-      @doc = Nokogiri::XML(File.open(events))
-      start_events = []
-      @doc.xpath("//event[@name='StartRecordingEvent']").each do |e|
-        start_events << {:start_event_timestamp => e["timestamp"], :bridge => e.xpath("bridge").text, 
-              :file => e.xpath("filename").text, :start_record_timestamp => e.xpath("recordingTimestamp").text}
-      end
-      return start_events.sort {|a,b| a[:start_event_timestamp] <=> b[:start_event_timestamp]}
+    def recording_events 
+        create_recording_event(start_audio_recording_events)
+        match_start_and_stop_events(stop_audio_recording_events)
+        audio_events.each do |ae|
+          determine_if_recording_file_exist(ae)
+        end
+        return audio_events
     end
     
-    def get_stop_audio_recording_events(events)
-      @doc = Nokogiri::XML(File.open(events))
-      stop_events = []
-      @doc.xpath("//event[@name='StopRecordingEvent']").each do |e|
-        stop_events << {:stop_event_timestamp => e["timestamp"], :bridge => e.xpath("bridge").text, 
-              :file => e.xpath("filename").text, :stop_record_timestamp => e.xpath("recordingTimestamp").text} 
-      end
-      return stop_events.sort {|a,b| a[:stop_event_timestamp] <=> b[:stop_event_timestamp]}
-    end
-    
-    def match_start_and_stop_events(start_events, stop_events)
-      audio_events = []
-      start_events.each { |saev|
-        stop_events.each { |soev|
-          if (soev[:file] == saev[:file]) 
-            puts soev[:file]
+    def determine_length_of_audio_from_file(file)
+        IO.popen("sox #{file} -n stat 2>&1", "w+") do |blender|
+          blender.each do |line|
+            puts line
           end
-        }
-      }      
+        end
+  
     end
-	end
+      
+    private          
+      def start_audio_recording_events
+        start_events = []
+        @doc.xpath("//event[@name='StartRecordingEvent']").each do |e|
+          start_events << {:start_event_timestamp => e["timestamp"], :bridge => e.xpath("bridge").text, 
+                :file => e.xpath("filename").text, :start_record_timestamp => e.xpath("recordingTimestamp").text}
+        end
+        return start_events.sort {|a,b| a[:start_event_timestamp] <=> b[:start_event_timestamp]}
+      end
+      
+      def create_recording_event(start_events)
+        start_events.each do |e|
+          ae = AudioRecordingEvent.new
+          ae.start_event_timestamp = e[:start_event_timestamp]
+          ae.bridge = e[:bridge]
+          ae.file = e[:file]
+          ae.start_record_timestamp = e[:start_record_timestamp]
+          audio_events << ae
+        end
+      end
+      
+      def stop_audio_recording_events
+        stop_events = []
+        @doc.xpath("//event[@name='StopRecordingEvent']").each do |e|
+          stop_events << {:stop_event_timestamp => e["timestamp"], :bridge => e.xpath("bridge").text, 
+                :file => e.xpath("filename").text, :stop_record_timestamp => e.xpath("recordingTimestamp").text} 
+        end
+        return stop_events.sort {|a,b| a[:stop_event_timestamp] <=> b[:stop_event_timestamp]}
+      end
+      
+      def match_start_and_stop_events(stop_events)
+        audio_events.each { |saev|
+          stop_events.each { |soev|
+            if (soev[:file] == saev.file) 
+              saev.stop_event_timestamp = soev[:stop_event_timestamp]
+              saev.stop_record_timestamp = soev[:stop_record_timestamp]
+            end
+          }
+        }      
+      end
+      
+      def determine_if_recording_file_exist(recording_event)
+        if (recording_event.file == nil) 
+          recording_event.file_exist = false
+        else
+         recording_event.file_exist = File.exist?(recording_event.file)  
+        end
+      end
+      
+      
+  end
+  
+  class AudioRecordingEvent
+    attr_accessor :start_event_timestamp, :start_record_timestamp, :stop_event_timestamp, :stop_record_timestamp
+    attr_accessor :bridge, :file, :file_exist
+    
+    def file_exist?
+      file_exist
+    end
+    
+    def to_s
+      "startEvent=#{start_event_timestamp}, startRecord=#{start_record_timestamp}, \n" +
+      "stopRecord=#{stop_record_timestamp}, stopEvent=#{stop_event_timestamp}, \n" +
+      "brige=#{bridge}, file=#{file}, exist=#{file_exist}\n"
+    end
+    
+  end
 end
