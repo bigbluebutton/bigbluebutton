@@ -37,6 +37,7 @@ GEM
     sinatra (1.2.1)
       rack (~> 1.1)
       tilt (< 2.0, >= 1.2.2)
+    streamio-ffmpeg (0.7.8)
     term-ansicolor (1.0.5)
     tilt (1.2.2)
     vegas (0.1.8)
@@ -52,3 +53,4 @@ DEPENDENCIES
   redis (= 2.1.1)
   resque (= 1.15.0)
   rspec (= 2.0.0)
+  streamio-ffmpeg
