@@ -120,45 +120,45 @@ module Generator
       end
       return start_events.sort {|a,b| a[:start_event_timestamp] <=> b[:start_event_timestamp]}
     end
-      
-      def create_recording_event(start_events)
-        start_events.each do |e|
-          ae = AudioRecordingEvent.new
-          ae.start_event_timestamp = e[:start_event_timestamp]
-          ae.bridge = e[:bridge]
-          ae.file = e[:file]
-          ae.start_record_timestamp = e[:start_record_timestamp]
-          audio_events << ae
-        end
-      end
-      
-      def stop_audio_recording_events
-        stop_events = []
-        @doc.xpath("//event[@name='StopRecordingEvent']").each do |e|
-          stop_events << {:stop_event_timestamp => e["timestamp"], :bridge => e.xpath("bridge").text, 
+    
+    def stop_audio_recording_events
+      stop_events = []
+      @doc.xpath("//event[@name='StopRecordingEvent']").each do |e|
+        stop_events << {:stop_event_timestamp => e["timestamp"], :bridge => e.xpath("bridge").text, 
                 :file => e.xpath("filename").text, :stop_record_timestamp => e.xpath("recordingTimestamp").text} 
-        end
-        return stop_events.sort {|a,b| a[:stop_event_timestamp] <=> b[:stop_event_timestamp]}
       end
+      return stop_events.sort {|a,b| a[:stop_event_timestamp] <=> b[:stop_event_timestamp]}
+    end
       
-      def match_start_and_stop_events(stop_events)
-        audio_events.each { |saev|
-          stop_events.each { |soev|
-            if (soev[:file] == saev.file) 
-              saev.stop_event_timestamp = soev[:stop_event_timestamp]
-              saev.stop_record_timestamp = soev[:stop_record_timestamp]
-            end
-          }
-        }      
+    def create_recording_event(start_events)
+      start_events.each do |e|
+        ae = AudioRecordingEvent.new
+        ae.start_event_timestamp = e[:start_event_timestamp]
+        ae.bridge = e[:bridge]
+        ae.file = e[:file]
+        ae.start_record_timestamp = e[:start_record_timestamp]
+        audio_events << ae
       end
+    end
+           
+    def match_start_and_stop_events(stop_events)
+      audio_events.each { |saev|
+        stop_events.each { |soev|
+          if (soev[:file] == saev.file) 
+            saev.stop_event_timestamp = soev[:stop_event_timestamp]
+            saev.stop_record_timestamp = soev[:stop_record_timestamp]
+          end
+        }
+      }      
+    end
       
-      def determine_if_recording_file_exist(recording_event)
-        if (recording_event.file == nil) 
+    def determine_if_recording_file_exist(recording_event)
+      if (recording_event.file == nil) 
           recording_event.file_exist = false
-        else
+      else
          recording_event.file_exist = File.exist?(recording_event.file)  
-        end
       end
+    end
   end
   
   class AudioRecordingEvent

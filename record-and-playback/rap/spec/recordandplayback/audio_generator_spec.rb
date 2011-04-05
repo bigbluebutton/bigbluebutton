@@ -45,11 +45,27 @@ module Generator
         ae = Generator::AudioEvents.new events_xml
         se = ae.start_audio_recording_events
         se.size.should equal(2)
-        #puts (se[0])[:start_event_timestamp]
-        se.each do |e|
-          puts e[:start_event_timestamp]
-        end
+        se[0][:start_event_timestamp].should == "1296681167689"
+        se[1][:start_event_timestamp].should == "1296681255586"
       end
+      
+      it "should get all stop audio recording events" do
+        events_xml = 'resources/raw/1b199e88-7df7-4842-a5f1-0e84b781c5c8/events.xml'
+        ae = Generator::AudioEvents.new events_xml
+        se = ae.stop_audio_recording_events
+        se.size.should equal(2)
+        se[0][:stop_event_timestamp].should == "1296681230166"
+        se[1][:stop_event_timestamp].should == "1296681315499"
+      end
+
+      it "should get all audio recording events" do
+        events_xml = 'resources/raw/1b199e88-7df7-4842-a5f1-0e84b781c5c8/events.xml'
+        ae = Generator::AudioEvents.new events_xml
+        se = ae.recording_events
+        se.size.should equal(2)
+        se[0].stop_event_timestamp.should == "1296681230166"
+        se[1].stop_event_timestamp.should == "1296681315499"
+      end      
     end
   end
 end
