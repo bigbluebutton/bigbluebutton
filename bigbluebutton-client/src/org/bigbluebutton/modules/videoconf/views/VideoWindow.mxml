@@ -40,7 +40,7 @@
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
 		
-			public var resolutions:Array = new Array("320x240", "640x480");
+			public var userid:Number;
 			
 			private var video:Video;
 			private var ns:NetStream;
@@ -113,17 +113,11 @@
 			}
 			
 			private function setVideoResolution(stream:String):void{
-				for each (var resStr:String in resolutions){
-					LogUtil.debug("VideoWindow::setVideoResolution testing " + resStr);
-					if (resStr == stream.substr(0, resStr.length)) {
-						var res:Array = resStr.split( "x" );
-						this.width = Number(res[0]);
-						this.height = Number(res[1]);
-						LogUtil.debug("VideoWindow::setVideoResolution width=" + this.width + " height=" + this.height);
-						_nAspectRatio = (this.width/this.height);
-						break;
-					}
-				}
+				var res:Array = stream.substr(0, stream.length - String(this.userid).length).split("x");
+				this.width = Number(res[0]);
+				this.height = Number(res[1]);
+				LogUtil.debug("Stream name: " + stream + " | extracted resolution: " + this.width + "x" + this.height);
+				_nAspectRatio = (this.width/this.height);
 			}
 			
 			private function onAsyncError(e:AsyncErrorEvent):void{

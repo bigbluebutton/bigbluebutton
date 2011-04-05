@@ -52,6 +52,7 @@
 			
 			private var video:Video;
 			public var streamName:String;
+			public var userid:Number;
 			[Bindable] private var camWidth:Number = 320;
 			[Bindable] private var camHeight:Number = 240;
 			private var _userrole:String;
@@ -109,6 +110,14 @@
 				camera.setKeyFrameInterval(5);
 				camera.setMode(camWidth,camHeight,15);
 				camera.setQuality(0,quality);
+				if (camera.width != camWidth || camera.height != camHeight) {
+					LogUtil.debug("Resolution " + camWidth + "x" + camHeight
+						+ " is not supported, using " + camera.width + "x" + camera.height);
+					camWidth = camera.width;
+					camHeight = camera.height;
+					_nAspectRatio = (camWidth/camHeight);
+					setStreamName();
+				}
 				
 				video = new Video(camWidth, camHeight);
 				//Next two lines may seem redundant but they're not. Do not delete.
@@ -152,7 +161,11 @@
 				camWidth = Number(res[0]);
 				camHeight = Number(res[1]);
 				_nAspectRatio = (camWidth/camHeight);
-				this.streamName = cmbResolution.selectedLabel.concat(this.streamName);
+				setStreamName();
+			}
+			
+			private function setStreamName():void{
+				this.streamName = camWidth + "x" + camHeight + userid;
 			}
 			
 			public function set userrole(role:String):void{

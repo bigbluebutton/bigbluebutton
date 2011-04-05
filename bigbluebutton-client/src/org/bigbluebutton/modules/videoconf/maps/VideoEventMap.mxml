@@ -56,7 +56,7 @@
 				if (userid == module.userid) return;
 				
 				var window:VideoWindow = new VideoWindow();
-				window.resolutions = module.resolutions.split(",");
+				window.userid = userid;
 				
 				if (mock) {
 					window.startVideo(module.mockConnection, stream);
@@ -88,7 +88,7 @@
 			
 			private function openPublishWindow():void{
 				publishWindow = new PublishWindow();
-				publishWindow.streamName = module.userid.toString();
+				publishWindow.userid = module.userid;
 				publishWindow.userrole = module.role;
 				publishWindow.quality = module.quality;
 				publishWindow.resolutions = module.resolutions.split(",");
