@@ -75,12 +75,36 @@ module Generator
     end
     
     def determine_length_of_audio_from_file(file)
-        IO.popen("sox #{file} -n stat 2>&1", "w+") do |blender|
-          blender.each do |line|
-            puts line
+        audio_length = -1
+        stats = ""        
+        # If everything goes well, output should be in the following format. We need to get the Length (seconds) value
+          #    Samples read:            888960
+          #    Length (seconds):     55.560000
+          #    Scaled by:         2147483647.0
+          #    Maximum amplitude:     0.822937
+          #    Minimum amplitude:    -0.707764
+          #    Midline amplitude:     0.057587
+          #    Mean    norm:          0.026014
+          #    Mean    amplitude:    -0.000059
+          #    RMS     amplitude:     0.040610
+          #    Maximum delta:         0.330719
+          #    Minimum delta:         0.000000
+          #    Mean    delta:         0.003805
+          #    RMS     delta:         0.008049
+          #    Rough   frequency:          504
+          #    Volume adjustment:        1.215
+        IO.popen("sox #{file} -n stat 2>&1", "w+") do |output|
+          output.each do |line|
+            stats = line if line =~ /Length(.+)/
           end
         end
-  
+        # Extract  55.560000 from "Length (seconds):     55.560000"
+        match = /\d+\.\d+/.match(stats)
+        if match
+            # Convert to milliseconds
+            audio_length = (match[0].to_f * 1000).to_i
+        end
+        audio_length
     end
       
     private          
@@ -131,8 +155,6 @@ module Generator
          recording_event.file_exist = File.exist?(recording_event.file)  
         end
       end
-      
-      
   end
   
   class AudioRecordingEvent

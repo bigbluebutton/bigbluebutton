@@ -1,5 +1,5 @@
-Feature: Archive audio raw recordings
-  As a presenter
+Feature: Archive raw recordings
+  As a user
   I want the audio recording to be archived
   So that I can retrieve it later for playback
   
