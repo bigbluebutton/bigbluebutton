@@ -33,6 +33,30 @@ import org.red5.logging.Red5LoggerFactory;
 public class SdpUtils {
     protected static Logger log = Red5LoggerFactory.getLogger(SdpUtils.class, "sip");
     
+    public static String _codecConf = "SPEEX";
+    
+	/*****************************************************************************
+	;  setCodecConf
+	;----------------------------------------------------------------------------
+	; DESCRIPTION
+	;   This routine is use to set the codec
+	;
+	; RETURNS : N/A
+	;
+	; INTERFACE NOTES
+	;	codecConf: (String) the codec from the client configuration
+	;
+	; IMPLEMENTATION
+	;  	set codec to _codecConf
+	;
+	; HISTORY
+	; __date__ :        PTS:  			Description
+	; 2011-4-05                        Switching audio codec
+	;
+	******************************************************************************/
+    public static void setCodecConf(String codecCof){
+    	_codecConf = codecCof;
+    }/** END Function: setCodecConf */
     
     /**
      * @return Returns the audio codec to be used on current session.
@@ -359,7 +383,12 @@ public class SdpUtils {
                     for (Enumeration attributesEnum = newSdpAttributes.elements(); attributesEnum.hasMoreElements();) {                        
                         AttributeField mediaAttribute = (AttributeField) attributesEnum.nextElement();
                         
-                        if (newSdp.getMediaDescriptors().size() == 0) {  
+                        String attVal = mediaAttribute.getAttributeValue(); 
+                        boolean isAddedMediaDes= false;
+                        if (0 == newSdp.getMediaDescriptors().size() && 
+                        	true == attVal.substring(attVal.indexOf(" ")+1, attVal.indexOf("/")).equalsIgnoreCase(_codecConf)) {
+                        	isAddedMediaDes=true;
+
                         	MediaField mf = new MediaField(localDescriptor.getMedia().getMedia(), 
                                     						localDescriptor.getMedia().getPort(), 
                                     						0, localDescriptor.getMedia().getTransport(), 
@@ -367,7 +396,9 @@ public class SdpUtils {
                             newSdp.addMediaDescriptor(new MediaDescriptor(mf, localDescriptor.getConnection()));
                         }
                         
-                        newSdp.getMediaDescriptor(localDescriptor.getMedia().getMedia()).addAttribute( mediaAttribute );
+                        if (true == isAddedMediaDes){
+                        	newSdp.getMediaDescriptor(localDescriptor.getMedia().getMedia()).addAttribute( mediaAttribute );
+                        }
                     }
                 }
             }

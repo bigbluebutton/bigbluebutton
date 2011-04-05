@@ -36,6 +36,7 @@ package org.bigbluebutton.modules.phone.events
 		
 		public static const JOIN_VIOCE_BY_SIP_APPLET:String 	= "JOIN_VIOCE_BY_SIP_APPLET";
 		public static const UPDATE_CONFIG:String				= "UPDATE_CONFIG";
+		public static const CHANGE_CODEC:String					= "CHANGE_CODEC";
 		
 		public var _isAppletConf:Boolean = true;
 		

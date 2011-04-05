@@ -30,12 +30,16 @@ package org.bigbluebutton.modules.phone.managers {
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
 	
+	import mx.controls.Alert;
+	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.main.views.Settings;
 	import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
 	import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
 	import org.bigbluebutton.modules.phone.events.ConnectionStatusEvent;
 	import org.bigbluebutton.modules.phone.events.RegistrationFailedEvent;
 	import org.bigbluebutton.modules.phone.events.RegistrationSuccessEvent;
+	import org.bigbluebutton.modules.phone.events.cPHONE_ConfigSipPhoneEvent;
 	
 	public class ConnectionManager {
 			
@@ -164,7 +168,9 @@ package org.bigbluebutton.modules.phone.managers {
 		//********************************************************************************************		
 		public function doCall(dialStr:String):void {
 			LogUtil.debug("Calling " + dialStr);
-			netConnection.call("voiceconf.call", null, "default", username, dialStr);
+			
+			//netConnection.call("voiceconf.call", null, "default", username, dialStr);
+			netConnection.call("voiceconf.call", null, "default", username, dialStr, Settings.getConfigCodec());
 		}
 				
 		public function doHangUp():void {			

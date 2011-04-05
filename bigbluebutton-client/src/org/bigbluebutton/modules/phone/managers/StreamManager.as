@@ -35,6 +35,7 @@ package org.bigbluebutton.modules.phone.managers
 	import org.bigbluebutton.modules.phone.events.MicMutedEvent;
 	import org.bigbluebutton.modules.phone.events.MicrophoneUnavailEvent;
 	import org.bigbluebutton.modules.phone.events.PlayStreamStatusEvent;
+	import org.bigbluebutton.modules.phone.events.cPHONE_ConfigSipPhoneEvent;
 	
 	public class StreamManager
 	{
@@ -268,6 +269,6 @@ package org.bigbluebutton.modules.phone.managers
 		
 		private function onMetadata(event:Object):void {
 	    	LogUtil.debug("Recieve ON METADATA from SIP");
-	    }	
+	    }
 	}
 }

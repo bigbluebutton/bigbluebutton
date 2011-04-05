@@ -29,6 +29,7 @@ $Id: $
 	<mx:Script>
 		<![CDATA[
 			import mx.controls.Alert;
+			import mx.events.ItemClickEvent;
 			import mx.managers.PopUpManager;
 			
 			import org.bigbluebutton.common.LogUtil;
@@ -38,6 +39,7 @@ $Id: $
             public var _confId:String ;
 			private var TEST_APPLET_URL:String  = "http://java.sun.com/applets/jdk/1.4/index.html";
 			private var DOWNLOAD_JVM_URL:String = "http://www.java.com/en/download/manual.jsp";
+			public static var _codec:String = "PCMU";
 			
 			/*****************************************************************************
 			 ;  init
@@ -144,6 +146,9 @@ $Id: $
 					configEvent._isAppletConf = true;
 				}
 				dispatchEvent(configEvent);
+				
+				_codec = codecGroup.selectedValue.toString();
+				
 				closeWindow();
 			}/** END Function: updateConfig */
 			
@@ -194,6 +199,7 @@ $Id: $
 				if(false == isUseApplet){
 					comboWebPhone.selectedIndex = 1;
 				}
+				codecGroup.selectedValue = _codec;
                 
 			}/** END Function: showCurrentSetting */
             
@@ -222,6 +228,30 @@ $Id: $
                 lbShowVoiceBridge.htmlText = ResourceUtil.getInstance().getString('bbb.settings.lbShowVoiceBridge') + " <b> " + this._confId + "</b>" ;
             }
 			/** END Function: setCurrentVoiceBridge */
+
+			/*****************************************************************************
+			 ;  getConfigCodec
+			 ;----------------------------------------------------------------------------
+			 ; DESCRIPTION
+			 ;   This routine is use to get the audio codec configuration
+			 ;
+			 ; RETURNS
+			 ;		_codec: String
+			 ;
+			 ; INTERFACE NOTES : N/A
+			 ;
+			 ; IMPLEMENTATION
+			 ;  	return the codec
+			 ;
+			 ; HISTORY
+			 ; __date__ :        PTS:  			Description
+			 ; 2011-4-05                        Switching audio codec
+			 ;
+			 ******************************************************************************/
+			public static function getConfigCodec() : String {
+				return _codec
+			}/** END Function: getConfigCodec */
+			
 			]]>
 	</mx:Script>
 	
@@ -239,6 +269,23 @@ $Id: $
 					<mx:String>{ResourceUtil.getInstance().getString('bbb.settings.comboWebPhone.item1')}</mx:String>
 				</mx:ArrayCollection>
 			</mx:ComboBox>
+		</mx:HBox>
+		<mx:Spacer width="100%"></mx:Spacer>
+		<mx:Spacer width="100%"></mx:Spacer>
+		<mx:Spacer width="100%"></mx:Spacer>
+		<mx:HBox>
+			<mx:Label id="selectCodecLable" text="{ResourceUtil.getInstance().getString('bbb.settings.selectCodecLable')} : "></mx:Label>
+			<mx:RadioButtonGroup id="codecGroup"/>
+			<mx:RadioButton groupName="codecGroup" 
+							id="nellyRadioBtn"
+							value="PCMU"
+							label="NELLYMOSER" 
+							width="100"/>
+			<mx:RadioButton groupName="codecGroup" 
+							id="speexRadioBtn"
+							value="SPEEX"
+							label="SPEEX" 
+							width="70"/>
 		</mx:HBox>
 		<mx:Spacer width="100%"></mx:Spacer>
 		<mx:Spacer width="100%"></mx:Spacer>

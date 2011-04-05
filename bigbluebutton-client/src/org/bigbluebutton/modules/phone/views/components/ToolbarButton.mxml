@@ -137,8 +137,12 @@
 			 ;
 			 ******************************************************************************/
 			private function handleConfigWebPhone(e:cPHONE_ConfigSipPhoneEvent) : void {
+				var phoneConfEvent:cPHONE_ConfigSipPhoneEvent;
 				if( null != e){
 					this._isUseSipApplet = e._isAppletConf;
+					phoneConfEvent = new cPHONE_ConfigSipPhoneEvent(cPHONE_ConfigSipPhoneEvent.CHANGE_CODEC);
+					phoneConfEvent._isAppletConf = e._isAppletConf;
+					dispatchEvent(phoneConfEvent);
 				}else{
 					LogUtil.error("The parameter cPHONE_ConfigSipPhoneEvent for " +
 						"handling configuration web phone event is NULL");

@@ -27,18 +27,22 @@ import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.Red5;
 
+import org.bigbluebutton.voiceconf.sip.SdpUtils;
+
 public class Service {
     private static Logger log = Red5LoggerFactory.getLogger(Service.class, "sip");
 
     private SipPeerManager sipPeerManager;
 	
 	private MessageFormat callExtensionPattern = new MessageFormat("{0}");
-    	
-	public Boolean call(String peerId, String callerName, String destination) {
+    
+	public Boolean call(String peerId, String callerName, String destination, String codec) {
     	String clientId = Red5.getConnectionLocal().getClient().getId();
     	String userid = getUserId();
     	String username = getUsername();		
     	log.debug("{} is requesting to join into the conference {}", username + "[uid=" + userid + "][clientid=" + clientId + "]", destination);
+    	
+    	SdpUtils.setCodecConf(codec);
 		
 		String extension = callExtensionPattern.format(new String[] { destination });
 		try {
