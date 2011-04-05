@@ -1,0 +1,10 @@
+For run the application:
+1) Install ruby and rubygems
+2) Add the sinatra gem
+	gem install sinatra
+3) Add the haml gem
+	gem install haml
+4) Run:
+	ruby -rubygems main.rb
+and check:
+	http://<yourip>:4567
