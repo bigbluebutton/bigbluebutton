@@ -4,7 +4,11 @@ For run the application:
 	gem install sinatra
 3) Add the haml gem
 	gem install haml
-4) Run:
+4) gem install thin 
+5) gem install hiredis
+6) download redis-rb, untar, cd, gem install redis
+7) gem install SystemTimer
+8) Run:
 	ruby -rubygems main.rb
 and check:
 	http://<yourip>:4567
