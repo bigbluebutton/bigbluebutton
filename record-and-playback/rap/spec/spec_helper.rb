@@ -1,2 +1,2 @@
 require 'recordandplayback'
-require 'recordandplayback/generators/audio.rb'
+require 'recordandplayback/generators/audio'
