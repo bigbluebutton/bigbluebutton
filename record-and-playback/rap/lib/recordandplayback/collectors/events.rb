@@ -3,57 +3,87 @@ require 'redis'
 require 'builder'
 
 module BigBlueButton
-  class RedisEventsArchiver
-    def connect(host, port)
-      @redis = Redis.new(:host => host, :port => port)
-      @redis.client.connect
+  # Class to wrap Redis so we can mock
+  # for testing
+  class RedisWrapper
+    def initialize(host, port)
+      @host, @port = host, port
+      @redis = Redis.new(:host => @host, :port => @port)
+    end
+    
+    def connect      
+      @redis.client.connect    
     end
     
     def disconnect
       @redis.client.disconnect
     end
     
-    def is_connected?
+    def connected?
       @redis.client.connected?
     end
     
-    # Big NO-NO! But let's do this for now!
-    def setup_test_data
-      @redis.hset("meeting:ttmg5003:metadata", "prof", "Tony B.")
-      @redis.hset("meeting:ttmg5003:metadata", "title", "TIM Prog")
+    def metadata_for(meeting_id)
+      @redis.hgetall("meeting:#{meeting_id}:metadata")
     end
     
-    def store_events(meeting_id)
-      #@metadata = @redis.hgetall("meeting:metadata:#{meeting_id}")
-      @metadata = @redis.hgetall("meeting:ttmg5003:metadata")
-      puts @metadata["prof"] @metadata["title"]
-      
-      start = "timestamp"
-      duration = "duration"
+    def num_events_for(meeting_id)
+      @redis.llen("meeting:#{meeting_id}:recordings")
+    end
+    
+    def events_for(meeting_id)
+      @redis.lrange("meeting:#{meeting_id}:recordings", 0, num_events_for(meeting_id))
+    end
+    
+    def event_for(meeting_id, event)
+      @redis.hgetall("recording:#{meeting_id}:#{event}")
+    end    
+  end
 
+  class RedisEventsArchiver
+    TIMESTAMP = 'timestamp'
+    MODULE = 'module'
+    EVENTNAME = 'eventName'
+    MEETINGID = 'meetingId'
+    
+    def initialize(redis)
+      @redis = redis
+    end
+    
+    def store_events(meeting_id, directory)
       xml = Builder::XmlMarkup.new( :indent => 2 )
-
       result = xml.instruct! :xml, :version => "1.0"
-
-      timestamp = ( Time::now ).utc.strftime("%Y-%m-%dT%H:%M:%S") 
-      xml.tag!("ns2:mediapackage", "duration" => "1000"   , "start" => timestamp, "xmlns:ns2" => "http://mediapackage.opencastproject.org" ){ 
-        xml.media{
-          xml.track("id" => "track-1", "type" => "presenter/source"){
-          }
-           xml.track("id" => "track-2", "type" => "presentation/source"){
-          }
-          xml.track("id" => "track-3", "type" => "presenter/source"){
-          }
-        }     
-        xml.metadata{
-          xml.catalog("id" => "catalog-1", "type" => "dublincore/episode"){
-            xml.mimetype("text/xml")
-            xml.url("dublincore.xml")
-          }
-        }
-      } 
-      puts xml.target!
       
+      meeting_metadata = @redis.metadata_for(meeting_id)
+
+      if (meeting_metadata != nil)
+          xml.recording(:meeting_id => meeting_id) {
+            xml.metadata {
+              meeting_metadata.each do |key, val|
+                xml.method_missing(key, val)
+              end
+            }
+                        
+            msgs = @redis.events_for(meeting_id)                      
+            msgs.each do |msg|
+              res = @redis.event_for(meeting_id, msg)
+              xml.event(:timestamp => res[TIMESTAMP], :module => res[MODULE], :eventname => res[EVENTNAME]) {
+                res.each do |key, val|
+                  if not [TIMESTAMP, MODULE, EVENTNAME, MEETINGID].include?(key)
+                    xml.method_missing(key,  val)
+                  end
+                end
+              }
+            end
+          }
+      end  
+      xml.target!
+    end
+    
+    def save_events_to_file(directory)
+      a_file = File.new("#{directory}/events.xml","w+")
+      a_file.write(result)
+      a_file.close
     end
   end
 end
