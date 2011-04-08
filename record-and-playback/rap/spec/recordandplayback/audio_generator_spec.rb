@@ -72,6 +72,15 @@ module Generator
         se.length.should == 4
       end 
 
+      it "should generate audio pads" do
+        events_xml = 'resources/raw/good_audio_events.xml'
+        ae = Generator::AudioEvents.new events_xml
+        se = ae.match_start_and_stop_events(ae.start_audio_recording_events, ae.stop_audio_recording_events)
+        se.length.should == 2
+        audio_paddings = ae.generate_audio_paddings(se)
+        audio_paddings.length.should == 3
+      end 
+      
       it "should determine the start/stop timestamps for non-matched events" do
         events_xml = 'resources/raw/unmatched_audio_events.xml'
         ae = Generator::AudioEvents.new events_xml

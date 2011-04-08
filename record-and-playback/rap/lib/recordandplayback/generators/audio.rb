@@ -174,14 +174,51 @@ module Generator
         event.audio_length = Generator::Audio.determine_length_of_audio_from_file(event.file)
         if (event.audio_length > 0)
           if (event.start_event_timestamp == nil) 
-            puts "Calculating start_event_timestamp #{event.audio_length}"
             event.start_record_timestamp = event.start_event_timestamp = event.stop_event_timestamp.to_i - event.audio_length
           elsif (event.stop_event_timestamp == nil)
-            puts "Calculating stop_event_timestamp #{event.audio_length}"
             event.stop_record_timestamp = event.stop_event_timestamp = event.start_event_timestamp.to_i + event.audio_length
           end
         end
       end
+    end
+    
+    def generate_audio_paddings(events)
+      paddings = []
+      events.sort! {|a,b| a.start_event_timestamp <=> b.start_event_timestamp}
+      if first_event_timestamp.to_i < events[0].start_event_timestamp.to_i
+        ae = AudioRecordingEvent.new
+        ae.start_event_timestamp = ae.start_record_timestamp = first_event_timestamp
+        ae.padding = true
+        ae.stop_record_timestamp = ae.stop_event_timestamp = events[0].start_event_timestamp.to_i - 1
+        paddings << ae
+      end
+      
+      i = 0
+      while i < events.length - 1
+        ar_prev = events[i]
+        ar_next = events[i+1]
+        length_of_gap = ar_next.start_event_timestamp.to_i - ar_prev.stop_event_timestamp.to_i
+        
+        if (length_of_gap > 0):   
+          ae = AudioRecordingEvent.new
+          ae.start_event_timestamp = ae.start_record_timestamp = ar_prev.stop_event_timestamp.to_i + 1
+          ae.padding = true
+          ae.stop_record_timestamp = ae.stop_event_timestamp = ar_next.start_event_timestamp.to_i - 1
+          paddings << ae
+        end
+        
+        i += 1
+      end
+        
+      if last_event_timestamp.to_i > events[-1].stop_event_timestamp.to_i
+        ae = AudioRecordingEvent.new
+        ae.start_event_timestamp = ae.start_record_timestamp = events[-1].stop_event_timestamp.to_i + 1
+        ae.padding = true
+        ae.stop_record_timestamp = ae.stop_event_timestamp = last_event_timestamp
+        paddings << ae
+      end
+      
+      paddings
     end
     
     def determine_if_recording_file_exist(recording_event)
@@ -202,6 +239,7 @@ module Generator
     attr_accessor :file_exist   # True if the audio file has been confirmed to exist
     attr_accessor :matched      # True if the event has matching start/stop events
     attr_accessor :audio_length
+    attr_accessor :padding
      
     def to_s
       "startEvent=#{start_event_timestamp}, startRecord=#{start_record_timestamp}, \n" +
