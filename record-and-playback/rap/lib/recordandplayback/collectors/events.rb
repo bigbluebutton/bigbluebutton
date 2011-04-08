@@ -35,7 +35,7 @@ module BigBlueButton
       @redis.lrange("meeting:#{meeting_id}:recordings", 0, num_events_for(meeting_id))
     end
     
-    def event_for(meeting_id, event)
+    def event_info_for(meeting_id, event)
       @redis.hgetall("recording:#{meeting_id}:#{event}")
     end    
   end
@@ -50,7 +50,7 @@ module BigBlueButton
       @redis = redis
     end
     
-    def store_events(meeting_id, directory)
+    def store_events(meeting_id)
       xml = Builder::XmlMarkup.new( :indent => 2 )
       result = xml.instruct! :xml, :version => "1.0"
       
@@ -66,7 +66,7 @@ module BigBlueButton
                         
             msgs = @redis.events_for(meeting_id)                      
             msgs.each do |msg|
-              res = @redis.event_for(meeting_id, msg)
+              res = @redis.event_info_for(meeting_id, msg)
               xml.event(:timestamp => res[TIMESTAMP], :module => res[MODULE], :eventname => res[EVENTNAME]) {
                 res.each do |key, val|
                   if not [TIMESTAMP, MODULE, EVENTNAME, MEETINGID].include?(key)
