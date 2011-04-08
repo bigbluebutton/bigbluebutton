@@ -29,43 +29,63 @@ module Generator
       end
       
       it "should find the timestamp of the first event" do
-        events_xml = 'resources/raw/1b199e88-7df7-4842-a5f1-0e84b781c5c8/events.xml'
+        events_xml = 'resources/raw/good_audio_events.xml'
         ae = Generator::AudioEvents.new events_xml
-        ae.first_event_timestamp.should == "1296681157242"
+        ae.first_event_timestamp.should == "50"
       end
       
       it "should find the timestamp of the last event" do
-        events_xml = 'resources/raw/1b199e88-7df7-4842-a5f1-0e84b781c5c8/events.xml'
+        events_xml = 'resources/raw/good_audio_events.xml'
         ae = Generator::AudioEvents.new events_xml
-        ae.last_event_timestamp.should == "1296681317181"
+        ae.last_event_timestamp.should == "1000"
       end   
 
       it "should get all start audio recording events" do
-        events_xml = 'resources/raw/1b199e88-7df7-4842-a5f1-0e84b781c5c8/events.xml'
+        events_xml = 'resources/raw/good_audio_events.xml'
         ae = Generator::AudioEvents.new events_xml
-        se = ae.start_audio_recording_events
-        se.size.should equal(2)
-        se[0][:start_event_timestamp].should == "1296681167689"
-        se[1][:start_event_timestamp].should == "1296681255586"
+        start = ae.start_audio_recording_events
+        start.length.should == 2
+        start[0].start_event_timestamp.should == "100"
+        start[1].start_event_timestamp.should == "500"
       end
       
       it "should get all stop audio recording events" do
-        events_xml = 'resources/raw/1b199e88-7df7-4842-a5f1-0e84b781c5c8/events.xml'
+        events_xml = 'resources/raw/good_audio_events.xml'
         ae = Generator::AudioEvents.new events_xml
-        se = ae.stop_audio_recording_events
-        se.size.should equal(2)
-        se[0][:stop_event_timestamp].should == "1296681230166"
-        se[1][:stop_event_timestamp].should == "1296681315499"
+        stop = ae.stop_audio_recording_events
+        stop.length.should == 2
+        stop[0].stop_event_timestamp.should == "350"
+        stop[1].stop_event_timestamp.should == "800"
       end
 
-      it "should get all audio recording events" do
-        events_xml = 'resources/raw/1b199e88-7df7-4842-a5f1-0e84b781c5c8/events.xml'
+      it "should match all start and stop events" do
+        events_xml = 'resources/raw/good_audio_events.xml'
         ae = Generator::AudioEvents.new events_xml
-        se = ae.recording_events
-        se.size.should equal(2)
-        se[0].stop_event_timestamp.should == "1296681230166"
-        se[1].stop_event_timestamp.should == "1296681315499"
-      end      
+        se = ae.match_start_and_stop_events(ae.start_audio_recording_events, ae.stop_audio_recording_events)
+        se.length.should == 2
+      end 
+
+      it "should not match all start and stop events" do
+        events_xml = 'resources/raw/unmatched_audio_events.xml'
+        ae = Generator::AudioEvents.new events_xml
+        se = ae.match_start_and_stop_events(ae.start_audio_recording_events, ae.stop_audio_recording_events)
+        se.length.should == 4
+      end 
+
+      it "should determine the start/stop timestamps for non-matched events" do
+        events_xml = 'resources/raw/unmatched_audio_events.xml'
+        ae = Generator::AudioEvents.new events_xml
+        ae.stub(:determine_if_recording_file_exist).and_return(true)
+        Generator::Audio.stub(:determine_length_of_audio_from_file).and_return(50)
+        se = ae.match_start_and_stop_events(ae.start_audio_recording_events, ae.stop_audio_recording_events)
+        se.length.should == 4
+        se.each do |e|
+          if not e.matched 
+            ae.determine_start_stop_timestamps_for_unmatched_event!(e)
+            e.stop_event_timestamp.to_i.should == e.start_event_timestamp.to_i + 50
+          end
+        end
+      end
     end
   end
 end
