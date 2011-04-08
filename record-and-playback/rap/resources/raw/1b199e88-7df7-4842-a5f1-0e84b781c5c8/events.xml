@@ -1,4 +1,4 @@
-<events>
+<recording>
   <head>
     <title>This is a sample document</title>
   </head>
@@ -643,4 +643,4 @@
     <userId>1</userId>
   </event>
   <event timestamp="1296681317181" module="PARTICIPANT" name="EndAndKickAllEvent"/>
-</events>
+</recording>

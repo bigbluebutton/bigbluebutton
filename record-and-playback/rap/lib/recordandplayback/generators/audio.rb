@@ -96,11 +96,11 @@ module Generator
     end
     
     def first_event_timestamp
-      @doc.xpath("events/event").first["timestamp"].to_s
+      @doc.xpath("recording/event").first["timestamp"].to_s
     end
     
     def last_event_timestamp
-      @doc.xpath("events/event").last["timestamp"].to_s
+      @doc.xpath("recording/event").last["timestamp"].to_s
     end
     
     def recording_events 
