@@ -80,6 +80,20 @@ module Generator
         audio_paddings = ae.generate_audio_paddings(se)
         audio_paddings.length.should == 3
       end 
+
+      it "should generate sorted audio events" do
+        events_xml = 'resources/raw/good_audio_events.xml'
+        ae = Generator::AudioEvents.new events_xml
+        ae.stub(:determine_if_recording_file_exist).and_return(true)
+        Generator::Audio.stub(:determine_length_of_audio_from_file).and_return(50)
+        audio_events = ae.process_events
+        audio_events.length.should == 5
+        i = 0
+        while i < audio_events.length - 1
+          (audio_events[i+1].start_event_timestamp.to_i > audio_events[i].stop_event_timestamp.to_i).should be_true
+          i += 1
+        end
+      end 
       
       it "should determine the start/stop timestamps for non-matched events" do
         events_xml = 'resources/raw/unmatched_audio_events.xml'

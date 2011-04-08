@@ -100,10 +100,15 @@ module Generator
       @doc.xpath("recording/event").last["timestamp"].to_s
     end
     
-    def process
-      audio_events = start_audio_recording_events
-      stop_events = stop_audio_recording_events
-      unmatched_events = match_start_and_stop_events(audio_events, stop_events)
+    def process_events
+      audio_events = match_start_and_stop_events(start_audio_recording_events, stop_audio_recording_events).each do |audio_event|
+        if not audio_event.matched 
+            determine_start_stop_timestamps_for_unmatched_event!(audio_event)
+        end
+      end
+      audio_paddings = generate_audio_paddings(audio_events)
+      audio_events.concat(audio_paddings)
+      return audio_events.sort! {|a,b| a.start_event_timestamp.to_i <=> b.start_event_timestamp.to_i}
     end
     
     def recording_events 
