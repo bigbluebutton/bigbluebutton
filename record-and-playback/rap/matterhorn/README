@@ -12,3 +12,52 @@ For run the application:
 	ruby -rubygems main.rb
 and check:
 	http://<yourip>:4567
+
+
+===========
+
+There is a ruby script in EC2 instance that:
+
+1) Converts audio.wav to audiopresenter.ogg
+2) Remove audio from flash videos, converting videopresenter.flv to justvideopresenter.flv and videopresentation.flv to justvideopresentation.flv.
+3) Creates manifest.xml
+4) Creates dublincore.xml (metadata is taken from strings declared in the script)
+5) Creates a zipped package tosend.zip with
+justvideopresenter.flv
+justvideopresentation.flv
+audiopresenter.ogg
+manifest.xml
+dublincore.xml
+6) Compiles and executes a java class that sends the zipped package to Matterhorn server in the EC2 instance
+
+Previously I installed:
+
+vorbis tools => sudo apt-get install vorbis-tools
+zip => sudo apt-get install zip
+ruby => sudo apt-get install ruby irb rdoc
+rubygems => sudo apt-get install rubygems
+builder (a gem to generate xml) => gem install builder
+streamio-ffmpeg (a gem to get media info) => gem install streamio-ffmpeg
+
+To run the script:
+
+cd /home/ubuntu/bnmaterial/prepareMediaRuby
+ruby remix.rb audio.wav videopresenter.flv videopresentation.flv
+
+Notes:
+About parameters passed to the ruby script:
+Audio file must be named <whatevername>.wav
+Presenter Video  must be named   <whatever>presenter.flv
+Presentation Video must be named <whatever>presentation.flv
+
+If you don't want to run the ruby script and only want to send a ready zipped file to Matterhorn server :
+cd /home/ubuntu/bnmaterial/
+java ClientPreemptiveDigestAuthentication
+
+It takes tosend.zip and sends it to Matterhorn Server
+
+Then you can verify the uploaded file is in
+
+http://ec2-50-17-155-248.compute-1.amazonaws.com:8080/engage/ui/index.html
+
+Actually there are 3 objects in Media Gallery
