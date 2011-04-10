@@ -17,17 +17,17 @@ module Collector
   end
   
   class Audio             
-    def location_exist?(location)
+    def self.location_exist?(location)
       FileTest.directory?(location)
     end
         
-    def audio_present?(meeting_id, location)
+    def self.audio_present?(meeting_id, location)
       Dir.glob("#{location}/#{meeting_id}*.wav").empty?
     end
     
     # Copies the audio recordings specified by meeting_id
     # from a directory to a target directory.
-    def collect_audio(meeting_id, from_dir, to_dir)         
+    def self.collect_audio(meeting_id, from_dir, to_dir)         
       if not location_exist?(from_dir) 
         raise NoSuchDirectoryException, "Directory not found #{from_dir}"
       end
@@ -48,15 +48,15 @@ module Collector
   end
     
   class Video      		
-    def location_exist?(location)
+    def self.location_exist?(location)
       FileTest.directory?(location)
     end
         
-    def video_present?(meeting_id, location)
-      Dir.glob("#{location}/*.flv").empty?
+    def self.video_present?(meeting_id, location)
+      Dir.glob("#{location}").empty?
     end
                 
-    def collect_video(meeting_id, from_dir, to_dir)         
+    def self.collect_video(meeting_id, from_dir, to_dir)         
       if not location_exist?(from_dir) 
         raise NoSuchDirectoryException, "Directory not found #{from_dir}"
       end
@@ -69,22 +69,22 @@ module Collector
         raise NoVideoFileException, "No video recording for #{meeting_id} in #{from_dir}"
       end
                        
-      Dir.glob("#{from_dir}/*.flv").each { |file|
-        FileUtils.cp(file, to_dir)
+      Dir.glob("#{from_dir}/*").each { |file|
+        FileUtils.cp_r(file, to_dir)
       }         
     end        
   end
 
   class Presentation      		
-    def location_exist?(location)
+    def self.location_exist?(location)
       FileTest.directory?(location)
     end
         
-    def presentation_present?(meeting_id, location)
+    def self.presentation_present?(meeting_id, location)
       Dir.glob("#{location}").empty?
     end
                 
-    def collect_presentation(meeting_id, from_dir, to_dir)         
+    def self.collect_presentation(meeting_id, from_dir, to_dir)         
       if not location_exist?(from_dir) 
         raise NoSuchDirectoryException, "Directory not found #{from_dir}"
       end
@@ -94,25 +94,25 @@ module Collector
       end
             
       if (presentation_present?(meeting_id, from_dir))
-        raise NoPresentationException, "No video recording for #{meeting_id} in #{from_dir}"
+        raise NoPresentationException, "No presentation for #{meeting_id} in #{from_dir}"
       end
                        
-      Dir.glob("#{from_dir}/*.flv").each { |file|
-        FileUtils.cp(file, to_dir)
+      Dir.glob("#{from_dir}/*").each { |file|
+        FileUtils.cp_r(file, to_dir)
       }         
     end        
   end
   
   class Deskshare      		
-    def location_exist?(location)
+    def self.location_exist?(location)
       FileTest.directory?(location)
     end
         
-    def deskshare_present?(meeting_id, location)
+    def self.deskshare_present?(meeting_id, location)
       Dir.glob("#{location}").empty?
     end
                 
-    def collect_deskshare(meeting_id, from_dir, to_dir)         
+    def self.collect_deskshare(meeting_id, from_dir, to_dir)         
       if not location_exist?(from_dir) 
         raise NoSuchDirectoryException, "Directory not found #{from_dir}"
       end

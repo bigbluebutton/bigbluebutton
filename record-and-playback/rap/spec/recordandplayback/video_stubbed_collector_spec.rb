@@ -11,8 +11,8 @@ module Collector
                 from_dir = 'from'
                 to_dir = 'to'
                 meeting_id = 'meeting-id'
-                archiver = Collector::Video.new
-                expect { archiver.collect_video( meeting_id, from_dir, to_dir ) }.to_not raise_error   
+                
+                expect { Collector::Video.collect_video( meeting_id, from_dir, to_dir ) }.to_not raise_error   
             end
         end
         
@@ -24,8 +24,8 @@ module Collector
                 from_dir = '/from-dir-not-found'
                 to_dir = 'resources/archive'
                 meeting_id = 'meeting-id'
-                archiver = Collector::Video.new
-                expect {archiver.collect_video( meeting_id, from_dir, to_dir )}.to raise_error(NoSuchDirectoryException)
+                
+                expect {Collector::Video.collect_video( meeting_id, from_dir, to_dir )}.to raise_error(NoSuchDirectoryException)
             end
             it "should raise to directory not found exception" do
                 from_dir = 'resources/raw/audio'
@@ -34,8 +34,8 @@ module Collector
                 FileTest.stub(:directory?).and_return(false)
                 FileUtils.stub(:cp)
                 Dir.stub(:glob).and_return(['file1.wav', 'file2.wav'])
-                archiver = Collector::Video.new
-                expect { archiver.collect_video( meeting_id, from_dir, to_dir ) }.to raise_error(NoSuchDirectoryException)
+                
+                expect { Collector::Video.collect_video( meeting_id, from_dir, to_dir ) }.to raise_error(NoSuchDirectoryException)
             end
             it "should raise audio files not found exception" do
                 from_dir = 'resources/raw/audio'
@@ -44,8 +44,8 @@ module Collector
                 FileTest.stub(:directory?).and_return(true)
                 FileUtils.stub(:cp)
                 Dir.stub(:glob).and_return([])
-                archiver = Collector::Video.new
-                expect { archiver.collect_video( meeting_id, from_dir, to_dir ) }.to raise_error(NoVideoFileException)
+                
+                expect { Collector::Video.collect_video( meeting_id, from_dir, to_dir ) }.to raise_error(NoVideoFileException)
             end
         end
     end
