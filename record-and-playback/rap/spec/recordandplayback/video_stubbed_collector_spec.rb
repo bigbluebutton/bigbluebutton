@@ -6,8 +6,8 @@ module Collector
         context "#success" do
             it "should copy audio recording to archive" do
                 FileTest.stub(:directory?).and_return(true)
-                FileUtils.stub(:cp)
-                Dir.stub(:glob).and_return(['file1.flv', 'file2.flv'])
+                FileUtils.stub(:cp_r)
+                Dir.stub(:glob).and_return(['file1', 'file2'])
                 from_dir = 'from'
                 to_dir = 'to'
                 meeting_id = 'meeting-id'
@@ -19,8 +19,8 @@ module Collector
         context "#fail" do
             it "should raise from directory not found exception" do
                 FileTest.stub(:directory?).and_return(false)
-                FileUtils.stub(:cp)
-                Dir.stub(:glob).and_return(['file1.wav', 'file2.wav'])
+                FileUtils.stub(:cp_r)
+                Dir.stub(:glob).and_return(['file1', 'file2'])
                 from_dir = '/from-dir-not-found'
                 to_dir = 'resources/archive'
                 meeting_id = 'meeting-id'
@@ -32,7 +32,7 @@ module Collector
                 to_dir = '/to-dir-not-found'
                 meeting_id = 'meeting-id'
                 FileTest.stub(:directory?).and_return(false)
-                FileUtils.stub(:cp)
+                FileUtils.stub(:cp_r)
                 Dir.stub(:glob).and_return(['file1.wav', 'file2.wav'])
                 
                 expect { Collector::Video.collect_video( meeting_id, from_dir, to_dir ) }.to raise_error(NoSuchDirectoryException)
@@ -42,7 +42,7 @@ module Collector
                 to_dir = '/to-dir-not-found'
                 meeting_id = 'meeting-id'
                 FileTest.stub(:directory?).and_return(true)
-                FileUtils.stub(:cp)
+                FileUtils.stub(:cp_r)
                 Dir.stub(:glob).and_return([])
                 
                 expect { Collector::Video.collect_video( meeting_id, from_dir, to_dir ) }.to raise_error(NoVideoFileException)

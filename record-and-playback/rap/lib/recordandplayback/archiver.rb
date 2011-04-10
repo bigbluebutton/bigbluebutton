@@ -20,7 +20,7 @@ module BigBlueButton
       if not FileTest.directory?(to_dir)
         FileUtils.mkdir_p to_dir
       end
-      puts "Archiving #{meeting_id} from #{from} to #{to_dir}"
+      
       Collector::Audio.collect_audio(meeting_id, from, to_dir)
     end
   end
@@ -37,7 +37,7 @@ module BigBlueButton
       if not FileTest.directory?(to_dir)
         FileUtils.mkdir_p to_dir
       end
-      puts "Archiving #{meeting_id} from #{from} to #{to_dir}"
+      
       Collector::Presentation.collect_presentation(meeting_id, from, to_dir)
     end
   end
@@ -48,7 +48,7 @@ module BigBlueButton
       if not FileTest.directory?(to_dir)
         FileUtils.mkdir_p to_dir
       end
-      puts "Archiving #{meeting_id} from #{from} to #{to_dir}"
+      
       Collector::Video.collect_video(meeting_id, from, to_dir)    
     end
   end
@@ -59,7 +59,7 @@ module BigBlueButton
       if not FileTest.directory?(to_dir)
         FileUtils.mkdir_p to_dir
       end
-      puts "Archiving #{meeting_id} from #{from} to #{to_dir}"
+      
       Collector::Deskshare.collect_deskshare(meeting_id, from, to_dir)    
     end
   end
