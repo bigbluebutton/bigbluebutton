@@ -20,9 +20,7 @@ Then /^store the raw audio recording to the archive$/ do
   meeting_id = "8774263b-c4a6-4078-b2e6-46b7d4bc91c1" 
   from_dir = "resources/raw/#{meeting_id}/audio"
   meeting_id = "8774263b-c4a6-4078-b2e6-46b7d4bc91c1"
-
-  BigBlueButton::AudioArchiver.archive(meeting_id, from_dir,@archive_dir)
-  
+  BigBlueButton::AudioArchiver.archive(meeting_id, from_dir,@archive_dir)  
 end
 
 Then /^store the uploaded presentations to the archive$/ do

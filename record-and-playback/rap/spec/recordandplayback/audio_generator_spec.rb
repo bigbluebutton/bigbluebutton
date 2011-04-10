@@ -93,6 +93,8 @@ module Generator
           (audio_events[i+1].start_event_timestamp.to_i > audio_events[i].stop_event_timestamp.to_i).should be_true
           i += 1
         end
+        
+        ae.to_xml_file(audio_events, "/tmp/event.audio.xml")
       end 
       
       it "should determine the start/stop timestamps for non-matched events" do

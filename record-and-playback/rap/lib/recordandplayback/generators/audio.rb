@@ -1,6 +1,7 @@
 require 'fileutils'
 require 'rubygems'
 require 'nokogiri'
+require 'builder'
 
 module Generator
   class Audio
@@ -98,6 +99,22 @@ module Generator
     
     def last_event_timestamp
       @doc.xpath("recording/event").last["timestamp"].to_s
+    end
+    
+    def to_xml_file(events, file)
+      xml = Builder::XmlMarkup.new( :indent => 2 )
+      result = xml.instruct! :xml, :version => "1.0"
+      
+      events.each do |event|
+        xml.event(:start_event_timestamp => event.start_event_timestamp, :start_record_timestamp => event.start_record_timestamp,
+                  :stop_event_timestamp => event.stop_event_timestamp, :stop_record_timestamp => event.stop_record_timestamp,
+                  :file => event.file, :file_exist => event.file_exist, :bridge => event.bridge,
+                  :matched => event.matched, :audio_length => event.audio_length, :padding => event.padding)
+      end
+      
+      puts xml.target!
+
+      
     end
     
     def process_events
@@ -247,9 +264,8 @@ module Generator
     attr_accessor :padding
      
     def to_s
-      "startEvent=#{start_event_timestamp}, startRecord=#{start_record_timestamp}, \n" +
-      "stopRecord=#{stop_record_timestamp}, stopEvent=#{stop_event_timestamp}, \n" +
-      "brige=#{bridge}, file=#{file}, exist=#{file_exist}\n"
+      "[startEvent=#{start_event_timestamp}, startRecord=#{start_record_timestamp}, stopRecord=#{stop_record_timestamp}, stopEvent=#{stop_event_timestamp}, " +
+      "brige=#{bridge}, file=#{file}, exist=#{file_exist}, padding=#{padding}]\n"
     end
     
   end
