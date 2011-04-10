@@ -97,7 +97,7 @@
 			
 			private function openPublishWindow():void{
 				publishWindow = new PublishWindow();
-				publishWindow.streamName = module.userid.toString();
+				publishWindow.userId = module.userid;
 				publishWindow.userrole = module.role;
 				publishWindow.quality = module.quality;
 				publishWindow.resolutions = module.resolutions.split(",");

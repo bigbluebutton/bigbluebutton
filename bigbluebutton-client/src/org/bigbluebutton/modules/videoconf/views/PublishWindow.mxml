@@ -20,9 +20,9 @@
   $Id: $
 --> 
 
-<pubVid:MDIWindow xmlns="flexlib.mdi.containers.*" 
+<pubVid:VideoWindowItf xmlns="org.bigbluebutton.modules.videoconf.*" 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
-	xmlns:pubVid="flexlib.mdi.containers.*"
+	xmlns:pubVid="org.bigbluebutton.modules.videoconf.*"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	creationComplete="init()"
 	width="{camWidth + 6}" height="{camHeight + 75}" 
@@ -31,7 +31,6 @@
 	xmlns:mate="http://mate.asfusion.com/"
 	resize="onResize()">
 	
-	<mx:Script source="VideoBase.as"/>
 	<mx:Script>
 		<![CDATA[
 			import flexlib.mdi.events.MDIWindowEvent;
@@ -43,6 +42,7 @@
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
+			import org.bigbluebutton.modules.videoconf.events.CloseWindowEvent;
 			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
 			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -50,25 +50,24 @@
 			private var images:Images = new Images();
 			[Bindable] public var camIcon:Class = images.control_play;
 			[Bindable] public var bbbLogo:Class = images.bbb_logo;
-			[Bindable] public var resolutions:Array = new Array("320x240", "640x480");
 			
-			private var video:Video;
-			public var streamName:String;
 			[Bindable] private var camWidth:Number = 320;
 			[Bindable] private var camHeight:Number = 240;
 			private var _userrole:String;
 			public var quality:Number = 0;
 			
 			private function init():void{
+				_videoHolder = new UIComponent();
+				_videoHolder.width = camWidth;
+				_videoHolder.height = camHeight;
+				this.addChild(_videoHolder);
+			
 				currentState = "dispVideoOptionsControlBar";
 				checkIfMacCamera();
 				if (isPresenter()) showResControls(true);
 				if (Camera.names.length > 1) showVideoControls(true);
 				if (!isPresenter() && Camera.names.length == 1) startPublishing();
 
-				addEventListener(MDIWindowEvent.DRAG_START, onDragStart);
-				addEventListener(MDIWindowEvent.DRAG_END, onDragEnd);
-				
 				this.minWidth = _minWidth;
 				this.minHeight = _minHeight;
 				maximizeRestoreBtn.visible = false;
@@ -99,14 +98,13 @@
 				camera.setMode(camWidth,camHeight,15);
 				camera.setQuality(0,quality);
 				
-				video = new Video(camWidth, camHeight);
+				_video = new Video(camWidth, camHeight);
 				//Next two lines may seem redundant but they're not. Do not delete.
-				video.width = camWidth;
-				video.height = camHeight;
+				_video.width = camWidth;
+				_video.height = camHeight;
 				onResize();
-				video.attachCamera(camera);
-				videoHolder.addChild(video);
-//				addChild(videoHolder);
+				_video.attachCamera(camera);
+				_videoHolder.addChild(_video);
 				
 				var e:StartBroadcastEvent = new StartBroadcastEvent();
 				e.stream = this.streamName;
@@ -118,26 +116,25 @@
 
 				maximizeRestoreBtn.visible = true;
 				this.resizable = true;
+
+				addEventListener(MDIWindowEvent.DRAG_START, onDragStart);
+				addEventListener(MDIWindowEvent.DRAG_END, onDragEnd);
 			}
 			
 			override public function close(event:MouseEvent=null):void{
 				stopPublishing();
 
-				var e:CloseWindowEvent = new CloseWindowEvent();
-				e.window = this;
-				dispatchEvent(e);
-
 				super.close(event);
 			}
 			
 			private function stopPublishing():void{
-				if (video != null) {
-					video.attachCamera(null);
-					video.clear();
-					video = null;
+				if (_video != null) {
+					_video.attachCamera(null);
+					_video.clear();
+					_video = null;
 				}
 				var e:StopBroadcastEvent = new StopBroadcastEvent()
-				e.stream = this.streamName;
+				e.stream = streamName;
 				dispatchEvent(e);
 			}
 			
@@ -146,7 +143,7 @@
 				camWidth = Number(res[0]);
 				camHeight = Number(res[1]);
 				setAspectRatio(camWidth, camHeight);
-				this.streamName = cmbResolution.selectedLabel.concat(this.streamName);
+				streamName = cmbResolution.selectedLabel.concat(this.userId);
 			}
 			
 			public function set userrole(role:String):void{
@@ -222,7 +219,5 @@
         </mx:State>	
 	</pubVid:states>
 		
-	<mx:UIComponent id="videoHolder" width="{camWidth}" height="{camHeight}" />
-
 	<mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
-</pubVid:MDIWindow>
+</pubVid:VideoWindowItf>

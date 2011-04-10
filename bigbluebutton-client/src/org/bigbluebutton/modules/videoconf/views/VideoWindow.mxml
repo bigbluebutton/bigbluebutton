@@ -20,14 +20,13 @@
   $Id: $
 -->
 
-<MDIWindow xmlns="flexlib.mdi.containers.*" 
+<VideoWindowItf xmlns="org.bigbluebutton.modules.videoconf.*" 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	creationComplete="init()" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
 	resize="onResize()">
 	
-	<mx:Script source="VideoBase.as"/>
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -41,20 +40,16 @@
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
+			import org.bigbluebutton.modules.videoconf.events.CloseWindowEvent;
 		
-			public var resolutions:Array = new Array("320x240", "640x480");
-			
-			private var video:Video;
 			private var ns:NetStream;
-			private var videoHolder:UIComponent;
-			private var stream:String;
 
 			private var globalDispatcher:Dispatcher;
 			
 			private function init():void{
-				videoHolder = new UIComponent();
-				videoHolder.addChild(video);
-				this.addChild(videoHolder);
+				_videoHolder = new UIComponent();
+				_videoHolder.addChild(_video);
+				this.addChild(_videoHolder);
 				
 				addEventListener(MDIWindowEvent.CLOSE, onCloseEvent);
 				addEventListener(MDIWindowEvent.DRAG_START, onDragStart);
@@ -69,9 +64,9 @@
 			}
 			
 			private function onCloseEvent(event:MDIWindowEvent = null):void {
-				LogUtil.debug("ViewWindow closing " + stream);
+				LogUtil.debug("ViewWindow closing " + streamName);
 				var bbbEvt:BBBEvent = new BBBEvent("ViewVideoCloseEvent");
-				bbbEvt.message = stream;
+				bbbEvt.message = streamName;
 				dispatchEvent(bbbEvt);
 			}
 			
@@ -84,30 +79,19 @@
 				ns.receiveVideo(true);
 				ns.receiveAudio(false);
 				
-				setVideoResolution(stream);
-				video = new Video(this.width, this.height);
-				video.width = this.width;
-				video.height = this.height;
-				video.attachNetStream(ns);
+				var res:Array = getVideoResolution(stream);
+				if (res == null) // error
+					return;
+				_video = new Video(Number(res[0]), Number(res[1]));
+				_video.width = Number(res[0]);
+				_video.height = Number(res[1]);
+				setAspectRatio(Number(res[0]), Number(res[1])); 
+				_video.attachNetStream(ns);
 				ns.play(stream);	
-				this.stream = stream;
+				this.streamName = stream;
 				
-				this.width = video.width + PADDING_HORIZONTAL;
-				this.height = video.height + PADDING_VERTICAL;
-			}
-			
-			private function setVideoResolution(stream:String):void{
-				for each (var resStr:String in resolutions){
-					LogUtil.debug("VideoWindow::setVideoResolution testing " + resStr);
-					if (resStr == stream.substr(0, resStr.length)) {
-						var res:Array = resStr.split( "x" );
-						this.width = Number(res[0]);
-						this.height = Number(res[1]);
-						LogUtil.debug("VideoWindow::setVideoResolution width=" + this.width + " height=" + this.height);
-						setAspectRatio(this.width, this.height);
-						break;
-					}
-				}
+				this.width = _video.width + PADDING_HORIZONTAL;
+				this.height = _video.height + PADDING_VERTICAL;
 			}
 			
 			private function onAsyncError(e:AsyncErrorEvent):void{
@@ -116,8 +100,8 @@
 			
 			public function onMetaData(info:Object):void{
 				LogUtil.debug("metadata: width=" + info.width + " height=" + info.height);
-				video.width = info.width;
-				video.height = info.height;
+				_video.width = info.width;
+				_video.height = info.height;
 				setAspectRatio(info.width, info.height);
 				onResize();
 			}
@@ -129,7 +113,7 @@
 			private function onNetStatus(e:NetStatusEvent):void{
 				switch(e.info.code){
 					case "NetStream.Publish.Start":
-						LogUtil.debug("NetStream.Publish.Start for broadcast stream " + stream);
+						LogUtil.debug("NetStream.Publish.Start for broadcast stream " + streamName);
 						break;
 					case "NetStream.Play.UnpublishNotify":
 						ns.close();
@@ -144,10 +128,6 @@
 			override public function close(event:MouseEvent=null):void{
 				ns.close();
 				//onCloseEvent();
-				
-				var e:CloseWindowEvent = new CloseWindowEvent();
-				e.window = this;
-				dispatchEvent(e);
 			
 				super.close(event);
 			}		
@@ -160,4 +140,4 @@
 	</mx:Script>
 	
 	<mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
-</MDIWindow>
+</VideoWindowItf>
