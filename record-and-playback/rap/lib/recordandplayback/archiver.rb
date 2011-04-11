@@ -1,4 +1,3 @@
-
 module BigBlueButton
   class Archiver
     def meeting_recorded?(meeting_id)

@@ -4,7 +4,7 @@ require 'nokogiri'
 require 'builder'
 
 module Generator
-  class Audio
+  class AudioEvents
     # Generate a silent wav file.
     # 
     #   millis - length of silence in millis
@@ -86,22 +86,18 @@ module Generator
       end
       audio_length
     end
-  end
-  
-  class AudioEvents	
-    def initialize(events)
-      @doc = Nokogiri::XML(File.open(events))
+ 
+    def self.first_event_timestamp(events_xml)
+      doc = Nokogiri::XML(File.open(events_xml))
+      doc.xpath("recording/event").first["timestamp"].to_s
     end
     
-    def first_event_timestamp
-      @doc.xpath("recording/event").first["timestamp"].to_s
+    def self.last_event_timestamp(events_xml)
+      doc = Nokogiri::XML(File.open(events_xml))
+      doc.xpath("recording/event").last["timestamp"].to_s
     end
     
-    def last_event_timestamp
-      @doc.xpath("recording/event").last["timestamp"].to_s
-    end
-    
-    def to_xml_file(events, file)
+    def self.to_xml_file(events, file)
       xml = Builder::XmlMarkup.new( :indent => 2 )
       result = xml.instruct! :xml, :version => "1.0"
       
@@ -112,23 +108,22 @@ module Generator
                   :matched => event.matched, :audio_length => event.audio_length, :padding => event.padding)
       end
       
-      puts xml.target!
-
-      
+      #puts xml.target!      
     end
     
-    def process_events
-      audio_events = match_start_and_stop_events(start_audio_recording_events, stop_audio_recording_events).each do |audio_event|
+    def self.process_events(events_xml)
+      audio_events = match_start_and_stop_events(start_audio_recording_events(events_xml), 
+                          stop_audio_recording_events(events_xml)).each do |audio_event|
         if not audio_event.matched 
             determine_start_stop_timestamps_for_unmatched_event!(audio_event)
         end
       end
-      audio_paddings = generate_audio_paddings(audio_events)
+      audio_paddings = generate_audio_paddings(audio_events, events_xml)
       audio_events.concat(audio_paddings)
       return audio_events.sort! {|a,b| a.start_event_timestamp.to_i <=> b.start_event_timestamp.to_i}
     end
     
-    def recording_events 
+    def self.recording_events 
         create_recording_event(start_audio_recording_events)
         match_start_and_stop_events(stop_audio_recording_events)
         audio_events.each do |ae|
@@ -142,9 +137,10 @@ module Generator
     FILE = 'filename'
     RECORD_TIMESTAMP = 'recordingTimestamp'
     
-    def start_audio_recording_events
+    def self.start_audio_recording_events(events_xml)
       start_events = []
-      @doc.xpath("//event[@name='StartRecordingEvent']").each do |start_event|
+      doc = Nokogiri::XML(File.open(events_xml))
+      doc.xpath("//event[@name='StartRecordingEvent']").each do |start_event|
         ae = AudioRecordingEvent.new
         ae.start_event_timestamp = start_event[TIMESTAMP]
         ae.bridge = start_event.xpath(BRIDGE).text
@@ -155,9 +151,10 @@ module Generator
       return start_events.sort {|a,b| a.start_event_timestamp <=> b.start_event_timestamp}
     end
     
-    def stop_audio_recording_events
+    def self.stop_audio_recording_events(events_xml)
       stop_events = []
-      @doc.xpath("//event[@name='StopRecordingEvent']").each do |stop_event|
+      doc = Nokogiri::XML(File.open(events_xml))
+      doc.xpath("//event[@name='StopRecordingEvent']").each do |stop_event|
         ae = AudioRecordingEvent.new
         ae.stop_event_timestamp = stop_event[TIMESTAMP]
         ae.bridge = stop_event.xpath(BRIDGE).text
@@ -168,7 +165,7 @@ module Generator
       return stop_events.sort {|a,b| a.stop_event_timestamp <=> b.stop_event_timestamp}
     end
     
-    def event_matched?(start_events, stop_event)      
+    def self.event_matched?(start_events, stop_event)      
       start_events.each do |start_event|
         if (start_event.file == stop_event.file)
           start_event.matched = true
@@ -180,7 +177,7 @@ module Generator
       return false
     end
     
-    def match_start_and_stop_events(start_events, stop_events)
+    def self.match_start_and_stop_events(start_events, stop_events)
       combined_events = []
       stop_events.each do |stop|
         if not event_matched?(start_events, stop) 
@@ -190,10 +187,10 @@ module Generator
       return combined_events.concat( start_events )
     end
      
-    def determine_start_stop_timestamps_for_unmatched_event!(event)
+    def self.determine_start_stop_timestamps_for_unmatched_event!(event)
       event.file_exist = determine_if_recording_file_exist(event)
       if ((not event.matched) and event.file_exist)
-        event.audio_length = Generator::Audio.determine_length_of_audio_from_file(event.file)
+        event.audio_length = determine_length_of_audio_from_file(event.file)
         if (event.audio_length > 0)
           if (event.start_event_timestamp == nil) 
             event.start_record_timestamp = event.start_event_timestamp = event.stop_event_timestamp.to_i - event.audio_length
@@ -204,12 +201,12 @@ module Generator
       end
     end
     
-    def generate_audio_paddings(events)
+    def self.generate_audio_paddings(events, events_xml)
       paddings = []
       events.sort! {|a,b| a.start_event_timestamp <=> b.start_event_timestamp}
-      if first_event_timestamp.to_i < events[0].start_event_timestamp.to_i
+      if first_event_timestamp(events_xml).to_i < events[0].start_event_timestamp.to_i
         ae = AudioRecordingEvent.new
-        ae.start_event_timestamp = ae.start_record_timestamp = first_event_timestamp
+        ae.start_event_timestamp = ae.start_record_timestamp = first_event_timestamp(events_xml)
         ae.padding = true
         ae.stop_record_timestamp = ae.stop_event_timestamp = events[0].start_event_timestamp.to_i - 1
         paddings << ae
@@ -232,18 +229,18 @@ module Generator
         i += 1
       end
         
-      if last_event_timestamp.to_i > events[-1].stop_event_timestamp.to_i
+      if last_event_timestamp(events_xml).to_i > events[-1].stop_event_timestamp.to_i
         ae = AudioRecordingEvent.new
         ae.start_event_timestamp = ae.start_record_timestamp = events[-1].stop_event_timestamp.to_i + 1
         ae.padding = true
-        ae.stop_record_timestamp = ae.stop_event_timestamp = last_event_timestamp
+        ae.stop_record_timestamp = ae.stop_event_timestamp = last_event_timestamp(events_xml)
         paddings << ae
       end
       
       paddings
     end
     
-    def determine_if_recording_file_exist(recording_event)
+    def self.determine_if_recording_file_exist(recording_event)
       if (recording_event.file == nil) 
           return false
       end
