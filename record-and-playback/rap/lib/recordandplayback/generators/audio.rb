@@ -11,6 +11,7 @@ module Generator
     #   filename - name of the resulting file (absolute location)
     #   sampling_rate = rate of the audio 
     def self.generate_silence(millis, filename, sampling_rate)
+    puts millis
       rate_in_ms = sampling_rate / 1000
       samples = millis * rate_in_ms
       temp_file = filename + ".dat"
@@ -87,11 +88,13 @@ module Generator
       audio_length
     end
  
+    # Get the timestamp of the first event.
     def self.first_event_timestamp(events_xml)
       doc = Nokogiri::XML(File.open(events_xml))
       doc.xpath("recording/event").first["timestamp"].to_s
     end
     
+    # Get the timestamp of the last event.
     def self.last_event_timestamp(events_xml)
       doc = Nokogiri::XML(File.open(events_xml))
       doc.xpath("recording/event").last["timestamp"].to_s
@@ -108,9 +111,10 @@ module Generator
                   :matched => event.matched, :audio_length => event.audio_length, :padding => event.padding)
       end
       
-      #puts xml.target!      
+      puts xml.target!      
     end
     
+    # Process the audio events for this recording
     def self.process_events(events_xml)
       audio_events = match_start_and_stop_events(start_audio_recording_events(events_xml), 
                           stop_audio_recording_events(events_xml)).each do |audio_event|
@@ -122,21 +126,13 @@ module Generator
       audio_events.concat(audio_paddings)
       return audio_events.sort! {|a,b| a.start_event_timestamp.to_i <=> b.start_event_timestamp.to_i}
     end
-    
-    def self.recording_events 
-        create_recording_event(start_audio_recording_events)
-        match_start_and_stop_events(stop_audio_recording_events)
-        audio_events.each do |ae|
-          determine_if_recording_file_exist(ae)
-        end
-        return audio_events
-    end
-    
+        
     TIMESTAMP = 'timestamp'
     BRIDGE = 'bridge'
     FILE = 'filename'
     RECORD_TIMESTAMP = 'recordingTimestamp'
     
+    # Get the start audio recording events.
     def self.start_audio_recording_events(events_xml)
       start_events = []
       doc = Nokogiri::XML(File.open(events_xml))
@@ -151,6 +147,7 @@ module Generator
       return start_events.sort {|a,b| a.start_event_timestamp <=> b.start_event_timestamp}
     end
     
+    # Get the stop audio recording events.
     def self.stop_audio_recording_events(events_xml)
       stop_events = []
       doc = Nokogiri::XML(File.open(events_xml))
@@ -165,6 +162,7 @@ module Generator
       return stop_events.sort {|a,b| a.stop_event_timestamp <=> b.stop_event_timestamp}
     end
     
+    # Determine if the start and stop event matched.
     def self.event_matched?(start_events, stop_event)      
       start_events.each do |start_event|
         if (start_event.file == stop_event.file)
@@ -177,6 +175,7 @@ module Generator
       return false
     end
     
+    # Match the start and stop events.
     def self.match_start_and_stop_events(start_events, stop_events)
       combined_events = []
       stop_events.each do |stop|
@@ -186,7 +185,9 @@ module Generator
       end      
       return combined_events.concat( start_events )
     end
-     
+    
+    # Determine the corresponding start or stop event if it doesn't
+    # have an entry in events.xml
     def self.determine_start_stop_timestamps_for_unmatched_event!(event)
       event.file_exist = determine_if_recording_file_exist(event)
       if ((not event.matched) and event.file_exist)
@@ -201,15 +202,24 @@ module Generator
       end
     end
     
+    def self.create_gap_audio_event(length_of_gap, start_timestamp, stop_timestamp)
+      ae = AudioRecordingEvent.new
+      ae.start_event_timestamp = ae.start_record_timestamp = start_timestamp
+      ae.padding = true
+      ae.length_of_gap = length_of_gap
+      ae.stop_record_timestamp = ae.stop_event_timestamp = stop_timestamp
+      
+      return ae
+    end
+    
+    # Determine the audio padding we need to generate.
     def self.generate_audio_paddings(events, events_xml)
       paddings = []
       events.sort! {|a,b| a.start_event_timestamp <=> b.start_event_timestamp}
-      if first_event_timestamp(events_xml).to_i < events[0].start_event_timestamp.to_i
-        ae = AudioRecordingEvent.new
-        ae.start_event_timestamp = ae.start_record_timestamp = first_event_timestamp(events_xml)
-        ae.padding = true
-        ae.stop_record_timestamp = ae.stop_event_timestamp = events[0].start_event_timestamp.to_i - 1
-        paddings << ae
+      
+      length_of_gap = events[0].start_event_timestamp.to_i - first_event_timestamp(events_xml).to_i
+      if  (length_of_gap > 0)
+        paddings << create_gap_audio_event(length_of_gap, first_event_timestamp(events_xml), events[0].start_event_timestamp.to_i - 1)
       end
       
       i = 0
@@ -218,28 +228,22 @@ module Generator
         ar_next = events[i+1]
         length_of_gap = ar_next.start_event_timestamp.to_i - ar_prev.stop_event_timestamp.to_i
         
-        if (length_of_gap > 0):   
-          ae = AudioRecordingEvent.new
-          ae.start_event_timestamp = ae.start_record_timestamp = ar_prev.stop_event_timestamp.to_i + 1
-          ae.padding = true
-          ae.stop_record_timestamp = ae.stop_event_timestamp = ar_next.start_event_timestamp.to_i - 1
-          paddings << ae
+        if (length_of_gap > 0) 
+          paddings << create_gap_audio_event(length_of_gap, ar_prev.stop_event_timestamp.to_i + 1, ar_next.start_event_timestamp.to_i - 1)
         end
         
         i += 1
       end
-        
-      if last_event_timestamp(events_xml).to_i > events[-1].stop_event_timestamp.to_i
-        ae = AudioRecordingEvent.new
-        ae.start_event_timestamp = ae.start_record_timestamp = events[-1].stop_event_timestamp.to_i + 1
-        ae.padding = true
-        ae.stop_record_timestamp = ae.stop_event_timestamp = last_event_timestamp(events_xml)
-        paddings << ae
+      
+      length_of_gap = last_event_timestamp(events_xml).to_i - events[-1].stop_event_timestamp.to_i
+      if (length_of_gap > 0)
+        paddings << create_gap_audio_event(length_of_gap, events[-1].stop_event_timestamp.to_i + 1, last_event_timestamp(events_xml))
       end
       
       paddings
     end
     
+    # Determine if the audio file exists
     def self.determine_if_recording_file_exist(recording_event)
       if (recording_event.file == nil) 
           return false
@@ -258,7 +262,7 @@ module Generator
     attr_accessor :file_exist   # True if the audio file has been confirmed to exist
     attr_accessor :matched      # True if the event has matching start/stop events
     attr_accessor :audio_length
-    attr_accessor :padding
+    attr_accessor :padding, :length_of_gap # If this is padding and the length of it
      
     def to_s
       "[startEvent=#{start_event_timestamp}, startRecord=#{start_record_timestamp}, stopRecord=#{stop_record_timestamp}, stopEvent=#{stop_event_timestamp}, " +

@@ -4,6 +4,16 @@ require 'digest/md5'
 module Generator
   describe AudioEvents do
     context "#success" do
+      it "should generate a complete audio file for the recording" do
+        dir = "resources/raw/1b199e88-7df7-4842-a5f1-0e84b781c5c8"
+        events_xml = "#{dir}/events.xml"
+        audio_dir = "#{dir}/audio"
+        audio_events = Generator::AudioEvents.process_events(events_xml)
+        audio_events.each do |ae|
+          puts ae.file
+        end
+      end
+    
       it "should create a silence file" do 
         length = 2000
         file = "/tmp/silence-audio.wav"
@@ -89,7 +99,7 @@ module Generator
           i += 1
         end
         
-        Generator::AudioEvents.to_xml_file(audio_events, "/tmp/event.audio.xml")
+       # Generator::AudioEvents.to_xml_file(audio_events, "/tmp/event.audio.xml")
       end 
       
       it "should determine the start/stop timestamps for non-matched events" do
