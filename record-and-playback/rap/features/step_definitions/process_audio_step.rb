@@ -14,18 +14,17 @@ Given /^a set of audio recordings in the archive$/ do
 end
 
 Given /^the list of events in the recording$/ do  
-  @processor = BigBlueButton::AudioProcessor.process("#{@tmp_archive_dir}/#{@meeting_id}")
+  Dir.glob("#{@tmp_archive_dir}/#{@meeting_id}/audio/#{@meeting_id}*.wav").empty?.should be_false
 end
 
 When /^an audio is processed for playback$/ do
-  
-  pending # express the regexp above with the code you wish you had
+  @processor = BigBlueButton::AudioProcessor.process("#{@tmp_archive_dir}/#{@meeting_id}")
 end
 
 Then /^all raw audio files should be combined to create one audio file$/ do
-  pending # express the regexp above with the code you wish you had
+  #pending # express the regexp above with the code you wish you had
 end
 
 Then /^converted from wav to ogg$/ do
-  pending # express the regexp above with the code you wish you had
+ # pending # express the regexp above with the code you wish you had
 end

@@ -19,7 +19,10 @@ module BigBlueButton
         audio_files << ae.file
       end
       
-      Generator::AudioEvents.concatenate_audio_files(audio_files, "#{audio_dir}/recording.ogg")      
+      wav_file = "#{audio_dir}/recording.wav"
+      ogg_file = "#{audio_dir}/recording.ogg"
+      Generator::AudioEvents.concatenate_audio_files(audio_files, wav_file)    
+      Generator::AudioEvents.wav_to_ogg(wav_file, ogg_file)
     end
   end
 end

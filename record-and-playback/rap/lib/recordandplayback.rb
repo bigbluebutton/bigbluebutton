@@ -1,6 +1,7 @@
-require 'recordandplayback/archiver'
-require 'recordandplayback/collectors/events'
-require 'recordandplayback/collectors/audio'
-require 'recordandplayback/generators/audio'
-require 'recordandplayback/generators/audio_processor'
-require 'recordandplayback/generators/deskshare'
+puts `pwd`
+require 'lib/recordandplayback/archiver'
+require 'lib/recordandplayback/collectors/events'
+require 'lib/recordandplayback/collectors/audio'
+require 'lib/recordandplayback/generators/audio'
+require 'lib/recordandplayback/generators/audio_processor'
+require 'lib/recordandplayback/generators/deskshare'
