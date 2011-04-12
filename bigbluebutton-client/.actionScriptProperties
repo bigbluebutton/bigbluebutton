@@ -51,3 +51,4 @@
     <buildCSSFileEntry destPath="bin" sourcePath="src/branding/css/theme.css"/>
   </buildCSSFiles>
 </actionScriptProperties>
+
