@@ -83,7 +83,7 @@ module BigBlueButton
             xml.mimetype(MIME::Types.type_for(vpresenter.path).first.content_type)
             xml.tags
             xml.url(vpresenter.path)
-            xml.checksum(Digest::MD5.hexdigest(File.read(vpresenter.path)),"type" => "md5")
+            xml.checksum(Digest::MD5.hexdigest(File.read(vpresenter.path)), "type" => "md5")
             xml.duration(vpresenter.duration.round.to_s.split(".")[0] + "000")
             xml.video("id" => "video1") {
               xml.encoder("type" => vpresenter.video_codec)
@@ -156,42 +156,48 @@ module BigBlueButton
       end
     end
 
-    def create_dublincore_xml()
-      title = "HERE TITLE"
-      subject = "HERE SUBJECT"
-      description = "HERE DESCRIPTION"
-      creator = "HERE CREATOR"
-      contributor = "HERE CONTRIBUTOR"
-      language = "HERE LANGUAGE"
-      identifier = "HERE IDENTIFIER"
+    # Creates dublincore.xml
+    #  Example:
+    #    create_dublin_core_xml( "/path/to/save/dublincore.xml",
+    #                             {:title => metadata[:title]
+    #                             :subject => metadata[:subject]
+    #                             :description => metadata[:description]
+    #                             :creator => metadata[:creator]
+    #                             :contributor => metadata[:contributor]
+    #                             :language => metadata[:language]
+    #                             :identifier => metadata[:identifier]}
+    #
+    def create_dublincore_xml(dublin_core_xml, metadata)
+      
       xml = Builder::XmlMarkup.new( :indent => 2 )
-
       result = xml.instruct! :xml, :version => "1.0"
 
       xml.dublincore("xmlns" => "http://www.opencastproject.org/xsd/1.0/dublincore/", 
         "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance/", 
         "xsi:schemaLocation" => "http://www.opencastproject.org http://www.opencastproject.org/schema.xsd", 
         "xmlns:dcterms" => "http://purl.org/dc/terms/","xmlns:oc" => "http://www.opencastproject.org/matterhorn") {
-          xml.tag!("dcterms:title",title)
-          xml.tag!("dcterms:subject",subject)
-          xml.tag!("dcterms:description",description)
-          xml.tag!("dcterms:creator",creator)
-          xml.tag!("dcterms:contributor",contributor)
-          xml.tag!("dcterms:language",language)
-          xml.tag!("dcterms:identifier",identifier)
+          xml.tag!("dcterms:title", metadata[:title])
+          xml.tag!("dcterms:subject", metadata[:subject])
+          xml.tag!("dcterms:description", metadata[:description])
+          xml.tag!("dcterms:creator", metadata[:creator])
+          xml.tag!("dcterms:contributor", metadata[:contributor])
+          xml.tag!("dcterms:language", metadata[:language])
+          xml.tag!("dcterms:identifier", metadata[:identifier])
       }
 
       puts result
 
-      aFile = File.new("dublincore.xml","w+")
+      aFile = File.new(dublin_core_xml, "w+")
       aFile.write(result)
       aFile.close
     end
 
-    def createAndSendZipPackage
+    def zip_artifacts(audio, video, presentation, dublincore, manifest, zipped_file)
       puts "Zipping package..."
-      executeCommand("zip tosend.zip justvideopresenter.flv justvideopresentation.flv audiopresenter.ogg dublincore.xml manifest.xml");
-
+      executeCommand("zip #{zipped_file} #{audio} #{video} #{deskshare} #{dublincore} #{manifest}");
+    end
+    
+    def upload_to_matterhorn
       puts "Compiling java ..."
       executeCommand("javac SendToMatterhorn.java")
 
