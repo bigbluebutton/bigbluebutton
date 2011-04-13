@@ -1,8 +1,10 @@
+require 'rubygems'
 require 'fileutils'
 require 'builder'
 require 'streamio-ffmpeg'
 require 'mime/types'
 require 'digest/md5'
+require 'zip/zip'
 
 module BigBlueButton
   class MediaFormatException < StandardError
@@ -10,60 +12,51 @@ module BigBlueButton
 
   class MatterhornProcessor
     def self.process(archive_dir, meeting_id)
-      process_audio(archive_dir)
-      process_deskshare(archive_dir)
-      process_video(archive_dir, meeting_dir)
-      deskshare_dir = "#{archive_dir}/deskshare"
-      video_dir = "#{archive_dir}/video/#{meeting_id}"      
-    end
-    
-    def self.process_deskshare(archive_dir)
-    
-    end
-    
-    def self.process_video(archive_dir, meeting_id)
-      begin
-        executeCommand("ffmpeg -i #{a} -an -vcodec copy justvideopresenter.flv")
-      rescue Exception=>e
-      end    
-    end
-    
-    def self.process_audio(archive_dir)
-      audio_dir = "#{archive_dir}/audio"
-      events_xml = "#{archive_dir}/events.xml"
-      audio_events = Generator::AudioEvents.process_events(events_xml)
-      if not audio_events == nil
-        audio_files = []
-        audio_events.each do |ae|
-          if ae.padding 
-            ae.file = "#{audio_dir}/#{ae.length_of_gap}.wav"
-            Generator::AudioEvents.generate_silence(ae.length_of_gap, ae.file, 16000)
-          else
-            # Substitute the original file location with the archive location
-            ae.file = ae.file.sub(/.+\//, "#{audio_dir}/")
-          end
-          audio_files << ae.file
-        end
-      
-        wav_file = "#{audio_dir}/recording.wav"
-        ogg_file = "#{audio_dir}/recording.ogg"
-        Generator::AudioEvents.concatenate_audio_files(audio_files, wav_file)    
-        Generator::AudioEvents.wav_to_ogg(wav_file, ogg_file)
-        puts "resampling : #{a} and converting to ogg format ..."
-        executeCommand("oggenc --resample 44100 -o audiopresenter.ogg #{a}")
-      end    
-    end
-    
-    def executeCommand(command)
-      IO.popen(command) do |pipe|
-        pipe.each("r") do |line|
-          puts line
-        end
+      matterhorn_dir = "#{archive_dir}/matterhorn"
+      if not FileTest.directory?(matterhorn_dir)
+        FileUtils.mkdir_p matterhorn_dir
       end
-      raise MediaFormatException if $?.exitstatus != 0
+        
+      process_audio(archive_dir, matterhorn_dir)
+      process_deskshare(archive_dir, matterhorn_dir)
+      process_video(archive_dir, meeting_id, matterhorn_dir)            
     end
-
-    def create_manifest_xml(audio, video, deskshare)
+    
+    def self.process_deskshare(archive_dir, matterhorn_dir)      
+      FileUtils.cp_r("#{archive_dir}/deskshare", matterhorn_dir)
+      deskshare_file = "#{matterhorn_dir}/deskshare/*.flv"
+      Dir.glob("#{matterhorn_dir}/deskshare/*.flv").each do |file|
+        puts "Converting #{file}"
+        proc = IO.popen("ffmpeg -i #{file} -an -vcodec copy #{matterhorn_dir}/deskshare.flv", "w+")
+        Process.wait()
+      end
+    end
+    
+    def self.process_video(archive_dir, meeting_id, matterhorn_dir)
+      FileUtils.cp_r("#{archive_dir}/video", matterhorn_dir)
+      video_dir = "#{matterhorn_dir}/video/#{meeting_id}"
+      
+      begin
+        Dir.glob("#{video_dir}/*.flv").each do |file|
+          puts "Converting #{file}"
+          proc = IO.popen("ffmpeg -i #{file} -an -vcodec copy #{matterhorn_dir}/video.flv", "w+")
+          Process.wait()
+        end
+      rescue Exception => e
+      end    
+    end
+    
+    def self.process_audio(archive_dir, matterhorn_dir)
+      audio_dir = "#{archive_dir}/audio"
+      FileUtils.cp_r("#{archive_dir}/audio", matterhorn_dir)
+            
+      wav_file = "#{matterhorn_dir}/audio/*.wav"
+      ogg_file = "#{matterhorn_dir}/audio.ogg"
+      proc = IO.popen("oggenc -Q --resample 44100 -o #{ogg_file} #{wav_file} 2>&1", "w+")
+      Process.wait()
+    end
+    
+    def self.create_manifest_xml(audio, video, deskshare, manifest)
       vpresenter = FFMPEG::Movie.new(video)
       apresenter = FFMPEG::Movie.new(audio)
       vpresentation = FFMPEG::Movie.new(deskshare)
@@ -129,45 +122,26 @@ module BigBlueButton
         }
       }
 
-
       puts result
 
-      aFile = File.new("manifest.xml","w+")
+      aFile = File.new(manifest,"w+")
         aFile.write(result)
         aFile.close
 
     end
 
-    def executeScript(args)
-      args.each do|a|
-        if (a.include? ".wav")
-          puts "resampling : #{a} and converting to ogg format ..."
-          executeCommand("oggenc --resample 44100 -o audiopresenter.ogg #{a}")
-        elsif (a.include? "presenter.flv")
-          puts "extracting just presenter video: #{a} ..."
-          begin
-            executeCommand("ffmpeg -i #{a} -an -vcodec copy justvideopresenter.flv")
-          rescue Exception=>e
-          end
-        elsif(a.include? "presentation.flv")
-          puts "extracting just presentation video: #{a} ..."
-          executeCommand("ffmpeg -i #{a} -an -vcodec copy justvideopresentation.flv")
-        end
-      end
-    end
-
     # Creates dublincore.xml
     #  Example:
     #    create_dublin_core_xml( "/path/to/save/dublincore.xml",
-    #                             {:title => metadata[:title]
-    #                             :subject => metadata[:subject]
-    #                             :description => metadata[:description]
-    #                             :creator => metadata[:creator]
-    #                             :contributor => metadata[:contributor]
-    #                             :language => metadata[:language]
-    #                             :identifier => metadata[:identifier]}
+    #                             {:title => metadata[:title],
+    #                             :subject => metadata[:subject],
+    #                             :description => metadata[:description],
+    #                             :creator => metadata[:creator],
+    #                             :contributor => metadata[:contributor],
+    #                             :language => metadata[:language],
+    #                             :identifier => metadata[:identifier]})
     #
-    def create_dublincore_xml(dublin_core_xml, metadata)
+    def self.create_dublincore_xml(dublin_core_xml, metadata)
       
       xml = Builder::XmlMarkup.new( :indent => 2 )
       result = xml.instruct! :xml, :version => "1.0"
@@ -192,9 +166,16 @@ module BigBlueButton
       aFile.close
     end
 
-    def zip_artifacts(audio, video, presentation, dublincore, manifest, zipped_file)
-      puts "Zipping package..."
-      executeCommand("zip #{zipped_file} #{audio} #{video} #{deskshare} #{dublincore} #{manifest}");
+    def self.zip_artifacts(audio, video, deskshare, dublincore, manifest, zipped_file)
+      puts "Zipping package... #{zipped_file} #{audio} #{video} #{deskshare} #{dublincore} #{manifest}"
+      files = [audio, video, deskshare, dublincore, manifest]
+      Zip::ZipFile.open(zipped_file, Zip::ZipFile::CREATE) do |zipfile|
+        files.each { |f| 
+          puts f
+          zipfile.add(f, f) 
+        }
+      end
+  
     end
     
     def upload_to_matterhorn
