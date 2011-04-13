@@ -1,6 +1,6 @@
 require 'fileutils'
 
-Given /^a set of recordings in the archive$/ do
+Given /^recordings in the archive$/ do
   @tmp_archive_dir = "/tmp/archive"
   if FileTest.directory?(@tmp_archive_dir)
     FileUtils.remove_dir @tmp_archive_dir
@@ -13,18 +13,18 @@ Given /^a set of recordings in the archive$/ do
   FileUtils.cp_r(@raw_dir, @tmp_archive_dir)
 end
 
-Given /^the list of events in the recording$/ do  
-  Dir.glob("#{@tmp_archive_dir}/#{@meeting_id}/audio/#{@meeting_id}*.wav").empty?.should be_false
+When /^asked to create playback for Matterhorn$/ do
+  BigBlueButton::MatterhornProcessor.process("#{@tmp_archive_dir}/#{@meeting_id}", @meeting_id)
 end
 
-When /^an recording is processed for playback on Matterhorn$/ do
-  @processor = BigBlueButton::AudioProcessor.process("#{@tmp_archive_dir}/#{@meeting_id}")
+Then /^all media files should be converted to formats supported by Matterhorn$/ do
+  pending # express the regexp above with the code you wish you had
 end
 
-Then /^zip the artifacts$/ do
-  #pending # express the regexp above with the code you wish you had
+Then /^packaged in a zip file$/ do
+  pending # express the regexp above with the code you wish you had
 end
 
-Then /^upload to Matterhorn$/ do
- # pending # express the regexp above with the code you wish you had
+Then /^uploaded to Matterhorn for ingestion$/ do
+  pending # express the regexp above with the code you wish you had
 end

@@ -1,11 +1,11 @@
 Feature: Process matterhorn recording
-  When I play a recording
-  I want the audio to be in sync with other media 
+  To playback the recording in Matterhorn
+  The system should package the recordings that Matterhorn can ingest and process
 
   Scenario: 
-    Given a set of audio recordings in the archive
-    And the list of events in the recording
-    When an audio is processed for playback
-    Then all raw audio files should be combined to create one audio file
-    And converted from wav to ogg
+    Given recordings in the archive
+    When asked to create playback for Matterhorn
+    Then all media files should be converted to formats supported by Matterhorn
+    And packaged in a zip file
+    And uploaded to Matterhorn for ingestion
     

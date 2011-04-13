@@ -11,7 +11,6 @@ module Generator
     #   filename - name of the resulting file (absolute location)
     #   sampling_rate = rate of the audio 
     def self.generate_silence(millis, filename, sampling_rate)
-    puts millis
       rate_in_ms = sampling_rate / 1000
       samples = millis * rate_in_ms
       temp_file = filename + ".dat"
@@ -122,9 +121,13 @@ module Generator
             determine_start_stop_timestamps_for_unmatched_event!(audio_event)
         end
       end
-      audio_paddings = generate_audio_paddings(audio_events, events_xml)
-      audio_events.concat(audio_paddings)
-      return audio_events.sort! {|a,b| a.start_event_timestamp.to_i <=> b.start_event_timestamp.to_i}
+      if audio_events.length > 0
+        audio_paddings = generate_audio_paddings(audio_events, events_xml)
+        audio_events.concat(audio_paddings)
+        return audio_events.sort! {|a,b| a.start_event_timestamp.to_i <=> b.start_event_timestamp.to_i}
+      else
+        return nil
+      end
     end
         
     TIMESTAMP = 'timestamp'
