@@ -142,7 +142,13 @@
 				camWidth = Number(res[0]);
 				camHeight = Number(res[1]);
 				_nAspectRatio = (camWidth/camHeight);
-				this.streamName = cmbResolution.selectedLabel.concat(this.streamName);
+				
+ 				/**
+         		* Add timestamp to create a unique stream name. This way we can record	 	
+         		* stream without overwriting previously recorded streams.	 	
+         		*/	 	
+				var curTime:Number = new Date().getTime();	 	
+        		this.streamName = cmbResolution.selectedLabel.concat(this.streamName) + "-" + curTime;
 			}
 			
 			public function set userrole(role:String):void{
