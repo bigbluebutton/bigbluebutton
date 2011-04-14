@@ -23,7 +23,8 @@
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
 	icon="{phoneIcon}" click="startPhone()"
 	xmlns:mate="http://mate.asfusion.com/"
-	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip')}">
+	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip')}"
+	implements="org.bigbluebutton.common.IBbbToolbarComponent">
 	
 	<mate:Listener type="{CallConnectedEvent.CALL_CONNECTED_EVENT}" method="handleCallConnectedEvent"/>
 	<mate:Listener type="{CallDisconnectedEvent.CALL_DISCONNECTED_EVENT}" method="handleCallDisconnectedEvent"/>
@@ -35,6 +36,7 @@
 			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.views.MainToolbar;
 			import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
 			import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
 			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceEvent;
@@ -85,6 +87,10 @@
 			//For whatever reason the tooltip does not update when localization is changed dynamically. Overrideing it here
 			override protected function resourcesChanged():void{
 				this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip');
+			}
+			
+			public function getAlignment():String{
+				return MainToolbar.ALIGN_LEFT;
 			}
 		]]>
 	</mx:Script>

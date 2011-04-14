@@ -33,21 +33,26 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.common.LogUtil;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import mx.controls.Alert;
+			import mx.core.UIComponent;
 			
-			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.common.IBbbToolbarComponent;
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.CloseWindowEvent;
+			import org.bigbluebutton.common.events.ToolbarButtonEvent;
+			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ConfigEvent;
 			import org.bigbluebutton.main.events.LogoutEvent;
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
-			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";
+			
+			public static const ALIGN_RIGHT:String ="ALIGN_RIGHT";
+			public static const ALIGN_LEFT:String = "ALIGN_LEFT";
 			
 			public function loggedIn(name:String, room:String, role:String):void{
 				this.visible = true;
@@ -82,11 +87,20 @@
 			}
 			
 			private function handleAddToolbarButtonEvent(event:ToolbarButtonEvent):void {
-				addedBtns.addChild(event.button);
+				addedBtns.addChild(event.button as UIComponent);
+				realignButtons();
 			}
 			
 			private function handleRemoveToolbarButtonEvent(event:ToolbarButtonEvent):void {
-				addedBtns.removeChild(event.button);
+				addedBtns.removeChild(event.button as UIComponent);
+			}
+			
+			private function realignButtons():void{
+				for each (var button:UIComponent in addedBtns.getChildren()){
+					var toolbarComponent:IBbbToolbarComponent = button as IBbbToolbarComponent;
+					if (toolbarComponent.getAlignment() == ALIGN_LEFT) addedBtns.setChildIndex(button, 0);
+					else if (toolbarComponent.getAlignment() == ALIGN_RIGHT) addedBtns.setChildIndex(button, addedBtns.numChildren - 1);
+				}
 			}
 			
 			private function loginSuccess(e:SuccessfulLoginEvent):void{

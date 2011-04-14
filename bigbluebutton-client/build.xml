@@ -26,8 +26,9 @@
 	<property name="WHITEBOARD" value="WhiteboardModule" />
 	<property name="DYN_INFO" value="DynamicInfoModule" />
 	<property name="BREAKOUT" value="BreakoutModule" />
+	<property name="CLASSROOM_AUDIO" value="ClassroomAudioModule" />
 	
-	<property name="AVAILABLE_LOCALES" value="az_AZ,bg_BG,cs_CZ,da_DK,de_DE,el_GR,en_US,es_ES,es_LA,fa_IR,fr_FR,fr_CA,hu_HU,it_IT,ja_JP,lv_LV,lt_LT,nb_NO,nl_NL,pl_PL,pt_BR,pt_PT,ro_RO,ru_RU,sv_SE,th_TH,tr_TR,vi_VN,uk_UA,zh_CN,zh_TW"/>
+	<property name="AVAILABLE_LOCALES" value="az_AZ,bg_BG,cs_CZ,da_DK,de_DE,el_GR,en_US,es_ES,es_LA,fa_IR,fr_FR,fr_CA,hu_HU,id_ID,it_IT,ja_JP,ko_KR,lv_LV,lt_LT,nb_NO,nl_NL,pl_PL,pt_BR,pt_PT,ro_RO,ru_RU,sv_SE,th_TH,tr_TR,vi_VN,uk_UA,zh_CN,zh_TW"/>
 	
 	<xmlproperty file="${SRC_DIR}/conf/locales.xml" collapseAttributes="true"/>
 	
@@ -161,6 +162,10 @@
 			<fileset dir="${BASE_DIR}/src/org/bigbluebutton/modules/phone/views/assets/images/" />
 		</copy>		
 	</target>
+
+	<target name="build-classroom-audio" description="Compile Classroom Audio Module">
+		<build-module src="${SRC_DIR}" target="${CLASSROOM_AUDIO}" />
+	</target>
 	
 	<target name="build-video" description="Compile Video Module">
 		<build-module src="${SRC_DIR}" target="${VIDEO}" />
@@ -182,7 +187,7 @@
 	
 	<!-- just a grouping of modules to compile -->
 	<target name="build-deskshare-phone-video-whiteboard-dyn" 
-			depends="build-deskshare, build-phone, build-video, build-whiteboard, build-dyn"
+			depends="build-deskshare, build-phone, build-video, build-whiteboard, build-dyn, build-classroom-audio"
 			description="Compile deskshare, phone, video, whiteboard, dynamic info modules">
 	</target>
 	
@@ -278,7 +283,13 @@
 		<copy file="${PROD_RESOURCES_DIR}/DeskshareStandalone.html" todir="${OUTPUT_DIR}" overwrite="true"/>
 		<copy file="${PROD_RESOURCES_DIR}/bbb.gif" todir="${OUTPUT_DIR}" overwrite="true"/>		
 		<copy file="${PROD_RESOURCES_DIR}/locales.xml" todir="${OUTPUT_DIR}/conf" overwrite="true"/>		
-		<copy file="${PROD_RESOURCES_DIR}/example-info-data.xml" todir="${OUTPUT_DIR}/conf" overwrite="true"/>		
+		<copy file="${PROD_RESOURCES_DIR}/example-info-data.xml" todir="${OUTPUT_DIR}/conf" overwrite="true"/>
+		<copy file="${PROD_RESOURCES_DIR}/jquery-1.5.1.min.js" todir="${OUTPUT_DIR}" overwrite="true" />
+		<copy file="${PROD_RESOURCES_DIR}/bigbluebutton.js" todir="${OUTPUT_DIR}" overwrite="true"/>
+		<copy file="${PROD_RESOURCES_DIR}/deployJava.js" todir="${OUTPUT_DIR}" overwrite="true"/>
+		<copy file="${PROD_RESOURCES_DIR}/bbb_blinker.js" todir="${OUTPUT_DIR}" overwrite="true"/>
+		<copy file="${PROD_RESOURCES_DIR}/bbb_deskshare.js" todir="${OUTPUT_DIR}" overwrite="true"/>
+		<copy file="${PROD_RESOURCES_DIR}/bbb_localization.js" todir="${OUTPUT_DIR}" overwrite="true"/>
 		<if>
            		<equals arg1="${BUILD_ENV}" arg2="DEV"/>
            		<then>
@@ -357,4 +368,6 @@
 	<target name="modules" depends="init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, compile-bbb"
                         description="Build BBB client without locales"/>		
 	<target name="cleanandmake" depends="clean-build-all" description="Build BBB client including locales"/>
+
+	<target name="build-custom" depends="init-ant-contrib, build-classroom-audio" description="Build a custom defined module only, to save time as each build takes several minutes" />
 </project>

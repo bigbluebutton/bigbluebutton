@@ -21,7 +21,9 @@
 --> 
 
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" icon="{notesIcon}" 
-		   click="openPublishWindow()" creationComplete="init()" toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip')}" xmlns:mate="http://mate.asfusion.com/">
+		   click="openPublishWindow()" creationComplete="init()" 
+		   toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip')}" xmlns:mate="http://mate.asfusion.com/"
+		   implements="org.bigbluebutton.common.IBbbToolbarComponent">
 	
 	<mate:Listener type="{SharedNotesWindow.SHARED_NOTES_CLOSED}" method="closeEventHandler" />
 	<mx:Script>
@@ -31,6 +33,7 @@
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.main.views.MainToolbar;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			[Embed(source="images/note_edit.png")]
@@ -61,6 +64,10 @@
 			
 			private function closeEventHandler(e:Event):void {
 				show();
+			}
+			
+			public function getAlignment():String{
+				return MainToolbar.ALIGN_LEFT;
 			}
 		]]>
 	</mx:Script>

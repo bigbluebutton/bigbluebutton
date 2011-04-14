@@ -223,10 +223,13 @@
 			}
 			
 			private function attemptReconnect(e:ConnectionFailedEvent):void{
-				if (connectionLostWindow != null) return;
+				/*if (connectionLostWindow != null) return;
 				connectionLostWindow = ConnectionLostWindow(PopUpManager.createPopUp( mdiCanvas, ConnectionLostWindow, true));
 				connectionLostWindow.x = mdiCanvas.width/2 - connectionLostWindow.width/2;
-				connectionLostWindow.y = mdiCanvas.height/2 - connectionLostWindow.height/2;
+				connectionLostWindow.y = mdiCanvas.height/2 - connectionLostWindow.height/2;*/
+				
+				//Temporary fix
+				handleLogout(e);
 			}
 			
 			private function setLogVisibility(e:ConfigEvent):void{

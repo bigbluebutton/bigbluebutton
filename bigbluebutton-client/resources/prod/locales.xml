@@ -10,7 +10,9 @@
 	<locale code="fr_FR" name="French"/>
 	<locale code="fr_CA" name="French Canadian"/>
 	<locale code="hu_HU" name="Hungarian"/>
+    <locale code="id_ID" name="Indonesian"/>
 	<locale code="it_IT" name="Italian"/>
+    <locale code="ko_KR" name="Korean"/>
 	<locale code="lt_LT" name="Lithuania"/>
 	<locale code="nb_NO" name="Norwegian"/>
 	<locale code="nl_NL" name="Netherland"/>
