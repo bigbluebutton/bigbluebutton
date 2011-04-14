@@ -75,10 +75,6 @@
 				if (isPresenter()) showResControls(true);
 				if (Camera.names.length > 1) showVideoControls(true);
 				if (!isPresenter() && Camera.names.length == 1) startPublishing();
-<<<<<<< HEAD
-				maximizeRestoreBtn.visible = false;				
-=======
-
 				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEvent);
 				addEventListener(MDIWindowEvent.RESIZE, onResizeEvent);
 				addEventListener(MDIWindowEvent.MAXIMIZE, onMaximize);
@@ -88,7 +84,6 @@
 				this.minHeight = _minHeight;
 				maximizeRestoreBtn.visible = false;
 				this.resizable = false;
->>>>>>> master
 			}
 			
 			public function getPrefferedPosition():String{
@@ -143,27 +138,11 @@
 			}
 			
 			private function setResolution():void{
-<<<<<<< HEAD
-				if (cmbResolution.selectedLabel == "320x240"){
-					camHeight = 240;
-					camWidth = 320;
-				} else if (cmbResolution.selectedLabel == "640x480"){
-					camHeight = 480;
-					camWidth = 640;
-				}
-				/**
-				 * Add timestamp to create a unique stream name. This way we can record
-				 * stream without overwriting previously recorded streams.
-				 */
-				var curTime:Number = new Date().getTime();
-				this.streamName = cmbResolution.selectedLabel.concat(this.streamName) + "-" + curTime;
-=======
 				var res:Array = cmbResolution.selectedLabel.split( "x" );
 				camWidth = Number(res[0]);
 				camHeight = Number(res[1]);
 				_nAspectRatio = (camWidth/camHeight);
 				this.streamName = cmbResolution.selectedLabel.concat(this.streamName);
->>>>>>> master
 			}
 			
 			public function set userrole(role:String):void{
