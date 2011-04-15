@@ -29,17 +29,24 @@ publish_dir = props['publish_dir']
 playback_host = props['playback_host']
 
 
-BigBlueButton::AudioArchiver.archive(meeting_id, audio_dir, archive_dir)  
-BigBlueButton::EventsArchiver.archive(archive_dir, meeting_id)
+puts Dir.pwd
+Dir.chdir(scripts_home) do
+  puts Dir.pwd
+      
+  BigBlueButton::AudioArchiver.archive(meeting_id, audio_dir, archive_dir)  
+  BigBlueButton::EventsArchiver.archive(archive_dir, meeting_id)
 
-from_dir = "#{presentation_dir}/#{meeting_id}/#{meeting_id}"
-puts from_dir
-BigBlueButton::PresentationArchiver.archive(meeting_id, from_dir, archive_dir)
+  from_dir = "#{presentation_dir}/#{meeting_id}/#{meeting_id}"
+  puts from_dir
+  BigBlueButton::PresentationArchiver.archive(meeting_id, from_dir, archive_dir)
 
-from_dir = "#{video_dir}/#{meeting_id}"
-puts from_dir
-BigBlueButton::VideoArchiver.archive(meeting_id, from_dir, archive_dir)
+  from_dir = "#{video_dir}/#{meeting_id}"
+  puts from_dir
+  BigBlueButton::VideoArchiver.archive(meeting_id, from_dir, archive_dir)
 
-from_dir = "#{deskshare_dir}"
-puts from_dir
-BigBlueButton::DeskshareArchiver.archive(meeting_id, from_dir, archive_dir)
+  from_dir = "#{deskshare_dir}"
+  puts from_dir
+  BigBlueButton::DeskshareArchiver.archive(meeting_id, from_dir, archive_dir)
+
+end
+  puts Dir.pwd
