@@ -43,6 +43,7 @@ GEM
     streamio-ffmpeg (0.7.8)
     term-ansicolor (1.0.5)
     tilt (1.2.2)
+    trollop (1.16.2)
     vegas (0.1.8)
       rack (>= 1.0.0)
 
@@ -61,3 +62,4 @@ DEPENDENCIES
   rspec (= 2.0.0)
   rubyzip
   streamio-ffmpeg
+  trollop
