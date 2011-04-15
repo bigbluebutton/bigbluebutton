@@ -7,7 +7,7 @@ Given /^recordings in the archive$/ do
   end
   FileUtils.mkdir_p @tmp_archive_dir
   
-  @meeting_id = "5e772bb3-5a0b-4759-b21b-153c734b777b"
+  @meeting_id = "58f4a6b3-cd07-444d-8564-59116cb53974"
   
   @raw_dir = "resources/raw/#{@meeting_id}" 
   FileUtils.cp_r(@raw_dir, @tmp_archive_dir)
