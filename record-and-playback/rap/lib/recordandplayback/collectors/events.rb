@@ -80,7 +80,7 @@ module BigBlueButton
       xml.target!
     end
     
-    def save_events_to_file(directory)
+    def save_events_to_file(directory, result)
       a_file = File.new("#{directory}/events.xml","w+")
       a_file.write(result)
       a_file.close

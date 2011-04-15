@@ -28,8 +28,9 @@ ingest_dir = props['ingest_dir']
 publish_dir = props['publish_dir']
 playback_host = props['playback_host']
 
-#BigBlueButton::EventsArchiver.archive('meeting_id')
+
 BigBlueButton::AudioArchiver.archive(meeting_id, audio_dir, archive_dir)  
+BigBlueButton::EventsArchiver.archive(archive_dir, meeting_id)
 
 from_dir = "#{presentation_dir}/#{meeting_id}/#{meeting_id}"
 puts from_dir

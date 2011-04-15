@@ -34,7 +34,7 @@ module BigBlueButton
     
     def self.process_video(archive_dir, meeting_id, matterhorn_dir)
       FileUtils.cp_r("#{archive_dir}/video", matterhorn_dir)
-      video_dir = "#{matterhorn_dir}/video/#{meeting_id}"
+      video_dir = "#{matterhorn_dir}/video"
       
       begin
         Dir.glob("#{video_dir}/*.flv").each do |file|
