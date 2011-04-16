@@ -264,7 +264,7 @@
 	  	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}" id="copyrightLabel2"/>
 	 	<mx:Spacer width="20"/>
 		<mx:Spacer width="100%"/> 
-		<mx:ComboBox width="150" height="20" id="cmbLayout" change="changeLayout()" prompt="Layout" selectedItem="-1">
+		<mx:ComboBox width="100" height="20" id="cmbLayout" change="changeLayout()" prompt="Layout" selectedItem="-1">
            <mx:dataProvider>
               <mx:Array>
 			      <mx:String>Small videos</mx:String>
