@@ -52,8 +52,8 @@
 			private var _bResizePossible:Boolean = true;
 			private var _nAspectRatio:Number = 1;
 
-			private var _minWidth:int = 166;
-			private var _minHeight:int = 149;
+			static private var _minWidth:int = 166;
+			static private var _minHeight:int = 149;
 
 			private var _nSavedVideoWidth:Number = 0;
 			private var _nSavedVideoHeight:Number = 0;
@@ -258,7 +258,21 @@
 				video.height = _nSavedVideoHeight;
 				adjustWindowSize();
 			}
+			
+			public function setWindowWidth(width:int):void {
+				video.width = width - 6;
+				video.height = Math.floor(video.width / _nAspectRatio);
+				adjustWindowSize();
+			}
+			
+			static public function getMinWidth():int {
+				return _minWidth;
+			}
 		
+			static public function getMinHeight():int {
+				return _minHeight;
+			}
+
 		]]>
 	</mx:Script>
 	

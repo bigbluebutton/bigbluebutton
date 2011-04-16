@@ -61,8 +61,8 @@
 			private var _bResizePossible:Boolean = true;
 			private var _nAspectRatio:Number = 1;
 			
-			private var _minWidth:int = 166;
-			private var _minHeight:int = 149;
+			static private var _minWidth:int = 166;
+			static private var _minHeight:int = 149;
 
 			private var _nSavedVideoWidth:Number = 0;
 			private var _nSavedVideoHeight:Number = 0;
@@ -294,6 +294,28 @@
 				video.width = _nSavedVideoWidth;
 				video.height = _nSavedVideoHeight;
 				adjustWindowSize();
+			}
+
+			public function setWindowWidth(width:int):void {
+				video.width = width - 6;
+				video.height = Math.floor(video.width / _nAspectRatio);
+				adjustWindowSize();
+			}
+			
+			static public function getMinWidth():int {
+				return _minWidth;
+			}
+		
+			static public function getMinHeight():int {
+				return _minHeight;
+			}
+			
+			static public function getWindowHeightByWidth(width:int, aspect:Number):int {
+				return Math.floor((width - 6) / aspect) + 29;
+			}
+			
+			static public function getWindowWidthByHeight(height:int, aspect:Number):int {
+				return Math.floor((height - 29) * aspect) + 6;
 			}
 
 			override protected function resourcesChanged():void{
