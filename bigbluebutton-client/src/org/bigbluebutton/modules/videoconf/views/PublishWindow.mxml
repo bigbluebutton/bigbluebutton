@@ -34,7 +34,6 @@
 		<![CDATA[
 			import flexlib.mdi.events.MDIWindowEvent;
 			
-			import mx.controls.Alert;
 			import mx.core.UIComponent;
 			import mx.events.ResizeEvent;
 			
@@ -92,7 +91,6 @@
 			private function loadPrefs():void{
 				var sharedObject:SharedObject = SharedObject.getLocal("bbbUserProperties", "/");
 				var webcam:String = sharedObject.data["webcam"] as String;
-				Alert.show(webcam);
 				for (var i:Number = 0; i<Camera.names.length; i++){
 					if (Camera.names[i] == webcam) cmbCameraSelector.selectedIndex = i;
 				}
