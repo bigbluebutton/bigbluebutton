@@ -30,7 +30,6 @@
 			
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.modules.videoconf.views.*;
 
 			public static const TOP_LEFT:String = "TOP_LEFT_WINDOW";
 			public static const BOTTOM_LEFT:String = "BOTTOM_LEFT_WINDOW";
@@ -162,24 +161,11 @@
 				if (windows.length == 0)
 					return;
 					
-				var rows:int = 0;
-				var winPerRow:int = windows.length;
-				var width:int = 0;
-				var heigth:int = 0;
-
-				// limits the window width
-				do {
-					rows += 1;
-					winPerRow = Math.ceil(windows.length / rows);
-					width = Math.floor(this.width / winPerRow);
-				} while (width < PublishWindow.getMinWidth());
+				var width:int = 166;
+				var height:int = 149;
 				
-				// limits the window heigth to 1/4 of the screen
-				var height:int = PublishWindow.getWindowHeightByWidth(width, 4/3);
-				if (height > Math.floor(this.height / 4)) {
-					height = Math.floor(this.height / 4);
-					width = PublishWindow.getWindowWidthByHeight(height, 4/3);
-				}
+				var rows:int = Math.ceil(this.height/height);
+				var winPerRow:int = Math.floor(windows.length/rows);
 
 				// try to fit better the number of windows per row
 				winPerRow = Math.floor(this.width / width);
@@ -195,11 +181,7 @@
 					var window:IBbbModuleWindow = windows[i] as IBbbModuleWindow;
 					var type:String = getType(window);
 					
-					if (type == "PublishWindow") {
-						(window as PublishWindow).setWindowWidth(width);
-					} else if (type == "VideoWindow") {
-						(window as VideoWindow).setWindowWidth(width);
-					}
+					(window as MDIWindow).width = width;
 					
 					var win:MDIWindow = window as MDIWindow;
 					if (win.minimized || win.maximized)
