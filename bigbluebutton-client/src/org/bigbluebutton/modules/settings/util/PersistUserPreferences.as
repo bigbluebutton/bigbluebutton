@@ -43,5 +43,14 @@ package org.bigbluebutton.modules.settings.util
 				trace("Could not flush shared object");
 			}
 		}
+		
+		public static function saveSettingsVisited():void{
+			sharedObject.data["previouslyvisited"] = true;
+			try{
+				sharedObject.flush(1000);
+			} catch(err:Error){
+				trace("Could not flush shared object");
+			}
+		}
 	}
 }

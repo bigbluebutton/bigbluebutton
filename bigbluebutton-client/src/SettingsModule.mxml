@@ -34,6 +34,7 @@ $Id: $
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.SettingsEvent;
 			import org.bigbluebutton.modules.settings.SettingsPanel;
+			import org.bigbluebutton.modules.settings.util.PersistUserPreferences;
 			import org.bigbluebutton.modules.settings.util.Requirements;
 			
 			private var _moduleName:String = "Settings Module";			
@@ -76,18 +77,24 @@ $Id: $
 				
 				globalDispatcher.dispatchEvent(new SettingsEvent(SettingsEvent.SETTINGS_MODULE_LOADED));
 				
+				var sharedObject:SharedObject = SharedObject.getLocal("bbbUserProperties", "/");
+				var firstTime:Boolean = sharedObject.data["previouslyvisited"] as Boolean;
+				if (!firstTime) openSettingsPanel();
+				
 			}
 			
 			public function stop():void {
 			}
 			
-			private function openSettingsPanel(e:SettingsEvent):void{
+			private function openSettingsPanel(e:SettingsEvent = null):void{
 				var settingsPanel:SettingsPanel = SettingsPanel(PopUpManager.createPopUp(Application.application as DisplayObject, SettingsPanel, true));
 				
 				var point1:Point = new Point();
 				// Calculate position of TitleWindow in Application's coordinates. 
 				settingsPanel.x = Application.application.width/2 - settingsPanel.width/2;
-				settingsPanel.y = Application.application.height/2 - settingsPanel.height/2
+				settingsPanel.y = Application.application.height/2 - settingsPanel.height/2;
+				
+				PersistUserPreferences.saveSettingsVisited();
 			}
 		]]>
 	</mx:Script>
