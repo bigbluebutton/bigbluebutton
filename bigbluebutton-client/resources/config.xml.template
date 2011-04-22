@@ -17,6 +17,7 @@
 			deskshare="rtmp://HOST/deskShare"
 			java_required="1.6.0_22"
 			flash_required="10,0,0"
+			check_deskshare="true"
 		/>
 		
 		<module name="ChatModule" url="ChatModule.swf?v=VERSION" 
