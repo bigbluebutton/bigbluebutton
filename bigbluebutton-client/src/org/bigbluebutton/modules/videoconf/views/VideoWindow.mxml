@@ -24,7 +24,8 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	creationComplete="init()" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
-	xmlns:mate="http://mate.asfusion.com/">
+	xmlns:mate="http://mate.asfusion.com/"
+	resize="onResize()">
 	
 	<mx:Script>
 		<![CDATA[
@@ -167,6 +168,8 @@
 			}
 			
 			private function adjustWindowSize():void{
+				if (videoHolder == null) return; 
+				
 				videoHolder.width = video.width;
 				videoHolder.height = video.height;
 				this.width = video.width + 6;
@@ -260,6 +263,8 @@
 			}
 			
 			public function setWindowWidth(width:int):void {
+				if (video == null) return;
+				
 				video.width = width - 6;
 				video.height = Math.floor(video.width / _nAspectRatio);
 				adjustWindowSize();
@@ -271,6 +276,10 @@
 		
 			static public function getMinHeight():int {
 				return _minHeight;
+			}
+			
+			private function onResize():void{
+				setWindowWidth(this.width);
 			}
 
 		]]>
