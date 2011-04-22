@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="400" height="300" creationComplete="onCreationComplete()">
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="400" height="300" creationComplete="onCreationComplete()" horizontalAlign="center" verticalAlign="middle">
 	
 	<mx:Script>
 		<![CDATA[			
@@ -22,6 +22,7 @@
 			 */
 			public function startTheApplet():void{
 				ExternalInterface.call("startApplet", getCaptureServerUri(), deskshareConnector.room, true);
+				this.removeAllChildren();
 			}
 			
 			private function appletStarted(videoWidth:Number, videoHeight:Number):void{
@@ -126,4 +127,6 @@
 		]]>
 	</mx:Script>
 	
+	<mx:Button id="btnStartDeskshare" click="startTheApplet()" label="Check Desktop Sharing" />
+	<mx:Text width="200" textAlign="center" text="Click Allow on the propmt that pops up to check that desktop sharing is working properly for you" id="txtInstructions" />
 </mx:VBox>

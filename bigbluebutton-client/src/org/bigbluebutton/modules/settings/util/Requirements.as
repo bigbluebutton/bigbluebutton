@@ -16,6 +16,7 @@ package org.bigbluebutton.modules.settings.util
 		public static var bbb_deskshare_url:String;
 		public static var flash_required_version:String;
 		public static var java_required_version:String;
+		public static var check_deskshare:String = "false";
 		
 		private static var loader:URLLoader;
 		private static var isLoaded:Boolean = false;
@@ -32,7 +33,7 @@ package org.bigbluebutton.modules.settings.util
 			
 			flash_required_version = attributes.flash_required;
 			java_required_version = attributes.java_required;
-			
+			check_deskshare = attributes.check_deskshare;
 		}
 		
 	}
