@@ -30,6 +30,7 @@
 	<mate:Listener type="{ConnectionFailedEvent.USER_LOGGED_OUT}" method="hideToolbar" />
 	<mate:Listener type="{SuccessfulLoginEvent.USER_LOGGED_IN}" method="loginSuccess" />
 	<mate:Listener type="{ConfigEvent.CONFIG_EVENT}" method="gotConfigParameters" />
+	<mate:Listener type="{SettingsEvent.SETTINGS_MODULE_LOADED}" method="showSettingsButton" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -120,7 +121,15 @@
 				d.dispatchEvent(e);
 			}
 			
-			private function openSettings():void{
+			private function showSettingsButton(e:SettingsEvent):void{
+				var b:Button = new Button();
+				b.label = ResourceUtil.getInstance().getString('bbb.mainToolbar.settingsBtn');
+				b.toolTip = ResourceUtil.getInstance().getString('bbb.mainToolbar.settingsBtn.toolTip');
+				b.addEventListener(MouseEvent.CLICK, openSettings);
+				this.addChild(b);
+			}
+			
+			private function openSettings(e:Event = null):void{
 				var d:Dispatcher = new Dispatcher();
 				d.dispatchEvent(new SettingsEvent(SettingsEvent.OPEN_SETTINGS_PANEL));
 			}
@@ -132,8 +141,8 @@
 	<mx:Spacer width="100%"/>
 	<views:LanguageSelector id="langSelector" visible="false" />
 	<mx:LinkButton label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" click="onHelpButtonClicked()"/>
-	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.settingsBtn')}" id="btnSettings"
-			   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.settingsBtn.toolTip')}" right="10" click="openSettings()"/>
+	<!--<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.settingsBtn')}" id="btnSettings" visible="false"
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.settingsBtn.toolTip')}" right="10" click="openSettings()"/>-->
 	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn')}" id="btnLogout" 
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="doLogout()"/>
 </mx:ApplicationControlBar>

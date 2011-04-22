@@ -45,7 +45,6 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.main.events.AppVersionEvent;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.events.MouseEvent;
@@ -65,9 +64,10 @@
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
 			import org.bigbluebutton.common.events.CloseWindowEvent;
+			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.main.events.AppVersionEvent;
 			import org.bigbluebutton.main.events.ConfigEvent;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
-			import org.bigbluebutton.common.events.OpenWindowEvent;
 			import org.bigbluebutton.main.events.PortTestEvent;
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;

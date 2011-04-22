@@ -74,6 +74,7 @@ $Id: $
 				globalDispatcher = new Dispatcher();
 				Requirements.setRequirements(attributes);
 				
+				globalDispatcher.dispatchEvent(new SettingsEvent(SettingsEvent.SETTINGS_MODULE_LOADED));
 				//var startEvent:StartWhiteboardModuleEvent = new StartWhiteboardModuleEvent();
 				//startEvent.attributes = attributes;
 				//globalDispatcher.dispatchEvent(startEvent);
