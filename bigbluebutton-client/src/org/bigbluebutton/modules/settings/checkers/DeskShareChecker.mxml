@@ -124,6 +124,11 @@
 				uri = uri.split("/")[2];
 				return uri;
 			}
+			
+			public function stop():void{
+				if (ns != null) ns.close();
+				ExternalInterface.call("stopApplet");
+			}
 		]]>
 	</mx:Script>
 	

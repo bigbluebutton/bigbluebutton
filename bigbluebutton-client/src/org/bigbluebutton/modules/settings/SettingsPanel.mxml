@@ -54,6 +54,10 @@
 			}
 			
 			private function onSaveClose(e:Event = null):void{
+				webcamCheck.stop();
+				micCheck.stop();
+				deskshareCheck.stop();
+				//this.removeAllChildren();
 				PopUpManager.removePopUp(this);
 			}
 			

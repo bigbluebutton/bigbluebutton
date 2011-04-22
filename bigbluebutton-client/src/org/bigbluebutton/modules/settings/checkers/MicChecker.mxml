@@ -48,6 +48,10 @@
 				mic.gain = sldVolume.value;
 				PersistUserPreferences.saveMicrophoneGain(mic.gain);
 			}
+			
+			public function stop():void{
+				audioConnector.stop();
+			}
 		]]>
 	</mx:Script>
 	

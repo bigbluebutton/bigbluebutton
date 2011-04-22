@@ -75,14 +75,10 @@ $Id: $
 				Requirements.setRequirements(attributes);
 				
 				globalDispatcher.dispatchEvent(new SettingsEvent(SettingsEvent.SETTINGS_MODULE_LOADED));
-				//var startEvent:StartWhiteboardModuleEvent = new StartWhiteboardModuleEvent();
-				//startEvent.attributes = attributes;
-				//globalDispatcher.dispatchEvent(startEvent);
 				
 			}
 			
 			public function stop():void {
-				//globalDispatcher.dispatchEvent(new StopWhiteboardModuleEvent(StopWhiteboardModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT));
 			}
 			
 			private function openSettingsPanel(e:SettingsEvent):void{

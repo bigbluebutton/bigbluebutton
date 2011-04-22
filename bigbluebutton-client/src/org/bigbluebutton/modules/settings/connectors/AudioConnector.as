@@ -128,5 +128,14 @@ package org.bigbluebutton.modules.settings.connectors
 			}			
 			mic.gain = 60;			
 		}
+		
+		public function stop():void{
+			if (mic != null){
+				mic.setLoopBack(false);
+				mic = null;
+			}
+			if (outgoingStream != null) outgoingStream.close();
+			if (incomingStream != null) incomingStream.close();
+		}
 	}
 }

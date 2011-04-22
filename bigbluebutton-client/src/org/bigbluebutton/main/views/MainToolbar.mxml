@@ -141,8 +141,6 @@
 	<mx:Spacer width="100%"/>
 	<views:LanguageSelector id="langSelector" visible="false" />
 	<mx:LinkButton label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" click="onHelpButtonClicked()"/>
-	<!--<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.settingsBtn')}" id="btnSettings" visible="false"
-			   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.settingsBtn.toolTip')}" right="10" click="openSettings()"/>-->
 	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn')}" id="btnLogout" 
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="doLogout()"/>
 </mx:ApplicationControlBar>
