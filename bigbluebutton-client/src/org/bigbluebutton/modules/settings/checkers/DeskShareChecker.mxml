@@ -7,6 +7,7 @@
 			
 			import org.bigbluebutton.modules.settings.connectors.DeskShareConnector;
 			import org.bigbluebutton.modules.settings.util.Requirements;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var deskshareConnector:DeskShareConnector;
 			private var ns:NetStream;
@@ -132,6 +133,6 @@
 		]]>
 	</mx:Script>
 	
-	<mx:Button id="btnStartDeskshare" click="startTheApplet()" label="Check Desktop Sharing" />
-	<mx:Text width="200" textAlign="center" text="Click Allow on the propmt that pops up to check that desktop sharing is working properly for you" id="txtInstructions" />
+	<mx:Button id="btnStartDeskshare" click="startTheApplet()" label="{ResourceUtil.getInstance().getString('bbb.settings.deskshare.start')}" />
+	<mx:Text width="200" textAlign="center" text="{ResourceUtil.getInstance().getString('bbb.settings.deskshare.instructions')}" id="txtInstructions" />
 </mx:VBox>

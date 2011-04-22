@@ -3,6 +3,7 @@
 		 paddingTop="10" paddingBottom="10" paddingLeft="10" paddingRight="10">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			public function addWarning(e:WarningEvent):void{
 				//Remove the No Issues label if an issue comes in.
@@ -20,5 +21,5 @@
 	</mx:Script>
 	
 	<mx:Label text="Possible Issues:" />
-	<mx:Label id="lblNoIssues" text="No outstanding issues have been detected." />
+	<mx:Label id="lblNoIssues" text="{ResourceUtil.getInstance().getString('bbb.settings.noissues')}" />
 </mx:VBox>

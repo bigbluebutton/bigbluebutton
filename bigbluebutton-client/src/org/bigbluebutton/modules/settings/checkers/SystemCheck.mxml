@@ -12,6 +12,7 @@
 			import org.bigbluebutton.modules.settings.uihelpers.WarningEvent;
 			import org.bigbluebutton.modules.settings.util.JavaCheck;
 			import org.bigbluebutton.modules.settings.util.Requirements;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 						
 			public function init():void{
 				checkFlash();
@@ -95,9 +96,9 @@
 			
 			private function showJavaError(hasVersion:String, needsVersion:String):void{	
 				var e:WarningEvent = new WarningEvent(WarningEvent.WARNING_EVENT);
-				e.warningLabel = "Java version error";
+				e.warningLabel = ResourceUtil.getInstance().getString('bbb.settings.java.label');
 				e.warningText = javaError(hasVersion, needsVersion);
-				e.optionalCommandText = "Install newest Java";
+				e.optionalCommandText = ResourceUtil.getInstance().getString('bbb.settings.java.command'); 
 				e.optionalCallbackFunction = installNewestJava;
 				dispatchEvent(e);
 			}
@@ -108,9 +109,9 @@
 			
 			private function showFlashError(hasVersion:String, needsVersion:String):void{
 				var e:WarningEvent = new WarningEvent(WarningEvent.WARNING_EVENT);
-				e.warningLabel = "Flash version error";
+				e.warningLabel = ResourceUtil.getInstance().getString('bbb.settings.flash.label');
 				e.warningText = flashError(hasVersion, needsVersion);
-				e.optionalCommandText = "Install newest Flash";
+				e.optionalCommandText = ResourceUtil.getInstance().getString('bbb.settings.flash.command');
 				e.optionalCallbackFunction = installNewestFlash;
 				dispatchEvent(e);
 			}
@@ -121,9 +122,9 @@
 			
 			private function showMacOS1065iSightError():void{
 				var e:WarningEvent = new WarningEvent(WarningEvent.WARNING_EVENT);
-				e.warningLabel = "iSight camera error";
+				e.warningLabel = ResourceUtil.getInstance().getString('bbb.settings.isight.label');
 				e.warningText = iSightErrorOSX1065();
-				e.optionalCommandText = "Install Flash 10.2 RC2";
+				e.optionalCommandText = ResourceUtil.getInstance().getString('bbb.settings.isight.command');
 				e.optionalCallbackFunction = installFlash102RC2;
 				dispatchEvent(e);
 			}
@@ -133,22 +134,15 @@
 			}
 			
 			private static function iSightErrorOSX1065():String{
-				return "If you have problems with your iSight camera, it may be because you are running OS X 10.6.5, which is known" +
-						" to have a problem with Flash capturing video from the iSight camera. \n" + 
-						"To correct this, click on the link bellow to install a newer version of Flash player,"+
-						" or update your Mac to the newest version";
+				return ResourceUtil.getInstance().getString('bbb.settings.isight.text');
 			}
 			
 			private static function javaError(hasVersion:String, needsVersion:String):String{
-				return "You have Java " + hasVersion + " installed, but you need at least version " + needsVersion +
-						" to use the BigBlueButton desktop sharing feature. Click on the button bellow to install the newest" +
-						" Java JRE version.";
+				return ResourceUtil.getInstance().getString('bbb.settings.java.text', [hasVersion, needsVersion]);
 			}
 			
 			private static function flashError(hasVersion:String, needsVersion:String):String{
-				return "You have Flash " + hasVersion + " installed, but you need at least version " + needsVersion +
-						" to run BigBlueButton properly. Click on the button bellow to install the newest" +
-						" Adobe Flash version.";
+				return ResourceUtil.getInstance().getString('bbb.settings.flash.text', [hasVersion, needsVersion]);
 			}
 		]]>
 	</mx:Script>

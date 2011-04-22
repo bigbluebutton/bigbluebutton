@@ -4,6 +4,8 @@
 		<![CDATA[
 			import mx.managers.PopUpManager;
 			
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
 			private var callback:Function;
 			
 			public function setAlert(text:String, optionalButtonLabel:String = null, optionalButtonCallback:Function = null):void{
@@ -26,10 +28,10 @@
 	</mx:Script>
 	
 	<mx:VBox horizontalAlign="center" width="100%" height="100%">
-		<mx:Label text="Warning" fontSize="24" height="10%" color="red" />
+		<mx:Label text="{ResourceUtil.getInstance().getString('bbb.settings.warning.label')}" fontSize="24" height="10%" color="red" />
 		<mx:Text id="txtAlert" width="100%" height="65%" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10" />
 		<mx:Button id="btnOptionalAction" click="onOptionalButtonClick()" label="" visible="false" />
-		<mx:Button id="btnClose" label="Close this Warning" click="closePopUp()" />
+		<mx:Button id="btnClose" label="{ResourceUtil.getInstance().getString('bbb.settings.warning.close')}" click="closePopUp()" />
 	</mx:VBox>
 	
 </mx:TitleWindow>

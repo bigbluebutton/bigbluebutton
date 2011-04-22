@@ -11,6 +11,7 @@
 			import org.bigbluebutton.modules.settings.uihelpers.JavaOKEvent;
 			import org.bigbluebutton.modules.settings.uihelpers.WarningEvent;
 			import org.bigbluebutton.modules.settings.util.Requirements;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var isJavaOk:Boolean = false;
 			
@@ -21,10 +22,7 @@
 			}
 			
 			private function setText():void{
-				txtInstructions.text = "Accept the Flash prompt that asks you " + 
-					"for camera permissions. If you can see yourself and  hear yourself, your browser has been " +
-					"set up correctly. Other potentials issues are shown bellow. Click on each to find a possible" + 
-					" solution.";
+				txtInstructions.text = ResourceUtil.getInstance().getString('bbb.settings.instructions');
 			}
 			
 			private function requirementsLoaded():void{
@@ -79,9 +77,7 @@
 	<uihelpers1:WarningsList id="warningsList" x="10" y="201" width="300" height="195"/>
 	<mx:Text x="10" y="10" width="300"
 			 id="txtInstructions" height="108" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"
-			 selectable="false"/>
-	<!--<mx:Button id="btnStart" x="21" y="144" label="Start Test" click="startTest()"/>-->
-	
+			 selectable="false"/>	
 	<mx:Button id="btnSaveClose" label="Save Settings and Close" click="onSaveClose()" bottom="15" horizontalCenter="0" />
 	
 </mx:TitleWindow>
