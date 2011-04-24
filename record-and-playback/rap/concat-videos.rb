@@ -17,6 +17,7 @@ end
 #    strip_audio_from_video(orig-video.flv, video2.flv)
 def strip_audio_from_video(video_in, video_out)
   IO.popen("ffmpeg -i #{video_in} -an -vcodec copy #{video_out}")
+  Process.wait
   # TODO: check for result, raise an exception when there is an error
 end
 
@@ -29,6 +30,7 @@ end
 #   create_blank_video(15, 1000, canvas.jpg, blank-video.flv)
 def create_blank_video(length, rate, blank_canvas, video_out)
   IO.popen("ffmpeg -loop_input -t #{length} -i #{blank_canvas} -r #{rate} #{video_out}")
+  Process.wait
   # TODO: check for result, raise exception when there is an error
 end
 
@@ -41,6 +43,7 @@ end
 #   create_blank_canvas(1280, 720, white, blank_canvas.jpg)
 def create_blank_canvas(width, height, color, out_file)
   IO.popen("convert -size #{width}x#{height} xc:#{color} #{out_file}")
+  Process.wait
   # TODO: check for result, raise an exception when there is an error
 end
 
@@ -50,8 +53,13 @@ end
 #   video_out - the concatenated video
 #                
 def concatenate_videos(videos_in, video_out)
-	videos = videos_in.each { |v| videos << "#{v} "}
+	videos = " "
+  videos_in.each { |v| videos << "#{v} "}
+  puts "combining #{videos}"
+  command = "mencoder -forceidx -of lavf -oac copy -ovc copy -o #{video_out} #{videos}"
+  puts command
   IO.popen("mencoder -forceidx -of lavf -oac copy -ovc copy -o #{video_out} #{videos}")
+  Process.wait
   # TODO: check result, raise exception on failure
 end
 
@@ -60,7 +68,8 @@ end
 #  video - the video file. Must not contain an audio stream. 
 def multiplex_audio_and_video(audio, video, video_out)
   IO.popen("ffmpeg -i #{audio} -i #{video} -map 1:0 -map 0:0 -ar 22050 #{video_out}")
-  # TODO: check result, raise an exception when there is an error
+  Process.wait 
+ # TODO: check result, raise an exception when there is an error
 end
  
 def executeFfmpeg(command)
@@ -113,5 +122,5 @@ blank_canvas = "canvas.jpg"
 create_blank_canvas(1280, 720, "white", blank_canvas)
 create_blank_video(15, 1000, blank_canvas, "blank1.flv")
 create_blank_video(4, 1000, blank_canvas, "blank2.flv")
-concatenate_videos(["blank1.flv", "blank2.flv"], "concat-video.flv")
+concatenate_videos(["blank1.flv", "stripped.flv", "blank2.flv"], "concat-video.flv")
 multiplex_audio_and_video("audio.wav", "concat-video.flv", "processed-video.flv")
