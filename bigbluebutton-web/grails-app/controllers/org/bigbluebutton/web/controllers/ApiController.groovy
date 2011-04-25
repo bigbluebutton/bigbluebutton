@@ -447,7 +447,8 @@ class ApiController {
 			invalidPassword("You must supply the moderator password for this call."); return;
 		}
 
-		respondWithConferenceDetails(conf, room, null, null);
+		//respondWithConferenceDetails(conf, room, null, null);
+		respondWithConferenceDetails2(conf, room, null, null);
 	}
 	
 	def getMeetings = {
@@ -682,6 +683,39 @@ class ApiController {
 				}
 			}
 		}			 
+	}
+	
+	def respondWithConferenceDetails2(conf, room, msgKey, msg) {
+		response.addHeader("Cache-Control", "no-cache")
+		withFormat {
+			xml {
+				render(contentType:"text/xml") {
+					response() {
+						returncode(RESP_CODE_SUCCESS)
+						meetingID("${conf.meetingID}")
+						attendeePW("${conf.attendeePassword}")
+						moderatorPW("${conf.moderatorPassword}")
+						running(conf.isRunning() ? "true" : "false")
+						hasBeenForciblyEnded(conf.isForciblyEnded() ? "true" : "false")
+						startTime("${conf.startTime}")
+						endTime("${conf.endTime}")
+						participantCount(conf.getNumberOfParticipants())
+						moderatorCount(conf.getNumberOfModerators())
+						attendees() {
+							conf.getParticipants().each { att ->
+								attendee() {
+									userID("${att.userid}")
+									fullName("${att.fullname}")
+									role("${att.role}")
+								}
+							}
+						}
+						messageKey(msgKey == null ? "" : msgKey)
+						message(msg == null ? "" : msg)
+					}
+				}
+			}
+		}
 	}
 
 	def respondWithConference(conf, msgKey, msg) {

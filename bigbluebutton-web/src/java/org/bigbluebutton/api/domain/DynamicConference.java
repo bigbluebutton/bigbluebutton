@@ -21,6 +21,8 @@
 package org.bigbluebutton.api.domain;
 
 import org.apache.commons.lang.RandomStringUtils;
+
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
@@ -49,6 +51,9 @@ public class DynamicConference {
 	private String logoutUrl;
 	private int maxParticipants;
 	private boolean record;
+	
+	/*removing bbb-commons*/
+	private ArrayList<DynamicConferenceParticipant> participants; 
 
 	public DynamicConference(String name, String meetingID, String attendeePW, String moderatorPW, int maxParticipants) {
 		this.name = name;
@@ -57,6 +62,8 @@ public class DynamicConference {
 		this.moderatorPassword = (moderatorPW == null ? createPassword() : moderatorPW);
 		this.maxParticipants = maxParticipants < 0 ? -1 : maxParticipants;
 		this.meetingToken = createMeetingToken();
+		//remove bbb-commons
+		this.participants = new ArrayList<DynamicConferenceParticipant>();
 	}
 
 	public static String createMeetingToken() {
@@ -231,6 +238,41 @@ public class DynamicConference {
 
 	public void setRecord(boolean record) {
 		this.record = record;
+	}
+	
+	/*
+	 * remove bbb-commons
+	 * */
+	public void addParticipant(DynamicConferenceParticipant participant){
+		this.participants.add(participant);
+	}
+	
+	public void removeParticipant(String userid){
+		for(DynamicConferenceParticipant p: this.participants){
+			if(p.getUserid().equalsIgnoreCase(userid)){
+				this.participants.remove(p);
+				break;
+			}
+		}
+		
+	}
+	
+	public int getNumberOfParticipants(){
+		return this.participants.size();
+	}
+	
+	public int getNumberOfModerators(){
+		int sum = 0;
+		for(DynamicConferenceParticipant p: this.participants){
+			if (p.isModerator()) {
+				sum++;
+			}
+		} 
+		return sum;
+	}
+	
+	public ArrayList<DynamicConferenceParticipant> getParticipants(){
+		return this.participants;
 	}
 	
 	@Override

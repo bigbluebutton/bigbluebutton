@@ -1,4 +1,4 @@
-package org.bigbluebutton.conference.service.recorder;
+package org.bigbluebutton.conference.service.recorder.pubsub;
 
 import redis.clients.jedis.JedisPubSub;
 
