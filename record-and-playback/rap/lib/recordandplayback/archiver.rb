@@ -1,18 +1,4 @@
-module BigBlueButton
-  class Archiver
-    def meeting_recorded?(meeting_id)
-      return true
-    end
-    
-    def archive(meeting_id)
-      BigBlueButton::AudioArchiver.archive(meeting_id, from, to)
-      BigBlueButton::EventsArchiver.archive(meeting_id, to)
-      BigBlueButton::PresentationArchiver.archive(meeting_id, from, to)
-      BigBlueButton::VideoArchiver.archive(meeting_id, from, to)
-      BigBlueButton::DeskshareArchiver.archive(meeting_id, from, to)
-    end
-  end
-  
+module BigBlueButton  
   class AudioArchiver  
     def self.archive(meeting_id, from, archive_dir)
       to_dir = "#{archive_dir}/#{meeting_id}/audio"
@@ -25,8 +11,8 @@ module BigBlueButton
   end
   
   class EventsArchiver
-    def self.archive(archive_dir, meeting_id)
-      redis = BigBlueButton::RedisWrapper.new("192.168.0.166", 6379)
+    def self.archive(archive_dir, meeting_id, redis_host, redis_port)
+      redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port)
       events_archiver = BigBlueButton::RedisEventsArchiver.new redis
       
       events_archiver.save_events_to_file("#{archive_dir}/#{meeting_id}", events_archiver.store_events(meeting_id))

@@ -23,7 +23,9 @@ module Generator
       end
       
       f.close();
-      proc = IO.popen("sox #{temp_file} -b 16 -r #{sampling_rate} -c 1 -s #{filename}", "w+")
+      command = "sox #{temp_file} -b 16 -r #{sampling_rate} -c 1 -s #{filename}"
+      BigBlueButton.logger.info("Executing #{command}\n")
+      proc = IO.popen(command, "w+")
       # Wait for the process to finish before removing the temp file
       Process.wait()
       # Delete the temporary raw audio file
@@ -36,7 +38,9 @@ module Generator
     #   outfile - resulting wav file
     def self.concatenate_audio_files(files, outfile)
       file_list = files.join(' ')
-      proc = IO.popen("sox #{file_list} #{outfile}", "w+")
+      command = "sox #{file_list} #{outfile}"
+      BigBlueButton.logger.info("Executing #{command}\n")
+      proc = IO.popen(command, "w+")
       # Wait for the process to finish
       Process.wait()    
     end
@@ -45,8 +49,10 @@ module Generator
     #
     #   wav_file - file to convert
     #   ogg_file - resulting ogg file
-    def self.wav_to_ogg(wav_file, ogg_file)    
-      proc = IO.popen("oggenc -Q -o #{ogg_file} #{wav_file} 2>&1", "w+")
+    def self.wav_to_ogg(wav_file, ogg_file)  
+      command = "oggenc -Q -o #{ogg_file} #{wav_file} 2>&1"
+      BigBlueButton.logger.info("Executing #{command}\n")      
+      proc = IO.popen(command, "w+")
       Process.wait() 
     end    
     
@@ -73,7 +79,9 @@ module Generator
         #    RMS     delta:         0.008049
         #    Rough   frequency:          504
         #    Volume adjustment:        1.215
-      IO.popen("sox #{file} -n stat 2>&1", "w+") do |output|
+      command = "sox #{file} -n stat 2>&1"
+      BigBlueButton.logger.info("Executing #{command}\n") 
+      IO.popen(command, "w+") do |output|
         output.each do |line|
           stats = line if line =~ /Length(.+)/
         end
