@@ -51,7 +51,7 @@ module Generator
     #   ogg_file - resulting ogg file
     def self.wav_to_ogg(wav_file, ogg_file)  
       command = "oggenc -Q -o #{ogg_file} #{wav_file} 2>&1"
-      BigBlueButton.logger.info("Executing #{command}\n")      
+      BigBlueButton::Archive.logger.info("Executing #{command}\n")      
       proc = IO.popen(command, "w+")
       Process.wait() 
     end    
@@ -94,19 +94,7 @@ module Generator
       end
       audio_length
     end
- 
-    # Get the timestamp of the first event.
-    def self.first_event_timestamp(events_xml)
-      doc = Nokogiri::XML(File.open(events_xml))
-      doc.xpath("recording/event").first["timestamp"].to_s
-    end
-    
-    # Get the timestamp of the last event.
-    def self.last_event_timestamp(events_xml)
-      doc = Nokogiri::XML(File.open(events_xml))
-      doc.xpath("recording/event").last["timestamp"].to_s
-    end
-    
+     
     def self.to_xml_file(events, file)
       xml = Builder::XmlMarkup.new( :indent => 2 )
       result = xml.instruct! :xml, :version => "1.0"
@@ -228,9 +216,9 @@ module Generator
       paddings = []
       events.sort! {|a,b| a.start_event_timestamp <=> b.start_event_timestamp}
       
-      length_of_gap = events[0].start_event_timestamp.to_i - first_event_timestamp(events_xml).to_i
+      length_of_gap = events[0].start_event_timestamp.to_i - BigBlueButton::Events.first_event_timestamp(events_xml).to_i
       if  (length_of_gap > 0)
-        paddings << create_gap_audio_event(length_of_gap, first_event_timestamp(events_xml), events[0].start_event_timestamp.to_i - 1)
+        paddings << create_gap_audio_event(length_of_gap, BigBlueButton::Events.first_event_timestamp(events_xml), events[0].start_event_timestamp.to_i - 1)
       end
       
       i = 0
@@ -246,9 +234,9 @@ module Generator
         i += 1
       end
       
-      length_of_gap = last_event_timestamp(events_xml).to_i - events[-1].stop_event_timestamp.to_i
+      length_of_gap = BigBlueButton::Events.last_event_timestamp(events_xml).to_i - events[-1].stop_event_timestamp.to_i
       if (length_of_gap > 0)
-        paddings << create_gap_audio_event(length_of_gap, events[-1].stop_event_timestamp.to_i + 1, last_event_timestamp(events_xml))
+        paddings << create_gap_audio_event(length_of_gap, events[-1].stop_event_timestamp.to_i + 1, BigBlueButton::Events.last_event_timestamp(events_xml))
       end
       
       paddings
