@@ -12,6 +12,13 @@ end
 
 meeting_id = opts[:meeting_id]
 
+# TODO:
+# 1. Check if meeting-id has corresponding dir in /var/bigbluebutton/archive
+# 2. If yest, return
+# 3. If not, archive the recording
+# 4. Add entry in /var/bigbluebutton/status/archived/<meeting-id>.done file
+
+
 # Execute all the scripts under the steps directory.
 # This script must be invoked from the scripts directory for the PATH to be resolved.
 Dir.glob("#{Dir.pwd}/archive/steps/*.rb").sort.each do |file|
