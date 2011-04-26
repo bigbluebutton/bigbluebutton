@@ -116,11 +116,3 @@ end
 
 #execute(ARGV)
 
-stripped_flv = "stripped.flv"
-strip_audio_from_video("webcam.flv", stripped_flv)
-blank_canvas = "canvas.jpg"
-create_blank_canvas(1280, 720, "white", blank_canvas)
-create_blank_video(15, 1000, blank_canvas, "blank1.flv")
-create_blank_video(4, 1000, blank_canvas, "blank2.flv")
-concatenate_videos(["blank1.flv", "stripped.flv", "blank2.flv"], "concat-video.flv")
-multiplex_audio_and_video("audio.wav", "concat-video.flv", "processed-video.flv")
