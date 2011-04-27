@@ -10,7 +10,15 @@
     <debug showDebugWindow="false" />
     
 	<modules>
-
+		
+		<module name="SettingsModule" url="SettingsModule.swf?v=VERSION"
+			voice="rtmp://demo.bigbluebutton.org/video"
+			video="rtmp://demo.bigbluebutton.org/video"
+			deskshare="rtmp://demo.bigbluebutton.org/deskShare"
+			java_required="1.6.0_22"
+			flash_required="10,0,0"
+		</module>
+		
 		<module name="ChatModule" url="ChatModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="ViewersModule"	

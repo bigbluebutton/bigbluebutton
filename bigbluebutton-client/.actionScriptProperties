@@ -26,6 +26,7 @@
   <applications>
     <application path="src/main.mxml"/>
     <application path="MessagingUnitTests.mxml"/>
+    <application path="org/bigbluebutton/modules/settings/SettingsPanel.mxml"/>
     <application path="BigBlueButton.mxml"/>
     <application path="BigBlueButtonUnitTests.mxml"/>
     <application path="DeskshareStandalone.mxml"/>
@@ -45,12 +46,10 @@
     <module application="src/BigBlueButton.mxml" destPath="BreakoutModule.swf" optimize="true" sourcePath="src/BreakoutModule.mxml"/>
     <module application="src/BigBlueButton.mxml" destPath="SharedNotesModule.swf" optimize="true" sourcePath="src/SharedNotesModule.mxml"/>
     <module application="src/BigBlueButton.mxml" destPath="ClassroomAudioModule.swf" optimize="true" sourcePath="src/ClassroomAudioModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="SettingsModule.swf" optimize="true" sourcePath="src/SettingsModule.mxml"/>
   </modules>
   <buildCSSFiles>
     <buildCSSFileEntry destPath="bin" sourcePath="src/branding/css/logo_basic.css"/>
     <buildCSSFileEntry destPath="bin" sourcePath="src/branding/css/theme.css"/>
   </buildCSSFiles>
 </actionScriptProperties>
-
-
-
