@@ -21,7 +21,7 @@
 -->
 
 <mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml" dataProvider="{this.langNames}" 
-			 selectedIndex="6" change="changeLanguage()" rowCount="15" width="120">
+			 selectedIndex="7" change="changeLanguage()" rowCount="15" width="120">
 	<mx:Script>
 		<![CDATA[
 			import mx.controls.Alert;
