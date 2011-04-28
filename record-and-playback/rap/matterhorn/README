@@ -1,5 +1,6 @@
 Matterhorn Webapp
------------------
+=================
+
 Go to the webapp folder, and follow these instructions
 
 * The matterhorn webapp requires:
@@ -15,12 +16,12 @@ Go to the webapp folder, and follow these instructions
 * Setting configuration:
 	- Edit the bigbluebutton.yml file according to your installation
 
-### For development
+## For development
 
 * Run the following: 
 	sudo thin -R config.ru 
 
-### For production 
+## For production 
 
 * We need to create a run start level:	
 	sudo thin install
@@ -30,16 +31,13 @@ Go to the webapp folder, and follow these instructions
 	sudo sh deploy.sh
 	sudo service thin start
 
-### Proxy Pass with Nginx
+## Proxy Pass with Nginx
 
 * Edit the file /etc/nginx/sites-enabled/bigbluebutton:
 	# Bigbluebutton
-	location /matterhorn {
-		proxy_pass			http://<your-ip>:3000/;
-		proxy_redirect		off;
-		proxy_set_header 	X-Forwarded-For $proxy_add_x_forwarded_for;
-		
-		
+	location /matterhorn/ {
+		proxy_pass			http://127.0.0.1:3000/;
+		proxy_redirect		default;
 	}
 
 	

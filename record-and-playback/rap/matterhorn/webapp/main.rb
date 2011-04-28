@@ -16,7 +16,7 @@ class LoginScreen < Sinatra::Base
 		haml :login 
 	}
     
-    post('/login') do
+    post('/login/?') do
 		INST="instructor"
 		PASS_INST="instructor"
 		
@@ -33,7 +33,7 @@ class LoginScreen < Sinatra::Base
 			session["user"]=username
 			session["role"]="student"
 		end
-		redirect "/"
+		redirect to("/")
     end
  end
 
@@ -66,18 +66,17 @@ class Main < Sinatra::Base
 	
 	before do
 		unless session['user']
-			redirect "/login"
+			redirect ("/login")
 		end
     end
-    
     get('/?') { 
 		
 		if session['role'] == "instructor"
-			redirect "/metadata"
+			redirect to("/metadata")
 		elsif session['role'] == "student"
 			redirect $bbb_api.join_meeting_url("bbb-matter", "student", "student")
 		else
-			redirect "/login"
+			redirect to("/login")
 		end
 	}
 	
