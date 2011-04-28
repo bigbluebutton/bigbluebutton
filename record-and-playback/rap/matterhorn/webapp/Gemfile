@@ -1,0 +1,7 @@
+source "http://rubygems.org"
+gem "sinatra"
+gem "haml"
+gem "thin"
+gem "nokogiri"
+gem "rack", "1.2.0"
+gem "bigbluebutton-api-ruby"

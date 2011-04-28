@@ -1,41 +1,48 @@
-For run the application:
-1) Install the following packages:
+Matterhorn Webapp
+-----------------
+Go to the webapp folder, and follow these instructions
+
+* The matterhorn webapp requires:
 	sudo apt-get install ruby1.8-dev 
-	sudo apt-get install rubygems
 	sudo apt-get install libxml2
 	sudo apt-get install libxml2-dev
 	sudo apt-get install libxslt-dev
-	sudo apt-get install thin
 
-2) Install the following gems:
-	sudo gem install sinatra
-	sudo gem install haml
-	sudo gem install redis
-	sudo gem uninstall rake
-	sudo gem install rack --version '1.2.0'
-	sudo gem install nokogiri
-	sudo gem install SystemTimer
-	sudo gem install thin
-
-3) clone and install bigbluebutton-api-ruby
-	git clone git://github.com/mconf/bigbluebutton-api-ruby.git
-	sudo gem build bigbluebutton-api-ruby.gemspec
-	sudo gem install bigbluebutton-api-ruby-x.x.x.gem
-
-4) For deploy, change the settings that you want in matterhorn_thin.yml, then run:
-	thin -C matterhorn_thin.yml start
+* Install bundler and execute for get the required gems:
+	sudo gem install bundler
+	sudo bundle install
 	
-5) And check:
-	http://<yourip>:3000/login
+* Setting configuration:
+	- Edit the bigbluebutton.yml file according to your installation
 
-6) Proxy pass with nginx:
-	replace the bigbluebutton file in the nginx sites-enabled directory:
-	cp bigbluebutton /etc/nginx/sites-enabled/bigbluebutton
+### For development
+
+* Run the following: 
+	sudo thin -R config.ru 
+
+### For production 
+
+* We need to create a run start level:	
+	sudo thin install
+	sudo /usr/sbin/update-rc.d -f thin defaults
+
+* Then, run the following commands:
+	sudo sh deploy.sh
+	sudo service thin start
+
+### Proxy Pass with Nginx
+
+* Edit the file /etc/nginx/sites-enabled/bigbluebutton:
+	# Bigbluebutton
+	location /matterhorn {
+		proxy_pass			http://<your-ip>:3000/;
+		proxy_redirect		off;
+		proxy_set_header 	X-Forwarded-For $proxy_add_x_forwarded_for;
+		
+		
+	}
+
 	
-7) Go to:
-	http://<yourip>/matterhorn
-
-
 ===========
 
 There is a ruby script in EC2 instance that:
