@@ -1,5 +1,0 @@
-bbb_salt: 'e49e0123e531d0816abaf4bc1b1d7f11'
-bbb_url: 'http://192.168.1.38/bigbluebutton/api'
-bbb_version: '0.7'
-redis_server: 'localhost'
-redis_port: '6379'

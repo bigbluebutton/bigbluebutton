@@ -1,5 +1,0 @@
-bbb_salt: 'insert-salt-here'
-bbb_url: 'http://your-ip/bigbluebutton/api'
-bbb_version: '0.7'
-redis_server: 'localhost'
-redis_port: '6379'

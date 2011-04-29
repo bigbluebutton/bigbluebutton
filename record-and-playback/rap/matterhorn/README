@@ -1,41 +1,46 @@
-For run the application:
-1) Install the following packages:
+Matterhorn Webapp
+=================
+
+Go to the webapp folder, and follow these instructions
+
+* The matterhorn webapp requires:
 	sudo apt-get install ruby1.8-dev 
-	sudo apt-get install rubygems
 	sudo apt-get install libxml2
 	sudo apt-get install libxml2-dev
 	sudo apt-get install libxslt-dev
-	sudo apt-get install thin
 
-2) Install the following gems:
-	sudo gem install sinatra
-	sudo gem install haml
-	sudo gem install redis
-	sudo gem uninstall rake
-	sudo gem install rack --version '1.2.0'
-	sudo gem install nokogiri
-	sudo gem install SystemTimer
-	sudo gem install thin
-
-3) clone and install bigbluebutton-api-ruby
-	git clone git://github.com/mconf/bigbluebutton-api-ruby.git
-	sudo gem build bigbluebutton-api-ruby.gemspec
-	sudo gem install bigbluebutton-api-ruby-x.x.x.gem
-
-4) For deploy, change the settings that you want in matterhorn_thin.yml, then run:
-	thin -C matterhorn_thin.yml start
+* Install bundler and execute for get the required gems:
+	sudo gem install bundler
+	sudo bundle install
 	
-5) And check:
-	http://<yourip>:3000/login
+* Setting configuration:
+	- Edit the bigbluebutton.yml file according to your installation
 
-6) Proxy pass with nginx:
-	replace the bigbluebutton file in the nginx sites-enabled directory:
-	cp bigbluebutton /etc/nginx/sites-enabled/bigbluebutton
+## For development
+
+* Run the following: 
+	sudo thin -R config.ru 
+
+## For production 
+
+* We need to create a run start level:	
+	sudo thin install
+	sudo /usr/sbin/update-rc.d -f thin defaults
+
+* Then, run the following commands:
+	sudo sh deploy.sh
+	sudo service thin start
+
+## Proxy Pass with Nginx
+
+* Edit the file /etc/nginx/sites-enabled/bigbluebutton:
+	# Bigbluebutton
+	location /matterhorn/ {
+		proxy_pass			http://127.0.0.1:3000/;
+		proxy_redirect		default;
+	}
+
 	
-7) Go to:
-	http://<yourip>/matterhorn
-
-
 ===========
 
 There is a ruby script in EC2 instance that:
@@ -83,3 +88,89 @@ Then you can verify the uploaded file is in
 http://ec2-50-17-155-248.compute-1.amazonaws.com:8080/engage/ui/index.html
 
 Actually there are 3 objects in Media Gallery
+
+  --------------------------------------------
+| MATTERHORN 1.1 INSTALLATION IN UBUNTU LUCID  |
+  --------------------------------------------
+
+MATTERHORN INSTALLATION DIRECTORY AND SOURCES
+	Create Matterhorn installation directory 
+		sudo mkdir -p /opt/matterhorn
+		sudo chown $USER:$GROUPS /opt/matterhorn
+	Update pacakges and install subversion
+		sudo apt-get update
+		sudo apt-get install subversion
+	Checkout Matterhorn 1.1 source in Matterhorn directory
+		cd /opt/matterhorn
+		svn checkout http://opencast.jira.com/svn/MH/tags/1.1.0 /opt/matterhorn/1.1.0
+	
+JAVA
+	Update sources list 
+		sudo nano /etc/apt/sources.list
+		Add these lines at the end:
+			deb http://archive.canonical.com/ubuntu lucid partner
+			deb-src http://archive.canonical.com/ubuntu lucid partner
+	Save the file and update
+		sudo apt-get update
+	Install java
+		sudo apt-get install sun-java6-jdk
+	Set JAVA_HOME variable
+		echo "export JAVA_HOME=/usr/lib/jvm/java-6-sun-1.6.0.24/" >> ~/.bashrc
+		source ~/.bashrc
+ 
+	
+APACHE MAVEN 
+	Install maven
+		sudo apt-get install maven2
+	Set maven opts
+		export MAVEN_OPTS='-Xms256m -Xmx960m -XX:PermSize=64m -XX:MaxPermSize=256m'
+	
+APACHE FELIX
+	Get the lastest release of Felix
+		sudo wget http://apache.deathculture.net//felix/org.apache.felix.main.distribution-3.2.0.tar.gz
+	Unarchive
+		sudo tar xvf org.apache.felix.main.distribution-3.2.0.tar.gz 
+	Move and rename unarchived folder to Matterhorn installation directory
+		sudo mv felix-framework-3.2.0 /opt/matterhorn/felix
+	Configure
+		sudo mkdir /opt/matterhorn/felix/load
+		sudo cp -rf /opt/matterhorn/1.1.0/docs/felix/* /opt/matterhorn/felix/
+    
+BUILD MATTERHORN
+	Go to Matterhorn source directory, deploy
+		cd /opt/matterhorn/1.1.0/
+		sudo mvn clean install -DdeployTo=/opt/matterhorn/felix/matterhorn
+	
+THIRD PARTY TOOLS
+	Go to third party directory and run the script to install them
+		cd /opt/matterhorn/1.1.0/docs/scripts/3rd_party
+		sudo ./menu3p
+	Note: Here you have an interactive menu where you need to run only options 0,1 and 2
+		for Ubuntu.
+
+EXPORT ENVIRONMENT VARIABLES
+	echo "export M2_REPO=/home/$USER/.m2/repository" >> ~/.bashrc
+	echo "export FELIX_HOME=/opt/matterhorn/felix" >> ~/.bashrc
+	echo "export JAVA_OPTS='-Xms1024m -Xmx1024m -XX:MaxPermSize=256m'" >> ~/.bashrc
+	source ~/.bashrc
+		
+CONFIGURE MATTERHORN PARAMETERS
+	sudo nano /opt/matterhorn/felix/conf/config.properties
+	
+	Change server url "http://localhost" to your hostname 
+	Example:
+	org.opencastproject.server.url=ec2-50-16-8-19.compute-1.amazonaws.com:8080
+	
+	Change storage directory to the dir where you want to store processed files
+	Example:
+	org.opencastproject.storage.dir=/opt/matterhorn/opencast
+
+	
+FELIX HOME
+	Running Matterhorn could throw an error with FELIX_HOME so edit the script to run Matterhorn
+	sudo nano /opt/matterhorn/felix/bin/start_matterhorn.sh
+	Change line 10 to
+		FELIX="/opt/matterhorn/felix"
+
+RUN MATTERHORN
+		sudo sh /opt/matterhorn/felix/bin/start_matterhorn.sh

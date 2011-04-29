@@ -2,7 +2,6 @@ require 'rubygems'
 #require 'sinatra'
 require 'sinatra/base'
 require 'haml'
-require 'redis'
 require 'bigbluebutton-api'
 
 #TODO:  manage exceptions
@@ -17,7 +16,7 @@ class LoginScreen < Sinatra::Base
 		haml :login 
 	}
     
-    post('/login') do
+    post('/login/?') do
 		INST="instructor"
 		PASS_INST="instructor"
 		
@@ -34,7 +33,7 @@ class LoginScreen < Sinatra::Base
 			session["user"]=username
 			session["role"]="student"
 		end
-		redirect "/"
+		redirect to("/")
     end
  end
 
@@ -47,12 +46,12 @@ class Main < Sinatra::Base
 	
 	configure do
 		#setting up logger
-		log = File.new("sinatra.log", "a")
+		log = File.new("log/sinatra.log", "a")
 		STDOUT.reopen(log)
 		STDERR.reopen(log)
 		
 		#loading config YAML file
-		config_file = 'config.yml'
+		config_file = 'bigbluebutton.yml'
 		unless File.exist? config_file
 			puts config_file + " does not exists..."
 		end
@@ -67,18 +66,17 @@ class Main < Sinatra::Base
 	
 	before do
 		unless session['user']
-			redirect "/login"
+			redirect ("/login")
 		end
     end
-    
     get('/?') { 
 		
 		if session['role'] == "instructor"
-			redirect "/metadata"
+			redirect to("/metadata")
 		elsif session['role'] == "student"
 			redirect $bbb_api.join_meeting_url("bbb-matter", "student", "student")
 		else
-			redirect "/login"
+			redirect to("/login")
 		end
 	}
 	
@@ -92,22 +90,13 @@ class Main < Sinatra::Base
 		series=params[:txtseries]
 		instructor=params[:txtinstructor]
 		
-		storeMatterhornInfo(title,series,instructor)
+		#storeMatterhornInfo(title,series,instructor)
 		
 		$bbb_api.create_meeting("Matterhorn BigBlueButton Session", "bbb-matter", "instructor", "student")
 		
 		redirect $bbb_api.join_meeting_url("bbb-matter", instructor, "instructor")
 	end
 	
-	def storeMatterhornInfo(title,series,instructor)
-		redis = Redis.new(:host => $config['redis_server'], :port => $config['redis_port'])
-		sessionid = redis.incr "global:nextMatterhornSession"
-		redis.set "matterhorn:#{sessionid}:title", title
-		redis.set "matterhorn:#{sessionid}:series", series
-		redis.set "matterhorn:#{sessionid}:instructor", instructor
-		redis.rpush "matterhorn:sessions", "#{sessionid}"
-		redis.quit
-	end
 end
 
 	
