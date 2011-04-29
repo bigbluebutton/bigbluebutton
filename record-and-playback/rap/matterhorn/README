@@ -19,7 +19,7 @@ Go to the webapp folder, and follow these instructions
 ## For development
 
 * Run the following: 
-	sudo thin -R config.ru 
+	sudo thin -R config.ru start
 
 ## For production 
 

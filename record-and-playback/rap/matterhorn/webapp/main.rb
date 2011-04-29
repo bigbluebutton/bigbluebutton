@@ -1,4 +1,7 @@
 require 'rubygems'
+require 'bundler'
+Bundler.setup(:default)
+
 #require 'sinatra'
 require 'sinatra/base'
 require 'haml'
@@ -9,27 +12,34 @@ require 'bigbluebutton-api'
 #		wait student for meeting to start
 #		logout
 
+		
 class LoginScreen < Sinatra::Base
     use Rack::Session::Pool, :expire_after => 2592000
     
+	configure do
+		set :pass_inst, "instructor"
+		set :pass_stud, "student"
+		
+	end
+	
     get('/login/?') { 
-		haml :login 
+		if session["user"].nil? == false
+			redirect to("/?")
+		else
+			haml :login
+		end			
 	}
     
     post('/login/?') do
-		INST="instructor"
-		PASS_INST="instructor"
 		
-		STUD="student"
-		PASS_STUD="student"
 		
 		username=params[:txtusername]
 		password=params[:txtpassword]
 		
-		if username==INST and password==PASS_INST
+		if password==settings.pass_inst
 			session["user"]=username
 			session["role"]="instructor"
-		elsif username==STUD and password==PASS_STUD
+		elsif password==settings.pass_stud
 			session["user"]=username
 			session["role"]="student"
 		end
@@ -38,13 +48,16 @@ class LoginScreen < Sinatra::Base
  end
 
 class Main < Sinatra::Base
-    # middleware will run before filters
+    
     use LoginScreen
 	
 	#enable logger
 	set :logging, true
 	
 	configure do
+		set :pass_inst, "instructor"
+		set :pass_stud, "student"
+	
 		#setting up logger
 		log = File.new("log/sinatra.log", "a")
 		STDOUT.reopen(log)
@@ -70,31 +83,58 @@ class Main < Sinatra::Base
 		end
     end
     get('/?') { 
-		
-		if session['role'] == "instructor"
-			redirect to("/metadata")
-		elsif session['role'] == "student"
-			redirect $bbb_api.join_meeting_url("bbb-matter", "student", "student")
-		else
-			redirect to("/login")
+		puts "getting meetings..."
+		resp = $bbb_api.get_meetings
+		@conflist = Hash.new
+		unless !resp["meetings"].nil? then 
+			puts resp[:meetings]
+			@conflist = resp[:meetings]
 		end
+		
+		@message = ""
+		if @conflist.length == 0
+			@message = "No meetings running..."
+		end
+		
+		haml :list
+
 	}
 	
+	get '/logout' do
+		session.clear
+		redirect to("/login")
+	end
+	
+	get '/enter' do
+		meeting_id = params[:meetingid]
+		username = session['user']
+		passwd = nil
+		
+		if session['role'] == "instructor" 
+			passwd = settings.pass_inst
+		elsif session['role'] == "student"
+			passwd = settings.pass_stud
+		end
+		
+		redirect $bbb_api.join_meeting_url(meeting_id, username, passwd)
+	end
 	
 	get '/metadata' do
 		haml :metadata
 	end
 
 	post '/metadata/process' do
-		title=params[:txttitle]
-		series=params[:txtseries]
-		instructor=params[:txtinstructor]
+		meeting_name=params[:txtname]
+		meeting_id=params[:txtid]
 		
-		#storeMatterhornInfo(title,series,instructor)
+		metadata = Hash.new
+		metadata[:title]=params[:txttitle]
+		metadata[:series]=params[:txtseries]
+		metadata[:instructor]=params[:txtinstructor]
 		
-		$bbb_api.create_meeting("Matterhorn BigBlueButton Session", "bbb-matter", "instructor", "student")
+		$bbb_api.create_meeting(meeting_name, meeting_id, settings.pass_inst, settings.pass_stud, nil, nil, nil, nil, nil, true, metadata)
 		
-		redirect $bbb_api.join_meeting_url("bbb-matter", instructor, "instructor")
+		redirect to("/enter?meetingid=#{meeting_id}")
 	end
 	
 end
