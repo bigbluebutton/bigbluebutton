@@ -126,7 +126,7 @@ dependencies {
     compile 'org/bigbluebutton/common:bbb-common-message:0.8@jar' 
             
     // Freeswitch ESL Client
-    compile 'org/freeswitch:fs-esl-client:0.8@jar'
+    compile 'org/freeswitch:fs-esl-client:0.8.1@jar'
     compile 'org.jboss.netty:netty:3.2.1.Final@jar'
 }
 
