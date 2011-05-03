@@ -145,6 +145,8 @@ package org.bigbluebutton.main.model.modules
 		}
 		
 		public function useProtocol(protocol:String):void {
+			if (_attributes.uri == null) return;
+			
 			_attributes.uri = _attributes.uri.replace(/rtmp:/gi, protocol + ":");
 			LogUtil.debug(_attributes.name + " uri = " + _attributes.uri);
 		}

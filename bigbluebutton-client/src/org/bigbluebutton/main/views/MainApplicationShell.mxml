@@ -40,14 +40,9 @@
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_CLOSED}" method="attemptReconnect"  />
 	<mate:Listener type="{ConnectionFailedEvent.UNKNOWN_REASON}" method="attemptReconnect"  />
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_REJECTED}" method="attemptReconnect"  />
-	<mate:Listener type="{RecordStatusEvent.RECORD_STATUS_EVENT}" method="handleRecordStatusEvent"  />
-	
 	<common:APIEventMap />
-	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.main.events.RecordStatusEvent;
-			import org.bigbluebutton.main.events.AppVersionEvent;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.events.MouseEvent;
@@ -67,9 +62,10 @@
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
 			import org.bigbluebutton.common.events.CloseWindowEvent;
+			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.main.events.AppVersionEvent;
 			import org.bigbluebutton.main.events.ConfigEvent;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
-			import org.bigbluebutton.common.events.OpenWindowEvent;
 			import org.bigbluebutton.main.events.PortTestEvent;
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
@@ -225,10 +221,13 @@
 			}
 			
 			private function attemptReconnect(e:ConnectionFailedEvent):void{
-				if (connectionLostWindow != null) return;
+				/*if (connectionLostWindow != null) return;
 				connectionLostWindow = ConnectionLostWindow(PopUpManager.createPopUp( mdiCanvas, ConnectionLostWindow, true));
 				connectionLostWindow.x = mdiCanvas.width/2 - connectionLostWindow.width/2;
-				connectionLostWindow.y = mdiCanvas.height/2 - connectionLostWindow.height/2;
+				connectionLostWindow.y = mdiCanvas.height/2 - connectionLostWindow.height/2;*/
+				
+				//Temporary fix
+				handleLogout(e);
 			}
 			
 			private function handleRecordStatusEvent(evt:RecordStatusEvent):void {
@@ -237,6 +236,21 @@
 			
 			private function setLogVisibility(e:ConfigEvent):void{
 				logBtn.visible = e.config.showDebug;
+			}
+			
+			private function changeLayout():void{
+				switch (cmbLayout.selectedIndex) {
+					case 0:
+						mdiCanvas.layoutSmallVideos();
+						break;
+					case 1:
+						mdiCanvas.layoutPresenter();
+						break;
+					case 2:
+						mdiCanvas.layoutMeeting();
+						break;
+				}
+				cmbLayout.selectedIndex = -1;
 			}
 			
 		]]>
@@ -252,6 +266,15 @@
 	  	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}" id="copyrightLabel2"/>
 	 	<mx:Spacer width="20"/>
 		<mx:Spacer width="100%"/> 
+		<mx:ComboBox width="100" height="20" id="cmbLayout" change="changeLayout()" prompt="Layout" selectedItem="-1">
+           <mx:dataProvider>
+              <mx:Array>
+			      <mx:String>Small videos</mx:String>
+			      <!--mx:String>Presenter + presentation</mx:String>
+			      <mx:String>Meeting</mx:String-->
+              </mx:Array>
+           </mx:dataProvider>
+      	</mx:ComboBox>
 		<mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}" id="logBtn" icon="{logs_icon}" click="openLogWindow()" />
 		<mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.resetLayoutBtn.toolTip')}" id="btnResetLayout" icon="{reset_layout_icon}" click="resetLayout()" />
 	</mx:ControlBar>

@@ -30,6 +30,7 @@
 	<mate:Listener type="{ConnectionFailedEvent.USER_LOGGED_OUT}" method="hideToolbar" />
 	<mate:Listener type="{SuccessfulLoginEvent.USER_LOGGED_IN}" method="loginSuccess" />
 	<mate:Listener type="{ConfigEvent.CONFIG_EVENT}" method="gotConfigParameters" />
+	<mate:Listener type="{SettingsEvent.SETTINGS_MODULE_LOADED}" method="showSettingsButton" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -45,6 +46,7 @@
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ConfigEvent;
 			import org.bigbluebutton.main.events.LogoutEvent;
+			import org.bigbluebutton.main.events.SettingsEvent;
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -117,6 +119,19 @@
 				var d:Dispatcher = new Dispatcher();
 				var e:LogoutEvent = new LogoutEvent(LogoutEvent.DISCONNECT_TEST);
 				d.dispatchEvent(e);
+			}
+			
+			private function showSettingsButton(e:SettingsEvent):void{
+				var b:Button = new Button();
+				b.label = ResourceUtil.getInstance().getString('bbb.mainToolbar.settingsBtn');
+				b.toolTip = ResourceUtil.getInstance().getString('bbb.mainToolbar.settingsBtn.toolTip');
+				b.addEventListener(MouseEvent.CLICK, openSettings);
+				this.addChild(b);
+			}
+			
+			private function openSettings(e:Event = null):void{
+				var d:Dispatcher = new Dispatcher();
+				d.dispatchEvent(new SettingsEvent(SettingsEvent.OPEN_SETTINGS_PANEL));
 			}
 			
 		]]>
