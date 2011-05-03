@@ -24,6 +24,7 @@ mkdir $DEPLOY_DIR"/log"
 mkdir $DEPLOY_DIR"/tmp"
 
 echo "Installing matterhorn webapp in thin..."
+# see http://code.macournoyer.com/thin/usage/
 thin config -C "/etc/thin/matterhorn.yml" -c $DEPLOY_DIR"/" --servers "1" -e "production"
 
 echo "**************************************************"
