@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="180" height="250"
+		 paddingTop="10" paddingBottom="10" paddingLeft="10" paddingRight="10" 
+		 horizontalAlign="center" visible="false" >
+	<mx:Script>
+		<![CDATA[			
+			import org.bigbluebutton.modules.settings.connectors.AudioConnector;
+			import org.bigbluebutton.modules.settings.util.PersistUserPreferences;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+						
+			private var timer:Timer;
+			private var mic:Microphone;
+			
+			private var audioConnector:AudioConnector;
+			
+			public function init():void{
+				this.visible = true;
+				initMic();
+				audioConnector = new AudioConnector(mic);
+				
+				timer = new Timer(100);
+				timer.addEventListener(TimerEvent.TIMER, updateMicLevel);
+				timer.start();
+			}
+			
+			private function initMic():void{
+				mic = Microphone.getMicrophone();
+				if (mic == null) return;
+				
+				sldVolume.value = mic.gain;
+			}
+			
+			public function saveCurrentMic():void{
+				PersistUserPreferences.saveMicrophonePreference(Microphone.names[cmbMicSelector.selectedIndex]);
+			}
+			
+			private function updateMicLevel(e:TimerEvent):void{
+				micLevel.setProgress(mic.activityLevel,100);
+			}
+			
+			private function changeMic():void{
+				mic = Microphone.getMicrophone(cmbMicSelector.selectedIndex);
+				if (mic == null) return;
+				
+				saveCurrentMic();
+			}
+			
+			private function changeVolume():void{
+				mic.gain = sldVolume.value;
+				PersistUserPreferences.saveMicrophoneGain(mic.gain);
+			}
+			
+			public function stop():void{
+				audioConnector.stop();
+			}
+		]]>
+	</mx:Script>
+	
+	<mx:ProgressBar id="micLevel" minimum="0" maximum="100" label="{ResourceUtil.getInstance().getString('bbb.settings.voice.volume')}" labelPlacement="top" 
+					direction="right" mode="manual" visible="true" width="120"/>
+	<mx:HSlider id="sldVolume" minimum="0" maximum="100" change="changeVolume()" labels="[silent, loud]" />
+	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.settings.voice.volume')}" />
+	<mx:ComboBox id="cmbMicSelector" dataProvider="{Microphone.names}" change="changeMic()" textAlign="left" width="150" />
+</mx:VBox>

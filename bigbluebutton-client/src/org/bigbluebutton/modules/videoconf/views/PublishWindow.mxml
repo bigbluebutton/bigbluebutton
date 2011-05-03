@@ -28,7 +28,8 @@
 	width="{camWidth + 6}" height="{camHeight + 75}" 
 	title="{ResourceUtil.getInstance().getString('bbb.publishVideo.title')}" 
 	backgroundImage="{bbbLogo}" 
-	xmlns:mate="http://mate.asfusion.com/">
+	xmlns:mate="http://mate.asfusion.com/"
+	resize="onResize()">
 	
 	<mx:Script>
 		<![CDATA[
@@ -60,8 +61,8 @@
 			private var _bResizePossible:Boolean = true;
 			private var _nAspectRatio:Number = 1;
 			
-			private var _minWidth:int = 166;
-			private var _minHeight:int = 149;
+			static private var _minWidth:int = 166;
+			static private var _minHeight:int = 149;
 
 			private var _nSavedVideoWidth:Number = 0;
 			private var _nSavedVideoHeight:Number = 0;
@@ -84,6 +85,16 @@
 				this.minHeight = _minHeight;
 				maximizeRestoreBtn.visible = false;
 				this.resizable = false;
+				
+				loadPrefs();
+			}
+			
+			private function loadPrefs():void{
+				var sharedObject:SharedObject = SharedObject.getLocal("bbbUserProperties", "/");
+				var webcam:String = sharedObject.data["webcam"] as String;
+				for (var i:Number = 0; i<Camera.names.length; i++){
+					if (Camera.names[i] == webcam) cmbCameraSelector.selectedIndex = i;
+				}
 			}
 			
 			public function getPrefferedPosition():String{
@@ -284,9 +295,37 @@
 				adjustWindowSize();
 			}
 
+			public function setWindowWidth(width:int):void {
+				if (video == null) return;
+				
+				video.width = width - 6;
+				video.height = Math.floor(video.width / _nAspectRatio);
+				adjustWindowSize();
+			}
+			
+			static public function getMinWidth():int {
+				return _minWidth;
+			}
+		
+			static public function getMinHeight():int {
+				return _minHeight;
+			}
+			
+			static public function getWindowHeightByWidth(width:int, aspect:Number):int {
+				return Math.floor((width - 6) / aspect) + 29;
+			}
+			
+			static public function getWindowWidthByHeight(height:int, aspect:Number):int {
+				return Math.floor((height - 29) * aspect) + 6;
+			}
+
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
 				this.title = ResourceUtil.getInstance().getString('bbb.publishVideo.title');
+			}
+			
+			private function onResize():void{
+				setWindowWidth(this.width);
 			}
 			
 		]]>

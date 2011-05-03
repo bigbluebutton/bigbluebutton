@@ -253,7 +253,7 @@ package org.bigbluebutton.main.model.users
 			var e:ConnectionFailedEvent = new ConnectionFailedEvent(reason);
 			dispatcher.dispatchEvent(e);
 			
-			attemptReconnect(backoff);
+			//attemptReconnect(backoff);
 		}
 		
 		private function sendUserLoggedOutEvent():void{

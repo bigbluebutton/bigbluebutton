@@ -27,8 +27,9 @@
 	<property name="DYN_INFO" value="DynamicInfoModule" />
 	<property name="BREAKOUT" value="BreakoutModule" />
 	<property name="CLASSROOM_AUDIO" value="ClassroomAudioModule" />
+	<property name="SETTINGS" value="SettingsModule" />
 	
-	<property name="AVAILABLE_LOCALES" value="az_AZ,bg_BG,cs_CZ,da_DK,de_DE,el_GR,en_US,es_ES,es_LA,fa_IR,fr_FR,fr_CA,hu_HU,id_ID,it_IT,ja_JP,ko_KR,lv_LV,lt_LT,nb_NO,nl_NL,pl_PL,pt_BR,pt_PT,ro_RO,ru_RU,sv_SE,th_TH,tr_TR,vi_VN,uk_UA,zh_CN,zh_TW"/>
+	<property name="AVAILABLE_LOCALES" value="az_AZ,bg_BG,cs_CZ,da_DK,de_DE,el_GR,en_US,es_ES,es_LA,fa_IR,fr_FR,fr_CA,hr_HR,hu_HU,id_ID,it_IT,ja_JP,ko_KR,lv_LV,lt_LT,nb_NO,nl_NL,pl_PL,pt_BR,pt_PT,ro_RO,ru_RU,sv_SE,sr_RS,sr_SR,th_TH,tr_TR,vi_VN,uk_UA,zh_CN,zh_TW"/>
 	
 	<xmlproperty file="${SRC_DIR}/conf/locales.xml" collapseAttributes="true"/>
 	
@@ -167,6 +168,10 @@
 		<build-module src="${SRC_DIR}" target="${CLASSROOM_AUDIO}" />
 	</target>
 	
+	<target name="build-settings" description="Compile Settings Module">
+		<build-module src="${SRC_DIR}" target="${SETTINGS}" />
+	</target>
+	
 	<target name="build-video" description="Compile Video Module">
 		<build-module src="${SRC_DIR}" target="${VIDEO}" />
 	</target>
@@ -187,7 +192,7 @@
 	
 	<!-- just a grouping of modules to compile -->
 	<target name="build-deskshare-phone-video-whiteboard-dyn" 
-			depends="build-deskshare, build-phone, build-video, build-whiteboard, build-dyn, build-classroom-audio"
+			depends="build-deskshare, build-phone, build-video, build-whiteboard, build-dyn, build-classroom-audio, build-settings"
 			description="Compile deskshare, phone, video, whiteboard, dynamic info modules">
 	</target>
 	

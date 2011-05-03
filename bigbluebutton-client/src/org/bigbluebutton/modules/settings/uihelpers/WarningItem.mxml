@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" width="250" 
+		 click="showWarning()" textAlign="left" >
+	<mx:Script>
+		<![CDATA[
+			import mx.core.Application;
+			import mx.managers.PopUpManager;
+			
+			private var warningLabel:String;
+			private var warningText:String
+			private var optionalLabel:String;
+			private var optionalCallback:Function;
+			
+			public function setWarning(e:WarningEvent):void{
+				this.warningLabel = e.warningLabel;
+				this.warningText = e.warningText;
+				this.optionalLabel = e.optionalCommandText;
+				this.optionalCallback = e.optionalCallbackFunction;
+				this.label = warningLabel;
+			}
+			
+			private function showWarning():void{
+				var userAlert:UserAlert = UserAlert(PopUpManager.createPopUp(this.parent, UserAlert, true));
+				userAlert.setAlert(warningText, optionalLabel, optionalCallback);
+				
+				userAlert.x = Application.application.width/2 - userAlert.width/2;
+				userAlert.y = Application.application.height/2 - userAlert.height/2;
+			}
+		]]>
+	</mx:Script>
+	
+</mx:Button>
