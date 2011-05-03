@@ -93,7 +93,7 @@ dependencies {
 	compile 'org.springframework.integration:spring-integration-jms:2.0.3.RELEASE@jar'
 		
 	// Red5
-	providedCompile 'org/red5:red5:0.91@jar'
+	providedCompile 'org/red5:red5:1.0rc1@jar'
 	
 	// Logging
     providedCompile ':logback-core:0.9.18@jar', ':logback-classic:0.9.18@jar', ':slf4j-api:1.5.10@jar'
