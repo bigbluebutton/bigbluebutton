@@ -44,6 +44,12 @@ package org.bigbluebutton.modules.present.events
 		public var slideToCanvasWidthRatio:Number;
 		public var slideToCanvasHeightRatio:Number;
 		
+		public var xcenterRatio:Number;
+		public var ycenterRatio:Number;
+		
+		public var startXRatio:Number;
+		public var startYRatio:Number;
+		
 		public function ZoomEvent(type:String)
 		{
 			super(type, true, false);

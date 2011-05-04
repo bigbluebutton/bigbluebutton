@@ -35,6 +35,11 @@ package org.bigbluebutton.modules.present.events
 		public static const MOVE:String = "MOVE_COMMAND";
 		public static const SHARE_PRESENTATION_COMMAND:String = "SHARE_PRESENTATION_COMMAND";
 		public static const SEND_CURSOR_UPDATE:String = "SEND_CURSOR_UPDATE";
+		public static const DISABLE_MOVE:String = "DISABLE_MOVE";
+		public static const ENABLE_MOVE:String = "ENABLE_MOVE";
+		public static const MOUSEWHEEL_ENABLE:String = "MOUSEWHEEL_ENABLE";
+		public static const MOUSEWHEEL_DISABLE:String = "MOUSEWHEEL_DISABLE";
+		public static const MOUSEWHEEL_UPDATE:String = "MOUSEWHEEL_UPDATE";
 		
 		//Parameter for the slide navigation events
 		public var slideNumber:Number;
@@ -55,6 +60,16 @@ package org.bigbluebutton.modules.present.events
 		
 		public var slideToCanvasWidthRatio:Number;
 		public var slideToCanvasHeightRatio:Number;
+		
+		/**
+		public var xcenterRatio:Number;
+		public var ycenterRatio:Number;
+		
+		public var startXRatio:Number;
+		public var startYRatio:Number;
+		**/
+		public var localX:Number;
+		public var localY:Number;
 		
 		//Parameters for the share event
 		public var presentationName:String;

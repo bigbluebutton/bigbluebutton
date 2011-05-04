@@ -21,12 +21,14 @@ package org.bigbluebutton.modules.present.business {
 	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
+	import flash.geom.Point;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
 	import flash.net.SharedObject;
 	
 	import mx.controls.Alert;
 	
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.modules.present.events.CursorEvent;
@@ -35,7 +37,6 @@ package org.bigbluebutton.modules.present.business {
 	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.events.ZoomEvent;
-	import org.bigbluebutton.common.LogUtil;
 	
 	public class PresentSOService {
 		public static const NAME:String = "PresentSOService";
@@ -133,18 +134,25 @@ package org.bigbluebutton.modules.present.business {
 			move(xOffset, yOffset, widthRatio, heightRatio);
 		}
 		
+		
 		/**
 		 * A callback method for zooming in a slide. Called when preseter zooms the slide
 		 * @param slideHeight
 		 * @param slideWidth
 		 * 
 		 */		
-		public function zoomCallback(xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void{
+		public function zoomCallback(xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number,zoomPercentage:int,startXRatio:Number,startYRatio:Number,xcenterRatio:Number,ycenterRatio:Number):void{
+			
 			var e:ZoomEvent = new ZoomEvent(ZoomEvent.ZOOM);
 			e.xOffset = xOffset;
 			e.yOffset = yOffset;
 			e.slideToCanvasWidthRatio = widthRatio;
 			e.slideToCanvasHeightRatio = heightRatio;
+			e.zoomPercentage = zoomPercentage;
+			e.startXRatio = startXRatio;
+			e.startYRatio = startYRatio;
+			e.xcenterRatio = xcenterRatio;
+			e.ycenterRatio = ycenterRatio;
 			dispatcher.dispatchEvent(e);
 		}
 		

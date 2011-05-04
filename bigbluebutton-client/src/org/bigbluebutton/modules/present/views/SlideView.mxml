@@ -18,12 +18,29 @@
   with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  
   $Id: $
+
+	Ismael Rumzan change log (April 17-30 2011):
+	- zoom from center - fixed
+	- moving image - fixed
+	- reset zoom - for now leave it to only resize back to 100 - in future look into reseting position
+	- mousewheel zoom - broadcast so that slider can be adjusted and others listen - need to unit test
+	- ensure particpants also get updated - close need to make sure participants zoom is from center - fixed
+	- On resize window (both mod and participant) - the slide gets moved around - fixed
+	- Disable move for participant - fixed
+	- Move slide with moderator move - fixed
+	
+Need to work on:
+
+	2 bugs found 
+	1. when zoomed in to x%, moved to x,y and them zoomed again, the zoom does not go from the full center 
+	works best when zoomed back to 100, moved and then zoomed again
+	2. Zooming from mouse wheel as center works partly - as zoom increases, it drifts away from mouse wheel center to top left
+
 -->
 
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mate="http://mate.asfusion.com/"
 	xmlns:local="*"
-    width="100%" height="100%" 
     paddingBottom="5" 
     creationComplete="onCreationComplete()" verticalScrollPolicy="off" horizontalScrollPolicy="off"      
     rollOut="hideCursor()"
@@ -38,6 +55,10 @@
     <mate:Listener type="{CursorEvent.UPDATE_CURSOR}" method="handleUpdateCursorEvent" />
     <mate:Listener type="{WindowResizedEvent.PRESENTATION_WINDOW_RESIZED_EVENT}" method="handleWindowResizeEvent"/>
     <mate:Listener type="{PresenterCommands.RESIZE}" method="handleSlideResizeEvent"/>
+	<mate:Listener type="{PresenterCommands.ENABLE_MOVE}" method="endZoom"/>
+	<mate:Listener type="{PresenterCommands.DISABLE_MOVE}" method="initZoom"/>
+	<mate:Listener type="{PresenterCommands.RESET_ZOOM}" method="resetZoom"/>	
+	<mate:Listener type="{PresenterCommands.MOUSEWHEEL_UPDATE}" method="setCenter"/>
     
 	<mx:Script>
 		<![CDATA[
@@ -99,6 +120,18 @@
 			private var slideText:TextSnapshot;
 			private var firstChar:Number = -1;
 			private var lastChar:Number = -1;
+			private var moveEnabled:Boolean = true;
+			private var startX:int = 0;
+			private var startY:int = 0;
+			private var startImgX:int = 0;
+			private var startImgY:int = 0;
+			private var scaleFactor:Number = 1;
+			private var tolerance:int = 50;
+			private var xcenter:int;
+			private var ycenter:int;
+			private var startWidth:int;
+			private var startHeight:int;
+			private var enableZoomWheel:Boolean = false;
 				
         	[Bindable] public var slides:ArrayCollection;
 			[Bindable] public var selectedSlide:int=0;
@@ -109,6 +142,8 @@
 			private function onCreationComplete():void {
 				slideLoader.width = this.width;
 				slideLoader.height = this.height;
+				
+				initSize();
 				
 				cursor = new Shape();
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
@@ -140,194 +175,172 @@
 				dispatchEvent(e);
 			}
 			
-			/**
-			 * Triggered when the presenter clicks on the slides with the intent of moving it.
-			 */		
-			private function onMouseDown(e:MouseEvent):void {						
-				canvasMouseXOnMouseDown = this.mouseX;
-				canvasMouseYOnMouseDown = this.mouseY;
-				loaderXOnMouseDown = slideLoader.x;
-				loaderYOnMouseDown = slideLoader.y;
-							
-				addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
-			}
+			//=== Modifications of zooming, panning and resizing
 			
-			/**
-			 * Triggered when the mouse had been clicked and dragged to move the slide.
-			 */ 
-			private function onMouseMove(e:MouseEvent):void {	
-				// Compute the change in mouse position from where the mouse was clicked.
-				var deltaCanvasMouseX:Number = this.mouseX - canvasMouseXOnMouseDown;
-				var deltaCanvasMouseY:Number = this.mouseY - canvasMouseYOnMouseDown;
-
-				// Now we move the slide by the amount of mouse location change.
-				slideLoader.x = loaderXOnMouseDown + deltaCanvasMouseX;
-				slideLoader.y = loaderYOnMouseDown + deltaCanvasMouseY;
-				
-				// Move the slide within the loader.
-				fitSlideToLoader();				
-				notifyOtherParticipantsOfSlideMoving();
-			}
-			
-			/**
-			 * Send a message to other participants indicating the presenter has moved the slide.
-			 */
-			private function notifyOtherParticipantsOfSlideMoving():void {
-				var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.MOVE);
-				presentEvent.xOffset = slideLoader.x/slideLoader.width;
-				presentEvent.yOffset = slideLoader.y/slideLoader.height;
-				presentEvent.slideToCanvasWidthRatio = slideLoader.width/this.width;
-				presentEvent.slideToCanvasHeightRatio = slideLoader.height/this.height;
-				dispatchEvent(presentEvent);
-			}
-			
-			/**
-			 * Triggered when the presenter releases the mouse button.
-			 */		
-			private function onMouseUp(e:MouseEvent):void{		
-				removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
-			}
-			
-			/**
-			 * Triggered when the presenter has dragged the cursor outside the presetation window.
-			 */
-			private function onMouseOut(e:MouseEvent):void{
-				removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
-			}
+			//==== Resize loader on load and window resize
 			
 			/**
 			 * Handles the resizing of the presenter's window. This is for the presenter resizing
 			 * his/her window.
 			 */
 			private function handleWindowResizeEvent(event:WindowResizedEvent):void {						
+				
 				this.width = event.width;
 				this.height = event.height;
-				resizeAndMoveLoaderInRelationToCanvas();		
+				
+				synchSizes(this.width,this.height);	
+
+				setZoomInitialStatus();
+				//If image was zoomed before resize event, put it back to it's zoomed state
+				zoomImage();
+				
 			}
 			
-			/**
-			 * Resize and moves the slide loader within the canvas container.
-			 */			
-			private function resizeAndMoveLoaderInRelationToCanvas():void {
-				slideLoader.width = this.width * presentersLoaderCanvasWidthRatio; 
-				slideLoader.height = this.height * presentersLoaderCanvasHeightRatio;
+			private function synchSizes(_width:int,_height:int):void {
 				
-				slideLoader.x = slideLoader.width * presentersLoaderXOffsetFromCanvas;
-				slideLoader.y = slideLoader.height * presentersLoaderYOffsetFromCanvas;
+				container.width = _width;
+				container.height = _height;
 				
-				fitSlideToLoader();
+				slideLoader.width = container.width;
+				slideLoader.height = container.height;
+				
 			}
 			
-			/**
-			 * Fit the slide inside the loader.
-			 */			
-			private function fitSlideToLoader():void {
+			private function setStartSize():void {
+				
 				if (noSlideContentLoaded()) return;
 				
-				slideLoader.content.x = slideLoader.x;
-				slideLoader.content.y = slideLoader.y;
-				slideLoader.content.width = slideLoader.width;
-				slideLoader.content.height = slideLoader.height;	
+				synchSizes(this.width,this.height);
 				
-				zoomCanvas(slideLoader.width, slideLoader.height);
-			}
-									
-			private function fitLoaderToCanvas():void{
-				if (noSlideContentLoaded()) return;
+				setZoomInitialStatus();
 				
-				slideLoader.width = this.width;
-				slideLoader.height = this.height;
-				slideLoader.x = this.x;
-				slideLoader.y = this.y;
-				
-				fitSlideToLoader();						
-			}
-
-			/**
-			 * 
-			 */
-			private function resizeAndMoveLoaderBy(percent:Number):void {	
-				// Save the old loader dimensions. We need these to calculate
-				// the new position of the loader;
-				var oldLoaderHeight:int = slideLoader.height;
-				var oldLoaderWidth:int = slideLoader.width;
-
-				slideLoader.width = this.width * percent/100; 
-				slideLoader.height = this.height * percent/100;
-
-				slideLoader.x = calculateNewLoaderX(oldLoaderWidth);
-				slideLoader.y = calculateNewLoaderY(oldLoaderHeight);
-				
-				fitSlideToLoader();
 			}
 			
-			/**
-			 * Determines the new y coordinate of the loader. This determines if the location has
-			 * changed because the slide was resized or moved.
-			 */
-			private function calculateNewLoaderY(oldLoaderHeight:int):int {				
-				var deltaPercentHeight:Number = (slideLoader.height - oldLoaderHeight) /oldLoaderHeight;
-								
-				var newLoaderY:int = (slideLoader.y/slideLoader.height) * deltaPercentHeight;				
-				if (newLoaderY == 0) {
-					newLoaderY = slideLoader.y - (deltaPercentHeight * 100);
-				} else {
-					newLoaderY = slideLoader.y - newLoaderY;
-				}
-				
-				return newLoaderY;
+			private function setZoomInitialStatus():void {
+				startWidth = container.width;
+				startHeight = container.height;			
+				initSize();
 			}
 			
-			/**
-			 * Determines the new y coordinate of the loader. This determines if the location has
-			 * changed because the slide was resized or moved.
-			 */
-			private function calculateNewLoaderX(oldLoaderWidth:int):int {				
-				var deltaPercentWidth:Number = (slideLoader.width - oldLoaderWidth) / oldLoaderWidth;
-				var newLoaderX:int = (slideLoader.x/slideLoader.width) * deltaPercentWidth;
-				if (newLoaderX == 0) {
-					newLoaderX = slideLoader.x - (deltaPercentWidth * 100);
-				} else {
-					newLoaderX = slideLoader.x - newLoaderX;
-				}		
+			private function handleSlideResizeEvent(event:PresenterCommands):void {	
 				
-				return newLoaderX;		
+				scaleFactor = event.newSizeInPercent/100;
+				zoomImage();
+				
 			}
 			
-			private function handleSlideResizeEvent(event:PresenterCommands):void {
-				zoomLoaderBy(event.newSizeInPercent);
+			//===== Listen to slider zooming in and out and zoom from center
+			
+			private function initSize():void {
+				xcenter = this.width/2;
+				ycenter = this.height/2;
 			}
 			
-			public function zoomLoaderBy(percent:Number):void {				
-				if (percent < 100) {
-					zoomPercentage = 100;
-				} else if (percent > 400) {
-					zoomPercentage = 400;
-				} else {
-					zoomPercentage = percent;
-				}
+			private function zoomImage():void {
 				
- 				if (zoomPercentage == 100) {
- 					fitLoaderToCanvas();
- 				} else {
- 					resizeAndMoveLoaderBy(zoomPercentage);
- 				}
+				var newW:int = scaleFactor*startWidth;
+				var newH:int = scaleFactor*startHeight;
+				
+				synchSizes(newW,newH);
+				
+				var newX:int = (startImgX - scaleFactor*xcenter) + xcenter;
+				var newY:int = (startImgY - scaleFactor*ycenter) + ycenter;
+				
+				container.x = newX;
+				container.y = newY;
+				
+				checkBounds();
+				
 				notifyOthersOfZoomEvent();
+				
 			}
 			
-			/**
-			 * Triggered when the presenter uses the mouse wheel to zoom in/out of the slide.
-			 */
-			private function onMouseWheelZoomEvent(e:MouseEvent):void {
-				if (presenterIsZoomingOut(e.delta)) {
-					zoomPercentage -= ZOOM_STEP;
-				} else {
-					zoomPercentage += ZOOM_STEP;
-				}
+			private function zoomForViewer(sf:int,startXRatio:Number,startYRatio:Number,xcenterRatio:Number,ycenterRatio:Number):void {
 				
-				zoomLoaderBy(zoomPercentage);	
-				notifyListenersOfSlideResize(zoomPercentage);			
+				synchSizes(presentersLoaderCanvasWidthRatio*this.width,presentersLoaderCanvasHeightRatio*this.height);
+				
+				var newX:int = (startXRatio*this.width - sf*xcenterRatio*this.width) + xcenterRatio*this.width;
+				var newY:int = (startYRatio*this.height - sf*ycenterRatio*this.height) + ycenterRatio*this.height;
+				
+				container.x = newX;
+				container.y = newY;
+					
 			}
+			
+			private function initZoom(evt:PresenterCommands):void {
+				initSize();
+				moveEnabled = false;
+			}
+			
+			private function endZoom(evt:PresenterCommands):void {
+				moveEnabled = true;
+			}
+			
+			private function resetZoom(evt:PresenterCommands):void {
+				scaleFactor = evt.newSizeInPercent/100;
+				container.x = this.x;
+				container.y = this.y;
+				initSize();
+				zoomImage();
+			}
+			
+			//====== Move image with mouse
+			
+			private function enableMove(evt:MouseEvent):void {
+				if (moveEnabled&&isPresenter) {
+					startX = evt.localX;
+					startY = evt.localY;
+					container.addEventListener(MouseEvent.MOUSE_MOVE,moveImage);
+					stage.addEventListener(MouseEvent.MOUSE_UP,disableMove);
+				}
+			}
+			
+			private function disableMove(evt:MouseEvent):void {
+				if (moveEnabled&&isPresenter) {
+					container.removeEventListener(MouseEvent.MOUSE_MOVE,moveImage);
+					stage.removeEventListener(MouseEvent.MOUSE_UP,disableMove);
+					checkBounds();
+					startImgX = container.x/scaleFactor;
+					startImgY = container.y/scaleFactor;
+				}	
+			}
+			
+			private function moveImage(evt:MouseEvent):void {
+				
+				container.x = container.x + (evt.localX - startX);
+				container.y = container.y + (evt.localY - startY);
+				
+				startImgX = container.x/scaleFactor;
+				startImgY = container.y/scaleFactor;
+				
+				notifyOthersOfZoomEvent();
+				
+			}
+			
+			//===== Handle zooming from mouse center if mouse wheel is used
+			private function setCenter(evt:PresenterCommands):void {
+				xcenter = evt.localX;
+				ycenter = evt.localY;
+			}
+			
+			//======= Ensure does not go out of bounds
+			
+			private function checkBounds():void {
+				
+				if (container.x <= (this.x - container.width + tolerance)) {
+					container.x = this.x;
+				} else if (container.x >= (this.x + this.width - tolerance)) {
+					container.x = this.x;
+				} 
+				
+				if (container.y <= (this.y - container.height + tolerance)) {
+					container.y = this.y;
+				} else if (container.y >= (this.y + this.height - tolerance)) {
+					container.y = this.y;
+				} 
+			}
+			
+			//========================================================================
 			
 			public function notifyListenersOfSlideResize(percent:Number):void {
 				var event:SlideResizedEvent = new SlideResizedEvent();
@@ -337,8 +350,8 @@
 						
 			private function notifyOthersOfZoomEvent():void {
 				var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.ZOOM);
-				presentEvent.xOffset = slideLoader.x/slideLoader.width;
-				presentEvent.yOffset = slideLoader.y/slideLoader.height;
+				presentEvent.xOffset = startImgX/this.width;
+				presentEvent.yOffset = startImgY/this.height;
 				presentEvent.slideToCanvasWidthRatio = slideLoader.width/this.width;
 				presentEvent.slideToCanvasHeightRatio = slideLoader.height/this.height;
 				dispatchEvent(presentEvent);
@@ -365,12 +378,26 @@
 			 * Handle notification from presenter that the slide has been zoomed.
 			 */						
 			private function handleZoomEvent(e:ZoomEvent):void {
+				
 				savePresentersSettings(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);													
 				if (!isPresenter) {
 					resizeAndMoveLoaderInRelationToCanvas();
 				}
+	
+			}
+			
+			private function resizeAndMoveLoaderInRelationToCanvas():void {
 				
-				zoomCanvas(slideLoader.width, slideLoader.height);
+				var newW:int = this.width * presentersLoaderCanvasWidthRatio; 
+				var newH:int = this.height * presentersLoaderCanvasHeightRatio;
+				
+				var newX:int = (presentersLoaderXOffsetFromCanvas*this.width - presentersLoaderCanvasWidthRatio*xcenter) + xcenter;
+				var newY:int = (presentersLoaderYOffsetFromCanvas*this.height - presentersLoaderCanvasHeightRatio*ycenter) + ycenter;
+				
+				synchSizes(newW,newH);
+				
+				container.x = newX;
+				container.y = newY;
 			}
 			
 			/**
@@ -385,11 +412,10 @@
 			 */			
 			private function handleSwitchToViewerEvent(e:MadePresenterEvent):void{
 				participantIsNowPresenter(false);
-				removeEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
-				slideLoader.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-				slideLoader.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
-				slideLoader.removeEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
-				removeEventListener(MouseEvent.MOUSE_MOVE, mouseCursorUpdateListener);
+				dispatchEvent(new PresenterCommands(PresenterCommands.MOUSEWHEEL_DISABLE));
+				container.removeEventListener(MouseEvent.MOUSE_DOWN, enableMove);
+				//this.removeEventListener(MouseEvent.MOUSE_OUT, setMouseOut);
+				enableZoomWheel = false;
 			}
 			
 			/**
@@ -397,11 +423,10 @@
 			 */
 			private function handleSwitchToPresenterEvent(e:MadePresenterEvent):void{
 				participantIsNowPresenter(true);
-				addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
-				slideLoader.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-				slideLoader.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
-				slideLoader.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
-				addEventListener(MouseEvent.MOUSE_MOVE, mouseCursorUpdateListener);
+				dispatchEvent(new PresenterCommands(PresenterCommands.MOUSEWHEEL_ENABLE));
+				container.addEventListener(MouseEvent.MOUSE_DOWN, enableMove);
+				//this.addEventListener(MouseEvent.MOUSE_OUT, setMouseOut);
+				enableZoomWheel = true;
 			}
 			
 			private function participantIsNowPresenter(presenter:Boolean):void {
@@ -466,7 +491,10 @@
 			private function handleSlideLoadedCompleteEvent(event:Event):void {		
 				var slideRealWidth:int = slideLoader.content.width;
 				var slideRealHeight:int = slideLoader.content.height;				
-				fitLoaderToCanvas();
+				//fitLoaderToCanvas();
+				setStartSize();
+				initSize();
+				trace(xcenter+":"+ycenter+":"+isPresenter);
 				dispatchNewSlideDisplayedEvent(slideRealWidth, slideRealHeight);				
 			}
 			
@@ -534,11 +562,15 @@
 			
 		]]>
 	</mx:Script>
-	
-	<mx:SWFLoader id="slideLoader" width="100%" height="100%" creationComplete="listenForSlideLoadedCompleteEvent()"
-    		scaleContent="false" maintainAspectRatio="true" showBusyCursor="true" completeEffect="Fade"/>   
-    		
+	<mx:Canvas id="container" width="100%" height="100%" 
+			   horizontalScrollPolicy="off" verticalScrollPolicy="off"
+			   mouseDown="enableMove(event)">
+		<mx:SWFLoader id="slideLoader" width="100%" height="100%" 
+					  creationComplete="listenForSlideLoadedCompleteEvent()"
+    		scaleContent="true" maintainAspectRatio="true" showBusyCursor="true" completeEffect="Fade"/>   
+    </mx:Canvas>
     <mx:HorizontalList id="thumbnailView" itemRenderer="org.bigbluebutton.modules.present.views.Thumbnail" itemRollOver="changeIndex(event)" 
     	visible="false" width="100%" height="100" y="{this.height - 100}" change="changeSlide()" />
+    
 		      		 
 </mx:Canvas>
