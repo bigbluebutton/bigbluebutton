@@ -43,6 +43,7 @@
 	<common:APIEventMap />
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.main.events.RecordStatusEvent;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.events.MouseEvent;
