@@ -45,15 +45,9 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 	def recordingFile
 
 	/** For record and playback **/
-	def scriptsHome
-	def audioRecDir
-	def presentationDir
-	def archiveDir
+	def recordStatusDir
 	def redisHost
 	def redisPort
-	def ingestDir
-	def publishDir
-	def playbackHost
 	
 	IRedisDispatcher redisDispatcher
 	
@@ -227,7 +221,7 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 		log.debug "redis: participants updated join: " + roomname;
 		DynamicConferenceParticipant dcp=new DynamicConferenceParticipant(userid,fullname,role);
 		DynamicConference conf = getConferenceByToken(roomname);
-		if(conf!=null){
+		if(conf != null){
 			conf.addParticipant(dcp);
 			log.debug "redis: added participant"
 		}
@@ -262,36 +256,16 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 		}
 	}
 	
-	private void startIngestAndProcessing(meetingId) {					
-//		String COMMAND = "python ${scriptsHome}/ingestandproc.py -m ${meetingId} -a ${audioRecDir} -p ${presentationDir} -r ${archiveDir} -e ${redisHost} -o ${redisPort} -i ${ingestDir} -b ${publishDir} -s ${scriptsHome} -k ${playbackHost}" 
-		String COMMAND = "ruby ${scriptsHome}/archive_recording.rb -m ${meetingId}" 
-		try {
-			Process p = Runtime.getRuntime().exec(COMMAND);            
-        	
-			BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-			String info;
-
-			while ((info = stdInput.readLine()) != null) {
-				System.out.println(info)
-			}
-			while ((info = stdError.readLine()) != null) {
-				log.error(info);
-			}
-			stdInput.close();
-			stdError.close();
-
-			// Wait for the process to finish.
-        	int exitValue = p.waitFor();
-        	if (exitValue != 0) {
-		    	log.warn("Exit Value != 0 while for " + COMMAND);
-		    }
-		} catch (IOException e) {
-			log.error("IOException while processing " + COMMAND);
-		} catch (InterruptedException e) {
-			log.error("InterruptedException while processing " + COMMAND);
+	private void startIngestAndProcessing(meetingId) {	
+		String done = recordStatusDir + "/" + meetingId + ".done"
+		log.debug( "Writing done file " + done)
+		File doneFile = new File(done)
+		if (!doneFile.exists()) {
+			doneFile.createNewFile()
+			if (!doneFile.exists())
+				log.error("Failed to create " + done + " file.")
+		} else {
+			log.error(done + " file already exists.")
 		}
-	}
-	
-	
+	}	
 }
