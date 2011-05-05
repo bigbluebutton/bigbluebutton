@@ -163,28 +163,28 @@
 	<integration:channel id="endMeetingRequest"/>
 	<integration:service-activator input-channel="endMeetingRequest" ref="roomsManager" method="endMeetingRequest" />
 
-	<!-- OUTGOING MESSAGES -->
+	<!-- OUTGOING MESSAGES 
 	<integration:gateway id="conferenceEventListener" service-interface="org.bigbluebutton.conference.IConferenceEventListener" />
 
-	<!-- conferenceStarted -->
+	<!-- conferenceStarted 
 	<integration:channel id="conferenceStarted" />
 	<jms:outbound-channel-adapter id="conferenceStartedJmsOut" destination="conferenceStartedEvents" channel="conferenceStarted" />
     <bean id="conferenceStartedEvents" class="org.apache.activemq.command.ActiveMQQueue">
 		<constructor-arg value="conferenceStartedEvents"/>
     </bean>
 
-	<!-- conferenceEnded -->
+	<!-- conferenceEnded 
 	<integration:channel id="conferenceEnded" />
 	<jms:outbound-channel-adapter id="conferenceEndedJmsOut" destination="conferenceEndedEvents" channel="conferenceEnded" />
     <bean id="conferenceEndedEvents" class="org.apache.activemq.command.ActiveMQQueue">
 		<constructor-arg value="conferenceEndedEvents"/>
     </bean>
 
-	<!-- participantsUpdated -->
+	<!-- participantsUpdated 
 	<integration:channel id="participantsUpdated" />
 	<jms:outbound-channel-adapter id="participantsUpdatedJmsOut" destination="participantsUpdatedEvents" channel="participantsUpdated" />
 	<bean id="participantsUpdatedEvents" class="org.apache.activemq.command.ActiveMQQueue">
 		<constructor-arg value="participantsUpdatedEvents"/>
 	</bean>
-	
+	-->
 </beans>
