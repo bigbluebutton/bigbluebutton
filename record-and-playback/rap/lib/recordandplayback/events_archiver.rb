@@ -2,7 +2,7 @@ require 'rubygems'
 require 'redis'
 require 'builder'
 
-module BigBlueButton
+module BigBlueButton  
   # Class to wrap Redis so we can mock
   # for testing
   class RedisWrapper
@@ -87,4 +87,3 @@ module BigBlueButton
     end
   end
 end
-

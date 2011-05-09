@@ -1,51 +1,51 @@
 require 'spec_helper'
 require 'fileutils'
 
-module Collector
-    describe Audio do     
+module BigBlueButton
+    describe VideoArchiver do     
         context "#success" do
             it "should copy audio recording to archive" do
                 FileTest.stub(:directory?).and_return(true)
-                FileUtils.stub(:cp)
-                Dir.stub(:glob).and_return(['file1.wav', 'file2.wav'])
+                FileUtils.stub(:cp_r)
+                Dir.stub(:glob).and_return(['file1', 'file2'])
                 from_dir = 'from'
                 to_dir = 'to'
                 meeting_id = 'meeting-id'
-               
-                expect { Collector::Audio.collect_audio( meeting_id, from_dir, to_dir ) }.to_not raise_error   
+                
+                expect { BigBlueButton::VideoArchiver.archive( meeting_id, from_dir, to_dir ) }.to_not raise_error   
             end
         end
         
         context "#fail" do
             it "should raise from directory not found exception" do
                 FileTest.stub(:directory?).and_return(false)
-                FileUtils.stub(:cp)
-                Dir.stub(:glob).and_return(['file1.wav', 'file2.wav'])
+                FileUtils.stub(:cp_r)
+                Dir.stub(:glob).and_return(['file1', 'file2'])
                 from_dir = '/from-dir-not-found'
                 to_dir = 'resources/archive'
                 meeting_id = 'meeting-id'
                 
-                expect {Collector::Audio.collect_audio( meeting_id, from_dir, to_dir )}.to raise_error(NoSuchDirectoryException)
+                expect {BigBlueButton::VideoArchiver.archive( meeting_id, from_dir, to_dir )}.to raise_error(MissingDirectoryException)
             end
             it "should raise to directory not found exception" do
                 from_dir = 'resources/raw/audio'
                 to_dir = '/to-dir-not-found'
                 meeting_id = 'meeting-id'
                 FileTest.stub(:directory?).and_return(false)
-                FileUtils.stub(:cp)
+                FileUtils.stub(:cp_r)
                 Dir.stub(:glob).and_return(['file1.wav', 'file2.wav'])
                 
-                expect { Collector::Audio.collect_audio( meeting_id, from_dir, to_dir ) }.to raise_error(NoSuchDirectoryException)
+                expect { BigBlueButton::VideoArchiver.archive( meeting_id, from_dir, to_dir ) }.to raise_error(MissingDirectoryException)
             end
             it "should raise audio files not found exception" do
                 from_dir = 'resources/raw/audio'
                 to_dir = '/to-dir-not-found'
                 meeting_id = 'meeting-id'
                 FileTest.stub(:directory?).and_return(true)
-                FileUtils.stub(:cp)
+                FileUtils.stub(:cp_r)
                 Dir.stub(:glob).and_return([])
                 
-                expect { Collector::Audio.collect_audio( meeting_id, from_dir, to_dir ) }.to raise_error(NoAudioFileException)
+                expect {BigBlueButton::VideoArchiver.archive( meeting_id, from_dir, to_dir ) }.to raise_error(FileNotFoundException)
             end
         end
     end

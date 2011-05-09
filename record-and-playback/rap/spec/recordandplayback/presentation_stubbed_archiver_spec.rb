@@ -1,8 +1,8 @@
 require 'spec_helper'
 require 'fileutils'
 
-module Collector
-    describe Presentation do     
+module BigBlueButton
+    describe PresentationArchiver do     
         context "#success" do
             it "should copy presentations to archive" do
                 FileTest.stub(:directory?).and_return(true)
@@ -12,7 +12,7 @@ module Collector
                 to_dir = 'to'
                 meeting_id = 'meeting-id'
                 
-                expect { Collector::Presentation.collect_presentation( meeting_id, from_dir, to_dir ) }.to_not raise_error   
+                expect { BigBlueButton::PresentationArchiver.archive( meeting_id, from_dir, to_dir ) }.to_not raise_error   
             end
         end
         
@@ -25,7 +25,7 @@ module Collector
                 to_dir = 'resources/archive'
                 meeting_id = 'meeting-id'
                 
-                expect {Collector::Presentation.collect_presentation( meeting_id, from_dir, to_dir )}.to raise_error(NoSuchDirectoryException)
+                expect { BigBlueButton::PresentationArchiver.archive( meeting_id, from_dir, to_dir )}.to raise_error(MissingDirectoryException)
             end
             it "should raise to directory not found exception" do
                 from_dir = 'resources/raw/audio'
@@ -35,7 +35,7 @@ module Collector
                 FileUtils.stub(:cp_r)
                 Dir.stub(:glob).and_return(['flight-school', 'ecosystem'])
                 
-                expect { Collector::Presentation.collect_presentation( meeting_id, from_dir, to_dir ) }.to raise_error(NoSuchDirectoryException)
+                expect { BigBlueButton::PresentationArchiver.archive( meeting_id, from_dir, to_dir ) }.to raise_error(MissingDirectoryException)
             end
             it "should raise presentation files not found exception" do
                 from_dir = 'resources/raw/audio'
@@ -45,7 +45,7 @@ module Collector
                 FileUtils.stub(:cp)
                 Dir.stub(:glob).and_return([])
                 
-                expect { Collector::Presentation.collect_presentation( meeting_id, from_dir, to_dir ) }.to raise_error(NoPresentationException)
+                expect { BigBlueButton::PresentationArchiver.archive( meeting_id, from_dir, to_dir ) }.to raise_error(FileNotFoundException)
             end
         end
     end

@@ -1,9 +1,10 @@
 path = File.expand_path(File.join(File.dirname(__FILE__), '../lib'))
 $LOAD_PATH << path
-require 'recordandplayback/archiver'
 require 'recordandplayback/audio_archiver'
-require 'recordandplayback/collectors/events'
-require 'recordandplayback/collectors/audio'
+require 'recordandplayback/events_archiver'
+require 'recordandplayback/video_archiver'
+require 'recordandplayback/presentation_archiver'
+require 'recordandplayback/deskshare_archiver'
 require 'recordandplayback/generators/events'
 require 'recordandplayback/generators/audio'
 require 'recordandplayback/generators/matterhorn_processor'
