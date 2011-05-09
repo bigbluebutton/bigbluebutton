@@ -16,4 +16,6 @@ redis_host = props['redis_host']
 redis_port = props['redis_port']
 archive_dir = props['archive_dir']
 
-BigBlueButton::EventsArchiver.archive(archive_dir, meeting_id, redis_host, redis_port) 
+redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port)
+events_archiver = BigBlueButton::RedisEventsArchiver.new redis    
+events_archiver.save_events_to_file("#{archive_dir}/#{meeting_id}", events_archiver.store_events(meeting_id))

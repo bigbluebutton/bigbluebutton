@@ -11,10 +11,7 @@ module BigBlueButton
                 from_dir = '/from/dir/'
                 to_dir = '/to/dir/'
                 meeting_id = 'meeting-id'
-                logger = Logger.new(STDOUT)
-                logger.level = Logger::INFO    
-                archiver = AudioArchiver.new(logger)
-                archiver.archive(meeting_id, from_dir, to_dir)  
+                BigBlueButton::AudioArchiver.archive(meeting_id, from_dir, to_dir)  
             end
         end
     end
