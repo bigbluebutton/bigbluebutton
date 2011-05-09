@@ -1,11 +1,28 @@
+require 'rubygems'
+require 'nokogiri'
+
 module BigBlueButton
-  module Presentation
+  class Presentation
     OPTIONS = "-sDEVICE=pdfwrite -dNOPAUSE -dQUIET -dBATCH";
     FIRSTPAGE = "-dFirstPage";
     LASTPAGE = "-dLastPage";
     NO_PDF_MARK_WORKAROUND = "/etc/bigbluebutton/nopdfmark.ps";
     OUTPUTFILE = "-sOutputFile";
 
+    # Get the presentations.
+    def self.start_audio_recording_events(events_xml)
+      start_events = []
+      doc = Nokogiri::XML(File.open(events_xml))
+      doc.xpath("//event[@name='SharePresentationEvent']").each do |presentation_event|
+        ae = AudioRecordingEvent.new
+        ae.start_event_timestamp = start_event[TIMESTAMP]
+        ae.bridge = start_event.xpath(BRIDGE).text
+        ae.file = start_event.xpath(FILE).text
+        ae.start_record_timestamp = start_event.xpath(RECORD_TIMESTAMP).text
+        start_events << ae
+      end
+      return start_events.sort {|a,b| a.start_event_timestamp <=> b.start_event_timestamp}
+    end    
 
     # Determine the number pages in a presentation by looking at the number of
     # swf files in a directory.
@@ -36,22 +53,6 @@ module BigBlueButton
         proc = subprocess.Popen(command, shell=True)
         # Wait for the process to finish
         proc.wait()    
-    end
-            
-    def main()
-        presentationSrcDir = ""
-        pdfFilename = ""
-        
-        numPages = determine_number_of_pages(presentationSrcDir)
-        if (numPages > 0)
-            i = 1
-            while i <= numPages 
-                extract_page_from_pdf(i, presentationSrcDir + "/" + pdfFilename, presentationSrcDir)
-                fileToConvert = presentationSrcDir + "/slide-" + str(i)
-                convert_pdf_to_png(fileToConvert + ".pdf", fileToConvert + ".png")
-                i += 1
-            end
-        end
     end
   end
 end
