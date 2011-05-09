@@ -3,7 +3,7 @@ require 'rubygems'
 require 'nokogiri'
 require 'builder'
 
-module Generator
+module BigBlueButton
   class AudioEvents
     # Generate a silent wav file.
     # 
@@ -24,10 +24,7 @@ module Generator
       
       f.close();
       command = "sox #{temp_file} -b 16 -r #{sampling_rate} -c 1 -s #{filename}"
-      BigBlueButton.logger.info("Executing #{command}\n")
-      proc = IO.popen(command, "w+")
-      # Wait for the process to finish before removing the temp file
-      Process.wait()
+      BigBlueButton.execute(command)
       # Delete the temporary raw audio file
       FileUtils.rm(temp_file)
     end
@@ -39,10 +36,7 @@ module Generator
     def self.concatenate_audio_files(files, outfile)
       file_list = files.join(' ')
       command = "sox #{file_list} #{outfile}"
-      BigBlueButton.logger.info("Executing #{command}\n")
-      proc = IO.popen(command, "w+")
-      # Wait for the process to finish
-      Process.wait()    
+      BigBlueButton.execute(command)  
     end
     
     # Convert a wav file to an ogg file
@@ -51,9 +45,7 @@ module Generator
     #   ogg_file - resulting ogg file
     def self.wav_to_ogg(wav_file, ogg_file)  
       command = "oggenc -Q -o #{ogg_file} #{wav_file} 2>&1"
-      BigBlueButton::Archive.logger.info("Executing #{command}\n")      
-      proc = IO.popen(command, "w+")
-      Process.wait() 
+      BigBlueButton.execute(command)
     end    
     
     # Extracts the length of the audio file as reurned by running
