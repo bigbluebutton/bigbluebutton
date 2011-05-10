@@ -28,87 +28,18 @@
 	<property name="BREAKOUT" value="BreakoutModule" />
 	<property name="CLASSROOM_AUDIO" value="ClassroomAudioModule" />
 	<property name="SETTINGS" value="SettingsModule" />
-	
-	<property name="AVAILABLE_LOCALES" value="az_AZ,bg_BG,cs_CZ,da_DK,de_DE,el_GR,en_US,es_ES,es_LA,fa_IR,fr_FR,fr_CA,hr_HR,hu_HU,id_ID,it_IT,ja_JP,ko_KR,lv_LV,lt_LT,nb_NO,nl_NL,pl_PL,pt_BR,pt_PT,ro_RO,ru_RU,sv_SE,sr_RS,sr_SR,th_TH,tr_TR,vi_VN,uk_UA,zh_CN,zh_TW"/>
-	
-	<xmlproperty file="${SRC_DIR}/conf/locales.xml" collapseAttributes="true"/>
-	
+			
 	<target name="init-ant-contrib">
 		<property name="ant-contrib.jar" location="${BASE_DIR}/build/lib/ant-contrib-0.6.jar"/>
 		<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="${ant-contrib.jar}"/>
 	</target>
-
-	<target name="localization" depends="init-ant-contrib">
-		<echo message="Parsing ${SRC_DIR}/conf/locales.xml for supported locales"/>
-		<echo message="Available locales ${AVAILABLE_LOCALES}"/>
-		<!--foreach list="${locales.locale.code}" target="build-locale" param="supportedlocale" delimiter=","/-->
-		<foreach list="${AVAILABLE_LOCALES}" target="build-locale" param="supportedlocale" delimiter=","/>
-	</target>
 	
 	<target name="branding" depends="init-ant-contrib">
 		<sequential>
-			<mxmlc file="${SRC_DIR}/branding/css/${themeFile}" output="${OUTPUT_DIR}/branding/css/${themeFile}.swf" debug="false" optimize="true">
+			<mxmlc file="${SRC_DIR}/branding/css/${themeFile}" output="${OUTPUT_DIR}/branding/css/${themeFile}.swf" debug="false" mxml.compatibility-version="3.0.0" swf-version="12" optimize="true">
 			</mxmlc>
 		</sequential>
 	</target>
-	
-	<target name="build-locale">
-		<echo message="Building ${supportedlocale}"/>
-		<available file="${LOCALE_DIR}/${supportedlocale}" type="dir" property="locale.dir.present"/>
-		<if> 
-           		<equals arg1="${locale.dir.present}" arg2="true"/> 
-           	<then> 
-              		<echo message="No need to copy ${LOCALE_DIR}/${supportedlocale}"/> 
-           	</then> 
-           	<else> 
-              		<echo message="Need to copy ${LOCALE_DIR}/${supportedlocale}"/> 
-              		<exec dir="${BASE_DIR}" vmlauncher="true" executable="copylocale">
-				<arg value="en_US"/>
-    				<arg value="${supportedlocale}"/>
-			</exec>
-           	</else> 
-        	</if>
-        	<compileLocale locale="${supportedlocale}" />        
-	</target>
-		
-	<macrodef name="compileLocale" description="Compiles the Resource package for the given locale">
-		<attribute name="locale" default="en_US"/>
-		<sequential>
-			<echo message="Building @{locale}"/>
-		<available file="${LOCALE_DIR}/@{locale}" type="dir" property="locale.dir.present"/>
-		<if> 
-           <equals arg1="${locale.dir.present}" arg2="true"/> 
-           <then> 
-              <echo message="No need to copy ${LOCALE_DIR}/@{locale}"/> 
-           </then> 
-           <else> 
-              <echo message="Need to copy ${LOCALE_DIR}/@{locale}"/> 
-              <exec dir="${BASE_DIR}" vmlauncher="true" executable="copylocale">
-				<arg value="en_US"/>
-    			<arg value="@{locale}"/>
-			</exec>
-           </else> 
-        </if>
-        
-			<!--
-			Create the Flex Home directory for the language in question.
-			This is necessary to compensate for a bug in pre-3.2 releases of 
-			mxmlc.
-			
-			<mkdir dir="${FLEX_HOME}/frameworks/locale/@{locale}"/>-->
-			
-			<!-- Invoke MXMLC -->
-			<mxmlc output="${OUTPUT_DIR}/locale/@{locale}_resources.swf">
-				<locale>@{locale}</locale>
-				<target-player>10.0.0</target-player>
-				<source-path path-element="locale/{locale}"/>
-				<include-resource-bundles>bbbResources</include-resource-bundles>
-				<include-resource-bundles>core</include-resource-bundles>
-				<include-resource-bundles>controls</include-resource-bundles>
-				<source-path path-element="${FLEX_HOME}/frameworks"/>
-			</mxmlc>
-		</sequential>
-	</macrodef>
 		
 	<target name="build-bbb-main" description="Compile BigBlueButton Main">
 		<build-main src="${SRC_DIR}" target="${BBB_MAIN}" />
@@ -202,8 +133,8 @@
 			<attribute name="app" default="."/>
 			<attribute name="src" default="${SRC_DIR}" description="Path to the module to compile" />
 			<sequential>
-				<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="false" optimize="true" link-report="linker-report.xml">
-					<target-player>10.0.0</target-player>
+				<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="false" mxml.compatibility-version="3.0.0" swf-version="12" optimize="true" link-report="linker-report.xml">
+					<target-player>10.3.0</target-player>
 					<load-config filename="@{flex}/frameworks/flex-config.xml" />
 					<source-path path-element="@{flex}/frameworks" />
 					<compiler.library-path dir="@{flex}/frameworks" append="true">
@@ -227,8 +158,8 @@
 		<attribute name="app" default="."/>
 		<attribute name="src" default="${SRC_DIR}" description="Path to the module to compile" />
 		<sequential>
-			<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="false">
-				<target-player>10.0.0</target-player>
+			<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="false" mxml.compatibility-version="3.0.0" swf-version="12">
+				<target-player>10.3.0</target-player>
 				<load-config filename="@{flex}/frameworks/flex-config.xml" />
 				<source-path path-element="@{flex}/frameworks" />
 				<compiler.library-path dir="@{flex}/frameworks" append="true">
@@ -252,8 +183,8 @@
 		<attribute name="app" default="."/>
 		<attribute name="src" default="${SRC_DIR}" description="Path to the module to compile" />
 		<sequential>
-			<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="false" optimize="true" load-externs="linker-report.xml">
-				<target-player>10.0.0</target-player>
+			<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="false" mxml.compatibility-version="3.0.0" swf-version="12" optimize="true" load-externs="linker-report.xml">
+				<target-player>10.3.0</target-player>
 				<load-config filename="@{flex}/frameworks/flex-config.xml" />
 				<source-path path-element="@{flex}/frameworks" />
 				<compiler.library-path dir="@{flex}/frameworks" append="true">
@@ -284,6 +215,9 @@
 		<copy todir="${OUTPUT_DIR}/swfobject/" >
 			<fileset dir="${BASE_DIR}/src/swfobject/" />
 		</copy>	
+		<copy todir="${OUTPUT_DIR}/locale" >
+			<fileset dir="${BASE_DIR}/locale/" />
+		</copy>	
 		<copy file="${PROD_RESOURCES_DIR}/BigBlueButton.html" todir="${OUTPUT_DIR}" overwrite="true"/>
 		<copy file="${PROD_RESOURCES_DIR}/DeskshareStandalone.html" todir="${OUTPUT_DIR}" overwrite="true"/>
 		<copy file="${PROD_RESOURCES_DIR}/bbb.gif" todir="${OUTPUT_DIR}" overwrite="true"/>		
@@ -295,19 +229,19 @@
 		<copy file="${PROD_RESOURCES_DIR}/bbb_blinker.js" todir="${OUTPUT_DIR}" overwrite="true"/>
 		<copy file="${PROD_RESOURCES_DIR}/bbb_deskshare.js" todir="${OUTPUT_DIR}" overwrite="true"/>
 		<copy file="${PROD_RESOURCES_DIR}/bbb_localization.js" todir="${OUTPUT_DIR}" overwrite="true"/>
-		<if>
+		<!--<if>
            		<equals arg1="${BUILD_ENV}" arg2="DEV"/>
-           		<then>
+           		<then>-->
               			<echo message="Copying config.xml for development environment"/>
 				<copy file="${BASE_DIR}/src/conf/config.xml" todir="${OUTPUT_DIR}/conf" /> 
               			<echo message="Copying join-mock.xml for development environment"/>
 				<copy file="${BASE_DIR}/src/conf/join-mock.xml" todir="${OUTPUT_DIR}/conf" /> 
-           		</then>
+           		<!--</then>
            	<else>
               		<echo message="Need to copy config.xml.template for production environment"/>
 			<copy file="${RESOURCES_DIR}/config.xml.template" todir="${OUTPUT_DIR}/conf" overwrite="true"/>		
            	</else>
-        	</if>
+        	</if>-->
 	</target>
 	
 	<target name="check-config-xml">
@@ -329,10 +263,9 @@
 			application="BBB"
 			swf="BigBlueButton"
 			version-major="10"
-			version-minor="0"
+			version-minor="3"
 			version-revision="0"
 			history="true"
-			template="express-installation"
 			output="${OUTPUT_DIR}"
 		/>
 	</target>
@@ -368,7 +301,7 @@
 				to be compiled withouth being optimized by using the linker -->
 	<target name="clean-build-bbb" depends="clean, generate-html-wrapper, compile-deskshare-standalone, compile-bbb" 
 			description="Build BBB client skipping compiling of locales"/>	
-	<target name="clean-build-all" depends="clean, generate-html-wrapper, localization, compile-deskshare-standalone, compile-bbb" 
+	<target name="clean-build-all" depends="clean, generate-html-wrapper, compile-deskshare-standalone, compile-bbb" 
 			description="Build BBB client including locales"/>
 	<target name="modules" depends="init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, compile-bbb"
                         description="Build BBB client without locales"/>		
