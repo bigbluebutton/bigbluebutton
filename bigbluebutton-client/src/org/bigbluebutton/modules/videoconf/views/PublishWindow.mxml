@@ -27,7 +27,6 @@
 	creationComplete="init()"
 	width="{camWidth + 6}" height="{camHeight + 75}" 
 	title="{ResourceUtil.getInstance().getString('bbb.publishVideo.title')}" 
-	backgroundImage="{bbbLogo}" 
 	xmlns:mate="http://mate.asfusion.com/"
 	resize="onResize()">
 	
@@ -40,6 +39,7 @@
 			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
 			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
@@ -324,6 +324,10 @@
 				this.title = ResourceUtil.getInstance().getString('bbb.publishVideo.title');
 			}
 			
+			private function localeChanged(e:LocaleChangeEvent):void{
+				resourcesChanged();
+			}
+			
 			private function onResize():void{
 				setWindowWidth(this.width);
 			}
@@ -358,4 +362,5 @@
 	<mx:UIComponent id="videoHolder" width="{camWidth}" height="{camHeight}" />
 
 	<mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
+	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 </pubVid:MDIWindow>

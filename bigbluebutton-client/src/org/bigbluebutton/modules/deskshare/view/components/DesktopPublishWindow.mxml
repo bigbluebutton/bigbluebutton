@@ -36,18 +36,20 @@
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="onChangedPresenter" />	
 	<mate:Listener type="{CursorEvent.UPDATE_CURSOR_LOC_EVENT}" method="onUpdateCursorEvent" />
 	<mate:Listener type="{ViewStreamEvent.STOP}" method="closePublishWindow" />
+	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 	
 	<mx:Script>
 		<![CDATA[
-			import flexlib.scheduling.scheduleClasses.BackgroundItem;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
+			import flexlib.scheduling.scheduleClasses.BackgroundItem;
 			
 			import mx.core.UIComponent;
 			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
@@ -274,6 +276,10 @@
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
 				this.title = ResourceUtil.getInstance().getString('bbb.desktopPublish.title');
+			}
+			
+			private function localeChanged(e:LocaleChangeEvent):void{
+				resourcesChanged();
 			}
 			
 			private function closePublishWindow(event:ViewStreamEvent):void{
