@@ -57,7 +57,6 @@ module BigBlueButton
         stop_events << s
       end
       stop_events
-    end
-    
+    end    
   end
 end

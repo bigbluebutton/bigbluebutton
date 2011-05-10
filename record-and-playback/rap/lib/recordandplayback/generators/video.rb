@@ -7,7 +7,7 @@ module BigBlueButton
   #   video_out - the resulting FLV with the audio stripped
   # Example:
   #    strip_audio_from_video(orig-video.flv, video2.flv)
-  def strip_audio_from_video(video_in, video_out)
+  def self.strip_audio_from_video(video_in, video_out)
     IO.popen("ffmpeg -i #{video_in} -an -vcodec copy #{video_out}")
     Process.wait
     # TODO: check for result, raise an exception when there is an error
@@ -20,7 +20,7 @@ module BigBlueButton
   #   video_out - the resulting blank video file
   #  Example:
   #   create_blank_video(15, 1000, canvas.jpg, blank-video.flv)
-  def create_blank_deskshare_video(length, rate, blank_canvas, video_out)
+  def self.create_blank_deskshare_video(length, rate, blank_canvas, video_out)
     IO.popen("ffmpeg -loop_input -t #{length} -i #{blank_canvas} -r #{rate} -vcodec flashsv #{video_out}")
     Process.wait
     # TODO: check for result, raise exception when there is an error
@@ -33,7 +33,7 @@ module BigBlueButton
   #   video_out - the resulting blank video file
   #  Example:
   #   create_blank_video(15, 1000, canvas.jpg, blank-video.flv)
-  def create_blank_video(length, rate, blank_canvas, video_out)
+  def self.create_blank_video(length, rate, blank_canvas, video_out)
     IO.popen("ffmpeg -loop_input -t #{length} -i #{blank_canvas} -r #{rate} #{video_out}")
     Process.wait
     # TODO: check for result, raise exception when there is an error
@@ -46,7 +46,7 @@ module BigBlueButton
   #   out_file - the file of the resulting image
   # Example:
   #   create_blank_canvas(1280, 720, white, blank_canvas.jpg)
-  def create_blank_canvas(width, height, color, out_file)
+  def self.create_blank_canvas(width, height, color, out_file)
     IO.popen("convert -size #{width}x#{height} xc:#{color} #{out_file}")
     Process.wait
     # TODO: check for result, raise an exception when there is an error
@@ -57,7 +57,7 @@ module BigBlueButton
   #               will be concatenated based on their order in the array.
   #   video_out - the concatenated video
   #                
-  def concatenate_videos(videos_in, video_out)
+  def self.concatenate_videos(videos_in, video_out)
     videos = " "
     videos_in.each { |v| videos << "#{v} "}
     puts "combining #{videos}"
@@ -71,10 +71,18 @@ module BigBlueButton
   # Multiplexes an audio and video
   #  audio - the audio file
   #  video - the video file. Must not contain an audio stream. 
-  def multiplex_audio_and_video(audio, video, video_out)
+  def self.multiplex_audio_and_video(audio, video, video_out)
     IO.popen("ffmpeg -i #{audio} -i #{video} -map 1:0 -map 0:0 -ar 22050 #{video_out}")
     Process.wait 
     # TODO: check result, raise an exception when there is an error
+  end
+
+  def self.get_video_height(video)
+    FFMPEG::Movie.new(video).height
+  end
+  
+  def self.get_video_width(video)
+    FFMPEG::Movie.new(video).width
   end
 end
 
