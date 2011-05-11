@@ -38,31 +38,35 @@ video_dir = props['video_dir']
   #puts "********** #{$?.exitstatus} #{$?.exited?} #{$?.success?}********************"
 #end
 
+def archive_audio(meeting_id, audio_dir, archive_dir)
+  BigBlueButton.logger.info("Archiving audio #{audio_dir}/#{meeting_id}*.wav.")
+  begin
+    audio_dest_dir = "#{archive_dir}/#{meeting_id}/audio"
+    FileUtils.mkdir_p audio_dest_dir
+    BigBlueButton::AudioArchiver.archive(meeting_id, audio_dir, audio_dest_dir) 
+  rescue => e
+    BigBlueButton.logger.warn("Failed to archive audio for #{meeting_id}. " + e.to_s)
+  end
+end
 
 def archive_events(meeting_id, redis_host, redis_port, archive_dir)
   BigBlueButton.logger.info("Archiving events for #{meeting_id}.")
   begin
     redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port)
     events_archiver = BigBlueButton::RedisEventsArchiver.new redis    
-    events_archiver.save_events_to_file("#{archive_dir}/#{meeting_id}", events_archiver.store_events(meeting_id))
+    events = events_archiver.store_events(meeting_id)
+    events_archiver.save_events_to_file("#{archive_dir}/#{meeting_id}", events )
   rescue => e
     BigBlueButton.logger.warn("Failed to archive events for #{meeting_id}. " + e.to_s)
   end
 end
 
-def archive_audio(meeting_id, audio_dir, archive_dir)
-  BigBlueButton.logger.info("Archiving audio for #{meeting_id}.")
-  begin
-    BigBlueButton::AudioArchiver.archive(meeting_id, audio_dir, archive_dir) 
-  rescue => e
-    BigBlueButton.logger.warn("Failed to archive audio for #{meeting_id}. " + e.to_s)
-  end
-end
-
-def self.archive_video(meeting_id, video_dir, archive_dir)
+def archive_video(meeting_id, video_dir, archive_dir)
   BigBlueButton.logger.info("Archiving video for #{meeting_id}.")
   begin
-    BigBlueButton::VideoArchiver.archive(meeting_id, "#{video_dir}/#{meeting_id}", archive_dir)
+    video_dest_dir = "#{archive_dir}/#{meeting_id}/video"
+    FileUtils.mkdir_p video_dest_dir
+    BigBlueButton::VideoArchiver.archive(meeting_id, "#{video_dir}/#{meeting_id}", video_dest_dir)
   rescue => e
     BigBlueButton.logger.warn("Failed to archive video for #{meeting_id}. " + e.to_s)
   end
@@ -71,7 +75,9 @@ end
 def archive_deskshare(meeting_id, deskshare_dir, archive_dir)
   BigBlueButton.logger.info("Archiving deskshare for #{meeting_id}.")
   begin
-    BigBlueButton::DeskshareArchiver.archive(meeting_id, deskshare_dir, archive_dir)
+    deskshare_dest_dir = "#{archive_dir}/#{meeting_id}/deskshare"
+    FileUtils.mkdir_p deskshare_dest_dir
+    BigBlueButton::DeskshareArchiver.archive(meeting_id, deskshare_dir, deskshare_dest_dir)
   rescue => e
     BigBlueButton.logger.warn("Failed to archive deskshare for #{meeting_id}. " + e.to_s)
   end
@@ -80,12 +86,20 @@ end
 def archive_presentation(meeting_id, presentation_dir, archive_dir)
   BigBlueButton.logger.info("Archiving presentation for #{meeting_id}.")
   begin
-    BigBlueButton::PresentationArchiver.archive(meeting_id, "#{presentation_dir}/#{meeting_id}/#{meeting_id}", archive_dir)
+    presentation_dest_dir = "#{archive_dir}/#{meeting_id}/presentation"
+    FileUtils.mkdir_p presentation_dest_dir
+    BigBlueButton::PresentationArchiver.archive(meeting_id, "#{presentation_dir}/#{meeting_id}/#{meeting_id}", presentation_dest_dir)
   rescue => e
     BigBlueButton.logger.warn("Failed to archive presentations for #{meeting_id}. " + e.to_s)
   end
 end
 
+target_dir = "#{archive_dir}/#{meeting_id}"
+if FileTest.directory?(target_dir)
+  FileUtils.remove_dir target_dir
+end
+FileUtils.mkdir_p target_dir
+        
 archive_events(meeting_id, redis_host, redis_port, archive_dir)
 archive_audio(meeting_id, audio_dir, archive_dir)
 archive_presentation(meeting_id, presentation_dir, archive_dir)

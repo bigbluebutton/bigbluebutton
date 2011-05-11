@@ -8,6 +8,7 @@ module BigBlueButton
       raise FileNotFoundException, "No presentation for #{meeting_id} in #{from_dir}" if Dir.glob("#{from_dir}").empty?
                                    
       Dir.glob("#{from_dir}/*").each { |file|
+        puts "Presentation from #{file} to #{to_dir}"
         FileUtils.cp_r(file, to_dir)
       }         
     end        

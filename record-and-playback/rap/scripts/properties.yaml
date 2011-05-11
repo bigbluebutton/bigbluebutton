@@ -1,4 +1,4 @@
-
+recording_dir: /var/bigbluebutton/recording
 scripts_home: /home/firstuser/python/src
 audio_dir: /var/freeswitch/meetings
 video_dir: /usr/share/red5/webapps/video/streams
