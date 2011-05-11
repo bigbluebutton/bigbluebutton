@@ -1,0 +1,889 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<recording meeting_id="2364d22e-b650-40b4-9c7c-e72f66b093ef">
+  <metadata>
+  </metadata>
+  <event timestamp="1305130596604" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <role>MODERATOR</role>
+    <userId>6</userId>
+    <status>{raiseHand=false, hasStream=false, presenter=false}</status>
+  </event>
+  <event timestamp="1305130597245" module="PARTICIPANT" eventname="ParticipantStatusChangeEvent">
+    <value>true</value>
+    <userId>6</userId>
+    <status>presenter</status>
+  </event>
+  <event timestamp="1305130597269" module="PRESENTATION" eventname="AssignPresenterEvent">
+    <name>Testing recording</name>
+    <userid>6</userid>
+    <assignedBy>1</assignedBy>
+  </event>
+  <event timestamp="1305130602526" module="VOICE" eventname="ParticipantJoinedEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <muted>true</muted>
+    <callername>Testing recording</callername>
+    <bridge>74208</bridge>
+    <callernumber>Testing recording</callernumber>
+    <locked>false</locked>
+  </event>
+  <event timestamp="1305130602695" module="VOICE" eventname="StartRecordingEvent">
+    <recordingTimestamp>1305130602692865</recordingTimestamp>
+    <filename>/var/freeswitch/meetings/2364d22e-b650-40b4-9c7c-e72f66b093ef-1305130602478.wav</filename>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130607486" module="VOICE" eventname="ParticipantMutedEvent">
+    <participant>3</participant>
+    <muted>false</muted>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130608333" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130609476" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130610313" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130612911" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130613670" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130616350" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130619270" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130620571" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130621684" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>1</pagesCompleted>
+  </event>
+  <event timestamp="1305130622275" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>2</pagesCompleted>
+  </event>
+  <event timestamp="1305130622811" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>3</pagesCompleted>
+  </event>
+  <event timestamp="1305130623450" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>4</pagesCompleted>
+  </event>
+  <event timestamp="1305130623871" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130623975" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>5</pagesCompleted>
+  </event>
+  <event timestamp="1305130624564" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>6</pagesCompleted>
+  </event>
+  <event timestamp="1305130625180" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>7</pagesCompleted>
+  </event>
+  <event timestamp="1305130625390" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130625707" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>8</pagesCompleted>
+  </event>
+  <event timestamp="1305130626406" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>9</pagesCompleted>
+  </event>
+  <event timestamp="1305130626730" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130627087" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>10</pagesCompleted>
+  </event>
+  <event timestamp="1305130627725" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>11</pagesCompleted>
+  </event>
+  <event timestamp="1305130628404" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>12</pagesCompleted>
+  </event>
+  <event timestamp="1305130629009" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>13</pagesCompleted>
+  </event>
+  <event timestamp="1305130629173" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130629878" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>14</pagesCompleted>
+  </event>
+  <event timestamp="1305130630671" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130630878" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>15</pagesCompleted>
+  </event>
+  <event timestamp="1305130631949" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>16</pagesCompleted>
+  </event>
+  <event timestamp="1305130632211" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130633176" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>17</pagesCompleted>
+  </event>
+  <event timestamp="1305130634301" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>18</pagesCompleted>
+  </event>
+  <event timestamp="1305130634411" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130634639" module="PARTICIPANT" eventname="ParticipantStatusChangeEvent">
+    <value>320x240-6-1305130571294</value>
+    <userId>6</userId>
+    <status>streamName</status>
+  </event>
+  <event timestamp="1305130634777" module="PARTICIPANT" eventname="ParticipantStatusChangeEvent">
+    <value>true</value>
+    <userId>6</userId>
+    <status>hasStream</status>
+  </event>
+  <event timestamp="1305130635837" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>19</pagesCompleted>
+  </event>
+  <event timestamp="1305130636224" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130637103" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>20</pagesCompleted>
+  </event>
+  <event timestamp="1305130638267" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>21</pagesCompleted>
+  </event>
+  <event timestamp="1305130639720" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>22</pagesCompleted>
+  </event>
+  <event timestamp="1305130639955" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130641189" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>23</pagesCompleted>
+  </event>
+  <event timestamp="1305130641312" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130641770" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130642948" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>24</pagesCompleted>
+  </event>
+  <event timestamp="1305130644259" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>25</pagesCompleted>
+  </event>
+  <event timestamp="1305130644532" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130645571" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130645660" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>26</pagesCompleted>
+  </event>
+  <event timestamp="1305130647156" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130647196" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>27</pagesCompleted>
+  </event>
+  <event timestamp="1305130647994" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130648638" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>28</pagesCompleted>
+  </event>
+  <event timestamp="1305130649431" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130649952" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130650441" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>29</pagesCompleted>
+  </event>
+  <event timestamp="1305130651714" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>30</pagesCompleted>
+  </event>
+  <event timestamp="1305130651773" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130653255" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>31</pagesCompleted>
+  </event>
+  <event timestamp="1305130654906" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>32</pagesCompleted>
+  </event>
+  <event timestamp="1305130656271" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130657211" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>33</pagesCompleted>
+  </event>
+  <event timestamp="1305130657813" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130660008" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>34</pagesCompleted>
+  </event>
+  <event timestamp="1305130660752" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>35</pagesCompleted>
+  </event>
+  <event timestamp="1305130661937" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>36</pagesCompleted>
+  </event>
+  <event timestamp="1305130663260" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>37</pagesCompleted>
+  </event>
+  <event timestamp="1305130664826" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>38</pagesCompleted>
+  </event>
+  <event timestamp="1305130666423" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>39</pagesCompleted>
+  </event>
+  <event timestamp="1305130666749" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130667066" module="Deskshare" eventname="DeskshareStartedEvent">
+    <file>/var/bigbluebutton/deskshare/2364d22e-b650-40b4-9c7c-e72f66b093ef-1305130666442.flv</file>
+  </event>
+  <event timestamp="1305130667856" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130667884" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>40</pagesCompleted>
+  </event>
+  <event timestamp="1305130670221" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>41</pagesCompleted>
+  </event>
+  <event timestamp="1305130671917" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>42</pagesCompleted>
+  </event>
+  <event timestamp="1305130672881" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>43</pagesCompleted>
+  </event>
+  <event timestamp="1305130674037" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>44</pagesCompleted>
+  </event>
+  <event timestamp="1305130675302" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>45</pagesCompleted>
+  </event>
+  <event timestamp="1305130676280" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130676669" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>46</pagesCompleted>
+  </event>
+  <event timestamp="1305130676995" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130677200" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130677565" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>47</pagesCompleted>
+  </event>
+  <event timestamp="1305130678363" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>48</pagesCompleted>
+  </event>
+  <event timestamp="1305130679032" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>49</pagesCompleted>
+  </event>
+  <event timestamp="1305130679727" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>50</pagesCompleted>
+  </event>
+  <event timestamp="1305130680476" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>51</pagesCompleted>
+  </event>
+  <event timestamp="1305130681303" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>52</pagesCompleted>
+  </event>
+  <event timestamp="1305130682196" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>53</pagesCompleted>
+  </event>
+  <event timestamp="1305130682726" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>ecosystem</presentationName>
+    <numberOfPages>54</numberOfPages>
+    <pagesCompleted>54</pagesCompleted>
+  </event>
+  <event timestamp="1305130683553" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130683710" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130685314" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130687793" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130691711" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130691873" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130692814" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130705146" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130705954" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130710697" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130711336" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130717647" module="PRESENTATION" eventname="ConversionCompletedEvent">
+    <presentationName>ecosystem</presentationName>
+    <slidesInfo>&lt;uploadedpresentation&gt;
+  &lt;conference id='2364d22e-b650-40b4-9c7c-e72f66b093ef' room='2364d22e-b650-40b4-9c7c-e72f66b093ef'&gt;
+    &lt;presentation name='ecosystem'&gt;
+      &lt;slides count='54'&gt;
+        &lt;slide number='1' name='slide/1' thumb='thumbnail/1' /&gt;
+        &lt;slide number='2' name='slide/2' thumb='thumbnail/2' /&gt;
+        &lt;slide number='3' name='slide/3' thumb='thumbnail/3' /&gt;
+        &lt;slide number='4' name='slide/4' thumb='thumbnail/4' /&gt;
+        &lt;slide number='5' name='slide/5' thumb='thumbnail/5' /&gt;
+        &lt;slide number='6' name='slide/6' thumb='thumbnail/6' /&gt;
+        &lt;slide number='7' name='slide/7' thumb='thumbnail/7' /&gt;
+        &lt;slide number='8' name='slide/8' thumb='thumbnail/8' /&gt;
+        &lt;slide number='9' name='slide/9' thumb='thumbnail/9' /&gt;
+        &lt;slide number='10' name='slide/10' thumb='thumbnail/10' /&gt;
+        &lt;slide number='11' name='slide/11' thumb='thumbnail/11' /&gt;
+        &lt;slide number='12' name='slide/12' thumb='thumbnail/12' /&gt;
+        &lt;slide number='13' name='slide/13' thumb='thumbnail/13' /&gt;
+        &lt;slide number='14' name='slide/14' thumb='thumbnail/14' /&gt;
+        &lt;slide number='15' name='slide/15' thumb='thumbnail/15' /&gt;
+        &lt;slide number='16' name='slide/16' thumb='thumbnail/16' /&gt;
+        &lt;slide number='17' name='slide/17' thumb='thumbnail/17' /&gt;
+        &lt;slide number='18' name='slide/18' thumb='thumbnail/18' /&gt;
+        &lt;slide number='19' name='slide/19' thumb='thumbnail/19' /&gt;
+        &lt;slide number='20' name='slide/20' thumb='thumbnail/20' /&gt;
+        &lt;slide number='21' name='slide/21' thumb='thumbnail/21' /&gt;
+        &lt;slide number='22' name='slide/22' thumb='thumbnail/22' /&gt;
+        &lt;slide number='23' name='slide/23' thumb='thumbnail/23' /&gt;
+        &lt;slide number='24' name='slide/24' thumb='thumbnail/24' /&gt;
+        &lt;slide number='25' name='slide/25' thumb='thumbnail/25' /&gt;
+        &lt;slide number='26' name='slide/26' thumb='thumbnail/26' /&gt;
+        &lt;slide number='27' name='slide/27' thumb='thumbnail/27' /&gt;
+        &lt;slide number='28' name='slide/28' thumb='thumbnail/28' /&gt;
+        &lt;slide number='29' name='slide/29' thumb='thumbnail/29' /&gt;
+        &lt;slide number='30' name='slide/30' thumb='thumbnail/30' /&gt;
+        &lt;slide number='31' name='slide/31' thumb='thumbnail/31' /&gt;
+        &lt;slide number='32' name='slide/32' thumb='thumbnail/32' /&gt;
+        &lt;slide number='33' name='slide/33' thumb='thumbnail/33' /&gt;
+        &lt;slide number='34' name='slide/34' thumb='thumbnail/34' /&gt;
+        &lt;slide number='35' name='slide/35' thumb='thumbnail/35' /&gt;
+        &lt;slide number='36' name='slide/36' thumb='thumbnail/36' /&gt;
+        &lt;slide number='37' name='slide/37' thumb='thumbnail/37' /&gt;
+        &lt;slide number='38' name='slide/38' thumb='thumbnail/38' /&gt;
+        &lt;slide number='39' name='slide/39' thumb='thumbnail/39' /&gt;
+        &lt;slide number='40' name='slide/40' thumb='thumbnail/40' /&gt;
+        &lt;slide number='41' name='slide/41' thumb='thumbnail/41' /&gt;
+        &lt;slide number='42' name='slide/42' thumb='thumbnail/42' /&gt;
+        &lt;slide number='43' name='slide/43' thumb='thumbnail/43' /&gt;
+        &lt;slide number='44' name='slide/44' thumb='thumbnail/44' /&gt;
+        &lt;slide number='45' name='slide/45' thumb='thumbnail/45' /&gt;
+        &lt;slide number='46' name='slide/46' thumb='thumbnail/46' /&gt;
+        &lt;slide number='47' name='slide/47' thumb='thumbnail/47' /&gt;
+        &lt;slide number='48' name='slide/48' thumb='thumbnail/48' /&gt;
+        &lt;slide number='49' name='slide/49' thumb='thumbnail/49' /&gt;
+        &lt;slide number='50' name='slide/50' thumb='thumbnail/50' /&gt;
+        &lt;slide number='51' name='slide/51' thumb='thumbnail/51' /&gt;
+        &lt;slide number='52' name='slide/52' thumb='thumbnail/52' /&gt;
+        &lt;slide number='53' name='slide/53' thumb='thumbnail/53' /&gt;
+        &lt;slide number='54' name='slide/54' thumb='thumbnail/54' /&gt;
+      &lt;/slides&gt;
+    &lt;/presentation&gt;
+  &lt;/conference&gt;
+&lt;/uploadedpresentation&gt;</slidesInfo>
+  </event>
+  <event timestamp="1305130718635" module="PRESENTATION" eventname="SharePresentationEvent">
+    <share>true</share>
+    <presentationName>ecosystem</presentationName>
+  </event>
+  <event timestamp="1305130718709" module="PRESENTATION" eventname="ResizeAndMoveSlideEvent">
+    <xOffset>0.0</xOffset>
+    <yOffset>0.0</yOffset>
+    <widthRatio>1.0</widthRatio>
+    <heightRatio>1.0</heightRatio>
+  </event>
+  <event timestamp="1305130721537" module="PRESENTATION" eventname="GotoSlideEvent">
+    <slide>0</slide>
+  </event>
+  <event timestamp="1305130721951" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130724132" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130725159" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130727538" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130727598" module="PRESENTATION" eventname="GotoSlideEvent">
+    <slide>1</slide>
+  </event>
+  <event timestamp="1305130728261" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130729932" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130731011" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130731063" module="PRESENTATION" eventname="GotoSlideEvent">
+    <slide>2</slide>
+  </event>
+  <event timestamp="1305130732772" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130733643" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130733790" module="PRESENTATION" eventname="GotoSlideEvent">
+    <slide>3</slide>
+  </event>
+  <event timestamp="1305130735272" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130737011" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130737126" module="PRESENTATION" eventname="GotoSlideEvent">
+    <slide>4</slide>
+  </event>
+  <event timestamp="1305130738552" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130740454" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130741776" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130742057" module="PRESENTATION" eventname="GotoSlideEvent">
+    <slide>5</slide>
+  </event>
+  <event timestamp="1305130742191" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130743530" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130745330" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130745420" module="PRESENTATION" eventname="GotoSlideEvent">
+    <slide>6</slide>
+  </event>
+  <event timestamp="1305130747071" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130748051" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130749202" module="PRESENTATION" eventname="GotoSlideEvent">
+    <slide>7</slide>
+  </event>
+  <event timestamp="1305130750290" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130754591" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130755985" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130756090" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130757050" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130759052" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130760310" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130761391" module="PRESENTATION" eventname="GotoSlideEvent">
+    <slide>8</slide>
+  </event>
+  <event timestamp="1305130761690" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130763130" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130764410" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130765274" module="PRESENTATION" eventname="GotoSlideEvent">
+    <slide>9</slide>
+  </event>
+  <event timestamp="1305130766750" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130767470" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130768411" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130769130" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130770631" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130771431" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130773408" module="PARTICIPANT" eventname="ParticipantStatusChangeEvent">
+    <value></value>
+    <userId>6</userId>
+    <status>streamName</status>
+  </event>
+  <event timestamp="1305130773565" module="PARTICIPANT" eventname="ParticipantStatusChangeEvent">
+    <userId>6</userId>
+    <value>false</value>
+    <status>hasStream</status>
+  </event>
+  <event timestamp="1305130773652" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130773951" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130775031" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130778430" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130779710" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130780570" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130781028" module="Deskshare" eventname="DeskshareStoppedEvent">
+    <file>/var/bigbluebutton/deskshare/2364d22e-b650-40b4-9c7c-e72f66b093ef-1305130666442.flv</file>
+  </event>
+  <event timestamp="1305130782816" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>false</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130784731" module="VOICE" eventname="ParticipantTalkingEvent">
+    <participant>3</participant>
+    <talking>true</talking>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130786615" module="VOICE" eventname="ParticipantLeftEvent">
+    <participant>3</participant>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130786678" module="VOICE" eventname="StopRecordingEvent">
+    <recordingTimestamp>1305130786673940</recordingTimestamp>
+    <filename>/var/freeswitch/meetings/2364d22e-b650-40b4-9c7c-e72f66b093ef-1305130602478.wav</filename>
+    <bridge>74208</bridge>
+  </event>
+  <event timestamp="1305130789745" module="PARTICIPANT" eventname="ParticipantLeftEvent">
+    <userId>6</userId>
+  </event>
+  <event timestamp="1305130789853" module="PARTICIPANT" eventname="EndAndKickAllEvent">
+  </event>
+</recording>
