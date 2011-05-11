@@ -84,6 +84,18 @@ module BigBlueButton
   def self.get_video_width(video)
     FFMPEG::Movie.new(video).width
   end
+  
+  def self.get_video_duration(video)
+    FFMPEG::Movie.new(video).duration
+  end
+  
+  def self.get_video_bitrate(video)
+    FFMPEG::Movie.new(video).bitrate
+  end
+  
+  def self.get_video_framerate(video)
+    FFMPEG::Movie.new(video).frame_rate
+  end
 end
 
 
