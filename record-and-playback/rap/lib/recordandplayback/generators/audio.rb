@@ -103,12 +103,14 @@ module BigBlueButton
     
     # Process the audio events for this recording
     def self.process_events(events_xml)
+      puts events_xml
       audio_events = match_start_and_stop_events(start_audio_recording_events(events_xml), 
                           stop_audio_recording_events(events_xml)).each do |audio_event|
         if not audio_event.matched 
             determine_start_stop_timestamps_for_unmatched_event!(audio_event)
         end
       end
+      puts audio_events.length
       if audio_events.length > 0
         audio_paddings = generate_audio_paddings(audio_events, events_xml)
         audio_events.concat(audio_paddings)
@@ -127,7 +129,8 @@ module BigBlueButton
     def self.start_audio_recording_events(events_xml)
       start_events = []
       doc = Nokogiri::XML(File.open(events_xml))
-      doc.xpath("//event[@name='StartRecordingEvent']").each do |start_event|
+      doc.xpath("//event[@eventname='StartRecordingEvent']").each do |start_event|
+        puts start_event
         ae = AudioRecordingEvent.new
         ae.start_event_timestamp = start_event[TIMESTAMP]
         ae.bridge = start_event.xpath(BRIDGE).text
@@ -135,6 +138,7 @@ module BigBlueButton
         ae.start_record_timestamp = start_event.xpath(RECORD_TIMESTAMP).text
         start_events << ae
       end
+      puts "Start Events: #{start_events}"
       return start_events.sort {|a,b| a.start_event_timestamp <=> b.start_event_timestamp}
     end
     
@@ -142,7 +146,7 @@ module BigBlueButton
     def self.stop_audio_recording_events(events_xml)
       stop_events = []
       doc = Nokogiri::XML(File.open(events_xml))
-      doc.xpath("//event[@name='StopRecordingEvent']").each do |stop_event|
+      doc.xpath("//event[@eventname='StopRecordingEvent']").each do |stop_event|
         ae = AudioRecordingEvent.new
         ae.stop_event_timestamp = stop_event[TIMESTAMP]
         ae.bridge = stop_event.xpath(BRIDGE).text

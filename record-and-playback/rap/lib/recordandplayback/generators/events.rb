@@ -18,7 +18,7 @@ module BigBlueButton
     def self.get_start_video_events(events_xml)
       start_events = []
       doc = Nokogiri::XML(File.open(events_xml))
-      doc.xpath("//event[@name='ParticipantStatusChangeEvent']").each do |start_event|
+      doc.xpath("//event[@eventname='ParticipantStatusChangeEvent']").each do |start_event|
         if (start_event.xpath('status').text == "streamName") and (not start_event.xpath('value').text == "")
           s = {:timestamp => start_event['timestamp'], :stream => start_event.xpath('value').text, :userid => start_event.xpath('userId').text}
           start_events << s
@@ -30,7 +30,7 @@ module BigBlueButton
     def self.get_stop_video_events(events_xml)
       stop_events = []
       doc = Nokogiri::XML(File.open(events_xml))
-      doc.xpath("//event[@name='ParticipantStatusChangeEvent']").each do |stop_event|
+      doc.xpath("//event[@eventname='ParticipantStatusChangeEvent']").each do |stop_event|
         if (stop_event.xpath('status').text == "streamName") and (stop_event.xpath('value').text== "")
           s = {:timestamp => stop_event['timestamp'], :userid => stop_event.xpath('userId').text}
           stop_events << s
@@ -42,7 +42,7 @@ module BigBlueButton
     def self.get_start_deskshare_events(events_xml)
       start_events = []
       doc = Nokogiri::XML(File.open(events_xml))
-      doc.xpath("//event[@name='DeskshareStartedEvent']").each do |start_event|
+      doc.xpath("//event[@eventname='DeskshareStartedEvent']").each do |start_event|
         s = {:timestamp => start_event['timestamp'], :file => start_event.xpath('file').text}
         start_events << s
       end
@@ -52,7 +52,7 @@ module BigBlueButton
     def self.get_stop_deskshare_events(events_xml)
       stop_events = []
       doc = Nokogiri::XML(File.open(events_xml))
-      doc.xpath("//event[@name='DeskshareStoppedEvent']").each do |stop_event|
+      doc.xpath("//event[@eventname='DeskshareStoppedEvent']").each do |stop_event|
         s = {:timestamp => stop_event['timestamp'], :file => stop_event.xpath('file').text}
         stop_events << s
       end

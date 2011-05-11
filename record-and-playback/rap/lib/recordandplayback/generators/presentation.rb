@@ -13,7 +13,7 @@ module BigBlueButton
     def self.get_presentations(events_xml)
       presentations = []
       doc = Nokogiri::XML(File.open(events_xml))
-      doc.xpath("//event[@name='SharePresentationEvent']").each do |presentation_event|
+      doc.xpath("//event[@eventname='SharePresentationEvent']").each do |presentation_event|
         presentations << presentation_event.xpath("presentationName").text
       end
       presentations

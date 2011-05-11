@@ -16,8 +16,7 @@ audio_dir = props['audio_dir']
 archive_dir = props['archive_dir']
 
 BigBlueButton::AudioProcessor.process(meeting_id, audio_dir, archive_dir) 
-presentationNames = []
-	 	
+presentationNames = []	 	
     tree = etree.parse(meetingArchiveDir + '/events.xml')
 	 	
     presentations = tree.xpath("//event[@name='SharePresentationEvent']")

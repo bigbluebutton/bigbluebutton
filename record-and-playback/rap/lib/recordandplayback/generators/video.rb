@@ -58,14 +58,11 @@ module BigBlueButton
   #   video_out - the concatenated video
   #                
   def self.concatenate_videos(videos_in, video_out)
-    videos = " "
-    videos_in.each { |v| videos << "#{v} "}
-    puts "combining #{videos}"
-    command = "mencoder -forceidx -of lavf -oac copy -ovc copy -o #{video_out} #{videos}"
-    puts command
-    IO.popen("mencoder -forceidx -of lavf -oac copy -ovc copy -o #{video_out} #{videos}")
-    Process.wait
-    # TODO: check result, raise exception on failure
+    # This command hangs.
+    #command = "mencoder -forceidx -of lavf -oac copy -ovc copy -o #{video_out} #{videos_in.join(' ')}"
+    #BigBlueButton.execute(command)
+    # Somehow, using the backtick works but not using popen.
+    `mencoder -forceidx -of lavf -oac copy -ovc copy -o #{video_out} #{videos_in.join(' ')}`
   end
 
   # Multiplexes an audio and video
