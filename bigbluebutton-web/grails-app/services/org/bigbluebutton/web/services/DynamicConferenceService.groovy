@@ -225,15 +225,28 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 	
 	public void participantsUpdatedJoin(String roomname, String userid, String fullname, String role) {
 		log.debug "redis: participants updated join: " + roomname;
-		DynamicConferenceParticipant dcp=new DynamicConferenceParticipant(userid,fullname,role);
+		
 		DynamicConference conf = getConferenceByToken(roomname);
 		if(conf!=null){
+			DynamicConferenceParticipant dcp=new DynamicConferenceParticipant(userid,fullname,role);
 			conf.addParticipant(dcp);
 			log.debug "redis: added participant"
 		}
 	}
 	
-	public void participantsUpdatedRemove(String roomname, String userid) {
+	public void participantsUpdatedStatus(String roomname, String userid, String status, String value) {
+		log.debug "redis: participants updated join: " + roomname;
+		DynamicConference conf = getConferenceByToken(roomname);
+		if(conf!=null){
+			for(DynamicConferenceParticipant dcp: conf.getParticipants()){
+				if(dcp.getUserid().equalsIgnoreCase(userid))
+					dcp.setStatus(status,value);
+			}
+			log.debug "redis: update status"
+		}
+	}
+	
+	public void participantsUpdatedLeft(String roomname, String userid) {
 		log.debug "redis: participants updated remove: " + roomname;
 		System.out.println("participants updated: " + roomname);
 		DynamicConference conf = getConferenceByToken(roomname);
@@ -242,6 +255,7 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 			log.debug "redis: removed participant"
 		}
 	}
+	
 	
 	public void processRecording(String meetingId) {
 		System.out.println("enter processRecording " + meetingId)

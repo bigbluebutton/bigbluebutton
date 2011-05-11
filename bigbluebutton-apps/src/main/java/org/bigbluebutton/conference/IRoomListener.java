@@ -17,13 +17,13 @@
 * 
 */
 
-package org.bigbluebutton.conference.service.participants;
+package org.bigbluebutton.conference;
 
-public interface IParticipantRoomListener {
+public interface IRoomListener {
 	public String getName();
-	public void participantStatusChange(Participant participant);
+	public void participantStatusChange(Long userid, String status, Object value);
 	public void participantJoined(Participant participant);
-	public void participantLeft(Participant participant);
-
+	public void participantLeft(Long userid);
+	
 	public void endAndKickAll();
 }

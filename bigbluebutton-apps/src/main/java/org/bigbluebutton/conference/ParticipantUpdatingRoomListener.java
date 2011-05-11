@@ -19,57 +19,57 @@
 
 package org.bigbluebutton.conference;
 
-import org.bigbluebutton.conference.service.participants.IParticipantRoomListener;
-import org.bigbluebutton.conference.service.participants.Participant;
-import org.bigbluebutton.conference.service.participants.ParticipantRoom;
 import org.bigbluebutton.conference.service.recorder.pubsub.RedisPublisher;
 
 
-public class ParticipantUpdatingRoomListener implements IParticipantRoomListener{
+public class ParticipantUpdatingRoomListener implements IRoomListener{
 
 	RedisPublisher publisher;
 	//private IConferenceEventListener conferenceEventListener;
-	private ParticipantRoom room;
+	private Room room;
+	private final String pubsub_pattern;
 	
-	public ParticipantUpdatingRoomListener(ParticipantRoom room, RedisPublisher publisher) {
+	public ParticipantUpdatingRoomListener(Room room, RedisPublisher publisher) {
 		//this.conferenceEventListener = lstnr;
 		this.room = room;
 		this.publisher=publisher;
+		this.pubsub_pattern="bigbluebutton:meeting:participants";
 	}
 	
 	public String getName() {
 		return "TEMPNAME";
 	}
 	
-	public void participantStatusChange(Participant participant) {
-		if (this.publisher != null) {
+	public void participantStatusChange(Long userid, String status, Object value){
+		if (publisher != null) {
 			//conferenceEventListener.participantsUpdated(room);
-			//redis pubsub <event>:<userid>:<status>
-			publisher.publish("bigbluebutton:meeting:"+room.getName()+":participants", "statuschanged:"+participant.getUserid()+":"+participant.getStatus());
+			//redis pubsub
+			publisher.publish(this.pubsub_pattern, this.room.getName()+":status:"+userid+":"+status+":"+value);
 		}
 	}
 	
 	public void participantJoined(Participant p) {
-		if (this.publisher != null) {
+		if (publisher != null) {
 			//conferenceEventListener.participantsUpdated(room);
 			//redis pubsub
-			publisher.publish("bigbluebutton:meeting:"+room.getName()+":participants", "joined:"+p.getUserid()+":"+p.getName()+":"+p.getRole());
+			//redis pubsub test
+			publisher.publish(this.pubsub_pattern,this.room.getName()+":join:"+p.getUserid()+":"+p.getName()+":"+p.getRole());
 			
 		}
 	}
 	
-	public void participantLeft(Participant participant) {	
-		if (this.publisher != null) {
+	public void participantLeft(Long userid) {		
+		if (publisher != null) {
 			//conferenceEventListener.participantsUpdated(room);
 			//redis pubsub
-			publisher.publish("bigbluebutton:meeting:"+room.getName()+":participants", "left:"+participant.getUserid());
+			//redis pubsub test
+			publisher.publish(this.pubsub_pattern, this.room.getName()+":left:"+room.getName()+":"+userid);
 		}
 	}
 
 	public void endAndKickAll() {
 		// no-op
 	}
-
 	
 	
 }

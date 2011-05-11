@@ -57,7 +57,7 @@ repositories {
         }        
    	}
    	mavenRepo urls: 'http://scala-tools.org/repo-releases/'
-   	flatDir name: 'fileRepo', dirs: System.getenv()['FLAT_REPO']
+   	//flatDir name: 'fileRepo', dirs: System.getenv()['FLAT_REPO']
 }
 
 dependencies {	 
@@ -123,7 +123,7 @@ dependencies {
 	compile 'redis.clients:jedis:1.5.1'
 	compile 'commons-pool:commons-pool:1.5.5'
     
-    compile 'org/bigbluebutton/common:bbb-common-message:0.8@jar' 
+    //compile 'org/bigbluebutton/common:bbb-common-message:0.8@jar' 
             
     // Freeswitch ESL Client
     compile 'org/freeswitch:fs-esl-client:0.8.1@jar'

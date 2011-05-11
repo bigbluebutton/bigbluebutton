@@ -18,7 +18,7 @@
 			">
 	
 	<bean id="roomsManager" class="org.bigbluebutton.conference.RoomsManager">
-		<property name="conferenceEventListener" ref="conferenceEventListener" />
+		<!-- property name="conferenceEventListener" ref="conferenceEventListener" /-->
 		<property name="publisher" ref="redisPublisher"></property>
 	</bean>
 	
@@ -156,35 +156,31 @@
 		destination-name="endMeetingRequestEvents"
         channel="endMeetingRequest"
         extract-payload="true">
-		<integration:poller>
-			<integration:interval-trigger interval="5" time-unit="SECONDS"/>
-		</integration:poller>
+		<integration:poller fixed-rate="5000" />
 	</jms:inbound-channel-adapter>
 	<integration:channel id="endMeetingRequest"/>
 	<integration:service-activator input-channel="endMeetingRequest" ref="roomsManager" method="endMeetingRequest" />
 
-	<!-- OUTGOING MESSAGES 
+	<!--
 	<integration:gateway id="conferenceEventListener" service-interface="org.bigbluebutton.conference.IConferenceEventListener" />
 
-	<!-- conferenceStarted 
 	<integration:channel id="conferenceStarted" />
 	<jms:outbound-channel-adapter id="conferenceStartedJmsOut" destination="conferenceStartedEvents" channel="conferenceStarted" />
     <bean id="conferenceStartedEvents" class="org.apache.activemq.command.ActiveMQQueue">
 		<constructor-arg value="conferenceStartedEvents"/>
     </bean>
 
-	<!-- conferenceEnded 
 	<integration:channel id="conferenceEnded" />
 	<jms:outbound-channel-adapter id="conferenceEndedJmsOut" destination="conferenceEndedEvents" channel="conferenceEnded" />
     <bean id="conferenceEndedEvents" class="org.apache.activemq.command.ActiveMQQueue">
 		<constructor-arg value="conferenceEndedEvents"/>
     </bean>
 
-	<!-- participantsUpdated 
+
 	<integration:channel id="participantsUpdated" />
 	<jms:outbound-channel-adapter id="participantsUpdatedJmsOut" destination="participantsUpdatedEvents" channel="participantsUpdated" />
 	<bean id="participantsUpdatedEvents" class="org.apache.activemq.command.ActiveMQQueue">
 		<constructor-arg value="participantsUpdatedEvents"/>
-	</bean>
-	-->
+	</bean> -->
+	
 </beans>
