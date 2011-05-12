@@ -85,4 +85,13 @@ BigBlueButton.create_blank_deskshare_video(first_gap_duration/1000, 1000, ds_bla
 BigBlueButton.create_blank_deskshare_video(end_gap_duration/1000, 1000, ds_blank_canvas, dsblank2)
 BigBlueButton.concatenate_videos([dsblank1, ds_stripped_flv, dsblank2], dsconcat_vid)
 
-
+BigBlueButton::MatterhornProcessor.create_manifest_xml("#{target_dir}/muxed-audio-webcam.flv", "#{target_dir}/deskshare.flv", "#{target_dir}/manifest.xml")
+BigBlueButton::MatterhornProcessor.create_dublincore_xml("#{target_dir}/dublincore.xml",
+                                                          {:title => "Business Ecosystem",
+                                                              :subject => "TTMG 5001",
+                                                              :description => "How to manage your product's ecosystem",
+                                                              :creator => "Richard Alam",
+                                                              :contributor => "Popen3",
+                                                              :language => "En-US",
+                                                              :identifier => "ttmg-5001-2"})
+                                                              
