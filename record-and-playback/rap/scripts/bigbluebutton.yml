@@ -1,0 +1,9 @@
+recording_dir: /var/bigbluebutton/recording
+raw_audio_src: /var/freeswitch/meetings
+raw_video_src: /usr/share/red5/webapps/video/streams
+raw_deskshare_src: /var/bigbluebutton/deskshare
+raw_presentation_src: /var/bigbluebutton
+redis_host: 192.168.0.166
+redis_port: 6379
+
+

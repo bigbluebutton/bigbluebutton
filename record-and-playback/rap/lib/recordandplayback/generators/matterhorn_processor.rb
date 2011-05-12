@@ -56,9 +56,8 @@ module BigBlueButton
       Process.wait()
     end
     
-    def self.create_manifest_xml(audio, video, deskshare, manifest)
-      vpresenter = FFMPEG::Movie.new(video)
-      apresenter = FFMPEG::Movie.new(audio)
+    def self.create_manifest_xml(webcam, deskshare, manifest)
+      vpresenter = FFMPEG::Movie.new(webcam)
       vpresentation = FFMPEG::Movie.new(deskshare)
 
       puts "Creating manifest.xml ..."
@@ -99,20 +98,6 @@ module BigBlueButton
               xml.bitrate(vpresentation.bitrate.to_s + "000")
               xml.framerate(vpresentation.frame_rate)
               xml.resolution(vpresentation.width.to_s + "x" + vpresentation.height.to_s)
-            }
-          }
-
-          xml.track("id" => "track-3", "type" => "presenter/source") {
-            xml.mimetype("application/ogg")
-            xml.tags
-            # Remove path and just have audio.ogg
-            xml.url(apresenter.path.sub(/.+\//, ""))
-            xml.checksum(Digest::MD5.hexdigest(File.read(apresenter.path)),"type" => "md5")
-            xml.duration(apresenter.duration.round.to_s.split(".")[0] + "000")
-            xml.audio("id" => "audio1") {
-              xml.encoder("type" => apresenter.audio_codec)
-              xml.channels(apresenter.audio_channels)
-              xml.bitrate(apresenter.bitrate.to_s + "000")
             }
           }
         }
@@ -169,9 +154,9 @@ module BigBlueButton
       aFile.close
     end
 
-    def self.zip_artifacts(audio, video, deskshare, dublincore, manifest, zipped_file)
-      puts "Zipping package... #{zipped_file} #{audio} #{video} #{deskshare} #{dublincore} #{manifest}"
-      files = [audio, video, deskshare, dublincore, manifest]
+    def self.zip_artifacts(webcam, deskshare, dublincore, manifest, zipped_file)
+      puts "Zipping package... #{zipped_file} #{webcam} #{deskshare} #{dublincore} #{manifest}"
+      files = [webcam, deskshare, dublincore, manifest]
       Zip::ZipFile.open(zipped_file, Zip::ZipFile::CREATE) do |zipfile|
         files.each { |f| 
           puts f

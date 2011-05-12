@@ -10,12 +10,12 @@ end
 meeting_id = opts[:meeting_id]
 
 # This script lives in scripts/archive/steps while matterhorn.yaml lives in scripts/
-props = YAML::load(File.open('properties.yaml'))
-
-matt_server = props['matterhorn_server']
-matt_inbox = props['matterhorn_inbox']
-matt_key = props['matterhorn_key']
-recording_dir = props['recording_dir']
+bbb_props = YAML::load(File.open('bigbuebutton.yml'))
+matt_props = YAML::load(File.open('matterhorn.yml'))
+matt_server = matt_props['matterhorn_server']
+matt_inbox = matt_props['matterhorn_inbox']
+matt_key = matt_props['matterhorn_key']
+recording_dir = bbb_props['recording_dir']
 process_dir = "#{recording_dir}/process/matterhorn/#{meeting_id}"
 
 target_dir = "#{recording_dir}/publish/matterhorn/#{meeting_id}"

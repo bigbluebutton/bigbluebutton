@@ -1,0 +1,3 @@
+matterhorn_server: root@ec2-50-16-8-19.compute-1.amazonaws.com
+matterhorn_inbox: /opt/matterhorn/felix/inbox/
+matterhorn_key: /home/firstuser/.ssh/matt_id_rsa

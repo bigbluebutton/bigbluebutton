@@ -11,17 +11,17 @@ end
 
 meeting_id = opts[:meeting_id]
 
-# This script lives in scripts/archive/steps while properties.yaml lives in scripts/
-props = YAML::load(File.open('properties.yaml'))
+# This script lives in scripts/archive/steps while bigbluebutton.yml lives in scripts/
+props = YAML::load(File.open('bigbluebutton.yml'))
 
-audio_dir = props['audio_dir']
+audio_dir = props['raw_audio_src']
 recording_dir = props['recording_dir']
 raw_archive_dir = "#{recording_dir}/raw"
-deskshare_dir = props['deskshare_dir']
+deskshare_dir = props['raw_deskshare_src']
 redis_host = props['redis_host']
 redis_port = props['redis_port']
-presentation_dir = props['presentation_dir']
-video_dir = props['video_dir']
+presentation_dir = props['raw_presentation_src']
+video_dir = props['raw_video_src']
 
 # TODO:
 # 1. Check if meeting-id has corresponding dir in /var/bigbluebutton/archive
