@@ -43,8 +43,7 @@ module BigBlueButton
   def self.dir_exists?(dir)
     FileTest.directory?(dir)
   end
-  
-  
+    
   def self.execute(command)
     Open3.popen3(command) do | stdin, stdout, stderr|
         BigBlueButton.logger.info("Executing: #{command}")
