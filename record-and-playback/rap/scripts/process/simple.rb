@@ -10,35 +10,44 @@ end
 meeting_id = opts[:meeting_id]
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
-props = YAML::load(File.open('properties.yaml'))
+props = YAML::load(File.open('bigbluebutton.yml'))
 
-audio_dir = props['audio_dir']
-archive_dir = props['archive_dir']
+recording_dir = props['recording_dir']
+raw_archive_dir = "#{recording_dir}/raw/#{meeting_id}"
 
-BigBlueButton::AudioProcessor.process(meeting_id, audio_dir, archive_dir) 
-presentationNames = []	 	
-    tree = etree.parse(meetingArchiveDir + '/events.xml')
-	 	
-    presentations = tree.xpath("//event[@name='SharePresentationEvent']")
-	 	
-    for p in presentations:
-	 	
-       pname = p.find('presentationName').text
-	 	
-       presentationNames.append(pname)
+target_dir = "#{recording_dir}/process/simple/#{meeting_id}"
+if FileTest.directory?(target_dir)
+  FileUtils.remove_dir target_dir
+end
+FileUtils.mkdir_p target_dir
 
-    def main()
-        presentationSrcDir = ""
-        pdfFilename = ""
-        
-        numPages = determine_number_of_pages(presentationSrcDir)
-        if (numPages > 0)
-            i = 1
-            while i <= numPages 
-                extract_page_from_pdf(i, presentationSrcDir + "/" + pdfFilename, presentationSrcDir)
-                fileToConvert = presentationSrcDir + "/slide-" + str(i)
-                convert_pdf_to_png(fileToConvert + ".pdf", fileToConvert + ".png")
-                i += 1
-            end
-        end
-    end
+# Create a copy of the raw archives
+temp_dir = "#{target_dir}/temp"
+FileUtils.mkdir_p temp_dir
+FileUtils.cp_r(raw_archive_dir, temp_dir)
+
+BigBlueButton::AudioProcessor.process("#{temp_dir}/#{meeting_id}", "#{target_dir}/audio.ogg")
+events_xml = "#{temp_dir}/#{meeting_id}/events.xml"
+FileUtils.cp(events_xml, target_dir)
+
+presentation_dir = "#{temp_dir}/#{meeting_id}/presentation"
+presentations = BigBlueButton::Presentation.get_presentations(events_xml)
+
+processed_pres_dir = "#{target_dir}/presentation"
+FileUtils.mkdir_p processed_pres_dir
+
+presentations.each do |pres|
+  pres_dir = "#{presentation_dir}/#{pres}"
+  num_pages = BigBlueButton::Presentation.get_number_of_pages_for(pres_dir)
+  pres_pdf = "#{pres_dir}/#{pres}.pdf"
+  
+  target_pres_dir = "#{processed_pres_dir}/#{pres}"
+  FileUtils.mkdir_p target_pres_dir
+  
+  1.upto(num_pages) do |page|
+    pdf_page = "#{pres_dir}/slide-#{page}.pdf"
+    BigBlueButton::Presentation.extract_page_from_pdf(page, pres_pdf, pdf_page)
+    BigBlueButton::Presentation.convert_pdf_to_png(pdf_page, "#{target_pres_dir}/slide-#{page}.png")
+  end  
+end
+	 	
