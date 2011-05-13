@@ -16,7 +16,7 @@ module BigBlueButton
         dir = "resources/raw/1b199e88-7df7-4842-a5f1-0e84b781c5c8"
         events_xml = "#{dir}/events.xml"
         presentations_dir = "#{dir}/presentations/aSimple-Layout"
-        BigBlueButton::Presentation.get_number_of_pages_for(presentations_dir).size.should equal(6)
+        BigBlueButton::Presentation.get_number_of_pages_for(presentations_dir).should equal(6)
       end
       
       it "should extract each page from the presentation" do
