@@ -1,3 +1,4 @@
+scripts_dir: /home/firstuser/dev/source/bigbluebutton/record-and-playback/rap/scripts
 recording_dir: /var/bigbluebutton/recording
 raw_audio_src: /var/freeswitch/meetings
 raw_video_src: /usr/share/red5/webapps/video/streams

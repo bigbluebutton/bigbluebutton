@@ -12,9 +12,10 @@ meeting_id = opts[:meeting_id]
 # This script lives in scripts/archive/steps while matterhorn.yaml lives in scripts/
 bbb_props = YAML::load(File.open('bigbluebutton.yml'))
 matt_props = YAML::load(File.open('matterhorn.yml'))
-matt_server = matt_props['matterhorn_server']
-matt_inbox = matt_props['matterhorn_inbox']
-matt_key = matt_props['matterhorn_key']
+scp_server = matt_props['scp_server']
+scp_inbox = matt_props['scp_inbox']
+scp_key = matt_props['scp_key']
+scp_user = matt_props['scp_user']
 recording_dir = bbb_props['recording_dir']
 
 process_dir = "#{recording_dir}/process/matterhorn/#{meeting_id}"
@@ -37,7 +38,7 @@ Dir.chdir(target_dir) do
 end
 puts Dir.pwd
 
-cmd = "scp -i #{matt_key} #{target_dir}/#{meeting_id}.zip #{matt_server}:#{matt_inbox}"
+cmd = "scp -i #{scp_key} #{target_dir}/#{meeting_id}.zip #{scp_user}@#{scp_server}:#{scp_inbox}"
 puts cmd
 Open3.popen3(cmd) do | stdin, stdout, stderr|
     p $?.exitstatus 
