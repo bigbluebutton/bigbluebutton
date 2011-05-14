@@ -31,6 +31,14 @@ class PubsubListener extends JedisPubSub {
 
 	@Override
 	public void onMessage(String channel, String message) {
+		
+	}
+
+	@Override
+	public void onPMessage(String pattern, String channel,
+            String message) {
+		
+		System.out.println("redis message received. pattern "+pattern+" | channel "+channel+" | message "+message);
 		String[] args=message.split(COLON);
 		
 		if(channel.equalsIgnoreCase(CHANNEL_STATE)){
@@ -69,14 +77,6 @@ class PubsubListener extends JedisPubSub {
 			}
 			
 		}
-	}
-
-	@Override
-	public void onPMessage(String pattern, String channel,
-            String message) {
-		
-		System.out.println("redis message received. pattern "+pattern+" | channel "+channel+" | message "+message);
-
 	}
 
 	@Override

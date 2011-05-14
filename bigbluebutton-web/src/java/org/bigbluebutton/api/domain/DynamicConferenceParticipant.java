@@ -11,12 +11,12 @@ public class DynamicConferenceParticipant {
 	private Map status;
 	
 	public DynamicConferenceParticipant(String userid, String fullname,
-			String role,String externUserID, Map<String, String> status) {
+			String role,String externUserID) {
 		this.userid = userid;
 		this.fullname = fullname;
 		this.role = role;
 		this.externUserID = externUserID;
-		this.status = new ConcurrentHashMap<String, Object>(status);
+		this.status = new ConcurrentHashMap<String, Object>();
 	}
 	
 	public String getUserid() {

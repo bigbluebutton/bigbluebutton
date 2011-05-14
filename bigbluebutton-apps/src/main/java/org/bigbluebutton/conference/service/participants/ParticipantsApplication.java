@@ -29,9 +29,12 @@ public class ParticipantsApplication {
 	private RoomsManager roomsManager;
 	
 	public boolean createRoom(String name) {
-		log.info("Creating room {}", name);
-		roomsManager.addRoom(new Room(name));
-		return true;
+		if(!roomsManager.hasRoom(name)){
+			log.info("Creating room {}", name);
+			roomsManager.addRoom(new Room(name));
+			return true;
+		}
+		return false;
 	}
 	
 	public boolean destroyRoom(String name) {

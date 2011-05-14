@@ -39,7 +39,7 @@ repositories {
 }
 
 dependencies {   
-    compile 'org/bigbluebutton/common:bbb-common-message:0.8@jar' 
+    //compile 'org/bigbluebutton/common:bbb-common-message:0.8@jar' 
     
     	//redis
 	compile 'redis.clients:jedis:1.5.1'

@@ -20,14 +20,11 @@
 package org.bigbluebutton.conference;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import org.red5.logging.Red5LoggerFactory;
 import net.jcip.annotations.ThreadSafe;
 import java.io.Serializable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 /**
@@ -36,19 +33,19 @@ import java.util.Map;
  */
 @ThreadSafe
 public class Room implements Serializable {
-	private static Logger log = LoggerFactory.getLogger(Room.class);
+	private static Logger log = Red5LoggerFactory.getLogger( Room.class, "bigbluebutton" );	
 
-	private final String name;
-	private final Map <Long, Participant> participants;
+	private String name;
+	private Map <Long, Participant> participants;
 
 	// these should stay transient so they're not serialized in ActiveMQ messages:	
-	private transient Map <Long, Participant> unmodifiableMap;
+	//private transient Map <Long, Participant> unmodifiableMap;
 	private transient final Map<String, IRoomListener> listeners;
 
 	public Room(String name) {
 		this.name = name;
 		participants = new ConcurrentHashMap<Long, Participant>();
-		unmodifiableMap = Collections.unmodifiableMap(participants);
+		//unmodifiableMap = Collections.unmodifiableMap(participants);
 		listeners   = new ConcurrentHashMap<String, IRoomListener>();
 	}
 
@@ -69,17 +66,17 @@ public class Room implements Serializable {
 	}
 
 	public void addParticipant(Participant participant) {
-//		synchronized (this) {
-			log.debug("adding participant ${participant.userid}");
+		synchronized (this) {
+			log.debug("adding participant {}",participant.getUserid());
 			participants.put(participant.getUserid(), participant);
 //			unmodifiableMap = Collections.unmodifiableMap(participants)
-//		}
-		log.debug("addparticipant - informing roomlisteners ${listeners.size()}");
+		}
+		log.debug("addparticipant - informing roomlisteners {}",listeners.size());
 		for (Iterator it = listeners.values().iterator(); it.hasNext();) {
 		//for (IRoomListener listener : listeners) {
 			log.debug("calling participantJoined on listener");
 			IRoomListener listener = (IRoomListener) it.next();
-			log.debug("calling participantJoined on listener ${listener.getName()}");
+			log.debug("calling participantJoined on listener {}",listener.getName());
 			listener.participantJoined(participant);
 		}
 	}
@@ -97,7 +94,7 @@ public class Room implements Serializable {
 			for (Iterator it = listeners.values().iterator(); it.hasNext();) {
 				log.debug("calling participantLeft on listener");
 				IRoomListener listener = (IRoomListener) it.next();
-				log.debug("calling participantLeft on listener ${listener.getName()}");
+				log.debug("calling participantLeft on listener {}",listener.getName());
 				listener.participantLeft(userid);
 			}
 		}
@@ -111,14 +108,15 @@ public class Room implements Serializable {
 				log.debug("change participant status");
 				Participant p = participants.get(userid);
 				p.setStatus(status, value);
-				unmodifiableMap = Collections.unmodifiableMap(participants);
+				//participants.put(userid, p);
+				//unmodifiableMap = Collections.unmodifiableMap(participants);
 			}
 		}
 		if (present) {
 			for (Iterator it = listeners.values().iterator(); it.hasNext();) {
 				log.debug("calling participantStatusChange on listener");
 				IRoomListener listener = (IRoomListener) it.next();
-				log.debug("calling participantStatusChange on listener ${listener.getName()}");
+				log.debug("calling participantStatusChange on listener {}",listener.getName());
 				listener.participantStatusChange(userid, status, value);
 			}
 		}		
@@ -127,13 +125,13 @@ public class Room implements Serializable {
 	public void endAndKickAll() {
 		for (Iterator it = listeners.values().iterator(); it.hasNext();) {
 			IRoomListener listener = (IRoomListener) it.next();
-			log.debug("calling endAndKickAll on listener ${listener.getName()}");
+			log.debug("calling endAndKickAll on listener {}",listener.getName());
 			listener.endAndKickAll();
 		}
 	}
 
 	public Map getParticipants() {
-		return unmodifiableMap;
+		return participants;//unmodifiableMap;
 	}	
 
 	public Collection<Participant> getParticipantCollection() {

@@ -156,7 +156,9 @@
 		destination-name="endMeetingRequestEvents"
         channel="endMeetingRequest"
         extract-payload="true">
-		<integration:poller fixed-rate="5000" />
+		<integration:poller>
+			<integration:interval-trigger interval="5" time-unit="SECONDS" />
+		</integration:poller>
 	</jms:inbound-channel-adapter>
 	<integration:channel id="endMeetingRequest"/>
 	<integration:service-activator input-channel="endMeetingRequest" ref="roomsManager" method="endMeetingRequest" />

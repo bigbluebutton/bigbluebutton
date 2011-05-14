@@ -20,7 +20,7 @@
  */
 package org.bigbluebutton.web.services
 
-import org.bigbluebutton.conference.Room
+//import org.bigbluebutton.conference.Room
 import java.util.concurrent.ConcurrentHashMap
 import org.apache.commons.collections.bidimap.DualHashBidiMap
 import java.util.*;
@@ -59,14 +59,14 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 	
 	// TODO: need to remove use of DynamicConference and make it use "Room.groovy" instead
 	//				so that both apps and web are using common domain objects and we don't map between them
-	private final Map<String, Room> roomsByToken
+	//private final Map<String, Room> roomsByToken
 	private final Map<String, DynamicConference> confsByMtgID
 	private final Map<String, String> tokenMap
 	
 	public DynamicConferenceService() {
 		confsByMtgID = new ConcurrentHashMap<String, DynamicConference>()
 		tokenMap = new DualHashBidiMap<String, String>()
-		roomsByToken = new ConcurrentHashMap<String, Room>()
+		//roomsByToken = new ConcurrentHashMap<String, Room>()
 		redisDispatcher = new RedisDispatcherImp();
 		
 		// wait one minute to run, and run every five minutes:
@@ -98,7 +98,7 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 			if (remove) {
 				println "Removing meeting [" + conf.getMeetingToken() + "]"
 				confsByMtgID.remove(conf.getMeetingID());
-				roomsByToken.remove(conf.getMeetingToken());
+				//roomsByToken.remove(conf.getMeetingToken());
 				tokenMap.remove(conf.getMeetingToken());
 			} else {
 				println "Not removing meeting [" + conf.getMeetingID() + "]"
@@ -135,7 +135,7 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 		}
 	}
 	
-	public Room getRoomByMeetingID(String meetingID) {
+	/*public Room getRoomByMeetingID(String meetingID) {
 		if (meetingID == null) {
 			return null;
 		}
@@ -145,7 +145,7 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 			return null;
 		}
 		return roomsByToken.get(token);
-	}
+	}*/
 	
 	public DynamicConference getConferenceByMeetingID(String meetingID) {
 		if (meetingID == null) {
@@ -178,7 +178,7 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 	}
 		
 	// these methods called by spring integration:
-	public void conferenceStarted(Room room) {
+	/*public void conferenceStarted(Room room) {
 		log.debug "conference started: " + room.getName();
 		participantsUpdated(room);
 		DynamicConference conf = getConferenceByToken(room.getName());
@@ -201,8 +201,8 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 	public void participantsUpdated(Room room) {
 		log.debug "participants updated: " + room.getName();
 		System.out.println("participants updated: " + room.getName())
-		roomsByToken.put(room.getName(), room);
-	}
+		//roomsByToken.put(room.getName(), room);
+	}*/
 	// end of spring integration-called methods
 	
 	//these methods are without using bbb-commons
@@ -228,7 +228,7 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 		
 		DynamicConference conf = getConferenceByToken(roomname);
 		if(conf!=null){
-			DynamicConferenceParticipant dcp=new DynamicConferenceParticipant(userid,fullname,role);
+			DynamicConferenceParticipant dcp=new DynamicConferenceParticipant(userid,fullname,role,"");
 			conf.addParticipant(dcp);
 			log.debug "redis: added participant"
 		}
@@ -256,10 +256,10 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 		}
 	}
 	
-	
+	//TODO: update accordinly
 	public void processRecording(String meetingId) {
 		System.out.println("enter processRecording " + meetingId)
-		Room room = roomsByToken.get(meetingId)
+		/*Room room = roomsByToken.get(meetingId)
 		if (room != null) {
 			System.out.println("Number of participants in room " + room.getNumberOfParticipants())
 			if (room.getNumberOfParticipants() == 0) {
@@ -273,7 +273,7 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 			}
 		} else {
 			System.out.println("Could not find room " + meetingId + " ... Not processing recording")
-		}
+		}*/
 	}
 	
 	private void startIngestAndProcessing(meetingId) {					

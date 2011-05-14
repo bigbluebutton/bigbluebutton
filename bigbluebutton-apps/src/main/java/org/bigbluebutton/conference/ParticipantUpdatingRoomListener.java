@@ -20,10 +20,14 @@
 package org.bigbluebutton.conference;
 
 import org.bigbluebutton.conference.service.recorder.pubsub.RedisPublisher;
+import org.red5.logging.Red5LoggerFactory;
+import org.slf4j.Logger;
 
 
 public class ParticipantUpdatingRoomListener implements IRoomListener{
 
+	private static Logger log = Red5LoggerFactory.getLogger(ParticipantUpdatingRoomListener.class, "bigbluebutton");
+	
 	RedisPublisher publisher;
 	//private IConferenceEventListener conferenceEventListener;
 	private Room room;
@@ -37,7 +41,7 @@ public class ParticipantUpdatingRoomListener implements IRoomListener{
 	}
 	
 	public String getName() {
-		return "TEMPNAME";
+		return "PARTICIPANT:UPDATE:ROOM";
 	}
 	
 	public void participantStatusChange(Long userid, String status, Object value){
@@ -45,6 +49,7 @@ public class ParticipantUpdatingRoomListener implements IRoomListener{
 			//conferenceEventListener.participantsUpdated(room);
 			//redis pubsub
 			publisher.publish(this.pubsub_pattern, this.room.getName()+":status:"+userid+":"+status+":"+value);
+			log.debug("Publishing message to {} action status change",this.pubsub_pattern);
 		}
 	}
 	
@@ -54,7 +59,7 @@ public class ParticipantUpdatingRoomListener implements IRoomListener{
 			//redis pubsub
 			//redis pubsub test
 			publisher.publish(this.pubsub_pattern,this.room.getName()+":join:"+p.getUserid()+":"+p.getName()+":"+p.getRole());
-			
+			log.debug("Publishing message to {} action join",this.pubsub_pattern);
 		}
 	}
 	
@@ -63,7 +68,8 @@ public class ParticipantUpdatingRoomListener implements IRoomListener{
 			//conferenceEventListener.participantsUpdated(room);
 			//redis pubsub
 			//redis pubsub test
-			publisher.publish(this.pubsub_pattern, this.room.getName()+":left:"+room.getName()+":"+userid);
+			publisher.publish(this.pubsub_pattern, this.room.getName()+":left:"+userid);
+			log.debug("Publishing message to {} action left",this.pubsub_pattern);
 		}
 	}
 
