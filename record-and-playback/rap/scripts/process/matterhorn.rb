@@ -3,6 +3,9 @@ require 'rubygems'
 require 'trollop'
 require 'yaml'
 
+logger = Logger.new('/var/log/bigbluebutton/matterhorn.log', 'daily' )
+BigBlueButton.logger = logger
+
 opts = Trollop::options do
   opt :meeting_id, "Meeting id to archive", :default => '58f4a6b3-cd07-444d-8564-59116cb53974', :type => String
 end
@@ -35,7 +38,7 @@ BigBlueButton.strip_audio_from_video(video, stripped_flv)
 vid_width = BigBlueButton.get_video_width(video)
 vid_height = BigBlueButton.get_video_height(video)
 blank_canvas = "#{temp_dir}/canvas.jpg"
-BigBlueButton.create_blank_canvas(vid_width, vid_height, "white", blank_canvas)
+BigBlueButton.create_blank_canvas(vid_width.to_i, vid_height.to_i, "white", blank_canvas)
 
 blank1 = "#{temp_dir}/blank1.flv"
 blank2 = "#{temp_dir}/blank2.flv"

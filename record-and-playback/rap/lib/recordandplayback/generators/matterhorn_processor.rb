@@ -26,9 +26,7 @@ module BigBlueButton
       FileUtils.cp_r("#{archive_dir}/deskshare", matterhorn_dir)
       deskshare_file = "#{matterhorn_dir}/deskshare/*.flv"
       Dir.glob("#{matterhorn_dir}/deskshare/*.flv").each do |file|
-        puts "Converting #{file}"
-        proc = IO.popen("ffmpeg -i #{file} -an -vcodec copy #{matterhorn_dir}/deskshare.flv", "w+")
-        Process.wait()
+        BigBlueButton.execute("ffmpeg -i #{file} -an -vcodec copy #{matterhorn_dir}/deskshare.flv")
       end
     end
     
@@ -36,14 +34,9 @@ module BigBlueButton
       FileUtils.cp_r("#{archive_dir}/video", matterhorn_dir)
       video_dir = "#{matterhorn_dir}/video"
       
-      begin
-        Dir.glob("#{video_dir}/*.flv").each do |file|
-          puts "Converting #{file}"
-          proc = IO.popen("ffmpeg -i #{file} -an -vcodec copy #{matterhorn_dir}/video.flv", "w+")
-          Process.wait()
-        end
-      rescue Exception => e
-      end    
+      Dir.glob("#{video_dir}/*.flv").each do |file|
+        BigBlueButton.execute("ffmpeg -i #{file} -an -vcodec copy #{matterhorn_dir}/video.flv")
+      end  
     end
     
     def self.process_audio(archive_dir, matterhorn_dir)
@@ -52,20 +45,16 @@ module BigBlueButton
             
       wav_file = "#{matterhorn_dir}/audio/*.wav"
       ogg_file = "#{matterhorn_dir}/audio.ogg"
-      proc = IO.popen("oggenc -Q --resample 44100 -o #{ogg_file} #{wav_file} 2>&1", "w+")
-      Process.wait()
+      BigBlueButton.execute("oggenc -Q --resample 44100 -o #{ogg_file} #{wav_file}")
     end
     
     def self.create_manifest_xml(webcam, deskshare, manifest)
       vpresenter = FFMPEG::Movie.new(webcam)
       vpresentation = FFMPEG::Movie.new(deskshare)
 
-      puts "Creating manifest.xml ..."
-
       xml = Builder::XmlMarkup.new( :indent => 2 )
       result = xml.instruct! :xml, :version => "1.0"
 
-      puts "Setting timestamp ..."
       timestamp = (Time::now).utc.strftime("%Y-%m-%dT%H:%M:%S")
       xml.tag!("ns2:mediapackage", "duration" => vpresenter.duration.round.to_s.split(".")[0] + "000", 
               "start" => timestamp, "xmlns:ns2" => "http://mediapackage.opencastproject.org") {
@@ -110,7 +99,7 @@ module BigBlueButton
         }
       }
 
-      puts result
+      BigBlueButton.logger.info("Creating manifest.xml = \n#{result}")
 
       aFile = File.new(manifest,"w+")
         aFile.write(result)
@@ -147,7 +136,7 @@ module BigBlueButton
           xml.tag!("dcterms:identifier", metadata[:identifier])
       }
 
-      puts result
+      BigBlueButton.logger.info("Creating dublincore.xml = \n#{result}")
 
       aFile = File.new(dublin_core_xml, "w+")
       aFile.write(result)
@@ -155,11 +144,11 @@ module BigBlueButton
     end
 
     def self.zip_artifacts(webcam, deskshare, dublincore, manifest, zipped_file)
-      puts "Zipping package... #{zipped_file} #{webcam} #{deskshare} #{dublincore} #{manifest}"
+      BigBlueButton.logger.info("Zipping package... #{zipped_file} #{webcam} #{deskshare} #{dublincore} #{manifest}")
       files = [webcam, deskshare, dublincore, manifest]
       Zip::ZipFile.open(zipped_file, Zip::ZipFile::CREATE) do |zipfile|
         files.each { |f| 
-          puts f
+          BigBlueButton.logger.info("Zipping #{f} into #{zipped_file}")
           zipfile.add(f, f) 
         }
       end

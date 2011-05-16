@@ -42,19 +42,4 @@ dir_list.each do |d|
   end
 end
 
-xml = Builder::XmlMarkup.new( :indent => 2 )
-result = xml.instruct! :xml, :version => "1.0"
-      
-  xml.html {                      # <html>
-    xml.head {                    #   <head>
-      xml.title("History")        #     <title>History</title>
-    }                            #   </head>
-    xml.body {                    #   <body>
-      xml.comment! "HI"           #     <!-- HI -->
-      xml.h1("Header")            #     <h1>Header</h1>
-      xml.p("paragraph")          #     <p>paragraph</p>
-    }                            #   </body>
-  }                              # </html>
-	 	
-#puts result
 
