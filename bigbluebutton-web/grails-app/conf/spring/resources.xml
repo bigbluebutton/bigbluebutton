@@ -18,13 +18,13 @@
 			">
 	   				
 	<bean id="redisPublisher" class="org.bigbluebutton.redis.RedisDispatcher">
-        <constructor-arg index="0" value="${redisHost}" />
-        <constructor-arg index="1" value="${redisPort}" />
+        <constructor-arg index="0" value="192.168.1.41" />
+        <constructor-arg index="1" value="6379" />
     </bean>
     
     <bean id="redisListener" class="org.bigbluebutton.redis.RedisListener" init-method="init">
-        <constructor-arg index="0" value="${redisHost}" />
-        <constructor-arg index="1" value="${redisPort}" />
+        <constructor-arg index="0" value="192.168.1.41" />
+        <constructor-arg index="1" value="6379" />
         <property name="pubsubListener" ref="pubsubListener"></property>
     </bean>
     

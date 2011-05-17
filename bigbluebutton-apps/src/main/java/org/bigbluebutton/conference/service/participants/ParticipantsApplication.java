@@ -71,7 +71,7 @@ public class ParticipantsApplication {
 	public Map getParticipants(String roomName) {
 		log.debug("getParticipants - " + roomName);
 		if (! roomsManager.hasRoom(roomName)) {
-			log.warn("Could not find room "+roomName);
+			log.warn("Could not find room "+roomName+" Total rooms "+roomsManager.numberOfRooms());
 			return null;
 		}
 

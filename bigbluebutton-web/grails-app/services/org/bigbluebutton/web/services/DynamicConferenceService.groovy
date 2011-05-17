@@ -258,11 +258,11 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 	
 	//TODO: update accordinly
 	public void processRecording(String meetingId) {
-		System.out.println("enter processRecording " + meetingId)
-		/*Room room = roomsByToken.get(meetingId)
-		if (room != null) {
-			System.out.println("Number of participants in room " + room.getNumberOfParticipants())
-			if (room.getNumberOfParticipants() == 0) {
+		System.out.println("enter processRecording " + meetingId);
+		DynamicConference conf = getConferenceByToken(roomname);
+		if (conf != null) {
+			System.out.println("Number of participants in room " +conf.getNumberOfParticipants())
+			if (conf.getNumberOfParticipants() == 0) {
 				System.out.println("starting processRecording " + meetingId)
 				// Run conversion on another thread.
 				new Timer().runAfter(1000) {
@@ -273,7 +273,7 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 			}
 		} else {
 			System.out.println("Could not find room " + meetingId + " ... Not processing recording")
-		}*/
+		}
 	}
 	
 	private void startIngestAndProcessing(meetingId) {					

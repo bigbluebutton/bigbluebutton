@@ -19,7 +19,7 @@
 
 package org.bigbluebutton.conference;
 
-import org.bigbluebutton.conference.service.recorder.pubsub.RedisPublisher;
+import org.bigbluebutton.conference.service.messaging.RedisPublisher;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 

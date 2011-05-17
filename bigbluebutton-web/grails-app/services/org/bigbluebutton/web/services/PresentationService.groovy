@@ -146,6 +146,10 @@ class PresentationService {
 		
 	}
 	
+	public void publishUpdate(){
+		
+	}
+	
 }	
 
 /*** Helper classes **/

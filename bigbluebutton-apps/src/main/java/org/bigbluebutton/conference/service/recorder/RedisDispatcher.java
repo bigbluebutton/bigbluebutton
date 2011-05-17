@@ -8,29 +8,25 @@ import redis.clients.jedis.JedisPool;
 
 public class RedisDispatcher implements Recorder {
 	private static final String COLON=":";
-	private String host;
-	private int port;
-
-	private Jedis jedis;
-
+	JedisPool redisPool;
 	
-//	Jedis jedis;
-	JedisPool jpool;
-	public RedisDispatcher(String host, int port){
-		this.host = host;
-		this.port = port;
-		
-//		jedis = new Jedis(host, port);		
-//		Config poolConfig = new Config();
-//		jpool = new JedisPool(poolConfig, host, port);
+	public RedisDispatcher(){
+		super();
 	}
 	
 	@Override
 	public void record(String session, RecordEvent message) {
-		Jedis jedis = new Jedis(host, port);
-		Long msgid = jedis.incr("global:nextRecordedMsgId");
-		jedis.hmset("recording" + COLON + session + COLON + msgid, message.toMap());
-		jedis.rpush("meeting" + COLON + session + COLON + "recordings", msgid.toString());						
+		
+		Jedis jedis = redisPool.getResource();
+		try {
+			Long msgid = jedis.incr("global:nextRecordedMsgId");
+			jedis.hmset("recording" + COLON + session + COLON + msgid, message.toMap());
+			jedis.rpush("meeting" + COLON + session + COLON + "recordings", msgid.toString());
+		} finally {
+			redisPool.returnResource(jedis);
+		}
+		
+		//pool.destroy();					
 	}
 /*	
 	@Override
@@ -58,8 +54,13 @@ public class RedisDispatcher implements Recorder {
 	}
 */
 
-	public Jedis getJedis(){
-		return jedis;
+	public JedisPool getRedisPool() {
+		return redisPool;
 	}
+
+	public void setRedisPool(JedisPool redisPool) {
+		this.redisPool = redisPool;
+	}
+	
 
 }

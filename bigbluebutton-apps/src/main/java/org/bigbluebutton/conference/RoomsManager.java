@@ -19,8 +19,8 @@
 package org.bigbluebutton.conference;
 
 import org.slf4j.Logger;
+import org.bigbluebutton.conference.service.messaging.RedisPublisher;
 import org.bigbluebutton.conference.service.recorder.RedisDispatcher;
-import org.bigbluebutton.conference.service.recorder.pubsub.RedisPublisher;
 import org.red5.logging.Red5LoggerFactory;
 import net.jcip.annotations.ThreadSafe;
 import java.util.Map;
@@ -45,7 +45,7 @@ public class RoomsManager {
 		
 	}
 	
-	public void addRoom(final Room room) {
+	public void addRoom(Room room) {
 		log.debug("Adding room {}", room.getName());
 		room.addRoomListener(new ParticipantUpdatingRoomListener(room,publisher)); 	
 		
@@ -94,8 +94,8 @@ public class RoomsManager {
 	}
 	
 	// this method is called by incoming JMS requests (Spring integration)
-	public void endMeetingRequest(Room room) {
-		room = getRoom(room.getName()); // must do this because the room coming in is serialized (no transient values are present)
+	public void endMeetingRequest(String roomname) {
+		Room room = getRoom(roomname); // must do this because the room coming in is serialized (no transient values are present)
 		log.debug("End meeting request for room: {} ", room.getName());
 		room.endAndKickAll();
 	}
