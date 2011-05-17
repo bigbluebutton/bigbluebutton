@@ -51,15 +51,10 @@
     <participant>12</participant>
     <talking>false</talking>
   </event>
-  <event timestamp="1301433180493" module="PARTICIPANT" eventname="ParticipantStatusChangeEvent">
-    <status>streamName</status>
-    <userId>1</userId>
-    <value>320x240-1-1301433140446</value>
-  </event>
   <event timestamp="1301433180523" module="PARTICIPANT" eventname="ParticipantStatusChangeEvent">
     <status>hasStream</status>
     <userId>1</userId>
-    <value>true</value>
+    <value>true,stream=320x240-1-1301433140446</value>
   </event>
   <event timestamp="1301433180636" module="VOICE" eventname="ParticipantTalkingEvent">
     <bridge>79689</bridge>
@@ -202,15 +197,10 @@
     <participant>12</participant>
     <talking>true</talking>
   </event>
-  <event timestamp="1301433230082" module="PARTICIPANT" eventname="ParticipantStatusChangeEvent">
-    <status>streamName</status>
-    <userId>1</userId>
-    <value></value>
-  </event>
   <event timestamp="1301433230112" module="PARTICIPANT" eventname="ParticipantStatusChangeEvent">
     <status>hasStream</status>
     <userId>1</userId>
-    <value>false</value>
+    <value>false,stream=320x240-1-1301433140446</value>
   </event>
   <event timestamp="1301433231847" module="VOICE" eventname="ParticipantTalkingEvent">
     <bridge>79689</bridge>

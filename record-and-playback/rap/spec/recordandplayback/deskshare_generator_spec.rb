@@ -4,25 +4,58 @@ require 'digest/md5'
 module BigBlueButton
   describe "DeskshareProcessing" do
     context "#success" do
-      it "should get the webcam start events" do
-        dir = "resources/raw/8774263b-c4a6-4078-b2e6-46b7d4bc91c1"
-        events_xml = "#{dir}/events.xml"
+      it "should get the 2 webcam start events" do
+        dir = "resources/raw"
+        events_xml = "#{dir}/webcam-events.xml"
         se = BigBlueButton::Events.get_start_video_events(events_xml)
-        se.size.should == 1
-        se.each do |e|
-          e[:timestamp].should == 1301433180493.to_s
+        se.size.should == 2
+      end
+
+      it "should get the 2 webcam stop events" do
+        dir = "resources/raw"
+        events_xml = "#{dir}/webcam-events.xml"
+        se = BigBlueButton::Events.get_stop_video_events(events_xml)
+        se.size.should == 2       
+      end
+
+      it "should match the 2 webcam events" do
+        dir = "resources/raw"
+        events_xml = "#{dir}/webcam-events.xml"
+        start = BigBlueButton::Events.get_start_video_events(events_xml)
+        start.size.should == 2       
+        stop = BigBlueButton::Events.get_stop_video_events(events_xml)
+        stop.size.should == 2
+        matched = BigBlueButton::Events.match_start_and_stop_video_events(start, stop)
+        #matched.size.should == 2
+        matched.each do |me|
+          puts "foo ts=#{me[:timestamp]} stream=#{me[:stream]} match=#{me[:matched]}"
         end
+      end
+      
+      it "should get the 2 deskshare start events" do
+        dir = "resources/raw/974a4b8c-5bf7-4382-b4cd-eb26af7dfcc2"
+        events_xml = "#{dir}/events.xml"
+        BigBlueButton::Events.get_start_deskshare_events(events_xml).size.should == 2
+      end
+
+      it "should get the 2 deskshare stop events" do
+        dir = "resources/raw/974a4b8c-5bf7-4382-b4cd-eb26af7dfcc2"
+        events_xml = "#{dir}/events.xml"
+        BigBlueButton::Events.get_stop_deskshare_events(events_xml).size.should == 2
+      end
+      
+      it "should get the webcam start events" do
+        dir = "resources/raw"
+        events_xml = "#{dir}/webcam-events.xml"
+        se = BigBlueButton::Events.get_start_video_events(events_xml)
+        se.size.should == 2
       end
 
       it "should get the webcam stop events" do
-        dir = "resources/raw/8774263b-c4a6-4078-b2e6-46b7d4bc91c1"
-        events_xml = "#{dir}/events.xml"
+        dir = "resources/raw"
+        events_xml = "#{dir}/webcam-events.xml"
         se = BigBlueButton::Events.get_stop_video_events(events_xml)
-        se.size.should == 1
-        se.each do |e|
-          e[:timestamp].should == 1301433230082.to_s
-        end
-        
+        se.size.should == 2       
       end
 
       it "should get the deskshare start events" do
@@ -79,9 +112,9 @@ module BigBlueButton
         first_timestamp = BigBlueButton::Events.first_event_timestamp(events_xml)
         last_timestamp = BigBlueButton::Events.last_event_timestamp(events_xml)
         start_evt = BigBlueButton::Events.get_start_video_events(events_xml)
-        start_evt[0][:timestamp].to_i.should == 1301433180493
+        start_evt[0][:timestamp].to_i.should == 1301433180523
         stop_evt = BigBlueButton::Events.get_stop_video_events(events_xml)
-        stop_evt[0][:timestamp].to_i.should == 1301433230082
+        stop_evt[0][:timestamp].to_i.should == 1301433230112
         BigBlueButton.create_blank_canvas(vid_width, vid_height, "white", blank_canvas)
         
         first_gap_duration = start_evt[0][:timestamp].to_i - first_timestamp.to_i
