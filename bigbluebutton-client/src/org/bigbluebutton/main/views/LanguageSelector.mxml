@@ -29,6 +29,7 @@
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			[Bindable] private var langNames:Array=[ 
 				'Azeri' ,
+				'Bengali' ,
 				'Bulgarian',
 				'Czech',
 				'Chinese Simplified',
@@ -67,6 +68,7 @@
 			
 			private var langCodes:Array=[
 				'az_AZ',
+				'bn_BN',
 				'bg_BG',
 				'cs_CZ',
 				'zh_CN',
