@@ -26,9 +26,9 @@ module BigBlueButton
         stop = BigBlueButton::Events.get_stop_video_events(events_xml)
         stop.size.should == 2
         matched = BigBlueButton::Events.match_start_and_stop_video_events(start, stop)
-        #matched.size.should == 2
+        matched.size.should == 2
         matched.each do |me|
-          puts "foo ts=#{me[:timestamp]} stream=#{me[:stream]} match=#{me[:matched]}"
+          puts "foo ts=#{me[:start_timestamp]} end_ts=#{me[:stop_timestamp]} stream=#{me[:stream]} match=#{me[:matched]}"
         end
       end
       
@@ -102,8 +102,7 @@ module BigBlueButton
         stripped_flv = "#{temp_dir}/stripped.flv"
         BigBlueButton.strip_audio_from_video(video, stripped_flv)
         blank_canvas = "#{temp_dir}/canvas.jpg"
-        blank1 = "#{temp_dir}/blank1.flv"
-        blank2 = "#{temp_dir}/blank2.flv"
+
         concat_vid = "#{temp_dir}/concat-video.flv"
         vid_width = BigBlueButton.get_video_width(video)
         vid_height = BigBlueButton.get_video_height(video)
@@ -111,15 +110,21 @@ module BigBlueButton
         events_xml = "#{dir}/events.xml"
         first_timestamp = BigBlueButton::Events.first_event_timestamp(events_xml)
         last_timestamp = BigBlueButton::Events.last_event_timestamp(events_xml)
+        
+        
+        blank1 = "#{temp_dir}/blank1.flv"
+        blank2 = "#{temp_dir}/blank2.flv"       
+        
         start_evt = BigBlueButton::Events.get_start_video_events(events_xml)
-        start_evt[0][:timestamp].to_i.should == 1301433180523
+        start_evt[0][:start_timestamp].should == 1301433180523
+        
         stop_evt = BigBlueButton::Events.get_stop_video_events(events_xml)
-        stop_evt[0][:timestamp].to_i.should == 1301433230112
+        stop_evt[0][:stop_timestamp].should == 1301433230112
         BigBlueButton.create_blank_canvas(vid_width, vid_height, "white", blank_canvas)
         
-        first_gap_duration = start_evt[0][:timestamp].to_i - first_timestamp.to_i
+        first_gap_duration = start_evt[0][:start_timestamp] - first_timestamp
         puts "First gap = " + first_gap_duration.to_s
-        end_gap_duration = last_timestamp.to_i - stop_evt[0][:timestamp].to_i
+        end_gap_duration = last_timestamp - stop_evt[0][:stop_timestamp]
         puts "End gap = " + end_gap_duration.to_s
         BigBlueButton.create_blank_video(first_gap_duration/1000, 1000, blank_canvas, blank1)
         BigBlueButton.create_blank_video(end_gap_duration/1000, 1000, blank_canvas, blank2)
@@ -129,6 +134,73 @@ module BigBlueButton
       # audio, webcam, and deskshare events
       #  BigBlueButton::AudioProcessor.process(dir, "#{temp_dir}/audio.ogg") 
       #  BigBlueButton.multiplex_audio_and_video("#{temp_dir}/audio.ogg", concat_vid, "#{temp_dir}/processed-video.flv")
+      end
+      
+      it "should generate one webcam file from multiple webcam files " do
+        meeting_id = "974a4b8c-5bf7-4382-b4cd-eb26af7dfcc2"
+        raw_archive_dir = "resources/raw/#{meeting_id}"
+
+        target_dir = "/tmp/matterhorn/process/matterhorn/#{meeting_id}"
+        if FileTest.directory?(target_dir)
+          FileUtils.remove_dir target_dir
+        end
+        FileUtils.mkdir_p target_dir
+
+        # Create a copy of the raw archives
+        temp_dir = "#{target_dir}/temp"
+        FileUtils.mkdir_p temp_dir
+        FileUtils.cp_r(raw_archive_dir, temp_dir)
+
+        BigBlueButton::AudioProcessor.process("#{temp_dir}/#{meeting_id}", "#{target_dir}/audio.ogg")
+
+        # Process video
+        video_dir = "#{temp_dir}/#{meeting_id}/video/#{meeting_id}"
+        raw_webcams = Dir.glob("#{video_dir}/*.flv")
+        raw_webcams.size.should == 2
+        raw_webcams.each do |rwc|
+          stripped_flv = rwc.sub(/.+\//, "#{temp_dir}/stripped-")
+          puts stripped_flv
+          BigBlueButton.strip_audio_from_video(rwc, stripped_flv)
+        end
+        
+        vid_width = BigBlueButton.get_video_width(raw_webcams[0])
+        vid_height = BigBlueButton.get_video_height(raw_webcams[0])
+        blank_canvas = "#{temp_dir}/canvas.jpg"
+        BigBlueButton.create_blank_canvas(vid_width.to_i, vid_height.to_i, "white", blank_canvas)
+        
+        events_xml = "#{temp_dir}/#{meeting_id}/events.xml"
+        first_timestamp = BigBlueButton::Events.first_event_timestamp(events_xml)
+        first_timestamp.to_i.should == 1305560822952
+        last_timestamp = BigBlueButton::Events.last_event_timestamp(events_xml)
+        last_timestamp.to_i.should == 1305561067407
+        
+        start_evt = BigBlueButton::Events.get_start_video_events(events_xml)
+        start_evt.size.should == 2
+        stop_evt = BigBlueButton::Events.get_stop_video_events(events_xml)       
+        stop_evt.size.should == 2
+        
+        matched_evts = BigBlueButton::Events.match_start_and_stop_video_events(start_evt, stop_evt)
+        matched_evts.size.should == 2
+        
+        paddings = BigBlueButton.generate_video_paddings(matched_evts, first_timestamp, last_timestamp)
+        paddings.size.should == 3
+        
+        ind_flvs = []
+        paddings.concat(matched_evts).sort{|a,b| a[:start_timestamp] <=> b[:start_timestamp]}.each do |comb|
+          if (comb[:gap])
+            ind_flvs << "#{temp_dir}/#{comb[:stream]}"
+            BigBlueButton.create_blank_video((comb[:stop_timestamp] - comb[:start_timestamp])/1000, 1000, blank_canvas, "#{temp_dir}/#{comb[:stream]}")
+          else
+            ind_flvs << "#{temp_dir}/stripped-#{comb[:stream]}.flv"
+            BigBlueButton.strip_audio_from_video("#{video_dir}/#{comb[:stream]}.flv", "#{temp_dir}/stripped-#{comb[:stream]}.flv")
+          end
+        end
+               
+        concat_vid = "#{target_dir}/webcam.flv"
+        BigBlueButton.concatenate_videos(ind_flvs, concat_vid)
+        
+        BigBlueButton.multiplex_audio_and_video("#{target_dir}/audio.ogg", concat_vid, "#{target_dir}/muxed-audio-webcam.flv")
+        
       end
     end
   end

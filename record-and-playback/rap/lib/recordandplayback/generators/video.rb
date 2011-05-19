@@ -74,6 +74,39 @@ module BigBlueButton
     # TODO: check result, raise an exception when there is an error
   end
 
+  
+  # Determine the video padding we need to generate.
+  def self.generate_video_paddings(events, first_timestamp, last_timestamp)
+    paddings = []
+    events.sort! {|a,b| a[:start_timestamp] <=> b[:start_timestamp]}
+        
+    length_of_gap = events[0][:start_timestamp] - first_timestamp
+    if  (length_of_gap > 0)
+      paddings << {:start_timestamp => first_timestamp, :stop_timestamp => events[0][:start_timestamp] - 1, :gap => true, :stream => "blank-beginning.flv"}
+    end
+        
+    i = 0
+    while i < events.length - 1
+      ar_prev = events[i]
+      ar_next = events[i+1]
+      length_of_gap = ar_next[:start_timestamp] - ar_prev[:stop_timestamp]
+          
+      if (length_of_gap > 0) 
+        paddings << {:start_timestamp => ar_prev[:stop_timestamp] + 1, :stop_timestamp => ar_next[:start_timestamp] - 1, :gap => true, :stream => "blank-#{i}.flv"}
+      end
+          
+      i += 1
+    end
+        
+    length_of_gap = last_timestamp - events[-1][:stop_timestamp]
+    if (length_of_gap > 0)
+      paddings << {:start_timestamp => events[-1][:stop_timestamp] + 1, :stop_timestamp => last_timestamp - 1, :gap => true, :stream => "blank-end.flv"}
+    end
+        
+    paddings
+  end
+
+      
   def self.get_video_height(video)
     FFMPEG::Movie.new(video).height
   end
