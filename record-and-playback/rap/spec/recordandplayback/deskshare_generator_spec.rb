@@ -157,11 +157,66 @@ module BigBlueButton
         video_dir = "#{temp_dir}/#{meeting_id}/video/#{meeting_id}"
         raw_webcams = Dir.glob("#{video_dir}/*.flv")
         raw_webcams.size.should == 2
-        raw_webcams.each do |rwc|
-          stripped_flv = rwc.sub(/.+\//, "#{temp_dir}/stripped-")
-          puts stripped_flv
-          BigBlueButton.strip_audio_from_video(rwc, stripped_flv)
+       
+        vid_width = BigBlueButton.get_video_width(raw_webcams[0])
+        vid_height = BigBlueButton.get_video_height(raw_webcams[0])
+        blank_canvas = "#{temp_dir}/canvas.jpg"
+        BigBlueButton.create_blank_canvas(vid_width.to_i, vid_height.to_i, "white", blank_canvas)
+        
+        events_xml = "#{temp_dir}/#{meeting_id}/events.xml"
+        first_timestamp = BigBlueButton::Events.first_event_timestamp(events_xml)
+        first_timestamp.to_i.should == 1305560822952
+        last_timestamp = BigBlueButton::Events.last_event_timestamp(events_xml)
+        last_timestamp.to_i.should == 1305561067407
+        
+        start_evt = BigBlueButton::Events.get_start_video_events(events_xml)
+        start_evt.size.should == 2
+        stop_evt = BigBlueButton::Events.get_stop_video_events(events_xml)       
+        stop_evt.size.should == 2
+        
+        matched_evts = BigBlueButton::Events.match_start_and_stop_video_events(start_evt, stop_evt)
+        matched_evts.size.should == 2
+        
+        paddings = BigBlueButton.generate_video_paddings(matched_evts, first_timestamp, last_timestamp)
+        paddings.size.should == 3
+        
+        ind_flvs = []
+        paddings.concat(matched_evts).sort{|a,b| a[:start_timestamp] <=> b[:start_timestamp]}.each do |comb|
+          if (comb[:gap])
+            ind_flvs << "#{temp_dir}/#{comb[:stream]}"
+            BigBlueButton.create_blank_video((comb[:stop_timestamp] - comb[:start_timestamp])/1000, 1000, blank_canvas, "#{temp_dir}/#{comb[:stream]}")
+          else
+            ind_flvs << "#{temp_dir}/stripped-#{comb[:stream]}.flv"
+            BigBlueButton.strip_audio_from_video("#{video_dir}/#{comb[:stream]}.flv", "#{temp_dir}/stripped-#{comb[:stream]}.flv")
+          end
         end
+               
+        concat_vid = "#{target_dir}/webcam.flv"
+        BigBlueButton.concatenate_videos(ind_flvs, concat_vid)        
+        BigBlueButton.multiplex_audio_and_video("#{target_dir}/audio.ogg", concat_vid, "#{target_dir}/muxed-audio-webcam.flv")        
+      end
+
+      it "should generate one deskshare file from multiple deskshare files" do
+        meeting_id = "974a4b8c-5bf7-4382-b4cd-eb26af7dfcc2"
+        raw_archive_dir = "resources/raw/#{meeting_id}"
+
+        target_dir = "/tmp/matterhorn/process/matterhorn/#{meeting_id}"
+        if FileTest.directory?(target_dir)
+          FileUtils.remove_dir target_dir
+        end
+        FileUtils.mkdir_p target_dir
+
+        # Create a copy of the raw archives
+        temp_dir = "#{target_dir}/temp"
+        FileUtils.mkdir_p temp_dir
+        FileUtils.cp_r(raw_archive_dir, temp_dir)
+
+        BigBlueButton::AudioProcessor.process("#{temp_dir}/#{meeting_id}", "#{target_dir}/audio.ogg")
+
+        # Process video
+        video_dir = "#{temp_dir}/#{meeting_id}/video/#{meeting_id}"
+        raw_webcams = Dir.glob("#{video_dir}/*.flv")
+        raw_webcams.size.should == 2
         
         vid_width = BigBlueButton.get_video_width(raw_webcams[0])
         vid_height = BigBlueButton.get_video_height(raw_webcams[0])
@@ -197,11 +252,63 @@ module BigBlueButton
         end
                
         concat_vid = "#{target_dir}/webcam.flv"
-        BigBlueButton.concatenate_videos(ind_flvs, concat_vid)
+        BigBlueButton.concatenate_videos(ind_flvs, concat_vid)        
+        BigBlueButton.multiplex_audio_and_video("#{target_dir}/audio.ogg", concat_vid, "#{target_dir}/muxed-audio-webcam.flv")        
         
-        BigBlueButton.multiplex_audio_and_video("#{target_dir}/audio.ogg", concat_vid, "#{target_dir}/muxed-audio-webcam.flv")
+        deskshare = Dir.glob("#{temp_dir}/#{meeting_id}/deskshare/*.flv")
         
-      end
+        ds_width = BigBlueButton.get_video_width(deskshare[0])
+        ds_height = BigBlueButton.get_video_height(deskshare[0])
+        ds_blank_canvas = "#{temp_dir}/ds-canvas.jpg"
+        BigBlueButton.create_blank_canvas(ds_width, ds_height, "white", ds_blank_canvas)
+        
+        start_ds_evt = BigBlueButton::Events.get_start_deskshare_events(events_xml)
+        start_ds_evt.size.should == 2
+        stop_ds_evt = BigBlueButton::Events.get_stop_deskshare_events(events_xml)
+        stop_ds_evt.size.should == 2
+        
+        ds_matched_evts = BigBlueButton::Events.match_start_and_stop_deskshare_events(start_ds_evt, stop_ds_evt)
+        ds_matched_evts.size.should == 2
+        
+        ds_paddings = BigBlueButton.generate_deskshare_paddings(ds_matched_evts, first_timestamp, last_timestamp)
+        ds_paddings.size.should == 3
+        
+        ds_ind_flvs = []
+        ds_paddings.concat(ds_matched_evts).sort{|a,b| a[:start_timestamp] <=> b[:start_timestamp]}.each do |comb|
+          if (comb[:gap])
+            ds_ind_flvs << "#{temp_dir}/#{comb[:stream]}"
+            BigBlueButton.create_blank_deskshare_video((comb[:stop_timestamp] - comb[:start_timestamp])/1000, 1000, ds_blank_canvas, "#{temp_dir}/#{comb[:stream]}")
+          else
+            ds_ind_flvs << "#{temp_dir}/#{meeting_id}/deskshare/#{comb[:stream]}"
+          end
+        end
+        
+        dsconcat_vid = "#{target_dir}/deskshare.flv"
+        BigBlueButton.concatenate_videos(ds_ind_flvs, dsconcat_vid)    
+
+        BigBlueButton::MatterhornProcessor.create_manifest_xml("#{target_dir}/muxed-audio-webcam.flv", "#{target_dir}/deskshare.flv", "#{target_dir}/manifest.xml")
+        BigBlueButton::MatterhornProcessor.create_dublincore_xml("#{target_dir}/dublincore.xml",
+                                                          {:title => "Business Ecosystem",
+                                                              :subject => "TTMG 5001",
+                                                              :description => "How to manage your product's ecosystem",
+                                                              :creator => "Richard Alam",
+                                                              :contributor => "Popen3",
+                                                              :language => "En-US",
+                                                              :identifier => "ttmg-5001-2"})        
+                                                              
+        puts Dir.pwd
+        Dir.chdir(target_dir) do
+          puts Dir.pwd
+          BigBlueButton::MatterhornProcessor.zip_artifacts("muxed-audio-webcam.flv", "deskshare.flv", "dublincore.xml", "manifest.xml", "#{meeting_id}.zip")
+        end
+        puts Dir.pwd
+
+        cmd = "scp -i /home/firstuser/.ssh/matt_id_rsa #{target_dir}/#{meeting_id}.zip root@ec2-50-16-8-19.compute-1.amazonaws.com:/opt/matterhorn/felix/inbox/"
+        puts cmd
+        Open3.popen3(cmd) do | stdin, stdout, stderr|
+          p $?.exitstatus 
+        end
+      end      
     end
   end
 end

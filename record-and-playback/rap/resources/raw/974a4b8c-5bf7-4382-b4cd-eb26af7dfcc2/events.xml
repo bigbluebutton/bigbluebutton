@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <recording meeting_id="974a4b8c-5bf7-4382-b4cd-eb26af7dfcc2">
   <metadata>
+    <title>Business Ecosystem</title>
+    <subject>TTMG 5001</subject>
+    <description>How to manage your product's ecosystem</description>
+    <creator>Richard Alam</creator>
+    <contributor>Popen3</contributor>
+    <language>en-US</language>
+    <identifier>ttmg-5001-2</identifier>
   </metadata>
   <event timestamp="1305560822952" module="PARTICIPANT" eventname="ParticipantJoinEvent">
     <role>MODERATOR</role>

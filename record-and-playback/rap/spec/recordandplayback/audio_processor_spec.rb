@@ -43,12 +43,12 @@ module BigBlueButton
       
       it "should find the timestamp of the first event" do
         events_xml = 'resources/raw/good_audio_events.xml'
-        BigBlueButton::Events.first_event_timestamp(events_xml).should == "50"
+        BigBlueButton::Events.first_event_timestamp(events_xml).should == 50
       end
       
       it "should find the timestamp of the last event" do
         events_xml = 'resources/raw/good_audio_events.xml'
-        BigBlueButton::Events.last_event_timestamp(events_xml).should == "1000"
+        BigBlueButton::Events.last_event_timestamp(events_xml).should == 1000
       end   
 
       it "should get all start audio recording events" do

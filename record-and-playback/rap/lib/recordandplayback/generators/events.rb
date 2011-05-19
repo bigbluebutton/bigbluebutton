@@ -72,25 +72,51 @@ module BigBlueButton
       end
       stop_events.sort {|a, b| a[:stop_timestamp] <=> b[:stop_timestamp]}
     end
+        
+    # Determine if the start and stop event matched.
+    def self.deskshare_event_matched?(stop_events, start)      
+      stop_events.each do |stop|
+        if (start[:stream] == stop[:stream])
+          start[:matched] = true
+          start[:stop_timestamp] = stop[:stop_timestamp]
+          return true
+        end      
+      end
+      return false
+    end
+    
+    # Match the start and stop events.
+    def self.match_start_and_stop_deskshare_events(start_events, stop_events)
+      combined_events = []
+      start_events.each do |start|
+        if not video_event_matched?(stop_events, start) 
+          stop_event = {:stop_timestamp => stop[:stop_timestamp], :stream => stop[:stream], :matched => false}
+          combined_events << stop_event
+        else
+          stop_events = stop_events - [stop_event]
+        end
+      end      
+      return combined_events.concat(start_events)
+    end    
     
     def self.get_start_deskshare_events(events_xml)
       start_events = []
       doc = Nokogiri::XML(File.open(events_xml))
       doc.xpath("//event[@eventname='DeskshareStartedEvent']").each do |start_event|
-        s = {:timestamp => start_event['timestamp'].to_i, :file => start_event.xpath('file').text}
+        s = {:start_timestamp => start_event['timestamp'].to_i, :stream => start_event.xpath('file').text.sub(/(.+)\//, "")}
         start_events << s
       end
-      start_events.sort {|a, b| a[:timestamp] <=> b[:timestamp]}
+      start_events.sort {|a, b| a[:start_timestamp] <=> b[:start_timestamp]}
     end
 
     def self.get_stop_deskshare_events(events_xml)
       stop_events = []
       doc = Nokogiri::XML(File.open(events_xml))
       doc.xpath("//event[@eventname='DeskshareStoppedEvent']").each do |stop_event|
-        s = {:timestamp => stop_event['timestamp'].to_i, :file => stop_event.xpath('file').text}
+        s = {:stop_timestamp => stop_event['timestamp'].to_i, :stream => stop_event.xpath('file').text.sub(/(.+)\//, "")}
         stop_events << s
       end
-      stop_events.sort {|a, b| a[:timestamp] <=> b[:timestamp]}
+      stop_events.sort {|a, b| a[:stop_timestamp] <=> b[:stop_timestamp]}
     end    
   end
 end
