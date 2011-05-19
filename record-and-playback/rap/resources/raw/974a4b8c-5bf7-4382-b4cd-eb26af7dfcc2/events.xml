@@ -158,12 +158,7 @@
   </event>
   <event timestamp="1305560870016" module="PARTICIPANT" eventname="ParticipantStatusChangeEvent">
     <userId>11</userId>
-    <value>320x240-11-1305560840349</value>
-    <status>streamName</status>
-  </event>
-  <event timestamp="1305560870033" module="PARTICIPANT" eventname="ParticipantStatusChangeEvent">
-    <userId>11</userId>
-    <value>true</value>
+    <value>true,stream=320x240-11-1305560840349</value>
     <status>hasStream</status>
   </event>
   <event timestamp="1305560873586" module="VOICE" eventname="ParticipantTalkingEvent">
@@ -683,12 +678,7 @@
   </event>
   <event timestamp="1305560970322" module="PARTICIPANT" eventname="ParticipantStatusChangeEvent">
     <userId>11</userId>
-    <value></value>
-    <status>streamName</status>
-  </event>
-  <event timestamp="1305560970382" module="PARTICIPANT" eventname="ParticipantStatusChangeEvent">
-    <userId>11</userId>
-    <value>false</value>
+    <value>false,stream=320x240-11-1305560840349</value>
     <status>hasStream</status>
   </event>
   <event timestamp="1305560970967" module="VOICE" eventname="ParticipantTalkingEvent">
@@ -807,12 +797,7 @@
   </event>
   <event timestamp="1305561000589" module="PARTICIPANT" eventname="ParticipantStatusChangeEvent">
     <userId>11</userId>
-    <value>320x240-11-1305560970453</value>
-    <status>streamName</status>
-  </event>
-  <event timestamp="1305561000702" module="PARTICIPANT" eventname="ParticipantStatusChangeEvent">
-    <value>true</value>
-    <userId>11</userId>
+    <value>true,stream=320x240-11-1305560970453</value>
     <status>hasStream</status>
   </event>
   <event timestamp="1305561003667" module="VOICE" eventname="ParticipantTalkingEvent">
@@ -1058,12 +1043,7 @@
     <bridge>70522</bridge>
   </event>
   <event timestamp="1305561058455" module="PARTICIPANT" eventname="ParticipantStatusChangeEvent">
-    <value></value>
-    <userId>11</userId>
-    <status>streamName</status>
-  </event>
-  <event timestamp="1305561058536" module="PARTICIPANT" eventname="ParticipantStatusChangeEvent">
-    <value>false</value>
+    <value>false,stream=320x240-11-1305560970453</value>
     <userId>11</userId>
     <status>hasStream</status>
   </event>
