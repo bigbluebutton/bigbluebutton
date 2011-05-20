@@ -255,12 +255,17 @@ module BigBlueButton
         BigBlueButton.concatenate_videos(ind_flvs, concat_vid)        
         BigBlueButton.multiplex_audio_and_video("#{target_dir}/audio.ogg", concat_vid, "#{target_dir}/muxed-audio-webcam.flv")        
         
-        deskshare = Dir.glob("#{temp_dir}/#{meeting_id}/deskshare/*.flv")
+        deskshare_files = Dir.glob("#{temp_dir}/#{meeting_id}/deskshare/*.flv")
         
-        ds_width = BigBlueButton.get_video_width(deskshare[0])
-        ds_height = BigBlueButton.get_video_height(deskshare[0])
+        deskshare = []
+        deskshare_files.each do |dsf|
+          deskshare << {:width => BigBlueButton.get_video_width(dsf), :height => BigBlueButton.get_video_height(dsf), :stream => dsf.sub(/(.+)\//, "")}
+        end
+        
+        deskshare.each { |d| puts d }
+        
         ds_blank_canvas = "#{temp_dir}/ds-canvas.jpg"
-        BigBlueButton.create_blank_canvas(ds_width, ds_height, "white", ds_blank_canvas)
+        BigBlueButton.create_blank_canvas(640, 480, "white", ds_blank_canvas)
         
         start_ds_evt = BigBlueButton::Events.get_start_deskshare_events(events_xml)
         start_ds_evt.size.should == 2
@@ -279,35 +284,40 @@ module BigBlueButton
             ds_ind_flvs << "#{temp_dir}/#{comb[:stream]}"
             BigBlueButton.create_blank_deskshare_video((comb[:stop_timestamp] - comb[:start_timestamp])/1000, 1000, ds_blank_canvas, "#{temp_dir}/#{comb[:stream]}")
           else
-            ds_ind_flvs << "#{temp_dir}/#{meeting_id}/deskshare/#{comb[:stream]}"
+            ds_ind_flvs << "#{temp_dir}/#{meeting_id}/deskshare/scaled-#{comb[:stream]}"
+            BigBlueButton.scale_to_640_x_480("#{temp_dir}/#{meeting_id}/deskshare/#{comb[:stream]}", "#{temp_dir}/#{meeting_id}/deskshare/scaled-#{comb[:stream]}")
           end
+        end
+        
+        ds_ind_flvs.each do |dif|
+          puts "ds file: #{dif}"
         end
         
         dsconcat_vid = "#{target_dir}/deskshare.flv"
         BigBlueButton.concatenate_videos(ds_ind_flvs, dsconcat_vid)    
 
-        BigBlueButton::MatterhornProcessor.create_manifest_xml("#{target_dir}/muxed-audio-webcam.flv", "#{target_dir}/deskshare.flv", "#{target_dir}/manifest.xml")
-        BigBlueButton::MatterhornProcessor.create_dublincore_xml("#{target_dir}/dublincore.xml",
-                                                          {:title => "Business Ecosystem",
-                                                              :subject => "TTMG 5001",
-                                                              :description => "How to manage your product's ecosystem",
-                                                              :creator => "Richard Alam",
-                                                              :contributor => "Popen3",
-                                                              :language => "En-US",
-                                                              :identifier => "ttmg-5001-2"})        
-                                                              
-        puts Dir.pwd
-        Dir.chdir(target_dir) do
-          puts Dir.pwd
-          BigBlueButton::MatterhornProcessor.zip_artifacts("muxed-audio-webcam.flv", "deskshare.flv", "dublincore.xml", "manifest.xml", "#{meeting_id}.zip")
-        end
-        puts Dir.pwd
+    #    BigBlueButton::MatterhornProcessor.create_manifest_xml("#{target_dir}/muxed-audio-webcam.flv", "#{target_dir}/deskshare.flv", "#{target_dir}/manifest.xml")
+    #    BigBlueButton::MatterhornProcessor.create_dublincore_xml("#{target_dir}/dublincore.xml",
+    #                                                      {:title => "Business Ecosystem",
+    #                                                          :subject => "TTMG 5001",
+    #                                                          :description => "How to manage your product's ecosystem",
+    #                                                          :creator => "Richard Alam",
+    #                                                          :contributor => "Popen3",
+     #                                                         :language => "En-US",
+    #                                                          :identifier => "ttmg-5001-2"})        
+    #                                                          
+    #    puts Dir.pwd
+     #   Dir.chdir(target_dir) do
+    #      puts Dir.pwd
+   #       BigBlueButton::MatterhornProcessor.zip_artifacts("muxed-audio-webcam.flv", "deskshare.flv", "dublincore.xml", "manifest.xml", "#{meeting_id}.zip")
+     #   end
+     #   puts Dir.pwd
 
-        cmd = "scp -i /home/firstuser/.ssh/matt_id_rsa #{target_dir}/#{meeting_id}.zip root@ec2-50-16-8-19.compute-1.amazonaws.com:/opt/matterhorn/felix/inbox/"
-        puts cmd
-        Open3.popen3(cmd) do | stdin, stdout, stderr|
-          p $?.exitstatus 
-        end
+    #    cmd = "scp -i /home/firstuser/.ssh/matt_id_rsa #{target_dir}/#{meeting_id}.zip root@ec2-50-16-8-19.compute-1.amazonaws.com:/opt/matterhorn/felix/inbox/"
+    #    puts cmd
+   #     Open3.popen3(cmd) do | stdin, stdout, stderr|
+    #      p $?.exitstatus 
+   #     end
       end      
     end
   end

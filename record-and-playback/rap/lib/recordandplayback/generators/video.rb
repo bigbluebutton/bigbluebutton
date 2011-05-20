@@ -62,6 +62,7 @@ module BigBlueButton
     #command = "mencoder -forceidx -of lavf -oac copy -ovc copy -o #{video_out} #{videos_in.join(' ')}"
     #BigBlueButton.execute(command)
     # Somehow, using the backtick works but not using popen.
+    puts "mencoder -forceidx -of lavf -oac copy -ovc copy -o #{video_out} #{videos_in.join(' ')}"
     `mencoder -forceidx -of lavf -oac copy -ovc copy -o #{video_out} #{videos_in.join(' ')}`
   end
 
@@ -156,6 +157,84 @@ module BigBlueButton
   
   def self.get_video_framerate(video)
     FFMPEG::Movie.new(video).frame_rate
+  end
+
+  MAX_VID_WIDTH = 640
+  MAX_VID_HEIGHT = 480
+  
+  # Calculate the anamorphic factor for this video.
+  #   see http://howto-pages.org/ffmpeg/
+  # We need to calculate how much we need to scale
+  # the width and height to maintain a 4/3 aspect ratio
+  def self.calc_anamorphic_factor(width, height)
+    (4.0 * height) / (width * 3.0)
+  end
+  
+  def self.portrait?(width, height)
+    width < height
+  end
+  
+  def self.landscape?(width, height)
+    width > height
+  end
+  
+  # Calculate the height of the video to maintain 4/3 aspect ratio.
+  # We want to fit the video into 640/480 size. If we shrink the width (W)
+  # of the video to 640, calculate the height (H) using the formula.
+  #  (W/H)*(anamorphic_factor) = (4/3)
+  #
+  def self.calc_height(anamorphic_factor)
+    (3 * MAX_VID_WIDTH * anamorphic_factor) / 4
+  end
+  
+  # Calculate the width of the video to maintain 4/3 aspect ratio.
+  # We want to fit the video into 640/480 size. If we shrink the height (H)
+  # of the video to 480, calculate the width (W) using the formula.
+  #  (W/H)*(anamorphic_factor) = (4/3)
+  #
+  def self.calc_width(anamorphic_factor)
+    (4 * MAX_VID_HEIGHT) / (3 * anamorphic_factor)
+  end
+  
+  # Determine if video is less that 640x480.
+  def self.fits_640_by_480?(width, height)
+    (width < MAX_VID_WIDTH) and (height < MAX_VID_HEIGHT)
+  end  
+   
+  def self.scale_to_640_x_480(flv_in, flv_out)
+    width = get_video_width(flv_in)
+    height = get_video_height(flv_in)
+    anamorphic_factor = calc_anamorphic_factor(width, height)
+    puts "factor=#{anamorphic_factor}, width=#{width}, height=#{height}"
+    if (fits_640_by_480?(width, height))  
+      padding = "-vf pad=#{MAX_VID_WIDTH}:#{MAX_VID_HEIGHT}:#{(MAX_VID_WIDTH - width)/2}:#{(MAX_VID_HEIGHT - height)/2}:FFFFFF"
+      command = "ffmpeg -i #{flv_in} -aspect 4:3 -r 1000 -sameq #{padding} -vcodec flashsv #{flv_out}" 
+      puts command
+      IO.popen(command)
+      Process.wait
+    elsif (width < MAX_VID_WIDTH) and (height > MAX_VID_HEIGHT)
+        c_width = calc_width(anamorphic_factor)
+        padding = MAX_VID_WIDTH - c_width
+        puts "w < mW and h > mH : padding=#{padding}, c_width=#{c_width}"
+        command = "ffmpeg -i #{flv_in} -aspect 4:3 -r 1000 -sameq -s #{c_width.to_i}x#{MAX_VID_HEIGHT} -vf pad=#{MAX_VID_WIDTH}:#{MAX_VID_HEIGHT}:#{(padding/2).to_i}:0:FFFFFF -vcodec flashsv #{flv_out}" 
+        puts command
+        IO.popen(command)
+        Process.wait       
+    elsif (height < MAX_VID_HEIGHT) and (width > MAX_VID_WIDTH)
+        c_height = calc_height(anamorphic_factor)
+        padding = MAX_VID_HEIGHT - c_height
+        puts "w > mW and h < mH padding=#{padding}, c_height=#{c_height}"
+        command = "ffmpeg -i #{flv_in} -aspect 4:3 -r 1000 -sameq -vf pad=#{MAX_VID_WIDTH}:#{MAX_VID_HEIGHT}:0:#{(padding/2).to_i}:FFFFFF -vcodec flashsv #{flv_out}" 
+        puts command
+        IO.popen(command)
+        Process.wait        
+    else
+      if (portrait?(width, height))
+        puts "portrait****####"
+      else
+        puts "landscape****####"
+      end   
+    end
   end
 end
 
