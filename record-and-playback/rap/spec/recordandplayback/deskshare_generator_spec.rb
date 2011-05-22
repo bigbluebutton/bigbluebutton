@@ -285,7 +285,10 @@ module BigBlueButton
             BigBlueButton.create_blank_deskshare_video((comb[:stop_timestamp] - comb[:start_timestamp])/1000, 1000, ds_blank_canvas, "#{temp_dir}/#{comb[:stream]}")
           else
             ds_ind_flvs << "#{temp_dir}/#{meeting_id}/deskshare/scaled-#{comb[:stream]}"
-            BigBlueButton.scale_to_640_x_480("#{temp_dir}/#{meeting_id}/deskshare/#{comb[:stream]}", "#{temp_dir}/#{meeting_id}/deskshare/scaled-#{comb[:stream]}")
+            flv_in = "#{temp_dir}/#{meeting_id}/deskshare/#{comb[:stream]}"
+            flv_out = "#{temp_dir}/#{meeting_id}/deskshare/scaled-#{comb[:stream]}"
+            frame_pad = BigBlueButton.scale_to_640_x_480(BigBlueButton.get_video_width(flv_in), BigBlueButton.get_video_height(flv_in))
+            BigBlueButton.fit_to_screen_size(frame_pad[:frame_size], frame_pad[:padding], flv_in, flv_out)            
           end
         end
         
