@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<recording meeting_id="83d7d725-e09e-427e-8cc2-fa328904fc75">
+  <metadata>
+  </metadata>
+  <event timestamp="1305661044754" module="PARTICIPANT" eventname="ParticipantStatusChangeEvent">
+    <value>true,stream=320x240-10-1305661002629</value>
+    <userId>10</userId>
+    <status>hasStream</status>
+  </event>
+  <event timestamp="1305661107168" module="PARTICIPANT" eventname="ParticipantStatusChangeEvent">
+    <value>false,stream=320x240-10-1305661002629</value>
+    <userId>10</userId>
+    <status>hasStream</status>
+  </event>
+  <event timestamp="1305661125714" module="PARTICIPANT" eventname="ParticipantStatusChangeEvent">
+    <userId>10</userId>
+    <value>true,stream=320x240-10-1305661083512</value>
+    <status>hasStream</status>
+  </event>  
+  <event timestamp="1305661157770" module="PARTICIPANT" eventname="ParticipantStatusChangeEvent">
+    <value>false,stream=320x240-10-1305661083512</value>
+    <userId>10</userId>
+    <status>hasStream</status>
+  </event>
+</recording>

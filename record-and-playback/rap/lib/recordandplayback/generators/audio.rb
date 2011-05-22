@@ -3,7 +3,7 @@ require 'rubygems'
 require 'nokogiri'
 require 'builder'
 
-module Generator
+module BigBlueButton
   class AudioEvents
     # Generate a silent wav file.
     # 
@@ -24,10 +24,7 @@ module Generator
       
       f.close();
       command = "sox #{temp_file} -b 16 -r #{sampling_rate} -c 1 -s #{filename}"
-      BigBlueButton.logger.info("Executing #{command}\n")
-      proc = IO.popen(command, "w+")
-      # Wait for the process to finish before removing the temp file
-      Process.wait()
+      BigBlueButton.execute(command)
       # Delete the temporary raw audio file
       FileUtils.rm(temp_file)
     end
@@ -39,10 +36,7 @@ module Generator
     def self.concatenate_audio_files(files, outfile)
       file_list = files.join(' ')
       command = "sox #{file_list} #{outfile}"
-      BigBlueButton.logger.info("Executing #{command}\n")
-      proc = IO.popen(command, "w+")
-      # Wait for the process to finish
-      Process.wait()    
+      BigBlueButton.execute(command)  
     end
     
     # Convert a wav file to an ogg file
@@ -51,9 +45,7 @@ module Generator
     #   ogg_file - resulting ogg file
     def self.wav_to_ogg(wav_file, ogg_file)  
       command = "oggenc -Q -o #{ogg_file} #{wav_file} 2>&1"
-      BigBlueButton::Archive.logger.info("Executing #{command}\n")      
-      proc = IO.popen(command, "w+")
-      Process.wait() 
+      BigBlueButton.execute(command)
     end    
     
     # Extracts the length of the audio file as reurned by running
@@ -111,12 +103,14 @@ module Generator
     
     # Process the audio events for this recording
     def self.process_events(events_xml)
+      puts events_xml
       audio_events = match_start_and_stop_events(start_audio_recording_events(events_xml), 
                           stop_audio_recording_events(events_xml)).each do |audio_event|
         if not audio_event.matched 
             determine_start_stop_timestamps_for_unmatched_event!(audio_event)
         end
       end
+      puts audio_events.length
       if audio_events.length > 0
         audio_paddings = generate_audio_paddings(audio_events, events_xml)
         audio_events.concat(audio_paddings)
@@ -135,7 +129,8 @@ module Generator
     def self.start_audio_recording_events(events_xml)
       start_events = []
       doc = Nokogiri::XML(File.open(events_xml))
-      doc.xpath("//event[@name='StartRecordingEvent']").each do |start_event|
+      doc.xpath("//event[@eventname='StartRecordingEvent']").each do |start_event|
+        puts start_event
         ae = AudioRecordingEvent.new
         ae.start_event_timestamp = start_event[TIMESTAMP]
         ae.bridge = start_event.xpath(BRIDGE).text
@@ -143,6 +138,7 @@ module Generator
         ae.start_record_timestamp = start_event.xpath(RECORD_TIMESTAMP).text
         start_events << ae
       end
+      puts "Start Events: #{start_events}"
       return start_events.sort {|a,b| a.start_event_timestamp <=> b.start_event_timestamp}
     end
     
@@ -150,7 +146,7 @@ module Generator
     def self.stop_audio_recording_events(events_xml)
       stop_events = []
       doc = Nokogiri::XML(File.open(events_xml))
-      doc.xpath("//event[@name='StopRecordingEvent']").each do |stop_event|
+      doc.xpath("//event[@eventname='StopRecordingEvent']").each do |stop_event|
         ae = AudioRecordingEvent.new
         ae.stop_event_timestamp = stop_event[TIMESTAMP]
         ae.bridge = stop_event.xpath(BRIDGE).text

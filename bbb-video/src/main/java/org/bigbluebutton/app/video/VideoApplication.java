@@ -70,7 +70,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     }
     
     /**
-     * A hook to record a sample stream. A file is written in webapps/sip/streams/
+     * A hook to record a sample stream. A file is written in webapps/video/streams/
      * @param stream
      */
     private void recordStream(IBroadcastStream stream) {

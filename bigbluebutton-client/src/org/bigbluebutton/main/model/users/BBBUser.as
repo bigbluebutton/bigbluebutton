@@ -20,11 +20,7 @@ package org.bigbluebutton.main.model.users
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
-	import flash.events.TimerEvent;
-	import flash.utils.Timer;
-	
 	import mx.collections.ArrayCollection;
-	import mx.controls.Alert;
 	
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
@@ -71,7 +67,10 @@ package org.bigbluebutton.main.model.users
 					presenter = status.value;
 					break;
 				case "hasStream":
-					hasStream = status.value;
+					var streamInfo:Array = String(status.value).split(/,/); 
+					var camShared:Boolean = status.value 
+					hasStream = new Boolean(streamInfo[0]);
+					streamName = String(streamInfo[0].split(/=/))
 					if (hasStream) sendStreamStartedEvent();
 					break;
 				case "streamName":
