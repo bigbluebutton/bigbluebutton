@@ -205,37 +205,36 @@ module BigBlueButton
     (width < MAX_VID_WIDTH) and (height < MAX_VID_HEIGHT)
   end  
    
-  def self.scale_to_640_x_480(flv_in, flv_out)
-    width = get_video_width(flv_in)
-    height = get_video_height(flv_in)
+  def self.scale_to_640_x_480(width, height)
     anamorphic_factor = calc_anamorphic_factor(width, height)
     puts "factor=#{anamorphic_factor}, width=#{width}, height=#{height}"
+    frame_size_and_padding = {:frame_size => "", :padding => ""}
     if (fits_640_by_480?(width, height))
       # The raw media is smaller than 640x480. Pad the sides of video to fit 640x480.
-      padding = "-vf pad=#{MAX_VID_WIDTH}:#{MAX_VID_HEIGHT}:#{(MAX_VID_WIDTH - width)/2}:#{(MAX_VID_HEIGHT - height)/2}:FFFFFF"
-      command = "ffmpeg -i #{flv_in} -aspect 4:3 -r 1000 -sameq #{padding} -vcodec flashsv #{flv_out}" 
-      puts command
-      IO.popen(command)
-      Process.wait
-    elsif (width < MAX_VID_WIDTH) and (height > MAX_VID_HEIGHT) or (portrait?(width, height)
+      frame_size_and_padding[:padding] = "-vf pad=#{MAX_VID_WIDTH}:#{MAX_VID_HEIGHT}:#{(MAX_VID_WIDTH - width)/2}:#{(MAX_VID_HEIGHT - height)/2}:FFFFFF"
+    elsif (width < MAX_VID_WIDTH) and (height > MAX_VID_HEIGHT) or (portrait?(width, height))
         # Fit the video vertically and adjust the width then pad it to fit into 640x480 video.
         c_width = calc_width(anamorphic_factor)
         padding = MAX_VID_WIDTH - c_width
         puts "w < mW and h > mH : padding=#{padding}, c_width=#{c_width}"
-        command = "ffmpeg -i #{flv_in} -aspect 4:3 -r 1000 -sameq -s #{c_width.to_i}x#{MAX_VID_HEIGHT} -vf pad=#{MAX_VID_WIDTH}:#{MAX_VID_HEIGHT}:#{(padding/2).to_i}:0:FFFFFF -vcodec flashsv #{flv_out}" 
-        puts command
-        IO.popen(command)
-        Process.wait       
-    elsif (height < MAX_VID_HEIGHT) and (width > MAX_VID_WIDTH) or (landscape?(width, height)
+        frame_size_and_padding[:frame_size] = "-s #{c_width.to_i}x#{MAX_VID_HEIGHT}"
+        frame_size_and_padding[:padding] = "-vf pad=#{MAX_VID_WIDTH}:#{MAX_VID_HEIGHT}:#{(padding/2).to_i}:0:FFFFFF"
+    elsif (height < MAX_VID_HEIGHT) and (width > MAX_VID_WIDTH) or (landscape?(width, height))
         # Fit the video horizontally and adjust the height then pad the top and bottom to fit the 640x480 video.
         c_height = calc_height(anamorphic_factor)
         padding = MAX_VID_HEIGHT - c_height
-        puts "w > mW and h < mH padding=#{padding}, c_height=#{c_height}"
-        command = "ffmpeg -i #{flv_in} -aspect 4:3 -r 1000 -sameq -s #{MAX_VID_WIDTH}x#{c_height.to_i} -vf pad=#{MAX_VID_WIDTH}:#{MAX_VID_HEIGHT}:0:#{(padding/2).to_i}:FFFFFF -vcodec flashsv #{flv_out}" 
-        puts command
-        IO.popen(command)
-        Process.wait          
-    end
+        frame_size_and_padding[:frame_size] = "-s #{MAX_VID_WIDTH}x#{c_height.to_i}"
+        frame_size_and_padding[:padding] = "-vf pad=#{MAX_VID_WIDTH}:#{MAX_VID_HEIGHT}:0:#{(padding/2).to_i}:FFFFFF"
+    end   
+    frame_size_and_padding
+  end
+
+  def self.fit_to_screen_size(frame_size, pad, flv_in, flv_out)
+    command = "ffmpeg -i #{flv_in} -aspect 4:3 -r 1000 -sameq #{frame_size} #{pad} -vcodec flashsv #{flv_out}" 
+    puts command
+    IO.popen(command)
+    Process.wait              
+
   end
 end
 
