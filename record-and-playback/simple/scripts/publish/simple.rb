@@ -11,7 +11,7 @@ end
 meeting_id = opts[:meeting_id]
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
-bbb_props = YAML::load(File.open('../../bin/scripts/bigbluebutton.yml'))
+bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
 simple_props = YAML::load(File.open('simple.yml'))
 
 recording_dir = bbb_props['recording_dir']
