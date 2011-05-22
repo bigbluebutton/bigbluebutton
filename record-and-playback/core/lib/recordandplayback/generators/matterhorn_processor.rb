@@ -10,44 +10,7 @@ module BigBlueButton
   class MediaFormatException < StandardError
   end
 
-  class MatterhornProcessor
-    def self.process(archive_dir, meeting_id)
-      matterhorn_dir = "#{archive_dir}/matterhorn"
-      if not FileTest.directory?(matterhorn_dir)
-        FileUtils.mkdir_p matterhorn_dir
-      end
-        
-      process_audio(archive_dir, matterhorn_dir)
-      process_deskshare(archive_dir, matterhorn_dir)
-      process_video(archive_dir, meeting_id, matterhorn_dir)            
-    end
-    
-    def self.process_deskshare(archive_dir, matterhorn_dir)      
-      FileUtils.cp_r("#{archive_dir}/deskshare", matterhorn_dir)
-      deskshare_file = "#{matterhorn_dir}/deskshare/*.flv"
-      Dir.glob("#{matterhorn_dir}/deskshare/*.flv").each do |file|
-        BigBlueButton.execute("ffmpeg -i #{file} -an -vcodec copy #{matterhorn_dir}/deskshare.flv")
-      end
-    end
-    
-    def self.process_video(archive_dir, meeting_id, matterhorn_dir)
-      FileUtils.cp_r("#{archive_dir}/video", matterhorn_dir)
-      video_dir = "#{matterhorn_dir}/video"
-      
-      Dir.glob("#{video_dir}/*.flv").each do |file|
-        BigBlueButton.execute("ffmpeg -i #{file} -an -vcodec copy #{matterhorn_dir}/video.flv")
-      end  
-    end
-    
-    def self.process_audio(archive_dir, matterhorn_dir)
-      audio_dir = "#{archive_dir}/audio"
-      FileUtils.cp_r("#{archive_dir}/audio", matterhorn_dir)
-            
-      wav_file = "#{matterhorn_dir}/audio/*.wav"
-      ogg_file = "#{matterhorn_dir}/audio.ogg"
-      BigBlueButton.execute("oggenc -Q --resample 44100 -o #{ogg_file} #{wav_file}")
-    end
-    
+  class MatterhornProcessor    
     def self.create_manifest_xml(webcam, deskshare, manifest)
       vpresenter = FFMPEG::Movie.new(webcam)
       vpresentation = FFMPEG::Movie.new(deskshare)
