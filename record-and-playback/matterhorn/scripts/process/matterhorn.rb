@@ -1,4 +1,4 @@
-require '../lib/recordandplayback'
+require '../../core/lib/recordandplayback'
 require 'rubygems'
 require 'trollop'
 require 'yaml'
@@ -13,7 +13,7 @@ end
 meeting_id = opts[:meeting_id]
 
 # This script lives in scripts/archive/steps while bigbluebutton.yml lives in scripts/
-props = YAML::load(File.open('bigbluebutton.yml'))
+props = YAML::load(File.open('../../bin/scripts/bigbluebutton.yml'))
 
 recording_dir = props['recording_dir']
 raw_archive_dir = "#{recording_dir}/raw/#{meeting_id}"
@@ -36,6 +36,7 @@ BigBlueButton.process_webcam(target_dir, temp_dir, meeting_id)
 BigBlueButton.process_deskstop_sharing(target_dir, temp_dir, meeting_id)
 
 BigBlueButton::MatterhornProcessor.create_manifest_xml("#{target_dir}/muxed-audio-webcam.flv", "#{target_dir}/deskshare.flv", "#{target_dir}/manifest.xml")
+
 BigBlueButton::MatterhornProcessor.create_dublincore_xml("#{target_dir}/dublincore.xml",
                                                           {:title => "Business Ecosystem",
                                                               :subject => "TTMG 5001",

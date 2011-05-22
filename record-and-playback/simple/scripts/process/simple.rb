@@ -1,4 +1,4 @@
-require '../lib/recordandplayback'
+require '../../core/lib/recordandplayback'
 require 'rubygems'
 require 'trollop'
 require 'yaml'
@@ -10,7 +10,7 @@ end
 meeting_id = opts[:meeting_id]
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
-props = YAML::load(File.open('bigbluebutton.yml'))
+props = YAML::load(File.open('../../bin/scripts/bigbluebutton.yml'))
 
 recording_dir = props['recording_dir']
 raw_archive_dir = "#{recording_dir}/raw/#{meeting_id}"

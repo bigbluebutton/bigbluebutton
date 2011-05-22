@@ -1,4 +1,4 @@
-require '../lib/recordandplayback'
+require '../../core/lib/recordandplayback'
 require 'rubygems'
 require 'trollop'
 require 'yaml'
@@ -10,7 +10,7 @@ end
 meeting_id = opts[:meeting_id]
 
 # This script lives in scripts/archive/steps while matterhorn.yaml lives in scripts/
-bbb_props = YAML::load(File.open('bigbluebutton.yml'))
+bbb_props = YAML::load(File.open('../../bin/scripts/bigbluebutton.yml'))
 matt_props = YAML::load(File.open('matterhorn.yml'))
 scp_server = matt_props['scp_server']
 scp_inbox = matt_props['scp_inbox']
