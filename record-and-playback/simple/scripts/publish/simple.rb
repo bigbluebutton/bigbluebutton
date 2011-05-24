@@ -17,6 +17,7 @@ simple_props = YAML::load(File.open('simple.yml'))
 recording_dir = bbb_props['recording_dir']
 process_dir = "#{recording_dir}/process/simple/#{meeting_id}"
 publish_dir = simple_props['publish_dir']
+playback_host = simple_prop['playback_host']
 
 target_dir = "#{recording_dir}/publish/simple/#{meeting_id}"
 if FileTest.directory?(target_dir)

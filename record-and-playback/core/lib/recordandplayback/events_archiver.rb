@@ -43,7 +43,7 @@ module BigBlueButton
   class RedisEventsArchiver
     TIMESTAMP = 'timestamp'
     MODULE = 'module'
-    EVENTNAME = 'eventName'
+    EVENTNAME = 'eventname'
     MEETINGID = 'meetingId'
     
     def initialize(redis)
@@ -81,17 +81,9 @@ module BigBlueButton
     end
     
     def save_events_to_file(directory, result)
-    #puts result
-    #puts directory
-    #  a_file = File.new("#{directory}/events.xml", "w+")
-     # a_file.write(result)
-    #  a_file.close
-      # Create a new file and write to it  
       File.open("#{directory}/events.xml", 'w') do |f2|  
-        # use "\n" for two lines of text  
         f2.puts result
       end 
-
     end
   end
 end
