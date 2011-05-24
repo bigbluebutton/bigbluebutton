@@ -8,7 +8,9 @@ module BigBlueButton
   # Example:
   #    strip_audio_from_video(orig-video.flv, video2.flv)
   def self.strip_audio_from_video(video_in, video_out)
-    IO.popen("ffmpeg -i #{video_in} -an -vcodec copy #{video_out}")
+    command = "ffmpeg -i #{video_in} -an -vcodec copy #{video_out}"
+    BigBlueButton.logger.info(command)
+    IO.popen(command)
     Process.wait
     # TODO: check for result, raise an exception when there is an error
   end
@@ -21,7 +23,9 @@ module BigBlueButton
   #  Example:
   #   create_blank_video(15, 1000, canvas.jpg, blank-video.flv)
   def self.create_blank_deskshare_video(length, rate, blank_canvas, video_out)
-    IO.popen("ffmpeg -loop_input -t #{length} -i #{blank_canvas} -r #{rate} -vcodec flashsv #{video_out}")
+    command = "ffmpeg -loop_input -t #{length} -i #{blank_canvas} -r #{rate} -vcodec flashsv #{video_out}"
+    BigBlueButton.logger.info(command)
+    IO.popen(command)
     Process.wait
     # TODO: check for result, raise exception when there is an error
   end
@@ -34,7 +38,9 @@ module BigBlueButton
   #  Example:
   #   create_blank_video(15, 1000, canvas.jpg, blank-video.flv)
   def self.create_blank_video(length, rate, blank_canvas, video_out)
-    IO.popen("ffmpeg -loop_input -t #{length} -i #{blank_canvas} -r #{rate} #{video_out}")
+    command = "ffmpeg -loop_input -t #{length} -i #{blank_canvas} -r #{rate} #{video_out}"
+    BigBlueButton.logger.info(command)
+    IO.popen(command)
     Process.wait
     # TODO: check for result, raise exception when there is an error
   end
@@ -47,7 +53,9 @@ module BigBlueButton
   # Example:
   #   create_blank_canvas(1280, 720, white, blank_canvas.jpg)
   def self.create_blank_canvas(width, height, color, out_file)
-    IO.popen("convert -size #{width}x#{height} xc:#{color} #{out_file}")
+    command = "convert -size #{width}x#{height} xc:#{color} #{out_file}"
+    BigBlueButton.logger.info(command)
+    IO.popen(command)
     Process.wait
     # TODO: check for result, raise an exception when there is an error
   end
@@ -62,7 +70,7 @@ module BigBlueButton
     #command = "mencoder -forceidx -of lavf -oac copy -ovc copy -o #{video_out} #{videos_in.join(' ')}"
     #BigBlueButton.execute(command)
     # Somehow, using the backtick works but not using popen.
-    puts "mencoder -forceidx -of lavf -oac copy -ovc copy -o #{video_out} #{videos_in.join(' ')}"
+    BigBlueButton.logger.info("mencoder -forceidx -of lavf -oac copy -ovc copy -o #{video_out} #{videos_in.join(' ')}")
     `mencoder -forceidx -of lavf -oac copy -ovc copy -o #{video_out} #{videos_in.join(' ')}`
   end
 
@@ -70,7 +78,9 @@ module BigBlueButton
   #  audio - the audio file
   #  video - the video file. Must not contain an audio stream. 
   def self.multiplex_audio_and_video(audio, video, video_out)
-    IO.popen("ffmpeg -i #{audio} -i #{video} -map 1:0 -map 0:0 -ar 22050 #{video_out}")
+    command = "ffmpeg -i #{audio} -i #{video} -map 1:0 -map 0:0 -ar 22050 #{video_out}"
+    BigBlueButton.logger.info(command)
+    IO.popen(command)
     Process.wait 
     # TODO: check result, raise an exception when there is an error
   end
@@ -234,7 +244,7 @@ module BigBlueButton
 
   def self.fit_to_screen_size(frame_size, pad, flv_in, flv_out)
     command = "ffmpeg -i #{flv_in} -aspect 4:3 -r 1000 -sameq #{frame_size} #{pad} -vcodec flashsv #{flv_out}" 
-    puts command
+    BigBlueButton.logger.info(command)
     IO.popen(command)
     Process.wait              
   end

@@ -9,6 +9,9 @@ end
 
 meeting_id = opts[:meeting_id]
 
+logger = Logger.new("/var/log/bigbluebutton/matterhorn-publish-#{meeting_id}.log", 'daily' )
+BigBlueButton.logger = logger
+
 # This script lives in scripts/archive/steps while matterhorn.yaml lives in scripts/
 bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
 matt_props = YAML::load(File.open('matterhorn.yml'))
