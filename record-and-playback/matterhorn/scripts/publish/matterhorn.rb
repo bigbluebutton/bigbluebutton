@@ -34,15 +34,12 @@ FileUtils.cp("#{process_dir}/deskshare.flv", target_dir)
 FileUtils.cp("#{process_dir}/manifest.xml", target_dir)
 FileUtils.cp("#{process_dir}/dublincore.xml", target_dir)
 
-puts Dir.pwd
 Dir.chdir(target_dir) do
-  puts Dir.pwd
   BigBlueButton::MatterhornProcessor.zip_artifacts("muxed-audio-webcam.flv", "deskshare.flv", "dublincore.xml", "manifest.xml", "#{meeting_id}.zip")
 end
-puts Dir.pwd
 
-cmd = "scp -i #{scp_key} #{target_dir}/#{meeting_id}.zip #{scp_user}@#{scp_server}:#{scp_inbox}"
-puts cmd
-Open3.popen3(cmd) do | stdin, stdout, stderr|
-    p $?.exitstatus 
+command = "scp -i #{scp_key} #{target_dir}/#{meeting_id}.zip #{scp_user}@#{scp_server}:#{scp_inbox}"
+BigBlueButton.logger.info(command)
+Open3.popen3(command) do | stdin, stdout, stderr|
+    BigBlueButton.logger.info("scp result=#{$?.exitstatus}")
 end

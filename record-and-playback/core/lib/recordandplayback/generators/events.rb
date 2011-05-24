@@ -3,6 +3,18 @@ require 'nokogiri'
 
 module BigBlueButton
   module Events
+  
+    def self.get_meeting_metadata(events_xml)
+      doc = Nokogiri::XML(File.open(events_xml))
+      metadata = {}
+      doc.xpath("//metadata").each do |e| 
+        e.keys.each do |k| 
+          metadata[k] = e.attribute(k)
+        end
+      end  
+      metadata
+    end
+    
     # Get the timestamp of the first event.
     def self.first_event_timestamp(events_xml)
       doc = Nokogiri::XML(File.open(events_xml))

@@ -61,7 +61,7 @@ function getUrlParameters() {
 			}
 		});
 
-        var p = 0;
+    var p = 0;
 		$(xml).find("event").each(function(){
 			var event = $(this);
 			if (event.attr('eventname') === 'SharePresentationEvent'){
@@ -70,10 +70,10 @@ function getUrlParameters() {
 					time : (event.attr('timestamp') - start) / 1000
 				};
 				presentations[p] = sharePresentationEvent;
-                p++;
+        p++;
 			}
 		});
-		   
+		    
 		var i = 0;
 		$(xml).find("event").each(function(){
 			var event = $(this);
@@ -85,7 +85,8 @@ function getUrlParameters() {
 				slideTransitions[i] = transitionEvent;
 				i++;
 			}
-		});
+                
+		}); 
 	}
 	
 	function onTimeUpdate(){
@@ -98,19 +99,19 @@ function getUrlParameters() {
 			return;
 		}
 		
-        var lastTransition = slideTransitions[slideTransitions.length-1].time;
-        if (lastTransition < now) {
-				var slideIndex = parseInt(slideTransitions[slideTransitions.length-1].slide) + 1; 
-				var slideToShow = PRESENTATION + presentationName + '/slide-' + slideIndex + '.png';
-				$('#imgSlide').attr('src', slideToShow);      
-            return;                
-        }
+    var lastTransition = slideTransitions[slideTransitions.length-1].time;
+    if (lastTransition < now) {
+      var slideIndex = parseInt(slideTransitions[slideTransitions.length-1].slide) + 1; 
+      var slideToShow = PRESENTATION + presentationName + '/slide-' + slideIndex + '.png';
+      $('#imgSlide').attr('src', slideToShow);      
+      return;                
+    }
         
 		$.each(presentations, function(index, value){
 			var time = value.time;
 			
 			if (time < now && presentations[index].time < now){
-				presentationName = presentations[index].name				
+				presentationName = presentations[index].name		
 			} 
 		});        
         
@@ -121,7 +122,7 @@ function getUrlParameters() {
 			
 			if ((time < now && slideTransitions[index + 1].time > now)) {
 				var slideIndex = parseInt(value.slide) + 1; 
-				var slideToShow = PRESENTATION + presentationName + '/slide-' + slideIndex + '.png';
+				var slideToShow = PRESENTATION + presentationName + '/slide-' + slideIndex + '.png';     
 				$('#imgSlide').attr('src', slideToShow);
 			} 
 		});

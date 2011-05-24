@@ -20,7 +20,7 @@ simple_props = YAML::load(File.open('simple.yml'))
 recording_dir = bbb_props['recording_dir']
 process_dir = "#{recording_dir}/process/simple/#{meeting_id}"
 publish_dir = simple_props['publish_dir']
-playback_host = simple_prop['playback_host']
+playback_host = simple_props['playback_host']
 
 target_dir = "#{recording_dir}/publish/simple/#{meeting_id}"
 if FileTest.directory?(target_dir)
@@ -40,10 +40,35 @@ FileUtils.cp_r("#{process_dir}/presentation", package_dir)
 
 FileUtils.cp_r(package_dir, publish_dir)
 dir_list = Dir.entries(publish_dir) - ['.', '..']
+recordings = []
 dir_list.each do |d|
   if File::directory?("#{publish_dir}/#{d}")
-    puts d
+    rec_time = File.ctime("#{publish_dir}/#{d}") 
+    play_link = "http://#{playback_host}/playback/playback.html?meetingId=#{d}"
+    
+    metadata = BigBlueButton::Events.get_meeting_metadata("#{publish_dir}/#{d}/events.xml")
+    puts metadata
+    recordings << {:rec_time => rec_time, :link => play_link, :title => metadata['title']}
   end
 end
 
-
+b = Builder::XmlMarkup.new(:indent => 2)
+ 
+html = b.html {
+  b.head {
+    b.title "Simple Playback Recordings"
+  }
+  b.body {
+    b.h1 "Simple Playback Recordings"
+      recordings.each do |r|
+        b.p { |y| 
+          y << r[:rec_time].to_s
+          b.a({:href => r[:link]}, r[:title])
+        }
+      end
+   }
+ }
+ 
+index_html = File.new("#{publish_dir}/index.html","w")
+index_html.write(html)
+index_html.close
