@@ -18,7 +18,7 @@ function getUrlParameters() {
 	var MEETINGID = params['meetingId']
     var HOST = window.location.hostname
     var RECORDINGS = "http://" + HOST + "/recordings/" + MEETINGID
-	var PRESENTATION = RECORDINGS + '/presentations/'
+	var PRESENTATION = RECORDINGS + '/presentation/'
 	var LOGO = 'logo.png';
 		
 	$(document).ready(function(){
@@ -32,7 +32,7 @@ function getUrlParameters() {
 	
 	window.addEventListener('load', function(){
 		audio = document.getElementById('audioRecording');
-		audio.setAttribute('src', RECORDINGS + '/recording.ogg');
+		audio.setAttribute('src', RECORDINGS + '/audio/audio.ogg');
 		audio.setAttribute('type','audio/ogg')
 		audio.load();
 		
@@ -48,7 +48,7 @@ function getUrlParameters() {
 		var start;
 		$(xml).find("event").each(function(){
 			var event = $(this);
-			if (event.attr('name') === 'ParticipantJoinEvent'){
+			if (event.attr('eventname') === 'ParticipantJoinEvent'){
 				start = event.attr('timestamp');
 				return false; //Breaks the each() loop
 			}
@@ -56,7 +56,7 @@ function getUrlParameters() {
 		
 		$(xml).find("event").each(function(){
 			var event = $(this);
-			if (event.attr('name') === 'EndAndKickAllEvent'){
+			if (event.attr('eventname') === 'EndAndKickAllEvent'){
 				meetingTime = event.attr('timestamp') - start;
 			}
 		});
@@ -64,7 +64,7 @@ function getUrlParameters() {
         var p = 0;
 		$(xml).find("event").each(function(){
 			var event = $(this);
-			if (event.attr('name') === 'SharePresentationEvent'){
+			if (event.attr('eventname') === 'SharePresentationEvent'){
 				var sharePresentationEvent = {
 					name : event.find('presentationName').text(),                    
 					time : (event.attr('timestamp') - start) / 1000
@@ -73,11 +73,11 @@ function getUrlParameters() {
                 p++;
 			}
 		});
-		
+		   
 		var i = 0;
 		$(xml).find("event").each(function(){
 			var event = $(this);
-			if (event.attr('name') === 'GotoSlideEvent'){
+			if (event.attr('eventname') === 'GotoSlideEvent'){
 				var transitionEvent = {
 					slide : event.find('slide').text(),                    
 					time : (event.attr('timestamp') - start) / 1000
@@ -86,8 +86,6 @@ function getUrlParameters() {
 				i++;
 			}
 		});
-        
-        alert("num slides " + slideTransitions.length);
 	}
 	
 	function onTimeUpdate(){
