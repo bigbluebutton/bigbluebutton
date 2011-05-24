@@ -58,12 +58,7 @@ module BigBlueButton
 
       if (meeting_metadata != nil)
           xml.recording(:meeting_id => meeting_id) {
-            xml.metadata {
-              meeting_metadata.each do |key, val|
-                xml.method_missing(key, val)
-              end
-            }
-                        
+            xml.metadata(meeting_metadata)
             msgs = @redis.events_for(meeting_id)                      
             msgs.each do |msg|
               res = @redis.event_info_for(meeting_id, msg)
