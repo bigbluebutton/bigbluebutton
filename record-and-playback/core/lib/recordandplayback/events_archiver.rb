@@ -43,7 +43,7 @@ module BigBlueButton
   class RedisEventsArchiver
     TIMESTAMP = 'timestamp'
     MODULE = 'module'
-    EVENTNAME = 'eventname'
+    EVENTNAME = 'eventName'
     MEETINGID = 'meetingId'
     
     def initialize(redis)
