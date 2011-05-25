@@ -27,9 +27,6 @@ module BigBlueButton
         stop.size.should == 2
         matched = BigBlueButton::Events.match_start_and_stop_video_events(start, stop)
         matched.size.should == 2
-        matched.each do |me|
-          puts "foo ts=#{me[:start_timestamp]} end_ts=#{me[:stop_timestamp]} stream=#{me[:stream]} match=#{me[:matched]}"
-        end
       end
       
       it "should get the 2 deskshare start events" do
@@ -83,6 +80,12 @@ module BigBlueButton
         BigBlueButton.get_video_duration(video).should == 48.4
       end
 
+      it "should scale the video " do
+        scaled_vid = BigBlueButton.scale_to_640_x_480(1100, 867)
+        scaled_vid[:width].should == 579
+        scaled_vid[:height].should == 480
+      end
+      
       it "should get the video bitrate and framerate" do
         dir = "resources/raw/8774263b-c4a6-4078-b2e6-46b7d4bc91c1"
         video = "#{dir}/video/8774263b-c4a6-4078-b2e6-46b7d4bc91c1/320x240-1-1301433140446.flv"

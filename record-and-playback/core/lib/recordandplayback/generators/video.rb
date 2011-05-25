@@ -217,33 +217,44 @@ module BigBlueButton
   def self.fits_640_by_480?(width, height)
     (width < MAX_VID_WIDTH) and (height < MAX_VID_HEIGHT)
   end  
-   
-  def self.scale_to_640_x_480(width, height)
+  
+  # Determine the width and height of the video that fits
+  # within 640x480 while maintaining aspect ratio.
+  def self.fit_to_640_by_480(width, height)
     anamorphic_factor = calc_anamorphic_factor(width, height)
-    puts "factor=#{anamorphic_factor}, width=#{width}, height=#{height}"
-    frame_size_and_padding = {:frame_size => "", :padding => ""}
-    if (fits_640_by_480?(width, height))
-      # The raw media is smaller than 640x480. Pad the sides of video to fit 640x480.
-      frame_size_and_padding[:padding] = "-vf pad=#{MAX_VID_WIDTH}:#{MAX_VID_HEIGHT}:#{(MAX_VID_WIDTH - width)/2}:#{(MAX_VID_HEIGHT - height)/2}:FFFFFF"
-    elsif (width < MAX_VID_WIDTH) and (height > MAX_VID_HEIGHT) or (portrait?(width, height))
-        # Fit the video vertically and adjust the width then pad it to fit into 640x480 video.
-        c_width = calc_width(anamorphic_factor)
-        padding = MAX_VID_WIDTH - c_width
-        puts "w < mW and h > mH : padding=#{padding}, c_width=#{c_width}"
-        frame_size_and_padding[:frame_size] = "-s #{c_width.to_i}x#{MAX_VID_HEIGHT}"
-        frame_size_and_padding[:padding] = "-vf pad=#{MAX_VID_WIDTH}:#{MAX_VID_HEIGHT}:#{(padding/2).to_i}:0:FFFFFF"
-    elsif (height < MAX_VID_HEIGHT) and (width > MAX_VID_WIDTH) or (landscape?(width, height))
-        # Fit the video horizontally and adjust the height then pad the top and bottom to fit the 640x480 video.
-        c_height = calc_height(anamorphic_factor)
-        padding = MAX_VID_HEIGHT - c_height
-        frame_size_and_padding[:frame_size] = "-s #{MAX_VID_WIDTH}x#{c_height.to_i}"
-        frame_size_and_padding[:padding] = "-vf pad=#{MAX_VID_WIDTH}:#{MAX_VID_HEIGHT}:0:#{(padding/2).to_i}:FFFFFF"
+    if (width < MAX_VID_WIDTH) and (height > MAX_VID_HEIGHT)  
+      # Fit the video vertically and adjust the width then pad it to fit into 640x480 video.
+      width = calc_width(anamorphic_factor)
+      height = MAX_VID_HEIGHT
+    elsif (height < MAX_VID_HEIGHT) and (width > MAX_VID_WIDTH) 
+      # Fit the video horizontally and adjust the height then pad the top and bottom to fit the 640x480 video.
+      height = calc_height(anamorphic_factor)
+      width = MAX_VID_WIDTH
+    else
+      height = calc_height(anamorphic_factor)
+      width = calc_width(anamorphic_factor)    
     end   
-    frame_size_and_padding
+    {:width => width.to_i, :height => height.to_i}    
   end
-
-  def self.fit_to_screen_size(frame_size, pad, flv_in, flv_out)
-    command = "ffmpeg -i #{flv_in} -aspect 4:3 -r 1000 -sameq #{frame_size} #{pad} -vcodec flashsv #{flv_out}" 
+  
+  # Scale the video to 640x480 or smaller
+  def self.scale_to_640_x_480(width, height)
+    if not fits_640_by_480?(width, height)
+      while (width > MAX_VID_WIDTH or height > MAX_VID_HEIGHT)
+        scaled_vid = fit_to_640_by_480(width, height)
+        width = scaled_vid[:width]
+        height = scaled_vid[:height]
+      end   
+    end   
+    {:width => width, :height => height} 
+  end
+  
+  def self.fit_to_screen_size(width, height, flv_in, flv_out)
+    frame_size = "-s #{width}x#{height}"
+    side_padding = ((MAX_VID_WIDTH - width) / 2).to_i
+    top_bottom_padding = ((MAX_VID_HEIGHT - height) / 2).to_i
+    padding = "-vf pad=#{MAX_VID_WIDTH}:#{MAX_VID_HEIGHT}:#{side_padding}:#{top_bottom_padding}:FFFFFF"
+    command = "ffmpeg -i #{flv_in} -aspect 4:3 -r 1000 -sameq #{frame_size} #{padding} -vcodec flashsv #{flv_out}" 
     BigBlueButton.logger.info(command)
     IO.popen(command)
     Process.wait              
@@ -310,8 +321,8 @@ module BigBlueButton
         flvs << "#{temp_dir}/#{meeting_id}/deskshare/scaled-#{comb[:stream]}"
         flv_in = "#{temp_dir}/#{meeting_id}/deskshare/#{comb[:stream]}"
         flv_out = "#{temp_dir}/#{meeting_id}/deskshare/scaled-#{comb[:stream]}"
-        frame_pad = BigBlueButton.scale_to_640_x_480(BigBlueButton.get_video_width(flv_in), BigBlueButton.get_video_height(flv_in))
-        BigBlueButton.fit_to_screen_size(frame_pad[:frame_size], frame_pad[:padding], flv_in, flv_out)            
+        frame_size = BigBlueButton.scale_to_640_x_480(BigBlueButton.get_video_width(flv_in), BigBlueButton.get_video_height(flv_in))
+        BigBlueButton.fit_to_screen_size(frame_size[:width], frame_size[:height], flv_in, flv_out)            
       end
     end
                
