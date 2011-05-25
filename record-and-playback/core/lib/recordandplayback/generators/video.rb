@@ -298,7 +298,7 @@ module BigBlueButton
     start_evts = BigBlueButton::Events.get_start_deskshare_events(events_xml)
     stop_evts = BigBlueButton::Events.get_stop_deskshare_events(events_xml)
         
-    matched_evts = BigBlueButton::Events.match_start_and_stop_deskshare_events(start_evts, stop_evts)        
+    matched_evts = BigBlueButton::Events.match_start_and_stop_video_events(start_evts, stop_evts)        
     paddings = BigBlueButton.generate_deskshare_paddings(matched_evts, first_timestamp, last_timestamp)
         
     flvs = []

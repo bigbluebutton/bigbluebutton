@@ -90,7 +90,7 @@ module BigBlueButton
         BigBlueButton.get_video_framerate(video).should == nil
       end
       
-      it "should generate a video " do
+      it "should generate a video", :skip => true do
         dir = "resources/raw/8774263b-c4a6-4078-b2e6-46b7d4bc91c1"
         video = "#{dir}/video/8774263b-c4a6-4078-b2e6-46b7d4bc91c1/320x240-1-1301433140446.flv"
         temp_dir = "/tmp/matterhorn"
@@ -129,14 +129,9 @@ module BigBlueButton
         BigBlueButton.create_blank_video(first_gap_duration/1000, 1000, blank_canvas, blank1)
         BigBlueButton.create_blank_video(end_gap_duration/1000, 1000, blank_canvas, blank2)
         BigBlueButton.concatenate_videos([blank1, stripped_flv, blank2], concat_vid)
-        
-      # Comment out for now as it is failing. We need to get a complete recording with 
-      # audio, webcam, and deskshare events
-      #  BigBlueButton::AudioProcessor.process(dir, "#{temp_dir}/audio.ogg") 
-      #  BigBlueButton.multiplex_audio_and_video("#{temp_dir}/audio.ogg", concat_vid, "#{temp_dir}/processed-video.flv")
       end
       
-      it "should generate one webcam file from multiple webcam files " do
+      it "should generate one webcam file from multiple webcam files", :skip => true do
         meeting_id = "974a4b8c-5bf7-4382-b4cd-eb26af7dfcc2"
         raw_archive_dir = "resources/raw/#{meeting_id}"
 
@@ -196,7 +191,7 @@ module BigBlueButton
         BigBlueButton.multiplex_audio_and_video("#{target_dir}/audio.ogg", concat_vid, "#{target_dir}/muxed-audio-webcam.flv")        
       end
 
-      it "should generate one deskshare file from multiple deskshare files" do
+      it "should generate one deskshare file from multiple deskshare files", :skip => true do
         meeting_id = "974a4b8c-5bf7-4382-b4cd-eb26af7dfcc2"
         raw_archive_dir = "resources/raw/#{meeting_id}"
 

@@ -28,31 +28,30 @@ module BigBlueButton
     end  
     
     # Determine if the start and stop event matched.
-    def self.video_event_matched?(stop_events, start)      
-      stop_events.each do |stop|
+    def self.find_video_event_matched(start_events, stop)      
+      start_events.each do |start|
         if (start[:stream] == stop[:stream])
-          start[:matched] = true
-          start[:stop_timestamp] = stop[:stop_timestamp]
-          return true
+          return start
         end      
       end
-      return false
+      return nil
     end
     
     # Match the start and stop events.
     def self.match_start_and_stop_video_events(start_events, stop_events)
-      combined_events = []
-      start_events.each do |start|
-        if not video_event_matched?(stop_events, start) 
-          stop_event = {:stop_timestamp => stop[:stop_timestamp], :stream => stop[:stream], :userid => stop[:userid], :matched => false}
-          combined_events << stop_event
+      matched_events = []
+      stop_events.each do |stop|
+        start_evt = find_video_event_matched(start_events, stop)
+        if start_evt
+          start_evt[:stop_timestamp] = stop[:stop_timestamp]
+          matched_events << start_evt
         else
-          stop_events = stop_events - [stop_event]
+          matched_events << stop
         end
       end      
-      return combined_events.concat(start_events)
+      matched_events.sort { |a, b| a[:start_timestamp] <=> b[:start_timestamp] }
     end
-        
+            
     def self.get_start_video_events(events_xml)
       start_events = []
       doc = Nokogiri::XML(File.open(events_xml))
@@ -61,12 +60,11 @@ module BigBlueButton
           match = /(.+),stream=(.+)/.match start_event.xpath('value').text
           shared = match[1].match(/true$/i) != nil
           if (shared)
-            s = {:start_timestamp => start_event['timestamp'].to_i, :stream => match[2], :shared => shared, :userid => start_event.xpath('userId').text}
-            start_events << s
+            start_events << {:start_timestamp => start_event['timestamp'].to_i, :stream => match[2], :shared => shared, :userid => start_event.xpath('userId').text}
           end
         end
       end
-      start_events.sort {|a, b| a[:start_timestamp] <=> b[:start_timestamp]}
+      start_events
     end
 
     def self.get_stop_video_events(events_xml)
@@ -77,12 +75,11 @@ module BigBlueButton
           match = /(.+),stream=(.+)/.match stop_event.xpath('value').text
           not_shared = match[1].match(/false$/i) != nil
           if (not_shared)
-            s = {:stop_timestamp => stop_event['timestamp'].to_i, :userid => stop_event.xpath('userId').text, :stream => match[2], :shared => not_shared}
-            stop_events << s
+            stop_events << {:stop_timestamp => stop_event['timestamp'].to_i, :userid => stop_event.xpath('userId').text, :stream => match[2], :shared => not_shared}
           end
         end
       end
-      stop_events.sort {|a, b| a[:stop_timestamp] <=> b[:stop_timestamp]}
+      stop_events
     end
         
     # Determine if the start and stop event matched.
