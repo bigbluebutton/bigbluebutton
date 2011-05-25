@@ -44,6 +44,7 @@ module BigBlueButton
   end
     
   def self.execute(command)
+    output=""
     Open3.popen3(command) do | stdin, stdout, stderr|
         BigBlueButton.logger.info("Executing: #{command}")
 	output = stdout.readlines
@@ -54,5 +55,6 @@ module BigBlueButton
           raise errors.to_s 
         end
     end
+    output
   end
 end
