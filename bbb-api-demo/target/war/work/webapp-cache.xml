@@ -1,0 +1,43 @@
+<webapp-structure>
+  <registeredFiles>
+    <entry>
+      <string>currentBuild</string>
+      <path-set>
+        <pathsSet class="linked-hash-set">
+          <string>bbb-web/demo6.jsp</string>
+          <string>bbb-web/create.jsp</string>
+          <string>bbb-web/demo_header.jsp</string>
+          <string>bbb-web/error.jsp</string>
+          <string>bbb-web/demo1.jsp</string>
+          <string>bbb-web/demo4_helper.jsp</string>
+          <string>bbb-web/demo3.jsp</string>
+          <string>bbb-web/demo4.jsp</string>
+          <string>bbb-web/demo2.jsp</string>
+          <string>bbb-web/bbb_api.jsp</string>
+          <string>bbb-web/demo5.jsp</string>
+          <string>bbb-web/demo_footer.jsp</string>
+          <string>index.jsp</string>
+          <string>WEB-INF/web.xml</string>
+          <string>api-demo/demo6.jsp</string>
+          <string>api-demo/demo_header.jsp</string>
+          <string>api-demo/bbb_api_conf.jsp</string>
+          <string>api-demo/bbb_api.jsp</string>
+          <string>api-demo/demo5.jsp</string>
+        </pathsSet>
+      </path-set>
+    </entry>
+  </registeredFiles>
+  <dependenciesInfo>
+    <org.apache.maven.plugin.war.util.DependencyInfo>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>3.8.1</version>
+        <type>jar</type>
+        <scope>test</scope>
+        <exclusions/>
+        <optional>false</optional>
+      </dependency>
+    </org.apache.maven.plugin.war.util.DependencyInfo>
+  </dependenciesInfo>
+</webapp-structure>
