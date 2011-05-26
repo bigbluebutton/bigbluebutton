@@ -21,7 +21,6 @@
 package org.bigbluebutton.web.services
 
 import grails.test.*
-import org.bigbluebutton.presentation.service.DynamicConference
 import org.bigbluebutton.api.domain.DynamicConference
 
 class DynamicConferenceServiceTests extends GrailsUnitTestCase {
