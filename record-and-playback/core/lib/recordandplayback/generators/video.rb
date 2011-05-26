@@ -266,35 +266,35 @@ module BigBlueButton
 
     # Process video    
     video_dir = "#{temp_dir}/#{meeting_id}/video/#{meeting_id}"
-    raw_webcams = Dir.glob("#{video_dir}/*.flv")
-        
-    vid_width = BigBlueButton.get_video_width(raw_webcams[0])
-    vid_height = BigBlueButton.get_video_height(raw_webcams[0])
     blank_canvas = "#{temp_dir}/canvas.jpg"
-    BigBlueButton.create_blank_canvas(vid_width.to_i, vid_height.to_i, "white", blank_canvas)
-        
+    BigBlueButton.create_blank_canvas(MAX_VID_WIDTH, MAX_VID_HEIGHT, "white", blank_canvas)
+            
     events_xml = "#{temp_dir}/#{meeting_id}/events.xml"
     first_timestamp = BigBlueButton::Events.first_event_timestamp(events_xml)
-    last_timestamp = BigBlueButton::Events.last_event_timestamp(events_xml)
-        
+    last_timestamp = BigBlueButton::Events.last_event_timestamp(events_xml)        
     start_evt = BigBlueButton::Events.get_start_video_events(events_xml)
     stop_evt = BigBlueButton::Events.get_stop_video_events(events_xml)               
     matched_evts = BigBlueButton::Events.match_start_and_stop_video_events(start_evt, stop_evt)        
+    
     paddings = BigBlueButton.generate_video_paddings(matched_evts, first_timestamp, last_timestamp)
         
-    flvs = []
+    webcams = []
     paddings.concat(matched_evts).sort{|a,b| a[:start_timestamp] <=> b[:start_timestamp]}.each do |comb|
       if (comb[:gap])
-        flvs << "#{temp_dir}/#{comb[:stream]}"
+        webcams << "#{temp_dir}/#{comb[:stream]}"
         BigBlueButton.create_blank_video((comb[:stop_timestamp] - comb[:start_timestamp])/1000, 1000, blank_canvas, "#{temp_dir}/#{comb[:stream]}")
       else
-        flvs << "#{temp_dir}/stripped-#{comb[:stream]}.flv"
-        BigBlueButton.strip_audio_from_video("#{video_dir}/#{comb[:stream]}.flv", "#{temp_dir}/stripped-#{comb[:stream]}.flv")
+        stripped_webcam = "#{temp_dir}/stripped-wc-#{comb[:stream]}.flv"
+        BigBlueButton.strip_audio_from_video("#{video_dir}/#{comb[:stream]}.flv", stripped_webcam)
+        flv_out = "#{temp_dir}/#{meeting_id}/scaled-wc-#{comb[:stream]}"
+        webcams << flv_out
+        frame_size = BigBlueButton.scale_to_640_x_480(BigBlueButton.get_video_width(stripped_webcam), BigBlueButton.get_video_height(stripped_webcam))
+        BigBlueButton.fit_to_screen_size(frame_size[:width], frame_size[:height], stripped_webcam, flv_out)         
       end
     end
                
     concat_vid = "#{target_dir}/webcam.flv"
-    BigBlueButton.concatenate_videos(flvs, concat_vid)        
+    BigBlueButton.concatenate_videos(webcams, concat_vid)        
     BigBlueButton.multiplex_audio_and_video("#{target_dir}/audio.ogg", concat_vid, "#{target_dir}/muxed-audio-webcam.flv")   
   end
   
