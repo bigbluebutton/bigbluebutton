@@ -69,6 +69,7 @@ public class DynamicConference {
 		//remove bbb-commons
 		this.participants = new ArrayList<DynamicConferenceParticipant>();
 		this.metadata= new Hashtable<String, String>();
+		addMetadataValue("title", "Default Title");
 	}
 
 	public static String createMeetingToken() {
