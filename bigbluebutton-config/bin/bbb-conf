@@ -43,6 +43,7 @@
 #set -x
 
 
+FREESWITCH_INIT_D="/etc/init.d/bbb-freeswitch"
 BBB_VERSION="0.71a"
 
 if [ ! -f /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml ]; then
@@ -252,7 +253,7 @@ stop_bigbluebutton () {
 	/etc/init.d/nginx stop
         
 	if [ -a /opt/freeswitch/run/freeswitch.pid ]; then
-		/etc/init.d/freeswitch stop
+		$FREESWITCH_INIT_D stop
 	fi
 	
 	if [ -a /var/run/asterisk/asterisk.pid ]; then
@@ -269,7 +270,7 @@ stop_bigbluebutton () {
 start_bigbluebutton () {
 	if [ "$VOICE_CONFERENCE" == "bbb-voice-freeswitch.xml" ]; then
 		echo "Starting FreeSWITCH"
-		/etc/init.d/freeswitch start
+		$FREESWITCH_INIT_D start
 	else
 		echo "Starting Asterisk"
 		/etc/init.d/asterisk start
@@ -1634,8 +1635,8 @@ if [ $CONFERENCE ]; then
 			/etc/asterisk/bbb_extensions.conf
 
 		echo "Switching to $CONFERENCE ... "
-		if [ -f /etc/init.d/freeswitch ]; then
-			sudo /etc/init.d/freeswitch stop
+		if [ -f $FREESWITCH_INIT_D ]; then
+			sudo $FREESWITCH_INIT_D stop
 			sudo update-rc.d -f freeswitch remove >/dev/null
 		fi
 
@@ -1689,8 +1690,8 @@ if [ $CONFERENCE ]; then
 	        change_var_ip /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties sip.server.host 127.0.0.1
 
 		echo "Switching to $CONFERENCE ... "
-		if [ -f /etc/init.d/freeswitch ]; then
-			sudo /etc/init.d/freeswitch stop
+		if [ -f $FREESWITCH_INIT_D ]; then
+			sudo $FREESWITCH_INIT_D stop
 			sudo update-rc.d -f freeswitch remove >/dev/null
 		fi
 
@@ -1732,7 +1733,7 @@ if [ $CONFERENCE ]; then
 
 		update-rc.d freeswitch defaults >/dev/null
 
-		sudo /etc/init.d/freeswitch start
+		sudo $FREESWITCH_INIT_D start
 		sudo /etc/init.d/red5 restart
 	fi
 fi
