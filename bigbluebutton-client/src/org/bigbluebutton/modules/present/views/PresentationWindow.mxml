@@ -46,6 +46,8 @@
 	<mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleDisplaySlideEvent" />
 	<mate:Listener type="{AddOverlayCanvasEvent.ADD_OVERLAY_CANVAS}" method="addOverlayCanvas" />
 	<mate:Listener type="{AddButtonToPresentationEvent.ADD_BUTTON}" method="addButton" />
+	<mate:Listener type="{PresenterCommands.MOUSEWHEEL_ENABLE}" method="enableMousewheel" />
+	<mate:Listener type="{PresenterCommands.MOUSEWHEEL_DISABLE}" method="disableMousewheel" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -263,15 +265,58 @@
 				dispatchResizeEvent(zoomSlider.value);
 			}
 			
+			private function onSliderPress():void {
+				var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.DISABLE_MOVE);
+				dispatchEvent(presentEvent);
+			}
+			
+			private function onSliderRelease():void {
+				var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.ENABLE_MOVE);
+				dispatchEvent(presentEvent);
+			}
+			
 			private function dispatchResizeEvent(newSize:int):void {
 				var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.RESIZE);
 				presentEvent.newSizeInPercent = newSize;
 				dispatchEvent(presentEvent);
 			}
 			
+			private function dispatchMouseWheelUpdate(x:Number,y:Number):void {
+				var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.MOUSEWHEEL_UPDATE);
+				presentEvent.localX = x;
+				presentEvent.localY = y;
+				dispatchEvent(presentEvent);
+			}
+			
 			private function onResetZoom():void {
 				zoomSlider.value = 100;
 				dispatchResizeEvent(zoomSlider.value);
+			}
+			
+			private function enableMousewheel(evt:PresenterCommands):void {
+				addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
+			}
+			
+			private function disableMousewheel(evt:PresenterCommands):void {
+				removeEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
+			}
+			
+			//====== Handle mouse wheel zooming
+			
+			private function setMouseOut(evt:MouseEvent):void {
+				//disableMove(evt);
+				//enableZoomWheel = false;
+			}
+			
+			private function onMouseWheelZoomEvent(evt:MouseEvent):void {
+		
+				if (evt.delta < 0) {
+					zoomSlider.value -= SlideView.ZOOM_STEP;		
+				} else {
+					zoomSlider.value += SlideView.ZOOM_STEP;
+				}
+				dispatchResizeEvent(zoomSlider.value);
+				dispatchMouseWheelUpdate(evt.localX,evt.localY);
 			}
 			
 			private function handleSlideResizedEvent(e:SlideResizedEvent):void{
@@ -555,9 +600,10 @@
     	 
 	<mx:Fade id="thumbFadeIn" alphaFrom="1" alphaTo="0" duration="100" />
 	<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />
+	
+	<thumb:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" 
+						mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off" />
 
-		<thumb:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" 
-			mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off" />
 		    
     <mx:ApplicationControlBar id="presCtrlBar" width="100%" height="{CONTROL_BAR_HEIGHT}">
     	  <mx:Button id="uploadPres" icon="{uploadIcon}" visible="false" width="20" height="20"
@@ -574,7 +620,8 @@
     	<mx:HSlider id="zoomSlider" visible="false"
     		minimum="100" maximum="400" value="100" dataTipPlacement="top" labels="['100%','400%']" 
     		useHandCursor="true" snapInterval="5" allowTrackClick="true" liveDragging="true" 
-    		dataTipFormatFunction="removeDecimalFromDataTip" change="onSliderZoom()" width="100"/>
+    		dataTipFormatFunction="removeDecimalFromDataTip" change="onSliderZoom()" width="100"
+			 thumbPress="onSliderPress()" thumbRelease="onSliderRelease()"/>
     	<mx:Spacer width="50%" id="spacer3"/>
     	<!--containers:Docker id="toolbarDocker" height="100%" width="250" visible="{isPresenter}" /-->
     	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="false" width="20" height="20" 
