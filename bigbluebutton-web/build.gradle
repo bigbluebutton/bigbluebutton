@@ -44,4 +44,5 @@ dependencies {
     	//redis
 	compile 'redis.clients:jedis:1.5.1'
 	compile 'commons-pool:commons-pool:1.5.5'
+	compile 'commons-lang:commons-lang:2.5'
 }

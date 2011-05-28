@@ -101,24 +101,11 @@ dependencies {
      
     // Java Concurrency In Practice
     providedCompile 'net.jcip:jcip-annotations:1.0@jar'
-    
-    // YAML
-    compile 'org/ho:jyaml:1.3@jar'
-    
-    // GROOVY
-    groovy 'org.codehaus.groovy:groovy-all:1.6.4@jar'
-    
+        
     // Testing
     compile 'org.testng:testng:5.8@jar' 
     compile 'org.easymock:easymock:2.4@jar'
-
-	// Libraries needed to run the scala tools
-    scalaTools 'org.scala-lang:scala-compiler:2.7.7'
-    scalaTools 'org.scala-lang:scala-library:2.7.7'
-
-    // Libraries needed for scala api
-    compile 'org.scala-lang:scala-library:2.7.7'   
-
+  
 	//redis
 	compile 'redis.clients:jedis:1.5.1'
 	compile 'commons-pool:commons-pool:1.5.5'
