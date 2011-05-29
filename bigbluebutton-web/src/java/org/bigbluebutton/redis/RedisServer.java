@@ -8,7 +8,7 @@ public class RedisServer {
 	protected Jedis jedis;
 
 	public RedisServer(String server, int port) {
-		jedis = new Jedis(server, port,0);
+		jedis = new Jedis(server, port, 0);
 		jedis.set("foo", "bar");
 	}
 

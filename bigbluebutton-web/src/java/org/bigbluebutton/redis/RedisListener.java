@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 public class RedisListener extends RedisServer implements Runnable{
 	private static Logger log = LoggerFactory.getLogger(RedisListener.class);
+	
 	private PubsubListener pubsubListener;
 	
 	public RedisListener(String server, int port) {
@@ -26,6 +27,7 @@ public class RedisListener extends RedisServer implements Runnable{
 	public PubsubListener getPubsubListener() {
 		return pubsubListener;
 	}
+	
 	public void setPubsubListener(PubsubListener pubsubListener) {
 		System.out.println("setting pubsub");
 		this.pubsubListener = pubsubListener;
