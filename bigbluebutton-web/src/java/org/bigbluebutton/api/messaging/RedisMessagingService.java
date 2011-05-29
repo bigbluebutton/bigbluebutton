@@ -1,6 +1,7 @@
 package org.bigbluebutton.api.messaging;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -18,7 +19,6 @@ public class RedisMessagingService implements MessagingService {
 
 	private final Executor exec = Executors.newSingleThreadExecutor();
 	private Runnable pubsubListener;
-	private volatile boolean listen = false;
 
 	public RedisMessagingService(String host, int port) {
 		this.host = host;
@@ -57,14 +57,21 @@ public class RedisMessagingService implements MessagingService {
 	@Override
 	public void start() {
 		jedis = new Jedis(host, port, 0);
-		if (jedis != null) {
-//			 listen = true;
-//			 pubsubListener = new Runnable() {
-//		    	public void run() {
+		try {
+			jedis.connect();
+			 pubsubListener = new Runnable() {
+		    	public void run() {
 		    		jedis.psubscribe(new PubSubListener(), "bigbluebutton:conference:*");       			
-//		    	}
-//			 };
-//		    exec.execute(pubsubListener);
+		    	}
+			 };
+		    exec.execute(pubsubListener);
+
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
