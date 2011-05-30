@@ -20,9 +20,10 @@ public class MeetingServiceImp implements MeetingService {
 	public MeetingServiceImp() {
 		meetings = new ConcurrentHashMap<String, Meeting>();
 	}
-	
+
 	@Override
 	public void cleanupOldMeetings() {
+/*
 		log.debug("Cleaning out old conferences");
 		for (Meeting conf : meetings.values()) {
 			boolean remove = false;
@@ -50,6 +51,7 @@ public class MeetingServiceImp implements MeetingService {
 				log.debug("Not removing meeting [" + conf.getMeetingID() + "]");
 			}
 		}
+*/
 	}
 
 	public Collection getAllMeetings() {
@@ -57,12 +59,12 @@ public class MeetingServiceImp implements MeetingService {
 	}
 	
 	public void storeMeeting(Meeting conf) {
-		conf.setStoredTime(new Date());
+/*		conf.setStoredTime(new Date());
 		meetings.put(conf.getMeetingID(), conf);
 		if (conf.isRecord()) {
 //			createMeetingRecord(conf);
 		}
-	}
+*/	}
 
 
 	public Meeting getMeeting(String meetingID) {
@@ -74,43 +76,44 @@ public class MeetingServiceImp implements MeetingService {
 	
 	
 	public boolean isMeetingWithVoiceBridgeExist(String voiceBridge) {
-		Collection<Meeting> confs = meetings.values();
+/*		Collection<Meeting> confs = meetings.values();
 		for (Meeting c : confs) {
 	        if (voiceBridge == c.getVoiceBridge()) {
 	        	return true;
 	        }
 		}
-		return false;
+*/		return false;
 	}
 			
 	public void conferenceStarted(String meetingID){
-		Meeting conf = getMeeting(meetingID);
+/*		Meeting conf = getMeeting(meetingID);
 		if (conf != null) {
 			conf.setStartTime(new Date());
 			conf.setEndTime(null);
 		}
-	}
+*/	}
+	
 	public void conferenceEnded(String meetingID) {
-		Meeting conf = getMeeting(meetingID);
+/*		Meeting conf = getMeeting(meetingID);
 		if (conf != null) {
 			conf.setEndTime(new Date());
 		}
-	}
+*/	}
 	
 	public void participantsUpdatedJoin(String meetingID, String userid, String fullname, String role) {
-		Participant dcp = new Participant(userid, fullname, role);
+/*		Participant dcp = new Participant(userid, fullname, role);
 		Meeting conf = getMeeting(meetingID);
 		if(conf != null){
 			conf.addParticipant(dcp);
 		}
-	}
+*/	}
 	
 	public void participantsUpdatedRemove(String meetingID, String userid) {
-		Meeting conf = getMeeting(meetingID);
+/*		Meeting conf = getMeeting(meetingID);
 		if(conf!=null){
 			conf.removeParticipant(userid);
 		}
-	}
+*/	}
 		
 	public void setMinutesElapsedBeforeMeetingExpiration(int minutes) {
 		minutesElapsedBeforeMeetingExpiration = minutes;

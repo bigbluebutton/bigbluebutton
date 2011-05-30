@@ -20,102 +20,53 @@
  */
 package org.bigbluebutton.api.domain;
 
-import org.apache.commons.lang.RandomStringUtils;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
-import java.util.UUID;
-import org.apache.commons.lang.StringUtils;
+import java.util.Map;
 
 public class Meeting {
-	private Date dateCreated;
-	private Date lastUpdated;
-	private String createdBy;
-	private String updatedBy;
 	private String name;
-	private Integer conferenceNumber;
-	 
-	private Date storedTime;
-	private Date startTime;
-	private Date endTime;
+	private String extMeetingId;
+	private String intMeetingId;
+	
+	private int duration;	 
+	private long createdTime;
+	private long startTime;
+	private long endTime;
 	
 	private boolean forciblyEnded = false;
 	
-	private String meetingID;
-	private String meetingToken;
-	private String voiceBridge;
-	private String webVoiceConf;
-	private String moderatorPassword;
-	private String attendeePassword;
-	private String welcome;
+	private String telVoice;
+	private String webVoice;
+	private String moderatorPass;
+	private String viewerPass;
+	private String welcomeMsg;
 	private String logoutUrl;
-	private int maxParticipants;
+	private int maxUsers;
 	
-	/*record and playback development*/
 	private boolean record;
-	private Hashtable<String,String> metadata;
 	
-	/*removing bbb-commons*/
+	private Hashtable<String,String> metadata;
 	private ArrayList<Participant> participants; 
 
-	public Meeting(String name, String meetingID, String attendeePW, String moderatorPW, int maxParticipants) {
-		this.name = name;
-		this.meetingID = (StringUtils.isEmpty(meetingID) ? "" : meetingID);
-		this.attendeePassword = (attendeePW == null ? createPassword() : attendeePW);
-		this.moderatorPassword = (moderatorPW == null ? createPassword() : moderatorPW);
-		this.maxParticipants = maxParticipants < 0 ? -1 : maxParticipants;
-		this.meetingToken = createMeetingToken();
-		//remove bbb-commons
+	public Meeting(Builder builder) {
+		this.name = builder.name;
+		this.extMeetingId = builder.externalId;
+		this.intMeetingId = builder.internalId;
+		this.viewerPass = builder.viewerPass;
+		this.moderatorPass = builder.moderatorPass;
+		this.maxUsers = builder.maxUsers;
+		
 		this.participants = new ArrayList<Participant>();
-		this.metadata= new Hashtable<String, String>();
+		this.metadata = new Hashtable<String, String>();
 		addMetadataValue("title", "Default Title");
 	}
 
-	public static String createMeetingToken() {
-		return UUID.randomUUID().toString();
-	}
-
-	public static String createPassword() {
-		return RandomStringUtils.randomAlphanumeric(8).toLowerCase();
-	}
-
 	public boolean isRunning() {
-		boolean running = startTime != null && endTime == null;
+//		boolean running = startTime != null && endTime == null;
 		//println "running: ${running}; startTime: ${startTime}; endTime: ${endTime}"; 
-		return running;
-	}
-
-	public Date getDateCreated() {
-		return dateCreated;
-	}
-
-	public void setDateCreated(Date dateCreated) {
-		this.dateCreated = dateCreated;
-	}
-
-	public Date getLastUpdated() {
-		return lastUpdated;
-	}
-
-	public void setLastUpdated(Date lastUpdated) {
-		this.lastUpdated = lastUpdated;
-	}
-
-	public String getCreatedBy() {
-		return createdBy;
-	}
-
-	public void setCreatedBy(String createdBy) {
-		this.createdBy = createdBy;
-	}
-
-	public String getUpdatedBy() {
-		return updatedBy;
-	}
-
-	public void setUpdatedBy(String updatedBy) {
-		this.updatedBy = updatedBy;
+		return false;
 	}
 
 	public String getName() {
@@ -126,38 +77,6 @@ public class Meeting {
 		this.name = name;
 	}
 
-	public Integer getConferenceNumber() {
-		return conferenceNumber;
-	}
-
-	public void setConferenceNumber(Integer conferenceNumber) {
-		this.conferenceNumber = conferenceNumber;
-	}
-
-	public Date getStoredTime() {
-		return storedTime;
-	}
-
-	public void setStoredTime(Date storedTime) {
-		this.storedTime = storedTime;
-	}
-
-	public Date getStartTime() {
-		return startTime;
-	}
-
-	public void setStartTime(Date startTime) {
-		this.startTime = startTime;
-	}
-
-	public Date getEndTime() {
-		return endTime;
-	}
-
-	public void setEndTime(Date endTime) {
-		this.endTime = endTime;
-	}
-
 	public boolean isForciblyEnded() {
 		return forciblyEnded;
 	}
@@ -166,104 +85,68 @@ public class Meeting {
 		this.forciblyEnded = forciblyEnded;
 	}
 
-	public String getMeetingID() {
-		return meetingID;
+	/**
+	 * Get the external meeting id.
+	 * @return external meeting id.
+	 */
+	public String getExtMeetingId() {
+		return extMeetingId;
+	}
+	
+	/**
+	 * Get the internal meeting id;
+	 */
+	public String getIntMeetingId() {
+		return intMeetingId;
 	}
 
-	public void setMeetingID(String meetingID) {
-		this.meetingID = meetingID;
+	public String getWebVoice() {
+		return webVoice;
 	}
 
-	public String getMeetingToken() {
-		return meetingToken;
-	}
-
-	public void setMeetingToken(String meetingToken) {
-		this.meetingToken = meetingToken;
-	}
-
-	public String getVoiceBridge() {
-		return voiceBridge;
-	}
-
-	public void setVoiceBridge(String voiceBridge) {
-		this.voiceBridge = voiceBridge;
-	}
-
-	public String getWebVoiceConf() {
-		return webVoiceConf;
-	}
-
-	public void setWebVoiceConf(String webVoiceConf) {
-		this.webVoiceConf = webVoiceConf;
+	public String getTelVoice() {
+		return telVoice;
 	}
 
 	public String getModeratorPassword() {
-		return moderatorPassword;
+		return moderatorPass;
 	}
 
-	public void setModeratorPassword(String moderatorPassword) {
-		this.moderatorPassword = moderatorPassword;
+	public String getViewerPassword() {
+		return viewerPass;
 	}
 
-	public String getAttendeePassword() {
-		return attendeePassword;
-	}
-
-	public void setAttendeePassword(String attendeePassword) {
-		this.attendeePassword = attendeePassword;
-	}
-
-	public String getWelcome() {
-		return welcome;
-	}
-
-	public void setWelcome(String welcome) {
-		this.welcome = welcome;
+	public String getWelcomeMessage() {
+		return welcomeMsg;
 	}
 
 	public String getLogoutUrl() {
 		return logoutUrl;
 	}
 
-	public void setLogoutUrl(String logoutUrl) {
-		this.logoutUrl = logoutUrl;
-	}
-
-	public int getMaxParticipants() {
-		return maxParticipants;
-	}
-
-	public void setMaxParticipants(int maxParticipants) {
-		this.maxParticipants = maxParticipants;
+	public int getMaxUsers() {
+		return maxUsers;
 	}
 
 	public boolean isRecord() {
 		return record;
 	}
-
-	public void setRecord(boolean record) {
-		this.record = record;
-	}
 	
-	/*
-	 * remove bbb-commons
-	 * */
-	public void addParticipant(Participant participant){
+
+	public void ParticipantJoined(Participant participant){
 		this.participants.add(participant);
 	}
 	
-	public void removeParticipant(String userid){
+	public void ParticipantLeft(String userid){
 		for(Participant p: this.participants){
 			if(p.getUserid().equalsIgnoreCase(userid)){
 				this.participants.remove(p);
 				break;
 			}
-		}
-		
+		}		
 	}
 	
-	public int getNumberOfParticipants(){
+	public int getNumberOfUsers(){
 		return this.participants.size();
 	}
 	
@@ -289,9 +172,95 @@ public class Meeting {
 		return this.metadata;
 	}
 	
-	@Override
-	public String toString() {
-		return "DynamicConference: " + this.meetingToken + "[" + this.meetingID + "|" + this.voiceBridge + "]:" + this.name;
-	}
+	/***
+	 * Meeting Builder
+	 *
+	 */
+	public static class Builder {
+    	private String name;
+    	private String externalId;
+    	private String internalId;
+    	
+    	private int maxUsers;
+    	private boolean record;
+    	private String moderatorPass;
+    	private String viewerPass;
+    	private int duration;
+    	private String webVoice;
+    	private String telVoice;
+    	private String welcomeMsg;
+    	private String logoutUrl;
+    	private Map<String, String> metadata;
+    	
+    	public Builder() {}
+    	
+    	public Builder withName(String name) {
+    		this.name = name;
+    		return this;
+    	}
+    	
+    	public Builder withExternalId(String id) {
+    		externalId = id;
+    		return this;
+    	}
+    	
+    	public Builder withInternalId(String id) {
+    		internalId = id;
+    		return this;
+    	}
+    	
+    	public Builder withDuration(int minutes) {
+    		duration = minutes;
+    		return this;
+    	}
+    	
+    	public Builder withMaxUsers(int n) {
+    		maxUsers = n;
+    		return this;
+    	}
+    	
+    	public Builder withRecording(boolean record) {
+    		this.record = record;
+    		return this;
+    	}
 
+    	public Builder withWebVoice(String w) {
+    		this.webVoice = w;
+    		return this;
+    	}
+    	
+    	public Builder withTelVoice(String t) {
+    		this.telVoice = t;
+    		return this;
+    	}
+    	
+    	public Builder withModeratorPass(String p) {
+    		this.moderatorPass = p;
+    		return this;
+    	}
+    	
+    	public Builder withViewerPass(String p) {  		
+	    	this.viewerPass = p;
+	    	return this;
+	    }
+    	
+    	public Builder withWelcomeMessage(String w) {
+    		welcomeMsg = w;
+    		return this;
+    	}
+    	
+    	public Builder withLogoutUrl(String l) {
+    		logoutUrl = l;
+    		return this;
+    	}
+    	
+    	public Builder withMetadata(Map<String, String> m) {
+    		metadata = m;
+    		return this;
+    	}
+    
+    	public Meeting build() {
+    		return new Meeting(this);
+    	}
+    }
 }

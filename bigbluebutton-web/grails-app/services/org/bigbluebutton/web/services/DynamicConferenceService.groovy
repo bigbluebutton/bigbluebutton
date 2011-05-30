@@ -25,6 +25,11 @@ import java.util.*;
 import java.util.concurrent.*;
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.MeetingService;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.StringUtils;
 
 public class DynamicConferenceService {	
 	static transactional = false
@@ -33,6 +38,7 @@ public class DynamicConferenceService {
 	def apiVersion;
 	def securitySalt
 	int minutesElapsedBeforeMeetingExpiration = 60
+	int defaultMaxUsers = 20
 	def defaultWelcomeMessage
 	def defaultDialAccessNumber
 	def testVoiceBridge
@@ -40,7 +46,8 @@ public class DynamicConferenceService {
 	def recordingDir
 	def recordingFile
 	def recordStatusDir
-
+	def defaultLogoutUrl
+	def defaultServerUrl
 		
 	public Collection<Meeting> getAllMeetings() {
 		return confsByMtgID.isEmpty() ? Collections.emptySet() : Collections.unmodifiableCollection(confsByMtgID.values());
@@ -54,7 +61,6 @@ public class DynamicConferenceService {
 			createConferenceRecord(conf);
 		}
 	}
-
 
 	public Meeting getMeeting(String meetingID) {
 		if (meetingID == null) {
@@ -118,6 +124,96 @@ public class DynamicConferenceService {
 		}
 	}	
 
+	public boolean isValidMeetingId(String name) {
+		return name ==~ /[0-9a-zA-Z_-]+/
+	}
+	
+	public String getInternalMeetingId(extMeetingId) {
+		return DigestUtils.shaHex(extMeetingId);
+	}
+
+	public boolean hasChecksumAndQueryString(String checksum, String queryString) {
+		return (! StringUtils.isEmpty(checksum) && StringUtils.isEmpty(queryString));
+	}
+	
+	public String processPassword(String pass) {
+		return StringUtils.isEmpty(pass) ? RandomStringUtils.randomAlphanumeric(8) : pass;
+	}
+	
+	public String processTelVoice(String telNum) {
+		return StringUtils.isEmpty(telNum) ? "" : telNum;
+	}
+	
+	public String processDialNumber(String dial) {
+		return StringUtils.isEmpty(params.dialNumber) ? defaultDialAccessNumber : params.dialNumber;	
+	}
+	
+	public String processLogoutUrl(String logoutUrl) {
+		if (StringUtils.isEmpty(logoutUrl)) {
+	        if (StringUtils.isEmpty(defaultLogoutUrl)) {           
+        		return defaultServerUrl;
+        	} else {
+        		return defaultLogoutUrl;
+        	}	
+		}
+		
+		return logoutUrl;
+	}
+	
+	public boolean processRecordMeeting(String record) {
+		boolean rec = false			
+		if(! StringUtils.isEmpty(record)){
+			try {
+				rec = Boolean.parseBoolean(record)
+			} catch(Exception ex){ 
+				log.error("Failed to parse record parameter.")
+				rec = false;
+			}
+		}
+		
+		return rec;
+	}
+		
+	public int processMaxUser(String maxUsers) {
+		int mUsers = -1;
+		
+		try {
+			mUsers = Integer.parseInt(maxUsers);
+		} catch(Exception ex) { 
+			log.error("Failed to parse maximum number of participants.");
+			mUsers = defaultMaxUsers;
+		}		
+		
+		return mUsers;
+	}	
+	
+	public boolean isTestMeeting(String telVoice) {	
+		return ((! StringUtils.isEmpty(telVoice)) && 
+				(! StringUtils.isEmpty(testVoiceBridge)) && 
+				(telVoice == testVoiceBridge));	
+	}
+		
+	public String getIntMeetingIdForTestMeeting(String telVoice) {		
+		if ((testVoiceBridge != null) && (telVoice == testVoiceBridge)) {
+			if (StringUtils.isEmpty(testConferenceMock)) 
+				return testConferenceMock
+		} 
+		
+		return "";	
+	}
+	
+	public Map<String, String> processMeetingInfo(Map<String, String> params) {
+		Map<String, String> meetingInfo = new HashMap<String, String>();		
+		params.keySet().each { metadata ->
+			if (metadata.contains("meta")) {
+				String[] meta = metadata.split("_")
+				if (meta.length == 2) {
+					meetingInfo.put(meta[1], params.get(metadata))
+				}				
+			}
+		}
+	}
+		
 	public boolean isChecksumSame(String apiCall, String checksum, String queryString) {
 		log.debug "checksum: " + checksum + "; query string: " + queryString
 	
@@ -141,6 +237,35 @@ public class DynamicConferenceService {
 		return true; 
 	}
 	
+	/**
+	 * Process the welcome message parameter.
+	 **/
+	public String processWelcomeMessage(String message, String dialNum, String telVoice, String meetingName) {
+		String welcomeMessage = message
+		if (StringUtils.isEmpty(message)) {
+			welcomeMessage = dynamicConferenceService.defaultWelcomeMessage
+		} else {
+			def DIAL_NUM = /%%DIALNUM%%/
+			def CONF_NUM = /%%CONFNUM%%/
+			def CONF_NAME = /%%CONFNAME%%/	
+			def keywordList = [DIAL_NUM, CONF_NUM, CONF_NAME];
+			
+			keywordList.each { keyword ->
+				switch(keyword){
+					case DIAL_NUM:
+						welcomeMessage = welcomeMessage.replaceAll(DIAL_NUM, dialNum)						
+						break
+					case CONF_NUM:
+						welcomeMessage = welcomeMessage.replaceAll(CONF_NUM, telVoice)
+						break
+					case CONF_NAME:
+						welcomeMessage = welcomeMessage.replaceAll(CONF_NAME, meetingName)
+						break
+				}			  
+			}
+		}	
+	}
+			
 	public void setMeetingService(MeetingService s) {
 		meetingService = s;
 	}

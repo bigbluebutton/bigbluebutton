@@ -48,14 +48,8 @@ class ApiController {
 	private static final String ROLE_ATTENDEE = "VIEWER";
 
 	private static final String SECURITY_SALT = '639259d4-9dd8-4b25-bf01-95f9567eaf4b'
-
-	def DIAL_NUM = /%%DIALNUM%%/
-	def CONF_NUM = /%%CONFNUM%%/
-	def CONF_NAME = /%%CONFNAME%%/
-	
-	def keywordList = [DIAL_NUM, CONF_NUM, CONF_NAME];
 		
-	DynamicConferenceService dynConfSvc;
+	DynamicConferenceService dynamicConferenceService;
 	PresentationService presentationService
 
 	/* general methods */
@@ -73,71 +67,47 @@ class ApiController {
 			}
 		}
 	}
-
-	private boolean hasChecksumAndQueryString(String checksum, String queryString) {
-		return (! StringUtils.isEmpty(checksum) && StringUtils.isEmpty(queryString));
-	}
-	
+			
 	/* interface (API) methods */
 	def create = {
 		log.debug CONTROLLER_NAME + "#create"
 	
-		if (! hasChecksumAndQueryString(params.checksum, request.getQueryString())) {
+		if (! dynamicConferenceService.hasChecksumAndQueryString(params.checksum, request.getQueryString())) {
 			invalid("missingParamChecksum", "You must pass a checksum and query string.");
 			return			
 		}
 		
-		if (!dynConfSvc.isChecksumSame("create", params.checksum, request.getQueryString())) {
+		if (! dynamicConferenceService.isChecksumSame("create", params.checksum, request.getQueryString())) {
 			invalidChecksum(); return;
 		}
 
-		String name = params.name
-		if (StringUtils.isEmpty(name)) {
+		String meetingName = params.name
+		if (StringUtils.isEmpty(meetingName) ) {
 			invalid("missingParamName", "You must specify a name for the meeting.");
 			return
 		}
 		
-		String mtgID = params.meetingID
-		if (StringUtils.isEmpty(mtgID)) {
+		String externalMeetingId = params.meetingID
+		if (StringUtils.isEmpty(externalMeetingId)) {
 			invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
 			return
 		}
 		
-		log.debug("passed parameter validation - creating conference");
-		String attPW = params.attendeePW
-		String modPW = params.moderatorPW
-		String voiceBr = params.voiceBridge
-		String welcomeMessage = params.welcome
-		String dialNumber = params.dialNumber
-		String logoutUrl = params.logoutURL
-		boolean record = false
-		
-		if(!StringUtils.isEmpty(params.record)){
-			try {
-				record = Boolean.parseBoolean(params.record)
-			} catch(Exception ex){ 
-				log.error("Failed to parse record parameter.")
-				record = false;
-			}
-		}
-
-		Integer maxParts = -1;
-		
-		try {
-			maxParts = Integer.parseInt(params.maxParticipants);
-		} catch(Exception ex) { 
-			log.error("Failed to parse maximum number of participants.");
-			maxParts = 30;
-		}
-		
-		String mmRoom = params.meetmeRoom
-		String mmServer = params.meetmeServer
-
-		// check for existing:
-		Meeting existing = dynamicConferenceService.getConferenceByMeetingID(mtgID);
+		String internalMeetingId = dynamicConferenceService.getInternalMeetingId(externalMeetingId);
+		String viewerPass = dynamicConferenceService.processPassword(params.attendeePW);
+		String modPass = dynamicConferenceService.processPassword(params.moderatorPW); 
+		String telVoice = dynamicConferenceService.processTelVoice(params.voiceBridge);
+		String welcomeMessage = dynamicConferenceService.processWelcomeMessage(params.welcome);
+		String dialNumber = dynamicConferenceService.processDialNumber(params.dialNumber);
+		String logoutUrl = dynamicConferenceService.processLogoutUrl(params.logoutURL); 
+		boolean record = dynamicConferenceService.processRecordMeeting(params.record);
+		int maxUsers = dynamicConferenceService.processMaxUser(params.maxParticipants);
+		Map<String, String> meetingInfo = dynamicConferenceService.processMeetingInfo(params);
+				
+		Meeting existing = dynamicConferenceService.getMeeting(intMeetingId);
 		if (existing != null) {
 			log.debug "Existing conference found"
-			if (existing.getAttendeePassword().equals(attPW) && existing.getModeratorPassword().equals(modPW)) {
+			if (existing.getAttendeePassword().equals(viewerPass) && existing.getModeratorPassword().equals(modPass)) {
 				// trying to create a conference a second time
 				// return success, but give extra info
 				uploadDocuments(existing);
@@ -148,73 +118,31 @@ class ApiController {
 			}
 			return;
 		}
-		
-		if (StringUtils.isEmpty(attPW)) {
-			attPW = RandomStringUtils.randomAlphanumeric(8);
+						
+		if (dynamicConferenceService.isTestMeeting(telVoice)) {
+			internalMeetingId = dynamicConferenceService.getIntMeetingIdForTestMeeting(telVoice)
 		}
 		
-		if (StringUtils.isEmpty(modPW)) {
-			modPW = RandomStringUtils.randomAlphanumeric(8);
-		}
-		
-		Meeting conf = new Meeting(name, mtgID, attPW, modPW, maxParts)
-		conf.setVoiceBridge(voiceBr == null || voiceBr == "" ? mtgID : voiceBr)
-		conf.record = record
-		
-		log.debug("Adding metadata values")
-		params.keySet().each{ metadata ->
-			if (metadata.contains("meta")) {
-				String[] meta = metadata.split("_")
-				if (meta.length == 2) {
-					conf.addMetadataValue(meta[1], params.get(metadata))
-					log.debug(meta[1] + ":" + params.get(metadata))
-				}				
-			}
-		}
-		
-                
-		if ((dynamicConferenceService.testVoiceBridge != null) && (conf.voiceBridge == dynamicConferenceService.testVoiceBridge)) {
-			if (dynamicConferenceService.testConferenceMock != null) 
-				conf.meetingToken = dynamicConferenceService.testConferenceMock
-			else
-				log.warn("Cannot set test conference because it is not set in bigbluebutton.properties")	
-		} 
-		
-		if (StringUtils.isEmpty(logoutUrl)) {
-			conf.logoutUrl = logoutUrl
-		}
-		
-		if (StringUtils.isEmpty(welcomeMessage)) {
-			welcomeMessage = dynamicConferenceService.defaultWelcomeMessage
-		}
-
-		if (StringUtils.isEmpty(dialNumber)) {
-			dialNumber = dynamicConferenceService.defaultDialAccessNumber
-		}
-
-		if (! StringUtils.isEmpty(welcomeMessage)) {
-			keywordList.each { keyword ->
-				switch(keyword){
-					case DIAL_NUM:
-						welcomeMessage = welcomeMessage.replaceAll(DIAL_NUM, dialNumber)						
-						break
-					case CONF_NUM:
-						welcomeMessage = welcomeMessage.replaceAll(CONF_NUM, conf.voiceBridge)
-						break
-					case CONF_NAME:
-						welcomeMessage = welcomeMessage.replaceAll(CONF_NAME, conf.name)
-						break
-				}			  
-			}
-		}
-				
-		conf.welcome = welcomeMessage
-								
-		// success!
-		uploadDocuments(conf);
-		dynamicConferenceService.storeConference(conf);
-		respondWithConference(conf, null, null)
+		Meeting meeting = new Meeting.Builder()
+							.withName(meetingName)
+							.withExternalId(externalMeetingId)
+							.withInternalId(internalMeetingId)
+							.withMaxUsers(maxUsers)
+							.withModeratorPassword(modPass)
+							.withViewerPassword(viewerPass)
+							.withRecording(record)
+							.withLogoutUrl(logoutUrl)
+							.withTelVoice(telVoice)
+							.withDialNumber(dialNumber)
+							.withMetadata(meetingInfo)
+							.withWelcomeMessage(welcomeMessage)
+							.build()
+											
+		uploadDocuments(meeting);
+		dynamicConferenceService.storeConference(meeting);
+		respondWithConference(meeting, null, null)
 	}
+
 
 	def uploadDocuments(conf) { 
 		log.debug("ApiController#uploadDocuments(${conf.meetingID})");
