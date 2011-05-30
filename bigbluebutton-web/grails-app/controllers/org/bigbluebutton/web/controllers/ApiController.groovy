@@ -72,11 +72,12 @@ class ApiController {
 	def create = {
 		log.debug CONTROLLER_NAME + "#create"
 	
-		if (! dynamicConferenceService.hasChecksumAndQueryString(params.checksum, request.getQueryString())) {
+		if (StringUtils.isEmpty(params.checksum)) {
 			invalid("missingParamChecksum", "You must pass a checksum and query string.");
 			return			
 		}
 		
+		log.debug request.getQueryString()
 		if (! dynamicConferenceService.isChecksumSame("create", params.checksum, request.getQueryString())) {
 			invalidChecksum(); return;
 		}
@@ -97,14 +98,14 @@ class ApiController {
 		String viewerPass = dynamicConferenceService.processPassword(params.attendeePW);
 		String modPass = dynamicConferenceService.processPassword(params.moderatorPW); 
 		String telVoice = dynamicConferenceService.processTelVoice(params.voiceBridge);
-		String welcomeMessage = dynamicConferenceService.processWelcomeMessage(params.welcome);
 		String dialNumber = dynamicConferenceService.processDialNumber(params.dialNumber);
 		String logoutUrl = dynamicConferenceService.processLogoutUrl(params.logoutURL); 
 		boolean record = dynamicConferenceService.processRecordMeeting(params.record);
 		int maxUsers = dynamicConferenceService.processMaxUser(params.maxParticipants);
-		Map<String, String> meetingInfo = dynamicConferenceService.processMeetingInfo(params);
+		//Map<String, String> meetingInfo = dynamicConferenceService.processMeetingInfo(params);
+		String welcomeMessage = dynamicConferenceService.processWelcomeMessage(params.welcome, dialNumber, telVoice, meetingName);
 				
-		Meeting existing = dynamicConferenceService.getMeeting(intMeetingId);
+		Meeting existing = dynamicConferenceService.getMeeting(internalMeetingId);
 		if (existing != null) {
 			log.debug "Existing conference found"
 			if (existing.getAttendeePassword().equals(viewerPass) && existing.getModeratorPassword().equals(modPass)) {
@@ -123,13 +124,24 @@ class ApiController {
 			internalMeetingId = dynamicConferenceService.getIntMeetingIdForTestMeeting(telVoice)
 		}
 		
+		Map<String, String> meetingInfo = new HashMap<String, String>();
+		params.keySet().each{ metadata ->
+			if (metadata.contains("meta")){
+				String[] meta = metadata.split("_")
+				if(meta.length == 2){
+					meetingInfo.put(meta[1], params.get(metadata))
+				}
+
+			}
+		}
+		
 		Meeting meeting = new Meeting.Builder()
 							.withName(meetingName)
 							.withExternalId(externalMeetingId)
 							.withInternalId(internalMeetingId)
 							.withMaxUsers(maxUsers)
-							.withModeratorPassword(modPass)
-							.withViewerPassword(viewerPass)
+							.withModeratorPass(modPass)
+							.withViewerPass(viewerPass)
 							.withRecording(record)
 							.withLogoutUrl(logoutUrl)
 							.withTelVoice(telVoice)
@@ -139,13 +151,13 @@ class ApiController {
 							.build()
 											
 		uploadDocuments(meeting);
-		dynamicConferenceService.storeConference(meeting);
+		dynamicConferenceService.createConference(meeting);
 		respondWithConference(meeting, null, null)
 	}
 
 
 	def uploadDocuments(conf) { 
-		log.debug("ApiController#uploadDocuments(${conf.meetingID})");
+		log.debug("ApiController#uploadDocuments(${conf.getInternalId()})");
 
 		String requestBody = request.inputStream == null ? null : request.inputStream.text;
 		requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
@@ -623,9 +635,9 @@ class ApiController {
 				render(contentType:"text/xml") {
 					response() {
 						returncode(RESP_CODE_SUCCESS)
-						meetingID("${conf.meetingID}")
-						attendeePW("${conf.attendeePassword}")
-						moderatorPW("${conf.moderatorPassword}")
+						meetingID("${conf.getExternalId()}")
+						attendeePW("${conf.getViewerPassword()}")
+						moderatorPW("${conf.getModeratorPassword()}")
 						hasBeenForciblyEnded(conf.isForciblyEnded() ? "true" : "false")
 						messageKey(msgKey == null ? "" : msgKey)
 						message(msg == null ? "" : msg)

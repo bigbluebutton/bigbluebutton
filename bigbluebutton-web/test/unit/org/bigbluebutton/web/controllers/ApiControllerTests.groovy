@@ -3,6 +3,7 @@ package org.bigbluebutton.web.controllers
 import grails.test.*
 import org.bigbluebutton.web.services.DynamicConferenceService;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.bigbluebutton.api.*;
 
 class ApiControllerTests extends ControllerUnitTestCase {
     protected void setUp() {
@@ -31,6 +32,7 @@ class ApiControllerTests extends ControllerUnitTestCase {
 		
 		String queryString = "meetingID=${mId}&name=${mName}&moderatorPW=${modPass}&attendeePW=${viewPass}"
 		String checksum = DigestUtils.shaHex("create" + queryString + securitySalt)
+		queryString += "&checksum=${checksum}"
 		
 		mockParams.meetingID = mId
 		mockParams.checksum = checksum
@@ -40,7 +42,9 @@ class ApiControllerTests extends ControllerUnitTestCase {
 		mockRequest.queryString = queryString
 		
 		ApiController controller = new ApiController()
+		mockLogging(DynamicConferenceService)
 		def service = new DynamicConferenceService()
+		service.setMeetingService(new MeetingServiceImp()) 
 		service.apiVersion = "0.7"
 		service.securitySalt = 'ab56fda9fc1c2bde2d65ff76134b47ad'
 		

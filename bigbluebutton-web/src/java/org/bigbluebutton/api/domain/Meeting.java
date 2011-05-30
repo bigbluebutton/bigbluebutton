@@ -89,14 +89,14 @@ public class Meeting {
 	 * Get the external meeting id.
 	 * @return external meeting id.
 	 */
-	public String getExtMeetingId() {
+	public String getExternalId() {
 		return extMeetingId;
 	}
 	
 	/**
 	 * Get the internal meeting id;
 	 */
-	public String getIntMeetingId() {
+	public String getInternalId() {
 		return intMeetingId;
 	}
 
@@ -191,6 +191,7 @@ public class Meeting {
     	private String welcomeMsg;
     	private String logoutUrl;
     	private Map<String, String> metadata;
+    	private String dialNumber;
     	
     	public Builder() {}
     	
@@ -231,6 +232,11 @@ public class Meeting {
     	
     	public Builder withTelVoice(String t) {
     		this.telVoice = t;
+    		return this;
+    	}
+    	
+    	public Builder withDialNumber(String d) {
+    		this.dialNumber = d;
     		return this;
     	}
     	

@@ -32,7 +32,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 
 public class DynamicConferenceService {	
-	static transactional = false
+	boolean transactional = false
 	def serviceEnabled = false
 	
 	def apiVersion;
@@ -48,25 +48,24 @@ public class DynamicConferenceService {
 	def recordStatusDir
 	def defaultLogoutUrl
 	def defaultServerUrl
+	
+	private MeetingService meetingService
 		
 	public Collection<Meeting> getAllMeetings() {
 		return confsByMtgID.isEmpty() ? Collections.emptySet() : Collections.unmodifiableCollection(confsByMtgID.values());
 	}
 	
 	public void createConference(Meeting conf) {
-		conf.setStoredTime(new Date());
+/*		conf.setStoredTime(new Date());
 		confsByMtgID.put(conf.getMeetingID(), conf);
 		tokenMap.put(conf.getMeetingToken(), conf.getMeetingID());
 		if (conf.isRecord()) {
 			createConferenceRecord(conf);
 		}
-	}
+*/	}
 
 	public Meeting getMeeting(String meetingID) {
-		if (meetingID == null) {
-			return null;
-		}
-		return confsByMtgID.get(meetingID);
+		return meetingService.getMeeting(meetingID);
 	}
 	
 	private Meeting getConferenceByToken(String token) {
@@ -113,7 +112,7 @@ public class DynamicConferenceService {
 	
 	private void startIngestAndProcessing(meetingId) {	
 		String done = recordStatusDir + "/" + meetingId + ".done"
-		log.debug( "Writing done file " + done)
+	
 		File doneFile = new File(done)
 		if (!doneFile.exists()) {
 			doneFile.createNewFile()
@@ -145,7 +144,7 @@ public class DynamicConferenceService {
 	}
 	
 	public String processDialNumber(String dial) {
-		return StringUtils.isEmpty(params.dialNumber) ? defaultDialAccessNumber : params.dialNumber;	
+		return StringUtils.isEmpty(dial) ? defaultDialAccessNumber : dial;	
 	}
 	
 	public String processLogoutUrl(String logoutUrl) {
@@ -202,13 +201,14 @@ public class DynamicConferenceService {
 		return "";	
 	}
 	
-	public Map<String, String> processMeetingInfo(Map<String, String> params) {
-		Map<String, String> meetingInfo = new HashMap<String, String>();		
-		params.keySet().each { metadata ->
-			if (metadata.contains("meta")) {
-				String[] meta = metadata.split("_")
-				if (meta.length == 2) {
-					meetingInfo.put(meta[1], params.get(metadata))
+	public Map<String, String> processMeetingInfo(HashMap<String, String> params) {
+		Map<String, String> meetingInfo = new HashMap<String, String>();	
+			
+		params.keySet().each { p ->
+			if (p.contains("meta")) {
+				String[] m = metadata.split("_")
+				if (m.length == 2) {
+					meetingInfo.put(m[1], params.get(p))
 				}				
 			}
 		}
@@ -227,7 +227,7 @@ public class DynamicConferenceService {
 		queryString = queryString.replace("&checksum=" + checksum, "")
 		queryString = queryString.replace("checksum=" + checksum + "&", "")
 		log.debug "query string after checksum removed: " + queryString
-		String cs = DigestUtils.shaHex(apiCall + queryString + securitySalt());
+		String cs = DigestUtils.shaHex(apiCall + queryString + securitySalt);
 		log.debug "our checksum: " + cs
 		if (cs == null || cs.equals(checksum) == false) {
 			log.info("checksumError: request did not pass the checksum security check")
@@ -243,7 +243,7 @@ public class DynamicConferenceService {
 	public String processWelcomeMessage(String message, String dialNum, String telVoice, String meetingName) {
 		String welcomeMessage = message
 		if (StringUtils.isEmpty(message)) {
-			welcomeMessage = dynamicConferenceService.defaultWelcomeMessage
+			welcomeMessage = defaultWelcomeMessage
 		} else {
 			def DIAL_NUM = /%%DIALNUM%%/
 			def CONF_NUM = /%%CONFNUM%%/
