@@ -20,17 +20,13 @@
  */
 package org.bigbluebutton.web.services
 
-import org.bigbluebutton.conference.Room
 import java.util.concurrent.ConcurrentHashMap
-import org.apache.commons.collections.bidimap.DualHashBidiMap
 import java.util.*;
 import java.util.concurrent.*;
-import org.bigbluebutton.api.domain.DynamicConference;
-import org.bigbluebutton.api.domain.DynamicConferenceParticipant;
-import org.bigbluebutton.api.IRedisDispatcher
-import org.bigbluebutton.api.RedisDispatcherImp;
+import org.bigbluebutton.api.domain.Meeting;
+import org.bigbluebutton.api.MeetingService;
 
-public class DynamicConferenceService implements IDynamicConferenceService {	
+public class DynamicConferenceService {	
 	static transactional = false
 	def serviceEnabled = false
 	
@@ -43,68 +39,14 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 	def testConferenceMock
 	def recordingDir
 	def recordingFile
-
-	/** For record and playback **/
 	def recordStatusDir
-	def redisHost
-	def redisPort
-	
-	IRedisDispatcher redisDispatcher
-	
-	// TODO: need to remove use of DynamicConference and make it use "Room.groovy" instead
-	//				so that both apps and web are using common domain objects and we don't map between them
-	private final Map<String, Room> roomsByToken
-	private final Map<String, DynamicConference> confsByMtgID
-	private final Map<String, String> tokenMap
-	
-	public DynamicConferenceService() {
-		confsByMtgID = new ConcurrentHashMap<String, DynamicConference>()
-		tokenMap = new DualHashBidiMap<String, String>()
-		roomsByToken = new ConcurrentHashMap<String, Room>()
-		redisDispatcher = new RedisDispatcherImp();
+
 		
-		// wait one minute to run, and run every five minutes:
-		TimerTask task = new DynamicConferenceServiceCleanupTimerTask(this);
-		new Timer("api-cleanup", true).scheduleAtFixedRate(task, 60000, 300000);
-		// PS - <rant> I hate Groovy - no inline (anonymous or inner) class support (until 1.7)?  Come on!  Closures aren't the be-all-end-all </rant>
-	}
-	
-	void cleanupOldConferences() {
-		println("Cleaning out old conferences");
-		for (DynamicConference conf : confsByMtgID.values()) {
-			boolean remove = false;
-			if (conf.isRunning()) {
-				println "Meeting [" + conf.getMeetingID() + "] is running - not cleaning it out"
-				// won't remove one that's running
-				continue;
-			}
-			
-			long millisSinceStored = conf.getStoredTime() == null ? -1 : (System.currentTimeMillis() - conf.getStoredTime().getTime());
-			long millisSinceEnd = conf.getEndTime() == null ? -1 : (System.currentTimeMillis() - conf.getEndTime().getTime());
-			if (conf.getStartTime() != null && millisSinceEnd > (minutesElapsedBeforeMeetingExpiration * 60000)) {
-				println("Removing meeting because it started, ended, and is past the max expiration");
-				remove = true;
-			} else if (conf.getEndTime() == null && millisSinceStored > (minutesElapsedBeforeMeetingExpiration * 60000)) {
-				println("Removing meeting because it was stored, but never started [stored " + millisSinceStored + " millis ago]");
-				remove = true;
-			}
-			
-			if (remove) {
-				println "Removing meeting [" + conf.getMeetingToken() + "]"
-				confsByMtgID.remove(conf.getMeetingID());
-				roomsByToken.remove(conf.getMeetingToken());
-				tokenMap.remove(conf.getMeetingToken());
-			} else {
-				println "Not removing meeting [" + conf.getMeetingID() + "]"
-			}
-		}
-	}
-	
-	public Collection<DynamicConference> getAllConferences() {
+	public Collection<Meeting> getAllMeetings() {
 		return confsByMtgID.isEmpty() ? Collections.emptySet() : Collections.unmodifiableCollection(confsByMtgID.values());
 	}
 	
-	public void storeConference(DynamicConference conf) {
+	public void createConference(Meeting conf) {
 		conf.setStoredTime(new Date());
 		confsByMtgID.put(conf.getMeetingID(), conf);
 		tokenMap.put(conf.getMeetingToken(), conf.getMeetingID());
@@ -113,42 +55,15 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 		}
 	}
 
-	public void createConferenceRecord(DynamicConference conf) {
-		String COLON = ":";
-		println("Putting meeting info to redis for " + conf.getMeetingID() + " " + redisHost + ":" + redisPort);
-		println("Conf name " + conf.getName() + " token " + conf.getMeetingToken());
-		if (redisDispatcher == null) {
-			println "Redis Dispatcher is NULL!!"
-		} else {
-			println "Redis Dispatcher is NOT NULL!!"
-			if (redisHost == null) println "redisHost is null"
-			else println redisHost
-			if (redisPort == null) println "redisPort is null"
-			else println redisPort
-			redisDispatcher.createConferenceRecord(conf, redisHost, Integer.parseInt(redisPort))
-		}
-	}
-	
-	public Room getRoomByMeetingID(String meetingID) {
-		if (meetingID == null) {
-			return null;
-		}
-		String token = tokenMap.getKey(meetingID);
-		if (token == null) {
-			System.out.println("Cannot find token for meetingId " + meetingID)
-			return null;
-		}
-		return roomsByToken.get(token);
-	}
-	
-	public DynamicConference getConferenceByMeetingID(String meetingID) {
+
+	public Meeting getMeeting(String meetingID) {
 		if (meetingID == null) {
 			return null;
 		}
 		return confsByMtgID.get(meetingID);
 	}
 	
-	private DynamicConference getConferenceByToken(String token) {
+	private Meeting getConferenceByToken(String token) {
 		if (token == null) {
 			return null;
 		}
@@ -160,8 +75,8 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 	}
 	
 	public boolean isMeetingWithVoiceBridgeExist(String voiceBridge) {
-		Collection<DynamicConference> confs = confsByMtgID.values()
-		for (DynamicConference c : confs) {
+		Collection<Meeting> confs = confsByMtgID.values()
+		for (Meeting c : confs) {
 	        if (voiceBridge == c.voiceBridge) {
 	        	log.debug "Found voice bridge $voiceBridge"
 	        	return true
@@ -170,76 +85,10 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 		log.debug "could not find voice bridge $voiceBridge"
 		return false
 	}
-		
-	// these methods called by spring integration:
-	public void conferenceStarted(Room room) {
-		log.debug "conference started: " + room.getName();
-		participantsUpdated(room);
-		DynamicConference conf = getConferenceByToken(room.getName());
-		if (conf != null) {
-			conf.setStartTime(new Date());
-			conf.setEndTime(null);
-			log.debug "found conference and set start date"
-		}
-	}
-	
-	public void conferenceEnded(Room room) {
-		log.debug "conference ended: " + room.getName();
-		DynamicConference conf = getConferenceByToken(room.getName());
-		if (conf != null) {
-			conf.setEndTime(new Date());
-			log.debug "found conference and set end date"
-		}
-	}
-	
-	public void participantsUpdated(Room room) {
-		log.debug "participants updated: " + room.getName();
-		System.out.println("participants updated: " + room.getName())
-		roomsByToken.put(room.getName(), room);
-	}
-	// end of spring integration-called methods
-	
-	//these methods are without using bbb-commons
-	public void conferenceStarted2(String roomname){
-		DynamicConference conf = getConferenceByToken(roomname);
-		if (conf != null) {
-			conf.setStartTime(new Date());
-			conf.setEndTime(null);
-			log.debug "redis: found conference and set start date"
-		}
-	}
-	public void conferenceEnded2(String roomname) {
-		log.debug "redis: conference ended: " + roomname;
-		DynamicConference conf = getConferenceByToken(roomname);
-		if (conf != null) {
-			conf.setEndTime(new Date());
-			log.debug "redis: found conference and set end date"
-		}
-	}
-	
-	public void participantsUpdatedJoin(String roomname, String userid, String fullname, String role) {
-		log.debug "redis: participants updated join: " + roomname;
-		DynamicConferenceParticipant dcp=new DynamicConferenceParticipant(userid,fullname,role);
-		DynamicConference conf = getConferenceByToken(roomname);
-		if(conf != null){
-			conf.addParticipant(dcp);
-			log.debug "redis: added participant"
-		}
-	}
-	
-	public void participantsUpdatedRemove(String roomname, String userid) {
-		log.debug "redis: participants updated remove: " + roomname;
-		System.out.println("participants updated: " + roomname);
-		DynamicConference conf = getConferenceByToken(roomname);
-		if(conf!=null){
-			conf.removeParticipant(userid);
-			log.debug "redis: removed participant"
-		}
-	}
 	
 	public void processRecording(String meetingId) {
 		System.out.println("enter processRecording " + meetingId)
-		Room room = roomsByToken.get(meetingId)
+		Meeting room = roomsByToken.get(meetingId)
 		if (room != null) {
 			System.out.println("Number of participants in room " + room.getNumberOfParticipants())
 			if (room.getNumberOfParticipants() == 0) {
@@ -268,4 +117,31 @@ public class DynamicConferenceService implements IDynamicConferenceService {
 			log.error(done + " file already exists.")
 		}
 	}	
+
+	public boolean isChecksumSame(String apiCall, String checksum, String queryString) {
+		log.debug "checksum: " + checksum + "; query string: " + queryString
+	
+		if (StringUtils.isEmpty(securitySalt)) {
+			log.warn "Security is disabled in this service. Make sure this is intentional."
+			return true;
+		}
+		
+		// handle either checksum as first or middle / end parameter
+		// TODO: this is hackish - should be done better
+		queryString = queryString.replace("&checksum=" + checksum, "")
+		queryString = queryString.replace("checksum=" + checksum + "&", "")
+		log.debug "query string after checksum removed: " + queryString
+		String cs = DigestUtils.shaHex(apiCall + queryString + securitySalt());
+		log.debug "our checksum: " + cs
+		if (cs == null || cs.equals(checksum) == false) {
+			log.info("checksumError: request did not pass the checksum security check")
+			return false;
+		}
+		log.debug("checksum ok: request passed the checksum security check")
+		return true; 
+	}
+	
+	public void setMeetingService(MeetingService s) {
+		meetingService = s;
+	}
 }

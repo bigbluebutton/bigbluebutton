@@ -28,7 +28,7 @@ import java.util.Hashtable;
 import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
 
-public class DynamicConference {
+public class Meeting {
 	private Date dateCreated;
 	private Date lastUpdated;
 	private String createdBy;
@@ -57,9 +57,9 @@ public class DynamicConference {
 	private Hashtable<String,String> metadata;
 	
 	/*removing bbb-commons*/
-	private ArrayList<DynamicConferenceParticipant> participants; 
+	private ArrayList<Participant> participants; 
 
-	public DynamicConference(String name, String meetingID, String attendeePW, String moderatorPW, int maxParticipants) {
+	public Meeting(String name, String meetingID, String attendeePW, String moderatorPW, int maxParticipants) {
 		this.name = name;
 		this.meetingID = (StringUtils.isEmpty(meetingID) ? "" : meetingID);
 		this.attendeePassword = (attendeePW == null ? createPassword() : attendeePW);
@@ -67,7 +67,7 @@ public class DynamicConference {
 		this.maxParticipants = maxParticipants < 0 ? -1 : maxParticipants;
 		this.meetingToken = createMeetingToken();
 		//remove bbb-commons
-		this.participants = new ArrayList<DynamicConferenceParticipant>();
+		this.participants = new ArrayList<Participant>();
 		this.metadata= new Hashtable<String, String>();
 		addMetadataValue("title", "Default Title");
 	}
@@ -249,12 +249,12 @@ public class DynamicConference {
 	/*
 	 * remove bbb-commons
 	 * */
-	public void addParticipant(DynamicConferenceParticipant participant){
+	public void addParticipant(Participant participant){
 		this.participants.add(participant);
 	}
 	
 	public void removeParticipant(String userid){
-		for(DynamicConferenceParticipant p: this.participants){
+		for(Participant p: this.participants){
 			if(p.getUserid().equalsIgnoreCase(userid)){
 				this.participants.remove(p);
 				break;
@@ -269,7 +269,7 @@ public class DynamicConference {
 	
 	public int getNumberOfModerators(){
 		int sum = 0;
-		for(DynamicConferenceParticipant p: this.participants){
+		for(Participant p: this.participants){
 			if (p.isModerator()) {
 				sum++;
 			}
@@ -277,7 +277,7 @@ public class DynamicConference {
 		return sum;
 	}
 	
-	public ArrayList<DynamicConferenceParticipant> getParticipants(){
+	public ArrayList<Participant> getParticipants(){
 		return this.participants;
 	}
 	

@@ -24,24 +24,18 @@ package org.bigbluebutton.web.controllers
 import java.text.MessageFormat;
 import java.util.Collections;
 import org.apache.commons.codec.binary.Hex;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
-
 import org.bigbluebutton.web.services.DynamicConferenceService;
-import org.bigbluebutton.api.domain.DynamicConference;
-import org.bigbluebutton.conference.Room
+import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.IApiConferenceEventListener;
 import org.bigbluebutton.web.services.PresentationService
 import org.bigbluebutton.presentation.UploadedPresentation
-
 import org.codehaus.groovy.grails.commons.ConfigurationHolder;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
 import grails.converters.XML;
 
 class ApiController {
@@ -61,38 +55,44 @@ class ApiController {
 	
 	def keywordList = [DIAL_NUM, CONF_NUM, CONF_NAME];
 		
-	DynamicConferenceService dynamicConferenceService;
+	DynamicConferenceService dynConfSvc;
 	PresentationService presentationService
-	IApiConferenceEventListener conferenceEventListener;
-	org.bigbluebutton.api.IRedisDispatcher redisDispatcher;
 
 	/* general methods */
 	def index = {
-			log.debug CONTROLLER_NAME + "#index"
-			response.addHeader("Cache-Control", "no-cache")
-			withFormat {	
-				xml {
-					render(contentType:"text/xml") {
-						response() {
-							returncode(RESP_CODE_SUCCESS)
-							version(dynamicConferenceService.apiVersion)
-						}
+		log.debug CONTROLLER_NAME + "#index"
+		response.addHeader("Cache-Control", "no-cache")
+		withFormat {	
+			xml {
+				render(contentType:"text/xml") {
+					response() {
+						returncode(RESP_CODE_SUCCESS)
+						version(dynamicConferenceService.apiVersion)
 					}
 				}
 			}
+		}
 	}
 
+	private boolean hasChecksumAndQueryString(String checksum, String queryString) {
+		return (! StringUtils.isEmpty(checksum) && StringUtils.isEmpty(queryString));
+	}
+	
 	/* interface (API) methods */
 	def create = {
-//		redisDispatcher.publish("bu","bu");
 		log.debug CONTROLLER_NAME + "#create"
-
-		if (!doChecksumSecurity("create")) {
+	
+		if (! hasChecksumAndQueryString(params.checksum, request.getQueryString())) {
+			invalid("missingParamChecksum", "You must pass a checksum and query string.");
+			return			
+		}
+		
+		if (!dynConfSvc.isChecksumSame("create", params.checksum, request.getQueryString())) {
 			invalidChecksum(); return;
 		}
 
 		String name = params.name
-		if (name == null) {
+		if (StringUtils.isEmpty(name)) {
 			invalid("missingParamName", "You must specify a name for the meeting.");
 			return
 		}
@@ -110,26 +110,31 @@ class ApiController {
 		String welcomeMessage = params.welcome
 		String dialNumber = params.dialNumber
 		String logoutUrl = params.logoutURL
-		/* record development */
 		boolean record = false
 		
 		if(!StringUtils.isEmpty(params.record)){
 			try {
 				record = Boolean.parseBoolean(params.record)
-			} catch(Exception ex){ }
+			} catch(Exception ex){ 
+				log.error("Failed to parse record parameter.")
+				record = false;
+			}
 		}
 
 		Integer maxParts = -1;
 		
 		try {
 			maxParts = Integer.parseInt(params.maxParticipants);
-		} catch(Exception ex) { /* do nothing */ }
+		} catch(Exception ex) { 
+			log.error("Failed to parse maximum number of participants.");
+			maxParts = 30;
+		}
 		
 		String mmRoom = params.meetmeRoom
 		String mmServer = params.meetmeServer
 
 		// check for existing:
-		DynamicConference existing = dynamicConferenceService.getConferenceByMeetingID(mtgID);
+		Meeting existing = dynamicConferenceService.getConferenceByMeetingID(mtgID);
 		if (existing != null) {
 			log.debug "Existing conference found"
 			if (existing.getAttendeePassword().equals(attPW) && existing.getModeratorPassword().equals(modPW)) {
@@ -143,27 +148,27 @@ class ApiController {
 			}
 			return;
 		}
+		
 		if (StringUtils.isEmpty(attPW)) {
 			attPW = RandomStringUtils.randomAlphanumeric(8);
 		}
+		
 		if (StringUtils.isEmpty(modPW)) {
 			modPW = RandomStringUtils.randomAlphanumeric(8);
 		}
-		DynamicConference conf = new DynamicConference(name, mtgID, attPW, modPW, maxParts)
+		
+		Meeting conf = new Meeting(name, mtgID, attPW, modPW, maxParts)
 		conf.setVoiceBridge(voiceBr == null || voiceBr == "" ? mtgID : voiceBr)
-
-                /* record development */
 		conf.record = record
 		
 		log.debug("Adding metadata values")
 		params.keySet().each{ metadata ->
-			if(metadata.contains("meta")){
-				String[] meta=metadata.split("_")
-				if(meta.length==2){
-					conf.addMetadataValue(meta[1],params.get(metadata))
-					log.debug(meta[1]+":"+params.get(metadata))
-				}
-				
+			if (metadata.contains("meta")) {
+				String[] meta = metadata.split("_")
+				if (meta.length == 2) {
+					conf.addMetadataValue(meta[1], params.get(metadata))
+					log.debug(meta[1] + ":" + params.get(metadata))
+				}				
 			}
 		}
 		
@@ -175,27 +180,23 @@ class ApiController {
 				log.warn("Cannot set test conference because it is not set in bigbluebutton.properties")	
 		} 
 		
-		if ((logoutUrl != null) || (logoutUrl != "")) {
+		if (StringUtils.isEmpty(logoutUrl)) {
 			conf.logoutUrl = logoutUrl
 		}
 		
-		if (welcomeMessage == null || welcomeMessage == "") {
+		if (StringUtils.isEmpty(welcomeMessage)) {
 			welcomeMessage = dynamicConferenceService.defaultWelcomeMessage
 		}
 
-		if ((dialNumber == null) || (dialNumber == "")) {
+		if (StringUtils.isEmpty(dialNumber)) {
 			dialNumber = dynamicConferenceService.defaultDialAccessNumber
 		}
 
-		if (welcomeMessage != null || welcomeMessage != "") {
-			log.debug "Substituting keywords"
-			
-			keywordList.each{ keyword ->
+		if (! StringUtils.isEmpty(welcomeMessage)) {
+			keywordList.each { keyword ->
 				switch(keyword){
 					case DIAL_NUM:
-						if ((dialNumber != null) || (dialNumber != "")) {
-							welcomeMessage = welcomeMessage.replaceAll(DIAL_NUM, dialNumber)
-						}
+						welcomeMessage = welcomeMessage.replaceAll(DIAL_NUM, dialNumber)						
 						break
 					case CONF_NUM:
 						welcomeMessage = welcomeMessage.replaceAll(CONF_NUM, conf.voiceBridge)
@@ -209,9 +210,6 @@ class ApiController {
 				
 		conf.welcome = welcomeMessage
 								
-		log.debug("Conference created: " + conf);
-		// TODO: support voiceBridge and voiceServer
-
 		// success!
 		uploadDocuments(conf);
 		dynamicConferenceService.storeConference(conf);
@@ -295,8 +293,6 @@ class ApiController {
 		UploadedPresentation uploadedPres = new UploadedPresentation(conf.getMeetingToken(), conf.getMeetingToken(), name);
 		uploadedPres.setUploadedFile(pres);
 		presentationService.processUploadedPresentation(uploadedPres);
-
-		// TODO: it is successfully uploaded and converted - now how do we automatically show it?		
 	}
 
 	def join = {
@@ -322,7 +318,7 @@ class ApiController {
 		}
         
 		// check for existing:
-		DynamicConference conf = dynamicConferenceService.getConferenceByMeetingID(mtgID);
+		Meeting conf = dynamicConferenceService.getConferenceByMeetingID(mtgID);
 		if (conf == null) {
 			invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
 			return;
@@ -343,9 +339,8 @@ class ApiController {
 			invalidPassword("You either did not supply a password or the password supplied is neither the attendee or moderator password for this conference."); return;
 		}
 		
-		conf.setWebVoiceConf(webVoice == null || webVoice == "" ? conf.voiceBridge : webVoice)
+		conf.setWebVoiceConf(StringUtils.isEmpty(webVoice) ? conf.voiceBridge : webVoice)
 		
-		// TODO: success....
 		log.debug "join successful - setting session parameters and redirecting to join"
 		session["conferencename"] = conf.meetingID
 		session["meetingID"] = conf.meetingID
@@ -378,8 +373,7 @@ class ApiController {
 
 		String mtgID = params.meetingID
 
-		// check for existing:
-		DynamicConference conf = dynamicConferenceService.getConferenceByMeetingID(mtgID);
+		Meeting conf = dynamicConferenceService.getConferenceByMeetingID(mtgID);
 		boolean isRunning = conf != null && conf.isRunning();
 		response.addHeader("Cache-Control", "no-cache")
 		withFormat {	
@@ -405,10 +399,8 @@ class ApiController {
 		String callPW = params.password
 
 		// check for existing:
-		DynamicConference conf = dynamicConferenceService.getConferenceByMeetingID(mtgID);
-		Room room = dynamicConferenceService.getRoomByMeetingID(mtgID);
-		
-		if (conf == null || room == null) {
+		Meeting conf = dynamicConferenceService.getConferenceByMeetingID(mtgID);		
+		if (conf == null) {
 			invalid("notFound", "We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?");
 			return;
 		}
@@ -420,7 +412,6 @@ class ApiController {
 		conf.setForciblyEnded(true);
 		
 		conferenceEventListener.endMeetingRequest(room);
-//		redisDispatcher.publish();
 		
 		response.addHeader("Cache-Control", "no-cache")
 		withFormat {	
@@ -447,8 +438,7 @@ class ApiController {
 		String callPW = params.password
 
 		// check for existing:
-		DynamicConference conf = dynamicConferenceService.getConferenceByMeetingID(mtgID);
-		Room room = dynamicConferenceService.getRoomByMeetingID(mtgID);
+		Meeting conf = dynamicConferenceService.getConferenceByMeetingID(mtgID);
 		
 		if (conf == null) {
 			invalid("notFound", "We could not find a meeting with that meeting ID");
@@ -460,8 +450,6 @@ class ApiController {
 		}
 
 		respondWithConferenceDetails(conf, room, null, null);
-		//just for redis testing purpose 
-		//respondWithConferenceDetails2(conf, room, null, null);
 	}
 	
 	def getMeetings = {
@@ -472,7 +460,7 @@ class ApiController {
 		}
 
 		// check for existing:
-		Collection<DynamicConference> confs = dynamicConferenceService.getAllConferences();
+		Collection<Meeting> confs = dynamicConferenceService.getAllConferences();
 		
 		if (confs == null || confs.size() == 0) {
 			response.addHeader("Cache-Control", "no-cache")
@@ -517,9 +505,6 @@ class ApiController {
 	}
 
 	def enter = {
-		
-		println "Entered Enter"
-		
 		def fname = session["fullname"]
 	    def rl = session["role"]
 	    def cnf = session["conference"]
@@ -532,9 +517,6 @@ class ApiController {
 	    def welcomeMsg = session['welcome']
 	    def meetID = session["meetingID"] 
         def externUID = session["externUserID"] 
-        
-        println "After reading from cookie"
-        
         
 	    if (!rm) {
 	    	println "Could not find conference"
@@ -595,9 +577,9 @@ class ApiController {
         }
         
 	    def meetingToken = session["conference"]
-        DynamicConference conf = dynamicConferenceService.getConferenceByToken(meetingToken)
+        Meeting conf = dynamicConferenceService.getConferenceByToken(meetingToken)
         if (conf != null) {
-        	if ((conf.logoutUrl != null) && (conf.logoutUrl != "")) {
+        	if (! StringUtils.isEmpty(conf.logoutUrl)) {
         	   hostURL = conf.logoutUrl
         	   log.debug("logoutURL has been set from API. Redirecting to server url $hostURL.")
     		}
@@ -609,9 +591,7 @@ class ApiController {
         }
         // Log the user out of the application.
 	    session.invalidate()
-	    /**
-	     * Temporary way to trigger ingest and processing. For demo purposes only. (richard)
-	    **/
+	    
 	    if (conf.isRecord())
 	    	dynamicConferenceService.processRecording(meetingToken)
 	    
@@ -619,42 +599,18 @@ class ApiController {
 	    redirect(url: hostURL)
 	}
 	
-	/* helper methods */
-	def doChecksumSecurity(callName) {
-		log.debug CONTROLLER_NAME + "#doChecksumSecurity"
-		log.debug "checksum: " + params.checksum + "; query string: " + request.getQueryString()
+
+	private boolean validParams() {
 		if (StringUtils.isEmpty(callName)) {
 			throw new RuntimeException("Programming error - you must pass the call name to doChecksumSecurity so it can be used in the checksum");
 		}
+
 		if (StringUtils.isEmpty(request.getQueryString())) {
 			invalid("noQueryString", "No query string was found in your request.")
 			return false;
-		}
+		}		
+	}
 	
-		if (StringUtils.isEmpty(securitySalt()) == false) {
-			String qs = request.getQueryString()
-			// handle either checksum as first or middle / end parameter
-			// TODO: this is hackish - should be done better
-			qs = qs.replace("&checksum=" + params.checksum, "")
-			qs = qs.replace("checksum=" + params.checksum + "&", "")
-			log.debug "query string after checksum removed: " + qs
-			String cs = DigestUtils.shaHex(callName + qs + securitySalt());
-			log.debug "our checksum: " + cs
-			if (cs == null || cs.equals(params.checksum) == false) {
-				log.info("checksumError: request did not pass the checksum security check")
-				return false;
-			}
-			log.debug("checksum ok: request passed the checksum security check")
-			return true; 
-		}
-		
-		log.warn "Security is disabled in this service. Make sure this is intentional."
-		return true;
-	}
-
-	private String securitySalt() {
-		return dynamicConferenceService.securitySalt
-	}
 	
 	def beforeInterceptor = {
 		if (dynamicConferenceService.serviceEnabled == false) {

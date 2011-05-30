@@ -37,21 +37,23 @@ public class RedisMessagingService implements MessagingService {
 
 	@Override
 	public void recordMeetingInfo(String meetingId, Map<String, String> info) {
-		// TODO Auto-generated method stub
-		
+		jedis.hmset("meeting.info:" + meetingId, info);
 	}
 
 	@Override
-	public void recordMeetingMetadata(String meetingId,
-			Map<String, String> metadata) {
+	public void recordMeetingMetadata(String meetingId,	Map<String, String> metadata) {
+		jedis.hmset("meeting:metadata:" + meetingId, metadata);		
+	}
+
+	@Override
+	public void endMeeting(String meetingId) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void send(String channel, String message) {
-		// TODO Auto-generated method stub
-		
+		jedis.publish(channel, message);
 	}
 
 	@Override
@@ -180,4 +182,5 @@ public class RedisMessagingService implements MessagingService {
 		}
 		
 	}
+
 }

@@ -1,11 +1,11 @@
 package org.bigbluebutton.api.domain;
 
-public class DynamicConferenceParticipant {
+public class Participant {
 	private String userid;
 	private String fullname;
 	private String role;
 	
-	public DynamicConferenceParticipant(String userid, String fullname,
+	public Participant(String userid, String fullname,
 			String role) {
 		this.userid = userid;
 		this.fullname = fullname;
