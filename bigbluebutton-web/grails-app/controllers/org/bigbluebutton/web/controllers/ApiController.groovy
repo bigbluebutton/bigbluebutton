@@ -159,6 +159,8 @@ class ApiController {
 							.withMaxUsers(maxUsers).withModeratorPass(modPass).withViewerPass(viewerPass).withRecording(record)
 							.withLogoutUrl(logoutUrl).withTelVoice(telVoice).withWebVoice(webVoice).withDialNumber(dialNumber)
 							.withMetadata(meetingInfo).withWelcomeMessage(welcomeMessage).build()
+							
+		log.info("Storing meeting ${meeting.getInternalId()}")
 		dynamicConferenceService.createConference(meeting);
 		
 		// See if the request came with pre-uploading of presentation.
@@ -173,45 +175,55 @@ class ApiController {
 	def join = {
 		log.debug CONTROLLER_NAME + "#join"
 	
+		// Do we have a checksum? If none, complain.
 		if (StringUtils.isEmpty(params.checksum)) {
 			invalid("missingParamChecksum", "You must pass a checksum and query string.");
 			return			
 		}
-		
-		if (! dynamicConferenceService.isChecksumSame("create", params.checksum, request.getQueryString())) {
-			invalidChecksum(); return;
-		}
 
+		// Do we have a name for the user joining? If none, complain.
 		String fullName = params.fullName
 		if (StringUtils.isEmpty(fullName)) {
 			invalid("missingParamFullName", "You must specify a name for the attendee who will be joining the meeting.");
 			return
 		}
 
+		// Do we have a meeting id? If none, complain.
 		String externalMeetingId = params.meetingID
 		if (StringUtils.isEmpty(externalMeetingId)) {
 			invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
 			return
 		}
-		
+
+		// Do we have a password? If not, complain.
 		String attPW = params.password
 		if (StringUtils.isEmpty(attPW)) {
 			invalid("missingParamPassword", "You must specify a password for the meeting.");
 			return
 		}
-						        
-		String internalMeetingId = dynamicConferenceService.getInternalMeetingId(externalMeetingId);		
+				
+		// Do we agree on the checksum? If not, complain.		
+		if (! dynamicConferenceService.isChecksumSame("join", params.checksum, request.getQueryString())) {
+			invalidChecksum(); return;
+		}
+
+		// Everything is good so far. Translate the external meeting id to an internal meeting id. If
+		// we can't find the meeting, complain.					        
+		String internalMeetingId = dynamicConferenceService.getInternalMeetingId(externalMeetingId);
+		log.info("Retrieving meeting ${internalMeetingId}")		
 		Meeting meeting = dynamicConferenceService.getMeeting(internalMeetingId);
 		if (meeting == null) {
 			invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
 			return;
 		}
 		
+		// Is this user joining a meeting that has been ended. If so, complain.
 		if (meeting.isForciblyEnded()) {
 			invalid("meetingForciblyEnded", "You can not re-join a meeting that has already been forcibly ended.  However, once the meeting is removed from memory (according to the timeout configured on this server, you will be able to once again create a meeting with the same meeting ID");
 			return;
 		}
 
+		// Now determine if this user is a moderator or a viewer.
 		String role = null;
 		if (meeting.getModeratorPassword().equals(attPW)) {
 			role = ROLE_MODERATOR;
@@ -222,37 +234,33 @@ class ApiController {
 		if (role == null) {
 			invalidPassword("You either did not supply a password or the password supplied is neither the attendee or moderator password for this conference."); return;
 		}
-		
-		String webVoice = params.webVoiceConf
+				
+		String webVoice = StringUtils.isEmpty(params.webVoiceConf) ? meeting.getTelVoice() : params.webVoiceConf
 
 		boolean redirectImm = parseBoolean(params.redirectImmediately)
+		
 		String externUserID = params.userID
 		if (StringUtils.isEmpty(externUserID)) {
 			externUserID = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
 		}
-		meeting.setWebVoiceConf(StringUtils.isEmpty(webVoice) ? conf.voiceBridge : webVoice)
 		
-		log.debug "join successful - setting session parameters and redirecting to join"
-		session["conferencename"] = conf.meetingID
-		session["meetingID"] = conf.meetingID
+		session["conferencename"] = meeting.getName()
+		session["meetingID"] = meeting.getInternalId()
 		session["externUserID"] = externUserID
 		session["fullname"] = fullName 
 		session["role"] = role
-		session["conference"] = conf.getMeetingToken()
-		session["room"] = conf.getMeetingToken()
-		session["voicebridge"] = conf.getVoiceBridge()
-		session["webvoiceconf"] = conf.getWebVoiceConf()
+		session["conference"] = meeting.getInternalId()
+		session["room"] = meeting.getInternalId()
+		session["voicebridge"] = meeting.getTelVoice()
+		session["webvoiceconf"] = meeting.getWebVoice()
 		session["mode"] = "LIVE"
-		session["record"] = conf.record
-		session['welcome'] = conf.welcome
+		session["record"] = meeting.isRecord()
+		session['welcome'] = meeting.getWelcomeMessage()
 		
 		session.setMaxInactiveInterval(SESSION_TIMEOUT);
 		
-    	def config = ConfigurationHolder.config
-    	def hostURL = config.bigbluebutton.web.serverURL
-		def redirectUrl = "${hostURL}/client/BigBlueButton.html";
-		log.debug("join done, redirecting to ${redirectUrl}"); 		
-		redirect(url:redirectUrl)
+		log.info("Successfully joined. Redirecting to ${dynamicConferenceService.defaultClientUrl}"); 		
+		redirect(url: dynamicConferenceService.defaultClientUrl)
 	}
 
 	def isMeetingRunning = {

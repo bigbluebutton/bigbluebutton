@@ -49,38 +49,23 @@ public class DynamicConferenceService {
 	def recordStatusDir
 	def defaultLogoutUrl
 	def defaultServerUrl
-	def defaulNumDigitsForTelVoice
-
+	def defaultNumDigitsForTelVoice
+	def defaultClientUrl
+	
 	private MeetingService meetingService
 		
 	public Collection<Meeting> getAllMeetings() {
 		return confsByMtgID.isEmpty() ? Collections.emptySet() : Collections.unmodifiableCollection(confsByMtgID.values());
 	}
 	
-	public void createConference(Meeting conf) {
-/*		conf.setStoredTime(new Date());
-		confsByMtgID.put(conf.getMeetingID(), conf);
-		tokenMap.put(conf.getMeetingToken(), conf.getMeetingID());
-		if (conf.isRecord()) {
-			createConferenceRecord(conf);
-		}
-*/	}
+	public void createConference(Meeting meeting) {
+		meetingService.storeMeeting(meeting)
+	}
 
 	public Meeting getMeeting(String meetingID) {
 		return meetingService.getMeeting(meetingID);
 	}
-	
-	private Meeting getConferenceByToken(String token) {
-		if (token == null) {
-			return null;
-		}
-		String mtgID = tokenMap.get(token);
-		if (mtgID == null) {
-			return null;
-		}
-		return confsByMtgID.get(mtgID);
-	}
-	
+		
 	public boolean isMeetingWithVoiceBridgeExist(String voiceBridge) {
 		Collection<Meeting> confs = confsByMtgID.values()
 		for (Meeting c : confs) {
@@ -142,7 +127,7 @@ public class DynamicConferenceService {
 	}
 	
 	public String processTelVoice(String telNum) {
-		return StringUtils.isEmpty(telNum) ? RandomStringUtils.randomNumeric(defaulNumDigitsForTelVoice) : telNum;
+		return StringUtils.isEmpty(telNum) ? RandomStringUtils.randomNumeric(defaultNumDigitsForTelVoice) : telNum;
 	}
 		
 	public String processDialNumber(String dial) {
@@ -233,6 +218,7 @@ public class DynamicConferenceService {
 		log.debug "our checksum: " + cs
 		if (cs == null || cs.equals(checksum) == false) {
 			log.info("checksumError: request did not pass the checksum security check")
+			log.info("salt: ${securitySalt} checksum: ${cs} client: ${checksum} query: ${queryString}")
 			return false;
 		}
 		log.debug("checksum ok: request passed the checksum security check")

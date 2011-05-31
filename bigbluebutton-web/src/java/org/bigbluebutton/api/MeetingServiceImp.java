@@ -58,14 +58,9 @@ public class MeetingServiceImp implements MeetingService {
 		return meetings.isEmpty() ? Collections.emptySet() : Collections.unmodifiableCollection(meetings.values());
 	}
 	
-	public void storeMeeting(Meeting conf) {
-/*		conf.setStoredTime(new Date());
-		meetings.put(conf.getMeetingID(), conf);
-		if (conf.isRecord()) {
-//			createMeetingRecord(conf);
-		}
-*/	}
-
+	public void storeMeeting(Meeting m) {
+		meetings.put(m.getInternalId(), m);
+	}
 
 	public Meeting getMeeting(String meetingID) {
 		if (meetingID == null) {
@@ -121,6 +116,6 @@ public class MeetingServiceImp implements MeetingService {
 
 	public void setDynamicConferenceService(IDynamicConferenceService s) {
 		dynConfService = s;
-		s.setMeetingService(this);
+		s.setMeetingService((MeetingService) this);
 	}
 }
