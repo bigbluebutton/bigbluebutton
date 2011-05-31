@@ -91,6 +91,9 @@ dependencies {
 	compile 'org.springframework.integration:spring-integration-stream:2.0.3.RELEASE@jar'
 	compile 'org.springframework.integration:spring-integration-file:2.0.3.RELEASE@jar'
 	compile 'org.springframework.integration:spring-integration-jms:2.0.3.RELEASE@jar'
+	
+	// GROOVY - needed for spring integration to work
+	groovy 'org.codehaus.groovy:groovy-all:1.6.4@jar'
 		
 	// Red5
 	providedCompile 'org/red5:red5:1.0rc1@jar'
