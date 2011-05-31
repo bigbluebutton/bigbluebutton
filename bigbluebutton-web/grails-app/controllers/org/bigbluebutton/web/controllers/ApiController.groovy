@@ -67,44 +67,61 @@ class ApiController {
 			}
 		}
 	}
-			
-	/* interface (API) methods */
+				
+	/* CREATE (API) */
 	def create = {
 		log.debug CONTROLLER_NAME + "#create"
 	
+		// Do we have a checksum? If not, complain.
 		if (StringUtils.isEmpty(params.checksum)) {
 			invalid("missingParamChecksum", "You must pass a checksum and query string.");
 			return			
 		}
 		
-		log.debug request.getQueryString()
-		if (! dynamicConferenceService.isChecksumSame("create", params.checksum, request.getQueryString())) {
-			invalidChecksum(); return;
-		}
-
+		// Do we have a meeting name? If not, complain.
 		String meetingName = params.name
 		if (StringUtils.isEmpty(meetingName) ) {
 			invalid("missingParamName", "You must specify a name for the meeting.");
 			return
 		}
 		
+		// Do we have a meeting id? If not, complain.
 		String externalMeetingId = params.meetingID
 		if (StringUtils.isEmpty(externalMeetingId)) {
 			invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
 			return
 		}
-		
-		String internalMeetingId = dynamicConferenceService.getInternalMeetingId(externalMeetingId);
+				
+		// Do we agree with the checksum? If not, complain.
+		if (! dynamicConferenceService.isChecksumSame("create", params.checksum, request.getQueryString())) {
+			invalidChecksum(); return;
+		}
+
+		// Get the viewer and moderator password. If none is provided, generate one.
 		String viewerPass = dynamicConferenceService.processPassword(params.attendeePW);
 		String modPass = dynamicConferenceService.processPassword(params.moderatorPW); 
+		
+		// Get the digits for voice conference for users joining through the phone.
+		// If none is provided, generate one.
 		String telVoice = dynamicConferenceService.processTelVoice(params.voiceBridge);
+		
+		// Get the voice conference digits/chars for users joing through VOIP on the client.
+		// If none is provided, make it the same as the telVoice. If one has been provided,
+		// we expect that the users will be joined in the same voice conference.
+		String webVoice = params.webVoice
+		if (StringUtils.isEmpty(params.webVoice)) {
+			webVoice = telVoice
+		}
+		
+		// Get all the other relevant parameters and generate defaults if none has been provided.
 		String dialNumber = dynamicConferenceService.processDialNumber(params.dialNumber);
 		String logoutUrl = dynamicConferenceService.processLogoutUrl(params.logoutURL); 
 		boolean record = dynamicConferenceService.processRecordMeeting(params.record);
 		int maxUsers = dynamicConferenceService.processMaxUser(params.maxParticipants);
-		//Map<String, String> meetingInfo = dynamicConferenceService.processMeetingInfo(params);
 		String welcomeMessage = dynamicConferenceService.processWelcomeMessage(params.welcome, dialNumber, telVoice, meetingName);
-				
+		
+		// Translate the external meeting id into an internal meeting id.
+		String internalMeetingId = dynamicConferenceService.getInternalMeetingId(externalMeetingId);		
 		Meeting existing = dynamicConferenceService.getMeeting(internalMeetingId);
 		if (existing != null) {
 			log.debug "Existing conference found"
@@ -119,11 +136,13 @@ class ApiController {
 			}
 			return;
 		}
-						
+		
+		// Check if this is a test meeting. NOTE: This should not belong here. Extract this out.				
 		if (dynamicConferenceService.isTestMeeting(telVoice)) {
 			internalMeetingId = dynamicConferenceService.getIntMeetingIdForTestMeeting(telVoice)
 		}
 		
+		// Collect metadata for this meeting that the third-party app wants to store if meeting is recorded.
 		Map<String, String> meetingInfo = new HashMap<String, String>();
 		params.keySet().each{ metadata ->
 			if (metadata.contains("meta")){
@@ -135,151 +154,83 @@ class ApiController {
 			}
 		}
 		
-		Meeting meeting = new Meeting.Builder()
-							.withName(meetingName)
-							.withExternalId(externalMeetingId)
-							.withInternalId(internalMeetingId)
-							.withMaxUsers(maxUsers)
-							.withModeratorPass(modPass)
-							.withViewerPass(viewerPass)
-							.withRecording(record)
-							.withLogoutUrl(logoutUrl)
-							.withTelVoice(telVoice)
-							.withDialNumber(dialNumber)
-							.withMetadata(meetingInfo)
-							.withWelcomeMessage(welcomeMessage)
-							.build()
-											
-		uploadDocuments(meeting);
+		// Create the meeting with all passed in parameters.
+		Meeting meeting = new Meeting.Builder().withName(meetingName).withExternalId(externalMeetingId).withInternalId(internalMeetingId)
+							.withMaxUsers(maxUsers).withModeratorPass(modPass).withViewerPass(viewerPass).withRecording(record)
+							.withLogoutUrl(logoutUrl).withTelVoice(telVoice).withWebVoice(webVoice).withDialNumber(dialNumber)
+							.withMetadata(meetingInfo).withWelcomeMessage(welcomeMessage).build()
 		dynamicConferenceService.createConference(meeting);
+		
+		// See if the request came with pre-uploading of presentation.
+		uploadDocuments(meeting);
+		
 		respondWithConference(meeting, null, null)
 	}
 
-
-	def uploadDocuments(conf) { 
-		log.debug("ApiController#uploadDocuments(${conf.getInternalId()})");
-
-		String requestBody = request.inputStream == null ? null : request.inputStream.text;
-		requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
-
-		if (requestBody == null) {
-			return;
-		}
-				
-		log.debug "Request body: \n" + requestBody;
-
-		def xml = XML.parse(requestBody);
-		xml.children().each { module ->
-			log.debug("module config found: [${module.@name}]");
-			if ("presentation".equals(module.@name.toString())) {
-				// need to iterate over presentation files and process them
-				module.children().each { document -> 
-					if (!StringUtils.isEmpty(document.@url.toString())) {
-						downloadAndProcessDocument(document.@url.toString(), conf);
-					} else if (!StringUtils.isEmpty(document.@name.toString())) {
-						def b64 = new Base64()
-						def decodedBytes = b64.decode(document.text().getBytes())
-						processDocumentFromRawBytes(decodedBytes, document.@name.toString(), conf);
-					} else {
-						log.debug("presentation module config found, but it did not contain url or name attributes");
-					}
-				}
-			}
-		}
-	}
-
-
-	def cleanFilename(filename) {
-		def notValidCharsRegExp = /[^0-9a-zA-Z_\.]/
-		return filename.replaceAll(notValidCharsRegExp, '-')
-	}
-	
-	def processDocumentFromRawBytes(bytes, filename, conf) {
-		def cleanName = cleanFilename(filename);
-
-		File uploadDir = presentationService.uploadedPresentationDirectory(conf.getMeetingToken(), conf.getMeetingToken(), cleanName);
-		def pres = new File(uploadDir.absolutePath + File.separatorChar + cleanName);
-		
-		FileOutputStream fos = new java.io.FileOutputStream(pres)
-		fos.write(bytes)
-		fos.flush()
-		fos.close()
-		
-		processUploadedFile(cleanName, pres, conf);
-	}
-		
-	def downloadAndProcessDocument(address, conf) {
-		log.debug("ApiController#downloadAndProcessDocument({$address}, ${conf.meetingID})");
-		String name = cleanFilename(address.tokenize("/")[-1]);
-		log.debug("Uploading presentation: ${name} from ${address} [starting download]");
-		
-		def out;
-		def pres;
-		try {
-			File uploadDir = presentationService.uploadedPresentationDirectory(conf.getMeetingToken(), conf.getMeetingToken(), name);
-			pres = new File(uploadDir.absolutePath + File.separatorChar + name);
-			out = new BufferedOutputStream(new FileOutputStream(pres))
-			out << new URL(address).openStream()
-		} finally {
-			if (out != null) {
-				out.close()
-			}
-		}
-
-		processUploadedFile(name, pres, conf);
-	}
-	
-	def processUploadedFile(name, pres, conf) {
-		UploadedPresentation uploadedPres = new UploadedPresentation(conf.getMeetingToken(), conf.getMeetingToken(), name);
-		uploadedPres.setUploadedFile(pres);
-		presentationService.processUploadedPresentation(uploadedPres);
-	}
-
+	/**
+	 * JOIN API
+	 */
 	def join = {
 		log.debug CONTROLLER_NAME + "#join"
-
-		if (!doChecksumSecurity("join")) {
+	
+		if (StringUtils.isEmpty(params.checksum)) {
+			invalid("missingParamChecksum", "You must pass a checksum and query string.");
+			return			
+		}
+		
+		if (! dynamicConferenceService.isChecksumSame("create", params.checksum, request.getQueryString())) {
 			invalidChecksum(); return;
 		}
 
 		String fullName = params.fullName
-		if (fullName == null) {
+		if (StringUtils.isEmpty(fullName)) {
 			invalid("missingParamFullName", "You must specify a name for the attendee who will be joining the meeting.");
 			return
 		}
-		
-		String webVoice = params.webVoiceConf
-		String mtgID = params.meetingID
-		String attPW = params.password
-		boolean redirectImm = parseBoolean(params.redirectImmediately)
-		String externUserID = params.userID
-		if ((externUserID == null) || (externUserID == "")) {
-			externUserID = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
+
+		String externalMeetingId = params.meetingID
+		if (StringUtils.isEmpty(externalMeetingId)) {
+			invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
+			return
 		}
-        
-		// check for existing:
-		Meeting conf = dynamicConferenceService.getConferenceByMeetingID(mtgID);
-		if (conf == null) {
+		
+		String attPW = params.password
+		if (StringUtils.isEmpty(attPW)) {
+			invalid("missingParamPassword", "You must specify a password for the meeting.");
+			return
+		}
+						        
+		String internalMeetingId = dynamicConferenceService.getInternalMeetingId(externalMeetingId);		
+		Meeting meeting = dynamicConferenceService.getMeeting(internalMeetingId);
+		if (meeting == null) {
 			invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
 			return;
 		}
 		
-		if (conf.isForciblyEnded()) {
+		if (meeting.isForciblyEnded()) {
 			invalid("meetingForciblyEnded", "You can not re-join a meeting that has already been forcibly ended.  However, once the meeting is removed from memory (according to the timeout configured on this server, you will be able to once again create a meeting with the same meeting ID");
 			return;
 		}
 
 		String role = null;
-		if (conf.getModeratorPassword().equals(attPW)) {
+		if (meeting.getModeratorPassword().equals(attPW)) {
 			role = ROLE_MODERATOR;
-		} else if (conf.getAttendeePassword().equals(attPW)) {
+		} else if (meeting.getAttendeePassword().equals(attPW)) {
 			role = ROLE_ATTENDEE;
 		}
+		
 		if (role == null) {
 			invalidPassword("You either did not supply a password or the password supplied is neither the attendee or moderator password for this conference."); return;
 		}
 		
-		conf.setWebVoiceConf(StringUtils.isEmpty(webVoice) ? conf.voiceBridge : webVoice)
+		String webVoice = params.webVoiceConf
+
+		boolean redirectImm = parseBoolean(params.redirectImmediately)
+		String externUserID = params.userID
+		if (StringUtils.isEmpty(externUserID)) {
+			externUserID = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
+		}
+		meeting.setWebVoiceConf(StringUtils.isEmpty(webVoice) ? conf.voiceBridge : webVoice)
 		
 		log.debug "join successful - setting session parameters and redirecting to join"
 		session["conferencename"] = conf.meetingID
@@ -538,6 +489,87 @@ class ApiController {
         println "serverURL $hostURL"	
 	    redirect(url: hostURL)
 	}
+	
+	def uploadDocuments(conf) { 
+		log.debug("ApiController#uploadDocuments(${conf.getInternalId()})");
+
+		String requestBody = request.inputStream == null ? null : request.inputStream.text;
+		requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
+
+		if (requestBody == null) {
+			return;
+		}
+				
+		log.debug "Request body: \n" + requestBody;
+
+		def xml = XML.parse(requestBody);
+		xml.children().each { module ->
+			log.debug("module config found: [${module.@name}]");
+			if ("presentation".equals(module.@name.toString())) {
+				// need to iterate over presentation files and process them
+				module.children().each { document -> 
+					if (!StringUtils.isEmpty(document.@url.toString())) {
+						downloadAndProcessDocument(document.@url.toString(), conf);
+					} else if (!StringUtils.isEmpty(document.@name.toString())) {
+						def b64 = new Base64()
+						def decodedBytes = b64.decode(document.text().getBytes())
+						processDocumentFromRawBytes(decodedBytes, document.@name.toString(), conf);
+					} else {
+						log.debug("presentation module config found, but it did not contain url or name attributes");
+					}
+				}
+			}
+		}
+	}
+
+
+	def cleanFilename(filename) {
+		def notValidCharsRegExp = /[^0-9a-zA-Z_\.]/
+		return filename.replaceAll(notValidCharsRegExp, '-')
+	}
+	
+	def processDocumentFromRawBytes(bytes, filename, conf) {
+		def cleanName = cleanFilename(filename);
+
+		File uploadDir = presentationService.uploadedPresentationDirectory(conf.getMeetingToken(), conf.getMeetingToken(), cleanName);
+		def pres = new File(uploadDir.absolutePath + File.separatorChar + cleanName);
+		
+		FileOutputStream fos = new java.io.FileOutputStream(pres)
+		fos.write(bytes)
+		fos.flush()
+		fos.close()
+		
+		processUploadedFile(cleanName, pres, conf);
+	}
+		
+	def downloadAndProcessDocument(address, conf) {
+		log.debug("ApiController#downloadAndProcessDocument({$address}, ${conf.meetingID})");
+		String name = cleanFilename(address.tokenize("/")[-1]);
+		log.debug("Uploading presentation: ${name} from ${address} [starting download]");
+		
+		def out;
+		def pres;
+		try {
+			File uploadDir = presentationService.uploadedPresentationDirectory(conf.getMeetingToken(), conf.getMeetingToken(), name);
+			pres = new File(uploadDir.absolutePath + File.separatorChar + name);
+			out = new BufferedOutputStream(new FileOutputStream(pres))
+			out << new URL(address).openStream()
+		} finally {
+			if (out != null) {
+				out.close()
+			}
+		}
+
+		processUploadedFile(name, pres, conf);
+	}
+	
+	def processUploadedFile(name, pres, conf) {
+		UploadedPresentation uploadedPres = new UploadedPresentation(conf.getMeetingToken(), conf.getMeetingToken(), name);
+		uploadedPres.setUploadedFile(pres);
+		presentationService.processUploadedPresentation(uploadedPres);
+	}
+
+
 	
 
 	private boolean validParams() {

@@ -35,6 +35,7 @@ public class DynamicConferenceService {
 	boolean transactional = false
 	def serviceEnabled = false
 	
+	/** See bigbluebutton.properties for default values **/
 	def apiVersion;
 	def securitySalt
 	int minutesElapsedBeforeMeetingExpiration = 60
@@ -48,7 +49,8 @@ public class DynamicConferenceService {
 	def recordStatusDir
 	def defaultLogoutUrl
 	def defaultServerUrl
-	
+	def defaulNumDigitsForTelVoice
+
 	private MeetingService meetingService
 		
 	public Collection<Meeting> getAllMeetings() {
@@ -140,9 +142,9 @@ public class DynamicConferenceService {
 	}
 	
 	public String processTelVoice(String telNum) {
-		return StringUtils.isEmpty(telNum) ? "" : telNum;
+		return StringUtils.isEmpty(telNum) ? RandomStringUtils.randomNumeric(defaulNumDigitsForTelVoice) : telNum;
 	}
-	
+		
 	public String processDialNumber(String dial) {
 		return StringUtils.isEmpty(dial) ? defaultDialAccessNumber : dial;	
 	}
