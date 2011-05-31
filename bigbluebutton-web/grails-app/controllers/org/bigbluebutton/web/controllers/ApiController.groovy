@@ -269,21 +269,41 @@ class ApiController {
 	def isMeetingRunning = {
 		log.debug CONTROLLER_NAME + "#isMeetingRunning"
 
-		if (!doChecksumSecurity("isMeetingRunning")) {
-			invalidChecksum(); return;
+		// Do we have a checksum? If none, complain.
+		if (StringUtils.isEmpty(params.checksum)) {
+			invalid("missingParamChecksum", "You must pass a checksum and query string.");
+			return			
 		}
 
-		String mtgID = params.meetingID
+		// Do we have a meeting id? If none, complain.
+		String externalMeetingId = params.meetingID
+		if (StringUtils.isEmpty(externalMeetingId)) {
+			invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
+			return
+		}
 
-		Meeting conf = dynamicConferenceService.getConferenceByMeetingID(mtgID);
-		boolean isRunning = conf != null && conf.isRunning();
+		// Do we agree on the checksum? If not, complain.		
+		if (! dynamicConferenceService.isChecksumSame("join", params.checksum, request.getQueryString())) {
+			invalidChecksum(); return;
+		}
+						
+		// Everything is good so far. Translate the external meeting id to an internal meeting id. If
+		// we can't find the meeting, complain.					        
+		String internalMeetingId = dynamicConferenceService.getInternalMeetingId(externalMeetingId);
+		log.info("Retrieving meeting ${internalMeetingId}")		
+		Meeting meeting = dynamicConferenceService.getMeeting(internalMeetingId);
+		if (meeting == null) {
+			invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
+			return;
+		}
+		
 		response.addHeader("Cache-Control", "no-cache")
 		withFormat {	
 			xml {
 				render(contentType:"text/xml") {
 					response() {
 						returncode(RESP_CODE_SUCCESS)
-						running(isRunning ? "true" : "false")
+						running(meeting.isRunning() ? "true" : "false")
 					}
 				}
 			}

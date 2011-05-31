@@ -66,7 +66,7 @@ public class Meeting {
 	public boolean isRunning() {
 //		boolean running = startTime != null && endTime == null;
 		//println "running: ${running}; startTime: ${startTime}; endTime: ${endTime}"; 
-		return false;
+		return true;
 	}
 
 	public String getName() {

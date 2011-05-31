@@ -54,14 +54,34 @@ class ApiControllerTests extends ControllerUnitTestCase {
 	void testJoinAPI() {
 		
 		/** Create the meeting to set things up */
+
+		
 		ApiController controller = new ApiController()
 		mockLogging(ApiController)
 		controller.setDynamicConferenceService(service)		
 		createConference(controller)
+		controller.create();
+		println "controller response = " + controller.response.contentAsString
 		
 		/**
 		 * Now that the meeting has been setup. Try to join it.
+		 */		
+		ApiController controller2 = new ApiController()
+		mockLogging(ApiController)
+		controller2.setDynamicConferenceService(service)
+		joinConference(controller2)
+		controller2.join()
+		
+		/**
+		 * Need to use controller2.redirectArgs['url'] instead of controller2.response.redirectedUrl as
+		 * shown in the grails doc because it is returning null for me.
+		 * 
+		 * see http://kousenit.wordpress.com/2010/11/10/unit-testing-grails-controllers-revisited/
 		 */
+		assertEquals CLIENT_URL, controller2.redirectArgs['url']		
+	}
+	
+	private void joinConference(ApiController controller) {
 		String username = "Richard"
 		String modPass = "testm"
 		
@@ -74,21 +94,7 @@ class ApiControllerTests extends ControllerUnitTestCase {
 		mockParams.password = MOD_PASS
 		mockParams.checksum = checksum
 		mockRequest.queryString = queryString
-		
-		ApiController controller2 = new ApiController()
-		mockLogging(ApiController)
-		controller2.setDynamicConferenceService(service)
-		controller2.join()
-		
-		/**
-		 * Need to use controller2.redirectArgs['url'] instead of controller2.response.redirectedUrl as
-		 * shown in the grails doc because it is returning null for me.
-		 * 
-		 * see http://kousenit.wordpress.com/2010/11/10/unit-testing-grails-controllers-revisited/
-		 */
-		assertEquals CLIENT_URL, controller2.redirectArgs['url']		
 	}
-	
 	
 	private void createConference(ApiController controller) {
 		String queryString = "meetingID=${MEETING_ID}&name=${MEETING_NAME}&moderatorPW=${MOD_PASS}&attendeePW=${VIEW_PASS}"
@@ -100,6 +106,6 @@ class ApiControllerTests extends ControllerUnitTestCase {
 		mockParams.name = MEETING_NAME
 		mockParams.moderatorPW = MOD_PASS
 		mockParams.attendeePW = VIEW_PASS
-		mockRequest.queryString = queryString	
+		mockRequest.queryString = queryString
 	}
 }
