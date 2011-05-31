@@ -263,6 +263,9 @@ class ApiController {
 		redirect(url: dynamicConferenceService.defaultClientUrl)
 	}
 
+	/**
+	  * IS_MEETING_RUNNING API
+	 */
 	def isMeetingRunning = {
 		log.debug CONTROLLER_NAME + "#isMeetingRunning"
 

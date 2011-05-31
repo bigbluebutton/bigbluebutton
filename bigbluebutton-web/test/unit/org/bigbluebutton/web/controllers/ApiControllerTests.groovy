@@ -42,50 +42,31 @@ class ApiControllerTests extends ControllerUnitTestCase {
     }
 	
 	void testCreateAPI() {		
-		String queryString = "meetingID=${MEETING_ID}&name=${MEETING_NAME}&moderatorPW=${MOD_PASS}&attendeePW=${VIEW_PASS}"
-		String checksum = DigestUtils.shaHex("create" + queryString + SALT)
-		queryString += "&checksum=${checksum}"
-		
-		mockParams.meetingID = MEETING_ID
-		mockParams.checksum = checksum
-		mockParams.name = MEETING_NAME
-		mockParams.moderatorPW = MOD_PASS
-		mockParams.attendeePW = VIEW_PASS
-		mockRequest.queryString = queryString
-		
 		ApiController controller = new ApiController()
-		
 		mockLogging(ApiController)
-
-		controller.setDynamicConferenceService(service)
+		controller.setDynamicConferenceService(service)		
+		createConference(controller)
 		controller.create()
+		
 		println "controller response = " + controller.response.contentAsString
 	}
 
 	void testJoinAPI() {
 		
 		/** Create the meeting to set things up */
-		String queryString = "meetingID=${MEETING_ID}&name=${MEETING_NAME}&moderatorPW=${MOD_PASS}&attendeePW=${VIEW_PASS}"
-		String checksum = DigestUtils.shaHex("create" + queryString + SALT)
-		queryString += "&checksum=${checksum}"
-		
-		mockParams.meetingID = MEETING_ID
-		mockParams.checksum = checksum
-		mockParams.name = MEETING_NAME
-		mockParams.moderatorPW = MOD_PASS
-		mockParams.attendeePW = VIEW_PASS
-		mockRequest.queryString = queryString
-		
 		ApiController controller = new ApiController()
 		mockLogging(ApiController)
-		controller.setDynamicConferenceService(service)
-		controller.create()
+		controller.setDynamicConferenceService(service)		
+		createConference(controller)
 		
+		/**
+		 * Now that the meeting has been setup. Try to join it.
+		 */
 		String username = "Richard"
 		String modPass = "testm"
 		
-		queryString = "meetingID=${MEETING_ID}&fullName=${username}&password=${MOD_PASS}"
-		checksum = DigestUtils.shaHex("join" + queryString + SALT)
+		String queryString = "meetingID=${MEETING_ID}&fullName=${username}&password=${MOD_PASS}"
+		String checksum = DigestUtils.shaHex("join" + queryString + SALT)
 		queryString += "&checksum=${checksum}"
 		
 		mockParams.fullName = username
@@ -106,5 +87,19 @@ class ApiControllerTests extends ControllerUnitTestCase {
 		 * see http://kousenit.wordpress.com/2010/11/10/unit-testing-grails-controllers-revisited/
 		 */
 		assertEquals CLIENT_URL, controller2.redirectArgs['url']		
+	}
+	
+	
+	private void createConference(ApiController controller) {
+		String queryString = "meetingID=${MEETING_ID}&name=${MEETING_NAME}&moderatorPW=${MOD_PASS}&attendeePW=${VIEW_PASS}"
+		String checksum = DigestUtils.shaHex("create" + queryString + SALT)
+		queryString += "&checksum=${checksum}"
+		
+		mockParams.meetingID = MEETING_ID
+		mockParams.checksum = checksum
+		mockParams.name = MEETING_NAME
+		mockParams.moderatorPW = MOD_PASS
+		mockParams.attendeePW = VIEW_PASS
+		mockRequest.queryString = queryString	
 	}
 }
