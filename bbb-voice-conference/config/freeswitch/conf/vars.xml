@@ -124,11 +124,11 @@
 
   -->
 
-        <X-PRE-PROCESS cmd="set" data="global_codec_prefs=PCMU,G722,PCMA,GSM"/>
-        <X-PRE-PROCESS cmd="set" data="outbound_codec_prefs=PCMU,G722,PCMA,GSM"/>
-	<!-- BigBlueButton: To use speex, change the above two lines with data set to these values. 
-             data="global_codec_prefs=speex@16000h@20i,speex@8000h@20i,G7221@32000h,G7221@16000h,G722,PCMU,PCMA,GSM"
-             data="outbound_codec_prefs=speex@16000h@20i,PCMU,PCMA,GSM"
+        <X-PRE-PROCESS cmd="set" data="global_codec_prefs=speex@16000h@20i,speex@8000h@20i,G7221@32000h,G7221@16000h,G722,PCMU,PCMA,GSM" />
+        <X-PRE-PROCESS cmd="set" data="outbound_codec_prefs=speex@16000h@20i,PCMU,PCMA,GSM" />
+	<!-- BigBlueButton: To use mlaw , change the above two lines with data set to these values. 
+		data="global_codec_prefs=PCMU,G722,PCMA,GSM"
+		data="outbound_codec_prefs=PCMU,G722,PCMA,GSM"
 	-->
 
   <!--
