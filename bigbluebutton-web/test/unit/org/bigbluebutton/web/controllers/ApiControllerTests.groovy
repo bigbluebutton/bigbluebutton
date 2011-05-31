@@ -80,6 +80,55 @@ class ApiControllerTests extends ControllerUnitTestCase {
 		 */
 		assertEquals CLIENT_URL, controller2.redirectArgs['url']		
 	}
+
+	void testIsMeetingRunningAPI() {
+		
+		/** Create the meeting to set things up */		
+		ApiController controller = new ApiController()
+		mockLogging(ApiController)
+		controller.setDynamicConferenceService(service)
+		createConference(controller)
+		controller.create();
+		println "controller response = " + controller.response.contentAsString
+		
+		/**
+		 * Now that the meeting has been setup. Try to join it.
+		 */
+		ApiController controller2 = new ApiController()
+		mockLogging(ApiController)
+		controller2.setDynamicConferenceService(service)
+		joinConference(controller2)
+		controller2.join()
+		
+		/**
+		 * Need to use controller2.redirectArgs['url'] instead of controller2.response.redirectedUrl as
+		 * shown in the grails doc because it is returning null for me.
+		 *
+		 * see http://kousenit.wordpress.com/2010/11/10/unit-testing-grails-controllers-revisited/
+		 */
+		assertEquals CLIENT_URL, controller2.redirectArgs['url']
+		
+		ApiController controller3 = new ApiController()
+		mockLogging(ApiController)
+		controller3.setDynamicConferenceService(service)
+		isMeetingRunning(controller3)
+		controller3.isMeetingRunning()
+		println "controller response = " + controller3.response.contentAsString
+	}
+	
+	
+	/***********************************************************************
+	 * Helper methods
+	 */
+	private void isMeetingRunning(ApiController controller) {		
+		String queryString = "meetingID=${MEETING_ID}"
+		String checksum = DigestUtils.shaHex("isMeetingRunning" + queryString + SALT)
+		queryString += "&checksum=${checksum}"
+		
+		mockParams.meetingID = MEETING_ID
+		mockParams.checksum = checksum
+		mockRequest.queryString = queryString
+	}
 	
 	private void joinConference(ApiController controller) {
 		String username = "Richard"

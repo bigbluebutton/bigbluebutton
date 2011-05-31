@@ -283,7 +283,7 @@ class ApiController {
 		}
 
 		// Do we agree on the checksum? If not, complain.		
-		if (! dynamicConferenceService.isChecksumSame("join", params.checksum, request.getQueryString())) {
+		if (! dynamicConferenceService.isChecksumSame("isMeetingRunning", params.checksum, request.getQueryString())) {
 			invalidChecksum(); return;
 		}
 						
