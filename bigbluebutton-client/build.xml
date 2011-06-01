@@ -29,7 +29,7 @@
 	<property name="CLASSROOM_AUDIO" value="ClassroomAudioModule" />
 	<property name="SETTINGS" value="SettingsModule" />
 	
-	<property name="AVAILABLE_LOCALES" value="az_AZ,bn_BN,bg_BG,cs_CZ,da_DK,de_DE,el_GR,en_US,es_ES,es_LA,fa_IR,fr_FR,fr_CA,hr_HR,hu_HU,id_ID,it_IT,ja_JP,ko_KR,lv_LV,lt_LT,nb_NO,nl_NL,pl_PL,pt_BR,pt_PT,ro_RO,ru_RU,sv_SE,sr_RS,sr_SR,th_TH,tr_TR,vi_VN,uk_UA,zh_CN,zh_TW"/>
+	<property name="AVAILABLE_LOCALES" value="az_AZ,bn_BN,bg_BG,cs_CZ,da_DK,de_DE,el_GR,en_US,es_ES,es_LA,fa_IR,fr_FR,fr_CA,hr_HR,hu_HU,id_ID,it_IT,ja_JP,ko_KR,lv_LV,lt_LT,mn_MN,nb_NO,nl_NL,pl_PL,pt_BR,pt_PT,ro_RO,ru_RU,sv_SE,sr_RS,sr_SR,th_TH,tr_TR,vi_VN,uk_UA,zh_CN,zh_TW"/>
 	
 	<xmlproperty file="${SRC_DIR}/conf/locales.xml" collapseAttributes="true"/>
 	
