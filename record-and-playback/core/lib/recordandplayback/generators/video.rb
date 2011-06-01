@@ -253,11 +253,23 @@ module BigBlueButton
     frame_size = "-s #{width}x#{height}"
     side_padding = ((MAX_VID_WIDTH - width) / 2).to_i
     top_bottom_padding = ((MAX_VID_HEIGHT - height) / 2).to_i
+ 
     # Use for newer version of FFMPEG
     # padding = "-vf pad=#{MAX_VID_WIDTH}:#{MAX_VID_HEIGHT}:#{top_bottom_padding}:#{side_padding}:FFFFFF"
     
     # Use this for ffmpeg version that comes with Ubuntu 10.04
-    padding = "-s #{MAX_VID_WIDTH}x#{MAX_VID_HEIGHT} -padtop #{top_bottom_padding} -padbottom #{top_bottom_padding}  -padleft #{side_padding} -padright #{side_padding}"
+    left_padding = right_padding = side_padding
+    if side_padding.odd?
+      left_padding = side_padding - 1 
+      right_padding = side_padding + 1
+    end
+    top_padding = bottom_padding = top_bottom_padding
+    if top_bottom_padding.odd?
+      top_padding = top_bottom_padding - 1 
+      bottom_padding = top_bottom_padding + 1
+    end
+    
+    padding = "-s #{MAX_VID_WIDTH}x#{MAX_VID_HEIGHT} -padtop #{top_padding} -padbottom #{bottom_padding}  -padleft #{left_padding} -padright #{right_padding}"
     command = "ffmpeg -i #{flv_in} -aspect 4:3 -r 1000 -sameq #{frame_size} #{padding} -vcodec flashsv #{flv_out}" 
     BigBlueButton.logger.info(command)
     IO.popen(command)
