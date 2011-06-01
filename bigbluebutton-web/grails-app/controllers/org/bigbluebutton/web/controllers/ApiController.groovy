@@ -161,7 +161,6 @@ class ApiController {
 							.withLogoutUrl(logoutUrl).withTelVoice(telVoice).withWebVoice(webVoice).withDialNumber(dialNumber)
 							.withMetadata(meetingInfo).withWelcomeMessage(welcomeMessage).build()
 							
-		log.info("Storing meeting ${meeting.getInternalId()}")
 		dynamicConferenceService.createConference(meeting);
 		
 		// See if the request came with pre-uploading of presentation.
@@ -382,7 +381,7 @@ class ApiController {
       * GETMEETINGINFO API
      */
 	def getMeetingInfo = {
-		API_CALL = "getMeetingInfo"
+		String API_CALL = "getMeetingInfo"
 		log.debug CONTROLLER_NAME + "#${API_CALL}"
 		// Do we have a checksum? If none, complain.
 		if (StringUtils.isEmpty(params.checksum)) {
