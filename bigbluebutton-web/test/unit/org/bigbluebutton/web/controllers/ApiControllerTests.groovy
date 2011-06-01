@@ -117,9 +117,65 @@ class ApiControllerTests extends ControllerUnitTestCase {
 	}
 	
 	
+	void testEndAPI() {
+		
+		/** Create the meeting to set things up */		
+		ApiController createCtlr = new ApiController()
+		mockLogging(ApiController)
+		createCtlr.setDynamicConferenceService(service)
+		createConference(createCtlr)
+		createCtlr.create();
+		println "controller response = " + createCtlr.response.contentAsString
+		
+		/**
+		 * Now that the meeting has been setup. Try to join it.
+		 */
+		ApiController joinCtlr = new ApiController()
+		mockLogging(ApiController)
+		joinCtlr.setDynamicConferenceService(service)
+		joinConference(joinCtlr)
+		joinCtlr.join()
+		
+		/**
+		 * Need to use controller2.redirectArgs['url'] instead of controller2.response.redirectedUrl as
+		 * shown in the grails doc because it is returning null for me.
+		 *
+		 * see http://kousenit.wordpress.com/2010/11/10/unit-testing-grails-controllers-revisited/
+		 */
+		assertEquals CLIENT_URL, joinCtlr.redirectArgs['url']
+		
+		ApiController runningCtlr = new ApiController()
+		mockLogging(ApiController)
+		runningCtlr.setDynamicConferenceService(service)
+		isMeetingRunning(runningCtlr)
+		runningCtlr.isMeetingRunning()
+		println "controller response = " + runningCtlr.response.contentAsString
+		
+		ApiController endCtlr = new ApiController()
+		mockLogging(ApiController)
+		endCtlr.setDynamicConferenceService(service)
+		endMeeting(endCtlr)
+		endCtlr.end()
+		println "controller response = " + endCtlr.response.contentAsString
+		
+	}
+	
 	/***********************************************************************
 	 * Helper methods
 	 */
+
+	private void endMeeting(ApiController controller) {		
+		String queryString = "meetingID=${MEETING_ID}&password=${MOD_PASS}"
+		String checksum = DigestUtils.shaHex("end" + queryString + SALT)
+		queryString += "&checksum=${checksum}"
+		
+		mockParams.meetingID = MEETING_ID
+		mockParams.password = MOD_PASS
+		mockParams.checksum = checksum
+		mockRequest.queryString = queryString
+	}
+
+		
 	private void isMeetingRunning(ApiController controller) {		
 		String queryString = "meetingID=${MEETING_ID}"
 		String checksum = DigestUtils.shaHex("isMeetingRunning" + queryString + SALT)

@@ -70,7 +70,8 @@ class ApiController {
 				
 	/* CREATE (API) */
 	def create = {
-		log.debug CONTROLLER_NAME + "#create"
+		String API_CALL = 'create'
+		log.debug CONTROLLER_NAME + "#${API_CALL}"
 	
 		// Do we have a checksum? If not, complain.
 		if (StringUtils.isEmpty(params.checksum)) {
@@ -93,7 +94,7 @@ class ApiController {
 		}
 				
 		// Do we agree with the checksum? If not, complain.
-		if (! dynamicConferenceService.isChecksumSame("create", params.checksum, request.getQueryString())) {
+		if (! dynamicConferenceService.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
 			invalidChecksum(); return;
 		}
 
@@ -173,7 +174,8 @@ class ApiController {
 	 * JOIN API
 	 */
 	def join = {
-		log.debug CONTROLLER_NAME + "#join"
+		String API_CALL = 'join'
+		log.debug CONTROLLER_NAME + "#${API_CALL}"
 	
 		// Do we have a checksum? If none, complain.
 		if (StringUtils.isEmpty(params.checksum)) {
@@ -203,7 +205,7 @@ class ApiController {
 		}
 				
 		// Do we agree on the checksum? If not, complain.		
-		if (! dynamicConferenceService.isChecksumSame("join", params.checksum, request.getQueryString())) {
+		if (! dynamicConferenceService.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
 			invalidChecksum(); return;
 		}
 
@@ -267,7 +269,8 @@ class ApiController {
 	  * IS_MEETING_RUNNING API
 	 */
 	def isMeetingRunning = {
-		log.debug CONTROLLER_NAME + "#isMeetingRunning"
+		String API_CALL = 'isMeetingRunning'
+		log.debug CONTROLLER_NAME + "#${API_CALL}"
 
 		// Do we have a checksum? If none, complain.
 		if (StringUtils.isEmpty(params.checksum)) {
@@ -283,7 +286,7 @@ class ApiController {
 		}
 
 		// Do we agree on the checksum? If not, complain.		
-		if (! dynamicConferenceService.isChecksumSame("isMeetingRunning", params.checksum, request.getQueryString())) {
+		if (! dynamicConferenceService.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
 			invalidChecksum(); return;
 		}
 						
@@ -310,30 +313,58 @@ class ApiController {
 		}
 	}
 
+	/**
+	 * END API
+	 */
 	def end = {
-		log.debug CONTROLLER_NAME + "#end"
-
-		if (!doChecksumSecurity("end")) {
-			invalidChecksum(); return;
+		String API_CALL = "end"
+		
+		log.debug CONTROLLER_NAME + "#${API_CALL}"
+		// Do we have a checksum? If none, complain.
+		if (StringUtils.isEmpty(params.checksum)) {
+			invalid("missingParamChecksum", "You must pass a checksum and query string.");
+			return			
 		}
 
-		String mtgID = params.meetingID
-		String callPW = params.password
+		// Do we have a meeting id? If none, complain.
+		String externalMeetingId = params.meetingID
+		if (StringUtils.isEmpty(externalMeetingId)) {
+			invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
+			return
+		}
 
-		// check for existing:
-		Meeting conf = dynamicConferenceService.getConferenceByMeetingID(mtgID);		
-		if (conf == null) {
-			invalid("notFound", "We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?");
+		// Do we have a password? If not, complain.
+		String modPW = params.password
+		if (StringUtils.isEmpty(modPW)) {
+			invalid("missingParamPassword", "You must specify a password for the meeting.");
+			return
+		}
+
+		// Do we agree on the checksum? If not, complain.		
+		if (! dynamicConferenceService.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+			invalidChecksum(); return;
+		}
+						
+		// Everything is good so far. Translate the external meeting id to an internal meeting id. If
+		// we can't find the meeting, complain.					        
+		String internalMeetingId = dynamicConferenceService.getInternalMeetingId(externalMeetingId);
+		log.info("Retrieving meeting ${internalMeetingId}")		
+		Meeting meeting = dynamicConferenceService.getMeeting(internalMeetingId);
+		if (meeting == null) {
+			invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
+			return;
+		}
+
+		
+		if (meeting.getModeratorPassword().equals(modPW) == false) {
+			invalidPassword("You must supply the moderator password for this call."); 
 			return;
 		}
 		
-		if (conf.getModeratorPassword().equals(callPW) == false) {
-			invalidPassword("You must supply the moderator password for this call."); return;
-		}
+		meeting.setForciblyEnded(true);
 		
-		conf.setForciblyEnded(true);
-		
-		conferenceEventListener.endMeetingRequest(room);
+		// Send end meeting request
+		// conferenceEventListener.endMeetingRequest(room);
 		
 		response.addHeader("Cache-Control", "no-cache")
 		withFormat {	
