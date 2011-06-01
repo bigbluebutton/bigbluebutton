@@ -44,7 +44,7 @@ recordings = []
 dir_list.each do |d|
   if File::directory?("#{publish_dir}/#{d}")
     rec_time = File.ctime("#{publish_dir}/#{d}") 
-    play_link = "http://#{playback_host}/playback/playback.html?meetingId=#{d}"
+    play_link = "http://#{playback_host}/playback/simple/playback.html?meetingId=#{d}"
     
     metadata = BigBlueButton::Events.get_meeting_metadata("#{publish_dir}/#{d}/events.xml")
     puts metadata

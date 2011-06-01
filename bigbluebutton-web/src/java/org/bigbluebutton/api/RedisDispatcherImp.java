@@ -19,8 +19,8 @@ public class RedisDispatcherImp implements IRedisDispatcher {
 		System.out.println("Storing " + conf.getName());
 		confMap.put("name", conf.getName());
 		
-		jedis.hmset("meeting.info" + COLON + conf.getMeetingToken(), confMap);
-		jedis.hmset("meeting:metadata"+ COLON + conf.getMeetingToken(), conf.getMetadata());
+		jedis.hmset("meeting:" + conf.getMeetingToken() + ":info", confMap);
+		jedis.hmset("meeting:" + conf.getMeetingToken() + ":metadata", conf.getMetadata());
 	}
 
 //	public void setRedisHost(String redisHost) {

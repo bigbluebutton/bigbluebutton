@@ -82,6 +82,9 @@ server {
                 index  index.html index.htm;
         }
 
+	# Include specific rules for record and playback
+        include /etc/bigbluebutton/nginx/*;
+
         #error_page  404  /404.html;
 
         # Redirect server error pages to the static page /50x.html
