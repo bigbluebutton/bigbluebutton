@@ -17,7 +17,7 @@ function getUrlParameters() {
     var params = getUrlParameters();
 	var MEETINGID = params['meetingId']
     var HOST = window.location.hostname
-    var RECORDINGS = "http://" + HOST + "/recordings/" + MEETINGID
+    var RECORDINGS = "http://" + HOST + "/simple/" + MEETINGID
 	var PRESENTATION = RECORDINGS + '/presentation/'
 	var LOGO = 'logo.png';
 		

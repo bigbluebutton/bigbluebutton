@@ -1,0 +1,10 @@
+        location /playback/simple {
+                root    /var/bigbluebutton;
+                index  index.html index.htm;
+        }
+
+        location /simple {
+                root    /var/bigbluebutton/published;
+                index  index.html index.htm;
+        }
+
