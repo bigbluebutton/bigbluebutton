@@ -107,7 +107,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 
 		// String joinURL = getJoinURL(username, meetingID, "Welcome to " + meetingID );
 		// Update: added record parameter, default false
-		String joinURL = getJoinURL(username, meetingID,"false", "<br>Welcome to course: %%CONFNAME%%.<br>" );
+		String joinURL = getJoinURL(username, meetingID,"false", "<br>Welcome to course: %%CONFNAME%%.<br>", null );
 
 		if (joinURL.startsWith("http://")) {
 %>
