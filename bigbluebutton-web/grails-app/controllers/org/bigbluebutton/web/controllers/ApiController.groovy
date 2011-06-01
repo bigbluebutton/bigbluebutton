@@ -485,6 +485,9 @@ class ApiController {
 		}
 	}
 
+	/**
+	 * ENTER API
+	 */
 	def enter = {
 		def fname = session["fullname"]
 	    def rl = session["role"]
@@ -537,47 +540,27 @@ class ApiController {
 				}
 			}
 	    }  
-		println "Leaving Enter"
 	}
 	
-	def signOut = {
-	    def config = ConfigurationHolder.config
-        def hostURL = config.bigbluebutton.web.logoutURL
-        
-        log.debug("LogoutURL=$hostURL")
-        
-        // For backward compatibility. We renamed "loggedOutUrl" to
-        // "logoutURL" in 0.64 to be consistent with the API. Remove this
-        // in later iterations (ralam mar 26, 2010)
-        //if ((hostURL == null) || (hostURL == "")) {
-        if (hostURL.isEmpty()) {
-            log.debug("No logoutURL property set. Checking for old loggedOutUrl.")
-            hostURL = config.bigbluebutton.web.loggedOutUrl
-            if (!hostURL.isEmpty()) 
-               log.debug("Old loggedOutUrl property set to $hostURL") 
-        }
-        
-	    def meetingToken = session["conference"]
-        Meeting conf = dynamicConferenceService.getConferenceByToken(meetingToken)
-        if (conf != null) {
-        	if (! StringUtils.isEmpty(conf.logoutUrl)) {
-        	   hostURL = conf.logoutUrl
-        	   log.debug("logoutURL has been set from API. Redirecting to server url $hostURL.")
-    		}
+	/**
+	 * SIGNOUT API
+	 */
+	def signOut = {        
+	    String meetingId = session["conference"]
+	    Meeting meeting = dynamicConferenceService.getMeeting(meetingId);
+	    String logoutUrl = dynamicConferenceService.defaultLogoutUrl
+	    
+        if (meeting != null) {
+        	logoutUrl = meeting.getLogoutUrl();
         }
 	    	    
-        if (hostURL.isEmpty()) {           
-        	hostURL = config.bigbluebutton.web.serverURL
-        	log.debug("No logout url. Redirecting to server url $hostURL.")
-        }
         // Log the user out of the application.
 	    session.invalidate()
 	    
-	    if (conf.isRecord())
+	    if (meeting.isRecord())
 	    	dynamicConferenceService.processRecording(meetingToken)
 	    
-        println "serverURL $hostURL"	
-	    redirect(url: hostURL)
+	    redirect(url: logoutUrl)
 	}
 	
 	def uploadDocuments(conf) { 
@@ -748,7 +731,7 @@ class ApiController {
 		}
 	}
 
-	def respondWithConference(conf, msgKey, msg) {
+	def respondWithConference(meeting, msgKey, msg) {
 		response.addHeader("Cache-Control", "no-cache")
 		withFormat {	
 			xml {
@@ -756,10 +739,10 @@ class ApiController {
 				render(contentType:"text/xml") {
 					response() {
 						returncode(RESP_CODE_SUCCESS)
-						meetingID("${conf.getExternalId()}")
-						attendeePW("${conf.getViewerPassword()}")
-						moderatorPW("${conf.getModeratorPassword()}")
-						hasBeenForciblyEnded(conf.isForciblyEnded() ? "true" : "false")
+						meetingID(meeting.getExternalId())
+						attendeePW(meeting.getViewerPassword())
+						moderatorPW(meeting.getModeratorPassword())
+						hasBeenForciblyEnded(meeting.isForciblyEnded() ? "true" : "false")
 						messageKey(msgKey == null ? "" : msgKey)
 						message(msg == null ? "" : msg)
 					}
