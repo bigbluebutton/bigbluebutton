@@ -49,7 +49,7 @@ class ApiControllerTests extends ControllerUnitTestCase {
 		ApiController controller = new ApiController()
 		mockLogging(ApiController)
 		controller.setDynamicConferenceService(dynamicConferenceService)		
-		createConference(controller)
+		createMeeting(controller)
 		controller.create()
 		
 		println "controller response = " + controller.response.contentAsString
@@ -64,9 +64,9 @@ class ApiControllerTests extends ControllerUnitTestCase {
 		controller2.setDynamicConferenceService(dynamicConferenceService)
 		
 		// Create a conference. This prevents us from calling the CREATE API
-		dynamicConferenceService.createConference(createDefaultMeeting())
+		dynamicConferenceService.createMeeting(createDefaultMeeting())
 		
-		joinConference(controller2)
+		joinMeeting(controller2)
 		controller2.join()
 		
 		/**
@@ -85,7 +85,7 @@ class ApiControllerTests extends ControllerUnitTestCase {
 		controller3.setDynamicConferenceService(dynamicConferenceService)
 		
 		// Create a conference. This prevents us from calling the CREATE API
-		dynamicConferenceService.createConference(createDefaultMeeting())
+		dynamicConferenceService.createMeeting(createDefaultMeeting())
 		
 		isMeetingRunning(controller3)
 		controller3.isMeetingRunning()
@@ -100,12 +100,11 @@ class ApiControllerTests extends ControllerUnitTestCase {
 		endCtlr.setDynamicConferenceService(dynamicConferenceService)
 		
 		// Create a conference. This prevents us from calling the CREATE API
-		dynamicConferenceService.createConference(createDefaultMeeting())
+		dynamicConferenceService.createMeeting(createDefaultMeeting())
 		
 		endMeeting(endCtlr)
 		endCtlr.end()
-		println "controller response = " + endCtlr.response.contentAsString
-		
+		println "controller response = " + endCtlr.response.contentAsString		
 	}
 	
 	void testGetMeetingInfo() {
@@ -118,11 +117,31 @@ class ApiControllerTests extends ControllerUnitTestCase {
 		// Add a user.
 		User u = new User("test-user", "Test User", "MODERATOR");
 		m.userJoined(u);
-		dynamicConferenceService.createConference(m)
+		dynamicConferenceService.createMeeting(m)
 		
 		getMeetingInfo(gmiCtlr)
 		gmiCtlr.getMeetingInfo()
-		println "controller response = " + gmiCtlr.response.contentAsString
+		println "controller response = " + gmiCtlr.response.contentAsString		
+	}
+	
+	void testGetMeetings() {
+		ApiController gmCtlr = new ApiController()
+		mockLogging(ApiController)
+		gmCtlr.setDynamicConferenceService(dynamicConferenceService)
+		
+		// Create a conference. This prevents us from calling the CREATE API
+		Meeting m = createDefaultMeeting()
+		// Add a user.
+		User u = new User("test-user", "Test User", "MODERATOR");
+		m.userJoined(u);
+		dynamicConferenceService.createMeeting(m)
+		
+		// Create another meeting
+		dynamicConferenceService.createMeeting(createAnotherMeeting());
+		
+		getMeetings(gmCtlr)
+		gmCtlr.getMeetings()
+		println "controller response = " + gmCtlr.response.contentAsString
 		
 	}
 	
@@ -154,7 +173,41 @@ class ApiControllerTests extends ControllerUnitTestCase {
 							
 		return defaultMeeting;
 	}
+	
+	private Meeting createAnotherMeeting() {
+		String externalMeetingId = "cook-with-omar"
+		String internalMeetingId = dynamicConferenceService.getInternalMeetingId(externalMeetingId)
+		String logoutUrl = "http://localhost"
+		String telVoice = "85116"
+		String webVoice = "bbb-85116"
+		String dialNumber = "6135551234"
+		String welcomeMessage = "Welcome to Another Meeting. Todays topic is Cooking with Chef Omar"
+		Map<String, String> mInfo = new HashMap<String, String>();
+		mInfo.put('title', "Omar's Lebanese Cuisine");
+		mInfo.put('subject', "OLC 101");
+		mInfo.put('description', "How to make the perfect shawarma.");
+		mInfo.put('creator', "Richard Alam");
+		mInfo.put('contributor', "Popen3");
+		mInfo.put('language', "en-US");
+		mInfo.put('identifier', "olc-101-2");
+		
+		Meeting defaultMeeting = new Meeting.Builder().withName("Omar's Cooking").withExternalId("cook-with-omar").withInternalId(internalMeetingId)
+							.withMaxUsers(30).withModeratorPass(MOD_PASS).withViewerPass(VIEW_PASS).withRecording(true)
+							.withLogoutUrl(logoutUrl).withTelVoice(telVoice).withWebVoice(webVoice).withDialNumber(dialNumber)
+							.withMetadata(mInfo).withWelcomeMessage(welcomeMessage).build()
+							
+		return defaultMeeting;
+	}
 
+	private void getMeetings(ApiController controller) {
+		String queryString = ""
+		String checksum = DigestUtils.shaHex("getMeetings" + queryString + SALT)
+		queryString += "&checksum=${checksum}"
+		
+		mockParams.checksum = checksum
+		mockRequest.queryString = queryString
+	}
+	
 	private void getMeetingInfo(ApiController controller) {
 		String queryString = "meetingID=${MEETING_ID}&password=${MOD_PASS}"
 		String checksum = DigestUtils.shaHex("getMeetingInfo" + queryString + SALT)
@@ -188,7 +241,7 @@ class ApiControllerTests extends ControllerUnitTestCase {
 		mockRequest.queryString = queryString
 	}
 	
-	private void joinConference(ApiController controller) {
+	private void joinMeeting(ApiController controller) {
 		String username = "Richard"
 		String modPass = "testm"
 		
@@ -203,7 +256,7 @@ class ApiControllerTests extends ControllerUnitTestCase {
 		mockRequest.queryString = queryString
 	}
 	
-	private void createConference(ApiController controller) {
+	private void createMeeting(ApiController controller) {
 		String queryString = "meetingID=${MEETING_ID}&name=${MEETING_NAME}&moderatorPW=${MOD_PASS}&attendeePW=${VIEW_PASS}"
 		String checksum = DigestUtils.shaHex("create" + queryString + SALT)
 		queryString += "&checksum=${checksum}"

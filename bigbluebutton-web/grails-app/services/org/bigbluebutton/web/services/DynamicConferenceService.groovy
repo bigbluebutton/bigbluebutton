@@ -55,10 +55,10 @@ public class DynamicConferenceService {
 	private MeetingService meetingService
 		
 	public Collection<Meeting> getAllMeetings() {
-		return confsByMtgID.isEmpty() ? Collections.emptySet() : Collections.unmodifiableCollection(confsByMtgID.values());
+		return meetingService.getMeetings()
 	}
 	
-	public void createConference(Meeting meeting) {
+	public void createMeeting(Meeting meeting) {
 		meetingService.storeMeeting(meeting)
 	}
 

@@ -161,7 +161,7 @@ class ApiController {
 							.withLogoutUrl(logoutUrl).withTelVoice(telVoice).withWebVoice(webVoice).withDialNumber(dialNumber)
 							.withMetadata(meetingInfo).withWelcomeMessage(welcomeMessage).build()
 							
-		dynamicConferenceService.createConference(meeting);
+		dynamicConferenceService.createMeeting(meeting);
 		
 		// See if the request came with pre-uploading of presentation.
 		uploadDocuments(meeting);
@@ -430,21 +430,25 @@ class ApiController {
 	 *	GETMEETINGS API
 	 */
 	def getMeetings = {
-		API_CALL = "getMeetings"
+		String API_CALL = "getMeetings"
 		log.debug CONTROLLER_NAME + "#${API_CALL}"
-
-		if (!doChecksumSecurity("getMeetings")) {
-			invalidChecksum(); return;
+		// Do we have a checksum? If none, complain.
+		if (StringUtils.isEmpty(params.checksum)) {
+			invalid("missingParamChecksum", "You must pass a checksum and query string.");
+			return			
 		}
 
-		// check for existing:
-		Collection<Meeting> confs = dynamicConferenceService.getAllConferences();
+		// Do we agree on the checksum? If not, complain.		
+		if (! dynamicConferenceService.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+			invalidChecksum(); return;
+		}
+				
+		Collection<Meeting> mtgs = dynamicConferenceService.getAllMeetings();
 		
-		if (confs == null || confs.size() == 0) {
+		if (mtgs == null || mtgs.isEmpty()) {
 			response.addHeader("Cache-Control", "no-cache")
 			withFormat {	
 				xml {
-					log.debug "Rendering as xml"
 					render(contentType:"text/xml") {
 						response() {
 							returncode(RESP_CODE_SUCCESS)
@@ -461,18 +465,17 @@ class ApiController {
 		response.addHeader("Cache-Control", "no-cache")
 		withFormat {	
 			xml {
-				log.debug "Rendering as xml"
 				render(contentType:"text/xml") {
 					response() {
 						returncode(RESP_CODE_SUCCESS)
 						meetings() {
-							confs.each { conf ->
+							mtgs.each { m ->
 								meeting() {
-									meetingID("${conf.meetingID}")
-									attendeePW("${conf.attendeePassword}")
-									moderatorPW("${conf.moderatorPassword}")
-									hasBeenForciblyEnded(conf.isForciblyEnded() ? "true" : "false")
-									running(conf.isRunning() ? "true" : "false")
+									meetingID(m.getExternalId())
+									attendeePW(m.getViewerPassword())
+									moderatorPW(m.getModeratorPassword())
+									hasBeenForciblyEnded(m.isForciblyEnded() ? "true" : "false")
+									running(m.isRunning() ? "true" : "false")
 								}
 							}
 						}
