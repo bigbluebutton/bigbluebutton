@@ -98,15 +98,7 @@ function getUrlParameters() {
 			$('#imgSlide').attr('src', LOGO);
 			return;
 		}
-		
-    var lastTransition = slideTransitions[slideTransitions.length-1].time;
-    if (lastTransition < now) {
-      var slideIndex = parseInt(slideTransitions[slideTransitions.length-1].slide) + 1; 
-      var slideToShow = PRESENTATION + presentationName + '/slide-' + slideIndex + '.png';
-      $('#imgSlide').attr('src', slideToShow);      
-      return;                
-    }
-        
+
 		$.each(presentations, function(index, value){
 			var time = value.time;
 			
@@ -114,6 +106,14 @@ function getUrlParameters() {
 				presentationName = presentations[index].name		
 			} 
 		});        
+        
+    var lastTransition = slideTransitions[slideTransitions.length-1].time;
+    if (lastTransition < now) {
+      var slideIndex = parseInt(slideTransitions[slideTransitions.length-1].slide) + 1; 
+      var slideToShow = PRESENTATION + presentationName + '/slide-' + slideIndex + '.png';
+      $('#imgSlide').attr('src', slideToShow);      
+      return;                
+    }
         
 		$.each(slideTransitions, function(index, value){
 			var time = value.time;
