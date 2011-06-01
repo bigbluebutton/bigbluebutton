@@ -354,7 +354,6 @@ class ApiController {
 			invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
 			return;
 		}
-
 		
 		if (meeting.getModeratorPassword().equals(modPW) == false) {
 			invalidPassword("You must supply the moderator password for this call."); 
@@ -363,8 +362,7 @@ class ApiController {
 		
 		meeting.setForciblyEnded(true);
 		
-		// Send end meeting request
-		// conferenceEventListener.endMeetingRequest(room);
+		dynamicConferenceService.endMeetingRequest(internalMeetingId);
 		
 		response.addHeader("Cache-Control", "no-cache")
 		withFormat {	
@@ -380,33 +378,61 @@ class ApiController {
 		}
 	}
 
+    /**
+      * GETMEETINGINFO API
+     */
 	def getMeetingInfo = {
-		log.debug CONTROLLER_NAME + "#getMeetingInfo"
-
-		if (!doChecksumSecurity("getMeetingInfo")) {
-			invalidChecksum(); return;
+		API_CALL = "getMeetingInfo"
+		log.debug CONTROLLER_NAME + "#${API_CALL}"
+		// Do we have a checksum? If none, complain.
+		if (StringUtils.isEmpty(params.checksum)) {
+			invalid("missingParamChecksum", "You must pass a checksum and query string.");
+			return			
 		}
 
-		String mtgID = params.meetingID
-		String callPW = params.password
+		// Do we have a meeting id? If none, complain.
+		String externalMeetingId = params.meetingID
+		if (StringUtils.isEmpty(externalMeetingId)) {
+			invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
+			return
+		}
 
-		// check for existing:
-		Meeting conf = dynamicConferenceService.getConferenceByMeetingID(mtgID);
+		// Do we have a password? If not, complain.
+		String modPW = params.password
+		if (StringUtils.isEmpty(modPW)) {
+			invalid("missingParamPassword", "You must specify a password for the meeting.");
+			return
+		}
+
+		// Do we agree on the checksum? If not, complain.		
+		if (! dynamicConferenceService.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+			invalidChecksum(); return;
+		}
 		
-		if (conf == null) {
-			invalid("notFound", "We could not find a meeting with that meeting ID");
+		// Everything is good so far. Translate the external meeting id to an internal meeting id. If
+		// we can't find the meeting, complain.					        
+		String internalMeetingId = dynamicConferenceService.getInternalMeetingId(externalMeetingId);
+		log.info("Retrieving meeting ${internalMeetingId}")		
+		Meeting meeting = dynamicConferenceService.getMeeting(internalMeetingId);
+		if (meeting == null) {
+			invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
 			return;
 		}
 		
-		if (conf.getModeratorPassword().equals(callPW) == false) {
-			invalidPassword("You must supply the moderator password for this call."); return;
+		if (meeting.getModeratorPassword().equals(modPW) == false) {
+			invalidPassword("You must supply the moderator password for this call."); 
+			return;
 		}
-
-		respondWithConferenceDetails(conf, room, null, null);
+		
+		respondWithConferenceDetails(meeting, null, null, null);
 	}
 	
+	/**
+	 *	GETMEETINGS API
+	 */
 	def getMeetings = {
-		log.debug CONTROLLER_NAME + "#getMeetings"
+		API_CALL = "getMeetings"
+		log.debug CONTROLLER_NAME + "#${API_CALL}"
 
 		if (!doChecksumSecurity("getMeetings")) {
 			invalidChecksum(); return;
@@ -632,8 +658,6 @@ class ApiController {
 	}
 
 
-	
-
 	private boolean validParams() {
 		if (StringUtils.isEmpty(callName)) {
 			throw new RuntimeException("Programming error - you must pass the call name to doChecksumSecurity so it can be used in the checksum");
@@ -655,27 +679,28 @@ class ApiController {
 		}
 	}
 
-	def respondWithConferenceDetails(conf, room, msgKey, msg) {
+	def respondWithConferenceDetails(meeting, room, msgKey, msg) {
 		response.addHeader("Cache-Control", "no-cache")
 		withFormat {				
 			xml {
 				render(contentType:"text/xml") {
 					response() {
 						returncode(RESP_CODE_SUCCESS)
-						meetingID("${conf.meetingID}")
-						attendeePW("${conf.attendeePassword}")
-						moderatorPW("${conf.moderatorPassword}")
-						running(conf.isRunning() ? "true" : "false")
-						hasBeenForciblyEnded(conf.isForciblyEnded() ? "true" : "false")
-						startTime("${conf.startTime}")
-						endTime("${conf.endTime}")
-						participantCount(room == null ? 0 : room.getNumberOfParticipants())
-						moderatorCount(room == null ? 0 : room.getNumberOfModerators())
+						meetingID(meeting.getExternalId())
+						attendeePW(meeting.getViewerPassword())
+						moderatorPW(meeting.getModeratorPassword())
+						running(meeting.isRunning() ? "true" : "false")
+						hasBeenForciblyEnded(meeting.isForciblyEnded() ? "true" : "false")
+						startTime(meeting.getStartTime())
+						endTime(meeting.getEndTime())
+						participantCount(meeting.getNumUsers())
+						maxUsers(meeting.getMaxUsers())
+						moderatorCount(meeting.getNumModerators())
 						attendees() {
-							room == null ? Collections.emptyList() : room.participantCollection.each { att ->
+							meeting.getUsers().each { att ->
 								attendee() {
-									userID("${att.externUserID}")
-									fullName("${att.name}")
+									userID("${att.userid}")
+									fullName("${att.fullname}")
 									role("${att.role}")
 								}
 							}

@@ -2,9 +2,9 @@ package org.bigbluebutton.api;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.*;
 import org.bigbluebutton.api.domain.Meeting;
-import org.bigbluebutton.api.domain.Participant;
 import org.bigbluebutton.web.services.IDynamicConferenceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +12,8 @@ import org.slf4j.LoggerFactory;
 public class MeetingServiceImp implements MeetingService {
 	private static Logger log = LoggerFactory.getLogger(MeetingServiceImp.class);
 	
-	private final Map<String, Meeting> meetings;
+	private final ConcurrentMap<String, Meeting> meetings;
+	
 	private int minutesElapsedBeforeMeetingExpiration = 60;
 	
 	private IDynamicConferenceService dynConfService;
@@ -20,7 +21,7 @@ public class MeetingServiceImp implements MeetingService {
 	public MeetingServiceImp() {
 		meetings = new ConcurrentHashMap<String, Meeting>();
 	}
-
+	
 	@Override
 	public void cleanupOldMeetings() {
 /*
@@ -54,8 +55,8 @@ public class MeetingServiceImp implements MeetingService {
 */
 	}
 
-	public Collection getAllMeetings() {
-		return meetings.isEmpty() ? Collections.emptySet() : Collections.unmodifiableCollection(meetings.values());
+	public Collection<Meeting> getMeetings() {
+		return meetings.isEmpty() ? Collections.<Meeting>emptySet() : Collections.unmodifiableCollection(meetings.values());
 	}
 	
 	public void storeMeeting(Meeting m) {
@@ -79,7 +80,11 @@ public class MeetingServiceImp implements MeetingService {
 		}
 */		return false;
 	}
-			
+	
+	public void endMeeting(String meetingId) {
+		// TODO: Send an end-meeting request to bbb-apps
+	}
+	
 	public void conferenceStarted(String meetingID){
 /*		Meeting conf = getMeeting(meetingID);
 		if (conf != null) {

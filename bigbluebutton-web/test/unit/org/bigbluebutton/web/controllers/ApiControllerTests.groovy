@@ -15,12 +15,14 @@ class ApiControllerTests extends ControllerUnitTestCase {
 	
 	
 	def service
+	MeetingServiceImp meetingService
 	
     protected void setUp() {
         super.setUp()
 		mockLogging(DynamicConferenceService)
 		service = new DynamicConferenceService()
-		service.setMeetingService(new MeetingServiceImp())
+		meetingService = new MeetingServiceImp()
+		service.setMeetingService(meetingService)
 		service.apiVersion = "0.7"
 		service.securitySalt = SALT
 		service.defaultNumDigitsForTelVoice = 5
@@ -51,11 +53,8 @@ class ApiControllerTests extends ControllerUnitTestCase {
 		println "controller response = " + controller.response.contentAsString
 	}
 
-	void testJoinAPI() {
-		
-		/** Create the meeting to set things up */
-
-		
+	void testJoinAPI() {		
+		/** Create the meeting to set things up */		
 		ApiController controller = new ApiController()
 		mockLogging(ApiController)
 		controller.setDynamicConferenceService(service)		
@@ -81,8 +80,7 @@ class ApiControllerTests extends ControllerUnitTestCase {
 		assertEquals CLIENT_URL, controller2.redirectArgs['url']		
 	}
 
-	void testIsMeetingRunningAPI() {
-		
+	void testIsMeetingRunningAPI() {		
 		/** Create the meeting to set things up */		
 		ApiController controller = new ApiController()
 		mockLogging(ApiController)
@@ -157,6 +155,11 @@ class ApiControllerTests extends ControllerUnitTestCase {
 		endMeeting(endCtlr)
 		endCtlr.end()
 		println "controller response = " + endCtlr.response.contentAsString
+		
+	}
+	
+	void testgetMeetingInfo() {
+		
 		
 	}
 	

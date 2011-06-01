@@ -1,12 +1,11 @@
 package org.bigbluebutton.api.domain;
 
-public class Participant {
+public class User {
 	private String userid;
 	private String fullname;
 	private String role;
 	
-	public Participant(String userid, String fullname,
-			String role) {
+	public User(String userid, String fullname, String role) {
 		this.userid = userid;
 		this.fullname = fullname;
 		this.role = role;

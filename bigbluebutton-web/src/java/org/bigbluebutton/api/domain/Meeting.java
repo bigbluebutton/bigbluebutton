@@ -21,9 +21,12 @@
 package org.bigbluebutton.api.domain;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Hashtable;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class Meeting {
 	private String name;
@@ -32,8 +35,8 @@ public class Meeting {
 	
 	private int duration;	 
 	private long createdTime;
-	private long startTime;
-	private long endTime;
+	private long startTime = 0;
+	private long endTime = 0;
 	
 	private boolean forciblyEnded = false;
 	
@@ -47,9 +50,9 @@ public class Meeting {
 	
 	private boolean record;
 	
-	private Hashtable<String,String> metadata;
-	private ArrayList<Participant> participants; 
-
+	private final ConcurrentMap<String, String> metadata;	
+	private final ConcurrentMap<String, User> users; 
+	
 	public Meeting(Builder builder) {
 		this.name = builder.name;
 		this.extMeetingId = builder.externalId;
@@ -58,15 +61,38 @@ public class Meeting {
 		this.moderatorPass = builder.moderatorPass;
 		this.maxUsers = builder.maxUsers;
 		
-		this.participants = new ArrayList<Participant>();
-		this.metadata = new Hashtable<String, String>();
-		addMetadataValue("title", "Default Title");
+		users = new ConcurrentHashMap<String, User>();
+		metadata = new ConcurrentHashMap<String, String>();		
+		metadata.put("meetingId", extMeetingId);
 	}
 
+	public Collection<String> getMetadata() {
+		return metadata.isEmpty() ? Collections.<String>emptySet() : Collections.unmodifiableCollection(metadata.values());
+	}
+	
+	public Collection<User> getUsers() {
+		return users.isEmpty() ? Collections.<User>emptySet() : Collections.unmodifiableCollection(users.values());
+	}
+	
+	public long getStartTime() {
+		return startTime;
+	}
+	
+	public long getCreatedTime() {
+		return createdTime;
+	}
+	
+	public long getDuration() {
+		return duration;
+	}
+	
+	public long getEndTime() {
+		return endTime;
+	}
+	
 	public boolean isRunning() {
-//		boolean running = startTime != null && endTime == null;
-		//println "running: ${running}; startTime: ${startTime}; endTime: ${endTime}"; 
-		return true;
+		boolean running = startTime != 0 && endTime == 0;
+		return running;
 	}
 
 	public String getName() {
@@ -128,46 +154,28 @@ public class Meeting {
 		return record;
 	}
 	
-
-	public void ParticipantJoined(Participant participant){
-		this.participants.add(participant);
+	public void userJoined(User user){
+		this.users.put(user.getUserid(), user);
 	}
 	
-	public void ParticipantLeft(String userid){
-		for(Participant p: this.participants){
-			if(p.getUserid().equalsIgnoreCase(userid)){
-				this.participants.remove(p);
-				break;
-			}
-		}		
+	public void userLeft(String userid){
+		users.remove(userid);		
 	}
 	
-	public int getNumberOfUsers(){
-		return this.participants.size();
+	public int getNumUsers(){
+		return this.users.size();
 	}
 	
-	public int getNumberOfModerators(){
+	public int getNumModerators(){
 		int sum = 0;
-		for(Participant p: this.participants){
-			if (p.isModerator()) {
-				sum++;
-			}
-		} 
+		for (String key : users.keySet()) {
+		    User u =  (User) users.get(key);
+		    if (u.isModerator()) sum++;
+		}
 		return sum;
 	}
 	
-	public ArrayList<Participant> getParticipants(){
-		return this.participants;
-	}
-	
-	public void addMetadataValue(String key, String value){
-		this.metadata.put(key, value);
-	}
-	
-	public Hashtable<String,String> getMetadata(){
-		return this.metadata;
-	}
-	
+			
 	/***
 	 * Meeting Builder
 	 *

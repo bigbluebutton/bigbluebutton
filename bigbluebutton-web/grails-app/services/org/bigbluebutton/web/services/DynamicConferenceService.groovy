@@ -62,8 +62,12 @@ public class DynamicConferenceService {
 		meetingService.storeMeeting(meeting)
 	}
 
-	public Meeting getMeeting(String meetingID) {
-		return meetingService.getMeeting(meetingID);
+	public Meeting getMeeting(String meetingId) {
+		return meetingService.getMeeting(meetingId);
+	}
+	
+	public void endMeetingRequest(String meetingId) {
+		meetingService.endMeeting(meetingId);
 	}
 		
 	public boolean isMeetingWithVoiceBridgeExist(String voiceBridge) {
