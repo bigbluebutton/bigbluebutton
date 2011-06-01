@@ -7,17 +7,21 @@ import org.bigbluebutton.api.MeetingService;
 
 public class ExpiredMeetingCleanupTimerTask {
 
-	private final MeetingService service;
-	private final Timer cleanupTimer;
+	private MeetingService service;
+	private Timer cleanupTimer;
 	
-	public ExpiredMeetingCleanupTimerTask(MeetingService svc) {
+	public ExpiredMeetingCleanupTimerTask() {		}
+	
+	public void setMeetingService(MeetingService svc) {
 		this.service = svc;
-		
-		cleanupTimer = new Timer("bbb-api-cleanup", true);
-		cleanupTimer.scheduleAtFixedRate(new CleanupTask(), 60000, 300000);		
 	}
 	
-	class CleanupTask extends TimerTask {
+	public void start() {
+		cleanupTimer = new Timer("bbb-api-cleanup", true);
+		cleanupTimer.scheduleAtFixedRate(new CleanupTask(), 60000, 300000);				
+	}
+	
+	private class CleanupTask extends TimerTask {
         public void run() {
         	service.cleanupOldMeetings();
         }

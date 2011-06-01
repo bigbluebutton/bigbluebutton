@@ -7,11 +7,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
 
 public class RedisMessagingService implements MessagingService {
+	private static Logger log = LoggerFactory.getLogger(RedisMessagingService.class);
+	
 	private Jedis jedis;
 	private final String host;
 	private final int port;
@@ -47,8 +51,7 @@ public class RedisMessagingService implements MessagingService {
 
 	@Override
 	public void endMeeting(String meetingId) {
-		// TODO Auto-generated method stub
-		
+		log.warn("***Need to implement sending of end meeting request!");
 	}
 
 	@Override
@@ -69,11 +72,9 @@ public class RedisMessagingService implements MessagingService {
 		    exec.execute(pubsubListener);
 
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Unknown host[" + host + "]");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Cannot connect to [" + host + ":" + port + "]");
 		}
 	}
 
@@ -97,8 +98,7 @@ public class RedisMessagingService implements MessagingService {
 	 **/
 	
 	private class PubSubListener extends JedisPubSub {
-		private final String PATTERN_CONFERENCE="bigbluebutton:conference:*";
-		
+		private final String PATTERN_CONFERENCE="bigbluebutton:conference:*";		
 		private final String CHANNEL_STATUS="bigbluebutton:conference:status";
 		private final String CHANNEL_JOIN="bigbluebutton:conference:join";
 		private final String CHANNEL_LEAVE="bigbluebutton:conference:remove";
@@ -118,7 +118,7 @@ public class RedisMessagingService implements MessagingService {
 		public void onPMessage(String pattern, String channel,
 	            String message) {
 			
-			System.out.println("redis message received. pattern:"+pattern+" channel:"+channel+" message:"+message);
+			System.out.println("redis message received. pattern:" + pattern + " channel:" + channel + " message:" + message);
 			
 			if(pattern.equalsIgnoreCase(PATTERN_CONFERENCE)){
 				String[] args = message.split(COLON);

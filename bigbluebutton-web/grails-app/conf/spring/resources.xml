@@ -33,6 +33,7 @@
     </bean>
 -->   
 
+	
 	<!-- Spring Integration / JMS gateways -->
     <bean id="connectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
         <property name="brokerURL">

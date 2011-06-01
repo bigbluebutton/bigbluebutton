@@ -54,13 +54,13 @@ public class Meeting {
 	private final ConcurrentMap<String, User> users; 
 	
 	public Meeting(Builder builder) {
-		this.name = builder.name;
-		this.extMeetingId = builder.externalId;
-		this.intMeetingId = builder.internalId;
-		this.viewerPass = builder.viewerPass;
-		this.moderatorPass = builder.moderatorPass;
-		this.maxUsers = builder.maxUsers;
-		
+		name = builder.name;
+		extMeetingId = builder.externalId;
+		intMeetingId = builder.internalId;
+		viewerPass = builder.viewerPass;
+		moderatorPass = builder.moderatorPass;
+		maxUsers = builder.maxUsers;
+		createdTime = System.currentTimeMillis();
 		users = new ConcurrentHashMap<String, User>();
 		metadata = new ConcurrentHashMap<String, String>();		
 		metadata.put("meetingId", extMeetingId);
@@ -78,6 +78,10 @@ public class Meeting {
 		return startTime;
 	}
 	
+	public void setStartTime(long t) {
+		startTime = t;
+	}
+	
 	public long getCreatedTime() {
 		return createdTime;
 	}
@@ -88,6 +92,10 @@ public class Meeting {
 	
 	public long getEndTime() {
 		return endTime;
+	}
+	
+	public void setEndTime(long t) {
+		endTime = t;
 	}
 	
 	public boolean isRunning() {
