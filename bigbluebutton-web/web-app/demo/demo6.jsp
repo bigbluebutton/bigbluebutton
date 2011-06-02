@@ -32,7 +32,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
 	<script type="text/javascript" src="heartbeat.js"></script>
-	<title>Recording Meeting Session</title>
+	<title>Recording Meeting Demo</title>
 	<style type="text/css">
 	 #formcreate{ 
 	 	width:500px; 
@@ -75,14 +75,14 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 
 	<form id="formcreate" name="formcreate" method="get" action=""> 
 		<fieldset>
-			<legend>Conference Information</legend>
+			<legend>Meeting Information</legend>
 			<ul>
 				<li>
-					<label for="confname">Session Name:</label>
+					<label for="confname">Meeting Name:</label>
 					<input id="confname" name="confname" type="text" />
 				</li>
 				<li>
-					<label for="username1">Username:</label>
+					<label for="username1">Your Name:</label>
 					<input id="username1" name="username1" type="text" />	
 				</li>
 			</ul>
@@ -208,8 +208,8 @@ function mycallback() {
 </script>
 
 <h2><%=confname%> has not yet started.</h2>
-<p>Hi <%=username%>, Now waiting for the moderator to start <%=confname%>.
-(Your browser will automatically refresh and join the meeting when it starts.)</p>
+<label style="display:block;">Hi <%=username%>, Now waiting for the moderator to start <%=confname%>.</label>
+<label style="display:block;">(Your browser will automatically refresh and join the meeting when it starts.)</label>
 
 
 <%
