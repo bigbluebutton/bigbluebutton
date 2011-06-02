@@ -165,7 +165,7 @@ public String getJoinURL(String username, String meetingID, String record, Strin
 	if(metadata!=null){
 		String metadata_params="";
 		for(String metakey : metadata.keySet()){
-			metadata_params = metadata_params + "&meta_" + metakey + "=" + metadata.get(metakey);
+			metadata_params = metadata_params + "&meta_" + urlEncode(metakey) + "=" + urlEncode(metadata.get(metakey));
 		}
 		create_parameters = create_parameters + metadata_params; 
 	}
