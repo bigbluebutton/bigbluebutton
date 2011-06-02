@@ -90,7 +90,7 @@ if (request.getParameterMap().isEmpty()) {
     // Pass null for welcome message to use the default message (see defaultWelcomeMessage in bigbluebutton.properties)
     // Update: Added record parameter, default: false 
     //
-	String joinURL = getJoinURL(request.getParameter("username"), "Demo Meeting", "false", null );
+	String joinURL = getJoinURL(request.getParameter("username"), "Demo Meeting", "false", null, null);
 
 	if (joinURL.startsWith("http://")) { 
 %>

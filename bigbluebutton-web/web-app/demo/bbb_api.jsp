@@ -131,7 +131,7 @@ public String getJoinMeetingURL(String username, String meetingID, String passwo
 // 
 // Create a meeting and return a URL to join it as moderator
 //
-public String getJoinURL(String username, String meetingID, String record, String welcome) {
+public String getJoinURL(String username, String meetingID, String record, String welcome, Map<String, String> metadata) {
 	String base_url_create = BigBlueButtonURL + "api/create?";
 	String base_url_join = BigBlueButtonURL + "api/join?";
 	
@@ -162,6 +162,14 @@ public String getJoinURL(String username, String meetingID, String record, Strin
 								+ welcome_param + "&attendeePW=ap&moderatorPW=mp&voiceBridge=" 
 								+ voiceBridge + "&record=" + record;
 
+	if(metadata!=null){
+		String metadata_params="";
+		for(String metakey : metadata.keySet()){
+			metadata_params = metadata_params + "&meta_" + urlEncode(metakey) + "=" + urlEncode(metadata.get(metakey));
+		}
+		create_parameters = create_parameters + metadata_params; 
+	}
+	
 	Document doc = null;
 
 	try {
