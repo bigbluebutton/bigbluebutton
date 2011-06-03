@@ -37,12 +37,14 @@ BigBlueButton.process_deskstop_sharing(target_dir, temp_dir, meeting_id)
 
 BigBlueButton::MatterhornProcessor.create_manifest_xml("#{target_dir}/muxed-audio-webcam.flv", "#{target_dir}/deskshare.flv", "#{target_dir}/manifest.xml")
 
+metadata = BigBlueButton::Events.get_meeting_metadata("#{temp_dir}/#{meeting_id}/events.xml")
+
 BigBlueButton::MatterhornProcessor.create_dublincore_xml("#{target_dir}/dublincore.xml",
-                                                          {:title => "Business Ecosystem",
-                                                              :subject => "TTMG 5001",
-                                                              :description => "How to manage your product's ecosystem",
-                                                              :creator => "Richard Alam",
-                                                              :contributor => "Popen3",
-                                                              :language => "En-US",
-                                                              :identifier => "ttmg-5001-2"})
+                                                          {:title => metadata[:title.to_s],
+                                                              :subject => metadata[:subject.to_s],
+                                                              :description => metadata[:description.to_s],
+                                                              :creator => metadata[:creator.to_s],
+                                                              :contributor => metadata[:contributor.to_s],
+                                                              :language => metadata[:language.to_s],
+                                                              :identifier => metadata[:identifier.to_s]})
                                                               
