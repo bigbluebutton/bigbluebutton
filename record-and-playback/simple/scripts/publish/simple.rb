@@ -47,7 +47,7 @@ dir_list.each do |d|
     play_link = "http://#{playback_host}/playback/simple/playback.html?meetingId=#{d}"
     
     metadata = BigBlueButton::Events.get_meeting_metadata("#{publish_dir}/#{d}/events.xml")
-    puts metadata
+    
     recordings << {:rec_time => rec_time, :link => play_link, :title => metadata['title']}
   end
 end
