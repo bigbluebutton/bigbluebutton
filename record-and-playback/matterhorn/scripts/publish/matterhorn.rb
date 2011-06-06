@@ -30,7 +30,7 @@ if (playback == "matterhorn")
 	
 	process_dir = "#{recording_dir}/process/matterhorn/#{meeting_id}"	
 	target_dir = "#{recording_dir}/publish/matterhorn/#{meeting_id}"
-	if FileTest.directory?(target_dir)
+	if not FileTest.directory?(target_dir)
 		FileUtils.mkdir_p target_dir
 		
 		FileUtils.cp("#{process_dir}/muxed-audio-webcam.flv", target_dir)
