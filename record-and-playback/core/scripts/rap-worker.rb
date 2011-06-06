@@ -18,7 +18,7 @@ def process_archived_meeting(recording_dir)
 		# This script must be invoked from the scripts directory for the PATH to be resolved.
 		Dir.glob("#{Dir.pwd}/process/*.rb").sort.each do |file|
 			#  BigBlueButton.logger.info("Executing #{file}\n")  
-		  IO.popen("ruby #{file} -m #{meeting_id}")
+		  IO.popen("sudo -u tomcat6 ruby #{file} -m #{meeting_id}")
 		  Process.wait
 		  puts "********** #{$?.exitstatus} #{$?.exited?} #{$?.success?}********************"
 		end
@@ -36,7 +36,7 @@ def publish_processed_meeting(recording_dir)
 		# This script must be invoked from the scripts directory for the PATH to be resolved.
 		Dir.glob("#{Dir.pwd}/publish/*.rb").sort.each do |file|
 			#  BigBlueButton.logger.info("Executing #{file}\n")  
-		  IO.popen("ruby #{file} -m #{meeting_id}")
+		  IO.popen("sudo -u tomcat6 ruby #{file} -m #{meeting_id}")
 		  Process.wait
 		  puts "********** #{$?.exitstatus} #{$?.exited?} #{$?.success?}********************"
 		end
