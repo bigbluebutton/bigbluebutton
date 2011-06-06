@@ -76,5 +76,5 @@ props = YAML::load(File.open('bigbluebutton.yml'))
 recording_dir = props['recording_dir']
 archive_recorded_meeting()
 process_archived_meeting(recording_dir)
-
+publish_processed_meeting(recording_dir)
 

@@ -3,8 +3,7 @@ require 'rubygems'
 require 'trollop'
 require 'yaml'
 
-logger = Logger.new("/var/log/bigbluebutton/simple-process-#{meeting_id}.log", 'daily' )
-BigBlueButton.logger = logger
+
 
 opts = Trollop::options do
   opt :meeting_id, "Meeting id to archive", :default => '58f4a6b3-cd07-444d-8564-59116cb53974', :type => String
@@ -20,7 +19,10 @@ raw_archive_dir = "#{recording_dir}/raw/#{meeting_id}"
 
 target_dir = "#{recording_dir}/process/simple/#{meeting_id}"
 if not FileTest.directory?(target_dir)
-  FileUtils.mkdir_p target_dir
+	logger = Logger.new("/var/log/bigbluebutton/simple-process-#{meeting_id}.log", 'daily' )
+	BigBlueButton.logger = logger
+  
+	FileUtils.mkdir_p target_dir
   
   # Create a copy of the raw archives
   temp_dir = "#{target_dir}/temp"

@@ -3,8 +3,7 @@ require 'rubygems'
 require 'trollop'
 require 'yaml'
 
-logger = Logger.new("/var/log/bigbluebutton/matterhorn-publish-#{meeting_id}.log", 'daily' )
-BigBlueButton.logger = logger
+
 
 opts = Trollop::options do
   opt :meeting_id, "Meeting id to archive", :default => '58f4a6b3-cd07-444d-8564-59116cb53974', :type => String
@@ -17,6 +16,9 @@ meeting_id = match[1]
 playback = match[2]
 
 if (playback == "matterhorn")
+	logger = Logger.new("/var/log/bigbluebutton/matterhorn-publish-#{meeting_id}.log", 'daily' )
+	BigBlueButton.logger = logger
+
 	# This script lives in scripts/archive/steps while matterhorn.yaml lives in scripts/
 	bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
 	matt_props = YAML::load(File.open('matterhorn.yml'))
