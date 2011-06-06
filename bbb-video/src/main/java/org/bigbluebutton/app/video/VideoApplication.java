@@ -31,7 +31,7 @@ import org.red5.server.api.stream.IBroadcastStream;
 import org.red5.server.stream.ClientBroadcastStream;
 
 public class VideoApplication extends MultiThreadedApplicationAdapter {
-	private static Logger log = Red5LoggerFactory.getLogger(VideoApplication.class, "video");
+	private static java.util.logging.Logger log = Red5LoggerFactory.getLogger(VideoApplication.class, "video");
 	
 	private IScope appScope;
 	private IServerStream serverStream;
@@ -78,10 +78,11 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     	String streamName = stream.getPublishedName();
      
     	try {
+    		log.info("Recording stream " + streamName);
     		ClientBroadcastStream cstream = (ClientBroadcastStream) this.getBroadcastStream(conn.getScope(), stream.getPublishedName() );
     		cstream.saveAs(streamName, false);
     	} catch(Exception e) {
-    		System.out.println("ERROR while recording stream " + e.getMessage());
+    		log.error("ERROR while recording stream " + e.getMessage());
     		e.printStackTrace();
     	}    	
     }
