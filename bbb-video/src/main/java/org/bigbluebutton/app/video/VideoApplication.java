@@ -31,7 +31,7 @@ import org.red5.server.api.stream.IBroadcastStream;
 import org.red5.server.stream.ClientBroadcastStream;
 
 public class VideoApplication extends MultiThreadedApplicationAdapter {
-	private static java.util.logging.Logger log = Red5LoggerFactory.getLogger(VideoApplication.class, "video");
+	private static Logger log = Red5LoggerFactory.getLogger(VideoApplication.class, "video");
 	
 	private IScope appScope;
 	private IServerStream serverStream;
