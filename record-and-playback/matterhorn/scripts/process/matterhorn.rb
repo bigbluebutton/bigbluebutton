@@ -18,7 +18,7 @@ props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
 recording_dir = props['recording_dir']
 target_dir = "#{recording_dir}/process/matterhorn/#{meeting_id}"
 
-if not FileTest.directory?(target_dir
+if not FileTest.directory?(target_dir)
   raw_archive_dir = "#{recording_dir}/raw/#{meeting_id}"
   FileUtils.mkdir_p target_dir
 
@@ -45,9 +45,9 @@ if not FileTest.directory?(target_dir
                                                                 :contributor => metadata[:contributor.to_s],
                                                                 :language => metadata[:language.to_s],
                                                                 :identifier => metadata[:identifier.to_s]})
-  archive_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-matterhorn.done", "w")
-  archive_done.write("Processed #{meeting_id}")
-  archive_done.close
+  process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-matterhorn.done", "w")
+  process_done.write("Processed #{meeting_id}")
+  process_done.close
 else
   BigBlueButton.logger.debug("Skipping #{meeting_id} as it has already been processed.")
 end
