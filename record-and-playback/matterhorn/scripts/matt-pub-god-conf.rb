@@ -11,7 +11,7 @@ God.watch do |w|
 	w.interval = 1.minute
 
 	# Start the process
-	w.start = "ruby publisher-matterhorn.rb"
+	w.start = "ruby publish-matterhorn.rb"
 
 	# Start your process in this directory
 	w.dir = "/usr/local/bigbluebutton/core/scripts/"
