@@ -127,11 +127,11 @@ APACHE MAVEN
 	
 APACHE FELIX
 	Get the lastest release of Felix
-		sudo wget http://apache.deathculture.net//felix/org.apache.felix.main.distribution-3.2.0.tar.gz
+		sudo wget http://apache.deathculture.net//felix/org.apache.felix.main.distribution-3.2.2.tar.gz
 	Unarchive
-		sudo tar xvf org.apache.felix.main.distribution-3.2.0.tar.gz 
+		sudo tar xvf org.apache.felix.main.distribution-3.2.2.tar.gz 
 	Move and rename unarchived folder to Matterhorn installation directory
-		sudo mv felix-framework-3.2.0 /opt/matterhorn/felix
+		sudo mv felix-framework-3.2.2 /opt/matterhorn/felix
 	Configure
 		sudo mkdir /opt/matterhorn/felix/load
 		sudo cp -rf /opt/matterhorn/1.1.0/docs/felix/* /opt/matterhorn/felix/
