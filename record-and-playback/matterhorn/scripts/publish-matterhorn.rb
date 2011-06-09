@@ -33,7 +33,7 @@ done_files.each do |df|
         BigBlueButton::MatterhornProcessor.zip_artifacts(WEBCAM, DESKSHARE, DUBLIN, MANIFEST, "#{meeting_id}.zip")
       end
 
-      command = "scp -i #{scp_key} #{target_dir}/#{meeting_id}.zip #{scp_user}@#{scp_server}:#{scp_inbox}"
+      command = "scp -i #{scp_key} -o StrictHostKeyChecking=no -o CheckHostIP=no #{target_dir}/#{meeting_id}.zip #{scp_user}@#{scp_server}:#{scp_inbox}"
       BigBlueButton.logger.info(command)
       Open3.popen3(command) do | stdin, stdout, stderr|
         BigBlueButton.logger.info("scp result=#{$?.exitstatus}")
