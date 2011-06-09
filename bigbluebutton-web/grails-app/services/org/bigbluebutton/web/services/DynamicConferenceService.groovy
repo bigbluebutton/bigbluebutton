@@ -59,7 +59,8 @@ public class DynamicConferenceService {
 	}
 	
 	public void createMeeting(Meeting meeting) {
-		meetingService.storeMeeting(meeting)
+		log.debug("Creating New Meeting...");
+		meetingService.storeMeeting(meeting);
 	}
 
 	public Meeting getMeeting(String meetingId) {
@@ -255,7 +256,8 @@ public class DynamicConferenceService {
 						break
 				}			  
 			}
-		}	
+		}
+		return 	welcomeMessage;
 	}
 			
 	public void setMeetingService(MeetingService s) {

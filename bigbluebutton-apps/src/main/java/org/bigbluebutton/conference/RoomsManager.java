@@ -19,8 +19,8 @@
 package org.bigbluebutton.conference;
 
 import org.slf4j.Logger;
+import org.bigbluebutton.conference.service.messaging.RedisPublisher;
 import org.bigbluebutton.conference.service.recorder.RedisDispatcher;
-import org.bigbluebutton.conference.service.recorder.pubsub.RedisPublisher;
 import org.red5.logging.Red5LoggerFactory;
 import net.jcip.annotations.ThreadSafe;
 import java.util.Map;
@@ -35,11 +35,9 @@ public class RoomsManager {
 	
 	private final Map <String, Room> rooms;
 
-	private IConferenceEventListener conferenceEventListener;
-	
-	 
-	
-	/*redis pubsub*/
+	//replaced with redis publisher
+	//private IConferenceEventListener conferenceEventListener;
+
 	RedisPublisher publisher;
 	
 	public RoomsManager() {
@@ -47,14 +45,14 @@ public class RoomsManager {
 		
 	}
 	
-	public void addRoom(final Room room) {
+	public void addRoom(Room room) {
 		log.debug("Adding room {}", room.getName());
-		room.addRoomListener(new ParticipantUpdatingRoomListener(conferenceEventListener, room,publisher)); 	
+		room.addRoomListener(new ParticipantUpdatingRoomListener(room,publisher)); 	
 		
-		if (checkEvtListener()) {
-			conferenceEventListener.started(room);
+		if (checkPublisher()) {
+			//conferenceEventListener.started(room);
 			//redis pubsub test
-			publisher.publish("bigbluebutton:conference:status", room.getName()+":started");
+			publisher.publish("bigbluebutton:meeting:state", room.getName()+":started");
 			
 			log.debug("Notified event listener of conference start");
 		}
@@ -64,12 +62,12 @@ public class RoomsManager {
 	public void removeRoom(String name) {
 		log.debug("Remove room {}", name);
 		Room room = rooms.remove(name);
-		if (checkEvtListener() && room != null) {
+		if (checkPublisher() && room != null) {
 			room.endAndKickAll();
-			conferenceEventListener.ended(room);
+			//conferenceEventListener.ended(room);
 			
 			//redis pubsub test
-			publisher.publish("bigbluebutton:conference:status", room.getName()+":ended");
+			publisher.publish("bigbluebutton:meeting:state",room.getName()+":ended");
 			
 			log.debug("Notified event listener of conference end");
 		}
@@ -82,8 +80,8 @@ public class RoomsManager {
 		}
 	}
 	
-	private boolean checkEvtListener() {
-		return conferenceEventListener != null;
+	private boolean checkPublisher() {
+		return publisher != null;
 	}
 
 		
@@ -96,8 +94,8 @@ public class RoomsManager {
 	}
 	
 	// this method is called by incoming JMS requests (Spring integration)
-	public void endMeetingRequest(Room room) {
-		room = getRoom(room.getName()); // must do this because the room coming in is serialized (no transient values are present)
+	public void endMeetingRequest(String roomname) {
+		Room room = getRoom(roomname); // must do this because the room coming in is serialized (no transient values are present)
 		log.debug("End meeting request for room: {} ", room.getName());
 		room.endAndKickAll();
 	}
@@ -144,19 +142,20 @@ public class RoomsManager {
 		log.debug("Add participant {}", participant.getName());
 		Room r = getRoom(roomName);
 		if (r != null) {
-			if (checkEvtListener()) {
-				conferenceEventListener.participantsUpdated(r);
+			if (checkPublisher()) {
+				//conferenceEventListener.participantsUpdated(r);
+				//missing_method()
 				if (r.getNumberOfParticipants() == 0) {
-					conferenceEventListener.started(r);
+					//conferenceEventListener.started(r);
 					log.debug("Notified event listener of conference start");
 					//redis pubsub test
-					publisher.publish("bigbluebutton:conference:status", r.getName()+":started");
+					publisher.publish("bigbluebutton:meeting:state", roomName+":started");
 					
 				}
 			}
 			r.addParticipant(participant);
 			//redis pubsub test
-			publisher.publish("bigbluebutton:conference:join", r.getName()+":"+participant.getUserid()+":"+participant.getName()+":"+participant.getRole());
+			//publisher.publish("bigbluebutton:conference:join", r.getName()+":"+participant.getUserid()+":"+participant.getName()+":"+participant.getRole());
 			
 			return;
 		}
@@ -167,15 +166,12 @@ public class RoomsManager {
 		log.debug("Remove participant {} from {}", userid, roomName);
 		Room r = getRoom(roomName);
 		if (r != null) {
-			if (checkEvtListener()) {
-				conferenceEventListener.participantsUpdated(r);
+			if (checkPublisher()) {
+				//conferenceEventListener.participantsUpdated(r);
+				//missing method()?
 			}
 			r.removeParticipant(userid);
-			//redis pubsub test
 
-			publisher.publish("bigbluebutton:conference:remove", r.getName()+":"+userid);
-
-			
 			return;
 		}
 		log.warn("Removing listener from a non-existing room ${roomName}");
@@ -191,13 +187,13 @@ public class RoomsManager {
 		log.warn("Changing participant status on a non-existing room {}", roomName);
 	}
 
-	public void setConferenceEventListener(IConferenceEventListener conferenceEventListener) {
-		this.conferenceEventListener = conferenceEventListener;
-	}
-
-	public IConferenceEventListener getConferenceEventListener() {
-		return conferenceEventListener;
-	}
+//	public void setConferenceEventListener(IConferenceEventListener conferenceEventListener) {
+//		this.conferenceEventListener = conferenceEventListener;
+//	}
+//
+//	public IConferenceEventListener getConferenceEventListener() {
+//		return conferenceEventListener;
+//	}
 
 	public RedisPublisher getPublisher() {
 		return publisher;

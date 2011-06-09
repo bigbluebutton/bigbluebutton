@@ -21,53 +21,49 @@
 */
 package org.bigbluebutton.conference.service.presentation;
 
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-import javax.jms.MapMessage;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class ConversionUpdatesMessageListener implements MessageListener{
+public class ConversionUpdatesMessageListener {
 	private static Logger log = Red5LoggerFactory.getLogger(ConversionUpdatesMessageListener.class, "bigbluebutton");
     
     private ConversionUpdatesProcessor conversionUpdatesProcessor;
 
-	private static final String OFFICE_DOC_CONVERSION_SUCCESS_KEY = "OFFICE_DOC_CONVERSION_SUCCESS";
-    private static final String OFFICE_DOC_CONVERSION_FAILED_KEY = "OFFICE_DOC_CONVERSION_FAILED";
-    private static final String SUPPORTED_DOCUMENT_KEY = "SUPPORTED_DOCUMENT";
-    private static final String UNSUPPORTED_DOCUMENT_KEY = "UNSUPPORTED_DOCUMENT";
-    private static final String PAGE_COUNT_FAILED_KEY = "PAGE_COUNT_FAILED";
-    private static final String PAGE_COUNT_EXCEEDED_KEY = "PAGE_COUNT_EXCEEDED";	
-    private static final String GENERATED_SLIDE_KEY = "GENERATED_SLIDE";
-    private static final String GENERATING_THUMBNAIL_KEY = "GENERATING_THUMBNAIL";
-    private static final String GENERATED_THUMBNAIL_KEY = "GENERATED_THUMBNAIL";
-    private static final String CONVERSION_COMPLETED_KEY = "CONVERSION_COMPLETED";
+	public static final String OFFICE_DOC_CONVERSION_SUCCESS_KEY = "OFFICE_DOC_CONVERSION_SUCCESS";
+	public static final String OFFICE_DOC_CONVERSION_FAILED_KEY = "OFFICE_DOC_CONVERSION_FAILED";
+	public static final String SUPPORTED_DOCUMENT_KEY = "SUPPORTED_DOCUMENT";
+	public static final String UNSUPPORTED_DOCUMENT_KEY = "UNSUPPORTED_DOCUMENT";
+	public static final String PAGE_COUNT_FAILED_KEY = "PAGE_COUNT_FAILED";
+	public static final String PAGE_COUNT_EXCEEDED_KEY = "PAGE_COUNT_EXCEEDED";	
+	public static final String GENERATED_SLIDE_KEY = "GENERATED_SLIDE";
+	public static final String GENERATING_THUMBNAIL_KEY = "GENERATING_THUMBNAIL";
+	public static final String GENERATED_THUMBNAIL_KEY = "GENERATED_THUMBNAIL";
+	public static final String CONVERSION_COMPLETED_KEY = "CONVERSION_COMPLETED";
     
 	public void start() {
 		log.debug("Starting conversion updates receiver.");
 		conversionUpdatesProcessor.start();
 	}
 
-	@Override
+	/*@Override
 	public void onMessage(Message jmsMessage){
 		if (jmsMessage instanceof MapMessage) {
         	MapMessage mapMessage = ((MapMessage) jmsMessage);
 			handleReceivedMessage(mapMessage);
         }
-	}
+	}*/
 	
-	@SuppressWarnings("unchecked")
-	private void handleReceivedMessage(MapMessage mapMessage) {
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void handleReceivedMessage(Map mapMessage) {
     	try{
-			String code = mapMessage.getString("returnCode");
-	    	String room = mapMessage.getString("room");
-	    	String presentationName = mapMessage.getString("presentationName");
-	    	String conference = mapMessage.getString("conference");
-	    	String messageKey = mapMessage.getString("messageKey");
+			String code = (String) mapMessage.get("returnCode");
+	    	String room = (String) mapMessage.get("room");
+	    	String presentationName = (String) mapMessage.get("presentationName");
+	    	String conference = (String) mapMessage.get("conference");
+	    	String messageKey = (String) mapMessage.get("messageKey");
 	    	
 			Map message = new HashMap();
 	    	message.put("conference", conference);
@@ -90,15 +86,15 @@ public class ConversionUpdatesMessageListener implements MessageListener{
 			}
 			else if(messageKey.equalsIgnoreCase(PAGE_COUNT_EXCEEDED_KEY)){
 				log.debug("JMS: {}[{}]",messageKey,presentationName);
-				int numberOfPages = mapMessage.getInt("numberOfPages");
-				int maxNumberPages = mapMessage.getInt("maxNumberPages");
+				int numberOfPages = (Integer) mapMessage.get("numberOfPages");
+				int maxNumberPages = (Integer) mapMessage.get("maxNumberPages");
 				message.put("numberOfPages", numberOfPages);
 				message.put("maxNumberPages", maxNumberPages);
 				conversionUpdatesProcessor.process(message);
 			}
 			else if(messageKey.equalsIgnoreCase(GENERATED_SLIDE_KEY)){
-				int numberOfPages = mapMessage.getInt("numberOfPages");
-				int pagesCompleted = mapMessage.getInt("pagesCompleted");
+				int numberOfPages = (Integer) mapMessage.get("numberOfPages");
+				int pagesCompleted = (Integer) mapMessage.get("pagesCompleted");
 				message.put("numberOfPages", numberOfPages);
 				message.put("pagesCompleted", pagesCompleted);
 				
@@ -106,7 +102,7 @@ public class ConversionUpdatesMessageListener implements MessageListener{
 				conversionUpdatesProcessor.process(message);
 			}
 			else if(messageKey.equalsIgnoreCase(CONVERSION_COMPLETED_KEY)){
-				String slidesInfo = mapMessage.getString("slidesInfo");
+				String slidesInfo = (String) mapMessage.get("slidesInfo");
 				message.put("slidesInfo", slidesInfo);				
 				log.debug("JMS: {}[{}]",messageKey,presentationName);
 				conversionUpdatesProcessor.process(message);
@@ -114,7 +110,7 @@ public class ConversionUpdatesMessageListener implements MessageListener{
 			else{
 				log.error("Cannot handle recieved message.");
 			}
-    	}catch(JMSException ex){
+    	}catch(Exception ex){
     		log.warn(ex.getMessage());
     	}		
 	}

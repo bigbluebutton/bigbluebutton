@@ -1,6 +1,4 @@
-/** 
-* ===License Header===
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 *
 * Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
@@ -17,22 +15,15 @@
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 * 
-* ===License Header===
 */
-package org.bigbluebutton.conference.service.recorder;
 
-/** 
- * 
- * The IRecorder interface define all the neccesary methods to implement for 
- * dispatch events to a JMS queue
- * 
- * */
-public interface Recorder {
-	/** 
-     * Receive the messages from the bigbluebutton modules and send 
-     * them to a queue. These messages are the events generated in a conference.
-     * @param message a JSON String message with the attributes of an event 
-     */
-	public void record(String session, RecordEvent event);
+package org.bigbluebutton.conference;
+
+public interface IRoomListener {
+	public String getName();
+	public void participantStatusChange(Long userid, String status, Object value);
+	public void participantJoined(Participant participant);
+	public void participantLeft(Long userid);
 	
+	public void endAndKickAll();
 }

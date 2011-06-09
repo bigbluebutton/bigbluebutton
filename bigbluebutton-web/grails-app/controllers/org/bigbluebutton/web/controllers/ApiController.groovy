@@ -119,14 +119,15 @@ class ApiController {
 		String logoutUrl = dynamicConferenceService.processLogoutUrl(params.logoutURL); 
 		boolean record = dynamicConferenceService.processRecordMeeting(params.record);
 		int maxUsers = dynamicConferenceService.processMaxUser(params.maxParticipants);
-		String welcomeMessage = dynamicConferenceService.processWelcomeMessage(params.welcome, dialNumber, telVoice, meetingName);
+		
+		String welcomeMessage = dynamicConferenceService.processWelcomeMessage(params.welcome == null ? "" : params.welcome, dialNumber, telVoice, meetingName);
 		
 		// Translate the external meeting id into an internal meeting id.
 		String internalMeetingId = dynamicConferenceService.getInternalMeetingId(externalMeetingId);		
 		Meeting existing = dynamicConferenceService.getMeeting(internalMeetingId);
 		if (existing != null) {
 			log.debug "Existing conference found"
-			if (existing.getAttendeePassword().equals(viewerPass) && existing.getModeratorPassword().equals(modPass)) {
+			if (existing.getViewerPassword().equals(viewerPass) && existing.getModeratorPassword().equals(modPass)) {
 				// trying to create a conference a second time
 				// return success, but give extra info
 				uploadDocuments(existing);

@@ -61,10 +61,12 @@ public class MeetingServiceImp implements MeetingService {
 	}
 
 	public Collection<Meeting> getMeetings() {
+		log.debug("The number of meetings are: "+meetings.size());
 		return meetings.isEmpty() ? Collections.<Meeting>emptySet() : Collections.unmodifiableCollection(meetings.values());
 	}
 	
 	public void storeMeeting(Meeting m) {
+		log.debug("Storing Meeting with internal id:"+m.getInternalId());
 		meetings.put(m.getInternalId(), m);
 	}
 
@@ -102,6 +104,7 @@ public class MeetingServiceImp implements MeetingService {
 	public void setMessagingService(MessagingService mess) {
 		messagingService = mess;
 		messagingService.addListener(new MeetingMessageListener());
+		messagingService.start();
 	}
 	
 	public void setExpiredMeetingCleanupTimerTask(ExpiredMeetingCleanupTimerTask c) {
@@ -121,6 +124,7 @@ public class MeetingServiceImp implements MeetingService {
 			Meeting m = getMeeting(meetingId);
 			if (m != null) {
 				m.setStartTime(System.currentTimeMillis());
+				log.debug("Setting meeting started time...");
 			}
 		}
 
@@ -129,11 +133,13 @@ public class MeetingServiceImp implements MeetingService {
 			Meeting m = getMeeting(meetingId);
 			if (m != null) {
 				m.setEndTime(System.currentTimeMillis());
+				log.debug("Setting meeting end time...");
 			}
 		}
 
 		@Override
 		public void userJoined(String meetingId, String userId, String name, String role) {
+			log.debug("Adding new user...");
 			Meeting m = getMeeting(meetingId);
 			if (m != null) {
 				User user = new User(userId, name, role);
@@ -146,6 +152,7 @@ public class MeetingServiceImp implements MeetingService {
 			Meeting m = getMeeting(meetingId);
 			if (m != null) {
 				m.userLeft(userId);
+				log.debug("Removing user...");
 			}
 		}		
 	}

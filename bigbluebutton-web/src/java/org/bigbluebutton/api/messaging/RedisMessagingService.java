@@ -1,7 +1,5 @@
 package org.bigbluebutton.api.messaging;
 
-import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -11,22 +9,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisException;
+import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
 
 public class RedisMessagingService implements MessagingService {
 	private static Logger log = LoggerFactory.getLogger(RedisMessagingService.class);
-	
-	private Jedis jedis;
-	private final String host;
-	private final int port;
+
+	private JedisPool redisPool;
 	private final Set<MessageListener> listeners = new HashSet<MessageListener>();
 
 	private final Executor exec = Executors.newSingleThreadExecutor();
 	private Runnable pubsubListener;
 
-	public RedisMessagingService(String host, int port) {
-		this.host = host;
-		this.port = port;
+	public RedisMessagingService() {
+
 	}
 	
  	@Override
@@ -41,12 +38,29 @@ public class RedisMessagingService implements MessagingService {
 
 	@Override
 	public void recordMeetingInfo(String meetingId, Map<String, String> info) {
-		jedis.hmset("meeting.info:" + meetingId, info);
+		Jedis jedis=redisPool.getResource();
+		try{
+			jedis.hmset("meeting.info:" + meetingId, info);
+		}catch(JedisException e){
+			log.error("Cannot record the info meeting: %s",meetingId);
+		}finally{
+			redisPool.returnResource(jedis);
+		}
+		
+		
 	}
 
 	@Override
 	public void recordMeetingMetadata(String meetingId,	Map<String, String> metadata) {
-		jedis.hmset("meeting:metadata:" + meetingId, metadata);		
+		Jedis jedis=redisPool.getResource();
+		try{
+			jedis.hmset("meeting:metadata:" + meetingId, metadata);
+		}catch(JedisException e){
+			log.error("Cannot record the metadata meeting: %s",meetingId);
+		}finally{
+			redisPool.returnResource(jedis);
+		}
+				
 	}
 
 	@Override
@@ -56,35 +70,46 @@ public class RedisMessagingService implements MessagingService {
 
 	@Override
 	public void send(String channel, String message) {
-		jedis.publish(channel, message);
+		Jedis jedis=redisPool.getResource();
+		try{
+			jedis.publish(channel, message);
+		}catch(JedisException e){
+			log.error("Cannot publish the message %s to redis",message);
+		}finally{
+			redisPool.returnResource(jedis);
+		}
 	}
 
 	@Override
 	public void start() {
-		jedis = new Jedis(host, port, 0);
+		log.debug("Starting redis pubsub...");
+		final Jedis jedis=redisPool.getResource();
 		try {
-			jedis.connect();
 			 pubsubListener = new Runnable() {
 		    	public void run() {
-		    		jedis.psubscribe(new PubSubListener(), "bigbluebutton:conference:*");       			
+		    		jedis.psubscribe(new PubSubListener(), "bigbluebutton:meeting:*");       			
 		    	}
 			 };
 		    exec.execute(pubsubListener);
 
-		} catch (UnknownHostException e) {
-			log.error("Unknown host[" + host + "]");
-		} catch (IOException e) {
-			log.error("Cannot connect to [" + host + ":" + port + "]");
+		} catch (JedisException e) {
+			log.error("Cannot subscribe to the redis channel");
+		}finally{
+			redisPool.returnResource(jedis);
 		}
 	}
 
 	@Override
 	public void stop() {
 		try {
-			jedis.disconnect();
-		} catch (IOException e) {
+			redisPool.destroy();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void setRedisPool(JedisPool redisPool){
+		this.redisPool=redisPool;
 	}
 
 	
@@ -98,13 +123,12 @@ public class RedisMessagingService implements MessagingService {
 	 **/
 	
 	private class PubSubListener extends JedisPubSub {
-		private final String PATTERN_CONFERENCE="bigbluebutton:conference:*";		
-		private final String CHANNEL_STATUS="bigbluebutton:conference:status";
-		private final String CHANNEL_JOIN="bigbluebutton:conference:join";
-		private final String CHANNEL_LEAVE="bigbluebutton:conference:remove";
-		
-		private final String COLON=":";
+		private final String PATTERN_MEETING="bigbluebutton:meeting:*";
+		private final String CHANNEL_STATE="bigbluebutton:meeting:state";
+		private final String CHANNEL_PARTICIPANTS="bigbluebutton:meeting:participants";
 
+		private final String COLON=":";
+		
 		public PubSubListener() {
 			super();			
 		}
@@ -120,39 +144,51 @@ public class RedisMessagingService implements MessagingService {
 			
 			System.out.println("redis message received. pattern:" + pattern + " channel:" + channel + " message:" + message);
 			
-			if(pattern.equalsIgnoreCase(PATTERN_CONFERENCE)){
-				String[] args = message.split(COLON);
-				
-				if(channel.equalsIgnoreCase(CHANNEL_STATUS)){
-					//params extract
-					String meetingId = args[0];
-					String status = args[1];
-					
-					for (MessageListener listener : listeners) {
-						if(status.equalsIgnoreCase("started")) {
-							listener.meetingStarted(meetingId);
-						} else if(status.equalsIgnoreCase("ended")) {
-							listener.meetingStarted(meetingId);
-						}
-					}
-				} else if(channel.equalsIgnoreCase(CHANNEL_JOIN)){
-					//params extract
-					String meetingId = args[0];
-					String userId = args[1];
-					String name = args[2];
-					String role = args[3];
-				
-					for (MessageListener listener : listeners) {
-						listener.userJoined(meetingId, userId, name, role);
-					}
-				} else if(channel.equalsIgnoreCase(CHANNEL_LEAVE)){
-					String meetingId = args[0];
-					String userId = args[1];
-					
-					for (MessageListener listener : listeners) {
-						listener.userLeft(meetingId, userId);
+			String[] args=message.split(COLON);
+
+			if(channel.equalsIgnoreCase(CHANNEL_STATE)){
+				//params extract
+				String meetingId=args[0];
+				String status=args[1];
+
+				for (MessageListener listener : listeners) {
+					if(status.equalsIgnoreCase("started")) {
+						listener.meetingStarted(meetingId);
+					} else if(status.equalsIgnoreCase("ended")) {
+						listener.meetingStarted(meetingId);
 					}
 				}
+
+			}
+			else if(channel.equalsIgnoreCase(CHANNEL_PARTICIPANTS)){
+				//params extract
+				String meetingId=args[0];
+				String action=args[1];
+
+				if(action.equalsIgnoreCase("join")){
+					String userid=args[2];
+					String fullname=args[3];
+					String role=args[4];
+					
+					for (MessageListener listener : listeners) {
+						listener.userJoined(meetingId, userid, fullname, role);
+					}
+				}
+				else if(action.equalsIgnoreCase("status")){
+					String userid=args[2];
+					String status=args[3];
+					String value=args[4];
+					//missing method...
+					//dynamicConferenceService.participantsUpdatedStatus(roomname, userid, status, value);
+				}
+				else if(action.equalsIgnoreCase("left")){
+					String userid=args[2];
+					
+					for (MessageListener listener : listeners) {
+						listener.userLeft(meetingId, userid);
+					}
+				}
+
 			}
 			
 		}
