@@ -1,9 +1,6 @@
 package org.bigbluebutton.conference.service.recorder;
 
-import org.apache.commons.pool.impl.GenericObjectPool.Config;
-
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisException;
 import redis.clients.jedis.JedisPool;
 
 public class RedisDispatcher implements Recorder {
@@ -26,11 +23,11 @@ public class RedisDispatcher implements Recorder {
 	}
 	
 	@Override
-	public void record(String session, RecordEvent message) {
+	public void record(String meetingId, RecordEvent message) {
 		Jedis jedis = new Jedis(host, port);
 		Long msgid = jedis.incr("global:nextRecordedMsgId");
-		jedis.hmset("recording" + COLON + session + COLON + msgid, message.toMap());
-		jedis.rpush("meeting" + COLON + session + COLON + "recordings", msgid.toString());						
+		jedis.hmset("recording" + COLON + meetingId + COLON + msgid, message.toMap());
+		jedis.rpush("meeting" + COLON + meetingId + COLON + "recordings", msgid.toString());						
 	}
 /*	
 	@Override
