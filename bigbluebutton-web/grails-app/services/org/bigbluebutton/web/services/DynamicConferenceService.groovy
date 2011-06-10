@@ -141,7 +141,7 @@ public class DynamicConferenceService {
 	
 	public String processLogoutUrl(String logoutUrl) {
 		if (StringUtils.isEmpty(logoutUrl)) {
-	        if (StringUtils.isEmpty(defaultLogoutUrl)) {           
+	        if (StringUtils.isEmpty(defaultLogoutUrl)) {          
         		return defaultServerUrl;
         	} else {
         		return defaultLogoutUrl;
