@@ -6,7 +6,12 @@
                            http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
 
 	<bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-	    <property name="location" value="/WEB-INF/red5-web.properties" />
+	    <property name="locations">
+	    	<list>
+	    	 	<value>/WEB-INF/red5-web.properties</value>
+	    	 	<value>/WEB-INF/bigbluebutton-video.properties</value>
+	    	</list>
+	    </property>
 	</bean>
 
 	<bean id="web.context" class="org.red5.server.Context"
@@ -23,5 +28,11 @@
 
 	<bean id="web.handler" class="org.bigbluebutton.app.video.VideoApplication">
 		<property name="recordVideoStream" value="true"/>
+		<property name="eventRecordingService" ref="redisRecorder"/>
 	</bean>
+
+	<bean id="redisRecorder" class="org.bigbluebutton.app.video.EventRecordingService">
+        <constructor-arg index="0" value="${redis.host}"/>
+        <constructor-arg index="1" value="${redis.port}"/>
+    </bean>	
 </beans>
