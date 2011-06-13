@@ -64,13 +64,26 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     
     @Override
     public void streamPublishStart(IBroadcastStream stream) {
+    	super.streamPublishStart(stream);
         if (recordVideoStream) {
 	    	recordStream(stream);
         }
     }
     
+    @Override
+    public void streamBroadcastStart(IBroadcastStream stream) {
+    	super.streamBroadcastStart(stream);
+    	log.info("streamBroadcastStart " + stream.getPublishedName() + " " + System.currentTimeMillis());
+    }
+
+    @Override
+    public void streamBroadcastClose(IBroadcastStream stream) {
+    	super.streamBroadcastClose(stream);
+    	log.info("streamBroadcastClose " + stream.getPublishedName() + " " + System.currentTimeMillis());
+    }
+    
     /**
-     * A hook to record a sample stream. A file is written in webapps/video/streams/
+     * A hook to record a stream. A file is written in webapps/video/streams/
      * @param stream
      */
     private void recordStream(IBroadcastStream stream) {
@@ -78,7 +91,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     	String streamName = stream.getPublishedName();
      
     	try {
-    		log.info("Recording stream " + streamName);
+    		log.info("Recording stream " + streamName + " " + System.currentTimeMillis());
     		ClientBroadcastStream cstream = (ClientBroadcastStream) this.getBroadcastStream(conn.getScope(), stream.getPublishedName() );
     		cstream.saveAs(streamName, false);
     	} catch(Exception e) {
