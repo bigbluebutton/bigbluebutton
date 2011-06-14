@@ -110,13 +110,14 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
      * @param stream
      */
     private void recordStream(IBroadcastStream stream) {
-    	IConnection conn = Red5.getConnectionLocal();     
-    	String streamName = stream.getPublishedName();
+    	IConnection conn = Red5.getConnectionLocal();   
+    	long now = System.currentTimeMillis();
+    	String recordingStreamName = stream.getPublishedName() + "-" + now;
      
-    	try {
-    		log.info("Recording stream " + streamName + " " + System.currentTimeMillis());
+    	try {    		
+    		log.info("Recording stream " + recordingStreamName );
     		ClientBroadcastStream cstream = (ClientBroadcastStream) this.getBroadcastStream(conn.getScope(), stream.getPublishedName() );
-    		cstream.saveAs(streamName, false);
+    		cstream.saveAs(recordingStreamName, false);
     	} catch(Exception e) {
     		log.error("ERROR while recording stream " + e.getMessage());
     		e.printStackTrace();
