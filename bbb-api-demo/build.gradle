@@ -1,0 +1,25 @@
+//usePlugin 'war'
+usePlugin 'jetty'
+
+repositories {
+    mavenCentral()
+}
+task resolveDeps(dependsOn: configurations.default.buildArtifacts, type: Copy) {
+    into('lib')
+    from configurations.default
+    from configurations.default.allArtifacts*.file
+}
+dependencies {
+//        classpath group: 'org.apache.commons', name: 'commons-codec', version: '2.0'
+//       classpath group: 'org.apache.commons', name: 'commons-fileupload', version: '2.0'
+//        compile group: 'org.apache.commons', name: 'commons-codec', version: '2.0'
+//        compile group: 'org.apache.commons', name: 'commons-fileupload', version: '2.0'
+//        compile 'org.apache.commons:commons-codec'
+//        compile 'org.apache.commons:commons-fileupload'
+
+	  compile group: 'commons-codec', name: 'commons-codec', version: '1.4'
+	  compile group: 'commons-fileupload', name: 'commons-fileupload', version: '1.2'
+//	  compile 'commons-codec:commons-codec'
+
+//	  compile 'commons-fileupload:commons-fileupload'
+    }

@@ -16,6 +16,6 @@
     </dependency>
   </dependencies>
   <build>
-    <finalName>bbb-api-demo</finalName>
+    <finalName>demo</finalName>
   </build>
 </project>
