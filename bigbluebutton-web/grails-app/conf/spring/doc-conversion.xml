@@ -14,8 +14,7 @@
 	<integration:gateway id="documentConversionService" service-interface="org.bigbluebutton.presentation.DocumentConversionService"/>
 	<integration:channel id="convertChannel"/>
 
-	<integration:filter ref="supportedDocumentFilter" method="isSupported" input-channel="convertChannel" 
-						output-channel="docRouterChannel"/>
+	<integration:filter ref="supportedDocumentFilter" method="isSupported" input-channel="convertChannel" output-channel="docRouterChannel"/>
 	<bean id="supportedDocumentFilter" class="org.bigbluebutton.presentation.SupportedDocumentFilter">
 		<!-- property name="conversionProgressNotifier" ref="conversionProgressNotifier"/ -->
 		<property name="messagingService" ref="messagingService"></property>  
@@ -31,13 +30,11 @@
 	<!-- integration:channel id="conversionProgressChannel"/>
 	<integration:gateway id="conversionProgressNotifier" service-interface="org.bigbluebutton.presentation.ConversionProgressNotifier"/-->
 	
-	<integration:service-activator input-channel="officeFileChannel" output-channel="officeToPdfConvertResultChannel" 
-			ref="officeToPdfConversionService" method="convertOfficeToPdf"/>
+	<integration:service-activator input-channel="officeFileChannel" output-channel="officeToPdfConvertResultChannel" ref="officeToPdfConversionService" method="convertOfficeToPdf"/>
 	<bean id="officeToPdfConversionService" class="org.bigbluebutton.presentation.imp.OfficeToPdfConversionService"/>
 	
 	<integration:channel id="officeToPdfConvertResultChannel"/>
-	<integration:filter ref="officeToPdfConversionSuccessFilter" method="didConversionSucceed" input-channel="officeToPdfConvertResultChannel" 
-						output-channel="convertChannel"/>
+	<integration:filter ref="officeToPdfConversionSuccessFilter" method="didConversionSucceed" input-channel="officeToPdfConvertResultChannel" output-channel="convertChannel"/>
 	<bean id="officeToPdfConversionSuccessFilter" class="org.bigbluebutton.presentation.OfficeToPdfConversionSuccessFilter">
 		<!-- property name="conversionProgressNotifier" ref="conversionProgressNotifier"/-->
 		<property name="messagingService" ref="messagingService"></property>  
@@ -47,9 +44,7 @@
 	<integration:channel id="discardChannel"/>
     
     <integration:service-activator input-channel="imageFileChannel" ref="imageToSwfSlidesGenerationService" method="generateSlides"/>
-        
-    <!-- jms:outbound-channel-adapter id="jmsOut" destination-name="UpdatesQueue" channel="conversionProgressChannel"/-->
-      	
+
 	<bean id="pageExtractor" class="org.bigbluebutton.presentation.imp.GhostscriptPageExtractor">
 		<property name="ghostscriptExec" value="${ghostScriptExec}"/>
 		<property name="noPdfMarkWorkaround" value="${noPdfMarkWorkaround}"/>

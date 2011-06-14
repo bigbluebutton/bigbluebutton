@@ -20,10 +20,8 @@
  */
 package org.bigbluebutton.api.domain;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -31,15 +29,12 @@ import java.util.concurrent.ConcurrentMap;
 public class Meeting {
 	private String name;
 	private String extMeetingId;
-	private String intMeetingId;
-	
+	private String intMeetingId;	
 	private int duration;	 
 	private long createdTime;
 	private long startTime = 0;
 	private long endTime = 0;
-	
 	private boolean forciblyEnded = false;
-	
 	private String telVoice;
 	private String webVoice;
 	private String moderatorPass;
@@ -47,10 +42,10 @@ public class Meeting {
 	private String welcomeMsg;
 	private String logoutUrl;
 	private int maxUsers;
-	
 	private boolean record;
-	
-	private final ConcurrentMap<String, String> metadata;	
+	private String dialNumber;
+
+	private Map<String, String> metadata;	
 	private final ConcurrentMap<String, User> users; 
 	
 	public Meeting(Builder builder) {
@@ -60,9 +55,18 @@ public class Meeting {
 		viewerPass = builder.viewerPass;
 		moderatorPass = builder.moderatorPass;
 		maxUsers = builder.maxUsers;
+		logoutUrl = builder.logoutUrl;
+		record = builder.record;
+    	duration = builder.duration;
+    	webVoice = builder.webVoice;
+    	telVoice = builder.telVoice;
+    	welcomeMsg = builder.welcomeMsg;
+    	dialNumber = builder.dialNumber;
+    	metadata = builder.metadata;
+    	
 		createdTime = System.currentTimeMillis();
 		users = new ConcurrentHashMap<String, User>();
-		metadata = new ConcurrentHashMap<String, String>();		
+				
 		metadata.put("meetingId", extMeetingId);
 	}
 
@@ -187,6 +191,9 @@ public class Meeting {
 		return sum;
 	}
 	
+	public String getDialNumber() {
+		return dialNumber;
+	}
 			
 	/***
 	 * Meeting Builder

@@ -15,23 +15,8 @@
 			http://www.springframework.org/schema/integration/stream/spring-integration-stream-1.0.xsd
 			http://www.springframework.org/schema/integration/file
 			http://www.springframework.org/schema/integration/file/spring-integration-file-1.0.xsd
-			">
-	 <!--  				
-	<bean id="redisDispatcher" class="org.bigbluebutton.redis.RedisDispatcher">
-        <constructor-arg index="0" value="${redisHost}" />
-        <constructor-arg index="1" value="${redisPort}" />
-    </bean>
-    
-    <bean id="redisListener" class="org.bigbluebutton.redis.RedisListener" init-method="init">
-        <constructor-arg index="0" value="${redisHost}" />
-        <constructor-arg index="1" value="${redisPort}" />
-        <property name="pubsubListener" ref="pubsubListener"></property>
-    </bean>
-    
-    <bean id="pubsubListener" class="org.bigbluebutton.redis.PubsubListener">
-    	<property name="dynamicConferenceService" ref="dynamicConferenceService"></property>
-    </bean>
--->   
+			">  
+			
 	<bean id="meetingService" class="org.bigbluebutton.api.MeetingServiceImp">
 		<property name="messagingService" ref="messagingService"></property>
     </bean>
@@ -43,13 +28,6 @@
     <bean id="redisPool" class="redis.clients.jedis.JedisPool">
         <constructor-arg index="0" value="${redisHost}"/>
         <constructor-arg index="1" value="${redisPort}"/>
-    </bean>
-
-	<!-- Spring Integration / JMS gateways -->
-    <bean id="connectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
-        <property name="brokerURL">
-            <value>tcp://localhost:61616</value>
-        </property>
     </bean>
     
 	<import resource="doc-conversion.xml" />
