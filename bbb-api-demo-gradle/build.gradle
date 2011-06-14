@@ -1,7 +1,0 @@
-usePlugin 'war'
-usePlugin 'jetty'
-
-repositories {
-    mavenCentral()
-}
-
