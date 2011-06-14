@@ -9,11 +9,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisException;
+import redis.clients.jedis.exceptions.JedisException;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
 
-public class RedisMessagingService implements MessagingService {
+public class RedisMessagingService extends MessagingService {
 	private static Logger log = LoggerFactory.getLogger(RedisMessagingService.class);
 
 	private JedisPool redisPool;
@@ -83,11 +83,12 @@ public class RedisMessagingService implements MessagingService {
 	@Override
 	public void start() {
 		log.debug("Starting redis pubsub...");
-		final Jedis jedis=redisPool.getResource();
+		//final Jedis jedis=redisPool.getResource();
+		final Jedis jedis= new Jedis("localhost");
 		try {
 			 pubsubListener = new Runnable() {
 		    	public void run() {
-		    		jedis.psubscribe(new PubSubListener(), "bigbluebutton:meeting:*");       			
+		    		jedis.psubscribe(new PubSubListener(), MEETING_EVENTS);       			
 		    	}
 			 };
 		    exec.execute(pubsubListener);
@@ -95,7 +96,7 @@ public class RedisMessagingService implements MessagingService {
 		} catch (JedisException e) {
 			log.error("Cannot subscribe to the redis channel");
 		}finally{
-			redisPool.returnResource(jedis);
+			//redisPool.returnResource(jedis);
 		}
 	}
 
@@ -123,7 +124,6 @@ public class RedisMessagingService implements MessagingService {
 	 **/
 	
 	private class PubSubListener extends JedisPubSub {
-		private final String PATTERN_MEETING="bigbluebutton:meeting:*";
 		private final String CHANNEL_STATE="bigbluebutton:meeting:state";
 		private final String CHANNEL_PARTICIPANTS="bigbluebutton:meeting:participants";
 
@@ -178,8 +178,10 @@ public class RedisMessagingService implements MessagingService {
 					String userid=args[2];
 					String status=args[3];
 					String value=args[4];
-					//missing method...
-					//dynamicConferenceService.participantsUpdatedStatus(roomname, userid, status, value);
+					
+					for (MessageListener listener : listeners) {
+						listener.updatedStatus(meetingId, userid, status, value);
+					}
 				}
 				else if(action.equalsIgnoreCase("left")){
 					String userid=args[2];

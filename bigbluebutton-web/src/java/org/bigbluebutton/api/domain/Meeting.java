@@ -170,6 +170,10 @@ public class Meeting {
 		users.remove(userid);		
 	}
 	
+	public User getUserById(String id){
+		return this.users.get(id);
+	}
+	
 	public int getNumUsers(){
 		return this.users.size();
 	}

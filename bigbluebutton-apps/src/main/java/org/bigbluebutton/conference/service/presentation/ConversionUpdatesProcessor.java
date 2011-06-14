@@ -50,7 +50,7 @@ public class ConversionUpdatesProcessor {
 		try {
 			// Create a Runnable (Closures implements Runnable) to process the messages.
 			
-			exec.execute(new Runnable() {
+			/*exec.execute(new Runnable() {
 				
 				@SuppressWarnings("unchecked")
 				@Override
@@ -66,7 +66,7 @@ public class ConversionUpdatesProcessor {
 						}
 					}
 				}
-			});
+			});*/
 			
 		} catch (RejectedExecutionException e) {
 			if (!exec.isShutdown())

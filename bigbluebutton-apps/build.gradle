@@ -118,6 +118,7 @@ dependencies {
     // Freeswitch ESL Client
     compile 'org/freeswitch:fs-esl-client:0.8.1@jar'
     compile 'org.jboss.netty:netty:3.2.1.Final@jar'
+    compile 'com.google.code.gson:gson:1.7.1@jar'
 }
 
 test {

@@ -154,7 +154,17 @@ public class MeetingServiceImp implements MeetingService {
 				m.userLeft(userId);
 				log.debug("Removing user...");
 			}
-		}		
+		}
+		
+		@Override
+		public void updatedStatus(String meetingId, String userId, String status, String value) {
+			Meeting m = getMeeting(meetingId);
+			if (m != null) {
+				User user=m.getUserById(userId);
+				user.setStatus(status, value);
+				log.debug("Setting status...");
+			}
+		}
 	}
 	
 }

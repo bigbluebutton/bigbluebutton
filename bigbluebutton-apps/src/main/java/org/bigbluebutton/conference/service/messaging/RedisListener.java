@@ -5,6 +5,8 @@ import java.util.HashMap;
 import org.bigbluebutton.conference.RoomsManager;
 import org.bigbluebutton.conference.service.presentation.ConversionUpdatesMessageListener;
 
+import com.google.gson.Gson;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
@@ -17,13 +19,17 @@ public class RedisListener{
 	ConversionUpdatesMessageListener messageListener;
 	
 	public RedisListener() {
+		
 		super();
+		System.out.println("creating redislistener.java");
 	}
 	
 	public void init(){
-		Jedis jedis = redisPool.getResource();
+		Jedis jedis = new Jedis("localhost");//redisPool.getResource();
 		//subscribe(jedis);
-		redisPool.returnResource(jedis);
+		//redisPool.returnResource(jedis);
+		System.out.println("setting redislistener.java");
+		subscribe(jedis);
 	}
 
 	public void subscribe(final Jedis jedis){
@@ -67,10 +73,13 @@ public class RedisListener{
 							}
 						}
 						else if(channel.equalsIgnoreCase("bigbluebutton:meeting:presentation")){
-							String[] args=message.split(":");
+							//String[] args=message.split(":");
+							System.out.println("receiving Message "+message);
+							Gson gson=new Gson();
 							
-							HashMap<String,Object> map=new HashMap<String, Object>();
-							map.put("code",args[0]);
+							
+							HashMap<String,Object> map=gson.fromJson(message, HashMap.class);
+							/*map.put("code",args[0]);
 							map.put("presentationName",args[1]);
 							map.put("conference",args[2]);
 							
@@ -87,7 +96,7 @@ public class RedisListener{
 							}
 							else if(messageKey.equalsIgnoreCase(ConversionUpdatesMessageListener.CONVERSION_COMPLETED_KEY)){
 								map.put("slidesInfo", args[4]);				
-							}
+							}*/
 							
 							messageListener.handleReceivedMessage(map);
 						}
