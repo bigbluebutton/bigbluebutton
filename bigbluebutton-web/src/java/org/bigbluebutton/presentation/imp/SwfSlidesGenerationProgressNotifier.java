@@ -37,9 +37,8 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
 
 public class SwfSlidesGenerationProgressNotifier {
-	private final Logger log = LoggerFactory.getLogger(SwfSlidesGenerationProgressNotifier.class);
+	private static Logger log = LoggerFactory.getLogger(SwfSlidesGenerationProgressNotifier.class);
 	
-	private String foo;
 	private GeneratedSlidesInfoHelper generatedSlidesInfoHelper;
 	private MeetingService meetingService;	
 	
@@ -86,14 +85,10 @@ public class SwfSlidesGenerationProgressNotifier {
 		notifyProgressListener(builder.build().getMessage());	
 	}
 	
-	public void setFoo(String f) {
-		foo = f;
-	}
-	
-/*	public void setMeetingService(MeetingService m) {
+	public void setMeetingService(MeetingService m) {
 		meetingService = m;
 	}
-*/
+
 	
 	public void setGeneratedSlidesInfoHelper(GeneratedSlidesInfoHelper helper) {
 		generatedSlidesInfoHelper = helper;

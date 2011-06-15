@@ -27,7 +27,7 @@ import org.bigbluebutton.presentation.imp.ImageToSwfSlidesGenerationService;
 import org.bigbluebutton.presentation.imp.OfficeToPdfConversionService;
 import org.bigbluebutton.presentation.imp.PdfToSwfSlidesGenerationService;
 
-public class DocumentConversionServiceImp {
+public class DocumentConversionServiceImp implements DocumentConversionService {
 	private MessagingService messagingService;
 	private OfficeToPdfConversionService officeToPdfConversionService;
 	private PdfToSwfSlidesGenerationService pdfToSwfSlidesGenerationService;

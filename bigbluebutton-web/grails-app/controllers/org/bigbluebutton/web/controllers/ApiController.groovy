@@ -30,7 +30,6 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bigbluebutton.web.services.DynamicConferenceService;
 import org.bigbluebutton.api.domain.Meeting;
-import org.bigbluebutton.api.IApiConferenceEventListener;
 import org.bigbluebutton.web.services.PresentationService
 import org.bigbluebutton.presentation.UploadedPresentation
 import org.codehaus.groovy.grails.commons.ConfigurationHolder;

@@ -91,7 +91,7 @@
 	</bean>
 	
 	<bean id="swfSlidesGenerationProgressNotifier" class="org.bigbluebutton.presentation.imp.SwfSlidesGenerationProgressNotifier">
-		<property name="foo" value="meetingService"/> 
+		<property name="meetingService" ref="meetingService"/> 
 		<property name="generatedSlidesInfoHelper" ref="generatedSlidesInfoHelper"/>
 	</bean>	
 </beans>
