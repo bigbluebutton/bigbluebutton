@@ -33,8 +33,12 @@ import com.google.gson.Gson;
 
 public class OfficeToPdfConversionSuccessFilter {
 	private static Logger log = LoggerFactory.getLogger(OfficeToPdfConversionSuccessFilter.class);
-	//private ConversionProgressNotifier notifier;
-	private MessagingService messagingService;
+
+	private final MessagingService messagingService;
+	
+	public OfficeToPdfConversionSuccessFilter(MessagingService m) {
+		messagingService = m;
+	}
 	
 	public boolean didConversionSucceed(UploadedPresentation pres) {
 		notifyProgressListener(pres);
@@ -62,22 +66,13 @@ public class OfficeToPdfConversionSuccessFilter {
 	}
 	
 	private void sendNotification(Map<String, Object> msg) {
-		//if (notifier != null) {
-			//notifier.sendConversionProgress(msg);	
 		if(messagingService !=null){
 			Gson gson= new Gson();
 			String updateMsg=gson.toJson(msg);
 			log.debug("sending: "+updateMsg);
-			messagingService.send(MessagingService.PRESENTATION_CHANNEL, updateMsg);
+			messagingService.send("foo", updateMsg);
 		} else {
 			log.warn("ConversionProgressNotifier has not been set!.");
 		}
-	}
-		
-	//public void setConversionProgressNotifier(ConversionProgressNotifier notifier) {
-		//this.notifier = notifier;
-	//}
-	public void setMessagingService(MessagingService messagingService){
-		this.messagingService = messagingService;
 	}
 }

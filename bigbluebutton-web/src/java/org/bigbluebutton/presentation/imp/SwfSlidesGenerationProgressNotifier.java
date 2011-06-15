@@ -25,9 +25,8 @@ package org.bigbluebutton.presentation.imp;
 import java.util.Map;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.bigbluebutton.api.messaging.MessagingService;
+import org.bigbluebutton.api.MeetingService;
 import org.bigbluebutton.presentation.ConversionMessageConstants;
-import org.bigbluebutton.presentation.ConversionProgressNotifier;
 import org.bigbluebutton.presentation.ConversionUpdateMessage;
 import org.bigbluebutton.presentation.GeneratedSlidesInfoHelper;
 import org.bigbluebutton.presentation.UploadedPresentation;
@@ -38,21 +37,18 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
 
 public class SwfSlidesGenerationProgressNotifier {
-	private static Logger log = LoggerFactory.getLogger(SwfSlidesGenerationProgressNotifier.class);
+	private final Logger log = LoggerFactory.getLogger(SwfSlidesGenerationProgressNotifier.class);
 	
-	//private ConversionProgressNotifier notifier;
-	private MessagingService messagingService;
-	
+	private String foo;
 	private GeneratedSlidesInfoHelper generatedSlidesInfoHelper;
-			
+	private MeetingService meetingService;	
+	
 	private void notifyProgressListener(Map<String, Object> msg) {		
-		//if (notifier != null) {
-			//notifier.sendConversionProgress(msg);	
-		if(messagingService !=null){
-			Gson gson= new Gson();
+		if (meetingService != null){
+			Gson gson = new Gson();
 			String updateMsg=gson.toJson(msg);
 			log.debug("sending: "+updateMsg);
-			messagingService.send(MessagingService.PRESENTATION_CHANNEL, updateMsg);
+			meetingService.send("foo", updateMsg);
 		} else {
 			log.warn("ConversionProgressNotifier has not been set");
 		}
@@ -83,20 +79,22 @@ public class SwfSlidesGenerationProgressNotifier {
 		}
 		
 		String xml = generatedSlidesInfoHelper.generateUploadedPresentationInfo(pres);
-		String escape_xml=StringEscapeUtils.escapeXml(xml);
+		String escape_xml = StringEscapeUtils.escapeXml(xml);
 		MessageBuilder builder = new ConversionUpdateMessage.MessageBuilder(pres);
 		builder.messageKey(ConversionMessageConstants.CONVERSION_COMPLETED_KEY);
 		builder.slidesInfo(escape_xml);
 		notifyProgressListener(builder.build().getMessage());	
 	}
-			
-	//public void setConversionProgressNotifier(ConversionProgressNotifier notifier) {
-		//this.notifier = notifier;
-	//}
 	
-	public void setMessagingService(MessagingService messagingService) {
-		this.messagingService = messagingService;
+	public void setFoo(String f) {
+		foo = f;
 	}
+	
+/*	public void setMeetingService(MeetingService m) {
+		meetingService = m;
+	}
+*/
+	
 	public void setGeneratedSlidesInfoHelper(GeneratedSlidesInfoHelper helper) {
 		generatedSlidesInfoHelper = helper;
 	}

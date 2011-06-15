@@ -10,4 +10,5 @@ public interface MeetingService {
 	public void endMeeting(String meetingId);
 	public Meeting getMeeting(String meetingId);	
 	public boolean isMeetingWithVoiceBridgeExist(String voiceBridge);
+	void send(String channel, String message);
 }

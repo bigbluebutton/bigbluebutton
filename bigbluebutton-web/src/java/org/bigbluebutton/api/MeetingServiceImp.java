@@ -88,6 +88,10 @@ public class MeetingServiceImp implements MeetingService {
 */		return false;
 	}
 	
+	public void send(String channel, String message) {
+		messagingService.send(channel, message);
+	}
+	
 	public void endMeeting(String meetingId) {
 		messagingService.endMeeting(meetingId);
 	}
