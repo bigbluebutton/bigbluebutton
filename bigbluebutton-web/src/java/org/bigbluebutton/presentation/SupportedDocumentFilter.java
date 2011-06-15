@@ -24,6 +24,7 @@ package org.bigbluebutton.presentation;
 
 import java.io.File;
 
+import org.bigbluebutton.api.messaging.MessagingConstants;
 import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.presentation.ConversionUpdateMessage.MessageBuilder;
 import org.slf4j.Logger;
@@ -33,7 +34,6 @@ import com.google.gson.Gson;
 
 public class SupportedDocumentFilter {
 	private static Logger log = LoggerFactory.getLogger(SupportedDocumentFilter.class);
-	//private ConversionProgressNotifier notifier;
 	private MessagingService messagingService;
 	
 	public boolean isSupported(UploadedPresentation pres) {
@@ -66,17 +66,14 @@ public class SupportedDocumentFilter {
 			Gson gson= new Gson();
 			String updateMsg=gson.toJson(builder.build().getMessage());
 			log.debug("sending: "+updateMsg);
-			messagingService.send(MessagingService.PRESENTATION_CHANNEL, updateMsg);
+			messagingService.send(MessagingConstants.PRESENTATION_CHANNEL, updateMsg);
 		} else {
-			log.warn("ConversionProgressNotifier has not been set!");
+			log.warn("MessagingService has not been set!");
 		}
 	}
 	public void setMessagingService(MessagingService messagingService) {
 		this.messagingService = messagingService;
 	}
 	
-	//public void setConversionProgressNotifier(ConversionProgressNotifier notifier) {
-		//this.notifier = notifier;
-	//}
 	
 }

@@ -110,7 +110,7 @@ dependencies {
     compile 'org.easymock:easymock:2.4@jar'
   
 	//redis
-	compile 'redis.clients:jedis:1.5.1'
+	compile 'redis.clients:jedis:2.0.0'
 	compile 'commons-pool:commons-pool:1.5.5'
     
     //compile 'org/bigbluebutton/common:bbb-common-message:0.8@jar' 

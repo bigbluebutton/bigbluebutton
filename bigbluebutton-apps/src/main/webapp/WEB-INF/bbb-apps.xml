@@ -69,11 +69,6 @@
 		<property name="conversionUpdatesProcessor" ref="conversionUpdatesProcessor" />
 	</bean>
 
-	<!-- bean id="jmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
-  		<property name="connectionFactory" ref="connectionFactory"/>
-  		<property name="destination" ref="destination"/>
-  		<property name="messageListener" ref="messageListener" />
-	</bean-->
   	<!-- END PRESENTATION -->
   	
   	<!-- BEGIN CHAT -->
@@ -119,6 +114,8 @@
     </bean>
 	
 	<bean id="redisListener" class="org.bigbluebutton.conference.service.messaging.RedisListener" init-method="init">
+		<constructor-arg index="0" value="${redis.host}"/>
+        <constructor-arg index="1" value="${redis.port}"/>
 	    <property name="redisPool"><ref local="redisPool" /> </property>
 	    <property name="roomsManager"> <ref local="roomsManager"/></property>
 	    <property name="messageListener"> <ref local="messageListener"/></property>

@@ -46,16 +46,7 @@ public class ConversionUpdatesMessageListener {
     
 	public void start() {
 		log.debug("Starting conversion updates receiver.");
-		conversionUpdatesProcessor.start();
 	}
-
-	/*@Override
-	public void onMessage(Message jmsMessage){
-		if (jmsMessage instanceof MapMessage) {
-        	MapMessage mapMessage = ((MapMessage) jmsMessage);
-			handleReceivedMessage(mapMessage);
-        }
-	}*/
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void handleReceivedMessage(Map mapMessage) {
@@ -82,7 +73,7 @@ public class ConversionUpdatesMessageListener {
 					messageKey.equalsIgnoreCase(GENERATING_THUMBNAIL_KEY)||
 					messageKey.equalsIgnoreCase(GENERATED_THUMBNAIL_KEY)||
 					messageKey.equalsIgnoreCase(PAGE_COUNT_FAILED_KEY)){
-				log.debug("JMS: {}[{}]",messageKey,presentationName);
+				log.debug("message: {}[{}]",messageKey,presentationName);
 				conversionUpdatesProcessor.process(message);
 			}
 			else if(messageKey.equalsIgnoreCase(PAGE_COUNT_EXCEEDED_KEY)){
@@ -99,13 +90,13 @@ public class ConversionUpdatesMessageListener {
 				message.put("numberOfPages", numberOfPages);
 				message.put("pagesCompleted", pagesCompleted);
 				
-				log.debug("JMS: {}[{}]",messageKey,presentationName);
+				log.debug("message: {}[{}]",messageKey,presentationName);
 				conversionUpdatesProcessor.process(message);
 			}
 			else if(messageKey.equalsIgnoreCase(CONVERSION_COMPLETED_KEY)){
 				String slidesInfo = (String) mapMessage.get("slidesInfo");
 				message.put("slidesInfo", StringEscapeUtils.unescapeXml(slidesInfo));				
-				log.debug("JMS: {}[{}]",messageKey,presentationName);
+				log.debug("message: {}[{}]",messageKey,presentationName);
 				conversionUpdatesProcessor.process(message);
 			}
 			else{
@@ -118,7 +109,6 @@ public class ConversionUpdatesMessageListener {
 	
 	public void stop() {
 		log.debug("Stopping conversion updates receiver.");
-		conversionUpdatesProcessor.stop();
 	}
 
 	public void setConversionUpdatesProcessor(ConversionUpdatesProcessor p) {

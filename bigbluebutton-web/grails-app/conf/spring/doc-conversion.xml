@@ -16,7 +16,6 @@
 
 	<integration:filter ref="supportedDocumentFilter" method="isSupported" input-channel="convertChannel" output-channel="docRouterChannel"/>
 	<bean id="supportedDocumentFilter" class="org.bigbluebutton.presentation.SupportedDocumentFilter">
-		<!-- property name="conversionProgressNotifier" ref="conversionProgressNotifier"/ -->
 		<property name="messagingService" ref="messagingService"></property>  
 	</bean>
 		
@@ -27,16 +26,13 @@
 	<integration:channel id="officeFileChannel"/>
 	<integration:channel id="pdfFileChannel"/>
 	<integration:channel id="imageFileChannel"/>
-	<!-- integration:channel id="conversionProgressChannel"/>
-	<integration:gateway id="conversionProgressNotifier" service-interface="org.bigbluebutton.presentation.ConversionProgressNotifier"/-->
-	
+
 	<integration:service-activator input-channel="officeFileChannel" output-channel="officeToPdfConvertResultChannel" ref="officeToPdfConversionService" method="convertOfficeToPdf"/>
 	<bean id="officeToPdfConversionService" class="org.bigbluebutton.presentation.imp.OfficeToPdfConversionService"/>
 	
 	<integration:channel id="officeToPdfConvertResultChannel"/>
 	<integration:filter ref="officeToPdfConversionSuccessFilter" method="didConversionSucceed" input-channel="officeToPdfConvertResultChannel" output-channel="convertChannel"/>
 	<bean id="officeToPdfConversionSuccessFilter" class="org.bigbluebutton.presentation.OfficeToPdfConversionSuccessFilter">
-		<!-- property name="conversionProgressNotifier" ref="conversionProgressNotifier"/-->
 		<property name="messagingService" ref="messagingService"></property>  
 	</bean>
 		
@@ -109,7 +105,6 @@
 	</bean>
 	
 	<bean id="swfSlidesGenerationProgressNotifier" class="org.bigbluebutton.presentation.imp.SwfSlidesGenerationProgressNotifier">
-		<!-- property name="conversionProgressNotifier" ref="conversionProgressNotifier"/-->
 		<property name="messagingService" ref="messagingService"></property>  
 		<property name="generatedSlidesInfoHelper" ref="generatedSlidesInfoHelper"/>
 	</bean>			

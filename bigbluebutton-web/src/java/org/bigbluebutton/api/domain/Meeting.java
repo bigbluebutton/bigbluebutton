@@ -170,8 +170,8 @@ public class Meeting {
 		this.users.put(user.getUserid(), user);
 	}
 	
-	public void userLeft(String userid){
-		users.remove(userid);		
+	public User userLeft(String userid){
+		return users.remove(userid);		
 	}
 	
 	public User getUserById(String id){

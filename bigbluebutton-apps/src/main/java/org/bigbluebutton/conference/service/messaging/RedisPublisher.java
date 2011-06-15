@@ -9,7 +9,6 @@ public class RedisPublisher{
 
 	public RedisPublisher(){
 		super();
-		System.out.println("Creating Redis Publisher");
 	}
 	
 	public void publish(String channel, String message){

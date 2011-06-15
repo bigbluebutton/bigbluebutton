@@ -25,6 +25,7 @@ package org.bigbluebutton.presentation;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bigbluebutton.api.messaging.MessagingConstants;
 import org.bigbluebutton.api.messaging.MessagingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,6 @@ import com.google.gson.Gson;
 
 public class OfficeToPdfConversionSuccessFilter {
 	private static Logger log = LoggerFactory.getLogger(OfficeToPdfConversionSuccessFilter.class);
-	//private ConversionProgressNotifier notifier;
 	private MessagingService messagingService;
 	
 	public boolean didConversionSucceed(UploadedPresentation pres) {
@@ -62,21 +62,16 @@ public class OfficeToPdfConversionSuccessFilter {
 	}
 	
 	private void sendNotification(Map<String, Object> msg) {
-		//if (notifier != null) {
-			//notifier.sendConversionProgress(msg);	
 		if(messagingService !=null){
 			Gson gson= new Gson();
 			String updateMsg=gson.toJson(msg);
 			log.debug("sending: "+updateMsg);
-			messagingService.send(MessagingService.PRESENTATION_CHANNEL, updateMsg);
+			messagingService.send(MessagingConstants.PRESENTATION_CHANNEL, updateMsg);
 		} else {
-			log.warn("ConversionProgressNotifier has not been set!.");
+			log.warn("MessagingService has not been set!.");
 		}
 	}
-		
-	//public void setConversionProgressNotifier(ConversionProgressNotifier notifier) {
-		//this.notifier = notifier;
-	//}
+
 	public void setMessagingService(MessagingService messagingService){
 		this.messagingService = messagingService;
 	}

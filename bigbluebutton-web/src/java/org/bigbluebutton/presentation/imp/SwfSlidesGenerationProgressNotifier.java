@@ -25,9 +25,9 @@ package org.bigbluebutton.presentation.imp;
 import java.util.Map;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.bigbluebutton.api.messaging.MessagingConstants;
 import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.presentation.ConversionMessageConstants;
-import org.bigbluebutton.presentation.ConversionProgressNotifier;
 import org.bigbluebutton.presentation.ConversionUpdateMessage;
 import org.bigbluebutton.presentation.GeneratedSlidesInfoHelper;
 import org.bigbluebutton.presentation.UploadedPresentation;
@@ -39,22 +39,19 @@ import com.google.gson.Gson;
 
 public class SwfSlidesGenerationProgressNotifier {
 	private static Logger log = LoggerFactory.getLogger(SwfSlidesGenerationProgressNotifier.class);
-	
-	//private ConversionProgressNotifier notifier;
+
 	private MessagingService messagingService;
 	
 	private GeneratedSlidesInfoHelper generatedSlidesInfoHelper;
 			
-	private void notifyProgressListener(Map<String, Object> msg) {		
-		//if (notifier != null) {
-			//notifier.sendConversionProgress(msg);	
+	private void notifyProgressListener(Map<String, Object> msg) {	
 		if(messagingService !=null){
 			Gson gson= new Gson();
 			String updateMsg=gson.toJson(msg);
 			log.debug("sending: "+updateMsg);
-			messagingService.send(MessagingService.PRESENTATION_CHANNEL, updateMsg);
+			messagingService.send(MessagingConstants.PRESENTATION_CHANNEL, updateMsg);
 		} else {
-			log.warn("ConversionProgressNotifier has not been set");
+			log.warn("MessagingService has not been set");
 		}
 	}
 
@@ -89,10 +86,6 @@ public class SwfSlidesGenerationProgressNotifier {
 		builder.slidesInfo(escape_xml);
 		notifyProgressListener(builder.build().getMessage());	
 	}
-			
-	//public void setConversionProgressNotifier(ConversionProgressNotifier notifier) {
-		//this.notifier = notifier;
-	//}
 	
 	public void setMessagingService(MessagingService messagingService) {
 		this.messagingService = messagingService;
