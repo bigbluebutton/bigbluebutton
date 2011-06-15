@@ -17,31 +17,6 @@
 			http://www.springframework.org/schema/integration/file/spring-integration-file-1.0.xsd
 			">
 	
-	<!-- RECORDER AND MESSAGING -->
-	
-	<bean id="recorderApplication" class="org.bigbluebutton.conference.service.recorder.RecorderApplication">
-		<property name="recorder"><ref local="redisRecorder" /> </property>
-	</bean>
-	
-	<bean id="redisRecorder" class="org.bigbluebutton.conference.service.recorder.RedisDispatcher">
-        <property name="redisPool"><ref local="redisPool" /> </property>
-    </bean>
-	
-	<bean id="redisListener" class="org.bigbluebutton.conference.service.messaging.RedisListener" init-method="init">
-	    <property name="redisPool"><ref local="redisPool" /> </property>
-	    <property name="roomsManager"> <ref local="roomsManager"/></property>
-	    <property name="messageListener"> <ref local="messageListener"/></property>
-	</bean>
-	
-	<bean id="redisPublisher" class="org.bigbluebutton.conference.service.messaging.RedisPublisher">
-        <property name="redisPool"><ref local="redisPool" /> </property>
-    </bean>
-    
-    <bean id="redisPool" class="redis.clients.jedis.JedisPool">
-        <constructor-arg index="0" value="${redis.host}"/>
-        <constructor-arg index="1" value="${redis.port}"/>
-    </bean>
-	
 	<bean id="roomsManager" class="org.bigbluebutton.conference.RoomsManager">
 		<property name="publisher" ref="redisPublisher"></property>
 	</bean>
@@ -85,18 +60,6 @@
 		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
 		<property name="presentationApplication"> <ref local="presentationApplication"/></property>
 	</bean>
-		
-    <bean id="connectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
-        <property name="brokerURL">
-            <value>tcp://localhost:61616</value>
-        </property>
-    </bean>
-    
-    <bean id="destination" class="org.apache.activemq.command.ActiveMQQueue">
-        <constructor-arg index="0">
-            <value>UpdatesQueue</value>
-        </constructor-arg>
-    </bean>
 
 	<bean id="conversionUpdatesProcessor" class="org.bigbluebutton.conference.service.presentation.ConversionUpdatesProcessor">
 		<property name="presentationApplication"> <ref local="presentationApplication"/></property>
@@ -106,11 +69,11 @@
 		<property name="conversionUpdatesProcessor" ref="conversionUpdatesProcessor" />
 	</bean>
 
-	<bean id="jmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+	<!-- bean id="jmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
   		<property name="connectionFactory" ref="connectionFactory"/>
   		<property name="destination" ref="destination"/>
   		<property name="messageListener" ref="messageListener" />
-	</bean>
+	</bean-->
   	<!-- END PRESENTATION -->
   	
   	<!-- BEGIN CHAT -->
@@ -145,7 +108,30 @@
 	<bean id="whiteboardRoomManager" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardRoomManager"/>
 	<!-- END WHITEBOARD -->
 	
-
+	<!-- RECORDER AND MESSAGING -->
+	
+	<bean id="recorderApplication" class="org.bigbluebutton.conference.service.recorder.RecorderApplication">
+		<property name="recorder"><ref local="redisRecorder" /> </property>
+	</bean>
+	
+	<bean id="redisRecorder" class="org.bigbluebutton.conference.service.recorder.RedisDispatcher">
+        <property name="redisPool"><ref local="redisPool" /> </property>
+    </bean>
+	
+	<bean id="redisListener" class="org.bigbluebutton.conference.service.messaging.RedisListener" init-method="init">
+	    <property name="redisPool"><ref local="redisPool" /> </property>
+	    <property name="roomsManager"> <ref local="roomsManager"/></property>
+	    <property name="messageListener"> <ref local="messageListener"/></property>
+	</bean>
+	
+	<bean id="redisPublisher" class="org.bigbluebutton.conference.service.messaging.RedisPublisher">
+        <property name="redisPool"><ref local="redisPool" /> </property>
+    </bean>
+    
+    <bean id="redisPool" class="redis.clients.jedis.JedisPool">
+        <constructor-arg index="0" value="${redis.host}"/>
+        <constructor-arg index="1" value="${redis.port}"/>
+    </bean>
 	
     
     <!-- END RECORDER AND MESSAGING -->

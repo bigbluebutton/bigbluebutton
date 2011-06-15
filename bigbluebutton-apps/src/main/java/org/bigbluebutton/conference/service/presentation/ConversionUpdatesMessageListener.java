@@ -22,6 +22,7 @@
 package org.bigbluebutton.conference.service.presentation;
 
 import org.slf4j.Logger;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.red5.logging.Red5LoggerFactory;
 
 import java.util.HashMap;
@@ -103,7 +104,7 @@ public class ConversionUpdatesMessageListener {
 			}
 			else if(messageKey.equalsIgnoreCase(CONVERSION_COMPLETED_KEY)){
 				String slidesInfo = (String) mapMessage.get("slidesInfo");
-				message.put("slidesInfo", slidesInfo);				
+				message.put("slidesInfo", StringEscapeUtils.unescapeXml(slidesInfo));				
 				log.debug("JMS: {}[{}]",messageKey,presentationName);
 				conversionUpdatesProcessor.process(message);
 			}

@@ -1,17 +1,21 @@
 package org.bigbluebutton.conference.service.recorder;
 
 import org.apache.commons.pool.impl.GenericObjectPool.Config;
+import org.red5.logging.Red5LoggerFactory;
+import org.slf4j.Logger;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisException;
 import redis.clients.jedis.JedisPool;
 
 public class RedisDispatcher implements Recorder {
+	private static Logger log = Red5LoggerFactory.getLogger(Recorder.class, "bigbluebutton");
 	private static final String COLON=":";
 	JedisPool redisPool;
 	
 	public RedisDispatcher(){
 		super();
+		log.debug("setting redis dispatcher");
 	}
 	
 	@Override

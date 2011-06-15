@@ -38,11 +38,12 @@ public class ConversionUpdatesProcessor {
 	
 	@SuppressWarnings("unchecked")
 	public void process(Map message) {
-		try {
+		/*try {
 			updatesQueue.put(message);
 		} catch (InterruptedException e) {
 			log.warn(e.getMessage());
-		}
+		}*/
+		presentationApplication.sendUpdateMessage(message);
 	}
 
 	public void start() {
