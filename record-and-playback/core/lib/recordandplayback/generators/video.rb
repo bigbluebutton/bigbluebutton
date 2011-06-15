@@ -249,33 +249,6 @@ module BigBlueButton
     {:width => width, :height => height} 
   end
   
-  def self.fit_to_screen_size(width, height, flv_in, flv_out)
-    frame_size = "-s #{width}x#{height}"
-    side_padding = ((MAX_VID_WIDTH - width) / 2).to_i
-    top_bottom_padding = ((MAX_VID_HEIGHT - height) / 2).to_i
- 
-    # Use for newer version of FFMPEG
-    padding = "-vf pad=#{MAX_VID_WIDTH}:#{MAX_VID_HEIGHT}:#{side_padding}:#{top_bottom_padding}:FFFFFF"
-    
-    # Use this for ffmpeg version that comes with Ubuntu 10.04
-    left_padding = right_padding = side_padding
-    if side_padding.odd?
-      left_padding = side_padding - 1 
-      right_padding = side_padding + 1
-    end
-    top_padding = bottom_padding = top_bottom_padding
-    if top_bottom_padding.odd?
-      top_padding = top_bottom_padding - 1 
-      bottom_padding = top_bottom_padding + 1
-    end    
-    padding = "-s #{MAX_VID_WIDTH}x#{MAX_VID_HEIGHT} -padtop #{top_padding} -padbottom #{bottom_padding}  -padleft #{left_padding} -padright #{right_padding}"
-    
-    command = "ffmpeg -i #{flv_in} -aspect 4:3 -r 1000 -sameq #{frame_size} #{padding} -vcodec flashsv #{flv_out}" 
-    BigBlueButton.logger.info(command)
-    IO.popen(command)
-    Process.wait              
-  end
-
   def self.process_webcam(target_dir, temp_dir, meeting_id) 
     # Process audio
     BigBlueButton::AudioProcessor.process("#{temp_dir}/#{meeting_id}", "#{target_dir}/audio.ogg")
@@ -299,15 +272,14 @@ module BigBlueButton
       if (comb[:gap])
       	blank_flv = "#{temp_dir}/#{comb[:stream]}"
         webcams << blank_flv
-        BigBlueButton.create_blank_video((comb[:stop_timestamp] - comb[:start_timestamp])/1000, 1000, blank_canvas, blank_flv)
+        BigBlueButton.create_blank_video((comb[:stop_timestamp] - comb[:start_timestamp])/1000.0, 1000, blank_canvas, blank_flv)
       else
         stripped_webcam = "#{temp_dir}/stripped-wc-#{comb[:stream]}.flv"
         BigBlueButton.strip_audio_from_video("#{video_dir}/#{comb[:stream]}.flv", stripped_webcam)
         scaled_flv = "#{temp_dir}/#{meeting_id}/scaled-wc-#{comb[:stream]}.flv"
         webcams << scaled_flv
         frame_size = BigBlueButton.scale_to_640_x_480(BigBlueButton.get_video_width(stripped_webcam), BigBlueButton.get_video_height(stripped_webcam))
-        # BigBlueButton.fit_to_screen_size(frame_size[:width], frame_size[:height], stripped_webcam, scaled_flv)   
-        
+  
         width = frame_size[:width]
         height = frame_size[:height]
         
@@ -354,7 +326,6 @@ module BigBlueButton
         flvs << scaled_flv
         flv_in = "#{temp_dir}/#{meeting_id}/deskshare/#{comb[:stream]}"
         frame_size = BigBlueButton.scale_to_640_x_480(BigBlueButton.get_video_width(flv_in), BigBlueButton.get_video_height(flv_in))
-        #BigBlueButton.fit_to_screen_size(frame_size[:width], frame_size[:height], flv_in, scaled_flv)            
 
         width = frame_size[:width]
         height = frame_size[:height]
