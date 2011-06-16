@@ -25,7 +25,8 @@ package org.bigbluebutton.presentation.imp;
 import java.util.Map;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.bigbluebutton.api.MeetingService;
+import org.bigbluebutton.api.messaging.MessagingConstants;
+import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.presentation.ConversionMessageConstants;
 import org.bigbluebutton.presentation.ConversionUpdateMessage;
 import org.bigbluebutton.presentation.GeneratedSlidesInfoHelper;
@@ -38,18 +39,19 @@ import com.google.gson.Gson;
 
 public class SwfSlidesGenerationProgressNotifier {
 	private static Logger log = LoggerFactory.getLogger(SwfSlidesGenerationProgressNotifier.class);
+
+	private MessagingService messagingService;
 	
 	private GeneratedSlidesInfoHelper generatedSlidesInfoHelper;
-	private MeetingService meetingService;	
-	
-	private void notifyProgressListener(Map<String, Object> msg) {		
-		if (meetingService != null){
-			Gson gson = new Gson();
+			
+	private void notifyProgressListener(Map<String, Object> msg) {	
+		if(messagingService !=null){
+			Gson gson= new Gson();
 			String updateMsg=gson.toJson(msg);
 			log.debug("sending: "+updateMsg);
-			meetingService.send("foo", updateMsg);
+			messagingService.send(MessagingConstants.PRESENTATION_CHANNEL, updateMsg);
 		} else {
-			log.warn("ConversionProgressNotifier has not been set");
+			log.warn("MessagingService has not been set");
 		}
 	}
 
@@ -85,10 +87,9 @@ public class SwfSlidesGenerationProgressNotifier {
 		notifyProgressListener(builder.build().getMessage());	
 	}
 	
-	public void setMeetingService(MeetingService m) {
-		meetingService = m;
+	public void setMessagingService(MessagingService m) {
+		messagingService = m;
 	}
-
 	
 	public void setGeneratedSlidesInfoHelper(GeneratedSlidesInfoHelper helper) {
 		generatedSlidesInfoHelper = helper;

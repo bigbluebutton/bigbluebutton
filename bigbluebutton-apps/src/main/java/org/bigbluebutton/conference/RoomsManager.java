@@ -19,10 +19,16 @@
 package org.bigbluebutton.conference;
 
 import org.slf4j.Logger;
+import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.RedisPublisher;
 import org.bigbluebutton.conference.service.recorder.RedisDispatcher;
 import org.red5.logging.Red5LoggerFactory;
+
+import com.google.gson.Gson;
+
 import net.jcip.annotations.ThreadSafe;
+
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -34,9 +40,6 @@ public class RoomsManager {
 	private static Logger log = Red5LoggerFactory.getLogger(RoomsManager.class, "bigbluebutton");
 	
 	private final Map <String, Room> rooms;
-
-	//replaced with redis publisher
-	//private IConferenceEventListener conferenceEventListener;
 
 	RedisPublisher publisher;
 	
@@ -50,9 +53,12 @@ public class RoomsManager {
 		room.addRoomListener(new ParticipantUpdatingRoomListener(room,publisher)); 	
 		
 		if (checkPublisher()) {
-			//conferenceEventListener.started(room);
-			//redis pubsub test
-			publisher.publish("bigbluebutton:meeting:state", room.getName()+":started");
+			HashMap<String,String> map=new HashMap<String,String>();
+			map.put("meetingId", room.getName());
+			map.put("state", "started");
+			
+			Gson gson= new Gson();
+			publisher.publish(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));
 			
 			log.debug("Notified event listener of conference start");
 		}
@@ -64,10 +70,12 @@ public class RoomsManager {
 		Room room = rooms.remove(name);
 		if (checkPublisher() && room != null) {
 			room.endAndKickAll();
-			//conferenceEventListener.ended(room);
+			HashMap<String,String> map=new HashMap<String,String>();
+			map.put("meetingId", room.getName());
+			map.put("state", "ended");
 			
-			//redis pubsub test
-			publisher.publish("bigbluebutton:meeting:state",room.getName()+":ended");
+			Gson gson= new Gson();
+			publisher.publish(MessagingConstants.SYSTEM_CHANNEL,gson.toJson(map));
 			
 			log.debug("Notified event listener of conference end");
 		}
@@ -143,20 +151,21 @@ public class RoomsManager {
 		Room r = getRoom(roomName);
 		if (r != null) {
 			if (checkPublisher()) {
-				//conferenceEventListener.participantsUpdated(r);
-				//missing_method()
+
 				if (r.getNumberOfParticipants() == 0) {
 					//conferenceEventListener.started(r);
 					log.debug("Notified event listener of conference start");
-					//redis pubsub test
-					publisher.publish("bigbluebutton:meeting:state", roomName+":started");
+					HashMap<String,String> map=new HashMap<String,String>();
+					map.put("meetingId", roomName);
+					map.put("state", "started");
+					
+					Gson gson= new Gson();
+					publisher.publish(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));
 					
 				}
 			}
 			r.addParticipant(participant);
-			//redis pubsub test
-			//publisher.publish("bigbluebutton:conference:join", r.getName()+":"+participant.getUserid()+":"+participant.getName()+":"+participant.getRole());
-			
+
 			return;
 		}
 		log.warn("Adding participant to a non-existing room {}", roomName);
@@ -186,14 +195,6 @@ public class RoomsManager {
 		}		
 		log.warn("Changing participant status on a non-existing room {}", roomName);
 	}
-
-//	public void setConferenceEventListener(IConferenceEventListener conferenceEventListener) {
-//		this.conferenceEventListener = conferenceEventListener;
-//	}
-//
-//	public IConferenceEventListener getConferenceEventListener() {
-//		return conferenceEventListener;
-//	}
 
 	public RedisPublisher getPublisher() {
 		return publisher;

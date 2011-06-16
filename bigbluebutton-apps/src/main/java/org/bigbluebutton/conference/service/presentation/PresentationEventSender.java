@@ -44,19 +44,8 @@ public class PresentationEventSender implements IPresentationRoomListener {
     
 	Recorder recorder;
 	private ISharedObject so;
-	private final Boolean record;
 	
 	String APP_NAME = "PRESENTATION";
-	
-	/*private final String RECORD_EVENT_SHARE_PRESENTATION="share_presentation";
-	private final String RECORD_EVENT_ASSIGN_PRESENTER="assign_presenter";
-	private final String RECORD_EVENT_REMOVE_PRESENTATION="remove_presentation";
-	private final String RECORD_EVENT_RESIZE_MOVE_SLIDE="resize_move_slide";
-	private final String RECORD_EVENT_UPDATE_SLIDE="update_slide";
-	//private final String RECORD_EVENT_CONVERSION_STATUS="conversion_status";
-	//private final String RECORD_EVENT_PAGE_COUNT_EXCEEDED="page_count_exceeded";
-	private final String RECORD_EVENT_GENERATED_SLIDE="generated_slide";
-	private final String RECORD_EVENT_CONVERSION_COMPLETE="conversion_complete";*/
 	
 	public void acceptRecorder(Recorder recorder){
 		log.debug("Accepting IRecorder");
@@ -68,9 +57,8 @@ public class PresentationEventSender implements IPresentationRoomListener {
 	}
 	
 
-	public PresentationEventSender(ISharedObject so, Boolean record) {
-		this.so = so; 
-		this.record = record;
+	public PresentationEventSender(ISharedObject so) {
+		this.so = so;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -134,7 +122,6 @@ public class PresentationEventSender implements IPresentationRoomListener {
 	   ArrayList list=new ArrayList();
 	   list.add(name);
 	   so.sendMessage("removePresentationCallback", list);
-	   //recordEvent(parsePresentationToXML(list, this.RECORD_EVENT_REMOVE_PRESENTATION));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -143,7 +130,6 @@ public class PresentationEventSender implements IPresentationRoomListener {
 		ArrayList list=new ArrayList();
 		list.add(slide);
 		so.sendMessage("gotoSlideCallback", list);	
-		//recordEvent(parsePresentationToXML(list, this.RECORD_EVENT_UPDATE_SLIDE));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -154,7 +140,6 @@ public class PresentationEventSender implements IPresentationRoomListener {
 		list.add(presentationName);
 		list.add(share);
 		so.sendMessage("sharePresentationCallback", list);
-		//recordEvent(parsePresentationToXML(list, this.RECORD_EVENT_SHARE_PRESENTATION));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -162,7 +147,6 @@ public class PresentationEventSender implements IPresentationRoomListener {
 	public void assignPresenter(ArrayList presenter) {
 		log.debug("calling assignPresenterCallback "+presenter.get(0)+", "+presenter.get(1)+" "+presenter.get(2));
 		so.sendMessage("assignPresenterCallback", presenter);
-		//recordEvent(parsePresentationToXML(presenter, this.RECORD_EVENT_ASSIGN_PRESENTER));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -175,94 +159,5 @@ public class PresentationEventSender implements IPresentationRoomListener {
 		list.add(widthRatio);
 		list.add(heightRatio);
 		so.sendMessage("moveCallback", list);
-		//recordEvent(parsePresentationToXML(list, this.RECORD_EVENT_RESIZE_MOVE_SLIDE));
 	}
-	
-	/*private String parsePresentationToJSON(ArrayList list, String type){
-		String json="{ ";
-		json+="\"module\":\"presentation\", ";
-		
-		if(type.equalsIgnoreCase(this.RECORD_EVENT_ASSIGN_PRESENTER)){
-			json+="\"event\":\""+this.RECORD_EVENT_ASSIGN_PRESENTER+"\", ";
-			json+="\"userid\":\""+list.get(0)+"\", ";
-			json+="\"name\":\""+list.get(1)+"\", ";
-			json+="\"assignedBy\":\""+list.get(2)+"\" ";
-		}
-		else if(type.equalsIgnoreCase(this.RECORD_EVENT_REMOVE_PRESENTATION)){
-			json+="\"event\":\""+this.RECORD_EVENT_REMOVE_PRESENTATION+"\", ";
-			json+="\"presentationName\":\""+list.get(0)+"\" ";
-		}
-		else if(type.equalsIgnoreCase(this.RECORD_EVENT_RESIZE_MOVE_SLIDE)){
-			json+="\"event\":\""+this.RECORD_EVENT_RESIZE_MOVE_SLIDE+"\", ";
-			json+="\"xOffset\":\""+list.get(0)+"\", ";
-			json+="\"yOffset\":\""+list.get(1)+"\", ";
-			json+="\"widthRatio\":\""+list.get(2)+"\", ";
-			json+="\"heightRatio\":\""+list.get(3)+"\" ";
-		}
-		else if(type.equalsIgnoreCase(this.RECORD_EVENT_SHARE_PRESENTATION)){
-			json+="\"event\":\""+this.RECORD_EVENT_SHARE_PRESENTATION+"\", ";
-			json+="\"presentationName\":\""+list.get(0)+"\", ";
-			json+="\"share\":\""+list.get(1)+"\" ";
-		}
-		else if(type.equalsIgnoreCase(this.RECORD_EVENT_UPDATE_SLIDE)){
-			json+="\"event\":\""+this.RECORD_EVENT_UPDATE_SLIDE+"\", ";
-			json+="\"slide\":\""+list.get(0)+"\" ";
-		}
-		else if(type.equalsIgnoreCase(this.RECORD_EVENT_GENERATED_SLIDE)){
-			json+="\"event\":\""+this.RECORD_EVENT_GENERATED_SLIDE+"\", ";
-			json+="\"code\":\""+list.get(2)+"\", ";
-			json+="\"presentationName\":\""+list.get(3)+"\", ";
-			json+="\"messageKey\":\""+list.get(4)+"\", ";
-			json+="\"numberOfPages\":\""+list.get(5)+"\", ";
-			json+="\"pagesCompleted\":\""+list.get(6)+"\" ";
-		}
-		
-		json+="}";
-		return json;
-	}
-	
-	@SuppressWarnings("unchecked")
-	private String parsePresentationToXML(ArrayList list, String type){
-		Hashtable keyvalues=new Hashtable();
-		if(type.equalsIgnoreCase(this.RECORD_EVENT_ASSIGN_PRESENTER)){
-			keyvalues.put("event", this.RECORD_EVENT_ASSIGN_PRESENTER);
-			keyvalues.put("userid", list.get(0));
-			keyvalues.put("name", list.get(1));
-			keyvalues.put("assignedBy", list.get(2));
-		}
-		else if(type.equalsIgnoreCase(this.RECORD_EVENT_REMOVE_PRESENTATION)){
-			keyvalues.put("event", this.RECORD_EVENT_REMOVE_PRESENTATION);
-			keyvalues.put("presentationName", list.get(0));
-		}
-		else if(type.equalsIgnoreCase(this.RECORD_EVENT_RESIZE_MOVE_SLIDE)){
-			keyvalues.put("event", this.RECORD_EVENT_RESIZE_MOVE_SLIDE);
-			keyvalues.put("xOffset", list.get(0));
-			keyvalues.put("yOffset", list.get(1));
-			keyvalues.put("widthRatio", list.get(2));
-			keyvalues.put("heightRatio", list.get(3));
-		}
-		else if(type.equalsIgnoreCase(this.RECORD_EVENT_SHARE_PRESENTATION)){
-			keyvalues.put("event", this.RECORD_EVENT_SHARE_PRESENTATION);
-			keyvalues.put("presentationName", list.get(0));
-			keyvalues.put("share", list.get(1));
-		}
-		else if(type.equalsIgnoreCase(this.RECORD_EVENT_UPDATE_SLIDE)){
-			keyvalues.put("event", this.RECORD_EVENT_UPDATE_SLIDE);
-			keyvalues.put("slide", list.get(0));
-		}
-		
-		else if(type.equalsIgnoreCase(this.RECORD_EVENT_GENERATED_SLIDE)){
-			keyvalues.put("event", this.RECORD_EVENT_GENERATED_SLIDE);
-			//keyvalues.put("code", list.get(2));
-			keyvalues.put("presentationName", list.get(3));
-			keyvalues.put("messageKey", list.get(4));
-			keyvalues.put("numberOfPages", list.get(5));
-			keyvalues.put("pagesCompleted", list.get(6));
-		}
-		String xml=BigBlueButtonUtils.parseEventsToXML("presentation", keyvalues);
-		if(type.equalsIgnoreCase(this.RECORD_EVENT_CONVERSION_COMPLETE)){
-			xml=BigBlueButtonUtils.appendXMLToEvent(xml, (String) list.get(5), "slides");
-		}
-		return xml;
-	}*/
 }

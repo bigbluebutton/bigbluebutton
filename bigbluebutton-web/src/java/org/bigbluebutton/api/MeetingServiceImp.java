@@ -128,7 +128,7 @@ public class MeetingServiceImp implements MeetingService {
 			Meeting m = getMeeting(meetingId);
 			if (m != null) {
 				m.setStartTime(System.currentTimeMillis());
-				log.debug("Setting meeting started time...");
+				log.debug("Setting meeting started time");
 			}
 		}
 
@@ -137,17 +137,17 @@ public class MeetingServiceImp implements MeetingService {
 			Meeting m = getMeeting(meetingId);
 			if (m != null) {
 				m.setEndTime(System.currentTimeMillis());
-				log.debug("Setting meeting end time...");
+				log.debug("Setting meeting end time");
 			}
 		}
 
 		@Override
 		public void userJoined(String meetingId, String userId, String name, String role) {
-			log.debug("Adding new user...");
 			Meeting m = getMeeting(meetingId);
 			if (m != null) {
 				User user = new User(userId, name, role);
 				m.userJoined(user);
+				log.debug("New user in meeting:"+user.getFullname());
 			}
 		}
 
@@ -155,8 +155,8 @@ public class MeetingServiceImp implements MeetingService {
 		public void userLeft(String meetingId, String userId) {
 			Meeting m = getMeeting(meetingId);
 			if (m != null) {
-				m.userLeft(userId);
-				log.debug("Removing user...");
+				User user=m.userLeft(userId);
+				log.debug("User removed from meeting:"+user.getFullname());
 			}
 		}
 		
@@ -166,7 +166,7 @@ public class MeetingServiceImp implements MeetingService {
 			if (m != null) {
 				User user=m.getUserById(userId);
 				user.setStatus(status, value);
-				log.debug("Setting status...");
+				log.debug("Setting new status value for participant:"+user.getFullname());
 			}
 		}
 	}

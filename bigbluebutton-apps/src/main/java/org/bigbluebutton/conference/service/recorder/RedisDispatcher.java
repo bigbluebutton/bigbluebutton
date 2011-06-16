@@ -5,7 +5,7 @@ import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisException;
+import redis.clients.jedis.exceptions.JedisException;
 import redis.clients.jedis.JedisPool;
 
 public class RedisDispatcher implements Recorder {
@@ -29,35 +29,9 @@ public class RedisDispatcher implements Recorder {
 		} finally {
 			redisPool.returnResource(jedis);
 		}
-		
-		//pool.destroy();					
+						
 	}
-/*	
-	@Override
-	public void record(String session, RecordEvent message) {
-		boolean tryAgain = true;
-		int howMany = 10;
-		while (tryAgain) {
-			Jedis jedis = jpool.getResource();
-			try {
-				Long msgid = jedis.incr("global:nextRecordedMsgId");
-				jedis.hmset("recording" + COLON + session + COLON + msgid, message.toMap());
-				jedis.rpush("meeting" + COLON + session + COLON + "recordings", msgid.toString());
-				jpool.returnResource(jedis);				
-			} catch(JedisException e) {
-				System.out.println("Failed to get redis connection...trying again...");
-				if (howMany < 0) {
-					tryAgain = false;
-				} else {
-					howMany--;
-					jpool.returnBrokenResource(jedis);
-				}
-			}
-			
-		}
-	}
-*/
-
+	
 	public JedisPool getRedisPool() {
 		return redisPool;
 	}

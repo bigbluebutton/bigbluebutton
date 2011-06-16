@@ -9,8 +9,10 @@
 		<property name="messagingService" ref="redisMessagingService"/>
     </bean>
     
-    <bean id="redisMessagingService" class="org.bigbluebutton.api.messaging.RedisMessagingService">
-    	<!--property name="redisPool" ref="redisPool"/-->
+    <bean id="messagingService" class="org.bigbluebutton.api.messaging.RedisMessagingService">
+    	<constructor-arg index="0" value="${redisHost}"/>
+        <constructor-arg index="1" value="${redisPort}"/>
+    	<property name="redisPool" ref="redisPool"/>
     </bean>
     
     <bean id="redisPool" class="redis.clients.jedis.JedisPool">

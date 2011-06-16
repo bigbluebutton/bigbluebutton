@@ -25,6 +25,7 @@ package org.bigbluebutton.presentation;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bigbluebutton.api.messaging.MessagingConstants;
 import org.bigbluebutton.api.messaging.MessagingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,9 +71,9 @@ public class OfficeToPdfConversionSuccessFilter {
 			Gson gson= new Gson();
 			String updateMsg=gson.toJson(msg);
 			log.debug("sending: "+updateMsg);
-			messagingService.send("foo", updateMsg);
+			messagingService.send(MessagingConstants.PRESENTATION_CHANNEL, updateMsg);
 		} else {
-			log.warn("ConversionProgressNotifier has not been set!.");
+			log.warn("MessagingService has not been set!.");
 		}
 	}
 }

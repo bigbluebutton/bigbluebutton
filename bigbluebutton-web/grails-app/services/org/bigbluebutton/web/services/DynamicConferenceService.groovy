@@ -171,7 +171,7 @@ public class DynamicConferenceService {
 		try {
 			mUsers = Integer.parseInt(maxUsers);
 		} catch(Exception ex) { 
-			log.error("Failed to parse maximum number of participants.");
+			log.warn("Failed to parse maximum number of participants.");
 			mUsers = defaultMaxUsers;
 		}		
 		
