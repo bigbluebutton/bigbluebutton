@@ -71,7 +71,7 @@ public class MeetingService {
 		return null;
 	}
 
-	public ArrayList<Recording> getRecordings(String meetingId) {		
+	public ArrayList<Recording> getRecordings(ArrayList<String> meetingId) {		
 		return recordingService.getRecordings(meetingId);
 	}
 	

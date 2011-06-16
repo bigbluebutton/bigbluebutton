@@ -22,7 +22,6 @@
  */
 package org.bigbluebutton.presentation.imp
 
-import org.springframework.util.FileCopyUtils
 import org.bigbluebutton.presentation.ThumbnailCreator
 
 class ThumbnailCreatorImpTests extends GroovyTestCase {

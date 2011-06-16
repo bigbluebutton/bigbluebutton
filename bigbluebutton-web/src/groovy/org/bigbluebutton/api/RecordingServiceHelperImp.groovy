@@ -6,8 +6,11 @@ import java.io.File;
 import java.util.ArrayList;
 
 import org.bigbluebutton.api.domain.Recording;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RecordingServiceHelperImp implements RecordingServiceHelper {
+	private static Logger log = LoggerFactory.getLogger(RecordingServiceHelperImp.class);
 	/*
 	<recording>
 		<id>Demo Meeting-3243244</id>
@@ -54,10 +57,10 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
 	}
 		
 	public Recording getRecordingInfo(String id, String recordingDir, String playbackFormat) {
-		String path = recordingDir + File.pathSeparator + playbackFormat;		
+		String path = recordingDir + File.separatorChar + playbackFormat;		
 		File dir = new File(path);
 		if (dir.isDirectory()) {
-			def recording = new XmlSlurper().parse(new File(path + File.pathSeparatorChar + "metadata.xml"));
+			def recording = new XmlSlurper().parse(new File(path + File.separatorChar + id + File.separatorChar + "metadata.xml"));
 			return getInfo(recording);
 		}
 		return null;
@@ -65,16 +68,18 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
 	
 	private Recording getInfo(GPathResult rec) {
 		Recording r = new Recording();		
-		r.setId(rec.id.text())
-		r.setState(rec.state.text())
-		r.setPublished(rec.published.text())
-		r.setStartTime(rec.start_time.text())
-		r.setEndTime(rec.end_time.text())
-		r.setPlaybackLink(rec.playback.text())
+		r.setId(rec.id.text());
+		r.setState(rec.state.text());
+		r.setPublished(Boolean.parseBoolean(rec.published.text()));
+		r.setStartTime(rec.start_time.text());
+		r.setEndTime(rec.end_time.text());
+		r.setPlaybackFormat(rec.playback.format.text());
+		r.setPlaybackLink(rec.playback.link.text());
 		
 		Map<String, String> meta = new HashMap<String, String>();		
 		rec.meta.children().each { anode ->
-				meta.put(node.name(), anode.text());
+				log.debug("metadata: "+anode.name()+" "+anode.text())
+				meta.put(anode.name().toString(), anode.text().toString());
 		}
 		r.setMetadata(meta);
 		
