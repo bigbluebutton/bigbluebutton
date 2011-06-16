@@ -33,6 +33,10 @@ public class ApiErrors {
 		errors.add(new String[] {"mismatchCreateTime", "The createTime parameter submitted mismatches with the current meeting."});
 	}
 	
+	public void recordingNotFound() {
+		errors.add(new String[] {"recordingNotFound", "We could not find a recording with that recordID."});
+	}
+	
 	public boolean hasErrors() {
 		return errors.size() > 0;
 	}

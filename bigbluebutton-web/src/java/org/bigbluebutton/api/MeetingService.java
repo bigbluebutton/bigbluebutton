@@ -71,8 +71,16 @@ public class MeetingService {
 		return null;
 	}
 
-	public ArrayList<Recording> getRecordings(ArrayList<String> meetingId) {		
-		return recordingService.getRecordings(meetingId);
+	public ArrayList<Recording> getRecordings(ArrayList<String> idList) {		
+		return recordingService.getRecordings(idList);
+	}
+	public boolean existsAnyRecording(ArrayList<String> idList){
+		return recordingService.existAnyRecording(idList);
+	}
+	public void setPublishRecording(ArrayList<String> idList,boolean publish){
+		for(String id:idList){
+			recordingService.publish(id, publish);
+		}
 	}
 	
 	public void processRecording(String meetingId) {

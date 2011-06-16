@@ -479,17 +479,18 @@ public class ParamsProcessorUtil {
 		this.defaultMeetingDuration = defaultMeetingDuration;
 	}
 	
-	public ArrayList<String> processMeetingIds(String externalMeetingIds){
+	public ArrayList<String> decodeIds(String encodeid){
 		ArrayList<String> ids=new ArrayList<String>();
 		try {
-			ids.addAll(Arrays.asList(URLDecoder.decode(externalMeetingIds,"UTF-8").split(URLDECODER_SEPARATOR)));
+			ids.addAll(Arrays.asList(URLDecoder.decode(encodeid,"UTF-8").split(URLDECODER_SEPARATOR)));
 		} catch (UnsupportedEncodingException e) {
-			log.error("Couldn't decode the parameter");
+			log.error("Couldn't decode the IDs");
 		}
 		
 		return ids;
 	}
-	public ArrayList<String> convertToInternalMeetingIds(ArrayList<String> extMeetingIds) {
+	
+	public ArrayList<String> convertToInternalMeetingId(ArrayList<String> extMeetingIds) {
 		ArrayList<String> internalMeetingIds=new ArrayList<String>();
 		for(String extid : extMeetingIds){
 			internalMeetingIds.add(convertToInternalMeetingId(extid));

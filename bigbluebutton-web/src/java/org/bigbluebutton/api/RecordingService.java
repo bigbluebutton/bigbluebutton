@@ -57,6 +57,18 @@ public class RecordingService {
 		return recs;
 	}
 	
+	public boolean existAnyRecording(ArrayList<String> idList){
+		ArrayList<String> publishList=getAllRecordingIds(publishedDir);
+		ArrayList<String> unpublishList=getAllRecordingIds(unpublishedDir);
+		
+		for(String id:idList){
+			if(publishList.contains(id)||unpublishList.contains(id)){
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	private ArrayList<String> getAllRecordingIds(String path){
 		ArrayList<String> ids=new ArrayList<String>();
 		

@@ -617,12 +617,13 @@ class ApiController {
 	
 	ArrayList<String> externalMeetingIds = new ArrayList<String>();
 	if (!StringUtils.isEmpty(params.meetingID)) {
-		externalMeetingIds=paramsProcessorUtil.processMeetingIds(params.meetingID);
+		externalMeetingIds=paramsProcessorUtil.decodeIds(params.meetingID);
 	}
     
     // Everything is good so far. Translate the external meeting ids to an internal meeting ids.             
-    ArrayList<String> internalMeetingIds = paramsProcessorUtil.convertToInternalMeetingIds(externalMeetingIds);        
+    ArrayList<String> internalMeetingIds = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingIds);        
     ArrayList<Recording> recs = meetingService.getRecordings(internalMeetingIds);
+	
     if (recs.isEmpty()) {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {  
@@ -672,7 +673,53 @@ class ApiController {
     }
   } 
   
+  /******************************************************
+  * SET_PUBLISH_RECORDINGS API
+  ******************************************************/
   
+  def setPublishRecordings = {
+	  String API_CALL = "setPublishRecordings"
+	  log.debug CONTROLLER_NAME + "#${API_CALL}"
+	  
+	  ApiErrors errors = new ApiErrors()
+	  
+	  // Do we have a checksum? If none, complain.
+	  if (StringUtils.isEmpty(params.checksum)) {
+		errors.missingParamError("checksum");
+	  }
+	
+	  // Do we have a meeting id? If none, complain.
+	  String recordId = params.recordID
+	  if (StringUtils.isEmpty(recordId)) {
+		errors.missingParamError("recordID");
+	  }
+	
+	  if (errors.hasErrors()) {
+		  respondWithErrors(errors)
+		  return
+	  }
+  
+	  // Do we agree on the checksum? If not, complain.
+	  if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+		  errors.checksumError()
+		  respondWithErrors(errors)
+		  return
+	  }
+	  
+	  ArrayList<String> recordIdList = new ArrayList<String>();
+	  if (!StringUtils.isEmpty(recordId)) {
+		  recordIdList=paramsProcessorUtil.decodeIds(recordId);
+	  }
+	  
+	  if(!meetingService.existsAnyRecording(recordIdList)){
+		  errors.recordingNotFound();
+		  respondWithErrors(errors);
+		  return;
+	  }
+	  
+	  meetingService.setPublishRecording(recordIdList, true);
+	  
+  }
   
   def uploadDocuments(conf) { 
     log.debug("ApiController#uploadDocuments(${conf.getInternalId()})");
