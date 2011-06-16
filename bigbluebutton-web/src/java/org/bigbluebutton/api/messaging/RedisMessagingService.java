@@ -1,5 +1,7 @@
 package org.bigbluebutton.api.messaging;
 
+import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -8,12 +10,9 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisException;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
 
@@ -86,12 +85,19 @@ public class RedisMessagingService implements MessagingService {
 		log.debug("Starting redis pubsub...");		
 		//Currently, the pool gets blocked for publish if a resource subscribe to a channel
 		final Jedis jedis = new Jedis(this.host,this.port);
-		pubsubListener = new Runnable() {
-		    public void run() {
-		    	jedis.psubscribe(new PubSubListener(), MessagingConstants.BIGBLUEBUTTON_PATTERN);       			
-		    }
-		};
-		exec.execute(pubsubListener);
+		try {
+			jedis.connect();
+			pubsubListener = new Runnable() {
+			    public void run() {
+			    	jedis.psubscribe(new PubSubListener(), MessagingConstants.BIGBLUEBUTTON_PATTERN);       			
+			    }
+			};
+			exec.execute(pubsubListener);
+		} catch (UnknownHostException e) {
+			log.error("Unknown host[" + host + "]");
+		} catch (IOException e) {
+			log.error("Cannot connect to [" + host + ":" + port + "]");
+		}
 	}
 
 	public void stop() {

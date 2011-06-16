@@ -5,7 +5,7 @@ import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.exceptions.JedisException;
+import redis.clients.jedis.JedisException;
 import redis.clients.jedis.JedisPool;
 
 public class RedisDispatcher implements Recorder {

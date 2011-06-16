@@ -6,7 +6,7 @@
 			">  
 			
 	<bean id="meetingService" class="org.bigbluebutton.api.MeetingServiceImp" >
-		<property name="messagingService" ref="redisMessagingService"/>
+		<property name="messagingService" ref="messagingService"/>
     </bean>
     
     <bean id="messagingService" class="org.bigbluebutton.api.messaging.RedisMessagingService">
@@ -21,7 +21,7 @@
     </bean>
     
 	<bean id="documentConversionService" class="org.bigbluebutton.presentation.DocumentConversionServiceImp">
-		<property name="messagingService" ref="redisMessagingService"/>
+		<property name="messagingService" ref="messagingService"/>
 		<property name="officeToPdfConversionService" ref="officeToPdfConversionService"/>
 		<property name="pdfToSwfSlidesGenerationService" ref="pdfToSwfSlidesGenerationService"/>
 		<property name="imageToSwfSlidesGenerationService" ref="imageToSwfSlidesGenerationService"/>
@@ -93,7 +93,7 @@
 	</bean>
 	
 	<bean id="swfSlidesGenerationProgressNotifier" class="org.bigbluebutton.presentation.imp.SwfSlidesGenerationProgressNotifier">
-		<property name="meetingService" ref="meetingService"/> 
+		<property name="messagingService" ref="messagingService"/> 
 		<property name="generatedSlidesInfoHelper" ref="generatedSlidesInfoHelper"/>
 	</bean>	
 </beans>
