@@ -210,7 +210,7 @@ class ApiController {
     String role = null;
     if (meeting.getModeratorPassword().equals(attPW)) {
       role = ROLE_MODERATOR;
-    } else if (meeting.getAttendeePassword().equals(attPW)) {
+    } else if (meeting.getViewerPassword().equals(attPW)) {
       role = ROLE_ATTENDEE;
     }
     
@@ -688,10 +688,15 @@ class ApiController {
 		errors.missingParamError("checksum");
 	  }
 	
-	  // Do we have a meeting id? If none, complain.
+	  // Do we have a recording id? If none, complain.
 	  String recordId = params.recordID
 	  if (StringUtils.isEmpty(recordId)) {
 		errors.missingParamError("recordID");
+	  }
+	  // Do we have a publish status? If none, complain.
+	  String publish = params.publish
+	  if (StringUtils.isEmpty(publish)) {
+		errors.missingParamError("publish");
 	  }
 	
 	  if (errors.hasErrors()) {
@@ -717,8 +722,66 @@ class ApiController {
 		  return;
 	  }
 	  
-	  meetingService.setPublishRecording(recordIdList, true);
+	  meetingService.setPublishRecording(recordIdList,publish.toBoolean());
+	  withFormat {
+		  xml {
+			render(contentType:"text/xml") {
+			  response() {
+				  returncode(RESP_CODE_SUCCESS)
+				  published(publish)
+			  }
+			}
+		  }
+		}
+  }
+  /******************************************************
+  * DELETE_RECORDINGS API
+  ******************************************************/
+  def deleteRecordings = {
+	  String API_CALL = "deleteRecordings"
+	  log.debug CONTROLLER_NAME + "#${API_CALL}"
 	  
+	  ApiErrors errors = new ApiErrors()
+	  
+	  // Do we have a checksum? If none, complain.
+	  if (StringUtils.isEmpty(params.checksum)) {
+		errors.missingParamError("checksum");
+	  }
+	
+	  // Do we have a recording id? If none, complain.
+	  String recordId = params.recordID
+	  if (StringUtils.isEmpty(recordId)) {
+		errors.missingParamError("recordID");
+	  }
+	
+	  if (errors.hasErrors()) {
+		  respondWithErrors(errors)
+		  return
+	  }
+  
+	  // Do we agree on the checksum? If not, complain.
+	  if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+		  errors.checksumError()
+		  respondWithErrors(errors)
+		  return
+	  }
+	  
+	  ArrayList<String> recordIdList = new ArrayList<String>();
+	  if (!StringUtils.isEmpty(recordId)) {
+		  recordIdList=paramsProcessorUtil.decodeIds(recordId);
+	  }
+	  
+	  meetingService.deleteRecordings(recordIdList);
+	  withFormat {
+		  xml {
+			render(contentType:"text/xml") {
+			  response() {
+				  returncode(RESP_CODE_SUCCESS)
+				  deleted(true)
+			  }
+			}
+		  }
+		}
   }
   
   def uploadDocuments(conf) { 

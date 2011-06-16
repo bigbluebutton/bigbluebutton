@@ -52,7 +52,7 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
 			} 
 		}
 		
-		xmlEventFile = new File(path + File.pathSeparatorChar + "metadata.xml")
+		def xmlEventFile = new File(path + File.separatorChar + "metadata.xml")
 		xmlEventFile.write writer.toString()
 	}
 		
@@ -67,7 +67,7 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
 	}
 	
 	private Recording getInfo(GPathResult rec) {
-		Recording r = new Recording();		
+		Recording r = new Recording();
 		r.setId(rec.id.text());
 		r.setState(rec.state.text());
 		r.setPublished(Boolean.parseBoolean(rec.published.text()));
@@ -82,7 +82,6 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
 				meta.put(anode.name().toString(), anode.text().toString());
 		}
 		r.setMetadata(meta);
-		
 		return r;
 	}
 

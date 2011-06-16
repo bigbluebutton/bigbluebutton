@@ -110,28 +110,33 @@ public class RecordingService {
 	}
 	
 	public void publish(String recordingId, boolean publish) {
-		publish(publishedDir, recordingId, publish);
-		publish(unpublishedDir, recordingId, publish);
+		if(publish)
+			publish(unpublishedDir, recordingId, publish);
+		else
+			publish(publishedDir, recordingId, publish);		
 	}
 	
 	private void publish(String path, String recordingId, boolean publish) {
 		String[] format = getPlaybackFormats(path);
 		for (int i = 0; i < format.length; i++) {
-			File[] recordings = getDirectories(path + File.pathSeparatorChar + format[i]);
+			File[] recordings = getDirectories(path + File.separatorChar + format[i]);
 			for (int f = 0; f < recordings.length; f++) {
-				if (recordings[f].getName().equals(recordingId)) {
-					Recording r = getRecordingInfo(recordingId, path, format[i]);
+				if (recordings[f].getName().equalsIgnoreCase(recordingId)) {
+					Recording r = getRecordingInfo(path, recordingId, format[i]);
 					if (r != null) {
+						log.debug("Recording is NOT Null!");
 						File dest;
 						if (publish) {
-							dest = new File(publishedDir);
+							dest = new File(publishedDir+ File.separatorChar + format[i]);
 						} else {
-							dest = new File(unpublishedDir);
+							dest = new File(unpublishedDir+ File.separatorChar + format[i]);
 						}
+						if(!dest.exists()) dest.mkdir();
 						boolean moved = recordings[f].renameTo(new File(dest, recordings[f].getName()));
 						if (moved) {
+							log.debug("Recording successfully moved!");
 							r.setPublished(publish);
-							recordingServiceHelper.writeRecordingInfo(dest.getAbsolutePath() + File.pathSeparatorChar + recordings[f].getName(), r);
+							recordingServiceHelper.writeRecordingInfo(dest.getAbsolutePath() + File.separatorChar + recordings[f].getName(), r);
 						}
 					}
 				}				
@@ -147,7 +152,7 @@ public class RecordingService {
 	private void deleteRecording(String id, String path) {
 		String[] format = getPlaybackFormats(path);
 		for (int i = 0; i < format.length; i++) {
-			File[] recordings = getDirectories(path + File.pathSeparatorChar + format[i]);
+			File[] recordings = getDirectories(path + File.separatorChar + format[i]);
 			for (int f = 0; f < recordings.length; f++) {
 				if (recordings[f].getName().equals(id)) {
 					deleteDirectory(recordings[f]);

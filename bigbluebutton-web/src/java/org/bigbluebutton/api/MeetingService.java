@@ -79,7 +79,12 @@ public class MeetingService {
 	}
 	public void setPublishRecording(ArrayList<String> idList,boolean publish){
 		for(String id:idList){
-			recordingService.publish(id, publish);
+			recordingService.publish(id,publish);
+		}
+	}
+	public void deleteRecordings(ArrayList<String> idList){
+		for(String id:idList){
+			recordingService.delete(id);
 		}
 	}
 	
