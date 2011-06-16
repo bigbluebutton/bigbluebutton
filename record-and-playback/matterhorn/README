@@ -127,11 +127,11 @@ APACHE MAVEN
 	
 APACHE FELIX
 	Get the lastest release of Felix
-		sudo wget http://apache.deathculture.net//felix/org.apache.felix.main.distribution-3.2.0.tar.gz
+		sudo wget http://apache.deathculture.net//felix/org.apache.felix.main.distribution-3.2.2.tar.gz
 	Unarchive
-		sudo tar xvf org.apache.felix.main.distribution-3.2.0.tar.gz 
+		sudo tar xvf org.apache.felix.main.distribution-3.2.2.tar.gz 
 	Move and rename unarchived folder to Matterhorn installation directory
-		sudo mv felix-framework-3.2.0 /opt/matterhorn/felix
+		sudo mv felix-framework-3.2.2 /opt/matterhorn/felix
 	Configure
 		sudo mkdir /opt/matterhorn/felix/load
 		sudo cp -rf /opt/matterhorn/1.1.0/docs/felix/* /opt/matterhorn/felix/
@@ -174,3 +174,61 @@ FELIX HOME
 
 RUN MATTERHORN
 		sudo sh /opt/matterhorn/felix/bin/start_matterhorn.sh
+		
+                                                                     
+                                                                     
+                                                                     
+                                             
+|||||||||||||||||||||||||||||||||||
+  Ingesting to Matterhorn inbox 
+|||||||||||||||||||||||||||||||||||
+
+----------------------------------
+Notes:
+----------------------------------
+User in BBB server is firstuser
+User in Matterhorn server is matt
+BBB server ip: 192.168.1.42
+Matterhorn server ip: 192.168.1.40
+FELIX_HOME: /opt/matterhorn/felix
+
+----------------------------------
+Steps:
+----------------------------------
+In the BBB server:
+
+1) Create a ssh key
+	ssh-keygen -t rsa
+2)Ask for a passphrase. Press Enter
+3)Ask for repeating the passphrase. Press Enter
+
+The public key was generated in /home/firstuser/.ssh/
+Its name is id_rsa.pub
+
+In MH server:
+
+4)Create a .ssh directory
+	sudo mkdir /home/matt/.ssh
+5)Create authorized_keys file
+	sudo nano /home/matt/.ssh/authorized_keys
+6) Copy the content from /home/firstuser/.ssh/id_rsa.pub in BBB server
+   To /home/matt/.ssh/authorized_keys in MH server
+
+In BBB Server:
+
+7)scp /path/to/zipped_file.zip matt@192.168.1.40:/opt/matterhorn/felix/inbox
+
+The file is sent and ingested in Matterhorn
+
+----------------------------------
+About inbox ingestion:
+----------------------------------
+-By default inbox directory is $FELIX_HOME/inbox
+-If you need to change inbox directory, change the parameter
+	felix.fileinstall.dir  
+ in
+	/opt/matterhorn/1.1.0/docs/felix/load/org.apache.felix.fileinstall-inbox.cfg
+-Zipped package is deleted after it is ingested in inbox dir
+-If the zipped package is not a media package it is sent to the storage_dir/files/collection
+ where storage_dir is a parameter configured in $FELIX_HOME/conf/config.properties
+

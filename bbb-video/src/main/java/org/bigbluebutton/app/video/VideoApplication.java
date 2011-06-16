@@ -18,6 +18,9 @@
 */
 package org.bigbluebutton.app.video;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
 import org.red5.server.api.IConnection;
@@ -37,6 +40,8 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	private IServerStream serverStream;
 	
 	private boolean recordVideoStream = false;
+	private EventRecordingService recordingService;
+	
 	
     @Override
 	public boolean appStart(IScope app) {
@@ -64,29 +69,66 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     
     @Override
     public void streamPublishStart(IBroadcastStream stream) {
+    	super.streamPublishStart(stream);
         if (recordVideoStream) {
 	    	recordStream(stream);
         }
     }
     
+    @Override
+    public void streamBroadcastStart(IBroadcastStream stream) {
+    	IConnection conn = Red5.getConnectionLocal();  
+    	super.streamBroadcastStart(stream);
+    	log.info("streamBroadcastStart " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
+		Map<String, String> event = new HashMap<String, String>();
+		event.put("module", "WEBCAM");
+		event.put("timestamp", new Long(System.currentTimeMillis()).toString());
+		event.put("meetingId", conn.getScope().getName());
+		event.put("stream", stream.getPublishedName());
+		event.put("eventName", "StartWebcamShareEvent");
+		
+		recordingService.record(conn.getScope().getName(), event);
+    }
+
+    @Override
+    public void streamBroadcastClose(IBroadcastStream stream) {
+    	IConnection conn = Red5.getConnectionLocal();  
+    	super.streamBroadcastClose(stream);
+    	log.info("streamBroadcastClose " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
+		Map<String, String> event = new HashMap<String, String>();
+		event.put("module", "WEBCAM");
+		event.put("timestamp", new Long(System.currentTimeMillis()).toString());
+		event.put("meetingId", conn.getScope().getName());
+		event.put("stream", stream.getPublishedName());
+		event.put("eventName", "StopWebcamShareEvent");
+		
+		recordingService.record(conn.getScope().getName(), event);
+    }
+    
     /**
-     * A hook to record a sample stream. A file is written in webapps/video/streams/
+     * A hook to record a stream. A file is written in webapps/video/streams/
      * @param stream
      */
     private void recordStream(IBroadcastStream stream) {
-    	IConnection conn = Red5.getConnectionLocal();     
-    	String streamName = stream.getPublishedName();
+    	IConnection conn = Red5.getConnectionLocal();   
+    	long now = System.currentTimeMillis();
+    	String recordingStreamName = stream.getPublishedName() + "-" + now;
      
-    	try {
+    	try {    		
+    		log.info("Recording stream " + recordingStreamName );
     		ClientBroadcastStream cstream = (ClientBroadcastStream) this.getBroadcastStream(conn.getScope(), stream.getPublishedName() );
-    		cstream.saveAs(streamName, false);
+    		cstream.saveAs(recordingStreamName, false);
     	} catch(Exception e) {
-    		System.out.println("ERROR while recording stream " + e.getMessage());
+    		log.error("ERROR while recording stream " + e.getMessage());
     		e.printStackTrace();
     	}    	
     }
 
 	public void setRecordVideoStream(boolean recordVideoStream) {
 		this.recordVideoStream = recordVideoStream;
+	}
+	
+	public void setEventRecordingService(EventRecordingService s) {
+		recordingService = s;
 	}
 }
