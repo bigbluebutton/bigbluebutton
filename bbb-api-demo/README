@@ -1,0 +1,9 @@
+15-6-2011
+bbb_api.jsp from bigbluebutton-web is different to the one in for bbb-api-demo
+
+The method joinurl inside bbb_api.jsp has 3(bbb-api-demo version) or 5(bigbluebutton-web) parameters
+
+Now I am using the one in bbb-api-demo
+
+demo1.jsp demo2.jsp create.jsp and demo6 are affected and does not work
+
