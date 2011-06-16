@@ -120,7 +120,7 @@ class ApiController {
     String welcomeMessage = dynamicConferenceService.processWelcomeMessage(params.welcome == null ? "" : params.welcome, dialNumber, telVoice, meetingName);
     
     // Translate the external meeting id into an internal meeting id.
-    String internalMeetingId = dynamicConferenceService.getInternalMeetingId(externalMeetingId);		
+    String internalMeetingId = dynamicConferenceService.convertToInternalMeetingId(externalMeetingId);		
     Meeting existing = dynamicConferenceService.getMeeting(internalMeetingId);
     if (existing != null) {
       log.debug "Existing conference found"
@@ -138,7 +138,7 @@ class ApiController {
     
     // Check if this is a test meeting. NOTE: This should not belong here. Extract this out.				
     if (dynamicConferenceService.isTestMeeting(telVoice)) {
-      internalMeetingId = dynamicConferenceService.getIntMeetingIdForTestMeeting(telVoice)
+      digestMeetingId = dynamicConferenceService.getIntMeetingIdForTestMeeting(telVoice)
     }
     
     // Collect metadata for this meeting that the third-party app wants to store if meeting is recorded.
@@ -153,11 +153,16 @@ class ApiController {
       }
     }
     
+    // Create a unique internal id by appending the current time. This way, the 3rd-party
+    // app can reuse the external meeting id.
+    internalMeetingId = internalMeetingId + '-' + new Long(System.currentTimeMillis()).toString()
+    
     // Create the meeting with all passed in parameters.
-    Meeting meeting = new Meeting.Builder().withName(meetingName).withExternalId(externalMeetingId).withInternalId(internalMeetingId)
-              .withMaxUsers(maxUsers).withModeratorPass(modPass).withViewerPass(viewerPass).withRecording(record)
-              .withLogoutUrl(logoutUrl).withTelVoice(telVoice).withWebVoice(webVoice).withDialNumber(dialNumber)
-              .withMetadata(meetingInfo).withWelcomeMessage(welcomeMessage).build()
+    Meeting meeting = new Meeting.Builder(externalMeetingId, internalMeetingId)
+    			.withName(meetingName).withMaxUsers(maxUsers).withModeratorPass(modPass)
+    			.withViewerPass(viewerPass).withRecording(record)
+              	.withLogoutUrl(logoutUrl).withTelVoice(telVoice).withWebVoice(webVoice).withDialNumber(dialNumber)
+              	.withMetadata(meetingInfo).withWelcomeMessage(welcomeMessage).build()
               
     dynamicConferenceService.createMeeting(meeting);
     
@@ -208,7 +213,7 @@ class ApiController {
 
     // Everything is good so far. Translate the external meeting id to an internal meeting id. If
     // we can't find the meeting, complain.					        
-    String internalMeetingId = dynamicConferenceService.getInternalMeetingId(externalMeetingId);
+    String internalMeetingId = dynamicConferenceService.convertToInternalMeetingId(externalMeetingId);
     log.info("Retrieving meeting ${internalMeetingId}")		
     Meeting meeting = dynamicConferenceService.getMeeting(internalMeetingId);
     if (meeting == null) {
@@ -289,7 +294,7 @@ class ApiController {
             
     // Everything is good so far. Translate the external meeting id to an internal meeting id. If
     // we can't find the meeting, complain.					        
-    String internalMeetingId = dynamicConferenceService.getInternalMeetingId(externalMeetingId);
+    String internalMeetingId = dynamicConferenceService.convertToInternalMeetingId(externalMeetingId);
     log.info("Retrieving meeting ${internalMeetingId}")		
     Meeting meeting = dynamicConferenceService.getMeeting(internalMeetingId);
     if (meeting == null) {
@@ -344,7 +349,7 @@ class ApiController {
             
     // Everything is good so far. Translate the external meeting id to an internal meeting id. If
     // we can't find the meeting, complain.					        
-    String internalMeetingId = dynamicConferenceService.getInternalMeetingId(externalMeetingId);
+    String internalMeetingId = dynamicConferenceService.convertToInternalMeetingId(externalMeetingId);
     log.info("Retrieving meeting ${internalMeetingId}")		
     Meeting meeting = dynamicConferenceService.getMeeting(internalMeetingId);
     if (meeting == null) {
@@ -408,7 +413,7 @@ class ApiController {
     
     // Everything is good so far. Translate the external meeting id to an internal meeting id. If
     // we can't find the meeting, complain.					        
-    String internalMeetingId = dynamicConferenceService.getInternalMeetingId(externalMeetingId);
+    String internalMeetingId = dynamicConferenceService.convertToInternalMeetingId(externalMeetingId);
     log.info("Retrieving meeting ${internalMeetingId}")		
     Meeting meeting = dynamicConferenceService.getMeeting(internalMeetingId);
     if (meeting == null) {
@@ -547,18 +552,21 @@ class ApiController {
 	String meetingId = session["conference"]
 	Meeting meeting = dynamicConferenceService.getMeeting(meetingId);
 	String logoutUrl = dynamicConferenceService.defaultLogoutUrl
- 
-	if (meeting != null) {
-		logoutUrl = meeting.getLogoutUrl();
-	}
-            
+    log.debug("Logging out from [" + meeting.getInternalId() + "]");
+             
 	// Log the user out of the application.
 	session.invalidate()
-      
-	if (meeting.isRecord())
-		dynamicConferenceService.processRecording(meetingToken)
-      
-      
+
+	if (meeting != null) {
+		logoutUrl = meeting.getLogoutUrl();
+		if (meeting.isRecord()) {
+			log.debug("[" + meeting.getInternalId() + "] is recorded. Process it.");		
+			dynamicConferenceService.processRecording(meeting.getInternalId())
+		}
+	} else {
+		log.warn("Signing out from a non-existing meeting [" + meetingId + "]");	
+	}      
+ 
 	log.debug("Signing out. Redirecting to " + logoutUrl)
 	redirect(url: logoutUrl)
   }
@@ -604,7 +612,7 @@ class ApiController {
   def processDocumentFromRawBytes(bytes, filename, conf) {
     def cleanName = cleanFilename(filename);
 
-    File uploadDir = presentationService.uploadedPresentationDirectory(conf.getMeetingToken(), conf.getMeetingToken(), cleanName);
+    File uploadDir = presentationService.uploadedPresentationDirectory(conf.getInternalId(), conf.getInternalId(), cleanName);
     def pres = new File(uploadDir.absolutePath + File.separatorChar + cleanName);
     
     FileOutputStream fos = new java.io.FileOutputStream(pres)
@@ -616,14 +624,14 @@ class ApiController {
   }
     
   def downloadAndProcessDocument(address, conf) {
-    log.debug("ApiController#downloadAndProcessDocument({$address}, ${conf.meetingID})");
+    log.debug("ApiController#downloadAndProcessDocument({$address}, ${conf.getInternalId()})");
     String name = cleanFilename(address.tokenize("/")[-1]);
     log.debug("Uploading presentation: ${name} from ${address} [starting download]");
     
     def out;
     def pres;
     try {
-      File uploadDir = presentationService.uploadedPresentationDirectory(conf.getMeetingToken(), conf.getMeetingToken(), name);
+      File uploadDir = presentationService.uploadedPresentationDirectory(conf.getInternalId(), conf.getInternalId(), name);
       pres = new File(uploadDir.absolutePath + File.separatorChar + name);
       out = new BufferedOutputStream(new FileOutputStream(pres))
       out << new URL(address).openStream()
@@ -637,7 +645,7 @@ class ApiController {
   }
   
   def processUploadedFile(name, pres, conf) {
-    UploadedPresentation uploadedPres = new UploadedPresentation(conf.getMeetingToken(), conf.getMeetingToken(), name);
+    UploadedPresentation uploadedPres = new UploadedPresentation(conf.getInternalId(), conf.getInternalId(), name);
     uploadedPres.setUploadedFile(pres);
     presentationService.processUploadedPresentation(uploadedPres);
   }

@@ -202,8 +202,7 @@ public class Meeting {
 	public static class Builder {
     	private String name;
     	private String externalId;
-    	private String internalId;
-    	
+    	private String internalId;   	
     	private int maxUsers;
     	private boolean record;
     	private String moderatorPass;
@@ -216,23 +215,16 @@ public class Meeting {
     	private Map<String, String> metadata;
     	private String dialNumber;
     	
-    	public Builder() {}
+    	public Builder(String externalId, String internalId) {
+    		this.externalId = externalId;
+    		this.internalId = internalId;
+    	}
     	
     	public Builder withName(String name) {
     		this.name = name;
     		return this;
     	}
-    	
-    	public Builder withExternalId(String id) {
-    		externalId = id;
-    		return this;
-    	}
-    	
-    	public Builder withInternalId(String id) {
-    		internalId = id;
-    		return this;
-    	}
-    	
+    	    	
     	public Builder withDuration(int minutes) {
     		duration = minutes;
     		return this;

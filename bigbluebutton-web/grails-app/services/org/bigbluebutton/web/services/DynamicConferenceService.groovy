@@ -119,7 +119,7 @@ public class DynamicConferenceService {
 		return name ==~ /[0-9a-zA-Z_-]+/
 	}
 	
-	public String getInternalMeetingId(extMeetingId) {
+	public String convertToInternalMeetingId(extMeetingId) {
 		return DigestUtils.shaHex(extMeetingId);
 	}
 
