@@ -155,7 +155,7 @@ public class MeetingServiceImp implements MeetingService {
 		public void userLeft(String meetingId, String userId) {
 			Meeting m = getMeeting(meetingId);
 			if (m != null) {
-				User user=m.userLeft(userId);
+				User user = m.userLeft(userId);
 				log.debug("User removed from meeting:"+user.getFullname());
 			}
 		}
@@ -164,7 +164,7 @@ public class MeetingServiceImp implements MeetingService {
 		public void updatedStatus(String meetingId, String userId, String status, String value) {
 			Meeting m = getMeeting(meetingId);
 			if (m != null) {
-				User user=m.getUserById(userId);
+				User user = m.getUserById(userId);
 				user.setStatus(status, value);
 				log.debug("Setting new status value for participant:"+user.getFullname());
 			}

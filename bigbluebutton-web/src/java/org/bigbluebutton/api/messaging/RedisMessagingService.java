@@ -28,8 +28,8 @@ public class RedisMessagingService implements MessagingService {
 	private Runnable pubsubListener;
 
 	public RedisMessagingService(String host, int port) {
-		this.host=host;
-		this.port=port;
+		this.host = host;
+		this.port = port;
 	}
 	
  	@Override
@@ -43,11 +43,11 @@ public class RedisMessagingService implements MessagingService {
 
 	public void recordMeetingInfo(String meetingId, Map<String, String> info) {
 		Jedis jedis = redisPool.getResource();
-		try{
+		try {
 			jedis.hmset("meeting.info:" + meetingId, info);
-		}catch(Exception e){
+		} catch (Exception e){
 			log.warn("Cannot record the info meeting:"+meetingId,e);
-		}finally{
+		} finally {
 			redisPool.returnResource(jedis);
 		}
 		
@@ -55,15 +55,14 @@ public class RedisMessagingService implements MessagingService {
 	}
 
 	public void recordMeetingMetadata(String meetingId,	Map<String, String> metadata) {
-		Jedis jedis=redisPool.getResource();
-		try{
+		Jedis jedis = redisPool.getResource();
+		try { 
 			jedis.hmset("meeting:metadata:" + meetingId, metadata);
-		}catch(Exception e){
+		} catch (Exception e) {
 			log.warn("Cannot record the metadata meeting:"+meetingId,e);
-		}finally{
+		} finally {
 			redisPool.returnResource(jedis);
-		}
-				
+		}				
 	}
 
 	public void endMeeting(String meetingId) {
@@ -71,10 +70,11 @@ public class RedisMessagingService implements MessagingService {
 	}
 
 	public void send(String channel, String message) {
-		Jedis jedis=redisPool.getResource();
-		try{
+		Jedis jedis = redisPool.getResource();
+		try {
+			System.out.println("Sending " + message + " to " + channel);
 			jedis.publish(channel, message);
-		}catch(Exception e){
+		} catch(Exception e){
 			log.warn("Cannot publish the message to redis",e);
 		}finally{
 			redisPool.returnResource(jedis);
@@ -120,20 +120,19 @@ public class RedisMessagingService implements MessagingService {
 
 		@Override
 		public void onMessage(String channel, String message) {
-			
+			// Not used.
 		}
 
 		@Override
-		public void onPMessage(String pattern, String channel,
-	            String message) {
+		public void onPMessage(String pattern, String channel, String message) {
 			log.debug("Message Received in channel: "+channel);
 			
-			Gson gson=new Gson();
-			HashMap<String,String> map=gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
+			Gson gson = new Gson();
+			HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
 			
 			if(channel.equalsIgnoreCase(MessagingConstants.SYSTEM_CHANNEL)){
-				String meetingId=map.get("meetingId");
-				String state=map.get("state");
+				String meetingId = map.get("meetingId");
+				String state = map.get("state");
 
 				for (MessageListener listener : listeners) {
 					if(state.equalsIgnoreCase("started")) {
@@ -145,28 +144,28 @@ public class RedisMessagingService implements MessagingService {
 
 			}
 			else if(channel.equalsIgnoreCase(MessagingConstants.PARTICIPANTS_CHANNEL)){
-				String meetingId=map.get("meetingId");
-				String action=map.get("action");
+				String meetingId = map.get("meetingId");
+				String action = map.get("action");
 				if(action.equalsIgnoreCase("join")){
-					String userid=map.get("userid");
-					String fullname=map.get("fullname");
-					String role=map.get("role");
+					String userid = map.get("userid");
+					String fullname = map.get("fullname");
+					String role = map.get("role");
 					
 					for (MessageListener listener : listeners) {
 						listener.userJoined(meetingId, userid, fullname, role);
 					}
 				}
 				else if(action.equalsIgnoreCase("status")){
-					String userid=map.get("userid");
-					String status=map.get("status");
-					String value=map.get("value");
+					String userid = map.get("userid");
+					String status = map.get("status");
+					String value = map.get("value");
 					
 					for (MessageListener listener : listeners) {
 						listener.updatedStatus(meetingId, userid, status, value);
 					}
 				}
 				else if(action.equalsIgnoreCase("left")){
-					String userid=map.get("userid");
+					String userid = map.get("userid");
 					
 					for (MessageListener listener : listeners) {
 						listener.userLeft(meetingId, userid);
