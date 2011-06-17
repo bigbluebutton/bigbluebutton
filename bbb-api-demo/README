@@ -1,25 +1,14 @@
-15-6-2011
-bbb_api.jsp from bigbluebutton-web is different to the one in for bbb-api-demo
+Steps:
 
-The method joinurl inside bbb_api.jsp has 3(bbb-api-demo version) or 5(bigbluebutton-web) parameters
+gradle resolveDeps
 
-Now I am using the one in bbb-api-demo
+gradle build
 
-demo1.jsp demo2.jsp create.jsp(the fifth link) and demo6 are affected and does not work
+sudo rm -rf /var/lib/tomcat6/webapps/demo*
 
-16-06-2011
+sudo cp build/libs/demo.war /var/lib/tomcat6/webapps/
 
-Edit joinUrl method in bbb_api.jsp from bbb-api-demo
-
-Declare String good_url
-
-Change method parameters
-	From
-		String username, String meetingID, String welcome
-	To
-		String username, String meetingID, String record, String welcome, Map<String, String> metadata
+sudo service tomcat6 restart
 
 
-Add record variable to String create_parameters  (it was in bbb_api.jsp from bigbluebutton-web)
 
-Add conditional for metadata (it was in bbb_api.jsp from bigbluebutton-web)
