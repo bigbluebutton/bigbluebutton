@@ -5,5 +5,21 @@ The method joinurl inside bbb_api.jsp has 3(bbb-api-demo version) or 5(bigbluebu
 
 Now I am using the one in bbb-api-demo
 
-demo1.jsp demo2.jsp create.jsp and demo6 are affected and does not work
+demo1.jsp demo2.jsp create.jsp(the fifth link) and demo6 are affected and does not work
 
+16-06-2011
+
+Edit joinUrl method in bbb_api.jsp from bbb-api-demo
+
+Declare String good_url
+
+Change method parameters
+	From
+		String username, String meetingID, String welcome
+	To
+		String username, String meetingID, String record, String welcome, Map<String, String> metadata
+
+
+Add record variable to String create_parameters  (it was in bbb_api.jsp from bigbluebutton-web)
+
+Add conditional for metadata (it was in bbb_api.jsp from bigbluebutton-web)
