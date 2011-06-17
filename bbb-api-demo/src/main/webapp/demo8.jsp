@@ -10,8 +10,8 @@ String name2="Demo456.pdf";
 String name3="Demo789.pdf";
 %>
 
-<h2>Demo #6: Send a presentation URL before joining a Course...</h2> 
-	 <form action="demo6.jsp" method="post" enctype
+<h2>Demo #8: Send a presentation URL before joining a Course...</h2> 
+	 <form action="demo8.jsp" method="post" enctype
 		="multipart/form-data" name="form1" id="form1">
 			<table cellpadding="5" cellspacing="5" style="width: 400px;">
 				<tbody>

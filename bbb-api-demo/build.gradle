@@ -20,4 +20,5 @@ dependencies {
 
 	  compile group: 'commons-codec', name: 'commons-codec', version: '1.4'
 	  compile group: 'commons-fileupload', name: 'commons-fileupload', version: '1.2'
+	  compile group: 'commons-io', name: 'commons-io', version: '2.0'
 }
