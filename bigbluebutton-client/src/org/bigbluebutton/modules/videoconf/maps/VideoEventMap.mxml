@@ -44,12 +44,14 @@
 			import org.bigbluebutton.modules.videoconf.views.PublishWindow;
 			import org.bigbluebutton.modules.videoconf.views.ToolbarButton;
 			import org.bigbluebutton.modules.videoconf.views.VideoWindow;
+			import org.bigbluebutton.modules.videoconf.views.VideoDock;
 			import org.bigbluebutton.modules.viewers.events.ViewCameraEvent;
 			import org.flexunit.runner.manipulation.filters.IncludeAllFilter;
 			
 			public var module:VideoconfModule;
 			private var button:ToolbarButton;
 			private var publishWindow:PublishWindow;
+			private var videoDock:VideoDock;
 			public var proxy:VideoProxy;
 			
 			private function viewCamera(userid:Number, stream:String, name:String, mock:Boolean = false):void{
@@ -86,6 +88,13 @@
 				globalDispatcher.dispatchEvent(event);
 			}
 			
+			public function addVideoDock():void{
+				videoDock = new VideoDock();
+				var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
+				windowEvent.window = videoDock;
+				globalDispatcher.dispatchEvent(windowEvent);
+			}
+			
 			private function openPublishWindow():void{
 				publishWindow = new PublishWindow();
 				publishWindow.streamName = module.userid.toString();
@@ -105,6 +114,7 @@
 				broadcastEvent.stream = e.stream;
 				broadcastEvent.userid = module.userid;
 				globalDispatcher.dispatchEvent(broadcastEvent);
+				publishWindow.title = module.username;
 			}
 			
 			private function stopPublishing(e:StopBroadcastEvent):void{

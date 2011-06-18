@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+  
+  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+  
+  BigBlueButton is free software; you can redistribute it and/or modify it under the 
+  terms of the GNU Lesser General Public License as published by the Free Software 
+  Foundation; either version 2.1 of the License, or (at your option) any later 
+  version. 
+  
+  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public License along 
+  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ 
+  $Id: $
+-->
+
+<MDIWindow xmlns="flexlib.mdi.containers.*" 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	creationComplete="init()" 
+	implements="org.bigbluebutton.common.IBbbModuleWindow"
+	xmlns:mate="http://mate.asfusion.com/"
+	layout="horizontal"
+	horizontalAlign="left">
+
+	<mx:Script>
+		<![CDATA[
+
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.modules.videoconf.events.DragEvent;
+			import org.bigbluebutton.modules.videoconf.events.CloseWindowEvent;
+			import mx.events.ChildExistenceChangedEvent;
+
+			private function init():void{
+				this.minWidth = 172;
+				this.minHeight = 179;
+				this.maxWidth = this.parent.width;
+				this.maxHeight = this.parent.height;
+				
+				this.width = this.minWidth;
+				this.height = this.minHeight;
+				
+				addEventListener(ChildExistenceChangedEvent.CHILD_ADD, updateWindowSize);
+				addEventListener(ChildExistenceChangedEvent.CHILD_REMOVE, updateWindowSize);
+			}
+			
+			public function getPrefferedPosition():String{
+				return MainCanvas.POPUP;
+			}
+			
+			private function onDragVideoWindow(e:DragEvent):void{
+				if (hitTestPoint(e.globalPosition.x, e.globalPosition.y, true)) {
+					if (e.window.parent != this)
+						addVideoChild(e.window);
+					else
+						repositionWindow(e.window);
+				} else {
+					if (e.window.parent == this) {
+						removeVideoChild(e.window);
+						//LogUtil.debug("e.globalPosition " + e.globalPosition.toString());
+						//LogUtil.debug("e.localPosition " + e.localPosition.toString());
+						// \TODO position is not accurate
+						e.window.x = e.globalPosition.x;
+						e.window.y = e.globalPosition.y;
+					}
+				}
+			}
+			
+			private function repositionWindow(window:MDIWindow):void {
+				// \TODO reposition the window correctly between the windows
+				setChildIndex(window, 0);
+			}
+			
+			private function onCloseVideoWindow(e:CloseWindowEvent):void {
+				removeVideoChild(e.window);
+			}
+			
+			private function addVideoChild(window:MDIWindow):void {
+				window.minimizeBtn.visible = false;
+				window.maximizeRestoreBtn.visible = false;
+				window.resizable = false;
+				this.addChild(window);
+			}
+			
+			private function removeVideoChild(window:MDIWindow):void {
+				window.minimizeBtn.visible = true;
+				window.maximizeRestoreBtn.visible = true;
+				window.resizable = true;
+				this.parent.addChild(window);
+			}
+			
+			private function updateWindowSize(e:ChildExistenceChangedEvent):void {
+				var _width:int = 0;
+				var _height:int = 0;
+				//var _height:int = this.height;
+				
+				for (var i:int=0; i < getChildren().length; ++i) {
+					var window:MDIWindow = getChildren()[i];
+					
+					// don't include the removed window to the dock width calculation
+					if (e.type == ChildExistenceChangedEvent.CHILD_REMOVE
+							&& e.relatedObject == window)
+						continue;
+
+					if (window.height > _height)
+						_height = window.height + this.borderMetrics.top + this.borderMetrics.bottom;
+					//window.height = this.height - this.borderMetrics.top - this.borderMetrics.bottom;
+
+					_width += window.width
+						+ getStyle("horizontalGap"); // space between windows
+				}
+				_width += this.borderMetrics.left + this.borderMetrics.right // window border
+					- getStyle("horizontalGap"); // spaces between windows are getChildren().length - 1
+				
+				this.width = Math.max(_width, minWidth); 
+				this.height = Math.max(_height, minHeight);
+			}
+
+		]]>
+	</mx:Script>
+
+	<mate:Listener type="{DragEvent.DRAG}" method="onDragVideoWindow" />
+	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW}" method="onCloseVideoWindow" />
+</MDIWindow>

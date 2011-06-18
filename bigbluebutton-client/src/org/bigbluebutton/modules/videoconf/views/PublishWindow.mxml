@@ -31,6 +31,7 @@
 	xmlns:mate="http://mate.asfusion.com/"
 	resize="onResize()">
 	
+	<mx:Script source="VideoBase.as"/>
 	<mx:Script>
 		<![CDATA[
 			import flexlib.mdi.events.MDIWindowEvent;
@@ -58,17 +59,6 @@
 			private var _userrole:String;
 			public var quality:Number = 0;
 			
-			private var _bResizePossible:Boolean = true;
-			private var _nAspectRatio:Number = 1;
-			
-			static private var _minWidth:int = 166;
-			static private var _minHeight:int = 149;
-
-			private var _nSavedVideoWidth:Number = 0;
-			private var _nSavedVideoHeight:Number = 0;
-			private var _nOldWindowWidth:Number = 0;
-			private var _nOldWindowHeight:Number = 0;
-			
 			private function init():void{
 				currentState = "dispVideoOptionsControlBar";
 				checkIfMacCamera();
@@ -76,11 +66,9 @@
 				if (Camera.names.length > 1) showVideoControls(true);
 				if (!isPresenter() && Camera.names.length == 1) startPublishing();
 
-				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEvent);
-				addEventListener(MDIWindowEvent.RESIZE, onResizeEvent);
-				addEventListener(MDIWindowEvent.MAXIMIZE, onMaximize);
-				addEventListener(MDIWindowEvent.RESTORE, onRestore);
-
+				addEventListener(MDIWindowEvent.DRAG_START, onDragStart);
+				addEventListener(MDIWindowEvent.DRAG_END, onDragEnd);
+				
 				this.minWidth = _minWidth;
 				this.minHeight = _minHeight;
 				maximizeRestoreBtn.visible = false;
@@ -115,7 +103,7 @@
 				//Next two lines may seem redundant but they're not. Do not delete.
 				video.width = camWidth;
 				video.height = camHeight;
-				adjustWindowSize();
+				onResize();
 				video.attachCamera(camera);
 				videoHolder.addChild(video);
 //				addChild(videoHolder);
@@ -134,6 +122,11 @@
 			
 			override public function close(event:MouseEvent=null):void{
 				stopPublishing();
+
+				var e:CloseWindowEvent = new CloseWindowEvent();
+				e.window = this;
+				dispatchEvent(e);
+
 				super.close(event);
 			}
 			
@@ -152,7 +145,7 @@
 				var res:Array = cmbResolution.selectedLabel.split( "x" );
 				camWidth = Number(res[0]);
 				camHeight = Number(res[1]);
-				_nAspectRatio = (camWidth/camHeight);
+				setAspectRatio(camWidth, camHeight);
 				this.streamName = cmbResolution.selectedLabel.concat(this.streamName);
 			}
 			
@@ -202,139 +195,13 @@
 					}
 				}
 			}
-			
-			private function adjustWindowSize():void{
-				videoHolder.width = video.width;
-				videoHolder.height = video.height;
-				this.width = video.width + 6;
-				this.height = video.height + 29;
-				
-				// prevent to show a video window bigger than the parent window
-				if (this.width > this.parent.width) {
-					video.width = this.parent.width - 6;
-					video.height = Math.floor(video.width / _nAspectRatio);
-					adjustWindowSize();
-				}
-				if (this.height > this.parent.height) {
-					video.height = this.parent.height - 29;
-					video.width = Math.floor(video.height * _nAspectRatio);
-					adjustWindowSize();
-				}
-				if (this.width < _minWidth) {
-					video.width = _minWidth - 6;
-					video.height = Math.floor(video.width / _nAspectRatio);
-					adjustWindowSize();
-				}
-				if (this.height < _minHeight) {
-					video.height = _minHeight - 29;
-					video.width = Math.floor(video.height * _nAspectRatio);
-					adjustWindowSize();
-				}
-			}			
-			
-			public function onResizeEvent(event:MDIWindowEvent):void {
-				if (event.type == MDIWindowEvent.RESIZE) {
-					// test if we are already resizing
-					if (_bResizePossible) {
-						_bResizePossible = false;
-						resizeWindow();
-						_bResizePossible = true;
-					}
-				} else if (event.type == MDIWindowEvent.RESIZE_END) {
-					adjustWindowSize();
-				}
-			}
-			
-			private function resizeWindow():void {
-				// prevent the window for blinking
-				if (this.width == _nOldWindowWidth && this.height == _nOldWindowHeight) {
-					adjustWindowSize();
-					return;
-				}
 
-				_nOldWindowWidth = this.width;
-				_nOldWindowHeight = this.height;
-
-				if (this.width == video.width + 6) {
-					// if it's a vertical resizing
-					video.height = this.height - 29;
-					video.width = video.height * _nAspectRatio;
-				} else {
-					// if it's a horizontal resizing
-					video.width = this.width - 6;
-					video.height  = Math.floor (video.width / _nAspectRatio);
-				}
-				adjustWindowSize();
-			}
-			
-			public function onMaximize(event:MDIWindowEvent):void {
-				_nSavedVideoWidth = video.width;
-				_nSavedVideoHeight = video.height;
-			
-			
-				var tmpWidth:Number = this.parent.width - 6;
-				var tmpHeight:Number = this.parent.height - 29;
-
-				if (tmpWidth > tmpHeight * _nAspectRatio)
-					tmpWidth = tmpHeight * _nAspectRatio;
-				if (tmpHeight > Math.floor(tmpWidth / _nAspectRatio))
-					tmpHeight = Math.floor(tmpWidth / _nAspectRatio);
-				
-				video.width = tmpWidth;
-				video.height = tmpHeight;
-				
-				video.x = Math.floor ((this.parent.width - 6 - video.width) / 2);
-				video.y = Math.floor ((this.parent.height - 29 - video.height) / 2);
-			}
-			
-			public function onRestore(event:MDIWindowEvent):void {
-				video.x = 0;
-				video.y = 0;
-				video.width = _nSavedVideoWidth;
-				video.height = _nSavedVideoHeight;
-				adjustWindowSize();
-			}
-
-			public function setWindowWidth(width:int):void {
-				if (video == null) return;
-				
-				video.width = width - 6;
-				video.height = Math.floor(video.width / _nAspectRatio);
-				adjustWindowSize();
-			}
-			
-			static public function getMinWidth():int {
-				return _minWidth;
-			}
-		
-			static public function getMinHeight():int {
-				return _minHeight;
-			}
-			
-			static public function getWindowHeightByWidth(width:int, aspect:Number):int {
-				return Math.floor((width - 6) / aspect) + 29;
-			}
-			
-			static public function getWindowWidthByHeight(height:int, aspect:Number):int {
-				return Math.floor((height - 29) * aspect) + 6;
-			}
-
-			override protected function resourcesChanged():void{
-				super.resourcesChanged();
-				this.title = ResourceUtil.getInstance().getString('bbb.publishVideo.title');
-			}
-			
-			private function onResize():void{
-				setWindowWidth(this.width);
-			}
-			
 		]]>
 	</mx:Script>
 
 	<pubVid:states>
 	    <!--http://stackoverflow.com/questions/369120/why-does-mxstates-have-trouble-being-resolved-to-a-component-implementation-->
-	    <mx:State name="dispVideo">
-	    </mx:State>
+	    <mx:State name="dispVideo"/>
         <!--mx:State name="dispQuitControlBar">   
             <mx:AddChild>
             	<mx:ControlBar id="quitOptionsBar">
