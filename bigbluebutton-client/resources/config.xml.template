@@ -68,6 +68,12 @@
 			resolutions="160x120,320x240,640x480,1280x720"
 		/>
 		
+		<!--<module name="VideodockModule" url="VideodockModule.swf?v=VERSION"
+			uri="rtmp://HOST/bigbluebutton" 
+			dependsOn="VideoconfModule"
+			autoDock="true"
+		/>-->
+		
 		<module name="WhiteboardModule" url="WhiteboardModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="PresentModule"
