@@ -217,6 +217,7 @@ package org.bigbluebutton.modules.videoconf
 		}
 		
 		protected function onDoubleClick(event:MouseEvent = null):void {
+			// it occurs when the window is docked
 			if (!this.maximizeRestoreBtn.visible) return;
 			
 			this.maximizeRestore();
@@ -240,8 +241,13 @@ package org.bigbluebutton.modules.videoconf
 		}		
 		
 		protected function onFitVideoClick(event:MouseEvent = null):void {
-			this.width = _video.width + paddingHorizontal;
-			this.height = _video.height + paddingVertical;
+			var newWidth:int = _video.width + paddingHorizontal;
+			var newHeight:int = _video.height + paddingVertical;
+			
+			this.x += (this.width - newWidth)/2;
+			this.y += (this.height - newHeight)/2;  
+			this.width = newWidth;
+			this.height = newHeight;
 		}
 		
 		protected function onKeepAspectClick(event:MouseEvent = null):void {
