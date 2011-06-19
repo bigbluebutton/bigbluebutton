@@ -24,10 +24,11 @@
 
 <%!
 	private String getRequestURL(HttpServletRequest request) {
-		String requestURL = request.getRequestURL().toString().replace("http://127.0.0.1:8080/bigbluebutton/", BigBlueButtonURL);
-		if (!request.getQueryString().isEmpty());
-			requestURL += "?" + request.getQueryString();
-		return requestURL;
+		//String requestURL = request.getRequestURL().toString().replace("http://127.0.0.1:8080/bigbluebutton/", BigBlueButtonURL);
+		//if (!request.getQueryString().isEmpty());
+		//	requestURL += "?" + request.getQueryString();
+		//return requestURL;
+		return request.getQueryString();
 	}
 	
 	private String removeChecksum(String requestURL) {
