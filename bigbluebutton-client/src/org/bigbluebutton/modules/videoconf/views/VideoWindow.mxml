@@ -23,7 +23,6 @@
 <VideoWindowItf xmlns="org.bigbluebutton.modules.videoconf.*" 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	creationComplete="init()" 
-	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
 	resize="onResize()"
 	layout="absolute">
@@ -41,7 +40,7 @@
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
-			import org.bigbluebutton.modules.videoconf.events.CloseWindowEvent;
+			import org.bigbluebutton.common.events.CloseWindowEvent;
 		
 			private var ns:NetStream;
 
@@ -119,10 +118,6 @@
 				_video.height = info.height;
 				setAspectRatio(info.width, info.height);
 				onResize();
-			}
-			
-			public function getPrefferedPosition():String{
-				return MainCanvas.POPUP;
 			}
 			
 			private function onNetStatus(e:NetStatusEvent):void{

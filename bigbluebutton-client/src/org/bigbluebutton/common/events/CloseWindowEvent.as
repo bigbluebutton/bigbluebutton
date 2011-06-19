@@ -36,7 +36,7 @@ package org.bigbluebutton.common.events
 		
 		public static const CLOSE_WINDOW_EVENT:String = 'CLOSE_WINDOW_EVENT';
 		
-		public function CloseWindowEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
+		public function CloseWindowEvent(type:String=CLOSE_WINDOW_EVENT, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
 			super(type, bubbles, cancelable);
 		}

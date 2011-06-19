@@ -23,7 +23,6 @@
 <pubVid:VideoWindowItf xmlns="org.bigbluebutton.modules.videoconf.*" 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:pubVid="org.bigbluebutton.modules.videoconf.*"
-	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	creationComplete="init()"
 	width="{camWidth + 6}" height="{camHeight + 75}" 
 	title="{ResourceUtil.getInstance().getString('bbb.publishVideo.title')}" 
@@ -41,9 +40,9 @@
 			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
-			import org.bigbluebutton.modules.videoconf.events.CloseWindowEvent;
 			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
 			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -82,10 +81,6 @@
 				for (var i:Number = 0; i<Camera.names.length; i++){
 					if (Camera.names[i] == webcam) cmbCameraSelector.selectedIndex = i;
 				}
-			}
-			
-			public function getPrefferedPosition():String{
-				return MainCanvas.POPUP;
 			}
 			
 			private function startPublishing():void{

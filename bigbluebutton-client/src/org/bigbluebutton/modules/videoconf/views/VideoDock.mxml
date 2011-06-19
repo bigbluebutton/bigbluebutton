@@ -36,8 +36,8 @@
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.videoconf.VideoWindowItf;
-			import org.bigbluebutton.modules.videoconf.events.DragEvent;
-			import org.bigbluebutton.modules.videoconf.events.CloseWindowEvent;
+			import org.bigbluebutton.common.events.DragWindowEvent;
+			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import mx.events.ChildExistenceChangedEvent;
 
 			private function init():void{
@@ -67,7 +67,7 @@
 				return MainCanvas.POPUP;
 			}
 			
-			private function onDragVideoWindow(e:DragEvent):void{
+			private function onDragVideoWindow(e:DragWindowEvent):void{
 				if (hitTestPoint(e.globalPosition.x, e.globalPosition.y, true)) {
 					if (e.window.parent != this)
 						addVideoChild(e.window);
@@ -91,7 +91,9 @@
 			}
 			
 			private function onCloseVideoWindow(e:CloseWindowEvent):void {
-				removeVideoChild(e.window);
+				var window:MDIWindow = (e.window as MDIWindow);
+				if (this.contains(window))
+					removeVideoChild(window);
 			}
 			
 			private function addVideoChild(window:MDIWindow):void {
@@ -145,6 +147,6 @@
 		]]>
 	</mx:Script>
 
-	<mate:Listener type="{DragEvent.DRAG}" method="onDragVideoWindow" />
-	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW}" method="onCloseVideoWindow" />
+	<mate:Listener type="{DragWindowEvent.DRAG_WINDOW_EVENT}" method="onDragVideoWindow" />
+	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="onCloseVideoWindow" />
 </MDIWindow>

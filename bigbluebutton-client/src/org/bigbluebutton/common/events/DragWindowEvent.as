@@ -16,18 +16,22 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 * 
 */
-package org.bigbluebutton.modules.videoconf.events
+package org.bigbluebutton.common.events
 {
 	import flash.events.Event;
+	import flash.geom.Point;
+	import mx.core.UIComponent;
 	import flexlib.mdi.containers.*;
-	
-	public class CloseWindowEvent extends Event
+		
+	public class DragWindowEvent extends Event
 	{
-		public static const CLOSE_WINDOW:String = "closeWindowEvent";
+		public static const DRAG_WINDOW_EVENT:String = "DRAG_WINDOW_EVENT";
 
+		public var localPosition:Point;
+		public var globalPosition:Point;
 		public var window:MDIWindow;
 		
-		public function CloseWindowEvent(type:String = CLOSE_WINDOW)
+		public function DragWindowEvent(type:String = DRAG_WINDOW_EVENT)
 		{
 			super(type, true, false);
 		}

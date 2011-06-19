@@ -24,8 +24,10 @@ package org.bigbluebutton.modules.videoconf
 
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Images;
-	import org.bigbluebutton.modules.videoconf.events.DragEvent;
-	import org.bigbluebutton.modules.videoconf.events.CloseWindowEvent;
+	import org.bigbluebutton.common.IBbbModuleWindow;
+	import org.bigbluebutton.common.events.DragWindowEvent;
+	import org.bigbluebutton.common.events.CloseWindowEvent;
+	import org.bigbluebutton.main.views.MainCanvas;
 
 	import mx.core.UIComponent;
     import mx.controls.Button;	
@@ -34,7 +36,7 @@ package org.bigbluebutton.modules.videoconf
 	import flash.media.Video;
 	import flash.geom.Point;
 	
-	public class VideoWindowItf extends MDIWindow
+	public class VideoWindowItf extends MDIWindow implements IBbbModuleWindow
 	{
 		protected var _video:Video;
 		protected var _videoHolder:UIComponent;
@@ -136,6 +138,10 @@ package org.bigbluebutton.modules.videoconf
 			this.minHeight = Math.floor((this.minWidth - PADDING_HORIZONTAL) / aspectRatio) + PADDING_VERTICAL;
 		}
 		
+		public function getPrefferedPosition():String{
+			return MainCanvas.POPUP;
+		}
+			
 		public function onDragStart(event:MDIWindowEvent = null):void {
 		//	mousePositionOnDragStart = new Point(mouseX, mouseY);
 		//	LogUtil.debug("mousePositionOnDragStart " + mousePositionOnDragStart.toString());
@@ -146,7 +152,7 @@ package org.bigbluebutton.modules.videoconf
 		}
 		
 		public function onDragEnd(event:MDIWindowEvent = null):void {
-			var e:DragEvent = new DragEvent();
+			var e:DragWindowEvent = new DragWindowEvent();
 		//	e.localPosition = mousePositionOnDragStart;
 			e.localPosition = new Point(mouseX, mouseY);
 			e.globalPosition = localToGlobal(new Point(mouseX, mouseY));
