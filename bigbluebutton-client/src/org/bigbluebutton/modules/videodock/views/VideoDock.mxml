@@ -24,7 +24,7 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	creationComplete="init()" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
-	title="{windowTitle}"
+	title="{ResourceUtil.getInstance().getString('bbb.videodock.title')}"
 	xmlns:mate="http://mate.asfusion.com/"
 	layout="horizontal"
 	horizontalAlign="center"
@@ -44,7 +44,6 @@
 
 			import mx.events.ChildExistenceChangedEvent;
 
-			[Bindable] private var windowTitle:String = ResourceUtil.getInstance().getString('bbb.videodock.title');
 			public var autoDock:Boolean = false;
 			private var childrenDimension:Array = new Array();
 
@@ -175,6 +174,11 @@
 			protected function onDoubleClick(event:MouseEvent = null):void {
 				this.maximizeRestore();
 			}
+			
+            override protected function resourcesChanged():void{
+                super.resourcesChanged();
+                this.title = ResourceUtil.getInstance().getString('bbb.videodock.title');
+            }			
 
 		]]>
 	</mx:Script>
