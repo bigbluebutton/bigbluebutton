@@ -24,6 +24,7 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	creationComplete="init()" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
+	title="{windowTitle}"
 	xmlns:mate="http://mate.asfusion.com/"
 	layout="horizontal"
 	horizontalAlign="center"
@@ -34,11 +35,15 @@
 		<![CDATA[
 
 			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.videoconf.VideoWindowItf;
 			import org.bigbluebutton.common.events.DragWindowEvent;
 			import org.bigbluebutton.common.events.CloseWindowEvent;
+			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.modules.videoconf.VideoWindowItf;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+
 			import mx.events.ChildExistenceChangedEvent;
+
+			[Bindable] private var windowTitle:String = ResourceUtil.getInstance().getString('bbb.videodock.title');
 
 			private function init():void{
 				this.showCloseButton = false;
@@ -114,10 +119,15 @@
 				this.parent.addChild(window);
 			}
 			
-			override public function close(event:MouseEvent = null):void {
+			override public function removeAllChildren():void {
 				while (this.numChildren > 0) {
 					removeVideoChild(getChildren().pop());
 				}
+				super.removeAllChildren();
+			}
+			
+			override public function close(event:MouseEvent = null):void {
+				removeAllChildren();
 				//super.close(event);
 				minimize();
 			}
@@ -144,9 +154,14 @@
 				} 
 			}
 
+			protected function onDoubleClick(event:MouseEvent = null):void {
+				this.maximizeRestore();
+			}
+
 		]]>
 	</mx:Script>
 
 	<mate:Listener type="{DragWindowEvent.DRAG_WINDOW_EVENT}" method="onDragVideoWindow" />
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="onCloseVideoWindow" />
+	<mate:Listener type="{MouseEvent.DOUBLE_CLICK}" method="onDoubleClick" />
 </MDIWindow>

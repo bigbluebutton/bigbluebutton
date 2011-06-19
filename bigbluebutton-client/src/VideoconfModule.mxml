@@ -85,7 +85,6 @@
 				eventMap.module = this;
 				eventMap.proxy = proxy;
 				eventMap.addToolbarButton();
-				eventMap.addVideoDock();
 			}
 		
 			public function stop():void {

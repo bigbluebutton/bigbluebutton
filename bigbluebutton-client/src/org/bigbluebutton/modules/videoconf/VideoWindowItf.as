@@ -28,6 +28,7 @@ package org.bigbluebutton.modules.videoconf
 	import org.bigbluebutton.common.events.DragWindowEvent;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.main.views.MainCanvas;
+	import org.bigbluebutton.util.i18n.ResourceUtil;
 
 	import mx.core.UIComponent;
     import mx.controls.Button;	
@@ -191,10 +192,9 @@ package org.bigbluebutton.modules.videoconf
 			fitVideoBtn.setStyle("icon", img_fit_video);
 			originalSizeBtn.setStyle("icon", img_original_size);
 
-			// \todo Move the tooltips to the locale file
-			keepAspectBtn.toolTip = "Keep window aspect";
-			fitVideoBtn.toolTip = "Fit video";
-			originalSizeBtn.toolTip = "Original size";
+			keepAspectBtn.toolTip = ResourceUtil.getInstance().getString('bbb.video.keepAspectBtn.tooltip');
+			fitVideoBtn.toolTip = ResourceUtil.getInstance().getString('bbb.video.fitVideoBtn.tooltip');
+			originalSizeBtn.toolTip = ResourceUtil.getInstance().getString('bbb.video.originalSizeBtn.tooltip');
 			
 			keepAspectBtn.addEventListener(MouseEvent.CLICK, onKeepAspectClick);
 			fitVideoBtn.addEventListener(MouseEvent.CLICK, onFitVideoClick);
