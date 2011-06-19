@@ -26,14 +26,18 @@ package org.bigbluebutton.common.events
 	public class DragWindowEvent extends Event
 	{
 		public static const DRAG_WINDOW_EVENT:String = "DRAG_WINDOW_EVENT";
+        public static const DRAG_START:String = "DRAG_START";
+        public static const DRAG_END:String = "DRAG_END";
 
-		public var localPosition:Point;
-		public var globalPosition:Point;
+		public var mouseLocal:Point;
+		public var mouseGlobal:Point;
 		public var window:MDIWindow;
+		public var mode:String;
 		
-		public function DragWindowEvent(type:String = DRAG_WINDOW_EVENT)
+		public function DragWindowEvent(mode:String, type:String = DRAG_WINDOW_EVENT)
 		{
 			super(type, true, false);
+			this.mode = mode;
 		}
 
 	}

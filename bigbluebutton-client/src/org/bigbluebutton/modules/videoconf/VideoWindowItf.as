@@ -148,19 +148,18 @@ package org.bigbluebutton.modules.videoconf
 		}
 			
 		public function onDragStart(event:MDIWindowEvent = null):void {
-		//	mousePositionOnDragStart = new Point(mouseX, mouseY);
-		//	LogUtil.debug("mousePositionOnDragStart " + mousePositionOnDragStart.toString());
-		//	LogUtil.debug("mousePositionOnDragStart localToContent " + localToContent(mousePositionOnDragStart).toString());
-		//	LogUtil.debug("mousePositionOnDragStart contentToLocal " + contentToLocal(mousePositionOnDragStart).toString());
-		//	LogUtil.debug("mousePositionOnDragStart localToGlobal " + localToGlobal(mousePositionOnDragStart).toString());
-		//	LogUtil.debug("mousePositionOnDragStart contentToGlobal " + contentToGlobal(mousePositionOnDragStart).toString());
+            var e:DragWindowEvent = new DragWindowEvent(DragWindowEvent.DRAG_START);
+            e.mouseLocal = new Point(mouseX, mouseY);
+            e.mouseGlobal = this.localToGlobal(new Point(mouseX, mouseY));
+            e.window = this;
+            dispatchEvent(e);
 		}
 		
 		public function onDragEnd(event:MDIWindowEvent = null):void {
-			var e:DragWindowEvent = new DragWindowEvent();
+			var e:DragWindowEvent = new DragWindowEvent(DragWindowEvent.DRAG_END);
 		//	e.localPosition = mousePositionOnDragStart;
-			e.localPosition = new Point(mouseX, mouseY);
-			e.globalPosition = localToGlobal(new Point(mouseX, mouseY));
+			e.mouseLocal = new Point(mouseX, mouseY);
+			e.mouseGlobal = this.localToGlobal(new Point(mouseX, mouseY));
 		//	LogUtil.debug("e.globalPosition " + e.globalPosition.toString());
 			e.window = this;
 			dispatchEvent(e);

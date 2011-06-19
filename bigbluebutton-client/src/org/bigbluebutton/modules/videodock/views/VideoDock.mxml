@@ -77,21 +77,12 @@
 			}
 			
 			private function onDragVideoWindow(e:DragWindowEvent):void{
-				if (hitTestPoint(e.globalPosition.x, e.globalPosition.y, true)) {
-					if (e.window.parent != this)
-						addVideoChild(e.window as VideoWindowItf);
-					else
-						repositionWindow(e.window);
-				} else {
-					if (e.window.parent == this) {
-						removeVideoChild(e.window as VideoWindowItf);
-						//LogUtil.debug("e.globalPosition " + e.globalPosition.toString());
-						//LogUtil.debug("e.localPosition " + e.localPosition.toString());
-						// \TODO position is not accurate
-						e.window.x = e.globalPosition.x;
-						e.window.y = e.globalPosition.y;
-					}
-				}
+                if (e.mode == DragWindowEvent.DRAG_START) {
+                    removeVideoChild(e.window as VideoWindowItf);
+                } else if (e.mode == DragWindowEvent.DRAG_END
+                        && hitTestPoint(e.mouseGlobal.x, e.mouseGlobal.y, true)) {
+                    addVideoChild(e.window as VideoWindowItf);
+                }
 			}
 			
 			private function repositionWindow(window:MDIWindow):void {
@@ -104,7 +95,7 @@
 			}
 			
 			private function onCloseWindow(e:CloseWindowEvent):void {
-				if (isVideoWindow(e.window) && this.contains(e.window as DisplayObject))
+				if (isVideoWindow(e.window))
 					removeVideoChild(e.window as VideoWindowItf);
 			}
 			
@@ -130,6 +121,9 @@
 			}
 			
 			private function removeVideoChild(window:VideoWindowItf):void {
+			    if (!this.contains(window))
+			        return;
+			
 				window.minimizeBtn.visible = true;
 				window.maximizeRestoreBtn.visible = true;
 				window.resizable = true;
