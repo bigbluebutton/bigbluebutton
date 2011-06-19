@@ -22,6 +22,10 @@
 <%@ include file="bbb_api.jsp"%>
 <%@ include file="mobile_conf.jsp"%>
 
+<%@page import="org.apache.commons.httpclient.HttpClient"%>
+<%@page import="org.apache.commons.httpclient.HttpMethod"%>
+<%@page import="org.apache.commons.httpclient.methods.GetMethod"%>
+
 <%!
 	private String getRequestURL(HttpServletRequest request) {
 		//String requestURL = request.getRequestURL().toString().replace("http://127.0.0.1:8080/bigbluebutton/", BigBlueButtonURL);
@@ -83,12 +87,21 @@
         	return result;
         
         String joinUrl = getJoinMeetingURL(fullName, meetingID, password);
-        String joinResult = getURL(joinUrl);
-        if (!joinResult.isEmpty())
-        	return joinResult;
-    	else
-    		return result;
-	}
+        String enterUrl = BigBlueButtonURL + "api/enter";
+        try {
+            HttpClient client = new HttpClient();
+            HttpMethod method = new GetMethod(joinUrl);
+            client.executeMethod(method);
+            method.releaseConnection();
+            
+            method = new GetMethod(enterUrl);
+            client.executeMethod(method);
+            result = method.getResponseBodyAsString();
+            method.releaseConnection();
+        } catch (Exception e) {
+        }
+        return result;
+    }
 	
 	// it's just for testing purposes
 	public String fixURL(HttpServletRequest request) {
