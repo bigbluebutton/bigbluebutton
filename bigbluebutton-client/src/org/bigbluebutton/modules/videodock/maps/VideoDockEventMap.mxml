@@ -33,6 +33,7 @@
 			
 			public function startModule():void{
 				videoDock = new VideoDock();
+				videoDock.autoDock = module.autoDock;
 				var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 				windowEvent.window = videoDock;
 				globalDispatcher.dispatchEvent(windowEvent);

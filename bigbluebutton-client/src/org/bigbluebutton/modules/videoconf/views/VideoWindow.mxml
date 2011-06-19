@@ -39,6 +39,7 @@
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
 			import org.bigbluebutton.common.events.CloseWindowEvent;
 		
@@ -75,6 +76,11 @@
 				 *	the parent window. 
 				 */
 				onResize();
+				
+				// this event will dock the window, if it's enabled
+				var openVideoEvent:OpenVideoWindowEvent = new OpenVideoWindowEvent();
+				openVideoEvent.window = this;
+				dispatchEvent(openVideoEvent);				
 			}
 			
 			private function onCloseEvent(event:MDIWindowEvent = null):void {
@@ -105,7 +111,7 @@
 				this.streamName = stream;
 				
 				this.width = _video.width + paddingHorizontal;
-				this.height = _video.height + paddingVertical;
+				this.height = _video.height + paddingVertical;		
 			}
 			
 			private function onAsyncError(e:AsyncErrorEvent):void{

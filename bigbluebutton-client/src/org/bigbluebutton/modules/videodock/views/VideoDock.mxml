@@ -39,11 +39,14 @@
 			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.videoconf.VideoWindowItf;
+			import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			import mx.events.ChildExistenceChangedEvent;
 
 			[Bindable] private var windowTitle:String = ResourceUtil.getInstance().getString('bbb.videodock.title');
+			public var autoDock:Boolean = false;
+			private var childrenDimension:Array = new Array();
 
 			private function init():void{
 				this.showCloseButton = false;
@@ -58,6 +61,7 @@
 				
 				addEventListener(ChildExistenceChangedEvent.CHILD_ADD, onChildAdd);			
 				addEventListener(ChildExistenceChangedEvent.CHILD_REMOVE, onChildRemove);
+				addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
 			}
 			
 			private function onChildAdd(e:ChildExistenceChangedEvent = null):void {
@@ -75,12 +79,12 @@
 			private function onDragVideoWindow(e:DragWindowEvent):void{
 				if (hitTestPoint(e.globalPosition.x, e.globalPosition.y, true)) {
 					if (e.window.parent != this)
-						addVideoChild(e.window);
+						addVideoChild(e.window as VideoWindowItf);
 					else
 						repositionWindow(e.window);
 				} else {
 					if (e.window.parent == this) {
-						removeVideoChild(e.window);
+						removeVideoChild(e.window as VideoWindowItf);
 						//LogUtil.debug("e.globalPosition " + e.globalPosition.toString());
 						//LogUtil.debug("e.localPosition " + e.localPosition.toString());
 						// \TODO position is not accurate
@@ -95,28 +99,48 @@
 				setChildIndex(window, 0);
 			}
 			
-			private function onCloseVideoWindow(e:CloseWindowEvent):void {
-				var window:MDIWindow = (e.window as MDIWindow);
-				if (this.contains(window))
-					removeVideoChild(window);
+			private function isVideoWindow(window:Object):Boolean {
+				return (getQualifiedSuperclassName(window) == "org.bigbluebutton.modules.videoconf::VideoWindowItf")
 			}
 			
-			private function addVideoChild(window:MDIWindow):void {
+			private function onCloseWindow(e:CloseWindowEvent):void {
+				if (isVideoWindow(e.window) && this.contains(e.window as DisplayObject))
+					removeVideoChild(e.window as VideoWindowItf);
+			}
+			
+			private function onOpenWindow(e:OpenVideoWindowEvent):void {
+				if (isVideoWindow(e.window) && autoDock)
+					addVideoChild(e.window as VideoWindowItf);
+			}
+			
+			private function addVideoChild(window:VideoWindowItf):void {
+				LogUtil.debug("Docking window");
+				
+				// saves the window dimensions to restore it later
+				var dimensions:Object = {width:window.width, height:window.height};
+				childrenDimension[window] = dimensions;
+				
 				window.minimizeBtn.visible = false;
 				window.maximizeRestoreBtn.visible = false;
 				window.resizable = false;
-				(window as VideoWindowItf).buttonsEnabled = false;
-				this.parent.removeChild(window);
+				window.buttonsEnabled = false;
+				if (this.parent != null)
+					this.parent.removeChild(window);
 				this.addChild(window);
 			}
 			
-			private function removeVideoChild(window:MDIWindow):void {
+			private function removeVideoChild(window:VideoWindowItf):void {
 				window.minimizeBtn.visible = true;
 				window.maximizeRestoreBtn.visible = true;
 				window.resizable = true;
-				(window as VideoWindowItf).buttonsEnabled = true;
+				window.buttonsEnabled = true;
 				this.removeChild(window);
 				this.parent.addChild(window);
+
+				// restores window dimensions
+				window.width = childrenDimension[window].width;
+				window.height = childrenDimension[window].height;
+				window.updateWidth();
 			}
 			
 			override public function removeAllChildren():void {
@@ -162,6 +186,6 @@
 	</mx:Script>
 
 	<mate:Listener type="{DragWindowEvent.DRAG_WINDOW_EVENT}" method="onDragVideoWindow" />
-	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="onCloseVideoWindow" />
-	<mate:Listener type="{MouseEvent.DOUBLE_CLICK}" method="onDoubleClick" />
+	<mate:Listener type="{OpenVideoWindowEvent.OPEN_VIDEO_WINDOW_EVENT}" method="onOpenWindow" />
+	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="onCloseWindow" />
 </MDIWindow>

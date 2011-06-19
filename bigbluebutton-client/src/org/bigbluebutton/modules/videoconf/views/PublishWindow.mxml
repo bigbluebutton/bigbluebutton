@@ -42,6 +42,7 @@
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
 			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
 			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
@@ -119,6 +120,11 @@
 				addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
 				
 				createButtons();
+
+				// this event will dock the window, if it's enabled
+				var openVideoEvent:OpenVideoWindowEvent = new OpenVideoWindowEvent();
+				openVideoEvent.window = this;
+				dispatchEvent(openVideoEvent);			
 			}
 			
 			override public function close(event:MouseEvent=null):void{
