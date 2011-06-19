@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.videoconf
 	import flexlib.mdi.events.MDIWindowEvent;
 
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.common.Images;
 	import org.bigbluebutton.modules.videoconf.events.DragEvent;
 	import org.bigbluebutton.modules.videoconf.events.CloseWindowEvent;
 
@@ -37,6 +38,8 @@ package org.bigbluebutton.modules.videoconf
 	{
 		protected var _video:Video;
 		protected var _videoHolder:UIComponent;
+		// images must be static because it needs to be created *before* the PublishWindow creation
+		static protected var images:Images = new Images();
 		
 		protected var PADDING_HORIZONTAL:Number = 6;
 		protected var PADDING_VERTICAL:Number = 29;
@@ -80,19 +83,20 @@ package org.bigbluebutton.modules.videoconf
 		//		this.width = Math.floor(this.height * aspectRatio)
 		//	}
 			
-			var tmpWidth:Number = (this.parent != null? Math.min(this.width, this.parent.width): this.width) - PADDING_HORIZONTAL;
-			var tmpHeight:Number = (this.parent != null? Math.min(this.height, this.parent.height): this.height) - PADDING_VERTICAL;
+			// limits the window size to the parent size
+			this.width = (this.parent != null? Math.min(this.width, this.parent.width): this.width);
+			this.height = (this.parent != null? Math.min(this.height, this.parent.height): this.height); 
 			
-
-			if (tmpWidth > Math.floor(tmpHeight * aspectRatio))
-				tmpWidth = Math.floor(tmpHeight * aspectRatio);
-			if (tmpHeight > Math.floor(tmpWidth / aspectRatio))
-				tmpHeight = Math.floor(tmpWidth / aspectRatio);
+			var tmpWidth:Number = this.width - PADDING_HORIZONTAL;
+			var tmpHeight:Number = this.height - PADDING_VERTICAL;
+			
+			tmpWidth = Math.min (tmpWidth, Math.floor(tmpHeight * aspectRatio));
+			tmpHeight = Math.min (tmpHeight, Math.floor(tmpWidth / aspectRatio));
 			
 			_video.width = _videoHolder.width = tmpWidth;
 			_video.height = _videoHolder.height = tmpHeight;
 		
-			if (!keepAspect || this.maximized) {				
+			if (!keepAspect || this.maximized) {
 				_video.x = Math.floor ((this.width - PADDING_HORIZONTAL - tmpWidth) / 2);
 				_video.y = Math.floor ((this.height - PADDING_VERTICAL - tmpHeight) / 2);
 			} else {
@@ -100,6 +104,18 @@ package org.bigbluebutton.modules.videoconf
 				_video.y = 0;
 				this.width = tmpWidth + PADDING_HORIZONTAL;
 				this.height = tmpHeight + PADDING_VERTICAL;
+			}
+			
+			// reposition the window to fit inside the parent window
+			if (this.parent != null) {
+				if (this.x + this.width > this.parent.width)
+					this.x = this.parent.width - this.width;
+				if (this.x < 0)
+					this.x = 0;
+				if (this.y + this.height > this.parent.height)
+					this.y = this.parent.height - this.height;
+				if (this.y < 0)
+					this.y = 0;
 			}
 			
 			updateButtonsPosition();
@@ -121,7 +137,7 @@ package org.bigbluebutton.modules.videoconf
 		}
 		
 		public function onDragStart(event:MDIWindowEvent = null):void {
-			mousePositionOnDragStart = new Point(mouseX, mouseY);
+		//	mousePositionOnDragStart = new Point(mouseX, mouseY);
 		//	LogUtil.debug("mousePositionOnDragStart " + mousePositionOnDragStart.toString());
 		//	LogUtil.debug("mousePositionOnDragStart localToContent " + localToContent(mousePositionOnDragStart).toString());
 		//	LogUtil.debug("mousePositionOnDragStart contentToLocal " + contentToLocal(mousePositionOnDragStart).toString());
@@ -155,12 +171,22 @@ package org.bigbluebutton.modules.videoconf
 		private var _buttonsVisible:Boolean = true;
 		private var _buttonsEnabled:Boolean = true;
 		
+		private var img_unlock_keep_aspect:Class = images.lock_open;
+		private var img_lock_keep_aspect:Class = images.lock_close;
+		private var img_fit_video:Class = images.arrow_in;
+		private var img_original_size:Class = images.shape_handles;
+		
 		protected function createButtons():void {
 			keepAspectBtn = new Button();
 			fitVideoBtn = new Button();
 			originalSizeBtn = new Button();
 			
-			keepAspectBtn.toolTip = "Keep aspect";
+			keepAspectBtn.setStyle("icon", img_lock_keep_aspect);
+			fitVideoBtn.setStyle("icon", img_fit_video);
+			originalSizeBtn.setStyle("icon", img_original_size);
+
+			// \todo Move the tooltips to the locale file
+			keepAspectBtn.toolTip = "Keep window aspect";
 			fitVideoBtn.toolTip = "Fit video";
 			originalSizeBtn.toolTip = "Original size";
 			
@@ -198,7 +224,7 @@ package org.bigbluebutton.modules.videoconf
 		
 		protected function showButtons(event:MouseEvent = null):void {
 			if (!_buttonsVisible && _buttonsEnabled) {
-				LogUtil.debug("showButtons");
+				//LogUtil.debug("showButtons");
 				keepAspectBtn.visible = true;
 				fitVideoBtn.visible = true;
 				originalSizeBtn.visible = true;
@@ -208,7 +234,7 @@ package org.bigbluebutton.modules.videoconf
 		
 		protected function hideButtons(event:MouseEvent = null):void {
 			if (_buttonsVisible && _buttonsEnabled) {
-				LogUtil.debug("hideButtons");
+				//LogUtil.debug("hideButtons");
 				keepAspectBtn.visible = false;
 				fitVideoBtn.visible = false;
 				originalSizeBtn.visible = false;
@@ -217,14 +243,14 @@ package org.bigbluebutton.modules.videoconf
 		}
 		
 		protected function onDoubleClick(event:MouseEvent = null):void {
-			// it occurs when the window is docked
+			// it occurs when the window is docked, for example
 			if (!this.maximizeRestoreBtn.visible) return;
 			
 			this.maximizeRestore();
 		}
 		
 		override public function maximizeRestore(event:MouseEvent = null):void {
-			// if the user is maximizing the window, the control buttons should desappear
+			// if the user is maximizing the window, the control buttons should disappear
 			buttonsEnabled = this.maximized;
 			super.maximizeRestore(event);
 		}
@@ -245,14 +271,19 @@ package org.bigbluebutton.modules.videoconf
 			var newHeight:int = _video.height + paddingVertical;
 			
 			this.x += (this.width - newWidth)/2;
-			this.y += (this.height - newHeight)/2;  
+			this.y += (this.height - newHeight)/2;
 			this.width = newWidth;
 			this.height = newHeight;
+			onResize();
 		}
 		
 		protected function onKeepAspectClick(event:MouseEvent = null):void {
 			keepAspect = !keepAspect;
 			keepAspectBtn.selected = keepAspect;
+			fitVideoBtn.enabled = !keepAspect;
+			
+			keepAspectBtn.setStyle("icon", (keepAspect? img_lock_keep_aspect: img_unlock_keep_aspect));
+			
 			onFitVideoClick();
 		}
 		

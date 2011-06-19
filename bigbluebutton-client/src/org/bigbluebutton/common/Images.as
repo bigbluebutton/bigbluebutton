@@ -141,5 +141,18 @@ package org.bigbluebutton.common
 		
 		[Embed(source="assets/images/presenter.png")]
 		public var presenter:Class;
+		
+		[Embed(source="assets/images/lock_open.png")]
+		public var lock_open:Class;
+		
+		[Embed(source="assets/images/lock_close.png")]
+		public var lock_close:Class;
+		
+		[Embed(source="assets/images/arrow_in.png")]
+		public var arrow_in:Class;
+		
+		[Embed(source="assets/images/shape_handles.png")]
+		public var shape_handles:Class;
+		
 	}
 }

@@ -99,6 +99,7 @@
 				window.maximizeRestoreBtn.visible = false;
 				window.resizable = false;
 				(window as VideoWindowItf).buttonsEnabled = false;
+				this.parent.removeChild(window);
 				this.addChild(window);
 			}
 			
@@ -107,6 +108,7 @@
 				window.maximizeRestoreBtn.visible = true;
 				window.resizable = true;
 				(window as VideoWindowItf).buttonsEnabled = true;
+				this.removeChild(window);
 				this.parent.addChild(window);
 			}
 			
