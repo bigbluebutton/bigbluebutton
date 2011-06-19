@@ -1,3 +1,24 @@
+<% 
+/*
+	BigBlueButton - http://www.bigbluebutton.org
+	
+	Copyright (c) 2011 by respective authors (see below). All rights reserved.
+	
+	BigBlueButton is free software; you can redistribute it and/or modify it under the 
+	terms of the GNU Lesser General Public License as published by the Free Software 
+	Foundation; either version 3 of the License, or (at your option) any later 
+	version. 
+	
+	BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+	WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+	PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+	
+	You should have received a copy of the GNU Lesser General Public License along 
+	with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
+	
+	Author: Felipe Cecagno <fcecagno@gmail.com>
+*/
+%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 
 <% 
@@ -9,63 +30,37 @@
 <%@page import="org.apache.commons.httpclient.HttpMethod"%>
 <%@page import="org.apache.commons.httpclient.methods.GetMethod"%>
 
-<%@ include file="bbb_api.jsp"%>
-<%@ include file="mobile_conf.jsp"%>
-
-<%!
-public boolean isRequestValid() {
-	try {
-		String requestURL = request.getRequestURL().toString().replace("http://127.0.0.1:8080/", BigBlueButtonURL);
-		if (!request.getQueryString().isEmpty());
-			requestURL += "?" + request.getQueryString();
-		
-		String urlWithoutChecksum = requestURL.substring(0, requestURL.lastIndexOf("&checksum="));
-		String urlWithChecksum = urlWithoutChecksum + "&checksum=" + checksum(urlWithoutChecksum + mobileSalt);
-		
-		return (requestURL.equals(urlWithChecksum));
-	} catch(Exception e) {
-		return false;
-	}
-}
-%>
+<%@ include file="mobile_api.jsp"%>
 
 <%
     if (request.getParameterMap().isEmpty()) {
-    } else if (request.getParameter("action").equals("getMeetings")) {
-    	String meetings;
+    } else if (request.getParameter("action").equals("getTimestamp")) {
+    	String message = "<response><returncode>FAILED</returncode></response>";
     	
-    	//if (isRequestValid())
-    		//meetings = getMeetings();
-    	// checksum = 9a7e214fb21c2f568f68ed352c825588de7487a4
+    	if (isRequestValid(request))
+    		message = "<response><returncode>SUCCESS</returncode><timestamp>" + getTimestamp() + "</timestamp></response>";
+%>
+<%=message%>
+<%
+    } else if (request.getParameter("action").equals("getMeetings")) {
+    	String meetings = "<meetings><meeting><returncode>FAILED</returncode></meeting></meetings>";
+    	
+    	if (isRequestValid(request))
+    		meetings = getMeetings();
 %>
 <%=meetings%>
-
 <%
     } else if (request.getParameter("action").equals("join")) {
-        String meetingID = request.getParameter("meetingID");
-        String fullName = request.getParameter("fullName");
-        String password = request.getParameter("password");
-        String joinUrl = getJoinMeetingURL(fullName, meetingID, password);
-        String enterUrl = BigBlueButtonURL + "api/enter";
-        String result = "<response><returncode>FAILED</returncode><message>Can't join the meeting</message></response>";
-        try {
-            HttpClient client = new HttpClient();
-            HttpMethod method = new GetMethod(joinUrl);
-            client.executeMethod(method);
-            method.releaseConnection();
-            
-            method = new GetMethod(enterUrl);
-            client.executeMethod(method);
-            result = method.getResponseBodyAsString();
-            method.releaseConnection();
-        } catch (Exception e) {
-        }
+        String result = mobileJoinMeeting(request);
 %>
 <%=result%>
 <%
     } else if (request.getParameter("action").equals("create")) {
         String meetingID = request.getParameter("meetingID");
-        String result = createMeeting(meetingID, "", "", "", 0, BigBlueButtonURL);
+        String result = "<response><returncode>FAILED</returncode></response>";
+        
+        if (isRequestValid(request))
+        	result = createMeeting(meetingID, "", "", "", 0, BigBlueButtonURL);
 %>
 <%=result%>
 <%
