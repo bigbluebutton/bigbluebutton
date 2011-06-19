@@ -25,7 +25,6 @@
 	xmlns:pubVid="org.bigbluebutton.modules.videoconf.*"
 	creationComplete="init()"
 	width="{camWidth + 6}" height="{camHeight + 75}" 
-	title="{ResourceUtil.getInstance().getString('bbb.publishVideo.title')}" 
 	backgroundImage="{bbbLogo}" 
 	xmlns:mate="http://mate.asfusion.com/"
 	resize="onResize()"
@@ -61,7 +60,8 @@
 				_videoHolder.width = camWidth;
 				_videoHolder.height = camHeight;
 				this.addChild(_videoHolder);
-					
+
+                this.title = ResourceUtil.getInstance().getString('bbb.publishVideo.title');
 				currentState = "dispVideoOptionsControlBar";
 				checkIfMacCamera();
 				if (isPresenter()) showResControls(true);
@@ -198,6 +198,12 @@
 					}
 				}
 			}
+			
+            override protected function resourcesChanged():void{
+                // when the user starts to publish, the window title is your name + (you)                   
+                if (currentState == "dispVideoOptionsControlBar")
+                    this.title = ResourceUtil.getInstance().getString('bbb.publishVideo.title');
+            }			
 
 		]]>
 	</mx:Script>
