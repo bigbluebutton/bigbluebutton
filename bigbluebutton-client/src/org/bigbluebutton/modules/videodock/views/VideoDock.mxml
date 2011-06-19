@@ -73,7 +73,7 @@
 			}
 			
 			public function getPrefferedPosition():String{
-				return MainCanvas.POPUP;
+				return MainCanvas.BOTTOM_RIGHT;
 			}
 			
 			private function onDragVideoWindow(e:DragWindowEvent):void{

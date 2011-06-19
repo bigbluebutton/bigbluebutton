@@ -140,7 +140,11 @@ package org.bigbluebutton.modules.videoconf
 		}
 		
 		public function getPrefferedPosition():String{
-			return MainCanvas.POPUP;
+			if (_buttonsEnabled)
+				return MainCanvas.POPUP;
+			else
+				// the window is docked, so it should not be moved on reset layout
+				return MainCanvas.UNTOUCHED;
 		}
 			
 		public function onDragStart(event:MDIWindowEvent = null):void {

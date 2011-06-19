@@ -49,7 +49,7 @@
 			private var dispState:String;
 			
 			public function getPrefferedPosition():String{
-				return MainCanvas.RIGHT;
+				return MainCanvas.TOP_RIGHT;
 			} 
 			
 			private function onCreationComplete():void {

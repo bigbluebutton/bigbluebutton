@@ -267,8 +267,8 @@
 		<mx:ComboBox width="100" height="20" id="cmbLayout" change="changeLayout()" prompt="Layout" selectedItem="-1">
            <mx:dataProvider>
               <mx:Array>
-			      <mx:String>Small videos</mx:String>
-			      <!--mx:String>Presenter + presentation</mx:String>
+			      <!--mx:String>Small videos</mx:String>
+			      <mx:String>Presenter + presentation</mx:String>
 			      <mx:String>Meeting</mx:String-->
               </mx:Array>
            </mx:dataProvider>
