@@ -52,6 +52,8 @@
 				_videoHolder.addChild(_video);
 				this.addChild(_videoHolder);
 				
+                addEventListener(MDIWindowEvent.RESIZE_START, onResizeStart);
+                addEventListener(MDIWindowEvent.RESIZE_END, onResizeEnd);
 				addEventListener(MDIWindowEvent.CLOSE, onCloseEvent);
 				addEventListener(MDIWindowEvent.DRAG_START, onDragStart);
 				addEventListener(MDIWindowEvent.DRAG_END, onDragEnd);

@@ -113,6 +113,8 @@
 				maximizeRestoreBtn.visible = true;
 				this.resizable = true;
 
+                addEventListener(MDIWindowEvent.RESIZE_START, onResizeStart);
+                addEventListener(MDIWindowEvent.RESIZE_END, onResizeEnd);
 				addEventListener(MDIWindowEvent.DRAG_START, onDragStart);
 				addEventListener(MDIWindowEvent.DRAG_END, onDragEnd);
 				addEventListener(MouseEvent.MOUSE_OVER, showButtons);

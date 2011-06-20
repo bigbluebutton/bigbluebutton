@@ -75,53 +75,91 @@ package org.bigbluebutton.modules.videoconf
 			return this.borderMetrics.left + this.borderMetrics.right;
 		}
 		
+        static private var RESIZING_DIRECTION_UNKNOWN:int = 0; 
+        static private var RESIZING_DIRECTION_VERTICAL:int = 1; 
+        static private var RESIZING_DIRECTION_HORIZONTAL:int = 2; 
+        static private var RESIZING_DIRECTION_BOTH:int = 3;
+        private var resizeDirection:int = RESIZING_DIRECTION_BOTH;
+		
+		/**
+		 * when the window is resized by the user, the aplication doesn't know
+		 * about the resize direction
+		 */
+        public function onResizeStart(event:MDIWindowEvent = null):void {
+            resizeDirection = RESIZING_DIRECTION_UNKNOWN;
+        }
+
+        /**
+         * after the resize ends, the direction is set to BOTH because of the
+         * non-user resize actions - like when the window is docked, and so on
+         */
+        public function onResizeEnd(event:MDIWindowEvent = null):void {
+            resizeDirection = RESIZING_DIRECTION_BOTH;
+        }
+
 		protected function onResize():void {
 			if (_video == null || _videoHolder == null || this.minimized) return;
-			
-		//	if (this.width != _video.width + PADDING_HORIZONTAL
-		//	        && this.height == _video.height + PADDING_VERTICAL) {
-		//		this.height = Math.floor(this.width / aspectRatio)
-		//	} else if (this.width == _video.width + PADDING_HORIZONTAL
-		//	        && this.height != _video.height + PADDING_VERTICAL) {
-		//		this.width = Math.floor(this.height * aspectRatio)
-		//	}
-			
+
 			// limits the window size to the parent size
 			this.width = (this.parent != null? Math.min(this.width, this.parent.width): this.width);
 			this.height = (this.parent != null? Math.min(this.height, this.parent.height): this.height); 
 			
 			var tmpWidth:Number = this.width - PADDING_HORIZONTAL;
 			var tmpHeight:Number = this.height - PADDING_VERTICAL;
-			
-			tmpWidth = Math.min (tmpWidth, Math.floor(tmpHeight * aspectRatio));
-			tmpHeight = Math.min (tmpHeight, Math.floor(tmpWidth / aspectRatio));
-			
-			_video.width = _videoHolder.width = tmpWidth;
-			_video.height = _videoHolder.height = tmpHeight;
-		
-			if (!keepAspect || this.maximized) {
-				_video.x = Math.floor ((this.width - PADDING_HORIZONTAL - tmpWidth) / 2);
-				_video.y = Math.floor ((this.height - PADDING_VERTICAL - tmpHeight) / 2);
-			} else {
-				_video.x = 0;
-				_video.y = 0;
-				this.width = tmpWidth + PADDING_HORIZONTAL;
-				this.height = tmpHeight + PADDING_VERTICAL;
-			}
-			
-			// reposition the window to fit inside the parent window
-			if (this.parent != null) {
-				if (this.x + this.width > this.parent.width)
-					this.x = this.parent.width - this.width;
-				if (this.x < 0)
-					this.x = 0;
-				if (this.y + this.height > this.parent.height)
-					this.y = this.parent.height - this.height;
-				if (this.y < 0)
-					this.y = 0;
-			}
-			
-			updateButtonsPosition();
+
+            // try to discover in which direction the user is resizing the window
+            if (resizeDirection != RESIZING_DIRECTION_BOTH) {
+                if (tmpWidth == _video.width && tmpHeight != _video.height)
+            	   resizeDirection = (resizeDirection == RESIZING_DIRECTION_VERTICAL || resizeDirection == RESIZING_DIRECTION_UNKNOWN? RESIZING_DIRECTION_VERTICAL: RESIZING_DIRECTION_BOTH);
+                else if (tmpWidth != _video.width && tmpHeight == _video.height)
+                   resizeDirection = (resizeDirection == RESIZING_DIRECTION_HORIZONTAL || resizeDirection == RESIZING_DIRECTION_UNKNOWN? RESIZING_DIRECTION_HORIZONTAL: RESIZING_DIRECTION_BOTH);
+                else
+                   resizeDirection = RESIZING_DIRECTION_BOTH;
+            }
+            
+            // depending on the direction, the tmp size is different
+            switch (resizeDirection) {
+            	case RESIZING_DIRECTION_VERTICAL:
+                    tmpWidth = Math.floor(tmpHeight * aspectRatio);
+                    break;
+                case RESIZING_DIRECTION_HORIZONTAL:
+                    tmpHeight = Math.floor(tmpWidth / aspectRatio);
+                    break;
+                case RESIZING_DIRECTION_BOTH:
+                    // this direction is used also for non-user window resize actions
+                    tmpWidth = Math.min (tmpWidth, Math.floor(tmpHeight * aspectRatio));
+                    tmpHeight = Math.min (tmpHeight, Math.floor(tmpWidth / aspectRatio));
+            	    break;
+            }
+
+            _video.width = _videoHolder.width = tmpWidth;
+            _video.height = _videoHolder.height = tmpHeight;
+        
+            if (!keepAspect || this.maximized) {
+                // center the video in the window
+                _video.x = Math.floor ((this.width - PADDING_HORIZONTAL - tmpWidth) / 2);
+                _video.y = Math.floor ((this.height - PADDING_VERTICAL - tmpHeight) / 2);
+            } else {
+            	// fit window dimensions on video
+                _video.x = 0;
+                _video.y = 0;
+                this.width = tmpWidth + PADDING_HORIZONTAL;
+                this.height = tmpHeight + PADDING_VERTICAL;
+            }
+            
+            // reposition the window to fit inside the parent window
+            if (this.parent != null) {
+                if (this.x + this.width > this.parent.width)
+                    this.x = this.parent.width - this.width;
+                if (this.x < 0)
+                    this.x = 0;
+                if (this.y + this.height > this.parent.height)
+                    this.y = this.parent.height - this.height;
+                if (this.y < 0)
+                    this.y = 0;
+            }
+            
+            updateButtonsPosition();
 		}
 		
 		public function updateWidth():void {
