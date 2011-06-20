@@ -477,9 +477,9 @@ class ApiController {
     respondWithConferenceDetails(meeting, null, null, null);
   }
   
-  /**
+  /************************************
    *	GETMEETINGS API
-   */
+   ************************************/
   def getMeetings = {
     String API_CALL = "getMeetings"
     log.debug CONTROLLER_NAME + "#${API_CALL}"
@@ -545,9 +545,9 @@ class ApiController {
     }
   }
 
-  /**
+  /***********************************************
    * ENTER API
-   */
+   ***********************************************/
   def enter = {
     def fname = session["fullname"]
       def rl = session["role"]
@@ -602,9 +602,9 @@ class ApiController {
       }  
   }
   
-  /**
+  /*************************************************
    * SIGNOUT API
-   */
+   *************************************************/
   def signOut = {        
 	String meetingId = session["conference"]
 	Meeting meeting = dynamicConferenceService.getMeeting(meetingId);
@@ -706,19 +706,6 @@ class ApiController {
     uploadedPres.setUploadedFile(pres);
     presentationService.processUploadedPresentation(uploadedPres);
   }
-
-
-  private boolean validParams() {
-    if (StringUtils.isEmpty(callName)) {
-      throw new RuntimeException("Programming error - you must pass the call name to doChecksumSecurity so it can be used in the checksum");
-    }
-
-    if (StringUtils.isEmpty(request.getQueryString())) {
-      invalid("noQueryString", "No query string was found in your request.")
-      return false;
-    }		
-  }
-  
   
   def beforeInterceptor = {
     if (dynamicConferenceService.serviceEnabled == false) {
@@ -763,39 +750,6 @@ class ApiController {
     }			 
   }
   
-  def respondWithConferenceDetails2(conf, room, msgKey, msg) {
-    response.addHeader("Cache-Control", "no-cache")
-    withFormat {
-      xml {
-        render(contentType:"text/xml") {
-          response() {
-            returncode(RESP_CODE_SUCCESS)
-            meetingID("${conf.meetingID}")
-            attendeePW("${conf.attendeePassword}")
-            moderatorPW("${conf.moderatorPassword}")
-            running(conf.isRunning() ? "true" : "false")
-            hasBeenForciblyEnded(conf.isForciblyEnded() ? "true" : "false")
-            startTime("${conf.startTime}")
-            endTime("${conf.endTime}")
-            participantCount(conf.getNumberOfParticipants())
-            moderatorCount(conf.getNumberOfModerators())
-            attendees() {
-              conf.getParticipants().each { att ->
-                attendee() {
-                  userID("${att.userid}")
-                  fullName("${att.fullname}")
-                  role("${att.role}")
-                }
-              }
-            }
-            messageKey(msgKey == null ? "" : msgKey)
-            message(msg == null ? "" : msg)
-          }
-        }
-      }
-    }
-  }
-
   def respondWithConference(meeting, msgKey, msg) {
     response.addHeader("Cache-Control", "no-cache")
     withFormat {	
@@ -817,38 +771,6 @@ class ApiController {
     }
   }
   
-  def invalidPassword(msg) {
-    invalid("invalidPassword", msg);
-  }
-  
-  def invalidChecksum() {
-    invalid("checksumError", "You did not pass the checksum security check")
-  }
-  
-  def invalid(key, msg) {
-    log.debug CONTROLLER_NAME + "#invalid"
-    response.addHeader("Cache-Control", "no-cache")
-    withFormat {				
-      xml {
-        render(contentType:"text/xml") {
-          response() {
-            returncode(RESP_CODE_FAILED)
-            messageKey(key)
-            message(msg)
-          }
-        }
-      }
-      json {
-        log.debug "Rendering as json"
-        render(contentType:"text/json") {
-            returncode(RESP_CODE_FAILED)
-            messageKey(key)
-            message(msg)
-        }
-      }
-    }			 
-  }
-
   def respondWithErrors(errorList) {
     log.debug CONTROLLER_NAME + "#invalid"
     response.addHeader("Cache-Control", "no-cache")
@@ -877,9 +799,9 @@ class ApiController {
   }
   
   def parseBoolean(obj) {
-    if (obj instanceof Number) {
-      return ((Number) obj).intValue() == 1;
-    }
-    return false
-  }
+		if (obj instanceof Number) {
+			return ((Number) obj).intValue() == 1;
+		}
+		return false
+  }  
 }
