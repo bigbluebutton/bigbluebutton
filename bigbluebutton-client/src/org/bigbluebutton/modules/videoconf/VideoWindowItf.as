@@ -44,8 +44,8 @@ package org.bigbluebutton.modules.videoconf
 		// images must be static because it needs to be created *before* the PublishWindow creation
 		static protected var images:Images = new Images();
 		
-		protected var PADDING_HORIZONTAL:Number = 6;
-		protected var PADDING_VERTICAL:Number = 29;
+		static public var PADDING_HORIZONTAL:Number = 6;
+		static public var PADDING_VERTICAL:Number = 29;
 		protected var _minWidth:int = 160 + PADDING_HORIZONTAL;
 		protected var _minHeight:int = 120 + PADDING_VERTICAL;
 		protected var aspectRatio:Number = 1;

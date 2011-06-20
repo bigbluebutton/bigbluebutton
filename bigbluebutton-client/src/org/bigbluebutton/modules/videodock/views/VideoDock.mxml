@@ -26,7 +26,7 @@
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	title="{ResourceUtil.getInstance().getString('bbb.videodock.title')}"
 	xmlns:mate="http://mate.asfusion.com/"
-	layout="horizontal"
+	layout="absolute"
 	horizontalAlign="center"
 	verticalAlign="middle"
 	resize="onChildAdd()"
@@ -65,11 +65,16 @@
 			}
 			
 			private function onChildAdd(e:ChildExistenceChangedEvent = null):void {
-				updateChildrenDimensions(this.numChildren);
+				updateChildrenDimensions(this.getChildren());
 			}
 			
 			private function onChildRemove(e:ChildExistenceChangedEvent = null):void {
-				updateChildrenDimensions(this.numChildren - 1);
+                // copy the children array to "remove" the removing child and update the dimensions correctly
+			    var children:Array = this.getChildren();
+			    var index:int = children.indexOf(e.relatedObject);
+			    if (index != -1)
+                    children.splice(index, 1);
+				updateChildrenDimensions(children);
 			}
 			
 			public function getPrefferedPosition():String{
@@ -87,7 +92,7 @@
 			
 			private function repositionWindow(window:MDIWindow):void {
 				// \TODO reposition the window correctly between the windows
-				setChildIndex(window, 0);
+				// setChildIndex(window, ?);
 			}
 			
 			private function isVideoWindow(window:Object):Boolean {
@@ -150,27 +155,68 @@
 				minimize();
 			}
 			
-			private function updateChildrenDimensions(numChildren:Number):void {
-				if (numChildren == 0) return;
+            private function updateChildrenDimensions(children:Array):void {
+                var numChildren:int = children.length;
+                if (numChildren == 0) return;
 
-				var availableWidth:Number = this.width
-					- this.borderMetrics.left - this.borderMetrics.right
-					- (numChildren - 1) * (getStyle("horizontalGap"));
-					
-				var availableHeight:Number = this.height
-					- this.borderMetrics.top - this.borderMetrics.bottom;
-					
-				for (var i:int=0; i < getChildren().length; ++i) {
-					var window:VideoWindowItf = getChildren()[i];
-					window.width = Math.floor(availableWidth / numChildren);
-					window.updateHeight();
-					
-					if (window.height > availableHeight) {
-						window.height = availableHeight;
-						window.updateWidth();
-					}
-				} 
-			}
+                var horizontalGap:Number = getStyle("horizontalGap");
+                var verticalGap:Number = getStyle("verticalGap");
+    
+                var availableWidth:Number = this.width
+                        - this.borderMetrics.left - this.borderMetrics.right;
+                var availableHeight:Number = this.height
+                        - this.borderMetrics.top - this.borderMetrics.bottom;
+                 
+                var childWidth:Number = 0;
+                var childHeight:Number = 0;
+                var nRows:Number = 0;
+                var nColumns:Number = 0;
+                 
+                // we would like to maximize the window size
+                for (var rows:Number = 1; rows <= numChildren; ++rows) {
+                    var columns:Number = Math.ceil(numChildren / rows);
+                    var maxWidth:Number = Math.floor((availableWidth - horizontalGap * (columns - 1)) / columns) - VideoWindowItf.PADDING_HORIZONTAL;
+                    var maxHeight:Number = Math.floor((availableHeight - verticalGap * (rows - 1)) / rows) - VideoWindowItf.PADDING_VERTICAL;
+                    
+                    var desiredAR:Number = 4/3;
+                    var width:Number = maxWidth;
+                    var height:Number = maxHeight;
+                    if (maxWidth / maxHeight > desiredAR)
+                        width = Math.floor(maxHeight * desiredAR);
+                    else
+                        height = Math.floor(maxWidth / desiredAR);
+                    
+                    if (width > childWidth) {
+                        childWidth = width;
+                        childHeight = height;
+                        nRows = rows;
+                        nColumns = columns;
+                    }
+                }                        
+                
+                childWidth += VideoWindowItf.PADDING_HORIZONTAL;
+                childHeight += VideoWindowItf.PADDING_VERTICAL;
+                
+                for (var childIndex:int = 0; childIndex < numChildren; ++childIndex) {
+                    var window:VideoWindowItf = children[childIndex];
+                    window.width = childWidth;
+                    window.updateHeight();
+                    
+                    if (window.height > childHeight) {
+                        window.height = childHeight;
+                        window.updateWidth();
+                    }
+                    
+                    var row:int = childIndex / nColumns;
+                    var column:int = childIndex % nColumns;
+                    
+                    var borderTop:int = (availableHeight - nRows * childHeight - (nRows - 1) * verticalGap) / 2;
+                    var borderLeft:int = (availableWidth - nColumns * childWidth - (nColumns - 1) * horizontalGap) / 2;
+                    
+                    window.y = row * (childHeight + verticalGap) + borderTop;
+                    window.x = column * (childWidth + horizontalGap) + borderLeft;
+                } 
+            }
 
 			protected function onDoubleClick(event:MouseEvent = null):void {
 				this.maximizeRestore();
