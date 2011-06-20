@@ -41,7 +41,7 @@ public class MeetingServiceImp implements MeetingService {
 			}
 			
 			long now = System.currentTimeMillis();
-			long millisSinceStored = now - m.getCreatedTime();
+			long millisSinceStored = now - m.getCreateTime();
 			long millisSinceEnd = now - m.getEndTime();
 			
 			if (m.getStartTime() > 0 && millisSinceEnd > (minutesElapsedBeforeMeetingExpiration * 60000)) {

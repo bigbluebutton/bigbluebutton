@@ -1,7 +1,5 @@
 package org.bigbluebutton.api.messaging;
 
-import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -49,9 +47,7 @@ public class RedisMessagingService implements MessagingService {
 			log.warn("Cannot record the info meeting:"+meetingId,e);
 		} finally {
 			redisPool.returnResource(jedis);
-		}
-		
-		
+		}		
 	}
 
 	public void recordMeetingMetadata(String meetingId,	Map<String, String> metadata) {

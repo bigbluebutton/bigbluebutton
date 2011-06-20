@@ -31,7 +31,7 @@ public class Meeting {
 	private String extMeetingId;
 	private String intMeetingId;	
 	private int duration;	 
-	private long createdTime;
+	private long createdTime = 0;
 	private long startTime = 0;
 	private long endTime = 0;
 	private boolean forciblyEnded = false;
@@ -63,8 +63,7 @@ public class Meeting {
     	welcomeMsg = builder.welcomeMsg;
     	dialNumber = builder.dialNumber;
     	metadata = builder.metadata;
-    	
-		createdTime = System.currentTimeMillis();
+    	createdTime = builder.createdTime;
 		users = new ConcurrentHashMap<String, User>();
 				
 		metadata.put("meetingId", extMeetingId);
@@ -86,7 +85,7 @@ public class Meeting {
 		startTime = t;
 	}
 	
-	public long getCreatedTime() {
+	public long getCreateTime() {
 		return createdTime;
 	}
 	
@@ -214,10 +213,12 @@ public class Meeting {
     	private String logoutUrl;
     	private Map<String, String> metadata;
     	private String dialNumber;
+    	private long createdTime;
     	
-    	public Builder(String externalId, String internalId) {
+    	public Builder(String externalId, String internalId, long createTime) {
     		this.externalId = externalId;
     		this.internalId = internalId;
+    		this.createdTime = createTime;
     	}
     	
     	public Builder withName(String name) {

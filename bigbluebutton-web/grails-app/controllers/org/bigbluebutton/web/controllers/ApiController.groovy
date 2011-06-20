@@ -36,6 +36,7 @@ import org.codehaus.groovy.grails.commons.ConfigurationHolder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import grails.converters.XML;
+import org.bigbluebutton.api.ApiErrors;
 
 class ApiController {
   private static final Integer SESSION_TIMEOUT = 10800  // 3 hours    
@@ -65,34 +66,42 @@ class ApiController {
     }
   }
         
-  /* CREATE (API) */
+  /*********************************** 
+   * CREATE (API) 
+   ***********************************/
   def create = {
     String API_CALL = 'create'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
-  
+  	
+  	ApiErrors errors = new ApiErrors();
+  	
     // Do we have a checksum? If not, complain.
     if (StringUtils.isEmpty(params.checksum)) {
-      invalid("missingParamChecksum", "You must pass a checksum and query string.");
-      return			
+      errors.missingParamError("checksum");			
     }
     
     // Do we have a meeting name? If not, complain.
     String meetingName = params.name
     if (StringUtils.isEmpty(meetingName) ) {
-      invalid("missingParamName", "You must specify a name for the meeting.");
-      return
+      errors.missingParamError("name");
     }
     
     // Do we have a meeting id? If not, complain.
     String externalMeetingId = params.meetingID
     if (StringUtils.isEmpty(externalMeetingId)) {
-      invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
-      return
+      errors.missingParamError("meetingID");
     }
-        
+
+    if (errors.hasErrors()) {
+    	respondWithErrors(errors)
+    	return
+    }
+            
     // Do we agree with the checksum? If not, complain.
     if (! dynamicConferenceService.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
-      invalidChecksum(); return;
+      	errors.checksumError()
+    	respondWithErrors(errors)
+    	return
     }
 
     // Get the viewer and moderator password. If none is provided, generate one.
@@ -125,15 +134,16 @@ class ApiController {
     if (existing != null) {
       log.debug "Existing conference found"
       if (existing.getViewerPassword().equals(viewerPass) && existing.getModeratorPassword().equals(modPass)) {
-        // trying to create a conference a second time
-        // return success, but give extra info
+        // trying to create a conference a second time, return success, but give extra info
         uploadDocuments(existing);
         respondWithConference(existing, "duplicateWarning", "This conference was already in existence and may currently be in progress.");
       } else {
         // enforce meetingID unique-ness
-        invalid("idNotUnique", "A meeting already exists with that meeting ID.  Please use a different meeting ID.");
-      }
-      return;
+        errors.nonUniqueMeetingIdError()
+    	respondWithErrors(errors)
+      } 
+      
+      return;    
     }
     
     // Check if this is a test meeting. NOTE: This should not belong here. Extract this out.				
@@ -149,16 +159,16 @@ class ApiController {
         if(meta.length == 2){
           meetingInfo.put(meta[1], params.get(metadata))
         }
-
       }
     }
     
     // Create a unique internal id by appending the current time. This way, the 3rd-party
     // app can reuse the external meeting id.
-    internalMeetingId = internalMeetingId + '-' + new Long(System.currentTimeMillis()).toString()
+    long createTime = System.currentTimeMillis()
+    internalMeetingId = internalMeetingId + '-' + new Long(createTime).toString()
     
     // Create the meeting with all passed in parameters.
-    Meeting meeting = new Meeting.Builder(externalMeetingId, internalMeetingId)
+    Meeting meeting = new Meeting.Builder(externalMeetingId, internalMeetingId, createTime)
     			.withName(meetingName).withMaxUsers(maxUsers).withModeratorPass(modPass)
     			.withViewerPass(viewerPass).withRecording(record)
               	.withLogoutUrl(logoutUrl).withTelVoice(telVoice).withWebVoice(webVoice).withDialNumber(dialNumber)
@@ -172,43 +182,52 @@ class ApiController {
     respondWithConference(meeting, null, null)
   }
 
-  /**
+  /**********************************************
    * JOIN API
-   */
+   *********************************************/
   def join = {
     String API_CALL = 'join'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
-  
+  	ApiErrors errors = new ApiErrors()
+  	  
     // Do we have a checksum? If none, complain.
     if (StringUtils.isEmpty(params.checksum)) {
-      invalid("missingParamChecksum", "You must pass a checksum and query string.");
-      return			
+      errors.missingParamError("checksum");		
     }
 
     // Do we have a name for the user joining? If none, complain.
     String fullName = params.fullName
     if (StringUtils.isEmpty(fullName)) {
-      invalid("missingParamFullName", "You must specify a name for the attendee who will be joining the meeting.");
-      return
+      errors.missingParamError("fullName");
     }
 
     // Do we have a meeting id? If none, complain.
     String externalMeetingId = params.meetingID
     if (StringUtils.isEmpty(externalMeetingId)) {
-      invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
-      return
+      errors.missingParamError("meetingID");
     }
 
     // Do we have a password? If not, complain.
     String attPW = params.password
     if (StringUtils.isEmpty(attPW)) {
-      invalid("missingParamPassword", "You must specify a password for the meeting.");
-      return
+      errors.missingParamError("password");
+    }
+    
+    String createTime = params.createTime
+    if (StringUtils.isEmpty(createTime)) {
+      errors.missingParamError("createTime");
+    }
+    
+    if (errors.hasErrors()) {
+    	respondWithErrors(errors)
+    	return
     }
         
     // Do we agree on the checksum? If not, complain.		
     if (! dynamicConferenceService.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
-      invalidChecksum(); return;
+      	errors.checksumError()
+    	respondWithErrors(errors)
+    	return
     }
 
     // Everything is good so far. Translate the external meeting id to an internal meeting id. If
@@ -217,13 +236,15 @@ class ApiController {
     log.info("Retrieving meeting ${internalMeetingId}")		
     Meeting meeting = dynamicConferenceService.getMeeting(internalMeetingId);
     if (meeting == null) {
-      invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
-      return;
+	   errors.invalidMeetingIdError();
+	   respondWithErrors(errors)
+	   return;
     }
     
     // Is this user joining a meeting that has been ended. If so, complain.
     if (meeting.isForciblyEnded()) {
-      invalid("meetingForciblyEnded", "You can not re-join a meeting that has already been forcibly ended.  However, once the meeting is removed from memory (according to the timeout configured on this server, you will be able to once again create a meeting with the same meeting ID");
+      errors.meetingForciblyEndedError();
+      respondWithErrors(errors)
       return;
     }
 
@@ -236,7 +257,9 @@ class ApiController {
     }
     
     if (role == null) {
-      invalidPassword("You either did not supply a password or the password supplied is neither the attendee or moderator password for this conference."); return;
+    	errors.invalidPasswordError()
+	    respondWithErrors(errors)
+	    return;
     }
         
     String webVoice = StringUtils.isEmpty(params.webVoiceConf) ? meeting.getTelVoice() : params.webVoiceConf
@@ -267,29 +290,36 @@ class ApiController {
     redirect(url: dynamicConferenceService.defaultClientUrl)
   }
 
-  /**
-    * IS_MEETING_RUNNING API
-   */
+  /*******************************************
+   * IS_MEETING_RUNNING API
+   *******************************************/
   def isMeetingRunning = {
     String API_CALL = 'isMeetingRunning'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
 
+  	ApiErrors errors = new ApiErrors()
+  	
     // Do we have a checksum? If none, complain.
     if (StringUtils.isEmpty(params.checksum)) {
-      invalid("missingParamChecksum", "You must pass a checksum and query string.");
-      return			
+      errors.missingParamError("checksum");			
     }
 
     // Do we have a meeting id? If none, complain.
     String externalMeetingId = params.meetingID
     if (StringUtils.isEmpty(externalMeetingId)) {
-      invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
-      return
+      errors.missingParamError("meetingID");
     }
 
+    if (errors.hasErrors()) {
+    	respondWithErrors(errors)
+    	return
+    }
+    
     // Do we agree on the checksum? If not, complain.		
     if (! dynamicConferenceService.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
-      invalidChecksum(); return;
+      	errors.checksumError()
+    	respondWithErrors(errors)
+    	return
     }
             
     // Everything is good so far. Translate the external meeting id to an internal meeting id. If
@@ -298,8 +328,9 @@ class ApiController {
     log.info("Retrieving meeting ${internalMeetingId}")		
     Meeting meeting = dynamicConferenceService.getMeeting(internalMeetingId);
     if (meeting == null) {
-      invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
-      return;
+	   errors.invalidMeetingIdError();
+	   respondWithErrors(errors)
+	   return;
     }
     
     response.addHeader("Cache-Control", "no-cache")
@@ -315,36 +346,42 @@ class ApiController {
     }
   }
 
-  /**
+  /************************************
    * END API
-   */
+   ************************************/
   def end = {
     String API_CALL = "end"
     
-    log.debug CONTROLLER_NAME + "#${API_CALL}"
+    log.debug CONTROLLER_NAME + "#${API_CALL}"    
+    ApiErrors errors = new ApiErrors()
+    
     // Do we have a checksum? If none, complain.
     if (StringUtils.isEmpty(params.checksum)) {
-      invalid("missingParamChecksum", "You must pass a checksum and query string.");
-      return			
+      errors.missingParamError("checksum");		
     }
 
     // Do we have a meeting id? If none, complain.
     String externalMeetingId = params.meetingID
     if (StringUtils.isEmpty(externalMeetingId)) {
-      invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
-      return
+      errors.missingParamError("meetingID");
     }
 
     // Do we have a password? If not, complain.
     String modPW = params.password
     if (StringUtils.isEmpty(modPW)) {
-      invalid("missingParamPassword", "You must specify a password for the meeting.");
-      return
+      errors.missingParamError("password");
     }
 
+    if (errors.hasErrors()) {
+    	respondWithErrors(errors)
+    	return
+    }
+    
     // Do we agree on the checksum? If not, complain.		
     if (! dynamicConferenceService.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
-      invalidChecksum(); return;
+      	errors.checksumError()
+    	respondWithErrors(errors)
+    	return
     }
             
     // Everything is good so far. Translate the external meeting id to an internal meeting id. If
@@ -353,13 +390,15 @@ class ApiController {
     log.info("Retrieving meeting ${internalMeetingId}")		
     Meeting meeting = dynamicConferenceService.getMeeting(internalMeetingId);
     if (meeting == null) {
-      invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
-      return;
+	   errors.invalidMeetingIdError();
+	   respondWithErrors(errors)
+	   return;
     }
     
     if (meeting.getModeratorPassword().equals(modPW) == false) {
-      invalidPassword("You must supply the moderator password for this call."); 
-      return;
+	   errors.invalidPasswordError();
+	   respondWithErrors(errors)
+	   return;
     }
     
     meeting.setForciblyEnded(true);
@@ -380,35 +419,42 @@ class ApiController {
     }
   }
 
-    /**
-      * GETMEETINGINFO API
-     */
+  /*****************************************
+   * GETMEETINGINFO API
+   *****************************************/
   def getMeetingInfo = {
     String API_CALL = "getMeetingInfo"
     log.debug CONTROLLER_NAME + "#${API_CALL}"
+    
+    ApiErrors errors = new ApiErrors()
+        
     // Do we have a checksum? If none, complain.
     if (StringUtils.isEmpty(params.checksum)) {
-      invalid("missingParamChecksum", "You must pass a checksum and query string.");
-      return			
+      errors.missingParamError("checksum");				
     }
 
     // Do we have a meeting id? If none, complain.
     String externalMeetingId = params.meetingID
     if (StringUtils.isEmpty(externalMeetingId)) {
-      invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
-      return
+      errors.missingParamError("meetingID");
     }
 
     // Do we have a password? If not, complain.
     String modPW = params.password
     if (StringUtils.isEmpty(modPW)) {
-      invalid("missingParamPassword", "You must specify a password for the meeting.");
-      return
+      errors.missingParamError("password");
     }
 
+    if (errors.hasErrors()) {
+    	respondWithErrors(errors)
+    	return
+    }
+    
     // Do we agree on the checksum? If not, complain.		
     if (! dynamicConferenceService.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
-      invalidChecksum(); return;
+      	errors.checksumError()
+    	respondWithErrors(errors)
+    	return
     }
     
     // Everything is good so far. Translate the external meeting id to an internal meeting id. If
@@ -417,13 +463,15 @@ class ApiController {
     log.info("Retrieving meeting ${internalMeetingId}")		
     Meeting meeting = dynamicConferenceService.getMeeting(internalMeetingId);
     if (meeting == null) {
-      invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
-      return;
+	   errors.invalidMeetingIdError();
+	   respondWithErrors(errors)
+	   return;
     }
     
     if (meeting.getModeratorPassword().equals(modPW) == false) {
-      invalidPassword("You must supply the moderator password for this call."); 
-      return;
+	   errors.invalidPasswordError();
+	   respondWithErrors(errors)
+	   return;
     }
     
     respondWithConferenceDetails(meeting, null, null, null);
@@ -435,15 +483,24 @@ class ApiController {
   def getMeetings = {
     String API_CALL = "getMeetings"
     log.debug CONTROLLER_NAME + "#${API_CALL}"
+    
+    ApiErrors errors = new ApiErrors()
+        
     // Do we have a checksum? If none, complain.
     if (StringUtils.isEmpty(params.checksum)) {
-      invalid("missingParamChecksum", "You must pass a checksum and query string.");
-      return			
+      errors.missingParamError("checksum");				
     }
 
+    if (errors.hasErrors()) {
+    	respondWithErrors(errors)
+    	return
+    }
+    
     // Do we agree on the checksum? If not, complain.		
     if (! dynamicConferenceService.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
-      invalidChecksum(); return;
+      	errors.checksumError()
+    	respondWithErrors(errors)
+    	return
     }
         
     Collection<Meeting> mtgs = dynamicConferenceService.getAllMeetings();
@@ -750,6 +807,7 @@ class ApiController {
             meetingID(meeting.getExternalId())
             attendeePW(meeting.getViewerPassword())
             moderatorPW(meeting.getModeratorPassword())
+            createTime(meeting.getCreateTime())
             hasBeenForciblyEnded(meeting.isForciblyEnded() ? "true" : "false")
             messageKey(msgKey == null ? "" : msgKey)
             message(msg == null ? "" : msg)
@@ -791,6 +849,33 @@ class ApiController {
     }			 
   }
 
+  def respondWithErrors(errorList) {
+    log.debug CONTROLLER_NAME + "#invalid"
+    response.addHeader("Cache-Control", "no-cache")
+    withFormat {				
+      xml {
+        render(contentType:"text/xml") {
+          response() {
+            returncode(RESP_CODE_FAILED)
+            errors() {
+			    errorList.keySet().each { er ->
+			      error(key: er, message: errorList.get(er))
+			    }            
+            }
+          }
+        }
+      }
+      json {
+        log.debug "Rendering as json"
+        render(contentType:"text/json") {
+            returncode(RESP_CODE_FAILED)
+            messageKey(key)
+            message(msg)
+        }
+      }
+    }  
+  }
+  
   def parseBoolean(obj) {
     if (obj instanceof Number) {
       return ((Number) obj).intValue() == 1;

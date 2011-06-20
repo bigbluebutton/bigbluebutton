@@ -6,6 +6,8 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.bigbluebutton.api.*;
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.User;
+import org.bigbluebutton.api.messaging.NullMessagingService;
+import org.bigbluebutton.api.messaging.MessagingService;
 
 class ApiControllerTests extends ControllerUnitTestCase {
 	String API_VERSION = "0.7"
@@ -15,7 +17,7 @@ class ApiControllerTests extends ControllerUnitTestCase {
 	String MOD_PASS = "modpass"
 	String VIEW_PASS = "viewpass"
 	String CLIENT_URL = "http://localhost/client/BigBlueButton.html"
-
+	long CREATE_TIME = 1234567890
 	
 	def dynamicConferenceService
 	MeetingServiceImp meetingService
@@ -25,6 +27,8 @@ class ApiControllerTests extends ControllerUnitTestCase {
 		mockLogging(DynamicConferenceService)
 		dynamicConferenceService = new DynamicConferenceService()
 		meetingService = new MeetingServiceImp()
+		MessagingService ms = new NullMessagingService();
+		meetingService.setMessagingService(ms);
 		dynamicConferenceService.setMeetingService(meetingService)
 		dynamicConferenceService.apiVersion = API_VERSION
 		dynamicConferenceService.securitySalt = SALT
@@ -68,7 +72,7 @@ class ApiControllerTests extends ControllerUnitTestCase {
 		
 		joinMeeting(controller2)
 		controller2.join()
-		
+		println "controller response = " + controller2.response.contentAsString
 		/**
 		 * Need to use controller2.redirectArgs['url'] instead of controller2.response.redirectedUrl as
 		 * shown in the grails doc because it is returning null for me.
@@ -78,8 +82,7 @@ class ApiControllerTests extends ControllerUnitTestCase {
 		assertEquals CLIENT_URL, controller2.redirectArgs['url']		
 	}
 
-	void testIsMeetingRunningAPI() {		
-		
+	void testIsMeetingRunningAPI() {				
 		ApiController controller3 = new ApiController()
 		mockLogging(ApiController)
 		controller3.setDynamicConferenceService(dynamicConferenceService)
@@ -93,8 +96,7 @@ class ApiControllerTests extends ControllerUnitTestCase {
 	}
 	
 	
-	void testEndAPI() {
-		
+	void testEndAPI() {		
 		ApiController endCtlr = new ApiController()
 		mockLogging(ApiController)
 		endCtlr.setDynamicConferenceService(dynamicConferenceService)
@@ -151,7 +153,7 @@ class ApiControllerTests extends ControllerUnitTestCase {
 
 	private Meeting createDefaultMeeting() {
 		
-		String internalMeetingId = dynamicConferenceService.getInternalMeetingId(MEETING_ID)
+		String internalMeetingId = dynamicConferenceService.convertToInternalMeetingId(MEETING_ID)
 		String logoutUrl = "http://localhost"
 		String telVoice = "85115"
 		String webVoice = "bbb-85115"
@@ -165,8 +167,8 @@ class ApiControllerTests extends ControllerUnitTestCase {
 		mInfo.put('contributor', "Popen3");
 		mInfo.put('language', "en-US");
 		mInfo.put('identifier', "ttmg-5001-2");
-		
-		Meeting defaultMeeting = new Meeting.Builder().withName(MEETING_NAME).withExternalId(MEETING_ID).withInternalId(internalMeetingId)
+
+		Meeting defaultMeeting = new Meeting.Builder(MEETING_ID, internalMeetingId, CREATE_TIME).withName(MEETING_NAME)
 							.withMaxUsers(30).withModeratorPass(MOD_PASS).withViewerPass(VIEW_PASS).withRecording(true)
 							.withLogoutUrl(logoutUrl).withTelVoice(telVoice).withWebVoice(webVoice).withDialNumber(dialNumber)
 							.withMetadata(mInfo).withWelcomeMessage(welcomeMessage).build()
@@ -176,7 +178,7 @@ class ApiControllerTests extends ControllerUnitTestCase {
 	
 	private Meeting createAnotherMeeting() {
 		String externalMeetingId = "cook-with-omar"
-		String internalMeetingId = dynamicConferenceService.getInternalMeetingId(externalMeetingId)
+		String internalMeetingId = dynamicConferenceService.convertToInternalMeetingId(externalMeetingId)
 		String logoutUrl = "http://localhost"
 		String telVoice = "85116"
 		String webVoice = "bbb-85116"
@@ -190,8 +192,8 @@ class ApiControllerTests extends ControllerUnitTestCase {
 		mInfo.put('contributor', "Popen3");
 		mInfo.put('language', "en-US");
 		mInfo.put('identifier', "olc-101-2");
-		
-		Meeting defaultMeeting = new Meeting.Builder().withName("Omar's Cooking").withExternalId("cook-with-omar").withInternalId(internalMeetingId)
+		long createTime = 1234567899
+		Meeting defaultMeeting = new Meeting.Builder("cook-with-omar", internalMeetingId, createTime).withName("Omar's Cooking")
 							.withMaxUsers(30).withModeratorPass(MOD_PASS).withViewerPass(VIEW_PASS).withRecording(true)
 							.withLogoutUrl(logoutUrl).withTelVoice(telVoice).withWebVoice(webVoice).withDialNumber(dialNumber)
 							.withMetadata(mInfo).withWelcomeMessage(welcomeMessage).build()
@@ -245,7 +247,7 @@ class ApiControllerTests extends ControllerUnitTestCase {
 		String username = "Richard"
 		String modPass = "testm"
 		
-		String queryString = "meetingID=${MEETING_ID}&fullName=${username}&password=${MOD_PASS}"
+		String queryString = "meetingID=${MEETING_ID}&fullName=${username}&password=${MOD_PASS}&createTime=${CREATE_TIME}"
 		String checksum = DigestUtils.shaHex("join" + queryString + SALT)
 		queryString += "&checksum=${checksum}"
 		
@@ -253,6 +255,7 @@ class ApiControllerTests extends ControllerUnitTestCase {
 		mockParams.meetingID = MEETING_ID
 		mockParams.password = MOD_PASS
 		mockParams.checksum = checksum
+		mockParams.createTime = CREATE_TIME
 		mockRequest.queryString = queryString
 	}
 	
@@ -267,5 +270,6 @@ class ApiControllerTests extends ControllerUnitTestCase {
 		mockParams.moderatorPW = MOD_PASS
 		mockParams.attendeePW = VIEW_PASS
 		mockRequest.queryString = queryString
+		
 	}
 }
