@@ -23,7 +23,7 @@ public class ExpiredMeetingCleanupTimerTask {
 	
 	private class CleanupTask extends TimerTask {
         public void run() {
-        	service.cleanupOldMeetings();
+        	service.removeExpiredMeetings();
         }
     }
 }

@@ -7,7 +7,9 @@
 			
 	<bean id="meetingService" class="org.bigbluebutton.api.MeetingServiceImp" >
 		<property name="messagingService" ref="messagingService"/>
-    </bean>
+  </bean>
+  
+  <bean id="paramsProcessorUtil" class="org.bigbluebutton.api.ParamsProcessorUtil"/>
     
     <bean id="messagingService" class="org.bigbluebutton.api.messaging.RedisMessagingService">
     	<constructor-arg index="0" value="${redisHost}"/>

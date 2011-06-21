@@ -27,10 +27,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class Meeting {
+	private static final int MILLIS_IN_A_SECOND = 60000;
+	
 	private String name;
 	private String extMeetingId;
 	private String intMeetingId;	
-	private int duration;	 
+	private int duration = 0;	 
 	private long createdTime = 0;
 	private long startTime = 0;
 	private long endTime = 0;
@@ -193,7 +195,34 @@ public class Meeting {
 	public String getDialNumber() {
 		return dialNumber;
 	}
-			
+	
+	public boolean wasNeverStarted(int expiry) {
+		return (!hasStarted() && !hasEnded() && didExpire(expiry));
+	}
+	
+	public boolean hasExpired(int expiry) {
+		return (hasStarted() && hasEnded() && didExpire(expiry));
+	}
+	
+	public boolean hasExceededDuration() {
+		return (hasStarted() && !hasEnded() && pastDuration());
+	}
+
+	private boolean pastDuration() {
+		return (System.currentTimeMillis() - startTime > (duration * MILLIS_IN_A_SECOND));
+	}
+	private boolean hasStarted() {
+		return startTime > 0;
+	}
+	
+	private boolean hasEnded() {
+		return endTime > 0;
+	}
+	
+	private boolean didExpire(int expiry) {
+		return (System.currentTimeMillis() - endTime > (expiry * MILLIS_IN_A_SECOND));
+	}
+	
 	/***
 	 * Meeting Builder
 	 *

@@ -76,14 +76,14 @@ public class RedisListener{
 					
 					@Override
 					public void onPMessage(String pattern, String channel, String message) {
-						log.debug("messsage "+pattern+channel+message);
+						log.debug("messsage " + pattern+channel+message);
 						if(channel.equalsIgnoreCase(MessagingConstants.SYSTEM_CHANNEL)){
-							Gson gson=new Gson();
-							HashMap<String,String> map=gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
+							Gson gson = new Gson();
+							HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
 							
-							String meetingId=map.get("meetingId");
-							String request=map.get("request");
-							if(request!=null){
+							String meetingId = map.get("meetingId");
+							String request = map.get("request");
+							if(request != null){
 								if(request.equalsIgnoreCase("end")){
 									roomsManager.endMeetingRequest(meetingId);
 								}
@@ -93,7 +93,7 @@ public class RedisListener{
 							log.debug("receiving message "+message);
 							Gson gson=new Gson();
 							
-							HashMap<String,String> map=gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
+							HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
 							messageListener.handleReceivedMessage(map);
 						}
 						

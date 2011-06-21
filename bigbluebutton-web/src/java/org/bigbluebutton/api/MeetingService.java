@@ -4,7 +4,7 @@ import java.util.Collection;
 import org.bigbluebutton.api.domain.Meeting;
 
 public interface MeetingService {
-	public void cleanupOldMeetings();
+	public void removeExpiredMeetings();
 	public Collection<Meeting> getMeetings();	
 	public void storeMeeting(Meeting m);	
 	public void endMeeting(String meetingId);

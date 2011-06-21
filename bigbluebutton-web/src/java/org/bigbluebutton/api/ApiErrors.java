@@ -32,5 +32,8 @@ public class ApiErrors {
 	public boolean hasErrors() {
 		return errors.size() > 0;
 	}
-			  
+		
+	public ArrayList<String[]> getErrors() {
+		return errors;
+	}
 }

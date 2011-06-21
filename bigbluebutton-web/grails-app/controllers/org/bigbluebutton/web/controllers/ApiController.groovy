@@ -37,6 +37,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import grails.converters.XML;
 import org.bigbluebutton.api.ApiErrors;
+import org.bigbluebutton.api.ParamsProcessorUtil;
+import java.util.Iterator;
+import java.util.ArrayList;
 
 class ApiController {
   private static final Integer SESSION_TIMEOUT = 10800  // 3 hours    
@@ -49,7 +52,8 @@ class ApiController {
     
   DynamicConferenceService dynamicConferenceService;
   PresentationService presentationService
-
+  ParamsProcessorUtil paramsProcessorUtil
+  
   /* general methods */
   def index = {
     log.debug CONTROLLER_NAME + "#index"
@@ -99,14 +103,14 @@ class ApiController {
             
     // Do we agree with the checksum? If not, complain.
     if (! dynamicConferenceService.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
-      	errors.checksumError()
+      errors.checksumError()
     	respondWithErrors(errors)
     	return
     }
 
     // Get the viewer and moderator password. If none is provided, generate one.
-    String viewerPass = dynamicConferenceService.processPassword(params.attendeePW);
-    String modPass = dynamicConferenceService.processPassword(params.moderatorPW); 
+    String viewerPass = paramsProcessorUtil.processPassword(params.attendeePW);
+    String modPass = paramsProcessorUtil.processPassword(params.moderatorPW); 
     
     // Get the digits for voice conference for users joining through the phone.
     // If none is provided, generate one.
@@ -125,7 +129,7 @@ class ApiController {
     String logoutUrl = dynamicConferenceService.processLogoutUrl(params.logoutURL); 
     boolean record = dynamicConferenceService.processRecordMeeting(params.record);
     int maxUsers = dynamicConferenceService.processMaxUser(params.maxParticipants);
-    
+    int meetingDuration = dynamicConferenceService.processMeetingDuration(params.duration);
     String welcomeMessage = dynamicConferenceService.processWelcomeMessage(params.welcome == null ? "" : params.welcome, dialNumber, telVoice, meetingName);
     
     // Translate the external meeting id into an internal meeting id.
@@ -140,7 +144,7 @@ class ApiController {
       } else {
         // enforce meetingID unique-ness
         errors.nonUniqueMeetingIdError()
-    	respondWithErrors(errors)
+        respondWithErrors(errors)
       } 
       
       return;    
@@ -169,10 +173,10 @@ class ApiController {
     
     // Create the meeting with all passed in parameters.
     Meeting meeting = new Meeting.Builder(externalMeetingId, internalMeetingId, createTime)
-    			.withName(meetingName).withMaxUsers(maxUsers).withModeratorPass(modPass)
-    			.withViewerPass(viewerPass).withRecording(record)
-              	.withLogoutUrl(logoutUrl).withTelVoice(telVoice).withWebVoice(webVoice).withDialNumber(dialNumber)
-              	.withMetadata(meetingInfo).withWelcomeMessage(welcomeMessage).build()
+        .withName(meetingName).withMaxUsers(maxUsers).withModeratorPass(modPass)
+        .withViewerPass(viewerPass).withRecording(record).withDuration(meetingDuration)
+        .withLogoutUrl(logoutUrl).withTelVoice(telVoice).withWebVoice(webVoice).withDialNumber(dialNumber)
+        .withMetadata(meetingInfo).withWelcomeMessage(welcomeMessage).build()
               
     dynamicConferenceService.createMeeting(meeting);
     
@@ -213,11 +217,6 @@ class ApiController {
       errors.missingParamError("password");
     }
     
-    String createTime = params.createTime
-    if (StringUtils.isEmpty(createTime)) {
-      errors.missingParamError("createTime");
-    }
-    
     if (errors.hasErrors()) {
     	respondWithErrors(errors)
     	return
@@ -230,6 +229,11 @@ class ApiController {
     	return
     }
 
+    String createTime = params.createTime
+    if (StringUtils.isEmpty(createTime)) {
+      errors.missingParamError("createTime");
+    }
+    
     // Everything is good so far. Translate the external meeting id to an internal meeting id. If
     // we can't find the meeting, complain.					        
     String internalMeetingId = dynamicConferenceService.convertToInternalMeetingId(externalMeetingId);
@@ -400,9 +404,7 @@ class ApiController {
 	   respondWithErrors(errors)
 	   return;
     }
-    
-    meeting.setForciblyEnded(true);
-    
+       
     dynamicConferenceService.endMeetingRequest(internalMeetingId);
     
     response.addHeader("Cache-Control", "no-cache")
@@ -780,9 +782,13 @@ class ApiController {
           response() {
             returncode(RESP_CODE_FAILED)
             errors() {
-			    errorList.keySet().each { er ->
-			      error(key: er, message: errorList.get(er))
-			    }            
+              ArrayList errs = errorList.getErrors();
+              Iterator itr = errs.iterator();
+              while (itr.hasNext()){
+                String[] er = (String[]) itr.next();
+                log.debug CONTROLLER_NAME + "#invalid" + er[0]
+                error(key: er[0], message: er[1])
+              }          
             }
           }
         }

@@ -29,38 +29,27 @@ public class MeetingServiceImp implements MeetingService {
 		meetings = new ConcurrentHashMap<String, Meeting>();		
 	}
 	
+	/**
+	 * Remove the meetings that have ended from the list of
+	 * running meetings.
+	 */
 	@Override
-	public void cleanupOldMeetings() {
-		log.debug("Cleaning out old conferences");
+	public void removeExpiredMeetings() {
 		for (Meeting m : meetings.values()) {
-			boolean remove = false;
-			if (m.isRunning()) {
-				log.debug( "Meeting [" + m.getInternalId() + "] is running - not cleaning it out");
-				// won't remove one that's running
+			if (m.hasExpired(minutesElapsedBeforeMeetingExpiration) || m.wasNeverStarted(minutesElapsedBeforeMeetingExpiration)) {
+				log.info("Removing expired meeting [{} - {}]", m.getInternalId(), m.getName());
+				meetings.remove(m.getInternalId());
 				continue;
 			}
 			
-			long now = System.currentTimeMillis();
-			long millisSinceStored = now - m.getCreateTime();
-			long millisSinceEnd = now - m.getEndTime();
-			
-			if (m.getStartTime() > 0 && millisSinceEnd > (minutesElapsedBeforeMeetingExpiration * 60000)) {
-				log.debug("Removing meeting because it started, ended, and is past the max expiration");
-				remove = true;
-			} else if (m.getEndTime() > 0 && millisSinceStored > (minutesElapsedBeforeMeetingExpiration * 60000)) {
-				log.debug("Removing meeting because it was stored, but never started [stored " + millisSinceStored + " millis ago]");
-				remove = true;
-			}
-			
-			if (remove) {
-				log.debug("Removing meeting [" + m.getInternalId() + "]");
-				meetings.remove(m.getInternalId());
-			} else {
-				log.debug("Not removing meeting [" + m.getInternalId() + "]");
+			if (m.hasExceededDuration()) {
+				log.info("Ending meeting [{} - {}]", m.getInternalId(), m.getName());
+				m.setForciblyEnded(true);
+				endMeeting(m.getInternalId());
 			}
 		}
 	}
-
+	
 	public Collection<Meeting> getMeetings() {
 		log.debug("The number of meetings are: " + meetings.size());
 		return meetings.isEmpty() ? Collections.<Meeting>emptySet() : Collections.unmodifiableCollection(meetings.values());
@@ -100,6 +89,7 @@ public class MeetingServiceImp implements MeetingService {
 	}
 	
 	public void endMeeting(String meetingId) {
+		
 		messagingService.endMeeting(meetingId);
 	}
 			

@@ -51,6 +51,7 @@ public class DynamicConferenceService {
 	def defaultServerUrl
 	def defaultNumDigitsForTelVoice
 	def defaultClientUrl
+	def defaultMeetingDuration
 	
 	private MeetingService meetingService
 		
@@ -59,7 +60,6 @@ public class DynamicConferenceService {
 	}
 	
 	public void createMeeting(Meeting meeting) {
-		log.debug("Creating New Meeting...");
 		meetingService.storeMeeting(meeting);
 	}
 
@@ -74,10 +74,10 @@ public class DynamicConferenceService {
 	public boolean isMeetingWithVoiceBridgeExist(String voiceBridge) {
 		Collection<Meeting> confs = confsByMtgID.values()
 		for (Meeting c : confs) {
-	        if (voiceBridge == c.voiceBridge) {
-	        	log.debug "Found voice bridge $voiceBridge"
-	        	return true
-	        }
+      if (voiceBridge == c.voiceBridge) {
+        log.debug "Found voice bridge $voiceBridge"
+        return true
+      }
 		}
 		log.debug "could not find voice bridge $voiceBridge"
 		return false
@@ -129,6 +129,7 @@ public class DynamicConferenceService {
 	
 	public String processPassword(String pass) {
 		return StringUtils.isEmpty(pass) ? RandomStringUtils.randomAlphanumeric(8) : pass;
+		return paramsService.processPassword(pass);
 	}
 	
 	public String processTelVoice(String telNum) {
@@ -177,7 +178,20 @@ public class DynamicConferenceService {
 		
 		return mUsers;
 	}	
-	
+
+  public int processMeetingDuration(String duration) {
+    int mDuration = -1;
+    
+    try {
+      mDuration = Integer.parseInt(duration);
+    } catch(Exception ex) { 
+      log.warn("Failed to parse meeting duration.");
+      mDuration = Integer.parseInt(defaultMeetingDuration);
+    }   
+    
+    return mDuration;
+  } 
+  	
 	public boolean isTestMeeting(String telVoice) {	
 		return ((! StringUtils.isEmpty(telVoice)) && 
 				(! StringUtils.isEmpty(testVoiceBridge)) && 
