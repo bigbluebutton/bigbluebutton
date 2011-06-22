@@ -28,72 +28,44 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
-	<script type="text/javascript" src="heartbeat.js"></script>
+	<link rel="stylesheet" type="text/css" href="css/ui.jqgrid.css" />
+	<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/themes/redmond/jquery-ui.css" />
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+	<script src="js/jquery.jqGrid.min.js" type="text/javascript"></script>
+	<script src="js/jquery.xml2json.js" type="text/javascript"></script>
 	<title>Recording Meeting Demo</title>
 	<style type="text/css">
-	 #formcreate{ 
-	 	width:500px; 
-	 	height:500px;
-	 }
-	 #formcreate ul{
-	 	list-style:none;
-	 }
-	 #formcreate li{
-	 	display:block;
-	 	width:400px;
-	 	margin-bottom:5px;
+	 #formcreate{
+		margin-bottom:30px;
 	 }
 	 #formcreate label{
 	 	display:block;
 	 	float:left;
-	 	width:150px;
+	 	width:100px;
 	 	text-align:right;
+		margin-right:5px;
+	 }
+	 #formcreate div{
+		margin-bottom:5px;
+	 }
+	 #formcreate .submit{
+		margin-left:100px;
+		margin-top:15px;
 	 }
 	 .descript{
 	 	vertical-align:top;
 	 }
+	 .ui-jqgrid{
+		font-size:0.8em
+	}
 	</style>
 </head>
 <body>
-<script>
-$(document).ready(function(){
-	isRunningMeeting();	// update the available meeting information as soon as the page is loaded.
-});
 
-
-public function onChange(){
-	isRunningMeeting();
-}
-
-function isRunningMeeting(meetingID) {
-	$.ajax({
-    	type: "GET",
-		url: 'demo10_helper.jsp?getxml=true',
-		dataType: "text/xml",
-		cache: false,
-		success: function(xml) {
-			response = $.xml2json(xml);
-			if(response.running=="true"){
-				$("liInputDescrip").hide();
-				$("liInfoDescrip").show();
-			}else{
-				$("liInfoDescrip").hide();
-				$("liInputDescrip").show();
-			}
-		},
-		error: function() {
-			$("#no_meetings").text("Failed to connect to API.");
-			$("#meetings").text("");
-		}
-	});
-}
-</script>
-
-<%@ include file="bbb_api.jsp"%>
+<%@ include file="lib/bbb_api.jsp"%>
 <%@ page import="java.util.regex.*"%>
 
-<%@ include file="demo_header.jsp"%>
+<%@ include file="layout/demo_header.jsp"%>
 
 <%
 	if (request.getParameterMap().isEmpty()) {
@@ -103,34 +75,101 @@ function isRunningMeeting(meetingID) {
 %>
 	<h2>Demo: Join a Recorded Class</h2>
 
-	<form id="formcreate" name="formcreate" method="get" action=""> 
-		<fieldset>
-			<legend>Meeting Information</legend>
-			<ul>
-				<select name="meetingID" onchange="onChange();">
-					<option value="English 232">English 232</option>
-					<option value="English 300">English 300</option>
-					<option value="English 402">English 402</option>
-					<option value="Demo Meeting">Demo Meeting</option>
-				</select>	
-				<li id="liInputDescrip">
-					<label class="descript" for="meta_description">Description:</label>
-					<textarea id="meta_description" name="meta_description" cols="17" rows="3"></textarea>
-				</li>
-				<li id="liInfoDescrip">
-					<label class="descript">Description:</label>
-					<p>An active Meeting is already running</p>
-				</li>
-				<li>
-					<label for="username1">Your Name:</label>
-					<input id="username1" name="username1" type="text" />	
-				</li>
-			</ul>
-		</fieldset>
-		<input type="submit" value="Create" >
+	<form id="formcreate" name="formcreate" method="get" action=""> 		
+		<div>
+			<label for="meetingID">Meeting:</label>
+			<select name="meetingID" onchange="onChangeMeeting(this.value);">
+				<option value="English 232">English 232</option>
+				<option value="English 300">English 300</option>
+				<option value="English 402">English 402</option>
+				<option value="Demo Meeting">Demo Meeting</option>
+			</select>
+		</div>
+		<div>
+			<label class="descript" for="meta_description">Description:</label>
+			<textarea id="meta_description" name="meta_description" cols="17" rows="4"></textarea>
+		</div>
+		<div>
+			<label for="username1">Your Name:</label>
+			<input id="username1" name="username1" type="text" />	
+		</div>	
+		<input class="submit" type="submit" value="Join" >
 		<input type="hidden" name="action" value="create" />
 	</form>
-
+	
+	<h3>Recorded Sessions</h3>
+	<select name="actions" onchange="recordedAction();">
+		<option value="novalue" selected>Actions...</option>
+		<option value="publish">Publish</option>
+		<option value="unpublish">Unpublish</option>
+		<option value="delete">Delete</option>
+	</select>
+	<table id="recordgrid"></table>
+	<p>Note: New recordings will take a few minutes to appear list after session ends. Refresh your browser to update the above table.</p>
+	<script>
+	function onChangeMeeting(meetingID){
+		isRunningMeeting(meetingID);
+	}
+	function isRunningMeeting(meetingID) {
+		$.ajax({
+			type: "GET",
+			url: 'demo10_helper.jsp',
+			data: "command=isRunning&meetingID="+meetingID,
+			dataType: "xml",
+			cache: false,
+			success: function(xml) {
+				response = $.xml2json(xml);
+				if(response.running=="true"){
+					$("#meta_description").val("An active session exists for "+meetingID+". This session is being recorded.");
+					$("#meta_description").attr("readonly","readonly");
+					$("#meta_description").attr("disabled","disabled");
+				}else{
+					$("#meta_description").val("");
+					$("#meta_description").removeAttr("readonly");
+					$("#meta_description").removeAttr("disabled");
+				}
+				
+			},
+			error: function() {
+				alert("Failed to connect to API.");
+			}
+		});
+	}
+	$(document).ready(function(){
+		$("#meetingID option[value='English 232']").attr("selected","selected");
+		jQuery("#recordgrid").jqGrid({
+			url: "demo10_helper.jsp?command=getRecords",
+			datatype: "xml",
+			height: 150,
+			colNames:['Course','Description', 'Date Recorded', 'Published'],
+			colModel:[
+				{name:'course',index:'course', width:100, xmlmap: "metadata>meetingId"},
+				{name:'description',index:'description', width:150, xmlmap: "startTime"},
+				{name:'daterecorded',index:'daterecorded', width:300, xmlmap: "startTime"},
+				{name:'published',index:'published', width:80, xmlmap: "published" }		
+			],
+			xmlReader: {
+				root : "recordings",
+				row: "recording",
+				id: "id"
+			},
+			multiselect: true,
+			caption: "Recorded Sessions"
+		});
+		
+		//isRunningMeeting();	// update the available meeting information as soon as the page is loaded.
+	});
+	
+	
+	/*jQuery("#m1").click( function() {
+		var s;
+		s = jQuery("#recordgrid").jqGrid('getGridParam','selarrrow');
+		for(var i=0;i<s.length;i++){
+		var ret = jQuery("#recordgrid").jqGrid('getRowData',s[i]);
+		alert("id="+ret.id+" invdate="+ret.invdate+"...");}
+		alert("hola");
+	});*/
+	</script>
 <%
 	} else if (request.getParameter("action").equals("create")) {
 		
@@ -160,7 +199,7 @@ Error: getJoinURL() failed
 	}
 %> 
 
-<%@ include file="demo_footer.jsp"%>
+<%@ include file="layout/demo_footer.jsp"%>
 
 </body>
 </html>

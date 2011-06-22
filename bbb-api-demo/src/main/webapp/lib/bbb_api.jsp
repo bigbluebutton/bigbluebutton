@@ -527,6 +527,30 @@
 			return null;
 		}
 	}
+	
+	// Javascript for manage the Recordings
+	public String getRecordingsURL() {
+		return BigBlueButtonURL + "api/getRecordings?"
+				+ "checksum="
+				+ checksum("getRecordings" + salt);
+	}
+
+	public String getRecordings() {
+		try {
+
+			// Call the API and get the result
+			URLConnection hpCon = new URL(getRecordingsURL()).openConnection();
+			InputStreamReader isr = new InputStreamReader(
+					hpCon.getInputStream());
+			BufferedReader br = new BufferedReader(isr);
+			String data = br.readLine();
+			return data;
+		} catch (Exception e) {
+			e.printStackTrace(System.out);
+			return null;
+		}
+	}
+
 
 	//
 	public String endMeeting(String meetingID, String moderatorPassword) {

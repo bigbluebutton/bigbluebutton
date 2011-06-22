@@ -62,7 +62,9 @@ public class MeetingService {
 		}
 	}
 
-	public Meeting getMeeting(String meetingId) {		
+	public Meeting getMeeting(String meetingId) {
+		if(meetingId==null)
+			return null;
 		for (String key : meetings.keySet()) {
 			if (key.startsWith(meetingId))
 				return (Meeting) meetings.get(key);
