@@ -55,7 +55,10 @@ if (playback == "simple")
 		  b.published(true)
 		  b.start_time(Time.at((BigBlueButton::Events.first_event_timestamp("#{process_dir}/events.xml").to_f/1000.0)).utc)
 		  b.end_time(Time.at((BigBlueButton::Events.last_event_timestamp("#{process_dir}/events.xml").to_f/1000.0)).utc)
-		  b.playback("http://#{playback_host}/playback/simple/playback.html?meetingId=#{meeting_id}")
+		  b.playback {
+		  	b.format("simple")
+		  	b.link("http://#{playback_host}/playback/simple/playback.html?meetingId=#{meeting_id}")
+	  	}
 		  b.meta {
 		  	BigBlueButton::Events.get_meeting_metadata("#{process_dir}/events.xml").each { |k,v| b.method_missing(k,v) }
 	  	}			

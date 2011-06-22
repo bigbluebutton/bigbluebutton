@@ -3,9 +3,12 @@ package org.bigbluebutton.api;
 import groovy.util.XmlSlurper;
 import groovy.util.slurpersupport.GPathResult;
 import java.io.File;
+import java.util.ArrayList;
+
 import org.bigbluebutton.api.domain.Recording;
 
 public class RecordingServiceHelperImp implements RecordingServiceHelper {
+		
 	public Recording getRecordingInfo(String id, String publishedDir, String playbackFormat) {
 		String path = publishedDir + File.pathSeparator + playbackFormat;		
 		File dir = new File(path);

@@ -8,13 +8,40 @@ import org.bigbluebutton.api.domain.Recording;
 
 public class RecordingService {
 	private String publishedDir = "/var/bigbluebutton/published";
+	private String unpublishedDir = "/var/bigbluebutton/unpublished";
 	private RecordingServiceHelper recordingServiceHelper;
 	
-	public ArrayList<Recording> getRecordings() {
-		ArrayList<Recording> r = new ArrayList<Recording>();
-		String[] format = getPlaybackFormats();
+	public ArrayList<Recording> getRecordings(String meetingId) {
+		ArrayList<Recording> recs = new ArrayList<Recording>();
 		
-		return r;
+		ArrayList<Recording> published = getRecordingsForPath(meetingId, publishedDir);
+		if (!published.isEmpty()) {
+			recs.addAll(published);
+		}
+		
+		ArrayList<Recording> unpublished = getRecordingsForPath(meetingId, unpublishedDir);
+		if (!unpublished.isEmpty()) {
+			recs.addAll(unpublished);
+		}
+		
+		return recs;
+	}
+	
+	private ArrayList<Recording> getRecordingsForPath(String meetingId, String path) {
+		ArrayList<Recording> recs = new ArrayList<Recording>();
+		
+		String[] format = getPlaybackFormats(path);
+		for (int i = 0; i < format.length; i++) {
+			File[] recordings = getDirectories(publishedDir + File.pathSeparatorChar + format[i]);
+			for (int f = 0; f < recordings.length; f++) {
+				if (recordings[f].getName().startsWith(meetingId)) {
+					Recording r = getRecordingInfo(recordings[f].getName(), format[i]);
+					if (r != null) recs.add(r);
+				}				
+			}
+		}	
+		
+		return recs;
 	}
 	
 	public Recording getRecordingInfo(String recordingId, String format) {
@@ -32,18 +59,16 @@ public class RecordingService {
 	
 	private File[] getDirectories(String path) {
 		File dir = new File(path);
-
 		FileFilter fileFilter = new FileFilter() {
 		    public boolean accept(File file) {
 		        return file.isDirectory();
 		    }
-		};
-		
+		};		
 		return dir.listFiles(fileFilter);		
 	}
 	
-	private String[] getPlaybackFormats() {
-		File[] dirs = getDirectories(publishedDir);
+	private String[] getPlaybackFormats(String path) {
+		File[] dirs = getDirectories(path);
 		String[] formats = new String[dirs.length];
 		
 		for (int i = 0; i < dirs.length; i++) {
