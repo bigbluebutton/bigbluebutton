@@ -56,7 +56,6 @@ public class DynamicConferenceService {
 	def defaultMeetingDuration
 	
 	MeetingService meetingService
-	RecordingService recordingService
 		
 	public Collection<Meeting> getAllMeetings() {
 		return meetingService.getMeetings()
@@ -277,9 +276,6 @@ public class DynamicConferenceService {
 		return 	welcomeMessage;
 	}
 	
-	public ArrayList<Recording> getRecordings() {
-	   return recordingService.getRecordings();
-	}
 			
 	public void setMeetingService(MeetingService s) {
 		meetingService = s;
