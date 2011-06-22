@@ -30,6 +30,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bigbluebutton.web.services.DynamicConferenceService;
 import org.bigbluebutton.api.domain.Meeting;
+import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.web.services.PresentationService
 import org.bigbluebutton.presentation.UploadedPresentation
 import org.codehaus.groovy.grails.commons.ConfigurationHolder;
@@ -629,6 +630,15 @@ class ApiController {
 	log.debug("Signing out. Redirecting to " + logoutUrl)
 	redirect(url: logoutUrl)
   }
+ 
+  def getRecordings = {
+     ArrayList<Recording> r = dynamicConferenceService.getRecordings();
+     if (r.isEmpty()) {
+     
+     } else {
+     
+     }
+  } 
   
   def uploadDocuments(conf) { 
     log.debug("ApiController#uploadDocuments(${conf.getInternalId()})");
@@ -661,6 +671,7 @@ class ApiController {
       }
     }
   }
+
 
 
   def cleanFilename(filename) {

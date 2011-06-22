@@ -24,12 +24,14 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.*;
 import java.util.concurrent.*;
 import org.bigbluebutton.api.domain.Meeting;
+import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.api.MeetingService;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
+
 
 public class DynamicConferenceService {	
 	boolean transactional = false
@@ -53,7 +55,8 @@ public class DynamicConferenceService {
 	def defaultClientUrl
 	def defaultMeetingDuration
 	
-	private MeetingService meetingService
+	MeetingService meetingService
+	RecordingService recordingService
 		
 	public Collection<Meeting> getAllMeetings() {
 		return meetingService.getMeetings()
@@ -85,7 +88,7 @@ public class DynamicConferenceService {
 	
 	public void processRecording(String meetingId) {
 		System.out.println("enter processRecording " + meetingId)
-		Meeting room = roomsByToken.get(meetingId)
+		Meeting room = meetingService.getMeeting(meetingId)
 		if (room != null) {
 			System.out.println("Number of participants in room " + room.getNumberOfParticipants())
 			if (room.getNumberOfParticipants() == 0) {
@@ -272,6 +275,10 @@ public class DynamicConferenceService {
 			}
 		}
 		return 	welcomeMessage;
+	}
+	
+	public ArrayList<Recording> getRecordings() {
+	   return recordingService.getRecordings();
 	}
 			
 	public void setMeetingService(MeetingService s) {
