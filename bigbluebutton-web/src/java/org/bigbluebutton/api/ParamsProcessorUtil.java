@@ -35,6 +35,10 @@ public class ParamsProcessorUtil {
 		return defaultClientUrl;
 	}
 	
+	public String getDefaultLogoutUrl() {
+		return defaultLogoutUrl;
+	}
+	
 	public String processWelcomeMessage(String message) {
 		String welcomeMessage = message;
 		if (StringUtils.isEmpty(message)) {

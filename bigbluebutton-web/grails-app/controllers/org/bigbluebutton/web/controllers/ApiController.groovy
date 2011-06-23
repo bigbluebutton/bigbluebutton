@@ -28,7 +28,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
-import org.bigbluebutton.web.services.DynamicConferenceService;
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.MeetingService;
 import org.bigbluebutton.api.domain.Recording;
@@ -639,26 +638,26 @@ class ApiController {
    * SIGNOUT API
    *************************************************/
   def signOut = {        
-	String meetingId = session["conference"]
-	Meeting meeting = meetingService.getMeeting(meetingId);
-	String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
-    log.debug("Logging out from [" + meeting.getInternalId() + "]");
-             
-	// Log the user out of the application.
-	session.invalidate()
-
-	if (meeting != null) {
-		logoutUrl = meeting.getLogoutUrl();
-		if (meeting.isRecord()) {
-			log.debug("[" + meeting.getInternalId() + "] is recorded. Process it.");		
-			meetingService.processRecording(meeting.getInternalId())
-		}
-	} else {
-		log.warn("Signing out from a non-existing meeting [" + meetingId + "]");	
-	}      
- 
-	log.debug("Signing out. Redirecting to " + logoutUrl)
-	redirect(url: logoutUrl)
+  	String meetingId = session["conference"]
+  	Meeting meeting = meetingService.getMeeting(meetingId);
+  	String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
+      log.debug("Logging out from [" + meeting.getInternalId() + "]");
+               
+  	// Log the user out of the application.
+  	session.invalidate()
+  
+  	if (meeting != null) {
+  		logoutUrl = meeting.getLogoutUrl();
+  		if (meeting.isRecord()) {
+  			log.debug("[" + meeting.getInternalId() + "] is recorded. Process it.");		
+  			meetingService.processRecording(meeting.getInternalId())
+  		}
+  	} else {
+  		log.warn("Signing out from a non-existing meeting [" + meetingId + "]");	
+  	}      
+   
+  	log.debug("Signing out. Redirecting to " + logoutUrl)
+  	redirect(url: logoutUrl)
   }
  
   def getRecordings = {
