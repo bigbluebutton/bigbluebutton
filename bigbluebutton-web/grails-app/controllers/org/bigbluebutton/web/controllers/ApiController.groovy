@@ -71,33 +71,6 @@ class ApiController {
     }
   }
  
-  /**
-   * Substitute keywords from the welcome message.
-   **/
-  private String substituteKeywords(String message, String dialNum, String telVoice, String meetingName) {
-    String welcomeMessage = message
-    
-    def DIAL_NUM = /%%DIALNUM%%/
-    def CONF_NUM = /%%CONFNUM%%/
-    def CONF_NAME = /%%CONFNAME%%/  
-    def keywordList = [DIAL_NUM, CONF_NUM, CONF_NAME];
-      
-    keywordList.each { keyword ->
-      switch(keyword){
-        case DIAL_NUM:
-          welcomeMessage = welcomeMessage.replaceAll(DIAL_NUM, dialNum)           
-          break
-        case CONF_NUM:
-          welcomeMessage = welcomeMessage.replaceAll(CONF_NUM, telVoice)
-          break
-        case CONF_NAME:
-          welcomeMessage = welcomeMessage.replaceAll(CONF_NAME, meetingName)
-          break
-      }       
-    }
-
-    return  welcomeMessage;
-  } 
         
   /*********************************** 
    * CREATE (API) 
@@ -106,24 +79,8 @@ class ApiController {
     String API_CALL = 'create'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
   	
-  	ApiErrors errors = new ApiErrors();
-  	
-    // Do we have a checksum? If not, complain.
-    if (StringUtils.isEmpty(params.checksum)) {
-      errors.missingParamError("checksum");			
-    }
-    
-    // Do we have a meeting name? If not, complain.
-    String meetingName = params.name
-    if (StringUtils.isEmpty(meetingName) ) {
-      errors.missingParamError("name");
-    }
-    
-    // Do we have a meeting id? If not, complain.
-    String externalMeetingId = params.meetingID
-    if (StringUtils.isEmpty(externalMeetingId)) {
-      errors.missingParamError("meetingID");
-    }
+  	ApiErrors errors = new ApiErrors();  	
+    paramsProcessorUtil.processRequiredCreateParams(params, errors);
 
     if (errors.hasErrors()) {
     	respondWithErrors(errors)
@@ -136,38 +93,16 @@ class ApiController {
     	respondWithErrors(errors)
     	return
     }
-
-    // Get the viewer and moderator password. If none is provided, generate one.
-    String viewerPass = paramsProcessorUtil.processPassword(params.attendeePW);
-    String modPass = paramsProcessorUtil.processPassword(params.moderatorPW); 
     
-    // Get the digits for voice conference for users joining through the phone.
-    // If none is provided, generate one.
-    String telVoice = paramsProcessorUtil.processTelVoice(params.voiceBridge);
-    
-    // Get the voice conference digits/chars for users joing through VOIP on the client.
-    // If none is provided, make it the same as the telVoice. If one has been provided,
-    // we expect that the users will be joined in the same voice conference.
-    String webVoice = params.webVoice
-    if (StringUtils.isEmpty(params.webVoice)) {
-      webVoice = telVoice
-    }
-    
-    // Get all the other relevant parameters and generate defaults if none has been provided.
-    String dialNumber = paramsProcessorUtil.processDialNumber(params.dialNumber);
-    String logoutUrl = paramsProcessorUtil.processLogoutUrl(params.logoutURL); 
-    boolean record = paramsProcessorUtil.processRecordMeeting(params.record);
-    int maxUsers = paramsProcessorUtil.processMaxUser(params.maxParticipants);
-    int meetingDuration = paramsProcessorUtil.processMeetingDuration(params.duration);
-    String welcomeMessage = paramsProcessorUtil.processWelcomeMessage(params.welcome);
-    welcomeMessage = substituteKeywords(welcomeMessage, dialNumber, telVoice, meetingName);
     
     // Translate the external meeting id into an internal meeting id.
-    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId);		
+    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(params.meetingID);		
     Meeting existing = meetingService.getMeeting(internalMeetingId);
     if (existing != null) {
       log.debug "Existing conference found"
-      if (existing.getViewerPassword().equals(viewerPass) && existing.getModeratorPassword().equals(modPass)) {
+      Map<String, Object> updateParams = paramsProcessorUtil.processUpdateCreateParams(params);
+      if (existing.getViewerPassword().equals(params.get("attendeePW")) && existing.getModeratorPassword().equals(params.get("moderatorPW"))) {
+        paramsProcessorUtil.updateMeeting(updateParams, existing);
         // trying to create a conference a second time, return success, but give extra info
         uploadDocuments(existing);
         respondWithConference(existing, "duplicateWarning", "This conference was already in existence and may currently be in progress.");
@@ -179,35 +114,7 @@ class ApiController {
       
       return;    
     }
-    
-    // Check if this is a test meeting. NOTE: This should not belong here. Extract this out.				
-    if (paramsProcessorUtil.isTestMeeting(telVoice)) {
-      internalMeetingId = paramsProcessorUtil.getIntMeetingIdForTestMeeting(telVoice)
-    }
-    
-    // Collect metadata for this meeting that the third-party app wants to store if meeting is recorded.
-    Map<String, String> meetingInfo = new HashMap<String, String>();
-    params.keySet().each{ metadata ->
-      if (metadata.contains("meta")){
-        String[] meta = metadata.split("_")
-        if(meta.length == 2){
-          meetingInfo.put(meta[1], params.get(metadata))
-        }
-      }
-    }
-    
-    // Create a unique internal id by appending the current time. This way, the 3rd-party
-    // app can reuse the external meeting id.
-    long createTime = System.currentTimeMillis()
-    internalMeetingId = internalMeetingId + '-' + new Long(createTime).toString()
-    
-    // Create the meeting with all passed in parameters.
-    Meeting meeting = new Meeting.Builder(externalMeetingId, internalMeetingId, createTime)
-        .withName(meetingName).withMaxUsers(maxUsers).withModeratorPass(modPass)
-        .withViewerPass(viewerPass).withRecording(record).withDuration(meetingDuration)
-        .withLogoutUrl(logoutUrl).withTelVoice(telVoice).withWebVoice(webVoice).withDialNumber(dialNumber)
-        .withMetadata(meetingInfo).withWelcomeMessage(welcomeMessage).build()
-              
+                 
     meetingService.createMeeting(meeting);
     
     // See if the request came with pre-uploading of presentation.
