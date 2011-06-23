@@ -1,25 +1,51 @@
 package org.bigbluebutton.api;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ParamsProcessorUtil {
+	private static Logger log = LoggerFactory.getLogger(ParamsProcessorUtil.class);
+	
 	private String apiVersion;
+	private boolean serviceEnabled = false;
 	private String securitySalt;
-	private int minutesElapsedBeforeMeetingExpiration = 60;
 	private int defaultMaxUsers = 20;
 	private String defaultWelcomeMessage;
 	private String defaultDialAccessNumber;
 	private String testVoiceBridge;
 	private String testConferenceMock;
-	private String recordingDir;
-	private String recordingFile;
-	private String recordStatusDir;
 	private String defaultLogoutUrl;
 	private String defaultServerUrl;
-	private String defaultNumDigitsForTelVoice;
+	private int defaultNumDigitsForTelVoice;
 	private String defaultClientUrl;
-	private String defaultMeetingDuration;
+	private int defaultMeetingDuration;
+
+	public String getApiVersion() {
+		return apiVersion;
+	}
+	
+	public boolean isServiceEnabled() {
+		return serviceEnabled;
+	}
+	
+	public String getDefaultClientUrl() {
+		return defaultClientUrl;
+	}
+	
+	public String processWelcomeMessage(String message) {
+		String welcomeMessage = message;
+		if (StringUtils.isEmpty(message)) {
+			welcomeMessage = defaultWelcomeMessage;
+		}
+		return welcomeMessage;
+	}
+
+	public String convertToInternalMeetingId(String extMeetingId) {
+		return DigestUtils.shaHex(extMeetingId);
+	}
 	
 	public String processPassword(String pass) {
 		return StringUtils.isEmpty(pass) ? RandomStringUtils.randomAlphanumeric(8) : pass;
@@ -30,7 +56,7 @@ public class ParamsProcessorUtil {
 	}
 		
 	public String processTelVoice(String telNum) {
-		return StringUtils.isEmpty(telNum) ? RandomStringUtils.randomNumeric(Integer.parseInt(defaultNumDigitsForTelVoice)) : telNum;
+		return StringUtils.isEmpty(telNum) ? RandomStringUtils.randomNumeric(defaultNumDigitsForTelVoice) : telNum;
 	}
 		
 	public String processDialNumber(String dial) {
@@ -80,7 +106,7 @@ public class ParamsProcessorUtil {
     try {
       mDuration = Integer.parseInt(duration);
     } catch(Exception ex) { 
-      mDuration = Integer.parseInt(defaultMeetingDuration);
+      mDuration = defaultMeetingDuration;
     }   
     
     return mDuration;
@@ -101,6 +127,30 @@ public class ParamsProcessorUtil {
 		return "";	
 	}
 	
+	public boolean isChecksumSame(String apiCall, String checksum, String queryString) {
+		log.debug("checksum: [{}] ; query string: [{}]", checksum, queryString);
+	
+		if (StringUtils.isEmpty(securitySalt)) {
+			log.warn("Security is disabled in this service. Make sure this is intentional.");
+			return true;
+		}
+		
+		// handle either checksum as first or middle / end parameter
+		// TODO: this is hackish - should be done better
+		queryString = queryString.replace("&checksum=" + checksum, "");
+		queryString = queryString.replace("checksum=" + checksum + "&", "");
+		log.debug("query string after checksum removed: [{}]", queryString);
+		String cs = DigestUtils.shaHex(apiCall + queryString + securitySalt);
+		log.debug("our checksum: [{}], client: [{}]", cs, checksum);
+		if (cs == null || cs.equals(checksum) == false) {
+			log.info("checksumError: request did not pass the checksum security check");
+			return false;
+		}
+		log.debug("checksum ok: request passed the checksum security check");
+		return true; 
+	}
+	
+	
 	/*************************************************
 	 * Setters
 	 ************************************************/
@@ -109,13 +159,12 @@ public class ParamsProcessorUtil {
 		this.apiVersion = apiVersion;
 	}
 
+	public void setServiceEnabled(boolean e) {
+		serviceEnabled = e;
+	}
+	
 	public void setSecuritySalt(String securitySalt) {
 		this.securitySalt = securitySalt;
-	}
-
-	public void setMinutesElapsedBeforeMeetingExpiration(
-			int minutesElapsedBeforeMeetingExpiration) {
-		this.minutesElapsedBeforeMeetingExpiration = minutesElapsedBeforeMeetingExpiration;
 	}
 
 	public void setDefaultMaxUsers(int defaultMaxUsers) {
@@ -138,18 +187,6 @@ public class ParamsProcessorUtil {
 		this.testConferenceMock = testConferenceMock;
 	}
 
-	public void setRecordingDir(String recordingDir) {
-		this.recordingDir = recordingDir;
-	}
-
-	public void setRecordingFile(String recordingFile) {
-		this.recordingFile = recordingFile;
-	}
-
-	public void setRecordStatusDir(String recordStatusDir) {
-		this.recordStatusDir = recordStatusDir;
-	}
-
 	public void setDefaultLogoutUrl(String defaultLogoutUrl) {
 		this.defaultLogoutUrl = defaultLogoutUrl;
 	}
@@ -158,7 +195,7 @@ public class ParamsProcessorUtil {
 		this.defaultServerUrl = defaultServerUrl;
 	}
 
-	public void setDefaultNumDigitsForTelVoice(String defaultNumDigitsForTelVoice) {
+	public void setDefaultNumDigitsForTelVoice(int defaultNumDigitsForTelVoice) {
 		this.defaultNumDigitsForTelVoice = defaultNumDigitsForTelVoice;
 	}
 
@@ -166,7 +203,7 @@ public class ParamsProcessorUtil {
 		this.defaultClientUrl = defaultClientUrl;
 	}
 
-	public void setDefaultMeetingDuration(String defaultMeetingDuration) {
+	public void setDefaultMeetingDuration(int defaultMeetingDuration) {
 		this.defaultMeetingDuration = defaultMeetingDuration;
 	}
 }

@@ -62,7 +62,11 @@ public class RedisMessagingService implements MessagingService {
 	}
 
 	public void endMeeting(String meetingId) {
-		log.warn("***Need to implement sending of end meeting request!");
+		HashMap<String,String> map = new HashMap<String, String>();
+		map.put("request", "endMeeting");
+		map.put("meetingId", meetingId);
+		Gson gson = new Gson();
+		send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));
 	}
 
 	public void send(String channel, String message) {

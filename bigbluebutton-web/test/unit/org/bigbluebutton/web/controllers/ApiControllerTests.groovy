@@ -1,7 +1,9 @@
 package org.bigbluebutton.web.controllers
 
 import grails.test.*
-import org.bigbluebutton.web.services.DynamicConferenceService;
+
+import org.bigbluebutton.api.ParamsProcessorUtil;
+import org.bigbluebutton.api.RecordingService;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.bigbluebutton.api.*;
 import org.bigbluebutton.api.domain.Meeting;
@@ -10,31 +12,51 @@ import org.bigbluebutton.api.messaging.NullMessagingService;
 import org.bigbluebutton.api.messaging.MessagingService;
 
 class ApiControllerTests extends ControllerUnitTestCase {
-	String API_VERSION = "0.7"
-	String SALT = 'ab56fda9fc1c2bde2d65ff76134b47ad'
+	final String API_VERSION = "0.7"
+	final boolean SERVICE_ENABLED = true;
+	final String SALT = 'ab56fda9fc1c2bde2d65ff76134b47ad'
+	final int DEF_MAX_USERS = 20
+	final String DEF_WELCOME_MSG = "<br>Welcome to this BigBlueButton Demo Server.<br><br>For help using BigBlueButton <a href=\"event:http://www.bigbluebutton.org/content/videos\"><u>check out these videos</u></a>.<br><br>"
+	final String DEF_DIAL_NUMER = "613-555-1234"
+	final String TEST_VOICE_BRIDGE = "9999"
+	final String TEST_CONF_MOCK = "conference-mock-default"
+	final String DEF_LOGOUT_URL = ""
+	final String DEF_SERVER_URL = "http://192.168.0.166"
+	final int DEF_NUM_FOR_VOICE = 5;
+	final String DEF_CLIENT_URL = "http://localhost/client/BigBlueButton.html"
+	final int DEF_MEETING_DURATION = 210;
+
 	String MEETING_ID = "default-meeting-id"
 	String MEETING_NAME = "Default Meeting"
 	String MOD_PASS = "modpass"
 	String VIEW_PASS = "viewpass"
-	String CLIENT_URL = "http://localhost/client/BigBlueButton.html"
 	long CREATE_TIME = 1234567890
 	
-	def dynamicConferenceService
-	MeetingServiceImp meetingService
+	RecordingService recordingService
+	MeetingService meetingService
+	ParamsProcessorUtil ppu = new ParamsProcessorUtil();
 	
     protected void setUp() {
         super.setUp()
-		mockLogging(DynamicConferenceService)
-		dynamicConferenceService = new DynamicConferenceService()
-		meetingService = new MeetingServiceImp()
+		mockLogging(RecordingService)
+		recordingService = new RecordingService()
+		meetingService = new MeetingService()
 		MessagingService ms = new NullMessagingService();
 		meetingService.setMessagingService(ms);
-		dynamicConferenceService.setMeetingService(meetingService)
-		dynamicConferenceService.apiVersion = API_VERSION
-		dynamicConferenceService.securitySalt = SALT
-		dynamicConferenceService.defaultNumDigitsForTelVoice = 5
-		dynamicConferenceService.defaultNumDigitsForTelVoice = 5
-		dynamicConferenceService.defaultClientUrl = CLIENT_URL
+		
+		ppu.setApiVersion(API_VERSION)
+		ppu.setSecuritySalt(SALT);
+		ppu.setDefaultNumDigitsForTelVoice(5)
+		ppu.setDefaultClientUrl(DEF_CLIENT_URL)
+		ppu.setDefaultMeetingDuration(DEF_MEETING_DURATION);
+		ppu.setDefaultDialAccessNumber(DEF_DIAL_NUMER);
+		ppu.setDefaultMaxUsers(DEF_MAX_USERS);
+		ppu.setDefaultLogoutUrl(DEF_LOGOUT_URL);
+		ppu.setDefaultWelcomeMessage(DEF_WELCOME_MSG);
+		ppu.setServiceEnabled(SERVICE_ENABLED);
+		ppu.setTestConferenceMock(TEST_CONF_MOCK);
+		ppu.setTestVoiceBridge(VIEW_PASS);
+		
     }
 
     protected void tearDown() {
@@ -44,7 +66,8 @@ class ApiControllerTests extends ControllerUnitTestCase {
     void testIndex() {
 		ApiController controller = new ApiController()
 		mockLogging(ApiController)
-		controller.setDynamicConferenceService(dynamicConferenceService)		
+		controller.setMeetingService(meetingService)	
+		controller.setParamsProcessorUtil(ppu);	
 		controller.index()
 		println "controller response = " + controller.response.contentAsString
     }
@@ -52,7 +75,8 @@ class ApiControllerTests extends ControllerUnitTestCase {
 	void testCreateAPI() {		
 		ApiController controller = new ApiController()
 		mockLogging(ApiController)
-		controller.setDynamicConferenceService(dynamicConferenceService)		
+		controller.setMeetingService(meetingService)	
+		controller.setParamsProcessorUtil(ppu);
 		createMeeting(controller)
 		controller.create()
 		
@@ -63,46 +87,46 @@ class ApiControllerTests extends ControllerUnitTestCase {
 		/**
 		 * Now that the meeting has been setup. Try to join it.
 		 */		
-		ApiController controller2 = new ApiController()
+		ApiController controller = new ApiController()
 		mockLogging(ApiController)
-		controller2.setDynamicConferenceService(dynamicConferenceService)
-		
+		controller.setMeetingService(meetingService)	
+		controller.setParamsProcessorUtil(ppu);
 		// Create a conference. This prevents us from calling the CREATE API
-		dynamicConferenceService.createMeeting(createDefaultMeeting())
+		meetingService.createMeeting(createDefaultMeeting())
 		
-		joinMeeting(controller2)
-		controller2.join()
-		println "controller response = " + controller2.response.contentAsString
+		joinMeeting(controller)
+		controller.join()
+		println "controller response = " + controller.response.contentAsString
 		/**
 		 * Need to use controller2.redirectArgs['url'] instead of controller2.response.redirectedUrl as
 		 * shown in the grails doc because it is returning null for me.
 		 * 
 		 * see http://kousenit.wordpress.com/2010/11/10/unit-testing-grails-controllers-revisited/
 		 */
-		assertEquals CLIENT_URL, controller2.redirectArgs['url']		
+		assertEquals DEF_CLIENT_URL, controller.redirectArgs['url']		
 	}
 
 	void testIsMeetingRunningAPI() {				
-		ApiController controller3 = new ApiController()
+		ApiController controller = new ApiController()
 		mockLogging(ApiController)
-		controller3.setDynamicConferenceService(dynamicConferenceService)
-		
+		controller.setMeetingService(meetingService)
+		controller.setParamsProcessorUtil(ppu);
 		// Create a conference. This prevents us from calling the CREATE API
-		dynamicConferenceService.createMeeting(createDefaultMeeting())
+		meetingService.createMeeting(createDefaultMeeting())
 		
-		isMeetingRunning(controller3)
-		controller3.isMeetingRunning()
-		println "controller response = " + controller3.response.contentAsString
+		isMeetingRunning(controller)
+		controller.isMeetingRunning()
+		println "controller response = " + controller.response.contentAsString
 	}
 	
 	
 	void testEndAPI() {		
 		ApiController endCtlr = new ApiController()
 		mockLogging(ApiController)
-		endCtlr.setDynamicConferenceService(dynamicConferenceService)
-		
+		endCtlr.setMeetingService(meetingService)
+		endCtlr.setParamsProcessorUtil(ppu);
 		// Create a conference. This prevents us from calling the CREATE API
-		dynamicConferenceService.createMeeting(createDefaultMeeting())
+		meetingService.createMeeting(createDefaultMeeting())
 		
 		endMeeting(endCtlr)
 		endCtlr.end()
@@ -112,14 +136,14 @@ class ApiControllerTests extends ControllerUnitTestCase {
 	void testGetMeetingInfo() {
 		ApiController gmiCtlr = new ApiController()
 		mockLogging(ApiController)
-		gmiCtlr.setDynamicConferenceService(dynamicConferenceService)
-		
+		gmiCtlr.setMeetingService(meetingService)
+		gmiCtlr.setParamsProcessorUtil(ppu);
 		// Create a conference. This prevents us from calling the CREATE API
 		Meeting m = createDefaultMeeting()
 		// Add a user.
 		User u = new User("test-user", "Test User", "MODERATOR");
 		m.userJoined(u);
-		dynamicConferenceService.createMeeting(m)
+		meetingService.createMeeting(m)
 		
 		getMeetingInfo(gmiCtlr)
 		gmiCtlr.getMeetingInfo()
@@ -129,17 +153,17 @@ class ApiControllerTests extends ControllerUnitTestCase {
 	void testGetMeetings() {
 		ApiController gmCtlr = new ApiController()
 		mockLogging(ApiController)
-		gmCtlr.setDynamicConferenceService(dynamicConferenceService)
-		
+		gmCtlr.setMeetingService(meetingService)
+		gmCtlr.setParamsProcessorUtil(ppu);
 		// Create a conference. This prevents us from calling the CREATE API
 		Meeting m = createDefaultMeeting()
 		// Add a user.
 		User u = new User("test-user", "Test User", "MODERATOR");
 		m.userJoined(u);
-		dynamicConferenceService.createMeeting(m)
+		meetingService.createMeeting(m)
 		
 		// Create another meeting
-		dynamicConferenceService.createMeeting(createAnotherMeeting());
+		meetingService.createMeeting(createAnotherMeeting());
 		
 		getMeetings(gmCtlr)
 		gmCtlr.getMeetings()
@@ -153,7 +177,7 @@ class ApiControllerTests extends ControllerUnitTestCase {
 
 	private Meeting createDefaultMeeting() {
 		
-		String internalMeetingId = dynamicConferenceService.convertToInternalMeetingId(MEETING_ID)
+		String internalMeetingId = ppu.convertToInternalMeetingId(MEETING_ID)
 		String logoutUrl = "http://localhost"
 		String telVoice = "85115"
 		String webVoice = "bbb-85115"
@@ -178,7 +202,7 @@ class ApiControllerTests extends ControllerUnitTestCase {
 	
 	private Meeting createAnotherMeeting() {
 		String externalMeetingId = "cook-with-omar"
-		String internalMeetingId = dynamicConferenceService.convertToInternalMeetingId(externalMeetingId)
+		String internalMeetingId = ppu.convertToInternalMeetingId(externalMeetingId)
 		String logoutUrl = "http://localhost"
 		String telVoice = "85116"
 		String webVoice = "bbb-85116"

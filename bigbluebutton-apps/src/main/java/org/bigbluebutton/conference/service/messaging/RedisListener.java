@@ -84,7 +84,7 @@ public class RedisListener{
 							String meetingId = map.get("meetingId");
 							String request = map.get("request");
 							if(request != null){
-								if(request.equalsIgnoreCase("end")){
+								if(request.equalsIgnoreCase("endMeeting")){
 									roomsManager.endMeetingRequest(meetingId);
 								}
 							}

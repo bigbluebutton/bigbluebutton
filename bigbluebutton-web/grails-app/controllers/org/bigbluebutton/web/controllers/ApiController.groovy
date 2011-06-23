@@ -30,6 +30,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bigbluebutton.web.services.DynamicConferenceService;
 import org.bigbluebutton.api.domain.Meeting;
+import org.bigbluebutton.api.MeetingService;
 import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.web.services.PresentationService
 import org.bigbluebutton.presentation.UploadedPresentation
@@ -51,7 +52,7 @@ class ApiController {
   private static final String ROLE_ATTENDEE = "VIEWER";
   private static final String SECURITY_SALT = '639259d4-9dd8-4b25-bf01-95f9567eaf4b'
     
-  DynamicConferenceService dynamicConferenceService;
+  MeetingService meetingService;
   PresentationService presentationService
   ParamsProcessorUtil paramsProcessorUtil
   
@@ -64,12 +65,40 @@ class ApiController {
         render(contentType:"text/xml") {
           response() {
             returncode(RESP_CODE_SUCCESS)
-            version(dynamicConferenceService.apiVersion)
+            version(paramsProcessorUtil.getApiVersion())
           }
         }
       }
     }
   }
+ 
+  /**
+   * Substitute keywords from the welcome message.
+   **/
+  private String substituteKeywords(String message, String dialNum, String telVoice, String meetingName) {
+    String welcomeMessage = message
+    
+    def DIAL_NUM = /%%DIALNUM%%/
+    def CONF_NUM = /%%CONFNUM%%/
+    def CONF_NAME = /%%CONFNAME%%/  
+    def keywordList = [DIAL_NUM, CONF_NUM, CONF_NAME];
+      
+    keywordList.each { keyword ->
+      switch(keyword){
+        case DIAL_NUM:
+          welcomeMessage = welcomeMessage.replaceAll(DIAL_NUM, dialNum)           
+          break
+        case CONF_NUM:
+          welcomeMessage = welcomeMessage.replaceAll(CONF_NUM, telVoice)
+          break
+        case CONF_NAME:
+          welcomeMessage = welcomeMessage.replaceAll(CONF_NAME, meetingName)
+          break
+      }       
+    }
+
+    return  welcomeMessage;
+  } 
         
   /*********************************** 
    * CREATE (API) 
@@ -103,7 +132,7 @@ class ApiController {
     }
             
     // Do we agree with the checksum? If not, complain.
-    if (! dynamicConferenceService.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
       errors.checksumError()
     	respondWithErrors(errors)
     	return
@@ -115,7 +144,7 @@ class ApiController {
     
     // Get the digits for voice conference for users joining through the phone.
     // If none is provided, generate one.
-    String telVoice = dynamicConferenceService.processTelVoice(params.voiceBridge);
+    String telVoice = paramsProcessorUtil.processTelVoice(params.voiceBridge);
     
     // Get the voice conference digits/chars for users joing through VOIP on the client.
     // If none is provided, make it the same as the telVoice. If one has been provided,
@@ -126,16 +155,17 @@ class ApiController {
     }
     
     // Get all the other relevant parameters and generate defaults if none has been provided.
-    String dialNumber = dynamicConferenceService.processDialNumber(params.dialNumber);
-    String logoutUrl = dynamicConferenceService.processLogoutUrl(params.logoutURL); 
-    boolean record = dynamicConferenceService.processRecordMeeting(params.record);
-    int maxUsers = dynamicConferenceService.processMaxUser(params.maxParticipants);
-    int meetingDuration = dynamicConferenceService.processMeetingDuration(params.duration);
-    String welcomeMessage = dynamicConferenceService.processWelcomeMessage(params.welcome == null ? "" : params.welcome, dialNumber, telVoice, meetingName);
+    String dialNumber = paramsProcessorUtil.processDialNumber(params.dialNumber);
+    String logoutUrl = paramsProcessorUtil.processLogoutUrl(params.logoutURL); 
+    boolean record = paramsProcessorUtil.processRecordMeeting(params.record);
+    int maxUsers = paramsProcessorUtil.processMaxUser(params.maxParticipants);
+    int meetingDuration = paramsProcessorUtil.processMeetingDuration(params.duration);
+    String welcomeMessage = paramsProcessorUtil.processWelcomeMessage(params.welcome);
+    welcomeMessage = substituteKeywords(welcomeMessage, dialNumber, telVoice, meetingName);
     
     // Translate the external meeting id into an internal meeting id.
-    String internalMeetingId = dynamicConferenceService.convertToInternalMeetingId(externalMeetingId);		
-    Meeting existing = dynamicConferenceService.getMeeting(internalMeetingId);
+    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId);		
+    Meeting existing = meetingService.getMeeting(internalMeetingId);
     if (existing != null) {
       log.debug "Existing conference found"
       if (existing.getViewerPassword().equals(viewerPass) && existing.getModeratorPassword().equals(modPass)) {
@@ -152,8 +182,8 @@ class ApiController {
     }
     
     // Check if this is a test meeting. NOTE: This should not belong here. Extract this out.				
-    if (dynamicConferenceService.isTestMeeting(telVoice)) {
-      digestMeetingId = dynamicConferenceService.getIntMeetingIdForTestMeeting(telVoice)
+    if (paramsProcessorUtil.isTestMeeting(telVoice)) {
+      internalMeetingId = paramsProcessorUtil.getIntMeetingIdForTestMeeting(telVoice)
     }
     
     // Collect metadata for this meeting that the third-party app wants to store if meeting is recorded.
@@ -179,7 +209,7 @@ class ApiController {
         .withLogoutUrl(logoutUrl).withTelVoice(telVoice).withWebVoice(webVoice).withDialNumber(dialNumber)
         .withMetadata(meetingInfo).withWelcomeMessage(welcomeMessage).build()
               
-    dynamicConferenceService.createMeeting(meeting);
+    meetingService.createMeeting(meeting);
     
     // See if the request came with pre-uploading of presentation.
     uploadDocuments(meeting);
@@ -224,7 +254,7 @@ class ApiController {
     }
         
     // Do we agree on the checksum? If not, complain.		
-    if (! dynamicConferenceService.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
       	errors.checksumError()
     	respondWithErrors(errors)
     	return
@@ -237,9 +267,9 @@ class ApiController {
     
     // Everything is good so far. Translate the external meeting id to an internal meeting id. If
     // we can't find the meeting, complain.					        
-    String internalMeetingId = dynamicConferenceService.convertToInternalMeetingId(externalMeetingId);
+    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId);
     log.info("Retrieving meeting ${internalMeetingId}")		
-    Meeting meeting = dynamicConferenceService.getMeeting(internalMeetingId);
+    Meeting meeting = meetingService.getMeeting(internalMeetingId);
     if (meeting == null) {
 	   errors.invalidMeetingIdError();
 	   respondWithErrors(errors)
@@ -291,8 +321,8 @@ class ApiController {
     
     session.setMaxInactiveInterval(SESSION_TIMEOUT);
     
-    log.info("Successfully joined. Redirecting to ${dynamicConferenceService.defaultClientUrl}"); 		
-    redirect(url: dynamicConferenceService.defaultClientUrl)
+    log.info("Successfully joined. Redirecting to ${paramsProcessorUtil.getDefaultClientUrl()}"); 		
+    redirect(url: paramsProcessorUtil.getDefaultClientUrl())
   }
 
   /*******************************************
@@ -321,7 +351,7 @@ class ApiController {
     }
     
     // Do we agree on the checksum? If not, complain.		
-    if (! dynamicConferenceService.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
       	errors.checksumError()
     	respondWithErrors(errors)
     	return
@@ -329,9 +359,9 @@ class ApiController {
             
     // Everything is good so far. Translate the external meeting id to an internal meeting id. If
     // we can't find the meeting, complain.					        
-    String internalMeetingId = dynamicConferenceService.convertToInternalMeetingId(externalMeetingId);
+    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId);
     log.info("Retrieving meeting ${internalMeetingId}")		
-    Meeting meeting = dynamicConferenceService.getMeeting(internalMeetingId);
+    Meeting meeting = meetingService.getMeeting(internalMeetingId);
     if (meeting == null) {
 	   errors.invalidMeetingIdError();
 	   respondWithErrors(errors)
@@ -383,7 +413,7 @@ class ApiController {
     }
     
     // Do we agree on the checksum? If not, complain.		
-    if (! dynamicConferenceService.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
       	errors.checksumError()
     	respondWithErrors(errors)
     	return
@@ -391,9 +421,9 @@ class ApiController {
             
     // Everything is good so far. Translate the external meeting id to an internal meeting id. If
     // we can't find the meeting, complain.					        
-    String internalMeetingId = dynamicConferenceService.convertToInternalMeetingId(externalMeetingId);
+    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId);
     log.info("Retrieving meeting ${internalMeetingId}")		
-    Meeting meeting = dynamicConferenceService.getMeeting(internalMeetingId);
+    Meeting meeting = meetingService.getMeeting(internalMeetingId);
     if (meeting == null) {
 	   errors.invalidMeetingIdError();
 	   respondWithErrors(errors)
@@ -406,7 +436,7 @@ class ApiController {
 	   return;
     }
        
-    dynamicConferenceService.endMeetingRequest(internalMeetingId);
+    meetingService.endMeeting(internalMeetingId);
     
     response.addHeader("Cache-Control", "no-cache")
     withFormat {	
@@ -454,7 +484,7 @@ class ApiController {
     }
     
     // Do we agree on the checksum? If not, complain.		
-    if (! dynamicConferenceService.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
       	errors.checksumError()
     	respondWithErrors(errors)
     	return
@@ -462,9 +492,9 @@ class ApiController {
     
     // Everything is good so far. Translate the external meeting id to an internal meeting id. If
     // we can't find the meeting, complain.					        
-    String internalMeetingId = dynamicConferenceService.convertToInternalMeetingId(externalMeetingId);
+    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId);
     log.info("Retrieving meeting ${internalMeetingId}")		
-    Meeting meeting = dynamicConferenceService.getMeeting(internalMeetingId);
+    Meeting meeting = meetingService.getMeeting(internalMeetingId);
     if (meeting == null) {
 	   errors.invalidMeetingIdError();
 	   respondWithErrors(errors)
@@ -500,13 +530,13 @@ class ApiController {
     }
     
     // Do we agree on the checksum? If not, complain.		
-    if (! dynamicConferenceService.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
       	errors.checksumError()
     	respondWithErrors(errors)
     	return
     }
         
-    Collection<Meeting> mtgs = dynamicConferenceService.getAllMeetings();
+    Collection<Meeting> mtgs = meetingService.getMeetings();
     
     if (mtgs == null || mtgs.isEmpty()) {
       response.addHeader("Cache-Control", "no-cache")
@@ -610,8 +640,8 @@ class ApiController {
    *************************************************/
   def signOut = {        
 	String meetingId = session["conference"]
-	Meeting meeting = dynamicConferenceService.getMeeting(meetingId);
-	String logoutUrl = dynamicConferenceService.defaultLogoutUrl
+	Meeting meeting = meetingService.getMeeting(meetingId);
+	String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
     log.debug("Logging out from [" + meeting.getInternalId() + "]");
              
 	// Log the user out of the application.
@@ -621,7 +651,7 @@ class ApiController {
 		logoutUrl = meeting.getLogoutUrl();
 		if (meeting.isRecord()) {
 			log.debug("[" + meeting.getInternalId() + "] is recorded. Process it.");		
-			dynamicConferenceService.processRecording(meeting.getInternalId())
+			meetingService.processRecording(meeting.getInternalId())
 		}
 	} else {
 		log.warn("Signing out from a non-existing meeting [" + meetingId + "]");	
@@ -632,7 +662,7 @@ class ApiController {
   }
  
   def getRecordings = {
-     ArrayList<Recording> r = dynamicConferenceService.getRecordings();
+     ArrayList<Recording> r = meetingService.getRecordings();
      if (r.isEmpty()) {
      
      } else {
@@ -721,7 +751,7 @@ class ApiController {
   }
   
   def beforeInterceptor = {
-    if (dynamicConferenceService.serviceEnabled == false) {
+    if (paramsProcessorUtil.isServiceEnabled() == false) {
       log.info("apiNotEnabled: The API service and/or controller is not enabled on this server.  To use it, you must first enable it.")
       // TODO: this doesn't stop the request - so it generates invalid XML
       //			since the request continues and renders a second response
