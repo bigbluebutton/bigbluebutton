@@ -550,6 +550,55 @@
 			return null;
 		}
 	}
+	
+	public String getPublishRecordingsURL(boolean publish, String recordID) {
+		String base_url_publish = BigBlueButtonURL + "api/setPublishRecordings?";
+		String publish_parameters = "recordID=" + urlEncode(recordID)
+				+ "&publish=" + publish;
+
+		return base_url_publish + publish_parameters + "&checksum="
+				+ checksum("setPublishRecordings" + publish_parameters + salt);
+	}
+	
+	public String setPublishRecordings(boolean publish, String recordID){
+		try {
+
+			// Call the API and get the result
+			URLConnection hpCon = new URL(getPublishRecordingsURL(publish,recordID)).openConnection();
+			InputStreamReader isr = new InputStreamReader(
+					hpCon.getInputStream());
+			BufferedReader br = new BufferedReader(isr);
+			String data = br.readLine();
+			return data;
+		} catch (Exception e) {
+			e.printStackTrace(System.out);
+			return null;
+		}
+	}
+	
+	public String getDeleteRecordingsURL(String recordID) {
+		String base_url_delete = BigBlueButtonURL + "api/deleteRecordings?";
+		String delete_parameters = "recordID=" + urlEncode(recordID);
+
+		return base_url_delete + delete_parameters + "&checksum="
+				+ checksum("deleteRecordings" + delete_parameters + salt);
+	}
+	
+	public String deleteRecordings(String recordID){
+		try {
+
+			// Call the API and get the result
+			URLConnection hpCon = new URL(getDeleteRecordingsURL(recordID)).openConnection();
+			InputStreamReader isr = new InputStreamReader(
+					hpCon.getInputStream());
+			BufferedReader br = new BufferedReader(isr);
+			String data = br.readLine();
+			return data;
+		} catch (Exception e) {
+			e.printStackTrace(System.out);
+			return null;
+		}
+	}
 
 
 	//

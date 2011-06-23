@@ -8,4 +8,8 @@
 </response>
 <% } else if(request.getParameter("command").equals("getRecords")){%>
 	<%= getRecordings()%>
+<% } else if(request.getParameter("command").equals("publish")||request.getParameter("command").equals("unpublish")){%>
+	<%= setPublishRecordings( (request.getParameter("command").equals("publish")) ? true : false , request.getParameter("recordID"))%>
+<% } else if(request.getParameter("command").equals("delete")){%>
+	<%= deleteRecordings(request.getParameter("recordID"))%>
 <% } %>

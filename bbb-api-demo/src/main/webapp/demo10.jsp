@@ -56,7 +56,7 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 	 	vertical-align:top;
 	 }
 	 .ui-jqgrid{
-		font-size:0.8em
+		font-size:0.7em
 	}
 	</style>
 </head>
@@ -98,18 +98,64 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 	</form>
 	
 	<h3>Recorded Sessions</h3>
-	<select name="actions" onchange="recordedAction();">
+	<select id="actionscmb" name="actions" onchange="recordedAction(this.value);">
 		<option value="novalue" selected>Actions...</option>
 		<option value="publish">Publish</option>
 		<option value="unpublish">Unpublish</option>
 		<option value="delete">Delete</option>
 	</select>
 	<table id="recordgrid"></table>
-	<p>Note: New recordings will take a few minutes to appear list after session ends. Refresh your browser to update the above table.</p>
+	<p>Note: Refresh the browser for update the recording list.</p>
 	<script>
 	function onChangeMeeting(meetingID){
 		isRunningMeeting(meetingID);
 	}
+	function recordedAction(action){
+		if(action=="novalue"){
+			return;
+		}
+		
+		var s = jQuery("#recordgrid").jqGrid('getGridParam','selarrrow');
+		if(s.length==0){
+			alert("Select at least one row");
+			return;
+		}
+		var recordid="";
+		for(var i=0;i<s.length;i++){
+			var d = jQuery("#recordgrid").jqGrid('getRowData',s[i]);
+			recordid+=d.id;
+			if(i!=s.length-1)
+				recordid+=",";
+		}
+		if(action=="delete"){
+			var answer = confirm ("Are you sure to delete the selected recordings?");
+			if (answer)
+				sendRecordingAction(recordid,action);
+			else
+				return;
+
+		}else{
+			sendRecordingAction(recordid,action);
+		}
+		$("#actionscmb").val("novalue");
+	}
+	
+	function sendRecordingAction(recordID,action){
+		$.ajax({
+			type: "GET",
+			url: 'demo10_helper.jsp',
+			data: "command="+action+"&recordID="+recordID,
+			dataType: "xml",
+			cache: false,
+			success: function(xml) {
+				$("#recordgrid").trigger("reloadGrid");
+			},
+			error: function() {
+				alert("Failed to connect to API.");
+			}
+		});
+	}
+	
 	function isRunningMeeting(meetingID) {
 		$.ajax({
 			type: "GET",
@@ -141,34 +187,29 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 			url: "demo10_helper.jsp?command=getRecords",
 			datatype: "xml",
 			height: 150,
-			colNames:['Course','Description', 'Date Recorded', 'Published'],
+			colNames:['Id','Course','Description', 'Date Recorded', 'Published'],
 			colModel:[
-				{name:'course',index:'course', width:100, xmlmap: "metadata>meetingId"},
-				{name:'description',index:'description', width:150, xmlmap: "startTime"},
-				{name:'daterecorded',index:'daterecorded', width:300, xmlmap: "startTime"},
+				{name:'id',index:'id', width:50, hidden:true, xmlmap: "id"},
+				{name:'course',index:'course', width:150, xmlmap: "metadata>meetingId", formatter:playbackFormat},
+				{name:'description',index:'description', width:300, xmlmap: "metadata>description"},
+				{name:'daterecorded',index:'daterecorded', width:200, xmlmap: "startTime"},
 				{name:'published',index:'published', width:80, xmlmap: "published" }		
 			],
 			xmlReader: {
 				root : "recordings",
 				row: "recording",
+				repeatitems:false,
 				id: "id"
 			},
 			multiselect: true,
 			caption: "Recorded Sessions"
 		});
-		
-		//isRunningMeeting();	// update the available meeting information as soon as the page is loaded.
 	});
 	
-	
-	/*jQuery("#m1").click( function() {
-		var s;
-		s = jQuery("#recordgrid").jqGrid('getGridParam','selarrrow');
-		for(var i=0;i<s.length;i++){
-		var ret = jQuery("#recordgrid").jqGrid('getRowData',s[i]);
-		alert("id="+ret.id+" invdate="+ret.invdate+"...");}
-		alert("hola");
-	});*/
+	function playbackFormat( cellvalue, options, rowObject ){
+		return '<a href="'+$(rowObject).find('playback link:first').text()+'">'+cellvalue+'</a>';
+	}
+
 	</script>
 <%
 	} else if (request.getParameter("action").equals("create")) {

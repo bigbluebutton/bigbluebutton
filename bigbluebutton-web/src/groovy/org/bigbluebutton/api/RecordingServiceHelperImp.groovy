@@ -37,7 +37,7 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
 		def writer = new StringWriter()
 		def builder = new groovy.xml.MarkupBuilder(writer)
 		def metadataXml = builder.recording {
-			builder.identity(info.getId())
+			builder.id(info.getId())
 			builder.state(info.getState())
 			builder.published(info.isPublished())
 			builder.start_time(info.getStartTime())
@@ -46,10 +46,13 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
 				builder.format(info.getPlaybackFormat())
 				builder.link(info.getPlaybackLink())	
 			}
-			Map<String,String> meta = info.getMetadata();
-			meta.keySet().each { key ->
-				builder."$key"(meta.get(key))
-			} 
+			Map<String,String> metainfo = info.getMetadata();
+			builder.meta{
+				metainfo.keySet().each { key ->
+					builder."$key"(metainfo.get(key))
+				}
+			}
+			 
 		}
 		
 		def xmlEventFile = new File(path + File.separatorChar + "metadata.xml")
