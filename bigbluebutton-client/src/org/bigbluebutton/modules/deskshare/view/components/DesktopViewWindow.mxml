@@ -32,6 +32,7 @@
 	
 	<mate:Listener type="{ViewStreamEvent.STOP}" method="onStopViewStreamEvent" />
 	<mate:Listener type="{CursorEvent.UPDATE_CURSOR_LOC_EVENT}" method="onUpdateCursorEvent" />
+	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 		
 	<mx:Script>
 		<![CDATA[
@@ -44,10 +45,11 @@
 			import mx.controls.Alert;
 			import mx.core.UIComponent;
 			
+			import org.bigbluebutton.common.IUserListener;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.IUserListener;
 			import org.bigbluebutton.common.UserManager;
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.model.User;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.deskshare.events.CursorEvent;
@@ -303,6 +305,10 @@
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
 				this.title = ResourceUtil.getInstance().getString('bbb.desktopView.title');
+			}
+			
+			private function localeChanged(e:LocaleChangeEvent):void{
+				resourcesChanged();
 			}
 			
 		]]>

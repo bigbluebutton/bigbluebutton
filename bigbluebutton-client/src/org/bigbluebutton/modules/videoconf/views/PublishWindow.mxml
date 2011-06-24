@@ -25,9 +25,8 @@
 	xmlns:pubVid="flexlib.mdi.containers.*"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	creationComplete="init()"
-	width="{camWidth + 6}" height="{camHeight + 75}" 
+	width="{camWidth + 6}" height="{camHeight + 80}" 
 	title="{ResourceUtil.getInstance().getString('bbb.publishVideo.title')}" 
-	backgroundImage="{bbbLogo}" 
 	xmlns:mate="http://mate.asfusion.com/"
 	resize="onResize()">
 	
@@ -41,6 +40,7 @@
 			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
 			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
@@ -62,8 +62,8 @@
 			private var _bResizePossible:Boolean = true;
 			private var _nAspectRatio:Number = 1;
 			
-			static private var _minWidth:int = 166;
-			static private var _minHeight:int = 149;
+			static private var _minWidth:int = 86;
+			static private var _minHeight:int = 174;
 
 			private var _nSavedVideoWidth:Number = 0;
 			private var _nSavedVideoHeight:Number = 0;
@@ -71,7 +71,6 @@
 			private var _nOldWindowHeight:Number = 0;
 			
 			private function init():void{
-				currentState = "dispVideoOptionsControlBar";
 				checkIfMacCamera();
 				if (isPresenter()) showResControls(true);
 				if (Camera.names.length > 1) showVideoControls(true);
@@ -173,7 +172,6 @@
 			
 			private function showVideoControls(show:Boolean):void{
 				if (show){
-					currentState = "dispVideoOptionsControlBar"
 					videoOptionsBar.visible = true;
 					btnStartPublish.visible = true;
 					cmbCameraSelector.visible = true;
@@ -181,7 +179,6 @@
 					videoOptionsBar.visible = true;
 					btnStartPublish.visible = true;
 					cmbCameraSelector.visible = false;
-					currentState = "dispVideo";
 				}
 			}
 			
@@ -213,7 +210,7 @@
 				videoHolder.width = video.width;
 				videoHolder.height = video.height;
 				this.width = video.width + 6;
-				this.height = video.height + 29;
+				this.height = video.height + 74;
 				
 				// prevent to show a video window bigger than the parent window
 				if (this.width > this.parent.width) {
@@ -222,7 +219,7 @@
 					adjustWindowSize();
 				}
 				if (this.height > this.parent.height) {
-					video.height = this.parent.height - 29;
+					video.height = this.parent.height - 74;
 					video.width = Math.floor(video.height * _nAspectRatio);
 					adjustWindowSize();
 				}
@@ -232,7 +229,7 @@
 					adjustWindowSize();
 				}
 				if (this.height < _minHeight) {
-					video.height = _minHeight - 29;
+					video.height = _minHeight - 74;
 					video.width = Math.floor(video.height * _nAspectRatio);
 					adjustWindowSize();
 				}
@@ -263,7 +260,7 @@
 
 				if (this.width == video.width + 6) {
 					// if it's a vertical resizing
-					video.height = this.height - 29;
+					video.height = this.height - 74;
 					video.width = video.height * _nAspectRatio;
 				} else {
 					// if it's a horizontal resizing
@@ -279,7 +276,7 @@
 			
 			
 				var tmpWidth:Number = this.parent.width - 6;
-				var tmpHeight:Number = this.parent.height - 29;
+				var tmpHeight:Number = this.parent.height - 74;
 
 				if (tmpWidth > tmpHeight * _nAspectRatio)
 					tmpWidth = tmpHeight * _nAspectRatio;
@@ -290,7 +287,7 @@
 				video.height = tmpHeight;
 				
 				video.x = Math.floor ((this.parent.width - 6 - video.width) / 2);
-				video.y = Math.floor ((this.parent.height - 29 - video.height) / 2);
+				video.y = Math.floor ((this.parent.height - 74 - video.height) / 2);
 			}
 			
 			public function onRestore(event:MDIWindowEvent):void {
@@ -318,16 +315,20 @@
 			}
 			
 			static public function getWindowHeightByWidth(width:int, aspect:Number):int {
-				return Math.floor((width - 6) / aspect) + 29;
+				return Math.floor((width - 6) / aspect) + 74;
 			}
 			
 			static public function getWindowWidthByHeight(height:int, aspect:Number):int {
-				return Math.floor((height - 29) * aspect) + 6;
+				return Math.floor((height - 74) * aspect) + 6;
 			}
 
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
 				this.title = ResourceUtil.getInstance().getString('bbb.publishVideo.title');
+			}
+			
+			private function localeChanged(e:LocaleChangeEvent):void{
+				resourcesChanged();
 			}
 			
 			private function onResize():void{
@@ -336,32 +337,15 @@
 			
 		]]>
 	</mx:Script>
-
-	<pubVid:states>
-	    <!--http://stackoverflow.com/questions/369120/why-does-mxstates-have-trouble-being-resolved-to-a-component-implementation-->
-	    <mx:State name="dispVideo">
-	    </mx:State>
-        <!--mx:State name="dispQuitControlBar">   
-            <mx:AddChild>
-            	<mx:ControlBar id="quitOptionsBar">
-            		<mx:Spacer width="50%"/>
-					<mx:Button id="btnQuitPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.video.publish.close.tooltip')}" label="{ResourceUtil.getInstance().getString('bbb.video.publish.close.label')}" visible="true" click="closeThisWindow()" />
-					<mx:Spacer width="50%"/>
-				</mx:ControlBar>	
-            </mx:AddChild>
-        </mx:State-->		
-        <mx:State name="dispVideoOptionsControlBar">   
-            <mx:AddChild>
-				<mx:ControlBar id="videoOptionsBar">
-					<mx:Button id="btnStartPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" icon="{camIcon}" click="startPublishing()" />
-					<mx:ComboBox id="cmbCameraSelector" dataProvider="{Camera.names}" width="150" visible="false" />
-					<mx:ComboBox id="cmbResolution" dataProvider="{resolutions}" width="20%" visible="false" />
-				</mx:ControlBar>
-            </mx:AddChild>
-        </mx:State>	
-	</pubVid:states>
-		
+	
 	<mx:UIComponent id="videoHolder" width="{camWidth}" height="{camHeight}" />
+	
+	<mx:ControlBar id="videoOptionsBar">
+		<mx:Button id="btnStartPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" icon="{camIcon}" click="startPublishing()" />
+		<mx:ComboBox id="cmbCameraSelector" dataProvider="{Camera.names}" width="150" visible="false" />
+		<mx:ComboBox id="cmbResolution" dataProvider="{resolutions}" width="20%" visible="false" />
+	</mx:ControlBar>
 
 	<mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
+	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 </pubVid:MDIWindow>
