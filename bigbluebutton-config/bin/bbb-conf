@@ -1244,6 +1244,15 @@ check_state() {
 		fi
 	fi
 
+        PLAYBACK_IP=$(cat /usr/local/bigbluebutton/core/scripts/simple.yml  | sed -n '/playback_host/{s/.*:[ ]*//;s/;//;p}')
+        if [ $PLAYBACK_IP != $IP ]; then
+                        echo
+                        echo "# The IP address ($PLAYBACK_IP) set for playback_host in"
+                        echo "#    /usr/local/bigbluebutton/core/scripts/simple.yml"
+                        echo "# does not match the local IP address ($IP)."
+                        echo
+                fi
+
 	exit 0
 }
 
@@ -1320,7 +1329,7 @@ if [ $CHECK ]; then
 		PLAYBACK_IP=$(cat /usr/local/bigbluebutton/core/scripts/simple.yml  | sed -n '/playback_host/{s/.*:[ ]*//;s/;//;p}')
 		echo
 		echo "/usr/local/bigbluebutton/core/scripts/simple.yml (record and playback)"
-		echo "                     playback host: $NGINX_IP"
+		echo "                     playback host: $PLAYBACK_IP"
 	fi
 
 

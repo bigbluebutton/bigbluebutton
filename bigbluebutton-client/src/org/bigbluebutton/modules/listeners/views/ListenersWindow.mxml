@@ -67,7 +67,7 @@
 			private function onCreationComplete():void {
 				BindingUtils.bindSetter(updateNumberOfListeners, listeners, "length");		
 				
-				this.visible = listenerOptions.visible;		
+				this.visible = listenerOptions.windowVisible;		
 			}
 			
 			private function updateNumberOfListeners(numListeners:int):void {
