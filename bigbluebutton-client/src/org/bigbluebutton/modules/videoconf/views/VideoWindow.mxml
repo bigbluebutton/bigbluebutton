@@ -25,7 +25,8 @@
 	creationComplete="init()" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
-	resize="onResize()">
+	resize="onResize()"
+	layout="absolute">
 	
 	<mx:Script>
 		<![CDATA[
@@ -54,13 +55,27 @@
 				addEventListener(MDIWindowEvent.CLOSE, onCloseEvent);
 				addEventListener(MDIWindowEvent.DRAG_START, onDragStart);
 				addEventListener(MDIWindowEvent.DRAG_END, onDragEnd);
+				addEventListener(MouseEvent.MOUSE_OVER, showButtons);
+				addEventListener(MouseEvent.MOUSE_OUT, hideButtons);
+				addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
 								
+				createButtons();
+			
 				globalDispatcher = new Dispatcher();
 
 				this.minWidth = _minWidth;
 				this.minHeight = _minHeight;
 				maximizeRestoreBtn.visible = true;
 				this.resizable = true;
+				
+				/**
+				 *	At this point, the function startVideo has been called, and 
+				 * 	the video has the exactly dimensions of the original stream.
+				 *	It's needed to call onResize() to fit the video window in the
+				 *  main canvas in case that the video dimensions are larger than
+				 *	the parent window. 
+				 */
+				onResize();
 			}
 			
 			private function onCloseEvent(event:MDIWindowEvent = null):void {
@@ -83,15 +98,15 @@
 				if (res == null) // error
 					return;
 				_video = new Video(Number(res[0]), Number(res[1]));
-				_video.width = Number(res[0]);
-				_video.height = Number(res[1]);
+				_video.width = originalWidth = Number(res[0]);
+				_video.height = originalHeight = Number(res[1]);
 				setAspectRatio(Number(res[0]), Number(res[1])); 
 				_video.attachNetStream(ns);
-				ns.play(stream);	
+				ns.play(stream);
 				this.streamName = stream;
 				
-				this.width = _video.width + PADDING_HORIZONTAL;
-				this.height = _video.height + PADDING_VERTICAL;
+				this.width = _video.width + paddingHorizontal;
+				this.height = _video.height + paddingVertical;
 			}
 			
 			private function onAsyncError(e:AsyncErrorEvent):void{
@@ -138,6 +153,6 @@
 			
 		]]>
 	</mx:Script>
-	
+
 	<mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
 </VideoWindowItf>

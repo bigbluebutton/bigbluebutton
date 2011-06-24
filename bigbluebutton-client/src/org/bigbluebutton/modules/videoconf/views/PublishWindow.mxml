@@ -29,7 +29,8 @@
 	title="{ResourceUtil.getInstance().getString('bbb.publishVideo.title')}" 
 	backgroundImage="{bbbLogo}" 
 	xmlns:mate="http://mate.asfusion.com/"
-	resize="onResize()">
+	resize="onResize()"
+	layout="absolute">
 	
 	<mx:Script>
 		<![CDATA[
@@ -61,7 +62,7 @@
 				_videoHolder.width = camWidth;
 				_videoHolder.height = camHeight;
 				this.addChild(_videoHolder);
-			
+					
 				currentState = "dispVideoOptionsControlBar";
 				checkIfMacCamera();
 				if (isPresenter()) showResControls(true);
@@ -119,6 +120,11 @@
 
 				addEventListener(MDIWindowEvent.DRAG_START, onDragStart);
 				addEventListener(MDIWindowEvent.DRAG_END, onDragEnd);
+				addEventListener(MouseEvent.MOUSE_OVER, showButtons);
+				addEventListener(MouseEvent.MOUSE_OUT, hideButtons);
+				addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
+
+				createButtons();
 			}
 			
 			override public function close(event:MouseEvent=null):void{
@@ -140,8 +146,8 @@
 			
 			private function setResolution():void{
 				var res:Array = cmbResolution.selectedLabel.split( "x" );
-				camWidth = Number(res[0]);
-				camHeight = Number(res[1]);
+				camWidth = originalWidth = Number(res[0]);
+				camHeight = originalHeight = Number(res[1]);
 				setAspectRatio(camWidth, camHeight);
 				streamName = cmbResolution.selectedLabel.concat(this.userId);
 			}

@@ -41,6 +41,8 @@
 			import mx.events.ChildExistenceChangedEvent;
 
 			private function init():void{
+				this.showCloseButton = false;
+			
 				this.minWidth = 172;
 				this.minHeight = 179;
 				this.maxWidth = this.parent.width;
@@ -96,6 +98,7 @@
 				window.minimizeBtn.visible = false;
 				window.maximizeRestoreBtn.visible = false;
 				window.resizable = false;
+				(window as VideoWindowItf).buttonsEnabled = false;
 				this.addChild(window);
 			}
 			
@@ -103,6 +106,7 @@
 				window.minimizeBtn.visible = true;
 				window.maximizeRestoreBtn.visible = true;
 				window.resizable = true;
+				(window as VideoWindowItf).buttonsEnabled = true;
 				this.parent.addChild(window);
 			}
 			

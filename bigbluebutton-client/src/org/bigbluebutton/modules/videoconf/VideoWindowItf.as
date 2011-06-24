@@ -27,7 +27,8 @@ package org.bigbluebutton.modules.videoconf
 	import org.bigbluebutton.modules.videoconf.events.CloseWindowEvent;
 
 	import mx.core.UIComponent;
-	
+    import mx.controls.Button;	
+    
 	import flash.events.MouseEvent;
 	import flash.media.Video;
 	import flash.geom.Point;
@@ -42,7 +43,9 @@ package org.bigbluebutton.modules.videoconf
 		protected var _minWidth:int = 160 + PADDING_HORIZONTAL;
 		protected var _minHeight:int = 120 + PADDING_VERTICAL;
 		protected var aspectRatio:Number = 1;
-		protected var keepAspect:Boolean = true;
+		protected var keepAspect:Boolean = false;
+		protected var originalWidth:Number;
+		protected var originalHeight:Number;
 
 		protected var mousePositionOnDragStart:Point;
 		
@@ -67,7 +70,7 @@ package org.bigbluebutton.modules.videoconf
 		}
 		
 		protected function onResize():void {
-			if (_video == null || this.minimized) return;
+			if (_video == null || _videoHolder == null || this.minimized) return;
 			
 		//	if (this.width != _video.width + PADDING_HORIZONTAL
 		//	        && this.height == _video.height + PADDING_VERTICAL) {
@@ -77,18 +80,17 @@ package org.bigbluebutton.modules.videoconf
 		//		this.width = Math.floor(this.height * aspectRatio)
 		//	}
 			
-			var tmpWidth:Number = this.width - PADDING_HORIZONTAL;
-			var tmpHeight:Number = this.height - PADDING_VERTICAL;
+			var tmpWidth:Number = (this.parent != null? Math.min(this.width, this.parent.width): this.width) - PADDING_HORIZONTAL;
+			var tmpHeight:Number = (this.parent != null? Math.min(this.height, this.parent.height): this.height) - PADDING_VERTICAL;
 			
+
 			if (tmpWidth > Math.floor(tmpHeight * aspectRatio))
 				tmpWidth = Math.floor(tmpHeight * aspectRatio);
 			if (tmpHeight > Math.floor(tmpWidth / aspectRatio))
 				tmpHeight = Math.floor(tmpWidth / aspectRatio);
 			
-			_video.width = tmpWidth;
-			_video.height = tmpHeight;
-			_videoHolder.width = tmpWidth;
-			_videoHolder.height = tmpHeight;
+			_video.width = _videoHolder.width = tmpWidth;
+			_video.height = _videoHolder.height = tmpHeight;
 		
 			if (!keepAspect || this.maximized) {				
 				_video.x = Math.floor ((this.width - PADDING_HORIZONTAL - tmpWidth) / 2);
@@ -99,6 +101,8 @@ package org.bigbluebutton.modules.videoconf
 				this.width = tmpWidth + PADDING_HORIZONTAL;
 				this.height = tmpHeight + PADDING_VERTICAL;
 			}
+			
+			updateButtonsPosition();
 		}
 		
 		public function updateWidth():void {
@@ -116,7 +120,7 @@ package org.bigbluebutton.modules.videoconf
 			this.minHeight = Math.floor((this.minWidth - PADDING_HORIZONTAL) / aspectRatio) + PADDING_VERTICAL;
 		}
 		
-		public function onDragStart(event:MDIWindowEvent):void {
+		public function onDragStart(event:MDIWindowEvent = null):void {
 			mousePositionOnDragStart = new Point(mouseX, mouseY);
 		//	LogUtil.debug("mousePositionOnDragStart " + mousePositionOnDragStart.toString());
 		//	LogUtil.debug("mousePositionOnDragStart localToContent " + localToContent(mousePositionOnDragStart).toString());
@@ -125,7 +129,7 @@ package org.bigbluebutton.modules.videoconf
 		//	LogUtil.debug("mousePositionOnDragStart contentToGlobal " + contentToGlobal(mousePositionOnDragStart).toString());
 		}
 		
-		public function onDragEnd(event:MDIWindowEvent):void {
+		public function onDragEnd(event:MDIWindowEvent = null):void {
 			var e:DragEvent = new DragEvent();
 		//	e.localPosition = mousePositionOnDragStart;
 			e.localPosition = new Point(mouseX, mouseY);
@@ -142,8 +146,109 @@ package org.bigbluebutton.modules.videoconf
 
 			super.close(event);
 		}
-			
 		
-				
+		private var keepAspectBtn:Button = null;
+		private var fitVideoBtn:Button = null;
+		private var originalSizeBtn:Button = null;
+		private var BUTTONS_SIZE:int = 20;
+		private var BUTTONS_PADDING:int = 10;
+		private var _buttonsVisible:Boolean = true;
+		private var _buttonsEnabled:Boolean = true;
+		
+		protected function createButtons():void {
+			keepAspectBtn = new Button();
+			fitVideoBtn = new Button();
+			originalSizeBtn = new Button();
+			
+			keepAspectBtn.toolTip = "Keep aspect";
+			fitVideoBtn.toolTip = "Fit video";
+			originalSizeBtn.toolTip = "Original size";
+			
+			keepAspectBtn.addEventListener(MouseEvent.CLICK, onKeepAspectClick);
+			fitVideoBtn.addEventListener(MouseEvent.CLICK, onFitVideoClick);
+			originalSizeBtn.addEventListener(MouseEvent.CLICK, onOriginalSizeClick);
+			
+			keepAspectBtn.width = keepAspectBtn.height 
+				= fitVideoBtn.width = fitVideoBtn.height
+				= originalSizeBtn.width = originalSizeBtn.height = BUTTONS_SIZE;
+			
+			hideButtons();
+			updateButtonsPosition();
+			
+			addChild(keepAspectBtn);
+			addChild(fitVideoBtn);
+			addChild(originalSizeBtn);
+			
+			// creates the window keeping the aspect ratio 
+			onKeepAspectClick();
+		}
+		
+		protected function updateButtonsPosition():void {
+			if (keepAspectBtn == null
+					|| fitVideoBtn == null
+					|| originalSizeBtn == null)
+				return;
+			
+			// put the buttons uppon the video
+			keepAspectBtn.y = fitVideoBtn.y = originalSizeBtn.y = _video.y + _video.height - keepAspectBtn.height - BUTTONS_PADDING;
+			keepAspectBtn.x = _video.x + _video.width - keepAspectBtn.width - BUTTONS_PADDING;
+			fitVideoBtn.x = keepAspectBtn.x - fitVideoBtn.width - BUTTONS_PADDING;
+			originalSizeBtn.x = fitVideoBtn.x - originalSizeBtn.width - BUTTONS_PADDING;
+		}
+		
+		protected function showButtons(event:MouseEvent = null):void {
+			if (!_buttonsVisible && _buttonsEnabled) {
+				LogUtil.debug("showButtons");
+				keepAspectBtn.visible = true;
+				fitVideoBtn.visible = true;
+				originalSizeBtn.visible = true;
+				_buttonsVisible = true;
+			}
+		}
+		
+		protected function hideButtons(event:MouseEvent = null):void {
+			if (_buttonsVisible && _buttonsEnabled) {
+				LogUtil.debug("hideButtons");
+				keepAspectBtn.visible = false;
+				fitVideoBtn.visible = false;
+				originalSizeBtn.visible = false;
+				_buttonsVisible = false;
+			}
+		}
+		
+		protected function onDoubleClick(event:MouseEvent = null):void {
+			if (!this.maximizeRestoreBtn.visible) return;
+			
+			this.maximizeRestore();
+		}
+		
+		override public function maximizeRestore(event:MouseEvent = null):void {
+			// if the user is maximizing the window, the control buttons should desappear
+			buttonsEnabled = this.maximized;
+			super.maximizeRestore(event);
+		}
+
+		public function set buttonsEnabled(enabled:Boolean):void {
+			if (!enabled) hideButtons();
+			_buttonsEnabled = enabled;
+		}
+		
+		protected function onOriginalSizeClick(event:MouseEvent = null):void {
+			_video.width = _videoHolder.width = originalWidth;
+			_video.height = _videoHolder.height = originalHeight;
+			onFitVideoClick();
+		}		
+		
+		protected function onFitVideoClick(event:MouseEvent = null):void {
+			this.width = _video.width + paddingHorizontal;
+			this.height = _video.height + paddingVertical;
+		}
+		
+		protected function onKeepAspectClick(event:MouseEvent = null):void {
+			keepAspect = !keepAspect;
+			keepAspectBtn.selected = keepAspect;
+			onFitVideoClick();
+		}
+		
 	}
 }
