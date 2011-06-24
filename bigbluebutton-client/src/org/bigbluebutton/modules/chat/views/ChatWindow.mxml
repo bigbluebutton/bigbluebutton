@@ -30,6 +30,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.chat.model.ChatOptions;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
@@ -47,6 +48,7 @@
 			private var _yPosition:int;
 			
 			private var dispState:String;
+			[Bindable] public var chatOptions:ChatOptions;
 			
 			public function getPrefferedPosition():String{
 				return MainCanvas.RIGHT;
@@ -83,5 +85,5 @@
 		]]>
 	</mx:Script>
 	
-	<views:ChatView id="chatView"/>
+	<views:ChatView id="chatView" chatOptions="{chatOptions}"/>
 </MDIWindow>
