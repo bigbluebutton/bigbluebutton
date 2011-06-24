@@ -168,9 +168,9 @@ class ApiController {
     }
 
     String createTime = params.createTime
-    if (StringUtils.isEmpty(createTime)) {
-      errors.missingParamError("createTime");
-    }
+//    if (StringUtils.isEmpty(createTime)) {
+//      errors.missingParamError("createTime");
+//    }
     
     // Everything is good so far. Translate the external meeting id to an internal meeting id. If
     // we can't find the meeting, complain.					        
