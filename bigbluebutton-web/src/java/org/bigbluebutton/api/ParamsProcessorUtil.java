@@ -223,7 +223,7 @@ public class ParamsProcessorUtil {
 	    return newParams;
 	}
 	
-	public void processCreateParams(Map<String, String> params) {
+	public Meeting processCreateParams(Map<String, String> params) {
 	    String meetingName = params.get("name");
 	    String externalMeetingId = params.get("meetingID");
 	    String viewerPass = processPassword(params.get("attendeePW"));
@@ -279,7 +279,8 @@ public class ParamsProcessorUtil {
 	        .withViewerPass(viewerPass).withRecording(record).withDuration(meetingDuration)
 	        .withLogoutUrl(logoutUrl).withTelVoice(telVoice).withWebVoice(webVoice).withDialNumber(dialNumber)
 	        .withMetadata(meetingInfo).withWelcomeMessage(welcomeMessage).build();
-	        
+	    
+	    return meeting;
 	}
 	
 	

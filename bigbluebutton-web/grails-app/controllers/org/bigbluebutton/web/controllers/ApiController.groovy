@@ -114,13 +114,14 @@ class ApiController {
       
       return;    
     }
-                 
-    meetingService.createMeeting(meeting);
+     
+    Meeting newMeeting = paramsProcessorUtil.processCreateParams(params);            
+    meetingService.createMeeting(newMeeting);
     
     // See if the request came with pre-uploading of presentation.
-    uploadDocuments(meeting);
+    uploadDocuments(newMeeting);
     
-    respondWithConference(meeting, null, null)
+    respondWithConference(newMeeting, null, null)
   }
 
   /**********************************************
