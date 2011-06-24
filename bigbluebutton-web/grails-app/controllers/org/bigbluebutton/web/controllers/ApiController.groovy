@@ -796,7 +796,7 @@ class ApiController {
         
     log.debug "Request body: \n" + requestBody;
 
-    def xml = XML.parse(requestBody);
+    def xml = new XmlSlurper().parseText(requestBody);
     xml.children().each { module ->
       log.debug("module config found: [${module.@name}]");
       if ("presentation".equals(module.@name.toString())) {
