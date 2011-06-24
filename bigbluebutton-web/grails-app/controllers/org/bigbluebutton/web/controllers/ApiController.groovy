@@ -633,7 +633,7 @@ class ApiController {
               returncode(RESP_CODE_SUCCESS)
               recordings(null)
               messageKey("noRecordings")
-              message("There are not recordings for meeting [${externalMeetingId}]")
+              message("There are not recordings for the meetings")
             }
           }
         }

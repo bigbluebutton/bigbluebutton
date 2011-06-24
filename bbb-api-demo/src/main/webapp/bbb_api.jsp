@@ -529,17 +529,19 @@
 	}
 	
 	// Javascript for manage the Recordings
-	public String getRecordingsURL() {
-		return BigBlueButtonURL + "api/getRecordings?"
-				+ "checksum="
-				+ checksum("getRecordings" + salt);
+	public String getRecordingsURL(String meetingID) {
+		String base_url_record = BigBlueButtonURL + "api/getRecordings?";
+		String record_parameters = "meetingID=" + urlEncode(meetingID);
+
+		return base_url_record + record_parameters + "&checksum="
+				+ checksum("getRecordings" + record_parameters + salt);
 	}
 
-	public String getRecordings() {
+	public String getRecordings(String meetingID) {
 		try {
 
 			// Call the API and get the result
-			URLConnection hpCon = new URL(getRecordingsURL()).openConnection();
+			URLConnection hpCon = new URL(getRecordingsURL(meetingID)).openConnection();
 			InputStreamReader isr = new InputStreamReader(
 					hpCon.getInputStream());
 			BufferedReader br = new BufferedReader(isr);

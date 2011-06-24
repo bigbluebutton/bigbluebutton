@@ -62,10 +62,10 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 </head>
 <body>
 
-<%@ include file="lib/bbb_api.jsp"%>
+<%@ include file="bbb_api.jsp"%>
 <%@ page import="java.util.regex.*"%>
 
-<%@ include file="layout/demo_header.jsp"%>
+<%@ include file="demo_header.jsp"%>
 
 <%
 	if (request.getParameterMap().isEmpty()) {
@@ -181,10 +181,11 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 			}
 		});
 	}
+	var meetingID="English 232,English 300,English 402,Demo Meeting";
 	$(document).ready(function(){
 		$("#meetingID option[value='English 232']").attr("selected","selected");
 		jQuery("#recordgrid").jqGrid({
-			url: "demo10_helper.jsp?command=getRecords",
+			url: "demo10_helper.jsp?command=getRecords&meetingID="+meetingID,
 			datatype: "xml",
 			height: 150,
 			colNames:['Id','Course','Description', 'Date Recorded', 'Published'],
@@ -207,7 +208,9 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 	});
 	
 	function playbackFormat( cellvalue, options, rowObject ){
-		return '<a href="'+$(rowObject).find('playback link:first').text()+'">'+cellvalue+'</a>';
+		if($(rowObject).find('published:first').text()=="true")
+			return '<a href="'+$(rowObject).find('playback link:first').text()+'">'+cellvalue+'</a>';
+		return cellvalue;
 	}
 
 	</script>
@@ -240,7 +243,7 @@ Error: getJoinURL() failed
 	}
 %> 
 
-<%@ include file="layout/demo_footer.jsp"%>
+<%@ include file="demo_footer.jsp"%>
 
 </body>
 </html>
