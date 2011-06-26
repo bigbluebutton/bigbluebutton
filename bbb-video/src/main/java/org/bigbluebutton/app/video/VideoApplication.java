@@ -112,7 +112,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     private void recordStream(IBroadcastStream stream) {
     	IConnection conn = Red5.getConnectionLocal();   
     	long now = System.currentTimeMillis();
-    	String recordingStreamName = stream.getPublishedName() + "-" + now;
+    	String recordingStreamName = stream.getPublishedName(); // + "-" + now; /** Comment out for now...forgot why I added this - ralam */
      
     	try {    		
     		log.info("Recording stream " + recordingStreamName );
