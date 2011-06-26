@@ -568,6 +568,9 @@ class ApiController {
   	redirect(url: logoutUrl)
   }
  
+  /******************************************************
+   * GET_RECORDINGS API
+   ******************************************************/
   def getRecordings = {
      ArrayList<Recording> r = meetingService.getRecordings();
      if (r.isEmpty()) {
@@ -576,6 +579,8 @@ class ApiController {
      
      }
   } 
+  
+  
   
   def uploadDocuments(conf) { 
     log.debug("ApiController#uploadDocuments(${conf.getInternalId()})");

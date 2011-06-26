@@ -31,7 +31,6 @@ public class MeetingService {
 	 * Remove the meetings that have ended from the list of
 	 * running meetings.
 	 */
-//	@Override
 	public void removeExpiredMeetings() {
 		for (Meeting m : meetings.values()) {
 			if (m.hasExpired(defaultMeetingExpireDuration) || m.wasNeverStarted(defaultMeetingExpireDuration)) {
@@ -56,6 +55,9 @@ public class MeetingService {
 	public void createMeeting(Meeting m) {
 		log.debug("Storing Meeting with internal id:" + m.getInternalId());
 		meetings.put(m.getInternalId(), m);
+		if (m.isRecord()) {
+			messagingService.recordMeetingInfo(m.getInternalId(), m.getMetadata());
+		}
 	}
 
 	public Meeting getMeeting(String meetingId) {

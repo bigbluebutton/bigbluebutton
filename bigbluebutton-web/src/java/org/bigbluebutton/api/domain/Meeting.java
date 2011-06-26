@@ -71,8 +71,8 @@ public class Meeting {
 		metadata.put("meetingId", extMeetingId);
 	}
 
-	public Collection<String> getMetadata() {
-		return metadata.isEmpty() ? Collections.<String>emptySet() : Collections.unmodifiableCollection(metadata.values());
+	public Map<String, String> getMetadata() {
+		return metadata;
 	}
 	
 	public Collection<User> getUsers() {

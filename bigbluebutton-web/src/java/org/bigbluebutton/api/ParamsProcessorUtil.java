@@ -263,6 +263,7 @@ public class ParamsProcessorUtil {
 	    	if (key.contains("meta")){
 	    		String[] meta = key.split("_");
 			    if(meta.length == 2){
+			    	log.debug("Got metadata {} = {}", key, params.get(key));
 			    	meetingInfo.put(meta[1], params.get(key));
 			    }
 			}   
