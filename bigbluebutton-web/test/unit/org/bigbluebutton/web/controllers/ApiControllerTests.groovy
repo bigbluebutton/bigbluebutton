@@ -167,7 +167,24 @@ class ApiControllerTests extends ControllerUnitTestCase {
 		
 		getMeetings(gmCtlr)
 		gmCtlr.getMeetings()
-		println "controller response = " + gmCtlr.response.contentAsString
+		println "controller response = " + gmCtlr.response.contentAsString		
+	}
+
+	void testGetRecordings() {
+		ApiController recCtlr = new ApiController()
+		mockLogging(ApiController)
+		recCtlr.setMeetingService(meetingService)
+		recCtlr.setParamsProcessorUtil(ppu);
+
+		String queryString = ""
+		String checksum = DigestUtils.shaHex("getRecordings" + queryString + SALT)
+		queryString += "&checksum=${checksum}"
+			
+		mockParams.checksum = checksum
+		mockRequest.queryString = queryString
+
+		recCtlr.getRecording()
+		println "controller response = " + recCtlr.response.contentAsString
 		
 	}
 	

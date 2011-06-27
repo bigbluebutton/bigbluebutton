@@ -490,22 +490,22 @@ class ApiController {
    ***********************************************/
   def enter = {
     def fname = session["fullname"]
-      def rl = session["role"]
-      def cnf = session["conference"]
-      def rm = session["room"]
+    def rl = session["role"]
+    def cnf = session["conference"]
+    def rm = session["room"]
     def vb = session["voicebridge"] 
     def wbv = session["webvoiceconf"]  
-      def rec = session["record"]
-      def md = session["mode"]
-      def confName = session["conferencename"]
-      def welcomeMsg = session['welcome']
-      def meetID = session["meetingID"] 
-        def externUID = session["externUserID"] 
+    def rec = session["record"]
+    def md = session["mode"]
+    def confName = session["conferencename"]
+    def welcomeMsg = session['welcome']
+    def meetID = session["meetingID"] 
+    def externUID = session["externUserID"] 
         
-      if (!rm) {
-        println "Could not find conference"
-        response.addHeader("Cache-Control", "no-cache")
-        withFormat {				
+    if (!rm) {
+      println "Could not find conference"
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {				
         xml {
           render(contentType:"text/xml") {
             response() {
@@ -527,14 +527,14 @@ class ApiController {
               confname("$confName")
               meetingID("$meetID")
               externUserID("$externUID")
-                  role("$rl")
-                  conference("$cnf")
-                  room("$rm")
-                  voicebridge("${vb}")
-                  webvoiceconf("${wbv}")
-                  mode("$md")
-                  record("$rec")
-                  welcome("$welcomeMsg")
+              role("$rl")
+              conference("$cnf")
+              room("$rm")
+              voicebridge("${vb}")
+              webvoiceconf("${wbv}")
+              mode("$md")
+              record("$rec")
+              welcome("$welcomeMsg")
             }
           }
         }
@@ -572,12 +572,86 @@ class ApiController {
    * GET_RECORDINGS API
    ******************************************************/
   def getRecordings = {
-     ArrayList<Recording> r = meetingService.getRecordings();
-     if (r.isEmpty()) {
-     
-     } else {
-     
-     }
+    String API_CALL = "getRecordings"
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+    
+    ApiErrors errors = new ApiErrors()
+        
+    // Do we have a checksum? If none, complain.
+    if (StringUtils.isEmpty(params.checksum)) {
+      errors.missingParamError("checksum");       
+    }
+
+    // Do we have a meeting id? If none, complain.
+    String externalMeetingId = params.meetingID
+    if (StringUtils.isEmpty(externalMeetingId)) {
+      errors.missingParamError("meetingID");
+    }
+
+    if (errors.hasErrors()) {
+      respondWithErrors(errors)
+      return
+    }
+
+    // Do we agree on the checksum? If not, complain.   
+    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+        errors.checksumError()
+      respondWithErrors(errors)
+      return
+    }
+    
+    // Everything is good so far. Translate the external meeting id to an internal meeting id. If
+    // we can't find the meeting, complain.                 
+    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId);
+            
+    ArrayList<Recording> recs = meetingService.getRecordings(internalMeetingId);
+    if (recs.isEmpty()) {
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {  
+        xml {
+          render(contentType:"text/xml") {
+            response() {
+              returncode(RESP_CODE_SUCCESS)
+              recordings(null)
+              messageKey("noRecordings")
+              message("There are not recordings for meeting [${externalMeetingId}]")
+            }
+          }
+        }
+      }
+      return;
+    }
+    
+    response.addHeader("Cache-Control", "no-cache")
+    withFormat {  
+      xml {
+        render(contentType:"text/xml") {
+          response() {
+            returncode(RESP_CODE_SUCCESS)
+            recordings() {
+              recs.each { r ->
+                recording() {
+                  id(r.getId())
+                  state(r.getState())
+                  published(r.isPublished())
+                  startTime(r.getStartTime())
+                  endTime(r.getEndTime())
+                  playback() {
+                    format(r.getPlaybackFormat())
+                    link(r.getPlaybackLink())
+                  }
+                  meta() {
+                    r.getMetadata().each {m ->
+                      "$m.key"("$m.value")
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   } 
   
   

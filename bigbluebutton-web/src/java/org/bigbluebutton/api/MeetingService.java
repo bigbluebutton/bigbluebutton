@@ -1,10 +1,12 @@
 package org.bigbluebutton.api;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.*;
 import org.bigbluebutton.api.domain.Meeting;
+import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.api.domain.User;
 import org.bigbluebutton.api.messaging.MessageListener;
 import org.bigbluebutton.api.messaging.MessagingService;
@@ -60,17 +62,17 @@ public class MeetingService {
 		}
 	}
 
-	public Meeting getMeeting(String meetingId) {
-		if (StringUtils.isEmpty(meetingId)) {
-			return null;
-		}
-		
+	public Meeting getMeeting(String meetingId) {		
 		for (String key : meetings.keySet()) {
 			if (key.startsWith(meetingId))
 				return (Meeting) meetings.get(key);
 		}
 		
 		return null;
+	}
+
+	public ArrayList<Recording> getRecordings(String meetingId) {		
+		return recordingService.getRecordings(meetingId);
 	}
 	
 	public void processRecording(String meetingId) {
